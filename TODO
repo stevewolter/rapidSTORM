@@ -1,0 +1,6 @@
+- Threads im ImageVector::announce unterscheiden
+- ImageSources Anzahl ihrer Bilder bekannt machen
+- thread-secure the CImgBuffer::ImageSource::setPushTarget function
+- add throw() specifiers to libsimparm
+
+- configure.ac needs to test AC_TYPE_UINT16_T

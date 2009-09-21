@@ -1,0 +1,3 @@
+class ConfigDivider extends ConfigObject
+{
+}
