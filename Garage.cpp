@@ -1,6 +1,6 @@
 #include "Garage.h"
 #include "GarageConfig.h"
-#include <dStorm/Car.h>
+#include <engine/Car.h>
 #include <dStorm/BasicOutputs.h>
 #include <dStorm/FilterSource.h>
 #include <memory>
@@ -9,13 +9,13 @@
 #include <functional>
 #include "foreach.h"
 #include <simparm/IO.hh>
-#include <dStorm/transmissions/LocalizationList.h>
+#include <outputs/LocalizationList.h>
 #include <fstream>
 #include <stdlib.h>
 
 #include <ltdl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include "ModuleInterface.h"
+#include <dStorm/ModuleInterface.h>
 
 using namespace dStorm;
 using namespace CImgBuffer;

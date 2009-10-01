@@ -1,4 +1,26 @@
 bin_PROGRAMS = dstorm watchStorm
+lib_LTLIBRARIES = libdStorm.la
+
+nobase_include_HEADERS = \
+    dStorm/BasicOutputs.h \
+    dStorm/Candidate.h \
+    dStorm/CandidateTree.h \
+    dStorm/CarConfig.h \
+    dStorm/Config.h \
+    dStorm/FileOutputBuilder.h \
+    dStorm/FilterBuilder.h \
+    dStorm/FilterSource.h \
+    dStorm/Image.h \
+    dStorm/Input.h \
+    dStorm/Localization.h \
+    dStorm/ModuleInterface.h \
+    dStorm/OutputBuilder.h \
+    dStorm/OutputFactory.h \
+    dStorm/Output.h \
+    dStorm/OutputSource.h \
+    dStorm/ResultRepeater.h \
+    dStorm/Spot.h
+
 EXTRA_DATA = rapidSTORM.jar
 SOURCES = DStorm.java
 EXTRA_DIST = $(SOURCES) manifest
@@ -10,55 +32,25 @@ CPPFLAGS_BASIC = -D_POSIX_SOURCE -Wall -Wextra \
     -include $(top_srcdir)/debug.h
 LIBRARY_OBJECTS=
 
-LDFLAGS_BASIC += $(LIBDSTORM_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBDSTORM_CPPFLAGS)
-LDADD_BASIC += $(LIBDSTORM_LIBS)
-
-LDFLAGS_BASIC += $(LIBCIMGBUFFER_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBCIMGBUFFER_CPPFLAGS)
-LDADD_BASIC += $(LIBCIMGBUFFER_LIBS)
-
-LDFLAGS_BASIC += $(LIBANDORCAMERA_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBANDORCAMERA_CPPFLAGS)
-LDADD_BASIC += $(LIBANDORCAMERA_LIBS)
-
-LDFLAGS_BASIC += $(LIBSIMPARM_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBSIMPARM_CPPFLAGS)
-LDADD_BASIC += $(LIBSIMPARM_LIBS)
-
-LDFLAGS_BASIC += $(LIBCOMMONCPP_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBCOMMONCPP_CPPFLAGS)
-LDADD_BASIC += $(LIBCOMMONCPP_LIBS)
-
-LDFLAGS_BASIC += $(LIBDATACPP_LDFLAGS)
-CPPFLAGS_BASIC += $(LIBDATACPP_CPPFLAGS)
-LDADD_BASIC += $(LIBDATACPP_LIBS)
-
-LDADD_BASIC += $(LIBCIMG_LIBS)
-
-LDFLAGS_BASIC += $(ANDOR_SDK_LDFLAGS)
-CPPFLAGS_BASIC += $(ANDOR_SDK_CPPFLAGS)
-LDADD_BASIC += $(ANDOR_SDK_LIBS)
-
-LIBRARY_OBJECTS += $(LIBCIMG_OBJECTS)
-LIBRARY_OBJECTS += $(LIBCOMMONCPP_OBJECTS)
-LIBRARY_OBJECTS += $(LIBDATACPP_OBJECTS)
-LIBRARY_OBJECTS += $(LIBSIMPARM_OBJECTS)
-LIBRARY_OBJECTS += $(LIBCIMGBUFFER_OBJECTS)
-LIBRARY_OBJECTS += $(LIBDSTORM_OBJECTS)
-LIBRARY_OBJECTS += $(LIBANDORCAMERA_OBJECTS)
-LIBRARY_OBJECTS += $(ANDOR_SDK_OBJECTS)
-
-AM_CPPFLAGS = $(LIBCIMGBUFFER_CPPFLAGS) $(CPPFLAGS_BASIC)
-AM_LDFLAGS = $(LDFLAGS_BASIC) 
-LDADD = $(LIBRARY_OBJECTS) $(LDADD_BASIC) 
+libdStorm_la_SOURCES = \
+    BasicOutputs.cpp \
+    CandidateTree.cpp \
+    CarConfig.cpp \
+    Config.cpp \
+    dStorm \
+    FilterSource.cpp \
+    foreach.h \
+    Input.cpp \
+    Localization.cpp \
+    OutputSource.cpp
+libdStorm_la_CPPFLAGS = -D_GNU_SOURCE \
+    -include $(top_builddir)/config.h \
+    -include $(top_srcdir)/debug.h \
+    --param inline-unit-growth=1000
+libdStorm_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
 dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h logo.cpp
-dstorm_LDADD = $(LDADD) 
-dstorm_DEPENDENCIES = $(LIBRARY_OBJECTS)
 watchStorm_SOURCES = watchStorm.cpp Garage.cpp logo.cpp
-watchStorm_LDADD = $(LDADD)
-watchStorm_DEPENDENCIES = $(LIBRARY_OBJECTS)
 
 javadir=$(srcdir)
 SIMPARM_DIR=../simparm/twiddler
