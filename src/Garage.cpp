@@ -3,10 +3,6 @@
 #include <dStorm/Car.h>
 #include <dStorm/BasicOutputs.h>
 #include <dStorm/FilterSource.h>
-#ifdef INCLUDE_LOCPREC
-#include <locprec/TransmissionSourceFactory.h>
-#include <locprec/NoiseSource.h>
-#endif
 #include <memory>
 #include "Logo.h"
 #include <algorithm>
@@ -17,33 +13,122 @@
 #include <fstream>
 #include <stdlib.h>
 
+#include <ltdl.h>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include "ModuleInterface.h"
+
 using namespace dStorm;
 using namespace CImgBuffer;
 using namespace std;
 
 char *get_dir_name(char *file) throw();
 
+class LibraryHandle {
+    std::string file;
+    const lt_dlhandle handle;
+
+    rapidSTORM_Input_Augmenter* input;
+    rapidSTORM_Output_Augmenter* output;
+
+    void init() {
+        if ( handle == NULL )
+            throw std::runtime_error( "Unable to open " + string(file) );
+        input
+            = (rapidSTORM_Input_Augmenter*)
+                lt_dlsym( handle, "rapidSTORM_Input_Augmenter" );
+        if ( input == NULL )
+            throw std::runtime_error( "Plugin '" + file + "' contains no "
+                                      "rapidSTORM_Input_Augmenter function. "
+                                      "This function is needed for rapidSTORM "
+                                      "plugins." );
+        output
+            = (rapidSTORM_Output_Augmenter*)
+                lt_dlsym( handle, "rapidSTORM_Output_Augmenter" );
+        if ( output == NULL )
+            throw std::runtime_error( "Plugin '" + file + "' contains no "
+                                      "rapidSTORM_Output_Augmenter function. "
+                                      "This function is needed for rapidSTORM "
+                                      "plugins." );
+    }
+
+  public:
+    LibraryHandle( const char *file )
+        : file(file), handle( lt_dlopenext(file) )
+    { 
+        init();
+    }
+    LibraryHandle( const LibraryHandle& other )
+    : file(other.file), handle( lt_dlopenext( file.c_str() ) )
+    {
+        init();
+    }
+    
+    LibraryHandle *clone() { return new LibraryHandle(*this); }
+
+    ~LibraryHandle() 
+    {
+        lt_dlclose( handle );
+    }
+
+    rapidSTORM_Input_Augmenter* getInputAugmenter() 
+        { return input; }
+    rapidSTORM_Output_Augmenter* getOutputAugmenter() 
+        { return output; }
+};
+
+ModuleHandler::ModuleHandler( TransmissionSourceFactory* provided_tcf )
+{
+    lt_dlinit();
+
+    if ( provided_tcf != NULL ) {
+        tcf = provided_tcf;
+    } else {
+        std::auto_ptr<BasicOutputs> outputs( new BasicOutputs() );
+
+        std::auto_ptr<LibraryHandle> handle
+            ( new LibraryHandle( "liblocprec" ) );
+
+        (*handle->getOutputAugmenter()) ( outputs.get() );
+    }
+}
+
+ModuleHandler::ModuleHandler( const ModuleHandler& o )
+: lib_handles( o.lib_handles),
+  constructed_tcf( (o.constructed_tcf.get()) 
+            ? o.constructed_tcf->clone() : NULL ),
+  tcf( (o.tcf == o.constructed_tcf.get()) ? constructed_tcf.get() 
+                                          : o.tcf )
+{
+lt_dlinit();
+}
+
+ModuleHandler::~ModuleHandler() {
+    lib_handles.clear();
+    lt_dlexit();
+}
+
+void ModuleHandler::add_input_modules
+    ( CImgBuffer::Config& input_config )
+{
+    typedef data_cpp::auto_list<LibraryHandle> List;
+    for ( List::iterator i = lib_handles.begin(); i != lib_handles.end();
+          i++)
+    {
+        (*i->getInputAugmenter()) ( &input_config );
+    }
+}
+
 GarageConfig::GarageConfig(TransmissionSourceFactory* tc) throw()
 : simparm::Set("dSTORM", PACKAGE_STRING),
-  my_tc( (tc != NULL) ? NULL :
-#ifdef INCLUDE_LOCPREC
-    new locprec::Outputs()
-#else
-    new dStorm::BasicOutputs()
-#endif
-  ),
-  carConfig((tc) ? *tc : *my_tc),
+  modules( tc ),
+  carConfig( modules.get_tcf() ),
   externalControl("TwiddlerControl", "Enable stdin/out control interface"),
   showTransmissionTree("ShowTransmissionTree", 
                        "Output tree view of transmissions"),
   run("Run", "Run")
 {
    STATUS("Constructing GarageConfig");
-#ifdef INCLUDE_LOCPREC
-   STATUS("Registering random noise source");
-   carConfig.inputConfig.inputMethod.addChoice(
-        new locprec::NoiseConfig<unsigned short>( carConfig.inputConfig ));
-#endif
+    modules.add_input_modules( carConfig.inputConfig );
 
    PROGRESS("Building externalControl");
    externalControl = false;
@@ -64,6 +149,7 @@ GarageConfig::GarageConfig(const GarageConfig &c) throw()
 : simparm::Node(c), 
   simparm::Set(c),
   simparm::Node::Callback(),
+  modules(c.modules),
   carConfig(c.carConfig),
   externalControl(c.externalControl),
   showTransmissionTree(c.showTransmissionTree),

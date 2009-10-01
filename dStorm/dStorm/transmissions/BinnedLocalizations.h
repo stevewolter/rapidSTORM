@@ -7,42 +7,54 @@
 
 namespace dStorm {
 
-    /** A dummy class implementing all methods necessary for a
-     *  class acting as a listener to \c BinnedLocalizations.
-     *  All methods are empty so that, after inlining, no superfluous
-     *  codeis left in BinnedLocalizations for an empty listener
-     *  slot. */
-    struct DummyBinningListener {
+    /** Public interface necessary for a class listening
+     *  to \c BinnedLocalizations. */
+    class BinningListener {
+      public:
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes.
          *  Its parameters give the width and the height of the target
          *  image, respectively. */
-        void setSize(int, int) {}
+        inline void setSize(int, int) ;
         /** This method is a forward for dStorm::Output method 
          *  announceStormSize. */
-        void announce(const Output::Announcement&) {}
+        inline void announce(const Output::Announcement&) ;
         /** This method is called when processing of an engine result 
          *  starts. */
-        void announce(const Output::EngineResult&) {}
+        inline void announce(const Output::EngineResult&) ;
         /** This method is called once for each localization processed. */
-        void announce(const Localization&) {}
+        inline void announce(const Localization&) ;
         /** Called when a pixel changes in the binned image. The parameters
          *  give the x and y position of the changed pixel and its old and
          *  new value. */
-        void updatePixel(int, int, float, float) {}
+        inline void updatePixel(int, int, float, float) ;
         /** Forwards the call to BinnedLocalizations::clean(), that is,
          *  the listener should clean its state.
          *  The parameter contains a reference to the current image. */
-        void clean(const cimg_library::CImg<float>&) {}
+        inline void clean() ;
         /** Forwards the call to BinnedLocalizations::clear(), that is,
          *  the state should be reset to an empty image. */
+        inline void clear() ;
+    };
+
+    /** A dummy class implementing all methods necessary for a
+     *  BinningListener.
+     *  All methods are empty so that, after inlining, no superfluous
+     *  code is left in BinnedLocalizations for an empty listener
+     *  slot. */
+    struct DummyBinningListener : public BinningListener {
+        void setSize(int, int) {}
+        void announce(const Output::Announcement&) {}
+        void announce(const Output::EngineResult&) {}
+        void announce(const Localization&) {}
+        void updatePixel(int, int, float, float) {}
+        void clean() {}
         void clear() {}
     };
 
     /** The BinningPublisher class stores a pointer to the currently
      *  set listener, if any is provided. The publisher acts as a
-     *  pointer to a class compatible to DummyBinningListener and
-     *  is specialized for a dummy listener. */
+     *  pointer to a class compatible to DummyBinningListener. */
     template <typename Listener>
     struct BinningPublisher
     {
@@ -50,21 +62,11 @@ namespace dStorm {
       public:
         inline void setListener(Listener* target)
             { fwd = target; }
-        inline Listener* operator->() { return fwd; }
-    };
+        inline Listener& binningListener() { return *fwd; }
 
-    /** Specialization for BinnedLocalization objects without
-     *  a listener. No pointer is stored, and all methods are
-     *  empty. */
-    template <>
-    struct BinningPublisher<DummyBinningListener>
-    : public DummyBinningListener
-    {
-      public:
-        inline DummyBinningListener* operator->()
-            { return this; }
-        inline void setListener(DummyBinningListener*)
- { assert( false ); }
+        inline const cimg_library::CImg<float>&
+            get_binned_image();
+        inline float get_binned_pixel(int x, int y);
     };
 
     /** This class accumulates the Localization results of an Engine
@@ -78,7 +80,8 @@ namespace dStorm {
      **/
     template <typename KeepUpdated = DummyBinningListener>
     class BinnedLocalizations 
-        : public dStorm::Output, public simparm::Object
+        : public dStorm::Output, public simparm::Object,
+          public BinningPublisher<KeepUpdated>
     {
       protected:
         /** Mutex protects all methods from the dStorm::Output
@@ -96,8 +99,6 @@ namespace dStorm {
         /** Copy of the announcement made by announceStormSize. 
          *  Used in set_resolution_enhancement. */
         Announcement announcement;
-
-        BinningPublisher<KeepUpdated> keepUpdated;
 
         void set_base_image_size();
 
@@ -137,9 +138,7 @@ namespace dStorm {
         void set_resolution_enhancement(double to) 
 ;
 
-        /** The KeepUpdated \c listener will be noticed of any change
-         *  in this class. Only one listener at any time is allowed. */
-        void setListener(KeepUpdated *listener);
+        ost::Mutex& getMutex() { return mutex; }
     };
 }
 #endif

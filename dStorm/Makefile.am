@@ -30,7 +30,6 @@ libdStorm_la_SOURCES = \
     transmissions/BinnedLocalizations.cpp \
     transmissions/ColourDisplay.cpp \
     transmissions/Crankshaft.cpp \
-    transmissions/HighDepthImage.cpp \
     transmissions/LocalizationFile.cpp \
     transmissions/LocalizationFilter.cpp \
     transmissions/LocalizationList.cpp \
@@ -38,7 +37,8 @@ libdStorm_la_SOURCES = \
     transmissions/ProgressMeter.cpp \
     transmissions/LocalizationCounter.cpp \
     transmissions/Slicer.cpp  \
-    transmissions/RawImageFile.cpp
+    transmissions/RawImageFile.cpp \
+    transmissions/DisplayHandler.cpp
 EXTRA_DIST = spotFinders/Reconstruction.cc
 
 library_includedir = $(includedir)/dStorm
@@ -61,9 +61,6 @@ library_include_HEADERS = dStorm/BasicOutputs.h \
     dStorm/transmissions/BinnedLocalizations.h \
     dStorm/transmissions/BinnedLocalizations_impl.h \
     dStorm/transmissions/Crankshaft.h \
-    dStorm/transmissions/HighDepthImage.h \
-    dStorm/transmissions/HighDepthImage_impl.h \
-    dStorm/transmissions/Histogram.h \
     dStorm/transmissions/LocalizationCounter.h \
     dStorm/transmissions/LocalizationFile.h \
     dStorm/transmissions/LocalizationList.h \
@@ -72,7 +69,8 @@ library_include_HEADERS = dStorm/BasicOutputs.h \
     dStorm/transmissions/Viewer.h \
     dStorm/transmissions/ViewportImage.h \
     dStorm/transmissions/Slicer.h \
-    dStorm/transmissions/RawImageFile.h
+    dStorm/transmissions/RawImageFile.h \
+    dStorm/ModuleInterface.h
 
 libdStorm_la_CPPFLAGS = -D_GNU_SOURCE -Wall -Wextra  \
     -include $(top_builddir)/config.h \

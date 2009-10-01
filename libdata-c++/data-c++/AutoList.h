@@ -15,11 +15,6 @@ class auto_list {
     typedef typename std::list<Type*>::const_iterator 
             base_const_iterator;
 
-    void clear() {
-        for (base_iterator i = base.begin(); i != base.end(); i++)
-        delete *i;
-        base.clear();
-    }
     void copy(const std::list<Type*>& from)
  
     {
@@ -77,6 +72,11 @@ class auto_list {
                 delete p;
                 break;
             }
+    }
+    void clear() {
+        for (base_iterator i = base.begin(); i != base.end(); i++)
+            delete *i;
+        base.clear();
     }
 };
 }

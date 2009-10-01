@@ -14,15 +14,12 @@
 #include <dStorm/FileOutputBuilder.h>
 #include <Eigen/Core>
 
-namespace cimg_library { class CImgDisplay; };
-
 namespace dStorm {
 
 /** The Viewer class collects fits into a BinnedLocalizations
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
 class Viewer : public dStorm::Output, public simparm::Object,
-                public ost::Thread,
                 public simparm::Node::Callback
 {
   private:
@@ -46,8 +43,6 @@ class Viewer : public dStorm::Output, public simparm::Object,
     void propagate_signal(ProgressSignal s);
 
   protected:
-    /** Method that is called for subthread. */
-    void run() throw();
     /** Configuration event received. */
     void operator()(Node&, Cause, Node *);
 
@@ -70,9 +65,6 @@ class Viewer : public dStorm::Output, public simparm::Object,
     unsigned int windowWidth, windowHeight;
     /** The last encountered dimensions for \c viewport. */
     unsigned int lastWW, lastWH;
-
-    /** Displays \c viewport */
-    std::auto_ptr<cimg_library::CImgDisplay> viewport;
 
     /** Should the viewer be run? */
     bool runViewer;

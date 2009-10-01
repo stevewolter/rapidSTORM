@@ -25,15 +25,13 @@ using namespace cimg_library;
 namespace CImgBuffer {
 namespace TIFF {
 
+static char tiff_error_buffer[4096];
+
 template<typename Pixel>
 void Source<Pixel>::TIFF_error_handler(
     const char* module, const char *fmt, va_list ap)
 {
-    char buffer[4096];
-    vsnprintf( buffer, 4096, fmt, ap );
-
-    throw std::logic_error(std::string(module) + ": "
-         + std::string(buffer));
+    vsnprintf( tiff_error_buffer, 4096, fmt, ap );
 }
 
 template<typename Pixel>
@@ -44,6 +42,7 @@ Source<Pixel>::Source(const char *src)
 {
     TIFFSetErrorHandler( TIFF_error_handler );
     tiff = TIFFOpen( src, "r" );
+    if ( tiff == NULL ) throw_error();
 
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
@@ -53,6 +52,12 @@ Source<Pixel>::Source(const char *src)
         _no_images += 1;
 
     TIFFSetDirectory(tiff, 0);
+}
+
+template<typename Pixel>
+void Source<Pixel>::throw_error()
+{
+    throw std::logic_error( tiff_error_buffer );
 }
 
 template<typename Pixel>
@@ -85,7 +90,7 @@ Source<Pixel>::load()
     tstrip_t strip_count = TIFFNumberOfStrips( tiff );
     std::auto_ptr< CImg<Pixel> > img( new CImg<Pixel>(width, height) );
 
-    assert( img.size() >= sizeof(Pixel) * strip_size * strip_count );
+    assert( img->size() >= sizeof(Pixel) * strip_size * strip_count );
 
     for (tstrip_t strip = 0; strip < strip_count; strip++) {
         TIFFReadEncodedStrip( tiff, strip, 

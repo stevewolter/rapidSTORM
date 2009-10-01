@@ -28,9 +28,7 @@ endif
 if BUILD_DSTORM
     DSTORM = dStorm
 endif
-if BUILD_LOCPREC
-    LOCPREC = locprec
-endif
+LOCPREC = locprec
 SUBDIRS = $(COMMONCPP) $(LIBFITPP) $(LIBDATACPP) $(READSIF) $(SIMPARM) \
     $(CAMSIM) AndorCamera $(CIMGBUFFER) $(DSTORM) $(LOCPREC) src test 
 

@@ -104,7 +104,7 @@ namespace dStorm {
         {
             forward->clean();
             if (x0>x1 || y0>y1) return;
-            if ( viewport_moved ) {
+            if ( viewport_moved && buffer.size() > 0 ) {
                 for (int x = x0; x <= x1; x++)
                   for (int y = y0; y <= y1; y++) {
                     assert( x-x0 >= 0 && y-y0 >= 0 && 

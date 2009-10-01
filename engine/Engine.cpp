@@ -43,7 +43,10 @@ class EngineThread : public ost::Thread {
   public:
     EngineThread(Engine &engine, auto_ptr<string> name) 
         : ost::Thread(name->c_str()), engine(engine), nm(name) {}
-    ~EngineThread() { join(); }
+    ~EngineThread() {
+        STATUS("Collecting piston");
+        join(); 
+    }
     void run() throw() {
         try {
             engine.runPiston();
@@ -88,9 +91,6 @@ void Engine::addPiston() {
     STATUS("Spawning new piston");
     new_piston->start();
     pistons.push_back( new_piston );
-}
-
-void Engine::safeRunPiston() {
 }
 
 void Engine::restart() {
@@ -145,7 +145,7 @@ void Engine::run()
         return;
     }
 
-    STATUS("Ready to fork");
+    STATUS("Ready to fork " << numPistons << " computation threads");
 #ifdef DSTORM_MEASURE_TIMES
     cerr << "Warning: Time measurement probes active" << endl;
     numPistons = 1;
@@ -153,7 +153,7 @@ void Engine::run()
     while (true) {
         for (int i = 0; i < numPistons-1; i++)
             addPiston();
-        safeRunPiston();
+        runPiston();
 
         STATUS("Collecting running pistons");
         collectPistons();

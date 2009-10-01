@@ -3,7 +3,10 @@
 
 #include <dStorm/engine/Candidate.h>
 #include <data-c++/MergingTree.h>
-#include <dStorm/engine/CImg_forward.h>
+
+namespace cimg_library {
+    template <typename PixelType> class CImg;
+}
 
 namespace dStorm {
     /** The CandidateTree class represents a sorted tree of

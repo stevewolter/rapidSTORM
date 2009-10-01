@@ -15,11 +15,6 @@ BinnedLocalizations<KeepUpdated>::BinnedLocalizations
     { set_resolution_enhancement(res_enh); }
 
 template <typename KeepUpdated>
-void BinnedLocalizations<KeepUpdated>::
-    setListener(KeepUpdated *listener)
-    { keepUpdated.setListener(listener); }
-
-template <typename KeepUpdated>
 Output::AdditionalData
 BinnedLocalizations<KeepUpdated>
 ::announceStormSize(const Announcement& a)
@@ -28,7 +23,7 @@ BinnedLocalizations<KeepUpdated>
     ost::MutexLock lock(mutex);
     announcement = a;
     set_base_image_size();
-    keepUpdated->announce( a );
+    this->binningListener().announce( a );
     return NoData;
 }
 
@@ -38,7 +33,7 @@ BinnedLocalizations<KeepUpdated>
 ::receiveLocalizations(const EngineResult& er)
 {
     ost::MutexLock lock(mutex);
-    keepUpdated->announce(er);
+    this->binningListener().announce(er);
 
     for (int i = 0; i < er.number; i++) {
         const Localization& l = er.first[i];
@@ -53,7 +48,7 @@ BinnedLocalizations<KeepUpdated>
          * exponent range. */
         float strength = l.getStrength() / 1000;
 
-        keepUpdated->announce( l );
+        this->binningListener().announce( l );
 
         /* This loops iterates over the four linear interpolation
             * terms (1-xf)*(1-yf), ... */
@@ -65,7 +60,7 @@ BinnedLocalizations<KeepUpdated>
                 float old_val = base_image(xp, yp);
 
                 base_image(xp, yp) += val;
-                keepUpdated->updatePixel
+                this->binningListener().updatePixel
                     ( xp, yp, old_val, base_image(xp,yp) );
             }
     }
@@ -74,13 +69,15 @@ BinnedLocalizations<KeepUpdated>
 
 template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>::clean() {
-    keepUpdated->clean(base_image);
+    ost::MutexLock lock(mutex);
+    this->binningListener().clean();
 }
 
 template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>::clear() {
+    ost::MutexLock lock(mutex);
     base_image.fill(0);
-    keepUpdated->clear();
+    this->binningListener().clear();
 }
 
 template <typename KeepUpdated>
@@ -109,7 +106,7 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
         hrh = int(ceil(re*(h-1-2*crop)))+1;
     base_image.resize(hrw,hrh,1,1, /* No init */ -1);
     base_image.fill(0); 
-    keepUpdated->setSize(hrw, hrh);
+    this->binningListener().setSize(hrw, hrh);
 }
 
 };

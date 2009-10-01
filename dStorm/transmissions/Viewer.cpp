@@ -11,23 +11,34 @@
 
 #include <dStorm/transmissions/BinnedLocalizations.h>
 #include <dStorm/transmissions/BinnedLocalizations_impl.h>
-#include <dStorm/transmissions/HighDepthImage.h>
-#include <dStorm/transmissions/HighDepthImage_impl.h>
-#include <dStorm/transmissions/Histogram.h>
-#include <dStorm/transmissions/Histogram_impl.h>
-#include <dStorm/transmissions/ViewportImage.h>
+#include <dStorm/transmissions/ImageDiscretizer.h>
 #include <dStorm/transmissions/ColourDisplay.h>
+#include <dStorm/transmissions/ImageDiscretizer_impl.h>
 #include <dStorm/transmissions/ColourDisplay_impl.h>
 
 #ifndef UINT8_MAX
 #define UINT8_MAX std::numeric_limits<uint8_t>::max()
 #endif
 
+#include "DisplayHandler.h"
+
 using namespace std;
 using namespace cimg_library;
 using namespace ost;
 
 static Mutex *cimg_lock = NULL;
+
+namespace Eigen {
+bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
+{
+    if ( a.x() < b.x() )
+        return true;
+    else if ( a.x() > b.x() )
+        return false;
+    else
+        return a.y() < b.y();
+}
+}
 
 namespace dStorm {
 
@@ -37,105 +48,147 @@ const int waitTime = 10;
 struct Viewer::Implementation
 {
     virtual ~Implementation() {}
-
     virtual dStorm::Output& getForwardOutput() = 0;
-    virtual void setViewport(int x0, int x1, int y0, int y1) = 0;
-    virtual void shift( float x, float y ) = 0;
-    virtual void cleanImage() = 0;
 
-    virtual bool need_redisplay() = 0;
-    virtual const cimg_library::CImg<unsigned char>& get_image()=0;
     virtual std::auto_ptr< cimg_library::CImg<unsigned char> >
         full_size_image() = 0;
+    virtual void wait_for_completion() = 0;
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;
 
-    virtual int getFullWidth() = 0;
-    virtual int getFullHeight() = 0;
-    virtual int getViewportWidth() = 0;
-    virtual int getViewportHeight() = 0;
-    virtual int leftBorder() = 0;
-    virtual int topBorder() = 0;
 };
 
 template <int Hueing>
 class ColourDependantImplementation 
-: public Viewer::Implementation 
+: public Viewer::Implementation,
+  public DisplayHandler::ViewportHandler
 {
-    typedef ColouredImage<Hueing> Image;
-    typedef ViewportImage<DummyDiscretizationListener, Image> Viewport;
-    typedef NormalizedHistogram<DummyDiscretizationListener, Viewport>
-            Histogram;
-    typedef HighDepthImage<Image, Histogram> Discretization;
-    typedef BinnedLocalizations<Discretization> Accumulator;
+    class ColouredImageAdapter;
+    typedef HueingColorizer<Hueing> MyColorizer;
+    typedef DiscretizedImage::ImageDiscretizer< 
+        MyColorizer, ColouredImageAdapter>
+        Discretizer;
+    typedef BinnedLocalizations<Discretizer> Accumulator;
+
+    class ColouredImageAdapter 
+        : public DiscretizedImage::Listener 
+    {
+        Discretizer& discretizer;
+        typedef std::set< Eigen::Vector2i > PixelSet;
+        PixelSet ps;
+        std::auto_ptr<DisplayHandler::ImageHandle>
+            image_handle;
+
+      public:
+        ColouredImageAdapter( Discretizer& disc)
+            : discretizer(disc)
+            {}
+        ~ColouredImageAdapter() {
+            if ( image_handle.get() != NULL )
+                close_window();
+        }
+        void setSize(int width, int height) { 
+            if ( image_handle.get() ) {
+                image_handle->setSize(width, height);
+                clear();
+            }
+        }
+        void pixelChanged(int x, int y) {
+            ps.insert( Eigen::Vector2i(x,y) );
+        }
+        void clean() {
+            if ( image_handle.get() == NULL ) return;
+            for ( PixelSet::const_iterator i = ps.begin(); 
+                  i != ps.end(); i++ )
+            {
+                int x = i->x(), y = i->y();
+                Colorizer::Pixel p = 
+                    discretizer.get_pixel( x, y );
+                    
+                image_handle->drawPixel( x, y, p.r, p.g, p.b );
+            }
+            ps.clear();
+        }
+        void clear() {
+            if ( image_handle.get() == NULL ) return;
+            Colorizer::Pixel p = discretizer.get_background();
+            if ( image_handle.get() != NULL )
+                image_handle->clear( p.r, p.g, p.b );
+        }
+
+        void set_image_handle(
+            std::auto_ptr<DisplayHandler::ImageHandle> handle)
+        {
+            image_handle = handle;
+            clear();
+        }
+        void close_window() {
+            if ( image_handle.get() != NULL ) {
+                DisplayHandler::getSingleton()
+                    .returnImageWindow( image_handle, true );
+            }
+        }
+        void detach_window() {
+            if ( image_handle.get() != NULL ) {
+                DisplayHandler::getSingleton()
+                    .returnImageWindow( image_handle, false );
+            }
+        }
+        std::auto_ptr<DisplayHandler::ImageHandle> release_window() {
+            return image_handle;
+        }
+                
+    };
+
+    void clean() {
+        image.clean(); 
+    }
 
     /** Binned image with all localizations in localizationsStore.*/
     Accumulator image;
+    MyColorizer colorizer;
     /** Discretized version of \c image. */
-    Discretization discretization;
-    /** Histogram and histogram-normalized transition function. */
-    Histogram histogram;
-    /** Viewport to histogram-equalized version of \c image */
-    Viewport viewport;
-    /** Colorized image displaying the brightness of \c result with
-     *  colours choosen by hueing strategy. */
-    Image result;
+    Discretizer discretization;
+    ColouredImageAdapter cia;
 
   public:
     ColourDependantImplementation(const Viewer::Config& config)
-        : image( config.res_enh(), 1 ),
-          discretization( 4096, 1 ),
-          histogram( 4096, Image::DesiredDepth ),
-          viewport(),
-          result(config)
+        : /* Careful: Forward reference. This code works because (a) getMutex() is not virtual and (b) we simply need a reference. */
+          DisplayHandler::ViewportHandler( image.getMutex() ),
+          image( config.res_enh(), 1 ),
+          colorizer(config),
+          discretization( 4096, 1, 
+                config.histogramPower(), image(),
+                colorizer),
+          cia( discretization )
     {
-        /* Initialize the update chain. For a normal update, the
-        * Viewer will delegate the upkeep of \c result to \c discretization
-        * and of \c discretization to \c image. */
         image.setListener(&discretization);
-        discretization.setListener(&result);
-        discretization.setListener(&histogram);
-        histogram.setNormalizedListener(&viewport);
-        viewport.setViewportListener(&result);
+        discretization.setListener(&cia);
 
-        histogram.setHistogramPower(config.histogramPower());
+        if ( config.showOutput() )
+            cia.set_image_handle(  
+                DisplayHandler::getSingleton()
+                .makeImageWindow(config.getDesc(), *this));
     }
 
-    ~ColourDependantImplementation() { }
+    ~ColourDependantImplementation() {}
 
     dStorm::Output& getForwardOutput() { return image; }
-    virtual void setViewport(int x0, int x1, int y0, int y1) 
-        { viewport.setViewport(x0, x1, y0, y1); }
-    virtual void shift( float x, float y ) 
-        { viewport.shift( x, y); }
-
-    virtual bool need_redisplay() 
-        { return result.need_redisplay(); }
-    virtual const cimg_library::CImg<unsigned char>& get_image()
-        { return result.get_image(); }
     virtual std::auto_ptr< cimg_library::CImg<unsigned char> >
         full_size_image() 
     { 
         image.clean();
-        return result.colour( viewport.full_size_image() );
-    }
-
-    void cleanImage() { 
-        image.clean(); 
+        return discretization.full_image();
     }
 
     virtual void set_histogram_power(float power) 
-        { histogram.setHistogramPower( power ); }
+        { discretization.setHistogramPower( power ); }
     virtual void set_resolution_enhancement(float re) 
         { image.set_resolution_enhancement( re ); }
-
-    virtual int getFullWidth() { return image.width(); }
-    virtual int getFullHeight() { return image.height(); }
-    virtual int getViewportWidth() { return viewport.width(); }
-    virtual int getViewportHeight() { return viewport.height(); }
-    virtual int leftBorder() { return viewport.leftBorder(); }
-    virtual int topBorder() { return viewport.topBorder(); }
+    virtual std::auto_ptr<DisplayHandler::ImageHandle>
+        detach_from_window() { return cia.release_window(); }
+    virtual void wait_for_completion() { cia.detach_window(); }
 };
 
 Viewer::_Config::_Config()
@@ -252,7 +305,6 @@ static Viewer::Implementation* make_binned_locs(
 
 Viewer::Viewer(const Viewer::Config& config)
 : Object("Display", "Display status"),
-  ost::Thread("Display"),
   implementation( 
     make_binned_locs< ColourSchemes::LastColourModel >( config ) ),
   forwardOutput( implementation->getForwardOutput() ),
@@ -302,11 +354,11 @@ Viewer::Viewer(const Viewer::Config& config)
     receive_changes_from( resolutionEnhancement.value );
 
     if (config.showOutput() ) {
+#if 0
         string name = config.getDesc();
         int initial_width = 4*CImgDisplay::screen_dimx()/5,
             initial_height = 4*CImgDisplay::screen_dimy()/5;
-        viewport.reset(new CImgDisplay(
-            initial_width, initial_height, name.c_str(), 0));
+#endif
     }
 }
 
@@ -330,27 +382,6 @@ Viewer::announceStormSize(const Announcement &a) {
     MutexLock lock(structureMutex);
     data = AdditionalData(data | forwardOutput.announceStormSize(a));
 
-    /** Set defaults for the viewport size */
-    if (viewport.get()) {
-        int cww = std::min<int>(viewport->window_width, 
-                           4*CImgDisplay::screen_dimx()/5);
-        int cwh = std::min<int>(viewport->window_height, 
-                           4*CImgDisplay::screen_dimy()/5);
-        int imw = implementation->getFullWidth(),
-            imh = implementation->getFullHeight();
-
-        int zoom_out = max(1, 
-            max<int>( ceil(imw / cww), ceil( imh / cwh )));
-        implementation->setViewport( 0, imw/zoom_out, 0, imh/zoom_out );
-        zoom = - (zoom_out - 1);
-    } else {
-        implementation->setViewport( 0, 1, 0, 1 );
-    }
-    if ( runViewer ) {
-        runningViewer = true;
-        start();
-    }
-
     return data;
 }
 
@@ -367,106 +398,9 @@ void Viewer::propagate_signal(ProgressSignal s) {
     } else if ( s == Prepare_destruction ) {
         terminateViewer = close_display_immediately 
                           || simparm::Node::isActive();
-        join();
+        if ( ! terminateViewer )
+            implementation->wait_for_completion();
     }
-}
-
-void Viewer::run() throw() {
-  try {
-    /* This method is run in the event handling and displaying subthread. */
-    PROGRESS("Starting display");
-    /* Don't need quit push_back( quit ); */
-
-    int cycles = 0;
-    while ( !terminateViewer && ! viewport->is_closed ) {
-        bool gotEvent = true;
-        if ( (viewport->window_width/zi != windowWidth/zi &&
-              lastWW != viewport->window_width) || 
-             (viewport->window_height/zi != windowHeight/zi &&
-              lastWH != viewport->window_height) ) 
-        {
-            /* Change in the viewport or the zoom level */
-            needsResizing = resizeViewportToWindow();
-        } else if (viewport->is_key(cimg::keyARROWRIGHT, true)) {
-            MutexLock structureLock(structureMutex);
-            PROGRESS("Shifting viewport right");
-            implementation->shift( 0.5, 0);
-        } else if (viewport->is_key(cimg::keyARROWLEFT, true)) {
-            MutexLock structureLock(structureMutex);
-            PROGRESS("Shifting viewport left");
-            implementation->shift(-0.5, 0);
-        } else if (viewport->is_key(cimg::keyARROWDOWN, true)) {
-            MutexLock structureLock(structureMutex);
-            PROGRESS("Shifting viewport down");
-            implementation->shift(0,  0.5);
-        } else if (viewport->is_key(cimg::keyARROWUP, true)) {
-            MutexLock structureLock(structureMutex);
-            PROGRESS("Shifting viewport up");
-            implementation->shift(0, -0.5);
-        } else if (viewport->is_key(cimg::keyI, true)) {
-            /* Zoom-in action */
-            zoom = zoom()+1;
-            int zL = zoom();
-            zi = zo = 1;
-            if (zL > 0) zi = 1+zL; else zo = 1-zL;
-            needsResizing = resizeViewportToWindow();
-        } else if (viewport->is_key(cimg::keyO, true)) {
-            /* Zoom-out action */
-            zoom = zoom()-1;
-            int zL = zoom();
-            zi = zo = 1;
-            if (zL > 0) zi = 1+zL; else zo = 1-zL;
-            needsResizing = resizeViewportToWindow();
-        } else if (viewport->is_key(cimg::keyQ, true)) {
-            PROGRESS("Closing viewport");
-            MutexLock lock(*cimg_lock);
-            viewport->close();
-        } else {
-            PROGRESS("Waiting for event");
-            MutexLock lock(*cimg_lock);
-            cimg::wait(waitTime);
-            cycles++;
-            gotEvent = false;
-        }
-        lastWW = viewport->window_width;
-        lastWH = viewport->window_height;
-
-        if ( gotEvent || cycles % cyclelength == 0 ) {
-            MutexLock structureLock(structureMutex);
-            implementation->cleanImage();
-
-            if (windowWidth != viewport->width ||
-                windowHeight != viewport->height) 
-            {
-                LOCKING("Acquiring cimg_lock");
-                MutexLock lock(*cimg_lock);
-                PROGRESS("Resizing result");
-                viewport->resize(windowWidth, windowHeight, false);
-                PROGRESS("Resized result");
-            } 
-            if (gotEvent || implementation->need_redisplay()) {
-                LOCKING("Acquiring cimg_lock");
-                MutexLock lock(*cimg_lock);
-                PROGRESS("Redisplaying image");
-                const CImg<unsigned char>& c = implementation->get_image();
-                PROGRESS("Sending image " << c.width << " " << c.height 
-                            << " to display");
-                viewport->display(c);
-                PROGRESS("Displayed image");
-            }
-        }
-    }
-
-    viewport->close();
-    erase( quit );
-  } catch (const std::exception& e) {
-    std::cerr << "Error in concurrent image display: "
-              << e.what() << endl;
-  } catch (...) {
-    std::cerr << "Unknown error in concurrent image display. "
-              << endl;
-  }
-  runningViewer = false;
 }
 
 void Viewer::operator()(Node& src, Node::Callback::Cause cause,
@@ -491,14 +425,7 @@ void Viewer::operator()(Node& src, Node::Callback::Cause cause,
         /* Change resolution enhancement in viewer */
         implementation->
             set_resolution_enhancement( resolutionEnhancement() );
-    } else if (&src == &zoom.value) {
-        /* Change zoom level */
-        int zL = zoom();
-        zi = zo = 1;
-        if (zL > 0) zi = 1+zL; else zo = 1-zL;
-        if (viewport.get())
-            needsResizing = resizeViewportToWindow();
-    }
+    } 
 }
 
 void Viewer::writeToFile(const string &name) {
@@ -522,8 +449,8 @@ void Viewer::writeToFile(const string &name) {
         normIm = implementation->full_size_image();
 
     try {
-        //cimg::exception_mode() = 0U;
         /* Do not show CImg errors in windows. */
+        cimg::exception_mode() = 0U;
         normIm->save_magick(filename);
     } catch (const cimg_library::CImgException& e) {
         cerr << "Unable to save image: " << e.message << endl;
@@ -533,42 +460,6 @@ void Viewer::writeToFile(const string &name) {
          * in this case. */
         normIm.release();
     }
-}
-
-bool Viewer::resizeViewportToWindow() {
-    MutexLock structureLock(structureMutex);
-    if ( viewport->window_width == 0 || viewport->window_height == 0 )
-        return false;
-
-    PROGRESS("Resizing viewport to window size");
-
-    /* The desired viewport width and height */
-    int vw = min<int>(implementation->getFullWidth(),
-                      zo*viewport->window_width/zi),
-        vh = min<int>(implementation->getFullHeight(),
-                      zo*viewport->window_height/zi);
-
-    /* Difference to current window */
-    int dw = implementation->getViewportWidth()-vw,
-        dh = implementation->getViewportHeight()-vh;
-
-    /* Both result in a shift */
-    int dx = dw/2, dy = dh/2;
-
-    /* Try to align the centers of new and old viewports, but
-     * move if too close to border. */
-    int x0 = implementation->leftBorder()+dx, 
-        y0 = implementation->topBorder()+dy;
-    x0 = max(0, min(x0, implementation->getFullWidth()-vw));
-    y0 = max(0, min(y0, implementation->getFullHeight()-vh));
-    int rw = min(implementation->getFullWidth(), vw),
-        rh = min(implementation->getFullHeight(), vh);
-
-    implementation->setViewport(x0, x0+rw-1, y0, y0+rh-1);
-    windowWidth = zi*implementation->getViewportWidth()/zo;
-    windowHeight = zi*implementation->getViewportHeight()/zo;
-    PROGRESS("New viewport is " << x0 << "-" << x0+rw-1 << " " << y0 << "-" << y0+rh-1);
-    return (vw != rw || vh != rh);
 }
 
 }

@@ -40,6 +40,8 @@ namespace CImgBuffer {
 
          Object& getConfig() { return *this; }
 
+         void throw_error();
+
       private:
         ::TIFF *tiff;
 

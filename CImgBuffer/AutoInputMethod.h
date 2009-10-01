@@ -38,7 +38,9 @@ namespace CImgBuffer {
                 if ( ! i->may_be_autoloaded() ) continue;
                 try {
                     rv = i->makeSource();
-                } catch (const std::exception& c) {
+                } catch (const std::exception&) {
+                    /* The exception means the source is unable to read
+                     * that file type. */
                 }
                 if (rv.get() != NULL) { 
                     master.inputMethod.setValue( *i );

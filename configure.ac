@@ -7,8 +7,10 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/dstorm.cpp])
 AC_CONFIG_HEADER([config.h])
 
+# LT_INIT([win32-dll])
+
 # Allow DLLs for Windows programs
-# AC_ ## LIBTOOL_WIN32_DLL
+AC_LIBTOOL_WIN32_DLL
 
 # Checks for programs.
 AC_PROG_CXX
@@ -16,6 +18,29 @@ AC_PROG_CC
 AC_PROG_JAVAC
 AC_PROG_JAR
 AC_PROG_LIBTOOL
+
+# Test whether C/C++ compilers are mingw32's.
+if "$CC" --version 2>/dev/null | grep mingw32; then
+    MINGW32_CC="true"
+else
+    MINGW32_CC="false"
+fi
+if "$CXX" --version 2>/dev/null | grep mingw32; then
+    MINGW32_CXX="true"
+else
+    MINGW32_CXX="false"
+fi
+    
+# Mingw32 needs -mthreads for correct multi-threading behaviour
+# and -shared-libgcc for correct cross-DLL exception handling
+if test "x$MINGW32_CC" = "xtrue"; then
+    CC="$CC -shared-libgcc"
+    CFLAGS="$CFLAGS -mthreads"
+fi
+if test "x$MINGW32_CXX" = "xtrue"; then
+    CXX="$CXX -shared-libgcc"
+    CXXFLAGS="$CXXFLAGS -mthreads"
+fi
 
 # Enable doxygen support
 AX_PROG_DOXYGEN
@@ -29,6 +54,25 @@ AC_CHECK_LIB([pthread], [pthread_create], , [AC_MSG_ERROR(POSIX thread library n
 AC_CHECK_LIB([Magick++], [InitializeMagick])
 AC_LANG_CPLUSPLUS
 # AC_CHECK_LIB([simparm], [main])
+AM_OPTIONS_WXCONFIG
+reqwx=2.4.0
+AM_PATH_WXCONFIG($reqwx, wxWin=1)
+if test "$wxWin" != 1; then
+    AC_MSG_ERROR([
+      wxWidgets must be installed on your system.
+
+      Please check that wx-config is in path, the directory
+      where wxWidgets libraries are installed (returned by
+      'wx-config --libs' or 'wx-config --static --libs' command)
+      is in LD_LIBRARY_PATH or equivalent variable and
+      wxWidgets version is $reqwx or above.
+    ])
+fi
+ 
+CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
+CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
+CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
+LIBS="$LIBS $WX_LIBS"
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -266,44 +310,6 @@ AC_SUBST(LIBDSTORM_LIBS)
 AC_SUBST(LIBDSTORM_OBJECTS)
 AM_CONDITIONAL(BUILD_DSTORM, [test x$build_dStorm = xtrue])
 
-# locprec library
-
-AC_ARG_ENABLE(locprec-use, 
-    [AS_HELP_STRING([--enable-locprec-use],
-        [enable use of locprec library])],
-    [use_locprec=true],
-    [use_locprec=false])
-
-AC_ARG_WITH([external-locprec], 
-    [AS_HELP_STRING([--with-external-locprec],
-        [use external locprec library])],
-    [],
-    [build_locprec=true])
-
-if test "x$use_locprec" = "xtrue"; then
-    LIBLOCPREC_CPPFLAGS=-DINCLUDE_LOCPREC
-    if test "x$build_locprec" = "xtrue"; then
-        LIBLOCPREC_CPPFLAGS+=' -I$(top_srcdir)/locprec'
-        LIBLOCPREC_OBJECTS='$(top_builddir)/locprec/liblocprec.la'
-    else
-        LIBLOCPREC_LIBS=-llocprec
-    fi
-else
-    LIBLOCPREC_CPPFLAGS=
-    LIBLOCPREC_LIBS=
-fi
-if test "x$build_locprec" = "xtrue"; then
-    AC_CHECK_LIB([gslcblas], [cblas_dsdot])
-    AC_CHECK_LIB([gsl], [gsl_multifit_fdfsolver_set], , [AC_MSG_ERROR(GNU Scientific Library not found)])
-fi
-
-AC_SUBST(LIBLOCPREC_CPPFLAGS)
-AC_SUBST(LIBLOCPREC_LDFLAGS)
-AC_SUBST(LIBLOCPREC_LIBS)
-AC_SUBST(LIBLOCPREC_OBJECTS)
-AM_CONDITIONAL(USE_LOCPREC, [test x$use_locprec = xtrue])
-AM_CONDITIONAL(BUILD_LOCPREC, [test x$use_locprec = xtrue -a x$build_locprec = xtrue])
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_CONST
@@ -346,12 +352,17 @@ fi
 if test "x$build_dStorm" = "xtrue"; then 
     AC_CONFIG_FILES([dStorm/Makefile])
 fi
-if test "x$build_locprec" = "xtrue"; then 
-    AC_CONFIG_FILES([locprec/Makefile])
-fi
 if test "x$build_camsim" = "xtrue"; then 
     AC_CONFIG_FILES([DummyCamera/Makefile])
 fi
+AC_CONFIG_SUBDIRS([locprec])
 AC_CONFIG_FILES([src/manifest])
 
 AC_OUTPUT
+
+# Modify libtool to use -lstdc++_s instead of -lstdc++ for Mingw32.
+# This is necessary for correct handling of cross-DLL exceptions.
+if test "x$MINGW32_CXX" = "xtrue"; then
+    sed -e 's/-lstdc++ /-lstdc++_s /' libtool > libtool.tmp
+    mv libtool.tmp libtool
+fi

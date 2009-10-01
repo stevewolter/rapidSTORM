@@ -1,11 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* */
-#undef D3_INTERNAL_VERSION
-
-/* Will be set to 1 when the Andor SDK is present */
-#undef HAVE_ANDOR_CAMERA
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -17,12 +11,6 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `Magick++' library (-lMagick++). */
-#undef HAVE_LIBMAGICK__
-
-/* Define to 1 if you have the `pthread' library (-lpthread). */
-#undef HAVE_LIBPTHREAD
 
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC
@@ -56,9 +44,6 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
-
-/* Define to 1 if you have the <tiffio.h> header file. */
-#undef HAVE_TIFFIO_H
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H

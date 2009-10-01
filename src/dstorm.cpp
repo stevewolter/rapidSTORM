@@ -19,6 +19,8 @@ void sigsegv(int) {
 }
 #endif
 
+extern void foo();
+
 int main(int argc, char *argv[]) {
 #ifdef HAVE_LIBMAGICK__
     Magick::InitializeMagick(argv[0]);

@@ -9,29 +9,6 @@
 #include <dStorm/transmissions/HighDepthImage.h>
 
 namespace dStorm {
-    struct HistogramPixel { 
-        /** Pixel position in image */
-        int x, y;
-        /** Linked list with pixels of same value. */
-        HistogramPixel *prev, *next; 
-
-        HistogramPixel() { clear(); }
-        void push_back(HistogramPixel& node) {
-            node.prev->next = node.next;
-            node.next->prev = node.prev;
-            node.prev = prev;
-            node.next = this;
-            prev->next = &node;
-            prev = &node;
-        }
-        void clear() { prev = next = this; }
-    };
-}
-
-namespace data_cpp {
-template <>
-class Traits<dStorm::HistogramPixel>
-    : public Traits<int> {};
 }
 
 namespace dStorm {
