@@ -1,6 +1,6 @@
 #include "GarageConfig.h"
 #include <CImgBuffer/ImageTraits.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 #include <foreach.h>
 #include <fstream>
 #include <CImgBuffer/Buffer.h>

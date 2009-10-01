@@ -143,10 +143,6 @@ AH_TEMPLATE([D3_INTERNAL_VERSION], [])
 AC_ARG_ENABLE([D3-internal],
     [AS_HELP_STRING([--D3-internal])],
     [AC_DEFINE(D3_INTERNAL_VERSION)], [])
-AC_ARG_ENABLE([all-static-build],
-    [AS_HELP_STRING([--enable-all-static-build])],
-    [build_all_static=true], [])
-AM_CONDITIONAL(BUILD_STATIC_PROGRAMS, [test "x$build_all_static" = xtrue])
 
 LIBREADSIF_CPPFLAGS=
 LIBREADSIF_LDFLAGS=

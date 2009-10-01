@@ -1,3 +1,0 @@
-class ConfigDivider extends ConfigObject
-{
-}
