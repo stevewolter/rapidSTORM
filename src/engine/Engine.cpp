@@ -12,10 +12,10 @@
 #include "engine/SigmaGuesser.h"
 #include "engine/SpotFinder.h"
 #include "engine/SpotFitter.h"
-#include "engine/Image.h"
-#include "engine/Config.h"
-#include "engine/Input.h"
-#include "transmissions/Crankshaft.h"
+#include <dStorm/Image.h>
+#include <dStorm/Config.h>
+#include <dStorm/Input.h>
+#include <dStorm/Crankshaft.h>
 #include <sstream>
 #include "engine/EngineDebug.h"
 #include <CImgBuffer/Slot.h>

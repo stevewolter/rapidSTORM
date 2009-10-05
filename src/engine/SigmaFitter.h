@@ -3,9 +3,9 @@
 
 #include <memory>
 #include <fit++/Exponential2D.hh>
-#include "engine/Image.h"
-#include "engine/Config.h"
-#include "engine/Localization.h"
+#include <dStorm/Image.h>
+#include <dStorm/Config.h>
+#include <dStorm/Localization.h>
 
 namespace dStorm {
 class SigmaFitter {

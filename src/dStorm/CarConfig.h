@@ -27,6 +27,7 @@ namespace dStorm {
         CarConfig(OutputFactory& tc_factory);
         CarConfig(const CarConfig &c);
         ~CarConfig();
+        CarConfig *clone() const { return new CarConfig(*this); }
 
         CImgBuffer::Config& inputConfig;
         dStorm::Config& engineConfig;

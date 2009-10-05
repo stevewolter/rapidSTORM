@@ -2,7 +2,7 @@
 #define DSTORM_HIGHRESOLUTION_H
 
 #include <dStorm/Output.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 #include <CImg.h>
 #include <data-c++/Vector.h>
 #include <cassert>

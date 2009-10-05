@@ -9,10 +9,10 @@
 #include <sstream>
 
 #include <CImg.h>
-#include "engine/LocalizationFileReader.h"
+#include "LocalizationFileReader.h"
 #include <CImgBuffer/AndorSIF.h>
 #include <CImgBuffer/TIFF.h>
-#ifdef HAVE_ANDOR_CAMERA
+#ifdef HAVE_LIBATMCD32D
 #include <CImgBuffer/AndorDirect.h>
 #endif
 
@@ -52,11 +52,13 @@ CarConfig::CarConfig( OutputFactory& tc_factory )
    configTarget.setUserLevel(Entry::Intermediate);
     inputConfig.inputMethod.addChoice( 
         new LocalizationFileReader::Config( inputConfig ) );
+#ifdef HAVE_LIBREADSIF
     inputConfig.inputMethod.addChoice( 
         new CImgBuffer::AndorSIF::Config<StormPixel>( inputConfig ) );
+#endif
     inputConfig.inputMethod.addChoice( 
         new CImgBuffer::TIFF::Config<StormPixel>( inputConfig ) );
-#ifdef HAVE_ANDOR_CAMERA
+#ifdef HAVE_LIBATMCD32D
     inputConfig.inputMethod.addChoice( 
         new CImgBuffer::AndorDirect::Config( inputConfig ) );
 #endif

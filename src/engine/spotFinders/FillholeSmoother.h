@@ -2,9 +2,9 @@
 #define DSTORM_FILLHOLESMOOTHING_H
 
 #include <data-c++/Vector.h>
-#include "engine/Image.h"
-#include "engine/SpotFinder.h"
-#include "engine/Config.h"
+#include <dStorm/Image.h>
+#include "SpotFinder.h"
+#include <dStorm/Config.h>
 
 namespace cimg_library {
     template <typename Pixel> class CImg;

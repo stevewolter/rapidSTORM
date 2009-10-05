@@ -1,56 +1,29 @@
-bin_PROGRAMS = dstorm watchStorm
-lib_LTLIBRARIES = libdStorm.la
+SUBDIRS = cc++ fit++ data-c++ AndorCamera CImgBuffer dStorm engine outputs
 
-nobase_include_HEADERS = \
-    dStorm/BasicOutputs.h \
-    dStorm/Candidate.h \
-    dStorm/CandidateTree.h \
-    dStorm/CarConfig.h \
-    dStorm/Config.h \
-    dStorm/FileOutputBuilder.h \
-    dStorm/FilterBuilder.h \
-    dStorm/FilterSource.h \
-    dStorm/Image.h \
-    dStorm/Input.h \
-    dStorm/Localization.h \
-    dStorm/ModuleInterface.h \
-    dStorm/OutputBuilder.h \
-    dStorm/OutputFactory.h \
-    dStorm/Output.h \
-    dStorm/OutputSource.h \
-    dStorm/ResultRepeater.h \
-    dStorm/Spot.h
+lib_LTLIBRARIES = libdStorm.la
+bin_PROGRAMS = dstorm watchStorm
 
 EXTRA_DATA = rapidSTORM.jar
 SOURCES = DStorm.java
 EXTRA_DIST = $(SOURCES) manifest
 
-LDADD_BASIC =
-LDFLAGS_BASIC = 
-CPPFLAGS_BASIC = -D_POSIX_SOURCE -Wall -Wextra \
+AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     -include $(top_srcdir)/debug.h
-LIBRARY_OBJECTS=
 
-libdStorm_la_SOURCES = \
-    BasicOutputs.cpp \
-    CandidateTree.cpp \
-    CarConfig.cpp \
-    Config.cpp \
-    dStorm \
-    FilterSource.cpp \
-    foreach.h \
-    Input.cpp \
-    Localization.cpp \
-    OutputSource.cpp
-libdStorm_la_CPPFLAGS = -D_GNU_SOURCE \
-    -include $(top_builddir)/config.h \
-    -include $(top_srcdir)/debug.h \
-    --param inline-unit-growth=1000
-libdStorm_la_LDFLAGS = -no-undefined -version-info 1:0:0
+libdStorm_la_SOURCES = 
+nodist_EXTRA_libdStorm_la_SOURCES = dummy.cpp
+libdStorm_la_LIBADD = outputs/libfreeoutputs.la dStorm/libdStorm.la \
+    CImgBuffer/libCImgBuffer.la AndorCamera/libAndorCamera.la \
+    cc++/libccgnu2_fixed.la -lltdl 
+libdStorm_la_LDFLAGS = -no-undefined -version-info 1:0:0 
 
-dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h logo.cpp
+COMMON_LIBS = outputs/libclosedoutputs.la engine/libengine.la libdStorm.la
+dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h logo.cpp 
+dstorm_LDADD = $(COMMON_LIBS)
+    
 watchStorm_SOURCES = watchStorm.cpp Garage.cpp logo.cpp
+watchStorm_LDADD = $(COMMON_LIBS)
 
 javadir=$(srcdir)
 SIMPARM_DIR=../simparm/twiddler

@@ -4,7 +4,7 @@
  *  For documentation, see cc++/thread.h
  **/
 #define OST_EXITBLOCK_CPP
-#include "cc++/thread.h"
+#include "thread.h"
 
 #include <stdlib.h>
 #include <iostream>

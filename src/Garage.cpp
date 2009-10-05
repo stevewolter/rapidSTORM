@@ -7,7 +7,6 @@
 #include "Logo.h"
 #include <algorithm>
 #include <functional>
-#include "foreach.h"
 #include <simparm/IO.hh>
 #include <outputs/LocalizationList.h>
 #include <fstream>
@@ -16,6 +15,8 @@
 #include <ltdl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/ModuleInterface.h>
+
+#include "outputs/BasicTransmissions.h"
 
 using namespace dStorm;
 using namespace CImgBuffer;
@@ -27,14 +28,14 @@ class LibraryHandle {
     std::string file;
     const lt_dlhandle handle;
 
-    rapidSTORM_Input_Augmenter* input;
-    rapidSTORM_Output_Augmenter* output;
+    RapidSTORM_Input_Augmenter input;
+    RapidSTORM_Output_Augmenter output;
 
     void init() {
         if ( handle == NULL )
             throw std::runtime_error( "Unable to open " + string(file) );
         input
-            = (rapidSTORM_Input_Augmenter*)
+            = (RapidSTORM_Input_Augmenter)
                 lt_dlsym( handle, "rapidSTORM_Input_Augmenter" );
         if ( input == NULL )
             throw std::runtime_error( "Plugin '" + file + "' contains no "
@@ -42,7 +43,7 @@ class LibraryHandle {
                                       "This function is needed for rapidSTORM "
                                       "plugins." );
         output
-            = (rapidSTORM_Output_Augmenter*)
+            = (RapidSTORM_Output_Augmenter)
                 lt_dlsym( handle, "rapidSTORM_Output_Augmenter" );
         if ( output == NULL )
             throw std::runtime_error( "Plugin '" + file + "' contains no "
@@ -58,7 +59,8 @@ class LibraryHandle {
         init();
     }
     LibraryHandle( const LibraryHandle& other )
-    : file(other.file), handle( lt_dlopenext( file.c_str() ) )
+    : file(other.file), handle( lt_dlopenext( file.c_str() ) ),
+      input(other.input), output(other.output)
     {
         init();
     }
@@ -67,39 +69,47 @@ class LibraryHandle {
 
     ~LibraryHandle() 
     {
-        lt_dlclose( handle );
+        if ( handle != NULL )
+            lt_dlclose( handle );
     }
 
-    rapidSTORM_Input_Augmenter* getInputAugmenter() 
+    RapidSTORM_Input_Augmenter getInputAugmenter() 
         { return input; }
-    rapidSTORM_Output_Augmenter* getOutputAugmenter() 
+    RapidSTORM_Output_Augmenter getOutputAugmenter() 
         { return output; }
+
+    void operator()( CImgBuffer::Config* inputs ) {
+        (*input)( inputs );
+    }
+    void operator()( dStorm::BasicOutputs* outputs ) {
+        (*output)( outputs );
+    }
 };
 
-ModuleHandler::ModuleHandler( TransmissionSourceFactory* provided_tcf )
-{
-    lt_dlinit();
-
-    if ( provided_tcf != NULL ) {
-        tcf = provided_tcf;
-    } else {
-        std::auto_ptr<BasicOutputs> outputs( new BasicOutputs() );
-
+void ModuleHandler::try_loading_module( const char *filename ) {
+    try {
         std::auto_ptr<LibraryHandle> handle
-            ( new LibraryHandle( "liblocprec" ) );
-
-        (*handle->getOutputAugmenter()) ( outputs.get() );
+            ( new LibraryHandle( filename ) );
+        lib_handles.push_back( handle.release() );
+    } catch( const std::exception& e ) {
+        std::cerr << "Unable to load plugin " << filename << ": "
+                  <<e.what() << "\n";
     }
 }
 
-ModuleHandler::ModuleHandler( const ModuleHandler& o )
-: lib_handles( o.lib_handles),
-  constructed_tcf( (o.constructed_tcf.get()) 
-            ? o.constructed_tcf->clone() : NULL ),
-  tcf( (o.tcf == o.constructed_tcf.get()) ? constructed_tcf.get() 
-                                          : o.tcf )
+ModuleHandler::ModuleHandler()
 {
-lt_dlinit();
+    lt_dlinit();
+
+    try_loading_module( "liblocprec-1" );
+    try_loading_module( "liblocprec" );
+
+}
+
+ModuleHandler::ModuleHandler( const ModuleHandler& o )
+: lib_handles( o.lib_handles)
+{
+    lt_dlinit();
 }
 
 ModuleHandler::~ModuleHandler() {
@@ -118,17 +128,28 @@ void ModuleHandler::add_input_modules
     }
 }
 
-GarageConfig::GarageConfig(TransmissionSourceFactory* tc) throw()
+void ModuleHandler::add_output_modules
+    ( dStorm::BasicOutputs& tcf )
+{
+    typedef data_cpp::auto_list<LibraryHandle> List;
+    for ( List::iterator i = lib_handles.begin();
+                            i != lib_handles.end(); i++)
+        (*i) ( &tcf );
+}
+
+GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
 : simparm::Set("dSTORM", PACKAGE_STRING),
-  modules( tc ),
-  carConfig( modules.get_tcf() ),
   externalControl("TwiddlerControl", "Enable stdin/out control interface"),
   showTransmissionTree("ShowTransmissionTree", 
                        "Output tree view of transmissions"),
   run("Run", "Run")
 {
+   tcf.reset( new dStorm::BasicOutputs() );
+   dStorm::basic_outputs( tcf.get() );
+   module_handler.add_output_modules( *tcf );
+   carConfig.reset( new dStorm::CarConfig( *tcf ) );
    STATUS("Constructing GarageConfig");
-    modules.add_input_modules( carConfig.inputConfig );
+   module_handler.add_input_modules( carConfig->inputConfig );
 
    PROGRESS("Building externalControl");
    externalControl = false;
@@ -140,7 +161,7 @@ GarageConfig::GarageConfig(TransmissionSourceFactory* tc) throw()
                "current parameters.");
    run.setUserLevel(Entry::Beginner);
 
-   carConfig.inputConfig.basename.addChangeCallback(*this);
+   carConfig->inputConfig.basename.addChangeCallback(*this);
 
     registerNamedEntries();
 }
@@ -149,13 +170,12 @@ GarageConfig::GarageConfig(const GarageConfig &c) throw()
 : simparm::Node(c), 
   simparm::Set(c),
   simparm::Node::Callback(),
-  modules(c.modules),
-  carConfig(c.carConfig),
+  carConfig(c.carConfig->clone()),
   externalControl(c.externalControl),
   showTransmissionTree(c.showTransmissionTree),
   run(c.run)
 {
-   carConfig.inputConfig.basename.addChangeCallback(*this);
+   carConfig->inputConfig.basename.addChangeCallback(*this);
    registerNamedEntries();
 }
 
@@ -174,19 +194,19 @@ static void printTC( const OutputSource& src, int indent ) {
 }
 
 void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
-    if ( &src == &carConfig.inputConfig.basename &&
+    if ( &src == &carConfig->inputConfig.basename &&
                 cause == ValueChanged && externalControl() ) 
     {
         bool appended = false;
         dStorm::TransmissionSource::BasenameResult r;
-        std::string basename = carConfig.inputConfig.basename();
+        std::string basename = carConfig->inputConfig.basename();
         avoid_auto_filenames.clear();
         do {
-            if ( carConfig.inputConfig.inputFile() != "" )
+            if ( carConfig->inputConfig.inputFile() != "" )
                 avoid_auto_filenames
-                    .insert( carConfig.inputConfig.inputFile() );
+                    .insert( carConfig->inputConfig.inputFile() );
 
-            r = carConfig.outputConfig.set_output_file_basename
+            r = carConfig->outputConfig.set_output_file_basename
                     ( basename, avoid_auto_filenames );
             if ( !appended ) 
                 basename += 'a'; 
@@ -198,14 +218,14 @@ void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
                 showTransmissionTree.triggered() )
     {
         showTransmissionTree.untrigger();
-        printTC( carConfig.outputConfig, 0 );
+        printTC( carConfig->outputConfig, 0 );
         exit(0);
     }
 }
 
 
 void GarageConfig::registerNamedEntries() throw() {
-    push_back( carConfig );
+    push_back( *carConfig );
     push_back( externalControl );
     push_back( showTransmissionTree );
 
@@ -224,7 +244,8 @@ static bool load_file(const std::string& name, simparm::Node& node) {
 }
 
 Garage::Garage(int argc, char *argv[]) 
-: autoConfig( new GarageConfig() ),
+: moduleHandler( new ModuleHandler() ),
+  autoConfig( new GarageConfig(*moduleHandler) ),
   config( *autoConfig )
 {
     STATUS("Garage argument constructor called");
@@ -262,7 +283,7 @@ Garage::Garage(int argc, char *argv[])
 
     STATUS("Running dSTORM");
     for (int arg = first_nonoption; arg < argc; arg++) {
-        config.carConfig.inputConfig.inputFile = argv[arg];
+        config.carConfig->inputConfig.inputFile = argv[arg];
         if ( arg < argc - 1)
             config.run.trigger();
     }
@@ -307,8 +328,8 @@ void Garage::init() throw() {
         PROGRESS("Setting package name");
         ioManager.setDesc(PACKAGE_STRING);
         ioManager.showTabbed = true;
-        config.carConfig.push_back( config.run );
-        ioManager.push_back( config.carConfig );
+        config.carConfig->push_back( config.run );
+        ioManager.push_back( *config.carConfig );
         ioManager.processInput();
 
         Car::terminate_all_Car_threads();
@@ -337,14 +358,14 @@ void Garage::operator()(Node& src, Cause, Node *) throw() {
 void Garage::cruise() throw(std::exception)
 {
     STATUS("Made new car for cruise");
-    Car *car = new Car(config.carConfig);
+    Car *car = new Car(*config.carConfig);
     car->detach();
 }
 
 void Garage::_drive()
 {
     STATUS("Made new car for drive");
-    Car(config.carConfig).drive();
+    Car(*config.carConfig).drive();
 }
 
 #include <libgen.h>

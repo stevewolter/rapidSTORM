@@ -1,5 +1,5 @@
-#include "transmissions/BinnedLocalizations.h"
-#include <dStorm/engine/ResultRepeater.h>
+#include "BinnedLocalizations.h"
+#include <dStorm/ResultRepeater.h>
 
 #define LINEAR
 // #define QUADRATIC

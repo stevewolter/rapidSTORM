@@ -5,7 +5,7 @@
 #include <cc++/thread.h>
 #include <data-c++/Vector.h>
 #include <simparm/TriggerEntry.hh>
-#include "engine/Config.h"
+#include <dStorm/Config.h>
 
 namespace dStorm {
    class Input;

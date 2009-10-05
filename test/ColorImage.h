@@ -2,9 +2,9 @@
 #define TEST_COLOR_IMAGE_H
 
 #include <CImg.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/engine/Localization.h>
+#include <dStorm/Image.h>
+#include <dStorm/Spot.h>
+#include <dStorm/Localization.h>
 
 class ColorImage : public cimg_library::CImg<dStorm::StormPixel> {
    private:

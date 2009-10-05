@@ -1,9 +1,9 @@
 #ifndef DSTORM_SPOTFINDER_H
 #define DSTORM_SPOTFINDER_H
 
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/engine/CandidateTree.h>
+#include <dStorm/Image.h>
+#include <dStorm/Spot.h>
+#include <dStorm/CandidateTree.h>
 #include <memory>
 
 namespace dStorm {

@@ -2,8 +2,8 @@
 #define DSTORM_SPALTTIEFPASS_H
 
 #include <data-c++/Vector.h>
-#include "engine/Image.h"
-#include "engine/SpotFinder.h"
+#include <dStorm/Image.h>
+#include "SpotFinder.h"
 #include "spotFinders/averageSmooth.h"
 
 namespace cimg_library {

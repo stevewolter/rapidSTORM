@@ -1,8 +1,8 @@
 #ifndef DSTORM_GAUSSFITTER_IMPL_H
 #define DSTORM_GAUSSFITTER_IMPL_H
 
-#include "engine/GaussFitter.h"
-#include "engine/GaussFitter_Width_Invariants.h"
+#include "GaussFitter.h"
+#include "GaussFitter_Width_Invariants.h"
 
 namespace dStorm {
 

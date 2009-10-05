@@ -1,5 +1,5 @@
 #define DSTORM_LOCALIZATIONLIST_CPP
-#include "transmissions/LocalizationList.h"
+#include "LocalizationList.h"
 #include <cassert>
 
 using namespace std;

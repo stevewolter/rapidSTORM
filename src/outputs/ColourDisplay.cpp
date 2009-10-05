@@ -1,4 +1,4 @@
-#include "transmissions/ColourDisplay.h"
+#include "ColourDisplay.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 

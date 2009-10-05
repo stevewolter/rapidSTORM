@@ -1,10 +1,10 @@
 #define cimg_use_magick
 #include <stdint.h>
-#include "transmissions/Viewer.h"
-#include "transmissions/ViewerConfig.h"
+#include "Viewer.h"
+#include "ViewerConfig.h"
 #include <limits>
 #include <cassert>
-#include "engine/Image.h"
+#include <dStorm/Image.h>
 #include <CImg.h>
 #include <fstream>
 #include "help_context.h"

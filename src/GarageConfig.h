@@ -2,21 +2,22 @@
 #define GARAGECONFIG_H
 
 #include <dStorm/CarConfig.h>
+#include <dStorm/BasicOutputs.h>
 #include <simparm/TriggerEntry.hh>
 #include <data-c++/AutoList.h>
 
 class LibraryHandle;
 class ModuleHandler {
     data_cpp::auto_list<LibraryHandle> lib_handles;
-    std::auto_ptr<dStorm::OutputFactory> constructed_tcf;
-    dStorm::OutputFactory* tcf;
+
+    void try_loading_module( const char *filename );
   public:
-    ModuleHandler( dStorm::OutputFactory* provided_tcf );
+    ModuleHandler();
     ModuleHandler( const ModuleHandler& );
     ~ModuleHandler();
 
-    dStorm::OutputFactory& get_tcf() { return *tcf; }
     void add_input_modules( CImgBuffer::Config& input_config );
+    void add_output_modules( dStorm::BasicOutputs& tcf );
 };
 
 class GarageConfig 
@@ -26,15 +27,16 @@ class GarageConfig
     void operator()(simparm::Node&, Cause, simparm::Node *) throw();
 
     std::set<std::string> avoid_auto_filenames;
-    ModuleHandler modules;
+    std::auto_ptr<dStorm::BasicOutputs> tcf;
 
   public:
-    dStorm::CarConfig carConfig;
+    std::auto_ptr<dStorm::CarConfig> carConfig;
     simparm::BoolEntry externalControl;
     simparm::TriggerEntry showTransmissionTree, run;
 
-    GarageConfig(dStorm::TransmissionSourceFactory* tc = NULL) throw();
+    GarageConfig(ModuleHandler& module_handler) throw();
     GarageConfig(const GarageConfig& c) throw();
+    GarageConfig* clone() const { return new GarageConfig(*this); }
 
     void registerNamedEntries() throw();
 };

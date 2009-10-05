@@ -1,5 +1,5 @@
-#include "engine/CandidateTree.h"
-#include "engine/Config.h"
+#include "CandidateTree.h"
+#include "Config.h"
 #include <CImg.h>
 
 using namespace std;

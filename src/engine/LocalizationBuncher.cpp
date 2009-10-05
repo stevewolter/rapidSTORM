@@ -1,6 +1,6 @@
 #include "LocalizationBuncher.h"
-#include <dStorm/engine/LocalizationFileReader.h>
-#include "Output.h"
+#include <dStorm/LocalizationFileReader.h>
+#include <dStorm/Output.h>
 
 namespace dStorm {
 

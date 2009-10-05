@@ -1,11 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* */
-#undef D3_INTERNAL_VERSION
-
-/* Will be set to 1 when the Andor SDK is present */
-#undef HAVE_ANDOR_CAMERA
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -18,11 +12,24 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `Magick++' library (-lMagick++). */
-#undef HAVE_LIBMAGICK__
+/* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
+#undef HAVE_LIBATMCD32D
+
+/* Define to 1 if you have the `GraphicsMagick' library (-lGraphicsMagick). */
+#undef HAVE_LIBGRAPHICSMAGICK
+
+/* Define to 1 if you have the `GraphicsMagick++' library
+   (-lGraphicsMagick++). */
+#undef HAVE_LIBGRAPHICSMAGICK__
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
+
+/* Define to 1 if you have the `readsif' library (-lreadsif). */
+#undef HAVE_LIBREADSIF
+
+/* Define to 1 if you have the `simparm' library (-lsimparm). */
+#undef HAVE_LIBSIMPARM
 
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC

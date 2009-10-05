@@ -3,7 +3,7 @@
 
 #include <cc++/thread.h>
 #include <memory>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 #include <data-c++/Vector.h>
 
 namespace dStorm {

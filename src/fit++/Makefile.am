@@ -1,9 +1,8 @@
 check_PROGRAMS = alignment_test
 TESTS = alignment_test
 
-library_includedir = $(includedir)/fit++
-library_include_HEADERS = fit++/Exponential2D.hh fit++/FitFunction.hh fit++/LatticeFitFunction.hh \
-                          fit++/Exponential2D_impl.hh fit++/FitFunction.hh fit++/ResidueMatrix.hh
+EXTRA_SOURCES = Exponential2D.hh FitFunction.hh LatticeFitFunction.hh \
+                Exponential2D_impl.hh FitFunction.hh ResidueMatrix.hh
 
 AM_CPPFLAGS = -D_GNU_SOURCE
 AM_CPPFLAGS += -Wall -Wextra \

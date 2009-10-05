@@ -2,7 +2,7 @@
 #define DSTORM_GARAGE_H
 
 #include <simparm/Node.hh>
-#include <engine/Localizations.h>
+#include <dStorm/Localizations.h>
 #include <stdexcept>
 
 namespace dStorm {
@@ -10,8 +10,10 @@ namespace dStorm {
 }
 
 class GarageConfig;
+class ModuleHandler;
 class Garage : public simparm::Node::Callback {
   private:
+    std::auto_ptr<ModuleHandler> moduleHandler;
     std::auto_ptr<GarageConfig> autoConfig;
     GarageConfig& config;
 

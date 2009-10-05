@@ -1,7 +1,7 @@
-#include "engine/Image.h"
+#include <dStorm/Image.h>
 #include <algorithm>
 #include "spotFinders/MedianSmoother.h"
-#include "engine/Config.h"
+#include <dStorm/Config.h>
 #include <cassert>
 
 using namespace cimg_library;

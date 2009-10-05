@@ -1,12 +1,13 @@
 #include "GarageConfig.h"
 #include <CImgBuffer/ImageTraits.h>
 #include <dStorm/Image.h>
-#include <foreach.h>
+#include "foreach.h"
 #include <fstream>
 #include <CImgBuffer/Buffer.h>
 #include <CImgBuffer/Slot.h>
 #include <iomanip>
 #include <CImg.h>
+#include <simparm/ChoiceEntry_Impl.hh>
 
 #include <limits>
 #include <stdint.h>
@@ -18,8 +19,9 @@ using namespace std;
 using namespace simparm;
 
 int main(int argc, char *argv[]) {
-   GarageConfig garageConfig;
-   CImgBuffer::Config& config = garageConfig.carConfig.inputConfig;
+   ModuleHandler module_handler;
+   GarageConfig garageConfig(module_handler);
+   CImgBuffer::Config& config = garageConfig.carConfig->inputConfig;
    FileEntry saveMovie("saveMovie", "");
    FileEntry outputPixels("outputPixels", "");
    BoolEntry show("show", "", true);

@@ -1,7 +1,7 @@
 #include "spotFinders/FillholeSmoother.h"
 
 #include "spotFinders/Reconstruction.cc"
-#include "engine/dilation.h"
+#include <dStorm/helpers/dilation.h>
 #include "FillholeSmoother.h"
 #include <CImg.h>
 

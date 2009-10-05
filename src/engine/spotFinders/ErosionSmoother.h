@@ -2,8 +2,8 @@
 #define DSTORM_EROSIONSMOOTHER_H
 
 #include <data-c++/Vector.h>
-#include "engine/Image.h"
-#include "engine/SpotFinder.h"
+#include <dStorm/Image.h>
+#include "SpotFinder.h"
 #include <CImg.h>
 
 namespace cimg_library {
