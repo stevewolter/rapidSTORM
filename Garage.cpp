@@ -11,6 +11,8 @@
 #include <outputs/LocalizationList.h>
 #include <fstream>
 #include <stdlib.h>
+#include <dirent.h>
+#include <sys/types.h>
 
 #include <ltdl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -86,7 +88,8 @@ class LibraryHandle {
     }
 };
 
-void ModuleHandler::try_loading_module( const char *filename ) {
+ModuleHandler::LoadResult
+ModuleHandler::try_loading_module( const char *filename ) {
     try {
         std::auto_ptr<LibraryHandle> handle
             ( new LibraryHandle( filename ) );
@@ -94,6 +97,22 @@ void ModuleHandler::try_loading_module( const char *filename ) {
     } catch( const std::exception& e ) {
         std::cerr << "Unable to load plugin " << filename << ": "
                   <<e.what() << "\n";
+        return Failure;
+    }
+    loaded.insert( std::string(filename) );
+    std::cerr << "Loaded plugin " << filename << "\n";
+    return ModuleHandler::Loaded;
+}
+
+int ModuleHandler::lt_dlforeachfile_callback 
+    ( const char *filename, void* data )
+{
+    ModuleHandler &m = *(ModuleHandler*)data;
+    if ( m.loaded.find( filename ) != m.loaded.end() )
+        return 0;
+    else {
+        LoadResult result = m.try_loading_module( filename );
+        return (( result == Loaded ) ? 1 : 0);
     }
 }
 
@@ -101,9 +120,13 @@ ModuleHandler::ModuleHandler()
 {
     lt_dlinit();
 
-    try_loading_module( "liblocprec-1" );
-    try_loading_module( "liblocprec" );
+    const char *plugin_dir = DSTORM_PLUGIN_DIR;
+    char *env_plugin_dir = getenv("RAPIDSTORM_PLUGINDIR");
+    if ( env_plugin_dir != NULL )
+        plugin_dir = env_plugin_dir;
 
+    std::cerr << "using plugin dir '" << plugin_dir << "'\n";
+    lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
 }
 
 ModuleHandler::ModuleHandler( const ModuleHandler& o )

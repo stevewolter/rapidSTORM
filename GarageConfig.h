@@ -5,12 +5,18 @@
 #include <dStorm/BasicOutputs.h>
 #include <simparm/TriggerEntry.hh>
 #include <data-c++/AutoList.h>
+#include <set>
+#include <string>
 
 class LibraryHandle;
 class ModuleHandler {
     data_cpp::auto_list<LibraryHandle> lib_handles;
+    std::set<std::string> loaded;
 
-    void try_loading_module( const char *filename );
+    enum LoadResult { Loaded, Failure };
+    LoadResult try_loading_module( const char *filename );
+    static int lt_dlforeachfile_callback( 
+        const char *filename, void* data );
   public:
     ModuleHandler();
     ModuleHandler( const ModuleHandler& );

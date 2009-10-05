@@ -23,8 +23,10 @@ class DStorm {
     }
 
     private static File extract_with_exact_name(String name) {
-            String tempDir = System.getProperty("java.io.tmpdir");
-            File tempFile = new File(tempDir, name);
+        String tempDir = System.getProperty("java.io.tmpdir");
+        tempDir = tempDir + String.valueOf( File.separatorChar )
+                  + "rapidSTORM";
+        File tempFile = new File(tempDir, name);
         try {
             return extract_jar_file(name,tempFile);
         } catch (java.io.IOException e)  {
@@ -38,8 +40,12 @@ class DStorm {
     private static File extract_jar_file(String name, File tempFile)
         throws IOException
     {
-        Object resource = Main.class.getResource(name).getContent();
+        java.net.URL resourceURL = Main.class.getResource(name);
+        if ( resourceURL == null ) return null;
+        Object resource = resourceURL.getContent();
         InputStream source = (InputStream)resource;
+        if ( tempFile.getParent() != null )
+            tempFile.getParentFile().mkdirs();
         FileOutputStream target = new FileOutputStream(tempFile);
         byte[] buffer = new byte[32767];
         while ( true ) {
@@ -55,31 +61,39 @@ class DStorm {
         return tempFile;
    }
    public static void main(String[] args) throws IOException {
-        File executable = extract_to_temp("dstorm.exe");
-        extract_with_exact_name("ATMCD32D.DLL");
-        extract_with_exact_name("pthreadGCE2.dll");
-        extract_with_exact_name("mingwm10.dll");
-        File config = extract_to_temp("dstorm-config.txt");
-        File help = extract_to_temp("rapidSTORM.chm");
+        InputStream dll_list = Main.class.getResourceAsStream("dll_list");
+        BufferedReader reader = new BufferedReader
+            ( new InputStreamReader(dll_list) );
+        String line;
+        while ( (line = reader.readLine()) != null ) {
+            line.replaceAll("/", String.valueOf(File.separatorChar));
+            extract_with_exact_name(line);
+        }
 
-        HelpManager.setManualFile(help);
+        File executable = extract_with_exact_name("dstorm.exe");
+        File config = extract_with_exact_name("dstorm-config.txt");
+        File help = extract_with_exact_name("rapidSTORM.chm");
+
+        if ( help != null )
+            HelpManager.setManualFile(help);
 
         boolean have_arg = args.length > 0,stderrPipe = false;
-        int argC = 4, twiddlerArgs = 0;
+        int argC = 4;
         if ( have_arg ) argC += 2;
-        if ( stderrPipe ) { argC += 1; twiddlerArgs += 1; }
+        if ( stderrPipe ) argC += 1;
         try {
             executable.setExecutable(true);
         } catch (SecurityException e) {}
+        int lastArg = 0;
         String[] cmd = new String[argC];
-        if ( stderrPipe ) cmd[0] = "--StderrPipe";
-        cmd[0+twiddlerArgs] = executable.getPath();
-        cmd[1+twiddlerArgs] = "--config";
-        cmd[2+twiddlerArgs] = config.getPath();
-        cmd[3+twiddlerArgs] = "--Twiddler";
+        if ( stderrPipe ) cmd[lastArg++] = "--StderrPipe";
+        cmd[lastArg++] = executable.getPath();
+        cmd[lastArg++] = "--config";
+        cmd[lastArg++] = config.getPath();
+        cmd[lastArg++] = "--Twiddler";
         if ( have_arg ) {
-            cmd[4+twiddlerArgs] = "--inputFile";
-            cmd[5+twiddlerArgs] = args[0];
+            cmd[lastArg++] = "--inputFile";
+            cmd[lastArg++] = args[0];
         }
         Main.main(cmd);
    }
