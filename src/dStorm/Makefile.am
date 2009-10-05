@@ -43,4 +43,4 @@ libdStorm_la_SOURCES = \
     OutputSource.cpp Trace.cpp Crankshaft.cpp \
     LocalizationFileReader.cpp Localizations.cpp \
     TraceReducers.cpp helpers/dilation.cpp
-EXTRA_SOURCES = helpers/thread.h
+EXTRA_DIST = helpers/thread.h

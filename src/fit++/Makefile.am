@@ -1,7 +1,7 @@
 check_PROGRAMS = alignment_test
 TESTS = alignment_test
 
-EXTRA_SOURCES = Exponential2D.hh FitFunction.hh LatticeFitFunction.hh \
+EXTRA_DIST = Exponential2D.hh FitFunction.hh LatticeFitFunction.hh \
                 Exponential2D_impl.hh FitFunction.hh ResidueMatrix.hh
 
 AM_CPPFLAGS = -D_GNU_SOURCE
