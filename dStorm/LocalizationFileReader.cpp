@@ -1,5 +1,5 @@
 #include <CImgBuffer/Source_impl.h>
-#include <dStorm/engine/LocalizationFileReader.h>
+#include "LocalizationFileReader.h"
 #include <fstream>
 #include <ctype.h>
 
@@ -56,6 +56,8 @@ STM_File Config::read_header
     header.number_of_fields = fn;
     return header;
 }
+
+Config::~Config() {}
 
 Source* Config::impl_makeSource()
 {

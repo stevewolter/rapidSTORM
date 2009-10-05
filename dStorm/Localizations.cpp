@@ -1,11 +1,11 @@
-#include "engine/Localizations.h"
+#include "Localizations.h"
 #include <cassert>
 #include <string.h>
 #include <fstream>
 #include <foreach.h>
 
-#include "Output.h"
-#include "engine/Image.h"
+#include <dStorm/Output.h>
+#include <dStorm/Image.h>
 #include <data-c++/Vector.h>
 #include <data-c++/VectorList.h>
 #include <cc++/thread.h>

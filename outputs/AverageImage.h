@@ -4,7 +4,7 @@
 #include <dStorm/Output.h>
 #include <dStorm/OutputBuilder.h>
 #include <dStorm/FileOutputBuilder.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <memory>

@@ -4,7 +4,7 @@
 #include <cassert>
 #include <CImgBuffer/Buffer.h>
 #include <CImgBuffer/Source.h>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <CImgBuffer/Slot.h>
 #include <limits>
 

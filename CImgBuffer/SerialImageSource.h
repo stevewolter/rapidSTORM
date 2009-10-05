@@ -4,7 +4,7 @@
 #include "Source.h"
 #include "Drain.h"
 #include "ImageTraits.h"
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <cassert>
 
 namespace cimg_library {

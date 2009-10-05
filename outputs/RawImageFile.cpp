@@ -1,4 +1,4 @@
-#include "transmissions/RawImageFile.h"
+#include "RawImageFile.h"
 #include <cassert>
 #include <CImg.h>
 

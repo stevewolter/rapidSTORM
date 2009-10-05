@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRACE
 #define DSTORM_TRACE
 
-#include <dStorm/engine/Localization.h>
+#include <dStorm/Localization.h>
 #include <data-c++/Vector.h>
 
 namespace dStorm {

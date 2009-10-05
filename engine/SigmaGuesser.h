@@ -1,10 +1,11 @@
 #ifndef DSTORM_SIGMAGUESSER_H
 #define DSTORM_SIGMAGUESSER_H
 
-#include "engine/Config.h"
-#include "Output.h"
+#include <dStorm/Config.h>
+#include <dStorm/Output.h>
 #include <memory>
-#include "statistics/Variance.h"
+#include "Variance.h"
+#include <cc++/thread.h>
 
 namespace dStorm {
     class Input;

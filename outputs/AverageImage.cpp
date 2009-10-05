@@ -1,5 +1,5 @@
 #define DSTORM_AVERAGEIMAGE_CPP
-#include "transmissions/AverageImage.h"
+#include "AverageImage.h"
 #include <iostream>
 #include "help_context.h"
 

@@ -12,7 +12,8 @@ namespace dStorm {
     {
       public:
         BasicOutputs();
-        virtual BasicOutputs* clone() const { return new BasicOutputs(); }
+        BasicOutputs( const BasicOutputs& );
+        virtual BasicOutputs* clone() const;
         virtual std::auto_ptr<OutputSource> make_output_source();
 
         void addChoice(OutputSource *toAdd);

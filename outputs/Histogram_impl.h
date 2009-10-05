@@ -1,4 +1,4 @@
-#include "transmissions/Histogram.h"
+#include "Histogram.h"
 #include <stdint.h>
 #include <limits>
 

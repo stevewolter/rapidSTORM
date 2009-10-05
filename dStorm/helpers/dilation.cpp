@@ -1,5 +1,5 @@
 #include <CImg.h>
-#include "engine/Image.h"
+#include <dStorm/Image.h>
 #include <limits>
 
 using namespace std;

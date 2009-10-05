@@ -1,4 +1,7 @@
 #include "BasicOutputs.h"
+#include "help_context.h"
+#include "OutputSource.h"
+#include <simparm/ChoiceEntry_Impl.hh>
 
 namespace dStorm {
 
@@ -7,6 +10,17 @@ BasicOutputs::BasicOutputs()
     ("ChooseTransmission", "Choose new output")
 {
     this->helpID = HELP_ChooseOutput;
+}
+
+BasicOutputs::BasicOutputs( const BasicOutputs& other ) 
+: OutputFactory(other),
+  simparm::NodeChoiceEntry<OutputSource>(other, 
+        simparm::NodeChoiceEntry<OutputSource>::DeepCopy )
+{
+}
+
+BasicOutputs* BasicOutputs::clone() const {
+    return new BasicOutputs(*this); 
 }
 
 std::auto_ptr<OutputSource> 

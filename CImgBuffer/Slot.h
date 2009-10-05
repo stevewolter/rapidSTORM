@@ -1,7 +1,7 @@
 #ifndef CIMGBUFFER_SLOT_H
 #define CIMGBUFFER_SLOT_H
 
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <CImgBuffer/Source.h>
 #include <cassert>
 

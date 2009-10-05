@@ -1,3 +1,5 @@
+#ifdef HAVE_LIBREADSIF
+
 #ifndef CImgBuffer_ANDORSIF_H
 #define CImgBuffer_ANDORSIF_H
 
@@ -10,7 +12,7 @@
 #include <stdio.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 #ifndef CImgBuffer_SIFLOADER_CPP
 typedef void readsif_File;
@@ -99,4 +101,6 @@ namespace AndorSIF {
 
 }
 
-#endif
+#endif  /* double inclusion prevention */
+
+#endif  /* HAVE_LIBREADSIF */

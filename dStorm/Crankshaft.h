@@ -3,7 +3,7 @@
 
 #include <dStorm/Output.h>
 #include <list>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 namespace dStorm {
     class Crankshaft : public Output, public simparm::Object {

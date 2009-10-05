@@ -4,9 +4,9 @@
 #include <dStorm/BasicOutputs.h>
 #include <dStorm/CarConfig.h>
 
-typedef void (*rapidSTORM_Input_Augmenter)
+typedef void (*RapidSTORM_Input_Augmenter)
     ( CImgBuffer::Config* inputs );
-typedef void (*rapidSTORM_Output_Augmenter)
+typedef void (*RapidSTORM_Output_Augmenter)
     ( dStorm::BasicOutputs* outputs );
 
 #endif

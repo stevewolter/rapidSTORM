@@ -11,7 +11,7 @@
 #include <memory>
 #include <stdexcept>
 #include <data-c++/Vector.h>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 namespace CImgBuffer { 
     template <typename T> class Source;

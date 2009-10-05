@@ -1,4 +1,4 @@
-#include "transmissions/LocalizationCounter.h"
+#include "LocalizationCounter.h"
 #include "help_context.h"
 
 namespace dStorm {

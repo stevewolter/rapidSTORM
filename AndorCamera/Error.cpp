@@ -1,7 +1,6 @@
 #define ANDORCAMERA_ERROR_CPP
 #include "Error.h"
 #include "SDK.h"
-#include <AndorCamera/ControlReference.h>
 #include <iostream>
 #include <cc++/thread.h>
 #include <stdarg.h>

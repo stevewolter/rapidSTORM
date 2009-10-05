@@ -1,7 +1,7 @@
 #include "FilterSource.h"
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include "transmissions/Crankshaft.h"
+#include "Crankshaft.h"
 #include "OutputSource.h"
 #include "OutputFactory.h"
 #include "help_context.h"

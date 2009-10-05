@@ -1,4 +1,4 @@
-#include "transmissions/TraceFilter.h"
+#include "TraceFilter.h"
 
 namespace dStorm {
 

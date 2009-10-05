@@ -1,7 +1,7 @@
 #ifndef GAUSSFITTER_RESIDUE_ANALYSIS_H
 #define GAUSSFITTER_RESIDUE_ANALYSIS_H
 
-#include "engine/GaussFitter_Specialized.h"
+#include "GaussFitter_Specialized.h"
 
 namespace dStorm {
 

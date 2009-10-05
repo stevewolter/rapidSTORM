@@ -1,5 +1,5 @@
-#include "engine/Trace.h"
-#include "statistics/Variance.h"
+#include <dStorm/Trace.h>
+#include "engine/Variance.h"
 
 namespace dStorm {
 

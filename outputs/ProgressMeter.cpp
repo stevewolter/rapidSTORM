@@ -1,4 +1,4 @@
-#include "transmissions/ProgressMeter.h"
+#include "ProgressMeter.h"
 #include "help_context.h"
 
 namespace dStorm {

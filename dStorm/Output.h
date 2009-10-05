@@ -4,9 +4,9 @@
 #include <dStorm/Localization.h>
 #include <dStorm/Image.h>
 #include <stdexcept>
-#include <cc++/thread.h>
 #include <simparm/Set.hh>
 #include <iostream>
+#include <dStorm/helpers/thread.h>
 
 namespace CImgBuffer {
     template <typename PixelType> class Image;

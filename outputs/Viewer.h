@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_H
 #define DSTORM_VIEWER_H
 
-#include <dStorm/engine/Localizations.h>
+#include <dStorm/Localization.h>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/NumericEntry.hh>

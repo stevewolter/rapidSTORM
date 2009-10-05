@@ -1,10 +1,10 @@
 #ifndef DSTORM_TRACE_FILTER
 #define DSTORM_TRACE_FILTER
 
-#include <dStorm/engine/Trace.h>
+#include <dStorm/Trace.h>
 #include <dStorm/FilterBuilder.h>
 #include <simparm/NumericEntry.hh>
-#include <dStorm/engine/ResultRepeater.h>
+#include <dStorm/ResultRepeater.h>
 #include <simparm/Structure.hh>
 
 namespace dStorm {

@@ -3,7 +3,7 @@
 
 #include <CImgBuffer/Drain.h>
 #include <CImgBuffer/Traits.h>
-#include <dStorm/engine/Localization.h>
+#include <dStorm/Localization.h>
 #include <map>
 #include <memory>
 #include <dStorm/Output.h>

@@ -1,8 +1,8 @@
-#include "transmissions/Slicer.h"
+#include "Slicer.h"
 #include <sstream>
 #include "help_context.h"
 
-#include <transmissions/Viewer.h>
+#include "Viewer.h"
 
 namespace dStorm {
 

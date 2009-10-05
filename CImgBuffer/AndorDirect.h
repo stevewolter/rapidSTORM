@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 #include <set>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
 #include <stdint.h>

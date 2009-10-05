@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRACE_REDUCER
 #define DSTORM_TRACE_REDUCER
 
-#include <dStorm/engine/Trace.h>
+#include <dStorm/Trace.h>
 #include <simparm/Object.hh>
 #include <Eigen/Core>
 

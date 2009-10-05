@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <CImgBuffer/InputMethod.h>
-#include <dStorm/engine/Localization.h>
+#include <dStorm/Localization.h>
 
 namespace CImgBuffer {
 template<>
@@ -72,6 +72,7 @@ namespace LocalizationFileReader {
             master.inputFile.push_back( stm_extension );
             master.inputFile.push_back( txt_extension );
         }
+        ~Config();
 
       protected:
         Source* impl_makeSource();

@@ -1,8 +1,8 @@
 #ifndef DSTORM_GAUSSFITTER_H
 #define DSTORM_GAUSSFITTER_H
 
-#include "engine/SpotFitter.h"
-#include "engine/Config.h"
+#include "SpotFitter.h"
+#include <dStorm/Config.h>
 
 namespace dStorm {
     /** The GaussFitter class provides a spot fitter implementation using

@@ -1,36 +1,34 @@
-#include "OutputSource.h"
-#include "FilterSource.h"
-#include <list>
+#include "BasicTransmissions.h"
 
-#include "transmissions/LocalizationFile.h"
-#include "transmissions/Viewer.h"
-#include "transmissions/ViewerConfig.h"
-#include "transmissions/LocalizationCounter.h"
-#include "transmissions/ProgressMeter.h"
-#include "transmissions/AverageImage.h"
-#include "transmissions/TraceFilter.h"
-#include "transmissions/LocalizationFilter.h"
-#include "transmissions/Slicer.h"
-#include "transmissions/RawImageFile.h"
-#include <simparm/Object.hh>
-#include "help_context.h"
-
-#include "BasicOutputs.h"
+#include "LocalizationFile.h"
+#include "Viewer.h"
+#include "ViewerConfig.h"
+#include "LocalizationCounter.h"
+#include "ProgressMeter.h"
+#include "AverageImage.h"
+#include "TraceFilter.h"
+#include "LocalizationFilter.h"
+#include "Slicer.h"
+#include "RawImageFile.h"
+#include "PrecisionEstimator.h"
 
 using namespace std;
+using namespace locprec;
 
 namespace dStorm {
 
-#if 0
-    addChoice( new LocalizationFile::Source() );
-    addChoice( new Viewer::Source() );
-    addChoice( new ProgressMeter::Source() );
-    addChoice( new LocalizationCounter::Source() );
-    addChoice( new AverageImage::Source() );
-    addChoice( new LocalizationFilter::Source() );
-    addChoice( new TraceCountFilter::Source() );
-    addChoice( new Slicer::Source() );
-    addChoice( new RawImageFile::Source() );
-#endif
+void basic_outputs( dStorm::BasicOutputs* o ) {
+    o->addChoice( new LocalizationFile::Source() );
+    o->addChoice( new Viewer::Source() );
+    o->addChoice( new ProgressMeter::Source() );
+    o->addChoice( new LocalizationCounter::Source() );
+    o->addChoice( new AverageImage::Source() );
+    o->addChoice( new LocalizationFilter::Source() );
+    o->addChoice( new TraceCountFilter::Source() );
+    o->addChoice( new Slicer::Source() );
+    o->addChoice( new RawImageFile::Source() );
+    o->addChoice( new SinglePrecisionEstimator::Source() );
+    o->addChoice( new MultiPrecisionEstimator::Source() );
+}
 
 }

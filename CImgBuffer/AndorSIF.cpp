@@ -1,3 +1,5 @@
+#ifdef HAVE_LIBREADSIF
+
 #define CImgBuffer_SIFLOADER_CPP
 
 #include <read_sif.h>
@@ -238,3 +240,5 @@ template class Config<float>;
 
 }
 }
+
+#endif
