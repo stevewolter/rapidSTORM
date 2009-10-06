@@ -32,7 +32,7 @@ class DStorm {
         } catch (java.io.IOException e)  {
             /* File probably already present. Mark as temp anyway
              * so _someone_ will delete them. */
-            tempFile.deleteOnExit();
+            //tempFile.deleteOnExit();
             return tempFile;
         }
     }
@@ -56,7 +56,7 @@ class DStorm {
         source.close();
         target.close();
 
-        tempFile.deleteOnExit();
+        //tempFile.deleteOnExit();
 
         return tempFile;
    }
@@ -66,8 +66,12 @@ class DStorm {
             ( new InputStreamReader(dll_list) );
         String line;
         while ( (line = reader.readLine()) != null ) {
-            line.replaceAll("/", String.valueOf(File.separatorChar));
-            extract_with_exact_name(line);
+            String[] split = line.split( "/" );
+            String sep = String.valueOf(File.separatorChar);
+            String result = "";
+            for ( int i = 0; i < split.length; i++ )
+                result = result + ((i==0) ? "" : sep) + split[i];
+            extract_with_exact_name(result);
         }
 
         File executable = extract_with_exact_name("dstorm.exe");
@@ -78,7 +82,7 @@ class DStorm {
             HelpManager.setManualFile(help);
 
         boolean have_arg = args.length > 0,stderrPipe = false;
-        int argC = 4;
+        int argC = 5;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;
         try {
@@ -87,6 +91,7 @@ class DStorm {
         int lastArg = 0;
         String[] cmd = new String[argC];
         if ( stderrPipe ) cmd[lastArg++] = "--StderrPipe";
+        cmd[lastArg++] = "RAPIDSTORM_PLUGINDIR=foo";
         cmd[lastArg++] = executable.getPath();
         cmd[lastArg++] = "--config";
         cmd[lastArg++] = config.getPath();
