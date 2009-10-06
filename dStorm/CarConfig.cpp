@@ -8,14 +8,6 @@
 #include <cc++/thread.h>
 #include <sstream>
 
-#include <CImg.h>
-#include "LocalizationFileReader.h"
-#include <CImgBuffer/AndorSIF.h>
-#include <CImgBuffer/TIFF.h>
-#ifdef HAVE_LIBATMCD32D
-#include <CImgBuffer/AndorDirect.h>
-#endif
-
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;
@@ -48,20 +40,8 @@ CarConfig::CarConfig( OutputFactory& tc_factory )
   configTarget("SaveConfigFile", "Store config used in computation in")
 {
    setName("Car");
-
    configTarget.setUserLevel(Entry::Intermediate);
-    inputConfig.inputMethod.addChoice( 
-        new LocalizationFileReader::Config( inputConfig ) );
-#ifdef HAVE_LIBREADSIF
-    inputConfig.inputMethod.addChoice( 
-        new CImgBuffer::AndorSIF::Config<StormPixel>( inputConfig ) );
-#endif
-    inputConfig.inputMethod.addChoice( 
-        new CImgBuffer::TIFF::Config<StormPixel>( inputConfig ) );
-#ifdef HAVE_LIBATMCD32D
-    inputConfig.inputMethod.addChoice( 
-        new CImgBuffer::AndorDirect::Config( inputConfig ) );
-#endif
+
     registerNamedEntries();
 }
 

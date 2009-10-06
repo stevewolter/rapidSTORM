@@ -32,6 +32,7 @@ class LibraryHandle {
 
     RapidSTORM_Input_Augmenter input;
     RapidSTORM_Output_Augmenter output;
+    RapidSTORM_Plugin_Desc desc;
 
     void init() {
         if ( handle == NULL )
@@ -52,6 +53,14 @@ class LibraryHandle {
                                       "rapidSTORM_Output_Augmenter function. "
                                       "This function is needed for rapidSTORM "
                                       "plugins." );
+        desc
+            = (RapidSTORM_Plugin_Desc)
+                lt_dlsym( handle, "rapidSTORM_Plugin_Desc" );
+        if ( desc == NULL )
+            throw std::runtime_error( "Plugin '" + file + "' contains no "
+                                      "rapidSTORM_Plugin_Desc function. "
+                                      "This function is needed for rapidSTORM "
+                                      "plugins." );
     }
 
   public:
@@ -62,7 +71,7 @@ class LibraryHandle {
     }
     LibraryHandle( const LibraryHandle& other )
     : file(other.file), handle( lt_dlopenext( file.c_str() ) ),
-      input(other.input), output(other.output)
+      input(other.input), output(other.output), desc(other.desc)
     {
         init();
     }
@@ -86,6 +95,7 @@ class LibraryHandle {
     void operator()( dStorm::BasicOutputs* outputs ) {
         (*output)( outputs );
     }
+    const char *getDesc() { return (*desc)(); }
 };
 
 ModuleHandler::LoadResult
@@ -143,7 +153,6 @@ ModuleHandler::~ModuleHandler() {
 void ModuleHandler::add_input_modules
     ( CImgBuffer::Config& input_config )
 {
-    typedef data_cpp::auto_list<LibraryHandle> List;
     for ( List::iterator i = lib_handles.begin(); i != lib_handles.end();
           i++)
     {
@@ -154,14 +163,31 @@ void ModuleHandler::add_input_modules
 void ModuleHandler::add_output_modules
     ( dStorm::BasicOutputs& tcf )
 {
-    typedef data_cpp::auto_list<LibraryHandle> List;
     for ( List::iterator i = lib_handles.begin();
                             i != lib_handles.end(); i++)
         (*i) ( &tcf );
 }
 
+std::string ModuleHandler::getDesc() {
+    std::stringstream ss;
+    for ( List::iterator i = lib_handles.begin();
+                            i != lib_handles.end(); i++)
+    {
+        List::iterator end_test = i; ++end_test;
+        if ( i == lib_handles.begin() )
+            ss << " with ";
+        else if ( end_test == lib_handles.end() )
+            ss << " and ";
+        else 
+            ss << ", ";
+        ss << i->getDesc();
+    }
+    return ss.str();
+}
+
 GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
-: simparm::Set("dSTORM", PACKAGE_STRING),
+: simparm::Set("dSTORM", std::string(PACKAGE_STRING)
+    + module_handler.getDesc()),
   externalControl("TwiddlerControl", "Enable stdin/out control interface"),
   showTransmissionTree("ShowTransmissionTree", 
                        "Output tree view of transmissions"),
@@ -171,6 +197,7 @@ GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
    dStorm::basic_outputs( tcf.get() );
    module_handler.add_output_modules( *tcf );
    carConfig.reset( new dStorm::CarConfig( *tcf ) );
+   dStorm::basic_inputs( carConfig->inputConfig );
    STATUS("Constructing GarageConfig");
    module_handler.add_input_modules( carConfig->inputConfig );
 
@@ -349,7 +376,7 @@ void Garage::init() throw() {
 #endif
         simparm::IO ioManager(&cin, &cout);
         PROGRESS("Setting package name");
-        ioManager.setDesc(PACKAGE_STRING);
+        ioManager.setDesc(config.getDesc());
         ioManager.showTabbed = true;
         config.carConfig->push_back( config.run );
         ioManager.push_back( *config.carConfig );

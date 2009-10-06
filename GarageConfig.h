@@ -10,7 +10,8 @@
 
 class LibraryHandle;
 class ModuleHandler {
-    data_cpp::auto_list<LibraryHandle> lib_handles;
+    typedef data_cpp::auto_list<LibraryHandle> List;
+    List lib_handles;
     std::set<std::string> loaded;
 
     enum LoadResult { Loaded, Failure };
@@ -24,6 +25,7 @@ class ModuleHandler {
 
     void add_input_modules( CImgBuffer::Config& input_config );
     void add_output_modules( dStorm::BasicOutputs& tcf );
+    std::string getDesc();
 };
 
 class GarageConfig 
