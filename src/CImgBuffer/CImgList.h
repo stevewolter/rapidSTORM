@@ -1,6 +1,7 @@
 #ifndef CImgBuffer_CIMGLIST_H
 #define CImgBuffer_CIMGLIST_H
 
+#include "ImageTraits.h"
 #include "Source.h"
 #include "Config.h"
 #include "InputMethod.h"

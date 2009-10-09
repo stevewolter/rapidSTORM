@@ -72,6 +72,9 @@ namespace CImgBuffer {
          *       this feature should include \c lastImage in their
          *       Set. */
         simparm::UnsignedLongEntry firstImage, lastImage;
+        /** General configuration element to give the size of a pixel
+         *  in nm. */
+        simparm::DoubleEntry pixel_size_in_nm;
 
         /** Make an Source object according to the current settings. */
         std::auto_ptr< BaseSource > makeImageSource() const 

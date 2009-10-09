@@ -41,7 +41,7 @@ namespace CImgBuffer {
     class InputConfig : public BaseInputConfig {
       protected:
         InputConfig(const std::string& name, const std::string& desc)
- : BaseInputConfig(name, desc) {}
+            : BaseInputConfig(name, desc) {}
       public:
         /** Make a Source object with the current settings. */
         std::auto_ptr< Source<T> > makeSource()

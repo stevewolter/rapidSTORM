@@ -1,7 +1,7 @@
 #ifndef GARAGECONFIG_H
 #define GARAGECONFIG_H
 
-#include <dStorm/CarConfig.h>
+#include "engine/CarConfig.h"
 #include <dStorm/BasicOutputs.h>
 #include <simparm/TriggerEntry.hh>
 #include <data-c++/AutoList.h>

@@ -134,7 +134,7 @@ void Engine::run()
     STATUS("Announcing size");
     const CImgBuffer::Traits<Image>& prop = input.getTraits();
     Output::Announcement announcement
-        ( prop.dimx(), prop.dimy(), input.size() );
+        ( prop, input.size() );
     STATUS("Built announcement structure");
 
     Output::AdditionalData data 

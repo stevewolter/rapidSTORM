@@ -2,7 +2,7 @@
 #define DSTORM_CAR_H
 
 #include <cc++/thread.h>
-#include <dStorm/CarConfig.h>
+#include "CarConfig.h"
 #include <dStorm/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>

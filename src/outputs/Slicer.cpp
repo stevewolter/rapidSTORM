@@ -1,6 +1,7 @@
 #include "Slicer.h"
 #include <sstream>
 #include "help_context.h"
+#include <stdio.h>
 
 #include "Viewer.h"
 

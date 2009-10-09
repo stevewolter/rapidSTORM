@@ -1,5 +1,6 @@
 #define DSTORM_CAR_CPP
 #include "Car.h"
+#include <CImgBuffer/ImageTraits.h>
 #include <CImgBuffer/Source.h>
 #include <dStorm/Input.h>
 #include <dStorm/Localizations.h>
@@ -135,6 +136,7 @@ void Car::run() throw() {
                   << "resolution enhancement.\n";
     } catch ( const std::exception& e ) {
         std::cerr << "dSTORM  job failed. Reason: " << e.what() << "\n";
+        std::cerr.flush();
     }
 }
 

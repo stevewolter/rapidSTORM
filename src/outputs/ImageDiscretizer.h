@@ -6,10 +6,14 @@
 namespace dStorm {
 namespace DiscretizedImage {
 
+    template <typename ColorPixel>
     struct Listener {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
         void setSize(int width, int height);
+        /** Set the range of key values to be expected in the first
+         *  parameter of notice_key_change. */
+        void set_key_range(int first_key, int last_key);
         /** Called when a pixel changes in the image. The parameters
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
@@ -17,19 +21,27 @@ namespace DiscretizedImage {
         void clean();
         /** The state should be reset to an empty image. */
         void clear();
+        /** This method is called when the discretization parameters change.
+         *  @param index The index of this colour in the key.
+         *  @param pixel The color for which the discretization changed.
+         *               This parameter's type in an implementation should
+         *               not be 
+         *  @param value The new upper bound on the number of A/D counts for
+         *               this pixel. */
+        void notice_key_change( ColorPixel pixel, float value );
     };
 
+#if 0
     struct DummyListener {
         void setSize(int, int) {}
         void pixelChanged(int, int) {}
         void clean() {}
         void clear() {}
     };
+#endif
 
-    /** The BinningPublisher class stores a pointer to the currently
-     *  set listener, if any is provided. The publisher acts as a
-     *  pointer to a class compatible to DummyBinningListener and
-     *  is specialized for a dummy listener. */
+    /** The Publisher class stores a pointer to the currently
+     *  set listener, if any is provided. */
     template <typename Listener>
     struct Publisher
     {

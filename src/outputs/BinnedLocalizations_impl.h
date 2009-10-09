@@ -1,5 +1,6 @@
 #include "BinnedLocalizations.h"
 #include <dStorm/ResultRepeater.h>
+#include <CImgBuffer/ImageTraits.h>
 
 #define LINEAR
 // #define QUADRATIC
@@ -10,9 +11,17 @@ template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
     (double res_enh, int crop)
     : Object("BinnedLocalizations", ""),
-        crop(crop),
-        announcement(0, 0, 0)
+        crop(crop)
     { set_resolution_enhancement(res_enh); }
+
+template <typename KeepUpdated>
+BinnedLocalizations<KeepUpdated>::BinnedLocalizations
+    (const BinnedLocalizations& o)
+: Object(o), re(o.re), crop(o.crop), r(o.r), base_image(o.base_image),
+  announcement( 
+    (o.announcement.get() == NULL )
+        ? NULL : new Announcement(*o.announcement) )
+{}
 
 template <typename KeepUpdated>
 Output::AdditionalData
@@ -21,7 +30,7 @@ BinnedLocalizations<KeepUpdated>
 
 {
     ost::MutexLock lock(mutex);
-    announcement = a;
+    announcement.reset( new Announcement(a) );
     set_base_image_size();
     this->binningListener().announce( a );
     return NoData;
@@ -89,11 +98,11 @@ void BinnedLocalizations<KeepUpdated>::
     this->re = re;
     r = dStorm::Localization::getRaster(re);
 
-    if ( announcement.width != 0 && 
-         announcement.result_repeater != NULL )
+    if ( announcement.get() != NULL && 
+         announcement->result_repeater != NULL )
     {
         set_base_image_size();
-        announcement.result_repeater->repeat_results();
+        announcement->result_repeater->repeat_results();
     }
 }
 
@@ -101,7 +110,7 @@ template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>::set_base_image_size() 
  
 {
-    int w = announcement.width, h = announcement.height;
+    int w = announcement->traits.dimx(), h = announcement->traits.dimy();
     int hrw = int(ceil(re*(w-1-2*crop)))+1, 
         hrh = int(ceil(re*(h-1-2*crop)))+1;
     base_image.resize(hrw,hrh,1,1, /* No init */ -1);

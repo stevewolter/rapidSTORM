@@ -71,50 +71,92 @@ class ColourDependantImplementation
         Discretizer;
     typedef BinnedLocalizations<Discretizer> Accumulator;
 
+    static void copy_color( dStorm::Color& c, 
+                            const typename MyColorizer::Pixel& p )
+    {
+        c.r = p.r;
+        c.g = p.g;
+        c.b = p.b;
+    }
+
     class ColouredImageAdapter 
-        : public DiscretizedImage::Listener 
+        : public DiscretizedImage::Listener<typename MyColorizer::Pixel>
     {
         Discretizer& discretizer;
         typedef std::set< Eigen::Vector2i > PixelSet;
         PixelSet ps;
+        int ps_size;
         std::auto_ptr<DisplayHandler::ImageHandle>
             image_handle;
+        std::string desc;
+        bool do_show_output;
+        DisplayHandler::ViewportHandler& vph;
 
       public:
-        ColouredImageAdapter( Discretizer& disc)
-            : discretizer(disc)
+        ColouredImageAdapter( 
+            Discretizer& disc, 
+            const Viewer::Config& config,
+            DisplayHandler::ViewportHandler& vph 
+        ) : discretizer(disc), ps_size(0), desc(config.getDesc()),
+              do_show_output( config.showOutput() ),
+              vph(vph)
             {}
         ~ColouredImageAdapter() {
             if ( image_handle.get() != NULL )
                 close_window();
         }
         void setSize(int width, int height) { 
-            if ( image_handle.get() ) {
-                image_handle->setSize(width, height);
-                clear();
+            if ( ! do_show_output ) return;
+            if ( ! image_handle.get() ) {
+                set_image_handle(  
+                    DisplayHandler::getSingleton()
+                        .makeImageWindow(desc, vph));
             }
+
+            ChangeEvent::ResizeChange& r = image_handle->resize();
+            r.width = width;
+            r.height = height;
+            copy_color(r.background, discretizer.get_background());
+            image_handle->commit_changes( 1 );
         }
         void pixelChanged(int x, int y) {
-            ps.insert( Eigen::Vector2i(x,y) );
+            if ( ps.insert( Eigen::Vector2i(x,y) ).second == true )
+                ps_size++;
         }
         void clean() {
             if ( image_handle.get() == NULL ) return;
+            ChangeEvent *ev = image_handle->declare_changes(ps_size);
             for ( PixelSet::const_iterator i = ps.begin(); 
                   i != ps.end(); i++ )
             {
-                int x = i->x(), y = i->y();
-                Colorizer::Pixel p = 
-                    discretizer.get_pixel( x, y );
-                    
-                image_handle->drawPixel( x, y, p.r, p.g, p.b );
+                ev->type = ChangeEvent::Pixel;
+                ChangeEvent::PixelChange& p = ev->change.pixel;
+                p.x = i->x();
+                p.y = i->y();
+                copy_color(p.color, discretizer.get_pixel(p.x, p.y));
+                ev++;
             }
+            image_handle->commit_changes(ps_size);
             ps.clear();
+            ps_size = 0;
         }
         void clear() {
             if ( image_handle.get() == NULL ) return;
-            Colorizer::Pixel p = discretizer.get_background();
-            if ( image_handle.get() != NULL )
-                image_handle->clear( p.r, p.g, p.b );
+            ChangeEvent::ClearChange &c = image_handle->clear();
+            copy_color(c.background, discretizer.get_background());
+            image_handle->commit_changes( 1 );
+            ps.clear();
+            ps_size = 0;
+        }
+        void notice_key_change( int index, 
+            typename MyColorizer::Pixel pixel, float value )
+        {
+            if ( image_handle.get() == NULL ) return;
+            ChangeEvent::KeyChange& k = image_handle->set_key();
+            k.index = index;
+            k.color << pixel;
+            k.value = value;
+            image_handle->commit_changes( 1 );
         }
 
         void set_image_handle(
@@ -136,6 +178,7 @@ class ColourDependantImplementation
             }
         }
         std::auto_ptr<DisplayHandler::ImageHandle> release_window() {
+            do_show_output = false;
             return image_handle;
         }
                 
@@ -161,15 +204,10 @@ class ColourDependantImplementation
           discretization( 4096, 1, 
                 config.histogramPower(), image(),
                 colorizer),
-          cia( discretization )
+          cia( discretization, config, *this )
     {
         image.setListener(&discretization);
         discretization.setListener(&cia);
-
-        if ( config.showOutput() )
-            cia.set_image_handle(  
-                DisplayHandler::getSingleton()
-                .makeImageWindow(config.getDesc(), *this));
     }
 
     ~ColourDependantImplementation() {}

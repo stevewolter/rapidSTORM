@@ -5,11 +5,18 @@
 #include <string>
 #include <CImgBuffer/InputMethod.h>
 #include <dStorm/Localization.h>
+#include <dStorm/Image.h>
+#include <CImgBuffer/ImageTraits.h>
 
 namespace CImgBuffer {
 template<>
-class Traits<dStorm::Localization> {
+class Traits<dStorm::Localization> 
+: public CImgBuffer::Traits< dStorm::Image > 
+{
   public:
+    int dimx() const { return width; }
+    int dimy() const { return height; }
+
     unsigned int width, height, imageNumber;
 };
 }

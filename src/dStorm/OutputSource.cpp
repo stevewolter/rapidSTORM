@@ -4,8 +4,20 @@
 #include <sstream>
 #include <list>
 #include <simparm/FileEntry.hh>
+#include <CImgBuffer/ImageTraits.h>
 
 namespace dStorm {
+
+Output::Announcement::Announcement(
+    const CImgBuffer::Traits< dStorm::Image >& traits,
+    int length,
+    Input* carburettor,
+    ResultRepeater *repeater)
+: traits(traits),
+    width(traits.dimx()), height(traits.dimy()), 
+    depth(traits.dimz()), colors(traits.dimv()),
+    length(length), carburettor(carburettor),
+    result_repeater(repeater) {}
 
 class OutputSource::AdjustedList 
 : public std::list< simparm::FileEntry* > {};

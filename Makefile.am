@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = -I /usr/share/autoconf-archive 
+ACLOCAL_AMFLAGS = -I m4
 
 include doxygen.am
 

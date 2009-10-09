@@ -10,6 +10,7 @@
 #include <sstream>
 #include "engine/Variance.h"
 #include <gsl/gsl_statistics_double.h>
+#include <CImgBuffer/ImageTraits.h>
 
 using namespace std;
 using namespace dStorm;
@@ -32,7 +33,6 @@ SinglePrecisionEstimator::SinglePrecisionEstimator
     ( const SinglePrecisionEstimator::Config& config )
 : Object("SinglePrecisionEstimator", "Per-spot precision estimator"),
   printTo( config.outputFile ),
-  nm( config.pixelSizeInNm() ),
   res_enh(1/config.resEnh())
 {}
 
@@ -45,7 +45,7 @@ MultiPrecisionEstimator::MultiPrecisionEstimator
     x_sd("XSD", "X FWHM in nm", 0),
     y_sd("YSD", "Y FWHM in nm", 0),
     corr("Corr", "Correlation between axes", 0),
-    nm(config.pixelSizeInNm()), res_enh(1/config.resEnh())
+    res_enh(1/config.resEnh())
 { registerNamedEntries(); }
 
 MultiPrecisionEstimator::MultiPrecisionEstimator
@@ -53,7 +53,7 @@ MultiPrecisionEstimator::MultiPrecisionEstimator
 : Node(c), Object(c), dStorm::Output(c),
     usedSpots(c.usedSpots),
     x_sd(c.x_sd), y_sd(c.y_sd), corr(c.corr),
-    nm(c.nm), res_enh(c.res_enh)
+    pixel_dim_in_nm(c.pixel_dim_in_nm), res_enh(c.res_enh)
 { registerNamedEntries(); }
 
 SinglePrecisionEstimator* SinglePrecisionEstimator::clone() const
@@ -94,6 +94,15 @@ double compute_weighted_SD( const dStorm::Trace& trace, int coordinate )
     return sqrt( S * n / ((n-1) * sumweight) );
 }
 
+Output::AdditionalData
+SinglePrecisionEstimator::announceStormSize(const Announcement& a)
+{
+    /* Length of a pixel in nm is inverse of number of dots per nm. */
+    pixel_dim_in_nm = (1.0 / 2.54E7) * 
+        a.traits.resolution().cwise().inverse();
+    return LocalizationSources;
+}
+
 Output::Result
 SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
  
@@ -110,11 +119,15 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
                 << setw(10) << l.y()
                 << setw(5)  << l.get_source_trace().size()
                 << setw(10) << setprecision(2) << 
-                    compute_weighted_SD(l.get_source_trace(), 0) *2.35*nm
+                    compute_weighted_SD(l.get_source_trace(), 0) *2.35*
+                        pixel_dim_in_nm.x()
                 << setw(10) << setprecision(2) <<
-                    compute_weighted_SD(l.get_source_trace(), 1) *2.35*nm
-                << setw(10) << setprecision(2) << s.x *2.35*nm
-                << setw(10) << setprecision(2) << s.y *2.35*nm
+                    compute_weighted_SD(l.get_source_trace(), 1) *2.35*
+                        pixel_dim_in_nm.y()
+                << setw(10) << setprecision(2) << s.x *2.35*
+                        pixel_dim_in_nm.x()
+                << setw(10) << setprecision(2) << s.y *2.35*
+                        pixel_dim_in_nm.y()
                 << setw(10) << setprecision(3) << s.xy
                 << setw(3)  << l.parabolicity()
                 << "\n";
@@ -147,6 +160,16 @@ void MultiPrecisionEstimator::registerNamedEntries() {
     push_back( corr );
 }
 
+Output::AdditionalData
+MultiPrecisionEstimator::announceStormSize(const Announcement& a)
+{
+    /* Length of a pixel in nm is inverse of number of dots per nm. */
+    pixel_dim_in_nm = (1.0 / 2.54E7) * 
+        a.traits.resolution().cwise().inverse();
+    return localizations.announceStormSize(a);
+}
+
+
 void MultiPrecisionEstimator::estimatePrecision() {
     ost::MutexLock lock(mutex);
     FitSigmas s;
@@ -168,8 +191,8 @@ void MultiPrecisionEstimator::estimatePrecision() {
     }
 
     usedSpots = s.n;
-    x_sd = s.x * 2.35 * nm;
-    y_sd = s.y * 2.35 * nm;
+    x_sd = s.x * 2.35 * pixel_dim_in_nm.x();
+    y_sd = s.y * 2.35 * pixel_dim_in_nm.y();
     corr = s.xy;
     if ( ! x_sd.isActive() ) std::cout << x_sd() << " " << y_sd() << "\n";
 }

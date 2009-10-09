@@ -22,7 +22,6 @@ void sigsegv(int) {
 extern void foo();
 
 int main(int argc, char *argv[]) {
-    std::cerr << "Starting\n";
 #ifdef HAVE_LIBMAGICK__
     Magick::InitializeMagick(argv[0]);
 #endif

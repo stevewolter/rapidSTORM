@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cc++/thread.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 using namespace std;
 using namespace AndorCamera;

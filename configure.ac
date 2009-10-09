@@ -2,10 +2,11 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidStorm], [1.3.0], [dstorm at swolter dot sdf1 dot org])
+AC_INIT([rapidStorm], [1.4.0], [dstorm at swolter dot sdf1 dot org])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/dstorm.cpp])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG([C++])
 
@@ -101,6 +102,8 @@ case $host in
    *)         LIBCIMG_LIBS=-lX11            ;;
 esac
 
+AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_NAME/plugins")
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile src/AndorCamera/Makefile])
 AC_CONFIG_FILES([src/data-c++/Makefile])
@@ -111,12 +114,3 @@ AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([src/manifest])
 
 AC_OUTPUT
-
-# Modify libtool to use -lstdc++_s instead of -lstdc++ for Mingw32.
-# This is necessary for correct handling of cross-DLL exceptions.
-case $host in
-    *mingw32*)
-        sed -e 's/-lstdc++ /-lstdc++_s /' libtool > libtool.tmp
-        mv libtool.tmp libtool
-        ;;
-esac

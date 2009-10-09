@@ -98,7 +98,7 @@ namespace dStorm {
         cimg_library::CImg<float> base_image;
         /** Copy of the announcement made by announceStormSize. 
          *  Used in set_resolution_enhancement. */
-        Announcement announcement;
+        std::auto_ptr<Announcement> announcement;
 
         void set_base_image_size();
 
@@ -106,12 +106,12 @@ namespace dStorm {
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
         BinnedLocalizations(double res_enh, int crop = 0);
+        BinnedLocalizations(const BinnedLocalizations&);
         virtual ~BinnedLocalizations() {}
         BinnedLocalizations<KeepUpdated>* clone() const 
             { return new BinnedLocalizations<KeepUpdated>(*this); }
 
-        AdditionalData announceStormSize(const Announcement&)
-;
+        AdditionalData announceStormSize(const Announcement&);
         Result receiveLocalizations(const EngineResult&);
         void propagate_signal(ProgressSignal s) {
             if ( s == Engine_is_restarted ) {

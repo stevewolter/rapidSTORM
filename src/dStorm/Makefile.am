@@ -5,7 +5,6 @@ library_include_HEADERS = \
     BasicOutputs.h \
     Candidate.h \
     CandidateTree.h \
-    CarConfig.h \
     Config.h \
     FileOutputBuilder.h \
     FilterBuilder.h \
@@ -38,7 +37,7 @@ AM_CPPFLAGS = \
 
 libdStorm_la_SOURCES = \
     BasicOutputs.cpp CandidateTree.cpp \
-    CarConfig.cpp Config.cpp FilterSource.cpp \
+    Config.cpp FilterSource.cpp \
     foreach.h Input.cpp Localization.cpp \
     OutputSource.cpp Trace.cpp Crankshaft.cpp \
     LocalizationFileReader.cpp Localizations.cpp \

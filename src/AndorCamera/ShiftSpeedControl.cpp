@@ -1,6 +1,7 @@
 #include "ShiftSpeedControl.h"
 #include "SDK.h"
 #include <string.h>
+#include <stdio.h>
 #include "Config.h"
 #include "System.h"
 #include <math.h>

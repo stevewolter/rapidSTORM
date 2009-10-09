@@ -35,8 +35,7 @@ class LocalizationBuncher : public CImgBuffer::Drain<Localization> {
     void ensure_finished() ;
     void noteTraits(const CImgBuffer::Traits<Localization>&,
                     unsigned int firstImage, 
-                    unsigned int lastImage)
-;
+                    unsigned int lastImage) ;
 
     CImgBuffer::Management
         accept(int index, int number, Localization *l);
