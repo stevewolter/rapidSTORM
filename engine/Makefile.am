@@ -6,7 +6,7 @@ AM_CPPFLAGS = \
     -I $(top_srcdir)/src
 
 libengine_la_SOURCES = \
-    Car.cpp Car.h CImg_forward.h Engine.cpp \
+    CarConfig.h CarConfig.cpp Car.cpp Car.h CImg_forward.h Engine.cpp \
     EngineDebug.h Engine.h GaussFitter.cpp GaussFitter.h \
     GaussFitter_impl.h GaussFitter_ResidueAnalysis.h \
     GaussFitter_selector.cpp GaussFitter_Specialized_a.cpp \

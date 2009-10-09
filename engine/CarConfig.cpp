@@ -2,8 +2,8 @@
 #include "CarConfig.h"
 #include "foreach.h"
 #include <CImgBuffer/Config.h>
-#include "FilterSource.h"
-#include "OutputFactory.h"
+#include <dStorm/FilterSource.h>
+#include <dStorm/OutputFactory.h>
 
 #include <cc++/thread.h>
 #include <sstream>

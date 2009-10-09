@@ -8,6 +8,7 @@
 #include "LocalizationList.h"
 #include <simparm/NumericEntry.hh>
 #include <simparm/FileEntry.hh>
+#include <Eigen/Core>
 
 namespace locprec {
     namespace Precision {
@@ -22,7 +23,8 @@ namespace locprec {
     {
       private:
         simparm::FileEntry printTo;
-        double nm, res_enh;
+        Eigen::Vector3d pixel_dim_in_nm;
+        double res_enh;
 
         ost::Mutex mutex;
 
@@ -35,10 +37,11 @@ namespace locprec {
         SinglePrecisionEstimator ( const Config& config );
         SinglePrecisionEstimator *clone() const;
 
-        AdditionalData announceStormSize(const Announcement&)
- { return LocalizationSources; }
+        AdditionalData announceStormSize(const Announcement&); 
         Result receiveLocalizations(const EngineResult&);
         void propagate_signal(ProgressSignal);
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class MultiPrecisionEstimator 
@@ -46,7 +49,8 @@ namespace locprec {
     {
         simparm::UnsignedLongEntry usedSpots;
         simparm::DoubleEntry x_sd, y_sd, corr;
-        double nm, res_enh;
+        Eigen::Vector3d pixel_dim_in_nm;
+        double res_enh;
 
         dStorm::LocalizationList localizations;
 
@@ -66,9 +70,7 @@ namespace locprec {
 
         MultiPrecisionEstimator *clone() const;
 
-        AdditionalData announceStormSize(const Announcement& a)
-
-            { return localizations.announceStormSize(a); }
+        AdditionalData announceStormSize(const Announcement& a);
         Result receiveLocalizations(const EngineResult& e)
             { return localizations.receiveLocalizations(e); }
         void propagate_signal(ProgressSignal s) 
@@ -77,6 +79,8 @@ namespace locprec {
             if ( s == Engine_run_succeeded )
                 estimatePrecision();
         }
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class PrecisionEstimatorConfig : public virtual simparm::Node
@@ -84,17 +88,14 @@ namespace locprec {
       protected:
 
         void registerNamedEntries() {
-            push_back(pixelSizeInNm);
             push_back(resEnh);
         }
 
       public:
-        simparm::DoubleEntry pixelSizeInNm, resEnh;
+        simparm::DoubleEntry resEnh;
 
         PrecisionEstimatorConfig()
-        : pixelSizeInNm("PixelSize", "Estimated pixel size in nm for "
-                        "FWHM size calculation", 85),
-          resEnh("FitBinSize", "Bin size for precision Gauss fit", 0.1)
+        : resEnh("FitBinSize", "Bin size for precision Gauss fit", 0.1)
             {}
         PrecisionEstimatorConfig* clone() const = 0;
     };

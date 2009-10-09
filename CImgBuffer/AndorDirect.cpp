@@ -40,7 +40,7 @@ CamSource* AndorDirect::Config::impl_makeSource()
         throw std::runtime_error("Readout mode must be image for "
                                  "AndorDirect source");
 
-    return (new Source( cam ));
+    return new Source( cam );
 }
 
 AndorDirect::Source::Source

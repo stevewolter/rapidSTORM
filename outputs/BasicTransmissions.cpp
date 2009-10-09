@@ -1,3 +1,4 @@
+#define CImgBuffer_TIFFLOADER_CPP
 #include "BasicTransmissions.h"
 
 #include "LocalizationFile.h"

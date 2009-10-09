@@ -5,9 +5,9 @@ bin_PROGRAMS = dstorm watchStorm
 
 EXTRA_DATA = rapidSTORM.jar
 SOURCES = DStorm.java
-EXTRA_DIST = $(SOURCES) manifest PluginDir.h.in
+EXTRA_DIST = $(SOURCES) manifest PluginDir.h.in logo.png
 
-dist_pkgdata_DATA = dstorm-config.txt
+dist_pkgdata_DATA = dstorm-config.txt logo.png manifest
 
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
@@ -18,15 +18,15 @@ libdStorm_la_SOURCES =
 nodist_EXTRA_libdStorm_la_SOURCES = dummy.cpp
 libdStorm_la_LIBADD = outputs/libfreeoutputs.la dStorm/libdStorm.la \
     CImgBuffer/libCImgBuffer.la AndorCamera/libAndorCamera.la \
-    cc++/libccgnu2_fixed.la -lltdl 
+    cc++/libccgnu2_fixed.la -lsimparm
 libdStorm_la_LDFLAGS = -no-undefined -version-info 1:0:0 
 
 COMMON_LIBS = outputs/libclosedoutputs.la engine/libengine.la libdStorm.la
-dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h logo.cpp 
-dstorm_LDADD = $(COMMON_LIBS)
+dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h 
+dstorm_LDADD = $(COMMON_LIBS) -lltdl 
     
-watchStorm_SOURCES = watchStorm.cpp Garage.cpp logo.cpp
-watchStorm_LDADD = $(COMMON_LIBS)
+watchStorm_SOURCES = watchStorm.cpp Garage.cpp 
+watchStorm_LDADD = $(COMMON_LIBS) -lltdl
 
 javadir=$(datadir)/java
 java_DATA = DStorm.class

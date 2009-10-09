@@ -131,7 +131,6 @@ void Source<Pixel>::init(FILE *src)
 
 template<typename Pixel>
 Source<Pixel>::Source(FILE *src, const string &i)
- 
 : Object("AndorSIF", "SIF file"),
   BaseSource(BaseSource::Pullable),
   Set("AndorSIF", "SIF file"),
@@ -214,6 +213,7 @@ Config<Pixel>::Config( CImgBuffer::Config& src)
     this->register_entry(&inputFile);
     this->register_entry(&master.firstImage);
     this->register_entry(&master.lastImage);
+    this->register_entry(&master.pixel_size_in_nm);
     inputFile.push_back(sif_extension);
 }
 

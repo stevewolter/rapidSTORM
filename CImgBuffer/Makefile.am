@@ -3,7 +3,7 @@ libCImgBuffer_la_SOURCES = \
     AndorSIF.cpp Config.cpp ViewportSelector.h \
     foreach.h \
     CImgList.h CImgList.cpp ImageSource.cpp \
-    Source.cpp TIFF.cpp
+    Source.cpp TIFF.cpp ImageTraits.cpp
 library_includedir = $(includedir)/CImgBuffer
 library_include_HEADERS = Source.h Buffer.h Config.h Slot.h \
 	Drain.h InputMethod.h \

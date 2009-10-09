@@ -4,7 +4,6 @@
 #include <dStorm/BasicOutputs.h>
 #include <dStorm/FilterSource.h>
 #include <memory>
-#include "Logo.h"
 #include <algorithm>
 #include <functional>
 #include <simparm/IO.hh>
@@ -105,12 +104,11 @@ ModuleHandler::try_loading_module( const char *filename ) {
             ( new LibraryHandle( filename ) );
         lib_handles.push_back( handle.release() );
     } catch( const std::exception& e ) {
-        std::cerr << "Unable to load plugin " << filename << ": "
-                  <<e.what() << "\n";
+        std::cerr << "Unable to load plugin '" << filename << "': " <<
+            e.what() << "\n";
         return Failure;
     }
     loaded.insert( std::string(filename) );
-    std::cerr << "Loaded plugin " << filename << "\n";
     return ModuleHandler::Loaded;
 }
 
@@ -135,7 +133,6 @@ ModuleHandler::ModuleHandler()
     if ( env_plugin_dir != NULL )
         plugin_dir = env_plugin_dir;
 
-    std::cerr << "using plugin dir '" << plugin_dir << "'\n";
     lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
 }
 
@@ -197,7 +194,7 @@ GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
    dStorm::basic_outputs( tcf.get() );
    module_handler.add_output_modules( *tcf );
    carConfig.reset( new dStorm::CarConfig( *tcf ) );
-   dStorm::basic_inputs( carConfig->inputConfig );
+   dStorm::basic_inputs( &carConfig->inputConfig );
    STATUS("Constructing GarageConfig");
    module_handler.add_input_modules( carConfig->inputConfig );
 
@@ -371,9 +368,6 @@ void Garage::init() throw() {
     if (config.externalControl()) {
         //((BasicTransmissions*)factory.get())->addFilterToDefaultConfig();
 
-#ifndef D3_INTERNAL_VERSION
-        cimg_library::Logo logo;
-#endif
         simparm::IO ioManager(&cin, &cout);
         PROGRESS("Setting package name");
         ioManager.setDesc(config.getDesc());

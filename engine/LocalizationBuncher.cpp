@@ -98,7 +98,7 @@ void LocalizationBuncher::noteTraits(
     first = std::min( firstImage, last );
 
     Output::Announcement announcement
-        (traits.width, traits.height, last-first+1);
+        (traits, last-first+1);
     Output::AdditionalData data = 
         target.announceStormSize(announcement);
 

@@ -64,7 +64,9 @@ _Config::_Config()
   inputFile("InputFile", "Input file location"),
   firstImage("FirstImage", "First image to load", 0),
   lastImage("LastImage", "Last image to load",
-            numeric_limits<unsigned long>::max() )
+            numeric_limits<unsigned long>::max() ),
+  pixel_size_in_nm("PixelSizeInNM", "Size of one input pixel in nm",
+                   85)
 {
     PROGRESS("Constructing");
     inputMethod.helpID = HELP_Input_driver;

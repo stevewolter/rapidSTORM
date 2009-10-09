@@ -10,6 +10,7 @@
 
 namespace CImgBuffer {
     template <typename PixelType> class Image;
+    template <typename TraitsType> class Traits;
 }
 
 namespace dStorm {
@@ -100,6 +101,9 @@ namespace dStorm {
     /** This structure summarizes the static information
      *  sent at run start. */
     struct Output::Announcement {
+        /** Traits of the source images, including dimensions and
+         *  resolution. */
+        const CImgBuffer::Traits< dStorm::Image >& traits;
         /** X-Width of the input movie */
         int width;     
         /** Y-Height of the input movie */
@@ -119,12 +123,11 @@ namespace dStorm {
           * the delivered results, if any. NULL otherwise. */
         ResultRepeater *result_repeater;
 
-        Announcement(int width, int height, int length,
-                     Input* carburettor = NULL,
-                     ResultRepeater *repeater = NULL)
-        : width(width), height(height), depth(1), colors(1),
-          length(length), carburettor(carburettor),
-          result_repeater(repeater) {}
+        Announcement(
+            const CImgBuffer::Traits< dStorm::Image >& traits,
+            int length,
+            Input* carburettor = NULL,
+            ResultRepeater *repeater = NULL);
     };
 
     /** An EngineResult structure is sent when localizations were

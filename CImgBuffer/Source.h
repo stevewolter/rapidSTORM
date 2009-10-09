@@ -13,6 +13,7 @@
 namespace CImgBuffer { 
     template <class T> class Drain;
     template <class T> class Source;
+    class Config;
 
     /** A BaseSource class is an interface that supports
      *  delivery of a sequence of generated objects. 
@@ -61,6 +62,8 @@ namespace CImgBuffer {
       public:
         BaseSource(Flags flags);
         virtual ~BaseSource();
+
+        virtual void apply_global_settings(const Config&) = 0;
 
         unsigned int number_of_objects() const;
         /** Set a region of interest in the objects. Only objects with
@@ -112,6 +115,9 @@ namespace CImgBuffer {
 
       public:
         typedef Type value_type;
+
+        void apply_global_settings(const Config& c)
+            { Traits<Type>::apply_global_settings(c); }
 
         std::auto_ptr< Type > get(int index);
         virtual void startPushing(Drain<Type> *);

@@ -67,6 +67,7 @@ Source* Config::impl_makeSource()
     STM_File header = read_header(master.inputFile);
     
     Source *src = new Source(header);
+    src->compute_resolution( master );
     src->push_back( master.inputFile );
     return src;
 }

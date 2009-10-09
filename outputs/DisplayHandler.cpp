@@ -11,6 +11,10 @@ struct Runnable {
     virtual void run() = 0;
 };
 
+wxColor makeColor( const dStorm::Color& c ) {
+    return wxColor( c.r, c.g, c.b );
+}
+
 class wxDisplayHandler : public DisplayHandler {
   private:
     bool initialized;
@@ -26,6 +30,7 @@ class wxDisplayHandler : public DisplayHandler {
     void run() throw() {
         int argc = 0;
         wxEntry(argc, (wxChar**)NULL);
+        assert( false );
     }
 
     void ensure_wx_initialization() {
@@ -57,6 +62,8 @@ class wxDisplayHandlerApp : public wxApp {
     ost::Condition cond;
     std::queue< Runnable* > run_queue;
 
+    std::auto_ptr<wxFrame> nevershow;
+
     DECLARE_EVENT_TABLE();
 
   public:
@@ -66,6 +73,7 @@ class wxDisplayHandlerApp : public wxApp {
         if ( !wxApp::OnInit() )
             return false;
 
+        nevershow.reset( new wxFrame(NULL, wxID_ANY, _T("Nevershow")) );
         static_cast<wxDisplayHandler&>(DisplayHandler::getSingleton())
             .set_initialized();
         return true;
@@ -235,8 +243,8 @@ class ImageCanvas : public wxScrolledWindow {
             c.DoPrepareDC( dc );
         }
       public:
-        void draw( int x, int y, uint8_t r, uint8_t g, uint8_t b );
-        void clear( uint8_t r, uint8_t g, uint8_t b );
+        void draw( int x, int y, const Color& c );
+        void clear( const Color& c );
     };
     std::auto_ptr<Drawer> getDrawer()
         { return std::auto_ptr<Drawer>( new Drawer(*this) ); }
@@ -340,8 +348,8 @@ void ImageCanvas::resize( const wxSize& new_size ) {
     zoom_to( canvas_coords( new_size ) );
 }
 
-void ImageCanvas::Drawer::draw( int x, int y, uint8_t r, uint8_t g, uint8_t b ) {
-    c.contents.SetRGB( x, y, r, g, b );
+void ImageCanvas::Drawer::draw( int x, int y, const Color& co ) {
+    c.contents.SetRGB( x, y, co.r, co.g, co.b );
 
     wxRect visible_region = c.get_visible_region();
     wxRect image_region( x, y, 1, 1 );
@@ -352,9 +360,9 @@ void ImageCanvas::Drawer::draw( int x, int y, uint8_t r, uint8_t g, uint8_t b ) 
     }
 }
 
-void ImageCanvas::Drawer::clear( uint8_t r, uint8_t g, uint8_t b ) {
-    wxPen pen( wxColour(r,g,b) );
-    wxBrush brush( wxColour(r,g,b) );
+void ImageCanvas::Drawer::clear( const Color &color ) {
+    wxPen pen( makeColor(color) );
+    wxBrush brush( makeColor(color) );
     dc.SetPen( pen );
     dc.SetBrush( brush );
     dc.DrawRectangle( c.canvas_coords(
@@ -362,9 +370,9 @@ void ImageCanvas::Drawer::clear( uint8_t r, uint8_t g, uint8_t b ) {
     unsigned char *ptr = c.contents.GetData();
     int size = 3 * c.contents.GetWidth() * c.contents.GetHeight();
     for (int i = 0; i < size; i += 3) {
-        ptr[i] = r;
-        ptr[i+1] = g;
-        ptr[i+2] = b;
+        ptr[i] = color.r;
+        ptr[i+1] = color.g;
+        ptr[i+2] = color.b;
     }
 
     if ( c.mouse_state == Dragging )
@@ -426,19 +434,60 @@ void ImageCanvas::set_zoom(int zoom, wxPoint center)
 
 }
 
+class ImageKey : public wxWindow {
+    wxSize current_size;
+    std::auto_ptr<wxBitmap> buffer;
+  public:
+    ImageKey( wxWindow* parent, wxSize size ) 
+        : wxWindow( parent, wxID_ANY, wxDefaultPosition, size,
+                    wxBORDER_SUNKEN ),
+          current_size( size ),
+          buffer( new wxBitmap(size.GetWidth(), size.GetHeight()) )
+        {}
+
+    void draw_key( ChangeEvent::KeyChange& kc ) {
+        wxClientDC dc( this );
+        wxBufferedDC buffer( &dc, *this->buffer );
+
+        if ( kc.index < current_size.GetHeight() ) {
+            wxPen pen( makeColor( kc.color ) );
+            buffer.SetPen( pen );
+            buffer.DrawLine( 5, kc.index, 40, kc.index );
+        }
+    }
+
+    void OnPaint( wxPaintEvent& event ) {
+        wxPaintDC dc(this);
+
+        wxRegion updateRegions = GetUpdateRegion();
+        for ( wxRegionIterator region( updateRegions ); region; ++region ){
+            wxRect rect = region.GetRect();
+
+            dc.DrawBitmap(buffer->GetSubBitmap( rect ), rect.GetTopLeft());
+        }
+    }
+    void OnResize( wxSizeEvent& ) {
+        wxSize size = GetClientSize();
+        current_size = size;
+        buffer.reset( new wxBitmap( size.GetWidth(), size.GetHeight() ) );
+    }
+    DECLARE_EVENT_TABLE();
+};
+
+BEGIN_EVENT_TABLE(ImageKey, wxWindow)
+    EVT_PAINT(ImageKey::OnPaint)
+    EVT_SIZE(ImageKey::OnResize)
+END_EVENT_TABLE()
+
 class wxImageHandle : public DisplayHandler::ImageHandle, public wxFrame {
   private:
     ImageCanvas* canvas;
+    ImageKey* key;
     wxSlider *zoom;
     wxTimer timer;
 
     ost::Mutex handler_mutex;
     DisplayHandler::ViewportHandler* handler;
-
-    bool resize_on_timer;
-    int width, height;
-    bool clear_on_timer;
-    uint8_t r, g, b;
 
     DECLARE_EVENT_TABLE();
 
@@ -454,28 +503,36 @@ class wxImageHandle : public DisplayHandler::ImageHandle, public wxFrame {
     }
 
     void commit_changes() {
-        if ( !resize_on_timer &&
-             !clear_on_timer && pending_changes.size() == 0 ) return;
+        if ( pending_changes.size() == 0 ) return;
 
-        if ( resize_on_timer ) {
-            canvas->resize( wxSize( width, height ) );
-            resize_on_timer = false;
+        if ( pending_changes.front().type == ChangeEvent::ResizeClear ) {
+            ChangeEvent::ResizeChange& r = 
+                pending_changes.front().change.resize;
+            canvas->resize( wxSize( r.width, r.height ) );
         }
 
         std::auto_ptr<ImageCanvas::Drawer> drawer
             = canvas->getDrawer();
 
-        if ( clear_on_timer ) {
-            clear_on_timer = false;
-            drawer->clear( r, g, b );
-        }
-
-        data_cpp::Vector<Pixel>::iterator 
+        data_cpp::Vector<ChangeEvent>::iterator 
             i = pending_changes.begin(),
             end = pending_changes.end();
         for ( ; i != end; i++) {
-            Pixel& p = *i;
-            drawer->draw( p.x, p.y, p.r, p.g, p.b );
+            ChangeEvent::PixelChange& p = i->change.pixel;
+            switch ( i->type ) {
+              case ChangeEvent::Pixel:
+                drawer->draw( p.x, p.y, p.color );
+                break;
+              case ChangeEvent::ResizeClear:
+                drawer->clear( i->change.resize.background );
+                break;
+              case ChangeEvent::Clear:
+                drawer->clear( i->change.clear.background );
+                break;
+              case ChangeEvent::Key:
+                key->draw_key( i->change.key );
+                break;
+            }
         }
         pending_changes.clear();
     }
@@ -488,7 +545,6 @@ class wxImageHandle : public DisplayHandler::ImageHandle, public wxFrame {
     : wxFrame(NULL, wxID_ANY, name, wxDefaultPosition, wxSize(680, 680)),
       timer(this, DISPLAY_TIMER),
       handler(&handler),
-      clear_on_timer( false ),
       size_was_set( false )
     {
         wxBoxSizer* ver_sizer = new wxBoxSizer( wxVERTICAL ),
@@ -512,21 +568,6 @@ class wxImageHandle : public DisplayHandler::ImageHandle, public wxFrame {
     }
     ~wxImageHandle() {
         timer.Stop();
-    }
-
-    void setSize( int width, int height )
-    {
-        ost::MutexLock handler_mutex_lock( handler_mutex );
-        resize_on_timer = true;
-        this->width = width;
-        this->height = height;
-        size_was_set = true;
-    }
-
-    void clear( uint8_t r, uint8_t g, uint8_t b ) {
-        clear_on_timer = true;
-        this->r = r; this->g = g; this->b = b;
-        pending_changes.clear();
     }
 
     void delete_when_finished() {

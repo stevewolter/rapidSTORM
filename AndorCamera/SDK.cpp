@@ -5,6 +5,7 @@
 #include <cc++/thread.h>
 #include <cassert>
 #include <string.h>
+#include <stdio.h>
 
 #ifdef LINK_SDK_DYNAMICALLY
 /* This sounds ridiculous, but, for some reason, these includes
