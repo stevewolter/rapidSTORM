@@ -14,7 +14,6 @@ libclosedoutputs_la_SOURCES = \
     AverageImage.cpp AverageImage.h BasicTransmissions.cpp \
     BinnedLocalizations_impl.h ColourDisplay.cpp \
     ColourDisplay.h ColourDisplay_impl.h \
-    DisplayHandler.cpp DisplayHandler.h \
     Histogram.h Histogram_impl.h \
     ImageDiscretizer.h ImageDiscretizer_impl.h \
     LocalizationCounter.cpp LocalizationCounter.h \
@@ -22,6 +21,8 @@ libclosedoutputs_la_SOURCES = \
     LocalizationFilter.cpp LocalizationFilter.h \
     ProgressMeter.cpp \
     ProgressMeter.h RawImageFile.cpp RawImageFile.h Slicer.cpp \
-    Slicer.h ViewerConfig.h \
-    Viewer.cpp Viewer.h ViewportImage.h \
+    Slicer.h \
+    ViewportImage.h \
     PrecisionEstimator.h PrecisionEstimator.cpp
+
+# ViewerConfig.h Viewer.cpp Viewer.h DisplayHandler.cpp DisplayHandler.h

@@ -9,25 +9,28 @@ namespace dStorm {
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackWhite>
-: public Colorizer
+: public Colorizer<unsigned char>
 {
   public:
+    typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
     HueingColorizer(const Viewer::Config& c)
-        : Colorizer(c) {} 
+        : Colorizer<unsigned char>(c) {} 
     inline Pixel getPixel( int, int, BrightnessType br ) 
             { return inv( Pixel(br) ); }
+    inline Pixel getKeyPixel( BrightnessType br ) 
+        { return getPixel(0, 0, br ); }
 };
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackRedYellowWhite>
-: public Colorizer
+: public Colorizer<unsigned short>
 {
   public:
     typedef unsigned short BrightnessType;
     static const int BrightnessDepth = 0x300;
 
     HueingColorizer(const Viewer::Config& c)
-        : Colorizer(c) {} 
+        : Colorizer<unsigned short>(c) {} 
     Pixel getPixel( int, int, BrightnessType br ) {
         unsigned char part = br & 0xFF;
         return inv(
@@ -35,17 +38,20 @@ class HueingColorizer<ColourSchemes::BlackRedYellowWhite>
             ( br < 0x200 ) ? Pixel( 0xFF, part, 0 ) :
                              Pixel( 0xFF, 0xFF, part ) );
     }
+    inline Pixel getKeyPixel( BrightnessType br ) 
+        { return getPixel(0, 0, br ); }
 };
 
 template <> 
 class HueingColorizer<ColourSchemes::FixedHue> 
-: public Colorizer
+: public Colorizer<unsigned char>
 {
     float rgb_weights[3];
 
   public:
+    typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
     HueingColorizer(const Viewer::Config& config)
-    : Colorizer(config) {
+    : Colorizer<unsigned char>(config) {
         ColourSchemes::rgb_weights_from_hue_saturation
             ( config.hue(), config.saturation(),
               rgb_weights, 1 );
@@ -57,12 +63,17 @@ class HueingColorizer<ColourSchemes::FixedHue>
             rgb_weights[1] * val,
             rgb_weights[2] * val ) );
     }
+    inline Pixel getKeyPixel( BrightnessType br ) 
+        { return getPixel(0, 0, br ); }
 };
 
 template <int Hueing> 
-class HueingColorizer : public Colorizer { 
+class HueingColorizer : public Colorizer<unsigned char> { 
     typedef Eigen::Matrix<float,2,1,Eigen::DontAlign> ColourVector;
+  public:
+    typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
 
+  private:
     float minV, maxV, scaleV;
 
     /** Offset for tone calculations. */
@@ -107,7 +118,7 @@ class HueingColorizer : public Colorizer {
 
   public:
     HueingColorizer(const Viewer::Config& config)
-        : Colorizer(config)
+        : Colorizer<unsigned char>(config)
         { base_tone[0] = config.hue(); 
           base_tone[1] = config.saturation(); } 
 
@@ -115,6 +126,7 @@ class HueingColorizer : public Colorizer {
         colours = cimg_library::CImg<ColourVector>(w,h);
         rgb_weights.resize( w, h, 1, 3, -1 );
     }
+
     inline Pixel getPixel( int x, int y, 
                            BrightnessType val ) 
     {
@@ -124,6 +136,8 @@ class HueingColorizer : public Colorizer {
             round(val * rgb_weights(x,y,0,2))
         ) );
     }
+    Pixel getKeyPixel( BrightnessType val ) { return inv( Pixel( val ) ); }
+
     inline void updatePixel(int x, int y, 
                             float oldVal, float newVal) 
         { merge_tone(x, y, oldVal, newVal - oldVal); }

@@ -11,9 +11,6 @@ namespace DiscretizedImage {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
         void setSize(int width, int height);
-        /** Set the range of key values to be expected in the first
-         *  parameter of notice_key_change. */
-        void set_key_range(int first_key, int last_key);
         /** Called when a pixel changes in the image. The parameters
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
@@ -28,7 +25,7 @@ namespace DiscretizedImage {
          *               not be 
          *  @param value The new upper bound on the number of A/D counts for
          *               this pixel. */
-        void notice_key_change( ColorPixel pixel, float value );
+        void notice_key_change( int index, ColorPixel pixel, float value );
     };
 
 #if 0
@@ -86,6 +83,8 @@ class ImageDiscretizer
     typedef unsigned short HighDepth;
     typedef typename Colorizer::BrightnessType LowDepth;
 
+    typedef data_cpp::Vector<LowDepth> TransitionTable;
+
     unsigned int total_pixel_count;
     Colorizer& colorizer;
 
@@ -93,7 +92,7 @@ class ImageDiscretizer
           disc_factor;
 
     data_cpp::Vector<unsigned int> histogram;
-    data_cpp::Vector<LowDepth> transition;
+    TransitionTable transition;
     data_cpp::Vector<HistogramPixel> pixels_by_value;
     cimg_library::CImg<HistogramPixel> pixels_by_position;
 
@@ -113,6 +112,8 @@ class ImageDiscretizer
 
     inline void change( int x, int y, HighDepth to );
     void normalize_histogram();
+    void publish_differences_in_transitions( 
+        TransitionTable& old_table, TransitionTable& new_table );
 
   public:
     inline ImageDiscretizer(

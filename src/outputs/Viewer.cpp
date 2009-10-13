@@ -83,9 +83,9 @@ class ColourDependantImplementation
         : public DiscretizedImage::Listener<typename MyColorizer::Pixel>
     {
         Discretizer& discretizer;
-        typedef std::set< Eigen::Vector2i > PixelSet;
+        typedef std::vector< bool > PixelSet;
         PixelSet ps;
-        int ps_size;
+        int ps_step, ps_bits_set;
         std::auto_ptr<DisplayHandler::ImageHandle>
             image_handle;
         std::string desc;
@@ -97,7 +97,7 @@ class ColourDependantImplementation
             Discretizer& disc, 
             const Viewer::Config& config,
             DisplayHandler::ViewportHandler& vph 
-        ) : discretizer(disc), ps_size(0), desc(config.getDesc()),
+        ) : discretizer(disc), ps_bits_set(0), desc(config.getDesc()),
               do_show_output( config.showOutput() ),
               vph(vph)
             {}
@@ -107,38 +107,49 @@ class ColourDependantImplementation
         }
         void setSize(int width, int height) { 
             if ( ! do_show_output ) return;
+
+            ps.resize( width * height, false );
+            ps_step = width;
+
+            ChangeEvent::ResizeChange r;
+            r.width = width;
+            r.height = height;
+            r.key_size = MyColorizer::BrightnessDepth;
+            copy_color(r.background, discretizer.get_background());
+
             if ( ! image_handle.get() ) {
                 set_image_handle(  
                     DisplayHandler::getSingleton()
-                        .makeImageWindow(desc, vph));
+                        .makeImageWindow(desc, vph, r));
+            } else {
+                image_handle->resize() = r;
+                image_handle->commit_changes( 1 );
             }
-
-            ChangeEvent::ResizeChange& r = image_handle->resize();
-            r.width = width;
-            r.height = height;
-            copy_color(r.background, discretizer.get_background());
-            image_handle->commit_changes( 1 );
         }
         void pixelChanged(int x, int y) {
-            if ( ps.insert( Eigen::Vector2i(x,y) ).second == true )
-                ps_size++;
+            std::vector<bool>::reference& is_on = ps[ y * ps_step + x ];
+            if ( ! is_on ) {
+                ChangeEvent::PixelChange& p = 
+                    image_handle->changed_pixel();
+                p.x = x;
+                p.y = y;
+                /* The color field will be set when the clean handler
+                 * runs. */
+                ps_bits_set++;
+            }
         }
         void clean() {
             if ( image_handle.get() == NULL ) return;
-            ChangeEvent *ev = image_handle->declare_changes(ps_size);
-            for ( PixelSet::const_iterator i = ps.begin(); 
-                  i != ps.end(); i++ )
+            typedef DisplayHandler::ImageHandle::PixelQueue PixQ;
+            const PixQ::const_iterator end 
+                = image_handle->get_pixel_queue().end();
+            for ( PixQ::const_iterator i = 
+                image_handle->get_pixel_queue().begin(); i != end; i++ )
             {
-                ev->type = ChangeEvent::Pixel;
-                ChangeEvent::PixelChange& p = ev->change.pixel;
-                p.x = i->x();
-                p.y = i->y();
-                copy_color(p.color, discretizer.get_pixel(p.x, p.y));
-                ev++;
+                copy_color(i->color, discretizer.get_pixel(i->x, i->y));
+                ps[ i->y * ps_step + i->x] = false;
             }
-            image_handle->commit_changes(ps_size);
-            ps.clear();
-            ps_size = 0;
+            ps_bits_set = 0;
         }
         void clear() {
             if ( image_handle.get() == NULL ) return;
@@ -146,7 +157,7 @@ class ColourDependantImplementation
             copy_color(c.background, discretizer.get_background());
             image_handle->commit_changes( 1 );
             ps.clear();
-            ps_size = 0;
+            ps_bits_set = 0;
         }
         void notice_key_change( int index, 
             typename MyColorizer::Pixel pixel, float value )
@@ -154,7 +165,7 @@ class ColourDependantImplementation
             if ( image_handle.get() == NULL ) return;
             ChangeEvent::KeyChange& k = image_handle->set_key();
             k.index = index;
-            k.color << pixel;
+            copy_color(k.color, pixel);
             k.value = value;
             image_handle->commit_changes( 1 );
         }

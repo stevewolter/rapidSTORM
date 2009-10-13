@@ -349,8 +349,19 @@ class Vector {
         return i;
     }
 
+    inline void swap( Vector<Type>& with ) {
+        std::swap( data, with.data );
+        std::swap( length, with.length );
+        std::swap( alloc, with.alloc );
+    }
 };
 
+}
+
+namespace std {
+    template <typename Type>
+    inline void swap( data_cpp::Vector<Type>& a, data_cpp::Vector<Type>& b)
+        { a.swap( b ); }
 }
 
 #endif
