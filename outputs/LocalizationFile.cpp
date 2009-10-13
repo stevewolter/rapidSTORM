@@ -27,11 +27,11 @@ static void printFit(const Localization &f, ostream &file,
     int localizationDepth) 
 {
     if ( localizationDepth > 0 && f.has_source_trace() ) {
+        file << "\n\n";
         const Trace& trace = f.get_source_trace();
         for (Trace::const_iterator i = trace.begin(); 
                                     i != trace.end(); i++)
             printFit(*i, file, 0);
-        file << "\n\n";
     } else {
       file << f;
     }

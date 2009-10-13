@@ -127,18 +127,20 @@ template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
     ::normalize_histogram()
 {
+    const unsigned long used_histogram_pixels = 
+        non_background_pixel_count;
+    if ( used_histogram_pixels == 0U )
+        return;
+
     const unsigned int start = background_threshold;
     const LowDepth maxVal = (out_depth - start);
 
     double fractions[in_depth];
     double accum = 0;
-    const unsigned long used_histogram_pixels = 
-        non_background_pixel_count;
     float power = histogram_power;
 
-    if ( used_histogram_pixels == 0U ) {
-        return;
-    }
+    bool histogram_has_changed = false;
+    TransitionTable new_transition( in_depth );
 
     for (unsigned int i = start; i < in_depth; i++) {
         if (histogram[i] != 0)
@@ -148,23 +150,55 @@ void ImageDiscretizer<Colorizer, ImageListener>
         fractions[i] = accum;
     }
 
+    for (unsigned int i = 0; i < start; i++)
+        new_transition[i] = i;
+
+    int count = 0;
     for (unsigned int i = start; i < in_depth; i++) {
         double q = (fractions[i] / accum);
         LowDepth newValue = std::min<int>(
             std::max<int>(maxVal*q, 0)+start, out_depth);
-        LowDepth &oldValue = transition[i];
+        const LowDepth& oldValue = transition[i];
         
         if ( ! pixels_by_value[i].empty() ) {
-            if ( abs( newValue - oldValue ) > 5 ) {
+            if ( abs( int(newValue) - int(oldValue) ) > 5 ) {
                 for ( HistogramPixel* j = pixels_by_value[i].next; 
                                 j != &pixels_by_value[i]; j = j->next)
                 {
                     this->publish().pixelChanged( j->x, j->y );
+                    count++;
                 }
-                oldValue = newValue;
-            }
-        } else
-            oldValue = newValue;
+                new_transition[i] = newValue;
+                histogram_has_changed = true;
+            } else
+                new_transition[i] = oldValue;
+        } else {
+            new_transition[i] = newValue;
+            histogram_has_changed = true;
+        }
+    }
+
+    if ( histogram_has_changed ) {
+        publish_differences_in_transitions( transition, new_transition );
+        std::swap( transition, new_transition );
+    }
+}
+
+template <typename Colorizer, typename ImageListener>
+void ImageDiscretizer<Colorizer, ImageListener>
+  ::publish_differences_in_transitions
+  ( TransitionTable& old_table, TransitionTable& new_table )
+{
+    HighDepth o = 0, n = 0;
+    for (LowDepth v = 0; v < out_depth; v++) {
+        while ( (o+1U) < in_depth && old_table[o+1U] <= v ) o++;
+        while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;
+
+        if ( o != n ) {
+            float undisc_new_val = (n + 0.5) / disc_factor;
+            this->publish().notice_key_change
+                ( v, colorizer.getKeyPixel(v), undisc_new_val );
+        }
     }
 }
 

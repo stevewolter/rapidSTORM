@@ -6,6 +6,7 @@
 #include <CImgBuffer/InputMethod.h>
 #include <dStorm/Localization.h>
 #include <dStorm/Image.h>
+#include <dStorm/TraceReducer.h>
 #include <CImgBuffer/ImageTraits.h>
 
 namespace CImgBuffer {
@@ -22,8 +23,10 @@ class Traits<dStorm::Localization>
 }
 
 namespace dStorm {
+
 /** This namespace provides a source that can read STM files.
  *  Standard CImgBuffer::Source semantics apply. */
+
 namespace LocalizationFileReader {
     struct STM_File {
         std::istream& input;
@@ -36,22 +39,20 @@ namespace LocalizationFileReader {
     class Source 
     : public CImgBuffer::Source<Localization>, public simparm::Object
     {
+        int level;
         STM_File file;
         Localization buffer;
+        std::vector< dStorm::Trace > trace_buffer;
+        std::auto_ptr<TraceReducer> reducer;
 
+        int number_of_newlines();
+        void read_localization(Localization& target, int level, 
+                               int& use_trace_buffer );
         Localization* fetch(int);
 
       public:
-        Source(const STM_File& file)
-        : CImgBuffer::Source<Localization>
-            (BaseSource::Pushing | 
-             BaseSource::Pullable | BaseSource::Managing),
-          simparm::Object("STM_Show", "Input options"),
-          file(file)
-        {
-            *(CImgBuffer::Traits<Localization>*)this
-                = file.traits;
-        }
+        Source(const STM_File& file, 
+               std::auto_ptr<TraceReducer> reducer);
         virtual int quantity() const 
             { throw std::logic_error("Number of localizations in file "
                     "not known a priori."); }
@@ -62,6 +63,7 @@ namespace LocalizationFileReader {
     {
       private:
         CImgBuffer::Config& master;
+        TraceReducer::Config trace_reducer;
         simparm::Attribute<std::string> stm_extension, txt_extension;
         
       public:
@@ -78,6 +80,8 @@ namespace LocalizationFileReader {
 
             master.inputFile.push_back( stm_extension );
             master.inputFile.push_back( txt_extension );
+
+            push_back( trace_reducer );
         }
         ~Config();
 

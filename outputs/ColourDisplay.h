@@ -3,6 +3,7 @@
 
 #include <outputs/BinnedLocalizations.h>
 #include <outputs/ViewerConfig.h>
+#include <limits>
 
 namespace dStorm {
 
@@ -19,8 +20,10 @@ namespace ColourSchemes {
         float x, float y, float& hue, float& sat );
 };
 
+template <typename _BrightnessType = unsigned char>
 class Colorizer : public DummyBinningListener {
   public:
+    typedef _BrightnessType BrightnessType;
     struct Pixel { 
         uint8_t r, g, b;
         Pixel(uint8_t grey_value) 
@@ -39,14 +42,16 @@ class Colorizer : public DummyBinningListener {
             return p;
     }
   public:
-    typedef unsigned char BrightnessType;
-    static const int BrightnessDepth = 256;
+    static const int BrightnessDepth 
+        = (1U << (sizeof(BrightnessType) * 8));
 
     Colorizer( const Viewer::Config& config ) 
         : invert( config.invert() ) {}
 
     Pixel getPixel( int x, int y, 
                     BrightnessType brightness );
+    /** Get the brightness for a pixel in the key. */
+    Pixel getKeyPixel( BrightnessType brightness );
     Pixel get_background() { return inv(Pixel(0)); }
 };
 
