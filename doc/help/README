@@ -1,0 +1,13 @@
+This directory contains the help file for the rapidSTORM project
+in Docbook format with a wrapper for the htmlhelp Docbook stylesheet.
+
+To sort the index correctly, I modified the htmlhelp-common file in the
+template for indexterms in hhk mode and in the calling template.
+I enabled sorting the indexterm elements via xsl:sort and changed the
+code to generate thesecondary  entries. The htmlhelp-common-diff.txt
+file in this directory documents the changes.
+
+To compile this project, the MS hhc compiler is necessary. On NT systems,
+the itircl.dll and itss.dll files must be present and registered with 
+regsvr32.dll . The hhc compiler will output a warning if this is not the
+case.

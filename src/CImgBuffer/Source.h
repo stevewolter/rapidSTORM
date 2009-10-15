@@ -119,7 +119,13 @@ namespace CImgBuffer {
         void apply_global_settings(const Config& c)
             { Traits<Type>::apply_global_settings(c); }
 
-        std::auto_ptr< Type > get(int index);
+        /** This methods returns the object with the specified index.
+         *  @return The object at the index, or NULL if an error occured.
+         *          If manages_returned_objects() returns false, this
+         *          pointer must be deallocated by the caller. Otherwise
+         *          it points to static memory that might be overwritten
+         *          by the next call to get(). */
+        Type* get(int index);
         virtual void startPushing(Drain<Type> *);
         virtual void stopPushing(Drain<Type> *) {}
 
@@ -157,10 +163,8 @@ namespace CImgBuffer {
     }
 
     template <typename Type> 
-    std::auto_ptr< Type >
-    Source<Type>::get(int index) { 
-        return std::auto_ptr<Type>(fetch(roi_start + index)); 
-    }
+    Type*
+    Source<Type>::get(int index) { return fetch(roi_start + index); }
 };
 
 #endif

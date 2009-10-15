@@ -1,0 +1,8 @@
+*.title { font-family: sans-serif; font-weight: bold; padding-left: 1.5cm; clear:both; }
+*.part_header { float:left; padding-left: 0cm; }
+*.chapter_header { float: right; padding-left: 0cm; }
+
+div.navigation_container { float: right; margin: 0.3ex; }
+span.navigation_item { margin-left: 0.6ex; }
+span#top_of_page_link { float:right; }
+span#related_topics { font-weight:bold; }

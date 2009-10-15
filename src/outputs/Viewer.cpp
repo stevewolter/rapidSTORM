@@ -7,7 +7,7 @@
 #include <dStorm/Image.h>
 #include <CImg.h>
 #include <fstream>
-#include "help_context.h"
+#include "doc/help/context.h"
 
 #include <outputs/BinnedLocalizations.h>
 #include <outputs/BinnedLocalizations_impl.h>
@@ -86,117 +86,112 @@ class ColourDependantImplementation
         typedef std::vector< bool > PixelSet;
         PixelSet ps;
         int ps_step, ps_bits_set;
-        std::auto_ptr<DisplayHandler::ImageHandle>
-            image_handle;
+
+        DisplayHandler::WindowID window_id;
         std::string desc;
-        bool do_show_output;
+        bool do_show_output, close_immediately;
         DisplayHandler::ViewportHandler& vph;
 
+        std::auto_ptr<DisplayHandler::Change> next_change;
+
       public:
+        ost::Mutex mutex;
+
         ColouredImageAdapter( 
             Discretizer& disc, 
             const Viewer::Config& config,
             DisplayHandler::ViewportHandler& vph 
         ) : discretizer(disc), ps_bits_set(0), desc(config.getDesc()),
               do_show_output( config.showOutput() ),
-              vph(vph)
+              close_immediately( config.close_on_completion() ),
+              vph(vph), 
+              next_change( new DisplayHandler::Change( 1000, 100 ) )
             {}
         ~ColouredImageAdapter() {
-            if ( image_handle.get() != NULL )
-                close_window();
+            close_window();
         }
         void setSize(int width, int height) { 
-            if ( ! do_show_output ) return;
-
             ps.resize( width * height, false );
             ps_step = width;
 
-            ChangeEvent::ResizeChange r;
+            DisplayHandler::ResizeChange r;
             r.width = width;
             r.height = height;
             r.key_size = MyColorizer::BrightnessDepth;
             copy_color(r.background, discretizer.get_background());
 
-            if ( ! image_handle.get() ) {
-                set_image_handle(  
-                    DisplayHandler::getSingleton()
-                        .makeImageWindow(desc, vph, r));
+            if ( do_show_output ) {
+                window_id = DisplayHandler::getSingleton()
+                        .make_image_window( desc, vph, r );
             } else {
-                image_handle->resize() = r;
-                image_handle->commit_changes( 1 );
+                next_change->do_resize = true;
+                next_change->resize_image = r;
+                this->clear();
             }
         }
         void pixelChanged(int x, int y) {
-            std::vector<bool>::reference& is_on = ps[ y * ps_step + x ];
+            std::vector<bool>::reference is_on = ps[ y * ps_step + x ];
             if ( ! is_on ) {
-                ChangeEvent::PixelChange& p = 
-                    image_handle->changed_pixel();
+                DisplayHandler::PixelChange&
+                    p = *next_change->change_pixels.allocate(1);
                 p.x = x;
                 p.y = y;
                 /* The color field will be set when the clean handler
                  * runs. */
+                next_change->change_pixels.commit(1);
                 ps_bits_set++;
             }
         }
         void clean() {
-            if ( image_handle.get() == NULL ) return;
-            typedef DisplayHandler::ImageHandle::PixelQueue PixQ;
-            const PixQ::const_iterator end 
-                = image_handle->get_pixel_queue().end();
-            for ( PixQ::const_iterator i = 
-                image_handle->get_pixel_queue().begin(); i != end; i++ )
+            typedef data_cpp::Vector<DisplayHandler::PixelChange> PixQ;
+            const PixQ::iterator end 
+                = next_change->change_pixels.end();
+            for ( PixQ::iterator i = 
+                next_change->change_pixels.begin(); i != end; i++ )
             {
                 copy_color(i->color, discretizer.get_pixel(i->x, i->y));
-                ps[ i->y * ps_step + i->x] = false;
+                ps[ i->y * ps_step + i->x ] = false;
             }
             ps_bits_set = 0;
         }
         void clear() {
-            if ( image_handle.get() == NULL ) return;
-            ChangeEvent::ClearChange &c = image_handle->clear();
+            DisplayHandler::ClearChange &c = next_change->clear_image;
             copy_color(c.background, discretizer.get_background());
-            image_handle->commit_changes( 1 );
-            ps.clear();
+            next_change->do_clear = true;
+
+            next_change->change_pixels.clear();
+            next_change->change_key.clear();
+            fill( ps.begin(), ps.end(), false );
             ps_bits_set = 0;
         }
         void notice_key_change( int index, 
             typename MyColorizer::Pixel pixel, float value )
         {
-            if ( image_handle.get() == NULL ) return;
-            ChangeEvent::KeyChange& k = image_handle->set_key();
+            DisplayHandler::KeyChange& k = 
+                *next_change->change_key.allocate(1);
             k.index = index;
             copy_color(k.color, pixel);
             k.value = value;
-            image_handle->commit_changes( 1 );
+            next_change->change_key.commit(1);
         }
 
-        void set_image_handle(
-            std::auto_ptr<DisplayHandler::ImageHandle> handle)
-        {
-            image_handle = handle;
-            clear();
-        }
         void close_window() {
-            if ( image_handle.get() != NULL ) {
-                DisplayHandler::getSingleton()
-                    .returnImageWindow( image_handle, true );
-            }
+            DisplayHandler::getSingleton().notify_of_vanished_data_source
+                ( window_id, close_immediately );
         }
-        void detach_window() {
-            if ( image_handle.get() != NULL ) {
-                DisplayHandler::getSingleton()
-                    .returnImageWindow( image_handle, false );
-            }
+
+        std::auto_ptr<DisplayHandler::Change> get_current_changes() {
+            std::auto_ptr<DisplayHandler::Change> fresh;
+            fresh = next_change->empty_change_with_same_allocated_size();
+            std::swap( fresh, next_change );
+            return fresh;
         }
-        std::auto_ptr<DisplayHandler::ImageHandle> release_window() {
-            do_show_output = false;
-            return image_handle;
-        }
-                
     };
 
-    void clean() {
+    std::auto_ptr<DisplayHandler::Change> get_changes() {
+        ost::MutexLock lock( cia.mutex );
         image.clean(); 
+        return cia.get_current_changes();
     }
 
     /** Binned image with all localizations in localizationsStore.*/
@@ -209,10 +204,10 @@ class ColourDependantImplementation
   public:
     ColourDependantImplementation(const Viewer::Config& config)
         : /* Careful: Forward reference. This code works because (a) getMutex() is not virtual and (b) we simply need a reference. */
-          DisplayHandler::ViewportHandler( image.getMutex() ),
+          DisplayHandler::ViewportHandler(),
           image( config.res_enh(), 1 ),
           colorizer(config),
-          discretization( 4096, 1, 
+          discretization( 4096, 
                 config.histogramPower(), image(),
                 colorizer),
           cia( discretization, config, *this )
@@ -235,9 +230,7 @@ class ColourDependantImplementation
         { discretization.setHistogramPower( power ); }
     virtual void set_resolution_enhancement(float re) 
         { image.set_resolution_enhancement( re ); }
-    virtual std::auto_ptr<DisplayHandler::ImageHandle>
-        detach_from_window() { return cia.release_window(); }
-    virtual void wait_for_completion() { cia.detach_window(); }
+    virtual void wait_for_completion() { cia.close_window(); }
 };
 
 Viewer::_Config::_Config()

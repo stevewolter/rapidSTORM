@@ -4,7 +4,7 @@
 #include "Crankshaft.h"
 #include "OutputSource.h"
 #include "OutputFactory.h"
-#include "help_context.h"
+#include "doc/help/context.h"
 
 namespace dStorm {
 

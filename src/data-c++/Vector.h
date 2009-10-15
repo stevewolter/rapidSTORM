@@ -194,6 +194,9 @@ class Vector {
 
     /** Return the size of the vector. */
     int size() const { return length; }
+    /** @return the number of objects for which memory is 
+     *  currently allocated. */
+    int capacity() const { return alloc; }
     /** Resize the vector to size \c ns and allocate memory if necessary. */
     void resize(int ns) { 
         int os = length;

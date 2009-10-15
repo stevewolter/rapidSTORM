@@ -18,7 +18,10 @@ class WaitableRunnable : public Runnable {
     ost::Condition cond;
   public:
     WaitableRunnable() : did_run(false), cond(mutex) {}
-    void wait();
+    void wait() {
+        ost::MutexLock lock(mutex);
+        while (!did_run) cond.wait();
+    }
     void finish() { 
         ost::MutexLock lock(mutex);
         did_run = true;  
@@ -48,6 +51,8 @@ class wxDisplayHandler : public DisplayHandler {
         assert( false );
     }
 
+    void close() throw();
+
     void ensure_wx_initialization() {
         ost::MutexLock lock(mutex);
         while (!initialized) cond.wait();
@@ -59,12 +64,12 @@ class wxDisplayHandler : public DisplayHandler {
     }
 
     DisplayHandler::WindowID
-    makeImageWindow(
+    make_image_window(
         const std::string& name,
         ViewportHandler& handler,
         const ResizeChange& init_size
     );
-    void returnImageWindow
+    void notify_of_vanished_data_source
         ( WindowID handle, bool close_immediately );
 };
 
@@ -73,7 +78,13 @@ std::ostream& operator<<(std::ostream& o, const wxRect& rect ) {
               << "(" << rect.GetRight() << ", " << rect.GetBottom() << ")");
 }
 
+class wxDisplayHandlerApp;
+wxDisplayHandlerApp& wxGetApp();
+
 class wxDisplayHandlerApp : public wxApp {
+  public:
+    class OutsideKnownWindow;
+  private:
     ost::Mutex mutex;
     ost::Condition cond;
     std::queue< Runnable* > run_queue;
@@ -82,7 +93,7 @@ class wxDisplayHandlerApp : public wxApp {
         windows;
     std::map< OutsideKnownWindow*, DisplayHandler::WindowID >
         window_IDs;
-    WindowID last_ID;
+    DisplayHandler::WindowID last_ID;
 
     std::auto_ptr<wxFrame> nevershow;
 
@@ -104,9 +115,9 @@ class wxDisplayHandlerApp : public wxApp {
              * window isn't needed anymore. */
             if ( app.windows.find( id ) != app.windows.end() ) {
                 app.windows[id] = this;
-                app.window_IDs.insert( make_pair( this, id ) );
+                app.window_IDs.insert( std::make_pair( this, id ) );
             } else {
-                this->Destroy();
+                assert( false );
             }
         }
         virtual ~OutsideKnownWindow() {
@@ -118,13 +129,14 @@ class wxDisplayHandlerApp : public wxApp {
 
         virtual void remove_connection( bool close_window ) = 0;
 
-        static void get_new_ID() {
+        static DisplayHandler::WindowID get_new_ID() {
             wxDisplayHandlerApp& app = wxGetApp();
-            WindowID id = app.last_id++;
-            app.windows.insert( make_pair( id, NULL ) );
+            DisplayHandler::WindowID id = app.last_ID++;
+            app.windows.insert( std::make_pair( id,
+                static_cast<OutsideKnownWindow*>(NULL) ) );
             return id;
         }
-        static void detach( DisplayHandler::WindowID id, bool close ) {
+        static bool need_detach( DisplayHandler::WindowID id ) {
             wxDisplayHandlerApp& app = wxGetApp();
             ost::MutexLock lock( app.mutex );
             if ( app.windows.find( id ) == app.windows.end() )
@@ -133,27 +145,33 @@ class wxDisplayHandlerApp : public wxApp {
                 /* Window was not yet created. Remove it to prevent
                  * creation. */
                 app.windows.erase( id );
-            else {
-                class Deleter : public WaitableRunnable {
-                    DisplayHandler::WindowID id;
-                    bool close;
-                  public:
-                    Deleter( DisplayHandler::WindowID id,
-                             bool close ) 
-                        : id(id), close(close) {}
-                    void run() {
-                        wxDisplayHandlerApp& app = wxGetApp();
-                        ost::MutexLock lock( app.mutex );
-                        if ( app.windows.find( id ) != app.windows.end() 
-                             && app.windows[id] != NULL )
-                            app.windows[id]->remove_connection(close);
-                    }
-                };
+            else
+                return true;
+            return false;
+        }
+        static void detach( DisplayHandler::WindowID id, bool close ) {
+            if ( !need_detach(id) ) return;
 
-                Deleter deleter;
-                run_in_event_thread( deleter );
-                deleter.wait();
-            }
+            class Deleter : public WaitableRunnable {
+                DisplayHandler::WindowID id;
+                bool close;
+                public:
+                Deleter( DisplayHandler::WindowID id,
+                            bool close ) 
+                    : id(id), close(close) {}
+                void run() {
+                    wxDisplayHandlerApp& app = wxGetApp();
+                    ost::MutexLock lock( app.mutex );
+                    if ( app.windows.find( id ) != app.windows.end() 
+                            && app.windows[id] != NULL )
+                        app.windows[id]->remove_connection(close);
+                }
+            };
+
+            wxDisplayHandlerApp& app = wxGetApp();
+            Deleter deleter(id, close);
+            app.run_in_event_thread( deleter );
+            deleter.wait();
         }
     };
 
@@ -184,7 +202,14 @@ class wxDisplayHandlerApp : public wxApp {
         run_queue.push( &thread );
         wxWakeUpIdle();
     }
+
+    void close() { nevershow.reset( NULL ); }
 };
+
+void wxDisplayHandler::close() throw()
+{
+    wxGetApp().close();
+}
 
 BEGIN_EVENT_TABLE(wxDisplayHandlerApp, wxApp)
     EVT_IDLE(wxDisplayHandlerApp::OnIdle)
@@ -554,13 +579,101 @@ void ImageCanvas::set_zoom(int zoom, wxPoint center)
 
 }
 
+const wxChar *SI_prefixes[] = { _T("f"), _T("p"), _T("n"), _T("mu"), _T("m"),
+                              _T(""), _T("k"), _T("M"), _T("G"), _T("T"),
+                              _T("E") };
+
 class ImageKey : public wxWindow {
     wxSize current_size;
     std::auto_ptr<wxBitmap> buffer;
     int num_keys, max_text_width, max_text_height;
 
+    std::vector<Color> colors;
+    std::vector<float> values;
+
+    const int unlabelled_width, labelled_width;
+    const int top_border, bottom_border, left_border;
+
+    int key_distance, label_distance, line_height;
+
     wxPen background_pen;
     wxBrush background_brush;
+
+    void compute_key_size() {
+        int free_height = current_size.GetHeight() 
+                            - top_border - bottom_border;
+        if ( free_height < 0 ) { key_distance = 0; return; }
+
+        key_distance = 1;
+        line_height = 1;
+        while ( free_height < line_height*num_keys/key_distance )
+            key_distance += 1;
+        while ( free_height > (line_height+1)*num_keys/key_distance )
+            line_height += 1;
+        label_distance = int(ceil(20.0 / line_height));
+    }
+
+    /* Center rect vertically with respect to other rect. Does what
+     * wxRect::CentreIn should do, but doesn't in 2.8. */
+    void center_rect_vertically( wxRect& centre, const wxRect& in ) {
+        int cur_centre = (centre.GetBottom() + centre.GetTop())/2;
+        int should = (in.GetBottom() + in.GetTop())/2;
+        int shift = should - cur_centre;
+        centre.y += shift;
+    }
+
+    void draw_key( int index, wxDC &dc ) {
+        if ( key_distance == 0 ) 
+            return;
+
+        bool labelled = (index % label_distance) == 0;
+        wxPen pen( makeColor( colors[index] ) );
+        dc.SetPen( pen );
+        wxBrush brush( makeColor( colors[index] ) );
+        dc.SetBrush( brush );
+
+        int line_length = ( labelled ) ? labelled_width : unlabelled_width;
+        wxRect color_line( 
+            left_border, 
+            top_border+line_height*index/key_distance,
+                           line_length, line_height );
+        dc.DrawRectangle( color_line );
+
+        if ( labelled ) {
+            wxChar cbuffer[128];
+            int log_10 = log10( values[index] );
+            int postfix = int(floor( log_10 / 3 ));
+            postfix = std::min( std::max( -5, postfix ), 5 );
+            wxSnprintf(cbuffer, 128, wxT("%.*f %s"), 
+                2 - (log_10 % 3),
+                values[index] / pow(1000, postfix),
+                SI_prefixes[postfix+5]);
+
+            wxSize textSize = dc.GetTextExtent( wxString(cbuffer) );
+            max_text_width = 
+                std::max<int>( textSize.GetWidth()+20, max_text_width );
+            max_text_height = 
+                std::max<int>( textSize.GetHeight(), max_text_height );
+
+            wxRect text_box( 
+                wxPoint(2*left_border + labelled_width, color_line.GetTop()),
+                textSize);
+            center_rect_vertically( text_box, color_line );
+            wxRect overdraw_box(
+                text_box.GetLeft(), color_line.GetTop(),
+                max_text_width, max_text_height);
+            center_rect_vertically( overdraw_box, text_box );
+
+            /* Overdraw old text */
+            dc.SetPen( background_pen );
+            dc.SetBrush( background_brush );
+            dc.DrawRectangle( overdraw_box );
+
+            dc.SetTextForeground(*wxWHITE);
+            dc.SetTextBackground(*wxBLACK);
+            dc.DrawText( wxString(cbuffer), text_box.GetTopLeft() );
+        }
+    }
 
   public:
     ImageKey( wxWindow* parent, wxSize size, int num_keys ) 
@@ -570,41 +683,33 @@ class ImageKey : public wxWindow {
           buffer( new wxBitmap(size.GetWidth(), size.GetHeight()) ),
           num_keys( num_keys ),
           max_text_width( 0 ), max_text_height( 0 ),
+          colors( num_keys ),
+          values( num_keys ),
+          unlabelled_width(40),
+          labelled_width(unlabelled_width+4),
+          top_border( 30 ),
+          bottom_border( 50 ),
+          left_border(5),
           background_pen( *wxBLACK ),
           background_brush( *wxBLACK )
-        {}
+    {
+        compute_key_size();
+    }
 
-    void draw_key( ChangeEvent::KeyChange& kc ) {
+    void draw_keys( const data_cpp::Vector<DisplayHandler::KeyChange>& kcs )
+    {
         wxClientDC dc( this );
         wxBufferedDC buffer( &dc, *this->buffer );
         buffer.SetTextForeground( *wxWHITE );
 
-        if ( kc.index < current_size.GetHeight() ) {
-            wxPen pen( makeColor( kc.color ) );
-            int line_length = ( kc.index % 20 == 0 ) ? 43 : 40;
-            buffer.SetPen( pen );
-            buffer.DrawLine( 5, kc.index, line_length, kc.index );
+        data_cpp::Vector<DisplayHandler::KeyChange>::const_iterator 
+            i = kcs.begin(), end = kcs.end();
 
-            if ( kc.index % 20 == 0 ) {
-                wxChar cbuffer[128];
-                wxSnprintf(cbuffer, 128, wxT("%8.2g"), kc.value);
-                wxCoord w, h;
+        for ( ; i != end; i++) {
+            colors[i->index] = i->color;
+            values[i->index] = i->value;
 
-                buffer.GetTextExtent( wxString(cbuffer), &w, &h );
-                max_text_width = std::max<int>( w, max_text_width );
-                max_text_height = std::max<int>( h, max_text_height );
-
-                int topline = kc.index - h/2;
-
-                /* Overdraw old text */
-                buffer.SetPen( background_pen );
-                buffer.SetBrush( background_brush );
-                buffer.DrawRectangle( 
-                    45, kc.index-max_text_height/2, 
-                        max_text_width, max_text_height);
-
-                buffer.DrawText( wxString(cbuffer), 45, topline );
-            }
+            draw_key( i->index, buffer );
         }
     }
 
@@ -620,12 +725,21 @@ class ImageKey : public wxWindow {
     }
     void OnResize( wxSizeEvent& ) {
         wxSize size = GetClientSize();
+        if ( size == current_size ) return;
         current_size = size;
         buffer.reset( new wxBitmap( size.GetWidth(), size.GetHeight() ) );
+        wxClientDC base( this );
+        wxBufferedDC dc( &base, *buffer );
+        dc.SetPen( *wxWHITE_PEN );
+        dc.SetBrush( *wxBLACK_BRUSH );
+        dc.DrawRectangle( 0, 0, size.GetWidth(), size.GetHeight() );
+
+        compute_key_size();
+        for (int i = 0; i < num_keys; i++)
+            draw_key( i, dc );
     }
 
     void resize( int new_number_of_keys ) {
-        
     }
     DECLARE_EVENT_TABLE();
 };
@@ -636,7 +750,7 @@ BEGIN_EVENT_TABLE(ImageKey, wxWindow)
 END_EVENT_TABLE()
 
 class wxImageHandle 
-: public DisplayHandler::ImageHandle, public wxFrame,
+: public wxFrame,
   public wxDisplayHandlerApp::OutsideKnownWindow
  {
   private:
@@ -651,7 +765,8 @@ class wxImageHandle
 
     void OnTimer(wxTimerEvent& event) {
         if ( !handler ) return;
-        std::auto_ptr<Change> changes = handler->getChanges();
+        std::auto_ptr<DisplayHandler::Change>
+            changes = handler->get_changes();
 
         commit_changes(*changes);
 
@@ -659,13 +774,13 @@ class wxImageHandle
     }
 
     template <typename Drawer>
-    void draw_image_window( const Changes& changes ) {
+    void draw_image_window( const DisplayHandler::Change& changes ) {
         Drawer drawer( *canvas );
 
         if ( changes.do_clear )
             drawer.clear( changes.clear_image.background );
 
-        data_cpp::Vector<PixelChange>::iterator 
+        data_cpp::Vector<DisplayHandler::PixelChange>::const_iterator 
             i = changes.change_pixels.begin(),
             end = changes.change_pixels.end();
         for ( ; i != end; i++)
@@ -674,26 +789,27 @@ class wxImageHandle
         drawer.finish();
     }
 
-    void commit_changes(const Changes& changes) {
+    void commit_changes(const DisplayHandler::Change& changes) {
         if ( changes.do_resize ) {
-            ChangeEvent::ResizeChange& r = changes.resize_image;
+            const DisplayHandler::ResizeChange& r = changes.resize_image;
             canvas->resize( wxSize( r.width, r.height ) );
-            //key->resize( r.key_size );
+            key->resize( r.key_size );
         }
 
-        if ( change_pixels.size() < 1000 )
+        if ( changes.change_pixels.size() < 1000 &&
+             !changes.do_clear )
             draw_image_window<ImageCanvas::DirectDrawer>(changes);
         else
             draw_image_window<ImageCanvas::BufferedDrawer>(changes);
 
-        //key->draw_key( i->change.key );
+        key->draw_keys( changes.change_key );
     }
 
   public:
-    wxImageHandle( WindowID ident,
+    wxImageHandle( DisplayHandler::WindowID ident,
                    const wxString& name, 
                    DisplayHandler::ViewportHandler& handler,
-                   const ChangeEvent::ResizeChange& init_size)
+                   const DisplayHandler::ResizeChange& init_size)
     : wxFrame(NULL, wxID_ANY, name, wxDefaultPosition, wxSize(680, 680)),
       OutsideKnownWindow( ident ),
       timer(this, DISPLAY_TIMER),
@@ -711,7 +827,7 @@ class wxImageHandle
         zoom->SetTickFreq( 1, 1 );
         canvas->set_zoom_control( *zoom );
 
-        //key = new ImageKey( this, wxSize( 200, 640 ), init_size.key_size );
+        key = new ImageKey( this, wxSize( 200, 0 ), init_size.key_size );
 
         ver_sizer->Add( canvas, wxSizerFlags(1).Expand() );
         hor_sizer->Add( new wxStaticText( this, wxID_ANY, _T("Zoom level") ), 
@@ -719,7 +835,7 @@ class wxImageHandle
         hor_sizer->Add( zoom, wxSizerFlags(1).Expand() );
         ver_sizer->Add( hor_sizer, wxSizerFlags().Expand() );
         outer_sizer->Add( ver_sizer, wxSizerFlags(1).Expand() );
-        //outer_sizer->Add( key, wxSizerFlags().Expand() );
+        outer_sizer->Add( key, wxSizerFlags().Expand() );
 
         this->SetSizerAndFit( outer_sizer );
 
@@ -727,7 +843,7 @@ class wxImageHandle
         Show( true );
     }
 
-    void remove_connection() {
+    void remove_connection(bool close_immediately) {
         timer.Stop();
         handler = NULL;
     }
@@ -761,14 +877,14 @@ class wxImageHandleCreator : public Runnable
     DisplayHandler::WindowID id;
     wxString name;
     wxDisplayHandler::ViewportHandler& handler;
-    ChangeEvent::ResizeChange init_size;
-    std::auto_ptr<DisplayHandler::ImageHandle> rv;
+    DisplayHandler::ResizeChange init_size;
+
   public:
     wxImageHandleCreator(
         const std::string& name,
         wxDisplayHandler::ViewportHandler& handler,
-        const ChangeEvent::ResizeChange& init_size,
-        WindowID& save_window_ID) 
+        const DisplayHandler::ResizeChange& init_size,
+        DisplayHandler::WindowID& save_window_ID) 
         : id( wxDisplayHandlerApp::OutsideKnownWindow::get_new_ID() ),
           name( convert(name) ),
           handler( handler ),
@@ -780,6 +896,8 @@ class wxImageHandleCreator : public Runnable
 
     void run() {
         new wxImageHandle( id, name, handler, init_size );
+    }
+    void finish() {
         delete this;
     }
 };
@@ -788,7 +906,7 @@ DisplayHandler::WindowID
 wxDisplayHandler::make_image_window(
     const std::string& name,
     ViewportHandler& handler,
-    const ChangeEvent::ResizeChange& init_size
+    const DisplayHandler::ResizeChange& init_size
 )
 {
     ensure_wx_initialization();
@@ -803,7 +921,7 @@ wxDisplayHandler::notify_of_vanished_data_source
 {
     ensure_wx_initialization();
     wxDisplayHandlerApp::OutsideKnownWindow::detach
-        ( id, close_immediately );
+        ( handle, close_immediately );
 }
 
 }

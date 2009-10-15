@@ -1,7 +1,7 @@
 #define DSTORM_AVERAGEIMAGE_CPP
 #include "AverageImage.h"
 #include <iostream>
-#include "help_context.h"
+#include "doc/help/context.h"
 
 using namespace std;
 namespace dStorm {

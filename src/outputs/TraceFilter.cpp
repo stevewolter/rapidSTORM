@@ -37,7 +37,7 @@ void TraceCountFilter::processLocalization( const Localization& l)
 {
     if ( count_localizations_in( l ) >= minCount ) {
         if (disassemble && l.has_source_trace() ) {
-            localizations.push_back( l.get_source_trace().points() );
+            localizations.push_back( l.get_source_trace() );
         } else
             localizations.push_back( l );
     }

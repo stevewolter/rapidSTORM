@@ -15,9 +15,17 @@ AC_LIBTOOL_WIN32_DLL
 
 # Checks for programs.
 AC_PROG_CXX
+test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
+test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
 AC_PROG_JAVAC
+test "x$JAVAC" = "x" && AC_MSG_ERROR([unable to find Java compiler])
 AC_PROG_JAR
+test "x$JAR" = "x" && AC_MSG_ERROR([unable to find Java archiver])
+AC_PROG_XSLTPROC
+test "x$XSLTPROC" = "x" && AC_MSG_ERROR([unable to find XSLT processor])
+AC_PROG_HHC
+test "x$HHC" = "x" && AC_MSG_ERROR([unable to find MS HTML Help compiler])
 
 # Mingw32 needs -mthreads for correct multi-threading behaviour
 # and -shared-libgcc for correct cross-DLL exception handling
@@ -105,6 +113,8 @@ esac
 AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_NAME/plugins")
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([doc/help/Makefile])
 AC_CONFIG_FILES([src/Makefile src/AndorCamera/Makefile])
 AC_CONFIG_FILES([src/data-c++/Makefile])
 AC_CONFIG_FILES([src/cc++/Makefile src/fit++/Makefile])

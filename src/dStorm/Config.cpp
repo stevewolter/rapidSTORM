@@ -1,7 +1,7 @@
 #include "Config.h"
 #include <math.h>
 #include <limits>
-#include "help_context.h"
+#include "doc/help/context.h"
 #include "engine/SpotFinder.h"
 
 #ifdef DMALLOC

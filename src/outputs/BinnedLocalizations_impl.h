@@ -53,9 +53,7 @@ BinnedLocalizations<KeepUpdated>
             continue;
         float xf = l.getXR(r), yf = l.getYR(r);
 
-        /* Reduce the strength to make better use of floating-point
-         * exponent range. */
-        float strength = l.getStrength() / 1000;
+        float strength = l.getStrength();
 
         this->binningListener().announce( l );
 

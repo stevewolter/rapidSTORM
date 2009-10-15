@@ -2,7 +2,7 @@
 #include "LocalizationFile.h"
 #include <string.h>
 #include <dStorm/Trace.h>
-#include "help_context.h"
+#include "doc/help/context.h"
 
 using namespace std;
 
