@@ -37,7 +37,7 @@ class DisplayHandler : public ost::Thread {
       public:
         ViewportHandler() {}
         virtual ~ViewportHandler() {}
-        virtual std::auto_ptr<Change> getChanges() = 0;
+        virtual std::auto_ptr<Change> get_changes() = 0;
     };
     typedef int WindowID;
     virtual WindowID make_image_window
@@ -45,6 +45,7 @@ class DisplayHandler : public ost::Thread {
             const ResizeChange& initial_size) = 0;
     virtual void notify_of_vanished_data_source
         ( WindowID id, bool close_window_immediately ) = 0;
+    virtual void close() = 0;
 
   protected:
     DisplayHandler() : ost::Thread("Display handler") {}
@@ -72,12 +73,20 @@ struct DisplayHandler::Change {
     data_cpp::Vector<PixelChange> change_pixels;
     data_cpp::Vector<KeyChange> change_key;
     
-    Change() { clear(); }
+    Change(int pixel_buffer_size, int key_buffer_size) 
+        : change_pixels(pixel_buffer_size, 0, PixelChange()),
+          change_key(key_buffer_size, 0, KeyChange())
+          { clear(); }
     void clear() { 
         do_resize = false;
         do_clear = false;
         change_pixels.clear();
         change_key.clear();
+    }
+
+    std::auto_ptr<Change> empty_change_with_same_allocated_size() {
+        return std::auto_ptr<Change>( 
+            new Change( change_pixels.capacity(), change_key.capacity()));
     }
 };
 

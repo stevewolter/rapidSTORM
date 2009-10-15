@@ -3,6 +3,7 @@
 
 namespace dStorm {
 
+#if 0
 void Trace::compute_SD() {
     Variance x, y;
     for (int i = 0; i < size(); i++) {
@@ -14,5 +15,6 @@ void Trace::compute_SD() {
     sd_y = sqrt( y.variance() );
     computed_variance = true;
 }
+#endif
 
 }

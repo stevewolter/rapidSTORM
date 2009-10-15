@@ -23,6 +23,5 @@ libclosedoutputs_la_SOURCES = \
     ProgressMeter.h RawImageFile.cpp RawImageFile.h Slicer.cpp \
     Slicer.h \
     ViewportImage.h \
-    PrecisionEstimator.h PrecisionEstimator.cpp
-
-# ViewerConfig.h Viewer.cpp Viewer.h DisplayHandler.cpp DisplayHandler.h
+    PrecisionEstimator.h PrecisionEstimator.cpp \
+    ViewerConfig.h Viewer.cpp Viewer.h DisplayHandler.cpp DisplayHandler.h

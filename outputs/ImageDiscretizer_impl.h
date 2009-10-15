@@ -5,8 +5,12 @@ namespace dStorm {
 namespace DiscretizedImage {
 
 template <typename Colorizer, typename ImageListener>
+const typename ImageDiscretizer<Colorizer, ImageListener>::HighDepth
+ImageDiscretizer<Colorizer, ImageListener>::background_threshold = 1;
+
+template <typename Colorizer, typename ImageListener>
 ImageDiscretizer<Colorizer, ImageListener>
-::ImageDiscretizer(int d, int bg_th, float hp,
+::ImageDiscretizer(int d, float hp,
     const cimg_library::CImg<float>& binned_image,
     Colorizer& colorizer) 
 : colorizer(colorizer),
@@ -18,7 +22,6 @@ ImageDiscretizer<Colorizer, ImageListener>
   pixels_by_value( d ),
   in_depth( d ),
   out_depth( Colorizer::BrightnessDepth - 1 ),
-  background_threshold( bg_th ),
   histogram_power( hp ),
   binned_image(binned_image)
 {
@@ -87,13 +90,21 @@ void ImageDiscretizer<Colorizer, ImageListener>
 }
 
 template <typename Colorizer, typename ImageListener>
+inline unsigned long int ImageDiscretizer<Colorizer, ImageListener>::non_background_pixels()
+{
+    long int accum = 0;
+    for (unsigned int i = 0; i < background_threshold; i++)
+        accum += histogram[i];
+    return pixels_by_position.size() - accum;
+}
+
+template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
   ::clean()
 {
     if ( pixels_above_used_max_value >
-           non_background_pixel_count / 100 )
+           non_background_pixels() / 100 )
     {
-        non_background_pixel_count = 0;
         for (int i = 0; i < histogram.size(); i++)
             histogram[i] = 0;
 
@@ -108,8 +119,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
                 change( x, y, n );
 
             ++histogram[n];
-            if ( n >= background_threshold )
-                non_background_pixel_count ++;
         }
 
         disc_factor = new_disc_fac;
@@ -128,7 +137,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
     ::normalize_histogram()
 {
     const unsigned long used_histogram_pixels = 
-        non_background_pixel_count;
+        non_background_pixels();
     if ( used_histogram_pixels == 0U )
         return;
 
@@ -153,7 +162,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
     for (unsigned int i = 0; i < start; i++)
         new_transition[i] = i;
 
-    int count = 0;
     for (unsigned int i = start; i < in_depth; i++) {
         double q = (fractions[i] / accum);
         LowDepth newValue = std::min<int>(
@@ -164,10 +172,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
             if ( abs( int(newValue) - int(oldValue) ) > 5 ) {
                 for ( HistogramPixel* j = pixels_by_value[i].next; 
                                 j != &pixels_by_value[i]; j = j->next)
-                {
                     this->publish().pixelChanged( j->x, j->y );
-                    count++;
-                }
                 new_transition[i] = newValue;
                 histogram_has_changed = true;
             } else
@@ -214,7 +219,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
         histogram[i] = (i == 0) ? total_pixel_count : 0;
     }
 
-    non_background_pixel_count = 0;
     pixels_above_used_max_value = 0;
     max_value = max_value_used_for_disc_factor;
 

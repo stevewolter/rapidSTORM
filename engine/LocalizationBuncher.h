@@ -11,16 +11,27 @@
 
 namespace dStorm {
 class LocalizationBuncher : public CImgBuffer::Drain<Localization> {
-    std::auto_ptr< data_cpp::Vector<Localization> > buffer;
-    std::map<int,data_cpp::Vector<Localization>* > canned;
+    class Can : public data_cpp::Vector<Localization> {
+        int number_of_traces( const Localization& );
+        void deep_copy(const Localization& from, 
+                            data_cpp::Vector<Localization>& to);
+      public:
+        void push_back( const Localization& l );
+        data_cpp::Vector< dStorm::Trace > traces;
+    };
+
+    std::auto_ptr< Can > buffer;
+    std::map<int,Can* > canned;
     unsigned int first, last;
     unsigned int currentImage, outputImage;
     Output::EngineResult engine_result;
     Output& target;
 
-    void output( data_cpp::Vector<Localization>* locs ) throw(Output*);
+    void output( Can* locs ) throw(Output*);
     void print_canned_results_where_possible() throw(Output*);
     void can_results_or_publish( int lookahead ) throw(Output*);
+
+    void put_deep_copy_into_can( const Localization &loc, Can& can );
 
     LocalizationBuncher(const LocalizationBuncher&);
     LocalizationBuncher& operator=(const LocalizationBuncher&);

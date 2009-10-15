@@ -12,7 +12,7 @@
 #include <algorithm>
 #include "BasenameWatcher.h"
 #include "AutoInputMethod.h"
-#include "help_context.h"
+#include "doc/help/context.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;

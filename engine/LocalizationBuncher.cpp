@@ -4,7 +4,7 @@
 
 namespace dStorm {
 
-void LocalizationBuncher::output( data_cpp::Vector<Localization>* locs ) 
+void LocalizationBuncher::output( Can* locs ) 
 throw(Output*) 
 {
     if ( outputImage >= first && outputImage <= last ) {
@@ -56,7 +56,7 @@ throw(Output*)
         buffer->clear();
     } else if ( buffer->size() != 0 ) {
         canned.insert( std::make_pair( currentImage, buffer.release() ) );
-        buffer.reset( new data_cpp::Vector<Localization>() );
+        buffer.reset( new Can() );
     }
 }
 
@@ -72,7 +72,7 @@ LocalizationBuncher::~LocalizationBuncher() {
 void LocalizationBuncher::ensure_finished() 
 {
     while ( outputImage <= last ) {
-        std::map<int, data_cpp::Vector<Localization>* >::iterator i;
+        std::map<int, Can* >::iterator i;
         i = canned.find( outputImage );
         if ( i != canned.end() ) {
             outputImage = i->first;
@@ -113,6 +113,42 @@ void LocalizationBuncher::noteTraits(
     }
 }
 
+void LocalizationBuncher::Can::push_back( const Localization &loc )
+{
+    traces.allocate( number_of_traces( loc ) );
+    deep_copy( loc, *this );
+}
+
+int LocalizationBuncher::Can::number_of_traces( const Localization& loc ) {
+    if ( ! loc.has_source_trace() )
+        return 1;
+    else {
+        int accum = 0;
+        const Trace& t = loc.get_source_trace();
+        for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
+            accum += number_of_traces( loc );
+        return accum;
+    }
+        
+}
+
+void LocalizationBuncher::Can::deep_copy( 
+    const Localization &loc, data_cpp::Vector<Localization>& to )
+{
+    if ( loc.has_source_trace() ) {
+        Trace *trace = traces.allocate( 1 );
+        new (trace) Trace();
+        const Trace& t = loc.get_source_trace();
+        for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
+            deep_copy( *i, *trace );
+        traces.commit( 1 );
+        to.push_back( Localization(loc.x(), loc.y(), loc.N(), 
+                                   loc.getStrength(),
+                                   trace, loc.parabolicity()) );
+    } else
+        to.push_back( loc );
+}
+
 CImgBuffer::Management
 LocalizationBuncher::accept(int index, int num, Localization *loc)
 {
@@ -122,7 +158,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
         const Localization& l = loc[i];
         unsigned int imNum = l.getImageNumber();
         if ( buffer.get() == NULL )
-            buffer.reset( new data_cpp::Vector<Localization>() );
+            buffer.reset( new Can() );
         else {
             try {
                 if (currentImage != imNum)
@@ -133,7 +169,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
         }
 
         currentImage = imNum;
-        buffer->push_back(l);
+        buffer->push_back( l );
     }
 
     last_index = index;

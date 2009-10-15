@@ -1,5 +1,5 @@
 #include "BasicOutputs.h"
-#include "help_context.h"
+#include "doc/help/context.h"
 #include "OutputSource.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 

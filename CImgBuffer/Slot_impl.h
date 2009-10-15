@@ -16,6 +16,10 @@ Slot<Object>::Slot(Source<Object> &src,int index, const bool& discardable)
     if ( ! source->pushes() && ! source->canBePulled() )
         throw std::logic_error
             ("Supplied source can neither push nor pull.");
+    if ( src.manages_returned_objects() )
+        throw std::logic_error
+            ("Supplied source manages objects by itself. To save objects, "
+             "dynamically allocated storage is needed.");
 }
 
 template <typename Object>
@@ -71,7 +75,8 @@ void Slot<Object>::fetchData() {
     while ( state != Error && data.get() == NULL ) {
         if ( source->canBePulled() ) {
             dataMutex.leaveMutex();
-            std::auto_ptr<Object> temp_data = source->get(my_index);
+            std::auto_ptr<Object> temp_data = 
+                std::auto_ptr<Object>( source->get(my_index) );
             dataMutex.enterMutex();
             if (data.get() == NULL)
                 data = temp_data;

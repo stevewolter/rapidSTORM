@@ -2,8 +2,8 @@
 #include "BasicTransmissions.h"
 
 #include "LocalizationFile.h"
-// #include "Viewer.h"
-// #include "ViewerConfig.h"
+#include "Viewer.h"
+#include "ViewerConfig.h"
 #include "LocalizationCounter.h"
 #include "ProgressMeter.h"
 #include "AverageImage.h"
@@ -45,7 +45,7 @@ void basic_inputs( CImgBuffer::Config* inputConfig ) {
 
 void basic_outputs( dStorm::BasicOutputs* o ) {
     o->addChoice( new LocalizationFile::Source() );
-    //o->addChoice( new Viewer::Source() );
+    o->addChoice( new Viewer::Source() );
     o->addChoice( new ProgressMeter::Source() );
     o->addChoice( new LocalizationCounter::Source() );
     o->addChoice( new AverageImage::Source() );

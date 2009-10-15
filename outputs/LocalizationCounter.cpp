@@ -1,5 +1,5 @@
 #include "LocalizationCounter.h"
-#include "help_context.h"
+#include "doc/help/context.h"
 
 namespace dStorm {
 

@@ -211,8 +211,10 @@ FitSigmas Precision::fitWithGauss
         const Localization *i = first + j;
         if (i->get_source_trace().size() == 0) continue;
 
-        average_sd_x.addValue( i->get_source_trace().get_X_SD() );
-        average_sd_y.addValue( i->get_source_trace().get_Y_SD() );
+        average_sd_x.addValue( 
+            compute_weighted_SD( i->get_source_trace(), 0 ) );
+        average_sd_y.addValue( 
+            compute_weighted_SD( i->get_source_trace(), 1 ) );
 
         foreach_const( k, data_cpp::Vector<Localization>, 
                           i->get_source_trace() )

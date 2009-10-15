@@ -60,13 +60,30 @@ void Source::read_localization(
         else
             trace_buffer[my_buffer].clear();
 
-        while ( file.input && number_of_newlines() <= level ) {
+        do {
             read_localization(buffer, level-1, use_buffer);
             trace_buffer[my_buffer].push_back( buffer );
-        }
+        } while ( file.input && number_of_newlines() <= level );
         reducer->reduce_trace_to_localization( trace_buffer[level-1],
             &target, Eigen::Vector2d(0,0) );
     }
+}
+
+Config::Config(CImgBuffer::Config& master)
+: CImgBuffer::InputConfig<Localization>
+        ("STM", "Localizations file"),
+    master(master),
+    stm_extension("extension_stm", ".stm"),
+    txt_extension("extension_txt", ".txt") 
+{
+    this->register_entry(&master.inputFile);
+    this->register_entry(&master.firstImage);
+    this->register_entry(&master.lastImage);
+
+    master.inputFile.push_back( stm_extension );
+    master.inputFile.push_back( txt_extension );
+
+    push_back( trace_reducer );
 }
 
 STM_File Config::read_header
@@ -117,5 +134,14 @@ Source* Config::impl_makeSource()
     src->push_back( master.inputFile );
     return src;
 }
+
+std::auto_ptr<Source> Config::read_file( simparm::FileEntry& name )
+{
+    STM_File header = read_header( name );
+    TraceReducer::Config trc;
+    Source *src = new Source(header, trc.make_trace_reducer() );
+    return std::auto_ptr<Source>(src);
+}
+
 }
 }

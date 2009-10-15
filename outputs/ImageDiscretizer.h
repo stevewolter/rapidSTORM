@@ -96,9 +96,8 @@ class ImageDiscretizer
     data_cpp::Vector<HistogramPixel> pixels_by_value;
     cimg_library::CImg<HistogramPixel> pixels_by_position;
 
+    static const HighDepth background_threshold;
     unsigned int in_depth, out_depth,
-                 background_threshold,
-                 non_background_pixel_count,
                  pixels_above_used_max_value;
     float histogram_power;
 
@@ -114,10 +113,11 @@ class ImageDiscretizer
     void normalize_histogram();
     void publish_differences_in_transitions( 
         TransitionTable& old_table, TransitionTable& new_table );
+    inline unsigned long int non_background_pixels();
 
   public:
     inline ImageDiscretizer(
-        int intermediate_depth, int background_threshold,
+        int intermediate_depth, 
         float histogram_power, 
         const cimg_library::CImg<float>& binned_image,
         Colorizer& colorizer);

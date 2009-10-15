@@ -67,29 +67,16 @@ namespace LocalizationFileReader {
         simparm::Attribute<std::string> stm_extension, txt_extension;
         
       public:
-        Config(CImgBuffer::Config& master) 
-        : CImgBuffer::InputConfig<Localization>
-                ("STM", "Localizations file"),
-          master(master),
-          stm_extension("extension_stm", ".stm"),
-          txt_extension("extension_txt", ".txt") 
-        {
-            this->register_entry(&master.inputFile);
-            this->register_entry(&master.firstImage);
-            this->register_entry(&master.lastImage);
-
-            master.inputFile.push_back( stm_extension );
-            master.inputFile.push_back( txt_extension );
-
-            push_back( trace_reducer );
-        }
+        Config(CImgBuffer::Config& master);
         ~Config();
+
+        static std::auto_ptr<Source> read_file( simparm::FileEntry& name );
 
       protected:
         Source* impl_makeSource();
       
       private:
-        STM_File read_header
+        static STM_File read_header
             (simparm::FileEntry& file);
 
       public:

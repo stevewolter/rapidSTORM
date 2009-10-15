@@ -21,7 +21,7 @@
 #include <CImgBuffer/Slot.h>
 #include <CImgBuffer/Source.h>
 #include <CImgBuffer/ImageTraits.h>
-#include "help_context.h"
+#include "doc/help/context.h"
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>

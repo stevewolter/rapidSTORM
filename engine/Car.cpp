@@ -14,7 +14,7 @@
 #include <dStorm/LocalizationFileReader.h>
 #include "engine/LocalizationBuncher.h"
 #include <CImg.h>
-#include "help_context.h"
+#include "doc/help/context.h"
 
 //#undef PROGRESS
 //#define PROGRESS(x) std::cerr << x << "\n";
