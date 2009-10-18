@@ -2,6 +2,15 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
 #include <data-c++/Vector.h>
+#include <Magick++.h>
+
+namespace cimg_library { 
+    template <typename PixelType> class CImg;
+}
+
+namespace CImgBuffer {
+    template <typename Type> class Traits;
+}
 
 namespace dStorm {
 namespace DiscretizedImage {
@@ -10,7 +19,8 @@ namespace DiscretizedImage {
     struct Listener {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
-        void setSize(int width, int height);
+        void setSize(
+            const CImgBuffer::Traits< cimg_library::CImg<int> >&);
         /** Called when a pixel changes in the image. The parameters
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
@@ -28,14 +38,12 @@ namespace DiscretizedImage {
         void notice_key_change( int index, ColorPixel pixel, float value );
     };
 
-#if 0
     struct DummyListener {
-        void setSize(int, int) {}
+        void setSize(const CImgBuffer::Traits< cimg_library::CImg<int> >&) {}
         void pixelChanged(int, int) {}
         void clean() {}
         void clear() {}
     };
-#endif
 
     /** The Publisher class stores a pointer to the currently
      *  set listener, if any is provided. */
@@ -83,6 +91,8 @@ class ImageDiscretizer
     typedef unsigned short HighDepth;
     typedef typename Colorizer::BrightnessType LowDepth;
 
+    typedef cimg_library::CImg<float> InputImage;
+
     typedef data_cpp::Vector<LowDepth> TransitionTable;
 
     unsigned int total_pixel_count;
@@ -101,7 +111,7 @@ class ImageDiscretizer
                  pixels_above_used_max_value;
     float histogram_power;
 
-    const cimg_library::CImg<float>& binned_image;
+    const InputImage& binned_image;
 
     HighDepth discretize( float value, float disc_factor ) 
         { return std::min<HighDepth>( in_depth-1,
@@ -123,7 +133,7 @@ class ImageDiscretizer
         Colorizer& colorizer);
     inline ~ImageDiscretizer();
 
-    inline void setSize(int, int);
+    inline void setSize( const CImgBuffer::Traits<InputImage>& );
     inline void updatePixel(int, int, float, float);
     void clean();
     void clear();
@@ -142,7 +152,11 @@ class ImageDiscretizer
     typename Colorizer::Pixel get_background() 
         { return colorizer.get_background(); }
 
-    std::auto_ptr< cimg_library::CImg<uint8_t> > full_image();
+    std::auto_ptr< Magick::Image > full_image(
+        int bottom_black_border = 0);
+    std::auto_ptr< Magick::Image > key_image();
+
+    float key_value( LowDepth key );
 
     void setHistogramPower(float power);
 };

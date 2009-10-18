@@ -131,10 +131,10 @@ namespace ost {
      *  the number of detached threads for this process. This number
      *  is used by Thread::joinDetached(). */
     static int detachedThreads = 0;
-    /** Global variable indicating whether nameKey was already 
+    /** Global variable indicating whether objKey was already 
      *  initialized. */
     static bool installedKey = false;
-    static pthread_key_t nameKey;
+    static pthread_key_t objKey;
 
     void Thread::joinDetached() throw() {
         pthread_mutex_lock(&detachedThreadsMutex);
@@ -147,7 +147,7 @@ namespace ost {
         STATUS("Subthread started for " << threadp);
         Thread &thread = *(Thread*)threadp;
         pthread_cleanup_push( &callFinal, threadp );
-        pthread_setspecific(nameKey, thread.name);
+        pthread_setspecific(objKey, &thread);
         thread.initial();
         PROGRESS("Running " << threadp);
         thread.run();
@@ -178,7 +178,7 @@ namespace ost {
         STATUS("Creating thread " << this);
         pthread_mutex_lock(&detachedThreadsMutex);
         if (! installedKey ) {
-            pthread_key_create(&nameKey, NULL);
+            pthread_key_create(&objKey, NULL);
             installedKey = true;
         }
         pthread_mutex_unlock(&detachedThreadsMutex);
@@ -213,9 +213,22 @@ namespace ost {
         }
     }
 
+    const char *Thread::desc() const throw() {
+        return name;
+    }
+
     const char *Thread::description() throw() {
-        if ( !installedKey ) return "NONE";
-        const char *name = (const char *)pthread_getspecific(nameKey);
-        return (name != NULL) ? name : "MAIN";
+        const Thread *t = current_thread();
+        if ( t != NULL )
+            return t->desc();
+        else
+            return "NONE";
+    }
+
+    const ost::Thread *Thread::current_thread() throw() {
+        if ( !installedKey ) return NULL;
+        const ost::Thread* thread = 
+            (const ost::Thread *)pthread_getspecific(objKey);
+        return thread;
     }
 }

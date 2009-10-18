@@ -8,7 +8,7 @@
 #endif
 #include <CImg.h>
 
-#include "outputs/DisplayHandler.h"
+#include <dStorm/display/Manager.h>
 
 using namespace dStorm;
 using namespace std;
@@ -48,7 +48,8 @@ int main(int argc, char *argv[]) {
     }
 
     STATUS("Closing down display toolkit");
-    dStorm::DisplayHandler::getSingleton().close();
+    if ( dStorm::Display::Manager::was_started() )
+        dStorm::Display::Manager::getSingleton().close();
     STATUS("Waiting for thread termination");
     ost::Thread::joinDetached();
     STATUS("Joined all threads. Successful termination.");

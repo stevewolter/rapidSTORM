@@ -21,7 +21,9 @@ namespace ColourSchemes {
 };
 
 template <typename _BrightnessType = unsigned char>
-class Colorizer : public DummyBinningListener {
+class Colorizer 
+    : public DummyBinningListener 
+{
   public:
     typedef _BrightnessType BrightnessType;
     struct Pixel { 

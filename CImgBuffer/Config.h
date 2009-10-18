@@ -76,13 +76,6 @@ namespace CImgBuffer {
          *  in nm. */
         simparm::DoubleEntry pixel_size_in_nm;
 
-        /** Make an Source object according to the current settings. */
-        std::auto_ptr< BaseSource > makeImageSource() const 
-;
-        /** Make an Source object for the specified method. */
-        std::auto_ptr< BaseSource > makeImageSource(int method) const 
-;
-
       protected:
         /** Register all named Entry objects in this Config. **/
         void registerNamedEntries();
@@ -101,6 +94,12 @@ namespace CImgBuffer {
         void output(std::ostream &) const;
 
         simparm::Attribute<std::string> basename;
+
+        /** Make an Source object according to the current settings. */
+        std::auto_ptr< BaseSource > makeImageSource() const;
+        /** Make an Source object for the specified method. */
+        std::auto_ptr< BaseSource > makeImageSource(int method) const;
+
     };
 }
 #endif

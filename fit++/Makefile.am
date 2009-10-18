@@ -1,8 +1,14 @@
 check_PROGRAMS = alignment_test
 TESTS = alignment_test
 
-EXTRA_DIST = Exponential2D.hh FitFunction.hh LatticeFitFunction.hh \
-                Exponential2D_impl.hh FitFunction.hh ResidueMatrix.hh
+EXTRA_DIST = Exponential2D.hh LatticeFitFunction.hh \
+                Exponential2D_impl.hh FitFunction.hh ResidueMatrix.hh \
+		Position.hh Helpers.hh \
+		BitfieldConstructor.hh BlockReturner.hh \
+		Exponential2D_Correlated_Derivatives.hh \
+		Exponential2D_ParameterHelper.hh \
+		Exponential2D_Uncorrelated_Derivatives.hh \
+		FitFunction_impl.hh
 
 AM_CPPFLAGS = -D_GNU_SOURCE
 AM_CPPFLAGS += -Wall -Wextra \

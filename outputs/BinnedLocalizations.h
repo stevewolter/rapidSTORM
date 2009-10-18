@@ -7,15 +7,17 @@
 
 namespace dStorm {
 
+    typedef cimg_library::CImg<float> BinnedImage;
+
     /** Public interface necessary for a class listening
      *  to \c BinnedLocalizations. */
     class BinningListener {
       public:
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes.
-         *  Its parameters give the width and the height of the target
-         *  image, respectively. */
-        inline void setSize(int, int) ;
+         *  @param traits     Traits of the binned image
+         */
+        inline void setSize(const CImgBuffer::Traits< BinnedImage >&) ;
         /** This method is a forward for dStorm::Output method 
          *  announceStormSize. */
         inline void announce(const Output::Announcement&) ;
@@ -43,7 +45,7 @@ namespace dStorm {
      *  code is left in BinnedLocalizations for an empty listener
      *  slot. */
     struct DummyBinningListener : public BinningListener {
-        void setSize(int, int) {}
+        void setSize(const CImgBuffer::Traits< BinnedImage >&) {}
         void announce(const Output::Announcement&) {}
         void announce(const Output::EngineResult&) {}
         void announce(const Localization&) {}
@@ -64,8 +66,7 @@ namespace dStorm {
             { fwd = target; }
         inline Listener& binningListener() { return *fwd; }
 
-        inline const cimg_library::CImg<float>&
-            get_binned_image();
+        inline const BinnedImage& get_binned_image();
         inline float get_binned_pixel(int x, int y);
     };
 
@@ -95,7 +96,7 @@ namespace dStorm {
         dStorm::Localization::Raster r;
         /** Accumulator image, or in other terms, the density image of
          *  localizations. */
-        cimg_library::CImg<float> base_image;
+        BinnedImage base_image;
         /** Copy of the announcement made by announceStormSize. 
          *  Used in set_resolution_enhancement. */
         std::auto_ptr<Announcement> announcement;
@@ -120,8 +121,7 @@ namespace dStorm {
             }
         }
 
-        const cimg_library::CImg<float>& operator()() const
-            { return base_image; }
+        const BinnedImage& operator()() const { return base_image; }
 
         /** Check thresholds and recompute for this image and its listener.*/
         void clean();

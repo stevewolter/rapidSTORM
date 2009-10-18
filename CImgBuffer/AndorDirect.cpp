@@ -99,8 +99,8 @@ void Source::acquire()
         PROGRESS("Waiting for acquisition to gain camera");
         acquisition.block_until_on_camera();
         PROGRESS("Acquisition gained camera");
-        width = acquisition.getWidth();
-        height = acquisition.getHeight();
+        this->size.x() = acquisition.getWidth();
+        this->size.y() = acquisition.getHeight();
         numImages = acquisition.getLength();
         PROGRESS("Telling " << pushTarget << " number of objects " << 
                  numImages);
@@ -165,7 +165,6 @@ int Source::dimy() const {
     return height; 
 }
 int Source::quantity() const { 
-    waitForInitialization();
     return numImages;
 }
 
@@ -182,6 +181,8 @@ void Source::startPushing(Drain<CamImage> *target)
 
     PROGRESS("Starting acquisition subthread");
     Thread::start();
+
+    waitForInitialization();
 }
 
 void Source::stopPushing(Drain<CamImage> *target) {

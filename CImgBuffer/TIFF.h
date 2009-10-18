@@ -34,8 +34,6 @@ namespace CImgBuffer {
          Source(const char *src);
          virtual ~Source();
 
-         virtual int dimx() const { return _width; }
-         virtual int dimy() const { return _height; }
          virtual int quantity() const { return _no_images; }
 
          Object& getConfig() { return *this; }
@@ -45,7 +43,7 @@ namespace CImgBuffer {
       private:
         ::TIFF *tiff;
 
-        int _width, _height, _no_images;
+        int &_width, &_height, _no_images;
 
         static void TIFF_error_handler(const char*, 
             const char *fmt, va_list ap);
