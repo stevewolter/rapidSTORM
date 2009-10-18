@@ -100,8 +100,6 @@ namespace CImgBuffer {
             Source *clone() const { 
                 throw std::logic_error("Unclonable."); }
 
-            virtual int dimx() const; 
-            virtual int dimy() const; 
             virtual int quantity() const; 
             virtual bool pull_length() const { return initialized; }
 

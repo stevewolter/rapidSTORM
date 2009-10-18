@@ -38,14 +38,19 @@ template<typename Pixel>
 Source<Pixel>::Source(const char *src)
 : SerialImageSource<Pixel>
     (BaseSource::Pushing | BaseSource::Pullable),
-   simparm::Set("TIFF", "TIFF image reader")
+   simparm::Set("TIFF", "TIFF image reader"),
+   _width( this->Traits< CImg<Pixel> >::size.x() ),
+   _height( this->Traits< CImg<Pixel> >::size.y() )
 {
     TIFFSetErrorHandler( TIFF_error_handler );
     tiff = TIFFOpen( src, "r" );
     if ( tiff == NULL ) throw_error();
 
+    Traits< CImg<Pixel> >& my_traits = *this;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
+    my_traits.size.z() = 1;     /* TODO: Read from file */
+    my_traits.dim = 1;          /* TODO: Read from file */
 
     _no_images = 1;
     while ( TIFFReadDirectory(tiff) != 0 )

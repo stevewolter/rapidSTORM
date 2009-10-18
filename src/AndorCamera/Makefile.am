@@ -17,4 +17,4 @@ if HAVE_LIBATMCD32D
 else
     AndorCamera_Only_lAC_Files =
 endif
-libAndorCamera_la_SOURCES = Config.cpp $(AndorCamera_Only_lAC_Files)
+libAndorCamera_la_SOURCES = Config.cpp Config.h $(AndorCamera_Only_lAC_Files)

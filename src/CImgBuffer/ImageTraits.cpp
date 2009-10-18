@@ -8,10 +8,16 @@ template <typename PixelType>
 void
 Traits< cimg_library::CImg<PixelType> >::
 compute_resolution( const CImgBuffer::Config& config ) {
-    /* dots per nanometre is inverse of pixel size, and
-     * dots per inch is 2.54 (number of cm per inch) times
-     * 10^7 (number of nm per cm) times dots per nanometre */
-    xr = yr = zr = 2.54E7 / config.pixel_size_in_nm();
+    for (int i = 0; i < resolution.rows(); i++)
+        resolution[i] = config.pixel_size_in_nm() / 1E9;
+}
+
+template <typename PixelType>
+void
+Traits< cimg_library::CImg<PixelType> >::
+set_resolution( const Eigen::Vector3d& resolution ) {
+    for (int i = 0; i < resolution.rows(); i++)
+        this->resolution[i] = resolution[i];
 }
 
 template class Traits< cimg_library::CImg<uint8_t> >;

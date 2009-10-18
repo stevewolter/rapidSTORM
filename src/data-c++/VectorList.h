@@ -151,7 +151,7 @@ namespace data_cpp {
         }
 
         /** Returns the total number of elements in the VectorList. */
-        inline unsigned int size() 
+        inline unsigned int size() const 
             { return binSize * currentBin + indexInBin; }
          
         /** Removes all elements from the VectorList. */
@@ -172,55 +172,64 @@ namespace data_cpp {
             }
 
         /** Standard STL iterator. */
-        class const_iterator {
+      private:
+        template <typename RetType>
+        class _iterator {
           private:
             friend class VectorList;
-            Type **array;
-            Type *run;
-            int runCount, binSize;
+            RetType * const *array;
+            int run, binSize;
+
+            _iterator(int binSize, RetType * const *array,
+                      int curEl)
+                : array(array),
+                  run(curEl), binSize(binSize){}
 
           public:
-            const_iterator(int binSize) : binSize(binSize) {}
-            inline const Type &operator*() { return *run; }
-            inline const Type *operator->() { return run; }
+            inline RetType &operator*() const
+                { return (*array)[run]; }
+            inline RetType *operator->() const
+                { return (*array)+run; }
 
-            inline bool operator!=(const const_iterator &other)
+            inline bool operator!=(const _iterator &other)
                 { return ! ((*this) == other); }
-            inline bool operator==(const const_iterator &other)
+            inline bool operator==(const _iterator &other)
                 { return array == other.array && run == other.run; }
 
-            inline const_iterator& operator++() 
-                { return operator++(0); }
+            inline _iterator& operator++() { 
+                run++;
+                if (run == binSize) { ++array; run = 0; }
+                return *this;
+            }
 
-            inline const_iterator& operator++(int)
-                { run++; runCount++; 
-                  if (runCount == binSize) 
-                    { run = *( ++array ); runCount = 0; }
-                  return *this;
-                }
-
+            inline _iterator operator++(int) 
+                { _iterator tmp(*this); ++(*this); return tmp; }
         };
-        friend class const_iterator;
+        friend class _iterator<const Type>;
+        friend class _iterator<Type>;
+      public:
+        typedef _iterator<const Type> const_iterator;
+        typedef _iterator<Type> iterator;
 
         /** Returns an iterator to the first element. */
         inline const_iterator begin() const
-        { 
-            const_iterator it(binSize);
-            it.array = array;
-            it.run = array[0];
-            it.runCount = 0;
-            return it;
-        }
+            { return const_iterator(binSize, array, 0); }
+        inline iterator begin()
+            { return iterator(binSize, array, 0); }
 
         /** Returns an iterator past the last element. */
         inline const_iterator end() const
         { 
-            const_iterator it(binSize);
-            int cB = currentBin + indexInBin / binSize, i = indexInBin % binSize;
-            it.array = array + cB;
-            it.run = array[cB] + i;
-            it.runCount = i;
-            return it;
+            int cB = currentBin + indexInBin / binSize, 
+                 i = indexInBin % binSize;
+            return const_iterator(binSize, array+cB, i);
+        }
+        /** Returns an iterator past the last element. */
+        inline iterator end() 
+        { 
+            int cB = currentBin + indexInBin / binSize, 
+                 i = indexInBin % binSize;
+            return iterator(binSize, array+cB, i);
         }
 
     };

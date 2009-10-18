@@ -5,7 +5,7 @@ bin_PROGRAMS = dstorm watchStorm
 
 EXTRA_DATA = rapidSTORM.jar
 SOURCES = DStorm.java
-EXTRA_DIST = $(SOURCES) manifest PluginDir.h.in logo.png
+EXTRA_DIST = $(SOURCES) manifest logo.png
 
 dist_pkgdata_DATA = dstorm-config.txt logo.png manifest
 
@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
     -include $(top_srcdir)/debug.h \
     '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
 
-libdStorm_la_SOURCES = 
+libdStorm_la_SOURCES = foreach.h
 nodist_EXTRA_libdStorm_la_SOURCES = dummy.cpp
 libdStorm_la_LIBADD = outputs/libfreeoutputs.la dStorm/libdStorm.la \
     CImgBuffer/libCImgBuffer.la AndorCamera/libAndorCamera.la \

@@ -98,8 +98,7 @@ Output::AdditionalData
 SinglePrecisionEstimator::announceStormSize(const Announcement& a)
 {
     /* Length of a pixel in nm is inverse of number of dots per nm. */
-    pixel_dim_in_nm = (1.0 / 2.54E7) * 
-        a.traits.resolution().cwise().inverse();
+    pixel_dim_in_nm = a.traits.resolution * 1E-9;
     return LocalizationSources;
 }
 
@@ -163,9 +162,7 @@ void MultiPrecisionEstimator::registerNamedEntries() {
 Output::AdditionalData
 MultiPrecisionEstimator::announceStormSize(const Announcement& a)
 {
-    /* Length of a pixel in nm is inverse of number of dots per nm. */
-    pixel_dim_in_nm = (1.0 / 2.54E7) * 
-        a.traits.resolution().cwise().inverse();
+    pixel_dim_in_nm = a.traits.resolution * 1E-9;
     return localizations.announceStormSize(a);
 }
 

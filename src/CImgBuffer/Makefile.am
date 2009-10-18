@@ -3,14 +3,15 @@ libCImgBuffer_la_SOURCES = \
     AndorSIF.cpp Config.cpp ViewportSelector.h \
     foreach.h \
     CImgList.h CImgList.cpp ImageSource.cpp \
-    Source.cpp TIFF.cpp ImageTraits.cpp
+    Source.cpp TIFF.cpp ImageTraits.cpp \
+    AutoInputMethod.h
 library_includedir = $(includedir)/CImgBuffer
-library_include_HEADERS = Source.h Buffer.h Config.h Slot.h \
+library_include_HEADERS = Source.h Source_impl.h Buffer.h Config.h Slot.h \
 	Drain.h InputMethod.h \
 	Traits.h ImageTraits.h \
 	Buffer_impl.h Slot_impl.h \
 	SerialImageSource.h AndorSIF.h \
-	TIFF.h AndorDirect.h
+	TIFF.h AndorDirect.h BasenameWatcher.h
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     -include $(top_srcdir)/debug.h \

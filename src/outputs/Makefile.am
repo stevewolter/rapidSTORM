@@ -24,4 +24,5 @@ libclosedoutputs_la_SOURCES = \
     Slicer.h \
     ViewportImage.h \
     PrecisionEstimator.h PrecisionEstimator.cpp \
-    ViewerConfig.h Viewer.cpp Viewer.h DisplayHandler.cpp DisplayHandler.h
+    ViewerConfig.h Viewer.cpp Viewer.h \
+    BasicTransmissions.h

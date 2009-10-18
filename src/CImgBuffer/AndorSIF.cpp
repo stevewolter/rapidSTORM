@@ -35,7 +35,8 @@ CImg<Pixel>*
 Source<Pixel>::load()
  
 {
-   const int sz = _height * _width;
+   Traits< CImg<Pixel> >& my_traits = *this;
+   const int sz = my_traits.size.x() * my_traits.size.y();
    float buffer[sz];
    for (int i = 0; i < sz; i++) buffer[i] = 5;
    CImg<Pixel> *result = NULL;
@@ -46,7 +47,7 @@ Source<Pixel>::load()
         readsif_getNextImage( dataSet, buffer );
    assert( rv_of_readsif_getImage == 0 );
 
-   result = new CImg<Pixel>(_width, _height);
+   result = new CImg<Pixel>(my_traits.size.x(), my_traits.size.y());
    /* The pixel might need casting. This is done here. */
    for (int p = 0; p < sz; p++) {
       result->data[p] = (Pixel)buffer[p];
@@ -75,8 +76,10 @@ void Source<Pixel>::init(FILE *src)
                 "feature is not supported and only the first subimage "
                 "will be used." << endl;
 
-   _width = readsif_imageWidth( dataSet, 0 );
-   _height = readsif_imageHeight( dataSet, 0 );
+   Traits< CImg<Pixel> >& my_traits = *this;
+   my_traits.size.x() = readsif_imageWidth( dataSet, 0 );
+   my_traits.size.y() = readsif_imageHeight( dataSet, 0 );
+   my_traits.size.z() = 1;
 
     /* Read the additional information file from the SIF file
      * and store it in SIF info structure. */
@@ -110,8 +113,8 @@ void Source<Pixel>::init(FILE *src)
     sifInfo->cycleTime.editable = false;
 
     simparm::Entry* whn[] = {
-        new simparm::UnsignedLongEntry("ImageWidth", "Image width", _width),
-        new simparm::UnsignedLongEntry("ImageHeight", "Image height", _height),
+        new simparm::UnsignedLongEntry("ImageWidth", "Image width", my_traits.size.x()),
+        new simparm::UnsignedLongEntry("ImageHeight", "Image height", my_traits.size.y()),
         new simparm::UnsignedLongEntry("ImageNumber", "Number of images",
             readsif_numberOfImages(dataSet) ) 
     };

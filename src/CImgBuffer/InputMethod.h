@@ -33,8 +33,11 @@ namespace CImgBuffer {
         virtual BaseInputConfig* clone(Config &master) const = 0;
 
         /** Make a Source object with the current settings. */
-        std::auto_ptr< BaseSource > makeSource() 
-            { return std::auto_ptr<BaseSource>(impl_makeSource()); }
+        std::auto_ptr< BaseSource > makeSource(const Config &master) { 
+            std::auto_ptr<BaseSource> src(impl_makeSource()); 
+            src->apply_global_settings( master );
+            return src;
+        }
     };
 
     template <typename T>
@@ -44,8 +47,11 @@ namespace CImgBuffer {
             : BaseInputConfig(name, desc) {}
       public:
         /** Make a Source object with the current settings. */
-        std::auto_ptr< Source<T> > makeSource()
-            { return std::auto_ptr< Source<T> >(impl_makeSource()); }
+        std::auto_ptr< Source<T> > makeSource(const Config &master) { 
+            std::auto_ptr< Source<T> > src(impl_makeSource()); 
+            src->apply_global_settings( master );
+            return src;
+        }
         /** Clone the current set and all its settings.
          *  \param newMaster The Config object that will own the clone.
          *                   Used to update references. */

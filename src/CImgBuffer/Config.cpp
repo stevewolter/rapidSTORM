@@ -88,12 +88,13 @@ _Config::_Config()
     PROGRESS("Finished");
 }
 
-std::auto_ptr< BaseSource > _Config::makeImageSource() const 
+std::auto_ptr< BaseSource > Config::makeImageSource() const 
 
 {
     if ( inputMethod.isValid() ) {
         std::auto_ptr< BaseSource > rv = 
-            const_cast< BaseInputConfig& >(inputMethod()).makeSource();
+            const_cast< BaseInputConfig& >(inputMethod())
+                .makeSource(*this);
         rv->set_ROI( firstImage(), lastImage() );
         return rv;
     } else

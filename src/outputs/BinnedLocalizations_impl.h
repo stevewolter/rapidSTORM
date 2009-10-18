@@ -1,6 +1,7 @@
 #include "BinnedLocalizations.h"
 #include <dStorm/ResultRepeater.h>
 #include <CImgBuffer/ImageTraits.h>
+#include <Eigen/Array>
 
 #define LINEAR
 // #define QUADRATIC
@@ -108,12 +109,20 @@ template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>::set_base_image_size() 
  
 {
-    int w = announcement->traits.dimx(), h = announcement->traits.dimy();
-    int hrw = int(ceil(re*(w-1-2*crop)))+1, 
-        hrh = int(ceil(re*(h-1-2*crop)))+1;
-    base_image.resize(hrw,hrh,1,1, /* No init */ -1);
+    CImgBuffer::Traits<BinnedImage> traits;
+    Eigen::Vector3d temp_size =
+        (announcement->traits.size.cwise() - (1+2*crop))
+            .cast<double>() * re;
+    for (int i = 0; i < traits.size.rows(); i++)
+        traits.size[i] = 
+            ceil( std::max<double>(0, temp_size[i]) ) + 1;
+    traits.resolution = announcement->traits.resolution / re;
+    traits.dim = announcement->traits.dim;
+
+    base_image.resize(traits.dimx(),traits.dimy(),traits.dimz(),
+                      traits.dim, /* No init */ -1);
     base_image.fill(0); 
-    this->binningListener().setSize(hrw, hrh);
+    this->binningListener().setSize(traits);
 }
 
 };

@@ -1,3 +1,5 @@
+SUBDIRS = display
+
 noinst_LTLIBRARIES = libdStorm.la
 
 library_includedir = $(includedir)/dStorm
@@ -42,4 +44,5 @@ libdStorm_la_SOURCES = \
     OutputSource.cpp Trace.cpp Crankshaft.cpp \
     LocalizationFileReader.cpp Localizations.cpp \
     TraceReducers.cpp helpers/dilation.cpp
+libdStorm_la_LIBADD = display/libdStorm_display.la
 EXTRA_DIST = helpers/thread.h

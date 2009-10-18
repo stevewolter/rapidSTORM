@@ -42,8 +42,6 @@ namespace AndorSIF {
          Source(FILE *src, const std::string& ident);
          virtual ~Source();
 
-         virtual int dimx() const { return _width; }
-         virtual int dimy() const { return _height; }
          virtual int quantity() const; 
 
          Object& getConfig() { return *this; }
@@ -59,7 +57,6 @@ namespace AndorSIF {
          readsif_DataSet *dataSet;
 
          std::string file_ident;
-         int _width, _height;
 
          std::auto_ptr<Set> sifInfo;
          simparm::TriggerEntry showDetails, hideDetails;

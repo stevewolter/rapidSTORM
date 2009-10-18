@@ -20,13 +20,29 @@
 #define UINT8_MAX std::numeric_limits<uint8_t>::max()
 #endif
 
-#include "DisplayHandler.h"
+#include <dStorm/display/Manager.h>
 
 using namespace std;
 using namespace cimg_library;
 using namespace ost;
 
+using namespace dStorm::Display;
+
 static Mutex *cimg_lock = NULL;
+
+static const char *SI_prefixes[]
+= { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
+    "E" };
+std::string SIize( float value ) {
+    if ( value < 1E-21 ) return "0";
+    int prefix = int(floor(log10(value))) / 3;
+    prefix = std::max(-5, std::min(prefix, 5));
+    float rv = value / pow(1000, prefix);
+    char buffer[128];
+    snprintf( buffer, 128, "%.3g %s", rv, 
+              SI_prefixes[prefix + 5] );
+    return buffer;
+}
 
 namespace Eigen {
 bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
@@ -50,9 +66,8 @@ struct Viewer::Implementation
     virtual ~Implementation() {}
     virtual dStorm::Output& getForwardOutput() = 0;
 
-    virtual std::auto_ptr< cimg_library::CImg<unsigned char> >
+    virtual std::auto_ptr< Magick::Image >
         full_size_image() = 0;
-    virtual void wait_for_completion() = 0;
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;
@@ -62,7 +77,7 @@ struct Viewer::Implementation
 template <int Hueing>
 class ColourDependantImplementation 
 : public Viewer::Implementation,
-  public DisplayHandler::ViewportHandler
+  public DataSource
 {
     class ColouredImageAdapter;
     typedef HueingColorizer<Hueing> MyColorizer;
@@ -71,7 +86,7 @@ class ColourDependantImplementation
         Discretizer;
     typedef BinnedLocalizations<Discretizer> Accumulator;
 
-    static void copy_color( dStorm::Color& c, 
+    static void copy_color( Color& c, 
                             const typename MyColorizer::Pixel& p )
     {
         c.r = p.r;
@@ -85,89 +100,91 @@ class ColourDependantImplementation
         Discretizer& discretizer;
         typedef std::vector< bool > PixelSet;
         PixelSet ps;
-        int ps_step, ps_bits_set;
+        int ps_step;
 
-        DisplayHandler::WindowID window_id;
-        std::string desc;
-        bool do_show_output, close_immediately;
-        DisplayHandler::ViewportHandler& vph;
+        bool do_show_window;
+        Manager::WindowProperties props;
+        DataSource& vph;
 
-        std::auto_ptr<DisplayHandler::Change> next_change;
+        std::auto_ptr<Change> next_change;
+        std::auto_ptr<Manager::WindowHandle> window_id;
 
       public:
-        ost::Mutex mutex;
+        float nm_per_pixel;
 
         ColouredImageAdapter( 
             Discretizer& disc, 
             const Viewer::Config& config,
-            DisplayHandler::ViewportHandler& vph 
-        ) : discretizer(disc), ps_bits_set(0), desc(config.getDesc()),
-              do_show_output( config.showOutput() ),
-              close_immediately( config.close_on_completion() ),
+            DataSource& vph 
+        ) : discretizer(disc), 
+              do_show_window( config.showOutput() ),
               vph(vph), 
-              next_change( new DisplayHandler::Change( 1000, 100 ) )
-            {}
-        ~ColouredImageAdapter() {
-            close_window();
-        }
-        void setSize(int width, int height) { 
+              next_change( new Change() )
+            {
+                props.name = config.getDesc();
+                props.flags.close_window_on_unregister
+                    ( config.close_on_completion() );
+            }
+        void setSize( 
+            const CImgBuffer::Traits< cimg_library::CImg<int> >& traits) 
+        { 
+            int width = traits.size.x(), height = traits.size.y();
             ps.resize( width * height, false );
             ps_step = width;
 
-            DisplayHandler::ResizeChange r;
+            ResizeChange r;
             r.width = width;
             r.height = height;
             r.key_size = MyColorizer::BrightnessDepth;
-            copy_color(r.background, discretizer.get_background());
+            r.pixel_size = traits.resolution.sum() / 3;
+            nm_per_pixel = r.pixel_size * 1E9;
 
-            if ( do_show_output ) {
-                window_id = DisplayHandler::getSingleton()
-                        .make_image_window( desc, vph, r );
+            if ( do_show_window ) {
+                Manager::WindowProperties p;
+                p.initial_size = r;
+                window_id = Manager::getSingleton()
+                        .register_data_source( p, vph );
             } else {
                 next_change->do_resize = true;
                 next_change->resize_image = r;
-                this->clear();
             }
+            this->clear();
         }
         void pixelChanged(int x, int y) {
             std::vector<bool>::reference is_on = ps[ y * ps_step + x ];
             if ( ! is_on ) {
-                DisplayHandler::PixelChange&
-                    p = *next_change->change_pixels.allocate(1);
+                PixelChange&
+                    p = *next_change->change_pixels.allocate();
                 p.x = x;
                 p.y = y;
                 /* The color field will be set when the clean handler
                  * runs. */
-                next_change->change_pixels.commit(1);
-                ps_bits_set++;
             }
         }
         void clean() {
-            typedef data_cpp::Vector<DisplayHandler::PixelChange> PixQ;
+            typedef Change::PixelQueue PixQ;
             const PixQ::iterator end 
                 = next_change->change_pixels.end();
             for ( PixQ::iterator i = 
-                next_change->change_pixels.begin(); i != end; i++ )
+                next_change->change_pixels.begin(); i != end; ++i )
             {
                 copy_color(i->color, discretizer.get_pixel(i->x, i->y));
                 ps[ i->y * ps_step + i->x ] = false;
             }
-            ps_bits_set = 0;
         }
         void clear() {
-            DisplayHandler::ClearChange &c = next_change->clear_image;
+            ClearChange &c = next_change->clear_image;
             copy_color(c.background, discretizer.get_background());
             next_change->do_clear = true;
 
             next_change->change_pixels.clear();
             next_change->change_key.clear();
             fill( ps.begin(), ps.end(), false );
-            ps_bits_set = 0;
         }
         void notice_key_change( int index, 
             typename MyColorizer::Pixel pixel, float value )
         {
-            DisplayHandler::KeyChange& k = 
+            KeyChange& k = 
                 *next_change->change_key.allocate(1);
             k.index = index;
             copy_color(k.color, pixel);
@@ -175,23 +192,17 @@ class ColourDependantImplementation
             next_change->change_key.commit(1);
         }
 
-        void close_window() {
-            DisplayHandler::getSingleton().notify_of_vanished_data_source
-                ( window_id, close_immediately );
-        }
-
-        std::auto_ptr<DisplayHandler::Change> get_current_changes() {
-            std::auto_ptr<DisplayHandler::Change> fresh;
-            fresh = next_change->empty_change_with_same_allocated_size();
+        std::auto_ptr<Change> get_changes() {
+            std::auto_ptr<Change> fresh( new Change() );
             std::swap( fresh, next_change );
             return fresh;
         }
     };
 
-    std::auto_ptr<DisplayHandler::Change> get_changes() {
-        ost::MutexLock lock( cia.mutex );
+    std::auto_ptr<Change> get_changes() {
+        ost::MutexLock lock( image.getMutex() );
         image.clean(); 
-        return cia.get_current_changes();
+        return cia.get_changes();
     }
 
     /** Binned image with all localizations in localizationsStore.*/
@@ -203,9 +214,7 @@ class ColourDependantImplementation
 
   public:
     ColourDependantImplementation(const Viewer::Config& config)
-        : /* Careful: Forward reference. This code works because (a) getMutex() is not virtual and (b) we simply need a reference. */
-          DisplayHandler::ViewportHandler(),
-          image( config.res_enh(), 1 ),
+        : image( config.res_enh(), 1 ),
           colorizer(config),
           discretization( 4096, 
                 config.histogramPower(), image(),
@@ -219,18 +228,71 @@ class ColourDependantImplementation
     ~ColourDependantImplementation() {}
 
     dStorm::Output& getForwardOutput() { return image; }
-    virtual std::auto_ptr< cimg_library::CImg<unsigned char> >
+    virtual std::auto_ptr< Magick::Image >
         full_size_image() 
     { 
         image.clean();
-        return discretization.full_image();
+        int width = image.width();
+        std::auto_ptr< Magick::Image > key_img
+            = discretization.key_image();
+        int lh = key_img->fontPointsize(),
+            text_area_height = 5 * lh;
+        int key_width = width - 2 * lh;
+        int real_key_width = key_img->columns();
+        Magick::Geometry key_img_size 
+            = Magick::Geometry(key_width, 20);
+        key_img_size.aspect( true );
+        key_img->sample( key_img_size );
+
+        std::auto_ptr< Magick::Image > img 
+            = discretization.full_image( 
+                text_area_height 
+                + 2 * lh + key_img->rows() );
+        int ys = image.height() + 10;
+        img->composite( *key_img, lh, ys,
+                        Magick::OverCompositeOp );
+
+        ys += key_img->rows();
+        Magick::TypeMetric metrics;
+        img->strokeColor( Magick::ColorRGB(1,1,1) );
+        img->fillColor( Magick::ColorRGB(1,1,1) );
+        for (unsigned int i = 0;
+             i < key_img->columns(); i += lh )
+        {
+            float value = 
+                discretization.key_value(
+                    i * real_key_width * 1.0 / key_width);
+            std::string s = SIize(value);
+            img->annotate(s, 
+                Magick::Geometry( lh, text_area_height-5,
+                                  i+lh/2, ys+5),
+                Magick::NorthWestGravity, 90 );
+            img->draw( Magick::DrawableLine( i+2*lh/3, ys, i+2*lh/3, ys + 3 ) );
+        }
+
+        ys += text_area_height;
+        std::string message =
+            "Key: total A/D counts per pixel";
+        img->annotate( message,
+            Magick::Geometry( img->columns(), 
+                2*lh, 0, ys ),
+                Magick::NorthGravity, 0);
+        img->draw( Magick::DrawableRectangle( 
+            img->columns()-105, ys-12, 
+            img->columns()-5, ys-7 ) );
+
+        img->annotate(
+            SIize(cia.nm_per_pixel * 1E-7) + "m", 
+                Magick::Geometry(100, lh, 
+                    img->columns()-105, ys+4),
+                Magick::NorthGravity );
+        return img;
     }
 
     virtual void set_histogram_power(float power) 
         { discretization.setHistogramPower( power ); }
     virtual void set_resolution_enhancement(float re) 
         { image.set_resolution_enhancement( re ); }
-    virtual void wait_for_completion() { cia.close_window(); }
 };
 
 Viewer::_Config::_Config()
@@ -437,11 +499,6 @@ void Viewer::propagate_signal(ProgressSignal s) {
         isEmpty = true;
     else if (s == Engine_run_succeeded && tifFile) {
         writeToFile(tifFile());
-    } else if ( s == Prepare_destruction ) {
-        terminateViewer = close_display_immediately 
-                          || simparm::Node::isActive();
-        if ( ! terminateViewer )
-            implementation->wait_for_completion();
     }
 }
 
@@ -487,21 +544,10 @@ void Viewer::writeToFile(const string &name) {
         }
     }
 
-    std::auto_ptr< CImg<unsigned char> >
+    std::auto_ptr< Magick::Image >
         normIm = implementation->full_size_image();
 
-    try {
-        /* Do not show CImg errors in windows. */
-        cimg::exception_mode() = 0U;
-        normIm->save_magick(filename);
-    } catch (const cimg_library::CImgException& e) {
-        cerr << "Unable to save image: " << e.message << endl;
-        /* If an exception was thrown, a bug in the CImg memory
-         * handling in save_cimg might have been triggered, making
-         * destruction of normIm.data unsafe. Accept memory leak
-         * in this case. */
-        normIm.release();
-    }
+    normIm->write(filename);
 }
 
 }

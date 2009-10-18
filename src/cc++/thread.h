@@ -140,6 +140,28 @@ class WriteLock {
     ~WriteLock() throw();
 };
 
+/** A Runnable is a generalization of a function called
+ *  independently of any context. It can be run 
+ *  concurrently by a Thread object or by other methods.
+ *  When calling Runnable objects, make sure to call all
+ *  three methods in sequence.
+ */
+struct Runnable {
+    virtual ~Runnable() {}
+
+    /** This method is called just prior to run()
+     *  and should be used for any necessary
+     *  initialization. */
+    virtual void initial() throw() {}
+    /** This method is called as the main code of the
+     *  runnable execution. */
+    virtual void run() throw() = 0;
+    /** This method must be called after the run() method
+     *  of the runnable exits, no matter how the run()
+     *  method exited. */
+    virtual void final() throw() {}
+};
+
 /** A Thread object allows objects to execute one function concurrently.
  *  
  *  A Thread object will start concurrent execution of its run() function
@@ -168,7 +190,7 @@ class WriteLock {
  *  \endcode
  *  are perfectly valid.
  **/
-class Thread {
+class Thread : protected Runnable {
   private:
     /** Indicates whether a subthread is running, detached or not. */
     bool running;
@@ -186,17 +208,6 @@ class Thread {
     /** This is a cleanup handler called if anything untoward happens
      *  to the subthread. */
     static void callFinal(void *threadp) throw();
-
-  protected:
-    /** This method is called just prior to run() and should be used
-     *  for any necessary initialization. It is provided for
-     *  compatibility with GNU CommonC++. */
-    virtual void initial() throw() {}
-    /** This method is called as the main code of the concurrent thread. */
-    virtual void run() throw() = 0;
-    /** This method is always called when the concurrent thread exits,
-     *  even if it is cancelled. */
-    virtual void final() throw() {}
 
   public:
     /** Construct a thread with a description string that can be
@@ -221,8 +232,21 @@ class Thread {
      *  last action of the main() function that allows all detached
      *  subthreads to finish execution. */
     static void joinDetached() throw();
-    /** Return a description of the current thread. */
+    /** Return the description string of the thread
+     *  given in the constructor. */
+    const char *desc() const throw();
+    /** Return the description string of the Thread object
+     *  that started the thread the code is running in,
+     *  or "NONE" if the thread was not started by this
+     *  library. */
     static const char *description() throw();
+    /** Return a pointer to the Thread object that started
+     *  the thread the code is running in.
+     *  @return A pointer to the current thread object,
+     *          or NULL if the current thread was not
+     *          started by this library.
+     **/
+    static const Thread *current_thread() throw();
 };
 
 /** The Condition class implements a condition variable. This is a

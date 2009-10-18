@@ -33,14 +33,15 @@ ImageDiscretizer<Colorizer, ImageListener>
 
 template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
-::setSize(int width, int height)
+::setSize( const CImgBuffer::Traits<InputImage>& traits )
 {
-    colorizer.setSize( width, height );
-    this->publish().setSize( width, height );
-    total_pixel_count = width * height;
+    colorizer.setSize( traits );
+    CImgBuffer::Traits< cimg_library::CImg<int> > out_traits( traits );
+    this->publish().setSize( out_traits );
+    total_pixel_count = traits.size.x() * traits.size.y();
 
     cimg_library::CImg<HistogramPixel>
-        new_pixel_map(width, height);
+        new_pixel_map(traits.size.x(), traits.size.y());
     pixels_by_position.swap( new_pixel_map );
 
     cimg_forXY( pixels_by_position, x, y ) {
@@ -125,9 +126,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
         max_value_used_for_disc_factor = max_value;
         pixels_above_used_max_value = 0;
     }
-
     normalize_histogram();
-
     colorizer.clean();
     this->publish().clean();
 }
@@ -235,22 +234,67 @@ void ImageDiscretizer<Colorizer, ImageListener>
 }
 
 template <typename Colorizer, typename ImageListener>
-std::auto_ptr< cimg_library::CImg<uint8_t> >
-ImageDiscretizer<Colorizer, ImageListener>::full_image()
+float 
+ImageDiscretizer<Colorizer, ImageListener>::key_value( LowDepth key )
 {
-    std::auto_ptr<cimg_library::CImg<uint8_t> > rv
-        ( new cimg_library::CImg<uint8_t>(
-            binned_image.width,
-            binned_image.height,
-            1, 3) );
+    int n = -1; 
+    while ( transition[n+1] <= key ) n++;
+    return (n+0.5f) / disc_factor;
+}
 
+template <typename Colorizer, typename ImageListener>
+std::auto_ptr< Magick::Image >
+ImageDiscretizer<Colorizer, ImageListener>::full_image
+    (int bottom_black_border)
+{
+    int width = binned_image.width;
+    int bordered_height = 
+        binned_image.height + bottom_black_border;
+    unsigned char buffer[ width * bordered_height * 3 ];
     cimg_forXY( binned_image, x, y ) {
+        int offset = (y * width + x) * 3;
         typename Colorizer::Pixel p = get_pixel(x,y);
-        (*rv)(x,y,0,0) = p.r;
-        (*rv)(x,y,0,1) = p.g;
-        (*rv)(x,y,0,2) = p.b;
+        buffer[ offset ] = p.r;
+        buffer[ offset + 1 ] = p.g;
+        buffer[ offset + 2 ] = p.b;
+    }
+    std::memset( 
+        buffer + width * binned_image.height * 3, 0,
+        3 * width * bottom_black_border);
+
+    std::auto_ptr<Magick::Image > rv
+        ( new Magick::Image(
+            binned_image.width, bordered_height,
+            "RGB", Magick::CharPixel, buffer ) );
+    return rv;
+}
+
+template <typename Colorizer, typename ImageListener>
+std::auto_ptr< Magick::Image >
+ImageDiscretizer<Colorizer, ImageListener>::key_image()
+{
+    std::auto_ptr< Magick::Image > rv
+        ( new Magick::Image(
+            Magick::Geometry( out_depth, 1 ),
+            Magick::ColorRGB( 0, 0, 0 ) ) );
+    rv->type(Magick::TrueColorType);
+
+    Magick::PixelPacket *pixels = 
+        rv->getPixels(0, 0, out_depth, 1);
+    static const int major_shift = 
+        (( QuantumDepth == 16 ) ? 8 : 0);
+    for (LowDepth i = 0; i < out_depth; i++) {
+        typename Colorizer::Pixel p
+            = colorizer.getKeyPixel(i);
+        pixels[i]
+            = Magick::Color(
+                (p.r << major_shift) | p.r,
+                (p.g << major_shift) | p.g,
+                (p.b << major_shift) | p.b );
     }
 
+    rv->syncPixels();
+    rv->write("key.png");
     return rv;
 }
 
