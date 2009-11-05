@@ -1,0 +1,91 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.61)
+AC_INIT([rapidStorm], RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([dstorm.cpp])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([../m4])
+
+AC_LANG([C++])
+
+# Checks for programs.
+AC_PROG_CXX
+test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
+AC_PROG_CC
+test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
+AC_PROG_JAVAC
+test "x$JAVAC" = "x" && AC_MSG_ERROR([unable to find Java compiler])
+AC_PROG_JAR
+test "x$JAR" = "x" && AC_MSG_ERROR([unable to find Java archiver])
+
+ACX_PTHREAD(
+    [ LIBS="$PTHREAD_LIBS $LIBS"
+      CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+      CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+      CC="$PTHREAD_CC" ],
+    [ AC_ERROR([No usable pthread library found]) ])
+
+# Check libtool with modified compiler
+AC_PROG_LIBTOOL
+
+# Enable doxygen support
+AX_PROG_DOXYGEN
+DX_HTML_FEATURE(ON)
+DX_PS_FEATURE(OFF)
+DX_PDF_FEATURE(OFF)
+DX_INIT_DOXYGEN(dStorm)
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
+AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
+AC_CHECK_HEADERS([tiffio.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_STRUCT_TM
+
+# Checks for library functions.
+AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
+
+# Checks for libraries.
+AC_CHECK_LIB([simparm], [main])
+AC_CHECK_LIB([GraphicsMagick], [InitializeMagick])
+AC_CHECK_LIB([GraphicsMagick++], [main])
+AC_CHECK_LIB([readsif], [main])
+
+AC_ARG_WITH([andor-camera],
+    [AS_HELP_STRING([--with-andor-camera],
+        [support direct acquisition from Andor cameras by Andor SDK @<:@default=check@:>@])],
+        [],
+        [with_andor_camera=check])
+AS_IF( 
+    [test "x$with_andor_camera" != xno], 
+        [AC_CHECK_LIB([ATMCD32D], [main], ,
+            [with_andor_camera=no])] )
+AM_CONDITIONAL( [HAVE_LIBATMCD32D], [test "x$with_andor_camera" != xno] )
+ 
+AM_WITH_DMALLOC
+
+# Select the windowing library needed for CImg
+case $host in 
+   *mingw32*) LIBCIMG_LIBS='-luser32 -lgdi32 ' ;;
+   *)         LIBCIMG_LIBS=-lX11            ;;
+esac
+
+# Integrate the help, library and the current src directory
+CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
+
+AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_NAME/plugins")
+
+AC_CONFIG_FILES([Makefile AndorCamera/Makefile fit++/Makefile])
+AC_CONFIG_FILES([spotFinders/Makefile])
+AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])
+AC_CONFIG_FILES([manifest])
+
+AC_OUTPUT

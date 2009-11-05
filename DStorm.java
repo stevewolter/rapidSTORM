@@ -99,7 +99,7 @@ class DStorm {
 
         String[] environment = 
             build_environment(executable.getParentFile());
-        boolean have_arg = args.length > 0,stderrPipe = false;
+        boolean have_arg = args.length > 0,stderrPipe = true;
         int argC = 4;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;

@@ -1,18 +1,13 @@
-noinst_LTLIBRARIES = libfreeoutputs.la libclosedoutputs.la
-
-library_includedir = $(includedir)/dStorm/outputs
-library_include_HEADERS = BinnedLocalizations.h LocalizationList.h TraceFilter.h
+noinst_LTLIBRARIES = liboutputs.la
 
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
-    -include $(top_srcdir)/debug.h \
-    -I $(top_srcdir)/src
+    -include $(top_srcdir)/../debug.h \
+    -I $(top_srcdir) -I $(top_srcdir)/../lib -I $(top_builddir)/..
 
-libfreeoutputs_la_SOURCES = \
-    BinnedLocalizations.cpp LocalizationList.cpp TraceFilter.cpp 
-libclosedoutputs_la_SOURCES = \
+liboutputs_la_SOURCES = \
     AverageImage.cpp AverageImage.h BasicTransmissions.cpp \
-    BinnedLocalizations_impl.h ColourDisplay.cpp \
+    ColourDisplay.cpp \
     ColourDisplay.h ColourDisplay_impl.h \
     Histogram.h Histogram_impl.h \
     ImageDiscretizer.h ImageDiscretizer_impl.h \

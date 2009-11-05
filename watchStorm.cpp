@@ -1,10 +1,10 @@
 #include "GarageConfig.h"
-#include <CImgBuffer/ImageTraits.h>
-#include <dStorm/Image.h>
-#include "foreach.h"
+#include <dStorm/input/ImageTraits.h>
+#include <dStorm/engine/Image.h>
 #include <fstream>
-#include <CImgBuffer/Buffer.h>
-#include <CImgBuffer/Slot.h>
+#include <dStorm/input/Buffer.h>
+#include <dStorm/input/Slot.h>
+#include <dStorm/engine/Input.h>
 #include <iomanip>
 #include <CImg.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
     if (saveMovie) {
         try {
             Buffer<dStorm::Image> iv( config );
-            foreach(i, Buffer<dStorm::Image>, iv) {
+            for (dStorm::Input::iterator i = iv.begin(); i != iv.end(); i++)
+            {
                 Claim<dStorm::Image> claim = i->claim();
                 cimg_forXY(*claim, x, y) {
                     min = std::min((*claim)(x,y), min);
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
         CImgDisplay d(768, 768, "Storm", 1);
         CImgList<uint8_t> liste;
         int ic = 0;
-        foreach(i, Buffer<dStorm::Image>, iv) {
+        for (Input::iterator i = iv.begin(); i != iv.end(); i++) {
             Claim<dStorm::Image> claim = i->claim();
             if ( ! claim.isGood() ) continue;
             dStorm::Image &im = *claim;

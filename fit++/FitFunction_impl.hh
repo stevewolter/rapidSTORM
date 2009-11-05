@@ -9,8 +9,6 @@
 #include <iomanip>
 #include <cmath>
 
-#include <cc++/thread.h>
-
 #include <Eigen/Cholesky> 
 #include <Eigen/LU> 
 #include <Eigen/Array>

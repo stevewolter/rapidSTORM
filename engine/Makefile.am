@@ -2,8 +2,8 @@ noinst_LTLIBRARIES = libengine.la
 
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
-    -include $(top_srcdir)/debug.h \
-    -I $(top_srcdir)/src
+    -include $(top_srcdir)/../debug.h \
+    -I $(top_builddir)/.. -I $(top_srcdir) -I $(top_srcdir)/../lib
 
 libengine_la_SOURCES = \
     CarConfig.h CarConfig.cpp Car.cpp Car.h CImg_forward.h Engine.cpp \
@@ -17,19 +17,7 @@ libengine_la_SOURCES = \
     LocalizationBuncher.cpp LocalizationBuncher.h \
     SigmaFitter.h \
     SigmaGuesser.cpp SigmaGuesser_FreeFormFitter.cpp \
-    SigmaGuesser.h SpotFinder.h SpotFitter.cpp SpotFitter.h \
+    SigmaGuesser.h SpotFitter.cpp SpotFitter.h \
     studentPinv.c studentPinv.h \
     Variance.h \
-    spotFinders/averageSmooth.cpp \
-    spotFinders/averageSmooth.h \
-    spotFinders/ErosionSmoother.h \
-    spotFinders/FillholeSmoother.cpp \
-    spotFinders/FillholeSmoother.h \
-    spotFinders/GaussSmoothing.cpp \
-    spotFinders/GaussSmoothing.h \
-    spotFinders/Median.cpp \
-    spotFinders/MedianSmoother.h \
-    spotFinders/Reconstruction.cc \
-    spotFinders/Reconstruction.hh \
-    spotFinders/Spalttiefpass.h \
-    spotFinders/SpotFinder.cpp
+    SpotFinder.cpp

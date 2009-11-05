@@ -1,10 +1,10 @@
 #ifndef DSTORM_AVERAGEIMAGE_H
 #define DSTORM_AVERAGEIMAGE_H
 
-#include <dStorm/Output.h>
-#include <dStorm/OutputBuilder.h>
-#include <dStorm/FileOutputBuilder.h>
-#include <dStorm/Image.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/OutputBuilder.h>
+#include <dStorm/output/FileOutputBuilder.h>
+#include <dStorm/engine/Image.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <memory>

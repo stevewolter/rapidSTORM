@@ -1,6 +1,6 @@
 #include "LocalizationBuncher.h"
-#include <dStorm/LocalizationFileReader.h>
-#include <dStorm/Output.h>
+#include <dStorm/output/LocalizationFileReader.h>
+#include <dStorm/output/Output.h>
 
 namespace dStorm {
 
@@ -39,7 +39,11 @@ throw(Output*)
             output( canned[decanned] );
             delete canned[decanned];
             canned.erase(decanned);
+#if 0           /* Makes problems. Rather can everything. */
         } else if ( outputImage + 50 < currentImage ) {
+            output( NULL );
+#endif
+        } else if ( currentImage > lastInFile ) {
             output( NULL );
         } else
             break;
@@ -94,6 +98,7 @@ void LocalizationBuncher::noteTraits(
     unsigned int firstImage, unsigned int lastImage)
 
 {
+    lastInFile = lastImage;
     last = std::min( lastImage, traits.imageNumber-1 );
     first = std::min( firstImage, last );
 

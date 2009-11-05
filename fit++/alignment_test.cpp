@@ -1,4 +1,4 @@
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <stdio.h>
 #include <Eigen/Core>
 #include <assert>

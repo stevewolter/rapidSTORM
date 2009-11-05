@@ -1,7 +1,7 @@
 #define DSTORM_LOCALIZATIONFILE_CPP
 #include "LocalizationFile.h"
 #include <string.h>
-#include <dStorm/Trace.h>
+#include <dStorm/output/Trace.h>
 #include "doc/help/context.h"
 
 using namespace std;

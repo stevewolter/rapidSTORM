@@ -4,23 +4,22 @@
 #include "ViewerConfig.h"
 #include <limits>
 #include <cassert>
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <CImg.h>
 #include <fstream>
 #include "doc/help/context.h"
 
-#include <outputs/BinnedLocalizations.h>
-#include <outputs/BinnedLocalizations_impl.h>
-#include <outputs/ImageDiscretizer.h>
-#include <outputs/ColourDisplay.h>
-#include <outputs/ImageDiscretizer_impl.h>
-#include <outputs/ColourDisplay_impl.h>
+#include <dStorm/outputs/BinnedLocalizations.h>
+#include <dStorm/outputs/BinnedLocalizations_impl.h>
+#include "ColourDisplay.h"
+#include "ImageDiscretizer_impl.h"
+#include "ColourDisplay_impl.h"
 
 #ifndef UINT8_MAX
 #define UINT8_MAX std::numeric_limits<uint8_t>::max()
 #endif
 
-#include <dStorm/display/Manager.h>
+#include <dStorm/helpers/DisplayManager.h>
 
 using namespace std;
 using namespace cimg_library;
@@ -140,10 +139,9 @@ class ColourDependantImplementation
             nm_per_pixel = r.pixel_size * 1E9;
 
             if ( do_show_window ) {
-                Manager::WindowProperties p;
-                p.initial_size = r;
+                props.initial_size = r;
                 window_id = Manager::getSingleton()
-                        .register_data_source( p, vph );
+                        .register_data_source( props, vph );
             } else {
                 next_change->do_resize = true;
                 next_change->resize_image = r;
@@ -161,7 +159,7 @@ class ColourDependantImplementation
                  * runs. */
             }
         }
-        void clean() {
+        void clean(bool) {
             typedef Change::PixelQueue PixQ;
             const PixQ::iterator end 
                 = next_change->change_pixels.end();
@@ -286,6 +284,9 @@ class ColourDependantImplementation
                 Magick::Geometry(100, lh, 
                     img->columns()-105, ys+4),
                 Magick::NorthGravity );
+        img->resolutionUnits( Magick::PixelsPerCentimeterResolution );
+        unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
+        img->density(Magick::Geometry(pix_per_cm, pix_per_cm));
         return img;
     }
 

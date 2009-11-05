@@ -1,11 +1,10 @@
 #define DSTORM_CARCONFIG_CPP
 #include "CarConfig.h"
-#include "foreach.h"
-#include <CImgBuffer/Config.h>
-#include <dStorm/FilterSource.h>
-#include <dStorm/OutputFactory.h>
+#include <dStorm/input/Config.h>
+#include <dStorm/output/FilterSource.h>
+#include <dStorm/output/OutputFactory.h>
 
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <sstream>
 
 #include <simparm/ChoiceEntry_Impl.hh>

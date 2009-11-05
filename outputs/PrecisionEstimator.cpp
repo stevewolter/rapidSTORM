@@ -1,22 +1,20 @@
 #define LOCPREC_PRECISIONESTIMATOR_CPP
 #include "PrecisionEstimator.h"
-#include "foreach.h"
 #include <iomanip>
 #include <fit++/Exponential2D.hh>
 #include <fit++/FitFunction_impl.hh>
 #include <fit++/Exponential2D_impl.hh>
 #include <fit++/Exponential2D_Correlated_Derivatives.hh>
-#include <dStorm/Trace.h>
+#include <dStorm/output/Trace.h>
 #include <sstream>
-#include "engine/Variance.h"
+#include <dStorm/helpers/Variance.h>
 #include <gsl/gsl_statistics_double.h>
-#include <CImgBuffer/ImageTraits.h>
+#include <dStorm/input/ImageTraits.h>
 
 using namespace std;
-using namespace dStorm;
 using namespace fitpp;
 
-namespace locprec {
+namespace dStorm {
 
 SinglePrecisionEstimator::_Config::_Config()
 : simparm::Object("SeperatePrecision", 
@@ -197,6 +195,7 @@ void MultiPrecisionEstimator::estimatePrecision() {
 FitSigmas Precision::fitWithGauss
    (double res_enh, const Localization* first, int number) 
 {
+    typedef data_cpp::Vector<Localization> Points;
     FitSigmas result;
 
     /* data_range gives the maximal L_infty distance of a point
@@ -213,8 +212,8 @@ FitSigmas Precision::fitWithGauss
         average_sd_y.addValue( 
             compute_weighted_SD( i->get_source_trace(), 1 ) );
 
-        foreach_const( k, data_cpp::Vector<Localization>, 
-                          i->get_source_trace() )
+        const Points& p = i->get_source_trace();
+        for ( Points::const_iterator k = p.begin(); k != p.end(); k++)
         {
             data_range = max( data_range,
                 max( abs( k->x() - i->x() ), abs( k->y() - i->y() ) ) );
@@ -251,8 +250,8 @@ FitSigmas Precision::fitWithGauss
     int max_x_bin = 0, max_y_bin = 0;
     /* Fill the data vector with the number of points in that bin. */
     for ( const Localization* r = first; r < first + number; r++ ) {
-        foreach_const( p, data_cpp::Vector<Localization>,
-                       r->get_source_trace() ) 
+        const Points& ps = r->get_source_trace();
+        for ( Points::const_iterator p = ps.begin(); p != ps.end(); p++)
         {
             double x_off = (p->x() - r->x()) * res_enh,
                    y_off = (p->y() - r->y()) * res_enh;

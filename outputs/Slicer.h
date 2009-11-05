@@ -1,8 +1,8 @@
 #ifndef DSTORM_TRANSMISSIONS_SLICER_H
 #define DSTORM_TRANSMISSIONS_SLICER_H
 
-#include <dStorm/Output.h>
-#include <dStorm/FilterSource.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/FilterSource.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>

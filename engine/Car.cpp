@@ -1,20 +1,19 @@
 #define DSTORM_CAR_CPP
 #include "Car.h"
-#include <CImgBuffer/ImageTraits.h>
-#include <CImgBuffer/Source.h>
-#include <dStorm/Input.h>
-#include <dStorm/Localizations.h>
+#include <dStorm/input/ImageTraits.h>
+#include <dStorm/input/Source.h>
+#include <dStorm/output/Localizations.h>
 #include "engine/Engine.h"
-#include "foreach.h"
-#include <dStorm/Image.h>
-#include <CImgBuffer/Config.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/input/Config.h>
 #include <fstream>
 #include <queue>
-#include <dStorm/Output.h>
-#include <dStorm/LocalizationFileReader.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/LocalizationFileReader.h>
 #include "engine/LocalizationBuncher.h"
 #include <CImg.h>
 #include "doc/help/context.h"
+#include <dStorm/engine/Input.h>
 
 //#undef PROGRESS
 //#define PROGRESS(x) std::cerr << x << "\n";
@@ -146,7 +145,7 @@ void Car::drive() {
         source = config.inputConfig.makeImageSource();
 
         if ( source->can_provide< Image >() ) {
-            input.reset( new Input(source->downcast<Image>(source)));
+            input.reset(new Input( source->downcast<Image>(source)));
             myEngine.reset( 
                 new Engine(config.engineConfig, *input, *output) );
         } else if ( source->can_provide< Localization >() ) {

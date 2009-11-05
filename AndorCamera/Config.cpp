@@ -1,5 +1,5 @@
 #include "Config.h"
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #define NAME "Acquisition"

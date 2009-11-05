@@ -2,10 +2,10 @@
 #define DSTORM_GAUSSFITTER_WIDTH_INVARIANTS_H
 
 #include <fit++/Exponential2D.hh>
-#include <dStorm/Config.h>
-#include <dStorm/Spot.h>
-#include <dStorm/Localization.h>
-#include <dStorm/Image.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/Spot.h>
+#include <dStorm/output/Localization.h>
+#include <dStorm/engine/Image.h>
 
 namespace dStorm {
 
