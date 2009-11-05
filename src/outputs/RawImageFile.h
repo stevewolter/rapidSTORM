@@ -1,8 +1,8 @@
 #ifndef DSTORM_RAWIMAGEFILE_H
 #define DSTORM_RAWIMAGEFILE_H
 
-#include <dStorm/Output.h>
-#include <dStorm/FileOutputBuilder.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/FileOutputBuilder.h>
 #include <tiffio.h>
 #include <simparm/FileEntry.hh>
 

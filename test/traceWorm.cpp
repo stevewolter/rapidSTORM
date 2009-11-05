@@ -1,6 +1,6 @@
 #include <dStorm/CarConfig.h>
 #include <dStorm/Car.h>
-#include <dStorm/Localization.h>
+#include <dStorm/output/Localization.h>
 #include <list>
 #include <algorithm>
 #include <foreach.h>

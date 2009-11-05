@@ -1,9 +1,9 @@
 #ifndef DSTORM_SPOTFITTER_H
 #define DSTORM_SPOTFITTER_H
 
-#include <dStorm/Image.h>
-#include <dStorm/Spot.h>
-#include <dStorm/Localization.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/engine/Spot.h>
+#include <dStorm/output/Localization.h>
 #include <memory>
 
 namespace dStorm {

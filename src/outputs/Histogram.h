@@ -1,10 +1,10 @@
 #ifndef DSTORM_HIGHRESOLUTION_H
 #define DSTORM_HIGHRESOLUTION_H
 
-#include <dStorm/Output.h>
-#include <dStorm/Image.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/engine/Image.h>
 #include <CImg.h>
-#include <data-c++/Vector.h>
+#include <dStorm/data-c++/Vector.h>
 #include <cassert>
 #include <outputs/HighDepthImage.h>
 

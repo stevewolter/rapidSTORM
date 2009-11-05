@@ -1,6 +1,8 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
+#include "ImageDiscretizer.h"
+
 namespace dStorm {
 namespace DiscretizedImage {
 
@@ -101,9 +103,9 @@ inline unsigned long int ImageDiscretizer<Colorizer, ImageListener>::non_backgro
 
 template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
-  ::clean()
+  ::clean(bool final)
 {
-    if ( pixels_above_used_max_value >
+    if ( final || pixels_above_used_max_value >
            non_background_pixels() / 100 )
     {
         for (int i = 0; i < histogram.size(); i++)
@@ -127,8 +129,8 @@ void ImageDiscretizer<Colorizer, ImageListener>
         pixels_above_used_max_value = 0;
     }
     normalize_histogram();
-    colorizer.clean();
-    this->publish().clean();
+    colorizer.clean(final);
+    this->publish().clean(final);
 }
 
 template <typename Colorizer, typename ImageListener>
@@ -264,8 +266,8 @@ ImageDiscretizer<Colorizer, ImageListener>::full_image
 
     std::auto_ptr<Magick::Image > rv
         ( new Magick::Image(
-            binned_image.width, bordered_height,
-            "RGB", Magick::CharPixel, buffer ) );
+            width, bordered_height, "RGB", Magick::CharPixel, buffer) );
+
     return rv;
 }
 
@@ -294,7 +296,6 @@ ImageDiscretizer<Colorizer, ImageListener>::key_image()
     }
 
     rv->syncPixels();
-    rv->write("key.png");
     return rv;
 }
 

@@ -1,13 +1,12 @@
 #include "Garage.h"
 #include "GarageConfig.h"
 #include <engine/Car.h>
-#include <dStorm/BasicOutputs.h>
-#include <dStorm/FilterSource.h>
+#include <dStorm/output/BasicOutputs.h>
+#include <dStorm/output/FilterSource.h>
 #include <memory>
 #include <algorithm>
 #include <functional>
 #include <simparm/IO.hh>
-#include <outputs/LocalizationList.h>
 #include <fstream>
 #include <stdlib.h>
 #include <dirent.h>
@@ -17,7 +16,10 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/ModuleInterface.h>
 
+#include "inputs/inputs.h"
+#include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
+#include "doc/help/rapidstorm_help_file.h"
 
 using namespace dStorm;
 using namespace CImgBuffer;
@@ -25,52 +27,62 @@ using namespace std;
 
 char *get_dir_name(char *file) throw();
 
+template <typename FunctionType>
+struct SafelyLoadedFunction {
+    const char *symbol_name;
+    FunctionType functionPtr;
+  public:
+    SafelyLoadedFunction(const char *symbol_name)
+        : symbol_name(symbol_name), functionPtr(NULL) {}
+    void load( const lt_dlhandle& handle )
+    {
+        functionPtr = (FunctionType)
+                lt_dlsym( handle, symbol_name );
+        if ( functionPtr == NULL )
+            throw std::runtime_error( "Plugin contains no " + std::string(symbol_name) 
+                                      + " function." );
+    }
+
+    FunctionType operator*() { return functionPtr; }
+};
+
 class LibraryHandle {
     std::string file;
     const lt_dlhandle handle;
 
-    RapidSTORM_Input_Augmenter input;
-    RapidSTORM_Output_Augmenter output;
-    RapidSTORM_Plugin_Desc desc;
+    SafelyLoadedFunction<RapidSTORM_Input_Augmenter> input;
+    SafelyLoadedFunction<RapidSTORM_Engine_Augmenter> engine;
+    SafelyLoadedFunction<RapidSTORM_Output_Augmenter> output;
+    SafelyLoadedFunction<RapidSTORM_Plugin_Desc> desc;
 
     void init() {
         if ( handle == NULL )
             throw std::runtime_error( "Unable to open " + string(file) );
-        input
-            = (RapidSTORM_Input_Augmenter)
-                lt_dlsym( handle, "rapidSTORM_Input_Augmenter" );
-        if ( input == NULL )
-            throw std::runtime_error( "Plugin '" + file + "' contains no "
-                                      "rapidSTORM_Input_Augmenter function. "
-                                      "This function is needed for rapidSTORM "
-                                      "plugins." );
-        output
-            = (RapidSTORM_Output_Augmenter)
-                lt_dlsym( handle, "rapidSTORM_Output_Augmenter" );
-        if ( output == NULL )
-            throw std::runtime_error( "Plugin '" + file + "' contains no "
-                                      "rapidSTORM_Output_Augmenter function. "
-                                      "This function is needed for rapidSTORM "
-                                      "plugins." );
-        desc
-            = (RapidSTORM_Plugin_Desc)
-                lt_dlsym( handle, "rapidSTORM_Plugin_Desc" );
-        if ( desc == NULL )
-            throw std::runtime_error( "Plugin '" + file + "' contains no "
-                                      "rapidSTORM_Plugin_Desc function. "
-                                      "This function is needed for rapidSTORM "
-                                      "plugins." );
+        try {
+            desc.load( handle );
+            input.load( handle );
+            engine.load( handle );
+            output.load( handle );
+        } catch (const std::exception& e) {
+            throw std::runtime_error( "Invalid RapidSTORM plugin "
+                + file + ": " + std::string(e.what()) );
+        }
     }
 
   public:
     LibraryHandle( const char *file )
-        : file(file), handle( lt_dlopenext(file) )
+        : file(file), handle( lt_dlopenext(file) ),
+          input("rapidSTORM_Input_Augmenter"),
+          engine("rapidSTORM_Engine_Augmenter"),
+          output("rapidSTORM_Output_Augmenter"),
+          desc("rapidSTORM_Plugin_Desc")
     { 
         init();
     }
     LibraryHandle( const LibraryHandle& other )
     : file(other.file), handle( lt_dlopenext( file.c_str() ) ),
-      input(other.input), output(other.output), desc(other.desc)
+      input(other.input), engine(other.engine),
+      output(other.output), desc(other.desc)
     {
         init();
     }
@@ -83,13 +95,11 @@ class LibraryHandle {
             lt_dlclose( handle );
     }
 
-    RapidSTORM_Input_Augmenter getInputAugmenter() 
-        { return input; }
-    RapidSTORM_Output_Augmenter getOutputAugmenter() 
-        { return output; }
-
     void operator()( CImgBuffer::Config* inputs ) {
         (*input)( inputs );
+    }
+    void operator()( dStorm::Config* engine_config ) {
+        (*engine)( engine_config );
     }
     void operator()( dStorm::BasicOutputs* outputs ) {
         (*output)( outputs );
@@ -133,7 +143,9 @@ ModuleHandler::ModuleHandler()
     if ( env_plugin_dir != NULL )
         plugin_dir = env_plugin_dir;
 
+    STATUS("Finding plugins");
     lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
+    STATUS("Found plugins");
 }
 
 ModuleHandler::ModuleHandler( const ModuleHandler& o )
@@ -147,13 +159,14 @@ ModuleHandler::~ModuleHandler() {
     lt_dlexit();
 }
 
-void ModuleHandler::add_input_modules
-    ( CImgBuffer::Config& input_config )
+void ModuleHandler::add_input_and_engine_modules
+    ( dStorm::CarConfig& car_config )
 {
     for ( List::iterator i = lib_handles.begin(); i != lib_handles.end();
           i++)
     {
-        (*i->getInputAugmenter()) ( &input_config );
+        (*i) ( &car_config.inputConfig );
+        (*i) ( &car_config.engineConfig );
     }
 }
 
@@ -195,8 +208,9 @@ GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
    module_handler.add_output_modules( *tcf );
    carConfig.reset( new dStorm::CarConfig( *tcf ) );
    dStorm::basic_inputs( &carConfig->inputConfig );
+   dStorm::basic_spotFinders( carConfig->engineConfig );
    STATUS("Constructing GarageConfig");
-   module_handler.add_input_modules( carConfig->inputConfig );
+   module_handler.add_input_and_engine_modules( *carConfig );
 
    PROGRESS("Building externalControl");
    externalControl = false;
@@ -368,9 +382,12 @@ void Garage::init() throw() {
     if (config.externalControl()) {
         //((BasicTransmissions*)factory.get())->addFilterToDefaultConfig();
 
+        simparm::Attribute<std::string> help_file
+            ("help_file", dStorm::HelpFileName);
         simparm::IO ioManager(&cin, &cout);
         PROGRESS("Setting package name");
         ioManager.setDesc(config.getDesc());
+        ioManager.push_back( help_file );
         ioManager.showTabbed = true;
         config.carConfig->push_back( config.run );
         ioManager.push_back( *config.carConfig );

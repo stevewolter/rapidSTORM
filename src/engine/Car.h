@@ -1,18 +1,19 @@
 #ifndef DSTORM_CAR_H
 #define DSTORM_CAR_H
 
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include "CarConfig.h"
-#include <dStorm/OutputSource.h>
+#include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
+#include <dStorm/engine/Input_decl.h>
 
 namespace CImgBuffer {
+    class BaseSource;
     template <typename Type> class Source;
 }
 
 namespace dStorm {
-    class Input;
     class Engine;
     class Output;
 
@@ -31,7 +32,7 @@ namespace dStorm {
         /** Button to close the job. */
         simparm::TriggerEntry closeJob;
 
-        std::auto_ptr<Input> input;
+        std::auto_ptr<dStorm::Input> input;
 
         /** If we process ready-made localizations, their source is
          *  stored here. */

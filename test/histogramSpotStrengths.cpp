@@ -6,7 +6,7 @@
 #include "Variance.h"
 #include "SigmaGuesser.h"
 #include "foreach.h"
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <gsl/gsl_statistics.h>
 #include "ColorImage.h"
 #include "MaximumList.h"

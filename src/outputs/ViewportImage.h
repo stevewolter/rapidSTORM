@@ -5,7 +5,7 @@
 #include <outputs/HighDepthImage.h>
 #include <iostream>
 #include <cassert>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <limits>
 
 namespace dStorm {

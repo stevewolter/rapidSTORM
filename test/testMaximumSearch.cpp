@@ -1,7 +1,7 @@
 #include <CImgBuffer/Image.h>
 #include <iostream>
 #include <iomanip>
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <CImg.h>
 #include "spotFinders/averageSmooth.h"
 #include "engine/CandidateTree.h"

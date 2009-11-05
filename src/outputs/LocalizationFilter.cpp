@@ -1,6 +1,6 @@
 #include "LocalizationFilter.h"
 #include <limits>
-#include <dStorm/ResultRepeater.h>
+#include <dStorm/output/ResultRepeater.h>
 #include "doc/help/context.h"
 
 namespace dStorm {

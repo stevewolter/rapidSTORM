@@ -1,14 +1,14 @@
 #include "Garage.h"
 #include <stdexcept>
 #include <signal.h>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <stdlib.h>
 #ifdef HAVE_LIBMAGICK__
 #include <Magick++.h>
 #endif
 #include <CImg.h>
 
-#include <dStorm/display/Manager.h>
+#include <dStorm/helpers/DisplayManager.h>
 
 using namespace dStorm;
 using namespace std;

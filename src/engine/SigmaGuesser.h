@@ -1,14 +1,14 @@
 #ifndef DSTORM_SIGMAGUESSER_H
 #define DSTORM_SIGMAGUESSER_H
 
-#include <dStorm/Config.h>
-#include <dStorm/Output.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/Input.h>
+#include <dStorm/output/Output.h>
 #include <memory>
-#include "Variance.h"
-#include <cc++/thread.h>
+#include <dStorm/helpers/Variance.h>
+#include <dStorm/helpers/thread.h>
 
 namespace dStorm {
-    class Input;
     class SigmaFitter;
 
 #ifndef DSTORM_SIGMAGUESSER_CPP

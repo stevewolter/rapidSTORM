@@ -6,7 +6,7 @@
 
 #include <simparm/Entry.hh>
 #include <simparm/NumericEntry.hh>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 namespace AndorCamera {
     /** This class concurrently monitors the camera CCD temperature.

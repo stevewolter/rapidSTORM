@@ -2,13 +2,13 @@
 #define DSTORM_ENGINE_H
 
 #include <memory>
-#include <cc++/thread.h>
-#include <data-c++/Vector.h>
+#include <dStorm/helpers/thread.h>
+#include <dStorm/data-c++/Vector.h>
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/Config.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/Input_decl.h>
 
 namespace dStorm {
-   class Input;
    class Config;
    class Output;
 

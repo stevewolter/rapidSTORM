@@ -2,25 +2,24 @@
 
 #include "engine/Engine.h"
 
-#include <data-c++/Vector.h>
+#include <dStorm/data-c++/Vector.h>
 #include <cassert>
 #include <errno.h>
 #include <string.h>
 #include <algorithm>
-#include <foreach.h>
 
 #include "engine/SigmaGuesser.h"
-#include "engine/SpotFinder.h"
+#include <dStorm/engine/SpotFinder.h>
 #include "engine/SpotFitter.h"
-#include <dStorm/Image.h>
-#include <dStorm/Config.h>
-#include <dStorm/Input.h>
-#include <dStorm/Crankshaft.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/Input.h>
+#include <dStorm/outputs/Crankshaft.h>
 #include <sstream>
 #include "engine/EngineDebug.h"
-#include <CImgBuffer/Slot.h>
-#include <CImgBuffer/Source.h>
-#include <CImgBuffer/ImageTraits.h>
+#include <dStorm/input/Slot.h>
+#include <dStorm/input/Source.h>
+#include <dStorm/input/ImageTraits.h>
 #include "doc/help/context.h"
 
 #ifdef DSTORM_MEASURE_TIMES
@@ -182,8 +181,11 @@ void Engine::runPiston()
     STATUS("Started piston");
     STATUS("Building spot finder with dimensions " << imProp.dimx() <<
            " " << imProp.dimy());
+    if ( ! config.spotFindingMethod.isValid() )
+        throw std::runtime_error("No spot finding method selected.");
     auto_ptr<SpotFinder> finder
-        = SpotFinder::factory(config, imProp.dimx(), imProp.dimy() );
+        = config.spotFindingMethod().make_SpotFinder
+            (config, imProp.dimx(), imProp.dimy() );
 
     STATUS("Building spot fitter");
     auto_ptr<SpotFitter> fitter(SpotFitter::factory(config));
@@ -206,7 +208,8 @@ void Engine::runPiston()
 
     output->propagate_signal(Output::Engine_run_is_starting);
 
-    foreach (i, Input, input) {
+    for (Input::iterator i = input.begin(); i != input.end(); i++)
+    {
         STATUS("Intake (" << i->index() << ")");
 
         Claim< Image > claim = i->claim();
@@ -222,7 +225,7 @@ void Engine::runPiston()
         int motivation;
         recompress:  /* We jump here if maximum limit proves too small */
         IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
-        maximums.fill( finder->getSmoothedImage() );
+        finder->findCandidates( maximums );
         PROGRESS("Found " << maximums.size() << " spots");
 
         IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );

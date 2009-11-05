@@ -1,11 +1,11 @@
 #ifndef DSTORM_LOCALIZATIONCOUNTER_H
 #define DSTORM_LOCALIZATIONCOUNTER_H
 
-#include <dStorm/Output.h>
+#include <dStorm/output/Output.h>
 #include <simparm/NumericEntry.hh>
 #include <iostream>
 #include <memory>
-#include <dStorm/OutputBuilder.h>
+#include <dStorm/output/OutputBuilder.h>
 
 namespace dStorm {
     class LocalizationCounter : public simparm::Object, public Output {

@@ -1,8 +1,8 @@
 #ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
 
-#include <outputs/BinnedLocalizations.h>
-#include <outputs/ViewerConfig.h>
+#include <dStorm/outputs/BinnedLocalizations.h>
+#include "ViewerConfig.h"
 #include <limits>
 
 namespace dStorm {

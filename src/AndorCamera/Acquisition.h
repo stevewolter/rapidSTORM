@@ -7,7 +7,7 @@
 #include <AndorCamera/System.h>
 #include <stdint.h>
 #include <time.h>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 namespace AndorCamera {
     class ImageReadout;

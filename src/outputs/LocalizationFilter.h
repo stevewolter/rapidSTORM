@@ -1,11 +1,11 @@
 #ifndef DSTORM_LOCALIZATION_FILTER_H
 #define DSTORM_LOCALIZATION_FILTER_H
 
-#include <dStorm/FilterBuilder.h>
-#include <outputs/LocalizationList.h>
+#include <dStorm/output/FilterBuilder.h>
+#include <dStorm/outputs/LocalizationList.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/Structure.hh>
-#include <data-c++/Vector.h>
+#include <dStorm/data-c++/Vector.h>
 
 namespace dStorm {
 

@@ -2,7 +2,7 @@
 #define DSTORM_GARAGE_H
 
 #include <simparm/Node.hh>
-#include <dStorm/Localizations.h>
+#include <dStorm/output/Localizations.h>
 #include <stdexcept>
 
 namespace dStorm {

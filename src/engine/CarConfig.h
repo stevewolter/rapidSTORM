@@ -1,11 +1,11 @@
 #ifndef DSTORM_CARCONFIG_H
 #define DSTORM_CARCONFIG_H
 
-#include <dStorm/Image.h>
-#include <dStorm/Config.h>
-#include <dStorm/OutputSource.h>
-#include <dStorm/OutputFactory.h>
-#include <CImgBuffer/Config.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/output/OutputSource.h>
+#include <dStorm/output/OutputFactory.h>
+#include <dStorm/input/Config.h>
 #include <memory>
 #include <simparm/Set.hh>
 

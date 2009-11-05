@@ -22,7 +22,7 @@ libSTORMdebug_a_SOURCES = ColorImage.cpp ColorImage.h foreach.h CandidateScanner
 
 AM_CPPFLAGS = -D_POSIX_SOURCE -Wall -Wextra \
     -include $(top_builddir)/config.h \
-    -include $(top_srcdir)/debug.h \
+    -include $(top_srcdir)/../debug.h \
     -I$(top_srcdir)/src 
 
 traceWorm_SOURCES = traceWorm.cpp 

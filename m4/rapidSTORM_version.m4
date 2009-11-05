@@ -1,0 +1,2 @@
+AC_DEFUN([RAPIDSTORM_VERSION], [1.4.0])
+AC_DEFUN([RAPIDSTORM_MAINTAINER], [rapidSTORM at swolter dot sdf1 dot org])

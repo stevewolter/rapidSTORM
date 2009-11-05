@@ -2,15 +2,15 @@
 #define LOCPREC_PRECISIONESTIMATOR_H
 
 #include <memory>
-#include <dStorm/Output.h>
-#include <dStorm/OutputBuilder.h>
-#include <dStorm/FileOutputBuilder.h>
-#include "LocalizationList.h"
+#include <dStorm/output/Output.h>
+#include <dStorm/output/OutputBuilder.h>
+#include <dStorm/output/FileOutputBuilder.h>
+#include <dStorm/outputs/LocalizationList.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/FileEntry.hh>
 #include <Eigen/Core>
 
-namespace locprec {
+namespace dStorm {
     namespace Precision {
         struct FitSigmas { double x, y, xy; int n; double a; };
         FitSigmas fitWithGauss

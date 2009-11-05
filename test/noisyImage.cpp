@@ -1,4 +1,4 @@
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 
 using namespace std;
 using namespace dStormEngine;

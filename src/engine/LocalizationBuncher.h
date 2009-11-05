@@ -1,13 +1,13 @@
 #ifndef DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 #define DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 
-#include <CImgBuffer/Drain.h>
-#include <CImgBuffer/Traits.h>
-#include <dStorm/Localization.h>
+#include <dStorm/input/Drain.h>
+#include <dStorm/input/Traits.h>
+#include <dStorm/output/Localization.h>
 #include <map>
 #include <memory>
-#include <dStorm/Output.h>
-#include <data-c++/Vector.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/data-c++/Vector.h>
 
 namespace dStorm {
 class LocalizationBuncher : public CImgBuffer::Drain<Localization> {
@@ -22,7 +22,7 @@ class LocalizationBuncher : public CImgBuffer::Drain<Localization> {
 
     std::auto_ptr< Can > buffer;
     std::map<int,Can* > canned;
-    unsigned int first, last;
+    unsigned int first, last, lastInFile;
     unsigned int currentImage, outputImage;
     Output::EngineResult engine_result;
     Output& target;

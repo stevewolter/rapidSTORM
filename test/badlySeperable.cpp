@@ -1,4 +1,4 @@
-#include <dStorm/SpotFinder.h>
+#include <dStorm/engine/SpotFinder.h>
 #include <dStorm/SpotFitter.h>
 #include <SIFStorm/SIFLoader.h>
 #include <iostream>

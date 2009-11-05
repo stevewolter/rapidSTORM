@@ -1,0 +1,26 @@
+#ifndef DSTORM_FILEOUTPUTBUILDER_H
+#define DSTORM_FILEOUTPUTBUILDER_H
+
+#include <dStorm/output/OutputBuilder.h>
+
+namespace dStorm {
+
+template <typename BaseType>
+class FileOutputBuilder : public OutputBuilder<BaseType> {
+  public:       
+    FileOutputBuilder(
+            bool failSilently = false)
+        : OutputBuilder<BaseType>(failSilently)
+        { adjust_to_basename( BaseType::Config::outputFile ); }
+    FileOutputBuilder(const FileOutputBuilder& o)
+        : simparm::Node(o), 
+          OutputBuilder<BaseType>(o)
+        { adjust_to_basename( BaseType::Config::outputFile ); }
+
+    FileOutputBuilder* clone() const 
+        { return new FileOutputBuilder(*this); }
+};
+
+}
+
+#endif

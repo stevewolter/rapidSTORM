@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
-#include <data-c++/Vector.h>
+#include <dStorm/data-c++/Vector.h>
 #include <Magick++.h>
 
 namespace cimg_library { 
@@ -25,7 +25,7 @@ namespace DiscretizedImage {
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
         /** The listener should apply pending changes. */
-        void clean();
+        void clean(bool final);
         /** The state should be reset to an empty image. */
         void clear();
         /** This method is called when the discretization parameters change.
@@ -41,7 +41,7 @@ namespace DiscretizedImage {
     struct DummyListener {
         void setSize(const CImgBuffer::Traits< cimg_library::CImg<int> >&) {}
         void pixelChanged(int, int) {}
-        void clean() {}
+        void clean(bool) {}
         void clear() {}
     };
 
@@ -135,7 +135,7 @@ class ImageDiscretizer
 
     inline void setSize( const CImgBuffer::Traits<InputImage>& );
     inline void updatePixel(int, int, float, float);
-    void clean();
+    void clean(bool final);
     void clear();
 
     void announce(const Output::Announcement& a) 

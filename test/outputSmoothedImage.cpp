@@ -1,5 +1,5 @@
 #include <dStorm/Transmission.h>
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/Car.h>
 #include <limits>
 

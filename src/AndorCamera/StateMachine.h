@@ -4,7 +4,7 @@
 #include <simparm/Attribute.hh>
 #include <simparm/Entry.hh>
 #include <list>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 namespace AndorCamera {
 

@@ -1,5 +1,5 @@
 #include <CImg.h>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 
 extern cimg_library::CImg<uint8_t> getLogo() throw();
 

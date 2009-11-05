@@ -1,17 +1,17 @@
 #ifndef DSTORM_VIEWER_H
 #define DSTORM_VIEWER_H
 
-#include <dStorm/Localization.h>
+#include <dStorm/output/Localization.h>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/NumericEntry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
-#include <cc++/thread.h>
-#include <outputs/LocalizationList.h>
-#include <dStorm/Output.h>
-#include <dStorm/OutputBuilder.h>
-#include <dStorm/FileOutputBuilder.h>
+#include <dStorm/helpers/thread.h>
+#include <dStorm/outputs/LocalizationList.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/OutputBuilder.h>
+#include <dStorm/output/FileOutputBuilder.h>
 #include <Eigen/Core>
 
 namespace dStorm {

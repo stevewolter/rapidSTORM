@@ -1,4 +1,4 @@
-#include <dStorm/SpotFinder.h>
+#include <dStorm/engine/SpotFinder.h>
 #include <dStorm/SpotFitter.h>
 #include <dStorm/GaussFitter.h>
 #include <iostream>

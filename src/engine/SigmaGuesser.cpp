@@ -1,6 +1,6 @@
 #define DSTORM_SIGMAGUESSER_CPP
 #include "engine/SigmaGuesser.h"
-#include <dStorm/Input.h>
+#include <dStorm/engine/Input.h>
 #include <fit++/Exponential2D.hh>
 #include <limits>
 

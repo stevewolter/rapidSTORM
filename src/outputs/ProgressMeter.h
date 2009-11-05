@@ -1,8 +1,8 @@
 #ifndef DSTORM_PROGRESSMETER_H
 #define DSTORM_PROGRESSMETER_H
 
-#include <dStorm/Output.h>
-#include <dStorm/OutputBuilder.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/OutputBuilder.h>
 #include <simparm/ProgressEntry.hh>
 
 namespace dStorm {

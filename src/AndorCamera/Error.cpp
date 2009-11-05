@@ -2,7 +2,7 @@
 #include "Error.h"
 #include "SDK.h"
 #include <iostream>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <stdarg.h>
 #include <stdio.h>
 

@@ -2,9 +2,9 @@
 #define GARAGECONFIG_H
 
 #include "engine/CarConfig.h"
-#include <dStorm/BasicOutputs.h>
+#include <dStorm/output/BasicOutputs.h>
 #include <simparm/TriggerEntry.hh>
-#include <data-c++/AutoList.h>
+#include <dStorm/data-c++/AutoList.h>
 #include <set>
 #include <string>
 
@@ -23,7 +23,7 @@ class ModuleHandler {
     ModuleHandler( const ModuleHandler& );
     ~ModuleHandler();
 
-    void add_input_modules( CImgBuffer::Config& input_config );
+    void add_input_and_engine_modules( dStorm::CarConfig& input_config );
     void add_output_modules( dStorm::BasicOutputs& tcf );
     std::string getDesc();
 };

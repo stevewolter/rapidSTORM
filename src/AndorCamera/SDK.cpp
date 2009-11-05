@@ -2,7 +2,7 @@
 
 #include "SDK.h"
 #include <iostream>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <cassert>
 #include <string.h>
 #include <stdio.h>

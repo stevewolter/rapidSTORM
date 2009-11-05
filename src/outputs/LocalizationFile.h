@@ -1,8 +1,8 @@
 #ifndef DSTORM_LOCALIZATIONFILE_H
 #define DSTORM_LOCALIZATIONFILE_H
 
-#include <dStorm/Output.h>
-#include <dStorm/FileOutputBuilder.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/FileOutputBuilder.h>
 #include <memory>
 #include <iostream>
 #include <fstream>

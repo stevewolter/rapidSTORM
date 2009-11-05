@@ -4,7 +4,7 @@
 #include <memory>
 #include <simparm/Object.hh>
 #include <simparm/ChoiceEntry.hh>
-#include <cc++/thread.h>
+#include <dStorm/helpers/thread.h>
 #include <queue>
 #include <AndorCamera/StateMachine.h>
 #include <AndorCamera/CameraReference.h>

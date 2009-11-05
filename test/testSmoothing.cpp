@@ -4,7 +4,7 @@
 #include <CImgBuffer/Slot.h>
 #include <iostream>
 #include <iomanip>
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/CarConfig.h>
 #include <dStorm/BasicTransmissions.h>
 #include <CImg.h>

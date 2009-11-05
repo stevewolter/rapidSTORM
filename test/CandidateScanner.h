@@ -1,9 +1,9 @@
 #ifndef CANDIDATESCANNER_H
 #define CANDIDATESCANNER_H
 
-#include <dStorm/Image.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/Transmission.h>
-#include <dStorm/CandidateTree.h>
+#include <dStorm/engine/CandidateTree.h>
 
 template <typename Pix>
 class CandidateScanner : public dStorm::EngineView {
