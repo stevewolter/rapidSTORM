@@ -1,9 +1,10 @@
 #ifndef CImgBuffer_CIMGLIST_H
 #define CImgBuffer_CIMGLIST_H
 
-#include "Source.h"
-#include "Config.h"
-#include "InputMethod.h"
+#include <dStorm/input/ImageTraits.h>
+#include <dStorm/input/Source.h>
+#include <dStorm/input/Config.h>
+#include <dStorm/input/InputMethod.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
