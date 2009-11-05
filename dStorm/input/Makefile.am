@@ -3,7 +3,7 @@ libinput_la_SOURCES = \
     Config.cpp \
     foreach.h \
     ImageSource.cpp \
-    Source.cpp ImageTraits.cpp
+    Source.cpp ImageTraits.cpp AutoInputMethod.h 
 library_includedir = $(includedir)/dStorm/input
 library_include_HEADERS = Source.h Source_impl.h Config.h Slot.h \
 	Drain.h InputMethod.h \

@@ -32,4 +32,3 @@ liboutput_la_SOURCES = \
     TraceReducers.cpp \
     OutputFactory.cpp 
 liboutput_la_LIBADD = 
-EXTRA_DIST = helpers/thread.h

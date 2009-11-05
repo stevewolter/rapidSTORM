@@ -19,5 +19,4 @@ libengine_la_SOURCES = \
     SigmaGuesser.cpp SigmaGuesser_FreeFormFitter.cpp \
     SigmaGuesser.h SpotFitter.cpp SpotFitter.h \
     studentPinv.c studentPinv.h \
-    Variance.h \
     SpotFinder.cpp

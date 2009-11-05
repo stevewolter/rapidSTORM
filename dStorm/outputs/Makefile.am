@@ -10,4 +10,4 @@ AM_CPPFLAGS = \
 
 liboutputs_la_SOURCES = \
     BinnedLocalizations.cpp LocalizationList.cpp TraceFilter.cpp Crankshaft.cpp \
-    BinnedLocalizations_Impl.h
+    BinnedLocalizations_impl.h

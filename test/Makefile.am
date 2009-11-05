@@ -18,7 +18,7 @@ EXTRA_PROGRAMS = imageConverter \
    outputSmoothedImage processRawFreeFits printFitJudgeStatistics \
    testMedian listTest
 
-libSTORMdebug_a_SOURCES = ColorImage.cpp ColorImage.h foreach.h CandidateScanner.h
+libSTORMdebug_a_SOURCES = ColorImage.cpp ColorImage.h foreach.h CandidateScanner.h FitJudger.h
 
 AM_CPPFLAGS = -D_POSIX_SOURCE -Wall -Wextra \
     -include $(top_builddir)/config.h \
