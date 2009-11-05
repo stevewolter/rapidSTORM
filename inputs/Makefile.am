@@ -1,7 +1,8 @@
 noinst_LTLIBRARIES = libinputs.la 
 libinputs_la_SOURCES = \
 	AndorSIF.cpp TIFF.cpp \
-	AutoInputMethod.h AndorSIF.h TIFF.h inputs.h inputs.cpp
+	AndorSIF.h TIFF.h inputs.h inputs.cpp \
+	CImgList.h CImgList.cpp
 
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \

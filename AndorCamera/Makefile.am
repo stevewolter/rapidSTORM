@@ -7,13 +7,16 @@ AM_CPPFLAGS = \
 if HAVE_LIBATMCD32D
     ACS = \
 	SDK.h SDK.cpp Error.cpp foreach.h \
-	Acquisition.cpp StateMachine.cpp \
+	Acquisition.cpp StateMachine.cpp StateMachine.h \
 	TemperatureMonitor.h TemperatureMonitor.cpp Error.h \
 	System.cpp Camera.cpp Initialization.cpp \
 	Temperature.cpp Readout.cpp AcquisitionMode.cpp \
 	ShutterControl.cpp Triggering.cpp ShiftSpeedControl.cpp \
 	Gain.cpp AndorDirect.cpp AndorDirect.h \
-	ViewportSelector.h ViewportSelector.cpp
+	ViewportSelector.h ViewportSelector.cpp \
+	Initialization.h AcquisitionMode.h \
+	Acquisition.h Readout.h Camera.h Triggering.h CameraReference.h \
+	System.h Temperature.h ShiftSpeedControl.h Gain.h ShutterControl.h
 else
     ACS = 
 endif
