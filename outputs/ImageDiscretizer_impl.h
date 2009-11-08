@@ -245,30 +245,25 @@ ImageDiscretizer<Colorizer, ImageListener>::key_value( LowDepth key )
 }
 
 template <typename Colorizer, typename ImageListener>
-std::auto_ptr< Magick::Image >
-ImageDiscretizer<Colorizer, ImageListener>::full_image
-    (int bottom_black_border)
+void
+ImageDiscretizer<Colorizer, ImageListener>::write_full_image
+    (Magick::Image& to_image, int start_x, int start_y)
 {
-    int width = binned_image.width;
-    int bordered_height = 
-        binned_image.height + bottom_black_border;
-    unsigned char buffer[ width * bordered_height * 3 ];
-    cimg_forXY( binned_image, x, y ) {
-        int offset = (y * width + x) * 3;
-        typename Colorizer::Pixel p = get_pixel(x,y);
-        buffer[ offset ] = p.r;
-        buffer[ offset + 1 ] = p.g;
-        buffer[ offset + 2 ] = p.b;
+    int w = binned_image.width;
+    cimg_forY( binned_image, y ) {
+        const float *binned_pixels = binned_image.ptr(0,y);
+        Magick::PixelPacket *pixels = to_image.setPixels
+            ( start_x, start_y+y, w, 1 );
+        cimg_forX( binned_image, x ) {
+            typename Colorizer::Pixel p 
+                = colorizer.getPixel(x, y, 
+                     transition[ discretize(binned_pixels[x]) ] );
+            pixels[x].red = p.r;
+            pixels[x].green = p.g;
+            pixels[x].blue = p.b;
+        }
+        to_image.syncPixels();
     }
-    std::memset( 
-        buffer + width * binned_image.height * 3, 0,
-        3 * width * bottom_black_border);
-
-    std::auto_ptr<Magick::Image > rv
-        ( new Magick::Image(
-            width, bordered_height, "RGB", Magick::CharPixel, buffer) );
-
-    return rv;
 }
 
 template <typename Colorizer, typename ImageListener>

@@ -1,3 +1,4 @@
+#include "config.h"
 #ifdef HAVE_LIBREADSIF
 
 #define CImgBuffer_SIFLOADER_CPP

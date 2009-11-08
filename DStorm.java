@@ -3,6 +3,7 @@ import java.util.Set;
 import java.util.Map;
 
 class DStorm {
+    private static String tempDir;
     private static File extract_to_temp( String name) 
     {
         String[] splitname = name.split("\\.");
@@ -25,9 +26,6 @@ class DStorm {
     }
 
     private static File extract_with_exact_name(String name) {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        tempDir = tempDir + String.valueOf( File.separatorChar )
-                  + "rapidSTORM";
         String[] split = name.split( "/" );
         String sep = String.valueOf(File.separatorChar);
         String winName = "";
@@ -51,6 +49,8 @@ class DStorm {
         if ( resourceURL == null ) return null;
         Object resource = resourceURL.getContent();
         InputStream source = (InputStream)resource;
+        if ( source == null )
+            throw new IOException("Resource file " + name + " not found");
         if ( tempFile.getParent() != null )
             tempFile.getParentFile().mkdirs();
         FileOutputStream target = new FileOutputStream(tempFile);
@@ -70,18 +70,33 @@ class DStorm {
 
    private static String[] build_environment(File tempdir) {
         Set<Map.Entry<String,String> > env = System.getenv().entrySet();
-        String[] result_env = new String[ env.size() + 1 ];
+        String[] result_env = new String[ env.size() + 2 ];
         int i = 0;
 
         for ( Map.Entry<String,String> entry : env ) {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
-        result_env[i] = "RAPIDSTORM_PLUGINDIR=" +
+        result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
             tempdir.getPath() + File.separator + "plugins";
+        result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
+            tempdir.getPath() 
+                + File.separator + "share" 
+                + File.separator + "GraphicsMagick-1.3.6"
+                + File.separator + "config"
+              + File.pathSeparator + 
+              tempdir.getPath() 
+                + File.separator + "lib" 
+                + File.separator + "GraphicsMagick-1.3.6"
+                + File.separator + "config";
+        System.err.println("Set " + result_env[i-1]);
         return result_env;
    }
 
    public static void main(String[] args) throws IOException {
+        tempDir = System.getProperty("java.io.tmpdir");
+        tempDir = tempDir + String.valueOf( File.separatorChar )
+                  + "rapidSTORM";
+
         InputStream dll_list = Main.class.getResourceAsStream("dll_list");
         BufferedReader reader = new BufferedReader
             ( new InputStreamReader(dll_list) );
@@ -90,15 +105,15 @@ class DStorm {
             extract_with_exact_name(line);
         }
 
-        File executable = extract_with_exact_name("dstorm.exe");
-        File config = extract_with_exact_name("dstorm-config.txt");
-        File help = extract_with_exact_name("rapidSTORM.chm");
+        File executable = extract_with_exact_name("bin/dstorm.exe");
+        File config = extract_with_exact_name("share/rapidstorm/dstorm-config.txt");
+        File help = extract_with_exact_name("share/rapidstorm/rapidSTORM.chm");
 
         if ( help != null )
             HelpManager.setManualFile(help);
 
         String[] environment = 
-            build_environment(executable.getParentFile());
+            build_environment(new File(tempDir) );
         boolean have_arg = args.length > 0,stderrPipe = true;
         int argC = 4;
         if ( have_arg ) argC += 2;

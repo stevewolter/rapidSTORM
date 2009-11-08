@@ -1,7 +1,6 @@
 noinst_LTLIBRARIES = libengine.la
 
 AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h \
     -I $(top_builddir)/.. -I $(top_srcdir) -I $(top_srcdir)/../lib
 
