@@ -1,3 +1,4 @@
+#include "config.h"
 #ifdef HAVE_TIFFIO_H
 #define cimg_use_tiff
 #endif

@@ -5,6 +5,5 @@ libinputs_la_SOURCES = \
 	CImgList.h CImgList.cpp
 
 AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h \
     -I $(top_srcdir)

@@ -152,8 +152,7 @@ class ImageDiscretizer
     typename Colorizer::Pixel get_background() 
         { return colorizer.get_background(); }
 
-    std::auto_ptr< Magick::Image > full_image(
-        int bottom_black_border = 0);
+    void write_full_image( Magick::Image& to_image, int x, int y );
     std::auto_ptr< Magick::Image > key_image();
 
     float key_value( LowDepth key );

@@ -1,7 +1,6 @@
 noinst_LTLIBRARIES = liboutputs.la
 
 AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h \
     -I $(top_srcdir) -I $(top_srcdir)/../lib -I $(top_builddir)/..
 

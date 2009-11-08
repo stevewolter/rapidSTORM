@@ -21,6 +21,8 @@
 
 #include <dStorm/helpers/DisplayManager.h>
 
+#include "magick/log.h"
+
 using namespace std;
 using namespace cimg_library;
 using namespace ost;
@@ -65,8 +67,7 @@ struct Viewer::Implementation
     virtual ~Implementation() {}
     virtual dStorm::Output& getForwardOutput() = 0;
 
-    virtual std::auto_ptr< Magick::Image >
-        full_size_image() = 0;
+    virtual void write_full_size_image(const char *filename) = 0;
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;
@@ -226,8 +227,7 @@ class ColourDependantImplementation
     ~ColourDependantImplementation() {}
 
     dStorm::Output& getForwardOutput() { return image; }
-    virtual std::auto_ptr< Magick::Image >
-        full_size_image() 
+    virtual void write_full_size_image(const char *filename) 
     { 
         image.clean();
         int width = image.width();
@@ -242,18 +242,26 @@ class ColourDependantImplementation
         key_img_size.aspect( true );
         key_img->sample( key_img_size );
 
-        std::auto_ptr< Magick::Image > img 
-            = discretization.full_image( 
-                text_area_height 
-                + 2 * lh + key_img->rows() );
-        int ys = image.height() + 10;
-        img->composite( *key_img, lh, ys,
+        int image_height_with_key = this->image.height() + 
+                text_area_height + 2 * lh + key_img->rows();
+        typename MyColorizer::Pixel bg = discretization.get_background();
+        Magick::ColorRGB bgc ( bg.r/255.0, bg.g/255.0, bg.b/255.0 );
+        Magick::ColorRGB bgi ( 1.0 - bgc.red(), 1.0 - bgc.green(),
+                               1.0 - bgc.blue() );
+        Magick::Image image
+            ( Magick::Geometry(width, image_height_with_key), bgc );
+        image.type(Magick::TrueColorType);
+        image.write( filename );
+        discretization.write_full_image( image, 0, 0 );
+
+        int ys = this->image.height() + 10;
+        image.composite( *key_img, lh, ys,
                         Magick::OverCompositeOp );
 
         ys += key_img->rows();
         Magick::TypeMetric metrics;
-        img->strokeColor( Magick::ColorRGB(1,1,1) );
-        img->fillColor( Magick::ColorRGB(1,1,1) );
+        image.strokeColor( bgi );
+        image.fillColor( bgi );
         for (unsigned int i = 0;
              i < key_img->columns(); i += lh )
         {
@@ -261,33 +269,33 @@ class ColourDependantImplementation
                 discretization.key_value(
                     i * real_key_width * 1.0 / key_width);
             std::string s = SIize(value);
-            img->annotate(s, 
+            image.annotate(s, 
                 Magick::Geometry( lh, text_area_height-5,
                                   i+lh/2, ys+5),
                 Magick::NorthWestGravity, 90 );
-            img->draw( Magick::DrawableLine( i+2*lh/3, ys, i+2*lh/3, ys + 3 ) );
+            image.draw( Magick::DrawableLine( i+2*lh/3, ys, i+2*lh/3, ys + 3 ) );
         }
 
         ys += text_area_height;
         std::string message =
             "Key: total A/D counts per pixel";
-        img->annotate( message,
-            Magick::Geometry( img->columns(), 
+        image.annotate( message,
+            Magick::Geometry( image.columns(), 
                 2*lh, 0, ys ),
                 Magick::NorthGravity, 0);
-        img->draw( Magick::DrawableRectangle( 
-            img->columns()-105, ys-12, 
-            img->columns()-5, ys-7 ) );
+        image.draw( Magick::DrawableRectangle( 
+            image.columns()-105, ys-12, 
+            image.columns()-5, ys-7 ) );
 
-        img->annotate(
+        image.annotate(
             SIize(cia.nm_per_pixel * 1E-7) + "m", 
                 Magick::Geometry(100, lh, 
-                    img->columns()-105, ys+4),
+                    image.columns()-105, ys+4),
                 Magick::NorthGravity );
-        img->resolutionUnits( Magick::PixelsPerCentimeterResolution );
+        image.resolutionUnits( Magick::PixelsPerCentimeterResolution );
         unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
-        img->density(Magick::Geometry(pix_per_cm, pix_per_cm));
-        return img;
+        image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
+        image.write( filename );
     }
 
     virtual void set_histogram_power(float power) 
@@ -529,26 +537,14 @@ void Viewer::operator()(Node& src, Node::Callback::Cause cause,
 }
 
 void Viewer::writeToFile(const string &name) {
-    MutexLock lock(structureMutex);
+    try {
+        MutexLock lock(structureMutex);
 
-    const char * const filename = name.c_str();
-
-    /* If we are running in multi-threaded mode here, we must avoid
-        * an exception since mingw is inherently troublesome with 
-        * exceptions and MT. Therefore, first try to open the file
-        * manually. */
-    {
-        ofstream tester( filename, ios_base::out );
-        if ( ! tester ) {
-            std::cerr << "Unable to write to file " << filename << "\n";
-            return;
-        }
+        const char * const filename = name.c_str();
+        implementation->write_full_size_image(filename);
+    } catch ( const std::exception& e ) {
+        std::cerr << "Writing image failed: " << e.what() << endl;
     }
-
-    std::auto_ptr< Magick::Image >
-        normIm = implementation->full_size_image();
-
-    normIm->write(filename);
 }
 
 }

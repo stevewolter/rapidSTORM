@@ -1,3 +1,4 @@
+#include "config.h"
 #ifdef HAVE_LIBREADSIF
 
 #ifndef CImgBuffer_ANDORSIF_H
