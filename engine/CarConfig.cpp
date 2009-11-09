@@ -2,7 +2,7 @@
 #include "CarConfig.h"
 #include <dStorm/input/Config.h>
 #include <dStorm/output/FilterSource.h>
-#include <dStorm/output/OutputFactory.h>
+#include <dStorm/output/SourceFactory.h>
 
 #include <dStorm/helpers/thread.h>
 #include <sstream>
@@ -12,34 +12,49 @@
 using namespace std;
 
 namespace dStorm {
+namespace engine {
 
-class TreeRoot : public simparm::Object, public FilterSource
+class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
+    output::Config* my_config;
   public:
-    TreeRoot( OutputFactory& tc_factory )
+    TreeRoot()
     : simparm::Object("EngineOutput", "dSTORM engine output")
     {
-        initialize( tc_factory );
+        output::Config config;
+        output::FilterSource::initialize( config );
+        assert( getFactory() != NULL );
+        assert( dynamic_cast<output::Config*>(getFactory()) != NULL );
+        my_config = dynamic_cast<output::Config*>(getFactory());
+    }
+    TreeRoot( const TreeRoot& other )
+    : simparm::Object(other),
+      output::FilterSource(other)
+    {
+        output::FilterSource::initialize( *other.my_config );
+        my_config = dynamic_cast<output::Config*>(getFactory());
     }
     ~TreeRoot() { removeFromAllParents(); }
 
     TreeRoot* clone() const { return new TreeRoot(*this); }
     std::string getDesc() const { return desc(); }
+    output::Config &root_factory() { return *my_config; }
 };
 
-CarConfig::CarConfig( OutputFactory& tc_factory ) 
+CarConfig::CarConfig() 
 : Object("Car", "Job options"),
-  _inputConfig( new CImgBuffer::Config() ),
-  _engineConfig( new dStorm::Config() ),
-  outputRoot( new TreeRoot( tc_factory ) ),
+  _inputConfig( new input::Config() ),
+  _engineConfig( new engine::Config() ),
+  outputRoot( new TreeRoot() ),
   inputConfig(*_inputConfig),
   engineConfig(*_engineConfig),
-  outputConfig(*outputRoot),
+  outputSource(*outputRoot),
+  outputConfig(outputRoot->root_factory()),
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Store config used in computation in")
 {
    setName("Car");
-   configTarget.setUserLevel(Entry::Intermediate);
+   configTarget.setUserLevel(simparm::Entry::Intermediate);
 
     registerNamedEntries();
 }
@@ -52,7 +67,8 @@ CarConfig::CarConfig(const CarConfig &c)
   outputRoot(c.outputRoot->clone()),
   inputConfig(*_inputConfig),
   engineConfig(*_engineConfig),
-  outputConfig(*outputRoot),
+  outputSource(*outputRoot),
+  outputConfig(outputRoot->root_factory()),
   outputBox(c.outputBox),
   configTarget(c.configTarget)
 {
@@ -66,11 +82,12 @@ CarConfig::~CarConfig() {
 }
 
 void CarConfig::registerNamedEntries() {
-   outputBox.push_back( outputConfig );
+   outputBox.push_back( *outputRoot );
    push_back( inputConfig );
    push_back( engineConfig );
    push_back( outputBox );
    push_back( configTarget );
 }
 
+}
 }

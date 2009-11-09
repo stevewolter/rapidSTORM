@@ -2,7 +2,10 @@
 #include <dStorm/engine/Image.h>
 #include <CImg.h>
 
+using namespace dStorm::engine;
+
 namespace dStorm {
+namespace spotFinders {
 
 #ifndef AVERAGE_BY_SLIDING_WINDOW
 #define AVERAGE_BY_SEPARATION
@@ -117,4 +120,5 @@ void smoothByAverage<StormPixel,SmoothedPixel>
 #endif
 }
 
+}
 }

@@ -5,6 +5,7 @@
 
 using namespace std;
 namespace dStorm {
+namespace output {
 
 AverageImage::_Config::_Config()
 : Object("AverageImage", "Average images"),
@@ -49,4 +50,5 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
 }
 
 
+}
 }

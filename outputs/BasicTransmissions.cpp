@@ -14,10 +14,12 @@
 #include "PrecisionEstimator.h"
 
 using namespace std;
+using namespace dStorm::outputs;
 
 namespace dStorm {
+namespace output {
 
-void basic_outputs( dStorm::BasicOutputs* o ) {
+void basic_outputs( Config* o ) {
     o->addChoice( new LocalizationFile::Source() );
     o->addChoice( new Viewer::Source() );
     o->addChoice( new ProgressMeter::Source() );
@@ -31,4 +33,5 @@ void basic_outputs( dStorm::BasicOutputs* o ) {
     o->addChoice( new MultiPrecisionEstimator::Source() );
 }
 
+}
 }

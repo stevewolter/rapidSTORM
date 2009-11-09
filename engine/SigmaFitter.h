@@ -5,9 +5,11 @@
 #include <fit++/Exponential2D.hh>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
-#include <dStorm/output/Localization.h>
+#include <dStorm/Localization.h>
 
 namespace dStorm {
+namespace engine {
+
 class SigmaFitter {
   protected:
     double initial_sigmas[3], prefac;
@@ -29,6 +31,8 @@ class SigmaFitter {
     ~SigmaFitter();
   
 };
+
+}
 }
 
 #endif

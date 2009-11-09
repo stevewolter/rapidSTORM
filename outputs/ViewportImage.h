@@ -9,6 +9,7 @@
 #include <limits>
 
 namespace dStorm {
+namespace output {
     class DummyViewportListener {
         void setSize(int, int, int) {}
         void updatePixel(int, int, SmoothedPixel, SmoothedPixel) {}
@@ -171,6 +172,7 @@ namespace dStorm {
         int depth;
         bool viewport_moved;
     };
+}
 };
 
 #endif

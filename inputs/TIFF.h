@@ -1,9 +1,9 @@
 #ifndef CImgBuffer_TIFF_H
 #define CImgBuffer_TIFF_H
 
-#include <dStorm/input/SerialImageSource.h>
+#include <dStorm/input/SerialSource.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/InputMethod.h>
+#include <dStorm/input/Method.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -11,13 +11,14 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 
-#ifndef CImgBuffer_TIFFLOADER_CPP
+#ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;
 #endif
 
-namespace CImgBuffer {
+namespace dStorm {
   namespace TIFF {
     using cimg_library::CImg;
+    using namespace dStorm::input;
 
     /** The Source provides images from a TIFF file.
      *
@@ -27,7 +28,7 @@ namespace CImgBuffer {
      *  this data type exactly; no up- or downsampling is per-
      *  formed. */
     template <typename PixelType>
-    class Source : public SerialImageSource<PixelType>,
+    class Source : public SerialSource< CImg<PixelType> >,
                    public simparm::Set
     {
       public:
@@ -55,10 +56,10 @@ namespace CImgBuffer {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public InputConfig< CImg<PixelType> >
+    : public Method< CImg<PixelType> >
     {
       public:
-        typedef CImgBuffer::Config MasterConfig;
+        typedef input::Config MasterConfig;
 
         Config(MasterConfig& src);
         Config(const Config &c, MasterConfig& src);

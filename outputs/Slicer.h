@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 namespace dStorm {
+namespace output {
 class Slicer : public simparm::Object, public Output {
   public:
     class Source;
@@ -145,5 +146,6 @@ class Slicer::Source
         { return Config::getDesc(); }
 };
 
+}
 }
 #endif

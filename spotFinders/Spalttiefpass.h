@@ -14,23 +14,25 @@ namespace cimg_library {
 }
 
 namespace dStorm {
-    class Spalttiefpass : public SpotFinder {
+namespace spotFinders {
+    class Spalttiefpass : public engine::SpotFinder {
         struct _Config : public simparm::Object {
             void registerNamedEntries() {}
             _Config() : simparm::Object("Average", "Smooth by average") {}
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef SpotFinderBuilder<Spalttiefpass> Factory;
+        typedef engine::SpotFinderBuilder<Spalttiefpass> Factory;
 
-        Spalttiefpass (const Config&, const dStorm::Config &conf,
+        Spalttiefpass (const Config&, const engine::Config &conf,
             int imw, int imh) 
         : SpotFinder(conf, imw, imh)
         {}
 
-        void smooth( const Image &in ) {
+        void smooth( const engine::Image &in ) {
             smoothByAverage( in, *smoothed, msx, msy );
         }
     };
+}
 }
 #endif

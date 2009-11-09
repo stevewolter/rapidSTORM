@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_H
 #define DSTORM_VIEWER_H
 
-#include <dStorm/output/Localization.h>
+#include <dStorm/Localization.h>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/NumericEntry.hh>
@@ -15,11 +15,12 @@
 #include <Eigen/Core>
 
 namespace dStorm {
+namespace output {
 
 /** The Viewer class collects fits into a BinnedLocalizations
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
-class Viewer : public dStorm::Output, public simparm::Object,
+class Viewer : public Output, public simparm::Object,
                 public simparm::Node::Callback
 {
   private:
@@ -28,7 +29,7 @@ class Viewer : public dStorm::Output, public simparm::Object,
 
   public:
     typedef simparm::Structure<_Config> Config;
-    typedef dStorm::FileOutputBuilder<Viewer> Source;
+    typedef FileOutputBuilder<Viewer> Source;
 
     /** Constructor will not display image; this is deferred
         *  until announceStormSize(). */
@@ -53,18 +54,10 @@ class Viewer : public dStorm::Output, public simparm::Object,
 
   private:
     std::auto_ptr< Implementation > implementation;
-    dStorm::Output& forwardOutput;
+    Output& forwardOutput;
 
     /** Mutex protecting \c implementation.*/
     ost::Mutex structureMutex;
-    /** Factor to zoom the image in or out. By default, both
-    *  are 1; to zoom in, zi is raised, to zoom out, zo is
-    *  raised. */
-    int zi, zo;
-    /** Desired width and height of the display window. */
-    unsigned int windowWidth, windowHeight;
-    /** The last encountered dimensions for \c viewport. */
-    unsigned int lastWW, lastWH;
 
     /** Should the viewer be run? */
     bool runViewer;
@@ -84,7 +77,6 @@ class Viewer : public dStorm::Output, public simparm::Object,
 
     simparm::FileEntry tifFile;
     simparm::DoubleEntry resolutionEnhancement, histogramPower;
-    simparm::LongEntry zoom;
     /** Config triggers for saving the currently displayed result
     *  image and for closing the display window. */
     simparm::TriggerEntry save, quit;
@@ -103,6 +95,7 @@ class Viewer : public dStorm::Output, public simparm::Object,
 
 };
 
+}
 }
 
 #endif

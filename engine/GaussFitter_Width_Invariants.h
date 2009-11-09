@@ -4,10 +4,11 @@
 #include <fit++/Exponential2D.hh>
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/Spot.h>
-#include <dStorm/output/Localization.h>
+#include <dStorm/Localization.h>
 #include <dStorm/engine/Image.h>
 
 namespace dStorm {
+namespace engine {
 
 using namespace fitpp;
 using namespace fitpp::Exponential2D;
@@ -63,6 +64,7 @@ struct Width_Invariants<Free_Sigmas, true>
 ;
 };
 
+}
 }
 
 #endif

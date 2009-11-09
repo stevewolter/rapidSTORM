@@ -9,8 +9,9 @@
 #include <dStorm/engine/Input_decl.h>
 
 namespace dStorm {
+namespace output { class Output; }
+namespace engine {
    class Config;
-   class Output;
 
    /** The Engine class performs the main computation in the
     *  dSTORM module. It forks several threads (called pistons),
@@ -26,7 +27,7 @@ namespace dStorm {
         data_cpp::Vector< std::auto_ptr<ost::Thread> > pistons;
 
         Input& input;
-        Output* output;
+        output::Output* output;
 
         /** Flag set when computation threads should stop and be collected
          *  even though target images remain. */
@@ -51,7 +52,7 @@ namespace dStorm {
         void collectPistons();
 
       public:
-         Engine(Config& config, Input& input, Output& output);
+         Engine(Config& config, Input& input, output::Output& output);
          virtual ~Engine();
 
          /** Compute with the given number of subthreads, including
@@ -68,6 +69,7 @@ namespace dStorm {
 
          static void stopAllEngines() { globalStop = true; }
    };
+}
 }
 
 #endif

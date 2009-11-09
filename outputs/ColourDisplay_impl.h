@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 
 namespace dStorm {
+namespace output {
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackWhite>
@@ -122,7 +123,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
         { base_tone[0] = config.hue(); 
           base_tone[1] = config.saturation(); } 
 
-    void setSize( const CImgBuffer::Traits<BinnedImage>& traits ) {
+    void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
         const int w = traits.size.x(), h = traits.size.y();
         colours = cimg_library::CImg<ColourVector>(w,h);
         rgb_weights.resize( w, h, 1, 3, -1 );
@@ -155,6 +156,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
     inline void announce(const Localization&) {}
 };
 
+}
 }
 
 #endif

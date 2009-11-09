@@ -1,7 +1,7 @@
 #include "Garage.h"
 #include "GarageConfig.h"
 #include <engine/Car.h>
-#include <dStorm/output/BasicOutputs.h>
+#include <dStorm/output/Config.h>
 #include <dStorm/output/FilterSource.h>
 #include <memory>
 #include <algorithm>
@@ -22,7 +22,8 @@
 #include "doc/help/rapidstorm_help_file.h"
 
 using namespace dStorm;
-using namespace CImgBuffer;
+using namespace dStorm::input;
+using namespace dStorm::output;
 using namespace std;
 
 char *get_dir_name(char *file) throw();
@@ -95,13 +96,13 @@ class LibraryHandle {
             lt_dlclose( handle );
     }
 
-    void operator()( CImgBuffer::Config* inputs ) {
+    void operator()( dStorm::input::Config* inputs ) {
         (*input)( inputs );
     }
-    void operator()( dStorm::Config* engine_config ) {
+    void operator()( dStorm::engine::Config* engine_config ) {
         (*engine)( engine_config );
     }
-    void operator()( dStorm::BasicOutputs* outputs ) {
+    void operator()( dStorm::output::Config* outputs ) {
         (*output)( outputs );
     }
     const char *getDesc() { return (*desc)(); }
@@ -159,23 +160,16 @@ ModuleHandler::~ModuleHandler() {
     lt_dlexit();
 }
 
-void ModuleHandler::add_input_and_engine_modules
-    ( dStorm::CarConfig& car_config )
+void ModuleHandler::add_modules
+    ( dStorm::engine::CarConfig& car_config )
 {
     for ( List::iterator i = lib_handles.begin(); i != lib_handles.end();
           i++)
     {
         (*i) ( &car_config.inputConfig );
         (*i) ( &car_config.engineConfig );
+        (*i) ( &car_config.outputConfig );
     }
-}
-
-void ModuleHandler::add_output_modules
-    ( dStorm::BasicOutputs& tcf )
-{
-    for ( List::iterator i = lib_handles.begin();
-                            i != lib_handles.end(); i++)
-        (*i) ( &tcf );
 }
 
 std::string ModuleHandler::getDesc() {
@@ -203,24 +197,22 @@ GarageConfig::GarageConfig(ModuleHandler& module_handler) throw()
                        "Output tree view of transmissions"),
   run("Run", "Run")
 {
-   tcf.reset( new dStorm::BasicOutputs() );
-   dStorm::basic_outputs( tcf.get() );
-   module_handler.add_output_modules( *tcf );
-   carConfig.reset( new dStorm::CarConfig( *tcf ) );
+   carConfig.reset( new dStorm::engine::CarConfig() );
    dStorm::basic_inputs( &carConfig->inputConfig );
-   dStorm::basic_spotFinders( carConfig->engineConfig );
+   dStorm::spotFinders::basic_spotFinders( carConfig->engineConfig );
+   dStorm::output::basic_outputs( &carConfig->outputConfig );
    STATUS("Constructing GarageConfig");
-   module_handler.add_input_and_engine_modules( *carConfig );
+   module_handler.add_modules( *carConfig );
 
    PROGRESS("Building externalControl");
    externalControl = false;
-   externalControl.setUserLevel(Entry::Expert);
+   externalControl.setUserLevel(simparm::Entry::Expert);
 
    PROGRESS("Building run");
    run.setHelp("Whenever this trigger is triggered or the button "
                "clicked, the dStorm engine will be run with the "
                "current parameters.");
-   run.setUserLevel(Entry::Beginner);
+   run.setUserLevel(simparm::Entry::Beginner);
 
    carConfig->inputConfig.basename.addChangeCallback(*this);
 
@@ -240,7 +232,7 @@ GarageConfig::GarageConfig(const GarageConfig &c) throw()
    registerNamedEntries();
 }
 
-static void printTC( const OutputSource& src, int indent ) {
+static void printTC( const output::OutputSource& src, int indent ) {
     if ( indent < 2 )
         cout << ((indent)?" ":src.getName()) << "\n";
     else {
@@ -259,7 +251,7 @@ void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
                 cause == ValueChanged && externalControl() ) 
     {
         bool appended = false;
-        dStorm::TransmissionSource::BasenameResult r;
+        dStorm::output::OutputSource::BasenameResult r;
         std::string basename = carConfig->inputConfig.basename();
         avoid_auto_filenames.clear();
         do {
@@ -267,19 +259,19 @@ void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
                 avoid_auto_filenames
                     .insert( carConfig->inputConfig.inputFile() );
 
-            r = carConfig->outputConfig.set_output_file_basename
+            r = carConfig->outputSource.set_output_file_basename
                     ( basename, avoid_auto_filenames );
             if ( !appended ) 
                 basename += 'a'; 
             else 
                 basename[ basename.size()-1 ]++;
             appended = true;
-        } while ( r == dStorm::TransmissionSource::Basename_Conflicted );
+        } while ( r == dStorm::output::OutputSource::Basename_Conflicted );
     } else if ( &src == &showTransmissionTree && 
                 showTransmissionTree.triggered() )
     {
         showTransmissionTree.untrigger();
-        printTC( carConfig->outputConfig, 0 );
+        printTC( carConfig->outputSource, 0 );
         exit(0);
     }
 }
@@ -393,7 +385,7 @@ void Garage::init() throw() {
         ioManager.push_back( *config.carConfig );
         ioManager.processInput();
 
-        Car::terminate_all_Car_threads();
+        engine::Car::terminate_all_Car_threads();
         autoConfig.reset( NULL );
     } else {
         //set_all_ConfigNodes_to(config, "ShowOutput", " = false");
@@ -403,6 +395,8 @@ void Garage::init() throw() {
 Garage::~Garage() throw() {
     STATUS("Destructing " << (void*)this);
 }
+
+using namespace simparm;
 
 void Garage::operator()(Node& src, Cause, Node *) throw() {
     if (&src == &config.run.value && config.run.triggered()) {
@@ -419,14 +413,14 @@ void Garage::operator()(Node& src, Cause, Node *) throw() {
 void Garage::cruise() throw(std::exception)
 {
     STATUS("Made new car for cruise");
-    Car *car = new Car(*config.carConfig);
+    engine::Car *car = new engine::Car(*config.carConfig);
     car->detach();
 }
 
 void Garage::_drive()
 {
     STATUS("Made new car for drive");
-    Car(*config.carConfig).drive();
+    engine::Car(*config.carConfig).drive();
 }
 
 #include <libgen.h>

@@ -22,7 +22,7 @@
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 
 using namespace std;
-using namespace CImgBuffer;
+using namespace dStorm::input;
 using namespace AndorCamera;
 using namespace simparm;
 
@@ -189,8 +189,8 @@ void Source::stopPushing(Drain<CamImage> *target) {
     pushTarget = NULL;
 }
 
-Config::Config(CImgBuffer::Config& config)  
-: InputConfig<CamImage>("AndorDirectConfig", "Direct camera control"),
+Config::Config(input::Config& config)  
+: CamConfig("AndorDirectConfig", "Direct camera control"),
   basename("OutputBasename", "Base name for output files")
 {
     PROGRESS("Making AndorDirect config");
@@ -204,10 +204,9 @@ Config::Config(CImgBuffer::Config& config)
     PROGRESS("Made AndorDirect config");
 }
 
-Config::Config(const Config &c, 
-    CImgBuffer::Config& config) 
+Config::Config(const Config &c, input::Config& config) 
 : simparm::Node(c),
-  InputConfig< CamImage >(c),
+  CamConfig(c),
   basename(c.basename)
 {
     basename.erase( basename.value );

@@ -3,39 +3,39 @@
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
-#include <dStorm/output/OutputSource.h>
-#include <dStorm/output/OutputFactory.h>
+#include <dStorm/output/Config.h>
 #include <dStorm/input/Config.h>
 #include <memory>
 #include <simparm/Set.hh>
 
-namespace CImgBuffer {
-    template <typename T> class Image;
-}
-
 namespace dStorm {
+namespace output { class OutputSource; }
+namespace engine {
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
     class CarConfig : public simparm::Object {
       private:
-        std::auto_ptr<CImgBuffer::Config> _inputConfig;
-        std::auto_ptr<dStorm::Config> _engineConfig;
-        std::auto_ptr<OutputSource> outputRoot;
+        class TreeRoot;
+        std::auto_ptr<input::Config> _inputConfig;
+        std::auto_ptr<engine::Config> _engineConfig;
+        std::auto_ptr<TreeRoot> outputRoot;
         void registerNamedEntries();
 
       public:
-        CarConfig(OutputFactory& tc_factory);
+        CarConfig();
         CarConfig(const CarConfig &c);
         ~CarConfig();
         CarConfig *clone() const { return new CarConfig(*this); }
 
-        CImgBuffer::Config& inputConfig;
-        dStorm::Config& engineConfig;
-        OutputSource& outputConfig;
+        input::Config& inputConfig;
+        engine::Config& engineConfig;
+        output::OutputSource& outputSource;
+        output::Config& outputConfig;
 
         simparm::Set outputBox;
-        FileEntry configTarget;
+        simparm::FileEntry configTarget;
     };
+}
 }
 
 #endif

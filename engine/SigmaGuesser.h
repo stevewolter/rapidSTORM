@@ -9,6 +9,8 @@
 #include <dStorm/helpers/thread.h>
 
 namespace dStorm {
+namespace engine {
+    using namespace output;
     class SigmaFitter;
 
 #ifndef DSTORM_SIGMAGUESSER_CPP
@@ -62,6 +64,7 @@ namespace dStorm {
             if (s == Engine_is_restarted) deleteAllResults();
         }
     };
+}
 }
 
 #endif

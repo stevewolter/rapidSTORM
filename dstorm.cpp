@@ -14,9 +14,6 @@ using namespace dStorm;
 using namespace std;
 using namespace cimg_library;
 
-#undef STATUS
-#define STATUS(x) std::cerr << x << endl;
-
 #if DEBUG_LEVEL >= 1
 void sigsegv(int) {
     STATUS("Caught sigsegv");

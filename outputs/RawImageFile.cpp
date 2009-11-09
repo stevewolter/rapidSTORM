@@ -3,6 +3,9 @@
 #include <CImg.h>
 
 namespace dStorm {
+namespace output {
+
+using namespace engine;
 
 class RawImageFile::LookaheadImg 
 {
@@ -111,4 +114,5 @@ RawImageFile::~RawImageFile() {
 }
 
 
+}
 }

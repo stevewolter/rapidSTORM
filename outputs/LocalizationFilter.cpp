@@ -4,6 +4,7 @@
 #include "doc/help/context.h"
 
 namespace dStorm {
+namespace output {
 
 class LocalizationFilter::ReEmitter 
 : public ost::Thread, public ResultRepeater
@@ -76,7 +77,7 @@ class LocalizationFilter::ReEmitter
 
 LocalizationFilter::LocalizationFilter(
     const Config& c,
-    std::auto_ptr<dStorm::Output> output
+    std::auto_ptr<output::Output> output
 )
     : simparm::Object("AF", "LocalizationFilter"),
         from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
@@ -86,7 +87,7 @@ LocalizationFilter::LocalizationFilter(
 }
 
 LocalizationFilter::LocalizationFilter(const LocalizationFilter& o)
-: simparm::Node(o), simparm::Object(o), dStorm::Output(o),
+: simparm::Node(o), simparm::Object(o), output::Output(o),
   simparm::Node::Callback(),
   localizationsStore(), 
   from(o.from), to(o.to), x_shift(o.x_shift), y_shift(o.y_shift),
@@ -243,7 +244,7 @@ Output::AdditionalData
 LocalizationFilter::announceStormSize(const Announcement& a) 
 
 { 
-    storm_width = a.width; storm_height = a.height; 
+    storm_width = a.traits.dimx(); storm_height = a.traits.dimy(); 
     storm_length = a.length;
     v_x_shift = x_shift() / a.length;
     v_y_shift = y_shift() / a.length;
@@ -341,4 +342,5 @@ void LocalizationFilter::_Config::registerNamedEntries() {
     push_back(y_shift);
 }
 
-};
+}
+}

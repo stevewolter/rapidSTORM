@@ -13,7 +13,8 @@
 #include <stdint.h>
 
 using namespace cimg_library;
-using namespace CImgBuffer;
+using namespace dStorm::input;
+using namespace dStorm::engine;
 using namespace dStorm;
 using namespace std;
 using namespace simparm;
@@ -21,11 +22,11 @@ using namespace simparm;
 int main(int argc, char *argv[]) {
    ModuleHandler module_handler;
    GarageConfig garageConfig(module_handler);
-   CImgBuffer::Config& config = garageConfig.carConfig->inputConfig;
+   input::Config& config = garageConfig.carConfig->inputConfig;
    FileEntry saveMovie("saveMovie", "");
    FileEntry outputPixels("outputPixels", "");
    BoolEntry show("show", "", true);
-   UnsignedLongEntry maxPix("max", "", numeric_limits<dStorm::StormPixel>::max());
+   UnsignedLongEntry maxPix("max", "", numeric_limits<StormPixel>::max());
    BoolEntry saveImages("SaveImages", "Save each image into Snapshot_NUMBER.png");
 
    UnsignedLongEntry markX("MarkX", "Mark column", 1000);
@@ -44,15 +45,15 @@ int main(int argc, char *argv[]) {
    config.readConfig(argc, argv);
    bool paused = false;
 
-    dStorm::StormPixel min = numeric_limits<dStorm::StormPixel>::max(),
-                       max = numeric_limits<dStorm::StormPixel>::min();
+    StormPixel min = numeric_limits<StormPixel>::max(),
+               max = numeric_limits<StormPixel>::min();
 
     if (saveMovie) {
         try {
-            Buffer<dStorm::Image> iv( config );
-            for (dStorm::Input::iterator i = iv.begin(); i != iv.end(); i++)
+            Buffer<Image> iv( config );
+            for (Input::iterator i = iv.begin(); i != iv.end(); i++)
             {
-                Claim<dStorm::Image> claim = i->claim();
+                Claim<Image> claim = i->claim();
                 cimg_forXY(*claim, x, y) {
                     min = std::min((*claim)(x,y), min);
                     max = std::max((*claim)(x,y), max);
@@ -63,22 +64,22 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
     }
-    max = std::min<dStorm::StormPixel>(maxPix(), max);
+    max = std::min<StormPixel>(maxPix(), max);
 
     try {
-        Buffer<dStorm::Image> iv( config );
-        const Traits<dStorm::Image>& traits = iv.getTraits();
-        CImg<dStorm::StormPixel> pwLimit( traits.dimx(), traits.dimy(),
+        Buffer<Image> iv( config );
+        const Traits<Image>& traits = iv.getTraits();
+        CImg<StormPixel> pwLimit( traits.dimx(), traits.dimy(),
                                           1,1, max-min );
         CImgDisplay d(768, 768, "Storm", 1);
         CImgList<uint8_t> liste;
         int ic = 0;
         for (Input::iterator i = iv.begin(); i != iv.end(); i++) {
-            Claim<dStorm::Image> claim = i->claim();
+            Claim<Image> claim = i->claim();
             if ( ! claim.isGood() ) continue;
-            dStorm::Image &im = *claim;
+            Image &im = *claim;
 
-            CImg<dStorm::StormPixel> copy = im;
+            CImg<StormPixel> copy = im;
             copy = (copy - min).min(pwLimit) * (255.0 / (max-min));
             if (saveMovie) {
                 liste.push_back(copy);

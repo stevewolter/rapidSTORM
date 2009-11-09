@@ -3,16 +3,14 @@
 
 #include <dStorm/data-c++/Vector.h>
 #include <Magick++.h>
+#include <dStorm/input/Traits.h>
 
 namespace cimg_library { 
     template <typename PixelType> class CImg;
 }
 
-namespace CImgBuffer {
-    template <typename Type> class Traits;
-}
-
 namespace dStorm {
+namespace output {
 namespace DiscretizedImage {
 
     template <typename ColorPixel>
@@ -20,7 +18,7 @@ namespace DiscretizedImage {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
         void setSize(
-            const CImgBuffer::Traits< cimg_library::CImg<int> >&);
+            const input::Traits< cimg_library::CImg<int> >&);
         /** Called when a pixel changes in the image. The parameters
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
@@ -39,7 +37,7 @@ namespace DiscretizedImage {
     };
 
     struct DummyListener {
-        void setSize(const CImgBuffer::Traits< cimg_library::CImg<int> >&) {}
+        void setSize(const input::Traits< cimg_library::CImg<int> >&) {}
         void pixelChanged(int, int) {}
         void clean(bool) {}
         void clear() {}
@@ -85,7 +83,7 @@ struct HistogramPixel {
 template <typename Colorizer,
           typename ImageListener>
 class ImageDiscretizer 
-: public BinningListener,
+: public outputs::BinningListener,
   public Publisher<ImageListener>
 {
     typedef unsigned short HighDepth;
@@ -133,7 +131,7 @@ class ImageDiscretizer
         Colorizer& colorizer);
     inline ~ImageDiscretizer();
 
-    inline void setSize( const CImgBuffer::Traits<InputImage>& );
+    inline void setSize( const input::Traits<InputImage>& );
     inline void updatePixel(int, int, float, float);
     void clean(bool final);
     void clear();
@@ -160,6 +158,7 @@ class ImageDiscretizer
     void setHistogramPower(float power);
 };
 
+}
 }
 }
 

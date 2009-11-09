@@ -6,7 +6,7 @@
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/input/ImageTraits.h>
-#include <dStorm/input/InputMethod.h>
+#include <dStorm/input/Method.h>
 #include <AndorCamera/CameraReference.h>
 #include <AndorCamera/Camera.h>
 #include <AndorCamera/StateMachine.h>
@@ -28,14 +28,14 @@ namespace dStorm {
     namespace AndorDirect {
         typedef uint16_t CameraPixel;
         typedef cimg_library::CImg<CameraPixel> CamImage;
-        typedef CImgBuffer::Source< CamImage > CamSource;
-        typedef CImgBuffer::InputConfig<CamImage> CamConfig;
+        typedef input::Source< CamImage > CamSource;
+        typedef input::Method<CamImage> CamConfig;
 
         /** The Config class provides the configuration items for Andor camera
          *  acquisition that are acquisition-specific - control elements and
          *  acquisition area borders. All camera specific parameters are in
          *  AndorCamera::Config. */
-        class Config : public CImgBuffer::InputConfig<CamImage>
+        class Config : public CamConfig
         {
           private:
             class CameraSwitcher;
@@ -48,18 +48,14 @@ namespace dStorm {
             CamSource* impl_makeSource();
 
           public:
-            Config(CImgBuffer::Config& src) 
-;
-            Config(const Config &c, 
-                    CImgBuffer::Config &src) 
-;
+            Config(input::Config& src);
+            Config(const Config &c, input::Config &src);
             virtual ~Config();
 
             std::auto_ptr< CamSource > makeSource()
                 { return std::auto_ptr< CamSource >(impl_makeSource()); }
 
-            Config* clone
-                (CImgBuffer::Config &newMaster) const
+            Config* clone(input::Config &newMaster) const
                 { return new Config(*this, newMaster); }
 
             std::string get_basename_of_output_file();
@@ -103,8 +99,8 @@ namespace dStorm {
             virtual int quantity() const; 
             virtual bool pull_length() const { return initialized; }
 
-            virtual void startPushing(CImgBuffer::Drain<CamImage> *target);
-            virtual void stopPushing(CImgBuffer::Drain<CamImage> *target);
+            virtual void startPushing(input::Drain<CamImage> *target);
+            virtual void stopPushing(input::Drain<CamImage> *target);
 
         };
     }

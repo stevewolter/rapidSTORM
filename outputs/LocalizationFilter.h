@@ -8,6 +8,7 @@
 #include <dStorm/data-c++/Vector.h>
 
 namespace dStorm {
+namespace output {
 
 /** The LocalizationFilter transmission filters localizations by amplitude and
  *  provides linear drift correction. Both corrections are performed dynamically,
@@ -28,7 +29,7 @@ class LocalizationFilter : public simparm::Object, public Output,
     ost::ThreadLock emissionMutex;
     /** List of all received localizations. Necessary if
     *   amplitude threshold is changed. */
-    LocalizationList localizationsStore;
+    outputs::LocalizationList localizationsStore;
 
     simparm::DoubleEntry from, to;
     simparm::DoubleEntry x_shift, y_shift;
@@ -96,6 +97,7 @@ class LocalizationFilter::_Config : public simparm::Object {
     simparm::DoubleEntry x_shift, y_shift;
 };
 
+}
 }
 
 #endif

@@ -1,4 +1,4 @@
-#define CImgBuffer_TIFFLOADER_CPP
+#define DSTORM_TIFFLOADER_CPP
 
 #include <stdexcept>
 #include <cassert>
@@ -22,7 +22,7 @@
 using namespace std;
 using namespace cimg_library;
 
-namespace CImgBuffer {
+namespace dStorm {
 namespace TIFF {
 
 static char tiff_error_buffer[4096];
@@ -36,7 +36,7 @@ void Source<Pixel>::TIFF_error_handler(
 
 template<typename Pixel>
 Source<Pixel>::Source(const char *src)
-: SerialImageSource<Pixel>
+: SerialSource< CImg<Pixel> >
     (BaseSource::Pushing | BaseSource::Pullable),
    simparm::Set("TIFF", "TIFF image reader"),
    _width( this->Traits< CImg<Pixel> >::size.x() ),
@@ -124,8 +124,8 @@ Config<Pixel>::impl_makeSource()
 }
 
 template<typename Pixel>
-Config<Pixel>::Config( CImgBuffer::Config& src) 
-: InputConfig< CImg<Pixel> >("TIFF", "TIFF file"),
+Config<Pixel>::Config( input::Config& src) 
+: Method< CImg<Pixel> >("TIFF", "TIFF file"),
   master(src),
   inputFile(src.inputFile),
   tiff_extension("extension_tiff", ".tiff"),
@@ -139,10 +139,10 @@ Config<Pixel>::Config( CImgBuffer::Config& src)
 template<typename Pixel>
 Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
-    CImgBuffer::Config& src
+    input::Config& src
 ) 
 : simparm::Node(c),
-  InputConfig< CImg<Pixel> >(c),
+  Method< CImg<Pixel> >(c),
   master(src),
   inputFile(src.inputFile),
   tiff_extension(c.tiff_extension),

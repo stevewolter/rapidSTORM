@@ -15,6 +15,7 @@ using namespace std;
 using namespace fitpp;
 
 namespace dStorm {
+namespace output {
 
 SinglePrecisionEstimator::_Config::_Config()
 : simparm::Object("SeperatePrecision", 
@@ -48,7 +49,7 @@ MultiPrecisionEstimator::MultiPrecisionEstimator
 
 MultiPrecisionEstimator::MultiPrecisionEstimator
     ( const MultiPrecisionEstimator& c )
-: Node(c), Object(c), dStorm::Output(c),
+: Node(c), Object(c), output::Output(c),
     usedSpots(c.usedSpots),
     x_sd(c.x_sd), y_sd(c.y_sd), corr(c.corr),
     pixel_dim_in_nm(c.pixel_dim_in_nm), res_enh(c.res_enh)
@@ -62,14 +63,14 @@ MultiPrecisionEstimator* MultiPrecisionEstimator::clone() const
 
 using namespace Precision;
 
-double compute_weighted_SD( const dStorm::Trace& trace, int coordinate )
+double compute_weighted_SD( const Trace& trace, int coordinate )
 
 {
     /* West algorithm as pseudocoded on 
      * http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance */
     int n = 0;
     double mean = 0, sumweight = 0, S = 0;
-    for ( dStorm::Trace::const_iterator i = trace.begin();
+    for ( Trace::const_iterator i = trace.begin();
           i != trace.end(); i++)
     {
         double x = (coordinate == 0) ? i->x() : i->y();
@@ -168,7 +169,7 @@ MultiPrecisionEstimator::announceStormSize(const Announcement& a)
 void MultiPrecisionEstimator::estimatePrecision() {
     ost::MutexLock lock(mutex);
     FitSigmas s;
-    dStorm::Localizations& locs = localizations.getResults();
+    output::Localizations& locs = localizations.getResults();
 
     if (locs.binNumber() == 1)
         s = fitWithGauss( res_enh, locs.getBin(0), locs.sizeOfBin(0) );
@@ -281,4 +282,4 @@ FitSigmas Precision::fitWithGauss
 
 
 }
-
+}

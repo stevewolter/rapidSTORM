@@ -6,6 +6,7 @@ namespace cimg_library {
 }
 
 namespace dStorm {
+namespace spotFinders {
 
 /** Method smoothes the input image \c input, writes the
  *  smoothed result into the target image \c output (which
@@ -17,6 +18,7 @@ void smoothByAverage( const cimg_library::CImg<InPix>& input,
                       cimg_library::CImg<OutPix>& output,
                       int mask_radius_x, int mask_radius_y );
 
+}
 }
 
 #endif

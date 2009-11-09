@@ -5,6 +5,7 @@
 #include "GaussFitter_Width_Invariants.h"
 
 namespace dStorm {
+namespace engine {
 
 template <bool Free_Sigmas, bool Residue_Analysis, bool Corr>
 class GaussFitter
@@ -76,6 +77,7 @@ class GaussFitter
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+}
 }
 
 #endif

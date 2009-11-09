@@ -77,7 +77,8 @@ class DStorm {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
         result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
-            tempdir.getPath() + File.separator + "plugins";
+            tempdir.getPath() + File.separator + "lib" + File.separator + "rapidStorm"
+            + File.separator + "plugins";
         result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
             tempdir.getPath() 
                 + File.separator + "share" 
@@ -88,7 +89,6 @@ class DStorm {
                 + File.separator + "lib" 
                 + File.separator + "GraphicsMagick-1.3.6"
                 + File.separator + "config";
-        System.err.println("Set " + result_env[i-1]);
         return result_env;
    }
 

@@ -4,7 +4,7 @@
 #include <dStorm/input/Config.h>
 
 namespace dStorm {
-    extern void basic_inputs( CImgBuffer::Config* c );
+    extern void basic_inputs( input::Config* c );
 }
 
 #endif

@@ -9,7 +9,7 @@
 using namespace std;
 using namespace AndorCamera;
 using namespace simparm;
-using namespace CImgBuffer;
+using namespace dStorm::input;
 using namespace cimg_library;
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )

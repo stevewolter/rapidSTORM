@@ -14,6 +14,7 @@ namespace Eigen {
 }
 
 namespace dStorm {
+namespace engine {
 
 template <bool Free_Sigmas, bool Residue_Analysis, bool Corr,
           int Width, int Height>
@@ -212,6 +213,7 @@ struct GaussFitter<Free_Sigmas, ResAnalysis, Corr>::TableEntryMaker
             <Free_Sigmas, ResAnalysis, Corr, X,Y>(common); }
 };
 
+}
 }
 
 #endif

@@ -1,10 +1,10 @@
-#ifndef CImgBuffer_CIMGLIST_H
-#define CImgBuffer_CIMGLIST_H
+#ifndef DSTORM_CIMGLIST_H
+#define DSTORM_CIMGLIST_H
 
 #include <dStorm/input/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/InputMethod.h>
+#include <dStorm/input/Method.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -13,7 +13,7 @@
 #include <CImg.h>
 #include <stdint.h>
 
-namespace CImgBuffer {
+namespace dStorm {
   /** The CImgList namespace provides sources that operate on
    *  a standard CImgList structure. The provided filename is
    *  loaded by CImgList::load() and images in the resulting
@@ -25,7 +25,7 @@ namespace CImgBuffer {
     template <typename PixelType> std::string ident();
 
     template <typename PixelType>
-    class Source : public CImgBuffer::Source< CImg<PixelType> >,
+    class Source : public input::Source< CImg<PixelType> >,
                    public simparm::Object
     {
       public:
@@ -54,17 +54,17 @@ namespace CImgBuffer {
     };
 
     template <typename PixelType>
-    class Config : public InputConfig< CImg<PixelType> > {
+    class Config : public input::Method< CImg<PixelType> > {
       public:
         typedef CImg<PixelType> Yield;
-        typedef CImgBuffer::Config MasterConfig;
+        typedef input::Config MasterConfig;
 
         Config(MasterConfig& src)
             : simparm::Object("CImgList" + ident<PixelType>(),
                               "List of CImg objects"),
               inputFile(src.inputFile) { this->push_back(src.inputFile); }
         Config(const Config &c, MasterConfig& src) 
-            : simparm::Object(c), InputConfig< CImg<PixelType> >(c),
+            : simparm::Object(c), input::Method< CImg<PixelType> >(c),
               inputFile(src.inputFile) { this->push_back(src.inputFile); }
 
         simparm::FileEntry &inputFile;
@@ -73,7 +73,7 @@ namespace CImgBuffer {
             { return new Config<PixelType>(*this, newMaster); }
 
       protected:
-        CImgBuffer::Source<Yield>* impl_makeSource()
+        input::Source<Yield>* impl_makeSource()
             { return new Source<PixelType>( inputFile().c_str() ); }
     };
 

@@ -12,8 +12,12 @@ namespace cimg_library {
 }
 
 namespace dStorm {
-    class MedianSmoother : public SpotFinder {
+namespace spotFinders {
+    class MedianSmoother : public engine::SpotFinder {
       private:
+        typedef engine::Image Image;
+        typedef engine::SmoothedImage SmoothedImage;
+
         void naiveMedian(const Image &in, SmoothedImage& out, 
                          int mw, int mh);
         
@@ -26,10 +30,10 @@ namespace dStorm {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef SpotFinderBuilder<MedianSmoother> Factory;
+        typedef engine::SpotFinderBuilder<MedianSmoother> Factory;
 
         MedianSmoother (const Config&, 
-            const dStorm::Config &conf, int imw, int imh) 
+            const engine::Config &conf, int imw, int imh) 
         : SpotFinder(conf, imw, imh)
         {
             chooseAhmad(msx, msy);
@@ -39,5 +43,6 @@ namespace dStorm {
             ahmad( in, *smoothed, 2*msx+1, 2*msy+1 );
         }
     };
+}
 }
 #endif

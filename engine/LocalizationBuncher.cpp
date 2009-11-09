@@ -1,8 +1,11 @@
 #include "LocalizationBuncher.h"
-#include <dStorm/output/LocalizationFileReader.h>
+#include <dStorm/input/LocalizationFileReader.h>
 #include <dStorm/output/Output.h>
 
+using namespace dStorm::output;
+
 namespace dStorm {
+namespace engine {
 
 void LocalizationBuncher::output( Can* locs ) 
 throw(Output*) 
@@ -94,12 +97,12 @@ void LocalizationBuncher::ensure_finished()
 }
 
 void LocalizationBuncher::noteTraits(
-    const CImgBuffer::Traits<Localization>& traits,
+    const input::Traits<Localization>& traits,
     unsigned int firstImage, unsigned int lastImage)
 
 {
     lastInFile = lastImage;
-    last = std::min( lastImage, traits.imageNumber-1 );
+    last = std::min<unsigned int>( lastImage, traits.imageNumber-1 );
     first = std::min( firstImage, last );
 
     Output::Announcement announcement
@@ -154,7 +157,7 @@ void LocalizationBuncher::Can::deep_copy(
         to.push_back( loc );
 }
 
-CImgBuffer::Management
+input::Management
 LocalizationBuncher::accept(int index, int num, Localization *loc)
 {
     if (index < last_index)
@@ -169,7 +172,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
                 if (currentImage != imNum)
                     can_results_or_publish( imNum );
             } catch (const Output*c) {
-                return CImgBuffer::Delete_objects;
+                return input::Delete_objects;
             }
         }
 
@@ -179,7 +182,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
 
     last_index = index;
 
-    return CImgBuffer::Delete_objects;
+    return input::Delete_objects;
 }
 
 void LocalizationBuncher::reset() {
@@ -190,4 +193,5 @@ void LocalizationBuncher::reset() {
         Output::Engine_is_restarted );
 }
 
+}
 }

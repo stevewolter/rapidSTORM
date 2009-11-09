@@ -7,6 +7,7 @@
 using namespace std;
 
 namespace dStorm {
+namespace output {
 
 LocalizationFile::_Config::_Config() 
 : simparm::Object("Table", "Localizations file"),
@@ -44,15 +45,14 @@ void LocalizationFile::open() {
         file = fileKeeper.get();
     } else
         file = &cout;
-    *file << w << " " << h << " " << l << " 0 0\n";
+    *file << traits.dimx() << " " << traits.dimy() << " "
+          << traits.imageNumber << " 0 0\n";
 }
 
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
     ost::MutexLock lock(mutex);
-    this->w = a.width;
-    this->h = a.height;
-    this->l = a.length;
+    traits = input::Traits<Localization>(a.traits, a.length);
 
     open();
 
@@ -96,4 +96,5 @@ LocalizationFile::LocalizationFile(const Config &c)
 
 LocalizationFile::~LocalizationFile() {}
 
+}
 }

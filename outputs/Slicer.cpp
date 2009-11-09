@@ -6,6 +6,7 @@
 #include "Viewer.h"
 
 namespace dStorm {
+namespace output {
 
 const char *format_string(const std::string& filename, int block)
 {
@@ -114,4 +115,5 @@ Slicer::~Slicer()
 {
 }
 
+}
 }
