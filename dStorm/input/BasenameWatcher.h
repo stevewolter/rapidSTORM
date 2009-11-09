@@ -1,11 +1,12 @@
+#ifndef DSTORM_INPUT_BASENAMEWATCHER_H
+#define DSTORM_INPUT_BASENAMEWATCHER_H
+
 #include <simparm/FileEntry.hh>
 #include <simparm/Attribute.hh>
 #include <cstring>
 
-using namespace simparm;
-using namespace std;
-
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 /** The BasenameWatcher is a property change callback for a filename
  *  that keeps a basename attribute current. Whenever the watched
@@ -16,30 +17,35 @@ namespace CImgBuffer {
 class BasenameWatcher 
 : public simparm::Node::Callback
 {
-    FileEntry &watch;
-    Attribute<std::string> &basename;
+    typedef simparm::Attribute<std::string> StrAttr;
+
+    simparm::FileEntry &watch;
+    StrAttr &basename;
 
  public:
-    BasenameWatcher(FileEntry &watch, Attribute<std::string>& basename)
- : watch(watch), basename(basename)
+    BasenameWatcher(
+        simparm::FileEntry &watch, 
+        StrAttr& basename
+    )
+    : watch(watch), basename(basename)
     {
         receive_changes_from( watch.value );
     }
 
-    void operator()( Node&, Cause cause, Node* )
+    void operator()( simparm::Node&, Cause cause, simparm::Node* )
     {
         if (cause == ValueChanged) {
             /* Extension attributes start with this name. */
             const std::string def_ext = "extension";
 
-            string rv = watch();
+            std::string rv = watch();
             /* Find all string attribute childrens of watch. */
-            for (Node::const_iterator i=watch.begin(); i!=watch.end(); i++)
+            for (simparm::Node::const_iterator
+                 i=watch.begin(); i!=watch.end(); i++)
             {
-                const Attribute<std::string> *a;
+                const StrAttr *a;
                 std::string name = (*i)->getName();
-                if ( (a = dynamic_cast<const Attribute<std::string>*>
-                                       (*i)) != NULL &&
+                if ( (a = dynamic_cast<StrAttr*>(*i)) != NULL &&
                      name.substr(0,def_ext.size()) == def_ext )
                 {
                     /* This is an attribute for a filename extension.
@@ -65,3 +71,6 @@ class BasenameWatcher
 };
 
 }
+}
+
+#endif

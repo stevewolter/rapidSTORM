@@ -3,6 +3,7 @@
 #include "GaussFitter_ResidueAnalysis.h"
 
 namespace dStorm {
+namespace engine {
 
 template <>
 template <>
@@ -22,4 +23,5 @@ create_specializations<0>()
 
 template class GaussFitter<false,true,false>;
 
+}
 }

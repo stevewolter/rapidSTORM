@@ -2,9 +2,10 @@
 
 using namespace std;
 using namespace dStorm;
+using namespace dStorm::engine;
 using namespace cimg_library;
 
-ColorImage::ColorImage(const dStorm::Image& i,
+ColorImage::ColorImage(const Image& i,
    int xl, int xh, int yl, int yh) throw()
 : CImg<StormPixel>(i.width, i.height, 1, 3) ,
   min_grey_value(i.min()),

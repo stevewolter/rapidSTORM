@@ -3,9 +3,9 @@ noinst_LTLIBRARIES = libengine.la
 library_includedir = $(includedir)/dStorm/engine
 library_include_HEADERS = \
     Candidate.h \
-    CandidateTree.h \
+    CandidateTree_decl.h CandidateTree.h \
     Config.h \
-    Image.h Image_impl.h \
+    Image_decl.h Image.h Image_impl.h \
     Input.h Input_decl.h \
     Spot.h \
     SpotFinder.h

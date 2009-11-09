@@ -3,22 +3,20 @@
 #include <fstream>
 #include <ctype.h>
 
-namespace CImgBuffer {
-template class Source<dStorm::Localization>;
-}
-
 namespace dStorm {
+namespace input {
 namespace LocalizationFileReader {
 
-Source::Source( const STM_File& file, std::auto_ptr<TraceReducer> red )
-: CImgBuffer::Source<Localization>
+Source::Source( const STM_File& file, 
+                std::auto_ptr<output::TraceReducer> red )
+: input::Source<Localization>
     (BaseSource::Pushing | 
         BaseSource::Pullable | BaseSource::Managing),
     simparm::Object("STM_Show", "Input options"),
     file(file),
     reducer(red)
 {
-    *(CImgBuffer::Traits<Localization>*)this
+    *(Traits<Localization>*)this
         = file.traits;
     level = std::max<int>(number_of_newlines() - 1, 0);
 }
@@ -56,7 +54,7 @@ void Source::read_localization(
     } else {
         int my_buffer = use_buffer++;
         if ( my_buffer >= int(trace_buffer.size()) )
-            trace_buffer.push_back( dStorm::Trace() );
+            trace_buffer.push_back( dStorm::output::Trace() );
         else
             trace_buffer[my_buffer].clear();
 
@@ -69,8 +67,8 @@ void Source::read_localization(
     }
 }
 
-Config::Config(CImgBuffer::Config& master)
-: CImgBuffer::InputConfig<Localization>
+Config::Config(input::Config& master)
+: input::Method<Localization>
         ("STM", "Localizations file"),
     master(master),
     stm_extension("extension_stm", ".stm"),
@@ -139,10 +137,11 @@ Source* Config::impl_makeSource()
 std::auto_ptr<Source> Config::read_file( simparm::FileEntry& name )
 {
     STM_File header = read_header( name );
-    TraceReducer::Config trc;
+    output::TraceReducer::Config trc;
     Source *src = new Source(header, trc.make_trace_reducer() );
     return std::auto_ptr<Source>(src);
 }
 
+}
 }
 }

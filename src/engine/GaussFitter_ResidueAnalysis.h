@@ -4,6 +4,7 @@
 #include "GaussFitter_Specialized.h"
 
 namespace dStorm {
+namespace engine {
 
 template <bool FS, bool Corr, int Width, int Height>
 typename SpecializedGaussFitter<FS, true, Corr, Width, Height>::SpotState
@@ -172,6 +173,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
         //return 0;
 #endif
 
+}
 }
 
 #endif

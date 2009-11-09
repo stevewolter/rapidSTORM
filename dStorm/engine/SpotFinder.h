@@ -8,6 +8,8 @@
 #include <memory>
 
 namespace dStorm {
+namespace engine {
+
    class Config;
 
    /** The SpotFinder class is the base class for all spot 
@@ -70,6 +72,7 @@ namespace dStorm {
             { return std::auto_ptr<SpotFinder>(
                 new BaseClass( *this, conf, imw, imh ) ); }
     };
+}
 }
 
 #endif

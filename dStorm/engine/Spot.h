@@ -1,9 +1,8 @@
-#ifndef DSTORM_SPOT_H
-#define DSTORM_SPOT_H
-
-#include <dStorm/engine/Image.h>
+#ifndef DSTORM_ENGINE_SPOT_H
+#define DSTORM_ENGINE_SPOT_H
 
 namespace dStorm {
+namespace engine {
    /** A Spot is a position in an image. It can be extended by
     *  more coordinate pairs, giving the arithmethic mean of all added
     *  positions at its position. */
@@ -20,6 +19,7 @@ namespace dStorm {
          inline int x() const { return _x / n; }
          inline int y() const { return _y / n; }
    };
+}
 }
 
 #endif

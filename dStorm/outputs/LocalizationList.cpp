@@ -5,21 +5,22 @@
 using namespace std;
 
 namespace dStorm {
-    Output::AdditionalData
+namespace outputs {
+    output::Output::AdditionalData
     LocalizationList::announceStormSize(const Announcement &a)
     { 
         ost::MutexLock lock(mutex);
+        input::Traits<Localization> traits(a.traits, a.length);
         if (target == NULL) {
-            allocTarget.reset( 
-                new Localizations(a.width,a.height,a.length) ); 
+            allocTarget.reset( new output::Localizations( traits ) );
             target = allocTarget.get();
         } else
-            target->setDim(a.width,a.height,a.length);
+            target->setDim( traits );
 
         return NoData;
     }
 
-    Output::Result 
+    output::Output::Result 
         LocalizationList::receiveLocalizations(const EngineResult& er)
     { 
         ost::MutexLock lock(mutex);
@@ -28,4 +29,6 @@ namespace dStorm {
             target->push_back( er.first[i] ); 
         return KeepRunning; 
     }
+
+}
 }

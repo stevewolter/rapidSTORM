@@ -2,6 +2,7 @@
 #include "doc/help/context.h"
 
 namespace dStorm {
+namespace output {
 
 ProgressMeter::Config::Config() 
 : simparm::Object( "Progress", "Display progress" ) 
@@ -22,4 +23,5 @@ ProgressMeter::ProgressMeter(const Config &)
         push_back(progress);
     }
 
+}
 }

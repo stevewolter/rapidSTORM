@@ -1,11 +1,12 @@
 #ifndef DSTORM_TRACE_REDUCER
 #define DSTORM_TRACE_REDUCER
 
-#include <dStorm/output/Trace.h>
+#include "Trace.h"
 #include <simparm/Object.hh>
 #include <Eigen/Core>
 
 namespace dStorm {
+namespace output {
 /** A TraceReducer class can compute the reduced position of a trace.
  *  That is, the localization that can replace the entire trace. */
 class TraceReducer {
@@ -33,6 +34,7 @@ class TraceReducer::Config : public simparm::Object {
     std::auto_ptr<TraceReducer> make_trace_reducer() const;
 };
 
-};
+}
+}
 
 #endif

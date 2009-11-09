@@ -33,7 +33,7 @@ class Garage : public simparm::Node::Callback {
     Garage(GarageConfig& config) throw();
     virtual ~Garage() throw();
 
-    std::auto_ptr<dStorm::Localizations> drive() throw(std::exception);
+    std::auto_ptr<dStorm::output::Localizations> drive() throw(std::exception);
     void cruise() throw(std::exception);
 };
 

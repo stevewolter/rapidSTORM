@@ -1,10 +1,12 @@
 #include "TraceFilter.h"
 
 namespace dStorm {
+using namespace output;
+namespace outputs {
 
 TraceCountFilter::TraceCountFilter(
     const Config& c,
-    std::auto_ptr<dStorm::Output> output
+    std::auto_ptr<output::Output> output
 ) 
 : simparm::Object("TraceFilter", "Trace filter"), minCount(c.min_count()), 
     disassemble(c.disassemble()), output(output),
@@ -113,4 +115,5 @@ TraceCountFilter::_Config::_Config()
     userLevel = Intermediate;
 }
 
+}
 }

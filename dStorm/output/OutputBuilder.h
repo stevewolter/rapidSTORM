@@ -1,10 +1,11 @@
 #ifndef DSTORM_ENGINE_OUTPUTBUILDER_H
 #define DSTORM_ENGINE_OUTPUTBUILDER_H
 
-#include <dStorm/output/OutputSource.h>
+#include "OutputSource.h"
 #include <simparm/NumericEntry.hh>
 
 namespace dStorm {
+namespace output {
 
     template < typename Type >
     class OutputBuilder
@@ -49,6 +50,7 @@ namespace dStorm {
             { return Type::Config::getDesc(); }
     };
 
+}
 }
 
 #endif

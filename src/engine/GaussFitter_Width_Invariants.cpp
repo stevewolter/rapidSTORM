@@ -6,6 +6,7 @@ template <typename Ty>
 Ty sq(const Ty& a) { return a*a; }
 
 namespace dStorm {
+namespace engine {
 
 template <bool FS>
 Width_Invariants<FS,false>::Width_Invariants( 
@@ -175,4 +176,5 @@ template class Width_Invariants<false,true>;
 template class Width_Invariants<true,false>;
 template class Width_Invariants<true,true>;
 
+}
 }

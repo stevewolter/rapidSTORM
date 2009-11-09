@@ -7,7 +7,9 @@
 #include <simparm/Structure.hh>
 
 namespace dStorm {
-    class GaussSmoother : public SpotFinder {
+namespace spotFinders {
+
+    class GaussSmoother : public engine::SpotFinder {
         struct _Config : public simparm::Object {
             void registerNamedEntries() {}
             _Config() : simparm::Object("Gaussian", 
@@ -15,15 +17,17 @@ namespace dStorm {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef SpotFinderBuilder<GaussSmoother> Factory;
+        typedef engine::SpotFinderBuilder<GaussSmoother> Factory;
 
-        GaussSmoother (const Config&, const dStorm::Config &, 
+        GaussSmoother (const Config&, const engine::Config &, 
                        int imw, int imh);
 
-        void smooth( const Image &in );
+        void smooth( const engine::Image &in );
 
       protected:
         data_cpp::Vector<int> xkern, ykern;
     };
+
+}
 }
 #endif

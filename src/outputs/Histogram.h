@@ -9,9 +9,8 @@
 #include <outputs/HighDepthImage.h>
 
 namespace dStorm {
-}
+namespace output {
 
-namespace dStorm {
     template <
         typename UnnormalizedListener = DummyDiscretizationListener,
         typename NormalizedListener = DummyDiscretizationListener
@@ -112,6 +111,7 @@ namespace dStorm {
 
         void normalizeHistogram();
     };
+}
 }
 
 #endif

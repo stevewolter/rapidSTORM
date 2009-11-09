@@ -1,10 +1,11 @@
-#ifndef DSTORM_CANDIDATE_H
-#define DSTORM_CANDIDATE_H
+#ifndef DSTORM_ENGINE_CANDIDATE_H
+#define DSTORM_ENGINE_CANDIDATE_H
 
-#include <dStorm/engine/Spot.h>
+#include "Spot.h"
 #include <memory>
 
 namespace dStorm {
+namespace engine {
    /** A Candidate is a representation for a spot candidate.
     *  It is represented by a subpixel-precise position estimate
     *  and a strength, that is, the intensity of the smoothed
@@ -30,6 +31,7 @@ namespace dStorm {
         double x() const { return this->second.x(); }
         double y() const { return this->second.y(); }
    };
+}
 }
 
 #endif

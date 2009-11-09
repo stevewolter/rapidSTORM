@@ -5,8 +5,11 @@
 #include <cassert>
 
 using namespace cimg_library;
-using namespace dStorm;
+using namespace dStorm::engine;
 using std::cerr;
+
+namespace dStorm {
+namespace spotFinders {
 
 template <typename T>
 static int partition(T* list, int left, int right, int pivotIndex) {
@@ -46,8 +49,6 @@ static void insertLine(const T* from, int step, T* into, int w) {
     }
 }
  
-namespace dStorm {
-
 void MedianSmoother::naiveMedian(const Image &in, SmoothedImage& out, 
                                  int mw, int mh)
  
@@ -379,4 +380,5 @@ void MedianSmoother::chooseAhmad(int msx, int msy) {
     }
 }
 
+}
 }

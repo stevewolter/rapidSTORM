@@ -1,11 +1,12 @@
-#ifndef CIMGBUFFER_SLOT_IMPL_H
-#define CIMGBUFFER_SLOT_IMPL_H
-#include <dStorm/input/Slot.h>
+#ifndef DSTORM_INPUT_SLOT_IMPL_H
+#define DSTORM_INPUT_SLOT_IMPL_H
+#include "Slot.h"
 
 #include <iostream>
 #include <memory>
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 template <typename Object>
 Slot<Object>::Slot(Source<Object> &src,int index, const bool& discardable) 
@@ -118,6 +119,7 @@ void Slot<Object>::insert(std::auto_ptr<Object> image) {
     gotData.signal();
 }
 
+}
 }
 
 #endif

@@ -11,6 +11,7 @@
 #include <CImg.h>
 
 namespace dStorm {
+namespace output {
 /** The AverageImage class averages all incoming images into a
   *  single image to show the usefulness of dSTORM. */
 class AverageImage : public Output, public simparm::Object {
@@ -22,14 +23,15 @@ class AverageImage : public Output, public simparm::Object {
     class _Config;
   public:
     typedef simparm::Structure<_Config> Config;
-    typedef dStorm::FileOutputBuilder<AverageImage> Source;
+    typedef FileOutputBuilder<AverageImage> Source;
 
     AverageImage(const Config &config);
     AverageImage *clone() const;
 
     AdditionalData announceStormSize(const Announcement &a) {
         ost::MutexLock lock(mutex);
-        image.resize(a.width,a.height,a.depth,a.colors);
+        image.resize(a.traits.size.x(),a.traits.size.y(),
+                     a.traits.size.z(),a.traits.dim);
         image.fill(0);
         return SourceImage; 
     }
@@ -49,5 +51,6 @@ class AverageImage::_Config : public simparm::Object {
     _Config();
 };
 
+}
 }
 #endif

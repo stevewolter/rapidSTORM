@@ -1,13 +1,14 @@
-#ifndef CIMGBUFFER_SLOT_H
-#define CIMGBUFFER_SLOT_H
+#ifndef DSTORM_INPUT_SLOT_H
+#define DSTORM_INPUT_SLOT_H
 
 #include <dStorm/helpers/thread.h>
-#include <dStorm/input/Source.h>
 #include <cassert>
 
-namespace CImgBuffer {
-    template <typename T> class Slot;
-    
+#include "Source.h"
+#include "Slot_decl.h"
+
+namespace dStorm {
+namespace input {
     /** The Claim class represents a working license for an image.
      *  A working license is both a mutex (only a thread which possesses
      *  the corresponding claim may get a reference to an image) 
@@ -125,5 +126,6 @@ namespace CImgBuffer {
         Claim<T> _workOn();
         void finish();
     };
+}
 }
 #endif

@@ -1,6 +1,7 @@
 #include "CandidateTree.h"
 #include "Config.h"
 #include <CImg.h>
+#include "Image.h"
 
 using namespace std;
 using namespace cimg_library;
@@ -14,12 +15,15 @@ using namespace cimg_library;
 
 #include <dStorm/data-c++/impl/MergingTree.cpp>
 
+using namespace dStorm::engine;
+
 namespace data_cpp {
-    template class MergingTree<dStorm::Candidate<dStorm::SmoothedPixel> >;
-    template class MergingTree<dStorm::Candidate<float> >;
+    template class MergingTree<Candidate<SmoothedPixel> >;
+    template class MergingTree<Candidate<float> >;
 }
 
 namespace dStorm {
+namespace engine {
 
 #include <iostream>
 #include <cassert>
@@ -241,4 +245,6 @@ void CandidateTree<PixelType>::fillMax(const CImg<PixelType> &i)
 
 template class CandidateTree<SmoothedPixel>;
 template class CandidateTree<float>;
+
+}
 }

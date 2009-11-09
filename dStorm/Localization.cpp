@@ -12,4 +12,3 @@ operator<<(std::ostream &o, const Localization& loc)
 }
 
 }
-

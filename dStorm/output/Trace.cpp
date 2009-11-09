@@ -2,6 +2,7 @@
 #include "helpers/Variance.h"
 
 namespace dStorm {
+namespace output {
 
 #if 0
 void Trace::compute_SD() {
@@ -17,4 +18,5 @@ void Trace::compute_SD() {
 }
 #endif
 
+}
 }

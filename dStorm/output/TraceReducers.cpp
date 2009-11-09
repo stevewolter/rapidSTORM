@@ -1,6 +1,7 @@
 #include "TraceReducer.h"
 
 namespace dStorm {
+namespace output {
 
 class AveragingReducer : public TraceReducer {
   public:
@@ -63,4 +64,5 @@ TraceReducer::Config::make_trace_reducer() const
     return std::auto_ptr<TraceReducer>(new AveragingReducer());
 }
 
+}
 }

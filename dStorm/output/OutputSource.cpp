@@ -8,15 +8,14 @@
 #include "doc/help/rapidstorm_help_file.h"
 
 namespace dStorm {
+namespace output {
 
 Output::Announcement::Announcement(
-    const CImgBuffer::Traits< dStorm::Image >& traits,
+    const engine::InputTraits& traits,
     int length,
-    Input* carburettor,
+    engine::Input* carburettor,
     ResultRepeater *repeater)
 : traits(traits),
-    width(traits.dimx()), height(traits.dimy()), 
-    depth(traits.dimz()), colors(traits.dimv()),
     length(length), carburettor(carburettor),
     result_repeater(repeater) {}
 
@@ -137,4 +136,5 @@ void Output::check_additional_data_with_provided
     }
 }
 
+}
 }

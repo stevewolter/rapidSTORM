@@ -2,6 +2,8 @@
 #include <dStorm/input/Buffer_decl.h>
 
 namespace dStorm {
+namespace engine {
     /** Input buffer for engine. */
-    typedef CImgBuffer::Buffer<Image> Input;
+    typedef dStorm::input::Buffer<Image> Input;
+}
 }

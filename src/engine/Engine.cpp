@@ -1,6 +1,7 @@
 #define DSTORM_ENGINE_CPP
 
 #include "engine/Engine.h"
+#include "config.h"
 
 #include <dStorm/data-c++/Vector.h>
 #include <cassert>
@@ -29,9 +30,12 @@ clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 
 using namespace dStorm;
 using namespace std;
-using namespace CImgBuffer;
+using namespace dStorm::input;
+using namespace dStorm::output;
+using namespace dStorm::outputs;
 
 namespace dStorm {
+namespace engine {
 
 bool Engine::globalStop=false;
 
@@ -131,7 +135,7 @@ void Engine::run()
         input.setDiscardingLicense( true );
 
     STATUS("Announcing size");
-    const CImgBuffer::Traits<Image>& prop = input.getTraits();
+    const input::Traits<Image>& prop = input.getTraits();
     Output::Announcement announcement
         ( prop, input.size() );
     STATUS("Built announcement structure");
@@ -177,7 +181,7 @@ void Engine::run()
 void Engine::runPiston() 
 {
     int maximumLimit = 20;
-    const CImgBuffer::Traits<Image>& imProp = input.getTraits();
+    const input::Traits<Image>& imProp = input.getTraits();
     STATUS("Started piston");
     STATUS("Building spot finder with dimensions " << imProp.dimx() <<
            " " << imProp.dimy());
@@ -294,4 +298,5 @@ Engine::~Engine() {
     STATUS("Destructed engine");
 }
 
+}
 }

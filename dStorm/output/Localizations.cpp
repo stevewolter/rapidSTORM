@@ -16,15 +16,11 @@ using namespace std;
 using namespace data_cpp;
 
 namespace dStorm {
-
-Localizations::Localizations(int w, int h, int n) : w(w), h(h), n(n) {
-}
-
-Localizations::Localizations(const Localizations& l)
-: VectorList<Localization>(l), w(l.w), h(l.h), n(l.n) {}
+namespace output {
 
 Localizations::~Localizations() {
     STATUS("Destructed fit list");
 }
 
+}
 }

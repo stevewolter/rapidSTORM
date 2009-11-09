@@ -8,6 +8,7 @@ using namespace std;
 using namespace cimg_library;
 
 namespace dStorm {
+namespace engine {
 
 SpotFinder::SpotFinder(const Config &c, int imw, int imh)
    : msx(c.x_maskSize()), msy(c.y_maskSize()),
@@ -31,4 +32,5 @@ void SpotFinder::findCandidates( Candidates& into ) {
     into.fill( getSmoothedImage() );
 }
 
+}
 }

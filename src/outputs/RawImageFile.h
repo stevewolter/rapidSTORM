@@ -9,6 +9,7 @@
 #include <queue>
 
 namespace dStorm {
+namespace output {
 class RawImageFile : public Output, public simparm::Object {
   private:
     static void error_handler( const char* module,
@@ -22,13 +23,13 @@ class RawImageFile : public Output, public simparm::Object {
     unsigned int next_image;
     class LookaheadImg;
     std::priority_queue<LookaheadImg> out_of_time;
-    void write_image(const Image& img);
+    void write_image(const engine::Image& img);
 
     class _Config;
 
   public:
     typedef simparm::Structure<_Config> Config;
-    typedef dStorm::FileOutputBuilder<RawImageFile> Source;
+    typedef FileOutputBuilder<RawImageFile> Source;
 
     RawImageFile(const Config&);
     ~RawImageFile();
@@ -52,6 +53,7 @@ class RawImageFile::_Config : public simparm::Object {
     _Config();
 };
 
+}
 }
 
 #endif

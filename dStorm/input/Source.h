@@ -1,20 +1,20 @@
 /** \file Source.h
- *  This file contains the declaration for the Source class. */
-#ifndef CImgBuffer_SOURCE_H
-#define CImgBuffer_SOURCE_H
+ *  This file contains the definition for the Source class. */
+#ifndef DSTORM_INPUT_SOURCE_H
+#define DSTORM_INPUT_SOURCE_H
 
 #include <stdexcept>
 #include <memory>
 #include <limits>
 #include <simparm/Object.hh>
-#include <dStorm/input/Traits.h>
-#include <dStorm/input/Drain.h>
 
-namespace CImgBuffer { 
-    template <class T> class Drain;
-    template <class T> class Source;
-    class Config;
+#include "Traits.h"
+#include "Drain_decl.h"
+#include "Source_decl.h"
+#include "Config_decl.h"
 
+namespace dStorm { 
+namespace input { 
     /** A BaseSource class is an interface that supports
      *  delivery of a sequence of generated objects. 
      *
@@ -102,7 +102,12 @@ namespace CImgBuffer {
     };
 
     /** A Source object of some given type. Provides default 
-     *  implementations of get(), startPushing() and stopPushing(). */
+     *  implementations of get(), startPushing() and stopPushing().
+     *
+     *  Source objects derive from Traits objects for their respective
+     *  types to publish the traits of the objects they deliver. 
+     *  Therefore, any Traits definition should be visible when the
+     *  Source object gets implemented. */
     template <class Type> class Source 
     : public BaseSource, public Traits<Type>
     {
@@ -144,27 +149,11 @@ namespace CImgBuffer {
             ( dynamic_cast<Source<Type>*>(p.release()) );
     }
 
-    template <typename Type>
-    void Source<Type>::startPushing(Drain<Type> *drain)
-
-    {
-        for (unsigned int i = roi_start; i <= roi_end; i++) {
-            Type *object = fetch(i);
-            if ( object == NULL )
-                return;
-            else {
-                Management m;
-                m = drain->accept( i - roi_start, 1, object );
-                if ( !manages_returned_objects() &&
-                     m == Delete_objects )
-                    delete object;
-            }
-        }
-    }
-
     template <typename Type> 
     Type*
     Source<Type>::get(int index) { return fetch(roi_start + index); }
-};
+
+}
+}
 
 #endif

@@ -9,8 +9,10 @@
 using namespace std;
 using namespace data_cpp;
 using namespace ost;
+using namespace dStorm::output;
 
 namespace dStorm {
+namespace outputs {
 
 static std::string disambiguation(int id) {
     std::stringstream ss;
@@ -140,4 +142,5 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
         return Output::KeepRunning;
 }
 
+}
 }

@@ -5,6 +5,7 @@
 #include <dStorm/engine/Config.h>
 
 namespace dStorm {
+namespace engine {
     /** The GaussFitter class provides a spot fitter implementation using
      *  a nonlinear fit with a or multiple Gaussian kernel(s).
      *
@@ -23,6 +24,7 @@ namespace dStorm {
     class GaussFitter;
 
     SpotFitter* select_gauss_fitter (const Config& config);
-};
+}
+}
 
 #endif

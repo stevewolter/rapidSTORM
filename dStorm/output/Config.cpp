@@ -1,30 +1,31 @@
-#include "BasicOutputs.h"
+#include "Config.h"
 #include "doc/help/context.h"
 #include "OutputSource.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
 namespace dStorm {
+namespace output {
 
-BasicOutputs::BasicOutputs() 
+Config::Config() 
 : simparm::NodeChoiceEntry<OutputSource>
     ("ChooseTransmission", "Choose new output")
 {
     this->helpID = HELP_ChooseOutput;
 }
 
-BasicOutputs::BasicOutputs( const BasicOutputs& other ) 
-: OutputFactory(other),
+Config::Config( const Config& other ) 
+: SourceFactory(other),
   simparm::NodeChoiceEntry<OutputSource>(other, 
         simparm::NodeChoiceEntry<OutputSource>::DeepCopy )
 {
 }
 
-BasicOutputs* BasicOutputs::clone() const {
-    return new BasicOutputs(*this); 
+Config* Config::clone() const {
+    return new Config(*this); 
 }
 
 std::auto_ptr<OutputSource> 
-BasicOutputs::make_output_source() 
+Config::make_output_source() 
 {
     if ( isValid() ) {
         std::auto_ptr<OutputSource> rv( value().clone() );
@@ -35,13 +36,13 @@ BasicOutputs::make_output_source()
     }
 }
 
-void BasicOutputs::addChoice(OutputSource *toAdd) {
+void Config::addChoice(OutputSource *toAdd) {
     toAdd->show_in_tree = false;
     simparm::NodeChoiceEntry<OutputSource>::addChoice( toAdd );
 }
 
-BasicOutputs::BasenameResult
-BasicOutputs::set_output_file_basename(
+Config::BasenameResult
+Config::set_output_file_basename(
     const std::string& new_basename, std::set<std::string>& avoid)
 
 {
@@ -55,4 +56,5 @@ BasicOutputs::set_output_file_basename(
     return OutputSource::Basename_Accepted;
 }
 
+}
 }

@@ -27,7 +27,8 @@
 using namespace std;
 using namespace cimg_library;
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 namespace AndorSIF {
 
 template<typename Pixel>
@@ -146,7 +147,7 @@ Source<Pixel>::Source(FILE *src, const string &i)
 
 template<typename Pixel>
 Source<Pixel>::Source(const char *filename) 
-: SerialImageSource< Pixel >
+: SerialSource< CImg<Pixel> >
     (BaseSource::Pushing | BaseSource::Pullable),
   Set("AndorSIF", "SIF file"),
   stream(NULL), file(NULL), dataSet(NULL), file_ident(filename),
@@ -207,8 +208,8 @@ Config<Pixel>::impl_makeSource()
 }
 
 template<typename Pixel>
-Config<Pixel>::Config( CImgBuffer::Config& src) 
-: InputConfig< CImg<Pixel> >("AndorSIF", "Andor SIF file"),
+Config<Pixel>::Config( input::Config& src) 
+: Method< CImg<Pixel> >("AndorSIF", "Andor SIF file"),
   master(src),
   inputFile(src.inputFile),
   sif_extension("extension_sif", ".sif")
@@ -223,10 +224,10 @@ Config<Pixel>::Config( CImgBuffer::Config& src)
 template<typename Pixel>
 Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
-    CImgBuffer::Config& src
+    input::Config& src
 ) 
 : simparm::Node(c),
-  InputConfig< CImg<Pixel> >(c),
+  Method< CImg<Pixel> >(c),
   master(src),
   inputFile(src.inputFile),
   sif_extension(c.sif_extension)
@@ -241,6 +242,7 @@ template class Config<unsigned short>;
 template class Config<unsigned int>;
 template class Config<float>;
 
+}
 }
 }
 

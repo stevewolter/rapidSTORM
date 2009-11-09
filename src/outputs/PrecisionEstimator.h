@@ -11,6 +11,7 @@
 #include <Eigen/Core>
 
 namespace dStorm {
+namespace output {
     namespace Precision {
         struct FitSigmas { double x, y, xy; int n; double a; };
         FitSigmas fitWithGauss
@@ -19,7 +20,7 @@ namespace dStorm {
     };
 
     class SinglePrecisionEstimator 
-    : public simparm::Object, public dStorm::Output 
+    : public simparm::Object, public output::Output 
     {
       private:
         simparm::FileEntry printTo;
@@ -32,7 +33,7 @@ namespace dStorm {
 
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef dStorm::FileOutputBuilder<SinglePrecisionEstimator> Source;
+        typedef output::FileOutputBuilder<SinglePrecisionEstimator> Source;
 
         SinglePrecisionEstimator ( const Config& config );
         SinglePrecisionEstimator *clone() const;
@@ -45,14 +46,14 @@ namespace dStorm {
     };
 
     class MultiPrecisionEstimator 
-    : public simparm::Object, public dStorm::Output 
+    : public simparm::Object, public output::Output 
     {
         simparm::UnsignedLongEntry usedSpots;
         simparm::DoubleEntry x_sd, y_sd, corr;
         Eigen::Vector3d pixel_dim_in_nm;
         double res_enh;
 
-        dStorm::LocalizationList localizations;
+        outputs::LocalizationList localizations;
 
         ost::Mutex mutex;
 
@@ -63,7 +64,7 @@ namespace dStorm {
         
       public:
         typedef simparm::VirtualStructure<_Config> Config;
-        typedef dStorm::OutputBuilder<MultiPrecisionEstimator> Source;
+        typedef output::OutputBuilder<MultiPrecisionEstimator> Source;
 
         MultiPrecisionEstimator( const Config& config );
         MultiPrecisionEstimator(const MultiPrecisionEstimator& c);
@@ -121,5 +122,6 @@ namespace dStorm {
         _Config();
         _Config* clone() const { return new _Config(*this); }
     };
+}
 }
 #endif

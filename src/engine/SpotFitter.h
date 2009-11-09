@@ -3,11 +3,12 @@
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Spot.h>
-#include <dStorm/output/Localization.h>
+#include <dStorm/Localization.h>
 #include <memory>
 
 namespace dStorm {
-   class Config;
+namespace engine {
+    class Config;
 
    /** Base class for spot fitting classes. Users should call
     *  prepareToFitImage() for each new image that should be fitted,
@@ -27,6 +28,7 @@ namespace dStorm {
                               int number, Localization *target )
                             = 0;
    };
+}
 }
 
 #endif

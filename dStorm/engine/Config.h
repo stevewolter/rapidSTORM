@@ -8,12 +8,12 @@
 #include <math.h>
 
 namespace dStorm {
+namespace engine {
    using namespace simparm;
 
    class SpotFinderFactory;
 
-   /** Config entry collection class for the dSTORM config. Seperated
-    *  to use default copy constructors for these entries. */
+   /** Config entry collection class for the dSTORM engine. */
    class _Config : public Set
    {
       protected:
@@ -98,6 +98,7 @@ namespace dStorm {
         virtual Config* clone() const { return new Config(*this); }
    };
 
+}
 }
 
 #endif

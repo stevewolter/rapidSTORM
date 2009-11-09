@@ -3,6 +3,7 @@
 #include <Eigen/Geometry>
 
 namespace dStorm {
+namespace output {
 namespace ColourSchemes {
 
 enum ColourPart { V, P, Q, T };
@@ -59,5 +60,6 @@ void convert_xy_tone_to_hue_sat(
     }
 }
 
+}
 }
 }

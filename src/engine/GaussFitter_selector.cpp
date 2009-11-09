@@ -1,6 +1,7 @@
 #include "engine/GaussFitter_impl.h"
 
 namespace dStorm {
+namespace engine {
 
 template <int Mask> 
 SpotFitter* instantiate_Gauss_Fitter(int mask, const Config& c) {
@@ -25,4 +26,5 @@ SpotFitter* select_gauss_fitter (const Config& c) {
     return instantiate_Gauss_Fitter<7>(mask, c);
 }
 
+}
 }

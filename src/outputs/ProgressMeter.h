@@ -6,6 +6,7 @@
 #include <simparm/ProgressEntry.hh>
 
 namespace dStorm {
+namespace output {
 
 /** This class updates a ProgressEntry with the progress status for the
  *  crankshaft it is added to. */
@@ -66,6 +67,7 @@ class ProgressMeter : public Output, public simparm::Object
 class ProgressMeter::Config : public simparm::Object 
     { public: Config(); };
 
+}
 }
 
 #endif

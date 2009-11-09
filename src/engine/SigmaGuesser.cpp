@@ -17,6 +17,7 @@ using namespace cimg_library;
 using namespace fitpp;
 
 namespace dStorm {
+namespace engine {
 
 void (*SigmaGuesser_fitCallback)(double , double, double, int , bool) = NULL;
 
@@ -165,4 +166,5 @@ void SigmaGuesserMean::deleteAllResults() {
     PROGRESS("Deleted all results");
 }
 
+}
 }

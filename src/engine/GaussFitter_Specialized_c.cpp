@@ -2,6 +2,7 @@
 #include "GaussFitter_Specialized.h"
 
 namespace dStorm {
+namespace engine {
 
 template <>
 template <>
@@ -18,4 +19,4 @@ create_specializations<0>()
 template class GaussFitter<false,false,false>;
 
 }
-
+}

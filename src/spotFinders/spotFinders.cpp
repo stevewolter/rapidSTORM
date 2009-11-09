@@ -9,10 +9,11 @@
 #include "GaussSmoothing.h"
 
 namespace dStorm {
+namespace spotFinders {
 
-void basic_spotFinders( dStorm::Config &to_this_config )
+void basic_spotFinders( engine::Config &to_this_config )
 {
-    simparm::NodeChoiceEntry<SpotFinderFactory>& c = 
+    simparm::NodeChoiceEntry<engine::SpotFinderFactory>& c = 
         to_this_config.spotFindingMethod;
     c.addChoice( new Spalttiefpass::Factory() );
     c.addChoice( new MedianSmoother::Factory() );
@@ -20,4 +21,5 @@ void basic_spotFinders( dStorm::Config &to_this_config )
     c.addChoice( new GaussSmoother::Factory() );
 }
 
+}
 }

@@ -6,6 +6,7 @@
 #include <limits>
 
 namespace dStorm {
+namespace output {
 
 namespace ColourSchemes {
     enum Scheme { BlackWhite, BlackRedYellowWhite,
@@ -22,7 +23,7 @@ namespace ColourSchemes {
 
 template <typename _BrightnessType = unsigned char>
 class Colorizer 
-    : public DummyBinningListener 
+    : public outputs::DummyBinningListener 
 {
   public:
     typedef _BrightnessType BrightnessType;
@@ -59,6 +60,7 @@ class Colorizer
 
 template <int Hueing> class HueingColorizer;
 
+}
 }
 
 #endif

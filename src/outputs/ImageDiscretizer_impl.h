@@ -4,6 +4,7 @@
 #include "ImageDiscretizer.h"
 
 namespace dStorm {
+namespace output {
 namespace DiscretizedImage {
 
 template <typename Colorizer, typename ImageListener>
@@ -35,10 +36,10 @@ ImageDiscretizer<Colorizer, ImageListener>
 
 template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
-::setSize( const CImgBuffer::Traits<InputImage>& traits )
+::setSize( const input::Traits<InputImage>& traits )
 {
     colorizer.setSize( traits );
-    CImgBuffer::Traits< cimg_library::CImg<int> > out_traits( traits );
+    input::Traits< cimg_library::CImg<int> > out_traits( traits );
     this->publish().setSize( out_traits );
     total_pixel_count = traits.size.x() * traits.size.y();
 
@@ -294,6 +295,7 @@ ImageDiscretizer<Colorizer, ImageListener>::key_image()
     return rv;
 }
 
+}
 }
 }
 

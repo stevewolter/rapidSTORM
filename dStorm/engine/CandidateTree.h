@@ -1,7 +1,7 @@
-#ifndef DSTORM_MAXIMUMLIST_H
-#define DSTORM_MAXIMUMLIST_H
+#ifndef DSTORM_ENGINE_MAXIMUMLIST_H
+#define DSTORM_ENGINE_MAXIMUMLIST_H
 
-#include <dStorm/engine/Candidate.h>
+#include "Candidate.h"
 #include <dStorm/data-c++/MergingTree.h>
 
 namespace cimg_library {
@@ -9,6 +9,7 @@ namespace cimg_library {
 }
 
 namespace dStorm {
+namespace engine {
     /** The CandidateTree class represents a sorted tree of
      *  candidates. Deriving from the MergingTree, it offers
      *  sorted storage and retrieval of the highest N elements
@@ -55,6 +56,7 @@ namespace dStorm {
                            const Candidate<PixelType> &b)
             { a.merge(b); }
     };
+}
 }
 
 #endif

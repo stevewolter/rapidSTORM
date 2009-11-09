@@ -3,6 +3,7 @@
 #include <limits>
 
 using namespace std;
+using namespace dStorm::engine;
 
 #include <iostream>
 

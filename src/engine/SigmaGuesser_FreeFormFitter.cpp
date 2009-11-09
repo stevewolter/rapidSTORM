@@ -14,6 +14,7 @@ using namespace std;
 using namespace fitpp;
 
 namespace dStorm {
+namespace engine {
 
 SigmaFitter::SigmaFitter(Config &config)
 : msx(-1), msy(-1)
@@ -93,4 +94,5 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     }
 }
 
+}
 }

@@ -3,10 +3,11 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/Crankshaft.h"
 #include "OutputSource.h"
-#include "OutputFactory.h"
+#include "SourceFactory.h"
 #include "doc/help/context.h"
 
 namespace dStorm {
+namespace output {
 
 struct FilterSource::RemovalObject : public simparm::Object {
     std::auto_ptr<OutputSource> src;
@@ -172,7 +173,7 @@ void FilterSource::link_transmission
     removeButton.viewable = true;
 }
 
-void FilterSource::initialize (const OutputFactory& o) 
+void FilterSource::initialize (const SourceFactory& o) 
  
 {
     if ( factory.get() == NULL ) { 
@@ -196,7 +197,8 @@ FilterSource::make_output()
         else
             return o;
     } else {
-        std::auto_ptr<Crankshaft> crankshaft( new Crankshaft() );
+        std::auto_ptr<outputs::Crankshaft> crankshaft
+            ( new outputs::Crankshaft() );
 
         Outputs::iterator i;
         for( i = outputs.begin(); i != outputs.end(); i++ ) {
@@ -211,4 +213,6 @@ FilterSource::make_output()
             
     }
 }
-};
+
+}
+}

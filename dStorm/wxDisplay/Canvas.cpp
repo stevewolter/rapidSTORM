@@ -21,7 +21,8 @@ Canvas::Canvas(
     const wxSize& init_size )
 : wxScrolledWindow(parent, id, wxDefaultPosition, wxDefaultSize),
   zcl(NULL), 
-  contents(init_size.GetWidth(), init_size.GetHeight(), false), 
+  contents( 
+    new wxImage(init_size.GetWidth(), init_size.GetHeight(), false) ), 
   zoom_in_level( 1 ), zoom_out_level( 1 ),
   mouse_state( Moving )
 {
@@ -145,7 +146,7 @@ void Canvas::zoom_to( wxRect rect )
 }
 void Canvas::OnPaint( wxPaintEvent & ) {
     wxPaintDC dc(this);
-    if ( contents.GetWidth() <= 0 ) return;
+    if ( contents->GetWidth() <= 0 ) return;
     wxScrolledWindow::PrepareDC(dc);
 
     wxRegion updateRegions = GetUpdateRegion();
@@ -154,8 +155,8 @@ void Canvas::OnPaint( wxPaintEvent & ) {
         CalcUnscrolledPosition( rect.x, rect.y, &rect.x, &rect.y );
 
         /* Find the actual image part of the update region. */
-        wxRect image_area = wxRect( wxSize(contents.GetWidth(),
-                                           contents.GetHeight()) );
+        wxRect image_area = wxRect( wxSize(contents->GetWidth(),
+                                           contents->GetHeight()) );
         rect.Intersect( canvas_coords( image_area ) );
         dc.DrawBitmap( zoomed_bitmap_for_canvas_region( rect ),
                        rect.GetTopLeft() );
@@ -165,8 +166,8 @@ void Canvas::OnPaint( wxPaintEvent & ) {
 wxBitmap Canvas::zoomed_bitmap_for_canvas_region
     ( const wxRect& unclipped_rect )
 {
-    wxRect image_area = wxRect( wxSize(contents.GetWidth(),
-                                       contents.GetHeight()) );
+    wxRect image_area = wxRect( wxSize(contents->GetWidth(),
+                                       contents->GetHeight()) );
     wxRect rect = unclipped_rect.Intersect( canvas_coords( image_area ) );
 
     wxRect subimage = image_coords( rect ), subcanvas = rect;
@@ -179,7 +180,7 @@ wxBitmap Canvas::zoomed_bitmap_for_canvas_region
     smoothing_region_in_canvas = 
         canvas_coords( smoothing_region_in_image );
 
-    wxImage toScale = contents.GetSubImage( smoothing_region_in_image );
+    wxImage toScale = contents->GetSubImage( smoothing_region_in_image );
     toScale.Rescale( smoothing_region_in_canvas.GetWidth(), 
                         smoothing_region_in_canvas.GetHeight() );
     wxRect update_region_in_enlarged( rect );
@@ -191,7 +192,9 @@ wxBitmap Canvas::zoomed_bitmap_for_canvas_region
 }
 
 void Canvas::resize( const wxSize& new_size ) {
-    contents.Create( new_size.GetWidth(), new_size.GetHeight() );
+    contents.reset( NULL );
+    contents.reset( new wxImage(
+        new_size.GetWidth(), new_size.GetHeight() ) );
     wxScrolledWindow::SetVirtualSize( canvas_coords( new_size ).GetSize() );
 
     zoom_to( canvas_coords( new_size ) );
@@ -210,8 +213,8 @@ void Canvas::DirectDrawer::draw( int x, int y, const Color& co ) {
 }
 
 void Canvas::BufferedDrawer::clear( const Color &color ) {
-    unsigned char *ptr = c.contents.GetData();
-    int size = 3 * c.contents.GetWidth() * c.contents.GetHeight();
+    unsigned char *ptr = c.contents->GetData();
+    int size = 3 * c.contents->GetWidth() * c.contents->GetHeight();
     for (int i = 0; i < size; i += 3) {
         ptr[i] = color.r;
         ptr[i+1] = color.g;
@@ -225,7 +228,7 @@ void Canvas::DirectDrawer::clear( const Color &color ) {
     dc.SetPen( pen );
     dc.SetBrush( brush );
     dc.DrawRectangle( c.canvas_coords(
-        wxRect(0, 0, c.contents.GetWidth(), c.contents.GetHeight())) );
+        wxRect(0, 0, c.contents->GetWidth(), c.contents->GetHeight())) );
 
     BufferedDrawer::clear( color );
 
@@ -253,7 +256,7 @@ void Canvas::set_zoom(int zoom, wxPoint center)
         dc.SetPen( pen );
         dc.SetBrush( brush );
         dc.DrawRectangle( canvas_coords(
-            wxRect(0, 0, contents.GetWidth(), contents.GetHeight())) );
+            wxRect(0, 0, contents->GetWidth(), contents->GetHeight())) );
     }
 
     if ( center == wxDefaultPosition ) {
@@ -275,7 +278,7 @@ void Canvas::set_zoom(int zoom, wxPoint center)
     }
     if ( zcl )
         zcl->zoom_changed( zoom );
-    wxSize new_size( contents.GetWidth(), contents.GetHeight() );
+    wxSize new_size( contents->GetWidth(), contents->GetHeight() );
     SetVirtualSize( canvas_coords( new_size ).GetSize() );
 
     int xr, yr;

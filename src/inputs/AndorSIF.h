@@ -4,9 +4,9 @@
 #ifndef CImgBuffer_ANDORSIF_H
 #define CImgBuffer_ANDORSIF_H
 
-#include <dStorm/input/SerialImageSource.h>
+#include <dStorm/input/SerialSource.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/InputMethod.h>
+#include <dStorm/input/Method.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -20,7 +20,8 @@ typedef void readsif_File;
 typedef void readsif_DataSet;
 #endif
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
     class BasenameWatcher;
 
 namespace AndorSIF {
@@ -34,7 +35,7 @@ namespace AndorSIF {
      *  float. This is not necessarily the internal type used by
      *  the SIF file. */
     template <typename PixelType>
-    class Source : public SerialImageSource<PixelType>,
+    class Source : public SerialSource< CImg<PixelType> >,
                    public simparm::Set,
                    public  simparm::Node::Callback
     {
@@ -71,10 +72,10 @@ namespace AndorSIF {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public InputConfig< CImg<PixelType> >
+    : public Method< CImg<PixelType> >
     {
       public:
-        typedef CImgBuffer::Config MasterConfig;
+        typedef input::Config MasterConfig;
 
         Config(MasterConfig& src);
         Config(const Config &c, MasterConfig& src);
@@ -97,6 +98,7 @@ namespace AndorSIF {
     };
 }
 
+}
 }
 
 #endif  /* double inclusion prevention */

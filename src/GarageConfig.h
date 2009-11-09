@@ -2,7 +2,7 @@
 #define GARAGECONFIG_H
 
 #include "engine/CarConfig.h"
-#include <dStorm/output/BasicOutputs.h>
+#include <dStorm/output/Config.h>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/data-c++/AutoList.h>
 #include <set>
@@ -23,8 +23,7 @@ class ModuleHandler {
     ModuleHandler( const ModuleHandler& );
     ~ModuleHandler();
 
-    void add_input_and_engine_modules( dStorm::CarConfig& input_config );
-    void add_output_modules( dStorm::BasicOutputs& tcf );
+    void add_modules( dStorm::engine::CarConfig& input_config );
     std::string getDesc();
 };
 
@@ -35,10 +34,9 @@ class GarageConfig
     void operator()(simparm::Node&, Cause, simparm::Node *) throw();
 
     std::set<std::string> avoid_auto_filenames;
-    std::auto_ptr<dStorm::BasicOutputs> tcf;
 
   public:
-    std::auto_ptr<dStorm::CarConfig> carConfig;
+    std::auto_ptr<dStorm::engine::CarConfig> carConfig;
     simparm::BoolEntry externalControl;
     simparm::TriggerEntry showTransmissionTree, run;
 

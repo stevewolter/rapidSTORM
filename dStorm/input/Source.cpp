@@ -1,6 +1,7 @@
-#include "Source.h"
+#include "Source_impl.h"
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 BaseSource::BaseSource(BaseSource::Flags flags)
     : _pushes(flags & Pushing), _canBePulled(flags & Pullable),
@@ -17,4 +18,5 @@ unsigned int BaseSource::number_of_objects() const {
     return li - roi_start + 1;
 }
 
+}
 }

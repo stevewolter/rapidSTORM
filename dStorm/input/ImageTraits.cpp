@@ -2,12 +2,13 @@
 #include "Config.h"
 #include <stdint.h>
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 template <typename PixelType>
 void
 Traits< cimg_library::CImg<PixelType> >::
-compute_resolution( const CImgBuffer::Config& config ) {
+compute_resolution( const Config& config ) {
     for (int i = 0; i < resolution.rows(); i++)
         resolution[i] = config.pixel_size_in_nm() / 1E9;
 }
@@ -30,4 +31,5 @@ template class Traits< cimg_library::CImg<float> >;
 template class Traits< cimg_library::CImg<double> >;
 template class Traits< cimg_library::CImg<long double> >;
     
+}
 }

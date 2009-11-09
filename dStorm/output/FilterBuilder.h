@@ -1,10 +1,11 @@
 #ifndef DSTORM_ENGINE_CONFIGURED_SOURCE_H
 #define DSTORM_ENGINE_CONFIGURED_SOURCE_H
 
-#include <dStorm/output/FilterSource.h>
+#include "FilterSource.h"
 #include <stdexcept>
 
 namespace dStorm {
+namespace output {
 
     struct Source_Is_Transparent {
         std::auto_ptr<Output> output;
@@ -48,6 +49,7 @@ namespace dStorm {
         std::string getDesc() const 
             { return Type::Config::getDesc(); }
     };
+}
 }
 
 #endif

@@ -7,15 +7,12 @@
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
-
-namespace CImgBuffer {
-    class BaseSource;
-    template <typename Type> class Source;
-}
+#include <dStorm/input/Source_decl.h>
 
 namespace dStorm {
+namespace output { class Output; }
+namespace engine { 
     class Engine;
-    class Output;
 
     /** The Car class is the public frontend of the dStorm library.
      *  If supplied with a configuration, it can be used to construct
@@ -32,15 +29,15 @@ namespace dStorm {
         /** Button to close the job. */
         simparm::TriggerEntry closeJob;
 
-        std::auto_ptr<dStorm::Input> input;
+        std::auto_ptr<engine::Input> input;
 
         /** If we process ready-made localizations, their source is
          *  stored here. */
-        std::auto_ptr< CImgBuffer::Source<Localization> > locSource;
+        std::auto_ptr< input::Source<Localization> > locSource;
         /** If an Engine is needed, it is stored here. */
-        std::auto_ptr<Engine> myEngine;
+        std::auto_ptr<engine::Engine> myEngine;
 
-        std::auto_ptr<Output> output;
+        std::auto_ptr<output::Output> output;
 
         static ost::Mutex terminationMutex;
         bool terminate;
@@ -73,5 +70,6 @@ namespace dStorm {
 
         const CarConfig &getConfig() const { return config; }
     };
+}
 }
 #endif

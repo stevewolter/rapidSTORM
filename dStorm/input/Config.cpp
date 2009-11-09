@@ -2,23 +2,24 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <dStorm/input/Config.h>
 #include <limits>
 #include <sstream>
-#include "InputMethod.h"
-#include "Source.h"
-#include "foreach.h"
 #include <dStorm/helpers/thread.h>
 #include <algorithm>
+#include <simparm/ChoiceEntry_Impl.hh>
+
+#include "Config.h"
+#include "Method.h"
+#include "Source.h"
 #include "BasenameWatcher.h"
 #include "AutoInputMethod.h"
 #include "doc/help/context.h"
-#include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;
 using namespace ost;
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 void _Config::registerNamedEntries() 
 {
@@ -27,24 +28,24 @@ void _Config::registerNamedEntries()
      * that need them. */
 }
 
-InputConfigChoice::InputConfigChoice( string name, string desc )
+MethodChoice::MethodChoice( string name, string desc )
 
-: simparm::NodeChoiceEntry< BaseInputConfig >( name, desc )
+: simparm::NodeChoiceEntry< BaseMethod >( name, desc )
 {
 }
 
-InputConfigChoice::InputConfigChoice( const InputConfigChoice& o)
+MethodChoice::MethodChoice( const MethodChoice& o)
 : simparm::Node(o), 
-  simparm::NodeChoiceEntry< BaseInputConfig >(
-    o, simparm::NodeChoiceEntry< BaseInputConfig >::NoCopy)
+  simparm::NodeChoiceEntry< BaseMethod >(
+    o, simparm::NodeChoiceEntry< BaseMethod >::NoCopy)
 {
 }
 
-void InputConfigChoice::copyChoices( const InputConfigChoice& o, 
+void MethodChoice::copyChoices( const MethodChoice& o, 
     Config& master )
 {
     try {
-        for ( simparm::NodeChoiceEntry< BaseInputConfig >::const_iterator 
+        for ( simparm::NodeChoiceEntry< BaseMethod >::const_iterator 
               i = o.beginChoices(); i != o.endChoices();i++)
             addChoice( i->clone( master ) );
     } catch (const std::exception& e) {
@@ -59,7 +60,7 @@ void InputConfigChoice::copyChoices( const InputConfigChoice& o,
 }
 
 _Config::_Config() 
-: simparm::Set("InputConfig", "Input options"),
+: simparm::Set("Method", "Input options"),
   inputMethod("InputMethod", "Input driver"),
   inputFile("InputFile", "Input file location"),
   firstImage("FirstImage", "First image to load", 0),
@@ -93,7 +94,7 @@ std::auto_ptr< BaseSource > Config::makeImageSource() const
 {
     if ( inputMethod.isValid() ) {
         std::auto_ptr< BaseSource > rv = 
-            const_cast< BaseInputConfig& >(inputMethod())
+            const_cast< BaseMethod& >(inputMethod())
                 .makeSource(*this);
         rv->set_ROI( firstImage(), lastImage() );
         return rv;
@@ -109,7 +110,7 @@ Config::Config()
 : _Config(),
   basename("value", "")
 {
-    this->inputMethod.addChoice( new AutoInputConfig(*this) );
+    this->inputMethod.addChoice( new AutoMethod(*this) );
     this->registerNamedEntries();
 
     watcher.reset( new BasenameWatcher( this->inputFile, basename ) );
@@ -127,4 +128,5 @@ Config::Config(const Config& c)
 Config::~Config() {
 }
 
+}
 }

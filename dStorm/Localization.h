@@ -4,23 +4,23 @@
 #include <math.h>
 #include <iostream>
 
+#include "output/Trace_decl.h"
+
 #define _DSTORM_RESOLUTION 63000
 
 namespace dStorm {
-   class Trace;
-
    class Localization { 
       double _x, _y;
       double strength;
       int _im;
       double parab;
 
-      const Trace *source;
+      const output::Trace *source;
 
       public:
          inline Localization() {}
          Localization(double x, double y, int n = -1, double s = 0,
-                      const Trace *source = NULL, double parab = 0)
+                      const output::Trace *source = NULL, double parab = 0)
 
          : _x(x), _y(y), strength(s), _im(n), 
            parab(parab), source(source) {}
@@ -69,7 +69,7 @@ namespace dStorm {
          inline int N() const { return _im; }
 
         bool has_source_trace() const { return source != NULL; }
-        const Trace& get_source_trace() const { return *source; }
+        const output::Trace& get_source_trace() const { return *source; }
 
          inline double parabolicity() const { return parab; }
    };

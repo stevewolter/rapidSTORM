@@ -1,7 +1,7 @@
 #ifndef TRANSMISSIONFACTORY_H
 #define TRANSMISSIONFACTORY_H
 
-#include <dStorm/output/Output.h>
+#include "Output.h"
 #include <memory>
 #include <simparm/Object.hh>
 #include <simparm/TreeEntry.hh>
@@ -10,6 +10,7 @@
 namespace simparm { class FileEntry; }
 
 namespace dStorm {
+namespace output {
 
 /** An OutputSource object is a config that produces
  *  output objects. It is used for forwarding as well
@@ -56,6 +57,7 @@ class OutputSource
     virtual std::string getDesc() const = 0;
 };
 
+}
 }
 
 #endif

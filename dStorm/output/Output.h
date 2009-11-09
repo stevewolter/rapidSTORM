@@ -1,21 +1,18 @@
 #ifndef DSTORM_TRANSMISSION_H
 #define DSTORM_TRANSMISSION_H
 
-#include <dStorm/output/Localization.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Localization.h>
+#include <dStorm/input/Traits.h>
+#include <dStorm/engine/Image_decl.h>
 #include <dStorm/engine/Input_decl.h>
+#include <dStorm/engine/CandidateTree_decl.h>
 #include <stdexcept>
 #include <simparm/Set.hh>
 #include <iostream>
 #include <dStorm/helpers/thread.h>
 
-namespace CImgBuffer {
-    template <typename PixelType> class Image;
-    template <typename TraitsType> class Traits;
-}
-
 namespace dStorm {
-    template <typename PixelType> class CandidateTree;
+namespace output {
     class ResultRepeater;
 
     /** Base interface for listeners to a rapidSTORM localization
@@ -103,30 +100,22 @@ namespace dStorm {
     struct Output::Announcement {
         /** Traits of the source images, including dimensions and
          *  resolution. */
-        const CImgBuffer::Traits< dStorm::Image >& traits;
-        /** X-Width of the input movie */
-        int width;     
-        /** Y-Height of the input movie */
-        int height;    
-        /** Z-Depth of the input movie. For now always 1. */
-        int depth;     
-        /** V-Color-number of the input movie. For now always 1. */
-        int colors;    
+        const dStorm::engine::InputTraits traits;
 
         /** Number of images in the input movie. */
         int length;    
 
         /** If the data source knows which carburettor supplies the
           * images, this pointer is set to it, and NULL otherwise. */
-        Input* carburettor;
+        dStorm::engine::Input* carburettor;
         /** This pointer is set to the last structure able to repeat
           * the delivered results, if any. NULL otherwise. */
         ResultRepeater *result_repeater;
 
         Announcement(
-            const CImgBuffer::Traits< dStorm::Image >& traits,
+            const dStorm::engine::InputTraits& traits,
             int length,
-            Input* carburettor = NULL,
+            dStorm::engine::Input* carburettor = NULL,
             ResultRepeater *repeater = NULL);
     };
 
@@ -143,16 +132,18 @@ namespace dStorm {
         /** If the SourceImage AdditionalData field was set,
          *  this pointer points to the image the localizations
          *  were computed in. */
-        const cimg_library::CImg<StormPixel> *source;
+        const dStorm::engine::Image *source;
         /** If the SmoothedImage AdditionalData field was set,
          *  this pointer points to the image where candidates
          *  were found in. */
-        const cimg_library::CImg<SmoothedPixel> *smoothed;
+        const dStorm::engine::SmoothedImage *smoothed;
         /** If the CandidateTree AdditionalData field was set,
          *  this pointer points to the candidate merging tree. */
-        const dStorm::CandidateTree<SmoothedPixel> *candidates;
+        const dStorm::engine::CandidateTree<dStorm::engine::SmoothedPixel>
+            *candidates;
     };
 
+}
 }
 
 #endif

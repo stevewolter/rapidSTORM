@@ -8,20 +8,21 @@
 #include <simparm/Structure.hh>
 
 namespace dStorm {
+namespace outputs {
 
-class TraceCountFilter : public simparm::Object, public dStorm::Output,
+class TraceCountFilter : public simparm::Object, public output::Output,
                          public simparm::Node::Callback
 {
   private:
     data_cpp::Vector<Localization> localizations;
     int minCount;
     bool disassemble;
-    std::auto_ptr< dStorm::Output > output;
+    std::auto_ptr< output::Output > output;
     ost::Mutex mutex;
 
     simparm::BoolEntry selectSpecific;
     simparm::UnsignedLongEntry whichSpecific;
-    ResultRepeater *result_repeater;
+    output::ResultRepeater *result_repeater;
     int processed_locs;
 
     int count_localizations_in( const Localization &l );
@@ -35,10 +36,10 @@ class TraceCountFilter : public simparm::Object, public dStorm::Output,
 
   public:
     class Config;
-    typedef FilterBuilder<TraceCountFilter> Source;
+    typedef output::FilterBuilder<TraceCountFilter> Source;
 
     TraceCountFilter(const Config& config,
-                     std::auto_ptr<dStorm::Output> output);
+                     std::auto_ptr<output::Output> output);
     ~TraceCountFilter() {}
     TraceCountFilter* clone() const 
         { throw std::runtime_error("No TraceCountFilter::clone"); }
@@ -97,6 +98,7 @@ class TraceCountFilter::Config
     Config* clone() const = 0;
 };
 
+}
 }
 
 #endif

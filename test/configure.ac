@@ -12,7 +12,7 @@ AC_PROG_LIBTOOL
 AM_WITH_DMALLOC
 
 # Integrate the help, library and the current src directory
-CPPFLAGS="$CPPFLAGS -I \$(top_builddir)/../doc -I \$(top_srcdir)/../src -I \$(top_srcdir)/../lib"
+CPPFLAGS="-I \$(top_builddir)/../doc -I \$(top_srcdir)/../src -I \$(top_srcdir)/.. $CPPFLAGS"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

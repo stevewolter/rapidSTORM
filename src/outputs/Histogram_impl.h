@@ -5,6 +5,7 @@
 using namespace std;
 
 namespace dStorm {
+namespace output {
 
 template <typename UNL, typename NL>
 void NormalizedHistogram<UNL, NL>::normalizeHistogram() {
@@ -47,4 +48,5 @@ void NormalizedHistogram<UNL, NL>::normalizeHistogram() {
     dirtyHistogramValues = 0;
 }
 
+}
 }

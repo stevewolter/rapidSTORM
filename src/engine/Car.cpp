@@ -1,16 +1,16 @@
 #define DSTORM_CAR_CPP
 #include "Car.h"
+#include "LocalizationBuncher.h"
 #include <dStorm/input/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
-#include "engine/Engine.h"
+#include "Engine.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/Config.h>
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>
-#include <dStorm/output/LocalizationFileReader.h>
-#include "engine/LocalizationBuncher.h"
+#include <dStorm/input/LocalizationFileReader.h>
 #include <CImg.h>
 #include "doc/help/context.h"
 #include <dStorm/engine/Input.h>
@@ -23,6 +23,7 @@
 using namespace std;
 
 namespace dStorm {
+namespace engine {
 
 ost::Mutex Car::terminationMutex;
 ost::Condition Car::terminationChanged( terminationMutex );
@@ -72,7 +73,7 @@ Car::Car (const CarConfig &new_config)
     receive_changes_from( runtime_config );
 
     STATUS("Building output");
-    output = config.outputConfig.make_output();
+    output = config.outputSource.make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
 
@@ -88,7 +89,7 @@ Car::~Car()
     join();
     PROGRESS("Joined car subthread");
 
-    output->propagate_signal( Output::Prepare_destruction );
+    output->propagate_signal( output::Output::Prepare_destruction );
     PROGRESS("Finished destruction signal to transmissions");
 
     /* Remove from simparm parents to hide destruction process
@@ -141,7 +142,7 @@ void Car::run() throw() {
 
 void Car::drive() {
     try {
-        std::auto_ptr<CImgBuffer::BaseSource> source;
+        std::auto_ptr<input::BaseSource> source;
         source = config.inputConfig.makeImageSource();
 
         if ( source->can_provide< Image >() ) {
@@ -188,7 +189,7 @@ void Car::drive() {
 
     /* TODO: We have to check here if the job was _really_ finished
     * successfully. */
-    output->propagate_signal( Output::Job_finished_successfully );
+    output->propagate_signal( output::Output::Job_finished_successfully );
 
     if ( config.configTarget ) {
         std::ostream& stream = config.configTarget.get_output_stream();
@@ -214,5 +215,6 @@ void Car::terminate_all_Car_threads() {
     terminationChanged.signal();
 }
 
+}
 }
 

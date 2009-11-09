@@ -1,16 +1,13 @@
-#ifndef CIMGBUFFER_IMAGETRAITS_H
-#define CIMGBUFFER_IMAGETRAITS_H
+#ifndef DSTORM_INPUT_IMAGETRAITS_H
+#define DSTORM_INPUT_IMAGETRAITS_H
 
-#include <dStorm/input/Traits.h>
 #include <Eigen/Core>
+#include "Traits.h"
+#include "Config_decl.h"
+#include "ImageTraits_decl.h"
 
-namespace cimg_library {
-    template <typename PixelType> class CImg;
-};
-
-namespace CImgBuffer {
-
-class Config;
+namespace dStorm {
+namespace input {
 
 /** The Traits class partial specialization for images
  *  provides methods to determine the image dimensions and the
@@ -48,6 +45,8 @@ class Traits< cimg_library::CImg<PixelType> > {
     void compute_resolution( const Config& );
     void set_resolution( const Eigen::Vector3d& resolution );
 };
-};
+
+}
+}
 
 #endif

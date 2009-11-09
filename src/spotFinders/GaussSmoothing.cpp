@@ -4,7 +4,10 @@
 #include <CImg.h>
 
 using namespace std;
-using namespace dStorm;
+using namespace dStorm::engine;
+
+namespace dStorm {
+namespace spotFinders {
 
 static void fillWithGauss(int *values, int n, double sigma, int A) {
     const double sig_sq = sigma * sigma, norm = 1 / (2 * M_PI * sigma);
@@ -14,7 +17,7 @@ static void fillWithGauss(int *values, int n, double sigma, int A) {
 }
 
 GaussSmoother::GaussSmoother (
-    const Config&, const dStorm::Config &conf, int imw, int imh)
+    const Config&, const engine::Config &conf, int imw, int imh)
 : SpotFinder(conf, imw, imh), xkern(msx+1), ykern(msy+1)
 {
     fillWithGauss(xkern.ptr(), msx+1, conf.sigma_x(), 256);
@@ -52,4 +55,7 @@ void GaussSmoother::smooth( const Image &in )
         gsm_line( copy, 1, msx, smoothed->width,
                                smoothed->ptr(0, y), xkern.ptr() );
     }
+}
+
+}
 }

@@ -3,6 +3,7 @@
 #include "GaussFitter_ResidueAnalysis.h"
 
 namespace dStorm {
+namespace engine {
 
 template <bool A, bool B, bool C>
 template <int Level>
@@ -23,4 +24,5 @@ template class GaussFitter<false,true,true>;
 template class GaussFitter<true,false,true>;
 template class GaussFitter<false,false,true>;
 
+}
 }

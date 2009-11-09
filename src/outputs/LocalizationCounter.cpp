@@ -2,6 +2,7 @@
 #include "doc/help/context.h"
 
 namespace dStorm {
+namespace output {
 
 LocalizationCounter::Config::Config()
 : simparm::Object("Count", "Count localizations")
@@ -19,4 +20,5 @@ LocalizationCounter::LocalizationCounter(const Config &)
     update.helpID = HELP_Count_Count;
 }
 
-};
+}
+}

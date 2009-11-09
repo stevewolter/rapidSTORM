@@ -5,26 +5,29 @@
 #include <stdexcept>
 #include <iostream>
 #include <dStorm/data-c++/VectorList.h>
-#include <dStorm/output/Localization.h>
+#include <dStorm/Localization.h>
+#include <dStorm/input/LocalizationTraits.h>
 
 namespace dStorm {
+namespace output {
    /** The Localizations class represents a number of localizations
     *  with common width and height. */
    class Localizations : public data_cpp::VectorList<Localization> {
       private:
-         int w, h, n;
+        input::Traits<Localization> t;
 
       public:
-        Localizations(int w = 0, int h = 0, int n = 0);
-        Localizations(const Localizations&);
+        Localizations() {}
+        Localizations(const input::Traits<Localization>& t) : t(t) {}
         virtual ~Localizations();
 
-        int dimx() const { return w; }
-        int dimy() const { return h; }
-        int numImages() const { return n; }
-        void setDim(int w, int h, int n) 
-            { this->w = w; this->h = h; this->n = n; }
+        int dimx() const { return t.size.x(); }
+        int dimy() const { return t.size.y(); }
+        int numImages() const { return t.imageNumber; }
+        void setDim(const input::Traits<Localization>& t) 
+            { this->t = t; }
    };
+}
 }
 
 #endif

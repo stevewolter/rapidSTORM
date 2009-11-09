@@ -1,6 +1,7 @@
 #ifndef DSTORM_LOCALIZATIONFILE_H
 #define DSTORM_LOCALIZATIONFILE_H
 
+#include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <memory>
@@ -10,11 +11,12 @@
 #include <simparm/Structure.hh>
 
 namespace dStorm {
+namespace output {
 class LocalizationFile : public simparm::Object, public Output {
     private: 
     ost::Mutex mutex;
     std::string filename;
-    int w, h, l;
+    input::Traits<Localization> traits;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;
     int localizationDepth;
@@ -25,7 +27,7 @@ class LocalizationFile : public simparm::Object, public Output {
 
     public:
     typedef simparm::Structure<_Config> Config;
-    typedef dStorm::FileOutputBuilder<LocalizationFile> Source;
+    typedef FileOutputBuilder<LocalizationFile> Source;
 
     LocalizationFile(const Config&);
     ~LocalizationFile();
@@ -52,5 +54,6 @@ class LocalizationFile::_Config : public simparm::Object {
 };
 
 
+}
 }
 #endif

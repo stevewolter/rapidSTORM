@@ -28,6 +28,7 @@ using namespace cimg_library;
 using namespace ost;
 
 using namespace dStorm::Display;
+using namespace dStorm::outputs;
 
 static Mutex *cimg_lock = NULL;
 
@@ -58,6 +59,7 @@ bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
 }
 
 namespace dStorm {
+namespace output {
 
 /** Time to wait for user input in milliseconds. */
 const int waitTime = 10;
@@ -65,7 +67,7 @@ const int waitTime = 10;
 struct Viewer::Implementation
 {
     virtual ~Implementation() {}
-    virtual dStorm::Output& getForwardOutput() = 0;
+    virtual output::Output& getForwardOutput() = 0;
 
     virtual void write_full_size_image(const char *filename) = 0;
 
@@ -126,7 +128,7 @@ class ColourDependantImplementation
                     ( config.close_on_completion() );
             }
         void setSize( 
-            const CImgBuffer::Traits< cimg_library::CImg<int> >& traits) 
+            const input::Traits< cimg_library::CImg<int> >& traits) 
         { 
             int width = traits.size.x(), height = traits.size.y();
             ps.resize( width * height, false );
@@ -143,6 +145,7 @@ class ColourDependantImplementation
                 props.initial_size = r;
                 window_id = Manager::getSingleton()
                         .register_data_source( props, vph );
+                do_show_window = false;
             } else {
                 next_change->do_resize = true;
                 next_change->resize_image = r;
@@ -226,7 +229,7 @@ class ColourDependantImplementation
 
     ~ColourDependantImplementation() {}
 
-    dStorm::Output& getForwardOutput() { return image; }
+    output::Output& getForwardOutput() { return image; }
     virtual void write_full_size_image(const char *filename) 
     { 
         image.clean();
@@ -300,8 +303,9 @@ class ColourDependantImplementation
 
     virtual void set_histogram_power(float power) 
         { discretization.setHistogramPower( power ); }
-    virtual void set_resolution_enhancement(float re) 
-        { image.set_resolution_enhancement( re ); }
+    virtual void set_resolution_enhancement(float re) { 
+        image.set_resolution_enhancement( re ); 
+    }
 };
 
 Viewer::_Config::_Config()
@@ -312,7 +316,6 @@ Viewer::_Config::_Config()
   refreshCycle("ImageRefreshCycle", "Refresh image every x ms:", 100),
   histogramPower("HistogramPower", "Extent of histogram normalization",
                  0.3),
-  zoom("ZoomLevel", "Zoom level", 0),
   colourScheme("ColourScheme", "Colour palette for display"),
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1),
@@ -340,10 +343,6 @@ Viewer::_Config::_Config()
     histogramPower.setMax(1);
     /* This level is reset in carStarted() */
     histogramPower.setUserLevel(simparm::Entry::Expert);
-
-    zoom.setMin(-10);
-    zoom.setMax(10);
-    zoom.setUserLevel(simparm::Entry::Expert);
 
     colourScheme.helpID = HELP_Viewer_ColorScheme;
     colourScheme.addChoice(ColourSchemes::BlackWhite, "BlackWhite", 
@@ -390,7 +389,6 @@ void Viewer::_Config::registerNamedEntries() {
    register_entry(&showOutput);
    register_entry(&res_enh);
    register_entry(&histogramPower);
-   register_entry(&zoom);
    register_entry(&colourScheme);
    register_entry(&invert);
    register_entry(&hue);
@@ -421,10 +419,6 @@ Viewer::Viewer(const Viewer::Config& config)
   implementation( 
     make_binned_locs< ColourSchemes::LastColourModel >( config ) ),
   forwardOutput( implementation->getForwardOutput() ),
-  zi(1+max<int>(0,config.zoom())), 
-  zo(1+max<int>(0,-config.zoom())),
-  windowWidth(0), windowHeight(0),
-  lastWW(0), lastWH(0),
   runViewer( config.showOutput() ),
   runningViewer(false),
   terminateViewer(false),
@@ -435,7 +429,6 @@ Viewer::Viewer(const Viewer::Config& config)
   tifFile( config.outputFile ),
   resolutionEnhancement( config.res_enh ),
   histogramPower( config.histogramPower ),
-  zoom( config.zoom ),
   save("SaveImage", "Save image"),
   quit("Quit", "Close viewing window")
 {
@@ -443,26 +436,22 @@ Viewer::Viewer(const Viewer::Config& config)
 
     resolutionEnhancement.helpID = HELP_Viewer_Status_ResEnh;
     histogramPower.helpID = HELP_Viewer_Status_Power;
-    zoom.helpID = HELP_Viewer_Status_Zoom;
     tifFile.helpID = HELP_Viewer_Status_ToFile;
     save.helpID = HELP_Viewer_Status_Save;
 
     /* With the values provided in config, meaningful defaults can
      * be set in the following config entries. */
     histogramPower.setUserLevel(simparm::Entry::Beginner);
-    zoom.setUserLevel(simparm::Entry::Beginner);
     save.setUserLevel(simparm::Entry::Beginner);
 
     push_back( resolutionEnhancement );
     push_back( histogramPower );
-    push_back( zoom );
     push_back( tifFile );
     push_back( save );
     // push_back( quit ); /* quit is pushed back in the subthread */
 
     receive_changes_from( save.value );
     receive_changes_from( quit.value );
-    receive_changes_from( zoom.value );
     receive_changes_from( histogramPower.value );
     receive_changes_from( resolutionEnhancement.value );
 
@@ -547,4 +536,5 @@ void Viewer::writeToFile(const string &name) {
     }
 }
 
+}
 }

@@ -5,13 +5,13 @@
 
 #include "CImgList.h"
 
-namespace CImgBuffer { 
+namespace dStorm { 
 namespace CImgList {
 
 template <typename PixelType>
 Source<PixelType>::Source(const char *src )
-: CImgBuffer::Source< cimg_library::CImg<PixelType> >
-    (BaseSource::Pushing | BaseSource::Pullable),
+: input::Source< cimg_library::CImg<PixelType> >
+    (input::BaseSource::Pushing | input::BaseSource::Pullable),
   simparm::Object("CImgListSource", "Images"),
   sourceImages(src)
 {

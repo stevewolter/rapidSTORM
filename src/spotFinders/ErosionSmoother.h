@@ -12,7 +12,7 @@ namespace cimg_library {
 }
 
 namespace dStorm {
-    class ErosionSmoother : public SpotFinder {
+    class ErosionSmoother : public engine::SpotFinder {
       private:
         cimg_library::CImg<bool> mask;
         struct _Config : public simparm::Object {
@@ -21,9 +21,9 @@ namespace dStorm {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef SpotFinderBuilder<ErosionSmoother> Factory;
+        typedef engine::SpotFinderBuilder<ErosionSmoother> Factory;
 
-        ErosionSmoother (const Config&, const dStorm::Config &conf,
+        ErosionSmoother (const Config&, const engine::Config &conf,
                          int imw, int imh) 
         : SpotFinder(conf, imw, imh),
           mask(msx+(1-msx%2), msy+(1-msy%2))
@@ -32,7 +32,7 @@ namespace dStorm {
         }
         ~ErosionSmoother() {}
 
-        void smooth( const Image &in ) {
+        void smooth( const engine::Image &in ) {
             *smoothed = in;
             smoothed->erode<bool>(mask);
         }

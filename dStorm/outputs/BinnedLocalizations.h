@@ -6,6 +6,7 @@
 #include <cassert>
 
 namespace dStorm {
+namespace outputs {
 
     typedef cimg_library::CImg<float> BinnedImage;
 
@@ -17,13 +18,13 @@ namespace dStorm {
          *  and is called afterwards when the image size changes.
          *  @param traits     Traits of the binned image
          */
-        inline void setSize(const CImgBuffer::Traits< BinnedImage >&) ;
+        inline void setSize(const input::Traits< BinnedImage >&) ;
         /** This method is a forward for dStorm::Output method 
          *  announceStormSize. */
-        inline void announce(const Output::Announcement&) ;
+        inline void announce(const output::Output::Announcement&) ;
         /** This method is called when processing of an engine result 
          *  starts. */
-        inline void announce(const Output::EngineResult&) ;
+        inline void announce(const output::Output::EngineResult&) ;
         /** This method is called once for each localization processed. */
         inline void announce(const Localization&) ;
         /** Called when a pixel changes in the binned image. The parameters
@@ -46,9 +47,9 @@ namespace dStorm {
      *  code is left in BinnedLocalizations for an empty listener
      *  slot. */
     struct DummyBinningListener : public BinningListener {
-        void setSize(const CImgBuffer::Traits< BinnedImage >&) {}
-        void announce(const Output::Announcement&) {}
-        void announce(const Output::EngineResult&) {}
+        void setSize(const input::Traits< BinnedImage >&) {}
+        void announce(const output::Output::Announcement&) {}
+        void announce(const output::Output::EngineResult&) {}
         void announce(const Localization&) {}
         void updatePixel(int, int, float, float) {}
         void clean(bool) {}
@@ -82,7 +83,7 @@ namespace dStorm {
      **/
     template <typename KeepUpdated = DummyBinningListener>
     class BinnedLocalizations 
-        : public dStorm::Output, public simparm::Object,
+        : public dStorm::output::Output, public simparm::Object,
           public BinningPublisher<KeepUpdated>
     {
       protected:
@@ -94,7 +95,7 @@ namespace dStorm {
         /** Crop given in the constructor. */
         int crop;
         /** Resolution enhancement in terms of Localization class. */
-        dStorm::Localization::Raster r;
+        Localization::Raster r;
         /** Accumulator image, or in other terms, the density image of
          *  localizations. */
         BinnedImage base_image;
@@ -136,5 +137,6 @@ namespace dStorm {
 
         ost::Mutex& getMutex() { return mutex; }
     };
+}
 }
 #endif

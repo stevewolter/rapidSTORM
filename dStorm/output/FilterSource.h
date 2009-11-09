@@ -2,7 +2,7 @@
 #define DSTORM_BASETRANSMISSIONCONFIGS
 
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/output/OutputSource.h>
+#include "OutputSource.h"
 #include <map>
 
 namespace simparm {
@@ -10,14 +10,15 @@ namespace simparm {
 };
 
 namespace dStorm {
+namespace output {
 
-class OutputFactory;
+class SourceFactory;
 
 /** The FilterSource class is the base class for all
  *  OutputSource objects which have other outputs as
  *  output. For example, see the LocalizationFilter. 
  *
- *  The FilterSource is built around an OutputFactory, which is added
+ *  The FilterSource is built around an SourceFactory, which is added
  *  to its simparm::Node *  element and delivers the OutputSource child
  *  object. To avoid initialization loops, this factory is not constructed
  *  in the normal constructor, but rather via initialize() or in the
@@ -55,7 +56,7 @@ class FilterSource
      *  If the initialization is delayed via OnCopy, the factory member
      *  will not be set until initialize() is called. This avoids init
      *  loops. */
-    std::auto_ptr<OutputFactory> factory;
+    std::auto_ptr<SourceFactory> factory;
 
     /** The target transmissions for this forwarding source. */
     typedef std::list<OutputSource*> Outputs;
@@ -81,6 +82,8 @@ class FilterSource
     FilterSource();
     FilterSource(const FilterSource& o);
 
+    SourceFactory* getFactory() { return factory.get(); }
+
   public:
     ~FilterSource();
     FilterSource* clone() const = 0;
@@ -89,7 +92,7 @@ class FilterSource
 
     /** This method triggers the delayed initialization of the factory
      *  element. */
-    virtual void initialize(const OutputFactory&);
+    virtual void initialize(const SourceFactory&);
 
     /** Explicitely set the output element. Circumvents the 
      *  \c factory. */
@@ -119,6 +122,7 @@ class FilterSource
 
 typedef FilterSource TransmissionSource;
 
+}
 }
 
 #endif

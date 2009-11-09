@@ -1,7 +1,8 @@
-#ifndef CImgBuffer_DRAIN_H
-#define CImgBuffer_DRAIN_H
+#ifndef DSTORM_INPUT_DRAIN_H
+#define DSTORM_INPUT_DRAIN_H
 
-namespace CImgBuffer { 
+namespace dStorm { 
+namespace input { 
 
     enum Management { Keeps_objects, Delete_objects };
 
@@ -24,6 +25,7 @@ namespace CImgBuffer {
         /** Receive the number of objects that will be pushed. */
         virtual void receive_number_of_objects(int) {}
     };
+}
 }
 
 #endif

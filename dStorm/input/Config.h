@@ -1,7 +1,7 @@
 /** \file Config.h
  *  This file declares the Config class. */
-#ifndef CIMGBUFFER_CONFIG_H
-#define CIMGBUFFER_CONFIG_H
+#ifndef DSTORM_INPUT_CONFIG_H
+#define DSTORM_INPUT_CONFIG_H
 
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
@@ -11,64 +11,65 @@
 #include <stdexcept>
 #include <memory>
 
-/** The CImgBuffer namespace provides the functionality to read
+#include "Source_decl.h"
+#include "BasenameWatcher_decl.h"
+#include "Method_decl.h"
+
+/** The dStorm::input namespace provides the functionality to read
  *  sequences of images. The Buffer class provides a simple, vectoresque
  *  view on the input data while storing as little data as possible.
  *  The Config class allows configuration of the input; several methods
  *  are available and selectable there, with a well-defined interface
  *  to add more.
  **/
-namespace CImgBuffer {
-    class BaseSource;
-    class BaseInputConfig;
+namespace dStorm {
+namespace input {
     class Config;
-    class BasenameWatcher;
 
-    class InputConfigChoice 
-    : public simparm::NodeChoiceEntry< BaseInputConfig > 
+    class MethodChoice 
+    : public simparm::NodeChoiceEntry< BaseMethod > 
     {
       public:
-        InputConfigChoice( std::string name, std::string desc );
-        InputConfigChoice( const InputConfigChoice& o );
+        MethodChoice( std::string name, std::string desc );
+        MethodChoice( const MethodChoice& o );
 
-        InputConfigChoice* clone() const 
-            { return new InputConfigChoice(*this); }
+        MethodChoice* clone() const 
+            { return new MethodChoice(*this); }
 
-        void copyChoices(const InputConfigChoice& o, Config& master)
-;
+        void copyChoices(const MethodChoice& o, Config& master);
     };
 
     /** The Config class provides a configuration interface for the
      *  Buffer class. It's \c inputMethod field allows selection of
      *  an input method which is retrievable by the makeImageSource()
-     *  method. In collaboration with the InputConfig class this field
+     *  method. In collaboration with the Method class this field
      *  can be supplied with choices. */
     class _Config : public simparm::Set {
       public:
-        /** The constructor fills the inputMethod field with one
-         *  InputConfig per InputMethod class. */
+        /** The constructor inserts the auto-selection method into the
+         *  inputMethod field. */
         _Config ();
         ~_Config ();
 
-        /** The inputMethod choice field selects one of the InputConfig
+        /** The inputMethod choice field selects one of the Method
          *  objects that were produced in the constructor. The input method
          *  selected here will be used by the makeImageSource() 
          *  function. */
-        InputConfigChoice inputMethod;
+        MethodChoice inputMethod;
 
         /** Since many input methods need a kind of input file, this
-         *  field is provided centrally here. Include it in the InputConfig
-         *  of an InputMethod if you need an input file. */
+         *  field is provided centrally here. Include it in the Method
+         *  config node if you need an input file. */
         simparm::FileEntry inputFile;
         /** \var firstImage
          *       Gives the first image in the sequence
          *       (numbered from 0) that should be returned by the
-         *       Buffer. InputConfig's that are able to support
+         *       Buffer. Method's that are able to support
          *       this feature should include \c firstImage in their
          *       Set. */
         /*  \var lastImage gives the last image in the sequence
          *       (numbered from 0) that should be returned by the
-         *       Buffer. InputConfig's that are able to support
+         *       Buffer. Methods that are able to support
          *       this feature should include \c lastImage in their
          *       Set. */
         simparm::UnsignedLongEntry firstImage, lastImage;
@@ -101,5 +102,6 @@ namespace CImgBuffer {
         std::auto_ptr< BaseSource > makeImageSource(int method) const;
 
     };
+}
 }
 #endif

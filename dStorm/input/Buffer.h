@@ -2,21 +2,22 @@
  *  This file contains the definition for the Buffer class.
  */
 
-#ifndef CImgBuffer_IMAGEVECTOR_H
-#define CImgBuffer_IMAGEVECTOR_H
+#ifndef DSTORM_INPUT_IMAGEVECTOR_H
+#define DSTORM_INPUT_IMAGEVECTOR_H
 
-#include <dStorm/input/Config.h>
-#include <dStorm/input/Drain.h>
-#include <dStorm/input/Traits.h>
 #include <memory>
 #include <stdexcept>
 #include <dStorm/data-c++/Vector.h>
 #include <dStorm/helpers/thread.h>
 
-namespace CImgBuffer { 
-    template <typename T> class Source;
-    template <typename T> class Slot;
+#include "Config.h"
+#include "Drain.h"
+#include "Traits.h"
+#include "Source_decl.h"
+#include "Slot_decl.h"
 
+namespace dStorm { 
+namespace input { 
     /** This class manages the image acquisition from an image
      *  source. It does so in a memory-efficient way: Only requested
      *  or delivered images are stored and images that are processed
@@ -120,6 +121,7 @@ namespace CImgBuffer {
         void init();
     };
 
+}
 }
 
 #endif

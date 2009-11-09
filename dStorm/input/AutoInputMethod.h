@@ -1,11 +1,12 @@
 #ifndef CIMGBUFFER_AUTOINPUTMETHOD_H
 #define CIMGBUFFER_AUTOINPUTMETHOD_H
 
-#include "InputMethod.h"
+#include "Method.h"
 #include <simparm/Set.hh>
 
-namespace CImgBuffer {
-    /** The AutoInputConfig produces an source by trying to build
+namespace dStorm {
+namespace input {
+    /** The AutoMethod produces an source by trying to build
      *  a source from each of the input configs registered at its
      *  master config. Sources that have \c may_be_autoloaded as
      *  false will not be tried, and sources that throw errors on
@@ -13,13 +14,13 @@ namespace CImgBuffer {
      *  that has the may_be_autoloaded property and throws no error
      *  on source production will be selected and its source 
      *  returned. */
-    class AutoInputConfig 
-    : public BaseInputConfig
+    class AutoMethod 
+    : public BaseMethod
     {
       private:
         Config& master;
         bool recursive;
-        AutoInputConfig(const AutoInputConfig&);
+        AutoMethod(const AutoMethod&);
 
       protected:
         BaseSource* impl_makeSource()
@@ -31,7 +32,7 @@ namespace CImgBuffer {
             recursive = true;
             std::auto_ptr< BaseSource > rv;
             
-            simparm::NodeChoiceEntry< BaseInputConfig >::iterator 
+            simparm::NodeChoiceEntry< BaseMethod >::iterator 
               i ( master.inputMethod.beginChoices() );
             for ( ; i != master.inputMethod.endChoices(); i++)
             {
@@ -56,8 +57,8 @@ namespace CImgBuffer {
         }
 
       public:
-        AutoInputConfig(Config& master) 
-        : BaseInputConfig("Auto", "File"),
+        AutoMethod(Config& master) 
+        : BaseMethod("Auto", "File"),
           master(master), recursive(false) 
         {
             this->register_entry(&master.inputFile);
@@ -67,12 +68,13 @@ namespace CImgBuffer {
 
         bool may_be_autoloaded() const { return false; }
 
-        AutoInputConfig* clone() const
-            { throw std::logic_error("AutoInputConfig unclonable."); }
-        AutoInputConfig* clone
+        AutoMethod* clone() const
+            { throw std::logic_error("AutoMethod unclonable."); }
+        AutoMethod* clone
             (Config &newMaster) const 
-            { return (new AutoInputConfig(newMaster)); }
+            { return (new AutoMethod(newMaster)); }
     };
-};
+}
+}
 
 #endif

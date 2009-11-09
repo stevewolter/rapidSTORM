@@ -1,16 +1,18 @@
-#ifndef CIMGBUFFER_BUFFER_IMPL_H
-#define CIMGBUFFER_BUFFER_IMPL_H
+#ifndef DSTORM_INPUT_BUFFER_IMPL_H
+#define DSTORM_INPUT_BUFFER_IMPL_H
 
 #include <cassert>
-#include <dStorm/input/Buffer.h>
-#include <dStorm/input/Source.h>
 #include <dStorm/helpers/thread.h>
-#include <dStorm/input/Slot.h>
 #include <limits>
+
+#include "Buffer.h"
+#include "Source.h"
+#include "Slot.h"
 
 using namespace std;
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
 
 template <typename Object>
 void Buffer<Object>::receive_number_of_objects(int present_images) 
@@ -129,6 +131,7 @@ simparm::Node& Buffer<Object>::getConfig()
     return *source;
 }
 
+}
 }
 
 #endif

@@ -4,7 +4,9 @@
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image_impl.h>
 
-namespace CImgBuffer {
-    template class Buffer<dStorm::Image>;
-    template class Slot<dStorm::Image>;
+namespace dStorm {
+namespace input {
+    template class Buffer<dStorm::engine::Image>;
+    template class Slot<dStorm::engine::Image>;
+}
 }

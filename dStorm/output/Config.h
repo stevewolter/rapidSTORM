@@ -1,19 +1,21 @@
-#ifndef BASIC_TRANSMISSIONS_H
-#define BASIC_TRANSMISSIONS_H
+#ifndef DSTORM_OUTPUT_CONFIG_H
+#define DSTORM_OUTPUT_CONFIG_H
 
-#include <dStorm/output/OutputFactory.h>
+#include "SourceFactory.h"
 #include <simparm/ChoiceEntry.hh>
 
 namespace dStorm {
+namespace output {
+
     class OutputSource;
-    class BasicOutputs
-    : public OutputFactory,
+    class Config
+    : public SourceFactory,
       public simparm::NodeChoiceEntry<OutputSource>
     {
       public:
-        BasicOutputs();
-        BasicOutputs( const BasicOutputs& );
-        virtual BasicOutputs* clone() const;
+        Config();
+        Config( const Config& );
+        virtual Config* clone() const;
         virtual std::auto_ptr<OutputSource> make_output_source();
 
         void addChoice(OutputSource *toAdd);
@@ -22,6 +24,8 @@ namespace dStorm {
         BasenameResult set_output_file_basename(
             const std::string& new_basename, std::set<std::string>& avoid);
     };
+
+}
 }
 
 #endif

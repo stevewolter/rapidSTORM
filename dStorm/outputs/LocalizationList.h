@@ -6,11 +6,13 @@
 #include <memory>
 
 namespace dStorm {
-    class LocalizationList : public Output, public simparm::Object {
+namespace outputs {
+    class LocalizationList : public output::Output, public simparm::Object
+    {
       private:
         ost::Mutex mutex;
-        std::auto_ptr<Localizations> allocTarget;
-        Localizations* target;
+        std::auto_ptr<output::Localizations> allocTarget;
+        output::Localizations* target;
 
       public:
         /** Constructor.
@@ -18,7 +20,7 @@ namespace dStorm {
          *                this parameters gives the target fit list.
          *                When NULL, the LocalizationList will allocate
          *                an internal list to store the results. */
-        LocalizationList( Localizations* target = NULL )
+        LocalizationList( output::Localizations* target = NULL )
             : Object("LocalizationList", "Localization target file"),
               target(target) {}
         virtual ~LocalizationList() {}
@@ -35,13 +37,14 @@ namespace dStorm {
         }
 
         bool hasResults() const { return target != NULL; }
-        const Localizations& getResults() const { return *target; }
-        Localizations& getResults() { return *target; }
+        const output::Localizations& getResults() const { return *target; }
+        output::Localizations& getResults() { return *target; }
         bool mayReleaseResults() const 
             { return allocTarget.get() != NULL; }
-        std::auto_ptr<Localizations> releaseResults()
+        std::auto_ptr<output::Localizations> releaseResults()
             { return allocTarget; }
     };
 
+}
 }
 #endif

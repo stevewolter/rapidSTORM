@@ -11,7 +11,8 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
-using namespace dStorm;
+namespace dStorm {
+namespace engine {
 
 _Config::_Config()
 :   Set("Engine", "Processing options"),
@@ -168,4 +169,7 @@ Config::Config(const Config& c)
   user_level_watcher( *this ) /* Fresh callbacks - don't want to fremd-listen */
 { 
     registerNamedEntries();
+}
+
+}
 }

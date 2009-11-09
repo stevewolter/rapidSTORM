@@ -2,7 +2,7 @@
 
 #include <dStorm/input/Config.h>
 #include <CImg.h>
-#include <dStorm/output/LocalizationFileReader.h>
+#include <dStorm/input/LocalizationFileReader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
 #ifdef HAVE_LIBATMCD32D
@@ -13,18 +13,22 @@
 
 namespace dStorm {
 
-void basic_inputs( CImgBuffer::Config* inputConfig ) {
+using engine::StormPixel;
+
+void basic_inputs( input::Config* inputConfig ) {
     inputConfig->inputMethod.addChoice( 
-        new LocalizationFileReader::Config( *inputConfig ) );
+        new input::LocalizationFileReader::Config( *inputConfig ) );
 #ifdef HAVE_LIBREADSIF
     inputConfig->inputMethod.addChoice( 
-        new CImgBuffer::AndorSIF::Config<StormPixel>( *inputConfig ) );
+        new input::AndorSIF::Config<StormPixel>( *inputConfig ) );
 #endif
+#ifdef HAVE_TIFFIO_H
     inputConfig->inputMethod.addChoice( 
-        new CImgBuffer::TIFF::Config<StormPixel>( *inputConfig ) );
+        new TIFF::Config<StormPixel>( *inputConfig ) );
+#endif
 #ifdef HAVE_LIBATMCD32D
     inputConfig->inputMethod.addChoice( 
-        new dStorm::AndorDirect::Config( *inputConfig ) );
+        new AndorDirect::Config( *inputConfig ) );
 #endif
     
 }

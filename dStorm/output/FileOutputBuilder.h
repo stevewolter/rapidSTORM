@@ -1,9 +1,10 @@
 #ifndef DSTORM_FILEOUTPUTBUILDER_H
 #define DSTORM_FILEOUTPUTBUILDER_H
 
-#include <dStorm/output/OutputBuilder.h>
+#include "OutputBuilder.h"
 
 namespace dStorm {
+namespace output {
 
 template <typename BaseType>
 class FileOutputBuilder : public OutputBuilder<BaseType> {
@@ -21,6 +22,7 @@ class FileOutputBuilder : public OutputBuilder<BaseType> {
         { return new FileOutputBuilder(*this); }
 };
 
+}
 }
 
 #endif

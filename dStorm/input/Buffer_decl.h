@@ -2,6 +2,8 @@
  *  This file contains the declaration for the Buffer class.
  */
 
-namespace CImgBuffer {
+namespace dStorm {
+namespace input {
     template <typename Ty> class Buffer;
+}
 }

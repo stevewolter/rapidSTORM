@@ -2,6 +2,7 @@
 #include <CImg.h>
 
 namespace dStorm {
+namespace engine {
 
 template <bool Free_Sigmas, bool RA, bool Corr>
 int GaussFitter<Free_Sigmas, RA, Corr>::
@@ -50,4 +51,5 @@ template int GaussFitter<false,true,false>::fitSpot
     (const Spot&, const Image&, int, Localization*);
 template int GaussFitter<false,false,false>::fitSpot
     (const Spot&, const Image&, int, Localization*);
+}
 }

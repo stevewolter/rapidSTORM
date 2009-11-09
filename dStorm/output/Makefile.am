@@ -2,19 +2,17 @@ noinst_LTLIBRARIES = liboutput.la
 
 library_includedir = $(includedir)/dStorm/output
 library_include_HEADERS = \
-    BasicOutputs.h \
+    Config.h \
     FileOutputBuilder.h \
     FilterBuilder.h \
     FilterSource.h \
-    Localization.h \
     Localizations.h \
-    LocalizationFileReader.h \
     OutputBuilder.h \
-    OutputFactory.h \
+    SourceFactory.h \
     Output.h \
     OutputSource.h \
     ResultRepeater.h \
-    Trace.h \
+    Trace_decl.h Trace.h \
     TraceReducer.h
 
 AM_CPPFLAGS = \
@@ -24,11 +22,10 @@ AM_CPPFLAGS = \
     -I $(top_builddir)/..
 
 liboutput_la_SOURCES = \
-    BasicOutputs.cpp \
+    Config.cpp \
     FilterSource.cpp \
-    foreach.h Localization.cpp \
     OutputSource.cpp Trace.cpp \
-    LocalizationFileReader.cpp Localizations.cpp \
+    Localizations.cpp \
     TraceReducers.cpp \
-    OutputFactory.cpp 
+    SourceFactory.cpp 
 liboutput_la_LIBADD = 

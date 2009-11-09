@@ -7,6 +7,7 @@
 // #define QUADRATIC
 
 namespace dStorm {
+namespace outputs {
 
 template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
@@ -25,7 +26,7 @@ BinnedLocalizations<KeepUpdated>::BinnedLocalizations
 {}
 
 template <typename KeepUpdated>
-Output::AdditionalData
+output::Output::AdditionalData
 BinnedLocalizations<KeepUpdated>
 ::announceStormSize(const Announcement& a)
 {
@@ -50,7 +51,7 @@ void BinnedLocalizations<KeepUpdated>
 }
 
 template <typename KeepUpdated>
-Output::Result 
+output::Output::Result 
 BinnedLocalizations<KeepUpdated>
 ::receiveLocalizations(const EngineResult& er)
 {
@@ -121,7 +122,7 @@ template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>::set_base_image_size() 
  
 {
-    CImgBuffer::Traits<BinnedImage> traits;
+    input::Traits<BinnedImage> traits;
     Eigen::Vector3d temp_size =
         (announcement->traits.size.cwise() - (1+2*crop))
             .cast<double>() * re;
@@ -137,4 +138,5 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
     this->binningListener().setSize(traits);
 }
 
-};
+}
+}

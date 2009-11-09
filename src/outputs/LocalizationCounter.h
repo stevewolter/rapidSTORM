@@ -8,6 +8,7 @@
 #include <dStorm/output/OutputBuilder.h>
 
 namespace dStorm {
+namespace output {
     class LocalizationCounter : public simparm::Object, public Output {
       private:
         ost::Mutex mutex;
@@ -62,6 +63,7 @@ namespace dStorm {
             }
         }
     };
+}
 }
 #endif
 
