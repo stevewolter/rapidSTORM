@@ -13,7 +13,7 @@ library_includedir = $(includedir)/dStorm
 library_include_HEADERS = \
     ModuleInterface.h Localization.h
 
-libdStorm_la_SOURCES = foreach.h Localization.cpp
+libdStorm_la_SOURCES = Localization.cpp
 nodist_EXTRA_libdStorm_la_SOURCES = dummy.cpp
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la input/libinput.la \
