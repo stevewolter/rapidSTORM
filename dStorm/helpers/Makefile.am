@@ -8,4 +8,4 @@ library_include_HEADERS = \
 
 AM_CPPFLAGS = -D_GNU_SOURCE
 AM_CPPFLAGS += -Wall -Wextra \
-    -include $(top_builddir)/config.h -include $(top_srcdir)/../debug.h
+    -include $(top_srcdir)/../debug.h

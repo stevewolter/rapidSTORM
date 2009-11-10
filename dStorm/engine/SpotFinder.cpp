@@ -1,6 +1,5 @@
 #include "SpotFinder.h"
 #include "Config.h"
-#include <foreach.h>
 #include <CImg.h>
 #include <dStorm/helpers/thread.h>
 

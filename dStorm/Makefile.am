@@ -6,7 +6,6 @@ SUBDIRS = helpers data-c++ input engine output outputs wxDisplay
 lib_LTLIBRARIES = libdStorm.la
 
 AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h \
     -I $(top_srcdir) -I $(top_builddir)/..
 

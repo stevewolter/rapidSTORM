@@ -2,7 +2,6 @@
 #include <cassert>
 #include <string.h>
 #include <fstream>
-#include <foreach.h>
 
 #include <dStorm/output/Output.h>
 #include <dStorm/engine/Image.h>

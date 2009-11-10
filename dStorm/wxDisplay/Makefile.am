@@ -10,7 +10,6 @@ libdStorm_display_la_SOURCES = \
     helpers.h ScaleBar.h ScaleBar.cpp helpers.cpp
 
 AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h \
     -I $(top_srcdir) -I $(top_builddir)/..
 
