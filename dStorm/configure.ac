@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidStorm], [1.4.0], [dstorm at swolter dot sdf1 dot org])
+AC_INIT([rapidStorm], RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([output/BasicOutputs.cpp])
+AC_CONFIG_SRCDIR([output/Config.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../m4])
 

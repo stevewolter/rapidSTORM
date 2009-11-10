@@ -5,10 +5,10 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/engine/Image_impl.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <memory>
-#include <CImg.h>
 
 namespace dStorm {
 namespace output {

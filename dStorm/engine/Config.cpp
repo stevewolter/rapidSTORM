@@ -4,12 +4,14 @@
 #include "doc/help/context.h"
 #include <dStorm/engine/SpotFinder.h>
 
-#ifdef DMALLOC
-#include "dmalloc.h"
-#endif
-
 #include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
+
+#include "config.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 namespace dStorm {
 namespace engine {
@@ -101,12 +103,23 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
+    pistonCount.setUserLevel(Entry::Expert);
     pistonCount.helpID = HELP_CPUNumber;
     pistonCount.setHelp("Use this many parallel threads to compute the "
                         "STORM result. If you notice a low CPU usage, "
                         "raise this value to the number of cores you "
                         "have.");
-    pistonCount = 2;
+#if defined(_SC_NPROCESSORS_ONLN)
+    int pn = sysconf(_SC_NPROCESSORS_ONLN);
+    pistonCount = (pn == 0) ? 8 : pn;
+#elif defined(HAVE_WINDOWS_H)
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    pistonCount = info.dwNumberOfProcessors;
+#else
+    pistonCount.setUserLevel(Entry::Beginner);
+    pistonCount = 8;
+#endif
 
     spotFindingMethod.helpID = HELP_Smoother;
     spotFindingMethod.set_auto_selection( true );

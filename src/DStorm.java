@@ -94,8 +94,7 @@ class DStorm {
 
    public static void main(String[] args) throws IOException {
         tempDir = System.getProperty("java.io.tmpdir");
-        tempDir = tempDir + String.valueOf( File.separatorChar )
-                  + "rapidSTORM";
+        tempDir = tempDir + File.separator + "rapidSTORM";
 
         InputStream dll_list = Main.class.getResourceAsStream("dll_list");
         BufferedReader reader = new BufferedReader
@@ -107,14 +106,14 @@ class DStorm {
 
         File executable = extract_with_exact_name("bin/dstorm.exe");
         File config = extract_with_exact_name("share/rapidstorm/dstorm-config.txt");
-        File help = extract_with_exact_name("share/rapidstorm/rapidSTORM.chm");
 
-        if ( help != null )
-            HelpManager.setManualFile(help);
+        HelpManager.setHelpDirectory(
+            new File(tempDir + File.separator + "share" + File.separator
+                             + "doc" ) );
 
         String[] environment = 
             build_environment(new File(tempDir) );
-        boolean have_arg = args.length > 0,stderrPipe = true;
+        boolean have_arg = args.length > 0,stderrPipe = false;
         int argC = 4;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;

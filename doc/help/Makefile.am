@@ -3,7 +3,7 @@ HTMLHELP_XSLT_FLAGS= \
 
 noinst_HEADERS = rapidstorm_help_file.h
 
-pkgdata_DATA = $(builddir)/rapidstorm.chm
+doc_DATA = $(builddir)/rapidstorm.chm
 
 HTMLHELP_FILES = rapidstorm.css rapidstorm-job-status.PNG \
     rapidstorm-output-box.PNG rapidstorm-step-by-step-2.PNG \
@@ -28,4 +28,4 @@ EXTRA_DIST = rapidstorm.xml rapidstorm.xsl rapidstorm_pre.xsl $(HTMLHELP_FILES)
 	    $(<:.xml=.xsl) -
 
 rapidstorm_help_file.h :
-	echo 'namespace dStorm { static const char *HelpFileName = "rapidstorm.chm"; }' > $@
+	echo 'namespace dStorm { static const char *HelpFileName = "$(PACKAGE)/rapidstorm.chm"; }' > $@

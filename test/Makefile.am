@@ -1,3 +1,6 @@
+ACLOCAL_AMFLAGS = -I ../m4
+AUTOMAKE_OPTIONS = foreign
+
 C_TESTS = checkLargeVector Reconstruction vectorTest testSmoothing \
 	testGaussSmoothing testOpening testMaximumSearch cimgIOException \
 	dllExceptionTest cimgIOException dllExceptionTest
