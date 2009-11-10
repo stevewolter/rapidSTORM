@@ -35,11 +35,10 @@ AverageImage::receiveLocalizations(const EngineResult& er) {
 void AverageImage::propagate_signal(Output::ProgressSignal s)
  
 {
-    if (s == Job_finished_successfully) {
+    if (s == Engine_run_succeeded && filename != "" ) {
         ost::MutexLock lock(mutex);
         try {
-            if (filename != "")
-                image.get_normalize(0,255).save(filename.c_str());
+            image.get_normalize(0,255).save(filename.c_str());
         } catch (const cimg_library::CImgException& e) {
             cerr << "CImg: " << e.message << endl;
         }
