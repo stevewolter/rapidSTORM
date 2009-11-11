@@ -58,7 +58,7 @@ AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 # Checks for libraries.
 AC_CHECK_LIB([simparm], [main])
 # AC_CHECK_LIB([GraphicsMagick], [InitializeMagick])
-# AC_CHECK_LIB([GraphicsMagick++], [main])
+AC_CHECK_LIB([GraphicsMagick++], [main])
 
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
@@ -79,6 +79,8 @@ CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
 CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
+
+AM_WITH_DMALLOC
 
 # Select the windowing library needed for CImg
 case $host in 

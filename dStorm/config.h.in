@@ -12,6 +12,10 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `GraphicsMagick++' library
+   (-lGraphicsMagick++). */
+#undef HAVE_LIBGRAPHICSMAGICK__
+
 /* Define to 1 if you have the `simparm' library (-lsimparm). */
 #undef HAVE_LIBSIMPARM
 
@@ -103,6 +107,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define if using the dmalloc debugging malloc package */
+#undef WITH_DMALLOC
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

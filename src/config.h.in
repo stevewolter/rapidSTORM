@@ -12,9 +12,6 @@
 /* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
 #undef HAVE_LIBATMCD32D
 
-/* Define to 1 if you have the `GraphicsMagick' library (-lGraphicsMagick). */
-#undef HAVE_LIBGRAPHICSMAGICK
-
 /* Define to 1 if you have the `GraphicsMagick++' library
    (-lGraphicsMagick++). */
 #undef HAVE_LIBGRAPHICSMAGICK__

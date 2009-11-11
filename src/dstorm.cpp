@@ -1,9 +1,14 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "Garage.h"
 #include <stdexcept>
 #include <signal.h>
 #include <dStorm/helpers/thread.h>
 #include <stdlib.h>
-#ifdef HAVE_LIBMAGICK__
+
+#ifdef HAVE_LIBGRAPHICSMAGICK__
 #include <Magick++.h>
 #endif
 #include <CImg.h>
@@ -24,8 +29,9 @@ void sigsegv(int) {
 extern void foo();
 
 int main(int argc, char *argv[]) {
-#ifdef HAVE_LIBMAGICK__
+#ifdef HAVE_LIBGRAPHICSMAGICK__
     Magick::InitializeMagick(argv[0]);
+    Magick::Image foo( Magick::Geometry(767, 1), "white" );
 #endif
     cimg::exception_mode() = 0U;         /* Do not show CImg errors in windows. */
 

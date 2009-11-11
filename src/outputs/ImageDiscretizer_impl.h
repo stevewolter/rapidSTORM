@@ -2,6 +2,9 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
 #include "ImageDiscretizer.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 namespace dStorm {
 namespace output {
@@ -245,6 +248,7 @@ ImageDiscretizer<Colorizer, ImageListener>::key_value( LowDepth key )
     return (n+0.5f) / disc_factor;
 }
 
+#ifdef HAVE_LIBGRAPHICSMAGICK__
 template <typename Colorizer, typename ImageListener>
 void
 ImageDiscretizer<Colorizer, ImageListener>::write_full_image
@@ -294,6 +298,7 @@ ImageDiscretizer<Colorizer, ImageListener>::key_image()
     rv->syncPixels();
     return rv;
 }
+#endif
 
 }
 }

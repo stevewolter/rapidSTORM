@@ -21,7 +21,7 @@
 
 #include <dStorm/helpers/DisplayManager.h>
 
-#include "magick/log.h"
+#include "config.h"
 
 using namespace std;
 using namespace cimg_library;
@@ -69,7 +69,9 @@ struct Viewer::Implementation
     virtual ~Implementation() {}
     virtual output::Output& getForwardOutput() = 0;
 
+#ifdef HAVE_LIBGRAPHICSMAGICK__
     virtual void write_full_size_image(const char *filename) = 0;
+#endif
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;
@@ -230,6 +232,7 @@ class ColourDependantImplementation
     ~ColourDependantImplementation() {}
 
     output::Output& getForwardOutput() { return image; }
+#ifdef HAVE_LIBGRAPHICSMAGICK__
     virtual void write_full_size_image(const char *filename) 
     { 
         image.clean();
@@ -300,6 +303,7 @@ class ColourDependantImplementation
         image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
         image.write( filename );
     }
+#endif
 
     virtual void set_histogram_power(float power) 
         { discretization.setHistogramPower( power ); }
@@ -496,7 +500,9 @@ void Viewer::propagate_signal(ProgressSignal s) {
     if ( s == Engine_is_restarted || s == Engine_run_failed )
         isEmpty = true;
     else if (s == Engine_run_succeeded && tifFile) {
+#ifdef HAVE_LIBGRAPHICSMAGICK__
         writeToFile(tifFile());
+#endif
     }
 }
 
@@ -507,7 +513,12 @@ void Viewer::operator()(Node& src, Node::Callback::Cause cause,
         /* Save image */
         save.untrigger();
         if ( tifFile ) {
+#ifdef HAVE_LIBGRAPHICSMAGICK__
             writeToFile( tifFile() );
+#else
+	    throw std::logic_error(PACKAGE_NAME " was compiled without "
+                "Magick++ support and therefore can not save images.");
+#endif
         }
     } else if (&src == &quit.value && quit.triggered()) {
         /* Close viewer */
@@ -525,6 +536,7 @@ void Viewer::operator()(Node& src, Node::Callback::Cause cause,
     } 
 }
 
+#ifdef HAVE_LIBGRAPHICSMAGICK__
 void Viewer::writeToFile(const string &name) {
     try {
         MutexLock lock(structureMutex);
@@ -535,6 +547,7 @@ void Viewer::writeToFile(const string &name) {
         std::cerr << "Writing image failed: " << e.what() << endl;
     }
 }
+#endif
 
 }
 }
