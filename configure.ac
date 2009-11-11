@@ -55,7 +55,6 @@ AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
 AC_CHECK_LIB([simparm], [main])
-AC_CHECK_LIB([GraphicsMagick], [InitializeMagick])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
 

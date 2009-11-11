@@ -2,8 +2,14 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
 #include <dStorm/data-c++/Vector.h>
-#include <Magick++.h>
 #include <dStorm/input/Traits.h>
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_LIBGRAPHICSMAGICK__
+#include <Magick++.h>
+#endif
 
 namespace cimg_library { 
     template <typename PixelType> class CImg;
@@ -150,8 +156,10 @@ class ImageDiscretizer
     typename Colorizer::Pixel get_background() 
         { return colorizer.get_background(); }
 
+#ifdef HAVE_LIBGRAPHICSMAGICK__
     void write_full_image( Magick::Image& to_image, int x, int y );
     std::auto_ptr< Magick::Image > key_image();
+#endif
 
     float key_value( LowDepth key );
 
