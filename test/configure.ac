@@ -14,5 +14,5 @@ AM_WITH_DMALLOC
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/../doc -I \$(top_srcdir)/../src -I \$(top_srcdir)/.. $CPPFLAGS"
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile debug-plugin/Makefile])
 AC_OUTPUT
