@@ -55,7 +55,7 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     const Localization &f, double dev[4]) 
 
 {
-    double cx = f.getPreciseX(), cy = f.getPreciseY();
+    double cx = f.x(), cy = f.y();
     int cxr = round(cx), cyr = round(cy);
     /* Reject localizations too close to image border. */
     if ( cxr < msx || cyr < msy 

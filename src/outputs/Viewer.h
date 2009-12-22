@@ -20,7 +20,7 @@ namespace output {
 /** The Viewer class collects fits into a BinnedLocalizations
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
-class Viewer : public Output, public simparm::Object,
+class Viewer : public OutputObject,
                 public simparm::Node::Callback
 {
   private:

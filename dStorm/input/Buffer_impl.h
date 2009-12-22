@@ -128,7 +128,7 @@ Buffer<Object>::accept(int index, int number, Object* i)
 template<typename Object>
 simparm::Node& Buffer<Object>::getConfig()
 {
-    return *source;
+    return source->getNode();
 }
 
 }

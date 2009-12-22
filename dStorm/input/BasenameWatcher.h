@@ -44,8 +44,8 @@ class BasenameWatcher
                  i=watch.begin(); i!=watch.end(); i++)
             {
                 const StrAttr *a;
-                std::string name = (*i)->getName();
-                if ( (a = dynamic_cast<StrAttr*>(*i)) != NULL &&
+                std::string name = i->getName();
+                if ( (a = dynamic_cast<const StrAttr*>(&*i)) != NULL &&
                      name.substr(0,def_ext.size()) == def_ext )
                 {
                     /* This is an attribute for a filename extension.

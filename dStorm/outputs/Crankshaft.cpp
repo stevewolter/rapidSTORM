@@ -6,6 +6,8 @@
 #include <cassert>
 #include <dStorm/data-c++/Vector.h>
 
+#include <boost/shared_ptr.hpp>
+
 using namespace std;
 using namespace data_cpp;
 using namespace ost;
@@ -21,30 +23,36 @@ static std::string disambiguation(int id) {
 }
 
 class Crankshaft::Clutch : public simparm::Object {
-    Output *content;
+    Output& output;
+    boost::shared_ptr<Output> content;
     bool important;
   public:
-    Clutch(Output *content, bool important, int id)
+    Clutch(Output& content, bool important, int id, bool man)
         : simparm::Object(disambiguation(id), ""),
-          content(content), important(important) 
+          output( content ),
+          content( (man) ? &content : NULL), important(important) 
         { 
-            assert( content != NULL ); 
-            this->simparm::Node::push_back( *content );
+            assert( &output != NULL ); 
+            this->simparm::Node::push_back( output.getNode() );
         }
     Clutch( const Clutch& o ) 
-        : simparm::Node(o), simparm::Object(o),
+        : simparm::Object(o), output(o.output),
           content(o.content), important(o.important)
         {
-            this->simparm::Node::push_back( *content );
+            this->simparm::Node::push_back( output.getNode() );
         }
+    ~Clutch() 
+    {
+        this->simparm::Node::erase( output.getNode() );
+    }
     
-    Output* operator->() { return content; }
-    Output& operator*() { return *content; }
+    Output* operator->() { return &output; }
+    Output& operator*() { return output; }
     bool isImportant() const { return important; }
 };
 
-Crankshaft::Crankshaft () 
-: Object("Crankshaft", "Crankshaft"),
+Crankshaft::Crankshaft (const std::string& name) 
+: OutputObject(name, "Crankshaft"),
   id(0)
 {
     toDelete = clutches.end();
@@ -58,14 +66,13 @@ void Crankshaft::_add( Output *tm, bool imp, bool man, bool front )
 
     WriteLock changing_clutches(clutchesLock);
     PROGRESS("Crankshaft accepted transmission " << tm->getName());
-    clutches.push_back( Clutch( tm, imp, id++ ) );
+    clutches.push_back( Clutch( *tm, imp, id++, man ) );
     if ( front ) {
         this->Node::push_front( clutches.back() );
     }  else {
         this->Node::push_back( clutches.back() );
     }
     toDelete = clutches.end();
-    if (man) this->Node::manage( std::auto_ptr<Node>(tm) );
 }
 
 Output::AdditionalData
@@ -73,10 +80,10 @@ Crankshaft::announceStormSize(const Announcement &a)
  
 {
     ReadLock reader(clutchesLock);
-    AdditionalData data = NoData;
+    AdditionalData data;
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++){
         PROGRESS("Announcing size to transmission " << (*i)->getName());
-        data = AdditionalData( data | (*i)->announceStormSize(a) );
+        data |= (*i)->announceStormSize(a);
         PROGRESS("Announced size to transmission " << (*i)->getName());
     }
     return data;
@@ -130,7 +137,6 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
         MutexLock deletor(toDeleteLock);
         /* Double-check to avoid race conditions. */
         if ( toDelete != clutches.end() ) {
-            this->Node::erase( **toDelete );
             clutches.erase( toDelete );
             toDelete = clutches.end();
         }

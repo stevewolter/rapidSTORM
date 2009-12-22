@@ -36,6 +36,7 @@ _Temperature::_Temperature() :
 
 Temperature::Temperature(StateMachine& sm, Config &conf)
 : Object("Temperature", "Temperature"),
+  Node::Callback(Node::ValueChanged),
   sm(sm),
   targetTemperature(conf.targetTemperature),
   am_cooling(false)
@@ -44,10 +45,10 @@ Temperature::Temperature(StateMachine& sm, Config &conf)
 }
   
 Temperature::Temperature(const Temperature&c)
-: Node(c), Object(c),
+: Object(c),
   _Temperature(c),
   Listener(),
-  Node::Callback(),
+  Node::Callback(Node::ValueChanged),
   sm(c.sm),
   targetTemperature(c.targetTemperature),
   am_cooling(c.am_cooling)
@@ -62,7 +63,7 @@ Temperature::~Temperature()
 void Temperature::registerNamedEntries() 
 {
     receive_changes_from( doCool.value );
-    receive_changes_from( targetTemperature );
+    receive_changes_from( targetTemperature.value );
 
     push_back( targetTemperature );
     push_back( requiredTemperature );
@@ -70,12 +71,10 @@ void Temperature::registerNamedEntries()
     push_back( doCool );
 }
 
-void Temperature::operator()(Node &src, 
-    Node::Callback::Cause c, Node *)
- 
+void Temperature::operator()(Node &src, Node::Callback::Cause, Node *)
 {
     try {
-        if ( c == ValueChanged && &src == &doCool.value )
+        if ( &src == &doCool.value )
         {
             static ost::Mutex event_mutex;
             ost::MutexLock lock( event_mutex );
@@ -97,7 +96,7 @@ void Temperature::operator()(Node &src,
                 targetTemperature.editable = true;
             }
         }
-        else if ( c == ValueChanged && &src == &targetTemperature ) {
+        else if ( &src == &targetTemperature.value ) {
             requiredTemperature.setMin( targetTemperature() + 1 );
         }
     } catch (const std::exception&e ) {

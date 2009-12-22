@@ -3,6 +3,7 @@
 #include "ZoomSlider.h"
 #include "Key.h"
 #include "ScaleBar.h"
+#include <sstream>
 
 namespace dStorm {
 namespace Display {
@@ -24,7 +25,8 @@ Window::Window(
     timer(this, DISPLAY_TIMER),
     source(data_source),
     handle( my_handle ),
-    close_on_completion( props.flags.get_close_window_on_unregister() )
+    close_on_completion( props.flags.get_close_window_on_unregister() ),
+    notify_for_zoom( props.flags.get_notice_drawn_rectangle() )
 {
     const ResizeChange& init_size = props.initial_size;
     SetBackgroundColour(
@@ -38,6 +40,8 @@ Window::Window(
                 wxSize(init_size.width, init_size.height));
     zoom = new ZoomSlider( this, *canvas );
     zoom->set_zoom_listener( *this );
+
+    position_label = new wxStaticText(this, wxID_ANY, wxT(""));
 
     wxClientDC dc(this);
     wxSize size = dc.GetTextExtent( wxT("0123456789.") );
@@ -59,6 +63,7 @@ Window::Window(
     ver_sizer2->Add( new wxStaticText( this, wxID_ANY, wxT("Key (in ADC)")),
                     wxSizerFlags().Center().Border( wxALL, 10 ) );
     ver_sizer2->Add( key, wxSizerFlags(1).Expand() );
+    ver_sizer2->Add( position_label, wxSizerFlags() );
     outer_sizer->Add( ver_sizer1, wxSizerFlags(1).Expand() );
     outer_sizer->Add( ver_sizer2, wxSizerFlags().Expand() );
 
@@ -71,6 +76,8 @@ Window::Window(
 
 Window::~Window()
 {
+    if ( source != NULL ) 
+        source->notice_closed_data_window();
     if ( handle != NULL ) {
         wxManager::disassociate_window( this, handle );
         handle = NULL;
@@ -79,8 +86,8 @@ Window::~Window()
 
 void Window::OnTimer(wxTimerEvent& event) {
     if ( !source ) return;
-    std::auto_ptr<Change> changes = source->get_changes();
 
+    std::auto_ptr<Change> changes = source->get_changes();
     commit_changes(*changes);
 
     event.Skip();
@@ -90,9 +97,18 @@ template <typename Drawer>
 void Window::draw_image_window( const Change& changes ) {
     Drawer drawer( *canvas );
 
-    if ( changes.do_clear )
+    if ( changes.do_clear ) {
         drawer.clear( changes.clear_image.background );
+    }
 
+    int width = canvas->getWidth();
+    int height = canvas->getHeight();
+    if ( changes.do_change_image ) {
+        for ( int y = 0; y < height; y++ )
+            for ( int x = 0; x < width; x++)
+                drawer.draw(x, y, changes.image_change.pixels[x+y*width]);
+    }
+            
     data_cpp::VectorList<PixelChange>::const_iterator 
         i = changes.change_pixels.begin(),
         end = changes.change_pixels.end();
@@ -112,10 +128,11 @@ void Window::commit_changes(const Change& changes)
     }
 
     if ( changes.change_pixels.size() < 1000 &&
-            !changes.do_clear )
+            !changes.do_clear && !changes.do_change_image )
         draw_image_window<Canvas::DirectDrawer>(changes);
-    else
+    else {
         draw_image_window<Canvas::BufferedDrawer>(changes);
+    }
 
     key->draw_keys( changes.change_key );
 }
@@ -130,6 +147,26 @@ void Window::remove_data_source() {
 
     if ( close_on_completion )
         this->Destroy();
+}
+
+void Window::drawn_rectangle( wxRect rect ) {
+    if ( notify_for_zoom ) {
+        if ( source ) {
+            source->notice_drawn_rectangle( 
+                rect.GetLeft(), rect.GetRight(), 
+                rect.GetTop(), rect.GetBottom() );
+            std::auto_ptr<Change> changes = source->get_changes();
+            commit_changes(*changes);
+        }
+    } else {
+        canvas->zoom_to( rect );
+    }
+}
+
+void Window::mouse_over_pixel( wxPoint point ) {
+    std::stringstream label_text;
+    label_text << "(" << point.x << ", " << point.y << ")";
+    position_label->SetLabel( std_to_wx_string( label_text.str() ) );
 }
 
 void Window::zoom_changed( int to ) {

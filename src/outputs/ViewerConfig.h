@@ -23,6 +23,7 @@ class Viewer::_Config : public simparm::Object {
     _Config();
 
     void registerNamedEntries();
+    static bool can_work_with(Capabilities) { return true; }
 };
 
 }

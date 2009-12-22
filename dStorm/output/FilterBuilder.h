@@ -18,38 +18,20 @@ namespace output {
     {
         bool failSilently;
       public:
-        FilterBuilder(bool failSilently = false) 
-        : FilterSource(), failSilently(failSilently) 
-            { this->push_back( this->help_file ); }
-        FilterBuilder(const FilterBuilder& o) 
-        : simparm::Node(o), Type::Config(o),
-          FilterSource(o), failSilently(failSilently) 
-            { this->push_back( this->help_file ); }
-        FilterBuilder* clone() const { return new FilterBuilder(*this); }
-        virtual ~FilterBuilder() { simparm::Node::removeFromAllParents(); }
+        FilterBuilder(bool failSilently = false) ;
+        FilterBuilder(const FilterBuilder&);
+        FilterBuilder* clone() const; 
 
-        virtual std::auto_ptr<Output> make_output() 
- 
-        {
-            typename Type::Config& config =
-                static_cast<typename Type::Config&>(*this);
-            try {
-                return std::auto_ptr<Output>( new Type( 
-                    config, FilterSource::make_output() ) );
-            } catch ( Source_Is_Transparent& transparent ) {
-                return transparent.output;
-            } catch (...) {
-                if ( !failSilently ) 
-                    throw;
-                else
-                    return std::auto_ptr<Output>( NULL );
-            }
-        }
+        virtual void set_source_capabilities( Capabilities cap ); 
+
+        virtual std::auto_ptr<Output> make_output();
 
         std::string getDesc() const 
             { return Type::Config::getDesc(); }
     };
 }
 }
+
+#include "FilterBuilder_impl.h"
 
 #endif

@@ -1,4 +1,6 @@
 #include "Canvas.h"
+#include <stdexcept>
+#include <wx/dcbuffer.h>
 
 namespace dStorm {
 namespace Display {
@@ -31,8 +33,10 @@ Canvas::Canvas(
     SetBackgroundColour( *wxLIGHT_GREY );
 }
 
-void Canvas::set_listener(ZoomChangeListener* listener)
+void Canvas::set_listener(Listener* listener)
 {
+    if ( zcl != NULL )
+      throw std::logic_error("Second listener on zoom slider unsupported.");
     zcl = listener;
 }
 
@@ -54,7 +58,7 @@ int Canvas::transform( bool mode, Bound bound,
         bound );
 }
 
-wxRect Canvas::transformed_coords(
+const wxRect Canvas::transformed_coords(
     const wxRect& conversion, bool to_image_coords )
 {
     int left = transform( to_image_coords, Lower, conversion.x );
@@ -64,12 +68,24 @@ wxRect Canvas::transformed_coords(
     return wxRect( left, top, right - left + 1, bottom - top + 1 );
 }
 
-wxRect Canvas::image_coords( const wxRect& canvas_coords ) 
+const wxPoint Canvas::image_coords( const wxPoint& p ) 
+{
+    return wxPoint( transform( true, Lower, p.x ),
+                    transform( true, Lower, p.y ) );
+}
+
+const wxRect Canvas::image_coords( const wxRect& canvas_coords ) 
 {
     return transformed_coords( canvas_coords, true );
 }
 
-wxRect Canvas::canvas_coords( const wxRect& image_coords ) 
+const wxPoint Canvas::canvas_coords( const wxPoint& p ) 
+{
+    return wxPoint( transform( false, Lower, p.x ),
+                    transform( false, Lower, p.y ) );
+}
+
+const wxRect Canvas::canvas_coords( const wxRect& image_coords ) 
 {
     return transformed_coords( image_coords, false );
 }
@@ -80,6 +96,13 @@ wxRect Canvas::get_visible_region() {
     GetScrollPixelsPerUnit( &xr, &yr );
     GetClientSize( &xs, &ys );
     GetViewStart( &xl, &yl );
+
+    wxSize image_size =
+        wxSize( contents->GetWidth() , contents->GetHeight() ) 
+            * zoom_in_level / zoom_out_level;
+
+    xs = std::min( xs, image_size.GetWidth() - xl * xr );
+    ys = std::min( ys, image_size.GetWidth() - yl * yr );
     return wxRect( xl * xr, yl * yr, xs, ys );
 }
 
@@ -112,15 +135,20 @@ void Canvas::overdraw_rectangle(wxRect rect, wxDC *dc)
     edges[2] = wxRect( rect.GetTopRight(), ver );
     edges[3] = wxRect( rect.GetBottomLeft(), hor );
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++) {
         dc->DrawBitmap( zoomed_bitmap_for_canvas_region( edges[i] ),
                     edges[i].GetTopLeft() );
+    }
 }
 
 void Canvas::draw_zoom_rectangle( wxDC *dc )
 {
-    draw_rectangle( 
-        get_rect_by_corners( drag_start, drag_end ), dc );
+    wxRect drawn_rect = get_rect_by_corners( drag_start, drag_end );
+    wxRect max_rect( 
+        wxSize( contents->GetWidth(), contents->GetHeight() )
+            * zoom_in_level / zoom_out_level );
+    if ( drawn_rect.Intersects( max_rect ) )
+        draw_rectangle( drawn_rect.Intersect( max_rect ), dc );
 }
 
 void Canvas::zoom_to( wxRect rect )
@@ -205,7 +233,8 @@ void Canvas::DirectDrawer::draw( int x, int y, const Color& co ) {
 
     wxRect visible_region = c.get_visible_region();
     wxRect image_region( x, y, 1, 1 );
-    wxRect canvas_region = c.canvas_coords( image_region ).Inflate( Overlap );
+    wxRect canvas_region = c.canvas_coords( image_region );
+    canvas_region.Inflate( Overlap );
     if ( canvas_region.Intersects( visible_region ) ) {
         wxBitmap bitmap = c.zoomed_bitmap_for_canvas_region( canvas_region );
         dc.DrawBitmap( bitmap, canvas_region.GetTopLeft() );
@@ -231,9 +260,6 @@ void Canvas::DirectDrawer::clear( const Color &color ) {
         wxRect(0, 0, c.contents->GetWidth(), c.contents->GetHeight())) );
 
     BufferedDrawer::clear( color );
-
-    if ( c.mouse_state == Dragging )
-        c.draw_zoom_rectangle( &dc );
 }
 
 void Canvas::BufferedDrawer::finish() {
@@ -242,9 +268,15 @@ void Canvas::BufferedDrawer::finish() {
 
     wxRect canvas_region = c.get_visible_region();
     wxBitmap bitmap = c.zoomed_bitmap_for_canvas_region( canvas_region );
-    dc.DrawBitmap( bitmap, canvas_region.GetTopLeft() );
+    dc.DrawBitmap( bitmap, canvas_region.GetTopLeft(), false );
+
+    if ( c.mouse_state == Dragging )
+        c.draw_zoom_rectangle( &dc );
 }
-void Canvas::DirectDrawer::finish() {}
+void Canvas::DirectDrawer::finish() {
+    if ( c.mouse_state == Dragging )
+        c.draw_zoom_rectangle( &dc );
+}
 
 void Canvas::set_zoom(int zoom, wxPoint center)
 {
@@ -317,13 +349,29 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
         drag_end.y = event.GetY();
         draw_zoom_rectangle( &dc );
     }
+
+    wxRect visible_region = get_visible_region();
+    wxPoint mouse_in_canvas_space( 
+        event.GetX() + visible_region.GetLeft(),
+        event.GetY() + visible_region.GetTop() );
+    wxPoint mouse_position = image_coords( mouse_in_canvas_space );
+        
+    if ( zcl && last_mouse_position != mouse_position )
+        zcl->mouse_over_pixel( mouse_position );
+    last_mouse_position = mouse_position;
 }
 void Canvas::OnMouseUp( wxMouseEvent& event ) 
 {
+    wxClientDC dc( this );
+    DoPrepareDC( dc );
+    overdraw_rectangle( get_rect_by_corners( drag_start, drag_end ), &dc );
+
     drag_end.x = event.GetX();
     drag_end.y = event.GetY();
-    zoom_to( image_coords(
-        get_rect_by_corners( drag_start, drag_end ) ) );
+
+    if ( zcl )
+        zcl->drawn_rectangle(
+            image_coords( get_rect_by_corners( drag_start, drag_end ) ) );
     mouse_state = Moving;
 }
 

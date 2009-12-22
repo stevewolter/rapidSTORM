@@ -5,6 +5,7 @@
 #include <bitset>
 #include <dStorm/helpers/DisplayDataSource.h>
 #include <dStorm/helpers/thread.h>
+#include <boost/utility.hpp>
 
 namespace dStorm {
 namespace Display {
@@ -18,13 +19,14 @@ class ResizeChange;
  *  an WindowHandle using the register_data_source call,
  *  providing a callback through the DataSource interface.
  */
-class Manager {
+class Manager : boost::noncopyable {
   public:
+    static void setSingleton(Manager&);
     static Manager& getSingleton();
 
     /** WindowFlags summarize boolean flags for window
      *  behaviour. */
-    struct WindowFlags : public std::bitset<1> {
+    struct WindowFlags : public std::bitset<3> {
         /** If this flag is set, the window created by
          *  register_data_source is closed as soon as
          *  the WindowHandle is destroyed. Unset with
@@ -50,13 +52,21 @@ class Manager {
          *
          *  @param set Set the flag if this variable is
          *             true, unset otherwise. */
-        WindowFlags& wait_for_user_closing_window
-            (bool set = true)
+        WindowFlags& wait_for_user_closing_window(bool set = true)
             { this->set(1, set); return *this; }
-        /** This method unsets the
-         *   wait_for_user_closing_window flag. */
+        /** This method unsets the wait_for_user_closing_window flag. */
         WindowFlags& detach_from_window()
             { this->reset(1); return *this; }
+        /** If this flag is set to true, the data source's
+         *  notice_drawn_rectangle method will be called when a rectangle
+         *  drawing is completed. When not set (the default), the 
+         *  rectangle will be taken as region to zoom to. */
+        WindowFlags& notice_drawn_rectangle(bool set = true)
+            { this->set(2, set); return *this; }
+        /** This method unsets the notice_drawn_rectangle flag. */
+        WindowFlags& zoom_on_drawn_rectangle()
+            { this->reset(2); return *this; }
+        bool get_notice_drawn_rectangle() const { return (*this)[0]; }
     };
 
     /** The WindowProperties class provides the data
@@ -101,20 +111,10 @@ class Manager {
      *  not satisfied with the \c register_data_source
      *  interface, but need to do GUI stuff. */
     virtual void run_in_GUI_thread( ost::Runnable* code )=0;
-    /** Determines whether the display manager was started
-     *  at all. Non-thread-safe method prone to race
-     *  conditions. */
-    static bool was_started();
-    /** Close all remaining windows and shut down the
-     *  Manager. Warning: The manager should only be shut
-     *  down once during the whole program execution. */
-    virtual void close() = 0;
 
   protected:
     Manager() {}
-    Manager(const Manager&);
     virtual ~Manager() {}
-    Manager& operator=(const Manager&);
 };
 
 }

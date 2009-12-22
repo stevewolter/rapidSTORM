@@ -8,17 +8,19 @@ TraceCountFilter::TraceCountFilter(
     const Config& c,
     std::auto_ptr<output::Output> output
 ) 
-: simparm::Object("TraceFilter", "Trace filter"), minCount(c.min_count()), 
+: output::OutputObject("TraceFilter", "Trace filter"),
+  simparm::Node::Callback( Node::ValueChanged ),
+  minCount(c.min_count()), 
     disassemble(c.disassemble()), output(output),
     selectSpecific(c.selectSpecific),
     whichSpecific(c.whichSpecific),
     result_repeater(NULL)
 {  
-    receive_changes_from( this->selectSpecific );
-    receive_changes_from( this->whichSpecific );
+    receive_changes_from( this->selectSpecific.value );
+    receive_changes_from( this->whichSpecific.value );
     push_back(this->selectSpecific);
     push_back(this->whichSpecific);
-    push_back(*this->output); 
+    push_back(this->output->getNode()); 
 }
 
 int TraceCountFilter::count_localizations_in
@@ -46,9 +48,9 @@ void TraceCountFilter::processLocalization( const Localization& l)
 }
 
 void TraceCountFilter::operator()(Node& src, Cause c, Node*) {
-    if ( &src == &selectSpecific && c == ValueChanged ) {
+    if ( &src == &selectSpecific.value ) {
         whichSpecific.viewable = selectSpecific();
-    } else if ( &src == &whichSpecific && c == ValueChanged ) {
+    } else if ( &src == &whichSpecific.value ) {
         result_repeater->repeat_results();
     }
 }
@@ -61,12 +63,11 @@ TraceCountFilter::announceStormSize(const Announcement &a)
         result_repeater = a.result_repeater;
         selectSpecific.viewable = true;
         selectSpecific.editable = true;
-        receive_changes_from( selectSpecific );
-        receive_changes_from( whichSpecific );
+        receive_changes_from( selectSpecific.value );
+        receive_changes_from( whichSpecific.value );
     }
     processed_locs = 0;
-    return (AdditionalData)
-        (output->announceStormSize(a) | LocalizationSources);
+    return output->announceStormSize(a).set_cluster_sources();
 }
 
 void TraceCountFilter::propagate_signal(ProgressSignal s) { 

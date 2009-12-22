@@ -12,7 +12,7 @@
 
 namespace dStorm {
 namespace output {
-class Slicer : public simparm::Object, public Output {
+class Slicer : public OutputObject {
   public:
     class Source;
   private:
@@ -68,11 +68,12 @@ class Slicer : public simparm::Object, public Output {
         Output& operator*() { return *output; }
         const Output& operator*() const { return *output; }
     };
+    ost::Mutex outputs_mutex;
     std::vector<Child> outputs;
 
     /** Copy constructor undefined. */
     Slicer(const Slicer& c) 
-        : simparm::Node(c), Object(c), Output(c),
+        : OutputObject(c),
           outputs_choice("OutputChoice", "Select slice to display")
         { throw std::logic_error("dStorm::Slicer::Slicer(Copy) undef."); }
 
@@ -112,11 +113,14 @@ class Slicer::Source
 : public Slicer::Config, public FilterSource
 {
   public:
-    Source() : FilterSource() {}
+    Source() 
+        : FilterSource(static_cast<Slicer::Config&>(*this))
+        {}
     Source(const Source& o) 
-        : simparm::Node(o), Config(o), FilterSource(o) {}
+        : Config(o), 
+          FilterSource(static_cast<Slicer::Config&>(*this),
+                       o) {}
     Source* clone() const { return new Source(*this); }
-    virtual ~Source() { simparm::Node::removeFromAllParents(); }
 
     virtual std::auto_ptr<Output> make_output() 
  

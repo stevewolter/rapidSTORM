@@ -36,9 +36,10 @@ void Source<Pixel>::TIFF_error_handler(
 
 template<typename Pixel>
 Source<Pixel>::Source(const char *src)
-: SerialSource< CImg<Pixel> >
-    (BaseSource::Pushing | BaseSource::Pullable),
-   simparm::Set("TIFF", "TIFF image reader"),
+: simparm::Set("TIFF", "TIFF image reader"),
+  SerialSource< CImg<Pixel> >
+    ( static_cast<simparm::Node&>(*this),    
+      BaseSource::Pushing | BaseSource::Pullable),
    _width( this->Traits< CImg<Pixel> >::size.x() ),
    _height( this->Traits< CImg<Pixel> >::size.y() )
 {
@@ -131,7 +132,7 @@ Config<Pixel>::Config( input::Config& src)
   tiff_extension("extension_tiff", ".tiff"),
   tif_extension("extension_tif", ".tif")
 {
-    this->register_entry(&inputFile);
+    this->push_back(inputFile);
     inputFile.push_back(tif_extension);
     inputFile.push_back(tiff_extension);
 }
@@ -141,14 +142,13 @@ Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
     input::Config& src
 ) 
-: simparm::Node(c),
-  Method< CImg<Pixel> >(c),
+: Method< CImg<Pixel> >(c),
   master(src),
   inputFile(src.inputFile),
   tiff_extension(c.tiff_extension),
   tif_extension(c.tif_extension)
 {
-    this->register_entry(&inputFile);
+    this->push_back(inputFile);
     inputFile.push_back(tif_extension);
     inputFile.push_back(tiff_extension);
 }

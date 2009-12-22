@@ -3,6 +3,7 @@
 
 #include "Traits.h"
 #include <dStorm/engine/Image.h>
+#include <dStorm/engine/Input.h>
 #include <dStorm/Localization.h>
 
 namespace dStorm {
@@ -10,14 +11,16 @@ namespace input {
 
 template <>
 class Traits< Localization > 
-    : public engine::InputTraits 
+: public SizeTraits<Localization::Dim>
 {
   public:
+    Traits() : SizeTraits<Localization::Dim>() {}
+    Traits( SizeTraits<Localization::Dim> t )
+        : SizeTraits<Localization::Dim>(t) {}
+
     int imageNumber;
 
-    Traits() {}
-    Traits( const engine::InputTraits& imageTraits, int imageNumber )
-        : engine::InputTraits(imageTraits), imageNumber(imageNumber) {}
+    void apply_global_settings(const Config& c) {}
 };
 
 }

@@ -12,14 +12,14 @@ namespace outputs {
 template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
     (double res_enh, int crop)
-    : Object("BinnedLocalizations", ""),
+    : OutputObject("BinnedLocalizations", ""),
         crop(crop)
     { set_resolution_enhancement(res_enh); }
 
 template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
     (const BinnedLocalizations& o)
-: Object(o), re(o.re), crop(o.crop), r(o.r), base_image(o.base_image),
+: OutputObject(o), re(o.re), crop(o.crop), base_image(o.base_image),
   announcement( 
     (o.announcement.get() == NULL )
         ? NULL : new Announcement(*o.announcement) )
@@ -34,7 +34,7 @@ BinnedLocalizations<KeepUpdated>
     announcement.reset( new Announcement(a) );
     set_base_image_size();
     this->binningListener().announce( a );
-    return NoData;
+    return AdditionalData();
 }
 
 template <typename KeepUpdated>
@@ -61,13 +61,16 @@ BinnedLocalizations<KeepUpdated>
     for (int i = 0; i < er.number; i++) {
         const Localization& l = er.first[i];
         /* Find coordinates in resolution-enhanced space. */
-        int lx = l.getXLow(r)-crop*re, ly = l.getYLow(r)-crop*re;
+        Eigen::Vector2d pos_in_im = 
+            re * (l.position().start<2>().cwise() - crop);
+
+        int lx = floor(pos_in_im.x()), ly = floor(pos_in_im.y());
         if (   lx < 0 || lx+1 >= int(base_image.width) ||
                ly < 0 || ly+1 >= int(base_image.height) )
             continue;
-        float xf = l.getXR(r), yf = l.getYR(r);
+        float xf = pos_in_im.x() - lx, yf = pos_in_im.y() - ly;
 
-        float strength = l.getStrength();
+        float strength = l.strength();
 
         this->binningListener().announce( l );
 
@@ -108,7 +111,6 @@ void BinnedLocalizations<KeepUpdated>::
 {
     ost::MutexLock lock(mutex);
     this->re = re;
-    r = dStorm::Localization::getRaster(re);
 
     if ( announcement.get() != NULL && 
          announcement->result_repeater != NULL )
@@ -123,17 +125,19 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
  
 {
     input::Traits<BinnedImage> traits;
-    Eigen::Vector3d temp_size =
+    Eigen::Matrix<double,Localization::Dim,1> temp_size =
         (announcement->traits.size.cwise() - (1+2*crop))
             .cast<double>() * re;
-    for (int i = 0; i < traits.size.rows(); i++)
+    traits.size.fill( 1 );
+    for (int i = 0; i < std::min(temp_size.rows(), traits.size.rows());i++)
         traits.size[i] = 
             ceil( std::max<double>(0, temp_size[i]) ) + 1;
-    traits.resolution = announcement->traits.resolution / re;
-    traits.dim = announcement->traits.dim;
+    traits.resolution.start<Localization::Dim>()
+        = announcement->traits.resolution / re;
+    traits.resolution.end<3-Localization::Dim>().fill( 1 );
 
     base_image.resize(traits.dimx(),traits.dimy(),traits.dimz(),
-                      traits.dim, /* No init */ -1);
+                      1, /* No init */ -1);
     base_image.fill(0); 
     this->binningListener().setSize(traits);
 }

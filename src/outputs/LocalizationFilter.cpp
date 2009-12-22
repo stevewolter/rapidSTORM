@@ -2,6 +2,9 @@
 #include <limits>
 #include <dStorm/output/ResultRepeater.h>
 #include "doc/help/context.h"
+#include <Eigen/Array>
+
+#include "debug.h"
 
 namespace dStorm {
 namespace output {
@@ -79,18 +82,23 @@ LocalizationFilter::LocalizationFilter(
     const Config& c,
     std::auto_ptr<output::Output> output
 )
-    : simparm::Object("AF", "LocalizationFilter"),
-        from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
-        output(output)
+    : OutputObject("AF", "LocalizationFilter"),
+      simparm::Node::Callback( Node::ValueChanged ),
+      localizationsStore( new output::Localizations() ),
+      from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
+      two_kernel_significance(c.two_kernel_significance),
+      shift_velocity(0),
+      output(output)
 { 
     init();
 }
 
 LocalizationFilter::LocalizationFilter(const LocalizationFilter& o)
-: simparm::Node(o), simparm::Object(o), output::Output(o),
-  simparm::Node::Callback(),
-  localizationsStore(), 
+: OutputObject(o),
+  simparm::Node::Callback( Node::ValueChanged ),
+  localizationsStore( new output::Localizations(o.localizationsStore.getResults()) ), 
   from(o.from), to(o.to), x_shift(o.x_shift), y_shift(o.y_shift),
+  two_kernel_significance(o.two_kernel_significance),
   output( o.output->clone() )
 {
     init();
@@ -104,13 +112,12 @@ void LocalizationFilter::init()
 {
     v_from = from();
     v_to = to(); 
-    v_x_shift = x_shift();
-    v_y_shift = y_shift();
 
     receive_changes_from( from.value );
     receive_changes_from( to.value );
     receive_changes_from( x_shift.value );
     receive_changes_from( y_shift.value );
+    receive_changes_from( two_kernel_significance.value );
 
     re_emitter.reset( new ReEmitter( *this ) );
     re_emitter->start();
@@ -119,6 +126,7 @@ void LocalizationFilter::init()
     push_back( to );
     push_back( x_shift );
     push_back( y_shift );
+    push_back( two_kernel_significance );
 
     if ( output.get() != NULL )
         push_back( *output );
@@ -200,22 +208,23 @@ void LocalizationFilter::copy_and_modify_localizations(
 {
     for ( int i = 0; i < n; i++ ) {
         double strength = from[i].getStrength();
-        if ( strength >= v_from && strength <= v_to )
+        if ( strength >= v_from && strength <= v_to &&
+             from[i].two_kernel_improvement() < two_kernel_significance() )
         {
             /* Write localization behind array. Array will be enlarged
              * later. */
             new (to+to_count) Localization( from[i] );
             
             /* Move localization by drift correction. */
-            to[i].shiftX( v_x_shift * to[i].getImageNumber() );
-            to[i].shiftY( v_y_shift * to[i].getImageNumber() );
+            to[i].position() += shift_velocity * to[i].getImageNumber();
 
+            const Localization::Position& npos = to[i].position();
             /* Check if new coordinates are still valid. */
-            if (    to[i].x() < 0 || to[i].x() >= storm_width
-                 || to[i].y() < 0 || to[i].y() >= storm_height )
+            if (    (npos.cwise() < 0).any() || 
+                    (npos.cwise() >= traits.size.cast<double>()).any() )
             {
-                /* Do not increase to_count => localization will be
-                 * overwritten. */
+                /* Do not increase to_count to cause localizations to be
+                 * overwritten later. */
             } else {
                 to_count++;
             }
@@ -228,14 +237,14 @@ LocalizationFilter::emit_localizations(
     const Localization* p, int n, int forImage, const Localization *p2,
     int n2)
 {
-    Localization buffer[ n+n2 ];
+    data_cpp::Vector<Localization> buffer (n+n2);
     int end = 0;
-    if( p != NULL) copy_and_modify_localizations(p, n, buffer, end);
-    if( p2 != NULL) copy_and_modify_localizations(p2, n2, buffer, end);
+    if( p != NULL) copy_and_modify_localizations(p, n, buffer.ptr(), end);
+    if( p2 != NULL) copy_and_modify_localizations(p2, n2, buffer.ptr(), end);
 
     EngineResult eo;
     eo.number = end;
-    eo.first = buffer;
+    eo.first = buffer.ptr();
     eo.forImage = forImage;
     return output->receiveLocalizations(eo);
 }
@@ -244,10 +253,9 @@ Output::AdditionalData
 LocalizationFilter::announceStormSize(const Announcement& a) 
 
 { 
-    storm_width = a.traits.dimx(); storm_height = a.traits.dimy(); 
-    storm_length = a.length;
-    v_x_shift = x_shift() / a.length;
-    v_y_shift = y_shift() / a.length;
+    traits = a.traits;
+    shift_velocity.x() = x_shift() * 1E-9 / traits.resolution.x();
+    shift_velocity.y() = y_shift() * 1E-9 / traits.resolution.y();
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -257,7 +265,7 @@ LocalizationFilter::announceStormSize(const Announcement& a)
     my_announcement.result_repeater = re_emitter.get();
     AdditionalData data = output->announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
-        "LocalizationFilter", LocalizationSources, data );
+        "LocalizationFilter", AdditionalData().set_cluster_sources(), data );
     inputState = outputState = Running;
     return data;
 }
@@ -291,19 +299,22 @@ LocalizationFilter::receiveLocalizations(const EngineResult& e)
 }
 
 void LocalizationFilter::operator()
-    (simparm::Node& src, Cause c, simparm::Node*) 
+    (simparm::Node& src, Cause, simparm::Node*) 
 {
-    if ( &src == &from.value && c == ValueChanged ) {
+    if ( &src == &from.value ) {
         v_from = from();
         re_emitter->repeat_results();
-    } else if ( &src == &to.value && c == ValueChanged ) {
+    } else if ( &src == &to.value ) {
         v_to = to();
         re_emitter->repeat_results();
-    } else if ( &src == &x_shift.value && c == ValueChanged ) {
-        v_x_shift = x_shift() / storm_length;
+    } else if ( &src == &x_shift.value ) {
+        shift_velocity.x() = x_shift() * 1E-9 / traits.resolution.x();
+        DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
-    } else if ( &src == &y_shift.value && c == ValueChanged ) {
-        v_y_shift = y_shift() / storm_length;
+    } else if ( &src == &y_shift.value ) {
+        shift_velocity.y() = y_shift() * 1E-9 / traits.resolution.y();
+        re_emitter->repeat_results();
+    } else if ( &src == &two_kernel_significance.value ) {
         re_emitter->repeat_results();
     }
 }
@@ -313,8 +324,10 @@ LocalizationFilter::_Config::_Config()
   from("MinimumAmplitude", "Minimum localization strength"),
     to("MaximumAmplitude", "Maximum localization strength", 
         std::numeric_limits<double>::infinity() ),
-    x_shift("XDrift", "X drift correction"),
-    y_shift("YDrift", "Y drift correction")
+    x_shift("XDrift", "X drift correction (nm/frame)"),
+    y_shift("YDrift", "Y drift correction (nm/frame)"),
+    two_kernel_significance("TwoKernelSignificance", 
+        "Double spot ratio threshold", 0.02)
 {
     from.helpID = HELP_Filter_MinStrength;
 
@@ -327,12 +340,15 @@ LocalizationFilter::_Config::_Config()
 
     x_shift.helpID = HELP_Filter_XDrift;
     y_shift.helpID = HELP_Filter_YDrift;
-    x_shift.setMin(-10);
-    y_shift.setMin(-10);
-    x_shift.setMax(10);
-    y_shift.setMax(10);
+    x_shift.setMin(-1);
+    y_shift.setMin(-1);
+    x_shift.setMax(1);
+    y_shift.setMax(1);
     x_shift.setIncrement(0.01);
     y_shift.setIncrement(0.01);
+    two_kernel_significance.setMin(0);
+    two_kernel_significance.setMax(1);
+    two_kernel_significance.setIncrement(0.001);
 }
 
 void LocalizationFilter::_Config::registerNamedEntries() {
@@ -340,6 +356,7 @@ void LocalizationFilter::_Config::registerNamedEntries() {
     push_back(to);
     push_back(x_shift);
     push_back(y_shift);
+    push_back(two_kernel_significance);
 }
 
 }

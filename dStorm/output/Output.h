@@ -2,7 +2,6 @@
 #define DSTORM_TRANSMISSION_H
 
 #include <dStorm/Localization.h>
-#include <dStorm/input/Traits.h>
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/engine/CandidateTree_decl.h>
@@ -10,6 +9,9 @@
 #include <simparm/Set.hh>
 #include <iostream>
 #include <dStorm/helpers/thread.h>
+
+#include "Traits.h"
+#include "Capabilities.h"
 
 namespace dStorm {
 namespace output {
@@ -20,14 +22,11 @@ namespace output {
      *  progress of the computation, get an initial notification
      *  about static run properties and receive many EngineResult
      *  structures which contain localizations to process. */
-    class Output : public virtual simparm::Node {
+    class Output {
+        simparm::Node& node;
       public:
         class Announcement;
-        enum AdditionalData { 
-            NoData = 0x0, SourceImage = 0x1, SmoothedImage = 0x2, 
-            CandidateTree = 0x4, InputBuffer = 0x8,
-            LocalizationSources = 0x10, 
-            HighestBitInAdditionalData = LocalizationSources };
+        typedef Capabilities AdditionalData;
 
         class EngineResult;
         enum Result { KeepRunning, RemoveThisOutput, RestartEngine,
@@ -65,13 +64,16 @@ namespace output {
 
       public:
         friend std::ostream &
-            operator<<(std::ostream &o, AdditionalData data);
-        friend std::ostream &
             operator<<(std::ostream &o, Result r);
         friend std::ostream &
             operator<<(std::ostream &o, ProgressSignal r);
 
+      private:
+        Output(const Output&);
+        Output& operator=(const Output&);
       protected:
+        Output(simparm::Node& node) : node(node) {}
+        Output(simparm::Node& node, const Output&) : node(node) {}
         /** Method throws an exception when \c can_provide does not
          *  cover \c are_desired, and does nothing otherwise. */
         static void check_additional_data_with_provided
@@ -80,7 +82,12 @@ namespace output {
 ;
       public:
         virtual ~Output() {}
-        Output* clone() const = 0;
+        virtual Output* clone() const = 0;
+
+        simparm::Node& getNode() { return node; }
+        operator simparm::Node&() { return node; }
+        const simparm::Node& getNode() const { return node; }
+        operator const simparm::Node&() const { return node; }
 
         /** This method is called before the rapidSTORM engine is run. It's
          *  parameters are the width and the height of a source image and the
@@ -100,10 +107,7 @@ namespace output {
     struct Output::Announcement {
         /** Traits of the source images, including dimensions and
          *  resolution. */
-        const dStorm::engine::InputTraits traits;
-
-        /** Number of images in the input movie. */
-        int length;    
+        const Traits traits;
 
         /** If the data source knows which carburettor supplies the
           * images, this pointer is set to it, and NULL otherwise. */
@@ -113,8 +117,7 @@ namespace output {
         ResultRepeater *result_repeater;
 
         Announcement(
-            const dStorm::engine::InputTraits& traits,
-            int length,
+            const Traits& traits,
             dStorm::engine::Input* carburettor = NULL,
             ResultRepeater *repeater = NULL);
     };
@@ -141,6 +144,18 @@ namespace output {
          *  this pointer points to the candidate merging tree. */
         const dStorm::engine::CandidateTree<dStorm::engine::SmoothedPixel>
             *candidates;
+    };
+
+    class OutputObject : public simparm::Object, public Output {
+        OutputObject& operator=(const OutputObject&);
+      public:
+        OutputObject(const std::string& name, const std::string& desc)
+            : simparm::Object(name, desc), 
+              Output( static_cast<simparm::Node&>(*this) ) {}
+        OutputObject(const OutputObject& o)
+            : simparm::Object(o), Output(*this, o) {}
+        ~OutputObject() {}
+        OutputObject* clone() const = 0;
     };
 
 }

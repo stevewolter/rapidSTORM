@@ -148,7 +148,8 @@ long Acquisition::getNextImage(uint16_t *buffer) {
         SDK::Range get;
         get.first = get.second = cur_image;
         SDK::Range r;
-        PROGRESS("Reading buffer of size " << getImageSizeInPixels());
+        PROGRESS("Reading image " << cur_image << " into buffer of size "
+                 << getImageSizeInPixels());
         SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
         if (r.first != next_image)
             throw Error("Expected to read image %i, did read %i.", 
@@ -171,10 +172,12 @@ void Acquisition::waitForNewImages() {
     while ( ! range.haveNew ) {
         PROGRESS("Acquisition asks SDK to wait for new images");
         SDK::AcquisitionState rc = SDK::WaitForAcquisition();
-        PROGRESS("Acquisition returned from SDK-wait");
-        if (rc == SDK::New_Images)
+        PROGRESS("Wait returned " << rc);
+        if (rc == SDK::New_Images) {
             range = SDK::GetNumberNewImages();
-        else if (rc == SDK::No_New_Images)  {
+            PROGRESS("New range is " << range.first << " to " 
+                     << range.second << ", new is " << range.haveNew);
+        } else if (rc == SDK::No_New_Images)  {
             /* This means the event loop in WaitForAcquisition() got
              * terminated early. Retry. */
         }

@@ -1,16 +1,10 @@
 in Car in Output set EngineOutput set ChooseTransmission = Table
-in Car in Output set EngineOutput set AddOutput = 1
 in Car in Output set EngineOutput in Output0 set Table set FailSilently = true
 in Car in Output set EngineOutput in Output0 in Table set ToFile extension -raw.txt
 in Car in Output set EngineOutput set ChooseTransmission = Count
-in Car in Output set EngineOutput set AddOutput = 1
 in Car in Output set EngineOutput set ChooseTransmission = Progress
-in Car in Output set EngineOutput set AddOutput = 1
 in Car in Output set EngineOutput set ChooseTransmission = LocalizationFilter
-in Car in Output set EngineOutput set AddOutput = 1
 in Car in Output set EngineOutput in Output3 set LocalizationFilter set ChooseTransmission = Table
-in Car in Output set EngineOutput in Output3 set LocalizationFilter set AddOutput = 1
 in Car in Output set EngineOutput in Output3 set LocalizationFilter in Output0 set Table set FailSilently = true
 in Car in Output set EngineOutput in Output3 set LocalizationFilter set ChooseTransmission = Image
 in Car in Output set EngineOutput in Output3 set LocalizationFilter set ChooseTransmission set Image set ShowOutput = true
-in Car in Output set EngineOutput in Output3 set LocalizationFilter set AddOutput = 1

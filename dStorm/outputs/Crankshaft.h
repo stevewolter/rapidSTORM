@@ -8,7 +8,7 @@
 namespace dStorm {
 namespace outputs {
 
-class Crankshaft : public output::Output, public simparm::Object {
+class Crankshaft : public output::OutputObject {
     class Source;
 
     ost::ThreadLock clutchesLock;
@@ -32,7 +32,7 @@ class Crankshaft : public output::Output, public simparm::Object {
   public:
     enum Type { Yield, State };
 
-    Crankshaft ();
+    Crankshaft (const std::string& name = "Crankshaft");
     virtual ~Crankshaft ();
     Crankshaft *clone() const 
         { throw std::runtime_error(

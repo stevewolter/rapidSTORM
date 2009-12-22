@@ -22,7 +22,7 @@ namespace engine {
 void (*SigmaGuesser_fitCallback)(double , double, double, int , bool) = NULL;
 
 SigmaGuesserMean::SigmaGuesserMean(Config &c, Input &i)
-: Object("SigmaGuesser", "Standard deviation estimator"),
+: OutputObject("SigmaGuesser", "Standard deviation estimator"),
   config(c), input(i), fitter(new SigmaFitter(c)),
   status("Status", "Std. dev. estimation")
 {

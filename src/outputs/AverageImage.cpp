@@ -17,7 +17,7 @@ AverageImage::_Config::_Config()
 }
 
 AverageImage::AverageImage( const Config &config )
-: simparm::Object("AverageImage", "Image averaging status"),
+: OutputObject("AverageImage", "Image averaging status"),
   filename(config.outputFile()) {}
 
 AverageImage* AverageImage::clone() const 

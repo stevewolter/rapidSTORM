@@ -13,7 +13,7 @@ namespace output { class OutputSource; }
 namespace engine {
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
-    class CarConfig : public simparm::Object {
+    class CarConfig : public simparm::Set {
       private:
         class TreeRoot;
         std::auto_ptr<input::Config> _inputConfig;

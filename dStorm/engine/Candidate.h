@@ -1,6 +1,7 @@
 #ifndef DSTORM_ENGINE_CANDIDATE_H
 #define DSTORM_ENGINE_CANDIDATE_H
 
+#include "Candidate_decl.h"
 #include "Spot.h"
 #include <memory>
 
@@ -21,7 +22,6 @@ namespace engine {
          void merge(const Candidate<PixelType> &with)
             { this->second.add(with.second); }
          inline bool operator<(const Candidate<PixelType>& other) const
- 
             { if ( this->first > other.first) return true;
               else if (this->first < other.first) return false;
               else if (this->second.x() < other.second.x()) return true;

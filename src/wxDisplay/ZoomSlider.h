@@ -9,18 +9,19 @@ namespace Display {
 
 class ZoomSlider 
     : public wxSlider,
-      public Canvas::ZoomChangeListener
+      public Canvas::Listener
 {
     Canvas &canvas;
-    Canvas::ZoomChangeListener* listener;
+    Canvas::Listener* listener;
   public:
     ZoomSlider( wxWindow *parent, Canvas &canvas );
     void zoom_changed( int to );
+    void drawn_rectangle( wxRect rect );
+    void mouse_over_pixel( wxPoint );
 
     void OnZoomChange( wxScrollEvent& event );
 
-    void set_zoom_listener( Canvas::ZoomChangeListener& listener )
-        { this->listener = &listener; }
+    void set_zoom_listener( Canvas::Listener& listener );
 
     DECLARE_EVENT_TABLE();
 };

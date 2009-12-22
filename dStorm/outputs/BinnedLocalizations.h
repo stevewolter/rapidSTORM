@@ -83,8 +83,7 @@ namespace outputs {
      **/
     template <typename KeepUpdated = DummyBinningListener>
     class BinnedLocalizations 
-        : public dStorm::output::Output, public simparm::Object,
-          public BinningPublisher<KeepUpdated>
+        : public output::OutputObject, public BinningPublisher<KeepUpdated>
     {
       protected:
         /** Mutex protects all methods from the dStorm::Output
@@ -94,8 +93,6 @@ namespace outputs {
         double re;
         /** Crop given in the constructor. */
         int crop;
-        /** Resolution enhancement in terms of Localization class. */
-        Localization::Raster r;
         /** Accumulator image, or in other terms, the density image of
          *  localizations. */
         BinnedImage base_image;

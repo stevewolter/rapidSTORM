@@ -27,7 +27,7 @@ _Config::_Config()
     marquardtStartLambda("MarquardtStartLambda",
         "Start value for Marquardt lambda factor", 1E-2),
     maximumIterationSteps("MaximumIterationSteps",
-        "Maximum number of iteration steps for spot fitting", 15),
+        "Maximum number of iteration steps for spot fitting", 100),
     negligibleStepLength("NegligibleStepLength", 
         "Maximum length of negligibly short iteration step", 5E-3),
     successiveNegligibleSteps("SuccessiveNegligibleSteps",
@@ -132,35 +132,42 @@ _Config::~_Config() {
 }
 
 void _Config::registerNamedEntries() {
-    register_entry(&sigma_x);
-    register_entry(&sigma_y);
-    register_entry(&sigma_xy);
-    register_entry(&delta_sigma);
-    register_entry(&sigma_xy_negligible_limit);
-    register_entry(&fixSigma);
-    register_entry(&freeSigmaFitting);
+    push_back(sigma_x);
+    push_back(sigma_y);
+    push_back(sigma_xy);
+    push_back(delta_sigma);
+    push_back(sigma_xy_negligible_limit);
+    push_back(fixSigma);
+    push_back(freeSigmaFitting);
 
-    register_entry(&maskSizeFactor);
-    register_entry(&spotFindingMethod);
+    push_back(maskSizeFactor);
+    push_back(spotFindingMethod);
 
-    register_entry(&marquardtStartLambda);
-    register_entry(&maximumIterationSteps);
-    register_entry(&negligibleStepLength);
-    register_entry(&successiveNegligibleSteps);
-    register_entry(&fitSizeFactor);
+    push_back(marquardtStartLambda);
+    push_back(maximumIterationSteps);
+    push_back(negligibleStepLength);
+    push_back(successiveNegligibleSteps);
+    push_back(fitSizeFactor);
 
-    register_entry(&amplitude_threshold);
-    register_entry(&motivation);
-    register_entry(&asymmetry_threshold);
+    push_back(amplitude_threshold);
+    push_back(motivation);
+    push_back(asymmetry_threshold);
 
     push_back( pistonCount );
 }
 
 
+Config::SigmaUserLevel::SigmaUserLevel(_Config &config)
+ : config(config) 
+{ 
+    receive_changes_from( config.fixSigma.value );
+    (*this)( config.fixSigma.value, ValueChanged, NULL ); 
+}
+
 void Config::SigmaUserLevel::operator()
     (Node& src, Cause cause, Node *) 
 {
-    if (&src == &config.fixSigma && cause == ValueChanged) {
+    if (&src == &config.fixSigma.value && cause == ValueChanged) {
         Entry::UserLevel userLevel
             = (config.fixSigma()) ? Entry::Beginner
                          : Entry::Expert;
@@ -177,8 +184,7 @@ Config::Config()
 }
 
 Config::Config(const Config& c) 
-: Node(c), 
-  _Config(c),
+: _Config(c),
   user_level_watcher( *this ) /* Fresh callbacks - don't want to fremd-listen */
 { 
     registerNamedEntries();

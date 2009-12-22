@@ -22,15 +22,15 @@ class RawImageFile::LookaheadImg
         { return o.num < num; }
 };
 
+static std::string tiff_error;
+
 void RawImageFile::error_handler( const char* module,
                            const char* fmt, va_list ap )
 {
-    int size = 4096;
+    const int size = 4096;
     char buffer[size];
     vsnprintf( buffer, 4096, fmt, ap );
-    throw std::runtime_error("TIFF writing error: " + 
-        std::string((module != NULL) ? module : "") + 
-        std::string( buffer));
+    tiff_error = buffer;
 }
 
 RawImageFile::_Config::_Config() 
@@ -41,15 +41,18 @@ RawImageFile::_Config::_Config()
 }
 
 RawImageFile::RawImageFile(const Config& config)
-: simparm::Object("RawImage", "Saving raw images"),
+: OutputObject("RawImage", "Saving raw images"),
   next_image(0)
 {
+    if ( ! config.outputFile )
+        throw std::runtime_error(
+            "No file name supplied for raw image output");
     TIFFSetErrorHandler( &error_handler );
     std::string filename = config.outputFile();
     tif = TIFFOpen( filename.c_str(), "w" );
-    /* If there has been any error, an exception was thrown by the
-     * error handler. */
-    assert( tif != NULL );
+    if ( tif == NULL ) 
+        throw std::runtime_error("Unable to open TIFF file" + 
+                                 tiff_error);
 }
 
 Output::AdditionalData
@@ -57,7 +60,7 @@ RawImageFile::announceStormSize(const Announcement &) {
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
 
-    return SourceImage;
+    return AdditionalData().set_source_image();
 }
 
 Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)

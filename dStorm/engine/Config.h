@@ -85,10 +85,7 @@ namespace engine {
         class SigmaUserLevel : public Node::Callback {
             _Config& config;
           public:
-            SigmaUserLevel(_Config &config) : config(config) { 
-                receive_changes_from( config.fixSigma );
-                (*this)( config.fixSigma, ValueChanged, NULL ); 
-            }
+            SigmaUserLevel(_Config &config);
             void operator()(Node& source, Cause cause, Node *arg);
         };
         SigmaUserLevel user_level_watcher;

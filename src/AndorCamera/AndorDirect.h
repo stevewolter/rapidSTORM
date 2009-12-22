@@ -30,22 +30,25 @@ namespace dStorm {
         typedef cimg_library::CImg<CameraPixel> CamImage;
         typedef input::Source< CamImage > CamSource;
         typedef input::Method<CamImage> CamConfig;
+        typedef input::Traits<CamImage> CamTraits;
 
         /** The Config class provides the configuration items for Andor camera
          *  acquisition that are acquisition-specific - control elements and
          *  acquisition area borders. All camera specific parameters are in
          *  AndorCamera::Config. */
-        class Config : public CamConfig
+        class Config : public CamConfig, public simparm::Node::Callback
         {
           private:
             class CameraSwitcher;
             std::auto_ptr<CameraSwitcher> switcher;
             simparm::FileEntry basename;
+            const simparm::DoubleEntry& resolution_element;
 
             void registerNamedEntries();
 
           protected:
             CamSource* impl_makeSource();
+            void operator()(Node &, Cause, Node *);
 
           public:
             Config(input::Config& src);
@@ -66,14 +69,14 @@ namespace dStorm {
          *  from Andor cameras present on the system. It needs the
          *  AndorCamera library to compile. */
         class Source 
-        : public CamSource, public simparm::Set, private ost::Thread
+        : public simparm::Set, public CamSource, private ost::Thread
         {
           private:
             AndorCamera::CameraReference control;
             ost::Mutex initMutex;
             ost::Condition is_initialized;
             bool initialized;
-            int width, height, numImages;
+            int numImages;
             AndorCamera::Acquisition acquisition;
 
             void run() throw();

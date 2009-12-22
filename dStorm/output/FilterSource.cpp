@@ -6,6 +6,8 @@
 #include "SourceFactory.h"
 #include "doc/help/context.h"
 
+#include "debug.h"
+
 namespace dStorm {
 namespace output {
 
@@ -30,52 +32,49 @@ struct FilterSource::RemovalObject : public simparm::Object {
 void FilterSource::registerNamedEntries()
 {
     if ( factory.get() != NULL ) {
+        DEBUG("Resetting state of source factory in filter source");
         factory->reset_state();
 
+        DEBUG("Registering entries");
         removeSelector->viewable = (removeSelector->numChoices() > 0);
-        removeButton.viewable = (removeSelector->numChoices() > 0);
-        Node::push_back( *factory );
-        Node::push_back( addButton );
-        Node::push_back( *removeSelector );
-        Node::push_back( removeButton );
-        receive_changes_from( addButton );
-        receive_changes_from( removeButton );
+        getNode().push_back( factory->getNode() );
+        getNode().push_back( *removeSelector );
+        receive_changes_from( factory->getNode() );
+        receive_changes_from( removeSelector->value );
+        DEBUG("Registered entries");
     }
 }
 
-FilterSource::FilterSource()
-: next_identity(0),
+FilterSource::FilterSource(simparm::Node& node)
+: OutputSource( node ),
+  Callback( ValueChanged ),
+  next_identity(0),
   factory( NULL ),
-  addButton("AddOutput", "Add selected output") ,
-  removeButton("RemoveOutput", "Remove selected output"),
   removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
         "ToRemove", "Select output to remove") )
 {
-    addButton.helpID = HELP_AddOutput;
-    removeButton.helpID = HELP_RemoveOutput;
+    removeSelector->set_auto_selection( false );
     removeSelector->helpID = HELP_ToRemove;
-    registerNamedEntries();
 }
 
-FilterSource::FilterSource (const FilterSource& o)
-: simparm::Node(o), OutputSource(o),
-    simparm::Node::Callback(),
+FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
+: OutputSource(node, o),
+    simparm::Node::Callback(ValueChanged),
     next_identity(o.next_identity),
     factory( NULL ),
     outputs(),
-    addButton(o.addButton),
-    removeButton(o.removeButton),
     removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
         "ToRemove", "Select output to remove") )
 {
+    removeSelector->set_auto_selection( false );
     //if ( o.is_initialized() ) initialize(*o.factory);
-    registerNamedEntries();
     for ( const_iterator i = o.begin(); i != o.end(); i++ ) {
         add( std::auto_ptr<OutputSource>( (*i)->clone() ) );
     }
 }
 
 FilterSource::~FilterSource() {
+        DEBUG("Destroying filter source");
 }
 
 FilterSource::BasenameResult
@@ -93,8 +92,6 @@ FilterSource::set_output_file_basename
         if ( r == Basename_Conflicted )
             return r;
     }
-    if ( is_initialized() ) 
-        factory->set_output_file_basename( basename, avoid );
 
     return Basename_Accepted;
 }
@@ -115,10 +112,8 @@ void FilterSource::remove( OutputSource& src ) {
 void FilterSource::operator()
     ( simparm::Node& src, Cause c, simparm::Node *)
 {
-    if (&src == &addButton && c == ValueChanged && 
-        addButton.triggered()) 
+    if (&src == &factory->getNode() )
     {
-        addButton.untrigger();
         try {
             std::auto_ptr<OutputSource> fresh
                                     = factory->make_output_source();
@@ -126,18 +121,15 @@ void FilterSource::operator()
                 if ( basename != "" )
                     fresh->set_output_file_basename(basename, *avoid);
                 add( fresh );
+                /* To give some kind of visual feedback that the action was
+                * performed, we reset the factory ( which means, normally,
+                * that no item is selected in the chooser ). */
+                factory->reset_state();
             }
-            /* To give some kind of visual feedback that the action was
-             * performed, we reset the factory ( which means, normally,
-             * that no item is selected in the chooser ). */
-            factory->reset_state();
         } catch (const std::exception& e) {
             std::cerr << e.what() << "\n";
         }
-    } else if (&src == &removeButton && c == ValueChanged && 
-        removeButton.triggered()) 
-    {
-        removeButton.untrigger();
+    } else if (&src == removeSelector.get() ) {
         if ( removeSelector->isValid() ) {
             remove( *removeSelector->value().src );
         }
@@ -147,22 +139,19 @@ void FilterSource::operator()
 void FilterSource::link_transmission
     ( OutputSource* src ) 
 {
-    FilterSource* fwd_child 
-        = dynamic_cast<FilterSource*>(src);
-    if ( fwd_child != NULL ) {
-        fwd_child->focus_immediately = true;
-        if ( is_initialized() )
-            fwd_child->initialize( *factory );
-    }
-
     std::stringstream nodeName;
     nodeName << "Output" << next_identity++;
 
     std::auto_ptr<simparm::Object> addNode( 
         new simparm::Object(nodeName.str(), "") );
-    addNode->push_back( *src );
-    this->push_back( *addNode );
-    src->manage( addNode.release() );
+
+    simparm::Node::iterator linkit 
+        = addNode->insert( addNode->end(), src->getNode() );
+
+    /* Manage the add node with the link. */
+    linkit.get_link().delete_up_end_on_link_break();
+    simparm::Object& addNodeRef = *addNode.release();
+    getNode().push_back( addNodeRef );
 
     std::auto_ptr<RemovalObject> removeNode( 
         new RemovalObject(nodeName.str(), src, outputs) );
@@ -170,17 +159,24 @@ void FilterSource::link_transmission
     removeSelector->addChoice( removeNode );
 
     removeSelector->viewable = true;
-    removeButton.viewable = true;
 }
 
-void FilterSource::initialize (const SourceFactory& o) 
- 
+void FilterSource::set_output_factory (const SourceFactory& o) 
 {
+    DEBUG("Trying to set output factory");
     if ( factory.get() == NULL ) { 
+        DEBUG("No output factory present, setting new factory");
         factory.reset( o.clone() ); 
         registerNamedEntries();
     }
 }
+
+void FilterSource::set_source_capabilities( Capabilities cap ) {
+    if ( is_initialized() ) {
+        factory->set_source_capabilities( cap );
+    }
+}
+
 
 std::auto_ptr<Output> 
 FilterSource::make_output()

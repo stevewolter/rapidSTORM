@@ -31,6 +31,7 @@ _ShiftSpeedControl::_ShiftSpeedControl() :
 
 ShiftSpeedControl::ShiftSpeedControl(StateMachine& sm, Config &conf)
 : Object("ShiftSpeedControl", "ShiftSpeedControl"),
+  Node::Callback(Node::ValueChanged),
   sm(sm),
   outputAmp( conf.outputAmp ),
   VS_Speed( conf.VS_Speed ),
@@ -40,10 +41,10 @@ ShiftSpeedControl::ShiftSpeedControl(StateMachine& sm, Config &conf)
 }
   
 ShiftSpeedControl::ShiftSpeedControl(const ShiftSpeedControl&c)
-: Node(c), Object(c),
+: Object(c),
   _ShiftSpeedControl(c),
   Listener(),
-  Node::Callback(),
+  Node::Callback(Node::ValueChanged),
   sm(c.sm),
   outputAmp( c.outputAmp ),
   VS_Speed( c.VS_Speed ),
@@ -104,7 +105,7 @@ void ShiftSpeedControl::operator()(Node &src,
  
 {
     try {
-        if (&src == &adChannel.value && c == ValueChanged) {
+        if (&src == &adChannel.value) {
             fillHSSpeed();
         } 
     } catch (const std::exception&e ) {

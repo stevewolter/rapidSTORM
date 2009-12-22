@@ -14,4 +14,4 @@ AM_CPPFLAGS = \
     -I $(top_srcdir) -I $(top_builddir)/..
 
 testDisplay_SOURCES = test.cpp
-testDisplay_LDADD = libdStorm_display.la ../../cc++/libccgnu2_fixed.la 
+testDisplay_LDADD = ../../dStorm/libdStorm.la libdStorm_display.la

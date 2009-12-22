@@ -3,8 +3,9 @@
 namespace dStorm {
 namespace input {
 
-BaseSource::BaseSource(BaseSource::Flags flags)
-    : _pushes(flags & Pushing), _canBePulled(flags & Pullable),
+BaseSource::BaseSource(simparm::Node& node, BaseSource::Flags flags)
+    : node(node),
+      _pushes(flags & Pushing), _canBePulled(flags & Pullable),
       _managed(flags & Managing), 
       _concurrent(flags & Concurrent),
       roi_start(0), roi_end(std::numeric_limits<unsigned int>::max())

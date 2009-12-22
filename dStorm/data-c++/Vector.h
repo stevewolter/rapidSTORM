@@ -112,7 +112,7 @@ class Vector {
     inline void realloc_if_necessary(int number = 1) 
     {
         if (length + number > alloc) {
-            alloc *= 2;
+            alloc = std::max(alloc * 2, number);
             do_realloc();
         }
     }
@@ -149,30 +149,28 @@ class Vector {
   public:
     /** Construct an empty vector with a capacity of 10. */
     Vector () 
-    : data(NULL), length(0), alloc(10) 
-    { do_realloc(); }
-    /** Construct an empty vector with a size and capacity of \c initialSize. */
-    Vector (int initialSize)
-    : data(NULL), length(initialSize), alloc(initialSize) 
-    { do_realloc();
-      for (int i = 0; i < length; i++) new(data+i) Type(); }
+        : data(NULL), length(0), alloc(10) 
+        { do_realloc(); }
+    /** Construct an empty vector with a capacity of \c initial_capacity */
+    Vector (int initial_allocation)
+        : data(NULL), length(0), alloc(initial_allocation) 
+        { do_realloc(); }
     /** Construct an empty vector with a size and capacity of \c initialSize
      *  and copy its values from init_val. */
     Vector (int initial_size, const Type& init_val)
-    : data(NULL), length(initial_size), alloc(initial_size) 
-    { do_realloc(); clone_entries(init_val, 0, initial_size); 
-    }
+        : data(NULL), length(initial_size), alloc(initial_size) 
+        { do_realloc(); clone_entries(init_val, 0, initial_size); }
     /** Construct an empty vector with a size of \c initial_size and capacity
      *  of \c initial_allocation and copy its values from init_val. */
     Vector (int initial_allocation, int initial_size, 
             const Type& init_val) 
-    : data(NULL), length(initial_size), alloc(initial_allocation) 
-    { do_realloc(); clone_entries(init_val, 0, initial_size); }
+        : data(NULL), length(initial_size), alloc(initial_allocation) 
+        { do_realloc(); clone_entries(init_val, 0, initial_size); }
 
     /** There is no copy constructor for a Vector for efficiency reasons.*/
     Vector (const Vector<Type>& copy_from) 
-    : data(NULL), length(0), alloc(0)
-    { (*this) = copy_from; }
+        : data(NULL), length(0), alloc(0)
+        { (*this) = copy_from; }
     /** No assignment as well */
     Vector<Type>& operator=(const Vector<Type>& from) 
     {
@@ -182,6 +180,7 @@ class Vector {
             do_realloc();
         }
         MemMover::copy( data, from.data, length );
+        length = from.length;
         return *this;
     }
 

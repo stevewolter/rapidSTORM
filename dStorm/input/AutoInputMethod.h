@@ -61,9 +61,9 @@ namespace input {
         : BaseMethod("Auto", "File"),
           master(master), recursive(false) 
         {
-            this->register_entry(&master.inputFile);
-            this->register_entry(&master.firstImage);
-            this->register_entry(&master.lastImage);
+            this->push_back(master.inputFile);
+            this->push_back(master.firstImage);
+            this->push_back(master.lastImage);
         }
 
         bool may_be_autoloaded() const { return false; }

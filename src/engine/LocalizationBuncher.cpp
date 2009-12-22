@@ -46,8 +46,6 @@ throw(Output*)
         } else if ( outputImage + 50 < currentImage ) {
             output( NULL );
 #endif
-        } else if ( currentImage > lastInFile ) {
-            output( NULL );
         } else
             break;
     }
@@ -78,7 +76,7 @@ LocalizationBuncher::~LocalizationBuncher() {
 
 void LocalizationBuncher::ensure_finished() 
 {
-    while ( outputImage <= last ) {
+    while ( ! canned.empty() ) {
         std::map<int, Can* >::iterator i;
         i = canned.find( outputImage );
         if ( i != canned.end() ) {
@@ -102,15 +100,19 @@ void LocalizationBuncher::noteTraits(
 
 {
     lastInFile = lastImage;
-    last = std::min<unsigned int>( lastImage, traits.imageNumber-1 );
+    last = lastImage;
     first = std::min( firstImage, last );
 
-    Output::Announcement announcement
-        (traits, last-first+1);
+    Output::Announcement announcement(traits);
     Output::AdditionalData data = 
         target.announceStormSize(announcement);
 
-    if (data != Output::NoData) {
+    if (
+        data.test( output::Capabilities::SourceImage) ||
+        data.test( output::Capabilities::SmoothedImage) ||
+        data.test( output::Capabilities::CandidateTree) ||
+        data.test( output::Capabilities::InputBuffer) ) 
+    {
         std::stringstream ss;
         ss << 
             "A selected data processing function "
@@ -143,6 +145,8 @@ int LocalizationBuncher::Can::number_of_traces( const Localization& loc ) {
 void LocalizationBuncher::Can::deep_copy( 
     const Localization &loc, data_cpp::Vector<Localization>& to )
 {
+    Localization *target = to.allocate(1);
+    *target = loc;
     if ( loc.has_source_trace() ) {
         Trace *trace = traces.allocate( 1 );
         new (trace) Trace();
@@ -150,11 +154,9 @@ void LocalizationBuncher::Can::deep_copy(
         for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
             deep_copy( *i, *trace );
         traces.commit( 1 );
-        to.push_back( Localization(loc.x(), loc.y(), loc.N(), 
-                                   loc.getStrength(),
-                                   trace, loc.parabolicity()) );
-    } else
-        to.push_back( loc );
+        target->set_source_trace( *trace );
+    }
+    to.commit(1);
 }
 
 input::Management

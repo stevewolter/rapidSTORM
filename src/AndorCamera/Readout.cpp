@@ -19,12 +19,14 @@ void Readout::controlStateChanged(
         SDK::SetFrameTransferMode( frame_transfer_mode() );
 }
 
-_ImageReadout::_ImageReadout() :
-  Object("ImageReadout", "Image Readout mode"),
+ImageReadout::ImageReadout(StateMachine &sm)
+: Readout("ImageReadout", "Image Readout mode"),
+  Node::Callback( Node::ValueChanged ),
   left("LeftCaptureBorder", "Leftmost column to capture", 0),
   top("TopCaptureBorder","Topmost row to capture", 0),
   right("RightCaptureBorder","Rightmost column to capture", 1023),
-  bottom("BottomCaptureBorder","Bottommost row to capture", 1023)
+  bottom("BottomCaptureBorder","Bottommost row to capture", 1023),
+  sm(sm)
 {
     left.setMin( 0 );
     top.setMin( 0 );
@@ -32,19 +34,17 @@ _ImageReadout::_ImageReadout() :
     top.setMax( bottom() );
     right.setMin( left() );
     bottom.setMin( top() );
-}
 
-ImageReadout::ImageReadout(StateMachine &sm)
-: sm(sm)
-{
     registerNamedEntries();
 }
   
 ImageReadout::ImageReadout(const ImageReadout&c)
-: Node(c),
-  Readout(c),
-  _ImageReadout(c),
-  Node::Callback(),
+: Readout(c),
+  Node::Callback( Node::ValueChanged ),
+  left(c.left),
+  top(c.top),
+  right(c.right),
+  bottom(c.bottom),
   sm(c.sm)
 {
     registerNamedEntries();
@@ -70,6 +70,7 @@ void ImageReadout::registerNamedEntries()
     manage_att( sm, top );
     manage_att( sm, bottom );
 
+    Readout::registerNamedEntries(*this);
     receive_changes_from( left.value );
     receive_changes_from( right.value );
     receive_changes_from( top.value );
@@ -84,7 +85,6 @@ void ImageReadout::registerNamedEntries()
 void ImageReadout::operator()(Node &src, Node::Callback::Cause c, Node *)
  
 {
-    if ( c != ValueChanged ) return;
     if ( &src == &left.value ) {
         right.setMin( left() );
     } else if ( &src == &right.value ) {

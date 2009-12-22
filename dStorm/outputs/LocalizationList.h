@@ -7,7 +7,7 @@
 
 namespace dStorm {
 namespace outputs {
-    class LocalizationList : public output::Output, public simparm::Object
+    class LocalizationList : public output::OutputObject
     {
       private:
         ost::Mutex mutex;
@@ -20,9 +20,9 @@ namespace outputs {
          *                this parameters gives the target fit list.
          *                When NULL, the LocalizationList will allocate
          *                an internal list to store the results. */
-        LocalizationList( output::Localizations* target = NULL )
-            : Object("LocalizationList", "Localization target file"),
-              target(target) {}
+        LocalizationList( output::Localizations* target = NULL );
+        LocalizationList(const LocalizationList&);
+        LocalizationList& operator=(const LocalizationList&);
         virtual ~LocalizationList() {}
         LocalizationList* clone() const
             { throw std::runtime_error("Not implemented."); }

@@ -2,15 +2,14 @@
 #define DSTORM_SPOTFINDER_H
 
 #include <simparm/Node.hh>
-#include <dStorm/engine/Image.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/engine/CandidateTree.h>
 #include <memory>
+
+#include "Image_decl.h"
+#include "CandidateTree.h"
+#include "Config_decl.h"
 
 namespace dStorm {
 namespace engine {
-
-   class Config;
 
    /** The SpotFinder class is the base class for all spot 
     *  finding mechanisms. It provides a smoothing buffer image
@@ -52,19 +51,36 @@ namespace engine {
      *  configuration node which is capable of configuring and producing
      *  a SpotFinder object. */
     class SpotFinderFactory 
-            : public virtual simparm::Node
     {    
+        simparm::Node& node;
       public:
+        SpotFinderFactory(simparm::Node& node) : node(node) {}
+        simparm::Node& getNode() { return node; }
+        operator simparm::Node&() { return node; }
+        const simparm::Node& getNode() const { return node; }
+        operator const simparm::Node&() const { return node; }
+
         virtual std::auto_ptr<SpotFinder> make_SpotFinder
             (const Config &conf, int imw, int imh) const = 0;
         virtual SpotFinderFactory* clone() const = 0;
+        virtual ~SpotFinderFactory() {}
     };
 
     template <typename BaseClass>
     class SpotFinderBuilder
-        : public SpotFinderFactory, public BaseClass::Config
+        : public BaseClass::Config, public SpotFinderFactory
     {
       public:
+        SpotFinderBuilder() 
+            : SpotFinderFactory(
+                static_cast<typename BaseClass::Config&>
+                    (*this)) {}
+        SpotFinderBuilder(const SpotFinderBuilder<BaseClass>& o)
+            : BaseClass::Config(o), 
+              SpotFinderFactory(
+                static_cast<typename BaseClass::Config&>
+                    (*this)) {}
+
         virtual SpotFinderBuilder<BaseClass>* clone() const 
             { return new SpotFinderBuilder<BaseClass>(*this); }
         virtual std::auto_ptr<SpotFinder> make_SpotFinder

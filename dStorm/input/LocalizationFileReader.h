@@ -8,6 +8,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/output/TraceReducer.h>
 #include "LocalizationTraits.h"
+#include <dStorm/data-c++/Vector.h>
 
 namespace dStorm {
 namespace input {
@@ -25,11 +26,11 @@ namespace LocalizationFileReader {
     };
 
     class Source 
-    : public input::Source<Localization>, public simparm::Object
+    : public simparm::Object, public input::Source<Localization>
     {
         int level;
         STM_File file;
-        Localization buffer;
+        data_cpp::Vector< Localization > buffer;
         std::vector< output::Trace > trace_buffer;
         std::auto_ptr<output::TraceReducer> reducer;
 
@@ -41,6 +42,10 @@ namespace LocalizationFileReader {
       public:
         Source(const STM_File& file, 
                std::auto_ptr<output::TraceReducer> reducer);
+
+        simparm::Node& getNode() { return *this; }
+        const simparm::Node& getNode() const { return *this; }
+
         virtual int quantity() const 
             { throw std::logic_error("Number of localizations in file "
                     "not known a priori."); }

@@ -9,10 +9,10 @@ namespace LocalizationFileReader {
 
 Source::Source( const STM_File& file, 
                 std::auto_ptr<output::TraceReducer> red )
-: input::Source<Localization>
-    (BaseSource::Pushing | 
+: simparm::Object("STM_Show", "Input options"),
+  input::Source<Localization>
+    (*this, BaseSource::Pushing | 
         BaseSource::Pullable | BaseSource::Managing),
-    simparm::Object("STM_Show", "Input options"),
     file(file),
     reducer(red)
 {
@@ -23,9 +23,11 @@ Source::Source( const STM_File& file,
 
 Localization* Source::fetch(int) {
     int use_trace_buffer = 0;
-    read_localization( buffer, this->level, use_trace_buffer );
+    buffer.clear();
+    Localization* l = buffer.allocate(1);
+    read_localization( *l, this->level, use_trace_buffer );
     if ( file.input )
-        return &buffer;
+        return l;
     else
         return NULL;
 }
@@ -50,7 +52,12 @@ void Source::read_localization(
             file.input >> v[i];
         for (int i = file.number_of_fields; i < 4; i++)
             v[i] = 0;
-        new(&target) Localization(v[0], v[1], v[2], v[3]);
+
+        Localization::Position p;
+        p.x() = v[0];
+        p.y() = v[1];
+        new(&target) Localization( p, v[3] );
+        target.setImageNumber( v[2] );
     } else {
         int my_buffer = use_buffer++;
         if ( my_buffer >= int(trace_buffer.size()) )
@@ -59,8 +66,9 @@ void Source::read_localization(
             trace_buffer[my_buffer].clear();
 
         do {
-            read_localization(buffer, level-1, use_buffer);
-            trace_buffer[my_buffer].push_back( buffer );
+            Localization* buffer = trace_buffer[my_buffer].allocate(1);
+            read_localization(*buffer, level-1, use_buffer);
+            trace_buffer[my_buffer].commit(1);
         } while ( file.input && number_of_newlines() <= level );
         reducer->reduce_trace_to_localization( trace_buffer[level-1],
             &target, Eigen::Vector2d(0,0) );
@@ -74,9 +82,9 @@ Config::Config(input::Config& master)
     stm_extension("extension_stm", ".stm"),
     txt_extension("extension_txt", ".txt") 
 {
-    this->register_entry(&master.inputFile);
-    this->register_entry(&master.firstImage);
-    this->register_entry(&master.lastImage);
+    push_back(master.inputFile);
+    push_back(master.firstImage);
+    push_back(master.lastImage);
 
     master.inputFile.push_back( stm_extension );
     master.inputFile.push_back( txt_extension );
@@ -129,7 +137,7 @@ Source* Config::impl_makeSource()
     STM_File header = read_header(master.inputFile);
     
     Source *src = new Source(header, trace_reducer.make_trace_reducer() );
-    src->compute_resolution( master );
+    src->apply_global_settings( master );
     src->push_back( master.inputFile );
     return src;
 }

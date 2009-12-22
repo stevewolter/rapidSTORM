@@ -1,4 +1,4 @@
-#include <dummycamera.h>
+#include <ATMCD32D.H>
 #include <AndorCamera/System.h>
 #include <cassert>
 #include <string.h>
@@ -7,13 +7,19 @@
 #include "AndorDirect.h"
 #include <dStorm/input/Buffer.h>
 #include <dStorm/input/Slot.h>
-#include <dStorm/input/Image.h>
-#include <dStorm/input/ImageBuffer.h>
+//#include <dStorm/input/Image.h>
+//#include <dStorm/input/ImageBuffer.h>
 #include <iostream>
 #include <iomanip>
+#include <ATMCD32D_simulator.h>
+#include <dStorm/engine/Image_impl.h>
 
+#include <dStorm/helpers/DisplayManager.h>
+#include "wxDisplay/wxManager.h"
+
+using namespace dStorm::input;
+using namespace dStorm;
 using namespace dummycamera;
-using namespace CImgBuffer;
 
 void check_construction_destruction() {
     std::stringstream commands(
@@ -34,6 +40,9 @@ void check_construction_destruction() {
 }
 
 int main(int argc, char *argv[]) {
+    dStorm::Display::Manager::setSingleton
+        ( dStorm::Display::wxManager::getSingleton() );
+
     ost::DebugStream::set(std::cerr);
     dummycamera::cameraCount = 2;
 
@@ -64,7 +73,7 @@ int main(int argc, char *argv[]) {
     } else {
         check_construction_destruction();
 
-        int bufSize = 300;
+        int bufSize = 30;
 
         /* Dry-run: Attach, detach, break. */
         std::stringstream commands, output;
@@ -92,47 +101,24 @@ int main(int argc, char *argv[]) {
         std::auto_ptr<Source<AndorDirect::CamImage> >
             source ( andor_config.makeSource() );
 
-        typedef ImageBuffer< AndorDirect::CameraPixel > ImBuf;
+        typedef Buffer< AndorDirect::CamImage > ImBuf;
         ImBuf buffer( source );
 
-        assert( buffer.dimx() > 0 && buffer.dimy() > 0 );
-        assert( buffer.size() == bufSize );
+        assert( buffer.getTraits().dimx() > 0 
+                && buffer.getTraits().dimy() > 0 );
 
         for ( ImBuf::iterator i = buffer.begin(); i != buffer.end(); i++ ) {
             Claim<AndorDirect::CamImage> claim = i->claim();
             AndorDirect::CamImage& image = *claim;
-            if ( image.getImageNumber() % 100 == 0 )
-                std::cerr << "At image " << image.getImageNumber() << "\n";
             for ( unsigned int x = 0; x < image.width; x+= 8 )
                 for ( unsigned int y = 0; y < image.height; y+= 7 )
                 {
-                    if (  image(x,y) != pixelValue(x,y,image.getImageNumber()+1 ) ) { 
-                        std::cerr << "Pixel error for (" << x << ", " << y << ") in "
-                                  << "image " << image.getImageNumber() << ": Expected "
-                                  << pixelValue(x,y,image.getImageNumber()+1) << ", got "
-                                  << image(x,y) << "\n";
-                        std::cerr << "Upper left corner of expectation image:\n";
-                        for (unsigned int y = 0; y < 10; y++) {
-                            for (unsigned int x = 0; x < 10; x++)
-                                std::cerr << std::setw(3) << pixelValue(x,y,image.getImageNumber()+1);
-                            std::cerr << "\n";
-                        }
-                        std::cerr << "Upper left corner of real image:\n";
-                        for (unsigned int y = 0; y < 10; y++) {
-                            for (unsigned int x = 0; x < 10; x++)
-                                std::cerr << std::setw(3) << image(x,y);
-                            std::cerr << "\n";
-                        }
-                        assert( false );
-                    }
+                    assert( image(x,y) == pixelValue(x,y,claim.index()+1));
                 }
         }
 
         return 0;
     }
-
-    STATUS("Waiting for thread termination");
-    ost::Thread::joinDetached();
 
     return 0;
 }

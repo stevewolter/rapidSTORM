@@ -20,9 +20,9 @@ using namespace std;
 using namespace simparm;
 
 int main(int argc, char *argv[]) {
-   ModuleHandler module_handler;
-   GarageConfig garageConfig(module_handler);
-   input::Config& config = garageConfig.carConfig->inputConfig;
+   MasterConfig::OwnerPtr master = MasterConfig::create();
+   GarageConfig garageConfig(master.get());
+   input::Config& config = garageConfig.get_input_config();
    FileEntry saveMovie("saveMovie", "");
    FileEntry outputPixels("outputPixels", "");
    BoolEntry show("show", "", true);
@@ -34,14 +34,14 @@ int main(int argc, char *argv[]) {
 
    DoubleEntry fps("FPS", "Frames per second", 0.5);
 
-   config.register_entry(&fps);
-   config.register_entry(&saveImages);
-   config.register_entry(&saveMovie);
-   config.register_entry(&outputPixels);
-   config.register_entry(&show);
-   config.register_entry(&maxPix);
-   config.register_entry(&markX);
-   config.register_entry(&markY);
+   config.push_back(fps);
+   config.push_back(saveImages);
+   config.push_back(saveMovie);
+   config.push_back(outputPixels);
+   config.push_back(show);
+   config.push_back(maxPix);
+   config.push_back(markX);
+   config.push_back(markY);
    config.readConfig(argc, argv);
    bool paused = false;
 

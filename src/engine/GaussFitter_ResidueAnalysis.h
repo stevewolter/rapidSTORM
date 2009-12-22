@@ -80,15 +80,19 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
 }
 
 template <bool FS, bool Corr, int Width, int Height>
-typename SpecializedGaussFitter<FS, true, Corr, Width, Height>::SpotState
+float
 SpecializedGaussFitter<FS, true, Corr, Width, Height>
 ::double_fit_analysis( 
     const Image& image, const Eigen::Vector2i& direction, int oxl, int oyl )
 {
-    const int DoWi = a.residues.cols(), 
-              DoHe = a.residues.rows();
+#if 0
+    const int DoWi = a.residues.cols() + 2, 
+              DoHe = a.residues.rows() + 2;
     const int xl = std::min<int>( std::max(0, oxl - 1), image.width-DoWi ),
               yl = std::min<int>( std::max(0, oyl - 1), image.height-DoHe );
+#else
+    const int xl = oxl, yl = oyl;
+#endif
 
     deriver.setData( image.ptr(), image.width, image.height );
     deriver.setUpperLeftCorner( xl, yl );
@@ -101,7 +105,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
 
     fitpp::FitResult res = fit_result.first;
     if ( res != FitSuccess )
-        return Single;
+        return 1.0;
 
     int x_shift = oxl - xl, y_shift = oyl - yl;
     double new_residues = fit_result.second->residues
@@ -109,11 +113,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
                 this->c->residues.rows(), this->c->residues.cols()
               ).cwise().square().sum();
     
-    double ratio = new_residues / this->c->chi_sq;
-    if ( ratio < common.residue_threshold )
-        return Double;
-    else
-        return Single;
+    return std::min(1.0, new_residues / this->c->chi_sq);
 }
 
 #if 0

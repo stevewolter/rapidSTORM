@@ -60,26 +60,6 @@ AC_CHECK_LIB([simparm], [main])
 # AC_CHECK_LIB([GraphicsMagick], [InitializeMagick])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 
-AM_OPTIONS_WXCONFIG
-reqwx=2.4.0
-AM_PATH_WXCONFIG($reqwx, wxWin=1)
-if test "$wxWin" != 1; then
-    AC_MSG_ERROR([
-      wxWidgets must be installed on your system.
-
-      Please check that wx-config is in path, the directory
-      where wxWidgets libraries are installed (returned by
-      'wx-config --libs' or 'wx-config --static --libs' command)
-      is in LD_LIBRARY_PATH or equivalent variable and
-      wxWidgets version is $reqwx or above.
-    ])
-fi
-
-CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
-CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
-CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
-LIBS="$LIBS $WX_LIBS"
-
 AM_WITH_DMALLOC
 
 # Select the windowing library needed for CImg
@@ -96,7 +76,6 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([helpers/Makefile ])
 AC_CONFIG_FILES([data-c++/Makefile])
 AC_CONFIG_FILES([input/Makefile engine/Makefile output/Makefile])
-AC_CONFIG_FILES([wxDisplay/Makefile])
 AC_CONFIG_FILES([outputs/Makefile])
 
 AC_OUTPUT

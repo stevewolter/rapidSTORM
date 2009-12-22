@@ -1,4 +1,5 @@
 #include "ZoomSlider.h"
+#include <stdexcept>
 
 namespace dStorm {
 namespace Display {
@@ -22,10 +23,29 @@ void ZoomSlider::zoom_changed( int to ) {
     }
 }
 
+/** Just forwards drawn rectangle event. No action is taken. */
+void ZoomSlider::drawn_rectangle( wxRect rect )
+{
+    if ( listener ) listener->drawn_rectangle( rect );
+}
+/** Just forwards mouse over pixel event. No action is taken. */
+void ZoomSlider::mouse_over_pixel( wxPoint p )
+{
+    if ( listener ) listener->mouse_over_pixel( p );
+}
+
+
 void ZoomSlider::OnZoomChange( wxScrollEvent& event ) {
     if ( listener ) listener->zoom_changed( event.GetPosition() );
     canvas.set_zoom( event.GetPosition() );
     event.Skip();
+}
+
+void ZoomSlider::set_zoom_listener( Canvas::Listener& listener )
+{ 
+    if ( this->listener != NULL ) 
+      throw std::logic_error("Second listener on zoom slider unsupported.");
+    this->listener = &listener; 
 }
 
 BEGIN_EVENT_TABLE(ZoomSlider, wxSlider)

@@ -3,6 +3,9 @@
 #include "App.h"
 #include "Window.h"
 #include <dStorm/helpers/Runnables.h>
+#include <boost/thread.hpp>
+
+#include "debug.h"
 
 namespace dStorm {
 namespace Display {
@@ -11,30 +14,65 @@ struct wxManager::WindowHandle
 : public Manager::WindowHandle
 {
     Window *associated_window;
-    WindowHandle() : associated_window(NULL) {}
+    WindowHandle();
     ~WindowHandle();
 };
 
 wxManager::wxManager() 
-: ost::Thread("wxWidgets")
+: ost::Thread("wxWidgets"),
+  open_handles(0),
+  closed_all_handles(mutex),
+  was_started( false ),
+  may_close( false ),
+  toolkit_available( true )
 {
-    detach();
+    DEBUG("Creating display manager");
+    start();
+}
+
+struct wxManager::Closer : public ost::Runnable {
+    void run() throw() { wxGetApp().close(); }
+};
+
+wxManager::~wxManager() {
+    DEBUG("Stopping display thread");
+    may_close = true;
+    Closer closer;
+    run_in_GUI_thread( &closer );
+    closed_all_handles.signal();
+    join();
+    DEBUG("Stopped display thread");
 }
 
 void wxManager::run() throw()
 {
+    DEBUG("Running display thread");
     int argc = 0;
-    wxEntry(argc, (wxChar**)NULL);
+    if ( !may_close )
+        wxEntry(argc, (wxChar**)NULL);
+    toolkit_available = false;
+
+    ost::MutexLock lock( mutex );
+    exec_waiting_runnables();
+    while ( !may_close || open_handles > 0 ) {
+        closed_all_handles.wait();
+        exec_waiting_runnables();
+    }
 }
 
-struct Closer : public ost::Runnable {
-    void run() throw() { wxGetApp().close(); }
-    void finish() { delete this; }
-};
+void wxManager::increase_handle_count() {
+    ost::MutexLock lock(mutex);
+    open_handles++;
+}
 
-void wxManager::close() throw()
-{
-    run_in_GUI_thread( new Closer() );
+void wxManager::decrease_handle_count() {
+    ost::MutexLock lock(mutex);
+    open_handles--;
+    if ( open_handles == 0 && may_close ) {
+        closed_all_handles.signal();
+        if ( toolkit_available )
+            wxGetApp().close();
+    }
 }
 
 struct wxManager::Creator : public ost::Runnable {
@@ -46,8 +84,10 @@ struct wxManager::Creator : public ost::Runnable {
 };
 
 void wxManager::Creator::run() throw() {
-    Window * w = new Window( properties, handler, handle );
-    handle->associated_window = w;
+    if ( wxManager::getSingleton().toolkit_available ) {
+        Window * w = new Window( properties, handler, handle );
+        handle->associated_window = w;
+    }
 }
 
 std::auto_ptr<Manager::WindowHandle>
@@ -56,12 +96,20 @@ wxManager::register_data_source(
     DataSource& handler
 )
 {
+    if ( ! was_started ) {
+        ost::MutexLock lock( mutex );
+        if ( ! was_started ) {
+            was_started = true;
+            detach();
+        }
+    }
     std::auto_ptr<Creator> creator( new Creator() );
     creator->properties = properties;
     creator->handler = &handler;
 
     std::auto_ptr<WindowHandle> 
         handle(new WindowHandle());
+    increase_handle_count();
     creator->handle = handle.get();
 
     run_in_GUI_thread( creator.release() );
@@ -79,8 +127,14 @@ class wxManager::Disassociator
     void run() throw() {
         if ( h.associated_window != NULL )
             h.associated_window->remove_data_source();
+        wxManager::getSingleton().decrease_handle_count();
     }
 };
+
+wxManager::WindowHandle::WindowHandle()
+: associated_window(NULL)
+{
+}
 
 wxManager::WindowHandle::~WindowHandle()
 {
@@ -102,6 +156,7 @@ void wxManager::run_in_GUI_thread( ost::Runnable* code )
             run_queue.push( code );
         }
         wxWakeUpIdle();
+        closed_all_handles.signal();
     }
 }
 
@@ -128,6 +183,10 @@ void wxManager::disassociate_window
 wxManager& wxManager::getSingleton() {
     static wxManager* handler = new wxManager();
     return *handler;
+}
+
+void wxManager::destroySingleton() {
+    delete &getSingleton();
 }
 
 }

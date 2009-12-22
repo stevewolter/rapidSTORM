@@ -1,9 +1,17 @@
 #include "SourceFactory.h"
+#include <stdexcept>
+
+#include "debug.h"
 
 namespace dStorm {
 namespace output {
-    SourceFactory::SourceFactory() {}
-    SourceFactory::SourceFactory(const SourceFactory& o) : simparm::Node(o) {}
-    SourceFactory::~SourceFactory() {}
+    SourceFactory::SourceFactory(simparm::Node& node)
+        : node(node) {}
+    SourceFactory::SourceFactory
+        (simparm::Node& node, const SourceFactory& o) : node(node) {}
+    SourceFactory::~SourceFactory() {
+        DEBUG("Destructor");
+    }
+
 }
 }

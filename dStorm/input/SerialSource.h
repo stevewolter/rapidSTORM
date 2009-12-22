@@ -22,8 +22,8 @@ class SerialSource
     ost::Mutex serializer;
     int current_object;
   protected:
-    SerialSource( int flags ) 
-        : Source< Type >(flags), current_object(-1) {}
+    SerialSource( simparm::Node& node, int flags ) 
+        : Source< Type >(node, flags), current_object(-1) {}
     virtual Type* load() = 0;
     virtual Type* fetch(int image_index);
 };

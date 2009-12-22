@@ -4,6 +4,7 @@
 #include <simparm/TriggerEntry.hh>
 #include "OutputSource.h"
 #include <map>
+#include <boost/utility.hpp>
 
 namespace simparm {
     template <typename Type> class NodeChoiceEntry;
@@ -37,7 +38,8 @@ class SourceFactory;
  **/
 class FilterSource
 : public OutputSource,
-  public simparm::Node::Callback
+  public simparm::Node::Callback,
+  boost::noncopyable
 {
   private:
     /** The unique integer X for the next disambiguation node. */
@@ -51,7 +53,7 @@ class FilterSource
 
     /** The factory is the source object for a new transmission source.
      *  This new transmission source is fetched via 
-     *  factory->make_transmission() when the addButton is triggered.
+     *  factory->make_transmission().
      *
      *  If the initialization is delayed via OnCopy, the factory member
      *  will not be set until initialize() is called. This avoids init
@@ -63,7 +65,6 @@ class FilterSource
     Outputs outputs;
 
     /** Control elements for adding/removing transmissions. */
-    simparm::TriggerEntry addButton, removeButton;
     struct RemovalObject;
     std::auto_ptr< simparm::NodeChoiceEntry<RemovalObject> >
         removeSelector;
@@ -79,20 +80,20 @@ class FilterSource
     void link_transmission( OutputSource* src );
 
   protected:
-    FilterSource();
-    FilterSource(const FilterSource& o);
+    FilterSource(simparm::Node&);
+    FilterSource(simparm::Node&, const FilterSource& o);
 
     SourceFactory* getFactory() { return factory.get(); }
 
   public:
     ~FilterSource();
     FilterSource* clone() const = 0;
-    FilterSource& operator=(
-        const FilterSource&);
 
     /** This method triggers the delayed initialization of the factory
      *  element. */
-    virtual void initialize(const SourceFactory&);
+    virtual void set_output_factory(const SourceFactory& f);
+
+    virtual void set_source_capabilities( Capabilities );
 
     /** Explicitely set the output element. Circumvents the 
      *  \c factory. */

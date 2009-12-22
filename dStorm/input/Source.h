@@ -38,7 +38,6 @@ namespace input {
      *  templated Source classes.
      * */
     class BaseSource 
-    : public virtual simparm::Node
     {
       public:
         static const int Pushing = 0x1, Pullable = 0x2, Managing = 0x4,
@@ -51,6 +50,8 @@ namespace input {
             bool operator&(const Flags& o) const
                 { return (value & o.value) != 0; }
         };
+      private:
+        simparm::Node& node;
       protected:
         bool _pushes, _canBePulled, _managed,
              _concurrent;
@@ -60,8 +61,13 @@ namespace input {
         virtual int quantity() const = 0;
 
       public:
-        BaseSource(Flags flags);
+        BaseSource(simparm::Node& node, Flags flags);
         virtual ~BaseSource();
+
+        simparm::Node& getNode() { return node; }
+        operator simparm::Node&() { return node; }
+        const simparm::Node& getNode() const { return node; }
+        operator const simparm::Node&() const { return node; }
 
         virtual void apply_global_settings(const Config&) = 0;
 
@@ -95,10 +101,14 @@ namespace input {
         inline bool pushes_concurrently() const
             { return _concurrent; }
         
-        template <typename Type> bool can_provide() const;
         template <typename Type> 
-            std::auto_ptr< Source<Type> >
-            downcast(std::auto_ptr< BaseSource > p) const;
+            bool can_provide() const;
+        template <typename Type>
+            Source<Type>& downcast() const;
+        template <typename Type>
+        inline static std::auto_ptr< Source<Type> >
+            downcast( std::auto_ptr<BaseSource> );
+
     };
 
     /** A Source object of some given type. Provides default 
@@ -113,7 +123,7 @@ namespace input {
     {
       protected:
         Drain<Type> *pushTarget;
-        Source(const BaseSource::Flags&);
+        Source(simparm::Node& node, const BaseSource::Flags&);
         virtual Type* fetch(int)
         { throw std::logic_error
                 ("Tried to pull from an unpullable object source."); }
@@ -142,11 +152,16 @@ namespace input {
         { return dynamic_cast< const Source<Type>* >( this ) != NULL; }
 
     template <typename Type> 
+    Source<Type>&
+    BaseSource::downcast() const
+        { return dynamic_cast<Source<Type>&>(*this); }
+
+    template <typename Type> 
     std::auto_ptr< Source<Type> >
-    BaseSource::downcast(std::auto_ptr< BaseSource > p) const
+    BaseSource::downcast(std::auto_ptr< BaseSource > p)
     {
         return std::auto_ptr< Source<Type> >
-            ( dynamic_cast<Source<Type>*>(p.release()) );
+            ( &dynamic_cast<Source<Type>&>(*p.release()) );
     }
 
     template <typename Type> 

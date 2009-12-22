@@ -9,7 +9,7 @@
 
 namespace dStorm {
 namespace output {
-    class LocalizationCounter : public simparm::Object, public Output {
+    class LocalizationCounter : public OutputObject {
       private:
         ost::Mutex mutex;
       	int count;
@@ -23,7 +23,10 @@ namespace output {
         LocalizationCounter& operator=(const LocalizationCounter&);
 
       public:
-        struct Config : public simparm::Object { Config(); };
+        struct Config : public simparm::Object { 
+            Config(); 
+            bool can_work_with(Capabilities) { return true; }
+        };
         typedef OutputBuilder<LocalizationCounter> Source;
 
         LocalizationCounter(const Config &);
@@ -35,10 +38,10 @@ namespace output {
 
             update.setUserLevel(simparm::Entry::Beginner);
             push_back(update);
-            config_increment = int( a.length / 50.0 );
+            config_increment = 10;
 
             count = 0; 
-            return NoData;
+            return AdditionalData();
         }
         Result receiveLocalizations(const EngineResult& er) {
             ost::MutexLock lock(mutex);
@@ -62,6 +65,7 @@ namespace output {
                 if (!this->isActive()) std::cout << count << "\n"; 
             }
         }
+
     };
 }
 }

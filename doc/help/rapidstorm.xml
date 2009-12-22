@@ -254,26 +254,13 @@
             <title>Output configuration items</title>
             <elem desc="Choose new output" topic="ChooseOutput">
               In this list you find all available output modules.
-              After selecting one of the modules, it's options appear
-              underneath this selection box. <emphasis>Selecting a
-              module here does not insert it into the tree or make it
-              in any way active.</emphasis> When the module is configured
-              to your content, press the "Add selected output" button to insert
-              it into the tree.
-            </elem>
-            <elem desc="Add selected output" topic="AddOutput">
-              After selecting a new output with the "Choose new
-              output" selector, press this button to insert it into
-              the output tree. The module is inserted as a child of
-              the currently selected node.
+              After selecting one of the modules, it is added into the
+              output tree as a child of the current tree node.
             </elem>
             <elem desc="Select output to remove" topic="ToRemove">
-              This box is used to select one of the active modules
-              to be deleted when "Remove selected output" is pressed.
-            </elem>
-            <elem desc="Remove selected output" topic="RemoveOutput">
-               Remove the module selected by "Select output to remove"
-               from the output tree.
+              Select one of the active outputs of the current module in
+              this box. The selected module and all of its submodules are
+              deleted from the output tree.
             </elem>
           </elemtable>
         </section>

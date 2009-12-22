@@ -16,6 +16,7 @@ using namespace Phases;
 AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 
 : simparm::Object("AcquisitionMode", "Acquisition mode"),
+  simparm::Node::Callback( Node::ValueChanged ),
   sm(sm),
   real_exposure_time(config.realExposureTime),
   real_kinetic_cycle_time(config.cycleTime)
@@ -24,11 +25,10 @@ AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 }
 
 AcquisitionModeControl::AcquisitionModeControl(const AcquisitionModeControl& c):
-  simparm::Node(c),
   simparm::Object(c),
   _AcquisitionMode(c),
   Listener(),
-  simparm::Node::Callback(c),
+  simparm::Node::Callback( Node::ValueChanged ),
   sm(c.sm),
   real_exposure_time(c.real_exposure_time),
   real_kinetic_cycle_time(c.real_kinetic_cycle_time)
@@ -79,8 +79,6 @@ _AcquisitionMode::_AcquisitionMode() :
 void AcquisitionModeControl::operator()
     (Node &src, Node::Callback::Cause c, Node *) 
 {
-    if ( c != ValueChanged ) return;
-
     if ( &src == &desired_exposure_time.value ) {
         exp_time_is_max = ( desired_exposure_time() * 1.05 >= 
              desired_accumulate_cycle_time() );

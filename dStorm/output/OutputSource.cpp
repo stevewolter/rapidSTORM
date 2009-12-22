@@ -11,28 +11,31 @@ namespace dStorm {
 namespace output {
 
 Output::Announcement::Announcement(
-    const engine::InputTraits& traits,
-    int length,
+    const Traits& traits,
     engine::Input* carburettor,
     ResultRepeater *repeater)
 : traits(traits),
-    length(length), carburettor(carburettor),
+    carburettor(carburettor),
     result_repeater(repeater) {}
 
 class OutputSource::AdjustedList 
 : public std::list< simparm::FileEntry* > {};
 
-OutputSource::OutputSource() 
-: adjustedList( new AdjustedList() ),
+OutputSource::OutputSource(simparm::Node& node) 
+: node(node),
+  adjustedList( new AdjustedList() ),
   help_file("help_file", dStorm::HelpFileName)
 {
+    assert( &node != NULL );
 }
 
-OutputSource::OutputSource(const OutputSource& o) 
-: simparm::Node(o), simparm::TreeAttributes(o),
+OutputSource::OutputSource(simparm::Node& node, const OutputSource& o) 
+: simparm::TreeAttributes(o),
+  node(node),
   adjustedList( new AdjustedList() ),
   help_file(o.help_file)
 {
+    assert( &node != NULL );
 }
 
 OutputSource::~OutputSource() {
@@ -66,23 +69,24 @@ OutputSource::set_output_file_basename(
 }
 
 std::ostream &operator<<(std::ostream &o, 
-                         Output::AdditionalData data) {
+                         Capabilities data) {
     std::string rv = "", sep = ", ";
-    if ( data & Output::SourceImage )
+    if ( data.test( Capabilities::SourceImage ) )
         rv += sep + "SourceImage";
-    if (data & Output::SmoothedImage)
+    if ( data.test( Capabilities::SmoothedImage ) )
         rv += sep + "SmoothedImage";
-    if (data & Output::CandidateTree)
+    if ( data.test( Capabilities::CandidateTree ) )
         rv += sep + "CandidateTree";
-    if (data & Output::InputBuffer)
+    if ( data.test( Capabilities::InputBuffer) )
         rv += sep + "InputBuffer";
-    if (data & Output::LocalizationSources)
+    if ( data.test( Capabilities::ClustersWithSources) )
         rv += sep + "LocalizationSources";
 
-    rv = rv.substr( sep.size() );
+    if ( rv != "" )
+        rv = rv.substr( sep.size() );
     size_t pos = rv.rfind(',');
     if ( pos != std::string::npos )
-        rv.replace( pos, 1, "and" );
+        rv.replace( pos, 1, " and" );
     return (o << rv);
 }
 
@@ -127,7 +131,7 @@ std::ostream &operator<<(std::ostream &o,
 void Output::check_additional_data_with_provided
 (std::string name, AdditionalData can_provide, AdditionalData are_desired)
 {
-    if ( ( (~can_provide) & are_desired ) != 0 ) {
+    if ( ( (~can_provide) & are_desired ).any() ) {
         std::stringstream ss;
         ss << "The data " << are_desired << " cannot be provided by "
            << "the data source " << name << ", which can only provide "

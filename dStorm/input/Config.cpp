@@ -23,7 +23,7 @@ namespace input {
 
 void _Config::registerNamedEntries() 
 {
-    register_entry(&inputMethod);
+    push_back(inputMethod);
     /* The other elements will be registered by the input configs
      * that need them. */
 }
@@ -35,8 +35,7 @@ MethodChoice::MethodChoice( string name, string desc )
 }
 
 MethodChoice::MethodChoice( const MethodChoice& o)
-: simparm::Node(o), 
-  simparm::NodeChoiceEntry< BaseMethod >(
+: simparm::NodeChoiceEntry< BaseMethod >(
     o, simparm::NodeChoiceEntry< BaseMethod >::NoCopy)
 {
 }
@@ -117,7 +116,7 @@ Config::Config()
 }
 
 Config::Config(const Config& c)
-: simparm::Node(c), _Config(c),
+: _Config(c),
   basename(c.basename)
 { 
     this->inputMethod.copyChoices( c.inputMethod, *this );

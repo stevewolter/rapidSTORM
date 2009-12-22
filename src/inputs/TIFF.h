@@ -28,8 +28,8 @@ namespace dStorm {
      *  this data type exactly; no up- or downsampling is per-
      *  formed. */
     template <typename PixelType>
-    class Source : public SerialSource< CImg<PixelType> >,
-                   public simparm::Set
+    class Source : public simparm::Set,
+                   public SerialSource< CImg<PixelType> >
     {
       public:
          Source(const char *src);

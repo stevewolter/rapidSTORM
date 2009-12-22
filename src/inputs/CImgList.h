@@ -25,8 +25,9 @@ namespace dStorm {
     template <typename PixelType> std::string ident();
 
     template <typename PixelType>
-    class Source : public input::Source< CImg<PixelType> >,
-                   public simparm::Object
+    class Source : public simparm::Object,
+         public input::Source< CImg<PixelType> >
+                   
     {
       public:
          Source(const char *src );

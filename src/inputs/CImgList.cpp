@@ -10,9 +10,9 @@ namespace CImgList {
 
 template <typename PixelType>
 Source<PixelType>::Source(const char *src )
-: input::Source< cimg_library::CImg<PixelType> >
-    (input::BaseSource::Pushing | input::BaseSource::Pullable),
-  simparm::Object("CImgListSource", "Images"),
+: simparm::Object("CImgListSource", "Images"),
+  input::Source< cimg_library::CImg<PixelType> >
+    (*this, input::BaseSource::Pushing | input::BaseSource::Pullable),
   sourceImages(src)
 {
     if ( sourceImages.is_empty() )

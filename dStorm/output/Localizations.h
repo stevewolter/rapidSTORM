@@ -23,7 +23,6 @@ namespace output {
 
         int dimx() const { return t.size.x(); }
         int dimy() const { return t.size.y(); }
-        int numImages() const { return t.imageNumber; }
         void setDim(const input::Traits<Localization>& t) 
             { this->t = t; }
    };

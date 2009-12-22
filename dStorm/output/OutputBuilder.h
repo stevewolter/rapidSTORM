@@ -15,21 +15,16 @@ namespace output {
         simparm::BoolEntry failSilently;
       public:
 
-        OutputBuilder(bool failSilently = false) 
-        : failSilently("FailSilently", 
-                       "Allow transmission to fail silently", failSilently)
-        { this->failSilently.userLevel = simparm::Entry::Debug;
-          push_back( this->failSilently );
-          push_back( this->help_file ); }
-        OutputBuilder(const OutputBuilder& o) 
- 
-        : Node(o), Type::Config(o),
-          OutputSource(o),
-          failSilently(o.failSilently)
-        { push_back( failSilently ); push_back( this->help_file ); }
+        OutputBuilder(bool failSilently = false);
+        OutputBuilder(const OutputBuilder&);
         OutputBuilder<Type>* clone() const
             { return new OutputBuilder<Type>(*this); }
-        virtual ~OutputBuilder() { simparm::Node::removeFromAllParents(); }
+        virtual ~OutputBuilder() {}
+
+        virtual void set_source_capabilities( Capabilities cap ) 
+        {
+            this->viewable = this->Type::Config::can_work_with( cap );
+        }
 
         virtual std::auto_ptr<Output> make_output() 
  
@@ -52,5 +47,7 @@ namespace output {
 
 }
 }
+
+#include "OutputBuilder_impl.h"
 
 #endif

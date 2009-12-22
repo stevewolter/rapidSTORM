@@ -1,18 +1,16 @@
 #include "DisplayManager.h"
-#include "dStorm/wxDisplay/wxManager.h"
 
 namespace dStorm {
 namespace Display {
 
-static bool man_was_started = false;
+static Manager* m;
 
-Manager& Manager::getSingleton() {
-    man_was_started = true;
-    return wxManager::getSingleton();
+void Manager::setSingleton(Manager& manager) {
+    m = &manager;
 }
 
-bool Manager::was_started() {
-    return man_was_started;
+Manager& Manager::getSingleton() {
+    return *m;
 }
 
 }

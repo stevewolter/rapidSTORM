@@ -14,14 +14,15 @@ class Gain
 { 
   protected:
     StateMachine &sm;
-    simparm::NumericEntry<int>& emccdGain;
     
     void registerNamedEntries() {}
   public:
+    simparm::NumericEntry<int>& emccdGain;
+
     Gain(StateMachine& sm, Config &config);
     Gain(const Gain&c) 
-    : simparm::Node(c), simparm::Object(c), StateMachine::Listener(), sm(c.sm),
-      emccdGain(c.emccdGain) {}
+        : simparm::Object(c), StateMachine::Listener(), sm(c.sm),
+          emccdGain(c.emccdGain) {}
     ~Gain() {}
     Gain* clone() const { return new Gain(*this); }
     Gain& operator=(const Gain&) { return *this; }

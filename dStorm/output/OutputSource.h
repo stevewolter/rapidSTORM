@@ -6,6 +6,7 @@
 #include <simparm/Object.hh>
 #include <simparm/TreeEntry.hh>
 #include <set>
+#include "SourceFactory_decl.h"
 
 namespace simparm { class FileEntry; }
 
@@ -21,27 +22,40 @@ namespace output {
 class OutputSource 
 : public simparm::TreeAttributes
 {
+  private:
+    simparm::Node& node;
+    OutputSource& operator=(const OutputSource&);
+    OutputSource(const OutputSource&);
   protected:
     class AdjustedList;
     std::auto_ptr<AdjustedList> adjustedList;
 
-    OutputSource();
-    OutputSource(const OutputSource& o);
+    OutputSource(simparm::Node& node);
+    OutputSource(simparm::Node& node, const OutputSource&);
 
   public:
     simparm::Attribute<std::string> help_file;
+
+    simparm::Node& getNode() { return node; }
+    operator simparm::Node&() { return node; }
+    const simparm::Node& getNode() const { return node; }
+    operator const simparm::Node&() const { return node; }
 
     void adjust_to_basename(simparm::FileEntry&);
 
     virtual ~OutputSource();
     virtual OutputSource* clone() const = 0;
 
+    /** Check whether the Output produced by this OutputSource might 
+     *  work, given the maximal additional data provided by the parent
+     *  source. */
+    virtual void set_source_capabilities( Capabilities ) = 0;
+    virtual void set_output_factory(const SourceFactory&) {}
     /** \return A suitable Output object with
      *          all outputs configured. \note The root output
      *          will be constructed last in a tree of
      *          OutputSource objects. */
-    virtual std::auto_ptr<Output> make_output() 
- = 0;
+    virtual std::auto_ptr<Output> make_output() = 0;
 
     static const int Basename_Accepted = 0;
     static const int Basename_Conflicted = 1;

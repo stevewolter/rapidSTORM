@@ -9,13 +9,15 @@ namespace Display {
 
 class Canvas : public wxScrolledWindow {
   public:
-    struct ZoomChangeListener {
+    struct Listener {
+        virtual void drawn_rectangle( wxRect rect ) = 0;
         virtual void zoom_changed( int to ) = 0;
+        virtual void mouse_over_pixel( wxPoint ) {}
     };
-    void set_listener(ZoomChangeListener* listener);
+    void set_listener(Listener* listener);
 
   private:
-    ZoomChangeListener* zcl;
+    Listener* zcl;
     std::auto_ptr<wxImage> contents;
 
     const static int Overlap = 1;
@@ -28,10 +30,12 @@ class Canvas : public wxScrolledWindow {
     inline int transform( bool mode, Bound bound,
                           int coord );
 
-    inline wxRect transformed_coords(
+    inline const wxRect transformed_coords(
         const wxRect& conversion, bool to_image_coords );
-    inline wxRect image_coords( const wxRect& canvas_coords );
-    inline wxRect canvas_coords( const wxRect& image_coords );
+    inline const wxPoint image_coords( const wxPoint& canvas_coords );
+    inline const wxRect image_coords( const wxRect& canvas_coords );
+    inline const wxPoint canvas_coords( const wxPoint& image_coords );
+    inline const wxRect canvas_coords( const wxRect& image_coords );
 
     wxBitmap zoomed_bitmap_for_canvas_region( const wxRect& region );
 
@@ -41,15 +45,13 @@ class Canvas : public wxScrolledWindow {
     MouseState mouse_state;
     wxPoint drag_start;
     wxPoint drag_end;
+    wxPoint last_mouse_position;
 
     wxRect get_rect_by_corners( wxPoint a, wxPoint b );
 
     void draw_rectangle(wxRect rect, wxDC *dc);
     void overdraw_rectangle(wxRect rect, wxDC *dc);
     void draw_zoom_rectangle( wxDC *dc );
-
-    /** @rect Coordinates in image pixels to zoom into view. */
-    void zoom_to( wxRect rect );
 
     void OnMouseDown( wxMouseEvent& event );
     void OnMouseMotion( wxMouseEvent& event );
@@ -67,6 +69,15 @@ class Canvas : public wxScrolledWindow {
     void resize( const wxSize& new_size );
 
     void set_zoom( int zoom, wxPoint center = wxDefaultPosition ); 
+
+    int getWidth() const 
+        { return (contents.get()) ? contents->GetWidth() : 0; }
+    int getHeight() const 
+        { return (contents.get()) ? contents->GetHeight() : 0; }
+
+    /** @rect Coordinates in image pixels to zoom into view. */
+    void zoom_to( wxRect rect );
+
 
     DECLARE_DYNAMIC_CLASS(ImageCanvas);
     DECLARE_EVENT_TABLE();

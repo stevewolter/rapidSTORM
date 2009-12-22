@@ -9,29 +9,27 @@ class AveragingReducer : public TraceReducer {
         (const Trace& from, Localization *to,
          const Eigen::Vector2d& shift) 
     {
-        double x_position = 0, y_position = 0;
+        Localization::Position position(0);
+
         int n = 0;
         int last_image_number = 0;
         double total_amplitude = 0;
-        double max_parab = 0;
 
         for ( data_cpp::Vector<Localization>::const_iterator
                 i = from.begin(); i != from.end(); i++)
         {
-            x_position += i->x();
-            y_position += i->y();
+            position += i->position();
             n += 1;
             last_image_number = 
                 std::max( last_image_number, i->getImageNumber() );
-            total_amplitude += i->getStrength();
-            max_parab = std::max(i->parabolicity(), max_parab);
+            total_amplitude += i->strength();
         }
 
         if ( n == 0 ) n = 1;
-        new(to) Localization( 
-            x_position / n - shift.x(),
-            y_position / n - shift.y(),
-            last_image_number, total_amplitude, &from, max_parab );
+
+        new(to) Localization( position / n - shift, total_amplitude );
+        to->setImageNumber( last_image_number );
+        to->set_source_trace( from );
     }
 };
 
@@ -51,7 +49,7 @@ TraceReducer::Config::Config()
 {}
 
 TraceReducer::Config::Config(const Config& c) 
-: simparm::Node(c), simparm::Object(c),
+: simparm::Object(c),
   implementation( c.implementation->clone() )
 {}
 

@@ -30,14 +30,14 @@ MultiPrecisionEstimator::_Config::_Config()
 
 SinglePrecisionEstimator::SinglePrecisionEstimator
     ( const SinglePrecisionEstimator::Config& config )
-: Object("SinglePrecisionEstimator", "Per-spot precision estimator"),
+: OutputObject("SinglePrecisionEstimator", "Per-spot precision estimator"),
   printTo( config.outputFile ),
   res_enh(1/config.resEnh())
 {}
 
 MultiPrecisionEstimator::MultiPrecisionEstimator
     ( const MultiPrecisionEstimator::Config& config )
-: Object("MultiPrecisionEstimator", 
+: OutputObject("MultiPrecisionEstimator", 
             "Overall precision estimation"),
     usedSpots("UsedSpots", "# of localizations used",
             0),
@@ -49,10 +49,10 @@ MultiPrecisionEstimator::MultiPrecisionEstimator
 
 MultiPrecisionEstimator::MultiPrecisionEstimator
     ( const MultiPrecisionEstimator& c )
-: Node(c), Object(c), output::Output(c),
-    usedSpots(c.usedSpots),
-    x_sd(c.x_sd), y_sd(c.y_sd), corr(c.corr),
-    pixel_dim_in_nm(c.pixel_dim_in_nm), res_enh(c.res_enh)
+: OutputObject(c), 
+  usedSpots(c.usedSpots),
+  x_sd(c.x_sd), y_sd(c.y_sd), corr(c.corr),
+  pixel_dim_in_nm(c.pixel_dim_in_nm), res_enh(c.res_enh)
 { registerNamedEntries(); }
 
 SinglePrecisionEstimator* SinglePrecisionEstimator::clone() const
@@ -98,7 +98,7 @@ SinglePrecisionEstimator::announceStormSize(const Announcement& a)
 {
     /* Length of a pixel in nm is inverse of number of dots per nm. */
     pixel_dim_in_nm = a.traits.resolution * 1E-9;
-    return LocalizationSources;
+    return AdditionalData().set_cluster_sources();
 }
 
 Output::Result
@@ -127,7 +127,6 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
                 << setw(10) << setprecision(2) << s.y *2.35*
                         pixel_dim_in_nm.y()
                 << setw(10) << setprecision(3) << s.xy
-                << setw(3)  << l.parabolicity()
                 << "\n";
         }
     } catch (const std::exception& e) {
@@ -175,8 +174,7 @@ void MultiPrecisionEstimator::estimatePrecision() {
         s = fitWithGauss( res_enh, locs.getBin(0), locs.sizeOfBin(0) );
     else {
         int number = locs.size();
-        data_cpp::Vector<Localization> v( number, 0, 
-                                          dStorm::Localization() );
+        data_cpp::Vector<Localization> v( number );
         for (int bin = 0; bin < locs.binNumber(); bin++) {
             for (int i = 0; i < locs.sizeOfBin(bin); i++) {
                 v.push_back( locs.getBin(bin)[i] );

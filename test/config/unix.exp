@@ -1,0 +1,29 @@
+set verbose 2
+
+proc dstorm_load { arg } {
+}
+
+proc dstorm_exit {} {
+    send "quit\n"
+    expect {
+        -re "exit: main" { pass "termination" }
+        timeout { fail "termination" }
+    }
+}
+
+proc dstorm_start {} {
+    global DSTORM
+    global spawn_id
+    global verbose
+
+    if { $verbose > 1 } {
+        send_user "starting $DSTORM --Twiddler\n"
+    }
+    spawn $DSTORM --Twiddler
+    expect {
+        -re "entry: main" {}
+        timeout { exit 2 }
+    }
+}
+
+dstorm_start

@@ -16,9 +16,8 @@ extern template class Source< cimg_library::CImg<float> >;
 #endif
 
 template <typename Type>
-Source<Type>::Source(const BaseSource::Flags& flags)
-: simparm::Node(), BaseSource(flags),
-    pushTarget(NULL) 
+Source<Type>::Source(simparm::Node& node, const BaseSource::Flags& flags)
+: BaseSource(node, flags), pushTarget(NULL) 
 {
 }
 

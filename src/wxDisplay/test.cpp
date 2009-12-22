@@ -1,4 +1,5 @@
-#include "Manager.h"
+#include <dStorm/helpers/DisplayManager.h>
+#include "wxManager.h"
 #include <wx/wx.h>
 
 using namespace dStorm::Display;
@@ -10,6 +11,9 @@ class TestDataSource : public DataSource {
 };
 
 int main() {
+    dStorm::Display::Manager::setSingleton
+        ( dStorm::Display::wxManager::getSingleton() );
+
     TestDataSource source;
     Manager::WindowProperties prop;
     prop.name = "Test name";
