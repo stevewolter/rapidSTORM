@@ -12,7 +12,7 @@
 
 namespace dStorm {
 namespace output {
-class LocalizationFile : public simparm::Object, public Output {
+class LocalizationFile : public OutputObject {
     private: 
     ost::Mutex mutex;
     std::string filename;
@@ -51,6 +51,11 @@ class LocalizationFile::_Config : public simparm::Object {
     simparm::BoolEntry traces;
 
     _Config();
+
+    bool can_work_with(Capabilities cap) { 
+        traces.viewable = cap.test( Capabilities::ClustersWithSources );
+        return true; 
+    }
 };
 
 

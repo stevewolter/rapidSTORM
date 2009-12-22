@@ -71,7 +71,8 @@ FitFunction<VarC,CV>::fit(
 
     work_d->save_diag();
 
-    FITTING("Starting residues are " << work_p->chi_sq);
+    FITTING("Starting residues are " << work_p->chi_sq << ", going to fit "
+            " for " << maxSteps << " steps.");
 
     for (int steps = maxSteps; steps && curMotivation > 0; ) {
         /* Multiply the diagonal with the Marquardt factor */
@@ -138,7 +139,7 @@ FitFunction<VarC,CV>::fit(
             lambda *= lambdaAdjustment;
             FITTING("Residues worsened from "
                     << work_p->chi_sq << " to " 
-                    << trial_p->chi_sq << "."
+                    << trial_p->chi_sq << ". "
                     << "Changed lambda to " << lambda);
             residuesGrew = true;
         } else {
@@ -154,6 +155,7 @@ FitFunction<VarC,CV>::fit(
             std::swap( work_d, trial_d );
             work_d->save_diag();
         }
+        FITTING("Have " << steps << " steps left\n");
     }
 
     if ( CV ) {

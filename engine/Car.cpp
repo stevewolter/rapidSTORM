@@ -15,11 +15,6 @@
 #include "doc/help/context.h"
 #include <dStorm/engine/Input.h>
 
-//#undef PROGRESS
-//#define PROGRESS(x) std::cerr << x << "\n";
-//#undef STATUS
-//#define STATUS(x) std::cerr << x << "\n";
-
 using namespace std;
 
 namespace dStorm {
@@ -52,61 +47,53 @@ static std::string getRunNumber() {
     return std::string(number+index+1);
 }
 
-Car::Car (const CarConfig &new_config) 
+Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config) 
 : ost::Thread("Car"),
+  master( master ),
   config(new_config),
-  runtime_config("PRELIMINARY", "PRELIMINARY"),
+  ident( getRunNumber() ),
+  runtime_config("dStormJob" + ident, "dStorm Job " + ident),
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
   terminate(false)
 {
-    STATUS("Building car");
+    PROGRESS("Building car");
     closeJob.helpID = HELP_CloseJob;
 
-    /* Acquire a job descriptor */
-    string runNumber = getRunNumber();
-    runtime_config.setName(string("dStormJob") + runNumber);
-    runtime_config.setDesc(string("dStorm Job ") + runNumber);
-
-    receive_changes_from( closeJob );
+    receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    STATUS("Building output");
+    PROGRESS("Building output");
     output = config.outputSource.make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
 
-    /* The configuration I/O is copied at the end of this routine
-     * to include as many passenger contributions as possible. */
-    STATUS("Copying configuration I/O");
-    runtime_config.make_to_sibling_of(new_config);
+    PROGRESS("Registering at master config");
+    master->thread_safely_register_node( runtime_config );
 }
 
 Car::~Car() 
 {
-    STATUS("Destructing Car");
+    PROGRESS("Destructing Car");
+    PROGRESS("Joining car subthread");
     join();
-    PROGRESS("Joined car subthread");
 
+    PROGRESS("Sending destruction signal to outputs");
     output->propagate_signal( output::Output::Prepare_destruction );
-    PROGRESS("Finished destruction signal to transmissions");
 
+    PROGRESS("Removing from master config");
     /* Remove from simparm parents to hide destruction process
      * from interface. */
-    while ( ! runtime_config.getParents().empty() )
-        runtime_config.getParents().front()->erase( runtime_config );
-    PROGRESS("Removed all runtime_config parents");
+    master->thread_safely_erase_node( runtime_config );
 
     output.reset(NULL);
-    PROGRESS("Erased transmission");
     locSource.reset(NULL);
     myEngine.reset(NULL);
-    PROGRESS("Erased engine");
 }
 
 void Car::operator()(simparm::Node& src, Cause c, simparm::Node*) {
-    if ( &src == &closeJob && c == ValueChanged && closeJob.triggered() )
+    if ( &src == &closeJob.value && c == ValueChanged && closeJob.triggered() )
     {
         ost::MutexLock lock( terminationMutex );
         PROGRESS("Job close button allows termination");
@@ -141,16 +128,25 @@ void Car::run() throw() {
 }
 
 void Car::drive() {
+    PROGRESS("Determining type of input driver");
     try {
         std::auto_ptr<input::BaseSource> source;
         source = config.inputConfig.makeImageSource();
 
         if ( source->can_provide< Image >() ) {
-            input.reset(new Input( source->downcast<Image>(source)));
+            PROGRESS("Have image input, registering input");
+            runtime_config.push_back( *source );
+            PROGRESS("Making input buffer");
+            input.reset(
+                new Input( input::BaseSource::downcast<Image>(source) ) );
+            PROGRESS("Making engine");
             myEngine.reset( 
                 new Engine(config.engineConfig, *input, *output) );
+            runtime_config.push_back( *myEngine );
         } else if ( source->can_provide< Localization >() ) {
+            PROGRESS("Have localization input");
             locSource = source->downcast<Localization>(source);
+            runtime_config.push_back( *locSource );
         } else
             throw std::runtime_error("No valid source specified.");
     } catch (const std::exception& e) {
@@ -159,13 +155,6 @@ void Car::drive() {
                 + string(e.what()) );
     }
 
-    if ( locSource.get() != NULL )
-        runtime_config.push_back( *locSource );
-    else if ( myEngine.get() != NULL) {
-        runtime_config.push_back( input->getConfig() );
-        runtime_config.push_back( *myEngine );
-    }
-        
     runtime_config.push_back( *output );
     runtime_config.push_back( closeJob );
 

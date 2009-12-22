@@ -19,9 +19,9 @@ class ShutterControl
     void registerNamedEntries() {}
   public:
     ShutterControl(StateMachine& sm) 
-    : simparm::Object("ShutterControl", "Shutter control"), sm(sm) {}
+        : simparm::Object("ShutterControl", "Shutter control"), sm(sm) {}
     ShutterControl(const ShutterControl&c) 
-    : simparm::Node(c), simparm::Object(c), StateMachine::Listener(), sm(c.sm) {}
+        : simparm::Object(c), StateMachine::Listener(), sm(c.sm) {}
     ~ShutterControl() {}
     ShutterControl* clone() const { return new ShutterControl(*this); }
     ShutterControl& operator=(const ShutterControl&) { return *this; }

@@ -120,15 +120,14 @@ void Source<Pixel>::init(FILE *src)
             readsif_numberOfImages(dataSet) ) 
     };
 
-    int n = sizeof(whn) / sizeof(simparm::StringEntry*);
+    int n = sizeof(whn) / sizeof(simparm::Entry*);
     for (int i = 0; i < n; i++) {
         whn[i]->editable = false;
-        sifInfo->manage( whn[i] );
-        sifInfo->push_back( *whn[i] );
+        sifInfo->push_back( std::auto_ptr<simparm::Node>( whn[i] ));
     }
 
-    receive_changes_from( showDetails );
-    receive_changes_from( hideDetails );
+    receive_changes_from( showDetails.value );
+    receive_changes_from( hideDetails.value );
 
     hideDetails.trigger();
 }
@@ -147,9 +146,9 @@ Source<Pixel>::Source(FILE *src, const string &i)
 
 template<typename Pixel>
 Source<Pixel>::Source(const char *filename) 
-: SerialSource< CImg<Pixel> >
-    (BaseSource::Pushing | BaseSource::Pullable),
-  Set("AndorSIF", "SIF file"),
+: Set("AndorSIF", "SIF file"),
+  SerialSource< CImg<Pixel> >
+    ( static_cast<simparm::Node&>(*this), BaseSource::Pushing | BaseSource::Pullable),
   stream(NULL), file(NULL), dataSet(NULL), file_ident(filename),
   showDetails("ShowDetails", "Show SIF file information"),
   hideDetails("HideDetails", "Hide SIF file information")
@@ -176,12 +175,12 @@ Source<Pixel>::~Source() {
 
 template<typename Pixel>
 void Source<Pixel>::operator()(Node& source, Cause, Node*) {
-    if ( &source == &showDetails && showDetails.triggered() ) {
+    if ( &source == &showDetails.value && showDetails.triggered() ) {
         showDetails.untrigger();
         if ( sifInfo.get() ) sifInfo->viewable = true;
         showDetails.viewable = false;
         hideDetails.viewable = true;
-    } else if ( &source == &hideDetails && hideDetails.triggered() ) {
+    } else if ( &source == &hideDetails.value && hideDetails.triggered() ) {
         hideDetails.untrigger();
         if ( sifInfo.get() ) sifInfo->viewable = false;
         showDetails.viewable = true;
@@ -214,10 +213,10 @@ Config<Pixel>::Config( input::Config& src)
   inputFile(src.inputFile),
   sif_extension("extension_sif", ".sif")
 {
-    this->register_entry(&inputFile);
-    this->register_entry(&master.firstImage);
-    this->register_entry(&master.lastImage);
-    this->register_entry(&master.pixel_size_in_nm);
+    this->push_back(inputFile);
+    this->push_back(master.firstImage);
+    this->push_back(master.lastImage);
+    this->push_back(master.pixel_size_in_nm);
     inputFile.push_back(sif_extension);
 }
 
@@ -226,15 +225,14 @@ Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
     input::Config& src
 ) 
-: simparm::Node(c),
-  Method< CImg<Pixel> >(c),
+: Method< CImg<Pixel> >(c),
   master(src),
   inputFile(src.inputFile),
   sif_extension(c.sif_extension)
 {
-    this->register_entry(&inputFile);
-    this->register_entry(&master.firstImage);
-    this->register_entry(&master.lastImage);
+    this->push_back(inputFile);
+    this->push_back(master.firstImage);
+    this->push_back(master.lastImage);
     inputFile.push_back(sif_extension);
 }
 

@@ -9,6 +9,17 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 
+#include "debug.h"
+#include <cassert>
+
+#include <time.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
 using namespace std;
 
 namespace dStorm {
@@ -19,22 +30,42 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
     output::Config* my_config;
   public:
     TreeRoot()
-    : simparm::Object("EngineOutput", "dSTORM engine output")
+    : simparm::Object("EngineOutput", "dSTORM engine output"),
+      output::FilterSource( static_cast<simparm::Object&>(*this) )
     {
-        output::Config config;
-        output::FilterSource::initialize( config );
+        DEBUG("Building output tree root node at " << 
+              &static_cast<Node&>(*this) );
+        {
+            output::Config exemplar;
+            DEBUG("Setting output factory");
+            this->set_output_factory( exemplar );
+            DEBUG("Destructing exemplar config");
+        }
+        DEBUG("Setting source capabilities");
+        this->set_source_capabilities( 
+            output::Capabilities()
+                .set_source_image()
+                .set_smoothed_image()
+                .set_candidate_tree()
+                .set_input_buffer() );
+
+        DEBUG("Downcasting own config handle");
         assert( getFactory() != NULL );
-        assert( dynamic_cast<output::Config*>(getFactory()) != NULL );
         my_config = dynamic_cast<output::Config*>(getFactory());
+        assert( my_config != NULL );
+        DEBUG("Finished building output tree node");
     }
     TreeRoot( const TreeRoot& other )
     : simparm::Object(other),
-      output::FilterSource(other)
+      output::FilterSource( static_cast<simparm::Object&>(*this), other)
     {
-        output::FilterSource::initialize( *other.my_config );
+        DEBUG("Copying output tree root");
+        this->set_output_factory( *other.my_config );
         my_config = dynamic_cast<output::Config*>(getFactory());
     }
-    ~TreeRoot() { removeFromAllParents(); }
+    ~TreeRoot() {
+        DEBUG("Destroying output tree root");
+    }
 
     TreeRoot* clone() const { return new TreeRoot(*this); }
     std::string getDesc() const { return desc(); }
@@ -42,7 +73,7 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
 };
 
 CarConfig::CarConfig() 
-: Object("Car", "Job options"),
+: Set("Car", "Job options"),
   _inputConfig( new input::Config() ),
   _engineConfig( new engine::Config() ),
   outputRoot( new TreeRoot() ),
@@ -53,15 +84,13 @@ CarConfig::CarConfig()
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Store config used in computation in")
 {
-   setName("Car");
    configTarget.setUserLevel(simparm::Entry::Intermediate);
 
     registerNamedEntries();
 }
 
 CarConfig::CarConfig(const CarConfig &c) 
-: Node(c),
-  simparm::Object(c),
+: simparm::Set(c),
   _inputConfig(c.inputConfig.clone()),
   _engineConfig(c.engineConfig.clone()),
   outputRoot(c.outputRoot->clone()),
@@ -82,6 +111,7 @@ CarConfig::~CarConfig() {
 }
 
 void CarConfig::registerNamedEntries() {
+   DEBUG("Registering named entries of CarConfig");
    outputBox.push_back( *outputRoot );
    push_back( inputConfig );
    push_back( engineConfig );

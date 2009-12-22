@@ -7,44 +7,39 @@
 #include <dStorm/data-c++/AutoList.h>
 #include <set>
 #include <string>
+#include "MasterConfig.h"
+#include <boost/utility.hpp>
 
-class LibraryHandle;
-class ModuleHandler {
-    typedef data_cpp::auto_list<LibraryHandle> List;
-    List lib_handles;
-    std::set<std::string> loaded;
-
-    enum LoadResult { Loaded, Failure };
-    LoadResult try_loading_module( const char *filename );
-    static int lt_dlforeachfile_callback( 
-        const char *filename, void* data );
-  public:
-    ModuleHandler();
-    ModuleHandler( const ModuleHandler& );
-    ~ModuleHandler();
-
-    void add_modules( dStorm::engine::CarConfig& input_config );
-    std::string getDesc();
-};
+namespace dStorm {
 
 class GarageConfig 
-: public simparm::Set,
-  private simparm::Node::Callback
+: private simparm::Node::Callback
 {
+    MasterConfig::Ptr master;
+    std::auto_ptr<dStorm::engine::CarConfig> carConfig;
+    simparm::TriggerEntry externalControl, showTransmissionTree, run;
+
     void operator()(simparm::Node&, Cause, simparm::Node *) throw();
 
     std::set<std::string> avoid_auto_filenames;
 
-  public:
-    std::auto_ptr<dStorm::engine::CarConfig> carConfig;
-    simparm::BoolEntry externalControl;
-    simparm::TriggerEntry showTransmissionTree, run;
-
-    GarageConfig(ModuleHandler& module_handler) throw();
-    GarageConfig(const GarageConfig& c) throw();
-    GarageConfig* clone() const { return new GarageConfig(*this); }
+    GarageConfig& operator=(const GarageConfig&) throw();
 
     void registerNamedEntries() throw();
+
+  public:
+    GarageConfig(const MasterConfig::Ptr&) throw();
+    GarageConfig(const GarageConfig& c) throw();
+    GarageConfig* clone() const { return new GarageConfig(*this); }
+    ~GarageConfig();
+
+    void set_input_file( const std::string& );
+    void run_job();
+
+    std::auto_ptr<simparm::Set> make_set();
+    input::Config& get_input_config() { return carConfig->inputConfig; }
 };
+
+}
 
 #endif

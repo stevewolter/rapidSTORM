@@ -140,7 +140,7 @@ class ColourDependantImplementation
             r.width = width;
             r.height = height;
             r.key_size = MyColorizer::BrightnessDepth;
-            r.pixel_size = traits.resolution.sum() / 3;
+            r.pixel_size = traits.resolution.start<2>().sum() / 2;
             nm_per_pixel = r.pixel_size * 1E9;
 
             if ( do_show_window ) {
@@ -305,8 +305,12 @@ class ColourDependantImplementation
     }
 #endif
 
-    virtual void set_histogram_power(float power) 
-        { discretization.setHistogramPower( power ); }
+    virtual void set_histogram_power(float power) {
+        /* The \c image member is not involved here, so we have to lock
+         * it ourselves. */
+        ost::MutexLock lock( image.getMutex() );
+        discretization.setHistogramPower( power ); 
+    }
     virtual void set_resolution_enhancement(float re) { 
         image.set_resolution_enhancement( re ); 
     }
@@ -389,15 +393,15 @@ Viewer::_Config::_Config()
 }
 
 void Viewer::_Config::registerNamedEntries() {
-   register_entry(&outputFile);
-   register_entry(&showOutput);
-   register_entry(&res_enh);
-   register_entry(&histogramPower);
-   register_entry(&colourScheme);
-   register_entry(&invert);
-   register_entry(&hue);
-   register_entry(&saturation);
-   register_entry(&close_on_completion);
+   push_back(outputFile);
+   push_back(showOutput);
+   push_back(res_enh);
+   push_back(histogramPower);
+   push_back(colourScheme);
+   push_back(invert);
+   push_back(hue);
+   push_back(saturation);
+   push_back(close_on_completion);
 }
 
 template <int Index>
@@ -419,7 +423,8 @@ static Viewer::Implementation* make_binned_locs(
 }
 
 Viewer::Viewer(const Viewer::Config& config)
-: Object("Display", "Display status"),
+: OutputObject("Display", "Display status"),
+  simparm::Node::Callback( Node::ValueChanged ),
   implementation( 
     make_binned_locs< ColourSchemes::LastColourModel >( config ) ),
   forwardOutput( implementation->getForwardOutput() ),
@@ -483,12 +488,8 @@ Viewer::receiveLocalizations(const EngineResult& er)
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
-    AdditionalData data = NoData;
-
     MutexLock lock(structureMutex);
-    data = AdditionalData(data | forwardOutput.announceStormSize(a));
-
-    return data;
+    return forwardOutput.announceStormSize(a);
 }
 
 void Viewer::propagate_signal(ProgressSignal s) {
@@ -506,9 +507,8 @@ void Viewer::propagate_signal(ProgressSignal s) {
     }
 }
 
-void Viewer::operator()(Node& src, Node::Callback::Cause cause,
+void Viewer::operator()(Node& src, Node::Callback::Cause,
                         Node *) {
-    if (cause != ValueChanged) return;
     if (&src == &save.value && save.triggered()) {
         /* Save image */
         save.untrigger();

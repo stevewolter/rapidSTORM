@@ -8,6 +8,8 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/Source_decl.h>
+#include "MasterConfig.h"
+#include <boost/utility.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -18,11 +20,21 @@ namespace engine {
      *  If supplied with a configuration, it can be used to construct
      *  the desired output elements and run (concurrently or not)
      *  the dStorm engine. */
-    class Car : public ost::Thread, private simparm::Node::Callback {
+    class Car 
+        : boost::noncopyable,
+          public ost::Thread, private simparm::Node::Callback 
+    {
       private:
+        /** Reference to the master configuration. Must be destructed last
+         *  to ensure that all configuration items are destroyed before the
+         *  DLLs are unloaded. */
+        MasterConfig::Ptr master;
+
         /** Construction Configuration. This is a copy of the CarConfig used
          *  to build this car. */
         CarConfig config;
+        /** Unique job identifier. */
+        std::string ident;
         /** Runtime configuration. This is the storage locations for all
          *  configuration items which show job progress and status. */
         simparm::Set runtime_config;
@@ -56,13 +68,8 @@ namespace engine {
         /** Run the computation subthread. */
         void run() throw();
 
-      private:
-        /** Copy constructor undefined. */
-        Car(const Car&);
-        /** Assignment undefined. */
-        Car& operator=(const Car&);
       public:
-        Car (const CarConfig &config) ;
+        Car (const MasterConfig::Ptr&, const CarConfig &config) ;
         virtual ~Car();
 
         void drive();

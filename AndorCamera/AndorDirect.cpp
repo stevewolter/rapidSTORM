@@ -47,8 +47,9 @@ CamSource* AndorDirect::Config::impl_makeSource()
 AndorDirect::Source::Source
     (CameraReference& c) 
 
-: CamSource(BaseSource::Pushing | BaseSource::Concurrent),
-  Set("AndorDirect", "Direct acquisition"),
+: Set("AndorDirect", "Direct acquisition"),
+  CamSource( static_cast<simparm::Node&>(*this),
+    BaseSource::Pushing | BaseSource::Concurrent),
   ost::Thread("Andor camera acquirer"),
   control(c),
   is_initialized( initMutex),
@@ -117,7 +118,8 @@ void Source::acquire()
 
         /* cancelAcquisition is set in a different thread by stopPushing(). */
         while ( ! cancelAcquisition && acquisition.hasMoreImages() ) {
-            auto_ptr<CamImage> image(new CamImage(width, height));
+            auto_ptr<CamImage> image(
+                new CamImage(my_traits.size.x(), my_traits.size.y()));
             long imNum = acquisition.getNextImage( image->ptr() );
             /* On error, the acquisiton returns -1 here. */
             if (imNum >= 0) lastValidImage = imNum; else break;
@@ -191,12 +193,16 @@ void Source::stopPushing(Drain<CamImage> *target) {
 
 Config::Config(input::Config& config)  
 : CamConfig("AndorDirectConfig", "Direct camera control"),
-  basename("OutputBasename", "Base name for output files")
+  simparm::Node::Callback( Node::Callback::ValueChanged ),
+  basename("OutputBasename", "Base name for output files"),
+  resolution_element( config.pixel_size_in_nm )
 {
     PROGRESS("Making AndorDirect config");
 
     basename.erase( basename.value );
     basename.push_back( config.basename );
+
+    push_back( config.pixel_size_in_nm );
     
     LOCKING("Receiving attach event");
     registerNamedEntries();
@@ -205,13 +211,16 @@ Config::Config(input::Config& config)
 }
 
 Config::Config(const Config &c, input::Config& config) 
-: simparm::Node(c),
-  CamConfig(c),
-  basename(c.basename)
+: CamConfig(c),
+  Node::Callback( Node::Callback::ValueChanged ),
+  basename(c.basename),
+  resolution_element( config.pixel_size_in_nm )
 {
     basename.erase( basename.value );
     basename.push_back( config.basename );
     
+    push_back( config.pixel_size_in_nm );
+
     registerNamedEntries();
 }
 
@@ -234,7 +243,8 @@ class CameraLink : public simparm::Set {
     ViewportSelector::Config viewportConfig;
 
   public:
-    CameraLink( simparm::Node& node, CameraReference camera )
+    CameraLink( simparm::Node& node, CameraReference camera,
+                CamTraits::Resolution resolution )
     : simparm::Set("CamControl", "Camera Control"),
       a("Initialization", "Temperature"),
       cam(camera),
@@ -243,7 +253,7 @@ class CameraLink : public simparm::Set {
       d("Readout", "Acquisition area"),
       acquisitionLength("AcquisitionLength", "Number of images to acquire"),
       acquisitionSpeed("AcquisitionSpeed", "Exposure time per image"),
-      viewportConfig(cam)
+      viewportConfig(cam, resolution)
     {
         showTabbed = true;
 
@@ -289,15 +299,19 @@ class CameraLink : public simparm::Set {
     }
 
     const CameraReference& getCam() { return cam; }
+    void change_resolution( CamTraits::Resolution resolution )
+        { viewportConfig.set_resolution( resolution ); }
 };
 
 class Config::CameraSwitcher : public AndorCamera::System::Listener 
 {
     simparm::Node& node;
+    CamTraits::Resolution resolution;
 
     std::auto_ptr<CameraLink> currentlyActive;
   public:
-    CameraSwitcher(simparm::Node& node) : node(node) {}
+    CameraSwitcher(simparm::Node& node, CamTraits::Resolution r)
+        : node(node), resolution(r) {}
     ~CameraSwitcher() {
         /* Prevent destruction cycles. If we receive camera change events
          * during destruction, strange things might happen. */
@@ -314,17 +328,25 @@ class Config::CameraSwitcher : public AndorCamera::System::Listener
                                                .get_current_camera();
             ost::MutexLock lock( cam->mutex );
             currentlyActive.reset( 
-                new CameraLink( node, cam ) );
+                new CameraLink( node, cam, resolution ) );
         } else {
             currentlyActive.reset( NULL );
         }
+    }
+
+    void change_resolution( CamTraits::Resolution r ) {
+        resolution = r;
+        if (currentlyActive.get())
+            currentlyActive->change_resolution( r );
     }
 };
 
 void Config::registerNamedEntries()
  
 {
-    switcher.reset( new Config::CameraSwitcher(*this) );
+    CamTraits::Resolution res;
+    res.fill( resolution_element() * 1E-9 );
+    switcher.reset( new Config::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
         viewable = true;
@@ -338,7 +360,7 @@ void Config::registerNamedEntries()
 
 void Source::display_concurrently( const CamImage& image, int number) {
     dynamic_range.viewable = show_live();
-    if ( show_live() ) {
+    if ( false && show_live() ) {
         double image_time = control->config().cycleTime();
         double show_time = 0.1;
 
@@ -366,6 +388,15 @@ void Source::display_concurrently( const CamImage& image, int number) {
         }
     } else {
         display.reset( NULL );
+    }
+}
+
+void Config::operator()(Node &src, Cause, Node *)
+{
+    if ( &src == &resolution_element ) {
+        if ( switcher.get() != NULL )
+            switcher->change_resolution( 
+                CamTraits::Resolution( resolution_element() * 1E-9 ) );
     }
 }
 

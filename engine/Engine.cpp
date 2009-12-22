@@ -28,6 +28,8 @@
 clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 #endif
 
+#include "debug.h"
+
 using namespace dStorm;
 using namespace std;
 using namespace dStorm::input;
@@ -47,38 +49,26 @@ class EngineThread : public ost::Thread {
     EngineThread(Engine &engine, auto_ptr<string> name) 
         : ost::Thread(name->c_str()), engine(engine), nm(name) {}
     ~EngineThread() {
-        STATUS("Collecting piston");
+        DEBUG("Collecting piston");
         join(); 
     }
     void run() throw() {
-        try {
-            engine.runPiston();
-        } catch (const std::bad_alloc& e) {
-            cerr << PACKAGE_NAME << " ran out of memory. Try removing the filter "
-                    "output module or reducing image resolution "
-                    "enhancement." << endl;
-            engine.emergencyStop = true;
-        } catch (const std::exception& e) {
-            cerr << PACKAGE_NAME << ": Error in computation: " << e.what() << endl;
-            engine.emergencyStop = true;
-        } catch (...) {
-            cerr << PACKAGE_NAME << ": Unknown engine failure." << endl;
-            engine.emergencyStop = true;
-        }
+        engine.safeRunPiston();
     }
 };
 
 Engine::Engine(Config &config, Input &input, Output& output)
 : Object("EngineStatus", "Computation status"),
+  simparm::Node::Callback( Node::ValueChanged ),
   config(config),
   stopper("EngineStopper", "Stop computation"),
   input(input), output(&output), emergencyStop(false),
   error(false)
 {
-    STATUS("Constructing engine");
+    DEBUG("Constructing engine");
 
     stopper.helpID = HELP_StopEngine;
-    receive_changes_from( stopper );
+    receive_changes_from( stopper.value );
     push_back( config.sigma_x);
     push_back( config.sigma_y);
     push_back( config.sigma_xy);
@@ -91,33 +81,38 @@ void Engine::addPiston() {
     (*pistonName)[7] += pistonCount / 10;
     (*pistonName)[8] += pistonCount % 10;
     auto_ptr<ost::Thread> new_piston(new EngineThread(*this, pistonName));
-    STATUS("Spawning new piston");
+    DEBUG("Spawning new piston");
     new_piston->start();
     pistons.push_back( new_piston );
 }
 
 void Engine::restart() {
-    STATUS("Restarting");
+    DEBUG("Restarting");
     emergencyStop = false;
     error = false;
-    STATUS("Cleaning input");
+    DEBUG("Cleaning input");
     input.makeAllUntouched();
-    STATUS("Deleting all results");
+    DEBUG("Deleting all results");
     output->propagate_signal( Output::Engine_is_restarted );
-    STATUS("Restarted");
+    DEBUG("Restarted");
 }
 
 void Engine::collectPistons() {
     pistons.clear();
 }
 
+output::Traits Engine::convert_traits( const InputTraits& in ) {
+    return output::Traits( 
+        in.get_other_dimensionality<Localization::Dim>() );
+}
+
 void Engine::run() 
 {
-    STATUS("Started run");
+    DEBUG("Started run");
 
     int numPistons = config.pistonCount();
 
-    STATUS("Making SigmaGuesser");
+    DEBUG("Making SigmaGuesser");
     std::auto_ptr<Crankshaft> temporaryCrankshaft;
     if ( ! config.fixSigma() ) {
         Crankshaft *crankshaft = dynamic_cast<Crankshaft*>(output);
@@ -134,21 +129,19 @@ void Engine::run()
     } else
         input.setDiscardingLicense( true );
 
-    STATUS("Announcing size");
-    const input::Traits<Image>& prop = input.getTraits();
-    Output::Announcement announcement
-        ( prop, input.size() );
-    STATUS("Built announcement structure");
+    DEBUG("Announcing size");
+    Output::Announcement announcement(convert_traits(input.getTraits()));
+    DEBUG("Built announcement structure");
 
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
-    if ( data & Output::LocalizationSources ) {
+    if ( data.test( output::Capabilities::ClustersWithSources ) ) {
         cerr << "The engine module cannot provide localization traces."
              << "Please select an appropriate transmission.\n";
         return;
     }
 
-    STATUS("Ready to fork " << numPistons << " computation threads");
+    DEBUG("Ready to fork " << numPistons << " computation threads");
 #ifdef DSTORM_MEASURE_TIMES
     cerr << "Warning: Time measurement probes active" << endl;
     numPistons = 1;
@@ -156,11 +149,11 @@ void Engine::run()
     while (true) {
         for (int i = 0; i < numPistons-1; i++)
             addPiston();
-        runPiston();
+        safeRunPiston();
 
-        STATUS("Collecting running pistons");
+        DEBUG("Collecting running pistons");
         collectPistons();
-        STATUS("Collected pistons");
+        DEBUG("Collected pistons");
 
         if ( globalStop)
             break;
@@ -175,15 +168,33 @@ void Engine::run()
             break;
         }
     }
-    STATUS("Finished run");
+    DEBUG("Finished run");
+}
+
+void Engine::safeRunPiston() throw()
+{
+    try {
+        runPiston();
+    } catch (const std::bad_alloc& e) {
+        cerr << PACKAGE_NAME << " ran out of memory. Try removing the filter "
+                "output module or reducing image resolution "
+                "enhancement." << endl;
+        emergencyStop = error = true;
+    } catch (const std::exception& e) {
+        cerr << PACKAGE_NAME << ": Error in computation: " << e.what() << endl;
+        emergencyStop = error = true;
+    } catch (...) {
+        cerr << PACKAGE_NAME << ": Unknown engine failure." << endl;
+        emergencyStop = error = true;
+    }
 }
 
 void Engine::runPiston() 
 {
     int maximumLimit = 20;
     const input::Traits<Image>& imProp = input.getTraits();
-    STATUS("Started piston");
-    STATUS("Building spot finder with dimensions " << imProp.dimx() <<
+    DEBUG("Started piston");
+    DEBUG("Building spot finder with dimensions " << imProp.dimx() <<
            " " << imProp.dimy());
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
@@ -191,21 +202,21 @@ void Engine::runPiston()
         = config.spotFindingMethod().make_SpotFinder
             (config, imProp.dimx(), imProp.dimy() );
 
-    STATUS("Building spot fitter");
+    DEBUG("Building spot fitter");
     auto_ptr<SpotFitter> fitter(SpotFitter::factory(config));
 
-    STATUS("Building fit buffer");
-    data_cpp::Vector<Localization> buffer(200, 0, Localization(-1,-1));
+    DEBUG("Building fit buffer");
+    data_cpp::Vector<Localization> buffer;
 
-    STATUS("Building maximums");
+    DEBUG("Building maximums");
     CandidateTree<SmoothedPixel> maximums
         (config.x_maskSize(), config.y_maskSize(), 1, 1);
     maximums.setLimit(maximumLimit);
 
-    STATUS("Initialized maximums");
+    DEBUG("Initialized maximums");
     int origMotivation = config.motivation();
 
-    STATUS("Initialized motivation");
+    DEBUG("Initialized motivation");
     Output::EngineResult resultStructure;
     resultStructure.smoothed = &finder->getSmoothedImage();
     resultStructure.candidates = &maximums;
@@ -214,7 +225,7 @@ void Engine::runPiston()
 
     for (Input::iterator i = input.begin(); i != input.end(); i++)
     {
-        STATUS("Intake (" << i->index() << ")");
+        DEBUG("Intake (" << i->index() << ")");
 
         Claim< Image > claim = i->claim();
         if ( ! claim.isGood() ) continue;
@@ -274,7 +285,7 @@ void Engine::runPiston()
             output->receiveLocalizations( resultStructure );
         if (r == Output::RestartEngine || r == Output::StopEngine ) 
         {
-            STATUS("Emergency stop: Engine restart requested");
+            DEBUG("Emergency stop: Engine restart requested");
             output->propagate_signal( Output::Engine_run_is_aborted );
             emergencyStop = true;
             error = ( r == Output::StopEngine );
@@ -288,14 +299,14 @@ void Engine::runPiston()
             break;
         }
     }
-    STATUS("Finished piston");
+    DEBUG("Finished piston");
 }
 
 Engine::~Engine() {
-    STATUS("Destructing engine");
+    DEBUG("Destructing engine");
     emergencyStop = true;
     collectPistons();
-    STATUS("Destructed engine");
+    DEBUG("Destructed engine");
 }
 
 }

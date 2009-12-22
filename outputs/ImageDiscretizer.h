@@ -126,7 +126,7 @@ class ImageDiscretizer
     inline void change( int x, int y, HighDepth to );
     void normalize_histogram();
     void publish_differences_in_transitions( 
-        TransitionTable& old_table, TransitionTable& new_table );
+        TransitionTable* old_table, TransitionTable& new_table );
     inline unsigned long int non_background_pixels();
 
   public:

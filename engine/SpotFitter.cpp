@@ -1,5 +1,5 @@
-#include "engine/SpotFitter.h"
-#include "engine/GaussFitter.h"
+#include "SpotFitter.h"
+#include "GaussFitter.h"
 
 using namespace std;
 

@@ -22,7 +22,7 @@ namespace engine {
     /** This class estimates the standard deviation by averaging
      *  the standard deviations, with a confidence interval for
      *  the mean. */
-    class SigmaGuesserMean : public Output, public simparm::Object {
+    class SigmaGuesserMean : public OutputObject {
       protected:
         ost::Mutex mutex;
 
@@ -58,7 +58,7 @@ namespace engine {
             { throw std::runtime_error("SigmaGuesserMean unclonable."); }
 
         AdditionalData announceStormSize(const Announcement&) 
-            { return SourceImage; }
+            { return AdditionalData().set_source_image(); }
         Result receiveLocalizations(const EngineResult&);
         void propagate_signal(ProgressSignal s) {
             if (s == Engine_is_restarted) deleteAllResults();

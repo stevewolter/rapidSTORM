@@ -7,6 +7,8 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/Input_decl.h>
+#include <dStorm/output/Traits_decl.h>
+#include <boost/utility.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -18,7 +20,9 @@ namespace engine {
     *  which request images from the Input, make the
     *  SpotFinder locate candidates in them, fit them with the
     *  SpotFitter and output the results to the Output. */
-   class Engine : public simparm::Object, public simparm::Node::Callback {
+   class Engine : public simparm::Object, public simparm::Node::Callback,
+                  boost::noncopyable 
+   {
       private:
         Config& config;
         simparm::TriggerEntry stopper;
@@ -39,7 +43,7 @@ namespace engine {
 
         /** Run a piston and catch exceptions, setting the emergencyStop
           * and error flags. */
-        void safeRunPiston();
+        void safeRunPiston() throw();
         /** The runPiston() method does the actual process controlling */
         void runPiston();
 
@@ -51,6 +55,10 @@ namespace engine {
         void addPiston();
         void collectPistons();
 
+        /** Compute changes to traits from input image to localizations
+         *  output. */
+        output::Traits convert_traits( const InputTraits& );
+
       public:
          Engine(Config& config, Input& input, output::Output& output);
          virtual ~Engine();
@@ -60,8 +68,8 @@ namespace engine {
          void run();
          void stop() { emergencyStop = error = true; }
 
-         void operator()(simparm::Node&, Cause cause, simparm::Node *) {
-            if ( cause == ValueChanged && stopper.triggered() ) {
+         void operator()(simparm::Node&, Cause, simparm::Node *) {
+            if ( stopper.triggered() ) {
                 stopper.untrigger();
                 stop();
             }

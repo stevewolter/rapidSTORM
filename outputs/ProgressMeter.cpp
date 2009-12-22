@@ -11,8 +11,7 @@ ProgressMeter::Config::Config()
 }
 
 ProgressMeter::ProgressMeter(const Config &)
-    : Output(),
-      Object("ProgressMeter", "Progress status"),
+    : OutputObject("ProgressMeter", "Progress status"),
       progress("Progress", "Progress on this job") 
     {
         progress.helpID = HELP_ProgressMeter_Progress;

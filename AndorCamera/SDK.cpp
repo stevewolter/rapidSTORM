@@ -365,7 +365,7 @@ NewImages GetNumberAvailableImages()
     else if (rc == DRV_SUCCESS)
         rv.haveNew = true;
     else
-        CHECK(rc, " in GetNumberNewImages");
+        CHECK(rc, " in GetNumberAvailableImages");
 
     rv.first -= 1;
     rv.second -= 1;

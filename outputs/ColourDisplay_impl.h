@@ -145,7 +145,11 @@ class HueingColorizer : public Colorizer<unsigned char> {
         { merge_tone(x, y, oldVal, newVal - oldVal); }
     inline void announce(const Output::Announcement& a) {
         minV = 0;
-        maxV = a.length;
+        if ( a.traits.total_frame_count.is_set() )
+            maxV = *a.traits.total_frame_count;
+        else
+            throw std::runtime_error("Total length of acquisition must be "
+                                     "known for colour coding by time.");
         scaleV = 2.0 / (3 * ( maxV - minV ));
     }
     inline void announce(const Output::EngineResult& er) {

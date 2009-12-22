@@ -10,29 +10,34 @@ namespace output {
 
 /** This class updates a ProgressEntry with the progress status for the
  *  crankshaft it is added to. */
-class ProgressMeter : public Output, public simparm::Object
+class ProgressMeter : public OutputObject
 {
   private:
     ost::Mutex mutex;
     simparm::ProgressEntry progress;
     unsigned int max;
-    double length;
+    simparm::optional<unsigned int> length;
 
   protected:
     AdditionalData announceStormSize(const Announcement &a) { 
         ost::MutexLock lock(mutex);
-        length = a.length; 
+        length = a.traits.total_frame_count;
         max = 0;
         if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
-        return NoData; 
+        return AdditionalData(); 
     }
     virtual Result receiveLocalizations(const EngineResult& er) 
  
     {
         ost::MutexLock lock(mutex);
         if ( er.forImage+1 > max ) {
-            max = er.forImage+1;
-            progress.setValue( round(max / length / 0.01) * 0.01 );
+            if ( length.is_set() ) {
+                max = er.forImage+1;
+                progress.setValue( round(max *1.0 / (*length) / 0.01)
+                                   * 0.01 );
+            } else {
+                /* TODO */
+            }
         }
         return KeepRunning;
     }
@@ -56,16 +61,20 @@ class ProgressMeter : public Output, public simparm::Object
 
     ProgressMeter(const Config &);
     ProgressMeter(const ProgressMeter& c)
-    : Node(c), Output(c), Object(c), 
-      progress(c.progress), max(c.max), length(c.length)
-    { push_back(progress); }
+        : OutputObject(c),
+          progress(c.progress), max(c.max), length(c.length)
+        { push_back(progress); }
     virtual ~ProgressMeter() {}
 
     ProgressMeter *clone() const { return new ProgressMeter(*this); }
 };
 
 class ProgressMeter::Config : public simparm::Object 
-    { public: Config(); };
+{ 
+  public:
+    Config(); 
+    bool can_work_with(Capabilities) { return true; }
+};
 
 }
 }

@@ -1,6 +1,9 @@
 #include "engine/GaussFitter_Width_Invariants.h"
 #include <fit++/FitFunction_impl.hh>
-#include <CImg.h>
+#include <dStorm/engine/Image_impl.h>
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/Spot.h>
+#include <dStorm/Localization.h>
 
 template <typename Ty>
 Ty sq(const Ty& a) { return a*a; }
@@ -44,8 +47,7 @@ Width_Invariants<FS,true>::Width_Invariants(
 ) 
 : Width_Invariants<FS,false>(config),
   params( NULL, &constants),
-  asymmetry_threshold( config.asymmetry_threshold() ),
-  residue_threshold( 0.98 )
+  asymmetry_threshold( config.asymmetry_threshold() )
 {
     fit_function
         .setStartLambda( config.marquardtStartLambda() );
@@ -61,6 +63,10 @@ Width_Invariants<FS,true>::Width_Invariants(
         (fit_function, config.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<MeanY,1>
         (fit_function, config.negligibleStepLength());
+    FitGroup::template set_absolute_epsilon<Amplitude,0>
+        (fit_function, 1);
+    FitGroup::template set_absolute_epsilon<Amplitude,1>
+        (fit_function, 1);
 
     if ( ! FS ) {
         params.template setSigmaX<0>( this->start_sx );
@@ -117,11 +123,12 @@ Width_Invariants<FS,false>::check_result(
 {
     params.change_variable_set( variables );
 
-    new(target) 
-        Localization( params.template getMeanX<0>(),
-                      params.template getMeanY<0>(), 
-                      -1, 
-                      params.template getAmplitude<0>() );
+    new(target) Localization( 
+        Localization::Position( 
+            params.template getMeanX<0>(),
+            params.template getMeanY<0>() ),
+        params.template getAmplitude<0>() );
+
     bool sigmas_correct = !FS
         && params.template getSigmaX<0>() >= start_sx/4
         && params.template getSigmaY<0>() >= start_sy/4 
@@ -129,7 +136,7 @@ Width_Invariants<FS,false>::check_result(
         && params.template getSigmaY<0>() <= start_sy*4;
 
     return sigmas_correct
-        && target->getStrength() > amplitude_threshold 
+        && target->strength() > amplitude_threshold 
         && target->x() >= 1 && target->y() >= 1 
         && target->x() < start.maxs.x() && target->y() < start.maxs.y()
         && sq(target->x() - start.start.x()) + 
@@ -148,14 +155,15 @@ start_from_splitted_single_fit(
     params.change_variable_set( v );
     params.setShift( Base::params.getShift() );
 
+    float half_dist = 1.8;
     params.template setMeanX<0>
-        ( Base::params.template getMeanX<0>() + dir.x()*2 );
+        ( Base::params.template getMeanX<0>() + dir.x()*half_dist );
     params.template setMeanX<1>
-        ( Base::params.template getMeanX<0>() - dir.x()*2 );
+        ( Base::params.template getMeanX<0>() - dir.x()*half_dist );
     params.template setMeanY<0>
-        ( Base::params.template getMeanY<0>() + dir.y()*2 );
+        ( Base::params.template getMeanY<0>() + dir.y()*half_dist );
     params.template setMeanY<1>
-        ( Base::params.template getMeanY<0>() - dir.y()*2 );
+        ( Base::params.template getMeanY<0>() - dir.y()*half_dist );
     params.template setAmplitude<0>
         ( Base::params.template getAmplitude<0>() / 2 );
     params.template setAmplitude<1>

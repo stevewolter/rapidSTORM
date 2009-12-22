@@ -2,10 +2,10 @@
 #define DSTORM_GAUSSFITTER_WIDTH_INVARIANTS_H
 
 #include <fit++/Exponential2D.hh>
-#include <dStorm/engine/Config.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/Localization.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/engine/Config_decl.h>
+#include <dStorm/engine/Spot_decl.h>
+#include <dStorm/Localization_decl.h>
+#include <dStorm/engine/Image_decl.h>
 
 namespace dStorm {
 namespace engine {
@@ -56,7 +56,7 @@ struct Width_Invariants<Free_Sigmas, true>
     typename FitGroup::Constants constants;
     FitFunction<FitGroup::VarC> fit_function;
     typename FitGroup::NamedParameters params;
-    const double asymmetry_threshold, residue_threshold;
+    const double asymmetry_threshold;
 
     Width_Invariants( const Config& config );
     void start_from_splitted_single_fit

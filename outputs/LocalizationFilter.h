@@ -6,6 +6,7 @@
 #include <simparm/NumericEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/data-c++/Vector.h>
+#include <dStorm/input/LocalizationTraits.h>
 
 namespace dStorm {
 namespace output {
@@ -14,7 +15,7 @@ namespace output {
  *  provides linear drift correction. Both corrections are performed dynamically,
  *  that is, the parameters can be changed at run-time and the localization filter
  *  will re-compute and re-publish the previous results with the updated parameters. */
-class LocalizationFilter : public simparm::Object, public Output,
+class LocalizationFilter : public OutputObject,
                            public simparm::Node::Callback
 {
   private:
@@ -33,9 +34,10 @@ class LocalizationFilter : public simparm::Object, public Output,
 
     simparm::DoubleEntry from, to;
     simparm::DoubleEntry x_shift, y_shift;
+    simparm::DoubleEntry two_kernel_significance;
     double v_from, v_to;
-    double v_x_shift, v_y_shift;
-    int storm_width, storm_height, storm_length;
+    Localization::Position shift_velocity;
+    output::Traits traits;
 
     enum State { PreStart, Running, Succeeded };
     State inputState, outputState;
@@ -95,6 +97,16 @@ class LocalizationFilter::_Config : public simparm::Object {
 
     simparm::DoubleEntry from, to;
     simparm::DoubleEntry x_shift, y_shift;
+
+    /** Minimum quotient between residues of two- and one-kernel
+        *  model fits that must be reached so that the two-kernel fit
+        *  is not considered better. */
+    simparm::DoubleEntry two_kernel_significance;
+
+    bool determine_output_capabilities( Capabilities& cap ) { 
+        cap.set_intransparency_for_source_data();
+        return true; 
+    }
 };
 
 }

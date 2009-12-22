@@ -52,11 +52,15 @@ void LocalizationFile::open() {
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
     ost::MutexLock lock(mutex);
-    traits = input::Traits<Localization>(a.traits, a.length);
+    traits = input::Traits<Localization>(a.traits);
+    if ( a.traits.total_frame_count.is_set() )
+        traits.imageNumber = *a.traits.total_frame_count;
+    else
+        traits.imageNumber = 0;
 
     open();
 
-    return NoData;
+    return AdditionalData().set_cluster_sources( localizationDepth > 0 );
 }
 
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
@@ -86,7 +90,7 @@ void LocalizationFile::propagate_signal(Output::ProgressSignal s) {
 
 LocalizationFile::LocalizationFile(const Config &c) 
 
-: Object("LocalizationFile", "File output status"),
+: OutputObject("LocalizationFile", "File output status"),
   filename(c.outputFile()), localizationDepth((c.traces()) ? 1 : 0) 
 {
     if ( filename == "" )

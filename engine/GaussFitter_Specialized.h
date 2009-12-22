@@ -1,8 +1,8 @@
 #ifndef GAUSS_FITTER_SPECIALIZED_H
 #define GAUSS_FITTER_SPECIALIZED_H
 
-#include "GaussFitter_impl.h"
-#include <CImg.h>
+#include "GaussFitter.h"
+#include <dStorm/engine/Image_impl.h>
 #include <fit++/FitFunction_impl.hh>
 
 using namespace fitpp::Exponential2D;
@@ -90,7 +90,7 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
     enum SpotState { Single, Fishy, Double };
     SpotState residue_analysis(Eigen::Vector2i* direction,
                                int xl, int yl);
-    SpotState double_fit_analysis(
+    float double_fit_analysis(
         const Image& image, const Eigen::Vector2i& direction,
         int single_fit_xl, int single_fit_yl);
 };
@@ -164,9 +164,9 @@ fit( const Spot &spot, Localization *target, const Image& image,
         = c != NULL &&
           common.check_result( &c->parameters, target, starts );
 
-    target->setImageNumber( imNumber );
-
     if ( is_good ) {
+        target->setImageNumber( imNumber );
+        target->unset_source_trace();
         return 1;
     } else
         return -1;
@@ -186,22 +186,13 @@ fit( const Spot &spot, Localization *target, const Image& image,
     switch ( residue_analysis( &suspected_doubleSpot_direction, xl, yl ) ) 
     {
         case Single:
-            return 1;
+            target->two_kernel_improvement() = 0;
         case Double:
-            return 0;
         case Fishy:
-        default:
-            switch (double_fit_analysis
-                (image, suspected_doubleSpot_direction, xl, yl)) 
-            {
-                case Double:
-                case Fishy:
-                    return 0;
-                case Single:
-                default:
-                    return 1;
-            }
+            target->two_kernel_improvement() = 1 - double_fit_analysis
+                (image, suspected_doubleSpot_direction, xl, yl); 
     }
+    return 1;
 }
 
 template <bool Free_Sigmas, bool ResAnalysis, bool Corr>

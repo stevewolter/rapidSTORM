@@ -18,9 +18,9 @@ class Triggering
     void registerNamedEntries() {}
   public:
     Triggering(StateMachine& sm) 
-    : simparm::Object("Triggering", "Trigger options"), sm(sm) {}
+        : simparm::Object("Triggering", "Trigger options"), sm(sm) {}
     Triggering(const Triggering&c) 
-    : simparm::Node(c), simparm::Object(c), StateMachine::Listener(), sm(c.sm) {}
+        : simparm::Object(c), StateMachine::Listener(), sm(c.sm) {}
     ~Triggering() {}
     Triggering* clone() const { return new Triggering(*this); }
     Triggering& operator=(const Triggering&) { return *this; }

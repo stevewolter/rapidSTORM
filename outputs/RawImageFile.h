@@ -10,7 +10,7 @@
 
 namespace dStorm {
 namespace output {
-class RawImageFile : public Output, public simparm::Object {
+class RawImageFile : public OutputObject {
   private:
     static void error_handler( const char* module,
                                const char* fmt, va_list ap );
@@ -40,6 +40,7 @@ class RawImageFile : public Output, public simparm::Object {
     AdditionalData announceStormSize(const Announcement &a);
     Result receiveLocalizations(const EngineResult&);
     void propagate_signal(ProgressSignal);
+
 };
 
 class RawImageFile::_Config : public simparm::Object {
@@ -51,6 +52,9 @@ class RawImageFile::_Config : public simparm::Object {
     simparm::FileEntry outputFile;
 
     _Config();
+    bool can_work_with(Capabilities cap) { 
+        return cap.test( Capabilities::SourceImage ); 
+    }
 };
 
 }

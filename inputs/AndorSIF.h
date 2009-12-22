@@ -35,8 +35,8 @@ namespace AndorSIF {
      *  float. This is not necessarily the internal type used by
      *  the SIF file. */
     template <typename PixelType>
-    class Source : public SerialSource< CImg<PixelType> >,
-                   public simparm::Set,
+    class Source : public simparm::Set,
+                   public SerialSource< CImg<PixelType> >,
                    public  simparm::Node::Callback
     {
       public:

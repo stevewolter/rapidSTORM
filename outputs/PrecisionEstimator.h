@@ -20,11 +20,11 @@ namespace output {
     };
 
     class SinglePrecisionEstimator 
-    : public simparm::Object, public output::Output 
+      : public OutputObject 
     {
       private:
         simparm::FileEntry printTo;
-        Eigen::Vector3d pixel_dim_in_nm;
+        output::Traits::Resolution pixel_dim_in_nm;
         double res_enh;
 
         ost::Mutex mutex;
@@ -46,11 +46,11 @@ namespace output {
     };
 
     class MultiPrecisionEstimator 
-    : public simparm::Object, public output::Output 
+    : public OutputObject 
     {
         simparm::UnsignedLongEntry usedSpots;
         simparm::DoubleEntry x_sd, y_sd, corr;
-        Eigen::Vector3d pixel_dim_in_nm;
+        output::Traits::Resolution pixel_dim_in_nm;
         double res_enh;
 
         outputs::LocalizationList localizations;
@@ -84,21 +84,23 @@ namespace output {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
-    class PrecisionEstimatorConfig : public virtual simparm::Node
+    class PrecisionEstimatorConfig 
     {
       protected:
 
-        void registerNamedEntries() {
-            push_back(resEnh);
+        void registerNamedEntries(simparm::Node& n) {
+            n.push_back(resEnh);
         }
 
       public:
         simparm::DoubleEntry resEnh;
 
         PrecisionEstimatorConfig()
-        : resEnh("FitBinSize", "Bin size for precision Gauss fit", 0.1)
+            : resEnh("FitBinSize", "Bin size for precision Gauss fit", 0.1)
             {}
-        PrecisionEstimatorConfig* clone() const = 0;
+
+        bool can_work_with(Capabilities cap) 
+            { return cap.test( Capabilities::ClustersWithSources ); }
     };
 
     struct MultiPrecisionEstimator::_Config 
@@ -106,6 +108,9 @@ namespace output {
     { 
         _Config(); 
         _Config* clone() const { return new _Config(*this); }
+        void registerNamedEntries() {
+            PrecisionEstimatorConfig::registerNamedEntries(*this);
+        }
     };
 
     class SinglePrecisionEstimator::_Config :
@@ -113,7 +118,7 @@ namespace output {
     {
       protected:
         void registerNamedEntries() {
-            PrecisionEstimatorConfig::registerNamedEntries();
+            PrecisionEstimatorConfig::registerNamedEntries(*this);
             push_back( outputFile );
         }
       public:

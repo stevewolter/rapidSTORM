@@ -35,13 +35,13 @@ _Config::_Config()
 }
 
 void _Config::registerNamedEntries() {
-    register_entry(&targetTemperature);
-    register_entry(&outputAmp);
-    register_entry(&VS_Speed);
-    register_entry(&HS_Speed);
-    register_entry(&emccdGain);
-    register_entry(&realExposureTime);
-    register_entry(&cycleTime);
+    push_back(targetTemperature);
+    push_back(outputAmp);
+    push_back(VS_Speed);
+    push_back(HS_Speed);
+    push_back(emccdGain);
+    push_back(realExposureTime);
+    push_back(cycleTime);
 }
 
 }

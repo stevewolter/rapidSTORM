@@ -5,6 +5,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image_impl.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
@@ -14,7 +15,7 @@ namespace dStorm {
 namespace output {
 /** The AverageImage class averages all incoming images into a
   *  single image to show the usefulness of dSTORM. */
-class AverageImage : public Output, public simparm::Object {
+class AverageImage : public OutputObject {
   private:
     std::string filename;
     cimg_library::CImg<unsigned long> image;
@@ -30,15 +31,19 @@ class AverageImage : public Output, public simparm::Object {
 
     AdditionalData announceStormSize(const Announcement &a) {
         ost::MutexLock lock(mutex);
-        image.resize(a.traits.size.x(),a.traits.size.y(),
-                     a.traits.size.z(),a.traits.dim);
+        if ( a.carburettor == NULL )
+            throw std::logic_error("AverageImage needs access to "
+                                   "input driver, but didn't get it.");
+        const engine::InputTraits& t = a.carburettor->getTraits();
+        image.resize(t.size.x(),t.size.y(), t.size.z(),t.dim);
         image.fill(0);
-        return SourceImage; 
+        return AdditionalData().set_source_image(); 
     }
     Result receiveLocalizations(const EngineResult&);
     void propagate_signal(ProgressSignal s);
 
     const char *getName() { return "AverageImage"; }
+
 };
 
 class AverageImage::_Config : public simparm::Object {
@@ -49,6 +54,9 @@ class AverageImage::_Config : public simparm::Object {
   public:
     simparm::FileEntry outputFile;
     _Config();
+    bool can_work_with(Capabilities cap) 
+        { return cap.test( Capabilities::SourceImage ) && 
+                 cap.test( Capabilities::InputBuffer ); }
 };
 
 }

@@ -48,7 +48,7 @@ Slicer::_Config::_Config()
 
 Slicer::Slicer(const Source& source)
  
-: simparm::Object("Slicer", "Object Slicer"),
+: OutputObject("Slicer", "Object Slicer"),
   slice_size( source.slice_size() ),
   slice_distance( source.slice_distance() ),
   filename( source.filename() ),
@@ -64,16 +64,13 @@ Output::AdditionalData
 Slicer::announceStormSize(const Announcement& a)
 {
     announcement.reset( new Announcement(a) );
-    unsigned int number_of_slices = a.length / slice_distance;
-    if ( a.length % slice_distance > 0 ) number_of_slices++;
-
-    outputs.resize( number_of_slices );
 
     return outputs[0]->announceStormSize(a);
 }
 
 void Slicer::propagate_signal(ProgressSignal s) {
     received_signals.push_back(s);
+    ost::MutexLock lock( outputs_mutex );
     for (unsigned int i = 0; i < outputs.size(); i++)
         if (outputs[i]) {
             if ( s == Engine_is_restarted )
@@ -95,6 +92,12 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
             : (back_image / slice_distance) + 1,
         last_slice = cur_image / slice_distance;
     
+    if ( int( outputs.size() ) <= last_slice ) {
+        ost::MutexLock lock( outputs_mutex );
+        while ( int( outputs.size() ) <= last_slice )
+            outputs.push_back( Child() );
+    }
+
     for (int i = first_slice; i <= last_slice; i++) {
         ost::MutexLock lock( outputs[i].mutex );
         if ( !outputs[i] ) add_output_clone(i);

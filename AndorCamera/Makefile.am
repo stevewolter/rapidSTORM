@@ -27,4 +27,4 @@ TESTS = $(C_TESTS)
 check_PROGRAMS = $(C_TESTS)
 check_AndorCamera_with_DummyCamera_SOURCES = \
     check_AndorCamera_with_DummyCamera.cpp
-check_AndorCamera_with_DummyCamera_LDADD = libCImgBuffer_closed.la libCImgBuffer.la
+check_AndorCamera_with_DummyCamera_LDADD = ../../dStorm/libdStorm.la ../wxDisplay/libdStorm_display.la libAndorCamera.la

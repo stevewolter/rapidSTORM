@@ -9,8 +9,8 @@ LocalizationCounter::Config::Config()
 {
 }
 
-LocalizationCounter::LocalizationCounter(const Config &)
-: Object("LocCountStat", "Localization counting status"),
+LocalizationCounter::LocalizationCounter(const Config &c)
+: OutputObject("LocCountStat", "Localization counting status"),
   count(0),
   last_config_update(0),
   update("LocalizationCount", 

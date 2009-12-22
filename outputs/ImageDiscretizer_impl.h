@@ -25,7 +25,7 @@ ImageDiscretizer<Colorizer, ImageListener>
   disc_factor( (d-1) * 1.0 / max_value_used_for_disc_factor ),
   histogram( d, 0 ),
   transition( d, 0 ),
-  pixels_by_value( d ),
+  pixels_by_value( d, HistogramPixel() ),
   in_depth( d ),
   out_depth( Colorizer::BrightnessDepth - 1 ),
   histogram_power( hp ),
@@ -151,18 +151,23 @@ void ImageDiscretizer<Colorizer, ImageListener>
 
     double fractions[in_depth];
     double accum = 0;
-    float power = histogram_power;
+    double power = histogram_power;
 
     bool histogram_has_changed = false;
     TransitionTable new_transition( in_depth );
+    new_transition.allocate( in_depth );
 
-    for (unsigned int i = start; i < in_depth; i++) {
-        if (histogram[i] != 0)
-            accum += pow( 
-                double(histogram[i]) / used_histogram_pixels, 
-                double(power) );
-        fractions[i] = accum;
-    }
+    if ( power <= 1E-5 ) {
+        accum = in_depth - start;
+        for (unsigned int i = start; i < in_depth; i++)
+            fractions[i] = (i+1) - start;
+    } else
+        for (unsigned int i = start; i < in_depth; i++) {
+            if (histogram[i] != 0)
+                accum += pow( 
+                    double(histogram[i]) / used_histogram_pixels, power );
+            fractions[i] = accum;
+        }
 
     for (unsigned int i = 0; i < start; i++)
         new_transition[i] = i;
@@ -188,8 +193,10 @@ void ImageDiscretizer<Colorizer, ImageListener>
         }
     }
 
+    new_transition.commit( in_depth );
+
     if ( histogram_has_changed ) {
-        publish_differences_in_transitions( transition, new_transition );
+        publish_differences_in_transitions(&transition, new_transition);
         std::swap( transition, new_transition );
     }
 }
@@ -197,14 +204,15 @@ void ImageDiscretizer<Colorizer, ImageListener>
 template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
   ::publish_differences_in_transitions
-  ( TransitionTable& old_table, TransitionTable& new_table )
+  ( TransitionTable* old_table, TransitionTable& new_table )
 {
     HighDepth o = 0, n = 0;
     for (LowDepth v = 0; v < out_depth; v++) {
-        while ( (o+1U) < in_depth && old_table[o+1U] <= v ) o++;
+        if ( old_table )
+            while ( (o+1U) < in_depth && (*old_table)[o+1U] <= v ) o++;
         while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;
 
-        if ( o != n ) {
+        if ( !old_table || o != n ) {
             float undisc_new_val = (n + 0.5) / disc_factor;
             this->publish().notice_key_change
                 ( v, colorizer.getKeyPixel(v), undisc_new_val );
@@ -237,6 +245,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
 {
     this->histogram_power = power;
     normalize_histogram();
+    publish_differences_in_transitions( NULL, transition );
 }
 
 template <typename Colorizer, typename ImageListener>

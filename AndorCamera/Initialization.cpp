@@ -38,17 +38,17 @@ void Initialization::registerNamedEntries()
 
 Initialization::Initialization(StateMachine& sm)
 : Object("Initialization", "Initialization"),
+  simparm::Node::Callback( Node::ValueChanged ),
   sm(sm)
 {
     registerNamedEntries();
 }
   
 Initialization::Initialization(const Initialization&c)
-: Node(c),
-  Object(c),
+: Object(c),
   _Initialization(c),
   StateMachine::Listener(),
-  Node::Callback(),
+  Node::Callback( Node::ValueChanged ),
   sm(c.sm)
 {
     registerNamedEntries();
@@ -69,13 +69,11 @@ void Initialization::operator()(Node &src,
  
 {
     try {
-        if ( c == ValueChanged && &src == &connect.value 
-            && connect.triggered() ) 
+        if ( &src == &connect.value && connect.triggered() ) 
         {
             connect.untrigger();
             sm.ensure_at_least(States::Initialized);
-        } else if ( c == ValueChanged && &src == &disconnect.value 
-            && disconnect.triggered() )
+        } else if ( &src == &disconnect.value && disconnect.triggered() )
         {
             disconnect.untrigger();
             sm.ensure_at_most(States::Disconnected);
