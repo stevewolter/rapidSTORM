@@ -12,7 +12,6 @@ class GarageConfig;
 
 class Garage  {
   private:
-    MasterConfig::OwnerPtr master;
     std::auto_ptr<GarageConfig> autoConfig;
     GarageConfig& config;
 

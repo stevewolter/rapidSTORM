@@ -20,3 +20,4 @@ liboutputs_la_SOURCES = \
     PrecisionEstimator.h PrecisionEstimator.cpp \
     ViewerConfig.h Viewer.cpp Viewer.h \
     BasicTransmissions.h
+liboutputs_la_LIBADD = -lberghen_xmlParser

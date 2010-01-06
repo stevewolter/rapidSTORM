@@ -123,11 +123,12 @@ Width_Invariants<FS,false>::check_result(
 {
     params.change_variable_set( variables );
 
+    Localization::Position p;
+    p.x() = params.template getMeanX<0>() * camera::pixel;
+    p.y() = params.template getMeanY<0>() * camera::pixel;
+
     new(target) Localization( 
-        Localization::Position( 
-            params.template getMeanX<0>(),
-            params.template getMeanY<0>() ),
-        params.template getAmplitude<0>() );
+        p, params.template getAmplitude<0>() );
 
     bool sigmas_correct = !FS
         && params.template getSigmaX<0>() >= start_sx/4
@@ -137,10 +138,12 @@ Width_Invariants<FS,false>::check_result(
 
     return sigmas_correct
         && target->strength() > amplitude_threshold 
-        && target->x() >= 1 && target->y() >= 1 
-        && target->x() < start.maxs.x() && target->y() < start.maxs.y()
-        && sq(target->x() - start.start.x()) + 
-           sq(target->y() - start.start.y()) < 4;
+        && target->x() >= 1*camera::pixel
+        && target->y() >= 1*camera::pixel
+        && target->x() < start.maxs.x() * camera::pixel
+        && target->y() < start.maxs.y() * camera::pixel
+        && sq(target->x().value() - start.start.x()) + 
+           sq(target->y().value() - start.start.y()) < 4;
 }
 
 template <bool FS>

@@ -36,7 +36,10 @@ class LocalizationFilter : public OutputObject,
     simparm::DoubleEntry x_shift, y_shift;
     simparm::DoubleEntry two_kernel_significance;
     double v_from, v_to;
-    Localization::Position shift_velocity;
+    Eigen::Matrix< 
+        quantity<camera::velocity,float>,
+        Localization::Dim, 1>
+        shift_velocity;
     output::Traits traits;
 
     enum State { PreStart, Running, Succeeded };

@@ -132,7 +132,8 @@ class ColourDependantImplementation
         void setSize( 
             const input::Traits< cimg_library::CImg<int> >& traits) 
         { 
-            int width = traits.size.x(), height = traits.size.y();
+            int width = quantity<camera::length>(traits.size.x()).value(),
+                height = quantity<camera::length>(traits.size.y()).value();
             ps.resize( width * height, false );
             ps_step = width;
 
@@ -140,7 +141,8 @@ class ColourDependantImplementation
             r.width = width;
             r.height = height;
             r.key_size = MyColorizer::BrightnessDepth;
-            r.pixel_size = traits.resolution.start<2>().sum() / 2;
+            r.pixel_size = 
+                traits.resolution.start<2>().sum().value() / 2;
             nm_per_pixel = r.pixel_size * 1E9;
 
             if ( do_show_window ) {
@@ -218,7 +220,7 @@ class ColourDependantImplementation
 
   public:
     ColourDependantImplementation(const Viewer::Config& config)
-        : image( config.res_enh(), 1 ),
+        : image( config.res_enh(), 1 * camera::pixel ),
           colorizer(config),
           discretization( 4096, 
                 config.histogramPower(), image(),

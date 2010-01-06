@@ -33,7 +33,8 @@ namespace spotFinders {
         typedef engine::SpotFinderBuilder<MedianSmoother> Factory;
 
         MedianSmoother (const Config&, 
-            const engine::Config &conf, int imw, int imh) 
+            const engine::Config &conf, 
+            pixel_count imw, pixel_count imh) 
         : SpotFinder(conf, imw, imh)
         {
             chooseAhmad(msx, msy);

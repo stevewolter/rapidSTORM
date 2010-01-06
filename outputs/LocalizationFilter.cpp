@@ -3,6 +3,7 @@
 #include <dStorm/output/ResultRepeater.h>
 #include "doc/help/context.h"
 #include <Eigen/Array>
+#include <dStorm/unit_matrix_operators.h>
 
 #include "debug.h"
 
@@ -216,12 +217,16 @@ void LocalizationFilter::copy_and_modify_localizations(
             new (to+to_count) Localization( from[i] );
             
             /* Move localization by drift correction. */
-            to[i].position() += shift_velocity * to[i].getImageNumber();
+            to[i].position() += 
+                shift_velocity * 
+                    (float(to[i].getImageNumber())
+                     * camera::frame);
 
             const Localization::Position& npos = to[i].position();
             /* Check if new coordinates are still valid. */
             if (    (npos.cwise() < 0).any() || 
-                    (npos.cwise() >= traits.size.cast<double>()).any() )
+                    (npos.cwise() >= traits.size.cast<
+                        Localization::Coord>()).any() )
             {
                 /* Do not increase to_count to cause localizations to be
                  * overwritten later. */
@@ -245,7 +250,7 @@ LocalizationFilter::emit_localizations(
     EngineResult eo;
     eo.number = end;
     eo.first = buffer.ptr();
-    eo.forImage = forImage;
+    eo.forImage = forImage * camera::frame;
     return output->receiveLocalizations(eo);
 }
 
@@ -254,8 +259,12 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 
 { 
     traits = a.traits;
-    shift_velocity.x() = x_shift() * 1E-9 / traits.resolution.x();
-    shift_velocity.y() = y_shift() * 1E-9 / traits.resolution.y();
+    shift_velocity.x() = 
+        (x_shift() * 1E-9 * (si::meters / si::seconds))
+           * (*traits.frame_length) / traits.resolution.x();
+    shift_velocity.y() = 
+        y_shift() * 1E-9 * si::meters / si::seconds
+           * (*traits.frame_length) / traits.resolution.y();
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -293,7 +302,7 @@ LocalizationFilter::receiveLocalizations(const EngineResult& e)
     Output::Result rv;
     {
         ost::ReadLock lock( emissionMutex );
-        rv = emit_localizations( e.first, e.number, e.forImage );
+        rv = emit_localizations( e.first, e.number, e.forImage.value() );
     }
     return rv;
 }
@@ -308,11 +317,15 @@ void LocalizationFilter::operator()
         v_to = to();
         re_emitter->repeat_results();
     } else if ( &src == &x_shift.value ) {
-        shift_velocity.x() = x_shift() * 1E-9 / traits.resolution.x();
+        shift_velocity.x() = x_shift() * 1E-9
+            * si::meter / si::second 
+            * (*traits.frame_length) / traits.resolution.x();
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &src == &y_shift.value ) {
-        shift_velocity.y() = y_shift() * 1E-9 / traits.resolution.y();
+        shift_velocity.y() = y_shift() * 1E-9
+            * si::meter / si::second 
+            * (*traits.frame_length) / traits.resolution.y();
         re_emitter->repeat_results();
     } else if ( &src == &two_kernel_significance.value ) {
         re_emitter->repeat_results();
@@ -324,8 +337,8 @@ LocalizationFilter::_Config::_Config()
   from("MinimumAmplitude", "Minimum localization strength"),
     to("MaximumAmplitude", "Maximum localization strength", 
         std::numeric_limits<double>::infinity() ),
-    x_shift("XDrift", "X drift correction (nm/frame)"),
-    y_shift("YDrift", "Y drift correction (nm/frame)"),
+    x_shift("XDrift", "X drift correction (nm/s)"),
+    y_shift("YDrift", "Y drift correction (nm/s)"),
     two_kernel_significance("TwoKernelSignificance", 
         "Double spot ratio threshold", 0.02)
 {

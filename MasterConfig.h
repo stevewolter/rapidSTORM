@@ -4,15 +4,36 @@
 #include <simparm/Node.hh>
 #include <boost/shared_ptr.hpp>
 #include "engine/CarConfig.h"
+#include <boost/thread.hpp>
 
 namespace dStorm {
 
 class MasterConfig
 {
+    boost::mutex usage_count_mutex;
+    boost::condition_variable usage_count_is_one;
+    short usage_count;
+    bool may_be_referenced;
+
   public:
-    typedef std::auto_ptr<MasterConfig> OwnerPtr;
-    typedef MasterConfig* Ptr;
-    static OwnerPtr create();
+    class Ptr {
+      private:
+        friend class MasterConfig;
+        mutable MasterConfig& m;
+        Ptr( MasterConfig* mc );
+
+      public:
+        Ptr( const Ptr& );
+        ~Ptr();
+
+        MasterConfig& operator*() const { return m; }
+        MasterConfig* operator->() const { return &m; }
+        MasterConfig* get() { return &m; }
+
+        void wait_for_exclusive_ownership();
+    };
+
+    static Ptr create();
     virtual ~MasterConfig();
 
     virtual void thread_safely_register_node( simparm::Node& node ) = 0;

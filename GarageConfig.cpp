@@ -10,9 +10,9 @@ namespace dStorm {
 using namespace output;
 using namespace simparm;
 
-GarageConfig::GarageConfig(const MasterConfig::Ptr& master) throw()
-: 
-  master( master ),
+GarageConfig::GarageConfig() throw()
+: simparm::Node::Callback(Node::ValueChanged),
+  master( MasterConfig::create() ),
   externalControl("TwiddlerControl", "Enable stdin/out control interface"),
   showTransmissionTree("ShowTransmissionTree", 
                        "Output tree view of transmissions"),
@@ -39,7 +39,7 @@ GarageConfig::GarageConfig(const MasterConfig::Ptr& master) throw()
 }
 
 GarageConfig::GarageConfig(const GarageConfig &c) throw()
-: simparm::Node::Callback(),
+: simparm::Node::Callback(Node::ValueChanged),
   master(master),
   carConfig(c.carConfig->clone()),
   externalControl(c.externalControl),
@@ -53,7 +53,10 @@ GarageConfig::GarageConfig(const GarageConfig &c) throw()
 GarageConfig::~GarageConfig() {
    DEBUG("Unregistering nodes of garage config");
    master->thread_safely_erase_node( *carConfig );
-   DEBUG("Unregistered nodes of garage config");
+   carConfig.reset( NULL );
+   DEBUG("Waiting for exclusive ownership of master config");
+   master.wait_for_exclusive_ownership();
+   DEBUG("Commencing destruction");
 }
 
 static void printTC( const output::OutputSource& src, int indent ) {
@@ -71,9 +74,8 @@ static void printTC( const output::OutputSource& src, int indent ) {
     }
 }
 
-void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
-    if ( &src == &carConfig->inputConfig.basename &&
-                cause == ValueChanged && externalControl() ) 
+void GarageConfig::operator()(Node& src, Cause, Node *) throw() {
+    if ( &src == &carConfig->inputConfig.basename && externalControl() ) 
     {
         bool appended = false;
         dStorm::output::OutputSource::BasenameResult r;
@@ -98,8 +100,7 @@ void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
         showTransmissionTree.untrigger();
         printTC( carConfig->outputSource, 0 );
         exit(0);
-    } else if ( &src == &run.value && cause == ValueChanged &&
-                run.triggered() ) 
+    } else if ( &src == &run.value && run.triggered() ) 
     {
         run.untrigger();
         DEBUG("Running job");
@@ -107,8 +108,7 @@ void GarageConfig::operator()(Node& src, Cause cause, Node *) throw() {
             new engine::Car(master, *carConfig) );
         car->detach();
         car.release();
-    } else if ( &src == &externalControl.value && cause == ValueChanged
-                && externalControl.triggered() )
+    } else if ( &src == &externalControl.value && externalControl.triggered() )
     {
         externalControl.untrigger();
         DEBUG("Reading control stream");

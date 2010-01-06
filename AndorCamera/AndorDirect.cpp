@@ -102,9 +102,11 @@ void Source::acquire()
         acquisition.block_until_on_camera();
         PROGRESS("Acquisition gained camera");
         Traits< CamImage >& my_traits = *this;
-        my_traits.size.x() = acquisition.getWidth();
-        my_traits.size.y() = acquisition.getHeight();
-        my_traits.size.z() = 1;
+        my_traits.size.x() = acquisition.getWidth()
+            * camera::pixel;
+        my_traits.size.y() = acquisition.getHeight()
+            * camera::pixel;
+        my_traits.size.z() = 1 * camera::pixel;
         my_traits.dim = 1;
         numImages = acquisition.getLength();
         PROGRESS("Telling " << pushTarget << " number of objects " << 
@@ -119,7 +121,7 @@ void Source::acquire()
         /* cancelAcquisition is set in a different thread by stopPushing(). */
         while ( ! cancelAcquisition && acquisition.hasMoreImages() ) {
             auto_ptr<CamImage> image(
-                new CamImage(my_traits.size.x(), my_traits.size.y()));
+                new CamImage(my_traits.size.x().value(), my_traits.size.y().value()));
             long imNum = acquisition.getNextImage( image->ptr() );
             /* On error, the acquisiton returns -1 here. */
             if (imNum >= 0) lastValidImage = imNum; else break;
@@ -345,7 +347,8 @@ void Config::registerNamedEntries()
  
 {
     CamTraits::Resolution res;
-    res.fill( resolution_element() * 1E-9 );
+    res.fill( float(resolution_element() * 1E-9) *
+        si::meter / camera::pixel );
     switcher.reset( new Config::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {

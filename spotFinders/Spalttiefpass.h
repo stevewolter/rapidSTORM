@@ -25,7 +25,7 @@ namespace spotFinders {
         typedef engine::SpotFinderBuilder<Spalttiefpass> Factory;
 
         Spalttiefpass (const Config&, const engine::Config &conf,
-            int imw, int imh) 
+            pixel_count imw, pixel_count imh) 
         : SpotFinder(conf, imw, imh)
         {}
 

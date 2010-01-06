@@ -17,7 +17,8 @@ static void fillWithGauss(int *values, int n, double sigma, int A) {
 }
 
 GaussSmoother::GaussSmoother (
-    const Config&, const engine::Config &conf, int imw, int imh)
+    const Config&, const engine::Config &conf, 
+    pixel_count imw, pixel_count imh)
 : SpotFinder(conf, imw, imh), xkern(msx+1, 0), ykern(msy+1, 0)
 {
     fillWithGauss(xkern.ptr(), msx+1, conf.sigma_x(), 256);

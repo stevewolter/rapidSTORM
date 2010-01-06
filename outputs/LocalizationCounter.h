@@ -13,7 +13,8 @@ namespace output {
       private:
         ost::Mutex mutex;
       	int count;
-        unsigned int last_config_update, config_increment;
+        quantity<camera::time>
+            last_config_update, config_increment;
         simparm::UnsignedLongEntry update;
         std::ostream* printAtStop;
 
@@ -38,7 +39,7 @@ namespace output {
 
             update.setUserLevel(simparm::Entry::Beginner);
             push_back(update);
-            config_increment = 10;
+            config_increment = 10 * camera::frame;
 
             count = 0; 
             return AdditionalData();

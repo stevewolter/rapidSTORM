@@ -28,7 +28,7 @@ class GarageConfig
     void registerNamedEntries() throw();
 
   public:
-    GarageConfig(const MasterConfig::Ptr&) throw();
+    GarageConfig() throw();
     GarageConfig(const GarageConfig& c) throw();
     GarageConfig* clone() const { return new GarageConfig(*this); }
     ~GarageConfig();

@@ -38,8 +38,7 @@ static bool load_file(const std::string& name, simparm::Node& node) {
 }
 
 Garage::Garage( int argc, char *argv[] ) 
-: master( MasterConfig::create() ),
-  autoConfig( new GarageConfig(master.get()) ),
+: autoConfig( new GarageConfig() ),
   config( *autoConfig )
 {
     DEBUG("Garage argument constructor called");

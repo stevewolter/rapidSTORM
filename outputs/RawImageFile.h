@@ -20,7 +20,7 @@ class RawImageFile : public OutputObject {
     tsize_t strip_size;
     tstrip_t strips_per_image;
 
-    unsigned int next_image;
+    frame_count next_image;
     class LookaheadImg;
     std::priority_queue<LookaheadImg> out_of_time;
     void write_image(const engine::Image& img);
