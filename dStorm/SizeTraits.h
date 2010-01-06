@@ -2,7 +2,7 @@
 #define DSTORM_SIZETRAITS_H
 
 #include <Eigen/Core>
-#include <dStorm/units.h>
+#include <cs_units/camera/length.hpp>
 #include "units_Eigen_traits.h"
 
 namespace dStorm {

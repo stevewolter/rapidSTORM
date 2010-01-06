@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 library_includedir = $(includedir)/dStorm
 library_include_HEADERS = \
     ModuleInterface.h Localization_decl.h Localization.h \
-    SizeTraits.h SizeTraits_decl.h camera_units.h units.h \
+    SizeTraits.h SizeTraits_decl.h \
     units_Eigen_traits.h unit_matrix_operators.h
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h
