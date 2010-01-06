@@ -2,7 +2,7 @@
 
 #include <dStorm/input/Config.h>
 #include <CImg.h>
-#include <dStorm/input/LocalizationFileReader.h>
+#include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
 #ifdef HAVE_LIBATMCD32D
@@ -17,7 +17,8 @@ using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
     inputConfig->inputMethod.addChoice( 
-        new input::LocalizationFileReader::Config( *inputConfig ) );
+        new LocalizationFile::Reader::Config(
+            *inputConfig ) );
 #ifdef HAVE_LIBREADSIF
     inputConfig->inputMethod.addChoice( 
         new input::AndorSIF::Config<StormPixel>( *inputConfig ) );

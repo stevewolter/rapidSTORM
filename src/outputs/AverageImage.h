@@ -35,7 +35,8 @@ class AverageImage : public OutputObject {
             throw std::logic_error("AverageImage needs access to "
                                    "input driver, but didn't get it.");
         const engine::InputTraits& t = a.carburettor->getTraits();
-        image.resize(t.size.x(),t.size.y(), t.size.z(),t.dim);
+        image.resize(t.size.x().value(),t.size.y().value(),
+           t.size.z().value(),t.dim);
         image.fill(0);
         return AdditionalData().set_source_image(); 
     }

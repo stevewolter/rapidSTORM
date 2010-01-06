@@ -49,8 +49,8 @@ Slicer::_Config::_Config()
 Slicer::Slicer(const Source& source)
  
 : OutputObject("Slicer", "Object Slicer"),
-  slice_size( source.slice_size() ),
-  slice_distance( source.slice_distance() ),
+  slice_size( source.slice_size() * camera::frame ),
+  slice_distance( source.slice_distance() * camera::frame),
   filename( source.filename() ),
   source( source.clone() ),
   outputs_choice( "Outputs", "Outputs to slicer" )
@@ -81,16 +81,18 @@ void Slicer::propagate_signal(ProgressSignal s) {
 
 Output::Result Slicer::receiveLocalizations(const EngineResult& er)
 {
-    unsigned int 
+    frame_count one_frame( 1 * camera::frame );
+    frame_index
         cur_image = er.forImage, 
         back_image = (cur_image >= slice_size) 
-                        ? (cur_image - (slice_size-1))
-                        : 0;
+                ? (cur_image - (slice_size-one_frame))
+                : 0;
 
-    int first_slice = ( back_image % slice_distance == 0 )
-            ? back_image / slice_distance
-            : (back_image / slice_distance) + 1,
-        last_slice = cur_image / slice_distance;
+    int first_slice = back_image / slice_distance;
+    if ( back_image.value() % slice_distance.value()
+            != 0 ) 
+        first_slice += 1;
+    int last_slice = cur_image / slice_distance;
     
     if ( int( outputs.size() ) <= last_slice ) {
         ost::MutexLock lock( outputs_mutex );
@@ -101,7 +103,7 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
     for (int i = first_slice; i <= last_slice; i++) {
         ost::MutexLock lock( outputs[i].mutex );
         if ( !outputs[i] ) add_output_clone(i);
-        outputs[i].images_in_output++;
+        outputs[i].images_in_output += one_frame;
         outputs[i]->receiveLocalizations(er);
         if ( outputs[i].images_in_output == slice_size ) {
             outputs[i]->propagate_signal( Engine_run_succeeded );

@@ -46,7 +46,8 @@ ChoiceConfig::ChoiceConfig( const ChoiceConfig& other )
 
 ChoiceConfig::~ChoiceConfig()
 {
-    DEBUG("Choice config destructor");
+    DEBUG("Choice config destructor for " << this << 
+          " destructing source " << this->get() );
 }
 
 Config::Config() 

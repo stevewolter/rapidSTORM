@@ -90,9 +90,9 @@ namespace outputs {
          *  interface */
         ost::Mutex mutex;
         /** Configured resolution enhancement. */
-        double re;
+        float re;
         /** Crop given in the constructor. */
-        int crop;
+        pixel_count crop;
         /** Accumulator image, or in other terms, the density image of
          *  localizations. */
         BinnedImage base_image;
@@ -105,7 +105,7 @@ namespace outputs {
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
-        BinnedLocalizations(double res_enh, int crop = 0);
+        BinnedLocalizations(double res_enh, pixel_count crop = 0);
         BinnedLocalizations(const BinnedLocalizations&);
         virtual ~BinnedLocalizations() {}
         BinnedLocalizations<KeepUpdated>* clone() const 

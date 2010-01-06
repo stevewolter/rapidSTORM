@@ -70,7 +70,7 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
         throw std::invalid_argument("No valid output supplied.");
 
     PROGRESS("Registering at master config");
-    master->thread_safely_register_node( runtime_config );
+    this->master->thread_safely_register_node( runtime_config );
 }
 
 Car::~Car() 

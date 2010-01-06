@@ -21,7 +21,7 @@ struct SegmentationFault
     AdditionalData announceStormSize(const Announcement&)
         { return AdditionalData(); }
     Result receiveLocalizations(const EngineResult& er) {
-        if ( er.forImage % 99 == 96 ) {
+        if ( er.forImage.value() % 99 == 96 ) {
             std::cerr << "Provoking segfault\n";
             *(int*)(0x23) = 0;
         }

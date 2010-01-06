@@ -21,8 +21,8 @@ namespace output {
         Localizations(const input::Traits<Localization>& t) : t(t) {}
         virtual ~Localizations();
 
-        int dimx() const { return t.size.x(); }
-        int dimy() const { return t.size.y(); }
+        pixel_count dimx() const { return t.size.x(); }
+        pixel_count dimy() const { return t.size.y(); }
         void setDim(const input::Traits<Localization>& t) 
             { this->t = t; }
    };

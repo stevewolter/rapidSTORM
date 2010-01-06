@@ -117,7 +117,7 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.height = height;
     new_size.key_size = imageDepth;
     new_size.pixel_size = 
-        (resolution.x() + resolution.y()) / 2;
+        (resolution.x() + resolution.y()).value() / 2;
 
     return new_size;
 }

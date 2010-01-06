@@ -2,6 +2,10 @@
 #include <dStorm/output/ResultRepeater.h>
 #include <dStorm/input/ImageTraits.h>
 #include <Eigen/Array>
+#include <boost/units/systems/si/dimensionless.hpp>
+#include <boost/units/cmath.hpp>
+#include <dStorm/unit_matrix_operators.h>
+#include <dStorm/matrix_operators.h>
 
 #define LINEAR
 // #define QUADRATIC
@@ -11,7 +15,7 @@ namespace outputs {
 
 template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
-    (double res_enh, int crop)
+    (double res_enh, pixel_count crop)
     : OutputObject("BinnedLocalizations", ""),
         crop(crop)
     { set_resolution_enhancement(res_enh); }
@@ -58,17 +62,29 @@ BinnedLocalizations<KeepUpdated>
     ost::MutexLock lock(mutex);
     this->binningListener().announce(er);
 
+    typedef boost::units::quantity<camera::length,float>
+        Offset;
+    typedef Eigen::Matrix<Offset,2,1>          
+        Position;
+
     for (int i = 0; i < er.number; i++) {
         const Localization& l = er.first[i];
         /* Find coordinates in resolution-enhanced space. */
-        Eigen::Vector2d pos_in_im = 
-            re * (l.position().start<2>().cwise() - crop);
+        Position cropped 
+            = (l.position().start<2>().cwise() - crop);
+        Position enlarged = re * cropped;
 
-        int lx = floor(pos_in_im.x()), ly = floor(pos_in_im.y());
-        if (   lx < 0 || lx+1 >= int(base_image.width) ||
-               ly < 0 || ly+1 >= int(base_image.height) )
+        pixel_count lx = static_cast<pixel_count>
+                            (floor(enlarged.x())),
+                    ly = static_cast<pixel_count>
+                            (floor(enlarged.y()));
+        if (   lx < 0 * camera::pixel || 
+               lx >= int(base_image.width-1) * camera::pixel ||
+               ly < 0 * camera::pixel || 
+               ly >= int(base_image.height-1) * camera::pixel )
             continue;
-        float xf = pos_in_im.x() - lx, yf = pos_in_im.y() - ly;
+        float xf = (enlarged.x() - lx).value(), 
+              yf = (enlarged.y() - ly).value();
 
         float strength = l.strength();
 
@@ -79,7 +95,8 @@ BinnedLocalizations<KeepUpdated>
         for (int dx = 0; dx <= 1; dx++)
             for (int dy = 0; dy <= 1; dy++) 
             {
-                int xp = lx+(1-dx), yp = ly+(1-dy);
+                int xp = lx.value()+(1-dx), 
+                    yp = ly.value()+(1-dy);
                 float val = strength * (dx+(1-2*dx)*xf)*(dy+(1-2*dy)*yf);
                 float old_val = base_image(xp, yp);
 
@@ -125,18 +142,32 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
  
 {
     input::Traits<BinnedImage> traits;
-    Eigen::Matrix<double,Localization::Dim,1> temp_size =
-        (announcement->traits.size.cwise() - (1+2*crop))
-            .cast<double>() * re;
-    traits.size.fill( 1 );
-    for (int i = 0; i < std::min(temp_size.rows(), traits.size.rows());i++)
-        traits.size[i] = 
-            ceil( std::max<double>(0, temp_size[i]) ) + 1;
-    traits.resolution.start<Localization::Dim>()
-        = announcement->traits.resolution / re;
-    traits.resolution.end<3-Localization::Dim>().fill( 1 );
+    const pixel_count one_pixel( 1 * camera::pixel );
 
-    base_image.resize(traits.dimx(),traits.dimy(),traits.dimz(),
+    typedef quantity<camera::length> Size;
+    typedef Eigen::Matrix<Size,Localization::Dim,1>
+        ImageSize;
+
+    ImageSize size =
+            (announcement->traits.size.cwise()
+                - (one_pixel+crop+crop))
+                .cast<Size>();
+    size = (std::ceil(size)
+        .cwise() + one_pixel)
+        .cwise().max( ImageSize::Constant(one_pixel) );
+                                 
+    traits.size.fill( 1 * camera::pixel );
+    traits.size.start<Localization::Dim>() 
+        = size.cast<pixel_count>();
+    traits.resolution.start<Localization::Dim>()
+        = announcement->traits.resolution / float(re);
+    traits.resolution.end<3-Localization::Dim>().fill
+        ( 0*si::meter/camera::pixel );
+
+    base_image.resize(
+        traits.dimx().value(),
+        traits.dimy().value(),
+        traits.dimz().value(),
                       1, /* No init */ -1);
     base_image.fill(0); 
     this->binningListener().setSize(traits);

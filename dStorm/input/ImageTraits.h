@@ -6,6 +6,7 @@
 #include "Config_decl.h"
 #include "ImageTraits_decl.h"
 #include <dStorm/SizeTraits.h>
+#include <dStorm/units_Eigen_traits.h>
 
 namespace dStorm {
 namespace input {

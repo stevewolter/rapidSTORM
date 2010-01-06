@@ -124,9 +124,9 @@ class HueingColorizer : public Colorizer<unsigned char> {
           base_tone[1] = config.saturation(); } 
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
-        const int w = traits.size.x(), h = traits.size.y();
-        colours = cimg_library::CImg<ColourVector>(w,h);
-        rgb_weights.resize( w, h, 1, 3, -1 );
+        const quantity<camera::length> w = traits.size.x(), h = traits.size.y();
+        colours = cimg_library::CImg<ColourVector>(w.value(),h.value());
+        rgb_weights.resize( w.value(), h.value(), 1, 3, -1 );
     }
 
     inline Pixel getPixel( int x, int y, 
@@ -146,14 +146,14 @@ class HueingColorizer : public Colorizer<unsigned char> {
     inline void announce(const Output::Announcement& a) {
         minV = 0;
         if ( a.traits.total_frame_count.is_set() )
-            maxV = *a.traits.total_frame_count;
+            maxV = a.traits.total_frame_count->value();
         else
             throw std::runtime_error("Total length of acquisition must be "
                                      "known for colour coding by time.");
         scaleV = 2.0 / (3 * ( maxV - minV ));
     }
     inline void announce(const Output::EngineResult& er) {
-        float hue = (er.forImage - minV) * scaleV,
+        float hue = (er.forImage.value() - minV) * scaleV,
               saturation = 0;
         set_tone( hue, saturation );
     }

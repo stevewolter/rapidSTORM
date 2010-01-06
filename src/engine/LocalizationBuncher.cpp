@@ -11,7 +11,8 @@ void LocalizationBuncher::output( Can* locs )
 throw(Output*) 
 {
     if ( outputImage >= first && outputImage <= last ) {
-        engine_result.forImage = outputImage;
+        engine_result.forImage = 
+            outputImage * camera::frame;
         if ( locs ) {
             engine_result.first = locs->ptr();
             engine_result.number = locs->size();

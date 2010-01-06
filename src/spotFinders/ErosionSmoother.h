@@ -24,7 +24,7 @@ namespace dStorm {
         typedef engine::SpotFinderBuilder<ErosionSmoother> Factory;
 
         ErosionSmoother (const Config&, const engine::Config &conf,
-                         int imw, int imh) 
+                         pixel_count imw, pixel_count imh) 
         : SpotFinder(conf, imw, imh),
           mask(msx+(1-msx%2), msy+(1-msy%2))
         {

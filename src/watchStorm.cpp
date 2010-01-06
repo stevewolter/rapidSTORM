@@ -20,8 +20,7 @@ using namespace std;
 using namespace simparm;
 
 int main(int argc, char *argv[]) {
-   MasterConfig::OwnerPtr master = MasterConfig::create();
-   GarageConfig garageConfig(master.get());
+   GarageConfig garageConfig;
    input::Config& config = garageConfig.get_input_config();
    FileEntry saveMovie("saveMovie", "");
    FileEntry outputPixels("outputPixels", "");
@@ -69,7 +68,7 @@ int main(int argc, char *argv[]) {
     try {
         Buffer<Image> iv( config );
         const Traits<Image>& traits = iv.getTraits();
-        CImg<StormPixel> pwLimit( traits.dimx(), traits.dimy(),
+        CImg<StormPixel> pwLimit( traits.dimx().value(), traits.dimy().value(),
                                           1,1, max-min );
         CImgDisplay d(768, 768, "Storm", 1);
         CImgList<uint8_t> liste;

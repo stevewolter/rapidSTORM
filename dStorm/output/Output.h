@@ -126,7 +126,7 @@ namespace output {
      *  found and are published to transmissions. */
     struct Output::EngineResult {
         /** Number of the image the localizations were found in. */
-        unsigned long forImage;
+        frame_index forImage;
         /** Pointer to array of localizations. May be NULL if
          *  number is 0, must be given otherwise.*/
         const Localization *first;

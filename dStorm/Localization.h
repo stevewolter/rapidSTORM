@@ -5,7 +5,10 @@
 #include <iostream>
 #include <Eigen/Core>
 
+#include "camera_units.h"
+#include <boost/units/quantity.hpp>
 #include "output/Trace_decl.h"
+#include "units_Eigen_traits.h"
 
 #define _DSTORM_RESOLUTION 63000
 
@@ -13,8 +16,15 @@ namespace dStorm {
     class Localization { 
       public:
         static const int Dim = 2;
-        typedef Eigen::Matrix<double, Dim, 1, Eigen::DontAlign> Position;
-        typedef Eigen::Matrix<double, Dim, Dim, Eigen::DontAlign> 
+        typedef boost::units::quantity<camera::length,float>
+            Coord;
+        typedef 
+            Eigen::Matrix<Coord, Dim, 1, Eigen::DontAlign>
+            Position;
+        typedef
+            Eigen::Matrix< 
+                boost::units::quantity<camera::area,float>,
+                Dim, Dim, Eigen::DontAlign>
             Matrix;
 
       private:
@@ -27,18 +37,16 @@ namespace dStorm {
         int _im;
 
       public:
-        Localization( Position position, float strength )
-            : _position(position), _strength(strength),
-              _fit_covariance_matrix(Matrix::Identity()),
-              _two_kernel_improvement(0),
-              source(NULL), _im(-1) {}
-              
+        inline Localization( const Position& position, 
+                      float strength );
 
         Position& position() { return _position; }
         const Position& position() const { return _position; }
 
-        double x() const { return _position.x(); }
-        double y() const { return _position.y(); }
+        Coord& x() { return _position.x(); }
+        Coord& y() { return _position.y(); }
+        Coord x() const { return _position.x(); }
+        Coord y() const { return _position.y(); }
 
         float& strength() { return _strength; }
         const float& strength() const { return _strength; }
@@ -64,6 +72,16 @@ namespace dStorm {
 
     std::ostream&
     operator<<(std::ostream &o, const Localization& loc);
+
+    Localization::Localization( 
+        const Position& position,
+        float strength
+    )
+        : _position(position), _strength(strength),
+          _fit_covariance_matrix( Matrix::Constant( -1 * camera::pixel * camera::pixel ) ),
+            _two_kernel_improvement(0),
+            source(NULL), _im(-1) {}
+              
 }
 
 #include <dStorm/data-c++/Traits.h>

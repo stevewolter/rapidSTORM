@@ -4,26 +4,29 @@
 namespace dStorm {
 /** This class implements recursive computation of mean and variance for
  *  a sample. */
+template <typename Type = double, 
+          typename SquareType = double,
+          typename ConvertSizeTo = double>
 class Variance {
   private:
     int count;
-    double m, m2;
+    Type m; SquareType m2;
  
   public:
     Variance() { reset(); }
 
-    inline void addValue(double x) {
+    inline void addValue(const Type& x) {
         count++;
-        double delta = x - m;
-        m += delta / count;
+        Type delta = x - m;
+        m += delta / ConvertSizeTo(count);
         m2 += delta * (x-m);
     }
 
-    double mean() const { return m; }
-    double variance() const { return m2/(count-1); }
+    Type mean() const { return m; }
+    SquareType variance() const { return m2/(count-1); }
     int N() const { return count; }
 
-    void reset() { count = 0; m = m2 = 0; }
+    void reset() { count = 0; m = 0; m2 = 0; }
 };
 }
 

@@ -102,8 +102,12 @@ void Engine::collectPistons() {
 }
 
 output::Traits Engine::convert_traits( const InputTraits& in ) {
-    return output::Traits( 
+    output::Traits rv( 
         in.get_other_dimensionality<Localization::Dim>() );
+    rv.total_frame_count = input.size() * camera::frame;
+    rv.min_amplitude 
+        = config.amplitude_threshold() * camera::ad_count;
+    return rv;
 }
 
 void Engine::run() 
@@ -276,7 +280,8 @@ void Engine::runPiston()
         IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
         PROGRESS("Power");
-        resultStructure.forImage = claim.index();
+        resultStructure.forImage = 
+            claim.index() * camera::frame;
         resultStructure.first = buffer.ptr();
         resultStructure.number = buffer.size();
         resultStructure.source = &image;

@@ -1,35 +1,47 @@
 #ifndef DSTORM_LOCALIZATION_FILE_READER_H
 #define DSTORM_LOCALIZATION_FILE_READER_H
 
-#include <fstream>
+#include <iostream>
 #include <string>
-#include "Method.h"
+#include <dStorm/input/Method.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/output/TraceReducer.h>
-#include "LocalizationTraits.h"
+#include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/data-c++/Vector.h>
+#include <boost/ptr_container/ptr_vector.hpp>
+
+#include "fields_decl.h"
 
 namespace dStorm {
-namespace input {
+namespace LocalizationFile {
 
 /** This namespace provides a source that can read STM files.
  *  Standard Source semantics apply. */
 
-namespace LocalizationFileReader {
-    struct STM_File {
-        std::istream& input;
-        Traits<Localization> traits;
-        int number_of_fields;
+namespace Reader {
+    struct File {
+        typedef boost::ptr_vector<field::Interface> Fields;
 
-        STM_File(std::istream& input) : input(input) {}
+        std::istream& input;
+
+        File(std::istream& input);
+        ~File();
+        input::Traits<Localization> getTraits() const;
+        void read_next(Localization& target);
+
+      private:
+        Fields fs;
+
+        void read_classic(const std::string& first_line);
+        void read_XML(const std::string& first_line);
     };
 
     class Source 
     : public simparm::Object, public input::Source<Localization>
     {
         int level;
-        STM_File file;
+        File file;
         data_cpp::Vector< Localization > buffer;
         std::vector< output::Trace > trace_buffer;
         std::auto_ptr<output::TraceReducer> reducer;
@@ -40,7 +52,7 @@ namespace LocalizationFileReader {
         Localization* fetch(int);
 
       public:
-        Source(const STM_File& file, 
+        Source(const File& file, 
                std::auto_ptr<output::TraceReducer> reducer);
 
         simparm::Node& getNode() { return *this; }
@@ -52,7 +64,7 @@ namespace LocalizationFileReader {
     };
 
     class Config 
-    : public Method<Localization>
+    : public input::Method<Localization>
     {
       private:
         input::Config& master;
@@ -69,7 +81,7 @@ namespace LocalizationFileReader {
         Source* impl_makeSource();
       
       private:
-        static STM_File read_header
+        static File read_header
             (simparm::FileEntry& file);
 
       public:

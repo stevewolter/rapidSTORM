@@ -1,4 +1,5 @@
 #include "TraceReducer.h"
+#include <dStorm/unit_matrix_operators.h>
 
 namespace dStorm {
 namespace output {
@@ -7,7 +8,7 @@ class AveragingReducer : public TraceReducer {
   public:
     void reduce_trace_to_localization 
         (const Trace& from, Localization *to,
-         const Eigen::Vector2d& shift) 
+         const Localization::Position& shift) 
     {
         Localization::Position position(0);
 
@@ -27,7 +28,8 @@ class AveragingReducer : public TraceReducer {
 
         if ( n == 0 ) n = 1;
 
-        new(to) Localization( position / n - shift, total_amplitude );
+        new(to) Localization( position / n - shift,
+                              total_amplitude );
         to->setImageNumber( last_image_number );
         to->set_source_trace( from );
     }

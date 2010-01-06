@@ -9,13 +9,13 @@ using namespace engine;
 
 class RawImageFile::LookaheadImg 
 {
-    unsigned int num;
+    frame_index num;
     Image* image;
   public:
-    LookaheadImg(unsigned int imageNumber, Image* image)
+    LookaheadImg(frame_index imageNumber, Image* image)
         : num(imageNumber), image(image) {}
     const Image* get() const { return image; }
-    unsigned int image_number() const { return num; }
+    frame_index image_number() const { return num; }
     /* Invert sense of matching to put smallest image first in
         * queue. */
     bool operator<( const LookaheadImg& o ) const
@@ -102,7 +102,7 @@ void RawImageFile::write_image(const Image& img) {
         data= ((char*)data) +strip;
     }
     TIFFWriteDirectory( tif );
-    next_image++;
+    next_image = next_image + 1 * camera::frame;
 }
 
 void RawImageFile::propagate_signal(ProgressSignal) {

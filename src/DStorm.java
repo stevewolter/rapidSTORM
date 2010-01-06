@@ -1,9 +1,18 @@
+package de.uni_bielefeld.physik.rapid2STORM;
+
 import  java.io.*;
 import java.util.Set;
 import java.util.Map;
+import au.com.pulo.kev.simparm.*;
 
 class DStorm {
-    private static String tempDir;
+    private static String get_install_directory() {
+        final java.util.prefs.Preferences p 
+            = java.util.prefs.Preferences.userNodeForPackage(DStorm.class);
+        return p.get( "install_dir", null );
+        
+    }
+
     private static File extract_to_temp( String name) 
     {
         String[] splitname = name.split("\\.");
@@ -25,13 +34,13 @@ class DStorm {
         return null;
     }
 
-    private static File extract_with_exact_name(String name) {
+    private static File extract_with_exact_name(File toDir, String name) {
         String[] split = name.split( "/" );
         String sep = String.valueOf(File.separatorChar);
         String winName = "";
         for ( int i = 0; i < split.length; i++ )
             winName = winName + ((i==0) ? "" : sep) + split[i];
-        File tempFile = new File(tempDir, winName);
+        File tempFile = new File(toDir, winName);
         try {
             return extract_jar_file(name,tempFile);
         } catch (java.io.IOException e)  {
@@ -92,27 +101,38 @@ class DStorm {
         return result_env;
    }
 
-   public static void main(String[] args) throws IOException {
-        tempDir = System.getProperty("java.io.tmpdir");
-        tempDir = tempDir + File.separator + "rapidSTORM";
-
+   private static void extract_dll_list(File tempDir) throws IOException {
         InputStream dll_list = Main.class.getResourceAsStream("dll_list");
         BufferedReader reader = new BufferedReader
             ( new InputStreamReader(dll_list) );
         String line;
         while ( (line = reader.readLine()) != null ) {
-            extract_with_exact_name(line);
+            extract_with_exact_name(tempDir, line);
+        }
+   }
+
+   public static void main(String[] args) throws IOException {
+        String install_dir = get_install_directory();
+        File base_dir;
+        if ( install_dir == null ) {
+            File tempDir = new File( System.getProperty("java.io.tmpdir") );
+            System.err.println("Unzipping to temporary directory " + tempDir);
+            base_dir = new File(tempDir, "rapidSTORM");
+
+            extract_dll_list(base_dir);
+        } else {
+            System.err.println("Using installed directory " + install_dir);
+            base_dir = new File( install_dir );
         }
 
-        File executable = extract_with_exact_name("bin/dstorm.exe");
-        File config = extract_with_exact_name("share/rapidstorm/dstorm-config.txt");
+        File executable = new File(base_dir, "bin" + File.separator + "dstorm.exe");
+        File config = new File(base_dir, "share" + File.separator + "rapidstorm" 
+                                         + File.separator + "dstorm-config.txt");
 
         HelpManager.setHelpDirectory(
-            new File(tempDir + File.separator + "share" + File.separator
-                             + "doc" ) );
+            new File(base_dir, "share" + File.separator + "doc" ) );
 
-        String[] environment = 
-            build_environment(new File(tempDir) );
+        String[] environment = build_environment( base_dir );
         boolean have_arg = args.length > 0,stderrPipe = false;
         int argC = 4;
         if ( have_arg ) argC += 2;

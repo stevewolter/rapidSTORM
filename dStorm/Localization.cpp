@@ -1,4 +1,5 @@
 #include "Localization.h"
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 

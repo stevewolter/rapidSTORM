@@ -77,5 +77,6 @@ AC_CONFIG_FILES([helpers/Makefile ])
 AC_CONFIG_FILES([data-c++/Makefile])
 AC_CONFIG_FILES([input/Makefile engine/Makefile output/Makefile])
 AC_CONFIG_FILES([outputs/Makefile])
+AC_CONFIG_FILES([localization_file/Makefile])
 
 AC_OUTPUT

@@ -44,10 +44,11 @@ void ImageDiscretizer<Colorizer, ImageListener>
     colorizer.setSize( traits );
     input::Traits< cimg_library::CImg<int> > out_traits( traits );
     this->publish().setSize( out_traits );
-    total_pixel_count = traits.size.x() * traits.size.y();
+    total_pixel_count = 
+        (traits.size.x() * traits.size.y()).value();
 
     cimg_library::CImg<HistogramPixel>
-        new_pixel_map(traits.size.x(), traits.size.y());
+        new_pixel_map(traits.size.x().value(), traits.size.y().value());
     pixels_by_position.swap( new_pixel_map );
 
     cimg_forXY( pixels_by_position, x, y ) {

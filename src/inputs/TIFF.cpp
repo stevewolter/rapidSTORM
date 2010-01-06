@@ -39,9 +39,7 @@ Source<Pixel>::Source(const char *src)
 : simparm::Set("TIFF", "TIFF image reader"),
   SerialSource< CImg<Pixel> >
     ( static_cast<simparm::Node&>(*this),    
-      BaseSource::Pushing | BaseSource::Pullable),
-   _width( this->Traits< CImg<Pixel> >::size.x() ),
-   _height( this->Traits< CImg<Pixel> >::size.y() )
+      BaseSource::Pushing | BaseSource::Pullable)
 {
     TIFFSetErrorHandler( TIFF_error_handler );
     tiff = TIFFOpen( src, "r" );
@@ -50,8 +48,11 @@ Source<Pixel>::Source(const char *src)
     Traits< CImg<Pixel> >& my_traits = *this;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
-    my_traits.size.z() = 1;     /* TODO: Read from file */
-    my_traits.dim = 1;          /* TODO: Read from file */
+    my_traits.size.x() = _width * camera::pixel;
+    my_traits.size.y() = _height * camera::pixel;
+    my_traits.size.z() = 1 * camera::pixel; 
+            /* TODO: Read from file */
+    my_traits.dim = 1; /* TODO: Read from file */
 
     _no_images = 1;
     while ( TIFFReadDirectory(tiff) != 0 )

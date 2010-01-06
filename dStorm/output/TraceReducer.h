@@ -15,7 +15,7 @@ class TraceReducer {
 
     virtual void reduce_trace_to_localization 
         (const Trace& from, Localization *to, 
-         const Eigen::Vector2d& shift_correction) = 0;
+         const Localization::Position& shift_correction) = 0;
 };
 
 /** A config object capable of configuring and making

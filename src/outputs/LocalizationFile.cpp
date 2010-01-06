@@ -1,8 +1,12 @@
 #define DSTORM_LOCALIZATIONFILE_CPP
 #include "LocalizationFile.h"
 #include <string.h>
+#include <stdlib.h>
 #include <dStorm/output/Trace.h>
 #include "doc/help/context.h"
+
+#include <dStorm/localization_file/fields.h>
+#include <dStorm/localization_file/known_fields.h>
 
 using namespace std;
 
@@ -34,9 +38,15 @@ static void printFit(const Localization &f, ostream &file,
                                     i != trace.end(); i++)
             printFit(*i, file, 0);
     } else {
-      file << f;
+      file << f.x().value() << " " 
+           << f.y().value() << " "
+           << f.getImageNumber() << " "
+           << f.strength()
+           << "\n";
     }
 }
+
+using namespace dStorm::LocalizationFile;
 
 void LocalizationFile::open() {
     if ( filename != "-" ) {
@@ -45,18 +55,25 @@ void LocalizationFile::open() {
         file = fileKeeper.get();
     } else
         file = &cout;
-    *file << traits.dimx() << " " << traits.dimy() << " "
-          << traits.imageNumber << " 0 0\n";
+
+    /** Write XML header for localization file */
+    XMLNode topNode = 
+        XMLNode::createXMLTopNode( "rapid2storm" );
+    field::XCoordinate( traits ).makeNode( topNode );
+    field::YCoordinate( traits ).makeNode( topNode );
+    field::FrameNumber( traits ).makeNode( topNode );
+    field::Amplitude( traits ).makeNode( topNode );
+
+    XMLSTR str = topNode.createXMLString(0);
+    *file << "# " << str << "\n";
+    free( str );
 }
 
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
     ost::MutexLock lock(mutex);
     traits = input::Traits<Localization>(a.traits);
-    if ( a.traits.total_frame_count.is_set() )
-        traits.imageNumber = *a.traits.total_frame_count;
-    else
-        traits.imageNumber = 0;
+    traits.total_frame_count = a.traits.total_frame_count;
 
     open();
 

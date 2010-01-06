@@ -13,7 +13,7 @@
 namespace dStorm {
 namespace output {
     namespace Precision {
-        struct FitSigmas { double x, y, xy; int n; double a; };
+        struct FitSigmas; ;
         FitSigmas fitWithGauss
             ( double res_enh, const dStorm::Localization* f, int n )
 ;
@@ -24,7 +24,7 @@ namespace output {
     {
       private:
         simparm::FileEntry printTo;
-        output::Traits::Resolution pixel_dim_in_nm;
+        output::Traits::Resolution pixel_dim;
         double res_enh;
 
         ost::Mutex mutex;
@@ -50,7 +50,7 @@ namespace output {
     {
         simparm::UnsignedLongEntry usedSpots;
         simparm::DoubleEntry x_sd, y_sd, corr;
-        output::Traits::Resolution pixel_dim_in_nm;
+        output::Traits::Resolution pixel_dim;
         double res_enh;
 
         outputs::LocalizationList localizations;

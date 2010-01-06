@@ -1,13 +1,16 @@
+#include "reader.h"
+#include "fields.h"
+#include "known_fields.h"
+
 #include <dStorm/input/Source_impl.h>
-#include "LocalizationFileReader.h"
 #include <fstream>
 #include <ctype.h>
 
 namespace dStorm {
-namespace input {
-namespace LocalizationFileReader {
+namespace LocalizationFile {
+namespace Reader {
 
-Source::Source( const STM_File& file, 
+Source::Source( const File& file, 
                 std::auto_ptr<output::TraceReducer> red )
 : simparm::Object("STM_Show", "Input options"),
   input::Source<Localization>
@@ -16,8 +19,8 @@ Source::Source( const STM_File& file,
     file(file),
     reducer(red)
 {
-    *(Traits<Localization>*)this
-        = file.traits;
+    static_cast<input::Traits<Localization>&>(*this)
+        = file.getTraits();
     level = std::max<int>(number_of_newlines() - 1, 0);
 }
 
@@ -46,18 +49,12 @@ void Source::read_localization(
     Localization& target, int level, int& use_buffer
 )
 {
-    if ( level == 0 ) {
-        double v[4];
-        for (int i = 0; i < file.number_of_fields; i++)
-            file.input >> v[i];
-        for (int i = file.number_of_fields; i < 4; i++)
-            v[i] = 0;
+    typedef Localization::Position Pos;
+    static const Pos no_shift = Pos::Constant( 0 );
 
-        Localization::Position p;
-        p.x() = v[0];
-        p.y() = v[1];
-        new(&target) Localization( p, v[3] );
-        target.setImageNumber( v[2] );
+    if ( level == 0 ) {
+        new(&target) Localization( Pos(Pos::Zero()), 0 );
+        file.read_next( target );
     } else {
         int my_buffer = use_buffer++;
         if ( my_buffer >= int(trace_buffer.size()) )
@@ -71,7 +68,7 @@ void Source::read_localization(
             trace_buffer[my_buffer].commit(1);
         } while ( file.input && number_of_newlines() <= level );
         reducer->reduce_trace_to_localization( trace_buffer[level-1],
-            &target, Eigen::Vector2d(0,0) );
+            &target, no_shift );
     }
 }
 
@@ -92,39 +89,106 @@ Config::Config(input::Config& master)
     push_back( trace_reducer );
 }
 
-STM_File Config::read_header
+File Config::read_header
     (simparm::FileEntry& file)
 {
+    try {
+        std::istream& input = file.get_input_stream();
+        return File(input);
+    } catch (const std::exception& e) {
+        throw std::runtime_error( 
+            "Unable to open localization file " + file() +
+            std::string(": ") + e.what() );
+    }
+}
+
+File::File(std::istream& input) 
+: input(input)
+{
     std::string line;
-    std::istream& input = file.get_input_stream();
     std::getline(input, line);
     if ( ! input ) 
-        throw std::runtime_error("Unable to open file " + file() );
+        throw std::runtime_error
+            ("File does not exist or permission denied.");
+
+    if ( line[0] == '#' )
+        read_XML(line.substr(1));
+    else
+        read_classic(line);
+
+}
+
+File::~File() {}
+
+input::Traits<Localization> File::getTraits() const {
+    input::Traits<Localization> rv;
+    Fields::const_iterator i;
+    for ( i = fs.begin(); i != fs.end(); ++i )
+        i->getTraits( rv );
+    return rv;
+}
+
+void File::read_next( Localization& target )
+{
+    Fields::iterator i;
+    for ( i = fs.begin(); i != fs.end(); i++ )
+        i->parse( input, target );
+}
+
+void File::read_XML(const std::string& line) {
+    XMLNode topNode = XMLNode::parseString( line.c_str() );
+    for (int i = 0; i < topNode.nChildNode(); i++) {
+        field::Interface::Ptr p = 
+            field::Interface::parse
+                (topNode.getChildNode(i));
+        if ( p.get() != NULL )
+            fs.push_back( p );
+    }
+}
+
+void File::read_classic(const std::string& line) {
     for (unsigned int i = 0; i < line.size(); i++) {
         char c = line[i];
         if ( ! (isdigit(c) || c == 'e' || c == 'E' || c == '+' ||
                c == '-' || c == ' ' || c == '\r' ) )
-            throw std::runtime_error("Invalid STM file " + file());
+            throw std::runtime_error("Invalid first line, only digits and spaces expected.");
     }
 
-    STM_File header(input);
-    header.traits.size.z() = 1;
-    std::stringstream fields(line);
+    std::stringstream values(line);
     int fn = 0;
     do {
         double value;
-        fields >> value;
-        if (!fields) break;
+        values >> value;
+        if (!values) break;
         switch (fn) {
-            case 0: header.traits.size.x() = int(value); break;
-            case 1: header.traits.size.y() = int(value); break;
-            case 2: header.traits.imageNumber = int(value); break;
-            default: break;
+            case 0: 
+                fs.push_back( 
+                    new field::XCoordinate
+                        ( value * camera::pixel ) 
+                );
+                break;
+            case 1:
+                fs.push_back( 
+                    new field::YCoordinate
+                        ( value * camera::pixel ) 
+                );
+                break;
+            case 2:
+                fs.push_back(
+                    new field::FrameNumber
+                        ( int(value) * camera::frame )
+                );
+                break;
+            case 3:
+                fs.push_back( new field::Amplitude() );
+                break;
+            default:
+                fs.push_back( 
+                    new field::Unknown<double>() );
+                break;
         }
         fn++;
     } while (true);
-    header.number_of_fields = fn;
-    return header;
 }
 
 Config::~Config() {}
@@ -134,7 +198,7 @@ Source* Config::impl_makeSource()
     if ( master.inputFile() == "" )
         throw std::logic_error("No input file name set.");
 
-    STM_File header = read_header(master.inputFile);
+    File header = read_header(master.inputFile);
     
     Source *src = new Source(header, trace_reducer.make_trace_reducer() );
     src->apply_global_settings( master );
@@ -144,7 +208,7 @@ Source* Config::impl_makeSource()
 
 std::auto_ptr<Source> Config::read_file( simparm::FileEntry& name )
 {
-    STM_File header = read_header( name );
+    File header = read_header( name );
     output::TraceReducer::Config trc;
     Source *src = new Source(header, trc.make_trace_reducer() );
     return std::auto_ptr<Source>(src);

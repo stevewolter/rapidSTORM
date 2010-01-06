@@ -16,7 +16,7 @@ class Slicer : public OutputObject {
   public:
     class Source;
   private:
-    unsigned int slice_size, slice_distance;
+    frame_count slice_size, slice_distance;
     std::string filename;
     class _Config;
 
@@ -27,7 +27,7 @@ class Slicer : public OutputObject {
         Node *node;
         int *usage_counter;
       public:
-        unsigned int images_in_output;
+        frame_count images_in_output;
         ost::Mutex mutex;
 
         Child() : output(NULL), usage_counter(NULL),

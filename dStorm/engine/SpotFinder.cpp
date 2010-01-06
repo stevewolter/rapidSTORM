@@ -9,11 +9,13 @@ using namespace cimg_library;
 namespace dStorm {
 namespace engine {
 
-SpotFinder::SpotFinder(const Config &c, int imw, int imh)
+SpotFinder::SpotFinder(const Config &c, 
+                       pixel_count imw, pixel_count imh)
    : msx(c.x_maskSize()), msy(c.y_maskSize()),
      bx(c.fitWidth()), by(c.fitHeight()),
-     imw(imw), imh(imh),
-     smoothed( new CImg<SmoothedPixel>(imw, imh) )
+     imw(imw.value()), imh(imh.value()),
+     smoothed( new CImg<SmoothedPixel>(imw.value(), 
+                                       imh.value()) )
      {
         PROGRESS("Making SpotFinder with " 
                  << msx << " " << msy << " " << imw << " " << imh);

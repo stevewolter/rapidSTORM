@@ -19,6 +19,41 @@
 
 namespace dStorm {
 
+MasterConfig::Ptr::Ptr( MasterConfig* mc )
+: m (*mc) 
+{
+    boost::lock_guard<boost::mutex> lock( m.usage_count_mutex );
+    m.usage_count = 1;
+    m.may_be_referenced = true;
+}
+
+MasterConfig::Ptr::Ptr( const MasterConfig::Ptr& o )
+: m(o.m) 
+{
+    boost::lock_guard<boost::mutex> lock( m.usage_count_mutex );
+    if ( ! m.may_be_referenced )
+        throw std::runtime_error
+            ("This MasterConfig is exclusively owned.");
+    m.usage_count++;
+}
+
+MasterConfig::Ptr::~Ptr() {
+    boost::unique_lock<boost::mutex> lock( m.usage_count_mutex );
+    m.usage_count--;
+    if ( m.usage_count == 0 )  {
+        lock.unlock();
+        delete &m;
+    } else if ( m.usage_count == 1 )
+        m.usage_count_is_one.notify_all();
+}
+
+void MasterConfig::Ptr::wait_for_exclusive_ownership() {
+    boost::unique_lock<boost::mutex> lock( m.usage_count_mutex );
+    while ( m.usage_count > 1 )
+        m.usage_count_is_one.wait( lock );
+    m.may_be_referenced = false;
+}
+
 template <typename FunctionType>
 struct SafelyLoadedFunction {
     const char *symbol_name;
@@ -135,12 +170,13 @@ class _MasterConfig
     void read_input(std::istream&);
 };
 
-MasterConfig::OwnerPtr 
+MasterConfig::Ptr 
 MasterConfig::create() {
-    return MasterConfig::OwnerPtr(new _MasterConfig());
+    return MasterConfig::Ptr(new _MasterConfig());
 }
 
 MasterConfig::~MasterConfig() {
+    DEBUG("Destroying master config at " << this);
 }
 
 _MasterConfig::_MasterConfig() 

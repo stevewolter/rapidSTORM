@@ -30,7 +30,7 @@ namespace engine {
         Input &input;
         DoubleEntry *sigmas[3];
         /** Current mean and variance of sigma_x, sigma_y and sigma_xy. */
-        Variance data[3];
+        Variance<double> data[3];
         /** Acception and rejection intervals around
          *  current values. First index is for x/y/xy,
          *  second for lower/upper bound. */
@@ -40,7 +40,7 @@ namespace engine {
         /** Necessary spot count for next check. */
         int nextCheck;
         /** Mean amplitude of seen localizations. */
-        Variance meanAmplitude;
+        Variance<double> meanAmplitude;
 
         std::auto_ptr<SigmaFitter> fitter;
 
