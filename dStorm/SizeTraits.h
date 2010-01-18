@@ -2,19 +2,22 @@
 #define DSTORM_SIZETRAITS_H
 
 #include <Eigen/Core>
+#include <boost/units/quantity.hpp>
 #include <cs_units/camera/length.hpp>
+#include <cs_units/camera/resolution.hpp>
 #include "units_Eigen_traits.h"
+#include <limits>
 
 namespace dStorm {
 
 template <int Dimensions>
 struct SizeTraits {
     typedef Eigen::Matrix< 
-            quantity<camera::length,int>,
-                Dimensions,1,Eigen::DontAlign> 
+            boost::units::quantity<cs_units::camera::length,int>,
+            Dimensions,1,Eigen::DontAlign> 
         Size;
     typedef Eigen::Matrix<
-            quantity<camera::pixel_size,float>,
+            boost::units::quantity<cs_units::camera::resolution,float>,
             Dimensions,1,Eigen::DontAlign> 
         Resolution;
 
@@ -26,15 +29,15 @@ struct SizeTraits {
 
     /** CImg compatibility method.
      *  @return X component of \c size, i.e. width of image in pixels. */
-    inline pixel_count dimx() const { return size.x(); }
+    inline typename Size::Scalar dimx() const { return size.x(); }
     /** CImg compatibility method.
      *  @return Y component of \c size, i.e. height of image in pixels. */
-    inline pixel_count dimy() const { return size.y(); }
+    inline typename Size::Scalar dimy() const { return size.y(); }
     /** CImg compatibility method.
      *  @return Z component of \c size, i.e. depth of image in pixels. */
-    inline pixel_count dimz() const 
+    inline typename Size::Scalar dimz() const 
         { return (Dimensions >= 3) ?  size.z()
-                                   : 1*camera::pixel; }
+                                   : (1*cs_units::camera::pixel); }
 
     template <int NewDimensions>
     SizeTraits<NewDimensions> get_other_dimensionality() const; 
@@ -54,8 +57,10 @@ SizeTraits<Dimensions>::get_other_dimensionality() const
         resolution.start(CommonDimensions);
 
     for (int i = CommonDimensions; i < NewDimensions; i++) {
-        rv.size[i] = 0 * camera::pixel;
-        rv.resolution[i] = 0 * si::meter / camera::pixel;
+        rv.size[i] = Size::Scalar::from_value(
+            std::numeric_limits<float>::signaling_NaN() );
+        rv.resolution[i] = Resolution::Scalar::from_value(
+            std::numeric_limits<float>::signaling_NaN() );
     }
     
     return rv;

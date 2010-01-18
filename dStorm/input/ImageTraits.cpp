@@ -11,8 +11,8 @@ Traits< cimg_library::CImg<PixelType> >::
 compute_resolution( const Config& config ) {
     for (int i = 0; i < resolution.rows(); i++) {
         resolution[i] = 
-            config.pixel_size_in_nm() * 1E-9 * 
-                si::meter / camera::pixel;
+            cs_units::camera::pixels_per_meter /
+                (config.pixel_size_in_nm() / 1E9);
     }
 }
 

@@ -13,18 +13,19 @@ struct SegmentationFault
     struct _Config;
     typedef simparm::Structure<_Config> Config;
     typedef dStorm::output::OutputBuilder<SegmentationFault> Source;
+    bool onAnnouncement;
+    int onImageNumber;
 
-    SegmentationFault(const Config&) 
-        : OutputObject("SegFault", "SegFault") {}
+    void segfault() { *(int*)(0x23) = 0; *(int*)(~0x23) = 0; }
+
+    SegmentationFault(const Config& config) ;
     SegmentationFault* clone() const;
 
     AdditionalData announceStormSize(const Announcement&)
-        { return AdditionalData(); }
+        { if ( onAnnouncement ) segfault(); return AdditionalData(); }
     Result receiveLocalizations(const EngineResult& er) {
-        if ( er.forImage.value() % 99 == 96 ) {
-            std::cerr << "Provoking segfault\n";
-            *(int*)(0x23) = 0;
-        }
+        if ( er.forImage.value() == onImageNumber )
+            segfault();
         return KeepRunning;
     }
     void propagate_signal(ProgressSignal) {}
@@ -57,5 +58,11 @@ SegmentationFault::_Config::_Config()
 
 SegmentationFault* SegmentationFault::clone() const
         { return new SegmentationFault(*this); }
+
+SegmentationFault::SegmentationFault( const Config& config )
+        : OutputObject("SegFault", "SegFault") ,
+          onAnnouncement( config.onAnnouncement() ),
+          onImageNumber( config.onImageNumber() )
+        { if ( config.onConstruction() ) segfault(); }
 
 #endif

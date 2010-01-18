@@ -1,0 +1,12 @@
+dstorm_start
+
+set test "raw images output module compatible with localizations input"
+
+send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.txt"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value RawImage"
+send "in Car set Run = 1"
+
+expect {
+    -re "One of your output modules needs access" { pass "$test" }
+    timeout { fail "$test" }
+}

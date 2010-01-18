@@ -141,7 +141,7 @@ typedef typename Eigen::Matrix<double,VarC,1> Vector;
 template <Names name, int Kernel, bool ComputeVariance>
 static void set_absolute_epsilon( 
     FitFunction< VarC,ComputeVariance>& fit_function, double value 
-) throw() {
+) {
     fit_function.set_absolute_epsilon
         ( ParamIndex<name,Kernel>::N, value );
     if ( Kernel > 0 )
@@ -155,48 +155,48 @@ class NamedParameters {
     Variables *variables;
     Constants *constants;
   public:
-    NamedParameters(Variables* variables, Constants *constants) throw()
+    NamedParameters(Variables* variables, Constants *constants) 
         : variables(variables), constants(constants) {}
 
-    void change_variable_set(Variables* variables) throw()
+    void change_variable_set(Variables* variables) 
         { this->variables = (variables); }
 
     template <Names name, int function>
-    double get() const throw() 
+    double get() const 
         {return ParamIndex<name,function>::value(*variables, *constants);}
 
     template <Names name, int function>
-    void set(double value) throw() 
+    void set(double value) 
         {ParamIndex<name,function>::value(*variables, *constants) = value;}
 
     template <int Function>
-    double getSigmaX() const throw() { return get<SigmaX,Function>(); }
+    double getSigmaX() const { return get<SigmaX,Function>(); }
     template <int Function>
-    double getSigmaY() const throw() { return get<SigmaY,Function>(); }
+    double getSigmaY() const { return get<SigmaY,Function>(); }
     template <int Function>
-    double getSigmaXY() const throw() { return get<SigmaXY,Function>(); }
+    double getSigmaXY() const { return get<SigmaXY,Function>(); }
     template <int Function>
-    double getMeanX() const throw() { return get<MeanX,Function>(); }
+    double getMeanX() const { return get<MeanX,Function>(); }
     template <int Function>
-    double getMeanY() const throw() { return get<MeanY,Function>(); }
+    double getMeanY() const { return get<MeanY,Function>(); }
     template <int Function>
-    double getAmplitude() const throw() { return get<Amp,Function>(); }
+    double getAmplitude() const { return get<Amp,Function>(); }
 
     template <int Function>
-    void setSigmaX(double v) throw() { return set<SigmaX,Function>(v); }
+    void setSigmaX(double v) { return set<SigmaX,Function>(v); }
     template <int Function>
-    void setSigmaY(double v) throw() { return set<SigmaY,Function>(v); }
+    void setSigmaY(double v) { return set<SigmaY,Function>(v); }
     template <int Function>
-    void setSigmaXY(double v) throw() { return set<SigmaXY,Function>(v); }
+    void setSigmaXY(double v) { return set<SigmaXY,Function>(v); }
     template <int Function>
-    void setMeanX(double v) throw() { return set<MeanX,Function>(v); }
+    void setMeanX(double v) { return set<MeanX,Function>(v); }
     template <int Function>
-    void setMeanY(double v) throw() { return set<MeanY,Function>(v); }
+    void setMeanY(double v) { return set<MeanY,Function>(v); }
     template <int Function>
-    void setAmplitude(double v) throw() { return set<Amp,Function>(v); }
+    void setAmplitude(double v) { return set<Amp,Function>(v); }
 
-    double getShift() const throw() { return get<Shift,0>(); }
-    void setShift(double v) throw() { return set<Shift,0>(v); }
+    double getShift() const { return get<Shift,0>(); }
+    void setShift(double v) { return set<Shift,0>(v); }
 };
 
 template <typename DataType,
@@ -223,7 +223,7 @@ class Deriver
         Position& pos,
         Derivatives<VarC>& derivatives,
         const Constants& con
-    ) const throw() {
+    ) const {
         bool ok = LatticeFunction<DataType,Width,Height>::
           compute_derivatives
             ( pos, derivatives, con, 
@@ -233,7 +233,7 @@ class Deriver
         return true;
     }
 
-    void setSize(int width, int height) throw() {
+    void setSize(int width, int height) {
         LatticeFunction<DataType,Width,Height>::
             setSize(width,height);
         rd.resize( width, height );
@@ -263,7 +263,7 @@ struct FitObject
     Constants constants;
   public:
 
-    FitObject() throw() 
+    FitObject() 
     : NamedParameters( &a.parameters, &constants ),
       i(NumNames),
       current( &a )
@@ -278,7 +278,7 @@ struct FitObject
 #endif
     }
 
-    FitResult fit() throw() { 
+    FitResult fit() { 
         std::pair<FitResult,Position*> result = 
             this->FitFunction<VarC, Compute_Variances>::
                 fit( *current, (&a==current)?b:a, constants, *this );
@@ -296,13 +296,13 @@ struct FitObject
 #endif
 
     template <Names name>
-    bool isVariable() const throw() 
+    bool isVariable() const 
         { return ParamTraits<name>::Variable; }
-    bool is_variable(Names name) const throw() 
+    bool is_variable(Names name) const 
         { return i[name].variableness; }
 
     template <Names name>
-    void set_absolute_epsilon( double value ) throw() {
+    void set_absolute_epsilon( double value ) {
         For<Kernels,ParameterMask>::template 
         set_absolute_epsilon<name,Kernels-1,Compute_Variances>(
             static_cast<FitFunction<VarC, Compute_Variances>&>(*this),
@@ -310,17 +310,17 @@ struct FitObject
     }
 
     const ResidueMatrix<Height,Width>&
-        get_residues() const throw()    
+        get_residues() const 
         { return this->residues; }
 
-    void setSize(int width, int height) throw() {
+    void setSize(int width, int height) {
         a.resize(width,height);
         b.resize(width,height);
         Deriver<DataType,Width,Height,Use_Correlation>
             ::setSize(width,height);
     }
 
-    const Position& getPosition() throw() { return *current; }
+    const Position& getPosition() { return *current; }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

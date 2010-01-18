@@ -5,8 +5,11 @@
 #include <iostream>
 #include <Eigen/Core>
 
-#include "camera_units.h"
 #include <boost/units/quantity.hpp>
+#include <cs_units/camera/length.hpp>
+#include <cs_units/camera/area.hpp>
+#include <cs_units/camera/intensity.hpp>
+#include <dStorm/units/frame_count.h>
 #include "output/Trace_decl.h"
 #include "units_Eigen_traits.h"
 
@@ -16,29 +19,31 @@ namespace dStorm {
     class Localization { 
       public:
         static const int Dim = 2;
-        typedef boost::units::quantity<camera::length,float>
+        typedef boost::units::quantity<cs_units::camera::length,float>
             Coord;
         typedef 
             Eigen::Matrix<Coord, Dim, 1, Eigen::DontAlign>
             Position;
         typedef
             Eigen::Matrix< 
-                boost::units::quantity<camera::area,float>,
+                boost::units::quantity<cs_units::camera::area,float>,
                 Dim, Dim, Eigen::DontAlign>
             Matrix;
+        typedef boost::units::quantity<cs_units::camera::intensity,float>
+            Amplitude;
 
       private:
         Position _position;
-        float _strength;
+        Amplitude _strength;
         Matrix _fit_covariance_matrix;
         float _two_kernel_improvement;
 
         const output::Trace *source;
-        int _im;
+        frame_index _im;
 
       public:
         inline Localization( const Position& position, 
-                      float strength );
+                      Amplitude strength );
 
         Position& position() { return _position; }
         const Position& position() const { return _position; }
@@ -48,9 +53,9 @@ namespace dStorm {
         Coord x() const { return _position.x(); }
         Coord y() const { return _position.y(); }
 
-        float& strength() { return _strength; }
-        const float& strength() const { return _strength; }
-        float getStrength() const { return _strength; }
+        Amplitude& strength() { return _strength; }
+        const Amplitude& strength() const { return _strength; }
+        Amplitude getStrength() const { return _strength; }
 
         Matrix& fit_covariance_matrix() { return _fit_covariance_matrix; }
         const Matrix& fit_covariance_matrix() const
@@ -60,9 +65,9 @@ namespace dStorm {
         const float& two_kernel_improvement() const 
             { return _two_kernel_improvement; }
 
-        inline void setImageNumber(int num) { _im = num; }
-        inline int getImageNumber() const { return _im; }
-        inline int N() const { return _im; }
+        inline void setImageNumber(frame_index num) { _im = num; }
+        inline frame_index getImageNumber() const { return _im; }
+        inline frame_index N() const { return _im; }
 
         bool has_source_trace() const { return source != NULL; }
         const output::Trace& get_source_trace() const { return *source; }
@@ -75,12 +80,12 @@ namespace dStorm {
 
     Localization::Localization( 
         const Position& position,
-        float strength
+        Amplitude strength
     )
         : _position(position), _strength(strength),
-          _fit_covariance_matrix( Matrix::Constant( -1 * camera::pixel * camera::pixel ) ),
+          _fit_covariance_matrix( Matrix::Constant( Matrix::Scalar::from_value(-1) ) ),
             _two_kernel_improvement(0),
-            source(NULL), _im(-1) {}
+            source(NULL), _im( frame_index::from_value(-1) ) {}
               
 }
 

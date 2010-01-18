@@ -1,6 +1,7 @@
 #ifndef DSTORM_SIGMAGUESSER_H
 #define DSTORM_SIGMAGUESSER_H
 
+#include <dStorm/units/amplitude.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/Input.h>
 #include <dStorm/output/Output.h>
@@ -40,7 +41,7 @@ namespace engine {
         /** Necessary spot count for next check. */
         int nextCheck;
         /** Mean amplitude of seen localizations. */
-        Variance<double> meanAmplitude;
+        Mean< amplitude, amplitude::value_type > meanAmplitude;
 
         std::auto_ptr<SigmaFitter> fitter;
 

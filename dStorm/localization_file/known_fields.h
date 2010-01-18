@@ -1,8 +1,10 @@
 #ifndef DSTORM_LOCALIZATION_FILE_KNOWN_FIELDS_H
 #define DSTORM_LOCALIZATION_FILE_KNOWN_FIELDS_H
 
+#include <cs_units/camera/length.hpp>
+#include <cs_units/camera/resolution.hpp>
+
 #include <dStorm/Localization.h>
-#include <dStorm/units.h>
 #include <dStorm/input/LocalizationTraits.h>
 
 #include "known_fields_decl.h"
@@ -16,8 +18,9 @@ typedef input::Traits<Localization> Traits;
 
 template <int Dimension>
 struct Spatial {
-    typedef quantity<camera::length> ValueQuantity;
-    typedef quantity<camera::pixel_size> ResolutionQuantity;
+    typedef Localization::Position::Scalar ValueQuantity;
+    typedef Traits::Size::Scalar SizeQuantity;
+    typedef Traits::Resolution::Scalar ResolutionQuantity;
 
     static const std::string semantic;
     static const bool hasMinField = false,
@@ -38,8 +41,9 @@ struct Spatial {
 };
 
 struct Time {
-    typedef quantity<camera::time, int> ValueQuantity;
-    typedef quantity<camera::frame_rate> ResolutionQuantity;
+    typedef frame_index ValueQuantity;
+    typedef Traits::FrameCountField SizeQuantity;
+    typedef Traits::FrameRateField ResolutionQuantity;
     typedef simparm::optional<ValueQuantity> BoundField;
     typedef simparm::optional<ResolutionQuantity>
         ResolutionField;
@@ -54,15 +58,15 @@ struct Time {
     static BoundField& maxField( Traits& l )
         { return l.total_frame_count; }
     static ResolutionField& resolutionField
-            ( Traits& l )
-        { return l.frame_length; }
+            ( Traits& l ) { return l.speed; }
     static void insert( const ValueQuantity& value,
                         Localization& target )
-        { target.setImageNumber( value.value() ); }
+        { target.setImageNumber( value ); }
 };
 
 struct Amplitude {
-    typedef quantity<camera::intensity> ValueQuantity;
+    typedef Localization::Amplitude ValueQuantity;
+    typedef Traits::AmplitudeField SizeQuantity;
     typedef simparm::optional<ValueQuantity> BoundField;
 
     static const std::string semantic;
@@ -75,7 +79,7 @@ struct Amplitude {
         { throw std::logic_error("No maximum field given."); }
     static void insert( const ValueQuantity& value,
                         Localization& target )
-        { target.strength() = value.value(); }
+        { target.strength() = value; }
 };
 
 }

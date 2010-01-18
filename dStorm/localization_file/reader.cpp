@@ -29,9 +29,10 @@ Localization* Source::fetch(int) {
     buffer.clear();
     Localization* l = buffer.allocate(1);
     read_localization( *l, this->level, use_trace_buffer );
-    if ( file.input )
+    if ( file.input ) {
+        buffer.commit(1);
         return l;
-    else
+    } else
         return NULL;
 }
 
@@ -131,8 +132,9 @@ input::Traits<Localization> File::getTraits() const {
 void File::read_next( Localization& target )
 {
     Fields::iterator i;
-    for ( i = fs.begin(); i != fs.end(); i++ )
+    for ( i = fs.begin(); i != fs.end(); i++ ) {
         i->parse( input, target );
+    }
 }
 
 void File::read_XML(const std::string& line) {
@@ -157,26 +159,28 @@ void File::read_classic(const std::string& line) {
     std::stringstream values(line);
     int fn = 0;
     do {
-        double value;
+        float value;
         values >> value;
         if (!values) break;
         switch (fn) {
             case 0: 
                 fs.push_back( 
-                    new field::XCoordinate
-                        ( value * camera::pixel ) 
+                    new field::XCoordinate( 
+                        field::XCoordinate::Value(
+                            value * cs_units::camera::pixel) ) 
                 );
                 break;
             case 1:
                 fs.push_back( 
-                    new field::YCoordinate
-                        ( value * camera::pixel ) 
+                    new field::YCoordinate(
+                        field::YCoordinate::Value(
+                            value * cs_units::camera::pixel ) )
                 );
                 break;
             case 2:
                 fs.push_back(
                     new field::FrameNumber
-                        ( int(value) * camera::frame )
+                        ( int(value) * cs_units::camera::frame )
                 );
                 break;
             case 3:

@@ -45,6 +45,10 @@ class AverageImage : public OutputObject {
 
     const char *getName() { return "AverageImage"; }
 
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames)
+        { insert_filename_with_check( filename, present_filenames ); }
+
 };
 
 class AverageImage::_Config : public simparm::Object {

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <iostream>
 #include <cassert>
+#include <stdexcept>
 
 namespace data_cpp {
     /** A VectorList is similar to the Java ArrayList:
@@ -31,6 +32,7 @@ namespace data_cpp {
 
         void makeAlignedBin(int size) {
             void *fresh = malloc(size+(Alignment-1));
+            if ( fresh == NULL ) throw std::bad_alloc();
             size_t addr = reinterpret_cast<size_t>(fresh) & ~(Alignment-1);
             if ( addr != reinterpret_cast<size_t>(fresh) )
                 addr += Alignment;
@@ -43,6 +45,8 @@ namespace data_cpp {
             size_t size = sizeof(Type*) * arrayBins;
             array = (Type**)malloc(size);
             allocated = (Type**)malloc(size);
+            if ( array == NULL || allocated == NULL )
+                throw std::bad_alloc();
 
             currentBin = indexInBin = 0;
 
@@ -53,6 +57,7 @@ namespace data_cpp {
         static void enlarge(Type**& array, int old_size, int new_size) {
             Type **newArray = (Type**)malloc
                 (sizeof(Type*) * new_size);
+            if ( newArray == NULL ) throw std::bad_alloc();
             memcpy(newArray, array, sizeof(Type*) * old_size);
             memset(newArray+old_size, 0, 
                              sizeof(Type*) * (new_size-old_size) );

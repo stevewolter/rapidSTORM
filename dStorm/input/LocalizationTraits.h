@@ -1,6 +1,13 @@
 #ifndef DSTORM_INPUT_LOCALIZATION_TRAITS_H
 #define DSTORM_INPUT_LOCALIZATION_TRAITS_H
 
+#include <dStorm/units/amplitude.h>
+#include <dStorm/units/frame_rate.h>
+#include <dStorm/units/frame_count.h>
+
+#include <cs_units/camera/time.hpp>
+#include <cs_units/camera/frame_rate.hpp>
+
 #include "Traits.h"
 #include <dStorm/Localization.h>
 #include <dStorm/SizeTraits.h>
@@ -21,12 +28,12 @@ class Traits< Localization >
     Traits( SizeTraits<Localization::Dim> t )
         : SizeTraits<Localization::Dim>(t) {}
 
-    simparm::optional<
-        quantity<camera::intensity> > min_amplitude;
+    typedef amplitude AmplitudeField;
+    typedef frame_rate FrameRateField;
+    typedef frame_count FrameCountField;
 
-    simparm::optional<
-        quantity<camera::frame_rate> > frame_length;
-
+    simparm::optional<amplitude> min_amplitude;
+    simparm::optional<frame_rate> speed;
     simparm::optional<frame_count> total_frame_count;
 
     void apply_global_settings(const Config& c) {}

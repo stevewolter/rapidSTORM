@@ -1,0 +1,33 @@
+dstorm_start
+
+set test "filename clash between two tables"
+send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Table\n"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Table\n"
+send "in Car set Run = 1\n"
+
+expect {
+    -re "Starting job failed: The output file name '.*' was used by multiple" { pass "$test" }
+    timeout { fail "$test" }
+}
+
+set test "filename clash between two different outputs"
+send "forSet Car forSet Output in EngineOutput set ToRemove value Output1\n"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Image\n"
+send "forSet Car forSet Output in EngineOutput in Output2 in Image set ToFile = /srv/storm/ATTO655_DNA_OF2_3.txt\n"
+send "in Car set Run = 1\n"
+
+expect {
+    -re "Starting job failed: The output file name '.*' was used by multiple" { pass "$test" }
+    timeout { fail "$test" }
+}
+
+set test "clash between input and output file name"
+send "forSet Car forSet Output in EngineOutput set ToRemove value Output2\n"
+send "forSet Car forSet Output in EngineOutput in Output0 set ToFile = /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car set Run = 1\n"
+
+expect {
+    -re "Starting job failed: The output file name '.*' was used by multiple" { pass "$test" }
+    timeout { fail "$test" }
+}

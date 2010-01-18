@@ -1,6 +1,8 @@
 #ifndef DSTORM_LOCALIZATION_FILTER_H
 #define DSTORM_LOCALIZATION_FILTER_H
 
+#include <cs_units/camera/velocity.hpp>
+#include <dStorm/units/amplitude.h>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/outputs/LocalizationList.h>
 #include <simparm/NumericEntry.hh>
@@ -35,9 +37,9 @@ class LocalizationFilter : public OutputObject,
     simparm::DoubleEntry from, to;
     simparm::DoubleEntry x_shift, y_shift;
     simparm::DoubleEntry two_kernel_significance;
-    double v_from, v_to;
+    amplitude v_from, v_to;
     Eigen::Matrix< 
-        quantity<camera::velocity,float>,
+        boost::units::quantity<cs_units::camera::velocity,float>,
         Localization::Dim, 1>
         shift_velocity;
     output::Traits traits;
@@ -54,16 +56,15 @@ class LocalizationFilter : public OutputObject,
     void init();
 
     void copy_and_modify_localizations(
-        const Localization *from, int n, Localization *to, int& to_count )
-;
+        const Localization *from, int n, Localization *to, int& to_count );
     /** This method concatenates up to two localization arrays in a 
      *  temporary buffer and sends them to the output transmission.
      *  The call to this method must be protected by either a read- or
      *  a write-lock on emissionMutex. */
     Output::Result
-        emit_localizations( const Localization* p, int n, int forImage, 
-                            const Localization* p2 = NULL, int n2 = 0)
-;
+        emit_localizations( const Localization* p, int n, 
+                            frame_index forImage, 
+                            const Localization* p2 = NULL, int n2 = 0);
 
     /** This method will re-emit localizations while the flag
       * given by \c terminate is false. */
@@ -84,12 +85,15 @@ class LocalizationFilter : public OutputObject,
 
     void operator()(simparm::Node&, Cause, simparm::Node*);
 
-    AdditionalData announceStormSize(const Announcement&) 
-;
+    AdditionalData announceStormSize(const Announcement&);
 
     void propagate_signal(ProgressSignal s);
 
     Result receiveLocalizations(const EngineResult& e);
+
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames) 
+        { output->check_for_duplicate_filenames(present_filenames); }
 };
 
 class LocalizationFilter::_Config : public simparm::Object {

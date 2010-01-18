@@ -1,0 +1,6 @@
+dstorm_start
+set test "help"
+send "help\n"
+expect {
+    -re "--" { pass "help" }
+}

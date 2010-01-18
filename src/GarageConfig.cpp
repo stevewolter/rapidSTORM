@@ -75,19 +75,14 @@ static void printTC( const output::OutputSource& src, int indent ) {
 }
 
 void GarageConfig::operator()(Node& src, Cause, Node *) throw() {
-    if ( &src == &carConfig->inputConfig.basename && externalControl() ) 
+    if ( &src == &carConfig->inputConfig.basename ) 
     {
         bool appended = false;
         dStorm::output::OutputSource::BasenameResult r;
         std::string basename = carConfig->inputConfig.basename();
-        avoid_auto_filenames.clear();
-        do {
-            if ( carConfig->inputConfig.inputFile() != "" )
-                avoid_auto_filenames
-                    .insert( carConfig->inputConfig.inputFile() );
 
-            r = carConfig->outputSource.set_output_file_basename
-                    ( basename, avoid_auto_filenames );
+        do {
+            r = carConfig->outputSource.set_output_file_basename( basename );
             if ( !appended ) 
                 basename += 'a'; 
             else 
@@ -103,11 +98,15 @@ void GarageConfig::operator()(Node& src, Cause, Node *) throw() {
     } else if ( &src == &run.value && run.triggered() ) 
     {
         run.untrigger();
-        DEBUG("Running job");
-        std::auto_ptr<engine::Car> car( 
-            new engine::Car(master, *carConfig) );
-        car->detach();
-        car.release();
+        try {
+            DEBUG("Running job");
+            std::auto_ptr<engine::Car> car( 
+                new engine::Car(master, *carConfig) );
+            car->detach();
+            car.release();
+        } catch ( const std::exception& e ) {
+            std::cerr << "Starting job failed: " << e.what() << "\n";
+        }
     } else if ( &src == &externalControl.value && externalControl.triggered() )
     {
         externalControl.untrigger();

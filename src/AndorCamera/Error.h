@@ -36,6 +36,8 @@ namespace AndorCamera {
             virtual ~Error() throw() {}
             /** Return a character sequence describing the error. */
             virtual const char *what() const throw();
+
+            unsigned int andorCode() const { return andorReturnCode; }
     };
 }
 

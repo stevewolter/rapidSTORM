@@ -10,12 +10,12 @@ namespace dStorm {
 namespace engine {
 
 SpotFinder::SpotFinder(const Config &c, 
-                       pixel_count imw, pixel_count imh)
+                       const Traits::Size& size)
    : msx(c.x_maskSize()), msy(c.y_maskSize()),
      bx(c.fitWidth()), by(c.fitHeight()),
-     imw(imw.value()), imh(imh.value()),
-     smoothed( new CImg<SmoothedPixel>(imw.value(), 
-                                       imh.value()) )
+     imw(size.x().value()), imh(size.y().value()),
+     smoothed( new CImg<SmoothedPixel>(size.x().value(), 
+                                       size.y().value()) )
      {
         PROGRESS("Making SpotFinder with " 
                  << msx << " " << msy << " " << imw << " " << imh);

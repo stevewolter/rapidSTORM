@@ -22,16 +22,18 @@ class LocalizationBuncher : public input::Drain<Localization> {
         data_cpp::Vector< output::Trace > traces;
     };
 
+    typedef std::map<frame_index,Can* > Canned;
     std::auto_ptr< Can > buffer;
-    std::map<int,Can* > canned;
-    unsigned int first, last, lastInFile;
-    unsigned int currentImage, outputImage;
+    Canned canned;
+    frame_index first, last, lastInFile;
+    frame_index currentImage, outputImage;
     output::Output::EngineResult engine_result;
     output::Output& target;
 
     void output( Can* locs ) throw(output::Output*);
     void print_canned_results_where_possible() throw(output::Output*);
-    void can_results_or_publish( int lookahead ) throw(output::Output*);
+    void can_results_or_publish( frame_index lookahead )
+        throw(output::Output*);
 
     void put_deep_copy_into_can( const Localization &loc, Can& can );
 
@@ -47,8 +49,8 @@ class LocalizationBuncher : public input::Drain<Localization> {
     
     void ensure_finished() ;
     void noteTraits(const input::Traits<Localization>&,
-                    unsigned int firstImage, 
-                    unsigned int lastImage) ;
+                    frame_index firstImage, 
+                    frame_index lastImage) ;
 
     input::Management
         accept(int index, int number, Localization *l);

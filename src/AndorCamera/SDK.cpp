@@ -473,16 +473,7 @@ void StartAcquisition() {
     EXIT("StartAcquisition");
 }
 
-static void realGetImages16(long int fi, long int li, WORD* buf,
-    unsigned long bufSize, long int& fvi, long int& lvi)
-{
-    int armor[100];
-    clearStack(armor);
-    CHECK(::GetImages16(fi, li, buf, bufSize, &fvi, &lvi), 
-          " in GetImages16");
-}
-
-void GetImages16
+AcquisitionState GetImages16
     (Range range, uint16_t *buf,
                 unsigned long bufSize, Range &read)
 {
@@ -491,11 +482,20 @@ void GetImages16
     long int signed_read_first = read.first,
              signed_read_second = read.second;
     ENTRY("GetImages16");
-    realGetImages16(range.first+1, range.second+1, buf, bufSize, 
-        signed_read_first, signed_read_second);
+    int rv = ::GetImages16(
+                    range.first+1, range.second+1,
+                    buf, bufSize,
+                    &signed_read_first, &signed_read_second );
     read.first = signed_read_first - 1;
     read.second = signed_read_second - 1;
+
     EXIT("GetImages16");
+    if ( rv == DRV_GENERAL_ERRORS )
+        return Missed_Images;
+    else if ( rv == DRV_NO_NEW_DATA )
+        return No_New_Images;
+    else
+        return New_Images;
 }
 
 void Initialize(std::string init_file_dir) 

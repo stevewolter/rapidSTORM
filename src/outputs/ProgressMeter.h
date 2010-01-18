@@ -30,11 +30,12 @@ class ProgressMeter : public OutputObject
  
     {
         ost::MutexLock lock(mutex);
-        if ( er.forImage+1*camera::frame > max ) {
+        if ( er.forImage+1*cs_units::camera::frame > max ) {
             if ( length.is_set() ) {
-                max = er.forImage+1*camera::frame;
+                max = er.forImage+1*cs_units::camera::frame;
                 float ratio = 
-                    quantity<camera::time>(max) / *length;
+                    boost::units::quantity<frame_count::unit_type,float>
+                        (max) / *length;
                 progress.setValue( round(ratio / 0.01)
                                    * 0.01 );
             } else {

@@ -22,7 +22,7 @@ using namespace Eigen;
 static const double infty = numeric_limits<double>::infinity();
 
 template <int VarC, bool SR>
-FitFunction<VarC,SR>::FitFunction() throw() 
+FitFunction<VarC,SR>::FitFunction() 
 : abs_eps(ParamVector::Constant( infty ) ),
   rel_eps(abs_eps),
   abs_eps_set(false), rel_eps_set(false)
@@ -41,7 +41,7 @@ FitFunction<VarC,CV>::fit(
     typename DeriverType::Position& moritz,
     const typename DeriverType::Constants& constants,
     const DeriverType& deriver
-) const throw()
+) const
 {
     Derivatives<VarC> der[ CV ? 2 : 1 ];
 
@@ -171,7 +171,7 @@ FitFunction<VarC,CV>::fit(
 
 template <int VarC, bool CV>
 void FitFunction<VarC,CV>::set_absolute_epsilon
-    (int variable, double eps) throw()
+    (int variable, double eps)
 {
     abs_eps[variable] = eps;
     abs_eps_set = ( abs_eps.cwise() != ParamVector::Constant( infty ) ).any();

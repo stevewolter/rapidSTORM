@@ -1,0 +1,22 @@
+dstorm_start
+
+set test "camera job increment"
+
+send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission = BasenamePrinter\n"
+send "in Car in Method in InputMethod in AndorDirectConfig set OutputBasename = Job_\$run\$\n"
+send "in Car set Run = 1\n"
+expect {
+    -re "Output file basename is Job_01"        {}
+    timeout { fail "$test" }
+}
+send "in Car set Run = 1\n"
+expect {
+    -re "Output file basename is Job_02"        {}
+    timeout { fail "$test" }
+}
+send "in Car set Run = 1\n"
+expect {
+    -re "Output file basename is Job_03"        { pass "$test" }
+    timeout { fail "$test" }
+}

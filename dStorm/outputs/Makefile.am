@@ -1,7 +1,7 @@
 noinst_LTLIBRARIES = liboutputs.la
 
 library_includedir = $(includedir)/dStorm/outputs
-library_include_HEADERS = BinnedLocalizations.h LocalizationList.h TraceFilter.h Crankshaft.h
+library_include_HEADERS = BinnedLocalizations.h LocalizationList.h TraceFilter.h Crankshaft.h NullOutput.h
 
 AM_CPPFLAGS = \
     -include $(top_srcdir)/../debug.h \
@@ -9,4 +9,4 @@ AM_CPPFLAGS = \
 
 liboutputs_la_SOURCES = \
     BinnedLocalizations.cpp LocalizationList.cpp TraceFilter.cpp Crankshaft.cpp \
-    BinnedLocalizations_impl.h
+    BinnedLocalizations_impl.h NullOutput.cpp

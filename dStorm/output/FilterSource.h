@@ -47,7 +47,6 @@ class FilterSource
 
     /** The basename is saved for freshly constructed entries. */
     std::string basename;
-    std::set<std::string>* avoid; /**< Avoidance set for basename. */
 
     void registerNamedEntries();
 
@@ -107,8 +106,7 @@ class FilterSource
     void remove( OutputSource& src );
 
     /** \see dStorm::OutputSource */
-    BasenameResult set_output_file_basename
-        (const std::string& basename, std::set<std::string>& avoid);
+    BasenameResult set_output_file_basename(const std::string& basename);
 
     typedef Outputs::iterator iterator;
     typedef Outputs::const_iterator const_iterator;

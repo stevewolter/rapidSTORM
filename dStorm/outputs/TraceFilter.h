@@ -45,6 +45,10 @@ class TraceCountFilter : public output::OutputObject,
     TraceCountFilter* clone() const 
         { throw std::runtime_error("No TraceCountFilter::clone"); }
 
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames) 
+        { output->check_for_duplicate_filenames(present_filenames); }
+
     AdditionalData announceStormSize(const Announcement &a) ;
 
     void propagate_signal(ProgressSignal s);

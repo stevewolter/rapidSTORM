@@ -4,9 +4,10 @@
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include "ViewerConfig.h"
 #include <limits>
+#include <dStorm/Pixel.h>
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 
 namespace ColourSchemes {
     enum Scheme { BlackWhite, BlackRedYellowWhite,
@@ -27,20 +28,13 @@ class Colorizer
 {
   public:
     typedef _BrightnessType BrightnessType;
-    struct Pixel { 
-        uint8_t r, g, b;
-        Pixel(uint8_t grey_value) 
-            : r(grey_value), g(grey_value), b(grey_value){}
-        Pixel(uint8_t r, uint8_t g, uint8_t b) 
-            : r(r), g(g), b(b) {}
-    };
 
   private:
     bool invert;
   protected:
     Pixel inv( Pixel p ) {
         if ( invert )
-            return Pixel( ~p.r, ~p.g, ~p.b );
+            return p.invert();
         else
             return p;
     }

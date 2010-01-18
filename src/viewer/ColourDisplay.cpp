@@ -3,7 +3,7 @@
 #include <Eigen/Geometry>
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 namespace ColourSchemes {
 
 enum ColourPart { V, P, Q, T };

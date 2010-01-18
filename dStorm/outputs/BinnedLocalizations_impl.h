@@ -6,6 +6,8 @@
 #include <boost/units/cmath.hpp>
 #include <dStorm/unit_matrix_operators.h>
 #include <dStorm/matrix_operators.h>
+#include <dStorm/units/amplitude.h>
+#include <boost/units/io.hpp>
 
 #define LINEAR
 // #define QUADRATIC
@@ -15,7 +17,7 @@ namespace outputs {
 
 template <typename KeepUpdated>
 BinnedLocalizations<KeepUpdated>::BinnedLocalizations
-    (double res_enh, pixel_count crop)
+    (double res_enh, Crop crop)
     : OutputObject("BinnedLocalizations", ""),
         crop(crop)
     { set_resolution_enhancement(res_enh); }
@@ -62,31 +64,30 @@ BinnedLocalizations<KeepUpdated>
     ost::MutexLock lock(mutex);
     this->binningListener().announce(er);
 
-    typedef boost::units::quantity<camera::length,float>
-        Offset;
-    typedef Eigen::Matrix<Offset,2,1>          
-        Position;
+    typedef boost::units::quantity<cs_units::camera::length,int> 
+        pixel_count;
+
+    typedef Localization::Position::Scalar Offset;
+    typedef Eigen::Matrix<Offset,2,1> Position;
 
     for (int i = 0; i < er.number; i++) {
         const Localization& l = er.first[i];
         /* Find coordinates in resolution-enhanced space. */
-        Position cropped 
-            = (l.position().start<2>().cwise() - crop);
-        Position enlarged = re * cropped;
+        Position orig = l.position().start<2>(),
+                 cropped = orig.cwise() - crop,
+                 enlarged = re * cropped;
 
-        pixel_count lx = static_cast<pixel_count>
-                            (floor(enlarged.x())),
-                    ly = static_cast<pixel_count>
-                            (floor(enlarged.y()));
-        if (   lx < 0 * camera::pixel || 
-               lx >= int(base_image.width-1) * camera::pixel ||
-               ly < 0 * camera::pixel || 
-               ly >= int(base_image.height-1) * camera::pixel )
+        pixel_count lx = pixel_count(floor(enlarged.x())),
+                    ly = pixel_count(floor(enlarged.y()));
+        if (   lx < 0 * cs_units::camera::pixel || 
+               lx >= int(base_image.width-1) * cs_units::camera::pixel ||
+               ly < 0 * cs_units::camera::pixel || 
+               ly >= int(base_image.height-1) * cs_units::camera::pixel )
             continue;
-        float xf = (enlarged.x() - lx).value(), 
-              yf = (enlarged.y() - ly).value();
+        float xf = (enlarged.x() - lx) / cs_units::camera::pixel,
+              yf = (enlarged.y() - ly) / cs_units::camera::pixel;
 
-        float strength = l.strength();
+        amplitude strength = l.strength();
 
         this->binningListener().announce( l );
 
@@ -97,7 +98,8 @@ BinnedLocalizations<KeepUpdated>
             {
                 int xp = lx.value()+(1-dx), 
                     yp = ly.value()+(1-dy);
-                float val = strength * (dx+(1-2*dx)*xf)*(dy+(1-2*dy)*yf);
+                float val = strength / cs_units::camera::ad_count
+                                     * (dx+(1-2*dx)*xf)*(dy+(1-2*dy)*yf);
                 float old_val = base_image(xp, yp);
 
                 base_image(xp, yp) += val;
@@ -142,27 +144,25 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
  
 {
     input::Traits<BinnedImage> traits;
-    const pixel_count one_pixel( 1 * camera::pixel );
 
-    typedef quantity<camera::length> Size;
-    typedef Eigen::Matrix<Size,Localization::Dim,1>
-        ImageSize;
+    typedef boost::units::quantity<cs_units::camera::length,float>
+        PreciseSize;
+        
+    const PreciseSize one_pixel( 1 * cs_units::camera::pixel );
 
-    ImageSize size =
-            (announcement->traits.size.cwise()
-                - (one_pixel+crop+crop))
-                .cast<Size>();
-    size = (std::ceil(size)
-        .cwise() + one_pixel)
-        .cwise().max( ImageSize::Constant(one_pixel) );
-                                 
-    traits.size.fill( 1 * camera::pixel );
-    traits.size.start<Localization::Dim>() 
-        = size.cast<pixel_count>();
+    typedef output::Traits::Resolution::Scalar Resolution;
+
+    traits.size.fill( 1 * cs_units::camera::pixel );
+    for (int i = 0; i < announcement->traits.size.rows(); i++) {
+        PreciseSize dp_size = announcement->traits.size[i] - 2*crop;
+        traits.size[i] = std::max( ceil( re * dp_size ), one_pixel );
+    }
+
+    traits.resolution.fill
+        ( Resolution::from_value(
+            std::numeric_limits<Resolution::value_type>::signaling_NaN()));
     traits.resolution.start<Localization::Dim>()
-        = announcement->traits.resolution / float(re);
-    traits.resolution.end<3-Localization::Dim>().fill
-        ( 0*si::meter/camera::pixel );
+        = announcement->traits.resolution * float(re);
 
     base_image.resize(
         traits.dimx().value(),

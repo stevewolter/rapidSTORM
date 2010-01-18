@@ -36,7 +36,7 @@ namespace input {
               i ( master.inputMethod.beginChoices() );
             for ( ; i != master.inputMethod.endChoices(); i++)
             {
-                if ( ! i->may_be_autoloaded() ) continue;
+                if ( ! i->uses_input_file() ) continue;
                 try {
                     rv = i->makeSource( master );
                 } catch (const std::exception&) {
@@ -66,7 +66,7 @@ namespace input {
             this->push_back(master.lastImage);
         }
 
-        bool may_be_autoloaded() const { return false; }
+        bool uses_input_file() const { return false; }
 
         AutoMethod* clone() const
             { throw std::logic_error("AutoMethod unclonable."); }

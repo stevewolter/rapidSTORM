@@ -2,8 +2,7 @@
 #include "BasicTransmissions.h"
 
 #include "LocalizationFile.h"
-#include "Viewer.h"
-#include "ViewerConfig.h"
+#include "../viewer/plugin.h"
 #include "LocalizationCounter.h"
 #include "ProgressMeter.h"
 #include "AverageImage.h"
@@ -21,7 +20,7 @@ namespace output {
 
 void basic_outputs( Config* o ) {
     o->addChoice( new LocalizationFile::Source() );
-    o->addChoice( new Viewer::Source() );
+    outputs::add_viewer( *o );
     o->addChoice( new ProgressMeter::Source() );
     o->addChoice( new LocalizationCounter::Source() );
     o->addChoice( new AverageImage::Source() );

@@ -12,29 +12,29 @@ struct ResidueMatrix {
     int center_element_row, center_element_col;
     Matrix v;
   public:
-    double operator()(int row, int col) const throw()
+    double operator()(int row, int col) const 
         { return v(center_element_row + row,
                    center_element_col + col); }
 
-    int min_row() const throw() 
+    int min_row() const 
         { return -center_element_row; }
-    int max_row() const throw() 
+    int max_row() const 
         { return v.rows()-1-center_element_row; }
-    int min_col() const throw() 
+    int min_col() const 
         { return -center_element_col; }
-    int max_col() const throw() 
+    int max_col() const 
         { return v.cols()-1-center_element_col; }
 
-    const Matrix& matrix() const throw() 
+    const Matrix& matrix() const 
         { return v; }
-    Matrix& matrix() throw() 
+    Matrix& matrix() 
         { return v; }
 
-    void set_size( int width, int height ) throw() {
+    void set_size( int width, int height ) {
         v.resize( height, width );
     }
 
-    void set_center( int x, int y ) throw() {
+    void set_center( int x, int y ) {
         center_element_row = y;
         center_element_col = x;
     }

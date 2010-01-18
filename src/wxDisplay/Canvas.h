@@ -114,7 +114,7 @@ class Canvas::DirectDrawer : public BufferedDrawer {
 };
 
 void Canvas::BufferedDrawer::draw( int x, int y, const Color& co ) {
-    c.contents->SetRGB( x, y, co.r, co.g, co.b );
+    c.contents->SetRGB( x, y, co.red(), co.green(), co.blue() );
 }
 
 }

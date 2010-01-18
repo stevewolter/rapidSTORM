@@ -12,7 +12,6 @@
 /* Berghen XML Parser */
 #include <xmlParser.h>
 
-#include <dStorm/units.h>
 #include <dStorm/input/LocalizationTraits_decl.h>
 #include <dStorm/output/Traits_decl.h>
 #include <dStorm/Localization.h>

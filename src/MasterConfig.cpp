@@ -49,8 +49,11 @@ MasterConfig::Ptr::~Ptr() {
 
 void MasterConfig::Ptr::wait_for_exclusive_ownership() {
     boost::unique_lock<boost::mutex> lock( m.usage_count_mutex );
-    while ( m.usage_count > 1 )
+    while ( m.usage_count > 1 ) {
+        DEBUG("Waiting on usage count " << m.usage_count);
         m.usage_count_is_one.wait( lock );
+        DEBUG("Got usage count " << m.usage_count);
+    }
     m.may_be_referenced = false;
 }
 
@@ -248,8 +251,8 @@ int _MasterConfig::lt_dlforeachfile_callback
         return 0;
     else {
         DEBUG("Trying to load plugin " << filename);
-        LoadResult result = m.try_loading_module( filename );
-        return (( result == Loaded ) ? 1 : 0);
+        m.try_loading_module( filename );
+        return 0;
     }
 }
 

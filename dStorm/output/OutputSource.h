@@ -5,7 +5,6 @@
 #include <memory>
 #include <simparm/Object.hh>
 #include <simparm/TreeEntry.hh>
-#include <set>
 #include "SourceFactory_decl.h"
 
 namespace simparm { class FileEntry; }
@@ -64,9 +63,8 @@ class OutputSource
     /** Notification for new input file basename. \c avoid_name
      *  is the name of the input file; that name should be avoided,
      *  as it would overwrite our input. */
-    virtual BasenameResult set_output_file_basename(
-        const std::string& new_basename, std::set<std::string>& avoid)
-;
+    virtual BasenameResult set_output_file_basename
+        (const std::string& new_basename);
 
     virtual std::string getDesc() const = 0;
 };

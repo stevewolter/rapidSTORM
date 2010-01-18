@@ -3,6 +3,7 @@
 
 #include <dStorm/helpers/thread.h>
 #include <cassert>
+#include <boost/utility.hpp>
 
 #include "Source.h"
 #include "Slot_decl.h"
@@ -24,23 +25,33 @@ namespace input {
         Claim(Slot<T> *w) : work(w) { if (work) work->claims++; }
 
       public:
-        /** Copy a claim around; does not change the claim properties. */
-        Claim(const Claim &c) : work(c.work) 
-            { if (work) work->claims++; }
-        /** Copy a claim around; does not change the claim properties. */
-        Claim& operator=(const Claim &c) 
-            { work = c.work; if (work) work->claims++; }
+        Claim( const Claim<T>& o ) : work(o.work) {
+            if ( work ) {
+                ost::MutexLock lock( work->dataMutex );
+                work->claims++;
+            }
+        }
+        Claim<T>& operator=( const Claim<T>& o ) {
+            if ( &o != this ) {
+                this->~Claim();
+                new (this) Claim(o);
+            }
+        }
+
         /** Forfeit claim and mark the corresponding image as Finished.
          *  To avoid finishing the image, reject() the Claim. */
-        ~Claim() 
-            { if (work && --(work->claims) == 0 ) work->finish(); }
+        ~Claim() { if (work) work->finish(); }
 
         /** Returns true if access to this claim is allowed (the claim
          *  is termed good then). */
         bool isGood() { return work != NULL; }
+        /** Returns true if an error occured for this object. */
+        bool hasErrors() 
+            { return isGood() && work->data.get() == NULL; }
         /** Return the base image for this claim. May only be called
-         *  for good claims.
+         *  for good and error-free claims.
          *  \sa isGood()
+         *  \sa hasErrors()
          **/
         T &operator*() { 
             assert(isGood() && work->data.get() != NULL);
@@ -48,7 +59,7 @@ namespace input {
         }
         /** Rejects the claim. Invalidates it and allows other 
          *  Claims on the same object. */
-        void reject() {if (work) { --work->claims; work = NULL; }}
+        void reject() { if (work) { work->abort(); work = NULL; } }
 
         int index() const { return work->my_index; }
     };
@@ -62,10 +73,11 @@ namespace input {
      *  */
     template <typename T> class Slot {
       public:
-        enum State { Untouched, /** Nothing happened on the object yet.*/
-                     InWork,    /** There are active claims. */
-                     Finished,  /** There were claims. */
-                     Error      /** Errors happened on acquisition. */
+        enum State { Untouched, /**< Data not yet present */
+                     Delivered, /**< Data are present */
+                     Processed, /**< Data are present 
+                                     and have been claimed */
+                     Discarded  /**< Data not present any more */
         };
 
         /** Constructor.
@@ -94,7 +106,7 @@ namespace input {
 
         /** Get a Claim on this object to work with it. */
         inline Claim<T> claim() 
-            { return ( state >= InWork ) ? Claim<T>(NULL) : _workOn(); }
+            { return ( state >= Processed ) ? Claim<T>(NULL) : _workOn(); }
         /** Reset the state of this object. Does not discard an already
          *  fetched object, but sets the state to Untouched. */
         void clean();
@@ -106,8 +118,6 @@ namespace input {
          *
          *  \param image Signals error if NULL. */
         void insert(std::auto_ptr< T > image);
-        /** Did an error occur for this object. */
-        bool hasError() { return state == Error; }
 
         int index() const { return my_index; }
 

@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I ../m4
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay
+SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer
 
 bin_PROGRAMS = dstorm watchStorm
 
@@ -15,7 +15,8 @@ AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
 
-COMMON_LIBS = outputs/liboutputs.la spotFinders/libspotFinders.la \
+COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
+    spotFinders/libspotFinders.la \
     engine/libengine.la inputs/libinputs.la \
     wxDisplay/libdStorm_display.la \
     AndorCamera/libAndorCamera.la ../dStorm/libdStorm.la 
@@ -29,8 +30,7 @@ watchStorm_SOURCES = watchStorm.cpp Garage.cpp \
 watchStorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread-mt
 
 javadir=$(datadir)/java
-java_DATA = DStorm.class
-TWIDDLER = $(javadir)/twiddler.jar
+java_DATA = de/uni_bielefeld/physik/rapid2STORM/DStorm.class
 
-DStorm.class : $(SOURCES)
-	$(JAVAC) -d $(builddir) -classpath $(CLASSPATH):$(TWIDDLER) $^
+de/uni_bielefeld/physik/rapid2STORM/DStorm.class : $(SOURCES)
+	$(JAVAC) -d $(builddir) -classpath $(CLASSPATH):$(TWIDDLER_JAR) $^

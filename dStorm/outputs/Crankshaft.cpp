@@ -1,4 +1,5 @@
 #define DSTORM_CRANKSHAFT_CPP
+#define VERBOSE
 #include "Crankshaft.h"
 #include <iostream> 
 #include <sstream> 
@@ -7,6 +8,8 @@
 #include <dStorm/data-c++/Vector.h>
 
 #include <boost/shared_ptr.hpp>
+
+#include "debug.h"
 
 using namespace std;
 using namespace data_cpp;
@@ -65,7 +68,7 @@ void Crankshaft::_add( Output *tm, bool imp, bool man, bool front )
     assert( tm != NULL );
 
     WriteLock changing_clutches(clutchesLock);
-    PROGRESS("Crankshaft accepted transmission " << tm->getName());
+    DEBUG("Crankshaft accepted transmission " << tm->getNode().getName());
     clutches.push_back( Clutch( *tm, imp, id++, man ) );
     if ( front ) {
         this->Node::push_front( clutches.back() );
@@ -82,15 +85,15 @@ Crankshaft::announceStormSize(const Announcement &a)
     ReadLock reader(clutchesLock);
     AdditionalData data;
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++){
-        PROGRESS("Announcing size to transmission " << (*i)->getName());
+        DEBUG("Announcing size to transmission " << (*i)->getNode().getName());
         data |= (*i)->announceStormSize(a);
-        PROGRESS("Announced size to transmission " << (*i)->getName());
+        DEBUG("Announced size to transmission " << (*i)->getNode().getName());
     }
     return data;
 }
 
 void Crankshaft::propagate_signal(ProgressSignal s) {
-    PROGRESS("Announcing engine start");
+    DEBUG("Announcing engine start");
     ReadLock reader(clutchesLock);
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
         (*i)->propagate_signal(s);
@@ -106,9 +109,9 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
             /* The result is fetched under the lock, but processed out
             * of it; this is done to avoid deadlocks on lock upgrade. */
             Output::Result r;
-            LOCKING("Working on clutch " << (*i)->getName());
+            DEBUG("Working on clutch " << (*i)->getNode().getName());
             r = (*i)->receiveLocalizations( er );
-            LOCKING("Worked on clutch " << (*i)->getName() <<
+            DEBUG("Worked on clutch " << (*i)->getNode().getName() <<
                     " with result " << r);
             switch (r) {
                 case Output::KeepRunning:
@@ -117,7 +120,7 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
                     break;
                 case Output::RemoveThisOutput:
                     {
-                        PROGRESS("Removing clutch " << (*i)->getName());
+                        DEBUG("Removing clutch " << (*i)->getNode().getName());
                         MutexLock deletor(toDeleteLock);
                         if ( toDelete == clutches.end() )
                             toDelete = i;
@@ -130,7 +133,7 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
             }
         }
     }
-    LOCKING("Releasing readLock");
+    DEBUG("Releasing readLock");
 
     if ( toDelete != clutches.end() ) {
         WriteLock changing_clutches(clutchesLock);
@@ -146,6 +149,14 @@ Output::Result Crankshaft::receiveLocalizations(const EngineResult& er)
         return Output::StopEngine;
     else
         return Output::KeepRunning;
+}
+
+void Crankshaft::check_for_duplicate_filenames
+    (std::set<std::string>& present_filenames) 
+{
+    ReadLock reader(clutchesLock);
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
+        (*i)->check_for_duplicate_filenames(present_filenames);
 }
 
 }

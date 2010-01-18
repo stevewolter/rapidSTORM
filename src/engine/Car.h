@@ -10,6 +10,7 @@
 #include <dStorm/input/Source_decl.h>
 #include "MasterConfig.h"
 #include <boost/utility.hpp>
+#include <set>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -25,6 +26,8 @@ namespace engine {
           public ost::Thread, private simparm::Node::Callback 
     {
       private:
+        std::set<std::string> used_output_filenames;
+
         /** Reference to the master configuration. Must be destructed last
          *  to ensure that all configuration items are destroyed before the
          *  DLLs are unloaded. */

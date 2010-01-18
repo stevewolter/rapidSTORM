@@ -20,7 +20,7 @@ class BaseMethod : public simparm::Object {
     virtual BaseSource *impl_makeSource() = 0;
     
   public:
-    virtual bool may_be_autoloaded() const { return true; }
+    virtual bool uses_input_file() const { return true; }
 
     /** This method is provided for compatibility with simparm::Object
         *  and always fails. */

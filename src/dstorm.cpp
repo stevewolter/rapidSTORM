@@ -26,8 +26,24 @@ static void sigsegv(int) {
                              "for the inconvenience.");
 }
 
+static void sigfpe(int) {
+    DEBUG("Caught sigfpe. Throwing exception and hoping for the best.");
+    throw std::runtime_error("Floating-point exception. "
+                             "This is a severe error, "
+                             "with no information on it's source. Sorry "
+                             "for the inconvenience.");
+}
+static void sigabort(int) {
+    std::cerr << "Sigabort\n";
+    signal( SIGSEGV, SIG_DFL );
+    signal( SIGABRT, SIG_DFL );
+    *(int*)(0x23) = 5;
+}
+
 static void install_segmentation_fault_handler() {
     signal( SIGSEGV, sigsegv );
+    signal( SIGFPE, sigfpe );
+    signal( SIGABRT, sigabort );
 }
 
 extern void foo();
@@ -35,7 +51,15 @@ extern void foo();
 int main(int argc, char *argv[]) {
     ost::DebugStream::set(cerr);
     DEBUG("entry: main");
-    install_segmentation_fault_handler();
+    if ( argc <= 1 )
+        install_segmentation_fault_handler();
+    else if ( !strcmp( argv[1], "---no-catch" ) ) {
+        std::cerr << "Ignoring signal handling\n";
+        argv[1] = argv[0];
+        argc--;
+        argv++;
+    } else
+        install_segmentation_fault_handler();
 
 #ifdef HAVE_LIBGRAPHICSMAGICK__
     Magick::InitializeMagick(argv[0]);

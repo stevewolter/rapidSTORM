@@ -1,4 +1,4 @@
-#ifndef NDEBUG
+#ifdef VERBOSE
 #include <dStorm/helpers/thread.h>
 #include <iostream>
 #define DEBUG(x) { ost::DebugStream *dbg = ost::DebugStream::get(); \

@@ -80,10 +80,10 @@ void Source<Pixel>::init(FILE *src)
 
    Traits< CImg<Pixel> >& my_traits = *this;
    my_traits.size.x() = 
-        readsif_imageWidth( dataSet, 0 ) * camera::pixel;
+        readsif_imageWidth( dataSet, 0 ) * cs_units::camera::pixel;
    my_traits.size.y() = readsif_imageHeight( dataSet, 0 )
-        * camera::pixel;
-   my_traits.size.z() = 1 * camera::pixel;
+        * cs_units::camera::pixel;
+   my_traits.size.z() = 1 * cs_units::camera::pixel;
 
     /* Read the additional information file from the SIF file
      * and store it in SIF info structure. */

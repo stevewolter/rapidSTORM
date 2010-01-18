@@ -58,6 +58,9 @@ class Crankshaft : public output::OutputObject {
     Result receiveLocalizations(const EngineResult&);
 
     bool empty() const { return clutches.empty(); }
+    void check_for_duplicate_filenames
+        (std::set<std::string>& present_filenames);
+
 };
 }
 }

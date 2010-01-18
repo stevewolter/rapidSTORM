@@ -48,14 +48,14 @@ operator/(const Y& lhs, const quantity< Unit, X > & rhs)
 namespace Eigen {
 
 template<typename Quantity>
-struct ei_value_cast_op EIGEN_EMPTY_STRUCT {
+struct ei_unitless_value_op EIGEN_EMPTY_STRUCT {
   typedef typename Quantity::value_type result_type;
   EIGEN_STRONG_INLINE const typename Quantity::value_type operator() (const Quantity& a) const
     { return a.value(); }
 };
 
 template<typename Quantity>
-struct ei_functor_traits<ei_value_cast_op<Quantity> >
+struct ei_functor_traits<ei_unitless_value_op<Quantity> >
 { enum { Cost = 0, PacketAccess = false }; };
 
 template<typename Unit, typename Scalar>
@@ -70,8 +70,19 @@ template<typename Quantity, typename Unit>
 struct ei_functor_traits<ei_from_value_op<Quantity, Unit> >
 { enum { Cost = 0, PacketAccess = false }; };
 
+template<typename Quantity, typename NewType>
+struct ei_value_cast_op EIGEN_EMPTY_STRUCT {
+  typedef typename boost::units::quantity<typename Quantity::unit_type,NewType> result_type;
+  EIGEN_STRONG_INLINE const result_type operator() (const Quantity& a) const
+    { return result_type( a ); }
+};
+
+template<typename Quantity, typename NewType>
+struct ei_functor_traits<ei_value_cast_op<Quantity,NewType> >
+{ enum { Cost = 0, PacketAccess = false }; };
+
 template <typename Unit>
-struct Cast {
+struct quantity_matrix {
 
 template<typename Derived>
 static
@@ -83,8 +94,21 @@ from_value( const MatrixBase<Derived>&  a)
 
 };
 
+template <typename ValueType>
+struct value_type {
+
 template<typename Derived>
-EIGEN_STRONG_INLINE const CwiseUnaryOp<ei_value_cast_op<typename ei_traits<Derived>::Scalar>, Derived>
+static
+EIGEN_STRONG_INLINE const CwiseUnaryOp<ei_value_cast_op<typename ei_traits<Derived>::Scalar, ValueType>, Derived>
+cast( const MatrixBase<Derived>&  a)
+{
+  return a.derived();
+};
+
+};
+
+template<typename Derived>
+EIGEN_STRONG_INLINE const CwiseUnaryOp<ei_unitless_value_op<typename ei_traits<Derived>::Scalar>, Derived>
 unitless_value( const MatrixBase<Derived>&  a)
 {
   return a.derived();
@@ -107,7 +131,8 @@ typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scala
     Rows, Cols, Opts, MaxR, MaxC>
 operator*(const Factor& lhs, const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& rhs)
 {
-    return Eigen::Cast<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+    return Eigen::quantity_matrix<
+        typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
         ( op_helper::value<Factor>::get(lhs) * unitless_value(rhs) );
 }
 
@@ -117,17 +142,17 @@ typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scala
     Rows, Cols, Opts, MaxR, MaxC>
 operator*(const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& a, const Factor& b)
 {
-    return Eigen::Cast<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+    return Eigen::quantity_matrix<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
         ( unitless_value(a) * op_helper::value<Factor>::get(b) );
 }
 
 template<typename Unit, typename Scalar, int Rows, int Cols, int Opts, int MaxR, int MaxC, typename Factor>
 Eigen::Matrix<
-typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type,
+typename boost::units::divide_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type,
     Rows, Cols, Opts, MaxR, MaxC>
 operator/(const Eigen::Matrix<boost::units::quantity<Unit, Scalar>, Rows, Cols, Opts, MaxR, MaxC>& a, const Factor& b)
 {
-    return Eigen::Cast<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
+    return Eigen::quantity_matrix<typename boost::units::multiply_typeof_helper< boost::units::quantity<Unit,Scalar>, Factor >::type::unit_type>::from_value
         ( unitless_value(a) / op_helper::value<Factor>::get(b) );
 }
 

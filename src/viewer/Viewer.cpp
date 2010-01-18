@@ -1,4 +1,5 @@
 #define cimg_use_magick
+#include "plugin.h"
 #include <stdint.h>
 #include "Viewer.h"
 #include "ViewerConfig.h"
@@ -11,9 +12,9 @@
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/outputs/BinnedLocalizations_impl.h>
-#include "ColourDisplay.h"
-#include "ImageDiscretizer_impl.h"
+#include "ImageDiscretizer_inline.h"
 #include "ColourDisplay_impl.h"
+#include "Display_inline.h"
 
 #ifndef UINT8_MAX
 #define UINT8_MAX std::numeric_limits<uint8_t>::max()
@@ -29,6 +30,17 @@ using namespace ost;
 
 using namespace dStorm::Display;
 using namespace dStorm::outputs;
+using namespace dStorm::output;
+
+namespace dStorm {
+namespace outputs {
+
+void add_viewer( output::Config& config ) {
+    config.addChoice( new viewer::Viewer::Source() );
+}
+
+}
+}
 
 static Mutex *cimg_lock = NULL;
 
@@ -59,7 +71,7 @@ bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
 }
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 
 /** Time to wait for user input in milliseconds. */
 const int waitTime = 10;
@@ -70,7 +82,7 @@ struct Viewer::Implementation
     virtual output::Output& getForwardOutput() = 0;
 
 #ifdef HAVE_LIBGRAPHICSMAGICK__
-    virtual void write_full_size_image(const char *filename) = 0;
+    virtual void write_full_size_image(const char *filename, bool) = 0;
 #endif
 
     virtual void set_histogram_power(float power) = 0;
@@ -83,127 +95,12 @@ class ColourDependantImplementation
 : public Viewer::Implementation,
   public DataSource
 {
-    class ColouredImageAdapter;
     typedef HueingColorizer<Hueing> MyColorizer;
+    typedef Display< MyColorizer > ColouredImageAdapter;
     typedef DiscretizedImage::ImageDiscretizer< 
         MyColorizer, ColouredImageAdapter>
         Discretizer;
     typedef BinnedLocalizations<Discretizer> Accumulator;
-
-    static void copy_color( Color& c, 
-                            const typename MyColorizer::Pixel& p )
-    {
-        c.r = p.r;
-        c.g = p.g;
-        c.b = p.b;
-    }
-
-    class ColouredImageAdapter 
-        : public DiscretizedImage::Listener<typename MyColorizer::Pixel>
-    {
-        Discretizer& discretizer;
-        typedef std::vector< bool > PixelSet;
-        PixelSet ps;
-        int ps_step;
-
-        bool do_show_window;
-        Manager::WindowProperties props;
-        DataSource& vph;
-
-        std::auto_ptr<Change> next_change;
-        std::auto_ptr<Manager::WindowHandle> window_id;
-
-      public:
-        float nm_per_pixel;
-
-        ColouredImageAdapter( 
-            Discretizer& disc, 
-            const Viewer::Config& config,
-            DataSource& vph 
-        ) : discretizer(disc), 
-              do_show_window( config.showOutput() ),
-              vph(vph), 
-              next_change( new Change() )
-            {
-                props.name = config.getDesc();
-                props.flags.close_window_on_unregister
-                    ( config.close_on_completion() );
-            }
-        void setSize( 
-            const input::Traits< cimg_library::CImg<int> >& traits) 
-        { 
-            int width = quantity<camera::length>(traits.size.x()).value(),
-                height = quantity<camera::length>(traits.size.y()).value();
-            ps.resize( width * height, false );
-            ps_step = width;
-
-            ResizeChange r;
-            r.width = width;
-            r.height = height;
-            r.key_size = MyColorizer::BrightnessDepth;
-            r.pixel_size = 
-                traits.resolution.start<2>().sum().value() / 2;
-            nm_per_pixel = r.pixel_size * 1E9;
-
-            if ( do_show_window ) {
-                props.initial_size = r;
-                window_id = Manager::getSingleton()
-                        .register_data_source( props, vph );
-                do_show_window = false;
-            } else {
-                next_change->do_resize = true;
-                next_change->resize_image = r;
-            }
-            this->clear();
-        }
-        void pixelChanged(int x, int y) {
-            std::vector<bool>::reference is_on = ps[ y * ps_step + x ];
-            if ( ! is_on ) {
-                PixelChange&
-                    p = *next_change->change_pixels.allocate();
-                p.x = x;
-                p.y = y;
-                /* The color field will be set when the clean handler
-                 * runs. */
-            }
-        }
-        void clean(bool) {
-            typedef Change::PixelQueue PixQ;
-            const PixQ::iterator end 
-                = next_change->change_pixels.end();
-            for ( PixQ::iterator i = 
-                next_change->change_pixels.begin(); i != end; ++i )
-            {
-                copy_color(i->color, discretizer.get_pixel(i->x, i->y));
-                ps[ i->y * ps_step + i->x ] = false;
-            }
-        }
-        void clear() {
-            ClearChange &c = next_change->clear_image;
-            copy_color(c.background, discretizer.get_background());
-            next_change->do_clear = true;
-
-            next_change->change_pixels.clear();
-            next_change->change_key.clear();
-            fill( ps.begin(), ps.end(), false );
-        }
-        void notice_key_change( int index, 
-            typename MyColorizer::Pixel pixel, float value )
-        {
-            KeyChange& k = 
-                *next_change->change_key.allocate(1);
-            k.index = index;
-            copy_color(k.color, pixel);
-            k.value = value;
-            next_change->change_key.commit(1);
-        }
-
-        std::auto_ptr<Change> get_changes() {
-            std::auto_ptr<Change> fresh( new Change() );
-            std::swap( fresh, next_change );
-            return fresh;
-        }
-    };
 
     std::auto_ptr<Change> get_changes() {
         ost::MutexLock lock( image.getMutex() );
@@ -220,7 +117,7 @@ class ColourDependantImplementation
 
   public:
     ColourDependantImplementation(const Viewer::Config& config)
-        : image( config.res_enh(), 1 * camera::pixel ),
+        : image( config.res_enh(), 1 * cs_units::camera::pixel ),
           colorizer(config),
           discretization( 4096, 
                 config.histogramPower(), image(),
@@ -235,10 +132,11 @@ class ColourDependantImplementation
 
     output::Output& getForwardOutput() { return image; }
 #ifdef HAVE_LIBGRAPHICSMAGICK__
-    virtual void write_full_size_image(const char *filename) 
+    virtual void write_full_size_image(const char *filename, bool with_key) 
     { 
-        image.clean();
-        int width = image.width();
+      image.clean();
+      int width = image.width();
+      if ( with_key ) {
         std::auto_ptr< Magick::Image > key_img
             = discretization.key_image();
         int lh = key_img->fontPointsize(),
@@ -252,8 +150,9 @@ class ColourDependantImplementation
 
         int image_height_with_key = this->image.height() + 
                 text_area_height + 2 * lh + key_img->rows();
-        typename MyColorizer::Pixel bg = discretization.get_background();
-        Magick::ColorRGB bgc ( bg.r/255.0, bg.g/255.0, bg.b/255.0 );
+        Pixel bg = discretization.get_background();
+        Magick::ColorRGB bgc ( bg.red()/255.0, bg.green()/255.0, 
+                               bg.blue()/255.0 );
         Magick::ColorRGB bgi ( 1.0 - bgc.red(), 1.0 - bgc.green(),
                                1.0 - bgc.blue() );
         Magick::Image image
@@ -304,6 +203,21 @@ class ColourDependantImplementation
         unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
         image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
         image.write( filename );
+      } else {
+        std::cerr << "Dim " << width << " " << image.height() << "\n";
+        Pixel bg = discretization.get_background();
+        Magick::ColorRGB bgc ( bg.red()/255.0, bg.green()/255.0, 
+                               bg.blue()/255.0 );
+        Magick::Image image
+            ( Magick::Geometry(width, this->image.height()), bgc );
+        image.type(Magick::TrueColorType);
+        image.write( filename );
+        discretization.write_full_image( image, 0, 0 );
+        image.resolutionUnits( Magick::PixelsPerCentimeterResolution );
+        unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
+        image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
+        image.write( filename );
+      }
     }
 #endif
 
@@ -330,6 +244,7 @@ Viewer::_Config::_Config()
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1),
   invert("InvertColours", "Invert colours", false),
+  save_with_key("SaveWithKey", "Save output image with key", true),
   close_on_completion("CloseOnCompletion", 
                       "Close display on job completion")
 {
@@ -390,12 +305,14 @@ Viewer::_Config::_Config()
     invert.helpID = HELP_Viewer_InvertColors;
 
     close_on_completion.setUserLevel(simparm::Entry::Debug);
+    save_with_key.setUserLevel(simparm::Entry::Intermediate);
 
     PROGRESS("Built Viewer Config");
 }
 
 void Viewer::_Config::registerNamedEntries() {
    push_back(outputFile);
+   push_back(save_with_key);
    push_back(showOutput);
    push_back(res_enh);
    push_back(histogramPower);
@@ -438,6 +355,7 @@ Viewer::Viewer(const Viewer::Config& config)
   close_display_immediately( config.close_on_completion() ),
   cyclelength( config.refreshCycle() / waitTime ),
   tifFile( config.outputFile ),
+  save_with_key( config.save_with_key ),
   resolutionEnhancement( config.res_enh ),
   histogramPower( config.histogramPower ),
   save("SaveImage", "Save image"),
@@ -544,12 +462,18 @@ void Viewer::writeToFile(const string &name) {
         MutexLock lock(structureMutex);
 
         const char * const filename = name.c_str();
-        implementation->write_full_size_image(filename);
+        implementation->write_full_size_image(filename, save_with_key());
     } catch ( const std::exception& e ) {
         std::cerr << "Writing image failed: " << e.what() << endl;
     }
 }
 #endif
+
+void Viewer::check_for_duplicate_filenames
+        (std::set<std::string>& present_filenames)
+{
+    insert_filename_with_check( tifFile(), present_filenames );
+}
 
 }
 }

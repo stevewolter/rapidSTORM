@@ -1,0 +1,27 @@
+unsupported "No idea how to limit memory usage"
+exit
+
+dstorm_start
+
+send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "forSet Car forSet Engine set FixSigma value true\n"
+
+set test "very huge roi"
+set left 0
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value MuchMem\n"
+send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Verbose\n"
+send "forSet Car forSet Method set InputMethod in AndorDirectConfig set AcquisitionLength value 5000\n"
+send "in Car set Run = 1\n"
+expect { 
+    -re "Your system has insufficient memory for job"   { pass "$test" }
+    timeout   { fail "$test" }
+}
+
+set test "huge roi"
+send "forSet Car forSet Output in EngineOutput in Output0 in Image set ResEnhance = 42\n"
+send "in Car set Run = 1\n"
+
+expect {
+    -re "Your system has insufficient memory for job"   { pass "$test" }
+    timeout     { fail "$test" }
+}

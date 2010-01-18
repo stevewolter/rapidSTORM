@@ -15,6 +15,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/Input.h>
+#include <dStorm/engine/Input_decl.h>
 #include <dStorm/outputs/Crankshaft.h>
 #include <sstream>
 #include "engine/EngineDebug.h"
@@ -62,10 +63,14 @@ Engine::Engine(Config &config, Input &input, Output& output)
   simparm::Node::Callback( Node::ValueChanged ),
   config(config),
   stopper("EngineStopper", "Stop computation"),
+  errors("ErrorCount", "Number of dropped images", 0),
   input(input), output(&output), emergencyStop(false),
   error(false)
 {
     DEBUG("Constructing engine");
+
+    errors.editable = false;
+    errors.viewable = false;
 
     stopper.helpID = HELP_StopEngine;
     receive_changes_from( stopper.value );
@@ -73,6 +78,7 @@ Engine::Engine(Config &config, Input &input, Output& output)
     push_back( config.sigma_y);
     push_back( config.sigma_xy);
     push_back( stopper );
+    push_back( errors );
 }
 
 void Engine::addPiston() {
@@ -92,6 +98,8 @@ void Engine::restart() {
     error = false;
     DEBUG("Cleaning input");
     input.makeAllUntouched();
+    DEBUG("Resetting error count");
+    errors = 0;
     DEBUG("Deleting all results");
     output->propagate_signal( Output::Engine_is_restarted );
     DEBUG("Restarted");
@@ -101,12 +109,13 @@ void Engine::collectPistons() {
     pistons.clear();
 }
 
-output::Traits Engine::convert_traits( const InputTraits& in ) {
+output::Traits Engine::convert_traits( const Traits& in ) {
     output::Traits rv( 
         in.get_other_dimensionality<Localization::Dim>() );
-    rv.total_frame_count = input.size() * camera::frame;
+    rv.total_frame_count = input.size() * cs_units::camera::frame;
     rv.min_amplitude 
-        = config.amplitude_threshold() * camera::ad_count;
+        = float( config.amplitude_threshold() )
+            * cs_units::camera::ad_count;
     return rv;
 }
 
@@ -159,10 +168,8 @@ void Engine::run()
         collectPistons();
         DEBUG("Collected pistons");
 
-        if ( globalStop)
-            break;
-        else if (emergencyStop) {
-            if (error) {
+        if (emergencyStop) {
+            if (error || globalStop) {
                 output->propagate_signal( Output::Engine_run_failed );
                 break;
             } else
@@ -196,15 +203,14 @@ void Engine::safeRunPiston() throw()
 void Engine::runPiston() 
 {
     int maximumLimit = 20;
-    const input::Traits<Image>& imProp = input.getTraits();
+    const Traits& imProp = input.getTraits();
     DEBUG("Started piston");
     DEBUG("Building spot finder with dimensions " << imProp.dimx() <<
            " " << imProp.dimy());
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
     auto_ptr<SpotFinder> finder
-        = config.spotFindingMethod().make_SpotFinder
-            (config, imProp.dimx(), imProp.dimy() );
+        = config.spotFindingMethod().make_SpotFinder(config, imProp.size);
 
     DEBUG("Building spot fitter");
     auto_ptr<SpotFitter> fitter(SpotFitter::factory(config));
@@ -232,7 +238,17 @@ void Engine::runPiston()
         DEBUG("Intake (" << i->index() << ")");
 
         Claim< Image > claim = i->claim();
-        if ( ! claim.isGood() ) continue;
+        if ( ! claim.isGood() )
+            continue;
+        else if ( claim.hasErrors() ) {
+            DEBUG( "Image " << i->index() << " has errors");
+            ost::MutexLock lock(mutex);
+            errors = errors() + 1;
+            errors.viewable = true;
+            continue;
+        } else 
+            DEBUG( "Using image " << i->index());
+
         Image& image = *claim;
 
         PROGRESS("Compression (" << image.getImageNumber() << ")");
@@ -257,10 +273,12 @@ void Engine::runPiston()
             const Spot& s = cM->second;
             /* Get the next spot to fit and fit it. */
             Localization *candidate = buffer.allocate();
-            int found_number = 
-                fitter->fitSpot(s, image, claim.index(), candidate);
+            int found_number = fitter->fitSpot(s, image, candidate);
             if ( found_number > 0 ) {
                 LOCKING("Good fit");
+                for (int i = 0; i < found_number; i++)
+                    candidate[i].setImageNumber( 
+                        claim.index() * cs_units::camera::frame );
                 motivation = origMotivation;
                 buffer.commit(found_number);
             } else if ( found_number < 0 ) {
@@ -281,7 +299,7 @@ void Engine::runPiston()
 
         PROGRESS("Power");
         resultStructure.forImage = 
-            claim.index() * camera::frame;
+            claim.index() * cs_units::camera::frame;
         resultStructure.first = buffer.ptr();
         resultStructure.number = buffer.size();
         resultStructure.source = &image;

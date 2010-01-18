@@ -14,7 +14,7 @@ namespace fitpp {
             ResidueType;
         ResidueType residues;
 
-        void resize(int width, int height) throw()
+        void resize(int width, int height)
             { residues.resize(height,width); }
     };
 
@@ -37,7 +37,7 @@ namespace fitpp {
             this->dw = width, this->dh = height;
         }
 
-        void setUpperLeftCorner( int xl, int yl ) throw() {
+        void setUpperLeftCorner( int xl, int yl ) {
             this->xl = xl;
             this->yl = yl;
         }
@@ -47,10 +47,10 @@ namespace fitpp {
         int dw, dh;
         int xl, yl;
 
-        BaseLattice() throw() { data = NULL; }
+        BaseLattice() { data = NULL; }
 
         inline DataPoint getPoint(int x, int y) 
-            const throw() 
+            const 
             { return data[x + y*dw]; }
 
     };
@@ -71,7 +71,7 @@ namespace fitpp {
       public:
         Eigen::Matrix<double,H,W> selectedData;
 
-        void setUpperLeftCorner(int xl, int yl) throw() {
+        void setUpperLeftCorner(int xl, int yl) {
             BaseLattice<DataPoint>::setUpperLeftCorner
                 (xl,yl);
             selectedData = 
@@ -81,10 +81,10 @@ namespace fitpp {
                 .template cast<double>();
         }
 
-        int getWidth() const throw() { return W; }
-        int getHeight() const throw() { return H; }
+        int getWidth() const { return W; }
+        int getHeight() const { return H; }
 
-        inline void setSize( int xs, int ys ) throw() {
+        inline void setSize( int xs, int ys ) {
             assert( xs == W && ys == H );
         }
     };
@@ -96,7 +96,7 @@ namespace fitpp {
     {
       public:
         Eigen::MatrixXd selectedData;
-        void setUpperLeftCorner(int xl, int yl) throw() 
+        void setUpperLeftCorner(int xl, int yl) 
         {
             BaseLattice<DataPoint>::setUpperLeftCorner
                 (xl,yl);
@@ -107,7 +107,7 @@ namespace fitpp {
                 .template cast<double>();
         }
 
-        void setSize( int xs, int ys ) throw() {
+        void setSize( int xs, int ys ) {
             this->Width = xs; this->Height = ys;
             selectedData.resize( this->Height, this->Width );
         }
@@ -130,7 +130,7 @@ namespace fitpp {
             Position& position, 
             Derivatives& derivatives,
             const Constants& constants,
-            Deriver& deriver) const throw()
+            Deriver& deriver) const
         {
             bool position_ok
                 = deriver.prepare
@@ -148,7 +148,7 @@ namespace fitpp {
             return true;
         }
         
-        DataPoint getCorner(int xfac, int yfac) throw() {
+        DataPoint getCorner(int xfac, int yfac) {
             const int x = this->xl+
                 ((xfac == 1) ? this->getWidth()-1 : 0);
             const int y = this->yl+

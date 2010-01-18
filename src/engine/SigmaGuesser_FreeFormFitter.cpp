@@ -65,13 +65,14 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     fitter->setData(i.ptr(), i.width, i.height);
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     
+    double start_amp =  f.getStrength() / cs_units::camera::ad_counts;
     fitter->setMeanX<0>(cx);
     fitter->setMeanY<0>(cy);
     fitter->setSigmaX<0>(initial_sigmas[0]);
     fitter->setSigmaY<0>(initial_sigmas[1]);
     fitter->setSigmaXY<0>(initial_sigmas[2]);
     fitter->setShift( fitter->getCorner(-1, -1) );
-    fitter->setAmplitude<0>( f.getStrength() );
+    fitter->setAmplitude<0>( start_amp );
     fitter->fit();
 
     double amp = abs(fitter->getAmplitude<0>()),
@@ -81,7 +82,7 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     dev[1] = nsigmaY;
     dev[2] = amp;
     dev[3] = fitter->getSigmaXY<0>();
-    if (amp < f.getStrength() / 10 || amp > f.getStrength() * 10
+    if (amp < start_amp / 10 || amp > start_amp * 10
         || (nsigmaX < initial_sigmas[0] / sigmaTol) 
         || (nsigmaX > initial_sigmas[0] * sigmaTol) 
         || (nsigmaY < initial_sigmas[1] / sigmaTol) 

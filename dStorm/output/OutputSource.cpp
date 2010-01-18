@@ -27,6 +27,7 @@ OutputSource::OutputSource(simparm::Node& node)
   help_file("help_file", dStorm::HelpFileName)
 {
     assert( &node != NULL );
+    simparm::TreeAttributes::registerNamedEntries( node );
 }
 
 OutputSource::OutputSource(simparm::Node& node, const OutputSource& o) 
@@ -36,6 +37,7 @@ OutputSource::OutputSource(simparm::Node& node, const OutputSource& o)
   help_file(o.help_file)
 {
     assert( &node != NULL );
+    simparm::TreeAttributes::registerNamedEntries( node );
 }
 
 OutputSource::~OutputSource() {
@@ -48,22 +50,14 @@ void OutputSource::adjust_to_basename(simparm::FileEntry& e)
 }
 
 OutputSource::BasenameResult
-OutputSource::set_output_file_basename(
-    const std::string& new_basename, std::set<std::string>& avoid)
+OutputSource::set_output_file_basename(const std::string& new_basename)
 {
     for ( AdjustedList::iterator i  = adjustedList->begin(); 
                                  i != adjustedList->end(); i++)
     {
         std::string ext = (*i)->default_extension();
         std::string filename = new_basename +ext;
-        if ( show_in_tree() ) {
-            if ( avoid.insert( filename ).second == true )
-                (*i)->value = filename;
-        } else {
-            if ( avoid.find( filename ) == avoid.end() )
-                (*i)->value = filename;
-        }
-            
+        (*i)->value = filename;
     }
     return Basename_Accepted;
 }
@@ -139,6 +133,16 @@ void Output::check_additional_data_with_provided
         throw std::logic_error(ss.str());
     }
 }
+
+void Output::insert_filename_with_check(
+    std::string file, std::set<std::string>& present_filenames )
+{
+    if ( file != "" && present_filenames.insert( file ).second == false )
+        throw std::runtime_error(
+            "The output file name '" + file + "' was used by multiple "
+            "outputs. Refusing to start job to avoid conflict.");
+}
+
 
 }
 }

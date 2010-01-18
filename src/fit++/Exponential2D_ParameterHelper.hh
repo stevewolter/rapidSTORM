@@ -11,7 +11,7 @@ bool ParameterHelper<Ks,PM,W,H,Corr>::prepare(
     const typename Space::Variables& v,
     const typename Space::Constants& c,
     const int x_low, const int y_low
-) throw() {
+) {
     const int Width = ((W==Eigen::Dynamic)?width:W);
     const int Height = ((H==Eigen::Dynamic)?height:H);
 

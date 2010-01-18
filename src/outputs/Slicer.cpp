@@ -3,7 +3,7 @@
 #include "doc/help/context.h"
 #include <stdio.h>
 
-#include "Viewer.h"
+#include <dStorm/outputs/NullOutput.h>
 
 namespace dStorm {
 namespace output {
@@ -16,16 +16,25 @@ const char *format_string(const std::string& filename, int block)
 }
     
 void Slicer::add_output_clone(int i) {
-    /* To test for exceptions on output construction. */
-    const char *output_basename = format_string( filename, i);
-    if ( filename != "" )
-        this->source->set_forward_output_file_basename( output_basename  );
+    std::auto_ptr<Output> output;
+    try {
+        source->FilterSource::set_output_file_basename( 
+            format_string( filename.c_str(), i ) );
+        output = source->FilterSource::make_output();
+        if ( avoid_filenames != NULL ) 
+            output->check_for_duplicate_filenames( *avoid_filenames );
+    } catch ( const std::exception& e ) {
+        std::cerr << "Building output for slice " << i << " failed: "
+                << e.what() << "\n";
+        output.reset( new dStorm::outputs::NullOutput() );
+    }
+
     std::stringstream name, desc;
     name << "SlicerNode" << i;
     desc << "Slice " << i;
     simparm::Object* o = new simparm::Object(name.str(), desc.str());
 
-    outputs[i].set( this->source->make_forward_output().release(), o );
+    outputs[i].set( output.release(), o );
     o->push_back( *outputs[i] );
     outputs_choice.push_back( *o );
 
@@ -37,11 +46,14 @@ Slicer::_Config::_Config()
 : simparm::Object("Slicer", "Slice localization set"),
   slice_size("SliceSize", "Size of one slice in images"),
   slice_distance("SliceDistance", "Start new slice every n images"),
-  filename("BaseFileName", "File name pattern"),
-  avoid_filenames(NULL)
+  filename("BaseFileName", "File name pattern")
 {
     slice_size.helpID = HELP_Slicer_Size;
+    slice_size.min = 1;
+
     slice_distance.helpID = HELP_Slicer_Dist;
+    slice_distance.min = 1;
+
     filename.helpID = HELP_Slicer_Pattern;
     filename.setHelp("%i is replaced with the block name.");
 }
@@ -49,15 +61,22 @@ Slicer::_Config::_Config()
 Slicer::Slicer(const Source& source)
  
 : OutputObject("Slicer", "Object Slicer"),
-  slice_size( source.slice_size() * camera::frame ),
-  slice_distance( source.slice_distance() * camera::frame),
+  slice_size( source.slice_size() * cs_units::camera::frame ),
+  slice_distance( source.slice_distance() * cs_units::camera::frame),
   filename( source.filename() ),
   source( source.clone() ),
+  avoid_filenames(NULL),
   outputs_choice( "Outputs", "Outputs to slicer" )
 {
     outputs.resize(1);
     add_output_clone(0);
     push_back( outputs_choice );
+}
+
+void Slicer::check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames)
+{
+    avoid_filenames = &present_filenames;
 }
 
 Output::AdditionalData
@@ -81,7 +100,7 @@ void Slicer::propagate_signal(ProgressSignal s) {
 
 Output::Result Slicer::receiveLocalizations(const EngineResult& er)
 {
-    frame_count one_frame( 1 * camera::frame );
+    frame_count one_frame( 1 * cs_units::camera::frame );
     frame_index
         cur_image = er.forImage, 
         back_image = (cur_image >= slice_size) 

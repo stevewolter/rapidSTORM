@@ -45,7 +45,7 @@ class SpecializedGaussFitter<FS, false, Corr, Width, Height>
     }
 
     virtual int fit(const Spot& spot, Localization* target,
-        const Image &image, int imNumber, int xl, int yl );
+        const Image &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -83,7 +83,7 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
     }
 
     virtual int fit(const Spot& spot, Localization* target,
-        const Image &image, int imNumber, int xl, int yl );
+        const Image &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   private:
@@ -135,7 +135,7 @@ template <bool Free_Sigmas, bool Corr, int Width, int Height>
 int 
 SpecializedGaussFitter<Free_Sigmas,false, Corr, Width, Height>::
 fit( const Spot &spot, Localization *target, const Image& image,
-         int imNumber, int xl, int yl) 
+         int xl, int yl) 
 {
     deriver.setData( image.ptr(), image.width, image.height );
     deriver.setUpperLeftCorner( xl, yl );
@@ -165,7 +165,6 @@ fit( const Spot &spot, Localization *target, const Image& image,
           common.check_result( &c->parameters, target, starts );
 
     if ( is_good ) {
-        target->setImageNumber( imNumber );
         target->unset_source_trace();
         return 1;
     } else
@@ -176,9 +175,9 @@ template <bool Free_Sigmas, bool Corr, int Width, int Height>
 int 
 SpecializedGaussFitter<Free_Sigmas,true, Corr, Width, Height>::
 fit( const Spot &spot, Localization *target, const Image& image,
-         int imNumber, int xl, int yl) 
+         int xl, int yl) 
 {
-    int one_fit = Base::fit( spot, target, image, imNumber, xl, yl );
+    int one_fit = Base::fit( spot, target, image, xl, yl );
     if ( one_fit <= 0 )
         return one_fit;
 

@@ -1,13 +1,15 @@
-set verbose 2
-
 proc dstorm_load { arg } {
 }
 
 proc dstorm_exit {} {
-    send "quit\n"
-    expect {
-        -re "exit: main" { pass "termination" }
-        timeout { fail "termination" }
+    global spawn_id
+    if { [ catch { send "quit\n" } ignore ] } {
+        fail "termination"
+    } else {
+        expect {
+            -re "quit" { pass "termination" }
+            timeout { fail "termination" }
+        }
     }
 }
 
@@ -15,15 +17,15 @@ proc dstorm_start {} {
     global DSTORM
     global spawn_id
     global verbose
+    global has_debug
 
     if { $verbose > 1 } {
         send_user "starting $DSTORM --Twiddler\n"
     }
-    spawn $DSTORM --Twiddler
+    spawn /usr/bin/env RAPIDSTORM_PLUGINDIR=./debug-plugin/.libs $DSTORM --Twiddler
+    send "attach\n"
     expect {
-        -re "entry: main" {}
+        -re "attach" {}
         timeout { exit 2 }
     }
 }
-
-dstorm_start

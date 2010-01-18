@@ -31,8 +31,7 @@ int main() {
     ::wxMilliSleep( 3000 );
 
     h.reset( NULL );
-    Manager::getSingleton().close();
-    ost::Thread::joinDetached();
+    dStorm::Display::wxManager::destroySingleton();
 
     return 0;
 }

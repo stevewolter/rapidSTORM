@@ -79,16 +79,15 @@ FilterSource::~FilterSource() {
 
 FilterSource::BasenameResult
 FilterSource::set_output_file_basename
-    (const std::string& basename, std::set<std::string>& avoid) 
+    (const std::string& basename) 
 {
     this->basename = basename;
-    this->avoid = &avoid;
 
     for (Outputs::iterator i = 
                     outputs.begin(); i != outputs.end(); i++)
     {
         BasenameResult r = 
-            (*i)->set_output_file_basename(basename, avoid);
+            (*i)->set_output_file_basename(basename);
         if ( r == Basename_Conflicted )
             return r;
     }
@@ -119,7 +118,7 @@ void FilterSource::operator()
                                     = factory->make_output_source();
             if ( fresh.get() != NULL ) {
                 if ( basename != "" )
-                    fresh->set_output_file_basename(basename, *avoid);
+                    fresh->set_output_file_basename(basename);
                 add( fresh );
                 /* To give some kind of visual feedback that the action was
                 * performed, we reset the factory ( which means, normally,

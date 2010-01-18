@@ -68,6 +68,23 @@ AS_IF(
         [AC_CHECK_LIB([ATMCD32D], [main], ,
             [with_andor_camera=no])] )
 AM_CONDITIONAL( [HAVE_LIBATMCD32D], [test "x$with_andor_camera" != xno] )
+
+AC_ARG_WITH([twiddler-jar],
+    [AS_HELP_STRING([--with-twiddler-jar],
+        [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
+        [],
+        [with_twiddler_jar=$prefix/share/java/twiddler.jar])
+
+AC_ARG_WITH([specialized-fitters],
+    [AS_HELP_STRING([--with-specialized-fitters],
+        [enable use of specialized fitters for common array sizes @<:@default=on@:>@])],
+        [],
+        [with_specialized_fitters=yes])
+AS_IF(
+    [test "x$with_specialized_fitters" = xyes],
+    [ AC_DEFINE([USE_SPECIALIZED_FITTERS], [1], [Use fitters specialized for common array sizes]) ],
+    []
+)
  
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
@@ -101,11 +118,13 @@ esac
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
 AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_NAME/plugins")
+AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 AC_CONFIG_FILES([Makefile AndorCamera/Makefile fit++/Makefile])
 AC_CONFIG_FILES([spotFinders/Makefile])
 AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])
 AC_CONFIG_FILES([wxDisplay/Makefile])
+AC_CONFIG_FILES([viewer/Makefile])
 AC_CONFIG_FILES([manifest])
 
 AC_OUTPUT

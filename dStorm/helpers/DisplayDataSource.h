@@ -5,10 +5,11 @@
 #include <dStorm/data-c++/VectorList.h>
 #include <memory>
 #include <vector>
+#include <dStorm/Pixel.h>
 
 namespace dStorm {
 namespace Display {
-    struct Color { uint8_t r, g, b; };
+    typedef dStorm::Pixel Color;
     struct ClearChange;
     struct ResizeChange;
     struct ImageChange;

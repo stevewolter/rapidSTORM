@@ -84,7 +84,7 @@ namespace SDK {
     NewImages GetNumberNewImages();
     NewImages GetNumberAvailableImages();
 
-    enum AcquisitionState { New_Images, No_New_Images };
+    enum AcquisitionState { New_Images, No_New_Images, Missed_Images };
     AcquisitionState WaitForAcquisition();
 
     enum CameraState { Idle, Temperature_Cycle, Is_Acquiring, 
@@ -97,9 +97,8 @@ namespace SDK {
     bool AbortAcquisition();
     void Initialize(std::string init_file_dir);
 
-    void GetImages16
-        (Range toRead, uint16_t *buf, unsigned long bufSize, Range &read) 
-;
+    AcquisitionState GetImages16
+        (Range toRead, uint16_t *buf, unsigned long bufSize, Range &read);
 
     void SetTemperature(int temperature);
     void CoolerON();

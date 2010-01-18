@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     try {
         Buffer<Image> iv( config );
-        const Traits<Image>& traits = iv.getTraits();
+        const input::Traits<Image>& traits = iv.getTraits();
         CImg<StormPixel> pwLimit( traits.dimx().value(), traits.dimy().value(),
                                           1,1, max-min );
         CImgDisplay d(768, 768, "Storm", 1);

@@ -110,6 +110,9 @@ namespace AndorCamera {
          *  state. This ensures the information in the configuration items
          *  and the width, height and length information is accurate. */
         void block_until_on_camera();
+
+        enum FetchResult { NoMoreImages, HadError, HaveStored };
+        typedef std::pair<FetchResult,unsigned long> Fetch;
         /** Retrieve the next image from the acquisition into the
          *  provided buffer. This call will block until an image is
          *  available.
@@ -119,7 +122,7 @@ namespace AndorCamera {
          *  \return The index of the retrieved image, starting from 0,
          *          or -1 if an error occured. In the latter case the
          *          data in \a buffer are undefined. */
-        long getNextImage(uint16_t *buffer);
+        Fetch getNextImage(uint16_t *buffer);
         /** Stop acquiring images and unregister from Camera. */
         void stop();
 

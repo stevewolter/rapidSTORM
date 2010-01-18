@@ -31,7 +31,7 @@ struct DerivativeHelper<Ks,PM,W,H,true>
         };
     };
 
-    inline void resize(const int w, const int h) throw() { 
+    inline void resize(const int w, const int h) { 
         this->ParameterHelper<Ks,PM,W,H,true>::resize(w, h); 
         crossprod.resize( Ks, h );
         covar.resize( Ks, h );
@@ -42,14 +42,14 @@ struct DerivativeHelper<Ks,PM,W,H,true>
         xarraySq.resize( Ks, h );
         derivs.resize( h, Space::VarC );
     }
-    inline bool prepare() throw() { return true; }
+    inline bool prepare() { return true; }
 
     inline void compute(
         const Data& data,
         Data& residues,
         typename Space::Vector& gradient,
         typename Space::Matrix& hessian
-    ) throw();
+    );
 };
 
 template <int Ks, int PM, int W, int H>
@@ -59,7 +59,7 @@ DerivativeHelper<Ks,PM,W,H,true>::compute(
         Data& residues,
         typename Space::Vector& gradient,
         typename Space::Matrix& hessian
-    ) throw()
+    )
 {
     const Eigen::Matrix<double,Ks,1>& sxy = this->rho;
     const int Width = 

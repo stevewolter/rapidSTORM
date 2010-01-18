@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <dStorm/output/OutputBuilder.h>
+#include <dStorm/units/frame_count.h>
 
 namespace dStorm {
 namespace output {
@@ -13,8 +14,7 @@ namespace output {
       private:
         ost::Mutex mutex;
       	int count;
-        quantity<camera::time>
-            last_config_update, config_increment;
+        frame_count last_config_update, config_increment;
         simparm::UnsignedLongEntry update;
         std::ostream* printAtStop;
 
@@ -39,7 +39,7 @@ namespace output {
 
             update.setUserLevel(simparm::Entry::Beginner);
             push_back(update);
-            config_increment = 10 * camera::frame;
+            config_increment = 10 * cs_units::camera::frame;
 
             count = 0; 
             return AdditionalData();

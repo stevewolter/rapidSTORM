@@ -1,5 +1,6 @@
 #include "TraceReducer.h"
 #include <dStorm/unit_matrix_operators.h>
+#include <dStorm/units/amplitude.h>
 
 namespace dStorm {
 namespace output {
@@ -13,8 +14,8 @@ class AveragingReducer : public TraceReducer {
         Localization::Position position(0);
 
         int n = 0;
-        int last_image_number = 0;
-        double total_amplitude = 0;
+        frame_index last_image_number = 0;
+        amplitude total_amplitude = 0;
 
         for ( data_cpp::Vector<Localization>::const_iterator
                 i = from.begin(); i != from.end(); i++)

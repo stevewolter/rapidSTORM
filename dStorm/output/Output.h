@@ -8,10 +8,12 @@
 #include <stdexcept>
 #include <simparm/Set.hh>
 #include <iostream>
+#include <set>
 #include <dStorm/helpers/thread.h>
 
 #include "Traits.h"
 #include "Capabilities.h"
+#include <dStorm/units/frame_count.h>
 
 namespace dStorm {
 namespace output {
@@ -78,11 +80,16 @@ namespace output {
          *  cover \c are_desired, and does nothing otherwise. */
         static void check_additional_data_with_provided
             (std::string name, AdditionalData can_provide, 
-                               AdditionalData are_desired)
-;
+                               AdditionalData are_desired);
+        static void insert_filename_with_check(
+            std::string file, std::set<std::string>& present_filenames );
+
       public:
         virtual ~Output() {}
         virtual Output* clone() const = 0;
+
+        virtual void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames) {}
 
         simparm::Node& getNode() { return node; }
         operator simparm::Node&() { return node; }

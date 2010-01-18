@@ -85,6 +85,9 @@ namespace outputs {
     class BinnedLocalizations 
         : public output::OutputObject, public BinningPublisher<KeepUpdated>
     {
+      public:
+        typedef boost::units::quantity<cs_units::camera::length,int>
+            Crop;
       protected:
         /** Mutex protects all methods from the dStorm::Output
          *  interface */
@@ -92,7 +95,7 @@ namespace outputs {
         /** Configured resolution enhancement. */
         float re;
         /** Crop given in the constructor. */
-        pixel_count crop;
+        Crop crop;
         /** Accumulator image, or in other terms, the density image of
          *  localizations. */
         BinnedImage base_image;
@@ -105,7 +108,7 @@ namespace outputs {
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
-        BinnedLocalizations(double res_enh, pixel_count crop = 0);
+        BinnedLocalizations(double res_enh, Crop crop = 0);
         BinnedLocalizations(const BinnedLocalizations&);
         virtual ~BinnedLocalizations() {}
         BinnedLocalizations<KeepUpdated>* clone() const 
