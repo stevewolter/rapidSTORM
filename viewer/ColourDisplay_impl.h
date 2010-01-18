@@ -1,12 +1,12 @@
 #ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_IMPL_H
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_IMPL_H
 
-#include <outputs/ColourDisplay.h>
+#include "ColourDisplay.h"
 #include <CImg.h>
 #include <Eigen/Core>
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackWhite>
@@ -124,9 +124,10 @@ class HueingColorizer : public Colorizer<unsigned char> {
           base_tone[1] = config.saturation(); } 
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
-        const quantity<camera::length> w = traits.size.x(), h = traits.size.y();
-        colours = cimg_library::CImg<ColourVector>(w.value(),h.value());
-        rgb_weights.resize( w.value(), h.value(), 1, 3, -1 );
+        int px_w = traits.size.x() / cs_units::camera::pixel,
+            px_h = traits.size.y() / cs_units::camera::pixel;
+        colours = cimg_library::CImg<ColourVector> (px_w, px_h);
+        rgb_weights.resize( px_w, px_h, 1, 3, -1 );
     }
 
     inline Pixel getPixel( int x, int y, 
@@ -143,7 +144,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
     inline void updatePixel(int x, int y, 
                             float oldVal, float newVal) 
         { merge_tone(x, y, oldVal, newVal - oldVal); }
-    inline void announce(const Output::Announcement& a) {
+    inline void announce(const output::Output::Announcement& a) {
         minV = 0;
         if ( a.traits.total_frame_count.is_set() )
             maxV = a.traits.total_frame_count->value();
@@ -152,7 +153,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
                                      "known for colour coding by time.");
         scaleV = 2.0 / (3 * ( maxV - minV ));
     }
-    inline void announce(const Output::EngineResult& er) {
+    inline void announce(const output::Output::EngineResult& er) {
         float hue = (er.forImage.value() - minV) * scaleV,
               saturation = 0;
         set_tone( hue, saturation );

@@ -1,6 +1,6 @@
 #include "LocalizationBuncher.h"
-#include <dStorm/input/LocalizationFileReader.h>
 #include <dStorm/output/Output.h>
+#include <dStorm/output/Trace.h>
 
 using namespace dStorm::output;
 
@@ -11,8 +11,7 @@ void LocalizationBuncher::output( Can* locs )
 throw(Output*) 
 {
     if ( outputImage >= first && outputImage <= last ) {
-        engine_result.forImage = 
-            outputImage * camera::frame;
+        engine_result.forImage = outputImage;
         if ( locs ) {
             engine_result.first = locs->ptr();
             engine_result.number = locs->size();
@@ -31,7 +30,7 @@ throw(Output*)
         }
     }
     
-    outputImage++;
+    outputImage = outputImage + 1 * cs_units::camera::frame;
 }
 
 void LocalizationBuncher::print_canned_results_where_possible()
@@ -39,7 +38,7 @@ throw(Output*)
 {
     while ( outputImage <= currentImage ) {
         if ( canned.find( outputImage ) != canned.end() ) {
-            int decanned = outputImage;
+            frame_index decanned = outputImage;
             output( canned[decanned] );
             delete canned[decanned];
             canned.erase(decanned);
@@ -52,7 +51,7 @@ throw(Output*)
     }
 }
 
-void LocalizationBuncher::can_results_or_publish(int) 
+void LocalizationBuncher::can_results_or_publish(frame_index) 
 throw(Output*) 
 {
     print_canned_results_where_possible();
@@ -78,7 +77,7 @@ LocalizationBuncher::~LocalizationBuncher() {
 void LocalizationBuncher::ensure_finished() 
 {
     while ( ! canned.empty() ) {
-        std::map<int, Can* >::iterator i;
+        Canned::iterator i;
         i = canned.find( outputImage );
         if ( i != canned.end() ) {
             outputImage = i->first;
@@ -97,7 +96,7 @@ void LocalizationBuncher::ensure_finished()
 
 void LocalizationBuncher::noteTraits(
     const input::Traits<Localization>& traits,
-    unsigned int firstImage, unsigned int lastImage)
+    frame_index firstImage, frame_index lastImage)
 
 {
     lastInFile = lastImage;
@@ -108,8 +107,14 @@ void LocalizationBuncher::noteTraits(
     Output::AdditionalData data = 
         target.announceStormSize(announcement);
 
-    if (
-        data.test( output::Capabilities::SourceImage) ||
+    if ( data.test( output::Capabilities::SourceImage ) ) {
+        std::stringstream message;
+        message << "One of your output modules needs access to the raw "
+                << "images of the acquisition. These are not present in "
+                << "a localizations file. Either remove the output or "
+                << "choose a non-text input file";
+        throw std::runtime_error(message.str());
+    } else if (
         data.test( output::Capabilities::SmoothedImage) ||
         data.test( output::Capabilities::CandidateTree) ||
         data.test( output::Capabilities::InputBuffer) ) 
@@ -167,7 +172,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
         reset();
     for (int i = 0; i < num; i++) {
         const Localization& l = loc[i];
-        unsigned int imNum = l.getImageNumber();
+        frame_index imNum = l.getImageNumber();
         if ( buffer.get() == NULL )
             buffer.reset( new Can() );
         else {

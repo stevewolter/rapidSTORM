@@ -7,7 +7,7 @@ namespace fitpp {
 namespace Exponential2D {
 
 template <typename Type>
-inline Type sq(const Type& a) throw() { return a*a; }
+inline Type sq(const Type& a) { return a*a; }
 
 template <int Lines, int Size, bool ComputeExp>
 struct PrecalculatedLines;
@@ -33,7 +33,7 @@ struct PrecalculatedLines<Lines,Size,false>
     Eigen::Matrix<double,Lines,Size> val, sqr;
     int width, height;
     
-    inline void resize( int size ) throw() {
+    inline void resize( int size ) {
         if ( Size == Eigen::Dynamic ) {
             val.resize( Lines, size );
             sqr.resize( Lines, size );
@@ -44,7 +44,7 @@ struct PrecalculatedLines<Lines,Size,false>
         const int low,
         const Eigen::Matrix<double,Lines,1>& means,
         const Eigen::Matrix<double,Lines,1>& var_Invs
-    ) throw() {
+    ) {
         for (int c = 0; c < val.cols(); c++)
             val.col(c) =
                 ((-means).cwise()+(c+low)).cwise() * var_Invs;
@@ -60,7 +60,7 @@ struct PrecalculatedLines<Lines,Size,true>
     typedef PrecalculatedLines<Lines,Size,false> Base;
     Eigen::Matrix<double,Lines,Size> expTerm;
 
-    inline void resize( int size ) throw() {
+    inline void resize( int size ) {
         Base::resize(size);
         if ( Size == Eigen::Dynamic )
             expTerm.resize( Lines, size );
@@ -70,7 +70,7 @@ struct PrecalculatedLines<Lines,Size,true>
         const int low,
         const Eigen::Matrix<double,Lines,1>& means,
         const Eigen::Matrix<double,Lines,1>& var_Invs
-    ) throw() {
+    ) {
         Base::prepare(low, means, var_Invs);
         expTerm = (Base::sqr * -0.5).cwise().exp();
     }
@@ -85,7 +85,7 @@ struct ParameterHelper {
         const typename Space::Variables& v,
         const typename Space::Constants& c,
         Eigen::Matrix<double,Ks,1>& param
-    ) throw() {
+    ) {
         typedef typename Space::template ParamTraits<Param> Traits;
         if ( Traits::Variable )
             param = v.template block<Ks,1>
@@ -107,7 +107,7 @@ struct ParameterHelper {
         norms, prefactor,
         ellip, ellipI, sxI, syI;
 
-    inline void resize( int width, int height ) throw() {
+    inline void resize( int width, int height ) {
         this->width = width; 
         this->height = height; 
         xl.resize( width );
@@ -118,7 +118,7 @@ struct ParameterHelper {
         const typename Space::Variables& v,
         const typename Space::Constants& c,
         const int x_low, const int y_low
-    ) throw();
+    );
 };
 
 template <int Ks, int PM, int W, int H>
@@ -136,7 +136,7 @@ struct Deriver
         const typename Space::Variables& v,
         const typename Space::Constants& c,
         const int min_x, const int min_y
-    ) throw() {
+    ) {
         bool ok = 
             this->ParameterHelper<Ks,PM,W,H,Corr>
                 ::prepare( v, c, min_x, min_y );

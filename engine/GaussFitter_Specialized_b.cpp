@@ -15,7 +15,7 @@ template <>
 void GaussFitter<false,true,false>::
 create_specializations<0>()
 {
-#if 0
+#ifdef USE_SPECIALIZED_FITTERS
     this->fill_specialization_array<5,6>();
 #else
     this->make_specialization_array_entry<11,11>();

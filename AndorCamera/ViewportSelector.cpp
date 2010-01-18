@@ -13,6 +13,7 @@ using namespace dStorm::input;
 using namespace cimg_library;
 
 using dStorm::AndorDirect::CameraPixel;
+using dStorm::Pixel;
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 #define DISP_RESIZE ((detWidth > CImgDisplay::screen_dimx() || \
@@ -196,7 +197,7 @@ void Display::draw_image( const dStorm::AndorDirect::CameraPixel *data) {
             = change->change_key.allocate( imageDepth );
         for (int i = 0; i < imageDepth; i++) {
             keys[i].index = i;
-            keys[i].color.r = keys[i].color.g = keys[i].color.b = i;
+            keys[i].color = dStorm::Pixel(i);
             keys[i].value = i / normalization_factor + minval;
         }
         change->change_key.commit( imageDepth );
@@ -207,8 +208,7 @@ void Display::draw_image( const dStorm::AndorDirect::CameraPixel *data) {
         change->image_change.pixels.allocate( width*height );
     for ( int i = 0; i < width*height; i++ ) {
         int n = (data[i] - minval) * normalization_factor;
-        pixels[i].r = pixels[i].g = pixels[i].b =
-            (unsigned char)(std::min( std::max(0, n), imageDepth-1) );
+        pixels[i] = Pixel( std::min( std::max(0, n), imageDepth-1) );
     }
     if ( aimed ) {
         int l = aimed->left(), r = aimed->right(),
@@ -217,16 +217,10 @@ void Display::draw_image( const dStorm::AndorDirect::CameraPixel *data) {
         /* Draw the red rectangle that indicates the current acquisition
         * borders */
         for (int v = 0; v < 3; v++) {
-            for (int x = l; x <= r; x++) {
-                pixels[t*width+x].r = pixels[b*width+x].r = imageDepth-1;
-                pixels[t*width+x].g = pixels[t*width+x].b =
-                    pixels[b*width+x].g = pixels[b*width+x].b = 0;
-            }
-            for (int y = t; y <= b; y++) {
-                pixels[y*width+l].r = pixels[y*width+r].r = imageDepth-1;
-                pixels[y*width+l].g = pixels[y*width+l].b =
-                    pixels[y*width+r].g = pixels[y*width+r].b = 0;
-            }
+            for (int x = l; x <= r; x++)
+                pixels[t*width+x] = pixels[b*width+x] = Pixel::Red();
+            for (int y = t; y <= b; y++)
+                pixels[y*width+l] = pixels[y*width+r] = Pixel::Red();
         }
     }
     change->image_change.pixels.commit( width*height );
@@ -278,12 +272,12 @@ void Display::acquire()
 
     try {
         while ( ! paused ) {
-            long index;
             /* Acquire image */
-            index = acq.getNextImage(data);
+            Acquisition::Fetch fetch = acq.getNextImage(data);
 
-            if (index == -1) break;
-            if (paused == true) continue;
+            if (fetch.second == Acquisition::NoMoreImages) break;
+            if (paused == true || 
+                fetch.second == Acquisition::HadError ) continue;
 
             PROGRESS("Drawing image " << index);
             draw_image( data );

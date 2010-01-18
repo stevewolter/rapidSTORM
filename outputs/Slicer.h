@@ -70,6 +70,7 @@ class Slicer : public OutputObject {
     };
     ost::Mutex outputs_mutex;
     std::vector<Child> outputs;
+    std::set<std::string>* avoid_filenames;
 
     /** Copy constructor undefined. */
     Slicer(const Slicer& c) 
@@ -86,6 +87,9 @@ class Slicer : public OutputObject {
     typedef simparm::Structure<_Config> Config;
 
     simparm::NodeChoiceEntry<simparm::Object> outputs_choice;
+
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames);
 
     Slicer(const Source&);
     Slicer* clone() const { return new Slicer(*this); }
@@ -104,7 +108,6 @@ class Slicer::_Config : public simparm::Object {
   public:
     simparm::UnsignedLongEntry slice_size, slice_distance;
     simparm::StringEntry filename;
-    std::set<std::string>* avoid_filenames;
 
     _Config();
 };
@@ -126,24 +129,11 @@ class Slicer::Source
  
         { return std::auto_ptr<Output>( new Slicer( *this ) ); }
 
-    virtual std::auto_ptr<Output> make_forward_output() 
-
-        { return FilterSource::make_output(); }
-
     BasenameResult set_output_file_basename
-        (const std::string& basename, std::set<std::string>& avoid)
-
+        (const std::string& basename)
     {
         filename = basename + "_%i";
-        this->avoid_filenames = (&avoid);
         return Basename_Accepted;
-    }
-    BasenameResult set_forward_output_file_basename
-        (const std::string& basename)
-    { 
-        assert( avoid_filenames );
-        return FilterSource::set_output_file_basename
-                (basename, *avoid_filenames); 
     }
 
     std::string getDesc() const 

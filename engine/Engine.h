@@ -26,6 +26,8 @@ namespace engine {
       private:
         Config& config;
         simparm::TriggerEntry stopper;
+        ost::Mutex mutex;
+        simparm::UnsignedLongEntry errors;
 
         friend class EngineThread;
         data_cpp::Vector< std::auto_ptr<ost::Thread> > pistons;

@@ -6,8 +6,7 @@ namespace engine {
 
 template <bool Free_Sigmas, bool RA, bool Corr>
 int GaussFitter<Free_Sigmas, RA, Corr>::
-fitSpot( const Spot& spot, 
-         const Image& image, int imNum, Localization* target )
+fitSpot( const Spot& spot, const Image& image, Localization* target )
 {
     int xc = int(round(spot.x())), yc = int(round(spot.y()));
     int xl = std::max( xc-msx, 0 ), yl = std::max( yc-msy, 0 );
@@ -36,20 +35,20 @@ fitSpot( const Spot& spot,
             table[xs-1][ys-1] = e;
         }
     }
-    return e->fit( spot, target, image, imNum, xl, yl );
+    return e->fit( spot, target, image, xl, yl );
 }
 
 template int GaussFitter<true,true,true>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 template int GaussFitter<true,false,true>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 template int GaussFitter<false,true,true>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 template int GaussFitter<false,false,true>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 template int GaussFitter<false,true,false>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 template int GaussFitter<false,false,false>::fitSpot
-    (const Spot&, const Image&, int, Localization*);
+    (const Spot&, const Image&, Localization*);
 }
 }

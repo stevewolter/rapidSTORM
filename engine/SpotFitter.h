@@ -25,8 +25,7 @@ namespace engine {
           *  \param target      Write results to this address
           *  \return            Number of found spots */
          virtual int fitSpot( const Spot& spot, const Image &im,
-                              int number, Localization *target )
-                            = 0;
+                              Localization *target ) = 0;
    };
 }
 }

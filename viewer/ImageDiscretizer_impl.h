@@ -1,18 +1,16 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
-#include "ImageDiscretizer.h"
+#include <boost/units/io.hpp>
+
+#include "ImageDiscretizer_inline.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 namespace DiscretizedImage {
-
-template <typename Colorizer, typename ImageListener>
-const typename ImageDiscretizer<Colorizer, ImageListener>::HighDepth
-ImageDiscretizer<Colorizer, ImageListener>::background_threshold = 1;
 
 template <typename Colorizer, typename ImageListener>
 ImageDiscretizer<Colorizer, ImageListener>
@@ -42,10 +40,11 @@ void ImageDiscretizer<Colorizer, ImageListener>
 ::setSize( const input::Traits<InputImage>& traits )
 {
     colorizer.setSize( traits );
-    input::Traits< cimg_library::CImg<int> > out_traits( traits );
-    this->publish().setSize( out_traits );
+    this->publish().setSize( 
+        input::Traits< cimg_library::CImg<int> >(traits) );
     total_pixel_count = 
-        (traits.size.x() * traits.size.y()).value();
+        (traits.size.x() / cs_units::camera::pixel)
+      * (traits.size.y() / cs_units::camera::pixel);
 
     cimg_library::CImg<HistogramPixel>
         new_pixel_map(traits.size.x().value(), traits.size.y().value());
@@ -62,48 +61,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
         pixels_by_value[i].clear();
         histogram[0] = (i==0) ? total_pixel_count : 0;
     }
-}
-
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
-::change( int x, int y, HighDepth to )
-{
-    this->publish().pixelChanged( x, y );
-
-    pixels_by_value[to]
-        .push_back( pixels_by_position(x,y) );
-}
-
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
-::updatePixel(int x, int y, float from, float to) 
-{
-    colorizer.updatePixel( x, y, from, to );
-
-    if ( to > max_value_used_for_disc_factor ) {
-        if ( from <= max_value_used_for_disc_factor )
-            ++pixels_above_used_max_value;
-        max_value = std::max( to, max_value );
-    }
-
-    HighDepth o = discretize( from ),
-              n = discretize( to );
-    
-    if ( o != n ) {
-        ++histogram[ n ];
-        if ( histogram[o] > 0U )
-            --histogram[o];
-        change( x, y, n );
-    }
-}
-
-template <typename Colorizer, typename ImageListener>
-inline unsigned long int ImageDiscretizer<Colorizer, ImageListener>::non_background_pixels()
-{
-    long int accum = 0;
-    for (unsigned int i = 0; i < background_threshold; i++)
-        accum += histogram[i];
-    return pixels_by_position.size() - accum;
 }
 
 template <typename Colorizer, typename ImageListener>
@@ -136,6 +93,25 @@ void ImageDiscretizer<Colorizer, ImageListener>
     normalize_histogram();
     colorizer.clean(final);
     this->publish().clean(final);
+}
+
+template <typename Colorizer, typename ImageListener>
+void ImageDiscretizer<Colorizer, ImageListener>
+  ::publish_differences_in_transitions
+  ( TransitionTable* old_table, TransitionTable& new_table )
+{
+    HighDepth o = 0, n = 0;
+    for (LowDepth v = 0; v < out_depth; v++) {
+        if ( old_table )
+            while ( (o+1U) < in_depth && (*old_table)[o+1U] <= v ) o++;
+        while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;
+
+        if ( !old_table || o != n ) {
+            float undisc_new_val = (n + 0.5) / disc_factor;
+            this->publish().notice_key_change
+                ( v, colorizer.getKeyPixel(v), undisc_new_val );
+        }
+    }
 }
 
 template <typename Colorizer, typename ImageListener>
@@ -204,25 +180,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
 
 template <typename Colorizer, typename ImageListener>
 void ImageDiscretizer<Colorizer, ImageListener>
-  ::publish_differences_in_transitions
-  ( TransitionTable* old_table, TransitionTable& new_table )
-{
-    HighDepth o = 0, n = 0;
-    for (LowDepth v = 0; v < out_depth; v++) {
-        if ( old_table )
-            while ( (o+1U) < in_depth && (*old_table)[o+1U] <= v ) o++;
-        while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;
-
-        if ( !old_table || o != n ) {
-            float undisc_new_val = (n + 0.5) / disc_factor;
-            this->publish().notice_key_change
-                ( v, colorizer.getKeyPixel(v), undisc_new_val );
-        }
-    }
-}
-
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
 ::clear()
 {
     this->publish().clear();
@@ -249,36 +206,31 @@ void ImageDiscretizer<Colorizer, ImageListener>
     publish_differences_in_transitions( NULL, transition );
 }
 
-template <typename Colorizer, typename ImageListener>
-float 
-ImageDiscretizer<Colorizer, ImageListener>::key_value( LowDepth key )
+#ifdef HAVE_LIBGRAPHICSMAGICK__
+template <int MagickDepth>
+inline void 
+    make_magick_pixel( Magick::PixelPacket& mp, const dStorm::Pixel& p );
+
+template <>
+inline void 
+    make_magick_pixel<8>( Magick::PixelPacket& mp,
+                          const dStorm::Pixel& p )
 {
-    int n = -1; 
-    while ( transition[n+1] <= key ) n++;
-    return (n+0.5f) / disc_factor;
+    mp.red = p.red();
+    mp.blue = p.blue();
+    mp.green = p.green();
+    mp.opacity = p.alpha();
 }
 
-#ifdef HAVE_LIBGRAPHICSMAGICK__
-template <typename Colorizer, typename ImageListener>
-void
-ImageDiscretizer<Colorizer, ImageListener>::write_full_image
-    (Magick::Image& to_image, int start_x, int start_y)
+template <>
+inline void 
+    make_magick_pixel<16>( Magick::PixelPacket& mp,
+                           const dStorm::Pixel& p )
 {
-    int w = binned_image.width;
-    cimg_forY( binned_image, y ) {
-        const float *binned_pixels = binned_image.ptr(0,y);
-        Magick::PixelPacket *pixels = to_image.setPixels
-            ( start_x, start_y+y, w, 1 );
-        cimg_forX( binned_image, x ) {
-            typename Colorizer::Pixel p 
-                = colorizer.getPixel(x, y, 
-                     transition[ discretize(binned_pixels[x]) ] );
-            pixels[x].red = p.r;
-            pixels[x].green = p.g;
-            pixels[x].blue = p.b;
-        }
-        to_image.syncPixels();
-    }
+    mp.red = (p.red() | (p.red() << 8));
+    mp.blue = (p.blue() | (p.blue() << 8));
+    mp.green = (p.green() | (p.green() << 8));
+    mp.opacity = (p.alpha() | (p.alpha() << 8));
 }
 
 template <typename Colorizer, typename ImageListener>
@@ -293,21 +245,33 @@ ImageDiscretizer<Colorizer, ImageListener>::key_image()
 
     Magick::PixelPacket *pixels = 
         rv->getPixels(0, 0, out_depth, 1);
-    static const int major_shift = 
-        (( QuantumDepth == 16 ) ? 8 : 0);
-    for (LowDepth i = 0; i < out_depth; i++) {
-        typename Colorizer::Pixel p
-            = colorizer.getKeyPixel(i);
-        pixels[i]
-            = Magick::Color(
-                (p.r << major_shift) | p.r,
-                (p.g << major_shift) | p.g,
-                (p.b << major_shift) | p.b );
-    }
+    for (LowDepth i = 0; i < out_depth; i++)
+        make_magick_pixel<QuantumDepth>
+            ( pixels[i], colorizer.getKeyPixel(i) );
 
     rv->syncPixels();
     return rv;
 }
+
+template <typename Colorizer, typename ImageListener>
+void
+ImageDiscretizer<Colorizer, ImageListener>::write_full_image
+    (Magick::Image& to_image, int start_x, int start_y)
+{
+    int w = binned_image.width;
+    cimg_forY( binned_image, y ) {
+        const float *binned_pixels = binned_image.ptr(0,y);
+        Magick::PixelPacket *pixels = to_image.setPixels
+            ( start_x, start_y+y, w, 1 );
+        cimg_forX( binned_image, x ) {
+            Pixel p = colorizer.getPixel(x, y, 
+                     transition[ discretize(binned_pixels[x]) ] );
+            make_magick_pixel<QuantumDepth>( pixels[x], p );
+        }
+        to_image.syncPixels();
+    }
+}
+
 #endif
 
 }

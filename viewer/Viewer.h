@@ -15,12 +15,12 @@
 #include <Eigen/Core>
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 
 /** The Viewer class collects fits into a BinnedLocalizations
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
-class Viewer : public OutputObject,
+class Viewer : public output::OutputObject,
                 public simparm::Node::Callback
 {
   private:
@@ -29,7 +29,7 @@ class Viewer : public OutputObject,
 
   public:
     typedef simparm::Structure<_Config> Config;
-    typedef FileOutputBuilder<Viewer> Source;
+    typedef output::FileOutputBuilder<Viewer> Source;
 
     /** Constructor will not display image; this is deferred
         *  until announceStormSize(). */
@@ -42,6 +42,9 @@ class Viewer : public OutputObject,
     AdditionalData announceStormSize(const Announcement &a);
     Result receiveLocalizations(const EngineResult&);
     void propagate_signal(ProgressSignal s);
+
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames);
 
   protected:
     /** Configuration event received. */
@@ -76,6 +79,7 @@ class Viewer : public OutputObject,
     int cyclelength;
 
     simparm::FileEntry tifFile;
+    simparm::BoolEntry save_with_key;
     simparm::DoubleEntry resolutionEnhancement, histogramPower;
     /** Config triggers for saving the currently displayed result
     *  image and for closing the display window. */

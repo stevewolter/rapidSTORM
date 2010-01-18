@@ -7,7 +7,7 @@
 
 inline wxColor
 makeColor( const dStorm::Display::Color& c ) {
-    return wxColor( c.r, c.g, c.b );
+    return wxColor( c.red(), c.green(), c.blue() );
 }
 
 extern const wxChar *SI_prefixes[];

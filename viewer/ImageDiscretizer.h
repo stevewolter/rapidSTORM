@@ -3,6 +3,8 @@
 
 #include <dStorm/data-c++/Vector.h>
 #include <dStorm/input/Traits.h>
+#include <dStorm/outputs/BinnedLocalizations.h>
+#include <dStorm/Pixel.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -16,10 +18,9 @@ namespace cimg_library {
 }
 
 namespace dStorm {
-namespace output {
+namespace viewer {
 namespace DiscretizedImage {
 
-    template <typename ColorPixel>
     struct Listener {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
@@ -39,7 +40,7 @@ namespace DiscretizedImage {
          *               not be 
          *  @param value The new upper bound on the number of A/D counts for
          *               this pixel. */
-        void notice_key_change( int index, ColorPixel pixel, float value );
+        void notice_key_change( int index, Pixel pixel, float value );
     };
 
     struct DummyListener {
@@ -130,30 +131,30 @@ class ImageDiscretizer
     inline unsigned long int non_background_pixels();
 
   public:
-    inline ImageDiscretizer(
+    ImageDiscretizer(
         int intermediate_depth, 
         float histogram_power, 
         const cimg_library::CImg<float>& binned_image,
         Colorizer& colorizer);
-    inline ~ImageDiscretizer();
+    ~ImageDiscretizer();
 
-    inline void setSize( const input::Traits<InputImage>& );
+    void setSize( const input::Traits<InputImage>& );
     inline void updatePixel(int, int, float, float);
     void clean(bool final);
     void clear();
 
-    void announce(const Output::Announcement& a) 
+    void announce(const output::Output::Announcement& a) 
         { colorizer.announce(a); }
-    void announce(const Output::EngineResult& er)
+    void announce(const output::Output::EngineResult& er)
         { colorizer.announce(er); }
     void announce(const Localization& loc)
         { colorizer.announce( loc ); }
 
-    typename Colorizer::Pixel get_pixel( int x, int y ) {
+    Pixel get_pixel( int x, int y ) {
         return colorizer.getPixel(x, y, 
             transition[ discretize( binned_image(x,y) ) ]);
     }
-    typename Colorizer::Pixel get_background() 
+    Pixel get_background() 
         { return colorizer.get_background(); }
 
 #ifdef HAVE_LIBGRAPHICSMAGICK__
@@ -161,7 +162,7 @@ class ImageDiscretizer
     std::auto_ptr< Magick::Image > key_image();
 #endif
 
-    float key_value( LowDepth key );
+    inline float key_value( LowDepth key );
 
     void setHistogramPower(float power);
 };

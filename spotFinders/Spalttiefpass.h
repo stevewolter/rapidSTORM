@@ -25,9 +25,8 @@ namespace spotFinders {
         typedef engine::SpotFinderBuilder<Spalttiefpass> Factory;
 
         Spalttiefpass (const Config&, const engine::Config &conf,
-            pixel_count imw, pixel_count imh) 
-        : SpotFinder(conf, imw, imh)
-        {}
+                       const engine::Traits::Size& size) 
+            : SpotFinder(conf, size) {}
 
         void smooth( const engine::Image &in ) {
             smoothByAverage( in, *smoothed, msx, msy );

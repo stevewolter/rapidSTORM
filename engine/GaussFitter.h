@@ -20,7 +20,7 @@ class GaussFitter
     struct BaseTableEntry {
         virtual ~BaseTableEntry() {}
         virtual int fit(const Spot& spot, Localization* target,
-            const Image &image, int imNumber, int xl, int yl ) = 0;
+            const Image &image, int xl, int yl ) = 0;
         virtual void setSize( int width, int height ) = 0;
     };
 
@@ -59,7 +59,7 @@ class GaussFitter
     ~GaussFitter(); 
 
     int fitSpot( const Spot& spot, const Image& image,
-                 int imNum, Localization* target );
+                 Localization* target );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

@@ -16,6 +16,8 @@ class RawImageFile : public OutputObject {
                                const char* fmt, va_list ap );
     ost::Mutex mutex;
 
+    std::string filename;
+
     TIFF *tif;
     tsize_t strip_size;
     tstrip_t strips_per_image;
@@ -24,6 +26,7 @@ class RawImageFile : public OutputObject {
     class LookaheadImg;
     std::priority_queue<LookaheadImg> out_of_time;
     void write_image(const engine::Image& img);
+    void delete_queue();
 
     class _Config;
 
@@ -41,6 +44,9 @@ class RawImageFile : public OutputObject {
     Result receiveLocalizations(const EngineResult&);
     void propagate_signal(ProgressSignal);
 
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames)
+        { insert_filename_with_check( filename, present_filenames ); }
 };
 
 class RawImageFile::_Config : public simparm::Object {

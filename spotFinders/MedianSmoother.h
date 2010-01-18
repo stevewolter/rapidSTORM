@@ -34,11 +34,9 @@ namespace spotFinders {
 
         MedianSmoother (const Config&, 
             const engine::Config &conf, 
-            pixel_count imw, pixel_count imh) 
-        : SpotFinder(conf, imw, imh)
-        {
-            chooseAhmad(msx, msy);
-        }
+            const engine::Traits::Size& size) 
+            : SpotFinder(conf, size)
+            { chooseAhmad(msx, msy); }
 
         void smooth( const Image &in ) {
             ahmad( in, *smoothed, 2*msx+1, 2*msy+1 );

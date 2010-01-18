@@ -25,8 +25,8 @@ class Derivatives {
     Eigen::Matrix<double,VarC,VarC> alpha;
     Eigen::Matrix<double,VarC,1> beta;
 
-    void save_diag() throw() { orig_alpha_diag = alpha.diagonal(); }
-    void apply_lambda(double lambda) throw() 
+    void save_diag() { orig_alpha_diag = alpha.diagonal(); }
+    void apply_lambda(double lambda) 
         { alpha.diagonal() = orig_alpha_diag * (1 + lambda); }
 };
 
@@ -37,7 +37,7 @@ class FitFunction {
     typedef Eigen::Matrix<double, VarC, 1> ParamVector;
     typedef Eigen::Matrix<double, VarC, VarC> ParamMatrix;
     
-    FitFunction() throw();
+    FitFunction();
     /** Destructor. */
     virtual ~FitFunction() {}
 
@@ -49,18 +49,18 @@ class FitFunction {
         typename DeriverType::Position& workspace,
         const typename DeriverType::Constants& constants,
         const DeriverType& deriver
-    ) const throw();
+    ) const;
 
-    inline void setStartLambda(double value) throw() 
+    inline void setStartLambda(double value) 
         { startLambda = value; }
-    inline void setLambdaAdjustment(double value) throw()
+    inline void setLambdaAdjustment(double value)
         { lambdaAdjustment = value; }
-    inline void setMaximumIterationSteps(int stepNum) throw()
+    inline void setMaximumIterationSteps(int stepNum)
         { maxSteps = stepNum; }
-    inline void setSuccessiveNegligibleStepLimit(int number) throw()
+    inline void setSuccessiveNegligibleStepLimit(int number)
         { successiveNegligibleSteps = number; }
 
-    void set_absolute_epsilon(int variable, double eps) throw();
+    void set_absolute_epsilon(int variable, double eps);
 
   protected:
     double startLambda, lambdaAdjustment;
@@ -70,7 +70,7 @@ class FitFunction {
 
     bool change_is_negligible( 
         const ParamVector& position, 
-        const ParamVector& shift ) const throw()
+        const ParamVector& shift ) const
     {
         bool abs_is_off = abs_eps_set && 
             (shift.cwise().abs().cwise() >= abs_eps).any();

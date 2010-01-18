@@ -48,9 +48,9 @@ Source<Pixel>::Source(const char *src)
     Traits< CImg<Pixel> >& my_traits = *this;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
-    my_traits.size.x() = _width * camera::pixel;
-    my_traits.size.y() = _height * camera::pixel;
-    my_traits.size.z() = 1 * camera::pixel; 
+    my_traits.size.x() = _width * cs_units::camera::pixel;
+    my_traits.size.y() = _height * cs_units::camera::pixel;
+    my_traits.size.z() = 1 * cs_units::camera::pixel; 
             /* TODO: Read from file */
     my_traits.dim = 1; /* TODO: Read from file */
 

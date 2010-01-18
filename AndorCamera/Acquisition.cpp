@@ -128,7 +128,7 @@ void Acquisition::block_until_on_camera() {
 }
 
 /* See AndorCamera/Acquisition.h for documentation */
-long Acquisition::getNextImage(uint16_t *buffer) {
+Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
     ost::MutexLock lock(mutex);
     while ( ! haveCamera && ! isStopped ) {
         PROGRESS("GetNextImage waiting for acquisition start");
@@ -137,8 +137,8 @@ long Acquisition::getNextImage(uint16_t *buffer) {
     }
 
     if ( ! hasMoreImages_unlocked() ) {
-        return -1;
-    } else {
+        return Fetch( NoMoreImages, 0 );
+    } else while (true) {
         waitForNewImages();
 
         int cur_image = next_image;
@@ -150,14 +150,23 @@ long Acquisition::getNextImage(uint16_t *buffer) {
         SDK::Range r;
         PROGRESS("Reading image " << cur_image << " into buffer of size "
                  << getImageSizeInPixels());
-        SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
-        if (r.first != next_image)
-            throw Error("Expected to read image %i, did read %i.", 
-                        next_image, r.first);
-        PROGRESS("Read image " << cur_image);
-        next_image++;
 
-        return cur_image;
+        SDK::AcquisitionState get_result = 
+            SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
+        if ( get_result == SDK::No_New_Images )
+            continue;
+        else if ( get_result == SDK::Missed_Images ) {
+            next_image++;
+            return Fetch( HadError, cur_image );
+        } else if ( get_result == SDK::New_Images ) {
+            if (r.first != next_image)
+                throw Error("Expected to read image %i, did read %i.", 
+                            next_image, r.first);
+            PROGRESS("Read image " << cur_image);
+            next_image++;
+
+            return Fetch( HaveStored, cur_image );
+        }
     }
 }
 
@@ -190,6 +199,8 @@ void Acquisition::waitForNewImages() {
     if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
         stop();
 
+#if 0 /* This code is unnecessary. If the image can't be fetched,
+         an error will be reported by the getNextImage function. */
     /* Naturally, we expect the next image in the run to be the first
      * in the ring buffer. But, if we were really, really slow, it might
      * have been overwritten; in that case, we output a warning.
@@ -201,6 +212,7 @@ void Acquisition::waitForNewImages() {
              << " to " << last_valid_image << endl;
         next_image = range.first;
     }
+#endif
 }
 
 /* See AndorCamera/Acquisition.h for documentation */

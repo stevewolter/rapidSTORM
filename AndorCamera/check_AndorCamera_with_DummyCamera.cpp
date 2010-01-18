@@ -104,8 +104,8 @@ int main(int argc, char *argv[]) {
         typedef Buffer< AndorDirect::CamImage > ImBuf;
         ImBuf buffer( source );
 
-        assert( buffer.getTraits().dimx() > 0 
-                && buffer.getTraits().dimy() > 0 );
+        assert( buffer.getTraits().dimx().value() > 0 
+                && buffer.getTraits().dimy().value() > 0 );
 
         for ( ImBuf::iterator i = buffer.begin(); i != buffer.end(); i++ ) {
             Claim<AndorDirect::CamImage> claim = i->claim();

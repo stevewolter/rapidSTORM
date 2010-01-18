@@ -42,6 +42,8 @@ namespace dStorm {
             class CameraSwitcher;
             std::auto_ptr<CameraSwitcher> switcher;
             simparm::FileEntry basename;
+            simparm::Attribute<std::string>& config_basename;
+            mutable simparm::UnsignedLongEntry run_number;
             const simparm::DoubleEntry& resolution_element;
 
             void registerNamedEntries();
@@ -62,7 +64,7 @@ namespace dStorm {
                 { return new Config(*this, newMaster); }
 
             std::string get_basename_of_output_file();
-            bool may_be_autoloaded() const { return false; }
+            bool uses_input_file() const { return false; }
         };
 
         /** This Source class provides a source that captures directly

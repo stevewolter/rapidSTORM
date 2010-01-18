@@ -24,12 +24,10 @@ namespace dStorm {
         typedef engine::SpotFinderBuilder<ErosionSmoother> Factory;
 
         ErosionSmoother (const Config&, const engine::Config &conf,
-                         pixel_count imw, pixel_count imh) 
-        : SpotFinder(conf, imw, imh),
-          mask(msx+(1-msx%2), msy+(1-msy%2))
-        {
-            mask.fill(true);
-        }
+                         const engine::Traits::Size& size) 
+            : SpotFinder(conf, size),
+              mask(msx+(1-msx%2), msy+(1-msy%2))
+            { mask.fill(true); }
         ~ErosionSmoother() {}
 
         void smooth( const engine::Image &in ) {

@@ -41,7 +41,9 @@ CamSource* AndorDirect::Config::impl_makeSource()
         throw std::runtime_error("Readout mode must be image for "
                                  "AndorDirect source");
 
-    return new Source( cam );
+    std::auto_ptr<CamSource> cam_source( new Source( cam ) );
+    run_number = run_number() + 1;
+    return cam_source.release();
 }
 
 AndorDirect::Source::Source
@@ -103,10 +105,10 @@ void Source::acquire()
         PROGRESS("Acquisition gained camera");
         Traits< CamImage >& my_traits = *this;
         my_traits.size.x() = acquisition.getWidth()
-            * camera::pixel;
+            * cs_units::camera::pixel;
         my_traits.size.y() = acquisition.getHeight()
-            * camera::pixel;
-        my_traits.size.z() = 1 * camera::pixel;
+            * cs_units::camera::pixel;
+        my_traits.size.z() = 1 * cs_units::camera::pixel;
         my_traits.dim = 1;
         numImages = acquisition.getLength();
         PROGRESS("Telling " << pushTarget << " number of objects " << 
@@ -120,18 +122,32 @@ void Source::acquire()
 
         /* cancelAcquisition is set in a different thread by stopPushing(). */
         while ( ! cancelAcquisition && acquisition.hasMoreImages() ) {
-            auto_ptr<CamImage> image(
-                new CamImage(my_traits.size.x().value(), my_traits.size.y().value()));
-            long imNum = acquisition.getNextImage( image->ptr() );
-            /* On error, the acquisiton returns -1 here. */
-            if (imNum >= 0) lastValidImage = imNum; else break;
+            auto_ptr<CamImage> image;
+            try {
+                image.reset(
+                    new CamImage(my_traits.size.x().value(), 
+                                 my_traits.size.y().value()));
+            } catch( const std::bad_alloc& alloc ) {
+                /* Do nothing. Try to wait until more memory is available.
+                 * Maybe the ring buffer saves us. Maybe not, but we can't
+                 * do anything about that without memory. */
+                continue;
+            }
 
-            display_concurrently( *image, imNum );
+            Acquisition::Fetch nextIm =
+                acquisition.getNextImage( image->ptr() );
+            if ( nextIm.first == Acquisition::NoMoreImages )
+                break;
+            else {
+                if ( nextIm.first != Acquisition::HadError )
+                    display_concurrently( *image, nextIm.second );
 
-            Management policy;
-            policy = pushTarget->accept( imNum, 1, image.get() );
-            if ( policy == Keeps_objects )
-                image.release();
+                Management policy;
+                policy = pushTarget->accept(nextIm.second, 1, image.get());
+                if ( policy == Keeps_objects )
+                    image.release();
+                lastValidImage++;
+            }
         }
     } catch (const std::exception& e) {
         cerr << PACKAGE_NAME << ": Image acquisition error: " 
@@ -141,9 +157,6 @@ void Source::acquire()
         acquisition.stop();
     } else {
         lastValidImage++;
-        if (  lastValidImage < numImages ) {
-            cerr << "Warning: Camera acquisition failed. Padding " << (numImages-lastValidImage) << " images" << endl;
-        }
         pushTarget->accept( lastValidImage, numImages-lastValidImage,
                             NULL );
         lastValidImage = numImages;
@@ -195,15 +208,15 @@ void Source::stopPushing(Drain<CamImage> *target) {
 
 Config::Config(input::Config& config)  
 : CamConfig("AndorDirectConfig", "Direct camera control"),
-  simparm::Node::Callback( Node::Callback::ValueChanged ),
+  simparm::Node::Callback( Node::ValueChanged ),
   basename("OutputBasename", "Base name for output files"),
+  config_basename( config.basename ),
+  run_number("RunNumber", "Current run number", 0),
   resolution_element( config.pixel_size_in_nm )
 {
     PROGRESS("Making AndorDirect config");
 
-    basename.erase( basename.value );
-    basename.push_back( config.basename );
-
+    run_number.userLevel = Object::Intermediate;
     push_back( config.pixel_size_in_nm );
     
     LOCKING("Receiving attach event");
@@ -216,11 +229,12 @@ Config::Config(const Config &c, input::Config& config)
 : CamConfig(c),
   Node::Callback( Node::Callback::ValueChanged ),
   basename(c.basename),
+  config_basename( config.basename ),
+  run_number( c.run_number ),
   resolution_element( config.pixel_size_in_nm )
 {
-    basename.erase( basename.value );
-    basename.push_back( config.basename );
-    
+    c.run_number = c.run_number() + 1;
+
     push_back( config.pixel_size_in_nm );
 
     registerNamedEntries();
@@ -344,11 +358,10 @@ class Config::CameraSwitcher : public AndorCamera::System::Listener
 };
 
 void Config::registerNamedEntries()
- 
 {
     CamTraits::Resolution res;
-    res.fill( float(resolution_element() * 1E-9) *
-        si::meter / camera::pixel );
+    res.fill( cs_units::camera::pixels_per_meter * 1E9f
+              / float(resolution_element()) );
     switcher.reset( new Config::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
@@ -358,7 +371,11 @@ void Config::registerNamedEntries()
     } else 
         viewable = false;
 
+    receive_changes_from( basename.value );
+    receive_changes_from( run_number.value );
+
     push_back( basename );
+    push_back( run_number );
 }
 
 void Source::display_concurrently( const CamImage& image, int number) {
@@ -394,12 +411,35 @@ void Source::display_concurrently( const CamImage& image, int number) {
     }
 }
 
-void Config::operator()(Node &src, Cause, Node *)
+void Config::operator()(Node &src, Cause c, Node *)
 {
     if ( &src == &resolution_element ) {
         if ( switcher.get() != NULL )
             switcher->change_resolution( 
                 CamTraits::Resolution( resolution_element() * 1E-9 ) );
+    } else if ( &src == &basename.value || &src == &run_number.value ) {
+        std::string bn = basename();
+        std::stringstream fn;
+        for (std::string::size_type i = 0; i+1 < bn.size(); i++) {
+            if ( bn[i] == '$' ) {
+                std::string::size_type ind = bn.find('$', i+1);
+                if ( ind == std::string::npos )
+                    fn << '$';
+                else if ( ind == i+1 ) {
+                    i = ind;
+                    fn << '$';
+                } else {
+                    std::string t = bn.substr( i+1, ind-i-1 );
+                    if ( t == "run" )
+                        fn << setw(2) << setfill('0') << run_number();
+                    else 
+                        fn << "$" << t << "$";
+                    i = ind;
+                }
+            } else
+                fn << bn[i];
+        }
+        config_basename = fn.str();
     }
 }
 

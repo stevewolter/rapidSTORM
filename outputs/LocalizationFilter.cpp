@@ -5,7 +5,12 @@
 #include <Eigen/Array>
 #include <dStorm/unit_matrix_operators.h>
 
+#include <boost/units/systems/si/velocity.hpp>
+#include <cs_units/camera/time.hpp>
+
 #include "debug.h"
+
+using namespace boost::units;
 
 namespace dStorm {
 namespace output {
@@ -111,8 +116,8 @@ LocalizationFilter::~LocalizationFilter()
 
 void LocalizationFilter::init()
 {
-    v_from = from();
-    v_to = to(); 
+    v_from = from() * cs_units::camera::ad_count;
+    v_to = to() * cs_units::camera::ad_count; 
 
     receive_changes_from( from.value );
     receive_changes_from( to.value );
@@ -208,7 +213,7 @@ void LocalizationFilter::copy_and_modify_localizations(
 
 {
     for ( int i = 0; i < n; i++ ) {
-        double strength = from[i].getStrength();
+        amplitude strength = from[i].getStrength();
         if ( strength >= v_from && strength <= v_to &&
              from[i].two_kernel_improvement() < two_kernel_significance() )
         {
@@ -218,9 +223,7 @@ void LocalizationFilter::copy_and_modify_localizations(
             
             /* Move localization by drift correction. */
             to[i].position() += 
-                shift_velocity * 
-                    (float(to[i].getImageNumber())
-                     * camera::frame);
+                shift_velocity * to[i].getImageNumber();
 
             const Localization::Position& npos = to[i].position();
             /* Check if new coordinates are still valid. */
@@ -239,8 +242,8 @@ void LocalizationFilter::copy_and_modify_localizations(
 
 Output::Result 
 LocalizationFilter::emit_localizations( 
-    const Localization* p, int n, int forImage, const Localization *p2,
-    int n2)
+    const Localization* p, int n, 
+    frame_index forImage, const Localization *p2, int n2)
 {
     data_cpp::Vector<Localization> buffer (n+n2);
     int end = 0;
@@ -250,7 +253,7 @@ LocalizationFilter::emit_localizations(
     EngineResult eo;
     eo.number = end;
     eo.first = buffer.ptr();
-    eo.forImage = forImage * camera::frame;
+    eo.forImage = forImage;
     return output->receiveLocalizations(eo);
 }
 
@@ -260,11 +263,11 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 { 
     traits = a.traits;
     shift_velocity.x() = 
-        (x_shift() * 1E-9 * (si::meters / si::seconds))
-           * (*traits.frame_length) / traits.resolution.x();
+        (x_shift() * 1E-9f * (si::meters / si::seconds))
+           * (traits.resolution.x() / (*traits.speed));
     shift_velocity.y() = 
-        y_shift() * 1E-9 * si::meters / si::seconds
-           * (*traits.frame_length) / traits.resolution.y();
+        y_shift() * 1E-9 * (si::meters / si::seconds)
+           / (*traits.speed) * traits.resolution.y();
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -302,7 +305,7 @@ LocalizationFilter::receiveLocalizations(const EngineResult& e)
     Output::Result rv;
     {
         ost::ReadLock lock( emissionMutex );
-        rv = emit_localizations( e.first, e.number, e.forImage.value() );
+        rv = emit_localizations( e.first, e.number, e.forImage );
     }
     return rv;
 }
@@ -311,21 +314,21 @@ void LocalizationFilter::operator()
     (simparm::Node& src, Cause, simparm::Node*) 
 {
     if ( &src == &from.value ) {
-        v_from = from();
+        v_from = from() * cs_units::camera::ad_counts;
         re_emitter->repeat_results();
     } else if ( &src == &to.value ) {
-        v_to = to();
+        v_to = to() * cs_units::camera::ad_counts;
         re_emitter->repeat_results();
     } else if ( &src == &x_shift.value ) {
         shift_velocity.x() = x_shift() * 1E-9
             * si::meter / si::second 
-            * (*traits.frame_length) / traits.resolution.x();
+            / (*traits.speed) * traits.resolution.x();
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &src == &y_shift.value ) {
         shift_velocity.y() = y_shift() * 1E-9
             * si::meter / si::second 
-            * (*traits.frame_length) / traits.resolution.y();
+            / (*traits.speed) * traits.resolution.y();
         re_emitter->repeat_results();
     } else if ( &src == &two_kernel_significance.value ) {
         re_emitter->repeat_results();

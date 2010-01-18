@@ -6,7 +6,7 @@ namespace dStorm {
 namespace Display {
 
 wxColor makeColor( const dStorm::Display::Color& c ) {
-    return wxColor( c.r, c.g, c.b );
+    return wxColor( c.red(), c.green(), c.blue() );
 }
 
 IMPLEMENT_DYNAMIC_CLASS(Canvas, wxScrolledWindow);
@@ -245,9 +245,9 @@ void Canvas::BufferedDrawer::clear( const Color &color ) {
     unsigned char *ptr = c.contents->GetData();
     int size = 3 * c.contents->GetWidth() * c.contents->GetHeight();
     for (int i = 0; i < size; i += 3) {
-        ptr[i] = color.r;
-        ptr[i+1] = color.g;
-        ptr[i+2] = color.b;
+        ptr[i] = color.red();
+        ptr[i+1] = color.green();
+        ptr[i+2] = color.blue();
     }
 }
 

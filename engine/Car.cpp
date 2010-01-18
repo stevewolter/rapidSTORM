@@ -10,10 +10,10 @@
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>
-#include <dStorm/input/LocalizationFileReader.h>
 #include <CImg.h>
 #include "doc/help/context.h"
 #include <dStorm/engine/Input.h>
+#include <dStorm/input/Method.h>
 
 using namespace std;
 
@@ -58,6 +58,8 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
   output(NULL),
   terminate(false)
 {
+    if ( config.inputConfig.inputMethod().uses_input_file() )
+        used_output_filenames.insert( config.inputConfig.inputFile() );
     PROGRESS("Building car");
     closeJob.helpID = HELP_CloseJob;
 
@@ -68,6 +70,7 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
     output = config.outputSource.make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
+    output->check_for_duplicate_filenames( used_output_filenames );
 
     PROGRESS("Registering at master config");
     this->master->thread_safely_register_node( runtime_config );
@@ -117,12 +120,13 @@ void Car::run() throw() {
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {
-        std::cerr << "Your system has insufficient memory for this dSTORM job. "
+        std::cerr << "Your system has insufficient memory for job "
+                  << ident << ". "
                   << "The most common reason is a high resolution enhancement combined "
                   << "with a large image. Try reducing either the image size or the "
                   << "resolution enhancement.\n";
     } catch ( const std::exception& e ) {
-        std::cerr << "dSTORM  job failed. Reason: " << e.what() << "\n";
+        std::cerr << "Job " << ident << " failed. Reason: " << e.what() << "\n";
         std::cerr.flush();
     }
 }
@@ -193,8 +197,10 @@ void Car::runOnSTM() throw( std::exception ) {
     LOCKING("Running on STM file");
     LocalizationBuncher buncher(*output);
     buncher.noteTraits( *locSource, 
-                        config.inputConfig.firstImage(), 
-                        config.inputConfig.lastImage() );
+                        config.inputConfig.firstImage() 
+                            * cs_units::camera::frame, 
+                        config.inputConfig.lastImage()
+                            * cs_units::camera::frame );
     locSource->startPushing( &buncher );
 }
 

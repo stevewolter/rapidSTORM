@@ -20,26 +20,25 @@ struct DerivativeHelper<Ks,PM,W,H,false>
     Eigen::Matrix<double,H,Space::VarC> yparts;
 
     inline void resize( const int width, const int height ) 
-        throw()
     {
         Base::resize(width,height);
         xparts.resize( width, Space::VarC );
         yparts.resize( height, Space::VarC );
     }
 
-    inline bool prepare() throw(); 
+    inline bool prepare();
     inline void compute(
         const Data& data,
         Data& residues,
         typename Space::Vector& gradient,
         typename Space::Matrix& hessian
-    ) const throw();
+    ) const;
 
 };
 
 template <int Ks, int PM, int W, int H>
 bool 
-DerivativeHelper<Ks,PM,W,H,false>::prepare() throw()
+DerivativeHelper<Ks,PM,W,H,false>::prepare() 
 {
     const int Width = 
         ((W==Eigen::Dynamic)? this->width : W);
@@ -89,7 +88,7 @@ DerivativeHelper<Ks,PM,W,H,false>::compute(
     Data& residues,
     typename Space::Vector& gradient,
     typename Space::Matrix& hessian
-) const throw() 
+) const 
 {
     /* xlines(c,i) * ylines(i,r) gives the value for
         * the i-th kernel at (r,c) position. This

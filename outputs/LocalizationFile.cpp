@@ -40,9 +40,8 @@ static void printFit(const Localization &f, ostream &file,
     } else {
       file << f.x().value() << " " 
            << f.y().value() << " "
-           << f.getImageNumber() << " "
-           << f.strength()
-           << "\n";
+           << f.getImageNumber().value() << " "
+           << f.strength().value() << "\n";
     }
 }
 

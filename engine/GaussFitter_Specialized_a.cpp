@@ -9,7 +9,7 @@ template <>
 template <>
 void GaussFitter<false,true,false>::create_specializations<1>()
 {
-#if 0
+#ifdef USE_SPECIALIZED_FITTERS
     this->fill_specialization_array<3,4>();
 #endif
     //this->fill_specialization_array<8,13,13,13,13,13>();
