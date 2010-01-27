@@ -83,6 +83,7 @@ class LibraryHandle {
     SafelyLoadedFunction<RapidSTORM_Input_Augmenter> input;
     SafelyLoadedFunction<RapidSTORM_Engine_Augmenter> engine;
     SafelyLoadedFunction<RapidSTORM_Output_Augmenter> output;
+    SafelyLoadedFunction<RapidSTORM_Display_Driver> display_driver;
     SafelyLoadedFunction<RapidSTORM_Plugin_Desc> desc;
 
     void init() {
@@ -94,6 +95,7 @@ class LibraryHandle {
             input.load( handle );
             engine.load( handle );
             output.load( handle );
+            display_driver.load( handle );
         } catch (const std::exception& e) {
             throw std::runtime_error( "Invalid RapidSTORM plugin "
                 + file + ": " + std::string(e.what()) );
@@ -106,6 +108,7 @@ class LibraryHandle {
           input("rapidSTORM_Input_Augmenter"),
           engine("rapidSTORM_Engine_Augmenter"),
           output("rapidSTORM_Output_Augmenter"),
+          display_driver("rapidSTORM_Display_Driver"),
           desc("rapidSTORM_Plugin_Desc")
     { 
         init();
@@ -113,7 +116,8 @@ class LibraryHandle {
     LibraryHandle( const LibraryHandle& other )
     : file(other.file), handle( lt_dlopenext( file.c_str() ) ),
       input(other.input), engine(other.engine),
-      output(other.output), desc(other.desc)
+      output(other.output), display_driver(other.display_driver),
+      desc(other.desc)
     {
         init();
     }
@@ -135,6 +139,19 @@ class LibraryHandle {
     void operator()( dStorm::output::Config* outputs ) {
         (*output)( outputs );
     }
+
+    void replace_display( std::auto_ptr<Display::Manager>& driver )
+    {
+        Display::Manager *d = driver.release();
+        try {
+            d = (*display_driver)( d );
+        } catch (...) {
+            driver.reset( d );
+            throw;
+        }
+        driver.reset( d );
+    }
+
     const char *getDesc() { return (*desc)(); }
 };
 
@@ -154,6 +171,8 @@ class _MasterConfig
     List lib_handles;
     std::set<std::string> loaded;
 
+    std::auto_ptr<Display::Manager> display;
+
     enum LoadResult { Loaded, Failure };
     LoadResult try_loading_module( const char *filename );
     static int lt_dlforeachfile_callback( 
@@ -162,6 +181,8 @@ class _MasterConfig
     simparm::Attribute<std::string> help_file;
 
     std::string getDesc();
+
+    std::auto_ptr<Display::Manager> make_display_driver();
 
   public:
     _MasterConfig();
@@ -187,10 +208,12 @@ _MasterConfig::_MasterConfig()
   registered_nodes(0),
   help_file("help_file", dStorm::HelpFileName) 
 {
-    Display::Manager::setSingleton( Display::wxManager::getSingleton() );
-
     lt_dlinit();
     load_plugins();
+
+    display = make_display_driver();
+
+    Display::Manager::setSingleton(*display);
 
     this->showTabbed = true;
     push_back( help_file );
@@ -202,10 +225,10 @@ _MasterConfig::~_MasterConfig() {
     while ( registered_nodes > 0 )
         all_modules_unregistered.wait( mutex );
         
+    display.reset( NULL );
+
     lib_handles.clear();
     lt_dlexit();
-
-    Display::wxManager::destroySingleton();
 }
 
 void _MasterConfig::thread_safely_register_node( simparm::Node& node ) {
@@ -268,6 +291,22 @@ void _MasterConfig::load_plugins()
     DEBUG("Found plugins");
 }
 
+std::auto_ptr<Display::Manager>
+_MasterConfig::make_display_driver()
+{
+    std::auto_ptr<Display::Manager> rv;
+    rv.reset(
+        &Display::wxManager::getSingleton() );
+
+    for ( List::iterator i = lib_handles.begin(); i != lib_handles.end();
+          i++)
+    {
+        DEBUG("Requesting plugin display driver");
+        i->replace_display(rv);
+    }
+
+    return rv;
+}
 void _MasterConfig::add_modules
     ( dStorm::engine::CarConfig& car_config )
 {
