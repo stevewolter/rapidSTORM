@@ -13,7 +13,7 @@ library_includedir = $(includedir)/dStorm
 library_include_HEADERS = \
     ModuleInterface.h Localization_decl.h Localization.h \
     SizeTraits.h SizeTraits_decl.h \
-    units_Eigen_traits.h unit_matrix_operators.h JobTraits.h \
+    units_Eigen_traits.h unit_matrix_operators.h \
     matrix_operators.h Pixel.h
 units_library_includedir = $(includedir)/dStorm/units
 units_library_include_HEADERS = \

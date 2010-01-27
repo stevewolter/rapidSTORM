@@ -8,6 +8,7 @@
 #include "Verbose.h"
 #include "Delayer.h"
 #include "BasenamePrinter.h"
+#include "Manager.h"
 
 using namespace dStorm::output;
 
@@ -45,6 +46,14 @@ void rapidSTORM_Output_Augmenter
     } catch ( const std::exception& e ) {
         std::cerr << "Unable to add debug plugin: " << e.what() << "\n";
     }
+}
+
+dStorm::Display::Manager*
+rapidSTORM_Display_Driver
+    (dStorm::Display::Manager *old)
+{
+    delete old;
+    return new Manager;
 }
 
 

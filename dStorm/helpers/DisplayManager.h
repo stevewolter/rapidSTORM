@@ -114,6 +114,7 @@ class Manager : boost::noncopyable {
 
   protected:
     Manager() {}
+  public:
     virtual ~Manager() {}
 };
 

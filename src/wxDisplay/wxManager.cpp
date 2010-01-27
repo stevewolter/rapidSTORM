@@ -26,8 +26,6 @@ wxManager::wxManager()
   may_close( false ),
   toolkit_available( true )
 {
-    DEBUG("Creating display manager");
-    start();
 }
 
 struct wxManager::Closer : public ost::Runnable {
@@ -37,10 +35,12 @@ struct wxManager::Closer : public ost::Runnable {
 wxManager::~wxManager() {
     DEBUG("Stopping display thread");
     may_close = true;
-    Closer closer;
-    run_in_GUI_thread( &closer );
-    closed_all_handles.signal();
-    join();
+    if ( was_started ) {
+        Closer closer;
+        run_in_GUI_thread( &closer );
+        closed_all_handles.signal();
+        join();
+    }
     DEBUG("Stopped display thread");
 }
 
@@ -100,7 +100,7 @@ wxManager::register_data_source(
         ost::MutexLock lock( mutex );
         if ( ! was_started ) {
             was_started = true;
-            detach();
+            start();
         }
     }
     std::auto_ptr<Creator> creator( new Creator() );
