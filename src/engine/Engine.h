@@ -43,6 +43,8 @@ namespace engine {
         /** Global flag to be set when computation should  be aborted. */
         static bool globalStop;
 
+        std::string job_ident;
+
         /** Run a piston and catch exceptions, setting the emergencyStop
           * and error flags. */
         void safeRunPiston() throw();
@@ -62,7 +64,8 @@ namespace engine {
         output::Traits convert_traits( const InputTraits& );
 
       public:
-         Engine(Config& config, Input& input, output::Output& output);
+         Engine(Config& config, std::string job_ident,
+                Input& input, output::Output& output);
          virtual ~Engine();
 
          /** Compute with the given number of subthreads, including
@@ -70,7 +73,7 @@ namespace engine {
          void run();
          void stop() { emergencyStop = error = true; }
 
-         void operator()(simparm::Node&, Cause, simparm::Node *) {
+         void operator()(const simparm::Event&) {
             if ( stopper.triggered() ) {
                 stopper.untrigger();
                 stop();

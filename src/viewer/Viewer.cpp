@@ -235,7 +235,7 @@ class ColourDependantImplementation
 Viewer::_Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
-  outputFile("ToFile", "Save image to"),
+  outputFile("ToFile", "Save image to", ".jpg"),
   res_enh("ResEnhance", "Resolution Enhancement", 10),
   refreshCycle("ImageRefreshCycle", "Refresh image every x ms:", 100),
   histogramPower("HistogramPower", "Extent of histogram normalization",
@@ -252,7 +252,6 @@ Viewer::_Config::_Config()
 
     outputFile.helpID = HELP_Viewer_ToFile;
     outputFile.setUserLevel(simparm::Entry::Beginner);
-    outputFile.default_extension = ".jpg";
     showOutput.helpID = HELP_Viewer_ShowOutput;
     showOutput.setUserLevel(simparm::Entry::Beginner);
     res_enh.helpID = HELP_Viewer_ResEnh;
@@ -343,7 +342,7 @@ static Viewer::Implementation* make_binned_locs(
 
 Viewer::Viewer(const Viewer::Config& config)
 : OutputObject("Display", "Display status"),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   implementation( 
     make_binned_locs< ColourSchemes::LastColourModel >( config ) ),
   forwardOutput( implementation->getForwardOutput() ),
@@ -408,6 +407,7 @@ Viewer::receiveLocalizations(const EngineResult& er)
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
+    std::cerr << "TIFF File " << tifFile() << "\n";
     MutexLock lock(structureMutex);
     return forwardOutput.announceStormSize(a);
 }
@@ -427,9 +427,8 @@ void Viewer::propagate_signal(ProgressSignal s) {
     }
 }
 
-void Viewer::operator()(Node& src, Node::Callback::Cause,
-                        Node *) {
-    if (&src == &save.value && save.triggered()) {
+void Viewer::operator()(const simparm::Event& e) {
+    if (&e.source == &save.value && save.triggered()) {
         /* Save image */
         save.untrigger();
         if ( tifFile ) {
@@ -440,15 +439,15 @@ void Viewer::operator()(Node& src, Node::Callback::Cause,
                 "Magick++ support and therefore can not save images.");
 #endif
         }
-    } else if (&src == &quit.value && quit.triggered()) {
+    } else if (&e.source == &quit.value && quit.triggered()) {
         /* Close viewer */
         quit.untrigger();
         terminateViewer = true;
-    } else if (&src == &histogramPower.value) {
+    } else if (&e.source == &histogramPower.value) {
         MutexLock lock(structureMutex);
         /* Change histogram power */
         implementation->set_histogram_power(histogramPower());
-    } else if (&src == &resolutionEnhancement.value) {
+    } else if (&e.source == &resolutionEnhancement.value) {
         MutexLock lock(structureMutex);
         /* Change resolution enhancement in viewer */
         implementation->

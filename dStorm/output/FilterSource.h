@@ -46,7 +46,7 @@ class FilterSource
     int next_identity;
 
     /** The basename is saved for freshly constructed entries. */
-    std::string basename;
+    Basename basename;
 
     void registerNamedEntries();
 
@@ -72,8 +72,7 @@ class FilterSource
     /** \return true after initialize() was called. */
     bool is_initialized() const { return factory.get() != NULL; }
     /** \see simparm::Node::Callback::operator() */
-    virtual void operator()( 
-        simparm::Node& src, Cause c, simparm::Node *);
+    void operator()(const simparm::Event&);
     /** Construct the disambiguation node for the given transmission,
      *  add the remover entry and insert it into our config node. */
     void link_transmission( OutputSource* src );
@@ -106,7 +105,7 @@ class FilterSource
     void remove( OutputSource& src );
 
     /** \see dStorm::OutputSource */
-    BasenameResult set_output_file_basename(const std::string& basename);
+    void set_output_file_basename(const Basename& basename);
 
     typedef Outputs::iterator iterator;
     typedef Outputs::const_iterator const_iterator;

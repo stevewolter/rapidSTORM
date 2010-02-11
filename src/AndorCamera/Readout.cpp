@@ -21,7 +21,7 @@ void Readout::controlStateChanged(
 
 ImageReadout::ImageReadout(StateMachine &sm)
 : Readout("ImageReadout", "Image Readout mode"),
-  Node::Callback( Node::ValueChanged ),
+  Node::Callback( simparm::Event::ValueChanged ),
   left("LeftCaptureBorder", "Leftmost column to capture", 0),
   top("TopCaptureBorder","Topmost row to capture", 0),
   right("RightCaptureBorder","Rightmost column to capture", 1023),
@@ -40,7 +40,7 @@ ImageReadout::ImageReadout(StateMachine &sm)
   
 ImageReadout::ImageReadout(const ImageReadout&c)
 : Readout(c),
-  Node::Callback( Node::ValueChanged ),
+  Node::Callback( simparm::Event::ValueChanged ),
   left(c.left),
   top(c.top),
   right(c.right),
@@ -82,16 +82,15 @@ void ImageReadout::registerNamedEntries()
     push_back( bottom );
 }
 
-void ImageReadout::operator()(Node &src, Node::Callback::Cause c, Node *)
- 
+void ImageReadout::operator()(const simparm::Event& e)
 {
-    if ( &src == &left.value ) {
+    if ( &e.source == &left.value ) {
         right.setMin( left() );
-    } else if ( &src == &right.value ) {
+    } else if ( &e.source == &right.value ) {
         left.setMax( right() );
-    } else if ( &src == &top.value ) {
+    } else if ( &e.source == &top.value ) {
         bottom.setMin( top() );
-    } else if ( &src == &bottom.value ) {
+    } else if ( &e.source == &bottom.value ) {
         top.setMax( bottom() );
     }
 }

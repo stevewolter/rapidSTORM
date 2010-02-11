@@ -34,7 +34,7 @@ class Initialization
     Initialization(const Initialization&c);
     ~Initialization();
 
-    void operator()(Node &, Cause, Node *);
+    void operator()(const simparm::Event&);
     void controlStateChanged(Phase phase, State from, State to);
 };
 

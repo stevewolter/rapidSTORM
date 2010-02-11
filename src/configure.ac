@@ -69,22 +69,131 @@ AS_IF(
             [with_andor_camera=no])] )
 AM_CONDITIONAL( [HAVE_LIBATMCD32D], [test "x$with_andor_camera" != xno] )
 
+AC_ARG_WITH([windres],
+    [AS_HELP_STRING([--with-windres],
+        [path to windows resource compiler @<:@default=guess@:>@])],
+        [],
+        [ AS_IF([test "x$host_alias" == x],
+            [with_windres=windres],
+            [with_windres=$host_alias-windres]) ])
+AS_IF( 
+    [test "x$with_windres" != x], 
+    [AC_CHECK_PROGS([WINDRES], ["$with_windres"])],
+    [])
+AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
+
 AC_ARG_WITH([twiddler-jar],
     [AS_HELP_STRING([--with-twiddler-jar],
         [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
         [],
         [with_twiddler_jar=$prefix/share/java/twiddler.jar])
 
-AC_ARG_WITH([specialized-fitters],
-    [AS_HELP_STRING([--with-specialized-fitters],
+AC_ARG_ENABLE([specialized-fitters],
+    [AS_HELP_STRING([--enable-specialized-fitters],
         [enable use of specialized fitters for common array sizes @<:@default=on@:>@])],
         [],
-        [with_specialized_fitters=yes])
+        [enable_specialized_fitters=yes])
 AS_IF(
-    [test "x$with_specialized_fitters" = xyes],
+    [test "x$enable_specialized_fitters" = xyes],
     [ AC_DEFINE([USE_SPECIALIZED_FITTERS], [1], [Use fitters specialized for common array sizes]) ],
     []
 )
+
+AC_ARG_ENABLE([exceptions-in-signal-handlers],
+    [AS_HELP_STRING([--enable-exceptions-in-signal-handlers],
+        [enable throwing of exceptions in signal handlers @<:@default=check@:>@])],
+    [],
+    [enable_exceptions_in_signal_handlers=check])
+
+AS_IF(
+    [test "x$enable_exceptions_in_signal_handlers" = xcheck],
+    [   AC_MSG_CHECKING([whether throwing exceptions is possible in signal handlers])
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <stdexcept>
+#include <iostream>
+#include <signal.h>
+
+void sighand( int n ) { throw std::runtime_error("Direct"); }
+
+]], [[
+    signal( SIGSEGV, sighand );
+    try {
+        int *i = (int*)0x23;
+        *i = 5;
+    } catch ( const std::exception& e ) {
+        return 0;
+    }
+    return 1;
+]])],
+    [ enable_exceptions_in_signal_handlers=yes ],
+    [ enable_exceptions_in_signal_handlers=no ],
+    [ AC_MSG_ERROR([
+    Because you requested cross-compilation, I cannot guess
+    whether exceptions can be thrown in signal handlers. Run
+    the test code found in configure.ac on a host machine,
+    see if it returns with success and set 
+    --enable-exceptions-in-signal-handlers accordingly.]) ]) 
+        AC_MSG_RESULT([$enable_exceptions_in_signal_handlers])
+    ],
+    [])
+
+AS_IF(
+    [test "x$enable_exceptions_in_signal_handlers" = xyes],
+    [ AC_DEFINE([EXCEPTIONS_IN_SIGNAL_HANDLERS], [1], [Can throw exceptions in signal handlers]) ],
+    []
+)
+
+AC_ARG_ENABLE([exceptions-after-longjmp],
+    [AS_HELP_STRING([--enable-exceptions-after-longjmp],
+        [enable throwing of exceptions after a longjmp() @<:@default=check@:>@])],
+    [],
+    [enable_exceptions_after_longjmp=check])
+
+AS_IF(
+    [test "x$enable_exceptions_after_longjmp" = xcheck],
+    [   AC_MSG_CHECKING([whether throwing exceptions is possible after a longjmp() call])
+        AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include <stdexcept>
+#include <iostream>
+#include <setjmp.h>
+#include <memory>
+
+struct Foo { ~Foo() {} };
+]], [[
+    jmp_buf panic_point;
+    try {
+        if ( setjmp( panic_point ) == 0 ) {
+            std::auto_ptr<Foo> to_destruct( new Foo() );
+            longjmp( panic_point, 1 );
+        } else
+            throw std::runtime_error("Error after longjmp");
+    } catch ( const std::exception& e ) {
+        return 0;
+    }
+    return 1;
+]])],
+    [ enable_exceptions_after_longjmp=yes ],
+    [ enable_exceptions_after_longjmp=no ],
+    [ AC_MSG_ERROR([
+    Because you requested cross-compilation, I cannot guess
+    whether exceptions can be thrown after a call to longjmp(). Run
+    the test code in configure.ac on a host machine,
+    see if it returns with success and set 
+    --enable-exceptions-after-longjmp accordingly.]) ]) 
+        AC_MSG_RESULT([$enable_exceptions_after_longjmp])
+    ],
+    [])
+
+AS_IF(
+    [test "x$enable_exceptions_after_longjmp" = xyes],
+    [ AC_DEFINE([EXCEPTIONS_AFTER_LONGJMP], [1], [Can throw exceptions after calls to longjmp]) ],
+    []
+)
+
+AS_IF(
+    [test "x$enable_exceptions_after_longjmp" = xyes -a "x$enable_exceptions_in_signal_handlers" = xyes],
+    [ AC_MSG_ERROR([No method for emergency error recovery. Make sure either enable-exceptions-after-longjmp or enable-exceptions-in-signal-handlers works.]) ],
+    [])
  
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0

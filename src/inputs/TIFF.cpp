@@ -18,6 +18,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/ImageTraits.h>
+#include <dStorm/input/FileBasedMethod_impl.h>
 
 using namespace std;
 using namespace cimg_library;
@@ -119,23 +120,20 @@ Source< Pixel >*
 Config<Pixel>::impl_makeSource()
 {
     Source<Pixel>* ptr =
-        new Source<Pixel>(inputFile().c_str());
-    ptr->push_back( inputFile );
-    inputFile.editable = false;
+        new Source<Pixel>(this->inputFile().c_str());
+    ptr->push_back( this->inputFile );
+    this->inputFile.editable = false;
     return ptr;
 }
 
 template<typename Pixel>
 Config<Pixel>::Config( input::Config& src) 
-: Method< CImg<Pixel> >("TIFF", "TIFF file"),
-  master(src),
-  inputFile(src.inputFile),
-  tiff_extension("extension_tiff", ".tiff"),
-  tif_extension("extension_tif", ".tif")
+: FileBasedMethod< CImg<Pixel> >(
+        src, "TIFF", "TIFF file", 
+        "extension_tif", ".tif" ),
+  tiff_extension("extension_tiff", ".tiff")
 {
-    this->push_back(inputFile);
-    inputFile.push_back(tif_extension);
-    inputFile.push_back(tiff_extension);
+    this->inputFile.push_back(tiff_extension);
 }
 
 template<typename Pixel>
@@ -143,15 +141,10 @@ Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
     input::Config& src
 ) 
-: Method< CImg<Pixel> >(c),
-  master(src),
-  inputFile(src.inputFile),
-  tiff_extension(c.tiff_extension),
-  tif_extension(c.tif_extension)
+: FileBasedMethod< CImg<Pixel> >(c, src),
+  tiff_extension(c.tiff_extension)
 {
-    this->push_back(inputFile);
-    inputFile.push_back(tif_extension);
-    inputFile.push_back(tiff_extension);
+    this->inputFile.push_back(tiff_extension);
 }
 
 template class Config<unsigned char>;

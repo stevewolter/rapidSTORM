@@ -23,6 +23,7 @@
 #include <dStorm/input/ImageTraits.h>
 #include <AndorCamera/Config.h>
 #include <dStorm/input/BasenameWatcher.h>
+#include <dStorm/input/FileBasedMethod_impl.h>
 
 using namespace std;
 using namespace cimg_library;
@@ -177,13 +178,13 @@ Source<Pixel>::~Source() {
 }
 
 template<typename Pixel>
-void Source<Pixel>::operator()(Node& source, Cause, Node*) {
-    if ( &source == &showDetails.value && showDetails.triggered() ) {
+void Source<Pixel>::operator()(const simparm::Event& e) {
+    if ( &e.source == &showDetails.value && showDetails.triggered() ) {
         showDetails.untrigger();
         if ( sifInfo.get() ) sifInfo->viewable = true;
         showDetails.viewable = false;
         hideDetails.viewable = true;
-    } else if ( &source == &hideDetails.value && hideDetails.triggered() ) {
+    } else if ( &e.source == &hideDetails.value && hideDetails.triggered() ) {
         hideDetails.untrigger();
         if ( sifInfo.get() ) sifInfo->viewable = false;
         showDetails.viewable = true;
@@ -202,25 +203,22 @@ Source< Pixel >*
 Config<Pixel>::impl_makeSource()
 {
     Source<Pixel>* ptr =
-        new Source<Pixel>(inputFile().c_str());
-    ptr->push_back( inputFile );
+        new Source<Pixel>(this->inputFile().c_str());
+    ptr->push_back( this->inputFile );
     ptr->push_back_SIF_info();
-    inputFile.editable = false;
+    this->inputFile.editable = false;
     return ptr;
 }
 
 template<typename Pixel>
 Config<Pixel>::Config( input::Config& src) 
-: Method< CImg<Pixel> >("AndorSIF", "Andor SIF file"),
-  master(src),
-  inputFile(src.inputFile),
-  sif_extension("extension_sif", ".sif")
+: FileBasedMethod< CImg<Pixel> >(src,
+    "AndorSIF", "Andor SIF file",
+    "extension_sif", ".sif")
 {
-    this->push_back(inputFile);
-    this->push_back(master.firstImage);
-    this->push_back(master.lastImage);
-    this->push_back(master.pixel_size_in_nm);
-    inputFile.push_back(sif_extension);
+    this->push_back(src.firstImage);
+    this->push_back(src.lastImage);
+    this->push_back(src.pixel_size_in_nm);
 }
 
 template<typename Pixel>
@@ -228,15 +226,11 @@ Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
     input::Config& src
 ) 
-: Method< CImg<Pixel> >(c),
-  master(src),
-  inputFile(src.inputFile),
-  sif_extension(c.sif_extension)
+: FileBasedMethod< CImg<Pixel> >(c, src)
 {
-    this->push_back(inputFile);
-    this->push_back(master.firstImage);
-    this->push_back(master.lastImage);
-    inputFile.push_back(sif_extension);
+    this->push_back(src.firstImage);
+    this->push_back(src.lastImage);
+    this->push_back(src.pixel_size_in_nm);
 }
 
 template class Config<unsigned short>;

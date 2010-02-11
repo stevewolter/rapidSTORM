@@ -30,11 +30,13 @@ struct System::CamInfo {
 class CameraChooser : public simparm::Node::Callback {
     System& system;
   public:
-    CameraChooser(System& system) : system(system) {}
-    void operator()( simparm::Node&, Cause c, simparm::Node *) 
+    CameraChooser(System& system) 
+        : simparm::Node::Callback
+            ( simparm::Event::ValueChanged),
+        system(system) {}
+    void operator()(const simparm::Event&) 
     {
-        if ( c == ValueChanged )
-            system.selectCamera( system.choice_entry->value()() );
+        system.selectCamera( system.choice_entry->value()() );
     }
 };
 

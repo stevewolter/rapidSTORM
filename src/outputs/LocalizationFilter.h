@@ -83,7 +83,7 @@ class LocalizationFilter : public OutputObject,
         { return new LocalizationFilter(*this); }
     LocalizationFilter& operator=(const LocalizationFilter&);
 
-    void operator()(simparm::Node&, Cause, simparm::Node*);
+    void operator()(const simparm::Event&);
 
     AdditionalData announceStormSize(const Announcement&);
 

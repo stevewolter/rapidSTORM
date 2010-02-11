@@ -16,7 +16,7 @@ using namespace Phases;
 AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 
 : simparm::Object("AcquisitionMode", "Acquisition mode"),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   sm(sm),
   real_exposure_time(config.realExposureTime),
   real_kinetic_cycle_time(config.cycleTime)
@@ -27,8 +27,8 @@ AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 AcquisitionModeControl::AcquisitionModeControl(const AcquisitionModeControl& c):
   simparm::Object(c),
   _AcquisitionMode(c),
-  Listener(),
-  simparm::Node::Callback( Node::ValueChanged ),
+  StateMachine::Listener(),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   sm(c.sm),
   real_exposure_time(c.real_exposure_time),
   real_kinetic_cycle_time(c.real_kinetic_cycle_time)
@@ -77,25 +77,25 @@ _AcquisitionMode::_AcquisitionMode() :
 }
 
 void AcquisitionModeControl::operator()
-    (Node &src, Node::Callback::Cause c, Node *) 
+    (const simparm::Event& e) 
 {
-    if ( &src == &desired_exposure_time.value ) {
+    if ( &e.source == &desired_exposure_time.value ) {
         exp_time_is_max = ( desired_exposure_time() * 1.05 >= 
              desired_accumulate_cycle_time() );
-    } else if ( &src == &desired_accumulate_cycle_time.value ) {
+    } else if ( &e.source == &desired_accumulate_cycle_time.value ) {
         acc_time_is_max = ( desired_accumulate_cycle_time() * 1.05 >= 
              desired_kinetic_cycle_time() / number_of_accumulations() );
 
         desired_exposure_time.setMax( 
             desired_accumulate_cycle_time() );
-    } else if ( &src == &desired_kinetic_cycle_time.value ) {
+    } else if ( &e.source == &desired_kinetic_cycle_time.value ) {
         desired_accumulate_cycle_time.setMax( 
             desired_kinetic_cycle_time() / number_of_accumulations() );
-    } else if ( &src == &desired_accumulate_cycle_time.max ) {
+    } else if ( &e.source == &desired_accumulate_cycle_time.max ) {
         if ( acc_time_is_max )
             desired_accumulate_cycle_time.value
                 = desired_accumulate_cycle_time.max();
-    } else if ( &src == &desired_exposure_time.max ) {
+    } else if ( &e.source == &desired_exposure_time.max ) {
         if ( exp_time_is_max )
             desired_exposure_time.value
                 = desired_exposure_time.max();

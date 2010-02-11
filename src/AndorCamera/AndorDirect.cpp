@@ -19,6 +19,8 @@
 #include <AndorCamera/ShutterControl.h>
 #include "ViewportSelector.h"
 
+#include "LiveView.h"
+
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 
 using namespace std;
@@ -41,13 +43,12 @@ CamSource* AndorDirect::Config::impl_makeSource()
         throw std::runtime_error("Readout mode must be image for "
                                  "AndorDirect source");
 
-    std::auto_ptr<CamSource> cam_source( new Source( cam ) );
-    run_number = run_number() + 1;
+    std::auto_ptr<CamSource> cam_source( new Source( *this, cam ) );
     return cam_source.release();
 }
 
 AndorDirect::Source::Source
-    (CameraReference& c) 
+    (const Config& config, CameraReference& c) 
 
 : Set("AndorDirect", "Direct acquisition"),
   CamSource( static_cast<simparm::Node&>(*this),
@@ -58,19 +59,20 @@ AndorDirect::Source::Source
   initialized(false),
   acquisition(control),
   status(acquisition.status),
-  show_live("ShowLive", "Show camera image", true),
-  dynamic_range("DynamicRange", "Dynamic range of input image")
+  live_view( new LiveView(
+    config, 
+    control->config().cycleTime() *
+            cs_units::camera::fps
+  ) )
 {
     assert( canBePulled() == false );
     assert( pushTarget == NULL ); 
 
     status.editable = false;
-    dynamic_range.editable = false;
 
     push_back( c->config() );
     push_back( status );
-    push_back( show_live );
-    push_back( dynamic_range );
+    push_back( *live_view );
 }
 
 AndorDirect::Source::~Source() {
@@ -140,7 +142,7 @@ void Source::acquire()
                 break;
             else {
                 if ( nextIm.first != Acquisition::HadError )
-                    display_concurrently( *image, nextIm.second );
+                    live_view->show( *image, nextIm.second );
 
                 Management policy;
                 policy = pushTarget->accept(nextIm.second, 1, image.get());
@@ -208,15 +210,23 @@ void Source::stopPushing(Drain<CamImage> *target) {
 
 Config::Config(input::Config& config)  
 : CamConfig("AndorDirectConfig", "Direct camera control"),
-  simparm::Node::Callback( Node::ValueChanged ),
-  basename("OutputBasename", "Base name for output files"),
-  config_basename( config.basename ),
-  run_number("RunNumber", "Current run number", 0),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  basename("OutputBasename", "Base name for output files",
+           "dStorm_acquisition_$run$"),
+  show_live_by_default("ShowLiveByDefault",
+                       "Show camera images live by default",
+                       true),
+  live_show_frequency("LiveShowFrequency",
+            "Show live camera images every x seconds",
+            0.1),
   resolution_element( config.pixel_size_in_nm )
 {
+    output_file_basename = basename();
+
     PROGRESS("Making AndorDirect config");
 
-    run_number.userLevel = Object::Intermediate;
+    show_live_by_default.userLevel = Object::Expert;
+    live_show_frequency.userLevel = Object::Expert;
     push_back( config.pixel_size_in_nm );
     
     LOCKING("Receiving attach event");
@@ -227,14 +237,12 @@ Config::Config(input::Config& config)
 
 Config::Config(const Config &c, input::Config& config) 
 : CamConfig(c),
-  Node::Callback( Node::Callback::ValueChanged ),
+  Node::Callback( simparm::Event::ValueChanged ),
   basename(c.basename),
-  config_basename( config.basename ),
-  run_number( c.run_number ),
+  show_live_by_default( c.show_live_by_default ),
+  live_show_frequency( c.live_show_frequency ),
   resolution_element( config.pixel_size_in_nm )
 {
-    c.run_number = c.run_number() + 1;
-
     push_back( config.pixel_size_in_nm );
 
     registerNamedEntries();
@@ -372,74 +380,20 @@ void Config::registerNamedEntries()
         viewable = false;
 
     receive_changes_from( basename.value );
-    receive_changes_from( run_number.value );
 
     push_back( basename );
-    push_back( run_number );
+    push_back( show_live_by_default );
+    push_back( live_show_frequency );
 }
 
-void Source::display_concurrently( const CamImage& image, int number) {
-    dynamic_range.viewable = show_live();
-    if ( false && show_live() ) {
-        double image_time = control->config().cycleTime();
-        double show_time = 0.1;
-
-        CameraPixel minPix, maxPix;
-        minPix = image.minmax(maxPix);
-
-        cimg_library::CImg<uint8_t> normalized( 
-            image.get_normalize(0, 255) );
-
-        int show_cycle = max(1, int(round( show_time / image_time)));
-        if ( (number % show_cycle) == 0 ) {
-            if ( display.get() == NULL )
-                display.reset( new cimg_library::CImgDisplay(
-                    normalized, "Live camera view", 2) );
-            else if ( display->is_closed ) {
-                show_live = false;
-                display.reset( NULL );
-            } else
-                (*display) << normalized;
-        }  
-        if ( (number % show_cycle) % 10 == 0 ) {
-            std::stringstream dr;
-            dr << minPix << " to " << maxPix;
-            dynamic_range = dr.str();
-        }
-    } else {
-        display.reset( NULL );
-    }
-}
-
-void Config::operator()(Node &src, Cause c, Node *)
+void Config::operator()(const simparm::Event& e)
 {
-    if ( &src == &resolution_element ) {
+    if ( &e.source == &resolution_element ) {
         if ( switcher.get() != NULL )
             switcher->change_resolution( 
                 CamTraits::Resolution( resolution_element() * 1E-9 ) );
-    } else if ( &src == &basename.value || &src == &run_number.value ) {
-        std::string bn = basename();
-        std::stringstream fn;
-        for (std::string::size_type i = 0; i+1 < bn.size(); i++) {
-            if ( bn[i] == '$' ) {
-                std::string::size_type ind = bn.find('$', i+1);
-                if ( ind == std::string::npos )
-                    fn << '$';
-                else if ( ind == i+1 ) {
-                    i = ind;
-                    fn << '$';
-                } else {
-                    std::string t = bn.substr( i+1, ind-i-1 );
-                    if ( t == "run" )
-                        fn << setw(2) << setfill('0') << run_number();
-                    else 
-                        fn << "$" << t << "$";
-                    i = ind;
-                }
-            } else
-                fn << bn[i];
-        }
-        config_basename = fn.str();
+    } else if ( &e.source == &basename.value ) {
+        output_file_basename = basename();
     }
 }
 

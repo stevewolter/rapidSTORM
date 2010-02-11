@@ -1,3 +1,5 @@
+dstorm_start
+
 set test "help"
 send "help\n"
 expect {

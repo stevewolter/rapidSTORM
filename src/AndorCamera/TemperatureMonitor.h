@@ -15,7 +15,7 @@ namespace AndorCamera {
      *  Temperature monitoring will be started
      *  at constructor call and stops when the destructor is called.
      *  */
-    class TemperatureMonitor : private ost::Thread {
+    class TemperatureMonitor : private dStorm::Thread {
       private:
         /** Reference to the updated field. */
         simparm::DoubleEntry &realTemperature;

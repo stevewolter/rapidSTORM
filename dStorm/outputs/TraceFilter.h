@@ -27,7 +27,7 @@ class TraceCountFilter : public output::OutputObject,
 
     int count_localizations_in( const Localization &l );
     void processLocalization( const Localization& l);
-    void operator()(Node& src, Cause c, Node*);
+    void operator()(const simparm::Event&);
 
     /** As of yet, the copy constructor is not implemented. */
     TraceCountFilter(const TraceCountFilter&);
@@ -90,14 +90,14 @@ class TraceCountFilter::Config
     class WhichSpecificShower : public simparm::Node::Callback {
         simparm::BoolEntry &condition;
         simparm::Object &toShow;
-        void operator()(Node& src, Cause c, Node*) {
-            if ( &src == &condition.value && c == ValueChanged ) 
-                toShow.viewable = condition();
+        void operator()(const simparm::Event&) {
+            toShow.viewable = condition();
         }
       public:
         WhichSpecificShower(simparm::BoolEntry& condition, 
                             simparm::Object& toShow)
-            : condition(condition), toShow(toShow)
+            : simparm::Node::Callback( simparm::Event::ValueChanged ),
+            condition(condition), toShow(toShow)
             { receive_changes_from(condition.value); }
     };
     WhichSpecificShower shower;

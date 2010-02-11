@@ -54,7 +54,7 @@ Config::Config()
 : simparm::NodeChoiceEntry<ChoiceConfig>
     ("ChooseTransmission", "Choose new output"),
   SourceFactory( static_cast<simparm::Node&>(*this) ),
-  simparm::Node::Callback( Node::ValueChanged )
+  simparm::Node::Callback( simparm::Event::ValueChanged )
 {
     DEBUG("Constructing output config from scratch");
     set_auto_selection( false );
@@ -67,7 +67,7 @@ Config::Config( const Config& other )
 : simparm::NodeChoiceEntry<ChoiceConfig>(other, 
         simparm::NodeChoiceEntry<ChoiceConfig>::DeepCopy ),
   SourceFactory( static_cast<simparm::Node&>(*this), other),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   my_capabilities( other.my_capabilities )
 {
     DEBUG("Copying output config");
@@ -112,10 +112,10 @@ void Config::addChoice(OutputSource *toAdd) {
         new ChoiceConfig( std::auto_ptr<OutputSource>(toAdd) ) );
 }
 
-void Config::operator()(Node& src, Cause c, Node* arg)
+void Config::operator()(const simparm::Event& e)
 {
-    if ( &src == &value ) {
-        notifyChangeCallbacks( c, arg );
+    if ( &e.source == &value ) {
+        notifyChangeCallbacks( e.cause );
     }
 }
 

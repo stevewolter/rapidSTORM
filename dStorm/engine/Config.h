@@ -84,9 +84,10 @@ namespace engine {
          *  the setting of fixSigma. */
         class SigmaUserLevel : public Node::Callback {
             _Config& config;
+            void adjust();
           public:
             SigmaUserLevel(_Config &config);
-            void operator()(Node& source, Cause cause, Node *arg);
+            void operator()(const Event&);
         };
         SigmaUserLevel user_level_watcher;
      public:

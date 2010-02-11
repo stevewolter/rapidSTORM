@@ -4,6 +4,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/Attribute.hh>
 #include <cstring>
+#include "Config.h"
 
 namespace dStorm {
 namespace input {
@@ -17,57 +18,19 @@ namespace input {
 class BasenameWatcher 
 : public simparm::Node::Callback
 {
-    typedef simparm::Attribute<std::string> StrAttr;
+    MethodChoice& choice;
+    simparm::Attribute<std::string> &output;
+    simparm::Attribute<std::string> *current;
 
-    simparm::FileEntry &watch;
-    StrAttr &basename;
+    void attach();
 
  public:
     BasenameWatcher(
-        simparm::FileEntry &watch, 
-        StrAttr& basename
-    )
-    : watch(watch), basename(basename)
-    {
-        receive_changes_from( watch.value );
-    }
+        MethodChoice& choice,
+        simparm::Attribute<std::string>& output
+    );
 
-    void operator()( simparm::Node&, Cause cause, simparm::Node* )
-    {
-        if (cause == ValueChanged) {
-            /* Extension attributes start with this name. */
-            const std::string def_ext = "extension";
-
-            std::string rv = watch();
-            /* Find all string attribute childrens of watch. */
-            for (simparm::Node::const_iterator
-                 i=watch.begin(); i!=watch.end(); i++)
-            {
-                const StrAttr *a;
-                std::string name = i->getName();
-                if ( (a = dynamic_cast<const StrAttr*>(&*i)) != NULL &&
-                     name.substr(0,def_ext.size()) == def_ext )
-                {
-                    /* This is an attribute for a filename extension.
-                     * Try to find this extension on the file. */
-                    std::string extension = (*a)();
-                    int ext_size = extension.size();
-                    if ( ext_size == 0 || int(rv.size()) < ext_size ) 
-                        continue;
-
-                    std::string file_extension_part = 
-                        rv.substr( rv.size() - ext_size, ext_size );
-
-                    if ( 0 == strcasecmp( file_extension_part.c_str(),
-                                          extension.c_str() ) )
-                    {
-                        basename = rv.substr( 0, rv.size() - ext_size );
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    void operator()( const simparm::Event& );
 };
 
 }

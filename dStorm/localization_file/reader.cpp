@@ -6,7 +6,13 @@
 #include <fstream>
 #include <ctype.h>
 
+#include <dStorm/input/FileBasedMethod_impl.h>
+
 namespace dStorm {
+namespace input {
+template class FileBasedMethod<Localization>;
+}
+
 namespace LocalizationFile {
 namespace Reader {
 
@@ -74,17 +80,14 @@ void Source::read_localization(
 }
 
 Config::Config(input::Config& master)
-: input::Method<Localization>
-        ("STM", "Localizations file"),
-    master(master),
-    stm_extension("extension_stm", ".stm"),
+: input::FileBasedMethod<Localization>
+        (master, "STM", "Localizations file",
+                 "extension_stm", ".stm"),
     txt_extension("extension_txt", ".txt") 
 {
-    push_back(master.inputFile);
     push_back(master.firstImage);
     push_back(master.lastImage);
 
-    master.inputFile.push_back( stm_extension );
     master.inputFile.push_back( txt_extension );
 
     push_back( trace_reducer );
@@ -199,14 +202,13 @@ Config::~Config() {}
 
 Source* Config::impl_makeSource()
 {
-    if ( master.inputFile() == "" )
+    if ( this->inputFile() == "" )
         throw std::logic_error("No input file name set.");
 
-    File header = read_header(master.inputFile);
+    File header = read_header(this->inputFile);
     
     Source *src = new Source(header, trace_reducer.make_trace_reducer() );
-    src->apply_global_settings( master );
-    src->push_back( master.inputFile );
+    src->push_back( this->inputFile );
     return src;
 }
 

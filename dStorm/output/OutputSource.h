@@ -2,10 +2,12 @@
 #define TRANSMISSIONFACTORY_H
 
 #include "Output.h"
+#include "Basename.h"
 #include <memory>
 #include <simparm/Object.hh>
 #include <simparm/TreeEntry.hh>
 #include "SourceFactory_decl.h"
+#include "BasenameAdjustedFileEntry_decl.h"
 
 namespace simparm { class FileEntry; }
 
@@ -32,6 +34,10 @@ class OutputSource
     OutputSource(simparm::Node& node);
     OutputSource(simparm::Node& node, const OutputSource&);
 
+    /** FileEntry's given to this method will automatically be
+     *  updated to the new file basename if it is changed. */
+    void adjust_to_basename(BasenameAdjustedFileEntry&);
+
   public:
     simparm::Attribute<std::string> help_file;
 
@@ -39,8 +45,6 @@ class OutputSource
     operator simparm::Node&() { return node; }
     const simparm::Node& getNode() const { return node; }
     operator const simparm::Node&() const { return node; }
-
-    void adjust_to_basename(simparm::FileEntry&);
 
     virtual ~OutputSource();
     virtual OutputSource* clone() const = 0;
@@ -56,15 +60,11 @@ class OutputSource
      *          OutputSource objects. */
     virtual std::auto_ptr<Output> make_output() = 0;
 
-    static const int Basename_Accepted = 0;
-    static const int Basename_Conflicted = 1;
-
-    typedef int BasenameResult;
     /** Notification for new input file basename. \c avoid_name
      *  is the name of the input file; that name should be avoided,
      *  as it would overwrite our input. */
-    virtual BasenameResult set_output_file_basename
-        (const std::string& new_basename);
+    virtual void set_output_file_basename
+        (const Basename& new_basename);
 
     virtual std::string getDesc() const = 0;
 };

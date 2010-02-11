@@ -1,5 +1,4 @@
 #define DSTORM_CRANKSHAFT_CPP
-#define VERBOSE
 #include "Crankshaft.h"
 #include <iostream> 
 #include <sstream> 

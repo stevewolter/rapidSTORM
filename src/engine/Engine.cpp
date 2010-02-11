@@ -23,6 +23,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/ImageTraits.h>
 #include "doc/help/context.h"
+#include <setjmp.h>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -46,26 +47,49 @@ class EngineThread : public ost::Thread {
   private:
     Engine &engine;
     auto_ptr<string> nm;
+    jmp_buf panic_point;
+
   public:
-    EngineThread(Engine &engine, auto_ptr<string> name) 
-        : ost::Thread(name->c_str()), engine(engine), nm(name) {}
+    EngineThread(Engine &engine, 
+                 auto_ptr<string> name) 
+        : ost::Thread(name->c_str()), 
+          engine(engine), nm(name) {}
     ~EngineThread() {
         DEBUG("Collecting piston");
         join(); 
     }
     void run() throw() {
-        engine.safeRunPiston();
+        if ( setjmp( panic_point ) == 0 ) {
+            engine.safeRunPiston();
+        } else {
+            /* longjmp() was performed due to abnormal
+             * termination. Just die. */
+        }
+    }
+    void abnormal_termination(std::string r) {
+        std::cerr << "Computation thread " << *nm 
+                  << " in job " << engine.job_ident
+                  << " had a critical error: " << r
+                  << " Terminating job computation."
+                  << std::endl;
+        engine.stop();
     }
 };
 
-Engine::Engine(Config &config, Input &input, Output& output)
+Engine::Engine(
+    Config &config, 
+    std::string job_ident,
+    Input &input, 
+    Output& output
+)
 : Object("EngineStatus", "Computation status"),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   config(config),
   stopper("EngineStopper", "Stop computation"),
   errors("ErrorCount", "Number of dropped images", 0),
   input(input), output(&output), emergencyStop(false),
-  error(false)
+  error(false),
+  job_ident( job_ident )
 {
     DEBUG("Constructing engine");
 

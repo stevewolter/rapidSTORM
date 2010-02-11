@@ -9,7 +9,7 @@ TraceCountFilter::TraceCountFilter(
     std::auto_ptr<output::Output> output
 ) 
 : output::OutputObject("TraceFilter", "Trace filter"),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   minCount(c.min_count()), 
     disassemble(c.disassemble()), output(output),
     selectSpecific(c.selectSpecific),
@@ -47,10 +47,10 @@ void TraceCountFilter::processLocalization( const Localization& l)
     }
 }
 
-void TraceCountFilter::operator()(Node& src, Cause c, Node*) {
-    if ( &src == &selectSpecific.value ) {
+void TraceCountFilter::operator()(const simparm::Event& e) {
+    if ( &e.source == &selectSpecific.value ) {
         whichSpecific.viewable = selectSpecific();
-    } else if ( &src == &whichSpecific.value ) {
+    } else if ( &e.source == &whichSpecific.value ) {
         result_repeater->repeat_results();
     }
 }

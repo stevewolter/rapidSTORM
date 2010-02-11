@@ -7,19 +7,23 @@
 #include <dStorm/input/Config.h>
 #include <memory>
 #include <simparm/Set.hh>
+#include <simparm/Callback.hh>
 
 namespace dStorm {
 namespace output { class OutputSource; }
 namespace engine {
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
-    class CarConfig : public simparm::Set {
+    class CarConfig : public simparm::Set,
+        simparm::Listener
+    {
       private:
         class TreeRoot;
         std::auto_ptr<input::Config> _inputConfig;
         std::auto_ptr<engine::Config> _engineConfig;
         std::auto_ptr<TreeRoot> outputRoot;
         void registerNamedEntries();
+        void operator()(const simparm::Event&);
 
       public:
         CarConfig();

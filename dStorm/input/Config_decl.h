@@ -5,6 +5,7 @@
 namespace dStorm {
 namespace input {
 
+class MethodChoice;
 class Config;
 
 }

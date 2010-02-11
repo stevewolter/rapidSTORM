@@ -4,6 +4,7 @@
 #include <dStorm/input/SerialSource.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Method.h>
+#include <dStorm/input/FileBasedMethod.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -56,7 +57,7 @@ namespace dStorm {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public Method< CImg<PixelType> >
+    : public FileBasedMethod< CImg<PixelType> >
     {
       public:
         typedef input::Config MasterConfig;
@@ -64,11 +65,6 @@ namespace dStorm {
         Config(MasterConfig& src);
         Config(const Config &c, MasterConfig& src);
 
-        MasterConfig &master;
-        simparm::FileEntry &inputFile;
-
-        Config* clone() const
-            { throw std::logic_error("TIFF::Config unclonable."); }
         Config* clone(MasterConfig& newMaster) const
             { return new Config<PixelType>(*this, newMaster); }
 
@@ -76,7 +72,7 @@ namespace dStorm {
         Source< PixelType >* impl_makeSource();
 
       private:
-        simparm::Attribute<std::string> tiff_extension, tif_extension;
+        simparm::Attribute<std::string> tiff_extension;
     };
 }
 

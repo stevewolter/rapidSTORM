@@ -17,8 +17,10 @@ class Slicer : public OutputObject {
     class Source;
   private:
     frame_count slice_size, slice_distance;
-    std::string filename;
+    Basename filename;
     class _Config;
+
+    Basename fn_for_slice( int i ) const;
 
     std::auto_ptr<Source> source;
 
@@ -115,25 +117,34 @@ class Slicer::_Config : public simparm::Object {
 class Slicer::Source
 : public Slicer::Config, public FilterSource
 {
+    Basename basename;
+
   public:
     Source() 
         : FilterSource(static_cast<Slicer::Config&>(*this))
-        {}
+        {
+            this->filename.erase( filename.value );
+            filename.push_back( basename.unformatted() );
+        }
     Source(const Source& o) 
         : Config(o), 
           FilterSource(static_cast<Slicer::Config&>(*this),
-                       o) {}
+                       o) 
+        {
+            this->filename.erase( filename.value );
+            filename.push_back( basename.unformatted() );
+        }
     Source* clone() const { return new Source(*this); }
 
     virtual std::auto_ptr<Output> make_output() 
  
         { return std::auto_ptr<Output>( new Slicer( *this ) ); }
 
-    BasenameResult set_output_file_basename
-        (const std::string& basename)
+    void set_output_file_basename
+        (const Basename& basename)
     {
-        filename = basename + "_%i";
-        return Basename_Accepted;
+        this->basename = basename;
+        this->basename.append( "_%slice%" );
     }
 
     std::string getDesc() const 

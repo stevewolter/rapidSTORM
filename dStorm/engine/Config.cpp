@@ -158,23 +158,25 @@ void _Config::registerNamedEntries() {
 
 
 Config::SigmaUserLevel::SigmaUserLevel(_Config &config)
- : config(config) 
+ : Node::Callback( Event::ValueChanged ),
+   config(config) 
 { 
     receive_changes_from( config.fixSigma.value );
-    (*this)( config.fixSigma.value, ValueChanged, NULL ); 
+    adjust();
 }
 
-void Config::SigmaUserLevel::operator()
-    (Node& src, Cause cause, Node *) 
+void Config::SigmaUserLevel::operator()(const Event&) 
 {
-    if (&src == &config.fixSigma.value && cause == ValueChanged) {
-        Entry::UserLevel userLevel
-            = (config.fixSigma()) ? Entry::Beginner
-                         : Entry::Expert;
-        config.sigma_x.setUserLevel(userLevel);
-        config.sigma_y.setUserLevel(userLevel);
-        config.sigma_xy.setUserLevel(userLevel);
-    }
+    adjust();
+}
+
+void Config::SigmaUserLevel::adjust() {
+    Entry::UserLevel userLevel
+        = (config.fixSigma()) ? Entry::Beginner
+                        : Entry::Expert;
+    config.sigma_x.setUserLevel(userLevel);
+    config.sigma_y.setUserLevel(userLevel);
+    config.sigma_xy.setUserLevel(userLevel);
 }
 
 Config::Config() 

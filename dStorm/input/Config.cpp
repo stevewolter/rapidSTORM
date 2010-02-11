@@ -112,7 +112,7 @@ Config::Config()
     this->inputMethod.addChoice( new AutoMethod(*this) );
     this->registerNamedEntries();
 
-    watcher.reset( new BasenameWatcher( this->inputFile, basename ) );
+    watcher.reset( new BasenameWatcher( this->inputMethod, basename ) );
 }
 
 Config::Config(const Config& c)
@@ -121,7 +121,7 @@ Config::Config(const Config& c)
 { 
     this->inputMethod.copyChoices( c.inputMethod, *this );
     this->registerNamedEntries();
-    watcher.reset( new BasenameWatcher( this->inputFile, basename ) );
+    watcher.reset( new BasenameWatcher( this->inputMethod, basename ) );
 }
 
 Config::~Config() {

@@ -29,19 +29,26 @@ struct BasenamePrinter
 };
 
 struct BasenamePrinter::_Config
- : public simparm::Object 
+ : public simparm::Object ,
+   simparm::Listener
 {
-    simparm::FileEntry outputFile;
+    dStorm::output::BasenameAdjustedFileEntry outputFile;
 
     _Config();
-    void registerNamedEntries() {}
+    void registerNamedEntries() 
+        { receive_changes_from(outputFile.value); }
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
+    void operator()( const simparm::Event& ) {
+        std::cerr << this << ": Displaying output file name "
+                  << outputFile.unformatted_name() << "\n";
+    }
 };
 
 BasenamePrinter::_Config::_Config()
  : simparm::Object("BasenamePrinter", "BasenamePrinter"),
-   outputFile("ToFile", "")
+   simparm::Listener( simparm::Event::ValueChanged ),
+   outputFile("ToFile", "", ".foo")
 {
 }
 

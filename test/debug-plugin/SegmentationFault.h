@@ -16,7 +16,13 @@ struct SegmentationFault
     bool onAnnouncement;
     int onImageNumber;
 
-    void segfault() { *(int*)(0x23) = 0; *(int*)(~0x23) = 0; }
+    void segfault() { 
+        std::cerr << "Segfault at 0x23" << std::endl;
+        *(int*)(0x23) = 0;
+        std::cerr << "Segfault at ~0x23" << std::endl;
+        *(int*)(~0x23) = 0;
+        std::cerr << "Segfaults finished" << std::endl;
+    }
 
     SegmentationFault(const Config& config) ;
     SegmentationFault* clone() const;

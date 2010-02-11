@@ -50,7 +50,7 @@ class Temperature
     Temperature(const Temperature&c);
     ~Temperature();
 
-    void operator()(Node &, Cause, Node *);
+    void operator()(const simparm::Event&);
     void controlStateChanged(Phase phase, State from, State to);
 };
 

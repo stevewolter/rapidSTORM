@@ -6,7 +6,7 @@
 
 #include <dStorm/input/SerialSource.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/Method.h>
+#include <dStorm/input/FileBasedMethod.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -63,7 +63,7 @@ namespace AndorSIF {
          std::auto_ptr<Set> sifInfo;
          simparm::TriggerEntry showDetails, hideDetails;
 
-         void operator()( Node&, Cause, Node* );
+         void operator()(const simparm::Event&);
 
          CImg<PixelType>* load();
     };
@@ -72,7 +72,7 @@ namespace AndorSIF {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public Method< CImg<PixelType> >
+    : public FileBasedMethod< CImg<PixelType> >
     {
       public:
         typedef input::Config MasterConfig;
@@ -80,21 +80,11 @@ namespace AndorSIF {
         Config(MasterConfig& src);
         Config(const Config &c, MasterConfig& src);
 
-        MasterConfig &master;
-        simparm::FileEntry &inputFile;
-
-        Config* clone() const
-            { throw std::logic_error("AndorSIF::Config unclonable."); }
         Config* clone(MasterConfig& newMaster) const
             { return new Config<PixelType>(*this, newMaster); }
 
       protected:
-        Source< PixelType >* impl_makeSource() 
-;
-
-      private:
-        simparm::Attribute<std::string> sif_extension;
-        std::auto_ptr<BasenameWatcher> watcher;
+        Source< PixelType >* impl_makeSource();
     };
 }
 

@@ -3,15 +3,17 @@ libinput_la_SOURCES = \
     Config.cpp Method.cpp \
     ImageSource.cpp \
     Source.cpp ImageTraits.cpp AutoInputMethod.h \
-    SerialSource.cpp 
+    BasenameWatcher.cpp \
+    SerialSource.cpp \
+    FileBasedMethod.cpp
 library_includedir = $(includedir)/dStorm/input
 library_include_HEADERS = \
 	AutoInputMethod.h \
-	BasenameWatcher_decl.h \
-	BasenameWatcher.h \
+	BasenameWatcher_decl.h BasenameWatcher.h \
 	Buffer_decl.h Buffer.h Buffer_impl.h \
 	Config_decl.h Config.h \
 	Drain_decl.h Drain.h \
+	FileBasedMethod.h FileBasedMethod_impl.h \
 	ImageTraits_decl.h ImageTraits.h \
 	Method_decl.h Method.h \
 	SerialSource.h SerialSource_impl.h \

@@ -15,12 +15,18 @@ namespace input {
      *  on source production will be selected and its source 
      *  returned. */
     class AutoMethod 
-    : public BaseMethod
+    : public BaseMethod, simparm::Node::Callback
     {
       private:
         Config& master;
         bool recursive;
+        const simparm::FileEntry& inputFile;
         AutoMethod(const AutoMethod&);
+
+        void operator()( const simparm::Event& ) {
+            BaseMethod::output_file_basename =
+                inputFile.without_extension();
+        }
 
       protected:
         BaseSource* impl_makeSource()
@@ -59,20 +65,37 @@ namespace input {
       public:
         AutoMethod(Config& master) 
         : BaseMethod("Auto", "File"),
-          master(master), recursive(false) 
+          simparm::Node::Callback( simparm::Event::ValueChanged ),
+          master(master), recursive(false) ,
+          inputFile( master.inputFile )
         {
             this->push_back(master.inputFile);
             this->push_back(master.firstImage);
             this->push_back(master.lastImage);
+
+            receive_changes_from( master.inputFile.value );
         }
 
-        bool uses_input_file() const { return false; }
+        AutoMethod(const AutoMethod& am, Config& master) 
+        : BaseMethod(am),
+          simparm::Node::Callback( simparm::Event::ValueChanged ),
+          master(master), recursive(false) ,
+          inputFile( master.inputFile )
+        {
+            this->push_back(master.inputFile);
+            this->push_back(master.firstImage);
+            this->push_back(master.lastImage);
+
+            receive_changes_from( master.inputFile.value );
+        }
+
+        bool uses_input_file() const { return true; }
 
         AutoMethod* clone() const
             { throw std::logic_error("AutoMethod unclonable."); }
         AutoMethod* clone
             (Config &newMaster) const 
-            { return (new AutoMethod(newMaster)); }
+            { return (new AutoMethod(*this, newMaster)); }
     };
 }
 }

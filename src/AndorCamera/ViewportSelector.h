@@ -45,7 +45,7 @@ class Display : public simparm::Set,
     simparm::FileEntry         imageFile;
     simparm::TriggerEntry      save;
 
-    void operator()(Node &, Cause, Node *);
+    void operator()(const simparm::Event&);
 
     /** Reference to the config element to be configured. */
     ImageReadout* aimed;
@@ -135,7 +135,7 @@ class Config
 
     Config& operator=(const Config&);
 
-    void operator()(Node &src, Cause c, Node*);
+    void operator()(const simparm::Event&);
 
     void delete_active_selector();
     void set_resolution( const Resolution& );

@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include <dStorm/input/Method.h>
+#include <dStorm/input/FileBasedMethod.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/output/TraceReducer.h>
@@ -64,12 +64,11 @@ namespace Reader {
     };
 
     class Config 
-    : public input::Method<Localization>
+    : public input::FileBasedMethod<Localization>
     {
       private:
-        input::Config& master;
         output::TraceReducer::Config trace_reducer;
-        simparm::Attribute<std::string> stm_extension, txt_extension;
+        simparm::Attribute<std::string> txt_extension;
         
       public:
         Config(input::Config& master);

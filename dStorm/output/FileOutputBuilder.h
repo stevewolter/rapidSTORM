@@ -2,6 +2,7 @@
 #define DSTORM_FILEOUTPUTBUILDER_H
 
 #include "OutputBuilder.h"
+#include "BasenameAdjustedFileEntry.h"
 
 namespace dStorm {
 namespace output {

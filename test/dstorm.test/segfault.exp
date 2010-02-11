@@ -1,13 +1,46 @@
 dstorm_start
-set test "segfault"
-send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.sif\n"
-after 100
-send "in Car in Output in EngineOutput set ChooseTransmission = SegFault\n"
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = true\n"
-send "in Car set Run = 1\n"
-expect {
-    -re "Started run" { fail "$test" }
-    -re "what().*Segmentation fault." { xfail "$test" }
+
+expect_after {
     timeout { fail "$test" }
     eof { fail "$test" }
 }
+
+set test "segfault in announcement"
+send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "in Car in Output in EngineOutput set ChooseTransmission = SegFault\n"
+send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = true\n"
+send "in Car in Output in EngineOutput set ChooseTransmission = Verbose\n"
+send "in Car set Run = 1\n"
+expect {
+    -re "Verbose plugin got announcement" { fail "$test" }
+    -re "Terminating job" { pass "$test" }
+}
+send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = false\n"
+
+set test "segfault in construction"
+send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = true\n"
+send "in Car set Run = 1\n"
+expect {
+    -re "Terminating program" { fail "$test" }
+    -re "not perform action.*segmentation fault" { pass "$test" }
+    -re "Starting job failed.*segmentation fault" { pass "$test" }
+}
+send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = false\n"
+
+set test "able to continue after segfault in construction"
+send "in Car in Engine set CPUNumber = 1\n"
+send "in Car in Output in EngineOutput in Output0 in SegFault set OnImageNumber = 3\n"
+send "in Car set Run = 1\n"
+expect {
+    -re "Verbose plugin got results for 0" { pass "$test" }
+    -re "egmentation fault" { fail "$test" }
+}
+
+set timeout 30
+set test "segfault during job"
+expect {
+    -re "Terminating job" { pass "$test" }
+    -re "Verbose plugin got results for 4" { fail "$test" }
+}
+
+untested "segfault in n-th working thread"

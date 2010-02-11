@@ -35,9 +35,9 @@ void RawImageFile::error_handler( const char* module,
 
 RawImageFile::_Config::_Config() 
 : simparm::Object("RawImage", "Save raw images"),
-  outputFile("ToFile", "TIF output file name")
+  outputFile("ToFile", "TIF output file name",
+   ".tif")
 {
-    outputFile.default_extension = ".tif";
 }
 
 RawImageFile::RawImageFile(const Config& config)

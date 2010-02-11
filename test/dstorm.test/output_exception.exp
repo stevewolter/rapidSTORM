@@ -22,6 +22,7 @@ expect {
     eof { fail "$test" }
 }
 
+set timeout 10
 set test "output exception at image 3"
 send "in Car in Output in EngineOutput in Output0 in Exception set OnAnnouncement = false\n"
 send "in Car in Output in EngineOutput in Output0 in Exception set OnImageNumber = 3\n"

@@ -2,6 +2,8 @@ noinst_LTLIBRARIES = liboutput.la
 
 library_includedir = $(includedir)/dStorm/output
 library_include_HEADERS = \
+    Basename.h \
+    BasenameAdjustedFileEntry_decl.h BasenameAdjustedFileEntry.h \
     Capabilities.h \
     Config.h \
     FileOutputBuilder.h \
@@ -24,6 +26,8 @@ AM_CPPFLAGS = \
 
 liboutput_la_SOURCES = \
     debug.h \
+    Basename.cpp \
+    BasenameAdjustedFileEntry.cpp \
     Config.cpp \
     FilterSource.cpp \
     OutputSource.cpp Trace.cpp \

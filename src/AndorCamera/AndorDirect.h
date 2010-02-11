@@ -17,20 +17,11 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
-#include <stdint.h>
 
-namespace cimg_library {
-    template <typename PixelType> class CImg;
-    class CImgDisplay;
-};
+#include "LiveView_decl.h"
 
 namespace dStorm {
     namespace AndorDirect {
-        typedef uint16_t CameraPixel;
-        typedef cimg_library::CImg<CameraPixel> CamImage;
-        typedef input::Source< CamImage > CamSource;
-        typedef input::Method<CamImage> CamConfig;
-        typedef input::Traits<CamImage> CamTraits;
 
         /** The Config class provides the configuration items for Andor camera
          *  acquisition that are acquisition-specific - control elements and
@@ -42,15 +33,17 @@ namespace dStorm {
             class CameraSwitcher;
             std::auto_ptr<CameraSwitcher> switcher;
             simparm::FileEntry basename;
-            simparm::Attribute<std::string>& config_basename;
-            mutable simparm::UnsignedLongEntry run_number;
+          public:
+            simparm::BoolEntry show_live_by_default;
+            simparm::DoubleEntry live_show_frequency;
             const simparm::DoubleEntry& resolution_element;
 
+          private:
             void registerNamedEntries();
 
           protected:
             CamSource* impl_makeSource();
-            void operator()(Node &, Cause, Node *);
+            void operator()(const simparm::Event&);
 
           public:
             Config(input::Config& src);
@@ -62,8 +55,6 @@ namespace dStorm {
 
             Config* clone(input::Config &newMaster) const
                 { return new Config(*this, newMaster); }
-
-            std::string get_basename_of_output_file();
             bool uses_input_file() const { return false; }
         };
 
@@ -88,14 +79,12 @@ namespace dStorm {
             void waitForInitialization() const;
 
             simparm::StringEntry& status;
-            simparm::BoolEntry show_live;
-            simparm::StringEntry dynamic_range;
 
-            std::auto_ptr< cimg_library::CImgDisplay > display;
-            void display_concurrently( const CamImage& image, int num );
+            std::auto_ptr<LiveView> live_view;
 
           public:
-            Source(AndorCamera::CameraReference& camera);
+            Source(const Config& config,
+                   AndorCamera::CameraReference& camera);
             Source(const Source &);
             virtual ~Source();
             Source *clone() const { 

@@ -1,6 +1,10 @@
 #ifndef TESTPLUGIN_DELAYER_H
 #define TESTPLUGIN_DELAYER_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <simparm/Entry.hh>
 #include <simparm/NumericEntry.hh>
 #include <dStorm/output/Output.h>
@@ -25,7 +29,11 @@ struct Delayer
         return AdditionalData(); 
     }
     Result receiveLocalizations(const EngineResult& er) {
-        sleep( 1 );
+#ifdef HAVE_USLEEP
+        usleep( 1E6 );
+#elif HAVE_WINDOWS_H
+	Sleep( 1000 );
+#endif
         return KeepRunning;
     }
     void propagate_signal(ProgressSignal s) {

@@ -6,6 +6,14 @@
 #include <boost/thread/thread.hpp>
 #include <boost/utility.hpp>
 #include <set>
+#include <Eigen/Core>
+
+namespace Eigen {
+
+template <> class NumTraits<dStorm::Pixel>
+    : public NumTraits<int> {};
+
+}
 
 class Manager : public dStorm::Display::Manager {
     class Handle;
@@ -20,10 +28,22 @@ class Manager : public dStorm::Display::Manager {
     typedef boost::lock_guard<
         boost::mutex> guard;
     boost::thread thread;
-    bool was_started;
+    bool running;
 
-    typedef std::set<dStorm::Display::DataSource*>
-        Sources;
+    struct Source {
+        typedef Eigen::Matrix<dStorm::Pixel,
+                              Eigen::Dynamic,
+                              Eigen::Dynamic> Image;
+        dStorm::Display::DataSource& handler;
+        Image current_display;
+
+        Source( const WindowProperties& properties,
+                dStorm::Display::DataSource& source );
+        void handle_resize( 
+            const dStorm::Display::ResizeChange& );
+        bool get_and_handle_change();
+    };
+    typedef std::list<Source> Sources;
     Sources sources;
 
     void dispatch_events();
@@ -31,6 +51,7 @@ class Manager : public dStorm::Display::Manager {
   public:
     Manager();
     Manager(const Manager&);
+    ~Manager();
 };
 
 #endif

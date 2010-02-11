@@ -45,7 +45,7 @@ namespace output {
         void addChoice(OutputSource *toAdd);
 
         void reset_state() { value = NULL; }
-        void operator()(Node&, Cause, Node*);
+        void operator()(const simparm::Event&);
     };
 
 }

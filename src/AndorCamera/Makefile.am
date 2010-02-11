@@ -16,7 +16,9 @@ if HAVE_LIBATMCD32D
 	ViewportSelector.h ViewportSelector.cpp \
 	Initialization.h AcquisitionMode.h \
 	Acquisition.h Readout.h Camera.h Triggering.h CameraReference.h \
-	System.h Temperature.h ShiftSpeedControl.h Gain.h ShutterControl.h
+	System.h Temperature.h ShiftSpeedControl.h Gain.h ShutterControl.h \
+	AndorDirect_decl.h LiveView_decl.h LiveView.h \
+	LiveView.cpp
 else
     ACS = 
 endif

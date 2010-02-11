@@ -13,16 +13,7 @@ proc dstorm_exit {} {
     }
 }
 
-proc dstorm_start {} {
-    global DSTORM
-    global spawn_id
-    global verbose
-    global has_debug
-
-    if { $verbose > 1 } {
-        send_user "starting $DSTORM --Twiddler\n"
-    }
-    spawn /usr/bin/env RAPIDSTORM_PLUGINDIR=./debug-plugin/.libs $DSTORM --Twiddler
+proc dstorm_attach {} {
     send "attach\n"
     expect {
         -re "attach" {}

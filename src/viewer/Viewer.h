@@ -48,7 +48,7 @@ class Viewer : public output::OutputObject,
 
   protected:
     /** Configuration event received. */
-    void operator()(Node&, Cause, Node *);
+    void operator()(const simparm::Event&);
 
     /** Write the current image into a file. The whole
         *  image is written, regardless of the settings

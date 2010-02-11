@@ -1,0 +1,8 @@
+set env(SIMCAM_CAMCOUNT) "0"
+dstorm_start
+
+set test "help"
+send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+expect {
+    -re "--" { pass "help" }
+}

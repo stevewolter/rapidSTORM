@@ -15,12 +15,12 @@ namespace input {
     *  that can provide a Source object. */
 class BaseMethod : public simparm::Object {
   protected:
-    BaseMethod(const std::string& name, const std::string& desc)
-        : simparm::Object(name, desc) {}
+    BaseMethod(const std::string& name, const std::string& desc);
     virtual BaseSource *impl_makeSource() = 0;
     
   public:
     virtual bool uses_input_file() const { return true; }
+    simparm::Attribute<std::string> output_file_basename;
 
     /** This method is provided for compatibility with simparm::Object
         *  and always fails. */

@@ -110,7 +110,7 @@ class Manager : boost::noncopyable {
      *  This method is intended for users which are
      *  not satisfied with the \c register_data_source
      *  interface, but need to do GUI stuff. */
-    virtual void run_in_GUI_thread( ost::Runnable* code )=0;
+    virtual void run_in_GUI_thread( dStorm::Runnable* code )=0;
 
   protected:
     Manager() {}

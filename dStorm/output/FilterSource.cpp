@@ -47,7 +47,7 @@ void FilterSource::registerNamedEntries()
 
 FilterSource::FilterSource(simparm::Node& node)
 : OutputSource( node ),
-  Callback( ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   next_identity(0),
   factory( NULL ),
   removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
@@ -59,7 +59,7 @@ FilterSource::FilterSource(simparm::Node& node)
 
 FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
 : OutputSource(node, o),
-    simparm::Node::Callback(ValueChanged),
+    simparm::Node::Callback(simparm::Event::ValueChanged),
     next_identity(o.next_identity),
     factory( NULL ),
     outputs(),
@@ -77,22 +77,16 @@ FilterSource::~FilterSource() {
         DEBUG("Destroying filter source");
 }
 
-FilterSource::BasenameResult
+void
 FilterSource::set_output_file_basename
-    (const std::string& basename) 
+    (const Basename& basename) 
 {
     this->basename = basename;
 
     for (Outputs::iterator i = 
                     outputs.begin(); i != outputs.end(); i++)
-    {
-        BasenameResult r = 
-            (*i)->set_output_file_basename(basename);
-        if ( r == Basename_Conflicted )
-            return r;
-    }
+        (*i)->set_output_file_basename(basename);
 
-    return Basename_Accepted;
 }
 
 void FilterSource::add
@@ -109,16 +103,15 @@ void FilterSource::remove( OutputSource& src ) {
 }
 
 void FilterSource::operator()
-    ( simparm::Node& src, Cause c, simparm::Node *)
+    ( const simparm::Event& e)
 {
-    if (&src == &factory->getNode() )
+    if (&e.source == &factory->getNode() )
     {
         try {
             std::auto_ptr<OutputSource> fresh
                                     = factory->make_output_source();
             if ( fresh.get() != NULL ) {
-                if ( basename != "" )
-                    fresh->set_output_file_basename(basename);
+                fresh->set_output_file_basename(basename);
                 add( fresh );
                 /* To give some kind of visual feedback that the action was
                 * performed, we reset the factory ( which means, normally,
@@ -128,7 +121,7 @@ void FilterSource::operator()
         } catch (const std::exception& e) {
             std::cerr << e.what() << "\n";
         }
-    } else if (&src == removeSelector.get() ) {
+    } else if (&e.source == removeSelector.get() ) {
         if ( removeSelector->isValid() ) {
             remove( *removeSelector->value().src );
         }

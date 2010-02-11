@@ -15,6 +15,15 @@ AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
 
+if HAVE_WINDRES
+    RESOURCE_FILE = windows_resources.rc
+else
+    RESOURCE_FILE =
+endif
+
+.rc.o : 
+	$(WINDRES) -I . '$<' '$@'
+
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \
     engine/libengine.la inputs/libinputs.la \
@@ -22,12 +31,14 @@ COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     AndorCamera/libAndorCamera.la ../dStorm/libdStorm.la 
 dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h \
                  MasterConfig.h MasterConfig.cpp GarageConfig.cpp \
-		 debug.h
-dstorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread-mt
+		 debug.h error_handler.h error_handler.cpp \
+		 $(RESOURCE_FILE)
+dstorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread
     
 watchStorm_SOURCES = watchStorm.cpp Garage.cpp \
-                     MasterConfig.h MasterConfig.cpp GarageConfig.cpp
-watchStorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread-mt
+                     MasterConfig.h MasterConfig.cpp GarageConfig.cpp \
+		     error_handler.h error_handler.cpp
+watchStorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread
 
 javadir=$(datadir)/java
 java_DATA = de/uni_bielefeld/physik/rapid2STORM/DStorm.class

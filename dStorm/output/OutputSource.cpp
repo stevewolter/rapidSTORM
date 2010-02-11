@@ -1,5 +1,6 @@
 #include "Output.h"
 #include "OutputSource.h"
+#include "BasenameAdjustedFileEntry.h"
 #include <cassert>
 #include <sstream>
 #include <list>
@@ -19,7 +20,7 @@ Output::Announcement::Announcement(
     result_repeater(repeater) {}
 
 class OutputSource::AdjustedList 
-: public std::list< simparm::FileEntry* > {};
+: public std::list< BasenameAdjustedFileEntry* > {};
 
 OutputSource::OutputSource(simparm::Node& node) 
 : node(node),
@@ -43,23 +44,20 @@ OutputSource::OutputSource(simparm::Node& node, const OutputSource& o)
 OutputSource::~OutputSource() {
 }
 
-void OutputSource::adjust_to_basename(simparm::FileEntry& e)
- 
+void OutputSource::adjust_to_basename(BasenameAdjustedFileEntry& e)
 {
     adjustedList->push_back( &e );
 }
 
-OutputSource::BasenameResult
-OutputSource::set_output_file_basename(const std::string& new_basename)
+void
+OutputSource::set_output_file_basename(const Basename& new_basename)
 {
     for ( AdjustedList::iterator i  = adjustedList->begin(); 
                                  i != adjustedList->end(); i++)
     {
-        std::string ext = (*i)->default_extension();
-        std::string filename = new_basename +ext;
-        (*i)->value = filename;
+        (*i)->set_output_file_basename(
+            new_basename );
     }
-    return Basename_Accepted;
 }
 
 std::ostream &operator<<(std::ostream &o, 
