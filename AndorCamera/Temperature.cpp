@@ -10,6 +10,49 @@ using namespace SDK;
 
 namespace AndorCamera {
 
+static bool atexit_handler_installed = false;
+
+static void emergency_camera_handler() {
+    try {
+        int num_cameras = GetAvailableCameras();
+        for (int i = 0; i < num_cameras; i++) {
+            try { 
+                if ( GetStatus() == Is_Acquiring )
+                    AbortAcquisition();
+            } catch ( const std::exception& e ) {
+            }
+            try { 
+                SetShutter( Shutter::High,
+                            Shutter::Closed, 1, 1);
+            } catch ( const std::exception& e ) {
+            }
+
+            try { 
+                CoolerOFF();
+            } catch ( const std::exception& e ) {
+            }
+
+            try { 
+                if ( GetTemperatureF().second < -20 ) {
+                    std::cerr
+                        << "Bringing temperature of camera " << i << " back up to -20 degrees celsius." << std::endl;
+                    while ( GetTemperatureF().second < -20 )
+                        ;
+                }
+            } catch ( const std::exception& e ) {
+            }
+        }
+    } catch (const std::exception& e) {
+    }
+}
+
+static void ensure_emergency_warming_handler_is_installed()
+{
+    if ( !atexit_handler_installed ) {
+        atexit( emergency_camera_handler );
+    }
+}
+
 using namespace States;
 using namespace Phases;
 
@@ -36,7 +79,7 @@ _Temperature::_Temperature() :
 
 Temperature::Temperature(StateMachine& sm, Config &conf)
 : Object("Temperature", "Temperature"),
-  Node::Callback(Node::ValueChanged),
+  Node::Callback(simparm::Event::ValueChanged),
   sm(sm),
   targetTemperature(conf.targetTemperature),
   am_cooling(false)
@@ -47,8 +90,8 @@ Temperature::Temperature(StateMachine& sm, Config &conf)
 Temperature::Temperature(const Temperature&c)
 : Object(c),
   _Temperature(c),
-  Listener(),
-  Node::Callback(Node::ValueChanged),
+  StateMachine::Listener(),
+  Node::Callback(simparm::Event::ValueChanged),
   sm(c.sm),
   targetTemperature(c.targetTemperature),
   am_cooling(c.am_cooling)
@@ -71,10 +114,10 @@ void Temperature::registerNamedEntries()
     push_back( doCool );
 }
 
-void Temperature::operator()(Node &src, Node::Callback::Cause, Node *)
+void Temperature::operator()(const simparm::Event& e)
 {
     try {
-        if ( &src == &doCool.value )
+        if ( &e.source == &doCool.value )
         {
             static ost::Mutex event_mutex;
             ost::MutexLock lock( event_mutex );
@@ -84,6 +127,7 @@ void Temperature::operator()(Node &src, Node::Callback::Cause, Node *)
                 #ifdef NO_COOLER
                 std::cerr << "Would cool if I were allowed to\n";
                 #else
+                ensure_emergency_warming_handler_is_installed();
                 CoolerON();
                 #endif
                 STATUS("Creating temperature monitor");
@@ -96,7 +140,7 @@ void Temperature::operator()(Node &src, Node::Callback::Cause, Node *)
                 targetTemperature.editable = true;
             }
         }
-        else if ( &src == &targetTemperature.value ) {
+        else if ( &e.source == &targetTemperature.value ) {
             requiredTemperature.setMin( targetTemperature() + 1 );
         }
     } catch (const std::exception&e ) {
@@ -106,7 +150,7 @@ void Temperature::operator()(Node &src, Node::Callback::Cause, Node *)
 
 void Temperature::cool() 
 {
-    /* Make sure the cooling switch is pressed. If not pressed already,
+    /* Make sure the cooling switch is pressed. If pressed already,
      * nothing happens. */
     doCool = true;
 

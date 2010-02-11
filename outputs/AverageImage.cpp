@@ -9,10 +9,9 @@ namespace output {
 
 AverageImage::_Config::_Config()
 : Object("AverageImage", "Average images"),
-    outputFile("ToFile", "Write averaged image to")
+    outputFile("ToFile", "Write averaged image to", ".jpg")
 { 
     userLevel = Intermediate;
-    outputFile.default_extension = ".jpg"; 
     outputFile.helpID = HELP_AverageImage_ToFile;
 }
 

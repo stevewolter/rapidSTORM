@@ -12,7 +12,7 @@ class Viewer::_Config : public simparm::Object {
   public:
 
     simparm::BoolEntry showOutput;
-    simparm::FileEntry outputFile;
+    output::BasenameAdjustedFileEntry outputFile;
     simparm::DoubleEntry res_enh;
     simparm::UnsignedLongEntry refreshCycle;
     simparm::DoubleEntry histogramPower;

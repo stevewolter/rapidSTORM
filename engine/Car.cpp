@@ -30,21 +30,22 @@ static char number[6];
 static std::string getRunNumber() {
     if ( ! runNumberMutex) {
         runNumberMutex = new ost::Mutex();
-        strcpy(number, "    0");
+        strcpy(number, "   00");
     }
     ost::MutexLock lock(*runNumberMutex);
 
-    int index = 4;
+    int index = strlen(number)-1;
     number[index]++;
-    while (index > 0)
+    while (index >= 0)
         if (number[index] == '9'+1) {
             number[index] = '0';
-            number[--index]++;
+            if ( index > 0 )
+                number[--index]++;
         } else
             break;
-    index = 4;
-    while (index >= 0 && isdigit(number[index])) index--;
-    return std::string(number+index+1);
+    index = strlen(number)-1;
+    while (index > 0 && isdigit(number[index-1])) index--;
+    return std::string(number+index);
 }
 
 Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config) 
@@ -56,7 +57,8 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
-  terminate(false)
+  terminate(false),
+  panic_point_set( false )
 {
     if ( config.inputConfig.inputMethod().uses_input_file() )
         used_output_filenames.insert( config.inputConfig.inputFile() );
@@ -66,6 +68,10 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
+    PROGRESS("Determining input file name");
+    output::Basename bn( config.inputConfig.basename() );
+    bn.set_variable("run", ident);
+    config.outputSource.set_output_file_basename( bn );
     PROGRESS("Building output");
     output = config.outputSource.make_output();
     if ( output.get() == NULL )
@@ -95,15 +101,15 @@ Car::~Car()
     myEngine.reset(NULL);
 }
 
-void Car::operator()(simparm::Node& src, Cause c, simparm::Node*) {
-    if ( &src == &closeJob.value && c == ValueChanged && closeJob.triggered() )
+void Car::operator()(const simparm::Event& e) {
+    if ( &e.source == &closeJob.value && e.cause == simparm::Event::ValueChanged && closeJob.triggered() )
     {
         ost::MutexLock lock( terminationMutex );
         PROGRESS("Job close button allows termination");
         if ( myEngine.get() != NULL ) myEngine->stop();
         terminate = true;
         terminationChanged.signal();
-    } else if ( &src == &runtime_config && c == RemovedParent ) {
+    } else if ( &e.source == &runtime_config && e.cause == simparm::Event::RemovedParent ) {
         PROGRESS("Noticed parent removal");
         if ( ! runtime_config.isActive() ) {
             PROGRESS("Runtime config got inactive");
@@ -131,10 +137,9 @@ void Car::run() throw() {
     }
 }
 
-void Car::drive() {
+void Car::make_input_driver() {
     PROGRESS("Determining type of input driver");
     try {
-        std::auto_ptr<input::BaseSource> source;
         source = config.inputConfig.makeImageSource();
 
         if ( source->can_provide< Image >() ) {
@@ -145,7 +150,9 @@ void Car::drive() {
                 new Input( input::BaseSource::downcast<Image>(source) ) );
             PROGRESS("Making engine");
             myEngine.reset( 
-                new Engine(config.engineConfig, *input, *output) );
+                new Engine(
+                    config.engineConfig, ident,
+                    *input, *output) );
             runtime_config.push_back( *myEngine );
         } else if ( source->can_provide< Localization >() ) {
             PROGRESS("Have localization input");
@@ -158,38 +165,55 @@ void Car::drive() {
             "Error in constructing input driver: " 
                 + string(e.what()) );
     }
+}
 
-    runtime_config.push_back( *output );
-    runtime_config.push_back( closeJob );
+void Car::drive() {
+    bool successful_finish = true;
+    if ( setjmp( panic_point ) == 0 ) {
+        panic_point_set = true;
+        make_input_driver();
 
-    PROGRESS("Starting computation");
-    if ( myEngine.get() != NULL ) {
-        myEngine->run();
-    } else if (locSource.get() != NULL) {
-        runOnSTM();
+        runtime_config.push_back( *output );
+        runtime_config.push_back( closeJob );
+
+        PROGRESS("Starting computation");
+        if ( myEngine.get() != NULL ) {
+            myEngine->run();
+        } else if (locSource.get() != NULL) {
+            runOnSTM();
+        }
+        PROGRESS("Ended computation");
+        PROGRESS("Erasing carburettor");
+        input.reset(NULL);
+        PROGRESS("Erased carburettor");
+    } else {
+        /* Abnormal termination after received signal. */
+        successful_finish = false;
     }
-    PROGRESS("Ended computation");
-    PROGRESS("Erasing carburettor");
-    input.reset(NULL);
-    PROGRESS("Erased carburettor");
+    panic_point_set = false;
 
-    ost::MutexLock lock( terminationMutex );
-    PROGRESS("Waiting for termination allowance");
-    if ( runtime_config.isActive() )
-        while ( ! terminate && ! terminateAll )
-            terminationChanged.wait();
-    PROGRESS("Allowed to terminate");
+    if ( setjmp(panic_point) == 0 ) {
+        panic_point_set = true;
+        ost::MutexLock lock( terminationMutex );
+        PROGRESS("Waiting for termination allowance");
+        if ( runtime_config.isActive() )
+            while ( ! terminate && ! terminateAll )
+                terminationChanged.wait();
+        PROGRESS("Allowed to terminate");
 
-    /* TODO: We have to check here if the job was _really_ finished
-    * successfully. */
-    output->propagate_signal( output::Output::Job_finished_successfully );
+        /* TODO: We have to check here if the job was _really_ finished
+        * successfully. */
+        if ( successful_finish )
+            output->propagate_signal( 
+                output::Output::Job_finished_successfully );
 
-    if ( config.configTarget ) {
-        std::ostream& stream = config.configTarget.get_output_stream();
-        list<string> lns = config.printValues();
-        for (list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
-            stream << *i << "\n";
-        config.configTarget.close_output_stream();
+        if ( config.configTarget ) {
+            std::ostream& stream = config.configTarget.get_output_stream();
+            list<string> lns = config.printValues();
+            for (list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
+                stream << *i << "\n";
+            config.configTarget.close_output_stream();
+        }
     }
 }
 
@@ -208,6 +232,16 @@ void Car::terminate_all_Car_threads() {
     Engine::stopAllEngines();
     terminateAll = true;
     terminationChanged.signal();
+}
+
+void Car::abnormal_termination(std::string r) throw() {
+    if ( panic_point_set ) {
+        std::cerr << "Job " << ident << " had a critical "
+                  << "error: " << r << " Terminating job."
+                  << std::endl;
+        longjmp( panic_point, 1 );
+    } else        
+        Runnable::abnormal_termination(r);
 }
 
 }

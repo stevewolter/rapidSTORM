@@ -5,6 +5,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Method.h>
+#include <dStorm/input/FileBasedMethod.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -55,18 +56,16 @@ namespace dStorm {
     };
 
     template <typename PixelType>
-    class Config : public input::Method< CImg<PixelType> > {
+    class Config : public input::FileBasedMethod< CImg<PixelType> > {
       public:
         typedef CImg<PixelType> Yield;
         typedef input::Config MasterConfig;
 
         Config(MasterConfig& src)
             : simparm::Object("CImgList" + ident<PixelType>(),
-                              "List of CImg objects"),
-              inputFile(src.inputFile) { this->push_back(src.inputFile); }
+                              "List of CImg objects") {}
         Config(const Config &c, MasterConfig& src) 
-            : simparm::Object(c), input::Method< CImg<PixelType> >(c),
-              inputFile(src.inputFile) { this->push_back(src.inputFile); }
+            : simparm::Object(c), input::Method< CImg<PixelType> >(c) {}
 
         simparm::FileEntry &inputFile;
 

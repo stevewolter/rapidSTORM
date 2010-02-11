@@ -89,7 +89,7 @@ LocalizationFilter::LocalizationFilter(
     std::auto_ptr<output::Output> output
 )
     : OutputObject("AF", "LocalizationFilter"),
-      simparm::Node::Callback( Node::ValueChanged ),
+      simparm::Node::Callback( simparm::Event::ValueChanged ),
       localizationsStore( new output::Localizations() ),
       from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
       two_kernel_significance(c.two_kernel_significance),
@@ -101,7 +101,7 @@ LocalizationFilter::LocalizationFilter(
 
 LocalizationFilter::LocalizationFilter(const LocalizationFilter& o)
 : OutputObject(o),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   localizationsStore( new output::Localizations(o.localizationsStore.getResults()) ), 
   from(o.from), to(o.to), x_shift(o.x_shift), y_shift(o.y_shift),
   two_kernel_significance(o.two_kernel_significance),
@@ -311,26 +311,26 @@ LocalizationFilter::receiveLocalizations(const EngineResult& e)
 }
 
 void LocalizationFilter::operator()
-    (simparm::Node& src, Cause, simparm::Node*) 
+    (const simparm::Event& e) 
 {
-    if ( &src == &from.value ) {
+    if ( &e.source == &from.value ) {
         v_from = from() * cs_units::camera::ad_counts;
         re_emitter->repeat_results();
-    } else if ( &src == &to.value ) {
+    } else if ( &e.source == &to.value ) {
         v_to = to() * cs_units::camera::ad_counts;
         re_emitter->repeat_results();
-    } else if ( &src == &x_shift.value ) {
+    } else if ( &e.source == &x_shift.value ) {
         shift_velocity.x() = x_shift() * 1E-9
             * si::meter / si::second 
             / (*traits.speed) * traits.resolution.x();
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
-    } else if ( &src == &y_shift.value ) {
+    } else if ( &e.source == &y_shift.value ) {
         shift_velocity.y() = y_shift() * 1E-9
             * si::meter / si::second 
             / (*traits.speed) * traits.resolution.y();
         re_emitter->repeat_results();
-    } else if ( &src == &two_kernel_significance.value ) {
+    } else if ( &e.source == &two_kernel_significance.value ) {
         re_emitter->repeat_results();
     }
 }

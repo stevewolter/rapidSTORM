@@ -11,6 +11,7 @@
 #include "MasterConfig.h"
 #include <boost/utility.hpp>
 #include <set>
+#include <setjmp.h>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -44,6 +45,7 @@ namespace engine {
         /** Button to close the job. */
         simparm::TriggerEntry closeJob;
 
+        std::auto_ptr<input::BaseSource> source;
         std::auto_ptr<engine::Input> input;
 
         /** If we process ready-made localizations, their source is
@@ -59,6 +61,7 @@ namespace engine {
         static bool terminateAll;
         static ost::Condition terminationChanged;
 
+        void make_input_driver();
         /** Run the dStorm engine class. */
         void runWithEngine();
         /** Simulate an engine run with the localisations supplied in a
@@ -66,10 +69,14 @@ namespace engine {
         void runOnSTM() throw( std::exception );
 
         /** Receive the signal from closeJob. */
-        void operator()(simparm::Node&, Cause, simparm::Node*);
+        void operator()(const simparm::Event&);
 
         /** Run the computation subthread. */
         void run() throw();
+        void abnormal_termination(std::string) throw();
+
+        bool panic_point_set;
+        jmp_buf panic_point;
 
       public:
         Car (const MasterConfig::Ptr&, const CarConfig &config) ;

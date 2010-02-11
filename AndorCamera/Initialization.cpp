@@ -38,7 +38,7 @@ void Initialization::registerNamedEntries()
 
 Initialization::Initialization(StateMachine& sm)
 : Object("Initialization", "Initialization"),
-  simparm::Node::Callback( Node::ValueChanged ),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
   sm(sm)
 {
     registerNamedEntries();
@@ -48,7 +48,7 @@ Initialization::Initialization(const Initialization&c)
 : Object(c),
   _Initialization(c),
   StateMachine::Listener(),
-  Node::Callback( Node::ValueChanged ),
+  Node::Callback( simparm::Event::ValueChanged ),
   sm(c.sm)
 {
     registerNamedEntries();
@@ -64,16 +64,16 @@ Initialization::~Initialization()
     sm.remove_managed_attribute( disconnect.editable );
 }
 
-void Initialization::operator()(Node &src, 
-    Node::Callback::Cause c, Node *)
+void Initialization::operator()
+    (const simparm::Event& e)
  
 {
     try {
-        if ( &src == &connect.value && connect.triggered() ) 
+        if ( &e.source == &connect.value && connect.triggered() ) 
         {
             connect.untrigger();
             sm.ensure_at_least(States::Initialized);
-        } else if ( &src == &disconnect.value && disconnect.triggered() )
+        } else if ( &e.source == &disconnect.value && disconnect.triggered() )
         {
             disconnect.untrigger();
             sm.ensure_at_most(States::Disconnected);

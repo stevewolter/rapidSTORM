@@ -45,7 +45,7 @@ class AcquisitionModeControl
     AcquisitionModeControl* clone() const { return new AcquisitionModeControl(*this); }
     AcquisitionModeControl& operator=(const AcquisitionModeControl&);
 
-    void operator()(Node &, Cause, Node *);
+    void operator()(const simparm::Event&);
     void controlStateChanged(Phase phase, State from, State to);
 };
 

@@ -3,6 +3,7 @@
 #include <dStorm/input/Config.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/SourceFactory.h>
+#include <dStorm/output/Basename.h>
 
 #include <dStorm/helpers/thread.h>
 #include <sstream>
@@ -74,6 +75,7 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
 
 CarConfig::CarConfig() 
 : Set("Car", "Job options"),
+  simparm::Listener(simparm::Event::ValueChanged),
   _inputConfig( new input::Config() ),
   _engineConfig( new engine::Config() ),
   outputRoot( new TreeRoot() ),
@@ -91,6 +93,7 @@ CarConfig::CarConfig()
 
 CarConfig::CarConfig(const CarConfig &c) 
 : simparm::Set(c),
+  simparm::Listener(simparm::Event::ValueChanged),
   _inputConfig(c.inputConfig.clone()),
   _engineConfig(c.engineConfig.clone()),
   outputRoot(c.outputRoot->clone()),
@@ -112,11 +115,19 @@ CarConfig::~CarConfig() {
 
 void CarConfig::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig");
+   receive_changes_from( inputConfig.basename );
    outputBox.push_back( *outputRoot );
    push_back( inputConfig );
    push_back( engineConfig );
    push_back( outputBox );
    push_back( configTarget );
+}
+
+void CarConfig::operator()(const simparm::Event&)
+{
+    output::Basename bn( inputConfig.basename() );
+    
+    outputSource.set_output_file_basename( bn );
 }
 
 }

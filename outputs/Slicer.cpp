@@ -8,18 +8,20 @@
 namespace dStorm {
 namespace output {
 
-const char *format_string(const std::string& filename, int block)
+Basename Slicer::fn_for_slice( int i ) const
 {
-    static char formatted[1024];
-    snprintf( formatted, 1024, filename.c_str(), block );
-    return formatted;
+    Basename bn = filename;
+    std::stringstream slice_ident;
+    slice_ident << i;
+    bn.set_variable("slice", slice_ident.str());
+    return bn;
 }
-    
+
 void Slicer::add_output_clone(int i) {
     std::auto_ptr<Output> output;
     try {
         source->FilterSource::set_output_file_basename( 
-            format_string( filename.c_str(), i ) );
+            fn_for_slice(i) );
         output = source->FilterSource::make_output();
         if ( avoid_filenames != NULL ) 
             output->check_for_duplicate_filenames( *avoid_filenames );

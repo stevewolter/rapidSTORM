@@ -15,7 +15,7 @@ namespace output {
 
 LocalizationFile::_Config::_Config() 
 : simparm::Object("Table", "Localizations file"),
-  outputFile("ToFile", "Write localizations to"),
+  outputFile("ToFile", "Write localizations to", ".txt"),
   traces("Traces", "Print localizations seperated by traces")
 {
     outputFile.setHelp(
@@ -24,7 +24,6 @@ LocalizationFile::_Config::_Config()
         "line per fit, with X- and Y-coordinate, image number "
         "and fit amplitude, fields separated by spaces.");
     outputFile.setUserLevel(simparm::Entry::Beginner);
-    outputFile.default_extension = ".txt";
     outputFile.helpID = HELP_Table_ToFile;
 }
 

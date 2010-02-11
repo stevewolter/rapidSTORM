@@ -13,7 +13,7 @@
 namespace dStorm {
 namespace output {
 class LocalizationFile : public OutputObject {
-    private: 
+  private: 
     ost::Mutex mutex;
     std::string filename;
     input::Traits<Localization> traits;
@@ -25,7 +25,7 @@ class LocalizationFile : public OutputObject {
 
     class _Config;
 
-    public:
+  public:
     typedef simparm::Structure<_Config> Config;
     typedef FileOutputBuilder<LocalizationFile> Source;
 
@@ -51,7 +51,7 @@ class LocalizationFile::_Config : public simparm::Object {
         push_back( traces );
     }
   public:
-    simparm::FileEntry outputFile;
+    BasenameAdjustedFileEntry outputFile;
     simparm::BoolEntry traces;
 
     _Config();

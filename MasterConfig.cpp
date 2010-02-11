@@ -15,7 +15,9 @@
 #include <dStorm/helpers/DisplayManager.h>
 #include "wxDisplay/wxManager.h"
 
+#define VERBOSE
 #include "debug.h"
+#include "error_handler.h"
 
 namespace dStorm {
 
@@ -221,6 +223,7 @@ _MasterConfig::_MasterConfig()
 }
 
 _MasterConfig::~_MasterConfig() {
+    DEBUG("Waiting for " << registered_nodes << " still registered nodes");
     boost::lock_guard<boost::mutex> lock(mutex);
     while ( registered_nodes > 0 )
         all_modules_unregistered.wait( mutex );
@@ -247,7 +250,36 @@ void _MasterConfig::thread_safely_erase_node( simparm::Node& node ) {
 
 void _MasterConfig::read_input( std::istream& input ) {
     this->set_input_stream( &input );
-    this->processInput();
+    
+    SignalHandler signal_handler;
+    while ( true ) {
+      try {
+        DEBUG("Setting master config panic point");
+        SIGNAL_HANDLER_PANIC_POINT(signal_handler);
+
+        DEBUG("Trying to process commands");
+        while ( ! received_quit_command() && input )
+        {
+            DEBUG("Processing command");
+            this->processCommand( input );
+        }
+
+        DEBUG("Processed commands");
+        break;
+      } catch (const std::bad_alloc& e) {
+        std::cerr << "Could not perform action: Out of memory" 
+                  << std::endl;
+      } catch (const termination_signal& e) {
+        std::cerr << "Terminating: "
+                  << e.what() << std::endl;
+        break;
+      } catch (const std::exception& e) {
+        std::cerr << "Could not perform action: " << e.what() << std::endl;
+      } catch (...) {
+        DEBUG("Caught unknown exception, terminating");
+        throw;
+      }
+    }
 }
 
 _MasterConfig::LoadResult

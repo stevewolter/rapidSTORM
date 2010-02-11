@@ -19,7 +19,7 @@ class GarageConfig
     std::auto_ptr<dStorm::engine::CarConfig> carConfig;
     simparm::TriggerEntry externalControl, showTransmissionTree, run;
 
-    void operator()(simparm::Node&, Cause, simparm::Node *) throw();
+    void operator()(const simparm::Event&) throw();
 
     std::set<std::string> avoid_auto_filenames;
 

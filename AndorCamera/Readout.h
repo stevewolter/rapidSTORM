@@ -45,7 +45,7 @@ class ImageReadout
     ~ImageReadout();
     ImageReadout* clone() { return new ImageReadout(*this); }
 
-    void operator()(Node &, Cause, Node *);
+    void operator()(const simparm::Event&);
     void controlStateChanged(Phase phase, State from, State to);
 };
 

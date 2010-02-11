@@ -11,7 +11,7 @@ using namespace output;
 using namespace simparm;
 
 GarageConfig::GarageConfig() throw()
-: simparm::Node::Callback(Node::ValueChanged),
+: simparm::Node::Callback(simparm::Event::ValueChanged),
   master( MasterConfig::create() ),
   externalControl("TwiddlerControl", "Enable stdin/out control interface"),
   showTransmissionTree("ShowTransmissionTree", 
@@ -32,25 +32,25 @@ GarageConfig::GarageConfig() throw()
                 "current parameters.");
     run.setUserLevel(simparm::Entry::Beginner);
 
-    carConfig->inputConfig.basename.addChangeCallback(*this);
-
     registerNamedEntries();
     DEBUG("Constructed GarageConfig");
 }
 
 GarageConfig::GarageConfig(const GarageConfig &c) throw()
-: simparm::Node::Callback(Node::ValueChanged),
+: simparm::Node::Callback(simparm::Event::ValueChanged),
   master(master),
   carConfig(c.carConfig->clone()),
   externalControl(c.externalControl),
   showTransmissionTree(c.showTransmissionTree),
   run(c.run)
 {
-   carConfig->inputConfig.basename.addChangeCallback(*this);
    registerNamedEntries();
 }
 
 GarageConfig::~GarageConfig() {
+   DEBUG("Terminating all car threads");
+   engine::Car::terminate_all_Car_threads();
+
    DEBUG("Unregistering nodes of garage config");
    master->thread_safely_erase_node( *carConfig );
    carConfig.reset( NULL );
@@ -74,29 +74,8 @@ static void printTC( const output::OutputSource& src, int indent ) {
     }
 }
 
-void GarageConfig::operator()(Node& src, Cause, Node *) throw() {
-    if ( &src == &carConfig->inputConfig.basename ) 
-    {
-        bool appended = false;
-        dStorm::output::OutputSource::BasenameResult r;
-        std::string basename = carConfig->inputConfig.basename();
-
-        do {
-            r = carConfig->outputSource.set_output_file_basename( basename );
-            if ( !appended ) 
-                basename += 'a'; 
-            else 
-                basename[ basename.size()-1 ]++;
-            appended = true;
-        } while ( r == dStorm::output::OutputSource::Basename_Conflicted );
-    } else if ( &src == &showTransmissionTree.value && 
-                showTransmissionTree.triggered() )
-    {
-        showTransmissionTree.untrigger();
-        printTC( carConfig->outputSource, 0 );
-        exit(0);
-    } else if ( &src == &run.value && run.triggered() ) 
-    {
+void GarageConfig::operator()(const simparm::Event& e) throw() {
+    if ( &e.source == &run.value && run.triggered() ) {
         run.untrigger();
         try {
             DEBUG("Running job");
@@ -107,12 +86,11 @@ void GarageConfig::operator()(Node& src, Cause, Node *) throw() {
         } catch ( const std::exception& e ) {
             std::cerr << "Starting job failed: " << e.what() << "\n";
         }
-    } else if ( &src == &externalControl.value && externalControl.triggered() )
-    {
+    } else if ( &e.source == &externalControl.value && externalControl.triggered() ) {
         externalControl.untrigger();
         DEBUG("Reading control stream");
         master->read_input( std::cin );
-        engine::Car::terminate_all_Car_threads();
+        DEBUG("Read control stream");
     }
 }
 

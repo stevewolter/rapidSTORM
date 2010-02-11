@@ -126,7 +126,7 @@ namespace output {
             push_back( outputFile );
         }
       public:
-        simparm::FileEntry outputFile;
+        BasenameAdjustedFileEntry outputFile;
 
         _Config();
         _Config* clone() const { return new _Config(*this); }

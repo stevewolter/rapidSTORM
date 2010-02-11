@@ -33,7 +33,7 @@ struct FitSigmas {
 SinglePrecisionEstimator::_Config::_Config()
 : simparm::Object("SeperatePrecision", 
                   "Estimate localization precision per spot"),
-  outputFile("ToFile", "Save precision info to") 
+  outputFile("ToFile", "Save precision info to", ".txt") 
 {}
 
 MultiPrecisionEstimator::_Config::_Config()

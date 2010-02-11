@@ -57,7 +57,7 @@ class AverageImage::_Config : public simparm::Object {
         { push_back( outputFile ); }
 
   public:
-    simparm::FileEntry outputFile;
+    BasenameAdjustedFileEntry outputFile;
     _Config();
     bool can_work_with(Capabilities cap) 
         { return cap.test( Capabilities::SourceImage ) && 

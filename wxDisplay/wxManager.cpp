@@ -169,9 +169,7 @@ void wxManager::exec_waiting_runnables() {
 }
 
 void wxManager::exec(ost::Runnable* runnable) {
-    runnable->initial();
     runnable->run();
-    runnable->final();
 }
 
 void wxManager::disassociate_window
