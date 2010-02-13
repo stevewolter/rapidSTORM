@@ -95,7 +95,9 @@ static bool sig_is_deadly(int num) {
     );
 }
 
-struct SignalHandler::Pimpl {
+struct SignalHandler::Pimpl
+: public ost::Runnable
+{
 #ifdef EXCEPTIONS_AFTER_LONGJMP
     jmp_buf panic_point;
     std::auto_ptr<std::exception> reason;
@@ -121,6 +123,7 @@ struct SignalHandler::Pimpl {
     ~Pimpl();
 
     static void set_catchers();
+    void run() { set_catchers(); }
     static void on_signal(int signum);
     static void on_terminate();
 };
@@ -130,7 +133,13 @@ SignalHandler::Pimpl::current_handler
     = NULL;
 
 SignalHandler::Pimpl::Pimpl() {
-    if ( current_handler == NULL ) set_catchers();
+    if ( current_handler == NULL ) {
+        set_catchers();
+#ifdef PTW32_VERSION
+        DEBUG("Setting global thread initializer");
+        dStorm::Thread::set_thread_initializer( *this );
+#endif
+    }
     last_current_handler = current_handler;
     current_handler = this;
 }
@@ -240,6 +249,7 @@ void SignalHandler::Pimpl::handle_signal(int n)
 }
 
 void SignalHandler::Pimpl::on_terminate() {
+    DEBUG("Unhandled or unexpected exception");
     std::auto_ptr<uncaught_exception> ue;
     try {
         DEBUG("Jumping to panic point after uncaught "

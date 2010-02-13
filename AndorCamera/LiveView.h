@@ -8,7 +8,7 @@
 #include <dStorm/helpers/DisplayManager.h>
 #include <cs_units/camera/resolution.hpp>
 #include <cs_units/camera/frame_rate.hpp>
-#include <boost/thread/mutex.hpp>
+#include <dStorm/helpers/thread.h>
 #include <simparm/NumericEntry.hh>
 
 namespace dStorm {
@@ -27,7 +27,7 @@ class LiveView :
     simparm::BoolEntry show_live;
     simparm::DoubleEntry live_show_frequency;
 
-    boost::mutex window_mutex, change_mutex;
+    ost::Mutex window_mutex, change_mutex;
 
     std::auto_ptr<Display::Manager::WindowHandle> window;
     std::auto_ptr<Display::Change> change;

@@ -47,6 +47,7 @@ class DStorm {
             /* File probably already present. Mark as temp anyway
              * so _someone_ will delete them. */
             //tempFile.deleteOnExit();
+            System.err.println(e.getMessage());
             return tempFile;
         }
     }
@@ -54,7 +55,7 @@ class DStorm {
     private static File extract_jar_file(String name, File tempFile)
         throws IOException
     {
-        java.net.URL resourceURL = Main.class.getResource(name);
+        java.net.URL resourceURL = Main.class.getResource("/" + name);
         if ( resourceURL == null ) return null;
         Object resource = resourceURL.getContent();
         InputStream source = (InputStream)resource;
@@ -102,7 +103,7 @@ class DStorm {
    }
 
    private static void extract_dll_list(File tempDir) throws IOException {
-        InputStream dll_list = Main.class.getResourceAsStream("dll_list");
+        InputStream dll_list = Main.class.getResourceAsStream("/dll_list");
         BufferedReader reader = new BufferedReader
             ( new InputStreamReader(dll_list) );
         String line;
@@ -133,7 +134,7 @@ class DStorm {
             new File(base_dir, "share" + File.separator + "doc" ) );
 
         String[] environment = build_environment( base_dir );
-        boolean have_arg = args.length > 0,stderrPipe = false;
+        boolean have_arg = args.length > 0,stderrPipe = true;
         int argC = 4;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;

@@ -13,9 +13,18 @@ namespace Display {
 struct wxManager::WindowHandle
 : public Manager::WindowHandle
 {
+    wxManager& m;
     Window *associated_window;
-    WindowHandle();
+    WindowHandle(wxManager& m);
     ~WindowHandle();
+};
+
+struct wxManager::IdleCall
+: public ost::Runnable 
+{
+    wxManager& m;
+    IdleCall(wxManager& m) : m(m) {}
+    void run() { m.exec_waiting_runnables(); }
 };
 
 wxManager::wxManager() 
@@ -24,7 +33,8 @@ wxManager::wxManager()
   closed_all_handles(mutex),
   was_started( false ),
   may_close( false ),
-  toolkit_available( true )
+  toolkit_available( true ),
+  idle_call( new IdleCall(*this) )
 {
 }
 
@@ -48,6 +58,7 @@ void wxManager::run() throw()
 {
     DEBUG("Running display thread");
     int argc = 0;
+    App::idle_call = idle_call.get();
     if ( !may_close )
         wxEntry(argc, (wxChar**)NULL);
     toolkit_available = false;
@@ -76,6 +87,10 @@ void wxManager::decrease_handle_count() {
 }
 
 struct wxManager::Creator : public ost::Runnable {
+    wxManager& m;
+
+    Creator(wxManager& m) : m(m) {}
+
     WindowProperties properties;
     DataSource* handler;
     WindowHandle *handle;
@@ -84,7 +99,7 @@ struct wxManager::Creator : public ost::Runnable {
 };
 
 void wxManager::Creator::run() throw() {
-    if ( wxManager::getSingleton().toolkit_available ) {
+    if ( m.toolkit_available ) {
         Window * w = new Window( properties, handler, handle );
         handle->associated_window = w;
     }
@@ -103,12 +118,12 @@ wxManager::register_data_source(
             start();
         }
     }
-    std::auto_ptr<Creator> creator( new Creator() );
+    std::auto_ptr<Creator> creator( new Creator(*this) );
     creator->properties = properties;
     creator->handler = &handler;
 
     std::auto_ptr<WindowHandle> 
-        handle(new WindowHandle());
+        handle(new WindowHandle(*this));
     increase_handle_count();
     creator->handle = handle.get();
 
@@ -122,17 +137,18 @@ class wxManager::Disassociator
 : public ost::WaitableRunnable
 {
     WindowHandle& h;
+    wxManager& m;
   public:
-    Disassociator(WindowHandle& handle) : h(handle) {}
+    Disassociator(wxManager& m, WindowHandle& handle) : h(handle), m(m) {}
     void run() throw() {
         if ( h.associated_window != NULL )
             h.associated_window->remove_data_source();
-        wxManager::getSingleton().decrease_handle_count();
+        m.decrease_handle_count();
     }
 };
 
-wxManager::WindowHandle::WindowHandle()
-: associated_window(NULL)
+wxManager::WindowHandle::WindowHandle(wxManager& m)
+: m(m), associated_window(NULL)
 {
 }
 
@@ -140,8 +156,8 @@ wxManager::WindowHandle::~WindowHandle()
 {
     /* This code must be run even if associated_window is
      * NULL to avoid race condition. */
-    Disassociator d(*this);
-    Manager::getSingleton().run_in_GUI_thread( &d );
+    Disassociator d(m, *this);
+    m.run_in_GUI_thread( &d );
     d.wait();
 }
 
@@ -176,15 +192,6 @@ void wxManager::disassociate_window
     ( Window *window, WindowHandle* handle )
 {
     handle->associated_window = NULL;
-}
-
-wxManager& wxManager::getSingleton() {
-    static wxManager* handler = new wxManager();
-    return *handler;
-}
-
-void wxManager::destroySingleton() {
-    delete &getSingleton();
 }
 
 }

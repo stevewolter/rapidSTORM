@@ -215,6 +215,10 @@ CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
 
+if echo "$LIBS" | grep "subsystem,windows"; then
+    LIBS="$LIBS -Wl,--subsystem,console"
+fi
+
 AM_WITH_DMALLOC
 
 # Select the windowing library needed for CImg

@@ -35,9 +35,8 @@ class wxManager : private ost::Thread, public Manager {
     class Creator;
     class Disassociator;
     class Closer;
-
-    wxManager();
-    ~wxManager();
+    class IdleCall;
+    std::auto_ptr<IdleCall> idle_call;
 
     void exec(ost::Runnable* runnable);
     void run_in_GUI_thread( ost::Runnable* code );
@@ -45,11 +44,11 @@ class wxManager : private ost::Thread, public Manager {
     void run() throw();
 
   public:
-    static wxManager& getSingleton();
+    wxManager();
     /** Close all remaining windows and shut down the
      *  Manager. Warning: The manager should only be shut
      *  down once during the whole program execution. */
-    static void destroySingleton();
+    ~wxManager();
 
     std::auto_ptr<Manager::WindowHandle>
     register_data_source(
