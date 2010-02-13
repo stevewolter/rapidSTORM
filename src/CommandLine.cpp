@@ -1,0 +1,188 @@
+#include "CommandLine.h"
+#include <vector>
+#include <string>
+#include <GarageConfig.h>
+#include <fstream>
+#include <dStorm/output/OutputSource.h>
+#include <dStorm/output/FilterSource.h>
+#include "InputStream.h"
+
+#include "debug.h"
+
+namespace dStorm {
+
+using namespace output;
+
+class TransmissionTreePrinter 
+: public simparm::TriggerEntry,
+  simparm::Listener,
+  boost::noncopyable
+{
+    const GarageConfig &config;
+    void operator()( const simparm::Event& );
+    void printNode( 
+        const output::OutputSource& src,
+        int indent );
+  public:
+    TransmissionTreePrinter(const GarageConfig&);
+};
+
+class TwiddlerLauncher
+: public simparm::TriggerEntry,
+  simparm::Listener,
+  boost::noncopyable
+{
+    GarageConfig &config;
+    void operator()( const simparm::Event& );
+  public:
+    TwiddlerLauncher(GarageConfig&);
+};
+
+class CommandLine::Pimpl {
+    int argc;
+    char **argv;
+    GarageConfig config;
+
+    bool load_config_file(const std::string& filename);
+    void find_config_file();
+
+  public:
+    Pimpl(int argc, char *argv[]);
+
+    void run();
+};
+
+CommandLine::CommandLine(int argc, char *argv[])
+: Thread("CommandLineInterpreter"),
+  pimpl(new Pimpl(argc, argv))
+{}
+CommandLine::~CommandLine()
+{}
+
+void CommandLine::run() {
+    pimpl->run();
+}
+
+void CommandLine::Pimpl::run() {
+    simparm::Set cmd_line_args
+        ("dSTORM", "dSTORM command line");
+    cmd_line_args.push_back( config.getCarConfig() );
+    cmd_line_args.push_back(
+        std::auto_ptr<simparm::Node>(new
+            TransmissionTreePrinter(config)));
+    cmd_line_args.push_back(
+        std::auto_ptr<simparm::Node>(new
+            TwiddlerLauncher(config)));
+
+    find_config_file();
+
+    DEBUG("Reading command line arguments");
+    int first_nonoption = 0;
+    if (argc > 0) {
+        first_nonoption = 
+            cmd_line_args.readConfig(argc, argv);
+    }
+
+    for (int arg = first_nonoption; arg < argc; arg++) {
+        config.set_input_file( std::string(argv[arg]) );
+        config.run_job();
+    }
+}
+
+void CommandLine::Pimpl::find_config_file() {
+    DEBUG("Checking for relevant environment variables");
+    const char *home = getenv("HOME"),
+               *homedrive = getenv("HOMEDRIVE"),
+               *homepath = getenv("HOMEPATH");
+    bool have_file = false;
+    DEBUG("Checking for command line config file");
+    if ( !have_file && argc > 3 && std::string(argv[1]) == "--config" ) {
+        have_file = load_config_file(std::string(argv[2]));
+        if ( have_file ) {
+            argc -= 2;
+            argv = argv + 2;
+        }
+    }
+    DEBUG("Checking for home directory config file");
+    if ( !have_file && home != NULL )
+        have_file = load_config_file( std::string(home) + "/.dstorm");
+    if ( !have_file && homedrive != NULL && homepath != NULL )
+        have_file = load_config_file( 
+            std::string(homedrive) + std::string(homepath) + "/dstorm.txt");
+
+}
+
+bool CommandLine::Pimpl::load_config_file(
+    const std::string& name
+) {
+    std::ifstream config_file( name.c_str() );
+    if ( !config_file )
+        return false;
+    else {
+        while ( config_file ) {
+            DEBUG("Processing command from " << name.c_str());
+            try {
+                config.getCarConfig().processCommand( config_file );
+            } catch (const std::exception& e) {
+                std::cerr << "Error in initialization config file: "
+                          << e.what() << "\n";
+            }
+        }
+        return true;
+    }
+}
+
+CommandLine::Pimpl::Pimpl(int argc, char *argv[])
+: argc(argc), argv(argv) 
+{
+}
+
+TransmissionTreePrinter::TransmissionTreePrinter
+    ( const GarageConfig& c )
+: simparm::TriggerEntry("ShowTransmissionTree", 
+                        "Print tree view of outputs"),
+  simparm::Listener( simparm::Event::ValueChanged ),
+  config(c)
+{
+    receive_changes_from( *this );
+}
+
+void TransmissionTreePrinter::operator()( const simparm::Event& )
+{
+    printNode( config.getCarConfig().outputSource, 0 );
+}
+
+void TransmissionTreePrinter::printNode( 
+    const output::OutputSource& src, int indent 
+) {
+    const std::string& name = src.getNode().getName();
+    if ( indent < 2 )
+        std::cout << ((indent)?" ": name ) << "\n";
+    else {
+        std::cout << std::string(indent-2, ' ') << "|-" << name << "\n";
+    }
+    const FilterSource* fwd = dynamic_cast<const FilterSource*>(&src);
+    if (fwd != NULL) {
+        for (FilterSource::const_iterator
+                            i = fwd->begin(); i != fwd->end(); i++)
+            printNode(**i, indent+2);
+    }
+}
+
+TwiddlerLauncher::TwiddlerLauncher
+    ( GarageConfig& c )
+: simparm::TriggerEntry("TwiddlerControl", 
+                "Read stdin/out for simparm control commands"),
+  simparm::Listener( simparm::Event::ValueChanged ),
+  config(c)
+{
+    receive_changes_from( *this );
+}
+
+void TwiddlerLauncher::operator()( const simparm::Event& )
+{
+    std::auto_ptr<InputStream> is(new InputStream(std::cin, std::cout));
+    is.release()->detach();
+}
+
+}

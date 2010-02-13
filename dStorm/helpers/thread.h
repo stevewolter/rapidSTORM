@@ -61,6 +61,10 @@ class Thread : public Runnable {
     /** Implementation-specific data. */
     std::auto_ptr<Pimpl> pimpl;
 
+  protected:
+    /** Exit from the current thread of execution. */
+    void exit();
+
   public:
     /** Construct a thread with a description string that can be
      *  retrieved with description(). */
@@ -79,6 +83,10 @@ class Thread : public Runnable {
     /** Join the concurrent, joinable thread. Does nothing if the thread
      *  wasn't started or was detached. */
     void join() throw();
+    /** Cancel the concurrent thread. Cancelling means
+     *  stopping the thread as soon as possible, without
+     *  the usual clean-up routines. */
+    void cancel() ;
 
     /** Return the description string of the thread
      *  given in the constructor. */
@@ -95,6 +103,32 @@ class Thread : public Runnable {
      *          started by this library.
      **/
     static Thread *current_thread() throw();
+
+    /** Set the thread initialization function. This
+     *  function is called every time a new thread is
+     *  created and is intended for debugging/signal
+     *  handling purposes. */
+    static dStorm::Runnable* 
+    set_thread_initializer( dStorm::Runnable& );
+
+    /** Cancel all detached threads. */
+    static void cancel_for_detached_threads();
+    /** Wait for the termination of all currently running,
+     *  detached threads. */
+    static void wait_for_detached_threads();
+    /** Checks if any detached threads are still 
+     *  running. */
+    static void detached_thread_is_running();
+};
+
+/** Derivors of EmergencyCleanup will always be destructed,
+ *  regardless of thread cancellation. */
+class EmergencyCleanup {
+    EmergencyCleanup *rest_of_stack;
+  protected:
+    EmergencyCleanup();
+  public:
+    virtual ~EmergencyCleanup();
 };
 
 }

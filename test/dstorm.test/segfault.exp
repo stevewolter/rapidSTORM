@@ -6,6 +6,7 @@ expect_after {
 }
 
 set test "segfault in announcement"
+set timeout 40
 send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 send "in Car in Output in EngineOutput set ChooseTransmission = SegFault\n"
 send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = true\n"
@@ -22,6 +23,7 @@ send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction
 send "in Car set Run = 1\n"
 expect {
     -re "Terminating program" { fail "$test" }
+    -re "Constructed verbose plugin" { fail "$test" }
     -re "not perform action.*segmentation fault" { pass "$test" }
     -re "Starting job failed.*segmentation fault" { pass "$test" }
 }

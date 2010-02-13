@@ -20,6 +20,8 @@ class App : public wxApp {
     App();
     ~App();
 
+    static ost::Runnable* idle_call;
+
     bool OnInit(); 
     /** Command events sent to the App are interpreted as
      *  ost::Runnable objects to be run in the event queue. */

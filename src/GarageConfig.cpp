@@ -2,6 +2,8 @@
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/FilterSource.h>
 #include <engine/Car.h>
+#include "doc/help/rapidstorm_help_file.h"
+#include "ModuleLoader.h"
 
 #include "debug.h"
 
@@ -10,22 +12,17 @@ namespace dStorm {
 using namespace output;
 using namespace simparm;
 
-GarageConfig::GarageConfig() throw()
+GarageConfig::GarageConfig()
 : simparm::Node::Callback(simparm::Event::ValueChanged),
-  master( MasterConfig::create() ),
-  externalControl("TwiddlerControl", "Enable stdin/out control interface"),
-  showTransmissionTree("ShowTransmissionTree", 
-                       "Output tree view of transmissions"),
+  help_file("help_file", dStorm::HelpFileName),
   run("Run", "Run")
 {
     DEBUG("Constructing GarageConfig");
     carConfig.reset( new dStorm::engine::CarConfig() );
     DEBUG("Built CarConfig, adding modules");
-    master->add_modules( *carConfig );
+    ModuleLoader::getSingleton().
+        add_modules( *carConfig );
     DEBUG("Added modules");
-
-    externalControl = false;
-    externalControl.setUserLevel(simparm::Entry::Expert);
 
     run.setHelp("Whenever this trigger is triggered or the button "
                 "clicked, the dStorm engine will be run with the "
@@ -36,45 +33,29 @@ GarageConfig::GarageConfig() throw()
     DEBUG("Constructed GarageConfig");
 }
 
-GarageConfig::GarageConfig(const GarageConfig &c) throw()
+#if 0
+GarageConfig::GarageConfig(const GarageConfig &c)
 : simparm::Node::Callback(simparm::Event::ValueChanged),
-  master(master),
   carConfig(c.carConfig->clone()),
-  externalControl(c.externalControl),
-  showTransmissionTree(c.showTransmissionTree),
+  help_file( c.help_file ),
   run(c.run)
 {
    registerNamedEntries();
 }
+#endif
 
 GarageConfig::~GarageConfig() {
    DEBUG("Terminating all car threads");
    engine::Car::terminate_all_Car_threads();
 
    DEBUG("Unregistering nodes of garage config");
-   master->thread_safely_erase_node( *carConfig );
+   master.thread_safely_erase_node( *carConfig );
    carConfig.reset( NULL );
-   DEBUG("Waiting for exclusive ownership of master config");
-   master.wait_for_exclusive_ownership();
    DEBUG("Commencing destruction");
 }
 
-static void printTC( const output::OutputSource& src, int indent ) {
-    const std::string& name = src.getNode().getName();
-    if ( indent < 2 )
-        std::cout << ((indent)?" ": name ) << "\n";
-    else {
-        std::cout << std::string(indent-2, ' ') << "|-" << name << "\n";
-    }
-    const FilterSource* fwd = dynamic_cast<const FilterSource*>(&src);
-    if (fwd != NULL) {
-        for (FilterSource::const_iterator
-                            i = fwd->begin(); i != fwd->end(); i++)
-            printTC(**i, indent+2);
-    }
-}
-
-void GarageConfig::operator()(const simparm::Event& e) throw() {
+void GarageConfig::operator()(const simparm::Event& e)
+{
     if ( &e.source == &run.value && run.triggered() ) {
         run.untrigger();
         try {
@@ -86,23 +67,17 @@ void GarageConfig::operator()(const simparm::Event& e) throw() {
         } catch ( const std::exception& e ) {
             std::cerr << "Starting job failed: " << e.what() << "\n";
         }
-    } else if ( &e.source == &externalControl.value && externalControl.triggered() ) {
-        externalControl.untrigger();
-        DEBUG("Reading control stream");
-        master->read_input( std::cin );
-        DEBUG("Read control stream");
     }
 }
 
 
-void GarageConfig::registerNamedEntries() throw() {
+void GarageConfig::registerNamedEntries() {
+    carConfig->push_back( help_file );
     carConfig->push_back( run );
 
-    master->thread_safely_register_node( *carConfig );
+    master.thread_safely_register_node( *carConfig );
 
-    receive_changes_from( showTransmissionTree.value );
     receive_changes_from( run.value );
-    receive_changes_from( externalControl.value );
 }
 
 void GarageConfig::set_input_file( const std::string& s ) {
@@ -110,15 +85,6 @@ void GarageConfig::set_input_file( const std::string& s ) {
 }
 void GarageConfig::run_job() {
     run.trigger();
-}
-
-std::auto_ptr<simparm::Set> GarageConfig::make_set()
-{
-    std::auto_ptr<simparm::Set> s( new simparm::Set("dSTORM", "") );
-    s->push_back( *carConfig );
-    s->push_back( externalControl );
-    s->push_back( showTransmissionTree );
-    return s;
 }
 
 }

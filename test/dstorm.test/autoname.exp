@@ -1,6 +1,6 @@
 dstorm_start
 
-set timeout 50
+set timeout 5
 
 set test "basename printer works"
 send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
@@ -9,7 +9,7 @@ expect {
     timeout     { fail "$test" }
 }
 
-set timeout 20
+set timeout 10
 send "forSet Car forSet Method in InputMethod in AndorDirectConfig set AcquisitionLength = 1\n"
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission = BasenamePrinter\n"
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission = Verbose\n"
@@ -34,11 +34,12 @@ expect {
     -re "Output file basename is .*.foo"        { fail "$test" }
     timeout { fail "$test" }
 }
-set timeout 50
+set timeout 30
 expect {
     -re "Destroyed verbose plugin" {}
     timeout { fail "$test" }
 }
+set timeout 10
 
 set test "camera job increment #2"
 send "in Car set Run = 1\n"
@@ -47,11 +48,12 @@ expect {
     -re "Output file basename is .*.foo"        { fail "$test" }
     timeout { fail "$test" }
 }
-set timeout 50
+set timeout 30
 expect {
     -re "Destroyed verbose plugin" {}
     timeout { fail "$test" }
 }
+set timeout 10
 
 set test "camera job increment #3"
 send "in Car set Run = 1\n"
@@ -60,16 +62,16 @@ expect {
     -re "Output file basename is .*.foo"        { fail "$test" }
     timeout { fail "$test" }
 }
-set timeout 50
+set timeout 30
 expect {
     -re "Destroyed verbose plugin" {}
     timeout { fail "$test" }
 }
+set timeout 10
 
 sleep 5
 
 set test "basename switch"
-set timeout 10
 
 send "forSet Car forSet Method set InputMethod value Auto\n"
 expect {
@@ -77,8 +79,6 @@ expect {
     -re "Displaying output file name .*.foo" { fail "$test" }
     timeout { pass "$test" }
 }
-
-set timeout 20
 
 set test "sif file basename"
 
@@ -104,6 +104,7 @@ send "in Car set Run = 1\n"
 expect {
     -re "Output file basename is baz.foo" { pass "$test" }
     -re "Output file basename is .*.foo"  { fail "$test" }
+    -re "Job 04 failed" { fail "$test" }
     timeout { fail "$test" }
 }
 

@@ -48,9 +48,9 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config) 
+Car::Car (InputStream& input_stream, const CarConfig &new_config) 
 : ost::Thread("Car"),
-  master( master ),
+  input_stream( input_stream ),
   config(new_config),
   ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
@@ -78,8 +78,8 @@ Car::Car (const MasterConfig::Ptr& master, const CarConfig &new_config)
         throw std::invalid_argument("No valid output supplied.");
     output->check_for_duplicate_filenames( used_output_filenames );
 
-    PROGRESS("Registering at master config");
-    this->master->thread_safely_register_node( runtime_config );
+    PROGRESS("Registering at input_stream config");
+    this->input_stream.thread_safely_register_node( runtime_config );
 }
 
 Car::~Car() 
@@ -91,10 +91,10 @@ Car::~Car()
     PROGRESS("Sending destruction signal to outputs");
     output->propagate_signal( output::Output::Prepare_destruction );
 
-    PROGRESS("Removing from master config");
+    PROGRESS("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
      * from interface. */
-    master->thread_safely_erase_node( runtime_config );
+    input_stream.thread_safely_erase_node( runtime_config );
 
     output.reset(NULL);
     locSource.reset(NULL);

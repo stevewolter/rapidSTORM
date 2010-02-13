@@ -2,12 +2,15 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#define VERBOSE
+#include "debug.h"
+
 #include <limits>
 #include <sstream>
 #include <dStorm/helpers/thread.h>
 #include <algorithm>
 #include <simparm/ChoiceEntry_Impl.hh>
-
 #include "Config.h"
 #include "Method.h"
 #include "Source.h"

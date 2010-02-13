@@ -1,8 +1,11 @@
 set env(SIMCAM_CAMCOUNT) "0"
 dstorm_start
+set env(SIMCAM_CAMCOUNT) "2"
 
-set test "help"
-send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+set test "can choose andor camera without installed camera"
+send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 expect {
-    -re "--" { pass "help" }
+    -re "ack 0" { pass "$test" }
+    -re "segmentation fault" { fail "$test" }
+    -re "Could not perform action" { fail "$test" }
 }

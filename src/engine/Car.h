@@ -8,7 +8,7 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/Source_decl.h>
-#include "MasterConfig.h"
+#include "InputStream.h"
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>
@@ -29,11 +29,7 @@ namespace engine {
       private:
         std::set<std::string> used_output_filenames;
 
-        /** Reference to the master configuration. Must be destructed last
-         *  to ensure that all configuration items are destroyed before the
-         *  DLLs are unloaded. */
-        MasterConfig::Ptr master;
-
+        InputStream& input_stream;
         /** Construction Configuration. This is a copy of the CarConfig used
          *  to build this car. */
         CarConfig config;
@@ -79,7 +75,7 @@ namespace engine {
         jmp_buf panic_point;
 
       public:
-        Car (const MasterConfig::Ptr&, const CarConfig &config) ;
+        Car (InputStream&, const CarConfig &config) ;
         virtual ~Car();
 
         void drive();

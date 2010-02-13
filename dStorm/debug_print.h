@@ -5,6 +5,7 @@
                    if(dbg) { dbg->begin(__FILE__, __LINE__); \
                              (std::ostream&)(*dbg) << x << "\n"; \
                              dbg->end(); }}
+#define SIMPARM_DEBUG(x) DEBUG(x)
 #else
 #define DEBUG(x)
 #endif

@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer
 
-bin_PROGRAMS = dstorm watchStorm
+bin_PROGRAMS = dstorm 
 
 EXTRA_DATA = rapidSTORM.jar
 SOURCES = DStorm.java
@@ -27,21 +27,22 @@ endif
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \
     engine/libengine.la inputs/libinputs.la \
+    AndorCamera/libAndorCamera.la \
     wxDisplay/libdStorm_display.la \
-    AndorCamera/libAndorCamera.la ../dStorm/libdStorm.la 
-dstorm_SOURCES = dstorm.cpp Garage.cpp GarageConfig.h Garage.h \
-                 MasterConfig.h MasterConfig.cpp GarageConfig.cpp \
-		 debug.h error_handler.h error_handler.cpp \
+    ../dStorm/libdStorm.la 
+dstorm_SOURCES = \
+    dstorm.cpp \
+    CommandLine.h CommandLine.cpp \
+    ModuleLoader.h ModuleLoader.cpp \
+    LibraryHandle.h LibraryHandle.cpp \
+    GarageConfig.h GarageConfig.cpp \
+    InputStream.h InputStream.cpp \
+    debug.h error_handler.h error_handler.cpp \
 		 $(RESOURCE_FILE)
-dstorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread
+dstorm_LDADD = $(COMMON_LIBS) -lltdl 
     
-watchStorm_SOURCES = watchStorm.cpp Garage.cpp \
-                     MasterConfig.h MasterConfig.cpp GarageConfig.cpp \
-		     error_handler.h error_handler.cpp
-watchStorm_LDADD = $(COMMON_LIBS) -lltdl -lboost_thread
-
 javadir=$(datadir)/java
-java_DATA = de/uni_bielefeld/physik/rapid2STORM/DStorm.class
+nobase_java_DATA = de/uni_bielefeld/physik/rapid2STORM/DStorm.class
 
 de/uni_bielefeld/physik/rapid2STORM/DStorm.class : $(SOURCES)
 	$(JAVAC) -d $(builddir) -classpath $(CLASSPATH):$(TWIDDLER_JAR) $^

@@ -8,7 +8,10 @@ BEGIN_EVENT_TABLE(App, wxApp)
     EVT_IDLE(App::OnIdle)
 END_EVENT_TABLE()
 
-App::App() {
+ost::Runnable *App::idle_call = NULL;
+
+App::App()
+{
 }
 
 App::~App() {
@@ -31,7 +34,8 @@ bool App::OnInit()
 }
 
 void App::OnIdle(wxIdleEvent&) {
-    wxManager::getSingleton().exec_waiting_runnables();
+    if ( idle_call )
+        idle_call->run();
 }
 
 void App::close() {

@@ -4,6 +4,7 @@
  *  For documentation, see cc++/thread.h
  **/
 #define OST_EXITBLOCK_CPP
+#define VERBOSE
 #include "thread.h"
 
 #include <stdlib.h>
@@ -15,6 +16,7 @@
 #include <stdexcept>
 #include <signal.h>
 
+#define VERBOSE
 #include "../debug.h"
 
 using namespace std;
@@ -133,9 +135,20 @@ namespace dStorm {
      *  initialized. */
     static bool installedKey = false;
     static pthread_key_t objKey;
+    static pthread_mutex_t static_mutex;
+    static pthread_cond_t no_detached_threads;
+    int detached_threads = 0;
 
+    static dStorm::Runnable* thread_init = NULL;
+
+Runnable* Thread::set_thread_initializer( Runnable& r ) {
+    Runnable *o = thread_init;
+    thread_init = &r;
+    return o;
+}
 
 struct Thread::Pimpl {
+    Thread& object;
     /** Indicates whether a subthread is running, detached or not. */
     bool running;
     /** Indicates whether the running subthread is detached. */
@@ -156,17 +169,26 @@ struct Thread::Pimpl {
     ost::Condition stopped_execution;
 #endif
 
+    /** This function gets called for cleanup uf the objKey entries */
+    static void cleanObj(void* threadp);
     /** This function gets called by pthread_create() */
     static void* runHandler(void *threadp) throw()
          __attribute__((force_align_arg_pointer));
 
-    Pimpl(const char *name);
+    Pimpl(Thread& obj, const char *name);
 };
 
 void *Thread::Pimpl::runHandler(void *threadp) throw() {
     DEBUG("Subthread started for " << threadp);
     Thread &thread = *(Thread*)threadp;
     pthread_setspecific(objKey, &thread);
+
+    if ( thread_init != NULL ) {
+        DEBUG("Using thread initializer");
+        thread_init->run();
+    } else {
+        DEBUG("No thread initializer defined");
+    }
 
 #if 0
     /* Block termination signals; these are handled by the 
@@ -203,20 +225,20 @@ void Runnable::abnormal_termination(std::string r) {
     pthread_exit( NULL );
 }
 
-Thread::Pimpl::Pimpl(const char *name) 
-: running(false), detached(false), name(name)
+Thread::Pimpl::Pimpl(Thread& obj, const char *name) 
+: object(obj), running(false), detached(false), name(name)
 #ifdef PTW32_VERSION
   , stopped_execution(execution_status_mutex)
 #endif
 {}
 
 Thread::Thread(const char *name) throw() 
-: pimpl( new Pimpl(name) )
+: pimpl( new Pimpl(*this, name) )
 { 
     DEBUG("Creating thread " << this);
     if (! installedKey ) {
         installedKey = true;
-        pthread_key_create(&objKey, NULL);
+        pthread_key_create(&objKey, Pimpl::cleanObj);
     }
 }
 
@@ -238,6 +260,10 @@ void Thread::detach() throw() {
     if (pimpl->detached) return;
     pthread_detach(pimpl->thread);
     pimpl->detached = true;
+    
+    pthread_mutex_lock(&static_mutex);
+    detached_threads++;
+    pthread_mutex_unlock(&static_mutex);
     DEBUG("Detached " << this);
 }
 
@@ -279,4 +305,30 @@ Thread *Thread::current_thread() throw() {
         (Thread *)pthread_getspecific(objKey);
     return thread;
 }
+
+void Thread::exit() {
+    pthread_exit( NULL );
+}
+
+void Thread::wait_for_detached_threads() {
+    pthread_mutex_lock( &static_mutex );
+    while ( detached_threads > 0 )
+        pthread_cond_wait( 
+            &no_detached_threads,
+            &static_mutex );
+    pthread_mutex_unlock( &static_mutex );
+}
+
+void Thread::Pimpl::cleanObj(void *data) {
+    Thread *t = (Thread*)data;
+    if ( t != NULL && t->pimpl->detached ) {
+        pthread_mutex_lock( &static_mutex );
+        detached_threads--;
+        if ( detached_threads == 0 )
+            pthread_cond_signal( &no_detached_threads );
+        pthread_mutex_unlock( &static_mutex );
+    }
+}
+
+
 }

@@ -3,7 +3,7 @@
 #include "AndorDirect.h"
 #include <CImg.h>
 
-typedef boost::lock_guard<boost::mutex> guard;
+typedef ost::MutexLock guard;
 
 using namespace boost::units;
 using namespace cs_units::camera;
@@ -59,9 +59,8 @@ void LiveView::hide_window() {
 std::auto_ptr<Display::Change> LiveView::get_changes()
 {
     std::auto_ptr<Display::Change> fresh( new Display::Change() );
-    change_mutex.lock();
+    ost::MutexLock lock(change_mutex);
     std::swap( fresh, change );
-    change_mutex.unlock();
     return fresh;
 }
 
