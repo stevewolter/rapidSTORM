@@ -6,5 +6,5 @@ AM_INIT_AUTOMAKE
 
 AC_CONFIG_MACRO_DIR([../m4])
 
-AC_CONFIG_FILES([Makefile scripts/Makefile])
+AC_CONFIG_FILES([Makefile deploy_stage2.mk dStorm.iss])
 AC_OUTPUT
