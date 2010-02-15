@@ -6,5 +6,9 @@ AM_INIT_AUTOMAKE
 
 AC_CONFIG_MACRO_DIR([../m4])
 
-AC_CONFIG_FILES([Makefile deploy_stage2.mk dStorm.iss])
+# Check for ISCC Inno Setup help compiler
+AC_CHECK_PROG([ISCC], [ISCC])
+AC_CHECK_PROG([WINE], [WINE])
+
+AC_CONFIG_FILES([Makefile dSTORM.iss build_installer.mk])
 AC_OUTPUT

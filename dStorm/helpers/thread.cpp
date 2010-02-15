@@ -135,8 +135,8 @@ namespace dStorm {
      *  initialized. */
     static bool installedKey = false;
     static pthread_key_t objKey;
-    static pthread_mutex_t static_mutex;
-    static pthread_cond_t no_detached_threads;
+    static pthread_mutex_t static_mutex = PTHREAD_MUTEX_INITIALIZER;
+    static pthread_cond_t no_detached_threads = PTHREAD_COND_INITIALIZER;
     int detached_threads = 0;
 
     static dStorm::Runnable* thread_init = NULL;
@@ -153,6 +153,10 @@ struct Thread::Pimpl {
     bool running;
     /** Indicates whether the running subthread is detached. */
     bool detached;
+    /** Indicates whether a detached subthread should delete its own thread
+     *  class. This is set apart from detached to ensure that emergency
+     *  cleanup does not delete the thread class. */
+    bool delete_self;
     /** Handle for the running subthread. Only valid for running == true */
     pthread_t thread;
     /** The name of the created subthread that is returned by 
@@ -169,13 +173,14 @@ struct Thread::Pimpl {
     ost::Condition stopped_execution;
 #endif
 
-    /** This function gets called for cleanup uf the objKey entries */
-    static void cleanObj(void* threadp);
+    /** This function gets called for cleanup uf the cleanupKey entries */
+    static void cleanUp(void* threadp);
     /** This function gets called by pthread_create() */
     static void* runHandler(void *threadp) throw()
          __attribute__((force_align_arg_pointer));
 
     Pimpl(Thread& obj, const char *name);
+    void fork();
 };
 
 void *Thread::Pimpl::runHandler(void *threadp) throw() {
@@ -209,8 +214,7 @@ void *Thread::Pimpl::runHandler(void *threadp) throw() {
         std::cerr << e.what() << "\n";
     }
     if ( thread.pimpl->detached )
-        delete &thread;
-    DEBUG("Ran " << threadp);
+        thread.pimpl->delete_self = true;
     DEBUG("Finished subthread for " << threadp);
     return NULL;
 }
@@ -226,7 +230,8 @@ void Runnable::abnormal_termination(std::string r) {
 }
 
 Thread::Pimpl::Pimpl(Thread& obj, const char *name) 
-: object(obj), running(false), detached(false), name(name)
+: object(obj), running(false), detached(false), delete_self(false),
+  name(name)
 #ifdef PTW32_VERSION
   , stopped_execution(execution_status_mutex)
 #endif
@@ -238,39 +243,46 @@ Thread::Thread(const char *name) throw()
     DEBUG("Creating thread " << this);
     if (! installedKey ) {
         installedKey = true;
-        pthread_key_create(&objKey, Pimpl::cleanObj);
+        pthread_key_create(&objKey, Pimpl::cleanUp);
     }
 }
 
 Thread::~Thread() { join(); }
 
-void Thread::start()  {
-    if (!pimpl->running) {
+void Thread::Pimpl::fork()  {
+    if (!running) {
         DEBUG("Starting thread " << this);
-        pimpl->running = 
-            (pthread_create(&pimpl->thread, NULL, Pimpl::runHandler, this) == 0);
-        if (!pimpl->running) 
+        running = (pthread_create(&thread, NULL, runHandler, &object) == 0);
+        if (!running)
             throw std::runtime_error("Starting thread failed.");
-        pimpl->detached = false;
+        else
+            DEBUG("Started thread successfully");
     }
 }
 
+void Thread::start() {
+    pimpl->detached = false;
+    pimpl->fork();
+}
+
 void Thread::detach() throw() {
-    if (!pimpl->running) { start(); }
-    if (pimpl->detached) return;
-    pthread_detach(pimpl->thread);
+    DEBUG("Detaching " << this);
     pimpl->detached = true;
+    pimpl->fork();
+    pthread_detach(pimpl->thread);
     
+    DEBUG("Updating detached thread count");
     pthread_mutex_lock(&static_mutex);
     detached_threads++;
     pthread_mutex_unlock(&static_mutex);
-    DEBUG("Detached " << this);
+    DEBUG("Detached " << this << ", now " << detached_threads <<
+          "detached threads");
 }
 
 void Thread::join() throw() {
     DEBUG("Calling join on thread " << this);
     if (pimpl->running && !pimpl->detached)  {
-        DEBUG("Joining thread " << this);
+        DEBUG("Joining thread " << this << "from " << current_thread());
 #if 0
         DEBUG("Waiting for thread finish mutex for " << this);
         ost::MutexLock lock( execution_status_mutex );
@@ -319,15 +331,25 @@ void Thread::wait_for_detached_threads() {
     pthread_mutex_unlock( &static_mutex );
 }
 
-void Thread::Pimpl::cleanObj(void *data) {
-    Thread *t = (Thread*)data;
-    if ( t != NULL && t->pimpl->detached ) {
+void Thread::Pimpl::cleanUp(void *data) {
+#ifdef VERBOSE
+    std::cerr << "Cleaning up data for " << data << std::endl;
+#endif
+    Thread* t = (Thread*)data;
+    if ( t->pimpl->detached ) {
         pthread_mutex_lock( &static_mutex );
         detached_threads--;
         if ( detached_threads == 0 )
             pthread_cond_signal( &no_detached_threads );
+#ifdef VERBOSE
+        std::cerr << 
+        "Reducing count of detached threads to " << detached_threads
+            << std::endl;
+#endif
         pthread_mutex_unlock( &static_mutex );
     }
+    if ( t->pimpl->delete_self )
+        delete t;
 }
 
 

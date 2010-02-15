@@ -65,6 +65,7 @@ InputStream::Pimpl::Pimpl(
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     this->push_back( config );
     this->push_back( starter );
+    this->push_back( help_file );
 }
 
 void InputStream::Pimpl::terminate_remaining_cars() {

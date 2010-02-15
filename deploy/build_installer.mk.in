@@ -1,0 +1,73 @@
+PACKAGE_TARNAME:=@PACKAGE_TARNAME@
+PACKAGE_VERSION:=@PACKAGE_VERSION@
+ISCC:=@ISCC@
+STRIP:=@STRIP@
+WINE:=@WINE@
+PREFIX:=@prefix@
+
+ME:=$(lastword $(MAKEFILE_LIST))
+STAGE:=$(dir $(ME))../..
+SECONDSTAGE:=build
+BUNDLE:=$(PACKAGE_TARNAME)_$(PACKAGE_VERSION)_bin.tgz
+
+GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
+GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
+
+ifdef $(ISCC)
+installer : dSTORM.exe
+dSTORM.exe : dSTORM.iss populated-second-stage
+	$(ISCC) $<
+else
+installer :
+endif
+
+ifdef $(WINE)
+populated-second-stage : binaries graphicsmagick
+bundle : $(BUNDLE)
+else
+populated-second-stage : $(BUNDLE)
+	tar xfz $(BUNDLE) -C $(SECONDSTAGE) 
+endif
+
+graphicsmagick.dep : 
+	if test 'x$(GRAPHICSMAGICK_ROOT)' = 'x'; then echo > $@; else \
+	find $(GRAPHICSMAGICK_ROOT) $(GRAPHICSMAGICK_EXPR)\
+	    -printf 'graphicsmagick : $(STAGE)/%P\n$(STAGE)/%P : %p\n' \
+	    > $@; fi
+include graphicsmagick.dep
+
+filenames.lst : storm.out
+	{ sed -e 's§^\(.*\)/\([^\/]*\)§bin/\2§' $<;\
+	  find $(GRAPHICSMAGICK_ROOT) $(GRAPHICSMAGICK_EXPR) \
+		-printf '%P\n'; \
+	  tr '\r\t' '  ' $< | sed -e 's§help_file \([^ ]*\) *§\1§'; \
+	  echo share/rapidstorm/dstorm-config.txt; \
+	  } > $@
+	  
+
+$(BUNDLE) : binaries graphicsmagick filenames.lst
+	tar cfz $@ --files-from=filenames.lst -C $(STAGE) . 
+
+%.exe :
+	$(STRIP) -o $@ $<
+%.dll :
+	if test $(notdir $<) != "ATMCD32D.DLL"; then $(STRIP) -o $@ $<; else cp $< $@; fi
+
+dSTORM.iss : $(STAGE)/share/rapidstorm/dSTORM.iss binaries graphicsmagick
+	{ cat $^; find $(STAGE) '(' -type f -and -not -iname 'dSTORM.iss' ')' -printf 'Source: "%P"; DestDir: "{app}%h"\n' | sed -e 's§{app}$(STAGE)§{app}§';} > $@
+
+include auto.dep
+
+storm.out :
+	{ echo "attach"; echo "quit"; } |\
+	  WINEDEBUG="loaddll" wine $(PREFIX)/bin/dstorm.exe --Twiddler \
+	  > $@ 2>&1
+
+loaded_DLLs.txt : storm.out
+	sed -n -e 's§.*Loaded L"Z:\(.*\)" at [0-9a-fA-Fx]*: native.*§\1§p' $< | \
+	sed -e 's/\\\\/\//g' > $@
+
+auto.dep : loaded_DLLs.txt 
+	sed -e 's/^/storm.out : /' $< > $@
+	sed -e 's§^.*\/§binaries : $(STAGE)/bin/§' $< >> $@
+	sed -e 's§^\(.*\)/\([^\/]*\)§$(STAGE)/bin/\2 : \1/\2§' $< >> $@

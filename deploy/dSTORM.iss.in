@@ -42,5 +42,5 @@ Filename: "{tmp}\hldrv32.exe"; Description: "Install Hardlock Drivers"; Flags: p
 [Files]
 Source: "share\rapidSTORM\rapidSTORM.jar"; DestDir: "{app}\share\java"
 Source: "Sample_Workspace_dSTORM\*.*"; DestDir: "{app}\Sample_Workspace_dSTORM"
-Source: "jre-6u10-windows-i586-p-s.exe"; DestDir: "{tmp}"
-Source: "hldrv32.exe"; DestDir: "{tmp}"
+Source: "jre-6u10-windows-i586-p-s.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "hldrv32.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall

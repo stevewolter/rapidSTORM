@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = debug.h Doxyfile
 
-SUBDIRS = doc dStorm src test 
+SUBDIRS = doc dStorm src test deploy
 
-dist-jar : all
-	make -C src dist-jar
+installer bundle :
+	make -C deploy $@
