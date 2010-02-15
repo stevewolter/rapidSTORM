@@ -37,8 +37,7 @@ int main(int argc, char *argv[]) {
         SIGNAL_HANDLER_PANIC_POINT(outer_handler);
         ModuleLoader::makeSingleton();
 
-        CommandLine cmd_line_handler( argc, argv );
-        cmd_line_handler.detach();
+        (new CommandLine( argc, argv ))->detach();
         Thread::wait_for_detached_threads();
 
         ModuleLoader::destroySingleton();
