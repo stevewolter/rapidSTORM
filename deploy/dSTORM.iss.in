@@ -1,0 +1,46 @@
+; dSTORM 1.3.0, MP, Dec. 2009
+; Changed to integrate with SVN by swolter, 2010
+
+[Setup]
+AppName=@PACKAGE_NAME@
+AppID=@PACKAGE@
+AppVersion=@PACKAGE_VERSION@
+AppVerName=PicoQuant @PACKAGE_STRING@
+DefaultGroupName=PicoQuant @PACKAGE_NAME@
+UsePreviousGroup=no
+DefaultDirName={pf}\PicoQuant\@PACKAGE@
+UsePreviousAppDir=yes
+WizardImageFile=inst.bmp
+WizardImageStretch=no
+WizardImageBackColor=$FFFFFF
+LicenseFile=license.txt
+InfoBeforeFile=readme.txt
+AlwaysRestart=no
+
+;das bezieht sich auf Anzeige in Software unter W2k/XP
+AppCopyright=Copyright © 1999-2009 PicoQuant GmbH
+AppPublisher=PicoQuant GmbH
+AppPublisherURL=http://www.picoquant.com/
+
+;privilegien nötig für Hardlock Driver
+; PrivilegesRequired=admin
+
+DiskSpanning=no
+ReserveBytes=16384
+Compression=bzip/9
+SolidCompression=yes
+
+[Icons]
+Name: "{group}\rapid2STORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
+Name: "{group}\Uninstall\Uninstall rapid2STORM";                                           Filename: "{uninstallexe}"
+Name: "{group}\Samples";                                                                   Filename: "{app}\Sample_Workspace_dSTORM"
+
+[Run]
+Filename: "{tmp}\jre-6u10-windows-i586-p-s.exe"; Description: "Install Java Run Time Environment"; Flags: postinstall
+Filename: "{tmp}\hldrv32.exe"; Description: "Install Hardlock Drivers"; Flags: postinstall
+
+[Files]
+Source: "share\rapidSTORM\rapidSTORM.jar"; DestDir: "{app}\share\java"
+Source: "Sample_Workspace_dSTORM\*.*"; DestDir: "{app}\Sample_Workspace_dSTORM"
+Source: "jre-6u10-windows-i586-p-s.exe"; DestDir: "{tmp}"
+Source: "hldrv32.exe"; DestDir: "{tmp}"
