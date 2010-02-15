@@ -1,6 +1,8 @@
 #ifndef DSTORM_CAR_H
 #define DSTORM_CAR_H
 
+#include "Car_decl.h"
+
 #include <dStorm/helpers/thread.h>
 #include "CarConfig.h"
 #include <dStorm/output/OutputSource.h>
@@ -8,7 +10,7 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/Source_decl.h>
-#include "InputStream.h"
+#include "JobMaster.h"
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>
@@ -29,7 +31,7 @@ namespace engine {
       private:
         std::set<std::string> used_output_filenames;
 
-        InputStream& input_stream;
+        JobMaster& input_stream;
         /** Construction Configuration. This is a copy of the CarConfig used
          *  to build this car. */
         CarConfig config;
@@ -52,10 +54,9 @@ namespace engine {
 
         std::auto_ptr<output::Output> output;
 
-        static ost::Mutex terminationMutex;
+        ost::Mutex terminationMutex;
         bool terminate;
-        static bool terminateAll;
-        static ost::Condition terminationChanged;
+        ost::Condition terminationChanged;
 
         void make_input_driver();
         /** Run the dStorm engine class. */
@@ -75,13 +76,14 @@ namespace engine {
         jmp_buf panic_point;
 
       public:
-        Car (InputStream&, const CarConfig &config) ;
+        Car (JobMaster&, const CarConfig &config) ;
         virtual ~Car();
 
         void drive();
-        static void terminate_all_Car_threads();
+        void stop();
 
         const CarConfig &getConfig() const { return config; }
+        simparm::Node& statusNode() { return runtime_config; }
     };
 }
 }

@@ -8,6 +8,6 @@ AM_INIT_AUTOMAKE
 
 CPPFLAGS="$CPPFLAGS -I $top_srcdir"
 
-AC_CONFIG_SUBDIRS([doc dStorm src test])
+AC_CONFIG_SUBDIRS([doc dStorm src test deploy])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
