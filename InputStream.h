@@ -4,6 +4,8 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/Node.hh>
 #include "engine/CarConfig_decl.h"
+#include "JobMaster.h"
+#include "engine/CarConfig.h"
 
 namespace dStorm {
 
@@ -15,12 +17,10 @@ class InputStream
     std::auto_ptr<Pimpl> pimpl;
 
   public:
-    InputStream(std::istream&, std::ostream&);
+    InputStream(const engine::CarConfig&,
+                std::istream&, std::ostream&);
     ~InputStream();
     
-    void thread_safely_register_node( simparm::Node& node );
-    void thread_safely_erase_node( simparm::Node& node );
-
     void add_modules( engine::CarConfig& config );
 
     void run();

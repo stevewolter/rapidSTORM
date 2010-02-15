@@ -270,6 +270,10 @@ void SignalHandler::Pimpl::on_terminate() {
 }
 
 void SignalHandler::Pimpl::set_catchers() {
+    if ( getenv("RAPIDSTORM_DISABLE_SIGNAL_HANDLER") ) {
+        DEBUG("Signal handling disabled by environment variable");
+        return;
+    }
     DEBUG("Installing signal handlers");
 #ifdef SIGHUP
     signal( SIGHUP, on_signal );

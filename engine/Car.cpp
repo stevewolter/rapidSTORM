@@ -20,10 +20,6 @@ using namespace std;
 namespace dStorm {
 namespace engine {
 
-ost::Mutex Car::terminationMutex;
-ost::Condition Car::terminationChanged( terminationMutex );
-bool Car::terminateAll = false;
-
 /* ==== This code gives a new job ID on each call. === */
 static ost::Mutex *runNumberMutex = NULL;
 static char number[6];
@@ -48,7 +44,7 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (InputStream& input_stream, const CarConfig &new_config) 
+Car::Car (JobMaster& input_stream, const CarConfig &new_config) 
 : ost::Thread("Car"),
   input_stream( input_stream ),
   config(new_config),
@@ -58,6 +54,7 @@ Car::Car (InputStream& input_stream, const CarConfig &new_config)
   input(NULL),
   output(NULL),
   terminate(false),
+  terminationChanged( terminationMutex ),
   panic_point_set( false )
 {
     if ( config.inputConfig.inputMethod().uses_input_file() )
@@ -79,7 +76,7 @@ Car::Car (InputStream& input_stream, const CarConfig &new_config)
     output->check_for_duplicate_filenames( used_output_filenames );
 
     PROGRESS("Registering at input_stream config");
-    this->input_stream.thread_safely_register_node( runtime_config );
+    this->input_stream.register_node( *this );
 }
 
 Car::~Car() 
@@ -94,7 +91,7 @@ Car::~Car()
     PROGRESS("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
      * from interface. */
-    input_stream.thread_safely_erase_node( runtime_config );
+    input_stream.erase_node( *this );
 
     output.reset(NULL);
     locSource.reset(NULL);
@@ -197,7 +194,7 @@ void Car::drive() {
         ost::MutexLock lock( terminationMutex );
         PROGRESS("Waiting for termination allowance");
         if ( runtime_config.isActive() )
-            while ( ! terminate && ! terminateAll )
+            while ( ! terminate )
                 terminationChanged.wait();
         PROGRESS("Allowed to terminate");
 
@@ -228,10 +225,8 @@ void Car::runOnSTM() throw( std::exception ) {
     locSource->startPushing( &buncher );
 }
 
-void Car::terminate_all_Car_threads() {
-    Engine::stopAllEngines();
-    terminateAll = true;
-    terminationChanged.signal();
+void Car::stop() {
+    closeJob.trigger();
 }
 
 void Car::abnormal_termination(std::string r) throw() {

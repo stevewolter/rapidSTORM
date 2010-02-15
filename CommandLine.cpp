@@ -1,11 +1,13 @@
 #include "CommandLine.h"
 #include <vector>
 #include <string>
-#include <GarageConfig.h>
+#include "engine/CarConfig.h"
+#include "JobStarter.h"
 #include <fstream>
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/FilterSource.h>
 #include "InputStream.h"
+#include "JobMaster.h"
 
 #include "debug.h"
 
@@ -18,13 +20,13 @@ class TransmissionTreePrinter
   simparm::Listener,
   boost::noncopyable
 {
-    const GarageConfig &config;
+    const engine::CarConfig &config;
     void operator()( const simparm::Event& );
     void printNode( 
         const output::OutputSource& src,
         int indent );
   public:
-    TransmissionTreePrinter(const GarageConfig&);
+    TransmissionTreePrinter(const engine::CarConfig&);
 };
 
 class TwiddlerLauncher
@@ -32,16 +34,18 @@ class TwiddlerLauncher
   simparm::Listener,
   boost::noncopyable
 {
-    GarageConfig &config;
+    engine::CarConfig &config;
     void operator()( const simparm::Event& );
   public:
-    TwiddlerLauncher(GarageConfig&);
+    TwiddlerLauncher(engine::CarConfig&);
 };
 
-class CommandLine::Pimpl {
+class CommandLine::Pimpl
+: public JobMaster {
     int argc;
     char **argv;
-    GarageConfig config;
+    engine::CarConfig config;
+    JobStarter starter;
 
     bool load_config_file(const std::string& filename);
     void find_config_file();
@@ -50,6 +54,8 @@ class CommandLine::Pimpl {
     Pimpl(int argc, char *argv[]);
 
     void run();
+    void register_node( engine::Car& ) {}
+    void erase_node( engine::Car&  )  {}
 };
 
 CommandLine::CommandLine(int argc, char *argv[])
@@ -63,16 +69,22 @@ void CommandLine::run() {
     pimpl->run();
 }
 
+void CommandLine::abnormal_termination(std::string reason) {
+    std::cerr << "Had an unexpected error while processing command line "
+                 "arguments: " << reason << " Aborting." << std::endl;
+    this->exit();
+}
 void CommandLine::Pimpl::run() {
     simparm::Set cmd_line_args
         ("dSTORM", "dSTORM command line");
-    cmd_line_args.push_back( config.getCarConfig() );
+    cmd_line_args.push_back( config );
     cmd_line_args.push_back(
         std::auto_ptr<simparm::Node>(new
             TransmissionTreePrinter(config)));
     cmd_line_args.push_back(
         std::auto_ptr<simparm::Node>(new
             TwiddlerLauncher(config)));
+    cmd_line_args.push_back( starter );
 
     find_config_file();
 
@@ -84,8 +96,8 @@ void CommandLine::Pimpl::run() {
     }
 
     for (int arg = first_nonoption; arg < argc; arg++) {
-        config.set_input_file( std::string(argv[arg]) );
-        config.run_job();
+        config.inputConfig.inputFile = std::string(argv[arg]);
+        starter.trigger();
     }
 }
 
@@ -122,7 +134,7 @@ bool CommandLine::Pimpl::load_config_file(
         while ( config_file ) {
             DEBUG("Processing command from " << name.c_str());
             try {
-                config.getCarConfig().processCommand( config_file );
+                config.processCommand( config_file );
             } catch (const std::exception& e) {
                 std::cerr << "Error in initialization config file: "
                           << e.what() << "\n";
@@ -133,23 +145,23 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: argc(argc), argv(argv) 
+: argc(argc), argv(argv), starter(config, *this)
 {
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter
-    ( const GarageConfig& c )
+    ( const engine::CarConfig& c )
 : simparm::TriggerEntry("ShowTransmissionTree", 
                         "Print tree view of outputs"),
   simparm::Listener( simparm::Event::ValueChanged ),
   config(c)
 {
-    receive_changes_from( *this );
+    receive_changes_from( value );
 }
 
 void TransmissionTreePrinter::operator()( const simparm::Event& )
 {
-    printNode( config.getCarConfig().outputSource, 0 );
+    printNode( config.outputSource, 0 );
 }
 
 void TransmissionTreePrinter::printNode( 
@@ -170,18 +182,19 @@ void TransmissionTreePrinter::printNode(
 }
 
 TwiddlerLauncher::TwiddlerLauncher
-    ( GarageConfig& c )
+    ( engine::CarConfig& c )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
   simparm::Listener( simparm::Event::ValueChanged ),
   config(c)
 {
-    receive_changes_from( *this );
+    receive_changes_from( value );
 }
 
 void TwiddlerLauncher::operator()( const simparm::Event& )
 {
-    std::auto_ptr<InputStream> is(new InputStream(std::cin, std::cout));
+    DEBUG("Launching command stream");
+    std::auto_ptr<InputStream> is(new InputStream(config, std::cin, std::cout));
     is.release()->detach();
 }
 

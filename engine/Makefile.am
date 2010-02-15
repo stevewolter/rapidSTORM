@@ -6,7 +6,7 @@ AM_CPPFLAGS = \
 
 libengine_la_SOURCES = \
     CarConfig_decl.h CarConfig.h CarConfig.cpp \
-    Car.cpp Car.h Engine.cpp \
+    Car_decl.h Car.cpp Car.h Engine.cpp \
     EngineDebug.h Engine.h \
     GaussFitter_decl.h GaussFitter.h GaussFitter_impl.h GaussFitter.cpp \
     GaussFitter_ResidueAnalysis.h \

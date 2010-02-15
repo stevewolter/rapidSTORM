@@ -5,12 +5,6 @@ SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer
 
 bin_PROGRAMS = dstorm 
 
-EXTRA_DATA = rapidSTORM.jar
-SOURCES = DStorm.java
-EXTRA_DIST = $(SOURCES) manifest logo.png
-
-dist_pkgdata_DATA = dstorm-config.txt logo.png manifest
-
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
@@ -35,14 +29,23 @@ dstorm_SOURCES = \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
     LibraryHandle.h LibraryHandle.cpp \
-    GarageConfig.h GarageConfig.cpp \
+    JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h error_handler.h error_handler.cpp \
 		 $(RESOURCE_FILE)
 dstorm_LDADD = $(COMMON_LIBS) -lltdl 
     
 javadir=$(datadir)/java
-nobase_java_DATA = de/uni_bielefeld/physik/rapid2STORM/DStorm.class
+java_DATA = rapidSTORM.jar
+JAVASOURCES = DStorm.java
+JARCONTENT = logo.png
+EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest
 
-de/uni_bielefeld/physik/rapid2STORM/DStorm.class : $(SOURCES)
-	$(JAVAC) -d $(builddir) -classpath $(CLASSPATH):$(TWIDDLER_JAR) $^
+javabuilddir = classes
+
+rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
+	$(MKDIR_P) $(javabuilddir)
+	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $(filter %.java,$^)
+	cp $(TWIDDLER_JAR) $@
+	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
+	$(JAR) -umf manifest $@
