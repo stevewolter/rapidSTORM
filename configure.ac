@@ -73,12 +73,10 @@ AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
         [path to windows resource compiler @<:@default=guess@:>@])],
         [],
-        [ AS_IF([test "x$host_alias" == x],
-            [with_windres=windres],
-            [with_windres=$host_alias-windres]) ])
+        [ with_windres=guess ])
 AS_IF( 
-    [test "x$with_windres" != x], 
-    [AC_CHECK_PROGS([WINDRES], ["$with_windres"])],
+    [test "x$with_windres" = xguess], 
+    [AC_CHECK_TOOL([WINDRES], [windres])],
     [])
 AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
 

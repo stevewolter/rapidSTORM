@@ -95,10 +95,12 @@ void CommandLine::Pimpl::run() {
             cmd_line_args.readConfig(argc, argv);
     }
 
+    DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
     for (int arg = first_nonoption; arg < argc; arg++) {
         config.inputConfig.inputFile = std::string(argv[arg]);
         starter.trigger();
     }
+    DEBUG("Finished processing commandline arguments");
 }
 
 void CommandLine::Pimpl::find_config_file() {
@@ -196,6 +198,7 @@ void TwiddlerLauncher::operator()( const simparm::Event& )
     DEBUG("Launching command stream");
     std::auto_ptr<InputStream> is(new InputStream(config, std::cin, std::cout));
     is.release()->detach();
+    DEBUG("Launched command stream");
 }
 
 }
