@@ -26,6 +26,10 @@ BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
 bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
+
+$(BUNDLE) : $(BUNDLE_LISTS)
+	tar cfz $@ $(foreach list,$(LISTS),-C $(prefix_$(list)) --files-from=$(list))
+
 else
 LISTS:=bundle.lst config_file.lst
 bundle.lst : $(BUNDLE)
@@ -69,9 +73,6 @@ graphicsmagick.lst :
 
 headers.lst :
 	find $(PREFIX)/include/dStorm $(PREFIX)/include/simparm -type f | sed -e 's§^$(PREFIX)/§§'  > $@
-
-$(BUNDLE) : $(BUNDLE_LISTS)
-	tar cfz $@ $(foreach list,$(LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 %.exe :
 	mkdir -p $(dir $@)
