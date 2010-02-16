@@ -7,8 +7,8 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([../m4])
 
 # Check for ISCC Inno Setup help compiler
-AC_CHECK_PROG([ISCC], [ISCC])
-AC_CHECK_PROG([WINE], [WINE])
+AC_CHECK_PROGS([ISCC], [ISCC])
+AC_CHECK_PROGS([WINE], [wine])
 
 AC_CONFIG_FILES([Makefile dSTORM.iss build_installer.mk])
 AC_OUTPUT
