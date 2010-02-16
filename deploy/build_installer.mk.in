@@ -1,8 +1,8 @@
 PACKAGE_TARNAME:=@PACKAGE_TARNAME@
 PACKAGE_VERSION:=@PACKAGE_VERSION@
-ISCC:=echo
+ISCC:=@ISCC@
 STRIP:=@STRIP@
-WINE:=
+WINE:=@WINE@
 PREFIX:=@prefix@
 
 ME:=$(lastword $(MAKEFILE_LIST))
@@ -24,6 +24,8 @@ prefix_config_file.lst:=$(PREFIX)
 ifneq ($(WINE),)
 BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
 bundle : $(BUNDLE)
+include auto.dep
+include graphicsmagick.dep
 else
 LISTS:=bundle.lst config_file.lst
 bundle.lst : $(BUNDLE)
@@ -52,7 +54,6 @@ graphicsmagick.dep :
 	find $(GRAPHICSMAGICK_ROOT) $(GRAPHICSMAGICK_EXPR)\
 	    -printf 'graphicsmagick : $(STAGE)/%P\n$(STAGE)/%P : %p\n' \
 	    > $@; fi
-include graphicsmagick.dep
 
 binaries.lst : loaded_DLLs.txt binaries
 	sed -e 's§tag \(.*\) \(.*\)§\2§' $< > $@
@@ -84,8 +85,6 @@ dSTORM.iss : $(PREFIX)/share/rapidstorm/dSTORM.iss $(LISTS:.lst=.iss)
 
 %.iss : %.lst
 	sed -e 's§\(.*\)/\([^/]*\)§Source: "$(prefix_$<)/\1/\2"; DestDir: "{app}/\1"§' $< > $@
-
-include auto.dep
 
 storm.out :
 	{ echo "attach"; echo "quit"; } |\
