@@ -236,6 +236,7 @@ AC_CONFIG_FILES([spotFinders/Makefile])
 AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])
 AC_CONFIG_FILES([wxDisplay/Makefile])
 AC_CONFIG_FILES([viewer/Makefile])
+AC_CONFIG_FILES([debug-plugin/Makefile])
 AC_CONFIG_FILES([manifest])
 
 AC_OUTPUT

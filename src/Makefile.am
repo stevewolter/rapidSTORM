@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I ../m4
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer
+SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer debug-plugin
 
 bin_PROGRAMS = dstorm 
 
