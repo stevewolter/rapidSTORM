@@ -37,7 +37,7 @@ endif
 ifneq ($(ISCC),)
 installer : dSTORM.exe
 dSTORM.exe : dSTORM.iss
-	$(ISCC) $<
+	'$(ISCC)' '$<'
 else
 installer :
 endif
