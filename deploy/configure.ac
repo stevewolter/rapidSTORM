@@ -1,6 +1,6 @@
 
 AC_PREREQ(2.61)
-AC_INIT([rapidStorm], [1.4.0], [dstorm at swolter dot sdf1 dot org])
+AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
 
 AM_INIT_AUTOMAKE
 

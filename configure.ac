@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapi.dStorm], RAPIDSTORM_VERSION,
+AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION,
         RAPIDSTORM_MAINTAINER)
 AM_INIT_AUTOMAKE
 

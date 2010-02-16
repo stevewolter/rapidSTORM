@@ -28,7 +28,7 @@ include auto.dep
 include graphicsmagick.dep
 
 $(BUNDLE) : $(BUNDLE_LISTS)
-	tar cfz $@ $(foreach list,$(LISTS),-C $(prefix_$(list)) --files-from=$(list))
+	tar cfz $@ $(foreach list,$(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
 LISTS:=bundle.lst config_file.lst
