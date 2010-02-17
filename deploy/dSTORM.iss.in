@@ -24,6 +24,7 @@ AppPublisherURL=http://www.picoquant.com/
 
 ;privilegien nötig für Hardlock Driver
 ; PrivilegesRequired=admin
+PrivilegesRequired=lowest
 
 DiskSpanning=no
 ReserveBytes=16384
