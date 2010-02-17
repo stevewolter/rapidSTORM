@@ -8,6 +8,7 @@ srcdir:=@srcdir@
 EXTRA_INSTALLER:=@EXTRA_INSTALLER@
 PATH_REWRITER:=@PATH_REWRITER@
 pkgdatadir:=@datadir@/@PACKAGE@
+abs_builddir:=@abs_builddir@
 
 ME:=$(lastword $(MAKEFILE_LIST))
 STAGE:=$(dir $(ME))../..
@@ -40,7 +41,7 @@ prefix_config_file.lst:=$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g
 flags_config_file.lst:=
 components_config_file.lst:=main
 
-prefix_bundle_iss.lst:=.
+prefix_bundle_iss.lst:=$(TMP)
 
 all : 
 
@@ -52,7 +53,7 @@ include auto.dep
 include graphicsmagick.dep
 
 $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
-	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
+	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list) -C $(abs_builddir))
 
 else
 $(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
@@ -75,10 +76,14 @@ Readme.txt : $(srcdir)/../README
 License.txt : $(srcdir)/../LICENSE
 inst.bmp : $(srcdir)/inst.bmp
 
-bundle_iss.lst : bundle.iss
-	$(PATH_REWRITER) $< > $@
+BUNDLE_ISS_OFFSET:=share/$(PACKAGE_TARNAME)/bundle.iss
+BUNDLE_ISS:=$(TMP)/$(BUNDLE_ISS_OFFSET)
 
-bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
+bundle_iss.lst : $(BUNDLE_ISS)
+	$(PATH_REWRITER) $(BUNDLE_ISS_OFFSET) > $@
+
+$(BUNDLE_ISS) : $(BUNDLE_LISTS:.lst=.iss)
+	mkdir -p $(dir $@)
 	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: ":prefix:\3\1"; DestDir: "\2\3"#' > $@
 
 unbundle.iss : $(pkgdatadir)/bundle.iss
