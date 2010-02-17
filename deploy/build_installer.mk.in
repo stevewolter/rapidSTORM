@@ -5,6 +5,7 @@ STRIP:=@STRIP@
 WINE:=@WINE@
 PREFIX:=@prefix@
 srcdir:=@srcdir@
+EXTRA_INSTALLER:=@EXTRA_INSTALLER@
 
 ME:=$(lastword $(MAKEFILE_LIST))
 STAGE:=$(dir $(ME))../..
@@ -15,26 +16,42 @@ GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
 
 prefix_binaries.lst:=$(TMP)
+flags_binaries.lst:=
+components_binaries.lst:=main
 prefix_graphicsmagick.lst:=$(GRAPHICSMAGICK_ROOT)
+flags_graphicsmagick.lst:=
+components_graphicsmagick.lst:=main
 prefix_java.lst:=$(PREFIX)
+flags_java.lst:=
+components_java.lst:=main
 prefix_helpfiles.lst:=$(PREFIX)
+flags_helpfiles.lst:=
+components_helpfiles.lst:=main
 prefix_headers.lst:=$(PREFIX)
-prefix_bundle.lst:=$(TMP)
+flags_headers.lst:=
+components_headers.lst:=devel
 prefix_config_file.lst:=$(PREFIX)
+flags_config_file.lst:=
+components_config_file.lst:=main
 
+prefix_bundle_iss.lst:=.
+
+all : 
+
+dSTORM.iss : $(PREFIX)/share/$(PACKAGE_TARNAME)/dSTORM.iss 
 ifneq ($(WINE),)
 BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
 bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
 
-$(BUNDLE) : $(BUNDLE_LISTS)
-	tar cfz $@ $(foreach list,$(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
+$(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
+	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
-LISTS:=bundle.lst config_file.lst
-bundle.lst : $(BUNDLE)
-	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) ; find $(TMP)/ -type f -printf '%P\n' > $@
+dSTORM.iss : $(TMP)/bundle.iss config_file.iss $(EXTRA_INSTALLER)
+$(TMP)/bundle.iss : $(BUNDLE)
+	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) 
 bundle :
 	false
 endif
@@ -53,6 +70,12 @@ Readme.txt : $(srcdir)/../README
 License.txt : $(srcdir)/../LICENSE
 inst.bmp : $(srcdir)/inst.bmp
 
+bundle_iss.lst : bundle.iss
+	echo $< > $@
+
+bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
+	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1" DestDir: "\2\3"#'  > $@
+	
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && echo $$f > $@
 java.lst :
@@ -90,11 +113,14 @@ headers.lst :
 %.bmp : 
 	cp $< $@
 
-dSTORM.iss : $(PREFIX)/share/$(PACKAGE_TARNAME)/dSTORM.iss $(LISTS:.lst=.iss)
+dSTORM.iss :
 	cat $^ > $@
 
 %.iss : %.lst
-	sed -e 's§\(.*\)/\([^/]*\)§Source: "$(prefix_$<)/\1/\2"; DestDir: "{app}/\1"§' $< > $@
+	{ \
+	  echo "[Files]"; \
+	  sed -e 's§\(.*\)/\([^/]*\)§Source: "$(prefix_$<)/\1/\2"; DestDir: "{app}/\1"; Components: $(components_$<)$(if $(flags_$<),; Flags: $(flags_$<),)§' $<; \
+	} > $@
 
 storm.out :
 	{ echo "attach"; echo "quit"; } |\

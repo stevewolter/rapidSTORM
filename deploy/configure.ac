@@ -10,5 +10,10 @@ AC_CONFIG_MACRO_DIR([../m4])
 AC_CHECK_PROGS([ISCC], [ISCC])
 AC_CHECK_PROGS([WINE], [wine])
 
+AC_ARG_WITH([additional-install-file],
+    [AS_HELP_STRING([--with-additional-install-file],
+        [additional local installer file in ISS format]) ] )
+AC_SUBST([EXTRA_INSTALLER], [$additional_install_file])
+
 AC_CONFIG_FILES([Makefile dSTORM.iss build_installer.mk])
 AC_OUTPUT
