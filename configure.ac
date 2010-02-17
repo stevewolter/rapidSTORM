@@ -27,6 +27,14 @@ if test "x$enable_exec_build" = "xyes"; then
     AC_CONFIG_SUBDIRS([src])
 fi
 AM_CONDITIONAL([BUILD_EXECUTABLE], [test "x$enable_exec_build" = "xyes"])
+AC_ARG_ENABLE([unbundling-build],
+    [AS_HELP_STRING([--enable-unbundling-build], [Unbundle lib/exec files from tar file])],
+    [],
+    [enable_unbundling_build=no])
+if test "x$enable_unbundling_build" = "xyes"; then 
+    AC_CONFIG_SUBDIRS([unbundle])
+fi
+AM_CONDITIONAL([UNBUNDLE], [test "x$enable_unbundling_build" = "xyes"])
 
 AC_CONFIG_SUBDIRS([test deploy])
 AC_CONFIG_FILES([Makefile])

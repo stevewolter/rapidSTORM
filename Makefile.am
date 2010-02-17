@@ -16,7 +16,13 @@ else
 EXEC_SUBDIR=
 endif
 
-SUBDIRS = doc $(LIB_SUBDIR) $(EXEC_SUBDIR) test deploy
+if UNBUNDLE
+UNBUNDLE_SUBDIR=unbundle
+else
+UNBUNDLE_SUBDIR=
+endif
+
+SUBDIRS = doc $(LIB_SUBDIR) $(EXEC_SUBDIR) $(UNBUNDLE_SUBDIR) test deploy
 
 installer bundle :
 	make -C deploy $@

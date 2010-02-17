@@ -54,9 +54,7 @@ $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
 	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
-$(INSTALLER).iss : $(TMP)/bundle.iss config_file.iss extra_installer.iss
-$(TMP)/bundle.iss : $(BUNDLE)
-	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) ; touch $@
+$(INSTALLER).iss : $(pkgdatadir)/bundle.iss config_file.iss extra_installer.iss
 bundle :
 	false
 endif
