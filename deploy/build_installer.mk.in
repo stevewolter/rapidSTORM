@@ -39,7 +39,7 @@ prefix_bundle_iss.lst:=.
 
 all : 
 
-$(INSTALLER).iss : dSTORM.iss prereq.iss
+$(INSTALLER).iss : dSTORM.iss
 ifneq ($(WINE),)
 BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
 bundle : $(BUNDLE)
@@ -77,11 +77,6 @@ bundle_iss.lst : bundle.iss
 bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
 	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1" DestDir: "\2\3"#'  > $@
 
-prereq.iss : 
-	ln -s $(srcdir)/jre-6u10-windows-i586-p-s.exe .
-	ln -s $(srcdir)/hldrv32.exe .
-	ln -s $(srcdir)/prereq.iss $@
-	
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && echo $$f > $@
 java.lst :

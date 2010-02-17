@@ -10,6 +10,7 @@ AC_CONFIG_MACRO_DIR([../m4])
 # Check for ISCC Inno Setup help compiler
 AC_CHECK_PROGS([ISCC], [ISCC])
 AC_CHECK_PROGS([WINE], [wine])
+AC_CHECK_PROGS([PATH_REWRITER], ["cygpath --windows" echo])
 
 AC_ARG_WITH([additional-install-file],
     [AS_HELP_STRING([--with-additional-install-file],
