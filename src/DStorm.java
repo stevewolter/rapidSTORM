@@ -4,16 +4,47 @@ import  java.io.*;
 import java.util.Set;
 import java.util.Map;
 import au.com.pulo.kev.simparm.*;
+import javax.swing.JOptionPane;
+
+import java.util.prefs.BackingStoreException;
 
 class DStorm {
+    static String install_dir_key = "install_dir";
     private static String get_install_directory() {
-        final java.util.prefs.Preferences p 
-            = java.util.prefs.Preferences.userNodeForPackage(DStorm.class);
-        return p.get( "install_dir", null );
+        /* We cannot use *NodeForPackage here since it autocreates Nodes
+         * that are potentially off-limits for our permissions. */
+        String name = "/" + DStorm.class.getName().replace(".", "/");
+        final java.util.prefs.Preferences 
+            sys = java.util.prefs.Preferences.systemRoot(),
+            usr = java.util.prefs.Preferences.userRoot();
+        try {
+            if ( usr.nodeExists(name) ) {
+                System.err.println("Using usr node");
+                return usr.node(name).get( install_dir_key, null );
+            } else if ( sys.nodeExists(name) ) {
+                System.err.println("Using sys node");
+                return sys.node(name).get( install_dir_key, null );
+            } else {
+                System.err.println("Using no node");
+                return null;
+            }
+        } catch (BackingStoreException e) {
+            System.err.println("Had exception");
+            return null;
+        }
+    }
+
+    private static void set_install_directory(String value, boolean system){
+        String name = "/" + DStorm.class.getName().replace(".", "/");
+        final java.util.prefs.Preferences
+            root = ((system) ? java.util.prefs.Preferences.systemRoot()
+                             : java.util.prefs.Preferences.userRoot() ),
+            p = root.node(name);
+        p.put( install_dir_key, value );
         
     }
 
-    private static File extract_to_temp( String name) 
+    private static File extract_to_temp( String name) throws Exception
     {
         String[] splitname = name.split("\\.");
         if (splitname.length == 0) {
@@ -27,11 +58,9 @@ class DStorm {
                 (splitname[0], "." + splitname[splitname.length-1]);
             return extract_jar_file(name, tempFile);    
         } catch (java.io.IOException e) {
-            System.err.println("Error in extracting program archive:" +
+            throw new Exception("Error in extracting program archive:" +
                                e.getMessage());
-            System.exit(1);
         }
-        return null;
     }
 
     private static File extract_with_exact_name(File toDir, String name) {
@@ -47,7 +76,6 @@ class DStorm {
             /* File probably already present. Mark as temp anyway
              * so _someone_ will delete them. */
             //tempFile.deleteOnExit();
-            System.err.println(e.getMessage());
             return tempFile;
         }
     }
@@ -102,8 +130,12 @@ class DStorm {
         return result_env;
    }
 
-   private static void extract_dll_list(File tempDir) throws IOException {
+   private static void extract_dll_list(File tempDir) 
+    throws Exception, IOException 
+   {
         InputStream dll_list = Main.class.getResourceAsStream("/dll_list");
+        if ( dll_list == null )
+            throw new Exception("jar does not contain executable files");
         BufferedReader reader = new BufferedReader
             ( new InputStreamReader(dll_list) );
         String line;
@@ -113,16 +145,23 @@ class DStorm {
    }
 
    public static void main(String[] args) throws IOException {
+      try {
+        if ( args.length > 0 && args[0].equals("--set-install-dir-key-system") ) {
+            set_install_directory(args[1], true);
+            return;
+        } else if ( args.length > 0 && args[0].equals("--set-install-dir-key-user") ) {
+            set_install_directory(args[1], false);
+            return;
+        }
+
         String install_dir = get_install_directory();
         File base_dir;
         if ( install_dir == null ) {
             File tempDir = new File( System.getProperty("java.io.tmpdir") );
-            System.err.println("Unzipping to temporary directory " + tempDir);
             base_dir = new File(tempDir, "rapidSTORM");
 
             extract_dll_list(base_dir);
         } else {
-            System.err.println("Using installed directory " + install_dir);
             base_dir = new File( install_dir );
         }
 
@@ -154,5 +193,14 @@ class DStorm {
             cmd[lastArg++] = args[0];
         }
         Main.StartWithEnv(cmd, environment);
+     } catch (Exception e) {
+        try {
+            JOptionPane.showMessageDialog
+                        (null, e.getMessage(), "Error while starting program",
+                        JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e2) {
+            System.err.println(e.getMessage());
+        }
+     }
    }
 }

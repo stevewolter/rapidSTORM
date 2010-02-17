@@ -81,9 +81,8 @@ bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && $(PATH_REWRITER) $$f > $@
-java.lst :
-	{ test -e $(PREFIX)/share/java/rapidSTORM.jar && \
-             echo share/java/rapidSTORM.jar; } > $@
+java.lst : $(PREFIX)/share/java/rapidSTORM.jar
+	test -e $< && echo share/java/rapidSTORM.jar > $@
 
 graphicsmagick.dep : 
 	if test 'x$(GRAPHICSMAGICK_ROOT)' = 'x'; then echo > $@; else \

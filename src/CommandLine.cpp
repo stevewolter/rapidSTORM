@@ -8,6 +8,7 @@
 #include <dStorm/output/FilterSource.h>
 #include "InputStream.h"
 #include "JobMaster.h"
+#include "ModuleLoader.h"
 
 #include "debug.h"
 
@@ -61,7 +62,8 @@ class CommandLine::Pimpl
 CommandLine::CommandLine(int argc, char *argv[])
 : Thread("CommandLineInterpreter"),
   pimpl(new Pimpl(argc, argv))
-{}
+{
+}
 CommandLine::~CommandLine()
 {}
 
@@ -110,9 +112,10 @@ void CommandLine::Pimpl::find_config_file() {
                *homepath = getenv("HOMEPATH");
     bool have_file = false;
     DEBUG("Checking for command line config file");
-    if ( !have_file && argc > 3 && std::string(argv[1]) == "--config" ) {
+    if ( !have_file && argc > 2 && std::string(argv[1]) == "--config" ) {
         have_file = load_config_file(std::string(argv[2]));
         if ( have_file ) {
+            std::cerr << "Have a file here" <<std::endl;
             argc -= 2;
             argv = argv + 2;
         }
@@ -149,6 +152,7 @@ bool CommandLine::Pimpl::load_config_file(
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
 : argc(argc), argv(argv), starter(config, *this)
 {
+    ModuleLoader::getSingleton().add_modules( config );
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter

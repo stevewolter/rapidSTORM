@@ -11,6 +11,9 @@
 #include "LibraryHandle.h"
 
 #include "debug.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 namespace dStorm {
 
@@ -122,6 +125,7 @@ std::string ModuleLoader::makeProgramDescription() {
 
 std::string ModuleLoader::Pimpl::makeProgramDescription() {
     std::stringstream ss;
+    ss << PACKAGE_NAME;
     for ( List::iterator i = lib_handles.begin();
                             i != lib_handles.end(); i++)
     {
