@@ -55,7 +55,7 @@ $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
 	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
-$(INSTALLER).iss : $(pkgdatadir)/bundle.iss config_file.iss extra_installer.iss
+$(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
 bundle :
 	false
 endif
@@ -79,7 +79,10 @@ bundle_iss.lst : bundle.iss
 	$(PATH_REWRITER) $< > $@
 
 bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
-	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1"; DestDir: "\2\3"#' > $@
+	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: ":prefix:\3\1"; DestDir: "\2\3"#' > $@
+
+unbundle.iss : $(pkgdatadir)/bundle.iss
+	sed -e 's#:prefix:#$(PREFIX)#' $< > $@
 
 extra_installer.iss : $(ME)
 	echo '$(if $(EXTRA_INSTALLER),#include "$(EXTRA_INSTALLER)",)' > $@
