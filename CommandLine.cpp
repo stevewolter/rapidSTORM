@@ -77,6 +77,10 @@ void CommandLine::abnormal_termination(std::string reason) {
     this->exit();
 }
 void CommandLine::Pimpl::run() {
+    for ( int i = 0; i < argc; i++ ) {
+        DEBUG("Argument " << i << " is '" << argv[i] << "'");
+    }
+
     simparm::Set cmd_line_args
         ("dSTORM", "dSTORM command line");
     cmd_line_args.push_back( config );
@@ -114,11 +118,10 @@ void CommandLine::Pimpl::find_config_file() {
     DEBUG("Checking for command line config file");
     if ( !have_file && argc > 2 && std::string(argv[1]) == "--config" ) {
         have_file = load_config_file(std::string(argv[2]));
-        if ( have_file ) {
-            std::cerr << "Have a file here" <<std::endl;
-            argc -= 2;
-            argv = argv + 2;
-        }
+        if ( !have_file )
+            DEBUG("Skipped unreadable config file '" << argv[2] << "'");
+        argc -= 2;
+        argv = argv + 2;
     }
     DEBUG("Checking for home directory config file");
     if ( !have_file && home != NULL )

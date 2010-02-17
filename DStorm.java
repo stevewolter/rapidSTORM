@@ -168,7 +168,7 @@ class DStorm {
         }
 
         File executable = new File(base_dir, "bin" + File.separator + "dstorm.exe");
-        File config = new File(base_dir, "share" + File.separator + "rapidstorm" 
+        File config = new File(base_dir, "share" + File.separator + "rapid2storm" 
                                          + File.separator + "dstorm-config.txt");
 
         HelpManager.setHelpDirectory(
