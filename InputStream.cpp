@@ -63,9 +63,9 @@ InputStream::Pimpl::Pimpl(
 {
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
-    this->push_back( config );
-    this->push_back( starter );
     this->push_back( help_file );
+    this->push_back( config );
+    config.push_back( starter );
 }
 
 void InputStream::Pimpl::terminate_remaining_cars() {
