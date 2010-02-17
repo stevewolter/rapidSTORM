@@ -54,7 +54,7 @@ $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
 	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
-$(INSTALLER).iss : $(TMP)/bundle.iss config_file.iss $(EXTRA_INSTALLER)
+$(INSTALLER).iss : $(TMP)/bundle.iss config_file.iss extra_installer.iss
 $(TMP)/bundle.iss : $(BUNDLE)
 	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) ; touch $@
 bundle :
@@ -81,6 +81,9 @@ bundle_iss.lst : bundle.iss
 
 bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
 	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1"; DestDir: "\2\3"#' > $@
+
+extra_installer.iss : $(ME)
+	echo '$(if $(EXTRA_INSTALLER),#include "$(EXTRA_INSTALLER)",)' > $@
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && $(PATH_REWRITER) $$f > $@
