@@ -75,7 +75,7 @@ bundle_iss.lst : bundle.iss
 	echo $< > $@
 
 bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
-	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1" DestDir: "\2\3"#'  > $@
+	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1"; DestDir: "\2\3"#'  > $@
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && echo $$f > $@
