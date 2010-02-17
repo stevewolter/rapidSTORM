@@ -30,6 +30,10 @@ ReserveBytes=16384
 Compression=bzip/9
 SolidCompression=yes
 
+[Components]
+Name: "main"; Description: "Program files"; Types: full compact
+Name: "devel"; Description: "Plugin development files"; Types: full
+
 [Icons]
 Name: "{group}\rapid2STORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
 Name: "{group}\Uninstall\Uninstall rapid2STORM";                                           Filename: "{uninstallexe}"
