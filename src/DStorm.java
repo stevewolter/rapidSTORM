@@ -11,6 +11,8 @@ import java.util.prefs.BackingStoreException;
 class DStorm {
     static String install_dir_key = "install_dir";
     private static String get_install_directory() {
+        if ( System.getenv("RAPIDSTORM_DIR") != null )
+            return System.getenv("RAPIDSTORM_DIR");
         /* We cannot use *NodeForPackage here since it autocreates Nodes
          * that are potentially off-limits for our permissions. */
         String name = "/" + DStorm.class.getName().replace(".", "/");

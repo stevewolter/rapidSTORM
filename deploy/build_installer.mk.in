@@ -17,7 +17,7 @@ INSTALLER:=$(PACKAGE_TARNAME)
 GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
 
-prefix_binaries.lst:=$(PATH_REWRITER) $(TMP)
+prefix_binaries.lst:=$(TMP)
 flags_binaries.lst:=
 components_binaries.lst:=main
 prefix_graphicsmagick.lst:=$(GRAPHICSMAGICK_ROOT)
@@ -32,6 +32,9 @@ components_helpfiles.lst:=main
 prefix_headers.lst:=$(PREFIX)
 flags_headers.lst:=
 components_headers.lst:=devel
+prefix_libs.lst:=$(PREFIX)
+flags_libs.lst:=
+components_libs.lst:=devel
 prefix_config_file.lst:=$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g')
 flags_config_file.lst:=
 components_config_file.lst:=main
@@ -42,7 +45,7 @@ all :
 
 $(INSTALLER).iss : dSTORM.iss
 ifneq ($(WINE),)
-BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
+BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst libs.lst java.lst
 bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
@@ -101,6 +104,9 @@ helpfiles.lst : storm.out
 
 graphicsmagick.lst : 
 	find $(GRAPHICSMAGICK_ROOT) $(GRAPHICSMAGICK_EXPR) -printf '%P\n' > $@
+
+libs.lst :
+	find $(PREFIX)/lib -name 'libdStorm*' | sed -e 's§^$(PREFIX)/§§'  > $@
 
 headers.lst :
 	find $(PREFIX)/include/dStorm $(PREFIX)/include/simparm -type f | sed -e 's§^$(PREFIX)/§§'  > $@
