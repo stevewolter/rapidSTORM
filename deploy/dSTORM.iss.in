@@ -33,14 +33,4 @@ SolidCompression=yes
 [Icons]
 Name: "{group}\rapid2STORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
 Name: "{group}\Uninstall\Uninstall rapid2STORM";                                           Filename: "{uninstallexe}"
-Name: "{group}\Samples";                                                                   Filename: "{app}\Sample_Workspace_dSTORM"
 
-[Run]
-Filename: "{tmp}\jre-6u10-windows-i586-p-s.exe"; Description: "Install Java Run Time Environment"; Flags: postinstall
-Filename: "{tmp}\hldrv32.exe"; Description: "Install Hardlock Drivers"; Flags: postinstall
-
-[Files]
-Source: "share\rapidSTORM\rapidSTORM.jar"; DestDir: "{app}\share\java"
-Source: "Sample_Workspace_dSTORM\*.*"; DestDir: "{app}\Sample_Workspace_dSTORM"
-Source: "jre-6u10-windows-i586-p-s.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "hldrv32.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall

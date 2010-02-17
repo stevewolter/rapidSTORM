@@ -11,6 +11,7 @@ ME:=$(lastword $(MAKEFILE_LIST))
 STAGE:=$(dir $(ME))../..
 TMP:=build
 BUNDLE:=$(PACKAGE_TARNAME)_$(PACKAGE_VERSION)_bin.tgz
+INSTALLER:=$(PACKAGE_TARNAME)
 
 GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
@@ -38,7 +39,7 @@ prefix_bundle_iss.lst:=.
 
 all : 
 
-dSTORM.iss : $(PREFIX)/share/$(PACKAGE_TARNAME)/dSTORM.iss 
+$(INSTALLER).iss : dSTORM.iss prereq.iss
 ifneq ($(WINE),)
 BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst java.lst
 bundle : $(BUNDLE)
@@ -49,16 +50,16 @@ $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
 	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list))
 
 else
-dSTORM.iss : $(TMP)/bundle.iss config_file.iss $(EXTRA_INSTALLER)
+$(INSTALLER).iss : $(TMP)/bundle.iss config_file.iss $(EXTRA_INSTALLER)
 $(TMP)/bundle.iss : $(BUNDLE)
-	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) 
+	mkdir -p $(TMP); tar xfz $(BUNDLE) -C $(TMP) ; touch $@
 bundle :
 	false
 endif
 
 ifneq ($(ISCC),)
-installer : dSTORM.exe
-dSTORM.exe : dSTORM.iss Readme.txt License.txt inst.bmp
+installer : $(INSTALLER).exe
+$(INSTALLER).exe : $(INSTALLER).iss Readme.txt License.txt inst.bmp
 	'$(ISCC)' '$<'
 else
 installer :
@@ -75,6 +76,11 @@ bundle_iss.lst : bundle.iss
 
 bundle.iss : $(BUNDLE_LISTS:.lst=.iss)
 	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: "$(TMP)\3\1" DestDir: "\2\3"#'  > $@
+
+prereq.iss : 
+	ln -s $(srcdir)/jre-6u10-windows-i586-p-s.exe .
+	ln -s $(srcdir)/hldrv32.exe .
+	ln -s $(srcdir)/prereq.iss $@
 	
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && echo $$f > $@
@@ -113,7 +119,7 @@ headers.lst :
 %.bmp : 
 	cp $< $@
 
-dSTORM.iss :
+$(INSTALLER).iss :
 	cat $^ > $@
 
 %.iss : %.lst
