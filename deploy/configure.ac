@@ -15,7 +15,7 @@ AC_CHECK_PROGS([PATH_REWRITER], ["cygpath --windows" echo])
 AC_ARG_WITH([additional-install-file],
     [AS_HELP_STRING([--with-additional-install-file],
         [additional local installer file in ISS format]) ] )
-AC_SUBST([EXTRA_INSTALLER], [$additional_install_file])
+AC_SUBST([EXTRA_INSTALLER], [$with_additional_install_file])
 
 AC_CONFIG_FILES([Makefile dSTORM.iss build_installer.mk])
 AC_OUTPUT
