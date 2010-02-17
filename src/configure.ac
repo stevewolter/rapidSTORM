@@ -9,6 +9,14 @@ AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../m4])
 
+AC_PROG_SED
+test "x$SED" = "x" && AC_MSG_ERROR([unable to find strean editor])
+
+AX_SPLIT_VERSION
+AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major part of version number])
+AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor part of version number])
+AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point part of version number])
+
 AC_LANG([C++])
 
 # Checks for programs.

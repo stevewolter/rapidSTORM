@@ -92,8 +92,17 @@
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
+/* Major part of version number */
+#undef PACKAGE_MAJOR_VERSION
+
+/* Minor part of version number */
+#undef PACKAGE_MINOR_VERSION
+
 /* Define to the full name of this package. */
 #undef PACKAGE_NAME
+
+/* Point part of version number */
+#undef PACKAGE_POINT_VERSION
 
 /* Define to the full name and version of this package. */
 #undef PACKAGE_STRING

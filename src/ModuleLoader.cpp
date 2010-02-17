@@ -125,7 +125,7 @@ std::string ModuleLoader::makeProgramDescription() {
 
 std::string ModuleLoader::Pimpl::makeProgramDescription() {
     std::stringstream ss;
-    ss << PACKAGE_NAME;
+    ss << PACKAGE_STRING;
     for ( List::iterator i = lib_handles.begin();
                             i != lib_handles.end(); i++)
     {
