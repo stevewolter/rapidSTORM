@@ -4,6 +4,7 @@ ISCC:=@ISCC@
 STRIP:=@STRIP@
 WINE:=@WINE@
 PREFIX:=@prefix@
+srcdir:=@srcdir@
 
 ME:=$(lastword $(MAKEFILE_LIST))
 STAGE:=$(dir $(ME))../..
@@ -40,13 +41,17 @@ endif
 
 ifneq ($(ISCC),)
 installer : dSTORM.exe
-dSTORM.exe : dSTORM.iss
+dSTORM.exe : dSTORM.iss Readme.txt License.txt inst.bmp
 	'$(ISCC)' '$<'
 else
 installer :
 endif
 
 .DELETE_ON_ERROR :
+
+Readme.txt : $(srcdir)/../README
+License.txt : $(srcdir)/../LICENSE
+inst.bmp : $(srcdir)/inst.bmp
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && echo $$f > $@
@@ -80,8 +85,12 @@ headers.lst :
 %.dll :
 	mkdir -p $(dir $@)
 	if test $(notdir $<) != "ATMCD32D.DLL"; then $(STRIP) -o $@ $<; else cp $< $@; fi
+%.txt : 
+	cp $< $@
+%.bmp : 
+	cp $< $@
 
-dSTORM.iss : $(PREFIX)/share/rapidstorm/dSTORM.iss $(LISTS:.lst=.iss)
+dSTORM.iss : $(PREFIX)/share/$(PACKAGE_TARNAME)/dSTORM.iss $(LISTS:.lst=.iss)
 	cat $^ > $@
 
 %.iss : %.lst
