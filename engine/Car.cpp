@@ -1,4 +1,6 @@
 #define DSTORM_CAR_CPP
+#include "debug.h"
+
 #include "Car.h"
 #include "LocalizationBuncher.h"
 #include <dStorm/input/ImageTraits.h>
@@ -24,6 +26,7 @@ namespace engine {
 static ost::Mutex *runNumberMutex = NULL;
 static char number[6];
 static std::string getRunNumber() {
+    DEBUG("Making run number");
     if ( ! runNumberMutex) {
         runNumberMutex = new ost::Mutex();
         strcpy(number, "   00");
@@ -41,11 +44,13 @@ static std::string getRunNumber() {
             break;
     index = strlen(number)-1;
     while (index > 0 && isdigit(number[index-1])) index--;
+    DEBUG("Made run number");
     return std::string(number+index);
 }
 
 Car::Car (JobMaster& input_stream, const CarConfig &new_config) 
 : ost::Thread("Car"),
+  simparm::Listener( simparm::Event::ValueChanged ),
   input_stream( input_stream ),
   config(new_config),
   ident( getRunNumber() ),
@@ -57,9 +62,9 @@ Car::Car (JobMaster& input_stream, const CarConfig &new_config)
   terminationChanged( terminationMutex ),
   panic_point_set( false )
 {
+    PROGRESS("Building car");
     if ( config.inputConfig.inputMethod().uses_input_file() )
         used_output_filenames.insert( config.inputConfig.inputFile() );
-    PROGRESS("Building car");
     closeJob.helpID = HELP_CloseJob;
 
     receive_changes_from( closeJob.value );
@@ -106,16 +111,6 @@ void Car::operator()(const simparm::Event& e) {
         if ( myEngine.get() != NULL ) myEngine->stop();
         terminate = true;
         terminationChanged.signal();
-    } else if ( &e.source == &runtime_config && e.cause == simparm::Event::RemovedParent ) {
-        PROGRESS("Noticed parent removal");
-        if ( ! runtime_config.isActive() ) {
-            PROGRESS("Runtime config got inactive");
-            ost::MutexLock lock( terminationMutex );
-            if ( myEngine.get() != NULL )
-                myEngine->stop();
-            terminate = true;
-            terminationChanged.signal();
-        }
     }
 }
 

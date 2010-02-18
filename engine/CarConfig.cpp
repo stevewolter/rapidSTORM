@@ -107,6 +107,7 @@ CarConfig::CarConfig(const CarConfig &c)
   configTarget(c.configTarget)
 {
     registerNamedEntries();
+    DEBUG("Copied Car config");
 }
 
 CarConfig::~CarConfig() {
@@ -123,6 +124,7 @@ void CarConfig::registerNamedEntries() {
    push_back( engineConfig );
    push_back( outputBox );
    push_back( configTarget );
+   DEBUG("Registered named entries of CarConfig");
 }
 
 void CarConfig::operator()(const simparm::Event&)
