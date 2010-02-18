@@ -8,6 +8,13 @@ proc dstorm_load { arg } {
 proc dstorm_start {} {
     global DSTORM
     program_start $DSTORM --Twiddler
+
+    set test "Initialization"
+
+    expect_after {
+        eof     { fail "$test" }
+        timeout { fail "$test" }
+    }
 }
 
 proc dstorm_attach {} {

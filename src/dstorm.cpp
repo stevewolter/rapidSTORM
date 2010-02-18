@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     try {
         SignalHandler outer_handler;
         SIGNAL_HANDLER_PANIC_POINT(outer_handler);
+        DEBUG("Running from panic point on");
         ModuleLoader::makeSingleton();
 
         (new CommandLine( argc, argv ))->detach();

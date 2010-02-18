@@ -349,7 +349,10 @@ void Thread::Pimpl::cleanUp(void *data) {
     ost::DebugStream::get()->end();
 #endif
     Thread* t = (Thread*)data;
-    if ( t->pimpl->detached ) {
+    bool detached = t->pimpl->detached;
+    if ( t->pimpl->delete_self )
+        delete t;
+    if ( detached ) {
         pthread_mutex_lock( &static_mutex );
         detached_threads--;
         if ( detached_threads == 0 )
@@ -362,8 +365,6 @@ void Thread::Pimpl::cleanUp(void *data) {
 #endif
         pthread_mutex_unlock( &static_mutex );
     }
-    if ( t->pimpl->delete_self )
-        delete t;
 }
 
 

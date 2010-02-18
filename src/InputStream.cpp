@@ -89,8 +89,6 @@ void InputStream::run() {
         pimpl->start();
         pimpl->join();
     }
-
-    ost::MutexLock lock( pimpl->mutex );
 }
 
 void InputStream::abnormal_termination(std::string reason) {
