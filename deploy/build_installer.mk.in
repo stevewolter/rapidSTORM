@@ -126,7 +126,7 @@ headers.lst :
 	$(STRIP) -o $@ $<
 %.dll :
 	mkdir -p $(dir $@)
-	if test $(notdir $<) != "ATMCD32D.DLL"; then $(STRIP) -o $@ $<; else cp $< $@; fi
+	if test $(notdir $<) != "ATMCD32D.dll"; then $(STRIP) -o $@ $<; else cp $< $@; fi
 %.txt : 
 	cp $< $@
 %.bmp : 
