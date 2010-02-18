@@ -108,15 +108,19 @@ expect {
     timeout { fail "$test" }
 }
 
-set test "basename backswitch"
+set test "basename backswitch #1"
 
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 expect {
-    -re "Displaying output file name Job_\$run\$.foo"
+    -re "Displaying output file name Job_\$run\$.foo" { pass "$test" }
     timeout { fail "$test" }
 }
+
+set test "basename backswitch #2"
 send "in Car set Run = 1\n"
 expect {
-    -re "Output file basename is Job_04"
+    -re "Output file basename is Job_04" { pass "$test" }
     timeout { fail "$test" }
 }
+
+dstorm_exit
