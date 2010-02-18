@@ -30,32 +30,7 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
     output::Config* my_config;
   public:
-    TreeRoot()
-    : simparm::Object("EngineOutput", "dSTORM engine output"),
-      output::FilterSource( static_cast<simparm::Object&>(*this) )
-    {
-        DEBUG("Building output tree root node at " << 
-              &static_cast<Node&>(*this) );
-        {
-            output::Config exemplar;
-            DEBUG("Setting output factory");
-            this->set_output_factory( exemplar );
-            DEBUG("Destructing exemplar config");
-        }
-        DEBUG("Setting source capabilities");
-        this->set_source_capabilities( 
-            output::Capabilities()
-                .set_source_image()
-                .set_smoothed_image()
-                .set_candidate_tree()
-                .set_input_buffer() );
-
-        DEBUG("Downcasting own config handle");
-        assert( getFactory() != NULL );
-        my_config = dynamic_cast<output::Config*>(getFactory());
-        assert( my_config != NULL );
-        DEBUG("Finished building output tree node");
-    }
+    TreeRoot();
     TreeRoot( const TreeRoot& other )
     : simparm::Object(other),
       output::FilterSource( static_cast<simparm::Object&>(*this), other)
@@ -72,6 +47,33 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
     std::string getDesc() const { return desc(); }
     output::Config &root_factory() { return *my_config; }
 };
+
+CarConfig::TreeRoot::TreeRoot()
+: simparm::Object("EngineOutput", "dSTORM engine output"),
+  output::FilterSource( static_cast<simparm::Object&>(*this) )
+{
+    DEBUG("Building output tree root node at " << 
+            &static_cast<Node&>(*this) );
+    {
+        output::Config exemplar;
+        DEBUG("Setting output factory from exemplar t  " << static_cast<output::SourceFactory*>(&exemplar) << " in config at " << &exemplar);
+        this->set_output_factory( exemplar );
+        DEBUG("Destructing exemplar config");
+    }
+    DEBUG("Setting source capabilities");
+    this->set_source_capabilities( 
+        output::Capabilities()
+            .set_source_image()
+            .set_smoothed_image()
+            .set_candidate_tree()
+            .set_input_buffer() );
+
+    DEBUG("Downcasting own config handle");
+    assert( getFactory() != NULL );
+    my_config = dynamic_cast<output::Config*>(getFactory());
+    assert( my_config != NULL );
+    DEBUG("Finished building output tree node");
+}
 
 CarConfig::CarConfig() 
 : Set("Car", "Job options"),

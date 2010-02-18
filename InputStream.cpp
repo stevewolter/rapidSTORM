@@ -6,6 +6,8 @@
 
 #include <simparm/IO.hh>
 
+#include "debug.h"
+
 namespace dStorm {
 
 struct InputStream::Pimpl
@@ -106,6 +108,7 @@ void InputStream::Pimpl::abnormal_termination(std::string reason) {
                  "and it is quite likely that the program will behave "
                  "incorrectly now. Please report this bug." << std::endl;
     this->exit();
+    DEBUG("Returned from thread::exit()");
 }
 
 void InputStream::Pimpl::run() {
