@@ -1,0 +1,2 @@
+set_board_info hostname "conger"
+puts "Conger board loaded"

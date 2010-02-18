@@ -1,0 +1,31 @@
+global srcdir
+set board unix
+lappend boards_dir "$srcdir/boards"
+
+proc dstorm_load { arg } {
+}
+
+proc dstorm_start {} {
+    global srcdir
+    program_start dstorm.exe --Twiddler
+}
+
+proc dstorm_attach {} {
+    send "attach\n"
+    expect {
+        -re "attach" {}
+        timeout { exit 2 }
+    }
+}
+
+proc dstorm_exit {} {
+    global spawn_id
+    if { [ catch { send "quit\n" } ignore ] } {
+        fail "termination"
+    } else {
+        expect {
+            -re "quit" { pass "termination" }
+            timeout { fail "termination" }
+        }
+    }
+}

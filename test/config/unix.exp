@@ -1,22 +1,10 @@
-proc dstorm_load { arg } {
-}
-
-proc dstorm_exit {} {
+proc program_start { cmd args } {
     global spawn_id
-    if { [ catch { send "quit\n" } ignore ] } {
-        fail "termination"
+
+    if { ![host_info exists hostname] } {
+        spawn $cmd $args
     } else {
-        expect {
-            -re "quit" { pass "termination" }
-            timeout { fail "termination" }
-        }
+        spawn ssh [host_info hostname] $cmd $args
     }
 }
 
-proc dstorm_attach {} {
-    send "attach\n"
-    expect {
-        -re "attach" {}
-        timeout { exit 2 }
-    }
-}
