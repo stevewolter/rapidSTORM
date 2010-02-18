@@ -6,8 +6,8 @@ proc dstorm_load { arg } {
 }
 
 proc dstorm_start {} {
-    global srcdir
-    program_start dstorm.exe --Twiddler
+    global DSTORM
+    program_start $DSTORM --Twiddler
 }
 
 proc dstorm_attach {} {

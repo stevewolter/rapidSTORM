@@ -1,3 +1,6 @@
+#define VERBOSE
+#include "debug.h"
+
 #include "FilterSource.h"
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -5,8 +8,6 @@
 #include "OutputSource.h"
 #include "SourceFactory.h"
 #include "doc/help/context.h"
-
-#include "debug.h"
 
 namespace dStorm {
 namespace output {
@@ -159,7 +160,9 @@ void FilterSource::set_output_factory (const SourceFactory& o)
     if ( factory.get() == NULL ) { 
         DEBUG("No output factory present, setting new factory");
         factory.reset( o.clone() ); 
+        DEBUG("Registering entries in factory");
         registerNamedEntries();
+        DEBUG("Finished setting output factory");
     }
 }
 

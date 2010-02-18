@@ -49,6 +49,10 @@ int main(int argc, char *argv[]) {
         std::cerr << PACKAGE_NAME << ": "
                   << e.what() << std::endl;
         exit_code = EXIT_FAILURE;
+    } catch (...) {
+        std::cerr << PACKAGE_NAME << ": Unhandled exception."
+                  << std::endl;
+        exit_code = EXIT_FAILURE;
     }
     DEBUG("exit: main");
 

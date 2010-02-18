@@ -91,7 +91,7 @@ void ModuleLoader::Pimpl::load_plugins()
     if ( env_plugin_dir != NULL )
         plugin_dir = env_plugin_dir;
 
-    DEBUG("Finding plugins");
+    DEBUG("Finding plugins in " << plugin_dir);
     lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
     DEBUG("Found plugins");
 }

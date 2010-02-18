@@ -33,13 +33,17 @@ namespace ost {
     DebugStream::DebugStream(std::ostream &target) throw() : LockedStream(target) {}
 
     /** This is the mutex for _lock_cerr() and _unlock_cerr(). */
-    void DebugStream::begin(const char *file, int line) throw() { 
-        LockedStream::begin();
+    static void printDebugHeader(std::ostream& base, const char *file, int line, const char *thread) throw() { 
         char *sl = strrchr(file, '/');
         base << right << setw(20) << ((sl != NULL) ? sl+1 : file) << ":"
              << left << setw(4) << line << " "
-             << left << setw(9) << dStorm::Thread::description() << " "
+             << left << setw(9) << thread << " "
              << left;
+    }
+    void DebugStream::begin(const char *file, int line) throw() 
+    { 
+        LockedStream::begin();
+        printDebugHeader(base, file, line, dStorm::Thread::description());
     }
     void DebugStream::end() throw() { LockedStream::end(); }
 
@@ -331,9 +335,18 @@ void Thread::wait_for_detached_threads() {
     pthread_mutex_unlock( &static_mutex );
 }
 
+static std::ostream& threadlessMessage(int line)
+{
+    ost::DebugStream::get()->LockedStream::begin();
+    ost::printDebugHeader( *ost::DebugStream::get(), __FILE__, line, "");
+    return *ost::DebugStream::get();
+}
+
 void Thread::Pimpl::cleanUp(void *data) {
 #ifdef VERBOSE
-    std::cerr << "Cleaning up data for " << data << std::endl;
+    threadlessMessage(__LINE__)
+        << "Cleaning up data for " << data << std::endl;
+    ost::DebugStream::get()->end();
 #endif
     Thread* t = (Thread*)data;
     if ( t->pimpl->detached ) {
@@ -342,9 +355,10 @@ void Thread::Pimpl::cleanUp(void *data) {
         if ( detached_threads == 0 )
             pthread_cond_signal( &no_detached_threads );
 #ifdef VERBOSE
-        std::cerr << 
+        threadlessMessage(__LINE__) <<
         "Reducing count of detached threads to " << detached_threads
             << std::endl;
+        ost::DebugStream::get()->end();
 #endif
         pthread_mutex_unlock( &static_mutex );
     }

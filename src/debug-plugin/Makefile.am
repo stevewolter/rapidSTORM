@@ -1,4 +1,4 @@
-plugin_libdir = $(libdir)/rapidStorm/plugins
+plugin_libdir = $(DSTORM_PLUGIN_DIR)
 plugin_lib_LTLIBRARIES = libtestplugin.la
 libtestplugin_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
 libtestplugin_la_SOURCES = plugin.cpp SegmentationFault.h \
