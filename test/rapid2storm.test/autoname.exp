@@ -1,5 +1,3 @@
-dstorm_start
-
 set timeout 5
 
 set test "basename printer works"
@@ -28,12 +26,15 @@ expect {
 }
 
 set test "camera job increment #1"
+set current_job 0
 send "in Car set Run = 1\n"
 expect {
-    -re "Output file basename is Job_01.foo"        { pass "$test" }
+    -re "Output file basename is Job_(\[0-9\]*).foo"       
+	{ pass "$test"; set current_job $expect_out(1,string) }
     -re "Output file basename is .*.foo"        { fail "$test" }
     timeout { fail "$test" }
 }
+set current_job [expr $current_job+1]
 set timeout 30
 expect {
     -re "Destroyed verbose plugin" {}
@@ -41,35 +42,23 @@ expect {
 }
 set timeout 10
 
-set test "camera job increment #2"
-send "in Car set Run = 1\n"
-expect {
-    -re "Output file basename is Job_02.foo"        {}
-    -re "Output file basename is .*.foo"        { fail "$test" }
-    timeout { fail "$test" }
+foreach {i} {2 3 4} {
+    set test "camera job increment #$i"
+    send "in Car set Run = 1\n"
+    expect {
+	-re "Output file basename is Job_[format %02i $current_job].foo"        { pass "$test" }
+	-re "Output file basename is .*.foo"        { fail "$test" }
+	timeout { fail "$test" }
+    }
+    set current_job [expr $current_job+1]
+    set timeout 30
+    set test "camera job destruction #$i"
+    expect {
+	-re "Destroyed verbose plugin" { pass "$test" }
+	timeout { fail "$test" }
+    }
+    set timeout 10
 }
-set timeout 30
-expect {
-    -re "Destroyed verbose plugin" {}
-    timeout { fail "$test" }
-}
-set timeout 10
-
-set test "camera job increment #3"
-send "in Car set Run = 1\n"
-expect {
-    -re "Output file basename is Job_03.foo"        { pass "$test" }
-    -re "Output file basename is .*.foo"        { fail "$test" }
-    timeout { fail "$test" }
-}
-set timeout 30
-expect {
-    -re "Destroyed verbose plugin" {}
-    timeout { fail "$test" }
-}
-set timeout 10
-
-sleep 5
 
 set test "basename switch"
 
@@ -112,15 +101,13 @@ set test "basename backswitch #1"
 
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 expect {
-    -re "Displaying output file name Job_\$run\$.foo" { pass "$test" }
+    -re "Displaying output file name Job_" { pass "$test" }
     timeout { fail "$test" }
 }
 
 set test "basename backswitch #2"
 send "in Car set Run = 1\n"
 expect {
-    -re "Output file basename is Job_04" { pass "$test" }
+    -re "Output file basename is Job_" { pass "$test" }
     timeout { fail "$test" }
 }
-
-dstorm_exit

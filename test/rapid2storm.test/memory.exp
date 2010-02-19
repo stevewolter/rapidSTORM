@@ -1,8 +1,6 @@
 unsupported "No idea how to limit memory usage"
 continue
 
-dstorm_start
-
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 send "forSet Car forSet Engine set FixSigma value true\n"
 

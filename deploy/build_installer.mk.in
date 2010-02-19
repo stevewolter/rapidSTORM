@@ -4,6 +4,7 @@ ISCC:=@ISCC@
 STRIP:=@STRIP@
 WINE:=@WINE@
 PREFIX:=@prefix@
+prefix:=@prefix@
 srcdir:=@srcdir@
 EXTRA_INSTALLER:=@EXTRA_INSTALLER@
 PATH_REWRITER:=@PATH_REWRITER@
@@ -87,10 +88,10 @@ $(BUNDLE_ISS) : $(BUNDLE_LISTS:.lst=.iss)
 	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: ":prefix:\3\1"; DestDir: "\2\3"#' > $@
 
 unbundle.iss : $(pkgdatadir)/bundle.iss
-	sed -e 's#:prefix:#$(PREFIX)#' $< > $@
+	sed -e 's#:prefix:#$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g')#' $< > $@
 
-extra_installer.iss : $(ME)
-	echo '$(if $(EXTRA_INSTALLER),#include "$(EXTRA_INSTALLER)",)' > $@
+extra_installer.iss : $(EXTRA_INSTALLER)
+	sed -e 's#Source: "#&$(shell $(PATH_REWRITER) $(dir $<) | sed -e 's/\\/\\\\/g')#' $< > $@
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && $(PATH_REWRITER) $$f > $@

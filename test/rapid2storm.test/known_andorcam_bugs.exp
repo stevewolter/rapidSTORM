@@ -1,5 +1,5 @@
 set env(SIMCAM_CAMCOUNT) "0"
-dstorm_start
+unsupported "Setting simcam camcount on the fly"
 set env(SIMCAM_CAMCOUNT) "2"
 
 set test "can choose andor camera without installed camera"

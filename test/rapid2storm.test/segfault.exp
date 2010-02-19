@@ -1,5 +1,3 @@
-dstorm_start
-
 expect_after {
     timeout { fail "$test" }
     eof { fail "$test" }

@@ -1,9 +1,6 @@
-dstorm_start
-
 set test "Empty run succeeds"
 
 send "cmd 0 in Car set Run = 1\n"
-send "quit\n"
 
 expect {
     -re "serious unhandled error" { fail "$test"; exit 1; }

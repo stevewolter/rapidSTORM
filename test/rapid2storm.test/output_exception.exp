@@ -1,7 +1,5 @@
-dstorm_start
-
 set test "output exception at start"
-send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "forSet Car forSet Method set InputMethod in Auto set InputFile value $srcdir/empty.stm\n"
 after 100
 send "in Car in Output in EngineOutput set ChooseTransmission = Exception\n"
 send "in Car in Output in EngineOutput in Output0 in Exception set OnConstruction = true\n"

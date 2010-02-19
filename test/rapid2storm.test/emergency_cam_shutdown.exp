@@ -1,8 +1,3 @@
-global env
-set env(VERBOSE_SIM_CAMERA) "1"
-
-dstorm_start
-
 set test "SIGTERM shutdown"
 
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
@@ -10,11 +5,14 @@ send "forSet Car forSet Method in InputMethod in AndorDirectConfig in CamControl
 send "forSet Car forSet Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set Cooling = true\n"
 
 set timeout 5
+set can_do_test 0
 expect {
-    -re "Camera is in danger zone" {}
+    -re "Camera is in danger zone" { set can_do_test 1 }
+    -re "Could not perform action" { unsupported "$test" }
     timeout { unsupported "$test" }
 }
 
+if { $can_do_test == 1 } {
 sleep 3
 
 set storm_pid [ exp_pid ]
@@ -22,4 +20,5 @@ exec kill $storm_pid
 expect {
     -re "Camera is out of danger zone" { pass "$test" }
     eof { fail "$test" }
+}
 }

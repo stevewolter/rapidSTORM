@@ -8,3 +8,4 @@ proc program_start { cmd args } {
     }
 }
 
+initialize

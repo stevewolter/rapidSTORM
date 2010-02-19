@@ -2,19 +2,31 @@ global srcdir
 set board unix
 lappend boards_dir "$srcdir/boards"
 
-proc dstorm_load { arg } {
-}
-
-proc dstorm_start {} {
-    global DSTORM
-    program_start $DSTORM --Twiddler
-
-    set test "Initialization"
-
+proc initialize {} {
+	dstorm_start
     expect_after {
         eof     { fail "$test" }
         timeout { fail "$test" }
     }
+}
+
+proc dstorm_start {} {
+    global DSTORM
+    global timeout
+    program_start $DSTORM --Twiddler
+
+    set test "Initialization"
+
+    send "cmd 0 nop\n"
+    set def_timeout $timeout
+    set timeout 120
+    expect {
+	-re "ack 0" {}
+        timeout { puts "Failed to react to command"; exit 1 }
+        eof { puts "Failed to load"; exit 1 }
+    }
+    set timeout $def_timeout
+
 }
 
 proc dstorm_attach {} {
@@ -26,13 +38,35 @@ proc dstorm_attach {} {
 }
 
 proc dstorm_exit {} {
+    puts "Quitting"
     global spawn_id
     if { [ catch { send "quit\n" } ignore ] } {
         fail "termination"
     } else {
+        set has_quit 0
+        set test "termination"
         expect {
-            -re "quit" { pass "termination" }
-            timeout { fail "termination" }
+            -re "quit" { set has_quit 1; exp_continue }
+            timeout { fail "$test" }
+            eof { if {$has_quit == 1} { pass "$test"; } else { fail "$test"; } }
         }
+    }
+}
+
+proc stage_init { unary_count_of_successes } {
+    global stage_count
+    global necessary_stage_count
+    set stage_count ""
+    set necessary_stage_count $unary_count_of_successes
+}
+
+proc stage_pass { } {
+    global stage_count
+    global necessary_stage_count
+    if { $stage_count == $necessary_stage_count } {
+       return "pass \"\$test\""
+    } else {
+	set stage_count 1$stage_count
+        return "exp_continue"
     }
 }
