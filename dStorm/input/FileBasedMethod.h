@@ -25,7 +25,6 @@ class FileBasedMethod
         input::Config& master );
 
     simparm::Attribute<std::string> extension;
-    simparm::FileEntry& inputFile;
 
     void operator()( const simparm::Event& );
 
@@ -34,6 +33,7 @@ class FileBasedMethod
         *  \param newMaster The Config object that will own the clone.
         *                   Used to update references. */
     virtual FileBasedMethod<Object>* clone(Config &master) const = 0;
+    simparm::FileEntry& inputFile;
 };
 
 }

@@ -9,6 +9,8 @@
 #include "Delayer.h"
 #include "BasenamePrinter.h"
 #include "Manager.h"
+#include "DummyFileInput.h"
+#include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace dStorm::output;
 
@@ -26,6 +28,8 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Input_Augmenter ( dStorm::input::Config* inputs ) {
+    inputs->inputMethod.addChoice( 
+        new dummy_file_input::Method(*inputs) );
 }
 
 void rapidSTORM_Engine_Augmenter
