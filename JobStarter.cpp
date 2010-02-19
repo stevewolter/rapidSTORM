@@ -28,7 +28,7 @@ void JobStarter::operator()( const simparm::Event& ) {
             car->detach();
             car.release();
         } catch ( const std::exception& e ) {
-            std::cerr << "Starting job failed: " << e.what() << "\n";
+            std::cerr << "Starting job failed: " << e.what() << std::endl;
         }
     }
 }

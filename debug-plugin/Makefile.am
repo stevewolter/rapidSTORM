@@ -5,7 +5,8 @@ libtestplugin_la_SOURCES = plugin.cpp SegmentationFault.h \
     MuchMemoryAllocator.h Exception.h Delayer.h \
     BasenamePrinter.h \
     Manager.h Manager.cpp \
-    md5.h md5.c
+    md5.h md5.c \
+    DummyFileInput.h DummyFileInput.cpp
 libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lboost_thread -lpthread
 
 AM_CPPFLAGS = -D_POSIX_SOURCE -I$(top_srcdir)/src -I$(top_srcdir)/src/locprec
