@@ -12,11 +12,13 @@ class JobStarter
   simparm::Listener
 {
     JobMaster& master;
-    const engine::CarConfig& config;
+    const engine::CarConfig* config;
 
     void operator()( const simparm::Event& );
   public:
-    JobStarter( const engine::CarConfig&, JobMaster& );
+    JobStarter( JobMaster& );
+    void setConfig( const engine::CarConfig& config ) 
+        { this->config= &config; }
 };
 
 }

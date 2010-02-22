@@ -1,10 +1,18 @@
 #ifndef ERROR_HANDLER_H
 #define ERROR_HANDLER_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#define HANDLE_SIGNALS_ASYNCHRONOUSLY
+
 #include <memory>
 #include <stdexcept>
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
 #include <setjmp.h>
+#endif
 #endif
 
 /** Exception indicating that a signal was received
@@ -39,12 +47,16 @@ class SignalHandler {
     ~SignalHandler();
 
     static void initialize();
+    void handle_errors_until_all_detached_threads_quit();
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
     jmp_buf& get_jump_buffer();
     void handle_error( int jump_result );
 #endif
+#endif
 };
 
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
 /** The SIGNAL_HANDLER_PANIC_POINT defines the panic point for a signal handler. 
  * A signal handler works only as long as its
@@ -54,6 +66,9 @@ class SignalHandler {
         setjmp( \
             (signal_handler_reference).get_jump_buffer() ) )
 
+#else
+#define SIGNAL_HANDLER_PANIC_POINT(x)
+#endif
 #else
 #define SIGNAL_HANDLER_PANIC_POINT(x)
 #endif

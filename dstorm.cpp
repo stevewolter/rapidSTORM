@@ -33,13 +33,15 @@ int main(int argc, char *argv[]) {
     cimg::exception_mode() = 0U;         /* Do not show CImg errors in windows. */
 
     try {
+        DEBUG("Constructing panig point");
         SignalHandler outer_handler;
+        DEBUG("Passing panic point");
         SIGNAL_HANDLER_PANIC_POINT(outer_handler);
         DEBUG("Running from panic point on");
         ModuleLoader::makeSingleton();
 
         (new CommandLine( argc, argv ))->detach();
-        Thread::wait_for_detached_threads();
+        outer_handler.handle_errors_until_all_detached_threads_quit();
 
         ModuleLoader::destroySingleton();
     } catch (const std::bad_alloc &e) {

@@ -5,10 +5,10 @@
 
 namespace dStorm {
 
-JobStarter::JobStarter( const engine::CarConfig& c, JobMaster& m )
+JobStarter::JobStarter(JobMaster& m )
 : simparm::TriggerEntry("Run", "Run"),
   simparm::Listener(simparm::Event::ValueChanged),
-  master(m), config(c)
+  master(m), config(NULL)
 {
     setHelp("Whenever this trigger is triggered or the button "
                 "clicked, the dStorm engine will be run with the "
@@ -20,16 +20,18 @@ JobStarter::JobStarter( const engine::CarConfig& c, JobMaster& m )
 
 void JobStarter::operator()( const simparm::Event& ) {
     if ( triggered() ) {
-        untrigger();
+      untrigger();
+      if ( config != NULL ) {
         try {
             DEBUG("Running job");
             std::auto_ptr<engine::Car> car( 
-                new engine::Car(master, config) );
+                new engine::Car(master, *config) );
             car->detach();
             car.release();
         } catch ( const std::exception& e ) {
             std::cerr << "Starting job failed: " << e.what() << std::endl;
         }
+      }
     }
 }
 

@@ -153,8 +153,9 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: argc(argc), argv(argv), starter(config, *this)
+: argc(argc), argv(argv), starter(*this)
 {
+    starter.setConfig(config);
     ModuleLoader::getSingleton().add_modules( config );
 }
 
