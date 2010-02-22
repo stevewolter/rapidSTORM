@@ -263,8 +263,9 @@ void Thread::Pimpl::fork()  {
         running = (pthread_create(&thread, NULL, runHandler, &object) == 0);
         if (!running)
             throw std::runtime_error("Starting thread failed.");
-        else
+        else {
             DEBUG("Started thread successfully");
+        }
     }
 }
 
@@ -330,12 +331,14 @@ void Thread::exit() {
     pthread_exit( NULL );
 }
 
+#ifdef VERBOSE
 static std::ostream& threadlessMessage(int line)
 {
     ost::DebugStream::get()->LockedStream::begin();
     ost::printDebugHeader( *ost::DebugStream::get(), __FILE__, line, "");
     return *ost::DebugStream::get();
 }
+#endif
 
 void Thread::Pimpl::cleanUp(void *data) {
     Thread* t = (Thread*)data;

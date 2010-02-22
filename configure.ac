@@ -9,7 +9,14 @@ AM_MAINTAINER_MODE([enable])
 
 CPPFLAGS="$CPPFLAGS -I $top_srcdir"
 
-AC_CONFIG_SUBDIRS([doc])
+AC_ARG_ENABLE([doc-build],
+    [AS_HELP_STRING([--enable-doc-build], [Build documentation @<:@default=yes@:>@])],
+    [],
+    [enable_doc_build=yes])
+if test "x$enable_doc_build" = "xyes"; then 
+    AC_CONFIG_SUBDIRS([doc])
+fi
+AM_CONDITIONAL([BUILD_DOC], [test "x$enable_doc_build" = "xyes"])
 
 AC_ARG_ENABLE([lib-build],
     [AS_HELP_STRING([--enable-lib-build], [Build library @<:@default=yes@:>@])],
@@ -36,6 +43,23 @@ if test "x$enable_unbundling_build" = "xyes"; then
 fi
 AM_CONDITIONAL([UNBUNDLE], [test "x$enable_unbundling_build" = "xyes"])
 
-AC_CONFIG_SUBDIRS([test deploy])
+AC_ARG_ENABLE([test-build],
+    [AS_HELP_STRING([--enable-test-build], [Build tests @<:@default=yes@:>@])],
+    [],
+    [enable_test_build=yes])
+if test "x$enable_test_build" = "xyes"; then 
+    AC_CONFIG_SUBDIRS([test])
+fi
+AM_CONDITIONAL([BUILD_TESTS], [test "x$enable_test_build" = "xyes"])
+
+AC_ARG_ENABLE([deploy-build],
+    [AS_HELP_STRING([--enable-deploy-build], [Build remote deployment files @<:@default=yes@:>@])],
+    [],
+    [enable_deploy_build=yes])
+if test "x$enable_deploy_build" = "xyes"; then 
+    AC_CONFIG_SUBDIRS([deploy])
+fi
+AM_CONDITIONAL([BUILD_DEPLOY], [test "x$enable_deploy_build" = "xyes"])
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
