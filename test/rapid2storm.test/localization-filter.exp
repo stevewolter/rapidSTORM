@@ -1,0 +1,9 @@
+send "attach\n"
+send "in Car in Method set InputMethod = DummyInput\n"
+send "in Car set Run = 1\n"
+sleep 1
+send "in dStormJob01 in EngineStatus set EngineStopper = 1\n"
+sleep 1
+send "in dStormJob01 set CloseJob = 1\n"
+sleep 1
+expect -re "\nremove "
