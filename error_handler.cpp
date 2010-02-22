@@ -10,6 +10,7 @@
 #include <exception>
 #include <dStorm/helpers/thread.h>
 #include <signal.h>
+#include <stdlib.h>
 #ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #include <semaphore.h>
 #include <dStorm/helpers/errors.h>
