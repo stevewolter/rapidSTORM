@@ -59,8 +59,7 @@ Car::Car (JobMaster& input_stream, const CarConfig &new_config)
   input(NULL),
   output(NULL),
   terminate(false),
-  terminationChanged( terminationMutex ),
-  panic_point_set( false )
+  terminationChanged( terminationMutex )
 {
     PROGRESS("Building car");
     if ( config.inputConfig.inputMethod().uses_input_file() )
@@ -160,52 +159,40 @@ void Car::make_input_driver() {
 }
 
 void Car::drive() {
-    bool successful_finish = true;
-    if ( setjmp( panic_point ) == 0 ) {
-        panic_point_set = true;
-        make_input_driver();
+    make_input_driver();
 
-        runtime_config.push_back( *output );
-        runtime_config.push_back( closeJob );
+    runtime_config.push_back( *output );
+    runtime_config.push_back( closeJob );
 
-        PROGRESS("Starting computation");
-        if ( myEngine.get() != NULL ) {
-            myEngine->run();
-        } else if (locSource.get() != NULL) {
-            runOnSTM();
-        }
-        PROGRESS("Ended computation");
-        PROGRESS("Erasing carburettor");
-        input.reset(NULL);
-        PROGRESS("Erased carburettor");
-    } else {
-        /* Abnormal termination after received signal. */
-        successful_finish = false;
+    PROGRESS("Starting computation");
+    if ( myEngine.get() != NULL ) {
+        myEngine->run();
+    } else if (locSource.get() != NULL) {
+        runOnSTM();
     }
-    panic_point_set = false;
+    PROGRESS("Ended computation");
+    PROGRESS("Erasing carburettor");
+    input.reset(NULL);
+    PROGRESS("Erased carburettor");
 
-    if ( setjmp(panic_point) == 0 ) {
-        panic_point_set = true;
-        ost::MutexLock lock( terminationMutex );
-        PROGRESS("Waiting for termination allowance");
-        if ( runtime_config.isActive() )
-            while ( ! terminate )
-                terminationChanged.wait();
-        PROGRESS("Allowed to terminate");
+    ost::MutexLock lock( terminationMutex );
+    PROGRESS("Waiting for termination allowance");
+    if ( runtime_config.isActive() )
+        while ( ! terminate )
+            terminationChanged.wait();
+    PROGRESS("Allowed to terminate");
 
-        /* TODO: We have to check here if the job was _really_ finished
-        * successfully. */
-        if ( successful_finish )
-            output->propagate_signal( 
-                output::Output::Job_finished_successfully );
+    /* TODO: We have to check here if the job was _really_ finished
+    * successfully. */
+    output->propagate_signal( 
+        output::Output::Job_finished_successfully );
 
-        if ( config.configTarget ) {
-            std::ostream& stream = config.configTarget.get_output_stream();
-            list<string> lns = config.printValues();
-            for (list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
-                stream << *i << "\n";
-            config.configTarget.close_output_stream();
-        }
+    if ( config.configTarget ) {
+        std::ostream& stream = config.configTarget.get_output_stream();
+        list<string> lns = config.printValues();
+        for (list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
+            stream << *i << "\n";
+        config.configTarget.close_output_stream();
     }
 }
 
@@ -225,13 +212,9 @@ void Car::stop() {
 }
 
 void Car::abnormal_termination(std::string r) throw() {
-    if ( panic_point_set ) {
-        std::cerr << "Job " << ident << " had a critical "
-                  << "error: " << r << " Terminating job."
-                  << std::endl;
-        longjmp( panic_point, 1 );
-    } else        
-        Runnable::abnormal_termination(r);
+    std::cerr << "Job " << ident << " had a critical "
+              << "error: " << r << " Terminating job."
+              << std::endl;
 }
 
 }

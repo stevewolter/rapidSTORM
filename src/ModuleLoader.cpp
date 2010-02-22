@@ -57,6 +57,12 @@ ModuleLoader::Pimpl::try_loading_module( const char *filename ) {
     try {
         std::auto_ptr<LibraryHandle> handle
             ( new LibraryHandle( filename ) );
+        for (List::const_iterator i = lib_handles.begin(); 
+             i !=lib_handles.end(); i++)
+            if ( *i == *handle ) {
+                DEBUG(filename  << " is a duplicate hit");
+                return Failure;
+            }
         DEBUG("Requesting plugin display driver from " 
               << filename);
         handle->replace_display(display);

@@ -3,101 +3,27 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
 
 #include <exception>
 #include <dStorm/helpers/thread.h>
 #include <signal.h>
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+#include <semaphore.h>
+#include <dStorm/helpers/errors.h>
+#include "DeferredError.h"
+#include "DeferredError_Impl.h"
+#endif
 
 #include "debug.h"
 
-static std::string signame(int num)
-{
-    if ( false )
-        return "unknown";
-#ifdef SIGHUP
-    else if ( num == SIGHUP )
-        return "terminal hang-up";
-#endif
-#ifdef SIGINT
-    else if ( num == SIGINT )
-        return "interrupt from terminal";
-#endif
-#ifdef SIGQUIT
-    else if ( num == SIGQUIT )
-        return "quit from terminal";
-#endif
-#ifdef SIGTERM
-    else if ( num == SIGTERM )
-        return "termination";
-#endif
-#ifdef SIGSEGV
-    else if ( num == SIGSEGV )
-        return "segmentation fault";
-#endif
-#ifdef SIGPIPE
-    else if ( num == SIGPIPE )
-        return "closed pipe";
-#endif
-#ifdef SIGALRM
-    else if ( num == SIGALRM )
-        return "alarm";
-#endif
-#ifdef SIGFPE
-    else if ( num == SIGFPE )
-        return "floating-point error";
-#endif
-#ifdef SIGABRT
-    else if ( num == SIGABRT )
-        return "abortion";
-#endif
-    else 
-        return "unknown";
-}
-
-invalid_access::invalid_access(int num)
-: std::logic_error(
-    "A programming error caused the signal "
-    "for " + signame(num) + " to be raised." )
-{
-}
-
-termination_signal::termination_signal(int num)
-: std::runtime_error(
-    "Received signal for "
-        + signame(num) + "." )
-{
-}
-
-uncaught_exception::uncaught_exception(const std::exception& e)
-: std::logic_error(
-    std::string("Uncaught exception: ")
-        + e.what())
-{}
-
-uncaught_exception::uncaught_exception()
-: std::logic_error("Uncaught exception of unknown type")
-{}
-
-static bool sig_is_deadly(int num) {
-    return ( false 
-#ifdef SIGHUP
-    || num == SIGHUP
-#endif
-#ifdef SIGINT
-    || num == SIGINT
-#endif
-#ifdef SIGQUIT
-    || num == SIGQUIT
-#endif
-#ifdef SIGTERM
-    || num == SIGTERM 
-#endif
-    );
-}
 
 struct SignalHandler::Pimpl
 : public ost::Runnable
 {
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
     jmp_buf panic_point;
     std::auto_ptr<std::exception> reason;
@@ -110,6 +36,13 @@ struct SignalHandler::Pimpl
     void handle_longjmp(int rv_of_setjmp);
     void throw_reason(ErrorType r);
     void deliver_to_thread(ErrorType r);
+#endif
+#else
+    sem_t semaphore;
+    dStorm::DeferredErrorBuffer errors_buffer;
+
+    static void cleanup_dead_thread(dStorm::helpers::ThreadStage,
+                                    void *, dStorm::Thread *);
 #endif
 
     void terminate_with_exit(const std::exception& reason);
@@ -132,7 +65,16 @@ SignalHandler::Pimpl *
 SignalHandler::Pimpl::current_handler
     = NULL;
 
-SignalHandler::Pimpl::Pimpl() {
+SignalHandler::Pimpl::Pimpl()
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+: errors_buffer(32)
+#endif
+{
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+    sem_init( &semaphore, 0, 0 );
+    dStorm::helpers::set_semaphore_for_report_of_dead_threads( &semaphore );
+    dStorm::helpers::set_error_cleanup_for_threads(cleanup_dead_thread, this);
+#endif
     if ( current_handler == NULL ) {
         set_catchers();
 #ifdef PTW32_VERSION
@@ -153,6 +95,7 @@ void SignalHandler::Pimpl::terminate_with_exit
 }
 
 
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
 void SignalHandler::Pimpl::handle_longjmp(int rv_of_setjmp)
 {
@@ -181,13 +124,33 @@ void SignalHandler::Pimpl::deliver_to_thread( ErrorType r )
     }
 }
 #endif
+#endif
 
 SignalHandler::Pimpl::~Pimpl() 
 {
     current_handler =
         last_current_handler;
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+    if ( current_handler != NULL ) {
+        dStorm::helpers::set_semaphore_for_report_of_dead_threads( &current_handler->semaphore );
+        dStorm::helpers::set_error_cleanup_for_threads(cleanup_dead_thread, current_handler);
+    }
+#endif
 }
 
+void SignalHandler::Pimpl::cleanup_dead_thread
+( dStorm::helpers::ThreadStage s, void *me, dStorm::Thread *t) 
+{
+    Pimpl &m = *(Pimpl*)me;
+
+    if ( s == dStorm::helpers::BeforeDestruction ) {
+        dStorm::DeferredError* e = m.errors_buffer.find_matching( t );
+        if ( e ) e->make_error_message();
+    } else
+        m.errors_buffer.clean_up_for_thread( t );
+}
+
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
 void SignalHandler::Pimpl::throw_reason(ErrorType r) 
 {
@@ -206,6 +169,7 @@ void SignalHandler::Pimpl::throw_reason(ErrorType r)
     }
 }
 #endif
+#endif
 
 void SignalHandler::Pimpl::on_signal(int n) 
 {
@@ -214,7 +178,18 @@ void SignalHandler::Pimpl::on_signal(int n)
 
 void SignalHandler::Pimpl::handle_signal(int n) 
 {
-    DEBUG("Got signal " << n);
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+    if ( errors_buffer.insert( n ) ) {
+        sem_post( &semaphore );
+        while ( true ) 
+#ifdef HAVE_USLEEP
+            pause();
+#else
+            Sleep(1000000);
+#endif
+        DEBUG("Returned from pause");
+    }
+#else
 #ifndef PTW32_VERSION
     DEBUG("Unmasking signal");
     sigset_t sigset;
@@ -246,26 +221,32 @@ void SignalHandler::Pimpl::handle_signal(int n)
         terminate_with_exit( invalid_access(n) );
 #endif
     }
+#endif
 }
 
 void SignalHandler::Pimpl::on_terminate() {
     DEBUG("Unhandled or unexpected exception");
-    std::auto_ptr<uncaught_exception> ue;
+    std::string message;
     try {
-        DEBUG("Jumping to panic point after uncaught "
-              "exception");
+        DEBUG("Re-throwing unhandled exception");
         throw;
     } catch (const std::exception& e) {
-        ue.reset( new uncaught_exception(e) );
+        message = "Uncaught exception: " + std::string(e.what());
     } catch (...) {
-        ue.reset( new uncaught_exception() );
+        message = "Uncaught exception of unknown type.";
     }
+    DEBUG("Re-thrown unhandled exception");
 
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+    if ( current_handler->errors_buffer.insert( message ) )
+        sem_post( &current_handler->semaphore );
+#else
 #ifdef EXCEPTIONS_AFTER_LONGJMP
     current_handler->reason = ue;
     current_handler->deliver_to_thread( UncaughtException );
 #else
     current_handler->terminate_with_exit(*ue);
+#endif
 #endif
 }
 
@@ -279,7 +260,7 @@ void SignalHandler::Pimpl::set_catchers() {
     signal( SIGHUP, on_signal );
 #endif
 #ifdef SIGINT
-    signal( SIGINT, on_signal );
+    //signal( SIGINT, on_signal );
 #endif
 #ifdef SIGTERM
     signal( SIGTERM, on_signal );
@@ -297,7 +278,6 @@ void SignalHandler::Pimpl::set_catchers() {
     signal( SIGFPE, on_signal );
 #endif
 #ifdef SIGSEGV
-    DEBUG("Installing SIGSEGV handler");
     signal( SIGSEGV, on_signal );
 #endif
 #ifdef SIGPIPE
@@ -307,8 +287,8 @@ void SignalHandler::Pimpl::set_catchers() {
     signal( SIGALRM, on_signal );
 #endif
 
-    std::set_terminate( on_terminate );
-    std::set_unexpected( on_terminate );
+    //std::set_terminate( on_terminate );
+    //std::set_unexpected( on_terminate );
 }
 
 SignalHandler::SignalHandler() 
@@ -319,10 +299,7 @@ SignalHandler::SignalHandler()
 SignalHandler::~SignalHandler() 
 {}
 
-void SignalHandler::initialize() {
-    Pimpl::set_catchers();
-}
-
+#ifndef HANDLE_SIGNALS_ASYNCHRONOUSLY
 #ifdef EXCEPTIONS_AFTER_LONGJMP
 jmp_buf& SignalHandler::get_jump_buffer() {
     return pimpl->panic_point;
@@ -333,3 +310,27 @@ void SignalHandler::handle_error(int r) {
         pimpl->handle_longjmp(r);
 }
 #endif
+#endif
+
+void SignalHandler::handle_errors_until_all_detached_threads_quit() {
+#ifdef HANDLE_SIGNALS_ASYNCHRONOUSLY
+    while ( true ) {
+        sem_wait( &pimpl->semaphore );
+
+        /* Some event happened. If it was an error, then the error
+         * count will have increased. */
+        if ( ! pimpl->errors_buffer.empty() ) {
+            DEBUG("Handling error");
+            pimpl->errors_buffer.handle_first_error();
+            DEBUG("Handled error");
+        } else {
+            /* The error count hasn't increased, so the post has been 
+             * induced by the termination of the last detached thread. */
+            DEBUG("Detached all threads");
+            break;
+        }
+    }
+#else
+    Thread::wait_for_detached_threads();
+#endif
+}

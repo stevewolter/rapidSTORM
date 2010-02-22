@@ -4,7 +4,6 @@
  *  For documentation, see cc++/thread.h
  **/
 #define OST_EXITBLOCK_CPP
-#define VERBOSE
 #include "thread.h"
 
 #include <stdlib.h>
@@ -15,8 +14,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <signal.h>
+#include "errors.h"
 
-#define VERBOSE
 #include "../debug.h"
 
 using namespace std;
@@ -140,10 +139,14 @@ namespace dStorm {
     static bool installedKey = false;
     static pthread_key_t objKey;
     static pthread_mutex_t static_mutex = PTHREAD_MUTEX_INITIALIZER;
-    static pthread_cond_t no_detached_threads = PTHREAD_COND_INITIALIZER;
     int detached_threads = 0;
 
     static dStorm::Runnable* thread_init = NULL;
+
+static sem_t *all_threads_dead = NULL;
+static void (*error_cleanup)(helpers::ThreadStage,
+                             void *arg, Thread *thread ) = NULL;
+static void *error_cleanup_arg = NULL;
 
 Runnable* Thread::set_thread_initializer( Runnable& r ) {
     Runnable *o = thread_init;
@@ -191,6 +194,8 @@ void *Thread::Pimpl::runHandler(void *threadp) throw() {
     DEBUG("Subthread started for " << threadp);
     Thread &thread = *(Thread*)threadp;
     pthread_setspecific(objKey, &thread);
+    if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, NULL ) != 0 )
+        std::cerr << "Setting cancellation type failed" << std::endl;
 
     if ( thread_init != NULL ) {
         DEBUG("Using thread initializer");
@@ -230,7 +235,6 @@ void Runnable::abnormal_termination(std::string r) {
                   << t->description() 
                   << ": " << r << std::endl;
     }
-    pthread_exit( NULL );
 }
 
 Thread::Pimpl::Pimpl(Thread& obj, const char *name) 
@@ -326,15 +330,6 @@ void Thread::exit() {
     pthread_exit( NULL );
 }
 
-void Thread::wait_for_detached_threads() {
-    pthread_mutex_lock( &static_mutex );
-    while ( detached_threads > 0 )
-        pthread_cond_wait( 
-            &no_detached_threads,
-            &static_mutex );
-    pthread_mutex_unlock( &static_mutex );
-}
-
 static std::ostream& threadlessMessage(int line)
 {
     ost::DebugStream::get()->LockedStream::begin();
@@ -343,29 +338,62 @@ static std::ostream& threadlessMessage(int line)
 }
 
 void Thread::Pimpl::cleanUp(void *data) {
+    Thread* t = (Thread*)data;
 #ifdef VERBOSE
     threadlessMessage(__LINE__)
-        << "Cleaning up data for " << data << std::endl;
+        << "Cleaning up data for " << data << ": " 
+        << t->pimpl->detached << " " << t->pimpl->delete_self 
+        << std::endl;
     ost::DebugStream::get()->end();
 #endif
-    Thread* t = (Thread*)data;
     bool detached = t->pimpl->detached;
+    if ( error_cleanup )
+        error_cleanup( helpers::BeforeDestruction, error_cleanup_arg, t );
     if ( t->pimpl->delete_self )
         delete t;
+    if ( error_cleanup )
+        error_cleanup( helpers::AfterDestruction, error_cleanup_arg, t );
+#ifdef VERBOSE
+    threadlessMessage(__LINE__)
+        << "Deleted thread object for " << data
+        << std::endl;
+    ost::DebugStream::get()->end();
+#endif
     if ( detached ) {
         pthread_mutex_lock( &static_mutex );
         detached_threads--;
-        if ( detached_threads == 0 )
-            pthread_cond_signal( &no_detached_threads );
 #ifdef VERBOSE
         threadlessMessage(__LINE__) <<
-        "Reducing count of detached threads to " << detached_threads
-            << std::endl;
+        "Reduced count of detached threads to " << detached_threads
+            << " for " << t << std::endl;
         ost::DebugStream::get()->end();
 #endif
+        if ( detached_threads == 0 && all_threads_dead != NULL )
+            sem_post( all_threads_dead );
         pthread_mutex_unlock( &static_mutex );
     }
 }
 
+void Thread::cancel() {
+    if ( pimpl->running ) {
+        pthread_cancel( pimpl->thread );
+        DEBUG("Cancelled thread " << this << " named " << desc());
+    }
+}
+
+namespace helpers {
+void set_semaphore_for_report_of_dead_threads( sem_t* s ) {
+    all_threads_dead = s;
+}
+
+void set_error_cleanup_for_threads( 
+    void (*f)(ThreadStage, void *, Thread *),
+    void *arg )
+{
+    error_cleanup = f;
+    error_cleanup_arg = arg;
+}
+
+}
 
 }

@@ -32,7 +32,8 @@ dstorm_SOURCES = \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h error_handler.h error_handler.cpp \
-		 $(RESOURCE_FILE)
+		 $(RESOURCE_FILE) \
+    DeferredError.h DeferredError_Impl.h DeferredError.cpp
 dstorm_LDADD = $(COMMON_LIBS) -lltdl 
     
 javadir=$(datadir)/java

@@ -23,7 +23,8 @@ struct InputStream::Pimpl
 
     bool exhausted_input;
 
-    engine::CarConfig config;
+    engine::CarConfig original;
+    std::auto_ptr<engine::CarConfig> config;
     JobStarter starter;
     simparm::Attribute<std::string> help_file;
 
@@ -38,6 +39,10 @@ struct InputStream::Pimpl
     void abnormal_termination(std::string abnormal_term);
 
     void terminate_remaining_cars();
+
+    void processCommand(const std::string& cmd, std::istream& rest);
+
+    void reset_config();
 };
 
 InputStream::InputStream(
@@ -59,15 +64,22 @@ InputStream::Pimpl::Pimpl(
   impl_for( impl_for ),
   all_cars_finished( mutex ),
   exhausted_input( false ),
-  config(c),
-  starter( config, *this ),
+  original(c),
+  starter( *this ),
   help_file("help_file", dStorm::HelpFileName)
 {
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     this->push_back( help_file );
-    this->push_back( config );
-    config.push_back( starter );
+    reset_config();
+}
+
+void InputStream::Pimpl::reset_config() {
+    ost::MutexLock lock(mutex);
+    config.reset( new engine::CarConfig(original) );
+    this->push_back( *config );
+    config->push_back( starter );
+    starter.setConfig( *config );
 }
 
 void InputStream::Pimpl::terminate_remaining_cars() {
@@ -96,7 +108,6 @@ void InputStream::abnormal_termination(std::string reason) {
                  "error: " << reason << " Command processing must be "
                  "abandoned; your interface will stop to react. Sorry."
               << std::endl;
-    this->exit();
 }
 
 void InputStream::Pimpl::abnormal_termination(std::string reason) {
@@ -105,8 +116,6 @@ void InputStream::Pimpl::abnormal_termination(std::string reason) {
                  "running the program, but something is seriously broken "
                  "and it is quite likely that the program will behave "
                  "incorrectly now. Please report this bug." << std::endl;
-    this->exit();
-    DEBUG("Returned from thread::exit()");
 }
 
 void InputStream::Pimpl::run() {
@@ -142,5 +151,17 @@ void InputStream::Pimpl::erase_node( engine::Car& node ) {
         all_cars_finished.signal();
 }
 
+void InputStream::Pimpl::processCommand
+    (const std::string& cmd, std::istream& rest)
+{
+    if ( cmd == "wait_for_jobs" ) {
+        ost::MutexLock lock(mutex);
+        while ( ! running_cars.empty() )
+            all_cars_finished.wait();
+    } else if ( cmd == "reset" ) {
+        reset_config();
+    } else
+        simparm::IO::processCommand(cmd, rest);
+}
 
 }

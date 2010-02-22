@@ -3,7 +3,6 @@
 #include "config.h"
 #endif
 
-#define VERBOSE
 #include "debug.h"
 
 #include <limits>

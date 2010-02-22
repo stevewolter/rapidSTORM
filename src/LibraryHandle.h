@@ -46,6 +46,11 @@ class LibraryHandle {
     void operator()( dStorm::output::Config* outputs )
         { (*output)( outputs ); }
 
+    inline bool operator==(const LibraryHandle& l) const
+        { return l.handle == handle; }
+    inline bool operator!=(const LibraryHandle& l) const
+        { return l.handle != handle; }
+
     void replace_display( std::auto_ptr<Display::Manager>& );
 
     const char *getDesc() { return (*desc)(); }
