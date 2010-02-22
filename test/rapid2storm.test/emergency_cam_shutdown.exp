@@ -9,6 +9,7 @@ set can_do_test 0
 expect {
     -re "Camera is in danger zone" { set can_do_test 1 }
     -re "Could not perform action" { unsupported "$test" }
+    -re "No camera selected" { unsupported "$test" }
     timeout { unsupported "$test" }
 }
 

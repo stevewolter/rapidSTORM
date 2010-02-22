@@ -1,11 +1,7 @@
-expect_after {
-    timeout { fail "$test" }
-    eof { fail "$test" }
-}
+begin_test_suite
 
 set test "segfault in announcement"
-set timeout 40
-send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "cmd 0 forSet Car forSet Method set InputMethod value DummyInput\n"
 send "in Car in Output in EngineOutput set ChooseTransmission = SegFault\n"
 send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = true\n"
 send "in Car in Output in EngineOutput set ChooseTransmission = Verbose\n"
@@ -13,8 +9,11 @@ send "in Car set Run = 1\n"
 expect {
     -re "Verbose plugin got announcement" { fail "$test" }
     -re "Terminating job" { pass "$test" }
+    -re "Job \[0-9\]* failed.*segmentation fault" { pass "$test" }
 }
 send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = false\n"
+
+wait_for_jobs
 
 set test "segfault in construction"
 send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = true\n"
@@ -36,11 +35,23 @@ expect {
     -re "egmentation fault" { fail "$test" }
 }
 
-set timeout 30
+#set test "survive segfault in destructor"
+#send "in Car in Engine set CPUNumber = 1\n"
+#send "in Car in Output in EngineOutput in Output0 in SegFault set OnImageNumber = 3\n"
+#send "in Car in Output in EngineOutput in Output0 in SegFault set OnDestruction = true\n"
+#send "in Car set Run = 1\n"
+#expect {
+    #-re "Verbose plugin got results for 0" { pass "$test" }
+    #-re "egmentation fault" { fail "$test" }
+#}
+
 set test "segfault during job"
 expect {
     -re "Terminating job" { pass "$test" }
+    -re "Error in computation" { pass "$test" }
     -re "Verbose plugin got results for 4" { fail "$test" }
 }
 
 untested "segfault in n-th working thread"
+
+end_test_suite

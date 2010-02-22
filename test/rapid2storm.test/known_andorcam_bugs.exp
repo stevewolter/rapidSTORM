@@ -2,10 +2,12 @@ set env(SIMCAM_CAMCOUNT) "0"
 unsupported "Setting simcam camcount on the fly"
 set env(SIMCAM_CAMCOUNT) "2"
 
-set test "can choose andor camera without installed camera"
-send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
-expect {
-    -re "ack 0" { pass "$test" }
-    -re "segmentation fault" { fail "$test" }
-    -re "Could not perform action" { fail "$test" }
+if { 0 == 1 } {
+	set test "can choose andor camera without installed camera"
+	send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+	expect {
+	    -re "ack 0" { pass "$test" }
+	    -re "segmentation fault" { fail "$test" }
+	    -re "Could not perform action" { fail "$test" }
+	}
 }

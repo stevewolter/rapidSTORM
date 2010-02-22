@@ -1,3 +1,6 @@
+start_test_suite
+set timeout 2
+
 set test "filename clash between two tables"
 send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.sif\n"
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Verbose\n"
@@ -5,31 +8,21 @@ send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Tabl
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Table\n"
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Verbose\n"
 
-stage_init 11
-send "cmd 1 in Car set Run = 1\n"
-send "cmd 2 nop\r\n"
+send "in Car set Run = 1\n"
 expect {
-    -re "ack 0" { [stage_pass] }
-    -re "Starting job failed: The output file name '.*' was used by multiple.*" 
-	{ [stage_pass] }
+    -re "Starting job failed:.* output file .* was used by multiple.*" { pass "$test" }
     timeout { fail "$test" }
 }
-send_log "Through"
-send "cmd 3 nop\r\n"
-send "cmd 4 in Car set Run = 1\r\n"
-expect -re "ack 4"
 
 set test "filename clash between two different outputs"
 send "forSet Car forSet Output in EngineOutput set ToRemove value Output1\n"
 send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Image\n"
 send "forSet Car forSet Output in EngineOutput in Output2 in Image set ToFile = /srv/storm/ATTO655_DNA_OF2_3.txt\n"
-send "cmd 0 in Car set Run = 1\n"
+send "in Car set Run = 1\n"
 
-stage_init 11
 expect {
     -re "Starting job failed: The output file name '.*' was used by multiple" 
-	{ expect -re "ack 0"; pass "$test" }
-    -re "ack 0" { fail "$test" }
+	{ pass "$test" }
     timeout { fail "$test" }
 }
 
@@ -39,8 +32,8 @@ send "forSet Car forSet Output in EngineOutput in Output0 set ToFile = /srv/stor
 send "cmd 0 in Car set Run = 1\n"
 
 expect {
-    -re "Starting job failed: The output file name '.*' was used by multiple"
-	 { expect -re "ack 0"; pass "$test" }
-    -re "ack 0" { fail "$test" }
-    timeout { fail "$test" }
+   -re "Starting job failed: The output file name '.*' was used by multiple"
+	 { pass "$test" }
 }
+
+end_test_suite

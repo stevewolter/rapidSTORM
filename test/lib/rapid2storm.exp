@@ -70,3 +70,14 @@ proc stage_pass { } {
         return "exp_continue"
     }
 }
+
+proc wait_for_jobs { } {
+    set timeout -1
+    send "cmd 0 wait_for_jobs\n"
+    expect -re "ack 0"
+    set timeout 10
+}
+
+proc begin_test_suite {} {}
+proc start_test_suite {} { begin_test_suite }
+proc end_test_suite {} { wait_for_jobs; send "cmd 0 reset\n"; expect -re "ack 0" }

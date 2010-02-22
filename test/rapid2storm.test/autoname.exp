@@ -62,11 +62,11 @@ foreach {i} {2 3 4} {
 
 set test "basename switch"
 
-send "forSet Car forSet Method set InputMethod value Auto\n"
+send "cmd 0 forSet Car forSet Method set InputMethod value Auto\n"
 expect {
     -re "Displaying output file name .foo" { exp_continue }
     -re "Displaying output file name .*.foo" { fail "$test" }
-    timeout { pass "$test" }
+    -re "ack 0" { pass "$test" }
 }
 
 set test "sif file basename"
@@ -111,3 +111,5 @@ expect {
     -re "Output file basename is Job_" { pass "$test" }
     timeout { fail "$test" }
 }
+send "cmd 0 wait_for_jobs\n"
+expect -re "ack 0"
