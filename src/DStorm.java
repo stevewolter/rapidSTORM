@@ -117,7 +117,7 @@ class DStorm {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
         result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
-            tempdir.getPath() + File.separator + "lib" + File.separator + "rapidStorm"
+            tempdir.getPath() + File.separator + "lib" + File.separator + "rapid2storm"
             + File.separator + "plugins";
         result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
             tempdir.getPath() 
@@ -175,7 +175,7 @@ class DStorm {
             new File(base_dir, "share" + File.separator + "doc" ) );
 
         String[] environment = build_environment( base_dir );
-        boolean have_arg = args.length > 0,stderrPipe = true;
+        boolean have_arg = args.length > 0,stderrPipe = false;
         int argC = 4;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;

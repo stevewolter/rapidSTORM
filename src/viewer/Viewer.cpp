@@ -1,4 +1,5 @@
 #define cimg_use_magick
+#include "debug.h"
 #include "plugin.h"
 #include <stdint.h>
 #include "Viewer.h"
@@ -128,7 +129,9 @@ class ColourDependantImplementation
         discretization.setListener(&cia);
     }
 
-    ~ColourDependantImplementation() {}
+    ~ColourDependantImplementation() {
+        DEBUG("Destructing viewer implementation");
+    }
 
     output::Output& getForwardOutput() { return image; }
 #ifdef HAVE_LIBGRAPHICSMAGICK__
@@ -204,7 +207,6 @@ class ColourDependantImplementation
         image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
         image.write( filename );
       } else {
-        std::cerr << "Dim " << width << " " << image.height() << "\n";
         Pixel bg = discretization.get_background();
         Magick::ColorRGB bgc ( bg.red()/255.0, bg.green()/255.0, 
                                bg.blue()/255.0 );
@@ -353,7 +355,7 @@ Viewer::Viewer(const Viewer::Config& config)
   isEmpty(true),
   close_display_immediately( config.close_on_completion() ),
   cyclelength( config.refreshCycle() / waitTime ),
-  tifFile( config.outputFile ),
+  tifFile( "ToFile", "Save image to", config.outputFile() ),
   save_with_key( config.save_with_key ),
   resolutionEnhancement( config.res_enh ),
   histogramPower( config.histogramPower ),
@@ -393,7 +395,7 @@ Viewer::Viewer(const Viewer::Config& config)
 }
 
 Viewer::~Viewer() {
-    STATUS("Destructing Viewer");
+    DEBUG("Destructing Viewer");
 }
 
 
@@ -407,7 +409,6 @@ Viewer::receiveLocalizations(const EngineResult& er)
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
-    std::cerr << "TIFF File " << tifFile() << "\n";
     MutexLock lock(structureMutex);
     return forwardOutput.announceStormSize(a);
 }

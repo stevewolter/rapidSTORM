@@ -36,8 +36,10 @@ void Display<Colorizer>::setSize(
     r.height = height;
     r.key_size = Colorizer::BrightnessDepth;
     r.pixel_size = 
-        traits.resolution.start<2>().sum().value() / 2;
-    nm_per_pixel = r.pixel_size * 1E9;
+        2.0 /
+        (boost::units::si::meters / cs_units::camera::pixel ) /
+        (traits.resolution.x() + traits.resolution.y());
+    nm_per_pixel = r.pixel_size;
 
     if ( do_show_window ) {
         props.initial_size = r;

@@ -61,6 +61,7 @@ void wxManager::run() throw()
     App::idle_call = idle_call.get();
     if ( !may_close )
         wxEntry(argc, (wxChar**)NULL);
+    DEBUG("Ran display thread");
     toolkit_available = false;
 
     ost::MutexLock lock( mutex );
@@ -141,9 +142,13 @@ class wxManager::Disassociator
   public:
     Disassociator(wxManager& m, WindowHandle& handle) : h(handle), m(m) {}
     void run() throw() {
+        DEBUG("Running disassociator");
         if ( h.associated_window != NULL )
             h.associated_window->remove_data_source();
         m.decrease_handle_count();
+
+        WaitableRunnable::run();
+        DEBUG("Ran disassociator");
     }
 };
 
@@ -154,15 +159,20 @@ wxManager::WindowHandle::WindowHandle(wxManager& m)
 
 wxManager::WindowHandle::~WindowHandle()
 {
+    DEBUG("Destructing window handle");
     /* This code must be run even if associated_window is
      * NULL to avoid race condition. */
     Disassociator d(m, *this);
+    DEBUG("Running disassociator in GUI thread");
     m.run_in_GUI_thread( &d );
+    DEBUG("Waiting for disassociator to finish");
     d.wait();
+    DEBUG("Finished running disassociator");
 }
 
 void wxManager::run_in_GUI_thread( ost::Runnable* code ) 
 {
+    DEBUG("Running code in GUI thread");
     if ( ost::Thread::current_thread() == 
          static_cast<ost::Thread*>(this) )
         exec( code );
@@ -174,14 +184,19 @@ void wxManager::run_in_GUI_thread( ost::Runnable* code )
         wxWakeUpIdle();
         closed_all_handles.signal();
     }
+    DEBUG("Ran code in GUI thread");
 }
 
 void wxManager::exec_waiting_runnables() {
+    DEBUG("Acquiring runnables lock");
     ost::MutexLock lock(mutex);
     while ( ! run_queue.empty() ) {
+        DEBUG("Running runnable");
         exec( run_queue.front() );
+        DEBUG("Ran runnable");
         run_queue.pop();
     }
+    DEBUG("Finished executing waiting runnables");
 }
 
 void wxManager::exec(ost::Runnable* runnable) {
@@ -189,7 +204,7 @@ void wxManager::exec(ost::Runnable* runnable) {
 }
 
 void wxManager::disassociate_window
-    ( Window *window, WindowHandle* handle )
+    ( Window *, WindowHandle* handle )
 {
     handle->associated_window = NULL;
 }

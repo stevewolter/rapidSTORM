@@ -148,6 +148,11 @@ static void (*error_cleanup)(helpers::ThreadStage,
                              void *arg, Thread *thread ) = NULL;
 static void *error_cleanup_arg = NULL;
 
+struct TSS {
+    Thread *creator;
+    bool is_counted_as_detached;
+};
+
 Runnable* Thread::set_thread_initializer( Runnable& r ) {
     Runnable *o = thread_init;
     thread_init = &r;
@@ -193,7 +198,10 @@ struct Thread::Pimpl {
 void *Thread::Pimpl::runHandler(void *threadp) throw() {
     DEBUG("Subthread started for " << threadp);
     Thread &thread = *(Thread*)threadp;
-    pthread_setspecific(objKey, &thread);
+    TSS* tss = new TSS();
+    tss->creator = &thread;
+    tss->is_counted_as_detached = thread.pimpl->detached;
+    pthread_setspecific(objKey, tss);
     if ( pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, NULL ) != 0 )
         std::cerr << "Setting cancellation type failed" << std::endl;
 
@@ -222,8 +230,15 @@ void *Thread::Pimpl::runHandler(void *threadp) throw() {
     } catch ( const std::exception& e ) {
         std::cerr << e.what() << "\n";
     }
-    if ( thread.pimpl->detached )
-        thread.pimpl->delete_self = true;
+    DEBUG("Deleting errors for " << threadp);
+    if ( error_cleanup )
+        error_cleanup( helpers::BeforeDestruction, error_cleanup_arg, &thread );
+    if ( thread.pimpl->detached ) {
+        DEBUG("Deleting detached thread structure for " << threadp);
+        tss->creator = (NULL);
+        delete &thread;
+        DEBUG("Deleted structure for " << threadp);
+    }
     DEBUG("Finished subthread for " << threadp);
     return NULL;
 }
@@ -322,9 +337,13 @@ const char *Thread::description() throw() {
 
 Thread *Thread::current_thread() throw() {
     if ( !installedKey ) return NULL;
-    Thread* thread = 
-        (Thread *)pthread_getspecific(objKey);
-    return thread;
+        
+    void *spec = pthread_getspecific(objKey);
+    if ( spec == NULL )
+        return NULL;
+    else {
+        return ((TSS*)spec)->creator;
+    }
 }
 
 void Thread::exit() {
@@ -341,40 +360,32 @@ static std::ostream& threadlessMessage(int line)
 #endif
 
 void Thread::Pimpl::cleanUp(void *data) {
-    Thread* t = (Thread*)data;
+    TSS& tss = *(TSS*)data;
 #ifdef VERBOSE
     threadlessMessage(__LINE__)
-        << "Cleaning up data for " << data << ": " 
-        << t->pimpl->detached << " " << t->pimpl->delete_self 
-        << std::endl;
+        << "Cleaning up data for " << data << std::endl;
     ost::DebugStream::get()->end();
 #endif
-    bool detached = t->pimpl->detached;
-    if ( error_cleanup )
-        error_cleanup( helpers::BeforeDestruction, error_cleanup_arg, t );
-    if ( t->pimpl->delete_self )
-        delete t;
-    if ( error_cleanup )
-        error_cleanup( helpers::AfterDestruction, error_cleanup_arg, t );
 #ifdef VERBOSE
     threadlessMessage(__LINE__)
         << "Deleted thread object for " << data
         << std::endl;
     ost::DebugStream::get()->end();
 #endif
-    if ( detached ) {
+    if ( tss.is_counted_as_detached ) {
         pthread_mutex_lock( &static_mutex );
         detached_threads--;
 #ifdef VERBOSE
         threadlessMessage(__LINE__) <<
-        "Reduced count of detached threads to " << detached_threads
-            << " for " << t << std::endl;
+        "Reduced count of detached threads to " << detached_threads << " for " << data << std::endl;
         ost::DebugStream::get()->end();
 #endif
         if ( detached_threads == 0 && all_threads_dead != NULL )
             sem_post( all_threads_dead );
         pthread_mutex_unlock( &static_mutex );
     }
+
+    delete &tss;
 }
 
 void Thread::cancel() {

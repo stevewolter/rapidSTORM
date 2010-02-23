@@ -17,6 +17,9 @@ TMP:=build
 BUNDLE:=$(PACKAGE_TARNAME)_$(PACKAGE_VERSION)_bin.tgz
 INSTALLER:=$(PACKAGE_TARNAME)
 
+BUNDLE_ISS_OFFSET:=installer.iss
+BUNDLE_ISS:=$(TMP)/$(BUNDLE_ISS_OFFSET)
+
 GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
 
@@ -47,8 +50,11 @@ prefix_bundle_iss.lst:=$(TMP)
 all : 
 
 $(INSTALLER).iss : dSTORM.iss
+$(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
+$(INSTALLER).iss : $(srcdir)/dSTORM_tail.iss
+
 ifneq ($(WINE),)
-BUNDLE_LISTS:=binaries.lst helpfiles.lst graphicsmagick.lst headers.lst libs.lst java.lst
+BUNDLE_LISTS:=binaries.lst config_file.lst helpfiles.lst graphicsmagick.lst headers.lst libs.lst java.lst
 bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
@@ -56,19 +62,32 @@ include graphicsmagick.dep
 $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
 	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list) -C $(abs_builddir))
 
+unbundle.iss : $(BUNDLE_ISS)
+	sed -e 's#:prefix:[/\\]##' $< > $@
+
 else
-$(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
+unbundle.iss : $(pkgdatadir)/bundle.iss
+	sed -e 's#:prefix:/#$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g')#' $< > $@
+
 bundle :
 	false
 endif
-$(INSTALLER).iss : $(srcdir)/dSTORM_tail.iss
 
 ifneq ($(ISCC),)
 installer : $(INSTALLER).exe
 $(INSTALLER).exe : $(INSTALLER).iss Readme.txt License.txt inst.bmp
 	'$(ISCC)' '$<'
 else
-installer :
+installer : $(INSTALLER).tgz
+
+$(INSTALLER).tgz : $(BUNDLE_LISTS)
+	tar cfz $@ -C $(TMP) --files-from=rel_file_list.lst \
+	           -C $(PREFIX) --files-from=prefix_file_list.lst
+
+prefix_file_list.lst : rapid2storm.iss
+	sed -n -e 's#.*Source: "$(PREFIX)[/\\]\([^"]*\)".*#\1#p' $< > $@
+rel_file_list.lst : rapid2storm.iss
+	sed -n -e 's#.*Source: "\([^\\/][^"]*\)".*#\1#p' $< > $@
 endif
 
 .DELETE_ON_ERROR :
@@ -77,21 +96,15 @@ Readme.txt : $(srcdir)/../README
 License.txt : $(srcdir)/../LICENSE
 inst.bmp : $(srcdir)/inst.bmp
 
-BUNDLE_ISS_OFFSET:=share/$(PACKAGE_TARNAME)/bundle.iss
-BUNDLE_ISS:=$(TMP)/$(BUNDLE_ISS_OFFSET)
-
 bundle_iss.lst : $(BUNDLE_ISS)
 	$(PATH_REWRITER) $(BUNDLE_ISS_OFFSET) > $@
 
-$(BUNDLE_ISS) : $(BUNDLE_LISTS:.lst=.iss)
+$(BUNDLE_ISS) : dSTORM.iss $(BUNDLE_LISTS:.lst=.iss) $(srcdir)/dSTORM_tail.iss
 	mkdir -p $(dir $@)
-	cat $^ | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}\)\([^"]*\)"#Source: ":prefix:\3\1"; DestDir: "\2\3"#' > $@
-
-unbundle.iss : $(pkgdatadir)/bundle.iss
-	sed -e 's#:prefix:#$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g')#' $< > $@
+	{ cat dSTORM.iss; cat $(BUNDLE_LISTS:.lst=.iss) | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}/\)\([^"]*\)"#Source: "\3\1"; DestDir: "\2\3"#'; cat $(srcdir)/dSTORM_tail.iss; } > $@
 
 extra_installer.iss : $(EXTRA_INSTALLER)
-	sed -e 's#Source: "#&$(shell $(PATH_REWRITER) $(dir $<) | sed -e 's/\\/\\\\/g')#' $< > $@
+	sed -e 's#Source: "#&$(shell $(PATH_REWRITER) $(dir $<) | sed -e 's/\\/\\\\/g')#' $(if $<,$<,/dev/null) > $@
 
 config_file.lst :
 	f=share/$(PACKAGE_TARNAME)/dstorm-config.txt; test -e $(PREFIX)/$$f && $(PATH_REWRITER) $$f > $@

@@ -1,0 +1,13 @@
+set test "Camera view is closed correctly"
+
+send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set ReferenceTemperature = 20\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set TargetTemperature = 30\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage set AimCamera = 1\n"
+send "attach\n"
+sleep 3
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set StopAimCamera = 1\n"
+
+expect {
+    -re "Foobar" { pass "$test" }
+}
