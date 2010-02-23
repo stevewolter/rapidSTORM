@@ -1,5 +1,6 @@
 #include "ZoomSlider.h"
 #include <stdexcept>
+#include "debug.h"
 
 namespace dStorm {
 namespace Display {
@@ -36,9 +37,11 @@ void ZoomSlider::mouse_over_pixel( wxPoint p )
 
 
 void ZoomSlider::OnZoomChange( wxScrollEvent& event ) {
+    DEBUG("OnZoomChange");
     if ( listener ) listener->zoom_changed( event.GetPosition() );
     canvas.set_zoom( event.GetPosition() );
     event.Skip();
+    DEBUG("OnZoomChange end");
 }
 
 void ZoomSlider::set_zoom_listener( Canvas::Listener& listener )

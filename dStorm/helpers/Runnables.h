@@ -25,7 +25,7 @@ class WaitableRunnable : public Runnable {
      *  Runnables when operations are finished. Remember
      *  to call this method if you extend the finish
      *  method. */
-    void final() throw() { 
+    void run() throw() { 
         MutexLock lock(mutex);
         did_run = true;  
         cond.signal();

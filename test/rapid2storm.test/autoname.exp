@@ -1,6 +1,6 @@
 set timeout 5
 
-send "attach\n"
+# send "attach\n"
 set test "basename printer works"
 send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 expect {
@@ -9,7 +9,7 @@ expect {
 }
 send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set ReferenceTemperature = 20\n"
 send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set TargetTemperature = 30\n"
-
+send "in Car in Method set InputMethod in AndorDirectConfig set ShowLiveByDefault = false\n"
 
 set timeout 10
 send "forSet Car forSet Method in InputMethod in AndorDirectConfig set AcquisitionLength = 1\n"
@@ -64,8 +64,11 @@ foreach {i} {2 3 4} {
     set timeout 10
 }
 
+wait_for_jobs
+
 set test "basename switch"
 
+send "forSet Car forSet Method set InputMethod in DummyInput set Number = 1\n"
 send "cmd 0 forSet Car forSet Method set InputMethod value Auto\n"
 expect {
     -re "Displaying output file name .foo" { exp_continue }
@@ -116,6 +119,6 @@ expect {
     timeout { fail "$test" }
 }
 
-send "detach\n"
+# send "detach\n"
 send "cmd 0 wait_for_jobs\n"
 expect -re "ack 0"

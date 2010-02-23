@@ -65,7 +65,7 @@ InputStream::Pimpl::Pimpl(
   all_cars_finished( mutex ),
   exhausted_input( false ),
   original(c),
-  starter( *this ),
+  starter( this ),
   help_file("help_file", dStorm::HelpFileName)
 {
     this->showTabbed = true;

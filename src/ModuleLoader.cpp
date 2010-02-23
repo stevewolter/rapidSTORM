@@ -65,7 +65,9 @@ ModuleLoader::Pimpl::try_loading_module( const char *filename ) {
             }
         DEBUG("Requesting plugin display driver from " 
               << filename);
+        DEBUG("Display driver is before " << display.get() );
         handle->replace_display(display);
+        DEBUG("Display dirver is now " << display.get() );
         lib_handles.push_back( handle.release() );
     } catch( const std::exception& e ) {
         std::cerr << "Unable to load plugin '" << filename << "': " <<
@@ -100,6 +102,8 @@ void ModuleLoader::Pimpl::load_plugins()
     DEBUG("Finding plugins in " << plugin_dir);
     lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
     DEBUG("Found plugins");
+
+    Display::Manager::setSingleton( *display );
 }
 
 void ModuleLoader::add_modules

@@ -121,7 +121,7 @@ void FilterSource::operator()
         } catch (const std::exception& e) {
             std::cerr << e.what() << "\n";
         }
-    } else if (&e.source == removeSelector.get() ) {
+    } else if (&e.source == &removeSelector->value ) {
         if ( removeSelector->isValid() ) {
             remove( *removeSelector->value().src );
         }

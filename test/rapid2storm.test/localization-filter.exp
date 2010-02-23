@@ -1,5 +1,8 @@
 send "attach\n"
-send "in Car in Method set InputMethod = DummyInput\n"
+send "in Car in Method set InputMethod in Auto set InputFile = /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Output set EngineOutput set ChooseTransmission = LocalizationFilter\n"
+send "in Car in Output set EngineOutput in Output0 set LocalizationFilter set ChooseTransmission = Image\n"
+send "in Car in Output set EngineOutput in Output0 set LocalizationFilter in Output0 in Image set ShowOutput = true\n"
 send "in Car set Run = 1\n"
 sleep 1
 send "in dStormJob01 in EngineStatus set EngineStopper = 1\n"
@@ -7,3 +10,5 @@ sleep 1
 send "in dStormJob01 set CloseJob = 1\n"
 sleep 1
 expect -re "\nremove "
+
+xfail "Localization speed in m/s"

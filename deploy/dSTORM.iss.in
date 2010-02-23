@@ -37,5 +37,7 @@ Name: "devel"; Description: "Plugin development files"; Types: full
 
 [Icons]
 Name: "{group}\rapid2STORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
+Name: "{group}\Online Help";                                                               Filename: "{app}/share/doc/@PACKAGE_TARNAME@/rapidstorm.chm"
 Name: "{group}\Uninstall\Uninstall rapid2STORM";                                           Filename: "{uninstallexe}"
 
+#include "local.iss"

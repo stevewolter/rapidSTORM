@@ -1,6 +1,8 @@
 #include "ImageTraits.h"
 #include "Config.h"
 #include <stdint.h>
+#include <iostream>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace input {
