@@ -131,6 +131,7 @@ void CarConfig::operator()(const simparm::Event&)
 {
     output::Basename bn( inputConfig.basename() );
     
+    DEBUG("Got new basename " << bn.unformatted()() << " for config " << this);
     outputSource.set_output_file_basename( bn );
 }
 

@@ -46,16 +46,23 @@ class LocalizationFilter::ReEmitter
     }
 
     ~ReEmitter() { 
+        DEBUG("Destructing Reemitter");
         need_re_emitter = false; 
         condition.signal();
+        DEBUG("Joining subthread");
         join(); 
+        DEBUG("Joined subthread");
     }
 
     void run() throw()
     {
+      DEBUG("Running localization reemitter");
       try {
+        DEBUG("Acquiring mutex");
         mutex.enterMutex();
+        DEBUG("Acquired mutex");
         while (need_re_emitter) {
+            DEBUG("Running loop");
             if ( parameter_changed ) {
                 parameter_changed = false;
                 mutex.leaveMutex();
@@ -63,7 +70,9 @@ class LocalizationFilter::ReEmitter
                 mutex.enterMutex();
             }
             if (!parameter_changed && need_re_emitter) {
+                DEBUG("Waiting for next iteration");
                 condition.wait();
+                DEBUG("Waited for next iteration");
             }
         }
         mutex.leaveMutex();
@@ -76,6 +85,7 @@ class LocalizationFilter::ReEmitter
         std::cerr << "An unknown error occured during result recomputation."
                   << std::endl;
       }
+      DEBUG("Finished reemitter subthread");
     }
 
     void repeat_results() {
@@ -93,9 +103,9 @@ LocalizationFilter::LocalizationFilter(
       localizationsStore( new output::Localizations() ),
       from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
       two_kernel_significance(c.two_kernel_significance),
-      shift_velocity(0),
       output(output)
 { 
+    shift_velocity.fill( 0 * cs_units::camera::pixel / cs_units::camera::frame );
     init();
 }
 
@@ -112,6 +122,7 @@ LocalizationFilter::LocalizationFilter(const LocalizationFilter& o)
 
 LocalizationFilter::~LocalizationFilter()
 {
+    DEBUG("Destructing LF");
 }
 
 void LocalizationFilter::init()
@@ -262,12 +273,13 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 
 { 
     traits = a.traits;
+    /* TODO traits.speed */
     shift_velocity.x() = 
         (x_shift() * 1E-9f * (si::meters / si::seconds))
-           * (traits.resolution.x() / (*traits.speed));
+           * (traits.resolution.x() / ( 1.0 * cs_units::camera::fps));
     shift_velocity.y() = 
         y_shift() * 1E-9 * (si::meters / si::seconds)
-           / (*traits.speed) * traits.resolution.y();
+           / ( 1.0 * cs_units::camera::fps) * traits.resolution.y();
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -322,13 +334,13 @@ void LocalizationFilter::operator()
     } else if ( &e.source == &x_shift.value ) {
         shift_velocity.x() = x_shift() * 1E-9
             * si::meter / si::second 
-            / (*traits.speed) * traits.resolution.x();
+            / (1.0 * cs_units::camera::fps) * traits.resolution.x();
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &e.source == &y_shift.value ) {
         shift_velocity.y() = y_shift() * 1E-9
             * si::meter / si::second 
-            / (*traits.speed) * traits.resolution.y();
+            / (1.0 * cs_units::camera::fps) * traits.resolution.y();
         re_emitter->repeat_results();
     } else if ( &e.source == &two_kernel_significance.value ) {
         re_emitter->repeat_results();

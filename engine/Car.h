@@ -31,7 +31,7 @@ namespace engine {
       private:
         std::set<std::string> used_output_filenames;
 
-        JobMaster& input_stream;
+        JobMaster* input_stream;
         /** Construction Configuration. This is a copy of the CarConfig used
          *  to build this car. */
         CarConfig config;
@@ -76,7 +76,7 @@ namespace engine {
         jmp_buf panic_point;
 
       public:
-        Car (JobMaster&, const CarConfig &config) ;
+        Car (JobMaster*, const CarConfig &config) ;
         virtual ~Car();
 
         void drive();

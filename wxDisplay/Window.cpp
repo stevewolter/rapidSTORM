@@ -5,6 +5,8 @@
 #include "ScaleBar.h"
 #include <sstream>
 
+#include "debug.h"
+
 namespace dStorm {
 namespace Display {
 
@@ -76,19 +78,25 @@ Window::Window(
 
 Window::~Window()
 {
+    DEBUG("Destructing window");
     if ( source != NULL ) 
         source->notice_closed_data_window();
+    DEBUG("Noticed closed data window");
     if ( handle != NULL ) {
         wxManager::disassociate_window( this, handle );
         handle = NULL;
     }
+    DEBUG("Disassociated window");
 }
 
 void Window::OnTimer(wxTimerEvent& event) {
     if ( !source ) return;
 
+    DEBUG("Getting changes");
     std::auto_ptr<Change> changes = source->get_changes();
+    DEBUG("Got changes");
     commit_changes(*changes);
+    DEBUG("Applied changes");
 
     event.Skip();
 }
@@ -139,14 +147,19 @@ void Window::commit_changes(const Change& changes)
 
 void Window::remove_data_source() {
     if ( source ) {
+        DEBUG("Getting last change set");
         std::auto_ptr<Change> changes = source->get_changes();
+        DEBUG("Committing last change set");
         commit_changes(*changes);
     }
+    DEBUG("Stopping timer");
     timer.Stop();
     source = NULL;
 
-    if ( close_on_completion )
+    if ( close_on_completion ) {
+        DEBUG("Destroying window");
         this->Destroy();
+    }
 }
 
 void Window::drawn_rectangle( wxRect rect ) {

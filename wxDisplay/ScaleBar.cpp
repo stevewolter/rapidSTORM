@@ -1,6 +1,8 @@
 #include "ScaleBar.h"
 #include "helpers.h"
 
+#include "debug.h"
+
 namespace dStorm {
 namespace Display {
 
@@ -23,13 +25,17 @@ void ScaleBar::set_zoom_factor( float zoom_factor ) {
 }
 
 void ScaleBar::OnPaint( wxPaintEvent&) {
+    DEBUG("Paint");
     wxPaintDC dc(this);
     draw( dc );
+    DEBUG("Paint end");
 }
 
 void ScaleBar::OnResize( wxSizeEvent&) {
+    DEBUG("Resize");
     wxClientDC dc(this);
     draw( dc );
+    DEBUG("Resize end");
 }
 
 void ScaleBar::draw( wxDC &dc )

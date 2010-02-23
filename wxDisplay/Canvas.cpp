@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <wx/dcbuffer.h>
 
+#include "debug.h"
+
 namespace dStorm {
 namespace Display {
 
@@ -173,8 +175,10 @@ void Canvas::zoom_to( wxRect rect )
     set_zoom( zoom, centerPoint );
 }
 void Canvas::OnPaint( wxPaintEvent & ) {
+    DEBUG("Begin OnPaint");
     wxPaintDC dc(this);
     if ( contents->GetWidth() <= 0 ) return;
+    DEBUG("Continue OnPaint");
     wxScrolledWindow::PrepareDC(dc);
 
     wxRegion updateRegions = GetUpdateRegion();
@@ -189,6 +193,7 @@ void Canvas::OnPaint( wxPaintEvent & ) {
         dc.DrawBitmap( zoomed_bitmap_for_canvas_region( rect ),
                        rect.GetTopLeft() );
     }
+    DEBUG("End OnPaint");
 }
 
 wxBitmap Canvas::zoomed_bitmap_for_canvas_region
@@ -334,13 +339,17 @@ void Canvas::set_zoom(int zoom, wxPoint center)
 }
 
 void Canvas::OnMouseDown( wxMouseEvent& event ) {
+    DEBUG("Begin OnMouseDown");
     drag_start.x = event.GetX();
     drag_start.y = event.GetY();
     drag_end = drag_start;
     mouse_state = Dragging;
+    DEBUG("End OnMouseDown");
 }
 void Canvas::OnMouseMotion( wxMouseEvent& event )
 {
+    DEBUG("Begin OnMouseMotion");
+    drag_start.x = event.GetX();
     if ( mouse_state == Dragging ) {
         wxClientDC dc( this );
         DoPrepareDC( dc );
@@ -359,9 +368,11 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
     if ( zcl && last_mouse_position != mouse_position )
         zcl->mouse_over_pixel( mouse_position );
     last_mouse_position = mouse_position;
+    DEBUG("End OnMouseMotion");
 }
 void Canvas::OnMouseUp( wxMouseEvent& event ) 
 {
+    DEBUG("Begin OnMouseUp");
     wxClientDC dc( this );
     DoPrepareDC( dc );
     overdraw_rectangle( get_rect_by_corners( drag_start, drag_end ), &dc );
@@ -373,6 +384,7 @@ void Canvas::OnMouseUp( wxMouseEvent& event )
         zcl->drawn_rectangle(
             image_coords( get_rect_by_corners( drag_start, drag_end ) ) );
     mouse_state = Moving;
+    DEBUG("End OnMouseUp");
 }
 
 }

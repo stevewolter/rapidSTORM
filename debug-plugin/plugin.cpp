@@ -28,7 +28,6 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Input_Augmenter ( dStorm::input::Config* inputs ) {
-    std::cerr << "Adding to " << inputs << "\n";
     inputs->inputMethod.addChoice( 
         new dummy_file_input::Method(*inputs) );
 }

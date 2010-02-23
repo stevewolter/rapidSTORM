@@ -23,7 +23,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/ImageTraits.h>
 #include "doc/help/context.h"
-#include <setjmp.h>
+#include <boost/units/io.hpp>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -47,7 +47,6 @@ class EngineThread : public ost::Thread {
   private:
     Engine &engine;
     auto_ptr<string> nm;
-    jmp_buf panic_point;
 
   public:
     EngineThread(Engine &engine, 
@@ -59,12 +58,7 @@ class EngineThread : public ost::Thread {
         join(); 
     }
     void run() throw() {
-        if ( setjmp( panic_point ) == 0 ) {
-            engine.safeRunPiston();
-        } else {
-            /* longjmp() was performed due to abnormal
-             * termination. Just die. */
-        }
+        engine.safeRunPiston();
     }
     void abnormal_termination(std::string r) {
         std::cerr << "Computation thread " << *nm 

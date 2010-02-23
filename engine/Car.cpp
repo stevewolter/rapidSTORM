@@ -48,7 +48,7 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (JobMaster& input_stream, const CarConfig &new_config) 
+Car::Car (JobMaster* input_stream, const CarConfig &new_config) 
 : ost::Thread("Car"),
   simparm::Listener( simparm::Event::ValueChanged ),
   input_stream( input_stream ),
@@ -80,26 +80,31 @@ Car::Car (JobMaster& input_stream, const CarConfig &new_config)
     output->check_for_duplicate_filenames( used_output_filenames );
 
     PROGRESS("Registering at input_stream config");
-    this->input_stream.register_node( *this );
+    if ( input_stream )
+        this->input_stream->register_node( *this );
 }
 
 Car::~Car() 
 {
-    PROGRESS("Destructing Car");
-    PROGRESS("Joining car subthread");
+    DEBUG("Destructing Car");
+    DEBUG("Joining car subthread");
     join();
 
-    PROGRESS("Sending destruction signal to outputs");
+    DEBUG("Sending destruction signal to outputs");
     output->propagate_signal( output::Output::Prepare_destruction );
 
-    PROGRESS("Removing from input_stream config");
+    DEBUG("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
      * from interface. */
-    input_stream.erase_node( *this );
+    if ( input_stream )
+        input_stream->erase_node( *this );
 
+    DEBUG("Deleting outputs");
     output.reset(NULL);
+    DEBUG("Deleting engine");
     locSource.reset(NULL);
     myEngine.reset(NULL);
+    DEBUG("Commencing destruction");
 }
 
 void Car::operator()(const simparm::Event& e) {
@@ -164,23 +169,23 @@ void Car::drive() {
     runtime_config.push_back( *output );
     runtime_config.push_back( closeJob );
 
-    PROGRESS("Starting computation");
+    DEBUG("Starting computation");
     if ( myEngine.get() != NULL ) {
         myEngine->run();
     } else if (locSource.get() != NULL) {
         runOnSTM();
     }
-    PROGRESS("Ended computation");
-    PROGRESS("Erasing carburettor");
+    DEBUG("Ended computation");
+    DEBUG("Erasing carburettor");
     input.reset(NULL);
-    PROGRESS("Erased carburettor");
+    DEBUG("Erased carburettor");
 
     ost::MutexLock lock( terminationMutex );
-    PROGRESS("Waiting for termination allowance");
+    DEBUG("Waiting for termination allowance");
     if ( runtime_config.isActive() )
         while ( ! terminate )
             terminationChanged.wait();
-    PROGRESS("Allowed to terminate");
+    DEBUG("Allowed to terminate");
 
     /* TODO: We have to check here if the job was _really_ finished
     * successfully. */

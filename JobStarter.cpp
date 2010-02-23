@@ -5,7 +5,7 @@
 
 namespace dStorm {
 
-JobStarter::JobStarter(JobMaster& m )
+JobStarter::JobStarter(JobMaster* m )
 : simparm::TriggerEntry("Run", "Run"),
   simparm::Listener(simparm::Event::ValueChanged),
   master(m), config(NULL)

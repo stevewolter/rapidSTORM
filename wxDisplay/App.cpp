@@ -1,6 +1,8 @@
 #include "App.h"
 #include "wxManager.h"
 
+#include "debug.h"
+
 namespace dStorm {
 namespace Display {
 
@@ -34,12 +36,16 @@ bool App::OnInit()
 }
 
 void App::OnIdle(wxIdleEvent&) {
+    DEBUG("Idling");
     if ( idle_call )
         idle_call->run();
+    DEBUG("Idled");
 }
 
 void App::close() {
+    DEBUG("Closing");
     nevershow.release()->Destroy();
+    DEBUG("Closed");
 }
 
 }

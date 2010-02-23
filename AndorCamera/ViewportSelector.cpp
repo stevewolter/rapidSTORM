@@ -84,6 +84,7 @@ Display::get_changes()
 
     ost::MutexLock lock(mutex);
     std::swap( other, this->change );
+    DEBUG("Fetched changes");
     return other;
 }
 
@@ -175,7 +176,6 @@ void Display::set_resolution( const Resolution& r ) {
 
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
     ost::MutexLock lock(mutex);
-    std::cerr << "Noticing rectangle " << l << " " << r << " " << t << " " << b << "\n";
     if ( aimed ) {
         aimed->left = l;
         aimed->right = r;
@@ -375,11 +375,16 @@ void Config::make_display( Display::Mode mode )
 
 void Config::delete_active_selector() 
 {
+    DEBUG("Acquiring selector mutex");
     ost::MutexLock lock( active_selector_mutex );
+    DEBUG("Deleting active selector");
     active_selector.reset( NULL );
 
+    DEBUG("Setting entry viewability");
     set_entry_viewability();
+    DEBUG("Signalling change");
     active_selector_changed.signal();
+    DEBUG("Finished deletion");
 }
 
 void Config::registerNamedEntries() 

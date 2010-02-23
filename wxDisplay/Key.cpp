@@ -2,6 +2,8 @@
 #include "helpers.h"
 #include <wx/dcbuffer.h>
 
+#include "debug.h"
+
 namespace dStorm {
 namespace Display {
 
@@ -120,6 +122,7 @@ void Key::draw_keys( const data_cpp::Vector<KeyChange>& kcs )
 
 void Key::OnPaint( wxPaintEvent& event )
 {
+    DEBUG("Begin OnPaint");
     wxPaintDC dc(this);
 
     wxRegion updateRegions = GetUpdateRegion();
@@ -128,6 +131,7 @@ void Key::OnPaint( wxPaintEvent& event )
 
         dc.DrawBitmap(buffer->GetSubBitmap( rect ), rect.GetTopLeft());
     }
+    DEBUG("End OnPaint");
 }
 
 void Key::OnResize( wxSizeEvent& )
