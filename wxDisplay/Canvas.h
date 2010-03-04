@@ -75,6 +75,9 @@ class Canvas : public wxScrolledWindow {
     int getHeight() const 
         { return (contents.get()) ? contents->GetHeight() : 0; }
 
+    std::auto_ptr<ImageChange>
+        getContents() const;
+
     /** @rect Coordinates in image pixels to zoom into view. */
     void zoom_to( wxRect rect );
 

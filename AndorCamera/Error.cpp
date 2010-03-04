@@ -122,7 +122,6 @@ AndorCamera::Error::Error(unsigned int andor_code, const char *locSpec,
         error_message += ": ";
     error_message += message;
     _what = error_message.c_str();
-    cerr << "Andor error: " << _what << endl;
 }
 
 /* See AndorCamera/Error.h */

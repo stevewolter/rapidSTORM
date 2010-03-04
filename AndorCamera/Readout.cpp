@@ -4,24 +4,44 @@
 #include "Config.h"
 #include "System.h"
 
+#include "StateMachine_impl.h"
+#include <simparm/EntryManipulators.hh>
+
 using namespace simparm;
 
 namespace AndorCamera {
 
 using namespace States;
-using namespace Phases;
 
-void Readout::controlStateChanged(
-    Phase phase, State, State to)
+Readout::Readout(const std::string& name, const std::string& desc)
+        : simparm::Object(name, desc),
+          frame_transfer_mode("FrameTransferMode", 
+                              "Enable frame transfer mode", true)
+        { frame_transfer_mode.setUserLevel(simparm::Entry::Expert); }
+Readout::Readout(const Readout& c)
+        : StateMachine::Listener(), simparm::Object(c), 
+          frame_transfer_mode(c.frame_transfer_mode) {}
 
+MK_EMPTY_RW(Readout)
+
+template <>
+class Readout::Token<Readying> 
+: public States::Token
 {
-    if ( phase == Transition && to == Acquiring )
-        SDK::SetFrameTransferMode( frame_transfer_mode() );
-}
+    simparm::EditabilityChanger c;
+
+  public:
+    Token(Readout& r) : c(r.frame_transfer_mode, !r.is_active) {
+        if ( r.is_active ) {
+            SDK::SetFrameTransferMode( r.frame_transfer_mode() );
+        }
+    }
+};
 
 ImageReadout::ImageReadout(StateMachine &sm)
 : Readout("ImageReadout", "Image Readout mode"),
   Node::Callback( simparm::Event::ValueChanged ),
+  StateMachine::StandardListener<ImageReadout>(*this),
   left("LeftCaptureBorder", "Leftmost column to capture", 0),
   top("TopCaptureBorder","Topmost row to capture", 0),
   right("RightCaptureBorder","Rightmost column to capture", 1023),
@@ -41,6 +61,7 @@ ImageReadout::ImageReadout(StateMachine &sm)
 ImageReadout::ImageReadout(const ImageReadout&c)
 : Readout(c),
   Node::Callback( simparm::Event::ValueChanged ),
+  StateMachine::StandardListener<ImageReadout>(*this),
   left(c.left),
   top(c.top),
   right(c.right),
@@ -52,24 +73,10 @@ ImageReadout::ImageReadout(const ImageReadout&c)
 
 ImageReadout::~ImageReadout()
 {
-    sm.remove_managed_attribute( left.viewable );
-    sm.remove_managed_attribute( top.viewable );
-    sm.remove_managed_attribute( right.viewable );
-    sm.remove_managed_attribute( bottom.viewable );
-}
-
-static void manage_att(StateMachine &sm, simparm::Entry &e) {
-    sm.add_managed_attribute( e.viewable,
-        Initialized, Acquiring );
 }
 
 void ImageReadout::registerNamedEntries() 
 {
-    manage_att( sm, left );
-    manage_att( sm, right );
-    manage_att( sm, top );
-    manage_att( sm, bottom );
-
     Readout::registerNamedEntries(*this);
     receive_changes_from( left.value );
     receive_changes_from( right.value );
@@ -95,30 +102,52 @@ void ImageReadout::operator()(const simparm::Event& e)
     }
 }
 
-void ImageReadout::controlStateChanged(
-    Phase phase, State from, State to
-)
+template <int State>
+struct ImageReadout::Token
+: public Readout::Token<State>
 {
-    Readout::controlStateChanged(phase, from, to);
+    Token(ImageReadout& i);
+    ~Token();
+};
 
-    if ( phase == Transition && to == Acquiring ) 
-    {
-        left.editable = false;
-        right.editable = false;
-        top.editable = false;
-        bottom.editable = false;
-        SDK::SetReadMode( AndorCamera::Image );
-        SDK::SetImageNoBinning( left(), right(), top(), bottom() );
-    } else if ( phase == Transition && from == Acquiring ) {
-        left.editable = true;
-        right.editable = true;
-        top.editable = true;
-        bottom.editable = true;
-    } else if ( phase == Review && from == Disconnected && to == Initialized ) {
-        std::pair<int,int> s = SDK::GetDetector();
-        right.setMax( s.first-1 );
-        bottom.setMax( s.second-1 );
-    }
+template <>
+class ImageReadout::Token<Readying>
+: public Readout::Token<Readying>
+{
+    std::auto_ptr<simparm::EditabilityChanger> l,r,t,b;
+  public:
+    Token(ImageReadout& i) 
+        : Readout::Token<Readying>(i)
+        {
+            if ( i.is_active ) {
+                l.reset( new simparm::EditabilityChanger(i.left, false));
+                r.reset( new simparm::EditabilityChanger(i.right, false));
+                t.reset( new simparm::EditabilityChanger(i.top, false));
+                b.reset( new simparm::EditabilityChanger(i.bottom, false));
+                SDK::SetReadMode( AndorCamera::Image );
+                SDK::SetImageNoBinning( i.left(), i.right(), 
+                                        i.top(), i.bottom() );
+            }
+        }
+    ~Token() {}
+};
+
+template <>
+ImageReadout::Token<Connected>::Token(ImageReadout& i)
+: Readout::Token<Connected>(i)
+{
+    std::pair<int,int> s = SDK::GetDetector();
+    i.right.setMax( s.first-1 );
+    i.bottom.setMax( s.second-1 );
 }
+
+template <int State>
+ImageReadout::Token<State>::Token(ImageReadout& i) 
+: Readout::Token<State>(i) {}
+template <int State>
+ImageReadout::Token<State>::~Token() {}
+
+template class StateMachine::StandardListener<ImageReadout>;
+
 
 }

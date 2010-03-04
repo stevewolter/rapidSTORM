@@ -28,7 +28,7 @@ class _ShiftSpeedControl {
 class ShiftSpeedControl 
 : public simparm::Object,
   public _ShiftSpeedControl,
-  public StateMachine::Listener,
+  public StateMachine::StandardListener<ShiftSpeedControl>,
   public simparm::Node::Callback
 {
     StateMachine &sm;
@@ -39,13 +39,14 @@ class ShiftSpeedControl
     void fillHSSpeed();
     void fillVSSpeed();
     void registerNamedEntries();
+    class ManagedAcquisition;
   public:
     ShiftSpeedControl(StateMachine &sm, Config& conf);
     ShiftSpeedControl(const ShiftSpeedControl&c);
     ~ShiftSpeedControl();
 
     void operator()(const simparm::Event&);
-    void controlStateChanged(Phase phase, State from, State to);
+    template <int State> class Token;
 };
 
 }

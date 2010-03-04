@@ -28,9 +28,9 @@ class Display
     std::auto_ptr<dStorm::Display::Change> next_change;
     std::auto_ptr<dStorm::Display::Manager::WindowHandle> window_id;
 
-  public:
-    float nm_per_pixel;
+    dStorm::Display::ResizeChange my_size;
 
+  public:
     Display( 
         Discretizer& disc, 
         const Viewer::_Config& config,
@@ -44,6 +44,9 @@ class Display
     inline void notice_key_change( int index, Pixel pixel, float value );
 
     std::auto_ptr<dStorm::Display::Change> get_changes();
+
+    void save_image(std::string filename,
+                    bool with_key);
 };
 
 

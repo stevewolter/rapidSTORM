@@ -10,27 +10,22 @@ namespace AndorCamera {
 
 class Readout 
 : public simparm::Object,
-  public StateMachine::Listener
+  public virtual StateMachine::Listener
 {
     simparm::BoolEntry frame_transfer_mode;
   public:
-    Readout(const std::string& name, const std::string& desc) 
-        : simparm::Object(name, desc),
-          frame_transfer_mode("FrameTransferMode", 
-                              "Enable frame transfer mode", true)
-        { frame_transfer_mode.setUserLevel(simparm::Entry::Expert); }
-    Readout(const Readout& c) 
-        : simparm::Object(c), StateMachine::Listener(),
-          frame_transfer_mode(c.frame_transfer_mode) {}
+    Readout(const std::string& name, const std::string& desc);
+    Readout(const Readout& c);
     void registerNamedEntries(simparm::Node& n)
         { n.push_back( frame_transfer_mode ); }
 
-    void controlStateChanged(Phase phase, State from, State to);
+    template <int State> class Token;
 };
 
 class ImageReadout
 : public Readout,
-  public simparm::Node::Callback
+  public simparm::Node::Callback,
+  public StateMachine::StandardListener<ImageReadout>
 {
   public:
     simparm::UnsignedLongEntry left, top, right, bottom;
@@ -46,7 +41,7 @@ class ImageReadout
     ImageReadout* clone() { return new ImageReadout(*this); }
 
     void operator()(const simparm::Event&);
-    void controlStateChanged(Phase phase, State from, State to);
+    template <int State> class Token;
 };
 
 }

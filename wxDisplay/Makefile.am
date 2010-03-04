@@ -7,7 +7,8 @@ libdStorm_display_la_SOURCES = \
     wxManager.h wxManager.cpp App.h App.cpp \
     Window.h Window.cpp Canvas.h Canvas.cpp \
     ZoomSlider.h ZoomSlider.cpp Key.h Key.cpp \
-    helpers.h ScaleBar.h ScaleBar.cpp helpers.cpp
+    helpers.h ScaleBar.h ScaleBar.cpp helpers.cpp \
+    wxManager_store_image.cpp
 
 AM_CPPFLAGS = \
     -include $(top_srcdir)/../debug.h \

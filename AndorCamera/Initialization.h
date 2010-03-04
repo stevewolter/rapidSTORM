@@ -24,7 +24,7 @@ class _Initialization {
 class Initialization 
 : public simparm::Object,
   public _Initialization,
-  public StateMachine::Listener,
+  public StateMachine::StandardListener<Initialization>,
   public simparm::Node::Callback
 {
     StateMachine &sm;
@@ -35,7 +35,8 @@ class Initialization
     ~Initialization();
 
     void operator()(const simparm::Event&);
-    void controlStateChanged(Phase phase, State from, State to);
+
+    template <int State> class Token;
 };
 
 }

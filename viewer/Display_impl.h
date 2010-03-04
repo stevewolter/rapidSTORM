@@ -31,7 +31,7 @@ void Display<Colorizer>::setSize(
     ps.resize( width * height, false );
     ps_step = width;
 
-    dStorm::Display::ResizeChange r;
+    dStorm::Display::ResizeChange& r = my_size;
     r.width = width;
     r.height = height;
     r.key_size = Colorizer::BrightnessDepth;
@@ -39,7 +39,6 @@ void Display<Colorizer>::setSize(
         2.0 /
         (boost::units::si::meters / cs_units::camera::pixel ) /
         (traits.resolution.x() + traits.resolution.y());
-    nm_per_pixel = r.pixel_size;
 
     if ( do_show_window ) {
         props.initial_size = r;
@@ -84,6 +83,31 @@ Display<Colorizer>::get_changes() {
         ( new dStorm::Display::Change() );
     std::swap( fresh, next_change );
     return fresh;
+}
+
+template <typename Colorizer>
+void
+Display<Colorizer>::save_image(
+    std::string filename, bool with_key)
+{
+    if ( window_id.get() == NULL ) {
+        throw std::runtime_error(
+            "Saving images after closing the "
+            "display window not supported yet.");
+    } else {
+        std::auto_ptr<dStorm::Display::Change>
+            c = window_id->get_state();
+        if ( ! with_key )
+            c->change_key.clear();
+        if ( c.get() != NULL )
+            dStorm::Display::Manager::getSingleton()
+                .store_image( filename, *c );
+        else
+            throw std::runtime_error(
+                "Could not get displayed image "
+                "from window");
+    }
+
 }
 
 }

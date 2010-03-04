@@ -8,6 +8,7 @@
 #include "Triggering.h"
 #include "ShiftSpeedControl.h"
 #include "ShutterControl.h"
+#include "AcquisitionSwitch.h"
 #include "Gain.h"
 #include "Config.h"
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -26,6 +27,7 @@ Camera::Camera(int id)
     _triggering(new Triggering(*_state_machine)),
     _shift_speed_control(new ShiftSpeedControl(*_state_machine, *_config)),
     _shutter_control(new ShutterControl(*_state_machine)),
+    _acquisition_switch(new AcquisitionSwitch(*_state_machine)),
     current_accessor(NULL)
 {
     _state_machine->add_listener(*_initialization);
@@ -36,6 +38,7 @@ Camera::Camera(int id)
     _state_machine->add_listener(*_shift_speed_control);
     _state_machine->add_listener(*_shutter_control);
     _state_machine->add_listener(*_gain);
+    _state_machine->add_listener(*_acquisition_switch);
 
     push_back(*_initialization);
     push_back(*_temperature);
@@ -45,10 +48,6 @@ Camera::Camera(int id)
     push_back(*_shift_speed_control);
     push_back(*_shutter_control);
     push_back(*_gain);
-
-    state_machine().add_managed_attribute( 
-        System::singleton().
-            get_camera_chooser().editable, States::Disconnected);
 }
 
 Camera* Camera::clone() const {

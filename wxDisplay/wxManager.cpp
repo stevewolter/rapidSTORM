@@ -17,6 +17,8 @@ struct wxManager::WindowHandle
     Window *associated_window;
     WindowHandle(wxManager& m);
     ~WindowHandle();
+
+    std::auto_ptr<Change> get_state(); 
 };
 
 struct wxManager::IdleCall
@@ -168,6 +170,37 @@ wxManager::WindowHandle::~WindowHandle()
     DEBUG("Waiting for disassociator to finish");
     d.wait();
     DEBUG("Finished running disassociator");
+}
+
+class StateFetcher
+: public ost::WaitableRunnable
+{
+    Window*& window;
+    std::auto_ptr<Change> rv;
+  public:
+    StateFetcher(Window*& window)
+        : window(window) {}
+
+    void run() throw() {
+        try {
+            if ( window != NULL )
+                rv = window->getState();
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        } 
+        ost::WaitableRunnable::run();
+    }
+
+    std::auto_ptr<Change> result()
+        { this->wait(); return rv; }
+};
+
+std::auto_ptr<Change>
+wxManager::WindowHandle::get_state()
+{
+    StateFetcher fetcher( associated_window );
+    m.run_in_GUI_thread( &fetcher );
+    return fetcher.result();
 }
 
 void wxManager::run_in_GUI_thread( ost::Runnable* code ) 

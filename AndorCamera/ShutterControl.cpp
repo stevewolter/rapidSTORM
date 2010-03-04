@@ -1,21 +1,34 @@
 #include "ShutterControl.h"
 #include "SDK.h"
+#include "StateMachine_impl.h"
 
 namespace AndorCamera {
 
-using namespace Phases;
-using namespace States;
+ShutterControl::ShutterControl(StateMachine& sm) 
+    : simparm::Object("ShutterControl", "Shutter control"),
+      StateMachine::StandardListener<ShutterControl>(*this),
+      sm(sm) {}
+ShutterControl::ShutterControl(const ShutterControl&c) 
+    : simparm::Object(c), 
+      StateMachine::StandardListener<ShutterControl>(*this),
+      sm(c.sm) {}
+ShutterControl::~ShutterControl() {}
 
-void ShutterControl::controlStateChanged(Phase phase, State from, State to)
+MK_EMPTY_RW(ShutterControl)
 
+template <>
+class ShutterControl::Token<States::Acquiring>
+: public States::Token
 {
-    if ( phase == Review && from == Disconnected )
-        hasMechanicalShutter = SDK::IsInternalMechanicalShutter();
-    else if ( phase == Transition && to == Acquiring ) {
+  public:
+    Token(ShutterControl&) {
         SDK::SetShutter( SDK::Shutter::High, SDK::Shutter::Open, 10, 10 );
-    } else if ( phase == Transition && from == Acquiring ) {
+    }
+    ~Token() {
         SDK::SetShutter( SDK::Shutter::High, SDK::Shutter::Closed, 10, 10 );
     }
-}
+};
+
+template class StateMachine::StandardListener<ShutterControl>;
 
 }

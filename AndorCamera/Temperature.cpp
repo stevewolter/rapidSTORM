@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Temperature.h"
 #include "SDK.h"
 #include <string.h>
@@ -5,56 +6,15 @@
 #include "TemperatureMonitor.h"
 #include "System.h"
 
+#include "StateMachine_impl.h"
+#include <simparm/EntryManipulators.hh>
+
 using namespace simparm;
 using namespace SDK;
 
 namespace AndorCamera {
 
-static bool atexit_handler_installed = false;
-
-static void emergency_camera_handler() {
-    try {
-        int num_cameras = GetAvailableCameras();
-        for (int i = 0; i < num_cameras; i++) {
-            try { 
-                if ( GetStatus() == Is_Acquiring )
-                    AbortAcquisition();
-            } catch ( const std::exception& e ) {
-            }
-            try { 
-                SetShutter( Shutter::High,
-                            Shutter::Closed, 1, 1);
-            } catch ( const std::exception& e ) {
-            }
-
-            try { 
-                CoolerOFF();
-            } catch ( const std::exception& e ) {
-            }
-
-            try { 
-                if ( GetTemperatureF().second < -20 ) {
-                    std::cerr
-                        << "Bringing temperature of camera " << i << " back up to -20 degrees celsius." << std::endl;
-                    while ( GetTemperatureF().second < -20 )
-                        ;
-                }
-            } catch ( const std::exception& e ) {
-            }
-        }
-    } catch (const std::exception& e) {
-    }
-}
-
-static void ensure_emergency_warming_handler_is_installed()
-{
-    if ( !atexit_handler_installed ) {
-        atexit( emergency_camera_handler );
-    }
-}
-
 using namespace States;
-using namespace Phases;
 
 _Temperature::_Temperature() :
   requiredTemperature("TargetTemperature",
@@ -79,6 +39,7 @@ _Temperature::_Temperature() :
 
 Temperature::Temperature(StateMachine& sm, Config &conf)
 : Object("Temperature", "Temperature"),
+  StateMachine::StandardListener<Temperature>(*this),
   Node::Callback(simparm::Event::ValueChanged),
   sm(sm),
   targetTemperature(conf.targetTemperature),
@@ -90,7 +51,7 @@ Temperature::Temperature(StateMachine& sm, Config &conf)
 Temperature::Temperature(const Temperature&c)
 : Object(c),
   _Temperature(c),
-  StateMachine::Listener(),
+  StateMachine::StandardListener<Temperature>(*this),
   Node::Callback(simparm::Event::ValueChanged),
   sm(c.sm),
   targetTemperature(c.targetTemperature),
@@ -127,11 +88,10 @@ void Temperature::operator()(const simparm::Event& e)
                 #ifdef NO_COOLER
                 std::cerr << "Would cool if I were allowed to\n";
                 #else
-                ensure_emergency_warming_handler_is_installed();
                 CoolerON();
                 #endif
-                STATUS("Creating temperature monitor");
             } else {
+                sm.ensure_at_most(States::Connected);
                 #ifdef NO_COOLER
                 std::cerr << "Would stop cooling if I were allowed to\n";
                 #else
@@ -184,55 +144,70 @@ void Temperature::warm()
     monitor.reset(NULL);
 }
 
-void Temperature::controlStateChanged( Phase phase, State from, State to) 
+MK_EMPTY_RW(Temperature)
 
+template <>
+class Temperature::Token<Connected> 
+: public States::Token
 {
-    STATUS("Temperature for phase " << phase << " of " << from << " to "
-           << to);
-
-    if ( phase == Beginning && to != Initialized ) {
-        doCool.editable = false;
-    }
-    if ( phase == Ending && to == Initialized ) {
-        doCool.editable = true;
-    }
-
-    if ( (phase == Review && to == Acquiring) ) {
-        STATUS("Destructing temperature monitor");
-        requiredTemperature.editable = false;
-        monitor.reset( NULL );
-        STATUS("Destructed temperature monitor");
-    }
-    if ( (phase == Prepare && from == Acquiring) ||
-         (phase == Review && from == Disconnected) ) 
-    {
-        STATUS("Reconstructing temperature monitor");
-        monitor.reset( new TemperatureMonitor(realTemperature) );
-        if ( from == Acquiring )
-            requiredTemperature.editable = true;
-        STATUS("Reconstructing temperature monitor");
-    }
-
-    if ( phase == Review && from == Disconnected ) 
+    Temperature& t;
+    simparm::EditabilityChanger e;
+    simparm::VisibilityChanger v;
+  public:
+    Token(Temperature& t) : t(t), e(t.doCool, t.is_active), 
+                                  v(t.doCool, true) 
     {
         /* Read temperature range */
         std::pair<int,int> temp_range;
         temp_range = GetTemperatureRange();
-        targetTemperature.setMin(temp_range.first);
-        targetTemperature.setMax(temp_range.second);
-        requiredTemperature.setMax(temp_range.second);
+        t.targetTemperature.setMin(temp_range.first);
+        t.targetTemperature.setMax(temp_range.second);
+        t.requiredTemperature.setMax(temp_range.second);
 
-        doCool.viewable = true;
-    } else if ( phase == Prepare && to == Disconnected ) {
-        doCool.viewable = false;
+        t.monitor.reset( new TemperatureMonitor(t.realTemperature) );
     }
+};
 
-    if ( phase == Transition && to == Disconnected ) {
-        warm();
-        monitor.reset( NULL );
-    } else if ( phase == Transition && to == Acquiring ) {
-        cool();
+template <>
+Temperature::Token<Connecting>::~Token() {
+    if ( parent.is_active ) {
+        parent.sm.status = "Warming up";
+        parent.warm(); 
+        parent.sm.status = "Warmed up";
     }
 }
+
+template <>
+class Temperature::Token<Acquiring> 
+: public States::Token
+{
+    Temperature& t;
+    simparm::UsabilityChanger c;
+    simparm::EditabilityChanger e;
+
+  public:
+    Token(Temperature& t) : t(t), c(t.doCool, false), 
+                            e(t.requiredTemperature, false) 
+    {
+        DEBUG("Destructing temperature monitor");
+        t.monitor.reset( NULL );
+        DEBUG("Destructed temperature monitor");
+    }
+
+    ~Token() {
+        DEBUG("Reconstructing temperature monitor");
+        t.monitor.reset( new TemperatureMonitor(t.realTemperature) );
+        DEBUG("Reconstructing temperature monitor");
+    }
+};
+
+template <>
+Temperature::Token<Readying>::Token(Temperature &t) 
+: parent(t) 
+{
+    t.cool();
+}
+
+template class StateMachine::StandardListener<Temperature>;
 
 }

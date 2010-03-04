@@ -5,7 +5,6 @@
 #include "CommandLine.h"
 #include "ModuleLoader.h"
 #include <stdexcept>
-#include <signal.h>
 #include <dStorm/helpers/thread.h>
 #include <stdlib.h>
 

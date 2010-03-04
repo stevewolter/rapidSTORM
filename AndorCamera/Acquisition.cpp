@@ -13,7 +13,6 @@ using namespace ost;
 namespace AndorCamera {
 
 using namespace States;
-using namespace Phases;
 
 static const int maxRunSize = 100;
 static const int kineticsMode = 3, imageMode = 1;
@@ -86,7 +85,7 @@ void Acquisition::forfeit_access() {
     status.erase( control->state_machine().status.value );
     status.push_back( status.value );
 
-    control->state_machine().ensure_at_most( lower_state( States::Acquiring ) );
+    control->state_machine().ensure_at_most( States::Connected );
     Camera::ExclusiveAccessor::forfeit_access();
 }
 
@@ -225,7 +224,7 @@ void Acquisition::stop() {
     PROGRESS("Calling AbortAcquisition");
     /* Go down from acquisition state. */
     SDK::AbortAcquisition();
-    control->state_machine().ensure_at_most ( lower_state( Acquiring ) );
+    control->state_machine().ensure_at_most ( States::Connected );
     is_acquiring = false;
 
     STATUS("Finished acquisition stop");

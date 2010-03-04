@@ -10,7 +10,7 @@ namespace AndorCamera {
 /** Class managing gain settings. */
 class Gain
 : public simparm::Object,
-  public StateMachine::Listener
+  public StateMachine::StandardListener<Gain>
 { 
   protected:
     StateMachine &sm;
@@ -20,14 +20,9 @@ class Gain
     simparm::NumericEntry<int>& emccdGain;
 
     Gain(StateMachine& sm, Config &config);
-    Gain(const Gain&c) 
-        : simparm::Object(c), StateMachine::Listener(), sm(c.sm),
-          emccdGain(c.emccdGain) {}
-    ~Gain() {}
     Gain* clone() const { return new Gain(*this); }
-    Gain& operator=(const Gain&) { return *this; }
 
-    void controlStateChanged(Phase, State, State );
+    template <int State> class Token;
 };
 
 }

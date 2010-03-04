@@ -44,6 +44,8 @@ class Key : public wxWindow {
     void OnResize( wxSizeEvent& );
 
     void resize( int new_number_of_keys );
+
+    data_cpp::Vector<KeyChange> getKeys() const;
     DECLARE_EVENT_TABLE();
 };
 

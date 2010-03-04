@@ -252,44 +252,47 @@ void SignalHandler::Pimpl::on_terminate() {
 }
 
 void SignalHandler::Pimpl::set_catchers() {
+    void (*handler)(int num) = on_signal;
     if ( getenv("RAPIDSTORM_DISABLE_SIGNAL_HANDLER") ) {
-        DEBUG("Signal handling disabled by environment variable");
-        return;
+        std::cerr << ("Signal handling disabled by environment variable") << std::endl;
+        handler = SIG_DFL;
+    } else {
+        std::set_terminate( on_terminate );
+        std::set_unexpected( on_terminate );
     }
+
     DEBUG("Installing signal handlers");
 #ifdef SIGHUP
-    signal( SIGHUP, on_signal );
+    signal( SIGHUP, handler );
 #endif
 #ifdef SIGINT
-    //signal( SIGINT, on_signal );
+    signal( SIGINT, handler );
 #endif
 #ifdef SIGTERM
-    signal( SIGTERM, on_signal );
+    signal( SIGTERM, handler );
 #endif
 #ifdef SIGQUIT
-    signal( SIGQUIT, on_signal );
+    signal( SIGQUIT, handler );
 #endif
 #ifdef SIGILL
-    signal( SIGILL, on_signal );
+    signal( SIGILL, handler );
 #endif
 #ifdef SIGABRT
-    signal( SIGABRT, on_signal );
+    signal( SIGABRT, handler );
 #endif
 #ifdef SIGFPE
-    signal( SIGFPE, on_signal );
+    signal( SIGFPE, handler );
 #endif
 #ifdef SIGSEGV
-    signal( SIGSEGV, on_signal );
+    signal( SIGSEGV, handler );
 #endif
 #ifdef SIGPIPE
-    signal( SIGPIPE, on_signal );
+    signal( SIGPIPE, handler );
 #endif
 #ifdef SIGALRM
-    signal( SIGALRM, on_signal );
+    signal( SIGALRM, handler );
 #endif
 
-    //std::set_terminate( on_terminate );
-    //std::set_unexpected( on_terminate );
 }
 
 SignalHandler::SignalHandler() 

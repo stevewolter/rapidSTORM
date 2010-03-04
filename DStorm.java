@@ -129,6 +129,7 @@ class DStorm {
                 + File.separator + "lib" 
                 + File.separator + "GraphicsMagick-1.3.6"
                 + File.separator + "config";
+        System.err.println("Using magick path " + result_env[i-1]);
         return result_env;
    }
 

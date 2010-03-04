@@ -167,5 +167,17 @@ BEGIN_EVENT_TABLE(Key, wxWindow)
     EVT_SIZE(Key::OnResize)
 END_EVENT_TABLE()
 
+data_cpp::Vector<KeyChange>
+    Key::getKeys() const
+{
+    data_cpp::Vector<KeyChange> rv(num_keys);
+    for (int i = 0; i < num_keys; i++) {
+        rv[i].index = i;
+        rv[i].color = colors[i];
+        rv[i].value = values[i];
+    }
+    return rv;
+}
+
 }
 }

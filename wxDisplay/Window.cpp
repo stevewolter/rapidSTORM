@@ -106,7 +106,8 @@ void Window::draw_image_window( const Change& changes ) {
     Drawer drawer( *canvas );
 
     if ( changes.do_clear ) {
-        drawer.clear( changes.clear_image.background );
+        background = changes.clear_image.background;
+        drawer.clear( background );
     }
 
     int width = canvas->getWidth();
@@ -190,6 +191,30 @@ void Window::zoom_changed( int to ) {
 BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
 END_EVENT_TABLE()
+
+std::auto_ptr<Change> Window::getState() const
+{
+    std::auto_ptr<Change> rv;
+    rv->do_resize = true;
+    rv->resize_image.width =
+        canvas->getWidth();
+    rv->resize_image.height =
+        canvas->getHeight();
+    rv->resize_image.pixel_size =
+        scale_bar->get_pixel_size();
+
+    rv->do_clear = true;
+    rv->clear_image.background = background;
+
+    rv->do_change_image = true;
+    rv->image_change = *canvas->getContents();
+
+    rv->change_key = key->getKeys();
+    rv->resize_image.key_size 
+        = rv->change_key.size();
+
+    return rv;
+}
 
 }
 }

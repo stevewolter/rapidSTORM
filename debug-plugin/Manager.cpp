@@ -27,6 +27,9 @@ class Manager::Handle
         m.sources.erase( i );
         std::cerr << "Handle destroyed\n";
     }
+
+    std::auto_ptr<dStorm::Display::Change>
+        get_state();
 };
 
 Manager::Source::Source(
@@ -47,6 +50,10 @@ void Manager::Source::handle_resize(
               << r.key_size << " grey levels and pixel "
                  "size " << r.pixel_size << "\n";
     current_display = Image::Zero( r.width, r.height );
+    state.do_resize = true;
+    state.resize_image = r;
+    state.change_key.resize(
+        state.resize_image.key_size );
 }
 
 bool Manager::Source::get_and_handle_change() {
@@ -58,14 +65,18 @@ bool Manager::Source::get_and_handle_change() {
         return false;
     }
 
-    std::cerr << "Handling change" << std::endl;
     bool has_changed = c->do_resize | c->do_clear |
                        c->do_change_image | 
                        (c->change_pixels.size() > 0) |
                        (c->change_key.size() > 0);
-    if ( c->do_resize )
+    if ( c->do_resize ) {
         handle_resize( c->resize_image );
-    else if ( c->do_change_image ) {
+    } else if ( c->do_clear ) {
+        state.do_clear = true;
+        state.clear_image = c->clear_image;
+        current_display.fill(
+            state.clear_image.background );
+    } else if ( c->do_change_image ) {
         for (int x = 0; x < current_display.rows(); x++)
           for (int y = 0; y < current_display.cols(); y++)
           {
@@ -82,6 +93,15 @@ bool Manager::Source::get_and_handle_change() {
          current_display(i->x,i->y) = i->color;
     }
 
+    for ( int i = 0; i < c->change_key.size(); i++ )
+    {
+        dStorm::Display::KeyChange kc
+            = c->change_key[i];
+        if ( kc.index >= 760 )
+        std::cerr << "Key change " << kc.index << " " << kc.value << std::endl;
+        state.change_key[kc.index] = kc;
+    }
+
     return has_changed;
 }
 
@@ -92,9 +112,7 @@ std::auto_ptr<dStorm::Display::Manager::WindowHandle>
     dStorm::Display::DataSource& handler
 ) {
     {
-        std::cerr << "Acquiring mutex\n";
         guard lock(mutex);
-        std::cerr << "Acquired mutex\n";
         if ( !running ) {
             running = true;
             thread = boost::thread(
@@ -118,12 +136,12 @@ void Manager::dispatch_events() {
     while ( running ) {
       {
         guard lock(mutex);
+        gui_run.signal();
         for ( Sources::iterator i = sources.begin(); i != sources.end(); i++ )
         {
             bool has_changed = i->get_and_handle_change();
             if (!has_changed) continue;
             
-            std::cerr << "Computing digest" << std::endl;
             md5_state_t pms;
             md5_byte_t digest[16];
             md5_init( &pms );
@@ -152,8 +170,10 @@ void Manager::run_in_GUI_thread( ost::Runnable* )
 {
 }
 
-Manager::Manager()
-: running(false)
+Manager::Manager(dStorm::Display::Manager *p)
+: gui_run(mutex),
+  running(false),
+  previous(p)
 {
 }
 
@@ -164,3 +184,40 @@ Manager::~Manager()
         thread.join();
     }
 }
+
+void Manager::store_image(
+        std::string filename,
+        const dStorm::Display::Change& image )
+{
+    std::cerr << "Storing under " << filename << std::endl;
+    previous->store_image(filename, image);
+}
+
+std::auto_ptr<dStorm::Display::Change>
+     Manager::Handle::get_state()
+{
+    guard lock(m.mutex);
+    m.gui_run.wait();
+    std::auto_ptr<dStorm::Display::Change>
+        rv( new dStorm::Display::Change(i->state) );
+
+    if ( ! rv->do_resize )
+        throw std::runtime_error("State not yet initialized");
+    int w = rv->resize_image.width,
+        h = rv->resize_image.height;
+    assert( i->current_display.rows() == w );
+    assert( i->current_display.cols() == h );
+    rv->do_change_image = true;
+    rv->image_change.pixels.resize( w*h );
+    dStorm::Display::Color *p = 
+        rv->image_change.pixels.ptr();
+    for (int y = 0; y < h; y++)
+      for (int x = 0; x < w; x++)
+      {
+        *p = i->current_display(x,y);
+        ++p;
+      }
+
+    return rv;
+}
+

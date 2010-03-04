@@ -20,6 +20,8 @@ class ScaleBar
     ScaleBar( wxWindow* parent, const wxSize& size );
 
     void set_pixel_size( float nm_per_source_pixel );
+    float get_pixel_size() 
+        { return nm_per_source_pixel; }
     void set_zoom_factor( float zoom_factor );
 
     void OnPaint(wxPaintEvent&);
