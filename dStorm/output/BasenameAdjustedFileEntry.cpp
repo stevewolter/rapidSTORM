@@ -1,4 +1,5 @@
 #include "BasenameAdjustedFileEntry.h"
+#include "debug.h"
 
 namespace dStorm {
 namespace output {
@@ -24,6 +25,7 @@ BasenameAdjustedFileEntry::BasenameAdjustedFileEntry
   has_been_user_modified(o.has_been_user_modified),
   expect_change(o.expect_change)
 {
+    DEBUG("Copying " << last_basename.unformatted()() << " -- " << default_extension() << " -- " << has_been_user_modified << " -- " << value() );
     registerNamedEntries();
 }
 
@@ -39,8 +41,8 @@ void BasenameAdjustedFileEntry::
     if ( expect_change ) {
         return;
     } else {
-        std::string norm = last_basename.new_basename() + default_extension();
-        has_been_user_modified = ( value() == norm );
+        std::string norm = last_basename.unformatted()() + default_extension();
+        has_been_user_modified = ( value() != norm );
     } 
 }
 
@@ -60,8 +62,9 @@ set_output_file_basename(
 
 std::string BasenameAdjustedFileEntry::operator()() const
 { 
-    return last_basename.new_basename() 
-           + default_extension(); 
+    Basename b = last_basename;
+    b.unformatted() = value();
+    return b.new_basename() + default_extension(); 
 }
 
 }

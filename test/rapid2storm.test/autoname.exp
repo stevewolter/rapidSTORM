@@ -1,27 +1,39 @@
 set timeout 5
 
-# send "attach\n"
+dstorm_attach
+
 set test "basename printer works"
-send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "cmd 0 in Car in Method in InputMethod in value set AndorDirectConfig\n"
 expect {
     -re "ack 0" { pass "$test" }
     timeout     { fail "$test" }
 }
-send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set ReferenceTemperature = 20\n"
-send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set TargetTemperature = 30\n"
-send "in Car in Method set InputMethod in AndorDirectConfig set ShowLiveByDefault = false\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set 20\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set 30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in ShowLiveByDefault in value set false\n"
 
 set timeout 10
-send "forSet Car forSet Method in InputMethod in AndorDirectConfig set AcquisitionLength = 1\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission = BasenamePrinter\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission = Verbose\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength in value set 1\n"
+
+set test "Can add basename printer"
+send "cmd 1 in Car in Output in EngineOutput in ChooseTransmission in value set BasenamePrinter\n"
+set bnp_prefix ""
 expect {
-    -re "Displaying output file name .*.foo"        { pass "$test" }
+    -re "(in Car in Output in EngineOutput )declare Object\r?\nname Output(\[0-9\]*)" 
+        { 
+            pass "$test"
+            set bnp_prefix "$expect_out(1,string)in Output$expect_out(2,string) in BasenamePrinter" 
+        }
+    "ack 1" { fail "$test" }
     timeout { fail "$test" }
 }
 
+if { [string compare "$bnp_prefix" ""] != 0 } {
+
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+
 set test "camera job basename display"
-send "in Car in Method in InputMethod in AndorDirectConfig set OutputBasename = Job_\$run\$\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in OutputBasename in value set Job_\$run\$\n"
 expect {
     -re "Displaying output file name .*.foo"        { pass "$test" }
     -re "Displaying output file name  "        { fail "$test" }
@@ -31,45 +43,44 @@ expect {
 
 set test "camera job increment #1"
 set current_job 0
-send "in Car set Run = 1\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Output file basename is Job_(\[0-9\]*).foo"       
 	{ pass "$test"; set current_job $expect_out(1,string) }
     -re "Output file basename is .*.foo"        { fail "$test" }
-    timeout { fail "$test" }
 }
-set current_job [expr $current_job+1]
-set timeout 30
 expect {
-    -re "Destroyed verbose plugin" {}
-    timeout { fail "$test" }
+    -re "in dStormJob$current_job declare TriggerEntry\r?\nname CloseJob" {}
 }
-set timeout 10
+send "in dStormJob$current_job in CloseJob in value set 1\n"
+set current_job [expr $current_job+1]
+wait_for_jobs
 
 foreach {i} {2 3 4} {
     set test "camera job increment #$i"
-    send "in Car set Run = 1\n"
+    send "in Car in Run in value set 1\n"
     expect {
 	-re "Output file basename is Job_[format %02i $current_job].foo"        { pass "$test" }
 	-re "Output file basename is .*.foo"        { fail "$test" }
 	timeout { fail "$test" }
     }
-    set current_job [expr $current_job+1]
-    set timeout 30
-    set test "camera job destruction #$i"
+    set test "camera job termination #$i"
     expect {
-	-re "Destroyed verbose plugin" { pass "$test" }
-	timeout { fail "$test" }
+        -re "in dStormJob(0?$current_job) declare TriggerEntry\r?\nname CloseJob" 
+        {
+            send "in dStormJob$expect_out(1,string) in CloseJob in value set 1\n"
+        }
     }
-    set timeout 10
+    set current_job [expr $current_job+1]
+    wait_for_jobs
 }
 
 wait_for_jobs
 
 set test "basename switch"
 
-send "forSet Car forSet Method set InputMethod in DummyInput set Number = 1\n"
-send "cmd 0 forSet Car forSet Method set InputMethod value Auto\n"
+send "in Car in Method in InputMethod in DummyInput in Number in value set 1\n"
+send "cmd 0 in Car in Method in InputMethod in value set Auto\n"
 expect {
     -re "Displaying output file name .foo" { exp_continue }
     -re "Displaying output file name .*.foo" { fail "$test" }
@@ -78,7 +89,7 @@ expect {
 
 set test "sif file basename"
 
-send "forSet Car forSet Method in InputMethod in Auto set InputFile = bar.sif\n"
+send "in Car in Method in InputMethod in Auto in InputFile in value set bar.sif\n"
 expect {
     -re "Displaying output file name bar.foo" { pass "$test" }
     -re "Displaying output file name .*.foo" { fail "$test" }
@@ -87,16 +98,16 @@ expect {
 
 set test "stm file basename"
 
-send "forSet Car forSet Method in InputMethod in Auto set InputFile = baz.stm\n"
+send "in Car in Method in InputMethod in Auto in InputFile in value set baz.stm\n"
 expect {
     -re "Displaying output file name baz.foo" { pass "$test" }
     -re "Displaying output file name .*.foo" { fail "$test" }
     timeout { fail "$test" }
 }
 
-set test "name in run"
+set test "auto-name in run"
 
-send "in Car set Run = 1\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Output file basename is baz.foo" { pass "$test" }
     -re "Output file basename is .*.foo"  { fail "$test" }
@@ -104,19 +115,52 @@ expect {
     timeout { fail "$test" }
 }
 
+wait_for_jobs
+
+set test "user-selected name in run"
+
+send "$bnp_prefix in ToFile in value set my_output\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "Output file basename is my_output" { pass "$test" }
+    -re "Output file basename is .*.foo"  { fail "$test" }
+    -re "Job \[0-9\]* failed" { fail "$test" }
+}
+
+wait_for_jobs
+
+set test "preservation of user-selected name"
+send "cmd 38 in Car in Method in InputMethod in Auto in InputFile in value set boo.stm\n"
+expect {
+    -re "Displaying output file name boo.foo" { fail "$test" }
+    "ack 38" { pass "$test" }
+}
+
+set test "back-switch to automatic name"
+send "$bnp_prefix in ToFile in value set boo.foo\n"
+send "in Car in Method in InputMethod in Auto in InputFile in value set zoo.stm\n"
+expect {
+    -re "Displaying output file name my_output" { fail "$test" }
+    -re "Displaying output file name zoo.foo" { pass "$test" }
+}
+
 set test "basename backswitch #1"
 
-send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
 expect {
     -re "Displaying output file name Job_" { pass "$test" }
     timeout { fail "$test" }
 }
 
 set test "basename backswitch #2"
-send "in Car set Run = 1\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Output file basename is Job_" { pass "$test" }
     timeout { fail "$test" }
+}
+
+} else {
+    unsupported "basename tests"
 }
 
 # send "detach\n"

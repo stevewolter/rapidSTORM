@@ -24,9 +24,9 @@ class Manager : public dStorm::Display::Manager {
          dStorm::Display::DataSource& handler);
     void run_in_GUI_thread( ost::Runnable* code );
 
-    boost::mutex mutex;
-    typedef boost::lock_guard<
-        boost::mutex> guard;
+    ost::Mutex mutex;
+    ost::Condition gui_run;
+    typedef ost::MutexLock guard;
     boost::thread thread;
     bool running;
 
@@ -36,6 +36,7 @@ class Manager : public dStorm::Display::Manager {
                               Eigen::Dynamic> Image;
         dStorm::Display::DataSource& handler;
         Image current_display;
+        dStorm::Display::Change state;
 
         Source( const WindowProperties& properties,
                 dStorm::Display::DataSource& source );
@@ -45,13 +46,20 @@ class Manager : public dStorm::Display::Manager {
     };
     typedef std::list<Source> Sources;
     Sources sources;
+    
+    std::auto_ptr<dStorm::Display::Manager>
+        previous;
 
     void dispatch_events();
 
   public:
-    Manager();
+    Manager(dStorm::Display::Manager *p);
     Manager(const Manager&);
     ~Manager();
+
+    void store_image(
+        std::string filename,
+        const dStorm::Display::Change& image);
 };
 
 #endif

@@ -49,6 +49,8 @@ struct ImageChange {
 struct PixelChange { 
     int x, y; 
     Color color;
+
+    PixelChange(int x, int y) : x(x), y(y) {}
 };
 struct KeyChange {
     int index;

@@ -60,6 +60,10 @@ class wxManager : private ost::Thread, public Manager {
         ( Window *window, WindowHandle* handle );
 
     void exec_waiting_runnables();
+
+    void store_image(
+        std::string filename,
+        const Change& image );
 };
 
 }

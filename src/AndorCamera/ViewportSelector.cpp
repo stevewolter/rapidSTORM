@@ -51,6 +51,9 @@ Display::Display(
   lock_normalization( false ),
   resolution( r )
 {
+    imageFile.editable = false;
+    save.editable = false;
+
     registerNamedEntries();
     this->ost::Thread::start();
 }
@@ -153,6 +156,8 @@ void Display::initialize_display()
         handle = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
         change->do_resize = false;
+        change->do_clear = true;
+        change->clear_image.background = 0;
     } else {
         /* Window already open. The size, however, might have changed if
          * we have no \c aimed member set, so we have to reset it. */
@@ -160,6 +165,8 @@ void Display::initialize_display()
             ost::MutexLock lock(mutex);
             change->do_resize = true;
             change->resize_image = getSize();
+            change->do_clear = true;
+            change->clear_image.background = 0;
         }
     }
 
@@ -313,9 +320,11 @@ void Display::operator()
             start();
     } else if (&e.source == &save.value && save.triggered()) {
         save.untrigger();
-        ost::MutexLock lock( mutex );
         if ( imageFile ) {
-            /* TODO */
+            std::auto_ptr<dStorm::Display::Change> c
+                = handle->get_state();
+            dStorm::Display::Manager::getSingleton()
+                .store_image( imageFile(), *c );
         }
     } else if (&e.source == &stopAim.value && stopAim.triggered()) {
         stopAim.untrigger();

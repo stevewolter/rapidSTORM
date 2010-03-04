@@ -387,5 +387,28 @@ void Canvas::OnMouseUp( wxMouseEvent& event )
     DEBUG("End OnMouseUp");
 }
 
+std::auto_ptr<ImageChange>
+    Canvas::getContents() const
+{
+    std::auto_ptr<ImageChange> rv
+        ( new ImageChange() );
+    if ( contents.get() == NULL )
+        return rv;
+
+    int w = getWidth(), h = getHeight();
+    rv->pixels.resize(w*h);
+    unsigned char *d = contents->GetData();
+    Color *p = rv->pixels.ptr();
+    for (int i = 0; i < w*h; i++) {
+        p->red() = *d++;
+        p->green() = *d++;
+        p->blue() = *d++;
+        p++;
+    }
+
+    return rv;
+}
+
+
 }
 }

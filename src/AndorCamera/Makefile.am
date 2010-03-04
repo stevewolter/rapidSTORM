@@ -9,7 +9,7 @@ if HAVE_LIBATMCD32D
 	SDK.h SDK.cpp Error.cpp foreach.h \
 	Acquisition.cpp StateMachine.cpp StateMachine.h \
 	TemperatureMonitor.h TemperatureMonitor.cpp Error.h \
-	System.cpp Camera.cpp Initialization.cpp \
+	System.cpp Camera.cpp AcquisitionSwitch.cpp Initialization.cpp \
 	Temperature.cpp Readout.cpp AcquisitionMode.cpp \
 	ShutterControl.cpp Triggering.cpp ShiftSpeedControl.cpp \
 	Gain.cpp AndorDirect.cpp AndorDirect.h \
@@ -18,7 +18,7 @@ if HAVE_LIBATMCD32D
 	Acquisition.h Readout.h Camera.h Triggering.h CameraReference.h \
 	System.h Temperature.h ShiftSpeedControl.h Gain.h ShutterControl.h \
 	AndorDirect_decl.h LiveView_decl.h LiveView.h \
-	LiveView.cpp
+	LiveView.cpp 
 else
     ACS = 
 endif

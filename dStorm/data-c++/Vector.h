@@ -179,8 +179,8 @@ class Vector {
             alloc = std::max(10, from.length);
             do_realloc();
         }
-        MemMover::copy( data, from.data, length );
         length = from.length;
+        MemMover::copy( data, from.data, length );
         return *this;
     }
 

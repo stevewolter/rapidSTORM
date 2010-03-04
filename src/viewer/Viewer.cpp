@@ -1,4 +1,3 @@
-#define cimg_use_magick
 #include "debug.h"
 #include "plugin.h"
 #include <stdint.h>
@@ -8,7 +7,6 @@
 #include <cassert>
 #include <dStorm/engine/Image.h>
 #include <CImg.h>
-#include <fstream>
 #include "doc/help/context.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
@@ -22,8 +20,6 @@
 #endif
 
 #include <dStorm/helpers/DisplayManager.h>
-
-#include "config.h"
 
 using namespace std;
 using namespace cimg_library;
@@ -44,20 +40,6 @@ void add_viewer( output::Config& config ) {
 }
 
 static Mutex *cimg_lock = NULL;
-
-static const char *SI_prefixes[]
-= { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
-    "E" };
-std::string SIize( float value ) {
-    if ( value < 1E-21 ) return "0";
-    int prefix = int(floor(log10(value))) / 3;
-    prefix = std::max(-5, std::min(prefix, 5));
-    float rv = value / pow(1000, prefix);
-    char buffer[128];
-    snprintf( buffer, 128, "%.3g %s", rv, 
-              SI_prefixes[prefix + 5] );
-    return buffer;
-}
 
 namespace Eigen {
 bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
@@ -82,9 +64,7 @@ struct Viewer::Implementation
     virtual ~Implementation() {}
     virtual output::Output& getForwardOutput() = 0;
 
-#ifdef HAVE_LIBGRAPHICSMAGICK__
     virtual void write_full_size_image(const char *filename, bool) = 0;
-#endif
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;
@@ -134,94 +114,11 @@ class ColourDependantImplementation
     }
 
     output::Output& getForwardOutput() { return image; }
-#ifdef HAVE_LIBGRAPHICSMAGICK__
     virtual void write_full_size_image(const char *filename, bool with_key) 
     { 
       image.clean();
-      int width = image.width();
-      if ( with_key ) {
-        std::auto_ptr< Magick::Image > key_img
-            = discretization.key_image();
-        int lh = key_img->fontPointsize(),
-            text_area_height = 5 * lh;
-        int key_width = width - 2 * lh;
-        int real_key_width = key_img->columns();
-        Magick::Geometry key_img_size 
-            = Magick::Geometry(key_width, 20);
-        key_img_size.aspect( true );
-        key_img->sample( key_img_size );
-
-        int image_height_with_key = this->image.height() + 
-                text_area_height + 2 * lh + key_img->rows();
-        Pixel bg = discretization.get_background();
-        Magick::ColorRGB bgc ( bg.red()/255.0, bg.green()/255.0, 
-                               bg.blue()/255.0 );
-        Magick::ColorRGB bgi ( 1.0 - bgc.red(), 1.0 - bgc.green(),
-                               1.0 - bgc.blue() );
-        Magick::Image image
-            ( Magick::Geometry(width, image_height_with_key), bgc );
-        image.type(Magick::TrueColorType);
-        image.write( filename );
-        discretization.write_full_image( image, 0, 0 );
-
-        int ys = this->image.height() + 10;
-        image.composite( *key_img, lh, ys,
-                        Magick::OverCompositeOp );
-
-        ys += key_img->rows();
-        Magick::TypeMetric metrics;
-        image.strokeColor( bgi );
-        image.fillColor( bgi );
-        for (unsigned int i = 0;
-             i < key_img->columns(); i += lh )
-        {
-            float value = 
-                discretization.key_value(
-                    i * real_key_width * 1.0 / key_width);
-            std::string s = SIize(value);
-            image.annotate(s, 
-                Magick::Geometry( lh, text_area_height-5,
-                                  i+lh/2, ys+5),
-                Magick::NorthWestGravity, 90 );
-            image.draw( Magick::DrawableLine( i+2*lh/3, ys, i+2*lh/3, ys + 3 ) );
-        }
-
-        ys += text_area_height;
-        std::string message =
-            "Key: total A/D counts per pixel";
-        image.annotate( message,
-            Magick::Geometry( image.columns(), 
-                2*lh, 0, ys ),
-                Magick::NorthGravity, 0);
-        image.draw( Magick::DrawableRectangle( 
-            image.columns()-105, ys-12, 
-            image.columns()-5, ys-7 ) );
-
-        image.annotate(
-            SIize(cia.nm_per_pixel * 1E-7) + "m", 
-                Magick::Geometry(100, lh, 
-                    image.columns()-105, ys+4),
-                Magick::NorthGravity );
-        image.resolutionUnits( Magick::PixelsPerCentimeterResolution );
-        unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
-        image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
-        image.write( filename );
-      } else {
-        Pixel bg = discretization.get_background();
-        Magick::ColorRGB bgc ( bg.red()/255.0, bg.green()/255.0, 
-                               bg.blue()/255.0 );
-        Magick::Image image
-            ( Magick::Geometry(width, this->image.height()), bgc );
-        image.type(Magick::TrueColorType);
-        image.write( filename );
-        discretization.write_full_image( image, 0, 0 );
-        image.resolutionUnits( Magick::PixelsPerCentimeterResolution );
-        unsigned int pix_per_cm = int( round(1E7 / cia.nm_per_pixel) );
-        image.density(Magick::Geometry(pix_per_cm, pix_per_cm));
-        image.write( filename );
-      }
+      cia.save_image(filename, with_key);
     }
-#endif
 
     virtual void set_histogram_power(float power) {
         /* The \c image member is not involved here, so we have to lock
@@ -422,9 +319,7 @@ void Viewer::propagate_signal(ProgressSignal s) {
     if ( s == Engine_is_restarted || s == Engine_run_failed )
         isEmpty = true;
     else if (s == Engine_run_succeeded && tifFile) {
-#ifdef HAVE_LIBGRAPHICSMAGICK__
         writeToFile(tifFile());
-#endif
     }
 }
 
@@ -433,12 +328,7 @@ void Viewer::operator()(const simparm::Event& e) {
         /* Save image */
         save.untrigger();
         if ( tifFile ) {
-#ifdef HAVE_LIBGRAPHICSMAGICK__
             writeToFile( tifFile() );
-#else
-	    throw std::logic_error(PACKAGE_NAME " was compiled without "
-                "Magick++ support and therefore can not save images.");
-#endif
         }
     } else if (&e.source == &quit.value && quit.triggered()) {
         /* Close viewer */
@@ -456,7 +346,6 @@ void Viewer::operator()(const simparm::Event& e) {
     } 
 }
 
-#ifdef HAVE_LIBGRAPHICSMAGICK__
 void Viewer::writeToFile(const string &name) {
     try {
         MutexLock lock(structureMutex);
@@ -467,7 +356,6 @@ void Viewer::writeToFile(const string &name) {
         std::cerr << "Writing image failed: " << e.what() << endl;
     }
 }
-#endif
 
 void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)

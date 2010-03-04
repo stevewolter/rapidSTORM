@@ -95,6 +95,9 @@ class Manager : boost::noncopyable {
       public:
         WindowFlags flags;
         virtual ~WindowHandle() {}
+
+        virtual std::auto_ptr<Change>
+            get_state() = 0;
     };
 
     /** Open a window that displays the data in \c handler
@@ -111,6 +114,11 @@ class Manager : boost::noncopyable {
      *  not satisfied with the \c register_data_source
      *  interface, but need to do GUI stuff. */
     virtual void run_in_GUI_thread( dStorm::Runnable* code )=0;
+
+    /** Store the given image on the hard disk. The Change structure given should have the resize and clear flags set. */
+    virtual void store_image(
+        std::string filename,
+        const Change& image ) = 0;
 
   protected:
     Manager() {}

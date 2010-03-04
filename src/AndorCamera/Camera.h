@@ -20,6 +20,7 @@ class AcquisitionModeControl;
 class Triggering;
 class ShiftSpeedControl;
 class ShutterControl;
+class AcquisitionSwitch;
 class Acquisition;
 
 class Camera : public simparm::Object {
@@ -36,6 +37,7 @@ class Camera : public simparm::Object {
     std::auto_ptr<Triggering> _triggering;
     std::auto_ptr<ShiftSpeedControl> _shift_speed_control;
     std::auto_ptr<ShutterControl> _shutter_control;
+    std::auto_ptr<AcquisitionSwitch> _acquisition_switch;
 
   public:
     Camera(int index);

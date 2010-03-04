@@ -56,8 +56,8 @@ dStorm::Display::Manager*
 rapidSTORM_Display_Driver
     (dStorm::Display::Manager *old)
 {
-    delete old;
-    return new Manager;
+    std::cerr << "Test plugin loaded" << std::endl;
+    return new Manager(old);
 }
 
 

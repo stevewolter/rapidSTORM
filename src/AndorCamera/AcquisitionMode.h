@@ -26,7 +26,7 @@ class _AcquisitionMode {
 class AcquisitionModeControl
 : public simparm::Object,
   public _AcquisitionMode,
-  public StateMachine::Listener,
+  public StateMachine::StandardListener<AcquisitionModeControl>,
   public simparm::Node::Callback
 { 
   protected:
@@ -38,6 +38,7 @@ class AcquisitionModeControl
     bool exp_time_is_max, acc_time_is_max;
     
     void registerNamedEntries();
+    class ManagedAcquisition;
   public:
     AcquisitionModeControl(StateMachine&, Config&);
     AcquisitionModeControl(const AcquisitionModeControl&);
@@ -46,7 +47,7 @@ class AcquisitionModeControl
     AcquisitionModeControl& operator=(const AcquisitionModeControl&);
 
     void operator()(const simparm::Event&);
-    void controlStateChanged(Phase phase, State from, State to);
+    template <int State> class Token;
 };
 
 }

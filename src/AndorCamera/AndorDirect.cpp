@@ -1,5 +1,7 @@
 #define CImgBuffer_ANDORDIRECT_CPP
 
+#include "debug.h"
+
 #include "AndorDirect.h"
 #include <string.h>
 #include <sstream>
@@ -73,6 +75,7 @@ AndorDirect::Source::Source
     push_back( c->config() );
     push_back( status );
     push_back( *live_view );
+    DEBUG("Built AndorDirect source");
 }
 
 AndorDirect::Source::~Source() {
@@ -223,16 +226,16 @@ Config::Config(input::Config& config)
 {
     output_file_basename = basename();
 
-    PROGRESS("Making AndorDirect config");
+    DEBUG("Making AndorDirect config");
 
     show_live_by_default.userLevel = Object::Expert;
     live_show_frequency.userLevel = Object::Expert;
     push_back( config.pixel_size_in_nm );
     
-    LOCKING("Receiving attach event");
+    DEBUG("Receiving attach event");
     registerNamedEntries();
 
-    PROGRESS("Made AndorDirect config");
+    DEBUG("Made AndorDirect config");
 }
 
 Config::Config(const Config &c, input::Config& config) 
@@ -243,9 +246,11 @@ Config::Config(const Config &c, input::Config& config)
   live_show_frequency( c.live_show_frequency ),
   resolution_element( config.pixel_size_in_nm )
 {
+    DEBUG("Copying AndorDirect Config");
     push_back( config.pixel_size_in_nm );
 
     registerNamedEntries();
+    DEBUG("Copied AndorDirect Config");
 }
 
 Config::~Config() {
@@ -285,6 +290,7 @@ class CameraLink : public simparm::Set {
         a.push_back( cam->temperature() );
         a.push_back( cam->triggering() );
         a.push_back( cam->shutter_control() );
+        a.push_back( cam->state_machine().state );
 
         b.push_back( cam->acquisitionMode() );
 
@@ -298,6 +304,7 @@ class CameraLink : public simparm::Set {
         push_back( b );
         push_back( c );
         push_back( d );
+
 
         /* Insert the camera's value elements into the 
          * acquisitionLength and acquisitionSpeed entries
@@ -375,7 +382,9 @@ void Config::registerNamedEntries()
     if ( s.get_number_of_cameras() != 0 ) {
         viewable = true;
         s.add_listener( *switcher );
+        DEBUG("Selecting camera 0");
         s.selectCamera(0);
+        DEBUG("Selected camera 0");
     } else 
         viewable = false;
 

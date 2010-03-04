@@ -34,7 +34,7 @@ class TemperatureMonitor;
 class Temperature 
 : public simparm::Object,
   public _Temperature,
-  public StateMachine::Listener,
+  public StateMachine::StandardListener<Temperature>,
   public simparm::Node::Callback
 {
     StateMachine &sm;
@@ -51,7 +51,7 @@ class Temperature
     ~Temperature();
 
     void operator()(const simparm::Event&);
-    void controlStateChanged(Phase phase, State from, State to);
+    template <int State> class Token;
 };
 
 }

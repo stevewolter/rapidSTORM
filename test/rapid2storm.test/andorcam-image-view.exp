@@ -1,0 +1,85 @@
+start_test_suite
+
+global have_test_plugin
+
+expect_before {
+    -re "Could not perform action: " { fail "$test" }
+}
+
+set test "Acquisition for aiming view starts"
+send "attach\n"
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -20\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in AimCamera in value set 1\n"
+
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in CameraStatus in CameraStatus in value set Acquiring images"
+        { pass "$test" }
+}
+
+set test "Am actually getting different images"
+set digest_a "nan"
+if { $have_test_plugin == 1 } {
+    expect {
+        -re "After change digest is (\[0-9a-f\]*)" {
+            if { [string compare $digest_a "nan"] == 0 } {
+                set digest_a $expect_out(1,string)
+            } elseif { [string compare $digest_a $expect_out(1,string)] != 0 } {
+                pass "$test"
+            } else {
+                exp_continue
+            }
+       }
+    }
+} else {
+    unsupported "$test"
+}
+
+set test "Save button is disabled during acquisition"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable query\n"
+expect {
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable editable set true" { fail "$test" }
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable editable set false" { pass "$test" }
+}
+
+
+set test "Can pause acquisition"
+send "cmd 100 in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set "
+        { pass "$test" }
+    "ack 100" { fail "$test" }
+}
+
+set test "Pause makes EMCCDGain editable"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in Gain in EMCCDGain in editable query\n"
+expect {
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in Gain in EMCCDGain in editable editable set true" { pass "$test" }
+}
+
+set test "Pause makes SaveImage editable"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable query\n"
+expect {
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable editable set true" { pass "$test" }
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in editable editable set false" { pass "$test" }
+}
+
+set test "Can save camera snapshot image"
+set outfile "cam_snapshot.png"
+if { [file exists $outfile] == 1 } { file remove -force $outfile }
+
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImageFile in value set $outfile\n"
+send "cmd 101 in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in value set 1\n"
+set timeout 300
+expect {
+    "ack 101" {
+        if { [file exists "$outfile"] == 1 } {
+            pass "$test"
+            #file remove -force "$outfile"
+        } else {
+            fail "$test"
+        }
+    }
+}

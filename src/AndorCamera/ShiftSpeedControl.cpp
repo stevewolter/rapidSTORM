@@ -6,14 +6,13 @@
 #include "System.h"
 #include <math.h>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include "StateMachine_impl.h"
+#include <simparm/EntryManipulators.hh>
 
 using namespace simparm;
 using namespace SDK;
 
 namespace AndorCamera {
-
-using namespace States;
-using namespace Phases;
 
 _ShiftSpeedControl::_ShiftSpeedControl() :
   adChannelDepth("DesiredADChannelDepth", "Desired AD Channel Depth", 14),
@@ -31,6 +30,7 @@ _ShiftSpeedControl::_ShiftSpeedControl() :
 
 ShiftSpeedControl::ShiftSpeedControl(StateMachine& sm, Config &conf)
 : Object("ShiftSpeedControl", "ShiftSpeedControl"),
+  StateMachine::StandardListener<ShiftSpeedControl>(*this),
   Node::Callback(simparm::Event::ValueChanged),
   sm(sm),
   outputAmp( conf.outputAmp ),
@@ -43,7 +43,7 @@ ShiftSpeedControl::ShiftSpeedControl(StateMachine& sm, Config &conf)
 ShiftSpeedControl::ShiftSpeedControl(const ShiftSpeedControl&c)
 : Object(c),
   _ShiftSpeedControl(c),
-  StateMachine::Listener(),
+  StateMachine::StandardListener<ShiftSpeedControl>(*this),
   Node::Callback(simparm::Event::ValueChanged),
   sm(c.sm),
   outputAmp( c.outputAmp ),
@@ -53,30 +53,8 @@ ShiftSpeedControl::ShiftSpeedControl(const ShiftSpeedControl&c)
     registerNamedEntries();
 }
 
-static void standard_show_policy( StateMachine &sm, simparm::Entry &e ) 
-{
-    sm.add_managed_attribute( e.viewable, Initialized, Acquiring );
-}
-static void pre_init_show_policy( StateMachine &sm, simparm::Entry &e ) 
-{
-    sm.add_managed_attribute( e.viewable, Disconnected );
-    sm.add_managed_attribute( e.editable, Disconnected );
-}
-
-static void remove_both_attributes( StateMachine &sm, simparm::Entry &e )
-{
-    sm.remove_managed_attribute( e.viewable );
-    sm.remove_managed_attribute( e.editable );
-}
-
 ShiftSpeedControl::~ShiftSpeedControl() 
 {
-    remove_both_attributes( sm, adChannelDepth );
-    sm.remove_managed_attribute( adChannel.viewable );
-    remove_both_attributes( sm, desired_VS_Speed );
-    sm.remove_managed_attribute( VS_Speed.viewable );
-    remove_both_attributes( sm, desired_HS_Speed );
-    sm.remove_managed_attribute( HS_Speed.viewable );
 }
 
 void ShiftSpeedControl::registerNamedEntries() 
@@ -84,13 +62,6 @@ void ShiftSpeedControl::registerNamedEntries()
     /* We need connection to the adChannel to dynamically adjust the
      * HS_Speed values. */
     receive_changes_from( adChannel.value );
-
-    pre_init_show_policy( sm, adChannelDepth );
-    standard_show_policy( sm, adChannel );
-    pre_init_show_policy( sm, desired_VS_Speed );
-    standard_show_policy( sm, VS_Speed );
-    pre_init_show_policy( sm, desired_HS_Speed );
-    standard_show_policy( sm, HS_Speed );
 
     push_back( adChannelDepth );
     push_back( adChannel );
@@ -111,31 +82,55 @@ void ShiftSpeedControl::operator()(const simparm::Event& e)
     }
 }
 
-void ShiftSpeedControl::controlStateChanged(
-    Phase phase, State from, State to
-)
+MK_EMPTY_RW(ShiftSpeedControl)
+
+template <>
+class ShiftSpeedControl::Token<States::Connected>
+: public States::Token
 {
-    if ( phase == Review && 
-         from == lower_state(Initialized) && to == Initialized) 
+    simparm::UsabilityChanger dvs, dhs, acd, ac, vs, hs;
+  public:
+    Token( ShiftSpeedControl& s )
+    : dvs(s.desired_VS_Speed, false),
+      dhs(s.desired_HS_Speed, false),
+      acd(s.adChannelDepth, false),
+      ac(s.adChannel, true),
+      vs(s.VS_Speed, true),
+      hs(s.HS_Speed, true)
     {
-        fillADChannel();
-        fillVSSpeed();
-    } else if ( phase == Transition && to == Acquiring ) {
-        adChannel.editable = false;
-        if (adChannel.isValid())
-            SDK::SetADChannel( adChannel() );
-        HS_Speed.editable = false;
-        if (HS_Speed.isValid())
-            SDK::SetHSSpeed( outputAmp(), HS_Speed() );
-        VS_Speed.editable = false;
-        if (VS_Speed.isValid())
-            SDK::SetVSSpeed( VS_Speed() );
-    } else if ( phase == Transition && to == Acquiring ) {
-        adChannel.editable = true;
-        HS_Speed.editable = true;
-        VS_Speed.editable = true;
+        s.fillADChannel();
+        s.fillVSSpeed();
     }
-}
+};
+
+class ShiftSpeedControl::ManagedAcquisition {
+    simparm::EditabilityChanger ac, hs, vs;
+
+  public:
+    ManagedAcquisition( ShiftSpeedControl& s ) 
+      : ac( s.adChannel, false ),
+        hs( s.HS_Speed, false ),
+        vs( s.VS_Speed, false ) 
+    {
+        if (s.adChannel.isValid())
+            SDK::SetADChannel( s.adChannel() );
+        if (s.HS_Speed.isValid())
+            SDK::SetHSSpeed( s.outputAmp(), s.HS_Speed() );
+        if (s.VS_Speed.isValid())
+            SDK::SetVSSpeed( s.VS_Speed() );
+    }
+};
+
+template <>
+class ShiftSpeedControl::Token<States::Readying> 
+: public States::Token
+{
+    std::auto_ptr<ManagedAcquisition> a;
+  public:
+    Token(ShiftSpeedControl& s) : a( new ManagedAcquisition(s) ) {}
+};
+
+template class StateMachine::StandardListener<ShiftSpeedControl>;
 
 /* See header file for documentation */
 void ShiftSpeedControl::fillADChannel() {

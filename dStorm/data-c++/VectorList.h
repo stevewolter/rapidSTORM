@@ -81,16 +81,18 @@ namespace data_cpp {
         void dealloc() {
             for (int i = 0; i < arrayBins; i++)
                 if ( array[i] != NULL ) {
-                    for (int e = 0; e < sizeOfBin(i); e++)
+                    for (int e = 0; e < sizeOfBin(i); e++) {
                         array[i][e].~Type();
+                    }
                     free(allocated[i]);
                     array[i] = NULL;
-                    arrayBins = 0;
                 } else
                     break;
 
-            free(array);
-            free(allocated);
+            if ( array ) free(array);
+            array = NULL;
+            if ( allocated ) free(allocated);
+            allocated = NULL;
         }
 
       public:
@@ -102,14 +104,18 @@ namespace data_cpp {
         VectorList (const VectorList<Type>& copy_from) 
         : binSize(copy_from.binSize)
         {
-            arrayBins = 0; array = NULL;
+            arrayBins = 0; array = NULL; allocated = NULL;
             (*this) = copy_from;
         }
         VectorList<Type>& operator=(const VectorList<Type>& from)
         {
+            if ( this == &from ) return *this;
             if ( arrayBins < from.currentBin ) {
                 dealloc();
                 arrayBins = from.arrayBins;
+                init();
+            } else if ( arrayBins == 0 ) {
+                arrayBins = 1000;
                 init();
             }
             while ( currentBin < from.currentBin )
@@ -117,7 +123,9 @@ namespace data_cpp {
 
             for (int bin = 0; bin < from.binNumber(); bin++)
                 for (int el = 0; el < from.sizeOfBin(bin); el++)
+                {
                     new (array[bin]+el) Type(from[bin*binSize+el]);
+                }
 
             currentBin = from.currentBin;
             indexInBin = from.indexInBin;
@@ -139,11 +147,12 @@ namespace data_cpp {
         inline Type* getBin(int num) { return array[num]; }
         /** Get the number of elements in the bin number \c num. */
         inline int sizeOfBin(int num) const 
-            { return (num < currentBin) ? binSize : indexInBin; }
+            { return (num < currentBin) ? binSize : (num == currentBin) ? indexInBin : 0; }
 
         /** Add a new element to the VectorList. */
         inline void push_back(const Type &fit) { 
-            new(allocate()) Type(fit);
+            Type *mem = allocate();
+            new(mem) Type(fit);
         } 
 
         /** Allocate space for a new element, but do not initialize. */

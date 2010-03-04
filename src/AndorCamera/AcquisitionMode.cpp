@@ -5,17 +5,20 @@
 #include "System.h"
 
 #include <simparm/ChoiceEntry_Impl.hh>
+#include "StateMachine_impl.h"
+#include <simparm/EntryManipulators.hh>
+
 
 using namespace simparm;
 
 namespace AndorCamera {
 
 using namespace States;
-using namespace Phases;
 
 AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 
 : simparm::Object("AcquisitionMode", "Acquisition mode"),
+  StateMachine::StandardListener<AcquisitionModeControl>(*this),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   sm(sm),
   real_exposure_time(config.realExposureTime),
@@ -27,7 +30,7 @@ AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
 AcquisitionModeControl::AcquisitionModeControl(const AcquisitionModeControl& c):
   simparm::Object(c),
   _AcquisitionMode(c),
-  StateMachine::Listener(),
+  StateMachine::StandardListener<AcquisitionModeControl>(*this),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   sm(c.sm),
   real_exposure_time(c.real_exposure_time),
@@ -105,13 +108,6 @@ void AcquisitionModeControl::operator()
 AcquisitionModeControl::~AcquisitionModeControl()
 {
     PROGRESS("Deleting acquisition mode control " << this);
-    sm.remove_managed_attribute( real_exposure_time.viewable );
-    sm.remove_managed_attribute( real_accumulate_cycle_time.viewable );
-    sm.remove_managed_attribute( real_kinetic_cycle_time.viewable );
-}
-
-static void show_info(StateMachine &sm, simparm::Entry &e) {
-    sm.add_managed_attribute( e.viewable, Acquiring );
 }
 
 void AcquisitionModeControl::registerNamedEntries() 
@@ -128,10 +124,6 @@ void AcquisitionModeControl::registerNamedEntries()
     receive_changes_from( desired_accumulate_cycle_time.max );
     receive_changes_from( desired_kinetic_cycle_time.max );
 
-    show_info( sm, real_exposure_time );
-    show_info( sm, real_accumulate_cycle_time );
-    show_info( sm, real_kinetic_cycle_time );
-
     push_back( desired_exposure_time );
     push_back( real_exposure_time );
     push_back( number_of_accumulations );
@@ -142,40 +134,61 @@ void AcquisitionModeControl::registerNamedEntries()
     push_back( kinetic_length );
 }
 
-void AcquisitionModeControl::controlStateChanged( Phase phase, State from, State to)
+MK_EMPTY_RW(AcquisitionModeControl)
 
-{
-    if ( phase == Transition && to == Acquiring ) 
+class AcquisitionModeControl::ManagedAcquisition {
+    EditabilityChanger sm, det, dkt, kl, na, dact;
+  public:
+    ManagedAcquisition(AcquisitionModeControl& a)
+        : sm(a.select_mode, false), det(a.desired_exposure_time, false),
+          dkt(a.desired_kinetic_cycle_time, false), 
+          kl(a.kinetic_length, false), 
+          na(a.number_of_accumulations, false),
+          dact(a.desired_accumulate_cycle_time, false)
     {
-        select_mode.editable = false;
-        SDK::SetAcquisitionMode( select_mode() );
-
-        desired_exposure_time.editable = false;
-        SDK::SetExposureTime( desired_exposure_time() );
+        SDK::SetAcquisitionMode( a.select_mode() );
+        SDK::SetExposureTime( a.desired_exposure_time() );
 
         /* TODO: Accumulate cycle time. */
-        desired_kinetic_cycle_time.editable = false;
-        if ( select_mode() == Kinetics || select_mode() == Fast_Kinetics
-             || select_mode() == Run_till_abort )
-            SDK::SetKineticCycleTime( desired_kinetic_cycle_time() );
-        kinetic_length.editable = false;
-        if ( select_mode() == Kinetics || select_mode() == Fast_Kinetics )
-            SDK::SetNumberKinetics( kinetic_length() );
-
-        number_of_accumulations.editable = false;
-        desired_accumulate_cycle_time.editable = false;
-    } else if ( phase == Transition && from == Acquiring ) {
-        select_mode.editable = true;
-        desired_exposure_time.editable = true;
-        desired_kinetic_cycle_time.editable = true;
-        kinetic_length.editable = true;
-        number_of_accumulations.editable = true;
-        desired_accumulate_cycle_time.editable = true;
-    } else if ( phase == Review && to == Acquiring ) {
-        real_exposure_time = SDK::GetExposureTime();
-        real_accumulate_cycle_time = SDK::GetAccumulationCycleTime();
-        real_kinetic_cycle_time = SDK::GetKineticCycleTime();
+        if ( a.select_mode() == Kinetics 
+             || a.select_mode() == Fast_Kinetics
+             || a.select_mode() == Run_till_abort )
+            SDK::SetKineticCycleTime( a.desired_kinetic_cycle_time() );
+        if ( a.select_mode() == Kinetics || a.select_mode() == Fast_Kinetics )
+            SDK::SetNumberKinetics( a.kinetic_length() );
     }
-}
+};
 
+template <>
+class AcquisitionModeControl::Token<Readying>
+: public States::Token
+{
+    std::auto_ptr<ManagedAcquisition> man;
+  public:
+    Token( AcquisitionModeControl& a ) {
+        if ( a.is_active ) {
+            man.reset( new ManagedAcquisition(a) );
+        }
+    }
+};
+
+template <>
+class AcquisitionModeControl::Token<Ready>
+: public States::Token
+{
+    simparm::VisibilityChanger v1, v2, v3;
+
+  public:
+    Token( AcquisitionModeControl& a ) 
+        : v1(a.real_exposure_time, true),
+          v2(a.real_accumulate_cycle_time, true),
+          v3(a.real_kinetic_cycle_time, true) 
+    {
+        a.real_exposure_time = SDK::GetExposureTime();
+        a.real_accumulate_cycle_time = SDK::GetAccumulationCycleTime();
+        a.real_kinetic_cycle_time = SDK::GetKineticCycleTime();
+    }
+};
+
+template class StateMachine::StandardListener<AcquisitionModeControl>;
 }

@@ -26,6 +26,8 @@ class Window : public wxFrame, public Canvas::Listener
     DataSource* source;
     wxManager::WindowHandle *handle;
 
+    Color background;
+
     bool close_on_completion, notify_for_zoom;
 
     DECLARE_EVENT_TABLE();
@@ -47,6 +49,8 @@ class Window : public wxFrame, public Canvas::Listener
     ~Window(); 
 
     void remove_data_source();
+
+    std::auto_ptr<Change> getState() const;
 };
 
 }

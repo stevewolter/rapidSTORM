@@ -1,0 +1,130 @@
+start_test_suite
+
+expect_before {
+    -re "Could not perform action: " { fail "$test" }
+}
+
+send "attach\n"
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in value set 1\n"
+
+set test "Going to connected state"
+set have_verbose_dummy 0
+expect {
+    -re "Dummy camera initialized" 
+        { set have_verbose_dummy 1; exp_continue; }
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+}
+
+set test "Connector is disabled"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in editable query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in editable editable set false"
+        { pass "$test" }
+}
+
+set test "Temperature boundary is read"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in min query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in min min set (-\[0-9\]*)" {
+        if { $have_verbose_dummy == 1 } {
+            if { $expect_out(string,1) == -81 } {
+                pass "$test"
+            } else {
+                fail "$test"
+            }
+        } else {
+            pass "$test"
+        }
+    }
+}
+
+set test "Chip size is read"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in RightCaptureBorder in has_max query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in RightCaptureBorder in has_max has_max set true"
+        { pass "$test" }
+}
+
+set test "Desired AD Channel is hidden"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in ShiftSpeedControl in DesiredADChannelDepth in editable query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in ShiftSpeedControl in DesiredADChannelDepth in editable editable set false"
+        { pass "$test" }
+}
+
+set test "Gain limits are read"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in Gain in EMCCDGain in has_max query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in AD in Gain in EMCCDGain in has_max has_max set true"
+        { pass "$test" }
+}
+
+set test "Can disconnect"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in value set 1\n"
+if { $have_verbose_dummy } {
+    set test "Camera actually shut down"
+    expect {
+        -re "Dummy camera shut down" { pass "$test" }
+    }
+}
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 0" { pass "$test" }
+}
+
+set test "Disconnect button is hidden"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in viewable query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in viewable viewable set false" { pass "$test" }
+}
+set test "Connect button is viewable"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in viewable query\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in viewable viewable set true" { pass "$test" }
+}
+
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in value set 1\n"
+set test "Reconnect actually works"
+if { $have_verbose_dummy } {
+    expect {
+        -re "Dummy camera initialized" { pass "$test" }
+    }
+} else {
+    unsupported "$test"
+}
+set test "Reconnect seems to work"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+}
+
+set test "Camera can be cooled"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in Cooling in value set true\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set (\[0-9.-\]*\)" {
+        if { $expect_out(1,string) <= -25 } {
+            pass "$test"
+        } else {
+            exp_continue
+        }
+    }
+}
+
+set test "Camera is warmed up correctly"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in value set 1\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set (\[0-9.-\]*\)" {
+        if { $expect_out(1,string) >= -20 } {
+            pass "$test"
+        } else {
+            exp_continue
+        }
+    }
+}
+
+set test "Camera is shut down correctly"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 0" { pass "$test" }
+}
+
+end_test_suite

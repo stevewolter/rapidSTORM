@@ -1,10 +1,10 @@
-in Output set EngineOutput set ChooseTransmission = Table
-in Output set EngineOutput in Output0 set Table set FailSilently = true
-in Output set EngineOutput in Output0 in Table set ToFile extension -raw.txt
-in Output set EngineOutput set ChooseTransmission = Count
-in Output set EngineOutput set ChooseTransmission = Progress
-in Output set EngineOutput set ChooseTransmission = LocalizationFilter
-in Output set EngineOutput in Output3 set LocalizationFilter set ChooseTransmission = Table
-in Output set EngineOutput in Output3 set LocalizationFilter in Output0 set Table set FailSilently = true
-in Output set EngineOutput in Output3 set LocalizationFilter set ChooseTransmission = Image
-in Output set EngineOutput in Output3 set LocalizationFilter in Output1 in Image set ShowOutput = true
+in Output in EngineOutput in ChooseTransmission in value set Table
+in Output in EngineOutput in Output0 in Table in FailSilently in value set true
+in Output in EngineOutput in Output0 in Table in ToFile in extension set -raw.txt
+in Output in EngineOutput in ChooseTransmission in value set Count
+in Output in EngineOutput in ChooseTransmission in value set Progress
+in Output in EngineOutput in ChooseTransmission in value set LocalizationFilter
+in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Table
+in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in FailSilently in value set true
+in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Image
+in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ShowOutput in value set true

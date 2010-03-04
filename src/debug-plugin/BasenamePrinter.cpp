@@ -1,10 +1,27 @@
 #include "BasenamePrinter.h"
 
-BasenamePrinter::_Config::_Config()
+BasenamePrinter::Config::Config()
  : simparm::Object("BasenamePrinter", "BasenamePrinter"),
    simparm::Listener( simparm::Event::ValueChanged ),
    outputFile("ToFile", "", ".foo")
 {
+    registerNamedEntries();
+}
+
+BasenamePrinter::Config::Config(const Config& c) 
+: simparm::Object(c),
+  simparm::Listener( simparm::Event::ValueChanged ),
+  outputFile(c.outputFile)
+{
+    registerNamedEntries();
+}
+
+BasenamePrinter::Config::~Config() {
+}
+
+void BasenamePrinter::Config::registerNamedEntries() {
+    push_back( outputFile );
+    receive_changes_from(outputFile.value); 
 }
 
 BasenamePrinter* BasenamePrinter::clone() const { 

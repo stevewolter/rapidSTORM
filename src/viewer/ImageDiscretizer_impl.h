@@ -4,9 +4,6 @@
 #include <boost/units/io.hpp>
 
 #include "ImageDiscretizer_inline.h"
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 namespace dStorm {
 namespace viewer {
@@ -87,6 +84,14 @@ void ImageDiscretizer<Colorizer, ImageListener>
         }
 
         disc_factor = new_disc_fac;
+        for (LowDepth i = 0; i < out_depth; i++) {
+            HighDepth n = 0;
+            while ( (n+1U) < in_depth && transition[n+1U] <= i )
+                n++;
+            this->publish().notice_key_change
+                ( i, colorizer.getKeyPixel(i),
+                  (n+0.5) / disc_factor );
+        }
         max_value_used_for_disc_factor = max_value;
         pixels_above_used_max_value = 0;
     }
@@ -205,74 +210,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
     normalize_histogram();
     publish_differences_in_transitions( NULL, transition );
 }
-
-#ifdef HAVE_LIBGRAPHICSMAGICK__
-template <int MagickDepth>
-inline void 
-    make_magick_pixel( Magick::PixelPacket& mp, const dStorm::Pixel& p );
-
-template <>
-inline void 
-    make_magick_pixel<8>( Magick::PixelPacket& mp,
-                          const dStorm::Pixel& p )
-{
-    mp.red = p.red();
-    mp.blue = p.blue();
-    mp.green = p.green();
-    mp.opacity = p.alpha();
-}
-
-template <>
-inline void 
-    make_magick_pixel<16>( Magick::PixelPacket& mp,
-                           const dStorm::Pixel& p )
-{
-    mp.red = (p.red() | (p.red() << 8));
-    mp.blue = (p.blue() | (p.blue() << 8));
-    mp.green = (p.green() | (p.green() << 8));
-    mp.opacity = (p.alpha() | (p.alpha() << 8));
-}
-
-template <typename Colorizer, typename ImageListener>
-std::auto_ptr< Magick::Image >
-ImageDiscretizer<Colorizer, ImageListener>::key_image()
-{
-    std::auto_ptr< Magick::Image > rv
-        ( new Magick::Image(
-            Magick::Geometry( out_depth, 1 ),
-            Magick::ColorRGB( 0, 0, 0 ) ) );
-    rv->type(Magick::TrueColorType);
-
-    Magick::PixelPacket *pixels = 
-        rv->getPixels(0, 0, out_depth, 1);
-    for (LowDepth i = 0; i < out_depth; i++)
-        make_magick_pixel<QuantumDepth>
-            ( pixels[i], colorizer.getKeyPixel(i) );
-
-    rv->syncPixels();
-    return rv;
-}
-
-template <typename Colorizer, typename ImageListener>
-void
-ImageDiscretizer<Colorizer, ImageListener>::write_full_image
-    (Magick::Image& to_image, int start_x, int start_y)
-{
-    int w = binned_image.width;
-    cimg_forY( binned_image, y ) {
-        const float *binned_pixels = binned_image.ptr(0,y);
-        Magick::PixelPacket *pixels = to_image.setPixels
-            ( start_x, start_y+y, w, 1 );
-        cimg_forX( binned_image, x ) {
-            Pixel p = colorizer.getPixel(x, y, 
-                     transition[ discretize(binned_pixels[x]) ] );
-            make_magick_pixel<QuantumDepth>( pixels[x], p );
-        }
-        to_image.syncPixels();
-    }
-}
-
-#endif
 
 }
 }

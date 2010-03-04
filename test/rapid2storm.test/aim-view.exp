@@ -1,13 +1,49 @@
-set test "Camera view is closed correctly"
+start_test_suite
 
-send "cmd 0 forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
-send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set ReferenceTemperature = 20\n"
+set test "Aiming view can be opened"
+
+#send "attach\n"
+send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set ReferenceTemperature = 15\n"
 send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set TargetTemperature = 30\n"
 send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage set AimCamera = 1\n"
-send "attach\n"
-sleep 3
-send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set StopAimCamera = 1\n"
 
 expect {
-    -re "Foobar" { pass "$test" }
+    -re "Sizing display to " {} 
 }
+expect {
+    -re "After change digest is (\[0-9a-f\]*)" 
+    { set digest_a $expect_out(1,string) } 
+}
+expect { 
+    -re "After change digest is (\[0-9a-f\]*)" {
+        if { [string compare $expect_out(1,string) $digest_a] == 0 } { 
+            exp_continue 
+        } else {
+            pass "$test" 
+        }
+    }
+}
+
+set test "Does save camera snapshot"
+set outfile "/tmp/cam_snapshot.png"
+
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set PauseCamera = 1\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set SaveAcquiredImageFile = $outfile\n"
+send "cmd 0 in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set SaveAcquiredImage = 1\n"
+
+set timeout 300
+expect {
+    -re "ack 0" {
+        if { [file exists "$outfile"] } {
+            pass "$test"
+        } else {
+            fail "$test"
+        }
+    }
+}
+
+#sleep 30
+#send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector set StopAimCamera = 1\n"
+
+end_test_suite

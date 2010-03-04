@@ -13,6 +13,7 @@ proc initialize {} {
 proc dstorm_start {} {
     global DSTORM
     global timeout
+    global have_test_plugin
     program_start $DSTORM --Twiddler
 
     set test "Initialization"
@@ -20,7 +21,9 @@ proc dstorm_start {} {
     send "cmd 0 nop\n"
     set def_timeout $timeout
     set timeout 120
+    set have_test_plugin 0
     expect {
+        -re "Test plugin loaded" { set have_test_plugin 1; exp_continue }
 	-re "ack 0" {}
         timeout { puts "Failed to react to command"; exit 1 }
         eof { puts "Failed to load"; exit 1 }
@@ -30,10 +33,12 @@ proc dstorm_start {} {
 }
 
 proc dstorm_attach {} {
-    send "attach\n"
+    set test "attachment works"
+    set timeout 5
+    send "cmd 23 attach\n"
     expect {
-        -re "attach" {}
-        timeout { exit 2 }
+        "ack 23" { pass "$test" }
+        timeout { fail "$test"; exit 2 }
     }
 }
 
@@ -80,4 +85,4 @@ proc wait_for_jobs { } {
 
 proc begin_test_suite {} {}
 proc start_test_suite {} { begin_test_suite }
-proc end_test_suite {} { wait_for_jobs; send "cmd 0 reset\n"; expect -re "ack 0" }
+proc end_test_suite {} { set test "Job termination"; wait_for_jobs; set timeout 15; send "cmd 0 reset\n"; expect -re "ack 0" }

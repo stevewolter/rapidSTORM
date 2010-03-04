@@ -155,6 +155,7 @@ void InputStream::Pimpl::processCommand
     (const std::string& cmd, std::istream& rest)
 {
     if ( cmd == "wait_for_jobs" ) {
+        terminate_remaining_cars();
         ost::MutexLock lock(mutex);
         while ( ! running_cars.empty() )
             all_cars_finished.wait();

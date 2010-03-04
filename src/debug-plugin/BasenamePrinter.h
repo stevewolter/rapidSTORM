@@ -12,8 +12,7 @@
 struct BasenamePrinter
 : public dStorm::output::OutputObject
 {
-    struct _Config;
-    typedef simparm::Structure<_Config> Config;
+    struct Config;
     typedef dStorm::output::FileOutputBuilder<BasenamePrinter> Source;
 
     BasenamePrinter(const Config& config);
@@ -28,15 +27,16 @@ struct BasenamePrinter
 
 };
 
-struct BasenamePrinter::_Config
+struct BasenamePrinter::Config
  : public simparm::Object ,
    simparm::Listener
 {
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
-    _Config();
-    void registerNamedEntries() 
-        { receive_changes_from(outputFile.value); }
+    Config();
+    Config(const Config&);
+    ~Config();
+    void registerNamedEntries();
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
     void operator()( const simparm::Event& ) {
