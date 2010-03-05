@@ -42,7 +42,7 @@ DX_INIT_DOXYGEN(dStorm)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h process.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
 AC_CHECK_HEADERS([tiffio.h])
 

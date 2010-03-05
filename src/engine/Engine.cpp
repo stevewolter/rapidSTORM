@@ -24,6 +24,7 @@
 #include <dStorm/input/ImageTraits.h>
 #include "doc/help/context.h"
 #include <boost/units/io.hpp>
+#include <dStorm/error_handler.h>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -187,7 +188,9 @@ void Engine::run()
         DEBUG("Collected pistons");
 
         if (emergencyStop) {
-            if (error || globalStop) {
+            if (error || globalStop || 
+                dStorm::ErrorHandler::global_termination_flag ) 
+            {
                 output->propagate_signal( Output::Engine_run_failed );
                 break;
             } else
@@ -335,7 +338,9 @@ void Engine::runPiston()
         PROGRESS("Exhaust");
         buffer.clear();
 
-        if (emergencyStop || globalStop) {
+        if (emergencyStop || globalStop 
+            || ErrorHandler::global_termination_flag) 
+        {
             PROGRESS("Emergency stop");
             break;
         }

@@ -7,6 +7,8 @@
 #endif
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
+#endif
+#ifdef HAVE_PROCESS_H
 #include <process.h>
 #endif
 
