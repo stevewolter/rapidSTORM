@@ -20,6 +20,7 @@ class ModuleLoader : boost::noncopyable {
 
     void add_modules( engine::CarConfig& );
     std::string makeProgramDescription();
+    void do_panic_processing( int argc, char *argv[] );
 };
 
 }

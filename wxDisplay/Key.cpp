@@ -113,10 +113,11 @@ void Key::draw_keys( const data_cpp::Vector<KeyChange>& kcs )
         i = kcs.begin(), end = kcs.end();
 
     for ( ; i != end; i++) {
-        colors[i->index] = i->color;
-        values[i->index] = i->value;
+        int reverse_index = num_keys - i->index - 1;
+        colors[reverse_index] = i->color;
+        values[reverse_index] = i->value;
 
-        draw_key( i->index, buffer );
+        draw_key( reverse_index, buffer );
     }
 }
 
@@ -172,9 +173,10 @@ data_cpp::Vector<KeyChange>
 {
     data_cpp::Vector<KeyChange> rv(num_keys);
     for (int i = 0; i < num_keys; i++) {
-        rv[i].index = i;
-        rv[i].color = colors[i];
-        rv[i].value = values[i];
+        int rev = num_keys - i - 1;
+        rv[rev].index = rev;
+        rv[rev].color = colors[i];
+        rv[rev].value = values[i];
     }
     return rv;
 }

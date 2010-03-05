@@ -4,13 +4,13 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/Node.hh>
 #include "engine/CarConfig_decl.h"
-#include "JobMaster.h"
+#include <dStorm/JobMaster.h>
 #include "engine/CarConfig.h"
 
 namespace dStorm {
 
 class InputStream 
-: public Thread
+: public Thread, public JobMaster
 {
     class Pimpl;
     friend class Pimpl;
@@ -19,12 +19,16 @@ class InputStream
   public:
     InputStream(const engine::CarConfig&,
                 std::istream&, std::ostream&);
+    InputStream(std::istream*, std::ostream*);
     ~InputStream();
     
     void add_modules( engine::CarConfig& config );
 
     void run();
     void abnormal_termination(std::string reason);
+
+    void register_node( Job& );
+    void erase_node( Job& );
 };
 
 }

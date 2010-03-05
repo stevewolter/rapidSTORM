@@ -4,6 +4,7 @@
 #include <simparm/EntryManipulators.hh>
 #include "StateMachine_impl.h"
 #include "System.h"
+#include "EmergencyHandler.h"
 
 using namespace simparm;
 
@@ -84,6 +85,7 @@ class Initialization::Token<Connecting>
     Initialization& i;
     simparm::AttributeChange<bool> cam_chooser;
     simparm::UsabilityChanger connect, configDir;
+    EmergencyHandler::Tag tag;
 
   public:
     Token(Initialization& i) 
@@ -96,13 +98,14 @@ class Initialization::Token<Connecting>
             i.sm.status = "Connecting to camera"; 
             SDK::Initialize( i.configDir() );
             i.sm.status = "Connected to camera";
+            tag = EmergencyHandler::get_tag(i.sm.get_cam_id());
         }
     }
 
     ~Token() {
-        std::cerr << "Called " << i.is_active << std::endl;
-        if ( i.is_active )
+        if ( i.is_active ) {
             SDK::ShutDown();
+        }
     }
 };
 

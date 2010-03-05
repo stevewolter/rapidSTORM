@@ -169,6 +169,13 @@ class Temperature::Token<Connected>
 };
 
 template <>
+Temperature::Token<Connecting>::Token(Temperature& t) : parent(t) {
+    if ( t.is_active )
+        try {
+            SDK::CoolerOFF();
+        } catch ( const Error& ) {}
+}
+template <>
 Temperature::Token<Connecting>::~Token() {
     if ( parent.is_active ) {
         parent.sm.status = "Warming up";

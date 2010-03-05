@@ -5,6 +5,8 @@
 #include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
 #include "engine/CarConfig.h"
+#include "local_cleanup.h"
+#include <dStorm/error_handler.h>
 
 #include <dStorm/helpers/DisplayManager.h>
 #include "wxDisplay/wxManager.h"
@@ -149,6 +151,48 @@ std::string ModuleLoader::Pimpl::makeProgramDescription() {
         ss << i->getDesc();
     }
     return ss.str();
+}
+
+struct EmptyJobMaster : public JobMaster {
+    ost::Mutex mutex;
+    ost::Condition zero;
+    int count;
+    EmptyJobMaster() : zero(mutex), count(0) {}
+
+    void register_node( Job& ) { ost::MutexLock lock(mutex); count++;}
+    void erase_node( Job&  ) { 
+        ost::MutexLock lock(mutex);
+        count--;
+        if (count == 0) zero.signal();
+    }
+
+    ~EmptyJobMaster() { 
+        ost::MutexLock lock(mutex);
+        while (count) 
+            zero.wait();
+    }
+};
+
+void ModuleLoader::do_panic_processing( int argc, char *argv[] ) 
+{
+    std::auto_ptr<JobMaster> master( new EmptyJobMaster() );
+
+    dStorm::ErrorHandler::CleanupArgs args;
+    for (int i = 0; i < argc; i++) args.push_back(argv[i]);
+
+    while ( ! args.empty() ) {
+        size_t size_before = args.size();
+        local_cleanup( args, master );
+        for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();
+            i++)
+        {
+            if ( args.empty() ) break;
+            i->getCleanup() ( &args, master.get() );
+        }
+        if ( args.size() == size_before ) {
+            args.pop_front();
+        }
+    }
 }
 
 static ModuleLoader *ml = NULL;

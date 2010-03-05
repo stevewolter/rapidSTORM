@@ -78,6 +78,8 @@ class StateMachine {
     simparm::StringEntry status;
     simparm::UnsignedLongEntry state;
 
+    int get_cam_id() const { return camID; }
+
   private:
     ost::Mutex mutex;
     State current_state;

@@ -18,7 +18,7 @@ if HAVE_LIBATMCD32D
 	Acquisition.h Readout.h Camera.h Triggering.h CameraReference.h \
 	System.h Temperature.h ShiftSpeedControl.h Gain.h ShutterControl.h \
 	AndorDirect_decl.h LiveView_decl.h LiveView.h \
-	LiveView.cpp 
+	LiveView.cpp EmergencyHandler.h EmergencyHandler.cpp
 else
     ACS = 
 endif

@@ -28,6 +28,7 @@ class LibraryHandle {
     SafelyLoadedFunction<RapidSTORM_Output_Augmenter> output;
     SafelyLoadedFunction<RapidSTORM_Display_Driver> display_driver;
     SafelyLoadedFunction<RapidSTORM_Plugin_Desc> desc;
+    SafelyLoadedFunction<RapidSTORM_Cleanup_Handler> cleanup;
 
     void init();
   public:
@@ -45,6 +46,7 @@ class LibraryHandle {
         { (*engine)( engine_config ); }
     void operator()( dStorm::output::Config* outputs )
         { (*output)( outputs ); }
+    RapidSTORM_Cleanup_Handler getCleanup() { return *cleanup; }
 
     inline bool operator==(const LibraryHandle& l) const
         { return l.handle == handle; }
