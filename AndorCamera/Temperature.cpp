@@ -8,6 +8,7 @@
 
 #include "StateMachine_impl.h"
 #include <simparm/EntryManipulators.hh>
+#include <dStorm/error_handler.h>
 
 using namespace simparm;
 using namespace SDK;
@@ -126,7 +127,8 @@ void Temperature::cool()
         tstate = GetTemperatureF();
         System::sleep(100);
     } while ( tstate.first == false &&
-              tstate.second > requiredTemperature() );
+              tstate.second > requiredTemperature() &&
+              !dStorm::ErrorHandler::global_termination_flag );
     sm.status = "Reached required temperature"; 
     #endif
 }
