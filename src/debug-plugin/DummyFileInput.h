@@ -42,6 +42,7 @@ class Method
 
     Method* clone(dStorm::input::Config& newMaster) const
         { return new Method(*this, newMaster); }
+    bool uses_input_file() const { return false; }
 
   protected:
     Source* impl_makeSource() { return new Source(*this); }

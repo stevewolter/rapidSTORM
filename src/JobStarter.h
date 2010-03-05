@@ -3,7 +3,7 @@
 
 #include <simparm/TriggerEntry.hh>
 #include "engine/CarConfig.h"
-#include "JobMaster.h"
+#include <dStorm/JobMaster.h>
 
 namespace dStorm {
 

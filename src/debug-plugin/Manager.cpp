@@ -97,8 +97,6 @@ bool Manager::Source::get_and_handle_change() {
     {
         dStorm::Display::KeyChange kc
             = c->change_key[i];
-        if ( kc.index >= 760 )
-        std::cerr << "Key change " << kc.index << " " << kc.value << std::endl;
         state.change_key[kc.index] = kc;
     }
 
@@ -191,6 +189,7 @@ void Manager::store_image(
 {
     std::cerr << "Storing under " << filename << std::endl;
     previous->store_image(filename, image);
+    std::cerr << "Stored" << std::endl;
 }
 
 std::auto_ptr<dStorm::Display::Change>

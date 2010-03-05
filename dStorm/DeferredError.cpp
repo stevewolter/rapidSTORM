@@ -20,11 +20,13 @@ DeferredErrorBuffer::~DeferredErrorBuffer() {
     free(buffer);
 }
 
-void DeferredErrorBuffer::handle_first_error() 
+MayBeASignal DeferredErrorBuffer::handle_first_error() 
 {
     int i = current++;
     if ( i >= end-size ) {
-        buffer[i].handle_error();
+        return buffer[i].handle_error();
+    } else {
+        return MayBeASignal(false);
     }
 }
 
@@ -68,26 +70,29 @@ void DeferredError::make_error_message() {
     }
 }
 
-void DeferredError::handle_error() {
+MayBeASignal DeferredError::handle_error() {
     make_error_message();
 
     if ( terminate_program ) {
-        std::cerr << "Terminating program: " << *message << std::endl;
-        exit(1);
+        if ( signal != 0 )
+            return MayBeASignal(signal);
+        else
+            return MayBeASignal(true);
     } else if ( do_cancel ) {
         do_cancel = false;
         if ( thread ) {
             thread->abnormal_termination(*message);
-            // Does not work reliably. Just let the thread
-            // spin on: thread->cancel();
+            thread->cancel();
+            return MayBeASignal(false);
         } else {
             std::cerr << *message << " The faulty computation could not "
                          "be localized, thus the whole program is "
                          "aborted now. Sorry." << std::endl;
-            exit(1);
+            return MayBeASignal(true);
         }
     } else {
         std::cerr << *message << std::endl;
+        return MayBeASignal(false);
     }
 }
 

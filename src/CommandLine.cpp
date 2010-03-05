@@ -7,7 +7,7 @@
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/FilterSource.h>
 #include "InputStream.h"
-#include "JobMaster.h"
+#include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
 
 #include "debug.h"
@@ -55,8 +55,8 @@ class CommandLine::Pimpl
     Pimpl(int argc, char *argv[]);
 
     void run();
-    void register_node( engine::Car& ) {}
-    void erase_node( engine::Car&  )  {}
+    void register_node( dStorm::Job& ) {}
+    void erase_node( dStorm::Job&  )  {}
 };
 
 CommandLine::CommandLine(int argc, char *argv[])

@@ -58,10 +58,10 @@ Car::Car (JobMaster* input_stream, const CarConfig &new_config)
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
-  terminate(false),
+  terminate( new_config.auto_terminate() ),
   terminationChanged( terminationMutex )
 {
-    PROGRESS("Building car");
+    DEBUG("Building car");
     if ( config.inputConfig.inputMethod().uses_input_file() )
         used_output_filenames.insert( config.inputConfig.inputFile() );
     closeJob.helpID = HELP_CloseJob;
@@ -69,17 +69,17 @@ Car::Car (JobMaster* input_stream, const CarConfig &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    PROGRESS("Determining input file name");
+    DEBUG("Determining input file name");
     output::Basename bn( config.inputConfig.basename() );
     bn.set_variable("run", ident);
     config.outputSource.set_output_file_basename( bn );
-    PROGRESS("Building output");
+    DEBUG("Building output");
     output = config.outputSource.make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
     output->check_for_duplicate_filenames( used_output_filenames );
 
-    PROGRESS("Registering at input_stream config");
+    DEBUG("Registering at input_stream config");
     if ( input_stream )
         this->input_stream->register_node( *this );
 }
@@ -110,8 +110,10 @@ Car::~Car()
 void Car::operator()(const simparm::Event& e) {
     if ( &e.source == &closeJob.value && e.cause == simparm::Event::ValueChanged && closeJob.triggered() )
     {
+        closeJob.untrigger();
+        closeJob.editable = false;
         ost::MutexLock lock( terminationMutex );
-        PROGRESS("Job close button allows termination");
+        DEBUG("Job close button allows termination");
         if ( myEngine.get() != NULL ) myEngine->stop();
         terminate = true;
         terminationChanged.signal();
@@ -134,24 +136,24 @@ void Car::run() throw() {
 }
 
 void Car::make_input_driver() {
-    PROGRESS("Determining type of input driver");
+    DEBUG("Determining type of input driver");
     try {
         source = config.inputConfig.makeImageSource();
 
         if ( source->can_provide< Image >() ) {
-            PROGRESS("Have image input, registering input");
+            DEBUG("Have image input, registering input");
             runtime_config.push_back( *source );
-            PROGRESS("Making input buffer");
+            DEBUG("Making input buffer");
             input.reset(
                 new Input( input::BaseSource::downcast<Image>(source) ) );
-            PROGRESS("Making engine");
+            DEBUG("Making engine");
             myEngine.reset( 
                 new Engine(
                     config.engineConfig, ident,
                     *input, *output) );
             runtime_config.push_back( *myEngine );
         } else if ( source->can_provide< Localization >() ) {
-            PROGRESS("Have localization input");
+            DEBUG("Have localization input");
             locSource = source->downcast<Localization>(source);
             runtime_config.push_back( *locSource );
         } else
@@ -171,8 +173,10 @@ void Car::drive() {
 
     DEBUG("Starting computation");
     if ( myEngine.get() != NULL ) {
+        DEBUG("Computing with engine");
         myEngine->run();
     } else if (locSource.get() != NULL) {
+        DEBUG("Computing from STM file");
         runOnSTM();
     }
     DEBUG("Ended computation");
@@ -182,9 +186,8 @@ void Car::drive() {
 
     ost::MutexLock lock( terminationMutex );
     DEBUG("Waiting for termination allowance");
-    if ( runtime_config.isActive() )
-        while ( ! terminate )
-            terminationChanged.wait();
+    while ( ! terminate )
+        terminationChanged.wait();
     DEBUG("Allowed to terminate");
 
     /* TODO: We have to check here if the job was _really_ finished

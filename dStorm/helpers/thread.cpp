@@ -188,14 +188,14 @@ struct Thread::Pimpl {
     /** This function gets called for cleanup uf the cleanupKey entries */
     static void cleanUp(void* threadp);
     /** This function gets called by pthread_create() */
-    static void* runHandler(void *threadp) throw()
+    static void* runHandler(void *threadp) 
          __attribute__((force_align_arg_pointer));
 
     Pimpl(Thread& obj, const char *name);
     void fork();
 };
 
-void *Thread::Pimpl::runHandler(void *threadp) throw() {
+void *Thread::Pimpl::runHandler(void *threadp) {
     DEBUG("Subthread started for " << threadp);
     Thread &thread = *(Thread*)threadp;
     TSS* tss = new TSS();
@@ -273,6 +273,7 @@ Thread::Thread(const char *name) throw()
 Thread::~Thread() { join(); }
 
 void Thread::Pimpl::fork()  {
+    DEBUG("Considering starting " << this);
     if (!running) {
         DEBUG("Starting thread " << this);
         running = (pthread_create(&thread, NULL, runHandler, &object) == 0);
@@ -316,8 +317,8 @@ void Thread::join() throw() {
             stopped_execution.wait();
         }
 #else
-        pimpl->running = false;
         pthread_join(pimpl->thread, NULL); 
+        pimpl->running = false;
 #endif
         DEBUG("Joined thread " << this);
     }
@@ -389,7 +390,9 @@ void Thread::Pimpl::cleanUp(void *data) {
 }
 
 void Thread::cancel() {
+    DEBUG("Considering cancelling thread " << this << " named " << desc());
     if ( pimpl->running ) {
+        DEBUG("Cancelling thread " << this << " named " << desc());
         pthread_cancel( pimpl->thread );
         DEBUG("Cancelled thread " << this << " named " << desc());
     }

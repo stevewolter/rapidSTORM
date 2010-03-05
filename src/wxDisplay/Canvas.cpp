@@ -343,13 +343,13 @@ void Canvas::OnMouseDown( wxMouseEvent& event ) {
     drag_start.x = event.GetX();
     drag_start.y = event.GetY();
     drag_end = drag_start;
+    DEBUG("Coordinates " << drag_start.x << " " << drag_start.y);
     mouse_state = Dragging;
     DEBUG("End OnMouseDown");
 }
 void Canvas::OnMouseMotion( wxMouseEvent& event )
 {
     DEBUG("Begin OnMouseMotion");
-    drag_start.x = event.GetX();
     if ( mouse_state == Dragging ) {
         wxClientDC dc( this );
         DoPrepareDC( dc );
@@ -357,6 +357,7 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
         drag_end.x = event.GetX();
         drag_end.y = event.GetY();
         draw_zoom_rectangle( &dc );
+
     }
 
     wxRect visible_region = get_visible_region();
@@ -368,6 +369,7 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
     if ( zcl && last_mouse_position != mouse_position )
         zcl->mouse_over_pixel( mouse_position );
     last_mouse_position = mouse_position;
+
     DEBUG("End OnMouseMotion");
 }
 void Canvas::OnMouseUp( wxMouseEvent& event ) 
@@ -379,6 +381,7 @@ void Canvas::OnMouseUp( wxMouseEvent& event )
 
     drag_end.x = event.GetX();
     drag_end.y = event.GetY();
+    DEBUG("Coordinates " << drag_end.x << " " << drag_end.y);
 
     if ( zcl )
         zcl->drawn_rectangle(

@@ -85,4 +85,22 @@ proc wait_for_jobs { } {
 
 proc begin_test_suite {} {}
 proc start_test_suite {} { begin_test_suite }
-proc end_test_suite {} { set test "Job termination"; wait_for_jobs; set timeout 15; send "cmd 0 reset\n"; expect -re "ack 0" }
+proc end_test_suite {} { 
+    set timeout 25; 
+    set test "Job termination"; 
+    wait_for_jobs; 
+
+    send "cmd 1 detach\n"; expect "ack 1";
+    send "cmd 0 reset\n"; expect "ack 0"; 
+}
+
+proc load_default_config {} {
+    global DSTORM
+
+    set config_file [file join [file dirname "$DSTORM"] .. share rapid2storm dstorm-config.txt]
+    set filestream [open "$config_file" r]
+    while {[gets $filestream line] >= 0} {
+        send "in Car $line\n"
+    }
+    close $filestream
+}

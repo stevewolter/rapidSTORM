@@ -38,6 +38,7 @@ namespace engine {
 
         simparm::Set outputBox;
         simparm::FileEntry configTarget;
+        simparm::BoolEntry auto_terminate;
     };
 }
 }

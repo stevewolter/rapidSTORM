@@ -7,13 +7,15 @@
 #include <stdexcept>
 #include <dStorm/helpers/thread.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #ifdef HAVE_LIBGRAPHICSMAGICK__
 #include <Magick++.h>
 #endif
 #include <CImg.h>
 
-#include "error_handler.h"
+#include <dStorm/error_handler.h>
 
 #include "debug.h"
 
@@ -31,16 +33,31 @@ int main(int argc, char *argv[]) {
 #endif
     cimg::exception_mode() = 0U;         /* Do not show CImg errors in windows. */
 
+    const char *panic_mode = "--panic_mode";
+
+    std::auto_ptr<MayBeASignal> rv;
     try {
-        DEBUG("Constructing panig point");
-        SignalHandler outer_handler;
-        DEBUG("Passing panic point");
-        SIGNAL_HANDLER_PANIC_POINT(outer_handler);
-        DEBUG("Running from panic point on");
+        DEBUG("Constructing error handler");
+        ErrorHandler outer_handler(argv[0], panic_mode);
+        DEBUG("Making module handler");
         ModuleLoader::makeSingleton();
 
-        (new CommandLine( argc, argv ))->detach();
-        outer_handler.handle_errors_until_all_detached_threads_quit();
+        if ( argc < 2 || string(argv[1]) != panic_mode ) {
+            DEBUG("Running normally");
+            (new CommandLine( argc, argv ))->detach();
+        } else {
+            std::cerr << "Received unrecoverable signal " 
+                      << argv[2] << ". Running emergency handler and "
+                      << "terminating program. Sorry." << std::endl;
+            rv.reset( new MayBeASignal( atoi(argv[2]) ) );
+            ModuleLoader::getSingleton().do_panic_processing
+                ( argc-3, argv+3 );
+            exit_code = EXIT_FAILURE;
+        }
+        MayBeASignal my_signal =
+            outer_handler.handle_errors_until_all_detached_threads_quit();
+        if ( rv.get() == NULL ) 
+            rv.reset( new MayBeASignal(my_signal) );
 
         ModuleLoader::destroySingleton();
     } catch (const std::bad_alloc &e) {
@@ -58,5 +75,7 @@ int main(int argc, char *argv[]) {
     }
     DEBUG("exit: main");
 
+    if ( rv.get() && rv->did_receive_signal() )
+        kill( getpid(), rv->signal_number() );
     return exit_code;
 }

@@ -3,6 +3,7 @@
 
 #include "Car_decl.h"
 
+#include <dStorm/Job.h>
 #include <dStorm/helpers/thread.h>
 #include "CarConfig.h"
 #include <dStorm/output/OutputSource.h>
@@ -10,7 +11,7 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/Source_decl.h>
-#include "JobMaster.h"
+#include <dStorm/JobMaster.h>
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>
@@ -25,7 +26,7 @@ namespace engine {
      *  the desired output elements and run (concurrently or not)
      *  the dStorm engine. */
     class Car 
-        : boost::noncopyable,
+        : boost::noncopyable, public Job,
           public ost::Thread, private simparm::Node::Callback 
     {
       private:
@@ -83,7 +84,7 @@ namespace engine {
         void stop();
 
         const CarConfig &getConfig() const { return config; }
-        simparm::Node& statusNode() { return runtime_config; }
+        simparm::Node& get_config() { return runtime_config; }
     };
 }
 }

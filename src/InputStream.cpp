@@ -7,6 +7,8 @@
 #include <simparm/IO.hh>
 
 #include "debug.h"
+#include <dStorm/error_handler.h>
+#include <dStorm/helpers/BlockingThreadRegistry.h>
 
 namespace dStorm {
 
@@ -18,22 +20,24 @@ struct InputStream::Pimpl
     InputStream& impl_for;
     ost::Mutex mutex;
     ost::Condition all_cars_finished;
-    typedef std::set<engine::Car*> Jobs;
+    typedef std::set<Job*> Jobs;
     Jobs running_cars;
+
+    ErrorHandler::CleanupTag rehandle_stream;
 
     bool exhausted_input;
 
-    engine::CarConfig original;
+    std::auto_ptr<engine::CarConfig> original;
     std::auto_ptr<engine::CarConfig> config;
-    JobStarter starter;
+    std::auto_ptr<JobStarter> starter;
     simparm::Attribute<std::string> help_file;
 
-    Pimpl(InputStream& papa, const engine::CarConfig&, 
-          std::istream&, std::ostream&);
+    Pimpl(InputStream& papa, const engine::CarConfig*, 
+          std::istream*, std::ostream*);
     ~Pimpl();
 
-    void register_node( engine::Car& );
-    void erase_node( engine::Car& );
+    void register_node( Job& );
+    void erase_node( Job& );
 
     void run();
     void abnormal_termination(std::string abnormal_term);
@@ -49,7 +53,13 @@ InputStream::InputStream(
     const engine::CarConfig& c,
     std::istream& i, std::ostream& o)
 : dStorm::Thread("InputWatcher"),
-  pimpl( new Pimpl(*this, c, i, o) )
+  pimpl( new Pimpl(*this, &c, &i, &o) )
+{
+}
+
+InputStream::InputStream(std::istream* i, std::ostream* o)
+: dStorm::Thread("InputWatcher"),
+  pimpl( new Pimpl(*this, NULL, i, o) )
 {
 }
 
@@ -57,17 +67,21 @@ InputStream::~InputStream() {}
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
-    const engine::CarConfig& c,
-    std::istream& i, std::ostream& o)
+    const engine::CarConfig* c,
+    std::istream* i, std::ostream* o)
 : dStorm::Thread("InputProcessor"),
-  simparm::IO(&i,&o),
+  simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
-  exhausted_input( false ),
-  original(c),
-  starter( this ),
+  exhausted_input( i == NULL ),
+  original( (c) ? new engine::CarConfig(*c) : NULL ),
+  starter( (original.get()) ? new JobStarter(this) : NULL ),
   help_file("help_file", dStorm::HelpFileName)
 {
+    ErrorHandler::CleanupArgs args;
+    args.push_back("--Twiddler");
+    rehandle_stream = ErrorHandler::make_tag(args);
+
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     this->push_back( help_file );
@@ -76,10 +90,12 @@ InputStream::Pimpl::Pimpl(
 
 void InputStream::Pimpl::reset_config() {
     ost::MutexLock lock(mutex);
-    config.reset( new engine::CarConfig(original) );
-    this->push_back( *config );
-    config->push_back( starter );
-    starter.setConfig( *config );
+    if ( original.get() ) {
+        config.reset( new engine::CarConfig(*original) );
+        this->push_back( *config );
+        config->push_back( *starter );
+        starter->setConfig( *config );
+    }
 }
 
 void InputStream::Pimpl::terminate_remaining_cars() {
@@ -119,9 +135,18 @@ void InputStream::Pimpl::abnormal_termination(std::string reason) {
 }
 
 void InputStream::Pimpl::run() {
+    DEBUG("Current error handler is " << &ErrorHandler::get_current_handler());
+    BlockingThreadRegistry::Handle handle(
+        *ErrorHandler::get_current_handler().
+            blocking_thread_registry,
+        *this );
+    DEBUG("Running input processing loop");
     while ( !exhausted_input ) {
         try {
-            processInput();
+            DEBUG("Processing input? " << ErrorHandler::global_termination_flag);
+            if ( !ErrorHandler::global_termination_flag )
+                processInput();
+            DEBUG("Processed input");
             exhausted_input = true;
         } catch (const std::bad_alloc& e) {
             std::cerr << "Could not perform action: "
@@ -129,23 +154,21 @@ void InputStream::Pimpl::run() {
         } catch (const std::exception& e) {
             std::cerr << "Could not perform action: "
                       << e.what() << std::endl;
-        } catch (...) {
-            std::cerr << "Could not perform action: "
-                      << "Caught unknown exception."
-                      << std::endl;
         }
     }
 }
 
-void InputStream::Pimpl::register_node( engine::Car& node ) {
+void InputStream::register_node( Job& node ) {pimpl->register_node(node);}
+void InputStream::Pimpl::register_node( Job& node ) {
     ost::MutexLock lock(mutex);
-    simparm::Node::push_back( node.statusNode() );
+    simparm::Node::push_back( node.get_config() );
     running_cars.insert( &node );
 }
 
-void InputStream::Pimpl::erase_node( engine::Car& node ) {
+void InputStream::erase_node( Job& node ) {pimpl->erase_node(node);}
+void InputStream::Pimpl::erase_node( Job& node ) {
     ost::MutexLock lock(mutex);
-    simparm::Node::erase( node.statusNode() );
+    simparm::Node::erase( node.get_config() );
     running_cars.erase( &node );
     if ( running_cars.empty() )
         all_cars_finished.signal();
@@ -154,6 +177,7 @@ void InputStream::Pimpl::erase_node( engine::Car& node ) {
 void InputStream::Pimpl::processCommand
     (const std::string& cmd, std::istream& rest)
 {
+    DEBUG("Processing command " << cmd);
     if ( cmd == "wait_for_jobs" ) {
         terminate_remaining_cars();
         ost::MutexLock lock(mutex);

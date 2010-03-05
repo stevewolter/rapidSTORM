@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 #include "wxManager.h"
 #ifdef HAVE_CONFIG_H

@@ -2,6 +2,7 @@
 #define DEFERRED_ERROR_H
 
 #include <dStorm/helpers/thread.h>
+#include "helpers/MayBeASignal.h"
 
 namespace dStorm {
 
@@ -18,7 +19,7 @@ class DeferredError {
 
     bool handles( Thread *object ) { return object == thread; }
     void make_error_message();
-    void handle_error();
+    MayBeASignal handle_error();
     void notice_dead_thread();
     bool thread_died() { return finished; }
 };
@@ -41,7 +42,7 @@ class DeferredErrorBuffer
     DeferredError *find_matching( Thread* thread );
 
     inline bool empty();
-    void handle_first_error();
+    MayBeASignal handle_first_error();
     void clean_up_for_thread( Thread *thread );
 };
 

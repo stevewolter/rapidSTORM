@@ -84,14 +84,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
         }
 
         disc_factor = new_disc_fac;
-        for (LowDepth i = 0; i < out_depth; i++) {
-            HighDepth n = 0;
-            while ( (n+1U) < in_depth && transition[n+1U] <= i )
-                n++;
-            this->publish().notice_key_change
-                ( i, colorizer.getKeyPixel(i),
-                  (n+0.5) / disc_factor );
-        }
+        publish_differences_in_transitions( NULL, transition );
         max_value_used_for_disc_factor = max_value;
         pixels_above_used_max_value = 0;
     }
@@ -106,7 +99,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
   ( TransitionTable* old_table, TransitionTable& new_table )
 {
     HighDepth o = 0, n = 0;
-    for (LowDepth v = 0; v < out_depth; v++) {
+    for (LowDepth v = 0; v <= out_depth; v++) {
         if ( old_table )
             while ( (o+1U) < in_depth && (*old_table)[o+1U] <= v ) o++;
         while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;

@@ -6,6 +6,7 @@
 #include "Readout.h"
 #include "AcquisitionMode.h"
 #include <limits>
+#include <dStorm/error_handler.h>
 
 using namespace std;
 using namespace ost;

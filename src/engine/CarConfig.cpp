@@ -86,9 +86,12 @@ CarConfig::CarConfig()
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   outputBox("Output", "Output options"),
-  configTarget("SaveConfigFile", "Store config used in computation in")
+  configTarget("SaveConfigFile", "Store config used in computation in"),
+  auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
+                 true)
 {
    configTarget.setUserLevel(simparm::Entry::Intermediate);
+   auto_terminate.setUserLevel(simparm::Entry::Expert);
 
     registerNamedEntries();
 }
@@ -104,7 +107,8 @@ CarConfig::CarConfig(const CarConfig &c)
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   outputBox(c.outputBox),
-  configTarget(c.configTarget)
+  configTarget(c.configTarget),
+  auto_terminate(c.auto_terminate)
 {
     registerNamedEntries();
     DEBUG("Copied Car config");
@@ -124,6 +128,7 @@ void CarConfig::registerNamedEntries() {
    push_back( engineConfig );
    push_back( outputBox );
    push_back( configTarget );
+   push_back( auto_terminate );
    DEBUG("Registered named entries of CarConfig");
 }
 

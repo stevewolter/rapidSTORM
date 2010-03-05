@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "LocalizationBuncher.h"
 #include <dStorm/output/Output.h>
 #include <dStorm/output/Trace.h>
@@ -13,9 +15,11 @@ throw(Output*)
     if ( outputImage >= first && outputImage <= last ) {
         engine_result.forImage = outputImage;
         if ( locs ) {
+            DEBUG("Outputting " << locs->size() << " localizations for " << outputImage);
             engine_result.first = locs->ptr();
             engine_result.number = locs->size();
         } else {
+            DEBUG("Outputting no localizations for " << outputImage);
             engine_result.first = NULL;
             engine_result.number = 0;
         }
@@ -76,22 +80,28 @@ LocalizationBuncher::~LocalizationBuncher() {
 
 void LocalizationBuncher::ensure_finished() 
 {
+    DEBUG("Finished reading file");
     while ( ! canned.empty() ) {
+        DEBUG("Finish iteration with output image " << outputImage);
         Canned::iterator i;
         i = canned.find( outputImage );
         if ( i != canned.end() ) {
+            DEBUG("Outputting from can");
             outputImage = i->first;
             output( i->second );
             delete i->second;
             canned.erase(i);
         } else if ( outputImage == currentImage ) {
+            DEBUG("Outputting current");
             output( buffer.get() );
             buffer->clear();
         } else {
+            DEBUG("Outputting nothing");
             output( NULL );
         }
     }
     target.propagate_signal(Output::Engine_run_succeeded);
+    DEBUG("Sent success signal");
 }
 
 void LocalizationBuncher::noteTraits(

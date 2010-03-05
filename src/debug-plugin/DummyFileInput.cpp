@@ -7,7 +7,7 @@ using namespace dStorm::input;
 namespace dummy_file_input {
 
 Source::Source(const Method& config) 
-: simparm::Set("DummyInput", "Dummy input"),
+: simparm::Set("YDummyInput", "Dummy input"),
   dStorm::input::SerialSource<dStorm::engine::Image>
     ( static_cast<simparm::Node&>(*this), BaseSource::Pushing | BaseSource::Pullable),
   w( config.width() ),
