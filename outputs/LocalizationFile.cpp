@@ -27,20 +27,23 @@ LocalizationFile::_Config::_Config()
     outputFile.helpID = HELP_Table_ToFile;
 }
 
-static void printFit(const Localization &f, ostream &file,
+void LocalizationFile::printFit(const Localization &f, 
     int localizationDepth) 
 {
     if ( localizationDepth > 0 && f.has_source_trace() ) {
-        file << "\n\n";
+        (*file) << "\n\n";
         const Trace& trace = f.get_source_trace();
         for (Trace::const_iterator i = trace.begin(); 
                                     i != trace.end(); i++)
-            printFit(*i, file, 0);
+            printFit(*i, 0);
     } else {
-      file << f.x().value() << " " 
+      (*file) << f.x().value() << " " 
            << f.y().value() << " "
            << f.getImageNumber().value() << " "
-           << f.strength().value() << "\n";
+           << f.strength().value() ;
+      if ( traits.two_kernel_improvement_is_set )
+        (*file) << " " << f.two_kernel_improvement();
+      (*file) << "\n";
     }
 }
 
@@ -61,6 +64,8 @@ void LocalizationFile::open() {
     field::YCoordinate( traits ).makeNode( topNode );
     field::FrameNumber( traits ).makeNode( topNode );
     field::Amplitude( traits ).makeNode( topNode );
+    if ( traits.two_kernel_improvement_is_set )
+        field::TwoKernelImprovement( traits ).makeNode( topNode );
 
     XMLSTR str = topNode.createXMLString(0);
     *file << "# " << str << "\n";
@@ -70,8 +75,7 @@ void LocalizationFile::open() {
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
     ost::MutexLock lock(mutex);
-    traits = input::Traits<Localization>(a.traits);
-    traits.total_frame_count = a.traits.total_frame_count;
+    traits = a.traits;
 
     open();
 
@@ -79,11 +83,10 @@ LocalizationFile::announceStormSize(const Announcement &a) {
 }
 
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
-
 {
     ost::MutexLock lock(mutex);
     for (int i = 0; i < er.number; i++)
-        printFit(er.first[i], *file, localizationDepth);
+        printFit(er.first[i], localizationDepth);
     if ( ! (*file) ) {
         std::cerr << "Warning: Writing localizations to "
                   << filename << " failed.\n";

@@ -66,9 +66,9 @@ namespace dStorm {
         {
           private:
             AndorCamera::CameraReference control;
-            ost::Mutex initMutex;
-            ost::Condition is_initialized;
-            bool initialized;
+            mutable ost::Mutex initMutex;
+            mutable ost::Condition is_initialized;
+            bool initialized, error_in_initialization;
             int numImages;
             AndorCamera::Acquisition acquisition;
 

@@ -9,6 +9,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 
 #include <iostream>
+#include <semaphore.h>
 
 namespace AndorCamera {
 
@@ -35,7 +36,6 @@ namespace States {
 
     extern State higher_state(State state);
     extern State lower_state(State state);
-    extern State next_state_in_direction(State state, State dir);
 
     struct Token {
         void *tag;
@@ -45,13 +45,15 @@ namespace States {
 };
 using States::State;
 
-class StateMachine {
+class StateMachine 
+: private ost::Thread {
   public:
 
     /** Base class for objects wishing to be informed about changes
      *  of camera state. */
     class Listener;
     template <typename Type> class StandardListener;
+    class Request;
 
     StateMachine(int for_camera_index);
     StateMachine(const StateMachine &);
@@ -65,29 +67,52 @@ class StateMachine {
     void passivate_listener(Listener &l);
     void activate_listener(Listener &l);
 
+    enum Priority {
+        Idle, Auto, User, OtherCameraActive, Emergency
+    };
+    enum Direction { Up, Down };
+    enum Tolerance { Precisely, LowerOK, HigherOK };
+
     /** Reach exactly the given state.
       *  \param newState State to reach */
-    void ensure_precisely(State newState);
+    std::auto_ptr<Request>
+        ensure_precisely(State newState, Priority priority );
     /** Reach the given state or a higher one.
       *  \param newState State to reach */
-    void ensure_at_least(State newState);
+    std::auto_ptr<Request>
+        ensure_at_least(State newState, Priority priority );
     /** Reach the given state or a lower one.
       *  \param newState State to reach */
-    void ensure_at_most(State newState);
+    std::auto_ptr<Request>
+        ensure_at_most(State newState, Priority priority);
+
+    void manage( std::auto_ptr<Request> );
 
     simparm::StringEntry status;
     simparm::UnsignedLongEntry state;
 
     int get_cam_id() const { return camID; }
 
+    void wait_or_abort_transition(Direction, int milliseconds);
+    
   private:
-    ost::Mutex mutex;
+    ost::Mutex locked_state, request_queue, listener_list;
+    ost::Condition desired_state_changed, desired_state_reached;
+    bool should_shut_down;
+    Request *currently_served;
+    std::list<Request*> waiting;
     State current_state;
+    State desired_state;
+    Tolerance tolerance;
+
+    std::auto_ptr<Request> mkrequest(State, Priority, Tolerance);
 
     /** StateStack is implemented as a map of one list
      *  per state. */
     typedef std::map< State, boost::ptr_list<States::Token> > StateStack;
     StateStack state_stack;
+
+    std::auto_ptr<dStorm::Runnable> emergency_callback;
 
     struct ListenerReference;
     void push_token( ListenerReference& creator,
@@ -109,6 +134,13 @@ class StateMachine {
     };
     typedef std::list< ListenerReference > Listeners;
     Listeners listeners;
+
+    void run();
+    void check_for_interruption(Direction);
+    bool request_is_fulfilled();
+    void signal_fulfillment();
+
+    class InterruptedTransition;
 };
 
 class StateMachine::Listener {
@@ -139,6 +171,43 @@ class StateMachine::StandardListener
     StandardListener(ReachedStateProducer& p) : p(p) {}
 
     std::auto_ptr<States::Token> raise_state(States::State to);
+};
+
+class StateMachine::Request {
+    friend class StateMachine;
+    bool was_pushed_off, should_be_served, has_managing_thread;
+    std::list<Request*>::iterator list_position;
+    ost::Condition got_active;
+    StateMachine &sm;
+
+    States::State state;
+    Priority priority;
+    Tolerance tolerance;
+
+    Request(StateMachine& sm,
+            State state, Priority priority, Tolerance tolerance);
+    void serve();
+    void cancel( bool in_emergency = false );
+    void insert( std::list<Request*>::iterator where );
+
+    void remove_from_front_of_request_queue();
+    void remove_from_wait_queue();
+
+    void wait_for_activation();
+    void activate();
+    
+  public:
+    ~Request();
+
+    void wait_for_fulfillment();
+    void check();
+
+    class Failure;
+};
+
+struct StateMachine::Request::Failure : public std::runtime_error {
+    Priority was_overriden_with;
+    Failure(Priority overriden_with);
 };
 
 }

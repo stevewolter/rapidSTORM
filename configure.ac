@@ -202,6 +202,13 @@ AS_IF(
     [ AC_MSG_ERROR([No method for emergency error recovery. Make sure either enable-exceptions-after-longjmp or enable-exceptions-in-signal-handlers works.]) ],
     [])
  
+AC_ARG_ENABLE([debug-plugin],
+    [AS_HELP_STRING([--enable-debug-plugin],
+        [enable building debug plugin @<:@default=yes@:>@])],
+    [],
+    [enable_debug_plugin=no])
+AM_CONDITIONAL( [BUILD_DEBUG_PLUGIN], [test "x$enable_debug_plugin" != xno] )
+        
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
 AM_PATH_WXCONFIG($reqwx, wxWin=1)

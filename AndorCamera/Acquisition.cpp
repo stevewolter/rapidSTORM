@@ -1,4 +1,6 @@
 #define ANDORCAMERA_ACQUISITION_CPP
+#include "debug.h"
+
 #include <AndorCamera/Acquisition.h>
 #include "SDK.h"
 #include "Error.h"
@@ -23,13 +25,12 @@ Acquisition::Acquisition (const CameraReference& camera)
 : ExclusiveAccessor(camera), control(camera), 
   readout( new ImageReadout( (ImageReadout&)control->readout() ) ),
   acquisitionMode( new AcquisitionModeControl( control->acquisitionMode() ) ),
-  gotStarted(mutex),
   haveCamera(false),
   isStopped(false),
   is_acquiring(false),
   status("CameraStatus", "Camera status")
 {
-    STATUS("Acquisition constructor");
+    DEBUG("Acquisition constructor");
 
     status.editable = false;
 
@@ -41,15 +42,15 @@ Acquisition::Acquisition (const CameraReference& camera)
 
 /* See AndorCamera/Acquisition.h for documentation */
 Acquisition::~Acquisition() { 
-    STATUS("Destructing acquisition");
+    DEBUG("Destructing acquisition");
     stop();
+
     this->Camera::ExclusiveAccessor::forfeit_access();
-    STATUS( "Destructed acquisition" );
+    DEBUG( "Destructed acquisition" );
 }
 
 void Acquisition::got_access() { 
-    STATUS("Acquisition " << this << " got camera access.");
-    ost::MutexLock lock( mutex );
+    DEBUG("Acquisition " << this << " got camera access.");
     haveCamera = true; 
     status.erase( status.value );
     status.push_back( control->state_machine().status.value );
@@ -66,18 +67,20 @@ void Acquisition::got_access() {
 
     next_image = 0;
     initialized_last_valid_image = false;
-    STATUS("Acquisition " << this << " is starting acquisition");
-    control->state_machine().ensure_at_least( States::Acquiring );
-    STATUS("Acquisition " << this << " started acquisition");
+    DEBUG("Acquisition " << this << " is starting acquisition");
+    request = 
+        control->state_machine().ensure_at_least( States::Acquiring,
+                                                  StateMachine::Auto );
+    DEBUG("Acquisition " << this << " got state machine request rights");
+    request->wait_for_fulfillment();
+    DEBUG("Acquisition " << this << " brought state machine to acquiring");
     is_acquiring = true;
-
-    gotStarted.signal();
 }
 void Acquisition::other_accessor_is_knocking() {
-    STATUS("Acquisition " << this << " got knock.");
+    DEBUG("Acquisition " << this << " got knock.");
 }
 void Acquisition::forfeit_access() {
-    STATUS("Acquisition " << this << " forfeiting camera access.");
+    DEBUG("Acquisition " << this << " forfeiting camera access.");
     stop();
 
     haveCamera = false;
@@ -86,7 +89,7 @@ void Acquisition::forfeit_access() {
     status.erase( control->state_machine().status.value );
     status.push_back( status.value );
 
-    control->state_machine().ensure_at_most( States::Connected );
+    request.reset( NULL );
     Camera::ExclusiveAccessor::forfeit_access();
 }
 
@@ -123,17 +126,18 @@ bool Acquisition::hasMoreImages() {
 
 void Acquisition::block_until_on_camera() {
     ost::MutexLock lock(mutex);
-    while ( ! is_acquiring )
-        gotStarted.wait();
+    Camera::ExclusiveAccessor::wait_for_access();
+    got_access();
 }
 
 /* See AndorCamera/Acquisition.h for documentation */
 Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
     ost::MutexLock lock(mutex);
-    while ( ! haveCamera && ! isStopped ) {
-        PROGRESS("GetNextImage waiting for acquisition start");
-        gotStarted.wait();
-        PROGRESS("GetNextImage finished wait");
+    if ( ! haveCamera && ! isStopped ) {
+        DEBUG("GetNextImage waiting for acquisition start");
+        Camera::ExclusiveAccessor::wait_for_access();
+        got_access();
+        DEBUG("GetNextImage finished wait");
     }
 
     if ( ! hasMoreImages_unlocked() ) {
@@ -148,9 +152,10 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         SDK::Range get;
         get.first = get.second = cur_image;
         SDK::Range r;
-        PROGRESS("Reading image " << cur_image << " into buffer of size "
+        DEBUG("Reading image " << cur_image << " into buffer of size "
                  << getImageSizeInPixels());
 
+        request->check();
         SDK::AcquisitionState get_result = 
             SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
         if ( get_result == SDK::No_New_Images )
@@ -162,7 +167,7 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
             if (r.first != next_image)
                 throw Error("Expected to read image %i, did read %i.", 
                             next_image, r.first);
-            PROGRESS("Read image " << cur_image);
+            DEBUG("Read image " << cur_image);
             next_image++;
 
             return Fetch( HaveStored, cur_image );
@@ -177,14 +182,17 @@ void Acquisition::waitForNewImages() {
     if (initialized_last_valid_image && next_image <= last_valid_image)
         return;
 
+    request->check();
     SDK::NewImages range = SDK::GetNumberNewImages();
     while ( ! range.haveNew ) {
-        PROGRESS("Acquisition asks SDK to wait for new images");
+        request->check();
+        DEBUG("Acquisition asks SDK to wait for new images");
         SDK::AcquisitionState rc = SDK::WaitForAcquisition();
-        PROGRESS("Wait returned " << rc);
+        DEBUG("Wait returned " << rc);
+        request->check();
         if (rc == SDK::New_Images) {
             range = SDK::GetNumberNewImages();
-            PROGRESS("New range is " << range.first << " to " 
+            DEBUG("New range is " << range.first << " to " 
                      << range.second << ", new is " << range.haveNew);
         } else if (rc == SDK::No_New_Images)  {
             /* This means the event loop in WaitForAcquisition() got
@@ -217,18 +225,18 @@ void Acquisition::waitForNewImages() {
 
 /* See AndorCamera/Acquisition.h for documentation */
 void Acquisition::stop() {
-    PROGRESS("Stopping acquisition");
+    DEBUG("Stopping acquisition");
     if (!haveCamera || isStopped) return;
     
     ost::MutexLock lock(mutex);
 
-    PROGRESS("Calling AbortAcquisition");
+    DEBUG("Calling AbortAcquisition");
     /* Go down from acquisition state. */
     SDK::AbortAcquisition();
-    control->state_machine().ensure_at_most ( States::Connected );
+    request.reset( NULL );
     is_acquiring = false;
 
-    STATUS("Finished acquisition stop");
+    DEBUG("Finished acquisition stop");
     isStopped = true;
 }
 

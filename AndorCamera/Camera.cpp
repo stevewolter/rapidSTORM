@@ -12,6 +12,7 @@
 #include "Gain.h"
 #include "Config.h"
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <algorithm>
 
 namespace AndorCamera {
 
@@ -27,8 +28,7 @@ Camera::Camera(int id)
     _triggering(new Triggering(*_state_machine)),
     _shift_speed_control(new ShiftSpeedControl(*_state_machine, *_config)),
     _shutter_control(new ShutterControl(*_state_machine)),
-    _acquisition_switch(new AcquisitionSwitch(*_state_machine)),
-    current_accessor(NULL)
+    _acquisition_switch(new AcquisitionSwitch(*_state_machine))
 {
     _state_machine->add_listener(*_initialization);
     _state_machine->add_listener(*_temperature);
@@ -57,35 +57,38 @@ Camera* Camera::clone() const {
 Camera::~Camera() 
 {
     STATUS("Shutting camera down");
-    state_machine().ensure_at_most(States::Disconnected);
+    std::auto_ptr<StateMachine::Request> r =
+        state_machine().ensure_at_most(
+            States::Disconnected, StateMachine::Idle);
+    r->wait_for_fulfillment();
     STATUS("Shutdown complete, destructing");
 }
 
+Camera::ExclusiveAccessor::ExclusiveAccessor
+    (const CameraReference& forCamera)
+ : camera(forCamera) , gained_access(camera->mutex )
+ {}
 void Camera::ExclusiveAccessor::replace_on_access( StateMachine::Listener& to_replace,
     StateMachine::Listener& replace_with )
 {
     replace.push_back( std::make_pair(&to_replace, &replace_with) );
 }
 
-void Camera::ExclusiveAccessor::_got_access() {
-    camera->current_accessor = this;
-    for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
-        camera->state_machine().passivate_listener( *i->first );
-        camera->state_machine().add_listener( *i->second );
-    }
-        
-    got_access();
-}
-
 void Camera::ExclusiveAccessor::request_access() 
 {
     ost::MutexLock lock( camera->mutex );
-    if ( camera->current_accessor == NULL ) {
-        STATUS("Accessor gained camera control immediately.");
-        _got_access();
-    } else {
-        STATUS("Putting accessor into queue.");
-        camera->waiting_accessors.push( this );
+    STATUS("Putting accessor into queue.");
+    camera->waiting_accessors.push_back( this );
+}
+
+void Camera::ExclusiveAccessor::wait_for_access() {
+    ost::MutexLock lock( camera->mutex );
+    STATUS("Putting accessor into queue.");
+    while ( camera->waiting_accessors.front() != this )
+        gained_access.wait();
+    for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
+        camera->state_machine().passivate_listener( *i->first );
+        camera->state_machine().add_listener( *i->second );
     }
 }
 
@@ -93,22 +96,19 @@ void Camera::ExclusiveAccessor::forfeit_access() {
     STATUS(this << " forfeits access to camera");
     ost::MutexLock lock( camera->mutex );
     LOCKING("Got cam mutex");
-    if ( camera->current_accessor == this ) {
+    if ( camera->waiting_accessors.front() == this ) {
         for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
             camera->state_machine().remove_listener( *i->second );
             camera->state_machine().activate_listener( *i->first );
         }
 
+        camera->waiting_accessors.pop_front();
         if ( ! camera->waiting_accessors.empty() ) {
-            ExclusiveAccessor *next_in_queue = camera->waiting_accessors.front();
-            STATUS(this << " has successor " << next_in_queue);
-            camera->waiting_accessors.pop();
-            next_in_queue->_got_access();
-            STATUS(this << " successfully activated successor");
-        } else {
-            STATUS(this << " has no successor");
-            camera->current_accessor = NULL;
+            camera->waiting_accessors.front()->gained_access.signal();
         }
+    } else {
+        std::list<ExclusiveAccessor*>& w = camera->waiting_accessors;
+        w.erase( std::find( w.begin(), w.end(), this ) );
     }
 }
 

@@ -59,6 +59,7 @@ AndorDirect::Source::Source
   control(c),
   is_initialized( initMutex),
   initialized(false),
+  error_in_initialization(false),
   acquisition(control),
   status(acquisition.status),
   live_view( new LiveView(
@@ -101,7 +102,7 @@ void Source::run() throw() {
 
 void Source::acquire()
 {
-    long lastValidImage = -1;
+    int acquired_images = 0;
     try {
         PROGRESS("Started acquisition subthread");
         acquisition.start();
@@ -151,31 +152,36 @@ void Source::acquire()
                 policy = pushTarget->accept(nextIm.second, 1, image.get());
                 if ( policy == Keeps_objects )
                     image.release();
-                lastValidImage++;
+                acquired_images++;
             }
         }
     } catch (const std::exception& e) {
-        cerr << PACKAGE_NAME << ": Image acquisition error: " 
-             << e.what() << endl;
+        cerr << "Image acquisition error: " << e.what() << endl;
     }
-    if ( cancelAcquisition ) {
-        acquisition.stop();
-    } else {
-        lastValidImage++;
-        pushTarget->accept( lastValidImage, numImages-lastValidImage,
+    acquisition.stop();
+    /* Didn't run to completion. */
+    if ( ! initialized ) {
+        initMutex.enterMutex();
+        initialized = true;
+        error_in_initialization = true;
+        is_initialized.signal();
+        initMutex.leaveMutex();
+    } else if ( acquired_images < numImages )
+        pushTarget->accept( acquired_images, numImages-acquired_images,
                             NULL );
-        lastValidImage = numImages;
-    }
 }
 
 void Source::waitForInitialization() const {
     PROGRESS("Trying to get initialization wait mutex");
-    ost::MutexLock lock(const_cast<ost::Mutex&>(initMutex));
+    ost::MutexLock lock(initMutex);
     while ( !initialized ) {
         PROGRESS("Waiting for acquisition initialization");
-        const_cast<ost::Condition&>(is_initialized).wait();
+        is_initialized.wait();
         PROGRESS("Waited for acquisition initialization");
     }
+    if ( error_in_initialization )
+        throw std::runtime_error(
+            "An error in image acquisition prevents running a job");
 }
 
 int Source::quantity() const { 

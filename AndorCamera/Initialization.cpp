@@ -66,11 +66,13 @@ void Initialization::operator()
     if ( &e.source == &connect.value && connect.triggered() ) 
     {
         connect.untrigger();
-        sm.ensure_at_least(States::Connected);
+        sm.manage( sm.ensure_at_least(States::Connected, 
+                                      StateMachine::User) );
     } else if ( &e.source == &disconnect.value && disconnect.triggered() )
     {
         disconnect.untrigger();
-        sm.ensure_at_most(States::Disconnected);
+        sm.manage( sm.ensure_at_most(States::Disconnected, 
+                                      StateMachine::User) );
     }
 }
 
