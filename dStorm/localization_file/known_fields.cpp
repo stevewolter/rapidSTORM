@@ -15,6 +15,7 @@ const std::string Spatial<2>::semantic = "z-position";
 
 const std::string Time::semantic = "frame number";
 const std::string Amplitude::semantic = "emission strength";
+const std::string TwoKernelImprovement::semantic = "two kernel improvement";
 
 }
 
@@ -25,6 +26,7 @@ template class KnownWithResolution< Spatial<1> >;
 template class KnownWithResolution< Spatial<2> >;
 template class KnownWithResolution< properties::Time >;
 template class Known< properties::Amplitude >;
+template class Known< properties::TwoKernelImprovement >;
 
 }
 }

@@ -14,6 +14,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <signal.h>
+#include <sys/time.h>
 #include "errors.h"
 
 #include "../debug.h"
@@ -78,6 +79,28 @@ namespace ost {
     }
 
     Mutex::~Mutex() throw() { pthread_mutex_destroy(&mutex); }
+
+    void Condition::timed_wait(int milliseconds) throw() {
+        struct timeval now;
+        struct timespec timeout;
+
+        gettimeofday(&now, NULL);
+        timeout.tv_sec = now.tv_sec;
+        timeout.tv_nsec = now.tv_usec * 1000;
+        while ( milliseconds > 0 ) {
+            timeout.tv_nsec += 1E6;
+            milliseconds -= 1;
+            if ( timeout.tv_nsec >= 1E9 ) {
+                timeout.tv_sec += 1;
+                timeout.tv_nsec -= 1E9;
+            }
+        }
+        int rv = pthread_cond_timedwait(&cond, &mutex.mutex, &timeout);
+        if ( rv == ETIMEDOUT )
+            return;
+        else
+            return;
+    }
 
     ThreadLock::ThreadLock() throw() : readers(0), waitingWriters(0) {
         pthread_mutex_init(&mutex, NULL);

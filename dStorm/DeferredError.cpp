@@ -20,13 +20,13 @@ DeferredErrorBuffer::~DeferredErrorBuffer() {
     free(buffer);
 }
 
-MayBeASignal DeferredErrorBuffer::handle_first_error() 
+DeferredError* DeferredErrorBuffer::get_first_error() 
 {
     int i = current++;
     if ( i >= end-size ) {
-        return buffer[i].handle_error();
+        return &buffer[i];
     } else {
-        return MayBeASignal(false);
+        return NULL;
     }
 }
 
@@ -44,15 +44,15 @@ void DeferredErrorBuffer::clean_up_for_thread( Thread *thread ) {
 
 DeferredError::DeferredError( Thread* thread, int signal_number ) 
 : thread(thread), signal(signal_number),
-  terminate_program( sig_is_deadly(signal_number) ),
-  do_cancel( ! terminate_program ),
+  term( true ),
+  normal_termination( ! sig_is_deadly(signal_number) ),
+  signal_set( true ),
   finished(false)
 {
 }
 
 DeferredError::DeferredError( Thread* object, std::string message )
-: thread(thread), terminate_program(false), do_cancel( true ),
-  finished(false),
+: thread(thread), term(false), signal_set( false ), finished(false),
   message( new std::string( message ) )
 {
 }
@@ -60,7 +60,7 @@ DeferredError::DeferredError( Thread* object, std::string message )
 void DeferredError::make_error_message() {
     if ( message.get() != NULL ) 
         return;
-    else if ( sig_is_deadly( signal ) ) {
+    else if ( ! sig_is_deadly( signal ) ) {
         message.reset( new std::string(
             "Terminated by " + signame(signal) + " signal." ) );
     } else {
@@ -70,34 +70,7 @@ void DeferredError::make_error_message() {
     }
 }
 
-MayBeASignal DeferredError::handle_error() {
-    make_error_message();
-
-    if ( terminate_program ) {
-        if ( signal != 0 )
-            return MayBeASignal(signal);
-        else
-            return MayBeASignal(true);
-    } else if ( do_cancel ) {
-        do_cancel = false;
-        if ( thread ) {
-            thread->abnormal_termination(*message);
-            thread->cancel();
-            return MayBeASignal(false);
-        } else {
-            std::cerr << *message << " The faulty computation could not "
-                         "be localized, thus the whole program is "
-                         "aborted now. Sorry." << std::endl;
-            return MayBeASignal(true);
-        }
-    } else {
-        std::cerr << *message << std::endl;
-        return MayBeASignal(false);
-    }
-}
-
 void DeferredError::notice_dead_thread() {
-    do_cancel = false;
     finished = true;
 }
 
@@ -161,17 +134,14 @@ static std::string signame(int num)
 
 static bool sig_is_deadly(int num) {
     return ( false 
-#ifdef SIGHUP
-    || num == SIGHUP
+#ifdef SIGSEGV
+    || num == SIGSEGV
 #endif
-#ifdef SIGINT
-    || num == SIGINT
+#ifdef SIGFPE
+    || num == SIGFPE
 #endif
-#ifdef SIGQUIT
-    || num == SIGQUIT
-#endif
-#ifdef SIGTERM
-    || num == SIGTERM 
+#ifdef SIGILL
+    || num == SIGILL
 #endif
     );
 }

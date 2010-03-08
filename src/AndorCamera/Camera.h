@@ -67,21 +67,18 @@ class Camera : public simparm::Object {
         typedef std::list< std::pair<StateMachine::Listener*,StateMachine::Listener*> >
             Replacements;
         Replacements replace;
-
-        void _got_access();
+        ost::Condition gained_access;
 
       public:
-        ExclusiveAccessor(const CameraReference& forCamera) : camera(forCamera) {}
+        ExclusiveAccessor(const CameraReference& forCamera);
 
         void replace_on_access( StateMachine::Listener& to_replace,
                                 StateMachine::Listener& replace_with );
         /** Request exclusive access to the given camera. Once the access is granted,
          *  the got_access() method will be called. */
         void request_access();
-        /** This method is called once the Accessor got exclusive access to the given
-         *  camera. This exclusive access will persist until explicitely ended with
-         *  forfeit_access() or until the ExclusiveAccessor class is destructed. */
-        virtual void got_access() = 0;
+        /** Wait until exclusive access to the camera is gained. */
+        void wait_for_access();
         /** Another accessor is knocking, that is, requesting access to the camera. */
         virtual void other_accessor_is_knocking() {}
         /** Give up the exclusive access to the camera. This method will push 
@@ -96,8 +93,7 @@ class Camera : public simparm::Object {
 
   private:
     friend class ExclusiveAccessor;
-    ExclusiveAccessor* current_accessor;
-    std::queue<ExclusiveAccessor*> waiting_accessors;
+    std::list<ExclusiveAccessor*> waiting_accessors;
 };
 
 };

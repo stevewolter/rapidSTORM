@@ -5,6 +5,7 @@
 
 #include <AndorCamera/Camera.h>
 #include <AndorCamera/System.h>
+#include <AndorCamera/StateMachine.h>
 #include <stdint.h>
 #include <time.h>
 #include <dStorm/helpers/thread.h>
@@ -36,8 +37,8 @@ namespace AndorCamera {
         CameraReference control;
         std::auto_ptr<ImageReadout> readout;
         std::auto_ptr<AcquisitionModeControl> acquisitionMode;
+        std::auto_ptr<StateMachine::Request> request;
         ost::Mutex mutex;
-        ost::Condition gotStarted;
 
         /** The next image in the acquisition sequence */
         unsigned long next_image;

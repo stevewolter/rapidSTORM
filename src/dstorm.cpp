@@ -19,6 +19,8 @@
 
 #include "debug.h"
 
+#include "pthread.h"
+
 using namespace dStorm;
 using namespace std;
 using namespace cimg_library;
@@ -76,6 +78,10 @@ int main(int argc, char *argv[]) {
     DEBUG("exit: main");
 
     if ( rv.get() && rv->did_receive_signal() )
+#ifndef PTW32_VERSION
         kill( getpid(), rv->signal_number() );
+#else
+        return 2;
+#endif
     return exit_code;
 }

@@ -20,6 +20,7 @@ struct System::CamInfo {
     Camera* object;
     bool have_handle;
     CameraHandle handle;
+    std::auto_ptr<StateMachine::Request> suppressor;
 
     CamInfo() : usage_count(0), object(NULL), have_handle(false) {}
     ~CamInfo() {
@@ -135,8 +136,10 @@ void System::releaseCamera(int number) {
 void System::selectCamera(int number) {
     if ( number == currentCamera ) return;
     if ( currentCamera != -1 ) {
-        cams[currentCamera].object->state_machine().ensure_at_most
-            ( States::lower_state( States::Acquiring ) );
+        cams[currentCamera].suppressor
+            = cams[currentCamera].object->state_machine()
+                .ensure_at_most(States::Connected, StateMachine::User);
+        cams[currentCamera].suppressor->wait_for_fulfillment();
     }
 
     if ( ! cams[number].have_handle ) {
@@ -148,6 +151,8 @@ void System::selectCamera(int number) {
     int prevCamera = currentCamera;
     currentCamera = number;
 
+    if ( number != -1 )
+        cams[currentCamera].suppressor.reset( NULL );
     notifyListeners( prevCamera, currentCamera );
 }
 

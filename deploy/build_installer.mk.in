@@ -38,6 +38,9 @@ components_helpfiles.lst:=main
 prefix_headers.lst:=$(PREFIX)
 flags_headers.lst:=
 components_headers.lst:=devel
+prefix_simparm_headers.lst:=$(GRAPHICSMAGICK_ROOT)
+flags_simparm_headers.lst:=
+components_simparm_headers.lst:=devel
 prefix_libs.lst:=$(PREFIX)
 flags_libs.lst:=
 components_libs.lst:=devel
@@ -54,7 +57,7 @@ $(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
 $(INSTALLER).iss : $(srcdir)/dSTORM_tail.iss
 
 ifneq ($(WINE),)
-BUNDLE_LISTS:=binaries.lst config_file.lst helpfiles.lst graphicsmagick.lst headers.lst libs.lst java.lst
+BUNDLE_LISTS:=binaries.lst config_file.lst helpfiles.lst graphicsmagick.lst headers.lst simparm_headers.lst libs.lst java.lst
 bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
@@ -124,7 +127,7 @@ binaries :
 	touch $@
 
 helpfiles.lst : storm.out
-	cat $< | tr '\r\t' '  ' | sed -n -e 's§^help_file \([^ ]*\) *§share/doc/\1§p' > $@
+	cat $< | tr '\r\t' '  ' | sed -n -e 's§^help_file set \([^ ]*\) *§share/doc/\1§p' > $@
 
 graphicsmagick.lst : 
 	find $(GRAPHICSMAGICK_ROOT) $(GRAPHICSMAGICK_EXPR) -printf '%P\n' > $@
@@ -133,7 +136,10 @@ libs.lst :
 	find $(PREFIX)/lib -name 'libdStorm*' | sed -e 's§^$(PREFIX)/§§'  > $@
 
 headers.lst :
-	find $(PREFIX)/include/dStorm $(PREFIX)/include/simparm -type f | sed -e 's§^$(PREFIX)/§§'  > $@
+	find $(PREFIX)/include/dStorm -type f | sed -e 's§^$(PREFIX)/§§'  > $@
+
+simparm_headers.lst :
+	find $(GRAPHICSMAGICK_ROOT)/include/simparm -type f | sed -e 's§^$(GRAPHICSMAGICK_ROOT)/§§'  > $@
 
 %.exe :
 	mkdir -p $(dir $@)

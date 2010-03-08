@@ -1,0 +1,33 @@
+begin_test_suite
+
+dstorm_attach
+
+set test "Bringing camera down to medium temperature"
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -10\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -5\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+send "in Car in Run in value set 1\n"
+
+set timeout 30
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set (\[0-9.-\]*\)" {
+        if { $expect_out(1,string) <= -1 } {
+        } else {
+            exp_continue
+        }
+    }
+}
+set timeout 10
+
+set test "Interrupting cooling process is noticed by acquisition"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in Cooling in value set false\n"
+expect {
+    "User overruled automatic camera control" { pass "$test" }
+}
+set test "Camera warms up again after interruption"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set \[0-9\]" { pass "$test" }
+}
+
+end_test_suite

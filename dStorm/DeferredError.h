@@ -9,7 +9,7 @@ namespace dStorm {
 class DeferredError {
     Thread *thread;
     int signal;
-    bool terminate_program, do_cancel, finished;
+    bool term, normal_termination, signal_set, finished;
     std::auto_ptr<std::string> message;
 
   public:
@@ -20,8 +20,15 @@ class DeferredError {
     bool handles( Thread *object ) { return object == thread; }
     void make_error_message();
     MayBeASignal handle_error();
+    Thread *offending_thread() { return thread; }
+    bool should_terminate() { return term; }
+    bool can_terminate_normally() { return normal_termination; }
+    bool was_caused_by_signal() { return signal_set; }
+    int signal_number() { return signal; }
     void notice_dead_thread();
     bool thread_died() { return finished; }
+
+    std::string error_message() { make_error_message(); return *message; }
 };
 
 class DeferredErrorBuffer
@@ -42,7 +49,7 @@ class DeferredErrorBuffer
     DeferredError *find_matching( Thread* thread );
 
     inline bool empty();
-    MayBeASignal handle_first_error();
+    DeferredError* get_first_error();
     void clean_up_for_thread( Thread *thread );
 };
 

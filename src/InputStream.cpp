@@ -23,6 +23,8 @@ struct InputStream::Pimpl
     typedef std::set<Job*> Jobs;
     Jobs running_cars;
 
+    class EmergencyCallback;
+    std::auto_ptr<EmergencyCallback> emergency_callback;
     ErrorHandler::CleanupTag rehandle_stream;
 
     bool exhausted_input;
@@ -49,6 +51,28 @@ struct InputStream::Pimpl
     void reset_config();
 };
 
+class InputStream::Pimpl::EmergencyCallback : public dStorm::Runnable {
+    ErrorHandler::CleanupTag& cleanup_tag;
+
+  public:
+    EmergencyCallback(InputStream::Pimpl& p)
+        : cleanup_tag(p.rehandle_stream)
+    {
+        dStorm::ErrorHandler::get_current_handler()
+            .add_emergency_callback( *this );
+    }
+
+    void run() {
+        std::cout << "clear" << std::endl;
+        cleanup_tag.reset();
+    }
+
+    ~EmergencyCallback() {
+        dStorm::ErrorHandler::get_current_handler()
+            .remove_emergency_callback( *this );
+    }
+};
+
 InputStream::InputStream(
     const engine::CarConfig& c,
     std::istream& i, std::ostream& o)
@@ -73,6 +97,7 @@ InputStream::Pimpl::Pimpl(
   simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
+  emergency_callback( new EmergencyCallback(*this) ),
   exhausted_input( i == NULL ),
   original( (c) ? new engine::CarConfig(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL ),

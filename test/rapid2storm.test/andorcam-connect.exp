@@ -60,7 +60,6 @@ expect {
         { pass "$test" }
 }
 
-set test "Can disconnect"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in value set 1\n"
 if { $have_verbose_dummy } {
     set test "Camera actually shut down"
@@ -68,8 +67,10 @@ if { $have_verbose_dummy } {
         -re "Dummy camera shut down" { pass "$test" }
     }
 }
+set test "Can disconnect"
 expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 0" { pass "$test" }
+    "Automatic process interrupting idle job" { fail "$test" }
 }
 
 set test "Disconnect button is hidden"

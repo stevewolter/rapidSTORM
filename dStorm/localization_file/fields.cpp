@@ -46,6 +46,8 @@ Interface::parse(const XMLNode& node)
         rv = new FrameNumber( node );
     else if ( semantics == Amplitude::Props::semantic )
         rv = new Amplitude( node );
+    else if ( semantics == TwoKernelImprovement::Props::semantic )
+        rv = new TwoKernelImprovement( node );
     else if ( syntax == type_string<int>::ident )
         rv = new Unknown<int>();
     else if ( syntax == type_string<double>::ident )

@@ -1,6 +1,6 @@
 set test "Empty run succeeds"
 
-send "cmd 0 in Car set Run = 1\n"
+send "cmd 0 in Car in Run in value set 1\n"
 
 expect {
     -re "serious unhandled error" { fail "$test"; exit 1; }

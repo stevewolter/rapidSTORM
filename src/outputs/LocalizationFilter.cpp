@@ -9,6 +9,7 @@
 #include <cs_units/camera/time.hpp>
 
 #include "debug.h"
+#include <dStorm/error_handler.h>
 
 using namespace boost::units;
 
@@ -205,7 +206,7 @@ void LocalizationFilter::reemit_localizations(bool& terminate) {
             continued = continued_after;
             start = end;
             
-            if ( terminate ) {
+            if ( terminate || ErrorHandler::global_termination_flag ) {
                 output->propagate_signal( Engine_run_is_aborted );
                 return;
             }

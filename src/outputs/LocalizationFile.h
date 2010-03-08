@@ -16,12 +16,13 @@ class LocalizationFile : public OutputObject {
   private: 
     ost::Mutex mutex;
     std::string filename;
-    input::Traits<Localization> traits;
+    Traits traits;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;
     int localizationDepth;
 
     void open();
+    void printFit(const Localization &f, int localizationDepth);
 
     class _Config;
 

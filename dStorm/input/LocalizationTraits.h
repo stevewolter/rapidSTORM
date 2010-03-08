@@ -24,9 +24,9 @@ class Traits< Localization >
 : public SizeTraits<Localization::Dim>
 {
   public:
-    Traits() : SizeTraits<Localization::Dim>() {}
+    Traits() : SizeTraits<Localization::Dim>(), two_kernel_improvement_is_set(false) {}
     Traits( SizeTraits<Localization::Dim> t )
-        : SizeTraits<Localization::Dim>(t) {}
+        : SizeTraits<Localization::Dim>(t), two_kernel_improvement_is_set(false) {}
 
     typedef amplitude AmplitudeField;
     typedef frame_rate FrameRateField;
@@ -35,6 +35,8 @@ class Traits< Localization >
     simparm::optional<amplitude> min_amplitude;
     simparm::optional<frame_rate> speed;
     simparm::optional<frame_count> total_frame_count;
+
+    bool two_kernel_improvement_is_set;
 
     void apply_global_settings(const Config& c) {}
 };

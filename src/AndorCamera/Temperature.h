@@ -40,7 +40,7 @@ class Temperature
     StateMachine &sm;
     simparm::LongEntry& targetTemperature;
     std::auto_ptr<TemperatureMonitor> monitor;
-    bool am_cooling;
+    bool expect_doCool_change, am_cooling;
 
     void registerNamedEntries();
     void cool();

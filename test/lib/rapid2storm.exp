@@ -20,7 +20,7 @@ proc dstorm_start {} {
 
     send "cmd 0 nop\n"
     set def_timeout $timeout
-    set timeout 120
+    set timeout 150
     set have_test_plugin 0
     expect {
         -re "Test plugin loaded" { set have_test_plugin 1; exp_continue }
@@ -55,6 +55,8 @@ proc dstorm_exit {} {
             timeout { fail "$test" }
             eof { if {$has_quit == 1} { pass "$test"; } else { fail "$test"; } }
         }
+
+        wait
     }
 }
 

@@ -135,6 +135,7 @@ output::Traits Engine::convert_traits( const Traits& in ) {
     rv.min_amplitude 
         = float( config.amplitude_threshold() )
             * cs_units::camera::ad_count;
+    rv.two_kernel_improvement_is_set = (config.asymmetry_threshold() < 1.0);
     return rv;
 }
 

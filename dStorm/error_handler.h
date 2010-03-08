@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include "helpers/MayBeASignal.h"
+#include <dStorm/helpers/thread.h>
 
 namespace dStorm {
 
@@ -27,10 +28,12 @@ class ErrorHandler {
     struct Cleanup;
     typedef boost::shared_ptr<Cleanup> CleanupTag;
     typedef std::list<std::string> CleanupArgs;
-    struct Cleanup {
+    class Cleanup {
+        friend class ErrorHandler;
         struct Pimpl;
         std::auto_ptr<Pimpl> pimpl;
         Cleanup(ErrorHandler::Pimpl&, const CleanupArgs&);
+      public:
         ~Cleanup();
     };
     static CleanupTag make_tag(const CleanupArgs& arguments)
@@ -41,6 +44,8 @@ class ErrorHandler {
      *          which was sent (second). */
     MayBeASignal handle_errors_until_all_detached_threads_quit();
     std::auto_ptr<BlockingThreadRegistry> blocking_thread_registry;
+    void add_emergency_callback(dStorm::Runnable& runnable);
+    void remove_emergency_callback(dStorm::Runnable& runnable);
 };
 
 }

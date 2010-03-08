@@ -9,6 +9,7 @@ namespace properties {
 template <int Dimension> struct Spatial;
 struct Time;
 struct Amplitude;
+struct TwoKernelImprovement;
 
 }
 
@@ -22,6 +23,8 @@ typedef KnownWithResolution< properties::Time >
     FrameNumber;
 typedef Known< properties::Amplitude > 
     Amplitude;
+typedef Known< properties::TwoKernelImprovement >
+    TwoKernelImprovement;
 
 }
 }

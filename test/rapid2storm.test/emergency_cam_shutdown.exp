@@ -1,12 +1,18 @@
-set test "SIGTERM shutdown"
+begin_test_suite
 
-send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
-send "forSet Car forSet Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization set ConnectToCamera = 1\n"
-send "forSet Car forSet Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature set Cooling = true\n"
+set test "SIGSEGV shutdown"
 
-set timeout 5
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -25\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set SegFault\n"
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnImageNumber in value set 2\n"
+send "in Car in Run in value set 1\n"
+
+set timeout 30
 set can_do_test 0
 expect {
+    -re "Dummy camera initialized" { exp_continue }
     -re "Camera is in danger zone" { set can_do_test 1 }
     -re "Could not perform action" { unsupported "$test" }
     -re "No camera selected" { unsupported "$test" }
@@ -15,11 +21,19 @@ expect {
 
 if { $can_do_test == 1 } {
 sleep 3
+set timeout 30
 
-set storm_pid [ exp_pid ]
-exec kill $storm_pid
+#set storm_pid [ exp_pid ]
+#exec kill -SEGV $storm_pid
 expect {
+    -re "Terminated by segmentation fault signal" { exp_continue }
     -re "Camera is out of danger zone" { pass "$test" }
     eof { fail "$test" }
 }
 }
+
+wait
+
+initialize
+
+end_test_suite

@@ -235,6 +235,9 @@ class Condition {
      *  have locked the underlying mutex; it is atomically unlocked
      *  on call to wait() and locked before wait() returns. */
     void wait() throw() { pthread_cond_wait(&cond, &mutex.mutex); }
+    /** Like wait(), but return false if the condition was not signalled
+     *  after the given timeout (in milliseconds). */
+    void timed_wait(int milliseconds) throw();
 };
 
 /** A ThreadLock provides a reader-writer protection scheme.

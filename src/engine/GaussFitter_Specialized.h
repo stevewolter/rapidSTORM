@@ -57,13 +57,10 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
 {
   public:
     typedef SpecializedGaussFitter<FS, false, Corr, Width, Height> Base;
-    static const int DoubleWidth = (Width==Eigen::Dynamic)?Width:Width+2;
-    static const int DoubleHeight = 
-        (Height==Eigen::Dynamic)?Height:Height+2;
 
     typedef For<2, (FS) ? FreeForm : FixedForm> FitGroup;
     typedef typename FitGroup::template Deriver
-        <StormPixel,DoubleWidth,DoubleHeight,Corr> Deriver;
+        <StormPixel,Width,Height,Corr> Deriver;
     typedef Width_Invariants<FS, true> Common;
 
   protected:
@@ -77,9 +74,9 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
 
     virtual void setSize( int width, int height ) {
         Base::setSize( width, height );
-        deriver.setSize( width+2, height+2 );
-        a.resize( width+2, height+2 );
-        b.resize( width+2, height+2 );
+        deriver.setSize( width, height );
+        a.resize( width, height );
+        b.resize( width, height );
     }
 
     virtual int fit(const Spot& spot, Localization* target,

@@ -17,6 +17,15 @@ namespace AndorCamera {
 
 using namespace States;
 
+template <typename Type>
+struct Setter {
+    Type &var;
+    Type orig_value;
+    Setter(Type& var, Type value) : var(var), orig_value(var)
+        { var = value; }
+    ~Setter() { DEBUG("Resetting"); var = orig_value; }
+};
+
 _Temperature::_Temperature() :
   requiredTemperature("TargetTemperature",
                       "Required CCD temperature for acquisition", -65),
@@ -44,7 +53,7 @@ Temperature::Temperature(StateMachine& sm, Config &conf)
   Node::Callback(simparm::Event::ValueChanged),
   sm(sm),
   targetTemperature(conf.targetTemperature),
-  am_cooling(false)
+  expect_doCool_change(false), am_cooling(false)
 {
     registerNamedEntries();
 }
@@ -56,6 +65,7 @@ Temperature::Temperature(const Temperature&c)
   Node::Callback(simparm::Event::ValueChanged),
   sm(c.sm),
   targetTemperature(c.targetTemperature),
+  expect_doCool_change(c.expect_doCool_change),
   am_cooling(c.am_cooling)
 {
     registerNamedEntries();
@@ -78,72 +88,95 @@ void Temperature::registerNamedEntries()
 
 void Temperature::operator()(const simparm::Event& e)
 {
-    try {
-        if ( &e.source == &doCool.value )
-        {
-            static ost::Mutex event_mutex;
-            ost::MutexLock lock( event_mutex );
-            if ( doCool() ) {
-                targetTemperature.editable = false;
-                SDK::SetTemperature( targetTemperature() );
-                #ifdef NO_COOLER
-                std::cerr << "Would cool if I were allowed to\n";
-                #else
-                CoolerON();
-                #endif
-            } else {
-                sm.ensure_at_most(States::Connected);
-                #ifdef NO_COOLER
-                std::cerr << "Would stop cooling if I were allowed to\n";
-                #else
-                CoolerOFF();
-                #endif
-                targetTemperature.editable = true;
+    if ( &e.source == &doCool.value )
+    {
+        static ost::Mutex event_mutex;
+        ost::MutexLock lock( event_mutex );
+        DEBUG("Checking cooler value " << doCool() << " " << am_cooling);
+        if ( doCool() && !am_cooling ) {
+            if ( ! expect_doCool_change ) {
+                DEBUG("Requesting state machine to be at least "
+                      "connected");
+                sm.ensure_at_least(States::Connected, StateMachine::User)
+                    ->wait_for_fulfillment();
+                DEBUG("Request fulfilled");
             }
+            am_cooling = true;
+            targetTemperature.editable = false;
+            SDK::SetTemperature( targetTemperature() );
+            #ifdef NO_COOLER
+            std::cerr << "Would cool if I were allowed to\n";
+            #else
+            CoolerON();
+            #endif
+        } else if ( !doCool() && am_cooling ) {
+            if ( ! expect_doCool_change ) {
+                DEBUG("Requesting state machine to be at most "
+                        "connected");
+                sm.ensure_at_most(States::Connected, StateMachine::User)
+                    ->wait_for_fulfillment();
+                DEBUG("Request fulfilled");
+            }
+            am_cooling = false;
+            #ifdef NO_COOLER
+            std::cerr << "Would stop cooling if I were allowed to\n";
+            #else
+            CoolerOFF();
+            #endif
+            targetTemperature.editable = true;
         }
-        else if ( &e.source == &targetTemperature.value ) {
-            requiredTemperature.setMin( targetTemperature() + 1 );
-        }
-    } catch (const std::exception&e ) {
-        std::cerr << e.what() << "\n";
+    }
+    else if ( &e.source == &targetTemperature.value ) {
+        requiredTemperature.setMin( targetTemperature() + 1 );
     }
 }
 
 void Temperature::cool() 
 {
+    DEBUG("Preparing cooling transition, cooler is " << doCool());
     /* Make sure the cooling switch is pressed. If pressed already,
      * nothing happens. */
-    doCool = true;
+    Setter<bool> setter(expect_doCool_change, true);
+    simparm::AttributeChange<bool> change( doCool.value, true );
+    Setter<bool> resetter(expect_doCool_change, false);
 
     /* We need to check for the existence of the \c temperatureMonitor
     * here because finalize() stops that process, not stopCooling().
     * Thus, it might still be active if we went through the states
     * Inquired -> Initialized -> Cooled -> Initialized . */
 
+    DEBUG("Began cooling transition");
     #ifndef NO_COOLER
     sm.status = "Waiting to reach required acquisition temperature";
     std::pair<bool, float> tstate;
     do {
         tstate = GetTemperatureF();
-        System::sleep(100);
+        sm.wait_or_abort_transition( StateMachine::Up, 100 );
     } while ( tstate.first == false &&
               tstate.second > requiredTemperature() &&
               !dStorm::ErrorHandler::global_termination_flag );
     sm.status = "Reached required temperature"; 
     #endif
+    DEBUG("Finished transition");
+    change.release();
 }
 
 void Temperature::warm() 
 {
-    doCool = false;
+    Setter<bool> setter(expect_doCool_change, true);
+    simparm::AttributeChange<bool> change( doCool.value, false );
+    Setter<bool> resetter(expect_doCool_change, false);
 
+    #ifndef NO_COOLER
     std::pair<bool, float> tstate;
     do {
         tstate = GetTemperatureF();
         realTemperature = tstate.second;
-        System::sleep(100);
+        sm.wait_or_abort_transition( StateMachine::Down, 100 );
     } while ( tstate.second < -20 );
+    #endif
     monitor.reset(NULL);
+    change.release();
 }
 
 MK_EMPTY_RW(Temperature)

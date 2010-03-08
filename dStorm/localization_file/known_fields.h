@@ -3,6 +3,7 @@
 
 #include <cs_units/camera/length.hpp>
 #include <cs_units/camera/resolution.hpp>
+#include <boost/units/systems/si/base.hpp>
 
 #include <dStorm/Localization.h>
 #include <dStorm/input/LocalizationTraits.h>
@@ -80,6 +81,23 @@ struct Amplitude {
     static void insert( const ValueQuantity& value,
                         Localization& target )
         { target.strength() = value; }
+};
+
+struct TwoKernelImprovement {
+    typedef boost::units::quantity<
+        boost::units::si::dimensionless, float> ValueQuantity;
+    typedef int BoundField;
+
+    static const std::string semantic;
+    static const bool hasMinField = false, hasMaxField = false;
+
+    static BoundField& minField( Traits& l )
+        { throw std::logic_error("No minimum field given."); }
+    static BoundField& maxField( Traits& )
+        { throw std::logic_error("No maximum field given."); }
+    static void insert( const ValueQuantity& value,
+                        Localization& target )
+        { target.two_kernel_improvement() = value; }
 };
 
 }
