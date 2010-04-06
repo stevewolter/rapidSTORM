@@ -18,6 +18,6 @@ libengine_la_SOURCES = \
     LocalizationBuncher.cpp LocalizationBuncher.h \
     SigmaFitter.h \
     SigmaGuesser.cpp SigmaGuesser_FreeFormFitter.cpp \
-    SigmaGuesser.h SpotFitter.cpp SpotFitter.h \
+    SigmaGuesser.h SpotFitter.h \
     studentPinv.c studentPinv.h \
     SpotFinder.cpp debug.h

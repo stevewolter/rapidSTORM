@@ -1,7 +1,8 @@
 #ifndef GAUSSFITTER_RESIDUE_ANALYSIS_H
 #define GAUSSFITTER_RESIDUE_ANALYSIS_H
 
-#include "GaussFitter_Specialized.h"
+template <typename Ty>
+Ty sq(const Ty& a) { return a*a; }
 
 namespace dStorm {
 namespace engine {
@@ -65,8 +66,8 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
     double normed_max_diff = diag_diff.maxCoeff( &main_axis )
             / R.cwise().abs().sum();
 
-    bool residue_analysis_positive = ( normed_max_diff > 
-                                       common.asymmetry_threshold );
+    bool residue_analysis_positive = 
+        ( normed_max_diff > common.asymmetry_threshold );
     if ( residue_analysis_positive ) {
         direction->x() =
             ( main_axis == Vertical ) ? 0 :
@@ -113,7 +114,12 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
                 this->c->residues.rows(), this->c->residues.cols()
               ).cwise().square().sum();
     
-    return std::min(1.0, new_residues / this->c->chi_sq);
+    /* Check whether the two peaks are too far from each other to be of
+     * influence. */
+    if ( common.peak_distance_small( &fit_result.second->parameters ) )
+        return std::min(1.0, new_residues / this->c->chi_sq);
+    else
+        return 1.0;
 }
 
 #if 0

@@ -180,6 +180,11 @@ class NamedParameters {
     template <int Function>
     double getMeanY() const { return get<MeanY,Function>(); }
     template <int Function>
+    Eigen::Vector2d getPosition() const {
+        return Eigen::Vector2d( 
+            get<MeanX,Function>(), get<MeanY,Function>() );
+    }
+    template <int Function>
     double getAmplitude() const { return get<Amp,Function>(); }
 
     template <int Function>

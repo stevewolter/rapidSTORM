@@ -381,8 +381,8 @@ class Config::CameraSwitcher : public AndorCamera::System::Listener
 void Config::registerNamedEntries()
 {
     CamTraits::Resolution res;
-    res.fill( cs_units::camera::pixels_per_meter * 1E9f
-              / float(resolution_element()) );
+    res = cs_units::camera::pixels_per_meter * 1E9f
+              / float(resolution_element());
     switcher.reset( new Config::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
@@ -406,7 +406,7 @@ void Config::operator()(const simparm::Event& e)
     if ( &e.source == &resolution_element ) {
         if ( switcher.get() != NULL )
             switcher->change_resolution( 
-                CamTraits::Resolution( resolution_element() * 1E-9 ) );
+                CamTraits::Resolution::value_type( 1.0 / (resolution_element() * 1E-9) * cs_units::camera::pixels_per_meter ) );
     } else if ( &e.source == &basename.value ) {
         output_file_basename = basename();
     }

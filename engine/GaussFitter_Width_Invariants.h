@@ -2,10 +2,10 @@
 #define DSTORM_GAUSSFITTER_WIDTH_INVARIANTS_H
 
 #include <fit++/Exponential2D.hh>
-#include <dStorm/engine/Config_decl.h>
+#include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/Spot_decl.h>
 #include <dStorm/Localization_decl.h>
-#include <dStorm/engine/Image_decl.h>
+#include "GaussFitterConfig_decl.h"
 
 namespace dStorm {
 namespace engine {
@@ -35,7 +35,7 @@ struct Width_Invariants<Free_Sigmas, false>
     const double amplitude_threshold;
     const double start_sx, start_sy, start_sxy;
 
-    Width_Invariants( const Config& config );
+    Width_Invariants( const GaussFitterConfig&, const JobInfo& );
     StartInformation set_start( const Spot& spot, const Image& image,
                     double shift_estimate,
                     typename FitGroup::Variables* variables );
@@ -56,11 +56,12 @@ struct Width_Invariants<Free_Sigmas, true>
     typename FitGroup::Constants constants;
     FitFunction<FitGroup::VarC> fit_function;
     typename FitGroup::NamedParameters params;
-    const double asymmetry_threshold;
+    const double asymmetry_threshold, required_peak_distance_sq;
 
-    Width_Invariants( const Config& config );
+    Width_Invariants( const GaussFitterConfig&, const JobInfo& );
     void start_from_splitted_single_fit
-        ( typename FitGroup::Variables* v, const Eigen::Vector2i& dir)
+        ( typename FitGroup::Variables* v, const Eigen::Vector2i& dir);
+    bool peak_distance_small(typename FitGroup::Variables *variables);
 ;
 };
 

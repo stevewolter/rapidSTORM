@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <dStorm/output/Trace.h>
 #include "doc/help/context.h"
+#include <dStorm/unit_matrix_operators.h>
 
 #include <dStorm/localization_file/fields.h>
 #include <dStorm/localization_file/known_fields.h>
@@ -43,6 +44,8 @@ void LocalizationFile::printFit(const Localization &f,
            << f.strength().value() ;
       if ( traits.two_kernel_improvement_is_set )
         (*file) << " " << f.two_kernel_improvement();
+      if ( traits.covariance_matrix_is_set )
+        (*file) << " " << Eigen::unitless_value(f.fit_covariance_matrix()).format(format);
       (*file) << "\n";
     }
 }
@@ -66,6 +69,8 @@ void LocalizationFile::open() {
     field::Amplitude( traits ).makeNode( topNode );
     if ( traits.two_kernel_improvement_is_set )
         field::TwoKernelImprovement( traits ).makeNode( topNode );
+    if ( traits.covariance_matrix_is_set )
+        field::CovarianceMatrix( traits ).makeNode( topNode );
 
     XMLSTR str = topNode.createXMLString(0);
     *file << "# " << str << "\n";
@@ -109,7 +114,8 @@ void LocalizationFile::propagate_signal(Output::ProgressSignal s) {
 LocalizationFile::LocalizationFile(const Config &c) 
 
 : OutputObject("LocalizationFile", "File output status"),
-  filename(c.outputFile()), localizationDepth((c.traces()) ? 1 : 0) 
+  filename(c.outputFile()), localizationDepth((c.traces()) ? 1 : 0) ,
+  format( 4, Eigen::Raw, " ", " " )
 {
     if ( filename == "" )
         throw std::runtime_error("No filename provided for "

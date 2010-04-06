@@ -1,11 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Can throw exceptions after calls to longjmp */
-#undef EXCEPTIONS_AFTER_LONGJMP
-
-/* Can throw exceptions in signal handlers */
-#undef EXCEPTIONS_IN_SIGNAL_HANDLERS
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

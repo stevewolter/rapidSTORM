@@ -2,15 +2,17 @@
 #define DSTORM_GAUSSFITTER_H
 
 #include "GaussFitter_decl.h"
+#include "GaussFitterConfig_decl.h"
 #include "GaussFitter_Width_Invariants.h"
-#include "SpotFitter.h"
+#include <dStorm/engine/SpotFitter.h>
+#include <boost/utility.hpp>
 
 namespace dStorm {
 namespace engine {
 
 template <bool Free_Sigmas, bool Residue_Analysis, bool Corr>
 class GaussFitter
-: public SpotFitter
+: boost::noncopyable, public SpotFitter
 {
   public:
     static const int MaxFitWidth = 17, MaxFitHeight = 17;
@@ -49,13 +51,8 @@ class GaussFitter
     template <int Level>
     void create_specializations();
 
-  private:
-    /** Not implemented copy constructor. */
-    GaussFitter(const GaussFitter&);
-    /** Not implemented assignment operator. */
-    GaussFitter& operator=(const GaussFitter&);
   public:
-    GaussFitter(const Config& config) ;
+    GaussFitter(const GaussFitterConfig&, const JobInfo&) ;
     ~GaussFitter(); 
 
     int fitSpot( const Spot& spot, const Image& image,
