@@ -8,6 +8,7 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
+#include <stdint.h>
 
 #include <simparm/ChoiceEntry_Impl.hh>
 
