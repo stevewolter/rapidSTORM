@@ -34,7 +34,7 @@ namespace ost {
 
     /** This is the mutex for _lock_cerr() and _unlock_cerr(). */
     static void printDebugHeader(std::ostream& base, const char *file, int line, const char *thread) throw() { 
-        char *sl = strrchr(file, '/');
+        const char *sl = strrchr(file, '/');
         base << right << setw(20) << ((sl != NULL) ? sl+1 : file) << ":"
              << left << setw(4) << line << " "
              << left << setw(9) << thread << " "

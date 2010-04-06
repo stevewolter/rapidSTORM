@@ -1,3 +1,6 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "local_cleanup.h"
 #include "AndorCamera/EmergencyHandler.h"
 #include "InputStream.h"
@@ -11,6 +14,9 @@ void local_cleanup( dStorm::ErrorHandler::CleanupArgs& args,
             new dStorm::InputStream(NULL, &std::cout) );
         master.reset(is.release());
         args.pop_front();
-    } else 
+    } else {
+#ifdef HAVE_LIBATMCD32D
         AndorCamera::EmergencyHandler::do_emergency_cleanup( args, *master );
+#endif
+    }
 }
