@@ -8,7 +8,10 @@ library_include_HEADERS = \
     Image_decl.h Image.h Image_impl.h \
     Input_decl.h Input.h \
     Spot_decl.h Spot.h \
-    SpotFinder_decl.h SpotFinder.h
+    SpotFinder_decl.h SpotFinder.h \
+    JobInfo_decl.h JobInfo.h \
+    SpotFitter_decl.h SpotFitter.h \
+    SpotFitterFactory.h SpotFitterBuilder.h
 
 AM_CPPFLAGS = \
     -include $(top_srcdir)/../debug.h \
@@ -16,5 +19,5 @@ AM_CPPFLAGS = \
     -I $(top_builddir)/..
 
 libengine_la_SOURCES = \
-    CandidateTree.cpp Config.cpp SpotFinder.cpp Input.cpp
+    CandidateTree.cpp Config.cpp SpotFinder.cpp Input.cpp SpotFitterFactory.cpp 
 libengine_la_LIBADD = 

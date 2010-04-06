@@ -11,11 +11,9 @@ template <typename PixelType>
 void
 Traits< cimg_library::CImg<PixelType> >::
 compute_resolution( const Config& config ) {
-    for (int i = 0; i < resolution.rows(); i++) {
-        resolution[i] = 
-            cs_units::camera::pixels_per_meter /
-                (config.pixel_size_in_nm() / 1E9);
-    }
+    resolution = Resolution::value_type( 
+        cs_units::camera::pixels_per_meter /
+            (config.pixel_size_in_nm() / 1E9) );
 }
 
 #if 0

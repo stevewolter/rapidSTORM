@@ -122,6 +122,8 @@ SinglePrecisionEstimator::announceStormSize(const Announcement& a)
 {
     /* Length of a pixel in nm is inverse of number of dots per nm. */
     pixel_dim = a.traits.resolution;
+    if ( ! pixel_dim.is_set() )
+        throw std::runtime_error("Precision estimator cannot work with unknown pixel size");
     return AdditionalData().set_cluster_sources();
 }
 
@@ -143,15 +145,15 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
                 << setw(10) << setprecision(2) << 
                     (compute_weighted_SD(
                         l.get_source_trace(), 0) 
-                        *2.35* pixel_dim.x() ) / si::nanometre
+                        *2.35* *pixel_dim ) / si::nanometre
                 << setw(10) << setprecision(2) <<
                     (compute_weighted_SD(
                             l.get_source_trace(), 1)
-                        *2.35* pixel_dim.y() ) / si::nanometre
+                        *2.35* *pixel_dim ) / si::nanometre
                 << setw(10) << setprecision(2) << 
-                    ( s.x *2.35* pixel_dim.x()) / si::nanometre
+                    ( s.x *2.35* *pixel_dim) / si::nanometre
                 << setw(10) << setprecision(2) <<
-                    ( s.y *2.35* pixel_dim.y()) / si::nanometre
+                    ( s.y *2.35* *pixel_dim) / si::nanometre
                 << setw(10) << setprecision(3) << s.xy
                 << "\n";
         }
@@ -211,8 +213,8 @@ void MultiPrecisionEstimator::estimatePrecision() {
     }
 
     usedSpots = s.n;
-    y_sd = 1E9 * (s.x * 2.35 / pixel_dim.x() / si::meter);
-    y_sd = 1E9 * (s.y * 2.35 / pixel_dim.y() / si::meter);
+    y_sd = 1E9 * (s.x * 2.35 / *pixel_dim / si::meter);
+    y_sd = 1E9 * (s.y * 2.35 / *pixel_dim / si::meter);
     corr = s.xy;
     if ( ! x_sd.isActive() ) std::cout << x_sd() << " " << y_sd() << "\n";
 }

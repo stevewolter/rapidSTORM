@@ -10,6 +10,7 @@ template <int Dimension> struct Spatial;
 struct Time;
 struct Amplitude;
 struct TwoKernelImprovement;
+struct CovarianceMatrix;
 
 }
 
@@ -25,6 +26,8 @@ typedef Known< properties::Amplitude >
     Amplitude;
 typedef Known< properties::TwoKernelImprovement >
     TwoKernelImprovement;
+typedef Known< properties::CovarianceMatrix >
+    CovarianceMatrix;
 
 }
 }

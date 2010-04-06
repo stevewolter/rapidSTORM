@@ -3,14 +3,17 @@
 
 #include "GaussFitter.h"
 #include <dStorm/engine/Config.h>
+#include <dStorm/engine/JobInfo_decl.h>
 
 namespace dStorm {
 namespace engine {
 
 template <bool FS, bool RS, bool Corr>
-GaussFitter<FS,RS,Corr>::GaussFitter(const Config& config) 
-: common(config) ,
-    msx( config.fitWidth() ), msy( config.fitHeight() )
+GaussFitter<FS,RS,Corr>::GaussFitter( 
+    const GaussFitterConfig& config,
+    const JobInfo& info) 
+: common(config, info) ,
+    msx( info.config.fitWidth() ), msy( info.config.fitHeight() )
 {
     for (int i = 0; i < MaxFitWidth-1; i++)
         for (int j = 0; j < MaxFitHeight-1; j++) {

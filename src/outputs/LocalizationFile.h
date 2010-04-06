@@ -21,6 +21,8 @@ class LocalizationFile : public OutputObject {
     std::ostream *file;
     int localizationDepth;
 
+    Eigen::IOFormat format;
+
     void open();
     void printFit(const Localization &f, int localizationDepth);
 

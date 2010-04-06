@@ -43,6 +43,8 @@ _Config::_Config()
                      false),
     asymmetry_threshold("AsymmetryThreshold", 
                         "Threshold for relative spot asymmetry", 1),
+    required_peak_distance("RequiredPeakDistance",
+                        "Minimum distance between double-spot peaks in nm", 250),
     motivation("Motivation", "Spot search eagerness", 3),
     amplitude_threshold("AmplitudeThreshold", 
                         "Amplitude discarding threshold", 3000),
@@ -103,6 +105,8 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
+    required_peak_distance.userLevel = Entry::Intermediate;
+
     pistonCount.setUserLevel(Entry::Expert);
     pistonCount.helpID = HELP_CPUNumber;
     pistonCount.setHelp("Use this many parallel threads to compute the "
@@ -152,6 +156,7 @@ void _Config::registerNamedEntries() {
     push_back(amplitude_threshold);
     push_back(motivation);
     push_back(asymmetry_threshold);
+    push_back(required_peak_distance);
 
     push_back( pistonCount );
 }

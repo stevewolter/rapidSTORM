@@ -274,13 +274,15 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 
 { 
     traits = a.traits;
+    if ( ! traits.resolution.is_set() && (x_shift() != 0 || y_shift() != 0) )
+        throw std::runtime_error("Pixel size is unknown, but drift correction given");
     /* TODO traits.speed */
     shift_velocity.x() = 
         (x_shift() * 1E-9f * (si::meters / si::seconds))
-           * (traits.resolution.x() / ( 1.0 * cs_units::camera::fps));
+           * (*traits.resolution / ( 1.0 * cs_units::camera::fps));
     shift_velocity.y() = 
         y_shift() * 1E-9 * (si::meters / si::seconds)
-           / ( 1.0 * cs_units::camera::fps) * traits.resolution.y();
+           / ( 1.0 * cs_units::camera::fps) * *traits.resolution;
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -335,13 +337,13 @@ void LocalizationFilter::operator()
     } else if ( &e.source == &x_shift.value ) {
         shift_velocity.x() = x_shift() * 1E-9
             * si::meter / si::second 
-            / (1.0 * cs_units::camera::fps) * traits.resolution.x();
+            / (1.0 * cs_units::camera::fps) * *traits.resolution;
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &e.source == &y_shift.value ) {
         shift_velocity.y() = y_shift() * 1E-9
             * si::meter / si::second 
-            / (1.0 * cs_units::camera::fps) * traits.resolution.y();
+            / (1.0 * cs_units::camera::fps) * *traits.resolution;
         re_emitter->repeat_results();
     } else if ( &e.source == &two_kernel_significance.value ) {
         re_emitter->repeat_results();

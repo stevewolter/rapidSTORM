@@ -169,14 +169,14 @@ void File::read_classic(const std::string& line) {
             case 0: 
                 fs.push_back( 
                     new field::XCoordinate( 
-                        field::XCoordinate::Value(
+                        field::XCoordinate::Bound(
                             value * cs_units::camera::pixel) ) 
                 );
                 break;
             case 1:
                 fs.push_back( 
                     new field::YCoordinate(
-                        field::YCoordinate::Value(
+                        field::YCoordinate::Bound(
                             value * cs_units::camera::pixel ) )
                 );
                 break;

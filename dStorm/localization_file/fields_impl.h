@@ -10,6 +10,23 @@ namespace dStorm {
 namespace LocalizationFile {
 namespace field {
 
+template <typename Derived>
+std::istream& operator>>(std::istream& from, Eigen::MatrixBase<Derived>& to) {
+    for (int r = 0; r < to.rows(); r++)
+      for (int c = 0; c < to.cols(); c++)
+        from >> to(r,c);
+    return from;
+}
+
+/* For this module, ignore units in input, just read numbers */
+template <typename Unit, typename Value>
+std::istream& operator>>(std::istream& from, boost::units::quantity<Unit,Value>& to) {
+    Value val;
+    from >> val;
+    to = boost::units::quantity<Unit,Value>::from_value(val);
+    return from;
+}
+
 template <typename Attribute>
 static void condAddAttribute( 
     XMLNode& node, const Attribute& a, 
@@ -31,11 +48,11 @@ cond_parse_attribute(
 ) {
     const char* a = node.getAttribute( name.c_str() );
     if ( a != NULL ) {
-        typename Quantity::value_type val;
+        Quantity val;
         std::string unit;
         std::stringstream ss( a );
         ss >> val >> unit;
-        field = Quantity::from_value( val );
+        field = val;
     }
 }
 
@@ -57,17 +74,15 @@ read_attribute(
 template <typename Prop>
 Known<Prop>::Known( const XMLNode& node )
 {
-    typedef typename Value::value_type RawValue;
-        
     const std::string 
         syntax = read_attribute(node, "syntax"),
         semantic = read_attribute(node, "semantic"),
         unit = read_attribute(node, "unit"),
         expected_unit = 
                 boost::units::name_string(
-                    typename Prop::ValueQuantity::unit_type());
+                    typename Prop::ValueUnit());
 
-    if ( syntax != type_string<RawValue>::ident )
+    if ( syntax != type_string<Value>::ident() )
         throw std::runtime_error("Unexpected syntax field "
             "in localization file: " + syntax );
     if ( semantic != Prop::semantic )
@@ -119,12 +134,11 @@ XMLNode Known<Prop>::makeNode( XMLNode& top_node )
 {
     XMLNode rv = top_node.addChild("field");
     rv.addAttribute("syntax", 
-        type_string<typename Value::value_type>
-            ::ident.c_str());
+        type_string<Value>::ident().c_str());
     rv.addAttribute("semantic", Prop::semantic.c_str());
     rv.addAttribute("unit", 
         boost::units::name_string(
-            typename Prop::ValueQuantity::unit_type()).c_str() );
+            typename Prop::ValueUnit()).c_str() );
     condAddAttribute( rv, minimum, "min" );
     condAddAttribute( rv, maximum, "max" );
             
@@ -166,9 +180,9 @@ void Known<Prop>::parse(
 )
 {
     /* TODO: Honor unit given in header here. */
-    typename Value::value_type v;
+    Value v;
     input >> v;
-    Prop::insert( Value::from_value( v ), target );
+    Prop::insert( v, target );
 }
 
 }

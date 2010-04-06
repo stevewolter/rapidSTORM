@@ -172,16 +172,8 @@ void ErrorHandler::Pimpl::on_unrecoverable_signal(int n)
 #ifdef SIGPROF
     signal(SIGPROF, SIG_IGN);
 #endif
-    std::cerr << "Launching: ";
-    for ( char ** p = current_handler->emergency_call; *p; p++ )
-        std::cerr << *p << " -- ";
-    std::cerr << std::endl;
-    _exit(1);
     execvp( current_handler->emergency_call[0], 
            current_handler->emergency_call );
-    /* Error must have occured if code continues. */
-    std::cerr << "Error in executing emergency cleanup code: "
-              << strerror(errno) << std::endl;
 }
 
 void ErrorHandler::Pimpl::on_terminate() {
@@ -214,7 +206,12 @@ void ErrorHandler::Pimpl::on_terminate() {
 
 void ErrorHandler::Pimpl::set_catchers(bool reset) {
     void (*term_handler)(int num) = on_termination_signal;
-    void (*unrecov_handler)(int num) = on_thread_cancelling_signal;
+    void (*unrecov_handler)(int num) = 
+#ifdef EXECVP_ON_CRITICAL_SIGNAL
+        on_thread_cancelling_signal;
+#else
+        on_unrecoverable_signal;
+#endif
     if ( getenv("RAPIDSTORM_DISABLE_SIGNAL_HANDLER") ) {
         std::cerr << ("Signal handling disabled by environment variable") << std::endl;
         term_handler = SIG_DFL;

@@ -23,11 +23,17 @@ namespace LocalizationFile {
 namespace field {
 
 template <>
-struct type_string<float> { static const std::string ident; };
+struct type_string<float> { static const std::string ident(); };
 template <>
-struct type_string<double> { static const std::string ident; };
+struct type_string<double> { static const std::string ident(); };
 template <>
-struct type_string<int> { static const std::string ident; };
+struct type_string<int> { static const std::string ident(); };
+template <typename UnitType, typename ValueType>
+struct type_string< boost::units::quantity<UnitType,ValueType> >
+    : type_string<ValueType> {};
+template <typename Scalar, int Row, int Col, int Fl, int MaxR, int MaxC >
+struct type_string< Eigen::Matrix<Scalar, Row, Col, Fl, MaxR, MaxC> >
+    { static const std::string ident(); };
 
 class Interface {
   public:
@@ -60,14 +66,15 @@ class Known : public Interface
 {
   public:
     typedef typename Properties::ValueQuantity Value;
+    typedef typename Properties::BoundQuantity Bound;
     typedef Properties Props;
 
   private:
-    simparm::optional<Value> minimum, maximum;
+    simparm::optional<Bound> minimum, maximum;
 
   public:
     Known() {}
-    Known( const Value& maxVal ) : maximum(maxVal) {}
+    Known( const Bound& maxVal ) : maximum(maxVal) {}
     Known( const XMLNode& );
     Known( const output::Traits& );
 
@@ -86,6 +93,7 @@ class KnownWithResolution :
   public:
     typedef typename Properties::ResolutionQuantity Resolution;
     typedef typename Properties::ValueQuantity Value;
+    typedef typename Properties::BoundQuantity Bound;
 
     typedef Properties Props;
 
@@ -94,7 +102,7 @@ class KnownWithResolution :
     
   public:
     KnownWithResolution() {}
-    KnownWithResolution( const Value& maxVal )
+    KnownWithResolution( const Bound& maxVal )
         : Known<Properties>(maxVal) {}
     KnownWithResolution( const XMLNode& );
     KnownWithResolution( const output::Traits& );

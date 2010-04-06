@@ -71,6 +71,18 @@ esac
 
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir)/.. $CPPFLAGS"
 
+AC_ARG_ENABLE([execvp-on-critical-signal],
+    [AS_HELP_STRING([--enable-execvp-on-critical-signal],
+        [enable restarting by execvp() on receiving sigsegv/fpe/ill @<:@default=yes@:>@])],
+    [],
+    [enable_execvp_on_critical_signal=yes])
+
+AS_IF(
+    [test "x$enable_execvp_on_critical_signal" = xyes],
+    [ AC_DEFINE([EXECVP_ON_CRITICAL_SIGNAL], [1], [Restart process by execvp() on deadly signals]) ],
+    []
+)
+
 # Now write the global and doc/lib makefiles. More libs are needed for
 # src.
 AC_CONFIG_FILES([Makefile])

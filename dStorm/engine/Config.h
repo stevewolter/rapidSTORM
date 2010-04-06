@@ -53,6 +53,8 @@ namespace engine {
         /** Threshold for the spot fitter for the degree of asymmetry
          *  in the residues from which on it will suscept multi-spots. */
         DoubleEntry asymmetry_threshold;
+        /** Required distance between multi-spot peaks. */
+        DoubleEntry required_peak_distance;
 
         /** Continue fitting until this number of bad fits occured. */
         UnsignedLongEntry motivation;

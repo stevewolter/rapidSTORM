@@ -30,15 +30,17 @@ void Display<Colorizer>::setSize(
         height = traits.size.y() / cs_units::camera::pixel;
     ps.resize( width * height, false );
     ps_step = width;
+    if ( ! traits.resolution.is_set() )
+        throw std::logic_error("Pixel size must be given for image display");
 
     dStorm::Display::ResizeChange& r = my_size;
     r.width = width;
     r.height = height;
     r.key_size = Colorizer::BrightnessDepth;
     r.pixel_size = 
-        2.0 /
+        1.0 /
         (boost::units::si::meters / cs_units::camera::pixel ) /
-        (traits.resolution.x() + traits.resolution.y());
+        (*traits.resolution);
 
     if ( do_show_window ) {
         props.initial_size = r;

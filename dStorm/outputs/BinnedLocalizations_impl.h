@@ -150,19 +150,14 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
         
     const PreciseSize one_pixel( 1 * cs_units::camera::pixel );
 
-    typedef output::Traits::Resolution::Scalar Resolution;
-
     traits.size.fill( 1 * cs_units::camera::pixel );
     for (int i = 0; i < announcement->traits.size.rows(); i++) {
         PreciseSize dp_size = announcement->traits.size[i] - 2*crop;
         traits.size[i] = std::max( ceil( re * dp_size ), one_pixel );
     }
 
-    traits.resolution.fill
-        ( Resolution::from_value(
-            std::numeric_limits<Resolution::value_type>::signaling_NaN()));
-    traits.resolution.start<Localization::Dim>()
-        = announcement->traits.resolution * float(re);
+    if ( announcement->traits.resolution.is_set() )
+        traits.resolution = *announcement->traits.resolution * float(re);
 
     base_image.resize(
         traits.dimx().value(),

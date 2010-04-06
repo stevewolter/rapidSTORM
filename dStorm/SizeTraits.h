@@ -7,6 +7,7 @@
 #include <cs_units/camera/resolution.hpp>
 #include "units_Eigen_traits.h"
 #include <limits>
+#include <simparm/optional.hh>
 
 namespace dStorm {
 
@@ -16,16 +17,13 @@ struct SizeTraits {
             boost::units::quantity<cs_units::camera::length,int>,
             Dimensions,1,Eigen::DontAlign> 
         Size;
-    typedef Eigen::Matrix<
-            boost::units::quantity<cs_units::camera::resolution,float>,
-            Dimensions,1,Eigen::DontAlign> 
+    typedef simparm::optional< boost::units::quantity<cs_units::camera::resolution,float> >
         Resolution;
 
     Size size;
     Resolution resolution;
 
-    SizeTraits() : size( Size::Zero() ),
-                   resolution( Resolution::Zero() ) {}
+    SizeTraits() : size( Size::Zero() ) {}
 
     /** CImg compatibility method.
      *  @return X component of \c size, i.e. width of image in pixels. */
@@ -52,14 +50,11 @@ SizeTraits<Dimensions>::get_other_dimensionality() const
         (Dimensions > NewDimensions) ? NewDimensions : Dimensions;
 
     SizeTraits<NewDimensions> rv;
+    rv.resolution = resolution;
     rv.size.start(CommonDimensions) = size.start(CommonDimensions);
-    rv.resolution.start(CommonDimensions) = 
-        resolution.start(CommonDimensions);
 
     for (int i = CommonDimensions; i < NewDimensions; i++) {
         rv.size[i] = Size::Scalar::from_value(
-            std::numeric_limits<float>::signaling_NaN() );
-        rv.resolution[i] = Resolution::Scalar::from_value(
             std::numeric_limits<float>::signaling_NaN() );
     }
     

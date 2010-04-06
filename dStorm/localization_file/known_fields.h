@@ -20,22 +20,22 @@ typedef input::Traits<Localization> Traits;
 template <int Dimension>
 struct Spatial {
     typedef Localization::Position::Scalar ValueQuantity;
-    typedef Traits::Size::Scalar SizeQuantity;
-    typedef Traits::Resolution::Scalar ResolutionQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
+    typedef Traits::Size::Scalar BoundQuantity;
+    typedef Traits::Resolution ResolutionField;
+    typedef ResolutionField::value_type ResolutionQuantity;
 
     static const std::string semantic;
     static const bool hasMinField = false,
                         hasMaxField = true,
                         hasResolutionField = true;
 
-    static ValueQuantity& minField( Traits& )
+    static BoundQuantity& minField( Traits& )
         { throw std::logic_error("No minimum field given."); }
-    static typename Traits::Size::Scalar&
-        maxField( Traits& l )
+    static BoundQuantity& maxField( Traits& l )
         { return l.size[Dimension]; }
-    static Traits::Resolution::Scalar& resolutionField
-        ( Traits& l )
-        { return l.resolution[Dimension]; }
+    static ResolutionField& resolutionField
+        ( Traits& l ) { return l.resolution; }
     static void insert( const ValueQuantity& value,
                         Localization& target )
         { target.position()[Dimension] = value; }
@@ -43,9 +43,10 @@ struct Spatial {
 
 struct Time {
     typedef frame_index ValueQuantity;
-    typedef Traits::FrameCountField SizeQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
+    typedef Traits::FrameCountField BoundQuantity;
+    typedef simparm::optional<BoundQuantity> BoundField;
     typedef Traits::FrameRateField ResolutionQuantity;
-    typedef simparm::optional<ValueQuantity> BoundField;
     typedef simparm::optional<ResolutionQuantity>
         ResolutionField;
 
@@ -67,8 +68,10 @@ struct Time {
 
 struct Amplitude {
     typedef Localization::Amplitude ValueQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
     typedef Traits::AmplitudeField SizeQuantity;
-    typedef simparm::optional<ValueQuantity> BoundField;
+    typedef ValueQuantity BoundQuantity;
+    typedef simparm::optional<BoundQuantity> BoundField;
 
     static const std::string semantic;
     static const bool hasMinField = true,
@@ -86,6 +89,8 @@ struct Amplitude {
 struct TwoKernelImprovement {
     typedef boost::units::quantity<
         boost::units::si::dimensionless, float> ValueQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
+    typedef int BoundQuantity;
     typedef int BoundField;
 
     static const std::string semantic;
@@ -98,6 +103,24 @@ struct TwoKernelImprovement {
     static void insert( const ValueQuantity& value,
                         Localization& target )
         { target.two_kernel_improvement() = value; }
+};
+
+struct CovarianceMatrix {
+    typedef Localization::Matrix ValueQuantity;
+    typedef ValueQuantity::Scalar::unit_type ValueUnit;
+    typedef int BoundQuantity;
+    typedef int BoundField;
+
+    static const std::string semantic;
+    static const bool hasMinField = false, hasMaxField = false;
+
+    static BoundField& minField( Traits& l )
+        { throw std::logic_error("No minimum field given."); }
+    static BoundField& maxField( Traits& )
+        { throw std::logic_error("No maximum field given."); }
+    static void insert( const ValueQuantity& value,
+                        Localization& target )
+        { target.fit_covariance_matrix() = value; }
 };
 
 }
