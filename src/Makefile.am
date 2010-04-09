@@ -21,7 +21,7 @@ else
     RESOURCE_FILE =
 endif
 
-.rc.o : 
+.rc.o : config.h
 	$(WINDRES) -I . '$<' '$@'
 
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \

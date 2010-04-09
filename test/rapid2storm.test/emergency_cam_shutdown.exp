@@ -2,6 +2,15 @@ begin_test_suite
 
 set test "SIGSEGV shutdown"
 
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value query\n"
+expect {
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value value set 0"
+        {}
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value value set \[1-9\]"
+        { send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in value set 1\n"; exp_continue; }
+    "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 0"
+        {}
+}
 send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -25\n"
@@ -16,6 +25,7 @@ expect {
     -re "Camera is in danger zone" { set can_do_test 1 }
     -re "Could not perform action" { unsupported "$test" }
     -re "No camera selected" { unsupported "$test" }
+    -re "in CameraStatus in value set Reached required temperature" { unsupported "$test" }
     timeout { unsupported "$test" }
 }
 
@@ -30,10 +40,11 @@ expect {
     -re "Camera is out of danger zone" { pass "$test" }
     eof { fail "$test" }
 }
-}
 
 wait
 
 initialize
+
+}
 
 end_test_suite

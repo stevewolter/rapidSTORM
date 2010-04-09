@@ -2,23 +2,23 @@ start_test_suite
 set timeout 2
 
 set test "filename clash between two tables"
-send "forSet Car forSet Method set InputMethod in Auto set InputFile value /srv/storm/ATTO655_DNA_OF2_3.sif\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Verbose\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Table\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Table\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Verbose\n"
+send "in Car in Method set InputMethod in Auto in InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
 
-send "in Car set Run = 1\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Starting job failed:.* output file .* was used by multiple.*" { pass "$test" }
     timeout { fail "$test" }
 }
 
 set test "filename clash between two different outputs"
-send "forSet Car forSet Output in EngineOutput set ToRemove value Output1\n"
-send "forSet Car forSet Output in EngineOutput set ChooseTransmission value Image\n"
-send "forSet Car forSet Output in EngineOutput in Output2 in Image set ToFile = /srv/storm/ATTO655_DNA_OF2_3.txt\n"
-send "in Car set Run = 1\n"
+send "in Car in Output in EngineOutput set ToRemove in value set Output1\n"
+send "in Car in Output in EngineOutput set ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output2 in Image in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.txt\n"
+send "in Car in Run in value set 1\n"
 
 expect {
     -re "Starting job failed: The output file name '.*' was used by multiple" 
@@ -27,9 +27,9 @@ expect {
 }
 
 set test "clash between input and output file name"
-send "forSet Car forSet Output in EngineOutput set ToRemove value Output2\n"
-send "forSet Car forSet Output in EngineOutput in Output0 set ToFile = /srv/storm/ATTO655_DNA_OF2_3.sif\n"
-send "cmd 0 in Car set Run = 1\n"
+send "in Car in Output in EngineOutput set ToRemove in value set Output2\n"
+send "in Car in Output in EngineOutput in Output0 in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "cmd 0 in Car in Run in value set 1\n"
 
 expect {
    -re "Starting job failed: The output file name '.*' was used by multiple"

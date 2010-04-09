@@ -2,10 +2,10 @@
 #define TEST_PLUGIN_DISPLAY_MANAGER_H
 
 #include <dStorm/helpers/DisplayManager.h>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
+#include <dStorm/helpers/thread.h>
 #include <boost/utility.hpp>
 #include <set>
+#include <list>
 #include <Eigen/Core>
 
 namespace Eigen {
@@ -15,7 +15,7 @@ template <> class NumTraits<dStorm::Pixel>
 
 }
 
-class Manager : public dStorm::Display::Manager {
+class Manager : public dStorm::Display::Manager, private ost::Thread {
     class Handle;
 
     std::auto_ptr<WindowHandle>
@@ -27,7 +27,6 @@ class Manager : public dStorm::Display::Manager {
     ost::Mutex mutex;
     ost::Condition gui_run;
     typedef ost::MutexLock guard;
-    boost::thread thread;
     bool running;
 
     struct Source {
@@ -51,6 +50,7 @@ class Manager : public dStorm::Display::Manager {
         previous;
 
     void dispatch_events();
+    void run();
 
   public:
     Manager(dStorm::Display::Manager *p);

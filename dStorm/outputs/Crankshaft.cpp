@@ -9,6 +9,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "debug.h"
+#include <boost/units/io.hpp>
 
 using namespace std;
 using namespace data_cpp;
@@ -94,12 +95,17 @@ Crankshaft::announceStormSize(const Announcement &a)
 void Crankshaft::propagate_signal(ProgressSignal s) {
     DEBUG("Announcing engine start");
     ReadLock reader(clutchesLock);
-    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++) {
+        DEBUG("Announcing engine start to " << (*i)->getNode().getName());
         (*i)->propagate_signal(s);
+        DEBUG("Announced engine start to " << (*i)->getNode().getName());
+    }
+    DEBUG("Announced engine start");
 }
 
 Output::Result Crankshaft::receiveLocalizations(const EngineResult& er) 
 {
+    DEBUG("Receiving " << er.number << " locs for " << er.forImage);
     bool haveImportantOutput = false;
     {
         ReadLock reader(clutchesLock);

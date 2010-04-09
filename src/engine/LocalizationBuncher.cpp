@@ -26,12 +26,17 @@ throw(Output*)
         Output::Result result =
             target.receiveLocalizations(engine_result);
         if (result == Output::StopEngine) {
+            DEBUG("Got result StopEngine");
             target.propagate_signal( 
                 Output::Engine_run_is_aborted );
             target.propagate_signal( 
                 Output::Engine_run_failed );
             throw &target;
+        } else {
+            DEBUG("Got result " << result << ", continuing");
         }
+    } else {
+        DEBUG("Image " << outputImage << " not in range " << first << " to " << last);
     }
     
     outputImage = outputImage + 1 * cs_units::camera::frame;
@@ -80,8 +85,12 @@ LocalizationBuncher::~LocalizationBuncher() {
 
 void LocalizationBuncher::ensure_finished() 
 {
+    if ( buffer.get() != NULL ) {
+        DEBUG("Canning last results");
+        can_results_or_publish( currentImage );
+    }
     DEBUG("Finished reading file");
-    while ( ! canned.empty() ) {
+    while ( outputImage < lastInFile ) {
         DEBUG("Finish iteration with output image " << outputImage);
         Canned::iterator i;
         i = canned.find( outputImage );
@@ -93,8 +102,10 @@ void LocalizationBuncher::ensure_finished()
             canned.erase(i);
         } else if ( outputImage == currentImage ) {
             DEBUG("Outputting current");
-            output( buffer.get() );
-            buffer->clear();
+            if ( buffer.get() != NULL ) {
+                output( buffer.get() );
+                buffer->clear();
+            }
         } else {
             DEBUG("Outputting nothing");
             output( NULL );
@@ -109,7 +120,10 @@ void LocalizationBuncher::noteTraits(
     frame_index firstImage, frame_index lastImage)
 
 {
-    lastInFile = lastImage;
+    DEBUG("Set bounds " << firstImage << " " << lastImage);
+    if ( ! traits.total_frame_count.is_set() )
+        throw std::runtime_error("Total number of frames in STM file must be known");
+    lastInFile = *traits.total_frame_count;
     last = lastImage;
     first = std::min( firstImage, last );
 

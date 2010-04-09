@@ -1,3 +1,4 @@
+set test "Localization filter works"
 send "attach\n"
 send "in Car in Method set InputMethod in Auto set InputFile = /srv/storm/ATTO655_DNA_OF2_3.sif\n"
 send "in Car in Output set EngineOutput set ChooseTransmission = LocalizationFilter\n"

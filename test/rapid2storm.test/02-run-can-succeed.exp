@@ -1,5 +1,6 @@
 set test "Empty run succeeds"
 
+set timeout 100
 send "cmd 0 in Car in Run in value set 1\n"
 
 expect {

@@ -66,7 +66,7 @@ _Config::_Config()
   inputFile("InputFile", "Input file location"),
   firstImage("FirstImage", "First image to load", 0),
   lastImage("LastImage", "Last image to load",
-            numeric_limits<unsigned long>::max() ),
+            numeric_limits<long>::max() ),
   pixel_size_in_nm("PixelSizeInNM", "Size of one input pixel in nm",
                    85)
 {

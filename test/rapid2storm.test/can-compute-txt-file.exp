@@ -3,26 +3,30 @@ load_default_config
 send "in Car in AutoTerminate in value set true\n"
 set timeout 20
 
+set input_file "$workspace/Mikrotubuli.txt"
+
 set test "Do not overwrite own input file"
-send "in Car in Method in InputMethod in Auto set InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.txt\n"
-send "in Car in Method in InputMethod in Auto in LastImage in value set 20\n"
+send "in Car in Method in InputMethod in Auto set InputFile in value set $input_file\n"
 send "in Car in Run in value set 1\n"
 expect {
     -re "failed:.*was used by multiple outputs"
         { pass "$test" }
 }
 
-dstorm_attach
-
 set timeout -1
 set test "Write file if output is changed"
-set output_file "test-txt-output.txt"
+set output_file "$tmpdir/test-txt-output.txt"
+send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set $output_file\n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set \n"
+
+dstorm_attach
+
 send "in Car in Run in value set 1\n"
 expect {
     -re "failed:.*was used by multiple outputs" { fail "$test" }
         "\nremove dStormJob" { pass "$test" }
-        "\nin dStormJob" { puts "Continuing"; exp_continue }
+        "\nin dStormJob" { exp_continue }
 }
 set test "Written output file exists"
 if { [file exists "$output_file"] == 1 } {
@@ -31,18 +35,22 @@ if { [file exists "$output_file"] == 1 } {
     fail "$test"
 }
 
-set test "Written output file is not empty"
+set test "Written output file has same number of lines as input file"
+
+set linecountdiff 0
 set filestream [open "$output_file" r]
-set lc 0
-while {[gets $filestream line] >= 0} { incr lc }
+while {[gets $filestream line] >= 0} { incr linecountdiff }
 close $filestream
-if { $lc > 1 } {
+set linecountdiff -$linecountdiff
+set filestream [open "$input_file" r]
+while {[gets $filestream line] >= 0} { incr linecountdiff }
+close $filestream
+if { $linecountdiff == 0 } {
     pass "$test"
     file delete -force "$output_file"
 } else {
     fail "$test"
 }
-
 
 wait_for_jobs
 

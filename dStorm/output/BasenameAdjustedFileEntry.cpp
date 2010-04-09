@@ -39,10 +39,12 @@ void BasenameAdjustedFileEntry::
     operator()( const simparm::Event& e )
 {
     if ( expect_change ) {
+        DEBUG("Doing nothing because change was expected");
         return;
     } else {
         std::string norm = last_basename.unformatted()() + default_extension();
         has_been_user_modified = ( value() != norm );
+        DEBUG("After change set has_been_user_modified to " << has_been_user_modified << ", new value is " << value());
     } 
 }
 
@@ -52,10 +54,12 @@ set_output_file_basename(
 )
 {
     if ( ! has_been_user_modified ) {
+        DEBUG("Entry has not been user-modified, setting value");
         expect_change = true;
         value = basename.unformatted()()
                   + default_extension();
         expect_change = false;
+        DEBUG("Set value to " << value());
     }
     last_basename = basename;
 }
@@ -64,6 +68,7 @@ std::string BasenameAdjustedFileEntry::operator()() const
 { 
     Basename b = last_basename;
     b.unformatted() = value();
+    DEBUG("Returning file basename " << b.new_basename());
     return b.new_basename();
 }
 

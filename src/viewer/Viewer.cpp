@@ -259,6 +259,7 @@ Viewer::Viewer(const Viewer::Config& config)
   save("SaveImage", "Save image"),
   quit("Quit", "Close viewing window")
 {
+    DEBUG("Building viewer");
     if (cimg_lock == NULL) cimg_lock = new Mutex();
 
     resolutionEnhancement.helpID = HELP_Viewer_Status_ResEnh;
@@ -289,6 +290,7 @@ Viewer::Viewer(const Viewer::Config& config)
             initial_height = 4*CImgDisplay::screen_dimy()/5;
 #endif
     }
+    DEBUG("Built viewer");
 }
 
 Viewer::~Viewer() {

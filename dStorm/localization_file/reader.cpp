@@ -38,8 +38,9 @@ Localization* Source::fetch(int) {
     if ( file.input ) {
         buffer.commit(1);
         return l;
-    } else
+    } else {
         return NULL;
+    }
 }
 
 int Source::number_of_newlines() {

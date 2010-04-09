@@ -29,5 +29,10 @@ set test "Camera warms up again after interruption"
 expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set \[0-9\]" { pass "$test" }
 }
+set test "Can disconnect from camera"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in DisconnectFromCamera in value set 1\n"
+expect {
+    -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 0" { pass "$test" }
+}
 
 end_test_suite

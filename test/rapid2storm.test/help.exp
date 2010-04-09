@@ -1,3 +1,5 @@
+start_test_suite
+
 set timeout 10
 
 set test "help"
@@ -5,3 +7,5 @@ send "help\n"
 expect {
     -re "--" { pass "help" }
 }
+
+end_test_suite

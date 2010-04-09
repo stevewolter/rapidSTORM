@@ -1,3 +1,4 @@
+set timeout -1
 start_test_suite
 
 global have_test_plugin
@@ -19,6 +20,7 @@ expect {
         { pass "$test" }
 }
 
+set timeout -1
 set test "Am actually getting different images"
 set digest_a "nan"
 if { $have_test_plugin == 1 } {
@@ -72,7 +74,7 @@ if { [file exists $outfile] == 1 } { file delete -force $outfile }
 
 send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImageFile in value set $outfile\n"
 send "cmd 101 in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in value set 1\n"
-set timeout 300
+set timeout -1
 expect {
     "ack 101" {
         if { [file exists "$outfile"] == 1 } {
