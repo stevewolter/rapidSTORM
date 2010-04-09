@@ -23,7 +23,10 @@ struct Verbose
     AdditionalData announceStormSize(const Announcement& a) { 
         std::cerr << "Verbose plugin got announcement with "
                   << a.traits.size.transpose() << " "
-                  << a.traits.resolution.transpose() << "\n";
+                  << a.traits.resolution.is_set() << " ";
+        if (  a.traits.resolution.is_set() )
+                 std::cerr << *a.traits.resolution << " ";
+        std::cerr << "\n";
         return AdditionalData(); 
     }
     Result receiveLocalizations(const EngineResult& er) {

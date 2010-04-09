@@ -110,7 +110,7 @@ AC_ARG_ENABLE([debug-plugin],
     [AS_HELP_STRING([--enable-debug-plugin],
         [enable building debug plugin @<:@default=yes@:>@])],
     [],
-    [enable_debug_plugin=no])
+    [enable_debug_plugin=yes])
 AM_CONDITIONAL( [BUILD_DEBUG_PLUGIN], [test "x$enable_debug_plugin" != xno] )
         
 AM_OPTIONS_WXCONFIG

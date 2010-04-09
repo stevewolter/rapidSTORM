@@ -103,6 +103,8 @@ bool Manager::Source::get_and_handle_change() {
     return has_changed;
 }
 
+void Manager::run() { dispatch_events(); }
+
 std::auto_ptr<dStorm::Display::Manager::WindowHandle>
     Manager::register_data_source
 (
@@ -113,11 +115,7 @@ std::auto_ptr<dStorm::Display::Manager::WindowHandle>
         guard lock(mutex);
         if ( !running ) {
             running = true;
-            thread = boost::thread(
-                boost::bind( 
-                    &Manager::dispatch_events,
-                    this )
-            );
+            ost::Thread::start();
         }
     }
     return 
@@ -169,7 +167,8 @@ void Manager::run_in_GUI_thread( ost::Runnable* )
 }
 
 Manager::Manager(dStorm::Display::Manager *p)
-: gui_run(mutex),
+: ost::Thread("DisplayManager"),
+  gui_run(mutex),
   running(false),
   previous(p)
 {
@@ -179,7 +178,7 @@ Manager::~Manager()
 {
     if ( running ) {
         running = false;
-        thread.join();
+        this->join();
     }
 }
 
