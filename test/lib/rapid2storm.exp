@@ -5,6 +5,7 @@ lappend boards_dir "$srcdir/boards"
 proc initialize {} {
 	dstorm_start
     expect_after {
+        -re "Could not perform action:" { fail "$test" }
         eof     { fail "$test" }
         timeout { fail "$test" }
     }
@@ -20,7 +21,7 @@ proc dstorm_start {} {
 
     send "cmd 0 nop\n"
     set def_timeout $timeout
-    set timeout 150
+    set timeout 300
     set have_test_plugin 0
     expect {
         -re "Test plugin loaded" { set have_test_plugin 1; exp_continue }

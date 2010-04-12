@@ -4,7 +4,7 @@ set timeout 1
 set test "can add table output"
 
 send "attach\n"
-send "in Car in Output in EngineOutput set ChooseTransmission = Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 expect {
     -re "in Car in Output in EngineOutput declare Object\r?\nname (Output\[0-9\]*)" {
         set first_table $expect_out(1,string)
@@ -13,7 +13,7 @@ expect {
 }
 
 set test "can add viewer output"
-send "in Car in Output in EngineOutput set ChooseTransmission = Image\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
 expect {
     -re "in Car in Output in EngineOutput declare Object\r?\nname (Output\[0-9\]*)" {
         set image $expect_out(1,string)
@@ -23,7 +23,7 @@ expect {
 
 set test "can remove table output"
 if { [info exists first_table] } {
-send "in Car in Output in EngineOutput set ToRemove = $first_table\n"
+send "in Car in Output in EngineOutput in ToRemove in value set $first_table\n"
 expect {
     -re "in Car in Output in EngineOutput remove $first_table\r?\n"
         { pass "$test" }
@@ -34,7 +34,7 @@ expect {
 
 set test "can remove image output"
 if { [info exists image] } {
-send "in Car in Output in EngineOutput set ToRemove = $image\n"
+send "in Car in Output in EngineOutput in ToRemove in value set $image\n"
 expect {
     -re "in Car in Output in EngineOutput remove $image\r?\n"
         { pass "$test" }

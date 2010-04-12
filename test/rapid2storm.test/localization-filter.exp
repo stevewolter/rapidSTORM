@@ -1,14 +1,17 @@
 set test "Localization filter works"
 send "attach\n"
-send "in Car in Method set InputMethod in Auto set InputFile = /srv/storm/ATTO655_DNA_OF2_3.sif\n"
-send "in Car in Output set EngineOutput set ChooseTransmission = LocalizationFilter\n"
-send "in Car in Output set EngineOutput in Output0 set LocalizationFilter set ChooseTransmission = Image\n"
-send "in Car in Output set EngineOutput in Output0 set LocalizationFilter in Output0 in Image set ShowOutput = true\n"
-send "in Car set Run = 1\n"
+send "in Car in Method set InputMethod in Auto in InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Output set EngineOutput in ChooseTransmission in value set LocalizationFilter\n"
+send "in Car in Output set EngineOutput in Output0 in LocalizationFilter in ChooseTransmission in value set Image\n"
+send "in Car in Output set EngineOutput in Output0 set LocalizationFilter in Output0 in Image in ShowOutput in value set true\n"
+send "in Car in Run in value set 1\n"
+expect  {
+    -re "declare Set\r?\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); }
+}
 sleep 1
-send "in dStormJob01 in EngineStatus set EngineStopper = 1\n"
+send "in $job in EngineStatus in EngineStopper in value set 1\n"
 sleep 1
-send "in dStormJob01 set CloseJob = 1\n"
+send "in $job in CloseJob in value set 1\n"
 sleep 1
 expect -re "\nremove "
 

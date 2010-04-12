@@ -213,6 +213,7 @@ void Car::runOnSTM() throw( std::exception ) {
                         config.inputConfig.lastImage()
                             * cs_units::camera::frame );
     locSource->startPushing( &buncher );
+    buncher.ensure_finished();
 }
 
 void Car::stop() {

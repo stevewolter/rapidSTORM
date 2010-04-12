@@ -108,7 +108,9 @@ void Camera::ExclusiveAccessor::forfeit_access() {
         }
     } else {
         std::list<ExclusiveAccessor*>& w = camera->waiting_accessors;
-        w.erase( std::find( w.begin(), w.end(), this ) );
+        std::list<ExclusiveAccessor*>::iterator me = std::find( w.begin(), w.end(), this );
+        if ( me != w.end() )
+            w.erase( me );
     }
 }
 

@@ -1,6 +1,9 @@
 #ifndef DSTORM_RAWIMAGEFILE_H
 #define DSTORM_RAWIMAGEFILE_H
 
+#define VERBOSE
+#include "debug.h"
+
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <tiffio.h>
