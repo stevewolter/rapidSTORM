@@ -80,7 +80,6 @@ LocalizationBuncher::LocalizationBuncher(Output& output)
 }
 
 LocalizationBuncher::~LocalizationBuncher() {
-    ensure_finished();
 }
 
 void LocalizationBuncher::ensure_finished() 
@@ -100,12 +99,10 @@ void LocalizationBuncher::ensure_finished()
             output( i->second );
             delete i->second;
             canned.erase(i);
-        } else if ( outputImage == currentImage ) {
+        } else if ( outputImage == currentImage && buffer.get() != NULL ) {
             DEBUG("Outputting current");
-            if ( buffer.get() != NULL ) {
-                output( buffer.get() );
-                buffer->clear();
-            }
+            output( buffer.get() );
+            buffer.reset( NULL );
         } else {
             DEBUG("Outputting nothing");
             output( NULL );

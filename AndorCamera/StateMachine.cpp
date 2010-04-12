@@ -74,6 +74,7 @@ void StateMachine::push_token( ListenerReference& creator,
                                State to )
 {
     token->tag = creator.p;
+    DEBUG("Adding token " << token->tag << " to " << to);
     state_stack[to].push_front( token );
 }
 
@@ -88,7 +89,7 @@ void StateMachine::go_to_state( State to )
             try {
                 while ( ! state_stack[current_state].empty() ) {
                     check_for_interruption( Down );
-                    DEBUG("Position " << to << " " << current_state << " " << desired_state);
+                    DEBUG("Removing token " << state_stack[current_state].front().tag << " from " << current_state);
                     MutexUnlock unlock(locked_state);
                     state_stack[current_state].pop_front();
                 }
@@ -114,8 +115,10 @@ void StateMachine::go_to_state( State to )
                 }
                 check_for_interruption( Up );
             } catch (...) {
-                while ( ! state_stack[n].empty() )
+                while ( ! state_stack[n].empty() ) {
+                    DEBUG("Removing token " << state_stack[n].front().tag << " from " << n);
                     state_stack[n].pop_front();
+                }
                 throw;
             }
             current_state = n;
@@ -138,9 +141,11 @@ void StateMachine::bring_to_disconnect( Listener& l ) {
     do {
         StateStack::mapped_type::iterator i = state_stack[s].begin();
         while ( i != state_stack[s].end() ) {
-            if ( i->tag == &l )
+            DEBUG("Iterating over " << s);
+            if ( i->tag == &l ) {
+                DEBUG("Erasing element for " << i->tag << " at " << s);
                 i = state_stack[s].erase(i);
-            else
+            } else
                 ++i;
         }
 
