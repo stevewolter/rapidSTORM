@@ -8,15 +8,8 @@ libengine_la_SOURCES = \
     CarConfig_decl.h CarConfig.h CarConfig.cpp \
     Car_decl.h Car.cpp Car.h Engine.cpp \
     EngineDebug.h Engine.h \
-    GaussFitter_decl.h GaussFitter.h GaussFitter_impl.h GaussFitter.cpp \
-    GaussFitter_ResidueAnalysis.h \
-    GaussFitter_selector.cpp GaussFitter_Specialized_a.cpp \
-    GaussFitter_Specialized_b.cpp GaussFitter_Specialized_c.cpp \
-    GaussFitter_Specialized_FreeSigma.cpp \
-    GaussFitter_Specialized.h GaussFitter_Width_Invariants.cpp \
-    GaussFitter_Width_Invariants.h ImageFitter.h \
     LocalizationBuncher.cpp LocalizationBuncher.h \
-    SigmaFitter.h \
+    SigmaFitter.h ImageFitter.h \
     SigmaGuesser.cpp SigmaGuesser_FreeFormFitter.cpp \
     SigmaGuesser.h SpotFitter.h \
     studentPinv.c studentPinv.h \

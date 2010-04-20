@@ -1,4 +1,4 @@
-#include "engine/GaussFitter_Width_Invariants.h"
+#include "GaussFitter_Width_Invariants.h"
 #include <fit++/FitFunction_impl.hh>
 #include <dStorm/engine/Image_impl.h>
 #include <dStorm/engine/Config.h>

@@ -147,14 +147,12 @@ fit( const Spot &spot, Localization *target, const Image& image,
     StartInformation starts =
         common.set_start( spot, image, shift_estimate, &a.parameters );
      
-    LOCKING("Trying to fit spot");
     std::pair<FitResult,typename Deriver::Position*>
         fitResult = 
             common.Width_Invariants<Free_Sigmas,false>::fit_function.fit(
                 a, b,
                 common.Width_Invariants<Free_Sigmas,false>::constants,
                 deriver );
-    LOCKING("Fitted spot");
 
     c = fitResult.second;
     bool is_good

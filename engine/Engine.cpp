@@ -1,5 +1,7 @@
 #define DSTORM_ENGINE_CPP
 
+#include "debug.h"
+
 #include "engine/Engine.h"
 #include "config.h"
 
@@ -26,14 +28,12 @@
 #include <boost/units/io.hpp>
 #include <dStorm/error_handler.h>
 
-#include "GaussFitterFactory.h"
+#include "gauss_fitter/GaussFitterFactory.h"
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
 clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 #endif
-
-#include "debug.h"
 
 using namespace dStorm;
 using namespace std;
@@ -263,9 +263,10 @@ void Engine::runPiston()
         DEBUG("Intake (" << i->index() << ")");
 
         Claim< Image > claim = i->claim();
-        if ( ! claim.isGood() )
+        if ( ! claim.isGood() ) {
+            DEBUG( "Image is bad, continuing" );
             continue;
-        else if ( claim.hasErrors() ) {
+        } else if ( claim.hasErrors() ) {
             DEBUG( "Image " << i->index() << " has errors");
             ost::MutexLock lock(mutex);
             errors = errors() + 1;
@@ -276,7 +277,7 @@ void Engine::runPiston()
 
         Image& image = *claim;
 
-        PROGRESS("Compression (" << image.getImageNumber() << ")");
+        DEBUG("Compression (" << i->index() << ")");
         IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
         finder->smooth(image);
         IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
@@ -286,7 +287,7 @@ void Engine::runPiston()
         recompress:  /* We jump here if maximum limit proves too small */
         IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
         finder->findCandidates( maximums );
-        PROGRESS("Found " << maximums.size() << " spots");
+        DEBUG("Found " << maximums.size() << " spots");
 
         IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );
         IF_DSTORM_MEASURE_TIMES( search_time += search_start - pre );
@@ -294,35 +295,35 @@ void Engine::runPiston()
         /* Motivational fitting */
         motivation = origMotivation;
         for ( cM = maximums.begin(); cM.hasMore() && motivation > 0; cM++){
-            LOCKING("Trying candidate");
+            DEBUG("Trying candidate");
             const Spot& s = cM->second;
             /* Get the next spot to fit and fit it. */
             Localization *candidate = buffer.allocate();
             int found_number = fitter->fitSpot(s, image, candidate);
             if ( found_number > 0 ) {
-                LOCKING("Good fit");
+                DEBUG("Good fit");
                 for (int i = 0; i < found_number; i++)
                     candidate[i].setImageNumber( 
                         claim.index() * cs_units::camera::frame );
                 motivation = origMotivation;
                 buffer.commit(found_number);
             } else if ( found_number < 0 ) {
-                LOCKING("Bad fit");
+                DEBUG("Bad fit");
                 motivation += found_number;
             }
         }
         if (motivation > 0 && cM.limitReached()) {
             maximumLimit *= 2;
-            PROGRESS("Raising maximumLimit to " << maximumLimit);
+            DEBUG("Raising maximumLimit to " << maximumLimit);
             maximums.setLimit(maximumLimit);
             buffer.clear();
             goto recompress;
         }
 
-        PROGRESS("Found " << buffer.size() << " localizations");
+        DEBUG("Found " << buffer.size() << " localizations");
         IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
-        PROGRESS("Power");
+        DEBUG("Power");
         resultStructure.forImage = 
             claim.index() * cs_units::camera::frame;
         resultStructure.first = buffer.ptr();
@@ -339,7 +340,7 @@ void Engine::runPiston()
             error = ( r == Output::StopEngine );
         }
 
-        PROGRESS("Exhaust");
+        DEBUG("Exhaust");
         buffer.clear();
 
         if (emergencyStop || globalStop 

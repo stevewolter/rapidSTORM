@@ -57,7 +57,6 @@ ModuleLoader::Pimpl::~Pimpl() {}
 ModuleLoader::Pimpl::LoadResult
 ModuleLoader::Pimpl::try_loading_module( const char *filename ) {
     try {
-        std::cerr << "Trying to load " << filename << std::endl;
         std::auto_ptr<LibraryHandle> handle
             ( new LibraryHandle( filename ) );
         for (List::const_iterator i = lib_handles.begin(); 

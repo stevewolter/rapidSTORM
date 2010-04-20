@@ -1,6 +1,8 @@
 #include "config.h"
 #ifdef HAVE_LIBREADSIF
 
+#include "debug.h"
+
 #define CImgBuffer_SIFLOADER_CPP
 
 #include <read_sif.h>
@@ -37,25 +39,35 @@ CImg<Pixel>*
 Source<Pixel>::load()
  
 {
-   Traits< CImg<Pixel> >& my_traits = *this;
-   const int sz = 
-        (my_traits.size.x() * my_traits.size.y()).value();
-   float buffer[sz];
-   for (int i = 0; i < sz; i++) buffer[i] = 5;
-   CImg<Pixel> *result = NULL;
+    DEBUG("Loading next image");
+    if ( had_errors )
+        return NULL;
+    Traits< CImg<Pixel> >& my_traits = *this;
+    const int sz = 
+            (my_traits.size.x() * my_traits.size.y()).value();
+    float buffer[sz];
+    for (int i = 0; i < sz; i++) buffer[i] = 5;
+    CImg<Pixel> *result = NULL;
 
-#ifndef NDEBUG
-   int rv_of_readsif_getImage = 
-#endif
-        readsif_getNextImage( dataSet, buffer );
-   assert( rv_of_readsif_getImage == 0 );
+    DEBUG("Calling GetNextImage");
+    int rv_of_readsif_getImage = 
+            readsif_getNextImage( dataSet, buffer );
+    if ( rv_of_readsif_getImage == -1 ) {
+        std::cerr << "Error while reading SIF file: " + std::string(readsif_error) + ". Will skip remaining images." << std::endl;
+        had_errors = true;
+        return NULL;
+    } else if ( rv_of_readsif_getImage == 1 ) {
+        throw std::logic_error("Too many images read from SIF source");
+    }
 
-   result = new CImg<Pixel>(my_traits.size.x().value(), my_traits.size.y().value());
-   /* The pixel might need casting. This is done here. */
-   for (int p = 0; p < sz; p++) {
-      result->data[p] = (Pixel)buffer[p];
-   }
-   return result;
+    DEBUG("Creating new image");
+    result = new CImg<Pixel>(my_traits.size.x().value(), my_traits.size.y().value());
+    /* The pixel might need casting. This is done here. */
+    for (int p = 0; p < sz; p++) {
+        result->data[p] = (Pixel)buffer[p];
+    }
+    DEBUG("Loaded next image");
+    return result;
 }
 
 template<typename Pixel>
@@ -141,7 +153,7 @@ Source<Pixel>::Source(FILE *src, const string &i)
 : Object("AndorSIF", "SIF file"),
   BaseSource(BaseSource::Pullable),
   Set("AndorSIF", "SIF file"),
-  stream(NULL), file(NULL), dataSet(NULL), file_ident(i),
+  stream(NULL), file(NULL), dataSet(NULL), had_errors(false), file_ident(i),
   showDetails("ShowDetails", "Show SIF file information"),
   hideDetails("HideDetails", "Hide SIF file information")
 {
@@ -153,7 +165,7 @@ Source<Pixel>::Source(const char *filename)
 : Set("AndorSIF", "SIF file"),
   SerialSource< CImg<Pixel> >
     ( static_cast<simparm::Node&>(*this), BaseSource::Pushing | BaseSource::Pullable),
-  stream(NULL), file(NULL), dataSet(NULL), file_ident(filename),
+  stream(NULL), file(NULL), dataSet(NULL), had_errors(false), file_ident(filename),
   showDetails("ShowDetails", "Show SIF file information"),
   hideDetails("HideDetails", "Hide SIF file information")
 {

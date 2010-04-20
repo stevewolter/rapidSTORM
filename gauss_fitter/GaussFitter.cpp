@@ -1,4 +1,4 @@
-#include "engine/GaussFitter_impl.h"
+#include "GaussFitter_impl.h"
 #include <CImg.h>
 
 namespace dStorm {

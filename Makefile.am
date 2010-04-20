@@ -7,7 +7,7 @@ else
     DEBUGPLUGIN =
 endif
 
-SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN)
+SUBDIRS = fit++ AndorCamera inputs engine gauss_fitter spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN)
 
 bin_PROGRAMS = dstorm 
 
@@ -26,7 +26,7 @@ endif
 
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \
-    engine/libengine.la inputs/libinputs.la \
+    engine/libengine.la gauss_fitter/libgauss_fitter.la inputs/libinputs.la \
     AndorCamera/libAndorCamera.la \
     wxDisplay/libdStorm_display.la \
     ../dStorm/libdStorm.la 
