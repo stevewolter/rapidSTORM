@@ -167,6 +167,7 @@ void Engine::run()
 
     DEBUG("Announcing size");
     Output::Announcement announcement(convert_traits(input.getTraits()));
+    announcement.carburettor = &input;
     DEBUG("Built announcement structure");
 
     Output::AdditionalData data 
