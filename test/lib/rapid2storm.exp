@@ -87,14 +87,13 @@ proc wait_for_jobs { } {
 }
 
 proc begin_test_suite {} {
-    send "cmd 1 detach\n"; expect "ack 1";
-    send "cmd 0 reset\n"; expect "ack 0"; 
 }
 proc start_test_suite {} { begin_test_suite }
 proc end_test_suite {} { 
     set timeout 25; 
     set test "Job termination"; 
     wait_for_jobs; 
+    disconnect_camera;
 
     send "cmd 1 detach\n"; expect "ack 1";
     send "cmd 0 reset\n"; expect "ack 0"; 
@@ -109,4 +108,22 @@ proc load_default_config {} {
         send "in Car $line\n"
     }
     close $filestream
+}
+
+proc disconnect_camera {} {
+    set timeout 10
+    set test "Disconnecting from camera"
+    dstorm_attach
+    set campath "in Car in Method in InputMethod in AndorDirectConfig"
+    set caminitpath "$campath in CamControl in Initialization"
+    send  "$caminitpath in NumericState in value query\n"
+    expect {
+        -re "$caminitpath in NumericState in value value set 0" { pass "$test"; }
+        -re "$caminitpath in NumericState in value value set \[1-9\]" { 
+            send "$caminitpath in Initialization in DisconnectFromCamera in value set 1\n";
+            exp_continue;
+        }
+        -re "$caminitpath in NumericState in value set 0" { pass "$test"; }
+        -re "$caminitpath" { exp_continue; }
+    }
 }

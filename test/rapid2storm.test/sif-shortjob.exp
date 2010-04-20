@@ -1,3 +1,8 @@
-send "in Car in Method set InputMethod in Auto set InputFile = C:\rapid2storm\Sample Workspace\Mikrotubuli.sif
-!at 1296 in Car set Run = 1
-!at 3656 in dStormJob01 set CloseJob = 1
+begin_test_suite
+
+dstorm_attach
+
+# send "in Car in Method set InputMethod in Auto in InputFile in value set [file join $workspace Mikrotubuli.sif]"
+# expect { -re "Nuffing" {} }
+
+end_test_suite

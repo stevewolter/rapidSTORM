@@ -195,9 +195,9 @@ for flag in $acx_pthread_flags; do
         AC_TRY_LINK([#include <pthread.h>
                      void cleanuph(void *arg) { arg = NULL; }
                      void *subthread(void *sthread) { return sthread; }],
-                    [pthread_t th; pthread_attr_t attr; pthread_join(th, 0);
+                    [pthread_t th; pthread_attr_t attr; 
                      pthread_attr_init(&attr); pthread_cleanup_push(&cleanuph, 0);
-                     pthread_create(&th,0,&subthread,0); pthread_cleanup_pop(0); ],
+                     pthread_create(&th,0,&subthread,0); pthread_cleanup_pop(0); pthread_join(th, 0); ],
                     [acx_pthread_ok=yes])
 
         LIBS="$save_LIBS"

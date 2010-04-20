@@ -57,6 +57,7 @@ namespace AndorSIF {
          FILE *stream;
          readsif_File *file;
          readsif_DataSet *dataSet;
+         bool had_errors;
 
          std::string file_ident;
 

@@ -64,6 +64,8 @@ AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
 AC_CHECK_LIB([simparm], [main])
+AC_CHECK_LIB([tiff], [main])
+AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
 
@@ -94,17 +96,6 @@ AC_ARG_WITH([twiddler-jar],
         [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
         [],
         [with_twiddler_jar=$prefix/share/java/twiddler.jar])
-
-AC_ARG_ENABLE([specialized-fitters],
-    [AS_HELP_STRING([--enable-specialized-fitters],
-        [enable use of specialized fitters for common array sizes @<:@default=on@:>@])],
-        [],
-        [enable_specialized_fitters=yes])
-AS_IF(
-    [test "x$enable_specialized_fitters" = xyes],
-    [ AC_DEFINE([USE_SPECIALIZED_FITTERS], [1], [Use fitters specialized for common array sizes]) ],
-    []
-)
 
 AC_ARG_ENABLE([debug-plugin],
     [AS_HELP_STRING([--enable-debug-plugin],
@@ -151,6 +142,7 @@ CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAG
 AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_TARNAME/plugins")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
+AC_CONFIG_SUBDIRS([gauss_fitter])
 AC_CONFIG_FILES([Makefile AndorCamera/Makefile fit++/Makefile])
 AC_CONFIG_FILES([spotFinders/Makefile])
 AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])

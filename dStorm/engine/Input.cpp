@@ -1,3 +1,4 @@
+#include "debug.h"
 #include <dStorm/input/Buffer_impl.h>
 #include <dStorm/input/Slot_impl.h>
 #include <dStorm/input/ImageTraits.h>

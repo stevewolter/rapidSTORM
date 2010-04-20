@@ -3,42 +3,14 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the `floor' function. */
-#undef HAVE_FLOOR
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
-#undef HAVE_LIBATMCD32D
-
-/* Define to 1 if you have the `GraphicsMagick' library (-lGraphicsMagick). */
-#undef HAVE_LIBGRAPHICSMAGICK
-
-/* Define to 1 if you have the `GraphicsMagick++' library
-   (-lGraphicsMagick++). */
-#undef HAVE_LIBGRAPHICSMAGICK__
-
-/* Define to 1 if you have the `readsif' library (-lreadsif). */
-#undef HAVE_LIBREADSIF
 
 /* Define to 1 if you have the `simparm' library (-lsimparm). */
 #undef HAVE_LIBSIMPARM
 
-/* Define to 1 if you have the `tiff' library (-ltiff). */
-#undef HAVE_LIBTIFF
-
-/* Define to 1 if you have the `malloc' function. */
-#undef HAVE_MALLOC
-
-/* Define to 1 if you have the <math.h> header file. */
-#undef HAVE_MATH_H
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define if you have POSIX threads libraries and header files. */
-#undef HAVE_PTHREAD
 
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT
@@ -52,9 +24,6 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
-
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
@@ -67,17 +36,8 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
-/* Define to 1 if you have the <tiffio.h> header file. */
-#undef HAVE_TIFFIO_H
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
-
-/* Define to 1 if you have the `usleep' function. */
-#undef HAVE_USLEEP
-
-/* Define to 1 if you have the <windows.h> header file. */
-#undef HAVE_WINDOWS_H
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
@@ -116,15 +76,14 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to necessary symbol if this constant uses a non-standard name on
-   your system. */
-#undef PTHREAD_CREATE_JOINABLE
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
+
+/* Use fitters specialized for common array sizes */
+#undef USE_SPECIALIZED_FITTERS
 
 /* Version number of package */
 #undef VERSION

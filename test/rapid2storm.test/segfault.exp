@@ -1,45 +1,70 @@
 begin_test_suite
 
 set test "segfault in announcement"
-send "cmd 0 forSet Car forSet Method set InputMethod value DummyInput\n"
-send "in Car in Output in EngineOutput set ChooseTransmission = SegFault\n"
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = true\n"
-send "in Car in Output in EngineOutput set ChooseTransmission = Verbose\n"
-send "in Car set Run = 1\n"
+
+proc initialize_segfault_exp {} {
+    send "cmd 45 in Car in Method in InputMethod in value set DummyInput\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set SegFault\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+}
+
+initialize_segfault_exp
+set restart 0
+
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnAnnouncement in value set true\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Verbose plugin got announcement" { fail "$test" }
     -re "Terminating job" { pass "$test" }
     -re "Job \[0-9\]* failed.*segmentation fault" { pass "$test" }
+    -re "clear" { pass "$test"; set restart 1; }
 }
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnAnnouncement = false\n"
+if { $restart == 1 } { 
+    wait;
+    expect_before;
+    expect_after;
+    initialize;
+    initialize_segfault_exp; 
+    set restart 0;
+}
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnAnnouncement in value set false\n"
 
 wait_for_jobs
 
 set test "segfault in construction"
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = true\n"
-send "in Car set Run = 1\n"
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnConstruction in value set true\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Terminating program" { fail "$test" }
     -re "Constructed verbose plugin" { fail "$test" }
     -re "not perform action.*segmentation fault" { pass "$test" }
     -re "Starting job failed.*segmentation fault" { pass "$test" }
+    -re "clear" { pass "$test"; set restart 1; }
 }
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnConstruction = false\n"
+if { $restart == 1 } { 
+    wait;
+    expect_before;
+    expect_after;
+    initialize;
+    initialize_segfault_exp; 
+    set restart 0;
+}
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnConstruction in value set false\n"
 
 set test "able to continue after segfault in construction"
-send "in Car in Engine set CPUNumber = 1\n"
-send "in Car in Output in EngineOutput in Output0 in SegFault set OnImageNumber = 3\n"
-send "in Car set Run = 1\n"
+send "in Car in Engine in CPUNumber in value set 1\n"
+send "in Car in Output in EngineOutput in Output0 in SegFault in OnImageNumber in value set 3\n"
+send "in Car in Run in value set 1\n"
 expect {
     -re "Verbose plugin got results for 0" { pass "$test" }
     -re "egmentation fault" { fail "$test" }
 }
 
 #set test "survive segfault in destructor"
-#send "in Car in Engine set CPUNumber = 1\n"
-#send "in Car in Output in EngineOutput in Output0 in SegFault set OnImageNumber = 3\n"
-#send "in Car in Output in EngineOutput in Output0 in SegFault set OnDestruction = true\n"
-#send "in Car set Run = 1\n"
+#send "in Car in Engine in CPUNumber in value set 1\n"
+#send "in Car in Output in EngineOutput in Output0 in SegFault in OnImageNumber in value set 3\n"
+#send "in Car in Output in EngineOutput in Output0 in SegFault in OnDestruction in value set true\n"
+#send "in Car in Run in value set 1\n"
 #expect {
     #-re "Verbose plugin got results for 0" { pass "$test" }
     #-re "egmentation fault" { fail "$test" }
@@ -49,7 +74,16 @@ set test "segfault during job"
 expect {
     -re "Terminating job" { pass "$test" }
     -re "Error in computation" { pass "$test" }
+    -re "clear" { pass "$test"; set restart 1; }
     -re "Verbose plugin got results for 4" { fail "$test" }
+}
+if { $restart == 1 } { 
+    wait;
+    expect_before;
+    expect_after;
+    initialize;
+    initialize_segfault_exp; 
+    set restart 0;
 }
 
 untested "segfault in n-th working thread"

@@ -19,10 +19,6 @@ AC_PROG_CXX
 test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
 test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
-AC_PROG_JAVAC
-test "x$JAVAC" = "x" && AC_MSG_ERROR([unable to find Java compiler])
-AC_PROG_JAR
-test "x$JAR" = "x" && AC_MSG_ERROR([unable to find Java archiver])
 
 ACX_PTHREAD(
     [ LIBS="$PTHREAD_LIBS $LIBS"

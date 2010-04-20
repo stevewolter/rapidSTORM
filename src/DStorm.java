@@ -43,6 +43,7 @@ class DStorm {
                              : java.util.prefs.Preferences.userRoot() ),
             p = root.node(name);
         p.put( install_dir_key, value );
+        System.out.println("Set installation directory to " + value);
         
     }
 
@@ -147,7 +148,7 @@ class DStorm {
         }
    }
 
-   public static void main(String[] args) throws IOException {
+   public static void main(String[] args) throws IOException,Exception {
       try {
         if ( args.length > 0 && args[0].equals("--set-install-dir-key-system") ) {
             set_install_directory(args[1], true);
@@ -168,7 +169,7 @@ class DStorm {
             base_dir = new File( install_dir );
         }
 
-        File executable = new File(base_dir, "bin" + File.separator + "dstorm.exe");
+        File executable = new File(base_dir, "bin" + File.separator + "dstorm");
         File config = new File(base_dir, "share" + File.separator + "rapid2storm" 
                                          + File.separator + "dstorm-config.txt");
 

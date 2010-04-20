@@ -1,3 +1,5 @@
+begin_test_suite
+
 set timeout 5
 
 dstorm_attach
@@ -166,3 +168,5 @@ expect {
 # send "detach\n"
 send "cmd 0 wait_for_jobs\n"
 expect -re "ack 0"
+
+end_test_suite

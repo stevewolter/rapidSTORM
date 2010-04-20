@@ -1,6 +1,6 @@
 begin_test_suite
 
-set timeout 1
+set timeout 3
 set test "can add table output"
 
 send "attach\n"

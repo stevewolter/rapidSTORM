@@ -93,6 +93,7 @@ void Slot<Object>::fetchData() {
     while ( state == Untouched || state == Discarded ) {
         if ( source->canBePulled() ) {
             dataMutex.leaveMutex();
+            DEBUG("Pulling data for " << my_index);
             std::auto_ptr<Object> temp_data = 
                 std::auto_ptr<Object>( source->get(my_index) );
             dataMutex.enterMutex();
@@ -112,13 +113,19 @@ void Slot<Object>::fetchData() {
 
 template <typename Object>
 Claim<Object> Slot<Object>::_workOn() {
+    DEBUG("Locking for claim on " << my_index);
     ost::MutexLock lock(dataMutex);
-    if (claims > 0 || state >= Processed)
+    DEBUG("Locked for claim on " << my_index);
+    if (claims > 0 || state >= Processed) {
+        DEBUG("Invalid claim " << my_index);
         return Claim<Object>(NULL);
-    else {
+    } else {
+        DEBUG("Claim might be valid, creating");
         Claim<Object> c(this);
-        if (state == Untouched)
+        if (state == Untouched) {
+            DEBUG("Fetching data for " << my_index);
             fetchData();
+        }
         DEBUG("Returning valid claim for state " << state);
         return c;
     }

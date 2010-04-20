@@ -133,13 +133,11 @@ namespace ost {
         /* This mutex is kept until the write operation is finished. */
         pthread_mutex_lock(&tl.mutex);
         tl.waitingWriters++;
-        std::cerr << "New writer " << this << " is number " << tl.waitingWriters << std::endl;
         while (tl.readers > 0)
             pthread_cond_wait(&tl.canWrite, &tl.mutex);
     }
     WriteLock::~WriteLock() throw() {
         tl.waitingWriters--;
-        std::cerr << "Destroying writer " << this << ", have " << tl.waitingWriters << " more" << std::endl;
         if (tl.waitingWriters == 0)
             pthread_cond_broadcast(&tl.admitReader);
         else

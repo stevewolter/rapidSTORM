@@ -1,4 +1,7 @@
+begin_test_suite
+
 unsupported "No idea how to limit memory usage"
+end_test_suite
 continue
 
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
@@ -23,3 +26,5 @@ expect {
     -re "Your system has insufficient memory for job"   { pass "$test" }
     timeout     { fail "$test" }
 }
+
+end_test_suite

@@ -17,16 +17,16 @@ namespace input {
 template <typename Object>
 void Buffer<Object>::receive_number_of_objects(int present_images) 
 {
-    LOCKING("Receiving " << present_images << " of objects");
+    DEBUG("Receiving " << present_images << " of objects");
     ost::MutexLock lock(initialization);
     /* This construction method is equivalent to calling 
      * push_back(Slot<Object>(*source, i, mayDiscard)) for each i,
      * but uses fewer allocations. I cannot recall why the allocation
      * count here is important. */
     Slot<Object> exemplar(*source, -1, mayDiscard);
-    LOCKING("Resizing Buffer vector to " << present_images);
+    DEBUG("Resizing Buffer vector to " << present_images);
     resize(present_images, exemplar);
-    LOCKING("Resized Buffer vector");
+    DEBUG("Resized Buffer vector");
     int index = 0;
     for (typename data_cpp::Vector< Slot<Object> >::iterator
                   i = this->data_cpp::Vector< Slot<Object> >::begin();
@@ -49,7 +49,7 @@ void Buffer<Object>::init()
         source->startPushing(this);
     else
         source->allowPushing(this);
-    LOCKING("Created image buffer");
+    DEBUG("Created image buffer");
 }
 
 template<typename Object>
@@ -88,9 +88,9 @@ void Buffer<Object>::signal_end_of_acquisition() {
 
 template<typename Object>
 Buffer<Object>::~Buffer() {
-    STATUS("Destructing " << (void*)this);
+    DEBUG("Destructing " << (void*)this);
     signal_end_of_acquisition();
-    STATUS("Destructed " << this);
+    DEBUG("Destructed " << this);
 }
 
 template<typename Object>

@@ -290,6 +290,7 @@ class CameraLink : public simparm::Set {
       acquisitionSpeed("AcquisitionSpeed", "Exposure time per image"),
       viewportConfig(cam, resolution)
     {
+        ost::MutexLock lock( cam->mutex );
         showTabbed = true;
 
         a.push_back( cam->initialization() );
@@ -333,6 +334,12 @@ class CameraLink : public simparm::Set {
             cam->acquisitionMode().kinetic_length.value );
         acquisitionSpeed.erase( 
             cam->acquisitionMode().desired_kinetic_cycle_time.value );
+
+        /* Clear sets now to avoid race conditions */
+        a.clearChildren();
+        b.clearChildren();
+        c.clearChildren();
+        d.clearChildren();
     }
 
     const CameraReference& getCam() { return cam; }
@@ -363,7 +370,6 @@ class Config::CameraSwitcher : public AndorCamera::System::Listener
         {
             CameraReference cam = AndorCamera::System::singleton()
                                                .get_current_camera();
-            ost::MutexLock lock( cam->mutex );
             currentlyActive.reset( 
                 new CameraLink( node, cam, resolution ) );
         } else {
