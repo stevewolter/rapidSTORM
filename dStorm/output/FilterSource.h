@@ -82,6 +82,7 @@ class FilterSource
     FilterSource(simparm::Node&, const FilterSource& o);
 
     SourceFactory* getFactory() { return factory.get(); }
+    const SourceFactory* getFactory() const { return factory.get(); }
 
   public:
     ~FilterSource();

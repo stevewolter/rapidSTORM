@@ -194,7 +194,7 @@ END_EVENT_TABLE()
 
 std::auto_ptr<Change> Window::getState() const
 {
-    std::auto_ptr<Change> rv;
+    std::auto_ptr<Change> rv( new Change() );
     rv->do_resize = true;
     rv->resize_image.width =
         canvas->getWidth();

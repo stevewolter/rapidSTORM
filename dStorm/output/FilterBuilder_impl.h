@@ -23,6 +23,8 @@ FilterBuilder(const FilterBuilder<Type>& o)
         static_cast<typename Type::Config&>(*this), o ),
   failSilently(failSilently) 
 {
+    if ( o.getFactory() != NULL )
+        this->set_output_factory( *o.getFactory() );
     this->push_back( this->help_file ); 
 }
 

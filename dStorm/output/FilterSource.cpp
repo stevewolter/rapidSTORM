@@ -8,6 +8,7 @@
 #include "SourceFactory.h"
 #include "doc/help/context.h"
 
+
 namespace dStorm {
 namespace output {
 
@@ -32,7 +33,7 @@ struct FilterSource::RemovalObject : public simparm::Object {
 void FilterSource::registerNamedEntries()
 {
     if ( factory.get() != NULL ) {
-        DEBUG("Resetting state of source factory in filter source");
+        DEBUG("Resetting state of source factory in filter source for element " << getNode().getName());
         factory->reset_state();
 
         DEBUG("Registering entries");
@@ -60,12 +61,13 @@ FilterSource::FilterSource(simparm::Node& node)
 FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
 : OutputSource(node, o),
     simparm::Node::Callback(simparm::Event::ValueChanged),
-    next_identity(o.next_identity),
+    next_identity(0),
     factory( NULL ),
     outputs(),
     removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
         "ToRemove", "Select output to remove") )
 {
+    DEBUG("Copying " << o.getNode().getName());
     removeSelector->set_auto_selection( false );
     //if ( o.is_initialized() ) initialize(*o.factory);
     for ( const_iterator i = o.begin(); i != o.end(); i++ ) {
@@ -132,6 +134,7 @@ void FilterSource::link_transmission
     ( OutputSource* src ) 
 {
     std::stringstream nodeName;
+    DEBUG("Making node name Output" << next_identity);
     nodeName << "Output" << next_identity++;
 
     std::auto_ptr<simparm::Object> addNode( 
