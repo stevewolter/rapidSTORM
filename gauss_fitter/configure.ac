@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
+AC_INIT([rapidstorm_fitters], [1.0], RAPIDSTORM_MAINTAINER)
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([GaussFitter.cpp])
@@ -55,8 +55,6 @@ AS_IF(
     [ AC_DEFINE([USE_SPECIALIZED_FITTERS], [1], [Use fitters specialized for common array sizes]) ],
     []
 )
-
-AM_WITH_DMALLOC
 
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/../.. -I \$(top_srcdir) -I \$(top_srcdir)/.. -I \$(top_srcdir)/../.. $CPPFLAGS"
