@@ -27,4 +27,4 @@ libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la localization_file/liblocfile.la \
     input/libinput.la helpers/libhelpers.la -lsimparm
-libdStorm_la_LDFLAGS = -no-undefined -version-info 4:0:0 
+libdStorm_la_LDFLAGS = -no-undefined -version-info 5:0:0 

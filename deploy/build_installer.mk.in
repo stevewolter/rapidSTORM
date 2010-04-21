@@ -20,7 +20,7 @@ INSTALLER:=$(PACKAGE_TARNAME)
 BUNDLE_ISS_OFFSET:=installer.iss
 BUNDLE_ISS:=$(TMP)/$(BUNDLE_ISS_OFFSET)
 
-GRAPHICSMAGICK_ROOT:=/usr/local/i586-mingw32msvc
+GRAPHICSMAGICK_ROOT:=/srv/i586-builds/storm-deploy
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
 
 prefix_binaries.lst:=$(TMP)
@@ -63,7 +63,10 @@ include auto.dep
 include graphicsmagick.dep
 
 $(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
-	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),-C $(prefix_$(list)) --files-from=$(list) -C $(abs_builddir))
+	tar cfz $@ $(foreach list,bundle_iss.lst $(BUNDLE_LISTS),\
+	    $(if $(subst $(abs_builddir),,$(prefix_$(list))),\
+		-C $(prefix_$(list)) --files-from=$(list) -C $(abs_builddir),\
+		--files-from=$(list) ))
 
 unbundle.iss : $(BUNDLE_ISS)
 	sed -e 's#:prefix:[/\\]##' $< > $@
@@ -147,6 +150,10 @@ simparm_headers.lst :
 %.dll :
 	mkdir -p $(dir $@)
 	if test $(notdir $<) != "ATMCD32D.dll"; then $(STRIP) -o $@ $<; else cp $< $@; fi
+%.DLL :
+	mkdir -p $(dir $@)
+	if test $(notdir $<) != "ATMCD32D.DLL"; then $(STRIP) -o $@ $<; else cp $< $@; fi
+
 %.txt : 
 	cp $< $@
 %.bmp : 
