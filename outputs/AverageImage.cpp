@@ -1,3 +1,4 @@
+#define cimg_use_magick
 #define DSTORM_AVERAGEIMAGE_CPP
 #include "AverageImage.h"
 #include <iostream>
