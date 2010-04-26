@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include "errors.h"
+#include "dStorm/error_handler.h"
 
 #include "../debug.h"
 

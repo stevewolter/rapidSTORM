@@ -194,7 +194,7 @@ void Engine::run()
 
         if (emergencyStop) {
             if (error || globalStop || 
-                dStorm::ErrorHandler::global_termination_flag ) 
+                dStorm::ErrorHandler::global_termination_flag() ) 
             {
                 output->propagate_signal( Output::Engine_run_failed );
                 break;
@@ -296,8 +296,8 @@ void Engine::runPiston()
         /* Motivational fitting */
         motivation = origMotivation;
         for ( cM = maximums.begin(); cM.hasMore() && motivation > 0; cM++){
-            DEBUG("Trying candidate");
             const Spot& s = cM->second;
+            DEBUG("Trying candidate at " << s.x() << "," << s.y() );
             /* Get the next spot to fit and fit it. */
             Localization *candidate = buffer.allocate();
             int found_number = fitter->fitSpot(s, image, candidate);
@@ -344,11 +344,14 @@ void Engine::runPiston()
         DEBUG("Exhaust");
         buffer.clear();
 
+        DEBUG("Checking for termination: " << emergencyStop << " " << globalStop << " " << ErrorHandler::global_termination_flag());
         if (emergencyStop || globalStop 
-            || ErrorHandler::global_termination_flag) 
+            || ErrorHandler::global_termination_flag()) 
         {
-            PROGRESS("Emergency stop");
+            DEBUG("Emergency stop");
             break;
+        } else {
+            DEBUG("Continuing");
         }
     }
     DEBUG("Finished piston");

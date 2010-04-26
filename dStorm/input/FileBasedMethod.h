@@ -24,6 +24,7 @@ class FileBasedMethod
         const FileBasedMethod&, 
         input::Config& master );
 
+    input::Config& master;
     simparm::Attribute<std::string> extension;
 
     void operator()( const simparm::Event& );

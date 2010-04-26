@@ -22,12 +22,13 @@ namespace LocalizationFile {
 namespace Reader {
     struct File {
         typedef boost::ptr_vector<field::Interface> Fields;
+        typedef input::Traits<Localization> Traits;
 
         std::istream& input;
 
         File(std::istream& input);
         ~File();
-        input::Traits<Localization> getTraits() const;
+        Traits getTraits() const;
         void read_next(Localization& target);
 
       private:
@@ -45,6 +46,8 @@ namespace Reader {
         data_cpp::Vector< Localization > buffer;
         std::vector< output::Trace > trace_buffer;
         std::auto_ptr<output::TraceReducer> reducer;
+        typedef File::Traits::Resolution Resolution;
+        Resolution user_resolution;
 
         int number_of_newlines();
         void read_localization(Localization& target, int level, 
@@ -55,6 +58,7 @@ namespace Reader {
         Source(const File& file, 
                std::auto_ptr<output::TraceReducer> reducer);
 
+        void set_default_pixel_size(const File::Traits::Resolution::value_type& resolution);
         simparm::Node& getNode() { return *this; }
         const simparm::Node& getNode() const { return *this; }
 
@@ -64,7 +68,7 @@ namespace Reader {
     };
 
     class Config 
-    : public input::FileBasedMethod<Localization>
+    : public input::FileBasedMethod<Localization>, boost::noncopyable
     {
       private:
         output::TraceReducer::Config trace_reducer;

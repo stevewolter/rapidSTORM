@@ -16,6 +16,7 @@ FileBasedMethod<Object>::FileBasedMethod(
 ) 
 : Method<Object>(name, desc),
   simparm::Listener( simparm::Event::ValueChanged ),
+  master(src),
   extension( extension_name, extension ),
   inputFile(src.inputFile)
 {
@@ -31,6 +32,7 @@ FileBasedMethod<Object>::FileBasedMethod(
 ) 
 : Method<Object>(o),
   simparm::Listener( simparm::Event::ValueChanged ),
+  master(src),
   extension( o.extension ),
   inputFile( src.inputFile )
 {

@@ -222,7 +222,7 @@ void wxManager::run_in_GUI_thread( ost::Runnable* code )
 }
 
 void wxManager::exec_waiting_runnables() {
-    if ( ErrorHandler::global_termination_flag )
+    if ( ErrorHandler::global_termination_flag() )
         ;
     DEBUG("Acquiring runnables lock");
     ost::MutexLock lock(mutex);

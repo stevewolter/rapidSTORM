@@ -29,7 +29,9 @@
 
 namespace dStorm {
 
-bool ErrorHandler::global_termination_flag = false;
+static bool _global_termination_flag = false;
+
+bool ErrorHandler::global_termination_flag() { return _global_termination_flag; }
 
 struct ErrorHandler::Pimpl
 : public ost::Runnable
@@ -278,7 +280,7 @@ ErrorHandler::handle_errors_until_all_detached_threads_quit() {
         if ( ! pimpl->errors_buffer.empty() ) {
             DEBUG("Handling error");
             DeferredError* e = pimpl->errors_buffer.get_first_error();
-            global_termination_flag = true;
+            _global_termination_flag = true;
             /* Error might be stale by now, indicated by e == NULL.
              * Assume the worst. */
             if ( e && ! e->should_terminate() ) {

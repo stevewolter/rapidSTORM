@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "reader.h"
 #include "fields.h"
 #include "known_fields.h"
@@ -28,6 +30,9 @@ Source::Source( const File& file,
     static_cast<input::Traits<Localization>&>(*this)
         = file.getTraits();
     level = std::max<int>(number_of_newlines() - 1, 0);
+    DEBUG("In Source constructor, resolution set is " << user_resolution.is_set());
+    if ( user_resolution.is_set() )
+        this->resolution = user_resolution;
 }
 
 Localization* Source::fetch(int) {
@@ -86,12 +91,15 @@ Config::Config(input::Config& master)
                  "extension_stm", ".stm"),
     txt_extension("extension_txt", ".txt") 
 {
+    DEBUG("Beginning Config constructor");
+    push_back( master.pixel_size_in_nm );
     push_back(master.firstImage);
     push_back(master.lastImage);
 
     master.inputFile.push_back( txt_extension );
 
     push_back( trace_reducer );
+    DEBUG("Finished Config constructor");
 }
 
 File Config::read_header
@@ -210,6 +218,7 @@ Source* Config::impl_makeSource()
     
     Source *src = new Source(header, trace_reducer.make_trace_reducer() );
     src->push_back( this->inputFile );
+    src->set_default_pixel_size( cs_units::camera::pixels_per_meter / (((float)master.pixel_size_in_nm()) / 1E9f) );
     return src;
 }
 
@@ -219,6 +228,14 @@ std::auto_ptr<Source> Config::read_file( simparm::FileEntry& name )
     output::TraceReducer::Config trc;
     Source *src = new Source(header, trc.make_trace_reducer() );
     return std::auto_ptr<Source>(src);
+}
+
+void Source::set_default_pixel_size(const File::Traits::Resolution::value_type& resolution)
+{
+    if ( !user_resolution.is_set() ) {
+        user_resolution = resolution;
+        this->resolution = resolution;
+    }
 }
 
 }
