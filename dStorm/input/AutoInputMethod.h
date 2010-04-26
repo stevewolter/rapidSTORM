@@ -70,6 +70,7 @@ namespace input {
           inputFile( master.inputFile )
         {
             this->push_back(master.inputFile);
+            this->push_back(master.pixel_size_in_nm);
             this->push_back(master.firstImage);
             this->push_back(master.lastImage);
 
@@ -83,6 +84,7 @@ namespace input {
           inputFile( master.inputFile )
         {
             this->push_back(master.inputFile);
+            this->push_back(master.pixel_size_in_nm);
             this->push_back(master.firstImage);
             this->push_back(master.lastImage);
 

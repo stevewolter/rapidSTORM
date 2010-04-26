@@ -18,7 +18,7 @@ class ErrorHandler {
     std::auto_ptr<Pimpl> pimpl;
 
   public:
-    static bool global_termination_flag;
+    static bool global_termination_flag();
 
     ErrorHandler(const char *program_path, const char *panic_mode_call);
     ~ErrorHandler();

@@ -177,7 +177,7 @@ class DStorm {
             new File(base_dir, "share" + File.separator + "doc" ) );
 
         String[] environment = build_environment( base_dir );
-        boolean have_arg = args.length > 0,stderrPipe = false;
+        boolean have_arg = args.length > 0,stderrPipe = (args.length > 0 && args[0].equals("--StderrPipe"));
         int argC = 4;
         if ( have_arg ) argC += 2;
         if ( stderrPipe ) argC += 1;

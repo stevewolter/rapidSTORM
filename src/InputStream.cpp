@@ -168,8 +168,8 @@ void InputStream::Pimpl::run() {
     DEBUG("Running input processing loop");
     while ( !exhausted_input ) {
         try {
-            DEBUG("Processing input? " << ErrorHandler::global_termination_flag);
-            if ( !ErrorHandler::global_termination_flag )
+            DEBUG("Processing input? " << ErrorHandler::global_termination_flag());
+            if ( !ErrorHandler::global_termination_flag() )
                 processInput();
             DEBUG("Processed input");
             exhausted_input = true;
