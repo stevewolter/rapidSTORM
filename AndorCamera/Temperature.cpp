@@ -154,7 +154,7 @@ void Temperature::cool()
         sm.wait_or_abort_transition( StateMachine::Up, 100 );
     } while ( tstate.first == false &&
               tstate.second > requiredTemperature() &&
-              !dStorm::ErrorHandler::global_termination_flag );
+              !dStorm::ErrorHandler::global_termination_flag() );
     sm.status = "Reached required temperature"; 
     #endif
     DEBUG("Finished transition");

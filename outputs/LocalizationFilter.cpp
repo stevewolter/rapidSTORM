@@ -206,7 +206,7 @@ void LocalizationFilter::reemit_localizations(bool& terminate) {
             continued = continued_after;
             start = end;
             
-            if ( terminate || ErrorHandler::global_termination_flag ) {
+            if ( terminate || ErrorHandler::global_termination_flag() ) {
                 output->propagate_signal( Engine_run_is_aborted );
                 return;
             }

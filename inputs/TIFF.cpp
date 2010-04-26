@@ -135,6 +135,7 @@ Config<Pixel>::Config( input::Config& src)
   tiff_extension("extension_tiff", ".tiff")
 {
     this->inputFile.push_back(tiff_extension);
+    this->push_back( src.pixel_size_in_nm );
 }
 
 template<typename Pixel>
@@ -146,6 +147,7 @@ Config<Pixel>::Config(
   tiff_extension(c.tiff_extension)
 {
     this->inputFile.push_back(tiff_extension);
+    this->push_back( src.pixel_size_in_nm );
 }
 
 template class Config<unsigned char>;
