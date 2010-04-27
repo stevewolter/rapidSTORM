@@ -73,7 +73,7 @@ Window::Window(
 
     Show( true );
 
-    float largest_ratio = std::max( 600.0f / init_size.width, 600.0f / init_size.height );
+    float largest_ratio = std::max( 520.0f / init_size.width, 550.0f / init_size.height );
     if ( largest_ratio < 1 ) {
         canvas->set_zoom( 1 - int( round(1/largest_ratio) ) );
     } else {

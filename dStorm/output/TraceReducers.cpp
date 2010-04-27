@@ -11,7 +11,7 @@ class AveragingReducer : public TraceReducer {
         (const Trace& from, Localization *to,
          const Localization::Position& shift) 
     {
-        Localization::Position position(0);
+        Localization::Position position = Localization::Position::Zero();
 
         int n = 0;
         frame_index last_image_number = 0;

@@ -170,7 +170,7 @@ $(INSTALLER).iss :
 
 storm.out :
 	{ echo "attach"; echo "quit"; } |\
-	  WINEDEBUG="loaddll" RAPIDSTORM_PLUGIN_DIR=. wine $(PREFIX)/bin/dstorm.exe --Twiddler \
+	  WINEDEBUG="loaddll" RAPIDSTORM_PLUGINDIR=. wine $(PREFIX)/bin/dstorm.exe --Twiddler \
 	  > $@ 2>&1
 
 loaded_DLLs.txt : storm.out
