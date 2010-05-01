@@ -101,8 +101,9 @@ Car::~Car()
 
     DEBUG("Deleting outputs");
     output.reset(NULL);
-    DEBUG("Deleting engine");
+    DEBUG("Deleting localization source");
     locSource.reset(NULL);
+    DEBUG("Deleting engine");
     myEngine.reset(NULL);
     DEBUG("Commencing destruction");
 }
