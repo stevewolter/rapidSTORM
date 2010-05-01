@@ -60,6 +60,8 @@ set_output_file_basename(
                   + default_extension();
         expect_change = false;
         DEBUG("Set value to " << value());
+    } else {
+        DEBUG("Entry has been user-modified, not setting basename " << basename.unformatted()());
     }
     last_basename = basename;
 }

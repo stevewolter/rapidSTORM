@@ -76,7 +76,7 @@ FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
 }
 
 FilterSource::~FilterSource() {
-        DEBUG("Destroying filter source");
+        DEBUG("Destroying filter source " << getNode().getName());
 }
 
 void

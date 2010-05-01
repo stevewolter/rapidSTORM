@@ -99,7 +99,7 @@ void ImageDiscretizer<Colorizer, ImageListener>
   ( TransitionTable* old_table, TransitionTable& new_table )
 {
     HighDepth o = 0, n = 0;
-    for (LowDepth v = 0; v <= out_depth; v++) {
+    for (unsigned int v = 0; v <= out_depth; v++) {
         if ( old_table )
             while ( (o+1U) < in_depth && (*old_table)[o+1U] <= v ) o++;
         while ( (n+1U) < in_depth && new_table[n+1U] <= v ) n++;

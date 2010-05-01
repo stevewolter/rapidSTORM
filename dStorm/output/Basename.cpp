@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Basename.h"
 #include <sstream>
 #include <stdexcept>
@@ -71,9 +72,11 @@ string Basename::new_basename() const {
                 throw runtime_error("Undefined variable '" + var + "'");
             } else
                 result << j->second;
+            s = Free;
         }
     }
 
+    DEBUG("Expanded " << basename() << " to " << result.str());
     return result.str();
 }
 
