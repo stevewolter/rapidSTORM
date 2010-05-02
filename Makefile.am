@@ -21,8 +21,9 @@ else
     RESOURCE_FILE =
 endif
 
-.rc.o : config.h
+.rc.o : 
 	$(WINDRES) -I . '$<' '$@'
+windows_resources.o : config.h
 
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \

@@ -96,7 +96,7 @@ class StateMachine
     void wait_or_abort_transition(Direction, int milliseconds);
     
   private:
-    ost::Mutex locked_state, request_queue, listener_list;
+    ost::Mutex locked_state, request_queue, listener_list, state_stack_mutex;
     ost::Condition desired_state_changed, desired_state_reached;
     bool should_shut_down;
     Request *currently_served;

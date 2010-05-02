@@ -322,6 +322,8 @@ void Display::operator()
         if ( imageFile ) {
             std::auto_ptr<dStorm::Display::Change> c
                 = handle->get_state();
+            if ( c.get() == NULL )
+                throw std::runtime_error("Unable to acquire image from display window");
             dStorm::Display::Manager::getSingleton()
                 .store_image( imageFile(), *c );
         }

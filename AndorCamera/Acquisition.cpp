@@ -45,6 +45,7 @@ Acquisition::~Acquisition() {
     DEBUG("Destructing acquisition");
     stop();
 
+    DEBUG( "Requesting exclusive accessor to forfeit access" );
     this->Camera::ExclusiveAccessor::forfeit_access();
     DEBUG( "Destructed acquisition" );
 }
@@ -90,6 +91,7 @@ void Acquisition::forfeit_access() {
     status.push_back( status.value );
 
     request.reset( NULL );
+    DEBUG("Requesting ExclusiveAccessor to forfeit access");
     Camera::ExclusiveAccessor::forfeit_access();
 }
 

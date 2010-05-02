@@ -75,6 +75,7 @@ void StateMachine::push_token( ListenerReference& creator,
 {
     token->tag = creator.p;
     DEBUG("Adding token " << token->tag << " to " << to);
+    ost::MutexLock lock( state_stack_mutex );
     state_stack[to].push_front( token );
 }
 
@@ -87,6 +88,7 @@ void StateMachine::go_to_state( State to )
     if ( to < current_state ) {
         while ( current_state != to ) {
             try {
+                ost::MutexLock lock( state_stack_mutex );
                 while ( ! state_stack[current_state].empty() ) {
                     check_for_interruption( Down );
                     DEBUG("Removing token " << state_stack[current_state].front().tag << " from " << current_state);
@@ -115,6 +117,7 @@ void StateMachine::go_to_state( State to )
                 }
                 check_for_interruption( Up );
             } catch (...) {
+                ost::MutexLock lock( state_stack_mutex );
                 while ( ! state_stack[n].empty() ) {
                     DEBUG("Removing token " << state_stack[n].front().tag << " from " << n);
                     state_stack[n].pop_front();
@@ -139,6 +142,7 @@ void StateMachine::bring_to_state( ListenerReference& l, State to )
 void StateMachine::bring_to_disconnect( Listener& l ) {
     State s = current_state;
     do {
+        ost::MutexLock lock( state_stack_mutex );
         StateStack::mapped_type::iterator i = state_stack[s].begin();
         while ( i != state_stack[s].end() ) {
             DEBUG("Iterating over " << s);
