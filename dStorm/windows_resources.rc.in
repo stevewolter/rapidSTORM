@@ -1,0 +1,33 @@
+#include "config.h"
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION @LIBDSTORM_CURRENT@,@LIBDSTORM_AGE@,@LIBDSTORM_REVISION@,0
+PRODUCTVERSION PACKAGE_MAJOR_VERSION,PACKAGE_MINOR_VERSION,PACKAGE_POINT_VERSION,0
+FILEFLAGS   VS_FFI_FILEFLAGSMASK
+FILEOS   VOS_NT
+FILETYPE VFT_DLL
+FILESUBTYPE 0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "PicoQuant GmbH\0"
+            VALUE "FileDescription",  "Base library for rapid2STORM plugins"
+            VALUE "FileVersion",      "@LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@"
+            VALUE "InternalName",     "@LIBDSTORM_FILENAME@"
+            VALUE "LegalCopyright",   "(C) 2010 Steve Wolter and PicoQuant GmbH"
+            VALUE "LegalTrademarks",   "rapid2STORM (TM)"
+            /*VALUE "LegalTrademarks1", VER_LEGALTRADEMARKS1_STR*/
+            /*VALUE "LegalTrademarks2", VER_LEGALTRADEMARKS2_STR*/
+            VALUE "OriginalFilename", "@LIBDSTORM_FILENAME@.dll"
+            VALUE "ProductName",      "@PACKAGE_NAME@"
+            VALUE "ProductVersion",   "@PACKAGE_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
