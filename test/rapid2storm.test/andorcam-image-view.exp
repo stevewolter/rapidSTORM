@@ -48,7 +48,7 @@ expect {
 
 
 set test "Can pause acquisition"
-send "cmd 100 in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
 expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2"
         { pass "$test" }
@@ -85,3 +85,20 @@ expect {
         }
     }
 }
+
+for { set i 1 } { $i <= 10 } { incr i } {
+    set test "Can unpause for the $i-th time"
+    send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
+    expect {
+        -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 5"
+            { pass "$test" }
+    }
+    set test "Can pause for the $i-th time"
+    send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
+    expect {
+        -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2"
+            { pass "$test" }
+    }
+}
+
+end_test_suite

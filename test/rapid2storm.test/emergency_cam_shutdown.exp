@@ -1,4 +1,5 @@
 begin_test_suite
+dstorm_attach
 
 set test "SIGSEGV shutdown"
 
@@ -25,7 +26,8 @@ expect {
     -re "Camera is in danger zone" { set can_do_test 1 }
     -re "Could not perform action" { unsupported "$test" }
     -re "No camera selected" { unsupported "$test" }
-    -re "in CameraStatus in value set Reached required temperature" { unsupported "$test" }
+    -re "in CameraStatus in value set Reached required temperature" { set can_do_test 1 }
+    -re "in ActualTemperature in value set" { exp_continue }
     timeout { unsupported "$test" }
 }
 
@@ -38,6 +40,9 @@ set timeout 30
 expect {
     -re "Terminated by segmentation fault signal" { exp_continue }
     -re "Camera is out of danger zone" { pass "$test" }
+    -re "Interrupted by emergency shutdown" {}
+    -re "ActualTemperature in value set -(\[0-9.\]*)" { 
+            if { $expect_out(1,string) >= -20 } { pass "$test"; } else { exp_continue; } }
     eof { fail "$test" }
 }
 

@@ -25,4 +25,8 @@ BEGIN
             VALUE "ProductVersion",   PACKAGE_VERSION
         END
     END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
 END

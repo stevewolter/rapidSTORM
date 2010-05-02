@@ -9,6 +9,20 @@ AC_CONFIG_SRCDIR([output/Config.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../m4])
 
+AC_PROG_SED
+test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
+
+AX_SPLIT_VERSION
+AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major part of version number])
+AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor part of version number])
+AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point part of version number])
+
+AS_VAR_ARITH([filename], RAPIDSTORM_LIBRARY_CURRENT - RAPIDSTORM_LIBRARY_AGE)
+AC_SUBST([LIBDSTORM_CURRENT], RAPIDSTORM_LIBRARY_CURRENT)
+AC_SUBST([LIBDSTORM_FILENAME], libdStorm-$filename)
+AC_SUBST([LIBDSTORM_REVISION], RAPIDSTORM_LIBRARY_REVISION)
+AC_SUBST([LIBDSTORM_AGE], RAPIDSTORM_LIBRARY_AGE)
+
 AC_LANG([C++])
 
 # Allow DLLs for Windows programs
@@ -79,6 +93,17 @@ AS_IF(
     []
 )
 
+AC_ARG_WITH([windres],
+    [AS_HELP_STRING([--with-windres],
+        [path to windows resource compiler @<:@default=guess@:>@])],
+        [],
+        [ with_windres=guess ])
+AS_IF( 
+    [test "x$with_windres" = xguess], 
+    [AC_CHECK_TOOL([WINDRES], [windres])],
+    [])
+AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
+
 # Now write the global and doc/lib makefiles. More libs are needed for
 # src.
 AC_CONFIG_FILES([Makefile])
@@ -87,5 +112,6 @@ AC_CONFIG_FILES([data-c++/Makefile])
 AC_CONFIG_FILES([input/Makefile engine/Makefile output/Makefile])
 AC_CONFIG_FILES([outputs/Makefile])
 AC_CONFIG_FILES([localization_file/Makefile])
+AC_CONFIG_FILES([windows_resources.rc])
 
 AC_OUTPUT
