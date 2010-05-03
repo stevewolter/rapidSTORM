@@ -90,8 +90,11 @@ LocalizationFile::announceStormSize(const Announcement &a) {
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
 {
     ost::MutexLock lock(mutex);
-    for (int i = 0; i < er.number; i++)
-        printFit(er.first[i], localizationDepth);
+    if ( er.number == 0 )
+        (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
+    else
+        for (int i = 0; i < er.number; i++)
+            printFit(er.first[i], localizationDepth);
     if ( ! (*file) ) {
         std::cerr << "Warning: Writing localizations to "
                   << filename << " failed.\n";
