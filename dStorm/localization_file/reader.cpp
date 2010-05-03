@@ -25,7 +25,8 @@ Source::Source( const File& file,
     (*this, BaseSource::Pushing | 
         BaseSource::Pullable | BaseSource::Managing),
     file(file),
-    reducer(red)
+    reducer(red),
+    empty_image(NULL)
 {
     static_cast<input::Traits<Localization>&>(*this)
         = file.getTraits();
@@ -58,6 +59,8 @@ int Source::number_of_newlines() {
     return lines;
 }
 
+static const char *missing_image_line = "# No localizations in image ";
+
 void Source::read_localization(
     Localization& target, int level, int& use_buffer
 )
@@ -66,8 +69,38 @@ void Source::read_localization(
     static const Pos no_shift = Pos::Constant( 0 );
 
     if ( level == 0 ) {
-        new(&target) Localization( Pos(Pos::Zero()), 0 );
-        file.read_next( target );
+      while (true ) {
+        char peek;
+        while ( true ) {
+            peek = file.input.peek();
+            if ( isspace(peek) ) file.input.get(); else break;
+        }
+        if ( peek == '#' ) {
+            static const int len = strlen(missing_image_line);
+            int i = 0;
+            while ( i != len && i >= 0 )
+                if ( file.input.peek() == missing_image_line[i] ) {
+                    file.input.get();
+                    i++;
+                } else
+                    i = -1;
+
+            if ( i == len ) {
+                int missing_image;
+                file.input >> missing_image;
+                if ( empty_image != NULL ) {
+                    EmptyImageCallback::EmptyImageInfo info;
+                    info.number = missing_image * cs_units::camera::frame;
+                    empty_image->notice_empty_image( info );
+                }
+            } else {
+                while ( file.input.get() != '\n' ) ;
+            }
+        } else
+            break;
+      }
+      new(&target) Localization( Pos(Pos::Zero()), 0 );
+      file.read_next( target );
     } else {
         int my_buffer = use_buffer++;
         if ( my_buffer >= int(trace_buffer.size()) )
@@ -236,6 +269,11 @@ void Source::set_default_pixel_size(const File::Traits::Resolution::value_type& 
         user_resolution = resolution;
         this->resolution = resolution;
     }
+}
+
+Source::EmptyImageCallback* Source::setEmptyImageCallback( EmptyImageCallback* cb ) {
+    std::swap( empty_image, cb );
+    return cb;
 }
 
 }

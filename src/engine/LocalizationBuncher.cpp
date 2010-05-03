@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 
 #include "LocalizationBuncher.h"
@@ -220,6 +221,12 @@ void LocalizationBuncher::reset() {
         Output::Engine_run_is_aborted );
     target.propagate_signal( 
         Output::Engine_is_restarted );
+}
+
+void LocalizationBuncher::notice_empty_image( const EmptyImageInfo& info ) {
+    DEBUG("Marking image " << info.number << " as empty");
+    canned.insert( std::make_pair( info.number, new Can() ) );
+    can_results_or_publish( info.number );
 }
 
 }

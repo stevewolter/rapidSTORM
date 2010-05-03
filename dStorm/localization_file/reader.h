@@ -41,6 +41,14 @@ namespace Reader {
     class Source 
     : public simparm::Object, public input::Source<Localization>
     {
+      public:
+        struct EmptyImageCallback {
+            struct EmptyImageInfo { frame_index number; };
+            virtual void notice_empty_image( const EmptyImageInfo& ) = 0;
+            virtual ~EmptyImageCallback() {}
+        };
+
+      private:
         int level;
         File file;
         data_cpp::Vector< Localization > buffer;
@@ -48,6 +56,7 @@ namespace Reader {
         std::auto_ptr<output::TraceReducer> reducer;
         typedef File::Traits::Resolution Resolution;
         Resolution user_resolution;
+        EmptyImageCallback* empty_image;
 
         int number_of_newlines();
         void read_localization(Localization& target, int level, 
@@ -65,6 +74,8 @@ namespace Reader {
         virtual int quantity() const 
             { throw std::logic_error("Number of localizations in file "
                     "not known a priori."); }
+        
+        EmptyImageCallback* setEmptyImageCallback( EmptyImageCallback* );
     };
 
     class Config 

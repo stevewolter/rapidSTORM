@@ -16,6 +16,7 @@
 #include "doc/help/context.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/input/Method.h>
+#include <dStorm/localization_file/reader.h>
 
 using namespace std;
 
@@ -208,6 +209,10 @@ void Car::drive() {
 void Car::runOnSTM() throw( std::exception ) {
     LOCKING("Running on STM file");
     LocalizationBuncher buncher(*output);
+    LocalizationFile::Reader::Source *reader
+        = dynamic_cast<LocalizationFile::Reader::Source*>( locSource.get() );
+    if ( reader )
+        reader->setEmptyImageCallback( &buncher );
     buncher.noteTraits( *locSource, 
                         config.inputConfig.firstImage() 
                             * cs_units::camera::frame, 

@@ -4,6 +4,7 @@
 #include <dStorm/input/Drain.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/Localization.h>
+#include <dStorm/localization_file/reader.h>
 #include <map>
 #include <memory>
 #include <dStorm/output/Output.h>
@@ -12,7 +13,10 @@
 namespace dStorm {
 namespace engine {
 
-class LocalizationBuncher : public input::Drain<Localization> {
+class LocalizationBuncher 
+: public input::Drain<Localization>, 
+  public LocalizationFile::Reader::Source::EmptyImageCallback
+{
     class Can : public data_cpp::Vector<Localization> {
         int number_of_traces( const Localization& );
         void deep_copy(const Localization& from, 
@@ -54,6 +58,8 @@ class LocalizationBuncher : public input::Drain<Localization> {
 
     input::Management
         accept(int index, int number, Localization *l);
+
+    virtual void notice_empty_image( const EmptyImageInfo& );
 };
 
 }
