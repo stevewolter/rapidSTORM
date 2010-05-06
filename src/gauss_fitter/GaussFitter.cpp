@@ -59,5 +59,9 @@ template int GaussFitter<false,true,false>::fitSpot
     (const Spot&, const Image&, Localization*);
 template int GaussFitter<false,false,false>::fitSpot
     (const Spot&, const Image&, Localization*);
+template int GaussFitter<true,true,false>::fitSpot
+    (const Spot&, const Image&, Localization*);
+template int GaussFitter<true,false,false>::fitSpot
+    (const Spot&, const Image&, Localization*);
 }
 }

@@ -142,7 +142,7 @@ namespace input {
          *          by the next call to get(). */
         Type* get(int index);
         virtual void startPushing(Drain<Type> *);
-        virtual void stopPushing(Drain<Type> *) {}
+        virtual void stopPushing() { pushTarget = NULL; }
 
         void allowPushing(Drain<Type>* to) { pushTarget = to; }
     };

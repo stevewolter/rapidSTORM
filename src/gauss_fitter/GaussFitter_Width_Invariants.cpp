@@ -2,9 +2,11 @@
 #include <fit++/FitFunction_impl.hh>
 #include <dStorm/engine/Image_impl.h>
 #include <dStorm/engine/Config.h>
+#include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/Spot.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/Input.h>
+#include "GaussFitterConfig.h"
 
 template <typename Ty>
 Ty sq(const Ty& a) { return a*a; }
@@ -12,9 +14,9 @@ Ty sq(const Ty& a) { return a*a; }
 namespace dStorm {
 namespace engine {
 
-template <bool FS>
-Width_Invariants<FS,false>::Width_Invariants( 
-   const GaussFitterConfig&, const JobInfo& info
+template <int FF>
+Width_Invariants<FF,false>::Width_Invariants( 
+   const GaussFitterConfig& c, const JobInfo& info
 ) 
 : params( NULL, &constants),
   amplitude_threshold( info.config.amplitude_threshold() ),
@@ -23,68 +25,73 @@ Width_Invariants<FS,false>::Width_Invariants(
   start_sxy( info.config.sigma_xy() )
 {
     fit_function.
-        setStartLambda( info.config.marquardtStartLambda() );
+        setStartLambda( c.marquardtStartLambda() );
     fit_function.
-        setMaximumIterationSteps( info.config.maximumIterationSteps() );
+        setMaximumIterationSteps( c.maximumIterationSteps() );
     fit_function.
         setSuccessiveNegligibleStepLimit( 
-            info.config.successiveNegligibleSteps() );
+            c.successiveNegligibleSteps() );
 
     FitGroup::template set_absolute_epsilon<MeanX,0>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, c.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<MeanY,0>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, c.negligibleStepLength());
 
-    if ( ! FS ) {
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) ) )
         params.template setSigmaX<0>( start_sx );
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) ) )
         params.template setSigmaY<0>( start_sy );
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) )
         params.template setSigmaXY<0>( start_sxy );
-    }
 }
 
-template <bool FS>
-Width_Invariants<FS,true>::Width_Invariants( 
+template <int FF>
+Width_Invariants<FF,true>::Width_Invariants( 
     const GaussFitterConfig& config, const JobInfo& info
 ) 
-: Width_Invariants<FS,false>(config, info),
+: Width_Invariants<FF,false>(config, info),
   params( NULL, &constants),
-  asymmetry_threshold( info.config.asymmetry_threshold() ),
+  asymmetry_threshold( config.asymmetry_threshold() ),
   required_peak_distance_sq( 
-    sq( (info.config.required_peak_distance() * 1E-9 * boost::units::si::meter)
+    sq( (config.required_peak_distance() * 1E-9 * boost::units::si::meter)
         * (*info.traits.resolution) / cs_units::camera::pixel ) )
 {
     fit_function
-        .setStartLambda( info.config.marquardtStartLambda() );
+        .setStartLambda( config.marquardtStartLambda() );
     fit_function.setMaximumIterationSteps(
-        info.config.maximumIterationSteps() );
+        config.maximumIterationSteps() );
     fit_function.setSuccessiveNegligibleStepLimit( 
-            info.config.successiveNegligibleSteps() );
+            config.successiveNegligibleSteps() );
     FitGroup::template set_absolute_epsilon<MeanX,0>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, config.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<MeanY,0>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, config.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<MeanX,1>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, config.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<MeanY,1>
-        (fit_function, info.config.negligibleStepLength());
+        (fit_function, config.negligibleStepLength());
     FitGroup::template set_absolute_epsilon<Amplitude,0>
         (fit_function, 1);
     FitGroup::template set_absolute_epsilon<Amplitude,1>
         (fit_function, 1);
 
-    if ( ! FS ) {
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) ) ) {
         params.template setSigmaX<0>( this->start_sx );
-        params.template setSigmaY<0>( this->start_sy );
-        params.template setSigmaXY<0>( this->start_sxy );
         params.template setSigmaX<1>( this->start_sx );
+    }
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) ) ) {
+        params.template setSigmaY<0>( this->start_sy );
         params.template setSigmaY<1>( this->start_sy );
+    }
+    if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) ) {
+        params.template setSigmaXY<0>( this->start_sxy );
         params.template setSigmaXY<1>( this->start_sxy );
     }
 }
 
-template <bool FS>
+template <int FF>
 StartInformation
-Width_Invariants<FS,false>::set_start(
+Width_Invariants<FF,false>::set_start(
     const Spot& spot, 
     const Image& image,
     double shift_estimate,
@@ -94,11 +101,12 @@ Width_Invariants<FS,false>::set_start(
     params.change_variable_set( variables );
     params.template setMeanX<0>( spot.x() );
     params.template setMeanY<0>( spot.y() );
-    if ( FS ) {
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) )
         params.template setSigmaX<0>(start_sx);
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) )
         params.template setSigmaY<0>(start_sy);
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) )
         params.template setSigmaXY<0>(start_sxy);
-    }
 
     int xc = round(spot.x()), yc = round(spot.y());
     double center = image(xc,yc);
@@ -117,9 +125,9 @@ Width_Invariants<FS,false>::set_start(
     return si;
 }
 
-template <bool FS>
+template <int FF>
 bool 
-Width_Invariants<FS,false>::check_result(
+Width_Invariants<FF,false>::check_result(
     typename FitGroup::Variables* variables,
     Localization* target,
     const StartInformation& start
@@ -135,11 +143,13 @@ Width_Invariants<FS,false>::check_result(
         p, float( params.template getAmplitude<0>() )
                 * cs_units::camera::ad_counts );
 
-    bool sigmas_correct = !FS ||
-      (    params.template getSigmaX<0>() >= start_sx/4
-        && params.template getSigmaY<0>() >= start_sy/4 
-        && params.template getSigmaX<0>() <= start_sx*4 
-        && params.template getSigmaY<0>() <= start_sy*4 );
+    bool sx_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaX )))
+        || ( params.template getSigmaX<0>() >= start_sx/4
+          && params.template getSigmaX<0>() <= start_sx*4 );
+    bool sy_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaY )))
+        || ( params.template getSigmaX<0>() >= start_sy/4
+          && params.template getSigmaX<0>() <= start_sy*4 );
+    bool sigmas_correct = sx_correct && sy_correct;
 
     bool good = sigmas_correct
         && target->strength() > amplitude_threshold 
@@ -150,7 +160,7 @@ Width_Invariants<FS,false>::check_result(
         && target->y() < start.maxs.y() * cs_units::camera::pixel
         && sq(target->x().value() - start.start.x()) + 
            sq(target->y().value() - start.start.y()) < 4;
-    if ( FS && good ) {
+    if ( (FF != fitpp::Exponential2D::FixedForm) ) {
         double sx = params.template getSigmaX<0>(),
                sy = params.template getSigmaY<0>(),
                corr = params.template getSigmaXY<0>();
@@ -164,20 +174,19 @@ Width_Invariants<FS,false>::check_result(
         target->fit_covariance_matrix()(1,1) = sy*sy
             * cs_units::camera::pixel 
             * cs_units::camera::pixel;
-        return true;
-    } else {
-        return good;
     }
+
+    return good;
 }
 
-template <bool FS>
-void Width_Invariants<FS,true>::
+template <int FF>
+void Width_Invariants<FF,true>::
 start_from_splitted_single_fit(
     typename FitGroup::Variables* v,
     const Eigen::Vector2i& dir
 )
 {
-    typedef Width_Invariants<FS,false> Base;
+    typedef Width_Invariants<FF,false> Base;
 
     params.change_variable_set( v );
     params.setShift( Base::params.getShift() );
@@ -195,20 +204,24 @@ start_from_splitted_single_fit(
         ( Base::params.template getAmplitude<0>() / 2 );
     params.template setAmplitude<1>
         ( Base::params.template getAmplitude<0>() / 2 );
-    if ( FS ) {
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) ) {
         params.template setSigmaX<0>( this->start_sx );
         params.template setSigmaX<1>( this->start_sx );
+    }
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) ) {
         params.template setSigmaY<0>( this->start_sy );
         params.template setSigmaY<1>( this->start_sy );
+    }
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) {
         params.template setSigmaXY<0>( this->start_sxy );
         params.template setSigmaXY<1>( this->start_sxy );
     }
 
 }
 
-template <bool Free_Sigmas>
+template <int FF>
 bool
-Width_Invariants<Free_Sigmas, true>::peak_distance_small( 
+Width_Invariants<FF, true>::peak_distance_small( 
     typename FitGroup::Variables *variables
 ) {
     params.change_variable_set( variables );
@@ -218,10 +231,12 @@ Width_Invariants<Free_Sigmas, true>::peak_distance_small(
     return ( peak_dist.squaredNorm() < required_peak_distance_sq );
 }
 
-template class Width_Invariants<false,false>;
-template class Width_Invariants<false,true>;
-template class Width_Invariants<true,false>;
-template class Width_Invariants<true,true>;
+template class Width_Invariants<fitpp::Exponential2D::FreeForm, false>;
+template class Width_Invariants<fitpp::Exponential2D::FreeForm, true>;
+template class Width_Invariants<fitpp::Exponential2D::FreeForm_NoCorrelation, false>;
+template class Width_Invariants<fitpp::Exponential2D::FreeForm_NoCorrelation, true>;
+template class Width_Invariants<fitpp::Exponential2D::FixedForm, false>;
+template class Width_Invariants<fitpp::Exponential2D::FixedForm, true>;
 
 }
 }

@@ -37,6 +37,8 @@ static const int FixedForm =
     (1 << Shift) | (1 << MeanX) | (1 << MeanY) | (1 << Amplitude);
 static const int FreeForm =
     FixedForm | (1 << SigmaX) | (1 << SigmaY) | (1 << SigmaXY);
+static const int FreeForm_NoCorrelation =
+    FixedForm | (1 << SigmaX) | (1 << SigmaY);
 static const int FixedCenter =
     (1 << Shift) | (1 << Amplitude) |
     (1 << SigmaX) | (1 << SigmaY) | (1 << SigmaXY);

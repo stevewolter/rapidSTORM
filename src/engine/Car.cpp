@@ -117,6 +117,7 @@ void Car::operator()(const simparm::Event& e) {
         ost::MutexLock lock( terminationMutex );
         DEBUG("Job close button allows termination");
         if ( myEngine.get() != NULL ) myEngine->stop();
+        if ( locSource.get() != NULL ) locSource->stopPushing();
         terminate = true;
         terminationChanged.signal();
     }

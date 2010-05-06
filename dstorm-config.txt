@@ -8,4 +8,5 @@ in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission
 in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in FailSilently in value set true
 in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Image
 in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ShowOutput in value set true
+in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in CloseOnCompletion in value set true
 in AutoTerminate in value set false

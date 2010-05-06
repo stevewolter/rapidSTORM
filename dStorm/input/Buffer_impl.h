@@ -83,7 +83,7 @@ Buffer<Object>::Buffer(std::auto_ptr< Source<Object> > src)
 
 template<typename Object>
 void Buffer<Object>::signal_end_of_acquisition() {
-    if (source->pushes()) source->stopPushing(this);
+    if (source->pushes()) source->stopPushing();
 }
 
 template<typename Object>

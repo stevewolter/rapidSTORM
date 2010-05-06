@@ -21,9 +21,9 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
 
     const Eigen::Matrix<double,Height,Width>& R 
         = this->c->residues;
-    const int xc = round(common.Width_Invariants<FS,false>::params
+    const int xc = round(common.Width_Invariants<FitFlags,false>::params
                                .template getMeanX<0>()) - xl,
-              yc = round(common.Width_Invariants<FS,false>::params
+              yc = round(common.Width_Invariants<FitFlags,false>::params
                                .template getMeanY<0>()) - yl;
 
     Eigen::Matrix2d quadrant_sets[2];

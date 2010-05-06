@@ -3,7 +3,7 @@
 
 #include "GaussFitter.h"
 #include <dStorm/engine/Config.h>
-#include <dStorm/engine/JobInfo_decl.h>
+#include <dStorm/engine/JobInfo.h>
 
 namespace dStorm {
 namespace engine {

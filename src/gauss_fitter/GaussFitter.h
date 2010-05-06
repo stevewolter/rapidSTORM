@@ -17,7 +17,11 @@ class GaussFitter
   public:
     static const int MaxFitWidth = 17, MaxFitHeight = 17;
 
-    typedef Width_Invariants<Free_Sigmas, Residue_Analysis> Common;
+    static const int FitFlags = 
+        (Free_Sigmas && Corr) ? fitpp::Exponential2D::FreeForm :
+        (Free_Sigmas)         ? fitpp::Exponential2D::FreeForm_NoCorrelation :
+                                fitpp::Exponential2D::FixedForm;
+    typedef Width_Invariants<FitFlags, Residue_Analysis> Common;
 
     struct BaseTableEntry {
         virtual ~BaseTableEntry() {}

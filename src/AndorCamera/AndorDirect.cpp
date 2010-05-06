@@ -80,7 +80,7 @@ AndorDirect::Source::Source
 }
 
 AndorDirect::Source::~Source() {
-    stopPushing( pushTarget );
+    stopPushing();
     STATUS( "Destructing source" );
 }
 
@@ -205,13 +205,9 @@ void Source::startPushing(Drain<CamImage> *target)
     waitForInitialization();
 }
 
-void Source::stopPushing(Drain<CamImage> *target) {
+void Source::stopPushing() {
     if ( pushTarget == NULL ) return;
 
-    if (pushTarget != target)
-        throw std::logic_error(
-                    "This AndorDirect source does not push to the "
-                    "specified target.");
     cancelAcquisition = true;
     Thread::join();
     pushTarget = NULL;

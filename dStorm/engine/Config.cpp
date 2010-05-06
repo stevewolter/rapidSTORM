@@ -3,6 +3,8 @@
 #include <limits>
 #include "doc/help/context.h"
 #include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/SpotFitter.h>
+#include <dStorm/engine/SpotFitterFactory.h>
 
 #include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -22,29 +24,13 @@ _Config::_Config()
     sigma_y("SigmaY", "Std. dev. in Y direction", 2),
     sigma_xy("SigmaXY", "Correlation between X and Y direction", 0),
     delta_sigma("DeltaSigma", "Accepted error in sigma estimation", 0.05),
-    sigma_xy_negligible_limit("CorrNegligibleLimit",
-        "Limit up to which X-Y correlation is considered negligible", 0.1),
-    marquardtStartLambda("MarquardtStartLambda",
-        "Start value for Marquardt lambda factor", 1E-2),
-    maximumIterationSteps("MaximumIterationSteps",
-        "Maximum number of iteration steps for spot fitting", 100),
-    negligibleStepLength("NegligibleStepLength", 
-        "Maximum length of negligibly short iteration step", 5E-3),
-    successiveNegligibleSteps("SuccessiveNegligibleSteps",
-        "Number of successive negligibly short steps indicating fit "
-        "success", 1),
     maskSizeFactor("MaskSizeFactor", "Proportionality factor "
                     "for smoothing and NMS masks", 1.5),
     fitSizeFactor("FitSizeFactor", "Proportionality factor for fit "
                     "window size", 3),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
+    spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
     fixSigma("FixSigma", "Disable std. dev. estimation", false),
-    freeSigmaFitting("FreeSigmaFitting", "Fit with free covariance matrix",
-                     false),
-    asymmetry_threshold("AsymmetryThreshold", 
-                        "Threshold for relative spot asymmetry", 1),
-    required_peak_distance("RequiredPeakDistance",
-                        "Minimum distance between double-spot peaks in nm", 250),
     motivation("Motivation", "Spot search eagerness", 3),
     amplitude_threshold("AmplitudeThreshold", 
                         "Amplitude discarding threshold", 3000),
@@ -62,24 +48,10 @@ _Config::_Config()
                      "exponential "
                      "curve that fits the expected spots.");
     
-    freeSigmaFitting.helpID = HELP_FreeForm;
-
-    sigma_xy_negligible_limit.setUserLevel(Entry::Intermediate);
-    marquardtStartLambda.setUserLevel(Entry::Expert);
-    maximumIterationSteps.setUserLevel(Entry::Intermediate);
-    negligibleStepLength.setUserLevel(Entry::Intermediate);
-    successiveNegligibleSteps.setUserLevel(Entry::Expert);
-
     maskSizeFactor.setUserLevel(Entry::Expert);
     fitSizeFactor.setUserLevel(Entry::Expert);
 
     delta_sigma.setUserLevel(Entry::Expert);
-    asymmetry_threshold.helpID = HELP_AsymmetryThreshold;
-    asymmetry_threshold.setHelp(
-        "If spot residues are found to be more asymmetric than this "
-        "value, double-spot analysis is performed. 0.1 is a good "
-        "'aggressive' value here for much double-spot analysis, 1 "
-        "disables the feature completely.");
 
     fixSigma.helpID = HELP_FixSigma;
     fixSigma.setUserLevel(Entry::Beginner);
@@ -105,8 +77,6 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
-    required_peak_distance.userLevel = Entry::Intermediate;
-
     pistonCount.setUserLevel(Entry::Expert);
     pistonCount.helpID = HELP_CPUNumber;
     pistonCount.setHelp("Use this many parallel threads to compute the "
@@ -127,6 +97,8 @@ _Config::_Config()
 
     spotFindingMethod.helpID = HELP_Smoother;
     spotFindingMethod.set_auto_selection( true );
+
+    spotFittingMethod.set_auto_selection( true );
 }
 
 _Config::~_Config() {
@@ -140,23 +112,15 @@ void _Config::registerNamedEntries() {
     push_back(sigma_y);
     push_back(sigma_xy);
     push_back(delta_sigma);
-    push_back(sigma_xy_negligible_limit);
     push_back(fixSigma);
-    push_back(freeSigmaFitting);
 
     push_back(maskSizeFactor);
-    push_back(spotFindingMethod);
-
-    push_back(marquardtStartLambda);
-    push_back(maximumIterationSteps);
-    push_back(negligibleStepLength);
-    push_back(successiveNegligibleSteps);
     push_back(fitSizeFactor);
+    push_back(spotFindingMethod);
+    push_back(spotFittingMethod);
 
     push_back(amplitude_threshold);
     push_back(motivation);
-    push_back(asymmetry_threshold);
-    push_back(required_peak_distance);
 
     push_back( pistonCount );
 }

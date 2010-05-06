@@ -12,6 +12,7 @@ namespace engine {
    using namespace simparm;
 
    class SpotFinderFactory;
+   class SpotFitterFactory;
 
    /** Config entry collection class for the dSTORM engine. */
    class _Config : public Set
@@ -26,35 +27,21 @@ namespace engine {
         DoubleEntry sigma_x, sigma_y, sigma_xy;
         /** The uncertainty allowed in sigma estimation. */
         DoubleEntry delta_sigma;
-        /** Limit up to which X-Y correlation is considered negligible. */
-        DoubleEntry sigma_xy_negligible_limit;
-        /** Start value for Marquardt lambda. */
-        DoubleEntry marquardtStartLambda;
-        /** Maximum number of iteration steps in fitting process. */
-        UnsignedLongEntry maximumIterationSteps;
-        /** Maximum length of negligibly short iteration step. */
-        DoubleEntry negligibleStepLength;
-        /** Number of successive negligibly short steps indicating fit
-        *  success. */
-        UnsignedLongEntry successiveNegligibleSteps;
+
         /** The proportionality factor for the smoothing & NMS mask size */
         DoubleEntry maskSizeFactor;
         /** The proportionality factor for the fitting mask size (the fitting
         *  mask determines which pixel are fitted with the exponential PSF
         *  model). */
         DoubleEntry fitSizeFactor;
+
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<SpotFinderFactory> spotFindingMethod;
+        /** The method to use for spot fitting. */
+        simparm::NodeChoiceEntry< SpotFitterFactory > spotFittingMethod;
+
         /** If this option is set, the sigma estimation code is disabled. */
         BoolEntry fixSigma;
-        /** If this option is set, the sigma_x/y/xy parameters are fitted
-         *  to the spots. */
-        BoolEntry freeSigmaFitting;
-        /** Threshold for the spot fitter for the degree of asymmetry
-         *  in the residues from which on it will suscept multi-spots. */
-        DoubleEntry asymmetry_threshold;
-        /** Required distance between multi-spot peaks. */
-        DoubleEntry required_peak_distance;
 
         /** Continue fitting until this number of bad fits occured. */
         UnsignedLongEntry motivation;

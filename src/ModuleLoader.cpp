@@ -3,6 +3,8 @@
 
 #include "inputs/inputs.h"
 #include "spotFinders/spotFinders.h"
+#include "gauss_fitter/GaussFitterFactory.h"
+#include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/BasicTransmissions.h"
 #include "engine/CarConfig.h"
 #include "local_cleanup.h"
@@ -115,8 +117,11 @@ void ModuleLoader::add_modules
     dStorm::basic_inputs( &car_config.inputConfig );
     DEBUG("Adding basic spot finders");
     dStorm::spotFinders::basic_spotFinders( car_config.engineConfig );
+    DEBUG("Adding basic spot fitter");
+    car_config.engineConfig.spotFittingMethod.addChoice( new engine::GaussFitterFactory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
+    
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();

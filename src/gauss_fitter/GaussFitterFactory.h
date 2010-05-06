@@ -13,9 +13,12 @@ class GaussFitterFactory
 {
   public:
     GaussFitterFactory();
+    GaussFitterFactory(const GaussFitterFactory&);
+    virtual ~GaussFitterFactory();
 
     std::auto_ptr<SpotFitter> make( const JobInfo& );
     GaussFitterFactory* clone() const { return new GaussFitterFactory(*this); }
+    void set_traits( output::Traits& );
 };
 
 }

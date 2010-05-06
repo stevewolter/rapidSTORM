@@ -283,13 +283,6 @@ Viewer::Viewer(const Viewer::Config& config)
     receive_changes_from( histogramPower.value );
     receive_changes_from( resolutionEnhancement.value );
 
-    if (config.showOutput() ) {
-#if 0
-        string name = config.getDesc();
-        int initial_width = 4*CImgDisplay::screen_dimx()/5,
-            initial_height = 4*CImgDisplay::screen_dimy()/5;
-#endif
-    }
     DEBUG("Built viewer");
 }
 
