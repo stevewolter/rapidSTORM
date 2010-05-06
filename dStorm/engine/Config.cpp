@@ -161,5 +161,13 @@ Config::Config(const Config& c)
     registerNamedEntries();
 }
 
+void _Config::addSpotFinder( std::auto_ptr<SpotFinderFactory> factory ) {
+    spotFindingMethod.addChoice( factory );
+}
+
+void _Config::addSpotFitter( std::auto_ptr<SpotFitterFactory> factory ) {
+    spotFittingMethod.addChoice( factory );
+}
+
 }
 }

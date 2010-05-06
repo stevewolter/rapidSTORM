@@ -77,6 +77,9 @@ namespace input {
          *  in nm. */
         simparm::DoubleEntry pixel_size_in_nm;
 
+        void addInput( std::auto_ptr<BaseMethod> method );
+        void addInput( BaseMethod* method ) { addInput( std::auto_ptr<BaseMethod>(method) ); }
+
       protected:
         /** Register all named Entry objects in this Config. **/
         void registerNamedEntries();

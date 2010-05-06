@@ -65,6 +65,13 @@ namespace engine {
 
         /** Number of parallel computation threads to run. */
         UnsignedLongEntry pistonCount;
+
+        void addSpotFinder( std::auto_ptr<SpotFinderFactory> factory );
+        void addSpotFinder( SpotFinderFactory* factory ) 
+            { addSpotFinder(std::auto_ptr<SpotFinderFactory>(factory)); }
+        void addSpotFitter( std::auto_ptr<SpotFitterFactory> factory );
+        void addSpotFitter( SpotFitterFactory* factory ) 
+            { addSpotFitter(std::auto_ptr<SpotFitterFactory>(factory)); }
    };
 
    class Config : public _Config {

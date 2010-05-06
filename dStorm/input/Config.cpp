@@ -129,5 +129,9 @@ Config::Config(const Config& c)
 Config::~Config() {
 }
 
+void _Config::addInput( std::auto_ptr<BaseMethod> method ) {
+    inputMethod.addChoice( method );
+}
+
 }
 }
