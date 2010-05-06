@@ -118,7 +118,7 @@ void ModuleLoader::add_modules
     DEBUG("Adding basic spot finders");
     dStorm::spotFinders::basic_spotFinders( car_config.engineConfig );
     DEBUG("Adding basic spot fitter");
-    car_config.engineConfig.spotFittingMethod.addChoice( new engine::GaussFitterFactory() );
+    car_config.engineConfig.addSpotFitter( new engine::GaussFitterFactory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
     
