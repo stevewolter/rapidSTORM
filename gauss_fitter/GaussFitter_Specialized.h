@@ -25,10 +25,12 @@ class SpecializedGaussFitter<FS, false, Corr, Width, Height>
 : public GaussFitter<FS, false, Corr>::BaseTableEntry
 {
   public:
-    typedef For<1, (FS) ? FreeForm : FixedForm> FitGroup;
+    static const int FitFlags = GaussFitter<FS, false, Corr>::FitFlags;
+
+    typedef For<1, FitFlags> FitGroup;
     typedef typename FitGroup::template Deriver
         <StormPixel,Width,Height,Corr> Deriver;
-    typedef Width_Invariants<FS, false> Common;
+    typedef Width_Invariants<FitFlags, false> Common;
 
   protected:
     Deriver deriver;
@@ -57,11 +59,12 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
 {
   public:
     typedef SpecializedGaussFitter<FS, false, Corr, Width, Height> Base;
+    static const int FitFlags = GaussFitter<FS, true, Corr>::FitFlags;
 
-    typedef For<2, (FS) ? FreeForm : FixedForm> FitGroup;
+    typedef For<2, FitFlags> FitGroup;
     typedef typename FitGroup::template Deriver
         <StormPixel,Width,Height,Corr> Deriver;
-    typedef Width_Invariants<FS, true> Common;
+    typedef Width_Invariants<FitFlags, true> Common;
 
   protected:
     typename Deriver::Position a, b;
@@ -149,9 +152,9 @@ fit( const Spot &spot, Localization *target, const Image& image,
      
     std::pair<FitResult,typename Deriver::Position*>
         fitResult = 
-            common.Width_Invariants<Free_Sigmas,false>::fit_function.fit(
+            common.Width_Invariants<FitFlags,false>::fit_function.fit(
                 a, b,
-                common.Width_Invariants<Free_Sigmas,false>::constants,
+                common.Width_Invariants<FitFlags,false>::constants,
                 deriver );
 
     c = fitResult.second;

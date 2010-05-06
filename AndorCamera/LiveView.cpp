@@ -33,7 +33,6 @@ void LiveView::registerNamedEntries() {
 }
 
 void LiveView::show_window(int width, int height) {
-    guard lock(window_mutex);
     if ( window.get() == NULL ) {
         Display::Manager::WindowProperties props;
         props.name = "Live camera view";
@@ -51,9 +50,10 @@ void LiveView::show_window(int width, int height) {
 }
 
 void LiveView::hide_window() {
-    guard lock(window_mutex);
-    if ( window.get() != NULL )
+    if ( window.get() != NULL ) {
+        show_live = false;
         window.reset( NULL );
+    }
 }
 
 std::auto_ptr<Display::Change> LiveView::get_changes()
@@ -94,6 +94,7 @@ void LiveView::compute_key_change(
 }
 
 void LiveView::show( const CamImage& image, int number) {
+    guard lock(window_mutex);
     if ( show_live() ) {
         if ( window.get() == NULL ) 
             show_window(image.width, image.height);
@@ -111,6 +112,7 @@ void LiveView::show( const CamImage& image, int number) {
 }
 
 void LiveView::notice_closed_data_window() {
+    guard lock(window_mutex);
     hide_window();
 }
 

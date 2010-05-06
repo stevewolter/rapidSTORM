@@ -1,3 +1,5 @@
+#define VERBOSE
+#include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
 #include <CImg.h>
@@ -139,8 +141,10 @@ void RawImageFile::propagate_signal(ProgressSignal) {
 
 RawImageFile::~RawImageFile() {
     delete_queue();
-    if ( tif != NULL )
+    if ( tif != NULL ) {
+        DEBUG("Closing TIFF output file");
         TIFFClose( tif );
+    }
 }
 
 

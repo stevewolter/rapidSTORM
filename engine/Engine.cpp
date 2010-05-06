@@ -27,8 +27,7 @@
 #include "doc/help/context.h"
 #include <boost/units/io.hpp>
 #include <dStorm/error_handler.h>
-
-#include "gauss_fitter/GaussFitterFactory.h"
+#include <dStorm/engine/SpotFitterFactory.h>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -137,8 +136,7 @@ output::Traits Engine::convert_traits( const Traits& in ) {
     rv.min_amplitude 
         = float( config.amplitude_threshold() )
             * cs_units::camera::ad_count;
-    rv.two_kernel_improvement_is_set = (config.asymmetry_threshold() < 1.0);
-    rv.covariance_matrix_is_set = config.freeSigmaFitting();
+    config.spotFittingMethod().set_traits( rv );
     return rv;
 }
 
@@ -239,7 +237,7 @@ void Engine::runPiston()
         = config.spotFindingMethod().make_SpotFinder(config, imProp.size);
 
     DEBUG("Building spot fitter");
-    auto_ptr<SpotFitter> fitter(GaussFitterFactory().make_by_parts(config, imProp));
+    auto_ptr<SpotFitter> fitter(config.spotFittingMethod().make_by_parts(config, imProp));
 
     DEBUG("Building fit buffer");
     data_cpp::Vector<Localization> buffer;

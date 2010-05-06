@@ -94,7 +94,7 @@ namespace dStorm {
             virtual bool pull_length() const { return initialized; }
 
             virtual void startPushing(input::Drain<CamImage> *target);
-            virtual void stopPushing(input::Drain<CamImage> *target);
+            virtual void stopPushing();
 
         };
     }

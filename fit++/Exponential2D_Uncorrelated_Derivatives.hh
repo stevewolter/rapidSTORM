@@ -78,6 +78,20 @@ DerivativeHelper<Ks,PM,W,H,false>::prepare()
             = this->yl.expTerm;
     }
 
+    if ( Space::template ParamTraits<SigmaX>::Variable ) {
+        BlockReturner<Ks,PM,W,SigmaX>::block( xparts, Width ).transpose()
+            = - (this->prefactor.cwise() * this->sxI).asDiagonal() * ( this->xl.sqr.cwise() * this->xl.expTerm);
+        BlockReturner<Ks,PM,H,SigmaX>::block( yparts, Height).transpose()
+            = this->yl.expTerm;
+    }
+
+    if ( Space::template ParamTraits<SigmaY>::Variable ) {
+        BlockReturner<Ks,PM,W,SigmaY>::block( xparts, Width ).transpose()
+            = - this->prefactor.asDiagonal() * this->xl.expTerm;
+        BlockReturner<Ks,PM,H,SigmaY>::block( yparts, Height).transpose()
+            = this->syI.asDiagonal() * ( this->yl.sqr.cwise() * this->yl.expTerm);
+    }
+
     return true;
 }
 
