@@ -44,7 +44,7 @@ Source<Pixel>::Source(const char *src)
       BaseSource::Pushing | BaseSource::Pullable)
 {
     TIFFSetErrorHandler( TIFF_error_handler );
-    tiff = TIFFOpen( src, "r" );
+    tiff = TIFFOpen( src, "rm" );
     if ( tiff == NULL ) throw_error();
 
     Traits< CImg<Pixel> >& my_traits = *this;

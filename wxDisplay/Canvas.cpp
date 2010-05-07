@@ -7,6 +7,10 @@
 namespace dStorm {
 namespace Display {
 
+std::ostream& operator<<(std::ostream& o, const wxRect& r) {
+    return o << r.GetLeft() << "-" << r.GetRight() << " " << r.GetTop() << "-" << r.GetRight();
+}
+
 wxColor makeColor( const dStorm::Display::Color& c ) {
     return wxColor( c.red(), c.green(), c.blue() );
 }
@@ -104,7 +108,7 @@ wxRect Canvas::get_visible_region() {
             * zoom_in_level / zoom_out_level;
 
     xs = std::min( xs, image_size.GetWidth() - xl * xr );
-    ys = std::min( ys, image_size.GetWidth() - yl * yr );
+    ys = std::min( ys, image_size.GetHeight() - yl * yr );
     return wxRect( xl * xr, yl * yr, xs, ys );
 }
 

@@ -29,8 +29,8 @@ class LiveView :
 
     ost::Mutex window_mutex, change_mutex;
 
-    std::auto_ptr<Display::Manager::WindowHandle> window;
     std::auto_ptr<Display::Change> change;
+    std::auto_ptr<Display::Manager::WindowHandle> window;
 
     void registerNamedEntries();
 

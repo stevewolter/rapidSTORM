@@ -23,7 +23,7 @@ Window::Window(
     wxManager::WindowHandle *my_handle
 )
 : wxFrame(NULL, wxID_ANY, std_to_wx_string( props.name ),
-          wxDefaultPosition, wxSize(680, 680)),
+          wxDefaultPosition, wxSize(780, 780)),
     timer(this, DISPLAY_TIMER),
     source(data_source),
     handle( my_handle ),
@@ -73,12 +73,11 @@ Window::Window(
 
     Show( true );
 
-    float largest_ratio = std::max( 600.0f / init_size.width, 600.0f / init_size.height );
-    if ( largest_ratio < 1 ) {
-        canvas->set_zoom( 1 - int( round(1/largest_ratio) ) );
-    } else {
-        canvas->set_zoom( 1 + int( round(largest_ratio) ) );
-    }
+    float ratio = std::min( 600.0f / init_size.width, 600.0f / init_size.height );
+    int new_zoom = ( ratio < 1 ) 
+        ? 1 - int( ceil(1/ratio) )
+        : 1 + int( floor(ratio) );
+    canvas->set_zoom(new_zoom);
 
     timer.Start( 100 );
     this->Raise();
@@ -200,8 +199,11 @@ BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
 END_EVENT_TABLE()
 
-std::auto_ptr<Change> Window::getState() const
+std::auto_ptr<Change> Window::getState() 
 {
+    std::auto_ptr<Change> changes = source->get_changes();
+    commit_changes(*changes);
+
     std::auto_ptr<Change> rv( new Change() );
     rv->do_resize = true;
     rv->resize_image.width =

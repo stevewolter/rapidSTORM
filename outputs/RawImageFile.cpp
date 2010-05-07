@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
@@ -45,20 +44,24 @@ RawImageFile::_Config::_Config()
 RawImageFile::RawImageFile(const Config& config)
 : OutputObject("RawImage", "Saving raw images"),
   filename( config.outputFile() ),
+  tif( NULL ),
   next_image(0)
 {
     if ( ! config.outputFile )
         throw std::runtime_error(
             "No file name supplied for raw image output");
-    TIFFSetErrorHandler( &error_handler );
-    tif = TIFFOpen( filename.c_str(), "w" );
-    if ( tif == NULL ) 
-        throw std::runtime_error("Unable to open TIFF file" + 
-                                 tiff_error);
 }
 
 Output::AdditionalData
 RawImageFile::announceStormSize(const Announcement &) {
+    TIFFSetErrorHandler( &error_handler );
+    if ( tif == NULL ) {
+        tif = TIFFOpen( filename.c_str(), "w" );
+        if ( tif == NULL ) 
+            throw std::runtime_error("Unable to open TIFF file" + 
+                                    tiff_error);
+    }
+
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
 

@@ -200,7 +200,9 @@ std::auto_ptr<Change>
 wxManager::WindowHandle::get_state()
 {
     StateFetcher fetcher( associated_window );
+    DEBUG("Fetching results");
     m.run_in_GUI_thread( &fetcher );
+    DEBUG("Fetched results");
     return fetcher.result();
 }
 

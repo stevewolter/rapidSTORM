@@ -41,8 +41,7 @@ void LiveView::show_window(int width, int height) {
         props.initial_size.height = height;
         props.initial_size.key_size = 256;
         props.initial_size.pixel_size = 
-            1 * cs_units::camera::pixels_per_meter
-                / resolution;
+            (1.0 * cs_units::camera::pixels_per_meter / resolution);
 
         window = Display::Manager::getSingleton()
             .register_data_source( props, *this );
@@ -87,10 +86,11 @@ void LiveView::compute_key_change(
 {
     Display::KeyChange *v = change->change_key.allocate( 256 );
     for (int i = 0; i <= 255; i++) {
-        v->index = i;
-        v->color = i;
-        v->value = darkest + i / 255.0;
+        v[i].index = i;
+        v[i].color = i;
+        v[i].value = darkest + i * ((brightest - darkest) / 255.0);
     }
+    change->change_key.commit(256);
 }
 
 void LiveView::show( const CamImage& image, int number) {
