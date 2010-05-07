@@ -1,0 +1,49 @@
+begin_test_suite
+load_default_config
+send "in Car in AutoTerminate in value set true\n"
+set timeout 20
+
+set basename "$tmpdir/can-compute-cam-job-test"
+
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -20\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in BottomCaptureBorder in value set 180\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in LeftCaptureBorder in value set 6\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in RightCaptureBorder in value set 113\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in TopCaptureBorder in value set 4\n"
+send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename value set $basename\n"
+
+send "in Car in Output in EngineOutput set ChooseTransmission value set RawImage\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
+send "in Car in Method set InputMethod in AndorDirectConfig set AcquisitionLength value set 100\n"
+send "in Car in Run in value set 1\n"
+
+set timeout 120
+set test "Job is finished"
+expect {
+    -re "remove dStormJob" { pass "$test" }
+}
+
+wait_for_jobs
+
+set test "TIFF file exists"
+if { [file exists "$basename.tif"] == 1 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+set test "TIFF file has 100 subimages"
+if { [exec identify -ping "$basename.tif" | wc -l] == 100 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+set test "JPEG image exists"
+if { [file exists "$basename.jpg"] == 1 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+end_test_suite

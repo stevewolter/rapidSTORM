@@ -1,4 +1,5 @@
 begin_test_suite
+global have_test_plugin
 
 set timeout 5
 
@@ -18,16 +19,21 @@ set timeout 10
 send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength in value set 1\n"
 
 set test "Can add basename printer"
-send "cmd 1 in Car in Output in EngineOutput in ChooseTransmission in value set BasenamePrinter\n"
 set bnp_prefix ""
+if { $have_test_plugin == 1 } {
+send "cmd 1 in Car in Output in EngineOutput in ChooseTransmission in value set BasenamePrinter\n"
 expect {
     -re "(in Car in Output in EngineOutput )declare Object\r?\nname Output(\[0-9\]*)" 
         { 
             pass "$test"
             set bnp_prefix "$expect_out(1,string)in Output$expect_out(2,string) in BasenamePrinter" 
         }
+    -re "Could not perform action: There is no choice named BasenamePrinter" {}
     "ack 1" { fail "$test" }
     timeout { fail "$test" }
+}
+} else {
+    unsupported "$test"
 }
 
 if { [string compare "$bnp_prefix" ""] != 0 } {

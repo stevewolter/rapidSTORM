@@ -84,9 +84,12 @@ namespace Reader {
       private:
         output::TraceReducer::Config trace_reducer;
         simparm::Attribute<std::string> txt_extension;
+
+        void registerNamedEntries();
         
       public:
         Config(input::Config& master);
+        Config(const Config&, input::Config&);
         ~Config();
 
         static std::auto_ptr<Source> read_file( simparm::FileEntry& name );
@@ -100,7 +103,7 @@ namespace Reader {
 
       public:
         Config* clone(input::Config &newMaster) const 
-            { return (new Config(newMaster)); }
+            { return (new Config(*this, newMaster)); }
     };
 
 }

@@ -125,7 +125,7 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.height = height;
     new_size.key_size = imageDepth;
     new_size.pixel_size = 
-        *resolution / cs_units::camera::pixels_per_meter;
+        1.0 * cs_units::camera::pixels_per_meter / *resolution;
 
     return new_size;
 }
@@ -151,7 +151,9 @@ void Display::initialize_display()
             props.flags.zoom_on_drawn_rectangle();
         props.initial_size = getSize();
 
+        DEBUG("Initializing display handle");
         ost::MutexLock lock(mutex);
+        DEBUG("Got lock for display handle");
         handle = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
         change->do_resize = false;
@@ -248,12 +250,10 @@ void Display::run() throw() {
     } catch (const std::exception& e) {
         std::cerr << "Could not acquire images for aiming view."
                         " Reason: " << e.what() << endl;
-        ost::MutexLock lock(mutex);
         handle.reset( NULL );
     } catch (...) {
         std::cerr << "Could not acquire images for aiming view."
                     << endl;
-        ost::MutexLock lock(mutex);
         handle.reset( NULL );
     }
     DEBUG("Display acquisition thread finished\n");
@@ -326,6 +326,8 @@ void Display::operator()
                 throw std::runtime_error("Unable to acquire image from display window");
             dStorm::Display::Manager::getSingleton()
                 .store_image( imageFile(), *c );
+        } else {
+            std::cerr << "Please provide a filename under which to save the camera snapshot" << std::endl;
         }
     } else if (&e.source == &stopAim.value && stopAim.triggered()) {
         stopAim.untrigger();

@@ -13,12 +13,25 @@ expect {
         { pass "$test" }
 }
 
+set test "Do not overwrite own input file when STM is selected as input driver"
+send "in Car in Method in InputMethod in value set STM\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "failed:.*was used by multiple outputs"
+        { pass "$test" }
+    # Output of count module
+    -re "\n\[0-9\]*\r?\n"
+        { fail "$test" }
+}
+wait_for_jobs
+
 set timeout -1
 set test "Write file if output is changed"
 set output_file "$tmpdir/test-txt-output.txt"
+set output_img "$tmpdir/test-txt-output.jpg"
 send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set $output_file\n"
-send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set $output_img\n"
 
 dstorm_attach
 
@@ -34,16 +47,22 @@ if { [file exists "$output_file"] == 1 } {
 } else {
     fail "$test"
 }
+set test "Output image file exists"
+if { [file exists "$output_img"] == 1 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
 
 set test "Written output file has same number of lines as input file"
 
 set linecountdiff 0
 set filestream [open "$output_file" r]
-while {[gets $filestream line] >= 0} { incr linecountdiff }
+while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
 close $filestream
 set linecountdiff -$linecountdiff
 set filestream [open "$input_file" r]
-while {[gets $filestream line] >= 0} { incr linecountdiff }
+while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
 close $filestream
 if { $linecountdiff == 0 } {
     pass "$test"

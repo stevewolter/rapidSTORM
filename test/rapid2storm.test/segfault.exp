@@ -1,6 +1,9 @@
 begin_test_suite
+global have_test_plugin
 
 set test "segfault in announcement"
+
+if { $have_test_plugin == 1 } {
 
 proc initialize_segfault_exp {} {
     send "cmd 45 in Car in Method in InputMethod in value set DummyInput\n"
@@ -87,5 +90,9 @@ if { $restart == 1 } {
 }
 
 untested "segfault in n-th working thread"
+
+} else {
+    unsupported "Checking segmentation fault behaviour"
+}
 
 end_test_suite

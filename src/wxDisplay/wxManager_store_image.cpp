@@ -172,19 +172,23 @@ static void write_scale_bar(
     Magick::Image& image,
     float meters_per_pixel,
     int width,
-    int offset )
+    int x_offset )
 {
     int lh = image.fontPointsize();
     if ( int(image.rows()) < 18+lh ) return;
+    int y_offset = image.rows()-12-lh;
 
-    DEBUG("Writing scale bar at " << offset << " " << image.rows()-12-lh << " with width " << width);
+    DEBUG("Writing scale bar at " << x_offset << " " << image.rows()-12-lh << " down to " 
+        << x_offset+width << " and " << y_offset+5);
     image.draw( Magick::DrawableRectangle( 
-            offset, image.rows()-12-lh, offset+width, image.rows()-7-lh ) );
+            x_offset, y_offset, x_offset+width, y_offset+5 ) );
 
+    DEBUG("Writing scale bar annotation");
     image.annotate(
          SIize(meters_per_pixel * width) + "m", 
-            Magick::Geometry(width, lh, offset, image.rows()-2-lh),
+            Magick::Geometry(width, lh, x_offset, y_offset+10),
             Magick::CenterGravity );
+    DEBUG("Wrote scale bar annotation");
 }
 #endif
 
@@ -198,6 +202,8 @@ void wxManager::store_image(
 #ifndef HAVE_LIBGRAPHICSMAGICK__
     throw std::runtime_error("Cannot save images: Magick library not used in compilation");
 #else
+    DEBUG("Image to store has width " << image.resize_image.width << " and height " << image.resize_image.height
+        <<" and key size " << image.change_key.size());
     int width = image.resize_image.width; 
     int main_height = image.resize_image.height;
     int total_height = main_height;
@@ -229,6 +235,7 @@ void wxManager::store_image(
     int scale_bar_width = std::min( width/3, 100 );
     write_scale_bar( img, image.resize_image.pixel_size,
                      scale_bar_width, std::max(0, width-scale_bar_width-5 ) );
+    DEBUG("Wrote scale bar");
     
     img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
     unsigned int pix_per_cm = int( 0.01 / image.resize_image.pixel_size );

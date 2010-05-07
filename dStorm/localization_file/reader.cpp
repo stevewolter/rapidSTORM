@@ -124,6 +124,18 @@ Config::Config(input::Config& master)
                  "extension_stm", ".stm"),
     txt_extension("extension_txt", ".txt") 
 {
+    registerNamedEntries();
+}
+
+Config::Config(const Config& c, input::Config& master)
+: input::FileBasedMethod<Localization>(c, master),
+    trace_reducer(c.trace_reducer),
+    txt_extension(c.txt_extension)
+{
+    registerNamedEntries();
+}
+
+void Config::registerNamedEntries() {
     DEBUG("Beginning Config constructor");
     push_back( master.pixel_size_in_nm );
     push_back(master.firstImage);

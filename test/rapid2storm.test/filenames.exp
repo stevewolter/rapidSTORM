@@ -3,10 +3,8 @@ set timeout 6
 
 set test "filename clash between two tables"
 send "in Car in Method set InputMethod in Auto in InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
-send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
-send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
 
 send "in Car in Run in value set 1\n"
 expect {
@@ -17,7 +15,7 @@ expect {
 dstorm_attach
 
 set test "filename clash between two different outputs"
-send "in Car in Output in EngineOutput set ToRemove in value set Output1\n"
+send "in Car in Output in EngineOutput set ToRemove in value set Output0\n"
 send "in Car in Output in EngineOutput set ChooseTransmission in value set Image\n"
 set test "Image output is created"
 expect {
@@ -34,7 +32,7 @@ expect {
 
 set test "clash between input and output file name"
 send "in Car in Output in EngineOutput set ToRemove in value set $imageOutput\n"
-send "in Car in Output in EngineOutput in Output2 in Table in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Output in EngineOutput in Output1 in Table in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
 send "cmd 0 in Car in Run in value set 1\n"
 
 expect {

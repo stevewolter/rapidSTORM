@@ -1,6 +1,7 @@
 #include "BasenameWatcher.h"
 #include "Config.h"
 #include "Method.h"
+#include "debug.h"
 
 namespace dStorm {
 namespace input {
@@ -17,6 +18,7 @@ BasenameWatcher::BasenameWatcher(
 
 void BasenameWatcher::attach() {
     if ( choice.isValid() ) {
+        DEBUG("Switching to choice " << choice().getName());
         current = &choice().output_file_basename;
         output = (*current)();
         receive_changes_from( *current );

@@ -1,4 +1,5 @@
 begin_test_suite
+global have_test_plugin
 
 dstorm_attach
 
@@ -6,7 +7,11 @@ set test "Bringing camera down to medium temperature"
 send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -10\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -5\n"
-send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+if { $have_test_plugin == 1 } {
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+} else {
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+}
 send "in Car in Run in value set 1\n"
 
 set timeout 30

@@ -50,7 +50,7 @@ class Window : public wxFrame, public Canvas::Listener
 
     void remove_data_source();
 
-    std::auto_ptr<Change> getState() const;
+    std::auto_ptr<Change> getState();
 };
 
 }

@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <locale.h>
+#include <stdlib.h>
 
 #ifdef HAVE_LIBGRAPHICSMAGICK__
 #include <Magick++.h>
@@ -31,6 +33,9 @@ int main(int argc, char *argv[]) {
 
     ost::DebugStream::set(cerr);
 #ifdef HAVE_LIBGRAPHICSMAGICK__
+    char english_env[] = { "LC_ALL=en_US" };
+    /* Magick cannot save images in the de_DE locale. */
+    putenv(english_env);
     Magick::InitializeMagick(argv[0]);
 #endif
     cimg::exception_mode() = 0U;         /* Do not show CImg errors in windows. */

@@ -73,6 +73,7 @@ Car::Car (JobMaster* input_stream, const CarConfig &new_config)
     DEBUG("Determining input file name");
     output::Basename bn( config.inputConfig.basename() );
     bn.set_variable("run", ident);
+    DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     config.outputSource.set_output_file_basename( bn );
     DEBUG("Building output");
     output = config.outputSource.make_output();

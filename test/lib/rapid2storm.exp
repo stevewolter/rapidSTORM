@@ -95,6 +95,7 @@ proc end_test_suite {} {
     wait_for_jobs; 
     disconnect_camera;
 
+    set timeout 25; 
     send "cmd 1 detach\n"; expect "ack 1";
     send "cmd 0 reset\n"; expect "ack 0"; 
 }
