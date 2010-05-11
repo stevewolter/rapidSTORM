@@ -45,7 +45,7 @@ namespace engine {
 
         std::auto_ptr<SigmaFitter> fitter;
 
-        bool haveInitiatedRestart;
+        Output::Result defined_result;
         int discarded;
         Result check();
         void deleteAllResults();

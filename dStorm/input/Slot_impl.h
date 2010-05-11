@@ -78,13 +78,17 @@ void Slot<Object>::clean() {
 
     if ( state == Processed )
         state = Delivered;
+    DEBUG("Cleaned state to " << state);
 }
 
 template <typename Object>
 bool Slot<Object>::discard() {
     ost::MutexLock lock(dataMutex);
     bool hasDiscarded = (data.get() != NULL) && (state == Processed);
-    if (state == Processed) { data.reset( NULL ); state = Discarded; }
+    if (state == Processed) {
+        DEBUG("Discarding " << my_index);
+        data.reset( NULL ); state = Discarded; 
+    }
     return hasDiscarded;
 }
 
