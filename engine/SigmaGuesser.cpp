@@ -46,8 +46,9 @@ Output::Result
 SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
 
 {
-    if (haveInitiatedRestart) return RestartEngine;
+    if (defined_result != KeepRunning) return defined_result;
     ost::MutexLock lock(mutex);
+    if (defined_result != KeepRunning) return defined_result;
     PROGRESS("Adding fits");
 
     for (int i = 0; i < er.number; i++)
@@ -129,21 +130,20 @@ SigmaGuesserMean::check() {
             " with correlation " << (*sigmas[2])();
         status = ss.str();
 
-        haveInitiatedRestart = true;
+        defined_result = RestartEngine;
         nextCheck = n+1;
         STATUS("Significant difference");
-        return RestartEngine;
     } else if (converged == 3) {
-        haveInitiatedRestart = true;
         nextCheck = numeric_limits<int>::max();
         STATUS("Insignificant difference");
         input.setDiscardingLicense( true );
-        return RemoveThisOutput;
+        defined_result = RemoveThisOutput;
     } else {
         nextCheck = (3*n)/2;
         STATUS("No significance. Next check at " << nextCheck);
-        return KeepRunning;
     }
+
+    return defined_result;
 }
 
 void SigmaGuesserMean::deleteAllResults() {
@@ -158,7 +158,7 @@ void SigmaGuesserMean::deleteAllResults() {
         decline[i][1] = (*sigmas[i])() + 0.5 * ds;
     }
     n = discarded = 0;
-    haveInitiatedRestart = false;
+    defined_result = KeepRunning;
     meanAmplitude.reset();
 
     PROGRESS("Resetting fitter");
