@@ -4,6 +4,7 @@
 #include "Key.h"
 #include "ScaleBar.h"
 #include <sstream>
+#include "SizeConvert.h"
 
 #include "debug.h"
 
@@ -38,8 +39,8 @@ Window::Window(
                 * ver_sizer1 = new wxBoxSizer( wxVERTICAL ),
                 * ver_sizer2 = new wxBoxSizer( wxVERTICAL ),
                 * hor_sizer = new wxBoxSizer( wxHORIZONTAL );
-    canvas = new Canvas(this, wxID_ANY, 
-                wxSize(init_size.width, init_size.height));
+    wxSize initSize = mkWxSize(init_size.size);
+    canvas = new Canvas(this, wxID_ANY, initSize);
     zoom = new ZoomSlider( this, *canvas );
     zoom->set_zoom_listener( *this );
 
@@ -73,7 +74,7 @@ Window::Window(
 
     Show( true );
 
-    float ratio = std::min( 600.0f / init_size.width, 600.0f / init_size.height );
+    float ratio = std::min( 600.0f / initSize.GetWidth(), 600.0f / initSize.GetHeight() );
     int new_zoom = ( ratio < 1 ) 
         ? 1 - int( ceil(1/ratio) )
         : 1 + int( floor(ratio) );
@@ -122,7 +123,7 @@ void Window::draw_image_window( const Change& changes ) {
     if ( changes.do_change_image ) {
         for ( int y = 0; y < height; y++ )
             for ( int x = 0; x < width; x++)
-                drawer.draw(x, y, changes.image_change.pixels[x+y*width]);
+                drawer.draw(x, y, changes.image_change.new_image(x,y));
     }
             
     data_cpp::VectorList<PixelChange>::const_iterator 
@@ -138,7 +139,7 @@ void Window::commit_changes(const Change& changes)
 {
     if ( changes.do_resize ) {
         const ResizeChange& r = changes.resize_image;
-        canvas->resize( wxSize( r.width, r.height ) );
+        canvas->resize( mkWxSize( r.size ) );
         key->resize( r.key_size );
         scale_bar->set_pixel_size( r.pixel_size );
     }
@@ -206,10 +207,7 @@ std::auto_ptr<Change> Window::getState()
 
     std::auto_ptr<Change> rv( new Change() );
     rv->do_resize = true;
-    rv->resize_image.width =
-        canvas->getWidth();
-    rv->resize_image.height =
-        canvas->getHeight();
+    rv->resize_image.size = mkImgSize(canvas->getSize());
     rv->resize_image.pixel_size =
         scale_bar->get_pixel_size();
 

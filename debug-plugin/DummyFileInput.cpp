@@ -1,6 +1,6 @@
 #include "DummyFileInput.h"
 #include <iostream>
-#include <dStorm/engine/Image_impl.h>
+#include <dStorm/engine/Image.h>
 
 using namespace dStorm::input;
 
@@ -8,22 +8,31 @@ namespace dummy_file_input {
 
 Source::Source(const Method& config) 
 : simparm::Set("YDummyInput", "Dummy input"),
-  dStorm::input::SerialSource<dStorm::engine::Image>
-    ( static_cast<simparm::Node&>(*this), BaseSource::Pushing | BaseSource::Pullable),
+  dStorm::input::Source<dStorm::engine::Image>
+    ( static_cast<simparm::Node&>(*this), Capabilities() ),
   w( config.width() ),
   h( config.height() ),
   number( config.number() )
 {
     std::cout << "Simulating file input from '" << config.inputFile().c_str() << "'" << std::endl;
-    dStorm::input::Traits<dStorm::engine::Image>& traits = *this;
-    traits.size.x() = config.width()* cs_units::camera::pixel;
-    traits.size.y() = config.height()* cs_units::camera::pixel;
 }
 
 Source::~Source() {}
 
+Source::TraitsPtr
+Source::get_traits()
+{
+    TraitsPtr rv( new TraitsPtr::element_type() );
+    rv->size.x() = w* cs_units::camera::pixel;
+    rv->size.y() = h* cs_units::camera::pixel;
+    rv->total_frame_count = number * cs_units::camera::frame;
+}
+
 dStorm::engine::Image* Source::load() {
-    return new dStorm::engine::Image( w, h );
+    dStorm::engine::Image::Size sz;
+    sz.x() = w * cs_units::camera::pixel;
+    sz.y() = h * cs_units::camera::pixel;
+    return new dStorm::engine::Image( sz );
 }
 
 Config::Config()

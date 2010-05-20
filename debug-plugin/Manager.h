@@ -30,9 +30,7 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
     bool running;
 
     struct Source {
-        typedef Eigen::Matrix<dStorm::Pixel,
-                              Eigen::Dynamic,
-                              Eigen::Dynamic> Image;
+        typedef dStorm::Image<dStorm::Pixel,2> Image;
         dStorm::Display::DataSource& handler;
         Image current_display;
         dStorm::Display::Change state;

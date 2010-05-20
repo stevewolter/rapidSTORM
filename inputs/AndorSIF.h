@@ -4,7 +4,7 @@
 #ifndef CImgBuffer_ANDORSIF_H
 #define CImgBuffer_ANDORSIF_H
 
-#include <dStorm/input/SerialSource.h>
+#include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/FileBasedMethod.h>
 #include <memory>
@@ -14,6 +14,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/Image.h>
 
 #ifndef CImgBuffer_SIFLOADER_CPP
 typedef void readsif_File;
@@ -25,8 +26,6 @@ namespace input {
     class BasenameWatcher;
 
 namespace AndorSIF {
-    using cimg_library::CImg;
-
     /** The Source provides images from an Andor SIF file, which
      *  is the file format used by the Andor programs.
      *
@@ -36,15 +35,23 @@ namespace AndorSIF {
      *  the SIF file. */
     template <typename PixelType>
     class Source : public simparm::Set,
-                   public SerialSource< CImg<PixelType> >,
-                   public  simparm::Node::Callback
+                   public input::Source< Image<PixelType,2> >,
+                   public simparm::Node::Callback
     {
       public:
+         typedef dStorm::Image<PixelType,2> Image;
+         typedef input::Source<Image> BaseSource;
+         typedef typename BaseSource::iterator base_iterator;
+         typedef typename BaseSource::Flags Flags;
+         typedef typename BaseSource::TraitsPtr TraitsPtr;
+
          Source(const char *src);
          Source(FILE *src, const std::string& ident);
          virtual ~Source();
 
-         virtual int quantity() const; 
+        base_iterator begin();
+        base_iterator end();
+        TraitsPtr get_traits();
 
          Object& getConfig() { return *this; }
          void push_back_SIF_info() {
@@ -53,6 +60,7 @@ namespace AndorSIF {
 
       private:
          void init(FILE *src);
+         bool has_been_iterated;
 
          FILE *stream;
          readsif_File *file;
@@ -66,14 +74,15 @@ namespace AndorSIF {
 
          void operator()(const simparm::Event&);
 
-         CImg<PixelType>* load();
+         std::auto_ptr< Image > load();
+         class iterator;
     };
 
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public FileBasedMethod< CImg<PixelType> >
+    : public FileBasedMethod< dStorm::Image<PixelType,2> >
     {
       public:
         typedef input::Config MasterConfig;

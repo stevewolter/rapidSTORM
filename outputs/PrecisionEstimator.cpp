@@ -8,7 +8,7 @@
 #include <dStorm/output/Trace.h>
 #include <sstream>
 #include <dStorm/helpers/Variance.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <boost/units/unit.hpp>

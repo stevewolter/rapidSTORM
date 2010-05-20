@@ -1,6 +1,8 @@
 #include "Canvas.h"
 #include <stdexcept>
 #include <wx/dcbuffer.h>
+#include "SizeConvert.h"
+#include <dStorm/Image_iterator.h>
 
 #include "debug.h"
 
@@ -403,14 +405,13 @@ std::auto_ptr<ImageChange>
         return rv;
 
     int w = getWidth(), h = getHeight();
-    rv->pixels.resize(w*h);
+    rv->new_image = dStorm::Display::Image( mkImgSize(getSize()) );
     unsigned char *d = contents->GetData();
-    Color *p = rv->pixels.ptr();
-    for (int i = 0; i < w*h; i++) {
-        p->red() = *d++;
-        p->green() = *d++;
-        p->blue() = *d++;
-        p++;
+    dStorm::Display::Image::iterator i;
+    for (i = rv->new_image.begin(); i != rv->new_image.end(); i++) {
+        i->red() = *d++;
+        i->green() = *d++;
+        i->blue() = *d++;
     }
 
     return rv;

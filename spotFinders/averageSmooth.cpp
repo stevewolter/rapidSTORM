@@ -52,10 +52,10 @@ void averageLine( const InPix *array, int step, int radius,
 #endif
 
 template <>
-void smoothByAverage<StormPixel,SmoothedPixel>
-    (const cimg_library::CImg<StormPixel>& input,
-                      cimg_library::CImg<SmoothedPixel>& output,
-                      int xr, int yr )
+void smoothByAverage<StormPixel,SmoothedPixel>(
+    const Image<StormPixel,2>& input,
+    Image<SmoothedPixel,2>& output,
+    int xr, int yr )
 {
 #ifdef AVERAGE_BY_SLIDING_WINDOW
     int width = input.width, height = input.height;
@@ -103,13 +103,14 @@ void smoothByAverage<StormPixel,SmoothedPixel>
         }
     }
 #elif defined(AVERAGE_BY_SEPARATION)
-    for (int y = 0; y < int(input.height); y++)
+    for (int y = 0; y < int(input.height_in_pixels()); y++)
         averageLine<StormPixel,SmoothedPixel>
-            ( input.ptr(0, y), 1, xr, input.width,
+            ( input.ptr(0, y), 1, xr, input.width_in_pixels(),
                      output.ptr(xr, y) );
-    for (int x = xr; x < int(output.width-xr); x++)
+    for (int x = xr; x < int(output.width_in_pixels()-xr); x++)
         averageLine<SmoothedPixel,SmoothedPixel>
-            ( output.ptr(x, 0), output.width, yr, output.height, 
+            ( output.ptr(x, 0), output.width_in_pixels(),
+              yr, output.height_in_pixels(), 
                      output.ptr(x, yr) );
 
 #ifdef NORMALIZE

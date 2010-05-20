@@ -59,7 +59,7 @@ inline unsigned long int ImageDiscretizer<Colorizer, ImageListener>::non_backgro
     long int accum = 0;
     for (unsigned int i = 0; i < background_threshold; i++)
         accum += histogram[i];
-    return pixels_by_position.size() - accum;
+    return pixels_by_position.size_in_pixels() - accum;
 }
 
 }

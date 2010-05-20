@@ -4,7 +4,7 @@
 #include <fit++/Exponential2D.hh>
 #include <dStorm/engine/JobInfo_decl.h>
 #include <dStorm/engine/Spot_decl.h>
-#include <dStorm/engine/Image_impl.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/Localization_decl.h>
 #include "GaussFitterConfig_decl.h"
 
@@ -34,7 +34,7 @@ struct Width_Invariants<FitFlags, false>
     const double start_sx, start_sy, start_sxy;
 
     Width_Invariants( const GaussFitterConfig&, const JobInfo& );
-    StartInformation set_start( const Spot& spot, const Image& image,
+    StartInformation set_start( const Spot& spot, const BaseImage& image,
                     double shift_estimate,
                     typename FitGroup::Variables* variables );
     bool check_result( typename FitGroup::Variables *variables, 

@@ -1,6 +1,7 @@
 #define DSTORM_SIGMAGUESSER_CPP
 #include "engine/SigmaGuesser.h"
 #include <dStorm/engine/Input.h>
+#include <dStorm/engine/Image.h>
 #include <fit++/Exponential2D.hh>
 #include <limits>
 
@@ -60,7 +61,14 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     for (int i = 0; i < er.number; i++) {
         if (meanAmplitude.mean() < er.first[i].getStrength()) {
             PROGRESS("Fitting " << i);
-            bool good = fitter->fit(*er.source, er.first[i], sigmas);
+            cimg_library::CImg<StormPixel> srcim(
+                er.source->ptr(), 
+                er.source->width() / cs_units::camera::pixel,
+                er.source->height() / cs_units::camera::pixel,
+                1,
+                1,
+                true );
+            bool good = fitter->fit(srcim, er.first[i], sigmas);
             PROGRESS("Fitted " << i);
             if (good) {
                 for (int i = 0; i < 3; i++) {
@@ -136,7 +144,7 @@ SigmaGuesserMean::check() {
     } else if (converged == 3) {
         nextCheck = numeric_limits<int>::max();
         STATUS("Insignificant difference");
-        input.setDiscardingLicense( true );
+        input.dispatch( Input::WillNeverRepeatAgain );
         defined_result = RemoveThisOutput;
     } else {
         nextCheck = (3*n)/2;

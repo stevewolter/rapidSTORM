@@ -6,10 +6,6 @@
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/Pixel.h>
 
-namespace cimg_library { 
-    template <typename PixelType> class CImg;
-}
-
 namespace dStorm {
 namespace viewer {
 namespace DiscretizedImage {
@@ -18,7 +14,7 @@ namespace DiscretizedImage {
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes. */
         void setSize(
-            const input::Traits< cimg_library::CImg<int> >&);
+            const input::Traits< Image<int,2> >&);
         /** Called when a pixel changes in the image. The parameters
          *  give the position of the changed pixel. */
         void pixelChanged(int x, int y);
@@ -37,7 +33,7 @@ namespace DiscretizedImage {
     };
 
     struct DummyListener {
-        void setSize(const input::Traits< cimg_library::CImg<int> >&) {}
+        void setSize(const input::Traits< Image<int,2> >&) {}
         void pixelChanged(int, int) {}
         void clean(bool) {}
         void clear() {}
@@ -89,7 +85,7 @@ class ImageDiscretizer
     typedef unsigned short HighDepth;
     typedef typename Colorizer::BrightnessType LowDepth;
 
-    typedef cimg_library::CImg<float> InputImage;
+    typedef Image<float,2> InputImage;
 
     typedef data_cpp::Vector<LowDepth> TransitionTable;
 
@@ -102,7 +98,7 @@ class ImageDiscretizer
     data_cpp::Vector<unsigned int> histogram;
     TransitionTable transition;
     data_cpp::Vector<HistogramPixel> pixels_by_value;
-    cimg_library::CImg<HistogramPixel> pixels_by_position;
+    Image<HistogramPixel,2> pixels_by_position;
 
     static const HighDepth background_threshold;
     unsigned int in_depth, out_depth,
@@ -127,7 +123,7 @@ class ImageDiscretizer
     ImageDiscretizer(
         int intermediate_depth, 
         float histogram_power, 
-        const cimg_library::CImg<float>& binned_image,
+        const Image<float,2>& binned_image,
         Colorizer& colorizer);
     ~ImageDiscretizer();
 

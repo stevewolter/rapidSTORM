@@ -74,6 +74,8 @@ class Canvas : public wxScrolledWindow {
         { return (contents.get()) ? contents->GetWidth() : 0; }
     int getHeight() const 
         { return (contents.get()) ? contents->GetHeight() : 0; }
+    wxSize getSize() const 
+        { return wxSize(getWidth(), getHeight()); }
 
     std::auto_ptr<ImageChange>
         getContents() const;

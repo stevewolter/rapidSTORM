@@ -1,9 +1,7 @@
 #include "AndorDirect_decl.h"
 
-namespace dStorm {
-namespace AndorDirect {
+namespace AndorCamera {
 
 class LiveView;
 
-}
 }

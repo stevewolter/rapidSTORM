@@ -2,7 +2,7 @@
 #define GAUSS_FITTER_SPECIALIZED_H
 
 #include "GaussFitter.h"
-#include <dStorm/engine/Image_impl.h>
+#include <dStorm/BaseImage.h>
 #include <fit++/FitFunction_impl.hh>
 
 using namespace fitpp::Exponential2D;
@@ -47,7 +47,7 @@ class SpecializedGaussFitter<FS, false, Corr, Width, Height>
     }
 
     virtual int fit(const Spot& spot, Localization* target,
-        const Image &image, int xl, int yl );
+        const BaseImage &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -83,7 +83,7 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
     }
 
     virtual int fit(const Spot& spot, Localization* target,
-        const Image &image, int xl, int yl );
+        const BaseImage &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   private:
@@ -91,7 +91,7 @@ class SpecializedGaussFitter<FS, true, Corr, Width, Height>
     SpotState residue_analysis(Eigen::Vector2i* direction,
                                int xl, int yl);
     float double_fit_analysis(
-        const Image& image, const Eigen::Vector2i& direction,
+        const BaseImage& image, const Eigen::Vector2i& direction,
         int single_fit_xl, int single_fit_yl);
 };
 
@@ -134,10 +134,13 @@ fill_specialization_array()
 template <bool Free_Sigmas, bool Corr, int Width, int Height>
 int 
 SpecializedGaussFitter<Free_Sigmas,false, Corr, Width, Height>::
-fit( const Spot &spot, Localization *target, const Image& image,
+fit( const Spot &spot, Localization *target, const BaseImage& image,
          int xl, int yl) 
 {
-    deriver.setData( image.ptr(), image.width, image.height );
+    deriver.setData( 
+        image.ptr(), 
+        image.width() / cs_units::camera::pixel,
+        image.height() / cs_units::camera::pixel );
     deriver.setUpperLeftCorner( xl, yl );
 
     Eigen::Matrix<double,1,1> corners =
@@ -172,7 +175,7 @@ fit( const Spot &spot, Localization *target, const Image& image,
 template <bool Free_Sigmas, bool Corr, int Width, int Height>
 int 
 SpecializedGaussFitter<Free_Sigmas,true, Corr, Width, Height>::
-fit( const Spot &spot, Localization *target, const Image& image,
+fit( const Spot &spot, Localization *target, const BaseImage& image,
          int xl, int yl) 
 {
     int one_fit = Base::fit( spot, target, image, xl, yl );

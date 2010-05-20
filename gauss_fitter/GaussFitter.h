@@ -26,7 +26,7 @@ class GaussFitter
     struct BaseTableEntry {
         virtual ~BaseTableEntry() {}
         virtual int fit(const Spot& spot, Localization* target,
-            const Image &image, int xl, int yl ) = 0;
+            const BaseImage &image, int xl, int yl ) = 0;
         virtual void setSize( int width, int height ) = 0;
     };
 

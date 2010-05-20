@@ -6,7 +6,6 @@
 #include <string.h>
 #include <sstream>
 #include <iomanip>
-#include <CImg.h>
 #include <foreach.h>
 #include <dStorm/input/Buffer.h>
 #include <dStorm/input/Source_impl.h>
@@ -27,13 +26,12 @@
 
 using namespace std;
 using namespace dStorm::input;
-using namespace AndorCamera;
+using namespace dStorm;
 using namespace simparm;
 
-namespace dStorm {
-namespace AndorDirect {
+namespace AndorCamera {
 
-CamSource* AndorDirect::Config::impl_makeSource() 
+CamSource* Method::impl_makeSource() 
  
 {
     CameraReference cam = System::singleton().get_current_camera();
@@ -49,13 +47,12 @@ CamSource* AndorDirect::Config::impl_makeSource()
     return cam_source.release();
 }
 
-AndorDirect::Source::Source
-    (const Config& config, CameraReference& c) 
+Source::Source
+    (const Method& config, CameraReference& c) 
 
 : Set("AndorDirect", "Direct acquisition"),
   CamSource( static_cast<simparm::Node&>(*this),
-    BaseSource::Pushing | BaseSource::Concurrent),
-  ost::Thread("Andor camera acquirer"),
+    BaseSource::Flags().set(BaseSource::TimeCritical) ),
   control(c),
   is_initialized( initMutex),
   initialized(false),
@@ -68,9 +65,6 @@ AndorDirect::Source::Source
             cs_units::camera::fps
   ) )
 {
-    assert( canBePulled() == false );
-    assert( pushTarget == NULL ); 
-
     status.editable = false;
 
     push_back( c->config() );
@@ -79,97 +73,13 @@ AndorDirect::Source::Source
     DEBUG("Built AndorDirect source");
 }
 
-AndorDirect::Source::~Source() {
-    stopPushing();
+Source::~Source() {
     STATUS( "Destructing source" );
-}
-
-void Source::run() throw() { 
-    try {
-        acquire(); 
-    } catch (const std::exception& e) {
-        std::cerr << "Error in image acquisition: " 
-                  << e.what() << std::endl;
-    } catch (...) {
-        std::cerr << "Unknown error in image acquisition." 
-                  << std::endl;
-    }
 }
 
 #define MUST_CONVERT
 #define AcquisitionType WORD
 #define GetImages GetImages16
-
-void Source::acquire()
-{
-    int acquired_images = 0;
-    try {
-        PROGRESS("Started acquisition subthread");
-        acquisition.start();
-        PROGRESS("Waiting for acquisition to gain camera");
-        acquisition.block_until_on_camera();
-        PROGRESS("Acquisition gained camera");
-        Traits< CamImage >& my_traits = *this;
-        my_traits.size.x() = acquisition.getWidth()
-            * cs_units::camera::pixel;
-        my_traits.size.y() = acquisition.getHeight()
-            * cs_units::camera::pixel;
-        my_traits.size.z() = 1 * cs_units::camera::pixel;
-        my_traits.dim = 1;
-        numImages = acquisition.getLength();
-        PROGRESS("Telling " << pushTarget << " number of objects " << 
-                 numImages);
-        pushTarget->receive_number_of_objects( numImages );
-
-        initMutex.enterMutex();
-        initialized = true;
-        is_initialized.signal();
-        initMutex.leaveMutex();
-
-        /* cancelAcquisition is set in a different thread by stopPushing(). */
-        while ( ! cancelAcquisition && acquisition.hasMoreImages() ) {
-            auto_ptr<CamImage> image;
-            try {
-                image.reset(
-                    new CamImage(my_traits.size.x().value(), 
-                                 my_traits.size.y().value()));
-            } catch( const std::bad_alloc& alloc ) {
-                /* Do nothing. Try to wait until more memory is available.
-                 * Maybe the ring buffer saves us. Maybe not, but we can't
-                 * do anything about that without memory. */
-                continue;
-            }
-
-            Acquisition::Fetch nextIm =
-                acquisition.getNextImage( image->ptr() );
-            if ( nextIm.first == Acquisition::NoMoreImages )
-                break;
-            else {
-                if ( nextIm.first != Acquisition::HadError )
-                    live_view->show( *image, nextIm.second );
-
-                Management policy;
-                policy = pushTarget->accept(nextIm.second, 1, image.get());
-                if ( policy == Keeps_objects )
-                    image.release();
-                acquired_images++;
-            }
-        }
-    } catch (const std::exception& e) {
-        cerr << "Image acquisition error: " << e.what() << endl;
-    }
-    acquisition.stop();
-    /* Didn't run to completion. */
-    if ( ! initialized ) {
-        initMutex.enterMutex();
-        initialized = true;
-        error_in_initialization = true;
-        is_initialized.signal();
-        initMutex.leaveMutex();
-    } else if ( acquired_images < numImages )
-        pushTarget->accept( acquired_images, numImages-acquired_images,
-                            NULL );
-}
 
 void Source::waitForInitialization() const {
     PROGRESS("Trying to get initialization wait mutex");
@@ -184,36 +94,7 @@ void Source::waitForInitialization() const {
             "An error in image acquisition prevents running a job");
 }
 
-int Source::quantity() const { 
-    return numImages;
-}
-
-void Source::startPushing(Drain<CamImage> *target) 
- 
-{
-    PROGRESS("AndorDirect is told to start pushing images");
-    if (this->pushTarget != NULL)
-        throw runtime_error
-            ("This AndorDirect source already has a target.");
-
-    pushTarget = target;
-    cancelAcquisition = false;
-
-    PROGRESS("Starting acquisition subthread");
-    Thread::start();
-
-    waitForInitialization();
-}
-
-void Source::stopPushing() {
-    if ( pushTarget == NULL ) return;
-
-    cancelAcquisition = true;
-    Thread::join();
-    pushTarget = NULL;
-}
-
-Config::Config(input::Config& config)  
+Method::Method(input::Config& config)  
 : CamConfig("AndorDirectConfig", "Direct camera control"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   basename("OutputBasename", "Base name for output files",
@@ -240,7 +121,7 @@ Config::Config(input::Config& config)
     DEBUG("Made AndorDirect config");
 }
 
-Config::Config(const Config &c, input::Config& config) 
+Method::Method(const Method &c, input::Config& config) 
 : CamConfig(c),
   Node::Callback( simparm::Event::ValueChanged ),
   basename(c.basename),
@@ -255,7 +136,7 @@ Config::Config(const Config &c, input::Config& config)
     DEBUG("Copied AndorDirect Config");
 }
 
-Config::~Config() {
+Method::~Method() {
     switcher.reset(NULL);
 }
 
@@ -343,7 +224,7 @@ class CameraLink : public simparm::Set {
         { viewportConfig.set_resolution( resolution ); }
 };
 
-class Config::CameraSwitcher : public AndorCamera::System::Listener 
+class Method::CameraSwitcher : public AndorCamera::System::Listener 
 {
     simparm::Node& node;
     CamTraits::Resolution resolution;
@@ -380,12 +261,12 @@ class Config::CameraSwitcher : public AndorCamera::System::Listener
     }
 };
 
-void Config::registerNamedEntries()
+void Method::registerNamedEntries()
 {
     CamTraits::Resolution res;
     res = cs_units::camera::pixels_per_meter * 1E9f
               / float(resolution_element());
-    switcher.reset( new Config::CameraSwitcher(*this, res) );
+    switcher.reset( new Method::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
         viewable = true;
@@ -403,7 +284,7 @@ void Config::registerNamedEntries()
     push_back( live_show_frequency );
 }
 
-void Config::operator()(const simparm::Event& e)
+void Method::operator()(const simparm::Event& e)
 {
     if ( &e.source == &resolution_element ) {
         if ( switcher.get() != NULL )
@@ -414,5 +295,15 @@ void Config::operator()(const simparm::Event& e)
     }
 }
 
+Source::TraitsPtr Source::get_traits() 
+{
+    waitForInitialization();
+    TraitsPtr rv( new TraitsPtr::element_type() );
+    rv->size.x() = acquisition.getWidth() * cs_units::camera::pixel;
+    rv->size.y() = acquisition.getHeight() * cs_units::camera::pixel;
+    rv->size.z() = 1 * cs_units::camera::pixel;
+    if ( acquisition.hasLength() )
+        rv->total_frame_count = acquisition.getLength() * cs_units::camera::frame;
 }
+
 }

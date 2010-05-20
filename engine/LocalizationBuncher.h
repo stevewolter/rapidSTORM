@@ -1,7 +1,6 @@
 #ifndef DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 #define DSTORM_ENGINE_LOCALIZATIONBUNCHER_H
 
-#include <dStorm/input/Drain.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/Localization.h>
 #include <dStorm/localization_file/reader.h>
@@ -14,8 +13,7 @@ namespace dStorm {
 namespace engine {
 
 class LocalizationBuncher 
-: public input::Drain<Localization>, 
-  public LocalizationFile::Reader::Source::EmptyImageCallback
+: public LocalizationFile::Reader::Source::EmptyImageCallback
 {
     class Can : public data_cpp::Vector<Localization> {
         int number_of_traces( const Localization& );
@@ -56,8 +54,7 @@ class LocalizationBuncher
                     frame_index firstImage, 
                     frame_index lastImage) ;
 
-    input::Management
-        accept(int index, int number, Localization *l);
+    void accept(int index, int number, Localization *l);
 
     virtual void notice_empty_image( const EmptyImageInfo& );
 };

@@ -6,6 +6,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/Localization.h>
+#include <CImg.h>
 
 namespace dStorm {
 namespace engine {

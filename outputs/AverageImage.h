@@ -6,7 +6,6 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Input.h>
-#include <dStorm/engine/Image_impl.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <memory>
@@ -18,7 +17,9 @@ namespace output {
 class AverageImage : public OutputObject {
   private:
     std::string filename;
-    cimg_library::CImg<unsigned long> image;
+    typedef dStorm::Image<unsigned long,2> Image;
+    Image image;
+    input::Traits<Image>::Resolution resolution;
     ost::Mutex mutex;
 
     class _Config;
@@ -34,9 +35,8 @@ class AverageImage : public OutputObject {
         if ( a.carburettor == NULL )
             throw std::logic_error("AverageImage needs access to "
                                    "input driver, but didn't get it.");
-        const engine::InputTraits& t = a.carburettor->getTraits();
-        image.resize(t.size.x().value(),t.size.y().value(),
-           t.size.z().value(),t.dim);
+        std::auto_ptr<engine::InputTraits> t = a.carburettor->get_traits();
+        image = Image(t->size, 0 * cs_units::camera::frame);
         image.fill(0);
         return AdditionalData().set_source_image(); 
     }

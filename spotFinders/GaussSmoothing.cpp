@@ -18,7 +18,7 @@ static void fillWithGauss(int *values, int n, double sigma, int A) {
 
 GaussSmoother::GaussSmoother (
     const Config&, const engine::Config &conf, 
-    const engine::Traits::Size& size )
+    const engine::InputTraits::Size& size )
 : SpotFinder(conf, size), xkern(msx+1, 0), ykern(msy+1, 0)
 {
     fillWithGauss(xkern.ptr(), msx+1, conf.sigma_x(), 256);
@@ -39,21 +39,23 @@ void gsm_line(const InputPixel *input, int step, int radius, int size,
     }
 }
 
-void GaussSmoother::smooth( const Image &in )
+void GaussSmoother::smooth( const engine::Image &in )
  
 {
     /* Effective border width */
     int eby = max(0,by-msy);
 
-    for (int x = 0; x < int(in.height); x++)
-        gsm_line( in.ptr(x, 0), in.width, msy, in.height, 
-                  smoothed->ptr(x, 0), ykern.ptr() );
+    for (int x = 0; x < int(in.height().value()); x++)
+        gsm_line( 
+            in.ptr(x, 0), in.width().value(),
+            msy, in.height().value(),
+            smoothed->ptr(x, 0), ykern.ptr() );
 
-    SmoothedPixel copy[smoothed->width];
-    for (int y = eby; y < int(smoothed->width - eby); y++) {
+    SmoothedPixel copy[smoothed->width().value()];
+    for (int y = eby; y < int(smoothed->width_in_pixels() - eby); y++) {
         memcpy(copy, smoothed->ptr(0, y), 
-               sizeof(SmoothedPixel) * smoothed->width);
-        gsm_line( copy, 1, msx, smoothed->width,
+               sizeof(SmoothedPixel) * smoothed->width_in_pixels());
+        gsm_line( copy, 1, msx, smoothed->width_in_pixels(),
                                smoothed->ptr(0, y), xkern.ptr() );
     }
 }

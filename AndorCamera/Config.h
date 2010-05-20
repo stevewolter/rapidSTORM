@@ -47,6 +47,6 @@ namespace AndorCamera {
     };
 
     class Config : public simparm::Structure<_Config> {};
-};
+}
 
 #endif

@@ -100,6 +100,8 @@ namespace AndorCamera {
         unsigned int getWidth();
         /** @return Height of the acquired image in pixels. */
         unsigned int getHeight();
+        /** @return If the acquisition has a predetermined length. */
+        bool hasLength();
         /** @return Number of images to capture. */
         unsigned int getLength();
 

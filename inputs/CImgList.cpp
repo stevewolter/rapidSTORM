@@ -12,7 +12,7 @@ template <typename PixelType>
 Source<PixelType>::Source(const char *src )
 : simparm::Object("CImgListSource", "Images"),
   input::Source< cimg_library::CImg<PixelType> >
-    (*this, input::BaseSource::Pushing | input::BaseSource::Pullable),
+    (*this, input::BaseSource::Flags().set(Repeatable)),
   sourceImages(src)
 {
     if ( sourceImages.is_empty() )

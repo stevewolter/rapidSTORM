@@ -1,11 +1,11 @@
 #ifndef DUMMY_FILE_INPUT_H
 #define DUMMY_FILE_INPUT_H
 
-#include <dStorm/input/SerialSource.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/FileBasedMethod.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <simparm/Structure.hh>
 
 namespace dummy_file_input {
@@ -21,15 +21,19 @@ class Config
 };
 
 class Source : public simparm::Set,
-               public dStorm::input::SerialSource<dStorm::engine::Image>
+               public dStorm::input::Source<dStorm::engine::Image>
 {
     int w, h, number;
+    dStorm::engine::Image* load();
+    class _iterator;
+    typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;
   public:
     Source(const Method&);
     ~Source();
 
-    int quantity() const { return number; }
-    dStorm::engine::Image* load();
+    iterator begin();
+    iterator end();
+    TraitsPtr get_traits();
 };
 
 class Method

@@ -5,6 +5,7 @@
 #include "md5.h"
 #include <iomanip>
 #include <sstream>
+#include <boost/units/io.hpp>
 
 class Manager::Handle 
 : public dStorm::Display::Manager::WindowHandle {
@@ -46,10 +47,11 @@ void Manager::Source::handle_resize(
     const dStorm::Display::ResizeChange& r)
 {
     std::cerr << "Sizing display to " 
-              << r.width << " " << r.height << " with "
+              << r.size.x() << " " << r.size.y() << " with "
               << r.key_size << " grey levels and pixel "
                  "size " << r.pixel_size << "\n";
-    current_display = Image::Zero( r.width, r.height );
+    current_display = Image( r.size );
+    current_display.fill(0);
     state.do_resize = true;
     state.resize_image = r;
     state.change_key.resize(
@@ -77,13 +79,8 @@ bool Manager::Source::get_and_handle_change() {
         current_display.fill(
             state.clear_image.background );
     } else if ( c->do_change_image ) {
-        for (int x = 0; x < current_display.rows(); x++)
-          for (int y = 0; y < current_display.cols(); y++)
-          {
-            int i = y*current_display.cols()+x;
-            current_display(x,y) = 
-                c->image_change.pixels[i];
-          }
+        c->image_change.new_image = 
+            current_display.deep_copy();
     }
     
     for( dStorm::Display::Change::PixelQueue::const_iterator
@@ -142,8 +139,8 @@ void Manager::dispatch_events() {
             md5_byte_t digest[16];
             md5_init( &pms );
             md5_append( &pms, 
-                (md5_byte_t*)i->current_display.data(),
-                i->current_display.size()*
+                (md5_byte_t*)i->current_display.ptr(),
+                i->current_display.size_in_pixels()*
                     sizeof(dStorm::Pixel) / sizeof(md5_byte_t));
             md5_finish( &pms, digest );
 
@@ -201,20 +198,8 @@ std::auto_ptr<dStorm::Display::Change>
 
     if ( ! rv->do_resize )
         throw std::runtime_error("State not yet initialized");
-    int w = rv->resize_image.width,
-        h = rv->resize_image.height;
-    assert( i->current_display.rows() == w );
-    assert( i->current_display.cols() == h );
     rv->do_change_image = true;
-    rv->image_change.pixels.resize( w*h );
-    dStorm::Display::Color *p = 
-        rv->image_change.pixels.ptr();
-    for (int y = 0; y < h; y++)
-      for (int x = 0; x < w; x++)
-      {
-        *p = i->current_display(x,y);
-        ++p;
-      }
+    rv->image_change.new_image = i->current_display;
 
     return rv;
 }

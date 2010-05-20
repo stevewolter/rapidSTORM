@@ -12,7 +12,7 @@ if HAVE_LIBATMCD32D
 	System.cpp Camera.cpp AcquisitionSwitch.cpp Initialization.cpp \
 	Temperature.cpp Readout.cpp AcquisitionMode.cpp \
 	ShutterControl.cpp Triggering.cpp ShiftSpeedControl.cpp \
-	Gain.cpp AndorDirect.cpp AndorDirect.h \
+	Gain.cpp AndorDirect.cpp AndorDirect_iterator.cpp AndorDirect.h \
 	ViewportSelector.h ViewportSelector.cpp \
 	Initialization.h AcquisitionMode.h \
 	Acquisition.h Readout.h Camera.h Triggering.h CameraReference.h \

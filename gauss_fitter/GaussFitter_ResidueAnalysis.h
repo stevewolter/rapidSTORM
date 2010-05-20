@@ -84,7 +84,7 @@ template <bool FS, bool Corr, int Width, int Height>
 float
 SpecializedGaussFitter<FS, true, Corr, Width, Height>
 ::double_fit_analysis( 
-    const Image& image, const Eigen::Vector2i& direction, int oxl, int oyl )
+    const BaseImage& image, const Eigen::Vector2i& direction, int oxl, int oyl )
 {
 #if 0
     const int DoWi = a.residues.cols() + 2, 
@@ -95,7 +95,10 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
     const int xl = oxl, yl = oyl;
 #endif
 
-    deriver.setData( image.ptr(), image.width, image.height );
+    deriver.setData( 
+        image.ptr(),
+        image.width() / cs_units::camera::pixel,
+        image.height() / cs_units::camera::pixel );
     deriver.setUpperLeftCorner( xl, yl );
 
     common.start_from_splitted_single_fit( &a.parameters, direction );

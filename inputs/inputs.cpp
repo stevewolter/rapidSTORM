@@ -29,7 +29,7 @@ void basic_inputs( input::Config* inputConfig ) {
 #endif
 #ifdef HAVE_LIBATMCD32D
     inputConfig->inputMethod.addChoice( 
-        new AndorDirect::Config( *inputConfig ) );
+        new AndorCamera::Method( *inputConfig ) );
 #endif
     
 }

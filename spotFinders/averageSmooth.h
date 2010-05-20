@@ -1,9 +1,7 @@
 #ifndef DSTORM_AVERAGE_SMOOTH_H
 #define DSTORM_AVERAGE_SMOOTH_H
 
-namespace cimg_library {
-    template <typename T> class CImg;
-}
+#include <dStorm/Image_decl.h>
 
 namespace dStorm {
 namespace spotFinders {
@@ -14,8 +12,8 @@ namespace spotFinders {
  *  output), operating with the mask radii (half the width)
  *  given in the last arguments. */
 template <typename InPix, typename OutPix>
-void smoothByAverage( const cimg_library::CImg<InPix>& input,
-                      cimg_library::CImg<OutPix>& output,
+void smoothByAverage( const Image<InPix,2>& input,
+                      Image<OutPix,2>& output,
                       int mask_radius_x, int mask_radius_y );
 
 }

@@ -23,7 +23,7 @@
 #include "engine/EngineDebug.h"
 #include <dStorm/input/Slot.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include "doc/help/context.h"
 #include <boost/units/io.hpp>
 #include <dStorm/error_handler.h>
@@ -117,7 +117,7 @@ void Engine::restart() {
     emergencyStop = false;
     error = false;
     DEBUG("Cleaning input");
-    input.makeAllUntouched();
+    input.dispatch( Input::RepeatInput );
     DEBUG("Resetting error count");
     errors = 0;
     DEBUG("Deleting all results");
@@ -129,10 +129,9 @@ void Engine::collectPistons() {
     pistons.clear();
 }
 
-output::Traits Engine::convert_traits( const Traits& in ) {
+output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
     output::Traits rv( 
-        in.get_other_dimensionality<Localization::Dim>() );
-    rv.total_frame_count = input.size() * cs_units::camera::frame;
+        in->get_other_dimensionality<Localization::Dim>() );
     rv.min_amplitude 
         = float( config.amplitude_threshold() )
             * cs_units::camera::ad_count;
@@ -161,10 +160,10 @@ void Engine::run()
             output = temporaryCrankshaft.get();
         }
     } else
-        input.setDiscardingLicense( true );
+        input.dispatch( Input::WillNeverRepeatAgain );
 
     DEBUG("Announcing size");
-    Output::Announcement announcement(convert_traits(input.getTraits()));
+    Output::Announcement announcement(convert_traits(input.get_traits()));
     announcement.carburettor = &input;
     DEBUG("Built announcement structure");
 
@@ -227,17 +226,17 @@ void Engine::safeRunPiston() throw()
 void Engine::runPiston() 
 {
     int maximumLimit = 20;
-    const Traits& imProp = input.getTraits();
+    std::auto_ptr<InputTraits> imProp = input.get_traits();
     DEBUG("Started piston");
-    DEBUG("Building spot finder with dimensions " << imProp.dimx() <<
-           " " << imProp.dimy());
+    DEBUG("Building spot finder with dimensions " << imProp->dimx() <<
+           " " << imProp->dimy());
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
     auto_ptr<SpotFinder> finder
-        = config.spotFindingMethod().make_SpotFinder(config, imProp.size);
+        = config.spotFindingMethod().make_SpotFinder(config, imProp->size);
 
     DEBUG("Building spot fitter");
-    auto_ptr<SpotFitter> fitter(config.spotFittingMethod().make_by_parts(config, imProp));
+    auto_ptr<SpotFitter> fitter(config.spotFittingMethod().make_by_parts(config, *imProp));
 
     DEBUG("Building fit buffer");
     data_cpp::Vector<Localization> buffer;
@@ -257,26 +256,13 @@ void Engine::runPiston()
 
     output->propagate_signal(Output::Engine_run_is_starting);
 
-    for (Input::iterator i = input.begin(); i != input.end(); i++)
+    for (Source<Image>::iterator i = input.begin(); i != input.end(); i++)
     {
-        DEBUG("Intake (" << i->index() << ")");
+        DEBUG("Intake (" << i.index() << ")");
 
-        Claim< Image > claim = i->claim();
-        if ( ! claim.isGood() ) {
-            DEBUG( "Image is bad, continuing" );
-            continue;
-        } else if ( claim.hasErrors() ) {
-            DEBUG( "Image " << i->index() << " has errors");
-            ost::MutexLock lock(mutex);
-            errors = errors() + 1;
-            errors.viewable = true;
-            continue;
-        } else 
-            DEBUG( "Using image " << i->index());
+        Image& image = *i;
 
-        Image& image = *claim;
-
-        DEBUG("Compression (" << i->index() << ")");
+        DEBUG("Compression (" << i.index() << ")");
         IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
         finder->smooth(image);
         IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
@@ -301,9 +287,8 @@ void Engine::runPiston()
             int found_number = fitter->fitSpot(s, image, candidate);
             if ( found_number > 0 ) {
                 DEBUG("Good fit");
-                for (int i = 0; i < found_number; i++)
-                    candidate[i].setImageNumber( 
-                        claim.index() * cs_units::camera::frame );
+                for (int j = 0; j < found_number; j++)
+                    candidate[j].setImageNumber( i->frame_number() );
                 motivation = origMotivation;
                 buffer.commit(found_number);
             } else if ( found_number < 0 ) {
@@ -323,8 +308,7 @@ void Engine::runPiston()
         IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
         DEBUG("Power");
-        resultStructure.forImage = 
-            claim.index() * cs_units::camera::frame;
+        resultStructure.forImage = i->frame_number();
         resultStructure.first = buffer.ptr();
         resultStructure.number = buffer.size();
         resultStructure.source = &image;

@@ -61,7 +61,7 @@ namespace engine {
 
         /** Compute changes to traits from input image to localizations
          *  output. */
-        output::Traits convert_traits( const InputTraits& );
+        output::Traits convert_traits( std::auto_ptr<InputTraits> );
 
       public:
          Engine(Config& config, std::string job_ident,

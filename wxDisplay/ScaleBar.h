@@ -2,6 +2,8 @@
 #define DSTORM_DISPLAYHANDLER_SCALEBAR_H
 
 #include <wx/wx.h>
+#include <boost/units/quantity.hpp>
+#include <cs_units/camera/resolution.hpp>
 
 namespace dStorm {
 namespace Display {
@@ -11,7 +13,9 @@ class ScaleBar
 {
     DECLARE_EVENT_TABLE();
 
-    float nm_per_source_pixel;
+    typedef boost::units::quantity<cs_units::camera::resolution,float> 
+        Resolution;
+    Resolution resolution;
     float zoom_factor;
 
     void draw( wxDC& dc );
@@ -19,9 +23,9 @@ class ScaleBar
   public:
     ScaleBar( wxWindow* parent, const wxSize& size );
 
-    void set_pixel_size( float nm_per_source_pixel );
-    float get_pixel_size() 
-        { return nm_per_source_pixel; }
+    void set_pixel_size( Resolution nm_per_source_pixel );
+    Resolution get_pixel_size() 
+        { return resolution; }
     void set_zoom_factor( float zoom_factor );
 
     void OnPaint(wxPaintEvent&);
