@@ -88,6 +88,8 @@ namespace input {
     class Config : public _Config {
       private:
         std::auto_ptr<BasenameWatcher> watcher;
+        template <typename ObjectType>
+        void try_to_add_ROI_filter(std::auto_ptr<BaseSource>&) const;
       public:
         Config();
         Config(const Config& c);

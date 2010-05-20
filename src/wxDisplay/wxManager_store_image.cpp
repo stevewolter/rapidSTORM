@@ -152,10 +152,10 @@ static void write_main_image(
     const Change::PixelQueue& small_changes
 ) {
     DEBUG("Writing main image");
-    int cols = width, rows = whole_image.pixels.size() / cols;
+    int cols = width, rows = whole_image.new_image.height_in_pixels();
     DEBUG("Using stride " << width);
 
-    const Pixel *p = whole_image.pixels.ptr();
+    const Pixel *p = whole_image.new_image.ptr();
     for (int y = 0; y < rows; y++) {
         Magick::PixelPacket *pixels = image.setPixels
             ( 0, y, cols, 1 );
@@ -170,7 +170,7 @@ static void write_main_image(
 
 static void write_scale_bar(
     Magick::Image& image,
-    float meters_per_pixel,
+    ResizeChange::Resolution ppm,
     int width,
     int x_offset )
 {
@@ -185,7 +185,7 @@ static void write_scale_bar(
 
     DEBUG("Writing scale bar annotation");
     image.annotate(
-         SIize(meters_per_pixel * width) + "m", 
+         SIize(width * cs_units::camera::pixel / ppm / boost::units::si::meter) + "m", 
             Magick::Geometry(width, lh, x_offset, y_offset+10),
             Magick::CenterGravity );
     DEBUG("Wrote scale bar annotation");
@@ -204,8 +204,8 @@ void wxManager::store_image(
 #else
     DEBUG("Image to store has width " << image.resize_image.width << " and height " << image.resize_image.height
         <<" and key size " << image.change_key.size());
-    int width = image.resize_image.width; 
-    int main_height = image.resize_image.height;
+    int width = image.resize_image.size.x() / cs_units::camera::pixel; 
+    int main_height = image.resize_image.size.y() / cs_units::camera::pixel;
     int total_height = main_height;
     int border_after_image = 10;
 
@@ -238,7 +238,7 @@ void wxManager::store_image(
     DEBUG("Wrote scale bar");
     
     img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
-    unsigned int pix_per_cm = int( 0.01 / image.resize_image.pixel_size );
+    unsigned int pix_per_cm = int( image.resize_image.pixel_size * (0.01 * boost::units::si::metre) / cs_units::camera::pixel );
     img.density(Magick::Geometry(pix_per_cm, pix_per_cm));
     img.write( filename );
 

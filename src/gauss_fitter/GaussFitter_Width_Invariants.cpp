@@ -1,6 +1,6 @@
 #include "GaussFitter_Width_Invariants.h"
 #include <fit++/FitFunction_impl.hh>
-#include <dStorm/engine/Image_impl.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/Spot.h>
@@ -93,7 +93,7 @@ template <int FF>
 StartInformation
 Width_Invariants<FF,false>::set_start(
     const Spot& spot, 
-    const Image& image,
+    const BaseImage& image,
     double shift_estimate,
     typename FitGroup::Variables* variables 
 ) 
@@ -118,8 +118,8 @@ Width_Invariants<FF,false>::set_start(
         * params.template getSigmaX<0>() * params.template getSigmaY<0>());
 
     StartInformation si;
-    si.maxs.x() = image.width-1 - 1;
-    si.maxs.y() = image.height-1 - 1;
+    si.maxs.x() = image.width_in_pixels()-1 - 1;
+    si.maxs.y() = image.height_in_pixels()-1 - 1;
     si.start.x() = spot.x();
     si.start.y() = spot.y();
     return si;

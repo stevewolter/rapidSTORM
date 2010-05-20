@@ -17,37 +17,38 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 
-#include <CImg.h>
-
 #include "AndorSIF.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Source_impl.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <AndorCamera/Config.h>
 #include <dStorm/input/BasenameWatcher.h>
 #include <dStorm/input/FileBasedMethod_impl.h>
 
+#include <boost/iterator/iterator_facade.hpp>
+
 using namespace std;
-using namespace cimg_library;
 
 namespace dStorm {
 namespace input {
 namespace AndorSIF {
 
 template<typename Pixel>
-CImg<Pixel>*
+std::auto_ptr< typename Source<Pixel>::Image >
 Source<Pixel>::load()
- 
 {
     DEBUG("Loading next image");
+    std::auto_ptr< Image > result;
     if ( had_errors )
-        return NULL;
-    Traits< CImg<Pixel> >& my_traits = *this;
-    const int sz = 
-            (my_traits.size.x() * my_traits.size.y()).value();
+        return result;
+    const int sz = readsif_imageSize(dataSet);
     float buffer[sz];
     for (int i = 0; i < sz; i++) buffer[i] = 5;
-    CImg<Pixel> *result = NULL;
+    typename Image::Size dim;
+    dim.x() = readsif_imageWidth(dataSet, 0) 
+        * cs_units::camera::pixel;
+    dim.y() = readsif_imageHeight(dataSet, 0)
+        * cs_units::camera::pixel;
 
     DEBUG("Calling GetNextImage");
     int rv_of_readsif_getImage = 
@@ -55,16 +56,16 @@ Source<Pixel>::load()
     if ( rv_of_readsif_getImage == -1 ) {
         std::cerr << "Error while reading SIF file: " + std::string(readsif_error) + ". Will skip remaining images." << std::endl;
         had_errors = true;
-        return NULL;
+        return result;
     } else if ( rv_of_readsif_getImage == 1 ) {
         throw std::logic_error("Too many images read from SIF source");
     }
 
     DEBUG("Creating new image");
-    result = new CImg<Pixel>(my_traits.size.x().value(), my_traits.size.y().value());
+    result.reset( new Image(dim) );
     /* The pixel might need casting. This is done here. */
     for (int p = 0; p < sz; p++) {
-        result->data[p] = (Pixel)buffer[p];
+        (*result)[p] = (Pixel)buffer[p];
     }
     DEBUG("Loaded next image");
     return result;
@@ -90,13 +91,6 @@ void Source<Pixel>::init(FILE *src)
         clog << "Warning: SIF file contains multiple subimages. This "
                 "feature is not supported and only the first subimage "
                 "will be used." << endl;
-
-   Traits< CImg<Pixel> >& my_traits = *this;
-   my_traits.size.x() = 
-        readsif_imageWidth( dataSet, 0 ) * cs_units::camera::pixel;
-   my_traits.size.y() = readsif_imageHeight( dataSet, 0 )
-        * cs_units::camera::pixel;
-   my_traits.size.z() = 1 * cs_units::camera::pixel;
 
     /* Read the additional information file from the SIF file
      * and store it in SIF info structure. */
@@ -130,8 +124,8 @@ void Source<Pixel>::init(FILE *src)
     sifInfo->cycleTime.editable = false;
 
     simparm::Entry* whn[] = {
-        new simparm::UnsignedLongEntry("ImageWidth", "Image width", my_traits.size.x().value()),
-        new simparm::UnsignedLongEntry("ImageHeight", "Image height", my_traits.size.y().value()),
+        new simparm::UnsignedLongEntry("ImageWidth", "Image width", readsif_imageWidth(dataSet, 0) ),
+        new simparm::UnsignedLongEntry("ImageHeight", "Image height", readsif_imageHeight(dataSet, 0) ),
         new simparm::UnsignedLongEntry("ImageNumber", "Number of images",
             readsif_numberOfImages(dataSet) ) 
     };
@@ -151,8 +145,9 @@ void Source<Pixel>::init(FILE *src)
 template<typename Pixel>
 Source<Pixel>::Source(FILE *src, const string &i)
 : Object("AndorSIF", "SIF file"),
-  BaseSource(BaseSource::Pullable),
+  BaseSource(static_cast<simparm::Node&>(*this), Flags()),
   Set("AndorSIF", "SIF file"),
+  has_been_iterated(false),
   stream(NULL), file(NULL), dataSet(NULL), had_errors(false), file_ident(i),
   showDetails("ShowDetails", "Show SIF file information"),
   hideDetails("HideDetails", "Hide SIF file information")
@@ -163,8 +158,9 @@ Source<Pixel>::Source(FILE *src, const string &i)
 template<typename Pixel>
 Source<Pixel>::Source(const char *filename) 
 : Set("AndorSIF", "SIF file"),
-  SerialSource< CImg<Pixel> >
-    ( static_cast<simparm::Node&>(*this), BaseSource::Pushing | BaseSource::Pullable),
+  BaseSource
+    ( static_cast<simparm::Node&>(*this), Flags() ),
+  has_been_iterated(false),
   stream(NULL), file(NULL), dataSet(NULL), had_errors(false), file_ident(filename),
   showDetails("ShowDetails", "Show SIF file information"),
   hideDetails("HideDetails", "Hide SIF file information")
@@ -206,8 +202,19 @@ void Source<Pixel>::operator()(const simparm::Event& e) {
 }
 
 template<typename Pixel>
-int Source<Pixel>::quantity() const {
-   return readsif_numberOfImages(dataSet);
+typename Source<Pixel>::TraitsPtr 
+Source<Pixel>::get_traits()
+{
+   TraitsPtr rv( new typename TraitsPtr::element_type() );
+   rv->size.x() = 
+        readsif_imageWidth( dataSet, 0 ) * cs_units::camera::pixel;
+   rv->size.y() = readsif_imageHeight( dataSet, 0 )
+        * cs_units::camera::pixel;
+   rv->size.z() = 1 * cs_units::camera::pixel;
+
+   rv->total_frame_count =
+    readsif_numberOfImages(dataSet) * cs_units::camera::frame;
+    return rv;
 }
 
 template<typename Pixel>
@@ -224,7 +231,7 @@ Config<Pixel>::impl_makeSource()
 
 template<typename Pixel>
 Config<Pixel>::Config( input::Config& src) 
-: FileBasedMethod< CImg<Pixel> >(src,
+: FileBasedMethod< dStorm::Image<Pixel,2> >(src,
     "AndorSIF", "Andor SIF file",
     "extension_sif", ".sif")
 {
@@ -238,16 +245,67 @@ Config<Pixel>::Config(
     const Config<Pixel>::Config &c,
     input::Config& src
 ) 
-: FileBasedMethod< CImg<Pixel> >(c, src)
+: FileBasedMethod< dStorm::Image<Pixel,2> >(c, src)
 {
     this->push_back(src.firstImage);
     this->push_back(src.lastImage);
     this->push_back(src.pixel_size_in_nm);
 }
 
+template <typename Pixel>
+class Source<Pixel>::iterator
+: public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
+{
+    mutable dStorm::Image<Pixel,2> img;
+    Source* src;
+    int count;
+
+    friend class boost::iterator_core_access;
+
+    Image& dereference() const { return img; }
+    bool equal(const iterator& i) const {
+        return (src == i.src) && (src == NULL || count == i.count); 
+    }
+
+    void get_next() {
+        std::auto_ptr< Image > i = src->load();
+        if ( i.get() == NULL ) {
+            src = NULL;
+            img.invalidate();
+        } else {
+            img = *i;
+            img.frame_number()
+                = count++ * cs_units::camera::frame;
+        }
+    }
+
+    void increment() { get_next(); }
+  public:
+    iterator() : src(NULL) {}
+    iterator(Source& s) : src(&s), count(0)
+    {
+        if ( s.has_been_iterated )
+            throw std::logic_error("SIF source cannot be iterated twice");
+        s.has_been_iterated = true;
+        
+        get_next();
+    }
+};
+
+template <typename PixelType>
+typename Source<PixelType>::base_iterator 
+Source<PixelType>::begin() {
+    return base_iterator( iterator(*this) );
+}
+template <typename PixelType>
+typename Source<PixelType>::base_iterator 
+Source<PixelType>::end() {
+    return base_iterator( iterator() );
+}
+
 template class Config<unsigned short>;
-template class Config<unsigned int>;
-template class Config<float>;
+//template class Config<unsigned int>;
+//template class Config<float>;
 
 }
 }

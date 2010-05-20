@@ -25,6 +25,9 @@ library_include_HEADERS = \
     SizeTraits.h SizeTraits_decl.h \
     units_Eigen_traits.h unit_matrix_operators.h \
     matrix_operators.h Pixel.h error_handler.h  \
+    BaseImage_decl.h BaseImage.h \
+    Image_decl.h Image.h Image_impl.h Image_iterator.h \
+    ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
     Job.h JobMaster.h
 units_library_includedir = $(includedir)/dStorm/units
 units_library_include_HEADERS = \
@@ -33,7 +36,7 @@ units_library_include_HEADERS = \
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \
-		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE)
+		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) 
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la localization_file/liblocfile.la \
     input/libinput.la helpers/libhelpers.la -lsimparm

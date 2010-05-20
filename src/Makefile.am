@@ -7,7 +7,7 @@ else
     DEBUGPLUGIN =
 endif
 
-SUBDIRS = fit++ AndorCamera inputs engine gauss_fitter spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN)
+SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN) gauss_fitter
 
 bin_PROGRAMS = dstorm 
 

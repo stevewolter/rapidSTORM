@@ -11,8 +11,8 @@ fitSpot( const Spot& spot, const Image& image, Localization* target )
 {
     int xc = int(round(spot.x())), yc = int(round(spot.y()));
     int xl = std::max( xc-msx, 0 ), yl = std::max( yc-msy, 0 );
-    int xh = std::min<int>( xc+msx, image.width - 1 ),
-        yh = std::min<int>( yc+msy, image.height - 1 );
+    int xh = std::min<int>( xc+msx, image.width().value() - 1 ),
+        yh = std::min<int>( yc+msy, image.height().value() - 1 );
 
     int xs = (xh - xl) + 1, ys = (yh - yl) + 1;
     DEBUG("Searching Gaussian fitter for size " << xs << " " << yh << " with maximum size " << MaxFitWidth << " " << MaxFitHeight);

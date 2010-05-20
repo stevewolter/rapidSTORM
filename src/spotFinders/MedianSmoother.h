@@ -34,7 +34,7 @@ namespace spotFinders {
 
         MedianSmoother (const Config&, 
             const engine::Config &conf, 
-            const engine::Traits::Size& size) 
+            const engine::InputTraits::Size& size) 
             : SpotFinder(conf, size)
             { chooseAhmad(msx, msy); }
 

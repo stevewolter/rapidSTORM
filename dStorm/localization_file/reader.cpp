@@ -18,35 +18,49 @@ template class FileBasedMethod<Localization>;
 namespace LocalizationFile {
 namespace Reader {
 
+class Source::iterator {
+  public:
+    iterator() : src(NULL) {}
+    iterator(Source& src) : src(&src) {}
+
+    typedef std::input_iterator_tag iterator_category;
+    typedef Localization value_type;
+    typedef ptrdiff_t difference_type;
+    typedef Localization* pointer;
+    typedef Localization& reference;
+
+    iterator& operator++() { 
+        if ( src == NULL ) return *this;
+        trace_buffer.clear(); 
+        src->read_localization( current, src->level, trace_buffer );
+        if ( ! src->file.input ) { src = NULL; }
+        return *this;
+    }
+    iterator operator++(int) { iterator a = *this; ++(*this); return a; }
+
+    const Localization& operator*() const { return current; }
+    Localization& operator*() { return current; }
+
+    bool operator==( const iterator& o ) const { return src == o.src; }
+
+  private:
+    Source *src;
+    Localization current;
+    Source::TraceBuffer trace_buffer;
+
+};
+
 Source::Source( const File& file, 
                 std::auto_ptr<output::TraceReducer> red )
 : simparm::Object("STM_Show", "Input options"),
   input::Source<Localization>
-    (*this, BaseSource::Pushing | 
-        BaseSource::Pullable | BaseSource::Managing),
+    (*this, Flags().set(Repeatable)),
     file(file),
     reducer(red),
     empty_image(NULL)
 {
-    static_cast<input::Traits<Localization>&>(*this)
-        = file.getTraits();
     level = std::max<int>(number_of_newlines() - 1, 0);
     DEBUG("In Source constructor, resolution set is " << user_resolution.is_set());
-    if ( user_resolution.is_set() )
-        this->resolution = user_resolution;
-}
-
-Localization* Source::fetch(int) {
-    int use_trace_buffer = 0;
-    buffer.clear();
-    Localization* l = buffer.allocate(1);
-    read_localization( *l, this->level, use_trace_buffer );
-    if ( file.input ) {
-        buffer.commit(1);
-        return l;
-    } else {
-        return NULL;
-    }
 }
 
 int Source::number_of_newlines() {
@@ -62,7 +76,7 @@ int Source::number_of_newlines() {
 static const char *missing_image_line = "# No localizations in image ";
 
 void Source::read_localization(
-    Localization& target, int level, int& use_buffer
+    Localization& target, int level, TraceBuffer& tb, int tbi
 )
 {
     typedef Localization::Position Pos;
@@ -102,20 +116,27 @@ void Source::read_localization(
       new(&target) Localization( Pos(Pos::Zero()), 0 );
       file.read_next( target );
     } else {
-        int my_buffer = use_buffer++;
-        if ( my_buffer >= int(trace_buffer.size()) )
-            trace_buffer.push_back( dStorm::output::Trace() );
+        int my_buffer = tbi++;
+        if ( my_buffer >= int(tb.size()) )
+            tb.push_back( dStorm::output::Trace() );
         else
-            trace_buffer[my_buffer].clear();
+            tb[my_buffer].clear();
 
         do {
-            Localization* buffer = trace_buffer[my_buffer].allocate(1);
-            read_localization(*buffer, level-1, use_buffer);
-            trace_buffer[my_buffer].commit(1);
+            Localization* buffer = tb[my_buffer].allocate(1);
+            read_localization(*buffer, level-1, tb, tbi);
+            tb[my_buffer].commit(1);
         } while ( file.input && number_of_newlines() <= level );
-        reducer->reduce_trace_to_localization( trace_buffer[level-1],
+        reducer->reduce_trace_to_localization( tb[level-1],
             &target, no_shift );
     }
+}
+
+input::Source<Localization>::iterator Source::begin() { 
+    return input::Source<Localization>::iterator(iterator(*this)); 
+}
+input::Source<Localization>::iterator Source::end() { 
+    return input::Source<Localization>::iterator(iterator()); 
 }
 
 Config::Config(input::Config& master)
@@ -279,13 +300,18 @@ void Source::set_default_pixel_size(const File::Traits::Resolution::value_type& 
 {
     if ( !user_resolution.is_set() ) {
         user_resolution = resolution;
-        this->resolution = resolution;
     }
 }
 
 Source::EmptyImageCallback* Source::setEmptyImageCallback( EmptyImageCallback* cb ) {
     std::swap( empty_image, cb );
     return cb;
+}
+
+Source::TraitsPtr Source::get_traits() { 
+    TraitsPtr tp( new File::Traits(file.getTraits()) ); 
+    if ( user_resolution.is_set() ) tp->resolution = user_resolution;
+    return tp;
 }
 
 }

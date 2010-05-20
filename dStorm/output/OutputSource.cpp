@@ -5,7 +5,6 @@
 #include <sstream>
 #include <list>
 #include <simparm/FileEntry.hh>
-#include <dStorm/input/ImageTraits.h>
 #include "doc/help/rapidstorm_help_file.h"
 
 namespace dStorm {

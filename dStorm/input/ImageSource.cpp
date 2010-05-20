@@ -1,13 +1,12 @@
 #include <dStorm/input/Source_impl.h>
-#include <dStorm/input/ImageTraits.h>
-#include <CImg.h>
+#include <dStorm/Image_decl.h>
 
 namespace dStorm {
 namespace input {
-template class Source< cimg_library::CImg<unsigned int> >;
-template class Source< cimg_library::CImg<unsigned short> >;
-template class Source< cimg_library::CImg<unsigned char> >;
-template class Source< cimg_library::CImg<float> >;
-template class Source< cimg_library::CImg<double> >;
+template class Source< dStorm::Image<unsigned int,2> >;
+template class Source< dStorm::Image<unsigned short,2> >;
+template class Source< dStorm::Image<unsigned char,2> >;
+template class Source< dStorm::Image<float,2> >;
+template class Source< dStorm::Image<double,2> >;
 }
 }

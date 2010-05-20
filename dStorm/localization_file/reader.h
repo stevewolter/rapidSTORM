@@ -48,11 +48,14 @@ namespace Reader {
             virtual ~EmptyImageCallback() {}
         };
 
+        class iterator;
+        friend class iterator;
+
       private:
+        typedef std::vector< output::Trace > TraceBuffer;
+
         int level;
         File file;
-        data_cpp::Vector< Localization > buffer;
-        std::vector< output::Trace > trace_buffer;
         std::auto_ptr<output::TraceReducer> reducer;
         typedef File::Traits::Resolution Resolution;
         Resolution user_resolution;
@@ -60,8 +63,8 @@ namespace Reader {
 
         int number_of_newlines();
         void read_localization(Localization& target, int level, 
-                               int& use_trace_buffer );
-        Localization* fetch(int);
+                               std::vector<output::Trace>& trace_buffer, 
+                               int trace_buffer_index = 0 );
 
       public:
         Source(const File& file, 
@@ -71,11 +74,12 @@ namespace Reader {
         simparm::Node& getNode() { return *this; }
         const simparm::Node& getNode() const { return *this; }
 
-        virtual int quantity() const 
-            { throw std::logic_error("Number of localizations in file "
-                    "not known a priori."); }
-        
         EmptyImageCallback* setEmptyImageCallback( EmptyImageCallback* );
+
+        input::Source<Localization>::iterator begin();
+        input::Source<Localization>::iterator end();
+        TraitsPtr get_traits();
+            
     };
 
     class Config 

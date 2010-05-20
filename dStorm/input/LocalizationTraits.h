@@ -12,7 +12,7 @@
 #include <dStorm/Localization.h>
 #include <dStorm/SizeTraits.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/engine/Input.h>
+#include "Config_decl.h"
 #include <dStorm/Localization.h>
 #include <simparm/optional.hh>
 

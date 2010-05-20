@@ -2,13 +2,12 @@
 #define DSTORM_BINNEDLOCALIZATIONS_H
 
 #include <dStorm/output/Output.h>
-#include <CImg.h>
 #include <cassert>
 
 namespace dStorm {
 namespace outputs {
 
-    typedef cimg_library::CImg<float> BinnedImage;
+    typedef dStorm::Image<float,2> BinnedImage;
 
     /** Public interface necessary for a class listening
      *  to \c BinnedLocalizations. */
@@ -124,11 +123,6 @@ namespace outputs {
         void clean();
         /** Delete all localizations in this image and its listener. */
         void clear();
-
-        /** Width of the binned image. */
-        int width() const { return base_image.width; }
-        /** Height of the binned image. */
-        int height() const { return base_image.height; }
 
         /** Change the resolution enhancement. The new image will be
          *  empty, and all localizations have to be re-sent. */

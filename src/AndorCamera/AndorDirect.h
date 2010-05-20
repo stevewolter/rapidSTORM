@@ -1,11 +1,13 @@
 #ifndef CImgBuffer_ANDORDIRECT_H
 #define CImgBuffer_ANDORDIRECT_H
 
+#include "AndorDirect_decl.h"
+
 #ifdef HAVE_LIBATMCD32D
 
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <dStorm/input/Method.h>
 #include <AndorCamera/CameraReference.h>
 #include <AndorCamera/Camera.h>
@@ -20,84 +22,80 @@
 
 #include "LiveView_decl.h"
 
-namespace dStorm {
-    namespace AndorDirect {
+namespace AndorCamera {
 
-        /** The Config class provides the configuration items for Andor camera
-         *  acquisition that are acquisition-specific - control elements and
-         *  acquisition area borders. All camera specific parameters are in
-         *  AndorCamera::Config. */
-        class Config : public CamConfig, public simparm::Node::Callback
-        {
-          private:
-            class CameraSwitcher;
-            std::auto_ptr<CameraSwitcher> switcher;
-            simparm::FileEntry basename;
-          public:
-            simparm::BoolEntry show_live_by_default;
-            simparm::DoubleEntry live_show_frequency;
-            const simparm::DoubleEntry& resolution_element;
+    /** The Config class provides the configuration items for Andor camera
+        *  acquisition that are acquisition-specific - control elements and
+        *  acquisition area borders. All camera specific parameters are in
+        *  AndorCamera::Config. */
+    class Method : public CamConfig, public simparm::Node::Callback
+    {
+        private:
+        class CameraSwitcher;
+        std::auto_ptr<CameraSwitcher> switcher;
+        simparm::FileEntry basename;
+        public:
+        simparm::BoolEntry show_live_by_default;
+        simparm::DoubleEntry live_show_frequency;
+        const simparm::DoubleEntry& resolution_element;
 
-          private:
-            void registerNamedEntries();
+        private:
+        void registerNamedEntries();
 
-          protected:
-            CamSource* impl_makeSource();
-            void operator()(const simparm::Event&);
+        protected:
+        CamSource* impl_makeSource();
+        void operator()(const simparm::Event&);
 
-          public:
-            Config(input::Config& src);
-            Config(const Config &c, input::Config &src);
-            virtual ~Config();
+        public:
+        Method(dStorm::input::Config& src);
+        Method(const Method &c, dStorm::input::Config &src);
+        virtual ~Method();
 
-            std::auto_ptr< CamSource > makeSource()
-                { return std::auto_ptr< CamSource >(impl_makeSource()); }
+        std::auto_ptr< CamSource > makeSource()
+            { return std::auto_ptr< CamSource >(impl_makeSource()); }
 
-            Config* clone(input::Config &newMaster) const
-                { return new Config(*this, newMaster); }
-            bool uses_input_file() const { return false; }
-        };
+        Method* clone(dStorm::input::Config &newMaster) const
+            { return new Method(*this, newMaster); }
+        bool uses_input_file() const { return false; }
+    };
 
-        /** This Source class provides a source that captures directly
-         *  from Andor cameras present on the system. It needs the
-         *  AndorCamera library to compile. */
-        class Source 
-        : public simparm::Set, public CamSource, private ost::Thread
-        {
-          private:
-            AndorCamera::CameraReference control;
-            mutable ost::Mutex initMutex;
-            mutable ost::Condition is_initialized;
-            bool initialized, error_in_initialization;
-            int numImages;
-            AndorCamera::Acquisition acquisition;
+    /** This Source class provides a source that captures directly
+        *  from Andor cameras present on the system. It needs the
+        *  AndorCamera library to compile. */
+    class Source 
+    : public simparm::Set, public CamSource
+    {
+      private:
+        AndorCamera::CameraReference control;
+        mutable ost::Mutex initMutex;
+        mutable ost::Condition is_initialized;
+        bool initialized, error_in_initialization;
+        AndorCamera::Acquisition acquisition;
 
-            void run() throw();
-            void acquire();
-            bool cancelAcquisition;
+        class iterator;
+        friend class iterator;
 
-            void waitForInitialization() const;
+        void acquire();
+        bool cancelAcquisition;
 
-            simparm::StringEntry& status;
+        void waitForInitialization() const;
 
-            std::auto_ptr<LiveView> live_view;
+        simparm::StringEntry& status;
 
-          public:
-            Source(const Config& config,
-                   AndorCamera::CameraReference& camera);
-            Source(const Source &);
-            virtual ~Source();
-            Source *clone() const { 
-                throw std::logic_error("Unclonable."); }
+        std::auto_ptr<LiveView> live_view;
 
-            virtual int quantity() const; 
-            virtual bool pull_length() const { return initialized; }
+      public:
+        Source(const Method& config,
+                AndorCamera::CameraReference& camera);
+        Source(const Source &);
+        virtual ~Source();
+        Source *clone() const { 
+            throw std::logic_error("Unclonable."); }
 
-            virtual void startPushing(input::Drain<CamImage> *target);
-            virtual void stopPushing();
-
-        };
-    }
+        virtual CamSource::iterator begin();
+        virtual CamSource::iterator end();
+        virtual TraitsPtr get_traits();
+    };
 }
 
 #endif

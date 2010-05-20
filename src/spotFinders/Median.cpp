@@ -53,21 +53,23 @@ void MedianSmoother::naiveMedian(const Image &in, SmoothedImage& out,
                                  int mw, int mh)
  
 {
-    const StormPixel *line, *limit = in.ptr(0, in.height-mh);
+    const int width = in.width_in_pixels(),
+              height = in.height_in_pixels();
+    const StormPixel *line, *limit = in.ptr(0, height-mh);
     int ln;
     int ms = mw * mh;
     StormPixel buffer[ms], copy[ms];
     int offset = mw/2, median = ms/2;
 
     for (ln = mh/2, line = in.ptr(); 
-         line <= limit; ln++, line += in.width) 
+         line <= limit; ln++, line += width) 
     {
-        for (unsigned int block = 0; block < in.width; block += mw)
+        for (unsigned int block = 0; block < width; block += mw)
             for (int column = 0, coloff = 0; 
-                     column < mw && block+column < in.width; 
+                     column < mw && block+column < width; 
                      column++,   coloff += mh)
             {
-                insertLine( line + block + column, in.width,
+                insertLine( line + block + column, width,
                             buffer + coloff, mh );
                 if (block == 0 && column < mw-1)
                     continue;
@@ -247,10 +249,10 @@ static int modMap[500];
 static int modMapInit = -1;
 
 template <int strucSize>
-void ahmadMedian(const Image &in, SmoothedImage& out, int mw, int mh)
+void ahmadMedian(const engine::Image &in, SmoothedImage& out, int mw, int mh)
 
 {
-    const int W = in.width, H = in.height, xoff = -mw/2, yoff = mw/2;
+    const int W = in.width_in_pixels(), H = in.height_in_pixels(), xoff = -mw/2, yoff = mw/2;
     StormPixel median;
     SortedList<StormPixel,strucSize> sortedColumns[W];
 
@@ -272,9 +274,20 @@ void ahmadMedian(const Image &in, SmoothedImage& out, int mw, int mh)
     {
         SortedList<StormPixel,strucSize*2> border;
         int pixInSS1 = 0;
-        if (y == 0)
-            median = in.get_crop(0,0, mw-1, mh-1).median();
-        else
+        if (y == 0) {
+            std::vector<StormPixel> init_window_pixels;
+            init_window_pixels.reserve(mw*mh);
+            for (int y = 0; y < mh; y++) {
+                const StormPixel *p = in.ptr(0,y);
+                for (int x = 0; y < mw; x++) 
+                    init_window_pixels.push_back(p[x]);
+            }
+            std::partial_sort( 
+                init_window_pixels.begin(),
+                init_window_pixels.begin()+targetPixInSS1+1,
+                init_window_pixels.end() );
+            median = init_window_pixels[targetPixInSS1+1];
+        } else
             median = out(0+xoff,y+yoff-1);
 
         for (int x = 0; x < W; x++) {

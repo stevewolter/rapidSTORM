@@ -25,7 +25,7 @@ namespace spotFinders {
         typedef engine::SpotFinderBuilder<Spalttiefpass> Factory;
 
         Spalttiefpass (const Config&, const engine::Config &conf,
-                       const engine::Traits::Size& size) 
+                       const engine::InputTraits::Size& size) 
             : SpotFinder(conf, size) {}
 
         void smooth( const engine::Image &in ) {

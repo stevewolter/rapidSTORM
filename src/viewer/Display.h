@@ -36,7 +36,7 @@ class Display
         const Viewer::_Config& config,
         dStorm::Display::DataSource& vph 
     );
-    void setSize(const input::Traits< cimg_library::CImg<int> >& traits);
+    void setSize(const input::Traits< Image<int,2> >& traits);
 
     inline void pixelChanged(int x, int y);
     void clean(bool);

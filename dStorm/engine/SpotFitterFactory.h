@@ -3,7 +3,7 @@
 
 #include "JobInfo_decl.h"
 #include "SpotFitter_decl.h"
-#include "Input_decl.h"
+#include "Image.h"
 #include "Config_decl.h"
 #include <simparm/Node_decl.hh>
 #include <memory>

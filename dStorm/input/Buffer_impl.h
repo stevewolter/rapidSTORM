@@ -9,126 +9,155 @@
 #include "Source.h"
 #include "Slot.h"
 
+#include "Buffer_impl_iterator.h"
+
+#include "debug.h"
+
 using namespace std;
 
 namespace dStorm {
 namespace input {
 
-template <typename Object>
-void Buffer<Object>::receive_number_of_objects(int present_images) 
-{
-    DEBUG("Receiving " << present_images << " of objects");
-    ost::MutexLock lock(initialization);
-    /* This construction method is equivalent to calling 
-     * push_back(Slot<Object>(*source, i, mayDiscard)) for each i,
-     * but uses fewer allocations. I cannot recall why the allocation
-     * count here is important. */
-    Slot<Object> exemplar(*source, -1, mayDiscard);
-    DEBUG("Resizing Buffer vector to " << present_images);
-    resize(present_images, exemplar);
-    DEBUG("Resized Buffer vector");
-    int index = 0;
-    for (typename data_cpp::Vector< Slot<Object> >::iterator
-                  i = this->data_cpp::Vector< Slot<Object> >::begin();
-                  i != this->data_cpp::Vector< Slot<Object> >::end(); i++ )
-        i->setIndex(index++);
-
-    initialized = true;
-    finished_initialization.signal();
-}
-
-template<typename Object>
-void Buffer<Object>::init()
-{
-    mayDiscard = false;
-
-    if ( source->pull_length() )
-        receive_number_of_objects( source->number_of_objects() );
-
-    if (source->pushes_concurrently()) 
-        source->startPushing(this);
-    else
-        source->allowPushing(this);
-    DEBUG("Created image buffer");
-}
-
-template<typename Object>
-Buffer<Object>::Buffer(const Config &c) 
-
-: finished_initialization(initialization),
-  initialized(false)
-{
-    std::auto_ptr< BaseSource > base = c.makeImageSource();
-    Source<Object>* src = dynamic_cast< Source<Object>* >(base.get());
-    if ( src == NULL ) {
-        throw std::logic_error("Source of incorrect type supplied to "
-                               "buffer.");
-    } else {
-        source.reset( src );
-        base.release();
-        init();
-    }
-}
-
 template<typename Object>
 Buffer<Object>::Buffer(std::auto_ptr< Source<Object> > src) 
-
-: finished_initialization(initialization),
-  initialized(false)
+: Source<Object>( src->getNode(), BaseSource::Flags().set(BaseSource::Repeatable) ),
+  ost::Thread("Input fetcher"),
+  mayDiscard( false ), concurrent_fetch( src->flags.test(BaseSource::TimeCritical) ),
+  new_data(mutex)
 {
-    assert( src.get() != NULL );
-    source = src;
-    this->init();
-}
+    this->source = src;
+    if ( concurrent_fetch ) {
+        ost::MutexLock lock(mutex);
+        run();
+        /* Wait until the source has initialized. */
+        new_data.wait();
+    } else {
+        current_input = source->begin();
+        end_of_input = source->end();
+    }
 
-template<typename Object>
-void Buffer<Object>::signal_end_of_acquisition() {
-    if (source->pushes()) source->stopPushing();
+    DEBUG("Created image buffer");
 }
 
 template<typename Object>
 Buffer<Object>::~Buffer() {
     DEBUG("Destructing " << (void*)this);
-    signal_end_of_acquisition();
-    DEBUG("Destructed " << this);
+    source.reset( NULL );
+    DEBUG("Destructed source for " << this);
 }
 
 template<typename Object>
-void Buffer<Object>::setDiscardingLicense(bool mD) {
-    if (mayDiscard == false && mD == true) {
+void Buffer<Object>::dispatch(BaseSource::Messages m) {
+    if ( m.test( BaseSource::MightNeedRepeat ) ) {
+        m.reset( BaseSource::MightNeedRepeat );
         mayDiscard = true;
-        /* If the discarding license is set to true, discard all images. */
-        for (typename data_cpp::Vector< Slot<Object> >::iterator 
-                 i = this->begin(); i != this->end(); i++) 
-        {
-            i->discard();
+    }
+    if ( m.test( BaseSource::WillNeverRepeatAgain ) ) {
+        m.reset( BaseSource::WillNeverRepeatAgain );
+        ost::MutexLock lock(mutex);
+        if ( !mayDiscard ) {
+            mayDiscard = true;
+            processed.clear();
         }
-    } else
-        mayDiscard = mD;
+    }
+    if ( m.test( BaseSource::RepeatInput ) ) {
+        m.reset( BaseSource::RepeatInput );
+        ost::MutexLock lock(mutex);
+        unprocessed.splice( unprocessed.begin(), processed );
+    }
+    source->dispatch(m);
 }
 
 template<typename Object>
 void Buffer<Object>::makeAllUntouched() {
-    for(typename data_cpp::Vector< Slot<Object> >::iterator 
-                 i = this->begin(); i != this->end(); i++)
-        i->clean();
 }
 
 template<typename Object>
-Management
-Buffer<Object>::accept(int index, int number, Object* i)
-
+void Buffer<Object>::run() 
 {
-    assert( i == NULL || number == 1 );
-    for ( int j = 0; j < number; j++ )
-        (*this)[index].insert( std::auto_ptr<Object>(i) );
-    return Keeps_objects;
+    try {
+        current_input = source->begin(); 
+        end_of_input = source->end();
+        new_data.signal();
+
+        for ( ; current_input != end_of_input; ++current_input ) 
+        {
+            ost::MutexLock lock(mutex);
+            unprocessed.push_back( *current_input );
+            new_data.signal();
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error in reading input: " << e.what() << std::endl;
+        current_input = end_of_input;
+        new_data.signal();
+    }
 }
 
 template<typename Object>
 simparm::Node& Buffer<Object>::getConfig()
 {
     return source->getNode();
+}
+
+template<typename Object>
+typename Buffer<Object>::Slots::iterator Buffer<Object>::get_free_slot() 
+{
+    ost::MutexLock lock(mutex);
+    while ( true ) {
+        if ( ! unprocessed.empty() ) {
+            current.splice( current.begin(), unprocessed, unprocessed.begin() );
+            new_data.signal();
+            return current.begin();
+        } else if ( current_input == end_of_input ) {
+            return current.end();
+        } else if ( ! concurrent_fetch ) {
+            current.push_front( *current_input );
+            ++current_input;
+            new_data.signal();
+            return current.begin();
+        } else {
+            new_data.wait();
+        }
+    }
+}
+
+template<typename Object>
+void Buffer<Object>::discard( typename Slots::iterator slot ) {
+    ost::MutexLock lock(mutex);
+    if ( mayDiscard ) {
+        current.erase( slot );
+    } else if ( slot != current.end() ) {
+        typename Slots::iterator insert_pos = processed.end(); 
+        for ( typename Slots::reverse_iterator 
+               i = processed.rbegin(); i != processed.rend(); i++ ) 
+            if ( *slot < *i ) {
+                insert_pos = --i.base();
+            } else {
+                break;
+            }
+
+        processed.splice( insert_pos, current, slot );
+    }
+}
+
+template<typename Object>
+typename Source<Object>::iterator
+Buffer<Object>::begin() 
+{ 
+    return typename Source<Object>::iterator( iterator().attach(*this) );
+}
+
+template<typename Object>
+typename Source<Object>::iterator
+Buffer<Object>::end() 
+{ 
+    return typename Source<Object>::iterator();
+}
+
+template<typename Object>
+typename Source<Object>::TraitsPtr
+Buffer<Object>::get_traits() {
+    return source->get_traits();
 }
 
 }

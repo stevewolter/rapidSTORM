@@ -6,6 +6,9 @@
 #include <memory>
 #include <vector>
 #include <dStorm/Pixel.h>
+#include <dStorm/Image.h>
+#include <cs_units/camera/resolution.hpp>
+#include <cs_units/camera/length.hpp>
 
 namespace dStorm {
 namespace Display {
@@ -33,18 +36,21 @@ namespace data_cpp {
 namespace dStorm {
 namespace Display {
 
+typedef dStorm::Image<dStorm::Pixel,2> Image;
+
 struct ClearChange {
     Color background;
 };
 struct ResizeChange {
-    int width, height;
+    Image::Size size;
     int key_size;
     /* Size of one pixel in meters. */
-    float pixel_size; 
+    typedef boost::units::quantity<cs_units::camera::resolution,float> 
+        Resolution;
+    Resolution pixel_size; 
 };
 struct ImageChange {
-    /** Row-major array containing new values for all pixels. */
-    data_cpp::Vector<Color> pixels;
+    Image new_image;
 };
 struct PixelChange { 
     int x, y; 
@@ -77,6 +83,9 @@ struct Change {
         change_key.clear();
     }
 
+    void make_linear_key(Image::PixelPair range);
+    template <class PixelType>
+    void display_normalized(const dStorm::Image<PixelType,2>&);
 };
 
 class DataSource {

@@ -34,25 +34,14 @@ namespace dStorm {
          Source(const char *src );
          virtual ~Source() {}
 
-         virtual int dimx() const 
-            { return sourceImages.front().width; }
-         virtual int dimy() const 
-            { return sourceImages.front().height; }
-         virtual int quantity() const 
-            { return sourceImages.size; }
-
          Object& getConfig() { return *this; }
+
+        virtual input::Source< CImg<PixelType> >::iterator begin();
+        virtual input::Source< CImg<PixelType> >::iterator end();
+        virtual TraitsPtr get_traits();
 
       private:
          CImgList<PixelType> sourceImages;
-
-      protected:
-        virtual CImg<PixelType>*
-            fetch(int image_index)
-        {
-            return new CImg<PixelType>(sourceImages[image_index]);
-        }
-
     };
 
     template <typename PixelType>

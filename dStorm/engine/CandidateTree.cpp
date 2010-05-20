@@ -1,10 +1,8 @@
 #include "CandidateTree.h"
 #include "Config.h"
-#include <CImg.h>
 #include "Image.h"
 
 using namespace std;
-using namespace cimg_library;
 
 #define USE_ANEUBECK_NMS
 
@@ -59,7 +57,7 @@ int CandidateTree<PixelType>::compare(
 }
 
 template <typename PixelType>
-void CandidateTree<PixelType>::fill(const CImg<PixelType> &i) 
+void CandidateTree<PixelType>::fill(const Input &i) 
 #ifdef USE_ANEUBECK_NMS
 {
    this->clear();
@@ -69,7 +67,7 @@ void CandidateTree<PixelType>::fill(const CImg<PixelType> &i)
     * ignore any maxima of this height. */
    PixelType largestReject = 0;
 
-   const int W = i.width, H = i.height;
+   const int W = i.width().value(), H = i.height().value();
    const int w = msx, h = msy;
    const PixelType* I = i.ptr();
    int cxs[(w+1)*(h+1)];
@@ -187,7 +185,7 @@ void CandidateTree<PixelType>::fill(const CImg<PixelType> &i)
 #endif
 
 template <typename PixelType>
-void CandidateTree<PixelType>::fillMax(const CImg<PixelType> &i) 
+void CandidateTree<PixelType>::fillMax(const Input &i) 
 {
    this->clear();
    /* LargestReject is a dynamic threshold based on the ordering relation
@@ -196,7 +194,7 @@ void CandidateTree<PixelType>::fillMax(const CImg<PixelType> &i)
     * ignore any maxima of this height. */
    PixelType largestReject = 0;
 
-   const int W = i.width, H = i.height;
+   const int W = i.width().value(), H = i.height().value();
    const int w = msx, h = msy;
    const PixelType* I = i.ptr();
    const int lastValidX = W - (w+w+1), lastValidY = H - (h+h+1);

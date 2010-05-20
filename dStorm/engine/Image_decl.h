@@ -1,9 +1,7 @@
 #ifndef DSTORM_ENGINE_IMG_DECL_H
 #define DSTORM_ENGINE_IMG_DECL_H
 
-namespace cimg_library {
-    template <typename PixelType> class CImg;
-};
+#include <dStorm/Image_decl.h>
 
 namespace dStorm {
 namespace engine {
@@ -11,11 +9,17 @@ namespace engine {
     typedef unsigned short StormPixel;
     /** Output pixel type for STORM engine. */
     typedef unsigned int SmoothedPixel;
-    /** Input image type for STORM engine. */
-    typedef cimg_library::CImg<StormPixel> Image;
+    /** Basic functions of input image type for
+     *  STORM engine */
+    typedef dStorm::BaseImage<StormPixel,2> BaseImage;
+    /** Input image type for STORM engine */
+    typedef dStorm::Image<StormPixel,2> Image;
     /** Output image type for STORM engine. */
-    typedef cimg_library::CImg<SmoothedPixel> SmoothedImage;
+    typedef dStorm::Image<SmoothedPixel,2> SmoothedImage;
+
+    typedef input::Traits<Image> InputTraits;
 }
+
 }
 
 #endif

@@ -1,6 +1,6 @@
 #include "BinnedLocalizations.h"
 #include <dStorm/output/ResultRepeater.h>
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <Eigen/Array>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>
@@ -78,11 +78,12 @@ BinnedLocalizations<KeepUpdated>
                  enlarged = re * cropped;
 
         pixel_count lx = pixel_count(floor(enlarged.x())),
-                    ly = pixel_count(floor(enlarged.y()));
+                    ly = pixel_count(floor(enlarged.y())),
+                    onepix = 1 * cs_units::camera::pixel;
         if (   lx < 0 * cs_units::camera::pixel || 
-               lx >= int(base_image.width-1) * cs_units::camera::pixel ||
+               lx >= base_image.width() - onepix ||
                ly < 0 * cs_units::camera::pixel || 
-               ly >= int(base_image.height-1) * cs_units::camera::pixel )
+               ly >= base_image.height() - onepix )
             continue;
         float xf = (enlarged.x() - lx) / cs_units::camera::pixel,
               yf = (enlarged.y() - ly) / cs_units::camera::pixel;
@@ -159,11 +160,7 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
     if ( announcement->traits.resolution.is_set() )
         traits.resolution = *announcement->traits.resolution * float(re);
 
-    base_image.resize(
-        traits.dimx().value(),
-        traits.dimy().value(),
-        traits.dimz().value(),
-                      1, /* No init */ -1);
+    base_image = BinnedImage(traits.size, base_image.frame_number());
     base_image.fill(0); 
     this->binningListener().setSize(traits);
 }

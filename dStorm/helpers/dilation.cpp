@@ -1,9 +1,7 @@
-#include <CImg.h>
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 #include <limits>
 
 using namespace std;
-using namespace dStorm::engine;
 
 #include <iostream>
 
@@ -12,9 +10,9 @@ namespace dStorm {
 /** Algorithm from Gil & Werman, IEEE Transactions on Pattern Analysis
  *  and Machine Learning, Vol 15, No. 5. This algorithm is highly
  *  optimised and best understood with a piece of paper. */
-template <typename PixelType>
+template <typename PixelType, typename OutPixel>
 static void dilate_line(const PixelType *src, const int step,
-        const int w, const int p, PixelType *trg)
+        const int w, const int p, OutPixel *trg)
 {
     /* Maximum value in reverse scan */
     PixelType R[p-1];
@@ -60,9 +58,9 @@ static void dilate_line(const PixelType *src, const int step,
 }
 
 /** Same as dilation, but modified for different neutral element. */
-template <typename PixelType>
+template <typename PixelType, typename OutPixel>
 static void erode_line(const PixelType *src, const int step,
-        const int w, const int p, PixelType *trg)
+        const int w, const int p, OutPixel *trg)
 {
     PixelType R[p-1], S[p-1], res_line[w];
 
@@ -102,77 +100,89 @@ static void erode_line(const PixelType *src, const int step,
     }
 }
 
-template <typename PixelType>
-void rectangular_dilation(const cimg_library::CImg<PixelType> &i,
-                       cimg_library::CImg<PixelType> &t, 
+template <typename PixelType, typename OutPixel>
+void rectangular_dilation(const Image<PixelType,2> &i,
+                       Image<OutPixel,2> &t, 
                        const int mrx, const int mry,
                        const int borderX, const int borderY)
 
 {
-    const cimg_library::CImg<PixelType>* xs = &i, *ys;
-    cimg_library::CImg<PixelType>* xr = &t, *yr = &t;
-    ys = (mry > 1) ? &t : &i;
+    const int width = i.width_in_pixels(), height = i.height_in_pixels();
 
     if ( mry > 1 ) {
-        for (int x = borderX; x < int(i.width)-borderX; x++) {
-            dilate_line(xs->ptr(x, borderY), i.width, i.height-2*borderY, 
-                2*mry+1, xr->ptr(x, borderY));
+        for (int x = borderX; x < int(width)-borderX; x++) {
+            dilate_line(i.ptr(x, borderY), width, height-2*borderY, 
+                2*mry+1, t.ptr(x, borderY));
         }
     }
 
-    if ( mrx > 1 ) {
-        for (int y = borderY; y < int(i.height)-borderY; y++)
-            dilate_line(ys->ptr(borderX, y), 1, i.width-2*borderX, 2*mrx+1,
-                    yr->ptr(borderX, y));
+    if ( mry > 1 && mrx > 1 ) {
+        for (int y = borderY; y < int(height)-borderY; y++)
+            dilate_line(t.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
+                    t.ptr(borderX, y));
+    } else if ( mrx > 1 ) {
+        for (int y = borderY; y < int(height)-borderY; y++)
+            dilate_line(i.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
+                    t.ptr(borderX, y));
     }
 }
 
-template <typename PixelType>
-void rectangular_erosion(const cimg_library::CImg<PixelType> &i, 
-                       cimg_library::CImg<PixelType> &t, 
+template <typename PixelType, typename OutPixel>
+void rectangular_erosion(const Image<PixelType,2> &i,
+                       Image<OutPixel,2> &t, 
                        const int mrx, const int mry,
                        const int borderX, const int borderY)
 
 {
-    const cimg_library::CImg<PixelType>* xs = &i, *ys;
-    cimg_library::CImg<PixelType>* xr = &t, *yr = &t;
-    ys = (mry > 1) ? &t : &i;
+    const int width = i.width_in_pixels(), height = i.height_in_pixels();
 
     if ( mry > 1 ) {
-        for (int x = borderX; x < int(i.width)-borderX; x++) {
-            erode_line(xs->ptr(x, borderY), i.width, i.height-2*borderY, 
-                2*mry+1, xr->ptr(x, borderY));
+        for (int x = borderX; x < int(width)-borderX; x++) {
+            erode_line(i.ptr(x, borderY), width, height-2*borderY, 
+                2*mry+1, t.ptr(x, borderY));
         }
     }
 
-    if ( mrx > 1 ) {
-        for (int y = borderY; y < int(i.height)-borderY; y++)
-            erode_line(ys->ptr(borderX, y), 1, i.width-2*borderX, 2*mrx+1,
-                    yr->ptr(borderX, y));
+    if ( mry > 1 && mrx > 1 ) {
+        for (int y = borderY; y < int(height)-borderY; y++)
+            erode_line(t.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
+                    t.ptr(borderX, y));
+    } else if ( mrx > 1 ) {
+        for (int y = borderY; y < int(height)-borderY; y++)
+            erode_line(i.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
+                    t.ptr(borderX, y));
     }
 }
+}
+
+#include <dStorm/engine/Image.h>
+
+namespace dStorm {
+
+using dStorm::engine::StormPixel;
+using dStorm::engine::SmoothedPixel;
 
 template void rectangular_dilation<bool>(
-        const cimg_library::CImg<bool> &i,
-        cimg_library::CImg<bool> &t,
+        const Image<bool,2> &i,
+        Image<bool,2> &t,
         const int mrx, const int mry,
         const int borderX, const int borderY);
 
 template void rectangular_erosion<bool>(
-        const cimg_library::CImg<bool> &i,
-        cimg_library::CImg<bool> &t,
+        const Image<bool,2> &i,
+        Image<bool,2> &t,
         const int mrx, const int mry,
         const int borderX, const int borderY);
 
-template void rectangular_dilation<SmoothedPixel>(
-        const cimg_library::CImg<SmoothedPixel> &i,
-        cimg_library::CImg<SmoothedPixel> &t,
+template void rectangular_dilation<StormPixel,SmoothedPixel>(
+        const Image<StormPixel,2> &i,
+        Image<SmoothedPixel,2> &t,
         const int mrx, const int mry,
         const int borderX, const int borderY);
 
-template void rectangular_erosion<SmoothedPixel>(
-        const cimg_library::CImg<SmoothedPixel> &i,
-        cimg_library::CImg<SmoothedPixel> &t,
+template void rectangular_erosion<StormPixel,SmoothedPixel>(
+        const Image<StormPixel,2> &i,
+        Image<SmoothedPixel,2> &t,
         const int mrx, const int mry,
         const int borderX, const int borderY);
 

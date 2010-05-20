@@ -42,6 +42,7 @@ namespace dStorm {
         frame_index _im;
 
       public:
+        Localization() {}
         inline Localization( const Position& position, 
                       Amplitude strength );
 
@@ -68,6 +69,7 @@ namespace dStorm {
         inline void setImageNumber(frame_index num) { _im = num; }
         inline frame_index getImageNumber() const { return _im; }
         inline frame_index N() const { return _im; }
+        inline frame_index frame_number() const { return _im; }
 
         bool has_source_trace() const { return source != NULL; }
         const output::Trace& get_source_trace() const { return *source; }

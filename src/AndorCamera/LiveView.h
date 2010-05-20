@@ -11,12 +11,11 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/NumericEntry.hh>
 
-namespace dStorm {
-namespace AndorDirect {
+namespace AndorCamera {
 
 class LiveView :
     boost::noncopyable, public simparm::Object,
-    public Display::DataSource
+    public dStorm::Display::DataSource
 {
     typedef boost::units::quantity
             <cs_units::camera::resolution, float> 
@@ -29,29 +28,28 @@ class LiveView :
 
     ost::Mutex window_mutex, change_mutex;
 
-    std::auto_ptr<Display::Change> change;
-    std::auto_ptr<Display::Manager::WindowHandle> window;
+    std::auto_ptr<dStorm::Display::Change> change;
+    std::auto_ptr<dStorm::Display::Manager::WindowHandle> window;
 
     void registerNamedEntries();
 
-    void show_window(int width, int height);
+    void show_window(CamImage::Size size);
     void hide_window();
 
     void compute_image_change( const CamImage& image );
     void compute_key_change( CameraPixel darkest,
                              CameraPixel brightest );
 
-    std::auto_ptr<Display::Change> get_changes();
+    std::auto_ptr<dStorm::Display::Change> get_changes();
     void notice_closed_data_window();
 
   public:
     LiveView(
-        const Config& config,
+        const Method& config,
         boost::units::quantity<cs_units::camera::frame_rate> cycle_time );
     void show( const CamImage& image, int num );
 };
 
-}
 }
 
 #endif

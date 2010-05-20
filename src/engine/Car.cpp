@@ -3,7 +3,7 @@
 
 #include "Car.h"
 #include "LocalizationBuncher.h"
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
 #include "Engine.h"
@@ -14,9 +14,9 @@
 #include <dStorm/output/Output.h>
 #include <CImg.h>
 #include "doc/help/context.h"
-#include <dStorm/engine/Input.h>
 #include <dStorm/input/Method.h>
 #include <dStorm/localization_file/reader.h>
+#include <dStorm/engine/Image.h>
 
 using namespace std;
 
@@ -118,7 +118,6 @@ void Car::operator()(const simparm::Event& e) {
         ost::MutexLock lock( terminationMutex );
         DEBUG("Job close button allows termination");
         if ( myEngine.get() != NULL ) myEngine->stop();
-        if ( locSource.get() != NULL ) locSource->stopPushing();
         terminate = true;
         terminationChanged.signal();
     }
@@ -148,8 +147,7 @@ void Car::make_input_driver() {
             DEBUG("Have image input, registering input");
             runtime_config.push_back( *source );
             DEBUG("Making input buffer");
-            input.reset(
-                new Input( input::BaseSource::downcast<Image>(source) ) );
+            input = input::BaseSource::downcast<Image>(source);
             DEBUG("Making engine");
             myEngine.reset( 
                 new Engine(
@@ -215,12 +213,14 @@ void Car::runOnSTM() throw( std::exception ) {
         = dynamic_cast<LocalizationFile::Reader::Source*>( locSource.get() );
     if ( reader )
         reader->setEmptyImageCallback( &buncher );
-    buncher.noteTraits( *locSource, 
+    buncher.noteTraits( *locSource->get_traits(), 
                         config.inputConfig.firstImage() 
                             * cs_units::camera::frame, 
                         config.inputConfig.lastImage()
                             * cs_units::camera::frame );
-    locSource->startPushing( &buncher );
+    input::Source<Localization>::iterator i, last = reader->end();
+    for ( i = reader->begin(); i != last; i++ )
+        buncher.accept( 0, 1, &*i );
     buncher.ensure_finished();
 }
 

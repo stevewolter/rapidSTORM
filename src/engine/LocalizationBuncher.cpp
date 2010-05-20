@@ -186,7 +186,7 @@ void LocalizationBuncher::Can::deep_copy(
     to.commit(1);
 }
 
-input::Management
+void
 LocalizationBuncher::accept(int index, int num, Localization *loc)
 {
     if (index < last_index)
@@ -201,7 +201,7 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
                 if (currentImage != imNum)
                     can_results_or_publish( imNum );
             } catch (const Output*c) {
-                return input::Delete_objects;
+                return;
             }
         }
 
@@ -210,8 +210,6 @@ LocalizationBuncher::accept(int index, int num, Localization *loc)
     }
 
     last_index = index;
-
-    return input::Delete_objects;
 }
 
 void LocalizationBuncher::reset() {

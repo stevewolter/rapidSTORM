@@ -2,11 +2,12 @@
 #define DSTORM_INPUT_IMAGETRAITS_H
 
 #include <Eigen/Core>
-#include "Traits.h"
-#include "Config_decl.h"
+#include <dStorm/input/Traits.h>
 #include "ImageTraits_decl.h"
 #include <dStorm/SizeTraits.h>
+#include <dStorm/Image_decl.h>
 #include <dStorm/units_Eigen_traits.h>
+#include <dStorm/units/frame_count.h>
 
 namespace dStorm {
 namespace input {
@@ -14,25 +15,24 @@ namespace input {
 /** The Traits class partial specialization for images
  *  provides methods to determine the image dimensions and the
  *  resolution. */
-template <typename PixelType>
-class Traits< cimg_library::CImg<PixelType> >
-  : public SizeTraits<3>
+template <typename PixelType, int Dimensions>
+class Traits< dStorm::Image<PixelType,Dimensions> >
+  : public SizeTraits<Dimensions>
 {
   public:
+    typedef typename SizeTraits<Dimensions>::Resolution Resolution;
     /** Dimensionality (number of colours) of image. */
     int dim;    
 
-    Traits() : SizeTraits<3>(), dim(1) {}
+    Traits() : SizeTraits<Dimensions>(), dim(1) {}
     template <typename Type>
-    Traits( const Traits< cimg_library::CImg<Type> >& o )
-        : SizeTraits<3>(o), dim(o.dim) {}
+    Traits( const Traits< dStorm::Image<Type,Dimensions> >& o )
+        : SizeTraits<Dimensions>(o), dim(o.dim) {}
     /** CImg compatibility method.
      *  @return Number of colors in image. */
     inline int dimv() const { return dim; }
 
-    void apply_global_settings(const Config& c) { compute_resolution(c); }
-    void compute_resolution( const Config& );
-    void set_resolution( const Eigen::Vector3d& resolution );
+    simparm::optional<frame_count> total_frame_count;
 };
 
 }

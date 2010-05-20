@@ -1,18 +1,19 @@
 #include "LiveView.h"
 #include <boost/thread/locks.hpp>
 #include "AndorDirect.h"
-#include <CImg.h>
+#include <dStorm/Image.h>
+#include <dStorm/Image_impl.h>
 
 typedef ost::MutexLock guard;
 
 using namespace boost::units;
 using namespace cs_units::camera;
+using namespace dStorm;
 
-namespace dStorm {
-namespace AndorDirect {
+namespace AndorCamera {
 
 LiveView::LiveView( 
-    const Config& config,
+    const Method& config,
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time
     )
 : Object("LiveView", "Live view options"),
@@ -22,7 +23,7 @@ LiveView::LiveView(
   show_live("ShowLive", "Show camera image", 
             config.show_live_by_default()),
   live_show_frequency( config.live_show_frequency ),
-  change( new Display::Change() )
+  change( new dStorm::Display::Change() )
 {
     registerNamedEntries();
 }
@@ -32,18 +33,17 @@ void LiveView::registerNamedEntries() {
     push_back( live_show_frequency );
 }
 
-void LiveView::show_window(int width, int height) {
+void LiveView::show_window(CamImage::Size size) {
     if ( window.get() == NULL ) {
-        Display::Manager::WindowProperties props;
+        dStorm::Display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
-        props.initial_size.width = width;
-        props.initial_size.height = height;
+        props.initial_size.size = size;
         props.initial_size.key_size = 256;
         props.initial_size.pixel_size = 
-            (1.0 * cs_units::camera::pixels_per_meter / resolution);
+            resolution;
 
-        window = Display::Manager::getSingleton()
+        window = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
     }
 }
@@ -66,38 +66,20 @@ std::auto_ptr<Display::Change> LiveView::get_changes()
 void LiveView::compute_image_change
     ( const CamImage& image )
 {
-    CameraPixel minPix, maxPix;
-    minPix = image.minmax(maxPix);
-
-    cimg_library::CImg<uint8_t> normalized( 
-        image.get_normalize(0, 255) );
-
+    CamImage::PixelPair minmax = image.minmax();
+    
     guard lock( change_mutex );
     change->do_change_image = true;
-    change->image_change.pixels.resize(normalized.size());
-    cimg_foroff( normalized, off )
-        change->image_change.pixels[off] = normalized[off];
-    compute_key_change( minPix, maxPix );
-}
-
-/** Assumes that change_mutex is already acquired. */
-void LiveView::compute_key_change(
-    CameraPixel darkest, CameraPixel brightest )
-{
-    Display::KeyChange *v = change->change_key.allocate( 256 );
-    for (int i = 0; i <= 255; i++) {
-        v[i].index = i;
-        v[i].color = i;
-        v[i].value = darkest + i * ((brightest - darkest) / 255.0);
-    }
-    change->change_key.commit(256);
+    change->image_change.new_image = 
+        image.normalize<dStorm::Pixel>();
+    change->make_linear_key( minmax );
 }
 
 void LiveView::show( const CamImage& image, int number) {
     guard lock(window_mutex);
     if ( show_live() ) {
         if ( window.get() == NULL ) 
-            show_window(image.width, image.height);
+            show_window(image.sizes());
 
         quantity<si::time>
             image_time = frame / cycle_time,
@@ -116,5 +98,4 @@ void LiveView::notice_closed_data_window() {
     hide_window();
 }
 
-}
 }

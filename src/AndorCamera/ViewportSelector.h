@@ -11,19 +11,16 @@
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
 #include <map>
-#include <CImg.h>
 #include <AndorCamera/CameraReference.h>
 #include "AndorDirect.h"
 
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 
 namespace AndorCamera {
 
 class Acquisition;
 
 namespace ViewportSelector {
-
-typedef dStorm::AndorDirect::CamTraits::Resolution Resolution;
 
 class Config;
 
@@ -59,19 +56,19 @@ class Display : public simparm::Set,
     std::auto_ptr<dStorm::Display::Change> change;
     std::auto_ptr<dStorm::Display::Manager::WindowHandle> handle;
 
-    /** Width of displayed camera image. */
-    int width, height /**< Height of displayed camera image */;
-    /** Currently used normalization factor. Will be set for each new
+    /** Size of displayed camera image. */
+    CamImage::Size size;
+    /** Currently used normalization boundaries. Will be set for each new
      *  image when \c lock_normalization is not set. */
-    float normalization_factor;
+    CamImage::PixelPair normalization_factor;
     /** If set to true, \c normalization_factor is fixed at the current
      *  level. */
     bool lock_normalization;
 
-    Resolution resolution;
+    CamTraits::Resolution resolution;
 
     /** Saved data of the last camera image to enable saving. */
-    data_cpp::Vector<dStorm::Display::Color> last_image;
+    dStorm::Image<dStorm::Pixel,2> last_image;
 
     /** Subthread for image acquisition. */
     virtual void run() throw();
@@ -86,7 +83,7 @@ class Display : public simparm::Set,
     void acquire();
     void configure_camera(AndorCamera::Acquisition&);
     void initialize_display();
-    void draw_image(const dStorm::AndorDirect::CameraPixel *data);
+    void draw_image(const CamImage& data);
 
     dStorm::Display::ResizeChange getSize() const;
 
@@ -102,13 +99,13 @@ class Display : public simparm::Set,
         *  This is a fire-and-forget class: The constructor starts a
         *  subthread that will open the acquisition and update the
         *  display window, and then return control. */
-    Display ( const CameraReference&, Mode, Config&, Resolution );
+    Display ( const CameraReference&, Mode, Config&, CamTraits::Resolution );
     /** Destructor, will join the subthread and close the display
         *  window. */
     virtual ~Display();
 
     void terminate();
-    void set_resolution( const Resolution& );
+    void set_resolution( const CamTraits::Resolution& );
 };
 
 /** Configuration items for the viewport selection window that
@@ -117,7 +114,7 @@ class Config
 : public simparm::Object, public simparm::Node::Callback 
 {
     AndorCamera::CameraReference cam;
-    Resolution resolution;
+    CamTraits::Resolution resolution;
 
     void registerNamedEntries();
 
@@ -128,7 +125,7 @@ class Config
     simparm::TriggerEntry select_ROI, view_ROI;
 
     Config(const AndorCamera::CameraReference& cam, 
-           Resolution);
+           CamTraits::Resolution);
     Config(const Config &c);
     ~Config();
     Config* clone();
@@ -138,8 +135,8 @@ class Config
     void operator()(const simparm::Event&);
 
     void delete_active_selector();
-    void set_resolution( const Resolution& );
-    const Resolution& get_resolution() { return resolution; }
+    void set_resolution( const CamTraits::Resolution& );
+    const CamTraits::Resolution& get_resolution() { return resolution; }
 
   private:
     ost::Mutex active_selector_mutex;

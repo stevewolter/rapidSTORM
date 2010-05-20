@@ -2,6 +2,10 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
 #include <boost/units/io.hpp>
+#include <dStorm/ImageTraits.h>
+#include <dStorm/Image_iterator.h>
+#include <dStorm/Image_impl.h>
+#include <algorithm>
 
 #include "ImageDiscretizer_inline.h"
 
@@ -12,7 +16,7 @@ namespace DiscretizedImage {
 template <typename Colorizer, typename ImageListener>
 ImageDiscretizer<Colorizer, ImageListener>
 ::ImageDiscretizer(int d, float hp,
-    const cimg_library::CImg<float>& binned_image,
+    const Image<float,2>& binned_image,
     Colorizer& colorizer) 
 : colorizer(colorizer),
   max_value(10), 
@@ -38,21 +42,22 @@ void ImageDiscretizer<Colorizer, ImageListener>
 {
     colorizer.setSize( traits );
     this->publish().setSize( 
-        input::Traits< cimg_library::CImg<int> >(traits) );
+        input::Traits< Image<int,2> >(traits) );
     total_pixel_count = 
         (traits.size.x() / cs_units::camera::pixel)
       * (traits.size.y() / cs_units::camera::pixel);
 
-    cimg_library::CImg<HistogramPixel>
-        new_pixel_map(traits.size.x().value(), traits.size.y().value());
-    pixels_by_position.swap( new_pixel_map );
+    pixels_by_position = Image<HistogramPixel,2>( traits.size );
+    int w = pixels_by_position.width_in_pixels(),
+        h = pixels_by_position.height_in_pixels();
 
-    cimg_forXY( pixels_by_position, x, y ) {
+    for (int x = 0; x < w; x++)
+      for (int y = 0; y < h; y++) {
         HistogramPixel& p = pixels_by_position(x,y);
         p.clear();
         p.x = x;
         p.y = y;
-    }
+      }
 
     for (unsigned int i = 0; i < in_depth; i++) {
         pixels_by_value[i].clear();
@@ -72,13 +77,14 @@ void ImageDiscretizer<Colorizer, ImageListener>
 
         float new_disc_fac = (in_depth-1) * 1.0 / max_value;
 
-        cimg_forXY( binned_image, x, y ) {
-            float val = binned_image(x,y);
-            HighDepth o = discretize( val ),
-                      n = discretize( val, new_disc_fac );
+        for( InputImage::const_iterator i = binned_image.begin();
+            i != binned_image.end(); i++)
+        {
+            HighDepth o = discretize( *i ),
+                      n = discretize( *i, new_disc_fac );
 
             if ( o != n )
-                change( x, y, n );
+                change( i.x(), i.y(), n );
 
             ++histogram[n];
         }
@@ -191,8 +197,10 @@ void ImageDiscretizer<Colorizer, ImageListener>
     pixels_above_used_max_value = 0;
     max_value = max_value_used_for_disc_factor;
 
-    cimg_for( pixels_by_position, p, HistogramPixel )
-        p->clear();
+    std::for_each( 
+        pixels_by_position.begin(),
+        pixels_by_position.end(), 
+        std::mem_fun_ref(&HistogramPixel::clear) );
 }
 
 template <typename Colorizer, typename ImageListener>

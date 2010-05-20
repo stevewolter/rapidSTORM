@@ -2,7 +2,7 @@
 #define DSTORM_ENGINE_JOBINFO_H
 
 #include "Config.h"
-#include "Input_decl.h"
+#include "Image_decl.h"
 
 namespace dStorm {
 namespace engine {

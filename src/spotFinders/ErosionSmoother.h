@@ -5,16 +5,12 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Structure.hh>
-#include <CImg.h>
-
-namespace cimg_library {
-    template <typename Pixel> class CImg;
-}
+#include <dStorm/helpers/dilation.h>
 
 namespace dStorm {
     class ErosionSmoother : public engine::SpotFinder {
       private:
-        cimg_library::CImg<bool> mask;
+        const int mw, mh;
         struct _Config : public simparm::Object {
             void registerNamedEntries() {}
             _Config() : simparm::Object("Erosion", "Erode image") {}
@@ -24,15 +20,14 @@ namespace dStorm {
         typedef engine::SpotFinderBuilder<ErosionSmoother> Factory;
 
         ErosionSmoother (const Config&, const engine::Config &conf,
-                         const engine::Traits::Size& size) 
+                         const engine::InputTraits::Size& size) 
             : SpotFinder(conf, size),
-              mask(msx+(1-msx%2), msy+(1-msy%2))
-            { mask.fill(true); }
+              mw(msx+(1-msx%2)), mh(msy+(1-msy%2))
+            {}
         ~ErosionSmoother() {}
 
         void smooth( const engine::Image &in ) {
-            *smoothed = in;
-            smoothed->erode<bool>(mask);
+            rectangular_erosion( in, *smoothed, mw/2, mh/2, 0, 0);
         }
     };
 }

@@ -15,7 +15,6 @@ BaseMethod::BaseMethod(
 std::auto_ptr< BaseSource > BaseMethod::makeSource(const Config &master)
 { 
     std::auto_ptr<BaseSource> src(impl_makeSource()); 
-    src->apply_global_settings( master );
     return src;
 }
 

@@ -8,12 +8,12 @@ namespace Display {
 
 ScaleBar::ScaleBar( wxWindow* parent, const wxSize& size )
 : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),
-  nm_per_source_pixel(0), zoom_factor(0)
+  resolution(), zoom_factor(0)
 {
 }
 
-void ScaleBar::set_pixel_size( float nm_per_source_pixel ) {
-    this->nm_per_source_pixel = nm_per_source_pixel;
+void ScaleBar::set_pixel_size( Resolution nm_per_source_pixel ) {
+    this->resolution = nm_per_source_pixel;
     wxClientDC dc(this);
     draw( dc );
 }
@@ -38,6 +38,9 @@ void ScaleBar::OnResize( wxSizeEvent&) {
     DEBUG("Resize end");
 }
 
+using namespace boost::units;
+using namespace cs_units::camera;
+
 void ScaleBar::draw( wxDC &dc )
 {
     dc.SetBackground( this->GetBackgroundColour() );
@@ -48,11 +51,14 @@ void ScaleBar::draw( wxDC &dc )
     dc.SetBrush( *wxBLACK_BRUSH );
     dc.DrawRectangle( 0, 0, size.GetWidth(), 8 );
 
-    float displayed_pixel_size = nm_per_source_pixel * zoom_factor;
-    if ( displayed_pixel_size > 1E-21 ) {
+    Resolution display_res = resolution / zoom_factor;
+    if ( display_res < 1E21 * cs_units::camera::pixels_per_meter ) {
         wxChar buffer[128];
         float remainder; const wxChar *prefix;
-        make_SI_prefix( displayed_pixel_size * size.GetWidth(), 
+        quantity<si::length,float> length =
+            (float(size.GetWidth()) * pixel) / display_res;
+        make_SI_prefix(
+            length / boost::units::si::metre, 
                         remainder, prefix );
         wxSnprintf( buffer, 128, _T("%.3g %sm"), remainder, prefix );
         wxString string( buffer );

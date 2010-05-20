@@ -1,6 +1,8 @@
 #include "Display.h"
 #include "Display_inline.h"
 #include <boost/units/io.hpp>
+#include <dStorm/output/Traits.h>
+#include <dStorm/ImageTraits.h>
 
 namespace dStorm {
 namespace viewer {
@@ -23,33 +25,27 @@ Display<Colorizer>::Display(
 
 template <typename Colorizer>
 void Display<Colorizer>::setSize(
-    const input::Traits< cimg_library::CImg<int> >& traits
+    const input::Traits< Image<int,2> >& traits
 )
 { 
-    int width = traits.size.x() / cs_units::camera::pixel,
-        height = traits.size.y() / cs_units::camera::pixel;
-    ps.resize( width * height, false );
-    ps_step = width;
+    my_size.size = traits.size;
+    ps.resize( traits.size.x() * traits.size.y()
+        / cs_units::camera::pixel / cs_units::camera::pixel, false );
+    ps_step = traits.size.x() / cs_units::camera::pixel;
     if ( ! traits.resolution.is_set() )
         throw std::logic_error("Pixel size must be given for image display");
 
-    dStorm::Display::ResizeChange& r = my_size;
-    r.width = width;
-    r.height = height;
-    r.key_size = Colorizer::BrightnessDepth;
-    r.pixel_size = 
-        1.0 /
-        (boost::units::si::meters / cs_units::camera::pixel ) /
-        (*traits.resolution);
+    my_size.key_size = Colorizer::BrightnessDepth;
+    my_size.pixel_size = *traits.resolution;
 
     if ( do_show_window ) {
-        props.initial_size = r;
+        props.initial_size = my_size;
         window_id = dStorm::Display::Manager::getSingleton()
                 .register_data_source( props, vph );
         do_show_window = false;
     } else {
         next_change->do_resize = true;
-        next_change->resize_image = r;
+        next_change->resize_image = my_size;
     }
     this->clear();
 }

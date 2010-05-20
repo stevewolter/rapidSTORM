@@ -16,6 +16,12 @@
 #include "BasenameWatcher.h"
 #include "AutoInputMethod.h"
 #include "doc/help/context.h"
+#include <dStorm/units/frame_count.h>
+#include "InputFilter_impl.h"
+#include "ROIFilter.h"
+#include <dStorm/engine/Image.h>
+#include <dStorm/Localization.h>
+#include <dStorm/input/LocalizationTraits.h>
 
 using namespace std;
 using namespace ost;
@@ -90,6 +96,27 @@ _Config::_Config()
     PROGRESS("Finished");
 }
 
+template <typename ObjectType>
+void Config::try_to_add_ROI_filter(std::auto_ptr<BaseSource>& rv) const
+{
+    typedef Source<ObjectType> Src;
+    typedef ROIFilter<ObjectType> Functor;
+    typedef InputFilter<ObjectType,Functor> Filter;
+
+    Src* t = dynamic_cast<Src*>(rv.get());
+    if ( t != NULL ) {
+        std::auto_ptr<Src> b( t );
+        rv.release();
+        std::auto_ptr<Src> n( 
+            new Filter(
+                b, 
+                Functor(
+                    firstImage() * cs_units::camera::frame,
+                    lastImage() * cs_units::camera::frame)));
+        rv = n;
+    }
+}
+
 std::auto_ptr< BaseSource > Config::makeImageSource() const 
 
 {
@@ -97,7 +124,12 @@ std::auto_ptr< BaseSource > Config::makeImageSource() const
         std::auto_ptr< BaseSource > rv = 
             const_cast< BaseMethod& >(inputMethod())
                 .makeSource(*this);
-        rv->set_ROI( firstImage(), lastImage() );
+        if ( firstImage != 0 || lastImage != numeric_limits<long>::max() ) 
+        {
+            try_to_add_ROI_filter<dStorm::engine::Image>(rv);
+            try_to_add_ROI_filter<dStorm::Localization>(rv);
+        }
+            
         return rv;
     } else
         throw std::runtime_error("No input method chosen");

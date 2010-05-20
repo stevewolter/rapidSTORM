@@ -20,7 +20,7 @@ namespace spotFinders {
         typedef engine::SpotFinderBuilder<GaussSmoother> Factory;
 
         GaussSmoother (const Config&, const engine::Config &, 
-                       const engine::Traits::Size& size );
+                       const engine::InputTraits::Size& size );
 
         void smooth( const engine::Image &in );
 

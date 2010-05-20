@@ -1,4 +1,4 @@
-#include <dStorm/engine/Image.h>
+#include <dStorm/Image.h>
 
 namespace dStorm {
     /** Perform a dilation on image \c i and write the result into
@@ -9,10 +9,10 @@ namespace dStorm {
      *
      *  If the mask is too close to the border, it is shrinked as
      *  necessary. */
-    template <typename PixelType>
+    template <typename PixelType, typename OutPixel>
     void rectangular_dilation(
-                const cimg_library::CImg<PixelType> &input,
-                cimg_library::CImg<PixelType> &output, 
+                const Image<PixelType,2> &input,
+                Image<OutPixel,2> &output, 
                 const int mrx, const int mry,
                 const int borderX, const int borderY)
 ;
@@ -25,10 +25,10 @@ namespace dStorm {
      *
      *  If the mask is too close to the border, it is shrinked as
      *  necessary. */
-    template <typename PixelType>
+    template <typename PixelType, typename OutPixel>
     void rectangular_erosion(
-                const cimg_library::CImg<PixelType> &input,
-                cimg_library::CImg<PixelType> &output, 
+                const Image<PixelType,2> &input,
+                Image<OutPixel,2> &output, 
                 const int mrx, const int mry,
                 const int borderX, const int borderY)
 ;

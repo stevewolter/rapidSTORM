@@ -1,7 +1,7 @@
 #ifndef CImgBuffer_TIFF_H
 #define CImgBuffer_TIFF_H
 
-#include <dStorm/input/SerialSource.h>
+#include <dStorm/Image_decl.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Method.h>
 #include <dStorm/input/FileBasedMethod.h>
@@ -18,7 +18,6 @@ typedef void TIFF;
 
 namespace dStorm {
   namespace TIFF {
-    using cimg_library::CImg;
     using namespace dStorm::input;
 
     /** The Source provides images from a TIFF file.
@@ -30,34 +29,44 @@ namespace dStorm {
      *  formed. */
     template <typename PixelType>
     class Source : public simparm::Set,
-                   public SerialSource< CImg<PixelType> >
+                   public input::Source< Image<PixelType,2> >
     {
+        typedef dStorm::Image<PixelType,2> Image;
+        typedef input::Source<Image> BaseSource;
+        typedef typename BaseSource::iterator base_iterator;
+        typedef typename BaseSource::Flags Flags;
+        typedef typename BaseSource::TraitsPtr TraitsPtr;
+
+        class iterator;
+
       public:
-         Source(const char *src);
-         virtual ~Source();
+        Source(const char *src);
+        virtual ~Source();
 
-         virtual int quantity() const { return _no_images; }
+        base_iterator begin();
+        base_iterator end();
+        TraitsPtr get_traits();
 
-         Object& getConfig() { return *this; }
-
-         void throw_error();
+        Object& getConfig() { return *this; }
 
       private:
         ::TIFF *tiff;
+        int current_directory;
+        std::string filename;
 
         int _width, _height, _no_images;
 
         static void TIFF_error_handler(const char*, 
             const char *fmt, va_list ap);
         
-        cimg_library::CImg<PixelType>* load();
+        void throw_error();
     };
 
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public FileBasedMethod< CImg<PixelType> >
+    : public FileBasedMethod< Image<PixelType,2> >
     {
       public:
         typedef input::Config MasterConfig;

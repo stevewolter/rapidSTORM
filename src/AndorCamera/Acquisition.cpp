@@ -258,4 +258,8 @@ unsigned int Acquisition::getHeight() {
     return (readout->bottom()-readout->top()+1); 
 }
 
+bool Acquisition::hasLength() {
+    return acquisitionMode->select_mode() != Run_till_abort;
+}
+
 }

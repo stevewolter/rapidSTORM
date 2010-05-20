@@ -2,6 +2,7 @@
 #include "RawImageFile.h"
 #include <cassert>
 #include <CImg.h>
+#include <dStorm/Image.h>
 
 namespace dStorm {
 namespace output {
@@ -10,17 +11,18 @@ using namespace engine;
 
 class RawImageFile::LookaheadImg 
 {
-    frame_index num;
+  public:
+    typedef dStorm::engine::Image Image;
+  private:
     Image* image;
   public:
-    LookaheadImg(frame_index imageNumber, Image* image)
-        : num(imageNumber), image(image) {}
+    LookaheadImg(Image* image) : image(image) {}
     const Image* get() const { return image; }
-    frame_index image_number() const { return num; }
+    frame_index image_number() const { return image->frame_number(); }
     /* Invert sense of matching to put smallest image first in
         * queue. */
     bool operator<( const LookaheadImg& o ) const
-        { return o.num < num; }
+        { return o.image->frame_number() < image->frame_number(); }
 };
 
 static std::string tiff_error;
@@ -89,8 +91,7 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
                 out_of_time.pop();
             }
     } else if ( er.forImage > next_image ) {
-        out_of_time.push( LookaheadImg( er.forImage, 
-                                             new Image(*er.source) ) );
+        out_of_time.push( LookaheadImg( new LookaheadImg::Image(*er.source) ) );
     } else 
         /* Image already written. Drop. */;
     
@@ -118,9 +119,9 @@ void RawImageFile::delete_queue() {
     }
 }
 
-void RawImageFile::write_image(const Image& img) {
-    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width );
-    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height );
+void RawImageFile::write_image(const dStorm::engine::Image& img) {
+    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width_in_pixels() );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height_in_pixels() );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
 

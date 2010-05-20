@@ -3,7 +3,6 @@
 
 #include "Source.h"
 #include "Drain.h"
-#include "ImageTraits_decl.h"
 #include "../error_handler.h"
 #include <simparm/TriggerEntry.hh>
 
@@ -19,10 +18,11 @@ extern template class Source< cimg_library::CImg<float> >;
 
 template <typename Type>
 Source<Type>::Source(simparm::Node& node, const BaseSource::Flags& flags)
-: BaseSource(node, flags), pushTarget(NULL) 
+: BaseSource(node, flags)
 {
 }
 
+#if 0
 template <typename Type>
 void Source<Type>::startPushing(Drain<Type> *drain)
 
@@ -32,20 +32,14 @@ void Source<Type>::startPushing(Drain<Type> *drain)
     simparm::TriggerEntry stopPushing("StopReading", "Stop reading input");
     getNode().push_back( stopPushing );
 
-    for (unsigned int i = roi_start; i <= roi_end; i++) {
-        Type *object = fetch(i);
-        if ( object == NULL )
-            return;
-        else {
-            if ( ErrorHandler::global_termination_flag() || stopPushing.value() || pushTarget != drain ) break;
-            Management m;
-            m = drain->accept( i - roi_start, 1, object );
-            if ( !manages_returned_objects() &&
-                    m == Delete_objects )
-                delete object;
-        }
+    typename Drain<Type>::iterator o = drain->begin();
+    iterator i_end = end();
+    for ( iterator i = begin(); i != i_end; i++ ) {
+        if ( ErrorHandler::global_termination_flag() || stopPushing.value() || pushTarget != drain ) break;
+        *o++ = *i;
     }
 }
+#endif
 
 }
 }

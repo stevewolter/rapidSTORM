@@ -4,11 +4,10 @@
 #include <simparm/Node.hh>
 #include <memory>
 
-#include "Image_decl.h"
-#include "Input_decl.h"
+#include <dStorm/engine/Image.h>
 #include "CandidateTree.h"
 #include "Config_decl.h"
-#include <dStorm/input/ImageTraits.h>
+#include <dStorm/ImageTraits.h>
 
 namespace dStorm {
 namespace engine {
@@ -24,7 +23,7 @@ namespace engine {
     *  the corresponding config element in the dStorm config. */
    class SpotFinder {
       protected:
-        SpotFinder(const Config &conf, const Traits::Size& size);
+        SpotFinder(const Config &conf, const InputTraits::Size& size);
         const int msx, /**< Smoothing mask radius in X */
                   msy, /**< Smoothing mask radius in Y */
                   bx,  /**< Border (non-smoothed at image border)
@@ -63,7 +62,7 @@ namespace engine {
         operator const simparm::Node&() const { return node; }
 
         virtual std::auto_ptr<SpotFinder> make_SpotFinder
-            (const Config &conf, const Traits::Size& size) const = 0;
+            (const Config &conf, const InputTraits::Size& size) const = 0;
         virtual SpotFinderFactory* clone() const = 0;
         virtual ~SpotFinderFactory() {}
     };
@@ -86,7 +85,7 @@ namespace engine {
         virtual SpotFinderBuilder<BaseClass>* clone() const 
             { return new SpotFinderBuilder<BaseClass>(*this); }
         virtual std::auto_ptr<SpotFinder> make_SpotFinder
-            (const Config &conf, const Traits::Size& size) const
+            (const Config &conf, const InputTraits::Size& size) const
             { return std::auto_ptr<SpotFinder>(
                 new BaseClass( *this, conf, size ) ); }
     };
