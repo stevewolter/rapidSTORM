@@ -20,10 +20,10 @@ template<typename Object, bool RunConcurrently>
 Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src) 
 : Source<Object>( src->getNode(), BaseSource::Flags().set(BaseSource::Repeatable) ),
   ost::Thread("Input fetcher"),
+  fetch_is_finished(false),
   mayDiscard( false ),
   new_data(mutex),
-  next_output( buffer.begin() ),
-  fetch_is_finished(false)
+  next_output( buffer.begin() )
 {
     this->source = src;
     if ( RunConcurrently ) {

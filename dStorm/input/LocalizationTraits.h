@@ -25,14 +25,14 @@ class Traits< Localization >
 {
   public:
     Traits() : SizeTraits<Localization::Dim>(), 
+               first_frame(0 * cs_units::camera::frame),
                two_kernel_improvement_is_set(false), 
-               covariance_matrix_is_set(false),
-               first_frame(0 * cs_units::camera::frame) {}
+               covariance_matrix_is_set(false) {}
     Traits( SizeTraits<Localization::Dim> t )
         : SizeTraits<Localization::Dim>(t), 
+          first_frame(0 * cs_units::camera::frame),
           two_kernel_improvement_is_set(false),
-          covariance_matrix_is_set(false),
-          first_frame(0 * cs_units::camera::frame) {}
+          covariance_matrix_is_set(false) {}
 
     typedef amplitude AmplitudeField;
     typedef frame_rate FrameRateField;
