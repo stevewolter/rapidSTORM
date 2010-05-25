@@ -209,7 +209,7 @@ void Car::drive() {
 void Car::runOnSTM() throw( std::exception ) {
     LOCKING("Running on STM file");
     LocalizationBuncher buncher(*output);
-    LocalizationFile::Reader::Source *reader;
+    LocalizationFile::Reader::Source *reader = NULL;
     for ( input::BaseSource *seeker = locSource.get(); seeker != NULL; ) {
         reader = dynamic_cast<LocalizationFile::Reader::Source*>( seeker );
         input::Filter* filter = dynamic_cast<input::Filter*>(seeker);

@@ -64,7 +64,7 @@ void MedianSmoother::naiveMedian(const Image &in, SmoothedImage& out,
     for (ln = mh/2, line = in.ptr(); 
          line <= limit; ln++, line += width) 
     {
-        for (unsigned int block = 0; block < width; block += mw)
+        for (int block = 0; block < width; block += mw)
             for (int column = 0, coloff = 0; 
                      column < mw && block+column < width; 
                      column++,   coloff += mh)
