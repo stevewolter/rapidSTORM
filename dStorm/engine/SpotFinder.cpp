@@ -11,8 +11,10 @@ namespace engine {
 
 SpotFinder::SpotFinder(const Config &c, 
                        const InputTraits::Size& size)
-   : msx(c.x_maskSize()), msy(c.y_maskSize()),
-     bx(c.fitWidth()), by(c.fitHeight()),
+   : msx(c.x_maskSize() / cs_units::camera::pixel),
+     msy(c.y_maskSize() / cs_units::camera::pixel),
+     bx(c.fitWidth() / cs_units::camera::pixel),
+     by(c.fitHeight() / cs_units::camera::pixel),
      imw(size.x().value()), imh(size.y().value()),
      smoothed( new SmoothedImage(size, 0 * cs_units::camera::frame) )
      {
@@ -21,7 +23,7 @@ SpotFinder::SpotFinder(const Config &c,
         PROGRESS("Image pointer is " << smoothed->ptr() );
         /* Zero the border of the smoothed image to be sure no maximums
          * occur here regardless of mask size combinations. */
-        memset( smoothed->ptr(), 0, smoothed->size() / cs_units::camera::pixel / cs_units::camera::pixel * sizeof(SmoothedPixel) );
+        memset( smoothed->ptr(), 0, smoothed->size_in_pixels() * sizeof(SmoothedPixel) );
      }
 
 SpotFinder::~SpotFinder() {

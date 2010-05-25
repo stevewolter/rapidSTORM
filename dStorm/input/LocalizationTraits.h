@@ -26,11 +26,13 @@ class Traits< Localization >
   public:
     Traits() : SizeTraits<Localization::Dim>(), 
                two_kernel_improvement_is_set(false), 
-               covariance_matrix_is_set(false) {}
+               covariance_matrix_is_set(false),
+               first_frame(0 * cs_units::camera::frame) {}
     Traits( SizeTraits<Localization::Dim> t )
         : SizeTraits<Localization::Dim>(t), 
           two_kernel_improvement_is_set(false),
-          covariance_matrix_is_set(false) {}
+          covariance_matrix_is_set(false),
+          first_frame(0 * cs_units::camera::frame) {}
 
     typedef amplitude AmplitudeField;
     typedef frame_rate FrameRateField;
@@ -38,11 +40,10 @@ class Traits< Localization >
 
     simparm::optional<amplitude> min_amplitude;
     simparm::optional<frame_rate> speed;
-    simparm::optional<frame_count> total_frame_count;
+    frame_count first_frame;
+    simparm::optional<frame_count> last_frame;
 
     bool two_kernel_improvement_is_set, covariance_matrix_is_set;
-
-    void apply_global_settings(const Config& c) {}
 };
 
 }

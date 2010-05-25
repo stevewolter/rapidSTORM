@@ -209,17 +209,20 @@ void Car::drive() {
 void Car::runOnSTM() throw( std::exception ) {
     LOCKING("Running on STM file");
     LocalizationBuncher buncher(*output);
-    LocalizationFile::Reader::Source *reader
-        = dynamic_cast<LocalizationFile::Reader::Source*>( locSource.get() );
+    LocalizationFile::Reader::Source *reader;
+    for ( input::BaseSource *seeker = locSource.get(); seeker != NULL; ) {
+        reader = dynamic_cast<LocalizationFile::Reader::Source*>( seeker );
+        input::Filter* filter = dynamic_cast<input::Filter*>(seeker);
+        if ( reader != NULL )
+            break;
+        else if ( filter != NULL )
+            seeker = &filter->upstream();
+    }
     if ( reader )
         reader->setEmptyImageCallback( &buncher );
-    buncher.noteTraits( *locSource->get_traits(), 
-                        config.inputConfig.firstImage() 
-                            * cs_units::camera::frame, 
-                        config.inputConfig.lastImage()
-                            * cs_units::camera::frame );
-    input::Source<Localization>::iterator i, last = reader->end();
-    for ( i = reader->begin(); i != last; i++ )
+    buncher.noteTraits( *locSource->get_traits() );
+    input::Source<Localization>::iterator i, last = locSource->end();
+    for ( i = locSource->begin(); i != last; i++ )
         buncher.accept( 0, 1, &*i );
     buncher.ensure_finished();
 }

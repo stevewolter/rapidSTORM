@@ -5,7 +5,7 @@ libinput_la_SOURCES = \
     Source.cpp AutoInputMethod.h \
     BasenameWatcher.cpp \
     FileBasedMethod.cpp \
-    ROIFilter.h
+    ROIFilter.h ResolutionSetter.h
 library_includedir = $(includedir)/dStorm/input
 library_include_HEADERS = \
 	AutoInputMethod.h \

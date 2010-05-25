@@ -52,8 +52,10 @@ namespace input {
             dispatch(Messages().set(m));
         }
         virtual void dispatch(Messages m) {
-            if ( m.any() ) 
+            assert( ! m.any() );
+            if ( m.any() ) {
                 throw std::logic_error("Undispatchable message " + m.to_string() + " delivered to input " + getNode().getName());
+            }
         }
 
         template <typename Type> bool can_provide() const;
@@ -86,6 +88,11 @@ namespace input {
         virtual iterator begin() = 0;
         virtual iterator end() = 0;
         virtual TraitsPtr get_traits() = 0;
+    };
+
+    class Filter {
+      public:
+        virtual BaseSource& upstream() = 0;
     };
 
     template <typename Type>

@@ -17,6 +17,8 @@ send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename v
 send "in Car in Output in EngineOutput set ChooseTransmission value set RawImage\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
 send "in Car in Method set InputMethod in AndorDirectConfig set AcquisitionLength value set 100\n"
+
+dstorm_attach
 send "in Car in Run in value set 1\n"
 
 set timeout 120

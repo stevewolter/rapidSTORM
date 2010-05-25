@@ -9,6 +9,7 @@
 #include <ctype.h>
 
 #include <dStorm/input/FileBasedMethod_impl.h>
+#include <boost/iterator/iterator_facade.hpp>
 
 namespace dStorm {
 namespace input {
@@ -18,34 +19,26 @@ template class FileBasedMethod<Localization>;
 namespace LocalizationFile {
 namespace Reader {
 
-class Source::iterator {
+class Source::iterator
+: public boost::iterator_facade<iterator,Localization,std::input_iterator_tag>
+{
   public:
     iterator() : src(NULL) {}
-    iterator(Source& src) : src(&src) {}
+    iterator(Source& src) : src(&src) { increment(); }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Localization value_type;
-    typedef ptrdiff_t difference_type;
-    typedef Localization* pointer;
-    typedef Localization& reference;
-
-    iterator& operator++() { 
-        if ( src == NULL ) return *this;
+    void increment() { 
         trace_buffer.clear(); 
-        src->read_localization( current, src->level, trace_buffer );
+        int tbi = 0;
+        src->read_localization( current, src->level, trace_buffer, tbi );
         if ( ! src->file.input ) { src = NULL; }
-        return *this;
     }
-    iterator operator++(int) { iterator a = *this; ++(*this); return a; }
 
-    const Localization& operator*() const { return current; }
-    Localization& operator*() { return current; }
-
-    bool operator==( const iterator& o ) const { return src == o.src; }
+    Localization& dereference() const { return current; }
+    bool equal( const iterator& o ) const { return src == o.src; }
 
   private:
     Source *src;
-    Localization current;
+    mutable Localization current;
     Source::TraceBuffer trace_buffer;
 
 };
@@ -76,13 +69,14 @@ int Source::number_of_newlines() {
 static const char *missing_image_line = "# No localizations in image ";
 
 void Source::read_localization(
-    Localization& target, int level, TraceBuffer& tb, int tbi
+    Localization& target, int level, TraceBuffer& tb, int& tbi
 )
 {
     typedef Localization::Position Pos;
     static const Pos no_shift = Pos::Constant( 0 );
 
     if ( level == 0 ) {
+      DEBUG("Reading at level 0");
       while (true ) {
         char peek;
         while ( true ) {
@@ -114,6 +108,7 @@ void Source::read_localization(
             break;
       }
       new(&target) Localization( Pos(Pos::Zero()), 0 );
+      DEBUG("Reporting source trace " << target->has_source_trace());
       file.read_next( target );
     } else {
         int my_buffer = tbi++;
@@ -127,7 +122,7 @@ void Source::read_localization(
             read_localization(*buffer, level-1, tb, tbi);
             tb[my_buffer].commit(1);
         } while ( file.input && number_of_newlines() <= level );
-        reducer->reduce_trace_to_localization( tb[level-1],
+        reducer->reduce_trace_to_localization( tb[my_buffer],
             &target, no_shift );
     }
 }
@@ -284,7 +279,6 @@ Source* Config::impl_makeSource()
     
     Source *src = new Source(header, trace_reducer.make_trace_reducer() );
     src->push_back( this->inputFile );
-    src->set_default_pixel_size( cs_units::camera::pixels_per_meter / (((float)master.pixel_size_in_nm()) / 1E9f) );
     return src;
 }
 
@@ -296,13 +290,6 @@ std::auto_ptr<Source> Config::read_file( simparm::FileEntry& name )
     return std::auto_ptr<Source>(src);
 }
 
-void Source::set_default_pixel_size(const File::Traits::Resolution::value_type& resolution)
-{
-    if ( !user_resolution.is_set() ) {
-        user_resolution = resolution;
-    }
-}
-
 Source::EmptyImageCallback* Source::setEmptyImageCallback( EmptyImageCallback* cb ) {
     std::swap( empty_image, cb );
     return cb;
@@ -310,7 +297,6 @@ Source::EmptyImageCallback* Source::setEmptyImageCallback( EmptyImageCallback* c
 
 Source::TraitsPtr Source::get_traits() { 
     TraitsPtr tp( new File::Traits(file.getTraits()) ); 
-    if ( user_resolution.is_set() ) tp->resolution = user_resolution;
     return tp;
 }
 

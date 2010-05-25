@@ -29,9 +29,10 @@ namespace input {
      *
      *  \sa Slot
      */
-    template <typename Ty> 
+    template <typename Ty, bool RunConcurrently> 
     class Buffer
-        : public Source<Ty>, private ost::Thread
+        : public Source<Ty>, private ost::Thread,
+          public Filter
     {
       public:
         /** Constructor using an explicitly given input source. */
@@ -47,15 +48,18 @@ namespace input {
         typename Source<Ty>::iterator begin();
         typename Source<Ty>::iterator end();
 
+        virtual BaseSource& upstream() { return *source; }
+
       protected:
         void init( std::auto_ptr< Source<Ty> > );
         /** Storage for the image Source. */
         std::auto_ptr< Source<Ty> > source;
-        /** Iterators to the source */
+        /** Iterators to the source, used only in non-concurrent mode */
         typename Source<Ty>::iterator current_input, end_of_input;
+        /** Status of concurrent fetch */
+        bool fetch_is_finished;
         /** Discarding license variable. Is set to true on WillNeverRepeatAgain message. */
         bool mayDiscard;
-        bool concurrent_fetch;
 
         class iterator;
 
@@ -64,7 +68,8 @@ namespace input {
 
         ost::Mutex mutex;
         ost::Condition new_data;
-        Slots unprocessed, current, processed;
+        Slots buffer;
+        typename Slots::iterator next_output;
 
         typename Slots::iterator get_free_slot();
         void discard( typename Slots::iterator slot );

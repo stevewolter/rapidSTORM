@@ -35,7 +35,7 @@ namespace AndorSIF {
 
 template<typename Pixel>
 std::auto_ptr< typename Source<Pixel>::Image >
-Source<Pixel>::load()
+Source<Pixel>::load(int count)
 {
     DEBUG("Loading next image");
     std::auto_ptr< Image > result;
@@ -52,7 +52,7 @@ Source<Pixel>::load()
 
     DEBUG("Calling GetNextImage");
     int rv_of_readsif_getImage = 
-            readsif_getNextImage( dataSet, buffer );
+            readsif_getImage( dataSet, count, buffer );
     if ( rv_of_readsif_getImage == -1 ) {
         std::cerr << "Error while reading SIF file: " + std::string(readsif_error) + ". Will skip remaining images." << std::endl;
         had_errors = true;
@@ -63,6 +63,7 @@ Source<Pixel>::load()
 
     DEBUG("Creating new image");
     result.reset( new Image(dim) );
+    DEBUG("Created new image");
     /* The pixel might need casting. This is done here. */
     for (int p = 0; p < sz; p++) {
         (*result)[p] = (Pixel)buffer[p];
@@ -91,6 +92,8 @@ void Source<Pixel>::init(FILE *src)
         clog << "Warning: SIF file contains multiple subimages. This "
                 "feature is not supported and only the first subimage "
                 "will be used." << endl;
+
+    im_count = readsif_numberOfImages(dataSet);
 
     /* Read the additional information file from the SIF file
      * and store it in SIF info structure. */
@@ -210,10 +213,9 @@ Source<Pixel>::get_traits()
         readsif_imageWidth( dataSet, 0 ) * cs_units::camera::pixel;
    rv->size.y() = readsif_imageHeight( dataSet, 0 )
         * cs_units::camera::pixel;
-   rv->size.z() = 1 * cs_units::camera::pixel;
 
-   rv->total_frame_count =
-    readsif_numberOfImages(dataSet) * cs_units::camera::frame;
+   rv->last_frame =
+    (readsif_numberOfImages(dataSet) - 1) * cs_units::camera::frame;
     return rv;
 }
 
@@ -259,48 +261,40 @@ class Source<Pixel>::iterator
     mutable dStorm::Image<Pixel,2> img;
     Source* src;
     int count;
+    mutable bool did_load;
 
     friend class boost::iterator_core_access;
 
-    Image& dereference() const { return img; }
-    bool equal(const iterator& i) const {
-        return (src == i.src) && (src == NULL || count == i.count); 
-    }
-
-    void get_next() {
-        std::auto_ptr< Image > i = src->load();
-        if ( i.get() == NULL ) {
-            src = NULL;
-            img.invalidate();
-        } else {
-            img = *i;
-            img.frame_number()
-                = count++ * cs_units::camera::frame;
+    Image& dereference() const { 
+        if ( ! did_load ) {
+            DEBUG("Loading at " << count);
+            img = *src->load(count);
+            img.frame_number() = count * cs_units::camera::frame;
+            did_load = true;
         }
+        return img; 
+    }
+    bool equal(const iterator& i) const { 
+        DEBUG( "Comparing " << count << " with " << i.count ); 
+        return count == i.count; 
     }
 
-    void increment() { get_next(); }
+    void increment() { DEBUG("Incrementing iterator from " << count); ++count; did_load = false; img.invalidate(); }
   public:
-    iterator() : src(NULL) {}
-    iterator(Source& s) : src(&s), count(0)
-    {
-        if ( s.has_been_iterated )
-            throw std::logic_error("SIF source cannot be iterated twice");
-        s.has_been_iterated = true;
-        
-        get_next();
-    }
+    iterator() : src(NULL), count(0), did_load(false) {}
+    iterator(Source& s, int c = 0) : src(&s), count(c), did_load(false)
+    {}
 };
 
 template <typename PixelType>
 typename Source<PixelType>::base_iterator 
 Source<PixelType>::begin() {
-    return base_iterator( iterator(*this) );
+    return base_iterator( iterator(*this, 0) );
 }
 template <typename PixelType>
 typename Source<PixelType>::base_iterator 
 Source<PixelType>::end() {
-    return base_iterator( iterator() );
+    return base_iterator( iterator(*this, im_count) );
 }
 
 template class Config<unsigned short>;

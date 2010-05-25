@@ -3,10 +3,13 @@
 
 #include "BaseImage_decl.h"
 #include "units/frame_count.h"
-#include <dStorm/SizeTraits.h>
+#include <dStorm/SizeTraits_decl.h>
 #include <boost/shared_array.hpp>
 #include <boost/units/pow.hpp>
+#include <cs_units/camera/length.hpp>
 #include <cs_units/camera/area.hpp>
+#include <Eigen/Core>
+#include "units_Eigen_traits.h"
 
 namespace dStorm {
 
@@ -29,6 +32,7 @@ class BaseImage {
     BaseImage(Size sz, frame_index i);
     BaseImage(Size sz, boost::shared_array<PixelType> data,
               frame_index i);
+    ~BaseImage();
 
     void invalidate() { img.reset(); }
     bool is_invalid() const { return img.get() == NULL; }

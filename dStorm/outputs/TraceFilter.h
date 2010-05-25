@@ -50,6 +50,8 @@ class TraceCountFilter : public output::OutputObject,
         { output->check_for_duplicate_filenames(present_filenames); }
 
     AdditionalData announceStormSize(const Announcement &a) ;
+    RunRequirements announce_run(const RunAnnouncement& a) 
+        { return output->announce_run(a); }
 
     void propagate_signal(ProgressSignal s);
 

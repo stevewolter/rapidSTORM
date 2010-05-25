@@ -51,14 +51,14 @@ struct Time {
         ResolutionField;
 
     static const std::string semantic;
-    static const bool hasMinField = false,
+    static const bool hasMinField = true,
                         hasMaxField = true,
                         hasResolutionField = true;
 
-    static BoundField& minField( Traits& )
-        { throw std::logic_error("No minimum field given."); }
+    static BoundQuantity& minField( Traits& l ) 
+        { return l.first_frame; }
     static BoundField& maxField( Traits& l )
-        { return l.total_frame_count; }
+        { return l.last_frame; }
     static ResolutionField& resolutionField
             ( Traits& l ) { return l.speed; }
     static void insert( const ValueQuantity& value,

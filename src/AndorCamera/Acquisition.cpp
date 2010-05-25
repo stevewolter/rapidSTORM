@@ -128,8 +128,10 @@ bool Acquisition::hasMoreImages() {
 
 void Acquisition::block_until_on_camera() {
     ost::MutexLock lock(mutex);
+    DEBUG("Blocking until on camera");
     Camera::ExclusiveAccessor::wait_for_access();
     got_access();
+    DEBUG("Blocked until on camera");
 }
 
 /* See AndorCamera/Acquisition.h for documentation */

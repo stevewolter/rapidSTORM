@@ -24,15 +24,18 @@ class Traits< dStorm::Image<PixelType,Dimensions> >
     /** Dimensionality (number of colours) of image. */
     int dim;    
 
-    Traits() : SizeTraits<Dimensions>(), dim(1) {}
+    Traits() : SizeTraits<Dimensions>(), dim(1), 
+               first_frame(0 * cs_units::camera::frame) {}
     template <typename Type>
     Traits( const Traits< dStorm::Image<Type,Dimensions> >& o )
-        : SizeTraits<Dimensions>(o), dim(o.dim) {}
+        : SizeTraits<Dimensions>(o), dim(o.dim), first_frame(o.first_frame),
+          last_frame(o.last_frame) {}
     /** CImg compatibility method.
      *  @return Number of colors in image. */
     inline int dimv() const { return dim; }
 
-    simparm::optional<frame_count> total_frame_count;
+    frame_count first_frame;
+    simparm::optional<frame_count> last_frame;
 };
 
 }

@@ -10,6 +10,7 @@
 #include <dStorm/helpers/thread.h>
 #include <algorithm>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/UnitEntry_Impl.hh>
 #include "Config.h"
 #include "Method.h"
 #include "Source.h"
@@ -22,6 +23,8 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/Localization.h>
 #include <dStorm/input/LocalizationTraits.h>
+#include "Buffer_impl.h"
+#include "ResolutionSetter.h"
 
 using namespace std;
 using namespace ost;
@@ -74,7 +77,7 @@ _Config::_Config()
   lastImage("LastImage", "Last image to load",
             numeric_limits<long>::max() ),
   pixel_size_in_nm("PixelSizeInNM", "Size of one input pixel in nm",
-                   85)
+                   85.0f * boost::units::si::nanometre / cs_units::camera::pixel)
 {
     PROGRESS("Constructing");
     inputMethod.helpID = HELP_Input_driver;
@@ -117,6 +120,28 @@ void Config::try_to_add_ROI_filter(std::auto_ptr<BaseSource>& rv) const
     }
 }
 
+template <typename Filter>
+void try_to_add(std::auto_ptr<BaseSource>& rv) 
+{
+    typedef Source<typename Filter::value_type> Src;
+    std::auto_ptr<Src> t( dynamic_cast<Src*>( rv.get() ) );
+    if ( t.get() != NULL ) {
+        rv.release();
+        rv.reset( new Filter(t) );
+    }
+}
+
+template <typename Filter>
+void try_to_add(std::auto_ptr<BaseSource>& rv, const Config& c) 
+{
+    typedef Source<typename Filter::value_type> Src;
+    std::auto_ptr<Src> t( dynamic_cast<Src*>( rv.get() ) );
+    if ( t.get() != NULL ) {
+        rv.release();
+        rv.reset( new Filter(t, c) );
+    }
+}
+
 std::auto_ptr< BaseSource > Config::makeImageSource() const 
 
 {
@@ -124,11 +149,28 @@ std::auto_ptr< BaseSource > Config::makeImageSource() const
         std::auto_ptr< BaseSource > rv = 
             const_cast< BaseMethod& >(inputMethod())
                 .makeSource(*this);
+        DEBUG("Source flags are " << rv->flags.to_string());
         if ( firstImage != 0 || lastImage != numeric_limits<long>::max() ) 
         {
             try_to_add_ROI_filter<dStorm::engine::Image>(rv);
             try_to_add_ROI_filter<dStorm::Localization>(rv);
         }
+
+        if ( rv->flags.test( BaseSource::TimeCritical ) ||
+             !rv->flags.test( BaseSource::Repeatable ) ||
+             !rv->flags.test( BaseSource::MultipleConcurrentIterators ) )
+        {
+            if ( rv->flags.test( BaseSource::TimeCritical ) ) {
+                try_to_add<Buffer<dStorm::engine::Image, true> >(rv);
+                try_to_add< Buffer<dStorm::Localization, true> >(rv);
+            } else {
+                try_to_add<Buffer<dStorm::engine::Image, false> >(rv);
+                try_to_add< Buffer<dStorm::Localization, false> >(rv);
+            }
+        }
+
+        try_to_add<ResolutionSetter<dStorm::engine::Image> >(rv, *this);
+        try_to_add<ResolutionSetter<dStorm::Localization> >(rv, *this);
             
         return rv;
     } else
@@ -163,6 +205,13 @@ Config::~Config() {
 
 void _Config::addInput( std::auto_ptr<BaseMethod> method ) {
     inputMethod.addChoice( method );
+}
+
+dStorm::SizeTraits<2>::Resolution _Config::get_resolution() const
+{
+    boost::units::quantity< boost::units::divide_typeof_helper<boost::units::si::length,cs_units::camera::length>::type, float > q1;
+    q1 = (pixel_size_in_nm() / (1E9 * boost::units::si::nanometre) * boost::units::si::metre);
+    return 1.0f / q1;
 }
 
 }

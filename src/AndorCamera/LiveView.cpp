@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "LiveView.h"
 #include <boost/thread/locks.hpp>
 #include "AndorDirect.h"
@@ -18,8 +20,7 @@ LiveView::LiveView(
     )
 : Object("LiveView", "Live view options"),
   cycle_time( cycle_time ),
-  resolution( 1E9 * cs_units::camera::pixels_per_meter
-               / config.resolution_element() ),
+  resolution( *config.resolution_element.get_resolution() ),
   show_live("ShowLive", "Show camera image", 
             config.show_live_by_default()),
   live_show_frequency( config.live_show_frequency ),
@@ -35,6 +36,7 @@ void LiveView::registerNamedEntries() {
 
 void LiveView::show_window(CamImage::Size size) {
     if ( window.get() == NULL ) {
+        DEBUG("Showing live view window");
         dStorm::Display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
@@ -45,6 +47,7 @@ void LiveView::show_window(CamImage::Size size) {
 
         window = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
+        DEBUG("Success in showing live view window");
     }
 }
 
@@ -59,6 +62,7 @@ std::auto_ptr<Display::Change> LiveView::get_changes()
 {
     std::auto_ptr<Display::Change> fresh( new Display::Change() );
     ost::MutexLock lock(change_mutex);
+    DEBUG("Getting live view changes");
     std::swap( fresh, change );
     return fresh;
 }

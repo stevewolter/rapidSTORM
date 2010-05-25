@@ -23,5 +23,4 @@ BOOST_UNITS_STATIC_CONSTANT(nanometres,nanolength);
 }
 }
 
-
 #endif

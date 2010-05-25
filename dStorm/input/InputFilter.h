@@ -8,9 +8,9 @@ namespace dStorm {
 namespace input {
 
 template <typename Type, typename FilterFunctor>
-class InputFilter : public Source<Type>
+class InputFilter : public Source<Type>, public Filter
 {
-    boost::shared_ptr< Source<Type> > upstream;
+    boost::shared_ptr< Source<Type> > _upstream;
     typedef typename Source<Type>::iterator base_iterator;
     FilterFunctor filter;
 
@@ -20,6 +20,8 @@ class InputFilter : public Source<Type>
         const FilterFunctor& filter );
     InputFilter* clone() const 
         { return new InputFilter(*this); }
+
+    BaseSource& upstream() { return *_upstream; }
 
     base_iterator begin();
     base_iterator end();

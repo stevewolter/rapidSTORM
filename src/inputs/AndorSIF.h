@@ -66,6 +66,7 @@ namespace AndorSIF {
          readsif_File *file;
          readsif_DataSet *dataSet;
          bool had_errors;
+         int im_count;
 
          std::string file_ident;
 
@@ -74,7 +75,7 @@ namespace AndorSIF {
 
          void operator()(const simparm::Event&);
 
-         std::auto_ptr< Image > load();
+         std::auto_ptr< Image > load(int i);
          class iterator;
     };
 

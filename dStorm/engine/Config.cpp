@@ -20,8 +20,8 @@ namespace engine {
 
 _Config::_Config()
 :   Set("Engine", "Processing options"),
-    sigma_x("SigmaX", "Std. dev. in X direction", 2),
-    sigma_y("SigmaY", "Std. dev. in Y direction", 2),
+    sigma_x("SigmaX", "Std. dev. in X direction", 2 * cs_units::camera::pixel),
+    sigma_y("SigmaY", "Std. dev. in Y direction", 2 * cs_units::camera::pixel),
     sigma_xy("SigmaXY", "Correlation between X and Y direction", 0),
     delta_sigma("DeltaSigma", "Accepted error in sigma estimation", 0.05),
     maskSizeFactor("MaskSizeFactor", "Proportionality factor "
@@ -33,7 +33,7 @@ _Config::_Config()
     fixSigma("FixSigma", "Disable std. dev. estimation", false),
     motivation("Motivation", "Spot search eagerness", 3),
     amplitude_threshold("AmplitudeThreshold", 
-                        "Amplitude discarding threshold", 3000),
+                        "Amplitude discarding threshold", 3000 * cs_units::camera::ad_counts),
     pistonCount("CPUNumber", "Number of CPUs to use")
 {
     PROGRESS("Building dStorm Config");

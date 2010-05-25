@@ -15,12 +15,13 @@ class ROIFilter {
     operator()(typename Source<Ty>::TraitsPtr p) const
     {
         const frame_index one_frame = 1 * cs_units::camera::frame;
+        frame_index from = std::max( this->from, p->first_frame );
         frame_index to = this->to;
-        if ( p->total_frame_count.is_set() ) {
-            frame_index& fc = *p->total_frame_count;
-            to = std::min(to, fc - one_frame);
-            fc = std::min(to - from + one_frame, fc);
+        if ( p->last_frame.is_set() ) {
+            to = std::min(to, *p->last_frame);
+            p->last_frame = to;
         }
+        p->first_frame = from;
         return p;
     }
 

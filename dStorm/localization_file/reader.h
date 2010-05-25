@@ -64,7 +64,7 @@ namespace Reader {
         int number_of_newlines();
         void read_localization(Localization& target, int level, 
                                std::vector<output::Trace>& trace_buffer, 
-                               int trace_buffer_index = 0 );
+                               int& trace_buffer_index );
 
       public:
         Source(const File& file, 

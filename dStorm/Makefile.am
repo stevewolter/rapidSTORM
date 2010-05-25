@@ -1,6 +1,11 @@
 ACLOCAL_AMFLAGS = -I ../m4
 AUTOMAKE_OPTIONS = foreign
 
+TESTS = Pixel_test
+check_PROGRAMS = Pixel_test
+
+Pixel_test_SOURCES = Pixel_test.cpp
+
 SUBDIRS = helpers data-c++ input localization_file engine output outputs 
 
 lib_LTLIBRARIES = libdStorm.la
@@ -28,7 +33,7 @@ library_include_HEADERS = \
     BaseImage_decl.h BaseImage.h \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
-    Job.h JobMaster.h
+    Job.h JobMaster.h UnitEntries.h
 units_library_includedir = $(includedir)/dStorm/units
 units_library_include_HEADERS = \
 	units/amplitude.h units/frame_count.h units/frame_rate.h \
@@ -36,7 +41,7 @@ units_library_include_HEADERS = \
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \
-		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) 
+		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la localization_file/liblocfile.la \
     input/libinput.la helpers/libhelpers.la -lsimparm

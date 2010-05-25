@@ -37,7 +37,7 @@ namespace AndorCamera {
         public:
         simparm::BoolEntry show_live_by_default;
         simparm::DoubleEntry live_show_frequency;
-        const simparm::DoubleEntry& resolution_element;
+        dStorm::input::Config& resolution_element;
 
         private:
         void registerNamedEntries();

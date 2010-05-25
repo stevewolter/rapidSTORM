@@ -92,6 +92,15 @@ Crankshaft::announceStormSize(const Announcement &a)
     return data;
 }
 
+Output::RunRequirements 
+Crankshaft::announce_run(const RunAnnouncement& a) 
+{
+    Output::RunRequirements requirements;
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
+        requirements |= (*i)->announce_run(a);
+    return requirements;
+}
+
 void Crankshaft::propagate_signal(ProgressSignal s) {
     DEBUG("Announcing engine start");
     ReadLock reader(clutchesLock);

@@ -13,9 +13,16 @@ template <typename PixelType, int Dimensions>
 BaseImage<PixelType,Dimensions>::BaseImage(
     Size sz, frame_index i
 )
-: sz(sz), fn(i), _pxc(1) {
+: sz(sz), fn(i), _pxc(1) 
+{
     for (int i = 0; i < Dimensions; i++)
         _pxc *= sz[i] / cs_units::camera::pixel;
+    this->img = boost::shared_array<PixelType>( new PixelType[_pxc] );
+}
+
+template <typename PixelType, int Dimensions>
+BaseImage<PixelType,Dimensions>::~BaseImage() 
+{
 }
 
 template <typename PixelType, int Dimensions>
@@ -34,7 +41,7 @@ Image<PixelType,Dimensions>::minmax() const {
 
     for (unsigned long i = 1; i < this->_pxc; i++) {
         p.first = std::min( p.first, this->img[i] );
-        p.second = std::max( p.first, this->img[i] );
+        p.second = std::max( p.second, this->img[i] );
     }
 
     return p;
@@ -49,7 +56,10 @@ Image<PixelType,Dimensions>::normalize(
     float nf = 
         (std::numeric_limits<ReducedPixel>::max() -
          std::numeric_limits<ReducedPixel>::min()) * 1.0f;
-    nf /= (minmax.second - minmax.first);
+    if ( minmax.second == minmax.first )
+        nf = 0;
+    else
+        nf /= (minmax.second - minmax.first);
 
     Image<ReducedPixel,Dimensions> rv(this->sz, this->fn);
     for (unsigned long i = 0; i < this->_pxc; i++)

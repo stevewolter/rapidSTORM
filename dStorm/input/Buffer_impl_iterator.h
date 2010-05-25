@@ -4,43 +4,34 @@
 #include <cassert>
 #include "Buffer.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 
 namespace dStorm {
 namespace input {
 
-template <typename Type>
-class Buffer<Type>::iterator {
+template<typename Type, bool RunConcurrently>
+class Buffer<Type,RunConcurrently>::iterator
+: public boost::iterator_facade<iterator,Type,std::forward_iterator_tag>
+{
   public:
-    typedef std::forward_iterator_tag iterator_category;
-    typedef Type value_type;
-    typedef ptrdiff_t difference_type;
-    typedef Type* pointer;
-    typedef Type& reference;
-
     iterator();
-
-    Type& operator*() { return **content; }
-    const Type& operator*() const { return **content; }
-    Type* operator->() { return &**content; }
-    const Type* operator->() const { return &**content; }
-
-    iterator& operator++();
-    iterator operator++(int);
-
-    iterator& attach(Buffer& buffer);
-
-    bool operator==(const iterator& o) const { return o.content == content; }
-    bool operator!=(const iterator& o) const { return o.content != content; }
+    iterator(Buffer& buffer);
 
   private:
     class referenced;
-    boost::shared_ptr<referenced> content;
+    mutable boost::shared_ptr<referenced> content;
+    friend class boost::iterator_core_access;
+
+    Type& dereference() const { return **content; }
+    bool equal(const iterator& o) const 
+        { return content.get() == o.content.get(); }
+    void increment();
 
     bool isValid();
 };
 
-template <typename Type>
-struct Buffer<Type>::iterator::referenced
+template<typename Type, bool RunConcurrently>
+struct Buffer<Type,RunConcurrently>::iterator::referenced
 {
     Buffer& b;
     typename Slots::iterator c;
@@ -48,46 +39,37 @@ struct Buffer<Type>::iterator::referenced
   public:
     referenced(Buffer& buffer) 
         : b(buffer), c(b.get_free_slot()) {}
-    boost::shared_ptr<referenced> advance() {
-        boost::shared_ptr<referenced> r(new referenced(b)); 
-        if ( r->c == b.current.end() )
-            r.reset();
-        return r;
-    }
+    boost::shared_ptr<referenced> advance() 
+        { return boost::shared_ptr<referenced>(new referenced(b)); }
     ~referenced();
 
     Type& operator*() { return *c; }
     const Type& operator*() const { return *c; }
+    bool check() { return c != b.buffer.end(); }
 };
 
-template <typename Type>
-typename Buffer<Type>::iterator&
-Buffer<Type>::iterator::attach(Buffer<Type>& buffer)
+template<typename Type, bool RunConcurrently>
+Buffer<Type,RunConcurrently>::iterator::iterator() 
 {
-    content.reset( new referenced( buffer ) );
 }
 
-template <typename Type>
-Buffer<Type>::iterator::referenced::~referenced() {
+template<typename Type, bool RunConcurrently>
+Buffer<Type,RunConcurrently>::iterator::iterator(Buffer<Type,RunConcurrently>& buffer)
+{
+    content.reset( new referenced( buffer ) );
+    if ( ! content->check() ) content.reset();
+}
+
+template<typename Type, bool RunConcurrently>
+Buffer<Type,RunConcurrently>::iterator::referenced::~referenced() {
     b.discard( c );
 }
 
-template <typename Type>
-typename Buffer<Type>::iterator&
-Buffer<Type>::iterator::operator++() 
+template<typename Type, bool RunConcurrently>
+void Buffer<Type,RunConcurrently>::iterator::increment() 
 {
-    if ( content.get() != NULL )
-        content = content->advance();
-    return *this;
-}
-
-template <typename Type>
-typename Buffer<Type>::iterator
-Buffer<Type>::iterator::operator++(int) 
-{
-    iterator i = *this;
-    ++ (*this);
-    return i;
+    if ( content.get() != NULL ) content = content->advance();
+    if ( ! content->check() ) content.reset();
 }
 
 }

@@ -42,6 +42,8 @@ void Slicer::add_output_clone(int i) {
 
     if ( announcement.get() != NULL )
         outputs[i]->announceStormSize(*announcement);
+    if ( run_announcement.get() != NULL )
+        outputs[i]->announce_run(*run_announcement);
 }
 
 Slicer::_Config::_Config() 
@@ -87,6 +89,14 @@ Slicer::announceStormSize(const Announcement& a)
     announcement.reset( new Announcement(a) );
 
     return outputs[0]->announceStormSize(a);
+}
+
+Output::RunRequirements
+Slicer::announce_run(const RunAnnouncement& a)
+{
+    run_announcement.reset( new RunAnnouncement(a) );
+
+    return outputs[0]->announce_run(a);
 }
 
 void Slicer::propagate_signal(ProgressSignal s) {

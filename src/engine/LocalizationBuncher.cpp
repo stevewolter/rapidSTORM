@@ -113,14 +113,12 @@ void LocalizationBuncher::ensure_finished()
 }
 
 void LocalizationBuncher::noteTraits(
-    const input::Traits<Localization>& traits,
-    frame_index firstImage, frame_index lastImage)
-
+    const input::Traits<Localization>& traits )
 {
-    DEBUG("Set bounds " << firstImage << " " << lastImage);
-    if ( ! traits.total_frame_count.is_set() )
+    if ( ! traits.last_frame.is_set() )
         throw std::runtime_error("Total number of frames in STM file must be known");
-    lastInFile = *traits.total_frame_count;
+    frame_index firstImage = traits.first_frame, lastImage = *traits.last_frame;
+    lastInFile = *traits.last_frame;
     last = lastImage;
     first = std::min( firstImage, last );
 

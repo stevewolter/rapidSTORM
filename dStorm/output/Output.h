@@ -9,6 +9,7 @@
 #include <simparm/Set.hh>
 #include <iostream>
 #include <set>
+#include <bitset>
 #include <dStorm/helpers/thread.h>
 
 #include "Traits.h"
@@ -29,6 +30,12 @@ namespace output {
       public:
         class Announcement;
         typedef Capabilities AdditionalData;
+
+        enum RunRequirement {
+            MayNeedRestart
+        };
+        typedef std::bitset<1> RunRequirements;
+        class RunAnnouncement {};
 
         class EngineResult;
         enum Result { KeepRunning, RemoveThisOutput, RestartEngine,
@@ -102,8 +109,9 @@ namespace output {
          *  @return A bitfield indicating which additional data (besides the
          *          source image number and the found localizations) should
          *          be transmitted with receiveLocalizations(). */
-        virtual AdditionalData announceStormSize(const Announcement&) 
- = 0;
+        virtual AdditionalData announceStormSize(const Announcement&) = 0;
+        virtual RunRequirements announce_run(const RunAnnouncement&) 
+            { return RunRequirements(); }
         virtual void propagate_signal(ProgressSignal) = 0;
         virtual Result receiveLocalizations(const EngineResult&)
             = 0;

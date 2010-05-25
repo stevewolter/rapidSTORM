@@ -9,44 +9,44 @@
 namespace dStorm {
 namespace input {
 
-template <typename Ty, typename Filter>
-InputFilter<Ty,Filter>::InputFilter( 
+template <typename Ty, typename FilterFunctor>
+InputFilter<Ty,FilterFunctor>::InputFilter( 
         std::auto_ptr< Source<Ty> > upstream,
-        const Filter& filter 
+        const FilterFunctor& filter 
 )
 : Source<Ty>( upstream->getNode(), upstream->flags ),
-  upstream(upstream),
+  _upstream(upstream),
   filter(filter)
 {
 }
 
-template <typename Ty, typename Filter>
-typename Source<Ty>::iterator InputFilter<Ty,Filter>::begin() 
+template <typename Ty, typename FilterFunctor>
+typename Source<Ty>::iterator InputFilter<Ty,FilterFunctor>::begin() 
 {
     return base_iterator(
-        boost::filter_iterator<Filter,base_iterator>
-        ( filter, this->upstream->begin(), this->upstream->end() ) );
+        boost::filter_iterator<FilterFunctor,base_iterator>
+        ( filter, this->_upstream->begin(), this->_upstream->end() ) );
 }
 
-template <typename Ty, typename Filter>
-typename Source<Ty>::iterator InputFilter<Ty,Filter>::end() 
+template <typename Ty, typename FilterFunctor>
+typename Source<Ty>::iterator InputFilter<Ty,FilterFunctor>::end() 
 {
     return base_iterator(
-        boost::filter_iterator<Filter,base_iterator>
-        ( filter, this->upstream->end(), this->upstream->end() ) );
+        boost::filter_iterator<FilterFunctor,base_iterator>
+        ( filter, this->_upstream->end(), this->_upstream->end() ) );
 }
 
-template <typename Ty, typename Filter>
-void InputFilter<Ty,Filter>::dispatch(BaseSource::Messages m) 
+template <typename Ty, typename FilterFunctor>
+void InputFilter<Ty,FilterFunctor>::dispatch(BaseSource::Messages m) 
 {
-    upstream->dispatch(m);
+    _upstream->dispatch(m);
 }
 
-template <typename Ty, typename Filter>
+template <typename Ty, typename FilterFunctor>
 typename Source<Ty>::TraitsPtr
-InputFilter<Ty,Filter>::get_traits() 
+InputFilter<Ty,FilterFunctor>::get_traits() 
 {
-    return filter(upstream->get_traits());
+    return filter(_upstream->get_traits());
 }
 
 }

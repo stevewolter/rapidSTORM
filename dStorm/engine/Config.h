@@ -3,9 +3,10 @@
 
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
+#include <dStorm/UnitEntries.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
-#include <math.h>
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace engine {
@@ -24,7 +25,8 @@ namespace engine {
         ~_Config();
 
         /** The standard deviation for the exponential spot model. */
-        DoubleEntry sigma_x, sigma_y, sigma_xy;
+        FloatPixelEntry sigma_x, sigma_y;
+        DoubleEntry sigma_xy;
         /** The uncertainty allowed in sigma estimation. */
         DoubleEntry delta_sigma;
 
@@ -46,22 +48,24 @@ namespace engine {
         /** Continue fitting until this number of bad fits occured. */
         UnsignedLongEntry motivation;
         /** Amplitude threshold to judge localizations by. */
-        DoubleEntry amplitude_threshold;
+        ADCEntry amplitude_threshold;
 
+        typedef boost::units::quantity<cs_units::camera::length,unsigned long>
+            Length;
         /** The smoothing/NMS mask size derived from the sigma value 
          *  in X direction */
-        unsigned long x_maskSize() const 
-        { return (unsigned long)round( maskSizeFactor() * sigma_x() );}
+        Length x_maskSize() const 
+        { return Length(round( float(maskSizeFactor()) * sigma_x() ));}
         /** The smoothing/NMS mask size derived from the sigma value
          *  in Y direction */
-        unsigned long y_maskSize() const 
-        { return (unsigned long)round( maskSizeFactor() * sigma_y() );}
+        Length y_maskSize() const 
+        { return Length(round( float(maskSizeFactor()) * sigma_y() ));}
         /** The fit window size derived from the sigma value in X direction */
-        unsigned long fitWidth() const 
-        { return (unsigned long)round( fitSizeFactor() * sigma_x() );}
+        Length fitWidth() const 
+        { return Length(round( float(fitSizeFactor()) * sigma_x() ));}
         /** The fit window size derived from the sigma value in Y direction */
-        unsigned long fitHeight() const 
-        { return (unsigned long)round( fitSizeFactor() * sigma_y() );}
+        Length fitHeight() const 
+        { return Length(round( float(fitSizeFactor()) * sigma_y() ));}
 
         /** Number of parallel computation threads to run. */
         UnsignedLongEntry pistonCount;

@@ -19,9 +19,9 @@ Width_Invariants<FF,false>::Width_Invariants(
    const GaussFitterConfig& c, const JobInfo& info
 ) 
 : params( NULL, &constants),
-  amplitude_threshold( info.config.amplitude_threshold() ),
-  start_sx( info.config.sigma_x() ),
-  start_sy( info.config.sigma_y() ),
+  amplitude_threshold( info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
+  start_sx( info.config.sigma_x() / cs_units::camera::pixel ),
+  start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
   start_sxy( info.config.sigma_xy() )
 {
     fit_function.

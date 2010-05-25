@@ -25,7 +25,7 @@ Source::get_traits()
     TraitsPtr rv( new TraitsPtr::element_type() );
     rv->size.x() = w* cs_units::camera::pixel;
     rv->size.y() = h* cs_units::camera::pixel;
-    rv->total_frame_count = number * cs_units::camera::frame;
+    rv->last_frame = (number - 1) * cs_units::camera::frame;
 }
 
 dStorm::engine::Image* Source::load() {

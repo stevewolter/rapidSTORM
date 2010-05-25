@@ -4,7 +4,7 @@ namespace dStorm {
 namespace input {
 
 BaseSource::BaseSource(simparm::Node& node, BaseSource::Flags flags)
-    : node(node) {}
+    : node(node), flags(flags) {}
 
 
 BaseSource::~BaseSource() {}

@@ -33,16 +33,18 @@ SigmaFitter::SigmaFitter(Config &config)
 SigmaFitter::~SigmaFitter() {}
 
 void SigmaFitter::useConfig(Config &config) {
-    initial_sigmas[0] = config.sigma_x();
-    initial_sigmas[1] = config.sigma_y();
+    double sigx = config.sigma_x() / cs_units::camera::pixel;
+    double sigy = config.sigma_y() / cs_units::camera::pixel;
+    initial_sigmas[0] = sigx;
+    initial_sigmas[1] = sigy;
     initial_sigmas[2] = config.sigma_xy();
 
-    prefac = 2 * M_PI * config.sigma_x() * config.sigma_y() *
+    prefac = 2 * M_PI * sigx * sigy *
                   sqrt( 1 - config.sigma_xy() * config.sigma_xy() );
     /* This parameter is set independently of the fit mask size because
      * small fit masks have a very detrimental effect on free-form fitting. */
-    int nmsx = int((3*config.sigma_x()));
-    int nmsy = int((3*config.sigma_y()));
+    int nmsx = int((3*sigx));
+    int nmsy = int((3*sigy));
     if (fitter.get() == NULL || nmsx != msx || nmsy != msy) {
         msx = nmsx; msy = nmsy;
         fitter->setSize( 2*msx+1, 2*msy+1 );

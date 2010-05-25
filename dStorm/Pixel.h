@@ -8,41 +8,43 @@ namespace dStorm {
 
 class Pixel {
     union Contents {
-        uint8_t _red, _green, _blue, _alpha;
+        uint8_t colors[4];
         uint32_t _value;
+        Contents() : _value(0) {}
+        Contents( uint32_t v ) : _value(v) {}
+        Contents( const Contents& o ) : _value(o._value) {}
     };
     Contents c;
-    explicit Pixel( uint32_t _value, bool )
-        { c._value = _value; }
+    explicit Pixel( uint32_t _value, bool ) : c(_value) {}
     static const int maxVal = 255;
   public:
-    Pixel() { c._value = 0; c._alpha = maxVal; }
+    Pixel() { c._value = 0; alpha() = maxVal; }
     Pixel( uint8_t grey_level ) {
-        c._red = c._green = c._blue = grey_level;
-        c._alpha = maxVal;
+        red() = green() = blue() = grey_level;
+        alpha() = maxVal;
     }
     Pixel( uint8_t red, uint8_t green, uint8_t blue, 
            uint8_t alpha = maxVal ) 
     {
-        c._red = red;
-        c._green = green;
-        c._blue = blue;
-        c._alpha = (alpha);
+        this->red() = red;
+        this->green() = green;
+        this->blue() = blue;
+        this->alpha() = alpha;
     }
 
-    uint8_t red() const { return c._red; }
-    uint8_t& red() { return c._red; }
-    uint8_t green() const { return c._green; }
-    uint8_t& green() { return c._green; }
-    uint8_t blue() const { return c._blue; }
-    uint8_t& blue() { return c._blue; }
-    uint8_t alpha() const { return c._alpha; }
-    uint8_t& alpha() { return c._alpha; }
-    uint8_t sum() const { return c._red+c._green+c._blue+c._alpha; }
+    uint8_t red() const { return c.colors[0]; }
+    uint8_t& red() { return c.colors[0]; }
+    uint8_t green() const { return c.colors[1]; }
+    uint8_t& green() { return c.colors[1]; }
+    uint8_t blue() const { return c.colors[2]; }
+    uint8_t& blue() { return c.colors[2]; }
+    uint8_t alpha() const { return c.colors[3]; }
+    uint8_t& alpha() { return c.colors[3]; }
+    uint8_t sum() const { return red()+green()+blue()+alpha(); }
     operator uint8_t () const 
-        { return (c._red+c._green+c._blue) / 3; }
+        { return (int(red())+int(green())+int(blue())) / 3; }
 
-    Pixel invert() const {return Pixel( ~c._red, ~c._green, ~c._blue, c._alpha );}
+    Pixel invert() const {return Pixel( ~c._value); }
 
     static Pixel Red() { return Pixel( maxVal, 0, 0 ); }
     static Pixel Green() { return Pixel( 0, maxVal, 0 ); }
