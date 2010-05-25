@@ -83,6 +83,7 @@ class Slicer : public OutputObject {
     void add_output_clone(int index);
 
     std::auto_ptr<Announcement> announcement;
+    std::auto_ptr<RunAnnouncement> run_announcement;
     std::list<ProgressSignal> received_signals;
 
   public:
@@ -98,6 +99,7 @@ class Slicer : public OutputObject {
     ~Slicer();
 
     AdditionalData announceStormSize(const Announcement&);
+    RunRequirements announce_run(const RunAnnouncement& a);
     void propagate_signal(ProgressSignal);
     Result receiveLocalizations(const EngineResult&);
 };

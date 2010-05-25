@@ -13,7 +13,8 @@ GaussFitter<FS,RS,Corr>::GaussFitter(
     const GaussFitterConfig& config,
     const JobInfo& info) 
 : common(config, info) ,
-    msx( info.config.fitWidth() ), msy( info.config.fitHeight() )
+    msx( info.config.fitWidth() / cs_units::camera::pixel ),
+    msy( info.config.fitHeight() / cs_units::camera::pixel )
 {
     for (int i = 0; i < MaxFitWidth-1; i++)
         for (int j = 0; j < MaxFitHeight-1; j++) {

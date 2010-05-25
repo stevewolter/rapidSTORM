@@ -1,8 +1,8 @@
 #include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
-#include <CImg.h>
 #include <dStorm/Image.h>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace output {
@@ -55,7 +55,7 @@ RawImageFile::RawImageFile(const Config& config)
 }
 
 Output::AdditionalData
-RawImageFile::announceStormSize(const Announcement &) {
+RawImageFile::announceStormSize(const Announcement &a) {
     TIFFSetErrorHandler( &error_handler );
     if ( tif == NULL ) {
         tif = TIFFOpen( filename.c_str(), "w" );
@@ -66,6 +66,7 @@ RawImageFile::announceStormSize(const Announcement &) {
 
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
+    next_image = a.traits.first_frame;
 
     return AdditionalData().set_source_image();
 }
@@ -78,6 +79,7 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
     return RemoveThisOutput;
 
   try {
+    DEBUG("Got " << er.forImage << " while expecting " << next_image);
     /* Got the image in sequence. Write immediately. If forImage is
      * smaller, indicates engine restart and we don't need to do
      * anything, if larger, we store the image for later use. */
@@ -120,6 +122,7 @@ void RawImageFile::delete_queue() {
 }
 
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
+    DEBUG("Writing " << img.frame_number().value());
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width_in_pixels() );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height_in_pixels() );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );

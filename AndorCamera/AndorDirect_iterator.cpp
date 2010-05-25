@@ -3,6 +3,7 @@
 #include <dStorm/Image.h>
 #include "LiveView.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 
 namespace AndorCamera {
 
@@ -11,7 +12,7 @@ class SetFlagOnDestruction {
     ost::Condition& c; 
     bool& f;
   public:
-    SetFlagOnDestruction(ost::Mutex& m, ost::Condition& c, bool& flag) : m(m), c(c), f(f) {}
+    SetFlagOnDestruction(ost::Mutex& m, ost::Condition& c, bool& flag) : m(m), c(c), f(flag) {}
     ~SetFlagOnDestruction() {
         m.enterMutex();
         f = true;
@@ -20,59 +21,76 @@ class SetFlagOnDestruction {
     }
 };
 
-class Source::iterator {
-  public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef CamImage value_type;
-    typedef ptrdiff_t difference_type;
-    typedef CamImage* pointer;
-    typedef CamImage& reference;
-
+class Source::iterator 
+: public boost::iterator_facade<iterator,CamImage,std::input_iterator_tag>
+{
   private:
-    Source* ad;
-    boost::shared_ptr<CamImage> image;
-    int next_image_number;
-
-    void get_next_image();
+    class CamRef;
+    boost::shared_ptr<CamRef> ref;
+    mutable CamImage img;
 
   public:
     iterator() {}
     iterator(Source &ad);
-    ~iterator() { ad->acquisition.stop(); }
 
-    CamImage& operator*() { return *image; }
-    const CamImage& operator*() const { return *image; }
-    
-    iterator& operator++() { get_next_image(); }
-    iterator operator++(int) { iterator i = *this; ++(*this); return i; }
-
-    bool operator==(const iterator& i)  const
-        { return i.image.get() == image.get(); }
-    bool operator!=(const iterator& i)  const
-        { return i.image.get() != image.get(); }
+    CamImage& dereference() const;
+    void increment();
+    bool equal(const iterator& i) const { return ref.get() == i.ref.get(); }
 };
 
-Source::iterator::iterator(Source &ad)
-: ad(&ad), next_image_number(0)
+struct Source::iterator::CamRef {
+    Source &ad;
+    int next_image_number;
+
+    CamImage get_next_image();
+    bool is_finished;
+
+  public:
+    CamRef(Source &ad);
+    ~CamRef();
+};
+
+Source::iterator::iterator(Source &ad) 
+    : ref(new CamRef(ad)) 
+{
+    increment();
+}
+
+CamImage& Source::iterator::dereference() const {
+    return img;
+}
+void Source::iterator::increment() {
+    img = ref->get_next_image();
+    if ( ref->is_finished ) ref.reset();
+}
+
+Source::iterator::CamRef::CamRef(Source &ad)
+: ad(ad), next_image_number(0), is_finished(false)
 { 
     SetFlagOnDestruction destruct(ad.initMutex, ad.is_initialized, ad.initialized);
     DEBUG("Started acquisition subthread");
     ad.acquisition.start();
-    DEBUG("Waiting for acquisition to gain camera");
-    ad.acquisition.block_until_on_camera();
-    DEBUG("Acquisition gained camera");
-
-    get_next_image();
+    try {
+        DEBUG("Waiting for acquisition to gain camera");
+        ad.acquisition.block_until_on_camera();
+        DEBUG("Acquisition gained camera");
+    } catch (...) {
+        ad.acquisition.stop();
+        is_finished = true;
+        throw;
+    }
 }
 
-void Source::iterator::get_next_image() {
-    image.reset();
-    while ( image.get() == NULL ) {
+CamImage Source::iterator::CamRef::get_next_image() {
+    CamImage image;
+
+    DEBUG("Allocating image " << next_image_number);
+    while ( image.is_invalid() ) {
         try {
             CamImage::Size sz;
-            sz.x() = ad->acquisition.getWidth() * cs_units::camera::pixel;
-            sz.y() = ad->acquisition.getHeight() * cs_units::camera::pixel;
-            image.reset( new CamImage(sz, next_image_number++ * cs_units::camera::frame) );
+            sz.x() = ad.acquisition.getWidth() * cs_units::camera::pixel;
+            sz.y() = ad.acquisition.getHeight() * cs_units::camera::pixel;
+            image = CamImage(sz, next_image_number * cs_units::camera::frame);
         } catch( const std::bad_alloc& alloc ) {
             /* Do nothing. Try to wait until more memory is available.
                 * Maybe the ring buffer saves us. Maybe not, but we can't
@@ -80,25 +98,42 @@ void Source::iterator::get_next_image() {
             continue;
         }
     }
+    DEBUG("Allocated image");
 
+    DEBUG("Fetching image " << next_image_number);
     while ( true ) {
         AndorCamera::Acquisition::Fetch nextIm =
-            ad->acquisition.getNextImage( image->ptr() );
+            ad.acquisition.getNextImage( image.ptr() );
         if ( nextIm.first == AndorCamera::Acquisition::NoMoreImages ) {
-            image.reset();
+            DEBUG("No more images");
+            image.invalidate();
+            is_finished = true;
             break;
         } else if ( nextIm.first != AndorCamera::Acquisition::HadError ) {
-            ad->live_view->show( *image, nextIm.second );
+            DEBUG("Showing");
+            ad.live_view->show( image, nextIm.second );
+            next_image_number += 1;
             break;
         } else {
+            DEBUG("Unknown result");
             continue;
         }
     }
+    DEBUG("Fetched image");
+    return image;
+}
+
+Source::iterator::CamRef::~CamRef() {
+    DEBUG("Destructing camera reference");
+    ad.acquisition.stop();
 }
 
 CamSource::iterator
 Source::begin() {
-    return CamSource::iterator(iterator(*this));
+    DEBUG("Beginning iteration for camera images");
+    CamSource::iterator rv(iterator(*this));
+    DEBUG("First image is " << rv->frame_number());
+    return rv;
 }
 
 CamSource::iterator

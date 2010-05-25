@@ -130,12 +130,16 @@ void Engine::collectPistons() {
 }
 
 output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
+    DEBUG("Getting other traits dimensionality");
     output::Traits rv( 
         in->get_other_dimensionality<Localization::Dim>() );
-    rv.min_amplitude 
-        = float( config.amplitude_threshold() )
-            * cs_units::camera::ad_count;
+    DEBUG("Getting minimum amplitude");
+    rv.min_amplitude = config.amplitude_threshold();
+    rv.first_frame = in->first_frame;
+    rv.last_frame = in->last_frame;
+    DEBUG("Setting traits from spot fitter");
     config.spotFittingMethod().set_traits( rv );
+    DEBUG("Returning traits");
     return rv;
 }
 
@@ -149,8 +153,7 @@ void Engine::run()
     std::auto_ptr<Crankshaft> temporaryCrankshaft;
     if ( ! config.fixSigma() ) {
         Crankshaft *crankshaft = dynamic_cast<Crankshaft*>(output);
-        std::auto_ptr<Output> guesser
-            (new SigmaGuesserMean( config, input ));
+        std::auto_ptr<Output> guesser (new SigmaGuesserMean( config ));
         if ( crankshaft != NULL )  {
             crankshaft->push_front( guesser, Crankshaft::State );
         } else {
@@ -159,8 +162,7 @@ void Engine::run()
             temporaryCrankshaft->add( *output );
             output = temporaryCrankshaft.get();
         }
-    } else
-        input.dispatch( Input::WillNeverRepeatAgain );
+    }
 
     DEBUG("Announcing size");
     Output::Announcement announcement(convert_traits(input.get_traits()));
@@ -181,6 +183,11 @@ void Engine::run()
     numPistons = 1;
 #endif
     while (true) {
+        Output::RunRequirements r = 
+            output->announce_run(Output::RunAnnouncement());
+        if ( ! r.test(Output::MayNeedRestart) )
+            input.dispatch( Input::WillNeverRepeatAgain );
+
         for (int i = 0; i < numPistons-1; i++)
             addPiston();
         safeRunPiston();
@@ -243,7 +250,9 @@ void Engine::runPiston()
 
     DEBUG("Building maximums");
     CandidateTree<SmoothedPixel> maximums
-        (config.x_maskSize(), config.y_maskSize(), 1, 1);
+        (config.x_maskSize() / cs_units::camera::pixel,
+         config.y_maskSize() / cs_units::camera::pixel,
+         1, 1);
     maximums.setLimit(maximumLimit);
 
     DEBUG("Initialized maximums");
@@ -258,11 +267,18 @@ void Engine::runPiston()
 
     for (Source<Image>::iterator i = input.begin(); i != input.end(); i++)
     {
-        DEBUG("Intake (" << i.index() << ")");
+        DEBUG("Intake (" << i->frame_number() << ")");
 
         Image& image = *i;
+        if ( image.is_invalid() ) {
+            errors = errors() + 1;
+            errors.viewable = true;
+            continue;
+        } else {
+            DEBUG("Image " << i->ptr() << " is valid");
+        }
 
-        DEBUG("Compression (" << i.index() << ")");
+        DEBUG("Compression (" << i->frame_number() << ")");
         IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
         finder->smooth(image);
         IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
@@ -326,6 +342,7 @@ void Engine::runPiston()
         DEBUG("Exhaust");
         buffer.clear();
 
+        DEBUG("Finished with image " << image.ptr());
         DEBUG("Checking for termination: " << emergencyStop << " " << globalStop << " " << ErrorHandler::global_termination_flag());
         if (emergencyStop || globalStop 
             || ErrorHandler::global_termination_flag()) 

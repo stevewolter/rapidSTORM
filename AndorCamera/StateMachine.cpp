@@ -489,6 +489,7 @@ void StateMachine::Request::wait_for_fulfillment() {
         sm.desired_state_reached.wait();
         DEBUG("Exited fulfillment wait");
         check();
+        DEBUG("Checked fulfillment status, no errors");
     }
 }
 
@@ -497,6 +498,10 @@ void StateMachine::Request::check() {
         throw Request::Failure(Emergency);
 
     if ( !should_be_served ) {
+        /* If we should give up the camera, some better reason must
+         * be in the queue. */
+        assert( ! sm.waiting.empty() );
+        assert( sm.waiting.front() != NULL );
         throw Request::Failure(sm.waiting.front()->priority);
     }
 }

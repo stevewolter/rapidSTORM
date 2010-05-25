@@ -4,6 +4,7 @@
 #include <dStorm/engine/Image.h>
 #include <fit++/Exponential2D.hh>
 #include <limits>
+#include <boost/units/io.hpp>
 
 #include <cassert>
 #include <math.h>
@@ -22,14 +23,11 @@ namespace engine {
 
 void (*SigmaGuesser_fitCallback)(double , double, double, int , bool) = NULL;
 
-SigmaGuesserMean::SigmaGuesserMean(Config &c, Input &i)
+SigmaGuesserMean::SigmaGuesserMean(Config &c)
 : OutputObject("SigmaGuesser", "Standard deviation estimator"),
-  config(c), input(i), fitter(new SigmaFitter(c)),
+  config(c), fitter(new SigmaFitter(c)),
   status("Status", "Std. dev. estimation")
 {
-    sigmas[0] = &c.sigma_x;
-    sigmas[1] = &c.sigma_y;
-    sigmas[2] = &c.sigma_xy;
     nextCheck = 23;
     deleteAllResults();
 
@@ -89,7 +87,9 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
 #ifndef NDEBUG
         if (SigmaGuesser_fitCallback) {
             if (r == RestartEngine || r == RemoveThisOutput)
-                SigmaGuesser_fitCallback(config.sigma_x(), config.sigma_y(),
+                SigmaGuesser_fitCallback(
+                    config.sigma_x() / cs_units::camera::pixel,
+                    config.sigma_y() / cs_units::camera::pixel,
                     config.sigma_xy(), discarded, 
                     ( r == RemoveThisOutput) );
         }
@@ -124,7 +124,12 @@ SigmaGuesserMean::check() {
 
             STATUS("Sigma " << i << " changed from " << (*sigmas[i])()
                      << " to " << newValue);
-            (*sigmas[i]) = newValue;
+            if ( i == 0 )
+                config.sigma_x = float(newValue) * cs_units::camera::pixel;
+            else if ( i == 1 )
+                config.sigma_y = float(newValue) * cs_units::camera::pixel;
+            else
+                config.sigma_xy = newValue;
                     
             failed++;
         } else {
@@ -134,8 +139,8 @@ SigmaGuesserMean::check() {
     PROGRESS("Checked result");
     if (failed) {
         stringstream ss;
-        ss << "Trying " << (*sigmas[0])() << ", " << (*sigmas[1])() << 
-            " with correlation " << (*sigmas[2])();
+        ss << "Trying " << config.sigma_x() << ", " << config.sigma_y() << 
+            " with correlation " << config.sigma_xy();
         status = ss.str();
 
         defined_result = RestartEngine;
@@ -144,7 +149,6 @@ SigmaGuesserMean::check() {
     } else if (converged == 3) {
         nextCheck = numeric_limits<int>::max();
         STATUS("Insignificant difference");
-        input.dispatch( Input::WillNeverRepeatAgain );
         defined_result = RemoveThisOutput;
     } else {
         nextCheck = (3*n)/2;
@@ -157,13 +161,17 @@ SigmaGuesserMean::check() {
 void SigmaGuesserMean::deleteAllResults() {
     ost::MutexLock lock(mutex);
     PROGRESS("Resetting entries");
+    double sigmas[3] = {
+        config.sigma_x() / cs_units::camera::pixel,
+        config.sigma_y() / cs_units::camera::pixel,
+        config.sigma_xy() };
     for (int i = 0; i < 3; i++) {
         double ds = config.delta_sigma() / ((i == 2) ? 2 : 1);
         data[i].reset();
-        accept[i][0] = (*sigmas[i])() - ds;
-        accept[i][1] = (*sigmas[i])() + ds;
-        decline[i][0] = (*sigmas[i])() - 0.5 * ds;
-        decline[i][1] = (*sigmas[i])() + 0.5 * ds;
+        accept[i][0] = sigmas[i] - ds;
+        accept[i][1] = sigmas[i] + ds;
+        decline[i][0] = sigmas[i] - 0.5 * ds;
+        decline[i][1] = sigmas[i] + 0.5 * ds;
     }
     n = discarded = 0;
     defined_result = KeepRunning;

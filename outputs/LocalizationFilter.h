@@ -86,6 +86,8 @@ class LocalizationFilter : public OutputObject,
     void operator()(const simparm::Event&);
 
     AdditionalData announceStormSize(const Announcement&);
+    RunRequirements announce_run(const RunAnnouncement& a) 
+        { return output->announce_run(a); }
 
     void propagate_signal(ProgressSignal s);
 

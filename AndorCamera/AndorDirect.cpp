@@ -74,7 +74,7 @@ Source::Source
 }
 
 Source::~Source() {
-    STATUS( "Destructing source" );
+    DEBUG( "Destructing source" );
 }
 
 #define MUST_CONVERT
@@ -105,7 +105,7 @@ Method::Method(input::Config& config)
   live_show_frequency("LiveShowFrequency",
             "Show live camera images every x seconds",
             0.1),
-  resolution_element( config.pixel_size_in_nm )
+  resolution_element( config )
 {
     output_file_basename = basename();
 
@@ -127,7 +127,7 @@ Method::Method(const Method &c, input::Config& config)
   basename(c.basename),
   show_live_by_default( c.show_live_by_default ),
   live_show_frequency( c.live_show_frequency ),
-  resolution_element( config.pixel_size_in_nm )
+  resolution_element( config )
 {
     DEBUG("Copying AndorDirect Config");
     push_back( config.pixel_size_in_nm );
@@ -264,8 +264,7 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
 void Method::registerNamedEntries()
 {
     CamTraits::Resolution res;
-    res = cs_units::camera::pixels_per_meter * 1E9f
-              / float(resolution_element());
+    res = resolution_element.get_resolution();
     switcher.reset( new Method::CameraSwitcher(*this, res) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
@@ -278,6 +277,7 @@ void Method::registerNamedEntries()
         viewable = false;
 
     receive_changes_from( basename.value );
+    receive_changes_from( resolution_element.pixel_size_in_nm );
 
     push_back( basename );
     push_back( show_live_by_default );
@@ -286,10 +286,9 @@ void Method::registerNamedEntries()
 
 void Method::operator()(const simparm::Event& e)
 {
-    if ( &e.source == &resolution_element ) {
+    if ( &e.source == &resolution_element.pixel_size_in_nm ) {
         if ( switcher.get() != NULL )
-            switcher->change_resolution( 
-                CamTraits::Resolution::value_type( 1.0 / (resolution_element() * 1E-9) * cs_units::camera::pixels_per_meter ) );
+            switcher->change_resolution( resolution_element.get_resolution() );
     } else if ( &e.source == &basename.value ) {
         output_file_basename = basename();
     }
@@ -297,13 +296,15 @@ void Method::operator()(const simparm::Event& e)
 
 Source::TraitsPtr Source::get_traits() 
 {
+    DEBUG("Waiting for camera initialization to get traits");
     waitForInitialization();
+    DEBUG("Got camera initialization");
     TraitsPtr rv( new TraitsPtr::element_type() );
     rv->size.x() = acquisition.getWidth() * cs_units::camera::pixel;
     rv->size.y() = acquisition.getHeight() * cs_units::camera::pixel;
-    rv->size.z() = 1 * cs_units::camera::pixel;
     if ( acquisition.hasLength() )
-        rv->total_frame_count = acquisition.getLength() * cs_units::camera::frame;
+        rv->last_frame = (acquisition.getLength() - 1) * cs_units::camera::frame;
+    return rv;
 }
 
 }

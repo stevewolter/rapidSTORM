@@ -16,12 +16,16 @@ class ProgressMeter : public OutputObject
     ost::Mutex mutex;
     simparm::ProgressEntry progress;
     frame_count max;
+    frame_count first;
     simparm::optional<frame_count> length;
 
   protected:
     AdditionalData announceStormSize(const Announcement &a) { 
         ost::MutexLock lock(mutex);
-        length = a.traits.total_frame_count;
+        first = a.traits.first_frame;
+        if ( a.traits.last_frame.is_set() )
+            length = *a.traits.last_frame + a.traits.first_frame
+                        + 1 * cs_units::camera::frame;
         max = frame_count::from_value(0);
         if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
         return AdditionalData(); 
@@ -33,9 +37,7 @@ class ProgressMeter : public OutputObject
         if ( er.forImage+1*cs_units::camera::frame > max ) {
             if ( length.is_set() ) {
                 max = er.forImage+1*cs_units::camera::frame;
-                float ratio = 
-                    boost::units::quantity<frame_count::unit_type,float>
-                        (max) / *length;
+                float ratio = (max - first) / *length;
                 progress.setValue( round(ratio / 0.01)
                                    * 0.01 );
             } else {

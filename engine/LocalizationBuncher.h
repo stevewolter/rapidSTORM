@@ -50,9 +50,7 @@ class LocalizationBuncher
     ~LocalizationBuncher();
     
     void ensure_finished() ;
-    void noteTraits(const input::Traits<Localization>&,
-                    frame_index firstImage, 
-                    frame_index lastImage) ;
+    void noteTraits(const input::Traits<Localization>&);
 
     void accept(int index, int number, Localization *l);
 

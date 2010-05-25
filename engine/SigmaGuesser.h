@@ -28,8 +28,6 @@ namespace engine {
         ost::Mutex mutex;
 
         Config &config;
-        Input &input;
-        DoubleEntry *sigmas[3];
         /** Current mean and variance of sigma_x, sigma_y and sigma_xy. */
         Variance<double> data[3];
         /** Acception and rejection intervals around
@@ -53,13 +51,14 @@ namespace engine {
         simparm::StringEntry status;
 
       public:
-        SigmaGuesserMean( Config &config, Input &input );
+        SigmaGuesserMean( Config &config );
         virtual ~SigmaGuesserMean();
         SigmaGuesserMean* clone() const 
             { throw std::runtime_error("SigmaGuesserMean unclonable."); }
 
-        AdditionalData announceStormSize(const Announcement&) 
-            { return AdditionalData().set_source_image(); }
+        AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
+        RunRequirements announce_run(const RunAnnouncement&) 
+            { return RunRequirements().set(MayNeedRestart); }
         Result receiveLocalizations(const EngineResult&);
         void propagate_signal(ProgressSignal s) {
             if (s == Engine_is_restarted) deleteAllResults();

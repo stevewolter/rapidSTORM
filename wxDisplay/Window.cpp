@@ -137,7 +137,9 @@ void Window::draw_image_window( const Change& changes ) {
 
 void Window::commit_changes(const Change& changes)
 {
+    DEBUG("Committing changes");
     if ( changes.do_resize ) {
+        DEBUG("Resize");
         const ResizeChange& r = changes.resize_image;
         canvas->resize( mkWxSize( r.size ) );
         key->resize( r.key_size );
@@ -151,6 +153,7 @@ void Window::commit_changes(const Change& changes)
         draw_image_window<Canvas::BufferedDrawer>(changes);
     }
 
+    DEBUG("Committing key changes");
     key->draw_keys( changes.change_key );
 }
 
