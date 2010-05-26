@@ -150,22 +150,22 @@ Viewer::_Config::_Config()
     PROGRESS("Building Viewer Config");
 
     outputFile.helpID = HELP_Viewer_ToFile;
-    outputFile.setUserLevel(simparm::Entry::Beginner);
+    outputFile.setUserLevel(simparm::Object::Beginner);
     showOutput.helpID = HELP_Viewer_ShowOutput;
-    showOutput.setUserLevel(simparm::Entry::Beginner);
+    showOutput.setUserLevel(simparm::Object::Beginner);
     res_enh.helpID = HELP_Viewer_ResEnh;
     res_enh.setHelp("The target image will have a resolution this many "
                     "times higher than the source image. For example, "
                     "a 128x128 image with resolution 10 will result in "
                     "a 1280x1280 sized image.");
-    res_enh.setUserLevel(simparm::Entry::Beginner);
+    res_enh.setUserLevel(simparm::Object::Beginner);
     res_enh.setMin(1);
-    refreshCycle.setUserLevel(simparm::Entry::Intermediate);
+    refreshCycle.setUserLevel(simparm::Object::Intermediate);
 
     histogramPower.setMin(0);
     histogramPower.setMax(1);
     /* This level is reset in carStarted() */
-    histogramPower.setUserLevel(simparm::Entry::Expert);
+    histogramPower.setUserLevel(simparm::Object::Expert);
 
     colourScheme.helpID = HELP_Viewer_ColorScheme;
     colourScheme.addChoice(ColourSchemes::BlackWhite, "BlackWhite", 
@@ -202,8 +202,8 @@ Viewer::_Config::_Config()
 
     invert.helpID = HELP_Viewer_InvertColors;
 
-    close_on_completion.setUserLevel(simparm::Entry::Debug);
-    save_with_key.setUserLevel(simparm::Entry::Intermediate);
+    close_on_completion.setUserLevel(simparm::Object::Debug);
+    save_with_key.setUserLevel(simparm::Object::Intermediate);
 
     PROGRESS("Built Viewer Config");
 }
@@ -269,8 +269,8 @@ Viewer::Viewer(const Viewer::Config& config)
 
     /* With the values provided in config, meaningful defaults can
      * be set in the following config entries. */
-    histogramPower.setUserLevel(simparm::Entry::Beginner);
-    save.setUserLevel(simparm::Entry::Beginner);
+    histogramPower.setUserLevel(simparm::Object::Beginner);
+    save.setUserLevel(simparm::Object::Beginner);
 
     push_back( resolutionEnhancement );
     push_back( histogramPower );

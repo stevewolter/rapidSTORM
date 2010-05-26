@@ -24,7 +24,7 @@ LocalizationFile::_Config::_Config()
         "the raw fit data will be written. The output is one "
         "line per fit, with X- and Y-coordinate, image number "
         "and fit amplitude, fields separated by spaces.");
-    outputFile.setUserLevel(simparm::Entry::Beginner);
+    outputFile.setUserLevel(simparm::Object::Beginner);
     outputFile.helpID = HELP_Table_ToFile;
 }
 

@@ -13,7 +13,7 @@ JobStarter::JobStarter(JobMaster* m )
     setHelp("Whenever this trigger is triggered or the button "
                 "clicked, the dStorm engine will be run with the "
                 "current parameters.");
-    setUserLevel(simparm::Entry::Beginner);
+    setUserLevel(simparm::Object::Beginner);
 
     receive_changes_from( value );
 }

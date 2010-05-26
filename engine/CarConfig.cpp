@@ -90,8 +90,8 @@ CarConfig::CarConfig()
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
                  true)
 {
-   configTarget.setUserLevel(simparm::Entry::Intermediate);
-   auto_terminate.setUserLevel(simparm::Entry::Expert);
+   configTarget.setUserLevel(simparm::Object::Intermediate);
+   auto_terminate.setUserLevel(simparm::Object::Expert);
 
     registerNamedEntries();
 }

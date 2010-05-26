@@ -20,7 +20,7 @@ _Initialization::_Initialization()
     configDir.setHelp("Some Andor cameras must be initialized with "
                       "a DETECTOR.INI file and a .sys driver file "
                       "that define the camera's capabilities.");
-    configDir.setUserLevel(Entry::Expert);
+    configDir.setUserLevel(Object::Expert);
 
     disconnect.viewable = disconnect.editable = false;
     configDir.viewable = configDir.editable = false;

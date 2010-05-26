@@ -66,12 +66,12 @@ _AcquisitionMode::_AcquisitionMode() :
 
     real_accumulate_cycle_time.viewable = false;
     real_accumulate_cycle_time.editable = false;
-    real_accumulate_cycle_time.setUserLevel(simparm::Entry::Intermediate);
+    real_accumulate_cycle_time.setUserLevel(simparm::Object::Intermediate);
     desired_exposure_time.setUserLevel
-        (simparm::Entry::Intermediate);
+        (simparm::Object::Intermediate);
     desired_accumulate_cycle_time.setUserLevel
-        (simparm::Entry::Intermediate);
-    number_of_accumulations.setUserLevel(simparm::Entry::Intermediate);
+        (simparm::Object::Intermediate);
+    number_of_accumulations.setUserLevel(simparm::Object::Intermediate);
 
     desired_accumulate_cycle_time.setMax( 
         desired_kinetic_cycle_time() / number_of_accumulations() );

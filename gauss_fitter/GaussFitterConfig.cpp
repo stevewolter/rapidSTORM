@@ -29,11 +29,11 @@ GaussFitterConfig::GaussFitterConfig()
 {
     freeSigmaFitting.helpID = HELP_FreeForm;
 
-    sigma_xy_negligible_limit.setUserLevel(Entry::Intermediate);
-    marquardtStartLambda.setUserLevel(Entry::Expert);
-    maximumIterationSteps.setUserLevel(Entry::Intermediate);
-    negligibleStepLength.setUserLevel(Entry::Intermediate);
-    successiveNegligibleSteps.setUserLevel(Entry::Expert);
+    sigma_xy_negligible_limit.setUserLevel(Object::Intermediate);
+    marquardtStartLambda.setUserLevel(Object::Expert);
+    maximumIterationSteps.setUserLevel(Object::Intermediate);
+    negligibleStepLength.setUserLevel(Object::Intermediate);
+    successiveNegligibleSteps.setUserLevel(Object::Expert);
 
     asymmetry_threshold.helpID = HELP_AsymmetryThreshold;
     asymmetry_threshold.setHelp(
@@ -41,8 +41,8 @@ GaussFitterConfig::GaussFitterConfig()
         "value, double-spot analysis is performed. 0.1 is a good "
         "'aggressive' value here for much double-spot analysis, 1 "
         "disables the feature completely.");
-    required_peak_distance.userLevel = Entry::Intermediate;
-    fixCorrelationTerm.userLevel = Entry::Expert;
+    required_peak_distance.userLevel = Object::Intermediate;
+    fixCorrelationTerm.userLevel = Object::Expert;
 }
 
 GaussFitterConfig::~GaussFitterConfig() {

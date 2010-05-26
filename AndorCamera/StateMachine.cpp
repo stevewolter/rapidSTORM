@@ -52,7 +52,7 @@ StateMachine::StateMachine(int index)
 {
     dStorm::ErrorHandler::get_current_handler()
         .add_emergency_callback( *emergency_callback );
-    state.userLevel = simparm::Entry::Debug;
+    state.userLevel = simparm::Object::Debug;
     state.viewable = false;
     Thread::start();
 }

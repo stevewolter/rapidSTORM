@@ -32,17 +32,17 @@ _Temperature::_Temperature() :
   realTemperature("ActualTemperature","Actual CCD temperature value"),
   doCool("Cooling", "Cool CCD", false)
 {
-    doCool.setUserLevel(Entry::Beginner);
+    doCool.setUserLevel(Object::Beginner);
     doCool.viewable = false;
 
     requiredTemperature.setHelp("Cool the camera to this value before "
                                 "starting acquisitions.");
-    requiredTemperature.setUserLevel(Entry::Beginner);
+    requiredTemperature.setUserLevel(Object::Beginner);
     requiredTemperature.setMax(30);
     requiredTemperature.setMin(-100);
 
     realTemperature.setHelp("This is the actual CCD temperature.");
-    realTemperature.setUserLevel(Entry::Beginner);
+    realTemperature.setUserLevel(Object::Beginner);
     realTemperature.setEditable(false);
     realTemperature.viewable = false;
 }
