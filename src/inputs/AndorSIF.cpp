@@ -110,14 +110,14 @@ void Source<Pixel>::init(FILE *src)
         ss << dataSet->instaImage.data_v_shift_speed*1E6 << " µs";
         sifInfo->VS_Speed.addChoice(-1, "SIFSpeed", ss.str());
         sifInfo->VS_Speed.editable = false;
-        sifInfo->VS_Speed.userLevel = simparm::Entry::Expert;
+        sifInfo->VS_Speed.userLevel = simparm::Object::Expert;
     }
     {
         stringstream ss;
         ss << 1E-6/dataSet->instaImage.pixel_readout_time << " MHz";
         sifInfo->HS_Speed.addChoice(-1, "SIFSpeed", ss.str());
         sifInfo->HS_Speed.editable = false;
-        sifInfo->HS_Speed.userLevel = simparm::Entry::Expert;
+        sifInfo->HS_Speed.userLevel = simparm::Object::Expert;
     }
     sifInfo->emccdGain = dataSet->instaImage.PreAmpGain;
     sifInfo->emccdGain.editable = false;
@@ -126,14 +126,14 @@ void Source<Pixel>::init(FILE *src)
     sifInfo->cycleTime = dataSet->instaImage.kinetic_cycle_time;
     sifInfo->cycleTime.editable = false;
 
-    simparm::Entry* whn[] = {
+    simparm::BasicEntry* whn[] = {
         new simparm::UnsignedLongEntry("ImageWidth", "Image width", readsif_imageWidth(dataSet, 0) ),
         new simparm::UnsignedLongEntry("ImageHeight", "Image height", readsif_imageHeight(dataSet, 0) ),
         new simparm::UnsignedLongEntry("ImageNumber", "Number of images",
             readsif_numberOfImages(dataSet) ) 
     };
 
-    int n = sizeof(whn) / sizeof(simparm::Entry*);
+    int n = sizeof(whn) / sizeof(simparm::BasicEntry*);
     for (int i = 0; i < n; i++) {
         whn[i]->editable = false;
         sifInfo->push_back( std::auto_ptr<simparm::Node>( whn[i] ));

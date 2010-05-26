@@ -98,6 +98,20 @@ Image<PixelType,Dimensions>::threshold(PixelType t) const
     return rv;
 }
 
+template <typename PixelType, int Dimensions>
+Image<PixelType,Dimensions>::Image() {}
+
+template <typename PixelType, int Dimensions>
+Image<PixelType,Dimensions>::~Image() {}
+
+template <typename PixelType, int Dimensions>
+Image<PixelType,Dimensions>::Image(Size sz)
+: Base(sz, 0 * cs_units::camera::frame) {}
+
+template <typename PixelType, int Dimensions>
+Image<PixelType,Dimensions>::Image(Size sz, frame_index i)
+: Base(sz, i) {}
+
 }
 
 #endif

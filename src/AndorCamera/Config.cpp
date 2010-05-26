@@ -21,7 +21,7 @@ _Config::_Config()
     targetTemperature.setMax(30);
     targetTemperature.setMin(-100);
     targetTemperature.setHelp("Try to cool the camera to this value.");
-    targetTemperature.setUserLevel(simparm::Entry::Beginner);
+    targetTemperature.setUserLevel(simparm::Object::Beginner);
 
     realExposureTime.editable = false;
     cycleTime.editable = false;

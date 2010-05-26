@@ -14,7 +14,7 @@ OutputBuilder<Type>::OutputBuilder(
         "Allow transmission to fail silently",
         failSilently)
 { 
-    this->failSilently.userLevel = simparm::Entry::Debug;
+    this->failSilently.userLevel = simparm::Object::Debug;
     push_back( this->failSilently );
     push_back( this->help_file ); 
 }

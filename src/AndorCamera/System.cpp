@@ -95,7 +95,7 @@ System::System() {
             ("Camera" + std::string(1, 'A'+i), 
                 "Camera " + std::string(1, 'A'+i));
     chooseCamera.setViewable( (number_of_cameras > 1) );
-    chooseCamera.setUserLevel(simparm::Entry::Beginner);
+    chooseCamera.setUserLevel(simparm::Object::Beginner);
 }
 
 System::~System() {

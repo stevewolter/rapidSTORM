@@ -7,12 +7,14 @@
 #include <simparm/UnitEntry.hh>
 #include <cs_units/camera/resolution.hpp>
 #include <dStorm/SizeTraits.h>
+#include <dStorm/units/frame_count.h>
 
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/NumericEntry.hh>
+#include <simparm/OptionalEntry.hh>
 #include <stdexcept>
 #include <memory>
 
@@ -72,12 +74,13 @@ namespace input {
          *       Buffer. Method's that are able to support
          *       this feature should include \c firstImage in their
          *       Set. */
+        simparm::Selector<frame_count>::Entry firstImage;
         /*  \var lastImage gives the last image in the sequence
          *       (numbered from 0) that should be returned by the
          *       Buffer. Methods that are able to support
          *       this feature should include \c lastImage in their
          *       Set. */
-        simparm::UnsignedLongEntry firstImage, lastImage;
+        simparm::OptionalEntry<frame_count> lastImage;
         /** General configuration element to give the size of a pixel
          *  in nm. */
         typedef 

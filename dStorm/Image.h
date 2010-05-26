@@ -15,11 +15,12 @@ class Image
     typedef typename Base::Size Size;
     typedef std::pair<PixelType,PixelType> PixelPair;
 
-    Image() {}
-    Image(Size sz) : Base(sz, 0 * cs_units::camera::frame) {}
-    Image(Size sz, frame_index i) : Base(sz, i) {}
+    Image();
+    Image(Size sz);
+    Image(Size sz, frame_index i);
     Image(Size sz, boost::shared_array<PixelType> data,
           frame_index i);
+    ~Image();
 
     void fill(PixelType type);
     PixelPair minmax() const;

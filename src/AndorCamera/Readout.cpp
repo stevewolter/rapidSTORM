@@ -17,7 +17,7 @@ Readout::Readout(const std::string& name, const std::string& desc)
         : simparm::Object(name, desc),
           frame_transfer_mode("FrameTransferMode", 
                               "Enable frame transfer mode", true)
-        { frame_transfer_mode.setUserLevel(simparm::Entry::Expert); }
+        { frame_transfer_mode.setUserLevel(simparm::Object::Expert); }
 Readout::Readout(const Readout& c)
         : StateMachine::Listener(), simparm::Object(c), 
           frame_transfer_mode(c.frame_transfer_mode) {}

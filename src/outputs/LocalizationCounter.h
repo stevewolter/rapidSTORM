@@ -37,7 +37,7 @@ namespace output {
         AdditionalData announceStormSize(const Announcement &a) {
             ost::MutexLock lock(mutex);
 
-            update.setUserLevel(simparm::Entry::Beginner);
+            update.setUserLevel(simparm::Object::Beginner);
             push_back(update);
             config_increment = 10 * cs_units::camera::frame;
 

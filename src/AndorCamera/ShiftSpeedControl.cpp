@@ -22,10 +22,10 @@ _ShiftSpeedControl::_ShiftSpeedControl() :
   desired_HS_Speed("DesiredHSSpeed",
                    "Desired horizontal shift speed (MHz)", 10)
 {
-    adChannel.setUserLevel(Entry::Intermediate);
-    desired_VS_Speed.setUserLevel(Entry::Expert);
-    desired_HS_Speed.setUserLevel(Entry::Expert);
-    adChannelDepth.setUserLevel(Entry::Expert);
+    adChannel.setUserLevel(Object::Intermediate);
+    desired_VS_Speed.setUserLevel(Object::Expert);
+    desired_HS_Speed.setUserLevel(Object::Expert);
+    adChannelDepth.setUserLevel(Object::Expert);
 }
 
 ShiftSpeedControl::ShiftSpeedControl(StateMachine& sm, Config &conf)

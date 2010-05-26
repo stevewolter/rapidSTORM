@@ -48,13 +48,13 @@ _Config::_Config()
                      "exponential "
                      "curve that fits the expected spots.");
     
-    maskSizeFactor.setUserLevel(Entry::Expert);
-    fitSizeFactor.setUserLevel(Entry::Expert);
+    maskSizeFactor.setUserLevel(Object::Expert);
+    fitSizeFactor.setUserLevel(Object::Expert);
 
-    delta_sigma.setUserLevel(Entry::Expert);
+    delta_sigma.setUserLevel(Object::Expert);
 
     fixSigma.helpID = HELP_FixSigma;
-    fixSigma.setUserLevel(Entry::Beginner);
+    fixSigma.setUserLevel(Object::Beginner);
     fixSigma.setHelp("If this option is enabled, the program "
                      "will not try to guess correct values for the "
                      "PSF standard deviation. This is useful for very "
@@ -63,10 +63,10 @@ _Config::_Config()
 
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
-    motivation.setUserLevel(Entry::Intermediate);
+    motivation.setUserLevel(Object::Intermediate);
 
     amplitude_threshold.helpID = HELP_AmplitudeThreshold;
-    amplitude_threshold.setUserLevel(Entry::Beginner);
+    amplitude_threshold.setUserLevel(Object::Beginner);
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
                                 "localization, and those below the threshold "
@@ -77,7 +77,7 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
-    pistonCount.setUserLevel(Entry::Expert);
+    pistonCount.setUserLevel(Object::Expert);
     pistonCount.helpID = HELP_CPUNumber;
     pistonCount.setHelp("Use this many parallel threads to compute the "
                         "STORM result. If you notice a low CPU usage, "
@@ -91,7 +91,7 @@ _Config::_Config()
     GetSystemInfo(&info);
     pistonCount = info.dwNumberOfProcessors;
 #else
-    pistonCount.setUserLevel(Entry::Beginner);
+    pistonCount.setUserLevel(Object::Beginner);
     pistonCount = 8;
 #endif
 
@@ -140,9 +140,9 @@ void Config::SigmaUserLevel::operator()(const Event&)
 }
 
 void Config::SigmaUserLevel::adjust() {
-    Entry::UserLevel userLevel
-        = (config.fixSigma()) ? Entry::Beginner
-                        : Entry::Expert;
+    Object::UserLevel userLevel
+        = (config.fixSigma()) ? Object::Beginner
+                        : Object::Expert;
     config.sigma_x.setUserLevel(userLevel);
     config.sigma_y.setUserLevel(userLevel);
     config.sigma_xy.setUserLevel(userLevel);

@@ -363,7 +363,7 @@ LocalizationFilter::_Config::_Config()
     from.helpID = HELP_Filter_MinStrength;
 
     to.helpID = HELP_Filter_MaxStrength;
-    to.setUserLevel(simparm::Entry::Beginner);
+    to.setUserLevel(simparm::Object::Beginner);
     to.setHelp("Every fit attempt with an amplitude higher "
         "than this value will be considered an artifact and discarded "
         "from the results. This can be useful for filtering double "
