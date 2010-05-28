@@ -7,7 +7,7 @@ library_include_HEADERS = \
     thread.h Runnables.h dilation.h Variance.h \
     DisplayDataSource.h DisplayDataSource_impl.h \
     DisplayManager.h errors.h MayBeASignal.h \
-    BlockingThreadRegistry.h
+    BlockingThreadRegistry.h dilation_impl.h
 
 AM_CPPFLAGS = -D_GNU_SOURCE
 AM_CPPFLAGS += -Wall -Wextra \
