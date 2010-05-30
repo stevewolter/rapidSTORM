@@ -1,14 +1,18 @@
 #ifndef DSTORM_VIEWER_CONFIG_H
 #define DSTORM_VIEWER_CONFIG_H
 
-#include "Viewer.h"
+#include "Config_decl.h"
+
 #include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Structure.hh>
+#include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include <simparm/NumericEntry.hh>
+#include <dStorm/output/Output.h>
 
 namespace dStorm {
 namespace viewer {
 
-class Viewer::_Config : public simparm::Object {
+class _Config : public simparm::Object {
   public:
 
     simparm::BoolEntry showOutput;
@@ -21,6 +25,7 @@ class Viewer::_Config : public simparm::Object {
     simparm::BoolEntry invert, save_with_key, close_on_completion;
 
     _Config();
+    ~_Config();
 
     void registerNamedEntries();
     static bool can_work_with(output::Capabilities) { return true; }

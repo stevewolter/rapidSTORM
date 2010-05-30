@@ -1,22 +1,22 @@
 #include "ImageDiscretizer_impl.h"
 #include "Display_inline.h"
 #include "ColourDisplay_impl.h"
+#include "LiveCache_inline.h"
+#include "TerminalBackend.h"
 
 namespace dStorm {
 namespace viewer {
-namespace DiscretizedImage {
 
-#define DISC_INSTANCE(Hueing) ImageDiscretizer< \
-        HueingColorizer<Hueing>, \
-        Display< HueingColorizer<Hueing> > >
+#define DISC_INSTANCE(Hueing) template class Discretizer< \
+        LiveCache< Display< HueingColorizer<Hueing> > > >; \
+   template class Discretizer< TerminalCache< HueingColorizer<Hueing> > >
 
-template class DISC_INSTANCE(ColourSchemes::BlackWhite);
-template class DISC_INSTANCE(ColourSchemes::BlackRedYellowWhite);
-template class DISC_INSTANCE(ColourSchemes::FixedHue);
-template class DISC_INSTANCE(ColourSchemes::TimeHue);
-template class DISC_INSTANCE(ColourSchemes::ExtraHue);
-template class DISC_INSTANCE(ColourSchemes::ExtraSaturation);
+DISC_INSTANCE(ColourSchemes::BlackWhite);
+DISC_INSTANCE(ColourSchemes::BlackRedYellowWhite);
+DISC_INSTANCE(ColourSchemes::FixedHue);
+DISC_INSTANCE(ColourSchemes::TimeHue);
+DISC_INSTANCE(ColourSchemes::ExtraHue);
+DISC_INSTANCE(ColourSchemes::ExtraSaturation);
 
-}
 }
 }

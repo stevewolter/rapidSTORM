@@ -1,28 +1,17 @@
 #ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
 
+#include "Colorizer_decl.h"
+
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include "ViewerConfig.h"
+#include "Config.h"
 #include <limits>
 #include <dStorm/Pixel.h>
 
 namespace dStorm {
 namespace viewer {
 
-namespace ColourSchemes {
-    enum Scheme { BlackWhite, BlackRedYellowWhite,
-                  FixedHue, TimeHue, ExtraHue, ExtraSaturation,
-                  FirstColourModel = BlackWhite,
-                  LastColourModel = ExtraSaturation};
-
-    void rgb_weights_from_hue_saturation
-        ( float hue, float saturation, float *weightv, int step ) 
-;
-    void convert_xy_tone_to_hue_sat( 
-        float x, float y, float& hue, float& sat );
-};
-
-template <typename _BrightnessType = unsigned char>
+template <typename _BrightnessType>
 class Colorizer 
     : public outputs::DummyBinningListener 
 {
@@ -42,7 +31,7 @@ class Colorizer
     static const int BrightnessDepth 
         = (1U << (sizeof(BrightnessType) * 8));
 
-    Colorizer( const Viewer::Config& config ) 
+    Colorizer( const Config& config ) 
         : invert( config.invert() ) {}
 
     Pixel getPixel( int x, int y, 
@@ -51,8 +40,6 @@ class Colorizer
     Pixel getKeyPixel( BrightnessType brightness );
     Pixel get_background() { return inv(Pixel(0)); }
 };
-
-template <int Hueing> class HueingColorizer;
 
 }
 }
