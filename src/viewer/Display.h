@@ -1,22 +1,25 @@
 #ifndef DSTORM_VIEWER_DISPLAY_H
 #define DSTORM_VIEWER_DISPLAY_H
 
+#include "LiveCache.h"
 #include "ImageDiscretizer.h"
-#include "ViewerConfig.h"
+#include "Config.h"
 #include <vector>
 #include <dStorm/helpers/DisplayManager.h>
 
 namespace dStorm {
 namespace viewer {
 
-template <typename Colorizer>
+template <typename UsedColorizer>
 class Display 
-    : public DiscretizedImage::Listener
+    : public DiscretizationListener
 {
-    typedef DiscretizedImage::ImageDiscretizer<Colorizer,Display>
-        Discretizer;
+  public:
+    typedef UsedColorizer Colorizer;
+    typedef Discretizer< LiveCache<Display> > MyDiscretizer;
 
-    Discretizer& discretizer;
+  private:
+    MyDiscretizer& discretizer;
     typedef std::vector< bool > PixelSet;
     PixelSet ps;
     int ps_step;
@@ -32,8 +35,8 @@ class Display
 
   public:
     Display( 
-        Discretizer& disc, 
-        const Viewer::_Config& config,
+        MyDiscretizer& disc, 
+        const Config& config,
         dStorm::Display::DataSource& vph 
     );
     void setSize(const input::Traits< Image<int,2> >& traits);

@@ -14,7 +14,7 @@ class HueingColorizer<ColourSchemes::BlackWhite>
 {
   public:
     typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
-    HueingColorizer(const Viewer::Config& c)
+    HueingColorizer(const Config& c)
         : Colorizer<unsigned char>(c) {} 
     inline Pixel getPixel( int, int, BrightnessType br ) 
             { return inv( Pixel(br) ); }
@@ -30,7 +30,7 @@ class HueingColorizer<ColourSchemes::BlackRedYellowWhite>
     typedef unsigned short BrightnessType;
     static const int BrightnessDepth = 0x300;
 
-    HueingColorizer(const Viewer::Config& c)
+    HueingColorizer(const Config& c)
         : Colorizer<unsigned short>(c) {} 
     Pixel getPixel( int, int, BrightnessType br ) {
         unsigned char part = br & 0xFF;
@@ -51,7 +51,7 @@ class HueingColorizer<ColourSchemes::FixedHue>
 
   public:
     typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
-    HueingColorizer(const Viewer::Config& config)
+    HueingColorizer(const Config& config)
     : Colorizer<unsigned char>(config) {
         ColourSchemes::rgb_weights_from_hue_saturation
             ( config.hue(), config.saturation(),
@@ -118,7 +118,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
     }
 
   public:
-    HueingColorizer(const Viewer::Config& config)
+    HueingColorizer(const Config& config)
         : Colorizer<unsigned char>(config)
         { base_tone[0] = config.hue(); 
           base_tone[1] = config.saturation(); } 

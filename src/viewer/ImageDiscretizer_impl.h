@@ -11,11 +11,10 @@
 
 namespace dStorm {
 namespace viewer {
-namespace DiscretizedImage {
 
-template <typename Colorizer, typename ImageListener>
-ImageDiscretizer<Colorizer, ImageListener>
-::ImageDiscretizer(int d, float hp,
+template <typename ImageListener>
+Discretizer<ImageListener>
+::Discretizer(int d, float hp,
     const Image<float,2>& binned_image,
     Colorizer& colorizer) 
 : colorizer(colorizer),
@@ -24,7 +23,6 @@ ImageDiscretizer<Colorizer, ImageListener>
   disc_factor( (d-1) * 1.0 / max_value_used_for_disc_factor ),
   histogram( d, 0 ),
   transition( d, 0 ),
-  pixels_by_value( d, HistogramPixel() ),
   in_depth( d ),
   out_depth( Colorizer::BrightnessDepth - 1 ),
   histogram_power( hp ),
@@ -32,41 +30,29 @@ ImageDiscretizer<Colorizer, ImageListener>
 {
 }
 
-template <typename Colorizer, typename ImageListener>
-ImageDiscretizer<Colorizer, ImageListener>
-::~ImageDiscretizer() {}
+template <typename ImageListener>
+Discretizer<ImageListener>
+::~Discretizer() {}
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::setSize( const input::Traits<InputImage>& traits )
 {
     colorizer.setSize( traits );
     this->publish().setSize( 
         input::Traits< Image<int,2> >(traits) );
-    total_pixel_count = 
-        (traits.size.x() / cs_units::camera::pixel)
-      * (traits.size.y() / cs_units::camera::pixel);
+    int w = traits.size.x() / cs_units::camera::pixel,
+        h = traits.size.y() / cs_units::camera::pixel;
 
-    pixels_by_position = Image<HistogramPixel,2>( traits.size );
-    int w = pixels_by_position.width_in_pixels(),
-        h = pixels_by_position.height_in_pixels();
-
-    for (int x = 0; x < w; x++)
-      for (int y = 0; y < h; y++) {
-        HistogramPixel& p = pixels_by_position(x,y);
-        p.clear();
-        p.x = x;
-        p.y = y;
-      }
+    total_pixel_count = w * h;
 
     for (unsigned int i = 0; i < in_depth; i++) {
-        pixels_by_value[i].clear();
         histogram[0] = (i==0) ? total_pixel_count : 0;
     }
 }
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
   ::clean(bool final)
 {
     if ( final || pixels_above_used_max_value >
@@ -80,11 +66,10 @@ void ImageDiscretizer<Colorizer, ImageListener>
         for( InputImage::const_iterator i = binned_image.begin();
             i != binned_image.end(); i++)
         {
-            HighDepth o = discretize( *i ),
-                      n = discretize( *i, new_disc_fac );
+            HighDepth n = discretize( *i, new_disc_fac );
 
-            if ( o != n )
-                change( i.x(), i.y(), n );
+            if ( discretize( *i ) != n )
+                this->publish().pixelChanged( i.x(), i.y(), n );
 
             ++histogram[n];
         }
@@ -99,8 +84,8 @@ void ImageDiscretizer<Colorizer, ImageListener>
     this->publish().clean(final);
 }
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
   ::publish_differences_in_transitions
   ( TransitionTable* old_table, TransitionTable& new_table )
 {
@@ -118,8 +103,8 @@ void ImageDiscretizer<Colorizer, ImageListener>
     }
 }
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
     ::normalize_histogram()
 {
     const unsigned long used_histogram_pixels = 
@@ -159,19 +144,12 @@ void ImageDiscretizer<Colorizer, ImageListener>
             std::max<int>(maxVal*q, 0)+start, out_depth);
         const LowDepth& oldValue = transition[i];
         
-        if ( ! pixels_by_value[i].empty() ) {
-            if ( abs( int(newValue) - int(oldValue) ) > 5 ) {
-                for ( HistogramPixel* j = pixels_by_value[i].next; 
-                                j != &pixels_by_value[i]; j = j->next)
-                    this->publish().pixelChanged( j->x, j->y );
-                new_transition[i] = newValue;
-                histogram_has_changed = true;
-            } else
-                new_transition[i] = oldValue;
-        } else {
+        if ( abs( int(newValue) - int(oldValue) ) > 5 ) {
+            this->publish().changeBrightness( i );
             new_transition[i] = newValue;
             histogram_has_changed = true;
-        }
+        } else
+            new_transition[i] = oldValue;
     }
 
     new_transition.commit( in_depth );
@@ -182,29 +160,22 @@ void ImageDiscretizer<Colorizer, ImageListener>
     }
 }
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::clear()
 {
     this->publish().clear();
     colorizer.clear();
 
-    for (unsigned int i = 0; i < in_depth; i++) {
-        pixels_by_value[i].unlink();
+    for (unsigned int i = 0; i < in_depth; i++)
         histogram[i] = (i == 0) ? total_pixel_count : 0;
-    }
 
     pixels_above_used_max_value = 0;
     max_value = max_value_used_for_disc_factor;
-
-    std::for_each( 
-        pixels_by_position.begin(),
-        pixels_by_position.end(), 
-        std::mem_fun_ref(&HistogramPixel::clear) );
 }
 
-template <typename Colorizer, typename ImageListener>
-void ImageDiscretizer<Colorizer, ImageListener>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::setHistogramPower(float power) 
 {
     this->histogram_power = power;
@@ -212,7 +183,6 @@ void ImageDiscretizer<Colorizer, ImageListener>
     publish_differences_in_transitions( NULL, transition );
 }
 
-}
 }
 }
 

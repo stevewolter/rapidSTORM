@@ -9,8 +9,8 @@ namespace viewer {
 
 template <typename Colorizer>
 Display<Colorizer>::Display( 
-    Discretizer& disc, 
-    const Viewer::_Config& config,
+    MyDiscretizer& disc, 
+    const Config& config,
     dStorm::Display::DataSource& vph 
 ) 
 : discretizer(disc), 
@@ -95,12 +95,11 @@ Display<Colorizer>::save_image(
     } else {
         std::auto_ptr<dStorm::Display::Change>
             c = window_id->get_state();
-        if ( ! with_key )
-            c->change_key.clear();
-        if ( c.get() != NULL )
+        if ( c.get() != NULL ) {
+            if ( ! with_key ) c->change_key.clear();
             dStorm::Display::Manager::getSingleton()
                 .store_image( filename, *c );
-        else
+        } else
             throw std::runtime_error(
                 "Could not get displayed image "
                 "from window");
