@@ -25,7 +25,7 @@ endif
 windows_resources.o : config.h
 
 library_includedir = $(includedir)/dStorm
-library_include_HEADERS = \
+nobase_library_include_HEADERS = \
     ModuleInterface.h Localization_decl.h Localization.h \
     SizeTraits.h SizeTraits_decl.h \
     units_Eigen_traits.h unit_matrix_operators.h \
@@ -34,6 +34,10 @@ library_include_HEADERS = \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
     Job.h JobMaster.h UnitEntries.h
+image_library_includedir = $(includedir)/dStorm/image
+image_library_include_HEADERS = $(addprefix image/, \
+    constructors.h convert.h iterator.h minmax.h \
+    )
 units_library_includedir = $(includedir)/dStorm/units
 units_library_include_HEADERS = \
 	units/amplitude.h units/frame_count.h units/frame_rate.h \
