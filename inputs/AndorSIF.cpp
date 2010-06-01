@@ -16,6 +16,7 @@
 #include <functional>
 
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Message.hh>
 
 #include "AndorSIF.h"
 #include <dStorm/input/Source.h>
@@ -54,7 +55,11 @@ Source<Pixel>::load(int count)
     int rv_of_readsif_getImage = 
             readsif_getImage( dataSet, count, buffer );
     if ( rv_of_readsif_getImage == -1 ) {
-        std::cerr << "Error while reading SIF file: " + std::string(readsif_error) + ". Will skip remaining images." << std::endl;
+        simparm::Message m("Error in SIF file",
+            "Error while reading SIF file: " + std::string(readsif_error)
+               + ". Will skip remaining images.", 
+               simparm::Message::Warning);
+        send(m);
         had_errors = true;
         return result;
     } else if ( rv_of_readsif_getImage == 1 ) {

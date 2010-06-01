@@ -15,7 +15,6 @@
 #ifdef HAVE_LIBGRAPHICSMAGICK__
 #include <Magick++.h>
 #endif
-#include <CImg.h>
 
 #include <dStorm/error_handler.h>
 
@@ -25,7 +24,6 @@
 
 using namespace dStorm;
 using namespace std;
-using namespace cimg_library;
 
 int main(int argc, char *argv[]) {
     DEBUG("entry: main");
@@ -38,7 +36,6 @@ int main(int argc, char *argv[]) {
     putenv(english_env);
     Magick::InitializeMagick(argv[0]);
 #endif
-    cimg::exception_mode() = 0U;         /* Do not show CImg errors in windows. */
 
     const char *panic_mode = "--panic_mode";
 

@@ -3,17 +3,15 @@
 
 #include "Backend.h"
 #include "Config.h"
+#include "Status.h"
 
 #include <dStorm/Localization.h>
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
 #include <dStorm/helpers/thread.h>
 #include <dStorm/outputs/LocalizationList.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <Eigen/Core>
-#include <simparm/TriggerEntry.hh>
 
 namespace dStorm {
 namespace viewer {
@@ -21,8 +19,9 @@ namespace viewer {
 /** The Viewer class collects fits into a BinnedLocalizations
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
-class Viewer : public output::OutputObject,
-                public simparm::Node::Callback
+class Viewer : public Status,
+               public output::OutputObject,
+               public simparm::Node::Callback
 {
   public:
     typedef viewer::Config Config;
@@ -53,16 +52,15 @@ class Viewer : public output::OutputObject,
     void writeToFile(const std::string& name);
 
   private:
+    Config config;
+
     std::auto_ptr< Backend > implementation;
-    Output& forwardOutput;
+    Output* forwardOutput;
 
     /** Mutex protecting \c implementation.*/
     ost::Mutex structureMutex;
 
-    simparm::FileEntry tifFile;
-    simparm::BoolEntry save_with_key;
-    simparm::DoubleEntry resolutionEnhancement, histogramPower;
-    simparm::TriggerEntry save;
+    void adapt_to_changed_config();
 };
 
 }

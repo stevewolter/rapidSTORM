@@ -16,6 +16,9 @@ class TerminalCache
     dStorm::Display::ResizeChange size;
 
   public:
+    TerminalCache() {}
+    TerminalCache(dStorm::Display::ResizeChange size);
+
     typedef MyColorizer Colorizer;
 
     void setSize(const input::Traits< Image<int,2> >&);

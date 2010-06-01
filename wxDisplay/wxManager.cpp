@@ -164,7 +164,8 @@ wxManager::WindowHandle::~WindowHandle()
 {
     DEBUG("Destructing window handle");
     /* This code must be run even if associated_window is
-     * NULL to avoid race condition. */
+     * NULL to avoid race condition where associated_window
+     * is not yet set. */
     Disassociator d(m, *this);
     DEBUG("Running disassociator in GUI thread");
     m.run_in_GUI_thread( &d );

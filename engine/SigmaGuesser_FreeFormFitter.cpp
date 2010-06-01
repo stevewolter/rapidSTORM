@@ -1,5 +1,4 @@
 #include "engine/SigmaFitter.h"
-#include <CImg.h>
 #include <fit++/FitFunction_impl.hh>
 #include <fit++/Exponential2D_impl.hh>
 #include <fit++/Exponential2D_Correlated_Derivatives.hh>
@@ -53,7 +52,7 @@ void SigmaFitter::useConfig(Config &config) {
 
 static const double sigmaTol = 2;
 
-bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
+bool SigmaFitter::fit(const dStorm::Image<StormPixel,2> &i,
     const Localization &f, double dev[4]) 
 
 {
@@ -61,10 +60,10 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     int cxr = round(cx), cyr = round(cy);
     /* Reject localizations too close to image border. */
     if ( cxr < msx || cyr < msy 
-         || cxr >= int(i.width-msx) || cyr >= int(i.height-msy) )
+         || cxr >= int(i.width_in_pixels()-msx) || cyr >= int(i.height_in_pixels()-msy) )
         return false;
 
-    fitter->setData(i.ptr(), i.width, i.height);
+    fitter->setData(i.ptr(), i.width_in_pixels(), i.height_in_pixels());
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     
     double start_amp =  f.getStrength() / cs_units::camera::ad_counts;

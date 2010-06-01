@@ -1,7 +1,6 @@
 #define DSTORM_GAUSSSMOOTHING_CPP
 #include "spotFinders/GaussSmoothing.h"
 #include <dStorm/engine/Config.h>
-#include <CImg.h>
 
 using namespace std;
 using namespace dStorm::engine;

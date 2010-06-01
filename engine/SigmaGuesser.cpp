@@ -15,7 +15,6 @@
 #include <sstream>
 
 using namespace std;
-using namespace cimg_library;
 using namespace fitpp;
 
 namespace dStorm {
@@ -59,14 +58,7 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     for (int i = 0; i < er.number; i++) {
         if (meanAmplitude.mean() < er.first[i].getStrength()) {
             PROGRESS("Fitting " << i);
-            cimg_library::CImg<StormPixel> srcim(
-                er.source->ptr(), 
-                er.source->width() / cs_units::camera::pixel,
-                er.source->height() / cs_units::camera::pixel,
-                1,
-                1,
-                true );
-            bool good = fitter->fit(srcim, er.first[i], sigmas);
+            bool good = fitter->fit(*er.source, er.first[i], sigmas);
             PROGRESS("Fitted " << i);
             if (good) {
                 for (int i = 0; i < 3; i++) {

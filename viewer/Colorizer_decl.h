@@ -2,6 +2,8 @@
 #define DSTORM_VIEWER_COLORIZER_DECL_H
 
 #include <stdint.h>
+#include <boost/array.hpp>
+#include <dStorm/Pixel_decl.h>
 
 namespace dStorm {
 namespace viewer {
@@ -12,8 +14,13 @@ namespace ColourSchemes {
                   FirstColourModel = BlackWhite,
                   LastColourModel = ExtraSaturation};
 
+    typedef boost::array<float,3> RGBWeight;
+
+    inline dStorm::Pixel operator*( const RGBWeight& r, uint8_t brightness );
+    inline dStorm::Pixel operator*( uint8_t brightness, const RGBWeight& r );
+
     void rgb_weights_from_hue_saturation
-        ( float hue, float saturation, float *weightv, int step );
+        ( float hue, float saturation, RGBWeight& weight );
     void convert_xy_tone_to_hue_sat( 
         float x, float y, float& hue, float& sat );
 }

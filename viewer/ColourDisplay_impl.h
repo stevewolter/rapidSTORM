@@ -2,11 +2,19 @@
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_IMPL_H
 
 #include "ColourDisplay.h"
-#include <CImg.h>
 #include <Eigen/Core>
+#include <dStorm/Image.h>
+#include <dStorm/image/constructors.h>
 
 namespace dStorm {
 namespace viewer {
+
+    dStorm::Pixel operator*( const ColourSchemes::RGBWeight& r, uint8_t b ) {
+        return Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
+    }
+    dStorm::Pixel operator*( uint8_t b, const ColourSchemes::RGBWeight& r ) {
+        return Pixel( r[0] * b, r[1] * b, r[2] * b );
+    }
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackWhite>
@@ -47,22 +55,18 @@ template <>
 class HueingColorizer<ColourSchemes::FixedHue> 
 : public Colorizer<unsigned char>
 {
-    float rgb_weights[3];
+    ColourSchemes::RGBWeight weights;
 
   public:
     typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
     HueingColorizer(const Config& config)
     : Colorizer<unsigned char>(config) {
         ColourSchemes::rgb_weights_from_hue_saturation
-            ( config.hue(), config.saturation(),
-              rgb_weights, 1 );
+            ( config.hue(), config.saturation(), weights );
     }
     Pixel getPixel( int, int, BrightnessType val ) 
     {
-        return inv( Pixel(
-            rgb_weights[0] * val,
-            rgb_weights[1] * val,
-            rgb_weights[2] * val ) );
+        return inv( weights * val );
     }
     inline Pixel getKeyPixel( BrightnessType br ) 
         { return getPixel(0, 0, br ); }
@@ -84,8 +88,10 @@ class HueingColorizer : public Colorizer<unsigned char> {
     /** Tone for currently processed points in cartesian Hue/Sat space. */
     ColourVector tone_point;
 
-    cimg_library::CImg<ColourVector> colours;
-    cimg_library::CImg<float> rgb_weights;
+    typedef ColourSchemes::RGBWeight RGBWeight;
+
+    dStorm::Image<ColourVector,2> colours;
+    dStorm::Image<RGBWeight,2> rgb_weights;
 
     void set_tone( float hue, float saturation ) {
         current_tone = base_tone + ColourVector( hue, saturation );
@@ -98,7 +104,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
     void merge_tone( int x, int y, 
                      float old_data_weight, float new_data_weight )
     {
-        assert( int(colours.width) > x && int(colours.height) > y );
+        assert( int(colours.width_in_pixels()) > x && int(colours.height_in_pixels()) > y );
         ColourVector hs;
         if ( old_data_weight < 1E-3 ) {
             colours(x,y) = tone_point;
@@ -111,9 +117,8 @@ class HueingColorizer : public Colorizer<unsigned char> {
             ColourSchemes::convert_xy_tone_to_hue_sat
                 ( colours(x,y).x(), colours(x,y).y(), hs[0], hs[1] );
         }
-        int pixels_per_colour = rgb_weights.width * rgb_weights.height;
-        ColourSchemes::rgb_weights_from_hue_saturation
-            ( hs[0], hs[1], &rgb_weights(x,y), pixels_per_colour );
+        int pixels_per_colour = rgb_weights.size_in_pixels();
+        ColourSchemes::rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
                 
     }
 
@@ -124,20 +129,16 @@ class HueingColorizer : public Colorizer<unsigned char> {
           base_tone[1] = config.saturation(); } 
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
-        int px_w = traits.size.x() / cs_units::camera::pixel,
-            px_h = traits.size.y() / cs_units::camera::pixel;
-        colours = cimg_library::CImg<ColourVector> (px_w, px_h);
-        rgb_weights.resize( px_w, px_h, 1, 3, -1 );
+        colours.invalidate();
+        rgb_weights.invalidate();
+        colours = dStorm::Image<ColourVector,2>(traits.size);
+        rgb_weights = dStorm::Image<RGBWeight,2>(traits.size);
     }
 
     inline Pixel getPixel( int x, int y, 
                            BrightnessType val ) 
     {
-        return inv( Pixel(
-            round(val * rgb_weights(x,y,0,0)),
-            round(val * rgb_weights(x,y,0,1)),
-            round(val * rgb_weights(x,y,0,2))
-        ) );
+        return inv( Pixel( val * rgb_weights(x,y) ) );
     }
     Pixel getKeyPixel( BrightnessType val ) { return inv( Pixel( val ) ); }
 

@@ -9,6 +9,11 @@ namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
+TerminalCache<Hueing>::TerminalCache( 
+    dStorm::Display::ResizeChange size
+) : size(size) {}
+
+template <typename Hueing>
 void TerminalCache<Hueing>::setSize(
     const input::Traits< Image<int,2> >& traits
 ) {

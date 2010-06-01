@@ -1,4 +1,5 @@
 #include "JobStarter.h"
+#include <simparm/Message.hh>
 
 #include "debug.h"
 #include "engine/Car.h"
@@ -29,7 +30,8 @@ void JobStarter::operator()( const simparm::Event& ) {
             car->detach();
             car.release();
         } catch ( const std::exception& e ) {
-            std::cerr << "Starting job failed: " << e.what() << std::endl;
+            simparm::Message m("Starting job failed", e.what() );
+            const_cast<engine::CarConfig&>(*config).send( m );
         }
       }
     }

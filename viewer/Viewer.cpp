@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "plugin.h"
 #include <stdint.h>
@@ -8,6 +9,7 @@
 #include "doc/help/context.h"
 
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Message.hh>
 #include <dStorm/helpers/DisplayManager.h>
 
 #include "LiveBackend_decl.h"
@@ -48,18 +50,15 @@ namespace dStorm {
 namespace viewer {
 
 Viewer::Viewer(const Viewer::Config& config)
-: OutputObject("Display", "Display status"),
+: Status(config),
+  OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
+  config(config),
   implementation( 
         config.showOutput() 
-            ?  select_live_backend(config)
-            : select_terminal_backend(config) ),
-  forwardOutput( implementation->getForwardOutput() ),
-  tifFile( "ToFile", "Save image to", config.outputFile() ),
-  save_with_key( config.save_with_key ),
-  resolutionEnhancement( config.res_enh ),
-  histogramPower( config.histogramPower ),
-  save("SaveImage", "Save image")
+            ?  select_live_backend(this->config, *this)
+            : select_terminal_backend(this->config, *this) ),
+  forwardOutput( &implementation->getForwardOutput() )
 {
     DEBUG("Building viewer");
 
@@ -68,16 +67,14 @@ Viewer::Viewer(const Viewer::Config& config)
     tifFile.helpID = HELP_Viewer_Status_ToFile;
     save.helpID = HELP_Viewer_Status_Save;
 
-    /* With the values provided in config, meaningful defaults can
-     * be set in the following config entries. */
-    histogramPower.setUserLevel(simparm::Object::Beginner);
-    save.setUserLevel(simparm::Object::Beginner);
+    reshow_output.viewable = ! config.showOutput();
 
     push_back( resolutionEnhancement );
     push_back( histogramPower );
     push_back( tifFile );
     push_back( save );
 
+    receive_changes_from( reshow_output.value );
     receive_changes_from( save.value );
     receive_changes_from( histogramPower.value );
     receive_changes_from( resolutionEnhancement.value );
@@ -94,19 +91,19 @@ Output::Result
 Viewer::receiveLocalizations(const EngineResult& er)
 {
     MutexLock lock(structureMutex);
-    return forwardOutput.receiveLocalizations(er);
+    return forwardOutput->receiveLocalizations(er);
 }
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
     MutexLock lock(structureMutex);
-    return forwardOutput.announceStormSize(a);
+    return forwardOutput->announceStormSize(a);
 }
 
 void Viewer::propagate_signal(ProgressSignal s) {
     {
         MutexLock lock(structureMutex);
-        forwardOutput.propagate_signal(s);
+        forwardOutput->propagate_signal(s);
     }
 
     if (s == Engine_run_succeeded && tifFile) {
@@ -115,7 +112,11 @@ void Viewer::propagate_signal(ProgressSignal s) {
 }
 
 void Viewer::operator()(const simparm::Event& e) {
-    if (&e.source == &save.value && save.triggered()) {
+    if (&e.source == &reshow_output.value && reshow_output.triggered()) {
+        reshow_output.untrigger();
+        config.showOutput = true;
+        adapt_to_changed_config();
+    } else if (&e.source == &save.value && save.triggered()) {
         /* Save image */
         save.untrigger();
         if ( tifFile ) {
@@ -133,13 +134,23 @@ void Viewer::operator()(const simparm::Event& e) {
     } 
 }
 
+void Viewer::adapt_to_changed_config() {
+    DEBUG("Changing implementation");
+    MutexLock lock(structureMutex);
+    implementation = implementation->adapt( implementation, config, *this );
+    forwardOutput = &implementation->getForwardOutput();
+    reshow_output.viewable = ! config.showOutput();
+    DEBUG("Changed implementation");
+}
+
 void Viewer::writeToFile(const string &name) {
     try {
         MutexLock lock(structureMutex);
 
         implementation->save_image(name, save_with_key());
     } catch ( const std::exception& e ) {
-        std::cerr << "Writing image failed: " << e.what() << endl;
+        simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );
+        send( m );
     }
 }
 

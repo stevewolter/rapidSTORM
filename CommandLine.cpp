@@ -1,3 +1,4 @@
+#include <simparm/Message.hh>
 #include "CommandLine.h"
 #include <vector>
 #include <string>
@@ -144,8 +145,9 @@ bool CommandLine::Pimpl::load_config_file(
             try {
                 config.processCommand( config_file );
             } catch (const std::exception& e) {
-                std::cerr << "Error in initialization config file: "
-                          << e.what() << "\n";
+                simparm::Message m("Error in initialization file",
+                    "Unable to read initialization file: " + std::string(e.what()) );
+                config.send(m);
             }
         }
         return true;
