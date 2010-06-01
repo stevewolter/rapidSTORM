@@ -130,12 +130,6 @@ fi
 
 AM_WITH_DMALLOC
 
-# Select the windowing library needed for CImg
-case $host in 
-   *mingw32*) LIBCIMG_LIBS='-luser32 -lgdi32 ' ;;
-   *)         LIBCIMG_LIBS=-lX11            ;;
-esac
-
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 

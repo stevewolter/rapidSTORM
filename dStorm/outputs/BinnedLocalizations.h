@@ -103,16 +103,22 @@ namespace outputs {
         std::auto_ptr<Announcement> announcement;
 
         void set_base_image_size();
+        
+        template<typename Listener> friend class BinnedLocalizations;
 
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
         BinnedLocalizations(double res_enh, Crop crop = 0);
         BinnedLocalizations(const BinnedLocalizations&);
+
+        template <typename OtherListener>
+        BinnedLocalizations(const BinnedLocalizations<OtherListener>&);
+
         virtual ~BinnedLocalizations() {}
         BinnedLocalizations<KeepUpdated>* clone() const 
             { return new BinnedLocalizations<KeepUpdated>(*this); }
-
+        
         AdditionalData announceStormSize(const Announcement&);
         Result receiveLocalizations(const EngineResult&);
         void propagate_signal(ProgressSignal s); 

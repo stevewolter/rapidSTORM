@@ -8,13 +8,15 @@
 #include "ColourDisplay.h"
 #include "ImageDiscretizer.h"
 #include "Display.h"
+#include "Status.h"
 
 namespace dStorm {
 namespace viewer {
 
 template <int Hueing>
-LiveBackend<Hueing>::LiveBackend(const Config& config)
-: image( config.res_enh(), 1 * cs_units::camera::pixel ),
+LiveBackend<Hueing>::LiveBackend(Config& config, Status& s)
+: config(config), status(s), 
+  image( config.res_enh(), 1 * cs_units::camera::pixel ),
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
@@ -62,6 +64,11 @@ LiveBackend<Hueing>::get_changes() {
     return cia.get_changes();
 }
 
+template <int Hueing>
+void LiveBackend<Hueing>::notice_closed_data_window() {
+    config.showOutput = false;
+    status.adapt_to_changed_config();
+}
 
 }
 }

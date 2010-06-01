@@ -6,7 +6,6 @@
 #include <dStorm/input/Slot.h>
 #include <dStorm/engine/Input.h>
 #include <iomanip>
-#include <CImg.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include <limits>

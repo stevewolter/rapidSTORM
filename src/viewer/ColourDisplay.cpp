@@ -12,7 +12,7 @@ static const ColourPart color_index_table[6][3]
         { T, P, V}, { V, P, Q} };
 
 void rgb_weights_from_hue_saturation
-    (float hue, float saturation, float *array, int step) 
+    (float hue, float saturation, RGBWeight &array) 
 {
     int hue_index = std::max(0, std::min<int>( floor( hue * 6 ), 5 ));
     float f = hue * 6 - hue_index;
@@ -24,7 +24,7 @@ void rgb_weights_from_hue_saturation
     parts[T] = 1 - (1 - f) * saturation;
 
     for (int c = 0; c < 3; c++)
-        array[c*step] = parts[ color_index_table[hue_index][c] ];
+        array[c] = parts[ color_index_table[hue_index][c] ];
 
 }
 

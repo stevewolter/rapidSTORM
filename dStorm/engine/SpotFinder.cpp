@@ -1,10 +1,8 @@
 #include "SpotFinder.h"
 #include "Config.h"
-#include <CImg.h>
 #include <dStorm/helpers/thread.h>
 
 using namespace std;
-using namespace cimg_library;
 
 namespace dStorm {
 namespace engine {

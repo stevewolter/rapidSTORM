@@ -3,13 +3,8 @@
 
 #include <dStorm/data-c++/Vector.h>
 #include <dStorm/engine/SpotFinder.h>
-#include <CImg.h>
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
-
-namespace cimg_library {
-    template <typename Pixel> class CImg;
-}
 
 namespace dStorm {
 namespace spotFinders {

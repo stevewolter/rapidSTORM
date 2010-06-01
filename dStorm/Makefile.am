@@ -29,7 +29,7 @@ nobase_library_include_HEADERS = \
     ModuleInterface.h Localization_decl.h Localization.h \
     SizeTraits.h SizeTraits_decl.h \
     units_Eigen_traits.h unit_matrix_operators.h \
-    matrix_operators.h Pixel.h error_handler.h  \
+    matrix_operators.h Pixel_decl.h Pixel.h error_handler.h  \
     BaseImage_decl.h BaseImage.h \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \

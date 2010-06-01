@@ -8,7 +8,7 @@ namespace viewer {
 template <int Hueing> class LiveBackend;
 
 std::auto_ptr<Backend>
-select_live_backend( const Config& config );
+select_live_backend( Config& config, Status& status );
 
 }
 }

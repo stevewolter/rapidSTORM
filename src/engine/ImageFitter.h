@@ -1,7 +1,6 @@
 #ifndef DSTORM_IMAGEFITTER_H
 #define DSTORM_IMAGEFITTER_H
 
-#include <CImg.h>
 #include <fit++/Exponential2D.hh>
 
 namespace dStorm {

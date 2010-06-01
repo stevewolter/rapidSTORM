@@ -1,8 +1,10 @@
+#include "Config.h"
 #include "Display.h"
 #include "Display_inline.h"
 #include <boost/units/io.hpp>
 #include <dStorm/output/Traits.h>
 #include <dStorm/ImageTraits.h>
+#include "Status.h"
 
 namespace dStorm {
 namespace viewer {
@@ -14,7 +16,7 @@ Display<Colorizer>::Display(
     dStorm::Display::DataSource& vph 
 ) 
 : discretizer(disc), 
-  do_show_window( config.showOutput() ),
+  do_show_window( true ),
   vph(vph), 
   next_change( new dStorm::Display::Change() )
 {

@@ -12,11 +12,11 @@
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>
-#include <CImg.h>
 #include "doc/help/context.h"
 #include <dStorm/input/Method.h>
 #include <dStorm/localization_file/reader.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/helpers/OutOfMemory.h>
 
 using namespace std;
 
@@ -127,14 +127,12 @@ void Car::run() throw() {
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {
-        std::cerr << "Your system has insufficient memory for job "
-                  << ident << ". "
-                  << "The most common reason is a high resolution enhancement combined "
-                  << "with a large image. Try reducing either the image size or the "
-                  << "resolution enhancement.\n";
+        OutOfMemoryMessage m("Job " + ident);
+        runtime_config.send(m);
     } catch ( const std::exception& e ) {
-        std::cerr << "Job " << ident << " failed. Reason: " << e.what() << "\n";
-        std::cerr.flush();
+        simparm::Message m("Error in Job " + ident, 
+                               "Job " + ident + " failed: " + e.what() );
+        runtime_config.send(m);
     }
 }
 

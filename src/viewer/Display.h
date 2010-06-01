@@ -3,7 +3,8 @@
 
 #include "LiveCache.h"
 #include "ImageDiscretizer.h"
-#include "Config.h"
+#include "Config_decl.h"
+#include "Status_decl.h"
 #include <vector>
 #include <dStorm/helpers/DisplayManager.h>
 
@@ -50,6 +51,8 @@ class Display
 
     void save_image(std::string filename,
                     bool with_key);
+
+    dStorm::Display::ResizeChange getSize() const { return my_size; }
 };
 
 

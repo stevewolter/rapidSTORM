@@ -1,7 +1,6 @@
 #include "config.h"
 
 #include <dStorm/input/Config.h>
-#include <CImg.h>
 #include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"

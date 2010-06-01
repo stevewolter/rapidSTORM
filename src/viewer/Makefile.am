@@ -17,4 +17,8 @@ libviewer_la_SOURCES = \
     LiveCache.h LiveCache_inline.h LiveCache_impl.h LiveCache.cpp \
     TerminalBackend_decl.h TerminalBackend.h TerminalBackend_inline.h TerminalBackend_impl.h TerminalBackend.cpp \
     TerminalCache.h TerminalCache_inline.h TerminalCache_impl.h TerminalCache.cpp \
-    BinnedLocalizations.cpp
+    BinnedLocalizations.cpp \
+    Status_decl.h Status.h Status.cpp \
+    LiveBackend_converter.h LiveBackend_converter.cpp \
+    TerminalBackend_converter.h TerminalBackend_converter.cpp \
+    ImageDiscretizer_converter.h

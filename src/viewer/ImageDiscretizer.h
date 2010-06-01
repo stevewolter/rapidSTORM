@@ -88,10 +88,17 @@ class Discretizer
         TransitionTable* old_table, TransitionTable& new_table );
     inline unsigned long int non_background_pixels();
 
+    template <class> friend class Discretizer;
+
   public:
     Discretizer(
         int intermediate_depth, 
         float histogram_power, 
+        const Image<float,2>& binned_image,
+        Colorizer& colorizer);
+    template <typename OtherListener>
+    Discretizer( 
+        const Discretizer<OtherListener>&, 
         const Image<float,2>& binned_image,
         Colorizer& colorizer);
     ~Discretizer();

@@ -1,6 +1,7 @@
 #include "BinnedLocalizations.h"
 #include <dStorm/output/ResultRepeater.h>
 #include <dStorm/ImageTraits.h>
+#include <dStorm/image/iterator.h>
 #include <Eigen/Array>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>

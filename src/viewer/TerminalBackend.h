@@ -6,6 +6,7 @@
 #include "Display.h"
 #include "Backend.h"
 #include "TerminalCache.h"
+#include "LiveBackend_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/helpers/DisplayManager.h>
@@ -33,8 +34,11 @@ class TerminalBackend
     MyDiscretizer discretization;
     Cache cache;
 
+    friend class LiveBackend<Hueing>;
+
   public:
     TerminalBackend(const Config& config);
+    TerminalBackend(const LiveBackend<Hueing>& other, const Config&);
     ~TerminalBackend() ;
 
     output::Output& getForwardOutput() { return image; }
@@ -42,6 +46,8 @@ class TerminalBackend
 
     void set_histogram_power(float power);
     void set_resolution_enhancement(float re);
+
+    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
 };
 
 }

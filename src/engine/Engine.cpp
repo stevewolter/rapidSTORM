@@ -11,6 +11,7 @@
 #include <string.h>
 #include <algorithm>
 
+#include <dStorm/helpers/OutOfMemory.h>
 #include "engine/SigmaGuesser.h"
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitter.h>
@@ -172,8 +173,10 @@ void Engine::run()
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
     if ( data.test( output::Capabilities::ClustersWithSources ) ) {
-        cerr << "The engine module cannot provide localization traces."
-             << "Please select an appropriate transmission.\n";
+        simparm::Message m("Unable to provide data",
+                "The engine module cannot provide localization traces."
+                "Please select an appropriate transmission.");
+        this->send(m);
         return;
     }
 
@@ -217,15 +220,16 @@ void Engine::safeRunPiston() throw()
     try {
         runPiston();
     } catch (const std::bad_alloc& e) {
-        cerr << PACKAGE_NAME << " ran out of memory. Try removing the filter "
-                "output module or reducing image resolution "
-                "enhancement." << endl;
+        OutOfMemoryMessage m("Job " + job_ident);
+        send(m);
         emergencyStop = error = true;
     } catch (const std::exception& e) {
-        cerr << PACKAGE_NAME << ": Error in computation: " << e.what() << endl;
+        simparm::Message m("Error in job computation", e.what() );
+        send(m);
         emergencyStop = error = true;
     } catch (...) {
-        cerr << PACKAGE_NAME << ": Unknown engine failure." << endl;
+        simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
+        send( m );
         emergencyStop = error = true;
     }
 }

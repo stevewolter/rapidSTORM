@@ -354,6 +354,20 @@
         image window. You can close the window by pressing 'q' or using the
         window close button provided by Windows.</para>
     </chapter>
+    <chapter id="errors">
+        <elemtable> 
+          <title>Common error messages</title>
+            <elem desc="No output selected" topic="NoOutputSelected">
+            <para>Before starting a computation job, each filter output module 
+                  must have at least one output assigned. Filter outputs are
+                  those that can have more outputs as children; in other terms,
+                  output modules that have the "Add output" control element.</para>
+            <para>You can fix this error by assigning an output to each filter output.
+                  If you just want to test something and are concerned about file
+                  overwriting, choose a simple output like <xref linkend="count_localizations"/>.</para>
+            </elem>
+        </elemtable>
+    </chapter>
   </part>
 
   <part id="Step_by_Step">
@@ -635,7 +649,7 @@
             by "Save image to".</elem>
         </elemtable>
       </section>
-      <section> 
+      <section id="count_localizations" xreflabel="Count localizations"> 
 	<title>Count localizations</title>
         <para>This output module outputs a count of all received localizations.
           </para>

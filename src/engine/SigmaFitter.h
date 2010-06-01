@@ -6,7 +6,6 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/Localization.h>
-#include <CImg.h>
 
 namespace dStorm {
 namespace engine {
@@ -26,7 +25,7 @@ class SigmaFitter {
         *  deviations[1], amplitude in deviations[2] and
         *  sigma_xy in deviations[3].
         *  @return true If the free-form fit was sane enough to be used. */
-    bool fit(const cimg_library::CImg<StormPixel> &i,
+    bool fit(const dStorm::Image<StormPixel,2> &i,
              const Localization &location, double deviations[4]) 
 ;
     ~SigmaFitter();

@@ -1,5 +1,6 @@
 #include "TerminalBackend_impl.h"
 #include "ColourDisplay_impl.h"
+#include "Status_decl.h"
 
 namespace dStorm {
 namespace viewer {
@@ -23,7 +24,7 @@ static Backend* select_terminal_backend_from(
 }
 
 std::auto_ptr<Backend>
-select_terminal_backend( const Config& config )
+select_terminal_backend( Config& config, Status& )
 {
     return std::auto_ptr<Backend>(
         select_terminal_backend_from<ColourSchemes::LastColourModel>(config) );

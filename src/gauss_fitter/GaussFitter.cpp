@@ -1,6 +1,5 @@
 #include "debug.h"
 #include "GaussFitter_impl.h"
-#include <CImg.h>
 
 namespace dStorm {
 namespace engine {

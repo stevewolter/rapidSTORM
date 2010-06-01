@@ -4,7 +4,6 @@
 #include <dStorm/engine/Config.h>
 #include <cassert>
 
-using namespace cimg_library;
 using namespace dStorm::engine;
 using std::cerr;
 
