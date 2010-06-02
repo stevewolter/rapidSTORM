@@ -25,7 +25,7 @@ void TerminalCache<Hueing>::setSize(
 
 template <typename Hueing>
 std::auto_ptr<dStorm::Display::Change> 
-TerminalCache<Hueing>::get_result()
+TerminalCache<Hueing>::get_result() const
 {
     std::auto_ptr<dStorm::Display::Change> rv
         ( new dStorm::Display::Change() );

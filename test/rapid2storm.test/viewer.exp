@@ -1,0 +1,43 @@
+global display_control_fifo
+
+begin_test_suite
+load_default_config
+dstorm_attach
+
+send "in Car in Method in InputMethod in Auto set InputFile in value set $workspace/Mikrotubuli.sif\n"
+send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set \n"
+send "in Car in Run in value set 1\n"
+
+set display -1
+set test "Display is opened"
+expect {
+    -re "Sizing display number (\[0-9\]*)" 
+        { set display $expect_out(1,string); pass "$test" }
+}
+
+set test "Can close display"
+if { $display != -1 } {
+    puts $display_control_fifo "close $display\n"
+    flush $display_control_fifo
+
+    expect {
+        -re "Handle $display destroyed" { pass "$test" }
+        -re "in Progress value set 1" { fail "$test" }
+    }
+} else {
+    untested "$test"
+}
+
+set test "Can re-open display"
+if { $display != -1 } {
+    send "in dStormJob01 in Crankshaft in Output2 in AF in Crankshaft in Output0 in Display in ReshowOutput in value set 1\n"
+    expect {
+        -re "Sizing display number \[0-9\]*" { pass "$test" }
+    }
+} else {
+    untested "$test"
+}
+
+end_test_suite

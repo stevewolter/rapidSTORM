@@ -20,45 +20,10 @@ class ProgressMeter : public OutputObject
     simparm::optional<frame_count> length;
 
   protected:
-    AdditionalData announceStormSize(const Announcement &a) { 
-        ost::MutexLock lock(mutex);
-        first = a.traits.first_frame;
-        if ( a.traits.last_frame.is_set() )
-            length = *a.traits.last_frame + a.traits.first_frame
-                        + 1 * cs_units::camera::frame;
-        max = frame_count::from_value(0);
-        if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
-        return AdditionalData(); 
-    }
-    virtual Result receiveLocalizations(const EngineResult& er) 
- 
-    {
-        ost::MutexLock lock(mutex);
-        if ( er.forImage+1*cs_units::camera::frame > max ) {
-            if ( length.is_set() ) {
-                max = er.forImage+1*cs_units::camera::frame;
-                float ratio = (max - first) / *length;
-                progress.setValue( round(ratio / 0.01)
-                                   * 0.01 );
-            } else {
-                /* TODO */
-            }
-        }
-        return KeepRunning;
-    }
+    AdditionalData announceStormSize(const Announcement &a);
+    Result receiveLocalizations(const EngineResult& er);
 
-    void propagate_signal(ProgressSignal s) {
-        ost::MutexLock lock(mutex);
-        if ( s == Engine_is_restarted) {
-            progress.setValue(0); 
-            max = 0;
-        } else if ( s == Engine_run_succeeded ) {
-            double save_increment = progress.increment();
-            progress.increment = 0;
-            progress.setValue(1); 
-            progress.increment = save_increment;
-        }
-    }
+    void propagate_signal(ProgressSignal s);
 
   public:
     class Config;

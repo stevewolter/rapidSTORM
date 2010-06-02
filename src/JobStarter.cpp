@@ -1,5 +1,6 @@
 #include "JobStarter.h"
 #include <simparm/Message.hh>
+#include <dStorm/helpers/exception.h>
 
 #include "debug.h"
 #include "engine/Car.h"
@@ -29,6 +30,9 @@ void JobStarter::operator()( const simparm::Event& ) {
                 new engine::Car(master, *config) );
             car->detach();
             car.release();
+        } catch ( const dStorm::runtime_error& e ) {
+            simparm::Message m( e.get_message("Starting job failed") );
+            const_cast<engine::CarConfig&>(*config).send( m );
         } catch ( const std::exception& e ) {
             simparm::Message m("Starting job failed", e.what() );
             const_cast<engine::CarConfig&>(*config).send( m );

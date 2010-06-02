@@ -10,6 +10,7 @@
 #include "BasenamePrinter.h"
 #include "Manager.h"
 #include "DummyFileInput.h"
+#include "DummyFitter.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace dStorm::output;
@@ -35,6 +36,7 @@ void rapidSTORM_Input_Augmenter ( dStorm::input::Config* inputs ) {
 void rapidSTORM_Engine_Augmenter
     ( dStorm::engine::Config* config )
 {
+    config->spotFittingMethod.addChoice( new dStorm::debugplugin::DummyFitter::Source() );
 }
 
 void rapidSTORM_Output_Augmenter
@@ -56,8 +58,12 @@ dStorm::Display::Manager*
 rapidSTORM_Display_Driver
     (dStorm::Display::Manager *old)
 {
-    std::cerr << "Test plugin loaded" << std::endl;
-    return new Manager(old);
+    if ( getenv("DEBUGPLUGIN_LEAVE_DISPLAY") ) {
+        return old;
+    } else {
+        std::cerr << "Test plugin loaded" << std::endl;
+        return new Manager(old);
+    }
 }
 
 void

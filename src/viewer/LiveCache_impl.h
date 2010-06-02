@@ -3,6 +3,7 @@
 
 #include "LiveCache_inline.h"
 #include <dStorm/ImageTraits.h>
+#include <dStorm/image/iterator.h>
 
 namespace dStorm {
 namespace viewer {
@@ -15,22 +16,30 @@ LiveCache<Listener>::LiveCache(HighDepth d)
 }
 
 template < typename Listener>
+LiveCache<Listener>::LiveCache(
+    HighDepth d, Image<HistogramPixel,2>::Size size) 
+: pixels_by_value( d, HistogramPixel() ),
+  pixels_by_position( size ),
+  in_depth(d)
+{
+    set_xy();
+}
+
+template < typename Listener>
+void LiveCache<Listener>::set_xy() {
+    Image<HistogramPixel,2>::iterator i;
+    for ( i = pixels_by_position.begin(); i != pixels_by_position.end(); ++i)
+    {
+        i->x = i.x();
+        i->y = i.y();
+    }
+}
+
+template < typename Listener>
 void LiveCache<Listener>::setSize( const input::Traits< Image<int,2> >& traits ) {
     pixels_by_position = Image<HistogramPixel,2>( traits.size );
 
-    int w = traits.size.x() / cs_units::camera::pixel,
-        h = traits.size.y() / cs_units::camera::pixel;
-    for (int x = 0; x < w; x++)
-      for (int y = 0; y < h; y++) {
-        HistogramPixel& p = pixels_by_position(x,y);
-        p.clear();
-        p.x = x;
-        p.y = y;
-      }
-
-    for (unsigned int i = 0; i < in_depth; i++) {
-        pixels_by_value[i].clear();
-    }
+    set_xy();
 
     this->publish().setSize( traits );
 }

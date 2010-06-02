@@ -37,6 +37,30 @@ void TerminalBackend<Hueing>::save_image(
     std::string filename, bool with_key
 )
 { 
+    DEBUG("Storing results");
+    dStorm::Display::Manager::getSingleton().store_image( 
+        filename, 
+        *get_result(with_key)
+    );
+    DEBUG("Finished");
+}
+
+template <int Hueing>
+void TerminalBackend<Hueing>::set_histogram_power(float power) {
+    /* The \c image member is not involved here, so we have to lock
+        * it ourselves. */
+    ost::MutexLock lock( image.getMutex() );
+    discretization.setHistogramPower( power ); 
+}
+
+template <int Hueing>
+void TerminalBackend<Hueing>::set_resolution_enhancement(float re)  { 
+    image.set_resolution_enhancement( re ); 
+}
+
+template <int Hueing>
+std::auto_ptr<dStorm::Display::Change> 
+TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");
     std::auto_ptr<dStorm::Display::Change> c = cache.get_result();
     c->do_clear = true;
@@ -60,22 +84,8 @@ void TerminalBackend<Hueing>::save_image(
         DEBUG("Created key");
     }
 
-    DEBUG("Storing results");
-    dStorm::Display::Manager::getSingleton().store_image( filename, *c );
-    DEBUG("Finished");
-}
 
-template <int Hueing>
-void TerminalBackend<Hueing>::set_histogram_power(float power) {
-    /* The \c image member is not involved here, so we have to lock
-        * it ourselves. */
-    ost::MutexLock lock( image.getMutex() );
-    discretization.setHistogramPower( power ); 
-}
-
-template <int Hueing>
-void TerminalBackend<Hueing>::set_resolution_enhancement(float re)  { 
-    image.set_resolution_enhancement( re ); 
+    return c;
 }
 
 }

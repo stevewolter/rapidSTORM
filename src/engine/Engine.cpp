@@ -29,6 +29,7 @@
 #include <boost/units/io.hpp>
 #include <dStorm/error_handler.h>
 #include <dStorm/engine/SpotFitterFactory.h>
+#include <dStorm/helpers/exception.h>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -138,6 +139,8 @@ output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
     rv.min_amplitude = config.amplitude_threshold();
     rv.first_frame = in->first_frame;
     rv.last_frame = in->last_frame;
+    DEBUG("Last frame is set in input: " << in->last_frame.is_set());
+    DEBUG("Last frame is set: " << rv.last_frame.is_set());
     DEBUG("Setting traits from spot fitter");
     config.spotFittingMethod().set_traits( rv );
     DEBUG("Returning traits");
@@ -199,6 +202,7 @@ void Engine::run()
         collectPistons();
         DEBUG("Collected pistons");
 
+        DEBUG("Checking stoppage for " << this << ": " << emergencyStop << " " << error << " " << globalStop << " " << dStorm::ErrorHandler::global_termination_flag());
         if (emergencyStop) {
             if (error || globalStop || 
                 dStorm::ErrorHandler::global_termination_flag() ) 
@@ -219,19 +223,21 @@ void Engine::safeRunPiston() throw()
 {
     try {
         runPiston();
+        return;
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + job_ident);
         send(m);
-        emergencyStop = error = true;
-    } catch (const std::exception& e) {
-        simparm::Message m("Error in job computation", e.what() );
+    } catch ( const dStorm::runtime_error& e ) {
+        simparm::Message m( e.get_message("Error in Job " + job_ident) );
         send(m);
-        emergencyStop = error = true;
+    } catch (const std::exception& e) {
+        simparm::Message m("Error in Job " + job_ident, e.what() );
+        send(m);
     } catch (...) {
         simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
         send( m );
-        emergencyStop = error = true;
     }
+    emergencyStop = error = true;
 }
 
 void Engine::runPiston() 
@@ -340,7 +346,8 @@ void Engine::runPiston()
             DEBUG("Emergency stop: Engine restart requested");
             output->propagate_signal( Output::Engine_run_is_aborted );
             emergencyStop = true;
-            error = ( r == Output::StopEngine );
+            if ( r == Output::StopEngine )
+                error = true;
         }
 
         DEBUG("Exhaust");

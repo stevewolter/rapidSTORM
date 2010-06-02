@@ -32,10 +32,13 @@ class LiveCache :
     Image<HistogramPixel,2> pixels_by_position;
     HighDepth in_depth;
 
+    void set_xy();
+
   public:
     static const int NeedLiveHistogram = true;
     typedef typename Listener::Colorizer Colorizer;
     LiveCache(HighDepth depth);
+    LiveCache(HighDepth depth, Image<HistogramPixel,2>::Size size);
 
     void setSize( const input::Traits< Image<int,2> >& );
     inline void pixelChanged( int x, int y, HighDepth to );

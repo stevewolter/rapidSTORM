@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 #include "plugin.h"
 #include <stdint.h>
@@ -73,6 +72,7 @@ Viewer::Viewer(const Viewer::Config& config)
     push_back( histogramPower );
     push_back( tifFile );
     push_back( save );
+    push_back( reshow_output );
 
     receive_changes_from( reshow_output.value );
     receive_changes_from( save.value );
@@ -90,19 +90,19 @@ Viewer::~Viewer() {
 Output::Result
 Viewer::receiveLocalizations(const EngineResult& er)
 {
-    MutexLock lock(structureMutex);
+    MutexLock lock(implementation_mutex);
     return forwardOutput->receiveLocalizations(er);
 }
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
-    MutexLock lock(structureMutex);
+    MutexLock lock(implementation_mutex);
     return forwardOutput->announceStormSize(a);
 }
 
 void Viewer::propagate_signal(ProgressSignal s) {
     {
-        MutexLock lock(structureMutex);
+        MutexLock lock(implementation_mutex);
         forwardOutput->propagate_signal(s);
     }
 
@@ -123,11 +123,11 @@ void Viewer::operator()(const simparm::Event& e) {
             writeToFile( tifFile() );
         }
     } else if (&e.source == &histogramPower.value) {
-        MutexLock lock(structureMutex);
+        MutexLock lock(implementation_mutex);
         /* Change histogram power */
         implementation->set_histogram_power(histogramPower());
     } else if (&e.source == &resolutionEnhancement.value) {
-        MutexLock lock(structureMutex);
+        MutexLock lock(implementation_mutex);
         /* Change resolution enhancement in viewer */
         implementation->
             set_resolution_enhancement( resolutionEnhancement() );
@@ -135,8 +135,8 @@ void Viewer::operator()(const simparm::Event& e) {
 }
 
 void Viewer::adapt_to_changed_config() {
-    DEBUG("Changing implementation");
-    MutexLock lock(structureMutex);
+    DEBUG("Changing implementation, showing output is " << config.showOutput());
+    MutexLock lock(implementation_mutex);
     implementation = implementation->adapt( implementation, config, *this );
     forwardOutput = &implementation->getForwardOutput();
     reshow_output.viewable = ! config.showOutput();
@@ -145,7 +145,7 @@ void Viewer::adapt_to_changed_config() {
 
 void Viewer::writeToFile(const string &name) {
     try {
-        MutexLock lock(structureMutex);
+        MutexLock lock(implementation_mutex);
 
         implementation->save_image(name, save_with_key());
     } catch ( const std::exception& e ) {

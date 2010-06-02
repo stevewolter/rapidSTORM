@@ -14,17 +14,31 @@ proc initialize {} {
 proc dstorm_start {} {
     global DSTORM
     global timeout
+    global tmpdir
     global have_test_plugin
+    global display_control_fifo
+    global env
+
+    set display_control_fifo_name "$tmpdir/display_control"
+    set env(RAPIDSTORM_DEBUG_DISPLAY_CONTROL_FILE) $display_control_fifo_name
+
     program_start $DSTORM --Twiddler
 
     set test "Initialization"
+
+    if { [ file exists $display_control_fifo_name ] != 1 } {
+        exec mkfifo $display_control_fifo_name }
 
     send "cmd 0 nop\n"
     set def_timeout $timeout
     set timeout 300
     set have_test_plugin 0
     expect {
-        -re "Test plugin loaded" { set have_test_plugin 1; exp_continue }
+        -re "Test plugin loaded" {
+            set have_test_plugin 1; 
+            set display_control_fifo [open "$display_control_fifo_name" "w"]
+            exp_continue 
+        }
 	-re "ack 0" {}
         timeout { puts "Failed to react to command"; exit 1 }
         eof { puts "Failed to load"; exit 1 }

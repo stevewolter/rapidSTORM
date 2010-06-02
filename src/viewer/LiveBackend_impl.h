@@ -53,21 +53,24 @@ void LiveBackend<Hueing>::set_histogram_power(float power) {
 
 template <int Hueing>
 void LiveBackend<Hueing>::set_resolution_enhancement(float re)  { 
+    ost::MutexLock lock( image.getMutex() );
     image.set_resolution_enhancement( re ); 
 }
 
 template <int Hueing>
 std::auto_ptr<dStorm::Display::Change> 
 LiveBackend<Hueing>::get_changes() {
-    ost::MutexLock lock( image.getMutex() );
     image.clean(); 
+    ost::MutexLock lock( image.getMutex() );
     return cia.get_changes();
 }
 
 template <int Hueing>
 void LiveBackend<Hueing>::notice_closed_data_window() {
+    DEBUG("Noticing closed data window");
     config.showOutput = false;
     status.adapt_to_changed_config();
+    DEBUG("Noticed closed data window");
 }
 
 }

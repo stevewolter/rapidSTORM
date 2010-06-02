@@ -16,9 +16,6 @@ namespace ColourSchemes {
 
     typedef boost::array<float,3> RGBWeight;
 
-    inline dStorm::Pixel operator*( const RGBWeight& r, uint8_t brightness );
-    inline dStorm::Pixel operator*( uint8_t brightness, const RGBWeight& r );
-
     void rgb_weights_from_hue_saturation
         ( float hue, float saturation, RGBWeight& weight );
     void convert_xy_tone_to_hue_sat( 
@@ -33,5 +30,9 @@ template <int Hueing> class HueingColorizer;
 
 }
 }
+
+inline dStorm::Pixel operator*( const dStorm::viewer::ColourSchemes::RGBWeight& r, uint8_t brightness );
+inline dStorm::Pixel operator*( uint8_t brightness, const dStorm::viewer::ColourSchemes::RGBWeight& r );
+
 
 #endif

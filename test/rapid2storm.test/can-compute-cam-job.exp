@@ -4,6 +4,7 @@ send "in Car in AutoTerminate in value set true\n"
 set timeout 20
 
 set basename "$tmpdir/can-compute-cam-job-test"
+set imnum 502
 
 send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
@@ -16,34 +17,50 @@ send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename v
 
 send "in Car in Output in EngineOutput set ChooseTransmission value set RawImage\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
-send "in Car in Method set InputMethod in AndorDirectConfig set AcquisitionLength value set 100\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength value set $imnum\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionSpeed in value set 0.001\n"
 
 dstorm_attach
 send "in Car in Run in value set 1\n"
 
-set timeout 120
+set test "Camera presence is declared before camera is cooled completely"
+expect {
+    -re "in dStormJob01 declare Set\r?\nname AndorDirect" { pass "$test" }
+    -re "in Initialization in NumericState in value set 5" { fail "$test" }
+}
+
 set test "Job is finished"
 expect {
+    -re "in Progress in value set" { exp_continue }
+    -re "in LocalizationCount in value set" { exp_continue }
     -re "remove dStormJob" { pass "$test" }
 }
 
 wait_for_jobs
 
+set have_file 0
 set test "TIFF file exists"
 if { [file exists "$basename.tif"] == 1 } {
+    set have_file 1
     pass "$test"
 } else {
     fail "$test"
 }
-set test "TIFF file has 100 subimages"
-if { [exec identify -ping "$basename.tif" | wc -l] == 100 } {
-    pass "$test"
+set test "TIFF file has all subimages"
+if { $have_file == 1 } {
+    if { [exec identify -ping "$basename.tif" | wc -l] == $imnum } {
+        pass "$test"
+        # file delete "$basename.tif"
+    } else {
+        fail "$test"
+    }
 } else {
-    fail "$test"
+        fail "$test"
 }
 set test "JPEG image exists"
 if { [file exists "$basename.jpg"] == 1 } {
     pass "$test"
+    # file delete "$basename.jpg"
 } else {
     fail "$test"
 }

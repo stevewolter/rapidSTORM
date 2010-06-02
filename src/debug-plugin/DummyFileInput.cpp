@@ -1,6 +1,8 @@
 #include "DummyFileInput.h"
 #include <iostream>
 #include <dStorm/engine/Image.h>
+#include <boost/iterator/iterator_facade.hpp>
+#include <dStorm/input/FileBasedMethod_impl.h>
 
 using namespace dStorm::input;
 
@@ -10,10 +12,10 @@ Source::Source(const Method& config)
 : simparm::Set("YDummyInput", "Dummy input"),
   dStorm::input::Source<dStorm::engine::Image>
     ( static_cast<simparm::Node&>(*this), Capabilities() ),
-  w( config.width() ),
-  h( config.height() ),
   number( config.number() )
 {
+    size.x() = config.width() * cs_units::camera::pixel;
+    size.y() = config.height() * cs_units::camera::pixel;
     std::cout << "Simulating file input from '" << config.inputFile().c_str() << "'" << std::endl;
 }
 
@@ -23,16 +25,33 @@ Source::TraitsPtr
 Source::get_traits()
 {
     TraitsPtr rv( new TraitsPtr::element_type() );
-    rv->size.x() = w* cs_units::camera::pixel;
-    rv->size.y() = h* cs_units::camera::pixel;
+    rv->size = size;
     rv->last_frame = (number - 1) * cs_units::camera::frame;
+    return rv;
 }
 
-dStorm::engine::Image* Source::load() {
-    dStorm::engine::Image::Size sz;
-    sz.x() = w * cs_units::camera::pixel;
-    sz.y() = h * cs_units::camera::pixel;
-    return new dStorm::engine::Image( sz );
+class Source::_iterator 
+: public boost::iterator_facade<_iterator,dStorm::engine::Image,std::input_iterator_tag>
+{
+    mutable dStorm::engine::Image image;
+    int n;
+
+    friend class boost::iterator_core_access;
+
+    dStorm::engine::Image& dereference() const { return image; }
+    void increment() { n++; }
+    bool equal(const _iterator& o) const { return o.n == n; }
+
+  public:
+    _iterator(int pos, dStorm::engine::Image::Size sz) 
+        : image(sz), n(pos) {}
+};
+
+Source::iterator Source::begin() {
+    return iterator( _iterator(0, size) );
+}
+Source::iterator Source::end() {
+    return iterator( _iterator(number, size) );
 }
 
 Config::Config()

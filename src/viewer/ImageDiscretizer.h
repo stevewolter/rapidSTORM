@@ -77,10 +77,10 @@ class Discretizer
 
     const InputImage& binned_image;
 
-    HighDepth discretize( float value, float disc_factor ) 
+    HighDepth discretize( float value, float disc_factor ) const
         { return std::min<HighDepth>( in_depth-1,
             HighDepth(round( value * disc_factor )) ); }
-    HighDepth discretize( float value ) 
+    HighDepth discretize( float value ) const
         { return discretize(value, disc_factor); }
 
     void normalize_histogram();
@@ -115,17 +115,17 @@ class Discretizer
     void announce(const Localization& loc)
         { colorizer.announce( loc ); }
 
-    Pixel get_pixel( int x, int y ) {
+    Pixel get_pixel( int x, int y ) const {
         return colorizer.getPixel(x, y, 
             transition[ discretize( binned_image(x,y) ) ]);
     }
-    Pixel get_pixel( int x, int y, HighDepth discretized ) {
+    Pixel get_pixel( int x, int y, HighDepth discretized ) const {
         return colorizer.getPixel(x, y, transition[ discretized ]);
     }
-    Pixel get_background() 
+    Pixel get_background() const
         { return colorizer.get_background(); }
 
-    inline float key_value( LowDepth key );
+    inline float key_value( LowDepth key ) const;
 
     void setHistogramPower(float power);
 };

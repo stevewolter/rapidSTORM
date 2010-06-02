@@ -47,6 +47,7 @@ class LiveView :
     LiveView(
         const Method& config,
         boost::units::quantity<cs_units::camera::frame_rate> cycle_time );
+    ~LiveView();
     void show( const CamImage& image, int num );
 };
 

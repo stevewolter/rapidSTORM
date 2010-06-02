@@ -4,7 +4,7 @@
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/helpers/thread.h>
 #include <boost/utility.hpp>
-#include <set>
+#include <map>
 #include <list>
 #include <Eigen/Core>
 
@@ -17,6 +17,7 @@ template <> class NumTraits<dStorm::Pixel>
 
 class Manager : public dStorm::Display::Manager, private ost::Thread {
     class Handle;
+    class ControlStream;
 
     std::auto_ptr<WindowHandle>
         register_data_source
@@ -28,21 +29,28 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
     ost::Condition gui_run;
     typedef ost::MutexLock guard;
     bool running;
+    int number;
+
+    std::auto_ptr<ControlStream> control_stream;
 
     struct Source {
         typedef dStorm::Image<dStorm::Pixel,2> Image;
         dStorm::Display::DataSource& handler;
         Image current_display;
         dStorm::Display::Change state;
+        int number;
 
         Source( const WindowProperties& properties,
-                dStorm::Display::DataSource& source );
+                dStorm::Display::DataSource& source,
+                int number);
         void handle_resize( 
             const dStorm::Display::ResizeChange& );
         bool get_and_handle_change();
     };
     typedef std::list<Source> Sources;
     Sources sources;
+    typedef std::map<int, Sources::iterator> SourcesMap;
+    SourcesMap sources_by_number;
     
     std::auto_ptr<dStorm::Display::Manager>
         previous;

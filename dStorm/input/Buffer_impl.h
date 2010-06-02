@@ -27,7 +27,7 @@ Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src)
 {
     this->source = src;
     if ( RunConcurrently ) {
-        run();
+        start();
     } else {
         current_input = source->begin();
         end_of_input = source->end();
@@ -38,6 +38,9 @@ Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src)
 
 template<typename Object, bool RunConcurrently>
 Buffer<Object,RunConcurrently>::~Buffer() {
+    DEBUG("Joining subthread");
+    fetch_is_finished = true;
+    join();
     DEBUG("Destructing " << (void*)this);
     source.reset( NULL );
     DEBUG("Destructed source for " << this);
@@ -73,10 +76,10 @@ void Buffer<Object,RunConcurrently>::run()
         for (i = source->begin(), e = source->end(); i != e; ++i ) 
         {
             ost::MutexLock lock(mutex);
-            std::cerr << "Pushing " << i->frame_number().value() << std::endl;
             buffer.push_back( *i );
             if ( next_output == buffer.end() ) --next_output;
             new_data.signal();
+            if ( fetch_is_finished ) break;
         }
     } catch (const std::exception& e) {
         std::cerr << "Error in reading input: " << e.what() << std::endl;

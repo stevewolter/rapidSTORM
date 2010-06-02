@@ -21,7 +21,7 @@ class Colorizer
   private:
     bool invert;
   protected:
-    Pixel inv( Pixel p ) {
+    Pixel inv( Pixel p ) const {
         if ( invert )
             return p.invert();
         else
@@ -35,10 +35,10 @@ class Colorizer
         : invert( config.invert() ) {}
 
     Pixel getPixel( int x, int y, 
-                    BrightnessType brightness );
+                    BrightnessType brightness ) const;
     /** Get the brightness for a pixel in the key. */
-    Pixel getKeyPixel( BrightnessType brightness );
-    Pixel get_background() { return inv(Pixel(0)); }
+    Pixel getKeyPixel( BrightnessType brightness ) const;
+    Pixel get_background() const { return inv(Pixel(0)); }
 };
 
 }

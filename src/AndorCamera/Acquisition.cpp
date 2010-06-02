@@ -1,4 +1,5 @@
 #define ANDORCAMERA_ACQUISITION_CPP
+#define VERBOSE
 #include "debug.h"
 
 #include <AndorCamera/Acquisition.h>
@@ -148,8 +149,9 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         return Fetch( NoMoreImages, 0 );
     } else while (true) {
         waitForNewImages();
-
         int cur_image = next_image;
+
+        if ( isStopped ) return Fetch( HadError, next_image );
 
         /* The GetImages function expects and returns ranges. For
          * lack of buffer space, we reduce these to simple images. */
@@ -162,6 +164,13 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         request->check();
         SDK::AcquisitionState get_result = 
             SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
+
+        /* Check if we are actually finished with this acquisition */
+        if ( am_bounded_by_num_images && last_valid_image >= num_images-1 ) {
+            DEBUG("Stopping acquisition after last valid image " << last_valid_image << " reached bound of " << num_images);
+            stop();
+        }
+
         if ( get_result == SDK::No_New_Images )
             continue;
         else if ( get_result == SDK::Missed_Images ) {
@@ -206,10 +215,6 @@ void Acquisition::waitForNewImages() {
 
     last_valid_image = range.second;
     initialized_last_valid_image = true;
-
-    /* Stop acquisition if we are managing a long kinetic run. */
-    if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
-        stop();
 
 #if 0 /* This code is unnecessary. If the image can't be fetched,
          an error will be reported by the getNextImage function. */
@@ -261,7 +266,7 @@ unsigned int Acquisition::getHeight() {
 }
 
 bool Acquisition::hasLength() {
-    return acquisitionMode->select_mode() != Run_till_abort;
+    return am_bounded_by_num_images;
 }
 
 }

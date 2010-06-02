@@ -36,6 +36,15 @@ template <typename PixelType, int Dimensions>
 Image<PixelType,Dimensions>::Image(Size sz, frame_index i)
 : Base(sz, i) {}
 
+template <typename PixelType, int Dimensions>
+Image<PixelType,Dimensions>
+Image<PixelType,Dimensions>::deep_copy() const 
+{
+    Image image( this->sz, this->fn );
+    for (unsigned long i = 0; i < this->_pxc; i++)
+        image.img[i] = this->img[i];
+    return image;
+}
 
 template <typename PixelType, int Dimensions>
 void Image<PixelType,Dimensions>::fill(PixelType type)

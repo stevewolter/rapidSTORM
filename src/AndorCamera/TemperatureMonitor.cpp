@@ -2,6 +2,7 @@
 #include "TemperatureMonitor.h"
 #include "AndorCamera/System.h"
 #include "SDK.h"
+#include <dStorm/helpers/exception.h>
 
 using namespace std;
 using namespace SDK;
@@ -22,14 +23,17 @@ namespace AndorCamera {
                     * seems safe. */
                     System::sleep(100);
                 }
+            } catch (const dStorm::exception &e) {
+                simparm::Message m( e.get_message("Error in camera temperature supervision") );
+                realTemperature.send(m);
             } catch (const std::exception &e) {
-                cerr << "Error in camera temperature supervision: "
-                    << e.what() << endl;
+                simparm::Message m( "Error in camera temperature supervision", e.what() );
+                realTemperature.send(m);
             }
             realTemperature.setViewable(false);
         } catch (...) {
-            std::cerr << "An unknown error happened while supervising "
-                         "camera temperature. Sorry." << endl;
+            simparm::Message m( "Error in camera temperature supervision", "Unknown error type encountered" );
+            realTemperature.send(m);
         }
     }
 
