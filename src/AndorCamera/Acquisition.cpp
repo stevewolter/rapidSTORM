@@ -148,10 +148,6 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         waitForNewImages();
         int cur_image = next_image;
 
-        /* Stop acquisition if we are managing a long kinetic run. */
-        if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
-            stop();
-
         /* The GetImages function expects and returns ranges. For
          * lack of buffer space, we reduce these to simple images. */
         SDK::Range get;
@@ -163,6 +159,11 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         request->check();
         SDK::AcquisitionState get_result = 
             SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
+
+        /* Stop acquisition if we are managing a long kinetic run. */
+        if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
+            stop();
+
         if ( get_result == SDK::No_New_Images )
             continue;
         else if ( get_result == SDK::Missed_Images ) {
