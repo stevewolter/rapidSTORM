@@ -15,8 +15,7 @@ void SafelyLoadedFunction<FunctionType>::load(
 
 void LibraryHandle::init() {
     if ( handle == NULL )
-        throw std::runtime_error( "Unable to open " + 
-                                    std::string(file) );
+        throw std::runtime_error( lt_dlerror() );
     try {
         desc.load( handle );
         input.load( handle );

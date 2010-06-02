@@ -7,6 +7,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
+#include <dStorm/helpers/thread.h>
 
 namespace dStorm {
 namespace viewer {
@@ -20,6 +21,8 @@ struct Status {
     simparm::BoolEntry save_with_key;
     simparm::DoubleEntry resolutionEnhancement, histogramPower;
     simparm::TriggerEntry save;
+
+    ost::Mutex mutex;
 
     virtual void adapt_to_changed_config() = 0;
 };

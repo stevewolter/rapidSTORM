@@ -17,6 +17,7 @@
 #include <dStorm/localization_file/reader.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
+#include <dStorm/helpers/exception.h>
 
 using namespace std;
 
@@ -115,8 +116,9 @@ void Car::operator()(const simparm::Event& e) {
     {
         closeJob.untrigger();
         closeJob.editable = false;
+        DEBUG("Locking for job termination");
         ost::MutexLock lock( terminationMutex );
-        DEBUG("Job close button allows termination");
+        DEBUG("Job close button allows termination, engine " << (myEngine.get() != NULL) << " " << myEngine.get());
         if ( myEngine.get() != NULL ) myEngine->stop();
         terminate = true;
         terminationChanged.signal();
@@ -128,6 +130,9 @@ void Car::run() throw() {
         drive();
     } catch ( const std::bad_alloc& e ) {
         OutOfMemoryMessage m("Job " + ident);
+        runtime_config.send(m);
+    } catch ( const dStorm::runtime_error& e ) {
+        simparm::Message m( e.get_message("Error in Job " + ident) );
         runtime_config.send(m);
     } catch ( const std::exception& e ) {
         simparm::Message m("Error in Job " + ident, 

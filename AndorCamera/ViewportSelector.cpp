@@ -10,6 +10,7 @@
 #include "Gain.h"
 
 #include <dStorm/Image_impl.h>
+#include <dStorm/helpers/exception.h>
 
 using namespace std;
 using namespace simparm;
@@ -233,15 +234,19 @@ void Display::draw_image( const CamImage& data) {
 void Display::run() throw() {
     try {
         acquire(); 
+        return;
+    } catch (const dStorm::runtime_error& e) {
+        simparm::Message m( e.get_message("Could not acquire images for aiming view") );
+        send(m);
     } catch (const std::exception& e) {
-        std::cerr << "Could not acquire images for aiming view."
-                        " Reason: " << e.what() << endl;
-        handle.reset( NULL );
+        simparm::Message m( "Could not acquire images for aiming view", e.what() );
+        send(m);
     } catch (...) {
-        std::cerr << "Could not acquire images for aiming view."
-                    << endl;
-        handle.reset( NULL );
+        simparm::Message m( "Could not acquire images for aiming view", 
+                            "Unknown error occured while acquiring images for aiming view." );
+        send(m);
     }
+    handle.reset( NULL );
     DEBUG("Display acquisition thread finished\n");
 }
 
@@ -305,7 +310,9 @@ void Display::operator()
             dStorm::Display::Manager::getSingleton()
                 .store_image( imageFile(), *c );
         } else {
-            std::cerr << "Please provide a filename under which to save the camera snapshot" << std::endl;
+            simparm::Message m( "Unable to save image",
+                                "No filename for camera snapshot image provided" );
+            send(m);
         }
     } else if (&e.source == &stopAim.value && stopAim.triggered()) {
         stopAim.untrigger();

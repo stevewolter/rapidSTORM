@@ -302,6 +302,7 @@ Source::TraitsPtr Source::get_traits()
     TraitsPtr rv( new TraitsPtr::element_type() );
     rv->size.x() = acquisition.getWidth() * cs_units::camera::pixel;
     rv->size.y() = acquisition.getHeight() * cs_units::camera::pixel;
+    DEBUG("Acquisition has a length set: " << acquisition.hasLength());
     if ( acquisition.hasLength() )
         rv->last_frame = (acquisition.getLength() - 1) * cs_units::camera::frame;
     return rv;

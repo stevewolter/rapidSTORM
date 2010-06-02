@@ -54,11 +54,9 @@ class Viewer : public Status,
   private:
     Config config;
 
+    ost::Mutex implementation_mutex;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;
-
-    /** Mutex protecting \c implementation.*/
-    ost::Mutex structureMutex;
 
     void adapt_to_changed_config();
 };

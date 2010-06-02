@@ -26,12 +26,17 @@ LiveView::LiveView(
   live_show_frequency( config.live_show_frequency ),
   change( new dStorm::Display::Change() )
 {
+    DEBUG("LiveView constructed");
     registerNamedEntries();
 }
 
 void LiveView::registerNamedEntries() {
     push_back( show_live );
     push_back( live_show_frequency );
+}
+
+LiveView::~LiveView() {
+    DEBUG("LiveView destructing");
 }
 
 void LiveView::show_window(CamImage::Size size) {
@@ -53,6 +58,7 @@ void LiveView::show_window(CamImage::Size size) {
 
 void LiveView::hide_window() {
     if ( window.get() != NULL ) {
+        DEBUG("Hiding window");
         show_live = false;
         window.reset( NULL );
     }

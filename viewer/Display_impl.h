@@ -13,13 +13,19 @@ template <typename Colorizer>
 Display<Colorizer>::Display( 
     MyDiscretizer& disc, 
     const Config& config,
-    dStorm::Display::DataSource& vph 
+    dStorm::Display::DataSource& vph ,
+    std::auto_ptr<dStorm::Display::Change> initial_state
 ) 
 : discretizer(disc), 
   do_show_window( true ),
   vph(vph), 
-  next_change( new dStorm::Display::Change() )
+  next_change( initial_state )
 {
+    if ( next_change.get() == NULL )
+        next_change.reset( new dStorm::Display::Change() );
+    else
+        setSize( next_change->resize_image );
+
     props.name = config.getDesc();
     props.flags.close_window_on_unregister
         ( config.close_on_completion() );
@@ -27,18 +33,13 @@ Display<Colorizer>::Display(
 
 template <typename Colorizer>
 void Display<Colorizer>::setSize(
-    const input::Traits< Image<int,2> >& traits
-)
-{ 
-    my_size.size = traits.size;
-    ps.resize( traits.size.x() * traits.size.y()
-        / cs_units::camera::pixel / cs_units::camera::pixel, false );
-    ps_step = traits.size.x() / cs_units::camera::pixel;
-    if ( ! traits.resolution.is_set() )
-        throw std::logic_error("Pixel size must be given for image display");
+    const dStorm::Display::ResizeChange& size
+) {
+    my_size = size;
 
-    my_size.key_size = Colorizer::BrightnessDepth;
-    my_size.pixel_size = *traits.resolution;
+    ps.resize( my_size.size.x() * my_size.size.y()
+        / cs_units::camera::pixel / cs_units::camera::pixel, false );
+    ps_step = my_size.size.x() / cs_units::camera::pixel;
 
     if ( do_show_window ) {
         props.initial_size = my_size;
@@ -50,6 +51,22 @@ void Display<Colorizer>::setSize(
         next_change->resize_image = my_size;
     }
     this->clear();
+}
+
+template <typename Colorizer>
+void Display<Colorizer>::setSize(
+    const input::Traits< Image<int,2> >& traits
+)
+{ 
+    dStorm::Display::ResizeChange size;
+    size.size = traits.size;
+    if ( ! traits.resolution.is_set() )
+        throw std::logic_error("Pixel size must be given for image display");
+
+    size.key_size = Colorizer::BrightnessDepth;
+    size.pixel_size = *traits.resolution;
+
+    setSize( size );
 }
 
 template <typename Colorizer>

@@ -23,7 +23,8 @@ class Config
 class Source : public simparm::Set,
                public dStorm::input::Source<dStorm::engine::Image>
 {
-    int w, h, number;
+    dStorm::engine::Image::Size size;
+    int number;
     dStorm::engine::Image* load();
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;

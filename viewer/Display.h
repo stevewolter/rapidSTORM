@@ -34,11 +34,15 @@ class Display
 
     dStorm::Display::ResizeChange my_size;
 
+    void setSize( const dStorm::Display::ResizeChange& size );
+
   public:
     Display( 
         MyDiscretizer& disc, 
         const Config& config,
-        dStorm::Display::DataSource& vph 
+        dStorm::Display::DataSource& vph,
+        std::auto_ptr<dStorm::Display::Change> initial_state
+            = std::auto_ptr<dStorm::Display::Change>()
     );
     void setSize(const input::Traits< Image<int,2> >& traits);
 

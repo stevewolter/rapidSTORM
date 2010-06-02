@@ -4,8 +4,47 @@
 #include "Manager.h"
 #include "md5.h"
 #include <iomanip>
+#include <fstream>
 #include <sstream>
 #include <boost/units/io.hpp>
+
+class Manager::ControlStream: public ost::Thread  {
+    Manager& m;
+    const char *const filename;
+    std::ifstream stream;
+  public:
+    ControlStream(Manager& m) 
+    : ost::Thread("Dummy manager control stream"),
+      m(m), filename(getenv("RAPIDSTORM_DEBUG_DISPLAY_CONTROL_FILE")),
+      stream( (filename) ? filename : "" )
+    {
+        std::cerr << "Checking for control stream, filename is " <<
+            (filename != NULL) << std::endl;
+        if ( stream ) {
+            std::cerr << "Debug display manager listening on "
+                << filename
+                << std::endl;
+            start();
+        }
+    }
+
+    void run() {
+        while ( stream ) {
+            std::string command;
+            stream >> command;
+            if ( command == "close" ) {
+                int number;
+                stream >> number;
+                std::cerr << "Passing close for " << number << std::endl;
+                ost::MutexLock lock(m.mutex);
+                SourcesMap::iterator i = m.sources_by_number.find(number);
+                if ( i != m.sources_by_number.end() ) {
+                    i->second->handler.notice_closed_data_window();
+                }
+            }
+        }
+    }
+};
 
 class Manager::Handle 
 : public dStorm::Display::Manager::WindowHandle {
@@ -21,12 +60,14 @@ class Manager::Handle
         guard lock(m.mutex);
         i = m.sources.insert( 
             m.sources.end(),
-            Source(properties, source) );
+            Source(properties, source, m.number++) );
+        std::cerr << "Created " << i->number << std::endl;
+        m.sources_by_number.insert( make_pair( i->number, i ) );
     }
     ~Handle() {
         guard lock(m.mutex);
+        std::cerr << "Handle " << i->number << " destroyed" << std::endl;;
         m.sources.erase( i );
-        std::cerr << "Handle destroyed\n";
     }
 
     std::auto_ptr<dStorm::Display::Change>
@@ -35,8 +76,9 @@ class Manager::Handle
 
 Manager::Source::Source(
     const WindowProperties& properties,
-    dStorm::Display::DataSource& source )
-: handler(source)
+    dStorm::Display::DataSource& source,
+    int n)
+: handler(source), number(n)
 {
     std::cerr << "Listening to window " 
               << properties.name << "\n";
@@ -46,7 +88,7 @@ Manager::Source::Source(
 void Manager::Source::handle_resize( 
     const dStorm::Display::ResizeChange& r)
 {
-    std::cerr << "Sizing display to " 
+    std::cerr << "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
               << r.key_size << " grey levels and pixel "
                  "size " << r.pixel_size << "\n";
@@ -167,8 +209,10 @@ Manager::Manager(dStorm::Display::Manager *p)
 : ost::Thread("DisplayManager"),
   gui_run(mutex),
   running(false),
+  number(0),
   previous(p)
 {
+    control_stream.reset( new ControlStream(*this) );
 }
 
 Manager::~Manager()

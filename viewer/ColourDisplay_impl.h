@@ -6,15 +6,15 @@
 #include <dStorm/Image.h>
 #include <dStorm/image/constructors.h>
 
+inline dStorm::Pixel operator*( const dStorm::viewer::ColourSchemes::RGBWeight& r, uint8_t b ) {
+    return dStorm::Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
+}
+inline dStorm::Pixel operator*( uint8_t b, const dStorm::viewer::ColourSchemes::RGBWeight& r ) {
+    return dStorm::Pixel( r[0] * b, r[1] * b, r[2] * b );
+}
+
 namespace dStorm {
 namespace viewer {
-
-    dStorm::Pixel operator*( const ColourSchemes::RGBWeight& r, uint8_t b ) {
-        return Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
-    }
-    dStorm::Pixel operator*( uint8_t b, const ColourSchemes::RGBWeight& r ) {
-        return Pixel( r[0] * b, r[1] * b, r[2] * b );
-    }
 
 template <> 
 class HueingColorizer<ColourSchemes::BlackWhite>
@@ -24,9 +24,9 @@ class HueingColorizer<ColourSchemes::BlackWhite>
     typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
     HueingColorizer(const Config& c)
         : Colorizer<unsigned char>(c) {} 
-    inline Pixel getPixel( int, int, BrightnessType br ) 
+    inline Pixel getPixel( int, int, BrightnessType br ) const
             { return inv( Pixel(br) ); }
-    inline Pixel getKeyPixel( BrightnessType br ) 
+    inline Pixel getKeyPixel( BrightnessType br ) const
         { return getPixel(0, 0, br ); }
 };
 
@@ -40,14 +40,14 @@ class HueingColorizer<ColourSchemes::BlackRedYellowWhite>
 
     HueingColorizer(const Config& c)
         : Colorizer<unsigned short>(c) {} 
-    Pixel getPixel( int, int, BrightnessType br ) {
+    Pixel getPixel( int, int, BrightnessType br ) const {
         unsigned char part = br & 0xFF;
         return inv(
             ( br < 0x100 ) ? Pixel( part, 0, 0 ) :
             ( br < 0x200 ) ? Pixel( 0xFF, part, 0 ) :
                              Pixel( 0xFF, 0xFF, part ) );
     }
-    inline Pixel getKeyPixel( BrightnessType br ) 
+    inline Pixel getKeyPixel( BrightnessType br )  const
         { return getPixel(0, 0, br ); }
 };
 
@@ -64,11 +64,11 @@ class HueingColorizer<ColourSchemes::FixedHue>
         ColourSchemes::rgb_weights_from_hue_saturation
             ( config.hue(), config.saturation(), weights );
     }
-    Pixel getPixel( int, int, BrightnessType val ) 
+    Pixel getPixel( int, int, BrightnessType val )  const
     {
         return inv( weights * val );
     }
-    inline Pixel getKeyPixel( BrightnessType br ) 
+    inline Pixel getKeyPixel( BrightnessType br )  const
         { return getPixel(0, 0, br ); }
 };
 
@@ -136,11 +136,12 @@ class HueingColorizer : public Colorizer<unsigned char> {
     }
 
     inline Pixel getPixel( int x, int y, 
-                           BrightnessType val ) 
+                           BrightnessType val )  const
     {
         return inv( Pixel( val * rgb_weights(x,y) ) );
     }
-    Pixel getKeyPixel( BrightnessType val ) { return inv( Pixel( val ) ); }
+    Pixel getKeyPixel( BrightnessType val ) const 
+        { return inv( Pixel( val ) ); }
 
     inline void updatePixel(int x, int y, 
                             float oldVal, float newVal) 

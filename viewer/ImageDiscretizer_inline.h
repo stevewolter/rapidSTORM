@@ -12,7 +12,7 @@ Discretizer< ImageListener>::background_threshold = 1;
 
 template < typename ImageListener>
 float 
-Discretizer< ImageListener>::key_value( LowDepth key )
+Discretizer< ImageListener>::key_value( LowDepth key ) const
 {
     int n = -1; 
     while ( transition[n+1] <= key ) n++;
