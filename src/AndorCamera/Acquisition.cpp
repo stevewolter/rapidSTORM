@@ -146,8 +146,11 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         return Fetch( NoMoreImages, 0 );
     } else while (true) {
         waitForNewImages();
-
         int cur_image = next_image;
+
+        /* Stop acquisition if we are managing a long kinetic run. */
+        if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
+            stop();
 
         /* The GetImages function expects and returns ranges. For
          * lack of buffer space, we reduce these to simple images. */
@@ -204,10 +207,6 @@ void Acquisition::waitForNewImages() {
 
     last_valid_image = range.second;
     initialized_last_valid_image = true;
-
-    /* Stop acquisition if we are managing a long kinetic run. */
-    if ( am_bounded_by_num_images && last_valid_image >= num_images-1 )
-        stop();
 
 #if 0 /* This code is unnecessary. If the image can't be fetched,
          an error will be reported by the getNextImage function. */
