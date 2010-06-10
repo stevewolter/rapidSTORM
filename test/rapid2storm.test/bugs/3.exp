@@ -1,0 +1,17 @@
+start_test_suite
+
+dstorm_attach
+
+set test "raw images output module compatible with localizations input"
+
+send "in Car in Method in InputMethod in Auto in InputFile in value set ${workspace_target}Mikrotubuli.txt\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+send "in Car in Output in EngineOutput in Output0 in RawImage in ToFile in value set ${tmpdir_target}Mikrotubuli.tif\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "One of your output modules needs access" { pass "$test" }
+    timeout { fail "$test" }
+}
+
+end_test_suite

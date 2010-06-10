@@ -1,0 +1,17 @@
+start_test_suite
+
+set test "Flyspray #43 behaviour"
+
+send "in Car in Method in InputMethod in Auto in InputFile in value set ${testcase_target}spool_37.sif\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+send "in Car in Output in EngineOutput in Output0 in RawImage in ToFile in value set ${tmpdir_target}spool_37.tif\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "in ProgressMeter in value set" { exp_continue }
+    -re "Unexpected end of file" { pass "$test" }
+    -re "Critical error" { fail "$test" }
+}
+
+end_test_suite

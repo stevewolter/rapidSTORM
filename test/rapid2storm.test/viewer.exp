@@ -5,26 +5,48 @@ load_default_config
 dstorm_attach
 
 send "in Car in Method in InputMethod in Auto set InputFile in value set $workspace/Mikrotubuli.sif\n"
+send "in Car in Engine in FixSigma in value set true\n"
 send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Verbose\n"
 send "in Car in Run in value set 1\n"
 
+set timeout 20
 set display -1
 set test "Display is opened"
 expect {
-    -re "Sizing display number (\[0-9\]*)" 
+    -re "Created new window number (\[0-9\]*)" 
         { set display $expect_out(1,string); pass "$test" }
+}
+
+set lastmean 0
+if { $display != -1 } {
+set test "Waiting for a few frames to fill display"
+set timeout -1
+set highest_image 0
+expect {
+    -re "Verbose plugin got results for (\[0-9\]*) fr" { 
+        if { $highest_image < $expect_out(1,string) } { set highest_image  $expect_out(1,string) }
+        if { $highest_image < 30 } { exp_continue }
+    }
+}
 }
 
 set test "Can close display"
 if { $display != -1 } {
-    puts $display_control_fifo "close $display\n"
-    flush $display_control_fifo
+    send "in DummyDisplayManagerConfig in ToClose in value set Window$display\n"
 
     expect {
-        -re "Handle $display destroyed" { pass "$test" }
+        -re "Destructing window $display with.*count of nonzero pixels is (\[0-9\]*)" 
+            { pass "$test"; set lastmean $expect_out(1,string); }
         -re "in Progress value set 1" { fail "$test" }
+    }
+
+    set test "Waiting for more images to accumulate"
+    expect {
+        -re "Verbose plugin got results for (\[0-9\]*) fr"
+            { if { $expect_out(1,string) < $highest_image * 2 } { exp_continue } }
     }
 } else {
     untested "$test"
@@ -34,7 +56,18 @@ set test "Can re-open display"
 if { $display != -1 } {
     send "in dStormJob01 in Crankshaft in Output2 in AF in Crankshaft in Output0 in Display in ReshowOutput in value set 1\n"
     expect {
-        -re "Sizing display number \[0-9\]*" { pass "$test" }
+        -re "Sizing display number (\[0-9\]*)" { pass "$test"; set display $expect_out(1,string); }
+    }
+    
+    set test "After re-opening have sufficient pixel count"
+    expect {
+        -re "Changing window $display with.* count of nonzero pixels is (\[0-9\]*)" {
+            if { $expect_out(1,string) >= $lastmean } {
+                pass "$test"
+            } else {
+                fail "$test"
+            }
+        }
     }
 } else {
     untested "$test"
