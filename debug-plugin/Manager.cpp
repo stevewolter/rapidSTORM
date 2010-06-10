@@ -7,40 +7,33 @@
 #include <fstream>
 #include <sstream>
 #include <boost/units/io.hpp>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include <dStorm/helpers/Variance.h>
+#include <dStorm/image/iterator.h>
 
-class Manager::ControlStream: public ost::Thread  {
+class Manager::ControlConfig
+: public simparm::Object, public simparm::Listener, private boost::noncopyable
+{
     Manager& m;
-    const char *const filename;
-    std::ifstream stream;
   public:
-    ControlStream(Manager& m) 
-    : ost::Thread("Dummy manager control stream"),
-      m(m), filename(getenv("RAPIDSTORM_DEBUG_DISPLAY_CONTROL_FILE")),
-      stream( (filename) ? filename : "" )
+    simparm::DataChoiceEntry<int> to_close;
+
+    ControlConfig(Manager& m) 
+        : Object("DummyDisplayManagerConfig", "Dummy display manager"), m(m),
+          to_close("ToClose", "Close Window")
     {
-        std::cerr << "Checking for control stream, filename is " <<
-            (filename != NULL) << std::endl;
-        if ( stream ) {
-            std::cerr << "Debug display manager listening on "
-                << filename
-                << std::endl;
-            start();
-        }
+        to_close.set_auto_selection( false );
+        receive_changes_from( to_close.value );
+        push_back( to_close );
     }
 
-    void run() {
-        while ( stream ) {
-            std::string command;
-            stream >> command;
-            if ( command == "close" ) {
-                int number;
-                stream >> number;
-                std::cerr << "Passing close for " << number << std::endl;
-                ost::MutexLock lock(m.mutex);
-                SourcesMap::iterator i = m.sources_by_number.find(number);
-                if ( i != m.sources_by_number.end() ) {
-                    i->second->handler.notice_closed_data_window();
-                }
+    void operator()(const simparm::Event& e) {
+        if ( &e.source == &to_close.value && to_close.isValid() ) {
+            int number = to_close();
+            ost::MutexLock lock(m.mutex);
+            SourcesMap::iterator i = m.sources_by_number.find(number);
+            if ( i != m.sources_by_number.end() ) {
+                i->second->handler.notice_closed_data_window();
             }
         }
     }
@@ -61,13 +54,17 @@ class Manager::Handle
         i = m.sources.insert( 
             m.sources.end(),
             Source(properties, source, m.number++) );
-        std::cerr << "Created " << i->number << std::endl;
         m.sources_by_number.insert( make_pair( i->number, i ) );
+        std::stringstream entrynum;
+        entrynum << i->number;
+        m.control_config->to_close.addChoice( i->number, "Window" + entrynum.str(), "Window " + entrynum.str());
+        std::cerr << "Created new window number " << i->number << std::endl;
     }
     ~Handle() {
         guard lock(m.mutex);
-        std::cerr << "Handle " << i->number << " destroyed" << std::endl;;
+        m.print_status(*i, "Destructing ", true);
         m.sources.erase( i );
+        m.control_config->to_close.removeChoice(i->number);
     }
 
     std::auto_ptr<dStorm::Display::Change>
@@ -78,7 +75,8 @@ Manager::Source::Source(
     const WindowProperties& properties,
     dStorm::Display::DataSource& source,
     int n)
-: handler(source), number(n)
+: handler(source), number(n),
+  wants_closing(false), may_close(false)
 {
     std::cerr << "Listening to window " 
               << properties.name << "\n";
@@ -115,14 +113,16 @@ bool Manager::Source::get_and_handle_change() {
                        (c->change_key.size() > 0);
     if ( c->do_resize ) {
         handle_resize( c->resize_image );
-    } else if ( c->do_clear ) {
+    } 
+    if ( c->do_clear ) {
         state.do_clear = true;
         state.clear_image = c->clear_image;
         current_display.fill(
             state.clear_image.background );
-    } else if ( c->do_change_image ) {
-        c->image_change.new_image = 
-            current_display.deep_copy();
+    } 
+    if ( c->do_change_image ) {
+        std::cerr << "Replacing image with " << c->image_change.new_image.frame_number().value() << std::endl;
+        current_display = c->image_change.new_image;
     }
     
     for( dStorm::Display::Change::PixelQueue::const_iterator
@@ -166,31 +166,49 @@ std::ostream& operator<<(std::ostream& o, dStorm::Display::Color c)
     return ( o << int(c.red()) << " " << int(c.green()) << " " << int(c.blue()) );
 }
 
+void Manager::print_status(Source& s, std::string prefix, bool p)
+{
+    bool has_changed = s.get_and_handle_change();
+    if (!has_changed && !p) return;
+    
+    md5_state_t pms;
+    md5_byte_t digest[16];
+    md5_init( &pms );
+    md5_append( &pms, 
+        (md5_byte_t*)s.current_display.ptr(),
+        s.current_display.size_in_pixels()*
+            sizeof(dStorm::Pixel) / sizeof(md5_byte_t));
+    md5_finish( &pms, digest );
+
+    std::stringstream sdigest;
+    for (int j = 0; j < 16; j++)
+        sdigest << std::hex << int(digest[j]);
+
+    float sum = 0;
+    int count = 0;
+    for ( Source::Image::const_iterator j = s.current_display.begin(); 
+                j != s.current_display.end(); ++j )
+    {
+        sum += int(j->red()) + j->blue() + j->green();
+        if ( j->red() != 0 || j->blue() != 0 || j->green() != 0 )
+            count++;
+    }
+    std::cerr << prefix << "window " << s.number << " with digest " << sdigest.str() << ", mean is " 
+                << sum / s.current_display.size_in_pixels() << " and count of nonzero pixels is " << count
+                << std::endl;
+}
+
 void Manager::dispatch_events() {
     std::cerr << "Start of event dispatch routine\n";
     while ( running ) {
       {
         guard lock(mutex);
-        gui_run.signal();
         for ( Sources::iterator i = sources.begin(); i != sources.end(); i++ )
         {
-            bool has_changed = i->get_and_handle_change();
-            if (!has_changed) continue;
-            
-            md5_state_t pms;
-            md5_byte_t digest[16];
-            md5_init( &pms );
-            md5_append( &pms, 
-                (md5_byte_t*)i->current_display.ptr(),
-                i->current_display.size_in_pixels()*
-                    sizeof(dStorm::Pixel) / sizeof(md5_byte_t));
-            md5_finish( &pms, digest );
-
-            std::stringstream sdigest;
-            for (int j = 0; j < 16; j++)
-                sdigest << std::hex << int(digest[j]);
-            std::cerr << "After change digest is " << sdigest.str() << "\n";
+            if ( i->wants_closing ) { i->may_close = true; }
+            print_status(*i, "Changing ");
         }
+        gui_run.broadcast(); 
       }
 #ifdef HAVE_USLEEP
       usleep(10000);
@@ -212,7 +230,7 @@ Manager::Manager(dStorm::Display::Manager *p)
   number(0),
   previous(p)
 {
-    control_stream.reset( new ControlStream(*this) );
+    control_config.reset( new ControlConfig(*this) );
 }
 
 Manager::~Manager()
@@ -227,9 +245,8 @@ void Manager::store_image(
         std::string filename,
         const dStorm::Display::Change& image )
 {
-    std::cerr << "Storing under " << filename << std::endl;
+    std::cerr << "Storing result image under " << filename << std::endl;
     previous->store_image(filename, image);
-    std::cerr << "Stored" << std::endl;
 }
 
 std::auto_ptr<dStorm::Display::Change>
@@ -246,5 +263,10 @@ std::auto_ptr<dStorm::Display::Change>
     rv->image_change.new_image = i->current_display;
 
     return rv;
+}
+
+simparm::Node& Manager::get_config()
+{
+    return *control_config;
 }
 

@@ -39,7 +39,7 @@ class Source::_iterator
     friend class boost::iterator_core_access;
 
     dStorm::engine::Image& dereference() const { return image; }
-    void increment() { n++; }
+    void increment() { n++; image.frame_number() = n * cs_units::camera::frame; }
     bool equal(const _iterator& o) const { return o.n == n; }
 
   public:

@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h
 
-if HAVE_LIBATMCD32D
+if BUILD_ANDORCAM
     ACS = \
 	SDK.h SDK.cpp Error.cpp foreach.h \
 	Acquisition.cpp StateMachine.cpp StateMachine.h \

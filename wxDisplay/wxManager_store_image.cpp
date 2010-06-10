@@ -3,7 +3,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#ifdef HAVE_MAGICK___H
 #include <Magick++.h>
+#endif
 #include <cmath>
 
 static const char *SI_prefixes[]
@@ -199,7 +201,7 @@ void wxManager::store_image(
     DEBUG("Storing image");
     if ( !image.do_resize || !image.do_clear )
         throw std::logic_error("No complete image given for store_image");
-#ifndef HAVE_LIBGRAPHICSMAGICK__
+#if !defined(HAVE_LIBGRAPHICSMAGICK__) || !defined(HAVE_MAGICK___H)
     throw std::runtime_error("Cannot save images: Magick library not used in compilation");
 #else
     DEBUG("Image to store has width " << image.resize_image.width << " and height " << image.resize_image.height

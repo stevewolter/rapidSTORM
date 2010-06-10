@@ -3,8 +3,6 @@
 
 #include "AndorDirect_decl.h"
 
-#ifdef HAVE_LIBATMCD32D
-
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/ImageTraits.h>
@@ -97,7 +95,5 @@ namespace AndorCamera {
         virtual TraitsPtr get_traits();
     };
 }
-
-#endif
 
 #endif

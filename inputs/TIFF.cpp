@@ -1,5 +1,12 @@
 #define DSTORM_TIFFLOADER_CPP
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_TIFFIO_H
+
+#include "debug.h"
+
 #include <stdexcept>
 #include <cassert>
 #include <errno.h>
@@ -96,6 +103,7 @@ class Source<Pixel>::iterator
 
     Image& dereference() const; 
     bool equal(const iterator& i) const {
+        DEBUG( "Comparing " << src << " " << i.src << " " << directory << " " << i.directory );
         return (src == i.src) && (src == NULL || directory == i.directory);
     }
     void increment() { 
@@ -104,11 +112,14 @@ class Source<Pixel>::iterator
         if ( TIFFReadDirectory(src->tiff) != 1 ) {
             if ( tiff_error_buffer[0] )
                 src->throw_error();
-            else
+            else {
+                DEBUG( "Setting iterator to NULL" );
                 src = NULL;
+            }
+        } else {
+            directory++; 
+            src->current_directory = directory;
         }
-        directory++; 
-        src->current_directory = directory;
     }
     void decrement() { 
         img.invalidate(); 
@@ -175,6 +186,7 @@ Source<Pixel>::iterator::dereference() const
         sz.y() = src->_height * cs_units::camera::pixel;
         Image i( sz, directory * cs_units::camera::frame);
 
+        DEBUG("Reading image " << directory << " " << i.size());
         assert( i.size() >= (strip_size * strip_count / sizeof(Pixel)) * cs_units::camera::pixel * cs_units::camera::pixel );
 
         for (tstrip_t strip = 0; strip < strip_count; strip++) {
@@ -182,6 +194,7 @@ Source<Pixel>::iterator::dereference() const
                 i.ptr() + (strip * strip_size / sizeof(Pixel)),
                 strip_size );
         }
+        img = i;
     }
 
     return img;
@@ -211,8 +224,6 @@ Source<Pixel>::get_traits()
     TraitsPtr rv( new typename TraitsPtr::element_type());
     rv->size.x() = _width * cs_units::camera::pixel;
     rv->size.y() = _height * cs_units::camera::pixel;
-    rv->size.z() = 1 * cs_units::camera::pixel; 
-            /* TODO: Read from file */
     rv->dim = 1; /* TODO: Read from file */
 
     return rv;
@@ -260,3 +271,5 @@ template class Config<unsigned short>;
 
 }
 }
+
+#endif

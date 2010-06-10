@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "plugin.h"
 #include <stdint.h>
@@ -137,10 +138,12 @@ void Viewer::operator()(const simparm::Event& e) {
 void Viewer::adapt_to_changed_config() {
     DEBUG("Changing implementation, showing output is " << config.showOutput());
     MutexLock lock(implementation_mutex);
-    implementation = implementation->adapt( implementation, config, *this );
-    forwardOutput = &implementation->getForwardOutput();
-    reshow_output.viewable = ! config.showOutput();
-    DEBUG("Changed implementation");
+    if ( implementation.get() ) {
+        implementation = implementation->adapt( implementation, config, *this );
+        forwardOutput = &implementation->getForwardOutput();
+        reshow_output.viewable = ! config.showOutput();
+    }
+    DEBUG("Changed implementation to " << implementation.get());
 }
 
 void Viewer::writeToFile(const string &name) {

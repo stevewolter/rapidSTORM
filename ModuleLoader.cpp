@@ -26,13 +26,16 @@ struct LibLT_Handler {
     ~LibLT_Handler() { lt_dlexit(); }
 };
 
-struct ModuleLoader::Pimpl {
+struct ModuleLoader::Pimpl
+: public JobMaster 
+{
     LibLT_Handler libLT_Handler;
     typedef boost::ptr_list<LibraryHandle> List;
     List lib_handles;
     std::set<std::string> loaded;
 
     std::auto_ptr<Display::Manager> display;
+    std::list<Job*> jobs;
 
     Pimpl();
     ~Pimpl();
@@ -43,6 +46,9 @@ struct ModuleLoader::Pimpl {
     static int lt_dlforeachfile_callback( 
         const char *filename, void* data );
     std::string makeProgramDescription();
+
+    void register_node( Job& j ) { jobs.push_back(&j); }
+    void erase_node( Job& j ) { jobs.remove(&j); }
 };
 
 ModuleLoader::ModuleLoader()
@@ -121,7 +127,6 @@ void ModuleLoader::add_modules
     car_config.engineConfig.addSpotFitter( new engine::GaussFitterFactory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
-    
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();
@@ -133,6 +138,8 @@ void ModuleLoader::add_modules
         (*i) ( &car_config.engineConfig );
         DEBUG("Adding plugin's output modules");
         (*i) ( &car_config.outputConfig );
+        DEBUG("Getting additional jobs");
+        (*i) ( *pimpl );
     }
 }
 
@@ -213,5 +220,11 @@ ModuleLoader& ModuleLoader::getSingleton() {
 }
 void ModuleLoader::destroySingleton()
     { if ( ml != NULL ) { delete ml; ml = NULL; } }
+
+void ModuleLoader::add_jobs( JobMaster& master ) {
+    for ( std::list<Job*>::iterator i = pimpl->jobs.begin(); i != pimpl->jobs.end(); i++ ) {
+        master.register_node( **i );
+    }
+}
 
 }

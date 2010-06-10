@@ -404,7 +404,6 @@ std::auto_ptr<ImageChange>
     if ( contents.get() == NULL )
         return rv;
 
-    int w = getWidth(), h = getHeight();
     rv->new_image = dStorm::Display::Image( mkImgSize(getSize()) );
     unsigned char *d = contents->GetData();
     dStorm::Display::Image::iterator i;

@@ -1,8 +1,6 @@
 #ifndef ANDORDIRECT_VIEWPORTSELECTOR_H
 #define ANDORDIRECT_VIEWPORTSELECTOR_H
 
-#ifdef HAVE_LIBATMCD32D
-
 #include <dStorm/helpers/thread.h>
 #include <dStorm/helpers/DisplayManager.h>
 #include <simparm/Entry.hh>
@@ -150,5 +148,4 @@ class Config
 }
 }
 
-#endif
 #endif

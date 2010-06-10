@@ -4,6 +4,7 @@
 
 #include "engine/Engine.h"
 #include "config.h"
+#include "ThresholdGuesser.h"
 
 #include <dStorm/data-c++/Vector.h>
 #include <cassert>
@@ -149,6 +150,7 @@ output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
 
 void Engine::run() 
 {
+  try {
     DEBUG("Started run");
 
     int numPistons = config.pistonCount();
@@ -172,6 +174,11 @@ void Engine::run()
     Output::Announcement announcement(convert_traits(input.get_traits()));
     announcement.carburettor = &input;
     DEBUG("Built announcement structure");
+
+    DEBUG("Guessing input threshold");
+    if ( config.guessThreshold() ) {
+        config.amplitude_threshold = ThresholdGuesser(input).compute_threshold();
+    }
 
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
@@ -217,6 +224,20 @@ void Engine::run()
         }
     }
     DEBUG("Finished run");
+  } catch (const dStorm::abort&) {
+  } catch (const std::bad_alloc& e) {
+    OutOfMemoryMessage m("Job " + job_ident);
+    send(m);
+  } catch (const dStorm::runtime_error& e) {
+    simparm::Message m( e.get_message("Error in Job " + job_ident) );
+    send(m);
+  } catch (const std::exception& e) {
+    simparm::Message m("Error in Job " + job_ident, e.what() );
+    send(m);
+  } catch (...) {
+    simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
+    send( m );
+  }
 }
 
 void Engine::safeRunPiston() throw()
@@ -224,6 +245,7 @@ void Engine::safeRunPiston() throw()
     try {
         runPiston();
         return;
+    } catch (const dStorm::abort&) {
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + job_ident);
         send(m);

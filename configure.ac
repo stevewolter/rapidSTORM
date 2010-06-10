@@ -50,6 +50,7 @@ DX_INIT_DOXYGEN(dStorm)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
+AC_CHECK_HEADERS([Magick++.h])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -69,16 +70,13 @@ AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
 
-AC_ARG_WITH([andor-camera],
-    [AS_HELP_STRING([--with-andor-camera],
-        [support direct acquisition from Andor cameras by Andor SDK @<:@default=check@:>@])],
-        [],
-        [with_andor_camera=check])
-AS_IF( 
-    [test "x$with_andor_camera" != xno], 
-        [AC_CHECK_LIB([ATMCD32D], [main], ,
-            [with_andor_camera=no])] )
-AM_CONDITIONAL( [HAVE_LIBATMCD32D], [test "x$with_andor_camera" != xno] )
+AC_CHECK_LIB([DummyAndorCamera], [main])
+AS_IF([test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes"],
+    [ AC_MSG_NOTICE([enabling simulated Andor camera support]) ],
+    [ AC_CHECK_LIB([ATMCD32D], [main]) ])
+AS_IF([test "x$ac_cv_lib_ATMCD32D_main" = "xyes"],
+    [ AC_MSG_NOTICE([enabling real Andor camera support]) ])
+AM_CONDITIONAL([BUILD_ANDORCAM], [test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes" -o "x$ac_cv_lib_ATMCD32D_main" = "xyes"])
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],

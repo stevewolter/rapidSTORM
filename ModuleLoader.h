@@ -4,6 +4,7 @@
 #include <boost/utility.hpp>
 #include "engine/CarConfig_decl.h"
 #include <memory>
+#include <dStorm/JobMaster.h>
 
 namespace dStorm {
 
@@ -20,6 +21,7 @@ class ModuleLoader : boost::noncopyable {
 
     void add_modules( engine::CarConfig& );
     std::string makeProgramDescription();
+    void add_jobs( JobMaster& master );
     void do_panic_processing( int argc, char *argv[] );
 };
 

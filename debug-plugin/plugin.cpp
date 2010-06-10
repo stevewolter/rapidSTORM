@@ -15,6 +15,8 @@
 
 using namespace dStorm::output;
 
+static Manager *manager = NULL;
+
 OutputSource* write_help_file( OutputSource *src ) {
     src->help_file = "";
     return src;
@@ -62,7 +64,8 @@ rapidSTORM_Display_Driver
         return old;
     } else {
         std::cerr << "Test plugin loaded" << std::endl;
-        return new Manager(old);
+        manager = new Manager(old);
+        return manager;
     }
 }
 
@@ -71,6 +74,12 @@ void
     (dStorm::ErrorHandler::CleanupArgs* , 
      dStorm::JobMaster* )
 {
+}
+
+void rapidSTORM_Additional_Jobs( dStorm::JobMaster *job_master )
+{
+    if ( manager != NULL )
+        job_master->register_node( *manager );
 }
 
 #ifdef __cplusplus

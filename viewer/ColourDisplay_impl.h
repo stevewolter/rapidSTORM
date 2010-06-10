@@ -117,7 +117,6 @@ class HueingColorizer : public Colorizer<unsigned char> {
             ColourSchemes::convert_xy_tone_to_hue_sat
                 ( colours(x,y).x(), colours(x,y).y(), hs[0], hs[1] );
         }
-        int pixels_per_colour = rgb_weights.size_in_pixels();
         ColourSchemes::rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
                 
     }

@@ -212,6 +212,7 @@ void Display::draw_image( const CamImage& data) {
     /* Normalize pixels and store result in the ImageChange vector */
     dStorm::Image<dStorm::Pixel,2>& img = change->image_change.new_image;
     img = data.normalize<dStorm::Pixel>(normalization_factor);
+    DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
         int l = aimed->left(), r = aimed->right(),
@@ -303,12 +304,16 @@ void Display::operator()
     } else if (&e.source == &save.value && save.triggered()) {
         save.untrigger();
         if ( imageFile ) {
+            DEBUG("Getting current image display status");
             std::auto_ptr<dStorm::Display::Change> c
                 = handle->get_state();
+            DEBUG("Got status");
             if ( c.get() == NULL )
                 throw std::runtime_error("Unable to acquire image from display window");
+            DEBUG("Saving image");
             dStorm::Display::Manager::getSingleton()
                 .store_image( imageFile(), *c );
+            DEBUG("Saved image");
         } else {
             simparm::Message m( "Unable to save image",
                                 "No filename for camera snapshot image provided" );
