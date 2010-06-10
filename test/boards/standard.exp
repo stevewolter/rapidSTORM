@@ -1,0 +1,10 @@
+global tmpdir_host
+global tmpdir_target
+global dirsep_host
+global dirsep_target
+global workspace_target
+
+set tmpdir_host "/tmp/"
+set tmpdir_target "/tmp/"
+set workspace_target "/srv/rapidSTORM-build/Sample_Workspace_dSTORM/"
+set testcase_target "/hinkelsteine/rapidstorm-dev/test_cases/"

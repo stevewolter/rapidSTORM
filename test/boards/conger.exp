@@ -1,2 +1,15 @@
-set_board_info hostname "conger"
-puts "Conger board loaded"
+global netcathost
+load_generic_config "unix"
+set netcathost "192.168.56.101"
+
+global tmpdir_host
+global tmpdir_target
+global dirsep_host
+global dirsep_target
+global workspace_target
+
+set tmpdir_host "/hinkelsteine/rapidstorm-dev/test-tree/tmp/"
+set tmpdir_target "Y:\\test-tree\\tmp\\"
+set workspace_target "Y:\\test-tree\\Sample_Workspace_dSTORM\\"
+set workspace_host "/srv/rapidstorm-dev/Sample_Workspace_dSTORM/"
+set testcase_target "Y:\\test_cases\\"

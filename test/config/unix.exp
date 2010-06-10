@@ -1,10 +1,11 @@
 proc program_start { cmd args } {
     global spawn_id
+    global netcathost
 
-    if { ![host_info exists hostname] } {
-        spawn $cmd $args
+    if { [info exists netcathost] } {
+        spawn netcat $netcathost 1111
     } else {
-        spawn ssh [host_info hostname] $cmd $args
+        spawn $cmd $args
     }
 }
 
