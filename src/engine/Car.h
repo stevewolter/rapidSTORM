@@ -82,6 +82,7 @@ namespace engine {
 
         void drive();
         void stop();
+        bool needs_stopping() { return true; }
 
         const CarConfig &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }

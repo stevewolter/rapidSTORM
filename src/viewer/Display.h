@@ -25,7 +25,6 @@ class Display
     PixelSet ps;
     int ps_step;
 
-    bool do_show_window;
     dStorm::Display::Manager::WindowProperties props;
     dStorm::Display::DataSource& vph;
 
@@ -57,6 +56,7 @@ class Display
                     bool with_key);
 
     dStorm::Display::ResizeChange getSize() const { return my_size; }
+    void show_window();
 };
 
 

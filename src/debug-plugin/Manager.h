@@ -3,6 +3,7 @@
 
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/Job.h>
 #include <boost/utility.hpp>
 #include <map>
 #include <list>
@@ -15,9 +16,12 @@ template <> class NumTraits<dStorm::Pixel>
 
 }
 
-class Manager : public dStorm::Display::Manager, private ost::Thread {
+class Manager 
+: public dStorm::Display::Manager, private ost::Thread ,
+  public dStorm::Job
+{
     class Handle;
-    class ControlStream;
+    class ControlConfig;
 
     std::auto_ptr<WindowHandle>
         register_data_source
@@ -31,7 +35,7 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
     bool running;
     int number;
 
-    std::auto_ptr<ControlStream> control_stream;
+    std::auto_ptr<ControlConfig> control_config;
 
     struct Source {
         typedef dStorm::Image<dStorm::Pixel,2> Image;
@@ -39,6 +43,7 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
         Image current_display;
         dStorm::Display::Change state;
         int number;
+        bool wants_closing, may_close;
 
         Source( const WindowProperties& properties,
                 dStorm::Display::DataSource& source,
@@ -58,6 +63,8 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
     void dispatch_events();
     void run();
 
+    void print_status(Source& source, std::string prefix, bool force_print = false);
+
   public:
     Manager(dStorm::Display::Manager *p);
     Manager(const Manager&);
@@ -66,6 +73,9 @@ class Manager : public dStorm::Display::Manager, private ost::Thread {
     void store_image(
         std::string filename,
         const dStorm::Display::Change& image);
+
+    simparm::Node& get_config();
+    void stop() {}
 };
 
 #endif

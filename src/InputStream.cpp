@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
 #include "doc/help/rapidstorm_help_file.h"
@@ -6,7 +7,6 @@
 
 #include <simparm/IO.hh>
 
-#include "debug.h"
 #include <dStorm/error_handler.h>
 #include <dStorm/helpers/BlockingThreadRegistry.h>
 
@@ -125,9 +125,14 @@ void InputStream::Pimpl::reset_config() {
 
 void InputStream::Pimpl::terminate_remaining_cars() {
     ost::MutexLock lock(mutex);
+    DEBUG("Terminate remaining cars");
     for ( Jobs::iterator i = running_cars.begin();
-          i != running_cars.end(); i++)
+          i != running_cars.end(); ++i )
+    {
+        DEBUG("Sending stop to " << (*i)->get_config().getName());
         (*i)->stop();
+        DEBUG("Sent stop to " << (*i)->get_config().getName());
+    }
 }
 
 InputStream::Pimpl::~Pimpl() 
@@ -187,7 +192,8 @@ void InputStream::register_node( Job& node ) {pimpl->register_node(node);}
 void InputStream::Pimpl::register_node( Job& node ) {
     ost::MutexLock lock(mutex);
     simparm::Node::push_back( node.get_config() );
-    running_cars.insert( &node );
+    if ( node.needs_stopping() )
+        running_cars.insert( &node );
 }
 
 void InputStream::erase_node( Job& node ) {pimpl->erase_node(node);}
@@ -204,10 +210,12 @@ void InputStream::Pimpl::processCommand
 {
     DEBUG("Processing command " << cmd);
     if ( cmd == "wait_for_jobs" ) {
+        DEBUG("Got command to wait for jobs");
         terminate_remaining_cars();
         ost::MutexLock lock(mutex);
         while ( ! running_cars.empty() )
             all_cars_finished.wait();
+        DEBUG("Processed command to wait for jobs");
     } else if ( cmd == "reset" ) {
         reset_config();
     } else

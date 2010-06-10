@@ -1,0 +1,28 @@
+global have_test_plugin
+
+begin_test_suite
+
+set test "Can close windows with test plugin"
+if { $have_test_plugin == 1 } {
+    send "in Car in Method in InputMethod in value set DummyInput\n"
+    send "in Car in Method in InputMethod in DummyInput in Number in value set 1000\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+    dstorm_attach
+    send "in Car in Output in EngineOutput in Output1 in Image in ShowOutput in value set true\n"
+    send "in Car in Run in value set 1\n"
+    
+    set dispnum -1
+    expect {
+        -re "Created new window number (\[0-9\]*)" { set dispnum $expect_out(1,string) }
+    }
+    if { $dispnum != -1 } {
+        send "in DummyDisplayManagerConfig in ToClose in value set Window$dispnum\n"
+        expect {
+            -re "Destructing window $dispnum " { pass "$test" }
+            -re "Verbose plugin got signal Engine_run_succeeded" { fail "$test" }
+        }
+    }
+} else {
+    unsupported "$test"
+}

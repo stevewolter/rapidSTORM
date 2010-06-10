@@ -4,6 +4,7 @@
 #include <cassert>
 #include <dStorm/helpers/thread.h>
 #include <limits>
+#include <dStorm/helpers/exception.h>
 
 #include "Buffer.h"
 #include "Source.h"
@@ -81,8 +82,11 @@ void Buffer<Object,RunConcurrently>::run()
             new_data.signal();
             if ( fetch_is_finished ) break;
         }
+    } catch (const dStorm::abort&) {
     } catch (const std::exception& e) {
         std::cerr << "Error in reading input: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown error in reading input" << std::endl;
     }
 
     fetch_is_finished = true;

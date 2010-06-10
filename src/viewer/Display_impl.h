@@ -17,7 +17,6 @@ Display<Colorizer>::Display(
     std::auto_ptr<dStorm::Display::Change> initial_state
 ) 
 : discretizer(disc), 
-  do_show_window( true ),
   vph(vph), 
   next_change( initial_state )
 {
@@ -26,9 +25,14 @@ Display<Colorizer>::Display(
     else
         setSize( next_change->resize_image );
 
-    props.name = config.getDesc();
-    props.flags.close_window_on_unregister
-        ( config.close_on_completion() );
+}
+
+template <typename Colorizer>
+void Display<Colorizer>::show_window()
+{
+    props.initial_size = my_size;
+    window_id = dStorm::Display::Manager::getSingleton()
+            .register_data_source( props, vph );
 }
 
 template <typename Colorizer>
@@ -41,15 +45,6 @@ void Display<Colorizer>::setSize(
         / cs_units::camera::pixel / cs_units::camera::pixel, false );
     ps_step = my_size.size.x() / cs_units::camera::pixel;
 
-    if ( do_show_window ) {
-        props.initial_size = my_size;
-        window_id = dStorm::Display::Manager::getSingleton()
-                .register_data_source( props, vph );
-        do_show_window = false;
-    } else {
-        next_change->do_resize = true;
-        next_change->resize_image = my_size;
-    }
     this->clear();
 }
 
@@ -67,6 +62,13 @@ void Display<Colorizer>::setSize(
     size.pixel_size = *traits.resolution;
 
     setSize( size );
+
+    if ( window_id.get() == NULL ) {
+        show_window();
+    } else {
+        next_change->do_resize = true;
+        next_change->resize_image = my_size;
+    }
 }
 
 template <typename Colorizer>

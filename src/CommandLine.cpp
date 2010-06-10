@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include <simparm/Message.hh>
 #include "CommandLine.h"
 #include <vector>
@@ -10,8 +12,7 @@
 #include "InputStream.h"
 #include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
-
-#include "debug.h"
+#include <simparm/IO.hh>
 
 namespace dStorm {
 
@@ -37,17 +38,21 @@ class TwiddlerLauncher
   boost::noncopyable
 {
     engine::CarConfig &config;
+    std::list<Job*> &jobs;
     void operator()( const simparm::Event& );
   public:
-    TwiddlerLauncher(engine::CarConfig&);
+    TwiddlerLauncher(engine::CarConfig&, std::list<Job*>&);
 };
 
 class CommandLine::Pimpl
-: public JobMaster {
+: public JobMaster,
+  public simparm::IO
+{
     int argc;
     char **argv;
     engine::CarConfig config;
     JobStarter starter;
+    std::list<Job*> jobs;
 
     bool load_config_file(const std::string& filename);
     void find_config_file();
@@ -56,8 +61,10 @@ class CommandLine::Pimpl
     Pimpl(int argc, char *argv[]);
 
     void run();
-    void register_node( dStorm::Job& ) {}
-    void erase_node( dStorm::Job&  )  {}
+    void register_node( dStorm::Job& j ) 
+        { this->push_back(j.get_config()); jobs.push_back( &j ); }
+    void erase_node( dStorm::Job& j )  
+        {this->erase(j.get_config());  jobs.remove( &j ); }
 };
 
 CommandLine::CommandLine(int argc, char *argv[])
@@ -90,7 +97,7 @@ void CommandLine::Pimpl::run() {
             TransmissionTreePrinter(config)));
     cmd_line_args.push_back(
         std::auto_ptr<simparm::Node>(new
-            TwiddlerLauncher(config)));
+            TwiddlerLauncher(config, jobs)));
     cmd_line_args.push_back( starter );
 
     find_config_file();
@@ -155,8 +162,9 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: argc(argc), argv(argv), starter(NULL)
+: IO(NULL, NULL), argc(argc), argv(argv), starter(NULL)
 {
+    push_back(config);
     starter.setConfig(config);
     ModuleLoader::getSingleton().add_modules( config );
 }
@@ -194,11 +202,12 @@ void TransmissionTreePrinter::printNode(
 }
 
 TwiddlerLauncher::TwiddlerLauncher
-    ( engine::CarConfig& c )
+    ( engine::CarConfig& c, std::list<Job*>& j )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
   simparm::Listener( simparm::Event::ValueChanged ),
-  config(c)
+  config(c),
+  jobs(j)
 {
     receive_changes_from( value );
 }
@@ -207,8 +216,15 @@ void TwiddlerLauncher::operator()( const simparm::Event& )
 {
     DEBUG("Launching command stream");
     std::auto_ptr<InputStream> is(new InputStream(config, std::cin, std::cout));
+    for ( std::list<Job*>::iterator i = jobs.begin(); i != jobs.end(); i++ ) {
+        DEBUG("Registering additional job " << (*i)->get_config().getName());
+        is->register_node( **i );
+    }
     is.release()->detach();
     DEBUG("Launched command stream");
 }
+
+void CommandLine::register_node( Job& j ) { pimpl->register_node( j ); }
+void CommandLine::erase_node( Job&  j ) { pimpl->erase_node( j ); }
 
 }

@@ -36,6 +36,10 @@ class runtime_error : public std::runtime_error {
     }
 };
 
+/** Abort without further explanation. 
+ *  Use when error has already been printed. */
+class abort {};
+
 }
 
 #endif

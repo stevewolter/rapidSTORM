@@ -1,5 +1,4 @@
 #define ANDORCAMERA_ACQUISITION_CPP
-#define VERBOSE
 #include "debug.h"
 
 #include <AndorCamera/Acquisition.h>
@@ -266,7 +265,8 @@ unsigned int Acquisition::getHeight() {
 }
 
 bool Acquisition::hasLength() {
-    return am_bounded_by_num_images;
+    return (am_bounded_by_num_images || (acquisitionMode->select_mode() == Kinetics ||
+          acquisitionMode->select_mode() == Fast_Kinetics) );
 }
 
 }

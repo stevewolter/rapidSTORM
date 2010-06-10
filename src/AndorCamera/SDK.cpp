@@ -7,6 +7,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef LINK_SDK_DYNAMICALLY
 /* This sounds ridiculous, but, for some reason, these includes
  * are necessary for linking the ATMCD32D.H with mingw. */
@@ -102,7 +106,11 @@ USE_FUNCTION(WaitForAcquisition)
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
+#if defined(HAVE_LIBATMCD32D)
 #include <ATMCD32D.H>
+#elif defined(HAVE_LIBDUMMYANDORCAMERA)
+#include <ATMCD32D_for_dummy.h>
+#endif
 #endif
 
 #define CHECK(x,y) try { checkAndorCodeStr( x, y ); } catch (Error& e) { throw e; }

@@ -148,6 +148,7 @@ std::auto_ptr< BaseSource > Config::makeImageSource() const
             const_cast< BaseMethod& >(inputMethod())
                 .makeSource(*this);
         DEBUG("Source flags are " << rv->flags.to_string());
+        DEBUG("Checking whether to make ROI filter for " << firstImage() << " " << lastImage().is_set());
         if ( firstImage() != 0 * cs_units::camera::frame || lastImage().is_set() ) 
         {
             try_to_add_ROI_filter<dStorm::engine::Image>(rv);

@@ -108,7 +108,7 @@ void Source::read_localization(
             break;
       }
       new(&target) Localization( Pos(Pos::Zero()), 0 );
-      DEBUG("Reporting source trace " << target->has_source_trace());
+      DEBUG("Reporting source trace " << target.has_source_trace());
       file.read_next( target );
     } else {
         int my_buffer = tbi++;

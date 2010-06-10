@@ -25,6 +25,8 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Config &c
     image.setListener(&discretization);
     discretization.setListener(&cache);
     cache.setListener(&cia);
+
+    cia.show_window();
 }
 
 template <int Hueing>

@@ -1,6 +1,7 @@
 #ifndef DSTORM_INPUT_ROIFILTER_H
 #define DSTORM_INPUT_ROIFILTER_H
 
+#include "debug.h"
 #include <simparm/optional.hh>
 
 namespace dStorm {
@@ -23,12 +24,15 @@ class ROIFilter {
             p->last_frame = std::min(*to, *p->last_frame);
         }
         p->first_frame = from;
+        DEBUG("First frame is " << p->first_frame << ", last frame set is " << to.is_set());
         return p;
     }
 
     bool operator()(const Ty& t) {
-        return t.frame_number() >= from 
+        bool rv = t.frame_number() >= from 
             && (!to.is_set() || t.frame_number() <= *to);
+        DEBUG("ROI filter returns " << rv << " for " << t.frame_number());
+        return rv;
     }
 };
 

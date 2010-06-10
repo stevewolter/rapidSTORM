@@ -25,6 +25,7 @@
 #include <AndorCamera/Config.h>
 #include <dStorm/input/BasenameWatcher.h>
 #include <dStorm/input/FileBasedMethod_impl.h>
+#include <dStorm/helpers/exception.h>
 
 #include <boost/iterator/iterator_facade.hpp>
 
@@ -273,7 +274,9 @@ class Source<Pixel>::iterator
     Image& dereference() const { 
         if ( ! did_load ) {
             DEBUG("Loading at " << count);
-            img = *src->load(count);
+            std::auto_ptr<dStorm::Image<Pixel,2> > i = src->load(count);
+            if ( i.get() == NULL ) throw dStorm::abort();
+            img = *i;
             img.frame_number() = count * cs_units::camera::frame;
             did_load = true;
         }
@@ -281,7 +284,7 @@ class Source<Pixel>::iterator
     }
     bool equal(const iterator& i) const { 
         DEBUG( "Comparing " << count << " with " << i.count ); 
-        return count == i.count; 
+        return count == i.count || (src && src->had_errors); 
     }
 
     void increment() { DEBUG("Incrementing iterator from " << count); ++count; did_load = false; img.invalidate(); }

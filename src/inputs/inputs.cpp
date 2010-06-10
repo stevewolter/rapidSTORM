@@ -4,7 +4,7 @@
 #include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
-#ifdef HAVE_LIBATMCD32D
+#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
 #include "AndorCamera/AndorDirect.h"
 #endif
 
@@ -26,7 +26,7 @@ void basic_inputs( input::Config* inputConfig ) {
     inputConfig->inputMethod.addChoice( 
         new TIFF::Config<StormPixel>( *inputConfig ) );
 #endif
-#ifdef HAVE_LIBATMCD32D
+#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
     inputConfig->inputMethod.addChoice( 
         new AndorCamera::Method( *inputConfig ) );
 #endif

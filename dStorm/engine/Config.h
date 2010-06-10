@@ -44,6 +44,8 @@ namespace engine {
 
         /** If this option is set, the sigma estimation code is disabled. */
         BoolEntry fixSigma;
+        /** If this option is set, the amplitude threshold guessing code is disabled. */
+        BoolEntry guessThreshold;
 
         /** Continue fitting until this number of bad fits occured. */
         UnsignedLongEntry motivation;

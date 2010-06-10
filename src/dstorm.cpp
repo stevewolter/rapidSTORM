@@ -12,7 +12,7 @@
 #include <locale.h>
 #include <stdlib.h>
 
-#ifdef HAVE_LIBGRAPHICSMAGICK__
+#ifdef HAVE_MAGICK___H
 #include <Magick++.h>
 #endif
 
@@ -31,10 +31,12 @@ int main(int argc, char *argv[]) {
 
     ost::DebugStream::set(cerr);
 #ifdef HAVE_LIBGRAPHICSMAGICK__
+#ifdef HAVE_MAGICK___H
     char english_env[] = { "LC_ALL=en_US" };
     /* Magick cannot save images in the de_DE locale. */
     putenv(english_env);
     Magick::InitializeMagick(argv[0]);
+#endif
 #endif
 
     const char *panic_mode = "--panic_mode";
@@ -48,7 +50,10 @@ int main(int argc, char *argv[]) {
 
         if ( argc < 2 || string(argv[1]) != panic_mode ) {
             DEBUG("Running normally");
-            (new CommandLine( argc, argv ))->detach();
+            std::auto_ptr<CommandLine> cmd_line;
+            cmd_line.reset( new CommandLine( argc, argv ) );
+            ModuleLoader::getSingleton().add_jobs( *cmd_line );
+            cmd_line.release()->detach();
         } else {
             std::cerr << "Received unrecoverable signal " 
                       << argv[2] << ". Running emergency handler and "

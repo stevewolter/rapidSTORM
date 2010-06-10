@@ -29,6 +29,7 @@ class LibraryHandle {
     SafelyLoadedFunction<RapidSTORM_Display_Driver> display_driver;
     SafelyLoadedFunction<RapidSTORM_Plugin_Desc> desc;
     SafelyLoadedFunction<RapidSTORM_Cleanup_Handler> cleanup;
+    SafelyLoadedFunction<RapidSTORM_Additional_Jobs> add_jobs;
 
     void init();
   public:
@@ -54,6 +55,8 @@ class LibraryHandle {
         { return l.handle != handle; }
 
     void replace_display( std::auto_ptr<Display::Manager>& );
+    void operator()( dStorm::JobMaster& j ) 
+        { if ( *add_jobs != NULL ) (*add_jobs)( &j ); }
 
     const char *getDesc() { return (*desc)(); }
 };

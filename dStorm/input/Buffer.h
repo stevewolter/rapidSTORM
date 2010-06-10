@@ -13,7 +13,7 @@
 #include "Config.h"
 #include "Drain.h"
 #include "Traits.h"
-#include "Source_decl.h"
+#include "Source.h"
 #include "Slot_decl.h"
 
 namespace dStorm { 

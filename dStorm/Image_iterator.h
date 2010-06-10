@@ -28,7 +28,8 @@ class BaseImage<PixelType,Dimensions>::_iterator
     IteratedType& dereference() const { return *p; }
     bool equal(const iterator& o) const 
         { return p == o.p; }
-    bool equal(const const_iterator& o) const 
+    template <class OtherIteratedType>
+    bool equal(const _iterator<OtherIteratedType>& o) const 
         { return p == o.p; }
     void increment() { 
         ++p; ++pos[0];
@@ -58,8 +59,13 @@ class BaseImage<PixelType,Dimensions>::_iterator
     }
     void distance(const const_iterator& o) 
         { return o.p - p; }
+
+    template <class> friend class _iterator;
   public:
     _iterator() : p(NULL) {}
+    template <class OtherIteratedType>
+        _iterator(const _iterator<OtherIteratedType>& o) 
+        : p(o.p), pos(o.pos), step(o.step) {}
 
     const Position& position() { return pos; }
     int x() { return pos.x(); }

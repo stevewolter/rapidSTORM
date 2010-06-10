@@ -50,6 +50,7 @@ template < typename ImageListener>
 inline unsigned long int Discretizer< ImageListener>::non_background_pixels()
 {
     long int accum = 0;
+    assert( histogram.size() >= background_threshold );
     for (unsigned int i = 0; i < background_threshold; i++)
         accum += histogram[i];
     return binned_image.size_in_pixels() - accum;

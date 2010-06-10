@@ -19,6 +19,9 @@ typedef dStorm::Display::Manager*
     (*RapidSTORM_Display_Driver)
     (dStorm::Display::Manager* current_manager);
 typedef void
+    (*RapidSTORM_Additional_Jobs)
+    (dStorm::JobMaster* job_master);
+typedef void
     (*RapidSTORM_Cleanup_Handler)
     (dStorm::ErrorHandler::CleanupArgs* current_args, 
      dStorm::JobMaster* job_master);

@@ -31,6 +31,7 @@ _Config::_Config()
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
     fixSigma("FixSigma", "Disable std. dev. estimation", false),
+    guessThreshold("GuessThreshold", "Guess amplitude threshold", true),
     motivation("Motivation", "Spot search eagerness", 3),
     amplitude_threshold("AmplitudeThreshold", 
                         "Amplitude discarding threshold", 3000 * cs_units::camera::ad_counts),
@@ -119,6 +120,7 @@ void _Config::registerNamedEntries() {
     push_back(spotFindingMethod);
     push_back(spotFittingMethod);
 
+    push_back(guessThreshold);
     push_back(amplitude_threshold);
     push_back(motivation);
 
@@ -131,6 +133,7 @@ Config::SigmaUserLevel::SigmaUserLevel(_Config &config)
    config(config) 
 { 
     receive_changes_from( config.fixSigma.value );
+    receive_changes_from( config.guessThreshold.value );
     adjust();
 }
 
@@ -146,6 +149,8 @@ void Config::SigmaUserLevel::adjust() {
     config.sigma_x.setUserLevel(userLevel);
     config.sigma_y.setUserLevel(userLevel);
     config.sigma_xy.setUserLevel(userLevel);
+
+    config.amplitude_threshold.viewable = ! config.guessThreshold();
 }
 
 Config::Config() 
