@@ -1,14 +1,16 @@
 start_test_suite
 set timeout 6
 
+set basename Mikrotubuli
+
 set test "filename clash between two tables"
-send "in Car in Method set InputMethod in Auto in InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Method set InputMethod in Auto in InputFile in value set $workspace_target${basename}.sif\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 
 send "in Car in Run in value set 1\n"
 expect {
-    -re "Starting job failed:.* output file .* was used by multiple.*" { pass "$test" }
+    -re "Starting job failed((:)|(\r*\nmessage set )).* output file .* was used by multiple.*" { pass "$test" }
     timeout { fail "$test" }
 }
 
@@ -19,24 +21,29 @@ send "in Car in Output in EngineOutput set ToRemove in value set Output0\n"
 send "in Car in Output in EngineOutput set ChooseTransmission in value set Image\n"
 set test "Image output is created"
 expect {
-    -re "in Car in Output in EngineOutput declare Object\r?\nname (\[A-Za-z0-9\]*)\r?\n" 
+    -re "in Car in Output in EngineOutput declare Object\r*\nname (\[A-Za-z0-9\]*)\r*\n" 
         { pass "$test"; set imageOutput $expect_out(1,string) }
 }
 
-send "in Car in Output in EngineOutput in $imageOutput in Image in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.txt\n"
-send "in Car in Run in value set 1\n"
-expect {
-    -re "Starting job failed: The output file name '.*' was used by multiple" 
-	{ pass "$test" }
+set test "filename clash between image output and table"
+if { [info exists imageOutput] } {
+    send "in Car in Output in EngineOutput in $imageOutput in Image in ToFile in value set $workspace_target${basename}.txt\n"
+    send "in Car in Run in value set 1\n"
+    expect {
+        -re "Starting job failed(:|(\r*\nmessage set ))The output file name '.*' was used by multiple" 
+            { pass "$test" }
+    }
+    send "in Car in Output in EngineOutput set ToRemove in value set $imageOutput\n"
+} else {
+    unsupported "$test"
 }
 
 set test "clash between input and output file name"
-send "in Car in Output in EngineOutput set ToRemove in value set $imageOutput\n"
-send "in Car in Output in EngineOutput in Output1 in Table in ToFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Output in EngineOutput in Output1 in Table in ToFile in value set $workspace_target${basename}.sif\n"
 send "cmd 0 in Car in Run in value set 1\n"
 
 expect {
-   -re "Starting job failed: The output file name '.*' was used by multiple"
+   -re "Starting job failed(:|(\r*\nmessage set ))The output file name '.*' was used by multiple"
 	 { pass "$test" }
 }
 

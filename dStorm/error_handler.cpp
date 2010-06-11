@@ -311,14 +311,21 @@ ErrorHandler::handle_errors_until_all_detached_threads_quit() {
                     (*i)->run();
 
                 ost::MutexLock lock( pimpl->mutex );
-                while ( ! pimpl->cleanups.empty() )
+                while ( ! pimpl->cleanups.empty() ) {
+                    std::cerr << "Waiting for cleanups" << std::endl;
                     pimpl->cleanups_empty.wait();
+                    std::cerr << "Waited for cleanups" << std::endl;
+                }
+
+                std::cout.flush();
+                std::cerr.flush();
 
                 if ( e && e->was_caused_by_signal() ) {
 #ifndef PTW32_VERSION
                     signal( e->signal_number(), SIG_DFL );
                     kill( getpid(), e->signal_number() );
 #else
+                    std::cerr << "Exiting now" << std::endl;
                     exit(e->signal_number());
 #endif
                 } else  

@@ -54,6 +54,7 @@ DX_INIT_DOXYGEN(dStorm)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h process.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
+AC_CHECK_HEADER([boost/utility.hpp], [], [AC_ERROR([Missing boost library])])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

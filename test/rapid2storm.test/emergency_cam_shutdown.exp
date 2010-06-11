@@ -1,5 +1,6 @@
 begin_test_suite
 global have_test_plugin
+global have_process_watcher
 dstorm_attach
 
 set test "SIGSEGV shutdown"
@@ -19,7 +20,9 @@ send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -25\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set SegFault\n"
-send "in Car in Output in EngineOutput in Output0 in SegFault in OnImageNumber in value set 2\n"
+set output_node [get_next_output_node_name "SegFault output added"]
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+send "in Car in Output in EngineOutput in $output_node in SegFault in OnImageNumber in value set 2\n"
 send "in Car in Run in value set 1\n"
 
 set timeout 30
@@ -38,8 +41,14 @@ if { $can_do_test == 1 } {
 sleep 3
 set timeout 30
 
+set test "Segmentation fault signal is raised"
+expect { 
+    -re "Segfault at " { pass "$test" }
+}
+
 #set storm_pid [ exp_pid ]
 #exec kill -SEGV $storm_pid
+set test "Camera clears danger zone"
 expect {
     -re "Terminated by segmentation fault signal" { exp_continue }
     -re "Camera is out of danger zone" { pass "$test" }
@@ -49,9 +58,17 @@ expect {
     eof { fail "$test" }
 }
 
-wait
-
-initialize
+set test "Process terminates"
+if { $have_process_watcher == 1 } {
+    send "quit\n"
+    expect {
+        -re "PROCESS TERMINATED WITH EXIT CODE " { pass "$test" }
+    }
+} else {
+    wait
+    initialize
+    pass "$test"
+}
 
 }
 

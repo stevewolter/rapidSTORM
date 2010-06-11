@@ -6,7 +6,7 @@ set test "can add table output"
 send "attach\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 expect {
-    -re "in Car in Output in EngineOutput declare Object\r?\nname (Output\[0-9\]*)" {
+    -re "in Car in Output in EngineOutput declare Object\r*\nname (Output\[0-9\]*)" {
         set first_table $expect_out(1,string)
         pass "$test" 
     }
@@ -15,7 +15,7 @@ expect {
 set test "can add viewer output"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
 expect {
-    -re "in Car in Output in EngineOutput declare Object\r?\nname (Output\[0-9\]*)" {
+    -re "in Car in Output in EngineOutput declare Object\r*\nname (Output\[0-9\]*)" {
         set image $expect_out(1,string)
         pass "$test" 
     }
@@ -25,7 +25,7 @@ set test "can remove table output"
 if { [info exists first_table] } {
 send "in Car in Output in EngineOutput in ToRemove in value set $first_table\n"
 expect {
-    -re "in Car in Output in EngineOutput remove $first_table\r?\n"
+    -re "in Car in Output in EngineOutput remove $first_table\r*\n"
         { pass "$test" }
 }
 } else {
@@ -36,7 +36,7 @@ set test "can remove image output"
 if { [info exists image] } {
 send "in Car in Output in EngineOutput in ToRemove in value set $image\n"
 expect {
-    -re "in Car in Output in EngineOutput remove $image\r?\n"
+    -re "in Car in Output in EngineOutput remove $image\r*\n"
         { pass "$test" }
 }
 } else {

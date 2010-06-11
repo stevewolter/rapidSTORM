@@ -4,7 +4,7 @@ begin_test_suite
 load_default_config
 dstorm_attach
 
-send "in Car in Method in InputMethod in Auto set InputFile in value set $workspace/Mikrotubuli.sif\n"
+send "in Car in Method in InputMethod in Auto set InputFile in value set ${workspace_target}Mikrotubuli.sif\n"
 send "in Car in Engine in FixSigma in value set true\n"
 send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set \n"

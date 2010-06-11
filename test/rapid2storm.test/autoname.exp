@@ -90,9 +90,8 @@ set test "basename switch"
 send "in Car in Method in InputMethod in DummyInput in Number in value set 1\n"
 send "cmd 0 in Car in Method in InputMethod in value set Auto\n"
 expect {
-    -re "Displaying output file name .foo" { exp_continue }
+    -re "Displaying output file name .foo" { pass "$test" }
     -re "Displaying output file name .*.foo" { fail "$test" }
-    -re "ack 0" { pass "$test" }
 }
 
 set test "sif file basename"

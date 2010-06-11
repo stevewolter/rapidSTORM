@@ -48,7 +48,7 @@ wait_for_jobs
 
 set have_file 0
 set test "TIFF file exists for imnum $imnum"
-if { [file exists "$basename.tif"] == 1 } {
+if { [file exists "$basepath.tif"] == 1 } {
     set have_file 1
     pass "$test"
 } else {
@@ -56,9 +56,9 @@ if { [file exists "$basename.tif"] == 1 } {
 }
 set test "TIFF file has all subimages for imnum $imnum"
 if { $have_file == 1 } {
-    if { [exec identify -ping "$basename.tif" | wc -l] == $imnum } {
+    if { [exec identify -ping "$basepath.tif" | wc -l] == $imnum } {
         pass "$test"
-        file delete "$basename.tif"
+        file delete "$basepath.tif"
     } else {
         fail "$test"
     }
@@ -66,9 +66,9 @@ if { $have_file == 1 } {
         fail "$test"
 }
 set test "JPEG image exists for imnum $imnum"
-if { [file exists "$basename.jpg"] == 1 } {
+if { [file exists "$basepath.jpg"] == 1 } {
     pass "$test"
-    file delete "$basename.jpg"
+    file delete "$basepath.jpg"
 } else {
     fail "$test"
 }

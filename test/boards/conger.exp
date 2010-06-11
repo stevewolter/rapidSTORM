@@ -11,5 +11,5 @@ global workspace_target
 set tmpdir_host "/hinkelsteine/rapidstorm-dev/test-tree/tmp/"
 set tmpdir_target "Y:\\test-tree\\tmp\\"
 set workspace_target "Y:\\test-tree\\Sample_Workspace_dSTORM\\"
-set workspace_host "/srv/rapidstorm-dev/Sample_Workspace_dSTORM/"
+set workspace_host "/srv/rapidSTORM-build/Sample_Workspace_dSTORM/"
 set testcase_target "Y:\\test_cases\\"

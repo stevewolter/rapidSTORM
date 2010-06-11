@@ -43,7 +43,7 @@ dstorm_SOURCES = \
 dstorm_LDADD = $(COMMON_LIBS) -lltdl 
     
 javadir=$(datadir)/java
-java_DATA = rapidSTORM.jar
+java_DATA = rapidSTORM.jar 
 JAVASOURCES = DStorm.java
 JARCONTENT = logo.png
 EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest

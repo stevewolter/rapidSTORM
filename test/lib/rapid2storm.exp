@@ -11,6 +11,15 @@ proc initialize {} {
     }
 }
 
+proc get_next_output_node_name { test_name } {
+    set test $test_name
+    expect {
+        -re "in EngineOutput declare Object\r*\nname (Output\[A-Za-z0-9\]*)\r*\n"
+            { return $expect_out(1,string); }
+    }
+    return ""
+}
+
 proc dstorm_start {} {
     global DSTORM
     global timeout
@@ -19,9 +28,11 @@ proc dstorm_start {} {
     global display_control_fifo
     global env
     global netcat_host
+    global have_process_watcher
 
     program_start $DSTORM --Twiddler
 
+    set have_process_watcher 0;
     set test "Initialization"
 
     send "cmd 0 nop\n"
@@ -29,6 +40,10 @@ proc dstorm_start {} {
     set timeout 300
     set have_test_plugin 0
     expect {
+        -re "PROCESS WATCHER ACTIVE" { 
+            set have_process_watcher 1; 
+            exp_continue 
+        }
         -re "Test plugin loaded" {
             set have_test_plugin 1; 
             exp_continue 
@@ -54,6 +69,9 @@ proc dstorm_attach {} {
 proc dstorm_exit {} {
     puts "Quitting"
     global spawn_id
+    if { $have_process_watcher == 1 } {
+        send "STOP\n"
+    }
     if { [ catch { send "quit\n" } ignore ] } {
         fail "termination"
     } else {
@@ -61,11 +79,19 @@ proc dstorm_exit {} {
         set test "termination"
         expect {
             -re "quit" { set has_quit 1; exp_continue }
+            -re "PROCESS TERMINATED WITH EXIT CODE (\[0-9\]*)" {
+                if { $expect_out(1,string) == 0 } {
+                    pass "$test"
+                } else {
+                    fail "$test"
+                }
+            }
             timeout { fail "$test" }
-            eof { if {$has_quit == 1} { pass "$test"; } else { fail "$test"; } }
+            eof {
+                if {$has_quit == 1} { pass "$test"; } else { fail "$test"; } 
+                wait
+            }
         }
-
-        wait
     }
 }
 
