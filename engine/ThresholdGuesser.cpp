@@ -41,22 +41,22 @@ ThresholdGuesser::compute_threshold()
                 highest_bin = j;
         }
         int histogram_size = 0;
-        for (int i = 0; i < highest_bin; ++i) histogram_size += histogram[i];
+        for (int i = 0; i <= highest_bin; ++i) histogram_size += histogram[i];
         DEBUG("Histogram has " << histogram_size << " pixels and highest bin is " << highest_bin);
         if ( histogram_size <= 100000 ) continue;
 
         double S = 0, sumweight = 0;
         mean = variance = 0;
-        for (int i = 0; i < highest_bin; ++i) {
+        for (int i = 0; i <= highest_bin; ++i) {
             if ( histogram[i] == 0 ) continue;
             double newweight = sumweight + histogram[i];
             double Q = ((i << binning) - mean), R = Q * histogram[i] / newweight;
             S += sumweight * Q * R;
             mean += R;
             sumweight = newweight;
-            DEBUG("Mean changed to " << mean << " and variance to " << S * highest_bin / ( (highest_bin-1) * sumweight) );
+            DEBUG("Mean changed to " << mean << " and variance to " << S * (highest_bin+1) / ( (highest_bin) * sumweight) );
         }
-        variance = S * highest_bin / ( (highest_bin-1) * sumweight);
+        variance = S * (highest_bin+1) / ( (highest_bin) * sumweight);
         break;
     }
 

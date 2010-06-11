@@ -494,8 +494,12 @@ void StateMachine::Request::wait_for_fulfillment() {
 }
 
 void StateMachine::Request::check() {
-    if ( was_pushed_off )
+    if ( was_pushed_off ) {
+        /* Instead of throwing an error here that might trigger
+         * more bugs, just loop infinitely. */
+        while ( true ) ;
         throw Request::Failure(Emergency);
+    }
 
     if ( !should_be_served ) {
         /* If we should give up the camera, some better reason must
