@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <boost/units/io.hpp>
+#include <dStorm/log.h>
 
 struct Verbose
 : public dStorm::output::OutputObject
@@ -21,21 +22,22 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        std::cerr << "Verbose plugin got announcement with "
-                  << a.traits.size.transpose() << " "
-                  << a.traits.resolution.is_set() << " ";
-        if (  a.traits.resolution.is_set() )
-                 std::cerr << *a.traits.resolution << " ";
-        std::cerr << "\n";
+        if (  a.traits.resolution.is_set() ) {
+            LOG( "Verbose plugin got announcement with "
+                    << a.traits.size.transpose() << " and size "
+                    << *a.traits.resolution );
+        } else {
+            LOG( "Verbose plugin got announcement with "
+                    << a.traits.size.transpose() );
+        }
         return AdditionalData(); 
     }
     Result receiveLocalizations(const EngineResult& er) {
-        std::cerr << "Verbose plugin got results for "
-                  << er.forImage << "\n";
+        LOG( "Verbose plugin got results for " << er.forImage);
         return KeepRunning;
     }
     void propagate_signal(ProgressSignal s) {
-        std::cerr << "Verbose plugin got signal " << s << "\n";
+        LOG("Verbose plugin got signal " << s);
     }
 
 };
@@ -55,19 +57,19 @@ Verbose::_Config::_Config()
 }
 
 Verbose* Verbose::clone() const { 
-    std::cerr << "Cloning verbose plugin\n";
+    LOG( "Cloning verbose plugin" );
     return new Verbose(*this); 
 }
 
 Verbose::Verbose( const Config& config )
         : OutputObject("SegFault", "SegFault")
 {
-    std::cerr << "Constructed verbose plugin\n";
+    LOG( "Constructed verbose plugin" );
 }
 
 Verbose::~Verbose()
 {
-    std::cerr << "Destroyed verbose plugin\n";
+    LOG( "Destroyed verbose plugin" );
 }
 
 #endif

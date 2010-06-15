@@ -6,13 +6,11 @@
 #include <cs_units/camera/length.hpp>
 #include <cs_units/camera/intensity.hpp>
 
+#include <dStorm/UnitEntries/PixelEntry.h>
+
 namespace dStorm {
     typedef simparm::UnitEntry< boost::units::si::nanolength, double > 
         NanometreEntry;
-    typedef simparm::UnitEntry< cs_units::camera::length, int > 
-        IntPixelEntry;
-    typedef simparm::UnitEntry< cs_units::camera::length, float > 
-        FloatPixelEntry;
     typedef simparm::UnitEntry< cs_units::camera::intensity, float > 
         ADCEntry;
 }

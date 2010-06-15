@@ -17,7 +17,7 @@ namespace viewer {
 
 template <int Hueing>
 TerminalBackend<Hueing>::TerminalBackend(const Config& config)
-: image( config.res_enh(), 1 * cs_units::camera::pixel ),
+: image( config.res_enh(), config.border() ),
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
@@ -34,14 +34,18 @@ TerminalBackend<Hueing>::~TerminalBackend() {
 
 template <int Hueing>
 void TerminalBackend<Hueing>::save_image(
-    std::string filename, bool with_key
+    std::string filename, const Config& config
 )
 { 
     DEBUG("Storing results");
+    std::auto_ptr<dStorm::Display::Change> result
+        = get_result(config.save_with_key());
+    if ( ! config.save_scale_bar() )
+        result->resize_image.pixel_size = 
+            -1 * cs_units::camera::pixels_per_meter;
+
     dStorm::Display::Manager::getSingleton().store_image( 
-        filename, 
-        *get_result(with_key)
-    );
+        filename, *result);
     DEBUG("Finished");
 }
 

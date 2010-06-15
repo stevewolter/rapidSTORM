@@ -33,6 +33,7 @@ proc do_restart {} {
             -re "PROCESS TERMINATED WITH EXIT CODE " { pass "$test" }
         }
     }
+    dstorm_attach
     initialize_segfault_exp; 
 }
 

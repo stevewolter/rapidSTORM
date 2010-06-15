@@ -19,8 +19,10 @@ _Config::_Config()
   saturation("Saturation", "Select saturation", 1),
   invert("InvertColours", "Invert colours", false),
   save_with_key("SaveWithKey", "Save output image with key", true),
+  save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
-                      "Close display on job completion")
+                      "Close display on job completion"),
+  border("Border", "Width of border to chop", 1 * cs_units::camera::pixel)
 {
     PROGRESS("Building Viewer Config");
 
@@ -79,6 +81,8 @@ _Config::_Config()
 
     close_on_completion.setUserLevel(simparm::Object::Debug);
     save_with_key.setUserLevel(simparm::Object::Intermediate);
+    save_scale_bar.setUserLevel(simparm::Object::Intermediate);
+    border.setUserLevel(simparm::Object::Intermediate);
 
     PROGRESS("Built Viewer Config");
 }
@@ -86,6 +90,7 @@ _Config::_Config()
 void _Config::registerNamedEntries() {
    push_back(outputFile);
    push_back(save_with_key);
+   push_back(save_scale_bar);
    push_back(showOutput);
    push_back(res_enh);
    push_back(histogramPower);
@@ -94,6 +99,7 @@ void _Config::registerNamedEntries() {
    push_back(hue);
    push_back(saturation);
    push_back(close_on_completion);
+   push_back(border);
 }
 
 _Config::~_Config() {}

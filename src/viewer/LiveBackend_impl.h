@@ -16,7 +16,7 @@ namespace viewer {
 template <int Hueing>
 LiveBackend<Hueing>::LiveBackend(Config& config, Status& s)
 : config(config), status(s), 
-  image( config.res_enh(), 1 * cs_units::camera::pixel ),
+  image( config.res_enh(), config.border() ),
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
@@ -36,11 +36,11 @@ LiveBackend<Hueing>::~LiveBackend() {
 
 template <int Hueing>
 void LiveBackend<Hueing>::save_image(
-    std::string filename, bool with_key
+    std::string filename, const Config& config
 )
 { 
     image.clean();
-    cia.save_image(filename, with_key);
+    cia.save_image(filename, config);
 }
 
 template <int Hueing>

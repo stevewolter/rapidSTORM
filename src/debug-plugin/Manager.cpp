@@ -10,6 +10,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/image/iterator.h>
+#include <dStorm/log.h>
 
 class Manager::ControlConfig
 : public simparm::Object, public simparm::Listener, private boost::noncopyable
@@ -58,7 +59,7 @@ class Manager::Handle
         std::stringstream entrynum;
         entrynum << i->number;
         m.control_config->to_close.addChoice( i->number, "Window" + entrynum.str(), "Window " + entrynum.str());
-        std::cerr << "Created new window number " << i->number << std::endl;
+        LOG( "Created new window number " << i->number );
     }
     ~Handle() {
         guard lock(m.mutex);
@@ -78,18 +79,17 @@ Manager::Source::Source(
 : handler(source), number(n),
   wants_closing(false), may_close(false)
 {
-    std::cerr << "Listening to window " 
-              << properties.name << "\n";
+    LOG( "Listening to window " << properties.name );
     handle_resize( properties.initial_size );
 }
 
 void Manager::Source::handle_resize( 
     const dStorm::Display::ResizeChange& r)
 {
-    std::cerr << "Sizing display number " << number << " to " 
+    LOG( "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
               << r.key_size << " grey levels and pixel "
-                 "size " << r.pixel_size << "\n";
+                 "size " << r.pixel_size );
     current_display = Image( r.size );
     current_display.fill(0);
     state.do_resize = true;
@@ -103,7 +103,7 @@ bool Manager::Source::get_and_handle_change() {
         = handler.get_changes();
 
     if ( c.get() == NULL ) {
-        std::cerr << "Error in display handling: NULL change pointer\n";
+        LOG( "Error in display handling: NULL change pointer" );
         return false;
     }
 
@@ -121,7 +121,7 @@ bool Manager::Source::get_and_handle_change() {
             state.clear_image.background );
     } 
     if ( c->do_change_image ) {
-        std::cerr << "Replacing image with " << c->image_change.new_image.frame_number().value() << std::endl;
+        LOG( "Replacing image with " << c->image_change.new_image.frame_number().value() );
         current_display = c->image_change.new_image;
     }
     
@@ -193,9 +193,9 @@ void Manager::print_status(Source& s, std::string prefix, bool p)
         if ( j->red() != 0 || j->blue() != 0 || j->green() != 0 )
             count++;
     }
-    std::cerr << prefix << "window " << s.number << " with digest " << sdigest.str() << ", mean is " 
+    LOG( prefix << "window " << s.number << " with digest " << sdigest.str() << ", mean is " 
                 << sum / s.current_display.size_in_pixels() << " and count of nonzero pixels is " << count
-                << std::endl;
+                );
 }
 
 void Manager::dispatch_events() {

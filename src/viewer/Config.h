@@ -9,6 +9,8 @@
 #include <simparm/NumericEntry.hh>
 #include <dStorm/output/Output.h>
 
+#include <dStorm/UnitEntries/PixelEntry.h>
+
 namespace dStorm {
 namespace viewer {
 
@@ -22,7 +24,8 @@ class _Config : public simparm::Object {
     simparm::DoubleEntry histogramPower;
     simparm::ChoiceEntry colourScheme;
     simparm::DoubleEntry hue, saturation;
-    simparm::BoolEntry invert, save_with_key, close_on_completion;
+    simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
+    dStorm::IntPixelEntry border;
 
     _Config();
     ~_Config();

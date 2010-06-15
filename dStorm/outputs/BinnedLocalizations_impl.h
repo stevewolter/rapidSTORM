@@ -81,11 +81,6 @@ BinnedLocalizations<KeepUpdated>
         pixel_count lx = pixel_count(floor(enlarged.x())),
                     ly = pixel_count(floor(enlarged.y())),
                     onepix = 1 * cs_units::camera::pixel;
-        if (   lx < 0 * cs_units::camera::pixel || 
-               lx >= base_image.width() - onepix ||
-               ly < 0 * cs_units::camera::pixel || 
-               ly >= base_image.height() - onepix )
-            continue;
         float xf = (enlarged.x() - lx) / cs_units::camera::pixel,
               yf = (enlarged.y() - ly) / cs_units::camera::pixel;
 
@@ -98,8 +93,11 @@ BinnedLocalizations<KeepUpdated>
         for (int dx = 0; dx <= 1; dx++)
             for (int dy = 0; dy <= 1; dy++) 
             {
-                int xp = lx.value()+(1-dx), 
-                    yp = ly.value()+(1-dy);
+                int xp = lx.value()+(1-dx), yp = ly.value()+(1-dy);
+                if ( xp < 0 || yp < 0
+                        || xp >= base_image.width_in_pixels()
+                        || yp >= base_image.height_in_pixels() )
+                  continue;
                 float val = strength / cs_units::camera::ad_count
                                      * (dx+(1-2*dx)*xf)*(dy+(1-2*dy)*yf);
                 float old_val = base_image(xp, yp);
@@ -155,7 +153,7 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
     traits.size.fill( 1 * cs_units::camera::pixel );
     for (int i = 0; i < announcement->traits.size.rows(); i++) {
         PreciseSize dp_size = announcement->traits.size[i] - 2*crop;
-        traits.size[i] = std::max( ceil( re * dp_size ), one_pixel );
+        traits.size[i] = std::max( ceil( re * (dp_size - one_pixel) + one_pixel ), one_pixel );
     }
 
     if ( announcement->traits.resolution.is_set() )

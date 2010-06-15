@@ -60,7 +60,7 @@ expect {
 
 set test "Process terminates"
 if { $have_process_watcher == 1 } {
-    send "quit\n"
+    send "nop\n"
     expect {
         -re "PROCESS TERMINATED WITH EXIT CODE " { pass "$test" }
     }
