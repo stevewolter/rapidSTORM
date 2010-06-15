@@ -17,7 +17,7 @@ struct Backend
     virtual std::auto_ptr<Backend> adapt( 
         std::auto_ptr<Backend> self, Config&, Status& ) = 0;
 
-    virtual void save_image(std::string filename, bool with_key) = 0;
+    virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_resolution_enhancement(float re) = 0;

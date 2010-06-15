@@ -149,7 +149,7 @@ void Viewer::writeToFile(const string &name) {
     try {
         MutexLock lock(implementation_mutex);
 
-        implementation->save_image(name, save_with_key());
+        implementation->save_image(name, config);
     } catch ( const std::exception& e ) {
         simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );
         send( m );

@@ -46,7 +46,7 @@ class LiveBackend
     ~LiveBackend() ;
 
     output::Output& getForwardOutput() { return image; }
-    void save_image(std::string filename, bool with_key);
+    void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
     void set_resolution_enhancement(float re);

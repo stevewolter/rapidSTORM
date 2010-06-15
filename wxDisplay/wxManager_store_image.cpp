@@ -235,13 +235,15 @@ void wxManager::store_image(
     if ( key_img.get() != NULL )
         img.composite( *key_img, 0, main_height, Magick::OverCompositeOp );
     int scale_bar_width = std::min( width/3, 100 );
-    write_scale_bar( img, image.resize_image.pixel_size,
+    if ( image.resize_image.pixel_size > 0 * cs_units::camera::pixels_per_meter ) {
+        write_scale_bar( img, image.resize_image.pixel_size,
                      scale_bar_width, std::max(0, width-scale_bar_width-5 ) );
-    DEBUG("Wrote scale bar");
+        DEBUG("Wrote scale bar");
+        img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
+        unsigned int pix_per_cm = int( image.resize_image.pixel_size * (0.01 * boost::units::si::metre) / cs_units::camera::pixel );
+        img.density(Magick::Geometry(pix_per_cm, pix_per_cm));
+    }
     
-    img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
-    unsigned int pix_per_cm = int( image.resize_image.pixel_size * (0.01 * boost::units::si::metre) / cs_units::camera::pixel );
-    img.density(Magick::Geometry(pix_per_cm, pix_per_cm));
     img.write( filename );
 
 #endif

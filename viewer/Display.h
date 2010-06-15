@@ -52,8 +52,7 @@ class Display
 
     std::auto_ptr<dStorm::Display::Change> get_changes();
 
-    void save_image(std::string filename,
-                    bool with_key);
+    void save_image(std::string filename, const Config&);
 
     dStorm::Display::ResizeChange getSize() const { return my_size; }
     void show_window();

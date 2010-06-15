@@ -107,7 +107,7 @@ Display<Colorizer>::get_changes() {
 template <typename Colorizer>
 void
 Display<Colorizer>::save_image(
-    std::string filename, bool with_key)
+    std::string filename, const Config& config)
 {
     if ( window_id.get() == NULL ) {
         throw std::runtime_error(
@@ -117,7 +117,9 @@ Display<Colorizer>::save_image(
         std::auto_ptr<dStorm::Display::Change>
             c = window_id->get_state();
         if ( c.get() != NULL ) {
-            if ( ! with_key ) c->change_key.clear();
+            if ( ! config.save_with_key() ) c->change_key.clear();
+            if ( ! config.save_scale_bar() ) 
+                c->resize_image.pixel_size = -1 * cs_units::camera::pixels_per_meter;
             dStorm::Display::Manager::getSingleton()
                 .store_image( filename, *c );
         } else
