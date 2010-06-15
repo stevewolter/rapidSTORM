@@ -25,6 +25,7 @@ send "in Car in Output in EngineOutput in Output0 in Exception in OnAnnouncement
 send "in Car in Run in value set 1\n"
 expect {
     -re "failed. Reason: Test Exception" { pass "$test" }
+    -re "Error in Job \[0-9\]*: Test Exception" { pass "$test" }
     timeout { fail "$test" }
     eof { fail "$test" }
 }
