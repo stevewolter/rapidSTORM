@@ -18,13 +18,12 @@ InfoBeforeFile=readme.txt
 AlwaysRestart=no
 
 ;das bezieht sich auf Anzeige in Software unter W2k/XP
-AppCopyright=Copyright © 1999-2009 PicoQuant GmbH
+AppCopyright=Copyright © 1999-2010 PicoQuant GmbH
 AppPublisher=PicoQuant GmbH
 AppPublisherURL=http://www.picoquant.com/
 
 ;privilegien nötig für Hardlock Driver
-; PrivilegesRequired=admin
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 
 DiskSpanning=no
 ReserveBytes=16384
