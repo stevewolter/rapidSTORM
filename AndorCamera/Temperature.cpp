@@ -16,6 +16,7 @@ using namespace SDK;
 namespace AndorCamera {
 
 using namespace States;
+using boost::units::celsius::degrees;
 
 template <typename Type>
 struct Setter {
@@ -27,8 +28,10 @@ struct Setter {
 };
 
 _Temperature::_Temperature() :
-  requiredTemperature("TargetTemperature",
-                      "Required CCD temperature for acquisition", -65),
+  requiredTemperature(
+    "TargetTemperature",
+    "Required CCD temperature for acquisition", 
+    -65 * degrees),
   realTemperature("ActualTemperature","Actual CCD temperature value"),
   doCool("Cooling", "Cool CCD", false)
 {
@@ -38,8 +41,8 @@ _Temperature::_Temperature() :
     requiredTemperature.setHelp("Cool the camera to this value before "
                                 "starting acquisitions.");
     requiredTemperature.setUserLevel(Object::Beginner);
-    requiredTemperature.setMax(30);
-    requiredTemperature.setMin(-100);
+    requiredTemperature.setMax(30 * degrees);
+    requiredTemperature.setMin(-100 * degrees);
 
     realTemperature.setHelp("This is the actual CCD temperature.");
     realTemperature.setUserLevel(Object::Beginner);
@@ -103,7 +106,7 @@ void Temperature::operator()(const simparm::Event& e)
             }
             am_cooling = true;
             targetTemperature.editable = false;
-            SDK::SetTemperature( targetTemperature() );
+            SDK::SetTemperature( targetTemperature() / boost::units::celsius::degrees );
             #ifdef NO_COOLER
             std::cerr << "Would cool if I were allowed to\n";
             #else
@@ -127,7 +130,7 @@ void Temperature::operator()(const simparm::Event& e)
         }
     }
     else if ( &e.source == &targetTemperature.value ) {
-        requiredTemperature.setMin( targetTemperature() + 1 );
+        requiredTemperature.setMin( targetTemperature() + 1 * boost::units::celsius::degrees );
     }
 }
 
@@ -153,7 +156,7 @@ void Temperature::cool()
         tstate = GetTemperatureF();
         sm.wait_or_abort_transition( StateMachine::Up, 100 );
     } while ( tstate.first == false &&
-              tstate.second > requiredTemperature() &&
+              tstate.second * degrees > requiredTemperature() &&
               !dStorm::ErrorHandler::global_termination_flag() );
     sm.status = "Reached required temperature"; 
     #endif
@@ -171,7 +174,7 @@ void Temperature::warm()
     std::pair<bool, float> tstate;
     do {
         tstate = GetTemperatureF();
-        realTemperature = tstate.second;
+        realTemperature = tstate.second * degrees;
         sm.wait_or_abort_transition( StateMachine::Down, 100 );
     } while ( tstate.second < -20 );
     #endif
@@ -195,9 +198,9 @@ class Temperature::Token<Connected>
         /* Read temperature range */
         std::pair<int,int> temp_range;
         temp_range = GetTemperatureRange();
-        t.targetTemperature.setMin(temp_range.first);
-        t.targetTemperature.setMax(temp_range.second);
-        t.requiredTemperature.setMax(temp_range.second);
+        t.targetTemperature.setMin(temp_range.first * degrees);
+        t.targetTemperature.setMax(temp_range.second * degrees);
+        t.requiredTemperature.setMax(temp_range.second * degrees);
 
         t.monitor.reset( new TemperatureMonitor(t.realTemperature) );
     }

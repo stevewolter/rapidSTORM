@@ -1,6 +1,7 @@
 #ifndef ANDORCAMERA_READOUT_H
 #define ANDORCAMERA_READOUT_H
 
+#include <dStorm/UnitEntries/PixelEntry.h>
 #include <AndorCamera/StateMachine.h>
 #include <simparm/NumericEntry.hh>
 #include <AndorCamera/Config.h>
@@ -28,7 +29,7 @@ class ImageReadout
   public StateMachine::StandardListener<ImageReadout>
 {
   public:
-    simparm::UnsignedLongEntry left, top, right, bottom;
+    dStorm::IntPixelEntry left, top, right, bottom;
 
   private:
     StateMachine &sm;

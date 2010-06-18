@@ -8,11 +8,11 @@
 #include "StateMachine_impl.h"
 #include <simparm/EntryManipulators.hh>
 
-
 using namespace simparm;
 
 namespace AndorCamera {
 
+using boost::units::si::seconds;
 using namespace States;
 
 AcquisitionModeControl::AcquisitionModeControl(StateMachine& sm, Config& config)
@@ -42,19 +42,21 @@ AcquisitionModeControl::AcquisitionModeControl(const AcquisitionModeControl& c):
 _AcquisitionMode::_AcquisitionMode() :
   select_mode("SelectAcquisitionMode", "Select acquisition mode"),
   desired_exposure_time("DesiredExposureTime", 
-    "Desired exposure time (s)", 0.1),
+    "Desired exposure time (s)", 0.1f * seconds),
   desired_accumulate_cycle_time(
     "DesiredAccumulateCycleTime",
-        "Desired accumulate cycle time (s)", 0.1),
+        "Desired accumulate cycle time (s)", 0.1f * seconds),
   real_accumulate_cycle_time("RealAccumulateCycleTime",
-    "Used accumulate cycle time (s)", 0),
+    "Used accumulate cycle time (s)", 0.0f * seconds),
   number_of_accumulations("AccumulationNumber", 
     "Number of accumulations per kinetic cycle", 1),
   desired_kinetic_cycle_time("DesiredKineticCycleTime",
-    "Desired kinetic cycle time (s)", 0.1),
-  kinetic_length("KineticLength",
-    "Length of kinetic series", 8000)
+    "Desired kinetic cycle time (s)", 0.1f * seconds),
+  kinetic_length("KineticLength", "Length of kinetic series")
 {
+    kinetic_length = 8000 * cs_units::camera::frame;
+    kinetic_length().reset();
+
     select_mode.addChoice(Single_Scan, "SingleScan", "Single scan");
     select_mode.addChoice(Accumulate, "Accumulate", "Accumulate");
     select_mode.addChoice(Kinetics, "Kinetics", "Kinetics");
@@ -74,7 +76,7 @@ _AcquisitionMode::_AcquisitionMode() :
     number_of_accumulations.setUserLevel(simparm::Object::Intermediate);
 
     desired_accumulate_cycle_time.setMax( 
-        desired_kinetic_cycle_time() / number_of_accumulations() );
+        desired_kinetic_cycle_time() / (1.0f * number_of_accumulations()) );
     desired_exposure_time.setMax( desired_accumulate_cycle_time() );
 
 }
@@ -83,17 +85,17 @@ void AcquisitionModeControl::operator()
     (const simparm::Event& e) 
 {
     if ( &e.source == &desired_exposure_time.value ) {
-        exp_time_is_max = ( desired_exposure_time() * 1.05 >= 
+        exp_time_is_max = ( desired_exposure_time() * 1.05f >= 
              desired_accumulate_cycle_time() );
     } else if ( &e.source == &desired_accumulate_cycle_time.value ) {
-        acc_time_is_max = ( desired_accumulate_cycle_time() * 1.05 >= 
-             desired_kinetic_cycle_time() / number_of_accumulations() );
+        acc_time_is_max = ( desired_accumulate_cycle_time() * 1.05f >= 
+             desired_kinetic_cycle_time() / (1.0f * number_of_accumulations()) );
 
         desired_exposure_time.setMax( 
             desired_accumulate_cycle_time() );
     } else if ( &e.source == &desired_kinetic_cycle_time.value ) {
         desired_accumulate_cycle_time.setMax( 
-            desired_kinetic_cycle_time() / number_of_accumulations() );
+            desired_kinetic_cycle_time() / (1.0f * number_of_accumulations()) );
     } else if ( &e.source == &desired_accumulate_cycle_time.max ) {
         if ( acc_time_is_max )
             desired_accumulate_cycle_time.value
@@ -112,10 +114,10 @@ AcquisitionModeControl::~AcquisitionModeControl()
 
 void AcquisitionModeControl::registerNamedEntries() 
 {
-    exp_time_is_max = ( desired_exposure_time() * 1.05 >= 
+    exp_time_is_max = ( desired_exposure_time() * 1.05f >= 
             desired_accumulate_cycle_time() );
-    acc_time_is_max = ( desired_accumulate_cycle_time() * 1.05 >= 
-            desired_kinetic_cycle_time() / number_of_accumulations() );
+    acc_time_is_max = ( desired_accumulate_cycle_time() * 1.05f >= 
+            desired_kinetic_cycle_time() / (1.0f * number_of_accumulations()) );
 
     receive_changes_from( desired_exposure_time.value );
     receive_changes_from( desired_accumulate_cycle_time.value );
@@ -147,15 +149,16 @@ class AcquisitionModeControl::ManagedAcquisition {
           dact(a.desired_accumulate_cycle_time, false)
     {
         SDK::SetAcquisitionMode( a.select_mode() );
-        SDK::SetExposureTime( a.desired_exposure_time() );
+        SDK::SetExposureTime( a.desired_exposure_time() / seconds );
 
         /* TODO: Accumulate cycle time. */
         if ( a.select_mode() == Kinetics 
              || a.select_mode() == Fast_Kinetics
              || a.select_mode() == Run_till_abort )
-            SDK::SetKineticCycleTime( a.desired_kinetic_cycle_time() );
-        if ( a.select_mode() == Kinetics || a.select_mode() == Fast_Kinetics )
-            SDK::SetNumberKinetics( a.kinetic_length() );
+            SDK::SetKineticCycleTime( a.desired_kinetic_cycle_time() / seconds );
+        if ( a.kinetic_length().is_set() && 
+             (a.select_mode() == Kinetics || a.select_mode() == Fast_Kinetics ) )
+            SDK::SetNumberKinetics( *a.kinetic_length() / cs_units::camera::frame );
     }
 };
 
@@ -184,9 +187,9 @@ class AcquisitionModeControl::Token<Ready>
           v2(a.real_accumulate_cycle_time, true),
           v3(a.real_kinetic_cycle_time, true) 
     {
-        a.real_exposure_time = SDK::GetExposureTime();
-        a.real_accumulate_cycle_time = SDK::GetAccumulationCycleTime();
-        a.real_kinetic_cycle_time = SDK::GetKineticCycleTime();
+        a.real_exposure_time = SDK::GetExposureTime() * seconds;
+        a.real_accumulate_cycle_time = SDK::GetAccumulationCycleTime() * seconds;
+        a.real_kinetic_cycle_time = SDK::GetKineticCycleTime() * seconds;
     }
 };
 

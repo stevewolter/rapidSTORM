@@ -23,7 +23,6 @@ LiveView::LiveView(
   resolution( *config.resolution_element.get_resolution() ),
   show_live("ShowLive", "Show camera image", 
             config.show_live_by_default()),
-  live_show_frequency( config.live_show_frequency ),
   change( new dStorm::Display::Change() )
 {
     DEBUG("LiveView constructed");
@@ -32,7 +31,6 @@ LiveView::LiveView(
 
 void LiveView::registerNamedEntries() {
     push_back( show_live );
-    push_back( live_show_frequency );
 }
 
 LiveView::~LiveView() {
@@ -66,9 +64,11 @@ void LiveView::hide_window() {
 
 std::auto_ptr<Display::Change> LiveView::get_changes()
 {
+    DEBUG("Locking changes");
     std::auto_ptr<Display::Change> fresh( new Display::Change() );
     ost::MutexLock lock(change_mutex);
     DEBUG("Getting live view changes");
+    compute_image_change( current_image_content );
     std::swap( fresh, change );
     return fresh;
 }
@@ -78,7 +78,6 @@ void LiveView::compute_image_change
 {
     CamImage::PixelPair minmax = image.minmax();
     
-    guard lock( change_mutex );
     change->do_change_image = true;
     change->image_change.new_image = 
         image.normalize<dStorm::Pixel>();
@@ -86,19 +85,16 @@ void LiveView::compute_image_change
 }
 
 void LiveView::show( const CamImage& image, int number) {
+    DEBUG("Showing image");
     guard lock(window_mutex);
+    DEBUG("Got mutex for showing image");
     if ( show_live() ) {
-        if ( window.get() == NULL ) 
-            show_window(image.sizes());
+        DEBUG("Performing show");
+        show_window(image.sizes());
 
-        quantity<si::time>
-            image_time = frame / cycle_time,
-            show_time = live_show_frequency() * si::seconds;
-
-        int show_cycle = std::max(1, int(round( show_time / image_time)));
-        if ( number % show_cycle == 0 )
-            compute_image_change( image );
+        current_image_content = image;
     } else {
+        DEBUG("Hiding window");
         if ( window.get() != NULL ) hide_window();
     }
 }

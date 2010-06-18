@@ -5,6 +5,9 @@
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <AndorCamera/Config.h>
+#include <dStorm/UnitEntries/TimeEntry.h>
+#include <dStorm/UnitEntries/FrameEntry.h>
+#include <simparm/OptionalEntry.hh>
 
 namespace AndorCamera {                                                    
 
@@ -12,12 +15,13 @@ namespace AndorCamera {
 class _AcquisitionMode {
   public:
     simparm::DataChoiceEntry< AcquisitionMode > select_mode;
-    simparm::DoubleEntry        desired_exposure_time;
-    simparm::DoubleEntry        desired_accumulate_cycle_time;
-    simparm::DoubleEntry        real_accumulate_cycle_time;
+    dStorm::FloatTimeEntry      desired_exposure_time;
+    dStorm::FloatTimeEntry      desired_accumulate_cycle_time;
+    dStorm::FloatTimeEntry      real_accumulate_cycle_time;
     simparm::UnsignedLongEntry  number_of_accumulations;
-    simparm::DoubleEntry        desired_kinetic_cycle_time;
-    simparm::UnsignedLongEntry  kinetic_length;
+    dStorm::FloatTimeEntry      desired_kinetic_cycle_time;
+    simparm::Selector< simparm::optional< boost::units::quantity<
+        cs_units::camera::time, int > > >::Entry kinetic_length;
 
     _AcquisitionMode();
 };
@@ -32,8 +36,8 @@ class AcquisitionModeControl
   protected:
     StateMachine &sm;
     /** The real exposure time for each image. */
-    simparm::DoubleEntry&      real_exposure_time;
-    simparm::DoubleEntry& real_kinetic_cycle_time;
+    dStorm::FloatTimeEntry& real_exposure_time;
+    dStorm::FloatTimeEntry& real_kinetic_cycle_time;
 
     bool exp_time_is_max, acc_time_is_max;
     

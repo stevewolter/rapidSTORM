@@ -61,8 +61,7 @@ Source::Source
   status(acquisition.status),
   live_view( new LiveView(
     config, 
-    control->config().cycleTime() *
-            cs_units::camera::fps
+    cs_units::camera::frame / control->config().cycleTime()
   ) )
 {
     status.editable = false;
@@ -102,9 +101,6 @@ Method::Method(input::Config& config)
   show_live_by_default("ShowLiveByDefault",
                        "Show camera images live by default",
                        true),
-  live_show_frequency("LiveShowFrequency",
-            "Show live camera images every x seconds",
-            0.1),
   resolution_element( config )
 {
     output_file_basename = basename();
@@ -112,7 +108,6 @@ Method::Method(input::Config& config)
     DEBUG("Making AndorDirect config");
 
     show_live_by_default.userLevel = Object::Expert;
-    live_show_frequency.userLevel = Object::Expert;
     push_back( config.pixel_size_in_nm );
     
     DEBUG("Receiving attach event");
@@ -126,7 +121,6 @@ Method::Method(const Method &c, input::Config& config)
   Node::Callback( simparm::Event::ValueChanged ),
   basename(c.basename),
   show_live_by_default( c.show_live_by_default ),
-  live_show_frequency( c.live_show_frequency ),
   resolution_element( config )
 {
     DEBUG("Copying AndorDirect Config");
@@ -149,9 +143,9 @@ class CameraLink : public simparm::Set {
     simparm::Set b, c, d;
 
     /** Shorthand for kinetic series length */
-    simparm::UnsignedLongEntry acquisitionLength;
+    dStorm::IntFrameEntry acquisitionLength;
     /** Short hand for kinetic speed */
-    simparm::DoubleEntry acquisitionSpeed;
+    dStorm::FloatTimeEntry acquisitionSpeed;
     ViewportSelector::Config viewportConfig;
 
   public:
@@ -197,6 +191,8 @@ class CameraLink : public simparm::Set {
         acquisitionLength.erase( acquisitionLength.value );
         acquisitionLength.push_back( 
             cam->acquisitionMode().kinetic_length.value );
+        acquisitionLength.push_back( 
+            cam->acquisitionMode().kinetic_length["optional_given"] );
         acquisitionSpeed.erase( acquisitionSpeed.value );
         acquisitionSpeed.push_back( 
             cam->acquisitionMode().desired_kinetic_cycle_time.value );
@@ -281,7 +277,6 @@ void Method::registerNamedEntries()
 
     push_back( basename );
     push_back( show_live_by_default );
-    push_back( live_show_frequency );
 }
 
 void Method::operator()(const simparm::Event& e)
@@ -300,11 +295,11 @@ Source::TraitsPtr Source::get_traits()
     waitForInitialization();
     DEBUG("Got camera initialization");
     TraitsPtr rv( new TraitsPtr::element_type() );
-    rv->size.x() = acquisition.getWidth() * cs_units::camera::pixel;
-    rv->size.y() = acquisition.getHeight() * cs_units::camera::pixel;
+    rv->size.x() = acquisition.getWidth();
+    rv->size.y() = acquisition.getHeight();
     DEBUG("Acquisition has a length set: " << acquisition.hasLength());
     if ( acquisition.hasLength() )
-        rv->last_frame = (acquisition.getLength() - 1) * cs_units::camera::frame;
+        rv->last_frame = acquisition.getLength() - 1 * cs_units::camera::frame;
     return rv;
 }
 

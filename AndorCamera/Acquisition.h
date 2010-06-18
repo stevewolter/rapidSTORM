@@ -9,6 +9,9 @@
 #include <stdint.h>
 #include <time.h>
 #include <dStorm/helpers/thread.h>
+#include <boost/units/quantity.hpp>
+#include <cs_units/camera/length.hpp>
+#include <cs_units/camera/time.hpp>
 
 namespace AndorCamera {
     class ImageReadout;
@@ -34,6 +37,8 @@ namespace AndorCamera {
      *  */
     class Acquisition : private Camera::ExclusiveAccessor {
       private:
+        typedef boost::units::quantity<cs_units::camera::time, unsigned long>
+            Frame;
         CameraReference control;
         std::auto_ptr<ImageReadout> readout;
         std::auto_ptr<AcquisitionModeControl> acquisitionMode;
@@ -41,15 +46,15 @@ namespace AndorCamera {
         ost::Mutex mutex;
 
         /** The next image in the acquisition sequence */
-        unsigned long next_image;
+        Frame next_image;
         /** The total number of images this acquisition should acquire.
          *  This variable is only set when acquisitionMode->select_mode
          *  is set to Run_till_abort. */
-        unsigned long num_images;
+        Frame num_images;
         /** Indicates whether num_images is set. */
         bool am_bounded_by_num_images;
         /** The last image that is present in the Andor SDK ring buffer.*/
-        unsigned long last_valid_image;
+        Frame last_valid_image;
         bool initialized_last_valid_image;
         /** True while we have camera access. */
         bool haveCamera;
@@ -97,13 +102,16 @@ namespace AndorCamera {
         unsigned long getImageSizeInBytes();
 
         /** @return Width of the acquired image in pixels. */
-        unsigned int getWidth();
+        boost::units::quantity<cs_units::camera::length,int>
+            getWidth();
         /** @return Height of the acquired image in pixels. */
-        unsigned int getHeight();
+        boost::units::quantity<cs_units::camera::length,int>
+            getHeight();
         /** @return If the acquisition has a predetermined length. */
         bool hasLength();
         /** @return Number of images to capture. */
-        unsigned int getLength();
+        boost::units::quantity<cs_units::camera::time,int>
+            getLength();
 
         /** Starts this acquisition. */
         void start();
@@ -115,7 +123,7 @@ namespace AndorCamera {
         void block_until_on_camera();
 
         enum FetchResult { NoMoreImages, HadError, HaveStored };
-        typedef std::pair<FetchResult,unsigned long> Fetch;
+        typedef std::pair<FetchResult,Frame> Fetch;
         /** Retrieve the next image from the acquisition into the
          *  provided buffer. This call will block until an image is
          *  available.

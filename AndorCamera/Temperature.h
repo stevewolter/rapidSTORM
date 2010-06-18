@@ -11,10 +11,10 @@ class _Temperature {
   public:
     /** The temperature that is required to be reached before the 
         *  shutter may be opened and acquisitions started. */
-    simparm::LongEntry         requiredTemperature;
+    dStorm::IntCelsiusEntry         requiredTemperature;
     /** The current CCD temperature. Is only updated while the 
         *  system is cooling. */
-    simparm::DoubleEntry       realTemperature;
+    dStorm::FloatCelsiusEntry       realTemperature;
     /** /brief Controls and displays the cooling of the
         *  camera
         *
@@ -38,7 +38,7 @@ class Temperature
   public simparm::Node::Callback
 {
     StateMachine &sm;
-    simparm::LongEntry& targetTemperature;
+    dStorm::IntCelsiusEntry& targetTemperature;
     std::auto_ptr<TemperatureMonitor> monitor;
     bool expect_doCool_change, am_cooling;
 

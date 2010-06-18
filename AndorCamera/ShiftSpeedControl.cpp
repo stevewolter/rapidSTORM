@@ -9,7 +9,12 @@
 #include "StateMachine_impl.h"
 #include <simparm/EntryManipulators.hh>
 
+#include <boost/units/io.hpp>
+#include <boost/units/systems/si/io.hpp>
+#include <boost/units/cmath.hpp>
+
 using namespace simparm;
+using namespace boost::units;
 using namespace SDK;
 
 namespace AndorCamera {
@@ -17,11 +22,13 @@ namespace AndorCamera {
 _ShiftSpeedControl::_ShiftSpeedControl() :
   adChannelDepth("DesiredADChannelDepth", "Desired AD Channel Depth", 14),
   adChannel("ADChannel", "AD Channel"),
-  desired_VS_Speed("DesiredVSSpeed",
-                   "Desired vertical shift time (µs)",3.4),
-  desired_HS_Speed("DesiredHSSpeed",
-                   "Desired horizontal shift speed (MHz)", 10)
+  desired_VS_Speed("DesiredVSSpeed", "Desired vertical shift time"),
+  desired_HS_Speed(
+    "DesiredHSSpeed",
+    "Desired horizontal shift speed")
 {
+    desired_HS_Speed = quantity< si::megafrequency, float >(10E6f * si::hertz);
+    desired_VS_Speed = quantity< si::microtime, float >( 3.4 * si::microsecond );
     adChannel.setUserLevel(Object::Intermediate);
     desired_VS_Speed.setUserLevel(Object::Expert);
     desired_HS_Speed.setUserLevel(Object::Expert);
@@ -160,12 +167,12 @@ void ShiftSpeedControl::fillVSSpeed() {
 
     VS_Speed.removeAllChoices();
 
-    float vals[numVSSpeeds];
+    quantity<si::microtime> vals[numVSSpeeds];
     for (int i = 0; i < numVSSpeeds; i++) {
-        vals[i] = GetVSSpeed(i);
-        char buffer[20];
-        sprintf(buffer, "%g µs", vals[i]);
-        VS_Speed.addChoice(i, string(1, 'A'+i), string(buffer));
+        vals[i] = GetVSSpeed(i) * si::microsecond;
+        std::stringstream desc;
+        desc << vals[i];
+        VS_Speed.addChoice(i, string(1, 'A'+i), desc.str());
         
         if ( preferredVSSpeed == -1 ||
                   fabs(vals[preferredVSSpeed] - desired_VS_Speed())
@@ -192,20 +199,21 @@ void ShiftSpeedControl::fillHSSpeed() {
         numHSSpeeds = SDK::GetNumberHSSpeeds(adChannel, outputAmp);
         HS_Speed.removeAllChoices();
 
-        float vals[numHSSpeeds];
+        quantity<si::megafrequency> vals[numHSSpeeds];
         for (int i = 0; i < numHSSpeeds; i++) {
-            vals[i] = SDK::GetHSSpeed(adChannel, (OutputAmp)outputAmp, i);
-            char name[20], desc[20];
-            sprintf(name, "%g", vals[i]);
-            sprintf(desc, "%g MHz", vals[i]);
-            HS_Speed.addChoice(i, string(name), string(desc));
+            vals[i] = SDK::GetHSSpeed(adChannel, (OutputAmp)outputAmp, i)
+                        * si::megahertz;
+            std::stringstream name, desc;
+            name << vals[i].value();
+            desc << vals[i];
+            HS_Speed.addChoice(i, name.str(), desc.str());
             
             if ( preferredHSSpeed == -1 ||
                       fabs(vals[preferredHSSpeed] - desired_HS_Speed())
                     > fabs(vals[i] - desired_HS_Speed()) ) 
             {
                 preferredHSSpeed = i;
-                preferredChoice = &HS_Speed[string(name)];
+                preferredChoice = &HS_Speed[name.str()];
             }
         }
         if ( old_choice != "" && HS_Speed.hasChoice( old_choice ) )

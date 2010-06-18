@@ -8,18 +8,18 @@
 namespace AndorCamera {
 _Config::_Config()
 : Set(NAME, DESC),
-  targetTemperature("ReferenceTemperature", "Desired CCD temperature",-75),
+  targetTemperature("ReferenceTemperature", "Desired CCD temperature",-75 * boost::units::celsius::degrees),
   outputAmp("OutputAmplifier", "Output Amplifier"),
   VS_Speed("VSSpeed", "Vertical shift time"),
-  HS_Speed("HSSpeed", "Horizontal shift speed (MHz)"),
+  HS_Speed("HSSpeed", "Horizontal shift speed"),
   emccdGain("EMCCDGain", "EM CCD Gain multiplier"),
-  realExposureTime("RealExposureTime", "Used exposure time (s)"),
-  cycleTime("KineticCycleTime", "Used kinetic cycle time (s)")
+  realExposureTime("RealExposureTime", "Used exposure time"),
+  cycleTime("KineticCycleTime", "Used kinetic cycle time")
 {
     PROGRESS("Start Config");
 
-    targetTemperature.setMax(30);
-    targetTemperature.setMin(-100);
+    targetTemperature.setMax(30 * boost::units::celsius::degrees);
+    targetTemperature.setMin(-100 * boost::units::celsius::degrees);
     targetTemperature.setHelp("Try to cool the camera to this value.");
     targetTemperature.setUserLevel(simparm::Object::Beginner);
 

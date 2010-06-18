@@ -4,6 +4,8 @@
 #include <AndorCamera/StateMachine.h>
 #include <simparm/NumericEntry.hh>
 #include <AndorCamera/Config.h>
+#include <dStorm/UnitEntries/Hertz.h>
+#include <dStorm/UnitEntries/TimeEntry.h>
 
 namespace AndorCamera {                                                    
 
@@ -17,10 +19,10 @@ class _ShiftSpeedControl {
     simparm::ChoiceEntry       adChannel;
     /** The vertical scan speed closest to this one will 
         *  be selected by default. */
-    simparm::DoubleEntry       desired_VS_Speed;
+    dStorm::FloatMicrosecondsEntry       desired_VS_Speed;
     /** The horizontal scan speed closest to this one will 
         *  be selected by default. */
-    simparm::DoubleEntry       desired_HS_Speed;
+    dStorm::FloatMegahertzEntry       desired_HS_Speed;
 
     _ShiftSpeedControl();
 };

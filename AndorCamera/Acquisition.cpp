@@ -16,6 +16,8 @@ using namespace ost;
 namespace AndorCamera {
 
 using namespace States;
+using cs_units::camera::pixel;
+using cs_units::camera::frame;
 
 static const int maxRunSize = 100;
 static const int kineticsMode = 3, imageMode = 1;
@@ -56,12 +58,13 @@ void Acquisition::got_access() {
     status.erase( status.value );
     status.push_back( control->state_machine().status.value );
 
-    if ( (acquisitionMode->select_mode() == Kinetics ||
+    if ( acquisitionMode->kinetic_length().is_set() &&
+         (acquisitionMode->select_mode() == Kinetics ||
           acquisitionMode->select_mode() == Fast_Kinetics) &&
-         acquisitionMode->kinetic_length() > 500 )
+         *acquisitionMode->kinetic_length() > 500 * cs_units::camera::frame )
     {
         am_bounded_by_num_images = true;
-        num_images = acquisitionMode->kinetic_length();
+        num_images = *acquisitionMode->kinetic_length();
         acquisitionMode->select_mode = Run_till_abort;
     } else
         am_bounded_by_num_images = false;
@@ -103,17 +106,20 @@ void Acquisition::start() {
     Camera::ExclusiveAccessor::request_access();
 }
 
-unsigned int Acquisition::getLength() { 
+boost::units::quantity<cs_units::camera::time,int>
+Acquisition::getLength() { 
     if ( acquisitionMode->select_mode() == Run_till_abort )
       if ( am_bounded_by_num_images )
         return num_images;
       else
-        return std::numeric_limits<unsigned int>::max();
-    else if ( acquisitionMode->select_mode() == Kinetics ||
-              acquisitionMode->select_mode() == Fast_Kinetics )
-        return acquisitionMode->kinetic_length();
+        return std::numeric_limits<unsigned int>::max()
+            * cs_units::camera::frame;
+    else if ( (acquisitionMode->select_mode() == Kinetics ||
+               acquisitionMode->select_mode() == Fast_Kinetics) &&
+              acquisitionMode->kinetic_length().is_set())
+        return *acquisitionMode->kinetic_length();
     else
-        return 1;
+        return 1 * cs_units::camera::frame;
 }
 
 bool Acquisition::hasMoreImages_unlocked() {
@@ -148,14 +154,14 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         return Fetch( NoMoreImages, 0 );
     } else while (true) {
         waitForNewImages();
-        int cur_image = next_image;
+        Frame cur_image = next_image;
 
         if ( isStopped ) return Fetch( HadError, next_image );
 
         /* The GetImages function expects and returns ranges. For
          * lack of buffer space, we reduce these to simple images. */
         SDK::Range get;
-        get.first = get.second = cur_image;
+        get.first = get.second = cur_image / frame;
         SDK::Range r;
         DEBUG("Reading image " << cur_image << " into buffer of size "
                  << getImageSizeInPixels());
@@ -165,7 +171,7 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
             SDK::GetImages16( get, buffer, getImageSizeInPixels(), r );
 
         /* Check if we are actually finished with this acquisition */
-        if ( am_bounded_by_num_images && last_valid_image >= num_images-1 ) {
+        if ( am_bounded_by_num_images && last_valid_image >= num_images-1*frame ) {
             DEBUG("Stopping acquisition after last valid image " << last_valid_image << " reached bound of " << num_images);
             stop();
         }
@@ -173,14 +179,14 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         if ( get_result == SDK::No_New_Images )
             continue;
         else if ( get_result == SDK::Missed_Images ) {
-            next_image++;
+            next_image += 1*frame;
             return Fetch( HadError, cur_image );
         } else if ( get_result == SDK::New_Images ) {
-            if (r.first != next_image)
+            if (r.first * frame != next_image)
                 throw Error("Expected to read image %i, did read %i.", 
-                            next_image, r.first);
+                            int(next_image / frame), r.first);
             DEBUG("Read image " << cur_image);
-            next_image++;
+            next_image += 1*frame;
 
             return Fetch( HaveStored, cur_image );
         }
@@ -212,7 +218,7 @@ void Acquisition::waitForNewImages() {
         }
     }
 
-    last_valid_image = range.second;
+    last_valid_image = range.second * frame;
     initialized_last_valid_image = true;
 
 #if 0 /* This code is unnecessary. If the image can't be fetched,
@@ -249,19 +255,21 @@ void Acquisition::stop() {
 }
 
 unsigned long Acquisition::getImageSizeInPixels() { 
-    return  getWidth() * getHeight();
+    return ( getWidth() * getHeight() ) / pixel / pixel;
 }
 
 unsigned long Acquisition::getImageSizeInBytes() { 
     return getImageSizeInPixels() * sizeof(uint16_t);
 }
 
-unsigned int Acquisition::getWidth() {
-    return (readout->right()-readout->left()+1);
+boost::units::quantity<cs_units::camera::length,int>
+Acquisition::getWidth() {
+    return (readout->right()-readout->left()+1*pixel);
 }
 
-unsigned int Acquisition::getHeight() {
-    return (readout->bottom()-readout->top()+1); 
+boost::units::quantity<cs_units::camera::length,int>
+Acquisition::getHeight() {
+    return (readout->bottom()-readout->top()+1*pixel); 
 }
 
 bool Acquisition::hasLength() {

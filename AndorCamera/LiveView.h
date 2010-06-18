@@ -24,9 +24,9 @@ class LiveView :
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time;
     Resolution resolution;
     simparm::BoolEntry show_live;
-    simparm::DoubleEntry live_show_frequency;
 
     ost::Mutex window_mutex, change_mutex;
+    CamImage current_image_content;
 
     std::auto_ptr<dStorm::Display::Change> change;
     std::auto_ptr<dStorm::Display::Manager::WindowHandle> window;
