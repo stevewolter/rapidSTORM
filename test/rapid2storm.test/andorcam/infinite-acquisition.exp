@@ -1,0 +1,82 @@
+begin_test_suite
+global have_test_plugin
+load_default_config
+set timeout 20
+
+set basename can-compute-cam-job-test
+set basepath $tmpdir_host$basename
+
+dstorm_attach
+
+send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -20\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in BottomCaptureBorder in value set 180\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in LeftCaptureBorder in value set 6\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in RightCaptureBorder in value set 113\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in ImageReadout in TopCaptureBorder in value set 4\n"
+send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename value set $tmpdir_target$basename\n"
+
+send "in Car in Engine in FixSigma in value set true\n"
+
+if { $have_test_plugin == 1 } {
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+}
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionSpeed in value set 0.001\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength in value set 20\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength in optional_given set false\n"
+
+send "in Car in Run in value set 1\n"
+set test "Job starts"
+expect {
+    -re "declare \[a-zA-Z0-9\]*\r*\nname (dStormJob\[0-9\]*)" 
+        { set job $expect_out(1,string); pass "$test"; }
+}
+
+set test "Job runs past image 20"
+if { $have_test_plugin == 1 } {
+    expect {
+        -re "in LocalizationCount in value set" { exp_continue }
+        -re "Verbose plugin got results for 21 fr" { pass "$test" }
+        -re "remove dStormJob" { fail "$test" }
+    }
+} else {
+    unsupported "$test"
+}
+
+set test "Job is declared finished when engine is stopped"
+send "in $job in EngineStatus in EngineStopper in value set 1\n"
+if { $have_test_plugin == 1 } {
+    expect {
+        -re "Verbose plugin got signal Engine_run_succeeded" { pass "$test" }
+        -re "Verbose plugin got signal Engine_run_failed" { pass "$test" }
+    }
+} else {
+    expect {
+        -re "in Progress in value set 1" { pass "$test" }
+    }
+}
+
+set test "Camera disconnects"
+expect {
+    -re "in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+}
+
+set test "Job is closed after clicking close job"
+send "in $job in CloseJob in value set 1\n"
+set close_button_pressed 0
+expect {
+    -re "in $job in CloseJob in value set 1" 
+        { set close_button_pressed 1; exp_continue; }
+    -re "remove $job" {
+        if { $close_button_pressed == 1 } {
+            pass "$test"
+        } else {
+            fail "$test"
+        }
+    }
+}
+
+end_test_suite

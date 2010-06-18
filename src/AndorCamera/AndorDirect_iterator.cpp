@@ -35,7 +35,10 @@ class Source::iterator
 
     CamImage& dereference() const;
     void increment();
-    bool equal(const iterator& i) const { return ref.get() == i.ref.get(); }
+    bool equal(const iterator& i) const {
+        DEBUG("Comparing " << ref.get() << " and " << i.ref.get());
+        return ref.get() == i.ref.get(); 
+    }
 };
 
 struct Source::iterator::CamRef {
@@ -75,6 +78,7 @@ Source::iterator::CamRef::CamRef(Source &ad)
         ad.acquisition.block_until_on_camera();
         DEBUG("Acquisition gained camera");
     } catch (...) {
+        DEBUG("Caught an error, stopping acquisition");
         ad.acquisition.stop();
         is_finished = true;
         throw;
