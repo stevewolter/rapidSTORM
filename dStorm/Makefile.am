@@ -39,12 +39,14 @@ image_library_include_HEADERS = $(addprefix image/, \
     constructors.h convert.h iterator.h minmax.h \
     )
 units_library_includedir = $(includedir)/dStorm/units
-units_library_include_HEADERS = \
-	units/amplitude.h units/frame_count.h units/frame_rate.h \
-	units/nanolength.h
+units_library_include_HEADERS = $(addprefix units/, \
+	amplitude.h frame_count.h frame_rate.h \
+	nanolength.h megafrequency.h microtime.h )
 unitentry_library_includedir = $(includedir)/dStorm/UnitEntries
-unitentry_library_include_HEADERS = \
-	$(addprefix UnitEntries/, PixelEntry.h )
+unitentry_library_include_HEADERS = $(addprefix UnitEntries/, \
+	PixelEntry.h Hertz.h FrameEntry.h \
+	TemperatureEntry.h TimeEntry.h \
+	)
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \

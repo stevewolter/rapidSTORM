@@ -16,7 +16,8 @@ namespace AndorCamera {
                 pair<bool, float> tstate;
                 while ( !askForDestruction ) {
                     tstate = GetTemperatureF();
-                    realTemperature = tstate.second;
+                    realTemperature = 
+                        tstate.second * boost::units::celsius::degree;
                     /* This time is more or less arbitrary. The detector
                     * refreshes the value at a way lower rate, but we
                     * have no idea when it does; thus, polling with 10 Hz
@@ -38,8 +39,7 @@ namespace AndorCamera {
     }
 
     /* See AndorCamera/TemperatureMonitor.h for documentation */
-    TemperatureMonitor::TemperatureMonitor(simparm::DoubleEntry &rt)
- 
+    TemperatureMonitor::TemperatureMonitor(dStorm::FloatCelsiusEntry &rt)
     : ost::Thread("Camera temperature monitor"),
       realTemperature(rt),
       askForDestruction(false)

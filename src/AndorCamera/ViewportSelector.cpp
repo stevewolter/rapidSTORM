@@ -106,7 +106,8 @@ void Display::configure_camera(Acquisition& acq)
     }
 
     /* Acquire with 10 images / second */
-    acq.getAcquisitionModeControl().desired_kinetic_cycle_time = 0.1;
+    acq.getAcquisitionModeControl().desired_kinetic_cycle_time 
+        = 0.1f * boost::units::si::seconds;
     acq.getAcquisitionModeControl().desired_accumulate_cycle_time = 
         cam->acquisitionMode().desired_accumulate_cycle_time();
     acq.getAcquisitionModeControl().desired_exposure_time = 
@@ -130,12 +131,12 @@ dStorm::Display::ResizeChange Display::getSize() const
 void Display::initialize_display() 
 {
     if ( aimed != NULL ) {
-        size.x() = (aimed->right.max() - aimed->left.min() + 1) * cs_units::camera::pixel;
-        size.y() = (aimed->bottom.max() - aimed->top.min() + 1) * cs_units::camera::pixel;
+        size.x() = aimed->right.max() - aimed->left.min() + 1 * cs_units::camera::pixel;
+        size.y() = aimed->bottom.max() - aimed->top.min() + 1 * cs_units::camera::pixel;
     } else {
         ImageReadout& ir = dynamic_cast<ImageReadout&>( cam->readout() );
-        size.x() = (ir.right() - ir.left() + 1)  * cs_units::camera::pixel;
-        size.y() = (ir.bottom() - ir.top() + 1)  * cs_units::camera::pixel;
+        size.x() = ir.right() - ir.left() + 1 * cs_units::camera::pixel;
+        size.y() = ir.bottom() - ir.top() + 1 * cs_units::camera::pixel;
     }
 
     if ( handle.get() == NULL ) {
@@ -182,10 +183,10 @@ void Display::set_resolution( const CamTraits::Resolution& r ) {
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
     ost::MutexLock lock(mutex);
     if ( aimed ) {
-        aimed->left = l;
-        aimed->right = r;
-        aimed->top = t;
-        aimed->bottom = b;
+        aimed->left = l * cs_units::camera::pixel;
+        aimed->right = r * cs_units::camera::pixel;
+        aimed->top = t * cs_units::camera::pixel;
+        aimed->bottom = b * cs_units::camera::pixel;
 
         change->do_change_image = true;
         change->image_change.new_image = last_image;
@@ -215,8 +216,10 @@ void Display::draw_image( const CamImage& data) {
     DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
-        int l = aimed->left(), r = aimed->right(),
-            t = aimed->top(), b = aimed->bottom();
+        int l = aimed->left() / cs_units::camera::pixel,
+            r = aimed->right() / cs_units::camera::pixel,
+            t = aimed->top() / cs_units::camera::pixel,
+            b = aimed->bottom() / cs_units::camera::pixel;
 
         /* Draw the red rectangle that indicates the current acquisition
         * borders */

@@ -17,6 +17,7 @@
 #include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
+#include <dStorm/UnitEntries/TimeEntry.h>
 
 #include "LiveView_decl.h"
 
@@ -28,13 +29,12 @@ namespace AndorCamera {
         *  AndorCamera::Config. */
     class Method : public CamConfig, public simparm::Node::Callback
     {
-        private:
+      private:
         class CameraSwitcher;
         std::auto_ptr<CameraSwitcher> switcher;
         simparm::FileEntry basename;
-        public:
+      public:
         simparm::BoolEntry show_live_by_default;
-        simparm::DoubleEntry live_show_frequency;
         dStorm::input::Config& resolution_element;
 
         private:

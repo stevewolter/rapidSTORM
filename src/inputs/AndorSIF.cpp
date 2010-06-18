@@ -105,7 +105,8 @@ void Source<Pixel>::init(FILE *src)
      * and store it in SIF info structure. */
     AndorCamera::Config *sifInfo = new AndorCamera::Config;
     this->sifInfo.reset(sifInfo);
-    sifInfo->targetTemperature = dataSet->instaImage.temperature;
+    sifInfo->targetTemperature = 
+        int(dataSet->instaImage.temperature) * boost::units::celsius::degrees;
     sifInfo->targetTemperature.editable = false;
     sifInfo->outputAmp = 
         (AndorCamera::OutputAmp)dataSet->instaImage.OutputAmp;
@@ -127,9 +128,11 @@ void Source<Pixel>::init(FILE *src)
     }
     sifInfo->emccdGain = dataSet->instaImage.PreAmpGain;
     sifInfo->emccdGain.editable = false;
-    sifInfo->realExposureTime = dataSet->instaImage.exposure_time;
+    sifInfo->realExposureTime 
+        = float(dataSet->instaImage.exposure_time) * boost::units::si::second;
     sifInfo->realExposureTime.editable = false;
-    sifInfo->cycleTime = dataSet->instaImage.kinetic_cycle_time;
+    sifInfo->cycleTime 
+        = float(dataSet->instaImage.kinetic_cycle_time) * boost::units::si::second;
     sifInfo->cycleTime.editable = false;
 
     simparm::BasicEntry* whn[] = {

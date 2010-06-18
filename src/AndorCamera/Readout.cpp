@@ -12,6 +12,7 @@ using namespace simparm;
 namespace AndorCamera {
 
 using namespace States;
+using cs_units::camera::pixel;
 
 Readout::Readout(const std::string& name, const std::string& desc)
         : simparm::Object(name, desc),
@@ -42,14 +43,14 @@ ImageReadout::ImageReadout(StateMachine &sm)
 : Readout("ImageReadout", "Image Readout mode"),
   Node::Callback( simparm::Event::ValueChanged ),
   StateMachine::StandardListener<ImageReadout>(*this),
-  left("LeftCaptureBorder", "Leftmost column to capture", 0),
-  top("TopCaptureBorder","Topmost row to capture", 0),
-  right("RightCaptureBorder","Rightmost column to capture", 1023),
-  bottom("BottomCaptureBorder","Bottommost row to capture", 1023),
+  left("LeftCaptureBorder", "Leftmost column to capture", 0 * pixel),
+  top("TopCaptureBorder","Topmost row to capture", 0 * pixel),
+  right("RightCaptureBorder","Rightmost column to capture", 1023 * pixel),
+  bottom("BottomCaptureBorder","Bottommost row to capture", 1023 * pixel),
   sm(sm)
 {
-    left.setMin( 0 );
-    top.setMin( 0 );
+    left.setMin( 0 * pixel );
+    top.setMin( 0 * pixel );
     left.setMax( right() );
     top.setMax( bottom() );
     right.setMin( left() );
@@ -125,8 +126,8 @@ class ImageReadout::Token<Readying>
                 t.reset( new simparm::EditabilityChanger(i.top, false));
                 b.reset( new simparm::EditabilityChanger(i.bottom, false));
                 SDK::SetReadMode( AndorCamera::Image );
-                SDK::SetImageNoBinning( i.left(), i.right(), 
-                                        i.top(), i.bottom() );
+                SDK::SetImageNoBinning( i.left() / pixel, i.right() / pixel, 
+                                        i.top() / pixel, i.bottom() / pixel );
             }
         }
     ~Token() {}
@@ -137,8 +138,8 @@ ImageReadout::Token<Connected>::Token(ImageReadout& i)
 : Readout::Token<Connected>(i)
 {
     std::pair<int,int> s = SDK::GetDetector();
-    i.right.setMax( s.first-1 );
-    i.bottom.setMax( s.second-1 );
+    i.right.setMax( (s.first-1) * pixel );
+    i.bottom.setMax( (s.second-1) * pixel );
 }
 
 template <int State>

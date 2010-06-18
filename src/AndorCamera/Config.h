@@ -5,6 +5,8 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/Set.hh>
 #include <simparm/Structure.hh>
+#include <dStorm/UnitEntries/TemperatureEntry.h>
+#include <dStorm/UnitEntries/TimeEntry.h>
 
 namespace AndorCamera {
     typedef int ADChannel;
@@ -23,7 +25,7 @@ namespace AndorCamera {
     class _Config : public simparm::Set {
       public:
         /** The temperature the user WANTS to cool to. */
-        simparm::LongEntry         targetTemperature;
+        dStorm::IntCelsiusEntry targetTemperature;
 
         /** The selected output amplifier type. */
         simparm::DataChoiceEntry< OutputAmp > outputAmp;
@@ -38,7 +40,7 @@ namespace AndorCamera {
         simparm::NumericEntry<int>            emccdGain;
 
         /** The actually used exposure time and kinetic cycle time. */
-        simparm::DoubleEntry       realExposureTime, cycleTime;
+        dStorm::FloatTimeEntry                realExposureTime, cycleTime;
 
         _Config();
 

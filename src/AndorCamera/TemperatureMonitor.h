@@ -7,6 +7,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/NumericEntry.hh>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/UnitEntries/TemperatureEntry.h>
 
 namespace AndorCamera {
     /** This class concurrently monitors the camera CCD temperature.
@@ -18,7 +19,7 @@ namespace AndorCamera {
     class TemperatureMonitor : private dStorm::Thread {
       private:
         /** Reference to the updated field. */
-        simparm::DoubleEntry &realTemperature;
+        dStorm::FloatCelsiusEntry &realTemperature;
         /** Set to true by the destructor to trigger termination. */
         bool askForDestruction;
         /** The method that is called in the subthread. */
@@ -26,7 +27,7 @@ namespace AndorCamera {
 
       public:
         /** Constructor. Does immediately start a subthread and returns. */
-        TemperatureMonitor (simparm::DoubleEntry &realTemperature);
+        TemperatureMonitor (dStorm::FloatCelsiusEntry &realTemperature);
         /** Destructor. Triggers and waits for subthread termination. */
         ~TemperatureMonitor ();
     };

@@ -4,7 +4,12 @@ global dirsep_host
 global dirsep_target
 global workspace_target
 
-set tmpdir_host "/tmp/"
-set tmpdir_target "/tmp/"
+set tmpdir_host "/tmp/rapidstorm-test/"
+set tmpdir_target "/tmp/rapidstorm-test/"
 set workspace_target "/srv/rapidSTORM-build/Sample_Workspace_dSTORM/"
+set workspace_host "$workspace_target"
 set testcase_target "/hinkelsteine/rapidstorm-dev/test_cases/"
+
+if { [file exists $tmpdir_host] != 1 } {
+    file mkdir $tmpdir_host
+}

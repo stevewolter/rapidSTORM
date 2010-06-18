@@ -20,6 +20,8 @@ Display<Colorizer>::Display(
   vph(vph), 
   next_change( initial_state )
 {
+    if ( config.close_on_completion() )
+        props.flags.close_window_on_unregister();
     if ( next_change.get() == NULL )
         next_change.reset( new dStorm::Display::Change() );
     else

@@ -6,10 +6,12 @@ proc initialize {} {
 	dstorm_start
     expect_after {
         -re "Could not perform action:" { fail "$test" }
+        -re "PROGRAM TERMINATED WITH" { fail "$test" }
         eof     { fail "$test" }
         timeout { fail "$test" }
     }
 }
+# -re "\nseverity set Error\r*\n" { fail "$test" }
 
 proc get_next_output_node_name { test_name } {
     set test $test_name
@@ -18,6 +20,13 @@ proc get_next_output_node_name { test_name } {
             { return $expect_out(1,string); }
     }
     return ""
+}
+
+proc clear_tmp_dir {} {
+    global tmpdir_host
+    if { [glob -nocomplain -dir $tmpdir_host *] != "" } {
+        eval file delete [glob -dir $tmpdir_host *]
+    }
 }
 
 proc dstorm_start {} {

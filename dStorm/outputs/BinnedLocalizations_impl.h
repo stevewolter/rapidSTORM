@@ -153,7 +153,7 @@ void BinnedLocalizations<KeepUpdated>::set_base_image_size()
     traits.size.fill( 1 * cs_units::camera::pixel );
     for (int i = 0; i < announcement->traits.size.rows(); i++) {
         PreciseSize dp_size = announcement->traits.size[i] - 2*crop;
-        traits.size[i] = std::max( ceil( re * (dp_size - one_pixel) + one_pixel ), one_pixel );
+        traits.size[i] = std::max( ceil( re * dp_size), one_pixel );
     }
 
     if ( announcement->traits.resolution.is_set() )
