@@ -35,6 +35,10 @@ Acquisition::Acquisition (const CameraReference& camera)
     DEBUG("Acquisition constructor");
 
     status.editable = false;
+    if ( ! acquisitionMode->kinetic_length().is_set() &&
+         (acquisitionMode->select_mode() == Kinetics ||
+          acquisitionMode->select_mode() == Fast_Kinetics) )
+        acquisitionMode->select_mode = Run_till_abort;
 
     Camera::ExclusiveAccessor::replace_on_access( 
         control->readout(), *readout );
@@ -58,8 +62,7 @@ void Acquisition::got_access() {
     status.erase( status.value );
     status.push_back( control->state_machine().status.value );
 
-    if ( acquisitionMode->kinetic_length().is_set() &&
-         (acquisitionMode->select_mode() == Kinetics ||
+    if ( (acquisitionMode->select_mode() == Kinetics ||
           acquisitionMode->select_mode() == Fast_Kinetics) &&
          *acquisitionMode->kinetic_length() > 500 * cs_units::camera::frame )
     {
@@ -114,9 +117,8 @@ Acquisition::getLength() {
       else
         return std::numeric_limits<unsigned int>::max()
             * cs_units::camera::frame;
-    else if ( (acquisitionMode->select_mode() == Kinetics ||
-               acquisitionMode->select_mode() == Fast_Kinetics) &&
-              acquisitionMode->kinetic_length().is_set())
+    else if ( acquisitionMode->select_mode() == Kinetics ||
+               acquisitionMode->select_mode() == Fast_Kinetics )
         return *acquisitionMode->kinetic_length();
     else
         return 1 * cs_units::camera::frame;

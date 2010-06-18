@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Readout.h"
 #include "SDK.h"
 #include <string.h>
@@ -49,12 +50,19 @@ ImageReadout::ImageReadout(StateMachine &sm)
   bottom("BottomCaptureBorder","Bottommost row to capture", 1023 * pixel),
   sm(sm)
 {
+    DEBUG(right.max());
     left.setMin( 0 * pixel );
+    DEBUG(right.max());
     top.setMin( 0 * pixel );
+    DEBUG(right.max());
     left.setMax( right() );
+    DEBUG(right.max());
     top.setMax( bottom() );
+    DEBUG(right.max());
     right.setMin( left() );
+    DEBUG(right.max());
     bottom.setMin( top() );
+    DEBUG(right.max());
 
     registerNamedEntries();
 }
@@ -93,9 +101,13 @@ void ImageReadout::registerNamedEntries()
 void ImageReadout::operator()(const simparm::Event& e)
 {
     if ( &e.source == &left.value ) {
+        DEBUG(right.hasMin << " " << right.hasMax << " " << right.min() << " " << right.max());
         right.setMin( left() );
+        DEBUG(right.hasMin << " " << right.hasMax << " " << right.min() << " " << right.max());
     } else if ( &e.source == &right.value ) {
+        DEBUG(right.hasMin << " " << right.hasMax << " " << right.min() << " " << right.max());
         left.setMax( right() );
+        DEBUG(right.hasMin << " " << right.hasMax << " " << right.min() << " " << right.max());
     } else if ( &e.source == &top.value ) {
         bottom.setMin( top() );
     } else if ( &e.source == &bottom.value ) {
@@ -138,6 +150,7 @@ ImageReadout::Token<Connected>::Token(ImageReadout& i)
 : Readout::Token<Connected>(i)
 {
     std::pair<int,int> s = SDK::GetDetector();
+    DEBUG("Setting limits to " << s.first-1 << " " << s.second -1 );
     i.right.setMax( (s.first-1) * pixel );
     i.bottom.setMax( (s.second-1) * pixel );
 }
