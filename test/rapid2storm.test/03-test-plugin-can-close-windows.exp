@@ -26,3 +26,5 @@ if { $have_test_plugin == 1 } {
 } else {
     unsupported "$test"
 }
+
+end_test_suite

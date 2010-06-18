@@ -1,0 +1,73 @@
+begin_test_suite
+clear_tmp_dir
+load_default_config
+dstorm_attach
+
+set input_file Mikrotubuli.txt
+set test "Fall d) Punkt 1"
+if { [file exists "${tmpdir_host}$input_file"] != 1 } {
+    file link -hard "${tmpdir_host}$input_file" "${workspace_host}$input_file" 
+}
+
+file stat "${tmpdir_host}$input_file" old_stat
+set test "Fall d) Punkt 2"
+send "in Car in Method in InputMethod in value set STM\n"
+set test "Fall d) Punkt 3"
+send "in Car in Method in InputMethod in STM in InputFile in value set $tmpdir_target$input_file\n"
+set test "Fall d) Punkt 4"
+set test "Fall d) Punkt 5"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "in Progress in value set 0" { exp_continue }
+    -re "in LocalizationCount in value set" { exp_continue }
+    -re "in Progress in value set 1" { xpass "Job finishes for Fall d)" }
+    -re "The output file name.*was used by multiple outputs. Refusing to start job to avoid conflict.\r*\nseverity set Error"
+        { pass "Error is emitted due to file name conflict" }
+}
+
+sleep 1
+
+set test "Input file was not touched in computation"
+file stat "${tmpdir_host}$input_file" new_stat
+if { $old_stat(mtime) == $new_stat(mtime) } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+foreach suffix [list "-raw.txt" "2.txt"] {
+    set test "Output file $suffix exists"
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        xpass "$test"
+    } else {
+        xfail "$test"
+    }
+
+    set test "Output file $suffix has over 100 lines"
+
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        set linecount 0
+        set filestream [open "${tmpdir_host}Mikrotubuli$suffix" r]
+        while {[gets $filestream line] >= 0} {
+            if { [string index $line 0] != "#" } { incr linecount }
+        }
+        close $filestream
+        if { $linecount > 100 } {
+            xpass "$test"
+        } else {
+            xfail "$test"
+        }
+    } else {
+        xfail "$test"
+    }
+}
+
+set test "Output JPG image exists"
+if { [ file exists "${tmpdir_host}Mikrotubuli.jpg" ] } {
+    xpass "$test"
+} else {
+    xfail "$test"
+}
+
+end_test_suite
