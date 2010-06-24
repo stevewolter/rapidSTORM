@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "main.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
@@ -49,6 +50,16 @@ CommonInfo<FF>::CommonInfo(
 }
 
 template <int FF>
+CommonInfo<FF>::CommonInfo( const CommonInfo& o ) 
+: maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
+  start_sx(o.start_sx), start_sy(o.start_sy), start_sxy(o.start_sxy),
+  constants(o.constants),
+  fit_function(o.fit_function),
+  params( NULL, &constants )
+{
+}
+
+template <int FF>
 void
 CommonInfo<FF>::set_start(
     const Spot& spot, 
@@ -75,6 +86,13 @@ CommonInfo<FF>::set_start(
         max<double>(center - shift_estimate, 10)
         * 2 * M_PI 
         * params.template getSigmaX<0>() * params.template getSigmaY<0>());
+
+    DEBUG( "Estimating center at " << center << ", shift at " << shift_estimate 
+              << " for spot at " << xc << " " << yc << " with image sized " << image.width_in_pixels() << " by "
+              << image.height_in_pixels() );
+    DEBUG( "Sigmas are " << params.template getSigmaX<0>() << " " << params.template getSigmaY<0>()
+              );
+    DEBUG( "Set start " << *variables );
 
     maxs.x() = image.width_in_pixels()-1 - 1;
     maxs.y() = image.height_in_pixels()-1 - 1;
