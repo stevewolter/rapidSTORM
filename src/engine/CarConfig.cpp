@@ -21,6 +21,10 @@
 #include <windows.h>
 #endif
 
+#include <simparm/Menu.hh>
+#include <simparm/URI.hh>
+#include "doc/help/rapidstorm_help_file.h"
+
 using namespace std;
 
 namespace dStorm {
@@ -88,10 +92,21 @@ CarConfig::CarConfig()
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Store config used in computation in"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
-                 true)
+                 true),
+  additional("AdditionalEntries")
 {
    configTarget.setUserLevel(simparm::Object::Intermediate);
    auto_terminate.setUserLevel(simparm::Object::Expert);
+
+   std::auto_ptr<simparm::Node> menu( new simparm::Menu("HelpMenu", "Help") );
+    menu->push_back( std::auto_ptr<simparm::Node>(
+        new simparm::URI("BugTracker", "Report a bug", 
+            "http://www.physik.uni-bielefeld.de/all/flyspray/index.php?do=register" ) ) );
+    menu->push_back( std::auto_ptr<simparm::Node>(
+        new simparm::FileEntry("rapidSTORMManual", "rapid2storm manual", 
+            std::string("share/doc/") + dStorm::HelpFileName ) ) );
+    additional.push_back( *menu.release() );
+   DEBUG("Made menu items");
 
     registerNamedEntries();
 }
@@ -108,7 +123,8 @@ CarConfig::CarConfig(const CarConfig &c)
   outputConfig(outputRoot->root_factory()),
   outputBox(c.outputBox),
   configTarget(c.configTarget),
-  auto_terminate(c.auto_terminate)
+  auto_terminate(c.auto_terminate),
+  additional(c.additional)
 {
     registerNamedEntries();
     DEBUG("Copied Car config");
@@ -129,6 +145,7 @@ void CarConfig::registerNamedEntries() {
    push_back( outputBox );
    push_back( configTarget );
    push_back( auto_terminate );
+   push_back( additional );
    DEBUG("Registered named entries of CarConfig");
 }
 

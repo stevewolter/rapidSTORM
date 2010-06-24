@@ -1,11 +1,44 @@
-#include "debug.h"
-#include "GaussFitter_impl.h"
+#ifndef DSTORM_FITTER_SIZESPECIALIZING_H
+#define DSTORM_FITTER_SIZESPECIALIZING_H
+
+#include "SizeSpecializing.h"
+#include <dStorm/engine/Config.h>
+#include <dStorm/engine/JobInfo.h>
 
 namespace dStorm {
-namespace engine {
+namespace fitter {
 
-template <bool Free_Sigmas, bool RA, bool Corr>
-int GaussFitter<Free_Sigmas, RA, Corr>::
+template <typename Type>
+SizeSpecializing<Type>::SizeSpecializing( 
+    const SizeSpecializingConfig& config,
+    const JobInfo& info) 
+: common(config, info) ,
+    msx( info.config.fitWidth() / cs_units::camera::pixel ),
+    msy( info.config.fitHeight() / cs_units::camera::pixel )
+{
+    for (int i = 0; i < MaxFitWidth-1; i++)
+        for (int j = 0; j < MaxFitHeight-1; j++) {
+            table[i][j] = NULL;
+            factory[i][j] = NULL;
+        }
+
+    create_specializations<0>();
+}
+
+template <typename Type>
+SizeSpecializing<Type>::~SizeSpecializing()
+{
+    for (int x = 0; x < MaxFitHeight-1; x++)
+      for (int y = 0; y < MaxFitHeight-1; y++) {
+        if ( table[x][y] != NULL )
+            delete table[x][y];
+        if ( factory[x][y] != NULL )
+            delete factory[x][y];
+      }
+}
+
+template <typename Type>
+int SizeSpecializing<Type>::
 fitSpot( const Spot& spot, const Image& image, Localization* target )
 {
     int xc = int(round(spot.x())), yc = int(round(spot.y()));
@@ -46,21 +79,7 @@ fitSpot( const Spot& spot, const Image& image, Localization* target )
     return e->fit( spot, target, image, xl, yl );
 }
 
-template int GaussFitter<true,true,true>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<true,false,true>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<false,true,true>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<false,false,true>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<false,true,false>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<false,false,false>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<true,true,false>::fitSpot
-    (const Spot&, const Image&, Localization*);
-template int GaussFitter<true,false,false>::fitSpot
-    (const Spot&, const Image&, Localization*);
 }
 }
+
+#endif

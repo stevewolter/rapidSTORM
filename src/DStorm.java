@@ -175,6 +175,7 @@ class DStorm {
 
         HelpManager.setHelpDirectory(
             new File(base_dir, "share" + File.separator + "doc" ) );
+        au.com.pulo.kev.simparm.ConfigEntryFile.basePath = base_dir;
 
         String[] environment = build_environment( base_dir );
         boolean have_arg = args.length > 0,stderrPipe = (args.length > 0 && args[0].equals("--StderrPipe"));

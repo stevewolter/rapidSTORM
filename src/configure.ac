@@ -134,7 +134,7 @@ CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAG
 AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_TARNAME/plugins")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
-AC_CONFIG_SUBDIRS([gauss_fitter])
+AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])
 AC_CONFIG_FILES([Makefile AndorCamera/Makefile fit++/Makefile])
 AC_CONFIG_FILES([spotFinders/Makefile])
 AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])

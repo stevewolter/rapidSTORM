@@ -3,27 +3,19 @@
 
 #include <simparm/Set.hh>
 #include <simparm/NumericEntry.hh>
+#include <dStorm/fitter/MarquardtConfig.h>
 
 namespace dStorm {
-namespace engine {
+namespace 2d_fitter {
 
-class GaussFitterConfig : public simparm::Set {
+class Config : public fitter::MarquardtConfig {
   public:
-    GaussFitterConfig();
-    ~GaussFitterConfig();
+    Config();
+    ~Config();
     void registerNamedEntries();
 
     /** Limit up to which X-Y correlation is considered negligible. */
     simparm::DoubleEntry sigma_xy_negligible_limit;
-    /** Start value for Marquardt lambda. */
-    simparm::DoubleEntry marquardtStartLambda;
-    /** Maximum number of iteration steps in fitting process. */
-    simparm::UnsignedLongEntry maximumIterationSteps;
-    /** Maximum length of negligibly short iteration step. */
-    simparm::DoubleEntry negligibleStepLength;
-    /** Number of successive negligibly short steps indicating fit
-    *  success. */
-    simparm::UnsignedLongEntry successiveNegligibleSteps;
     /** Threshold for the spot fitter for the degree of asymmetry
         *  in the residues from which on it will suscept multi-spots. */
     simparm::DoubleEntry asymmetry_threshold;

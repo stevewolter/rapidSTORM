@@ -8,6 +8,7 @@
 #include <memory>
 #include <simparm/Set.hh>
 #include <simparm/Callback.hh>
+#include <simparm/SelfCopyingNode.hh>
 
 namespace dStorm {
 namespace output { class OutputSource; }
@@ -39,6 +40,7 @@ namespace engine {
         simparm::Set outputBox;
         simparm::FileEntry configTarget;
         simparm::BoolEntry auto_terminate;
+        simparm::SelfCopyingNode additional;
     };
 }
 }
