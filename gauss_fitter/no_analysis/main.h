@@ -28,6 +28,7 @@ class CommonInfo
 
  public:
     CommonInfo( const Config&, const engine::JobInfo& );
+    CommonInfo( const CommonInfo& );
     void set_start( 
         const engine::Spot& spot, const engine::BaseImage& image,
         double shift_estimate, typename FitGroup::Variables* variables );

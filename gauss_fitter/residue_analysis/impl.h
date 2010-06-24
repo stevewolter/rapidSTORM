@@ -66,6 +66,16 @@ CommonInfo<FF>::CommonInfo(
 }
 
 template <int FF>
+CommonInfo<FF>::CommonInfo( const CommonInfo& o )
+: no_analysis::CommonInfo<FF>(o),
+  constants(o.constants),
+  fit_function(o.fit_function),
+  params( NULL, &constants),
+  asymmetry_threshold(o.asymmetry_threshold),
+  required_peak_distance_sq(o.required_peak_distance_sq) 
+{}
+
+template <int FF>
 void CommonInfo<FF>::
 start_from_splitted_single_fit(
     typename FitGroup::Variables* v,
