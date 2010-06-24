@@ -7,7 +7,7 @@ else
     DEBUGPLUGIN =
 endif
 
-SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN) gauss_fitter
+SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN) gauss_fitter 3d_fitter
 
 bin_PROGRAMS = dstorm 
 
@@ -25,9 +25,17 @@ endif
 	$(WINDRES) -I . '$<' '$@'
 windows_resources.o : config.h
 
+noinst_LTLIBRARIES = libfitter.la
+libfitter_la_SOURCES = $(addprefix fitter_base,\
+    Sized.h FixedSize.h FixedSized_impl.h \
+    SizeSpecializing_decl.h SizeSpecializing.h SizeSpecializing_impl.h \
+    SizeSpecializing_filler.h \
+    MarquardtConfig.h MarquardtConfig.cpp \
+    )
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \
-    engine/libengine.la gauss_fitter/libgauss_fitter.la inputs/libinputs.la \
+    engine/libengine.la gauss_fitter/libgauss_fitter.la  \
+    3d_fitter/lib3d_fitter.la libfitter.la inputs/libinputs.la \
     AndorCamera/libAndorCamera.la \
     wxDisplay/libdStorm_display.la \
     ../dStorm/libdStorm.la 

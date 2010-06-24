@@ -30,6 +30,8 @@ ProgressMeter::announceStormSize(const Announcement &a) {
         if ( a.traits.last_frame.is_set() )
             length = *a.traits.last_frame + a.traits.first_frame
                         + 1 * cs_units::camera::frame;
+        else
+            progress.indeterminate = true;
         max = frame_count::from_value(0);
         if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
         return AdditionalData(); 
@@ -50,7 +52,7 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
             progress.setValue( round(ratio / 0.01)
                                 * 0.01 );
         } else {
-            /* TODO */
+            progress.setValue(0.5);
         }
     }
     return KeepRunning;
@@ -62,7 +64,7 @@ void ProgressMeter::propagate_signal(ProgressSignal s)
     if ( s == Engine_is_restarted) {
         progress.setValue(0); 
         max = 0;
-    } else if ( s == Engine_run_succeeded ) {
+    } else if ( s == Engine_run_succeeded || s == Engine_run_failed ) {
         double save_increment = progress.increment();
         progress.increment = 0;
         progress.setValue(1); 
