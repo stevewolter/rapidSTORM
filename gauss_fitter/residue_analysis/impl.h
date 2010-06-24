@@ -1,7 +1,7 @@
 #ifndef RESIDUEANALYSIS_IMPL_H
 #define RESIDUEANALYSIS_IMPL_H
-#include "ResidueAnalysis.h"
-#include "NoAnalysis.h"
+#include "main.h"
+#include "no_analysis/main.h"
 #include <fit++/FitFunction_impl.hh>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
@@ -115,6 +115,33 @@ CommonInfo<FF>::peak_distance_small(
     Eigen::Vector2d peak_dist =
         (params.template getPosition<0>() - params.template getPosition<1>());
     return ( peak_dist.squaredNorm() < required_peak_distance_sq );
+}
+
+template <int FF>
+void
+CommonInfo<FF>::set_two_kernel_improvement( 
+    Localization& l,  float value )
+{
+    l.two_kernel_improvement() = value;
+}
+
+template <int FF>
+bool CommonInfo<FF>::check_result( 
+    typename FitGroup::Variables *, Localization *)
+{
+    std::stringstream error;
+    error << "Unexpected call at " << __FILE__ << ":" << __LINE__;
+    throw std::logic_error(error.str());
+}
+
+template <int FF>
+void CommonInfo<FF>::set_start(
+    const engine::Spot& spot, const engine::BaseImage& image,
+    double shift_estimate, typename FitGroup::Variables* variables
+) {
+    std::stringstream error;
+    error << "Unexpected call at " << __FILE__ << ":" << __LINE__;
+    throw std::logic_error(error.str());
 }
 
 }

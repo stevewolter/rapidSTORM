@@ -1,10 +1,17 @@
-#include "NoAnalysis.h"
-#include "fitter/FixedSized.h"
+#include "main.h"
+#include <fit++/FitFunction_impl.hh>
+#include "fitter/FixedSized_impl.h"
 #include <fit++/Exponential2D_Correlated_Derivatives.hh>
 #include "fitter/SizeSpecializing_filler.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+namespace Eigen {
+    template <>
+    class NumTraits<unsigned short>
+        : public NumTraits<int> {};
+}
 
 namespace dStorm {
 namespace fitter {

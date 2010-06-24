@@ -5,7 +5,7 @@ AC_PREREQ(2.61)
 AC_INIT([rapidstorm_fitters], [1.0], RAPIDSTORM_MAINTAINER)
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
-AC_CONFIG_SRCDIR([GaussFitter.cpp])
+AC_CONFIG_SRCDIR([Factory.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../../m4])
 
@@ -24,6 +24,7 @@ AC_PROG_CXX
 test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
 test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
+AM_PROG_CC_C_O
 
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL

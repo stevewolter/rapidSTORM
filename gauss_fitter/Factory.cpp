@@ -1,6 +1,6 @@
 #include "Factory.h"
-#include "NoAnalysis_impl.h"
-#include "ResidueAnalysis_impl.h"
+#include "no_analysis/main.h"
+#include "residue_analysis/main.h"
 #include <dStorm/output/Traits.h>
 #include "fitter/SizeSpecializing_impl.h"
 

@@ -1,4 +1,4 @@
-#include "NoAnalysis.h"
+#include "main.h"
 #include "fitter/FixedSized.h"
 #include <fit++/Exponential2D_Uncorrelated_Derivatives.hh>
 #include "fitter/SizeSpecializing_filler.h"
@@ -9,11 +9,13 @@
 namespace dStorm {
 namespace fitter {
 
+using namespace gauss_2d_fitter::no_analysis;
+using namespace fitpp::Exponential2D;
+
 template <>
 template <>
 void SizeSpecializing<
-    gauss_2d_fitter::no_analysis::Fitter< 
-        fitpp::Exponential2D::FreeForm_NoCorrelation, false >
+    Fitter< FreeForm_NoCorrelation, false >
 >::
 create_specializations<0>()
 {
