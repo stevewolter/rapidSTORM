@@ -7,18 +7,13 @@
 namespace dStorm {
 namespace fitter {
 
-struct StartInformation {
-    Eigen::Vector2i maxs;
-    Eigen::Vector2d start;
-};
-
-typename <class BaseFitter, int Width, int Height>
-class FixedSized : public Sized<BaseFitter>
+template <class BaseFitter, int Width, int Height>
+class FixedSized : public Sized
 {
   public:
     typedef typename BaseFitter::SizeInvariants Common;
-    typedef typename BaseFitter::template DeriverInfo<Width,Height>::Type
-        Deriver;
+    typedef typename BaseFitter::template Specialized<Width,Height>
+        ::Deriver Deriver;
 
   protected:
     Deriver deriver;
@@ -34,8 +29,9 @@ class FixedSized : public Sized<BaseFitter>
         b.resize( width, height );
     }
     
-    int fit(const Spot& spot, Localization* target,
-        const BaseImage &image, int xl, int yl );
+    int fit(
+        const engine::Spot& spot, Localization* target,
+        const engine::BaseImage &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

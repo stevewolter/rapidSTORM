@@ -2,6 +2,8 @@
 #define DSTORM_FITTER_CONCRETE_SIZE_IMPL_H
 
 #include "FixedSized.h"
+#include <dStorm/engine/Image.h>
+#include "fit++/FitFunction.hh"
 
 namespace dStorm {
 namespace fitter {
@@ -9,7 +11,9 @@ namespace fitter {
 template <class BaseFitter, int Width, int Height>
 int 
 FixedSized<BaseFitter, Width, Height>::
-fit( const Spot &spot, Localization *target, const BaseImage& image,
+fit( const engine::Spot &spot,
+     Localization *target, 
+     const engine::BaseImage& image,
          int xl, int yl) 
 {
     deriver.setData( 
@@ -25,23 +29,19 @@ fit( const Spot &spot, Localization *target, const BaseImage& image,
         deriver.selectedData.template corner<1,1>(Eigen::BottomLeft);
     double shift_estimate = corners.sum() / 4;
     
-    StartInformation starts =
-        common.set_start( spot, image, shift_estimate, &a.parameters );
+    common.set_start( spot, image, shift_estimate, &a.parameters );
      
-    std::pair<FitResult,typename Deriver::Position*>
+    std::pair<fitpp::FitResult,typename Deriver::Position*>
         fitResult = 
-            common.Width_Invariants<FitFlags,false>::fit_function.fit(
-                a, b,
-                common.Width_Invariants<FitFlags,false>::constants,
-                deriver );
+            common.fit_function.fit(
+                a, b, common.constants, deriver );
 
     c = fitResult.second;
     bool is_good
         = c != NULL &&
-          common.check_result( &c->parameters, target, starts );
+          common.check_result( &c->parameters, target );
 
     if ( is_good ) {
-        target->unset_source_trace();
         return 1;
     } else
         return -1;
