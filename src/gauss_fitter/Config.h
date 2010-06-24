@@ -3,10 +3,10 @@
 
 #include <simparm/Set.hh>
 #include <simparm/NumericEntry.hh>
-#include <dStorm/fitter/MarquardtConfig.h>
+#include <fitter/MarquardtConfig.h>
 
 namespace dStorm {
-namespace 2d_fitter {
+namespace gauss_2d_fitter {
 
 class Config : public fitter::MarquardtConfig {
   public:

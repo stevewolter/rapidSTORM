@@ -2,45 +2,55 @@
 #define DSTORM_GAUSSFITTER_NOANALYSIS_H
 
 #include <fit++/Exponential2D.hh>
+#include "fitter/FixedSized_decl.h"
+#include "fitter/Sized.h"
+#include "Config_decl.h"
+#include <dStorm/engine/JobInfo_decl.h>
 
 namespace dStorm {
-namespace 2d_fitter {
+namespace gauss_2d_fitter {
+namespace no_analysis {
 
 template <int FitFlags>
-struct NoAnalysis {
-    class SizeInvariants;
-    template <int X, int Y> struct SpecializationInfo;
-};
-
-template <int FitFlags>
-struct NoAnalysis::SizeInvariants
+class CommonInfo
 {
+  protected:
+    Eigen::Vector2i maxs;
+    Eigen::Vector2d start;
     typedef typename fitpp::Exponential2D::For<1, FitFlags> FitGroup;
 
     typename FitGroup::Constants constants;
-    FitFunction<FitGroup::VarC> fit_function;
+    fitpp::FitFunction<FitGroup::VarC> fit_function;
     typename FitGroup::NamedParameters params;
     const double amplitude_threshold;
     const double start_sx, start_sy, start_sxy;
 
-    Width_Invariants( const GaussFitterConfig&, const JobInfo& );
-    fitter::StartInformation set_start( const Spot& spot, const BaseImage& image,
-                    double shift_estimate,
-                    typename FitGroup::Variables* variables );
+ public:
+    CommonInfo( const Config&, const engine::JobInfo& );
+    void set_start( 
+        const engine::Spot& spot, const engine::BaseImage& image,
+        double shift_estimate, typename FitGroup::Variables* variables );
     bool check_result( typename FitGroup::Variables *variables, 
-                       Localization *target,
-                       const StartInformation& start );
+                       Localization *target);
 };
 
-template <int FitFlags>
+template <int FitFlags, bool HonorCorrelation>
+struct Fitter {
+    typedef CommonInfo<FitFlags> SizeInvariants;
+    template <int X, int Y> struct Specialized;
+};
+
+template <int FitFlags, bool HonorCorrelation>
 template <int X, int Y> 
-struct NoAnalysis<FitFlags>::SpecializationInfo<X,Y> {
-    typedef fitter::FixedSized<NoAnalysis,X,Y> 
+struct Fitter<FitFlags,HonorCorrelation>::Specialized {
+    typedef fitter::FixedSized<Fitter,X,Y> 
         Sized;
-    typedef fitpp::Exponential2D::For<1, FitFlags>::Deriver<engine::StormPixel,X,Y> 
+    typedef typename fitpp::Exponential2D::For<1, FitFlags>
+        ::template Deriver<engine::StormPixel,X,Y,HonorCorrelation> 
         Deriver;
 };
 
+}
 }
 }
 

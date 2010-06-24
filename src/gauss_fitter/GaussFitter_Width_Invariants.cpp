@@ -176,6 +176,7 @@ Width_Invariants<FF,false>::check_result(
             * cs_units::camera::pixel;
     }
 
+    target->unset_source_trace();
     return good;
 }
 
