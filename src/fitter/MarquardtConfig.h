@@ -2,6 +2,7 @@
 #define DSTORM_FITTER_MARQUARDCONFIG_H
 
 #include <simparm/Set.hh>
+#include <simparm/NumericEntry.hh>
 
 namespace dStorm {
 namespace fitter {

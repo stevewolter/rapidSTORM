@@ -208,7 +208,7 @@ class NamedParameters {
 
 template <typename DataType,
           int Width, int Height,
-          bool Corr = true>
+          bool Corr = ParamTraits<SigmaXY>::Variable>
 class Deriver
 : public LatticeFunction<DataType,Width,Height>
 {

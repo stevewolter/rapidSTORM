@@ -3,7 +3,7 @@
 
 #include "inputs/inputs.h"
 #include "spotFinders/spotFinders.h"
-#include "gauss_fitter/GaussFitterFactory.h"
+#include "gauss_fitter/Factory.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/BasicTransmissions.h"
 #include "engine/CarConfig.h"
@@ -124,7 +124,7 @@ void ModuleLoader::add_modules
     DEBUG("Adding basic spot finders");
     dStorm::spotFinders::basic_spotFinders( car_config.engineConfig );
     DEBUG("Adding basic spot fitter");
-    car_config.engineConfig.addSpotFitter( new engine::GaussFitterFactory() );
+    car_config.engineConfig.addSpotFitter( new gauss_2d_fitter::Factory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
 
