@@ -1,11 +1,11 @@
 #ifndef GAUSS_FITTER_RESIDUE_ANALYSIS_H
 #define GAUSS_FITTER_RESIDUE_ANALYSIS_H
 
-#include "ResidueAnalysis.h"
-#include "NoAnalysis.h"
+#include "main.h"
+#include "no_analysis/main.h"
 #include <dStorm/BaseImage.h>
 #include <fit++/FitFunction_impl.hh>
-#include <fitter/FixedSized_impl.h>
+#include "fitter/FixedSized.h"
 
 using namespace fitpp::Exponential2D;
 
@@ -16,6 +16,22 @@ namespace Eigen {
 }
 
 namespace dStorm {
+
+#if 0
+namespace fitter {
+/** Partial specialization of generic fitter fit() function to avoid
+ *  compilation errors in unused generic fit() function. */
+template <int FitFlags, bool HonorCorrelation, int Width, int Height>
+int FixedSized< 
+    gauss_2d_fitter::residue_analysis::Fitter<FitFlags,HonorCorrelation>,
+    Width, Height >::fit(
+        const engine::Spot&, Localization* ,
+        const engine::BaseImage &, int, int ) 
+    { assert( false ); return 0; }
+
+}
+#endif
+
 namespace gauss_2d_fitter {
 namespace residue_analysis {
 
@@ -24,7 +40,7 @@ class SizedFitter
 : public fitter::FixedSized<BaseFitter,Width,Height>
 {
     typedef typename BaseFitter::NoAnalysis::
-        template SpecializationInfo<Width,Height>::Sized Normal;
+        template Specialized<Width,Height>::Sized Normal;
     typedef fitter::FixedSized<BaseFitter,Width,Height> Base;
     typedef typename Base::Common Common;
 
@@ -78,5 +94,7 @@ fit( const engine::Spot &spot, Localization *target,
 }
 }
 }
+
+#include "analysis.h"
 
 #endif

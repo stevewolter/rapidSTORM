@@ -1,4 +1,4 @@
-#include "ResidueAnalysis_fitter.h"
+#include "residue_analysis/fitter.h"
 #include <fit++/Exponential2D_Uncorrelated_Derivatives.hh>
 #include "fitter/SizeSpecializing_filler.h"
 #ifdef HAVE_CONFIG_H

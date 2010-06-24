@@ -18,12 +18,13 @@ class CommonInfo
     Eigen::Vector2i maxs;
     Eigen::Vector2d start;
     typedef typename fitpp::Exponential2D::For<1, FitFlags> FitGroup;
+    const double amplitude_threshold;
+    const double start_sx, start_sy, start_sxy;
 
+  public:
     typename FitGroup::Constants constants;
     fitpp::FitFunction<FitGroup::VarC> fit_function;
     typename FitGroup::NamedParameters params;
-    const double amplitude_threshold;
-    const double start_sx, start_sy, start_sxy;
 
  public:
     CommonInfo( const Config&, const engine::JobInfo& );

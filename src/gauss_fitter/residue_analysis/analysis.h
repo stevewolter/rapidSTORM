@@ -1,15 +1,18 @@
 #ifndef GAUSSFITTER_RESIDUE_ANALYSIS_H
 #define GAUSSFITTER_RESIDUE_ANALYSIS_H
 
+#include "fitter/FixedSized_impl.h"
+
 template <typename Ty>
 Ty sq(const Ty& a) { return a*a; }
 
 namespace dStorm {
-namespace engine {
+namespace gauss_2d_fitter {
+namespace residue_analysis {
 
-template <bool FS, bool Corr, int Width, int Height>
-typename SpecializedGaussFitter<FS, true, Corr, Width, Height>::SpotState
-SpecializedGaussFitter<FS, true, Corr, Width, Height>
+template <class BaseFitter, int Width, int Height>
+typename SizedFitter<BaseFitter,Width,Height>::SpotState
+SizedFitter<BaseFitter,Width,Height>
 ::residue_analysis(Eigen::Vector2i* direction, int xl, int yl)
 {
     const int b = 0;
@@ -21,9 +24,9 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
 
     const Eigen::Matrix<double,Height,Width>& R 
         = this->c->residues;
-    const int xc = round(common.Width_Invariants<FitFlags,false>::params
+    const int xc = round(this->common.params
                                .template getMeanX<0>()) - xl,
-              yc = round(common.Width_Invariants<FitFlags,false>::params
+              yc = round(this->common.params
                                .template getMeanY<0>()) - yl;
 
     Eigen::Matrix2d quadrant_sets[2];
@@ -67,7 +70,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
             / R.cwise().abs().sum();
 
     bool residue_analysis_positive = 
-        ( normed_max_diff > common.asymmetry_threshold );
+        ( normed_max_diff > this->common.asymmetry_threshold );
     if ( residue_analysis_positive ) {
         direction->x() =
             ( main_axis == Vertical ) ? 0 :
@@ -80,11 +83,11 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
 
 }
 
-template <bool FS, bool Corr, int Width, int Height>
+template <class BaseFitter, int Width, int Height>
 float
-SpecializedGaussFitter<FS, true, Corr, Width, Height>
+SizedFitter<BaseFitter,Width,Height>
 ::double_fit_analysis( 
-    const BaseImage& image, const Eigen::Vector2i& direction, int oxl, int oyl )
+    const engine::BaseImage& image, const Eigen::Vector2i& direction, int oxl, int oyl )
 {
 #if 0
     const int DoWi = a.residues.cols() + 2, 
@@ -95,20 +98,21 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
     const int xl = oxl, yl = oyl;
 #endif
 
-    deriver.setData( 
+    this->deriver.setData( 
         image.ptr(),
         image.width() / cs_units::camera::pixel,
         image.height() / cs_units::camera::pixel );
-    deriver.setUpperLeftCorner( xl, yl );
+    this->deriver.setUpperLeftCorner( xl, yl );
 
-    common.start_from_splitted_single_fit( &a.parameters, direction );
+    this->common.start_from_splitted_single_fit( 
+        &this->a.parameters, direction );
 
-    std::pair<FitResult,typename Deriver::Position*>
-        fit_result = common.fit_function.fit(
-            a, b, common.constants, deriver );
+    std::pair<fitpp::FitResult,typename Base::Deriver::Position*>
+        fit_result = this->common.fit_function.fit(
+            this->a, this->b, this->common.constants, this->deriver );
 
     fitpp::FitResult res = fit_result.first;
-    if ( res != FitSuccess )
+    if ( res != fitpp::FitSuccess )
         return 1.0;
 
     int x_shift = oxl - xl, y_shift = oyl - yl;
@@ -119,7 +123,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
     
     /* Check whether the two peaks are too far from each other to be of
      * influence. */
-    if ( common.peak_distance_small( &fit_result.second->parameters ) )
+    if ( this->common.peak_distance_small( &fit_result.second->parameters ) )
         return std::min(1.0, new_residues / this->c->chi_sq);
     else
         return 1.0;
@@ -182,6 +186,7 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
         //return 0;
 #endif
 
+}
 }
 }
 
