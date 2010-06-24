@@ -1,7 +1,8 @@
-#ifndef GAUSS_FITTER_SPECIALIZED_H
-#define GAUSS_FITTER_SPECIALIZED_H
+#ifndef GAUSS_FITTER_RESIDUE_ANALYSIS_H
+#define GAUSS_FITTER_RESIDUE_ANALYSIS_H
 
-#include "GaussFitter.h"
+#include "ResidueAnalysis.h"
+#include "NoAnalysis.h"
 #include <dStorm/BaseImage.h>
 #include <fit++/FitFunction_impl.hh>
 #include <fitter/FixedSized_impl.h>
@@ -15,31 +16,31 @@ namespace Eigen {
 }
 
 namespace dStorm {
-namespace engine {
+namespace gauss_2d_fitter {
+namespace residue_analysis {
 
 template <class BaseFitter, int Width, int Height>
-class ResidueAnalyzingSized
+class SizedFitter
 : public fitter::FixedSized<BaseFitter,Width,Height>
 {
     typedef typename BaseFitter::NoAnalysis::
-        SpecializationInfo<Width,Height>::Sized Normal;
+        template SpecializationInfo<Width,Height>::Sized Normal;
     typedef fitter::FixedSized<BaseFitter,Width,Height> Base;
-    typedef fitter::FixedSized<,Width,Height
     typedef typename Base::Common Common;
 
     Normal normal;
 
   public:
-    ResidueAnalyzingSized(Common& common) 
-        : Base(common), common(common) {}
+    SizedFitter(Common& common) 
+        : Base(common), normal(common) {}
 
     void setSize( int width, int height ) {
         Base::setSize( width, height );
         normal.setSize( width, height );
     }
 
-    int fit(const Spot& spot, Localization* target,
-        const BaseImage &image, int xl, int yl );
+    int fit(const engine::Spot& spot, Localization* target,
+        const engine::BaseImage &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -48,33 +49,33 @@ class ResidueAnalyzingSized
     SpotState residue_analysis(Eigen::Vector2i* direction,
                                int xl, int yl);
     float double_fit_analysis(
-        const BaseImage& image, const Eigen::Vector2i& direction,
+        const engine::BaseImage& image, 
+        const Eigen::Vector2i& direction,
         int single_fit_xl, int single_fit_yl);
 };
 
 template <class BaseFitter, int Width, int Height>
 int 
-SpecializedGaussFitter<BaseFitter, Width, Height>::
-fit( const Spot &spot, Localization *target, const BaseImage& image,
-         int xl, int yl) 
+SizedFitter<BaseFitter, Width, Height>::
+fit( const engine::Spot &spot, Localization *target,
+     const engine::BaseImage& image, int xl, int yl) 
 {
     int one_fit = normal.fit( spot, target, image, xl, yl );
     if ( one_fit <= 0 )
         return one_fit;
 
     Eigen::Vector2i suspected_doubleSpot_direction;
-    switch ( residue_analysis( &suspected_doubleSpot_direction, xl, yl ) ) 
+    float two_kernel_improvement = 0;
+    if ( residue_analysis( &suspected_doubleSpot_direction, xl, yl ) != Single ) 
     {
-        case Single:
-            target->two_kernel_improvement() = 0;
-        case Double:
-        case Fishy:
-            target->two_kernel_improvement() = 1 - double_fit_analysis
-                (image, suspected_doubleSpot_direction, xl, yl); 
+        two_kernel_improvement = 1 - double_fit_analysis
+            (image, suspected_doubleSpot_direction, xl, yl); 
     }
+    Base::common.set_two_kernel_improvement( *target, two_kernel_improvement );
     return one_fit;
 }
 
+}
 }
 }
 

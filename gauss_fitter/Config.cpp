@@ -2,7 +2,7 @@
 #include "doc/help/context.h"
 
 namespace dStorm {
-namespace 2d_fitter {
+namespace gauss_2d_fitter {
 
 using namespace simparm;
 

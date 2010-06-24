@@ -2,9 +2,10 @@
 #define DSTORM_GAUSSFITTER_NOANALYSIS_IMPL_H
 
 #include <fit++/Exponential2D.hh>
+#include "NoAnalysis.h"
 
 namespace dStorm {
-namespace 2d_fitter {
+namespace gauss_2d_fitter {
 
 }
 }

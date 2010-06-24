@@ -21,16 +21,6 @@ template <int FitFlags>
 struct Width_Invariants<FitFlags, true>
 : public Width_Invariants<FitFlags, false>
 {
-    typedef typename fitpp::Exponential2D::For<2, FitFlags> FitGroup;
-    typename FitGroup::Constants constants;
-    FitFunction<FitGroup::VarC> fit_function;
-    typename FitGroup::NamedParameters params;
-    const double asymmetry_threshold, required_peak_distance_sq;
-
-    Width_Invariants( const GaussFitterConfig&, const JobInfo& );
-    void start_from_splitted_single_fit
-        ( typename FitGroup::Variables* v, const Eigen::Vector2i& dir);
-    bool peak_distance_small(typename FitGroup::Variables *variables);
 ;
 };
 
