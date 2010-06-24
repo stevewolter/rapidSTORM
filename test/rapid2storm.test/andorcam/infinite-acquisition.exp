@@ -1,6 +1,6 @@
 begin_test_suite
 global have_test_plugin
-load_default_config
+send "in Car in AutoTerminate in value set false\n"
 set timeout 20
 
 set basename can-compute-cam-job-test
@@ -29,10 +29,16 @@ send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength 
 send "in Car in Method in InputMethod in AndorDirectConfig in AcquisitionLength in optional_given set false\n"
 
 send "in Car in Run in value set 1\n"
-set test "Job starts"
+set test "Job is declared"
 expect {
     -re "declare \[a-zA-Z0-9\]*\r*\nname (dStormJob\[0-9\]*)" 
         { set job $expect_out(1,string); pass "$test"; }
+}
+
+set test "Job reports progress"
+expect {
+    -re "in Progress in value set 0.5\r*\n"
+        { pass "$test"; }
 }
 
 set test "Job runs past image 20"
@@ -46,22 +52,31 @@ if { $have_test_plugin == 1 } {
     unsupported "$test"
 }
 
+set camera_finished 0
 set test "Job is declared finished when engine is stopped"
 send "in $job in EngineStatus in EngineStopper in value set 1\n"
 if { $have_test_plugin == 1 } {
     expect {
         -re "Verbose plugin got signal Engine_run_succeeded" { pass "$test" }
         -re "Verbose plugin got signal Engine_run_failed" { pass "$test" }
+        -re "in CamControl in Initialization in NumericState in value set 2" 
+            { set camera_finished 1; exp_continue; }
     }
 } else {
     expect {
         -re "in Progress in value set 1" { pass "$test" }
+        -re "in CamControl in Initialization in NumericState in value set 2" 
+            { set camera_finished 1; exp_continue; }
     }
 }
 
 set test "Camera disconnects"
-expect {
-    -re "in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+if { $camera_finished == 0 } {
+    expect {
+        -re "in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+    }
+} else {
+    pass "$test";
 }
 
 set test "Job is closed after clicking close job"
