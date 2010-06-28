@@ -3,11 +3,13 @@
 #include "UnitEntries/FrameEntry.h"
 #include "UnitEntries/TemperatureEntry.h"
 #include "UnitEntries/TimeEntry.h"
+#include "UnitEntries/Nanometre.h"
 #include <simparm/UnitEntry_Impl.hh>
 #include <boost/units/systems/si/io.hpp>
 
 namespace simparm {
 template class simparm::UnitEntry< boost::units::si::nanolength, double >;
+template class simparm::UnitEntry< boost::units::si::nanolength, float >;
 template class simparm::UnitEntry< boost::units::si::microtime, float >;
 template class simparm::UnitEntry< boost::units::si::time, float >;
 template class simparm::UnitEntry< boost::units::si::time, int >;

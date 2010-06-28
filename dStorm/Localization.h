@@ -12,6 +12,7 @@
 #include <dStorm/units/frame_count.h>
 #include "output/Trace_decl.h"
 #include "units_Eigen_traits.h"
+#include <dStorm/units/nanolength.h>
 
 #define _DSTORM_RESOLUTION 63000
 
@@ -24,6 +25,9 @@ namespace dStorm {
         typedef 
             Eigen::Matrix<Coord, Dim, 1, Eigen::DontAlign>
             Position;
+        typedef 
+            boost::units::quantity<boost::units::si::length,float>
+            ZPosition;
         typedef
             Eigen::Matrix< 
                 boost::units::quantity<cs_units::camera::area,float>,
@@ -34,6 +38,7 @@ namespace dStorm {
 
       private:
         Position _position;
+        ZPosition _zposition;
         Amplitude _strength;
         Matrix _fit_covariance_matrix;
         float _two_kernel_improvement;
@@ -48,6 +53,8 @@ namespace dStorm {
 
         Position& position() { return _position; }
         const Position& position() const { return _position; }
+        ZPosition& zposition() { return _zposition; }
+        const ZPosition& zposition() const { return _zposition; }
 
         Coord& x() { return _position.x(); }
         Coord& y() { return _position.y(); }

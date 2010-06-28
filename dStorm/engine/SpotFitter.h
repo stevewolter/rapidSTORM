@@ -2,8 +2,8 @@
 #define DSTORM_SPOTFITTER_H
 
 #include <dStorm/engine/Image_decl.h>
-#include <dStorm/engine/Spot.h>
-#include <dStorm/Localization.h>
+#include <dStorm/engine/Spot_decl.h>
+#include <dStorm/Localization_decl.h>
 #include <memory>
 
 namespace dStorm {
