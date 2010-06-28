@@ -50,6 +50,17 @@ class SizeSpecializing
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+template <typename BaseFitter>
+std::auto_ptr<engine::SpotFitter>
+create_SizeSpecializing(
+    const typename BaseFitter::SizeInvariants::Config& c,
+    const engine::JobInfo& i)
+{
+    return std::auto_ptr<engine::SpotFitter>(
+        new SizeSpecializing<BaseFitter>(
+            typename BaseFitter::SizeInvariants(c,i), i));
+}
+
 }
 }
 

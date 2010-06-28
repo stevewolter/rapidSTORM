@@ -1,5 +1,7 @@
 #include "Config.h"
 #include "doc/help/context.h"
+#include "fitter/MarquardtConfig_impl.h"
+#include "fitter/residue_analysis/Config_impl.h"
 
 namespace dStorm {
 namespace gauss_2d_fitter {
@@ -10,10 +12,6 @@ Config::Config()
 : MarquardtConfig("2DFitter", "Fit with 2D Gaussian function"),
     sigma_xy_negligible_limit("CorrNegligibleLimit",
         "Limit up to which X-Y correlation is considered negligible", 0.1),
-    asymmetry_threshold("AsymmetryThreshold", 
-                        "Threshold for relative spot asymmetry", 1),
-    required_peak_distance("RequiredPeakDistance",
-                        "Minimum distance between double-spot peaks in nm", 250),
     freeSigmaFitting("FreeSigmaFitting", "Fit with free covariance matrix",
                      false),
     fixCorrelationTerm("FixCorrelationTerm", "Do not fit correlation term")
@@ -44,8 +42,7 @@ void Config::registerNamedEntries()
     push_back(maximumIterationSteps);
     push_back(negligibleStepLength);
     push_back(successiveNegligibleSteps);
-    push_back(asymmetry_threshold);
-    push_back(required_peak_distance);
+    fitter::residue_analysis::Config::registerNamedEntries(*this);
 }
 
 }

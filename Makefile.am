@@ -7,7 +7,7 @@ else
     DEBUGPLUGIN =
 endif
 
-SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN) gauss_fitter
+SUBDIRS = fit++ AndorCamera inputs engine spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN) gauss_fitter 3d_fitter
 
 bin_PROGRAMS = dstorm 
 
@@ -32,7 +32,13 @@ libfitter_la_SOURCES = \
     fitter/SizeSpecializing_decl.h fitter/SizeSpecializing.h \
     fitter/SizeSpecializing_impl.h \
     fitter/SizeSpecializing_filler.h \
-    fitter/MarquardtConfig.h fitter/MarquardtConfig.cpp
+    fitter/MarquardtConfig.h fitter/MarquardtConfig.cpp \
+    fitter/residue_analysis/analysis.h \
+    fitter/residue_analysis/Config.cpp \
+    fitter/residue_analysis/Config.h \
+    fitter/residue_analysis/fitter.h \
+    fitter/residue_analysis/impl.h \
+    fitter/residue_analysis/main.h
 COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     spotFinders/libspotFinders.la \
     engine/libengine.la gauss_fitter/libgauss_fitter.la  \

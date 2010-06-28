@@ -1,4 +1,5 @@
-#include "fitter.h"
+#include "fitter/residue_analysis/fitter.h"
+#include "main.h"
 #include <fit++/Exponential2D_Uncorrelated_Derivatives.hh>
 #include "fitter/SizeSpecializing_filler.h"
 #ifdef HAVE_CONFIG_H
@@ -11,22 +12,18 @@ namespace fitter {
 using namespace gauss_2d_fitter::residue_analysis;
 using namespace fitpp::Exponential2D;
 
-template <>
-template <>
-void SizeSpecializing< Fitter< FreeForm_NoCorrelation, false > >
-::create_specializations<0>()
-{
+#define SPECIALIZE(x,i) \
+template <> \
+template <> \
+void SizeSpecializing< residue_analysis::Fitter< Fitter<x, false > > > \
+::create_specializations<i>()
+
+SPECIALIZE(FreeForm_NoCorrelation,0) {
 }
 
-template <>
-template <>
-void SizeSpecializing< Fitter< FixedForm, false > >
-::create_specializations<1>();
+SPECIALIZE(FreeForm_NoCorrelation,1);
 
-template <>
-template <>
-void SizeSpecializing< Fitter< FixedForm, false > >
-::create_specializations<0>()
+SPECIALIZE(FixedForm,0)
 {
 #ifdef USE_SPECIALIZED_FITTERS
     this->fill_specialization_array<5,6>();
@@ -35,13 +32,15 @@ void SizeSpecializing< Fitter< FixedForm, false > >
 #endif
     create_specializations<1>();
 }
+#undef SPECIALIZE
 
-template std::auto_ptr<Sized>
-    SizeSpecializing< Fitter< FreeForm_NoCorrelation, false> >
+#define SPECIALIZE(x) \
+template std::auto_ptr<Sized> \
+    SizeSpecializing< residue_analysis::Fitter< Fitter<x, false > > > \
     ::make_unspecialized_fitter();
-template std::auto_ptr<Sized>
-    SizeSpecializing< Fitter< FixedForm, false> >
-    ::make_unspecialized_fitter();
+
+SPECIALIZE(FreeForm_NoCorrelation);
+SPECIALIZE(FixedForm);
 
 }
 }

@@ -8,11 +8,13 @@
 namespace fitpp {
 namespace Exponential2D {
 
-template <int Ks, int PM, int W, int H>
-struct DerivativeHelper<Ks,PM,W,H,true>
-: public ParameterHelper<Ks,PM,W,H,true>
+template <class Special>
+struct DerivativeHelper<Special,true>
+: public Special::Parameters
 {
-    typedef For<Ks,PM> Space;
+    typedef typename Special::Space Space;
+    static const int H = Special::Height, W = Special::Width,
+                     Ks = Space::Kernels;
     typedef Eigen::Matrix<double,H,W> Data;
     typedef Eigen::Matrix<double,Ks,H> Column;
     typedef Eigen::Matrix<double,H,Space::VarC> VarColumn;
@@ -22,17 +24,18 @@ struct DerivativeHelper<Ks,PM,W,H,true>
             xarraySq;
     VarColumn derivs;
 
-    template <Names name>
+    template <int name>
     struct Traits {
-        typedef typename Space::template ParamTraits<name> Base;
+        typedef typename Space::ParameterMap::template Parameter<name>
+            Base;
         static const int Variable = Base::Variable;
         template <int Kernel> class Index {
-            static const int N = Base::template Index<Kernel>::N;
+            static const int N = Base::template InKernel<Kernel>::N;
         };
     };
 
     inline void resize(const int w, const int h) { 
-        this->ParameterHelper<Ks,PM,W,H,true>::resize(w, h); 
+        this->Special::Parameters::resize(w, h); 
         crossprod.resize( Ks, h );
         covar.resize( Ks, h );
         expArg.resize( Ks, h );
@@ -52,9 +55,9 @@ struct DerivativeHelper<Ks,PM,W,H,true>
     );
 };
 
-template <int Ks, int PM, int W, int H>
+template <class Special>
 inline void
-DerivativeHelper<Ks,PM,W,H,true>::compute(
+DerivativeHelper<Special,true>::compute(
         const Data& data,
         Data& residues,
         typename Space::Vector& gradient,
@@ -93,27 +96,27 @@ DerivativeHelper<Ks,PM,W,H,true>::compute(
         
         /* Fill derivs vector with derivatives */
         if ( Traits<Shift>::Variable )
-            BlockReturner<Ks,PM,H,Shift>::block( derivs, Height )
+            BlockReturner<Space,H,Shift>::block( derivs, Height )
             .setOnes();
         if ( Traits<MeanX>::Variable )
-            BlockReturner<Ks,PM,H,MeanX>::block( derivs, Height )
+            BlockReturner<Space,H,MeanX>::block( derivs, Height )
                 .transpose()
                 /* E-Term * (x-sxy*y) */
                 = expT.cwise() * 
                     ( ( - sxy.asDiagonal() * this->yl.val ) + xarray );
         if ( Traits<MeanY>::Variable )
-            BlockReturner<Ks,PM,H,MeanY>::block( derivs, Height )
+            BlockReturner<Space,H,MeanY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * (y-sxy*x) */
                 = expT.cwise() *
                     ( this->yl.val - (sxy.asDiagonal() * xarray) );
-        if ( Traits<Amp>::Variable )
-            BlockReturner<Ks,PM,H,Amp>::block( derivs, Height )
+        if ( Traits<Amplitude>::Variable )
+            BlockReturner<Space,H,Amplitude>::block( derivs, Height )
                 .transpose()
                 /* E-Term */
                 = expT;
         if ( Traits<SigmaX>::Variable )
-            BlockReturner<Ks,PM,H,SigmaX>::block( derivs, Height )
+            BlockReturner<Space,H,SigmaX>::block( derivs, Height )
                 .transpose()
                 /* E-Term * ( (x^2 - covar)*ellipI -1 ) */
                 /* Equiv: ( -x*ellipI*( 2*y*sxy - x) ) */
@@ -121,14 +124,14 @@ DerivativeHelper<Ks,PM,W,H,true>::compute(
                     ( (-xarray).cwise() * (this->ellipI.asDiagonal() *
                         ( 2*sxy.asDiagonal()*this->yl.val - xarray )));
         if ( Traits<SigmaY>::Variable )
-            BlockReturner<Ks,PM,H,SigmaY>::block( derivs, Height )
+            BlockReturner<Space,H,SigmaY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * ( (y^2 - covar)*ellipI -1 ) */
                 = expT.cwise() *
                     ( ( this->ellipI.asDiagonal() *
                         (this->yl.sqr - covar) ).cwise() - 1 );
         if ( Traits<SigmaXY>::Variable )
-            BlockReturner<Ks,PM,H,SigmaXY>::block( derivs, Height )
+            BlockReturner<Space,H,SigmaXY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * 
                     * - ( expArg + kappa + crossprod ) */
@@ -142,24 +145,24 @@ DerivativeHelper<Ks,PM,W,H,true>::compute(
     }
     Eigen::Matrix<double,1,Space::VarC> prefactors;
     if ( Traits<Shift>::Variable )
-        BlockReturner<Ks,PM,1,Shift>::block( prefactors, 1 ).setOnes();
+        BlockReturner<Space,1,Shift>::block( prefactors, 1 ).setOnes();
     if ( Traits<MeanX>::Variable )
-        BlockReturner<Ks,PM,1,MeanX>::block( prefactors, 1 )
+        BlockReturner<Space,1,MeanX>::block( prefactors, 1 )
             = this->prefactor.cwise() * (this->ellipI.cwise() * this->sxI);
     if ( Traits<MeanY>::Variable )
-        BlockReturner<Ks,PM,1,MeanY>::block( prefactors, 1 )
+        BlockReturner<Space,1,MeanY>::block( prefactors, 1 )
             = this->prefactor.cwise() * (this->ellipI.cwise() * this->syI);
-    if ( Traits<Amp>::Variable )
-        BlockReturner<Ks,PM,1,Amp>::block( prefactors, 1 ) 
+    if ( Traits<Amplitude>::Variable )
+        BlockReturner<Space,1,Amplitude>::block( prefactors, 1 ) 
             = this->norms;
     if ( Traits<SigmaX>::Variable )
-        BlockReturner<Ks,PM,1,SigmaX>::block( prefactors, 1 ) 
+        BlockReturner<Space,1,SigmaX>::block( prefactors, 1 ) 
             = this->prefactor.cwise() * this->syI;
     if ( Traits<SigmaY>::Variable )
-        BlockReturner<Ks,PM,1,SigmaY>::block( prefactors, 1 ) 
+        BlockReturner<Space,1,SigmaY>::block( prefactors, 1 ) 
             = this->prefactor.cwise() * this->syI;
     if ( Traits<SigmaXY>::Variable )
-        BlockReturner<Ks,PM,1,SigmaXY>::block( prefactors, 1 ) 
+        BlockReturner<Space,1,SigmaXY>::block( prefactors, 1 ) 
             = this->prefactor.cwise() * this->ellipI;
             
     gradient.cwise() *= prefactors.transpose();

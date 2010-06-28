@@ -44,11 +44,10 @@ class FitFunction {
   public:
     template <typename DeriverType>
     std::pair<FitResult,typename DeriverType::Position*>
-    fit(
+    fit_with_deriver(
         typename DeriverType::Position& starting_position,
         typename DeriverType::Position& workspace,
-        const typename DeriverType::Constants& constants,
-        const DeriverType& deriver
+        DeriverType& deriver
     ) const;
 
     inline void setStartLambda(double value) 
@@ -83,46 +82,6 @@ class FitFunction {
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
-
-#if 0
-template <int VarC, bool Save_Residues, bool Compute_Variances> 
-class FitFunction<VarC, Save>::_Position
-    : public virtual fitpp::Position<VarC>
-{
-  protected:
-    friend class FitFunction<VarC, Flags>;
-    void save_derivatives( const Derivatives<VarC>& d ) throw() {
-        this->covariances = d.alpha;
-        this->residues = d.residues;
-        this->chi_sq = d.chi_sq;
-    }
-
-    void compute_covariances() throw() {
-        this->covariances = 
-            this->covariances.eval().inverse();
-    }
-
-  protected:
-    _Position() throw() {}
-  public:
-    _Position( 
-        const typename fitpp::Position<VarC>::Parameterness& p 
-    ) throw()
-        : fitpp::Position<VarC>(p) {}
-
-    const double& get_parameter_variance(int index) const throw() {
-        assert( index < this->variable_to_cp.size() );
-        if ( (Flags & Compute_Parameter_Variances) == 0 )
-            throw std::logic_error("Fitter not instantiated for variances.");
-
-        const int& i = this->variable_to_cp[index];
-        if ( (i & this->type_part) == 0 ) {
-            return this->covariances.diagonal()[i & this->index_part];
-        } else
-            return 0;
-    }
-};
-#endif
 
 }
 

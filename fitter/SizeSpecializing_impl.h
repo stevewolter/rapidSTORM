@@ -5,6 +5,7 @@
 #include "SizeSpecializing.h"
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/JobInfo.h>
+#include <dStorm/engine/Spot.h>
 
 namespace dStorm {
 namespace fitter {

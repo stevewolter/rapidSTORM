@@ -2,12 +2,9 @@
 #define GAUSS_FITTER_RESIDUE_ANALYSIS_H
 
 #include "main.h"
-#include "no_analysis/main.h"
 #include <dStorm/BaseImage.h>
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/FixedSized.h"
-
-using namespace fitpp::Exponential2D;
 
 namespace Eigen {
     template <>
@@ -32,23 +29,28 @@ int FixedSized<
 }
 #endif
 
-namespace gauss_2d_fitter {
+namespace fitter {
 namespace residue_analysis {
 
 template <class BaseFitter, int Width, int Height>
 class SizedFitter
-: public fitter::FixedSized<BaseFitter,Width,Height>
+: public BaseFitter::TwoKernel::template Specialized
+    <Width,Height>::Sized
 {
-    typedef typename BaseFitter::NoAnalysis::
-        template Specialized<Width,Height>::Sized Normal;
-    typedef fitter::FixedSized<BaseFitter,Width,Height> Base;
-    typedef typename Base::Common Common;
+    typedef typename BaseFitter::OneKernel
+        ::template Specialized <Width,Height>::Sized
+        Normal;
+    typedef typename BaseFitter::TwoKernel
+        ::template Specialized <Width,Height>::Sized
+        Base;
+    typedef CommonInfo<typename BaseFitter::SizeInvariants> Common;
 
     Normal normal;
+    CommonInfo<typename BaseFitter::SizeInvariants>& common;
 
   public:
     SizedFitter(Common& common) 
-        : Base(common), normal(common) {}
+        : Base(common), normal(common), common(common) {}
 
     void setSize( int width, int height ) {
         Base::setSize( width, height );
@@ -87,7 +89,7 @@ fit( const engine::Spot &spot, Localization *target,
         two_kernel_improvement = 1 - double_fit_analysis
             (image, suspected_doubleSpot_direction, xl, yl); 
     }
-    Base::common.set_two_kernel_improvement( *target, two_kernel_improvement );
+    common.set_two_kernel_improvement( *target, two_kernel_improvement );
     return one_fit;
 }
 

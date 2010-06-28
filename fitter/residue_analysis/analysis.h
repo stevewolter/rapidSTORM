@@ -7,7 +7,7 @@ template <typename Ty>
 Ty sq(const Ty& a) { return a*a; }
 
 namespace dStorm {
-namespace gauss_2d_fitter {
+namespace fitter {
 namespace residue_analysis {
 
 template <class BaseFitter, int Width, int Height>
@@ -15,6 +15,8 @@ typename SizedFitter<BaseFitter,Width,Height>::SpotState
 SizedFitter<BaseFitter,Width,Height>
 ::residue_analysis(Eigen::Vector2i* direction, int xl, int yl)
 {
+    typedef typename BaseFitter::OneKernel::SizeInvariants Base1;
+
     const int b = 0;
     const int NotDiagonal = 0, Diagonal = 1,
               RightHalf = 1, LeftHalf = 0,
@@ -23,12 +25,11 @@ SizedFitter<BaseFitter,Width,Height>
               UpperLeft = 0, LowerRight = 1;
 
     const Eigen::Matrix<double,Height,Width>& R 
-        = this->c->residues;
-    const int xc = round(this->common.params
-                               .template getMeanX<0>()) - xl,
-              yc = round(this->common.params
-                               .template getMeanY<0>()) - yl;
-
+        = this->deriver.getPosition().residues;
+    int xc, yc;
+    common.get_center(normal.getPosition().parameters, xc, yc);
+    xc -= xl; yc -= yl;
+    
     Eigen::Matrix2d quadrant_sets[2];
     quadrant_sets[0].fill(0);
     quadrant_sets[1].fill(0);
@@ -89,6 +90,8 @@ SizedFitter<BaseFitter,Width,Height>
 ::double_fit_analysis( 
     const engine::BaseImage& image, const Eigen::Vector2i& direction, int oxl, int oyl )
 {
+    typedef typename BaseFitter::OneKernel::SizeInvariants Base1;
+    typedef typename BaseFitter::TwoKernel::SizeInvariants Base2;
 #if 0
     const int DoWi = a.residues.cols() + 2, 
               DoHe = a.residues.rows() + 2;
@@ -104,27 +107,23 @@ SizedFitter<BaseFitter,Width,Height>
         image.height() / cs_units::camera::pixel );
     this->deriver.setUpperLeftCorner( xl, yl );
 
+    float half_dist = 1.8;
     this->common.start_from_splitted_single_fit( 
-        &this->a.parameters, direction );
+        normal.getPosition().parameters, 
+        &this->Base::deriver.getVariables(), direction * half_dist );
 
-    std::pair<fitpp::FitResult,typename Base::Deriver::Position*>
-        fit_result = this->common.fit_function.fit(
-            this->a, this->b, this->common.constants, this->deriver );
-
-    fitpp::FitResult res = fit_result.first;
+    fitpp::FitResult res 
+        = this->deriver.fit( this->common.Base2::fit_function );
     if ( res != fitpp::FitSuccess )
         return 1.0;
 
-    int x_shift = oxl - xl, y_shift = oyl - yl;
-    double new_residues = fit_result.second->residues
-        .block( y_shift, x_shift, 
-                this->c->residues.rows(), this->c->residues.cols()
-              ).cwise().square().sum();
+    double new_residues = this->deriver.getPosition().residues
+              .cwise().square().sum();
     
     /* Check whether the two peaks are too far from each other to be of
      * influence. */
-    if ( this->common.peak_distance_small( &fit_result.second->parameters ) )
-        return std::min(1.0, new_residues / this->c->chi_sq);
+    if ( this->common.peak_distance_small(&this->deriver.getVariables()) )
+        return std::min(1.0, new_residues / normal.getPosition().chi_sq);
     else
         return 1.0;
 }

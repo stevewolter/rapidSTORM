@@ -1,3 +1,5 @@
+#ifndef FITPP_BITFIELDCONSTRUCTOR_HH
+#define FITPP_BITFIELDCONSTRUCTOR_HH
 #include <Eigen/Core>
 
 namespace fitpp {
@@ -15,3 +17,4 @@ namespace fitpp {
         static const int Position = -1;
     };
 }
+#endif

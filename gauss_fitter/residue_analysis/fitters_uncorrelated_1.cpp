@@ -1,4 +1,5 @@
-#include "residue_analysis/fitter.h"
+#include "fitter/residue_analysis/fitter.h"
+#include "main.h"
 #include <fit++/Exponential2D_Uncorrelated_Derivatives.hh>
 #include "fitter/SizeSpecializing_filler.h"
 #ifdef HAVE_CONFIG_H
@@ -14,7 +15,7 @@ using namespace fitpp::Exponential2D;
 template <>
 template <>
 void SizeSpecializing<
-    Fitter< FixedForm, false >
+    residue_analysis::Fitter< Fitter< FixedForm, false > >
 >::
 create_specializations<1>()
 {

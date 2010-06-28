@@ -130,14 +130,14 @@ namespace fitpp {
             Position& position, 
             Derivatives& derivatives,
             const Constants& constants,
-            Deriver& deriver) const
+            Deriver& my_deriver) const
         {
             bool position_ok
-                = deriver.prepare
+                = my_deriver.prepare
                     ( position.parameters, constants,
                                    this->xl, this->yl );
             if ( !position_ok ) return false;
-            deriver.compute( 
+            my_deriver.compute( 
                 this->selectedData,
                 position.residues,
                 derivatives.beta,
