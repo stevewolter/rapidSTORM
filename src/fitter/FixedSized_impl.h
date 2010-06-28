@@ -29,17 +29,15 @@ fit( const engine::Spot &spot,
         deriver.selectedData.template corner<1,1>(Eigen::BottomLeft);
     double shift_estimate = corners.sum() / 4;
     
-    common.set_start( spot, image, shift_estimate, &a.parameters );
+    common.set_start( spot, image, shift_estimate, 
+                      &deriver.getVariables() );
      
-    std::pair<fitpp::FitResult,typename Deriver::Position*>
-        fitResult = 
-            common.fit_function.fit(
-                a, b, common.constants, deriver );
+    fitpp::FitResult fitResult = 
+        deriver.fit( common.fit_function );
 
-    c = fitResult.second;
-    bool is_good
-        = c != NULL &&
-          common.check_result( &c->parameters, target );
+    bool is_good = 
+          (fitResult != fitpp::InvalidStartPosition) &&
+          common.check_result( &deriver.getVariables(), target );
 
     if ( is_good ) {
         return 1;

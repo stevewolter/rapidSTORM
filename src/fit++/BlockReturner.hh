@@ -1,37 +1,40 @@
 #ifndef FITPP_EXPONENTIAL2D_BLOCKRETURNER_HH
 #define FITPP_EXPONENTIAL2D_BLOCKRETURNER_HH
 
-#include <fit++/Exponential2D.hh>
-
+#include <Eigen/Core>
 namespace fitpp {
-namespace Exponential2D {
 
-template <int Ks, int PM, int H, Names name>
+template <class Model, int H, int name>
 struct BlockReturner {
-    typedef Eigen::Matrix<double,H,For<Ks,PM>::VarC> VarColumn;
-    typename Eigen::BlockReturnType<VarColumn,H,Ks>::Type
+    typedef Eigen::Matrix<double,H,Model::VarC> VarColumn;
+    typedef Eigen::Transpose<typename Eigen::BlockReturnType
+        <VarColumn,H,Model::Kernels>::Type> ReturnType;
+
+    ReturnType
     static inline block(VarColumn &matrix, int) {
-        return matrix.template block<H,Ks>(
+        return matrix.template block<H,Model::Kernels>(
           0,
-          For<Ks,PM>::template ParamTraits<name>::template Index<0>::N);
+          Model::template Parameter<name>::template InKernel<0>::N)
+          .transpose();
     }
 };
-template <int Ks, int PM, Names name>
-struct BlockReturner<Ks,PM,Eigen::Dynamic,name> {
-    typedef Eigen::Matrix<double,Eigen::Dynamic,For<Ks,PM>::VarC>
+template <class Model, int name>
+struct BlockReturner<Model,Eigen::Dynamic,name> {
+    typedef Eigen::Matrix<double,Eigen::Dynamic,Model::VarC>
         VarColumn;
 
-    typename Eigen::BlockReturnType<VarColumn>::Type
+    typedef typename Eigen::Transpose<typename Eigen::BlockReturnType<VarColumn>::Type> ReturnType;
+    ReturnType
     static inline block(VarColumn &matrix, int dyn_height) {
         return matrix.template block(
           0,
-          For<Ks,PM>::template ParamTraits<name>::template Index<0>::N,
+          Model::template Parameter<name>::template InKernel<0>::N,
           dyn_height,
-          Ks);
+          Model::Kernels)
+          .transpose();
     }
 };
 
-}
 }
 
 #endif

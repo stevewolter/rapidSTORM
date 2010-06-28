@@ -263,19 +263,22 @@ FitSigmas Precision::fitWithGauss
     double norm = 1.0 / total_count;
     const int ExpFlags = Exponential2D::FreeForm & (~Exponential2D::Shift);
 
-    Exponential2D::For<1,ExpFlags>::FitObject<double> fitter;
+    typedef Exponential2D::Model<1,ExpFlags> Model;
+    Model::Fitter<double>::Type fitter;
     fitter.setSize(bin_number, bin_number);
     fitter.setData((const double*)data, 1, bin_number);
 
     result.n = total_count;
 
-    fitter.setSigmaX<0>(
+    Exponential2D::Model<1,ExpFlags> model
+        ( &fitter.getVariables(), &fitter.getConstants() );
+    model.setSigmaX<0>(
         res_enh * average_sd_x.mean().value() );
-    fitter.setSigmaY<0>( 
+    model.setSigmaY<0>( 
         res_enh * average_sd_y.mean().value() );
-    fitter.setSigmaXY<0>( 0 );
-    fitter.setShift( 0 );
-    fitter.setAmplitude<0>( 1 );
+    model.setSigmaXY<0>( 0 );
+    model.setShift( 0 );
+    model.setAmplitude<0>( 1 );
 
     double max_x_val = -1, max_y_val = -1;
     int max_x_bin = 0, max_y_bin = 0;
@@ -298,17 +301,19 @@ FitSigmas Precision::fitWithGauss
         }
     }
 
-    fitter.setMeanX<0>( center_bin );
-    fitter.setMeanY<0>( center_bin );
+    model.setMeanX<0>( center_bin );
+    model.setMeanY<0>( center_bin );
 
-    fitter.fit();
+    fitpp::FitFunction<Model::VarC> fit_function;
+    fitter.fit( fit_function );
+    model.change_variable_set( &fitter.getVariables() );
 
     result.x = 
-        fitter.getSigmaX<0>() * cs_units::camera::pixel / res_enh;
+        model.getSigmaX<0>() * cs_units::camera::pixel / res_enh;
     result.y =
-        fitter.getSigmaY<0>() * cs_units::camera::pixel / res_enh;
-    result.xy = fitter.getSigmaXY<0>() / res_enh;
-    result.a = fitter.getAmplitude<0>();
+        model.getSigmaY<0>() * cs_units::camera::pixel / res_enh;
+    result.xy = model.getSigmaXY<0>() / res_enh;
+    result.a = model.getAmplitude<0>();
 
     return result;
 }

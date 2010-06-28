@@ -17,21 +17,22 @@ class FixedSized : public Sized
 
   protected:
     Deriver deriver;
-    typename Deriver::Position a, b, *c;
     Common& common;
 
   public:
     FixedSized(Common& common) : common(common) {}
 
-    inline void setSize( int width, int height ) {
-        deriver.setSize( width, height );
-        a.resize( width, height );
-        b.resize( width, height );
-    }
+    inline void setSize( int width, int height ) 
+        { deriver.setSize( width, height ); }
     
     int fit(
         const engine::Spot& spot, Localization* target,
         const engine::BaseImage &image, int xl, int yl );
+
+    const typename Deriver::Position&
+    getPosition() const { return deriver.getPosition(); }
+    typename Deriver::Position&
+    getPosition() { return deriver.getPosition(); }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

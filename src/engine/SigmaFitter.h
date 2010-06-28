@@ -14,9 +14,10 @@ class SigmaFitter {
   protected:
     double initial_sigmas[3], prefac;
     int msx, msy;
-    typedef fitpp::Exponential2D::For<1, 
+    typedef fitpp::Exponential2D::Model<1, 
                                 fitpp::Exponential2D::FixedCenter> Fitting;
-    std::auto_ptr< Fitting::FitObject<StormPixel> > fitter;
+    fitpp::FitFunction<Fitting::VarC,false> fit_function;
+    std::auto_ptr< Fitting::Fitter<StormPixel>::Type > fitter;
     
   public:
     SigmaFitter(Config &config);

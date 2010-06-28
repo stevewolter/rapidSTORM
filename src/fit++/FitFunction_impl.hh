@@ -36,11 +36,10 @@ FitFunction<VarC,SR>::FitFunction()
 template <int VarC, bool CV>
 template <typename DeriverType>
 std::pair<FitResult,typename DeriverType::Position*>
-FitFunction<VarC,CV>::fit(
+FitFunction<VarC,CV>::fit_with_deriver(
     typename DeriverType::Position& max,
     typename DeriverType::Position& moritz,
-    const typename DeriverType::Constants& constants,
-    const DeriverType& deriver
+    DeriverType& deriver
 ) const
 {
     Derivatives<VarC> der[ CV ? 2 : 1 ];
@@ -65,7 +64,8 @@ FitFunction<VarC,CV>::fit(
 
     const bool initial_position_valid =
         deriver.compute_derivatives
-                        ( *work_p, *work_d, constants );
+                        ( *work_p, *work_d );
+    work_d->beta *= -1;
     if ( ! initial_position_valid )
         return make_pair(InvalidStartPosition, (typename DeriverType::Position*)NULL);
 
@@ -128,8 +128,8 @@ FitFunction<VarC,CV>::fit(
 
         /* Compute the function at this place. */
         bool new_position_valid = 
-            deriver.compute_derivatives(
-                *trial_p, *trial_d, constants);
+            deriver.compute_derivatives( *trial_p, *trial_d);
+        trial_d->beta *= -1;
 
         /* The trial step was evaluable. Check if it improved
             * residues. */

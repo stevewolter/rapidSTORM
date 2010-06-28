@@ -11,9 +11,9 @@ class MarquardtConfig
 : public simparm::Set 
 {
   public:
-    MarquardtConfig(std::string name, std::string desc);
-    ~MarquardtConfig();
-    void registerNamedEntries();
+    inline MarquardtConfig(std::string name, std::string desc);
+    inline ~MarquardtConfig();
+    inline void registerNamedEntries();
 
     /** Start value for Marquardt lambda. */
     simparm::DoubleEntry marquardtStartLambda;

@@ -2,21 +2,16 @@
 #define LIBFITPP_EXPONENTIAL2D_PARAMETERSET_HH
 
 #include <fit++/Exponential2D.hh>
+#include "Exponential_Common.h"
+#include "Exponential_Common_ParameterHelper.hh"
 
 namespace fitpp {
 namespace Exponential2D {
 
-template <typename Type>
-inline Type sq(const Type& a) { return a*a; }
-
-template <int Lines, int Size, bool ComputeExp>
-struct PrecalculatedLines;
-
 template <
-    int Kernels, int ParameterMask,
-    int Width, int Height,
+    class Specialization,
     bool HonorCorrelation>
-struct DerivativeHelper {};
+struct DerivativeHelper;
 
 template <
     int Kernels, int ParameterMask,
@@ -27,92 +22,22 @@ struct ParameterHelper;
 template <int Ks, int PM, bool Corr, int K>
 struct FunctionParams;
 
-template <int Lines, int Size>
-struct PrecalculatedLines<Lines,Size,false>
+template <int Ks, int PM, int W, int H, bool UseCorrelation>
+struct Specialization
 {
-    Eigen::Matrix<double,Lines,Size> val, sqr;
-    int width, height;
-    
-    inline void resize( int size ) {
-        if ( Size == Eigen::Dynamic ) {
-            val.resize( Lines, size );
-            sqr.resize( Lines, size );
-        }
-    }
-
-    inline void prepare(
-        const int low,
-        const Eigen::Matrix<double,Lines,1>& means,
-        const Eigen::Matrix<double,Lines,1>& var_Invs
-    ) {
-        for (int c = 0; c < val.cols(); c++)
-            val.col(c) =
-                ((-means).cwise()+(c+low)).cwise() * var_Invs;
-
-        sqr = val.cwise().square();
-    }
-};
-
-template <int Lines, int Size>
-struct PrecalculatedLines<Lines,Size,true>
-: public PrecalculatedLines<Lines,Size,false> 
-{
-    typedef PrecalculatedLines<Lines,Size,false> Base;
-    Eigen::Matrix<double,Lines,Size> expTerm;
-
-    inline void resize( int size ) {
-        Base::resize(size);
-        if ( Size == Eigen::Dynamic )
-            expTerm.resize( Lines, size );
-    }
-
-    inline void prepare(
-        const int low,
-        const Eigen::Matrix<double,Lines,1>& means,
-        const Eigen::Matrix<double,Lines,1>& var_Invs
-    ) {
-        Base::prepare(low, means, var_Invs);
-        expTerm = (Base::sqr * -0.5).cwise().exp();
-    }
+    typedef Model<Ks,PM> Space;
+    typedef ParameterHelper<Ks,PM,W,H,UseCorrelation> Parameters;
+    static const int Width = W, Height = H;
+    typedef Eigen::Matrix<double,H,W> Data;
 };
 
 template <int Ks, int PM, int W, int H, bool Corr>
-struct ParameterHelper {
-    typedef For<Ks,PM> Space;
-
-    template <int Param> 
-    inline static void extract_param(
-        const typename Space::Variables& v,
-        const typename Space::Constants& c,
-        Eigen::Matrix<double,Ks,1>& param
-    ) {
-        typedef typename Space::template ParamTraits<Param> Traits;
-        if ( Traits::Variable )
-            param = v.template block<Ks,1>
-                    (Traits::template Index<0>::N, 0);
-        else
-            param = c.template block<Ks,1>
-                    (Traits::template Index<0>::N, 0);
-    }
-
-    int width, height;
-    int shift;
-    int x_low;
-
-    PrecalculatedLines<Ks,W,!Corr> xl;
-    PrecalculatedLines<Ks,H,!Corr> yl;
-
-    Eigen::Matrix<double,Ks,1> 
-        x0, y0, amp, sx, sy, rho,
-        norms, prefactor,
-        ellip, ellipI, sxI, syI;
-
-    inline void resize( int width, int height ) {
-        this->width = width; 
-        this->height = height; 
-        xl.resize( width );
-        yl.resize( height );
-    }
+struct ParameterHelper 
+: public Exponential::ParameterHelper<Model<Ks,PM>,W,H,Corr>
+{
+    typedef Exponential::ParameterHelper<Model<Ks,PM>,W,H,Corr> Base;
+    typedef Model<Ks,PM> Space;
+    Eigen::Matrix<double,Ks,1> rho;
 
     inline bool prepare(
         const typename Space::Variables& v,
@@ -121,27 +46,27 @@ struct ParameterHelper {
     );
 };
 
-template <int Ks, int PM, int W, int H>
-struct DerivativeHelper<Ks,PM,W,H,true>;
+template <class Specialization>
+struct DerivativeHelper<Specialization,true>;
 
-template <int Ks, int PM, int W, int H>
-struct DerivativeHelper<Ks,PM,W,H,false>;
+template <class Specialization>
+struct DerivativeHelper<Specialization,false>;
 
 template <int Ks, int PM, int W, int H, bool Corr>
 struct Deriver 
-: public DerivativeHelper<Ks,PM,W,H,Corr>
+: public DerivativeHelper<Specialization<Ks,PM,W,H,Corr>, Corr>
 {
-    typedef For<Ks,PM> Space;
+    typedef Specialization<Ks,PM,W,H,Corr> MySpecialization;
     inline bool prepare( 
-        const typename Space::Variables& v,
-        const typename Space::Constants& c,
+        const typename MySpecialization::Space::Variables& v,
+        const typename MySpecialization::Space::Constants& c,
         const int min_x, const int min_y
     ) {
         bool ok = 
-            this->ParameterHelper<Ks,PM,W,H,Corr>
+            MySpecialization::Parameters
                 ::prepare( v, c, min_x, min_y );
         if (!ok) return false;
-        return this->DerivativeHelper<Ks,PM,W,H,Corr>
+        return this->DerivativeHelper<MySpecialization,Corr>
                ::prepare();
     }
 };

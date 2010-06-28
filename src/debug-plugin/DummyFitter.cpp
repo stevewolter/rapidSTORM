@@ -2,6 +2,8 @@
 #include "DummyFitter.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/Config.h>
+#include <dStorm/Localization.h>
+#include <dStorm/engine/Spot.h>
 
 namespace dStorm {
 namespace debugplugin {

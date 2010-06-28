@@ -6,9 +6,10 @@
 #include <dStorm/engine/Spot.h>
 #include <dStorm/Localization.h>
 #include "Config.h"
+#include "fitter/MarquardtInfo_impl.h"
 
 template <typename Ty>
-Ty sq(const Ty& a) { return a*a; }
+inline Ty sqr(const Ty& a) { return a*a; }
 
 namespace dStorm {
 namespace gauss_2d_fitter {
@@ -18,72 +19,75 @@ using namespace fitpp::Exponential2D;
 using dStorm::engine::Spot;
 using dStorm::engine::BaseImage;
 
-template <int FF>
-CommonInfo<FF>::CommonInfo( 
+template <int Ks,int FF>
+CommonInfo<Ks,FF>::CommonInfo( 
    const Config& c, const engine::JobInfo& info
 ) 
-: amplitude_threshold( info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
+: fitter::MarquardtInfo<FitGroup::VarC>(c,info),
+  amplitude_threshold( info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
   start_sx( info.config.sigma_x() / cs_units::camera::pixel ),
   start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
   start_sxy( info.config.sigma_xy() ),
   params( NULL, &constants)
 {
-    fit_function.
-        setStartLambda( c.marquardtStartLambda() );
-    fit_function.
-        setMaximumIterationSteps( c.maximumIterationSteps() );
-    fit_function.
-        setSuccessiveNegligibleStepLimit( 
-            c.successiveNegligibleSteps() );
-
-    FitGroup::template set_absolute_epsilon<MeanX,0>
-        (fit_function, c.negligibleStepLength());
-    FitGroup::template set_absolute_epsilon<MeanY,0>
-        (fit_function, c.negligibleStepLength());
+    FitGroup::template Parameter<MeanX>::set_absolute_epsilon
+        (this->fit_function, c.negligibleStepLength());
+    FitGroup::template Parameter<MeanY>::set_absolute_epsilon
+        (this->fit_function, c.negligibleStepLength());
 
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) ) )
-        params.template setSigmaX<0>( start_sx );
+        params.template set_all_SigmaX( start_sx );
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) ) )
-        params.template setSigmaY<0>( start_sy );
+        params.template set_all_SigmaY( start_sy );
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) )
-        params.template setSigmaXY<0>( start_sxy );
+        params.template set_all_SigmaXY( start_sy );
 }
 
-template <int FF>
-CommonInfo<FF>::CommonInfo( const CommonInfo& o ) 
-: maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
+template <int Kernels, int FF>
+CommonInfo<Kernels,FF>::CommonInfo( const CommonInfo& o ) 
+: fitter::MarquardtInfo<FitGroup::VarC>(o),
+  maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
   start_sx(o.start_sx), start_sy(o.start_sy), start_sxy(o.start_sxy),
   constants(o.constants),
-  fit_function(o.fit_function),
   params( NULL, &constants )
 {
 }
 
-template <int FF>
+template <int Kernels,int FF>
 void
-CommonInfo<FF>::set_start(
+CommonInfo<Kernels,FF>::set_start(
+    typename FitGroup::Variables* variables 
+) 
+{
+    params.change_variable_set( variables );
+
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) )
+        params.template set_all_SigmaX(start_sx);
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) )
+        params.template set_all_SigmaY(start_sy);
+    if ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) )
+        params.template set_all_SigmaXY(start_sxy);
+}
+
+template <int Kernels,int FF>
+void
+CommonInfo<Kernels,FF>::set_start(
     const Spot& spot, 
     const BaseImage& image,
     double shift_estimate,
     typename FitGroup::Variables* variables 
 ) 
 {
-    params.change_variable_set( variables );
-    params.template setMeanX<0>( spot.x() );
-    params.template setMeanY<0>( spot.y() );
-    if ( FF & ( 1 << fitpp::Exponential2D::SigmaX ) )
-        params.template setSigmaX<0>(start_sx);
-    if ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) )
-        params.template setSigmaY<0>(start_sy);
-    if ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) )
-        params.template setSigmaXY<0>(start_sxy);
+    set_start(variables);
+    params.template set_all_MeanX( spot.x() );
+    params.template set_all_MeanY( spot.y() );
 
     int xc = round(spot.x()), yc = round(spot.y());
     double center = image(xc,yc);
     
     params.setShift( shift_estimate );
-    params.template setAmplitude<0>( 
-        max<double>(center - shift_estimate, 10)
+    params.template set_all_Amplitude( 
+        std::max<double>(center - shift_estimate, 10)
         * 2 * M_PI 
         * params.template getSigmaX<0>() * params.template getSigmaY<0>());
 
@@ -100,9 +104,9 @@ CommonInfo<FF>::set_start(
     start.y() = spot.y();
 }
 
-template <int FF>
+template <int Kernels,int FF>
 bool 
-CommonInfo<FF>::check_result(
+CommonInfo<Kernels,FF>::check_result(
     typename FitGroup::Variables* variables,
     Localization* target
 )
@@ -132,8 +136,8 @@ CommonInfo<FF>::check_result(
         && target->y() >= 1*cs_units::camera::pixel
         && target->x() < maxs.x() * cs_units::camera::pixel
         && target->y() < maxs.y() * cs_units::camera::pixel
-        && sq(target->x().value() - start.x()) + 
-           sq(target->y().value() - start.y()) < 4;
+        && sqr(target->x().value() - start.x()) + 
+           sqr(target->y().value() - start.y()) < 4;
     if ( (FF != fitpp::Exponential2D::FixedForm) ) {
         double sx = params.template getSigmaX<0>(),
                sy = params.template getSigmaY<0>(),
