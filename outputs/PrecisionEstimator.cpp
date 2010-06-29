@@ -264,14 +264,15 @@ FitSigmas Precision::fitWithGauss
     const int ExpFlags = Exponential2D::FreeForm & (~Exponential2D::Shift);
 
     typedef Exponential2D::Model<1,ExpFlags> Model;
-    Model::Fitter<double>::Type fitter;
+    Model::Constants constants;
+    Model::Fitter<double>::Type fitter(constants);
     fitter.setSize(bin_number, bin_number);
     fitter.setData((const double*)data, 1, bin_number);
 
     result.n = total_count;
 
     Exponential2D::Model<1,ExpFlags> model
-        ( &fitter.getVariables(), &fitter.getConstants() );
+        ( &fitter.getVariables(), &constants );
     model.setSigmaX<0>(
         res_enh * average_sd_x.mean().value() );
     model.setSigmaY<0>( 

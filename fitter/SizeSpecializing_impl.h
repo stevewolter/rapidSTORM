@@ -48,7 +48,7 @@ fitSpot( const Spot& spot, const Image& image, Localization* target )
         yh = std::min<int>( yc+msy, image.height().value() - 1 );
 
     int xs = (xh - xl) + 1, ys = (yh - yl) + 1;
-    DEBUG("Searching Gaussian fitter for size " << xs << " " << yh << " with maximum size " << MaxFitWidth << " " << MaxFitHeight);
+    DEBUG("Searching Gaussian fitter for size " << xs << " " << ys << " with maximum size " << MaxFitWidth << " " << MaxFitHeight);
     BaseTableEntry *e;
     if ( xs >= MaxFitWidth || ys >= MaxFitHeight || xs < 1 || ys < 1 ) {
         DEBUG("Fitter out of table range, making new fitter");

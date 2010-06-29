@@ -36,6 +36,9 @@ struct Model<Kernels>::Accessor {
         {ParameterMap::template Parameter<name>::set_all
             (*variables, constants, value);}
 
+    const Constants& getConstants() const { return constants; }
+    Constants& getConstants()  { return constants; }
+
   public:
 #define METHODS(param,unit,power) \
     typedef boost::units::quantity< \
@@ -53,8 +56,8 @@ struct Model<Kernels>::Accessor {
     METHODS(MeanY,cs_units::camera::length,1);
     METHODS(MeanZ,boost::units::si::nanolength,1);
     METHODS(Amplitude,cs_units::camera::intensity,1);
-    METHODS(DeltaSigmaX,cs_units::camera::resolution,2);
-    METHODS(DeltaSigmaY,cs_units::camera::resolution,2);
+    METHODS(DeltaSigmaX,cs_units::camera::resolution,1);
+    METHODS(DeltaSigmaY,cs_units::camera::resolution,1);
     METHODS(BestVarianceX,cs_units::camera::length,2);
     METHODS(BestVarianceY,cs_units::camera::length,2);
     METHODS(ZAtBestSigmaX,boost::units::si::nanolength,1);
@@ -74,6 +77,8 @@ struct Model<Kernels>::Accessor {
         rv.z() = double(getMeanZ<Function>() / boost::units::si::nanometre);
         return rv;
     }
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 };
 

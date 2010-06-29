@@ -35,8 +35,9 @@ CommonInfo<Ks>::CommonInfo(
    const Config& c, const engine::JobInfo& info
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
-  amplitude_threshold( info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
-  params( new typename FitGroup::Accessor(NULL) )
+  amplitude_threshold( info.config.amplitude_threshold() ),
+  params( new typename FitGroup::Accessor(NULL) ),
+  constants( params->getConstants() )
 {
     FitGroup::template Parameter<MeanX>::set_absolute_epsilon
         (this->fit_function, c.negligibleStepLength());
@@ -47,8 +48,8 @@ CommonInfo<Ks>::CommonInfo(
 
     params->template set_all_ZAtBestSigmaX( - c.z_distance() / 2.0f );
     params->template set_all_ZAtBestSigmaY( c.z_distance() / 2.0f );
-    params->template set_all_DeltaSigmaX( pow<2>(c.defocus_constant()) );
-    params->template set_all_DeltaSigmaY( pow<2>(c.defocus_constant()) );
+    params->template set_all_DeltaSigmaX( c.defocus_constant_x() );
+    params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
     params->template set_all_BestVarianceX( pow<2>(info.config.sigma_x()) );
     params->template set_all_BestVarianceY( pow<2>(info.config.sigma_y()) );
 }
@@ -57,7 +58,8 @@ template <int Kernels>
 CommonInfo<Kernels>::CommonInfo( const CommonInfo& o ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(o),
   maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
-  params( new typename FitGroup::Accessor(*o.params) )
+  params( new typename FitGroup::Accessor(*o.params) ),
+  constants( params->getConstants() )
 {
 }
 
@@ -87,9 +89,9 @@ CommonInfo<Kernels>::set_start(
         x_offset( params->template getZAtBestSigmaX<0>() ),
         y_offset( params->template getZAtBestSigmaY<0>() );
     typename FitGroup::Accessor::QuantityBestVarianceX
-        x_widening = params->template getDeltaSigmaX<0>() *
+        x_widening = pow<2>( params->template getDeltaSigmaX<0>() ) *
                 pow<2>(x_offset),
-        y_widening = params->template getDeltaSigmaY<0>() *
+        y_widening = pow<2>( params->template getDeltaSigmaY<0>() ) *
                 pow<2>(y_offset);
     double prefactor = 2 * M_PI * 
         sqrt( ( 
@@ -104,8 +106,6 @@ CommonInfo<Kernels>::set_start(
     DEBUG( "Estimating center at " << center << ", shift at " << shift_estimate 
               << " for spot at " << xc << " " << yc << " with image sized " << image.width_in_pixels() << " by "
               << image.height_in_pixels() );
-    DEBUG( "Sigmas are " << params->template getSigmaX<0>() << " " << params->template getSigmaY<0>()
-              );
     DEBUG( "Set start " << *variables );
 
     maxs.x() = image.width_in_pixels()-1 - 1;
@@ -122,6 +122,7 @@ CommonInfo<Kernels>::check_result(
 )
 {
     params->change_variable_set( variables );
+    DEBUG("Checking position " << variables->transpose());
 
     Localization::Position p;
     p.x() = params->template getMeanX<0>();
@@ -133,9 +134,10 @@ CommonInfo<Kernels>::check_result(
     target->zposition() = 
         Localization::ZPosition(params->template getMeanZ<0>());
 
+    DEBUG("Found position at " << p.x() << " " << p.y() << " " << target->zposition() << " " << target->strength());
+    DEBUG("Amplitude threshold is " << amplitude_threshold);
     bool good = 
            target->strength() > amplitude_threshold 
-                                * cs_units::camera::ad_counts
         && target->x() >= 1*cs_units::camera::pixel
         && target->y() >= 1*cs_units::camera::pixel
         && target->x() < maxs.x() * cs_units::camera::pixel
@@ -143,6 +145,7 @@ CommonInfo<Kernels>::check_result(
         && sqr(target->x().value() - start.x()) + 
            sqr(target->y().value() - start.y()) < 4;
 
+    DEBUG("Position good: " << good);
     target->unset_source_trace();
     return good;
 }

@@ -23,11 +23,10 @@ bool ParameterHelper<Special>::prepare(
     Base::template extract_param<ZAtBestSigmaY>( v, c, z0y );
     Base::template extract_param<MeanZ>( v, c, z );
 
-    zdx = z - z0x; zdy = z - z0y;
-    this->sx = (zdx.cwise().square().cwise() * dzx + v0x.cwise().square())
-            .cwise().sqrt();
-    this->sy = (zdy.cwise().square().cwise() * dzy + v0y.cwise().square())
-            .cwise().sqrt();
+    zdx = (z - z0x).cwise() * this->dzx; zdy = (z - z0y).cwise() * this->dzy;
+    this->sx = (zdx.cwise().square() + v0x).cwise().sqrt();
+    this->sy = (zdy.cwise().square() + v0y).cwise().sqrt();
+    zdx.cwise() *= dzx; zdy.cwise() *= dzy;
 
     if ( ! Base::check(x_low, y_low) )
         return false;

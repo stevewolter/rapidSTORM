@@ -18,7 +18,7 @@ namespace engine {
 SigmaFitter::SigmaFitter(Config &config)
 : msx(-1), msy(-1)
 {
-    fitter.reset( new Fitting::Fitter<StormPixel>::Type()  );
+    fitter.reset( new Fitting::Fitter<StormPixel>::Type(constants)  );
     Fitting::Parameter<Exponential2D::SigmaX>::set_absolute_epsilon
         ( fit_function, config.delta_sigma()/15 );
     Fitting::Parameter<Exponential2D::SigmaY>::set_absolute_epsilon
@@ -63,8 +63,7 @@ bool SigmaFitter::fit(const dStorm::Image<StormPixel,2> &i,
          || cxr >= int(i.width_in_pixels()-msx) || cyr >= int(i.height_in_pixels()-msy) )
         return false;
 
-    Fitting pos( &this->fitter->getVariables(), 
-                    &this->fitter->getConstants() );
+    Fitting pos( &this->fitter->getVariables(), &constants );
     fitter->setData(i.ptr(), i.width_in_pixels(), i.height_in_pixels());
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     

@@ -1,6 +1,7 @@
 #ifndef LIBFITPP_EXPONENTIAL_PARAMETERHELPER_H
 #define LIBFITPP_EXPONENTIAL_PARAMETERHELPER_H
 
+#include "debug.h"
 #include "Exponential_Common.h"
 
 namespace fitpp {
@@ -13,6 +14,8 @@ bool ParameterHelper<Space,W,H,Corr>::check(
     const int Width = ((W==Eigen::Dynamic)?width:W);
     const int Height = ((H==Eigen::Dynamic)?height:H);
 
+    DEBUG("Checking " << x0.transpose() << " " << y0.transpose() << " " << sx.transpose() << " " << sy.transpose() 
+          << " " << amp.transpose());
     if (
         /* Center out of lattice? */
             ( x0.cwise() < x_low ).any() 

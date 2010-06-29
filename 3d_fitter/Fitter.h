@@ -1,6 +1,7 @@
 #ifndef DSTORM_GAUSSFITTER_RESIDUEANALYSIS_H
 #define DSTORM_GAUSSFITTER_RESIDUEANALYSIS_H
 
+#include <cs_units/camera/intensity.hpp>
 #include "fitter/MarquardtInfo.h"
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/engine/Spot_decl.h>
@@ -9,6 +10,7 @@
 #include <memory>
 #include "Config_decl.h"
 #include "Exponential3D.hh"
+#include <boost/units/quantity.hpp>
 
 namespace dStorm {
 namespace gauss_3d_fitter {
@@ -23,10 +25,11 @@ class CommonInfo
     typedef typename FitGroup::Variables Variables;
     Eigen::Vector2i maxs;
     Eigen::Vector2d start;
-    const double amplitude_threshold;
+    const boost::units::quantity<cs_units::camera::intensity> amplitude_threshold;
 
   public:
     std::auto_ptr<typename FitGroup::Accessor> params;
+    const typename FitGroup::Constants& constants;
 
  public:
     typedef gauss_3d_fitter::Config Config;

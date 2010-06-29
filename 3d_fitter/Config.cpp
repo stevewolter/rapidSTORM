@@ -16,7 +16,8 @@ using namespace simparm;
 Config::Config() 
 : MarquardtConfig("3DFitter", "3D cylinder lens fit"),
   z_distance("ZDistance", "Distance between X and Y foci"),
-  defocus_constant("DefocusConstant", "Speed of PSF std. dev. growth")
+  defocus_constant_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
+  defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y")
 {
 }
 
@@ -30,7 +31,8 @@ void Config::registerNamedEntries()
     push_back(negligibleStepLength);
     push_back(successiveNegligibleSteps);
     push_back(z_distance);
-    push_back(defocus_constant);
+    push_back(defocus_constant_x);
+    push_back(defocus_constant_y);
     fitter::residue_analysis::Config::registerNamedEntries(*this);
 }
 

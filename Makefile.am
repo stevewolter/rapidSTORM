@@ -32,9 +32,8 @@ libfitter_la_SOURCES = \
     fitter/SizeSpecializing_decl.h fitter/SizeSpecializing.h \
     fitter/SizeSpecializing_impl.h \
     fitter/SizeSpecializing_filler.h \
-    fitter/MarquardtConfig.h fitter/MarquardtConfig.cpp \
+    fitter/MarquardtConfig.h \
     fitter/residue_analysis/analysis.h \
-    fitter/residue_analysis/Config.cpp \
     fitter/residue_analysis/Config.h \
     fitter/residue_analysis/fitter.h \
     fitter/residue_analysis/impl.h \

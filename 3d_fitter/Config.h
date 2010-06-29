@@ -21,7 +21,7 @@ class Config
 
     dStorm::FloatNanometreEntry z_distance;
     simparm::UnitEntry<cs_units::camera::resolution, float>
-        defocus_constant;
+        defocus_constant_x, defocus_constant_y;
 };
 
 }
