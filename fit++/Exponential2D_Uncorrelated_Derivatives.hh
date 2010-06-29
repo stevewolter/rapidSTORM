@@ -29,16 +29,16 @@ DerivativeHelper<Special,false>::prepare()
         return false;
     if ( Space::template Parameter<SigmaX>::Variable ) {
         this->template getRow<SigmaX>().transpose()
-            = - (this->prefactor.cwise() * this->sxI).asDiagonal() * ( this->xl.sqr.cwise() * this->xl.expTerm);
+            = (this->prefactor.cwise() * this->sxI).asDiagonal() * ( (this->xl.sqr.cwise() - 1).cwise() * this->xl.expTerm);
         this->template getColumn<SigmaX>().transpose()
             = this->yl.expTerm;
     }
 
     if ( Space::template Parameter<SigmaY>::Variable ) {
         this->template getRow<SigmaY>().transpose()
-            = - this->prefactor.asDiagonal() * this->xl.expTerm;
+            = this->prefactor.asDiagonal() * this->xl.expTerm;
         this->template getColumn<SigmaY>().transpose()
-            = this->syI.asDiagonal() * ( this->yl.sqr.cwise() * this->yl.expTerm);
+            = this->syI.asDiagonal() * ( (this->yl.sqr.cwise() - 1).cwise() * this->yl.expTerm);
     }
 
     return true;

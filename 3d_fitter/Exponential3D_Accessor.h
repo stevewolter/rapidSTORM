@@ -7,6 +7,7 @@
 #include <cs_units/camera/length.hpp>
 #include <cs_units/camera/intensity.hpp>
 #include <cs_units/camera/resolution.hpp>
+#include <dStorm/units/nanoresolution.h>
 
 namespace fitpp {
 namespace Exponential3D {
@@ -56,8 +57,8 @@ struct Model<Kernels>::Accessor {
     METHODS(MeanY,cs_units::camera::length,1);
     METHODS(MeanZ,boost::units::si::nanolength,1);
     METHODS(Amplitude,cs_units::camera::intensity,1);
-    METHODS(DeltaSigmaX,cs_units::camera::resolution,1);
-    METHODS(DeltaSigmaY,cs_units::camera::resolution,1);
+    METHODS(DeltaSigmaX,dStorm::nanoresolution,1);
+    METHODS(DeltaSigmaY,dStorm::nanoresolution,1);
     METHODS(BestVarianceX,cs_units::camera::length,2);
     METHODS(BestVarianceY,cs_units::camera::length,2);
     METHODS(ZAtBestSigmaX,boost::units::si::nanolength,1);

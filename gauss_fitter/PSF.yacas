@@ -1,0 +1,15 @@
+xnormiertsq(x) := (x - x0)^2 / sx^2;
+ynormiertsq(y) := (y - y0)^2 / sy^2;
+corr(x,y) := 2 * rho * (x-x0) * (y-y0) / sx / sy;
+
+eterm(x,y) := Exp( -0.5 / (1-rho^2) * (xnormiertsq(x) + ynormiertsq(y) - corr(x,y)) );
+gauss(A,x,y) := A / (2 * Pi * sx * sy * Sqrt(1-rho^2) ) * eterm(x,y) + B;
+
+Echo( "value = ", CForm( gauss(A,x,y) ), ";" );
+Echo( "deriv[Shift] = ", CForm( D(B) gauss(A,x,y) ), ";" );
+Echo( "deriv[Amplitude] = ", CForm( D(A) gauss(A,x,y) ), ";" );
+Echo( "deriv[MeanX] = ", CForm( D(x) gauss(A,x,y) ), ";" );
+Echo( "deriv[MeanY] = ", CForm( D(y) gauss(A,x,y) ), ";" );
+Echo( "deriv[SigmaX] = ", CForm( D(sx) gauss(A,x,y) ), ";" );
+Echo( "deriv[SigmaY] = ", CForm( D(sy) gauss(A,x,y) ), ";" );
+Echo( "deriv[SigmaXY] = ", CForm( D(rho) gauss(A,x,y) ), ";" );

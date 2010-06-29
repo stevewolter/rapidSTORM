@@ -5,6 +5,7 @@
 #include <fitter/MarquardtConfig.h>
 #include <fitter/residue_analysis/Config.h>
 #include <dStorm/UnitEntries/Nanometre.h>
+#include <dStorm/UnitEntries/PixelSize.h>
 #include <cs_units/camera/resolution.hpp>
 
 namespace dStorm {
@@ -20,7 +21,7 @@ class Config
     void registerNamedEntries();
 
     dStorm::FloatNanometreEntry z_distance;
-    simparm::UnitEntry<cs_units::camera::resolution, float>
+    FloatNanoResolutionEntry
         defocus_constant_x, defocus_constant_y;
 };
 

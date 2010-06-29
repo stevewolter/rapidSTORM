@@ -2,6 +2,7 @@ ACLOCAL_AMFLAGS = -I ../../m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
 
 noinst_LTLIBRARIES = libgauss_fitter.la
+check_PROGRAMS = check_uncorrelated
 
 libgauss_fitter_la_SOURCES = \
     Config_decl.h Config.h Config.cpp \
@@ -14,3 +15,5 @@ libgauss_fitter_la_SOURCES = \
     residue_analysis/fitters_uncorrelated_0.cpp \
     residue_analysis/fitters_uncorrelated_1.cpp \
     residue_analysis/fitters_correlated.cpp
+
+check_uncorrelated_SOURCES = check_uncorrelated.cpp
