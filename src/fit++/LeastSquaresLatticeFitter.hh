@@ -20,9 +20,12 @@ struct LeastSquaresLatticeFitter
 
   private:
     Position position;
-    Constants constants;
+    const Constants& constants;
 
   public:
+    LeastSquaresLatticeFitter(const Constants& constants) 
+        : constants(constants) {}
+
     FitResult fit( Function& function ) {
         Position second;
         std::pair<FitResult,Position*> result = 

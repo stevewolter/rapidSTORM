@@ -41,6 +41,29 @@ struct Spatial {
         { target.position()[Dimension] = value; }
 };
 
+struct ZDimension {
+    typedef Localization::ZPosition ValueQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
+    typedef int BoundQuantity;
+    typedef int ResolutionField;
+    typedef int ResolutionQuantity;
+
+    static const std::string semantic;
+    static const bool hasMinField = false,
+                        hasMaxField = false,
+                        hasResolutionField = false;
+
+    static BoundQuantity& minField( Traits& )
+        { throw std::logic_error("No minimum field given."); }
+    static BoundQuantity& maxField( Traits& l )
+        { throw std::logic_error("No maximum field given."); }
+    static ResolutionField& resolutionField( Traits& l ) 
+        { throw std::logic_error("No resolution field given."); }
+    static void insert( const ValueQuantity& value,
+                        Localization& target )
+        { target.zposition() = value; }
+};
+
 struct Time {
     typedef frame_index ValueQuantity;
     typedef ValueQuantity::unit_type ValueUnit;

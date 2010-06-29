@@ -91,6 +91,7 @@ Engine::Engine(
   job_ident( job_ident )
 {
     DEBUG("Constructing engine");
+    DEBUG("Spot fitter is named " << this->config.spotFittingMethod().getNode().getName());
 
     errors.editable = false;
     errors.viewable = false;

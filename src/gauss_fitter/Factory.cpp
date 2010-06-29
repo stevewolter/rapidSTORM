@@ -4,6 +4,8 @@
 #include "fitter/residue_analysis/main.h"
 #include <dStorm/output/Traits.h>
 #include "fitter/SizeSpecializing_impl.h"
+#include "fitter/MarquardtConfig_impl.h"
+#include "fitter/residue_analysis/Config_impl.h"
 
 namespace dStorm {
 namespace gauss_2d_fitter {
@@ -60,6 +62,7 @@ Factory::make (const engine::JobInfo &i)
 void Factory::set_traits( output::Traits& rv ) {
     rv.two_kernel_improvement_is_set = (asymmetry_threshold() < 1.0);
     rv.covariance_matrix_is_set = freeSigmaFitting();
+    rv.z_coordinate_is_set = false;
 }
 
 }

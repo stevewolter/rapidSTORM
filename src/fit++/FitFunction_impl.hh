@@ -1,6 +1,7 @@
 #ifndef LIBFITPP_FITFUNCTIONS_CPP
 #define LIBFITPP_FITFUNCTIONS_CPP
 
+#include "debug.h"
 #include "FitFunction.hh"
 
 #include <cassert>
@@ -12,8 +13,6 @@
 #include <Eigen/Cholesky> 
 #include <Eigen/LU> 
 #include <Eigen/Array>
-
-#define FITTING(x) //cerr << x << endl
 
 namespace fitpp {
 using namespace std;
@@ -42,7 +41,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
     DeriverType& deriver
 ) const
 {
-    Derivatives<VarC> der[ CV ? 2 : 1 ];
+    Derivatives<VarC> der[ 2 ];
 
     double lambda = startLambda;
     ParamVector shift;
@@ -52,7 +51,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
         *work_p = &max, *trial_p = &moritz;
 
     Derivatives<VarC> *work_d = der+0, 
-                      *trial_d = (CV ) ? der+1 : der+0;
+                      *trial_d = der+1;
 
     int motivation = successiveNegligibleSteps, 
         curMotivation = motivation;
@@ -60,18 +59,17 @@ FitFunction<VarC,CV>::fit_with_deriver(
     bool residuesGrew = true;
     bool tookOneValidStep = false;
 
-    FITTING("Supplied start " << work_p->parameters.transpose());
+    DEBUG("Supplied start " << work_p->parameters.transpose());
 
     const bool initial_position_valid =
         deriver.compute_derivatives
                         ( *work_p, *work_d );
-    work_d->beta *= -1;
     if ( ! initial_position_valid )
         return make_pair(InvalidStartPosition, (typename DeriverType::Position*)NULL);
 
     work_d->save_diag();
 
-    FITTING("Starting residues are " << work_p->chi_sq << ", going to fit "
+    DEBUG("Starting residues are " << work_p->chi_sq << ", going to fit "
             " for " << maxSteps << " steps.");
 
     for (int steps = maxSteps; steps && curMotivation > 0; ) {
@@ -80,7 +78,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
 
         /* Solve the equation system for the shift vector.*/
         if (VarC <= 4) {
-            FITTING("Position " << work_p->parameters.transpose());
+            DEBUG("Position " << work_p->parameters.transpose());
             #ifndef NDEBUG
             if ( abs( work_d->alpha.determinant() ) < 1E-50 ) {
                 std::cerr << "Determinant of covariance matrix is very small:"
@@ -94,16 +92,20 @@ FitFunction<VarC,CV>::fit_with_deriver(
             #endif
             work_d->alpha.computeInverse(&inverted);
             shift = inverted * work_d->beta;
-            FITTING("Resulting shift is " << shift.transpose());
+            DEBUG("Resulting shift is " << shift.transpose());
             assert( !isnan( shift[0] ) &&
                     !isnan( shift[1] ) &&
                     !isnan( shift[2] ) &&
                     !isnan( shift[3] ) );
         } else {
+            DEBUG("Solving equations for " << work_d->alpha << "\n" << work_d->beta.transpose());
             bool solvable = work_d->alpha.ldlt().solve(work_d->beta, &shift);
             if (!solvable)  {
+                DEBUG("Equation system unsolvable, raising lambda");
                 lambda *= 100;
                 continue;
+            } else {
+                DEBUG("Solved equation system for step " << shift.transpose());
             }
         }
 
@@ -112,10 +114,10 @@ FitFunction<VarC,CV>::fit_with_deriver(
         {
             curMotivation--;
             if ( curMotivation == 0 ) {
-                FITTING("Lambda " << lambda << ", "
+                DEBUG("Lambda " << lambda << ", "
                         "accepting step length\n" << shift.transpose());
             } else {
-                FITTING("Negligible step " << shift.transpose() << 
+                DEBUG("Negligible step " << shift.transpose() << 
                         " results in motivation " 
                         << curMotivation);
             }
@@ -129,7 +131,10 @@ FitFunction<VarC,CV>::fit_with_deriver(
         /* Compute the function at this place. */
         bool new_position_valid = 
             deriver.compute_derivatives( *trial_p, *trial_d);
-        trial_d->beta *= -1;
+
+        if ( new_position_valid ) {
+            DEBUG("New position is valid, residues are " << trial_p->residues);
+        }
 
         /* The trial step was evaluable. Check if it improved
             * residues. */
@@ -137,7 +142,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
              trial_p->chi_sq > work_p->chi_sq ) 
         {
             lambda *= lambdaAdjustment;
-            FITTING("Residues worsened from "
+            DEBUG("Residues worsened from "
                     << work_p->chi_sq << " to " 
                     << trial_p->chi_sq << ". "
                     << "Changed lambda to " << lambda);
@@ -146,8 +151,8 @@ FitFunction<VarC,CV>::fit_with_deriver(
             lambda /= lambdaAdjustment;
             residuesGrew = false;
 
-            FITTING("Accepted step from\n" << work_p->parameters.transpose() << "\n to \n" << trial_p->parameters.transpose());
-            FITTING("Residues changed from " << work_p->chi_sq << " to "
+            DEBUG("Accepted step from\n" << work_p->parameters.transpose() << "\n to \n" << trial_p->parameters.transpose());
+            DEBUG("Residues changed from " << work_p->chi_sq << " to "
                     << trial_p->chi_sq);
 
             tookOneValidStep = true;
@@ -155,14 +160,14 @@ FitFunction<VarC,CV>::fit_with_deriver(
             std::swap( work_d, trial_d );
             work_d->save_diag();
         }
-        FITTING("Have " << steps << " steps left\n");
+        DEBUG("Have " << steps << " steps left\n");
     }
 
     if ( CV ) {
         work_d->apply_lambda(0);
         work_d->alpha.computeInverse(&work_p->covariances);
     }
-    FITTING("Finished fitting\n");
+    DEBUG("Finished fitting\n");
     return make_pair(
         (tookOneValidStep) ? 
             FitSuccess : FoundNoInitialStep,

@@ -14,9 +14,29 @@ template <>
 template <>
 void SizeSpecializing< 
     gauss_3d_fitter::NaiveFitter<1> >
+::create_specializations<1>();
+
+template <>
+template <>
+void SizeSpecializing< 
+    gauss_3d_fitter::NaiveFitter<1> >
 ::create_specializations<0>()
 {
+    create_specializations<1>();
+#ifdef USE_SPECIALIZED_FITTERS
+    this->fill_specialization_array<3,4>();
+#else
+    this->make_specialization_array_entry<11,12>();
+    this->make_specialization_array_entry<9,9>();
+    this->make_specialization_array_entry<8,8>();
+#endif
 }
+
+template <>
+template <>
+void SizeSpecializing< 
+    residue_analysis::Fitter< gauss_3d_fitter::Fitter > >
+::create_specializations<1>();
 
 template <>
 template <>
@@ -24,10 +44,13 @@ void SizeSpecializing<
     residue_analysis::Fitter< gauss_3d_fitter::Fitter > >
 ::create_specializations<0>()
 {
+    create_specializations<1>();
 #ifdef USE_SPECIALIZED_FITTERS
-    this->fill_specialization_array<3,6>();
+    this->fill_specialization_array<3,4>();
 #else
-    this->make_specialization_array_entry<11,10>();
+    this->make_specialization_array_entry<8,8>();
+    this->make_specialization_array_entry<9,9>();
+    this->make_specialization_array_entry<11,12>();
 #endif
 }
 

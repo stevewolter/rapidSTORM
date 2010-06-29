@@ -46,6 +46,8 @@ void LocalizationFile::printFit(const Localization &f,
         (*file) << " " << f.two_kernel_improvement();
       if ( traits.covariance_matrix_is_set )
         (*file) << " " << Eigen::unitless_value(f.fit_covariance_matrix()).format(format);
+      if ( traits.z_coordinate_is_set )
+        (*file) << " " << f.zposition().value();
       (*file) << "\n";
     }
 }
@@ -71,6 +73,8 @@ void LocalizationFile::open() {
         field::TwoKernelImprovement( traits ).makeNode( topNode );
     if ( traits.covariance_matrix_is_set )
         field::CovarianceMatrix( traits ).makeNode( topNode );
+    if ( traits.z_coordinate_is_set )
+        field::ZCoordinate( traits ).makeNode( topNode );
 
     XMLSTR str = topNode.createXMLString(0);
     *file << "# " << str << "\n";

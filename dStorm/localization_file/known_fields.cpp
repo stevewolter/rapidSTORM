@@ -12,6 +12,8 @@ template <>
 const std::string Spatial<1>::semantic = "y-position";
 template <>
 const std::string Spatial<2>::semantic = "z-position";
+template <>
+const std::string ZDimension::semantic = "z-position";
 
 const std::string Time::semantic = "frame number";
 const std::string Amplitude::semantic = "emission strength";
@@ -24,11 +26,11 @@ using namespace properties;
 
 template class KnownWithResolution< Spatial<0> >;
 template class KnownWithResolution< Spatial<1> >;
-template class KnownWithResolution< Spatial<2> >;
 template class KnownWithResolution< properties::Time >;
 template class Known< properties::Amplitude >;
 template class Known< properties::TwoKernelImprovement >;
 template class Known< properties::CovarianceMatrix >;
+template class Known< properties::ZDimension >;
 
 }
 }

@@ -1,4 +1,5 @@
 #include "main.h"
+#include "fit++/FitFunction_impl.hh"
 #include "fitter/FixedSized_impl.h"
 #include "fit++/Exponential2D_Uncorrelated_Derivatives.hh"
 #include "fitter/SizeSpecializing_filler.h"

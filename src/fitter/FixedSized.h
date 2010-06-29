@@ -20,7 +20,8 @@ class FixedSized : public Sized
     Common& common;
 
   public:
-    FixedSized(Common& common) : common(common) {}
+    FixedSized(Common& common) 
+        : deriver(common.constants), common(common) {}
 
     inline void setSize( int width, int height ) 
         { deriver.setSize( width, height ); }

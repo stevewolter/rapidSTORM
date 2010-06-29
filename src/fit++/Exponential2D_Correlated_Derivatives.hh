@@ -139,7 +139,7 @@ DerivativeHelper<Special,true>::compute(
                     ( expArg + kappa + crossprod ));
 
         /* Add contributions to gradient and hessian. */
-        gradient -= (residues.col(xo).transpose() * derivs).transpose();
+        gradient += (residues.col(xo).transpose() * derivs).transpose();
         hessian +=  derivs.transpose() * derivs;
 
     }

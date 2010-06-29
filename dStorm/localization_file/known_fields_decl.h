@@ -7,6 +7,7 @@ namespace field {
 namespace properties {
 
 template <int Dimension> struct Spatial;
+struct ZDimension;
 struct Time;
 struct Amplitude;
 struct TwoKernelImprovement;
@@ -18,7 +19,7 @@ typedef KnownWithResolution< properties::Spatial<0> >
     XCoordinate;
 typedef KnownWithResolution< properties::Spatial<1> >
     YCoordinate;
-typedef KnownWithResolution< properties::Spatial<2> >
+typedef Known< properties::ZDimension >
     ZCoordinate;
 typedef KnownWithResolution< properties::Time >
     FrameNumber;

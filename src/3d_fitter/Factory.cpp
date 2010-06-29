@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Factory.h"
 #include "Fitter.h"
 #include <dStorm/output/Traits.h>
@@ -35,8 +36,10 @@ Factory::make (const engine::JobInfo &i)
 }
 
 void Factory::set_traits( output::Traits& rv ) {
-    rv.two_kernel_improvement_is_set = false;
+    DEBUG("3D fitter is setting traits");
+    rv.two_kernel_improvement_is_set = (asymmetry_threshold() < 1.0);
     rv.covariance_matrix_is_set = false;
+    rv.z_coordinate_is_set = true;
 }
 
 }
