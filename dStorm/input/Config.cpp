@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/OptionalEntry_impl.hh>
-#include <simparm/UnitEntry_Impl.hh>
 #include "Config.h"
 #include "Method.h"
 #include "Source.h"

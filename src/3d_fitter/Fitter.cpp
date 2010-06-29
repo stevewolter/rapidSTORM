@@ -85,14 +85,12 @@ CommonInfo<Kernels>::set_start(
     ADCs center = image(xc,yc) * cs_units::camera::ad_count;
     
     params->setShift( shift_estimate );
-    boost::units::quantity<boost::units::si::length,double>
-        x_offset( params->template getZAtBestSigmaX<0>() ),
-        y_offset( params->template getZAtBestSigmaY<0>() );
     typename FitGroup::Accessor::QuantityBestVarianceX
         x_widening = pow<2>( params->template getDeltaSigmaX<0>() ) *
-                pow<2>(x_offset),
+                pow<2>( params->template getZAtBestSigmaX<0>() );
+    typename FitGroup::Accessor::QuantityBestVarianceX
         y_widening = pow<2>( params->template getDeltaSigmaY<0>() ) *
-                pow<2>(y_offset);
+                pow<2>( params->template getZAtBestSigmaY<0>() );
     double prefactor = 2 * M_PI * 
         sqrt( ( 
             ( x_widening + params->template getBestVarianceX<0>() ) 

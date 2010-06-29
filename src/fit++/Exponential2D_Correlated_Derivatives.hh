@@ -70,29 +70,32 @@ DerivativeHelper<Special,true>::compute(
     const int Height = 
         ((H==Eigen::Dynamic)? this->height : H);
 
-    kappa.col(0) = sxy.cwise() * (this->ellipI.cwise() + 1);
-    for (int x = 1; x < Height; x++)
+    Eigen::Matrix<double,Ks,H> ellip_col(Ks, Height);
+    ellip_col.col(0) = this->ellip;
+    kappa.col(0) = this->rho.cwise() * this->ellipI; 
+    for (int x = 1; x < Height; x++) {
         kappa.col(x) = kappa.col(0);
+        ellip_col(x) = ellip_col(0);
+    }
 
     gradient.setZero();
     hessian.setZero();
 
     for (int xo = 0; xo < Width; xo++) {
         const Eigen::Matrix<double,Ks,1> x = this->xl.val.col(xo);
-        for (int c = 0; c < Height; c++)
+        for (int c = 0; c < Height; c++) {
             xarray.col(c) = x;
-        for (int c = 0; c < Height; c++)
             xarraySq.col(c) = this->xl.sqr.col(xo);
+        }
 
         crossprod =  x.asDiagonal() * this->yl.val;
-        covar = 2 * sxy.asDiagonal() * crossprod;
+        covar = - 2 * sxy.asDiagonal() * crossprod;
         expArg = - 0.5 * this->ellipI.asDiagonal() *
                    ((this->yl.sqr + covar) + xarraySq);
         expT = expArg.cwise().exp();
 
         residues.col(xo) = 
-            expT.transpose() * this->prefactor -
-            (data.col(xo).cwise() - this->shift);
+            (data.col(xo).cwise() - this->shift) - expT.transpose() * this->prefactor;
         
         /* Fill derivs vector with derivatives */
         if ( Traits<Shift>::Variable )
@@ -103,13 +106,13 @@ DerivativeHelper<Special,true>::compute(
                 .transpose()
                 /* E-Term * (x-sxy*y) */
                 = expT.cwise() * 
-                    ( ( - sxy.asDiagonal() * this->yl.val ) + xarray );
+                    ( ( - sxy.asDiagonal() * this->yl.val ) + xarray ) * -1;
         if ( Traits<MeanY>::Variable )
             BlockReturner<Space,H,MeanY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * (y-sxy*x) */
                 = expT.cwise() *
-                    ( this->yl.val - (sxy.asDiagonal() * xarray) );
+                    ( this->yl.val - (sxy.asDiagonal() * xarray) ) * -1;
         if ( Traits<Amplitude>::Variable )
             BlockReturner<Space,H,Amplitude>::block( derivs, Height )
                 .transpose()
@@ -121,22 +124,20 @@ DerivativeHelper<Special,true>::compute(
                 /* E-Term * ( (x^2 - covar)*ellipI -1 ) */
                 /* Equiv: ( -x*ellipI*( 2*y*sxy - x) ) */
                 = expT.cwise() *
-                    ( (-xarray).cwise() * (this->ellipI.asDiagonal() *
-                        ( 2*sxy.asDiagonal()*this->yl.val - xarray )));
+                    ( xarraySq - ellip_col + 0.5 * covar );
         if ( Traits<SigmaY>::Variable )
             BlockReturner<Space,H,SigmaY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * ( (y^2 - covar)*ellipI -1 ) */
                 = expT.cwise() *
-                    ( ( this->ellipI.asDiagonal() *
-                        (this->yl.sqr - covar) ).cwise() - 1 );
+                    ( this->yl.sqr - ellip_col + 0.5 * covar );
         if ( Traits<SigmaXY>::Variable )
-            BlockReturner<Space,H,SigmaXY>::block( derivs, Height )
-                .transpose()
+            BlockReturner<Space,H,SigmaXY>::block( derivs, Height ).transpose()
                 /* E-Term * 
                     * - ( expArg + kappa + crossprod ) */
-                = -1 * (expT.cwise() *
-                    ( expArg + kappa + crossprod ));
+                = expT.cwise() *
+                    ( this->rho.asDiagonal() * ((2 * expArg).cwise() + 1) 
+                        + x.asDiagonal() * this->yl.val );
 
         /* Add contributions to gradient and hessian. */
         gradient += (residues.col(xo).transpose() * derivs).transpose();
@@ -157,10 +158,10 @@ DerivativeHelper<Special,true>::compute(
             = this->norms;
     if ( Traits<SigmaX>::Variable )
         BlockReturner<Space,1,SigmaX>::block( prefactors, 1 ) 
-            = this->prefactor.cwise() * this->syI;
+            = BlockReturner<Space,1,MeanX>::block( prefactors, 1 );
     if ( Traits<SigmaY>::Variable )
         BlockReturner<Space,1,SigmaY>::block( prefactors, 1 ) 
-            = this->prefactor.cwise() * this->syI;
+            = BlockReturner<Space,1,MeanY>::block( prefactors, 1 );
     if ( Traits<SigmaXY>::Variable )
         BlockReturner<Space,1,SigmaXY>::block( prefactors, 1 ) 
             = this->prefactor.cwise() * this->ellipI;

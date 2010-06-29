@@ -3,6 +3,7 @@
 #ifndef DSTORM_INPUT_CONFIG_H
 #define DSTORM_INPUT_CONFIG_H
 
+#include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/units/nanolength.h>
 #include <simparm/UnitEntry.hh>
 #include <cs_units/camera/resolution.hpp>
@@ -83,14 +84,7 @@ namespace input {
         simparm::OptionalEntry<frame_count> lastImage;
         /** General configuration element to give the size of a pixel
          *  in nm. */
-        typedef 
-            simparm::UnitEntry<
-                boost::units::divide_typeof_helper<
-                    boost::units::si::nanolength,
-                    cs_units::camera::length
-                >::type, float >
-            ResolutionEntry;
-        ResolutionEntry pixel_size_in_nm;
+        FloatPixelSizeEntry pixel_size_in_nm;
 
         void addInput( std::auto_ptr<BaseMethod> method );
         void addInput( BaseMethod* method ) { addInput( std::auto_ptr<BaseMethod>(method) ); }

@@ -4,6 +4,7 @@
 #include "UnitEntries/TemperatureEntry.h"
 #include "UnitEntries/TimeEntry.h"
 #include "UnitEntries/Nanometre.h"
+#include "UnitEntries/PixelSize.h"
 #include <simparm/UnitEntry_Impl.hh>
 #include <boost/units/systems/si/io.hpp>
 
@@ -22,4 +23,6 @@ template class simparm::UnitEntry< cs_units::camera::length, float >;
 template class simparm::UnitEntry< cs_units::camera::intensity, float >;
 template class simparm::UnitEntry< cs_units::camera::time, float >;
 template class simparm::UnitEntry< cs_units::camera::time, int >;
+template class simparm::UnitEntry< dStorm::nanometer_pixel_size, float >;
+template class simparm::UnitEntry< dStorm::nanoresolution, float >;
 }
