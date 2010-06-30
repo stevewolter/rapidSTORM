@@ -1,4 +1,6 @@
+#ifndef DEBUG
 #include "debug.h"
+#endif
 #include "main.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
@@ -40,7 +42,7 @@ CommonInfo<Ks,FF>::CommonInfo(
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaY ) ) )
         params.template set_all_SigmaY( start_sy );
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) )
-        params.template set_all_SigmaXY( start_sy );
+        params.template set_all_SigmaXY( start_sxy );
 }
 
 template <int Kernels, int FF>
@@ -121,6 +123,7 @@ CommonInfo<Kernels,FF>::check_result(
         p, float( params.template getAmplitude<0>() )
                 * cs_units::camera::ad_counts );
 
+    DEBUG("Got fit " << p.x() << " " << p.y() << " " << target->strength());
     bool sx_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaX )))
         || ( params.template getSigmaX<0>() >= start_sx/4
           && params.template getSigmaX<0>() <= start_sx*4 );

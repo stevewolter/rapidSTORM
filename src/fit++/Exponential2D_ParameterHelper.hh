@@ -15,14 +15,19 @@ bool ParameterHelper<Ks,PM,W,H,Corr>::prepare(
     Base::extract( v, c );
     Base::template extract_param<SigmaX>( v, c, this->sx );
     Base::template extract_param<SigmaY>( v, c, this->sy );
-    Base::template extract_param<SigmaXY>( v, c, this->rho );
-    if ( Corr )
+    if ( Corr ) {
+        Base::template extract_param<SigmaXY>( v, c, this->rho );
         this->ellip = (-rho.cwise().square()).cwise() + 1;
+    }
 
     if ( ! Base::check(x_low, y_low) ||
-         ( rho.cwise() < -1.0  ).any() || ( rho.cwise() >  1.0  ).any() )
+         ( Corr && ( rho.cwise().abs().cwise() > 1.0  ).any() ) )
+    {
+        DEBUG("Check failed");
         return false;
+    }
 
+    DEBUG("Check passed");
     Base::precompute(x_low, y_low);
     return true;
 };

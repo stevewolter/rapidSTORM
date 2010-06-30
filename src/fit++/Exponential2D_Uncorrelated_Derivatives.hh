@@ -41,6 +41,7 @@ DerivativeHelper<Special,false>::prepare()
             = this->syI.asDiagonal() * ( (this->yl.sqr.cwise() - 1).cwise() * this->yl.expTerm);
     }
 
+    DEBUG("Successfully prepared");
     return true;
 }
 
