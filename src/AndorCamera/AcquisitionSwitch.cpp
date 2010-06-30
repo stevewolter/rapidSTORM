@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "AcquisitionSwitch.h"
 #include "StateMachine_impl.h"
 #include "SDK.h"
@@ -25,7 +26,7 @@ class AcquisitionSwitch::Token<States::Acquiring>
     {
         if ( parent.is_active )
             while ( SDK::GetStatus() == SDK::Is_Acquiring ) {
-                STATUS("Waiting for acquisition to terminate");
+                DEBUG("Waiting for acquisition to terminate");
                 try {
                     SDK::AbortAcquisition();
                 } catch ( const Error& ) {}

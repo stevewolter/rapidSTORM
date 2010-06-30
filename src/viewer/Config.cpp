@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Config.h"
 #include "doc/help/context.h"
 #include "Colorizer_decl.h"
@@ -24,7 +25,7 @@ _Config::_Config()
                       "Close display on job completion"),
   border("Border", "Width of border to chop", 1 * cs_units::camera::pixel)
 {
-    PROGRESS("Building Viewer Config");
+    DEBUG("Building Viewer Config");
 
     outputFile.helpID = HELP_Viewer_ToFile;
     outputFile.setUserLevel(simparm::Object::Beginner);
@@ -84,7 +85,7 @@ _Config::_Config()
     save_scale_bar.setUserLevel(simparm::Object::Intermediate);
     border.setUserLevel(simparm::Object::Intermediate);
 
-    PROGRESS("Built Viewer Config");
+    DEBUG("Built Viewer Config");
 }
 
 void _Config::registerNamedEntries() {

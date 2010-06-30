@@ -6,7 +6,6 @@
 #include <string.h>
 #include <sstream>
 #include <iomanip>
-#include <foreach.h>
 #include <dStorm/input/Buffer.h>
 #include <dStorm/input/Source_impl.h>
 #include <AndorCamera/Camera.h>
@@ -81,12 +80,12 @@ Source::~Source() {
 #define GetImages GetImages16
 
 void Source::waitForInitialization() const {
-    PROGRESS("Trying to get initialization wait mutex");
+    DEBUG("Trying to get initialization wait mutex");
     ost::MutexLock lock(initMutex);
     while ( !initialized ) {
-        PROGRESS("Waiting for acquisition initialization");
+        DEBUG("Waiting for acquisition initialization");
         is_initialized.wait();
-        PROGRESS("Waited for acquisition initialization");
+        DEBUG("Waited for acquisition initialization");
     }
     if ( error_in_initialization )
         throw std::runtime_error(
@@ -238,7 +237,7 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
     }
 
     void current_camera_changed(int, int to) {
-        STATUS("Changing current camera to " << to);
+        DEBUG("Changing current camera to " << to);
         if ( to != -1 ) 
         {
             CameraReference cam = AndorCamera::System::singleton()

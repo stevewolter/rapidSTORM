@@ -3,8 +3,6 @@
 
 AC_PREREQ(2.61)
 AC_INIT([rapidstorm_fitters], [1.0], RAPIDSTORM_MAINTAINER)
-AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([Factory.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../../m4])

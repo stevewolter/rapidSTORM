@@ -1,3 +1,4 @@
+#include "debug.h"
 #include <Eigen/Array>
 #include "fit++/Exponential2D.hh"
 #include "fit++/Exponential2D_Uncorrelated_Derivatives.hh"
@@ -5,11 +6,11 @@
 
 using namespace fitpp::Exponential2D;
 
-template <int FitFlags, bool Correlated>
+template <int FitFlags, bool Correlated, int Kernels>
 struct Checker {
 
-typedef Model< 1, FitFlags > Space;
-typedef Deriver< 1, FitFlags, 9, 11, Correlated > ToTest;
+typedef Model< Kernels, FitFlags > Space;
+typedef Deriver< Kernels, FitFlags, 9, 11, Correlated > ToTest;
 typedef Eigen::Matrix<double,11,9> Data;
 
 static void compute_residues_naively(
@@ -23,14 +24,21 @@ static void compute_residues_naively(
     gradient.fill(0);
     hessian.fill(0);
 
-    double x0 = parameters.template getMeanX<0>(),
-           y0 = parameters.template getMeanY<0>(),
-           sx = parameters.template getSigmaX<0>(),
-           sy = parameters.template getSigmaY<0>(),
-           A = parameters.template getAmplitude<0>(),
-           B = parameters.getShift(),
-           rho = (Correlated) ? parameters.template getSigmaXY<0>() : 0,
-           Pi = M_PI;
+    double 
+        x0k0 = parameters.template getMeanX<0>(),
+        y0k0 = parameters.template getMeanY<0>(),
+        sxk0 = parameters.template getSigmaX<0>(),
+        syk0 = parameters.template getSigmaY<0>(),
+        Ak0 = parameters.template getAmplitude<0>(),
+        rhok0 = (Correlated) ? parameters.template getSigmaXY<0>() : 0,
+        x0k1 = (Space::Kernels >= 2) ? parameters.template getMeanX<1>() : 0,
+        y0k1 = (Space::Kernels >= 2) ? parameters.template getMeanY<1>() : 0,
+        sxk1 = (Space::Kernels >= 2) ? parameters.template getSigmaX<1>() : 1,
+        syk1 = (Space::Kernels >= 2) ? parameters.template getSigmaY<1>() : 1,
+        Ak1 = (Space::Kernels >= 2) ? parameters.template getAmplitude<1>() : 0,
+        rhok1 = (Space::Kernels >= 2 && Correlated) ? parameters.template getSigmaXY<1>() : 0,
+        B = parameters.getShift(),
+        Pi = M_PI;
 
     double deriv[Space::VarC], value;
     for (int row = 0; row < data.rows(); ++row)
@@ -38,14 +46,22 @@ static void compute_residues_naively(
       {
         double x = col, y = row;
 
-value = ( exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * A)  / ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)))  + B;
-if ( Space::template Parameter<Shift>::Variable ) deriv[ Space::template Parameter<Shift>::template InKernel<0>::N ] = 1;
-if ( Space::template Parameter<Amplitude>::Variable ) deriv[ Space::template Parameter<Amplitude>::template InKernel<0>::N ] = exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) / ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2))) ;
-if ( Space::template Parameter<MeanX>::Variable ) deriv[ Space::template Parameter<MeanX>::template InKernel<0>::N ] = (  - ( A * exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * 0.5 * ( ( 2 * ( x - x0) )  / pow(sx, 2) - ( 2 * rho * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) )  / ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2))) ;
-if ( Space::template Parameter<MeanY>::Variable ) deriv[ Space::template Parameter<MeanY>::template InKernel<0>::N ] = (  - ( A * exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * 0.5 * ( ( 2 * ( y - y0) )  / pow(sy, 2) - ( 2 * rho * ( x - x0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) )  / ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2))) ;
-if ( Space::template Parameter<SigmaX>::Variable ) deriv[ Space::template Parameter<SigmaX>::template InKernel<0>::N ] = (  - ( ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)) * A * exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * 0.5 * ( (  - pow(x - x0, 2) * 2 * sx)  / pow(sx, 4) - (  - 2 * rho * ( x - x0)  * ( y - y0)  * sy)  / pow(sx * sy, 2)) )  / ( 1 - pow(rho, 2))  + exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * A * 2 * Pi * sy * sqrt(1 - pow(rho, 2))) )  / pow(2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)), 2);
-if ( Space::template Parameter<SigmaY>::Variable ) deriv[ Space::template Parameter<SigmaY>::template InKernel<0>::N ] = (  - ( ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)) * A * exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * 0.5 * ( (  - pow(y - y0, 2) * 2 * sy)  / pow(sy, 4) - (  - 2 * rho * ( x - x0)  * ( y - y0)  * sx)  / pow(sx * sy, 2)) )  / ( 1 - pow(rho, 2))  + exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * A * 2 * Pi * sx * sqrt(1 - pow(rho, 2))) )  / pow(2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)), 2);
-if ( Space::template Parameter<SigmaXY>::Variable ) deriv[ Space::template Parameter<SigmaXY>::template InKernel<0>::N ] = ( ( exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * A * 2 * Pi * sx * sy * 2 * rho)  / ( 2 * sqrt(1 - pow(rho, 2)))  - ( 2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)) * A * exp( - ( 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) ) )  / ( 1 - pow(rho, 2)) ) * ( ( ( 1 - pow(rho, 2))  * -0.5 * 2 * ( x - x0)  * ( y - y0) )  / ( sx * sy)  + 0.5 * ( pow(x - x0, 2) / pow(sx, 2) + pow(y - y0, 2) / pow(sy, 2) - ( 2 * rho * ( x - x0)  * ( y - y0) )  / ( sx * sy) )  * 2 * rho) )  / pow(1 - pow(rho, 2), 2))  / pow(2 * Pi * sx * sy * sqrt(1 - pow(rho, 2)), 2);
+value = ( exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * Ak0)  / ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)))  + ( exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * Ak1)  / ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)))  + B;
+if ( Space::template Parameter<Shift>::Variable ) deriv[Space::template Parameter<Shift>::template InKernel<0>::N] = 1;
+if ( Space::template Parameter<Amplitude>::Variable ) deriv[Space::template Parameter<Amplitude>::template InKernel<0>::N] = exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) / ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2))) ;
+if ( Space::template Parameter<MeanX>::Variable ) deriv[Space::template Parameter<MeanX>::template InKernel<0>::N] = (  - ( Ak0 * exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * 0.5 * ( ( -2 * ( x - x0k0) )  / pow(sxk0, 2) - ( -2 * rhok0 * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) )  / ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2))) ;
+if ( Space::template Parameter<MeanY>::Variable ) deriv[Space::template Parameter<MeanY>::template InKernel<0>::N] = (  - ( Ak0 * exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * 0.5 * ( ( -2 * ( y - y0k0) )  / pow(syk0, 2) - (  - 2 * rhok0 * ( x - x0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) )  / ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2))) ;
+if ( Space::template Parameter<SigmaX>::Variable ) deriv[Space::template Parameter<SigmaX>::template InKernel<0>::N] = (  - ( ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)) * Ak0 * exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * 0.5 * ( (  - pow(x - x0k0, 2) * 2 * sxk0)  / pow(sxk0, 4) - (  - 2 * rhok0 * ( x - x0k0)  * ( y - y0k0)  * syk0)  / pow(sxk0 * syk0, 2)) )  / ( 1 - pow(rhok0, 2))  + exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * Ak0 * 2 * Pi * syk0 * sqrt(1 - pow(rhok0, 2))) )  / pow(2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)), 2);
+if ( Space::template Parameter<SigmaY>::Variable ) deriv[Space::template Parameter<SigmaY>::template InKernel<0>::N] = (  - ( ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)) * Ak0 * exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * 0.5 * ( (  - pow(y - y0k0, 2) * 2 * syk0)  / pow(syk0, 4) - (  - 2 * rhok0 * ( x - x0k0)  * ( y - y0k0)  * sxk0)  / pow(sxk0 * syk0, 2)) )  / ( 1 - pow(rhok0, 2))  + exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * Ak0 * 2 * Pi * sxk0 * sqrt(1 - pow(rhok0, 2))) )  / pow(2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)), 2);
+if ( Space::template Parameter<SigmaXY>::Variable ) deriv[Space::template Parameter<SigmaXY>::template InKernel<0>::N] = ( ( exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * Ak0 * 2 * Pi * sxk0 * syk0 * 2 * rhok0)  / ( 2 * sqrt(1 - pow(rhok0, 2)))  - ( 2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)) * Ak0 * exp( - ( 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) ) )  / ( 1 - pow(rhok0, 2)) ) * ( ( ( 1 - pow(rhok0, 2))  * -0.5 * 2 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0)  + 0.5 * ( pow(x - x0k0, 2) / pow(sxk0, 2) + pow(y - y0k0, 2) / pow(syk0, 2) - ( 2 * rhok0 * ( x - x0k0)  * ( y - y0k0) )  / ( sxk0 * syk0) )  * 2 * rhok0) )  / pow(1 - pow(rhok0, 2), 2))  / pow(2 * Pi * sxk0 * syk0 * sqrt(1 - pow(rhok0, 2)), 2);
+if ( Kernels >= 2 ) {
+if ( Space::template Parameter<Amplitude>::Variable ) deriv[Space::template Parameter<Amplitude>::template InKernel<1>::N] = exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) / ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2))) ;
+if ( Space::template Parameter<MeanX>::Variable ) deriv[Space::template Parameter<MeanX>::template InKernel<1>::N] = (  - ( Ak1 * exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * 0.5 * ( ( -2 * ( x - x0k1) )  / pow(sxk1, 2) - ( -2 * rhok1 * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) )  / ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2))) ;
+if ( Space::template Parameter<MeanY>::Variable ) deriv[Space::template Parameter<MeanY>::template InKernel<1>::N] = (  - ( Ak1 * exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * 0.5 * ( ( -2 * ( y - y0k1) )  / pow(syk1, 2) - (  - 2 * rhok1 * ( x - x0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) )  / ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2))) ;
+if ( Space::template Parameter<SigmaX>::Variable ) deriv[Space::template Parameter<SigmaX>::template InKernel<1>::N] = (  - ( ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)) * Ak1 * exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * 0.5 * ( (  - pow(x - x0k1, 2) * 2 * sxk1)  / pow(sxk1, 4) - (  - 2 * rhok1 * ( x - x0k1)  * ( y - y0k1)  * syk1)  / pow(sxk1 * syk1, 2)) )  / ( 1 - pow(rhok1, 2))  + exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * Ak1 * 2 * Pi * syk1 * sqrt(1 - pow(rhok1, 2))) )  / pow(2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)), 2);
+if ( Space::template Parameter<SigmaY>::Variable ) deriv[Space::template Parameter<SigmaY>::template InKernel<1>::N] = (  - ( ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)) * Ak1 * exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * 0.5 * ( (  - pow(y - y0k1, 2) * 2 * syk1)  / pow(syk1, 4) - (  - 2 * rhok1 * ( x - x0k1)  * ( y - y0k1)  * sxk1)  / pow(sxk1 * syk1, 2)) )  / ( 1 - pow(rhok1, 2))  + exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * Ak1 * 2 * Pi * sxk1 * sqrt(1 - pow(rhok1, 2))) )  / pow(2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)), 2);
+if ( Space::template Parameter<SigmaXY>::Variable ) deriv[Space::template Parameter<SigmaXY>::template InKernel<1>::N] = ( ( exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * Ak1 * 2 * Pi * sxk1 * syk1 * 2 * rhok1)  / ( 2 * sqrt(1 - pow(rhok1, 2)))  - ( 2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)) * Ak1 * exp( - ( 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) ) )  / ( 1 - pow(rhok1, 2)) ) * ( ( ( 1 - pow(rhok1, 2))  * -0.5 * 2 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1)  + 0.5 * ( pow(x - x0k1, 2) / pow(sxk1, 2) + pow(y - y0k1, 2) / pow(syk1, 2) - ( 2 * rhok1 * ( x - x0k1)  * ( y - y0k1) )  / ( sxk1 * syk1) )  * 2 * rhok1) )  / pow(1 - pow(rhok1, 2), 2))  / pow(2 * Pi * sxk1 * syk1 * sqrt(1 - pow(rhok1, 2)), 2);
+}
         
         residues(row,col) = data(row,col) - value;
         for (int i = 0; i < Space::VarC; ++i) {
@@ -70,11 +86,19 @@ static int check() {
     parameters.template setSigmaX<0>( 2.8 );
     parameters.template setSigmaY<0>( 1.8 );
     parameters.template setSigmaXY<0>( 0.3 );
+    if ( Kernels >= 2 ) {
+        parameters.template setMeanX<1>( 1  );
+        parameters.template setMeanY<1>( 6  );
+        parameters.template setAmplitude<1>( 2500 );
+        parameters.template setSigmaX<1>( 1.8 );
+        parameters.template setSigmaY<1>( 2.2 );
+        parameters.template setSigmaXY<1>( -0.8 );
+    }
     parameters.template setShift( 15 );
     srand(50);
     for (int r = 0; r < data.rows(); ++r) 
       for (int c = 0; c < data.cols(); ++c) 
-        data(r,c) = 0 * rand() * 1E-5;
+        data(r,c) = rand() * 1E-5;
 
     Data residues_naive, residues_optimized;
     typename Space::Vector gradient_naive, gradient_optimized;
@@ -88,14 +112,14 @@ static int check() {
 
 #define CHECK(x,y) \
     if ( ( (x ## _naive - x ## _optimized).cwise().abs().cwise() > 1E-8 ).any() ) { \
-        std::cerr << y << " did not match\n"; \
+        std::cerr << y << " for " << FitFlags << " " << Correlated << " " << Kernels << " did not match\n"; \
         std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
         std::cerr << std::endl; \
         return 1; \
     }
-    CHECK(residues, "residue matrix for " << FitFlags << " " << Correlated);
-    CHECK(gradient, "gradient for " << FitFlags << " " << Correlated);
-    CHECK(hessian, "hessian for " << FitFlags << " " << Correlated);
+    CHECK(residues, "residue matrix");
+    CHECK(gradient, "gradient");
+    CHECK(hessian, "hessian");
 
     return 0;
 }
@@ -104,9 +128,14 @@ static int check() {
 
 int main() {
     return 
-    Checker<FreeForm_NoCorrelation,false>::check() ||
-    Checker<FreeForm_NoCorrelation,true>::check() ||
-    Checker<FreeForm,true>::check() ||
-    Checker<FixedForm,false>::check() ||
-    Checker<FixedForm,true>::check();
+    Checker<FixedForm,false,1>::check() ||
+    Checker<FixedForm,false,2>::check() ||
+    Checker<FreeForm_NoCorrelation,false,1>::check() ||
+    Checker<FreeForm_NoCorrelation,false,2>::check() ||
+    Checker<FreeForm_NoCorrelation,true,1>::check() ||
+    Checker<FreeForm,true,1>::check() ||
+    Checker<FreeForm,true,2>::check() ||
+    Checker<FixedForm,true,1>::check() ||
+    Checker<FreeForm_NoCorrelation,true,2>::check() ||
+    Checker<FixedForm,true,2>::check();
 }

@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Config.h"
 #include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -16,7 +17,7 @@ _Config::_Config()
   realExposureTime("RealExposureTime", "Used exposure time"),
   cycleTime("KineticCycleTime", "Used kinetic cycle time")
 {
-    PROGRESS("Start Config");
+    DEBUG("Start Config");
 
     targetTemperature.setMax(30 * boost::units::celsius::degrees);
     targetTemperature.setMin(-100 * boost::units::celsius::degrees);
@@ -31,7 +32,7 @@ _Config::_Config()
     outputAmp.addChoice(
             ConventionalAmplification, "Conventional","Conventional");
 
-    PROGRESS("End Config");
+    DEBUG("End Config");
 }
 
 void _Config::registerNamedEntries() {

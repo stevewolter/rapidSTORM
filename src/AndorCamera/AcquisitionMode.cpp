@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "AcquisitionMode.h"
 #include "SDK.h"
 #include <string.h>
@@ -109,7 +110,7 @@ void AcquisitionModeControl::operator()
 
 AcquisitionModeControl::~AcquisitionModeControl()
 {
-    PROGRESS("Deleting acquisition mode control " << this);
+    DEBUG("Deleting acquisition mode control " << this);
 }
 
 void AcquisitionModeControl::registerNamedEntries() 

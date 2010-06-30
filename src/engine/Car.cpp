@@ -210,7 +210,7 @@ void Car::drive() {
 }
 
 void Car::runOnSTM() throw( std::exception ) {
-    LOCKING("Running on STM file");
+    DEBUG("Running on STM file");
     LocalizationBuncher buncher(*output);
     LocalizationFile::Reader::Source *reader = NULL;
     for ( input::BaseSource *seeker = locSource.get(); seeker != NULL; ) {
