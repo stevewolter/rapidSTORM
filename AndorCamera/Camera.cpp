@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Camera.h"
 #include "StateMachine.h"
 #include "Acquisition.h"
@@ -56,12 +57,12 @@ Camera* Camera::clone() const {
 
 Camera::~Camera() 
 {
-    STATUS("Shutting camera down");
+    DEBUG("Shutting camera down");
     std::auto_ptr<StateMachine::Request> r =
         state_machine().ensure_at_most(
             States::Disconnected, StateMachine::Idle);
     r->wait_for_fulfillment();
-    STATUS("Shutdown complete, destructing");
+    DEBUG("Shutdown complete, destructing");
 }
 
 Camera::ExclusiveAccessor::ExclusiveAccessor
@@ -77,13 +78,13 @@ void Camera::ExclusiveAccessor::replace_on_access( StateMachine::Listener& to_re
 void Camera::ExclusiveAccessor::request_access() 
 {
     ost::MutexLock lock( camera->mutex );
-    STATUS("Putting accessor into queue.");
+    DEBUG("Putting accessor into queue.");
     camera->waiting_accessors.push_back( this );
 }
 
 void Camera::ExclusiveAccessor::wait_for_access() {
     ost::MutexLock lock( camera->mutex );
-    STATUS("Putting accessor into queue.");
+    DEBUG("Putting accessor into queue.");
     while ( camera->waiting_accessors.front() != this )
         gained_access.wait();
     for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
@@ -93,9 +94,9 @@ void Camera::ExclusiveAccessor::wait_for_access() {
 }
 
 void Camera::ExclusiveAccessor::forfeit_access() {
-    STATUS(this << " forfeits access to camera");
+    DEBUG(this << " forfeits access to camera");
     ost::MutexLock lock( camera->mutex );
-    LOCKING("Got cam mutex");
+    DEBUG("Got cam mutex");
     if ( camera->waiting_accessors.front() == this ) {
         for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
             camera->state_machine().remove_listener( *i->second );

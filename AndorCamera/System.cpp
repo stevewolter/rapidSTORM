@@ -6,6 +6,7 @@
 #include <cassert>
 #include <time.h>
 #include <pthread.h>
+#include "debug.h"
 
 #include <simparm/ChoiceEntry_Impl.hh>
 
@@ -89,7 +90,7 @@ System::System() {
     simparm::ChoiceEntry& chooseCamera = *choice_entry;
     chooseCamera.value.addChangeCallback( *callback );
 
-    PROGRESS("Found " << number_of_cameras << " cameras");
+    DEBUG("Found " << number_of_cameras << " cameras");
     for (char i = 0; i < number_of_cameras; i++)
         chooseCamera.addChoice
             ("Camera" + std::string(1, 'A'+i), 

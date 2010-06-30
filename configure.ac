@@ -135,12 +135,7 @@ AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_TARNAME/plugins")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])
-AC_CONFIG_FILES([Makefile AndorCamera/Makefile fit++/Makefile])
-AC_CONFIG_FILES([spotFinders/Makefile])
-AC_CONFIG_FILES([engine/Makefile outputs/Makefile inputs/Makefile])
-AC_CONFIG_FILES([wxDisplay/Makefile])
-AC_CONFIG_FILES([viewer/Makefile])
-AC_CONFIG_FILES([debug-plugin/Makefile])
+AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([manifest])
 
 AC_OUTPUT

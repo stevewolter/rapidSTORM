@@ -5,6 +5,7 @@
 #include <dStorm/helpers/thread.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include "debug.h"
 
 using namespace std;
 using namespace AndorCamera;
@@ -128,13 +129,11 @@ AndorCamera::Error::Error(unsigned int andor_code, const char *locSpec,
 Error::Error(const std::string& message, ...)
 : andorReturnCode(0), error_message("")
 {
-    STATUS("Constructing Andor camera error");
+    DEBUG("Constructing Andor camera error");
     va_list argptr;
     char buffer[1024];
     va_start( argptr, message );
-    LOCKING("Printing " << message.c_str());
     vsnprintf(buffer, 1024, message.c_str(), argptr);
-    LOCKING("Printed " << buffer);
     va_end(argptr);
     error_message = buffer;
     _what = error_message.c_str();

@@ -1,4 +1,5 @@
 #define DSTORM_SIGMAGUESSER_CPP
+#include "debug.h"
 #include "engine/SigmaGuesser.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image.h>
@@ -47,22 +48,22 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     if (defined_result != KeepRunning) return defined_result;
     ost::MutexLock lock(mutex);
     if (defined_result != KeepRunning) return defined_result;
-    PROGRESS("Adding fits");
+    DEBUG("Adding fits");
 
     for (int i = 0; i < er.number; i++)
         meanAmplitude.addValue(er.first[i].getStrength());
 
-    PROGRESS("Updated mean amplitude");
+    DEBUG("Updated mean amplitude");
     int old_n = n;
     double sigmas[4];
     for (int i = 0; i < er.number; i++) {
         if (meanAmplitude.mean() < er.first[i].getStrength()) {
-            PROGRESS("Fitting " << i);
+            DEBUG("Fitting " << i);
             bool good = fitter->fit(*er.source, er.first[i], sigmas);
-            PROGRESS("Fitted " << i);
+            DEBUG("Fitted " << i);
             if (good) {
                 for (int i = 0; i < 3; i++) {
-                    PROGRESS("Guess for " << i << " is " << sigmas[i+((i==2)?1:0)]);
+                    DEBUG("Guess for " << i << " is " << sigmas[i+((i==2)?1:0)]);
                     data[i].addValue(sigmas[i+((i==2)?1:0)]);
                 }
                 n++;
@@ -70,9 +71,9 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
         }
     }
     discarded += n - old_n;
-    PROGRESS("Fitted data");
+    DEBUG("Fitted data");
 
-    PROGRESS("Have " << n << " of " << nextCheck);
+    DEBUG("Have " << n << " of " << nextCheck);
     if (n >= nextCheck) {
         Output::Result r = check();
         nextCheck = 3*nextCheck/2;
@@ -93,7 +94,7 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
 
 Output::Result
 SigmaGuesserMean::check() {
-    PROGRESS("Checking result");
+    DEBUG("Checking result");
     int converged = 0, failed = 0;
     double t_term = studentPinv95(n-1);
     for (int i = 0; i < 3; i++) {
@@ -105,7 +106,7 @@ SigmaGuesserMean::check() {
         if ( (confInterval[0] >= accept[i][0] &&
               confInterval[1] <= accept[i][1]) ) 
         {
-            STATUS("Sigma " << i << " converged at "
+            DEBUG("Sigma " << i << " converged at "
                      << (accept[i][0] + accept[i][1])/2);
             converged++;
         } else if ( 
@@ -114,7 +115,7 @@ SigmaGuesserMean::check() {
         {
             double newValue = curVal;
 
-            STATUS("Sigma " << i << " changed from " << (*sigmas[i])()
+            DEBUG("Sigma " << i << " changed from " << (*sigmas[i])()
                      << " to " << newValue);
             if ( i == 0 )
                 config.sigma_x = float(newValue) * cs_units::camera::pixel;
@@ -125,10 +126,10 @@ SigmaGuesserMean::check() {
                     
             failed++;
         } else {
-            STATUS("Sigma " << i << " undecided at " << curVal);
+            DEBUG("Sigma " << i << " undecided at " << curVal);
         }
     }
-    PROGRESS("Checked result");
+    DEBUG("Checked result");
     if (failed) {
         stringstream ss;
         ss << "Trying " << config.sigma_x() << ", " << config.sigma_y() << 
@@ -137,14 +138,14 @@ SigmaGuesserMean::check() {
 
         defined_result = RestartEngine;
         nextCheck = n+1;
-        STATUS("Significant difference");
+        DEBUG("Significant difference");
     } else if (converged == 3) {
         nextCheck = numeric_limits<int>::max();
-        STATUS("Insignificant difference");
+        DEBUG("Insignificant difference");
         defined_result = RemoveThisOutput;
     } else {
         nextCheck = (3*n)/2;
-        STATUS("No significance. Next check at " << nextCheck);
+        DEBUG("No significance. Next check at " << nextCheck);
     }
 
     return defined_result;
@@ -152,7 +153,7 @@ SigmaGuesserMean::check() {
 
 void SigmaGuesserMean::deleteAllResults() {
     ost::MutexLock lock(mutex);
-    PROGRESS("Resetting entries");
+    DEBUG("Resetting entries");
     double sigmas[3] = {
         config.sigma_x() / cs_units::camera::pixel,
         config.sigma_y() / cs_units::camera::pixel,
@@ -169,9 +170,9 @@ void SigmaGuesserMean::deleteAllResults() {
     defined_result = KeepRunning;
     meanAmplitude.reset();
 
-    PROGRESS("Resetting fitter");
+    DEBUG("Resetting fitter");
     fitter->useConfig(config);
-    PROGRESS("Deleted all results");
+    DEBUG("Deleted all results");
 }
 
 }

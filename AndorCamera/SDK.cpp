@@ -1,4 +1,5 @@
 #define ANDORCAMERA_SDK_CPP
+#include "debug.h"
 
 #include "SDK.h"
 #include <iostream>
@@ -137,7 +138,7 @@ static void checkAndorCodeStr( unsigned int return_code,
 
 {
     if (return_code != DRV_SUCCESS) {
-        STATUS("Got Andor error " << return_code);
+        DEBUG("Got Andor error " << return_code);
         throw Error(return_code, place);
     }
 }

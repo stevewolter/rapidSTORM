@@ -75,7 +75,7 @@ DerivativeHelper<Special,true>::compute(
     kappa.col(0) = this->rho.cwise() * this->ellipI; 
     for (int x = 1; x < Height; x++) {
         kappa.col(x) = kappa.col(0);
-        ellip_col(x) = ellip_col(0);
+        ellip_col.col(x) = ellip_col.col(0);
     }
 
     gradient.setZero();
@@ -106,13 +106,13 @@ DerivativeHelper<Special,true>::compute(
                 .transpose()
                 /* E-Term * (x-sxy*y) */
                 = expT.cwise() * 
-                    ( ( - sxy.asDiagonal() * this->yl.val ) + xarray ) * -1;
+                    ( ( - sxy.asDiagonal() * this->yl.val ) + xarray );
         if ( Traits<MeanY>::Variable )
             BlockReturner<Space,H,MeanY>::block( derivs, Height )
                 .transpose()
                 /* E-Term * (y-sxy*x) */
                 = expT.cwise() *
-                    ( this->yl.val - (sxy.asDiagonal() * xarray) ) * -1;
+                    ( this->yl.val - (sxy.asDiagonal() * xarray) );
         if ( Traits<Amplitude>::Variable )
             BlockReturner<Space,H,Amplitude>::block( derivs, Height )
                 .transpose()

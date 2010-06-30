@@ -3,6 +3,7 @@
 #include "AndorCamera/System.h"
 #include "SDK.h"
 #include <dStorm/helpers/exception.h>
+#include "debug.h"
 
 using namespace std;
 using namespace SDK;
@@ -51,6 +52,6 @@ namespace AndorCamera {
     TemperatureMonitor::~TemperatureMonitor() {
         askForDestruction = (true);
         join();
-        PROGRESS("Destructed temperature monitor");
+        DEBUG("Destructed temperature monitor");
     }
 }

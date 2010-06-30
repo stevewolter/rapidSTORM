@@ -66,7 +66,7 @@ DerivativeHelper<Super, false>::prepare()
         * gradient. */
     if ( Space::template Parameter<MeanX>::Variable ) {
         getRow<MeanX>().transpose()
-            = - (this->prefactor.cwise() * this->sxI).asDiagonal()
+            = (this->prefactor.cwise() * this->sxI).asDiagonal()
             * (this->xl.expTerm.cwise() * this->xl.val);
         getColumn<MeanX>().transpose()
             = this->yl.expTerm;
@@ -76,7 +76,7 @@ DerivativeHelper<Super, false>::prepare()
         getRow<MeanY>().transpose()
             = this->prefactor.asDiagonal() * this->xl.expTerm;
         getColumn<MeanY>().transpose()
-            = - this->syI.asDiagonal() * 
+            = this->syI.asDiagonal() * 
                 (this->yl.expTerm.cwise() * this->yl.val);
     }
 
