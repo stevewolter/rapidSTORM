@@ -108,11 +108,6 @@ AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
 # Now write the global and doc/lib makefiles. More libs are needed for
 # src.
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([helpers/Makefile ])
-AC_CONFIG_FILES([data-c++/Makefile])
-AC_CONFIG_FILES([input/Makefile engine/Makefile output/Makefile])
-AC_CONFIG_FILES([outputs/Makefile])
-AC_CONFIG_FILES([localization_file/Makefile])
 AC_CONFIG_FILES([windows_resources.rc])
 
 AC_OUTPUT

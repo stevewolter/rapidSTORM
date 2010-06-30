@@ -26,7 +26,7 @@ namespace dStorm {
             Eigen::Matrix<Coord, Dim, 1, Eigen::DontAlign>
             Position;
         typedef 
-            boost::units::quantity<boost::units::si::length,float>
+            boost::units::quantity<boost::units::si::nanolength,float>
             ZPosition;
         typedef
             Eigen::Matrix< 
