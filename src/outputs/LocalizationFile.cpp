@@ -5,6 +5,7 @@
 #include <dStorm/output/Trace.h>
 #include "doc/help/context.h"
 #include <dStorm/unit_matrix_operators.h>
+#include <iomanip>
 
 #include <dStorm/localization_file/fields.h>
 #include <dStorm/localization_file/known_fields.h>
@@ -38,9 +39,10 @@ void LocalizationFile::printFit(const Localization &f,
                                     i != trace.end(); i++)
             printFit(*i, 0);
     } else {
-      (*file) << f.x().value() << " " 
+      (*file) << std::fixed << std::setprecision(3) << f.x().value() << " " 
            << f.y().value() << " "
            << f.getImageNumber().value() << " "
+           << std::resetiosflags(ios_base::fixed) << std::setprecision(6)
            << f.strength().value() ;
       if ( traits.two_kernel_improvement_is_set )
         (*file) << " " << f.two_kernel_improvement();

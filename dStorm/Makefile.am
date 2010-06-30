@@ -33,20 +33,23 @@ nobase_library_include_HEADERS = \
     BaseImage_decl.h BaseImage.h \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
-    Job.h JobMaster.h UnitEntries.h log.h
+    Job.h JobMaster.h UnitEntries.h log.h check_plugin.h
 image_library_includedir = $(includedir)/dStorm/image
 image_library_include_HEADERS = $(addprefix image/, \
     constructors.h convert.h iterator.h minmax.h \
     )
 units_library_includedir = $(includedir)/dStorm/units
-units_library_include_HEADERS = $(addprefix units/, \
-	amplitude.h frame_count.h frame_rate.h \
-	nanolength.h megafrequency.h microtime.h )
+units_library_include_HEADERS = \
+	units/amplitude.h units/frame_count.h \
+	units/frame_rate.h units/megafrequency.h \
+	units/microtime.h units/nanolength.h \
+	units/nanoresolution.h
 unitentry_library_includedir = $(includedir)/dStorm/UnitEntries
-unitentry_library_include_HEADERS = $(addprefix UnitEntries/, \
-	PixelEntry.h Hertz.h FrameEntry.h \
-	TemperatureEntry.h TimeEntry.h \
-	)
+unitentry_library_include_HEADERS = \
+	UnitEntries/FrameEntry.h UnitEntries/Hertz.h \
+	UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
+	UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
+	UnitEntries/TimeEntry.h
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \

@@ -128,8 +128,8 @@ CommonInfo<Kernels,FF>::check_result(
         || ( params.template getSigmaX<0>() >= start_sx/4
           && params.template getSigmaX<0>() <= start_sx*4 );
     bool sy_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaY )))
-        || ( params.template getSigmaX<0>() >= start_sy/4
-          && params.template getSigmaX<0>() <= start_sy*4 );
+        || ( params.template getSigmaY<0>() >= start_sy/4
+          && params.template getSigmaY<0>() <= start_sy*4 );
     bool sigmas_correct = sx_correct && sy_correct;
 
     bool good = sigmas_correct

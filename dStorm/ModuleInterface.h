@@ -26,4 +26,26 @@ typedef void
     (dStorm::ErrorHandler::CleanupArgs* current_args, 
      dStorm::JobMaster* job_master);
 
+extern "C" {
+
+const char* rapidSTORM_Plugin_Desc();
+void rapidSTORM_Input_Augmenter
+    ( dStorm::input::Config* inputs );
+void rapidSTORM_Engine_Augmenter
+    ( dStorm::engine::Config* config );
+void rapidSTORM_Output_Augmenter
+    ( dStorm::output::Config* outputs );
+dStorm::Display::Manager* 
+    rapidSTORM_Display_Driver
+    (dStorm::Display::Manager* current_manager);
+void
+    rapidSTORM_Additional_Jobs
+    (dStorm::JobMaster* job_master);
+void
+    rapidSTORM_Cleanup_Handler
+    (dStorm::ErrorHandler::CleanupArgs* current_args, 
+     dStorm::JobMaster* job_master);
+
+}
+
 #endif

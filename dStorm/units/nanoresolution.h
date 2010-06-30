@@ -15,6 +15,8 @@ typedef boost::units::divide_typeof_helper<
                     cs_units::camera::length
                 >::type
     nanometer_pixel_size;
+
+BOOST_UNITS_STATIC_CONSTANT(pixels_per_nanometer,nanoresolution);
 }
 
 #endif
