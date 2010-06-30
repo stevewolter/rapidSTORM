@@ -113,8 +113,12 @@ struct ParameterHelper
         const int x_low, const int y_low
     ) {
         extract(v,c);
-        if ( ! check( x_low, y_low ) ) return false;;
+        if ( ! check( x_low, y_low ) ) {
+            DEBUG("Aborted preparation due to failed check");
+            return false;
+        }
         precompute( x_low, y_low );
+        DEBUG("Successfully prepared");
         return true;
     }
 };

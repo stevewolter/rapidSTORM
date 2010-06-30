@@ -1,5 +1,5 @@
-#include <fit++/FitFunction_impl.hh>
 #include "impl.h"
+#include <fit++/FitFunction_impl.hh>
 
 namespace dStorm {
 namespace gauss_2d_fitter {

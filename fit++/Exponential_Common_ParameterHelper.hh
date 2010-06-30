@@ -16,6 +16,7 @@ bool ParameterHelper<Space,W,H,Corr>::check(
 
     DEBUG("Checking " << x0.transpose() << " " << y0.transpose() << " " << sx.transpose() << " " << sy.transpose() 
           << " " << amp.transpose());
+    DEBUG("Checking against x0 " << x_low << " " << (x_low + Width-1) << " " << y_low << " " << (y_low + Height-1));
     if (
         /* Center out of lattice? */
             ( x0.cwise() < x_low ).any() 
@@ -26,9 +27,13 @@ bool ParameterHelper<Space,W,H,Corr>::check(
         ||( sx.cwise() < 0 ).any() || ( sy.cwise() < 0 ).any()
         /* Amplitude insane? */
         ||( amp.cwise() < 0 ).any() )
+    {
+        DEBUG("Check failed");
         return false;
-    else
+    } else {
+        DEBUG("Check passed");
         return true;
+    }
 }
 
 template <typename Space, int W, int H, bool Corr>
