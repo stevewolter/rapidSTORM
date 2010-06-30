@@ -1,4 +1,5 @@
 #define DSTORM_LOCALIZATIONFILE_CPP
+#include "debug.h"
 #include "LocalizationFile.h"
 #include <string.h>
 #include <stdlib.h>
@@ -32,6 +33,7 @@ LocalizationFile::_Config::_Config()
 void LocalizationFile::printFit(const Localization &f, 
     int localizationDepth) 
 {
+    //DEBUG("Beginning printFit");
     if ( localizationDepth > 0 && f.has_source_trace() ) {
         (*file) << "\n\n";
         const Trace& trace = f.get_source_trace();
@@ -52,6 +54,7 @@ void LocalizationFile::printFit(const Localization &f,
         (*file) << " " << f.zposition().value();
       (*file) << "\n";
     }
+    //DEBUG("Finished printFit");
 }
 
 using namespace dStorm::LocalizationFile;
