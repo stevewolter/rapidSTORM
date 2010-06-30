@@ -70,8 +70,8 @@ int main() {
     parameters.setMeanY<0>( 2 * cs_units::camera::pixel );
     parameters.setMeanZ<0>( 35 * boost::units::si::nanometre );
     parameters.setAmplitude<0>( 2000 * cs_units::camera::ad_count );
-    parameters.setDeltaSigmaX<0>( 0.02 * cs_units::camera::pixels_per_meter );
-    parameters.setDeltaSigmaY<0>( 0.03 * cs_units::camera::pixels_per_meter );
+    parameters.setDeltaSigmaX<0>( 0.02 * dStorm::pixels_per_nanometer );
+    parameters.setDeltaSigmaY<0>( 0.03 * dStorm::pixels_per_nanometer );
     parameters.setBestVarianceX<0>( 1.3*1.3 * cs_units::camera::pixel * cs_units::camera::pixel );
     parameters.setBestVarianceY<0>( 1.2*1.2 * cs_units::camera::pixel * cs_units::camera::pixel );
     parameters.setZAtBestSigmaX<0>( -100 * boost::units::si::nanometre );
