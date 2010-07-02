@@ -20,7 +20,6 @@ class _Config : public simparm::Object {
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
     simparm::DoubleEntry res_enh;
-    simparm::UnsignedLongEntry refreshCycle;
     simparm::DoubleEntry histogramPower;
     simparm::ChoiceEntry colourScheme;
     simparm::DoubleEntry hue, saturation;

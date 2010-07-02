@@ -1,14 +1,18 @@
 #ifndef DSTORM_LOCALIZATION_FILTER_H
 #define DSTORM_LOCALIZATION_FILTER_H
 
+#include <dStorm/units/prefixes.h>
+#include <boost/units/systems/si/velocity.hpp>
 #include <cs_units/camera/velocity.hpp>
 #include <dStorm/units/amplitude.h>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/outputs/LocalizationList.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/Structure.hh>
+#include <simparm/OptionalEntry.hh>
 #include <dStorm/data-c++/Vector.h>
 #include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/UnitEntries/ADC.h>
 
 namespace dStorm {
 namespace output {
@@ -20,6 +24,12 @@ namespace output {
 class LocalizationFilter : public OutputObject,
                            public simparm::Node::Callback
 {
+  public:
+    typedef boost::units::si::pico_scale<boost::units::si::velocity>::type
+        ShiftSpeed;
+    typedef boost::units::quantity<cs_units::camera::velocity,float>
+        AppliedSpeed;
+
   private:
     /** Mutex for localizationsStore list. */
     ost::Mutex locStoreMutex;
@@ -34,13 +44,11 @@ class LocalizationFilter : public OutputObject,
     *   amplitude threshold is changed. */
     outputs::LocalizationList localizationsStore;
 
-    simparm::DoubleEntry from, to;
-    simparm::DoubleEntry x_shift, y_shift;
+    simparm::OptionalEntry< ADCEntry::value_type > from, to;
+    simparm::UnitEntry<ShiftSpeed,double> shift_scale, x_shift, y_shift;
     simparm::DoubleEntry two_kernel_significance;
-    amplitude v_from, v_to;
-    Eigen::Matrix< 
-        boost::units::quantity<cs_units::camera::velocity,float>,
-        Localization::Dim, 1>
+    simparm::optional<amplitude> v_from, v_to;
+    Eigen::Matrix<AppliedSpeed, Localization::Dim, 1>
         shift_velocity;
     output::Traits traits;
 
@@ -104,8 +112,8 @@ class LocalizationFilter::_Config : public simparm::Object {
   public:
     _Config();
 
-    simparm::DoubleEntry from, to;
-    simparm::DoubleEntry x_shift, y_shift;
+    simparm::OptionalEntry< ADCEntry::value_type > from, to;
+    simparm::UnitEntry<ShiftSpeed,double> shift_scale, x_shift, y_shift;
 
     /** Minimum quotient between residues of two- and one-kernel
         *  model fits that must be reached so that the two-kernel fit

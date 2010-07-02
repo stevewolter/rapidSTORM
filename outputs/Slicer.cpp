@@ -53,10 +53,10 @@ Slicer::_Config::_Config()
   filename("BaseFileName", "File name pattern")
 {
     slice_size.helpID = HELP_Slicer_Size;
-    slice_size.min = 1;
+    slice_size.min = 1 * cs_units::camera::frame;
 
     slice_distance.helpID = HELP_Slicer_Dist;
-    slice_distance.min = 1;
+    slice_distance.min = 1 * cs_units::camera::frame;
 
     filename.helpID = HELP_Slicer_Pattern;
     filename.setHelp("%i is replaced with the block name.");
@@ -65,8 +65,8 @@ Slicer::_Config::_Config()
 Slicer::Slicer(const Source& source)
  
 : OutputObject("Slicer", "Object Slicer"),
-  slice_size( source.slice_size() * cs_units::camera::frame ),
-  slice_distance( source.slice_distance() * cs_units::camera::frame),
+  slice_size( source.slice_size()  ),
+  slice_distance( source.slice_distance() ),
   filename( source.filename() ),
   source( source.clone() ),
   avoid_filenames(NULL),

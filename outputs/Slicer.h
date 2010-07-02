@@ -3,6 +3,7 @@
 
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FilterSource.h>
+#include <dStorm/UnitEntries/FrameEntry.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -110,7 +111,7 @@ class Slicer::_Config : public simparm::Object {
         { push_back( slice_size ); push_back( slice_distance );
           push_back( filename); }
   public:
-    simparm::UnsignedLongEntry slice_size, slice_distance;
+    dStorm::IntFrameEntry slice_size, slice_distance;
     simparm::StringEntry filename;
 
     _Config();

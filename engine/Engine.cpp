@@ -139,6 +139,7 @@ output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
         in->get_other_dimensionality<Localization::Dim>() );
     DEBUG("Getting minimum amplitude");
     rv.min_amplitude = config.amplitude_threshold();
+    rv.speed = in->speed;
     rv.first_frame = in->first_frame;
     rv.last_frame = in->last_frame;
     DEBUG("Last frame is set in input: " << in->last_frame.is_set());

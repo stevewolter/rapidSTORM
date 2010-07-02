@@ -12,7 +12,6 @@ _Config::_Config()
   showOutput("ShowOutput", "Display dSTORM result image"),
   outputFile("ToFile", "Save image to", ".jpg"),
   res_enh("ResEnhance", "Resolution Enhancement", 10),
-  refreshCycle("ImageRefreshCycle", "Refresh image every x ms:", 100),
   histogramPower("HistogramPower", "Extent of histogram normalization",
                  0.3),
   colourScheme("ColourScheme", "Colour palette for display"),
@@ -38,7 +37,6 @@ _Config::_Config()
                     "a 1280x1280 sized image.");
     res_enh.setUserLevel(simparm::Object::Beginner);
     res_enh.setMin(1);
-    refreshCycle.setUserLevel(simparm::Object::Intermediate);
 
     histogramPower.setMin(0);
     histogramPower.setMax(1);

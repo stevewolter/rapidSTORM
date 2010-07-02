@@ -29,6 +29,7 @@
 #include <dStorm/input/FileBasedMethod_impl.h>
 
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/units/base_units/us/inch.hpp>
 
 using namespace std;
 
@@ -57,6 +58,28 @@ Source<Pixel>::Source(const char *src)
 
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
+
+    float xres, yres;
+    int xgiven = TIFFGetField( tiff, TIFFTAG_XRESOLUTION, &xres );
+    int ygiven = TIFFGetField( tiff, TIFFTAG_YRESOLUTION, &yres );
+    if ( xgiven == 1 || ygiven == 1 ) {
+        float res;
+        if ( xgiven == 1 && ygiven == 1 )
+            res = (xres+yres)/2;
+        else if ( xgiven == 1 )
+            res = xres;
+        else
+            res = yres;
+
+        int unit = RESUNIT_INCH;
+        TIFFGetField( tiff, TIFFTAG_RESOLUTIONUNIT, &unit );
+        if ( unit == RESUNIT_INCH )
+            resolution = boost::units::quantity<cs_units::camera::resolution,float>(
+                res * cs_units::camera::pixel / (0.0254 * boost::units::si::meters));
+        else if ( unit == RESUNIT_CENTIMETER )
+            resolution = boost::units::quantity<cs_units::camera::resolution,float>(
+                res * cs_units::camera::pixel / (0.01 * boost::units::si::meters));
+    }
 
 #if 0
     _no_images = 1;
@@ -225,6 +248,7 @@ Source<Pixel>::get_traits()
     rv->size.x() = _width * cs_units::camera::pixel;
     rv->size.y() = _height * cs_units::camera::pixel;
     rv->dim = 1; /* TODO: Read from file */
+    rv->resolution = resolution;
 
     return rv;
 }

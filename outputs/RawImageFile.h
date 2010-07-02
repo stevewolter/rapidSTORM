@@ -32,6 +32,9 @@ class RawImageFile : public OutputObject {
 
     class _Config;
 
+    simparm::optional<frame_count> last_frame;
+    output::Traits::Resolution resolution;
+
   public:
     typedef simparm::Structure<_Config> Config;
     typedef FileOutputBuilder<RawImageFile> Source;

@@ -4,8 +4,11 @@
 #include "doc/help/context.h"
 #include <Eigen/Array>
 #include <dStorm/unit_matrix_operators.h>
+#include <simparm/UnitEntry_Impl.hh>
+#include <simparm/OptionalEntry_impl.hh>
 
 #include <boost/units/systems/si/velocity.hpp>
+#include <boost/units/systems/si/prefixes.hpp>
 #include <cs_units/camera/time.hpp>
 
 #include "debug.h"
@@ -102,7 +105,8 @@ LocalizationFilter::LocalizationFilter(
     : OutputObject("AF", "LocalizationFilter"),
       simparm::Node::Callback( simparm::Event::ValueChanged ),
       localizationsStore( new output::Localizations() ),
-      from(c.from), to(c.to), x_shift(c.x_shift), y_shift(c.y_shift), 
+      from(c.from), to(c.to), shift_scale(c.shift_scale),
+      x_shift(c.x_shift), y_shift(c.y_shift), 
       two_kernel_significance(c.two_kernel_significance),
       output(output)
 { 
@@ -114,7 +118,8 @@ LocalizationFilter::LocalizationFilter(const LocalizationFilter& o)
 : OutputObject(o),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   localizationsStore( new output::Localizations(o.localizationsStore.getResults()) ), 
-  from(o.from), to(o.to), x_shift(o.x_shift), y_shift(o.y_shift),
+  from(o.from), to(o.to), shift_scale(o.shift_scale),
+  x_shift(o.x_shift), y_shift(o.y_shift),
   two_kernel_significance(o.two_kernel_significance),
   output( o.output->clone() )
 {
@@ -128,11 +133,12 @@ LocalizationFilter::~LocalizationFilter()
 
 void LocalizationFilter::init()
 {
-    v_from = from() * cs_units::camera::ad_count;
-    v_to = to() * cs_units::camera::ad_count; 
+    v_from = from();
+    v_to = to();
 
     receive_changes_from( from.value );
     receive_changes_from( to.value );
+    receive_changes_from( shift_scale.value );
     receive_changes_from( x_shift.value );
     receive_changes_from( y_shift.value );
     receive_changes_from( two_kernel_significance.value );
@@ -142,6 +148,7 @@ void LocalizationFilter::init()
 
     push_back( from );
     push_back( to );
+    push_back( shift_scale );
     push_back( x_shift );
     push_back( y_shift );
     push_back( two_kernel_significance );
@@ -226,7 +233,8 @@ void LocalizationFilter::copy_and_modify_localizations(
 {
     for ( int i = 0; i < n; i++ ) {
         amplitude strength = from[i].getStrength();
-        if ( strength >= v_from && strength <= v_to &&
+        if ( (!v_from.is_set() || strength >= *v_from) &&
+             (!v_to.is_set() || strength <= *v_to) &&
              from[i].two_kernel_improvement() < two_kernel_significance() )
         {
             /* Write localization behind array. Array will be enlarged
@@ -273,16 +281,17 @@ Output::AdditionalData
 LocalizationFilter::announceStormSize(const Announcement& a) 
 
 { 
+    boost::units::quantity<ShiftSpeed,float> standstill
+        ( 1 * boost::units::si::meters_per_second );
     traits = a.traits;
-    if ( ! traits.resolution.is_set() && (x_shift() != 0 || y_shift() != 0) )
-        throw std::runtime_error("Pixel size is unknown, but drift correction given");
+    if ( ( ! traits.resolution.is_set() || traits.speed.is_set() ) && (
+        x_shift() != standstill || y_shift() != standstill) )
+        throw std::runtime_error("Pixel size or acquisition speed is unknown, but drift correction given");
     /* TODO traits.speed */
     shift_velocity.x() = 
-        (x_shift() * 1E-9f * (si::meters / si::seconds))
-           * (*traits.resolution / ( 1.0 * cs_units::camera::fps));
+        AppliedSpeed(x_shift() * (*traits.resolution) / (*traits.speed));
     shift_velocity.y() = 
-        y_shift() * 1E-9 * (si::meters / si::seconds)
-           / ( 1.0 * cs_units::camera::fps) * *traits.resolution;
+        AppliedSpeed(y_shift() * (*traits.resolution) / (*traits.speed));
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);
@@ -329,34 +338,39 @@ void LocalizationFilter::operator()
     (const simparm::Event& e) 
 {
     if ( &e.source == &from.value ) {
-        v_from = from() * cs_units::camera::ad_counts;
+        v_from = from();
         re_emitter->repeat_results();
     } else if ( &e.source == &to.value ) {
-        v_to = to() * cs_units::camera::ad_counts;
+        v_to = to();
         re_emitter->repeat_results();
     } else if ( &e.source == &x_shift.value ) {
-        shift_velocity.x() = x_shift() * 1E-9
-            * si::meter / si::second 
-            / (1.0 * cs_units::camera::fps) * *traits.resolution;
+        shift_velocity.x() = AppliedSpeed(
+            x_shift() * (*traits.resolution) / (*traits.speed) );
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &e.source == &y_shift.value ) {
-        shift_velocity.y() = y_shift() * 1E-9
-            * si::meter / si::second 
-            / (1.0 * cs_units::camera::fps) * *traits.resolution;
+        shift_velocity.y() = AppliedSpeed( y_shift() * (*traits.resolution)
+            / (*traits.speed) );
         re_emitter->repeat_results();
     } else if ( &e.source == &two_kernel_significance.value ) {
         re_emitter->repeat_results();
+    } else if ( &e.source == &shift_scale.value ) {
+        x_shift.min = -1.0 * shift_scale();
+        y_shift.min = -1.0 * shift_scale();
+        x_shift.max = 1.0 * shift_scale();
+        y_shift.max = 1.0 * shift_scale();
+        x_shift.increment = 0.01 * shift_scale();
+        y_shift.increment = 0.01 * shift_scale();
     }
 }
 
 LocalizationFilter::_Config::_Config()
 : simparm::Object("LocalizationFilter", "Filter localizations"),
   from("MinimumAmplitude", "Minimum localization strength"),
-    to("MaximumAmplitude", "Maximum localization strength", 
-        std::numeric_limits<double>::infinity() ),
-    x_shift("XDrift", "X drift correction (nm/s)"),
-    y_shift("YDrift", "Y drift correction (nm/s)"),
+    to("MaximumAmplitude", "Maximum localization strength"),
+    shift_scale("ShiftScale", "Maximum drift correction"),
+    x_shift("XDrift", "X drift correction"),
+    y_shift("YDrift", "Y drift correction"),
     two_kernel_significance("TwoKernelSignificance", 
         "Double spot ratio threshold", 0.02)
 {
@@ -371,12 +385,14 @@ LocalizationFilter::_Config::_Config()
 
     x_shift.helpID = HELP_Filter_XDrift;
     y_shift.helpID = HELP_Filter_YDrift;
-    x_shift.setMin(-1);
-    y_shift.setMin(-1);
-    x_shift.setMax(1);
-    y_shift.setMax(1);
-    x_shift.setIncrement(0.01);
-    y_shift.setIncrement(0.01);
+    shift_scale = boost::units::quantity<ShiftSpeed,double>(
+        1E-9f * boost::units::si::meters_per_second);
+    x_shift.min = -1.0 * shift_scale();
+    y_shift.min = -1.0 * shift_scale();
+    x_shift.max = 1.0 * shift_scale();
+    y_shift.max = 1.0 * shift_scale();
+    x_shift.increment = 0.01 * shift_scale();
+    y_shift.increment = 0.01 * shift_scale();
     two_kernel_significance.setMin(0);
     two_kernel_significance.setMax(1);
     two_kernel_significance.setIncrement(0.001);
@@ -385,6 +401,7 @@ LocalizationFilter::_Config::_Config()
 void LocalizationFilter::_Config::registerNamedEntries() {
     push_back(from);
     push_back(to);
+    push_back(shift_scale);
     push_back(x_shift);
     push_back(y_shift);
     push_back(two_kernel_significance);

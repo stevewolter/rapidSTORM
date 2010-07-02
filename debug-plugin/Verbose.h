@@ -26,6 +26,9 @@ struct Verbose
             LOG( "Verbose plugin got announcement with "
                     << a.traits.size.transpose() << " and size "
                     << *a.traits.resolution );
+            if ( a.traits.speed.is_set() ) {
+                LOG("Announced speed is " << *a.traits.speed );
+            }
         } else {
             LOG( "Verbose plugin got announcement with "
                     << a.traits.size.transpose() );
