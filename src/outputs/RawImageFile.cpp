@@ -3,6 +3,7 @@
 #include <cassert>
 #include <dStorm/Image.h>
 #include <boost/units/io.hpp>
+#include <stdint.h>
 
 namespace dStorm {
 namespace output {
@@ -56,6 +57,9 @@ RawImageFile::RawImageFile(const Config& config)
 
 Output::AdditionalData
 RawImageFile::announceStormSize(const Announcement &a) {
+    resolution = a.traits.resolution;
+    last_frame = a.traits.last_frame;
+
     TIFFSetErrorHandler( &error_handler );
     if ( tif == NULL ) {
         tif = TIFFOpen( filename.c_str(), "w" );
@@ -127,6 +131,15 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height_in_pixels() );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
+    if ( resolution.is_set() ) {
+        TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
+        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(*resolution * (0.01 * boost::units::si::meter) / cs_units::camera::pixel) );
+        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(*resolution * (0.01 * boost::units::si::meter) / cs_units::camera::pixel) );
+    }
+    if ( last_frame.is_set() ) {
+        TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / cs_units::camera::frame),
+                                               uint16_t(*last_frame / cs_units::camera::frame + 1) );
+    }
 
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );

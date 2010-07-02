@@ -55,6 +55,7 @@ namespace dStorm {
         std::string filename;
 
         int _width, _height, _no_images;
+        dStorm::SizeTraits<2>::Resolution resolution;
 
         static void TIFF_error_handler(const char*, 
             const char *fmt, va_list ap);

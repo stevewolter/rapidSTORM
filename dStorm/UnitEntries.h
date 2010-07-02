@@ -4,9 +4,9 @@
 #include <simparm/UnitEntry.hh>
 #include <dStorm/units/nanolength.h>
 #include <cs_units/camera/length.hpp>
-#include <cs_units/camera/intensity.hpp>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
+#include <dStorm/UnitEntries/ADC.h>
 
 namespace dStorm {
     typedef simparm::UnitEntry< boost::units::si::nanolength, double > 

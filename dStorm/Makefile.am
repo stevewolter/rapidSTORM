@@ -138,13 +138,13 @@ units_library_include_HEADERS = \
 	units/amplitude.h units/frame_count.h \
 	units/frame_rate.h units/megafrequency.h \
 	units/microtime.h units/nanolength.h \
-	units/nanoresolution.h
+	units/nanoresolution.h units/prefixes.h
 unitentry_library_includedir = $(includedir)/dStorm/UnitEntries
 unitentry_library_include_HEADERS = \
 	UnitEntries/FrameEntry.h UnitEntries/Hertz.h \
 	UnitEntries/Nanometre.h UnitEntries/PixelEntry.h \
 	UnitEntries/PixelSize.h UnitEntries/TemperatureEntry.h \
-	UnitEntries/TimeEntry.h
+	UnitEntries/TimeEntry.h UnitEntries/ADC.h
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \

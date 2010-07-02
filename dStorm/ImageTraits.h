@@ -8,6 +8,7 @@
 #include <dStorm/Image_decl.h>
 #include <dStorm/units_Eigen_traits.h>
 #include <dStorm/units/frame_count.h>
+#include <dStorm/units/frame_rate.h>
 
 namespace dStorm {
 namespace input {
@@ -36,6 +37,7 @@ class Traits< dStorm::Image<PixelType,Dimensions> >
 
     frame_count first_frame;
     simparm::optional<frame_count> last_frame;
+    simparm::optional<frame_rate> speed;
 };
 
 }

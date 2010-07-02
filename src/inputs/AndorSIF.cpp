@@ -223,6 +223,9 @@ Source<Pixel>::get_traits()
    rv->size.y() = readsif_imageHeight( dataSet, 0 )
         * cs_units::camera::pixel;
 
+    rv->speed = 1.0 * cs_units::camera::frame / ( dataSet->instaImage.kinetic_cycle_time
+        * boost::units::si::second );
+
    rv->last_frame =
     (readsif_numberOfImages(dataSet) - 1) * cs_units::camera::frame;
     return rv;
