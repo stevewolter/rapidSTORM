@@ -28,6 +28,7 @@ struct LeastSquaresLatticeFitter
 
     FitResult fit( Function& function ) {
         Position second;
+        second.residues.resize( position.residues.rows(), position.residues.cols() );
         std::pair<FitResult,Position*> result = 
             function.fit_with_deriver( position, second, *this );
 
@@ -56,6 +57,7 @@ struct LeastSquaresLatticeFitter
         LatticeFunction<DataType,Width,Height>::
             setSize(width,height);
         Deriver::resize( width, height );
+        position.resize(width,height);
     }
 
     const Position& getPosition() const { return position; }

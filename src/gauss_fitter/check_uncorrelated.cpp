@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "debug.h"
 #include <Eigen/Array>
 #include "fit++/Exponential2D.hh"
@@ -6,12 +9,15 @@
 
 using namespace fitpp::Exponential2D;
 
-template <int FitFlags, bool Correlated, int Kernels>
+template <int FitFlags, bool Correlated, int Kernels, bool DynamicSize>
 struct Checker {
 
+static const int Width = (DynamicSize) ? Eigen::Dynamic : 9;
+static const int Height = (DynamicSize) ? Eigen::Dynamic : 11;
+
 typedef Model< Kernels, FitFlags > Space;
-typedef Deriver< Kernels, FitFlags, 9, 11, Correlated > ToTest;
-typedef Eigen::Matrix<double,11,9> Data;
+typedef Deriver< Kernels, FitFlags, Width, Height, Correlated > ToTest;
+typedef Eigen::Matrix<double,Height,Width> Data;
 
 static void compute_residues_naively(
     const Space& parameters,
@@ -74,25 +80,25 @@ if ( Space::template Parameter<SigmaXY>::Variable ) deriv[Space::template Parame
 }
 
 
-static int check() {
+static int check(double corr = 1) {
     typename Space::Variables vars;
     typename Space::Constants constants;
     Space parameters(&vars, &constants);
-    Data data;
+    Data data(11,9);
 
-    parameters.template setMeanX<0>( 5  );
-    parameters.template setMeanY<0>( 2  );
+    parameters.template setMeanX<0>( 5.2  );
+    parameters.template setMeanY<0>( 2.8  );
     parameters.template setAmplitude<0>( 2000 );
     parameters.template setSigmaX<0>( 2.8 );
     parameters.template setSigmaY<0>( 1.8 );
-    parameters.template setSigmaXY<0>( 0.3 );
+    parameters.template setSigmaXY<0>( 0.3 * corr );
     if ( Kernels >= 2 ) {
-        parameters.template setMeanX<1>( 1  );
-        parameters.template setMeanY<1>( 6  );
+        parameters.template setMeanX<1>( 1.6  );
+        parameters.template setMeanY<1>( 6.1  );
         parameters.template setAmplitude<1>( 2500 );
         parameters.template setSigmaX<1>( 1.8 );
         parameters.template setSigmaY<1>( 2.2 );
-        parameters.template setSigmaXY<1>( -0.8 );
+        parameters.template setSigmaXY<1>( -0.8 * corr );
     }
     parameters.template setShift( 15 );
     srand(50);
@@ -100,13 +106,15 @@ static int check() {
       for (int c = 0; c < data.cols(); ++c) 
         data(r,c) = rand() * 1E-5;
 
-    Data residues_naive, residues_optimized;
+    Data residues_naive(11,9), residues_optimized(11,9);
     typename Space::Vector gradient_naive, gradient_optimized;
     typename Space::Matrix hessian_naive, hessian_optimized;
     
     compute_residues_naively( parameters, data, residues_naive, gradient_naive, hessian_naive );
 
     ToTest test;
+    if ( DynamicSize )
+        test.resize( 9, 11 );
     test.prepare( vars, constants, 0, 0 );
     test.compute( data, residues_optimized, gradient_optimized, hessian_optimized );
 
@@ -116,6 +124,8 @@ static int check() {
         std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
         std::cerr << std::endl; \
         return 1; \
+    } else { \
+        std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
     }
     CHECK(residues, "residue matrix");
     CHECK(gradient, "gradient");
@@ -128,14 +138,26 @@ static int check() {
 
 int main() {
     return 
-    Checker<FixedForm,false,1>::check() ||
-    Checker<FixedForm,false,2>::check() ||
-    Checker<FreeForm_NoCorrelation,false,1>::check() ||
-    Checker<FreeForm_NoCorrelation,false,2>::check() ||
-    Checker<FreeForm_NoCorrelation,true,1>::check() ||
-    Checker<FreeForm,true,1>::check() ||
-    Checker<FreeForm,true,2>::check() ||
-    Checker<FixedForm,true,1>::check() ||
-    Checker<FreeForm_NoCorrelation,true,2>::check() ||
-    Checker<FixedForm,true,2>::check();
+    Checker<FixedForm,false,1,false>::check() ||
+    Checker<FixedForm,false,1,true>::check() ||
+    Checker<FixedForm,false,2,false>::check() ||
+    Checker<FixedForm,false,2,true>::check() ||
+    Checker<FreeForm_NoCorrelation,false,1,false>::check() ||
+    Checker<FreeForm_NoCorrelation,false,1,true>::check() ||
+    Checker<FreeForm_NoCorrelation,false,2,false>::check() ||
+    Checker<FreeForm_NoCorrelation,false,2,true>::check() ||
+    Checker<FreeForm_NoCorrelation,true,1,false>::check() ||
+    Checker<FreeForm_NoCorrelation,true,1,true>::check() ||
+    Checker<FreeForm,true,1,false>::check( 1 ) ||
+    Checker<FreeForm,true,1,true>::check( 1 ) ||
+    Checker<FreeForm,true,1,false>::check( 0 ) ||
+    Checker<FreeForm,true,1,true>::check( 0 ) ||
+    Checker<FreeForm,true,2,false>::check() ||
+    Checker<FreeForm,true,2,true>::check() ||
+    Checker<FixedForm,true,1,false>::check() ||
+    Checker<FixedForm,true,1,true>::check() ||
+    Checker<FreeForm_NoCorrelation,true,2,false>::check() ||
+    Checker<FreeForm_NoCorrelation,true,2,true>::check() ||
+    Checker<FixedForm,true,2,false>::check() ||
+    Checker<FixedForm,true,2,true>::check();
 }

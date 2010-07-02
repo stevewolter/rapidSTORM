@@ -187,7 +187,7 @@ check_plugin_LDADD = lib3d_fitter.la
 
 COMMON_LIBS = liboutputs.la libviewer.la \
     libspotFinders.la \
-    libengine.la gauss_fitter/libgauss_fitter.la  \
+    libengine.la libgauss_fitter.la  \
     libfitter.la libinputs.la \
     libAndorCamera.la \
     libdStorm_display.la \
