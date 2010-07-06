@@ -50,7 +50,7 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (JobMaster* input_stream, const CarConfig &new_config) 
+Car::Car (JobMaster* input_stream, const dStorm::Config &new_config) 
 : ost::Thread("Car"),
   simparm::Listener( simparm::Event::ValueChanged ),
   input_stream( input_stream ),

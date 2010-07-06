@@ -29,12 +29,12 @@ struct InputStream::Pimpl
 
     bool exhausted_input;
 
-    std::auto_ptr<engine::CarConfig> original;
-    std::auto_ptr<engine::CarConfig> config;
+    std::auto_ptr<Config> original;
+    std::auto_ptr<Config> config;
     std::auto_ptr<JobStarter> starter;
     simparm::Attribute<std::string> help_file;
 
-    Pimpl(InputStream& papa, const engine::CarConfig*, 
+    Pimpl(InputStream& papa, const Config*, 
           std::istream*, std::ostream*);
     ~Pimpl();
 
@@ -74,7 +74,7 @@ class InputStream::Pimpl::EmergencyCallback : public dStorm::Runnable {
 };
 
 InputStream::InputStream(
-    const engine::CarConfig& c,
+    const Config& c,
     std::istream& i, std::ostream& o)
 : dStorm::Thread("InputWatcher"),
   pimpl( new Pimpl(*this, &c, &i, &o) )
@@ -91,7 +91,7 @@ InputStream::~InputStream() {}
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
-    const engine::CarConfig* c,
+    const Config* c,
     std::istream* i, std::ostream* o)
 : dStorm::Thread("InputProcessor"),
   simparm::IO(i,o),
@@ -99,7 +99,7 @@ InputStream::Pimpl::Pimpl(
   all_cars_finished( mutex ),
   emergency_callback( new EmergencyCallback(*this) ),
   exhausted_input( i == NULL ),
-  original( (c) ? new engine::CarConfig(*c) : NULL ),
+  original( (c) ? new Config(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL ),
   help_file("help_file", dStorm::HelpFileName)
 {
@@ -116,7 +116,7 @@ InputStream::Pimpl::Pimpl(
 void InputStream::Pimpl::reset_config() {
     ost::MutexLock lock(mutex);
     if ( original.get() ) {
-        config.reset( new engine::CarConfig(*original) );
+        config.reset( new Config(*original) );
         this->push_back( *config );
         config->push_back( *starter );
         starter->setConfig( *config );

@@ -4,7 +4,7 @@
 #include "CommandLine.h"
 #include <vector>
 #include <string>
-#include "engine/CarConfig.h"
+#include <dStorm/Config.h>
 #include "JobStarter.h"
 #include <fstream>
 #include <dStorm/output/OutputSource.h>
@@ -23,13 +23,13 @@ class TransmissionTreePrinter
   simparm::Listener,
   boost::noncopyable
 {
-    const engine::CarConfig &config;
+    const dStorm::Config &config;
     void operator()( const simparm::Event& );
     void printNode( 
         const output::OutputSource& src,
         int indent );
   public:
-    TransmissionTreePrinter(const engine::CarConfig&);
+    TransmissionTreePrinter(const dStorm::Config&);
 };
 
 class TwiddlerLauncher
@@ -37,11 +37,11 @@ class TwiddlerLauncher
   simparm::Listener,
   boost::noncopyable
 {
-    engine::CarConfig &config;
+    dStorm::Config &config;
     std::list<Job*> &jobs;
     void operator()( const simparm::Event& );
   public:
-    TwiddlerLauncher(engine::CarConfig&, std::list<Job*>&);
+    TwiddlerLauncher(dStorm::Config&, std::list<Job*>&);
 };
 
 class CommandLine::Pimpl
@@ -50,7 +50,7 @@ class CommandLine::Pimpl
 {
     int argc;
     char **argv;
-    engine::CarConfig config;
+    dStorm::Config config;
     JobStarter starter;
     std::list<Job*> jobs;
 
@@ -170,7 +170,7 @@ CommandLine::Pimpl::Pimpl(int argc, char *argv[])
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter
-    ( const engine::CarConfig& c )
+    ( const dStorm::Config& c )
 : simparm::TriggerEntry("ShowTransmissionTree", 
                         "Print tree view of outputs"),
   simparm::Listener( simparm::Event::ValueChanged ),
@@ -202,7 +202,7 @@ void TransmissionTreePrinter::printNode(
 }
 
 TwiddlerLauncher::TwiddlerLauncher
-    ( engine::CarConfig& c, std::list<Job*>& j )
+    ( dStorm::Config& c, std::list<Job*>& j )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
   simparm::Listener( simparm::Event::ValueChanged ),

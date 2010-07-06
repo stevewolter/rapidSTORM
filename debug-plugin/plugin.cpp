@@ -2,6 +2,7 @@
 #include "config.h"
 #endif
 #include <dStorm/ModuleInterface.h>
+#include <dStorm/Config.h>
 #include "SegmentationFault.h"
 #include "Exception.h"
 #include "MuchMemoryAllocator.h"
@@ -30,20 +31,12 @@ const char * rapidSTORM_Plugin_Desc() {
     return "Tests";
 }
 
-void rapidSTORM_Input_Augmenter ( dStorm::input::Config* inputs ) {
-    inputs->inputMethod.addChoice( 
-        new dummy_file_input::Method(*inputs) );
-}
+void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
+    config->inputConfig.inputMethod.addChoice( 
+        new dummy_file_input::Method(config->inputConfig) );
+    config->engineConfig.spotFittingMethod.addChoice( new dStorm::debugplugin::DummyFitter::Source() );
 
-void rapidSTORM_Engine_Augmenter
-    ( dStorm::engine::Config* config )
-{
-    config->spotFittingMethod.addChoice( new dStorm::debugplugin::DummyFitter::Source() );
-}
-
-void rapidSTORM_Output_Augmenter
-    ( dStorm::output::Config* outputs )
-{
+    dStorm::output::Config* outputs = &config->outputConfig;
     try {
         outputs->addChoice( write_help_file( new SegmentationFault::Source() ) );
         outputs->addChoice( write_help_file( new Exception::Source() ) );
@@ -74,12 +67,6 @@ void
     (dStorm::ErrorHandler::CleanupArgs* , 
      dStorm::JobMaster* )
 {
-}
-
-void rapidSTORM_Additional_Jobs( dStorm::JobMaster *job_master )
-{
-    if ( manager != NULL )
-        job_master->register_node( *manager );
 }
 
 #ifdef __cplusplus

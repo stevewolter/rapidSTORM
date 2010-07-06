@@ -3,9 +3,8 @@
 
 #include <dStorm/helpers/thread.h>
 #include <simparm/Node.hh>
-#include "engine/CarConfig_decl.h"
+#include <dStorm/Config_decl.h>
 #include <dStorm/JobMaster.h>
-#include "engine/CarConfig.h"
 
 namespace dStorm {
 
@@ -17,12 +16,12 @@ class InputStream
     std::auto_ptr<Pimpl> pimpl;
 
   public:
-    InputStream(const engine::CarConfig&,
+    InputStream(const Config&,
                 std::istream&, std::ostream&);
     InputStream(std::istream*, std::ostream*);
     ~InputStream();
     
-    void add_modules( engine::CarConfig& config );
+    void add_modules( Config& config );
 
     void run();
     void abnormal_termination(std::string reason);

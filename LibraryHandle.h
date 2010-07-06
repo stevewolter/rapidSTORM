@@ -23,13 +23,10 @@ class LibraryHandle {
     std::string file;
     const lt_dlhandle handle;
 
-    SafelyLoadedFunction<RapidSTORM_Input_Augmenter> input;
-    SafelyLoadedFunction<RapidSTORM_Engine_Augmenter> engine;
-    SafelyLoadedFunction<RapidSTORM_Output_Augmenter> output;
+    SafelyLoadedFunction<RapidSTORM_Config_Augmenter> config;
     SafelyLoadedFunction<RapidSTORM_Display_Driver> display_driver;
     SafelyLoadedFunction<RapidSTORM_Plugin_Desc> desc;
     SafelyLoadedFunction<RapidSTORM_Cleanup_Handler> cleanup;
-    SafelyLoadedFunction<RapidSTORM_Additional_Jobs> add_jobs;
 
     void init();
   public:
@@ -41,12 +38,8 @@ class LibraryHandle {
 
     ~LibraryHandle();
 
-    void operator()( dStorm::input::Config* inputs ) 
-       { (*input)( inputs ); }
-    void operator()( dStorm::engine::Config* engine_config ) 
-        { (*engine)( engine_config ); }
-    void operator()( dStorm::output::Config* outputs )
-        { (*output)( outputs ); }
+    void operator()( dStorm::Config* config ) 
+       { (*this->config)( config ); }
     RapidSTORM_Cleanup_Handler getCleanup() { return *cleanup; }
 
     inline bool operator==(const LibraryHandle& l) const
@@ -55,8 +48,6 @@ class LibraryHandle {
         { return l.handle != handle; }
 
     void replace_display( std::auto_ptr<Display::Manager>& );
-    void operator()( dStorm::JobMaster& j ) 
-        { if ( *add_jobs != NULL ) (*add_jobs)( &j ); }
 
     const char *getDesc() { return (*desc)(); }
 };

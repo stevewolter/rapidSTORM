@@ -5,7 +5,7 @@
 
 #include <dStorm/Job.h>
 #include <dStorm/helpers/thread.h>
-#include "CarConfig.h"
+#include <dStorm/Config.h>
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
@@ -33,9 +33,9 @@ namespace engine {
         std::set<std::string> used_output_filenames;
 
         JobMaster* input_stream;
-        /** Construction Configuration. This is a copy of the CarConfig used
+        /** Construction Configuration. This is a copy of the Config used
          *  to build this car. */
-        CarConfig config;
+        dStorm::Config config;
         /** Unique job identifier. */
         std::string ident;
         /** Runtime configuration. This is the storage locations for all
@@ -77,14 +77,14 @@ namespace engine {
         jmp_buf panic_point;
 
       public:
-        Car (JobMaster*, const CarConfig &config) ;
+        Car (JobMaster*, const dStorm::Config &config) ;
         virtual ~Car();
 
         void drive();
         void stop();
         bool needs_stopping() { return true; }
 
-        const CarConfig &getConfig() const { return config; }
+        const dStorm::Config &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }
     };
 }

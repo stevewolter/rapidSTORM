@@ -2,6 +2,7 @@
 #include "config.h"
 #endif
 #include <dStorm/ModuleInterface.h>
+#include <dStorm/Config.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "Factory.h"
 
@@ -15,18 +16,8 @@ const char * rapidSTORM_Plugin_Desc() {
     return "Cylens fitter";
 }
 
-void rapidSTORM_Input_Augmenter ( dStorm::input::Config* inputs ) {
-}
-
-void rapidSTORM_Engine_Augmenter
-    ( dStorm::engine::Config* config )
-{
-    config->spotFittingMethod.addChoice( new Factory() );
-}
-
-void rapidSTORM_Output_Augmenter
-    ( dStorm::output::Config* outputs )
-{
+void rapidSTORM_Config_Augmenter ( dStorm::Config* inputs ) {
+    inputs->engineConfig.spotFittingMethod.addChoice( new Factory() );
 }
 
 dStorm::Display::Manager*
@@ -40,10 +31,6 @@ void
     rapidSTORM_Cleanup_Handler
     (dStorm::ErrorHandler::CleanupArgs* , 
      dStorm::JobMaster* )
-{
-}
-
-void rapidSTORM_Additional_Jobs( dStorm::JobMaster *job_master )
 {
 }
 
