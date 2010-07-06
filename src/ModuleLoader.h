@@ -2,7 +2,7 @@
 #define DSTORM_MODULELOADER_H
 
 #include <boost/utility.hpp>
-#include "engine/CarConfig_decl.h"
+#include <dStorm/Config_decl.h>
 #include <memory>
 #include <dStorm/JobMaster.h>
 
@@ -19,7 +19,7 @@ class ModuleLoader : boost::noncopyable {
     static ModuleLoader& getSingleton();
     static void destroySingleton();
 
-    void add_modules( engine::CarConfig& );
+    void add_modules( Config& );
     std::string makeProgramDescription();
     void add_jobs( JobMaster& master );
     void do_panic_processing( int argc, char *argv[] );

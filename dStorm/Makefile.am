@@ -63,7 +63,8 @@ nobase_library_include_HEADERS = \
     BaseImage_decl.h BaseImage.h \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
-    Job.h JobMaster.h UnitEntries.h log.h check_plugin.h
+    Job.h JobMaster.h UnitEntries.h log.h check_plugin.h \
+    Config_decl.h Config.h
 outputs_library_includedir = $(includedir)/dStorm/outputs
 outputs_library_include_HEADERS = \
     outputs/BinnedLocalizations.h outputs/LocalizationList.h outputs/TraceFilter.h outputs/Crankshaft.h outputs/NullOutput.h outputs/BinnedLocalizations_converter.h
@@ -148,9 +149,9 @@ unitentry_library_include_HEADERS = \
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \
-		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp
-libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
-    engine/libengine.la localization_file/liblocfile.la \
-    input/libinput.la helpers/libhelpers.la -lsimparm
+		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp Config.cpp
+libdStorm_la_LIBADD = liboutputs.la liboutput.la \
+    libengine.la liblocfile.la \
+    libinput.la libhelpers.la -lsimparm
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@ -Xlinker $(RESOURCE_OBJECT)
 libdStorm_la_DEPENDENCIES = $(RESOURCE_OBJECT) $(libdStorm_la_LIBADD)

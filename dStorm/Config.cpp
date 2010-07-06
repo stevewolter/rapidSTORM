@@ -1,5 +1,5 @@
 #define DSTORM_CARCONFIG_CPP
-#include "CarConfig.h"
+#include "Config.h"
 #include <dStorm/input/Config.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/SourceFactory.h>
@@ -28,9 +28,8 @@
 using namespace std;
 
 namespace dStorm {
-namespace engine {
 
-class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
+class Config::TreeRoot : public simparm::Object, public output::FilterSource
 {
     output::Config* my_config;
   public:
@@ -52,7 +51,7 @@ class CarConfig::TreeRoot : public simparm::Object, public output::FilterSource
     output::Config &root_factory() { return *my_config; }
 };
 
-CarConfig::TreeRoot::TreeRoot()
+Config::TreeRoot::TreeRoot()
 : simparm::Object("EngineOutput", "dSTORM engine output"),
   output::FilterSource( static_cast<simparm::Object&>(*this) )
 {
@@ -79,7 +78,7 @@ CarConfig::TreeRoot::TreeRoot()
     DEBUG("Finished building output tree node");
 }
 
-CarConfig::CarConfig() 
+Config::Config() 
 : Set("Car", "Job options"),
   simparm::Listener(simparm::Event::ValueChanged),
   _inputConfig( new input::Config() ),
@@ -89,29 +88,29 @@ CarConfig::CarConfig()
   engineConfig(*_engineConfig),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
+  helpMenu( "HelpMenu", "Help" ),
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Store config used in computation in"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
-                 true),
-  additional("AdditionalEntries")
+                 true)
 {
    configTarget.setUserLevel(simparm::Object::Intermediate);
    auto_terminate.setUserLevel(simparm::Object::Expert);
 
-   std::auto_ptr<simparm::Node> menu( new simparm::Menu("HelpMenu", "Help") );
-    menu->push_back( std::auto_ptr<simparm::Node>(
+   helpMenu.push_back( std::auto_ptr<simparm::Node>(
         new simparm::URI("BugTracker", "Report a bug", 
-            "http://www.physik.uni-bielefeld.de/all/flyspray/index.php?do=register" ) ) );
-    menu->push_back( std::auto_ptr<simparm::Node>(
+            "http://www.physik.uni-bielefeld.de/all/flyspray/index.php?do=register" ) ),
+            true );
+   helpMenu.push_back( std::auto_ptr<simparm::Node>(
         new simparm::FileEntry("rapidSTORMManual", "rapid2storm manual", 
-            std::string("share/doc/") + dStorm::HelpFileName ) ) );
-    additional.push_back( *menu.release() );
+            std::string("share/doc/") + dStorm::HelpFileName ) ),
+            true );
    DEBUG("Made menu items");
 
     registerNamedEntries();
 }
 
-CarConfig::CarConfig(const CarConfig &c) 
+Config::Config(const Config &c) 
 : simparm::Set(c),
   simparm::Listener(simparm::Event::ValueChanged),
   _inputConfig(c.inputConfig.clone()),
@@ -121,22 +120,22 @@ CarConfig::CarConfig(const CarConfig &c)
   engineConfig(*_engineConfig),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
+  helpMenu( c.helpMenu ),
   outputBox(c.outputBox),
   configTarget(c.configTarget),
-  auto_terminate(c.auto_terminate),
-  additional(c.additional)
+  auto_terminate(c.auto_terminate)
 {
     registerNamedEntries();
     DEBUG("Copied Car config");
 }
 
-CarConfig::~CarConfig() {
+Config::~Config() {
     outputRoot.reset( NULL );
     _engineConfig.reset( NULL );
     _inputConfig.reset( NULL );
 }
 
-void CarConfig::registerNamedEntries() {
+void Config::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig");
    receive_changes_from( inputConfig.basename );
    outputBox.push_back( *outputRoot );
@@ -145,11 +144,11 @@ void CarConfig::registerNamedEntries() {
    push_back( outputBox );
    push_back( configTarget );
    push_back( auto_terminate );
-   push_back( additional );
+   push_back( helpMenu );
    DEBUG("Registered named entries of CarConfig");
 }
 
-void CarConfig::operator()(const simparm::Event&)
+void Config::operator()(const simparm::Event&)
 {
     output::Basename bn( inputConfig.basename() );
     
@@ -157,5 +156,4 @@ void CarConfig::operator()(const simparm::Event&)
     outputSource.set_output_file_basename( bn );
 }
 
-}
 }

@@ -4,7 +4,6 @@
 AC_PREREQ(2.61)
 AC_INIT([3d_fitter], [1.0], RAPIDSTORM_MAINTAINER)
 AC_CONFIG_SRCDIR([Fitter.cpp])
-AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../../m4])
 
 AC_PROG_SED
@@ -57,6 +56,5 @@ AS_IF(
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/../.. -I \$(top_srcdir) -I \$(top_srcdir)/.. -I \$(top_srcdir)/../.. $CPPFLAGS"
 
-AC_CONFIG_FILES([Makefile])
-
+AC_CONFIG_HEADERS([config.h])
 AC_OUTPUT

@@ -6,7 +6,7 @@
 #include "gauss_fitter/Factory.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/BasicTransmissions.h"
-#include "engine/CarConfig.h"
+#include <dStorm/Config.h>
 #include "local_cleanup.h"
 #include <dStorm/error_handler.h>
 
@@ -117,7 +117,7 @@ void ModuleLoader::Pimpl::load_plugins()
 }
 
 void ModuleLoader::add_modules
-    ( engine::CarConfig& car_config )
+    ( dStorm::Config& car_config )
 {
     DEBUG("Adding basic input modules");
     dStorm::basic_inputs( &car_config.inputConfig );
@@ -132,14 +132,8 @@ void ModuleLoader::add_modules
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();
           i++)
     {
-        DEBUG("Adding plugin's input modules");
-        (*i) ( &car_config.inputConfig );
-        DEBUG("Adding plugin's spot finders");
-        (*i) ( &car_config.engineConfig );
-        DEBUG("Adding plugin's output modules");
-        (*i) ( &car_config.outputConfig );
-        DEBUG("Getting additional jobs");
-        (*i) ( *pimpl );
+        DEBUG("Adding plugin's modules");
+        (*i) ( &car_config );
     }
 }
 

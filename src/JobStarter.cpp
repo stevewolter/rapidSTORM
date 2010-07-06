@@ -33,11 +33,11 @@ void JobStarter::operator()( const simparm::Event& ) {
         } catch ( const dStorm::runtime_error& e ) {
             simparm::Message m( e.get_message("Starting job failed") );
             DEBUG("Got dStorm exception");
-            const_cast<engine::CarConfig&>(*config).send( m );
+            const_cast<Config&>(*config).send( m );
         } catch ( const std::exception& e ) {
             simparm::Message m("Starting job failed", e.what() );
             DEBUG("Got normal exception");
-            const_cast<engine::CarConfig&>(*config).send( m );
+            const_cast<Config&>(*config).send( m );
         }
       }
     }

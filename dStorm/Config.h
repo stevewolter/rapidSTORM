@@ -1,21 +1,21 @@
 #ifndef DSTORM_CARCONFIG_H
 #define DSTORM_CARCONFIG_H
 
-#include <dStorm/engine/Image.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/output/Config.h>
 #include <dStorm/input/Config.h>
 #include <memory>
+#include <list>
 #include <simparm/Set.hh>
+#include <simparm/Menu.hh>
 #include <simparm/Callback.hh>
-#include <simparm/SelfCopyingNode.hh>
 
 namespace dStorm {
-namespace output { class OutputSource; }
-namespace engine {
+    namespace output { class OutputSource; }
+
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
-    class CarConfig : public simparm::Set,
+    class Config : public simparm::Set,
         simparm::Listener
     {
       private:
@@ -27,22 +27,21 @@ namespace engine {
         void operator()(const simparm::Event&);
 
       public:
-        CarConfig();
-        CarConfig(const CarConfig &c);
-        ~CarConfig();
-        CarConfig *clone() const { return new CarConfig(*this); }
+        Config();
+        Config(const Config &c);
+        ~Config();
+        Config *clone() const { return new Config(*this); }
 
         input::Config& inputConfig;
         engine::Config& engineConfig;
         output::OutputSource& outputSource;
         output::Config& outputConfig;
 
+        simparm::Menu helpMenu;
         simparm::Set outputBox;
         simparm::FileEntry configTarget;
         simparm::BoolEntry auto_terminate;
-        simparm::SelfCopyingNode additional;
     };
-}
 }
 
 #endif

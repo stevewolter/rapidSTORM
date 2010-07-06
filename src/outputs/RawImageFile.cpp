@@ -35,6 +35,7 @@ void RawImageFile::error_handler( const char* module,
     char buffer[size];
     vsnprintf( buffer, 4096, fmt, ap );
     tiff_error = buffer;
+    std::cerr << "TIFF error " << buffer << std::endl;
 }
 
 RawImageFile::_Config::_Config() 

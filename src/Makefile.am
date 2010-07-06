@@ -74,7 +74,6 @@ libinputs_la_SOURCES = \
 	inputs/AndorSIF.h inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp
 
 libengine_la_SOURCES = \
-    engine/CarConfig_decl.h engine/CarConfig.h engine/CarConfig.cpp \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
     engine/LocalizationBuncher.cpp engine/LocalizationBuncher.h \
