@@ -11,3 +11,12 @@ To compile this project, the MS hhc compiler is necessary. On NT systems,
 the itircl.dll and itss.dll files must be present and registered with 
 regsvr32.dll . The hhc compiler will output a warning if this is not the
 case.
+
+=== How to get the hhc running on linux ===
+
+To get the HHC up on Linux, I installed the MS software package via wine.
+The compiler needs updated versions of the itss.dll and itircl.dll files
+to run correctly. These are included in Microsoft's hhupd.exe file and
+can be extracted via cabextract.
+
+See http://code.google.com/p/htmlhelp/wiki/HHW4Wine
