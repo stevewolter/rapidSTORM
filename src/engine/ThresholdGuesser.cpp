@@ -31,6 +31,8 @@ ThresholdGuesser::compute_threshold()
     double mean = -1, variance = -1;
     Input::iterator i, e = input.end();
     for ( i = input.begin(); i != e; ++i ) {
+        DEBUG("Loaded image " << i->frame_number());
+        if ( i->is_invalid() ) continue;
         DEBUG("Got image of size " << i->width_in_pixels() << " " << i->height_in_pixels());
         DEBUG("Adding image to histogram");
         add_to_histogram( *i, histogram, binning );

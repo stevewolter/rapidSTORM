@@ -63,6 +63,13 @@ Source<Pixel>::load(int count)
         send(m);
         had_errors = true;
         return result;
+    } else if ( rv_of_readsif_getImage == -2 ) {
+        simparm::Message m("Error in SIF file",
+            "Error while reading SIF file: " + std::string(readsif_error)
+               + ". Will skip one image.", 
+               simparm::Message::Warning);
+        send(m);
+        return result;
     } else if ( rv_of_readsif_getImage == 1 ) {
         throw std::logic_error("Too many images read from SIF source");
     }
@@ -281,8 +288,11 @@ class Source<Pixel>::iterator
         if ( ! did_load ) {
             DEBUG("Loading at " << count);
             std::auto_ptr<dStorm::Image<Pixel,2> > i = src->load(count);
-            if ( i.get() == NULL ) throw dStorm::abort();
-            img = *i;
+            if ( i.get() == NULL && src->had_errors ) throw dStorm::abort();
+            if ( i.get() != NULL )
+                img = *i;
+            else
+                img.invalidate();
             img.frame_number() = count * cs_units::camera::frame;
             did_load = true;
         }
