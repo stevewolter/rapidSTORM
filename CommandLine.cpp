@@ -13,6 +13,7 @@
 #include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
 #include <simparm/IO.hh>
+#include <dStorm/helpers/DisplayManager.h>
 
 namespace dStorm {
 
@@ -52,6 +53,8 @@ class CommandLine::Pimpl
     char **argv;
     dStorm::Config config;
     JobStarter starter;
+    ost::Mutex mutex;
+    ost::Condition jobs_empty;
     std::list<Job*> jobs;
 
     bool load_config_file(const std::string& filename);
@@ -59,12 +62,22 @@ class CommandLine::Pimpl
 
   public:
     Pimpl(int argc, char *argv[]);
+    ~Pimpl();
 
     void run();
-    void register_node( dStorm::Job& j ) 
-        { this->push_back(j.get_config()); jobs.push_back( &j ); }
-    void erase_node( dStorm::Job& j )  
-        {this->erase(j.get_config());  jobs.remove( &j ); }
+    void register_node( dStorm::Job& j ) { 
+        ost::MutexLock lock(mutex);
+        this->push_back(j.get_config());
+        DEBUG("Pushed back " << j.get_config().getName());
+        jobs.push_back( &j ); 
+    }
+    void erase_node( dStorm::Job& j ) {
+        ost::MutexLock lock(mutex);
+        this->erase(j.get_config());  
+        DEBUG("Erased " << j.get_config().getName());
+        jobs.remove( &j ); 
+        if ( jobs.empty() ) jobs_empty.broadcast();
+    }
 };
 
 CommandLine::CommandLine(int argc, char *argv[])
@@ -99,6 +112,8 @@ void CommandLine::Pimpl::run() {
         std::auto_ptr<simparm::Node>(new
             TwiddlerLauncher(config, jobs)));
     cmd_line_args.push_back( starter );
+    if ( Display::Manager::getSingleton().getConfig() )
+        cmd_line_args.push_back( *Display::Manager::getSingleton().getConfig() );
 
     find_config_file();
 
@@ -162,11 +177,17 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: IO(NULL, NULL), argc(argc), argv(argv), starter(NULL)
+: IO(NULL, NULL), argc(argc), argv(argv), starter(this),
+  jobs_empty(mutex)
 {
     push_back(config);
     starter.setConfig(config);
     ModuleLoader::getSingleton().add_modules( config );
+}
+CommandLine::Pimpl::~Pimpl() {
+    ost::MutexLock lock(mutex);
+    while ( ! jobs.empty() )
+        jobs_empty.wait();
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter

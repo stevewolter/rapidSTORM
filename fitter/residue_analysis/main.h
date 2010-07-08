@@ -35,7 +35,7 @@ struct Fitter {
     select_fitter(const typename SizeInvariants::Config& config, 
                             const engine::JobInfo& info)
     {
-        bool should_analyze = (config.asymmetry_threshold() <= 0.99 );
+        bool should_analyze = config.do_double_spot_analysis();
         if ( should_analyze )
             return fitter::create_SizeSpecializing<Fitter>(config,info);
         else 

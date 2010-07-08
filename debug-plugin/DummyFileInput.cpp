@@ -33,18 +33,19 @@ Source::get_traits()
 class Source::_iterator 
 : public boost::iterator_facade<_iterator,dStorm::engine::Image,std::input_iterator_tag>
 {
+    dStorm::engine::Image::Size sz;
     mutable dStorm::engine::Image image;
     int n;
 
     friend class boost::iterator_core_access;
 
     dStorm::engine::Image& dereference() const { return image; }
-    void increment() { n++; image.frame_number() = n * cs_units::camera::frame; }
+    void increment() { n++; image = dStorm::engine::Image(sz, n * cs_units::camera::frame); }
     bool equal(const _iterator& o) const { return o.n == n; }
 
   public:
     _iterator(int pos, dStorm::engine::Image::Size sz) 
-        : image(sz), n(pos) {}
+        : sz(sz), image(sz), n(pos) { image.fill(0); }
 };
 
 Source::iterator Source::begin() {

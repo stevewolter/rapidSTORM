@@ -2,8 +2,6 @@
 #define DSTORM_FITTER_SIZESPECIALIZING_FILLER_H
 
 #include "SizeSpecializing.h"
-#include <dStorm/engine/Config.h>
-#include <dStorm/engine/JobInfo.h>
 
 namespace dStorm {
 namespace fitter {

@@ -20,13 +20,6 @@ Config::Config()
 
     sigma_xy_negligible_limit.setUserLevel(Object::Intermediate);
 
-    asymmetry_threshold.helpID = HELP_AsymmetryThreshold;
-    asymmetry_threshold.setHelp(
-        "If spot residues are found to be more asymmetric than this "
-        "value, double-spot analysis is performed. 0.1 is a good "
-        "'aggressive' value here for much double-spot analysis, 1 "
-        "disables the feature completely.");
-    required_peak_distance.userLevel = Object::Intermediate;
     fixCorrelationTerm.userLevel = Object::Expert;
 }
 

@@ -178,9 +178,8 @@ void Engine::run()
     DEBUG("Built announcement structure");
 
     DEBUG("Guessing input threshold");
-    if ( config.guessThreshold() ) {
+    if ( ! config.amplitude_threshold().is_set() )
         config.amplitude_threshold = ThresholdGuesser(input).compute_threshold();
-    }
 
     Output::AdditionalData data 
         = output->announceStormSize(announcement);

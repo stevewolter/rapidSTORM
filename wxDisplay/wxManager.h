@@ -49,6 +49,7 @@ class wxManager : private ost::Thread, public Manager {
      *  Manager. Warning: The manager should only be shut
      *  down once during the whole program execution. */
     ~wxManager();
+    simparm::Node* getConfig() { return NULL; }
 
     std::auto_ptr<Manager::WindowHandle>
     register_data_source(

@@ -1,4 +1,5 @@
 #define DSTORM_CAR_CPP
+#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"
@@ -71,9 +72,10 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    DEBUG("Determining input file name");
+    DEBUG("Determining input file name from basename " << config.inputConfig.basename());
     output::Basename bn( config.inputConfig.basename() );
     bn.set_variable("run", ident);
+    config.engineConfig.set_variables( bn );
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     config.outputSource.set_output_file_basename( bn );
     DEBUG("Building output");
@@ -82,7 +84,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
         throw std::invalid_argument("No valid output supplied.");
     output->check_for_duplicate_filenames( used_output_filenames );
 
-    DEBUG("Registering at input_stream config");
+    DEBUG("Registering at input_stream config " << input_stream);
     if ( input_stream )
         this->input_stream->register_node( *this );
 }

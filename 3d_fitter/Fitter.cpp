@@ -35,7 +35,7 @@ CommonInfo<Ks>::CommonInfo(
    const Config& c, const engine::JobInfo& info
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
-  amplitude_threshold( info.config.amplitude_threshold() ),
+  amplitude_threshold( *info.config.amplitude_threshold() ),
   params( new typename FitGroup::Accessor(NULL) ),
   constants( params->getConstants() )
 {

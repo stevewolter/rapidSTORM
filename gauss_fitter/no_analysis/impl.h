@@ -26,7 +26,7 @@ CommonInfo<Ks,FF>::CommonInfo(
    const Config& c, const engine::JobInfo& info
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
-  amplitude_threshold( info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
+  amplitude_threshold( *info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
   start_sx( info.config.sigma_x() / cs_units::camera::pixel ),
   start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
   start_sxy( info.config.sigma_xy() ),
