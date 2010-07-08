@@ -17,6 +17,7 @@ typedef
 BOOST_UNITS_STATIC_CONSTANT(megahertz,megafrequency);
 
 }
+
 }
 }
 

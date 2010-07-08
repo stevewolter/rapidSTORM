@@ -104,6 +104,7 @@ class Display : public simparm::Set,
 
     void terminate();
     void set_resolution( const CamTraits::Resolution& );
+    void set_output_file( std::string name ) { imageFile = name; }
 };
 
 /** Configuration items for the viewport selection window that
@@ -113,6 +114,7 @@ class Config
 {
     AndorCamera::CameraReference cam;
     CamTraits::Resolution resolution;
+    std::string output_file_name;
 
     void registerNamedEntries();
 
@@ -134,6 +136,7 @@ class Config
 
     void delete_active_selector();
     void set_resolution( const CamTraits::Resolution& );
+    void set_output_file ( std::string name );
     const CamTraits::Resolution& get_resolution() { return resolution; }
 
   private:

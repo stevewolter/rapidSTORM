@@ -1,0 +1,25 @@
+begin_test_suite
+dstorm_attach
+
+set timeout 2
+set test "Feature #47 works in display"
+send "in Car in Method in InputMethod in Auto in InputFile in value set ${workspace_target}Mikrotubuli.sif\n"
+send "in Car in Method in InputMethod in Auto in Basename in value set ${tmpdir_target}Mikrotubuli_\$thres\$\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output set EngineOutput in Output0 in Image in ToFile in value query\n"
+expect {
+    -re "in Image in ToFile in value value set (\[^\r\n\]*)\r*\n" 
+    { 
+        if { $expect_out(1,string) == "${tmpdir_target}Mikrotubuli_\$thres\$.jpg" } { 
+            pass "$test" 
+        } else { fail "$test" } 
+    }
+}
+
+set test "Feature #47 works in job"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "\nvalue set ${workspace_target}Mikrotubuli_auto.jpg\r*\n" { pass "$test" }
+}
+
+end_test_suite

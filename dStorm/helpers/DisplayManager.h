@@ -6,6 +6,7 @@
 #include <dStorm/helpers/DisplayDataSource.h>
 #include <dStorm/helpers/thread.h>
 #include <boost/utility.hpp>
+#include <simparm/Node_decl.hh>
 
 namespace dStorm {
 namespace Display {
@@ -124,6 +125,8 @@ class Manager : boost::noncopyable {
     Manager() {}
   public:
     virtual ~Manager() {}
+    /** Method should return pointer to config element for the display handler, or NULL if none are necessary. */
+    virtual simparm::Node* getConfig() = 0;
 };
 
 }

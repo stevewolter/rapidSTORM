@@ -1,4 +1,3 @@
-#define cimg_use_magick
 #define CIMGBUFFER_ANDORCAMERA_VIEWPORTSELECTOR_CPP
 #include "debug.h"
 
@@ -372,6 +371,8 @@ void Config::make_display( Display::Mode mode )
 {
     ost::MutexLock lock( active_selector_mutex );
     active_selector.reset( new Display( cam, mode, *this, resolution ) );
+    DEBUG("Setting output file name for new selector to " << output_file_name);
+    active_selector->set_output_file( output_file_name );
     this->simparm::Node::push_back( *active_selector );
 
     set_entry_viewability();
@@ -412,6 +413,17 @@ void Config::set_resolution( const CamTraits::Resolution& r )
     ost::MutexLock lock(active_selector_mutex);
     if ( active_selector.get() )
         active_selector->set_resolution( r );
+}
+
+void Config::set_output_file( std::string name )
+{
+    DEBUG("Setting output file name to " << name);
+    output_file_name = name;
+    ost::MutexLock lock(active_selector_mutex);
+    if ( active_selector.get() ) {
+        DEBUG("Setting output file name for active selector to " << name);
+        active_selector->set_output_file( name );
+    }
 }
 
 }

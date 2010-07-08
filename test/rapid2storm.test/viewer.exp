@@ -12,6 +12,12 @@ send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Outpu
 send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Verbose\n"
 send "in Car in Run in value set 1\n"
 
+set test "Job starts"
+set job "fail"
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); }
+}
+
 set timeout 20
 set display -1
 set test "Display is opened"
@@ -54,7 +60,7 @@ if { $display != -1 } {
 
 set test "Can re-open display"
 if { $display != -1 } {
-    send "in dStormJob01 in Crankshaft in Output2 in AF in Crankshaft in Output0 in Display in ReshowOutput in value set 1\n"
+    send "in $job in Crankshaft in Output2 in AF in Crankshaft in Output0 in Display in ReshowOutput in value set 1\n"
     expect {
         -re "Sizing display number (\[0-9\]*)" { pass "$test"; set display $expect_out(1,string); }
     }

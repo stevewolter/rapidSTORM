@@ -8,6 +8,7 @@
 #include "CandidateTree.h"
 #include "Config_decl.h"
 #include <dStorm/ImageTraits.h>
+#include <dStorm/output/Basename_decl.h>
 
 namespace dStorm {
 namespace engine {
@@ -65,6 +66,7 @@ namespace engine {
             (const Config &conf, const InputTraits::Size& size) const = 0;
         virtual SpotFinderFactory* clone() const = 0;
         virtual ~SpotFinderFactory() {}
+        virtual void set_variables( output::Basename& ) const {}
     };
 
     template <typename BaseClass>

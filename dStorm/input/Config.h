@@ -85,6 +85,8 @@ namespace input {
         /** General configuration element to give the size of a pixel
          *  in nm. */
         FloatPixelSizeEntry pixel_size_in_nm;
+        /** Basename of output file */
+        simparm::StringEntry basename;
 
         void addInput( std::auto_ptr<BaseMethod> method );
         void addInput( BaseMethod* method ) { addInput( std::auto_ptr<BaseMethod>(method) ); }
@@ -109,8 +111,6 @@ namespace input {
         Config* clone() const { return new Config(*this); }
 
         void output(std::ostream &) const;
-
-        simparm::Attribute<std::string> basename;
 
         /** Make an Source object according to the current settings. */
         std::auto_ptr< BaseSource > makeImageSource() const;

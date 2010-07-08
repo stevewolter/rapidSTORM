@@ -1,0 +1,40 @@
+start_test_suite
+dstorm_attach
+
+set timeout 2
+
+set test "Camera shows viewport selector"
+send "in Car in Method set InputMethod value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -10\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set 10\n"
+set test "Can extract output basename"
+set good_basename "dStorm_acqui"
+send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename value query\n"
+expect {
+    -re "in OutputBasename in value value set (\[^\r\]*)\r*\n" { 
+        pass "$test"; 
+        set good_basename [string map { "\$run\$" "snapshot" } $expect_out(1,string)];
+    }
+}
+
+set test "Viewport selector is declared"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage set AimCamera value set 1\n"
+expect {
+    -re "in Readout in SelectImage declare Set\r*\nname ViewportSelector"
+        { pass "$test" }
+    -re "in ActualTemperature in value set" { exp_continue }
+}
+
+set test "Flyspray #48 behaviour (initial)"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImageFile in value query\n"
+expect {
+    -re "in SaveAcquiredImageFile in value value set $good_basename.tif\r*\n" { pass "$test" }
+}
+
+set test "Flyspray #48 behaviour (on user change)"
+send "in Car in Method set InputMethod in AndorDirectConfig set OutputBasename value set dStorm_acqui\n"
+expect {
+    -re "in SaveAcquiredImageFile in value set dStorm_acqui.tif\r*\n" { pass "$test" }
+}
+
+end_test_suite

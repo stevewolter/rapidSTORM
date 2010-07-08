@@ -20,6 +20,7 @@ BOOST_UNITS_STATIC_CONSTANT(nanometre,nanolength);
 BOOST_UNITS_STATIC_CONSTANT(nanometres,nanolength);
 
 }
+
 }
 }
 

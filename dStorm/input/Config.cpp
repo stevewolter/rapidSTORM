@@ -76,7 +76,8 @@ _Config::_Config()
   firstImage("FirstImage", "First image to load"),
   lastImage("LastImage", "Last image to load"),
   pixel_size_in_nm("PixelSizeInNM", "Size of one input pixel in nm",
-                   85.0f * boost::units::si::nanometre / cs_units::camera::pixel)
+                   85.0f * boost::units::si::nanometre / cs_units::camera::pixel),
+  basename("Basename", "Output file prefix")
 {
     PROGRESS("Constructing");
     inputMethod.helpID = HELP_Input_driver;
@@ -180,22 +181,21 @@ _Config::~_Config() {
 }
 
 Config::Config()
-: _Config(),
-  basename("value", "")
+: _Config()
 {
     this->inputMethod.addChoice( new AutoMethod(*this) );
     this->registerNamedEntries();
+    basename = this->inputMethod().output_file_basename();
 
-    watcher.reset( new BasenameWatcher( this->inputMethod, basename ) );
+    watcher.reset( new BasenameWatcher( this->inputMethod, basename.value ) );
 }
 
 Config::Config(const Config& c)
-: _Config(c),
-  basename(c.basename)
+: _Config(c)
 { 
     this->inputMethod.copyChoices( c.inputMethod, *this );
     this->registerNamedEntries();
-    watcher.reset( new BasenameWatcher( this->inputMethod, basename ) );
+    watcher.reset( new BasenameWatcher( this->inputMethod, basename.value ) );
 }
 
 Config::~Config() {

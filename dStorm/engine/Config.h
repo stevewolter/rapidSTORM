@@ -3,10 +3,12 @@
 
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
+#include <simparm/OptionalEntry.hh>
 #include <dStorm/UnitEntries.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <boost/units/cmath.hpp>
+#include <dStorm/output/Basename_decl.h>
 
 namespace dStorm {
 namespace engine {
@@ -44,13 +46,12 @@ namespace engine {
 
         /** If this option is set, the sigma estimation code is disabled. */
         BoolEntry fixSigma;
-        /** If this option is set, the amplitude threshold guessing code is disabled. */
-        BoolEntry guessThreshold;
 
         /** Continue fitting until this number of bad fits occured. */
         UnsignedLongEntry motivation;
         /** Amplitude threshold to judge localizations by. */
-        ADCEntry amplitude_threshold;
+        simparm::OptionalEntry< boost::units::quantity<
+            cs_units::camera::intensity, float> > amplitude_threshold;
 
         typedef boost::units::quantity<cs_units::camera::length,unsigned long>
             Length;
@@ -78,6 +79,8 @@ namespace engine {
         void addSpotFitter( std::auto_ptr<SpotFitterFactory> factory );
         void addSpotFitter( SpotFitterFactory* factory ) 
             { addSpotFitter(std::auto_ptr<SpotFitterFactory>(factory)); }
+
+        void set_variables( output::Basename& ) const;
    };
 
    class Config : public _Config {

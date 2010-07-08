@@ -8,6 +8,7 @@
 #include <simparm/Node_decl.hh>
 #include <memory>
 #include <dStorm/output/Traits_decl.h>
+#include <dStorm/output/Basename_decl.h>
 
 namespace dStorm {
 namespace engine {
@@ -26,6 +27,7 @@ struct SpotFitterFactory {
     virtual std::auto_ptr<SpotFitter> make( const JobInfo& ) = 0;
     std::auto_ptr<SpotFitter> make_by_parts( const Config&, const InputTraits& );
     virtual void set_traits( output::Traits& ) = 0;
+    virtual void set_variables( output::Basename& ) const {}
 };
 
 }

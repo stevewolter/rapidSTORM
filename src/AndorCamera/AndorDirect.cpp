@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <dStorm/input/Buffer.h>
+#include <dStorm/output/Basename.h>
 #include <dStorm/input/Source_impl.h>
 #include <AndorCamera/Camera.h>
 #include <AndorCamera/Readout.h>
@@ -217,17 +218,22 @@ class CameraLink : public simparm::Set {
     const CameraReference& getCam() { return cam; }
     void change_resolution( CamTraits::Resolution resolution )
         { viewportConfig.set_resolution( resolution ); }
+    void change_basename( std::string basename ) { 
+        DEBUG("Setting output file basename to " << basename);
+        viewportConfig.set_output_file( basename + ".tif" ); 
+    }
 };
 
 class Method::CameraSwitcher : public AndorCamera::System::Listener 
 {
     simparm::Node& node;
     CamTraits::Resolution resolution;
+    std::string basename;
 
     std::auto_ptr<CameraLink> currentlyActive;
   public:
-    CameraSwitcher(simparm::Node& node, CamTraits::Resolution r)
-        : node(node), resolution(r) {}
+    CameraSwitcher(simparm::Node& node, CamTraits::Resolution r, std::string basename)
+        : node(node), resolution(r), basename(basename) {}
     ~CameraSwitcher() {
         /* Prevent destruction cycles. If we receive camera change events
          * during destruction, strange things might happen. */
@@ -244,6 +250,7 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
                                                .get_current_camera();
             currentlyActive.reset( 
                 new CameraLink( node, cam, resolution ) );
+            currentlyActive->change_basename( basename );
         } else {
             currentlyActive.reset( NULL );
         }
@@ -254,13 +261,21 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
         if (currentlyActive.get())
             currentlyActive->change_resolution( r );
     }
+
+    void change_basename( std::string name ) {
+        basename = name;
+        if (currentlyActive.get())
+            currentlyActive->change_basename( name );
+    }
 };
 
 void Method::registerNamedEntries()
 {
     CamTraits::Resolution res;
     res = resolution_element.get_resolution();
-    switcher.reset( new Method::CameraSwitcher(*this, res) );
+    dStorm::output::Basename bn( basename() );
+    bn.set_variable( "run", "snapshot" );
+    switcher.reset( new Method::CameraSwitcher(*this, res, bn.new_basename()) );
     AndorCamera::System& s = AndorCamera::System::singleton();
     if ( s.get_number_of_cameras() != 0 ) {
         viewable = true;
@@ -285,6 +300,9 @@ void Method::operator()(const simparm::Event& e)
             switcher->change_resolution( resolution_element.get_resolution() );
     } else if ( &e.source == &basename.value ) {
         output_file_basename = basename();
+        dStorm::output::Basename bn( output_file_basename );
+        bn.set_variable( "run", "" );
+        switcher->change_basename( bn.new_basename() );
     }
 }
 

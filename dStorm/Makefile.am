@@ -64,14 +64,14 @@ nobase_library_include_HEADERS = \
     Image_decl.h Image.h Image_impl.h Image_iterator.h \
     ImageTraits_decl.h ImageTraits.h ImageTraits_impl.h \
     Job.h JobMaster.h UnitEntries.h log.h check_plugin.h \
-    Config_decl.h Config.h
+    Config_decl.h Config.h 
 outputs_library_includedir = $(includedir)/dStorm/outputs
 outputs_library_include_HEADERS = \
     outputs/BinnedLocalizations.h outputs/LocalizationList.h outputs/TraceFilter.h outputs/Crankshaft.h outputs/NullOutput.h outputs/BinnedLocalizations_converter.h
 
 output_library_includedir = $(includedir)/dStorm/output
 output_library_include_HEADERS = \
-    output/Basename.h \
+    output/Basename_decl.h output/Basename.h \
     output/BasenameAdjustedFileEntry_decl.h output/BasenameAdjustedFileEntry.h \
     output/Capabilities.h \
     output/Config.h \
@@ -149,7 +149,8 @@ unitentry_library_include_HEADERS = \
 
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \
-		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp Config.cpp
+    error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp Config.cpp \
+    units/units.cpp
 libdStorm_la_LIBADD = liboutputs.la liboutput.la \
     libengine.la liblocfile.la \
     libinput.la libhelpers.la -lsimparm

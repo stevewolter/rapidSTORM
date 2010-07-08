@@ -265,8 +265,8 @@ std::auto_ptr<dStorm::Display::Change>
     return rv;
 }
 
-simparm::Node& Manager::get_config()
+simparm::Node* Manager::getConfig()
 {
-    return *control_config;
+    return control_config.get();
 }
 

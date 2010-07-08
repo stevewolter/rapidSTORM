@@ -19,4 +19,13 @@ typedef boost::units::divide_typeof_helper<
 BOOST_UNITS_STATIC_CONSTANT(pixels_per_nanometer,nanoresolution);
 }
 
+namespace boost {
+namespace units {
+std::string name_string(const dStorm::nanoresolution&);
+std::string name_string(const dStorm::nanometer_pixel_size&);
+std::string symbol_string(const dStorm::nanoresolution&);
+std::string symbol_string(const dStorm::nanometer_pixel_size&);
+}
+}
+
 #endif

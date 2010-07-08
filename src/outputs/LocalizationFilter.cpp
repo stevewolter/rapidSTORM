@@ -13,7 +13,21 @@
 
 #include "debug.h"
 #include <dStorm/error_handler.h>
+#include <string>
 
+namespace boost {
+namespace units {
+
+std::string name_string(const dStorm::output::LocalizationFilter::ShiftSpeed&) {
+    return "picometer per second";
+}
+std::string symbol_string(const dStorm::output::LocalizationFilter::ShiftSpeed&)
+{
+    return "pm/s";
+}
+    
+}
+}
 using namespace boost::units;
 
 namespace dStorm {
@@ -282,7 +296,7 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 
 { 
     boost::units::quantity<ShiftSpeed,float> standstill
-        ( 1 * boost::units::si::meters_per_second );
+        ( 0 * boost::units::si::meters_per_second );
     traits = a.traits;
     if ( ( ! traits.resolution.is_set() || traits.speed.is_set() ) && (
         x_shift() != standstill || y_shift() != standstill) )

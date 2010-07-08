@@ -115,8 +115,7 @@ SigmaGuesserMean::check() {
         {
             double newValue = curVal;
 
-            DEBUG("Sigma " << i << " changed from " << (*sigmas[i])()
-                     << " to " << newValue);
+            DEBUG("Sigma " << i << " changed to " << newValue);
             if ( i == 0 )
                 config.sigma_x = float(newValue) * cs_units::camera::pixel;
             else if ( i == 1 )

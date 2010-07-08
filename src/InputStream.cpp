@@ -9,6 +9,7 @@
 
 #include <dStorm/error_handler.h>
 #include <dStorm/helpers/BlockingThreadRegistry.h>
+#include <dStorm/helpers/DisplayManager.h>
 
 namespace dStorm {
 
@@ -111,6 +112,8 @@ InputStream::Pimpl::Pimpl(
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     this->push_back( help_file );
     reset_config();
+    if ( Display::Manager::getSingleton().getConfig() )
+        this->push_back( *Display::Manager::getSingleton().getConfig() );
 }
 
 void InputStream::Pimpl::reset_config() {
@@ -212,6 +215,7 @@ void InputStream::Pimpl::processCommand
     if ( cmd == "wait_for_jobs" ) {
         DEBUG("Got command to wait for jobs");
         terminate_remaining_cars();
+        DEBUG("Terminated remaining cars");
         ost::MutexLock lock(mutex);
         while ( ! running_cars.empty() )
             all_cars_finished.wait();

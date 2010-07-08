@@ -13,7 +13,6 @@ BasenameWatcher::BasenameWatcher(
     output( output )
 {
     attach();
-    receive_changes_from( choice.value );
 }
 
 void BasenameWatcher::attach() {

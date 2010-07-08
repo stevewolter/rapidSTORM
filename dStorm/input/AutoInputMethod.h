@@ -73,6 +73,7 @@ namespace input {
             this->push_back(master.pixel_size_in_nm);
             this->push_back(master.firstImage);
             this->push_back(master.lastImage);
+            this->push_back(master.basename);
 
             receive_changes_from( master.inputFile.value );
         }
@@ -87,6 +88,7 @@ namespace input {
             this->push_back(master.pixel_size_in_nm);
             this->push_back(master.firstImage);
             this->push_back(master.lastImage);
+            this->push_back(master.basename);
 
             receive_changes_from( master.inputFile.value );
         }

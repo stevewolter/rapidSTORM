@@ -8,6 +8,7 @@
 
 #include <dStorm/helpers/thread.h>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <dStorm/output/Basename.h>
 
 #include "config.h"
 
@@ -31,10 +32,8 @@ _Config::_Config()
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
     fixSigma("FixSigma", "Disable std. dev. estimation", false),
-    guessThreshold("GuessThreshold", "Guess amplitude threshold", true),
     motivation("Motivation", "Spot search eagerness", 3),
-    amplitude_threshold("AmplitudeThreshold", 
-                        "Amplitude discarding threshold", 3000 * cs_units::camera::ad_counts),
+    amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold"),
     pistonCount("CPUNumber", "Number of CPUs to use")
 {
     PROGRESS("Building dStorm Config");
@@ -49,6 +48,9 @@ _Config::_Config()
                      "exponential "
                      "curve that fits the expected spots.");
     
+    amplitude_threshold.value = 3000 * cs_units::camera::ad_counts;
+    amplitude_threshold().reset();
+
     maskSizeFactor.setUserLevel(Object::Expert);
     fitSizeFactor.setUserLevel(Object::Expert);
 
@@ -114,14 +116,13 @@ void _Config::registerNamedEntries() {
     push_back(sigma_xy);
     push_back(delta_sigma);
     push_back(fixSigma);
+    push_back(amplitude_threshold);
 
     push_back(maskSizeFactor);
     push_back(fitSizeFactor);
     push_back(spotFindingMethod);
     push_back(spotFittingMethod);
 
-    push_back(guessThreshold);
-    push_back(amplitude_threshold);
     push_back(motivation);
 
     push_back( pistonCount );
@@ -133,7 +134,6 @@ Config::SigmaUserLevel::SigmaUserLevel(_Config &config)
    config(config) 
 { 
     receive_changes_from( config.fixSigma.value );
-    receive_changes_from( config.guessThreshold.value );
     adjust();
 }
 
@@ -149,8 +149,6 @@ void Config::SigmaUserLevel::adjust() {
     config.sigma_x.setUserLevel(userLevel);
     config.sigma_y.setUserLevel(userLevel);
     config.sigma_xy.setUserLevel(userLevel);
-
-    config.amplitude_threshold.viewable = ! config.guessThreshold();
 }
 
 Config::Config() 
@@ -172,6 +170,19 @@ void _Config::addSpotFinder( std::auto_ptr<SpotFinderFactory> factory ) {
 
 void _Config::addSpotFitter( std::auto_ptr<SpotFitterFactory> factory ) {
     spotFittingMethod.addChoice( factory );
+}
+
+void _Config::set_variables( output::Basename& bn ) const
+{
+    std::stringstream ss;
+    if ( amplitude_threshold().is_set() ) 
+        ss << (*amplitude_threshold()).value();
+    else
+        ss << "auto";
+    bn.set_variable("thres", ss.str());
+
+    spotFindingMethod().set_variables( bn );
+    spotFittingMethod().set_variables( bn );
 }
 
 }

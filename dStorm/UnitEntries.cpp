@@ -6,6 +6,7 @@
 #include "UnitEntries/Nanometre.h"
 #include "UnitEntries/PixelSize.h"
 #include <simparm/UnitEntry_Impl.hh>
+#include <simparm/OptionalEntry_impl.hh>
 #include <boost/units/systems/si/io.hpp>
 #include <cs_units/camera/resolution.hpp>
 
@@ -27,4 +28,5 @@ template class simparm::UnitEntry< cs_units::camera::time, int >;
 template class simparm::UnitEntry< cs_units::camera::resolution, float >;
 template class simparm::UnitEntry< dStorm::nanometer_pixel_size, float >;
 template class simparm::UnitEntry< dStorm::nanoresolution, float >;
+template class simparm::OptionalEntry< boost::units::quantity< cs_units::camera::intensity, float > >;
 }

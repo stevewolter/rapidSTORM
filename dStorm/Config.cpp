@@ -1,4 +1,6 @@
 #define DSTORM_CARCONFIG_CPP
+#define VERBOSE
+#include "debug.h"
 #include "Config.h"
 #include <dStorm/input/Config.h>
 #include <dStorm/output/FilterSource.h>
@@ -10,7 +12,6 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 
-#include "debug.h"
 #include <cassert>
 
 #include <time.h>
@@ -126,7 +127,7 @@ Config::Config(const Config &c)
   auto_terminate(c.auto_terminate)
 {
     registerNamedEntries();
-    DEBUG("Copied Car config");
+    DEBUG("Copied Car config, basename is now " << inputConfig.basename());
 }
 
 Config::~Config() {
@@ -137,7 +138,7 @@ Config::~Config() {
 
 void Config::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig");
-   receive_changes_from( inputConfig.basename );
+   receive_changes_from( inputConfig.basename.value );
    outputBox.push_back( *outputRoot );
    push_back( inputConfig );
    push_back( engineConfig );

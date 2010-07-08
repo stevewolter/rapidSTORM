@@ -15,6 +15,7 @@ class Config
     inline ~Config();
     inline void registerNamedEntries(simparm::Node&);
 
+    simparm::BoolEntry do_double_spot_analysis;
     /** Threshold for the spot fitter for the degree of asymmetry
         *  in the residues from which on it will suscept multi-spots. */
     simparm::DoubleEntry asymmetry_threshold;

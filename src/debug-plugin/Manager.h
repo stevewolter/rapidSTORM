@@ -17,8 +17,7 @@ template <> class NumTraits<dStorm::Pixel>
 }
 
 class Manager 
-: public dStorm::Display::Manager, private ost::Thread ,
-  public dStorm::Job
+: public dStorm::Display::Manager, private ost::Thread
 {
     class Handle;
     class ControlConfig;
@@ -70,11 +69,12 @@ class Manager
     Manager(const Manager&);
     ~Manager();
 
+    simparm::Node* getConfig();
+
     void store_image(
         std::string filename,
         const dStorm::Display::Change& image);
 
-    simparm::Node& get_config();
     void stop() {}
 };
 

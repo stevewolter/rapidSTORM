@@ -12,12 +12,19 @@ expect  {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); pass "$test"; }
 }
 if { $job != "" } {
-    sleep 1
+    set stopped 0;
+    set timeout 1
     send "in $job in EngineStatus in EngineStopper in value set 1\n"
-    sleep 1
-    send "in $job in CloseJob in value set 1\n"
-    sleep 1
-    expect -re "\nremove "
+    expect {
+        -re "\nremove $job" { set stopped 1; }
+        timeout {}
+    }
+    set timeout 10
+    if { $stopped == 0 } {
+        send "in $job in CloseJob in value set 1\n"
+        expect {
+            -re "\nremove $job" { pass "$test" }
+        }
+    }
 }
 
-xfail "Localization speed in m/s"

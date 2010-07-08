@@ -21,6 +21,7 @@ FileBasedMethod<Object>::FileBasedMethod(
   inputFile(src.inputFile)
 {
     this->push_back( inputFile );
+    this->push_back( src.basename );
     inputFile.push_back( this->extension );
     receive_changes_from( inputFile.value );
 }
@@ -37,6 +38,7 @@ FileBasedMethod<Object>::FileBasedMethod(
   inputFile( src.inputFile )
 {
     this->push_back( inputFile );
+    this->push_back( src.basename );
     inputFile.push_back( extension );
     receive_changes_from( inputFile.value );
 }

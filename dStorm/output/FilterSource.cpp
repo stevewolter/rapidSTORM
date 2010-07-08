@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 
 #include <dStorm/helpers/exception.h>
@@ -63,6 +64,7 @@ FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
 : OutputSource(node, o),
     simparm::Node::Callback(simparm::Event::ValueChanged),
     next_identity(0),
+    basename(o.basename),
     factory( NULL ),
     outputs(),
     removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
@@ -115,6 +117,7 @@ void FilterSource::operator()
                                     = factory->make_output_source();
             if ( fresh.get() != NULL ) {
                 fresh->set_output_file_basename(basename);
+                DEBUG( "Set fresh basename to " << basename.unformatted()() );
                 add( fresh );
                 /* To give some kind of visual feedback that the action was
                 * performed, we reset the factory ( which means, normally,
