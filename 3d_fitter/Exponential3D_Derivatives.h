@@ -73,15 +73,16 @@ DerivativeHelper<Model>::compute(
     hessian.template block<Kernels,VarC>(ZParam<0>::Index, 0).fill(0);
     static const int Ks = Kernels;
     Eigen::Matrix<double,Ks,H> z_factors(Kernels, (H==Eigen::Dynamic) ? this->height : H);
-    for (int col = 0; col < residues.cols(); ++col ) {
-        Eigen::Matrix<double,Ks,1> x_contrib
-            = (this->zdx.cwise() * (this->sxI.cwise().square())).asDiagonal()
-              * ( this->xl.sqr.col(col).cwise() - 1 );
-        z_factors
-            = (this->zdy.cwise() * (this->syI.cwise().square())).asDiagonal()
+    Eigen::Matrix<double,Ks,W> x_contribs
+            = 2 * (this->zdx.cwise() * ((Model::Use_Holtzer_PSF ? this->sxI.cwise().square() : this->sxI).asDiagonal()
+              * ( this->xl.sqr.cwise() - 1 );
+    Eigen::Matrix<double,Ks,H> y_contribs
+            = 2 * (this->zdy.cwise() * ((Model::Use_Holtzer_PSF ? this->syI.cwise().square() : this->syI)).asDiagonal()
               * ( this->yl.sqr.cwise() - 1 );
+
+    for (int col = 0; col < residues.cols(); ++col ) {
         for (int i = 0; i < z_factors.cols(); ++i) 
-            z_factors.col(i) += x_contrib;
+            z_factors.col(i) = x_contribs.col(col) + y_contribs.col(i);
             
         Eigen::Matrix<double,Ks,H> derivs
             = (this->xl.expTerm.col(col).cwise() * this->prefactor).asDiagonal()
@@ -93,7 +94,6 @@ DerivativeHelper<Model>::compute(
             += (derivs * this->yparts) * this->xparts.row(col).asDiagonal();
         hessian.template block<Kernels,Kernels>(ZParam<0>::Index, VarC-Kernels) 
             += derivs * derivs.transpose();
-            
     }
     hessian.template block<VarC,Kernels>(0, ZParam<0>::Index)
         = hessian.template block<Kernels,VarC>(ZParam<0>::Index, 0).transpose();

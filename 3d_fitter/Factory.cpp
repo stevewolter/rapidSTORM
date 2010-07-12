@@ -31,7 +31,11 @@ Factory::~Factory() {
 std::auto_ptr<SpotFitter> 
 Factory::make (const engine::JobInfo &i)
 {
-    return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter >
+    if ( holtzer_psf() )
+        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<true> >
+        ::select_fitter(*this,i);
+    else
+        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<false> >
         ::select_fitter(*this,i);
 }
 

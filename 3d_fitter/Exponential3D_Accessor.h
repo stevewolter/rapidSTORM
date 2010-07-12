@@ -59,8 +59,8 @@ struct Model<Kernels>::Accessor {
     METHODS(Amplitude,cs_units::camera::intensity,1);
     METHODS(DeltaSigmaX,dStorm::nanoresolution,1);
     METHODS(DeltaSigmaY,dStorm::nanoresolution,1);
-    METHODS(BestVarianceX,cs_units::camera::length,2);
-    METHODS(BestVarianceY,cs_units::camera::length,2);
+    METHODS(BestSigmaX,cs_units::camera::length,1);
+    METHODS(BestSigmaY,cs_units::camera::length,1);
     METHODS(ZAtBestSigmaX,boost::units::si::nanolength,1);
     METHODS(ZAtBestSigmaY,boost::units::si::nanolength,1);
 #undef METHODS

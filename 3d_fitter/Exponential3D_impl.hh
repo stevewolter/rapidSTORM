@@ -14,7 +14,7 @@ struct DerivativeHelper;
 template <class Specialization>
 struct ParameterHelper;
 
-template <int Ks, int W, int H>
+template <int Ks, int W, int H, bool Holtzer_PSF>
 struct Specialization
 {
     typedef Model<Ks> Space;
@@ -22,6 +22,7 @@ struct Specialization
     typedef ParameterHelper<Specialization> Parameters;
     static const int Width = W, Height = H;
     typedef Eigen::Matrix<double,H,W> Data;
+    static const bool Use_Holtzer_PSF = Holtzer_PSF;
 };
 
 template <class Specialization>
@@ -39,9 +40,9 @@ struct ParameterHelper
     );
 };
 
-template <int Ks, int W, int H>
+template <int Ks, bool Holtzer_PSF, int W, int H>
 struct Deriver 
-: public DerivativeHelper<Specialization<Ks,W,H> >
+: public DerivativeHelper<Specialization<Ks,W,H,Holtzer_PSF> >
 {
     typedef Specialization<Ks,W,H> MySpecialization;
     inline bool prepare( 

@@ -23,6 +23,7 @@ class Config
     dStorm::FloatNanometreEntry z_distance;
     FloatNanoResolutionEntry
         defocus_constant_x, defocus_constant_y;
+    simparm::BoolEntry holtzer_psf;
 };
 
 }

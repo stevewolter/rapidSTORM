@@ -62,7 +62,7 @@ class ResidueAnalysisInfo
 };
 
 
-template <int Kernels>
+template <int Kernels, bool Holtzer_PSF>
 struct NaiveFitter {
     typedef CommonInfo<Kernels> SizeInvariants;
     typedef fitpp::Exponential3D::Model<Kernels> Model;
@@ -70,15 +70,16 @@ struct NaiveFitter {
     template <int X, int Y>
     struct Specialized {
         typedef fitter::FixedSized<NaiveFitter,X,Y> Sized;
-        typedef typename Model::template Fitter<engine::StormPixel,X,Y>
+        typedef typename Model::template Fitter<engine::StormPixel,Holtzer_PSF,X,Y>
             ::Type Deriver;
     };
 };
 
+template <bool Holtzer_PSF>
 struct Fitter {
     typedef ResidueAnalysisInfo SizeInvariants;
-    typedef NaiveFitter<1> OneKernel;
-    typedef NaiveFitter<2> TwoKernel;
+    typedef NaiveFitter<1,Holtzer_PSF> OneKernel;
+    typedef NaiveFitter<2,Holtzer_PSF> TwoKernel;
 };
 
 }

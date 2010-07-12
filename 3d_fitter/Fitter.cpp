@@ -9,6 +9,7 @@
 #include "fitter/MarquardtInfo_impl.h"
 #include <boost/units/pow.hpp>
 #include "Exponential3D_Accessor.h"
+#include "Exponential3D_ParameterHelper.h"
 #include <boost/units/cmath.hpp>
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/residue_analysis/impl.h"
@@ -50,8 +51,8 @@ CommonInfo<Ks>::CommonInfo(
     params->template set_all_ZAtBestSigmaY( c.z_distance() / 2.0f );
     params->template set_all_DeltaSigmaX( c.defocus_constant_x() );
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
-    params->template set_all_BestVarianceX( pow<2>(info.config.sigma_x()) );
-    params->template set_all_BestVarianceY( pow<2>(info.config.sigma_y()) );
+    params->template set_all_BestSigmaX( info.config.sigma_x() );
+    params->template set_all_BestSigmaY( info.config.sigma_y() );
 }
 
 template <int Kernels>
@@ -85,20 +86,13 @@ CommonInfo<Kernels>::set_start(
     ADCs center = image(xc,yc) * cs_units::camera::ad_count;
     
     params->setShift( shift_estimate );
-    typename FitGroup::Accessor::QuantityBestVarianceX
-        x_widening = pow<2>( params->template getDeltaSigmaX<0>() ) *
-                pow<2>( params->template getZAtBestSigmaX<0>() );
-    typename FitGroup::Accessor::QuantityBestVarianceX
-        y_widening = pow<2>( params->template getDeltaSigmaY<0>() ) *
-                pow<2>( params->template getZAtBestSigmaY<0>() );
+
     double prefactor = 2 * M_PI * 
-        sqrt( ( 
-            ( x_widening + params->template getBestVarianceX<0>() ) 
-            * ( y_widening + params->template getBestVarianceY<0>() )
-            ).value() );
+        params->template getBestSigmaX<0>() * 
+        params->template getBestSigmaY<0>();
     params->template set_all_Amplitude( 
         std::max<typename FitGroup::Accessor::QuantityAmplitude>
-            (center - shift_estimate, 10 * cs_units::camera::ad_count)
+            ((center - shift_estimate) / Kernels, 10 * cs_units::camera::ad_count)
             * prefactor );
 
     DEBUG( "Estimating center at " << center << ", shift at " << shift_estimate 

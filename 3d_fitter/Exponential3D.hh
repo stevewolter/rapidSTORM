@@ -38,6 +38,7 @@ static const int
 template <
     /** Number of Kernels of the exponential models */
     int Kernels,
+    bool Holtzer_PSF,
     /** Width of the data raster */
     int Width, 
     /** Height of the data raster */
@@ -66,14 +67,16 @@ struct Model
 
     template <
             typename PixelType, 
-            int Width = Eigen::Dynamic, int Height = Eigen::Dynamic,
+            bool Holtzer_PSF = false,
+            int Width = Eigen::Dynamic,
+            int Height = Eigen::Dynamic,
             bool Compute_Variances = false
         >
     struct Fitter
     {
         typedef LeastSquaresLatticeFitter<
             Model,
-            Deriver<Kernels,Width,Height>,
+            Deriver<Kernels,Holtzer_PSF,Width,Height>,
             PixelType,
             Width, Height,
             Compute_Variances> Type;
