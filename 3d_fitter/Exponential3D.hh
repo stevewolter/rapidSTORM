@@ -25,20 +25,25 @@ using Exponential::Amplitude;
 using Exponential::Shift;
 
 static const int 
-    MeanZ = 4, /**< sigma_x */ 
-    DeltaSigmaX = 5, /**< sigma_y */ 
-    DeltaSigmaY = 6, /**< Correlation between axes */
-    BestVarianceX = 7,
-    BestVarianceY = 8,
+    MeanZ = 4,
+    DeltaSigmaX = 5,
+    DeltaSigmaY = 6,
+    BestSigmaX = 7,
+    BestSigmaY = 8,
     ZAtBestSigmaX = 9,
     ZAtBestSigmaY = 10,
     FunctionDeps = 10,
     Globals = 1;
 
+enum Widenings {
+    Holtzer,
+    Zhuang
+};
+
 template <
-    /** Number of Kernels of the exponential models */
-    int Kernels,
-    bool Holtzer_PSF,
+    /** The model used. This class is not a subclass of model to allow 
+     *  partial specialization. */
+    class Model,
     /** Width of the data raster */
     int Width, 
     /** Height of the data raster */
@@ -46,7 +51,7 @@ template <
 >
 class Deriver;
 
-template <int Kernels> 
+template <int Kernels, int _Widening> 
 struct Model
 : public ParamMap<Globals,Kernels,FunctionDeps,(1 << (MeanZ+1)) - 1>
 {
@@ -62,12 +67,13 @@ struct Model
     typedef typename ParameterMap::Variables Variables;
     typedef typename ParameterMap::Constants Constants;
 
+    static const int Widening = _Widening;
+
   public:
     class Accessor;
 
     template <
             typename PixelType, 
-            bool Holtzer_PSF = false,
             int Width = Eigen::Dynamic,
             int Height = Eigen::Dynamic,
             bool Compute_Variances = false
@@ -76,7 +82,7 @@ struct Model
     {
         typedef LeastSquaresLatticeFitter<
             Model,
-            Deriver<Kernels,Holtzer_PSF,Width,Height>,
+            Deriver<Model,Width,Height>,
             PixelType,
             Width, Height,
             Compute_Variances> Type;

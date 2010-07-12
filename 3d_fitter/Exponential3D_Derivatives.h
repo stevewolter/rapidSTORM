@@ -74,11 +74,9 @@ DerivativeHelper<Model>::compute(
     static const int Ks = Kernels;
     Eigen::Matrix<double,Ks,H> z_factors(Kernels, (H==Eigen::Dynamic) ? this->height : H);
     Eigen::Matrix<double,Ks,W> x_contribs
-            = 2 * (this->zdx.cwise() * ((Model::Use_Holtzer_PSF ? this->sxI.cwise().square() : this->sxI).asDiagonal()
-              * ( this->xl.sqr.cwise() - 1 );
+            = this->z_deriv_prefactor.col(0).asDiagonal() * ( this->xl.sqr.cwise() - 1 );
     Eigen::Matrix<double,Ks,H> y_contribs
-            = 2 * (this->zdy.cwise() * ((Model::Use_Holtzer_PSF ? this->syI.cwise().square() : this->syI)).asDiagonal()
-              * ( this->yl.sqr.cwise() - 1 );
+            = this->z_deriv_prefactor.col(1).asDiagonal() * ( this->yl.sqr.cwise() - 1 );
 
     for (int col = 0; col < residues.cols(); ++col ) {
         for (int i = 0; i < z_factors.cols(); ++i) 

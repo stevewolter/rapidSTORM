@@ -60,7 +60,7 @@ Factory::make (const engine::JobInfo &i)
 }
 
 void Factory::set_traits( output::Traits& rv ) {
-    rv.two_kernel_improvement_is_set = (asymmetry_threshold() < 1.0);
+    fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = freeSigmaFitting();
     rv.z_coordinate_is_set = false;
 }

@@ -17,7 +17,8 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* inputs ) {
-    inputs->engineConfig.spotFittingMethod.addChoice( new Factory() );
+    inputs->engineConfig.spotFittingMethod.addChoice( new Factory<fitpp::Exponential3D::Zhuang>() );
+    inputs->engineConfig.spotFittingMethod.addChoice( new Factory<fitpp::Exponential3D::Holtzer>() );
 }
 
 dStorm::Display::Manager*

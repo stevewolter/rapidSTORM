@@ -9,7 +9,6 @@
 #include "fitter/MarquardtInfo_impl.h"
 #include <boost/units/pow.hpp>
 #include "Exponential3D_Accessor.h"
-#include "Exponential3D_ParameterHelper.h"
 #include <boost/units/cmath.hpp>
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/residue_analysis/impl.h"
@@ -20,7 +19,8 @@ inline Ty sqr(const Ty& a) { return a*a; }
 namespace dStorm {
 namespace fitter {
 namespace residue_analysis {
-template class CommonInfo<gauss_3d_fitter::ResidueAnalysisInfo>;
+template class CommonInfo<gauss_3d_fitter::ResidueAnalysisInfo<fitpp::Exponential3D::Holtzer> >;
+template class CommonInfo<gauss_3d_fitter::ResidueAnalysisInfo<fitpp::Exponential3D::Zhuang> >;
 }
 }
 
@@ -31,8 +31,8 @@ using dStorm::engine::Spot;
 using dStorm::engine::BaseImage;
 using boost::units::pow;
 
-template <int Ks>
-CommonInfo<Ks>::CommonInfo( 
+template <int Ks,int Widening>
+CommonInfo<Ks,Widening>::CommonInfo( 
    const Config& c, const engine::JobInfo& info
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
@@ -55,8 +55,8 @@ CommonInfo<Ks>::CommonInfo(
     params->template set_all_BestSigmaY( info.config.sigma_y() );
 }
 
-template <int Kernels>
-CommonInfo<Kernels>::CommonInfo( const CommonInfo& o ) 
+template <int Kernels, int Widening>
+CommonInfo<Kernels,Widening>::CommonInfo( const CommonInfo& o ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(o),
   maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
   params( new typename FitGroup::Accessor(*o.params) ),
@@ -64,9 +64,9 @@ CommonInfo<Kernels>::CommonInfo( const CommonInfo& o )
 {
 }
 
-template <int Kernels>
+template <int Kernels, int Widening>
 void
-CommonInfo<Kernels>::set_start(
+CommonInfo<Kernels,Widening>::set_start(
     const Spot& spot, 
     const BaseImage& image,
     double shift_estimate_in_ADC,
@@ -88,12 +88,12 @@ CommonInfo<Kernels>::set_start(
     params->setShift( shift_estimate );
 
     double prefactor = 2 * M_PI * 
-        params->template getBestSigmaX<0>() * 
-        params->template getBestSigmaY<0>();
+        (params->template getBestSigmaX<0>() * 
+        params->template getBestSigmaY<0>()).value();
     params->template set_all_Amplitude( 
         std::max<typename FitGroup::Accessor::QuantityAmplitude>
-            ((center - shift_estimate) / Kernels, 10 * cs_units::camera::ad_count)
-            * prefactor );
+            ((center - shift_estimate) / (1.0 * Kernels),
+             10 * cs_units::camera::ad_count) * prefactor );
 
     DEBUG( "Estimating center at " << center << ", shift at " << shift_estimate 
               << " for spot at " << xc << " " << yc << " with image sized " << image.width_in_pixels() << " by "
@@ -106,9 +106,9 @@ CommonInfo<Kernels>::set_start(
     start.y() = spot.y();
 }
 
-template <int Kernels>
+template <int Kernels, int Widening>
 bool 
-CommonInfo<Kernels>::check_result(
+CommonInfo<Kernels,Widening>::check_result(
     typename FitGroup::Variables* variables,
     Localization* target
 )
@@ -142,21 +142,25 @@ CommonInfo<Kernels>::check_result(
     return good;
 }
 
-template class CommonInfo<1>;
-template class CommonInfo<2>;
+template class CommonInfo<1,fitpp::Exponential3D::Holtzer>;
+template class CommonInfo<1,fitpp::Exponential3D::Zhuang>;
+template class CommonInfo<2,fitpp::Exponential3D::Holtzer>;
+template class CommonInfo<2,fitpp::Exponential3D::Zhuang>;
 
-ResidueAnalysisInfo::ResidueAnalysisInfo(
+template <int Widening>
+ResidueAnalysisInfo<Widening>::ResidueAnalysisInfo(
     const Config& config, 
     const engine::JobInfo& info
 ) 
 : Base2(config,info),
   Base1(config,info)
 {
-    Base2::FitGroup::Parameter<Amplitude>::set_absolute_epsilon
+    Base2::FitGroup::template Parameter<Amplitude>::set_absolute_epsilon
         (this->Base2::fit_function, 1);
 }
 
-void ResidueAnalysisInfo::
+template <int Widening>
+void ResidueAnalysisInfo<Widening>::
 start_from_splitted_single_fit(
     SingleFit& from,
     DoubleFit* v,
@@ -168,41 +172,43 @@ start_from_splitted_single_fit(
     Base2::params->setShift( Base1::params->getShift() );
 
     using cs_units::camera::pixel;
-    Base2::params->setMeanX<0>
-        ( Base1::params->getMeanX<0>() + float(dir.x()) * pixel );
-    Base2::params->setMeanX<1>
-        ( Base1::params->getMeanX<0>() - float(dir.x()) * pixel );
-    Base2::params->setMeanY<0>
-        ( Base1::params->getMeanY<0>() + dir.y() * pixel );
-    Base2::params->setMeanY<1>
-        ( Base1::params->getMeanY<0>() - dir.y() * pixel );
-    Base2::params->set_all_MeanZ( Base1::params->getMeanZ<0>() );
-    Base2::params->setAmplitude<0>
-        ( Base1::params->getAmplitude<0>() / 2.0 );
-    Base2::params->setAmplitude<1>
-        ( Base1::params->getAmplitude<0>() / 2.0 );
+    Base2::params->template setMeanX<0>
+        ( Base1::params->template getMeanX<0>() + float(dir.x()) * pixel );
+    Base2::params->template setMeanX<1>
+        ( Base1::params->template getMeanX<0>() - float(dir.x()) * pixel );
+    Base2::params->template setMeanY<0>
+        ( Base1::params->template getMeanY<0>() + dir.y() * pixel );
+    Base2::params->template setMeanY<1>
+        ( Base1::params->template getMeanY<0>() - dir.y() * pixel );
+    Base2::params->set_all_MeanZ( Base1::params->template getMeanZ<0>() );
+    Base2::params->set_all_Amplitude
+        ( Base1::params->template getAmplitude<0>() / 2.0 );
 }
 
+template <int Widening>
 float
-ResidueAnalysisInfo::sq_peak_distance( 
+ResidueAnalysisInfo<Widening>::sq_peak_distance( 
     DoubleFit *variables
 ) {
     Base2::params->change_variable_set( variables );
     
     float peak_dist =
-        (Base2::params->getPosition<0>() - Base2::params->getPosition<1>())
-         .start<2>().squaredNorm();
+        (Base2::params->template getPosition<0>() - Base2::params->template getPosition<1>())
+         .template start<2>().squaredNorm();
     return peak_dist;
 }
 
-void ResidueAnalysisInfo::get_center(
+template <int Widening>
+void ResidueAnalysisInfo<Widening>::get_center(
     const SingleFit& v, int& x, int& y) 
 {
     Base1::params->change_variable_set( &const_cast<SingleFit&>(v) );
-    x = round(Base1::params->getMeanX<0>() / cs_units::camera::pixel);
-    y = round(Base1::params->getMeanY<0>() / cs_units::camera::pixel);
+    x = round(Base1::params->template getMeanX<0>() / cs_units::camera::pixel);
+    y = round(Base1::params->template getMeanY<0>() / cs_units::camera::pixel);
 }
 
+template class ResidueAnalysisInfo<fitpp::Exponential3D::Zhuang>;
+template class ResidueAnalysisInfo<fitpp::Exponential3D::Holtzer>;
 
 }
 }

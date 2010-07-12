@@ -2,6 +2,7 @@
 #define _3D_FITTER_EXPONENTIAL3D_ACCESSOR_HH
 
 #include "Exponential3D.hh"
+#include "ConstantTypes.h"
 #include <boost/units/quantity.hpp>
 #include <dStorm/units/nanolength.h>
 #include <cs_units/camera/length.hpp>
@@ -12,11 +13,13 @@
 namespace fitpp {
 namespace Exponential3D {
 
-template <int Kernels>
-struct Model<Kernels>::Accessor {
+template <int Kernels,int Widening>
+struct Model<Kernels,Widening>::Accessor {
   private:
     Variables *variables;
     Constants constants;
+
+    typedef ConstantTypes<Widening> TypeHelper;
   public:
     Accessor(Variables* variables) 
         : variables(variables) {}
@@ -41,10 +44,8 @@ struct Model<Kernels>::Accessor {
     Constants& getConstants()  { return constants; }
 
   public:
-#define METHODS(param,unit,power) \
-    typedef boost::units::quantity< \
-        boost::units::power_typeof_helper<unit, \
-            boost::units::static_rational<power> >::type,double> \
+#define METHODS(param,unit) \
+    typedef boost::units::quantity<unit ,double> \
         Quantity ## param; \
     template <int Function> \
     Quantity ## param get ## param() const { \
@@ -53,16 +54,16 @@ struct Model<Kernels>::Accessor {
     void set ## param(Quantity ## param v) \
         { return set<param,Function>(v.value()); } \
     void set_all_ ## param(Quantity ## param v) { set_all<param>(v.value()); }
-    METHODS(MeanX,cs_units::camera::length,1);
-    METHODS(MeanY,cs_units::camera::length,1);
-    METHODS(MeanZ,boost::units::si::nanolength,1);
-    METHODS(Amplitude,cs_units::camera::intensity,1);
-    METHODS(DeltaSigmaX,dStorm::nanoresolution,1);
-    METHODS(DeltaSigmaY,dStorm::nanoresolution,1);
-    METHODS(BestSigmaX,cs_units::camera::length,1);
-    METHODS(BestSigmaY,cs_units::camera::length,1);
-    METHODS(ZAtBestSigmaX,boost::units::si::nanolength,1);
-    METHODS(ZAtBestSigmaY,boost::units::si::nanolength,1);
+    METHODS(MeanX,cs_units::camera::length);
+    METHODS(MeanY,cs_units::camera::length);
+    METHODS(MeanZ,boost::units::si::nanolength);
+    METHODS(Amplitude,cs_units::camera::intensity);
+    METHODS(DeltaSigmaX,typename TypeHelper::ResolutionUnit);
+    METHODS(DeltaSigmaY,typename TypeHelper::ResolutionUnit);
+    METHODS(BestSigmaX,cs_units::camera::length);
+    METHODS(BestSigmaY,cs_units::camera::length);
+    METHODS(ZAtBestSigmaX,boost::units::si::nanolength);
+    METHODS(ZAtBestSigmaY,boost::units::si::nanolength);
 #undef METHODS
     typedef boost::units::quantity<cs_units::camera::intensity,double>
         QuantityShift;

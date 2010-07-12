@@ -6,7 +6,7 @@
 #include <dStorm/engine/Spot_decl.h>
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/Localization.h>
-#include "Config.h"
+#include "Config_decl.h"
 #include "fitter/SizeSpecializing_decl.h"
 
 namespace dStorm {

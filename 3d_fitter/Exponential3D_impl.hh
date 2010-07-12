@@ -11,40 +11,61 @@ namespace Exponential3D {
 template < class Specialization >
 struct DerivativeHelper;
 
-template <class Specialization>
+template <int Kernels, int Widening, int W, int H>
 struct ParameterHelper;
 
-template <int Ks, int W, int H, bool Holtzer_PSF>
+template <class Model, int W, int H>
 struct Specialization
 {
-    typedef Model<Ks> Space;
+    typedef Model Space;
     typedef Exponential::ParameterHelper<Space,W,H,false> BaseParameters;
-    typedef ParameterHelper<Specialization> Parameters;
+    typedef ParameterHelper<Model::Kernels, Model::Widening,W,H> Parameters;
     static const int Width = W, Height = H;
     typedef Eigen::Matrix<double,H,W> Data;
-    static const bool Use_Holtzer_PSF = Holtzer_PSF;
 };
 
-template <class Specialization>
+template <int Kernels, int Widening, int W, int H>
 struct ParameterHelper 
-: public Specialization::BaseParameters
+: public Specialization<Model<Kernels,Widening>,W,H>::BaseParameters
 {
-    typedef typename Specialization::BaseParameters Base;
-    const static int Kernels = Specialization::Space::Kernels;
-    Eigen::Matrix<double,Kernels,1> zdx, zdy, dzx, dzy;
+    typedef Specialization<Model<Kernels,Widening>,W,H> MySpecialization;
+    typedef typename MySpecialization::BaseParameters Base;
+    Eigen::Matrix<double,Kernels,2> z_deriv_prefactor;
 
     inline bool prepare(
-        const typename Specialization::Space::Variables& v,
-        const typename Specialization::Space::Constants& c,
+        const typename MySpecialization::Space::Variables& v,
+        const typename MySpecialization::Space::Constants& c,
         const int x_low, const int y_low
     );
+
+  protected:
+    typedef Model<Kernels,Widening> Space;
+    template <int ParamX, int ParamY> 
+    inline static void extract_param_xy(
+        const typename Space::Variables& v,
+        const typename Space::Constants& c,
+        Eigen::Matrix<double,Kernels,2>& param
+    ) 
+    {
+        typedef typename Space::template Parameter<ParamX> Traits;
+        static const int IndexX = Space::template Parameter<ParamX>::template InKernel<0>::N;
+        static const int IndexY = Space::template Parameter<ParamY>::template InKernel<0>::N;
+        if ( Traits::Variable ) {
+            param.col(0) = v.template block<Kernels,1>(IndexX, 0);
+            param.col(1) = v.template block<Kernels,1>(IndexY, 0);
+        } else {
+            param.col(0) = c.template block<Kernels,1>(IndexX, 0);
+            param.col(1) = c.template block<Kernels,1>(IndexY, 0);
+        }
+    }
+    
 };
 
-template <int Ks, bool Holtzer_PSF, int W, int H>
+template <class Model, int W, int H>
 struct Deriver 
-: public DerivativeHelper<Specialization<Ks,W,H,Holtzer_PSF> >
+: public DerivativeHelper<Specialization<Model,W,H> >
 {
-    typedef Specialization<Ks,W,H> MySpecialization;
+    typedef Specialization<Model,W,H> MySpecialization;
     inline bool prepare( 
         const typename MySpecialization::Space::Variables& v,
         const typename MySpecialization::Space::Constants& c,

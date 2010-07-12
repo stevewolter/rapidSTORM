@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "doc/help/context.h"
+#include <dStorm/output/Traits.h>
 
 namespace dStorm {
 namespace fitter {
@@ -29,6 +30,11 @@ void Config::registerNamedEntries(simparm::Node& n)
     n.push_back(do_double_spot_analysis);
     n.push_back(asymmetry_threshold);
     n.push_back(required_peak_distance);
+}
+
+void Config::set_traits( output::Traits& rv ) const
+{
+    rv.two_kernel_improvement_is_set = do_double_spot_analysis();
 }
 
 }

@@ -8,8 +8,9 @@
 namespace dStorm {
 namespace gauss_3d_fitter {
 
+template <int Widening>
 class Factory 
-: private simparm::Structure<Config>, 
+: private simparm::Structure< Config<Widening> >, 
   public engine::SpotFitterFactory
 {
   public:

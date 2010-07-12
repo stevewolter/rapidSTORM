@@ -15,13 +15,13 @@
 namespace dStorm {
 namespace gauss_3d_fitter {
 
-template <int Kernels>
+template <int Kernels, int Widening>
 class CommonInfo
 : public fitter::MarquardtInfo
-    <fitpp::Exponential3D::Model<Kernels>::VarC>
+    <fitpp::Exponential3D::Model<Kernels,Widening>::VarC>
 {
   protected:
-    typedef typename fitpp::Exponential3D::Model<Kernels> FitGroup;
+    typedef typename fitpp::Exponential3D::Model<Kernels,Widening> FitGroup;
     typedef typename FitGroup::Variables Variables;
     Eigen::Vector2i maxs;
     Eigen::Vector2d start;
@@ -32,7 +32,7 @@ class CommonInfo
     const typename FitGroup::Constants& constants;
 
  public:
-    typedef gauss_3d_fitter::Config Config;
+    typedef gauss_3d_fitter::Config<Widening> Config;
     CommonInfo( const Config&, const engine::JobInfo& );
     CommonInfo( const CommonInfo& );
     void set_start( 
@@ -41,16 +41,17 @@ class CommonInfo
     bool check_result( Variables *variables, Localization *target);
 };
 
+template <int Widening>
 class ResidueAnalysisInfo
-: public CommonInfo<2>, public CommonInfo<1>
+: public CommonInfo<2,Widening>, public CommonInfo<1,Widening>
 {
-    typedef CommonInfo<1> Base1;
-    typedef CommonInfo<2> Base2;
+    typedef CommonInfo<1,Widening> Base1;
+    typedef CommonInfo<2,Widening> Base2;
   public:
-    typedef Base1::FitGroup::Variables SingleFit;
-    typedef Base2::FitGroup::Variables DoubleFit;
+    typedef typename Base1::FitGroup::Variables SingleFit;
+    typedef typename Base2::FitGroup::Variables DoubleFit;
 
-    typedef gauss_3d_fitter::Config Config;
+    typedef gauss_3d_fitter::Config<Widening> Config;
 
     ResidueAnalysisInfo( const Config&, const engine::JobInfo& );
 
@@ -62,24 +63,24 @@ class ResidueAnalysisInfo
 };
 
 
-template <int Kernels, bool Holtzer_PSF>
+template <int Kernels, int Widening>
 struct NaiveFitter {
-    typedef CommonInfo<Kernels> SizeInvariants;
-    typedef fitpp::Exponential3D::Model<Kernels> Model;
+    typedef CommonInfo<Kernels,Widening> SizeInvariants;
+    typedef fitpp::Exponential3D::Model<Kernels,Widening> Model;
 
     template <int X, int Y>
     struct Specialized {
         typedef fitter::FixedSized<NaiveFitter,X,Y> Sized;
-        typedef typename Model::template Fitter<engine::StormPixel,Holtzer_PSF,X,Y>
+        typedef typename Model::template Fitter<engine::StormPixel,X,Y>
             ::Type Deriver;
     };
 };
 
-template <bool Holtzer_PSF>
+template <int Widening>
 struct Fitter {
-    typedef ResidueAnalysisInfo SizeInvariants;
-    typedef NaiveFitter<1,Holtzer_PSF> OneKernel;
-    typedef NaiveFitter<2,Holtzer_PSF> TwoKernel;
+    typedef ResidueAnalysisInfo<Widening> SizeInvariants;
+    typedef NaiveFitter<1,Widening> OneKernel;
+    typedef NaiveFitter<2,Widening> TwoKernel;
 };
 
 }
