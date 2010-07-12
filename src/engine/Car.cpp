@@ -1,5 +1,4 @@
 #define DSTORM_CAR_CPP
-#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"

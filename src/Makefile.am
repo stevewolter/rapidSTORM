@@ -42,7 +42,7 @@ lib3d_fitter_la_SOURCES = \
     3d_fitter/Exponential3D_impl.hh 3d_fitter/Exponential3D_Derivatives.h \
     3d_fitter/Fitter.h 3d_fitter/Fitter.cpp \
     3d_fitter/Specialized.cpp 3d_fitter/Specialized_naive.cpp \
-    3d_fitter/plugin.cpp
+    3d_fitter/plugin.cpp 3d_fitter/ConstantTypes.h
 lib3d_fitter_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
 lib3d_fitter_la_LIBADD = ../dStorm/libdStorm.la -lsimparm
 
@@ -143,6 +143,7 @@ libfitter_la_SOURCES = \
     fitter/SizeSpecializing_filler.h \
     fitter/MarquardtConfig.h \
     fitter/residue_analysis/analysis.h \
+    fitter/residue_analysis/Config_decl.h \
     fitter/residue_analysis/Config.h \
     fitter/residue_analysis/fitter.h \
     fitter/residue_analysis/impl.h \

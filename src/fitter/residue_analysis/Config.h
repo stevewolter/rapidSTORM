@@ -3,6 +3,7 @@
 
 #include <simparm/Set.hh>
 #include <simparm/NumericEntry.hh>
+#include <dStorm/output/Traits_decl.h>
 
 namespace dStorm {
 namespace fitter {
@@ -22,6 +23,7 @@ class Config
     /** Required distance between multi-spot peaks. */
     simparm::DoubleEntry required_peak_distance;
 
+    inline void set_traits( output::Traits& rv ) const;
 };
 
 }

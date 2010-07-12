@@ -13,38 +13,42 @@ namespace gauss_3d_fitter {
 using engine::SpotFitter;
 using fitter::SizeSpecializing;
 
-Factory::Factory() 
-: simparm::Structure<Config>(),
-  SpotFitterFactory( static_cast<Config&>(*this) )
+template <int Widening>
+Factory<Widening>::Factory() 
+: simparm::Structure<Config<Widening> >(),
+  SpotFitterFactory( static_cast<Config<Widening> &>(*this) )
 {
 }
 
-Factory::Factory(const Factory& c)
-: simparm::Structure<Config>(c), 
-  SpotFitterFactory( static_cast<Config&>(*this) )
+template <int Widening>
+Factory<Widening>::Factory(const Factory& c)
+: simparm::Structure<Config<Widening> >(c), 
+  SpotFitterFactory( static_cast<Config<Widening> &>(*this) )
 {
 }
 
-Factory::~Factory() {
+template <int Widening>
+Factory<Widening>::~Factory() {
 }
 
+template <int Widening>
 std::auto_ptr<SpotFitter> 
-Factory::make (const engine::JobInfo &i)
+Factory<Widening>::make (const engine::JobInfo &i)
 {
-    if ( holtzer_psf() )
-        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<true> >
-        ::select_fitter(*this,i);
-    else
-        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<false> >
-        ::select_fitter(*this,i);
+    return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<Widening> >
+    ::select_fitter(*this,i);
 }
 
-void Factory::set_traits( output::Traits& rv ) {
+template <int Widening>
+void Factory<Widening>::set_traits( output::Traits& rv ) {
     DEBUG("3D fitter is setting traits");
-    rv.two_kernel_improvement_is_set = (asymmetry_threshold() < 1.0);
+    fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = false;
     rv.z_coordinate_is_set = true;
 }
+
+template class Factory< fitpp::Exponential3D::Holtzer >;
+template class Factory< fitpp::Exponential3D::Zhuang >;
 
 }
 }

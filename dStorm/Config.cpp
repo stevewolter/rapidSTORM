@@ -1,5 +1,4 @@
 #define DSTORM_CARCONFIG_CPP
-#define VERBOSE
 #include "debug.h"
 #include "Config.h"
 #include <dStorm/input/Config.h>

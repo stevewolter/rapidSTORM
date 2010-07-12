@@ -7,31 +7,41 @@
 namespace fitpp {
 namespace Exponential3D {
 
-template <class Special>
-bool ParameterHelper<Special>::prepare(
-    const typename Special::Space::Variables& v,
-    const typename Special::Space::Constants& c,
+template <int Kernels, int Widening, int W, int H>
+bool ParameterHelper< Kernels, Widening, W, H >::prepare(
+    const typename MySpecialization::Space::Variables& v,
+    const typename MySpecialization::Space::Constants& c,
     const int x_low, const int y_low
 ) {
     Base::extract( v, c );
-    Eigen::Matrix<double,Kernels,1> z, z0x, z0y, v0x, v0y;
-    Base::template extract_param<BestSigmaX>( v, c, v0x );
-    Base::template extract_param<BestSigmaY>( v, c, v0y );
-    Base::template extract_param<DeltaSigmaX>( v, c, this->dzx );
-    Base::template extract_param<DeltaSigmaY>( v, c, this->dzy );
-    Base::template extract_param<ZAtBestSigmaX>( v, c, z0x );
-    Base::template extract_param<ZAtBestSigmaY>( v, c, z0y );
-    Base::template extract_param<MeanZ>( v, c, z );
+    Eigen::Matrix<double,Kernels,1> _z;
+    Eigen::Matrix<double,Kernels,2> z, z0, s0, delta_z, zn, sigmas;
 
-    zdx = (z - z0x).cwise() * this->dzx; zdy = (z - z0y).cwise() * this->dzy;
-    if ( Special::Use_Holtzer_PSF ) {
-        this->sx = (zdx.cwise().square() + v0x.cwise().square()).cwise().sqrt();
-        this->sy = (zdy.cwise().square() + v0y.cwise().square()).cwise().sqrt();
-    } else {
-        this->sx = zdx.cwise().square() + v0x;
-        this->sy = zdy.cwise().square() + v0y;
+    Base::template extract_param<MeanZ>(v, c, _z);
+    z.col(0) = _z;
+    z.col(1) = _z;
+    extract_param_xy<BestSigmaX,BestSigmaY>( v, c, s0 );
+    extract_param_xy<DeltaSigmaX,DeltaSigmaY>( v, c, delta_z );
+    extract_param_xy<ZAtBestSigmaX,ZAtBestSigmaY>( v, c, z0 );
+    if ( Widening == Zhuang ) {
+        delta_z = delta_z.cwise().sqrt();
     }
-    zdx.cwise() *= dzx; zdy.cwise() *= dzy;
+
+    zn = (z - z0).cwise() * delta_z;
+    if ( Widening == Holtzer ) {
+        sigmas = (zn.cwise().square() + s0.cwise().square()).cwise().sqrt();
+        this->z_deriv_prefactor = (zn.cwise() * 
+            (delta_z.cwise() * sigmas.cwise().inverse().cwise().square()));
+    } else if ( Widening == Zhuang ) {
+        sigmas = zn.cwise().square() + s0;
+        this->z_deriv_prefactor = 2 * (zn.cwise() * 
+            (delta_z.cwise() * sigmas.cwise().inverse()));
+    } else {
+        /* Invalid Widening parameter */
+        return false;
+    }
+    this->sx = sigmas.col(0);
+    this->sy = sigmas.col(1);
 
     if ( ! Base::check(x_low, y_low) )
         return false;

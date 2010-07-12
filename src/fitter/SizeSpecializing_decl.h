@@ -1,5 +1,6 @@
 #include <dStorm/engine/SpotFitter_decl.h>
 #include <dStorm/engine/Config_decl.h>
+#include <memory>
 
 namespace dStorm {
 namespace fitter {

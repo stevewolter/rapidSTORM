@@ -10,10 +10,12 @@
 namespace dStorm {
 namespace fitter {
 
+using namespace fitpp::Exponential3D;
+
 template <>
 template <>
 void SizeSpecializing< 
-    gauss_3d_fitter::NaiveFitter<1> >
+    gauss_3d_fitter::NaiveFitter<1,Zhuang> >
 ::create_specializations<1>()
 {
 #ifdef USE_SPECIALIZED_FITTERS
@@ -24,7 +26,7 @@ void SizeSpecializing<
 template <>
 template <>
 void SizeSpecializing< 
-    residue_analysis::Fitter< gauss_3d_fitter::Fitter > >
+    residue_analysis::Fitter< gauss_3d_fitter::Fitter<Zhuang> > >
 ::create_specializations<1>()
 {
 #ifdef USE_SPECIALIZED_FITTERS

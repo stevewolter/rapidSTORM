@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 
 #include <dStorm/helpers/exception.h>
