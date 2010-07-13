@@ -39,6 +39,8 @@ set test "Job reports progress"
 expect {
     -re "in Progress in value set 0.5\r*\n"
         { pass "$test"; }
+    -re "critical error in programming raised the signal for segmentation fault" 
+        { fail "$test"; exit 1; }
 }
 
 set test "Job runs past image 20"

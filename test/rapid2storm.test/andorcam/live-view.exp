@@ -10,6 +10,7 @@ expect_before {
 set test "Acquisition for aiming view starts"
 send "attach\n"
 send "in Car in Method in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Method in InputMethod in AndorDirectConfig in PixelSizeInNM in value set 100\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in value set -30\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in TargetTemperature in value set -20\n"
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in AimCamera in value set 1\n"
@@ -18,6 +19,18 @@ expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in CameraStatus in CameraStatus in value set Acquiring images"
         { pass "$test" }
+}
+
+set test "Window pixel size is correct"
+if { $have_test_plugin == 1 } {
+    expect { 
+        -re "Sizing display.*pixel size (\[0-9.+-eE\]*) px m" { 
+            set size $expect_out(1,string);
+            pass_if [ expr ! ( $size >= 0.9E7 && $size <= 1.1E7 ) ] "$test" 
+        }
+    }
+} else {
+    unsupported "$test"
 }
 
 set timeout -1

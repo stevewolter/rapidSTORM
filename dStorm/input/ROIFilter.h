@@ -3,6 +3,7 @@
 
 #include "debug.h"
 #include <simparm/optional.hh>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace input {

@@ -9,8 +9,9 @@ send "in Car in Run in value set 1\n"
 
 set job ""
 expect  {
-    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); pass "$test"; }
+    -re "in (dStormJob\[0-9\]*) declare Object\r*\nname EngineStatus" { set job $expect_out(1,string); pass "$test"; }
 }
+sleep 1
 if { $job != "" } {
     set stopped 0;
     set timeout 1

@@ -5,9 +5,7 @@ dstorm_attach
 
 set input_file Mikrotubuli.sif
 set test "Fall a) Punkt 1"
-if { [file exists "${tmpdir_host}$input_file"] != 1 } {
-    file link -hard "${tmpdir_host}$input_file" "${workspace_host}$input_file" 
-}
+link_or_copy "${workspace_host}$input_file" "${tmpdir_host}$input_file"
 set test "Fall a) Punkt 2"
 send "in Car in Method in InputMethod in value set AndorSIF\n"
 set test "Fall a) Punkt 3"

@@ -2,6 +2,16 @@ global srcdir
 set board unix
 lappend boards_dir "$srcdir/boards"
 
+proc pass_if { check test_name } {
+    if { $check == 0 } { pass "$test_name" } else { fail "$test_name" }
+}
+proc link_or_copy { from to } {
+    if { [file exists "$to"] != 1 } {
+        if { [catch {file link -hard "$to" "$from"} errmsg] } {
+            file copy "$from" "$to"
+        }
+    }
+}
 proc initialize {} {
 	dstorm_start
     expect_after {

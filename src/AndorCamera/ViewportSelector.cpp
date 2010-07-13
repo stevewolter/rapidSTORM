@@ -7,6 +7,7 @@
 #include "AcquisitionMode.h"
 #include <limits>
 #include "Gain.h"
+#include <boost/units/io.hpp>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/exception.h>
@@ -173,6 +174,7 @@ void Display::initialize_display()
 }
 
 void Display::set_resolution( const CamTraits::Resolution& r ) {
+    DEBUG("Setting resolution " << *r);
     resolution = r;
 
     change->do_resize = true;

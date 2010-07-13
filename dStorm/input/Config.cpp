@@ -193,9 +193,14 @@ Config::Config()
 Config::Config(const Config& c)
 : _Config(c)
 { 
+    DEBUG("Basename immediately after base copy is " << basename() << " copied from " << c.basename());
     this->inputMethod.copyChoices( c.inputMethod, *this );
     this->registerNamedEntries();
+    DEBUG("Basename before basename watcher construction is " << basename());
     watcher.reset( new BasenameWatcher( this->inputMethod, basename.value ) );
+    DEBUG("Basename after basename watcher construction is " << basename());
+    this->basename = c.basename();
+    DEBUG("Basename after full base copy is " << basename());
 }
 
 Config::~Config() {

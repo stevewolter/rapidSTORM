@@ -224,10 +224,14 @@ void Car::runOnSTM() throw( std::exception ) {
     }
     if ( reader )
         reader->setEmptyImageCallback( &buncher );
+    DEBUG("Publishing traits");
     buncher.noteTraits( *locSource->get_traits() );
+    DEBUG("Making iterators");
     input::Source<Localization>::iterator i, last = locSource->end();
+    DEBUG("Iterating");
     for ( i = locSource->begin(); i != last; i++ )
         buncher.accept( 0, 1, &*i );
+    DEBUG("Iterated");
     buncher.ensure_finished();
 }
 

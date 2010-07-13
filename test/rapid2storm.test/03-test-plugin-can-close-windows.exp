@@ -14,7 +14,7 @@ if { $have_test_plugin == 1 } {
     
     set dispnum -1
     expect {
-        -re "Created new window number (\[0-9\]*)" { set dispnum $expect_out(1,string) }
+        -re "Created new window number (\[0-9\]*)\r*\n" { set dispnum $expect_out(1,string) }
     }
     if { $dispnum != -1 } {
         send "in DummyDisplayManagerConfig in ToClose in value set Window$dispnum\n"

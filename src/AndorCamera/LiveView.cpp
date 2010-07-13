@@ -70,18 +70,24 @@ std::auto_ptr<Display::Change> LiveView::get_changes()
     DEBUG("Getting live view changes");
     compute_image_change( current_image_content );
     std::swap( fresh, change );
+    DEBUG("Got live view changes");
     return fresh;
 }
 
 void LiveView::compute_image_change
     ( const CamImage& image )
 {
-    CamImage::PixelPair minmax = image.minmax();
-    
-    change->do_change_image = true;
-    change->image_change.new_image = 
-        image.normalize<dStorm::Pixel>();
-    change->make_linear_key( minmax );
+    DEBUG("Computing minmax for change " << change.get() << " and validity " << image.is_invalid());
+    if ( ! image.is_invalid() ) {
+        CamImage::PixelPair minmax = image.minmax();
+        
+        DEBUG("Normalizing");
+        change->do_change_image = true;
+        change->image_change.new_image = 
+            image.normalize<dStorm::Pixel>();
+        DEBUG("Making key");
+        change->make_linear_key( minmax );
+    }
 }
 
 void LiveView::show( const CamImage& image, int number) {
@@ -93,6 +99,7 @@ void LiveView::show( const CamImage& image, int number) {
         show_window(image.sizes());
 
         current_image_content = image;
+        DEBUG("Performed show");
     } else {
         DEBUG("Hiding window");
         if ( window.get() != NULL ) hide_window();

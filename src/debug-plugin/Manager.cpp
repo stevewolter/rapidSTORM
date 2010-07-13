@@ -211,9 +211,9 @@ void Manager::dispatch_events() {
         gui_run.broadcast(); 
       }
 #ifdef HAVE_USLEEP
-      usleep(10000);
+      usleep(100000);
 #elif HAVE_WINDOWS_H
-      Sleep(10);
+      Sleep(100);
 #endif
     }
     std::cerr << "End of event dispatch routine\n";

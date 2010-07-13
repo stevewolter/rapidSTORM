@@ -47,6 +47,7 @@ throw(Output*)
 {
     while ( outputImage <= currentImage ) {
         if ( canned.find( outputImage ) != canned.end() ) {
+            DEBUG("Outputting " << outputImage);
             frame_index decanned = outputImage;
             output( canned[decanned] );
             delete canned[decanned];
@@ -66,9 +67,11 @@ throw(Output*)
     print_canned_results_where_possible();
 
     if ( outputImage == currentImage ) {
+        DEBUG("Direct output for " << currentImage);
         output( buffer.get() );
         buffer->clear();
     } else if ( buffer->size() != 0 ) {
+        DEBUG("Canning " << currentImage << " while waiting for " << outputImage);
         canned.insert( std::make_pair( currentImage, buffer.release() ) );
         buffer.reset( new Can() );
     }

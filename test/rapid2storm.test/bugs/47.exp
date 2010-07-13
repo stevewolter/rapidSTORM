@@ -19,7 +19,9 @@ expect {
 set test "Feature #47 works in job"
 send "in Car in Run in value set 1\n"
 expect {
-    -re "\nvalue set ${workspace_target}Mikrotubuli_auto.jpg\r*\n" { pass "$test" }
+    -re "\nvalue set (\[^\r\n\]*)Mikrotubuli_auto.jpg\r*\n" { 
+        pass_if [string compare $expect_out(1,string) $tmpdir_target] "$test" 
+    }
 }
 
 end_test_suite

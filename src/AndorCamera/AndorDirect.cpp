@@ -257,6 +257,7 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
     }
 
     void change_resolution( CamTraits::Resolution r ) {
+        DEBUG("Changing resolution to " << *r);
         resolution = r;
         if (currentlyActive.get())
             currentlyActive->change_resolution( r );
@@ -288,6 +289,7 @@ void Method::registerNamedEntries()
 
     receive_changes_from( basename.value );
     receive_changes_from( resolution_element.pixel_size_in_nm );
+    receive_changes_from( resolution_element.pixel_size_in_nm.value );
 
     push_back( basename );
     push_back( show_live_by_default );
@@ -295,11 +297,14 @@ void Method::registerNamedEntries()
 
 void Method::operator()(const simparm::Event& e)
 {
-    if ( &e.source == &resolution_element.pixel_size_in_nm ) {
+    DEBUG("Got change from node " <<  &e.source );
+    if ( &e.source == &resolution_element.pixel_size_in_nm.value ) {
+        DEBUG("Changing resolution to " << *resolution_element.get_resolution());
         if ( switcher.get() != NULL )
             switcher->change_resolution( resolution_element.get_resolution() );
     } else if ( &e.source == &basename.value ) {
         output_file_basename = basename();
+        DEBUG("Set output file basename at " << &output_file_basename << " to " << output_file_basename());
         dStorm::output::Basename bn( output_file_basename );
         bn.set_variable( "run", "" );
         switcher->change_basename( bn.new_basename() );
