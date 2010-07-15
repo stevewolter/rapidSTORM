@@ -201,7 +201,8 @@ dstorm_SOURCES = \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h $(RESOURCE_FILE) \
-    local_cleanup.h local_cleanup.cpp
+    local_cleanup.h local_cleanup.cpp \
+    TIFFOperation.h TIFFOperation.cpp
 dstorm_LDADD = $(COMMON_LIBS) -lltdl 
 
 alignment_test_LDADD = ../dStorm/libdStorm.la
