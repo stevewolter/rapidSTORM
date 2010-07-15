@@ -40,7 +40,7 @@ namespace dStorm {
         class iterator;
 
       public:
-        Source(const char *src);
+        Source(const char *src, bool ignore_warnings);
         virtual ~Source();
 
         base_iterator begin();
@@ -53,6 +53,7 @@ namespace dStorm {
         ::TIFF *tiff;
         int current_directory;
         std::string filename;
+        bool ignore_warnings;
 
         int _width, _height, _no_images;
         dStorm::SizeTraits<2>::Resolution resolution;
@@ -83,6 +84,7 @@ namespace dStorm {
 
       private:
         simparm::Attribute<std::string> tiff_extension;
+        simparm::BoolEntry ignore_warnings;
     };
 }
 

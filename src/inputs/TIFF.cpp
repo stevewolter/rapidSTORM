@@ -31,30 +31,24 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
+#include "TIFFOperation.h"
+
 using namespace std;
 
 namespace dStorm {
 namespace TIFF {
 
-static char tiff_error_buffer[4096];
-
 template<typename Pixel>
-void Source<Pixel>::TIFF_error_handler(
-    const char* module, const char *fmt, va_list ap)
-{
-    vsnprintf( tiff_error_buffer, 4096, fmt, ap );
-}
-
-template<typename Pixel>
-Source<Pixel>::Source(const char *src)
+Source<Pixel>::Source(const char *src, bool ignore_warnings)
 : simparm::Set("TIFF", "TIFF image reader"),
   BaseSource( static_cast<simparm::Node&>(*this),    
-      Flags() )
+      Flags() ),
+  ignore_warnings(ignore_warnings)
 {
-    tiff_error_buffer[0] = 0;
-    TIFFSetErrorHandler( TIFF_error_handler );
+    TIFFOperation op( "in opening TIFF file",
+                      *this, ignore_warnings );
     tiff = TIFFOpen( src, "rm" );
-    if ( tiff == NULL ) throw_error();
+    if ( tiff == NULL ) op.throw_exception_for_errors();
 
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
@@ -91,14 +85,6 @@ Source<Pixel>::Source(const char *src)
 }
 
 template<typename Pixel>
-void Source<Pixel>::throw_error()
-{
-    std::string error(tiff_error_buffer);
-    tiff_error_buffer[0] = 0;
-    throw std::logic_error( error );
-}
-
-template<typename Pixel>
 class Source<Pixel>::iterator 
 : public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
 {
@@ -107,11 +93,13 @@ class Source<Pixel>::iterator
     mutable Image img;
 
     void go_to_position() const {
+        TIFFOperation op( "in reading TIFF file",
+                          *src, src->ignore_warnings );
         int rv = TIFFSetDirectory(src->tiff, directory);
         if ( rv == 1 ) {
             src->current_directory = directory;
         } else {
-            src->throw_error();
+            op.throw_exception_for_errors();
         }
     }
     void check_position() const {
@@ -130,15 +118,16 @@ class Source<Pixel>::iterator
         return (src == i.src) && (src == NULL || directory == i.directory);
     }
     void increment() { 
+        TIFFOperation op( "in reading TIFF file",
+                          *src, src->ignore_warnings );
         check_position();
         img.invalidate(); 
         if ( TIFFReadDirectory(src->tiff) != 1 ) {
-            if ( tiff_error_buffer[0] )
-                src->throw_error();
-            else {
-                DEBUG( "Setting iterator to NULL" );
-                src = NULL;
-            }
+            op.throw_exception_for_errors();
+            /* Code from here only executed when no error
+             * was encountered */
+            DEBUG( "Setting iterator to NULL" );
+            src = NULL;
         } else {
             directory++; 
             src->current_directory = directory;
@@ -198,6 +187,8 @@ typename Source<Pixel>::Image&
 Source<Pixel>::iterator::dereference() const
 { 
     if ( img.is_invalid() ) {
+        TIFFOperation op( "in reading TIFF file",
+                          *src, src->ignore_warnings );
         check_position();
         check_params();
 
@@ -218,6 +209,8 @@ Source<Pixel>::iterator::dereference() const
                 strip_size );
         }
         img = i;
+
+        op.throw_exception_for_errors();
     }
 
     return img;
@@ -258,7 +251,8 @@ Source< Pixel >*
 Config<Pixel>::impl_makeSource()
 {
     Source<Pixel>* ptr =
-        new Source<Pixel>(this->inputFile().c_str());
+        new Source<Pixel>(this->inputFile().c_str(), 
+                          ignore_warnings());
     ptr->push_back( this->inputFile );
     this->inputFile.editable = false;
     return ptr;
@@ -269,10 +263,15 @@ Config<Pixel>::Config( input::Config& src)
 : FileBasedMethod< Image<Pixel,2> >(
         src, "TIFF", "TIFF file", 
         "extension_tif", ".tif" ),
-  tiff_extension("extension_tiff", ".tiff")
+  tiff_extension("extension_tiff", ".tiff"),
+  ignore_warnings("IgnoreLibtiffWarnings",
+    "Ignore libtiff warnings", false)
 {
+    ignore_warnings.userLevel 
+        = simparm::Object::Intermediate;
     this->inputFile.push_back(tiff_extension);
     this->push_back( src.pixel_size_in_nm );
+    this->push_back( ignore_warnings );
 }
 
 template<typename Pixel>
@@ -281,10 +280,12 @@ Config<Pixel>::Config(
     input::Config& src
 ) 
 : FileBasedMethod< Image<Pixel,2> >(c, src),
-  tiff_extension(c.tiff_extension)
+  tiff_extension(c.tiff_extension),
+  ignore_warnings(c.ignore_warnings)
 {
     this->inputFile.push_back(tiff_extension);
     this->push_back( src.pixel_size_in_nm );
+    this->push_back( ignore_warnings );
 }
 
 //template class Config<unsigned char>;

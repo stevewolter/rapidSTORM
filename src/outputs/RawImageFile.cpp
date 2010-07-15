@@ -1,9 +1,11 @@
+#include <dStorm/helpers/exception.h>
 #include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
 #include <dStorm/Image.h>
 #include <boost/units/io.hpp>
 #include <stdint.h>
+#include "TIFFOperation.h"
 
 namespace dStorm {
 namespace output {
@@ -61,12 +63,11 @@ RawImageFile::announceStormSize(const Announcement &a) {
     resolution = a.traits.resolution;
     last_frame = a.traits.last_frame;
 
-    TIFFSetErrorHandler( &error_handler );
+    TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
         tif = TIFFOpen( filename.c_str(), "w" );
         if ( tif == NULL ) 
-            throw std::runtime_error("Unable to open TIFF file" + 
-                                    tiff_error);
+            op.throw_exception_for_errors();
     }
 
     strip_size = TIFFTileSize( tif );
@@ -106,6 +107,9 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
   } catch ( const std::bad_alloc& a ) {
     std::cerr << "Out of memory. Dropping image from TIFF file.\n";
     return KeepRunning;
+  } catch ( const dStorm::exception& e ) {
+    simparm::Message m = e.get_message("Disabling TIFF output");
+    this->send( m );
   } catch ( const std::exception& e ) {
     std::cerr << e.what() << ". Disabling TIFF output.\n";
   }
@@ -127,6 +131,7 @@ void RawImageFile::delete_queue() {
 }
 
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
+    TIFFOperation op("in writing TIFF file", *this, false);
     DEBUG("Writing " << img.frame_number().value());
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width_in_pixels() );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height_in_pixels() );
@@ -141,6 +146,7 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / cs_units::camera::frame),
                                                uint16_t(*last_frame / cs_units::camera::frame + 1) );
     }
+    op.throw_exception_for_errors();
 
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
@@ -148,12 +154,12 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
         tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
         if ( r == -1 /* Error occured */ ) 
-            throw std::runtime_error("Writing TIFF failed: " + tiff_error);
+            op.throw_exception_for_errors();
         assert( sizeof(char) == 1 );
         data= ((char*)data) +strip;
     }
     if ( TIFFWriteDirectory( tif ) == 0 /* Error occured */ )
-        throw std::runtime_error("Writing TIFF failed: " + tiff_error);
+        op.throw_exception_for_errors();
     next_image = next_image + 1 * cs_units::camera::frame;
 }
 
@@ -164,6 +170,7 @@ RawImageFile::~RawImageFile() {
     delete_queue();
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
+        TIFFOperation op("in closing TIFF file", *this, false);
         TIFFClose( tif );
     }
 }
