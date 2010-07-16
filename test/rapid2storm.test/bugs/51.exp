@@ -1,0 +1,17 @@
+begin_test_suite
+dstorm_attach
+
+set test "TIFF warnings from Andor iQ are ignored"
+send "in Car in Method in InputMethod in Auto in InputFile in value set ${testcase_target}Andor_iQ.tif\n"
+send "in Car in Method in InputMethod in TIFF in IgnoreLibtiffWarnings in value set true\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re " in Progress in value set 1" { pass "$test" }
+    -re "unknown field with tag 317 (0x13d) encountered" { fail "$test" }
+    -re " in LocalizationCount in value set " { exp_continue }
+}
+
+end_test_suite
