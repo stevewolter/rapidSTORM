@@ -56,6 +56,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
     int motivation = successiveNegligibleSteps, 
         curMotivation = motivation;
 
+    DEBUG("Beginning fitting, motivation is " << motivation);
     bool residuesGrew = true;
     bool tookOneValidStep = false;
 
