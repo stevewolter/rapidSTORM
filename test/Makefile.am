@@ -19,10 +19,10 @@ EXTRADIST = \
 	rapid2storm.outputs/localization-filter-can-remove-output.exp
 	rapid2storm.outputs/localization-filter.exp
 	rapid2storm.outputs/viewer.exp
-	rapid2storm.test/00-dstorm.exp
-	rapid2storm.test/01-plugins-loaded.exp
-	rapid2storm.test/02-run-can-succeed.exp
-	rapid2storm.test/03-test-plugin-can-close-windows.exp
+	rapid2storm.00-pre/00-dstorm.exp
+	rapid2storm.00-pre/01-plugins-loaded.exp
+	rapid2storm.00-pre/02-run-can-succeed.exp
+	rapid2storm.00-pre/03-test-plugin-can-close-windows.exp
 	rapid2storm.test/autoname.exp
 	rapid2storm.test/can-compute-txt-file.exp
 	rapid2storm.test/empty_input_file.exp
