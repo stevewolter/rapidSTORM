@@ -33,8 +33,8 @@ namespace dStorm {
                    public SerialSource< CImg<PixelType> >
     {
       public:
-         Source(const char *src);
-         virtual ~Source();
+        Source(const char *src, bool ignore_warnings);
+        virtual ~Source();
 
          virtual int quantity() const { return _no_images; }
 
@@ -44,6 +44,7 @@ namespace dStorm {
 
       private:
         ::TIFF *tiff;
+        bool ignore_warnings;
 
         int _width, _height, _no_images;
 
@@ -73,6 +74,7 @@ namespace dStorm {
 
       private:
         simparm::Attribute<std::string> tiff_extension;
+        simparm::BoolEntry ignore_warnings;
     };
 }
 

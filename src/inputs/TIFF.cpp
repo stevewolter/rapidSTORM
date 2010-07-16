@@ -21,31 +21,26 @@
 #include <dStorm/input/ImageTraits.h>
 #include <dStorm/input/FileBasedMethod_impl.h>
 
+#include "TIFFOperation.h"
+
 using namespace std;
 using namespace cimg_library;
 
 namespace dStorm {
 namespace TIFF {
 
-static char tiff_error_buffer[4096];
-
 template<typename Pixel>
-void Source<Pixel>::TIFF_error_handler(
-    const char* module, const char *fmt, va_list ap)
-{
-    vsnprintf( tiff_error_buffer, 4096, fmt, ap );
-}
-
-template<typename Pixel>
-Source<Pixel>::Source(const char *src)
+Source<Pixel>::Source(const char *src, bool ignore_warnings)
 : simparm::Set("TIFF", "TIFF image reader"),
   SerialSource< CImg<Pixel> >
     ( static_cast<simparm::Node&>(*this),    
-      BaseSource::Pushing | BaseSource::Pullable)
+      BaseSource::Pushing | BaseSource::Pullable),
+  ignore_warnings(ignore_warnings)
 {
-    TIFFSetErrorHandler( TIFF_error_handler );
+    TIFFOperation op( "in opening TIFF file",
+                      ignore_warnings );
     tiff = TIFFOpen( src, "rm" );
-    if ( tiff == NULL ) throw_error();
+    if ( tiff == NULL ) op.throw_exception_for_errors();
 
     Traits< CImg<Pixel> >& my_traits = *this;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
@@ -64,15 +59,11 @@ Source<Pixel>::Source(const char *src)
 }
 
 template<typename Pixel>
-void Source<Pixel>::throw_error()
-{
-    throw std::logic_error( tiff_error_buffer );
-}
-
-template<typename Pixel>
 CImg<Pixel>*
 Source<Pixel>::load()
 {
+    TIFFOperation op( "in reading TIFF file",
+                      ignore_warnings );
     uint32_t width, height;
     uint16_t bitspersample;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &width );
@@ -105,14 +96,18 @@ Source<Pixel>::load()
         TIFFReadEncodedStrip( tiff, strip, 
             img->ptr() + (strip * strip_size / sizeof(Pixel)),
             strip_size );
+
     }
 
     TIFFReadDirectory(tiff);
+    op.throw_exception_for_errors();
     return img.release();
 }
 
 template<typename Pixel>
 Source<Pixel>::~Source() {
+    TIFFOperation op( "in closing TIFF file",
+                      ignore_warnings );
     TIFFClose( tiff );
 }
 
@@ -121,7 +116,8 @@ Source< Pixel >*
 Config<Pixel>::impl_makeSource()
 {
     Source<Pixel>* ptr =
-        new Source<Pixel>(this->inputFile().c_str());
+        new Source<Pixel>(this->inputFile().c_str(), 
+                          ignore_warnings());
     ptr->push_back( this->inputFile );
     this->inputFile.editable = false;
     return ptr;
@@ -132,10 +128,15 @@ Config<Pixel>::Config( input::Config& src)
 : FileBasedMethod< CImg<Pixel> >(
         src, "TIFF", "TIFF file", 
         "extension_tif", ".tif" ),
-  tiff_extension("extension_tiff", ".tiff")
+  tiff_extension("extension_tiff", ".tiff"),
+  ignore_warnings("IgnoreLibtiffWarnings",
+    "Ignore libtiff warnings", false)
 {
+    ignore_warnings.userLevel 
+        = simparm::Object::Intermediate;
     this->inputFile.push_back(tiff_extension);
     this->push_back( src.pixel_size_in_nm );
+    this->push_back( ignore_warnings );
 }
 
 template<typename Pixel>
@@ -144,10 +145,12 @@ Config<Pixel>::Config(
     input::Config& src
 ) 
 : FileBasedMethod< CImg<Pixel> >(c, src),
-  tiff_extension(c.tiff_extension)
+  tiff_extension(c.tiff_extension),
+  ignore_warnings(c.ignore_warnings)
 {
     this->inputFile.push_back(tiff_extension);
     this->push_back( src.pixel_size_in_nm );
+    this->push_back( ignore_warnings );
 }
 
 template class Config<unsigned char>;
