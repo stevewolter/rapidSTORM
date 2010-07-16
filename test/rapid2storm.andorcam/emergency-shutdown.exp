@@ -58,16 +58,20 @@ expect {
     eof { fail "$test" }
 }
 
-set test "Process terminates"
+set test "Process terminates gracefully"
 if { $have_process_watcher == 1 } {
     send "nop\n"
     expect {
         -re "PROCESS TERMINATED WITH EXIT CODE " { pass "$test" }
     }
 } else {
+    global xfail_flag
     wait
+    set former_xfail_flag $xfail_flag
+    set xfail_flag 1
+    expect { timeout {} eof {} }
+    set xfail_flag $former_xfail_flag
     initialize
-    pass "$test"
 }
 
 }
