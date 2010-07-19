@@ -147,8 +147,6 @@ static bool check() {
         std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
         std::cerr << std::endl; \
         return false; \
-    } else { \
-        std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
     }
     CHECK(residues);
     CHECK(gradient);
