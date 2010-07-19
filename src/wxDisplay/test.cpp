@@ -11,18 +11,19 @@ class TestDataSource : public DataSource {
 };
 
 int main() {
-    dStorm::Display::Manager::setSingleton
-        ( dStorm::Display::wxManager::getSingleton() );
+    std::auto_ptr<dStorm::Display::Manager> singleton
+        ( new dStorm::Display::wxManager() );
+    dStorm::Display::Manager::setSingleton( *singleton );
 
     TestDataSource source;
     Manager::WindowProperties prop;
     prop.name = "Test name";
     prop.flags.close_window_on_unregister();
     ResizeChange size;
-    size.width = 2048;
-    size.height = 2048;
+    size.size.x() = 2048 * cs_units::camera::pixel;
+    size.size.y() = 2048 * cs_units::camera::pixel;
     size.key_size = 256;
-    size.pixel_size = 0.1;
+    size.pixel_size = 1E5 * cs_units::camera::pixels_per_meter;
     prop.initial_size = size;
 
     std::auto_ptr<Manager::WindowHandle> h = 
@@ -31,7 +32,7 @@ int main() {
     ::wxMilliSleep( 3000 );
 
     h.reset( NULL );
-    dStorm::Display::wxManager::destroySingleton();
+    singleton.reset(NULL);
 
     return 0;
 }

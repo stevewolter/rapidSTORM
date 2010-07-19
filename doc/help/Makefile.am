@@ -29,3 +29,8 @@ EXTRA_DIST = rapidstorm.xml rapidstorm.xsl rapidstorm_pre.xsl $(HTMLHELP_FILES)
 
 rapidstorm_help_file.h :
 	echo 'namespace dStorm { static const char *HelpFileName = "$(PACKAGE)/rapidstorm.chm"; }' > $@
+
+CLEANFILES = alias.h rapidstorm.hhc rapidstorm.hhp context.h rapidstorm.chm rapidstorm.hhk
+
+clean-local :
+	-rm -f *.html

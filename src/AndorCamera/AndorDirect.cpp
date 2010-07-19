@@ -19,6 +19,7 @@
 #include <AndorCamera/ShiftSpeedControl.h>
 #include <AndorCamera/ShutterControl.h>
 #include "ViewportSelector.h"
+#include <boost/utility.hpp>
 
 #include "LiveView.h"
 
@@ -137,7 +138,7 @@ Method::~Method() {
 /** The CameraLink class represents a link to the given camera.
  *  It is a tabbed config set and registered all camera information
  *  sets in the right tabs. */
-class CameraLink : public simparm::Set {
+class CameraLink : boost::noncopyable, public simparm::Set {
     simparm::Set a;
     CameraReference cam;
     simparm::Set b, c, d;
@@ -161,6 +162,7 @@ class CameraLink : public simparm::Set {
       acquisitionSpeed("AcquisitionSpeed", "Exposure time per image"),
       viewportConfig(cam, resolution)
     {
+        simparm::Node::make_thread_safe();
         ost::MutexLock lock( cam->mutex );
         showTabbed = true;
 
@@ -205,6 +207,8 @@ class CameraLink : public simparm::Set {
         ost::MutexLock lock( cam->mutex );
         acquisitionLength.erase( 
             cam->acquisitionMode().kinetic_length.value );
+        acquisitionLength.erase( 
+            cam->acquisitionMode().kinetic_length["optional_given"] );
         acquisitionSpeed.erase( 
             cam->acquisitionMode().desired_kinetic_cycle_time.value );
 

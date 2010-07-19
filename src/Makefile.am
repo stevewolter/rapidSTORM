@@ -8,9 +8,10 @@ else
 endif
 
 bin_PROGRAMS = dstorm 
-C_TESTS = alignment_test check_AndorCamera_with_DummyCamera testDisplay \
+C_TESTS = alignment_test \
 	check_uncorrelated check_derivatives check_plugin
 check_PROGRAMS = $(C_TESTS)
+EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
     libinputs.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
@@ -42,7 +43,8 @@ lib3d_fitter_la_SOURCES = \
     3d_fitter/Exponential3D_impl.hh 3d_fitter/Exponential3D_Derivatives.h \
     3d_fitter/Fitter.h 3d_fitter/Fitter.cpp \
     3d_fitter/Specialized.cpp 3d_fitter/Specialized_naive.cpp \
-    3d_fitter/plugin.cpp 3d_fitter/ConstantTypes.h
+    3d_fitter/plugin.cpp 3d_fitter/ConstantTypes.h \
+    3d_fitter/Exponential3D_Accessor.h
 lib3d_fitter_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
 lib3d_fitter_la_LIBADD = ../dStorm/libdStorm.la -lsimparm
 
@@ -52,11 +54,17 @@ libgauss_fitter_la_SOURCES = \
     gauss_fitter/no_analysis/main.cpp gauss_fitter/no_analysis/main.h \
     gauss_fitter/no_analysis/fitters_uncorrelated.cpp \
     gauss_fitter/no_analysis/fitters_correlated.cpp \
+    gauss_fitter/no_analysis/impl.h \
     gauss_fitter/residue_analysis/main.cpp \
     gauss_fitter/residue_analysis/main.h gauss_fitter/residue_analysis/impl.h \
     gauss_fitter/residue_analysis/fitters_uncorrelated_0.cpp \
     gauss_fitter/residue_analysis/fitters_uncorrelated_1.cpp \
-    gauss_fitter/residue_analysis/fitters_correlated.cpp
+    gauss_fitter/residue_analysis/fitters_correlated.cpp \
+    fit++/Exponential2D_Correlated_Derivatives.hh \
+    fit++/Exponential2D.hh \
+    fit++/Exponential2D_impl.hh \
+    fit++/Exponential2D_ParameterHelper.hh \
+    fit++/Exponential2D_Uncorrelated_Derivatives.hh
 libgauss_fitter_la_CPPFLAGS = -I$(srcdir)/gauss_fitter
 
 libtestplugin_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
@@ -66,7 +74,8 @@ libtestplugin_la_SOURCES = debug-plugin/plugin.cpp debug-plugin/SegmentationFaul
     debug-plugin/Manager.h debug-plugin/Manager.cpp \
     debug-plugin/md5.h debug-plugin/md5.c \
     debug-plugin/DummyFileInput.h debug-plugin/DummyFileInput.cpp \
-    debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp
+    debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp \
+    debug-plugin/Verbose.h 
 libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lpthread
 
 libinputs_la_SOURCES = \
@@ -79,7 +88,7 @@ libengine_la_SOURCES = \
     engine/LocalizationBuncher.cpp engine/LocalizationBuncher.h \
     engine/SigmaFitter.h engine/ImageFitter.h \
     engine/SigmaGuesser.cpp engine/SigmaGuesser_FreeFormFitter.cpp \
-    engine/SigmaGuesser.h engine/SpotFitter.h \
+    engine/SigmaGuesser.h \
     engine/studentPinv.c engine/studentPinv.h \
     engine/SpotFinder.cpp engine/debug.h  \
     engine/ThresholdGuesser.h engine/ThresholdGuesser.cpp
@@ -124,7 +133,8 @@ libviewer_la_SOURCES = \
     viewer/Status_decl.h viewer/Status.h viewer/Status.cpp \
     viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
     viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
-    viewer/ImageDiscretizer_converter.h
+    viewer/ImageDiscretizer_converter.h \
+    viewer/plugin.h
 
 libfitter_la_SOURCES = \
     fit++/BitfieldConstructor.hh fit++/BlockReturner.hh \
@@ -136,7 +146,7 @@ libfitter_la_SOURCES = \
     fit++/LatticeFitFunction.hh fit++/LeastSquaresLatticeFitter.hh \
     fit++/ParameterAllocator.hh fit++/Position.hh \
     fit++/ResidueMatrix.hh \
-    fitter/Sized.h fitter/FixedSize.h \
+    fitter/Sized.h fitter/FixedSized.h \
     fitter/FixedSized_impl.h \
     fitter/SizeSpecializing_decl.h fitter/SizeSpecializing.h \
     fitter/SizeSpecializing_impl.h \
@@ -145,9 +155,13 @@ libfitter_la_SOURCES = \
     fitter/residue_analysis/analysis.h \
     fitter/residue_analysis/Config_decl.h \
     fitter/residue_analysis/Config.h \
+    fitter/residue_analysis/Config_impl.h \
     fitter/residue_analysis/fitter.h \
     fitter/residue_analysis/impl.h \
-    fitter/residue_analysis/main.h
+    fitter/residue_analysis/main.h \
+    fitter/FixedSized_decl.h \
+    fitter/MarquardtInfo.h fitter/MarquardtInfo_impl.h \
+    fitter/MarquardtConfig_impl.h
 
 libdStorm_display_la_SOURCES = \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
@@ -159,9 +173,11 @@ libdStorm_display_la_SOURCES = \
 if BUILD_ANDORCAM
     ACS = \
 	AndorCamera/SDK.h AndorCamera/SDK.cpp AndorCamera/Error.cpp AndorCamera/foreach.h \
-	AndorCamera/Acquisition.cpp AndorCamera/StateMachine.cpp AndorCamera/StateMachine.h \
+	AndorCamera/Acquisition.cpp AndorCamera/StateMachine.cpp \
+	AndorCamera/StateMachine.h AndorCamera/StateMachine_impl.h \
 	AndorCamera/TemperatureMonitor.h AndorCamera/TemperatureMonitor.cpp AndorCamera/Error.h \
-	AndorCamera/System.cpp AndorCamera/Camera.cpp AndorCamera/AcquisitionSwitch.cpp AndorCamera/Initialization.cpp \
+	AndorCamera/System.cpp AndorCamera/Camera.cpp \
+	AndorCamera/AcquisitionSwitch.h AndorCamera/AcquisitionSwitch.cpp AndorCamera/Initialization.cpp \
 	AndorCamera/Temperature.cpp AndorCamera/Readout.cpp AndorCamera/AcquisitionMode.cpp \
 	AndorCamera/ShutterControl.cpp AndorCamera/Triggering.cpp AndorCamera/ShiftSpeedControl.cpp \
 	AndorCamera/Gain.cpp AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp AndorCamera/AndorDirect.h \
@@ -175,9 +191,6 @@ else
     ACS = 
 endif
 libAndorCamera_la_SOURCES = AndorCamera/Config.cpp AndorCamera/Config.h $(ACS)
-check_AndorCamera_with_DummyCamera_SOURCES = \
-    AndorCamera/check_AndorCamera_with_DummyCamera.cpp
-check_AndorCamera_with_DummyCamera_LDADD = ../dStorm/libdStorm.la libdStorm_display.la libAndorCamera.la
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = ../dStorm/libdStorm.la libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
@@ -200,7 +213,7 @@ dstorm_SOURCES = \
     LibraryHandle.h LibraryHandle.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
-    debug.h $(RESOURCE_FILE) \
+    debug.h debug_print.h $(RESOURCE_FILE) \
     local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
 dstorm_LDADD = $(COMMON_LIBS) -lltdl 
@@ -212,9 +225,26 @@ javadir=$(datadir)/java
 java_DATA = rapidSTORM.jar 
 JAVASOURCES = DStorm.java
 JARCONTENT = logo.png
-EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest
+EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest \
+ gauss_fitter/aclocal.m4 \
+ gauss_fitter/config.h.in \
+ gauss_fitter/configure \
+ gauss_fitter/configure.ac \
+ 3d_fitter/aclocal.m4 \
+ 3d_fitter/config.h.in \
+ 3d_fitter/configure \
+ 3d_fitter/configure.ac 
+
+CLEANFILES = rapidSTORM.jar \
+	3d_fitter/config.h 3d_fitter/config.status \
+	3d_fitter/libtool 3d_fitter/config.log \
+	gauss_fitter/config.h gauss_fitter/config.status \
+	gauss_fitter/libtool gauss_fitter/config.log
 
 javabuilddir = classes
+
+clean-local :
+	-rm -fr $(javabuilddir)
 
 rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(MKDIR_P) $(javabuilddir)
