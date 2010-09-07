@@ -177,9 +177,13 @@ void Engine::run()
     announcement.carburettor = &input;
     DEBUG("Built announcement structure");
 
-    DEBUG("Guessing input threshold");
-    if ( ! config.amplitude_threshold().is_set() )
+    if ( ! config.amplitude_threshold().is_set() ) {
+        DEBUG("Guessing input threshold");
         config.amplitude_threshold = ThresholdGuesser(input).compute_threshold();
+        DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
+    } else {
+        DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
+    }
 
     Output::AdditionalData data 
         = output->announceStormSize(announcement);

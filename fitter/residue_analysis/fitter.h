@@ -84,7 +84,8 @@ fit( const engine::Spot &spot, Localization *target,
 
     Eigen::Vector2i suspected_doubleSpot_direction;
     float two_kernel_improvement = 0;
-    if ( residue_analysis( &suspected_doubleSpot_direction, xl, yl ) != Single ) 
+    if ( this->common.asymmetry_threshold <= 1E-3 ||
+         residue_analysis( &suspected_doubleSpot_direction, xl, yl ) != Single ) 
     {
         two_kernel_improvement = 1 - double_fit_analysis
             (image, suspected_doubleSpot_direction, xl, yl); 

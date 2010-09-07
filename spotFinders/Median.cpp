@@ -276,9 +276,9 @@ void ahmadMedian(const engine::Image &in, SmoothedImage& out, int mw, int mh)
         if (y == 0) {
             std::vector<StormPixel> init_window_pixels;
             init_window_pixels.reserve(mw*mh);
-            for (int y = 0; y < mh; y++) {
+            for (int y = 0; y < mh; ++y) {
                 const StormPixel *p = in.ptr(0,y);
-                for (int x = 0; y < mw; x++) 
+                for (int x = 0; x < mw; ++x) 
                     init_window_pixels.push_back(p[x]);
             }
             std::partial_sort( 
