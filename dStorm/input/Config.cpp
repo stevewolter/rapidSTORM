@@ -25,6 +25,7 @@
 #include <dStorm/input/LocalizationTraits.h>
 #include "Buffer_impl.h"
 #include "ResolutionSetter.h"
+#include "Mask.h"
 
 using namespace std;
 using namespace ost;
@@ -35,6 +36,7 @@ namespace input {
 void _Config::registerNamedEntries() 
 {
     push_back(inputMethod);
+    push_back(mask_image);
     /* The other elements will be registered by the input configs
      * that need them. */
 }
@@ -77,7 +79,8 @@ _Config::_Config()
   lastImage("LastImage", "Last image to load"),
   pixel_size_in_nm("PixelSizeInNM", "Size of one input pixel in nm",
                    85.0f * boost::units::si::nanometre / cs_units::camera::pixel),
-  basename("Basename", "Output file prefix")
+  basename("Basename", "Output file prefix"),
+  mask_image("MaskImage", "Mask image")
 {
     PROGRESS("Constructing");
     inputMethod.helpID = HELP_Input_driver;
@@ -95,6 +98,8 @@ _Config::_Config()
     lastImage.setHelp("Stop at this image in the file. Images are "
                       "numbered from 0.");
     lastImage.setUserLevel(simparm::Object::Intermediate);
+
+    mask_image.setUserLevel(simparm::Object::Intermediate);
 
     PROGRESS("Finished");
 }
@@ -153,6 +158,10 @@ std::auto_ptr< BaseSource > Config::makeImageSource() const
         {
             try_to_add_ROI_filter<dStorm::engine::Image>(rv);
             try_to_add_ROI_filter<dStorm::Localization>(rv);
+        }
+
+        if ( mask_image ) {
+            try_to_add< Mask<dStorm::engine::Image> >(rv, *this);
         }
 
         if ( rv->flags.test( BaseSource::TimeCritical ) ||

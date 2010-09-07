@@ -33,7 +33,8 @@ libinput_la_SOURCES = \
     input/Source.cpp input/AutoInputMethod.h \
     input/BasenameWatcher.cpp \
     input/FileBasedMethod.cpp \
-    input/ROIFilter.h input/ResolutionSetter.h
+    input/ROIFilter.h input/ResolutionSetter.h \
+    input/Mask.h input/Mask.cpp
 liblocfile_la_SOURCES = \
     localization_file/fields.cpp localization_file/reader.cpp localization_file/known_fields.cpp
 liblocfile_la_LIBADD = -lberghen_xmlParser

@@ -88,6 +88,8 @@ namespace input {
         /** Basename of output file */
         simparm::StringEntry basename;
 
+        simparm::FileEntry mask_image;
+
         void addInput( std::auto_ptr<BaseMethod> method );
         void addInput( BaseMethod* method ) { addInput( std::auto_ptr<BaseMethod>(method) ); }
 

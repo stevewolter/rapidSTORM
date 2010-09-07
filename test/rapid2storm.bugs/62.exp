@@ -1,0 +1,41 @@
+set input_file "TFS_Schief.sif"
+
+begin_test_suite
+load_default_config
+
+send "in Car in AutoTerminate in value set false\n"
+send "in Car in Engine in SpotFittingMethod value set 3DFitterHoltzer\n"
+send "in Car in Engine in SpotFittingMethod in 3DFitterHoltzer in ZDistance in value set 500\n"
+send "in Car in Engine in SpotFittingMethod in 3DFitterHoltzer in XDefocusConstant in value set 1E-4\n"
+send "in Car in Engine in SpotFittingMethod in 3DFitterHoltzer in YDefocusConstant in value set 1E-4\n"
+send "in Car in Method set InputMethod in Auto set InputFile value set $testcase_target$input_file\n"
+send "in Car in Method in InputMethod in Auto in PixelSizeInNM in value set 95\n"
+send "in Car in Method set InputMethod in Auto set Basename value set $tmpdir_target$input_file\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set test "Run starts"
+expect {
+    -re " in LocalizationCount in value set 84" { pass "$test" }
+}
+set test "Run terminates"
+send "in dStormJob01 in CloseJob in value set 1\n"
+expect {
+    -re "remove dStormJob" { pass "$test" }
+}
+
+set test "Run starts again"
+send "in Car in Engine in AmplitudeThreshold in optional_given set true\n"
+send "in Car set Run value set 1\n"
+expect {
+    -re " in LocalizationCount in value set 83" { pass "$test" }
+}
+set test "Run terminates"
+send "in dStormJob02 in CloseJob in value set 1\n"
+expect {
+    -re "remove dStormJob" { pass "$test" }
+}
+
+end_test_suite

@@ -1,0 +1,17 @@
+
+begin_test_suite
+dstorm_attach
+
+set test "Job can start with median spot finder"
+
+set input_file Mikrotubuli.sif
+send "in Car in Method in InputMethod in AndorSIF in InputFile in value set $workspace_target$input_file\n"
+send "in Car in Engine in SpotFindingMethod in value set Median\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re " in LocalizationCount in value set " { pass "$test" }
+}
+
+end_test_suite
