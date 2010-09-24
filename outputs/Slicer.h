@@ -3,6 +3,8 @@
 
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FilterSource.h>
+#include <dStorm/output/FileOutputBuilder.h>
+#include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <simparm/NumericEntry.hh>
 #include <simparm/ChoiceEntry.hh>
@@ -15,15 +17,18 @@ namespace dStorm {
 namespace output {
 class Slicer : public OutputObject {
   public:
-    class Source;
+    class _Config;
+    typedef simparm::Structure<_Config> Config;
+    typedef dStorm::output::OutputBuilder<Slicer,FilterSource>
+        SourceBuilder;
+    typedef dStorm::output::OutputFileAdjuster<SourceBuilder> Source;
   private:
     frame_count slice_size, slice_distance;
     Basename filename;
-    class _Config;
 
     Basename fn_for_slice( int i ) const;
 
-    std::auto_ptr<Source> source;
+    std::auto_ptr<dStorm::output::FilterSource> source;
 
     class Child {
         Output *output;
@@ -88,15 +93,14 @@ class Slicer : public OutputObject {
     std::list<ProgressSignal> received_signals;
 
   public:
-    typedef simparm::Structure<_Config> Config;
 
     simparm::NodeChoiceEntry<simparm::Object> outputs_choice;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames);
 
-    Slicer(const Source&);
-    Slicer* clone() const { return new Slicer(*this); }
+    Slicer(const SourceBuilder&);
+    Slicer* clone() const;
     ~Slicer();
 
     AdditionalData announceStormSize(const Announcement&);
@@ -107,52 +111,17 @@ class Slicer : public OutputObject {
 
 class Slicer::_Config : public simparm::Object {
   protected:
-    void registerNamedEntries() 
-        { push_back( slice_size ); push_back( slice_distance );
-          push_back( filename); }
+    void registerNamedEntries();
   public:
     dStorm::IntFrameEntry slice_size, slice_distance;
-    simparm::StringEntry filename;
+    dStorm::output::BasenameAdjustedFileEntry outputFile;
 
     _Config();
+
+    bool can_work_with( Capabilities& cap ) 
+        { return true; }
 };
 
-class Slicer::Source
-: public Slicer::Config, public FilterSource
-{
-    Basename basename;
-
-  public:
-    Source() 
-        : FilterSource(static_cast<Slicer::Config&>(*this))
-        {
-            this->filename.erase( filename.value );
-            filename.push_back( basename.unformatted() );
-        }
-    Source(const Source& o) 
-        : Config(o), 
-          FilterSource(static_cast<Slicer::Config&>(*this),
-                       o) 
-        {
-            this->filename.erase( filename.value );
-            filename.push_back( basename.unformatted() );
-        }
-    Source* clone() const { return new Source(*this); }
-
-    virtual std::auto_ptr<Output> make_output() 
- 
-        { return std::auto_ptr<Output>( new Slicer( *this ) ); }
-
-    void set_output_file_basename
-        (const Basename& basename)
-    {
-        this->basename = basename;
-        this->basename.append( "_%slice%" );
-    }
-
-    std::string getDesc() const 
-        { return Config::getDesc(); }
-};
 
 }
 }

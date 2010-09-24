@@ -15,7 +15,7 @@ struct Verbose
 {
     struct _Config;
     typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::OutputBuilder<Verbose> Source;
+    class Source;
 
     Verbose(const Config& config) ;
     ~Verbose();
@@ -58,6 +58,22 @@ Verbose::_Config::_Config()
  : simparm::Object("Verbose", "Verbose")
 {
 }
+
+class Verbose::Source
+: public dStorm::output::OutputBuilder<Verbose> 
+{
+  public:
+    Source( bool failSilently = false ) 
+        : dStorm::output::OutputBuilder<Verbose>(failSilently) {}
+    Source( const Source& o ) 
+        : dStorm::output::OutputBuilder<Verbose>(o) {}
+
+    Source *clone() const { return new Source(*this); }
+
+    void set_output_file_basename(const dStorm::output::Basename& basename) {
+        //LOG("Verbose plugin got basename " << basename.unformatted()());
+    }
+};
 
 Verbose* Verbose::clone() const { 
     LOG( "Cloning verbose plugin" );
