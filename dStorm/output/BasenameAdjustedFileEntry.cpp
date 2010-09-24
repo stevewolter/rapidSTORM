@@ -74,5 +74,12 @@ std::string BasenameAdjustedFileEntry::operator()() const
     return b.new_basename();
 }
 
+Basename BasenameAdjustedFileEntry::get_basename() const
+{
+    Basename b = last_basename;
+    b.unformatted() = value();
+    return b;
+}
+
 }
 }

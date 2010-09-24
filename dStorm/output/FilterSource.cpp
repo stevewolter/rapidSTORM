@@ -85,6 +85,7 @@ void
 FilterSource::set_output_file_basename
     (const Basename& basename) 
 {
+    OutputSource::set_output_file_basename( basename );
     this->basename = basename;
 
     for (Outputs::iterator i = 

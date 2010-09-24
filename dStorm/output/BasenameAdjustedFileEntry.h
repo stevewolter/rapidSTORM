@@ -33,6 +33,8 @@ class BasenameAdjustedFileEntry
         ( const Basename& basename );
     std::string operator()() const;
     std::string unformatted_name() const { return value(); }
+
+    Basename get_basename() const;
 };
 
 }

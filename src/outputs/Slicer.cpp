@@ -50,7 +50,7 @@ Slicer::_Config::_Config()
 : simparm::Object("Slicer", "Slice localization set"),
   slice_size("SliceSize", "Size of one slice in images"),
   slice_distance("SliceDistance", "Start new slice every n images"),
-  filename("BaseFileName", "File name pattern")
+  outputFile("BaseFileName", "File name pattern", "_$slice$")
 {
     slice_size.helpID = HELP_Slicer_Size;
     slice_size.min = 1 * cs_units::camera::frame;
@@ -58,17 +58,23 @@ Slicer::_Config::_Config()
     slice_distance.helpID = HELP_Slicer_Dist;
     slice_distance.min = 1 * cs_units::camera::frame;
 
-    filename.helpID = HELP_Slicer_Pattern;
-    filename.setHelp("%i is replaced with the block name.");
+    outputFile.helpID = HELP_Slicer_Pattern;
+    outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 
-Slicer::Slicer(const Source& source)
- 
+void Slicer::_Config::registerNamedEntries()
+{
+    push_back( slice_size ); 
+    push_back( slice_distance );
+    push_back( outputFile); 
+}
+
+Slicer::Slicer(const SourceBuilder& config)
 : OutputObject("Slicer", "Object Slicer"),
-  slice_size( source.slice_size()  ),
-  slice_distance( source.slice_distance() ),
-  filename( source.filename() ),
-  source( source.clone() ),
+  slice_size( config.slice_size()  ),
+  slice_distance( config.slice_distance() ),
+  filename( config.outputFile.get_basename() ),
+  source( static_cast<const FilterSource&>(config).clone() ),
   avoid_filenames(NULL),
   outputs_choice( "Outputs", "Outputs to slicer" )
 {
@@ -150,6 +156,8 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
 Slicer::~Slicer() 
 {
 }
+
+Slicer* Slicer::clone() const { return new Slicer(*this); }
 
 }
 }

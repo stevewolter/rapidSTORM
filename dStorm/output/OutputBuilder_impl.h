@@ -6,10 +6,10 @@
 namespace dStorm {
 namespace output {
 
-template <typename Type>
-OutputBuilder<Type>::OutputBuilder(
+template <typename Type, typename BaseSource>
+OutputBuilder<Type,BaseSource>::OutputBuilder(
     bool failSilently)
-: OutputSource(static_cast<typename Type::Config&>(*this)),
+: BaseSource(static_cast<typename Type::Config&>(*this)),
   failSilently("FailSilently", 
         "Allow transmission to fail silently",
         failSilently)
@@ -19,10 +19,10 @@ OutputBuilder<Type>::OutputBuilder(
     push_back( this->help_file ); 
 }
 
-template <typename Type>
-OutputBuilder<Type>::OutputBuilder(const OutputBuilder& o)
+template <typename Type, typename BaseSource>
+OutputBuilder<Type,BaseSource>::OutputBuilder(const OutputBuilder& o)
 : Type::Config(o),
-    OutputSource(
+    BaseSource(
         static_cast<typename Type::Config&>(*this), o),
     failSilently(o.failSilently)
 { 

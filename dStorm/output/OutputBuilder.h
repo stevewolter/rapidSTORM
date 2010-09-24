@@ -7,18 +7,23 @@
 namespace dStorm {
 namespace output {
 
-    template < typename Type >
+template < typename Type, typename BaseSource = dStorm::output::OutputSource >
+class OutputBuilder;
+
+    template < typename Type, typename BaseSource>
     class OutputBuilder
     : public Type::Config,
-      public OutputSource
+      public BaseSource
     {
         simparm::BoolEntry failSilently;
       public:
+        typedef typename Type::Config Config;
+        typedef Type BaseType;
 
         OutputBuilder(bool failSilently = false);
         OutputBuilder(const OutputBuilder&);
-        OutputBuilder<Type>* clone() const
-            { return new OutputBuilder<Type>(*this); }
+        OutputBuilder<Type,BaseSource>* clone() const
+            { return new OutputBuilder<Type,BaseSource>(*this); }
         virtual ~OutputBuilder() {}
 
         virtual void set_source_capabilities( Capabilities cap ) 
@@ -29,10 +34,8 @@ namespace output {
         virtual std::auto_ptr<Output> make_output() 
  
         {
-            typename Type::Config& config =
-                static_cast<typename Type::Config&>(*this);
             try {
-                return std::auto_ptr<Output>( new Type(config) );
+                return std::auto_ptr<Output>( new Type(*this) );
             } catch (...) {
                 if ( !failSilently() ) 
                     throw;

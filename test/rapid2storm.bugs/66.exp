@@ -1,0 +1,28 @@
+begin_test_suite
+dstorm_attach
+
+set test "Slicer works with multiple output file names"
+set input_file "Mikrotubuli.sif"
+set prefix "slicer"
+
+send "in Car in Method in InputMethod in Auto in InputFile in value set $workspace_target$input_file\n"
+send "in Car in Method set InputMethod in Auto set Basename value set $tmpdir_target$prefix\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Slicer\n"
+send "in Car in Output in EngineOutput in Output0 in Slicer in SliceSize in value set 100\n"
+send "in Car in Output in EngineOutput in Output0 in Slicer in SliceDistance in value set 50\n"
+if { $have_test_plugin == 1 } {
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Verbose\n"
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Table\n"
+} else {
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Table\n"
+}
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "was used by multiple outputs" { fail "$test" }
+    -re "in Progress" { exp_continue; }
+    -re "remove dStormJob" { pass "$test" }
+}
+
+end_test_suite

@@ -105,18 +105,18 @@ void rectangular_dilation(const Image<PixelType,2> &i,
 {
     const int width = i.width_in_pixels(), height = i.height_in_pixels();
 
-    if ( mry > 1 ) {
+    if ( mry > 0 ) {
         for (int x = borderX; x < int(width)-borderX; x++) {
             dilate_line(i.ptr(x, borderY), width, height-2*borderY, 
                 2*mry+1, t.ptr(x, borderY));
         }
     }
 
-    if ( mry > 1 && mrx > 1 ) {
+    if ( mry > 0 && mrx > 0 ) {
         for (int y = borderY; y < int(height)-borderY; y++)
             dilate_line(t.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
                     t.ptr(borderX, y));
-    } else if ( mrx > 1 ) {
+    } else if ( mrx > 0 ) {
         for (int y = borderY; y < int(height)-borderY; y++)
             dilate_line(i.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
                     t.ptr(borderX, y));
@@ -132,18 +132,18 @@ void rectangular_erosion(const Image<PixelType,2> &i,
 {
     const int width = i.width_in_pixels(), height = i.height_in_pixels();
 
-    if ( mry > 1 ) {
+    if ( mry > 0 ) {
         for (int x = borderX; x < int(width)-borderX; x++) {
             erode_line(i.ptr(x, borderY), width, height-2*borderY, 
                 2*mry+1, t.ptr(x, borderY));
         }
     }
 
-    if ( mry > 1 && mrx > 1 ) {
+    if ( mry > 0 && mrx > 0 ) {
         for (int y = borderY; y < int(height)-borderY; y++)
             erode_line(t.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
                     t.ptr(borderX, y));
-    } else if ( mrx > 1 ) {
+    } else if ( mrx > 0 ) {
         for (int y = borderY; y < int(height)-borderY; y++)
             erode_line(i.ptr(borderX, y), 1, width-2*borderX, 2*mrx+1,
                     t.ptr(borderX, y));

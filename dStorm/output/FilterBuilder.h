@@ -18,6 +18,9 @@ namespace output {
     {
         bool failSilently;
       public:
+        typedef typename Type::Config Config;
+        typedef Type BaseType;
+
         FilterBuilder(bool failSilently = false) ;
         FilterBuilder(const FilterBuilder&);
         FilterBuilder* clone() const; 
