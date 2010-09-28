@@ -10,6 +10,7 @@
 #include <cs_units/camera/area.hpp>
 #include <Eigen/Core>
 #include "units_Eigen_traits.h"
+#include "units/camera_response.h"
 
 namespace dStorm {
 
@@ -22,6 +23,8 @@ class BaseImage {
     boost::shared_array<PixelType> img;
     Size sz;
     frame_index fn;
+    camera_response bg_sigma;
+
     unsigned long _pxc;
 
     template <typename IteratedType>
@@ -69,6 +72,8 @@ class BaseImage {
     frame_index frame_number() const { return fn; }
     frame_index& frame_number() { return fn; }
 
+    camera_response background_standard_deviation() const { return bg_sigma; }
+    camera_response& background_standard_deviation() { return bg_sigma; }
 
     typedef _iterator<PixelType> iterator;
     typedef _iterator<const PixelType> const_iterator;

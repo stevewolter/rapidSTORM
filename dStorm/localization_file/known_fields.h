@@ -41,6 +41,30 @@ struct Spatial {
         { target.position()[Dimension] = value; }
 };
 
+template <int Dimension>
+struct SpatialUncertainty {
+    typedef Localization::Position::Scalar ValueQuantity;
+    typedef ValueQuantity::unit_type ValueUnit;
+    typedef Traits::Size::Scalar BoundQuantity;
+    typedef Traits::Resolution ResolutionField;
+    typedef ResolutionField::value_type ResolutionQuantity;
+
+    static const std::string semantic;
+    static const bool hasMinField = false,
+                        hasMaxField = false,
+                      hasResolutionField = true;
+
+    static BoundQuantity& minField( Traits& )
+        { throw std::logic_error("No minimum field given."); }
+    static BoundQuantity& maxField( Traits& l )
+        { throw std::logic_error("No maximum field given."); }
+    static ResolutionField& resolutionField
+        ( Traits& l ) { return l.resolution; }
+    static void insert( const ValueQuantity& value,
+                        Localization& target )
+        { target.uncertainty()[Dimension] = value; }
+};
+
 struct ZDimension {
     typedef Localization::ZPosition ValueQuantity;
     typedef ValueQuantity::unit_type ValueUnit;

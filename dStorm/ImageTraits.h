@@ -9,35 +9,43 @@
 #include <dStorm/units_Eigen_traits.h>
 #include <dStorm/units/frame_count.h>
 #include <dStorm/units/frame_rate.h>
+#include <dStorm/units/camera_response.h>
 
 namespace dStorm {
 namespace input {
+
+struct GenericImageTraits
+{
+    /** Dimensionality (number of colours) of image. */
+    int dim;    
+
+    frame_count first_frame;
+    simparm::optional<frame_count> last_frame;
+    simparm::optional<frame_rate> speed;
+    simparm::optional<camera_response> photon_response;
+
+    bool background_standard_deviation_is_set;
+
+    GenericImageTraits();
+};
 
 /** The Traits class partial specialization for images
  *  provides methods to determine the image dimensions and the
  *  resolution. */
 template <typename PixelType, int Dimensions>
 class Traits< dStorm::Image<PixelType,Dimensions> >
-  : public SizeTraits<Dimensions>
+  : public SizeTraits<Dimensions>,
+    public GenericImageTraits
 {
   public:
     typedef typename SizeTraits<Dimensions>::Resolution Resolution;
-    /** Dimensionality (number of colours) of image. */
-    int dim;    
 
-    Traits() : SizeTraits<Dimensions>(), dim(1), 
-               first_frame(0 * cs_units::camera::frame) {}
+    Traits();
     template <typename Type>
-    Traits( const Traits< dStorm::Image<Type,Dimensions> >& o )
-        : SizeTraits<Dimensions>(o), dim(o.dim), first_frame(o.first_frame),
-          last_frame(o.last_frame) {}
+    Traits( const Traits< dStorm::Image<Type,Dimensions> >& o );
     /** CImg compatibility method.
      *  @return Number of colors in image. */
-    inline int dimv() const { return dim; }
-
-    frame_count first_frame;
-    simparm::optional<frame_count> last_frame;
-    simparm::optional<frame_rate> speed;
+    inline int dimv() const { return GenericImageTraits::dim; }
 };
 
 }

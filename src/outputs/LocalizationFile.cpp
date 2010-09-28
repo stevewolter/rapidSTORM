@@ -52,6 +52,10 @@ void LocalizationFile::printFit(const Localization &f,
         (*file) << " " << Eigen::unitless_value(f.fit_covariance_matrix()).format(format);
       if ( traits.z_coordinate_is_set )
         (*file) << " " << f.zposition().value();
+      if ( traits.uncertainty_is_set ) {
+        (*file) << " " << f.uncertainty()[0].value();
+        (*file) << " " << f.uncertainty()[1].value();
+      }
       (*file) << "\n";
     }
     //DEBUG("Finished printFit");
@@ -80,6 +84,10 @@ void LocalizationFile::open() {
         field::CovarianceMatrix( traits ).makeNode( topNode );
     if ( traits.z_coordinate_is_set )
         field::ZCoordinate( traits ).makeNode( topNode );
+    if ( traits.uncertainty_is_set ) {
+        field::XUncertainty( traits ).makeNode( topNode );
+        field::YUncertainty( traits ).makeNode( topNode );
+    }
 
     XMLSTR str = topNode.createXMLString(0);
     *file << "# " << str << "\n";

@@ -28,13 +28,17 @@ class Traits< Localization >
                first_frame(0 * cs_units::camera::frame),
                two_kernel_improvement_is_set(false), 
                covariance_matrix_is_set(false),
-               z_coordinate_is_set(false) {}
+               z_coordinate_is_set(false),
+               uncertainty_is_set(false),
+               z_uncertainty_is_set(false) {}
     Traits( SizeTraits<Localization::Dim> t )
         : SizeTraits<Localization::Dim>(t), 
           first_frame(0 * cs_units::camera::frame),
           two_kernel_improvement_is_set(false),
           covariance_matrix_is_set(false),
-          z_coordinate_is_set(false) {}
+          z_coordinate_is_set(false),
+          uncertainty_is_set(false),
+          z_uncertainty_is_set(false) {}
 
     typedef amplitude AmplitudeField;
     typedef frame_rate FrameRateField;
@@ -45,7 +49,8 @@ class Traits< Localization >
     frame_count first_frame;
     simparm::optional<frame_count> last_frame;
 
-    bool two_kernel_improvement_is_set, covariance_matrix_is_set, z_coordinate_is_set;
+    bool two_kernel_improvement_is_set, covariance_matrix_is_set, z_coordinate_is_set,
+         uncertainty_is_set, z_uncertainty_is_set;
 };
 
 }

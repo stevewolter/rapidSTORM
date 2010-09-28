@@ -5,6 +5,7 @@
 #include <dStorm/data-c++/VectorList.h>
 #include <memory>
 #include <vector>
+#include <list>
 #include <dStorm/Pixel.h>
 #include <dStorm/Image.h>
 #include <cs_units/camera/resolution.hpp>
@@ -41,9 +42,17 @@ typedef dStorm::Image<dStorm::Pixel,2> Image;
 struct ClearChange {
     Color background;
 };
+struct KeyDeclaration {
+    std::string unit, description;
+    int size;
+
+    KeyDeclaration(std::string unit, std::string description, int size)
+        : unit(unit), description(description), size(size) {}
+};
+
 struct ResizeChange {
     Image::Size size;
-    int key_size;
+    std::vector<KeyDeclaration> keys;
     /* Size of one pixel in meters. */
     typedef boost::units::quantity<cs_units::camera::resolution,float> 
         Resolution;
@@ -62,25 +71,32 @@ struct KeyChange {
     int index;
     Color color;
     float value;
+
+    /** Default constructor leaves values uninitialized */
+    KeyChange() {}
+    KeyChange( int index, Color color, float value )
+        : index(index), color(color), value(value) {}
 };
 
 struct Change {
     typedef data_cpp::VectorList<PixelChange> PixelQueue;
+    typedef std::vector< data_cpp::Vector<KeyChange> > Keys;
 
     bool do_resize, do_clear, do_change_image;
     ResizeChange resize_image;
     ClearChange clear_image;
     ImageChange image_change;
     PixelQueue change_pixels;
-    data_cpp::Vector<KeyChange> change_key;
+    Keys changed_keys;
     
-    Change() { clear(); }
+    Change(int key_count) : changed_keys(key_count) { clear(); }
     void clear() { 
         do_resize = false;
         do_clear = false;
         do_change_image = false;
         change_pixels.clear();
-        change_key.clear();
+        for (unsigned int i = 0; i < changed_keys.size(); ++i)
+            changed_keys[i].clear();
     }
 
     void make_linear_key(Image::PixelPair range);

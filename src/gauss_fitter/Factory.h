@@ -19,7 +19,7 @@ class Factory
 
     std::auto_ptr<engine::SpotFitter> make( const engine::JobInfo& );
     Factory* clone() const { return new Factory(*this); }
-    void set_traits( output::Traits& );
+    void set_traits( output::Traits&, const engine::JobInfo& );
 };
 
 }

@@ -55,6 +55,10 @@ Interface::parse(const XMLNode& node)
         rv = new YCoordinate( node );
     else if ( semantics == ZCoordinate::Props::semantic )
         rv = new ZCoordinate( node );
+    else if ( semantics == XUncertainty::Props::semantic )
+        rv = new XUncertainty( node );
+    else if ( semantics == YUncertainty::Props::semantic )
+        rv = new YUncertainty( node );
     else if ( semantics == FrameNumber::Props::semantic )
         rv = new FrameNumber( node );
     else if ( semantics == Amplitude::Props::semantic )

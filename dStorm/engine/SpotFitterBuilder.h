@@ -25,7 +25,8 @@ class SpotFitterBuilder
         { return new SpotFitterBuilder<BaseClass>(*this); }
     virtual std::auto_ptr<SpotFitter> make (const JobInfo& info) 
         { return std::auto_ptr<SpotFitter>(new BaseClass( *this, info )); }
-    void set_traits( output::Traits& t ) { BaseClass::Config::set_traits(t); }
+    void set_traits( output::Traits& t, const JobInfo& e )
+        { BaseClass::Config::set_traits(t, e); }
 };
 
 }

@@ -26,7 +26,7 @@ struct SpotFitterFactory {
     virtual ~SpotFitterFactory();
     virtual std::auto_ptr<SpotFitter> make( const JobInfo& ) = 0;
     std::auto_ptr<SpotFitter> make_by_parts( const Config&, const InputTraits& );
-    virtual void set_traits( output::Traits& ) = 0;
+    virtual void set_traits( output::Traits&, const JobInfo& ) = 0;
     virtual void set_variables( output::Basename& ) const {}
 };
 

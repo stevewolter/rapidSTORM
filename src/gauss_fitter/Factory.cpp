@@ -59,10 +59,16 @@ Factory::make (const engine::JobInfo &i)
         return instantiate<FixedForm,true>( *this, i );
 }
 
-void Factory::set_traits( output::Traits& rv ) {
+void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = freeSigmaFitting();
     rv.z_coordinate_is_set = false;
+
+    if ( info.traits.photon_response.is_set() 
+         && info.traits.background_standard_deviation_is_set ) 
+    {
+        rv.uncertainty_is_set = true;
+    }
 }
 
 }

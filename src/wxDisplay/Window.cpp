@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "Window.h"
 #include "Canvas.h"
 #include "ZoomSlider.h"
@@ -38,7 +39,8 @@ Window::Window(
     wxBoxSizer* outer_sizer = new wxBoxSizer( wxHORIZONTAL ),
                 * ver_sizer1 = new wxBoxSizer( wxVERTICAL ),
                 * ver_sizer2 = new wxBoxSizer( wxVERTICAL ),
-                * hor_sizer = new wxBoxSizer( wxHORIZONTAL );
+                * hor_sizer = new wxBoxSizer( wxHORIZONTAL ),
+                * key_sizer = new wxBoxSizer( wxHORIZONTAL );
     wxSize initSize = mkWxSize(init_size.size);
     canvas = new Canvas(this, wxID_ANY, initSize);
     zoom = new ZoomSlider( this, *canvas );
@@ -48,8 +50,10 @@ Window::Window(
 
     wxClientDC dc(this);
     wxSize size = dc.GetTextExtent( wxT("0123456789.") );
-    key = new Key( this, wxSize( 100+size.GetWidth()*2 / 11, 0 ),
-                   init_size.key_size );
+    for (unsigned int i = 0; i < init_size.keys.size(); i++) {
+        keys.push_back( new Key( this, wxSize( 100+size.GetWidth()*2 / 11, 0 ),
+                                init_size.keys[i] ) );
+    }
 
     scale_bar = new ScaleBar(this, wxSize(150, 30));
     scale_bar->set_pixel_size( init_size.pixel_size );
@@ -63,9 +67,14 @@ Window::Window(
                     wxSizerFlags().Center().Border( wxALL, 10 ) );
     hor_sizer->Add( scale_bar, wxSizerFlags().Expand().Border( wxALL, 10 ) );
     ver_sizer1->Add( hor_sizer, wxSizerFlags().Expand() );
-    ver_sizer2->Add( new wxStaticText( this, wxID_ANY, wxT("Key (in ADC)")),
-                    wxSizerFlags().Center().Border( wxALL, 10 ) );
-    ver_sizer2->Add( key, wxSizerFlags(1).Expand() );
+    for (Keys::const_iterator i = keys.begin(); i != keys.end(); ++i) {
+        wxBoxSizer *key = new wxBoxSizer( wxVERTICAL );
+        key->Add( (*i)->getLabel(), 
+                  wxSizerFlags().Center().Border( wxALL, 10 ) );
+        key->Add( *i, wxSizerFlags(1).Expand() );
+        key_sizer->Add( key, wxSizerFlags(1).Expand() );
+    }
+    ver_sizer2->Add( key_sizer, wxSizerFlags(1).Expand() );
     ver_sizer2->Add( position_label, wxSizerFlags() );
     outer_sizer->Add( ver_sizer1, wxSizerFlags(1).Expand() );
     outer_sizer->Add( ver_sizer2, wxSizerFlags().Expand() );
@@ -142,7 +151,10 @@ void Window::commit_changes(const Change& changes)
         DEBUG("Resize");
         const ResizeChange& r = changes.resize_image;
         canvas->resize( mkWxSize( r.size ) );
-        key->resize( r.key_size );
+        assert( keys.size() >= r.keys.size() );
+        for (unsigned int i = 0; i < r.keys.size(); ++i) {
+            keys[i]->resize( r.keys[i] );
+        }
         scale_bar->set_pixel_size( r.pixel_size );
     }
 
@@ -153,8 +165,10 @@ void Window::commit_changes(const Change& changes)
         draw_image_window<Canvas::BufferedDrawer>(changes);
     }
 
-    DEBUG("Committing key changes");
-    key->draw_keys( changes.change_key );
+    DEBUG("Committing key changes for " << changes.changed_keys.size() << " keys into " << keys.size() << " windows");
+    assert( changes.changed_keys.size() <= keys.size() );
+    for (unsigned int i = 0; i < changes.changed_keys.size(); ++i)
+        keys[i]->draw_keys( changes.changed_keys[i] );
 }
 
 void Window::remove_data_source() {
@@ -208,7 +222,7 @@ std::auto_ptr<Change> Window::getState()
     std::auto_ptr<Change> changes = source->get_changes();
     commit_changes(*changes);
 
-    std::auto_ptr<Change> rv( new Change() );
+    std::auto_ptr<Change> rv( new Change(keys.size()) );
     rv->do_resize = true;
     rv->resize_image.size = mkImgSize(canvas->getSize());
     rv->resize_image.pixel_size =
@@ -220,9 +234,12 @@ std::auto_ptr<Change> Window::getState()
     rv->do_change_image = true;
     rv->image_change = *canvas->getContents();
 
-    rv->change_key = key->getKeys();
-    rv->resize_image.key_size 
-        = rv->change_key.size();
+    rv->resize_image.keys.clear();
+    rv->changed_keys.clear();
+    for ( Keys::const_iterator i = keys.begin(); i != keys.end(); ++i ) {
+        rv->resize_image.keys.push_back( (*i)->getDeclaration() );
+        rv->changed_keys.push_back( (*i)->getKeys() );
+    }
 
     return rv;
 }

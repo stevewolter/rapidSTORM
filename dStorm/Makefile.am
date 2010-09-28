@@ -151,7 +151,7 @@ unitentry_library_include_HEADERS = \
 libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
     DeferredError.h DeferredError_Impl.h DeferredError.cpp \
     error_handler.cpp JobMaster.cpp $(RESOURCE_FILE) UnitEntries.cpp Config.cpp \
-    units/units.cpp
+    units/units.cpp ImageTraits.cpp
 libdStorm_la_LIBADD = liboutputs.la liboutput.la \
     libengine.la liblocfile.la \
     libinput.la libhelpers.la -lsimparm

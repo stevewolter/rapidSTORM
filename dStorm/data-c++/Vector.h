@@ -357,6 +357,10 @@ class Vector {
         std::swap( length, with.length );
         std::swap( alloc, with.alloc );
     }
+
+    void reserve( size_t n ) { 
+        realloc_if_necessary(n);
+    }
 };
 
 }

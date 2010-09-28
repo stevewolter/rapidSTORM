@@ -37,8 +37,7 @@ CommonInfo<Ks,Widening>::CommonInfo(
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
   amplitude_threshold( *info.config.amplitude_threshold() ),
-  params( new typename FitGroup::Accessor(NULL) ),
-  constants( params->getConstants() )
+  params( new typename FitGroup::Accessor(NULL) )
 {
     FitGroup::template Parameter<MeanX>::set_absolute_epsilon
         (this->fit_function, c.negligibleStepLength());
@@ -59,10 +58,14 @@ template <int Kernels, int Widening>
 CommonInfo<Kernels,Widening>::CommonInfo( const CommonInfo& o ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(o),
   maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
-  params( new typename FitGroup::Accessor(*o.params) ),
-  constants( params->getConstants() )
+  params( new typename FitGroup::Accessor(*o.params) )
 {
 }
+
+template <int Kernels, int Widening>
+const typename fitpp::Exponential3D::Model<Kernels,Widening>::Constants&
+CommonInfo<Kernels,Widening>::constants() const
+{ return params->getConstants(); };
 
 template <int Kernels, int Widening>
 void

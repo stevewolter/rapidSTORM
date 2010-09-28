@@ -17,7 +17,8 @@ class Window : public wxFrame, public Canvas::Listener
 {
   private:
     Canvas* canvas;
-    Key* key;
+    typedef std::vector<Key*> Keys;
+    Keys keys;
     ZoomSlider *zoom;
     ScaleBar *scale_bar;
     wxStaticText *position_label;

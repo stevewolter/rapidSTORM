@@ -3,6 +3,7 @@
 
 #include "Image_decl.h"
 #include "BaseImage.h"
+#include <dStorm/units/camera_response.h>
 
 namespace dStorm {
 
@@ -36,7 +37,6 @@ class Image
     Image<bool,Dimensions> threshold( PixelType threshold ) const;
 
     Image deep_copy() const;
-
 };
 
 }

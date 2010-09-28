@@ -39,8 +39,8 @@ BinnedLocalizations<KeepUpdated>
 {
     ost::MutexLock lock(mutex);
     announcement.reset( new Announcement(a) );
-    set_base_image_size();
     this->binningListener().announce( a );
+    set_base_image_size();
     return AdditionalData();
 }
 

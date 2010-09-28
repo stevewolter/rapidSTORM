@@ -7,6 +7,16 @@
 namespace dStorm {
 namespace input {
 
+template <typename PixelType, int Dimensions>
+Traits< dStorm::Image<PixelType,Dimensions> >::Traits()
+ : SizeTraits<Dimensions>() {}
+
+template <typename PixelType, int Dimensions>
+template <typename OtherPixelType>
+Traits< dStorm::Image<PixelType,Dimensions> >::Traits
+    ( const Traits< dStorm::Image<OtherPixelType,Dimensions> >& o )
+: SizeTraits<Dimensions>(o), GenericImageTraits(o) {}
+
 #if 0
 template <typename Pixel, int Dim>
 void

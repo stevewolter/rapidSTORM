@@ -20,7 +20,7 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Config &c
   discretization( other.discretization,
                   image(), colorizer ),
   cache( 4096, other.cache.getSize().size ),
-  cia( discretization, c, *this, other.get_result() )
+  cia( discretization, c, *this, colorizer, other.get_result() )
 {
     image.setListener(&discretization);
     discretization.setListener(&cache);

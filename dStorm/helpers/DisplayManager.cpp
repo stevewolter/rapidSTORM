@@ -16,14 +16,15 @@ Manager& Manager::getSingleton() {
 }
 
 void Change::make_linear_key(Image::PixelPair range) {
-    Display::KeyChange *v = change_key.allocate( 256 );
+    if ( changed_keys.empty() ) changed_keys.push_back( data_cpp::Vector<KeyChange>() );
+    Display::KeyChange *v = changed_keys.front().allocate( 256 );
     for (int i = 0; i <= 255; i++) {
         v[i].index = i;
         v[i].color = i;
         v[i].value = range.first + 
             Pixel(i * (uint8_t(range.second - range.first) / 255.0));
     }
-    change_key.commit(256);
+    changed_keys.front().commit(256);
 }
 
 }

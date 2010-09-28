@@ -7,6 +7,7 @@
 #include "Config.h"
 #include <limits>
 #include <dStorm/Pixel.h>
+#include <dStorm/helpers/DisplayDataSource.h>
 
 namespace dStorm {
 namespace viewer {
@@ -30,6 +31,7 @@ class Colorizer
   public:
     static const int BrightnessDepth 
         = (1U << (sizeof(BrightnessType) * 8));
+    static const int KeyCount = 1;
 
     Colorizer( const Config& config ) 
         : invert( config.invert() ) {}
@@ -39,6 +41,11 @@ class Colorizer
     /** Get the brightness for a pixel in the key. */
     Pixel getKeyPixel( BrightnessType brightness ) const;
     Pixel get_background() const { return inv(Pixel(0)); }
+
+    dStorm::Display::KeyDeclaration create_key_declaration( int index ) const
+        { throw std::logic_error("Request to declare unknown key"); }
+    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
+        { throw std::logic_error("Request to write unknown key"); }
 };
 
 }

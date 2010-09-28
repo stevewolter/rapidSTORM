@@ -11,6 +11,10 @@ const std::string Spatial<0>::semantic = "x-position";
 template <>
 const std::string Spatial<1>::semantic = "y-position";
 template <>
+const std::string SpatialUncertainty<0>::semantic = "x-sigma";
+template <>
+const std::string SpatialUncertainty<1>::semantic = "y-sigma";
+template <>
 const std::string Spatial<2>::semantic = "z-position";
 template <>
 const std::string ZDimension::semantic = "z-position";
@@ -26,6 +30,8 @@ using namespace properties;
 
 template class KnownWithResolution< Spatial<0> >;
 template class KnownWithResolution< Spatial<1> >;
+template class KnownWithResolution< SpatialUncertainty<0> >;
+template class KnownWithResolution< SpatialUncertainty<1> >;
 template class KnownWithResolution< properties::Time >;
 template class Known< properties::Amplitude >;
 template class Known< properties::TwoKernelImprovement >;

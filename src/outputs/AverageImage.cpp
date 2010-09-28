@@ -44,7 +44,7 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
 {
     if (s == Engine_run_succeeded && filename != "" ) {
         ost::MutexLock lock(mutex);
-        Display::Change c;
+        Display::Change c(1);
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
         c.display_normalized( image );

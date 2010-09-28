@@ -37,8 +37,8 @@ namespace dStorm {
             Amplitude;
 
       private:
-        Position _position;
-        ZPosition _zposition;
+        Position _position, _uncertainty;
+        ZPosition _zposition, _zuncertainty;
         Amplitude _strength;
         Matrix _fit_covariance_matrix;
         float _two_kernel_improvement;
@@ -53,8 +53,12 @@ namespace dStorm {
 
         Position& position() { return _position; }
         const Position& position() const { return _position; }
+        Position& uncertainty() { return _uncertainty; }
+        const Position& uncertainty() const { return _uncertainty; }
         ZPosition& zposition() { return _zposition; }
         const ZPosition& zposition() const { return _zposition; }
+        ZPosition& zuncertainty() { return _zuncertainty; }
+        const ZPosition& zuncertainty() const { return _zuncertainty; }
 
         Coord& x() { return _position.x(); }
         Coord& y() { return _position.y(); }

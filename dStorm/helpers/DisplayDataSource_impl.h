@@ -14,7 +14,9 @@ void Change::display_normalized(
     typename dStorm::Image<PixelType,2>::PixelPair p = i.minmax();
     do_resize = true;
     resize_image.size = i.sizes();
-    resize_image.key_size = 256;
+    resize_image.keys.clear();
+    resize_image.keys.push_back(
+        dStorm::Display::KeyDeclaration("ADC", "A/D counts per pixel", 256) );
     do_change_image = true;
     image_change.new_image = i.template normalize<uint8_t>(p).template convert<dStorm::Pixel>();
     make_linear_key( p );

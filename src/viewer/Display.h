@@ -25,6 +25,8 @@ class Display
     PixelSet ps;
     int ps_step;
 
+    const Colorizer& colorizer;
+
     dStorm::Display::Manager::WindowProperties props;
     dStorm::Display::DataSource& vph;
 
@@ -40,6 +42,7 @@ class Display
         MyDiscretizer& disc, 
         const Config& config,
         dStorm::Display::DataSource& vph,
+        const Colorizer& colorizer,
         std::auto_ptr<dStorm::Display::Change> initial_state
             = std::auto_ptr<dStorm::Display::Change>()
     );

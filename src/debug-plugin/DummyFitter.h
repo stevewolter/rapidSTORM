@@ -12,7 +12,7 @@ struct DummyFitterConfig : public simparm::Set {
     DummyFitterConfig();
     ~DummyFitterConfig();
 
-    void set_traits( output::Traits& );
+    void set_traits( output::Traits&, const engine::JobInfo& );
 };
 
 class DummyFitter : public dStorm::engine::SpotFitter {

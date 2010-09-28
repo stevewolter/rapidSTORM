@@ -16,16 +16,17 @@ class TerminalCache
     dStorm::Display::ResizeChange size;
 
   public:
-    TerminalCache() {}
-    TerminalCache(dStorm::Display::ResizeChange size);
-
     typedef MyColorizer Colorizer;
+
+    TerminalCache();
+    TerminalCache(dStorm::Display::ResizeChange size);
 
     const dStorm::Display::ResizeChange& getSize() const 
         { return size; }
     void setSize(const input::Traits< Image<int,2> >&);
 
-    std::auto_ptr<dStorm::Display::Change> get_result() const;
+    std::auto_ptr<dStorm::Display::Change> 
+    get_result(const Colorizer& colorizer) const;
 };
 
 }
