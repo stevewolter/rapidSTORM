@@ -23,11 +23,11 @@ void Display<Colorizer>::notice_key_change( int index,
         Pixel pixel, float value )
 {
     dStorm::Display::KeyChange& k = 
-        *next_change->change_key.allocate(1);
+        *next_change->changed_keys.front().allocate(1);
     k.index = index;
     k.color = pixel;
     k.value = value;
-    next_change->change_key.commit(1);
+    next_change->changed_keys.front().commit(1);
 }
 
 }

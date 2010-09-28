@@ -33,7 +33,7 @@ int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine
     }
 }
 
-void DummyFitterConfig::set_traits( output::Traits& ) {
+void DummyFitterConfig::set_traits( output::Traits&, const engine::JobInfo& ) {
 }
 
 }

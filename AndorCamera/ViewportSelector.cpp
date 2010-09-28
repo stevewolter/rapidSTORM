@@ -45,7 +45,7 @@ Display::Display(
   aimed( (mode == SelectROI) 
             ? &dynamic_cast<ImageReadout&>(this->cam->readout()) : NULL ),
   paused(false),
-  change( new dStorm::Display::Change() ),
+  change( new dStorm::Display::Change(1) ),
   normalization_factor( 0, 1 ),
   lock_normalization( false ),
   resolution( r )
@@ -82,7 +82,7 @@ Display::get_changes()
 {
     DEBUG("Fetching changes");
     std::auto_ptr<dStorm::Display::Change> other
-        ( new dStorm::Display::Change() );
+        ( new dStorm::Display::Change(1) );
 
     ost::MutexLock lock(mutex);
     std::swap( other, this->change );
@@ -122,7 +122,8 @@ dStorm::Display::ResizeChange Display::getSize() const
 {
     dStorm::Display::ResizeChange new_size;
     new_size.size = size;
-    new_size.key_size = imageDepth;
+    new_size.keys.push_back( 
+        dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.pixel_size = *resolution;
 
     return new_size;
@@ -200,16 +201,16 @@ void Display::draw_image( const CamImage& data) {
     /* Compute normalization and new key. */
     if ( ! lock_normalization ) {
         normalization_factor = data.minmax();
-        change->change_key.clear();
+        change->changed_keys.front().clear();
         dStorm::Display::KeyChange *keys 
-            = change->change_key.allocate( imageDepth );
+            = change->changed_keys.front().allocate( imageDepth );
         for (int i = 0; i < imageDepth; i++) {
             keys[i].index = i;
             keys[i].color = dStorm::Pixel(i);
             keys[i].value = i * 1.0 * (normalization_factor.second - normalization_factor.first)
                 / imageDepth + normalization_factor.first;
         }
-        change->change_key.commit( imageDepth );
+        change->changed_keys.front().commit( imageDepth );
     }
     /* Normalize pixels and store result in the ImageChange vector */
     dStorm::Image<dStorm::Pixel,2>& img = change->image_change.new_image;

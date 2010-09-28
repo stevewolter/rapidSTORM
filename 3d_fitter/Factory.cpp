@@ -40,7 +40,7 @@ Factory<Widening>::make (const engine::JobInfo &i)
 }
 
 template <int Widening>
-void Factory<Widening>::set_traits( output::Traits& rv ) {
+void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& ) {
     DEBUG("3D fitter is setting traits");
     fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = false;

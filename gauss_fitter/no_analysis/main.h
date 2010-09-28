@@ -13,32 +13,53 @@ namespace gauss_2d_fitter {
 namespace no_analysis {
 
 template <int Kernels, int FitFlags>
+class FunctionParameters
+: public fitpp::Exponential2D::Model<Kernels, FitFlags>
+{
+  public:
+    typedef typename fitpp::Exponential2D::Model<Kernels, FitFlags>
+        FitGroup;
+    typedef typename FitGroup::Constants Constants;
+    typedef typename FitGroup::Variables Variables;
+
+    Constants constants;
+
+    FunctionParameters() : FitGroup( NULL, &constants ) {}
+    FunctionParameters(const FunctionParameters& o) 
+        : FitGroup( NULL, &constants ), constants(o.constants) {}
+};
+
+template <int Kernels, int FitFlags>
 class CommonInfo
 : public fitter::MarquardtInfo
     <fitpp::Exponential2D::Model<Kernels, FitFlags>::VarC>
 {
   protected:
+    typedef typename FunctionParameters<Kernels,FitFlags>::Variables Variables;
+    typedef typename FunctionParameters<Kernels,FitFlags>::FitGroup FitGroup;
+
+    FunctionParameters<Kernels,FitFlags> params;
     Eigen::Vector2i maxs;
     Eigen::Vector2d start;
     const double amplitude_threshold;
     const double start_sx, start_sy, start_sxy;
 
-  public:
-    typedef typename fitpp::Exponential2D::Model<Kernels, FitFlags>
-        FitGroup;
-    typename FitGroup::Constants constants;
-    FitGroup params;
+    bool compute_uncertainty;
+    const double photon_response_factor;
+    double background_noise_variance;
 
- public:
+  public:
     typedef gauss_2d_fitter::Config Config;
     CommonInfo( const Config&, const engine::JobInfo& );
-    CommonInfo( const CommonInfo& );
-    void set_start(typename FitGroup::Variables* variables);
+
+    void set_start(Variables* variables);
     void set_start( 
         const engine::Spot& spot, const engine::BaseImage& image,
-        double shift_estimate, typename FitGroup::Variables* variables );
-    bool check_result( typename FitGroup::Variables *variables, 
-                       Localization *target);
+        double shift_estimate, Variables* variables );
+    bool check_result( Variables *variables, Localization *target);
+
+    typename FitGroup::Constants& constants() { return params.constants; }
+    const typename FitGroup::Constants& constants() const { return params.constants; }
 };
 
 template <int FitFlags, bool HonorCorrelation, int Kernels = 1>

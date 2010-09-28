@@ -30,7 +30,10 @@ CommonInfo<Ks,FF>::CommonInfo(
   start_sx( info.config.sigma_x() / cs_units::camera::pixel ),
   start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
   start_sxy( info.config.sigma_xy() ),
-  params( NULL, &constants)
+  compute_uncertainty( info.traits.photon_response.is_set() &&
+                       info.traits.background_standard_deviation_is_set ),
+  photon_response_factor( (compute_uncertainty) ? 
+    info.traits.photon_response->value() : 0 )
 {
     FitGroup::template Parameter<MeanX>::set_absolute_epsilon
         (this->fit_function, c.negligibleStepLength());
@@ -45,21 +48,9 @@ CommonInfo<Ks,FF>::CommonInfo(
         params.template set_all_SigmaXY( start_sxy );
 }
 
-template <int Kernels, int FF>
-CommonInfo<Kernels,FF>::CommonInfo( const CommonInfo& o ) 
-: fitter::MarquardtInfo<FitGroup::VarC>(o),
-  maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
-  start_sx(o.start_sx), start_sy(o.start_sy), start_sxy(o.start_sxy),
-  constants(o.constants),
-  params( NULL, &constants )
-{
-}
-
 template <int Kernels,int FF>
 void
-CommonInfo<Kernels,FF>::set_start(
-    typename FitGroup::Variables* variables 
-) 
+CommonInfo<Kernels,FF>::set_start( Variables* variables ) 
 {
     params.change_variable_set( variables );
 
@@ -77,9 +68,12 @@ CommonInfo<Kernels,FF>::set_start(
     const Spot& spot, 
     const BaseImage& image,
     double shift_estimate,
-    typename FitGroup::Variables* variables 
+    Variables* variables 
 ) 
 {
+    background_noise_variance = sqr(
+        image.background_standard_deviation() / cs_units::camera::ad_count
+        / photon_response_factor);
     set_start(variables);
     params.template set_all_MeanX( spot.x() );
     params.template set_all_MeanY( spot.y() );
@@ -109,7 +103,7 @@ CommonInfo<Kernels,FF>::set_start(
 template <int Kernels,int FF>
 bool 
 CommonInfo<Kernels,FF>::check_result(
-    typename FitGroup::Variables* variables,
+    Variables* variables,
     Localization* target
 )
 {
@@ -141,7 +135,7 @@ CommonInfo<Kernels,FF>::check_result(
         && target->y() < maxs.y() * cs_units::camera::pixel
         && sqr(target->x().value() - start.x()) + 
            sqr(target->y().value() - start.y()) < 4;
-    if ( (FF != fitpp::Exponential2D::FixedForm) ) {
+    if ( good && (FF != fitpp::Exponential2D::FixedForm) ) {
         double sx = params.template getSigmaX<0>(),
                sy = params.template getSigmaY<0>(),
                corr = params.template getSigmaXY<0>();
@@ -155,6 +149,23 @@ CommonInfo<Kernels,FF>::check_result(
         target->fit_covariance_matrix()(1,1) = sy*sy
             * cs_units::camera::pixel 
             * cs_units::camera::pixel;
+    }
+    if ( good && compute_uncertainty ) {
+        using namespace boost::units;
+        /* Mortenson formula */
+        /* Number of photons */
+        double N = params.template getAmplitude<0>() / photon_response_factor;
+        Eigen::Vector2d psf_variance(
+            sqr(params.template getSigmaX<0>()), 
+            sqr(params.template getSigmaY<0>()));
+        Eigen::Vector2d background_factor
+            = psf_variance * 8 * M_PI * background_noise_variance / N;
+        background_factor.cwise() += 16.0 / 9.0;
+
+        Eigen::Vector2d variance_in_pixels = psf_variance.cwise() * background_factor / N;
+        for (int i = 0; i < 2; ++i)
+            target->uncertainty()[i] = cs_units::camera::pixel 
+                * sqrt(variance_in_pixels[i]);
     }
 
     target->unset_source_trace();

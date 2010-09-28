@@ -10,6 +10,12 @@ namespace dStorm {
 namespace Display {
 
 class Key : public wxWindow {
+  private:
+    typedef dStorm::Display::KeyDeclaration Declaration;
+
+    wxWindow *parent;
+    wxStaticText *label;
+
     wxSize current_size;
     std::auto_ptr<wxBitmap> buffer;
     int num_keys, max_text_width, max_text_height;
@@ -26,6 +32,8 @@ class Key : public wxWindow {
     wxPen background_pen;
     wxBrush background_brush;
 
+    Declaration current_declaration;
+
     void compute_key_size();
 
     /* Center rect vertically with respect to other rect. Does what
@@ -35,7 +43,7 @@ class Key : public wxWindow {
     void draw_key( int index, wxDC &dc );
 
   public:
-    Key( wxWindow* parent, wxSize size, int num_keys ) ;
+    Key( wxWindow* parent, wxSize size, const Declaration& ) ;
     ~Key();
 
     void draw_keys( const data_cpp::Vector<KeyChange>& kcs );
@@ -43,9 +51,13 @@ class Key : public wxWindow {
     void OnPaint( wxPaintEvent& event );
     void OnResize( wxSizeEvent& );
 
-    void resize( int new_number_of_keys );
+    void resize( const Declaration& );
 
+    Declaration getDeclaration() const;
     data_cpp::Vector<KeyChange> getKeys() const;
+
+    wxStaticText *getLabel() const { return label; }
+
     DECLARE_EVENT_TABLE();
 };
 

@@ -23,7 +23,7 @@ LiveView::LiveView(
   resolution( *config.resolution_element.get_resolution() ),
   show_live("ShowLive", "Show camera image", 
             config.show_live_by_default()),
-  change( new dStorm::Display::Change() )
+  change( new dStorm::Display::Change(1) )
 {
     DEBUG("LiveView constructed");
     registerNamedEntries();
@@ -44,7 +44,8 @@ void LiveView::show_window(CamImage::Size size) {
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
         props.initial_size.size = size;
-        props.initial_size.key_size = 256;
+        props.initial_size.keys.push_back( 
+            dStorm::Display::KeyDeclaration("ADC", "A/D counts", 256) );
         props.initial_size.pixel_size = 
             resolution;
 
@@ -65,7 +66,7 @@ void LiveView::hide_window() {
 std::auto_ptr<Display::Change> LiveView::get_changes()
 {
     DEBUG("Locking changes");
-    std::auto_ptr<Display::Change> fresh( new Display::Change() );
+    std::auto_ptr<Display::Change> fresh( new Display::Change(1) );
     ost::MutexLock lock(change_mutex);
     DEBUG("Getting live view changes");
     compute_image_change( current_image_content );

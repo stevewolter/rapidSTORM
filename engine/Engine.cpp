@@ -20,6 +20,7 @@
 #include <dStorm/engine/Config.h>
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Input_decl.h>
+#include <dStorm/engine/JobInfo.h>
 #include <dStorm/outputs/Crankshaft.h>
 #include <sstream>
 #include "engine/EngineDebug.h"
@@ -36,6 +37,8 @@
 #include <time.h>
 clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 #endif
+
+static double background_variance = 0;
 
 using namespace dStorm;
 using namespace std;
@@ -142,10 +145,13 @@ output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
     rv.speed = in->speed;
     rv.first_frame = in->first_frame;
     rv.last_frame = in->last_frame;
+    // TODO: Remove when input module is ready to do this estimation conditionally
+    in->background_standard_deviation_is_set = true;
     DEBUG("Last frame is set in input: " << in->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
     DEBUG("Setting traits from spot fitter");
-    config.spotFittingMethod().set_traits( rv );
+    JobInfo info(config, *in);
+    config.spotFittingMethod().set_traits( rv, info );
     DEBUG("Returning traits");
     return rv;
 }
@@ -184,6 +190,8 @@ void Engine::run()
     } else {
         DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
     }
+    // TODO: Remove
+    background_variance = double(config.amplitude_threshold()->value()) / 35;
 
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
@@ -279,6 +287,7 @@ void Engine::runPiston()
     auto_ptr<SpotFinder> finder
         = config.spotFindingMethod().make_SpotFinder(config, imProp->size);
 
+    imProp->background_standard_deviation_is_set = true;
     DEBUG("Building spot fitter");
     auto_ptr<SpotFitter> fitter(config.spotFittingMethod().make_by_parts(config, *imProp));
 
@@ -314,6 +323,8 @@ void Engine::runPiston()
         } else {
             DEBUG("Image " << i->ptr() << " is valid");
         }
+
+        i->background_standard_deviation() = background_variance * cs_units::camera::ad_count;
 
         DEBUG("Compression (" << i->frame_number() << ")");
         IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );

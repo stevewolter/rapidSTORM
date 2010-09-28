@@ -76,7 +76,7 @@ Manager::Source::Source(
     const WindowProperties& properties,
     dStorm::Display::DataSource& source,
     int n)
-: handler(source), number(n),
+: handler(source), state(0), number(n),
   wants_closing(false), may_close(false)
 {
     LOG( "Listening to window " << properties.name );
@@ -88,14 +88,15 @@ void Manager::Source::handle_resize(
 {
     LOG( "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
-              << r.key_size << " grey levels and pixel "
+              << ((r.keys.empty()) ? 0 : r.keys.front().size) << " grey levels and pixel "
                  "size " << r.pixel_size );
     current_display = Image( r.size );
     current_display.fill(0);
     state.do_resize = true;
     state.resize_image = r;
-    state.change_key.resize(
-        state.resize_image.key_size );
+    state.changed_keys.resize( r.keys.size() );
+    for (size_t i = 0; i < r.keys.size(); ++i)
+        state.changed_keys[i].resize( r.keys[i].size );
 }
 
 bool Manager::Source::get_and_handle_change() {
@@ -107,10 +108,13 @@ bool Manager::Source::get_and_handle_change() {
         return false;
     }
 
-    bool has_changed = c->do_resize | c->do_clear |
-                       c->do_change_image | 
-                       (c->change_pixels.size() > 0) |
-                       (c->change_key.size() > 0);
+    bool has_changed = c->do_resize || c->do_clear ||
+                       c->do_change_image || 
+                       (c->change_pixels.size() > 0);
+    for (dStorm::Display::Change::Keys::const_iterator i = c->changed_keys.begin(); 
+                                      i != c->changed_keys.end(); ++i)
+        has_changed = has_changed || (i->size() > 0);
+
     if ( c->do_resize ) {
         handle_resize( c->resize_image );
     } 
@@ -132,12 +136,12 @@ bool Manager::Source::get_and_handle_change() {
          current_display(i->x,i->y) = i->color;
     }
 
-    for ( int i = 0; i < c->change_key.size(); i++ )
-    {
-        dStorm::Display::KeyChange kc
-            = c->change_key[i];
-        state.change_key[kc.index] = kc;
-    }
+    for ( size_t j = 0; j < c->changed_keys.size(); ++j)
+        for ( int i = 0; i < c->changed_keys[j].size(); i++ )
+        {
+            dStorm::Display::KeyChange kc = c->changed_keys[j][i];
+            state.changed_keys[j][kc.index] = kc;
+        }
 
     return has_changed;
 }

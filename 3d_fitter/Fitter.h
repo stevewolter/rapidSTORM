@@ -29,7 +29,7 @@ class CommonInfo
 
   public:
     std::auto_ptr<typename FitGroup::Accessor> params;
-    const typename FitGroup::Constants& constants;
+    const typename FitGroup::Constants& constants() const;
 
  public:
     typedef gauss_3d_fitter::Config<Widening> Config;

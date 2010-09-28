@@ -72,14 +72,23 @@ class HueingColorizer<ColourSchemes::FixedHue>
         { return getPixel(0, 0, br ); }
 };
 
+using namespace boost::units;
+
 template <int Hueing> 
 class HueingColorizer : public Colorizer<unsigned char> { 
     typedef Eigen::Matrix<float,2,1,Eigen::DontAlign> ColourVector;
   public:
-    typedef Colorizer<unsigned char>::BrightnessType BrightnessType;
+    typedef Colorizer<unsigned char> BaseType;
+    typedef BaseType::BrightnessType BrightnessType;
+
+    static const int KeyCount = 2;
 
   private:
-    float minV, maxV, scaleV;
+    quantity<cs_units::camera::time,float> minV, maxV;
+    typedef power_typeof_helper<cs_units::camera::time,static_rational<-1> >::type per_frame;
+    quantity<per_frame,float> scaleV;
+    static const int key_resolution = 100;
+    simparm::optional<frame_rate> speed;
 
     /** Offset for tone calculations. */
     ColourVector base_tone,
@@ -122,8 +131,7 @@ class HueingColorizer : public Colorizer<unsigned char> {
     }
 
   public:
-    HueingColorizer(const Config& config)
-        : Colorizer<unsigned char>(config)
+    HueingColorizer(const Config& config) : BaseType(config)
         { base_tone[0] = config.hue(); 
           base_tone[1] = config.saturation(); } 
 
@@ -146,20 +154,68 @@ class HueingColorizer : public Colorizer<unsigned char> {
                             float oldVal, float newVal) 
         { merge_tone(x, y, oldVal, newVal - oldVal); }
     inline void announce(const output::Output::Announcement& a) {
-        minV = a.traits.first_frame / cs_units::camera::frame;
+        minV = a.traits.first_frame;
         if ( a.traits.last_frame.is_set() )
-            maxV = *a.traits.last_frame / cs_units::camera::frame;
+            maxV = *a.traits.last_frame;
         else
             throw std::runtime_error("Total length of acquisition must be "
                                      "known for colour coding by time.");
-        scaleV = 2.0 / (3 * ( maxV - minV ));
+        quantity<cs_units::camera::time,float> length = maxV - minV;
+        scaleV = 0.666f / length;
+        speed = a.traits.speed;
     }
     inline void announce(const output::Output::EngineResult& er) {
-        float hue = (er.forImage.value() - minV) * scaleV,
+        float hue = (er.forImage - minV) * scaleV,
               saturation = 0;
         set_tone( hue, saturation );
     }
     inline void announce(const Localization&) {}
+
+    dStorm::Display::KeyDeclaration create_key_declaration( int index ) const {
+        if ( index == 1 ) {
+            return dStorm::Display::KeyDeclaration(
+                (speed.is_set() ? "s" : "fr"), 
+                (speed.is_set() ? "seconds" : "frames"), 
+                key_resolution);
+        } else {
+            return BaseType::create_key_declaration( index );
+        }
+    }
+
+    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
+    {
+        if ( index == 1 ) {
+            const float max_saturation = 1;
+            const BrightnessType max_brightness 
+                = std::numeric_limits<BrightnessType>::max();
+            const int key_count = key_resolution;
+            into.reserve( key_count );
+            for (int i = 0; i < key_count; ++i) {
+                float hue = (i * 0.666f / key_count);
+                RGBWeight weights;
+                ColourSchemes::rgb_weights_from_hue_saturation
+                    ( hue, max_saturation, weights );
+
+                /* Key value in frames */
+                quantity<cs_units::camera::time,float>
+                    frame = ((maxV - minV) * ((1.0f * i) / key_count) + minV);
+                float value;
+                if ( speed.is_set() ) {
+                    quantity<si::time, double> time = frame / *speed;
+                    value = time.value();
+                } else {
+                    value = frame.value();
+                }
+
+                into.push_back( dStorm::Display::KeyChange(
+                    /* index */ i,
+                    /* color */ weights * max_brightness,
+                    /* value */ value ) );
+            }
+        } else {
+            BaseType::create_full_key( into, index );
+        }
+    }
 };
 
 }

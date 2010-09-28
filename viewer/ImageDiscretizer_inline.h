@@ -14,8 +14,8 @@ template < typename ImageListener>
 float 
 Discretizer< ImageListener>::key_value( LowDepth key ) const
 {
-    int n = -1; 
-    while ( transition[n+1] <= key ) n++;
+    unsigned int n = -1; 
+    while ( n+1 < in_depth && transition[n+1] <= key ) n++;
     return (n+0.5f) / disc_factor;
 }
 

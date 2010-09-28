@@ -3,6 +3,7 @@
 #include "ColourDisplay_impl.h"
 #include "LiveCache_inline.h"
 #include "TerminalBackend.h"
+#include <dStorm/ImageTraits_impl.h>
 
 namespace dStorm {
 namespace viewer {

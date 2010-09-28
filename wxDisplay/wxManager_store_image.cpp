@@ -7,6 +7,7 @@
 #include <Magick++.h>
 #endif
 #include <cmath>
+#include <boost/ptr_container/ptr_list.hpp>
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
@@ -103,6 +104,7 @@ make_key_image(
     int width,
     Magick::Color foreground,
     Magick::Color background,
+    const dStorm::Display::KeyDeclaration& kd,
     const data_cpp::Vector<KeyChange>& key )
 {
     DEBUG("Making annotated key");
@@ -119,7 +121,7 @@ make_key_image(
     Magick::TypeMetric metrics;
     rv->strokeColor( foreground );
     rv->fillColor( foreground );
-    for (int i = lh/6; i < width-(lh-lh/6); i += lh )
+    for (int i = lh/3; i < width-(lh-lh/6); i += lh )
     {
         int index = round(i * key.size() * 1.0 / width );
         index = std::max(0, std::min(index, key.size()));
@@ -135,8 +137,7 @@ make_key_image(
     }
 
     DEBUG("Writing key annotation");
-    std::string message =
-        "Key: total A/D counts per pixel";
+    std::string message = "Key: " + kd.description;
     if ( width >= 20*lh )
       rv->annotate( message,
         Magick::Geometry( width, 
@@ -199,13 +200,13 @@ void wxManager::store_image(
     const Change& image )
 {
     DEBUG("Storing image");
-    if ( !image.do_resize || !image.do_clear )
+    if ( !image.do_resize || !image.do_clear || image.resize_image.keys.size() != image.changed_keys.size() )
         throw std::logic_error("No complete image given for store_image");
 #if !defined(HAVE_LIBGRAPHICSMAGICK__) || !defined(HAVE_MAGICK___H)
     throw std::runtime_error("Cannot save images: Magick library not used in compilation");
 #else
-    DEBUG("Image to store has width " << image.resize_image.width << " and height " << image.resize_image.height
-        <<" and key size " << image.change_key.size());
+    DEBUG("Image to store has width " << image.resize_image.size.x() << " and height " << image.resize_image.size.y()
+        <<" and has " << image.changed_keys.size() << " keys");
     int width = image.resize_image.size.x() / cs_units::camera::pixel; 
     int main_height = image.resize_image.size.y() / cs_units::camera::pixel;
     int total_height = main_height;
@@ -218,11 +219,12 @@ void wxManager::store_image(
         ( 1.0 - background.red(), 1.0 - background.green(), 
           1.0 - background.blue() );
 
-    std::auto_ptr< Magick::Image > key_img;
-    if ( image.change_key.size() ) {
-        key_img = make_key_image( 
-            width, foreground, background, image.change_key );
-        total_height += border_after_image + key_img->rows();
+    boost::ptr_list< Magick::Image > key_imgs;
+    for ( unsigned int i = 0; i < image.changed_keys.size(); ++i ) {
+        key_imgs.push_back( make_key_image( 
+            width, foreground, background, 
+            image.resize_image.keys[i], image.changed_keys[i] ) );
+        total_height += border_after_image + key_imgs.back().rows();
     }
 
     DEBUG("Creating image sized " << width << " by " << total_height);
@@ -232,8 +234,12 @@ void wxManager::store_image(
     img.fillColor( foreground );
 
     write_main_image( img, width, image.image_change, image.change_pixels );
-    if ( key_img.get() != NULL )
-        img.composite( *key_img, 0, main_height, Magick::OverCompositeOp );
+    int key_pos = main_height;
+    for (boost::ptr_list< Magick::Image >::iterator i = key_imgs.begin(); i != key_imgs.end(); ++i )
+    {
+        img.composite( *i, 0, key_pos, Magick::OverCompositeOp );
+        key_pos += i->rows();
+    }
     int scale_bar_width = std::min( width/3, 100 );
     if ( image.resize_image.pixel_size > 0 * cs_units::camera::pixels_per_meter ) {
         write_scale_bar( img, image.resize_image.pixel_size,

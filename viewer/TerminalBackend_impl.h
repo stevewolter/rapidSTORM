@@ -21,7 +21,8 @@ TerminalBackend<Hueing>::TerminalBackend(const Config& config)
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
-        colorizer)
+        colorizer),
+  cache()
 {
     image.setListener(&discretization);
     discretization.setListener(&cache);
@@ -66,7 +67,7 @@ template <int Hueing>
 std::auto_ptr<dStorm::Display::Change> 
 TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");
-    std::auto_ptr<dStorm::Display::Change> c = cache.get_result();
+    std::auto_ptr<dStorm::Display::Change> c = cache.get_result(colorizer);
     c->do_clear = true;
     c->clear_image.background = colorizer.get_background();
     Im& im = c->image_change.new_image;
@@ -74,18 +75,25 @@ TerminalBackend<Hueing>::get_result(bool with_key) const {
     for ( Im::iterator i = im.begin(); i != im.end(); i++ ) {
         *i = discretization.get_pixel( i.x(), i.y() );
     }
-    if ( with_key ) {
-        DEBUG("Creating key");
+    if ( with_key && Colorizer::KeyCount > 0 ) {
+        DEBUG("Creating keys");
+        assert( int(c->changed_keys.size()) >= Colorizer::KeyCount );
+        dStorm::Display::Change::Keys::iterator key = c->changed_keys.begin();
         int key_count = Colorizer::BrightnessDepth;
-        dStorm::Display::KeyChange* k = c->change_key.allocate(key_count);
+        dStorm::Display::KeyChange* k = key->allocate(key_count);
         for (int i = 0; i < key_count; i++) {
             k->index = i;
             k->color = colorizer.getKeyPixel( i );
             k->value = discretization.key_value( i );
             k++;
         }
-        c->change_key.commit( key_count );
-        DEBUG("Created key");
+        key->commit( key_count );
+        int index = 1;
+        for ( ++key ; key != c->changed_keys.end(); ++key ) {
+            key->clear();
+            colorizer.create_full_key( *key, index++ );
+        }
+        DEBUG("Created keys");
     }
 
 

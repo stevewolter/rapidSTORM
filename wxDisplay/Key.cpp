@@ -7,11 +7,12 @@
 namespace dStorm {
 namespace Display {
 
-Key::Key( wxWindow* parent, wxSize size, int num_keys )
+Key::Key( wxWindow* parent, wxSize size, const Declaration& decl )
     : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),
+        parent(parent),
         current_size( size ),
         buffer( new wxBitmap(size.GetWidth(), size.GetHeight()) ),
-        num_keys( num_keys ),
+        num_keys( decl.size ),
         max_text_width( 0 ), max_text_height( 0 ),
         colors( num_keys ),
         values( num_keys ),
@@ -21,11 +22,15 @@ Key::Key( wxWindow* parent, wxSize size, int num_keys )
         bottom_border( 3 ),
         left_border(5),
         background_pen( this->GetBackgroundColour() ),
-        background_brush( this->GetBackgroundColour() )
+        background_brush( this->GetBackgroundColour() ),
+        current_declaration( decl )
 {
     compute_key_size();
     wxClientDC dc(this);
     text_height = dc.GetTextExtent(wxT("01234596789")).GetHeight();
+
+    wxString str( decl.unit.c_str(), wxConvUTF8 );
+    label = new wxStaticText( parent, wxID_ANY, wxT("Key (in ") + str + wxT(")"));
 }
 
 Key::~Key() { buffer.release(); }
@@ -151,8 +156,9 @@ void Key::OnResize( wxSizeEvent& )
         draw_key( i, dc );
 }
 
-void Key::resize( int new_number_of_keys ) {
-    num_keys = new_number_of_keys;
+void Key::resize( const Declaration &decl ) {
+    num_keys = decl.size;
+    current_declaration = decl;
     compute_key_size();
 
     wxClientDC base( this );
@@ -161,6 +167,9 @@ void Key::resize( int new_number_of_keys ) {
 
     for (int i = 0; i < num_keys; i++)
         draw_key( i, dc );
+
+    wxString str( decl.unit.c_str(), wxConvUTF8 );
+    label->SetLabel(wxT("Key (in ") + str + wxT(")"));
 }
 
 BEGIN_EVENT_TABLE(Key, wxWindow)
@@ -168,16 +177,23 @@ BEGIN_EVENT_TABLE(Key, wxWindow)
     EVT_SIZE(Key::OnResize)
 END_EVENT_TABLE()
 
+dStorm::Display::KeyDeclaration Key::getDeclaration() const
+{
+    return current_declaration;
+}
+
 data_cpp::Vector<KeyChange>
     Key::getKeys() const
 {
-    data_cpp::Vector<KeyChange> rv(num_keys);
+    data_cpp::Vector<KeyChange> rv;
+    KeyChange *ne = rv.allocate(num_keys);
     for (int i = 0; i < num_keys; i++) {
         int rev = num_keys - i - 1;
-        rv[rev].index = rev;
-        rv[rev].color = colors[i];
-        rv[rev].value = values[i];
+        ne[rev].index = rev;
+        ne[rev].color = colors[i];
+        ne[rev].value = values[i];
     }
+    rv.commit(num_keys);
     return rv;
 }
 

@@ -14,16 +14,18 @@ Display<Colorizer>::Display(
     MyDiscretizer& disc, 
     const Config& config,
     dStorm::Display::DataSource& vph ,
+    const Colorizer& colorizer,
     std::auto_ptr<dStorm::Display::Change> initial_state
 ) 
 : discretizer(disc), 
+  colorizer(colorizer),
   vph(vph), 
   next_change( initial_state )
 {
     if ( config.close_on_completion() )
         props.flags.close_window_on_unregister();
     if ( next_change.get() == NULL )
-        next_change.reset( new dStorm::Display::Change() );
+        next_change.reset( new dStorm::Display::Change(Colorizer::KeyCount) );
     else
         setSize( next_change->resize_image );
 
@@ -60,7 +62,12 @@ void Display<Colorizer>::setSize(
     if ( ! traits.resolution.is_set() )
         throw std::logic_error("Pixel size must be given for image display");
 
-    size.key_size = Colorizer::BrightnessDepth;
+    size.keys.push_back(
+        dStorm::Display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
+    for (int j = 1; j < Colorizer::KeyCount; ++j) {
+        size.keys.push_back( colorizer.create_key_declaration(j) );
+        colorizer.create_full_key( next_change->changed_keys[j] , j );
+    }
     size.pixel_size = *traits.resolution;
 
     setSize( size );
@@ -93,7 +100,7 @@ void Display<Colorizer>::clear() {
     next_change->do_clear = true;
 
     next_change->change_pixels.clear();
-    next_change->change_key.clear();
+    next_change->changed_keys.front().clear();
     fill( ps.begin(), ps.end(), false );
 }
 
@@ -101,7 +108,7 @@ template <typename Colorizer>
 std::auto_ptr<dStorm::Display::Change>
 Display<Colorizer>::get_changes() {
     std::auto_ptr<dStorm::Display::Change> fresh
-        ( new dStorm::Display::Change() );
+        ( new dStorm::Display::Change(Colorizer::KeyCount) );
     std::swap( fresh, next_change );
     return fresh;
 }
@@ -119,7 +126,7 @@ Display<Colorizer>::save_image(
         std::auto_ptr<dStorm::Display::Change>
             c = window_id->get_state();
         if ( c.get() != NULL ) {
-            if ( ! config.save_with_key() ) c->change_key.clear();
+            if ( ! config.save_with_key() ) c->changed_keys.clear();
             if ( ! config.save_scale_bar() ) 
                 c->resize_image.pixel_size = -1 * cs_units::camera::pixels_per_meter;
             dStorm::Display::Manager::getSingleton()
