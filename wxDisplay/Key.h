@@ -15,6 +15,7 @@ class Key : public wxWindow {
 
     wxWindow *parent;
     wxStaticText *label;
+    wxStaticText *cursor;
 
     wxSize current_size;
     std::auto_ptr<wxBitmap> buffer;
@@ -57,6 +58,9 @@ class Key : public wxWindow {
     data_cpp::Vector<KeyChange> getKeys() const;
 
     wxStaticText *getLabel() const { return label; }
+    wxStaticText *getCursorText() const { return cursor; }
+
+    void cursor_value( const DataSource::PixelInfo&, float value );
 
     DECLARE_EVENT_TABLE();
 };

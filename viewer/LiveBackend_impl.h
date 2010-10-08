@@ -73,6 +73,21 @@ void LiveBackend<Hueing>::notice_closed_data_window() {
     DEBUG("Noticed closed data window");
 }
 
+template <int Hueing>
+void LiveBackend<Hueing>::look_up_key_values(
+    const PixelInfo& info,
+    std::vector<float>& targets )
+{
+    ost::MutexLock lock( image.getMutex() );
+    if ( ! targets.empty() ) {
+        const dStorm::Image<float,2>& im = image();
+        if ( im.width_in_pixels() > info.x && im.height_in_pixels() > info.y ) {
+            targets[0] = im(info.x, info.y);
+        }
+    }
+}
+
+
 }
 }
 

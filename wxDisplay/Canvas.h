@@ -12,7 +12,7 @@ class Canvas : public wxScrolledWindow {
     struct Listener {
         virtual void drawn_rectangle( wxRect rect ) = 0;
         virtual void zoom_changed( int to ) = 0;
-        virtual void mouse_over_pixel( wxPoint ) {}
+        virtual void mouse_over_pixel( wxPoint, Color ) = 0;
     };
     void set_listener(Listener* listener);
 

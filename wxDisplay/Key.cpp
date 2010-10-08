@@ -1,6 +1,7 @@
 #include "Key.h"
 #include "helpers.h"
 #include <wx/dcbuffer.h>
+#include <algorithm>
 
 #include "debug.h"
 
@@ -31,6 +32,7 @@ Key::Key( wxWindow* parent, wxSize size, const Declaration& decl )
 
     wxString str( decl.unit.c_str(), wxConvUTF8 );
     label = new wxStaticText( parent, wxID_ANY, wxT("Key (in ") + str + wxT(")"));
+    cursor = new wxStaticText( parent, wxID_ANY, wxT("        ") );
 }
 
 Key::~Key() { buffer.release(); }
@@ -195,6 +197,36 @@ data_cpp::Vector<KeyChange>
     }
     rv.commit(num_keys);
     return rv;
+}
+
+struct DistanceTo {
+    const Color compare_to;
+
+    DistanceTo(Color c) : compare_to(c) {}
+    bool operator()(const Color& a, const Color& b) {
+        return (a.distance(compare_to) < b.distance(compare_to));
+    }
+};
+
+void Key::cursor_value( const DataSource::PixelInfo& info, float value )
+{
+    bool approx = false;
+    if ( isnan(value) ) {
+        /* Search for color in key closest to info.color */
+        std::vector<Color>::iterator element = 
+            std::min_element( colors.begin(), colors.end(), 
+                              DistanceTo(info.pixel) );
+        
+        value = values[ element - colors.begin() ];
+        approx = true;
+    }
+
+    wxChar cbuffer[128];
+    float remainder; const wxChar *SI_unit_prefix;
+    make_SI_prefix( value, remainder, SI_unit_prefix );
+    wxSnprintf(cbuffer, 128, wxT("%.3g %s"), 
+        remainder, SI_unit_prefix);
+    cursor->SetLabel( ((approx) ? wxT("ca. ") : wxT("")) + wxString(cbuffer) );
 }
 
 }

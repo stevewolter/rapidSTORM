@@ -155,9 +155,13 @@ CommonInfo<Kernels,FF>::check_result(
         /* Mortenson formula */
         /* Number of photons */
         double N = params.template getAmplitude<0>() / photon_response_factor;
+        /* Compute/get \sigma */
         Eigen::Vector2d psf_variance(
             sqr(params.template getSigmaX<0>()), 
             sqr(params.template getSigmaY<0>()));
+        /* Add a^2/12 term to arrive at \sigma_a. This term is always 1 since
+         * we are computing in pixels. */
+        psf_variance.cwise() += 1.0/12;
         Eigen::Vector2d background_factor
             = psf_variance * 8 * M_PI * background_noise_variance / N;
         background_factor.cwise() += 16.0 / 9.0;

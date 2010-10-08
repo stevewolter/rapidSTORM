@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "Window.h"
 #include "Canvas.h"
 #include "ZoomSlider.h"
@@ -72,6 +71,8 @@ Window::Window(
         key->Add( (*i)->getLabel(), 
                   wxSizerFlags().Center().Border( wxALL, 10 ) );
         key->Add( *i, wxSizerFlags(1).Expand() );
+        key->Add( (*i)->getCursorText(), 
+                  wxSizerFlags().Center().Border( wxALL, 10 ) );
         key_sizer->Add( key, wxSizerFlags(1).Expand() );
     }
     ver_sizer2->Add( key_sizer, wxSizerFlags(1).Expand() );
@@ -202,10 +203,18 @@ void Window::drawn_rectangle( wxRect rect ) {
     }
 }
 
-void Window::mouse_over_pixel( wxPoint point ) {
+void Window::mouse_over_pixel( wxPoint point, Color color ) {
     std::stringstream label_text;
     label_text << "(" << point.x << ", " << point.y << ")";
     position_label->SetLabel( std_to_wx_string( label_text.str() ) );
+
+    dStorm::Display::DataSource::PixelInfo info( point.x, point.y, color );
+    std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
+    if ( source )
+        source->look_up_key_values( info, key_values );
+
+    for (size_t i = 0; i < keys.size(); ++i) 
+        keys[i]->cursor_value( info, key_values[i] );
 }
 
 void Window::zoom_changed( int to ) {

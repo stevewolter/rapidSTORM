@@ -5,8 +5,7 @@
 #define CImgBuffer_ANDORSIF_H
 
 #include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/Config.h>
-#include <dStorm/input/FileBasedMethod.h>
+#include <dStorm/input/InputChainLink.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -15,6 +14,10 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/helpers/thread.h>
 #include <dStorm/Image.h>
+#include <boost/utility.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include "AndorSIF_OpenFile.h"
 
 #ifndef CImgBuffer_SIFLOADER_CPP
 typedef void readsif_File;
@@ -39,43 +42,25 @@ namespace AndorSIF {
                    public simparm::Node::Callback
     {
       public:
-         typedef dStorm::Image<PixelType,2> Image;
-         typedef input::Source<Image> BaseSource;
-         typedef typename BaseSource::iterator base_iterator;
-         typedef typename BaseSource::Flags Flags;
-         typedef typename BaseSource::TraitsPtr TraitsPtr;
+        typedef dStorm::Image<PixelType,2> Image;
+        typedef input::Source<Image> BaseSource;
+        typedef typename BaseSource::iterator base_iterator;
+        typedef typename BaseSource::Flags Flags;
+        typedef typename BaseSource::TraitsPtr TraitsPtr;
 
-         Source(const char *src);
-         Source(FILE *src, const std::string& ident);
-         virtual ~Source();
+        Source(boost::shared_ptr<OpenFile> file);
+        virtual ~Source();
 
         base_iterator begin();
         base_iterator end();
         TraitsPtr get_traits();
 
-         Object& getConfig() { return *this; }
-         void push_back_SIF_info() {
-            push_back( *sifInfo );
-         }
+        Object& getConfig() { return *this; }
 
       private:
-         void init(FILE *src);
+         boost::shared_ptr<OpenFile> file;
          bool has_been_iterated;
 
-         FILE *stream;
-         readsif_File *file;
-         readsif_DataSet *dataSet;
-         bool had_errors;
-         int im_count;
-
-         std::string file_ident;
-
-         std::auto_ptr<Set> sifInfo;
-         simparm::TriggerEntry showDetails, hideDetails;
-
-         void operator()(const simparm::Event&);
-
-         std::auto_ptr< Image > load(int i);
          class iterator;
     };
 
@@ -83,19 +68,17 @@ namespace AndorSIF {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public FileBasedMethod< dStorm::Image<PixelType,2> >
+    : public InputChainLink,
+      public simparm::Node
     {
+        boost::shared_ptr<OpenFile> file;
+
       public:
-        typedef input::Config MasterConfig;
+        virtual void context_changed( const Context& );
+        virtual Source<PixelType>* makeSource();
+        virtual InputChainLink::TraitsRef make_traits( const Context& );
 
-        Config(MasterConfig& src);
-        Config(const Config &c, MasterConfig& src);
-
-        Config* clone(MasterConfig& newMaster) const
-            { return new Config<PixelType>(*this, newMaster); }
-
-      protected:
-        Source< PixelType >* impl_makeSource();
+        Config* clone() { return new Config(*this); }
     };
 }
 

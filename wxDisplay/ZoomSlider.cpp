@@ -30,9 +30,9 @@ void ZoomSlider::drawn_rectangle( wxRect rect )
     if ( listener ) listener->drawn_rectangle( rect );
 }
 /** Just forwards mouse over pixel event. No action is taken. */
-void ZoomSlider::mouse_over_pixel( wxPoint p )
+void ZoomSlider::mouse_over_pixel( wxPoint p, Color c )
 {
-    if ( listener ) listener->mouse_over_pixel( p );
+    if ( listener ) listener->mouse_over_pixel( p, c );
 }
 
 

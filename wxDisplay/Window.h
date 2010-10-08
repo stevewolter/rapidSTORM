@@ -41,7 +41,7 @@ class Window : public wxFrame, public Canvas::Listener
 
     void drawn_rectangle( wxRect rect );
     void zoom_changed( int to );
-    void mouse_over_pixel( wxPoint );
+    void mouse_over_pixel( wxPoint, Color );
 
   public:
     Window( const Manager::WindowProperties& props,

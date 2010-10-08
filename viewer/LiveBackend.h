@@ -39,6 +39,8 @@ class LiveBackend
     friend class TerminalBackend<Hueing>;
 
     void notice_closed_data_window();
+    void look_up_key_values( const PixelInfo& info,
+                             std::vector<float>& targets );
 
   public:
     LiveBackend(Config& config, Status&);

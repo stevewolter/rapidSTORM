@@ -17,7 +17,7 @@ class ZoomSlider
     ZoomSlider( wxWindow *parent, Canvas &canvas );
     void zoom_changed( int to );
     void drawn_rectangle( wxRect rect );
-    void mouse_over_pixel( wxPoint );
+    void mouse_over_pixel( wxPoint, Color );
 
     void OnZoomChange( wxScrollEvent& event );
 

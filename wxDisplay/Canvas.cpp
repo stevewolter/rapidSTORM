@@ -372,8 +372,15 @@ void Canvas::OnMouseMotion( wxMouseEvent& event )
         event.GetY() + visible_region.GetTop() );
     wxPoint mouse_position = image_coords( mouse_in_canvas_space );
         
-    if ( zcl && last_mouse_position != mouse_position )
-        zcl->mouse_over_pixel( mouse_position );
+    if ( zcl && last_mouse_position != mouse_position ) {
+        Color c = Color::Black();
+        if ( contents.get() ) {
+            c.red() = contents->GetRed( mouse_position.x, mouse_position.y );
+            c.green() = contents->GetGreen( mouse_position.x, mouse_position.y );
+            c.blue() = contents->GetBlue( mouse_position.x, mouse_position.y );
+        }
+        zcl->mouse_over_pixel( mouse_position, c );
+    }
     last_mouse_position = mouse_position;
 
     DEBUG("End OnMouseMotion");
