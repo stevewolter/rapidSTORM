@@ -3,7 +3,7 @@
 
 #include "AndorDirect_decl.h"
 
-#include <dStorm/input/Config.h>
+#include <dStorm/input/ChainLink.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/Method.h>
@@ -16,6 +16,7 @@
 #include <set>
 #include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/FileEntry.hh>
 #include <simparm/Set.hh>
 #include <dStorm/UnitEntries/TimeEntry.h>
 
@@ -27,26 +28,20 @@ namespace AndorCamera {
         *  acquisition that are acquisition-specific - control elements and
         *  acquisition area borders. All camera specific parameters are in
         *  AndorCamera::Config. */
-    class Method : public CamConfig, public simparm::Node::Callback
+    class Method : public input::ChainLink, public CamConfig
     {
       private:
         class CameraSwitcher;
         std::auto_ptr<CameraSwitcher> switcher;
-        simparm::FileEntry basename;
       public:
         simparm::BoolEntry show_live_by_default;
-        dStorm::input::Config& resolution_element;
 
-        private:
+      private:
         void registerNamedEntries();
 
-        protected:
-        CamSource* impl_makeSource();
-        void operator()(const simparm::Event&);
-
-        public:
-        Method(dStorm::input::Config& src);
-        Method(const Method &c, dStorm::input::Config &src);
+      public:
+        Method();
+        Method(const Method &c);
         virtual ~Method();
 
         std::auto_ptr< CamSource > makeSource()

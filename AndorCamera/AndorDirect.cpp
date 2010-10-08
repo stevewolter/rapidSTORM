@@ -32,6 +32,31 @@ using namespace simparm;
 
 namespace AndorCamera {
 
+void Method::registerNamedEntries()
+{
+    CamTraits::Resolution res;
+    res = resolution_element.get_resolution();
+    dStorm::output::Basename bn( basename() );
+    bn.set_variable( "run", "snapshot" );
+    switcher.reset( new Method::CameraSwitcher(*this, res, bn.new_basename()) );
+    AndorCamera::System& s = AndorCamera::System::singleton();
+    if ( s.get_number_of_cameras() != 0 ) {
+        viewable = true;
+        s.add_listener( *switcher );
+        DEBUG("Selecting camera 0");
+        s.selectCamera(0);
+        DEBUG("Selected camera 0");
+    } else 
+        viewable = false;
+
+    receive_changes_from( basename.value );
+    receive_changes_from( resolution_element.pixel_size_in_nm );
+    receive_changes_from( resolution_element.pixel_size_in_nm.value );
+
+    push_back( basename );
+    push_back( show_live_by_default );
+}
+
 CamSource* Method::impl_makeSource() 
  
 {
@@ -273,47 +298,6 @@ class Method::CameraSwitcher : public AndorCamera::System::Listener
             currentlyActive->change_basename( name );
     }
 };
-
-void Method::registerNamedEntries()
-{
-    CamTraits::Resolution res;
-    res = resolution_element.get_resolution();
-    dStorm::output::Basename bn( basename() );
-    bn.set_variable( "run", "snapshot" );
-    switcher.reset( new Method::CameraSwitcher(*this, res, bn.new_basename()) );
-    AndorCamera::System& s = AndorCamera::System::singleton();
-    if ( s.get_number_of_cameras() != 0 ) {
-        viewable = true;
-        s.add_listener( *switcher );
-        DEBUG("Selecting camera 0");
-        s.selectCamera(0);
-        DEBUG("Selected camera 0");
-    } else 
-        viewable = false;
-
-    receive_changes_from( basename.value );
-    receive_changes_from( resolution_element.pixel_size_in_nm );
-    receive_changes_from( resolution_element.pixel_size_in_nm.value );
-
-    push_back( basename );
-    push_back( show_live_by_default );
-}
-
-void Method::operator()(const simparm::Event& e)
-{
-    DEBUG("Got change from node " <<  &e.source );
-    if ( &e.source == &resolution_element.pixel_size_in_nm.value ) {
-        DEBUG("Changing resolution to " << *resolution_element.get_resolution());
-        if ( switcher.get() != NULL )
-            switcher->change_resolution( resolution_element.get_resolution() );
-    } else if ( &e.source == &basename.value ) {
-        output_file_basename = basename();
-        DEBUG("Set output file basename at " << &output_file_basename << " to " << output_file_basename());
-        dStorm::output::Basename bn( output_file_basename );
-        bn.set_variable( "run", "" );
-        switcher->change_basename( bn.new_basename() );
-    }
-}
 
 Source::TraitsPtr Source::get_traits() 
 {
