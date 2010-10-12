@@ -7,6 +7,16 @@
 #define DESC "Acquisition parameters"
 
 namespace AndorCamera {
+
+std::ostream& operator<<(std::ostream& o, OutputAmp a)
+{
+    if ( a == ElectronMultiplication )
+        return o << "Electron multiplication";
+    else
+        return o << "Conventional amplification";
+        
+}
+
 _Config::_Config()
 : Set(NAME, DESC),
   targetTemperature("ReferenceTemperature", "Desired CCD temperature",-75 * boost::units::celsius::degrees),

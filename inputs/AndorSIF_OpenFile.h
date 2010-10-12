@@ -5,6 +5,8 @@
 #include <string> 
 #include <boost/shared_ptr.hpp> 
 #include <dStorm/input/Traits.h>
+#include <boost/utility.hpp>
+#include <dStorm/Image.h>
 
 #ifndef CImgBuffer_SIFLOADER_CPP
 typedef void readsif_File;
@@ -34,12 +36,15 @@ class OpenFile : boost::noncopyable {
     const std::string for_file() const { return file_ident; }
 
     template <typename PixelType> 
-        boost::shared_ptr< Traits<dStorm::Image<PixelType,2> > > 
+        std::auto_ptr< Traits<dStorm::Image<PixelType,2> > > 
         getTraits();
 
     template <typename PixelType>
         std::auto_ptr< dStorm::Image<PixelType,2> >
-        load_image( int index );
+        load_image( int index, simparm::Node& );
+
+    int number_of_images() const { return im_count; }
+    bool did_have_errors() const { return had_errors; }
 };
 
 }

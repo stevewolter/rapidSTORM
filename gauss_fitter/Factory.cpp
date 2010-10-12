@@ -65,7 +65,7 @@ void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     rv.z_coordinate_is_set = false;
 
     if ( info.traits.photon_response.is_set() 
-         && info.traits.background_standard_deviation_is_set ) 
+         && info.traits.background_stddev.will_be_set() ) 
     {
         rv.uncertainty_is_set = true;
     }

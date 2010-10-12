@@ -80,7 +80,9 @@ libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lpth
 
 libinputs_la_SOURCES = \
 	inputs/AndorSIF.cpp inputs/TIFF.cpp \
-	inputs/AndorSIF.h inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp
+	inputs/AndorSIF.h inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
+	inputs/TIFF_OpenFile.cpp \
+	inputs/AndorSIF_OpenFile.h inputs/AndorSIF_OpenFile.cpp
 
 libengine_la_SOURCES = \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
@@ -172,6 +174,8 @@ libdStorm_display_la_SOURCES = \
 
 if BUILD_ANDORCAM
     ACS = \
+	AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+	AndorCamera/Context.h \
 	AndorCamera/SDK.h AndorCamera/SDK.cpp AndorCamera/Error.cpp AndorCamera/foreach.h \
 	AndorCamera/Acquisition.cpp AndorCamera/StateMachine.cpp \
 	AndorCamera/StateMachine.h AndorCamera/StateMachine_impl.h \

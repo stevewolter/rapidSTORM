@@ -32,8 +32,7 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    config->inputConfig.inputMethod.addChoice( 
-        new dummy_file_input::Method(config->inputConfig) );
+    config->inputConfig.method.add_choice( new dummy_file_input::Method() );
     config->engineConfig.spotFittingMethod.addChoice( new dStorm::debugplugin::DummyFitter::Source() );
 
     dStorm::output::Config* outputs = &config->outputConfig;

@@ -45,7 +45,8 @@ class LiveView :
 
   public:
     LiveView(
-        const Method& config,
+        bool on_by_default,
+        Resolution resolution,
         boost::units::quantity<cs_units::camera::frame_rate> cycle_time );
     ~LiveView();
     void show( const CamImage& image, int num );

@@ -23,12 +23,12 @@
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/ImageTraits.h>
 #include <AndorCamera/Config.h>
-#include <dStorm/input/BasenameWatcher.h>
-#include <dStorm/input/FileBasedMethod_impl.h>
 #include <dStorm/helpers/exception.h>
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include <dStorm/input/FileContext.h>
 
 using namespace std;
 
@@ -40,23 +40,26 @@ template<typename Pixel>
 Source<Pixel>::Source(boost::shared_ptr<OpenFile> file)
 : Object("AndorSIF", "SIF file"),
   BaseSource(static_cast<simparm::Node&>(*this), Flags()),
-  Set("AndorSIF", "SIF file"),
   file(file),
   has_been_iterated(false)
 {
-   init(src);
+}
+
+template<typename Pixel>
+Source<Pixel>::~Source()
+{
 }
 
 template<typename Pixel>
 typename Source<Pixel>::TraitsPtr 
 Source<Pixel>::get_traits()
 {
-   return file->getTraits();
+   return file->getTraits<Pixel>();
 }
 
 template<typename Pixel>
 Config<Pixel>::Config() 
-: simparm::Node( "AndorSIF", "Andor SIF file" )
+: simparm::Object( "AndorSIF", "Andor SIF file" )
 {
 }
 
@@ -66,23 +69,17 @@ Source<Pixel>* Config<Pixel>::makeSource()
     return new Source<Pixel>(file);
 }
 
-InputChainLink::TraitsRef 
-Config<Pixel>::make_traits( const Context& context )
+template<typename Pixel>
+void Config<Pixel>::context_changed( ContextRef ocontext )
 {
-    std::string input_file = static_cast<FileContext&>( context ).input_file;
-    TraitsRef rv( new Traits() );
-    if ( file.get() == NULL || file->for_file() != input_file )
-        file.reset( new OpenFile(input_file) );
-    rv->traits = file->getTraits();
-    rv->configuration_element = this;
-    rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
-    return rv;
-}
-
-void Config<Pixel>::context_changed( const Context& context )
-{
-    if ( file.get() == NULL || context.input_file != file->for_file() )
-        this->notify_of_trait_change( make_traits(context) );
+    FileContext& context = dynamic_cast<FileContext&>( *ocontext );
+    if ( file.get() == NULL || context.input_file != file->for_file() ) {
+        file.reset( new OpenFile( context.input_file ) );
+        boost::shared_ptr<FileMetaInfo> rv( new FileMetaInfo() );
+        rv->traits = file->getTraits<Pixel>();
+        rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
+        this->notify_of_trait_change( rv );
+    }
 }
 
 template <typename Pixel>
@@ -90,7 +87,8 @@ class Source<Pixel>::iterator
 : public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
 {
     mutable dStorm::Image<Pixel,2> img;
-    Source* src;
+    OpenFile* src;
+    mutable simparm::Node* msg;
     int count;
     mutable bool did_load;
 
@@ -99,8 +97,8 @@ class Source<Pixel>::iterator
     Image& dereference() const { 
         if ( ! did_load ) {
             DEBUG("Loading at " << count);
-            std::auto_ptr<dStorm::Image<Pixel,2> > i = src->load(count);
-            if ( i.get() == NULL && src->had_errors ) throw dStorm::abort();
+            std::auto_ptr<dStorm::Image<Pixel,2> > i = src->load_image<Pixel>(count, *msg);
+            if ( i.get() == NULL && src->did_have_errors() ) throw dStorm::abort();
             if ( i.get() != NULL )
                 img = *i;
             else
@@ -112,13 +110,13 @@ class Source<Pixel>::iterator
     }
     bool equal(const iterator& i) const { 
         DEBUG( "Comparing " << count << " with " << i.count ); 
-        return count == i.count || (src && src->had_errors); 
+        return count == i.count || (src && src->did_have_errors()); 
     }
 
     void increment() { DEBUG("Incrementing iterator from " << count); ++count; did_load = false; img.invalidate(); }
   public:
     iterator() : src(NULL), count(0), did_load(false) {}
-    iterator(Source& s, int c = 0) : src(&s), count(c), did_load(false)
+    iterator(Source& s, int c = 0) : src(s.file.get()), msg(&s), count(c), did_load(false)
     {}
 };
 
@@ -130,7 +128,7 @@ Source<PixelType>::begin() {
 template <typename PixelType>
 typename Source<PixelType>::base_iterator 
 Source<PixelType>::end() {
-    return base_iterator( iterator(*this, im_count) );
+    return base_iterator( iterator(*this, file->number_of_images()) );
 }
 
 template class Config<unsigned short>;

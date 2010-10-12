@@ -9,6 +9,8 @@
 #include "StateMachine_impl.h"
 #include <simparm/EntryManipulators.hh>
 
+#include <simparm/OptionalEntry_impl.hh>
+
 using namespace simparm;
 
 namespace AndorCamera {

@@ -13,11 +13,11 @@
 #include <queue>
 #include <dStorm/output/Output.h>
 #include "doc/help/context.h"
-#include <dStorm/input/Method.h>
 #include <dStorm/localization_file/reader.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
+#include <dStorm/input/MetaInfo.h>
 
 using namespace std;
 
@@ -64,15 +64,14 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   terminationChanged( terminationMutex )
 {
     DEBUG("Building car");
-    if ( config.inputConfig.inputMethod().uses_input_file() )
-        used_output_filenames.insert( config.inputConfig.inputFile() );
+    used_output_filenames = config.get_meta_info().forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
 
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    DEBUG("Determining input file name from basename " << config.inputConfig.basename());
-    output::Basename bn( config.inputConfig.basename() );
+    DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename);
+    output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
     config.engineConfig.set_variables( bn );
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
@@ -145,7 +144,7 @@ void Car::run() throw() {
 void Car::make_input_driver() {
     DEBUG("Determining type of input driver");
     try {
-        source = config.inputConfig.makeImageSource();
+        source.reset( config.inputConfig.makeSource() );
 
         if ( source->can_provide< Image >() ) {
             DEBUG("Have image input, registering input");

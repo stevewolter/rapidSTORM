@@ -146,7 +146,7 @@ output::Traits Engine::convert_traits( std::auto_ptr<InputTraits> in ) {
     rv.first_frame = in->first_frame;
     rv.last_frame = in->last_frame;
     // TODO: Remove when input module is ready to do this estimation conditionally
-    in->background_standard_deviation_is_set = true;
+    in->background_stddev.mark_as_futurely_set();
     DEBUG("Last frame is set in input: " << in->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
     DEBUG("Setting traits from spot fitter");
@@ -287,7 +287,7 @@ void Engine::runPiston()
     auto_ptr<SpotFinder> finder
         = config.spotFindingMethod().make_SpotFinder(config, imProp->size);
 
-    imProp->background_standard_deviation_is_set = true;
+    imProp->background_stddev.mark_as_futurely_set();
     DEBUG("Building spot fitter");
     auto_ptr<SpotFitter> fitter(config.spotFittingMethod().make_by_parts(config, *imProp));
 

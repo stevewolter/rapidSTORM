@@ -15,14 +15,14 @@ using namespace dStorm;
 namespace AndorCamera {
 
 LiveView::LiveView( 
-    const Method& config,
+    bool on_by_default,
+    Resolution resolution,
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time
     )
 : Object("LiveView", "Live view options"),
   cycle_time( cycle_time ),
-  resolution( *config.resolution_element.get_resolution() ),
-  show_live("ShowLive", "Show camera image", 
-            config.show_live_by_default()),
+  resolution( resolution ),
+  show_live("ShowLive", "Show camera image", on_by_default),
   change( new dStorm::Display::Change(1) )
 {
     DEBUG("LiveView constructed");

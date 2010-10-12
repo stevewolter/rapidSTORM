@@ -43,7 +43,6 @@ TerminalCache<Hueing>::get_result(const Colorizer& colorizer) const
     rv->image_change.new_image = Im(size.size);
 
     if ( int(size.keys.size()) < Hueing::KeyCount ) {
-        assert ( colorizer != NULL );
         for (int j = 1; j < Hueing::KeyCount; ++j ) {
             rv->resize_image.keys.push_back( colorizer.create_key_declaration( j ) );
         }

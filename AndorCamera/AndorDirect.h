@@ -3,54 +3,20 @@
 
 #include "AndorDirect_decl.h"
 
-#include <dStorm/input/ChainLink.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/ImageTraits.h>
-#include <dStorm/input/Method.h>
 #include <AndorCamera/CameraReference.h>
-#include <AndorCamera/Camera.h>
-#include <AndorCamera/StateMachine.h>
 #include <AndorCamera/Acquisition.h>
 #include <memory>
 #include <string>
-#include <set>
 #include <dStorm/helpers/thread.h>
-#include <simparm/TriggerEntry.hh>
-#include <simparm/FileEntry.hh>
 #include <simparm/Set.hh>
-#include <dStorm/UnitEntries/TimeEntry.h>
+
+#include <boost/shared_ptr.hpp>
 
 #include "LiveView_decl.h"
 
 namespace AndorCamera {
-
-    /** The Config class provides the configuration items for Andor camera
-        *  acquisition that are acquisition-specific - control elements and
-        *  acquisition area borders. All camera specific parameters are in
-        *  AndorCamera::Config. */
-    class Method : public input::ChainLink, public CamConfig
-    {
-      private:
-        class CameraSwitcher;
-        std::auto_ptr<CameraSwitcher> switcher;
-      public:
-        simparm::BoolEntry show_live_by_default;
-
-      private:
-        void registerNamedEntries();
-
-      public:
-        Method();
-        Method(const Method &c);
-        virtual ~Method();
-
-        std::auto_ptr< CamSource > makeSource()
-            { return std::auto_ptr< CamSource >(impl_makeSource()); }
-
-        Method* clone(dStorm::input::Config &newMaster) const
-            { return new Method(*this, newMaster); }
-        bool uses_input_file() const { return false; }
-    };
 
     /** This Source class provides a source that captures directly
         *  from Andor cameras present on the system. It needs the
@@ -75,10 +41,10 @@ namespace AndorCamera {
 
         simparm::StringEntry& status;
 
-        std::auto_ptr<LiveView> live_view;
+        boost::shared_ptr<LiveView> live_view;
 
       public:
-        Source(const Method& config,
+        Source( boost::shared_ptr<LiveView> live_view,
                 AndorCamera::CameraReference& camera);
         Source(const Source &);
         virtual ~Source();

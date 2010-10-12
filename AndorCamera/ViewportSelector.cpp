@@ -11,6 +11,7 @@
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/exception.h>
+#include <dStorm/input/Context.h>
 
 using namespace std;
 using namespace simparm;
@@ -31,12 +32,13 @@ Display::Display(
     const CameraReference& cam, 
     Mode mode,
     Config& config,
-    CamTraits::Resolution r
+    const Context& context
 )
 : simparm::Set("ViewportSelector", "Viewport settings"),
   ost::Thread("Viewport Selector"),
   cam(cam),
   config(config),
+  context(context),
   statusBox("CameraStatus", "Camera status"),
   stopAim("StopAimCamera","Leave aiming mode"),
   pause("PauseCamera", "Pause"),
@@ -47,11 +49,11 @@ Display::Display(
   paused(false),
   change( new dStorm::Display::Change(1) ),
   normalization_factor( 0, 1 ),
-  lock_normalization( false ),
-  resolution( r )
+  lock_normalization( false )
 {
     imageFile.editable = false;
     save.editable = false;
+    imageFile = context.output_basename + ".jpg";
 
     registerNamedEntries();
     this->ost::Thread::start();
@@ -124,7 +126,8 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.size = size;
     new_size.keys.push_back( 
         dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
-    new_size.pixel_size = *resolution;
+    if ( context.pixel_size.is_set() )
+        new_size.pixel_size = *context.pixel_size;
 
     return new_size;
 }
@@ -174,9 +177,9 @@ void Display::initialize_display()
         
 }
 
-void Display::set_resolution( const CamTraits::Resolution& r ) {
-    DEBUG("Setting resolution " << *r);
-    resolution = r;
+void Display::context_changed() {
+    DEBUG("Setting resolution " << *context.resolution);
+    imageFile = context.output_basename + ".jpg";
 
     change->do_resize = true;
     change->resize_image = getSize();
@@ -330,11 +333,11 @@ void Display::operator()
     }
 }
 
-Config::Config(const AndorCamera::CameraReference& cam, CamTraits::Resolution r)
+Config::Config(const AndorCamera::CameraReference& cam, Context::Ptr r)
 : simparm::Object("SelectImage", "Select image region"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   cam(cam),
-  resolution(r),
+  context(*r),
   select_ROI("AimCamera","Select ROI"),
   view_ROI("ViewCamera","View ROI only"),
   active_selector_changed(active_selector_mutex)
@@ -346,7 +349,7 @@ Config::Config(const Config& c)
 : simparm::Object(c),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   cam(c.cam),
-  resolution(c.resolution),
+  context(c.context),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),
   active_selector_mutex(),
@@ -373,9 +376,7 @@ void Config::operator()(const simparm::Event& e)
 void Config::make_display( Display::Mode mode ) 
 {
     ost::MutexLock lock( active_selector_mutex );
-    active_selector.reset( new Display( cam, mode, *this, resolution ) );
-    DEBUG("Setting output file name for new selector to " << output_file_name);
-    active_selector->set_output_file( output_file_name );
+    active_selector.reset( new Display( cam, mode, *this, context ) );
     this->simparm::Node::push_back( *active_selector );
 
     set_entry_viewability();
@@ -410,22 +411,12 @@ void Config::set_entry_viewability() {
     view_ROI.viewable = (active_selector.get() == NULL);
 }
 
-void Config::set_resolution( const CamTraits::Resolution& r )
+void Config::context_changed( Context::Ptr new_context )
 {
-    resolution = r;
-    ost::MutexLock lock(active_selector_mutex);
-    if ( active_selector.get() )
-        active_selector->set_resolution( r );
-}
-
-void Config::set_output_file( std::string name )
-{
-    DEBUG("Setting output file name to " << name);
-    output_file_name = name;
+    context = *new_context;
     ost::MutexLock lock(active_selector_mutex);
     if ( active_selector.get() ) {
-        DEBUG("Setting output file name for active selector to " << name);
-        active_selector->set_output_file( name );
+        active_selector->context_changed();
     }
 }
 

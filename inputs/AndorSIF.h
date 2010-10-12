@@ -5,7 +5,7 @@
 #define CImgBuffer_ANDORSIF_H
 
 #include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/InputChainLink.h>
+#include <dStorm/input/ChainLink.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -16,6 +16,7 @@
 #include <dStorm/Image.h>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
+#include <simparm/Set.hh>
 
 #include "AndorSIF_OpenFile.h"
 
@@ -37,9 +38,8 @@ namespace AndorSIF {
      *  float. This is not necessarily the internal type used by
      *  the SIF file. */
     template <typename PixelType>
-    class Source : public simparm::Set,
-                   public input::Source< Image<PixelType,2> >,
-                   public simparm::Node::Callback
+    class Source : public simparm::Object,
+                   public input::Source< Image<PixelType,2> >
     {
       public:
         typedef dStorm::Image<PixelType,2> Image;
@@ -68,17 +68,19 @@ namespace AndorSIF {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public InputChainLink,
-      public simparm::Node
+    : public ChainTerminus,
+      public simparm::Object
     {
         boost::shared_ptr<OpenFile> file;
 
       public:
-        virtual void context_changed( const Context& );
-        virtual Source<PixelType>* makeSource();
-        virtual InputChainLink::TraitsRef make_traits( const Context& );
+        Config();
 
-        Config* clone() { return new Config(*this); }
+        virtual void context_changed( ContextRef );
+        virtual Source<PixelType>* makeSource();
+        virtual simparm::Node* getNode() { return this; }
+
+        Config* clone() const { return new Config(*this); }
     };
 }
 

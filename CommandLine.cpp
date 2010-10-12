@@ -14,6 +14,7 @@
 #include "ModuleLoader.h"
 #include <simparm/IO.hh>
 #include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/input/FileMethod.h>
 
 namespace dStorm {
 
@@ -126,7 +127,7 @@ void CommandLine::Pimpl::run() {
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
     for (int arg = first_nonoption; arg < argc; arg++) {
-        config.inputConfig.inputFile = std::string(argv[arg]);
+        config.inputConfig.file_method.input_file = std::string(argv[arg]);
         starter.trigger();
     }
     DEBUG("Finished processing commandline arguments");

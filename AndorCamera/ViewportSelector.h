@@ -11,6 +11,7 @@
 #include <map>
 #include <AndorCamera/CameraReference.h>
 #include "AndorDirect.h"
+#include "Context.h"
 
 #include <dStorm/ImageTraits.h>
 
@@ -33,6 +34,7 @@ class Display : public simparm::Set,
   private:
     AndorCamera::CameraReference cam;
     Config& config;
+    const Context& context;
 
     simparm::Object            statusBox;
     simparm::TriggerEntry      stopAim;
@@ -62,8 +64,6 @@ class Display : public simparm::Set,
     /** If set to true, \c normalization_factor is fixed at the current
      *  level. */
     bool lock_normalization;
-
-    CamTraits::Resolution resolution;
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
@@ -97,14 +97,13 @@ class Display : public simparm::Set,
         *  This is a fire-and-forget class: The constructor starts a
         *  subthread that will open the acquisition and update the
         *  display window, and then return control. */
-    Display ( const CameraReference&, Mode, Config&, CamTraits::Resolution );
+    Display ( const CameraReference&, Mode, Config&, const Context& );
     /** Destructor, will join the subthread and close the display
         *  window. */
     virtual ~Display();
 
     void terminate();
-    void set_resolution( const CamTraits::Resolution& );
-    void set_output_file( std::string name ) { imageFile = name; }
+    void context_changed();
 };
 
 /** Configuration items for the viewport selection window that
@@ -113,8 +112,8 @@ class Config
 : public simparm::Object, public simparm::Node::Callback 
 {
     AndorCamera::CameraReference cam;
-    CamTraits::Resolution resolution;
-    std::string output_file_name;
+    /* Use a copy of the context to avoid race conditions. */
+    Context context;
 
     void registerNamedEntries();
 
@@ -125,7 +124,7 @@ class Config
     simparm::TriggerEntry select_ROI, view_ROI;
 
     Config(const AndorCamera::CameraReference& cam, 
-           CamTraits::Resolution);
+           Context::Ptr context);
     Config(const Config &c);
     ~Config();
     Config* clone();
@@ -135,9 +134,7 @@ class Config
     void operator()(const simparm::Event&);
 
     void delete_active_selector();
-    void set_resolution( const CamTraits::Resolution& );
-    void set_output_file ( std::string name );
-    const CamTraits::Resolution& get_resolution() { return resolution; }
+    void context_changed(Context::Ptr new_context);
 
   private:
     ost::Mutex active_selector_mutex;

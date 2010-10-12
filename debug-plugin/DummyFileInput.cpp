@@ -2,21 +2,22 @@
 #include <iostream>
 #include <dStorm/engine/Image.h>
 #include <boost/iterator/iterator_facade.hpp>
-#include <dStorm/input/FileBasedMethod_impl.h>
+#include <dStorm/input/FileContext.h>
 
 using namespace dStorm::input;
 
 namespace dummy_file_input {
 
-Source::Source(const Method& config) 
+Source::Source(const Config& config, dStorm::input::Context::Ptr ptr) 
 : simparm::Set("YDummyInput", "Dummy input"),
   dStorm::input::Source<dStorm::engine::Image>
     ( static_cast<simparm::Node&>(*this), Capabilities() ),
   number( config.number() )
 {
+    FileContext& context = static_cast<FileContext&>(*ptr);
     size.x() = config.width() * cs_units::camera::pixel;
     size.y() = config.height() * cs_units::camera::pixel;
-    std::cout << "Simulating file input from '" << config.inputFile().c_str() << "'" << std::endl;
+    std::cout << "Simulating file input from '" << context.input_file << "'" << std::endl;
 }
 
 Source::~Source() {}
@@ -56,30 +57,38 @@ Source::iterator Source::end() {
 }
 
 Config::Config()
-: width("Width", "Image width", 25),
+: simparm::Object("DummyInput", "Dummy file input driver"),
+  width("Width", "Image width", 25),
   height("Height", "Image height", 50),
   number("Number", "Number of generated images", 10)
 {}
 
-void Method::registerNamedEntries() {
+void Config::registerNamedEntries() {
     push_back( width );
     push_back( height );
     push_back( number );
 }
 
-Method::Method(dStorm::input::Config& c) 
-: dStorm::input::FileBasedMethod<dStorm::engine::Image>(c,
-    "DummyInput", "Dummy file input driver",
-    "extension_dum", ".dum")
+Method::Method() 
+    //"extension_dum", ".dum")
 {
-    registerNamedEntries();
 }
 
-Method::Method(const Method& f, dStorm::input::Config& c) 
-: Config(f),
-  dStorm::input::FileBasedMethod<dStorm::engine::Image>(f,c)
+Source* Method::makeSource() {
+    return new Source(config, context);
+}
+
+void Method::context_changed( ContextRef ctx )
 {
-    registerNamedEntries();
+    context = ctx;
+
+    MetaInfo::Ptr rv( new MetaInfo() );
+    dStorm::input::Traits<dStorm::engine::Image> t;
+    t.size.x() = config.width() * cs_units::camera::pixel;
+    t.size.y() = config.height() * cs_units::camera::pixel;
+    t.last_frame = (config.number() - 1) * cs_units::camera::frame;
+    rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+    notify_of_trait_change( rv );
 }
 
 }

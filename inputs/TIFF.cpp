@@ -26,12 +26,12 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/ImageTraits.h>
-#include <dStorm/input/FileBasedMethod_impl.h>
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
 #include "TIFFOperation.h"
+#include <dStorm/input/FileContext.h>
 
 using namespace std;
 
@@ -39,62 +39,26 @@ namespace dStorm {
 namespace TIFF {
 
 template<typename Pixel>
-Source<Pixel>::Source(const char *src, bool ignore_warnings)
+Source<Pixel>::Source( boost::shared_ptr<OpenFile> file )
 : simparm::Set("TIFF", "TIFF image reader"),
   BaseSource( static_cast<simparm::Node&>(*this),    
       Flags() ),
-  ignore_warnings(ignore_warnings)
+  file(file)
 {
-    TIFFOperation op( "in opening TIFF file",
-                      *this, ignore_warnings );
-    tiff = TIFFOpen( src, "rm" );
-    if ( tiff == NULL ) op.throw_exception_for_errors();
-
-    TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
-    TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
-
-    float xres, yres;
-    int xgiven = TIFFGetField( tiff, TIFFTAG_XRESOLUTION, &xres );
-    int ygiven = TIFFGetField( tiff, TIFFTAG_YRESOLUTION, &yres );
-    if ( xgiven == 1 || ygiven == 1 ) {
-        float res;
-        if ( xgiven == 1 && ygiven == 1 )
-            res = (xres+yres)/2;
-        else if ( xgiven == 1 )
-            res = xres;
-        else
-            res = yres;
-
-        int unit = RESUNIT_INCH;
-        TIFFGetField( tiff, TIFFTAG_RESOLUTIONUNIT, &unit );
-        if ( unit == RESUNIT_INCH )
-            resolution = boost::units::quantity<cs_units::camera::resolution,float>(
-                res * cs_units::camera::pixel / (0.0254 * boost::units::si::meters));
-        else if ( unit == RESUNIT_CENTIMETER )
-            resolution = boost::units::quantity<cs_units::camera::resolution,float>(
-                res * cs_units::camera::pixel / (0.01 * boost::units::si::meters));
-    }
-
-#if 0
-    _no_images = 1;
-    while ( TIFFReadDirectory(tiff) != 0 )
-        _no_images += 1;
-#endif
-
-    current_directory = 0;
 }
 
 template<typename Pixel>
 class Source<Pixel>::iterator 
 : public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
 {
-    mutable Source* src;
+    mutable OpenFile* src;
+    mutable simparm::Node* msg;
     int directory;
     mutable Image img;
 
     void go_to_position() const {
         TIFFOperation op( "in reading TIFF file",
-                          *src, src->ignore_warnings );
+                          *msg, src->ignore_warnings );
         int rv = TIFFSetDirectory(src->tiff, directory);
         if ( rv == 1 ) {
             src->current_directory = directory;
@@ -109,8 +73,8 @@ class Source<Pixel>::iterator
     void check_params() const;
 
   public:
-    iterator() : src(NULL) {}
-    iterator(Source &s) : src(&s), directory(0) {}
+    iterator() : src(NULL), msg(NULL) {}
+    iterator(Source &s) : src(s.file.get()), msg(&s), directory(0) {}
 
     Image& dereference() const; 
     bool equal(const iterator& i) const {
@@ -119,7 +83,7 @@ class Source<Pixel>::iterator
     }
     void increment() { 
         TIFFOperation op( "in reading TIFF file",
-                          *src, src->ignore_warnings );
+                          *msg, src->ignore_warnings );
         check_position();
         img.invalidate(); 
         if ( TIFFReadDirectory(src->tiff) != 1 ) {
@@ -188,7 +152,7 @@ Source<Pixel>::iterator::dereference() const
 { 
     if ( img.is_invalid() ) {
         TIFFOperation op( "in reading TIFF file",
-                          *src, src->ignore_warnings );
+                          *msg, src->ignore_warnings );
         check_position();
         check_params();
 
@@ -217,11 +181,6 @@ Source<Pixel>::iterator::dereference() const
 }
 
 template<typename Pixel>
-Source<Pixel>::~Source() {
-    TIFFClose( tiff );
-}
-
-template<typename Pixel>
 typename Source<Pixel>::base_iterator
 Source<Pixel>::begin() {
     return base_iterator( iterator(*this) );
@@ -233,66 +192,62 @@ Source<Pixel>::end() {
     return base_iterator( iterator() );
 }
 
-template<typename Pixel>                                   
-typename Source<Pixel>::TraitsPtr
-Source<Pixel>::get_traits() 
+Config::Config()
+: simparm::Object("TIFF", "TIFF file"),
+  ignore_warnings("IgnoreLibtiffWarnings",
+    "Ignore libtiff warnings", false),
+  determine_length("DetermineFileLength",
+    "Determine length of file", false)
 {
-    TraitsPtr rv( new typename TraitsPtr::element_type());
-    rv->size.x() = _width * cs_units::camera::pixel;
-    rv->size.y() = _height * cs_units::camera::pixel;
-    rv->dim = 1; /* TODO: Read from file */
-    rv->resolution = resolution;
+    ignore_warnings.userLevel 
+        = simparm::Object::Intermediate;
+}
 
-    return rv;
+template<typename Pixel>
+ChainLink<Pixel>::ChainLink() 
+{
 }
 
 template<typename Pixel>
 Source< Pixel >*
-Config<Pixel>::impl_makeSource()
+ChainLink<Pixel>::makeSource()
 {
     Source<Pixel>* ptr =
-        new Source<Pixel>(this->inputFile().c_str(), 
-                          ignore_warnings());
-    ptr->push_back( this->inputFile );
-    this->inputFile.editable = false;
+        new Source<Pixel>( file );
     return ptr;
 }
 
 template<typename Pixel>
-Config<Pixel>::Config( input::Config& src) 
-: FileBasedMethod< Image<Pixel,2> >(
-        src, "TIFF", "TIFF file", 
-        "extension_tif", ".tif" ),
-  tiff_extension("extension_tiff", ".tiff"),
-  ignore_warnings("IgnoreLibtiffWarnings",
-    "Ignore libtiff warnings", false)
+void ChainLink<Pixel>::context_changed( ContextRef ocontext )
 {
-    ignore_warnings.userLevel 
-        = simparm::Object::Intermediate;
-    this->inputFile.push_back(tiff_extension);
-    this->push_back( src.pixel_size_in_nm );
-    this->push_back( ignore_warnings );
+    FileContext& context = dynamic_cast<FileContext&>(*ocontext);
+
+    if ( ! file.get() || file->for_file() != context.input_file ) {
+        boost::shared_ptr<FileMetaInfo> info;
+        file.reset( new OpenFile( context.input_file, config, config ) );
+
+        info->traits = file->getTraits<Pixel>();
+        info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+        info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+
+        this->notify_of_trait_change( info );
+    }
 }
 
 template<typename Pixel>
-Config<Pixel>::Config(
-    const Config<Pixel>::Config &c,
-    input::Config& src
-) 
-: FileBasedMethod< Image<Pixel,2> >(c, src),
-  tiff_extension(c.tiff_extension),
-  ignore_warnings(c.ignore_warnings)
-{
-    this->inputFile.push_back(tiff_extension);
-    this->push_back( src.pixel_size_in_nm );
-    this->push_back( ignore_warnings );
+typename Source<Pixel>::TraitsPtr 
+Source<Pixel>::get_traits() {
+    return file->getTraits<Pixel>();
 }
 
-//template class Config<unsigned char>;
-template class Config<unsigned short>;
-//template class Config<unsigned int>;
-//template class Config<float>;
-//template class Config<double>;
+template<typename Pixel>
+Source<Pixel>::~Source() {}
+
+//template class ChainLink<unsigned char>;
+template class ChainLink<unsigned short>;
+//template class ChainLink<unsigned int>;
+//template class ChainLink<float>;
+//template class ChainLink<double>;
 
 }
 }

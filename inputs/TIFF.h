@@ -3,14 +3,15 @@
 
 #include <dStorm/Image_decl.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/Method.h>
-#include <dStorm/input/FileBasedMethod.h>
+#include <dStorm/input/ChainLink.h>
+#include <dStorm/SizeTraits.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
 #include <stdio.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/Structure.hh>
 
 #ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;
@@ -19,6 +20,18 @@ typedef void TIFF;
 namespace dStorm {
   namespace TIFF {
     using namespace dStorm::input;
+
+    struct Config : public simparm::Object {
+        simparm::BoolEntry ignore_warnings, determine_length;
+
+        Config();
+        void registerNamedEntries() {
+            push_back( ignore_warnings ); 
+            push_back( determine_length ); 
+        }
+    };
+
+    class OpenFile;
 
     /** The Source provides images from a TIFF file.
      *
@@ -40,7 +53,7 @@ namespace dStorm {
         class iterator;
 
       public:
-        Source(const char *src, bool ignore_warnings);
+        Source(boost::shared_ptr<OpenFile> file);
         virtual ~Source();
 
         base_iterator begin();
@@ -50,13 +63,7 @@ namespace dStorm {
         Object& getConfig() { return *this; }
 
       private:
-        ::TIFF *tiff;
-        int current_directory;
-        std::string filename;
-        bool ignore_warnings;
-
-        int _width, _height, _no_images;
-        dStorm::SizeTraits<2>::Resolution resolution;
+        boost::shared_ptr<OpenFile> file;
 
         static void TIFF_error_handler(const char*, 
             const char *fmt, va_list ap);
@@ -64,27 +71,50 @@ namespace dStorm {
         void throw_error();
     };
 
+    class OpenFile {
+        ::TIFF *tiff;
+        bool ignore_warnings;
+        std::string file_ident;
+
+        int current_directory;
+
+        int _width, _height, _no_images;
+        dStorm::SizeTraits<2>::Resolution resolution;
+
+        template <typename PixelType> friend class Source<PixelType>::iterator;
+
+      public:
+        OpenFile(const std::string& filename, const Config&, simparm::Node&);
+        ~OpenFile();
+
+        const std::string for_file() const { return file_ident; }
+
+        template <typename PixelType> 
+            std::auto_ptr< Traits<dStorm::Image<PixelType,2> > > 
+            getTraits();
+
+        template <typename PixelType>
+            std::auto_ptr< dStorm::Image<PixelType,2> >
+            load_image( int index );
+    };
+
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     template <typename PixelType>
-    class Config 
-    : public FileBasedMethod< Image<PixelType,2> >
+    class ChainLink
+    : public input::ChainTerminus
     {
       public:
-        typedef input::Config MasterConfig;
+        ChainLink();
 
-        Config(MasterConfig& src);
-        Config(const Config &c, MasterConfig& src);
-
-        Config* clone(MasterConfig& newMaster) const
-            { return new Config<PixelType>(*this, newMaster); }
-
-      protected:
-        Source< PixelType >* impl_makeSource();
+        ChainLink* clone() const { return new ChainLink(*this); }
+        Source< PixelType >* makeSource();
+        virtual void context_changed( ContextRef context );
+        virtual simparm::Node* getNode() { return &config; }
 
       private:
-        simparm::Attribute<std::string> tiff_extension;
-        simparm::BoolEntry ignore_warnings;
+        simparm::Structure<Config> config;
+        boost::shared_ptr<OpenFile> file;
     };
 }
 

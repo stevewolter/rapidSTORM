@@ -31,7 +31,7 @@ CommonInfo<Ks,FF>::CommonInfo(
   start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
   start_sxy( info.config.sigma_xy() ),
   compute_uncertainty( info.traits.photon_response.is_set() &&
-                       info.traits.background_standard_deviation_is_set ),
+                       info.traits.background_stddev.is_set() ),
   photon_response_factor( (compute_uncertainty) ? 
     info.traits.photon_response->value() : 0 )
 {
