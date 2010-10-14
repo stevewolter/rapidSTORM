@@ -223,14 +223,20 @@ void ChainLink<Pixel>::context_changed( ContextRef ocontext )
     FileContext& context = dynamic_cast<FileContext&>(*ocontext);
 
     if ( ! file.get() || file->for_file() != context.input_file ) {
-        boost::shared_ptr<FileMetaInfo> info;
-        file.reset( new OpenFile( context.input_file, config, config ) );
+        file.reset();
 
-        info->traits = file->getTraits<Pixel>();
-        info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
-        info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+        try {
+            boost::shared_ptr<FileMetaInfo> info;
+            file.reset( new OpenFile( context.input_file, config, config ) );
 
-        this->notify_of_trait_change( info );
+            info->traits = file->getTraits<Pixel>();
+            info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+            info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+
+            this->notify_of_trait_change( info );
+        } catch(...) {
+            this->notify_of_trait_change( TraitsRef() );
+        }
     }
 }
 

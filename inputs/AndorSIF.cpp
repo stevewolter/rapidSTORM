@@ -74,11 +74,16 @@ void Config<Pixel>::context_changed( ContextRef ocontext )
 {
     FileContext& context = dynamic_cast<FileContext&>( *ocontext );
     if ( file.get() == NULL || context.input_file != file->for_file() ) {
-        file.reset( new OpenFile( context.input_file ) );
-        boost::shared_ptr<FileMetaInfo> rv( new FileMetaInfo() );
-        rv->traits = file->getTraits<Pixel>();
-        rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
-        this->notify_of_trait_change( rv );
+        file.reset();
+        try {
+            file.reset( new OpenFile( context.input_file ) );
+            boost::shared_ptr<FileMetaInfo> rv( new FileMetaInfo() );
+            rv->traits = file->getTraits<Pixel>();
+            rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
+            this->notify_of_trait_change( rv );
+        } catch ( ... ) {
+            this->notify_of_trait_change( TraitsRef() );
+        }
     }
 }
 
