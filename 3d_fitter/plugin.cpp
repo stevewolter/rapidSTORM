@@ -1,6 +1,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/ModuleInterface.h>
 #include <dStorm/Config.h>
 #include <simparm/ChoiceEntry_Impl.hh>

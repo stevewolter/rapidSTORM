@@ -9,6 +9,7 @@
 #include "AcquisitionMode.h"
 #include <limits>
 #include <dStorm/error_handler.h>
+#include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;
 using namespace ost;

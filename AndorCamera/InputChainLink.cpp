@@ -16,6 +16,7 @@
 #include <AndorCamera/ShutterControl.h>
 
 #include <dStorm/input/ChainChoice.h>
+#include <dStorm/input/ChainSingleton.h>
 #include "Context.h"
 #include "LiveView.h"
 #include <dStorm/input/MetaInfo.h>
@@ -25,8 +26,10 @@
 namespace AndorCamera {
 
 struct Method::CameraSwitcher 
-: public dStorm::input::ChainChoice
+: public dStorm::input::ChainSingleton
 {
+    dStorm::input::ChainChoice cameras;
+  public:
     CameraSwitcher();
 };
 
@@ -62,7 +65,7 @@ class CameraLink
 
     virtual void context_changed( ContextRef context );
     virtual dStorm::input::BaseSource* makeSource();
-    virtual simparm::Node* getNode() { return this; }
+    virtual simparm::Node& getNode() { return *this; }
 
     const CameraReference& getCam() { return cam; }
 };
@@ -88,19 +91,21 @@ Method::Method()
 }
 
 Method::CameraSwitcher::CameraSwitcher()
-: dStorm::input::ChainChoice("ChooseCamera", "Choose camera to connect to") 
+: cameras("ChooseCamera", "Choose camera to connect to") 
 {
+    set_more_specialized( &cameras );
+
     System& system = System::singleton();
     for (int i = 0; i < system.get_number_of_cameras(); ++i) {
         system.selectCamera(i);
-        this->add_choice( 
+        cameras.add_choice( 
             new CameraLink( system.get_current_camera() ) );
     }
 }
 
 Method::Method(const Method &c) 
 : dStorm::input::ChainForwarder(NULL), simparm::Object(c),
-  switcher( new CameraSwitcher(*c.switcher) ),
+  switcher( c.switcher ),
   show_live_by_default( c.show_live_by_default )
 {
     ChainForwarder::set_more_specialized_link_element( switcher.get() );
@@ -110,7 +115,6 @@ Method::Method(const Method &c)
 }
 
 Method::~Method() {
-    switcher.reset(NULL);
 }
 
 void Method::registerNamedEntries()
@@ -134,7 +138,7 @@ void Method::registerNamedEntries()
     //receive_changes_from( resolution_element.pixel_size_in_nm );
     //receive_changes_from( resolution_element.pixel_size_in_nm.value );
 
-    push_back( *switcher->getNode() );
+    push_back( switcher->getNode() );
     push_back( show_live_by_default );
 }
 

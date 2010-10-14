@@ -18,7 +18,7 @@ class Method
 {
   private:
     class CameraSwitcher;
-    std::auto_ptr<CameraSwitcher> switcher;
+    boost::shared_ptr<CameraSwitcher> switcher;
     Context::Ptr last_context;
 
     void operator()( const simparm::Event& );
@@ -34,7 +34,7 @@ class Method
     Method(const Method &c);
     virtual ~Method();
 
-    simparm::Node* getNode() { return this; }
+    simparm::Node& getNode() { return *this; }
 
     Method* clone() const { return new Method(*this); }
     bool uses_input_file() const { return false; }

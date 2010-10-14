@@ -52,7 +52,7 @@ class Method
     virtual void context_changed( ContextRef );
 
     virtual Source* makeSource();
-    virtual simparm::Node* getNode() { return &config; }
+    virtual simparm::Node& getNode() { return config; }
 
     Method* clone() const { return new Method(*this); }
 

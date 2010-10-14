@@ -110,7 +110,7 @@ namespace dStorm {
         ChainLink* clone() const { return new ChainLink(*this); }
         Source< PixelType >* makeSource();
         virtual void context_changed( ContextRef context );
-        virtual simparm::Node* getNode() { return &config; }
+        virtual simparm::Node& getNode() { return config; }
 
       private:
         simparm::Structure<Config> config;

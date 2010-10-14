@@ -1,6 +1,7 @@
 #include "spotFinders.h"
-#include <dStorm/engine/Config.h>
+#include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/Config.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include "Spalttiefpass.h"

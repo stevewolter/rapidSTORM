@@ -12,6 +12,7 @@
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/Context.h>
+#include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;
 using namespace simparm;

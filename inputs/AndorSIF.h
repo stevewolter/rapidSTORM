@@ -78,7 +78,7 @@ namespace AndorSIF {
 
         virtual void context_changed( ContextRef );
         virtual Source<PixelType>* makeSource();
-        virtual simparm::Node* getNode() { return this; }
+        virtual simparm::Node& getNode() { return *this; }
 
         Config* clone() const { return new Config(*this); }
     };
