@@ -10,6 +10,8 @@
 #include <dStorm/engine/Input.h>
 #include "Config.h"
 
+#include <boost/units/io.hpp>
+
 template <typename Ty>
 inline Ty sq(const Ty& a) { return a*a; }
 

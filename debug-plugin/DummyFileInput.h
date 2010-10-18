@@ -1,7 +1,7 @@
 #ifndef DUMMY_FILE_INPUT_H
 #define DUMMY_FILE_INPUT_H
 
-#include <dStorm/input/Source.h>
+#include <dStorm/input/Source_impl.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/ImageTraits.h>

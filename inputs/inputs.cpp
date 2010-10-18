@@ -16,18 +16,17 @@ namespace dStorm {
 using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
-    inputConfig->file_method.add_choice( 
+    inputConfig->add_file_method( 
         new LocalizationFile::Reader::ChainLink() );
 #ifdef HAVE_LIBREADSIF
-    inputConfig->file_method.add_choice( 
+    inputConfig->add_file_method( 
         new input::AndorSIF::Config<StormPixel>() );
 #endif
 #ifdef HAVE_TIFFIO_H
-    inputConfig->file_method.add_choice( 
-        new TIFF::ChainLink<StormPixel>() );
+    inputConfig->add_file_method( new TIFF::ChainLink() );
 #endif
 #if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
-    inputConfig->method.add_choice( new AndorCamera::Method() );
+    inputConfig->add_method( new AndorCamera::Method() );
 #endif
     
 }

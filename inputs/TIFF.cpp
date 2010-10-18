@@ -203,40 +203,32 @@ Config::Config()
         = simparm::Object::Intermediate;
 }
 
-template<typename Pixel>
-ChainLink<Pixel>::ChainLink() 
+ChainLink::ChainLink() 
+: simparm::Listener( simparm::Event::ValueChanged )
 {
+    receive_changes_from( config.ignore_warnings.value );
+    receive_changes_from( config.determine_length.value );
 }
 
-template<typename Pixel>
-Source< Pixel >*
-ChainLink<Pixel>::makeSource()
+ChainLink::ChainLink(const ChainLink& o) 
+: ChainTerminus(o), config(o.config), file(o.file)
 {
-    Source<Pixel>* ptr =
-        new Source<Pixel>( file );
-    return ptr;
+    receive_changes_from( config.ignore_warnings.value );
+    receive_changes_from( config.determine_length.value );
 }
 
-template<typename Pixel>
-void ChainLink<Pixel>::context_changed( ContextRef ocontext )
+BaseSource*
+ChainLink::makeSource()
+{
+    return new Source<unsigned short>( file );
+}
+
+void ChainLink::context_changed( ContextRef ocontext )
 {
     FileContext& context = dynamic_cast<FileContext&>(*ocontext);
 
     if ( ! file.get() || file->for_file() != context.input_file ) {
-        file.reset();
-
-        try {
-            boost::shared_ptr<FileMetaInfo> info;
-            file.reset( new OpenFile( context.input_file, config, config ) );
-
-            info->traits = file->getTraits<Pixel>();
-            info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
-            info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
-
-            this->notify_of_trait_change( info );
-        } catch(...) {
-            this->notify_of_trait_change( TraitsRef() );
-        }
+        open_file( context.input_file );
     }
 }
 
@@ -249,11 +241,27 @@ Source<Pixel>::get_traits() {
 template<typename Pixel>
 Source<Pixel>::~Source() {}
 
-//template class ChainLink<unsigned char>;
-template class ChainLink<unsigned short>;
-//template class ChainLink<unsigned int>;
-//template class ChainLink<float>;
-//template class ChainLink<double>;
+void ChainLink::operator()(const simparm::Event& e) {
+    if ( file.get() ) {
+        open_file( file->for_file() );
+    }
+}
+
+void ChainLink::open_file( std::string filename ) {
+  file.reset();
+  try {
+    file.reset( new OpenFile( filename, config, config ) );
+    boost::shared_ptr<FileMetaInfo> info( new FileMetaInfo() );
+
+    info->traits = file->getTraits<unsigned short>();
+    info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+    info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+
+    this->notify_of_trait_change( info );
+  } catch(...) {
+    this->notify_of_trait_change( TraitsRef() );
+  }
+}
 
 }
 }

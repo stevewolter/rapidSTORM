@@ -1,3 +1,6 @@
+//#define VERBOSE
+#include "debug.h"
+#define SIMPARM_DEBUG(x) DEBUG(x)
 #include "spotFinders.h"
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/engine/SpotFinder.h>

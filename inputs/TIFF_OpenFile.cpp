@@ -47,6 +47,7 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
         _no_images = 1;
         while ( TIFFReadDirectory(tiff) != 0 )
             _no_images += 1;
+        TIFFSetDirectory(tiff, 0);
     }
 }
 
@@ -60,6 +61,8 @@ OpenFile::getTraits()
     rv->size.y() = _height * cs_units::camera::pixel;
     rv->dim = 1; /* TODO: Read from file */
     rv->resolution = resolution;
+    if ( _no_images != -1 )
+        rv->last_frame = (_no_images - 1) * cs_units::camera::frame;
 
     return rv;
 }

@@ -71,7 +71,7 @@ namespace dStorm {
         void throw_error();
     };
 
-    class OpenFile {
+    class OpenFile : boost::noncopyable {
         ::TIFF *tiff;
         bool ignore_warnings;
         std::string file_ident;
@@ -82,6 +82,7 @@ namespace dStorm {
         dStorm::SizeTraits<2>::Resolution resolution;
 
         template <typename PixelType> friend class Source<PixelType>::iterator;
+
 
       public:
         OpenFile(const std::string& filename, const Config&, simparm::Node&);
@@ -100,21 +101,25 @@ namespace dStorm {
 
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
-    template <typename PixelType>
     class ChainLink
-    : public input::ChainTerminus
+    : public input::ChainTerminus, protected simparm::Listener
     {
       public:
         ChainLink();
+        ChainLink(const ChainLink& o);
 
         ChainLink* clone() const { return new ChainLink(*this); }
-        Source< PixelType >* makeSource();
+        BaseSource* makeSource();
         virtual void context_changed( ContextRef context );
         virtual simparm::Node& getNode() { return config; }
 
       private:
         simparm::Structure<Config> config;
         boost::shared_ptr<OpenFile> file;
+
+        void open_file( std::string filename );
+      protected:
+        void operator()(const simparm::Event&);
     };
 }
 

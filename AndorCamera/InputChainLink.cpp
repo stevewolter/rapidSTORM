@@ -25,9 +25,12 @@
 
 namespace AndorCamera {
 
+class CameraLink;
+
 struct Method::CameraSwitcher 
 : public dStorm::input::ChainSingleton
 {
+    boost::ptr_list<CameraLink> links;
     dStorm::input::ChainChoice cameras;
   public:
     CameraSwitcher();
@@ -71,7 +74,7 @@ class CameraLink
 };
 
 Method::Method()  
-: ChainForwarder( NULL /* Forwarding pointer set in body */ ),
+: ChainForwarder(),
   simparm::Object("AndorDirectConfig", "Direct camera control"),
   switcher( new CameraSwitcher() ),
   show_live_by_default("ShowLiveByDefault",
@@ -98,13 +101,14 @@ Method::CameraSwitcher::CameraSwitcher()
     System& system = System::singleton();
     for (int i = 0; i < system.get_number_of_cameras(); ++i) {
         system.selectCamera(i);
-        cameras.add_choice( 
-            new CameraLink( system.get_current_camera() ) );
+        std::auto_ptr<CameraLink> link( new CameraLink( system.get_current_camera() ) );
+        cameras.push_back_choice(*link);
+        links.push_back(link);
     }
 }
 
 Method::Method(const Method &c) 
-: dStorm::input::ChainForwarder(NULL), simparm::Object(c),
+: dStorm::input::ChainForwarder(), simparm::Object(c),
   switcher( c.switcher ),
   show_live_by_default( c.show_live_by_default )
 {

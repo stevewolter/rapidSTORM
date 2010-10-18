@@ -82,13 +82,15 @@ void Method::context_changed( ContextRef ctx )
 {
     context = ctx;
 
-    MetaInfo::Ptr rv( new MetaInfo() );
-    dStorm::input::Traits<dStorm::engine::Image> t;
-    t.size.x() = config.width() * cs_units::camera::pixel;
-    t.size.y() = config.height() * cs_units::camera::pixel;
-    t.last_frame = (config.number() - 1) * cs_units::camera::frame;
-    rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
-    notify_of_trait_change( rv );
+    if ( static_cast<FileContext&>(*ctx).input_file != "" ) {
+        MetaInfo::Ptr rv( new MetaInfo() );
+        dStorm::input::Traits<dStorm::engine::Image> t;
+        t.size.x() = config.width() * cs_units::camera::pixel;
+        t.size.y() = config.height() * cs_units::camera::pixel;
+        t.last_frame = (config.number() - 1) * cs_units::camera::frame;
+        rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+        notify_of_trait_change( rv );
+    }
 }
 
 }

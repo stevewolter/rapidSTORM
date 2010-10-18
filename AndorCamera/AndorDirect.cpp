@@ -7,7 +7,6 @@
 #include <string.h>
 #include <sstream>
 #include <iomanip>
-#include <dStorm/input/Buffer.h>
 #include <dStorm/output/Basename.h>
 #include <dStorm/input/Source_impl.h>
 #include "ViewportSelector.h"
