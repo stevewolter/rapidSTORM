@@ -31,7 +31,7 @@
 #include <boost/units/base_units/us/inch.hpp>
 
 #include "TIFFOperation.h"
-#include <dStorm/input/FileContext.h>
+#include <dStorm/input/chain/FileContext.h>
 
 using namespace std;
 
@@ -211,7 +211,7 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
-: ChainTerminus(o), config(o.config), file(o.file)
+: chain::Terminus(o), config(o.config), file(o.file)
 {
     receive_changes_from( config.ignore_warnings.value );
     receive_changes_from( config.determine_length.value );
@@ -225,7 +225,7 @@ ChainLink::makeSource()
 
 void ChainLink::context_changed( ContextRef ocontext )
 {
-    FileContext& context = dynamic_cast<FileContext&>(*ocontext);
+    chain::FileContext& context = dynamic_cast<chain::FileContext&>(*ocontext);
 
     if ( ! file.get() || file->for_file() != context.input_file ) {
         open_file( context.input_file );
@@ -251,7 +251,7 @@ void ChainLink::open_file( std::string filename ) {
   file.reset();
   try {
     file.reset( new OpenFile( filename, config, config ) );
-    boost::shared_ptr<FileMetaInfo> info( new FileMetaInfo() );
+    boost::shared_ptr<chain::FileMetaInfo> info( new chain::FileMetaInfo() );
 
     info->traits = file->getTraits<unsigned short>();
     info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );

@@ -15,11 +15,12 @@
 #include <AndorCamera/ShiftSpeedControl.h>
 #include <AndorCamera/ShutterControl.h>
 
-#include <dStorm/input/ChainChoice.h>
-#include <dStorm/input/ChainSingleton.h>
+#include <dStorm/input/chain/Choice.h>
+#include <dStorm/input/chain/Singleton.h>
+#include <dStorm/input/chain/Forwarder.h>
 #include "Context.h"
 #include "LiveView.h"
-#include <dStorm/input/MetaInfo.h>
+#include <dStorm/input/chain/MetaInfo.h>
 
 #include "debug.h"
 
@@ -28,10 +29,10 @@ namespace AndorCamera {
 class CameraLink;
 
 struct Method::CameraSwitcher 
-: public dStorm::input::ChainSingleton
+: public dStorm::input::chain::Singleton
 {
     boost::ptr_list<CameraLink> links;
-    dStorm::input::ChainChoice cameras;
+    dStorm::input::chain::Choice cameras;
   public:
     CameraSwitcher();
 };
@@ -41,7 +42,7 @@ struct Method::CameraSwitcher
  *  sets in the right tabs. */
 class CameraLink 
 : boost::noncopyable, public simparm::Object, 
-  public dStorm::input::ChainTerminus,
+  public dStorm::input::chain::Terminus,
   public simparm::Listener
 {
     simparm::Set camControl;
@@ -74,7 +75,7 @@ class CameraLink
 };
 
 Method::Method()  
-: ChainForwarder(),
+: Forwarder(),
   simparm::Object("AndorDirectConfig", "Direct camera control"),
   switcher( new CameraSwitcher() ),
   show_live_by_default("ShowLiveByDefault",
@@ -83,7 +84,7 @@ Method::Method()
 {
     DEBUG("Making AndorDirect config");
 
-    ChainForwarder::set_more_specialized_link_element( switcher.get() );
+    Forwarder::set_more_specialized_link_element( switcher.get() );
 
     show_live_by_default.userLevel = Object::Expert;
     
@@ -108,11 +109,11 @@ Method::CameraSwitcher::CameraSwitcher()
 }
 
 Method::Method(const Method &c) 
-: dStorm::input::ChainForwarder(), simparm::Object(c),
+: dStorm::input::chain::Forwarder(), simparm::Object(c),
   switcher( c.switcher ),
   show_live_by_default( c.show_live_by_default )
 {
-    ChainForwarder::set_more_specialized_link_element( switcher.get() );
+    Forwarder::set_more_specialized_link_element( switcher.get() );
 
     registerNamedEntries();
     DEBUG("Copied AndorDirect Config");
@@ -151,7 +152,7 @@ void Method::context_changed( ContextRef initial_context )
     last_context.reset( 
         new Context(*initial_context, show_live_by_default())
     );
-    ChainForwarder::context_changed( last_context );
+    Forwarder::context_changed( last_context );
 }
 
 CameraLink::CameraLink( CameraReference camera ) 
@@ -232,7 +233,7 @@ void CameraLink::context_changed( ContextRef c )
 {
     bool publish = (context.get() == NULL);
     context =
-        boost::dynamic_pointer_cast<Context,dStorm::input::Context>(c);
+        boost::dynamic_pointer_cast<Context,dStorm::input::chain::Context>(c);
 
     viewportConfig.context_changed( context );
 
@@ -280,7 +281,7 @@ void CameraLink::publish_meta_info() {
     );
     traits.speed.mark_future_setting( true );
 
-    TraitsRef mi( new dStorm::input::MetaInfo() );
+    TraitsRef mi( new dStorm::input::chain::MetaInfo() );
     mi->traits.reset( traits.clone() );
     notify_of_trait_change( mi );
 }

@@ -5,7 +5,7 @@
 #define CImgBuffer_ANDORSIF_H
 
 #include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/ChainLink.h>
+#include <dStorm/input/chain/Link.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -68,7 +68,7 @@ namespace AndorSIF {
      *  the sif extension to the input file element. */
     template <typename PixelType>
     class Config 
-    : public ChainTerminus,
+    : public chain::Terminus,
       public simparm::Object
     {
         boost::shared_ptr<OpenFile> file;

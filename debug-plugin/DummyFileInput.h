@@ -7,7 +7,8 @@
 #include <dStorm/ImageTraits.h>
 #include <simparm/Structure.hh>
 #include <simparm/NumericEntry.hh>
-#include <dStorm/input/Context.h>
+#include <dStorm/input/chain/Context.h>
+#include <dStorm/input/chain/Link.h>
 
 namespace dummy_file_input {
 
@@ -32,7 +33,7 @@ class Source : public simparm::Set,
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;
   public:
-    Source(const Config&, dStorm::input::Context::Ptr);
+    Source(const Config&, dStorm::input::chain::Context::Ptr);
     ~Source();
 
     iterator begin();
@@ -41,10 +42,10 @@ class Source : public simparm::Set,
 };
 
 class Method
-: public dStorm::input::ChainTerminus
+: public dStorm::input::chain::Terminus
 {
     simparm::Structure<Config> config;
-    dStorm::input::Context::Ptr context;
+    dStorm::input::chain::Context::Ptr context;
 
   public:
     Method();

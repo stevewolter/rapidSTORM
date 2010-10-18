@@ -3,7 +3,7 @@
 
 #include <dStorm/Image_decl.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/ChainLink.h>
+#include <dStorm/input/chain/Link.h>
 #include <dStorm/SizeTraits.h>
 #include <memory>
 #include <string>
@@ -102,7 +102,7 @@ namespace dStorm {
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     class ChainLink
-    : public input::ChainTerminus, protected simparm::Listener
+    : public input::chain::Terminus, protected simparm::Listener
     {
       public:
         ChainLink();

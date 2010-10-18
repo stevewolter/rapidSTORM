@@ -28,7 +28,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <dStorm/input/FileContext.h>
+#include <dStorm/input/chain/FileContext.h>
 
 using namespace std;
 
@@ -72,12 +72,12 @@ Source<Pixel>* Config<Pixel>::makeSource()
 template<typename Pixel>
 void Config<Pixel>::context_changed( ContextRef ocontext )
 {
-    FileContext& context = dynamic_cast<FileContext&>( *ocontext );
+    chain::FileContext& context = dynamic_cast<chain::FileContext&>( *ocontext );
     if ( file.get() == NULL || context.input_file != file->for_file() ) {
         file.reset();
         try {
             file.reset( new OpenFile( context.input_file ) );
-            boost::shared_ptr<FileMetaInfo> rv( new FileMetaInfo() );
+            boost::shared_ptr<chain::FileMetaInfo> rv( new chain::FileMetaInfo() );
             rv->traits = file->getTraits<Pixel>();
             rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
             this->notify_of_trait_change( rv );

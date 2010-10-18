@@ -2,13 +2,14 @@
 #include <iostream>
 #include <dStorm/engine/Image.h>
 #include <boost/iterator/iterator_facade.hpp>
-#include <dStorm/input/FileContext.h>
+#include <dStorm/input/chain/FileContext.h>
 
 using namespace dStorm::input;
+using namespace dStorm::input::chain;
 
 namespace dummy_file_input {
 
-Source::Source(const Config& config, dStorm::input::Context::Ptr ptr) 
+Source::Source(const Config& config, Context::Ptr ptr) 
 : simparm::Set("YDummyInput", "Dummy input"),
   dStorm::input::Source<dStorm::engine::Image>
     ( static_cast<simparm::Node&>(*this), Capabilities() ),

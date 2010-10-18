@@ -1,7 +1,7 @@
 #ifndef DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 #define DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 
-#include <dStorm/input/ChainLink.h>
+#include <dStorm/input/chain/Forwarder.h>
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
 #include "Context.h"
@@ -13,7 +13,7 @@ namespace AndorCamera {
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::ChainForwarder, public simparm::Object,
+: public dStorm::input::chain::Forwarder, public simparm::Object,
   public simparm::Listener
 {
   private:

@@ -17,7 +17,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
-#include <dStorm/input/MetaInfo.h>
+#include <dStorm/input/chain/MetaInfo.h>
 
 using namespace std;
 
@@ -64,14 +64,14 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   terminationChanged( terminationMutex )
 {
     DEBUG("Building car");
-    used_output_filenames = config.get_meta_info().forbidden_filenames;
+    used_output_filenames = config.inputConfig.get_meta_info()->forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
 
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
     DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename);
-    output::Basename bn( config.get_meta_info().suggested_output_basename );
+    output::Basename bn( config.inputConfig.get_meta_info()->suggested_output_basename );
     bn.set_variable("run", ident);
     config.engineConfig.set_variables( bn );
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
