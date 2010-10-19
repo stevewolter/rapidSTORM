@@ -9,7 +9,7 @@ endif
 
 bin_PROGRAMS = dstorm 
 C_TESTS = alignment_test \
-	check_uncorrelated check_derivatives check_plugin
+	check_uncorrelated check_derivatives check_3d_plugin check_debug_plugin
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
@@ -75,7 +75,8 @@ libtestplugin_la_SOURCES = debug-plugin/plugin.cpp debug-plugin/SegmentationFaul
     debug-plugin/md5.h debug-plugin/md5.c \
     debug-plugin/DummyFileInput.h debug-plugin/DummyFileInput.cpp \
     debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp \
-    debug-plugin/Verbose.h 
+    debug-plugin/Verbose.h \
+    debug-plugin/VerboseInputFilter.h debug-plugin/VerboseInputFilter.cpp
 libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lpthread
 
 libinputs_la_SOURCES = \
@@ -199,8 +200,10 @@ testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = ../dStorm/libdStorm.la libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
 check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
-check_plugin_SOURCES = 3d_fitter/check_plugin.cpp
-check_plugin_LDADD = lib3d_fitter.la
+check_debug_plugin_SOURCES = debug-plugin/check_plugin.cpp
+check_debug_plugin_LDADD = libtestplugin.la
+check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
+check_3d_plugin_LDADD = lib3d_fitter.la
 
 COMMON_LIBS = liboutputs.la libviewer.la \
     libspotFinders.la \
