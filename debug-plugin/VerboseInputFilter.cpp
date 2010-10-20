@@ -5,12 +5,12 @@
 
 void VerboseInputFilter::modify_traits( TraitsRef ref )
 {
-    std::cerr << "Traits are passing" << std::endl;
+    std::cerr << "Traits " << ref.get() << " are passing on " << this << std::endl;
 }
 
 void VerboseInputFilter::modify_context( ContextRef ref )
 {
-    std::cerr << "Context is passing" << std::endl;
+    std::cerr << "Context " << ref.get() << " is passing on " << this << std::endl;
 }
 
 dStorm::input::Source<dStorm::engine::Image>*
