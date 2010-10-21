@@ -97,6 +97,7 @@ Method::Method()
 Method::CameraSwitcher::CameraSwitcher()
 : cameras("ChooseCamera", "Choose camera to connect to") 
 {
+    cameras.getNode().make_thread_safe();
     set_more_specialized( &cameras );
 
     System& system = System::singleton();
@@ -120,6 +121,7 @@ Method::Method(const Method &c)
 }
 
 Method::~Method() {
+    clearChildren();
 }
 
 void Method::registerNamedEntries()

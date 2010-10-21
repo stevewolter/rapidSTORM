@@ -2,7 +2,7 @@
 #define VERBOSE_INPUT_FILTER_H
 
 #include <dStorm/input/Source_impl.h>
-#include <dStorm/input/chain/FullForwarder.h>
+#include <dStorm/input/chain/FullFilter.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
@@ -15,11 +15,11 @@ struct Config : public simparm::Object {
 };
 
 class VerboseInputFilter 
-: public dStorm::input::chain::FullForwarder
+: public dStorm::input::chain::FullFilter
 {
     simparm::Structure<Config> config;
   public:
-    VerboseInputFilter() : dStorm::input::chain::Forwarder() {}
+    VerboseInputFilter() : dStorm::input::chain::Filter() {}
     ~VerboseInputFilter() {}
     VerboseInputFilter* clone() const { return new VerboseInputFilter(*this); }
 
