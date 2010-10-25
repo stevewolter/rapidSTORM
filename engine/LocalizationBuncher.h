@@ -8,12 +8,14 @@
 #include <memory>
 #include <dStorm/output/Output.h>
 #include <dStorm/data-c++/Vector.h>
+#include <boost/utility.hpp>
 
 namespace dStorm {
 namespace engine {
 
 class LocalizationBuncher 
-: public LocalizationFile::Reader::Source::EmptyImageCallback
+: public LocalizationFile::Reader::Source::EmptyImageCallback,
+  boost::noncopyable
 {
     class Can : public data_cpp::Vector<Localization> {
         int number_of_traces( const Localization& );

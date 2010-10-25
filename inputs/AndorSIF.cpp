@@ -70,8 +70,9 @@ Source<Pixel>* Config<Pixel>::makeSource()
 }
 
 template<typename Pixel>
-void Config<Pixel>::context_changed( ContextRef ocontext )
+void Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
 {
+    Terminus::context_changed( ocontext, link );
     chain::FileContext& context = dynamic_cast<chain::FileContext&>( *ocontext );
     if ( file.get() == NULL || context.input_file != file->for_file() ) {
         file.reset();

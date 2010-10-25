@@ -144,6 +144,15 @@ void Car::run() throw() {
 void Car::make_input_driver() {
     DEBUG("Determining type of input driver");
     try {
+        boost::shared_ptr<chain::MetaInfo> meta_info 
+            = config.inputConfig.get_meta_info();
+
+        if ( meta_info->provides< Localization >() ) {
+            config.inputConfig.set_context( boost::shared_ptr<input::chain::Context>(new input::Chain::Context()) );
+        } else if ( meta_info->provides< Image >() ) {
+            config.inputConfig.set_context( config.engineConfig.makeContext() );
+        }
+
         source.reset( config.inputConfig.makeSource() );
 
         if ( source->can_provide< Image >() ) {

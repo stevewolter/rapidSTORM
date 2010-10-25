@@ -110,7 +110,7 @@ namespace dStorm {
 
         ChainLink* clone() const { return new ChainLink(*this); }
         BaseSource* makeSource();
-        virtual void context_changed( ContextRef context );
+        virtual void context_changed( ContextRef, Link* );
         virtual simparm::Node& getNode() { return config; }
 
       private:

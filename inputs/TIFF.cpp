@@ -223,8 +223,10 @@ ChainLink::makeSource()
     return new Source<unsigned short>( file );
 }
 
-void ChainLink::context_changed( ContextRef ocontext )
+void ChainLink::context_changed( ContextRef ocontext, Link* link )
 {
+    Terminus::context_changed( ocontext, link );
+
     chain::FileContext& context = dynamic_cast<chain::FileContext&>(*ocontext);
 
     if ( ! file.get() || file->for_file() != context.input_file ) {

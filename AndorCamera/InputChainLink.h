@@ -27,7 +27,7 @@ class Method
 
   private:
     void registerNamedEntries();
-    void context_changed( ContextRef context );
+    void context_changed( ContextRef, Link * );
 
   public:
     Method();

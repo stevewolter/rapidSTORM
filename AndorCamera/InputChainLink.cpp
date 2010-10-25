@@ -67,7 +67,7 @@ class CameraLink
     virtual CameraLink* clone() const 
         { throw std::logic_error("CameraLink unclonable"); }
 
-    virtual void context_changed( ContextRef context );
+    virtual void context_changed( ContextRef context, Link* link );
     virtual dStorm::input::BaseSource* makeSource();
     virtual simparm::Node& getNode() { return *this; }
 
@@ -149,12 +149,12 @@ void Method::registerNamedEntries()
     push_back( show_live_by_default );
 }
 
-void Method::context_changed( ContextRef initial_context ) 
+void Method::context_changed( ContextRef initial_context, Link* link ) 
 {
     last_context.reset( 
         new Context(*initial_context, show_live_by_default())
     );
-    Forwarder::context_changed( last_context );
+    Forwarder::context_changed( last_context, link );
 }
 
 CameraLink::CameraLink( CameraReference camera ) 
@@ -231,8 +231,9 @@ CameraLink::~CameraLink()
     d.clearChildren();
 }
 
-void CameraLink::context_changed( ContextRef c )
+void CameraLink::context_changed( ContextRef c, Link *link )
 {
+    dStorm::input::chain::Terminus::context_changed(c, link);
     bool publish = (context.get() == NULL);
     context =
         boost::dynamic_pointer_cast<Context,dStorm::input::chain::Context>(c);
