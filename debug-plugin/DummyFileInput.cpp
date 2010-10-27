@@ -79,8 +79,9 @@ Source* Method::makeSource() {
     return new Source(config, context);
 }
 
-void Method::context_changed( ContextRef ctx )
+void Method::context_changed( ContextRef ctx, Link* l )
 {
+    Terminus::context_changed(ctx, l);
     context = ctx;
 
     if ( static_cast<FileContext&>(*ctx).input_file != "" ) {

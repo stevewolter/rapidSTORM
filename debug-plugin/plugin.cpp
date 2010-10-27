@@ -37,7 +37,8 @@ const char * rapidSTORM_Plugin_Desc() {
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->inputConfig.add_file_method( new dummy_file_input::Method() );
     config->inputConfig.add_filter( new VerboseInputFilter() );
-    config->engineConfig.spotFittingMethod.addChoice( new dStorm::debugplugin::DummyFitter::Source() );
+    config->add_spot_fitter( std::auto_ptr<dStorm::engine::SpotFitterFactory>(
+        new dStorm::debugplugin::DummyFitter::Source() ) );
 
     dStorm::output::Config* outputs = &config->outputConfig;
     try {

@@ -35,7 +35,7 @@ class AverageImage : public OutputObject {
         if ( a.carburettor == NULL )
             throw std::logic_error("AverageImage needs access to "
                                    "input driver, but didn't get it.");
-        std::auto_ptr<engine::InputTraits> t = a.carburettor->get_traits();
+        boost::shared_ptr<engine::InputTraits> t = a.carburettor->get_traits();
         image = Image(t->size, 0 * cs_units::camera::frame);
         image.fill(0);
         return AdditionalData().set_source_image(); 

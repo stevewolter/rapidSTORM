@@ -6,6 +6,7 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Structure.hh>
 #include <dStorm/helpers/dilation.h>
+#include <simparm/Object.hh>
 
 namespace dStorm {
     class ErosionSmoother : public engine::SpotFinder {

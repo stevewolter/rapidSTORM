@@ -11,6 +11,7 @@
 #include <dStorm/Config.h>
 #include "local_cleanup.h"
 #include <dStorm/error_handler.h>
+#include "engine/ChainLink_decl.h"
 
 #include <dStorm/helpers/DisplayManager.h>
 #include "wxDisplay/wxManager.h"
@@ -123,10 +124,15 @@ void ModuleLoader::add_modules
 {
     DEBUG("Adding basic input modules");
     dStorm::basic_inputs( &car_config.inputConfig );
+    DEBUG("Adding rapidSTORM engine");
+    car_config.add_engine( engine::make_rapidSTORM_engine_link() );
     DEBUG("Adding basic spot finders");
-    dStorm::spotFinders::basic_spotFinders( car_config.engineConfig );
+    car_config.add_spot_finder( spotFinders::make_Spalttiefpass() );
+    car_config.add_spot_finder( spotFinders::make_Median() );
+    car_config.add_spot_finder( spotFinders::make_Erosion() );
+    car_config.add_spot_finder( spotFinders::make_Gaussian() );
     DEBUG("Adding basic spot fitter");
-    car_config.engineConfig.addSpotFitter( new gauss_2d_fitter::Factory() );
+    car_config.add_spot_fitter( new gauss_2d_fitter::Factory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
 

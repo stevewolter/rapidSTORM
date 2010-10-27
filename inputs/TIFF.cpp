@@ -237,7 +237,7 @@ void ChainLink::context_changed( ContextRef ocontext, Link* link )
 template<typename Pixel>
 typename Source<Pixel>::TraitsPtr 
 Source<Pixel>::get_traits() {
-    return file->getTraits<Pixel>();
+    return TraitsPtr( file->getTraits<Pixel>().release() );
 }
 
 template<typename Pixel>

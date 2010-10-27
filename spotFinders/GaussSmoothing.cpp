@@ -61,5 +61,9 @@ void GaussSmoother::smooth( const engine::Image &in )
     }
 }
 
+std::auto_ptr<engine::SpotFinderFactory> make_Gaussian() { 
+    return std::auto_ptr<engine::SpotFinderFactory>(new GaussSmoother::Factory()); 
+}
+
 }
 }

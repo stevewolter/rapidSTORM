@@ -1,12 +1,16 @@
 #ifndef DSTORM_SPOTFINDERS_H
 #define DSTORM_SPOTFINDERS_H
 
-namespace dStorm {
-namespace engine { class Config; }
+#include <memory>
+#include <dStorm/engine/SpotFinder_decl.h>
 
+namespace dStorm {
 namespace spotFinders {
 
-void basic_spotFinders( engine::Config &to_this_config );
+std::auto_ptr<engine::SpotFinderFactory> make_Spalttiefpass();
+std::auto_ptr<engine::SpotFinderFactory> make_Median();
+std::auto_ptr<engine::SpotFinderFactory> make_Erosion();
+std::auto_ptr<engine::SpotFinderFactory> make_Gaussian();
 
 }
 }

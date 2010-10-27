@@ -94,7 +94,8 @@ libengine_la_SOURCES = \
     engine/SigmaGuesser.h \
     engine/studentPinv.c engine/studentPinv.h \
     engine/SpotFinder.cpp engine/debug.h  \
-    engine/ThresholdGuesser.h engine/ThresholdGuesser.cpp
+    engine/ThresholdGuesser.h engine/ThresholdGuesser.cpp \
+    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp
 
 liboutputs_la_SOURCES = \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
@@ -112,11 +113,14 @@ libspotFinders_la_SOURCES = \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.h \
+    spotFinders/ErosionSmoother.cpp \
     spotFinders/GaussSmoothing.cpp \
     spotFinders/GaussSmoothing.h \
     spotFinders/Median.cpp \
     spotFinders/MedianSmoother.h \
+    spotFinders/MedianSmoother.cpp \
     spotFinders/Spalttiefpass.h \
+    spotFinders/Spalttiefpass.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 libviewer_la_SOURCES = \

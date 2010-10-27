@@ -50,7 +50,7 @@ class Method
   public:
     Method();
 
-    virtual void context_changed( ContextRef );
+    virtual void context_changed( ContextRef, Link* );
 
     virtual Source* makeSource();
     virtual simparm::Node& getNode() { return config; }

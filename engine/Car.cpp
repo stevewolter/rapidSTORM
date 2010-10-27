@@ -2,11 +2,11 @@
 #include "debug.h"
 
 #include "Car.h"
+#include <dStorm/outputs/Crankshaft.h>
 #include "LocalizationBuncher.h"
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
-#include "Engine.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/Config.h>
 #include <fstream>
@@ -18,11 +18,41 @@
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/error_handler.h>
 
 using namespace std;
 
+using dStorm::output::Output;
+
 namespace dStorm {
 namespace engine {
+
+class Car::ComputationThread : public ost::Thread {
+  private:
+    Car &car;
+    auto_ptr<string> nm;
+
+  public:
+    ComputationThread(Car &car, 
+                 auto_ptr<string> name) 
+        : ost::Thread(name->c_str()), 
+          car(car), nm(name) {}
+    ~ComputationThread() {
+        DEBUG("Collecting piston");
+        join(); 
+    }
+    void run() throw() {
+        car.run_computation();
+    }
+    void abnormal_termination(std::string r) {
+        std::cerr << "Computation thread " << *nm 
+                  << " in job " << car.ident
+                  << " had a critical error: " << r
+                  << " Terminating job computation."
+                  << std::endl;
+        car.stop();
+    }
+};
 
 /* ==== This code gives a new job ID on each call. === */
 static ost::Mutex *runNumberMutex = NULL;
@@ -57,6 +87,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   config(new_config),
   ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
+  abortJob("StopComputation", "Stop computation"),
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
@@ -64,16 +95,17 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   terminationChanged( terminationMutex )
 {
     DEBUG("Building car");
-    used_output_filenames = config.inputConfig.get_meta_info()->forbidden_filenames;
+    used_output_filenames = config.get_meta_info()->forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
+    abortJob.helpID = HELP_StopEngine;
 
+    receive_changes_from( abortJob.value );
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
     DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename);
-    output::Basename bn( config.inputConfig.get_meta_info()->suggested_output_basename );
+    output::Basename bn( config.get_meta_info()->suggested_output_basename );
     bn.set_variable("run", ident);
-    config.engineConfig.set_variables( bn );
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     config.outputSource.set_output_file_basename( bn );
     DEBUG("Building output");
@@ -94,7 +126,7 @@ Car::~Car()
     join();
 
     DEBUG("Sending destruction signal to outputs");
-    output->propagate_signal( output::Output::Prepare_destruction );
+    output->propagate_signal( Output::Prepare_destruction );
 
     DEBUG("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
@@ -104,10 +136,8 @@ Car::~Car()
 
     DEBUG("Deleting outputs");
     output.reset(NULL);
-    DEBUG("Deleting localization source");
-    locSource.reset(NULL);
-    DEBUG("Deleting engine");
-    myEngine.reset(NULL);
+    DEBUG("Deleting input");
+    input.reset(NULL);
     DEBUG("Commencing destruction");
 }
 
@@ -119,9 +149,15 @@ void Car::operator()(const simparm::Event& e) {
         DEBUG("Locking for job termination");
         ost::MutexLock lock( terminationMutex );
         DEBUG("Job close button allows termination, engine " << (myEngine.get() != NULL) << " " << myEngine.get());
-        if ( myEngine.get() != NULL ) myEngine->stop();
         terminate = true;
+        emergencyStop = true;
+        error = false;
         terminationChanged.signal();
+    } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
+    {
+        abortJob.untrigger();
+        abortJob.editable = false;
+        emergencyStop = true;
     }
 }
 
@@ -141,62 +177,165 @@ void Car::run() throw() {
     }
 }
 
-void Car::make_input_driver() {
-    DEBUG("Determining type of input driver");
-    try {
-        boost::shared_ptr<chain::MetaInfo> meta_info 
-            = config.inputConfig.get_meta_info();
+void Car::add_thread()
+{
+    int pistonCount = threads.size();
+    std::auto_ptr<string> pistonName( new string("Piston 00") );
+    (*pistonName)[7] += pistonCount / 10;
+    (*pistonName)[8] += pistonCount % 10;
+    std::auto_ptr<ComputationThread> new_piston
+        ( new ComputationThread(*this, pistonName) );
+    new_piston->start();
+    threads.push_back( new_piston );
+}
 
-        if ( meta_info->provides< Localization >() ) {
-            config.inputConfig.set_context( boost::shared_ptr<input::chain::Context>(new input::Chain::Context()) );
-        } else if ( meta_info->provides< Image >() ) {
-            config.inputConfig.set_context( config.engineConfig.makeContext() );
+void Car::compute_until_terminated() {
+    int number_of_threads = 1;
+    if ( input->flags.test( input::BaseSource::MultipleConcurrentIterators ) )
+        number_of_threads = config.pistonCount();
+
+    while (true) {
+        Output::RunRequirements r = 
+            output->announce_run(Output::RunAnnouncement());
+        if ( ! r.test(Output::MayNeedRestart) )
+            input->dispatch( Input::WillNeverRepeatAgain );
+
+        for (int i = /* --> */ 1 /* <-- */; i < number_of_threads; ++i)
+            add_thread();
+        run_computation();
+        threads.clear();
+
+        if (emergencyStop) {
+            if (error || dStorm::ErrorHandler::global_termination_flag() ) 
+            {
+                output->propagate_signal( Output::Engine_run_failed );
+                break;
+            } else {
+                emergencyStop = false;
+                input->dispatch( input::BaseSource::RepeatInput );
+                output->propagate_signal( Output::Engine_is_restarted );
+            }
+        } else {
+            output->propagate_signal( Output::Engine_run_succeeded );
+            break;
+        }
+    }
+}
+
+void Car::run_computation() 
+{
+    try {
+        output->propagate_signal(Output::Engine_run_is_starting);
+
+        for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
+        {
+            Output::Result r = 
+                output->receiveLocalizations( *i );
+            
+            if (r == Output::RestartEngine || r == Output::StopEngine ) 
+            {
+                DEBUG("Emergency stop: Engine restart requested");
+                output->propagate_signal( Output::Engine_run_is_aborted );
+                emergencyStop = true;
+                if ( r == Output::StopEngine )
+                    error = true;
+            }
+
+            if (emergencyStop || ErrorHandler::global_termination_flag()) 
+            {
+                DEBUG("Emergency stop");
+                break;
+            } else {
+                DEBUG("Continuing");
+            }
+        }
+        return;
+    } catch (const dStorm::abort&) {
+    } catch (const std::bad_alloc& e) {
+        OutOfMemoryMessage m("Job " + ident);
+        runtime_config.send(m);
+    } catch ( const dStorm::runtime_error& e ) {
+        simparm::Message m( e.get_message("Error in Job " + ident) );
+        runtime_config.send(m);
+    } catch (const std::exception& e) {
+        simparm::Message m("Error in Job " + ident, e.what() );
+        runtime_config.send(m);
+    } catch (...) {
+        simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
+        runtime_config.send( m );
+    }
+    emergencyStop = error = true;
+}
+
+void Car::add_additional_outputs() {
+    boost::ptr_vector<output::Output> o = input->additional_outputs();
+
+    if ( ! o.empty() ) 
+    {
+        outputs::Crankshaft *crankshaft = 
+            dynamic_cast<outputs::Crankshaft*>(output.get());
+        if ( crankshaft == NULL )  {
+            std::auto_ptr<outputs::Crankshaft> 
+                temporaryCrankshaft( new outputs::Crankshaft() );
+            crankshaft = temporaryCrankshaft.get();
+
+            temporaryCrankshaft->add( output );
+            this->output.reset( temporaryCrankshaft.release() );
         }
 
-        source.reset( config.inputConfig.makeSource() );
-
-        if ( source->can_provide< Image >() ) {
-            DEBUG("Have image input, registering input");
-            runtime_config.push_back( *source );
-            DEBUG("Making input buffer");
-            input = input::BaseSource::downcast<Image>(source);
-            DEBUG("Making engine");
-            myEngine.reset( 
-                new Engine(
-                    config.engineConfig, ident,
-                    *input, *output) );
-            runtime_config.push_back( *myEngine );
-        } else if ( source->can_provide< Localization >() ) {
-            DEBUG("Have localization input");
-            locSource = source->downcast<Localization>(source);
-            runtime_config.push_back( *locSource );
-        } else
-            throw std::runtime_error("No valid source specified.");
-    } catch (const std::exception& e) {
-        throw std::runtime_error(
-            "Error in constructing input driver: " 
-                + string(e.what()) );
+        while ( ! o.empty() )
+            crankshaft->add( o.pop_back().release() );
     }
 }
 
 void Car::drive() {
-    make_input_driver();
+  try {
+    std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
+    input.reset( dynamic_cast< Input* >(rawinput.get()) );
+    if ( input.get() )
+        rawinput.release();
+    else 
+        throw std::runtime_error("Engine output does not seem to be localizations");
 
+    add_additional_outputs();
+
+    runtime_config.push_back( *input );
     runtime_config.push_back( *output );
+    runtime_config.push_back( abortJob );
     runtime_config.push_back( closeJob );
 
-    DEBUG("Starting computation");
-    if ( myEngine.get() != NULL ) {
-        DEBUG("Computing with engine");
-        myEngine->run();
-    } else if (locSource.get() != NULL) {
-        DEBUG("Computing from STM file");
-        runOnSTM();
+    Output::Announcement announcement( *input->get_traits() );
+    Output::AdditionalData data 
+        = output->announceStormSize(announcement);
+#if 0 /* TODO */
+    if ( data.test( output::Capabilities::ClustersWithSources ) ) {
+        simparm::Message m("Unable to provide data",
+                "The engine module cannot provide localization traces."
+                "Please select an appropriate transmission.");
+        this->send(m);
+        return;
     }
-    DEBUG("Ended computation");
-    DEBUG("Erasing carburettor");
+#endif
+
+    compute_until_terminated();
+
+    DEBUG("Erasing input");
     input.reset(NULL);
-    DEBUG("Erased carburettor");
+    DEBUG("Erased input");
+  } catch (const dStorm::abort&) {
+  } catch (const std::bad_alloc& e) {
+    OutOfMemoryMessage m("Job " + ident);
+    runtime_config.send(m);
+  } catch (const dStorm::runtime_error& e) {
+    simparm::Message m( e.get_message("Error in Job " + ident) );
+    runtime_config.send(m);
+  } catch (const std::exception& e) {
+    simparm::Message m("Error in Job " + ident, e.what() );
+    runtime_config.send(m);
+  } catch (...) {
+    simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
+    runtime_config.send( m );
+  }
 
     ost::MutexLock lock( terminationMutex );
     DEBUG("Waiting for termination allowance");
@@ -207,7 +346,7 @@ void Car::drive() {
     /* TODO: We have to check here if the job was _really_ finished
     * successfully. */
     output->propagate_signal( 
-        output::Output::Job_finished_successfully );
+        Output::Job_finished_successfully );
 
     if ( config.configTarget ) {
         std::ostream& stream = config.configTarget.get_output_stream();
@@ -218,6 +357,7 @@ void Car::drive() {
     }
 }
 
+#if 0
 void Car::runOnSTM() throw( std::exception ) {
     DEBUG("Running on STM file");
     LocalizationBuncher buncher(*output);
@@ -242,6 +382,7 @@ void Car::runOnSTM() throw( std::exception ) {
     DEBUG("Iterated");
     buncher.ensure_finished();
 }
+#endif
 
 void Car::stop() {
     closeJob.trigger();

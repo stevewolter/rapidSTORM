@@ -15,12 +15,11 @@
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
 namespace engine { 
-    class Engine;
-
     /** The Car class is the public frontend of the dStorm library.
      *  If supplied with a configuration, it can be used to construct
      *  the desired output elements and run (concurrently or not)
@@ -41,30 +40,17 @@ namespace engine {
         /** Runtime configuration. This is the storage locations for all
          *  configuration items which show job progress and status. */
         simparm::Set runtime_config;
-        /** Button to close the job. */
+        simparm::TriggerEntry abortJob;
         simparm::TriggerEntry closeJob;
 
-        std::auto_ptr<input::BaseSource> source;
-        std::auto_ptr<engine::Input> input;
+        typedef input::Source< output::LocalizedImage > Input;
 
-        /** If we process ready-made localizations, their source is
-         *  stored here. */
-        std::auto_ptr< input::Source<Localization> > locSource;
-        /** If an Engine is needed, it is stored here. */
-        std::auto_ptr<engine::Engine> myEngine;
-
+        std::auto_ptr<Input> input;
         std::auto_ptr<output::Output> output;
 
         ost::Mutex terminationMutex;
-        bool terminate;
+        bool terminate, emergencyStop, error;
         ost::Condition terminationChanged;
-
-        void make_input_driver();
-        /** Run the dStorm engine class. */
-        void runWithEngine();
-        /** Simulate an engine run with the localisations supplied in a
-         *  STM file. */
-        void runOnSTM() throw( std::exception );
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);
@@ -73,8 +59,14 @@ namespace engine {
         void run() throw();
         void abnormal_termination(std::string) throw();
 
-        bool panic_point_set;
-        jmp_buf panic_point;
+        class ComputationThread;
+        boost::ptr_vector<ComputationThread> threads;
+
+        void add_additional_outputs();
+
+        void add_thread();
+        void compute_until_terminated();
+        void run_computation();
 
       public:
         Car (JobMaster*, const dStorm::Config &config) ;
