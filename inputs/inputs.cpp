@@ -10,6 +10,7 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/input/FileMethod.h>
+#include "BackgroundDeviationEstimator_decl.h"
 
 namespace dStorm {
 
@@ -28,6 +29,8 @@ void basic_inputs( input::Config* inputConfig ) {
 #if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
     inputConfig->add_method( new AndorCamera::Method() );
 #endif
+
+    inputConfig->add_filter( BackgroundStddevEstimator::makeLink() );
     
 }
 

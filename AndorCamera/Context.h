@@ -8,6 +8,7 @@ namespace AndorCamera {
 
 struct Context : public dStorm::input::chain::Context {
     typedef boost::shared_ptr<Context> Ptr;
+    typedef boost::shared_ptr<const Context> ConstPtr;
 
     Context() : default_to_live_view(NULL) {}
     Context( const dStorm::input::chain::Context& c,

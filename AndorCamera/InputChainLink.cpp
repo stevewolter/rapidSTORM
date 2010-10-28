@@ -19,6 +19,7 @@
 #include <dStorm/input/chain/Singleton.h>
 #include <dStorm/input/chain/Forwarder.h>
 #include "Context.h"
+#include <dStorm/input/chain/Context_impl.h>
 #include "LiveView.h"
 #include <dStorm/input/chain/MetaInfo.h>
 
@@ -56,7 +57,7 @@ class CameraLink
     dStorm::FloatTimeEntry acquisitionSpeed;
     ViewportSelector::Config viewportConfig;
 
-    Context::Ptr context;
+    Context::ConstPtr context;
 
     void operator()(const simparm::Event&);
     void publish_meta_info();
@@ -67,9 +68,9 @@ class CameraLink
     virtual CameraLink* clone() const 
         { throw std::logic_error("CameraLink unclonable"); }
 
-    virtual void context_changed( ContextRef context, Link* link );
-    virtual dStorm::input::BaseSource* makeSource();
-    virtual simparm::Node& getNode() { return *this; }
+    AtEnd context_changed( ContextRef context, Link* link );
+    dStorm::input::BaseSource* makeSource();
+    simparm::Node& getNode() { return *this; }
 
     const CameraReference& getCam() { return cam; }
 };
@@ -149,12 +150,21 @@ void Method::registerNamedEntries()
     push_back( show_live_by_default );
 }
 
-void Method::context_changed( ContextRef initial_context, Link* link ) 
+dStorm::input::chain::Link::AtEnd
+Method::traits_changed( TraitsRef traits, Link* link ) 
 {
+    Link::traits_changed( traits, link );
+    return notify_of_trait_change( traits );
+}
+
+dStorm::input::chain::Link::AtEnd
+Method::context_changed( ContextRef initial_context, Link* link ) 
+{
+    Link::context_changed( initial_context, link );
     last_context.reset( 
         new Context(*initial_context, show_live_by_default())
     );
-    Forwarder::context_changed( last_context, link );
+    return notify_of_context_change( last_context );
 }
 
 CameraLink::CameraLink( CameraReference camera ) 
@@ -231,17 +241,19 @@ CameraLink::~CameraLink()
     d.clearChildren();
 }
 
-void CameraLink::context_changed( ContextRef c, Link *link )
+dStorm::input::chain::Link::AtEnd
+CameraLink::context_changed( ContextRef c, Link *link )
 {
     dStorm::input::chain::Terminus::context_changed(c, link);
     bool publish = (context.get() == NULL);
     context =
-        boost::dynamic_pointer_cast<Context,dStorm::input::chain::Context>(c);
+        boost::dynamic_pointer_cast<const Context,ContextRef::element_type>(c);
 
     viewportConfig.context_changed( context );
 
     if ( publish ) 
         publish_meta_info();
+    return AtEnd();
 }
 
 dStorm::input::BaseSource* CameraLink::makeSource()
@@ -252,14 +264,17 @@ dStorm::input::BaseSource* CameraLink::makeSource()
     if ( im_readout == NULL )
         throw std::runtime_error("Readout mode must be image for "
                                  "AndorDirect source");
-    if ( ! context->pixel_size.is_set() )
+    simparm::optional< boost::units::quantity<cs_units::camera::resolution, float> >
+        resolution;
+    if ( context->has_info_for<CamImage>() )
+        resolution = context->get_info_for<CamImage>().resolution;
+    if ( !resolution.is_set() )
         throw std::runtime_error("Pixel size must be set for live view");
 
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time
         = cs_units::camera::frame / cam->config().cycleTime();
     boost::shared_ptr<LiveView> live_view( 
-        new LiveView( context->default_to_live_view, *context->pixel_size,
-                      cycle_time ) );
+        new LiveView( context->default_to_live_view, *resolution, cycle_time ) );
     std::auto_ptr<CamSource> cam_source( new Source( live_view, cam ) );
     return cam_source.release();
 }
@@ -277,15 +292,20 @@ void CameraLink::operator()(const simparm::Event&) {
     publish_meta_info();
 }
 void CameraLink::publish_meta_info() {
-    dStorm::input::Traits<CamImage> traits;
-    traits.first_frame = 0;
-    traits.last_frame.mark_future_setting(
-        cam->acquisitionMode().kinetic_length().is_set()
-    );
-    traits.speed.mark_future_setting( true );
+    boost::shared_ptr< dStorm::input::Traits<CamImage> > traits;
+    if ( context->has_info_for<CamImage>() )
+        traits.reset( context->get_info_for<CamImage>().clone() );
+    else
+        traits.reset( new dStorm::input::Traits<CamImage>() );
 
-    TraitsRef mi( new dStorm::input::chain::MetaInfo() );
-    mi->traits.reset( traits.clone() );
+    traits->first_frame = 0;
+    if ( cam->acquisitionMode().kinetic_length().is_set() )
+        traits->last_frame.promise( dStorm::deferred::JobTraits );
+    traits->speed.promise( dStorm::deferred::JobTraits );
+
+    dStorm::input::chain::MetaInfo::Ptr mi
+        ( new dStorm::input::chain::MetaInfo() );
+    mi->traits = traits;
     notify_of_trait_change( mi );
 }
 

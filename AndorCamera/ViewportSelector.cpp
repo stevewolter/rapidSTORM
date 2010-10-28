@@ -12,6 +12,7 @@
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/Context.h>
+#include <dStorm/input/chain/Context_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace std;
@@ -127,8 +128,8 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.size = size;
     new_size.keys.push_back( 
         dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
-    if ( context.pixel_size.is_set() )
-        new_size.pixel_size = *context.pixel_size;
+    if ( context.has_info_for<CamImage>() && context.get_info_for<CamImage>().resolution.is_set() )
+        new_size.pixel_size = *context.get_info_for<CamImage>().resolution;
 
     return new_size;
 }
@@ -334,7 +335,7 @@ void Display::operator()
     }
 }
 
-Config::Config(const AndorCamera::CameraReference& cam, Context::Ptr r)
+Config::Config(const AndorCamera::CameraReference& cam, Context::ConstPtr r)
 : simparm::Object("SelectImage", "Select image region"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   cam(cam),
@@ -412,7 +413,7 @@ void Config::set_entry_viewability() {
     view_ROI.viewable = (active_selector.get() == NULL);
 }
 
-void Config::context_changed( Context::Ptr new_context )
+void Config::context_changed( Context::ConstPtr new_context )
 {
     context = *new_context;
     ost::MutexLock lock(active_selector_mutex);

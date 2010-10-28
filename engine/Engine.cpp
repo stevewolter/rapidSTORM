@@ -4,7 +4,6 @@
 
 #include "EngineDebug.h"
 #include "engine/Engine.h"
-#include "ThresholdGuesser.h"
 
 #include <dStorm/data-c++/Vector.h>
 #include <cassert>
@@ -62,9 +61,6 @@ Engine::~Engine() {
 Engine::TraitsPtr
 Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
 {
-    // TODO: Remove when input module is ready to do this estimation conditionally
-    imProp->background_stddev.mark_as_futurely_set();
-
     input::Traits<Localization> rv(imProp->get_other_dimensionality<Localization::Dim>());
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
@@ -80,6 +76,19 @@ Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
 
 Engine::TraitsPtr Engine::get_traits() {
     imProp = input->get_traits();
+
+    if ( ! config.amplitude_threshold().is_set() ) {
+        DEBUG("Guessing input threshold");
+        if ( imProp->background_stddev.is_set() )
+            config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
+        else {
+            assert(false);
+            throw std::logic_error("Background standard deviation is neither set nor could be computed");
+        }
+        DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
+    } else {
+        DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
+    }
 
     TraitsPtr prv = convert_traits(config, imProp);
     prv->carburettor = input.get();
@@ -98,19 +107,8 @@ void Engine::dispatch(Messages m) {
         DEBUG("Engine is restarting");
         errors = 0;
     }
+    upstream().dispatch(m);
 }
-
-#if 0
-    if ( ! config.amplitude_threshold().is_set() ) {
-        DEBUG("Guessing input threshold");
-        config.amplitude_threshold = ThresholdGuesser(input).compute_threshold();
-        DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
-    } else {
-        DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
-    }
-    // TODO: Remove
-    background_variance = double(config.amplitude_threshold()->value()) / 35;
-#endif
 
 class Engine::_iterator
 : public boost::iterator_facade< 
@@ -191,7 +189,8 @@ Engine::_iterator::_iterator( const _iterator& o )
   engine(const_cast<Engine&>(o.engine)),
   config(const_cast<Config&>(o.config)),
   maximumLimit(o.maximumLimit),
-  maximums(o.maximums),
+  maximums(config.x_maskSize() / cs_units::camera::pixel, 
+           config.y_maskSize() / cs_units::camera::pixel, 1, 1),
   origMotivation(o.origMotivation)
 {
     init();

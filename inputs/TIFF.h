@@ -61,6 +61,7 @@ namespace dStorm {
         TraitsPtr get_traits();
 
         Object& getConfig() { return *this; }
+        void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
 
       private:
         boost::shared_ptr<OpenFile> file;
@@ -110,8 +111,8 @@ namespace dStorm {
 
         ChainLink* clone() const { return new ChainLink(*this); }
         BaseSource* makeSource();
-        virtual void context_changed( ContextRef, Link* );
-        virtual simparm::Node& getNode() { return config; }
+        AtEnd context_changed( ContextRef, Link* );
+        simparm::Node& getNode() { return config; }
 
       private:
         simparm::Structure<Config> config;

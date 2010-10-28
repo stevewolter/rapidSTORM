@@ -64,8 +64,8 @@ void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     rv.covariance_matrix_is_set = freeSigmaFitting();
     rv.z_coordinate_is_set = false;
 
-    if ( info.traits.photon_response.is_set() 
-         && info.traits.background_stddev.will_be_set() ) 
+    if ( info.traits.photon_response.is_promised(deferred::JobTraits)
+         && info.traits.background_stddev.is_promised(deferred::JobTraits) ) 
     {
         rv.uncertainty_is_set = true;
     }

@@ -33,14 +33,21 @@ class ChainLink
 
     simparm::Node& getNode() { return config; }
 
+    input::BaseSource* makeSource() 
+        { return dispatch_makeSource(Invalid); }
     input::Source<output::LocalizedImage>*
         makeSource( std::auto_ptr< input::Source<Image> > );
 
-    void traits_changed( TraitsRef, Link*, ObjectTraitsPtr );
-    void context_changed(ContextRef, Link*);
+    AtEnd traits_changed( TraitsRef r, Link* l ) 
+        { return dispatch_trait_change(r, l, Invalid); }
+    AtEnd traits_changed( TraitsRef, Link*, ObjectTraitsPtr );
+    AtEnd context_changed(ContextRef, Link*);
 
     void add_spot_finder( SpotFinderFactory& finder) { config.spotFindingMethod.addChoice(finder); }
     void add_spot_fitter( SpotFitterFactory& fitter) { config.spotFittingMethod.addChoice(fitter); }
+
+    void modify_context( input::Traits<Image>& ) { assert(false); }
+    void notice_context( const input::Traits<Image>& ) { assert(false); }
 };
 
 }

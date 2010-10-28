@@ -83,7 +83,10 @@ libinputs_la_SOURCES = \
 	inputs/AndorSIF.cpp inputs/TIFF.cpp \
 	inputs/AndorSIF.h inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
 	inputs/TIFF_OpenFile.cpp \
-	inputs/AndorSIF_OpenFile.h inputs/AndorSIF_OpenFile.cpp
+	inputs/AndorSIF_OpenFile.h inputs/AndorSIF_OpenFile.cpp \
+	inputs/BackgroundDeviationEstimator_decl.h \
+	inputs/BackgroundDeviationEstimator.cpp \
+	inputs/BackgroundDeviationEstimator.h
 
 libengine_la_SOURCES = \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
@@ -94,7 +97,6 @@ libengine_la_SOURCES = \
     engine/SigmaGuesser.h \
     engine/studentPinv.c engine/studentPinv.h \
     engine/SpotFinder.cpp engine/debug.h  \
-    engine/ThresholdGuesser.h engine/ThresholdGuesser.cpp \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp
 
 liboutputs_la_SOURCES = \

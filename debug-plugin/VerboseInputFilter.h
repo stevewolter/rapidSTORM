@@ -14,22 +14,44 @@ struct Config : public simparm::Object {
     void registerNamedEntries() { push_back(verbose); }
 };
 
-class VerboseInputFilter 
-: public dStorm::input::chain::FullFilter
+template <typename Type>
+class TypedVerboseInputFilter
+: public dStorm::input::chain::TypedFilter<Type>,
+  public virtual simparm::Structure<Config>
 {
-    simparm::Structure<Config> config;
+    dStorm::input::BaseSource* makeSource
+        ( std::auto_ptr< dStorm::input::Source<Type> > rv )
+    {
+        std::cerr << "Source of type " << typeid(*rv.get()).name() << " is passing" << std::endl;
+        return rv.release();
+    }
+
+    dStorm::input::chain::Link::AtEnd traits_changed(
+        dStorm::input::chain::Link::TraitsRef r, 
+        dStorm::input::chain::Link*, 
+        boost::shared_ptr< dStorm::input::Traits<Type> > ) 
+    {
+        return this->notify_of_trait_change(r);
+    }
+
+    void modify_context( dStorm::input::Traits<Type>& ) { assert(false); }
+    void notice_context( const dStorm::input::Traits<Type>& ) { assert(false); }
+};
+
+class VerboseInputFilter 
+: public dStorm::input::chain::FullFilter<TypedVerboseInputFilter>
+{
   public:
     VerboseInputFilter() : dStorm::input::chain::Filter() {}
     ~VerboseInputFilter() {}
     VerboseInputFilter* clone() const { return new VerboseInputFilter(*this); }
 
-    void modify_traits( TraitsRef );
-    void modify_context( ContextRef );
+    AtEnd traits_changed( TraitsRef, Link* );
+    AtEnd context_changed( ContextRef, Link* );
 
-    dStorm::input::Source<dStorm::engine::Image>* makeSource( std::auto_ptr< dStorm::input::Source<dStorm::engine::Image> > );
-    dStorm::input::Source<dStorm::Localization>* makeSource( std::auto_ptr< dStorm::input::Source<dStorm::Localization> > );
+    dStorm::input::BaseSource* makeSource() { return dispatch_makeSource(PassThrough); }
 
-    simparm::Node& getNode() { return config; }
+    simparm::Node& getNode() { return static_cast<Config&>(*this); }
 };
 
 #endif

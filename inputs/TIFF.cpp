@@ -223,14 +223,22 @@ ChainLink::makeSource()
     return new Source<unsigned short>( file );
 }
 
-void ChainLink::context_changed( ContextRef ocontext, Link* link )
+ChainLink::AtEnd
+ChainLink::context_changed( ContextRef ocontext, Link* link )
 {
     Terminus::context_changed( ocontext, link );
 
-    chain::FileContext& context = dynamic_cast<chain::FileContext&>(*ocontext);
+    const chain::FileContext& context 
+        = dynamic_cast<const chain::FileContext&>(*ocontext);
 
     if ( ! file.get() || file->for_file() != context.input_file ) {
         open_file( context.input_file );
+        /* open_file will have published traits, if necessary */
+        return AtEnd();
+    } else {
+        /* No change, and we have previously published traits
+         * since file is not NULL. */
+        return AtEnd();
     }
 }
 

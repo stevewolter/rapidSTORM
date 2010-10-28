@@ -32,8 +32,9 @@ class Source : public simparm::Set,
     dStorm::engine::Image* load();
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;
+    void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
   public:
-    Source(const Config&, dStorm::input::chain::Context::Ptr);
+    Source(const Config&, dStorm::input::chain::Context::ConstPtr);
     ~Source();
 
     iterator begin();
@@ -45,15 +46,15 @@ class Method
 : public dStorm::input::chain::Terminus
 {
     simparm::Structure<Config> config;
-    dStorm::input::chain::Context::Ptr context;
+    dStorm::input::chain::Context::ConstPtr context;
 
   public:
     Method();
 
-    virtual void context_changed( ContextRef, Link* );
+    AtEnd context_changed( ContextRef, Link* );
 
-    virtual Source* makeSource();
-    virtual simparm::Node& getNode() { return config; }
+    Source* makeSource();
+    simparm::Node& getNode() { return config; }
 
     Method* clone() const { return new Method(*this); }
 

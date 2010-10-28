@@ -56,6 +56,7 @@ namespace AndorSIF {
         TraitsPtr get_traits();
 
         Object& getConfig() { return *this; }
+        void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
 
       private:
          boost::shared_ptr<OpenFile> file;
@@ -76,9 +77,9 @@ namespace AndorSIF {
       public:
         Config();
 
-        virtual void context_changed( ContextRef, Link* );
-        virtual Source<PixelType>* makeSource();
-        virtual simparm::Node& getNode() { return *this; }
+        AtEnd context_changed( ContextRef, Link* );
+        Source<PixelType>* makeSource();
+        simparm::Node& getNode() { return *this; }
 
         Config* clone() const { return new Config(*this); }
     };

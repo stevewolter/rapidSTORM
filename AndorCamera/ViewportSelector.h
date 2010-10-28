@@ -124,7 +124,7 @@ class Config
     simparm::TriggerEntry select_ROI, view_ROI;
 
     Config(const AndorCamera::CameraReference& cam, 
-           Context::Ptr context);
+           Context::ConstPtr context);
     Config(const Config &c);
     ~Config();
     Config* clone();
@@ -134,7 +134,7 @@ class Config
     void operator()(const simparm::Event&);
 
     void delete_active_selector();
-    void context_changed(Context::Ptr new_context);
+    void context_changed(Context::ConstPtr new_context);
 
   private:
     ost::Mutex active_selector_mutex;

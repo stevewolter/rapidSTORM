@@ -70,21 +70,28 @@ Source<Pixel>* Config<Pixel>::makeSource()
 }
 
 template<typename Pixel>
-void Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
+input::chain::Link::AtEnd
+Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
 {
     Terminus::context_changed( ocontext, link );
-    chain::FileContext& context = dynamic_cast<chain::FileContext&>( *ocontext );
+    const chain::FileContext& context = dynamic_cast<const chain::FileContext&>( *ocontext );
     if ( file.get() == NULL || context.input_file != file->for_file() ) {
+        if ( context.input_file == "" )
+            return this->notify_of_trait_change( TraitsRef() );
+
         file.reset();
         try {
             file.reset( new OpenFile( context.input_file ) );
             boost::shared_ptr<chain::FileMetaInfo> rv( new chain::FileMetaInfo() );
             rv->traits = file->getTraits<Pixel>();
             rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
-            this->notify_of_trait_change( rv );
+            return this->notify_of_trait_change( rv );
         } catch ( ... ) {
-            this->notify_of_trait_change( TraitsRef() );
+            return this->notify_of_trait_change( TraitsRef() );
         }
+    } else {
+        /* No change */
+        return AtEnd();
     }
 }
 

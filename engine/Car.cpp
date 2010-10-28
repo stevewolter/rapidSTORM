@@ -95,7 +95,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   terminationChanged( terminationMutex )
 {
     DEBUG("Building car");
-    used_output_filenames = config.get_meta_info()->forbidden_filenames;
+    used_output_filenames = config.get_meta_info().forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
     abortJob.helpID = HELP_StopEngine;
 
@@ -104,7 +104,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     receive_changes_from( runtime_config );
 
     DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename);
-    output::Basename bn( config.get_meta_info()->suggested_output_basename );
+    output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     config.outputSource.set_output_file_basename( bn );

@@ -42,6 +42,7 @@ namespace AndorCamera {
         simparm::StringEntry& status;
 
         boost::shared_ptr<LiveView> live_view;
+        void dispatch(Messages m) { assert( ! m.any() ); }
 
       public:
         Source( boost::shared_ptr<LiveView> live_view,

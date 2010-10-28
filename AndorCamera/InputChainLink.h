@@ -27,7 +27,8 @@ class Method
 
   private:
     void registerNamedEntries();
-    void context_changed( ContextRef, Link * );
+    AtEnd context_changed( ContextRef, Link * );
+    AtEnd traits_changed( TraitsRef, Link* );
 
   public:
     Method();
@@ -35,6 +36,8 @@ class Method
     virtual ~Method();
 
     simparm::Node& getNode() { return *this; }
+    dStorm::input::BaseSource* makeSource() 
+        { return Forwarder::makeSource(); }
 
     Method* clone() const { return new Method(*this); }
     bool uses_input_file() const { return false; }

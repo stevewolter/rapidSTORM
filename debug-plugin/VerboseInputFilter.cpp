@@ -3,26 +3,18 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <iostream>
 
-void VerboseInputFilter::modify_traits( TraitsRef ref )
+VerboseInputFilter::AtEnd
+VerboseInputFilter::traits_changed( TraitsRef ref, Link *link )
 {
+    Link::traits_changed( ref, link );
     std::cerr << "Traits " << ref.get() << " are passing on " << this << std::endl;
+    return notify_of_trait_change( ref );
 }
 
-void VerboseInputFilter::modify_context( ContextRef ref )
+VerboseInputFilter::AtEnd
+VerboseInputFilter::context_changed( ContextRef ref, Link *link )
 {
+    Link::context_changed( ref, link );
     std::cerr << "Context " << ref.get() << " is passing on " << this << std::endl;
-}
-
-dStorm::input::Source<dStorm::engine::Image>*
-VerboseInputFilter::makeSource( std::auto_ptr< dStorm::input::Source<dStorm::engine::Image> > ptr )
-{
-    std::cerr << "Image source is passing" << std::endl;
-    return ptr.release();
-}
-
-dStorm::input::Source<dStorm::Localization>*
-VerboseInputFilter::makeSource( std::auto_ptr< dStorm::input::Source<dStorm::Localization> > ptr )
-{
-    std::cerr << "Localization source is passing" << std::endl;
-    return ptr.release();
+    return notify_of_context_change( ref );
 }

@@ -56,9 +56,9 @@ void OpenFile::init(FILE *src)
 }
 
 struct Reader : public std::stringstream {
-    std::string& target;
+    simparm::optional<std::string>& target;
 
-    Reader(std::string& target) : target(target) {}
+    Reader(simparm::optional<std::string>& target) : target(target) {}
     operator std::ostream&() { return *this; }
     std::ostream& stream() { return *this; }
     ~Reader() { target = this->str(); }

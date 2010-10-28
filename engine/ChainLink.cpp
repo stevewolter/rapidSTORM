@@ -27,22 +27,24 @@ ChainLink::makeSource( std::auto_ptr< input::Source<dStorm::engine::Image> > inp
     return new Engine( config, input );
 }
 
-void ChainLink::traits_changed(TraitsRef r, Link* l, ObjectTraitsPtr t)
+ChainLink::AtEnd
+ChainLink::traits_changed(TraitsRef r, Link* l, ObjectTraitsPtr t)
 {
     Link::traits_changed(r, l);
     boost::shared_ptr< input::Traits<output::LocalizedImage> >
         rt = Engine::convert_traits(config, t);
-    TraitsRef rv( r->clone() );
+    input::chain::MetaInfo::Ptr rv( r->clone() );
     rv->traits = rt;
-    notify_of_trait_change(rv);
+    return notify_of_trait_change(rv);
 }
 
-void ChainLink::context_changed(ContextRef r, Link* l)
+ChainLink::AtEnd
+ChainLink::context_changed(ContextRef r, Link* l)
 {
     Link::context_changed(r, l);
     my_context.reset( r->clone() );
     my_context->will_make_multiple_passes = ! config.fixSigma();
-    notify_of_context_change( my_context );
+    return notify_of_context_change( my_context );
 }
 
 std::auto_ptr<input::chain::Filter>
