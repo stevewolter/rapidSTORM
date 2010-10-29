@@ -1,150 +1,123 @@
 #include "debug.h"
 
 #include "LocalizationBuncher.h"
+#include <dStorm/input/Source_impl.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/Trace.h>
+#include <boost/variant/apply_visitor.hpp>
 
 using namespace dStorm::output;
 
 namespace dStorm {
-namespace engine {
+namespace engine_stm {
+
+class LocalizationBuncher::Can
+{
+    std::list< output::Trace > traces;
+
+    void deep_copy(const Localization& from, 
+                        output::Trace& to);
+  public:
+    Can() { traces.push_back( output::Trace() ); }
+    void push_back( const Localization& l );
+    void write( output::LocalizedImage& );
+};
+
+class LocalizationBuncher::Visitor 
+: public boost::static_visitor<VisitResult>
+{
+    std::auto_ptr<Can> can;
+    simparm::optional<frame_index> my_image;
+
+  public:
+    ~Visitor() { assert( can.get() == NULL ); }
+    VisitResult operator()( const dStorm::Localization& l ) 
+    {
+        if ( my_image.is_set() ) {
+            if ( l.frame_number() != *my_image )
+                return IAmFinished;
+            else
+                can->push_back( l );
+        } else {
+            my_image = l.frame_number();
+            can.reset( new Can() );
+        }
+        return KeepComing;
+    }
+
+    VisitResult operator()( const dStorm::LocalizationFile::EmptyLine& i ) 
+    {
+        if ( ! my_image.is_set() ) {
+            my_image = i.number;
+            can.reset( new Can() );
+        }
+        return IAmFinished;
+    }
+
+    frame_index for_frame() { assert(my_image.is_set()); return *my_image; }
+    std::auto_ptr<Can> get_result() { return can; }
+};
 
 LocalizationBuncher::LocalizationBuncher(
-    const Config& config, input::Source<Localization>::iterator base,
+    const Config& config,
+    Base base,
+    Base base_end,
     frame_index image_number)
-: base(base), outputImage(image_number)
+: base(base), base_end(base_end), outputImage(image_number)
 {
     search_output_image();
 }
 
 void LocalizationBuncher::increment() {
+    output.reset();
     outputImage += 1 * cs_units::camera::frame;
-    search_output_image();
+    Canned::iterator canned_output = canned.find(outputImage);
+    if ( canned_output == canned.end() )
+        search_output_image();
+    else
+        output.reset( canned.release(canned_output).release() );
+}
+
+bool LocalizationBuncher::equal(const LocalizationBuncher& o) const
+{
+    return outputImage == o.outputImage;
 }
 
 void LocalizationBuncher::search_output_image() {
-}
-
-void LocalizationBuncher::output( Can* locs ) 
-throw(Output*) 
-{
-    if ( outputImage >= first && outputImage <= last ) {
-        engine_result.forImage = outputImage;
-        if ( locs ) {
-            DEBUG("Outputting " << locs->size() << " localizations for " << outputImage);
-            engine_result.first = locs->ptr();
-            engine_result.number = locs->size();
-        } else {
-            DEBUG("Outputting no localizations for " << outputImage);
-            engine_result.first = NULL;
-            engine_result.number = 0;
-        }
-        Output::Result result =
-            target.receiveLocalizations(engine_result);
-        if (result == Output::StopEngine) {
-            DEBUG("Got result StopEngine");
-            target.propagate_signal( 
-                Output::Engine_run_is_aborted );
-            target.propagate_signal( 
-                Output::Engine_run_failed );
-            throw &target;
-        } else {
-            DEBUG("Got result " << result << ", continuing");
-        }
-    } else {
-        DEBUG("Image " << outputImage << " not in range " << first << " to " << last);
-    }
-    
-    outputImage = outputImage + 1 * cs_units::camera::frame;
-}
-
-void LocalizationBuncher::print_canned_results_where_possible()
-throw(Output*) 
-{
-    while ( outputImage <= currentImage ) {
-        if ( canned.find( outputImage ) != canned.end() ) {
-            DEBUG("Outputting " << outputImage);
-            frame_index decanned = outputImage;
-            output( canned[decanned] );
-            delete canned[decanned];
-            canned.erase(decanned);
-#if 0           /* Makes problems. Rather can everything. */
-        } else if ( outputImage + 50 < currentImage ) {
-            output( NULL );
-#endif
-        } else
+    while ( base != base_end ) {
+        Visitor v;
+        for ( ; base != base_end; ++base ) 
+            if ( boost::apply_visitor(v, *base) == IAmFinished )
+                break;
+        if ( v.for_frame() == outputImage ) {
+            output = v.get_result();
             break;
+        } else
+            canned.insert( v.for_frame(), v.get_result() );
     }
-}
+    if ( output.get() == NULL )
+        /* End of file reached. Insert empty can. */
+        output.reset( new Can() );
 
-void LocalizationBuncher::can_results_or_publish(frame_index) 
-throw(Output*) 
-{
-    print_canned_results_where_possible();
-
-    if ( outputImage == currentImage ) {
-        DEBUG("Direct output for " << currentImage);
-        break;
-        buffer->clear();
-    } else if ( buffer->size() != 0 ) {
-        DEBUG("Canning " << currentImage << " while waiting for " << outputImage);
-        canned.insert( std::make_pair( currentImage, buffer.release() ) );
-        buffer.reset( new Can() );
-    }
-}
-
-LocalizationBuncher::LocalizationBuncher(Output& output)
-: currentImage(0), outputImage(0), target(output), last_index(0)
-{
+    output->write( result );
 }
 
 LocalizationBuncher::~LocalizationBuncher() {
 }
 
-void LocalizationBuncher::ensure_finished() 
+Source::TraitsPtr Source::get_traits()
 {
-    if ( buffer.get() != NULL ) {
-        DEBUG("Canning last results");
-        can_results_or_publish( currentImage );
-    }
-    DEBUG("Finished reading file");
-    while ( outputImage < lastInFile ) {
-        DEBUG("Finish iteration with output image " << outputImage);
-        Canned::iterator i;
-        i = canned.find( outputImage );
-        if ( i != canned.end() ) {
-            DEBUG("Outputting from can");
-            outputImage = i->first;
-            output( i->second );
-            delete i->second;
-            canned.erase(i);
-        } else if ( outputImage == currentImage && buffer.get() != NULL ) {
-            DEBUG("Outputting current");
-            output( buffer.get() );
-            buffer.reset( NULL );
-        } else {
-            DEBUG("Outputting nothing");
-            output( NULL );
-        }
-    }
-    target.propagate_signal(Output::Engine_run_succeeded);
-    DEBUG("Sent success signal");
-}
+    input::Source<Localization>::TraitsPtr traits  = base->get_traits();
 
-void LocalizationBuncher::noteTraits(
-    const input::Traits<Localization>& traits )
-{
-    if ( ! traits.last_frame.is_set() )
+    if ( ! traits->last_frame.is_set() )
         throw std::runtime_error("Total number of frames in STM file must be known");
-    frame_index firstImage = traits.first_frame, lastImage = *traits.last_frame;
-    lastInFile = *traits.last_frame;
-    last = lastImage;
-    first = std::min( firstImage, last );
+    firstImage = traits->first_frame;
+    lastImage = *traits->last_frame + 1 * cs_units::camera::frame;
+    firstImage = std::min(firstImage, lastImage);
 
-    Output::Announcement announcement(traits);
-    Output::AdditionalData data = 
-        target.announceStormSize(announcement);
+    return TraitsPtr( new TraitsPtr::element_type( *traits ) );
 
+#if 0
     if ( data.test( output::Capabilities::SourceImage ) ) {
         std::stringstream message;
         message << "One of your output modules needs access to the raw "
@@ -165,82 +138,34 @@ void LocalizationBuncher::noteTraits(
             "present in a localization file.";
         throw std::runtime_error(ss.str());
     }
+#endif
 }
 
 void LocalizationBuncher::Can::push_back( const Localization &loc )
 {
-    traces.allocate( number_of_traces( loc ) );
-    deep_copy( loc, *this );
-}
-
-int LocalizationBuncher::Can::number_of_traces( const Localization& loc ) {
-    if ( ! loc.has_source_trace() )
-        return 1;
-    else {
-        int accum = 0;
-        const Trace& t = loc.get_source_trace();
-        for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
-            accum += number_of_traces( loc );
-        return accum;
-    }
-        
+    deep_copy( loc, traces.front() );
 }
 
 void LocalizationBuncher::Can::deep_copy( 
-    const Localization &loc, data_cpp::Vector<Localization>& to )
+    const Localization &loc, output::Trace& to )
 {
     Localization *target = to.allocate(1);
     *target = loc;
     if ( loc.has_source_trace() ) {
-        Trace *trace = traces.allocate( 1 );
-        new (trace) Trace();
+        traces.push_back( output::Trace() );
+        Trace& my_trace = traces.back();
         const Trace& t = loc.get_source_trace();
         for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
-            deep_copy( *i, *trace );
-        traces.commit( 1 );
-        target->set_source_trace( *trace );
+            deep_copy( *i, my_trace );
+        target->set_source_trace( my_trace );
     }
     to.commit(1);
 }
 
-void
-LocalizationBuncher::accept(int index, int num, Localization *loc)
+void LocalizationBuncher::Can::write( output::LocalizedImage& er ) 
 {
-    if (index < last_index)
-        reset();
-    for (int i = 0; i < num; i++) {
-        const Localization& l = loc[i];
-        frame_index imNum = l.getImageNumber();
-        if ( buffer.get() == NULL )
-            buffer.reset( new Can() );
-        else {
-            try {
-                if (currentImage != imNum)
-                    can_results_or_publish( imNum );
-            } catch (const Output*c) {
-                return;
-            }
-        }
-
-        currentImage = imNum;
-        buffer->push_back( l );
-    }
-
-    last_index = index;
-}
-
-void LocalizationBuncher::reset() {
-    buffer->clear();
-    target.propagate_signal( 
-        Output::Engine_run_is_aborted );
-    target.propagate_signal( 
-        Output::Engine_is_restarted );
-}
-
-void LocalizationBuncher::notice_empty_image( const EmptyImageInfo& info ) {
-    DEBUG("Marking image " << info.number << " as empty");
-    canned.insert( std::make_pair( info.number, new Can() ) );
-    can_results_or_publish( info.number );
+    er.first = traces.front().ptr();
+    er.number = traces.front().size();
 }
 
 }

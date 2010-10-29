@@ -8,6 +8,7 @@
 #include <memory>
 #include <dStorm/output/Output.h>
 #include <boost/utility.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
 #include "Config.h"
 
 namespace dStorm {
@@ -19,44 +20,32 @@ class LocalizationBuncher
     output::LocalizedImage,
     std::input_iterator_tag>
 {
-    class Can {
-        std::list< output::Trace > traces;
-        output::LocalizedImage image;
+    typedef input::Source<LocalizationFile::Record>::iterator Base;
 
-        int number_of_traces( const Localization& );
-        void deep_copy(const Localization& from, 
-                            data_cpp::Vector<Localization>& to);
-      public:
-        void push_back( const Localization& l );
-        output::LocalizedImage& get() { return image; }
-    };
+    enum VisitResult { KeepComing, IAmFinished };
+    class Can;
+    class Visitor;
 
-    input::Source<LocalizationFile::Record>::iterator base;
-    typedef std::map<frame_index,Can* > Canned;
+    Base base, base_end;
+    typedef boost::ptr_map<frame_index,Can> Canned;
     Canned canned;
-    boost::shared_ptr< Can > current;
-    frame_index currentImage, outputImage;
+    boost::shared_ptr<Can> output;
+    frame_index outputImage;
+    mutable output::LocalizedImage result;
 
     void search_output_image();
 
-    void print_canned_results_where_possible() throw(output::Output*);
-    void can_results_or_publish( frame_index lookahead )
-        throw(output::Output*);
-
-    void put_deep_copy_into_can( const Localization &loc, Can& can );
-
-    int last_index;
-    void reset();
-
     friend class boost::iterator_core_access;
-    output::LocalizedImage& dereference() const { return current->get(); }
+    output::LocalizedImage& dereference() const { return result; }
     bool equal(const LocalizationBuncher& o) const;
     void increment();
 
   public:
     LocalizationBuncher(
-        const Config&, input::Source<Localization>::iterator,
-        frame_index image_number);
+        const Config&, 
+        Base begin, Base end,
+        frame_index first_output_image);
+    ~LocalizationBuncher();
 };
 
 class Source
@@ -66,18 +55,20 @@ class Source
 {
   public:
     typedef input::Source<LocalizationFile::Record> Input;
+    typedef input::Source<output::LocalizedImage> Base;
   private:
     Config config;
     std::auto_ptr< Input > base;
+    frame_index firstImage, lastImage;
   public:
     Source( const Config& c, std::auto_ptr<Input> base ) 
-        : config(c), base(base) {}
+        : Base(config, base->flags), config(c), base(base) {}
 
-    iterator begin() { return LocalizationBuncher(c, base->begin()); }
-    iterator end() { return LocalizationBuncher(c, base->end()); }
-    TraitsPtr get_traits() {
-        return TraitsPtr( new TraitsPtr::element_type(*base->get_traits()) );
-    }
+    iterator begin() 
+        { return iterator( LocalizationBuncher(config, base->begin(), base->end(), firstImage) ); }
+    iterator end()
+        { return iterator( LocalizationBuncher(config, Input::iterator(), Input::iterator(), lastImage) ); }
+    TraitsPtr get_traits();
     BaseSource& upstream() { return *base; }
 };
 
