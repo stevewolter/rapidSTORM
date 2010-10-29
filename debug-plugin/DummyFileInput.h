@@ -47,6 +47,7 @@ class Method
 {
     simparm::Structure<Config> config;
     dStorm::input::chain::Context::ConstPtr context;
+    std::string currently_loaded_file;
 
   public:
     Method();

@@ -15,7 +15,7 @@ EXTRA_PROGRAMS = testDisplay
 noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
     libinputs.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
-    libgauss_fitter.la
+    libgauss_fitter.la libengine_stm.la
 
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 plugin_lib_LTLIBRARIES = $(DEBUGPLUGIN) lib3d_fitter.la
@@ -91,13 +91,17 @@ libinputs_la_SOURCES = \
 libengine_la_SOURCES = \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
-    engine/LocalizationBuncher.cpp engine/LocalizationBuncher.h \
     engine/SigmaFitter.h engine/ImageFitter.h \
     engine/SigmaGuesser.cpp engine/SigmaGuesser_FreeFormFitter.cpp \
     engine/SigmaGuesser.h \
     engine/studentPinv.c engine/studentPinv.h \
     engine/SpotFinder.cpp engine/debug.h  \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp
+
+libengine_stm_la_SOURCES = \
+    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
+    engine_stm/Config.h engine_stm/Config.cpp \
+    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
 liboutputs_la_SOURCES = \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \

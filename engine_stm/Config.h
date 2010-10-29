@@ -1,0 +1,17 @@
+#ifndef DSTORM_STM_ENGINE_CONFIG_H
+#define DSTORM_STM_ENGINE_CONFIG_H
+
+#include <simparm/Object.hh>
+
+namespace dStorm {
+namespace engine_stm {
+
+class Config : public simparm::Object
+{
+    Config();
+};
+
+}
+}
+
+#endif

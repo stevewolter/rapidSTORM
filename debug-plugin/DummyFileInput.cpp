@@ -1,5 +1,6 @@
 #include "DummyFileInput.h"
 #include <iostream>
+#include <fstream>
 #include <dStorm/engine/Image.h>
 #include <boost/iterator/iterator_facade.hpp>
 #include <dStorm/input/chain/FileContext.h>
@@ -84,16 +85,28 @@ Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
     Terminus::context_changed(ctx, l);
     context = ctx;
 
-    if ( static_cast<const FileContext&>(*ctx).input_file != "" ) {
-        MetaInfo::Ptr rv( new MetaInfo() );
-        dStorm::input::Traits<dStorm::engine::Image> t;
-        t.size.x() = config.width() * cs_units::camera::pixel;
-        t.size.y() = config.height() * cs_units::camera::pixel;
-        t.last_frame = (config.number() - 1) * cs_units::camera::frame;
-        rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
-        return notify_of_trait_change( rv );
+    std::string new_file = static_cast<const FileContext&>(*ctx).input_file;
+    if ( new_file != currently_loaded_file ) {
+        if ( new_file != "" ) {
+            std::ifstream test(new_file.c_str(), std::ios_base::in);
+            if ( test ) {
+                currently_loaded_file = new_file;
+                MetaInfo::Ptr rv( new MetaInfo() );
+                dStorm::input::Traits<dStorm::engine::Image> t;
+                t.size.x() = config.width() * cs_units::camera::pixel;
+                t.size.y() = config.height() * cs_units::camera::pixel;
+                t.last_frame = (config.number() - 1) * cs_units::camera::frame;
+                rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+                return notify_of_trait_change( rv );
+            } else {
+                return notify_of_trait_change( MetaInfo::Ptr() );
+            }
+        } else {
+            currently_loaded_file = new_file;
+            return notify_of_trait_change( MetaInfo::Ptr() );
+        }
     } else {
-        return notify_of_trait_change( MetaInfo::Ptr() );
+        return Method::AtEnd();
     }
 }
 

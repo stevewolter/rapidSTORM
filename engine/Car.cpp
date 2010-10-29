@@ -3,7 +3,6 @@
 
 #include "Car.h"
 #include <dStorm/outputs/Crankshaft.h>
-#include "LocalizationBuncher.h"
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>

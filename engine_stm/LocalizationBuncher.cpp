@@ -9,6 +9,22 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace engine {
 
+LocalizationBuncher::LocalizationBuncher(
+    const Config& config, input::Source<Localization>::iterator base,
+    frame_index image_number)
+: base(base), outputImage(image_number)
+{
+    search_output_image();
+}
+
+void LocalizationBuncher::increment() {
+    outputImage += 1 * cs_units::camera::frame;
+    search_output_image();
+}
+
+void LocalizationBuncher::search_output_image() {
+}
+
 void LocalizationBuncher::output( Can* locs ) 
 throw(Output*) 
 {
@@ -68,7 +84,7 @@ throw(Output*)
 
     if ( outputImage == currentImage ) {
         DEBUG("Direct output for " << currentImage);
-        output( buffer.get() );
+        break;
         buffer->clear();
     } else if ( buffer->size() != 0 ) {
         DEBUG("Canning " << currentImage << " while waiting for " << outputImage);
