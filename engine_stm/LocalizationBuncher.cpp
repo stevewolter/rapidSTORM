@@ -11,7 +11,8 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace engine_stm {
 
-class LocalizationBuncher::Can
+enum VisitResult { KeepComing, IAmFinished };
+class Can
 {
     std::list< output::Trace > traces;
 
@@ -23,7 +24,7 @@ class LocalizationBuncher::Can
     void write( output::LocalizedImage& );
 };
 
-class LocalizationBuncher::Visitor 
+class Visitor 
 : public boost::static_visitor<VisitResult>
 {
     std::auto_ptr<Can> can;
@@ -54,58 +55,97 @@ class LocalizationBuncher::Visitor
         return IAmFinished;
     }
 
+    template <typename Type> VisitResult add(Type& argument);
     frame_index for_frame() { assert(my_image.is_set()); return *my_image; }
     std::auto_ptr<Can> get_result() { return can; }
 };
 
-LocalizationBuncher::LocalizationBuncher(
+template <typename Type>
+VisitResult 
+Visitor::add(Type& argument)
+{
+    return boost::apply_visitor( *this, argument );
+}
+
+template <>
+VisitResult 
+Visitor::add<Localization>(Localization& argument)
+{
+    return (*this)( argument );
+}
+
+template <typename Input>
+LocalizationBuncher<Input>::LocalizationBuncher(
     const Config& config,
-    Base base,
-    Base base_end,
+    Source<Input>& master,
     frame_index image_number)
-: base(base), base_end(base_end), outputImage(image_number)
+: master(master), outputImage(image_number)
 {
     search_output_image();
 }
 
-void LocalizationBuncher::increment() {
+template <typename Input>
+void LocalizationBuncher<Input>::increment() {
     output.reset();
     outputImage += 1 * cs_units::camera::frame;
-    Canned::iterator canned_output = canned.find(outputImage);
-    if ( canned_output == canned.end() )
-        search_output_image();
-    else
-        output.reset( canned.release(canned_output).release() );
+    search_output_image();
 }
 
-bool LocalizationBuncher::equal(const LocalizationBuncher& o) const
+template <typename Input>
+bool LocalizationBuncher<Input>::equal(const LocalizationBuncher<Input>& o) const
 {
     return outputImage == o.outputImage;
 }
 
-void LocalizationBuncher::search_output_image() {
-    while ( base != base_end ) {
+template <typename Input>
+void LocalizationBuncher<Input>::search_output_image() {
+    ost::MutexLock lock( master.mutex );
+    typename Source<Input>::Canned::iterator canned_output
+        = master.canned.find(outputImage);
+    if ( canned_output != master.canned.end() ) {
+        output.reset( master.canned.release(canned_output).release() );
+        DEBUG("Serving " << output->forImage << " from can");
+        output->write( result );
+        result.forImage = outputImage;
+        return;
+    }
+
+    DEBUG("Reading " << output->forImage << " into can");
+    while ( master.current != master.base_end ) {
         Visitor v;
-        for ( ; base != base_end; ++base ) 
-            if ( boost::apply_visitor(v, *base) == IAmFinished )
+        for ( ; master.current != master.base_end; ++master.current ) 
+            if ( v.add(*master.current) == IAmFinished )
                 break;
         if ( v.for_frame() == outputImage ) {
             output = v.get_result();
             break;
         } else
-            canned.insert( v.for_frame(), v.get_result() );
+            master.canned.insert( v.for_frame(), v.get_result() );
     }
     if ( output.get() == NULL )
         /* End of file reached. Insert empty can. */
         output.reset( new Can() );
 
     output->write( result );
+    result.forImage = outputImage;
 }
 
-LocalizationBuncher::~LocalizationBuncher() {
+template <typename Input>
+LocalizationBuncher<Input>::LocalizationBuncher
+    (const LocalizationBuncher& o)
+: master( const_cast< Source<Input>& >(o.master) ),
+  output(o.output),
+  outputImage(o.outputImage), result(o.result)
+{
 }
 
-Source::TraitsPtr Source::get_traits()
+template <typename Input>
+LocalizationBuncher<Input>::~LocalizationBuncher() {
+}
+
+template <typename InputType>
+typename Source<InputType>::TraitsPtr
+Source<InputType>::get_traits()
 {
     input::Source<Localization>::TraitsPtr traits  = base->get_traits();
 
@@ -116,6 +156,7 @@ Source::TraitsPtr Source::get_traits()
     firstImage = std::min(firstImage, lastImage);
 
     return TraitsPtr( new TraitsPtr::element_type( *traits ) );
+}
 
 #if 0
     if ( data.test( output::Capabilities::SourceImage ) ) {
@@ -139,18 +180,17 @@ Source::TraitsPtr Source::get_traits()
         throw std::runtime_error(ss.str());
     }
 #endif
-}
 
-void LocalizationBuncher::Can::push_back( const Localization &loc )
+void Can::push_back( const Localization &loc )
 {
     deep_copy( loc, traces.front() );
 }
 
-void LocalizationBuncher::Can::deep_copy( 
+void Can::deep_copy( 
     const Localization &loc, output::Trace& to )
 {
     Localization *target = to.allocate(1);
-    *target = loc;
+    new(target) Localization(loc);
     if ( loc.has_source_trace() ) {
         traces.push_back( output::Trace() );
         Trace& my_trace = traces.back();
@@ -162,11 +202,31 @@ void LocalizationBuncher::Can::deep_copy(
     to.commit(1);
 }
 
-void LocalizationBuncher::Can::write( output::LocalizedImage& er ) 
+void Can::write( output::LocalizedImage& er ) 
 {
     er.first = traces.front().ptr();
     er.number = traces.front().size();
 }
+
+template <class InputType>
+Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
+: Base(config, base->flags), current(base->begin()), base_end(base->end()),
+  config(c), base(base) {}
+
+template <class InputType>
+void Source<InputType>::dispatch(Messages m)
+{
+    if ( m.test( RepeatInput ) ) {
+        m.reset( RepeatInput );
+        current = base->begin();
+        base_end = base->end();
+    }
+    m.reset( WillNeverRepeatAgain );
+    base->dispatch(m);
+}
+
+template class Source<LocalizationFile::Record>;
+template class Source<Localization>;
 
 }
 }

@@ -215,14 +215,6 @@ check_debug_plugin_LDADD = libtestplugin.la
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
 
-COMMON_LIBS = liboutputs.la libviewer.la \
-    libspotFinders.la \
-    libengine.la libgauss_fitter.la  \
-    libfitter.la libinputs.la \
-    libAndorCamera.la \
-    libdStorm_display.la \
-    ../dStorm/libdStorm.la 
-
 dstorm_SOURCES = \
     dstorm.cpp \
     CommandLine.h CommandLine.cpp \
@@ -233,7 +225,14 @@ dstorm_SOURCES = \
     debug.h debug_print.h $(RESOURCE_FILE) \
     local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
-dstorm_LDADD = $(COMMON_LIBS) -lltdl 
+dstorm_LDADD = liboutputs.la libviewer.la \
+    libspotFinders.la \
+    libengine_stm.la \
+    libengine.la libgauss_fitter.la  \
+    libfitter.la libinputs.la \
+    libAndorCamera.la \
+    libdStorm_display.la \
+    ../dStorm/libdStorm.la -lltdl 
 
 alignment_test_LDADD = ../dStorm/libdStorm.la
 alignment_test_SOURCES = fit++/alignment_test.cpp

@@ -1,5 +1,5 @@
-#ifndef DSTORM_ENGINE_CHAINLINK_DECL_H
-#define DSTORM_ENGINE_CHAINLINK_DECL_H
+#ifndef DSTORM_ENGINE_STM_CHAINLINK_DECL_H
+#define DSTORM_ENGINE_STM_CHAINLINK_DECL_H
 
 #include <dStorm/input/chain/Filter_decl.h>
 #include <memory>

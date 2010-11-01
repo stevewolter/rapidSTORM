@@ -297,7 +297,7 @@ LocalizationFilter::announceStormSize(const Announcement& a)
 { 
     boost::units::quantity<ShiftSpeed,float> standstill
         ( 0 * boost::units::si::meters_per_second );
-    traits = a.traits;
+    traits = a;
     if ( ( ! traits.resolution.is_set() || traits.speed.is_set() ) && (
         x_shift() != standstill || y_shift() != standstill) )
         throw std::runtime_error("Pixel size or acquisition speed is unknown, but drift correction given");

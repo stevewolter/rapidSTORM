@@ -97,7 +97,7 @@ void LocalizationFile::open() {
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
     ost::MutexLock lock(mutex);
-    traits = a.traits;
+    traits = a;
 
     open();
 

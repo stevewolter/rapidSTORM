@@ -22,21 +22,21 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        if (  a.traits.resolution.is_set() ) {
+        if (  a.resolution.is_set() ) {
             LOG( "Verbose plugin got announcement with "
-                    << a.traits.size.transpose() << " and size "
-                    << *a.traits.resolution );
-            if ( a.traits.speed.is_set() ) {
-                LOG("Announced speed is " << *a.traits.speed );
+                    << a.size.transpose() << " and size "
+                    << *a.resolution );
+            if ( a.speed.is_set() ) {
+                LOG("Announced speed is " << *a.speed );
             }
         } else {
             LOG( "Verbose plugin got announcement with "
-                    << a.traits.size.transpose() );
+                    << a.size.transpose() );
         }
         return AdditionalData(); 
     }
     Result receiveLocalizations(const EngineResult& er) {
-        LOG( "Verbose plugin got results for " << er.forImage);
+        LOG( "Verbose plugin got " << er.number << " localizations for " << er.forImage);
         return KeepRunning;
     }
     void propagate_signal(ProgressSignal s) {

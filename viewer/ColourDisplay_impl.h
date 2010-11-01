@@ -154,15 +154,15 @@ class HueingColorizer : public Colorizer<unsigned char> {
                             float oldVal, float newVal) 
         { merge_tone(x, y, oldVal, newVal - oldVal); }
     inline void announce(const output::Output::Announcement& a) {
-        minV = a.traits.first_frame;
-        if ( a.traits.last_frame.is_set() )
-            maxV = *a.traits.last_frame;
+        minV = a.first_frame;
+        if ( a.last_frame.is_set() )
+            maxV = *a.last_frame;
         else
             throw std::runtime_error("Total length of acquisition must be "
                                      "known for colour coding by time.");
         quantity<cs_units::camera::time,float> length = maxV - minV;
         scaleV = 0.666f / length;
-        speed = a.traits.speed;
+        speed = a.speed;
     }
     inline void announce(const output::Output::EngineResult& er) {
         float hue = (er.forImage - minV) * scaleV,

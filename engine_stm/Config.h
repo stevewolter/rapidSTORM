@@ -6,7 +6,7 @@
 namespace dStorm {
 namespace engine_stm {
 
-class Config : public simparm::Object
+struct Config : public simparm::Object
 {
     Config();
 };

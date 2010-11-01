@@ -6,18 +6,23 @@
 namespace dStorm {
 namespace engine_stm {
 
-ChainLink::ChainLink() {}
-
 input::Source<output::LocalizedImage>*
 ChainLink::makeSource( std::auto_ptr< input::Source<Localization> > input )
 {
-    return new Engine( config, input );
+    return new Source<Localization>( config, input );
 }
 
+input::Source<output::LocalizedImage>*
+ChainLink::makeSource( std::auto_ptr< input::Source<LocalizationFile::Record> > input )
+{
+    return new Source<LocalizationFile::Record>( config, input );
+}
+
+template <typename Type>
 ChainLink::AtEnd
-ChainLink::traits_changed(
+ChainLink::_traits_changed(
     TraitsRef r, Link* l,
-    boost::shared_ptr< input::Traits<Localization> > t)
+    boost::shared_ptr< input::Traits<Type> > t)
 {
     Link::traits_changed(r, l);
     input::chain::MetaInfo::Ptr rv( r->clone() );
@@ -30,6 +35,7 @@ ChainLink::context_changed(ContextRef r, Link* l)
 {
     Link::context_changed(r, l);
     my_context.reset( r->clone() );
+    my_context->need_multiple_concurrent_iterators = false;
     return notify_of_context_change( my_context );
 }
 

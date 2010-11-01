@@ -9,26 +9,27 @@
 #include <dStorm/output/Output.h>
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
+#include <dStorm/helpers/thread.h>
 #include "Config.h"
 
 namespace dStorm {
 namespace engine_stm {
 
+class Can;
+class Visitor;
+
+template <typename Input>
+class Source;
+
+template <typename Input>
 class LocalizationBuncher 
 : public boost::iterator_facade< 
-    LocalizationBuncher, 
+    LocalizationBuncher<Input>, 
     output::LocalizedImage,
     std::input_iterator_tag>
 {
-    typedef input::Source<LocalizationFile::Record>::iterator Base;
+    Source<Input>& master;
 
-    enum VisitResult { KeepComing, IAmFinished };
-    class Can;
-    class Visitor;
-
-    Base base, base_end;
-    typedef boost::ptr_map<frame_index,Can> Canned;
-    Canned canned;
     boost::shared_ptr<Can> output;
     frame_index outputImage;
     mutable output::LocalizedImage result;
@@ -43,31 +44,44 @@ class LocalizationBuncher
   public:
     LocalizationBuncher(
         const Config&, 
-        Base begin, Base end,
+        Source<Input>& master,
         frame_index first_output_image);
+    LocalizationBuncher(const LocalizationBuncher&);
     ~LocalizationBuncher();
 };
 
+template <typename InputType>
 class Source
 : public input::Source<output::LocalizedImage>,
   public input::Filter,
   boost::noncopyable
 {
   public:
-    typedef input::Source<LocalizationFile::Record> Input;
+    typedef input::Source<InputType> Input;
+    typedef typename Input::iterator InputIterator;
     typedef input::Source<output::LocalizedImage> Base;
+
+    ost::Mutex mutex;
+    InputIterator current, base_end;
+    typedef boost::ptr_map<frame_index,Can> Canned;
+    Canned canned;
+
+    friend class LocalizationBuncher<InputType>;
+
   private:
     Config config;
     std::auto_ptr< Input > base;
     frame_index firstImage, lastImage;
   public:
-    Source( const Config& c, std::auto_ptr<Input> base ) 
-        : Base(config, base->flags), config(c), base(base) {}
+    Source( const Config& c, std::auto_ptr<Input> base ) ;
 
+    void dispatch(Messages m);
     iterator begin() 
-        { return iterator( LocalizationBuncher(config, base->begin(), base->end(), firstImage) ); }
+        { return iterator( LocalizationBuncher<InputType>
+            (config, *this, firstImage) ); }
     iterator end()
-        { return iterator( LocalizationBuncher(config, Input::iterator(), Input::iterator(), lastImage) ); }
+        { return iterator( LocalizationBuncher<InputType>
+            (config, *this, lastImage) ); }
     TraitsPtr get_traits();
     BaseSource& upstream() { return *base; }
 };

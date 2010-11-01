@@ -60,8 +60,8 @@ RawImageFile::RawImageFile(const Config& config)
 
 Output::AdditionalData
 RawImageFile::announceStormSize(const Announcement &a) {
-    resolution = a.traits.resolution;
-    last_frame = a.traits.last_frame;
+    resolution = a.resolution;
+    last_frame = a.last_frame;
 
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
@@ -72,7 +72,7 @@ RawImageFile::announceStormSize(const Announcement &a) {
 
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
-    next_image = a.traits.first_frame;
+    next_image = a.first_frame;
 
     return AdditionalData().set_source_image();
 }

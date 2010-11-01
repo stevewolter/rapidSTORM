@@ -58,7 +58,7 @@ Engine::~Engine() {
     DEBUG("Destructed engine");
 }
 
-Engine::TraitsPtr
+boost::shared_ptr< input::Traits<output::LocalizedImage> >
 Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
 {
     input::Traits<Localization> rv(imProp->get_other_dimensionality<Localization::Dim>());
@@ -71,7 +71,7 @@ Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
     DEBUG("Last frame is set in input: " << imProp->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
 
-    return TraitsPtr( new TraitsPtr::element_type( rv ) );
+    return boost::shared_ptr< input::Traits<output::LocalizedImage> >( new TraitsPtr::element_type( rv ) );
 }
 
 Engine::TraitsPtr Engine::get_traits() {
@@ -90,13 +90,13 @@ Engine::TraitsPtr Engine::get_traits() {
         DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
     }
 
-    TraitsPtr prv = convert_traits(config, imProp);
+    input::Traits<output::LocalizedImage>::Ptr prv =
+        convert_traits(config, imProp);
     prv->carburettor = input.get();
 
     DEBUG("Setting traits from spot fitter");
     JobInfo info(config, *imProp);
-    config.spotFittingMethod().set_traits( 
-        const_cast< input::Traits<Localization>& >(prv->traits), info );
+    config.spotFittingMethod().set_traits( *prv, info );
     DEBUG("Returning traits");
 
     return prv;

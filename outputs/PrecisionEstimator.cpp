@@ -120,7 +120,7 @@ Output::AdditionalData
 SinglePrecisionEstimator::announceStormSize(const Announcement& a)
 {
     /* Length of a pixel in nm is inverse of number of dots per nm. */
-    pixel_dim = a.traits.resolution;
+    pixel_dim = a.resolution;
     if ( ! pixel_dim.is_set() )
         throw std::runtime_error("Precision estimator cannot work with unknown pixel size");
     return AdditionalData().set_cluster_sources();
@@ -187,7 +187,7 @@ void MultiPrecisionEstimator::registerNamedEntries() {
 Output::AdditionalData
 MultiPrecisionEstimator::announceStormSize(const Announcement& a)
 {
-    pixel_dim = a.traits.resolution;
+    pixel_dim = a.resolution;
     return localizations.announceStormSize(a);
 }
 

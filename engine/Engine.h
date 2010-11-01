@@ -50,7 +50,7 @@ namespace engine {
         BaseSource& upstream() { return *input; }
         boost::ptr_vector<output::Output> additional_outputs();
 
-        static TraitsPtr
+        static boost::shared_ptr< input::Traits<output::LocalizedImage> >
             convert_traits( Config&, Input::TraitsPtr );
    };
 }

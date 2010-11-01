@@ -12,6 +12,7 @@
 #include "local_cleanup.h"
 #include <dStorm/error_handler.h>
 #include "engine/ChainLink_decl.h"
+#include "engine_stm/ChainLink_decl.h"
 
 #include <dStorm/helpers/DisplayManager.h>
 #include "wxDisplay/wxManager.h"
@@ -126,6 +127,7 @@ void ModuleLoader::add_modules
     dStorm::basic_inputs( &car_config.inputConfig );
     DEBUG("Adding rapidSTORM engine");
     car_config.add_engine( engine::make_rapidSTORM_engine_link() );
+    car_config.add_engine( engine_stm::make_STM_engine_link() );
     DEBUG("Adding basic spot finders");
     car_config.add_spot_finder( spotFinders::make_Spalttiefpass() );
     car_config.add_spot_finder( spotFinders::make_Median() );

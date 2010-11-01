@@ -26,9 +26,9 @@ ProgressMeter::ProgressMeter(const Config &)
 Output::AdditionalData
 ProgressMeter::announceStormSize(const Announcement &a) { 
         ost::MutexLock lock(mutex);
-        first = a.traits.first_frame;
-        if ( a.traits.last_frame.is_set() )
-            length = *a.traits.last_frame + a.traits.first_frame
+        first = a.first_frame;
+        if ( a.last_frame.is_set() )
+            length = *a.last_frame + a.first_frame
                         + 1 * cs_units::camera::frame;
         else
             progress.indeterminate = true;
