@@ -30,9 +30,9 @@ struct Delayer
     }
     Result receiveLocalizations(const EngineResult& er) {
 #ifdef HAVE_USLEEP
-        usleep( 1E6 );
+        usleep( 1E5 );
 #elif HAVE_WINDOWS_H
-	Sleep( 1000 );
+	Sleep( 100 );
 #endif
         return KeepRunning;
     }

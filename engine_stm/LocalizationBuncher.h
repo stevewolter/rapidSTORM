@@ -35,6 +35,7 @@ class LocalizationBuncher
     mutable output::LocalizedImage result;
 
     void search_output_image();
+    void claim_image();
 
     friend class boost::iterator_core_access;
     output::LocalizedImage& dereference() const { return result; }
@@ -45,7 +46,7 @@ class LocalizationBuncher
     LocalizationBuncher(
         const Config&, 
         Source<Input>& master,
-        frame_index first_output_image);
+        bool end);
     LocalizationBuncher(const LocalizationBuncher&);
     ~LocalizationBuncher();
 };
@@ -63,6 +64,7 @@ class Source
 
     ost::Mutex mutex;
     InputIterator current, base_end;
+    frame_index next_image;
     typedef boost::ptr_map<frame_index,Can> Canned;
     Canned canned;
 
@@ -78,10 +80,10 @@ class Source
     void dispatch(Messages m);
     iterator begin() 
         { return iterator( LocalizationBuncher<InputType>
-            (config, *this, firstImage) ); }
+            (config, *this, false) ); }
     iterator end()
         { return iterator( LocalizationBuncher<InputType>
-            (config, *this, lastImage) ); }
+            (config, *this, true) ); }
     TraitsPtr get_traits();
     BaseSource& upstream() { return *base; }
 };

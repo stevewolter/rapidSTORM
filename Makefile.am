@@ -76,7 +76,7 @@ libtestplugin_la_SOURCES = debug-plugin/plugin.cpp debug-plugin/SegmentationFaul
     debug-plugin/DummyFileInput.h debug-plugin/DummyFileInput.cpp \
     debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp \
     debug-plugin/Verbose.h \
-    debug-plugin/VerboseInputFilter.h debug-plugin/VerboseInputFilter.cpp
+    debug-plugin/VerboseInputFilter_decl.h debug-plugin/VerboseInputFilter.h debug-plugin/VerboseInputFilter.cpp
 libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lpthread
 
 libinputs_la_SOURCES = \

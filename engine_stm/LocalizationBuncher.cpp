@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 
 #include "LocalizationBuncher.h"
@@ -31,7 +32,7 @@ class Visitor
     simparm::optional<frame_index> my_image;
 
   public:
-    ~Visitor() { assert( can.get() == NULL ); }
+    ~Visitor() {}
     VisitResult operator()( const dStorm::Localization& l ) 
     {
         if ( my_image.is_set() ) {
@@ -78,16 +79,29 @@ template <typename Input>
 LocalizationBuncher<Input>::LocalizationBuncher(
     const Config& config,
     Source<Input>& master,
-    frame_index image_number)
-: master(master), outputImage(image_number)
+    bool end)
+: master(master)
 {
-    search_output_image();
+    if ( end ) {
+        outputImage = master.lastImage;
+    } else {
+        claim_image();
+        search_output_image();
+    }
+}
+
+template <typename Input>
+void LocalizationBuncher<Input>::claim_image()
+{
+    ost::MutexLock lock(master.mutex);
+    outputImage = master.next_image;
+    master.next_image += 1 * cs_units::camera::frame;
 }
 
 template <typename Input>
 void LocalizationBuncher<Input>::increment() {
     output.reset();
-    outputImage += 1 * cs_units::camera::frame;
+    claim_image();
     search_output_image();
 }
 
@@ -104,18 +118,19 @@ void LocalizationBuncher<Input>::search_output_image() {
         = master.canned.find(outputImage);
     if ( canned_output != master.canned.end() ) {
         output.reset( master.canned.release(canned_output).release() );
-        DEBUG("Serving " << output->forImage << " from can");
         output->write( result );
         result.forImage = outputImage;
+        DEBUG("Serving " << result.forImage << " from can");
         return;
     }
 
-    DEBUG("Reading " << output->forImage << " into can");
+    DEBUG("Reading " << outputImage << " into can");
     while ( master.current != master.base_end ) {
         Visitor v;
         for ( ; master.current != master.base_end; ++master.current ) 
             if ( v.add(*master.current) == IAmFinished )
                 break;
+        DEBUG("Visitor declares to be finished with " << v.for_frame() << ", want " << outputImage);
         if ( v.for_frame() == outputImage ) {
             output = v.get_result();
             break;
@@ -128,6 +143,7 @@ void LocalizationBuncher<Input>::search_output_image() {
 
     output->write( result );
     result.forImage = outputImage;
+    DEBUG("Serving " << result.forImage);
 }
 
 template <typename Input>

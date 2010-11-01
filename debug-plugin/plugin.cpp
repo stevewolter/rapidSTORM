@@ -14,7 +14,7 @@
 #include "Manager.h"
 #include "DummyFileInput.h"
 #include "DummyFitter.h"
-#include "VerboseInputFilter.h"
+#include "VerboseInputFilter_decl.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace dStorm::output;
@@ -36,7 +36,7 @@ const char * rapidSTORM_Plugin_Desc() {
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->inputConfig.add_file_method( new dummy_file_input::Method() );
-    config->inputConfig.add_filter( new VerboseInputFilter() );
+    config->inputConfig.add_filter( make_verbose_input_filter() );
     config->add_spot_fitter( std::auto_ptr<dStorm::engine::SpotFitterFactory>(
         new dStorm::debugplugin::DummyFitter::Source() ) );
 

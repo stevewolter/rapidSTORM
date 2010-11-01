@@ -1,3 +1,6 @@
+#define VERBOSE
+#include <boost/variant.hpp>
+#include <boost/serialization/variant.hpp> 
 #include "VerboseInputFilter.h"
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/MetaInfo.h>
@@ -17,4 +20,10 @@ VerboseInputFilter::context_changed( ContextRef ref, Link *link )
     Link::context_changed( ref, link );
     std::cerr << "Context " << ref.get() << " is passing on " << this << std::endl;
     return notify_of_context_change( ref );
+}
+
+std::auto_ptr<dStorm::input::chain::Filter>
+make_verbose_input_filter() {
+    return std::auto_ptr<dStorm::input::chain::Filter>
+        (new VerboseInputFilter());
 }

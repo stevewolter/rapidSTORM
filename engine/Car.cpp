@@ -1,4 +1,5 @@
 #define DSTORM_CAR_CPP
+#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"
@@ -91,6 +92,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   input(NULL),
   output(NULL),
   terminate( new_config.auto_terminate() ),
+  emergencyStop(false), error(false),
   terminationChanged( terminationMutex )
 {
     DEBUG("Building car");
@@ -102,7 +104,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename);
+    DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename.unformatted()());
     output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
@@ -147,13 +149,14 @@ void Car::operator()(const simparm::Event& e) {
         closeJob.editable = false;
         DEBUG("Locking for job termination");
         ost::MutexLock lock( terminationMutex );
-        DEBUG("Job close button allows termination, engine " << (myEngine.get() != NULL) << " " << myEngine.get());
+        DEBUG("Job close button allows termination" );
         terminate = true;
         emergencyStop = true;
         error = false;
         terminationChanged.signal();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
+        DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
         emergencyStop = true;
@@ -207,9 +210,11 @@ void Car::compute_until_terminated() {
         if (emergencyStop) {
             if (error || dStorm::ErrorHandler::global_termination_flag() ) 
             {
+                DEBUG("Emergency stop due to error or global termination");
                 output->propagate_signal( Output::Engine_run_failed );
                 break;
             } else {
+                DEBUG("Emergency stop for restart");
                 emergencyStop = false;
                 input->dispatch( input::BaseSource::RepeatInput );
                 output->propagate_signal( Output::Engine_is_restarted );
@@ -242,7 +247,7 @@ void Car::run_computation()
 
             if (emergencyStop || ErrorHandler::global_termination_flag()) 
             {
-                DEBUG("Emergency stop");
+                DEBUG("Emergency stop: " << emergencyStop << " " << ErrorHandler::global_termination_flag());
                 break;
             } else {
                 DEBUG("Continuing");
