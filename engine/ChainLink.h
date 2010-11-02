@@ -23,6 +23,8 @@ class ChainLink
     input::chain::Context::Ptr my_context;
     Config config;
 
+    void make_new_requirements();
+
   protected:
     void operator()( const simparm::Event& );
 

@@ -22,8 +22,7 @@ static void add_to_histogram( const engine::Image& im, int h[], const int b )
 }
 
 Source::Source(std::auto_ptr<input::Source<engine::Image> > base)
-: simparm::Object("BackgroundEstimator", "Background estimator"),
-  input::Source<engine::Image>(*this, base->flags),
+: input::Source<engine::Image>(base->getNode(), base->flags),
   base(base), confidence_limit(8), binning(3)
 {
 }
@@ -103,8 +102,9 @@ ChainLink::context_changed(
         input::chain::Context::Ptr mc( c->clone() );
         mc->will_make_multiple_passes = true;
         return dispatch_context_change(mc, l, PassThrough);
-    } else
+    } else {
         return dispatch_context_change(c, l, PassThrough);
+    }
 }
 
 input::BaseSource* ChainLink::makeSource( SourcePtr p )

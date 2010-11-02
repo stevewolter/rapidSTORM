@@ -5,6 +5,7 @@
 #include <boost/utility.hpp>
 #include <boost/units/quantity.hpp>
 #include <simparm/Object.hh>
+#include <simparm/optional.hh>
 #include <dStorm/helpers/DisplayManager.h>
 #include <cs_units/camera/resolution.hpp>
 #include <cs_units/camera/frame_rate.hpp>
@@ -22,7 +23,7 @@ class LiveView :
         Resolution;
 
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time;
-    Resolution resolution;
+    simparm::optional<Resolution> resolution;
     simparm::BoolEntry show_live;
 
     ost::Mutex window_mutex, change_mutex;
@@ -46,7 +47,7 @@ class LiveView :
   public:
     LiveView(
         bool on_by_default,
-        Resolution resolution,
+        simparm::optional<Resolution> resolution,
         boost::units::quantity<cs_units::camera::frame_rate> cycle_time );
     ~LiveView();
     void show( const CamImage& image, int num );

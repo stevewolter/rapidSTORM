@@ -32,6 +32,7 @@ class RawImageFile : public OutputObject {
 
     class _Config;
 
+    SizeTraits<2>::Size size;
     simparm::optional<frame_count> last_frame;
     output::Traits::Resolution resolution;
 

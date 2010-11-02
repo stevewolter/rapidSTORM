@@ -298,14 +298,18 @@ LocalizationFilter::announceStormSize(const Announcement& a)
     boost::units::quantity<ShiftSpeed,float> standstill
         ( 0 * boost::units::si::meters_per_second );
     traits = a;
-    if ( ( ! traits.resolution.is_set() || traits.speed.is_set() ) && (
+    if ( ( ! traits.resolution.is_set() || ! traits.speed.is_set() ) && (
         x_shift() != standstill || y_shift() != standstill) )
         throw std::runtime_error("Pixel size or acquisition speed is unknown, but drift correction given");
     /* TODO traits.speed */
-    shift_velocity.x() = 
-        AppliedSpeed(x_shift() * (*traits.resolution) / (*traits.speed));
-    shift_velocity.y() = 
-        AppliedSpeed(y_shift() * (*traits.resolution) / (*traits.speed));
+    if ( x_shift() != standstill || y_shift() != standstill ) {
+        shift_velocity.x() = 
+            AppliedSpeed(x_shift() * (*traits.resolution) / (*traits.speed));
+        shift_velocity.y() = 
+            AppliedSpeed(y_shift() * (*traits.resolution) / (*traits.speed));
+    } else {
+        shift_velocity.fill( AppliedSpeed::from_value(0) );
+    }
     {
         ost::MutexLock lock( locStoreMutex );
         localizationsStore.announceStormSize(a);

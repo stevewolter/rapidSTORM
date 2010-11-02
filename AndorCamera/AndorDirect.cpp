@@ -75,8 +75,10 @@ Source::TraitsPtr Source::get_traits()
     rv->size.x() = acquisition.getWidth();
     rv->size.y() = acquisition.getHeight();
     DEBUG("Acquisition has a length set: " << acquisition.hasLength());
-    if ( acquisition.hasLength() )
+    if ( acquisition.hasLength() ) {
+        DEBUG("Acquisition length is " << acquisition.getLength() << " frames");
         rv->last_frame = acquisition.getLength() - 1 * cs_units::camera::frame;
+    }
     return rv;
 }
 

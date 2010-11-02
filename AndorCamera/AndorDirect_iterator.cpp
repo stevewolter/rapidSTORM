@@ -119,8 +119,10 @@ CamImage Source::iterator::CamRef::get_next_image() {
             next_image_number += 1;
             break;
         } else {
-            DEBUG("Unknown result");
-            continue;
+            DEBUG("Error in fetching image");
+            image.invalidate();
+            next_image_number += 1;
+            break;
         }
     }
     DEBUG("Fetched image");

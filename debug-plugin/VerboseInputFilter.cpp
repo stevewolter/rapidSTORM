@@ -10,7 +10,8 @@ VerboseInputFilter::AtEnd
 VerboseInputFilter::traits_changed( TraitsRef ref, Link *link )
 {
     Link::traits_changed( ref, link );
-    std::cerr << "Traits " << ref.get() << " are passing on " << this << std::endl;
+    if ( verbose() )
+        DEBUG("Traits " << ref.get() << " are passing on " << getNode().getName() << " (" << this << ")");
     return notify_of_trait_change( ref );
 }
 
@@ -18,7 +19,8 @@ VerboseInputFilter::AtEnd
 VerboseInputFilter::context_changed( ContextRef ref, Link *link )
 {
     Link::context_changed( ref, link );
-    std::cerr << "Context " << ref.get() << " is passing on " << this << std::endl;
+    if ( verbose() )
+        DEBUG("Context " << ref.get() << " is passing on " << getNode().getName() << " (" << this << ")");
     return notify_of_context_change( ref );
 }
 

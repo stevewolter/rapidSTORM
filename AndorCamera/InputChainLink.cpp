@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "InputChainLink.h"
 #include "AndorDirect.h"
 #include <dStorm/UnitEntries/FrameEntry.h>
@@ -22,8 +24,6 @@
 #include <dStorm/input/chain/Context_impl.h>
 #include "LiveView.h"
 #include <dStorm/input/chain/MetaInfo.h>
-
-#include "debug.h"
 
 namespace AndorCamera {
 
@@ -111,7 +111,7 @@ Method::CameraSwitcher::CameraSwitcher()
 }
 
 Method::Method(const Method &c) 
-: dStorm::input::chain::Forwarder(), simparm::Object(c),
+: dStorm::input::chain::Forwarder(c), simparm::Object(c),
   switcher( c.switcher ),
   show_live_by_default( c.show_live_by_default )
 {
@@ -123,6 +123,7 @@ Method::Method(const Method &c)
 
 Method::~Method() {
     clearChildren();
+    switcher->remove_less_specialized( this );
 }
 
 void Method::registerNamedEntries()
@@ -245,7 +246,7 @@ dStorm::input::chain::Link::AtEnd
 CameraLink::context_changed( ContextRef c, Link *link )
 {
     dStorm::input::chain::Terminus::context_changed(c, link);
-    bool publish = (context.get() == NULL);
+    bool publish = (context.get() == NULL || c.get() == NULL);
     context =
         boost::dynamic_pointer_cast<const Context,ContextRef::element_type>(c);
 
@@ -268,13 +269,11 @@ dStorm::input::BaseSource* CameraLink::makeSource()
         resolution;
     if ( context->has_info_for<CamImage>() )
         resolution = context->get_info_for<CamImage>().resolution;
-    if ( !resolution.is_set() )
-        throw std::runtime_error("Pixel size must be set for live view");
 
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time
         = cs_units::camera::frame / cam->config().cycleTime();
     boost::shared_ptr<LiveView> live_view( 
-        new LiveView( context->default_to_live_view, *resolution, cycle_time ) );
+        new LiveView( context->default_to_live_view, resolution, cycle_time ) );
     std::auto_ptr<CamSource> cam_source( new Source( live_view, cam ) );
     return cam_source.release();
 }
@@ -292,6 +291,11 @@ void CameraLink::operator()(const simparm::Event&) {
     publish_meta_info();
 }
 void CameraLink::publish_meta_info() {
+    if ( context.get() == NULL )  {
+        DEBUG("CameraLink publishing null traits");
+        notify_of_trait_change( dStorm::input::chain::MetaInfo::Ptr() );
+        return;
+    }
     boost::shared_ptr< dStorm::input::Traits<CamImage> > traits;
     if ( context->has_info_for<CamImage>() )
         traits.reset( context->get_info_for<CamImage>().clone() );
@@ -306,6 +310,7 @@ void CameraLink::publish_meta_info() {
     dStorm::input::chain::MetaInfo::Ptr mi
         ( new dStorm::input::chain::MetaInfo() );
     mi->traits = traits;
+    DEBUG("CameraLink publishing non-null traits");
     notify_of_trait_change( mi );
 }
 

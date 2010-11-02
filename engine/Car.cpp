@@ -1,5 +1,4 @@
 #define DSTORM_CAR_CPP
-#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"
@@ -303,6 +302,7 @@ void Car::drive() {
 
     add_additional_outputs();
 
+    DEBUG("Input has config node " << static_cast<simparm::Node&>(*input).getName());
     runtime_config.push_back( *input );
     runtime_config.push_back( *output );
     runtime_config.push_back( abortJob );

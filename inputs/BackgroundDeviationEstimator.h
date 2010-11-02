@@ -18,8 +18,7 @@ struct Config : public simparm::Object
 };
 
 class Source 
-: public simparm::Object,
-  public input::Source<engine::Image>,
+: public input::Source<engine::Image>,
   public input::Filter,
   boost::noncopyable
 {

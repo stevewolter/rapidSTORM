@@ -16,7 +16,7 @@ namespace AndorCamera {
 
 LiveView::LiveView( 
     bool on_by_default,
-    Resolution resolution,
+    simparm::optional<Resolution> resolution,
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time
     )
 : Object("LiveView", "Live view options"),
@@ -46,8 +46,10 @@ void LiveView::show_window(CamImage::Size size) {
         props.initial_size.size = size;
         props.initial_size.keys.push_back( 
             dStorm::Display::KeyDeclaration("ADC", "A/D counts", 256) );
-        props.initial_size.pixel_size = 
-            resolution;
+        if ( resolution.is_set() )
+            props.initial_size.pixel_size = *resolution;
+        else
+            props.initial_size.pixel_size = 0 * cs_units::camera::pixels_per_meter;
 
         window = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );

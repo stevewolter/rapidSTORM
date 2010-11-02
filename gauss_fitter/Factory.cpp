@@ -59,6 +59,11 @@ Factory::make (const engine::JobInfo &i)
         return instantiate<FixedForm,true>( *this, i );
 }
 
+void Factory::set_requirements( input::Traits<engine::Image>& t ) {
+    t.photon_response.require( deferred::JobTraits );
+    t.background_stddev.require( deferred::JobTraits );
+}
+
 void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = freeSigmaFitting();

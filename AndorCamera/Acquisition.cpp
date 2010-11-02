@@ -159,7 +159,10 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
         waitForNewImages();
         Frame cur_image = next_image;
 
-        if ( isStopped ) return Fetch( HadError, next_image );
+        if ( isStopped ) {
+            DEBUG("Acquisition is already stopped");
+            return Fetch( HadError, next_image );
+        }
 
         /* The GetImages function expects and returns ranges. For
          * lack of buffer space, we reduce these to simple images. */
@@ -183,6 +186,7 @@ Acquisition::Fetch Acquisition::getNextImage(uint16_t *buffer) {
             continue;
         else if ( get_result == SDK::Missed_Images ) {
             next_image += 1*frame;
+            DEBUG("Image is already out of cache");
             return Fetch( HadError, cur_image );
         } else if ( get_result == SDK::New_Images ) {
             if (r.first * frame != next_image)

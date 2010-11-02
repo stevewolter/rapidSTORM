@@ -47,6 +47,11 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
     rv.z_coordinate_is_set = true;
 }
 
+template <int Widening>
+void set_requirements( input::Traits<engine::Image>& )
+{
+}
+
 template class Factory< fitpp::Exponential3D::Holtzer >;
 template class Factory< fitpp::Exponential3D::Zhuang >;
 

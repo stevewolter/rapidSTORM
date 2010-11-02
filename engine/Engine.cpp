@@ -46,6 +46,7 @@ Engine::Engine(
     errors.editable = false;
     errors.viewable = false;
 
+    push_back( *this->input );
     push_back( config.sigma_x);
     push_back( config.sigma_y);
     push_back( config.sigma_xy);
@@ -207,7 +208,7 @@ void Engine::_iterator::compute()
         resultStructure.forImage = base->frame_number();
         resultStructure.first = NULL;
         resultStructure.number = 0;
-        resultStructure.source = NULL;
+        resultStructure.source = &image;
 
         ost::MutexLock lock( engine.mutex );
         engine.errors = engine.errors() + 1;

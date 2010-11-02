@@ -6,6 +6,7 @@
 #include <boost/units/io.hpp>
 #include <stdint.h>
 #include "TIFFOperation.h"
+#include <boost/scoped_array.hpp>
 
 namespace dStorm {
 namespace output {
@@ -62,6 +63,7 @@ Output::AdditionalData
 RawImageFile::announceStormSize(const Announcement &a) {
     resolution = a.resolution;
     last_frame = a.last_frame;
+    size = a.size;
 
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
@@ -133,8 +135,8 @@ void RawImageFile::delete_queue() {
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFOperation op("in writing TIFF file", *this, false);
     DEBUG("Writing " << img.frame_number().value());
-    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width_in_pixels() );
-    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height_in_pixels() );
+    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.x() / cs_units::camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.y() / cs_units::camera::pixel) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     if ( resolution.is_set() ) {
@@ -144,19 +146,30 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     }
     if ( last_frame.is_set() ) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / cs_units::camera::frame),
-                                               uint16_t(*last_frame / cs_units::camera::frame + 1) );
+                                            uint16_t(*last_frame / cs_units::camera::frame + 1) );
     }
     op.throw_exception_for_errors();
 
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
-    tdata_t data = const_cast<tdata_t>( (const tdata_t)img.ptr() );
-    for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
-        tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
-        if ( r == -1 /* Error occured */ ) 
-            op.throw_exception_for_errors();
-        assert( sizeof(char) == 1 );
-        data= ((char*)data) +strip;
+    if ( ! img.is_invalid() ) {
+        tdata_t data = const_cast<tdata_t>( (const tdata_t)img.ptr() );
+        for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
+            tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
+            if ( r == -1 /* Error occured */ ) 
+                op.throw_exception_for_errors();
+            assert( sizeof(char) == 1 );
+            data= ((char*)data) +strip;
+        }
+    } else {
+        /* If the image is invalid, write empty image data */
+        boost::scoped_array<StormPixel> nulls( new StormPixel[strip_size] );
+        for (int i = 0; i < strip_size; ++i ) nulls[i] = 0;
+        for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
+            tsize_t r = TIFFWriteRawStrip(tif, strip, nulls.get(), strip_size);
+            if ( r == -1 /* Error occured */ ) 
+                op.throw_exception_for_errors();
+        }
     }
     if ( TIFFWriteDirectory( tif ) == 0 /* Error occured */ )
         op.throw_exception_for_errors();
