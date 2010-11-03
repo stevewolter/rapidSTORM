@@ -5,6 +5,7 @@
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/chain/Filter.h>
 #include <dStorm/input/Source.h>
+#include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/engine/Config.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/engine/ClassicEngine.h>
@@ -16,14 +17,16 @@ namespace dStorm {
 namespace engine {
 
 class ChainLink
-: public input::chain::TypedFilter<engine::Image> ,
+: public virtual input::chain::Filter,
   public ClassicEngine,
   protected simparm::Listener
 {
     input::chain::Context::Ptr my_context;
+    input::chain::MetaInfo::Ptr my_traits;
     Config config;
 
     void make_new_requirements();
+    std::string amplitude_threshold_string() const;
 
   protected:
     void operator()( const simparm::Event& );
@@ -35,21 +38,13 @@ class ChainLink
 
     simparm::Node& getNode() { return config; }
 
-    input::BaseSource* makeSource() 
-        { return dispatch_makeSource(Invalid); }
-    input::Source<output::LocalizedImage>*
-        makeSource( std::auto_ptr< input::Source<Image> > );
+    input::Source<output::LocalizedImage>* makeSource() ;
 
-    AtEnd traits_changed( TraitsRef r, Link* l ) 
-        { return dispatch_trait_change(r, l, Invalid); }
-    AtEnd traits_changed( TraitsRef, Link*, ObjectTraitsPtr );
+    AtEnd traits_changed( TraitsRef r, Link* l );
     AtEnd context_changed(ContextRef, Link*);
 
     void add_spot_finder( SpotFinderFactory& finder) { config.spotFindingMethod.addChoice(finder); }
     void add_spot_fitter( SpotFitterFactory& fitter) { config.spotFittingMethod.addChoice(fitter); }
-
-    void modify_context( input::Traits<Image>& ) { assert(false); }
-    void notice_context( const input::Traits<Image>& ) { assert(false); }
 };
 
 }

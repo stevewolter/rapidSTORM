@@ -94,7 +94,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   emergencyStop(false), error(false),
   terminationChanged( terminationMutex )
 {
-    DEBUG("Building car");
+    DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
     abortJob.helpID = HELP_StopEngine;
@@ -103,7 +103,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename.unformatted()());
+    DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename.new_basename());
     output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
@@ -293,7 +293,9 @@ void Car::add_additional_outputs() {
 
 void Car::drive() {
   try {
+    DEBUG("Trying to make source");
     std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
+    DEBUG("Made source");
     input.reset( dynamic_cast< Input* >(rawinput.get()) );
     if ( input.get() )
         rawinput.release();
@@ -311,15 +313,39 @@ void Car::drive() {
     Output::Announcement announcement( *input->get_traits() );
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
-#if 0 /* TODO */
+
     if ( data.test( output::Capabilities::ClustersWithSources ) ) {
         simparm::Message m("Unable to provide data",
-                "The engine module cannot provide localization traces."
-                "Please select an appropriate transmission.");
-        this->send(m);
+                "The selected input module cannot provide localization traces."
+                "Please select an appropriate output.");
+        runtime_config.send(m);
         return;
+    } else if ( data.test( output::Capabilities::SourceImage ) &&
+                ! announcement.source_image_is_set )
+    {
+        simparm::Message m("Unable to provide data",
+                   "One of your output modules needs access to the raw " +
+                   std::string("images of the acquisition. These are not present in ") +
+                   "the input. Either remove the output or " +
+                   "choose a different input file or method.");
+        runtime_config.send(m);
+    } else if (
+        ( data.test( output::Capabilities::SmoothedImage ) && 
+          ! announcement.smoothed_image_is_set ) ||
+        ( data.test( output::Capabilities::CandidateTree ) && 
+          ! announcement.candidate_tree_is_set ) ||
+        ( data.test( output::Capabilities::InputBuffer ) && 
+          ! announcement.carburettor ) )
+    {
+        std::stringstream ss;
+        ss << 
+            "A selected data processing function "
+            "requires data about the input data ("
+            << data << ") that are not "
+            "present in the current input.";
+        simparm::Message m("Unable to provide data", ss.str());
+        runtime_config.send(m);
     }
-#endif
 
     compute_until_terminated();
 
@@ -327,6 +353,7 @@ void Car::drive() {
     input.reset(NULL);
     DEBUG("Erased input");
   } catch (const dStorm::abort&) {
+    DEBUG("Caught abortion signal");
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);

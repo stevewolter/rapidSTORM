@@ -1,8 +1,11 @@
+#include "debug.h"
+
 #include "ChainLink.h"
 #include "Engine.h"
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/output/LocalizedImage_traits.h>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace engine {
@@ -11,36 +14,70 @@ ChainLink::ChainLink()
 : simparm::Listener( simparm::Event::ValueChanged )
 {
     receive_changes_from( config.fixSigma.value );
+    receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
 }
 
 ChainLink::ChainLink(const ChainLink& c)
-: input::chain::TypedFilter<engine::Image>(c),
+: input::chain::Filter(c),
   ClassicEngine(c),
   simparm::Listener( simparm::Event::ValueChanged ),
-  my_context(c.my_context), config(c.config)
+  my_context(c.my_context), my_traits(c.my_traits), config(c.config)
 {
+    DEBUG("Traits were copied from " << c.my_traits.get() << "," << c.current_traits().get() << " to "
+            << my_traits.get() << "," << current_traits().get())
+    if ( my_traits.get() != NULL )
+        DEBUG("Basename after copying chain link is " << current_traits()->suggested_output_basename << " or "
+              << my_traits->suggested_output_basename << " in my own traits");
     receive_changes_from( config.fixSigma.value );
+    receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
 }
 
 input::Source<output::LocalizedImage>*
-ChainLink::makeSource( std::auto_ptr< input::Source<dStorm::engine::Image> > input )
+ChainLink::makeSource()
 {
-    return new Engine( config, input );
+    std::auto_ptr<input::BaseSource> base( Forwarder::makeSource() );
+    if ( base->can_provide<engine::Image>() )
+        return new Engine( config, input::BaseSource::downcast<engine::Image>(base) );
+    else
+        throw std::runtime_error("rapidSTORM engine cannot process the provided input");
+}
+
+std::string ChainLink::amplitude_threshold_string() const
+{
+    std::stringstream ss; 
+    if ( config.amplitude_threshold().is_set() )
+        ss << *config.amplitude_threshold();
+    else 
+        ss << "auto";
+    return ss.str();
 }
 
 ChainLink::AtEnd
-ChainLink::traits_changed(TraitsRef r, Link* l, ObjectTraitsPtr t)
+ChainLink::traits_changed(TraitsRef r, Link* l)
 {
     Link::traits_changed(r, l);
+    boost::shared_ptr< input::Traits<engine::Image> > traits 
+        = boost::dynamic_pointer_cast<input::Traits<engine::Image>,input::BaseTraits>(r->traits);
+    if ( traits.get() == NULL ) {
+        my_traits.reset();
+        return notify_of_trait_change(my_traits);
+    }
     boost::shared_ptr< input::Traits<output::LocalizedImage> >
-        rt = Engine::convert_traits(config, t);
-    input::chain::MetaInfo::Ptr rv( r->clone() );
-    rv->traits = rt;
-    return notify_of_trait_change(rv);
+        rt = Engine::convert_traits(config, traits);
+
+    my_traits.reset( r->clone() );
+    my_traits->traits = rt;
+    DEBUG("Setting traits variable thres for traits " << my_traits.get() << " and basename " << &my_traits->suggested_output_basename);
+    my_traits->suggested_output_basename.set_variable
+        ( "thres", amplitude_threshold_string() );
+    DEBUG("Basename is now " << my_traits->suggested_output_basename << " for my traits " << my_traits.get() );
+    notify_of_trait_change(my_traits);
+    DEBUG("Finished notifying, traits are " << my_traits.get() << " " << current_traits().get());
+    return AtEnd();
 }
 
 ChainLink::AtEnd
@@ -71,6 +108,8 @@ void ChainLink::make_new_requirements() {
         my_context->get_info_for<engine::Image>();
     reqs = input::Traits<dStorm::engine::Image>();
 
+    if ( ! config.amplitude_threshold().is_set() )
+        reqs.background_stddev.require( deferred::JobTraits );
     if ( config.spotFindingMethod.isValid() )
         config.spotFindingMethod.value().set_requirements(reqs);
     if ( config.spotFittingMethod.isValid() )
@@ -86,6 +125,14 @@ void ChainLink::operator()( const simparm::Event& e ) {
         notify_of_context_change( my_context );
     } else if ( &e.source == &config.spotFittingMethod.value ) {
         make_new_requirements();
+        notify_of_context_change( my_context );
+    } else if ( &e.source == &config.amplitude_threshold.value ) {
+        if ( my_traits.get() )
+            my_traits->suggested_output_basename.set_variable
+                ( "thres", amplitude_threshold_string() );
+        make_new_requirements();
+        DEBUG("Basename is now " << my_traits->suggested_output_basename.new_basename() );
+        notify_of_trait_change( my_traits );
         notify_of_context_change( my_context );
     }
 }

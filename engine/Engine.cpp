@@ -72,7 +72,12 @@ Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
     DEBUG("Last frame is set in input: " << imProp->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
 
-    return boost::shared_ptr< input::Traits<output::LocalizedImage> >( new TraitsPtr::element_type( rv ) );
+    boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
+    rvt->source_image_is_set = true;
+    rvt->smoothed_image_is_set = true;
+    rvt->candidate_tree_is_set = true;
+
+    return rvt;
 }
 
 Engine::TraitsPtr Engine::get_traits() {

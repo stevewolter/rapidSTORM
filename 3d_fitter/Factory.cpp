@@ -48,7 +48,7 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
 }
 
 template <int Widening>
-void set_requirements( input::Traits<engine::Image>& )
+void Factory<Widening>::set_requirements( input::Traits<engine::Image>& )
 {
 }
 

@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "ChainLink.h"
 #include "LocalizationBuncher.h"
 #include <dStorm/input/chain/MetaInfo.h>
@@ -27,6 +29,7 @@ ChainLink::_traits_changed(
     Link::traits_changed(r, l);
     input::chain::MetaInfo::Ptr rv( r->clone() );
     rv->traits.reset( new input::Traits<output::LocalizedImage>(*t) );
+    DEBUG("Returning valid traits for " << typeid(t.get()).name());
     return notify_of_trait_change(rv);
 }
 

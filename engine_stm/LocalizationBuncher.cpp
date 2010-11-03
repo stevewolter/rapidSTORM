@@ -173,29 +173,6 @@ Source<InputType>::get_traits()
     return TraitsPtr( new TraitsPtr::element_type( *traits ) );
 }
 
-#if 0
-    if ( data.test( output::Capabilities::SourceImage ) ) {
-        std::stringstream message;
-        message << "One of your output modules needs access to the raw "
-                << "images of the acquisition. These are not present in "
-                << "a localizations file. Either remove the output or "
-                << "choose a non-text input file";
-        throw std::runtime_error(message.str());
-    } else if (
-        data.test( output::Capabilities::SmoothedImage) ||
-        data.test( output::Capabilities::CandidateTree) ||
-        data.test( output::Capabilities::InputBuffer) ) 
-    {
-        std::stringstream ss;
-        ss << 
-            "A selected data processing function "
-            "requires data about the input data ("
-            << data << ") that are not "
-            "present in a localization file.";
-        throw std::runtime_error(ss.str());
-    }
-#endif
-
 void Can::push_back( const Localization &loc )
 {
     deep_copy( loc, traces.front() );
