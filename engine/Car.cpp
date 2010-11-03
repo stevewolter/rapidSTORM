@@ -158,7 +158,7 @@ void Car::operator()(const simparm::Event& e) {
         DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
-        emergencyStop = true;
+        emergencyStop = error = true;
     }
 }
 
