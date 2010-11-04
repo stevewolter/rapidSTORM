@@ -85,9 +85,9 @@ Engine::TraitsPtr Engine::get_traits() {
 
     if ( ! config.amplitude_threshold().is_set() ) {
         DEBUG("Guessing input threshold");
-        if ( imProp->background_stddev.is_set() )
+        if ( imProp->background_stddev.is_set() ) {
             config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
-        else {
+        } else {
             assert(false);
             throw std::logic_error("Background standard deviation is neither set nor could be computed");
         }
@@ -134,8 +134,8 @@ class Engine::_iterator
     int origMotivation;
 
     output::LocalizedImage resultStructure;
-
     bool did_compute;
+
     void compute();
     void init();
 
@@ -164,7 +164,8 @@ Engine::_iterator::_iterator( Engine& engine, Input::iterator base )
   maximums(config.x_maskSize() / cs_units::camera::pixel,
          config.y_maskSize() / cs_units::camera::pixel,
          1, 1),
-  origMotivation( engine.config.motivation() )
+  origMotivation( engine.config.motivation() ),
+  did_compute(false)
 {
     init();
 }
@@ -173,8 +174,8 @@ void Engine::_iterator::init() {
     if ( base == engine.input->end() ) return;
 
     DEBUG("Started piston");
-    DEBUG("Building spot finder with dimensions " << imProp->dimx() <<
-           " " << imProp->dimy());
+    DEBUG("Building spot finder with dimensions " << engine.imProp->dimx() <<
+           " " << engine.imProp->dimy());
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
     finder = config.spotFindingMethod().make_SpotFinder(config, engine.imProp->size);
@@ -197,7 +198,9 @@ Engine::_iterator::_iterator( const _iterator& o )
   maximumLimit(o.maximumLimit),
   maximums(config.x_maskSize() / cs_units::camera::pixel, 
            config.y_maskSize() / cs_units::camera::pixel, 1, 1),
-  origMotivation(o.origMotivation)
+  origMotivation(o.origMotivation),
+  resultStructure(o.resultStructure),
+  did_compute(o.did_compute)
 {
     init();
 }
@@ -214,6 +217,7 @@ void Engine::_iterator::compute()
         resultStructure.first = NULL;
         resultStructure.number = 0;
         resultStructure.source = &image;
+        did_compute = true;
 
         ost::MutexLock lock( engine.mutex );
         engine.errors = engine.errors() + 1;
@@ -270,7 +274,7 @@ void Engine::_iterator::compute()
     DEBUG("Found " << buffer.size() << " localizations");
     IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
-    DEBUG("Power");
+    DEBUG("Power with " << buffer.size() << " localizations");
     resultStructure.forImage = base->frame_number();
     resultStructure.first = buffer.ptr();
     resultStructure.number = buffer.size();

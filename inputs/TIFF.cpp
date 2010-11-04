@@ -32,6 +32,7 @@
 
 #include "TIFFOperation.h"
 #include <dStorm/input/chain/FileContext.h>
+#include <dStorm/input/InputMutex.h>
 
 using namespace std;
 
@@ -212,7 +213,9 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
-: chain::Terminus(o), config(o.config), file(o.file)
+: chain::Terminus(o), 
+  simparm::Listener( simparm::Event::ValueChanged ),
+  config(o.config), file(o.file)
 {
     receive_changes_from( config.ignore_warnings.value );
     receive_changes_from( config.determine_length.value );
@@ -253,6 +256,7 @@ template<typename Pixel>
 Source<Pixel>::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
+    ost::MutexLock lock( global_mutex() );
     if ( file.get() ) {
         open_file( file->for_file() );
     }

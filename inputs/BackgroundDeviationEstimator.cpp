@@ -5,6 +5,7 @@
 #include <dStorm/image/iterator.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context.h>
+#include <simparm/Message.hh>
 
 using namespace dStorm::engine;
 
@@ -35,6 +36,7 @@ Source::get_traits()
     int histogram[hist_size];
     for (int i = 0; i < hist_size; i++) histogram[i] = 0;
 
+    int highest_bin = 1, histogram_size = 0;
     double mean = -1, variance = -1;
     for (input::Source<engine::Image>::iterator i = base->begin(), e = base->end(); i != e; ++i ) {
         DEBUG("Loaded image " << i->frame_number());
@@ -43,17 +45,30 @@ Source::get_traits()
         DEBUG("Adding image to histogram");
         add_to_histogram( *i, histogram, binning );
         
-        int highest_bin = 0;
+        highest_bin = 0;
         for (int j = 1; j < hist_size; ++j)  {
             //DEBUG("Image " << i->frame_number().value() << " bin " << (j << binning) << " " << histogram[j]);
             if ( histogram[highest_bin] < histogram[j] )
                 highest_bin = j;
         }
-        int histogram_size = 0;
+        histogram_size = 0;
         for (int i = 0; i <= highest_bin; ++i) histogram_size += histogram[i];
         DEBUG("Histogram has " << histogram_size << " pixels and highest bin is " << highest_bin);
-        if ( histogram_size <= 100000 ) continue;
+        if ( histogram_size >= 100000 ) break;
+    }
 
+    if ( highest_bin == 0 ) {
+        simparm::Message m("Background standard deviation estimation failed",
+            "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "
+            "Some things, like determining precision of localization, will not work",
+            simparm::Message::Warning);
+        base->getNode().send(m);
+    } else if ( histogram_size < 100000 ) {
+        simparm::Message m("Background standard deviation estimation failed",
+            "Too few pixels in input data to estimate background standard deviation. At least 100,000 pixels are necessary.",
+            simparm::Message::Warning);
+        base->getNode().send(m);
+    } else {
         double S = 0, sumweight = 0;
         mean = variance = 0;
         for (int i = 0; i <= highest_bin; ++i) {
@@ -66,11 +81,10 @@ Source::get_traits()
             DEBUG("Mean changed to " << mean << " and variance to " << S * (highest_bin+1) / ( (highest_bin) * sumweight) );
         }
         variance = S * (highest_bin+1) / ( (highest_bin) * sumweight);
-        break;
+        s->background_stddev = float(sqrt(variance)) * cs_units::camera::ad_count;
     }
 
     base->dispatch( BaseSource::RepeatInput );
-    s->background_stddev = float(sqrt(variance)) * cs_units::camera::ad_count;
     
     return s;
 }

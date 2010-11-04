@@ -6,6 +6,7 @@
 #include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/units/io.hpp>
+#include <dStorm/input/InputMutex.h>
 
 namespace dStorm {
 namespace engine {
@@ -117,6 +118,7 @@ void ChainLink::make_new_requirements() {
 }
 
 void ChainLink::operator()( const simparm::Event& e ) {
+    ost::MutexLock lock( input::global_mutex() );
     if ( &e.source == &config.fixSigma.value ) {
         my_context->will_make_multiple_passes = ! config.fixSigma();
         notify_of_context_change( my_context );

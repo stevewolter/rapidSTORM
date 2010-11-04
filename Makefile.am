@@ -211,7 +211,7 @@ testDisplay_LDADD = ../dStorm/libdStorm.la libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
 check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
 check_debug_plugin_SOURCES = debug-plugin/check_plugin.cpp
-check_debug_plugin_LDADD = libtestplugin.la
+check_debug_plugin_LDADD = libtestplugin.la ../dStorm/libdStorm.la
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
 

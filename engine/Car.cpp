@@ -344,9 +344,9 @@ void Car::drive() {
             "present in the current input.";
         simparm::Message m("Unable to provide data", ss.str());
         runtime_config.send(m);
+    } else {
+        compute_until_terminated();
     }
-
-    compute_until_terminated();
 
     DEBUG("Erasing input");
     input.reset(NULL);

@@ -24,6 +24,7 @@
 #include <dStorm/input/chain/Context_impl.h>
 #include "LiveView.h"
 #include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/InputMutex.h>
 
 namespace AndorCamera {
 
@@ -279,6 +280,7 @@ dStorm::input::BaseSource* CameraLink::makeSource()
 }
 
 void Method::operator()( const simparm::Event& ) {
+    ost::MutexLock lock( dStorm::input::global_mutex() );
     if ( last_context.get() && 
          show_live_by_default() != last_context->default_to_live_view ) 
         {
@@ -288,6 +290,7 @@ void Method::operator()( const simparm::Event& ) {
 }
 
 void CameraLink::operator()(const simparm::Event&) {
+    ost::MutexLock lock( dStorm::input::global_mutex() );
     publish_meta_info();
 }
 void CameraLink::publish_meta_info() {
