@@ -1,3 +1,4 @@
+//#define VERBOSE
 #include "debug.h"
 #include "Camera.h"
 #include "StateMachine.h"
@@ -52,6 +53,7 @@ Camera::Camera(int id)
 }
 
 Camera* Camera::clone() const {
+    assert( false /* AndorCamera::Camera::clone called */ );
     throw std::runtime_error("Camera object cloning not implemented.");
 }
 
@@ -67,30 +69,35 @@ Camera::~Camera()
 
 Camera::ExclusiveAccessor::ExclusiveAccessor
     (const CameraReference& forCamera)
- : camera(forCamera) , gained_access(camera->mutex )
+ : camera(forCamera) , 
+   gained_access(camera->mutex ),
+   exploited_access(false)
  {}
 void Camera::ExclusiveAccessor::replace_on_access( StateMachine::Listener& to_replace,
     StateMachine::Listener& replace_with )
 {
     replace.push_back( std::make_pair(&to_replace, &replace_with) );
+    assert ( ! exploited_access ); 
 }
 
 void Camera::ExclusiveAccessor::request_access() 
 {
     ost::MutexLock lock( camera->mutex );
-    DEBUG("Putting accessor into queue.");
+    DEBUG("Putting accessor " << this << " into queue");
     camera->waiting_accessors.push_back( this );
 }
 
 void Camera::ExclusiveAccessor::wait_for_access() {
     ost::MutexLock lock( camera->mutex );
-    DEBUG("Putting accessor into queue.");
+    DEBUG("Accessor " << this << " is waiting for access");
     while ( camera->waiting_accessors.front() != this )
         gained_access.wait();
+    DEBUG("Accessor " << this << " gained for access");
     for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
         camera->state_machine().passivate_listener( *i->first );
         camera->state_machine().add_listener( *i->second );
     }
+    exploited_access = true;
 }
 
 void Camera::ExclusiveAccessor::forfeit_access() {
@@ -98,13 +105,17 @@ void Camera::ExclusiveAccessor::forfeit_access() {
     ost::MutexLock lock( camera->mutex );
     DEBUG("Got cam mutex");
     if ( camera->waiting_accessors.front() == this ) {
-        for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
-            camera->state_machine().remove_listener( *i->second );
-            camera->state_machine().activate_listener( *i->first );
+        if ( exploited_access ) {
+            for (Replacements::iterator i = replace.begin(); i != replace.end(); i++) {
+                camera->state_machine().remove_listener( *i->second );
+                camera->state_machine().activate_listener( *i->first );
+            }
+            exploited_access = false;
         }
 
         camera->waiting_accessors.pop_front();
         if ( ! camera->waiting_accessors.empty() ) {
+            DEBUG("Signalling " << &camera->waiting_accessors.front() << " that it has gained access");
             camera->waiting_accessors.front()->gained_access.signal();
         }
     } else {

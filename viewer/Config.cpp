@@ -26,8 +26,10 @@ _Config::_Config()
 {
     DEBUG("Building Viewer Config");
 
+    outputFile.make_optional();
     outputFile.helpID = HELP_Viewer_ToFile;
     outputFile.setUserLevel(simparm::Object::Beginner);
+
     showOutput.helpID = HELP_Viewer_ShowOutput;
     showOutput.setUserLevel(simparm::Object::Beginner);
     res_enh.helpID = HELP_Viewer_ResEnh;

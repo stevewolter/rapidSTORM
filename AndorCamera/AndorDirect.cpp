@@ -42,11 +42,11 @@ Source::Source
     push_back( c->config() );
     push_back( status );
     push_back( *live_view );
-    DEBUG("Built AndorDirect source");
+    DEBUG("Built AndorDirect source " << this);
 }
 
 Source::~Source() {
-    DEBUG( "Destructing source" );
+    DEBUG( "Destructing source " << this );
 }
 
 #define MUST_CONVERT

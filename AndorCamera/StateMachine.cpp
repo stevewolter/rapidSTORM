@@ -171,8 +171,10 @@ void StateMachine::add_listener( Listener &l)
             MutexUnlock unlock( locked_state );
             bring_to_state(listeners.back(), current_state); 
         }
-    } else
+    } else {
+        assert( false /* Tried to add listener while acquiring */ );
         throw std::logic_error("Adding listener while acquiring");
+    }
 }
 
 void StateMachine::passivate_listener( Listener &l) {
@@ -191,7 +193,9 @@ void StateMachine::remove_listener( Listener &l ) {
     ost::MutexLock lock(listener_list);
     ost::MutexLock lock2(locked_state);
     DEBUG("Removing listener on state " << current_state);
-    listeners.erase( std::find( listeners.begin(), listeners.end(), &l ) );
+    Listeners::iterator i = std::find( listeners.begin(), listeners.end(), &l );
+    assert( i != listeners.end() );
+    listeners.erase( i );
     MutexUnlock unlock( locked_state );
     bring_to_disconnect(l); 
 }

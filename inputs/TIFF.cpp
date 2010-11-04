@@ -164,13 +164,14 @@ Source<Pixel>::iterator::dereference() const
         sz.y() = src->_height * cs_units::camera::pixel;
         Image i( sz, directory * cs_units::camera::frame);
 
-        DEBUG("Reading image " << directory << " " << i.size());
-        assert( i.size() >= (strip_size * strip_count / sizeof(Pixel)) * cs_units::camera::pixel * cs_units::camera::pixel );
+        DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->_width << " " << src->_height);
 
+        Pixel* end_of_data = i.ptr() + i.size_in_pixels();
         for (tstrip_t strip = 0; strip < strip_count; strip++) {
-            TIFFReadEncodedStrip( tiff, strip, 
-                i.ptr() + (strip * strip_size / sizeof(Pixel)),
-                strip_size );
+            Pixel *data = i.ptr() + (strip * strip_size / sizeof(Pixel));
+            tsize_t remaining_space = sizeof(Pixel) * (end_of_data - data);
+            TIFFReadEncodedStrip( tiff, strip, data,
+                std::min( remaining_space, strip_size ) );
         }
         img = i;
 

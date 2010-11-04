@@ -61,13 +61,14 @@ class Camera : public simparm::Object {
         { return *_shift_speed_control; }
     ShutterControl& shutter_control() { return *_shutter_control; }
 
-    class ExclusiveAccessor {
+    class ExclusiveAccessor : boost::noncopyable {
         friend class Camera;
         CameraReference camera;
         typedef std::list< std::pair<StateMachine::Listener*,StateMachine::Listener*> >
             Replacements;
         Replacements replace;
         ost::Condition gained_access;
+        bool exploited_access;
 
       public:
         ExclusiveAccessor(const CameraReference& forCamera);

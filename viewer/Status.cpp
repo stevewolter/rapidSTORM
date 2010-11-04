@@ -6,7 +6,7 @@ namespace viewer {
 
 Status::Status(const Config& config)
 : reshow_output("ReshowOutput", "Show output"),
-  tifFile( "ToFile", "Save image to", config.outputFile() ),
+  tifFile( "ToFile", "Save image to", ( config.outputFile.is_given() ? config.outputFile() : "" ) ),
   save_with_key( config.save_with_key ),
   resolutionEnhancement( config.res_enh ),
   histogramPower( config.histogramPower ),

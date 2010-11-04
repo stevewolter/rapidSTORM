@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "DummyFileInput.h"
 #include <iostream>
 #include <fstream>
@@ -90,22 +91,27 @@ Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
         if ( new_file != "" ) {
             std::ifstream test(new_file.c_str(), std::ios_base::in);
             if ( test ) {
+                DEBUG("Successfully opened file " << new_file );
                 currently_loaded_file = new_file;
-                MetaInfo::Ptr rv( new MetaInfo() );
+                MetaInfo::Ptr rv( new dStorm::input::chain::FileMetaInfo() );
                 dStorm::input::Traits<dStorm::engine::Image> t;
                 t.size.x() = config.width() * cs_units::camera::pixel;
                 t.size.y() = config.height() * cs_units::camera::pixel;
                 t.last_frame = (config.number() - 1) * cs_units::camera::frame;
                 rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+                rv->suggested_output_basename.unformatted() = "testoutputfile";
                 return notify_of_trait_change( rv );
             } else {
+                DEBUG("Could not open file " << new_file );
                 return notify_of_trait_change( MetaInfo::Ptr() );
             }
         } else {
+            DEBUG("Publishing empty traits for empty file name");
             currently_loaded_file = new_file;
             return notify_of_trait_change( MetaInfo::Ptr() );
         }
     } else {
+        DEBUG("Publishing no traits since input file did not change");
         return Method::AtEnd();
     }
 }

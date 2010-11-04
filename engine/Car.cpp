@@ -146,12 +146,11 @@ void Car::operator()(const simparm::Event& e) {
     {
         closeJob.untrigger();
         closeJob.editable = false;
-        DEBUG("Locking for job termination");
+        DEBUG("Close job pressed, locking for job termination");
         ost::MutexLock lock( terminationMutex );
         DEBUG("Job close button allows termination" );
         terminate = true;
-        emergencyStop = true;
-        error = false;
+        emergencyStop = error = true;
         terminationChanged.signal();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
@@ -388,34 +387,8 @@ void Car::drive() {
     }
 }
 
-#if 0
-void Car::runOnSTM() throw( std::exception ) {
-    DEBUG("Running on STM file");
-    LocalizationBuncher buncher(*output);
-    LocalizationFile::Reader::Source *reader = NULL;
-    for ( input::BaseSource *seeker = locSource.get(); seeker != NULL; ) {
-        reader = dynamic_cast<LocalizationFile::Reader::Source*>( seeker );
-        input::Filter* filter = dynamic_cast<input::Filter*>(seeker);
-        if ( reader != NULL )
-            break;
-        else if ( filter != NULL )
-            seeker = &filter->upstream();
-    }
-    if ( reader )
-        reader->setEmptyImageCallback( &buncher );
-    DEBUG("Publishing traits");
-    buncher.noteTraits( *locSource->get_traits() );
-    DEBUG("Making iterators");
-    input::Source<Localization>::iterator i, last = locSource->end();
-    DEBUG("Iterating");
-    for ( i = locSource->begin(); i != last; i++ )
-        buncher.accept( 0, 1, &*i );
-    DEBUG("Iterated");
-    buncher.ensure_finished();
-}
-#endif
-
 void Car::stop() {
+    abortJob.trigger();
     closeJob.trigger();
 }
 
