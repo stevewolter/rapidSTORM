@@ -27,6 +27,7 @@ _Config::_Config()
     DEBUG("Building Viewer Config");
 
     outputFile.make_optional();
+    outputFile.optional_given = true;
     outputFile.helpID = HELP_Viewer_ToFile;
     outputFile.setUserLevel(simparm::Object::Beginner);
 
