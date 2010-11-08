@@ -12,6 +12,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
+#include <dStorm/input/chain/FileContext.h>
 
 #ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;
@@ -117,8 +118,9 @@ namespace dStorm {
       private:
         simparm::Structure<Config> config;
         boost::shared_ptr<OpenFile> file;
+        boost::shared_ptr<const input::chain::FileContext> context;
 
-        void open_file( std::string filename );
+        void open_file();
       protected:
         void operator()(const simparm::Event&);
     };

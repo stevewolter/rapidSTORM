@@ -12,7 +12,11 @@ using namespace dStorm::engine;
 namespace dStorm {
 namespace BackgroundStddevEstimator {
 
-Config::Config() : simparm::Object("BackgroundEstimator", "Estimate background variance") {}
+Config::Config() 
+: simparm::Object("BackgroundEstimator", "Estimate background variance"),
+  disable("Disable", "Disable background variance estimation")
+{
+}
 
 static void add_to_histogram( const engine::Image& im, int h[], const int b ) 
 {
@@ -123,7 +127,10 @@ ChainLink::context_changed(
 
 input::BaseSource* ChainLink::makeSource( SourcePtr p )
 {
-    return new Source(p);
+    if ( config.disable() )
+        return p.release();
+    else
+        return new Source(p);
 }
 
 std::auto_ptr<input::chain::Filter> makeLink() {

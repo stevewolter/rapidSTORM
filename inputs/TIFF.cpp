@@ -232,11 +232,11 @@ ChainLink::context_changed( ContextRef ocontext, Link* link )
 {
     Terminus::context_changed( ocontext, link );
 
-    const chain::FileContext& context 
-        = dynamic_cast<const chain::FileContext&>(*ocontext);
-
-    if ( ! file.get() || file->for_file() != context.input_file ) {
-        open_file( context.input_file );
+    this->context = boost::dynamic_pointer_cast
+        <const input::chain::FileContext, const input::chain::Context>
+        ( ocontext );
+    if ( ! file.get() || file->for_file() != context->input_file ) {
+        open_file();
         /* open_file will have published traits, if necessary */
         return AtEnd();
     } else {
@@ -258,24 +258,27 @@ Source<Pixel>::~Source() {}
 void ChainLink::operator()(const simparm::Event& e) {
     ost::MutexLock lock( global_mutex() );
     if ( file.get() ) {
-        open_file( file->for_file() );
+        open_file();
     }
 }
 
-void ChainLink::open_file( std::string filename ) {
+void ChainLink::open_file() {
   file.reset();
-  try {
-    file.reset( new OpenFile( filename, config, config ) );
-    boost::shared_ptr<chain::FileMetaInfo> info( new chain::FileMetaInfo() );
+  boost::shared_ptr<chain::FileMetaInfo> info;
+  if ( context->input_file != "" ) {
+    try {
+        file.reset( new OpenFile( context->input_file, config, config ) );
+        info.reset( new chain::FileMetaInfo() );
 
-    info->traits = file->getTraits<unsigned short>();
-    info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
-    info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
-
-    this->notify_of_trait_change( info );
-  } catch(...) {
-    this->notify_of_trait_change( TraitsRef() );
+        info->traits = file->getTraits<unsigned short>();
+        info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+        info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+    } catch(...) {
+        if ( context->throw_errors )
+            throw;
+    }
   }
+  this->notify_of_trait_change( info );
 }
 
 }

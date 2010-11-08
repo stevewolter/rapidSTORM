@@ -19,6 +19,7 @@ class Config
 {
   public:
     simparm::UnsignedLongEntry width, height, number;
+    simparm::BoolEntry goIntType;
 
     Config();
     void registerNamedEntries();
@@ -43,14 +44,19 @@ class Source : public simparm::Set,
 };
 
 class Method
-: public dStorm::input::chain::Terminus
+: public dStorm::input::chain::Terminus,
+  simparm::Listener
 {
     simparm::Structure<Config> config;
     dStorm::input::chain::Context::ConstPtr context;
     std::string currently_loaded_file;
 
+    void operator()(const simparm::Event&);
+    AtEnd make_new_traits();
+
   public:
     Method();
+    Method(const Method&);
 
     AtEnd context_changed( ContextRef, Link* );
 
@@ -59,6 +65,7 @@ class Method
 
     Method* clone() const { return new Method(*this); }
 
+    void registerNamedEntries();
 };
 
 }

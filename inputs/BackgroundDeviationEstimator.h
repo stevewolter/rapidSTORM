@@ -7,14 +7,16 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/Filter.h>
+#include <simparm/Entry.hh>
 
 namespace dStorm {
 namespace BackgroundStddevEstimator {
 
 struct Config : public simparm::Object
 {
+    simparm::BoolEntry disable;
     Config();
-    void registerNamedEntries() {}
+    void registerNamedEntries() { push_back(disable); }
 };
 
 class Source 

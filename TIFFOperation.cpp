@@ -55,7 +55,11 @@ void TIFFOperation::make_error(
 }
 
 void TIFFOperation::ignore(
-    const char *, const char *, va_list) {}
+    const char *, const char * fmt, va_list ap) 
+{
+    char buffer[4096];
+    vsnprintf( buffer, 4095, fmt, ap );
+}
 
 void TIFFOperation::throw_exception_for_errors()
 {

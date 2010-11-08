@@ -31,7 +31,7 @@ class ChainLink
     simparm::Node& getNode() { return config; }
 
     input::BaseSource* makeSource() 
-        { return dispatch_makeSource(Invalid); }
+        { return dispatch_makeSource( ( my_context.get() && my_context->throw_errors ) ? ThrowError : InvalidTraits); }
     input::Source<output::LocalizedImage>*
         makeSource( std::auto_ptr< input::Source<LocalizationFile::Record> > );
     input::Source<output::LocalizedImage>*
@@ -41,7 +41,7 @@ class ChainLink
         { return i.release(); }
 
     AtEnd traits_changed( TraitsRef r, Link* l ) 
-        { return dispatch_trait_change(r, l, Invalid); }
+        { return dispatch_trait_change(r, l, ( my_context.get() && my_context->throw_errors ) ? ThrowError : InvalidTraits); }
     AtEnd traits_changed( TraitsRef r, Link* l, 
         boost::shared_ptr< input::Traits<Localization> > t ) 
         { return _traits_changed(r,l,t); }

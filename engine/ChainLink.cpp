@@ -29,7 +29,7 @@ ChainLink::ChainLink(const ChainLink& c)
     DEBUG("Traits were copied from " << c.my_traits.get() << "," << c.current_traits().get() << " to "
             << my_traits.get() << "," << current_traits().get())
     if ( my_traits.get() != NULL )
-        DEBUG("Basename after copying chain link is " << current_traits()->suggested_output_basename << " or "
+        DEBUG("Basename after copying chain link is " << my_traits->suggested_output_basename << " or "
               << my_traits->suggested_output_basename << " in my own traits");
     receive_changes_from( config.fixSigma.value );
     receive_changes_from( config.amplitude_threshold.value );
@@ -61,11 +61,16 @@ ChainLink::AtEnd
 ChainLink::traits_changed(TraitsRef r, Link* l)
 {
     Link::traits_changed(r, l);
+    if ( r.get() == NULL ) return notify_of_trait_change( r );
     boost::shared_ptr< input::Traits<engine::Image> > traits 
         = boost::dynamic_pointer_cast<input::Traits<engine::Image>,input::BaseTraits>(r->traits);
     if ( traits.get() == NULL ) {
-        my_traits.reset();
-        return notify_of_trait_change(my_traits);
+        if ( my_context->throw_errors ) {
+            throw std::runtime_error("rapidSTORM engine cannot process data of type " + traits->desc());
+        } else {
+            my_traits.reset();
+            return notify_of_trait_change(my_traits);
+        }
     }
     boost::shared_ptr< input::Traits<output::LocalizedImage> >
         rt = Engine::convert_traits(config, traits);
@@ -85,6 +90,9 @@ ChainLink::AtEnd
 ChainLink::context_changed(ContextRef r, Link* l)
 {
     Link::context_changed(r, l);
+    if ( r->throw_errors && current_traits().get() == NULL )
+        throw std::runtime_error("rapidSTORM engine cannot process the given data");
+
     my_context.reset( r->clone() );
     typedef input::Traits<dStorm::engine::Image> ImageTraits;
     if ( ! my_context->has_info_for<engine::Image>() )

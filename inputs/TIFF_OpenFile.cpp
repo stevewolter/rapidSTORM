@@ -1,3 +1,4 @@
+#undef NDEBUG
 #define DSTORM_TIFFLOADER_CPP
 #include <tiffio.h>
 #include "TIFF.h"
@@ -15,11 +16,13 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
 {
     TIFFOperation op( "in opening TIFF file",
                       n, ignore_warnings );
-    tiff = TIFFOpen( filename.c_str(), "rm" );
-    if ( tiff == NULL ) op.throw_exception_for_errors();
+    tiff = TIFFOpen( filename.c_str(), "r" );
+    if ( tiff == NULL ) { op.throw_exception_for_errors(); throw std::logic_error("Undefined error in TIFF reading"); }
 
-    TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &_width );
-    TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &_height );
+    uint32 width, height;
+    TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &width );
+    TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &height );
+    _width = width; _height = height;
 
     float xres, yres;
     int xgiven = TIFFGetField( tiff, TIFFTAG_XRESOLUTION, &xres );

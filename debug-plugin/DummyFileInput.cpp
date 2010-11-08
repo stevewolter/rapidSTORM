@@ -9,6 +9,19 @@
 using namespace dStorm::input;
 using namespace dStorm::input::chain;
 
+namespace dStorm {
+namespace input {
+
+template <>
+class Traits<int> 
+: public BaseTraits {
+    Traits<int>* clone() const { return new Traits<int>(*this); }
+    std::string desc() const { return "int"; }
+};
+
+}
+}
+
 namespace dummy_file_input {
 
 Source::Source(const Config& config, Context::ConstPtr ptr) 
@@ -63,22 +76,52 @@ Config::Config()
 : simparm::Object("DummyInput", "Dummy file input driver"),
   width("Width", "Image width", 25),
   height("Height", "Image height", 50),
-  number("Number", "Number of generated images", 10)
+  number("Number", "Number of generated images", 10),
+  goIntType("GoIntType", "Make input source of type int", false)
 {}
 
 void Config::registerNamedEntries() {
     push_back( width );
     push_back( height );
     push_back( number );
+    push_back( goIntType );
 }
 
 Method::Method() 
     //"extension_dum", ".dum")
+: simparm::Listener( simparm::Event::ValueChanged )
 {
+    registerNamedEntries();
+}
+
+Method::Method(const Method& o) 
+: dStorm::input::chain::Terminus(o),
+  simparm::Listener( simparm::Event::ValueChanged ),
+  config(o.config),
+  context(o.context),
+  currently_loaded_file(o.currently_loaded_file)
+{
+    registerNamedEntries();
 }
 
 Source* Method::makeSource() {
     return new Source(config, context);
+}
+
+Method::AtEnd Method::make_new_traits() {
+    MetaInfo::Ptr rv( new dStorm::input::chain::FileMetaInfo() );
+    if ( config.goIntType() ) {
+        DEBUG("Publishing int traits");
+        rv->traits.reset( new dStorm::input::Traits<int>() );
+    } else {
+        dStorm::input::Traits<dStorm::engine::Image> t;
+        t.size.x() = config.width() * cs_units::camera::pixel;
+        t.size.y() = config.height() * cs_units::camera::pixel;
+        t.last_frame = (config.number() - 1) * cs_units::camera::frame;
+        rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+    }
+    rv->suggested_output_basename.unformatted() = "testoutputfile";
+    return notify_of_trait_change( rv );
 }
 
 Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
@@ -93,14 +136,7 @@ Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
             if ( test ) {
                 DEBUG("Successfully opened file " << new_file );
                 currently_loaded_file = new_file;
-                MetaInfo::Ptr rv( new dStorm::input::chain::FileMetaInfo() );
-                dStorm::input::Traits<dStorm::engine::Image> t;
-                t.size.x() = config.width() * cs_units::camera::pixel;
-                t.size.y() = config.height() * cs_units::camera::pixel;
-                t.last_frame = (config.number() - 1) * cs_units::camera::frame;
-                rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
-                rv->suggested_output_basename.unformatted() = "testoutputfile";
-                return notify_of_trait_change( rv );
+                return make_new_traits();
             } else {
                 DEBUG("Could not open file " << new_file );
                 return notify_of_trait_change( MetaInfo::Ptr() );
@@ -114,6 +150,17 @@ Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
         DEBUG("Publishing no traits since input file did not change");
         return Method::AtEnd();
     }
+}
+
+void Method::operator()(const simparm::Event& e) {
+    make_new_traits();
+}
+
+void Method::registerNamedEntries() {
+    receive_changes_from( config.width.value );
+    receive_changes_from( config.height.value );
+    receive_changes_from( config.number.value );
+    receive_changes_from( config.goIntType.value );
 }
 
 }

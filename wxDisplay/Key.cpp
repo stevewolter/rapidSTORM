@@ -2,6 +2,7 @@
 #include "helpers.h"
 #include <wx/dcbuffer.h>
 #include <algorithm>
+#include <math.h>
 
 #include "debug.h"
 
@@ -211,7 +212,7 @@ struct DistanceTo {
 void Key::cursor_value( const DataSource::PixelInfo& info, float value )
 {
     bool approx = false;
-    if ( isnan(value) ) {
+    if ( std::isnan(value) ) {
         /* Search for color in key closest to info.color */
         std::vector<Color>::iterator element = 
             std::min_element( colors.begin(), colors.end(), 

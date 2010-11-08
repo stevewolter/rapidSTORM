@@ -74,21 +74,37 @@ input::chain::Link::AtEnd
 Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
 {
     Terminus::context_changed( ocontext, link );
+    if ( ocontext.get() == NULL ) {
+        DEBUG(this << ": Empty context provided");
+        return this->notify_of_trait_change( TraitsRef() );
+    }
     const chain::FileContext& context = dynamic_cast<const chain::FileContext&>( *ocontext );
     if ( file.get() == NULL || context.input_file != file->for_file() ) {
-        if ( context.input_file == "" )
-            return this->notify_of_trait_change( TraitsRef() );
+        DEBUG(this << ": Have current file " << ((file.get()) ? file->for_file() : "NONE") << " and " << context.input_file);
+        if ( context.input_file == "" ) {
+            if ( context.throw_errors )
+                throw std::runtime_error("No input file given");
+            else {
+                DEBUG(this << ": No input file");
+                return this->notify_of_trait_change( TraitsRef() );
+            }
+        }
 
         file.reset();
+        boost::shared_ptr<chain::FileMetaInfo> rv;
         try {
             file.reset( new OpenFile( context.input_file ) );
-            boost::shared_ptr<chain::FileMetaInfo> rv( new chain::FileMetaInfo() );
+            rv.reset( new chain::FileMetaInfo() );
             rv->traits = file->getTraits<Pixel>();
             rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
-            return this->notify_of_trait_change( rv );
+            DEBUG(this << ": File " << file->for_file() << " was opened");
         } catch ( ... ) {
-            return this->notify_of_trait_change( TraitsRef() );
+            if ( ocontext->throw_errors )
+                throw;
+            else 
+                rv.reset();
         }
+        return this->notify_of_trait_change( rv );
     } else {
         /* No change */
         return AtEnd();
