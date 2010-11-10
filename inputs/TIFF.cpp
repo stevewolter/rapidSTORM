@@ -270,7 +270,7 @@ void ChainLink::open_file() {
         file.reset( new OpenFile( context->input_file, config, config ) );
         info.reset( new chain::FileMetaInfo() );
 
-        info->traits = file->getTraits<unsigned short>();
+        info->set_traits( file->getTraits<unsigned short>().release() );
         info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
         info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
     } catch(...) {

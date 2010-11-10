@@ -60,7 +60,7 @@ Engine::~Engine() {
 }
 
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
-Engine::convert_traits( Config& config, Input::TraitsPtr imProp )
+Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<engine::Image> > imProp )
 {
     input::Traits<Localization> rv(imProp->get_other_dimensionality<Localization::Dim>());
     DEBUG("Getting other traits dimensionality");
@@ -88,7 +88,6 @@ Engine::TraitsPtr Engine::get_traits() {
         if ( imProp->background_stddev.is_set() ) {
             config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
         } else {
-            assert(false);
             throw std::logic_error("Background standard deviation is neither set nor could be computed");
         }
         DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());

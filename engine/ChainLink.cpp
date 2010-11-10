@@ -21,8 +21,7 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& c)
-: input::chain::Filter(c),
-  ClassicEngine(c),
+: ClassicEngine(c),
   simparm::Listener( simparm::Event::ValueChanged ),
   my_context(c.my_context), my_traits(c.my_traits), config(c.config)
 {
@@ -62,21 +61,19 @@ ChainLink::traits_changed(TraitsRef r, Link* l)
 {
     Link::traits_changed(r, l);
     if ( r.get() == NULL ) return notify_of_trait_change( r );
-    boost::shared_ptr< input::Traits<engine::Image> > traits 
-        = boost::dynamic_pointer_cast<input::Traits<engine::Image>,input::BaseTraits>(r->traits);
-    if ( traits.get() == NULL ) {
+    if ( ! r->provides< engine::Image>() ) {
         if ( my_context->throw_errors ) {
-            throw std::runtime_error("rapidSTORM engine cannot process data of type " + traits->desc());
+            throw std::runtime_error("rapidSTORM engine cannot process data of type " + r->base_traits().desc());
         } else {
             my_traits.reset();
             return notify_of_trait_change(my_traits);
         }
     }
     boost::shared_ptr< input::Traits<output::LocalizedImage> >
-        rt = Engine::convert_traits(config, traits);
+        rt = Engine::convert_traits(config, r->traits<engine::Image>());
 
     my_traits.reset( r->clone() );
-    my_traits->traits = rt;
+    my_traits->set_traits(rt);
     DEBUG("Setting traits variable thres for traits " << my_traits.get() << " and basename " << &my_traits->suggested_output_basename);
     my_traits->suggested_output_basename.set_variable
         ( "thres", amplitude_threshold_string() );

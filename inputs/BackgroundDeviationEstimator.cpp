@@ -5,11 +5,39 @@
 #include <dStorm/image/iterator.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context.h>
+#include <dStorm/input/chain/Filter_impl.h>
 #include <simparm/Message.hh>
 
 using namespace dStorm::engine;
 
 namespace dStorm {
+
+namespace input {
+namespace chain {
+
+template <>
+template <typename Type>
+bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( input::Traits<Type>& t ) {
+    t.background_stddev.promise( deferred::JobTraits );
+    return true;
+}
+
+template <>
+bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( Context& c ) {
+    c.will_make_multiple_passes = true;
+    return true;
+}
+
+template <>
+template <typename Type>
+bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( std::auto_ptr< input::Source<Type> > p ) {
+    new_source.reset( new BackgroundStddevEstimator::Source(p) );
+    return true;
+}
+
+}
+}
+
 namespace BackgroundStddevEstimator {
 
 Config::Config() 
@@ -35,6 +63,7 @@ Source::Source(std::auto_ptr<input::Source<engine::Image> > base)
 Source::TraitsPtr 
 Source::get_traits()
 {
+    DEBUG("Running background standard deviation estimation");
     Source::TraitsPtr s = base->get_traits();
     int hist_size = (int(std::numeric_limits<engine::StormPixel>::max())+1) >> binning;
     int histogram[hist_size];
@@ -64,12 +93,7 @@ Source::get_traits()
     if ( highest_bin == 0 ) {
         simparm::Message m("Background standard deviation estimation failed",
             "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "
-            "Some things, like determining precision of localization, will not work",
-            simparm::Message::Warning);
-        base->getNode().send(m);
-    } else if ( histogram_size < 100000 ) {
-        simparm::Message m("Background standard deviation estimation failed",
-            "Too few pixels in input data to estimate background standard deviation. At least 100,000 pixels are necessary.",
+            "Some things, like determining precision of localization, will not work.",
             simparm::Message::Warning);
         base->getNode().send(m);
     } else {
@@ -94,43 +118,22 @@ Source::get_traits()
 }
 
 input::chain::Link::AtEnd
-ChainLink::traits_changed(
-    ChainLink::TraitsRef r,
-    Link*,
-    boost::shared_ptr< input::Traits<engine::Image> > t
-) {
-    if ( r.get() == NULL )
-        return this->notify_of_trait_change(r);
-    else {
-        input::chain::MetaInfo::Ptr mr( r->clone() );
-        boost::shared_ptr< input::Traits<engine::Image> > tc(t->clone());
-        mr->traits = tc;
-        tc->background_stddev.promise( deferred::JobTraits );
-        return notify_of_trait_change(mr);
-    }
+ChainLink::traits_changed( ChainLink::TraitsRef r, Link* l) {
+    return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
 }
 
 input::chain::Link::AtEnd
-ChainLink::context_changed(
-    ChainLink::ContextRef c,
-    Link* l)
+ChainLink::context_changed( ChainLink::ContextRef c, Link* l)
 {
-    Link::context_changed(c,l);
-    if ( c.get() != NULL ) {
-        input::chain::Context::Ptr mc( c->clone() );
-        mc->will_make_multiple_passes = true;
-        return dispatch_context_change(mc, l, PassThrough);
-    } else {
-        return dispatch_context_change(c, l, PassThrough);
-    }
+    return input::chain::DelegateToVisitor::context_changed(*this,c,l);
 }
 
-input::BaseSource* ChainLink::makeSource( SourcePtr p )
+input::BaseSource* ChainLink::makeSource()
 {
     if ( config.disable() )
-        return p.release();
+        return Forwarder::makeSource();
     else
-        return new Source(p);
+        return input::chain::DelegateToVisitor::makeSource(*this);
 }
 
 std::auto_ptr<input::chain::Filter> makeLink() {

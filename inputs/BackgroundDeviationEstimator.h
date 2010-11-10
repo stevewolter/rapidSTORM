@@ -8,12 +8,15 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
+#include <boost/mpl/vector.hpp>
 
 namespace dStorm {
 namespace BackgroundStddevEstimator {
 
 struct Config : public simparm::Object
 {
+    typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+
     simparm::BoolEntry disable;
     Config();
     void registerNamedEntries() { push_back(disable); }
@@ -37,28 +40,21 @@ class Source
 };
 
 class ChainLink
-: public input::chain::TypedFilter<dStorm::engine::Image>
+: public input::chain::Filter
 {
+    typedef input::chain::DefaultVisitor< Config > Visitor;
+    friend class input::chain::DelegateToVisitor;
+    simparm::Structure<Config>& get_config() { return config; }
+
     simparm::Structure<Config> config;
     bool do_make_source;
   public:
     ChainLink() : do_make_source(false) {}
     ChainLink* clone() const { return new ChainLink(*this); }
 
-    AtEnd traits_changed( TraitsRef r, Link* l ) 
-        { return Filter::dispatch_trait_change(r, l, PassThrough); }
+    AtEnd traits_changed( TraitsRef r, Link* l ) ;
     AtEnd context_changed( ContextRef c, Link* l );
-    input::BaseSource* makeSource() 
-        { return Filter::dispatch_makeSource(PassThrough); }
-
-    AtEnd traits_changed( TraitsRef, Link*, boost::shared_ptr< input::Traits<engine::Image> > );
-    input::BaseSource* makeSource( SourcePtr );
-
-    void modify_context( input::Traits<dStorm::engine::Image>& t ) { 
-        t.background_stddev.promise( deferred::JobTraits );
-    }
-    void notice_context( const input::Traits<dStorm::engine::Image>& ) 
-        { assert(false); }
+    input::BaseSource* makeSource() ;
 
     simparm::Node& getNode() { return config; }
 };

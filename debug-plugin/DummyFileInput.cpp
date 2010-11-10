@@ -112,13 +112,13 @@ Method::AtEnd Method::make_new_traits() {
     MetaInfo::Ptr rv( new dStorm::input::chain::FileMetaInfo() );
     if ( config.goIntType() ) {
         DEBUG("Publishing int traits");
-        rv->traits.reset( new dStorm::input::Traits<int>() );
+        rv->set_traits( new dStorm::input::Traits<int>() );
     } else {
         dStorm::input::Traits<dStorm::engine::Image> t;
         t.size.x() = config.width() * cs_units::camera::pixel;
         t.size.y() = config.height() * cs_units::camera::pixel;
         t.last_frame = (config.number() - 1) * cs_units::camera::frame;
-        rv->traits.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+        rv->set_traits( new dStorm::input::Traits<dStorm::engine::Image>(t) );
     }
     rv->suggested_output_basename.unformatted() = "testoutputfile";
     return notify_of_trait_change( rv );

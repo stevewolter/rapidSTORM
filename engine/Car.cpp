@@ -294,6 +294,8 @@ void Car::drive() {
   try {
     DEBUG("Trying to make source");
     std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
+    if ( ! rawinput.get() )
+        throw std::logic_error("No input source was created");
     DEBUG("Made source");
     input.reset( dynamic_cast< Input* >(rawinput.get()) );
     if ( input.get() )
@@ -310,6 +312,7 @@ void Car::drive() {
     runtime_config.push_back( closeJob );
 
     Output::Announcement announcement( *input->get_traits() );
+    std::cerr << "Input announced traits " << announcement.resolution.is_set() << std::endl;
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
 

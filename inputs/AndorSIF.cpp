@@ -95,7 +95,7 @@ Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
         try {
             file.reset( new OpenFile( context.input_file ) );
             rv.reset( new chain::FileMetaInfo() );
-            rv->traits = file->getTraits<Pixel>();
+            rv->set_traits( file->getTraits<Pixel>().release() );
             rv->accepted_basenames.push_back( make_pair("extension_sif", ".sif") );
             DEBUG(this << ": File " << file->for_file() << " was opened");
         } catch ( ... ) {

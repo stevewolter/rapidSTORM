@@ -17,8 +17,7 @@ namespace dStorm {
 namespace engine {
 
 class ChainLink
-: public virtual input::chain::Filter,
-  public ClassicEngine,
+: public ClassicEngine,
   protected simparm::Listener
 {
     input::chain::Context::Ptr my_context;

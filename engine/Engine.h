@@ -51,7 +51,7 @@ namespace engine {
         boost::ptr_vector<output::Output> additional_outputs();
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
-            convert_traits( Config&, Input::TraitsPtr );
+            convert_traits( Config&, boost::shared_ptr< const input::Traits<engine::Image> > );
    };
 }
 }

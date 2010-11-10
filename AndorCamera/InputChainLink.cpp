@@ -97,7 +97,7 @@ Method::Method()
 }
 
 Method::CameraSwitcher::CameraSwitcher()
-: cameras("ChooseCamera", "Choose camera to connect to") 
+: cameras("ChooseCamera", "Choose camera to connect to", false) 
 {
     cameras.getNode().make_thread_safe();
     set_more_specialized( &cameras );
@@ -312,7 +312,7 @@ void CameraLink::publish_meta_info() {
 
     dStorm::input::chain::MetaInfo::Ptr mi
         ( new dStorm::input::chain::MetaInfo() );
-    mi->traits = traits;
+    mi->set_traits( traits );
     DEBUG("CameraLink publishing non-null traits");
     notify_of_trait_change( mi );
 }

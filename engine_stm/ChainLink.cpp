@@ -3,43 +3,100 @@
 #include "ChainLink.h"
 #include "LocalizationBuncher.h"
 #include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/chain/Filter_impl.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 
+#include <boost/mpl/vector.hpp>
+#include <dStorm/output/LocalizedImage_decl.h>
+#include <dStorm/localization_file/record_decl.h>
+#include <dStorm/Localization_decl.h>
+
 namespace dStorm {
+
 namespace engine_stm {
 
-input::Source<output::LocalizedImage>*
-ChainLink::makeSource( std::auto_ptr< input::Source<Localization> > input )
-{
-    return new Source<Localization>( config, input );
-}
+class ChainLink::Visitor {
+  public:
+    typedef boost::mpl::vector<output::LocalizedImage,LocalizationFile::Record,dStorm::Localization>
+        SupportedTypes;
 
-input::Source<output::LocalizedImage>*
-ChainLink::makeSource( std::auto_ptr< input::Source<LocalizationFile::Record> > input )
+    struct TraitCreator {
+        input::chain::Context& c;
+        TraitCreator(input::chain::Context& c) : c(c) {}
+
+        template <typename Type>
+        void operator()( Type& ) {
+            c.more_infos.push_back( new input::Traits<Type>() );
+        }
+    };
+
+    const Config& config;
+    typedef std::auto_ptr< input::Source<output::LocalizedImage> > SourceResult;
+    boost::shared_ptr<input::BaseTraits> new_traits;
+    SourceResult new_source;
+
+    Visitor(const Config& config ) : config(config) {}
+
+    template <typename Type>
+    bool operator()( input::Traits<Type>& source_traits ) { return true; }
+    template <typename Type>
+    bool operator()( const input::Traits<Type>& source_traits )
+        { new_traits.reset( new input::Traits<output::LocalizedImage>(source_traits) ); 
+          return true; }
+    template <typename Type>
+    inline bool operator()( std::auto_ptr< input::Source< Type > > p );
+
+    bool operator()( input::chain::MetaInfo& ) { return true; }
+    bool operator()( input::chain::Context& c ) {
+        c.need_multiple_concurrent_iterators = false;
+        boost::mpl::for_each<SupportedTypes>( TraitCreator(c) );
+        return true;
+    }
+
+    bool unknown_trait(std::string trait_desc) const {
+        if ( config.throw_errors )
+            throw std::runtime_error("Localization replay engine cannot work with input of type " + trait_desc);
+        else
+            return false;
+    }
+    bool no_context_visited_is_ok() const { return true; }
+    void unknown_base_source() const {
+        throw std::runtime_error("Localization replay engine cannot process input of the given type");
+    }
+};
+
+template <>
+bool ChainLink::Visitor::operator()( std::auto_ptr< input::Source< output::LocalizedImage > > p )
 {
-    return new Source<LocalizationFile::Record>( config, input );
+    DEBUG("Passing through source");
+    new_source = p;
+    return true;
 }
 
 template <typename Type>
-ChainLink::AtEnd
-ChainLink::_traits_changed(
-    TraitsRef r, Link* l,
-    boost::shared_ptr< input::Traits<Type> > t)
+bool ChainLink::Visitor::operator()( std::auto_ptr< input::Source< Type > > input )
 {
-    Link::traits_changed(r, l);
-    input::chain::MetaInfo::Ptr rv( r->clone() );
-    rv->traits.reset( new input::Traits<output::LocalizedImage>(*t) );
-    DEBUG("Returning valid traits for " << typeid(t.get()).name());
-    return notify_of_trait_change(rv);
+    DEBUG("Adapting source");
+    new_source.reset( new Source<Type>( config, input ) );
+    return true;
+}
+
+input::BaseSource* ChainLink::makeSource() 
+{
+    return input::chain::DelegateToVisitor::makeSource(*this);
 }
 
 ChainLink::AtEnd
 ChainLink::context_changed(ContextRef r, Link* l)
 {
-    Link::context_changed(r, l);
-    my_context.reset( r->clone() );
-    my_context->need_multiple_concurrent_iterators = false;
-    return notify_of_context_change( my_context );
+    config.throw_errors = r->throw_errors;
+    return input::chain::DelegateToVisitor::context_changed(*this, r, l);
+}
+
+ChainLink::AtEnd
+ChainLink::traits_changed(TraitsRef r, Link* l)
+{
+    return input::chain::DelegateToVisitor::traits_changed(*this, r, l);
 }
 
 std::auto_ptr<input::chain::Filter>
