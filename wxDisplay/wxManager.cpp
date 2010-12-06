@@ -188,7 +188,7 @@ class StateFetcher
             if ( window != NULL )
                 rv = window->getState();
         } catch (const std::exception& e) {
-            std::cerr << e.what() << std::endl;
+            std::cerr << "Unable to get image from window: " << e.what() << std::endl;
         } 
         ost::WaitableRunnable::run();
     }

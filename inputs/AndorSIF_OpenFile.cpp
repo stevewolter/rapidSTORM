@@ -12,6 +12,7 @@
 #include <dStorm/DataSetTraits.h>
 #include <dStorm/ImageTraits.h>
 #include "AndorCamera/Config.h"
+#include <boost/smart_ptr/scoped_array.hpp>
 
 namespace dStorm {
 namespace input {
@@ -111,7 +112,7 @@ OpenFile::load_image(int count, simparm::Node& node)
     if ( had_errors )
         return result;
     const int sz = readsif_imageSize(dataSet);
-    float buffer[sz];
+    boost::scoped_array<float> buffer( new float[sz] );
     for (int i = 0; i < sz; i++) buffer[i] = 5;
     typename Image::Size dim;
     dim.x() = readsif_imageWidth(dataSet, 0) 
@@ -121,7 +122,7 @@ OpenFile::load_image(int count, simparm::Node& node)
 
     DEBUG("Calling GetNextImage");
     int rv_of_readsif_getImage = 
-            readsif_getImage( dataSet, count, buffer );
+            readsif_getImage( dataSet, count, buffer.get() );
     if ( rv_of_readsif_getImage == -1 ) {
         simparm::Message m("Error in SIF file",
             "Error while reading SIF file: " + std::string(readsif_error)

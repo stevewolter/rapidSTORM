@@ -22,7 +22,7 @@ class Config
     ~Config();
     void registerNamedEntries();
 
-    dStorm::FloatNanometreEntry z_distance;
+    dStorm::FloatNanometreEntry z_distance, z_range;
     simparm::UnitEntry<typename fitpp::Exponential3D::ConstantTypes<Widening>::ResolutionUnit,float>
         defocus_constant_x, defocus_constant_y;
 };

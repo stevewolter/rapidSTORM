@@ -11,7 +11,7 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace engine_stm {
 
-enum VisitResult { KeepComing, IAmFinished };
+enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
 class Can
 {
     std::list< output::Trace > traces;
@@ -36,7 +36,7 @@ class Visitor
     {
         if ( my_image.is_set() ) {
             if ( l.frame_number() != *my_image )
-                return IAmFinished;
+                return FinishedAndReject;
             else
                 can->push_back( l );
         } else {
@@ -126,9 +126,15 @@ void LocalizationBuncher<Input>::search_output_image() {
     DEBUG("Reading " << outputImage << " into can");
     while ( master.current != master.base_end ) {
         Visitor v;
-        for ( ; master.current != master.base_end; ++master.current ) 
-            if ( v.add(*master.current) == IAmFinished )
+        for ( ; master.current != master.base_end; ++master.current )  {
+            VisitResult r = v.add(*master.current);
+            if ( r == FinishedAndReject )
                 break;
+            else if ( r == IAmFinished ) {
+                ++master.current;
+                break;
+            }
+        }
         DEBUG("Visitor declares to be finished with " << v.for_frame() << ", want " << outputImage);
         if ( v.for_frame() == outputImage ) {
             output = v.get_result();

@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
@@ -7,9 +8,6 @@
 #if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
 #include "AndorCamera/InputChainLink.h"
 #endif
-
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <dStorm/input/FileMethod.h>
 #include "BackgroundDeviationEstimator_decl.h"
 
 namespace dStorm {

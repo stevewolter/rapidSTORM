@@ -56,10 +56,8 @@ _Config::_Config()
         "Constant colour given by hue and variance");
     colourScheme.addChoice(ColourSchemes::TimeHue,
         "HueByTime", "Vary hue by time coordinate");
-    colourScheme.addChoice( ColourSchemes::ExtraHue,
-        "HueByCharacteristic", "Vary hue by characteristic");
-    colourScheme.addChoice( ColourSchemes::ExtraSaturation,
-        "SaturationByCharacteristic", "Vary saturation by characteristic");
+    colourScheme.addChoice( ColourSchemes::ZHue,
+        "HueByZCoordinate", "Vary hue by z coordinate");
 
     colourScheme = ColourSchemes::BlackRedYellowWhite;
 

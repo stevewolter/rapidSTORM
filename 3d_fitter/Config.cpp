@@ -28,6 +28,7 @@ template <int Widening>
 Config<Widening>::Config() 
 : MarquardtConfig("3DFitter" + names[Widening], ("3D cylinder lens fit with " + descs[Widening])),
   z_distance("ZDistance", "Distance between X and Y foci"),
+  z_range("ZRange", "Maximum sensible Z distance from equifocused plane"),
   defocus_constant_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
   defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y")
 {
@@ -45,6 +46,7 @@ void Config<Widening>::registerNamedEntries()
     push_back(negligibleStepLength);
     push_back(successiveNegligibleSteps);
     push_back(z_distance);
+    push_back(z_range);
     push_back(defocus_constant_x);
     push_back(defocus_constant_y);
     fitter::residue_analysis::Config::registerNamedEntries(*this);

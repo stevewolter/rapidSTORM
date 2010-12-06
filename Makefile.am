@@ -13,7 +13,7 @@ C_TESTS = alignment_test \
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
-    libinputs.la libengine.la liboutputs.la \
+    libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libgauss_fitter.la libengine_stm.la
 
@@ -88,6 +88,9 @@ libinputs_la_SOURCES = \
 	inputs/BackgroundDeviationEstimator.cpp \
 	inputs/BackgroundDeviationEstimator.h
 
+libnoopengine_la_SOURCES = \
+	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
+	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 libengine_la_SOURCES = \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
@@ -228,7 +231,7 @@ dstorm_SOURCES = \
 dstorm_LDADD = liboutputs.la libviewer.la \
     libspotFinders.la \
     libengine_stm.la \
-    libengine.la libgauss_fitter.la  \
+    libengine.la libnoopengine.la libgauss_fitter.la  \
     libfitter.la libinputs.la \
     libAndorCamera.la \
     libdStorm_display.la \

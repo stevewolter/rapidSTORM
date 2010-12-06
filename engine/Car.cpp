@@ -312,7 +312,6 @@ void Car::drive() {
     runtime_config.push_back( closeJob );
 
     Output::Announcement announcement( *input->get_traits() );
-    std::cerr << "Input announced traits " << announcement.resolution.is_set() << std::endl;
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
 

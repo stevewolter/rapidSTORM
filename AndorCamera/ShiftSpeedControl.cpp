@@ -85,7 +85,7 @@ void ShiftSpeedControl::operator()(const simparm::Event& e)
             fillHSSpeed();
         } 
     } catch (const std::exception&e ) {
-        std::cerr << e.what() << "\n";
+        std::cerr << "Error while reading horizontal shift speeds: " << e.what() << "\n";
     }
 }
 

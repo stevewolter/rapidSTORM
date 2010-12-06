@@ -78,7 +78,7 @@ System::System() {
     try {
         number_of_cameras = SDK::GetAvailableCameras();
     } catch (const Error &e) {
-        std::cerr << e.what() << "\n";
+        std::cerr << "Could not determine number of available Andor cameras: " << e.what() << "\n";
         number_of_cameras = 0;
     }
     cams = new CamInfo[number_of_cameras];

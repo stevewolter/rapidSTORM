@@ -4,18 +4,9 @@
 namespace dStorm {
 namespace viewer {
 
-template 
-    class Display< HueingColorizer<ColourSchemes::BlackWhite> >;
-template
-    class Display< HueingColorizer<ColourSchemes::BlackRedYellowWhite> >;
-template
-    class Display< HueingColorizer<ColourSchemes::FixedHue> >;
-template
-    class Display< HueingColorizer<ColourSchemes::TimeHue> >;
-template
-    class Display<HueingColorizer<ColourSchemes::ExtraHue> >;
-template
-    class Display< HueingColorizer<ColourSchemes::ExtraSaturation> >;
+#define DISC_INSTANCE(Hueing) template class Display< HueingColorizer<Hueing> >
+
+#include "ColourDisplay_instantiations.h"
 
 }
 }

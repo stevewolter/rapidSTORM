@@ -5,7 +5,6 @@
 #include <cassert>
 
 using namespace dStorm::engine;
-using std::cerr;
 
 namespace dStorm {
 namespace spotFinders {
@@ -217,24 +216,24 @@ class SortedList {
             if (i == _high) slowPart = false; 
             if (slowPart) lowParts++;
             if ( slowPart != lowPart[i] )  {
-                cerr << "slowPart no match for " << i << "\n";
+                std::cerr << "slowPart no match for " << i << "\n";
                 consistent = false;
             }
             if (slowPart && values[i] > median) {
-                cerr << "value too large for " << i << "\n";
+                std::cerr << "value too large for " << i << "\n";
                 consistent = false;
             }
             if (!slowPart && values[i] < median) {
-                cerr << "value too small for " << i << "\n";
+                std::cerr << "value too small for " << i << "\n";
                 consistent = false;
             }
         }
         if (lowParts != inLow)
-            cerr << "lowParts " << lowParts << " wrong" << "\n";
+            std::cerr << "lowParts " << lowParts << " wrong" << "\n";
         consistent = consistent && (lowParts == inLow);
         if (!consistent) {
-            cerr << "Inconsistent state at median " << median << "\n";
-            printState(cerr);
+            std::cerr << "Inconsistent state at median " << median << "\n";
+            printState(std::cerr);
         }
         return consistent;
     }

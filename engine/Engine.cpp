@@ -62,13 +62,11 @@ Engine::~Engine() {
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
 Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<engine::Image> > imProp )
 {
-    input::Traits<Localization> rv(imProp->get_other_dimensionality<Localization::Dim>());
+    input::Traits<Localization> rv;
+    static_cast< SizeTraits<Localization::Dim>& >(rv) = *imProp;
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
     rv.min_amplitude = config.amplitude_threshold();
-    rv.speed = imProp->speed;
-    rv.first_frame = imProp->first_frame;
-    rv.last_frame = imProp->last_frame;
     DEBUG("Last frame is set in input: " << imProp->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
 

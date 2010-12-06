@@ -1,8 +1,10 @@
+#define VERBOSE
+#include "debug.h"
+
 #include "JobStarter.h"
 #include <simparm/Message.hh>
 #include <dStorm/helpers/exception.h>
 
-#include "debug.h"
 #include "engine/Car.h"
 
 namespace dStorm {
@@ -25,9 +27,10 @@ void JobStarter::operator()( const simparm::Event& ) {
       untrigger();
       if ( config != NULL ) {
         try {
-            DEBUG("Running job");
+            DEBUG("Creating job");
             std::auto_ptr<engine::Car> car( 
                 new engine::Car(master, *config) );
+            DEBUG("Running job");
             car->detach();
             car.release();
         } catch ( const dStorm::runtime_error& e ) {
@@ -38,7 +41,12 @@ void JobStarter::operator()( const simparm::Event& ) {
             simparm::Message m("Starting job failed", e.what() );
             DEBUG("Got normal exception");
             const_cast<Config&>(*config).send( m );
+        } catch (...) {
+            simparm::Message m("Starting job failed", "Starting the job failed for an unknown reason" );
+            DEBUG("Got unknown exception");
+            const_cast<Config&>(*config).send( m );
         }
+        DEBUG("Finished handling exception");
       }
     }
 }

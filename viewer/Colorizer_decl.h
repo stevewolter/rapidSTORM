@@ -10,9 +10,9 @@ namespace viewer {
 
 namespace ColourSchemes {
     enum Scheme { BlackWhite, BlackRedYellowWhite,
-                  FixedHue, TimeHue, ExtraHue, ExtraSaturation,
+                  FixedHue, TimeHue, ZHue,
                   FirstColourModel = BlackWhite,
-                  LastColourModel = ExtraSaturation};
+                  LastColourModel = ZHue};
 
     typedef boost::array<float,3> RGBWeight;
 

@@ -6,6 +6,7 @@
 #include "fitter/residue_analysis/main.h"
 #include "fitter/MarquardtConfig_impl.h"
 #include "fitter/residue_analysis/Config_impl.h"
+#include <dStorm/unit_interval.h>
 
 namespace dStorm {
 namespace gauss_3d_fitter {
@@ -45,6 +46,7 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
     fitter::residue_analysis::Config::set_traits(rv);
     rv.covariance_matrix_is_set = false;
     rv.z_coordinate_is_set = true;
+    rv.z_range = output::Traits::ZRange(-Config<Widening>::z_range(), +Config<Widening>::z_range());
 }
 
 template <int Widening>

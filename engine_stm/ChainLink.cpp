@@ -4,6 +4,7 @@
 #include "LocalizationBuncher.h"
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/chain/EngineHelpers.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 
 #include <boost/mpl/vector.hpp>
@@ -19,16 +20,6 @@ class ChainLink::Visitor {
   public:
     typedef boost::mpl::vector<output::LocalizedImage,LocalizationFile::Record,dStorm::Localization>
         SupportedTypes;
-
-    struct TraitCreator {
-        input::chain::Context& c;
-        TraitCreator(input::chain::Context& c) : c(c) {}
-
-        template <typename Type>
-        void operator()( Type& ) {
-            c.more_infos.push_back( new input::Traits<Type>() );
-        }
-    };
 
     const Config& config;
     typedef std::auto_ptr< input::Source<output::LocalizedImage> > SourceResult;
@@ -49,7 +40,7 @@ class ChainLink::Visitor {
     bool operator()( input::chain::MetaInfo& ) { return true; }
     bool operator()( input::chain::Context& c ) {
         c.need_multiple_concurrent_iterators = false;
-        boost::mpl::for_each<SupportedTypes>( TraitCreator(c) );
+        boost::mpl::for_each<SupportedTypes>( input::chain::ContextTraitCreator(c) );
         return true;
     }
 

@@ -55,7 +55,7 @@ class CameraHandler
             if ( take_action )
                 shut_down();
         } catch ( const std::exception& e ) {
-            std::cerr << e.what() << std::endl;
+            std::cerr << "Error in camera handling: " << e.what() << std::endl;
         } catch (...) {}
         master.erase_node( *this );
     }
