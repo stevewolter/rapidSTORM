@@ -1,5 +1,6 @@
 ACLOCAL_AMFLAGS = -I ../m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
+INSTALL_PROGRAM = ${INSTALL} -m 711
 
 if BUILD_DEBUG_PLUGIN
     DEBUGPLUGIN = libtestplugin.la
