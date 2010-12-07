@@ -1,4 +1,3 @@
-#define VERBOSE
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include "ModuleLoader.h"

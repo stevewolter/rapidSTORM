@@ -12,7 +12,8 @@ void make_SI_prefix( float original_value, float& rest, const wxChar *& unit_pre
         rest = 0;
         unit_prefix = _T("");
     } else {
-        int postfix = int(floor( log10( original_value ) / 3 ));
+        float abs_val = fabs(original_value);
+        int postfix = int(floor( log10( abs_val ) / 3 ));
         postfix = std::min( std::max( -5, postfix ), 5 );
         rest = original_value / pow( 1000, postfix );
         unit_prefix = SI_prefixes[postfix+5];

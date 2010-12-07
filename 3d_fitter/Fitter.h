@@ -11,6 +11,7 @@
 #include "Config_decl.h"
 #include "Exponential3D.hh"
 #include <boost/units/quantity.hpp>
+#include <dStorm/units/nanolength.h>
 
 namespace dStorm {
 namespace gauss_3d_fitter {
@@ -26,6 +27,7 @@ class CommonInfo
     Eigen::Vector2i maxs;
     Eigen::Vector2d start;
     const boost::units::quantity<cs_units::camera::intensity> amplitude_threshold;
+    const boost::units::quantity<boost::units::si::nanolength> max_z_range;
 
   public:
     std::auto_ptr<typename FitGroup::Accessor> params;

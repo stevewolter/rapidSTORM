@@ -37,6 +37,7 @@ CommonInfo<Ks,Widening>::CommonInfo(
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
   amplitude_threshold( *info.config.amplitude_threshold() ),
+  max_z_range( c.z_range() ),
   params( new typename FitGroup::Accessor(NULL) )
 {
     FitGroup::template Parameter<MeanX>::set_absolute_epsilon
@@ -58,6 +59,7 @@ template <int Kernels, int Widening>
 CommonInfo<Kernels,Widening>::CommonInfo( const CommonInfo& o ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(o),
   maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
+  max_z_range(o.max_z_range),
   params( new typename FitGroup::Accessor(*o.params) )
 {
 }
@@ -138,7 +140,8 @@ CommonInfo<Kernels,Widening>::check_result(
         && target->x() < maxs.x() * cs_units::camera::pixel
         && target->y() < maxs.y() * cs_units::camera::pixel
         && sqr(target->x().value() - start.x()) + 
-           sqr(target->y().value() - start.y()) < 4;
+           sqr(target->y().value() - start.y()) < 4 
+        && target->zposition() < this->max_z_range;
 
     DEBUG("Position good: " << good);
     target->unset_source_trace();

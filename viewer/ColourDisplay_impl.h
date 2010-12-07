@@ -171,14 +171,13 @@ class HueingColorizer : public Colorizer<unsigned char> {
         { merge_tone(x, y, oldVal, newVal - oldVal); }
     inline void announce(const output::Output::Announcement& a); 
     inline void announce(const output::Output::EngineResult& er);
-    inline void announce(const Localization&) {
-    }
+    inline void announce(const Localization&);
 
     template <typename Unit>
     dStorm::Display::KeyDeclaration key_declaration() const {
         return dStorm::Display::KeyDeclaration(
-            boost::units::symbol_string(minV),
-            boost::units::name_string(minV),
+            boost::units::symbol_string( Unit() ),
+            boost::units::name_string( Unit() ),
             key_resolution);
     }
     inline dStorm::Display::KeyDeclaration create_key_declaration( int index ) const;
@@ -227,7 +226,7 @@ struct HueingTypeHelper<ColourSchemes::ZHue>
 };
 
 template <>
-void HueingColorizer<ColourSchemes::TimeHue>
+inline void HueingColorizer<ColourSchemes::TimeHue>
 ::announce(const output::Output::Announcement& a)
 {
     minV = a.first_frame;
@@ -240,7 +239,7 @@ void HueingColorizer<ColourSchemes::TimeHue>
 }
 
 template <>
-void HueingColorizer<ColourSchemes::ZHue>
+inline void HueingColorizer<ColourSchemes::ZHue>
 ::announce(const output::Output::Announcement& a) 
 {
     assert( a.z_range.is_set() );
@@ -254,7 +253,7 @@ void HueingColorizer<ColourSchemes::ZHue>
 }
 
 template <>
-float
+inline float
 HueingColorizer<ColourSchemes::TimeHue>
 ::key_value( quantity<Unit,float> frame ) const {
     if ( speed.is_set() ) {
@@ -266,14 +265,14 @@ HueingColorizer<ColourSchemes::TimeHue>
 }
 
 template <int Hueing>
-float
+inline float
 HueingColorizer<Hueing>
 ::key_value( quantity<Unit,float> frame ) const {
     return frame.value();
 }
 
 template <>
-dStorm::Display::KeyDeclaration 
+inline dStorm::Display::KeyDeclaration 
 HueingColorizer<ColourSchemes::TimeHue>
 ::create_key_declaration( int index ) const
 {
@@ -288,7 +287,7 @@ HueingColorizer<ColourSchemes::TimeHue>
 }
 
 template <int Hueing>
-dStorm::Display::KeyDeclaration 
+inline dStorm::Display::KeyDeclaration 
 HueingColorizer<Hueing>
 ::create_key_declaration( int index ) const
 {
@@ -300,25 +299,25 @@ HueingColorizer<Hueing>
 }
 
 template <>
-void HueingColorizer<ColourSchemes::TimeHue>
+inline void HueingColorizer<ColourSchemes::TimeHue>
 ::announce(const output::Output::EngineResult& er)
 {
     set_tone( er.forImage );
 }
 template <>
-void HueingColorizer<ColourSchemes::TimeHue>
+inline void HueingColorizer<ColourSchemes::TimeHue>
 ::announce(const Localization& l)
 {
 }
 
 template <>
-void HueingColorizer<ColourSchemes::ZHue>
+inline void HueingColorizer<ColourSchemes::ZHue>
 ::announce(const output::Output::EngineResult& er)
 {
 }
 
 template <>
-void HueingColorizer<ColourSchemes::ZHue>
+inline void HueingColorizer<ColourSchemes::ZHue>
 ::announce(const Localization& l)
 {
     set_tone( l.zposition() );
