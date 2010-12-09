@@ -8,6 +8,8 @@
 #include <sstream>
 #include <boost/units/io.hpp>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/NumericEntry.hh>
+#include <simparm/TriggerEntry.hh>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/log.h>
@@ -16,26 +18,69 @@ class Manager::ControlConfig
 : public simparm::Object, public simparm::Listener, private boost::noncopyable
 {
     Manager& m;
-  public:
-    simparm::DataChoiceEntry<int> to_close;
+    simparm::DataChoiceEntry<int> which_window;
+    simparm::UnsignedLongEntry which_key;
+    simparm::StringEntry new_limit;
+    simparm::TriggerEntry close, set_lower_limit, set_upper_limit;
 
+    void send_key_update(bool lower) {
+        if ( ! which_window.isValid() ) return;
+        int number = which_window(), key = which_key();
+        ost::MutexLock lock(m.mutex);
+        SourcesMap::iterator i = m.sources_by_number.find(number);
+        if ( i != m.sources_by_number.end() ) {
+            i->second->handler.notice_user_key_limits( key, lower, new_limit() );
+        }
+    }
+
+  public:
     ControlConfig(Manager& m) 
         : Object("DummyDisplayManagerConfig", "Dummy display manager"), m(m),
-          to_close("ToClose", "Close Window")
+          which_window("WhichWindow", "Select window"),
+          which_key("WhichKey", "Select key", 1),
+          new_limit("NewLimit", "New limit for selected key"),
+          close("Close", "Close Window"),
+          set_lower_limit("SetLowerLimit", "Set lower key limit"),
+          set_upper_limit("SetUpperLimit", "Set upper key limit")
     {
-        to_close.set_auto_selection( false );
-        receive_changes_from( to_close.value );
-        push_back( to_close );
+        which_window.set_auto_selection( false );
+        push_back( which_window );
+        push_back( close );
+        push_back( which_key );
+        push_back( new_limit );
+        push_back( set_lower_limit );
+        push_back( set_upper_limit );
+        receive_changes_from( close.value );
+        receive_changes_from( set_lower_limit.value );
+        receive_changes_from( set_upper_limit.value );
+    }
+
+    void added_choice( int n ) {
+        std::stringstream entrynum;
+        entrynum << n;
+        which_window.addChoice( n, "Window" + entrynum.str(), "Window " + entrynum.str());
+    }
+
+    void removed_choice( int n ) {
+        which_window.removeChoice(n);
     }
 
     void operator()(const simparm::Event& e) {
-        if ( &e.source == &to_close.value && to_close.isValid() ) {
-            int number = to_close();
+        if ( &e.source == &close.value && close.triggered() ) {
+            close.untrigger();
+            if ( ! which_window.isValid() ) return;
+            int number = which_window();
             ost::MutexLock lock(m.mutex);
             SourcesMap::iterator i = m.sources_by_number.find(number);
             if ( i != m.sources_by_number.end() ) {
                 i->second->handler.notice_closed_data_window();
             }
+        } else if ( &e.source == &set_lower_limit.value && set_lower_limit.triggered() ) {
+            set_lower_limit.untrigger();
+            send_key_update(true);
+        } else if ( &e.source == &set_upper_limit.value && set_upper_limit.triggered() ) {
+            set_upper_limit.untrigger();
+            send_key_update(false);
         }
     }
 };
@@ -56,16 +101,14 @@ class Manager::Handle
             m.sources.end(),
             Source(properties, source, m.number++) );
         m.sources_by_number.insert( make_pair( i->number, i ) );
-        std::stringstream entrynum;
-        entrynum << i->number;
-        m.control_config->to_close.addChoice( i->number, "Window" + entrynum.str(), "Window " + entrynum.str());
+        m.control_config->added_choice( i->number );
         LOG( "Created new window number " << i->number );
     }
     ~Handle() {
         guard lock(m.mutex);
         m.print_status(*i, "Destructing ", true);
         m.sources.erase( i );
-        m.control_config->to_close.removeChoice(i->number);
+        m.control_config->removed_choice(i->number);
     }
 
     std::auto_ptr<dStorm::Display::Change>
@@ -90,6 +133,10 @@ void Manager::Source::handle_resize(
               << r.size.x() << " " << r.size.y() << " with "
               << ((r.keys.empty()) ? 0 : r.keys.front().size) << " grey levels and pixel "
                  "size " << r.pixel_size );
+    for (unsigned int i = 0; i < r.keys.size(); ++i ) {
+        LOG( "Window " << number << " key " << i << " is measured in " << r.keys[i].unit << " and has " << r.keys[i].size << " levels and the user "
+             "can " << ((r.keys[i].can_set_lower_limit) ? "" : "not ") << "set the lower limit" );
+    }
     current_display = Image( r.size );
     current_display.fill(0);
     state.do_resize = true;
@@ -140,6 +187,8 @@ bool Manager::Source::get_and_handle_change() {
         for ( int i = 0; i < c->changed_keys[j].size(); i++ )
         {
             dStorm::Display::KeyChange kc = c->changed_keys[j][i];
+            if ( i == 31 )
+                LOG("Window " << number << " key " << j << " value 31 has value " << kc.value);
             state.changed_keys[j][kc.index] = kc;
         }
 
@@ -203,7 +252,6 @@ void Manager::print_status(Source& s, std::string prefix, bool p)
 }
 
 void Manager::dispatch_events() {
-    std::cerr << "Start of event dispatch routine\n";
     while ( running ) {
       {
         guard lock(mutex);
@@ -220,7 +268,6 @@ void Manager::dispatch_events() {
       Sleep(100);
 #endif
     }
-    std::cerr << "End of event dispatch routine\n";
 }
 
 void Manager::run_in_GUI_thread( ost::Runnable* )

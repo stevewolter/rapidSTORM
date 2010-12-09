@@ -48,11 +48,14 @@ struct wxManager::Closer : public ost::Runnable {
 wxManager::~wxManager() {
     DEBUG("Stopping display thread");
     may_close = true;
-    if ( was_started ) {
+    if ( toolkit_available && was_started ) {
         Closer closer;
         run_in_GUI_thread( &closer );
         closed_all_handles.signal();
         join();
+    } else {
+        ost::MutexLock lock(mutex);
+        closed_all_handles.signal();
     }
     DEBUG("Stopped display thread");
 }

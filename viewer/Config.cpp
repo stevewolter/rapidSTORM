@@ -57,7 +57,7 @@ _Config::_Config()
     colourScheme.addChoice(ColourSchemes::TimeHue,
         "HueByTime", "Vary hue by time coordinate");
     colourScheme.addChoice( ColourSchemes::ZHue,
-        "HueByZCoordinate", "Vary hue by z coordinate");
+        "HueByZ", "Vary hue by z coordinate");
 
     colourScheme = ColourSchemes::BlackRedYellowWhite;
 

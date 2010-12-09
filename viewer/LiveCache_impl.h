@@ -53,6 +53,7 @@ template < typename Listener>
 void LiveCache<Listener>::clear() {
     for (unsigned int i = 0; i < in_depth; i++)
         pixels_by_value[i].unlink();
+    this->publish().clear();
 }
 
 }

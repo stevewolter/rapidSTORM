@@ -46,6 +46,8 @@ class Colorizer
         { throw std::logic_error("Request to declare unknown key"); }
     void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
         { throw std::logic_error("Request to write unknown key"); }
+    void notice_user_key_limits(int, bool, std::string)
+        { throw std::logic_error("Request to set limits for unknown key"); }
 };
 
 }

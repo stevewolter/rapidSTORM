@@ -41,6 +41,7 @@ class LiveBackend
     void notice_closed_data_window();
     void look_up_key_values( const PixelInfo& info,
                              std::vector<float>& targets );
+    void notice_user_key_limits(int key_index, bool lower, std::string input);
 
   public:
     LiveBackend(Config& config, Status&);

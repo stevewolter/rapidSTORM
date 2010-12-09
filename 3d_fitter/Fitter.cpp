@@ -141,7 +141,8 @@ CommonInfo<Kernels,Widening>::check_result(
         && target->y() < maxs.y() * cs_units::camera::pixel
         && sqr(target->x().value() - start.x()) + 
            sqr(target->y().value() - start.y()) < 4 
-        && target->zposition() < this->max_z_range;
+        && target->zposition() < this->max_z_range
+        && target->zposition() > - this->max_z_range;
 
     DEBUG("Position good: " << good);
     target->unset_source_trace();

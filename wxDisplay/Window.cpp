@@ -50,8 +50,9 @@ Window::Window(
     wxClientDC dc(this);
     wxSize size = dc.GetTextExtent( wxT("0123456789.") );
     for (unsigned int i = 0; i < init_size.keys.size(); i++) {
-        keys.push_back( new Key( this, wxSize( 100+size.GetWidth()*2 / 11, 0 ),
+        keys.push_back( new Key( i, this, wxSize( 100+size.GetWidth()*2 / 11, 0 ),
                                 init_size.keys[i] ) );
+        keys.back()->set_data_source( data_source );
     }
 
     scale_bar = new ScaleBar(this, wxSize(150, 30));
@@ -67,13 +68,7 @@ Window::Window(
     hor_sizer->Add( scale_bar, wxSizerFlags().Expand().Border( wxALL, 10 ) );
     ver_sizer1->Add( hor_sizer, wxSizerFlags().Expand() );
     for (Keys::const_iterator i = keys.begin(); i != keys.end(); ++i) {
-        wxBoxSizer *key = new wxBoxSizer( wxVERTICAL );
-        key->Add( (*i)->getLabel(), 
-                  wxSizerFlags().Center().Border( wxALL, 10 ) );
-        key->Add( *i, wxSizerFlags(1).Expand() );
-        key->Add( (*i)->getCursorText(), 
-                  wxSizerFlags().Center().Border( wxALL, 10 ) );
-        key_sizer->Add( key, wxSizerFlags(1).Expand() );
+        key_sizer->Add( (*i)->getBox(), wxSizerFlags(1).Expand() );
     }
     ver_sizer2->Add( key_sizer, wxSizerFlags(1).Expand() );
     ver_sizer2->Add( position_label, wxSizerFlags() );
@@ -181,6 +176,8 @@ void Window::remove_data_source() {
     }
     DEBUG("Stopping timer");
     timer.Stop();
+    for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
+        (*i)->set_data_source(NULL);
     source = NULL;
 
     if ( close_on_completion ) {
@@ -224,6 +221,8 @@ void Window::zoom_changed( int to ) {
 
 BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
+    EVT_TEXT_ENTER(Key::LowerLimitID, Window::OnLowerLimitChange)
+    EVT_TEXT_ENTER(Key::UpperLimitID, Window::OnUpperLimitChange)
 END_EVENT_TABLE()
 
 std::auto_ptr<Change> Window::getState() 
@@ -251,6 +250,20 @@ std::auto_ptr<Change> Window::getState()
     }
 
     return rv;
+}
+
+void Window::OnLowerLimitChange(wxCommandEvent& e)
+{
+    for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) {
+        (*i)->OnLowerLimitChange(e);
+    }
+}
+
+void Window::OnUpperLimitChange(wxCommandEvent& e)
+{
+    for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) {
+        (*i)->OnUpperLimitChange(e);
+    }
 }
 
 }

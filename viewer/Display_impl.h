@@ -101,6 +101,8 @@ void Display<Colorizer>::clear() {
 
     next_change->change_pixels.clear();
     next_change->changed_keys.front().clear();
+    for (int j = 1; j < Colorizer::KeyCount; ++j)
+        colorizer.create_full_key( next_change->changed_keys[j] , j );
     fill( ps.begin(), ps.end(), false );
 }
 

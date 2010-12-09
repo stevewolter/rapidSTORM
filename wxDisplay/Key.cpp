@@ -9,9 +9,11 @@
 namespace dStorm {
 namespace Display {
 
-Key::Key( wxWindow* parent, wxSize size, const Declaration& decl )
+Key::Key( int number, wxWindow* parent, wxSize size, 
+          const Declaration& decl )
     : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),
         parent(parent),
+        lowerBoundary(NULL), upperBoundary(NULL),
         current_size( size ),
         buffer( new wxBitmap(size.GetWidth(), size.GetHeight()) ),
         num_keys( decl.size ),
@@ -25,7 +27,9 @@ Key::Key( wxWindow* parent, wxSize size, const Declaration& decl )
         left_border(5),
         background_pen( this->GetBackgroundColour() ),
         background_brush( this->GetBackgroundColour() ),
-        current_declaration( decl )
+        current_declaration( decl ),
+        source(NULL),
+        key_index( number )
 {
     compute_key_size();
     wxClientDC dc(this);
@@ -34,6 +38,14 @@ Key::Key( wxWindow* parent, wxSize size, const Declaration& decl )
     wxString str( decl.unit.c_str(), wxConvUTF8 );
     label = new wxStaticText( parent, wxID_ANY, wxT("Key (in ") + str + wxT(")"));
     cursor = new wxStaticText( parent, wxID_ANY, wxT("        ") );
+    if ( decl.can_set_lower_limit ) 
+        lowerBoundary = new wxTextCtrl( parent, LowerLimitID, 
+            wxString( decl.lower_limit.c_str(), wxConvUTF8 ), 
+            wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
+    if ( decl.can_set_upper_limit ) 
+        upperBoundary = new wxTextCtrl( parent, UpperLimitID, 
+            wxString( decl.upper_limit.c_str(), wxConvUTF8 ), 
+            wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 }
 
 Key::~Key() { buffer.release(); }
@@ -228,6 +240,36 @@ void Key::cursor_value( const DataSource::PixelInfo& info, float value )
     wxSnprintf(cbuffer, 128, wxT("%.3g %s"), 
         remainder, SI_unit_prefix);
     cursor->SetLabel( ((approx) ? wxT("ca. ") : wxT("")) + wxString(cbuffer) );
+}
+
+wxBoxSizer *Key::getBox()
+{
+        wxBoxSizer *key = new wxBoxSizer( wxVERTICAL );
+        key->Add( getLabel(), 
+                  wxSizerFlags().Center().Border( wxALL, 10 ) );
+        key->Add( this, wxSizerFlags(1).Expand() );
+        key->Add( getCursorText(), 
+                  wxSizerFlags().Center().Border( wxALL, 10 ) );
+        if ( lowerBoundary || upperBoundary )
+            key->Add( new wxStaticText( parent, wxID_ANY, wxT("Color range") ) );
+
+        if ( lowerBoundary )
+            key->Add( lowerBoundary, wxSizerFlags().Center().Border( wxALL, 10 ) );
+        if ( upperBoundary )
+            key->Add( upperBoundary, wxSizerFlags().Center().Border( wxALL, 10 ) );
+    return key;
+}
+
+void Key::OnLowerLimitChange( wxCommandEvent& ) {
+    if ( source && lowerBoundary ) {
+        source->notice_user_key_limits( key_index, true,
+            std::string(lowerBoundary->GetValue().mb_str()) );
+    }
+}
+void Key::OnUpperLimitChange( wxCommandEvent& ) {
+    if ( source && upperBoundary )
+        source->notice_user_key_limits( key_index, false,
+            std::string(upperBoundary->GetValue().mb_str()) );
 }
 
 }

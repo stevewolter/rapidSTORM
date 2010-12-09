@@ -34,6 +34,8 @@ class Window : public wxFrame, public Canvas::Listener
     DECLARE_EVENT_TABLE();
 
     void OnTimer(wxTimerEvent& event);
+    void OnLowerLimitChange(wxCommandEvent&);
+    void OnUpperLimitChange(wxCommandEvent&);
 
     template <typename Drawer>
     void draw_image_window( const Change& changes );

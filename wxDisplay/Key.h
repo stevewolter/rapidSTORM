@@ -10,12 +10,15 @@ namespace dStorm {
 namespace Display {
 
 class Key : public wxWindow {
+  public:
+    static const int LowerLimitID = 1, UpperLimitID = 2;
   private:
     typedef dStorm::Display::KeyDeclaration Declaration;
 
     wxWindow *parent;
     wxStaticText *label;
     wxStaticText *cursor;
+    wxTextCtrl *lowerBoundary, *upperBoundary;
 
     wxSize current_size;
     std::auto_ptr<wxBitmap> buffer;
@@ -34,6 +37,8 @@ class Key : public wxWindow {
     wxBrush background_brush;
 
     Declaration current_declaration;
+    DataSource *source;
+    const int key_index;
 
     void compute_key_size();
 
@@ -44,13 +49,15 @@ class Key : public wxWindow {
     void draw_key( int index, wxDC &dc );
 
   public:
-    Key( wxWindow* parent, wxSize size, const Declaration& ) ;
+    Key( int number, wxWindow* parent, wxSize size, const Declaration& );
     ~Key();
 
     void draw_keys( const data_cpp::Vector<KeyChange>& kcs );
 
     void OnPaint( wxPaintEvent& event );
     void OnResize( wxSizeEvent& );
+    void OnLowerLimitChange( wxCommandEvent& );
+    void OnUpperLimitChange( wxCommandEvent& );
 
     void resize( const Declaration& );
 
@@ -59,8 +66,13 @@ class Key : public wxWindow {
 
     wxStaticText *getLabel() const { return label; }
     wxStaticText *getCursorText() const { return cursor; }
+    wxTextCtrl *getLowerBoundary() const { return lowerBoundary; }
+    wxTextCtrl *getUpperBoundary() const { return upperBoundary; }
+
+    wxBoxSizer *getBox();
 
     void cursor_value( const DataSource::PixelInfo&, float value );
+    void set_data_source( DataSource* src ) { source = src; }
 
     DECLARE_EVENT_TABLE();
 };

@@ -87,6 +87,16 @@ void LiveBackend<Hueing>::look_up_key_values(
     }
 }
 
+template <int Hueing>
+void LiveBackend<Hueing>::notice_user_key_limits(int key_index, bool lower, std::string input)
+{
+    if ( key_index == 0 )
+        throw std::runtime_error("Intensity key cannot be limited");
+    else {
+        ost::MutexLock lock( image.getMutex() );
+        colorizer.notice_user_key_limits(key_index, lower, input);
+    }
+}
 
 }
 }

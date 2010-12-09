@@ -151,6 +151,7 @@ libviewer_la_SOURCES = \
     viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
     viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
     viewer/ImageDiscretizer_converter.h \
+    viewer/HueSaturationMixer.h viewer/HueSaturationMixer.cpp \
     viewer/plugin.h
 
 libfitter_la_SOURCES = \

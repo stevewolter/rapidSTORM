@@ -3,9 +3,9 @@
 
 #include "ColourDisplay.h"
 #include <Eigen/Core>
-#include <dStorm/Image.h>
-#include <dStorm/image/constructors.h>
 #include <boost/units/io.hpp>
+#include <dStorm/output/ResultRepeater.h>
+#include "HueSaturationMixer.h"
 
 inline dStorm::Pixel operator*( const dStorm::viewer::ColourSchemes::RGBWeight& r, uint8_t b ) {
     return dStorm::Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
@@ -76,11 +76,10 @@ class HueingColorizer<ColourSchemes::FixedHue>
 using namespace boost::units;
 
 template <int Hueing>
-class HueingTypeHelper;
+class HueingVariable;
 
 template <int Hueing> 
-class HueingColorizer : public Colorizer<unsigned char> { 
-    typedef Eigen::Matrix<float,2,1,Eigen::DontAlign> ColourVector;
+class HueingColorizer : public Colorizer<unsigned char>, public HueSaturationMixer { 
   public:
     typedef Colorizer<unsigned char> BaseType;
     typedef BaseType::BrightnessType BrightnessType;
@@ -88,176 +87,102 @@ class HueingColorizer : public Colorizer<unsigned char> {
     static const int KeyCount = 2;
 
   private:
-    typedef typename HueingTypeHelper<Hueing>::Unit Unit;
+    typedef typename HueingVariable<Hueing>::Unit Unit;
+    typedef quantity<Unit,float> Qty;
 
-    quantity<Unit,float> minV, maxV;
+    HueingVariable<Hueing> variable;
+
+    Qty origrange[2], range[2];
+    simparm::optional<Qty> userrange[2];
     typedef typename boost::units::power_typeof_helper<Unit,static_rational<-1> >::type per_frame;
     quantity<per_frame,float> scaleV;
     static const int key_resolution = 100;
-    simparm::optional<frame_rate> speed;
 
-    /** Offset for tone calculations. */
-    ColourVector base_tone,
-    /** Tone for currently processed points in radial Hue/Sat space */
-                 current_tone;
-    /** Tone for currently processed points in cartesian Hue/Sat space. */
-    ColourVector tone_point;
+    output::ResultRepeater *repeater;
 
-    typedef ColourSchemes::RGBWeight RGBWeight;
-
-    dStorm::Image<ColourVector,2> colours;
-    dStorm::Image<RGBWeight,2> rgb_weights;
-
+    void set_user_limit(int lower, simparm::optional<Qty> value);
     void set_tone( quantity<Unit,float> value ) {
-        float hue = (value - minV) * scaleV, saturation = 0;
-        current_tone = base_tone + ColourVector( hue, saturation );
-        tone_point.x() = cosf( 2 * M_PI * current_tone[0] ) 
-                            * current_tone[1];
-        tone_point.y() = sinf( 2 * M_PI * current_tone[0] ) 
-                            * current_tone[1];
+        Qty clipped = std::max(range[0], std::min(value, range[1]));
+        float scaledV = ( clipped - range[0] ) * scaleV;
+        HueSaturationMixer::set_tone( scaledV );
     }
-
-    void merge_tone( int x, int y, 
-                     float old_data_weight, float new_data_weight )
+    void set_range()
     {
-        assert( int(colours.width_in_pixels()) > x && int(colours.height_in_pixels()) > y );
-        ColourVector hs;
-        if ( old_data_weight < 1E-3 ) {
-            colours(x,y) = tone_point;
-            hs = current_tone;
-        } else {
-            colours(x,y) = 
-                ( colours(x,y) * old_data_weight + 
-                  tone_point * new_data_weight ) /
-                  ( old_data_weight + new_data_weight );
-            ColourSchemes::convert_xy_tone_to_hue_sat
-                ( colours(x,y).x(), colours(x,y).y(), hs[0], hs[1] );
-        }
-        ColourSchemes::rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
-                
-    }
-
-    void set_scale_and_speed( const output::Output::Announcement& a )
-    {
-        scaleV = 0.666f / (maxV - minV);
-        speed = a.speed;
+        for (int i = 0; i < 2; ++i )
+            range[i] = ( userrange[i].is_set() ) ? *userrange[i] : origrange[i]; 
+        scaleV = 0.666f / (range[1] - range[0]);
     }
 
     inline float
     key_value( quantity<Unit,float> ) const;
 
   public:
-    HueingColorizer(const Config& config) : BaseType(config)
-        { base_tone[0] = config.hue(); 
-          base_tone[1] = config.saturation(); } 
+    HueingColorizer(const Config& config) 
+        : BaseType(config), HueSaturationMixer(config), variable(config),
+          repeater(NULL) {}
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
-        colours.invalidate();
-        rgb_weights.invalidate();
-        colours = dStorm::Image<ColourVector,2>(traits.size);
-        rgb_weights = dStorm::Image<RGBWeight,2>(traits.size);
+        BaseType::setSize(traits);
+        HueSaturationMixer::setSize(traits.size);
     }
+    Pixel getPixel(int x, int y, BrightnessType val)
+        { return inv( HueSaturationMixer::getPixel(x,y,val) ); }
+    Pixel getKeyPixel( unsigned char val ) const 
+        { return inv( HueSaturationMixer::getKeyPixel(val) ); }
+    void updatePixel(int x, int y, float oldVal, float newVal) 
+        { HueSaturationMixer::updatePixel(x,y, oldVal, newVal); }
 
-    inline Pixel getPixel( int x, int y, 
-                           BrightnessType val )  const
-    {
-        return inv( Pixel( val * rgb_weights(x,y) ) );
-    }
-    Pixel getKeyPixel( BrightnessType val ) const 
-        { return inv( Pixel( val ) ); }
-
-    inline void updatePixel(int x, int y, 
-                            float oldVal, float newVal) 
-        { merge_tone(x, y, oldVal, newVal - oldVal); }
-    inline void announce(const output::Output::Announcement& a); 
+    void announce(const output::Output::Announcement& a); 
     inline void announce(const output::Output::EngineResult& er);
     inline void announce(const Localization&);
 
     template <typename Unit>
     dStorm::Display::KeyDeclaration key_declaration() const {
-        return dStorm::Display::KeyDeclaration(
+        dStorm::Display::KeyDeclaration rv(
             boost::units::symbol_string( Unit() ),
             boost::units::name_string( Unit() ),
             key_resolution);
+        if ( repeater ) {
+            rv.can_set_lower_limit = rv.can_set_upper_limit = true;
+            std::stringstream s[2];
+            for (int i = 0; i < 2; ++i )
+                s[i] << key_value( range[i] );
+            rv.lower_limit = s[0].str(); rv.upper_limit = s[1].str();
+        }
+        return rv;
     }
     inline dStorm::Display::KeyDeclaration create_key_declaration( int index ) const;
 
-    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
-    {
-        if ( index == 1 ) {
-            const float max_saturation = 1;
-            const BrightnessType max_brightness 
-                = std::numeric_limits<BrightnessType>::max();
-            const int key_count = key_resolution;
-            into.reserve( key_count );
-            for (int i = 0; i < key_count; ++i) {
-                float hue = (i * 0.666f / key_count);
-                RGBWeight weights;
-                ColourSchemes::rgb_weights_from_hue_saturation
-                    ( hue, max_saturation, weights );
+    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const;
 
-                /* Key value in frames */
-                quantity<Unit,float>
-                    frame = ((maxV - minV) * ((1.0f * i) / key_count) + minV);
-                float value = key_value(frame);
-
-                into.push_back( dStorm::Display::KeyChange(
-                    /* index */ i,
-                    /* color */ weights * max_brightness,
-                    /* value */ value ) );
-            }
-        } else {
-            BaseType::create_full_key( into, index );
-        }
-    }
+    void notice_user_key_limits(int, bool, std::string);
 };
 
 template <>
-struct HueingTypeHelper<ColourSchemes::TimeHue>
+struct HueingVariable<ColourSchemes::TimeHue>
 {
     typedef cs_units::camera::time Unit;
     typedef boost::units::si::time AlternateUnit;
+
+    simparm::optional<frame_rate> speed;
+
+    HueingVariable( const Config& ) {}
 };
 
 template <>
-struct HueingTypeHelper<ColourSchemes::ZHue>
+struct HueingVariable<ColourSchemes::ZHue>
 {
     typedef boost::units::si::nanolength Unit;
+
+    HueingVariable( const Config& ) {}
 };
-
-template <>
-inline void HueingColorizer<ColourSchemes::TimeHue>
-::announce(const output::Output::Announcement& a)
-{
-    minV = a.first_frame;
-    if ( a.last_frame.is_set() )
-        maxV = *a.last_frame;
-    else
-        throw std::runtime_error("Total length of acquisition must be "
-                                    "known for colour coding by time.");
-    set_scale_and_speed(a);
-}
-
-template <>
-inline void HueingColorizer<ColourSchemes::ZHue>
-::announce(const output::Output::Announcement& a) 
-{
-    assert( a.z_range.is_set() );
-    if ( ! a.z_range.is_set() )
-        throw std::runtime_error("Maximum Z range must be "
-                                    "known for colour coding by Z coordinate.");
-
-    minV = a.z_range->lower();
-    maxV = a.z_range->upper();
-    set_scale_and_speed(a);
-}
 
 template <>
 inline float
 HueingColorizer<ColourSchemes::TimeHue>
 ::key_value( quantity<Unit,float> frame ) const {
-    if ( speed.is_set() ) {
-        quantity<si::time, double> time = frame / *speed;
+    if ( variable.speed.is_set() ) {
+        quantity<si::time, double> time = frame / *variable.speed;
         return time.value();
     } else {
         return frame.value();
@@ -277,8 +202,8 @@ HueingColorizer<ColourSchemes::TimeHue>
 ::create_key_declaration( int index ) const
 {
     if ( index == 1 ) {
-        if ( speed.is_set() )
-            return key_declaration<HueingTypeHelper<ColourSchemes::TimeHue>::AlternateUnit>();
+        if ( variable.speed.is_set() )
+            return key_declaration<HueingVariable<ColourSchemes::TimeHue>::AlternateUnit>();
         else
             return key_declaration<Unit>();
     } else {

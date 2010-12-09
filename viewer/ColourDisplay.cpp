@@ -1,6 +1,8 @@
-#include "ColourDisplay.h"
+#include "ColourDisplay_impl.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+using namespace boost::units;
 
 namespace dStorm {
 namespace viewer {
@@ -61,5 +63,106 @@ void convert_xy_tone_to_hue_sat(
 }
 
 }
+
+template <>
+void HueingColorizer<ColourSchemes::TimeHue>
+::announce(const output::Output::Announcement& a)
+{
+    repeater = a.result_repeater;
+    origrange[0] = a.first_frame;
+    if ( a.last_frame.is_set() )
+        origrange[1] = *a.last_frame;
+    else
+        throw std::runtime_error("Total length of acquisition must be "
+                                    "known for colour coding by time.");
+    variable.speed = a.speed;
+    set_range();
+}
+
+template <int Hueing>
+void HueingColorizer<Hueing>::set_user_limit(int lower, simparm::optional<Qty> value)
+{
+    userrange[lower] = value;
+    set_range();
+}
+
+template <>
+void HueingColorizer<ColourSchemes::TimeHue>
+    ::notice_user_key_limits(int index, bool lower_limit, std::string s)
+{
+    if ( index == 1 ) {
+        assert( repeater );
+        if ( ! repeater ) throw std::runtime_error("Missing old localization data for re-keying");
+        Qty v;
+        if ( variable.speed.is_set() ) 
+            v = atof(s.c_str()) * si::seconds * *variable.speed;
+        else
+            v = Qty::from_value( atof(s.c_str()) );
+        set_user_limit( (lower_limit) ? 0 : 1, v );
+        repeater->repeat_results();
+    } else
+        BaseType::notice_user_key_limits( index, lower_limit, s );
+}
+
+template <>
+void HueingColorizer<ColourSchemes::ZHue>
+    ::notice_user_key_limits(int index, bool lower_limit, std::string s)
+{
+    if ( index == 1 ) {
+        assert( repeater );
+        if ( ! repeater ) throw std::runtime_error("Missing old localization data for re-keying");
+        set_user_limit( (lower_limit) ? 0 : 1, Qty::from_value( atof(s.c_str()) ) );
+        repeater->repeat_results();
+    } else
+        BaseType::notice_user_key_limits( index, lower_limit, s );
+}
+
+template <int Hue>
+void HueingColorizer<Hue>::create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
+{
+    if ( index == 1 ) {
+        const float max_saturation = 1;
+        const BrightnessType max_brightness 
+            = std::numeric_limits<BrightnessType>::max();
+        const int key_count = key_resolution;
+        into.reserve( key_count );
+        for (int i = 0; i < key_count; ++i) {
+            float hue = (i * 0.666f / key_count);
+            RGBWeight weights;
+            ColourSchemes::rgb_weights_from_hue_saturation
+                ( hue, max_saturation, weights );
+
+            /* Key value in frames */
+            quantity<Unit,float>
+                frame = ((range[1] - range[0]) * ((1.0f * i) / key_count) + range[0]);
+            float value = key_value(frame);
+
+            into.push_back( dStorm::Display::KeyChange(
+                /* index */ i,
+                /* color */ weights * max_brightness,
+                /* value */ value ) );
+        }
+    } else
+        BaseType::create_full_key( into, index );
+} 
+
+template <>
+void HueingColorizer<ColourSchemes::ZHue>
+::announce(const output::Output::Announcement& a) 
+{
+    repeater = a.result_repeater;
+    assert( a.z_range.is_set() );
+    if ( ! a.z_range.is_set() )
+        throw std::runtime_error("Maximum Z range must be "
+                                    "known for colour coding by Z coordinate.");
+
+    origrange[0] =  a.z_range->lower();
+    origrange[1] = a.z_range->upper();
+    set_range();
+}
+
+template class HueingColorizer<ColourSchemes::TimeHue>;
+template class HueingColorizer<ColourSchemes::ZHue>;
+
 }
 }
