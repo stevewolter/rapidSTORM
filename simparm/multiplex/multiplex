@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+
+# SimParm: Simple and flexible C++ configuration framework
+# Copyright (C) 2007 Australian National University
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# 
+# Contact:
+# Kevin Pulo
+# kevin.pulo@anu.edu.au
+# Leonard Huxley Bldg 56
+# Australian National University, ACT, 0200, Australia
+
+import sys
+import os
+import select
+import glob
+
+if len(sys.argv) >= 3:
+	input_pattern = sys.argv[1]
+	output_pattern = sys.argv[2]
+else:
+	input_pattern = ".control-*.in"
+	output_pattern = ".control-*.out"
+
+inputs = [ sys.stdin ]
+outputs = [ sys.stdout ]
+inputnames = []
+outputnames = []
+
+# this signals to the configset that it is attached to us
+sys.stdout.write("attach\n")
+sys.stdout.flush()
+
+def readHeader():
+	global header
+	header = []
+	line = sys.stdin.readline()
+	while line != "" and line != "\n":
+		header.append(line)
+		line = sys.stdin.readline()
+	if line == "":
+		sys.stderr.write("Error: EOF in header")
+		sys.exit(1)
+
+readHeader()
+
+while True:
+	for fifo in glob.glob(input_pattern):
+		if fifo not in inputnames:
+			#inputnames.append(fifo)
+			sys.stderr.write("attaching to infifo " + fifo + "... ")
+			f = open(fifo, "r", 0)
+			unlinked = False
+			try:
+				os.unlink(fifo)
+				unlinked = True
+			except OSError:
+				pass
+			if f and unlinked:
+				sys.stderr.write("success\n")
+				inputs.append(f)
+			else:
+				sys.stderr.write("failed\n")
+				pass
+
+	for fifo in glob.glob(output_pattern):
+		if fifo not in outputnames:
+			#outputnames.append(fifo)
+			sys.stderr.write("attaching to outfifo " + fifo + "... ")
+			f = open(fifo, "w", 0)
+			unlinked = False
+			try:
+				os.unlink(fifo)
+				unlinked = True
+			except OSError:
+				pass
+			if f and unlinked:
+				sys.stderr.write("success\n")
+				outputs.append(f)
+				sys.stdout.write("request definition\n")
+				sys.stdout.flush()
+				readHeader()
+				for line in header:
+					f.write(line)
+				f.flush()
+
+			else:
+				sys.stderr.write("failed\n")
+				pass
+
+	#sys.stderr.write("polling " + `len(inputs)` + " inputs\n")
+	readyinputs, readyoutputs, readyexc = select.select(inputs, [], [], 0.1)
+
+	for input in readyinputs:
+		line = input.readline()
+		#sys.stderr.write("MULTIPLEX: " + '"' + line + '"\n')
+		if len(line) == 0:
+			#sys.stderr.write("removing dead input " + input.name + "\n")
+			inputs.remove(input)
+			#inputnames.remove(input.name)
+		elif line == "pulse\n":
+			pass
+		else:
+			#sys.stderr.write("outputting to " + `len(outputs)` + " outputs\n")
+			for output in outputs:
+				if input == sys.stdin and output == sys.stdout:
+					continue
+				if not output.closed:
+					try:
+						output.write(line)
+						output.flush()
+					except IOError:
+						#sys.stderr.write("removing dead output " + output.name + "\n")
+						outputs.remove(output)
+						#outputnames.remove(output.name)
+
+

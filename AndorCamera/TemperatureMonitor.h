@@ -1,0 +1,33 @@
+/** \file TemperatureMonitor.h
+ *
+ *  Definition of a class for concurrent monitoring of CCD temperature. */
+#ifndef ANDORCAMERA_TEMPERATUREMONITOR_H
+#define ANDORCAMERA_TEMPERATUREMONITOR_H
+
+#include <ConfigEntry.hh>
+#include <cc++/thread.h>
+
+namespace AndorCamera {
+    /** This class concurrently monitors the camera CCD temperature.
+     *  It will constantly update a provided field with the
+     *  current CCD temperature and manage this field's viewability. 
+     *  Temperature monitoring will be started
+     *  at constructor call and stops when the destructor is called.
+     *  */
+    class TemperatureMonitor : private ost::Thread {
+      private:
+        /** Reference to the updated field. */
+        ConfigEntryDouble &realTemperature;
+        /** Set to true by the destructor to trigger termination. */
+        bool askForDestruction;
+        /** The method that is called in the subthread. */
+        virtual void run() throw();
+
+      public:
+        /** Constructor. Does immediately start a subthread and returns. */
+        TemperatureMonitor (ConfigEntryDouble &realTemperature) throw ();
+        /** Destructor. Triggers and waits for subthread termination. */
+        ~TemperatureMonitor () throw ();
+    };
+}
+#endif
