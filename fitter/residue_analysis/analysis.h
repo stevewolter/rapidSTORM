@@ -128,62 +128,6 @@ SizedFitter<BaseFitter,Width,Height>
         return 1.0;
 }
 
-#if 0
-            double_params.change_variable_set(
-                &double_fit_result.second->parameters );
-            //std::cerr << "Original:\n" 
-                        //<< fitResult.second->parameters << "\n"
-                        //<< fitResult.second->chi_sq << "\n"
-                        //<< fitResult.second->residues << "\n";
-            //std::cerr << "Double-fit:\n"
-                        //<< double_fitter.getPosition().parameters << "\n"
-                        //<< double_fitter.getPosition().chi_sq << "\n"
-                        //<< double_fitter.getPosition().residues << "\n"
-                        //<< "\n";
-            Eigen::Vector2d position[2];
-            position[0].x() =
-                double_params.template getMeanX<0>();
-            position[1].x() =
-                double_params.template getMeanX<1>();
-            position[0].y() =
-                double_params.template getMeanY<0>();
-            position[1].y() =
-                double_params.template getMeanY<1>();
-
-            Eigen::Vector2d amplitudes;
-            amplitudes[0] =
-                double_params.template getAmplitude<0>();
-            amplitudes[1] =
-                double_params.template getAmplitude<1>();
-
-            df_distance = (position[0] - position[1]).squaredNorm();
-            std::cout << setprecision(6) << imNumber << " " << x_end << " " << y_end << " " << amp << " " << fitResult.second->chi_sq << " " << double_fit_result.second->residues.block( 1, 1, fitResult.second->residues.rows(), fitResult.second->residues.cols() ).cwise().square().sum() << " " << df_distance << " " << double_fit_result.second->parameters.transpose() << " " << df.strength << " " << df.dir.transpose() << "\n";
-#if 0
-            if ( df_distance > 0.25 ) 
-            {
-                if ( (amplitudes.cwise() >= common.amplitude_threshold)
-                    .all() /*&& amplitudes.sum() > amp*/ )
-                {
-                    //for (int i = 0; i < 2; i++)
-                        //new(target+i) Localization( 
-                            //position[i].x(), position[i].y(), imNumber,
-                            //amplitudes[i]);
-                    //std::cerr << "Made two localizations " << position[0].transpose() << " (" << amplitudes[0] << ") and " << position[1].transpose() << " (" << amplitudes[1] << ") instead of " << x_end << " " << y_end << " (" << amp << ") in image " << imNumber << "\n. Residues changed from " << fitResult.second->chi_sq / (width*height) << " to " << double_fitter.getPosition().chi_sq / ((width+2)*(height+2)) << "\n" ;
-                    return 0;
-                } /*else {
-                    int greater;
-                    amplitudes.maxCoeff( &greater );
-                    if ( amplitudes[greater] > amp ) {
-                        x_end = position[greater].x();
-                        y_end = position[greater].y();
-                        amp = amplitudes[greater];
-                    }
-                }*/
-            }
-#endif
-        }
-        //return 0;
-#endif
 
 }
 }

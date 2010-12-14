@@ -32,6 +32,16 @@ using dStorm::engine::BaseImage;
 using boost::units::pow;
 
 template <int Ks,int Widening>
+NaiveFitter<Ks,Widening>::~NaiveFitter() {
+    DEBUG("NaiveFitter destructor");
+}
+
+template class NaiveFitter<1, fitpp::Exponential3D::Zhuang>;
+template class NaiveFitter<1, fitpp::Exponential3D::Holtzer>;
+template class NaiveFitter<2, fitpp::Exponential3D::Zhuang>;
+template class NaiveFitter<2, fitpp::Exponential3D::Holtzer>;
+
+template <int Ks,int Widening>
 CommonInfo<Ks,Widening>::CommonInfo( 
    const Config& c, const engine::JobInfo& info
 ) 
@@ -40,6 +50,7 @@ CommonInfo<Ks,Widening>::CommonInfo(
   max_z_range( c.z_range() ),
   params( new typename FitGroup::Accessor(NULL) )
 {
+    DEBUG("Constructing fitter common information");
     FitGroup::template Parameter<MeanX>::set_absolute_epsilon
         (this->fit_function, c.negligibleStepLength());
     FitGroup::template Parameter<MeanY>::set_absolute_epsilon
@@ -53,6 +64,7 @@ CommonInfo<Ks,Widening>::CommonInfo(
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
     params->template set_all_BestSigmaX( info.config.sigma_x() );
     params->template set_all_BestSigmaY( info.config.sigma_y() );
+    DEBUG("Constructed fitter common information");
 }
 
 template <int Kernels, int Widening>
@@ -62,6 +74,11 @@ CommonInfo<Kernels,Widening>::CommonInfo( const CommonInfo& o )
   max_z_range(o.max_z_range),
   params( new typename FitGroup::Accessor(*o.params) )
 {
+}
+
+template <int Kernels, int Widening>
+CommonInfo<Kernels,Widening>::~CommonInfo() {
+    DEBUG("Destructing fitter common information");
 }
 
 template <int Kernels, int Widening>

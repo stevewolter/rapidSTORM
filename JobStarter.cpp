@@ -45,7 +45,7 @@ void JobStarter::operator()( const simparm::Event& ) {
             DEBUG("Got unknown exception");
             const_cast<Config&>(*config).send( m );
         }
-        DEBUG("Finished handling exception");
+        DEBUG("Finished handling job start");
       }
     }
 }

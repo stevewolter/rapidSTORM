@@ -19,6 +19,8 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/error_handler.h>
 
+extern void test_exception_site();
+
 using namespace std;
 
 using dStorm::output::Output;
@@ -94,7 +96,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   emergencyStop(false), error(false),
   terminationChanged( terminationMutex )
 {
-    DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
+    //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
     closeJob.helpID = HELP_CloseJob;
     abortJob.helpID = HELP_StopEngine;
@@ -112,7 +114,9 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     output = config.outputSource.make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
+    DEBUG("Checking for duplicate filenames");
     output->check_for_duplicate_filenames( used_output_filenames );
+    DEBUG("Checked for duplicate filenames");
 
     DEBUG("Registering at input_stream config " << input_stream);
     if ( input_stream )
@@ -195,15 +199,20 @@ void Car::compute_until_terminated() {
         number_of_threads = config.pistonCount();
 
     while (true) {
+        DEBUG("Announcing run");
         Output::RunRequirements r = 
             output->announce_run(Output::RunAnnouncement());
         if ( ! r.test(Output::MayNeedRestart) )
             input->dispatch( Input::WillNeverRepeatAgain );
 
+        DEBUG("Adding threads");
         for (int i = /* --> */ 1 /* <-- */; i < number_of_threads; ++i)
             add_thread();
+        DEBUG("Running computation");
         run_computation();
+        DEBUG("Collecting threads");
         threads.clear();
+        DEBUG("Collected threads");
 
         if (emergencyStop) {
             if (error || dStorm::ErrorHandler::global_termination_flag() ) 
@@ -218,6 +227,7 @@ void Car::compute_until_terminated() {
                 output->propagate_signal( Output::Engine_is_restarted );
             }
         } else {
+            DEBUG("Job ended, no emergency stop");
             output->propagate_signal( Output::Engine_run_succeeded );
             break;
         }
@@ -227,10 +237,13 @@ void Car::compute_until_terminated() {
 void Car::run_computation() 
 {
     try {
+        DEBUG("Propagating start signal");
         output->propagate_signal(Output::Engine_run_is_starting);
 
+        DEBUG("Running computation loop");
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
         {
+            DEBUG("Computation loop iteration");
             Output::Result r = 
                 output->receiveLocalizations( *i );
             
@@ -248,9 +261,10 @@ void Car::run_computation()
                 DEBUG("Emergency stop: " << emergencyStop << " " << ErrorHandler::global_termination_flag());
                 break;
             } else {
-                DEBUG("Continuing");
+                DEBUG("Continuing with computation");
             }
         }
+        DEBUG("Reached end of computation");
         return;
     } catch (const dStorm::abort&) {
     } catch (const std::bad_alloc& e) {
@@ -306,14 +320,21 @@ void Car::drive() {
     add_additional_outputs();
 
     DEBUG("Input has config node " << static_cast<simparm::Node&>(*input).getName());
+    DEBUG("Pushing back input config");
     runtime_config.push_back( *input );
+    DEBUG("Pushing back output config");
     runtime_config.push_back( *output );
+    DEBUG("Pushing back abort job button");
     runtime_config.push_back( abortJob );
+    DEBUG("Pushing back close job button");
     runtime_config.push_back( closeJob );
 
+    DEBUG("Creating announcement");
     Output::Announcement announcement( *input->get_traits() );
+    DEBUG("Sending announcement");
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
+    DEBUG("Sent announcement");
 
     if ( data.test( output::Capabilities::ClustersWithSources ) ) {
         simparm::Message m("Unable to provide data",

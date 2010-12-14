@@ -94,6 +94,9 @@ TerminalBackend<Hueing>::get_result(bool with_key) const {
             colorizer.create_full_key( *key, index++ );
         }
         DEBUG("Created keys");
+    } else {
+        c->changed_keys.clear();
+        c->resize_image.keys.clear();
     }
 
 

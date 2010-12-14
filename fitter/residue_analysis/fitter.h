@@ -51,6 +51,7 @@ class SizedFitter
   public:
     SizedFitter(Common& common) 
         : Base(common), normal(common), common(common) {}
+    ~SizedFitter() { DEBUG( "Destructing residue-analyzing sized fitter" ); }
 
     void setSize( int width, int height ) {
         Base::setSize( width, height );

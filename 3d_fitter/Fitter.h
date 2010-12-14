@@ -37,6 +37,7 @@ class CommonInfo
     typedef gauss_3d_fitter::Config<Widening> Config;
     CommonInfo( const Config&, const engine::JobInfo& );
     CommonInfo( const CommonInfo& );
+    ~CommonInfo();
     void set_start( 
         const engine::Spot& spot, const engine::BaseImage& image,
         double shift_estimate, Variables* variables );
@@ -76,6 +77,8 @@ struct NaiveFitter {
         typedef typename Model::template Fitter<engine::StormPixel,X,Y>
             ::Type Deriver;
     };
+
+    ~NaiveFitter();
 };
 
 template <int Widening>

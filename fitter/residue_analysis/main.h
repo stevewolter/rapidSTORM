@@ -1,6 +1,7 @@
 #ifndef DSTORM_FITTER_RESIDUEANALYSIS_H
 #define DSTORM_FITTER_RESIDUEANALYSIS_H
 
+#include "debug.h"
 #include <fit++/FitFunction.hh>
 #include <dStorm/engine/JobInfo_decl.h>
 #include <dStorm/engine/Spot_decl.h>
@@ -36,11 +37,14 @@ struct Fitter {
                             const engine::JobInfo& info)
     {
         bool should_analyze = config.do_double_spot_analysis();
-        if ( should_analyze )
+        if ( should_analyze ) {
+            DEBUG("Creating double-spot analyzing fitter");
             return fitter::create_SizeSpecializing<Fitter>(config,info);
-        else 
+        } else  {
+            DEBUG("Creating fitter with no double-spot analysis");
             return fitter::create_SizeSpecializing
                 < typename BaseFitter::OneKernel >(config,info);
+        }
     }
 };
 

@@ -31,11 +31,15 @@ SizeSpecializing<Type>::SizeSpecializing(
 template <typename Type>
 SizeSpecializing<Type>::~SizeSpecializing()
 {
+    DEBUG( "Destructing size specializing fitter" );
     for (int x = 0; x < MaxFitHeight-1; x++)
       for (int y = 0; y < MaxFitHeight-1; y++) {
         if ( table[x][y] != NULL )
             delete table[x][y];
       }
+    DEBUG( "Destructed size specializing fitter table" );
+    dynamic_fitter.reset( NULL );
+    DEBUG( "Destructed dynamic size fitter" );
 }
 
 template <typename Type>

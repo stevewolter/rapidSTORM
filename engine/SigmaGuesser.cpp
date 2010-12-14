@@ -14,6 +14,7 @@
 #include "engine/SigmaFitter.h"
 
 #include <sstream>
+#include <simparm/Message.hh>
 
 using namespace std;
 using namespace fitpp;
@@ -29,6 +30,7 @@ SigmaGuesserMean::SigmaGuesserMean(Config &c)
   status("Status", "Std. dev. estimation")
 {
     nextCheck = 23;
+    maximum_area = c.maximum_estimation_size();
     deleteAllResults();
 
     stringstream ss;
@@ -49,6 +51,22 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     ost::MutexLock lock(mutex);
     if (defined_result != KeepRunning) return defined_result;
     DEBUG("Adding fits");
+
+    used_area += er.source->size();
+    if ( used_area > maximum_area ) {
+        DEBUG("Reached size limit");
+        simparm::Message m( "Maximum PSF size estimation area reached",
+            "The number of pixels used in PSF size estimation has reached its limit before "
+            "it converged. "
+            "PSF size estimation is aborted and the current estimation will be used to compute the rest of this job. "
+            "The PSF currently used in computation is probably wrong and it should be considered "
+            "to give it explicitely.",
+            simparm::Message::Warning );
+        send(m);
+        nextCheck = numeric_limits<int>::max();
+        defined_result = RemoveThisOutput;
+        return defined_result;
+    }
 
     for (int i = 0; i < er.number; i++)
         meanAmplitude.addValue(er.first[i].getStrength());
@@ -168,6 +186,7 @@ void SigmaGuesserMean::deleteAllResults() {
     n = discarded = 0;
     defined_result = KeepRunning;
     meanAmplitude.reset();
+    used_area = 0 * cs_units::camera::pixel * cs_units::camera::pixel;
 
     DEBUG("Resetting fitter");
     fitter->useConfig(config);

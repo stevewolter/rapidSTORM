@@ -56,7 +56,6 @@ namespace engine {
         void operator()(const simparm::Event&);
 
         /** Run the computation subthread. */
-        void run() throw();
         void abnormal_termination(std::string) throw();
 
         class ComputationThread;
@@ -75,6 +74,7 @@ namespace engine {
         void drive();
         void stop();
         bool needs_stopping() { return true; }
+        void run() throw();
 
         const dStorm::Config &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }

@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "debug.h"
 #include "Manager.h"
 #include "md5.h"
 #include <iomanip>
@@ -195,7 +196,10 @@ bool Manager::Source::get_and_handle_change() {
     return has_changed;
 }
 
-void Manager::run() { dispatch_events(); }
+void Manager::run() { 
+    DEBUG("Running window manager subthread");
+    dispatch_events(); 
+}
 
 std::auto_ptr<dStorm::Display::Manager::WindowHandle>
     Manager::register_data_source
@@ -206,6 +210,7 @@ std::auto_ptr<dStorm::Display::Manager::WindowHandle>
     {
         guard lock(mutex);
         if ( !running ) {
+            DEBUG("Forking window manager subthread");
             running = true;
             ost::Thread::start();
         }

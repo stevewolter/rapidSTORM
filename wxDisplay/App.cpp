@@ -25,13 +25,6 @@ bool App::OnInit()
         return false;
 
     nevershow.reset( new wxFrame(NULL, wxID_ANY, _T("Nevershow")) );
-#if 0
-    std::cerr << "ost thread: " << ost::Thread::description() << "\n";
-    std::cerr << "Showing nevershow\n";
-    nevershow->Show();
-    std::cerr << "Showed nevershow\n";
-    SetTopWindow( nevershow.get() );
-#endif
     return true;
 }
 

@@ -30,14 +30,16 @@ Factory<Widening>::Factory(const Factory& c)
 
 template <int Widening>
 Factory<Widening>::~Factory() {
+    DEBUG("Destructing 3D fitter");
 }
 
 template <int Widening>
 std::auto_ptr<SpotFitter> 
 Factory<Widening>::make (const engine::JobInfo &i)
 {
+    DEBUG("Creating 3D fitter");
     return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<Widening> >
-    ::select_fitter(*this,i);
+        ::select_fitter(*this,i);
 }
 
 template <int Widening>
@@ -47,11 +49,13 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
     rv.covariance_matrix_is_set = false;
     rv.z_coordinate_is_set = true;
     rv.z_range = output::Traits::ZRange(-Config<Widening>::z_range(), +Config<Widening>::z_range());
+    DEBUG("3D fitter has set traits");
 }
 
 template <int Widening>
 void Factory<Widening>::set_requirements( input::Traits<engine::Image>& )
 {
+    DEBUG("3D fitter has set requirements");
 }
 
 template class Factory< fitpp::Exponential3D::Holtzer >;

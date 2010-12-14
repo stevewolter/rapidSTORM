@@ -122,7 +122,33 @@ class Engine::_iterator
     Input::iterator base;
 
     Engine& engine;
+
+    class WorkHorse;
+    mutable std::auto_ptr<WorkHorse> work_horse;
+    mutable bool did_compute;
+
+    /*=== iterator_facade interface ===*/
+    output::LocalizedImage& dereference() const; 
+    bool equal(const _iterator& o) const { 
+        DEBUG("Comparing engine iterators"); 
+        bool rv = ( base == o.base ); 
+        DEBUG("Compared engine iterators with " << rv); 
+        return rv;
+    }
+    void increment() { DEBUG("Incrementing engine iterators"); did_compute = false; ++base; }
+
+  public:
+    _iterator( Engine& engine, Input::iterator base );
+    _iterator( const _iterator& );
+    ~_iterator();
+
+    friend class boost::iterator_core_access;
+};
+
+class Engine::_iterator::WorkHorse {
+    Engine& engine;
     Config& config;
+
     int maximumLimit;
     std::auto_ptr<SpotFinder> finder;
     std::auto_ptr<SpotFitter> fitter;
@@ -130,46 +156,56 @@ class Engine::_iterator
     CandidateTree<SmoothedPixel> maximums;
     int origMotivation;
 
-    output::LocalizedImage resultStructure;
-    bool did_compute;
-
-    void compute();
-    void init();
-
-    /*=== iterator_facade interface ===*/
-    output::LocalizedImage& dereference() const {
-        if ( ! did_compute ) {
-            const_cast<_iterator&>(*this).compute();
-        }
-        return const_cast<output::LocalizedImage&>(resultStructure);
-    }
-    bool equal(const _iterator& o) const { return base == o.base; }
-    void increment() { did_compute = false; ++base; }
-
   public:
-    _iterator( Engine& engine, Input::iterator base );
-    _iterator( const _iterator& );
+    WorkHorse( Engine& engine );
+    ~WorkHorse() {
+        DEBUG("Destructing spot finder");
+        finder.reset();
+        DEBUG("Destructing spot fitter");
+        fitter.reset();
+        DEBUG("Destructing rest");
+    }
+    void compute( Input::iterator image );
 
-    friend class boost::iterator_core_access;
+    output::LocalizedImage resultStructure;
 };
+
+output::LocalizedImage& Engine::_iterator::dereference() const
+{
+    DEBUG("Checking if iterator was already dereferenced");
+    if ( ! did_compute ) {
+        DEBUG("Checking if workhorse has been constructed");
+        if ( work_horse.get() == NULL ) {
+            DEBUG("Constructing workhorse");
+            work_horse.reset( new WorkHorse(engine) );
+            DEBUG("Constructed workhorse");
+        }
+        DEBUG("Computing result");
+        work_horse->compute(base);
+        DEBUG("Computed result");
+        did_compute = true;
+    } else {
+        DEBUG("Iterator has already been dereferenced");
+    }
+    return work_horse->resultStructure;
+}
 
 Engine::_iterator::_iterator( Engine& engine, Input::iterator base )
 : base(base),
   engine(engine),
+  did_compute(false)
+{
+}
+
+Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
+: engine(engine),
   config(engine.config),
   maximumLimit(20),
   maximums(config.x_maskSize() / cs_units::camera::pixel,
          config.y_maskSize() / cs_units::camera::pixel,
          1, 1),
-  origMotivation( engine.config.motivation() ),
-  did_compute(false)
+  origMotivation( config.motivation() )
 {
-    init();
-}
-
-void Engine::_iterator::init() {
-    if ( base == engine.input->end() ) return;
-
     DEBUG("Started piston");
     DEBUG("Building spot finder with dimensions " << engine.imProp->dimx() <<
            " " << engine.imProp->dimy());
@@ -191,18 +227,11 @@ void Engine::_iterator::init() {
 Engine::_iterator::_iterator( const _iterator& o ) 
 : base( o.base ),
   engine(const_cast<Engine&>(o.engine)),
-  config(const_cast<Config&>(o.config)),
-  maximumLimit(o.maximumLimit),
-  maximums(config.x_maskSize() / cs_units::camera::pixel, 
-           config.y_maskSize() / cs_units::camera::pixel, 1, 1),
-  origMotivation(o.origMotivation),
-  resultStructure(o.resultStructure),
-  did_compute(o.did_compute)
+  did_compute(false)
 {
-    init();
 }
 
-void Engine::_iterator::compute() 
+void Engine::_iterator::WorkHorse::compute( Input::iterator base ) 
 {
     buffer.clear();
 
@@ -214,7 +243,6 @@ void Engine::_iterator::compute()
         resultStructure.first = NULL;
         resultStructure.number = 0;
         resultStructure.source = &image;
-        did_compute = true;
 
         ost::MutexLock lock( engine.mutex );
         engine.errors = engine.errors() + 1;
@@ -276,8 +304,12 @@ void Engine::_iterator::compute()
     resultStructure.first = buffer.ptr();
     resultStructure.number = buffer.size();
     resultStructure.source = &image;
+}
 
-    did_compute = true;
+Engine::_iterator::~_iterator() {
+    DEBUG("Destructing iterator");
+    work_horse.reset();
+    DEBUG("Destructed iterator");
 }
 
 Engine::Base::iterator Engine::begin() {

@@ -38,7 +38,6 @@ void RawImageFile::error_handler( const char* module,
     char buffer[size];
     vsnprintf( buffer, 4096, fmt, ap );
     tiff_error = buffer;
-    std::cerr << "TIFF error " << buffer << std::endl;
 }
 
 RawImageFile::_Config::_Config() 
@@ -68,8 +67,9 @@ RawImageFile::announceStormSize(const Announcement &a) {
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
         tif = TIFFOpen( filename.c_str(), "w" );
-        if ( tif == NULL ) 
+        if ( tif == NULL ) {
             op.throw_exception_for_errors();
+        }
     }
 
     strip_size = TIFFTileSize( tif );
@@ -107,13 +107,18 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
     
     return KeepRunning;
   } catch ( const std::bad_alloc& a ) {
-    std::cerr << "Out of memory. Dropping image from TIFF file.\n";
+    simparm::Message m( "Out of memory while writing TIFF image",
+        "The memory was exhausted while writing to the TIFF output file. The current image is dropped and not stored.",
+        simparm::Message::Warning);
+    this->send( m );
     return KeepRunning;
   } catch ( const dStorm::exception& e ) {
     simparm::Message m = e.get_message("Disabling TIFF output");
     this->send( m );
   } catch ( const std::exception& e ) {
-    std::cerr << e.what() << ". Disabling TIFF output.\n";
+    simparm::Message m("Error in writing TIFF file",
+        e.what() + ". Disabling TIFF output for this job.");
+    this->send( m );
   }
 
     /* If we got here, we had an exception. */
