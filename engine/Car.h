@@ -49,7 +49,7 @@ namespace engine {
         std::auto_ptr<output::Output> output;
 
         ost::Mutex terminationMutex;
-        bool terminate, emergencyStop, error;
+        bool terminate, emergencyStop, error, finished;
         ost::Condition terminationChanged;
 
         /** Receive the signal from closeJob. */

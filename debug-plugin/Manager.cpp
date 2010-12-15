@@ -1,7 +1,7 @@
+#include <dStorm/log.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "debug.h"
 #include "Manager.h"
 #include "md5.h"
 #include <iomanip>
@@ -13,7 +13,6 @@
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/log.h>
 
 class Manager::ControlConfig
 : public simparm::Object, public simparm::Listener, private boost::noncopyable
@@ -21,8 +20,9 @@ class Manager::ControlConfig
     Manager& m;
     simparm::DataChoiceEntry<int> which_window;
     simparm::UnsignedLongEntry which_key;
+    simparm::UnsignedLongEntry top, bottom, left, right;
     simparm::StringEntry new_limit;
-    simparm::TriggerEntry close, set_lower_limit, set_upper_limit;
+    simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
 
     void send_key_update(bool lower) {
         if ( ! which_window.isValid() ) return;
@@ -39,10 +39,15 @@ class Manager::ControlConfig
         : Object("DummyDisplayManagerConfig", "Dummy display manager"), m(m),
           which_window("WhichWindow", "Select window"),
           which_key("WhichKey", "Select key", 1),
+          top("RectangleTop", "Top border of drawn rectangle", 0),
+          bottom("RectangleBottom", "Bottom border of drawn rectangle", 511),
+          left("RectangleLeft", "Left border of drawn rectangle", 0),
+          right("RectangleRight", "Right border of drawn rectangle", 511),
           new_limit("NewLimit", "New limit for selected key"),
           close("Close", "Close Window"),
           set_lower_limit("SetLowerLimit", "Set lower key limit"),
-          set_upper_limit("SetUpperLimit", "Set upper key limit")
+          set_upper_limit("SetUpperLimit", "Set upper key limit"),
+          draw_rectangle("DrawRectangle", "Draw rectangle")
     {
         which_window.set_auto_selection( false );
         push_back( which_window );
@@ -51,9 +56,15 @@ class Manager::ControlConfig
         push_back( new_limit );
         push_back( set_lower_limit );
         push_back( set_upper_limit );
+        push_back(top);
+        push_back(bottom);
+        push_back(left);
+        push_back(right);
+        push_back(draw_rectangle);
         receive_changes_from( close.value );
         receive_changes_from( set_lower_limit.value );
         receive_changes_from( set_upper_limit.value );
+        receive_changes_from( draw_rectangle.value );
     }
 
     void added_choice( int n ) {
@@ -82,9 +93,60 @@ class Manager::ControlConfig
         } else if ( &e.source == &set_upper_limit.value && set_upper_limit.triggered() ) {
             set_upper_limit.untrigger();
             send_key_update(false);
+        } else if ( &e.source == &draw_rectangle.value && draw_rectangle.triggered() ) {
+            draw_rectangle.untrigger();
+            int number = which_window();
+            SourcesMap::iterator i = m.sources_by_number.find(number);
+            if ( i != m.sources_by_number.end() ) {
+                i->second->handler.notice_drawn_rectangle( left(), right(), top(), bottom() );
+            }
         }
     }
+
+    void processCommand( std::istream& in ); 
 };
+
+void Manager::ControlConfig::processCommand( std::istream& in )
+{
+        std::string command;
+        in >> command;
+        if ( command == "pixel_value" ) {
+            DEBUG("Reading instructions");
+            std::string window;
+            int x, y, number;
+            SourcesMap::iterator i = m.sources_by_number.end();
+            std::stringstream msg;
+
+            if ( which_window.isValid() ) {
+                DEBUG("Finding window");
+                number = which_window();
+                i = m.sources_by_number.find(number);
+                in >> x >> y;
+                msg << "window " << number;
+            } else {
+                msg << "result for unset WhichWindow field";
+            }
+            if ( i != m.sources_by_number.end() ) {
+                DEBUG("Found window");
+                msg << " pixel at x " << x << " y " << y;
+                if ( i->second->current_display.contains( x, y ) )
+                    msg << " has value r " << int(i->second->current_display( x, y ).red() )
+                                   << " g " << int(i->second->current_display( x, y ).green())
+                                   << " b " << int(i->second->current_display( x, y ).blue());
+                else
+                    msg << " is out of image dimensions";
+            } else {
+                msg << " is undefined";
+            }
+            DEBUG("Printing results");
+            print( msg.str() );
+            DEBUG("Printed results");
+        } else if ( command == "in" ) {
+            std::string name;
+            in >> name;
+            (*this)[name].processCommand(in);
+        }
+    }
 
 class Manager::Handle 
 : public dStorm::Display::Manager::WindowHandle {

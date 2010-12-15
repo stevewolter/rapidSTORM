@@ -93,7 +93,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   input(NULL),
   output(NULL),
   terminate( new_config.auto_terminate() ),
-  emergencyStop(false), error(false),
+  emergencyStop(false), error(false), finished(false),
   terminationChanged( terminationMutex )
 {
     //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
@@ -161,7 +161,8 @@ void Car::operator()(const simparm::Event& e) {
         DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
-        emergencyStop = error = true;
+        error = false;
+        emergencyStop = finished = true;
     }
 }
 
@@ -219,6 +220,10 @@ void Car::compute_until_terminated() {
             {
                 DEBUG("Emergency stop due to error or global termination");
                 output->propagate_signal( Output::Engine_run_failed );
+                break;
+            } else if ( finished ) {
+                DEBUG("Emergency stop due to user interaction");
+                output->propagate_signal( Output::Engine_run_succeeded );
                 break;
             } else {
                 DEBUG("Emergency stop for restart");
