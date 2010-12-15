@@ -66,9 +66,9 @@ class ProcessWatcher {
             c.set( myProcess.getOutputStream() );
 
             myProcess.waitFor();
+            a.join();
+            b.join();
             System.err.println("PROCESS TERMINATED WITH EXIT CODE " + myProcess.exitValue());
-            a.interrupt();
-            b.interrupt();
             c.set( null );
           }
         } catch (Exception e) {

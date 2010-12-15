@@ -25,6 +25,8 @@ class LiveView :
     boost::units::quantity<cs_units::camera::frame_rate> cycle_time;
     simparm::optional<Resolution> resolution;
     simparm::BoolEntry show_live;
+    simparm::optional< boost::units::quantity<cs_units::camera::intensity> >
+        lower_user_limit, upper_user_limit;
 
     ost::Mutex window_mutex, change_mutex;
     CamImage current_image_content;
@@ -43,6 +45,7 @@ class LiveView :
 
     std::auto_ptr<dStorm::Display::Change> get_changes();
     void notice_closed_data_window();
+    void notice_user_key_limits(int, bool, std::string);
 
   public:
     LiveView(

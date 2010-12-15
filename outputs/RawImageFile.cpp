@@ -117,7 +117,7 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
     this->send( m );
   } catch ( const std::exception& e ) {
     simparm::Message m("Error in writing TIFF file",
-        e.what() + ". Disabling TIFF output for this job.");
+        std::string(e.what()) + ". Disabling TIFF output for this job.");
     this->send( m );
   }
 

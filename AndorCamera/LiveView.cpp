@@ -46,6 +46,10 @@ void LiveView::show_window(CamImage::Size size) {
         props.initial_size.size = size;
         props.initial_size.keys.push_back( 
             dStorm::Display::KeyDeclaration("ADC", "A/D counts", 256) );
+        props.initial_size.keys.back().can_set_lower_limit = true;
+        props.initial_size.keys.back().can_set_upper_limit = true;
+        props.initial_size.keys.back().lower_limit = "";
+        props.initial_size.keys.back().upper_limit = "";
         if ( resolution.is_set() )
             props.initial_size.pixel_size = *resolution;
         else
@@ -82,12 +86,18 @@ void LiveView::compute_image_change
 {
     DEBUG("Computing minmax for change " << change.get() << " and validity " << image.is_invalid());
     if ( ! image.is_invalid() ) {
-        CamImage::PixelPair minmax = image.minmax();
+        CamImage::PixelPair minmax;
+        if ( ! lower_user_limit.is_set() || ! upper_user_limit.is_set() )
+            minmax = image.minmax();
+        if ( lower_user_limit.is_set() )
+            minmax.first = (*lower_user_limit) / cs_units::camera::ad_count;
+        if ( upper_user_limit.is_set() )
+            minmax.second = (*upper_user_limit) / cs_units::camera::ad_count;
         
         DEBUG("Normalizing");
         change->do_change_image = true;
         change->image_change.new_image = 
-            image.normalize<dStorm::Pixel>();
+            image.normalize<dStorm::Pixel>( minmax );
         DEBUG("Making key");
         change->make_linear_key( minmax );
     }
@@ -112,6 +122,18 @@ void LiveView::show( const CamImage& image, int number) {
 void LiveView::notice_closed_data_window() {
     guard lock(window_mutex);
     hide_window();
+}
+
+void LiveView::notice_user_key_limits(int key_index, bool lower, std::string input)
+{
+    guard lock( window_mutex );
+    simparm::optional< boost::units::quantity<cs_units::camera::intensity> > v;
+    if ( input != "" )
+        v = atof(input.c_str()) * cs_units::camera::ad_count;
+    if ( lower )
+        lower_user_limit = v;
+    else
+        upper_user_limit = v;
 }
 
 }
