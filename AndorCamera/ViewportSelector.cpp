@@ -251,7 +251,7 @@ void Display::draw_image( const CamImage& data) {
             for (int x = l; x <= r; x++)
                 img(x,t) = img(x,b) = Pixel::Red();
             for (int y = t; y <= b; y++)
-                img(y,t) = img(y,b) = Pixel::Red();
+                img(l,y) = img(r,y) = Pixel::Red();
         }
     }
     change->do_change_image = true;
