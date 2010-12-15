@@ -63,7 +63,9 @@ class Display : public simparm::Set,
     CamImage::PixelPair normalization_factor;
     /** If set to true, \c normalization_factor is fixed at the current
      *  level. */
-    bool lock_normalization;
+    bool lock_normalization, redeclare_key;
+    simparm::optional< boost::units::quantity<cs_units::camera::intensity> >
+        lower_user_limit, upper_user_limit;
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
@@ -76,6 +78,8 @@ class Display : public simparm::Set,
     virtual void notice_closed_data_window();
     /** Method implementing data source interface. */
     virtual void notice_drawn_rectangle(int, int, int, int);
+    /** Method implementing data source interface. */
+    void notice_user_key_limits(int, bool, std::string);
 
     void registerNamedEntries();
     void acquire();

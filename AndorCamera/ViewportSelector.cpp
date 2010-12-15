@@ -51,7 +51,8 @@ Display::Display(
   paused(false),
   change( new dStorm::Display::Change(1) ),
   normalization_factor( 0, 1 ),
-  lock_normalization( false )
+  lock_normalization( false ),
+  redeclare_key(false)
 {
     imageFile.editable = false;
     save.editable = false;
@@ -128,6 +129,10 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.size = size;
     new_size.keys.push_back( 
         dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
+    new_size.keys.back().can_set_lower_limit = true;
+    new_size.keys.back().can_set_upper_limit = true;
+    new_size.keys.back().lower_limit = "";
+    new_size.keys.back().upper_limit = "";
     if ( context.has_info_for<CamImage>() && context.get_info_for<CamImage>().resolution.is_set() )
         new_size.pixel_size = *context.get_info_for<CamImage>().resolution;
 
@@ -205,7 +210,18 @@ void Display::draw_image( const CamImage& data) {
 
     /* Compute normalization and new key. */
     if ( ! lock_normalization ) {
-        normalization_factor = data.minmax();
+        if ( ! lower_user_limit.is_set() || ! upper_user_limit.is_set() ) {
+            normalization_factor = data.minmax();
+            redeclare_key = true;
+        }
+    }
+    
+    if ( redeclare_key ) {
+        if ( lower_user_limit.is_set() )
+            normalization_factor.first = (*lower_user_limit) / cs_units::camera::ad_count;
+        if ( upper_user_limit.is_set() )
+            normalization_factor.second = (*upper_user_limit) / cs_units::camera::ad_count;
+
         change->changed_keys.front().clear();
         dStorm::Display::KeyChange *keys 
             = change->changed_keys.front().allocate( imageDepth );
@@ -216,6 +232,7 @@ void Display::draw_image( const CamImage& data) {
                 / imageDepth + normalization_factor.first;
         }
         change->changed_keys.front().commit( imageDepth );
+        redeclare_key = false;
     }
     /* Normalize pixels and store result in the ImageChange vector */
     dStorm::Image<dStorm::Pixel,2>& img = change->image_change.new_image;
@@ -333,6 +350,19 @@ void Display::operator()
         stopAim.untrigger();
         config.delete_active_selector();
     }
+}
+
+void Display::notice_user_key_limits(int key_index, bool lower, std::string input)
+{
+    ost::MutexLock lock( mutex );
+    simparm::optional< boost::units::quantity<cs_units::camera::intensity> > v;
+    if ( input != "" )
+        v = atof(input.c_str()) * cs_units::camera::ad_count;
+    if ( lower )
+        lower_user_limit = v;
+    else
+        upper_user_limit = v;
+    redeclare_key = true;
 }
 
 Config::Config(const AndorCamera::CameraReference& cam, Context::ConstPtr r)

@@ -15,11 +15,18 @@
 #include "Config.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <algorithm>
+#include <sstream>
 
 namespace AndorCamera {
 
+std::string to_string( int n ) {
+    std::stringstream s;
+    s << n;
+    return s.str();
+}
+
 Camera::Camera(int id) 
-:   simparm::Object("Camera", "Camera configuration"),
+:   simparm::Object("Camera" + to_string(id), "Camera " + to_string(id)),
     _state_machine(new StateMachine(id)),
     _config(new Config()),
     _initialization(new Initialization(*_state_machine)),

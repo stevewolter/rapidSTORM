@@ -200,10 +200,10 @@ CameraLink::CameraLink( CameraReference camera )
     d.push_back( cam->readout() );
     d.push_back( viewportConfig );
 
-    push_back( a );
-    push_back( b );
-    push_back( c );
-    push_back( d );
+    camControl.push_back( a );
+    camControl.push_back( b );
+    camControl.push_back( c );
+    camControl.push_back( d );
 
 
     /* Insert the camera's value elements into the 
