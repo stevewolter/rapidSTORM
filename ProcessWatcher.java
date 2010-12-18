@@ -72,7 +72,7 @@ class ProcessWatcher {
             c.set( null );
           }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("PROCESS WATCHER TERMINATED: " + e.getMessage());
         }
     }
 
