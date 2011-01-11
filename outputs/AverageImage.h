@@ -19,7 +19,7 @@ class AverageImage : public OutputObject {
     std::string filename;
     typedef dStorm::Image<unsigned long,2> Image;
     Image image;
-    input::Traits<Image>::Resolution resolution;
+    input::Traits<Image>::Resolutions resolution;
     ost::Mutex mutex;
 
     class _Config;
@@ -36,7 +36,7 @@ class AverageImage : public OutputObject {
             throw std::logic_error("AverageImage needs access to "
                                    "input driver, but didn't get it.");
         boost::shared_ptr<engine::InputTraits> t = a.carburettor->get_traits();
-        image = Image(t->size, 0 * cs_units::camera::frame);
+        image = Image(t->size, 0 * camera::frame);
         image.fill(0);
         return AdditionalData().set_source_image(); 
     }

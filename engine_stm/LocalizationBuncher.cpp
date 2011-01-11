@@ -37,12 +37,11 @@ class Visitor
         if ( my_image.is_set() ) {
             if ( l.frame_number() != *my_image )
                 return FinishedAndReject;
-            else
-                can->push_back( l );
         } else {
             my_image = l.frame_number();
             can.reset( new Can() );
         }
+        can->push_back( l );
         return KeepComing;
     }
 
@@ -94,7 +93,7 @@ void LocalizationBuncher<Input>::claim_image()
 {
     ost::MutexLock lock(master.mutex);
     outputImage = master.next_image;
-    master.next_image += 1 * cs_units::camera::frame;
+    master.next_image += 1 * camera::frame;
 }
 
 template <typename Input>
@@ -169,11 +168,12 @@ typename Source<InputType>::TraitsPtr
 Source<InputType>::get_traits()
 {
     input::Source<Localization>::TraitsPtr traits  = base->get_traits();
+    traits::ImageNumber::RangeType& r = traits->image_number().range();
 
-    if ( ! traits->last_frame.is_set() )
+    if ( ! r.first.is_set() || ! r.second.is_set() )
         throw std::runtime_error("Total number of frames in STM file must be known");
-    firstImage = traits->first_frame;
-    lastImage = *traits->last_frame + 1 * cs_units::camera::frame;
+    firstImage = *r.first;
+    lastImage = *r.second + 1 * camera::frame;
     firstImage = std::min(firstImage, lastImage);
 
     return TraitsPtr( new TraitsPtr::element_type( *traits ) );

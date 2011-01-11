@@ -9,14 +9,14 @@ namespace Display {
 
 inline wxSize mkWxSize( const dStorm::Display::Image::Size& s ) 
 {
-    return wxSize( s.x() / cs_units::camera::pixel,
-                   s.y() / cs_units::camera::pixel );
+    return wxSize( s.x() / camera::pixel,
+                   s.y() / camera::pixel );
 }
 inline dStorm::Display::Image::Size mkImgSize( const wxSize& s ) 
 {
     dStorm::Display::Image::Size rv;
-    rv.x() = s.GetWidth() * cs_units::camera::pixel,
-    rv.y() = s.GetHeight() * cs_units::camera::pixel;
+    rv.x() = s.GetWidth() * camera::pixel,
+    rv.y() = s.GetHeight() * camera::pixel;
     return rv;
 }
 

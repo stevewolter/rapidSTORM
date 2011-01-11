@@ -41,8 +41,8 @@ void Discretizer<ImageListener>
     colorizer.setSize( traits );
     this->publish().setSize( 
         input::Traits< Image<int,2> >(traits) );
-    int w = traits.size.x() / cs_units::camera::pixel,
-        h = traits.size.y() / cs_units::camera::pixel;
+    int w = traits.size.x() / camera::pixel,
+        h = traits.size.y() / camera::pixel;
 
     total_pixel_count = w * h;
 

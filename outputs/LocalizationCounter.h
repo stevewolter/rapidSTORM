@@ -39,7 +39,7 @@ namespace output {
 
             update.setUserLevel(simparm::Object::Beginner);
             push_back(update);
-            config_increment = 10 * cs_units::camera::frame;
+            config_increment = 10 * camera::frame;
 
             count = 0; 
             return AdditionalData();

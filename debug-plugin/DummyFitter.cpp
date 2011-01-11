@@ -23,10 +23,10 @@ int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine
 {
     if ( ++counter % length == 0 ) {
         DEBUG("Using result in image " << im.frame_number() << " at counter " << counter);
-        Localization::Position p;
-        p.x() = spot.x() * cs_units::camera::pixel;
-        p.y() = spot.y() * cs_units::camera::pixel;
-        new(target) dStorm::Localization( p, 1000 * cs_units::camera::ad_counts );
+        Localization::Position::Type p;
+        p.x() = spot.x() * camera::pixel / traits.resolution[0]->in_dpm();
+        p.y() = spot.y() * camera::pixel / traits.resolution[1]->in_dpm();
+        new(target) dStorm::Localization( p, 1000 * camera::ad_counts );
         return 1;
     } else {
         return -1;
@@ -34,6 +34,7 @@ int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine
 }
 
 void DummyFitterConfig::set_traits( output::Traits&, const engine::JobInfo& ) {
+    /* TODO: Set traits */
 }
 
 }

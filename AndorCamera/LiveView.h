@@ -7,9 +7,9 @@
 #include <simparm/Object.hh>
 #include <simparm/optional.hh>
 #include <dStorm/helpers/DisplayManager.h>
-#include <cs_units/camera/resolution.hpp>
-#include <cs_units/camera/frame_rate.hpp>
+#include <boost/units/systems/camera/frame_rate.hpp>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/ImageTraits.h>
 #include <simparm/NumericEntry.hh>
 
 namespace AndorCamera {
@@ -18,14 +18,14 @@ class LiveView :
     boost::noncopyable, public simparm::Object,
     public dStorm::Display::DataSource
 {
-    typedef boost::units::quantity
-            <cs_units::camera::resolution, float> 
-        Resolution;
+  public:
+    typedef dStorm::input::Traits<CamImage>::Resolutions Resolution;
 
-    boost::units::quantity<cs_units::camera::frame_rate> cycle_time;
-    simparm::optional<Resolution> resolution;
+  private:
+    boost::units::quantity<boost::units::camera::frame_rate> cycle_time;
+    Resolution resolution;
     simparm::BoolEntry show_live;
-    simparm::optional< boost::units::quantity<cs_units::camera::intensity> >
+    simparm::optional< boost::units::quantity<boost::units::camera::intensity> >
         lower_user_limit, upper_user_limit;
 
     ost::Mutex window_mutex, change_mutex;
@@ -50,8 +50,8 @@ class LiveView :
   public:
     LiveView(
         bool on_by_default,
-        simparm::optional<Resolution> resolution,
-        boost::units::quantity<cs_units::camera::frame_rate> cycle_time );
+        Resolution resolution,
+        boost::units::quantity<boost::units::camera::frame_rate> cycle_time );
     ~LiveView();
     void show( const CamImage& image, int num );
 };

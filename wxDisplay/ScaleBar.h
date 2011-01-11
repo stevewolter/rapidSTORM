@@ -3,7 +3,7 @@
 
 #include <wx/wx.h>
 #include <boost/units/quantity.hpp>
-#include <cs_units/camera/resolution.hpp>
+#include <dStorm/helpers/DisplayDataSource.h>
 
 namespace dStorm {
 namespace Display {
@@ -13,8 +13,7 @@ class ScaleBar
 {
     DECLARE_EVENT_TABLE();
 
-    typedef boost::units::quantity<cs_units::camera::resolution,float> 
-        Resolution;
+    typedef ResizeChange::Resolution Resolution;
     Resolution resolution;
     float zoom_factor;
 

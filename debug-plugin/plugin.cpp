@@ -15,6 +15,7 @@
 #include "DummyFileInput.h"
 #include "DummyFitter.h"
 #include "VerboseInputFilter_decl.h"
+#include <dStorm/traits/range_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 using namespace dStorm::output;

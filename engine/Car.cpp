@@ -408,8 +408,8 @@ void Car::drive() {
 
     if ( config.configTarget ) {
         std::ostream& stream = config.configTarget.get_output_stream();
-        list<string> lns = config.printValues();
-        for (list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
+        std::list<string> lns = config.printValues();
+        for (std::list<string>::const_iterator i = lns.begin(); i != lns.end(); i++)
             stream << *i << "\n";
         config.configTarget.close_output_stream();
     }

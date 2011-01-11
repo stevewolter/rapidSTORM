@@ -1,3 +1,4 @@
+#include <dStorm/namespaces.h>
 #include "debug.h"
 #include "DummyFileInput.h"
 #include <iostream>
@@ -8,6 +9,7 @@
 
 using namespace dStorm::input;
 using namespace dStorm::input::chain;
+using namespace boost::units;
 
 namespace dStorm {
 namespace input {
@@ -31,8 +33,8 @@ Source::Source(const Config& config, Context::ConstPtr ptr)
   number( config.number() )
 {
     const FileContext& context = static_cast<const FileContext&>(*ptr);
-    size.x() = config.width() * cs_units::camera::pixel;
-    size.y() = config.height() * cs_units::camera::pixel;
+    size.x() = config.width() * boost::units::camera::pixel;
+    size.y() = config.height() * boost::units::camera::pixel;
     std::cout << "Simulating file input from '" << context.input_file << "'" << std::endl;
 }
 
@@ -43,7 +45,8 @@ Source::get_traits()
 {
     TraitsPtr rv( new TraitsPtr::element_type() );
     rv->size = size;
-    rv->last_frame = (number - 1) * cs_units::camera::frame;
+    rv->image_number().range().first = 0 * camera::frame;
+    rv->image_number().range().second = (number - 1) * camera::frame;
     return rv;
 }
 
@@ -57,7 +60,7 @@ class Source::_iterator
     friend class boost::iterator_core_access;
 
     dStorm::engine::Image& dereference() const { return image; }
-    void increment() { n++; image = dStorm::engine::Image(sz, n * cs_units::camera::frame); }
+    void increment() { n++; image = dStorm::engine::Image(sz, n * boost::units::camera::frame); }
     bool equal(const _iterator& o) const { return o.n == n; }
 
   public:
@@ -115,9 +118,10 @@ Method::AtEnd Method::make_new_traits() {
         rv->set_traits( new dStorm::input::Traits<int>() );
     } else {
         dStorm::input::Traits<dStorm::engine::Image> t;
-        t.size.x() = config.width() * cs_units::camera::pixel;
-        t.size.y() = config.height() * cs_units::camera::pixel;
-        t.last_frame = (config.number() - 1) * cs_units::camera::frame;
+        t.size.x() = config.width() * camera::pixel;
+        t.size.y() = config.height() * camera::pixel;
+        t.image_number().range().first = 0 * camera::frame;
+        t.image_number().range().second = (config.number() - 1) * camera::frame;
         rv->set_traits( new dStorm::input::Traits<dStorm::engine::Image>(t) );
     }
     rv->suggested_output_basename.unformatted() = "testoutputfile";

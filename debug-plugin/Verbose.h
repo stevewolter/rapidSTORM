@@ -22,16 +22,16 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        if (  a.resolution.is_set() ) {
+        if (  a.position().resolution().x().is_set() ) {
             LOG( "Verbose plugin got announcement with "
-                    << a.size.transpose() << " and size "
-                    << *a.resolution );
-            if ( a.speed.is_set() ) {
-                LOG("Announced speed is " << *a.speed );
-            }
+                    << a.position().upper_limits().transpose() << " and size "
+                    << (*a.position().resolution().x()) );
         } else {
             LOG( "Verbose plugin got announcement with "
-                    << a.size.transpose() );
+                    << a.position().upper_limits().transpose() );
+        }
+        if ( a.image_number().resolution().is_set() ) {
+            LOG("Announced speed is " << *a.image_number().resolution() );
         }
         return AdditionalData(); 
     }

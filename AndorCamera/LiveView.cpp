@@ -9,15 +9,15 @@
 typedef ost::MutexLock guard;
 
 using namespace boost::units;
-using namespace cs_units::camera;
+using namespace camera;
 using namespace dStorm;
 
 namespace AndorCamera {
 
 LiveView::LiveView( 
     bool on_by_default,
-    simparm::optional<Resolution> resolution,
-    boost::units::quantity<cs_units::camera::frame_rate> cycle_time
+    Resolution resolution,
+    boost::units::quantity<camera::frame_rate> cycle_time
     )
 : Object("LiveView", "Live view options"),
   cycle_time( cycle_time ),
@@ -50,10 +50,9 @@ void LiveView::show_window(CamImage::Size size) {
         props.initial_size.keys.back().can_set_upper_limit = true;
         props.initial_size.keys.back().lower_limit = "";
         props.initial_size.keys.back().upper_limit = "";
-        if ( resolution.is_set() )
-            props.initial_size.pixel_size = *resolution;
-        else
-            props.initial_size.pixel_size = 0 * cs_units::camera::pixels_per_meter;
+        for (int i = 0; i < 2; ++i)
+            if ( resolution[i].is_set() )
+                props.initial_size.pixel_sizes[i] = *resolution[i];
 
         window = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
@@ -90,9 +89,9 @@ void LiveView::compute_image_change
         if ( ! lower_user_limit.is_set() || ! upper_user_limit.is_set() )
             minmax = image.minmax();
         if ( lower_user_limit.is_set() )
-            minmax.first = (*lower_user_limit) / cs_units::camera::ad_count;
+            minmax.first = (*lower_user_limit) / camera::ad_count;
         if ( upper_user_limit.is_set() )
-            minmax.second = (*upper_user_limit) / cs_units::camera::ad_count;
+            minmax.second = (*upper_user_limit) / camera::ad_count;
         
         DEBUG("Normalizing");
         change->do_change_image = true;
@@ -127,9 +126,9 @@ void LiveView::notice_closed_data_window() {
 void LiveView::notice_user_key_limits(int key_index, bool lower, std::string input)
 {
     guard lock( window_mutex );
-    simparm::optional< boost::units::quantity<cs_units::camera::intensity> > v;
+    simparm::optional< boost::units::quantity<camera::intensity> > v;
     if ( input != "" )
-        v = atof(input.c_str()) * cs_units::camera::ad_count;
+        v = atof(input.c_str()) * camera::ad_count;
     if ( lower )
         lower_user_limit = v;
     else

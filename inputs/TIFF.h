@@ -2,9 +2,9 @@
 #define CImgBuffer_TIFF_H
 
 #include <dStorm/Image_decl.h>
+#include <dStorm/ImageTraits.h>
 #include <dStorm/input/Config.h>
 #include <dStorm/input/chain/Link.h>
-#include <dStorm/SizeTraits.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -81,7 +81,7 @@ namespace dStorm {
         int current_directory;
 
         int _width, _height, _no_images;
-        dStorm::SizeTraits<2>::Resolution resolution;
+        dStorm::input::ImageTraits<2>::Resolutions resolution;
 
         template <typename PixelType> friend class Source<PixelType>::iterator;
 

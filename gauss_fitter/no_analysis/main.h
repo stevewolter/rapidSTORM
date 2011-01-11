@@ -40,7 +40,7 @@ class CommonInfo
 
     FunctionParameters<Kernels,FitFlags> params;
     Eigen::Vector2i maxs;
-    Eigen::Vector2d start;
+    Eigen::Vector2d start, scale_factor;
     const double amplitude_threshold;
     const double start_sx, start_sy, start_sxy;
 

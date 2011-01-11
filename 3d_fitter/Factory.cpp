@@ -45,10 +45,14 @@ Factory<Widening>::make (const engine::JobInfo &i)
 template <int Widening>
 void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& ) {
     DEBUG("3D fitter is setting traits");
+    // TODO: CHeck traits */
     fitter::residue_analysis::Config::set_traits(rv);
-    rv.covariance_matrix_is_set = false;
-    rv.z_coordinate_is_set = true;
-    rv.z_range = output::Traits::ZRange(-Config<Widening>::z_range(), +Config<Widening>::z_range());
+    rv.covariance_matrix().is_given.fill(false);
+    rv.position().is_given.fill( true );
+    Localization::Position::Traits::ValueType::Scalar range 
+        = Localization::Position::Traits::ValueType::Scalar(Config<Widening>::z_range());
+    Localization::Position::Traits::RangeType::Scalar p(-range, +range);
+    rv.position().range().z() = p;
     DEBUG("3D fitter has set traits");
 }
 

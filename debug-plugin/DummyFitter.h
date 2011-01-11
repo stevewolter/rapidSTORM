@@ -17,6 +17,7 @@ struct DummyFitterConfig : public simparm::Set {
 };
 
 class DummyFitter : public dStorm::engine::SpotFitter {
+    dStorm::input::Traits<dStorm::engine::Image> traits;
     int counter, length;
   public:
     typedef DummyFitterConfig Config;

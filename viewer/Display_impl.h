@@ -46,8 +46,8 @@ void Display<Colorizer>::setSize(
     my_size = size;
 
     ps.resize( my_size.size.x() * my_size.size.y()
-        / cs_units::camera::pixel / cs_units::camera::pixel, false );
-    ps_step = my_size.size.x() / cs_units::camera::pixel;
+        / camera::pixel / camera::pixel, false );
+    ps_step = my_size.size.x() / camera::pixel;
 
     this->clear();
 }
@@ -59,8 +59,6 @@ void Display<Colorizer>::setSize(
 { 
     dStorm::Display::ResizeChange size;
     size.size = traits.size;
-    if ( ! traits.resolution.is_set() )
-        throw std::logic_error("Pixel size must be given for image display");
 
     size.keys.push_back(
         dStorm::Display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
@@ -68,7 +66,11 @@ void Display<Colorizer>::setSize(
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
-    size.pixel_size = *traits.resolution;
+    for (int i = 0; i < 2; ++i) 
+        if ( traits.resolution[i].is_set() )
+            size.pixel_sizes[i] = *traits.resolution[i];
+        else
+            size.pixel_sizes[i].value = -1 / camera::pixel;
 
     setSize( size );
 
@@ -129,8 +131,10 @@ Display<Colorizer>::save_image(
             c = window_id->get_state();
         if ( c.get() != NULL ) {
             if ( ! config.save_with_key() ) c->changed_keys.clear();
-            if ( ! config.save_scale_bar() ) 
-                c->resize_image.pixel_size = -1 * cs_units::camera::pixels_per_meter;
+            if ( ! config.save_scale_bar() ) {
+                c->resize_image.pixel_sizes[0].value = -1 / camera::pixel;
+                c->resize_image.pixel_sizes[1].value = -1 / camera::pixel;
+            }
             dStorm::Display::Manager::getSingleton()
                 .store_image( filename, *c );
         } else

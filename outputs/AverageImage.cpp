@@ -48,7 +48,9 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
         c.display_normalized( image );
-        c.resize_image.pixel_size = *resolution;
+        for (int i = 0; i < 2; ++i)
+            if ( resolution[i].is_set() )
+                c.resize_image.pixel_sizes[i] = *resolution[i];
         Display::Manager::getSingleton().store_image(filename, c);
     } else if (s == Engine_run_failed) {
         ost::MutexLock lock(mutex);

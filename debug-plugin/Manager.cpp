@@ -195,7 +195,8 @@ void Manager::Source::handle_resize(
     LOG( "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
               << ((r.keys.empty()) ? 0 : r.keys.front().size) << " grey levels and pixel "
-                 "size " << r.pixel_size );
+              << "size " << r.pixel_sizes[0].value << " " << r.pixel_sizes[0].unit_symbol << " in x "
+              << "and " << r.pixel_sizes[1].value << " " << r.pixel_sizes[1].unit_symbol << " in y " );
     for (unsigned int i = 0; i < r.keys.size(); ++i ) {
         LOG( "Window " << number << " key " << i << " is measured in " << r.keys[i].unit << " and has " << r.keys[i].size << " levels and the user "
              "can " << ((r.keys[i].can_set_lower_limit) ? "" : "not ") << "set the lower limit" );

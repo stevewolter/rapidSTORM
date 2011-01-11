@@ -42,8 +42,8 @@ void TerminalBackend<Hueing>::save_image(
     std::auto_ptr<dStorm::Display::Change> result
         = get_result(config.save_with_key());
     if ( ! config.save_scale_bar() )
-        result->resize_image.pixel_size = 
-            -1 * cs_units::camera::pixels_per_meter;
+        for (int i = 0; i < 2; ++i)
+            result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
     dStorm::Display::Manager::getSingleton().store_image( 
         filename, *result);

@@ -5,9 +5,9 @@
 #include "ConstantTypes.h"
 #include <boost/units/quantity.hpp>
 #include <dStorm/units/nanolength.h>
-#include <cs_units/camera/length.hpp>
-#include <cs_units/camera/intensity.hpp>
-#include <cs_units/camera/resolution.hpp>
+#include <boost/units/systems/camera/length.hpp>
+#include <boost/units/systems/camera/intensity.hpp>
+#include <boost/units/systems/camera/resolution.hpp>
 #include <dStorm/units/nanoresolution.h>
 
 namespace fitpp {
@@ -54,18 +54,18 @@ struct Model<Kernels,Widening>::Accessor {
     void set ## param(Quantity ## param v) \
         { return set<param,Function>(v.value()); } \
     void set_all_ ## param(Quantity ## param v) { set_all<param>(v.value()); }
-    METHODS(MeanX,cs_units::camera::length);
-    METHODS(MeanY,cs_units::camera::length);
+    METHODS(MeanX,boost::units::camera::length);
+    METHODS(MeanY,boost::units::camera::length);
     METHODS(MeanZ,boost::units::si::nanolength);
-    METHODS(Amplitude,cs_units::camera::intensity);
+    METHODS(Amplitude,boost::units::camera::intensity);
     METHODS(DeltaSigmaX,typename TypeHelper::ResolutionUnit);
     METHODS(DeltaSigmaY,typename TypeHelper::ResolutionUnit);
-    METHODS(BestSigmaX,cs_units::camera::length);
-    METHODS(BestSigmaY,cs_units::camera::length);
+    METHODS(BestSigmaX,boost::units::camera::length);
+    METHODS(BestSigmaY,boost::units::camera::length);
     METHODS(ZAtBestSigmaX,boost::units::si::nanolength);
     METHODS(ZAtBestSigmaY,boost::units::si::nanolength);
 #undef METHODS
-    typedef boost::units::quantity<cs_units::camera::intensity,double>
+    typedef boost::units::quantity<boost::units::camera::intensity,double>
         QuantityShift;
     QuantityShift getShift() const 
         { return QuantityShift::from_value( get<Shift,0>() ); }
@@ -74,8 +74,8 @@ struct Model<Kernels,Widening>::Accessor {
     template <int Function>
     Eigen::Vector3d getPosition() const {
         Eigen::Vector3d rv;
-        rv.x() = double(getMeanX<Function>() / cs_units::camera::pixel);
-        rv.y() = double(getMeanY<Function>() / cs_units::camera::pixel);
+        rv.x() = double(getMeanX<Function>() / boost::units::camera::pixel);
+        rv.y() = double(getMeanY<Function>() / boost::units::camera::pixel);
         rv.z() = double(getMeanZ<Function>() / boost::units::si::nanometre);
         return rv;
     }

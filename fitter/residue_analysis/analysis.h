@@ -103,8 +103,8 @@ SizedFitter<BaseFitter,Width,Height>
 
     this->deriver.setData( 
         image.ptr(),
-        image.width() / cs_units::camera::pixel,
-        image.height() / cs_units::camera::pixel );
+        image.width() / camera::pixel,
+        image.height() / camera::pixel );
     this->deriver.setUpperLeftCorner( xl, yl );
 
     float half_dist = 1.8;

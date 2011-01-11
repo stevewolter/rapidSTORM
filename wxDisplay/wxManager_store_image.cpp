@@ -8,6 +8,7 @@
 #endif
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
+#include <dStorm/ImageTraits.h>
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
@@ -173,7 +174,7 @@ static void write_main_image(
 
 static void write_scale_bar(
     Magick::Image& image,
-    ResizeChange::Resolution ppm,
+    dStorm::input::ImageResolution ppm,
     int width,
     int x_offset )
 {
@@ -188,7 +189,7 @@ static void write_scale_bar(
 
     DEBUG("Writing scale bar annotation");
     image.annotate(
-         SIize(width * cs_units::camera::pixel / ppm / boost::units::si::meter) + "m", 
+         SIize(width * camera::pixel * ppm.value) + ppm.unit_symbol, 
             Magick::Geometry(width, lh, x_offset, y_offset+10),
             Magick::CenterGravity );
     DEBUG("Wrote scale bar annotation");
@@ -207,8 +208,8 @@ void wxManager::store_image(
 #else
     DEBUG("Image to store has width " << image.resize_image.size.x() << " and height " << image.resize_image.size.y()
         <<" and has " << image.changed_keys.size() << " keys");
-    int width = image.resize_image.size.x() / cs_units::camera::pixel; 
-    int main_height = image.resize_image.size.y() / cs_units::camera::pixel;
+    int width = image.resize_image.size.x() / camera::pixel; 
+    int main_height = image.resize_image.size.y() / camera::pixel;
     int total_height = main_height;
     int border_after_image = 10;
 
@@ -241,13 +242,19 @@ void wxManager::store_image(
         key_pos += i->rows();
     }
     int scale_bar_width = std::min( width/3, 100 );
-    if ( image.resize_image.pixel_size > 0 * cs_units::camera::pixels_per_meter ) {
-        write_scale_bar( img, image.resize_image.pixel_size,
+    if ( image.resize_image.pixel_sizes[0].value > 0 / camera::pixel
+          && image.resize_image.pixel_sizes[1].value > 0 / camera::pixel ) 
+    {
+        write_scale_bar( img, image.resize_image.pixel_sizes[0],
                      scale_bar_width, std::max(0, width-scale_bar_width-5 ) );
         DEBUG("Wrote scale bar");
-        img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
-        unsigned int pix_per_cm = int( image.resize_image.pixel_size * (0.01 * boost::units::si::metre) / cs_units::camera::pixel );
-        img.density(Magick::Geometry(pix_per_cm, pix_per_cm));
+        try {
+            img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
+            unsigned int pix_per_cm[2];
+            for (int i = 0; i < 2; ++i)
+                pix_per_cm[i] = int( image.resize_image.pixel_sizes[i].in_dpm() * (0.01 * boost::units::si::metre) / camera::pixel );
+            img.density(Magick::Geometry(pix_per_cm[0], pix_per_cm[1]));
+        } catch (...) {}
     }
     
     img.write( filename );

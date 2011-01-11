@@ -12,6 +12,7 @@
 #include <boost/units/cmath.hpp>
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/residue_analysis/impl.h"
+#include <dStorm/unit_matrix_operators.h>
 
 template <typename Ty>
 inline Ty sqr(const Ty& a) { return a*a; }
@@ -64,6 +65,13 @@ CommonInfo<Ks,Widening>::CommonInfo(
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
     params->template set_all_BestSigmaX( info.config.sigma_x() );
     params->template set_all_BestSigmaY( info.config.sigma_y() );
+
+    for (int i = 0; i < 2; ++i)
+        if ( info.traits.resolution[i].is_set() )
+            scale_factor[i] = info.traits.resolution[i]->in_dpm();
+        else {
+            throw std::logic_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
+        }
     DEBUG("Constructed fitter common information");
 }
 
@@ -95,17 +103,17 @@ CommonInfo<Kernels,Widening>::set_start(
     typename FitGroup::Variables* variables 
 ) 
 {
-    typedef boost::units::quantity<cs_units::camera::intensity,double>
+    typedef boost::units::quantity<camera::intensity,double>
         ADCs;
 
-    ADCs shift_estimate = shift_estimate_in_ADC * cs_units::camera::ad_count;
+    ADCs shift_estimate = shift_estimate_in_ADC * camera::ad_count;
     params->change_variable_set( variables );
-    params->template set_all_MeanX( spot.x() * cs_units::camera::pixel );
-    params->template set_all_MeanY( spot.y() * cs_units::camera::pixel );
+    params->template set_all_MeanX( spot.x() * camera::pixel );
+    params->template set_all_MeanY( spot.y() * camera::pixel );
     params->template set_all_MeanZ( 0 * boost::units::si::nanometre );
 
     int xc = round(spot.x()), yc = round(spot.y());
-    ADCs center = image(xc,yc) * cs_units::camera::ad_count;
+    ADCs center = image(xc,yc) * camera::ad_count;
     
     params->setShift( shift_estimate );
 
@@ -115,17 +123,17 @@ CommonInfo<Kernels,Widening>::set_start(
     params->template set_all_Amplitude( 
         std::max<typename FitGroup::Accessor::QuantityAmplitude>
             ((center - shift_estimate) / (1.0 * Kernels),
-             10 * cs_units::camera::ad_count) * prefactor );
+             10 * camera::ad_count) * prefactor );
 
     DEBUG( "Estimating center at " << center << ", shift at " << shift_estimate 
               << " for spot at " << xc << " " << yc << " with image sized " << image.width_in_pixels() << " by "
               << image.height_in_pixels() );
     DEBUG( "Set start " << *variables );
 
-    maxs.x() = image.width_in_pixels()-1 - 1;
-    maxs.y() = image.height_in_pixels()-1 - 1;
-    start.x() = spot.x();
-    start.y() = spot.y();
+    maxs.x() = image.width() - 2 * camera::pixel;
+    maxs.y() = image.height() - 2 * camera::pixel;
+    start.x() = spot.x() * camera::pixel;
+    start.y() = spot.y() * camera::pixel;
 }
 
 template <int Kernels, int Widening>
@@ -138,28 +146,28 @@ CommonInfo<Kernels,Widening>::check_result(
     params->change_variable_set( variables );
     DEBUG("Checking position " << variables->transpose());
 
-    Localization::Position p;
-    p.x() = params->template getMeanX<0>();
-    p.y() = params->template getMeanY<0>();
+    SubpixelPos mins, pixelpos;
+    pixelpos[0] = params->template getMeanX<0>();
+    pixelpos[1] = params->template getMeanY<0>();
+    mins.fill( 1 * camera::pixel );
 
+    Localization::Position::Type pos;
+    pos[0] = pixelpos[0] / scale_factor[0];
+    pos[1] = pixelpos[1] / scale_factor[1];
+    pos[2] = Localization::Position::Type::Scalar(params->template getMeanZ<0>());
     new(target) Localization( 
-        p, Localization::Amplitude(params->template getAmplitude<0>()) );
-
-    target->zposition() = 
-        Localization::ZPosition(params->template getMeanZ<0>());
+        pos, Localization::Amplitude::Type(params->template getAmplitude<0>()) );
 
     DEBUG("Found position at " << p.x() << " " << p.y() << " " << target->zposition() << " " << target->strength());
     DEBUG("Amplitude threshold is " << amplitude_threshold);
     bool good = 
-           target->strength() > amplitude_threshold 
-        && target->x() >= 1*cs_units::camera::pixel
-        && target->y() >= 1*cs_units::camera::pixel
-        && target->x() < maxs.x() * cs_units::camera::pixel
-        && target->y() < maxs.y() * cs_units::camera::pixel
-        && sqr(target->x().value() - start.x()) + 
-           sqr(target->y().value() - start.y()) < 4 
-        && target->zposition() < this->max_z_range
-        && target->zposition() > - this->max_z_range;
+           target->amplitude() > amplitude_threshold 
+        && (pixelpos.cwise() > mins).all() 
+        && (pixelpos.cwise() < maxs).all();
+    good = good
+        && unitless_value(pixelpos - start).squaredNorm() < 4
+        && target->position().z() < this->max_z_range
+        && target->position().z() > - this->max_z_range;
 
     DEBUG("Position good: " << good);
     target->unset_source_trace();
@@ -195,7 +203,7 @@ start_from_splitted_single_fit(
     Base2::params->change_variable_set( v );
     Base2::params->setShift( Base1::params->getShift() );
 
-    using cs_units::camera::pixel;
+    using camera::pixel;
     Base2::params->template setMeanX<0>
         ( Base1::params->template getMeanX<0>() + float(dir.x()) * pixel );
     Base2::params->template setMeanX<1>
@@ -227,8 +235,8 @@ void ResidueAnalysisInfo<Widening>::get_center(
     const SingleFit& v, int& x, int& y) 
 {
     Base1::params->change_variable_set( &const_cast<SingleFit&>(v) );
-    x = round(Base1::params->template getMeanX<0>() / cs_units::camera::pixel);
-    y = round(Base1::params->template getMeanY<0>() / cs_units::camera::pixel);
+    x = round(Base1::params->template getMeanX<0>() / camera::pixel);
+    y = round(Base1::params->template getMeanY<0>() / camera::pixel);
 }
 
 template class ResidueAnalysisInfo<fitpp::Exponential3D::Zhuang>;

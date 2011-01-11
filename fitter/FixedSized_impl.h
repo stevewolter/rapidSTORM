@@ -18,8 +18,8 @@ fit( const engine::Spot &spot,
 {
     deriver.setData( 
         image.ptr(), 
-        image.width() / cs_units::camera::pixel,
-        image.height() / cs_units::camera::pixel );
+        image.width() / camera::pixel,
+        image.height() / camera::pixel );
     deriver.setUpperLeftCorner( xl, yl );
 
     Eigen::Matrix<double,1,1> corners =

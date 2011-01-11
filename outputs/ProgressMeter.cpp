@@ -26,10 +26,10 @@ ProgressMeter::ProgressMeter(const Config &)
 Output::AdditionalData
 ProgressMeter::announceStormSize(const Announcement &a) { 
         ost::MutexLock lock(mutex);
-        first = a.first_frame;
-        if ( a.last_frame.is_set() )
-            length = *a.last_frame + a.first_frame
-                        + 1 * cs_units::camera::frame;
+        first = *a.image_number().range().first;
+        if ( a.image_number().range().second.is_set() )
+            length = *a.image_number().range().second + first
+                        + 1 * camera::frame;
         else
             progress.indeterminate = true;
         max = frame_count::from_value(0);
@@ -40,11 +40,11 @@ ProgressMeter::announceStormSize(const Announcement &a) {
 Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er) 
 {
     ost::MutexLock lock(mutex);
-    if ( er.forImage+1*cs_units::camera::frame > max ) {
-        max = er.forImage+1*cs_units::camera::frame;
+    if ( er.forImage+1*camera::frame > max ) {
+        max = er.forImage+1*camera::frame;
         DEBUG("Progress at " << max);
         if ( length.is_set() ) {
-            boost::units::quantity<cs_units::camera::time,float>
+            boost::units::quantity<camera::time,float>
                 diff = (max - first);
             DEBUG("Diff is " << diff);
             float ratio = diff / *length;

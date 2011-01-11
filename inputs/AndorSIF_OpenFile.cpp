@@ -76,15 +76,15 @@ OpenFile::getTraits()
     std::stringstream ss;
 
     rv->size.x() = 
-            readsif_imageWidth( dataSet, 0 ) * cs_units::camera::pixel;
+            readsif_imageWidth( dataSet, 0 ) * camera::pixel;
     rv->size.y() = readsif_imageHeight( dataSet, 0 )
-            * cs_units::camera::pixel;
+            * camera::pixel;
     if ( dataSet->instaImage.kinetic_cycle_time > 1E-8 ) {
-        rv->speed = 1.0 * cs_units::camera::frame / ( dataSet->instaImage.kinetic_cycle_time
+        rv->image_number().resolution() = 1.0f * camera::frame / ( dataSet->instaImage.kinetic_cycle_time
                 * boost::units::si::second );
     }
-    rv->last_frame =
-        (readsif_numberOfImages(dataSet) - 1) * cs_units::camera::frame;
+    rv->image_number().range().second =
+        (readsif_numberOfImages(dataSet) - 1) * camera::frame;
 
     boost::units::quantity<boost::units::celsius::temperature,int> temp
         = (int(dataSet->instaImage.temperature) * boost::units::celsius::degrees);
@@ -118,9 +118,9 @@ OpenFile::load_image(int count, simparm::Node& node)
     for (int i = 0; i < sz; i++) buffer[i] = 5;
     typename Image::Size dim;
     dim.x() = readsif_imageWidth(dataSet, 0) 
-        * cs_units::camera::pixel;
+        * camera::pixel;
     dim.y() = readsif_imageHeight(dataSet, 0)
-        * cs_units::camera::pixel;
+        * camera::pixel;
 
     DEBUG("Calling GetNextImage");
     int rv_of_readsif_getImage = 

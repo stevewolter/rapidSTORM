@@ -64,7 +64,7 @@ class Display : public simparm::Set,
     /** If set to true, \c normalization_factor is fixed at the current
      *  level. */
     bool lock_normalization, redeclare_key;
-    simparm::optional< boost::units::quantity<cs_units::camera::intensity> >
+    simparm::optional< boost::units::quantity<boost::units::camera::intensity> >
         lower_user_limit, upper_user_limit;
 
     /** Saved data of the last camera image to enable saving. */

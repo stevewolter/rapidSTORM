@@ -77,7 +77,7 @@ Source::TraitsPtr Source::get_traits()
     DEBUG("Acquisition has a length set: " << acquisition.hasLength());
     if ( acquisition.hasLength() ) {
         DEBUG("Acquisition length is " << acquisition.getLength() << " frames");
-        rv->last_frame = acquisition.getLength() - 1 * cs_units::camera::frame;
+        rv->image_number().range().second = acquisition.getLength() - 1 * camera::frame;
     }
     return rv;
 }

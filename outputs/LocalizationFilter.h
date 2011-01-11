@@ -3,7 +3,7 @@
 
 #include <dStorm/units/prefixes.h>
 #include <boost/units/systems/si/velocity.hpp>
-#include <cs_units/camera/velocity.hpp>
+#include <boost/units/systems/camera/velocity.hpp>
 #include <dStorm/units/amplitude.h>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/outputs/LocalizationList.h>
@@ -17,6 +17,8 @@
 namespace dStorm {
 namespace output {
 
+using namespace boost::units;
+
 /** The LocalizationFilter transmission filters localizations by amplitude and
  *  provides linear drift correction. Both corrections are performed dynamically,
  *  that is, the parameters can be changed at run-time and the localization filter
@@ -25,9 +27,11 @@ class LocalizationFilter : public OutputObject,
                            public simparm::Node::Callback
 {
   public:
-    typedef boost::units::si::pico_scale<boost::units::si::velocity>::type
+    typedef si::pico_scale<si::velocity>::type
         ShiftSpeed;
-    typedef boost::units::quantity<cs_units::camera::velocity,float>
+    typedef quantity<divide_typeof_helper<
+            samplepos::Scalar::unit_type,
+            camera::time>::type,float>
         AppliedSpeed;
 
   private:
@@ -48,7 +52,7 @@ class LocalizationFilter : public OutputObject,
     simparm::UnitEntry<ShiftSpeed,double> shift_scale, x_shift, y_shift;
     simparm::DoubleEntry two_kernel_significance;
     simparm::optional<amplitude> v_from, v_to;
-    Eigen::Matrix<AppliedSpeed, Localization::Dim, 1>
+    Eigen::Matrix<AppliedSpeed, Localization::Position::Type::RowsAtCompileTime, 1>
         shift_velocity;
     output::Traits traits;
 

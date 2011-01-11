@@ -161,9 +161,9 @@ Source<Pixel>::iterator::dereference() const
         ::TIFF *tiff = src->tiff;
         tsize_t strip_size = TIFFStripSize( tiff );
         tstrip_t strip_count = TIFFNumberOfStrips( tiff );
-        sz.x() = src->_width * cs_units::camera::pixel;
-        sz.y() = src->_height * cs_units::camera::pixel;
-        Image i( sz, directory * cs_units::camera::frame);
+        sz.x() = src->_width * camera::pixel;
+        sz.y() = src->_height * camera::pixel;
+        Image i( sz, directory * camera::frame);
 
         DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->_width << " " << src->_height);
 

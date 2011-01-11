@@ -21,7 +21,7 @@ class _AcquisitionMode {
     simparm::UnsignedLongEntry  number_of_accumulations;
     dStorm::FloatTimeEntry      desired_kinetic_cycle_time;
     simparm::Selector< simparm::optional< boost::units::quantity<
-        cs_units::camera::time, int > > >::Entry kinetic_length;
+        boost::units::camera::time, int > > >::Entry kinetic_length;
 
     _AcquisitionMode();
 };

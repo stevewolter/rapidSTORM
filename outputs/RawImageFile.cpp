@@ -59,10 +59,13 @@ RawImageFile::RawImageFile(const Config& config)
 }
 
 Output::AdditionalData
-RawImageFile::announceStormSize(const Announcement &a) {
-    resolution = a.resolution;
-    last_frame = a.last_frame;
-    size = a.size;
+RawImageFile::announceStormSize(const Announcement &a) 
+{
+    last_frame = a.image_number().range().second;
+    if ( a.input_image_traits.get() )
+        size = *a.input_image_traits;
+    else
+        throw std::runtime_error("No size provided for source images");
 
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
@@ -74,7 +77,7 @@ RawImageFile::announceStormSize(const Announcement &a) {
 
     strip_size = TIFFTileSize( tif );
     strips_per_image = TIFFNumberOfTiles( tif );
-    next_image = a.first_frame;
+    next_image = *a.image_number().range().first;
 
     return AdditionalData().set_source_image();
 }
@@ -140,18 +143,18 @@ void RawImageFile::delete_queue() {
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFOperation op("in writing TIFF file", *this, false);
     DEBUG("Writing " << img.frame_number().value());
-    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.x() / cs_units::camera::pixel) );
-    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.y() / cs_units::camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
-    if ( resolution.is_set() ) {
-        TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
-        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(*resolution * (0.01 * boost::units::si::meter) / cs_units::camera::pixel) );
-        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(*resolution * (0.01 * boost::units::si::meter) / cs_units::camera::pixel) );
-    }
+    TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
+    if ( size.resolution[0].is_set() )
+        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(size.resolution[0]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size.resolution[1].is_set() )
+        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(size.resolution[1]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
     if ( last_frame.is_set() ) {
-        TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / cs_units::camera::frame),
-                                            uint16_t(*last_frame / cs_units::camera::frame + 1) );
+        TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / camera::frame),
+                                            uint16_t(*last_frame / camera::frame + 1) );
     }
     op.throw_exception_for_errors();
 
@@ -178,7 +181,7 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     }
     if ( TIFFWriteDirectory( tif ) == 0 /* Error occured */ )
         op.throw_exception_for_errors();
-    next_image = next_image + 1 * cs_units::camera::frame;
+    next_image = next_image + 1 * camera::frame;
 }
 
 void RawImageFile::propagate_signal(ProgressSignal) {

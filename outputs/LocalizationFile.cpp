@@ -9,7 +9,6 @@
 #include <iomanip>
 
 #include <dStorm/localization_file/fields.h>
-#include <dStorm/localization_file/known_fields.h>
 
 using namespace std;
 
@@ -41,24 +40,21 @@ void LocalizationFile::printFit(const Localization &f,
                                     i != trace.end(); i++)
             printFit(*i, 0);
     } else {
-      (*file) << std::fixed << std::setprecision(3) << f.x().value() << " " 
-           << f.y().value() << " "
-           << f.getImageNumber().value() << " "
+        bool first = true;
+        for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i ) { 
+            if ( first ) first = false; else (*file) << " "; 
+            i->write( *file, f ); 
+        }
+        (*file) << "\n";
+#if 0
+        // TODO: Implement the setprecision in new framework
+      (*file) << std::fixed << std::setprecision(3) << f.position().x().value() << " " 
+           << f.position().y().value() << " "
+           << f.frame_number().value() << " "
            << std::resetiosflags(ios_base::fixed) << std::setprecision(6)
-           << f.strength().value() ;
-      if ( traits.two_kernel_improvement_is_set )
-        (*file) << " " << f.two_kernel_improvement();
-      if ( traits.covariance_matrix_is_set )
-        (*file) << " " << Eigen::unitless_value(f.fit_covariance_matrix()).format(format);
-      if ( traits.z_coordinate_is_set )
-        (*file) << " " << f.zposition().value();
-      if ( traits.uncertainty_is_set ) {
-        (*file) << " " << f.uncertainty()[0].value();
-        (*file) << " " << f.uncertainty()[1].value();
-      }
-      (*file) << "\n";
+           << f.amplitude().value() ;
+#endif
     }
-    //DEBUG("Finished printFit");
 }
 
 using namespace dStorm::LocalizationFile;
@@ -74,20 +70,10 @@ void LocalizationFile::open() {
     /** Write XML header for localization file */
     XMLNode topNode = 
         XMLNode::createXMLTopNode( "rapid2storm" );
-    field::XCoordinate( traits ).makeNode( topNode );
-    field::YCoordinate( traits ).makeNode( topNode );
-    field::FrameNumber( traits ).makeNode( topNode );
-    field::Amplitude( traits ).makeNode( topNode );
-    if ( traits.two_kernel_improvement_is_set )
-        field::TwoKernelImprovement( traits ).makeNode( topNode );
-    if ( traits.covariance_matrix_is_set )
-        field::CovarianceMatrix( traits ).makeNode( topNode );
-    if ( traits.z_coordinate_is_set )
-        field::ZCoordinate( traits ).makeNode( topNode );
-    if ( traits.uncertainty_is_set ) {
-        field::XUncertainty( traits ).makeNode( topNode );
-        field::YUncertainty( traits ).makeNode( topNode );
-    }
+    fields.clear();
+    fields = field::Interface::construct(traits);
+    for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i )
+        i->makeNode( topNode, traits );
 
     XMLSTR str = topNode.createXMLString(0);
     *file << "# " << str << "\n";

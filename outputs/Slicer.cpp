@@ -53,10 +53,10 @@ Slicer::_Config::_Config()
   outputFile("BaseFileName", "File name pattern", "_$slice$")
 {
     slice_size.helpID = HELP_Slicer_Size;
-    slice_size.min = 1 * cs_units::camera::frame;
+    slice_size.min = 1 * camera::frame;
 
     slice_distance.helpID = HELP_Slicer_Dist;
-    slice_distance.min = 1 * cs_units::camera::frame;
+    slice_distance.min = 1 * camera::frame;
 
     outputFile.helpID = HELP_Slicer_Pattern;
     outputFile.setHelp("$slice$ is replaced with the block name.");
@@ -118,7 +118,7 @@ void Slicer::propagate_signal(ProgressSignal s) {
 
 Output::Result Slicer::receiveLocalizations(const EngineResult& er)
 {
-    frame_count one_frame( 1 * cs_units::camera::frame );
+    frame_count one_frame( 1 * camera::frame );
     frame_index
         cur_image = er.forImage, 
         back_image = (cur_image >= slice_size) 

@@ -1,7 +1,9 @@
 #ifndef DSTORM_GAUSSFITTER_RESIDUEANALYSIS_H
 #define DSTORM_GAUSSFITTER_RESIDUEANALYSIS_H
 
-#include <cs_units/camera/intensity.hpp>
+#include <boost/units/systems/camera/intensity.hpp>
+#include <boost/units/systems/camera/length.hpp>
+#include <boost/units/systems/camera/resolution.hpp>
 #include "fitter/MarquardtInfo.h"
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/engine/Spot_decl.h>
@@ -12,9 +14,12 @@
 #include "Exponential3D.hh"
 #include <boost/units/quantity.hpp>
 #include <dStorm/units/nanolength.h>
+#include <dStorm/units_Eigen_traits.h>
 
 namespace dStorm {
 namespace gauss_3d_fitter {
+
+using namespace boost::units;
 
 template <int Kernels, int Widening>
 class CommonInfo
@@ -24,10 +29,11 @@ class CommonInfo
   protected:
     typedef typename fitpp::Exponential3D::Model<Kernels,Widening> FitGroup;
     typedef typename FitGroup::Variables Variables;
-    Eigen::Vector2i maxs;
-    Eigen::Vector2d start;
-    const boost::units::quantity<cs_units::camera::intensity> amplitude_threshold;
-    const boost::units::quantity<boost::units::si::nanolength> max_z_range;
+    typedef Eigen::Matrix< quantity<camera::length,float>, 2, 1> SubpixelPos;
+    SubpixelPos maxs, start;
+    Eigen::Matrix< quantity<camera::resolution, float>, 2, 1> scale_factor;
+    const boost::units::quantity<camera::intensity> amplitude_threshold;
+    const boost::units::quantity<si::length> max_z_range;
 
   public:
     std::auto_ptr<typename FitGroup::Accessor> params;

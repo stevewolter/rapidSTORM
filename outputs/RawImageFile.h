@@ -9,6 +9,7 @@
 #include <simparm/FileEntry.hh>
 
 #include <queue>
+#include <dStorm/ImageTraits.h>
 
 namespace dStorm {
 namespace output {
@@ -32,9 +33,8 @@ class RawImageFile : public OutputObject {
 
     class _Config;
 
-    SizeTraits<2>::Size size;
+    input::ImageTraits<2> size;
     simparm::optional<frame_count> last_frame;
-    output::Traits::Resolution resolution;
 
   public:
     typedef simparm::Structure<_Config> Config;

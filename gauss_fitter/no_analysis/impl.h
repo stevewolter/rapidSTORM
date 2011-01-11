@@ -26,9 +26,9 @@ CommonInfo<Ks,FF>::CommonInfo(
    const Config& c, const engine::JobInfo& info
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
-  amplitude_threshold( *info.config.amplitude_threshold() / cs_units::camera::ad_counts ),
-  start_sx( info.config.sigma_x() / cs_units::camera::pixel ),
-  start_sy( info.config.sigma_y() / cs_units::camera::pixel ),
+  amplitude_threshold( *info.config.amplitude_threshold() / camera::ad_counts ),
+  start_sx( info.config.sigma_x() / camera::pixel ),
+  start_sy( info.config.sigma_y() / camera::pixel ),
   start_sxy( info.config.sigma_xy() ),
   compute_uncertainty( info.traits.photon_response.is_set() &&
                        info.traits.background_stddev.is_set() ),
@@ -46,6 +46,13 @@ CommonInfo<Ks,FF>::CommonInfo(
         params.template set_all_SigmaY( start_sy );
     if ( ! ( FF & ( 1 << fitpp::Exponential2D::SigmaXY ) ) )
         params.template set_all_SigmaXY( start_sxy );
+
+    for (int i = 0; i < 2; ++i)
+        if ( info.traits.resolution[i].is_set() )
+            scale_factor[i] = 1.0f / (info.traits.resolution[i]->in_dpm() / camera::pixel * boost::units::si::metre);
+        else {
+            throw std::logic_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
+        }
 }
 
 template <int Kernels,int FF>
@@ -72,7 +79,7 @@ CommonInfo<Kernels,FF>::set_start(
 ) 
 {
     background_noise_variance = sqr(
-        image.background_standard_deviation() / cs_units::camera::ad_count
+        image.background_standard_deviation() / camera::ad_count
         / photon_response_factor);
     set_start(variables);
     params.template set_all_MeanX( spot.x() );
@@ -109,13 +116,16 @@ CommonInfo<Kernels,FF>::check_result(
 {
     params.change_variable_set( variables );
 
-    Localization::Position p;
-    p.x() = params.template getMeanX<0>() * cs_units::camera::pixel;
-    p.y() = params.template getMeanY<0>() * cs_units::camera::pixel;
+    Eigen::Vector2d endpos, mins( Eigen::Vector2d::Constant(1) );
+    endpos.x() = params.template getMeanX<0>();
+    endpos.y() = params.template getMeanY<0>();
 
+    Localization::Position::Type sample_space_pos;
+    for (int i = 0; i < 2; ++i)
+        sample_space_pos[i] = float(endpos[i] * scale_factor[i]) * boost::units::si::metre;
     new(target) Localization( 
-        p, float( params.template getAmplitude<0>() )
-                * cs_units::camera::ad_counts );
+        sample_space_pos, float( params.template getAmplitude<0>() )
+                * camera::ad_counts );
 
     DEBUG("Got fit " << p.x() << " " << p.y() << " " << target->strength());
     bool sx_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaX )))
@@ -127,28 +137,24 @@ CommonInfo<Kernels,FF>::check_result(
     bool sigmas_correct = sx_correct && sy_correct;
 
     bool good = sigmas_correct
-        && target->strength() > amplitude_threshold 
-                                * cs_units::camera::ad_counts
-        && target->x() >= 1*cs_units::camera::pixel
-        && target->y() >= 1*cs_units::camera::pixel
-        && target->x() < maxs.x() * cs_units::camera::pixel
-        && target->y() < maxs.y() * cs_units::camera::pixel
-        && sqr(target->x().value() - start.x()) + 
-           sqr(target->y().value() - start.y()) < 4;
+        && target->amplitude() > amplitude_threshold 
+                                * camera::ad_counts
+        && (endpos.cwise() > mins).all() && (endpos.cwise() < maxs.cast<double>()).all()
+        && (endpos - start).squaredNorm() < 4;
     if ( good && (FF != fitpp::Exponential2D::FixedForm) ) {
         double sx = params.template getSigmaX<0>(),
                sy = params.template getSigmaY<0>(),
                corr = params.template getSigmaXY<0>();
         target->fit_covariance_matrix()(0,0) 
-            = sx*sx * cs_units::camera::pixel *
-                      cs_units::camera::pixel;
+            = sx*sx * camera::pixel *
+                      camera::pixel;
         target->fit_covariance_matrix()(0,1)
             = target->fit_covariance_matrix()(1,0)
-            = corr*sx*sy * cs_units::camera::pixel
-                         * cs_units::camera::pixel;
+            = corr*sx*sy * camera::pixel
+                         * camera::pixel;
         target->fit_covariance_matrix()(1,1) = sy*sy
-            * cs_units::camera::pixel 
-            * cs_units::camera::pixel;
+            * camera::pixel 
+            * camera::pixel;
     }
     if ( good && compute_uncertainty ) {
         using namespace boost::units;
@@ -168,8 +174,7 @@ CommonInfo<Kernels,FF>::check_result(
 
         Eigen::Vector2d variance_in_pixels = psf_variance.cwise() * background_factor / N;
         for (int i = 0; i < 2; ++i)
-            target->uncertainty()[i] = cs_units::camera::pixel 
-                * sqrt(variance_in_pixels[i]);
+            target->position.uncertainty()[i] = float(sqrt(variance_in_pixels[i]) * scale_factor[i]) * boost::units::si::metre;
     }
 
     target->unset_source_trace();

@@ -5,7 +5,7 @@
 #include <simparm/UnitEntry_Impl.hh>
 
 namespace simparm {
-template class simparm::UnitEntry<cs_units::camera::resolution, float>;
+template class simparm::UnitEntry<boost::units::camera::resolution, float>;
 }
 
 namespace dStorm {

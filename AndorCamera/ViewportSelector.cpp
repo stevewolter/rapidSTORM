@@ -18,6 +18,7 @@
 using namespace std;
 using namespace simparm;
 using namespace dStorm::input;
+using namespace boost::units;
 
 using AndorCamera::CameraPixel;
 using dStorm::Pixel;
@@ -133,21 +134,26 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
     new_size.keys.back().upper_limit = "";
-    if ( context.has_info_for<CamImage>() && context.get_info_for<CamImage>().resolution.is_set() )
-        new_size.pixel_size = *context.get_info_for<CamImage>().resolution;
-
+    if ( context.has_info_for<CamImage>() ) {
+        const dStorm::input::Traits<CamImage>& t = context.get_info_for<CamImage>();
+        for (int i = 0; i < 2; ++i) {
+            if ( t.resolution[i].is_set() )
+                new_size.pixel_sizes[i] = *t.resolution[i];
+        }
+    }
+        
     return new_size;
 }
 
 void Display::initialize_display() 
 {
     if ( aimed != NULL ) {
-        size.x() = aimed->right.max() - aimed->left.min() + 1 * cs_units::camera::pixel;
-        size.y() = aimed->bottom.max() - aimed->top.min() + 1 * cs_units::camera::pixel;
+        size.x() = aimed->right.max() - aimed->left.min() + 1 * camera::pixel;
+        size.y() = aimed->bottom.max() - aimed->top.min() + 1 * camera::pixel;
     } else {
         ImageReadout& ir = dynamic_cast<ImageReadout&>( cam->readout() );
-        size.x() = ir.right() - ir.left() + 1 * cs_units::camera::pixel;
-        size.y() = ir.bottom() - ir.top() + 1 * cs_units::camera::pixel;
+        size.x() = ir.right() - ir.left() + 1 * camera::pixel;
+        size.y() = ir.bottom() - ir.top() + 1 * camera::pixel;
     }
 
     if ( handle.get() == NULL ) {
@@ -195,10 +201,10 @@ void Display::context_changed() {
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
     ost::MutexLock lock(mutex);
     if ( aimed ) {
-        aimed->left = l * cs_units::camera::pixel;
-        aimed->right = r * cs_units::camera::pixel;
-        aimed->top = t * cs_units::camera::pixel;
-        aimed->bottom = b * cs_units::camera::pixel;
+        aimed->left = l * camera::pixel;
+        aimed->right = r * camera::pixel;
+        aimed->top = t * camera::pixel;
+        aimed->bottom = b * camera::pixel;
 
         change->do_change_image = true;
         change->image_change.new_image = last_image;
@@ -218,9 +224,9 @@ void Display::draw_image( const CamImage& data) {
     
     if ( redeclare_key ) {
         if ( lower_user_limit.is_set() )
-            normalization_factor.first = (*lower_user_limit) / cs_units::camera::ad_count;
+            normalization_factor.first = (*lower_user_limit) / camera::ad_count;
         if ( upper_user_limit.is_set() )
-            normalization_factor.second = (*upper_user_limit) / cs_units::camera::ad_count;
+            normalization_factor.second = (*upper_user_limit) / camera::ad_count;
 
         change->changed_keys.front().clear();
         dStorm::Display::KeyChange *keys 
@@ -240,10 +246,10 @@ void Display::draw_image( const CamImage& data) {
     DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
-        int l = aimed->left() / cs_units::camera::pixel,
-            r = aimed->right() / cs_units::camera::pixel,
-            t = aimed->top() / cs_units::camera::pixel,
-            b = aimed->bottom() / cs_units::camera::pixel;
+        int l = aimed->left() / camera::pixel,
+            r = aimed->right() / camera::pixel,
+            t = aimed->top() / camera::pixel,
+            b = aimed->bottom() / camera::pixel;
 
         /* Draw the red rectangle that indicates the current acquisition
         * borders */
@@ -300,7 +306,7 @@ void Display::acquire()
     initialize_display();
 
     /* Allocate buffer for data storage */
-    CamImage img( size, 0 * cs_units::camera::frame );
+    CamImage img( size, 0 * camera::frame );
 
     while ( ! paused ) {
         /* Acquire image */
@@ -355,9 +361,9 @@ void Display::operator()
 void Display::notice_user_key_limits(int key_index, bool lower, std::string input)
 {
     ost::MutexLock lock( mutex );
-    simparm::optional< boost::units::quantity<cs_units::camera::intensity> > v;
+    simparm::optional< boost::units::quantity<camera::intensity> > v;
     if ( input != "" )
-        v = atof(input.c_str()) * cs_units::camera::ad_count;
+        v = atof(input.c_str()) * camera::ad_count;
     if ( lower )
         lower_user_limit = v;
     else

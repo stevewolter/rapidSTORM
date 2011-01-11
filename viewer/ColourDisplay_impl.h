@@ -139,8 +139,8 @@ class HueingColorizer : public Colorizer<unsigned char>, public HueSaturationMix
     template <typename Unit>
     dStorm::Display::KeyDeclaration key_declaration() const {
         dStorm::Display::KeyDeclaration rv(
-            boost::units::symbol_string( Unit() ),
-            boost::units::name_string( Unit() ),
+            boost::units::symbol_string( typename Unit::unit_type() ),
+            boost::units::name_string( typename Unit::unit_type() ),
             key_resolution);
         if ( repeater ) {
             rv.can_set_lower_limit = rv.can_set_upper_limit = true;
@@ -161,7 +161,7 @@ class HueingColorizer : public Colorizer<unsigned char>, public HueSaturationMix
 template <>
 struct HueingVariable<ColourSchemes::TimeHue>
 {
-    typedef cs_units::camera::time Unit;
+    typedef camera::time Unit;
     typedef boost::units::si::time AlternateUnit;
 
     simparm::optional<frame_rate> speed;
@@ -172,7 +172,7 @@ struct HueingVariable<ColourSchemes::TimeHue>
 template <>
 struct HueingVariable<ColourSchemes::ZHue>
 {
-    typedef boost::units::si::nanolength Unit;
+    typedef Localization::Position::Type::Scalar::unit_type Unit;
 
     HueingVariable( const Config& ) {}
 };
@@ -245,7 +245,7 @@ template <>
 inline void HueingColorizer<ColourSchemes::ZHue>
 ::announce(const Localization& l)
 {
-    set_tone( l.zposition() );
+    set_tone( l.position().z() );
 }
 
 }

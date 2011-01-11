@@ -9,11 +9,13 @@
 
 #include <boost/units/systems/si/velocity.hpp>
 #include <boost/units/systems/si/prefixes.hpp>
-#include <cs_units/camera/time.hpp>
+#include <boost/units/systems/camera/time.hpp>
 
 #include "debug.h"
 #include <dStorm/error_handler.h>
 #include <string>
+
+#include <dStorm/traits/range_impl.h>
 
 namespace boost {
 namespace units {
@@ -124,7 +126,7 @@ LocalizationFilter::LocalizationFilter(
       two_kernel_significance(c.two_kernel_significance),
       output(output)
 { 
-    shift_velocity.fill( 0 * cs_units::camera::pixel / cs_units::camera::frame );
+    shift_velocity.fill( AppliedSpeed::from_value(0) );
     init();
 }
 
@@ -192,8 +194,8 @@ void LocalizationFilter::reemit_localizations(bool& terminate) {
         int start = 0, end = 1;
         while ( start < len ) {
             /* Seek end of continuous region with the end pointer. */
-            while ( end < len && bindat[start].getImageNumber() ==
-                                 bindat[end].getImageNumber() )
+            while ( end < len && bindat[start].frame_number() ==
+                                 bindat[end].frame_number() )
                 end++;
 
             bool continued_after;
@@ -202,8 +204,8 @@ void LocalizationFilter::reemit_localizations(bool& terminate) {
                 continued_after = 
                     nextBin < localizations.binNumber() &&
                     localizations.sizeOfBin(nextBin) > 0 &&
-                    localizations.getBin(nextBin)[0].getImageNumber()
-                        == bindat[start].getImageNumber();
+                    localizations.getBin(nextBin)[0].frame_number()
+                        == bindat[start].frame_number();
                 continue_from = start;
             } else {
                 continued_after = false;
@@ -218,7 +220,7 @@ void LocalizationFilter::reemit_localizations(bool& terminate) {
                 (continued)
                     ? ( localizations.sizeOfBin(bin-1) - continue_from )
                     : 0,
-                bindat[start].getImageNumber(),
+                bindat[start].frame_number(),
                 /* Output currently selected range. */
                 bindat + start, end-start 
               );
@@ -246,7 +248,7 @@ void LocalizationFilter::copy_and_modify_localizations(
 
 {
     for ( int i = 0; i < n; i++ ) {
-        amplitude strength = from[i].getStrength();
+        amplitude strength = from[i].amplitude();
         if ( (!v_from.is_set() || strength >= *v_from) &&
              (!v_to.is_set() || strength <= *v_to) &&
              from[i].two_kernel_improvement() < two_kernel_significance() )
@@ -256,14 +258,13 @@ void LocalizationFilter::copy_and_modify_localizations(
             new (to+to_count) Localization( from[i] );
             
             /* Move localization by drift correction. */
-            to[i].position() += 
-                shift_velocity * to[i].getImageNumber();
-
-            const Localization::Position& npos = to[i].position();
+            Localization::Position::Type shift 
+                = (to[i].frame_number() * shift_velocity).cast< Localization::Position::Type::Scalar >();
+            to[i].position() += shift;
+                
+            const Localization::Position::Type& npos = to[i].position();
             /* Check if new coordinates are still valid. */
-            if (    (npos.cwise() < 0).any() || 
-                    (npos.cwise() >= traits.size.cast<
-                        Localization::Coord>()).any() )
+            if ( traits.position().is_in_range( npos ) )
             {
                 /* Do not increase to_count to cause localizations to be
                  * overwritten later. */
@@ -298,15 +299,15 @@ LocalizationFilter::announceStormSize(const Announcement& a)
     boost::units::quantity<ShiftSpeed,float> standstill
         ( 0 * boost::units::si::meters_per_second );
     traits = a;
-    if ( ( ! traits.resolution.is_set() || ! traits.speed.is_set() ) && (
+    if ( ( ! traits.image_number().resolution().is_set() ) && (
         x_shift() != standstill || y_shift() != standstill) )
         throw std::runtime_error("Pixel size or acquisition speed is unknown, but drift correction given");
     /* TODO traits.speed */
     if ( x_shift() != standstill || y_shift() != standstill ) {
         shift_velocity.x() = 
-            AppliedSpeed(x_shift() * (*traits.resolution) / (*traits.speed));
+            AppliedSpeed(x_shift() / (*traits.image_number().resolution()));
         shift_velocity.y() = 
-            AppliedSpeed(y_shift() * (*traits.resolution) / (*traits.speed));
+            AppliedSpeed(y_shift() / (*traits.image_number().resolution()));
     } else {
         shift_velocity.fill( AppliedSpeed::from_value(0) );
     }
@@ -363,12 +364,11 @@ void LocalizationFilter::operator()
         re_emitter->repeat_results();
     } else if ( &e.source == &x_shift.value ) {
         shift_velocity.x() = AppliedSpeed(
-            x_shift() * (*traits.resolution) / (*traits.speed) );
+            x_shift() / (*traits.image_number().resolution()) );
         DEBUG( "Setting X shift velocity to " << shift_velocity.x() );
         re_emitter->repeat_results();
     } else if ( &e.source == &y_shift.value ) {
-        shift_velocity.y() = AppliedSpeed( y_shift() * (*traits.resolution)
-            / (*traits.speed) );
+        shift_velocity.y() = AppliedSpeed( y_shift() / (*traits.image_number().resolution()) );
         re_emitter->repeat_results();
     } else if ( &e.source == &two_kernel_significance.value ) {
         re_emitter->repeat_results();

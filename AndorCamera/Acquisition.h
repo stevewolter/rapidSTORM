@@ -10,8 +10,8 @@
 #include <time.h>
 #include <dStorm/helpers/thread.h>
 #include <boost/units/quantity.hpp>
-#include <cs_units/camera/length.hpp>
-#include <cs_units/camera/time.hpp>
+#include <boost/units/systems/camera/length.hpp>
+#include <boost/units/systems/camera/time.hpp>
 
 namespace AndorCamera {
     class ImageReadout;
@@ -37,7 +37,7 @@ namespace AndorCamera {
      *  */
     class Acquisition : private Camera::ExclusiveAccessor {
       private:
-        typedef boost::units::quantity<cs_units::camera::time, unsigned long>
+        typedef boost::units::quantity<boost::units::camera::time, unsigned long>
             Frame;
         CameraReference control;
         std::auto_ptr<ImageReadout> readout;
@@ -102,15 +102,15 @@ namespace AndorCamera {
         unsigned long getImageSizeInBytes();
 
         /** @return Width of the acquired image in pixels. */
-        boost::units::quantity<cs_units::camera::length,int>
+        boost::units::quantity<boost::units::camera::length,int>
             getWidth();
         /** @return Height of the acquired image in pixels. */
-        boost::units::quantity<cs_units::camera::length,int>
+        boost::units::quantity<boost::units::camera::length,int>
             getHeight();
         /** @return If the acquisition has a predetermined length. */
         bool hasLength();
         /** @return Number of images to capture. */
-        boost::units::quantity<cs_units::camera::time,int>
+        boost::units::quantity<boost::units::camera::time,int>
             getLength();
 
         /** Starts this acquisition. */

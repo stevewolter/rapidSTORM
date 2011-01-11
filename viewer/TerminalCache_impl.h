@@ -27,7 +27,11 @@ void TerminalCache<Hueing>::setSize(
 ) {
     DEBUG("Setting size of image to " << traits.size.x() << " " <<traits.size.y());
     size.size = traits.size;
-    size.pixel_size = *traits.resolution;
+    for (int i = 0; i < 2; ++i)
+        if ( traits.resolution[i].is_set() )
+            size.pixel_sizes[i] = *traits.resolution[i];
+        else
+            size.pixel_sizes[i].value = -1 / camera::pixel;
 }
 
 template <typename Hueing>

@@ -103,29 +103,29 @@ static bool check() {
     typename ToTest::Space::Accessor parameters(&vars);
     Data data;
 
-    parameters.template setMeanX<0>( 5 * cs_units::camera::pixel );
-    parameters.template setMeanY<0>( 2 * cs_units::camera::pixel );
+    parameters.template setMeanX<0>( 5 * camera::pixel );
+    parameters.template setMeanY<0>( 2 * camera::pixel );
     parameters.template setMeanZ<0>( 35 * boost::units::si::nanometre );
-    parameters.template setAmplitude<0>( 2000 * cs_units::camera::ad_count );
+    parameters.template setAmplitude<0>( 2000 * camera::ad_count );
     parameters.template setDeltaSigmaX<0>( Space::Accessor::QuantityDeltaSigmaX::from_value(0.02) );
     parameters.template setDeltaSigmaY<0>( Space::Accessor::QuantityDeltaSigmaY::from_value(0.03) );
-    parameters.template setBestSigmaX<0>( 1.3 * cs_units::camera::pixel );
-    parameters.template setBestSigmaY<0>( 1.2 * cs_units::camera::pixel );
+    parameters.template setBestSigmaX<0>( 1.3 * camera::pixel );
+    parameters.template setBestSigmaY<0>( 1.2 * camera::pixel );
     parameters.template setZAtBestSigmaX<0>( -100 * boost::units::si::nanometre );
     parameters.template setZAtBestSigmaY<0>( +200 * boost::units::si::nanometre );
     if ( Kernels >= 2 ) {
-        parameters.template setMeanX<1>( 3 * cs_units::camera::pixel );
-        parameters.template setMeanY<1>( 6 * cs_units::camera::pixel );
+        parameters.template setMeanX<1>( 3 * camera::pixel );
+        parameters.template setMeanY<1>( 6 * camera::pixel );
         parameters.template setMeanZ<1>( -65 * boost::units::si::nanometre );
-        parameters.template setAmplitude<1>( 1000 * cs_units::camera::ad_count );
+        parameters.template setAmplitude<1>( 1000 * camera::ad_count );
         parameters.template setDeltaSigmaX<1>( Space::Accessor::QuantityDeltaSigmaX::from_value(0.01) );
         parameters.template setDeltaSigmaY<1>( Space::Accessor::QuantityDeltaSigmaY::from_value(0.04) );
-        parameters.template setBestSigmaX<1>( 1.5 * cs_units::camera::pixel );
-        parameters.template setBestSigmaY<1>( 1.1 * cs_units::camera::pixel );
+        parameters.template setBestSigmaX<1>( 1.5 * camera::pixel );
+        parameters.template setBestSigmaY<1>( 1.1 * camera::pixel );
         parameters.template setZAtBestSigmaX<1>( 200 * boost::units::si::nanometre );
         parameters.template setZAtBestSigmaY<1>( -300 * boost::units::si::nanometre );
     }
-    parameters.template setShift( 15 * cs_units::camera::ad_count );
+    parameters.template setShift( 15 * camera::ad_count );
     srand(50);
     for (int r = 0; r < data.rows(); ++r) 
       for (int c = 0; c < data.cols(); ++c) 

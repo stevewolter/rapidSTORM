@@ -94,7 +94,7 @@ CamImage Source::iterator::CamRef::get_next_image() {
             CamImage::Size sz;
             sz.x() = ad.acquisition.getWidth();
             sz.y() = ad.acquisition.getHeight();
-            image = CamImage(sz, next_image_number * cs_units::camera::frame);
+            image = CamImage(sz, next_image_number * boost::units::camera::frame);
         } catch( const std::bad_alloc& alloc ) {
             /* Do nothing. Try to wait until more memory is available.
                 * Maybe the ring buffer saves us. Maybe not, but we can't
@@ -115,7 +115,7 @@ CamImage Source::iterator::CamRef::get_next_image() {
             break;
         } else if ( nextIm.first != AndorCamera::Acquisition::HadError ) {
             DEBUG("Showing");
-            ad.live_view->show( image, nextIm.second / cs_units::camera::frame );
+            ad.live_view->show( image, nextIm.second / boost::units::camera::frame );
             next_image_number += 1;
             break;
         } else {

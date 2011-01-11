@@ -24,7 +24,6 @@ namespace output {
     {
       private:
         simparm::FileEntry printTo;
-        output::Traits::Resolution pixel_dim;
         double res_enh;
 
         ost::Mutex mutex;
@@ -54,7 +53,6 @@ namespace output {
     {
         simparm::UnsignedLongEntry usedSpots;
         simparm::DoubleEntry x_sd, y_sd, corr;
-        output::Traits::Resolution pixel_dim;
         double res_enh;
 
         outputs::LocalizationList localizations;

@@ -39,7 +39,7 @@ void ScaleBar::OnResize( wxSizeEvent&) {
 }
 
 using namespace boost::units;
-using namespace cs_units::camera;
+using namespace camera;
 
 void ScaleBar::draw( wxDC &dc )
 {
@@ -51,16 +51,14 @@ void ScaleBar::draw( wxDC &dc )
     dc.SetBrush( *wxBLACK_BRUSH );
     dc.DrawRectangle( 0, 0, size.GetWidth(), 8 );
 
-    Resolution display_res = resolution / zoom_factor;
-    if ( display_res < 1E21 * cs_units::camera::pixels_per_meter ) {
+    Resolution::PerPixel display_res = resolution.value * zoom_factor;
+    if ( display_res > 0 / camera::pixel ) {
         wxChar buffer[128];
         float remainder; const wxChar *prefix;
-        quantity<si::length,float> length =
-            (float(size.GetWidth()) * pixel) / display_res;
-        make_SI_prefix(
-            length / boost::units::si::metre, 
-                        remainder, prefix );
-        wxSnprintf( buffer, 128, _T("%.3g %sm"), remainder, prefix );
+        float value = (float(size.GetWidth()) * pixel) * display_res;
+        make_SI_prefix( value, remainder, prefix );
+        wxString unit(resolution.unit_symbol.c_str(), wxConvUTF8);
+        wxSnprintf( buffer, 128, _T("%.3g %s%s"), remainder, prefix, unit.c_str() );
         wxString string( buffer );
 
         wxSize textSize = dc.GetTextExtent( string );

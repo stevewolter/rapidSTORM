@@ -13,7 +13,8 @@
 #include <boost/units/io.hpp>
 #include <boost/units/unit.hpp>
 #include <dStorm/units/nanolength.h>
-#include <cs_units/camera/luminance.hpp>
+#include <boost/units/systems/camera/luminance.hpp>
+#include <boost/units/systems/si/area.hpp>
 
 using namespace std;
 using namespace fitpp;
@@ -24,7 +25,7 @@ namespace output {
 
 namespace Precision {
 struct FitSigmas { 
-    quantity<cs_units::camera::length> x, y;
+    quantity<boost::units::si::length> x, y;
     double xy; int n; double a; 
 };
 }
@@ -64,7 +65,7 @@ MultiPrecisionEstimator::MultiPrecisionEstimator
 : OutputObject(c), 
   usedSpots(c.usedSpots),
   x_sd(c.x_sd), y_sd(c.y_sd), corr(c.corr),
-  pixel_dim(c.pixel_dim), res_enh(c.res_enh)
+  res_enh(c.res_enh)
 { registerNamedEntries(); }
 
 SinglePrecisionEstimator* SinglePrecisionEstimator::clone() const
@@ -75,11 +76,11 @@ MultiPrecisionEstimator* MultiPrecisionEstimator::clone() const
 
 using namespace Precision;
 
-quantity<cs_units::camera::length> 
+quantity<boost::units::si::length> 
 compute_weighted_SD( const Trace& trace, int coordinate )
 {
-    typedef quantity< cs_units::camera::length > Coord;
-    typedef quantity< cs_units::camera::intensity > Weight;
+    typedef quantity< boost::units::si::length > Coord;
+    typedef quantity< camera::intensity > Weight;
 
     typedef boost::units::multiply_typeof_helper< 
                 boost::units::multiply_typeof_helper<
@@ -97,7 +98,7 @@ compute_weighted_SD( const Trace& trace, int coordinate )
           i != trace.end(); i++)
     {
         Coord x = i->position()[coordinate];
-        amplitude weight = i->getStrength();
+        Weight weight = i->amplitude();
         if (n == 0) {
             n = 1;
             mean = x;
@@ -120,9 +121,6 @@ Output::AdditionalData
 SinglePrecisionEstimator::announceStormSize(const Announcement& a)
 {
     /* Length of a pixel in nm is inverse of number of dots per nm. */
-    pixel_dim = a.resolution;
-    if ( ! pixel_dim.is_set() )
-        throw std::runtime_error("Precision estimator cannot work with unknown pixel size");
     return AdditionalData().set_cluster_sources();
 }
 
@@ -138,21 +136,19 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
 
             FitSigmas s = fitWithGauss( res_enh, &l, 1);
             printTo.get_output_stream()
-                << setw(10) << fixed << setprecision(2) << l.x().value()
-                << setw(10) << l.y().value()
+                << setw(10) << fixed << setprecision(2) << l.position().x().value()
+                << setw(10) << l.position().y().value()
                 << setw(5)  << l.get_source_trace().size()
                 << setw(10) << setprecision(2) << 
                     (compute_weighted_SD(
-                        l.get_source_trace(), 0) 
-                        *2.35* *pixel_dim ) / si::nanometre
+                        l.get_source_trace(), 0) *2.35  ) / si::nanometre
                 << setw(10) << setprecision(2) <<
                     (compute_weighted_SD(
-                            l.get_source_trace(), 1)
-                        *2.35* *pixel_dim ) / si::nanometre
+                            l.get_source_trace(), 1) *2.35 ) / si::nanometre
                 << setw(10) << setprecision(2) << 
-                    ( s.x *2.35* *pixel_dim) / si::nanometre
+                    ( s.x *2.35 )/ si::nanometre
                 << setw(10) << setprecision(2) <<
-                    ( s.y *2.35* *pixel_dim) / si::nanometre
+                    ( s.y *2.35 ) / si::nanometre
                 << setw(10) << setprecision(3) << s.xy
                 << "\n";
         }
@@ -187,7 +183,6 @@ void MultiPrecisionEstimator::registerNamedEntries() {
 Output::AdditionalData
 MultiPrecisionEstimator::announceStormSize(const Announcement& a)
 {
-    pixel_dim = a.resolution;
     return localizations.announceStormSize(a);
 }
 
@@ -212,8 +207,8 @@ void MultiPrecisionEstimator::estimatePrecision() {
     }
 
     usedSpots = s.n;
-    y_sd = 1E9 * (s.x * 2.35 / *pixel_dim / si::meter);
-    y_sd = 1E9 * (s.y * 2.35 / *pixel_dim / si::meter);
+    x_sd = quantity<si::nanolength>(s.x * 2.35) / si::nanometer;
+    y_sd = quantity<si::nanolength>(s.y * 2.35) / si::nanometer;
     corr = s.xy;
     if ( ! x_sd.isActive() ) std::cout << x_sd() << " " << y_sd() << "\n";
 }
@@ -226,10 +221,9 @@ FitSigmas Precision::fitWithGauss
 
     /* data_range gives the maximal L_infty distance of a point
         * to the localization centre. */
-    quantity<cs_units::camera::length, float> data_range = 0;
+    quantity<si::length, float> data_range = 0;
     int total_count = 0;
-    dStorm::Variance< quantity<cs_units::camera::length>,
-                      quantity<cs_units::camera::area> >
+    dStorm::Variance< quantity<si::length>, quantity<si::area> >
         average_sd_x, average_sd_y;
     for (int j = 0; j < number; j++) {
         const Localization *i = first + j;
@@ -244,7 +238,7 @@ FitSigmas Precision::fitWithGauss
         for ( Points::const_iterator k = p.begin(); k != p.end(); k++)
         {
             data_range = max( data_range,
-                max( abs( k->x() - i->x() ), abs( k->y() - i->y() ) ) );
+                max( abs( k->position().x() - i->position().x() ), abs( k->position().y() - i->position().y() ) ) );
         }
 
         total_count += i->get_source_trace().size();
@@ -288,9 +282,8 @@ FitSigmas Precision::fitWithGauss
         const Points& ps = r->get_source_trace();
         for ( Points::const_iterator p = ps.begin(); p != ps.end(); p++)
         {
-            double x_off = (p->x() - r->x()) 
-                            / cs_units::camera::pixel * res_enh,
-                   y_off = (p->y() - r->y()).value() * res_enh;
+            double x_off = (p->position().x() - r->position().x()) / si::metre * res_enh,
+                   y_off = (p->position().y() - r->position().y()) / si::metre * res_enh;
             int x_bin = int(round(x_off)) + center_bin,
                 y_bin = int(round(y_off)) + center_bin;
             if ( y_bin >= 0 && y_bin < bin_number && 
@@ -310,9 +303,9 @@ FitSigmas Precision::fitWithGauss
     model.change_variable_set( &fitter.getVariables() );
 
     result.x = 
-        model.getSigmaX<0>() * cs_units::camera::pixel / res_enh;
+        model.getSigmaX<0>() * si::metre / res_enh;
     result.y =
-        model.getSigmaY<0>() * cs_units::camera::pixel / res_enh;
+        model.getSigmaY<0>() * si::metre / res_enh;
     result.xy = model.getSigmaXY<0>() / res_enh;
     result.a = model.getAmplitude<0>();
 

@@ -28,6 +28,8 @@
 
 namespace AndorCamera {
 
+using namespace boost::units;
+
 class CameraLink;
 
 struct Method::CameraSwitcher 
@@ -266,13 +268,12 @@ dStorm::input::BaseSource* CameraLink::makeSource()
     if ( im_readout == NULL )
         throw std::runtime_error("Readout mode must be image for "
                                  "AndorDirect source");
-    simparm::optional< boost::units::quantity<cs_units::camera::resolution, float> >
-        resolution;
+    LiveView::Resolution resolution;
     if ( context->has_info_for<CamImage>() )
         resolution = context->get_info_for<CamImage>().resolution;
 
-    boost::units::quantity<cs_units::camera::frame_rate> cycle_time
-        = cs_units::camera::frame / cam->config().cycleTime();
+    quantity<camera::frame_rate> cycle_time
+        = camera::frame / cam->config().cycleTime();
     boost::shared_ptr<LiveView> live_view( 
         new LiveView( context->default_to_live_view, resolution, cycle_time ) );
     std::auto_ptr<CamSource> cam_source( new Source( live_view, cam ) );
@@ -305,10 +306,10 @@ void CameraLink::publish_meta_info() {
     else
         traits.reset( new dStorm::input::Traits<CamImage>() );
 
-    traits->first_frame = 0;
+    traits->image_number().range().first = 0 * camera::frame;
     if ( cam->acquisitionMode().kinetic_length().is_set() )
-        traits->last_frame.promise( dStorm::deferred::JobTraits );
-    traits->speed.promise( dStorm::deferred::JobTraits );
+        traits->image_number().range().second.promise( dStorm::deferred::JobTraits );
+    traits->image_number().resolution().promise( dStorm::deferred::JobTraits );
 
     dStorm::input::chain::MetaInfo::Ptr mi
         ( new dStorm::input::chain::MetaInfo() );

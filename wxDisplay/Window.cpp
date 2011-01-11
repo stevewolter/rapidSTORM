@@ -56,7 +56,7 @@ Window::Window(
     }
 
     scale_bar = new ScaleBar(this, wxSize(150, 30));
-    scale_bar->set_pixel_size( init_size.pixel_size );
+    scale_bar->set_pixel_size( init_size.pixel_sizes[0] );
     scale_bar->set_zoom_factor( 1 );
 
     ver_sizer1->Add( canvas, wxSizerFlags(1).Expand() );
@@ -151,7 +151,7 @@ void Window::commit_changes(const Change& changes)
         for (unsigned int i = 0; i < r.keys.size(); ++i) {
             keys[i]->resize( r.keys[i] );
         }
-        scale_bar->set_pixel_size( r.pixel_size );
+        scale_bar->set_pixel_size( r.pixel_sizes[0] );
     }
 
     if ( changes.change_pixels.size() < 1000 &&
@@ -233,8 +233,8 @@ std::auto_ptr<Change> Window::getState()
     std::auto_ptr<Change> rv( new Change(keys.size()) );
     rv->do_resize = true;
     rv->resize_image.size = mkImgSize(canvas->getSize());
-    rv->resize_image.pixel_size =
-        scale_bar->get_pixel_size();
+    for (int i = 0; i < 2; ++i)
+        rv->resize_image.pixel_sizes[i] = scale_bar->get_pixel_size();
 
     rv->do_clear = true;
     rv->clear_image.background = background;

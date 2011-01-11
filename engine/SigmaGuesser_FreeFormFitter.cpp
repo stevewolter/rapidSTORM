@@ -32,8 +32,8 @@ SigmaFitter::SigmaFitter(Config &config)
 SigmaFitter::~SigmaFitter() {}
 
 void SigmaFitter::useConfig(Config &config) {
-    double sigx = config.sigma_x() / cs_units::camera::pixel;
-    double sigy = config.sigma_y() / cs_units::camera::pixel;
+    double sigx = config.sigma_x() / camera::pixel;
+    double sigy = config.sigma_y() / camera::pixel;
     initial_sigmas[0] = sigx;
     initial_sigmas[1] = sigy;
     initial_sigmas[2] = config.sigma_xy();
@@ -56,7 +56,7 @@ bool SigmaFitter::fit(const dStorm::Image<StormPixel,2> &i,
     const Localization &f, double dev[4]) 
 
 {
-    double cx = f.x().value(), cy = f.y().value();
+    double cx = f.position().x().value(), cy = f.position().y().value();
     int cxr = round(cx), cyr = round(cy);
     /* Reject localizations too close to image border. */
     if ( cxr < msx || cyr < msy 
@@ -67,7 +67,7 @@ bool SigmaFitter::fit(const dStorm::Image<StormPixel,2> &i,
     fitter->setData(i.ptr(), i.width_in_pixels(), i.height_in_pixels());
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     
-    double start_amp =  f.getStrength() / cs_units::camera::ad_counts;
+    double start_amp =  f.amplitude() / camera::ad_counts;
     pos.setMeanX<0>(cx);
     pos.setMeanY<0>(cy);
     pos.setSigmaX<0>(initial_sigmas[0]);

@@ -57,7 +57,7 @@ _AcquisitionMode::_AcquisitionMode() :
     "Desired kinetic cycle time (s)", 0.1f * seconds),
   kinetic_length("KineticLength", "Length of kinetic series")
 {
-    kinetic_length = 8000 * cs_units::camera::frame;
+    kinetic_length = 8000 * boost::units::camera::frame;
     kinetic_length().reset();
 
     select_mode.addChoice(Single_Scan, "SingleScan", "Single scan");
@@ -161,7 +161,7 @@ class AcquisitionModeControl::ManagedAcquisition {
             SDK::SetKineticCycleTime( a.desired_kinetic_cycle_time() / seconds );
         if ( a.kinetic_length().is_set() && 
              (a.select_mode() == Kinetics || a.select_mode() == Fast_Kinetics ) )
-            SDK::SetNumberKinetics( *a.kinetic_length() / cs_units::camera::frame );
+            SDK::SetNumberKinetics( *a.kinetic_length() / boost::units::camera::frame );
     }
 };
 

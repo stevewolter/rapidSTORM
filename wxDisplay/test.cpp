@@ -20,10 +20,10 @@ int main() {
     prop.name = "Test name";
     prop.flags.close_window_on_unregister();
     ResizeChange size;
-    size.size.x() = 2048 * cs_units::camera::pixel;
-    size.size.y() = 2048 * cs_units::camera::pixel;
+    size.size.x() = 2048 * camera::pixel;
+    size.size.y() = 2048 * camera::pixel;
     size.key_size = 256;
-    size.pixel_size = 1E5 * cs_units::camera::pixels_per_meter;
+    size.pixel_size = 1E5 * camera::pixels_per_meter;
     prop.initial_size = size;
 
     std::auto_ptr<Manager::WindowHandle> h = 

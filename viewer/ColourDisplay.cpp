@@ -1,6 +1,7 @@
 #include "ColourDisplay_impl.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <limits>
 
 using namespace boost::units;
 
@@ -69,13 +70,13 @@ void HueingColorizer<ColourSchemes::TimeHue>
 ::announce(const output::Output::Announcement& a)
 {
     repeater = a.result_repeater;
-    origrange[0] = a.first_frame;
-    if ( a.last_frame.is_set() )
-        origrange[1] = *a.last_frame;
+    origrange[0] = *a.image_number().range().first;
+    if ( a.image_number().range().second.is_set() )
+        origrange[1] = *a.image_number().range().second;
     else
         throw std::runtime_error("Total length of acquisition must be "
                                     "known for colour coding by time.");
-    variable.speed = a.speed;
+    variable.speed = *a.image_number().resolution();
     set_range();
 }
 
@@ -151,13 +152,17 @@ void HueingColorizer<ColourSchemes::ZHue>
 ::announce(const output::Output::Announcement& a) 
 {
     repeater = a.result_repeater;
-    assert( a.z_range.is_set() );
-    if ( ! a.z_range.is_set() )
+    const traits::Position::RangeType::Scalar& 
+        r = a.position().range().z();
+        
+    bool finite_range = r.first.is_set()  && r.second.is_set();
+    assert( finite_range );
+    if ( ! finite_range )
         throw std::runtime_error("Maximum Z range must be "
                                     "known for colour coding by Z coordinate.");
 
-    origrange[0] =  a.z_range->lower();
-    origrange[1] = a.z_range->upper();
+    origrange[0] =  *r.first;
+    origrange[1] = *r.second;
     set_range();
 }
 

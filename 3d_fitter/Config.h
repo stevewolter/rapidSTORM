@@ -6,7 +6,7 @@
 #include <fitter/MarquardtConfig.h>
 #include <fitter/residue_analysis/Config.h>
 #include <dStorm/UnitEntries/Nanometre.h>
-#include <cs_units/camera/resolution.hpp>
+#include <boost/units/systems/camera/resolution.hpp>
 #include "ConstantTypes.h"
 
 namespace dStorm {

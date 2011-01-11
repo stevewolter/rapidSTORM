@@ -66,13 +66,14 @@ void Factory::set_requirements( input::Traits<engine::Image>& t ) {
 
 void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     fitter::residue_analysis::Config::set_traits(rv);
-    rv.covariance_matrix_is_set = freeSigmaFitting();
-    rv.z_coordinate_is_set = false;
+    rv.covariance_matrix().is_given.fill( freeSigmaFitting() );
+    rv.position().is_given.start<2>().fill( true );
+    rv.amplitude().is_given = true;
 
     if ( info.traits.photon_response.is_promised(deferred::JobTraits)
          && info.traits.background_stddev.is_promised(deferred::JobTraits) ) 
     {
-        rv.uncertainty_is_set = true;
+        rv.position().uncertainty_is_given.start<2>().fill( true );
     }
 }
 

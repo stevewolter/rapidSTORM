@@ -29,8 +29,7 @@ Engine::TraitsPtr Engine::get_traits() {
 }
 
 Engine::TraitsPtr Engine::convert_traits( const Input::Traits& p ) {
-    Base::TraitsPtr prv( new input::Traits<output::LocalizedImage>() );
-    static_cast< SizeTraits<Localization::Dim>& >( *prv ) = p;
+    Base::TraitsPtr prv( new input::Traits<output::LocalizedImage>(p) );
 
     prv->source_image_is_set = true;
 

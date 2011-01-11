@@ -13,7 +13,7 @@ using namespace simparm;
 namespace AndorCamera {
 
 using namespace States;
-using cs_units::camera::pixel;
+using boost::units::camera::pixel;
 
 Readout::Readout(const std::string& name, const std::string& desc)
         : simparm::Object(name, desc),

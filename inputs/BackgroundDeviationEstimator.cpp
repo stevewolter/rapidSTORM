@@ -109,7 +109,7 @@ Source::get_traits()
             DEBUG("Mean changed to " << mean << " and variance to " << S * (highest_bin+1) / ( (highest_bin) * sumweight) );
         }
         variance = S * (highest_bin+1) / ( (highest_bin) * sumweight);
-        s->background_stddev = float(sqrt(variance)) * cs_units::camera::ad_count;
+        s->background_stddev = float(sqrt(variance)) * camera::ad_count;
     }
 
     base->dispatch( BaseSource::RepeatInput );

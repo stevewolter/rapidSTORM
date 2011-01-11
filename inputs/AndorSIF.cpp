@@ -132,7 +132,7 @@ class Source<Pixel>::iterator
                 img = *i;
             else
                 img.invalidate();
-            img.frame_number() = count * cs_units::camera::frame;
+            img.frame_number() = count * camera::frame;
             did_load = true;
         }
         return img; 

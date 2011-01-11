@@ -8,7 +8,7 @@
 #include <memory>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/helpers/thread.h>
-#include <cs_units/camera/area.hpp>
+#include <boost/units/systems/camera/area.hpp>
 
 namespace dStorm {
 namespace engine {
@@ -42,7 +42,7 @@ namespace engine {
         /** Mean amplitude of seen localizations. */
         Mean< amplitude, amplitude::value_type > meanAmplitude;
         /** Total area used for PSF estimation and allowed area. */
-        boost::units::quantity<cs_units::camera::area,int>
+        boost::units::quantity<camera::area,int>
             used_area, maximum_area;
 
         std::auto_ptr<SigmaFitter> fitter;

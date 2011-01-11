@@ -5,6 +5,7 @@
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/Image.h>
 #include <iostream>
 
 namespace dStorm {

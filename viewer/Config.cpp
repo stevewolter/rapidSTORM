@@ -22,7 +22,7 @@ _Config::_Config()
   save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
                       "Close display on job completion"),
-  border("Border", "Width of border to chop", 1 * cs_units::camera::pixel)
+  border("Border", "Width of border to chop", 1 * camera::pixel)
 {
     DEBUG("Building Viewer Config");
 

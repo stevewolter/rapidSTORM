@@ -17,8 +17,8 @@ using namespace ost;
 namespace AndorCamera {
 
 using namespace States;
-using cs_units::camera::pixel;
-using cs_units::camera::frame;
+using boost::units::camera::pixel;
+using boost::units::camera::frame;
 
 static const int maxRunSize = 100;
 static const int kineticsMode = 3, imageMode = 1;
@@ -65,7 +65,7 @@ void Acquisition::got_access() {
 
     if ( (acquisitionMode->select_mode() == Kinetics ||
           acquisitionMode->select_mode() == Fast_Kinetics) &&
-         *acquisitionMode->kinetic_length() > 500 * cs_units::camera::frame )
+         *acquisitionMode->kinetic_length() > 500 * frame )
     {
         am_bounded_by_num_images = true;
         num_images = *acquisitionMode->kinetic_length();
@@ -110,19 +110,19 @@ void Acquisition::start() {
     Camera::ExclusiveAccessor::request_access();
 }
 
-boost::units::quantity<cs_units::camera::time,int>
+boost::units::quantity<boost::units::camera::time,int>
 Acquisition::getLength() { 
     if ( acquisitionMode->select_mode() == Run_till_abort )
       if ( am_bounded_by_num_images )
         return num_images;
       else
         return std::numeric_limits<unsigned int>::max()
-            * cs_units::camera::frame;
+            * frame;
     else if ( acquisitionMode->select_mode() == Kinetics ||
                acquisitionMode->select_mode() == Fast_Kinetics )
         return *acquisitionMode->kinetic_length();
     else
-        return 1 * cs_units::camera::frame;
+        return 1 * frame;
 }
 
 bool Acquisition::hasMoreImages_unlocked() {
@@ -269,12 +269,12 @@ unsigned long Acquisition::getImageSizeInBytes() {
     return getImageSizeInPixels() * sizeof(uint16_t);
 }
 
-boost::units::quantity<cs_units::camera::length,int>
+boost::units::quantity<boost::units::camera::length,int>
 Acquisition::getWidth() {
     return (readout->right()-readout->left()+1*pixel);
 }
 
-boost::units::quantity<cs_units::camera::length,int>
+boost::units::quantity<boost::units::camera::length,int>
 Acquisition::getHeight() {
     return (readout->bottom()-readout->top()+1*pixel); 
 }

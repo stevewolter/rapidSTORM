@@ -17,8 +17,8 @@ template <typename Type>
 SizeSpecializing<Type>::SizeSpecializing( 
     const Common& common, const engine::JobInfo& info )
 : common(common) ,
-    msx( info.config.fitWidth() / cs_units::camera::pixel ),
-    msy( info.config.fitHeight() / cs_units::camera::pixel )
+    msx( info.config.fitWidth() / camera::pixel ),
+    msy( info.config.fitHeight() / camera::pixel )
 {
     for (int i = 0; i < MaxFitWidth-1; i++)
         for (int j = 0; j < MaxFitHeight-1; j++) {

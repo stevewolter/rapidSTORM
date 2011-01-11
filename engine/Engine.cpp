@@ -62,11 +62,11 @@ Engine::~Engine() {
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
 Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<engine::Image> > imProp )
 {
-    input::Traits<Localization> rv;
-    static_cast< SizeTraits<Localization::Dim>& >(rv) = *imProp;
+    input::Traits<Localization> rv( *imProp );
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
-    rv.min_amplitude = config.amplitude_threshold();
+    if ( config.amplitude_threshold().is_set() )
+        rv.amplitude().range().first = *config.amplitude_threshold();
     DEBUG("Last frame is set in input: " << imProp->last_frame.is_set());
     DEBUG("Last frame is set: " << rv.last_frame.is_set());
 
@@ -96,6 +96,7 @@ Engine::TraitsPtr Engine::get_traits() {
     input::Traits<output::LocalizedImage>::Ptr prv =
         convert_traits(config, imProp);
     prv->carburettor = input.get();
+    prv->image_number().is_given = true;
 
     DEBUG("Setting traits from spot fitter");
     JobInfo info(config, *imProp);
@@ -201,8 +202,8 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   maximumLimit(20),
-  maximums(config.x_maskSize() / cs_units::camera::pixel,
-         config.y_maskSize() / cs_units::camera::pixel,
+  maximums(config.x_maskSize() / camera::pixel,
+         config.y_maskSize() / camera::pixel,
          1, 1),
   origMotivation( config.motivation() )
 {
@@ -252,7 +253,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         DEBUG("Image " << base->ptr() << " is valid");
     }
 
-    base->background_standard_deviation() = background_variance * cs_units::camera::ad_count;
+    base->background_standard_deviation() = background_variance * camera::ad_count;
 
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
@@ -280,7 +281,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         if ( found_number > 0 ) {
             DEBUG("Good fit");
             for (int j = 0; j < found_number; j++)
-                candidate[j].setImageNumber( base->frame_number() );
+                candidate[j].frame_number() = base->frame_number();
             motivation = origMotivation;
             buffer.commit(found_number);
         } else if ( found_number < 0 ) {

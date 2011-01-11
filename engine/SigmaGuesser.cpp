@@ -69,13 +69,13 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     }
 
     for (int i = 0; i < er.number; i++)
-        meanAmplitude.addValue(er.first[i].getStrength());
+        meanAmplitude.addValue(er.first[i].amplitude());
 
     DEBUG("Updated mean amplitude");
     int old_n = n;
     double sigmas[4];
     for (int i = 0; i < er.number; i++) {
-        if (meanAmplitude.mean() < er.first[i].getStrength()) {
+        if (meanAmplitude.mean() < er.first[i].amplitude()) {
             DEBUG("Fitting " << i);
             bool good = fitter->fit(*er.source, er.first[i], sigmas);
             DEBUG("Fitted " << i);
@@ -99,8 +99,8 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
         if (SigmaGuesser_fitCallback) {
             if (r == RestartEngine || r == RemoveThisOutput)
                 SigmaGuesser_fitCallback(
-                    config.sigma_x() / cs_units::camera::pixel,
-                    config.sigma_y() / cs_units::camera::pixel,
+                    config.sigma_x() / camera::pixel,
+                    config.sigma_y() / camera::pixel,
                     config.sigma_xy(), discarded, 
                     ( r == RemoveThisOutput) );
         }
@@ -135,9 +135,9 @@ SigmaGuesserMean::check() {
 
             DEBUG("Sigma " << i << " changed to " << newValue);
             if ( i == 0 )
-                config.sigma_x = float(newValue) * cs_units::camera::pixel;
+                config.sigma_x = float(newValue) * camera::pixel;
             else if ( i == 1 )
-                config.sigma_y = float(newValue) * cs_units::camera::pixel;
+                config.sigma_y = float(newValue) * camera::pixel;
             else
                 config.sigma_xy = newValue;
                     
@@ -172,8 +172,8 @@ void SigmaGuesserMean::deleteAllResults() {
     ost::MutexLock lock(mutex);
     DEBUG("Resetting entries");
     double sigmas[3] = {
-        config.sigma_x() / cs_units::camera::pixel,
-        config.sigma_y() / cs_units::camera::pixel,
+        config.sigma_x() / camera::pixel,
+        config.sigma_y() / camera::pixel,
         config.sigma_xy() };
     for (int i = 0; i < 3; i++) {
         double ds = config.delta_sigma() / ((i == 2) ? 2 : 1);
@@ -186,7 +186,7 @@ void SigmaGuesserMean::deleteAllResults() {
     n = discarded = 0;
     defined_result = KeepRunning;
     meanAmplitude.reset();
-    used_area = 0 * cs_units::camera::pixel * cs_units::camera::pixel;
+    used_area = 0 * camera::pixel * camera::pixel;
 
     DEBUG("Resetting fitter");
     fitter->useConfig(config);

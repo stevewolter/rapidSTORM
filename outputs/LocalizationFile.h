@@ -9,6 +9,8 @@
 #include <fstream>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <dStorm/localization_file/fields_decl.h>
 
 namespace dStorm {
 namespace output {
@@ -16,14 +18,18 @@ class LocalizationFile : public OutputObject {
   private: 
     ost::Mutex mutex;
     std::string filename;
-    Traits traits;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;
     int localizationDepth;
+    input::Traits<Localization> traits;
+
+    typedef boost::ptr_vector< dStorm::LocalizationFile::field::Interface > Interfaces;
+    Interfaces fields;
 
     Eigen::IOFormat format;
 
     void open();
+    template <int Field> void make_fields();
     void printFit(const Localization &f, int localizationDepth);
 
     class _Config;

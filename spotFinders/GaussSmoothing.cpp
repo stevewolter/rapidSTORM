@@ -21,9 +21,9 @@ GaussSmoother::GaussSmoother (
 : SpotFinder(conf, size), xkern(msx+1, 0), ykern(msy+1, 0)
 {
     fillWithGauss(xkern.ptr(), msx+1, 
-        conf.sigma_x() / cs_units::camera::pixel, 256);
+        conf.sigma_x() / camera::pixel, 256);
     fillWithGauss(ykern.ptr(), msy+1, 
-        conf.sigma_y() / cs_units::camera::pixel, 256);
+        conf.sigma_y() / camera::pixel, 256);
 }
 
 template <typename InputPixel>

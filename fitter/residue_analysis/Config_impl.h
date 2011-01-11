@@ -34,7 +34,7 @@ void Config::registerNamedEntries(simparm::Node& n)
 
 void Config::set_traits( output::Traits& rv ) const
 {
-    rv.two_kernel_improvement_is_set = do_double_spot_analysis();
+    rv.two_kernel_improvement().is_given = do_double_spot_analysis();
 }
 
 }
