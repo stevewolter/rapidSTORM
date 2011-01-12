@@ -61,14 +61,12 @@ Viewer::Viewer(const Viewer::Config& config)
 {
     DEBUG("Building viewer");
 
-    resolutionEnhancement.helpID = HELP_Viewer_Status_ResEnh;
     histogramPower.helpID = HELP_Viewer_Status_Power;
     tifFile.helpID = HELP_Viewer_Status_ToFile;
     save.helpID = HELP_Viewer_Status_Save;
 
     reshow_output.viewable = ! config.showOutput();
 
-    push_back( resolutionEnhancement );
     push_back( histogramPower );
     push_back( tifFile );
     push_back( save );
@@ -77,7 +75,6 @@ Viewer::Viewer(const Viewer::Config& config)
     receive_changes_from( reshow_output.value );
     receive_changes_from( save.value );
     receive_changes_from( histogramPower.value );
-    receive_changes_from( resolutionEnhancement.value );
 
     DEBUG("Built viewer");
 }
@@ -126,11 +123,6 @@ void Viewer::operator()(const simparm::Event& e) {
         MutexLock lock(implementation_mutex);
         /* Change histogram power */
         implementation->set_histogram_power(histogramPower());
-    } else if (&e.source == &resolutionEnhancement.value) {
-        MutexLock lock(implementation_mutex);
-        /* Change resolution enhancement in viewer */
-        implementation->
-            set_resolution_enhancement( resolutionEnhancement() );
     } 
 }
 

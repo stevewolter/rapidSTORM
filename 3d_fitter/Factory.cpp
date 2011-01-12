@@ -47,8 +47,10 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
     DEBUG("3D fitter is setting traits");
     // TODO: CHeck traits */
     fitter::residue_analysis::Config::set_traits(rv);
-    rv.covariance_matrix().is_given.fill(false);
+    rv.covariance_matrix().is_given.diagonal().fill( this->output_sigmas() );
     rv.position().is_given.fill( true );
+    rv.amplitude().is_given = true;
+
     Localization::Position::Traits::ValueType::Scalar range 
         = Localization::Position::Traits::ValueType::Scalar(Config<Widening>::z_range());
     Localization::Position::Traits::RangeType::Scalar p(-range, +range);

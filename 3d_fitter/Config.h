@@ -25,6 +25,7 @@ class Config
     dStorm::FloatNanometreEntry z_distance, z_range;
     simparm::UnitEntry<typename fitpp::Exponential3D::ConstantTypes<Widening>::ResolutionUnit,float>
         defocus_constant_x, defocus_constant_y;
+    simparm::BoolEntry output_sigmas;
 };
 
 }

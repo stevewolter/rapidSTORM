@@ -34,6 +34,7 @@ class CommonInfo
     Eigen::Matrix< quantity<camera::resolution, float>, 2, 1> scale_factor;
     const boost::units::quantity<camera::intensity> amplitude_threshold;
     const boost::units::quantity<si::length> max_z_range;
+    bool output_sigmas;
 
   public:
     std::auto_ptr<typename FitGroup::Accessor> params;

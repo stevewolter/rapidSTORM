@@ -16,7 +16,7 @@ namespace viewer {
 template <int Hueing>
 LiveBackend<Hueing>::LiveBackend(Config& config, Status& s)
 : config(config), status(s), 
-  image( config.res_enh(), config.border() ),
+  image( config.binned_dimensions.make(), config.border() ),
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
@@ -49,12 +49,6 @@ void LiveBackend<Hueing>::set_histogram_power(float power) {
         * it ourselves. */
     ost::MutexLock lock( image.getMutex() );
     discretization.setHistogramPower( power ); 
-}
-
-template <int Hueing>
-void LiveBackend<Hueing>::set_resolution_enhancement(float re)  { 
-    ost::MutexLock lock( image.getMutex() );
-    image.set_resolution_enhancement( re ); 
 }
 
 template <int Hueing>

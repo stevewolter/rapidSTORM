@@ -11,7 +11,6 @@ _Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
   outputFile("ToFile", "Save image to", ".jpg"),
-  res_enh("ResEnhance", "Resolution Enhancement", 10),
   histogramPower("HistogramPower", "Extent of histogram normalization",
                  0.3),
   colourScheme("ColourScheme", "Colour palette for display"),
@@ -33,13 +32,6 @@ _Config::_Config()
 
     showOutput.helpID = HELP_Viewer_ShowOutput;
     showOutput.setUserLevel(simparm::Object::Beginner);
-    res_enh.helpID = HELP_Viewer_ResEnh;
-    res_enh.setHelp("The target image will have a resolution this many "
-                    "times higher than the source image. For example, "
-                    "a 128x128 image with resolution 10 will result in "
-                    "a 1280x1280 sized image.");
-    res_enh.setUserLevel(simparm::Object::Beginner);
-    res_enh.setMin(1);
 
     histogramPower.setMin(0);
     histogramPower.setMax(1);
@@ -92,7 +84,7 @@ void _Config::registerNamedEntries() {
    push_back(save_with_key);
    push_back(save_scale_bar);
    push_back(showOutput);
-   push_back(res_enh);
+   push_back(binned_dimensions);
    push_back(histogramPower);
    push_back(colourScheme);
    push_back(invert);

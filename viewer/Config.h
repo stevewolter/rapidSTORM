@@ -10,6 +10,7 @@
 #include <dStorm/output/Output.h>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
+#include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 
 namespace dStorm {
 namespace viewer {
@@ -19,7 +20,7 @@ class _Config : public simparm::Object {
 
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
-    simparm::DoubleEntry res_enh;
+    outputs::DimensionSelector binned_dimensions;
     simparm::DoubleEntry histogramPower;
     simparm::ChoiceEntry colourScheme;
     simparm::DoubleEntry hue, saturation;

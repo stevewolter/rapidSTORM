@@ -13,6 +13,7 @@
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/residue_analysis/impl.h"
 #include <dStorm/unit_matrix_operators.h>
+#include "Exponential3D_ParameterHelper.hh"
 
 template <typename Ty>
 inline Ty sqr(const Ty& a) { return a*a; }
@@ -49,6 +50,7 @@ CommonInfo<Ks,Widening>::CommonInfo(
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
   amplitude_threshold( *info.config.amplitude_threshold() ),
   max_z_range( c.z_range() ),
+  output_sigmas( c.output_sigmas() ),
   params( new typename FitGroup::Accessor(NULL) )
 {
     DEBUG("Constructing fitter common information");
@@ -78,8 +80,11 @@ CommonInfo<Ks,Widening>::CommonInfo(
 template <int Kernels, int Widening>
 CommonInfo<Kernels,Widening>::CommonInfo( const CommonInfo& o ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(o),
-  maxs(o.maxs), start(o.start), amplitude_threshold(o.amplitude_threshold),
+  maxs(o.maxs), start(o.start),
+  scale_factor(o.scale_factor),
+  amplitude_threshold(o.amplitude_threshold),
   max_z_range(o.max_z_range),
+  output_sigmas(o.output_sigmas),
   params( new typename FitGroup::Accessor(*o.params) )
 {
 }
@@ -170,6 +175,15 @@ CommonInfo<Kernels,Widening>::check_result(
         && target->position().z() > - this->max_z_range;
 
     DEBUG("Position good: " << good);
+    if ( output_sigmas ) {
+        fitpp::Exponential3D::ParameterHelper<Kernels, Widening, 1, 1> h;
+        h.prepare( *variables, params->getConstants(), 0, 0 );
+
+        quantity<camera::area,float> scale( 1 * camera::pixel * camera::pixel );
+
+        target->fit_covariance_matrix()(0,0) = float(h.sx[0] * h.sx[0]) * scale;
+        target->fit_covariance_matrix()(1,1) = float(h.sy[0] * h.sy[0]) * scale;
+    }
     target->unset_source_trace();
     return good;
 }

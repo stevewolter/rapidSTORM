@@ -20,8 +20,6 @@ struct Backend
     virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
-    virtual void set_resolution_enhancement(float re) = 0;
-
 };
 
 }

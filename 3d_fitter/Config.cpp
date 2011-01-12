@@ -30,7 +30,8 @@ Config<Widening>::Config()
   z_distance("ZDistance", "Distance between X and Y foci"),
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", 1000 * boost::units::si::nanometre),
   defocus_constant_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
-  defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y")
+  defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y"),
+  output_sigmas("OutputSigmas", "Output PSF covariance matrix", false)
 {
 }
 
@@ -49,6 +50,7 @@ void Config<Widening>::registerNamedEntries()
     push_back(z_range);
     push_back(defocus_constant_x);
     push_back(defocus_constant_y);
+    push_back(output_sigmas);
     fitter::residue_analysis::Config::registerNamedEntries(*this);
 }
 
@@ -67,7 +69,7 @@ namespace units {
 
 std::string name_string(const fitpp::Exponential3D::ConstantTypes<fitpp::Exponential3D::Zhuang>::ResolutionUnit&)
     { return "pixels per square nanometre"; }
-std::string symbol_string(const fitpp::Exponential3D::ConstantTypes<fitpp::Exponential3D::Holtzer>::ResolutionUnit&)
+std::string symbol_string(const fitpp::Exponential3D::ConstantTypes<fitpp::Exponential3D::Zhuang>::ResolutionUnit&)
     { return "px nm^-2"; }
 
 }

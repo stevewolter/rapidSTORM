@@ -17,7 +17,7 @@ namespace viewer {
 
 template <int Hueing>
 TerminalBackend<Hueing>::TerminalBackend(const Config& config)
-: image( config.res_enh(), config.border() ),
+: image( config.binned_dimensions.make(), config.border() ),
   colorizer(config),
   discretization( 4096, 
         config.histogramPower(), image(),
@@ -56,11 +56,6 @@ void TerminalBackend<Hueing>::set_histogram_power(float power) {
         * it ourselves. */
     ost::MutexLock lock( image.getMutex() );
     discretization.setHistogramPower( power ); 
-}
-
-template <int Hueing>
-void TerminalBackend<Hueing>::set_resolution_enhancement(float re)  { 
-    image.set_resolution_enhancement( re ); 
 }
 
 template <int Hueing>

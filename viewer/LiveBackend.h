@@ -52,7 +52,6 @@ class LiveBackend
     void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
-    void set_resolution_enhancement(float re);
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
 };
 
