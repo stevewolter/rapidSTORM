@@ -1,7 +1,6 @@
 #ifndef DSTORM_VIEWER_LIVEBACKEND_H
 #define DSTORM_VIEWER_LIVEBACKEND_H
 
-#include "ColourDisplay.h"
 #include "ImageDiscretizer.h"
 #include "Display.h"
 #include "Backend.h"
@@ -14,12 +13,12 @@
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing>
+template <typename Hueing>
 class LiveBackend 
 : public Backend,
   public dStorm::Display::DataSource
 {
-    typedef HueingColorizer<Hueing> MyColorizer;
+    typedef Hueing MyColorizer;
     typedef Display< MyColorizer > MyDisplay;
     typedef LiveCache< MyDisplay > MyCache;
     typedef Discretizer< MyCache> MyDiscretizer;
@@ -44,7 +43,7 @@ class LiveBackend
     void notice_user_key_limits(int key_index, bool lower, std::string input);
 
   public:
-    LiveBackend(Config& config, Status&);
+    LiveBackend(const MyColorizer&, Config& config, Status&);
     LiveBackend(const TerminalBackend<Hueing>& other, Config& config, Status&);
     ~LiveBackend() ;
 
@@ -54,9 +53,6 @@ class LiveBackend
     void set_histogram_power(float power);
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
 };
-
-std::auto_ptr<Backend>
-select_live_backend( Config& config, Status& status );
 
 }
 }

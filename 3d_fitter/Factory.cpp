@@ -50,6 +50,7 @@ void Factory<Widening>::set_traits( output::Traits& rv, const engine::JobInfo& )
     rv.covariance_matrix().is_given.diagonal().fill( this->output_sigmas() );
     rv.position().is_given.fill( true );
     rv.amplitude().is_given = true;
+    rv.fit_residues().is_given = this->output_sigmas();
 
     Localization::Position::Traits::ValueType::Scalar range 
         = Localization::Position::Traits::ValueType::Scalar(Config<Widening>::z_range());

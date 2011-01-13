@@ -2,12 +2,12 @@
 #define DSTORM_VIEWER_HUESATURATIONMIXER_H
 
 #include <dStorm/Image.h>
-#include "Colorizer_decl.h"
-#include "Config_decl.h"
 #include <dStorm/Pixel.h>
+#include "base_impl.h"
 
 namespace dStorm {
 namespace viewer {
+namespace colour_schemes {
 
 class HueSaturationMixer {
     typedef Eigen::Matrix<float,2,1,Eigen::DontAlign> ColourVector;
@@ -19,13 +19,11 @@ class HueSaturationMixer {
     /** Tone for currently processed points in cartesian Hue/Sat space. */
     ColourVector tone_point;
 
-    typedef ColourSchemes::RGBWeight RGBWeight;
-
     dStorm::Image<ColourVector,2> colours;
     dStorm::Image<RGBWeight,2> rgb_weights;
 
   public:
-    HueSaturationMixer( const Config& config );
+    HueSaturationMixer( double base_hue, double base_saturation );
     ~HueSaturationMixer();
     void set_tone( float hue );
     void merge_tone( int x, int y, 
@@ -43,6 +41,7 @@ class HueSaturationMixer {
         { merge_tone(x, y, oldVal, newVal - oldVal); }
 };
 
+}
 }
 }
 

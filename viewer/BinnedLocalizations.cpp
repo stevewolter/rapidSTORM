@@ -3,7 +3,7 @@
 #include "LiveCache_inline.h"
 #include "TerminalCache_inline.h"
 #include "Display_inline.h"
-#include "ColourDisplay_impl.h"
+#include "colour_schemes/impl.h"
 
 namespace dStorm {
 namespace outputs {
@@ -14,14 +14,14 @@ namespace outputs {
             viewer::Discretizer<\
                 viewer::LiveCache<\
                     viewer::Display<\
-                        viewer::HueingColorizer<viewer::Hueing> > > > >; \
+                        viewer::Hueing > > > >; \
     template class \
         BinnedLocalizations< \
             viewer::Discretizer<\
                 viewer::TerminalCache<\
-                    viewer::HueingColorizer<viewer::Hueing> > > > \
+                    viewer::Hueing > > > \
 
-#include "ColourDisplay_instantiations.h"
+#include "colour_schemes/instantiate.h"
 
 }
 }

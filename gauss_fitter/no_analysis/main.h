@@ -56,7 +56,7 @@ class CommonInfo
     void set_start( 
         const engine::Spot& spot, const engine::BaseImage& image,
         double shift_estimate, Variables* variables );
-    bool check_result( Variables *variables, Localization *target);
+    bool check_result( Variables *variables, double residues, Localization *target);
 
     typename FitGroup::Constants& constants() { return params.constants; }
     const typename FitGroup::Constants& constants() const { return params.constants; }

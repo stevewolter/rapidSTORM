@@ -145,6 +145,7 @@ template <int Kernels, int Widening>
 bool 
 CommonInfo<Kernels,Widening>::check_result(
     typename FitGroup::Variables* variables,
+    double residues,
     Localization* target
 )
 {
@@ -183,6 +184,7 @@ CommonInfo<Kernels,Widening>::check_result(
 
         target->fit_covariance_matrix()(0,0) = float(h.sx[0] * h.sx[0]) * scale;
         target->fit_covariance_matrix()(1,1) = float(h.sy[0] * h.sy[0]) * scale;
+        target->fit_residues = residues;
     }
     target->unset_source_trace();
     return good;

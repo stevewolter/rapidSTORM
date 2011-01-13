@@ -6,7 +6,7 @@
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing> class TerminalBackend;
+template <typename Hueing> class TerminalBackend;
 
 std::auto_ptr<Backend>
 select_terminal_backend( Config& config, Status& status );

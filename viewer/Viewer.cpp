@@ -11,8 +11,8 @@
 #include <simparm/Message.hh>
 #include <dStorm/helpers/DisplayManager.h>
 
-#include "LiveBackend_decl.h"
-#include "TerminalBackend_decl.h"
+#include "ColourScheme.h"
+#include "colour_schemes/hot_config.h"
 
 using namespace std;
 using namespace ost;
@@ -31,20 +31,6 @@ void add_viewer( output::Config& config ) {
 }
 }
 
-#if 0
-namespace Eigen {
-bool operator<( const Eigen::Vector2i& a, const Eigen::Vector2i& b )
-{
-    if ( a.x() < b.x() )
-        return true;
-    else if ( a.x() > b.x() )
-        return false;
-    else
-        return a.y() < b.y();
-}
-}
-#endif
-
 namespace dStorm {
 namespace viewer {
 
@@ -53,10 +39,7 @@ Viewer::Viewer(const Viewer::Config& config)
   OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   config(config),
-  implementation( 
-        config.showOutput() 
-            ?  select_live_backend(this->config, *this)
-            : select_terminal_backend(this->config, *this) ),
+  implementation( config.colourScheme.value().make_backend(this->config, *this) ),
   forwardOutput( &implementation->getForwardOutput() )
 {
     DEBUG("Building viewer");

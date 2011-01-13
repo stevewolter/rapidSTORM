@@ -2,16 +2,16 @@
 #define DSTORM_VIEWER_TERMBACKEND_CONVERTER_H
 
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include "ColourDisplay.h"
 #include "ImageDiscretizer_converter.h"
 #include "Display.h"
 #include "LiveBackend.h"
 #include "TerminalBackend.h"
+#include "Config.h"
 
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing>
+template <typename Hueing>
 TerminalBackend<Hueing>::TerminalBackend(
     const LiveBackend<Hueing>& other, const Config &c)
 : image( other.image ),
@@ -23,7 +23,7 @@ TerminalBackend<Hueing>::TerminalBackend(
     discretization.setListener(&cache);
 }
 
-template <int Hueing>
+template <typename Hueing>
 std::auto_ptr<Backend>
 LiveBackend<Hueing>::adapt( std::auto_ptr<Backend> self, Config& c, Status& s ) {
     assert( self.get() == this );

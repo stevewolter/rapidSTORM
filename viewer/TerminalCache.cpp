@@ -1,14 +1,14 @@
 #include "TerminalCache_impl.h"
 #include "Display.h"
-#include "ColourDisplay_impl.h"
+#include "colour_schemes/impl.h"
 
 namespace dStorm {
 namespace viewer {
 
 #define DISC_INSTANCE(Hueing) \
-        template class TerminalCache< HueingColorizer<Hueing> >
+        template class TerminalCache< Hueing >
 
-#include "ColourDisplay_instantiations.h"
+#include "colour_schemes/instantiate.h"
 
 }
 

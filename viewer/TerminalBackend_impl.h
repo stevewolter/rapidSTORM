@@ -5,20 +5,21 @@
 #include "TerminalBackend.h"
 
 #include <dStorm/outputs/BinnedLocalizations_impl.h>
-#include "ColourDisplay_impl.h"
 #include "ImageDiscretizer_inline.h"
 #include "Display_inline.h"
 
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/image/iterator.h>
 
+#include "Config.h"
+
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing>
-TerminalBackend<Hueing>::TerminalBackend(const Config& config)
+template <typename Hueing>
+TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, const Config& config)
 : image( config.binned_dimensions.make(), config.border() ),
-  colorizer(config),
+  colorizer(col),
   discretization( 4096, 
         config.histogramPower(), image(),
         colorizer),
@@ -28,12 +29,12 @@ TerminalBackend<Hueing>::TerminalBackend(const Config& config)
     discretization.setListener(&cache);
 }
 
-template <int Hueing>
+template <typename Hueing>
 TerminalBackend<Hueing>::~TerminalBackend() {
     DEBUG("Destructing viewer implementation");
 }
 
-template <int Hueing>
+template <typename Hueing>
 void TerminalBackend<Hueing>::save_image(
     std::string filename, const Config& config
 )
@@ -50,7 +51,7 @@ void TerminalBackend<Hueing>::save_image(
     DEBUG("Finished");
 }
 
-template <int Hueing>
+template <typename Hueing>
 void TerminalBackend<Hueing>::set_histogram_power(float power) {
     /* The \c image member is not involved here, so we have to lock
         * it ourselves. */
@@ -58,7 +59,7 @@ void TerminalBackend<Hueing>::set_histogram_power(float power) {
     discretization.setHistogramPower( power ); 
 }
 
-template <int Hueing>
+template <typename Hueing>
 std::auto_ptr<dStorm::Display::Change> 
 TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");

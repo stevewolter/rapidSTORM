@@ -2,15 +2,13 @@
 #include <cassert>
 
 #include <dStorm/image/constructors.h>
-#include "Config.h"
 
 using namespace boost::units;
 
-inline dStorm::Pixel operator*( uint8_t b, const dStorm::viewer::ColourSchemes::RGBWeight& r ) {
-    return dStorm::Pixel( r[0] * b, r[1] * b, r[2] * b );
-}
+
 namespace dStorm {
 namespace viewer {
+namespace colour_schemes {
 
 void HueSaturationMixer::set_tone( float hue ) {
     float saturation = 0;
@@ -34,16 +32,16 @@ void HueSaturationMixer::merge_tone( int x, int y,
             ( colours(x,y) * old_data_weight + 
                 tone_point * new_data_weight ) /
                 ( old_data_weight + new_data_weight );
-        ColourSchemes::convert_xy_tone_to_hue_sat
+        convert_xy_tone_to_hue_sat
             ( colours(x,y).x(), colours(x,y).y(), hs[0], hs[1] );
     }
-    ColourSchemes::rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
+    rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
             
 }
 
-HueSaturationMixer::HueSaturationMixer( const Config& config ) {
-    base_tone[0] = config.hue(); 
-    base_tone[1] = config.saturation();
+HueSaturationMixer::HueSaturationMixer( double base_hue, double base_saturation ) {
+    base_tone[0] = base_hue;
+    base_tone[1] = base_saturation;
 }
 HueSaturationMixer::~HueSaturationMixer() {}
 
@@ -54,5 +52,6 @@ void HueSaturationMixer::setSize(const dStorm::Image<ColourVector,2>::Size& size
     rgb_weights = dStorm::Image<RGBWeight,2>(size);
 }
 
+}
 }
 }

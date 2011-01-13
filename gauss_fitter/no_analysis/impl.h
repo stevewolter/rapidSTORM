@@ -111,6 +111,7 @@ template <int Kernels,int FF>
 bool 
 CommonInfo<Kernels,FF>::check_result(
     Variables* variables,
+    double,
     Localization* target
 )
 {

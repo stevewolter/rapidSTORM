@@ -1,7 +1,6 @@
 #ifndef DSTORM_VIEWER_TERMINALBACKEND_H
 #define DSTORM_VIEWER_TERMINALBACKEND_H
 
-#include "ColourDisplay.h"
 #include "ImageDiscretizer.h"
 #include "Display.h"
 #include "Backend.h"
@@ -14,13 +13,13 @@
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing>
+template <typename Hueing>
 class TerminalBackend 
 : 
   public Backend
 {
   private:
-    typedef HueingColorizer<Hueing> Colorizer;
+    typedef Hueing Colorizer;
     typedef TerminalCache<Colorizer> Cache;
     typedef Discretizer<Cache> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer> Accumulator;
@@ -37,7 +36,7 @@ class TerminalBackend
     friend class LiveBackend<Hueing>;
 
   public:
-    TerminalBackend(const Config& config);
+    TerminalBackend(const Colorizer&, const Config& config);
     TerminalBackend(const LiveBackend<Hueing>& other, const Config&);
     ~TerminalBackend() ;
 

@@ -20,6 +20,9 @@ struct Backend
     virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
+
+    template <typename Colorizer>
+    static std::auto_ptr<Backend> create( const Colorizer&, Config&, Status& );
 };
 
 }

@@ -5,7 +5,7 @@
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing> class LiveBackend;
+template <typename Hueing> class LiveBackend;
 
 std::auto_ptr<Backend>
 select_live_backend( Config& config, Status& status );

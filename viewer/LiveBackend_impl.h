@@ -5,19 +5,19 @@
 #include "LiveBackend.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include "ColourDisplay.h"
 #include "ImageDiscretizer.h"
 #include "Display.h"
 #include "Status.h"
+#include "Config.h"
 
 namespace dStorm {
 namespace viewer {
 
-template <int Hueing>
-LiveBackend<Hueing>::LiveBackend(Config& config, Status& s)
+template <typename Hueing>
+LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Config& config, Status& s)
 : config(config), status(s), 
   image( config.binned_dimensions.make(), config.border() ),
-  colorizer(config),
+  colorizer(col),
   discretization( 4096, 
         config.histogramPower(), image(),
         colorizer),
@@ -29,12 +29,12 @@ LiveBackend<Hueing>::LiveBackend(Config& config, Status& s)
     cache.setListener(&cia);
 }
 
-template <int Hueing>
+template <typename Hueing>
 LiveBackend<Hueing>::~LiveBackend() {
     DEBUG("Destructing viewer implementation");
 }
 
-template <int Hueing>
+template <typename Hueing>
 void LiveBackend<Hueing>::save_image(
     std::string filename, const Config& config
 )
@@ -43,7 +43,7 @@ void LiveBackend<Hueing>::save_image(
     cia.save_image(filename, config);
 }
 
-template <int Hueing>
+template <typename Hueing>
 void LiveBackend<Hueing>::set_histogram_power(float power) {
     /* The \c image member is not involved here, so we have to lock
         * it ourselves. */
@@ -51,7 +51,7 @@ void LiveBackend<Hueing>::set_histogram_power(float power) {
     discretization.setHistogramPower( power ); 
 }
 
-template <int Hueing>
+template <typename Hueing>
 std::auto_ptr<dStorm::Display::Change> 
 LiveBackend<Hueing>::get_changes() {
     image.clean(); 
@@ -59,7 +59,7 @@ LiveBackend<Hueing>::get_changes() {
     return cia.get_changes();
 }
 
-template <int Hueing>
+template <typename Hueing>
 void LiveBackend<Hueing>::notice_closed_data_window() {
     DEBUG("Noticing closed data window");
     config.showOutput = false;
@@ -67,7 +67,7 @@ void LiveBackend<Hueing>::notice_closed_data_window() {
     DEBUG("Noticed closed data window");
 }
 
-template <int Hueing>
+template <typename Hueing>
 void LiveBackend<Hueing>::look_up_key_values(
     const PixelInfo& info,
     std::vector<float>& targets )
@@ -81,7 +81,7 @@ void LiveBackend<Hueing>::look_up_key_values(
     }
 }
 
-template <int Hueing>
+template <typename Hueing>
 void LiveBackend<Hueing>::notice_user_key_limits(int key_index, bool lower, std::string input)
 {
     if ( key_index == 0 )

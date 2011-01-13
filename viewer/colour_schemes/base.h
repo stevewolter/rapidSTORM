@@ -1,19 +1,29 @@
-#ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
-#define DSTORM_TRANSMISSIONS_COLOURDISPLAY_H
-
-#include "Colorizer_decl.h"
+#ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
+#define DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include "Config.h"
 #include <limits>
 #include <dStorm/Pixel.h>
 #include <dStorm/helpers/DisplayDataSource.h>
+#include <boost/array.hpp>
+#include <stdint.h>
 
 namespace dStorm {
 namespace viewer {
+namespace colour_schemes {
+
+typedef boost::array<float,3> RGBWeight;
+
+inline dStorm::Pixel operator*( const RGBWeight& r, uint8_t brightness );
+inline dStorm::Pixel operator*( uint8_t brightness, const RGBWeight& r );
+
+void rgb_weights_from_hue_saturation
+    ( float hue, float saturation, RGBWeight& weight );
+void convert_xy_tone_to_hue_sat( 
+    float x, float y, float& hue, float& sat );
 
 template <typename _BrightnessType>
-class Colorizer 
+class Base 
     : public outputs::DummyBinningListener 
 {
   public:
@@ -33,8 +43,8 @@ class Colorizer
         = (1U << (sizeof(BrightnessType) * 8));
     static const int KeyCount = 1;
 
-    Colorizer( const Config& config ) 
-        : invert( config.invert() ) {}
+    Base( bool invert ) 
+        : invert( invert ) {}
 
     Pixel getPixel( int x, int y, 
                     BrightnessType brightness ) const;
@@ -50,6 +60,7 @@ class Colorizer
         { throw std::logic_error("Request to set limits for unknown key"); }
 };
 
+}
 }
 }
 

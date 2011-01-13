@@ -37,7 +37,7 @@ fit( const engine::Spot &spot,
 
     bool is_good = 
           (fitResult != fitpp::InvalidStartPosition) &&
-          common.check_result( &deriver.getVariables(), target );
+          common.check_result( &deriver.getVariables(), deriver.getPosition().chi_sq, target );
 
     if ( is_good ) {
         return 1;

@@ -134,12 +134,11 @@ libspotFinders_la_SOURCES = \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 libviewer_la_SOURCES = \
-    viewer/Colorizer_decl.h viewer/ColourDisplay.cpp viewer/ColourDisplay.h viewer/ColourDisplay_impl.h \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
     viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \
-    viewer/Backend_decl.h viewer/Backend.h \
+    viewer/Backend_decl.h viewer/Backend.h viewer/Backend.cpp \
     viewer/Viewer.cpp viewer/Viewer.h \
     viewer/Publisher.h viewer/HighDepth.h \
     viewer/LiveBackend_decl.h viewer/LiveBackend.h viewer/LiveBackend_impl.h viewer/LiveBackend.cpp \
@@ -151,8 +150,15 @@ libviewer_la_SOURCES = \
     viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
     viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
     viewer/ImageDiscretizer_converter.h \
-    viewer/HueSaturationMixer.h viewer/HueSaturationMixer.cpp \
-    viewer/plugin.h
+    viewer/plugin.h \
+    viewer/ColourScheme_decl.h viewer/ColourScheme.h  \
+    viewer/colour_schemes/base.cpp viewer/colour_schemes/base_impl.h viewer/colour_schemes/base.h \
+    viewer/colour_schemes/decl.h viewer/colour_schemes/impl.h viewer/colour_schemes/instantiate.h \
+    viewer/colour_schemes/hot_config.cpp viewer/colour_schemes/hot_config.h viewer/colour_schemes/hot.h \
+    viewer/colour_schemes/mono_config.cpp viewer/colour_schemes/mono_config.h viewer/colour_schemes/mono.h \
+    viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored_config.h viewer/colour_schemes/colored.h \
+    viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
+    viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
 libfitter_la_SOURCES = \
     fit++/BitfieldConstructor.hh fit++/BlockReturner.hh \
@@ -266,6 +272,8 @@ javabuilddir = classes
 
 clean-local :
 	-rm -fr $(javabuilddir)
+
+vpath %.jar $(DESTDIR)$(datarootdir)/java
 
 rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(MKDIR_P) $(javabuilddir)
