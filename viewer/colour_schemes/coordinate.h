@@ -18,21 +18,22 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
     static const int KeyCount = 2;
 
   private:
-    boost::clone_ptr< output::binning::Scaled > variable;
+    std::auto_ptr< output::binning::UserScaled > variable;
     static const int key_resolution = 100;
 
     output::ResultRepeater *repeater;
-    bool is_for_image_number;
+    bool is_for_image_number, currently_mapping;
 
   public:
-    Coordinate( bool invert, std::auto_ptr< output::binning::Scaled > scaled );
+    Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled );
+    Coordinate( const Coordinate& o );
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
         BaseType::setSize(traits);
         HueSaturationMixer::setSize(traits.size);
     }
     Pixel getPixel(int x, int y, BrightnessType val)
-        { return inv( HueSaturationMixer::getPixel(x,y,val) ); }
+        { if ( ! currently_mapping ) return inv( val ); else return inv( HueSaturationMixer::getPixel(x,y,val) ); }
     Pixel getKeyPixel( unsigned char val ) const 
         { return inv( HueSaturationMixer::getKeyPixel(val) ); }
     void updatePixel(int x, int y, float oldVal, float newVal) 

@@ -9,7 +9,7 @@ namespace colour_schemes {
 
 CoordinateConfig::CoordinateConfig() 
 : simparm::Object("ByCoordinate", "Vary hue with coordinate value"),
-  choice("HueCoordinate", "Coordinate to vary hue with", output::binning::FieldChoice::ScaledToUnitInterval)
+  choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval)
 {
     push_back( choice );
 }
@@ -22,7 +22,7 @@ CoordinateConfig::CoordinateConfig(const CoordinateConfig& o)
 
 std::auto_ptr<Backend> CoordinateConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Coordinate >(Coordinate(config.invert(), choice.value().make_scaled_binner()), config, status);
+    return Backend::create< Coordinate >(Coordinate(config.invert(), choice.value().make_user_scaled_binner()), config, status);
 }
 
 }

@@ -6,24 +6,28 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::Scaled > scaled )
-: BaseType(invert), HueSaturationMixer(0,1), variable( scaled ), repeater(NULL),
-  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ) {}
+Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled )
+: BaseType(invert), HueSaturationMixer(0,0), variable( scaled ), repeater(NULL),
+  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ) 
+{
+    currently_mapping = variable->is_bounded();
+    set_base_tone( 0, (currently_mapping) ? 1 : 0 );
+}
+
+Coordinate::Coordinate( const Coordinate& o )
+: BaseType(o), HueSaturationMixer(o), variable( o.variable->clone() ), repeater(o.repeater),
+  is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping)
+{
+    std::cerr << "Cloned " << variable.get() << " " << o.variable.get() << std::endl;
+}
 
 dStorm::Display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
     if ( index != 1 ) throw std::logic_error("Request to create unknown key");
 
-    input::ImageResolution resolution = variable->resolution();
-    dStorm::Display::KeyDeclaration rv(
-        resolution.unit_symbol,
-        resolution.unit_name,
-        key_resolution);
-    if ( repeater ) {
-        rv.can_set_lower_limit = rv.can_set_upper_limit = true;
-        std::stringstream s[2];
-        s[0] << variable->get_minmax().first;
-        s[1] << variable->get_minmax().second;
-        rv.lower_limit = s[0].str(); rv.upper_limit = s[1].str();
+    dStorm::Display::KeyDeclaration rv = variable->key_declaration();
+    rv.size = key_resolution;
+    if ( ! repeater ) {
+        rv.can_set_lower_limit = rv.can_set_upper_limit = false;
     }
     return rv;
 }
@@ -35,24 +39,26 @@ void Coordinate::create_full_key( dStorm::Display::Change::Keys::value_type& int
         return;
     }
 
-    const float max_saturation = 1;
-    const BrightnessType max_brightness 
-        = std::numeric_limits<BrightnessType>::max();
-    const int key_count = key_resolution;
-    into.reserve( key_count );
-    for (int i = 0; i < key_count; ++i) {
-        float hue = (i * 0.666f / key_count);
-        RGBWeight weights;
-        rgb_weights_from_hue_saturation
-            ( hue, max_saturation, weights );
+    if (currently_mapping) {
+        const float max_saturation = 1;
+        const BrightnessType max_brightness 
+            = std::numeric_limits<BrightnessType>::max();
+        const int key_count = key_resolution;
+        into.reserve( key_count );
+        for (int i = 0; i < key_count; ++i) {
+            float hue = (i * 0.666f / key_count);
+            RGBWeight weights;
+            rgb_weights_from_hue_saturation
+                ( hue, max_saturation, weights );
 
-        /* Key value in frames */
-        float value = variable->map_from_unit_interval( (1.0f * i + 0.5f) / key_count );
+            /* Key value in frames */
+            float value = variable->reverse_mapping( (1.0f * i + 0.5f) / key_count );
 
-        into.push_back( dStorm::Display::KeyChange(
-            /* index */ i,
-            /* color */ weights * max_brightness,
-            /* value */ value ) );
+            into.push_back( dStorm::Display::KeyChange(
+                /* index */ i,
+                /* color */ weights * max_brightness,
+                /* value */ value ) );
+        }
     }
 } 
 
@@ -61,18 +67,20 @@ void Coordinate::announce(const output::Output::Announcement& a)
 {
     repeater = a.result_repeater;
     variable->announce(a);
+    currently_mapping = variable->is_bounded();
+    set_base_tone( 0, (currently_mapping) ? 1 : 0 );
 }
 
 void Coordinate::announce(const output::Output::EngineResult& er)
 {
-    if ( is_for_image_number && er.number > 0 )
-        set_tone( variable->bin_point(er.first[0]) );
+    if ( currently_mapping && is_for_image_number && er.number > 0 )
+        set_tone( variable->bin_point(er.first[0]) * 0.666f );
 }
 
 void Coordinate::announce(const Localization& l)
 {
-    if ( ! is_for_image_number ) {
-        set_tone( variable->bin_point(l) );
+    if ( currently_mapping && ! is_for_image_number ) {
+        set_tone( variable->bin_point(l) * 0.666f );
     }
 }
 
@@ -82,6 +90,8 @@ void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string
         assert( repeater );
         if ( ! repeater ) throw std::runtime_error("Missing old localization data for re-keying");
         variable->set_user_limit( lower_limit, s );
+        currently_mapping = variable->is_bounded();
+        set_base_tone( 0, (currently_mapping) ? 1 : 0 );
         repeater->repeat_results();
     } else
         BaseType::notice_user_key_limits( index, lower_limit, s );

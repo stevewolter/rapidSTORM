@@ -24,6 +24,7 @@ class HueSaturationMixer {
 
   public:
     HueSaturationMixer( double base_hue, double base_saturation );
+    void set_base_tone( double hue, double saturation ) { base_tone[0] = hue; base_tone[1] = saturation; }
     ~HueSaturationMixer();
     void set_tone( float hue );
     void merge_tone( int x, int y, 

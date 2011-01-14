@@ -11,6 +11,7 @@ namespace viewer {
 namespace colour_schemes {
 
 void HueSaturationMixer::set_tone( float hue ) {
+    std::cerr << hue << std::endl;
     float saturation = 0;
     current_tone = base_tone + ColourVector( hue, saturation );
     tone_point.x() = cosf( 2 * M_PI * current_tone[0] ) 
