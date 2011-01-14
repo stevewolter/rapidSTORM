@@ -25,8 +25,7 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
     bool is_for_image_number;
 
   public:
-    Coordinate( bool invert, std::auto_ptr< output::binning::Scaled > scaled ) 
-        : BaseType(invert), HueSaturationMixer(0,0), variable( scaled ), repeater(NULL) {}
+    Coordinate( bool invert, std::auto_ptr< output::binning::Scaled > scaled );
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
         BaseType::setSize(traits);

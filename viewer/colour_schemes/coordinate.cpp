@@ -6,6 +6,10 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
+Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::Scaled > scaled )
+: BaseType(invert), HueSaturationMixer(0,1), variable( scaled ), repeater(NULL),
+  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ) {}
+
 dStorm::Display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
     if ( index != 1 ) throw std::logic_error("Request to create unknown key");
 
@@ -67,8 +71,9 @@ void Coordinate::announce(const output::Output::EngineResult& er)
 
 void Coordinate::announce(const Localization& l)
 {
-    if ( ! is_for_image_number )
+    if ( ! is_for_image_number ) {
         set_tone( variable->bin_point(l) );
+    }
 }
 
 void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string s)

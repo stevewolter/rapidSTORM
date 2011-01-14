@@ -9,7 +9,7 @@ namespace colour_schemes {
 
 CoordinateConfig::CoordinateConfig() 
 : simparm::Object("ByCoordinate", "Vary hue with coordinate value"),
-  choice("HueCoordinate", "Coordinate to vary hue with", false)
+  choice("HueCoordinate", "Coordinate to vary hue with", output::binning::FieldChoice::ScaledToUnitInterval)
 {
     push_back( choice );
 }
