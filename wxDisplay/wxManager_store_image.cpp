@@ -183,7 +183,7 @@ static void write_scale_bar(
     int y_offset = image.rows()-12-lh;
 
     DEBUG("Writing scale bar at " << x_offset << " " << image.rows()-12-lh << " down to " 
-        << x_offset+width << " and " << y_offset+5);
+        << x_offset+width << " and " << y_offset+5 << " with unit symbol " << ppm.unit_symbol);
     image.draw( Magick::DrawableRectangle( 
             x_offset, y_offset, x_offset+width, y_offset+5 ) );
 
