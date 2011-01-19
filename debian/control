@@ -1,0 +1,14 @@
+Source: rapidstorm
+Section: science
+Priority: extra
+Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev
+Standards-Version: 3.8.4
+#Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
+
+Package: rapidstorm
+Architecture: any
+Depends: ${misc:Depends}
+Conflicts: rapid2storm
+Description: Localization microscopy data evaluation tool

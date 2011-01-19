@@ -2,6 +2,7 @@
 #include "Exponential3D_Derivatives.h"
 
 using namespace fitpp::Exponential3D;
+using namespace boost::units;
 
 template <int Kernels, int Widening>
 struct Checker {
