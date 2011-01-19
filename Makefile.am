@@ -2,15 +2,9 @@ ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
 INSTALL_PROGRAM = ${INSTALL} -m 711
 
-if BUILD_DEBUG_PLUGIN
-    DEBUGPLUGIN = libtestplugin.la
-else
-    DEBUGPLUGIN =
-endif
-
 bin_PROGRAMS = dstorm 
 C_TESTS = alignment_test \
-	check_uncorrelated check_derivatives check_3d_plugin check_debug_plugin
+	check_uncorrelated check_derivatives check_3d_plugin
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
@@ -19,7 +13,7 @@ noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
     libgauss_fitter.la libengine_stm.la
 
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
-plugin_lib_LTLIBRARIES = $(DEBUGPLUGIN) lib3d_fitter.la
+plugin_lib_LTLIBRARIES = lib3d_fitter.la
 
 TESTS = $(C_TESTS)
 
@@ -67,18 +61,6 @@ libgauss_fitter_la_SOURCES = \
     fit++/Exponential2D_ParameterHelper.hh \
     fit++/Exponential2D_Uncorrelated_Derivatives.hh
 libgauss_fitter_la_CPPFLAGS = -I$(srcdir)/gauss_fitter
-
-libtestplugin_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
-libtestplugin_la_SOURCES = debug-plugin/plugin.cpp debug-plugin/SegmentationFault.h \
-    debug-plugin/MuchMemoryAllocator.h debug-plugin/Exception.h debug-plugin/Delayer.h \
-    debug-plugin/BasenamePrinter.h debug-plugin/BasenamePrinter.cpp \
-    debug-plugin/Manager.h debug-plugin/Manager.cpp \
-    debug-plugin/md5.h debug-plugin/md5.c \
-    debug-plugin/DummyFileInput.h debug-plugin/DummyFileInput.cpp \
-    debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp \
-    debug-plugin/Verbose.h \
-    debug-plugin/VerboseInputFilter_decl.h debug-plugin/VerboseInputFilter.h debug-plugin/VerboseInputFilter.cpp
-libtestplugin_la_LIBADD = -lsimparm -lpthread
 
 libinputs_la_SOURCES = \
 	inputs/AndorSIF.cpp inputs/TIFF.cpp \
@@ -221,8 +203,6 @@ testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
 check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
-check_debug_plugin_SOURCES = debug-plugin/check_plugin.cpp
-check_debug_plugin_LDADD = libtestplugin.la 
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
 
