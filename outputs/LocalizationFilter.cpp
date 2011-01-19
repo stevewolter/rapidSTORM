@@ -1,7 +1,7 @@
 #include "LocalizationFilter.h"
 #include <limits>
 #include <dStorm/output/ResultRepeater.h>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <Eigen/Array>
 #include <dStorm/unit_matrix_operators.h>
 #include <simparm/UnitEntry_Impl.hh>

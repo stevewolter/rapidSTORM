@@ -12,6 +12,9 @@
 /* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
 #undef HAVE_LIBATMCD32D
 
+/* Define to 1 if you have the `dStorm' library (-ldStorm). */
+#undef HAVE_LIBDSTORM
+
 /* Define to 1 if you have the `DummyAndorCamera' library
    (-lDummyAndorCamera). */
 #undef HAVE_LIBDUMMYANDORCAMERA
@@ -25,9 +28,6 @@
 
 /* Define to 1 if you have the `readsif' library (-lreadsif). */
 #undef HAVE_LIBREADSIF
-
-/* Define to 1 if you have the `simparm' library (-lsimparm). */
-#undef HAVE_LIBSIMPARM
 
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF

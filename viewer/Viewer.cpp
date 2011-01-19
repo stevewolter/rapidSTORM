@@ -5,7 +5,7 @@
 #include <limits>
 #include <cassert>
 #include <dStorm/engine/Image.h>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>

@@ -3,11 +3,13 @@
 
 AC_PREREQ(2.61)
 AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR([.])
+
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_MACRO_DIR([../m4])
 
 AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
@@ -64,7 +66,7 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([simparm], [main])
+AC_CHECK_LIB([dStorm], [main])
 AC_CHECK_LIB([tiff], [main])
 AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])

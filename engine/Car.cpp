@@ -11,7 +11,7 @@
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <dStorm/localization_file/reader.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>

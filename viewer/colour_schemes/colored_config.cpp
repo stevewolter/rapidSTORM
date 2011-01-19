@@ -1,6 +1,6 @@
 #include "colored.h"
 #include "colored_config.h"
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include "../Config.h"
 #include "base_impl.h"
 

@@ -1,7 +1,7 @@
 #include "ColourScheme.h"
 #include "debug.h"
 #include "Config.h"
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "colour_schemes/decl.h"
 

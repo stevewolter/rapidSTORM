@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "ProgressMeter.h"
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 
 namespace dStorm {
 namespace output {

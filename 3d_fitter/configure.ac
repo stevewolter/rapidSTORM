@@ -4,7 +4,7 @@
 AC_PREREQ(2.61)
 AC_INIT([3d_fitter], [1.0], RAPIDSTORM_MAINTAINER)
 AC_CONFIG_SRCDIR([Fitter.cpp])
-AC_CONFIG_MACRO_DIR([../../m4])
+AC_CONFIG_MACRO_DIR([../m4])
 
 AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])

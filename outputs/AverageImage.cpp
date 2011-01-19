@@ -2,7 +2,7 @@
 #define DSTORM_AVERAGEIMAGE_CPP
 #include "AverageImage.h"
 #include <iostream>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <dStorm/Image_iterator.h>
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/helpers/DisplayDataSource_impl.h>

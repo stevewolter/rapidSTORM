@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dStorm/output/Trace.h>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <dStorm/unit_matrix_operators.h>
 #include <iomanip>
 

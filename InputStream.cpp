@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
-#include "doc/help/rapidstorm_help_file.h"
+#include <dStorm/doc/rapidstorm_help_file.h>
 #include "JobStarter.h"
 #include "engine/Car.h"
 

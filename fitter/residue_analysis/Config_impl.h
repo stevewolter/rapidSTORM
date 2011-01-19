@@ -1,5 +1,5 @@
 #include "Config.h"
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <dStorm/output/Traits.h>
 
 namespace dStorm {

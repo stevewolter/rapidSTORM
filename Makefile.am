@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = -I ../m4
+ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
 INSTALL_PROGRAM = ${INSTALL} -m 711
 
@@ -47,7 +47,7 @@ lib3d_fitter_la_SOURCES = \
     3d_fitter/plugin.cpp 3d_fitter/ConstantTypes.h \
     3d_fitter/Exponential3D_Accessor.h
 lib3d_fitter_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
-lib3d_fitter_la_LIBADD = ../dStorm/libdStorm.la -lsimparm
+lib3d_fitter_la_LIBADD = -lsimparm
 
 libgauss_fitter_la_SOURCES = \
     gauss_fitter/Config_decl.h gauss_fitter/Config.h gauss_fitter/Config.cpp \
@@ -78,7 +78,7 @@ libtestplugin_la_SOURCES = debug-plugin/plugin.cpp debug-plugin/SegmentationFaul
     debug-plugin/DummyFitter.h debug-plugin/DummyFitter.cpp \
     debug-plugin/Verbose.h \
     debug-plugin/VerboseInputFilter_decl.h debug-plugin/VerboseInputFilter.h debug-plugin/VerboseInputFilter.cpp
-libtestplugin_la_LIBADD = $(top_builddir)/../dStorm/libdStorm.la -lsimparm -lpthread
+libtestplugin_la_LIBADD = -lsimparm -lpthread
 
 libinputs_la_SOURCES = \
 	inputs/AndorSIF.cpp inputs/TIFF.cpp \
@@ -218,11 +218,11 @@ else
 endif
 libAndorCamera_la_SOURCES = AndorCamera/Config.cpp AndorCamera/Config.h $(ACS)
 testDisplay_SOURCES = wxDisplay/test.cpp
-testDisplay_LDADD = ../dStorm/libdStorm.la libdStorm_display.la
+testDisplay_LDADD = libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
 check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
 check_debug_plugin_SOURCES = debug-plugin/check_plugin.cpp
-check_debug_plugin_LDADD = libtestplugin.la ../dStorm/libdStorm.la
+check_debug_plugin_LDADD = libtestplugin.la 
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
 
@@ -243,9 +243,8 @@ dstorm_LDADD = liboutputs.la libviewer.la \
     libfitter.la libinputs.la \
     libAndorCamera.la \
     libdStorm_display.la \
-    ../dStorm/libdStorm.la -lltdl 
+    -lltdl 
 
-alignment_test_LDADD = ../dStorm/libdStorm.la
 alignment_test_SOURCES = fit++/alignment_test.cpp
     
 javadir=$(datadir)/java

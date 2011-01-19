@@ -1,6 +1,6 @@
 #include "Slicer.h"
 #include <sstream>
-#include "doc/help/context.h"
+#include <dStorm/doc/context.h>
 #include <stdio.h>
 
 #include <dStorm/outputs/NullOutput.h>
