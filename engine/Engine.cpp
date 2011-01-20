@@ -74,6 +74,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     rvt->source_image_is_set = true;
     rvt->smoothed_image_is_set = true;
     rvt->candidate_tree_is_set = true;
+    rvt->input_image_traits.reset( imProp->clone() );
 
     return rvt;
 }
