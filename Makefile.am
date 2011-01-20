@@ -240,12 +240,16 @@ EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest \
  3d_fitter/configure \
  3d_fitter/configure.ac 
 
+MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
+CONFIGFILE = dstorm-config-@DSTORM_LIB_VERSION@.txt
+
 CLEANFILES = rapidSTORM.jar \
 	3d_fitter/config.h 3d_fitter/config.status \
 	3d_fitter/libtool 3d_fitter/config.log \
 	gauss_fitter/config.h gauss_fitter/config.status \
 	gauss_fitter/libtool gauss_fitter/config.log \
-	rapid2storm rapid2storm.desktop
+	rapid2storm-@DSTORM_LIB_VERSION@.desktop rapid2storm-@DSTORM_LIB_VERSION@
+	$(CONFIGFILE)
 
 javabuilddir = classes
 
@@ -260,9 +264,6 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	cp $(TWIDDLER_JAR) $@
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
-
-MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
-CONFIGFILE = dstorm-config-@DSTORM_LIB_VERSION@.txt
 
 rapid2storm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
 	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
