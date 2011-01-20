@@ -13,7 +13,7 @@ noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
     libgauss_fitter.la libengine_stm.la
 
 install-exec-local :
-	$(RM) $(bindir)/dstorm && ln -s dstorm-@DSTORM_LIB_VERSION@ $(bindir)/dstorm
+	$(RM) $(DESTDIR)$(bindir)/dstorm && ln -s dstorm-@DSTORM_LIB_VERSION@ $(DESTDIR)$(bindir)/dstorm
 
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 plugin_lib_LTLIBRARIES = lib3d_fitter.la
@@ -271,7 +271,7 @@ rapid2storm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
 	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
 
 $(CONFIGFILE) : dstorm-config.txt
-	sed $< > $@
+	cat $< > $@
 
 menudir=$(sysconfdir)/menu
 menu_DATA=rapid2storm-@DSTORM_LIB_VERSION@
