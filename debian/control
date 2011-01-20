@@ -12,3 +12,8 @@ Architecture: any
 Depends: ${misc:Depends}
 Conflicts: rapid2storm
 Description: Localization microscopy data evaluation tool
+
+Package: rapidstorm-plugin-3dfitter
+Architecture: any
+Depends: ${misc:Depends}
+Description: Fitter for inferring 3D information from astigmatic input

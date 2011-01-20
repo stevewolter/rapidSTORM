@@ -1,0 +1,13 @@
+in Output in EngineOutput in ChooseTransmission in value set Table
+in Output in EngineOutput in Output0 in Table in FailSilently in value set true
+in Output in EngineOutput in Output0 in Table in ToFile in extension set -raw.txt
+in Output in EngineOutput in ChooseTransmission in value set Count
+in Output in EngineOutput in ChooseTransmission in value set Progress
+in Output in EngineOutput in ChooseTransmission in value set LocalizationFilter
+in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Table
+in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in FailSilently in value set true
+in Output in EngineOutput in Output3 in LocalizationFilter in ChooseTransmission in value set Image
+in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ShowOutput in value set true
+in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in optional_given set true
+in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in CloseOnCompletion in value set true
+in AutoTerminate in value set false

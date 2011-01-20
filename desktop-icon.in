@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=rapidSTORM
+GenericName=rapidSTORM
+Comment=Image processing and analysis
+Comment[en_GB]=Image processing and analysis
+Exec=twiddler dstorm --config @pkgdatadir@/dstorm-config.txt --Twiddler
+Icon=microscope
+Categories=Graphics;Science;Biology;
+MimeType=

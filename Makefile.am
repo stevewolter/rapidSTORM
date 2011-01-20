@@ -17,9 +17,7 @@ plugin_lib_LTLIBRARIES = lib3d_fitter.la
 
 TESTS = $(C_TESTS)
 
-AM_CPPFLAGS = \
-    -include $(top_builddir)/config.h \
-    '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
+AM_CPPFLAGS = '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
@@ -245,7 +243,8 @@ CLEANFILES = rapidSTORM.jar \
 	3d_fitter/config.h 3d_fitter/config.status \
 	3d_fitter/libtool 3d_fitter/config.log \
 	gauss_fitter/config.h gauss_fitter/config.status \
-	gauss_fitter/libtool gauss_fitter/config.log
+	gauss_fitter/libtool gauss_fitter/config.log \
+	rapid2storm rapid2storm.desktop
 
 javabuilddir = classes
 
@@ -260,3 +259,14 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	cp $(TWIDDLER_JAR) $@
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
+
+rapid2storm.desktop : $(srcdir)/desktop-icon.in
+	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' $< > $@
+
+rapid2storm : $(srcdir)/menu.in
+	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@bindir@;$(bindir);g' $< > $@
+
+menudir=$(sysconfdir)/menu
+menu_DATA=rapid2storm
+applicationsdir=$(datadir)/applications
+applications_DATA=rapid2storm.desktop

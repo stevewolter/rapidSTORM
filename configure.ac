@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
+AC_INIT([rapid2storm], [1.5.2], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -54,6 +54,7 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
 AC_CHECK_HEADERS([Magick++.h])
 AC_CHECK_HEADERS([tiffio.h])
+AC_CHECK_HEADERS([dStorm/Localization.h], [], [AC_ERROR([Missing dSTORM library])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -97,13 +98,6 @@ AC_ARG_WITH([twiddler-jar],
         [],
         [with_twiddler_jar=$prefix/share/java/twiddler.jar])
 
-AC_ARG_ENABLE([debug-plugin],
-    [AS_HELP_STRING([--enable-debug-plugin],
-        [enable building debug plugin @<:@default=yes@:>@])],
-    [],
-    [enable_debug_plugin=yes])
-AM_CONDITIONAL( [BUILD_DEBUG_PLUGIN], [test "x$enable_debug_plugin" != xno] )
-        
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
 AM_PATH_WXCONFIG($reqwx, wxWin=1)
@@ -133,7 +127,7 @@ AM_WITH_DMALLOC
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
-AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/AC_PACKAGE_TARNAME/plugins")
+AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/rapid2storm/plugins")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])

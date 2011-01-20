@@ -1,0 +1,7 @@
+?package(rapidSTORM):\
+  needs="x11"\
+  section="Applications/Science"\
+  title="rapidSTORM"\
+  command="@bindir@/twiddler @bindir@/dstorm --config @packagedatadir@/dstorm-config.txt --Twiddler"\
+  icon="/usr/share/pixmaps/gcalctool.xpm"
+
