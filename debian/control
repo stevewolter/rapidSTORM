@@ -14,7 +14,14 @@ Conflicts: rapid2storm
 Provides: rapidstorm
 Description: Localization microscopy data evaluation tool
 
-Package: rapidstorm-plugin-3dfitter
+Package: rapidstorm10-gui
 Architecture: any
-Depends: ${misc:Depends}, rapidstorm, libdstorm10
+Depends: rapidstorm10, twiddler
+Provides: rapidstorm-gui
+Description: GUI interface for rapidSTORM
+
+Package: rapidstorm-plugin-3dfitter10
+Architecture: any
+Depends: ${misc:Depends}, libdstorm10
+Recommends: rapidstorm10
 Description: Fitter for inferring 3D information from astigmatic input
