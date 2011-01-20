@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
 INSTALL_PROGRAM = ${INSTALL} -m 711
 
-bin_PROGRAMS = dstorm 
+bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@
 C_TESTS = alignment_test \
 	check_uncorrelated check_derivatives check_3d_plugin
 check_PROGRAMS = $(C_TESTS)
@@ -12,12 +12,13 @@ noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libgauss_fitter.la libengine_stm.la
 
+install-exec-local :
+	$(RM) $(bindir)/dstorm && ln -s dstorm-@DSTORM_LIB_VERSION@ $(bindir)/dstorm
+
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 plugin_lib_LTLIBRARIES = lib3d_fitter.la
 
 TESTS = $(C_TESTS)
-
-AM_CPPFLAGS = '-DDSTORM_PLUGIN_DIR="${DSTORM_PLUGIN_DIR}"'
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
@@ -204,7 +205,7 @@ check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
 
-dstorm_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     dstorm.cpp \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
@@ -214,7 +215,7 @@ dstorm_SOURCES = \
     debug.h debug_print.h $(RESOURCE_FILE) \
     local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
-dstorm_LDADD = liboutputs.la libviewer.la \
+dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libspotFinders.la \
     libengine_stm.la \
     libengine.la libnoopengine.la libgauss_fitter.la  \

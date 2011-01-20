@@ -6,6 +6,9 @@ AC_INIT([rapid2storm], [1.5.2], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
+DSTORM_LIB_VERSION=10
+AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
+
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
 AC_CONFIG_SRCDIR([dstorm.cpp])
@@ -127,7 +130,7 @@ AM_WITH_DMALLOC
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
-AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/rapid2storm/plugins")
+AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/libdSTORM/plugins-v${DSTORM_LIB_VERSION}")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])

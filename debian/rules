@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-CPPFLAGS+=-I/usr/include/GraphicsMagick -I/usr/include/eigen2 -DNDEBUG
+CPPFLAGS+=-I/usr/include/GraphicsMagick -I/usr/include/eigen2 -DNDEBUG -I/usr/include/dStorm10
 CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 CFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 

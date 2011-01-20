@@ -19,6 +19,8 @@
 #include "wxDisplay/wxManager.h"
 #include "LibraryHandle.h"
 
+#include <dStorm/plugindir.h>
+
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -109,7 +111,8 @@ int ModuleLoader::Pimpl::lt_dlforeachfile_callback
 
 void ModuleLoader::Pimpl::load_plugins()
 {
-    const char *plugin_dir = DSTORM_PLUGIN_DIR;
+    std::string compiled_plugin_dir = plugin_directory();
+    const char *plugin_dir = compiled_plugin_dir.c_str();
     char *env_plugin_dir = getenv("RAPIDSTORM_PLUGINDIR");
     if ( env_plugin_dir != NULL )
         plugin_dir = env_plugin_dir;

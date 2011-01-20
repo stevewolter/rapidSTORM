@@ -2,18 +2,19 @@ Source: rapidstorm
 Section: science
 Priority: extra
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libdstorm-dev, libeigen2-dev, libreadsif-dev
 Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
 
-Package: rapidstorm
+Package: rapidstorm10
 Architecture: any
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libdstorm10
 Conflicts: rapid2storm
+Provides: rapidstorm
 Description: Localization microscopy data evaluation tool
 
 Package: rapidstorm-plugin-3dfitter
 Architecture: any
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, rapidstorm, libdstorm10
 Description: Fitter for inferring 3D information from astigmatic input
