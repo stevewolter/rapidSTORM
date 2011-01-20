@@ -261,13 +261,21 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
 
+MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
+CONFIGFILE = dstorm-config-@DSTORM_LIB_VERSION@.txt
+
 rapid2storm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
-	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@PACKAGE_VERSION@;$(PACKAGE_VERSION);g' $< > $@
+	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
 
 rapid2storm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
-	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@bindir@;$(bindir);g' -e 's;@PACKAGE_VERSION@;$(PACKAGE_VERSION);g' $< > $@
+	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
+
+$(CONFIGFILE) : dstorm-config.txt
+	sed $< > $@
 
 menudir=$(sysconfdir)/menu
 menu_DATA=rapid2storm-@DSTORM_LIB_VERSION@
 applicationsdir=$(datadir)/applications
 applications_DATA=rapid2storm-@DSTORM_LIB_VERSION@.desktop
+
+pkgdata_DATA = $(CONFIGFILE)
