@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=rapidSTORM
-GenericName=rapidSTORM
+Name=rapidSTORM @PACKAGE_VERSION@
+GenericName=Localization microscopy analyzer
 Comment=Image processing and analysis
 Comment[en_GB]=Image processing and analysis
 Exec=twiddler dstorm --config @pkgdatadir@/dstorm-config.txt --Twiddler

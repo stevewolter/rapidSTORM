@@ -261,13 +261,13 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
 
-rapid2storm.desktop : $(srcdir)/desktop-icon.in
-	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' $< > $@
+rapid2storm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
+	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@PACKAGE_VERSION@;$(PACKAGE_VERSION);g' $< > $@
 
-rapid2storm : $(srcdir)/menu.in
-	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@bindir@;$(bindir);g' $< > $@
+rapid2storm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
+	sed -e 's;@pkgdatadir@;$(pkgdatadir);g' -e 's;@bindir@;$(bindir);g' -e 's;@PACKAGE_VERSION@;$(PACKAGE_VERSION);g' $< > $@
 
 menudir=$(sysconfdir)/menu
-menu_DATA=rapid2storm
+menu_DATA=rapid2storm-@DSTORM_LIB_VERSION@
 applicationsdir=$(datadir)/applications
-applications_DATA=rapid2storm.desktop
+applications_DATA=rapid2storm-@DSTORM_LIB_VERSION@.desktop
