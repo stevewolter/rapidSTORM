@@ -7,6 +7,7 @@
 #include "ProgressMeter.h"
 #include "AverageImage.h"
 #include <dStorm/outputs/TraceFilter.h>
+#include <dStorm/expression/Source_decl.h>
 #include "LocalizationFilter.h"
 #include "Slicer.h"
 #include "RawImageFile.h"
@@ -30,6 +31,7 @@ void basic_outputs( Config* o ) {
     o->addChoice( new RawImageFile::Source() );
     o->addChoice( new SinglePrecisionEstimator::Source() );
     o->addChoice( new MultiPrecisionEstimator::Source() );
+    o->addChoice( make_output_source<expression::Source>().release() );
 }
 
 }
