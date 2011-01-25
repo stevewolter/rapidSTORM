@@ -328,7 +328,7 @@ void Car::drive() {
     DEBUG("Pushing back input config");
     runtime_config.push_back( *input );
     DEBUG("Pushing back output config");
-    runtime_config.push_back( *output );
+    runtime_config.push_back( output->getNode() );
     DEBUG("Pushing back abort job button");
     runtime_config.push_back( abortJob );
     DEBUG("Pushing back close job button");

@@ -96,7 +96,8 @@ liboutputs_la_SOURCES = \
     outputs/ProgressMeter.h outputs/RawImageFile.cpp outputs/RawImageFile.h outputs/Slicer.cpp \
     outputs/Slicer.h \
     outputs/PrecisionEstimator.h outputs/PrecisionEstimator.cpp \
-    outputs/BasicTransmissions.h
+    outputs/BasicTransmissions.h \
+    outputs/MemoryCache.cpp outputs/MemoryCache.h outputs/MemoryCache_decl.h
 liboutputs_la_LIBADD = -lberghen_xmlParser
 
 libspotFinders_la_SOURCES = \

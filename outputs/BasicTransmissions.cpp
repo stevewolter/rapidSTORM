@@ -11,6 +11,7 @@
 #include "Slicer.h"
 #include "RawImageFile.h"
 #include "PrecisionEstimator.h"
+#include "MemoryCache_decl.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -24,6 +25,7 @@ void basic_outputs( Config* o ) {
     o->addChoice( new ProgressMeter::Source() );
     o->addChoice( new LocalizationCounter::Source() );
     o->addChoice( new AverageImage::Source() );
+    o->addChoice( make_output_source<MemoryCache>().release() );
     o->addChoice( new TraceCountFilter::Source() );
     o->addChoice( new Slicer::Source() );
     o->addChoice( new RawImageFile::Source() );

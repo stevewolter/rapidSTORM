@@ -37,7 +37,7 @@ void Slicer::add_output_clone(int i) {
     simparm::Object* o = new simparm::Object(name.str(), desc.str());
 
     outputs[i].set( output.release(), o );
-    o->push_back( *outputs[i] );
+    o->push_back( outputs[i]->getNode() );
     outputs_choice.push_back( *o );
 
     if ( announcement.get() != NULL )
