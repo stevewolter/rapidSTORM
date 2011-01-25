@@ -92,7 +92,6 @@ liboutputs_la_SOURCES = \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/LocalizationFile.cpp outputs/LocalizationFile.h \
-    outputs/LocalizationFilter.cpp outputs/LocalizationFilter.h \
     outputs/ProgressMeter.cpp \
     outputs/ProgressMeter.h outputs/RawImageFile.cpp outputs/RawImageFile.h outputs/Slicer.cpp \
     outputs/Slicer.h \

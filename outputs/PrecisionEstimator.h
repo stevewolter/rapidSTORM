@@ -12,13 +12,6 @@
 
 namespace dStorm {
 namespace output {
-    namespace Precision {
-        struct FitSigmas; ;
-        FitSigmas fitWithGauss
-            ( double res_enh, const dStorm::Localization* f, int n )
-;
-    };
-
     class SinglePrecisionEstimator 
       : public OutputObject 
     {

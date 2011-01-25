@@ -15,6 +15,7 @@
 #include <dStorm/units/nanolength.h>
 #include <boost/units/systems/camera/luminance.hpp>
 #include <boost/units/systems/si/area.hpp>
+#include <dStorm/output/Localizations_iterator.h>
 
 using namespace std;
 using namespace fitpp;
@@ -28,6 +29,38 @@ struct FitSigmas {
     quantity<boost::units::si::length> x, y;
     double xy; int n; double a; 
 };
+
+class GaussFitter {
+    /* data_range gives the maximal L_infty distance of a point
+        * to the localization centre. */
+    double res_enh;
+    quantity<si::length, float> data_range;
+    int total_count, center_bin;
+    dStorm::Variance< quantity<si::length>, quantity<si::area> >
+        average_sd_x, average_sd_y;
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Eigen::DontAlign > DataMatrix;
+    DataMatrix data;
+
+    void first_pass( const Localization& l ); 
+    void second_pass( const Localization& l ); 
+    void init_fit_data();
+    FitSigmas perform_fit();
+
+  public:
+    GaussFitter(double res_enh) : res_enh(res_enh) {}
+    template <typename Iterator>
+    FitSigmas process( Iterator begin, Iterator end ) {
+        data_range = 0 * si::meter; total_count = 0;
+        for ( Iterator i = begin; i != end; ++i )
+            first_pass(*i);
+        if ( total_count == 0 ) return FitSigmas();
+        init_fit_data();
+        for ( ; begin != end; ++begin )
+            second_pass(*begin);
+        return perform_fit();
+    }
+};
+
 }
 
 SinglePrecisionEstimator::_Config::_Config()
@@ -130,21 +163,20 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
 {
     ost::MutexLock lock(mutex);
     try {
-        for ( int i = 0; i < er.number; i++ ) {
-            const Localization& l = er.first[i];
-            assert( l.has_source_trace() );
-
-            FitSigmas s = fitWithGauss( res_enh, &l, 1);
+        Precision::GaussFitter fitter( res_enh );
+        for ( EngineResult::const_iterator i = er.begin(); i != er.end(); ++i ) {
+            EngineResult::const_iterator next = i; ++next;
+            FitSigmas s = fitter.process(i, next);
             printTo.get_output_stream()
-                << setw(10) << fixed << setprecision(2) << l.position().x().value()
-                << setw(10) << l.position().y().value()
-                << setw(5)  << l.get_source_trace().size()
+                << setw(10) << fixed << setprecision(2) << i->position().x().value()
+                << setw(10) << i->position().y().value()
+                << setw(5)  << i->get_source_trace().size()
                 << setw(10) << setprecision(2) << 
                     (compute_weighted_SD(
-                        l.get_source_trace(), 0) *2.35  ) / si::nanometre
+                        i->get_source_trace(), 0) *2.35  ) / si::nanometre
                 << setw(10) << setprecision(2) <<
                     (compute_weighted_SD(
-                            l.get_source_trace(), 1) *2.35 ) / si::nanometre
+                            i->get_source_trace(), 1) *2.35 ) / si::nanometre
                 << setw(10) << setprecision(2) << 
                     ( s.x *2.35 )/ si::nanometre
                 << setw(10) << setprecision(2) <<
@@ -192,19 +224,7 @@ void MultiPrecisionEstimator::estimatePrecision() {
     FitSigmas s;
     output::Localizations& locs = localizations.getResults();
 
-    if (locs.binNumber() == 1)
-        s = fitWithGauss( res_enh, locs.getBin(0), locs.sizeOfBin(0) );
-    else {
-        int number = locs.size();
-        data_cpp::Vector<Localization> v( number );
-        for (int bin = 0; bin < locs.binNumber(); bin++) {
-            for (int i = 0; i < locs.sizeOfBin(bin); i++) {
-                v.push_back( locs.getBin(bin)[i] );
-            }
-        }
-
-        s = fitWithGauss( res_enh, v.ptr(), number );
-    }
+    s = Precision::GaussFitter(res_enh).process( locs.begin(), locs.end() );
 
     usedSpots = s.n;
     x_sd = quantity<si::nanolength>(s.x * 2.35) / si::nanometer;
@@ -213,46 +233,15 @@ void MultiPrecisionEstimator::estimatePrecision() {
     if ( ! x_sd.isActive() ) std::cout << x_sd() << " " << y_sd() << "\n";
 }
 
-FitSigmas Precision::fitWithGauss
-   (double res_enh, const Localization* first, int number) 
-{
-    typedef data_cpp::Vector<Localization> Points;
-    FitSigmas result;
-
-    /* data_range gives the maximal L_infty distance of a point
-        * to the localization centre. */
-    quantity<si::length, float> data_range = 0;
-    int total_count = 0;
-    dStorm::Variance< quantity<si::length>, quantity<si::area> >
-        average_sd_x, average_sd_y;
-    for (int j = 0; j < number; j++) {
-        const Localization *i = first + j;
-        if (i->get_source_trace().size() == 0) continue;
-
-        average_sd_x.addValue( 
-            compute_weighted_SD( i->get_source_trace(), 0 ) );
-        average_sd_y.addValue( 
-            compute_weighted_SD( i->get_source_trace(), 1 ) );
-
-        const Points& p = i->get_source_trace();
-        for ( Points::const_iterator k = p.begin(); k != p.end(); k++)
-        {
-            data_range = max( data_range,
-                max( abs( k->position().x() - i->position().x() ), abs( k->position().y() - i->position().y() ) ) );
-        }
-
-        total_count += i->get_source_trace().size();
-    }
-    if (total_count == 0) return result;
-
+void GaussFitter::init_fit_data() {
     int center_bin = 
         int(ceil(res_enh * data_range.value()));
     int bin_number = 2*center_bin+1;
 
-    double data[bin_number][bin_number];
-    for (int x = 0; x < bin_number; x++)
-        for (int y = 0; y < bin_number; y++)
-            data[y][x] = 0;
+    data = DataMatrix::Zero( bin_number, bin_number );
+}
+
+FitSigmas GaussFitter::perform_fit() {
 
     double norm = 1.0 / total_count;
     const int ExpFlags = Exponential2D::FreeForm & (~Exponential2D::Shift);
@@ -260,9 +249,10 @@ FitSigmas Precision::fitWithGauss
     typedef Exponential2D::Model<1,ExpFlags> Model;
     Model::Constants constants;
     Model::Fitter<double>::Type fitter(constants);
-    fitter.setSize(bin_number, bin_number);
-    fitter.setData((const double*)data, 1, bin_number);
+    fitter.setSize(data.rows(), data.cols());
+    fitter.setData(data.data(), data.rows(), data.cols());
 
+    FitSigmas result;
     result.n = total_count;
 
     Exponential2D::Model<1,ExpFlags> model
@@ -274,26 +264,6 @@ FitSigmas Precision::fitWithGauss
     model.setSigmaXY<0>( 0 );
     model.setShift( 0 );
     model.setAmplitude<0>( 1 );
-
-    double max_x_val = -1, max_y_val = -1;
-    int max_x_bin = 0, max_y_bin = 0;
-    /* Fill the data vector with the number of points in that bin. */
-    for ( const Localization* r = first; r < first + number; r++ ) {
-        const Points& ps = r->get_source_trace();
-        for ( Points::const_iterator p = ps.begin(); p != ps.end(); p++)
-        {
-            double x_off = (p->position().x() - r->position().x()) / si::metre * res_enh,
-                   y_off = (p->position().y() - r->position().y()) / si::metre * res_enh;
-            int x_bin = int(round(x_off)) + center_bin,
-                y_bin = int(round(y_off)) + center_bin;
-            if ( y_bin >= 0 && y_bin < bin_number && 
-                    x_bin >= 0 && x_bin < bin_number )
-                data[y_bin][x_bin] += norm;
-            
-            if ( norm > max_x_val ) max_x_bin = x_bin;
-            if ( norm > max_y_val ) max_y_bin = y_bin;
-        }
-    }
 
     model.setMeanX<0>( center_bin );
     model.setMeanY<0>( center_bin );
@@ -310,6 +280,40 @@ FitSigmas Precision::fitWithGauss
     result.a = model.getAmplitude<0>();
 
     return result;
+}
+
+void GaussFitter::first_pass(const Localization& l ) 
+{
+    if (l.get_source_trace().size() == 0) return;
+
+    average_sd_x.addValue( 
+        compute_weighted_SD( l.get_source_trace(), 0 ) );
+    average_sd_y.addValue( 
+        compute_weighted_SD( l.get_source_trace(), 1 ) );
+
+    const output::Trace& p = l.get_source_trace();
+    for ( output::Trace::const_iterator k = p.begin(); k != p.end(); k++)
+    {
+        data_range = max( data_range,
+            max( abs( k->position().x() - l.position().x() ), abs( k->position().y() - l.position().y() ) ) );
+    }
+
+    total_count += l.get_source_trace().size();
+}
+
+void GaussFitter::second_pass(const Localization& r ) 
+{
+    const Trace& ps = r.get_source_trace();
+    for ( Trace::const_iterator p = ps.begin(); p != ps.end(); p++)
+    {
+        double x_off = (p->position().x() - r.position().x()) / si::metre * res_enh,
+                y_off = (p->position().y() - r.position().y()) / si::metre * res_enh;
+        int x_bin = int(round(x_off)) + center_bin,
+            y_bin = int(round(y_off)) + center_bin;
+        if ( y_bin >= 0 && y_bin < data.rows() && 
+                x_bin >= 0 && x_bin < data.cols() )
+            this->data(y_bin, x_bin) += 1.0 / total_count;
+    }
 }
 
 
