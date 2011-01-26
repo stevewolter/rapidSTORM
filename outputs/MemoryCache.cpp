@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "MemoryCache.h"
 #include <dStorm/output/ResultRepeater.h>
 #include <dStorm/doc/context.h>
@@ -97,6 +98,7 @@ MemoryCache::MemoryCache(
 : Filter(output),
   re_emitter( new ReEmitter(*this) )
 { 
+    re_emitter->start();
 }
 
 MemoryCache::MemoryCache(
@@ -105,6 +107,7 @@ MemoryCache::MemoryCache(
 : Filter(o),
   re_emitter( new ReEmitter(*this) )
 { 
+    re_emitter->start();
 }
 
 MemoryCache::~MemoryCache() {}
@@ -147,6 +150,7 @@ MemoryCache::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.result_repeater = re_emitter.get();
+    std::cerr << "Storing result_repeater " << re_emitter.get() << " in " << &my_announcement << std::endl;
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
         "MemoryCache", AdditionalData().set_cluster_sources(), data );
@@ -190,6 +194,11 @@ MemoryCacheSource::MemoryCacheSource()
 
 MemoryCacheSource::MemoryCacheSource(const MemoryCacheSource& o)
 : simparm::Object(o), FilterSource(static_cast<simparm::Node&>(*this), o) {}
+
+std::auto_ptr<Output> MemoryCacheSource::make_output()
+{
+    return std::auto_ptr<Output>( new MemoryCache( FilterSource::make_output() ) );
+}
 
 template <>
 std::auto_ptr<OutputSource> make_output_source<MemoryCache>()

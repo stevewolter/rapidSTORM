@@ -59,6 +59,7 @@ struct MemoryCacheSource
     MemoryCacheSource* clone() const
         { return new MemoryCacheSource(*this); }
     virtual std::string getDesc() const { return Object::desc(); }
+    std::auto_ptr<Output> make_output(); 
 };
 
 }
