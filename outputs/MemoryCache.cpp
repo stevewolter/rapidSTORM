@@ -150,7 +150,6 @@ MemoryCache::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.result_repeater = re_emitter.get();
-    std::cerr << "Storing result_repeater " << re_emitter.get() << " in " << &my_announcement << std::endl;
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
         "MemoryCache", AdditionalData().set_cluster_sources(), data );
