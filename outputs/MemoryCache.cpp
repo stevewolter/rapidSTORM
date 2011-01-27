@@ -55,7 +55,6 @@ class MemoryCache::ReEmitter
     void run() throw()
     {
       DEBUG("Running localization reemitter");
-      try {
         DEBUG("Acquiring mutex");
         mutex.enterMutex();
         DEBUG("Acquired mutex");
@@ -64,7 +63,17 @@ class MemoryCache::ReEmitter
             if ( reemittance_needed ) {
                 reemittance_needed = false;
                 mutex.leaveMutex();
-                work_for.reemit_localizations( reemittance_needed );
+                try {
+                    work_for.reemit_localizations( reemittance_needed );
+                } catch (const std::bad_alloc& e) {
+                    std::cerr << "Ran out of memory." << std::endl;
+                } catch (const std::exception& e) {
+                    std::cerr << "An error occured during result recomputation: "
+                            << e.what() << std::endl;
+                } catch (...) {
+                    std::cerr << "An unknown error occured during result recomputation."
+                            << std::endl;
+                }
                 mutex.enterMutex();
             }
             if (!reemittance_needed && need_re_emitter) {
@@ -74,15 +83,6 @@ class MemoryCache::ReEmitter
             }
         }
         mutex.leaveMutex();
-      } catch (const std::bad_alloc& e) {
-        std::cerr << "Ran out of memory." << std::endl;
-      } catch (const std::exception& e) {
-        std::cerr << "An error occured during result recomputation: "
-                  << e.what() << std::endl;
-      } catch (...) {
-        std::cerr << "An unknown error occured during result recomputation."
-                  << std::endl;
-      }
       DEBUG("Finished reemitter subthread");
     }
 
