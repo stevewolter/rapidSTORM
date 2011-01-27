@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "MemoryCache.h"
 #include <dStorm/output/ResultRepeater.h>
 #include <dStorm/doc/context.h>
