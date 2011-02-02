@@ -12,6 +12,7 @@
 #include <dStorm/ImageTraits.h>
 #include <simparm/NumericEntry.hh>
 
+namespace dStorm {
 namespace AndorCamera {
 
 class LiveView :
@@ -53,9 +54,10 @@ class LiveView :
         Resolution resolution,
         boost::units::quantity<boost::units::camera::frame_rate> cycle_time );
     ~LiveView();
-    void show( const CamImage& image, int num );
+    void show( const CamImage& image );
 };
 
+}
 }
 
 #endif

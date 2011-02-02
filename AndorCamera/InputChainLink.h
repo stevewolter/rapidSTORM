@@ -1,34 +1,35 @@
 #ifndef DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 #define DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/chain/Link.h>
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
-#include "Context.h"
+#include <dStorm/input/chain/Context.h>
+#include <dStorm/input/chain/MetaInfo.h>
 
+namespace dStorm {
 namespace AndorCamera {
+
+struct CameraConnection;
 
 /** The Method class provides the configuration items for Andor camera
     *  acquisition that are acquisition-specific - control elements and
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::chain::Forwarder, public simparm::Object,
-  public simparm::Listener
+: public dStorm::input::chain::Terminus, public simparm::Object
 {
   private:
-    class CameraSwitcher;
-    boost::shared_ptr<CameraSwitcher> switcher;
-    Context::Ptr last_context;
+    ContextRef last_context;
+    TraitsRef published;
 
-    void operator()( const simparm::Event& );
+    AtEnd publish_meta_info();
   public:
     simparm::BoolEntry show_live_by_default;
 
   private:
     void registerNamedEntries();
     AtEnd context_changed( ContextRef, Link * );
-    AtEnd traits_changed( TraitsRef, Link* );
 
   public:
     Method();
@@ -36,14 +37,14 @@ class Method
     virtual ~Method();
 
     simparm::Node& getNode() { return *this; }
-    dStorm::input::BaseSource* makeSource() 
-        { return Forwarder::makeSource(); }
+    dStorm::input::BaseSource* makeSource() ;
 
     Method* clone() const { return new Method(*this); }
     bool uses_input_file() const { return false; }
 };
 
 
+}
 }
 
 #endif

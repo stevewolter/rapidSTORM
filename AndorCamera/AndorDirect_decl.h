@@ -5,6 +5,7 @@
 #include <dStorm/ImageTraits_decl.h>
 #include <stdint.h>
 
+namespace dStorm {
 namespace AndorCamera {
 
 typedef uint16_t CameraPixel;
@@ -16,6 +17,7 @@ typedef dStorm::input::Traits<CamImage> CamTraits;
 class Method;
 class Source;
 
+}
 }
 
 #endif

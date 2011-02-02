@@ -1,60 +1,39 @@
 #include "debug.h"
 #include "AndorDirect.h"
+#include "CameraConnection.h"
 #include <dStorm/Image.h>
 #include "LiveView.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
 
+namespace dStorm {
 namespace AndorCamera {
 
-class SetFlagOnDestruction {
-    ost::Mutex& m; 
-    ost::Condition& c; 
-    bool& f;
-  public:
-    SetFlagOnDestruction(ost::Mutex& m, ost::Condition& c, bool& flag) : m(m), c(c), f(flag) {}
-    ~SetFlagOnDestruction() {
-        m.enterMutex();
-        f = true;
-        c.signal();
-        m.leaveMutex();
-    }
-};
-
 class Source::iterator 
-: public boost::iterator_facade<iterator,CamImage,std::input_iterator_tag>
+: public boost::iterator_facade<iterator,CamImage,std::input_iterator_tag>,
+  public boost::static_visitor<void>
 {
   private:
-    class CamRef;
-    boost::shared_ptr<CamRef> ref;
+    Source* src;
     mutable CamImage img;
 
   public:
-    iterator() {}
+    iterator() : src(NULL) {}
     iterator(Source &ad);
 
     CamImage& dereference() const;
     void increment();
-    bool equal(const iterator& i) const {
-        DEBUG("Comparing " << ref.get() << " and " << i.ref.get());
-        return ref.get() == i.ref.get(); 
-    }
-};
+    bool equal(const iterator& i) const { return src == i.src; }
 
-struct Source::iterator::CamRef {
-    Source &ad;
-    int next_image_number;
-
-    CamImage get_next_image();
-    bool is_finished;
-
-  public:
-    CamRef(Source &ad);
-    ~CamRef();
+    void operator()( const CameraConnection::FetchImage& );
+    void operator()( const CameraConnection::ImageError& );
+    void operator()( const CameraConnection::EndOfAcquisition& );
 };
 
 Source::iterator::iterator(Source &ad) 
-    : ref(new CamRef(ad)) 
+    : src(&ad)
 {
     increment();
 }
@@ -62,39 +41,26 @@ Source::iterator::iterator(Source &ad)
 CamImage& Source::iterator::dereference() const {
     return img;
 }
-void Source::iterator::increment() {
-    img = ref->get_next_image();
-    if ( ref->is_finished ) ref.reset();
-}
 
-Source::iterator::CamRef::CamRef(Source &ad)
-: ad(ad), next_image_number(0), is_finished(false)
-{ 
-    SetFlagOnDestruction destruct(ad.initMutex, ad.is_initialized, ad.initialized);
-    DEBUG("Started acquisition subthread");
-    ad.acquisition.start();
-    try {
-        DEBUG("Waiting for acquisition to gain camera");
-        ad.acquisition.block_until_on_camera();
-        DEBUG("Acquisition gained camera");
-    } catch (...) {
-        DEBUG("Caught an error, stopping acquisition");
-        ad.acquisition.stop();
-        is_finished = true;
-        throw;
+
+void Source::iterator::increment() {
+    if ( !src ) return;
+
+    boost::lock_guard<boost::mutex> guard(src->mutex);
+    if ( src->has_ended ) 
+        src = NULL;
+    else {
+        CameraConnection::FrameFetch f = src->connection->next_frame();
+        boost::apply_visitor(*this, f);
     }
 }
 
-CamImage Source::iterator::CamRef::get_next_image() {
-    CamImage image;
-
+void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
+{
     DEBUG("Allocating image " << next_image_number);
-    while ( image.is_invalid() ) {
+    while ( img.is_invalid() ) {
         try {
-            CamImage::Size sz;
-            sz.x() = ad.acquisition.getWidth();
-            sz.y() = ad.acquisition.getHeight();
-            image = CamImage(sz, next_image_number * boost::units::camera::frame);
+            img = CamImage(src->traits->size, fr.frame_number);
         } catch( const std::bad_alloc& alloc ) {
             /* Do nothing. Try to wait until more memory is available.
                 * Maybe the ring buffer saves us. Maybe not, but we can't
@@ -103,35 +69,22 @@ CamImage Source::iterator::CamRef::get_next_image() {
         }
     }
     DEBUG("Allocated image");
-
-    DEBUG("Fetching image " << next_image_number);
-    while ( true ) {
-        AndorCamera::Acquisition::Fetch nextIm =
-            ad.acquisition.getNextImage( image.ptr() );
-        if ( nextIm.first == AndorCamera::Acquisition::NoMoreImages ) {
-            DEBUG("No more images");
-            image.invalidate();
-            is_finished = true;
-            break;
-        } else if ( nextIm.first != AndorCamera::Acquisition::HadError ) {
-            DEBUG("Showing");
-            ad.live_view->show( image, nextIm.second / boost::units::camera::frame );
-            next_image_number += 1;
-            break;
-        } else {
-            DEBUG("Error in fetching image");
-            image.invalidate();
-            next_image_number += 1;
-            break;
-        }
-    }
-    DEBUG("Fetched image");
-    return image;
+    src->connection->read_data( img );
+    if ( src->live_view.get() )
+        src->live_view->show( img );
 }
 
-Source::iterator::CamRef::~CamRef() {
-    DEBUG("Destructing camera reference");
-    ad.acquisition.stop();
+void Source::iterator::operator()( const CameraConnection::ImageError& fr )
+{
+    img.invalidate();
+    img.frame_number() = fr.frame_number;
+}
+
+void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& fr )
+{
+    img.invalidate();
+    src->has_ended = true;
+    src = NULL;
 }
 
 CamSource::iterator
@@ -147,4 +100,5 @@ Source::end() {
     return CamSource::iterator(iterator());
 }
 
+}
 }

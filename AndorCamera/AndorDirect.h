@@ -5,18 +5,20 @@
 
 #include <dStorm/input/Source.h>
 #include <dStorm/ImageTraits.h>
-#include <AndorCamera/CameraReference.h>
-#include <AndorCamera/Acquisition.h>
 #include <memory>
 #include <string>
 #include <dStorm/helpers/thread.h>
 #include <simparm/Set.hh>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 
-#include "LiveView_decl.h"
+#include "LiveView.h"
 
+namespace dStorm {
 namespace AndorCamera {
+
+struct CameraConnection;
 
     /** This Source class provides a source that captures directly
         *  from Andor cameras present on the system. It needs the
@@ -25,28 +27,20 @@ namespace AndorCamera {
     : public simparm::Set, public CamSource
     {
       private:
-        AndorCamera::CameraReference control;
-        mutable ost::Mutex initMutex;
-        mutable ost::Condition is_initialized;
-        bool initialized, error_in_initialization;
-        AndorCamera::Acquisition acquisition;
-
+        std::auto_ptr<CameraConnection> connection;
+        boost::mutex mutex;
+        TraitsPtr traits;
+        bool has_ended;
+        std::auto_ptr<LiveView> live_view;
+        LiveView::Resolution resolution;
         class iterator;
-        friend class iterator;
 
-        void acquire();
-        bool cancelAcquisition;
+        simparm::StringEntry status;
 
-        void waitForInitialization() const;
-
-        simparm::StringEntry& status;
-
-        boost::shared_ptr<LiveView> live_view;
         void dispatch(Messages m) { assert( ! m.any() ); }
 
       public:
-        Source( boost::shared_ptr<LiveView> live_view,
-                AndorCamera::CameraReference& camera);
+        Source( std::auto_ptr<CameraConnection> connection, bool live_view );
         Source(const Source &);
         virtual ~Source();
         Source *clone() const { 
@@ -56,6 +50,7 @@ namespace AndorCamera {
         virtual CamSource::iterator end();
         virtual TraitsPtr get_traits();
     };
+}
 }
 
 #endif

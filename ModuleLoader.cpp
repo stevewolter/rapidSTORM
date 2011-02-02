@@ -194,28 +194,6 @@ struct EmptyJobMaster : public JobMaster {
     }
 };
 
-void ModuleLoader::do_panic_processing( int argc, char *argv[] ) 
-{
-    std::auto_ptr<JobMaster> master( new EmptyJobMaster() );
-
-    dStorm::ErrorHandler::CleanupArgs args;
-    for (int i = 0; i < argc; i++) args.push_back(argv[i]);
-
-    while ( ! args.empty() ) {
-        size_t size_before = args.size();
-        local_cleanup( args, master );
-        for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();
-            i++)
-        {
-            if ( args.empty() ) break;
-            i->getCleanup() ( &args, master.get() );
-        }
-        if ( args.size() == size_before ) {
-            args.pop_front();
-        }
-    }
-}
-
 static ModuleLoader *ml = NULL;
 
 void ModuleLoader::makeSingleton() 

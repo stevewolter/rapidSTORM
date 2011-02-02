@@ -22,7 +22,6 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/ImageTraits.h>
-#include <AndorCamera/Config.h>
 #include <dStorm/helpers/exception.h>
 
 #include <boost/iterator/iterator_facade.hpp>

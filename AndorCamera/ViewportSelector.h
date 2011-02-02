@@ -9,15 +9,12 @@
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
 #include <map>
-#include <AndorCamera/CameraReference.h>
 #include "AndorDirect.h"
-#include "Context.h"
 
 #include <dStorm/ImageTraits.h>
 
+namespace dStorm {
 namespace AndorCamera {
-
-class Acquisition;
 
 namespace ViewportSelector {
 
@@ -32,11 +29,12 @@ class Display : public simparm::Set,
                 public dStorm::Display::DataSource
 {
   private:
-    AndorCamera::CameraReference cam;
-    Config& config;
-    const Context& context;
+    struct FetchHandler;
 
-    simparm::Object            statusBox;
+    CameraConnection& cam;
+    Config& config;
+
+    simparm::StringEntry       status;
     simparm::TriggerEntry      stopAim;
     simparm::TriggerEntry      pause;
     simparm::FileEntry         imageFile;
@@ -45,7 +43,7 @@ class Display : public simparm::Set,
     void operator()(const simparm::Event&);
 
     /** Reference to the config element to be configured. */
-    ImageReadout* aimed;
+    bool aimed;
 
     ost::Mutex mutex;
     /** Flag is set to true when the display should be paused. */
@@ -56,8 +54,7 @@ class Display : public simparm::Set,
     std::auto_ptr<dStorm::Display::Change> change;
     std::auto_ptr<dStorm::Display::Manager::WindowHandle> handle;
 
-    /** Size of displayed camera image. */
-    CamImage::Size size;
+    CamTraits traits;
     /** Currently used normalization boundaries. Will be set for each new
      *  image when \c lock_normalization is not set. */
     CamImage::PixelPair normalization_factor;
@@ -83,7 +80,7 @@ class Display : public simparm::Set,
 
     void registerNamedEntries();
     void acquire();
-    void configure_camera(AndorCamera::Acquisition&);
+    void configure_camera();
     void initialize_display();
     void draw_image(const CamImage& data);
 
@@ -101,7 +98,7 @@ class Display : public simparm::Set,
         *  This is a fire-and-forget class: The constructor starts a
         *  subthread that will open the acquisition and update the
         *  display window, and then return control. */
-    Display ( const CameraReference&, Mode, Config&, const Context& );
+    Display ( CameraConnection&, Mode, Config& );
     /** Destructor, will join the subthread and close the display
         *  window. */
     virtual ~Display();
@@ -115,9 +112,7 @@ class Display : public simparm::Set,
 class Config 
 : public simparm::Object, public simparm::Node::Callback 
 {
-    AndorCamera::CameraReference cam;
-    /* Use a copy of the context to avoid race conditions. */
-    Context context;
+    CameraConnection& cam;
 
     void registerNamedEntries();
 
@@ -127,8 +122,7 @@ class Config
   public:
     simparm::TriggerEntry select_ROI, view_ROI;
 
-    Config(const AndorCamera::CameraReference& cam, 
-           Context::ConstPtr context);
+    Config(CameraConnection& cam );
     Config(const Config &c);
     ~Config();
     Config* clone();
@@ -138,7 +132,6 @@ class Config
     void operator()(const simparm::Event&);
 
     void delete_active_selector();
-    void context_changed(Context::ConstPtr new_context);
 
   private:
     ost::Mutex active_selector_mutex;
@@ -149,6 +142,7 @@ class Config
     void make_display( Display::Mode mode );
 };
 
+}
 }
 }
 

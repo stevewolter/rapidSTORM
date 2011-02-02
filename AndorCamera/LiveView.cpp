@@ -12,6 +12,7 @@ using namespace boost::units;
 using namespace camera;
 using namespace dStorm;
 
+namespace dStorm {
 namespace AndorCamera {
 
 LiveView::LiveView( 
@@ -102,7 +103,7 @@ void LiveView::compute_image_change
     }
 }
 
-void LiveView::show( const CamImage& image, int number) {
+void LiveView::show( const CamImage& image) {
     DEBUG("Showing image");
     guard lock(window_mutex);
     DEBUG("Got mutex for showing image");
@@ -135,4 +136,5 @@ void LiveView::notice_user_key_limits(int key_index, bool lower, std::string inp
         upper_user_limit = v;
 }
 
+}
 }

@@ -175,29 +175,13 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
-if BUILD_ANDORCAM
-    ACS = \
-	AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
-	AndorCamera/Context.h \
-	AndorCamera/SDK.h AndorCamera/SDK.cpp AndorCamera/Error.cpp AndorCamera/foreach.h \
-	AndorCamera/Acquisition.cpp AndorCamera/StateMachine.cpp \
-	AndorCamera/StateMachine.h AndorCamera/StateMachine_impl.h \
-	AndorCamera/TemperatureMonitor.h AndorCamera/TemperatureMonitor.cpp AndorCamera/Error.h \
-	AndorCamera/System.cpp AndorCamera/Camera.cpp \
-	AndorCamera/AcquisitionSwitch.h AndorCamera/AcquisitionSwitch.cpp AndorCamera/Initialization.cpp \
-	AndorCamera/Temperature.cpp AndorCamera/Readout.cpp AndorCamera/AcquisitionMode.cpp \
-	AndorCamera/ShutterControl.cpp AndorCamera/Triggering.cpp AndorCamera/ShiftSpeedControl.cpp \
-	AndorCamera/Gain.cpp AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp AndorCamera/AndorDirect.h \
-	AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
-	AndorCamera/Initialization.h AndorCamera/AcquisitionMode.h \
-	AndorCamera/Acquisition.h AndorCamera/Readout.h AndorCamera/Camera.h AndorCamera/Triggering.h AndorCamera/CameraReference.h \
-	AndorCamera/System.h AndorCamera/Temperature.h AndorCamera/ShiftSpeedControl.h AndorCamera/Gain.h AndorCamera/ShutterControl.h \
-	AndorCamera/AndorDirect_decl.h AndorCamera/LiveView_decl.h AndorCamera/LiveView.h \
-	AndorCamera/LiveView.cpp AndorCamera/EmergencyHandler.h AndorCamera/EmergencyHandler.cpp
-else
-    ACS = 
-endif
-libAndorCamera_la_SOURCES = AndorCamera/Config.cpp AndorCamera/Config.h $(ACS)
+libAndorCamera_la_SOURCES = \
+    AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
+    AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
+    AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
+    AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp
+
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
@@ -213,7 +197,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE) \
-    local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
 dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libspotFinders.la \

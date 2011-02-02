@@ -2,17 +2,16 @@
 
 #include "debug.h"
 
-#include "Config.h"
 #include "AndorDirect.h"
 #include <string.h>
 #include <sstream>
 #include <iomanip>
 #include <dStorm/output/Basename.h>
 #include <dStorm/input/Source_impl.h>
-#include "ViewportSelector.h"
 #include <boost/utility.hpp>
 
 #include "LiveView.h"
+#include "CameraConnection.h"
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 
@@ -21,27 +20,21 @@ using namespace dStorm::input;
 using namespace dStorm;
 using namespace simparm;
 
+namespace dStorm {
 namespace AndorCamera {
 
 Source::Source
-    (boost::shared_ptr<LiveView> live_view, CameraReference& c) 
-
+    (std::auto_ptr<CameraConnection> connection, bool )
 : Set("AndorDirect", "Direct acquisition"),
-  CamSource( static_cast<simparm::Node&>(*this),
-    BaseSource::Flags().set(BaseSource::TimeCritical) ),
-  control(c),
-  is_initialized( initMutex),
-  initialized(false),
-  error_in_initialization(false),
-  acquisition(control),
-  status(acquisition.status),
-  live_view(live_view)
+  CamSource( static_cast<simparm::Node&>(*this) ,
+    BaseSource::Flags() /*.set(BaseSource::TimeCritical) */ ),
+  connection(connection),
+  has_ended(false),
+  status("CameraStatus", "Camera status")
 {
     status.editable = false;
 
-    push_back( c->config() );
     push_back( status );
-    push_back( *live_view );
     DEBUG("Built AndorDirect source " << this);
 }
 
@@ -49,29 +42,11 @@ Source::~Source() {
     DEBUG( "Destructing source " << this );
 }
 
-#define MUST_CONVERT
-#define AcquisitionType WORD
-#define GetImages GetImages16
-
-void Source::waitForInitialization() const {
-    DEBUG("Trying to get initialization wait mutex");
-    ost::MutexLock lock(initMutex);
-    while ( !initialized ) {
-        DEBUG("Waiting for acquisition initialization");
-        is_initialized.wait();
-        DEBUG("Waited for acquisition initialization");
-    }
-    if ( error_in_initialization )
-        throw std::runtime_error(
-            "An error in image acquisition prevents running a job");
-}
-
 Source::TraitsPtr Source::get_traits() 
 {
-    DEBUG("Waiting for camera initialization to get traits");
-    waitForInitialization();
-    DEBUG("Got camera initialization");
     TraitsPtr rv( new TraitsPtr::element_type() );
+    connection->start_acquisition( *rv );
+#if 0
     rv->size.x() = acquisition.getWidth();
     rv->size.y() = acquisition.getHeight();
     DEBUG("Acquisition has a length set: " << acquisition.hasLength());
@@ -79,7 +54,11 @@ Source::TraitsPtr Source::get_traits()
         DEBUG("Acquisition length is " << acquisition.getLength() << " frames");
         rv->image_number().range().second = acquisition.getLength() - 1 * camera::frame;
     }
+#endif
+    traits = rv;
+    assert( rv.get() ); /* Make sure noone changed type to auto_ptr */
     return rv;
 }
 
+}
 }

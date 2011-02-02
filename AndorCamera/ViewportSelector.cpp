@@ -2,29 +2,29 @@
 #include "debug.h"
 
 #include "ViewportSelector.h"
-#include "Acquisition.h"
-#include "Readout.h"
-#include "AcquisitionMode.h"
+#include "CameraConnection.h"
 #include <limits>
-#include "Gain.h"
 #include <boost/units/io.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Context_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace simparm;
 using namespace dStorm::input;
 using namespace boost::units;
 
-using AndorCamera::CameraPixel;
+using dStorm::AndorCamera::CameraPixel;
 using dStorm::Pixel;
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 
+namespace dStorm {
 namespace AndorCamera {
 namespace ViewportSelector {
 
@@ -32,23 +32,20 @@ namespace ViewportSelector {
 static const int imageDepth = 256;
 
 Display::Display( 
-    const CameraReference& cam, 
+    CameraConnection& cam, 
     Mode mode,
-    Config& config,
-    const Context& context
+    Config& config
 )
 : simparm::Set("ViewportSelector", "Viewport settings"),
   ost::Thread("Viewport Selector"),
   cam(cam),
   config(config),
-  context(context),
-  statusBox("CameraStatus", "Camera status"),
+  status("CameraStatus", "Camera status"),
   stopAim("StopAimCamera","Leave aiming mode"),
   pause("PauseCamera", "Pause"),
   imageFile("SaveAcquiredImageFile", "Save camera snapshot to"),
   save("SaveAcquiredImage", "Save camera snapshot"),
-  aimed( (mode == SelectROI) 
-            ? &dynamic_cast<ImageReadout&>(this->cam->readout()) : NULL ),
+  aimed( mode == SelectROI ),
   paused(false),
   change( new dStorm::Display::Change(1) ),
   normalization_factor( 0, 1 ),
@@ -57,7 +54,7 @@ Display::Display(
 {
     imageFile.editable = false;
     save.editable = false;
-    imageFile = context.output_basename + ".jpg";
+    //imageFile = context.output_basename + ".jpg";
 
     registerNamedEntries();
     this->ost::Thread::start();
@@ -68,9 +65,8 @@ void Display::registerNamedEntries() {
     receive_changes_from(pause.value);
     receive_changes_from(save.value);
 
-    push_back(statusBox);
+    push_back(status);
     push_back(stopAim);
-    push_back( cam->gain().emccdGain );
     push_back(pause);
     push_back(imageFile);
     push_back(save);
@@ -100,40 +96,35 @@ void Display::notice_closed_data_window() {
     config.delete_active_selector();
 }
 
-void Display::configure_camera(Acquisition& acq) 
+void Display::configure_camera() 
 {
     if ( aimed ) {
-        AndorCamera::ImageReadout& ro = acq.getReadoutConfig();
-        /* Acquire full detector area. */
-        ro.left = aimed->left.min();
-        ro.top = aimed->top.min();
-        ro.right = aimed->right.max();
-        ro.bottom = aimed->bottom.max();
+        /* Set arbitrarily large acquisition area, let andorcamd figure out sensible
+         * limits. */
+        std::string imro = "in Acquisition in ImageReadout ";
+        cam.send(imro + " in TopCaptureBorder in value set 0");
+        cam.send(imro + " in LeftCaptureBorder in value set 0");
+        cam.send(imro + " in RightCaptureBorder in value set 100000");
+        cam.send(imro + " in BottomCaptureBorder in value set 100000");
     }
 
     /* Acquire with 10 images / second */
-    acq.getAcquisitionModeControl().desired_kinetic_cycle_time 
-        = 0.1f * boost::units::si::seconds;
-    acq.getAcquisitionModeControl().desired_accumulate_cycle_time = 
-        cam->acquisitionMode().desired_accumulate_cycle_time();
-    acq.getAcquisitionModeControl().desired_exposure_time = 
-        cam->acquisitionMode().desired_exposure_time();
-
+    cam.send("in Acquisition in AcquisitionMode in DesiredKineticCycleTime in value set 0.1");
     /* Acquire eternally. */
-    acq.getAcquisitionModeControl().select_mode = 
-        AndorCamera::Run_till_abort;
+    cam.send("in Acquisition in AcquisitionMode in SelectMode in value set RunTillAbort");
 }
 
 dStorm::Display::ResizeChange Display::getSize() const
 {
     dStorm::Display::ResizeChange new_size;
-    new_size.size = size;
+    new_size.size = traits.size;
     new_size.keys.push_back( 
         dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.keys.back().can_set_lower_limit = true;
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
     new_size.keys.back().upper_limit = "";
+#if 0
     if ( context.has_info_for<CamImage>() ) {
         const dStorm::input::Traits<CamImage>& t = context.get_info_for<CamImage>();
         for (int i = 0; i < 2; ++i) {
@@ -141,20 +132,13 @@ dStorm::Display::ResizeChange Display::getSize() const
                 new_size.pixel_sizes[i] = *t.resolution[i];
         }
     }
+#endif
         
     return new_size;
 }
 
 void Display::initialize_display() 
 {
-    if ( aimed != NULL ) {
-        size.x() = aimed->right.max() - aimed->left.min() + 1 * camera::pixel;
-        size.y() = aimed->bottom.max() - aimed->top.min() + 1 * camera::pixel;
-    } else {
-        ImageReadout& ir = dynamic_cast<ImageReadout&>( cam->readout() );
-        size.x() = ir.right() - ir.left() + 1 * camera::pixel;
-        size.y() = ir.bottom() - ir.top() + 1 * camera::pixel;
-    }
 
     if ( handle.get() == NULL ) {
         dStorm::Display::Manager::WindowProperties props;
@@ -176,8 +160,8 @@ void Display::initialize_display()
         change->clear_image.background = 0;
     } else {
         /* Window already open. The size, however, might have changed if
-         * we have no \c aimed member set, so we have to reset it. */
-        if ( aimed != NULL ) {
+         * we have aimed member set, so we have to reset it. */
+        if ( aimed ) {
             ost::MutexLock lock(mutex);
             change->do_resize = true;
             change->resize_image = getSize();
@@ -192,7 +176,7 @@ void Display::initialize_display()
 
 void Display::context_changed() {
     DEBUG("Setting resolution " << *context.resolution);
-    imageFile = context.output_basename + ".jpg";
+    //imageFile = context.output_basename + ".jpg";
 
     change->do_resize = true;
     change->resize_image = getSize();
@@ -201,10 +185,16 @@ void Display::context_changed() {
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
     ost::MutexLock lock(mutex);
     if ( aimed ) {
-        aimed->left = l * camera::pixel;
-        aimed->right = r * camera::pixel;
-        aimed->top = t * camera::pixel;
-        aimed->bottom = b * camera::pixel;
+        /* TODO: Not only for cam 0. */
+        std::string prefix = "in Camera0 in Readout in ImageReadout";
+        cam.send(prefix + " in TopCaptureBorder in value set " +
+            boost::lexical_cast<std::string>(t));
+        cam.send(prefix + " in LeftCaptureBorder in value set "  +
+            boost::lexical_cast<std::string>(l));
+        cam.send(prefix + " in RightCaptureBorder in value set " +
+            boost::lexical_cast<std::string>(r));
+        cam.send(prefix + " in BottomCaptureBorder in value set " +
+            boost::lexical_cast<std::string>(b));
 
         change->do_change_image = true;
         change->image_change.new_image = last_image;
@@ -246,6 +236,7 @@ void Display::draw_image( const CamImage& data) {
     DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
+#if 0
         int l = aimed->left() / camera::pixel,
             r = aimed->right() / camera::pixel,
             t = aimed->top() / camera::pixel,
@@ -259,6 +250,7 @@ void Display::draw_image( const CamImage& data) {
             for (int y = t; y <= b; y++)
                 img(l,y) = img(r,y) = Pixel::Red();
         }
+#endif
     }
     change->do_change_image = true;
 
@@ -284,41 +276,44 @@ void Display::run() throw() {
     DEBUG("Display acquisition thread finished\n");
 }
 
+    struct Display::FetchHandler : public boost::static_visitor<bool> {
+        Display& d;
+        FetchHandler(Display& d ) : d(d) {}
+        bool operator()( const CameraConnection::FetchImage& fe ) {
+            CamImage img( d.traits.size, fe.frame_number );
+            d.cam.read_data(img);
+            d.draw_image(img);
+            return true;
+        }
+        bool operator()( const CameraConnection::ImageError& ) { return true; }
+        bool operator()( const CameraConnection::EndOfAcquisition& )
+            { return false; }
+    };
 void Display::acquire() 
 {
     /* Start acquisition with unlimited length. Acquisition is stopped
      * by paused variable. */
     DEBUG("Creating acquisition");
-    Acquisition acq( cam );
-    configure_camera(acq);
+    configure_camera();
+    cam.start_acquisition( traits );
+    DEBUG("Started acquisition");
+#if 0
     statusBox.push_back( acq.status );
     statusBox.viewable = true;
-
-    DEBUG("Created acquisition");
-    acq.start();
-    DEBUG("Started acquisition");
-
-    /* Initialize all acquisition fields to determine image size. */
-    acq.block_until_on_camera();
-    DEBUG("Am on camera");
-    statusBox.viewable = false;
+#endif
 
     initialize_display();
 
-    /* Allocate buffer for data storage */
-    CamImage img( size, 0 * camera::frame );
+    FetchHandler handler(*this);
 
     while ( ! paused ) {
-        /* Acquire image */
-        Acquisition::Fetch fetch = acq.getNextImage(img.ptr());
+        CameraConnection::FrameFetch f = cam.next_frame();
 
-        if (fetch.first == Acquisition::NoMoreImages) break;
-        if (paused == true || 
-            fetch.first == Acquisition::HadError ) continue;
-
-        DEBUG("Drawing image " << fetch.second);
-        draw_image( img );
+        bool keep_going = boost::apply_visitor( handler, f );
+        if ( ! keep_going ) break;
     }
+
+    cam.stop_acquisition();
 }
 
 void Display::operator()
@@ -371,11 +366,10 @@ void Display::notice_user_key_limits(int key_index, bool lower, std::string inpu
     redeclare_key = true;
 }
 
-Config::Config(const AndorCamera::CameraReference& cam, Context::ConstPtr r)
+Config::Config(CameraConnection& cam)
 : simparm::Object("SelectImage", "Select image region"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   cam(cam),
-  context(*r),
   select_ROI("AimCamera","Select ROI"),
   view_ROI("ViewCamera","View ROI only"),
   active_selector_changed(active_selector_mutex)
@@ -387,7 +381,6 @@ Config::Config(const Config& c)
 : simparm::Object(c),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   cam(c.cam),
-  context(c.context),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),
   active_selector_mutex(),
@@ -414,7 +407,7 @@ void Config::operator()(const simparm::Event& e)
 void Config::make_display( Display::Mode mode ) 
 {
     ost::MutexLock lock( active_selector_mutex );
-    active_selector.reset( new Display( cam, mode, *this, context ) );
+    active_selector.reset( new Display( cam, mode, *this ) );
     this->simparm::Node::push_back( *active_selector );
 
     set_entry_viewability();
@@ -449,6 +442,7 @@ void Config::set_entry_viewability() {
     view_ROI.viewable = (active_selector.get() == NULL);
 }
 
+#if 0
 void Config::context_changed( Context::ConstPtr new_context )
 {
     context = *new_context;
@@ -457,6 +451,8 @@ void Config::context_changed( Context::ConstPtr new_context )
         active_selector->context_changed();
     }
 }
+#endif
 
+}
 }
 }

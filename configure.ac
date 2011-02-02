@@ -70,11 +70,13 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
+AC_CHECK_LIB([b64], [main])
 AC_CHECK_LIB([dStorm], [main])
 AC_CHECK_LIB([tiff], [main])
 AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
+AC_CHECK_LIB([boost_system], [main])
 
 AC_CHECK_LIB([DummyAndorCamera], [main])
 AS_IF([test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes"],

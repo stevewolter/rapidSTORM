@@ -22,7 +22,6 @@ class ModuleLoader : boost::noncopyable {
     void add_modules( Config& );
     std::string makeProgramDescription();
     void add_jobs( JobMaster& master );
-    void do_panic_processing( int argc, char *argv[] );
 };
 
 }

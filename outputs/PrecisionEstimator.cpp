@@ -243,7 +243,6 @@ void GaussFitter::init_fit_data() {
 
 FitSigmas GaussFitter::perform_fit() {
 
-    double norm = 1.0 / total_count;
     const int ExpFlags = Exponential2D::FreeForm & (~Exponential2D::Shift);
 
     typedef Exponential2D::Model<1,ExpFlags> Model;

@@ -11,7 +11,6 @@
 #include <boost/units/systems/temperature/celsius.hpp>
 #include <dStorm/DataSetTraits.h>
 #include <dStorm/ImageTraits.h>
-#include "AndorCamera/Config.h"
 #include <boost/smart_ptr/scoped_array.hpp>
 
 namespace dStorm {
@@ -91,8 +90,10 @@ OpenFile::getTraits()
     Reader r(rv->infos[DataSetTraits::CameraTemperature]);
     static_cast<std::ostream&>(r) << temp;
 
-    Reader r2(rv->infos[DataSetTraits::OutputAmplifierType]);
-    r2 << ((AndorCamera::OutputAmp)dataSet->instaImage.OutputAmp);
+    if ( dataSet->instaImage.OutputAmp == 0 )
+        rv->infos[DataSetTraits::OutputAmplifierType] = "Electron multiplication";
+    else
+        rv->infos[DataSetTraits::OutputAmplifierType] = "Conventional amplification";
 
     Reader(rv->infos[DataSetTraits::VerticalShiftSpeed]) 
         << dataSet->instaImage.data_v_shift_speed*1E6 << " µs";

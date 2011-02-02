@@ -122,7 +122,7 @@ void MemoryCache::reemit_localizations(bool& terminate) {
     typedef Localizations::image_wise_const_iterator const_iterator;
     for ( const_iterator i = store.begin_imagewise(); i != store.end_imagewise(); ++i )
     {
-        Result r = Filter::receiveLocalizations( *i );
+        Filter::receiveLocalizations( *i );
         /* TODO: Result not checked for now. */
         if ( terminate || ErrorHandler::global_termination_flag() )
             break;

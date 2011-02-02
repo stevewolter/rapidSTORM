@@ -15,6 +15,12 @@
 /* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
 #undef HAVE_LIBATMCD32D
 
+/* Define to 1 if you have the `b64' library (-lb64). */
+#undef HAVE_LIBB64
+
+/* Define to 1 if you have the `boost_system' library (-lboost_system). */
+#undef HAVE_LIBBOOST_SYSTEM
+
 /* Define to 1 if you have the `dStorm' library (-ldStorm). */
 #undef HAVE_LIBDSTORM
 

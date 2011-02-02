@@ -59,8 +59,6 @@ int main(int argc, char *argv[]) {
                       << argv[2] << ". Running emergency handler and "
                       << "terminating program. Sorry." << std::endl;
             rv.reset( new MayBeASignal( atoi(argv[2]) ) );
-            ModuleLoader::getSingleton().do_panic_processing
-                ( argc-3, argv+3 );
             exit_code = EXIT_FAILURE;
         }
         MayBeASignal my_signal =
