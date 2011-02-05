@@ -18,7 +18,6 @@ Coordinate::Coordinate( const Coordinate& o )
 : BaseType(o), HueSaturationMixer(o), variable( o.variable->clone() ), repeater(o.repeater),
   is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping)
 {
-    std::cerr << "Cloned " << variable.get() << " " << o.variable.get() << std::endl;
 }
 
 dStorm::Display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {

@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-#define VERBOSE
 #include "debug.h"
 #include "CameraConnection.h"
 
@@ -116,6 +115,8 @@ void CameraConnection::start_acquisition( input::Traits<engine::Image>& traits, 
             parse_simparm(line);
         } else if ( line.substr(0, 7) == "status " ) {
             status = line.substr(7);
+        } else if ( line.substr(0, 6) == "error " ) {
+            throw std::runtime_error( line.substr(6) );
         } else {
             std::string::const_iterator b = line.begin(), e = line.end();
             bool go_on = true, good;
@@ -185,6 +186,8 @@ CameraConnection::FrameFetch CameraConnection::next_frame() {
     DEBUG("Main loop processing line " << line);
     if ( line.substr(0, 8) == "simparm " ) {
         return parse_simparm(line);
+    } else if ( line.substr(0, 7) == "status " ) {
+        return StatusChange( line.substr(7) );
     } else {
         std::string::const_iterator b = line.begin(), e = line.end();
         FrameFetch rv;

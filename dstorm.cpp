@@ -34,6 +34,10 @@ int main(int argc, char *argv[]) {
     /* Magick cannot save images in the de_DE locale. */
     putenv(english_env);
     Magick::InitializeMagick(argv[0]);
+    /* GraphicsMagick tends to fuck up signal handling, restore the signals. */
+    int fuckedup[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGFPE, SIGTERM };
+    for (unsigned int i= 0; i < sizeof(fuckedup) / sizeof(int); ++i )
+    signal(fuckedup[i], SIG_DFL);
 #endif
 #endif
 

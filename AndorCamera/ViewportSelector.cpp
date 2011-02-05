@@ -14,6 +14,7 @@
 #include <dStorm/input/chain/Context_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/lexical_cast.hpp>
+#include <boost/spirit/include/qi.hpp>
 
 using namespace std;
 using namespace simparm;
@@ -24,8 +25,6 @@ using dStorm::AndorCamera::CameraPixel;
 using dStorm::Pixel;
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )
-
-std::string borderNames[] = { "Left", "Right", "Top", "Bottom" };
 
 namespace dStorm {
 namespace AndorCamera {
@@ -100,6 +99,7 @@ void Display::notice_closed_data_window() {
 
 void Display::configure_camera() 
 {
+    DEBUG("Configuring camera");
     if ( aimed ) {
         /* Set arbitrarily large acquisition area, let andorcamd figure out sensible
          * limits. */
@@ -114,6 +114,7 @@ void Display::configure_camera()
     cam->send("in Acquisition in AcquisitionMode in DesiredKineticCycleTime in value set 0.1");
     /* Acquire eternally. */
     cam->send("in Acquisition in AcquisitionMode in SelectAcquisitionMode in value set RunTillAbort");
+    DEBUG("Configured camera");
 }
 
 dStorm::Display::ResizeChange Display::getSize() const
@@ -280,7 +281,10 @@ void Display::run() throw() {
 
     struct Display::FetchHandler : public boost::static_visitor<bool> {
         Display& d;
-        FetchHandler(Display& d ) : d(d) {}
+        boost::spirit::qi::symbols<char, int> border_names;
+
+        FetchHandler(Display& d ) : d(d) {
+            border_names.add("Left", 0)("Right", 1)("Top", 2)("Bottom", 3); };
         bool operator()( const CameraConnection::FetchImage& fe ) {
             CamImage img( d.traits.size, fe.frame_number );
             d.cam->read_data(img);
@@ -291,13 +295,23 @@ void Display::run() throw() {
         bool operator()( const CameraConnection::EndOfAcquisition& )
             { return false; }
         bool operator()( const CameraConnection::Simparm& sm ) {
+            namespace qi = boost::spirit::qi;
+            namespace ascii = boost::spirit::ascii;
+            namespace fsn = boost::fusion;
+
             std::cerr << "ViewportSelector got message '" << sm.message << "'" << std::endl;
-            for (int i = 0; i < 4; ++i) {
-                std::string indication = "in Camera0 in Readout in ImageReadout in " + borderNames[i] + "CaptureBorder in value set ";
-                if ( sm.message.substr(0, indication.length()) == indication )
-                    d.camBorders[i] = boost::lexical_cast<int>( sm.message.substr(indication.length()) );
-            }
+            std::string::const_iterator begin = sm.message.begin(), end = sm.message.end();
+            fsn::vector2<int,int> assignment;
+            bool success = phrase_parse( begin, end,
+                "in Camera0 in Readout in ImageReadout in " >> border_names >> "CaptureBorder in value set " >> qi::int_,
+                ascii::space, assignment );
+            if ( success && begin == end )
+                d.camBorders[fsn::at_c<0>(assignment)] = fsn::at_c<1>(assignment);
             return true;
+        }
+        bool operator()( const CameraConnection::StatusChange& s ) {
+            d.status = s.status;
+            return true; 
         }
     };
 void Display::acquire() 

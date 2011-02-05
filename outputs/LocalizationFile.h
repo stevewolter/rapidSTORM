@@ -50,7 +50,9 @@ class LocalizationFile : public OutputObject {
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
-        { insert_filename_with_check( filename, present_filenames ); }
+    { 
+        insert_filename_with_check( filename, present_filenames ); 
+    }
 };
 
 class LocalizationFile::_Config : public simparm::Object {

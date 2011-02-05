@@ -27,10 +27,11 @@ class Source::iterator
     void increment();
     bool equal(const iterator& i) const { return src == i.src; }
 
-    void operator()( const CameraConnection::FetchImage& );
-    void operator()( const CameraConnection::ImageError& );
-    void operator()( const CameraConnection::EndOfAcquisition& );
-    void operator()( const CameraConnection::Simparm& );
+    inline void operator()( const CameraConnection::FetchImage& );
+    inline void operator()( const CameraConnection::ImageError& );
+    inline void operator()( const CameraConnection::EndOfAcquisition& );
+    inline void operator()( const CameraConnection::Simparm& );
+    inline void operator()( const CameraConnection::StatusChange& );
 };
 
 Source::iterator::iterator(Source &ad) 
@@ -43,18 +44,6 @@ CamImage& Source::iterator::dereference() const {
     return img;
 }
 
-
-void Source::iterator::increment() {
-    if ( !src ) return;
-
-    boost::lock_guard<boost::mutex> guard(src->mutex);
-    if ( src->has_ended ) 
-        src = NULL;
-    else {
-        CameraConnection::FrameFetch f = src->connection->next_frame();
-        boost::apply_visitor(*this, f);
-    }
-}
 
 void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
 {
@@ -91,6 +80,22 @@ void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& fr 
 
 void Source::iterator::operator()( const CameraConnection::Simparm& fr )
 {
+}
+
+void Source::iterator::operator()( const CameraConnection::StatusChange& status ) {
+    src->status = status.status;
+}
+
+void Source::iterator::increment() {
+    if ( !src ) return;
+
+    boost::lock_guard<boost::mutex> guard(src->mutex);
+    if ( src->has_ended ) 
+        src = NULL;
+    else {
+        CameraConnection::FrameFetch f = src->connection->next_frame();
+        boost::apply_visitor(*this, f);
+    }
 }
 
 CamSource::iterator

@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"

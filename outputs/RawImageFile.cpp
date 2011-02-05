@@ -65,7 +65,7 @@ RawImageFile::announceStormSize(const Announcement &a)
     if ( a.input_image_traits.get() )
         size = *a.input_image_traits;
     else
-        throw std::runtime_error("No size provided for source images");
+        throw std::runtime_error("The raw images output needs access to the raw image data, but these are not provided by the preceding modules");
 
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {

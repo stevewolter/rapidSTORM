@@ -23,7 +23,11 @@ struct CameraConnection {
     struct FetchImage { quantity<camera::time,int> frame_number; };
     struct ImageError { quantity<camera::time,int> frame_number; };
     struct Simparm { std::string message; };
-    typedef boost::variant<EndOfAcquisition,FetchImage,ImageError,Simparm> FrameFetch;
+    struct StatusChange { 
+        StatusChange(std::string a) : status(a) {}
+        std::string status; 
+    };
+    typedef boost::variant<EndOfAcquisition,FetchImage,ImageError,Simparm,StatusChange> FrameFetch;
     FrameFetch next_frame();
 
     void read_data( CamImage& );
