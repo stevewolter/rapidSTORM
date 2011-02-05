@@ -20,7 +20,6 @@ void LibraryHandle::init() {
         desc.load( handle );
         config.load( handle );
         display_driver.load( handle );
-        cleanup.load( handle );
     } catch (const std::exception& e) {
         throw std::runtime_error( "Invalid RapidSTORM plugin "
             + file + ": " + std::string(e.what()) );
@@ -31,8 +30,7 @@ LibraryHandle::LibraryHandle( const char *file )
     : file(file), handle( lt_dlopenext(file) ),
         config("rapidSTORM_Config_Augmenter"),
         display_driver("rapidSTORM_Display_Driver"),
-        desc("rapidSTORM_Plugin_Desc"),
-        cleanup("rapidSTORM_Cleanup_Handler")
+        desc("rapidSTORM_Plugin_Desc")
 { 
     init();
 }
@@ -40,7 +38,7 @@ LibraryHandle::LibraryHandle( const char *file )
 LibraryHandle::LibraryHandle( const LibraryHandle& other )
 : file(other.file), handle( lt_dlopenext( file.c_str() ) ),
     config(other.config), display_driver(other.display_driver),
-    desc(other.desc), cleanup(other.cleanup)
+    desc(other.desc)
 {
     init();
 }

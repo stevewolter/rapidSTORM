@@ -3,6 +3,7 @@
 
 #include "ViewportSelector.h"
 #include "CameraConnection.h"
+#include "InputChainLink.h"
 #include <limits>
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -24,17 +25,18 @@ using dStorm::Pixel;
 
 #define CHECK(x) checkAndorCode( x, __LINE__ )
 
+std::string borderNames[] = { "Left", "Right", "Top", "Bottom" };
+
 namespace dStorm {
 namespace AndorCamera {
-namespace ViewportSelector {
 
 /** Color depth in the viewport selection image. */
 static const int imageDepth = 256;
 
 Display::Display( 
-    CameraConnection& cam, 
+    std::auto_ptr<CameraConnection> cam, 
     Mode mode,
-    Config& config
+    Method& config
 )
 : simparm::Set("ViewportSelector", "Viewport settings"),
   ost::Thread("Viewport Selector"),
@@ -93,7 +95,7 @@ Display::get_changes()
 }
 
 void Display::notice_closed_data_window() {
-    config.delete_active_selector();
+    config.set_display( std::auto_ptr<Display>() );
 }
 
 void Display::configure_camera() 
@@ -102,16 +104,16 @@ void Display::configure_camera()
         /* Set arbitrarily large acquisition area, let andorcamd figure out sensible
          * limits. */
         std::string imro = "in Acquisition in ImageReadout ";
-        cam.send(imro + " in TopCaptureBorder in value set 0");
-        cam.send(imro + " in LeftCaptureBorder in value set 0");
-        cam.send(imro + " in RightCaptureBorder in value set 100000");
-        cam.send(imro + " in BottomCaptureBorder in value set 100000");
+        cam->send(imro + " in TopCaptureBorder in value set 0");
+        cam->send(imro + " in LeftCaptureBorder in value set 0");
+        cam->send(imro + " in RightCaptureBorder in value set 100000");
+        cam->send(imro + " in BottomCaptureBorder in value set 100000");
     }
 
     /* Acquire with 10 images / second */
-    cam.send("in Acquisition in AcquisitionMode in DesiredKineticCycleTime in value set 0.1");
+    cam->send("in Acquisition in AcquisitionMode in DesiredKineticCycleTime in value set 0.1");
     /* Acquire eternally. */
-    cam.send("in Acquisition in AcquisitionMode in SelectMode in value set RunTillAbort");
+    cam->send("in Acquisition in AcquisitionMode in SelectAcquisitionMode in value set RunTillAbort");
 }
 
 dStorm::Display::ResizeChange Display::getSize() const
@@ -124,15 +126,13 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
     new_size.keys.back().upper_limit = "";
-#if 0
-    if ( context.has_info_for<CamImage>() ) {
-        const dStorm::input::Traits<CamImage>& t = context.get_info_for<CamImage>();
+    if ( context.get() && context->has_info_for<CamImage>() ) {
+        const dStorm::input::Traits<CamImage>& t = context->get_info_for<CamImage>();
         for (int i = 0; i < 2; ++i) {
             if ( t.resolution[i].is_set() )
                 new_size.pixel_sizes[i] = *t.resolution[i];
         }
     }
-#endif
         
     return new_size;
 }
@@ -174,9 +174,9 @@ void Display::initialize_display()
         
 }
 
-void Display::context_changed() {
-    DEBUG("Setting resolution " << *context.resolution);
-    //imageFile = context.output_basename + ".jpg";
+void Display::context_changed( boost::shared_ptr<const input::chain::Context> context ) {
+    this->context = context;
+    imageFile = context->output_basename + ".jpg";
 
     change->do_resize = true;
     change->resize_image = getSize();
@@ -187,13 +187,13 @@ void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
     if ( aimed ) {
         /* TODO: Not only for cam 0. */
         std::string prefix = "in Camera0 in Readout in ImageReadout";
-        cam.send(prefix + " in TopCaptureBorder in value set " +
+        cam->send(prefix + " in TopCaptureBorder in value set " +
             boost::lexical_cast<std::string>(t));
-        cam.send(prefix + " in LeftCaptureBorder in value set "  +
+        cam->send(prefix + " in LeftCaptureBorder in value set "  +
             boost::lexical_cast<std::string>(l));
-        cam.send(prefix + " in RightCaptureBorder in value set " +
+        cam->send(prefix + " in RightCaptureBorder in value set " +
             boost::lexical_cast<std::string>(r));
-        cam.send(prefix + " in BottomCaptureBorder in value set " +
+        cam->send(prefix + " in BottomCaptureBorder in value set " +
             boost::lexical_cast<std::string>(b));
 
         change->do_change_image = true;
@@ -236,20 +236,22 @@ void Display::draw_image( const CamImage& data) {
     DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
-#if 0
-        int l = aimed->left() / camera::pixel,
-            r = aimed->right() / camera::pixel,
-            t = aimed->top() / camera::pixel,
-            b = aimed->bottom() / camera::pixel;
+        bool all_cam_borders_set = true;
+        for (int i = 0; i < 4; ++i) all_cam_borders_set = all_cam_borders_set && camBorders[i].is_initialized();
+        if ( all_cam_borders_set ) {
+            int l = *camBorders[0], r = *camBorders[1],
+                t = *camBorders[2], b = *camBorders[3];
 
-        /* Draw the red rectangle that indicates the current acquisition
-        * borders */
-        for (int v = 0; v < 3; v++) {
-            for (int x = l; x <= r; x++)
-                img(x,t) = img(x,b) = Pixel::Red();
-            for (int y = t; y <= b; y++)
-                img(l,y) = img(r,y) = Pixel::Red();
+            /* Draw the red rectangle that indicates the current acquisition
+            * borders */
+            for (int v = 0; v < 3; v++) {
+                for (int x = l; x <= r; x++)
+                    img(x,t) = img(x,b) = Pixel::Red();
+                for (int y = t; y <= b; y++)
+                    img(l,y) = img(r,y) = Pixel::Red();
         }
+        }
+#if 0
 #endif
     }
     change->do_change_image = true;
@@ -281,13 +283,22 @@ void Display::run() throw() {
         FetchHandler(Display& d ) : d(d) {}
         bool operator()( const CameraConnection::FetchImage& fe ) {
             CamImage img( d.traits.size, fe.frame_number );
-            d.cam.read_data(img);
+            d.cam->read_data(img);
             d.draw_image(img);
             return true;
         }
         bool operator()( const CameraConnection::ImageError& ) { return true; }
         bool operator()( const CameraConnection::EndOfAcquisition& )
             { return false; }
+        bool operator()( const CameraConnection::Simparm& sm ) {
+            std::cerr << "ViewportSelector got message '" << sm.message << "'" << std::endl;
+            for (int i = 0; i < 4; ++i) {
+                std::string indication = "in Camera0 in Readout in ImageReadout in " + borderNames[i] + "CaptureBorder in value set ";
+                if ( sm.message.substr(0, indication.length()) == indication )
+                    d.camBorders[i] = boost::lexical_cast<int>( sm.message.substr(indication.length()) );
+            }
+            return true;
+        }
     };
 void Display::acquire() 
 {
@@ -295,7 +306,7 @@ void Display::acquire()
      * by paused variable. */
     DEBUG("Creating acquisition");
     configure_camera();
-    cam.start_acquisition( traits );
+    cam->start_acquisition( traits, status );
     DEBUG("Started acquisition");
 #if 0
     statusBox.push_back( acq.status );
@@ -307,13 +318,13 @@ void Display::acquire()
     FetchHandler handler(*this);
 
     while ( ! paused ) {
-        CameraConnection::FrameFetch f = cam.next_frame();
+        CameraConnection::FrameFetch f = cam->next_frame();
 
         bool keep_going = boost::apply_visitor( handler, f );
         if ( ! keep_going ) break;
     }
 
-    cam.stop_acquisition();
+    cam->stop_acquisition();
 }
 
 void Display::operator()
@@ -349,7 +360,7 @@ void Display::operator()
         }
     } else if (&e.source == &stopAim.value && stopAim.triggered()) {
         stopAim.untrigger();
-        config.delete_active_selector();
+        config.set_display( std::auto_ptr<Display>() );
     }
 }
 
@@ -366,93 +377,5 @@ void Display::notice_user_key_limits(int key_index, bool lower, std::string inpu
     redeclare_key = true;
 }
 
-Config::Config(CameraConnection& cam)
-: simparm::Object("SelectImage", "Select image region"),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
-  cam(cam),
-  select_ROI("AimCamera","Select ROI"),
-  view_ROI("ViewCamera","View ROI only"),
-  active_selector_changed(active_selector_mutex)
-{
-    registerNamedEntries();
-}
-
-Config::Config(const Config& c)
-: simparm::Object(c),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
-  cam(c.cam),
-  select_ROI(c.select_ROI),
-  view_ROI(c.view_ROI),
-  active_selector_mutex(),
-  active_selector_changed(active_selector_mutex)
-{
-    registerNamedEntries();
-}
-
-Config::~Config() {
-}
-
-void Config::operator()(const simparm::Event& e)
-
-{
-    if ( &e.source == &select_ROI.value && select_ROI.triggered() ) {
-        select_ROI.untrigger();
-        make_display( Display::SelectROI );
-    } else if ( &e.source == &view_ROI.value && view_ROI.triggered() ) {
-        view_ROI.untrigger();
-        make_display( Display::ViewROI );
-    }
-}
-
-void Config::make_display( Display::Mode mode ) 
-{
-    ost::MutexLock lock( active_selector_mutex );
-    active_selector.reset( new Display( cam, mode, *this ) );
-    this->simparm::Node::push_back( *active_selector );
-
-    set_entry_viewability();
-    active_selector_changed.signal();
-}
-
-void Config::delete_active_selector() 
-{
-    DEBUG("Acquiring selector mutex");
-    ost::MutexLock lock( active_selector_mutex );
-    DEBUG("Deleting active selector");
-    active_selector.reset( NULL );
-
-    DEBUG("Setting entry viewability");
-    set_entry_viewability();
-    DEBUG("Signalling change");
-    active_selector_changed.signal();
-    DEBUG("Finished deletion");
-}
-
-void Config::registerNamedEntries() 
-{
-    receive_changes_from(select_ROI.value);
-    receive_changes_from(view_ROI.value);
-
-    push_back(select_ROI);
-    push_back(view_ROI);
-}
-
-void Config::set_entry_viewability() {
-    select_ROI.viewable = (active_selector.get() == NULL);
-    view_ROI.viewable = (active_selector.get() == NULL);
-}
-
-#if 0
-void Config::context_changed( Context::ConstPtr new_context )
-{
-    context = *new_context;
-    ost::MutexLock lock(active_selector_mutex);
-    if ( active_selector.get() ) {
-        active_selector->context_changed();
-    }
-}
-#endif
-
-}
 }
 }

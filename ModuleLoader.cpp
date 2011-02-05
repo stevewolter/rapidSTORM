@@ -9,8 +9,6 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/BasicTransmissions.h"
 #include <dStorm/Config.h>
-#include "local_cleanup.h"
-#include <dStorm/error_handler.h>
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink_decl.h"
 #include "noop_engine/ChainLink_decl.h"

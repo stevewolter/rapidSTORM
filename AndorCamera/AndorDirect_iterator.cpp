@@ -30,6 +30,7 @@ class Source::iterator
     void operator()( const CameraConnection::FetchImage& );
     void operator()( const CameraConnection::ImageError& );
     void operator()( const CameraConnection::EndOfAcquisition& );
+    void operator()( const CameraConnection::Simparm& );
 };
 
 Source::iterator::iterator(Source &ad) 
@@ -57,7 +58,7 @@ void Source::iterator::increment() {
 
 void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
 {
-    DEBUG("Allocating image " << next_image_number);
+    DEBUG("Allocating image " << fr.frame_number);
     while ( img.is_invalid() ) {
         try {
             img = CamImage(src->traits->size, fr.frame_number);
@@ -68,6 +69,7 @@ void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
             continue;
         }
     }
+    img.frame_number() = fr.frame_number;
     DEBUG("Allocated image");
     src->connection->read_data( img );
     if ( src->live_view.get() )
@@ -85,6 +87,10 @@ void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& fr 
     img.invalidate();
     src->has_ended = true;
     src = NULL;
+}
+
+void Source::iterator::operator()( const CameraConnection::Simparm& fr )
+{
 }
 
 CamSource::iterator

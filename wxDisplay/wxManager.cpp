@@ -4,7 +4,6 @@
 #include "Window.h"
 #include <dStorm/helpers/Runnables.h>
 #include <boost/thread.hpp>
-#include <dStorm/error_handler.h>
 
 #include "debug.h"
 
@@ -228,8 +227,6 @@ void wxManager::run_in_GUI_thread( ost::Runnable* code )
 }
 
 void wxManager::exec_waiting_runnables() {
-    if ( ErrorHandler::global_termination_flag() )
-        ;
     DEBUG("Acquiring runnables lock");
     ost::MutexLock lock(mutex);
     while ( ! run_queue.empty() ) {

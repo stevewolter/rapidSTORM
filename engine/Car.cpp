@@ -17,7 +17,6 @@
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/error_handler.h>
 
 extern void test_exception_site();
 
@@ -216,7 +215,7 @@ void Car::compute_until_terminated() {
         DEBUG("Collected threads");
 
         if (emergencyStop) {
-            if (error || dStorm::ErrorHandler::global_termination_flag() ) 
+            if (error ) 
             {
                 DEBUG("Emergency stop due to error or global termination");
                 output->propagate_signal( Output::Engine_run_failed );
@@ -261,9 +260,9 @@ void Car::run_computation()
                     error = true;
             }
 
-            if (emergencyStop || ErrorHandler::global_termination_flag()) 
+            if (emergencyStop) 
             {
-                DEBUG("Emergency stop: " << emergencyStop << " " << ErrorHandler::global_termination_flag());
+                DEBUG("Emergency stop: " << emergencyStop);
                 break;
             } else {
                 DEBUG("Continuing with computation");

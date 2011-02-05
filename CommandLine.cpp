@@ -14,6 +14,7 @@
 #include "ModuleLoader.h"
 #include <simparm/IO.hh>
 #include <dStorm/helpers/DisplayManager.h>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 
@@ -40,9 +41,11 @@ class TwiddlerLauncher
 {
     dStorm::Config &config;
     std::list<Job*> &jobs;
+    boost::ptr_vector<InputStream> streams;
     void operator()( const simparm::Event& );
   public:
     TwiddlerLauncher(dStorm::Config&, std::list<Job*>&);
+    ~TwiddlerLauncher();
 };
 
 class CommandLine::Pimpl
@@ -241,9 +244,12 @@ void TwiddlerLauncher::operator()( const simparm::Event& )
         DEBUG("Registering additional job " << (*i)->get_config().getName());
         is->register_node( **i );
     }
-    is.release()->detach();
+    is->start();
+    streams.push_back( is );
     DEBUG("Launched command stream");
 }
+
+TwiddlerLauncher::~TwiddlerLauncher() {}
 
 void CommandLine::register_node( Job& j ) { pimpl->register_node( j ); }
 void CommandLine::erase_node( Job&  j ) { pimpl->erase_node( j ); }

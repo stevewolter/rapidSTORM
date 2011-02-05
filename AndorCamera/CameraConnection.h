@@ -5,6 +5,7 @@
 #include <dStorm/ImageTraits.h>
 #include <dStorm/engine/Image.h>
 #include <boost/variant/variant.hpp>
+#include <simparm/Entry.hh>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -12,20 +13,23 @@ namespace AndorCamera {
 struct CameraConnection {
     typedef quantity<camera::length,int> pixel;
     CameraConnection(const std::string& hostname, int camera, const std::string& port);
+    ~CameraConnection();
     void set_traits( input::Traits<engine::Image>& );
     void send( const std::string& );
-    void start_acquisition( input::Traits<engine::Image>& );
+    void start_acquisition( input::Traits<engine::Image>&, simparm::StringEntry& status );
     void stop_acquisition();
 
+    struct EndOfAcquisition {};
     struct FetchImage { quantity<camera::time,int> frame_number; };
     struct ImageError { quantity<camera::time,int> frame_number; };
-    struct EndOfAcquisition {};
-    typedef boost::variant<FetchImage,ImageError,EndOfAcquisition> FrameFetch;
+    struct Simparm { std::string message; };
+    typedef boost::variant<EndOfAcquisition,FetchImage,ImageError,Simparm> FrameFetch;
     FrameFetch next_frame();
 
     void read_data( CamImage& );
   private:
     boost::asio::ip::tcp::iostream stream;
+    Simparm parse_simparm(std::string line);
 };
 
 }

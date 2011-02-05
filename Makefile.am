@@ -177,7 +177,7 @@ libdStorm_display_la_SOURCES = \
 
 libAndorCamera_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp

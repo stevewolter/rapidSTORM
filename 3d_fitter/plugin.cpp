@@ -30,13 +30,6 @@ rapidSTORM_Display_Driver
     return old;
 }
 
-void
-    rapidSTORM_Cleanup_Handler
-    (dStorm::ErrorHandler::CleanupArgs* , 
-     dStorm::JobMaster* )
-{
-}
-
 #ifdef __cplusplus
 }
 #endif

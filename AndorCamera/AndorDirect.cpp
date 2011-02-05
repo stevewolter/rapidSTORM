@@ -24,12 +24,11 @@ namespace dStorm {
 namespace AndorCamera {
 
 Source::Source
-    (std::auto_ptr<CameraConnection> connection, bool )
+    (std::auto_ptr<CameraConnection> connection, bool show_live, LiveView::Resolution res )
 : Set("AndorDirect", "Direct acquisition"),
-  CamSource( static_cast<simparm::Node&>(*this) ,
-    BaseSource::Flags() /*.set(BaseSource::TimeCritical) */ ),
+  CamSource( static_cast<simparm::Node&>(*this), BaseSource::Flags() ),
   connection(connection),
-  has_ended(false),
+  has_ended(false), show_live(show_live), resolution(res),
   status("CameraStatus", "Camera status")
 {
     status.editable = false;
@@ -45,16 +44,8 @@ Source::~Source() {
 Source::TraitsPtr Source::get_traits() 
 {
     TraitsPtr rv( new TraitsPtr::element_type() );
-    connection->start_acquisition( *rv );
-#if 0
-    rv->size.x() = acquisition.getWidth();
-    rv->size.y() = acquisition.getHeight();
-    DEBUG("Acquisition has a length set: " << acquisition.hasLength());
-    if ( acquisition.hasLength() ) {
-        DEBUG("Acquisition length is " << acquisition.getLength() << " frames");
-        rv->image_number().range().second = acquisition.getLength() - 1 * camera::frame;
-    }
-#endif
+    connection->start_acquisition( *rv, status );
+    live_view.reset( new LiveView(show_live, resolution ) );
     traits = rv;
     assert( rv.get() ); /* Make sure noone changed type to auto_ptr */
     return rv;

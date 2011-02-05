@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
@@ -7,7 +8,6 @@
 
 #include <simparm/IO.hh>
 
-#include <dStorm/error_handler.h>
 #include <dStorm/helpers/BlockingThreadRegistry.h>
 #include <dStorm/helpers/DisplayManager.h>
 
@@ -23,10 +23,6 @@ struct InputStream::Pimpl
     ost::Condition all_cars_finished;
     typedef std::set<Job*> Jobs;
     Jobs running_cars;
-
-    class EmergencyCallback;
-    std::auto_ptr<EmergencyCallback> emergency_callback;
-    ErrorHandler::CleanupTag rehandle_stream;
 
     bool exhausted_input;
 
@@ -52,28 +48,6 @@ struct InputStream::Pimpl
     void reset_config();
 };
 
-class InputStream::Pimpl::EmergencyCallback : public dStorm::Runnable {
-    ErrorHandler::CleanupTag& cleanup_tag;
-
-  public:
-    EmergencyCallback(InputStream::Pimpl& p)
-        : cleanup_tag(p.rehandle_stream)
-    {
-        dStorm::ErrorHandler::get_current_handler()
-            .add_emergency_callback( *this );
-    }
-
-    void run() {
-        std::cout << "clear" << std::endl;
-        cleanup_tag.reset();
-    }
-
-    ~EmergencyCallback() {
-        dStorm::ErrorHandler::get_current_handler()
-            .remove_emergency_callback( *this );
-    }
-};
-
 InputStream::InputStream(
     const Config& c,
     std::istream& i, std::ostream& o)
@@ -88,7 +62,12 @@ InputStream::InputStream(std::istream* i, std::ostream* o)
 {
 }
 
-InputStream::~InputStream() {}
+InputStream::~InputStream() 
+{
+    DEBUG("Joining input stream subthread");
+    join();
+    DEBUG("Joined input stream subthread");
+}
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
@@ -98,16 +77,11 @@ InputStream::Pimpl::Pimpl(
   simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
-  emergency_callback( new EmergencyCallback(*this) ),
   exhausted_input( i == NULL ),
   original( (c) ? new Config(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL ),
   help_file("help_file", dStorm::HelpFileName)
 {
-    ErrorHandler::CleanupArgs args;
-    args.push_back("--Twiddler");
-    rehandle_stream = ErrorHandler::make_tag(args);
-
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     this->push_back( help_file );
@@ -140,6 +114,9 @@ void InputStream::Pimpl::terminate_remaining_cars() {
 
 InputStream::Pimpl::~Pimpl() 
 {
+    DEBUG("Destroying InputStream::Pimpl");
+    join();
+    DEBUG("Joined InputStream::Pimpl subthread");
     terminate_remaining_cars();
     while ( ! running_cars.empty() )
         all_cars_finished.wait();
@@ -168,23 +145,17 @@ void InputStream::Pimpl::abnormal_termination(std::string reason) {
 }
 
 void InputStream::Pimpl::run() {
-    DEBUG("Current error handler is " << &ErrorHandler::get_current_handler());
-    BlockingThreadRegistry::Handle handle(
-        *ErrorHandler::get_current_handler().
-            blocking_thread_registry,
-        *this );
     DEBUG("Running input processing loop");
     while ( !exhausted_input ) {
         try {
-            DEBUG("Processing input? " << ErrorHandler::global_termination_flag());
-            if ( !ErrorHandler::global_termination_flag() )
-                processInput();
+            DEBUG("Processing input");
+            processInput();
             DEBUG("Processed input");
             exhausted_input = true;
         } catch (const std::bad_alloc& e) {
             std::cerr << "Could not perform action: "
                       << "Out of memory" << std::endl;
-        } catch (const std::exception& e) {
+        } catch (const std::runtime_error& e) {
             std::cerr << "Could not perform action: "
                       << e.what() << std::endl;
         }

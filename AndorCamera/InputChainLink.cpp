@@ -2,9 +2,10 @@
 
 #include "InputChainLink.h"
 #include "AndorDirect.h"
+#include "ViewportSelector.h"
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <dStorm/UnitEntries/TimeEntry.h>
-//#include "ViewportSelector.h"
+#include "ViewportSelector.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include <dStorm/input/chain/Choice.h>
@@ -15,6 +16,7 @@
 #include "CameraConnection.h"
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
+#include <boost/optional.hpp>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -24,6 +26,9 @@ using namespace boost::units;
 Method::Method()  
 : Terminus(),
   simparm::Object("AndorDirectConfig", "Direct camera control"),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  select_ROI("AimCamera","Select ROI"),
+  view_ROI("ViewCamera","View ROI only"),
   show_live_by_default("ShowLiveByDefault",
                        "Show camera images live by default",
                        true)
@@ -40,6 +45,9 @@ Method::Method()
 
 Method::Method(const Method &c) 
 : Terminus(c), simparm::Object(c),
+  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  select_ROI(c.select_ROI),
+  view_ROI(c.view_ROI),
   show_live_by_default( c.show_live_by_default )
 {
     registerNamedEntries();
@@ -50,6 +58,11 @@ Method::~Method() {
 }
 
 void Method::registerNamedEntries() {
+    receive_changes_from(select_ROI.value);
+    receive_changes_from(view_ROI.value);
+
+    push_back(select_ROI);
+    push_back(view_ROI);
     push_back( show_live_by_default );
 }
 
@@ -58,6 +71,8 @@ Method::context_changed( ContextRef initial_context, Link* link )
 {
     dStorm::input::chain::Link::context_changed(initial_context, link);
     last_context = initial_context;
+    if ( active_selector.get() )
+        active_selector->context_changed( last_context );
     if ( ! published.get() )
         return publish_meta_info();
     else
@@ -77,7 +92,7 @@ dStorm::input::BaseSource* Method::makeSource()
         new LiveView( context->default_to_live_view, resolution, cycle_time ) );
 #endif
     std::auto_ptr<CameraConnection> srccon(new CameraConnection("localhost", 0, "52377"));
-    std::auto_ptr<CamSource> cam_source( new Source(srccon, show_live_by_default() ) );
+    std::auto_ptr<CamSource> cam_source( new Source(srccon, show_live_by_default(), resolution ) );
     return cam_source.release();
 }
 
@@ -119,6 +134,39 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
     notify_of_trait_change( mi );
 #endif
 }
+
+void Method::set_display( std::auto_ptr< Display > d ) 
+{
+    boost::lock_guard<boost::mutex> lock( active_selector_mutex );
+    active_selector = d;
+    if ( active_selector.get() ) {
+        if ( last_context.get() )
+            active_selector->context_changed( last_context );
+        this->simparm::Node::push_back( *active_selector );
+    }
+
+    select_ROI.viewable = (active_selector.get() == NULL);
+    view_ROI.viewable = (active_selector.get() == NULL);
+    active_selector_changed.notify_all();
+}
+
+void Method::operator()(const simparm::Event& e)
+{
+    boost::optional<Display::Mode> mode;
+    if ( &e.source == &select_ROI.value && select_ROI.triggered() ) {
+        select_ROI.untrigger();
+        mode = Display::SelectROI;
+    } else if ( &e.source == &view_ROI.value && view_ROI.triggered() ) {
+        view_ROI.untrigger();
+        mode = Display::ViewROI;
+    }
+
+    if ( mode.is_initialized() ) {
+        std::auto_ptr<CameraConnection> con( new CameraConnection("localhost", 0, "52377") );
+        set_display( std::auto_ptr<Display>(new Display( con, *mode, *this ) ) );
+    }
+}
+
 
 }
 }

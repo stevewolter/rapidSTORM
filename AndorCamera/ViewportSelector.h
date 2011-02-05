@@ -8,17 +8,17 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
+#include <boost/optional.hpp>
 #include <map>
 #include "AndorDirect.h"
 
 #include <dStorm/ImageTraits.h>
+#include "InputChainLink_decl.h"
+#include <dStorm/input/chain/Context.h>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 
 namespace dStorm {
 namespace AndorCamera {
-
-namespace ViewportSelector {
-
-class Config;
 
 /** The Display provides a window in which Entry 
     *  elements defining the acquisition rectangle can be displayed
@@ -31,8 +31,8 @@ class Display : public simparm::Set,
   private:
     struct FetchHandler;
 
-    CameraConnection& cam;
-    Config& config;
+    boost::scoped_ptr<CameraConnection> cam;
+    Method& config;
 
     simparm::StringEntry       status;
     simparm::TriggerEntry      stopAim;
@@ -48,6 +48,8 @@ class Display : public simparm::Set,
     ost::Mutex mutex;
     /** Flag is set to true when the display should be paused. */
     bool paused;
+
+    boost::optional<int> camBorders[4];
 
     /** Buffer image for acquisition. Made class member to allow 
         *  saving to file. */
@@ -66,6 +68,7 @@ class Display : public simparm::Set,
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
+    boost::shared_ptr<const input::chain::Context> context;
 
     /** Subthread for image acquisition. */
     virtual void run() throw();
@@ -98,51 +101,15 @@ class Display : public simparm::Set,
         *  This is a fire-and-forget class: The constructor starts a
         *  subthread that will open the acquisition and update the
         *  display window, and then return control. */
-    Display ( CameraConnection&, Mode, Config& );
+    Display ( std::auto_ptr<CameraConnection>, Mode, Method& );
     /** Destructor, will join the subthread and close the display
         *  window. */
     virtual ~Display();
 
     void terminate();
-    void context_changed();
+    void context_changed( boost::shared_ptr<const input::chain::Context> );
 };
 
-/** Configuration items for the viewport selection window that
-    *  opens when the "aim" button is pressed. */
-class Config 
-: public simparm::Object, public simparm::Node::Callback 
-{
-    CameraConnection& cam;
-
-    void registerNamedEntries();
-
-    void startAiming();
-    void stopAiming();
-
-  public:
-    simparm::TriggerEntry select_ROI, view_ROI;
-
-    Config(CameraConnection& cam );
-    Config(const Config &c);
-    ~Config();
-    Config* clone();
-
-    Config& operator=(const Config&);
-
-    void operator()(const simparm::Event&);
-
-    void delete_active_selector();
-
-  private:
-    ost::Mutex active_selector_mutex;
-    ost::Condition active_selector_changed;
-    std::auto_ptr<Display> active_selector;
-
-    void set_entry_viewability();
-    void make_display( Display::Mode mode );
-};
-
-}
 }
 }
 

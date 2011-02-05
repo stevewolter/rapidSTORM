@@ -30,7 +30,7 @@ struct CameraConnection;
         std::auto_ptr<CameraConnection> connection;
         boost::mutex mutex;
         TraitsPtr traits;
-        bool has_ended;
+        bool has_ended, show_live;
         std::auto_ptr<LiveView> live_view;
         LiveView::Resolution resolution;
         class iterator;
@@ -40,7 +40,7 @@ struct CameraConnection;
         void dispatch(Messages m) { assert( ! m.any() ); }
 
       public:
-        Source( std::auto_ptr<CameraConnection> connection, bool live_view );
+        Source( std::auto_ptr<CameraConnection> connection, bool live_view, LiveView::Resolution );
         Source(const Source &);
         virtual ~Source();
         Source *clone() const { 

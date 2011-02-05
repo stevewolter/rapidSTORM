@@ -17,11 +17,9 @@ namespace AndorCamera {
 
 LiveView::LiveView( 
     bool on_by_default,
-    Resolution resolution,
-    boost::units::quantity<camera::frame_rate> cycle_time
+    Resolution resolution
     )
 : Object("LiveView", "Live view options"),
-  cycle_time( cycle_time ),
   resolution( resolution ),
   show_live("ShowLive", "Show camera image", on_by_default),
   change( new dStorm::Display::Change(1) )

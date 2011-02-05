@@ -23,7 +23,6 @@ class LiveView :
     typedef dStorm::input::Traits<CamImage>::Resolutions Resolution;
 
   private:
-    boost::units::quantity<boost::units::camera::frame_rate> cycle_time;
     Resolution resolution;
     simparm::BoolEntry show_live;
     simparm::optional< boost::units::quantity<boost::units::camera::intensity> >
@@ -51,8 +50,7 @@ class LiveView :
   public:
     LiveView(
         bool on_by_default,
-        Resolution resolution,
-        boost::units::quantity<boost::units::camera::frame_rate> cycle_time );
+        Resolution resolution );
     ~LiveView();
     void show( const CamImage& image );
 };

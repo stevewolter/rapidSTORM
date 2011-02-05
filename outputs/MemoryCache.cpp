@@ -3,7 +3,6 @@
 #include <dStorm/doc/context.h>
 
 #include "debug.h"
-#include <dStorm/error_handler.h>
 #include <string>
 
 #include <dStorm/traits/range_impl.h>
@@ -124,11 +123,11 @@ void MemoryCache::reemit_localizations(bool& terminate) {
     {
         Filter::receiveLocalizations( *i );
         /* TODO: Result not checked for now. */
-        if ( terminate || ErrorHandler::global_termination_flag() )
+        if ( terminate )
             break;
     }
             
-    if ( terminate || ErrorHandler::global_termination_flag() ) {
+    if ( terminate ) {
         Filter::propagate_signal( Engine_run_is_aborted );
         return;
     }
