@@ -3,6 +3,7 @@
 
 #include <dStorm/input/Source_decl.h>
 #include <dStorm/ImageTraits_decl.h>
+#include <dStorm/engine/Image_decl.h>
 #include <stdint.h>
 
 namespace dStorm {
@@ -10,9 +11,9 @@ namespace AndorCamera {
 
 typedef uint16_t CameraPixel;
 typedef dStorm::Image<CameraPixel,2> CamImage;
-typedef dStorm::input::Source< CamImage > CamSource;
+typedef dStorm::input::Source< dStorm::engine::Image > CamSource;
 class CamConfig;
-typedef dStorm::input::Traits<CamImage> CamTraits;
+typedef dStorm::input::Traits< dStorm::engine::Image > CamTraits;
 
 class Method;
 class Source;

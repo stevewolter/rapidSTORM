@@ -17,6 +17,8 @@
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/engine/JobInfo.h>
+#include <dStorm/image/constructors.h>
+#include <dStorm/image/slice.h>
 
 #include "SigmaGuesser.h"
 
@@ -258,7 +260,8 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
-    finder->smooth(image);
+    for (int i = 0; i < image.depth_in_pixels(); ++i)
+    finder->smooth(image.slice(2,i * camera::pixel));
     IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
 
     CandidateTree<SmoothedPixel>::iterator cM = maximums.begin();

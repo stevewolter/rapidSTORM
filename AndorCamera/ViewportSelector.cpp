@@ -120,7 +120,7 @@ void Display::configure_camera()
 dStorm::Display::ResizeChange Display::getSize() const
 {
     dStorm::Display::ResizeChange new_size;
-    new_size.size = traits.size;
+    new_size.size = traits.size.start<2>();
     new_size.keys.push_back( 
         dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.keys.back().can_set_lower_limit = true;
@@ -286,7 +286,7 @@ void Display::run() throw() {
         FetchHandler(Display& d ) : d(d) {
             border_names.add("Left", 0)("Right", 1)("Top", 2)("Bottom", 3); };
         bool operator()( const CameraConnection::FetchImage& fe ) {
-            CamImage img( d.traits.size, fe.frame_number );
+            CamImage img( d.traits.size.start<2>(), fe.frame_number );
             d.cam->read_data(img);
             d.draw_image(img);
             return true;

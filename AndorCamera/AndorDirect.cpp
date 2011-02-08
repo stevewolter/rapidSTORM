@@ -43,8 +43,9 @@ Source::~Source() {
 
 Source::TraitsPtr Source::get_traits() 
 {
-    TraitsPtr rv( new TraitsPtr::element_type() );
-    connection->start_acquisition( *rv, status );
+    CamTraits cam_traits;
+    connection->start_acquisition( cam_traits, status );
+    TraitsPtr rv( new TraitsPtr::element_type(cam_traits) );
     live_view.reset( new LiveView(show_live, resolution ) );
     traits = rv;
     assert( rv.get() ); /* Make sure noone changed type to auto_ptr */

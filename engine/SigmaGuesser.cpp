@@ -52,7 +52,7 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     if (defined_result != KeepRunning) return defined_result;
     DEBUG("Adding fits");
 
-    used_area += er.source->size();
+    used_area += er.source->size() / camera::pixel;
     if ( used_area > maximum_area ) {
         DEBUG("Reached size limit");
         simparm::Message m( "Maximum PSF size estimation area reached",
@@ -77,7 +77,8 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     for (int i = 0; i < er.number; i++) {
         if (meanAmplitude.mean() < er.first[i].amplitude()) {
             DEBUG("Fitting " << i);
-            bool good = fitter->fit(*er.source, er.first[i], sigmas);
+            assert( er.source->depth_in_pixels() == 1 );
+            bool good = fitter->fit(er.source->slice(2, 0 * camera::pixel), er.first[i], sigmas);
             DEBUG("Fitted " << i);
             if (good) {
                 for (int i = 0; i < 3; i++) {

@@ -16,7 +16,7 @@ struct CameraConnection {
     ~CameraConnection();
     void set_traits( input::Traits<engine::Image>& );
     void send( const std::string& );
-    void start_acquisition( input::Traits<engine::Image>&, simparm::StringEntry& status );
+    void start_acquisition( CamTraits&, simparm::StringEntry& status );
     void stop_acquisition();
 
     struct EndOfAcquisition {};

@@ -99,9 +99,10 @@ struct declaration_parser : qi::grammar<Iterator, bool()>
     input::Traits<engine::Image>& traits;
 };
 
-void CameraConnection::start_acquisition( input::Traits<engine::Image>& traits, simparm::StringEntry& status )
+void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntry& status )
 {
     traits.image_number().range().first = 0 * camera::frame;
+    traits.size.fill( 1 * camera::pixel );
     stream << "start_acquisition" << std::endl;
     declaration_parser<std::string::const_iterator> p(traits);
     while ( true ) {

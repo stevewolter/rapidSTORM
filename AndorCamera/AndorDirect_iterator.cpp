@@ -2,6 +2,8 @@
 #include "AndorDirect.h"
 #include "CameraConnection.h"
 #include <dStorm/Image.h>
+#include <dStorm/image/constructors.h>
+#include <dStorm/image/slice.h>
 #include "LiveView.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -12,18 +14,18 @@ namespace dStorm {
 namespace AndorCamera {
 
 class Source::iterator 
-: public boost::iterator_facade<iterator,CamImage,std::input_iterator_tag>,
+: public boost::iterator_facade<iterator,engine::Image,std::input_iterator_tag>,
   public boost::static_visitor<void>
 {
   private:
     Source* src;
-    mutable CamImage img;
+    mutable engine::Image img;
 
   public:
     iterator() : src(NULL) {}
     iterator(Source &ad);
 
-    CamImage& dereference() const;
+    engine::Image& dereference() const;
     void increment();
     bool equal(const iterator& i) const { return src == i.src; }
 
@@ -40,7 +42,7 @@ Source::iterator::iterator(Source &ad)
     increment();
 }
 
-CamImage& Source::iterator::dereference() const {
+engine::Image& Source::iterator::dereference() const {
     return img;
 }
 
@@ -48,9 +50,10 @@ CamImage& Source::iterator::dereference() const {
 void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
 {
     DEBUG("Allocating image " << fr.frame_number);
+    CamImage i(img.slice(2, 0));
     while ( img.is_invalid() ) {
         try {
-            img = CamImage(src->traits->size, fr.frame_number);
+            i = CamImage(src->traits->size.start<2>(), fr.frame_number);
         } catch( const std::bad_alloc& alloc ) {
             /* Do nothing. Try to wait until more memory is available.
                 * Maybe the ring buffer saves us. Maybe not, but we can't
@@ -58,11 +61,12 @@ void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
             continue;
         }
     }
-    img.frame_number() = fr.frame_number;
+    i.frame_number() = fr.frame_number;
     DEBUG("Allocated image");
-    src->connection->read_data( img );
+    src->connection->read_data( i );
     if ( src->live_view.get() )
-        src->live_view->show( img );
+        src->live_view->show( i );
+    img.slice(2,0) = i;
 }
 
 void Source::iterator::operator()( const CameraConnection::ImageError& fr )
