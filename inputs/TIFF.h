@@ -41,11 +41,11 @@ namespace dStorm {
      *  unsigned int and float. The loaded TIFF file must match
      *  this data type exactly; no up- or downsampling is per-
      *  formed. */
-    template <typename PixelType>
+    template <typename PixelType, int Dimensions>
     class Source : public simparm::Set,
-                   public input::Source< Image<PixelType,2> >
+                   public input::Source< Image<PixelType,Dimensions> >
     {
-        typedef dStorm::Image<PixelType,2> Image;
+        typedef dStorm::Image<PixelType,Dimensions> Image;
         typedef input::Source<Image> BaseSource;
         typedef typename BaseSource::iterator base_iterator;
         typedef typename BaseSource::Flags Flags;
@@ -80,11 +80,11 @@ namespace dStorm {
 
         int current_directory;
 
-        int _width, _height, _no_images;
+        int size[3], _no_images;
         dStorm::input::ImageTraits<2>::Resolutions resolution;
 
-        template <typename PixelType> friend class Source<PixelType>::iterator;
-
+        template <typename PixelType, int Dim> 
+            friend class Source<PixelType,Dim>::iterator;
 
       public:
         OpenFile(const std::string& filename, const Config&, simparm::Node&);
@@ -92,12 +92,12 @@ namespace dStorm {
 
         const std::string for_file() const { return file_ident; }
 
-        template <typename PixelType> 
-            std::auto_ptr< Traits<dStorm::Image<PixelType,2> > > 
+        template <typename PixelType, int Dimensions> 
+            std::auto_ptr< Traits<dStorm::Image<PixelType,Dimensions> > > 
             getTraits();
 
-        template <typename PixelType>
-            std::auto_ptr< dStorm::Image<PixelType,2> >
+        template <typename PixelType, int Dimensions>
+            std::auto_ptr< dStorm::Image<PixelType,Dimensions> >
             load_image( int index );
     };
 

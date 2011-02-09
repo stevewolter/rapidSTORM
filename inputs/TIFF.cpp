@@ -25,6 +25,7 @@
 #include "TIFF.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Source_impl.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/ImageTraits.h>
 
 #include <boost/iterator/iterator_facade.hpp>
@@ -39,8 +40,8 @@ using namespace std;
 namespace dStorm {
 namespace TIFF {
 
-template<typename Pixel>
-Source<Pixel>::Source( boost::shared_ptr<OpenFile> file )
+template<typename Pixel, int Dimensions>
+Source<Pixel,Dimensions>::Source( boost::shared_ptr<OpenFile> file )
 : simparm::Set("TIFF", "TIFF image reader"),
   BaseSource( static_cast<simparm::Node&>(*this),    
       Flags() ),
@@ -48,8 +49,8 @@ Source<Pixel>::Source( boost::shared_ptr<OpenFile> file )
 {
 }
 
-template<typename Pixel>
-class Source<Pixel>::iterator 
+template<typename Pixel, int Dimensions>
+class Source<Pixel,Dimensions>::iterator 
 : public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
 {
     mutable OpenFile* src;
@@ -119,23 +120,24 @@ class Source<Pixel>::iterator
     }
 };
 
-template<typename Pixel>
+template<typename Pixel, int Dimensions>
 void
-Source<Pixel>::iterator::check_params() const
+Source<Pixel,Dimensions>::iterator::check_params() const
 {
     ::TIFF *tiff = src->tiff;
-    uint32_t width, height;
+    uint32_t width, height, depth;
     uint16_t bitspersample;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &height );
+    TIFFGetField( tiff, TIFFTAG_IMAGEDEPTH, &depth );
     TIFFGetField( tiff, TIFFTAG_BITSPERSAMPLE, &bitspersample );
 
-    if ( int(width) != src->_width || int(height) != src->_height ) {
+    if ( int(width) != src->size[0] || int(height) != src->size[1] || int(depth) != src->size[2] ) {
         std::stringstream error;
         error << "TIFF image no. " << TIFFCurrentDirectory(tiff)
-            << " has dimensions (" << width << ", " << height
-            << ") different from first image (" << src->_width
-            << ", " << src->_height << "). Aborting.";
+            << " has dimensions (" << width << ", " << height << ", " << depth
+            << ") different from first image (" << src->size[0]
+            << ", " << src->size[1] << ", " << src->size[2] << "). Aborting.";
         throw std::runtime_error( error.str() );
     }
     if ( bitspersample != sizeof(Pixel)*8 ) {
@@ -147,9 +149,9 @@ Source<Pixel>::iterator::check_params() const
     }
 }
 
-template<typename Pixel>
-typename Source<Pixel>::Image&
-Source<Pixel>::iterator::dereference() const
+template<typename Pixel, int Dim>
+typename Source<Pixel,Dim>::Image&
+Source<Pixel,Dim>::iterator::dereference() const
 { 
     if ( img.is_invalid() ) {
         TIFFOperation op( "in reading TIFF file",
@@ -161,8 +163,9 @@ Source<Pixel>::iterator::dereference() const
         ::TIFF *tiff = src->tiff;
         tsize_t strip_size = TIFFStripSize( tiff );
         tstrip_t strip_count = TIFFNumberOfStrips( tiff );
-        sz.x() = src->_width * camera::pixel;
-        sz.y() = src->_height * camera::pixel;
+        assert( sz.rows() <= 3 );
+        for (int i = 0; i < sz.rows(); ++i)
+            sz[i] = src->size[i] * camera::pixel;
         Image i( sz, directory * camera::frame);
 
         DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->_width << " " << src->_height);
@@ -182,15 +185,15 @@ Source<Pixel>::iterator::dereference() const
     return img;
 }
 
-template<typename Pixel>
-typename Source<Pixel>::base_iterator
-Source<Pixel>::begin() {
+template<typename Pixel, int Dim>
+typename Source<Pixel,Dim>::base_iterator
+Source<Pixel,Dim>::begin() {
     return base_iterator( iterator(*this) );
 }
 
-template<typename Pixel>
-typename Source<Pixel>::base_iterator
-Source<Pixel>::end() {
+template<typename Pixel, int Dim>
+typename Source<Pixel,Dim>::base_iterator
+Source<Pixel,Dim>::end() {
     return base_iterator( iterator() );
 }
 
@@ -224,7 +227,7 @@ ChainLink::ChainLink(const ChainLink& o)
 BaseSource*
 ChainLink::makeSource()
 {
-    return new Source<unsigned short>( file );
+    return new Source<engine::Image::Pixel,engine::Image::Dim>( file );
 }
 
 ChainLink::AtEnd
@@ -246,14 +249,14 @@ ChainLink::context_changed( ContextRef ocontext, Link* link )
     }
 }
 
-template<typename Pixel>
-typename Source<Pixel>::TraitsPtr 
-Source<Pixel>::get_traits() {
-    return TraitsPtr( file->getTraits<Pixel>().release() );
+template<typename Pixel, int Dimensions>
+typename Source<Pixel,Dimensions>::TraitsPtr 
+Source<Pixel,Dimensions>::get_traits() {
+    return TraitsPtr( file->getTraits<Pixel,Dimensions>().release() );
 }
 
-template<typename Pixel>
-Source<Pixel>::~Source() {}
+template<typename Pixel, int Dimensions>
+Source<Pixel,Dimensions>::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
     ost::MutexLock lock( global_mutex() );
@@ -270,7 +273,7 @@ void ChainLink::open_file() {
         file.reset( new OpenFile( context->input_file, config, config ) );
         info.reset( new chain::FileMetaInfo() );
 
-        info->set_traits( file->getTraits<unsigned short>().release() );
+        info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>().release() );
         info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
         info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
     } catch(...) {
