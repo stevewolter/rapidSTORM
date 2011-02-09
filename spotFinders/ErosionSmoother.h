@@ -27,7 +27,7 @@ namespace dStorm {
             {}
         ~ErosionSmoother() {}
 
-        void smooth( const engine::Image &in ) {
+        void smooth( const engine::Image2D &in ) {
             rectangular_erosion( in, *smoothed, mw/2, mh/2, 0, 0);
         }
     };

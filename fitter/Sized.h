@@ -12,7 +12,7 @@ struct Sized {
     virtual ~Sized() {}
     virtual int fit(
         const engine::Spot& spot, Localization* target,
-        const engine::BaseImage &image, int xl, int yl ) = 0;
+        const engine::Image &image, int xl, int yl ) = 0;
     virtual void setSize( int width, int height ) = 0;
 };
 

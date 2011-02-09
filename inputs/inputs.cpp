@@ -9,6 +9,7 @@
 #include "AndorCamera/InputChainLink.h"
 #endif
 #include "BackgroundDeviationEstimator_decl.h"
+#include "Splitter_decl.h"
 
 namespace dStorm {
 
@@ -28,6 +29,7 @@ void basic_inputs( input::Config* inputConfig ) {
     inputConfig->add_method( new AndorCamera::Method() );
 #endif
 
+    inputConfig->add_filter( Splitter::makeLink(), true );
     inputConfig->add_filter( BackgroundStddevEstimator::makeLink() );
     
 }

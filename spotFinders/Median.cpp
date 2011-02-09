@@ -247,7 +247,7 @@ static int modMap[500];
 static int modMapInit = -1;
 
 template <int strucSize>
-void ahmadMedian(const engine::Image &in, SmoothedImage& out, int mw, int mh)
+void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh)
 
 {
     const int W = in.width_in_pixels(), H = in.height_in_pixels(), xoff = -mw/2, yoff = mw/2;

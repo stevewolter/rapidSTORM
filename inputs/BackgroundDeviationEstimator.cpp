@@ -48,6 +48,7 @@ Config::Config()
 
 static void add_to_histogram( const engine::Image& im, int h[], const int b ) 
 {
+    DEBUG("Got positions " << im.begin().position().transpose() << " to " << im.end().position().transpose() << ", which are " << ((im.begin() == im.end()) ? "equal" : "not equal") );
     for ( engine::Image::const_iterator i = im.begin(), e = im.end(); i != e; ++i ) 
     {
         h[ *i >> b ] += 1;
@@ -74,7 +75,7 @@ Source::get_traits()
     for (input::Source<engine::Image>::iterator i = base->begin(), e = base->end(); i != e; ++i ) {
         DEBUG("Loaded image " << i->frame_number());
         if ( i->is_invalid() ) continue;
-        DEBUG("Got image of size " << i->width_in_pixels() << " " << i->height_in_pixels());
+        DEBUG("Got image of size " << i->width_in_pixels() << " " << i->height_in_pixels() << " " << i->depth_in_pixels());
         DEBUG("Adding image to histogram");
         add_to_histogram( *i, histogram, binning );
         

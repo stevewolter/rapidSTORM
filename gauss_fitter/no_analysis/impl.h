@@ -19,7 +19,7 @@ namespace no_analysis {
 
 using namespace fitpp::Exponential2D;
 using dStorm::engine::Spot;
-using dStorm::engine::BaseImage;
+using dStorm::engine::Image;
 
 template <int Ks,int FF>
 CommonInfo<Ks,FF>::CommonInfo( 
@@ -73,7 +73,7 @@ template <int Kernels,int FF>
 void
 CommonInfo<Kernels,FF>::set_start(
     const Spot& spot, 
-    const BaseImage& image,
+    const Image& image,
     double shift_estimate,
     Variables* variables 
 ) 
@@ -86,7 +86,9 @@ CommonInfo<Kernels,FF>::set_start(
     params.template set_all_MeanY( spot.y() );
 
     int xc = round(spot.x()), yc = round(spot.y());
-    double center = image(xc,yc);
+    double center = 0;
+    for (int i = 0; i < image.depth_in_pixels(); ++i)
+        center += image(xc,yc,i) / image.depth_in_pixels();
     
     params.setShift( shift_estimate );
     params.template set_all_Amplitude( 

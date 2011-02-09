@@ -28,7 +28,7 @@ class FixedSized : public Sized
     
     int fit(
         const engine::Spot& spot, Localization* target,
-        const engine::BaseImage &image, int xl, int yl );
+        const engine::Image &image, int xl, int yl );
 
     const typename Deriver::Position&
     getPosition() const { return deriver.getPosition(); }

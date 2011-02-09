@@ -15,7 +15,7 @@ using namespace fitpp::Exponential3D;
 template <>
 template <>
 void SizeSpecializing< 
-    gauss_3d_fitter::NaiveFitter<1,Zhuang> >
+    gauss_3d_fitter::NaiveFitter<1,Zhuang,1> >
 ::create_specializations<1>()
 {
 #ifdef USE_SPECIALIZED_FITTERS
@@ -26,7 +26,7 @@ void SizeSpecializing<
 template <>
 template <>
 void SizeSpecializing< 
-    residue_analysis::Fitter< gauss_3d_fitter::Fitter<Zhuang> > >
+    residue_analysis::Fitter< gauss_3d_fitter::Fitter<Zhuang,1> > >
 ::create_specializations<1>()
 {
 #ifdef USE_SPECIALIZED_FITTERS

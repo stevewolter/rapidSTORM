@@ -134,7 +134,7 @@ FitFunction<VarC,CV>::fit_with_deriver(
             deriver.compute_derivatives( *trial_p, *trial_d);
 
         if ( new_position_valid ) {
-            DEBUG("New position is valid, residues are " << trial_p->residues);
+            DEBUG("New position is valid, residues are " << trial_p->chi_sq);
         }
 
         /* The trial step was evaluable. Check if it improved

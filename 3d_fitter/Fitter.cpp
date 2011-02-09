@@ -30,18 +30,22 @@ namespace gauss_3d_fitter {
 
 using namespace fitpp::Exponential3D;
 using dStorm::engine::Spot;
-using dStorm::engine::BaseImage;
+using dStorm::engine::Image;
 using boost::units::pow;
 
-template <int Ks,int Widening>
-NaiveFitter<Ks,Widening>::~NaiveFitter() {
+template <int Ks,int Widening, int Depth>
+NaiveFitter<Ks,Widening,Depth>::~NaiveFitter() {
     DEBUG("NaiveFitter destructor");
 }
 
-template class NaiveFitter<1, fitpp::Exponential3D::Zhuang>;
-template class NaiveFitter<1, fitpp::Exponential3D::Holtzer>;
-template class NaiveFitter<2, fitpp::Exponential3D::Zhuang>;
-template class NaiveFitter<2, fitpp::Exponential3D::Holtzer>;
+template class NaiveFitter<1, fitpp::Exponential3D::Zhuang, 1>;
+template class NaiveFitter<1, fitpp::Exponential3D::Holtzer, 1>;
+template class NaiveFitter<2, fitpp::Exponential3D::Zhuang, 1>;
+template class NaiveFitter<2, fitpp::Exponential3D::Holtzer, 1>;
+template class NaiveFitter<1, fitpp::Exponential3D::Zhuang, 2>;
+template class NaiveFitter<1, fitpp::Exponential3D::Holtzer, 2>;
+template class NaiveFitter<2, fitpp::Exponential3D::Zhuang, 2>;
+template class NaiveFitter<2, fitpp::Exponential3D::Holtzer, 2>;
 
 template <int Ks,int Widening>
 CommonInfo<Ks,Widening>::CommonInfo( 
@@ -61,18 +65,25 @@ CommonInfo<Ks,Widening>::CommonInfo(
     FitGroup::template Parameter<MeanZ>::set_absolute_epsilon
         (this->fit_function, c.negligibleStepLength());
 
-    params->template set_all_ZAtBestSigmaX( - c.z_distance() / 2.0f );
-    params->template set_all_ZAtBestSigmaY( c.z_distance() / 2.0f );
+    params->template set_all_ZAtBestSigmaX( c.z_plane_x() );
+    params->template set_all_ZAtBestSigmaY( c.z_plane_y() );
     params->template set_all_DeltaSigmaX( c.defocus_constant_x() );
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
     params->template set_all_BestSigmaX( info.config.sigma_x() );
     params->template set_all_BestSigmaY( info.config.sigma_y() );
+    if ( info.traits.resolution[2].is_set() ) {
+        quantity<si::length> z_px_sz = camera::pixel / info.traits.resolution[2]->in_dpm();
+        params->template set_all_LayerDistance( quantity<si::nanolength>(z_px_sz) );
+    } else if ( info.traits.size[2] == 1 * camera::pixel )
+        params->template set_all_LayerDistance( 0 * boost::units::si::nanometre );
+    else
+        throw std::runtime_error("Z resolution must be given to apply 3D fitter on multi-plane image");
 
     for (int i = 0; i < 2; ++i)
         if ( info.traits.resolution[i].is_set() )
             scale_factor[i] = info.traits.resolution[i]->in_dpm();
         else {
-            throw std::logic_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
+            throw std::runtime_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
         }
     DEBUG("Constructed fitter common information");
 }
@@ -103,7 +114,7 @@ template <int Kernels, int Widening>
 void
 CommonInfo<Kernels,Widening>::set_start(
     const Spot& spot, 
-    const BaseImage& image,
+    const Image& image,
     double shift_estimate_in_ADC,
     typename FitGroup::Variables* variables 
 ) 
@@ -118,7 +129,9 @@ CommonInfo<Kernels,Widening>::set_start(
     params->template set_all_MeanZ( 0 * boost::units::si::nanometre );
 
     int xc = round(spot.x()), yc = round(spot.y());
-    ADCs center = image(xc,yc) * camera::ad_count;
+    ADCs center = 0;
+    for (int i = 0; i < image.depth_in_pixels(); ++i)
+        center += image(xc,yc,i) * camera::ad_count;
     
     params->setShift( shift_estimate );
 
@@ -178,7 +191,7 @@ CommonInfo<Kernels,Widening>::check_result(
     DEBUG("Position good: " << good);
     if ( output_sigmas ) {
         fitpp::Exponential3D::ParameterHelper<Kernels, Widening, 1, 1> h;
-        h.prepare( *variables, params->getConstants(), 0, 0 );
+        h.prepare( *variables, params->getConstants(), 0, 0, 0 );
 
         quantity<camera::area,float> scale( 1 * camera::pixel * camera::pixel );
 

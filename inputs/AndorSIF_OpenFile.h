@@ -36,11 +36,11 @@ class OpenFile : boost::noncopyable {
     const std::string for_file() const { return file_ident; }
 
     template <typename PixelType> 
-        std::auto_ptr< Traits<dStorm::Image<PixelType,2> > > 
+        std::auto_ptr< Traits<dStorm::Image<PixelType,3> > > 
         getTraits();
 
     template <typename PixelType>
-        std::auto_ptr< dStorm::Image<PixelType,2> >
+        std::auto_ptr< dStorm::Image<PixelType,3> >
         load_image( int index, simparm::Node& );
 
     int number_of_images() const { return im_count; }

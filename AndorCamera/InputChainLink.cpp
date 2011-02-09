@@ -82,8 +82,9 @@ Method::context_changed( ContextRef initial_context, Link* link )
 dStorm::input::BaseSource* Method::makeSource()
 {
     LiveView::Resolution resolution;
-    if ( last_context->has_info_for<CamImage>() )
-        resolution = last_context->get_info_for<CamImage>().resolution;
+    if ( last_context->has_info_for<engine::Image>() )
+        for (int i = 0; i < 2; ++i)
+            resolution[i] = last_context->get_info_for<engine::Image>().resolution[i];
 
 #if 0
     quantity<camera::frame_rate> cycle_time
@@ -103,12 +104,14 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
     } else if ( published.get() != NULL ) {
         return notify_of_trait_change( published );
     } else {
-        boost::shared_ptr< dStorm::input::Traits<CamImage> > traits;
-        if ( last_context->has_info_for<CamImage>() )
-            traits.reset( last_context->get_info_for<CamImage>().clone() );
+        boost::shared_ptr< dStorm::input::Traits<engine::Image> > traits;
+        if ( last_context->has_info_for<engine::Image>() )
+            traits.reset( last_context->get_info_for<engine::Image>().clone() );
         else
-            traits.reset( new dStorm::input::Traits<CamImage>() );
+            traits.reset( new dStorm::input::Traits<engine::Image>() );
         traits->image_number().range().first = 0 * camera::frame;
+        traits->image_number().range().second.promise( dStorm::deferred::JobTraits );
+        traits->image_number().resolution().promise( dStorm::deferred::JobTraits );
 
         dStorm::input::chain::MetaInfo::Ptr mi
             ( new dStorm::input::chain::MetaInfo() );
@@ -116,23 +119,6 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
         published = mi;
         return notify_of_trait_change( published );
     }
-#if 0
-    boost::shared_ptr< dStorm::input::Traits<CamImage> > traits;
-    if ( context->has_info_for<CamImage>() )
-        traits.reset( context->get_info_for<CamImage>().clone() );
-    else
-        traits.reset( new dStorm::input::Traits<CamImage>() );
-
-    if ( cam->acquisitionMode().kinetic_length().is_set() )
-        traits->image_number().range().second.promise( dStorm::deferred::JobTraits );
-    traits->image_number().resolution().promise( dStorm::deferred::JobTraits );
-
-    dStorm::input::chain::MetaInfo::Ptr mi
-        ( new dStorm::input::chain::MetaInfo() );
-    mi->set_traits( traits );
-    DEBUG("CameraLink publishing non-null traits");
-    notify_of_trait_change( mi );
-#endif
 }
 
 void Method::set_display( std::auto_ptr< Display > d ) 

@@ -13,21 +13,24 @@ int
 FixedSized<BaseFitter, Width, Height>::
 fit( const engine::Spot &spot,
      Localization *target, 
-     const engine::BaseImage& image,
+     const engine::Image& image,
          int xl, int yl) 
 {
     deriver.setData( 
         image.ptr(), 
         image.width() / camera::pixel,
-        image.height() / camera::pixel );
+        image.height() / camera::pixel,
+        image.depth_in_pixels());
     deriver.setUpperLeftCorner( xl, yl );
 
-    Eigen::Matrix<double,1,1> corners =
-        deriver.selectedData.template corner<1,1>(Eigen::TopLeft) +
-        deriver.selectedData.template corner<1,1>(Eigen::TopRight) +
-        deriver.selectedData.template corner<1,1>(Eigen::BottomRight) +
-        deriver.selectedData.template corner<1,1>(Eigen::BottomLeft);
-    double shift_estimate = corners.sum() / 4;
+    double corner_sum = 0;
+    for (int i = 0; i < Deriver::Depth; ++i) 
+        corner_sum += 
+            deriver.selectedData[i].template corner<1,1>(Eigen::TopLeft).sum() +
+            deriver.selectedData[i].template corner<1,1>(Eigen::TopRight).sum() +
+            deriver.selectedData[i].template corner<1,1>(Eigen::BottomRight).sum() +
+            deriver.selectedData[i].template corner<1,1>(Eigen::BottomLeft).sum();
+    double shift_estimate = corner_sum / (4 * Deriver::Depth);
     
     common.set_start( spot, image, shift_estimate, 
                       &deriver.getVariables() );

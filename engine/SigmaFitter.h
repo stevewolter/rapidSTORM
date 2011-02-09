@@ -16,9 +16,10 @@ class SigmaFitter {
     int msx, msy;
     typedef fitpp::Exponential2D::Model<1, 
                                 fitpp::Exponential2D::FixedCenter> Fitting;
+    typedef Fitting::Fitter<StormPixel, Eigen::Dynamic, Eigen::Dynamic, 1>::Type Fitter;
     Fitting::Constants constants;
     fitpp::FitFunction<Fitting::VarC,false> fit_function;
-    std::auto_ptr< Fitting::Fitter<StormPixel>::Type > fitter;
+    std::auto_ptr< Fitter > fitter;
     
   public:
     SigmaFitter(Config &config);

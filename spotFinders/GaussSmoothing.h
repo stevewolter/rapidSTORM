@@ -22,7 +22,7 @@ namespace spotFinders {
         GaussSmoother (const Config&, const engine::Config &, 
                        const engine::InputTraits::Size& size );
 
-        void smooth( const engine::Image &in );
+        void smooth( const engine::Image2D &in );
 
       protected:
         data_cpp::Vector<int> xkern, ykern;

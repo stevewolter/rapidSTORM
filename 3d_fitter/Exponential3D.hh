@@ -32,7 +32,8 @@ static const int
     BestSigmaY = 8,
     ZAtBestSigmaX = 9,
     ZAtBestSigmaY = 10,
-    FunctionDeps = 10,
+    LayerDistance = 11,
+    FunctionDeps = 11,
     Globals = 1;
 
 enum Widenings {
@@ -74,8 +75,9 @@ struct Model
 
     template <
             typename PixelType, 
-            int Width = Eigen::Dynamic,
-            int Height = Eigen::Dynamic,
+            int Width,
+            int Height,
+            int Depth,
             bool Compute_Variances = false
         >
     struct Fitter
@@ -84,7 +86,7 @@ struct Model
             Model,
             Deriver<Model,Width,Height>,
             PixelType,
-            Width, Height,
+            Width, Height, Depth,
             Compute_Variances> Type;
     };
 };

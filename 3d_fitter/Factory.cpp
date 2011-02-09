@@ -7,6 +7,7 @@
 #include "fitter/MarquardtConfig_impl.h"
 #include "fitter/residue_analysis/Config_impl.h"
 #include <dStorm/unit_interval.h>
+#include <boost/lexical_cast.hpp>
 
 namespace dStorm {
 namespace gauss_3d_fitter {
@@ -38,8 +39,16 @@ std::auto_ptr<SpotFitter>
 Factory<Widening>::make (const engine::JobInfo &i)
 {
     DEBUG("Creating 3D fitter");
-    return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<Widening> >
-        ::select_fitter(*this,i);
+    if ( i.traits.size.z() == 1 * camera::pixel )
+        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<Widening,1> >
+            ::select_fitter(*this,i);
+    else if ( i.traits.size.z() == 2 * camera::pixel )
+        return fitter::residue_analysis::Fitter< gauss_3d_fitter::Fitter<Widening,2> >
+            ::select_fitter(*this,i);
+    else {
+        throw std::runtime_error("3D fitter not compiled for Z depth " 
+            + boost::lexical_cast<std::string>( i.traits.size.z().value() ) );
+    }
 }
 
 template <int Widening>

@@ -23,9 +23,13 @@ SizedFitter<BaseFitter,Width,Height>
               UpperHalf = 0, LowerHalf = 1,
               UpperRight = 0, LowerLeft = 1,
               UpperLeft = 0, LowerRight = 1;
+    const int Horizontal = 2, Vertical = 3, 
+              MainDiagonal = 0, OffDiagonal = 1;
 
+  int worst_main_axis; double max_normed_diff = 0;
+  for (unsigned int i = 0; i < this->deriver.getPosition().residues.size(); ++i) {
     const Eigen::Matrix<double,Height,Width>& R 
-        = this->deriver.getPosition().residues;
+        = this->deriver.getPosition().residues[i];
     int xc, yc;
     common.get_center(normal.getPosition().parameters, xc, yc);
     xc -= xl; yc -= yl;
@@ -54,8 +58,6 @@ SizedFitter<BaseFitter,Width,Height>
                     += v;
         }
 
-    const int Horizontal = 2, Vertical = 3, 
-              MainDiagonal = 0, OffDiagonal = 1;
     Eigen::Vector4d diag_diff;
     Eigen::Vector2d inverser(1,-1);
 
@@ -69,14 +71,19 @@ SizedFitter<BaseFitter,Width,Height>
     int main_axis;
     double normed_max_diff = diag_diff.maxCoeff( &main_axis )
             / R.cwise().abs().sum();
+    if ( normed_max_diff > max_normed_diff ) {
+        max_normed_diff = normed_max_diff;
+        worst_main_axis = main_axis;
+    }
+  }
 
     bool residue_analysis_positive = 
-        ( normed_max_diff > this->common.asymmetry_threshold );
+        ( max_normed_diff > this->common.asymmetry_threshold );
     if ( residue_analysis_positive ) {
         direction->x() =
-            ( main_axis == Vertical ) ? 0 :
-            ( main_axis == OffDiagonal ) ? -1 : 1;
-        direction->y() = ( main_axis == Horizontal ) ? 0 : 1;
+            ( worst_main_axis == Vertical ) ? 0 :
+            ( worst_main_axis == OffDiagonal ) ? -1 : 1;
+        direction->y() = ( worst_main_axis == Horizontal ) ? 0 : 1;
 
         return Fishy;
     } else
@@ -88,7 +95,7 @@ template <class BaseFitter, int Width, int Height>
 float
 SizedFitter<BaseFitter,Width,Height>
 ::double_fit_analysis( 
-    const engine::BaseImage& image, const Eigen::Vector2i& direction, int oxl, int oyl )
+    const engine::Image& image, const Eigen::Vector2i& direction, int oxl, int oyl )
 {
     typedef typename BaseFitter::OneKernel::SizeInvariants Base1;
     typedef typename BaseFitter::TwoKernel::SizeInvariants Base2;
@@ -104,7 +111,8 @@ SizedFitter<BaseFitter,Width,Height>
     this->deriver.setData( 
         image.ptr(),
         image.width() / camera::pixel,
-        image.height() / camera::pixel );
+        image.height() / camera::pixel,
+        image.depth_in_pixels() );
     this->deriver.setUpperLeftCorner( xl, yl );
 
     float half_dist = 1.8;
@@ -117,13 +125,10 @@ SizedFitter<BaseFitter,Width,Height>
     if ( res != fitpp::FitSuccess )
         return 1.0;
 
-    double new_residues = this->deriver.getPosition().residues
-              .cwise().square().sum();
-    
     /* Check whether the two peaks are too far from each other to be of
      * influence. */
     if ( this->common.peak_distance_small(&this->deriver.getVariables()) )
-        return std::min(1.0, new_residues / normal.getPosition().chi_sq);
+        return std::min(1.0, this->deriver.getPosition().chi_sq / normal.getPosition().chi_sq);
     else
         return 1.0;
 }

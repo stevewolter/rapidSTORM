@@ -54,7 +54,7 @@ class CommonInfo
 
     void set_start(Variables* variables);
     void set_start( 
-        const engine::Spot& spot, const engine::BaseImage& image,
+        const engine::Spot& spot, const engine::Image& image,
         double shift_estimate, Variables* variables );
     bool check_result( Variables *variables, double residues, Localization *target);
 
@@ -74,7 +74,7 @@ struct Fitter<FitFlags,HonorCorrelation,Kernels>::Specialized {
     typedef fitter::FixedSized<Fitter,X,Y> 
         Sized;
     typedef typename fitpp::Exponential2D::Model<Kernels, FitFlags>
-        ::template Fitter<engine::StormPixel,X,Y,HonorCorrelation>::Type
+        ::template Fitter<engine::StormPixel,X,Y,1,HonorCorrelation>::Type
         Deriver;
 };
 

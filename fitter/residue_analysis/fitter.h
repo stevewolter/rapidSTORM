@@ -59,7 +59,7 @@ class SizedFitter
     }
 
     int fit(const engine::Spot& spot, Localization* target,
-        const engine::BaseImage &image, int xl, int yl );
+        const engine::Image &image, int xl, int yl );
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -68,7 +68,7 @@ class SizedFitter
     SpotState residue_analysis(Eigen::Vector2i* direction,
                                int xl, int yl);
     float double_fit_analysis(
-        const engine::BaseImage& image, 
+        const engine::Image& image, 
         const Eigen::Vector2i& direction,
         int single_fit_xl, int single_fit_yl);
 };
@@ -77,7 +77,7 @@ template <class BaseFitter, int Width, int Height>
 int 
 SizedFitter<BaseFitter, Width, Height>::
 fit( const engine::Spot &spot, Localization *target,
-     const engine::BaseImage& image, int xl, int yl) 
+     const engine::Image& image, int xl, int yl) 
 {
     int one_fit = normal.fit( spot, target, image, xl, yl );
     if ( one_fit <= 0 )

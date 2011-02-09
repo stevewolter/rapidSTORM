@@ -39,10 +39,10 @@ namespace AndorSIF {
      *  the SIF file. */
     template <typename PixelType>
     class Source : public simparm::Object,
-                   public input::Source< Image<PixelType,2> >
+                   public input::Source< Image<PixelType,3> >
     {
       public:
-        typedef dStorm::Image<PixelType,2> Image;
+        typedef dStorm::Image<PixelType,3> Image;
         typedef input::Source<Image> BaseSource;
         typedef typename BaseSource::iterator base_iterator;
         typedef typename BaseSource::Flags Flags;

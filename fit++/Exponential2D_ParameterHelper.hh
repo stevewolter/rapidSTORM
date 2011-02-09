@@ -10,7 +10,7 @@ template <int Ks, int PM, int W, int H, bool Corr>
 bool ParameterHelper<Ks,PM,W,H,Corr>::prepare(
     const typename Space::Variables& v,
     const typename Space::Constants& c,
-    const int x_low, const int y_low
+    const int x_low, const int y_low, const int
 ) {
     Base::extract( v, c );
     Base::template extract_param<SigmaX>( v, c, this->sx );

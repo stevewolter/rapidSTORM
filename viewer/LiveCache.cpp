@@ -14,5 +14,5 @@ namespace viewer {
 
 }
 
-template class Image<viewer::HistogramPixel,2>;
+//template class Image<viewer::HistogramPixel,2>;
 }

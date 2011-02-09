@@ -1,26 +1,43 @@
 #ifndef LIBFITPP_LATTICEFITFUNCTION_H
 #define LIBFITPP_LATTICEFITFUNCTION_H
 
+#include <Eigen/StdVector>
+#include "debug.h"
 #include <fit++/FitFunction.hh>
 #include <cassert>
 #include <algorithm>
 
 namespace fitpp {
-    template <int VarCount, int Width, int Height>
+    template <int VarCount, int Width, int Height, int Depth>
     struct LatticePosition
     : public Position<VarCount>
     {
-        typedef Eigen::Matrix<double,Height,Width>
+        typedef std::vector< Eigen::Matrix<double,Height,Width> >
             ResidueType;
         ResidueType residues;
 
-        void resize(int width, int height)
-            { residues.resize(height,width); }
+        LatticePosition() : residues( Depth ) {}
+
+        void resize(int width, int height) { 
+            DEBUG( "Resizing vector of size " << residues.size() << " to " << width << " " << height );
+            for (int i = 0; i < Depth; ++i)
+                residues[i].resize(height,width); 
+            DEBUG("Resized");
+        }
+        void resize( const LatticePosition& o ) {
+            DEBUG( "Resizing vector of size " << residues.size() << " from vector of size " << o.residues.size());
+            for (int i = 0; i < Depth; ++i)
+                residues[i].resize( o.residues[i].rows(), o.residues[i].cols()); 
+            DEBUG("Resized");
+        }
+
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
-    template <typename DataPoint>
+    template <typename DataPoint, int _Depth>
     class BaseLattice {
       public:
+        static const int Depth = _Depth;
         typedef 
             Eigen::Matrix<DataPoint,
                 Eigen::Dynamic,
@@ -30,11 +47,11 @@ namespace fitpp {
 
         void setData(
             const DataPoint *source_data,
-            int width, int height
+            int width, int height, int z_offset
         )
         { 
             data = source_data;
-            this->dw = width, this->dh = height;
+            dw = width, dh = height, this->z_offset = z_offset;
         }
 
         void setUpperLeftCorner( int xl, int yl ) {
@@ -44,14 +61,14 @@ namespace fitpp {
 
       protected:
         const DataPoint* data;
-        int dw, dh;
+        int dw, dh, z_offset;
         int xl, yl;
 
         BaseLattice() { data = NULL; }
 
-        inline DataPoint getPoint(int x, int y) 
+        inline DataPoint getPoint(int x, int y, int z) 
             const 
-            { return data[x + y*dw]; }
+            { return data[x + y*dw + z_offset*z ]; }
 
     };
 
@@ -64,21 +81,24 @@ namespace fitpp {
      *  The values are given using the setDataLine
      *  functions.
      **/
-    template <typename DataPoint, int W, int H>
+    template <typename BaseLattice, int W, int H>
     class SelectableLatticeFunction 
-    : public BaseLattice<DataPoint> 
+    : public BaseLattice 
     {
       public:
-        Eigen::Matrix<double,H,W> selectedData;
+        std::vector< Eigen::Matrix<double,H,W> >
+            selectedData;
+
+        SelectableLatticeFunction() : selectedData(BaseLattice::Depth) {}
 
         void setUpperLeftCorner(int xl, int yl) {
-            BaseLattice<DataPoint>::setUpperLeftCorner
+            BaseLattice::setUpperLeftCorner
                 (xl,yl);
-            selectedData = 
-                BaseLattice<DataPoint>::DataMatrix
-                ::Map(this->data, this->dh, this->dw)
-                .template block<H,W>( yl, xl )
-                .template cast<double>();
+            for (int i = 0; i < BaseLattice::Depth; ++i)
+                selectedData[i] = 
+                    BaseLattice::DataMatrix::Map(this->data+i*this->z_offset, this->dh, this->dw)
+                    .template block<H,W>( yl, xl )
+                    .template cast<double>();
         }
 
         int getWidth() const { return W; }
@@ -89,27 +109,30 @@ namespace fitpp {
         }
     };
 
-    template <typename DataPoint>
+    template <typename BaseLattice>
     class SelectableLatticeFunction
-        <DataPoint,Eigen::Dynamic,Eigen::Dynamic>
-    : public BaseLattice<DataPoint>
+        <BaseLattice,Eigen::Dynamic,Eigen::Dynamic>
+    : public BaseLattice
     {
       public:
-        Eigen::MatrixXd selectedData;
+        std::vector< Eigen::MatrixXd > selectedData;
+        SelectableLatticeFunction() : selectedData(BaseLattice::Depth) {}
         void setUpperLeftCorner(int xl, int yl) 
         {
-            BaseLattice<DataPoint>::setUpperLeftCorner
+            BaseLattice::setUpperLeftCorner
                 (xl,yl);
-            selectedData = 
-                BaseLattice<DataPoint>::DataMatrix
-                ::Map(this->data, this->dh, this->dw)
-                .template block( yl, xl, Height, Width )
-                .template cast<double>();
+            for (int i = 0; i < BaseLattice::Depth; ++i)
+                selectedData[i] = 
+                    BaseLattice::DataMatrix
+                    ::Map(this->data+i*this->z_offset, this->dh, this->dw)
+                    .template block( yl, xl, Height, Width )
+                    .template cast<double>();
         }
 
         void setSize( int xs, int ys ) {
             this->Width = xs; this->Height = ys;
-            selectedData.resize( this->Height, this->Width );
+            for (int i = 0; i < BaseLattice::Depth; ++i)
+                selectedData[i].resize( this->Height, this->Width );
         }
 
         int getWidth() const { return Width; }
@@ -119,10 +142,10 @@ namespace fitpp {
         int Width, Height;
     };
 
-    template <typename DataPoint, int Width, int Height>
+    template <typename DataPoint, int Width, int Height, int Depth>
     struct LatticeFunction
     : public SelectableLatticeFunction
-        <DataPoint,Width,Height>
+        < BaseLattice<DataPoint,Depth>,Width,Height>
     {
         template <typename Position, typename Derivatives,
                   typename Constants, typename Deriver>
@@ -134,26 +157,40 @@ namespace fitpp {
         {
             bool position_ok
                 = my_deriver.prepare
-                    ( position.parameters, constants,
-                                   this->xl, this->yl );
+                    ( position.parameters, constants, this->xl, this->yl, 0 );
             if ( !position_ok ) return false;
             my_deriver.compute( 
-                this->selectedData,
-                position.residues,
+                this->selectedData[0],
+                position.residues[0],
                 derivatives.beta,
                 derivatives.alpha
             );
             position.chi_sq 
-                = position.residues.cwise().square().sum();
+                = position.residues[0].cwise().square().sum();
+            for (int i = 1; i < Depth; ++i) {
+                Derivatives v;
+
+                position_ok = my_deriver.prepare
+                        ( position.parameters, constants, this->xl, this->yl, i );
+                if ( ! position_ok ) return false;
+                my_deriver.compute( 
+                    this->selectedData[i],
+                    position.residues[i],
+                    v.beta, v.alpha );
+
+                derivatives.alpha += v.alpha;
+                derivatives.beta += v.beta;
+                position.chi_sq += position.residues[i].cwise().square().sum();
+            }
             return true;
         }
         
-        DataPoint getCorner(int xfac, int yfac) {
+        DataPoint getCorner(int xfac, int yfac, int depth) {
             const int x = this->xl+
                 ((xfac == 1) ? this->getWidth()-1 : 0);
             const int y = this->yl+
                 ((yfac == 1) ? this->getHeight()-1 : 0);
-            return this->getPoint(x, y);
+            return this->getPoint(x, y, depth);
         }
     };
 }

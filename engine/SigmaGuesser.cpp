@@ -1,9 +1,10 @@
 #define DSTORM_SIGMAGUESSER_CPP
 #include "debug.h"
+#include <fit++/Exponential2D.hh>
 #include "engine/SigmaGuesser.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image.h>
-#include <fit++/Exponential2D.hh>
+#include <dStorm/image/slice.h>
 #include <limits>
 #include <boost/units/io.hpp>
 

@@ -42,7 +42,7 @@ struct ParameterHelper
     inline bool prepare(
         const typename Space::Variables& v,
         const typename Space::Constants& c,
-        const int x_low, const int y_low
+        const int x_low, const int y_low, const int z_layer
     );
 };
 
@@ -60,11 +60,11 @@ struct Deriver
     inline bool prepare( 
         const typename MySpecialization::Space::Variables& v,
         const typename MySpecialization::Space::Constants& c,
-        const int min_x, const int min_y
+        const int min_x, const int min_y, const int z_layer
     ) {
         bool ok = 
             MySpecialization::Parameters
-                ::prepare( v, c, min_x, min_y );
+                ::prepare( v, c, min_x, min_y, z_layer );
         if (!ok) return false;
         return this->DerivativeHelper<MySpecialization,Corr>
                ::prepare();

@@ -68,7 +68,8 @@ libinputs_la_SOURCES = \
 	inputs/AndorSIF_OpenFile.h inputs/AndorSIF_OpenFile.cpp \
 	inputs/BackgroundDeviationEstimator_decl.h \
 	inputs/BackgroundDeviationEstimator.cpp \
-	inputs/BackgroundDeviationEstimator.h
+	inputs/BackgroundDeviationEstimator.h \
+	inputs/Splitter_decl.h inputs/Splitter.h inputs/Splitter.cpp
 
 libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \

@@ -65,11 +65,11 @@ struct Reader : public std::stringstream {
 };
 
 template <typename PixelType>
-std::auto_ptr< Traits<dStorm::Image<PixelType,2> > >
+std::auto_ptr< Traits<dStorm::Image<PixelType,3> > >
 OpenFile::getTraits()
 {
-    std::auto_ptr< Traits<dStorm::Image<PixelType,2> > > 
-        rv( new Traits<dStorm::Image<PixelType,2> >() );
+    std::auto_ptr< Traits<dStorm::Image<PixelType,3> > > 
+        rv( new Traits<dStorm::Image<PixelType,3> >() );
     /* Read the additional information file from the SIF file
      * and store it in SIF info structure. */
     std::stringstream ss;
@@ -78,6 +78,7 @@ OpenFile::getTraits()
             readsif_imageWidth( dataSet, 0 ) * camera::pixel;
     rv->size.y() = readsif_imageHeight( dataSet, 0 )
             * camera::pixel;
+    rv->size.z() = 1 * camera::pixel;
     if ( dataSet->instaImage.kinetic_cycle_time > 1E-8 ) {
         rv->image_number().resolution() = 1.0f * camera::frame / ( dataSet->instaImage.kinetic_cycle_time
                 * boost::units::si::second );
@@ -106,10 +107,10 @@ OpenFile::getTraits()
 }
 
 template<typename PixelType>
-std::auto_ptr< dStorm::Image<PixelType,2> >
+std::auto_ptr< dStorm::Image<PixelType,3> >
 OpenFile::load_image(int count, simparm::Node& node)
 {
-    typedef dStorm::Image<PixelType,2> Image;
+    typedef dStorm::Image<PixelType,3> Image;
     DEBUG("Loading next image");
     std::auto_ptr< Image > result;
     if ( had_errors )
@@ -118,6 +119,7 @@ OpenFile::load_image(int count, simparm::Node& node)
     boost::scoped_array<float> buffer( new float[sz] );
     for (int i = 0; i < sz; i++) buffer[i] = 5;
     typename Image::Size dim;
+    dim.fill(1 * camera::pixel);
     dim.x() = readsif_imageWidth(dataSet, 0) 
         * camera::pixel;
     dim.y() = readsif_imageHeight(dataSet, 0)
@@ -157,10 +159,10 @@ OpenFile::load_image(int count, simparm::Node& node)
 }
 
 template 
-std::auto_ptr< Traits<dStorm::Image<unsigned short,2> > >
+std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > >
 OpenFile::getTraits();
 template 
-std::auto_ptr< dStorm::Image<unsigned short,2> >
+std::auto_ptr< dStorm::Image<unsigned short,3> >
 OpenFile::load_image(int, simparm::Node&);
 
 OpenFile::~OpenFile() {

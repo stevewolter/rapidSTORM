@@ -118,7 +118,7 @@ struct Model
 
     template <
             typename PixelType, 
-            int Width = Eigen::Dynamic, int Height = Eigen::Dynamic,
+            int Width, int Height, int Depth,
             bool Use_Correlation = ParameterMap
                                 ::template Parameter<SigmaXY>::Variable,
             bool Compute_Variances = false
@@ -130,7 +130,7 @@ struct Model
             Deriver<Kernels,ParameterMask,
                     Width,Height,Use_Correlation>,
             PixelType,
-            Width, Height,
+            Width, Height, Depth,
             Compute_Variances> Type;
     };
 };

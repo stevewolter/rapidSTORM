@@ -46,7 +46,7 @@ class CommonInfo
     CommonInfo( const CommonInfo& );
     ~CommonInfo();
     void set_start( 
-        const engine::Spot& spot, const engine::BaseImage& image,
+        const engine::Spot& spot, const engine::Image& image,
         double shift_estimate, Variables* variables );
     bool check_result( Variables *variables, double residues, Localization *target);
 };
@@ -73,7 +73,7 @@ class ResidueAnalysisInfo
 };
 
 
-template <int Kernels, int Widening>
+template <int Kernels, int Widening, int Depth>
 struct NaiveFitter {
     typedef CommonInfo<Kernels,Widening> SizeInvariants;
     typedef fitpp::Exponential3D::Model<Kernels,Widening> Model;
@@ -81,18 +81,18 @@ struct NaiveFitter {
     template <int X, int Y>
     struct Specialized {
         typedef fitter::FixedSized<NaiveFitter,X,Y> Sized;
-        typedef typename Model::template Fitter<engine::StormPixel,X,Y>
+        typedef typename Model::template Fitter<engine::StormPixel,X,Y,Depth>
             ::Type Deriver;
     };
 
     ~NaiveFitter();
 };
 
-template <int Widening>
+template <int Widening, int Depth>
 struct Fitter {
     typedef ResidueAnalysisInfo<Widening> SizeInvariants;
-    typedef NaiveFitter<1,Widening> OneKernel;
-    typedef NaiveFitter<2,Widening> TwoKernel;
+    typedef NaiveFitter<1,Widening,Depth> OneKernel;
+    typedef NaiveFitter<2,Widening,Depth> TwoKernel;
 };
 
 }

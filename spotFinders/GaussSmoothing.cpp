@@ -40,7 +40,7 @@ void gsm_line(const InputPixel *input, int step, int radius, int size,
     }
 }
 
-void GaussSmoother::smooth( const engine::Image &in )
+void GaussSmoother::smooth( const engine::Image2D &in )
  
 {
     /* Effective border width */

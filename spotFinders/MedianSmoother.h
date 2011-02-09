@@ -10,7 +10,7 @@ namespace dStorm {
 namespace spotFinders {
     class MedianSmoother : public engine::SpotFinder {
       private:
-        typedef engine::Image Image;
+        typedef engine::Image2D Image;
         typedef engine::SmoothedImage SmoothedImage;
 
         void naiveMedian(const Image &in, SmoothedImage& out, 

@@ -1,11 +1,11 @@
 #define LOCPREC_PRECISIONESTIMATOR_CPP
-#include "PrecisionEstimator.h"
-#include <iomanip>
 #include <fit++/Exponential2D.hh>
 #include <fit++/FitFunction_impl.hh>
 #include <fit++/Exponential2D_impl.hh>
 #include <fit++/Exponential2D_Correlated_Derivatives.hh>
+#include "PrecisionEstimator.h"
 #include <dStorm/output/Trace.h>
+#include <iomanip>
 #include <sstream>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/ImageTraits.h>
@@ -247,9 +247,9 @@ FitSigmas GaussFitter::perform_fit() {
 
     typedef Exponential2D::Model<1,ExpFlags> Model;
     Model::Constants constants;
-    Model::Fitter<double>::Type fitter(constants);
+    Model::Fitter<double,Eigen::Dynamic,Eigen::Dynamic,1>::Type fitter(constants);
     fitter.setSize(data.rows(), data.cols());
-    fitter.setData(data.data(), data.rows(), data.cols());
+    fitter.setData(data.data(), data.rows(), data.cols(), 0);
 
     FitSigmas result;
     result.n = total_count;

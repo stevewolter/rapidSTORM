@@ -114,7 +114,7 @@ template <typename Pixel>
 class Source<Pixel>::iterator
 : public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
 {
-    mutable dStorm::Image<Pixel,2> img;
+    mutable dStorm::Image<Pixel,3> img;
     OpenFile* src;
     mutable simparm::Node* msg;
     int count;
@@ -125,7 +125,7 @@ class Source<Pixel>::iterator
     Image& dereference() const { 
         if ( ! did_load ) {
             DEBUG("Loading at " << count);
-            std::auto_ptr<dStorm::Image<Pixel,2> > i = src->load_image<Pixel>(count, *msg);
+            std::auto_ptr<dStorm::Image<Pixel,3> > i = src->load_image<Pixel>(count, *msg);
             if ( i.get() == NULL && src->did_have_errors() ) throw dStorm::abort();
             if ( i.get() != NULL )
                 img = *i;

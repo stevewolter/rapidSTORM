@@ -11,18 +11,22 @@ template <int Kernels, int Widening, int W, int H>
 bool ParameterHelper< Kernels, Widening, W, H >::prepare(
     const typename MySpecialization::Space::Variables& v,
     const typename MySpecialization::Space::Constants& c,
-    const int x_low, const int y_low
+    const int x_low, const int y_low, const int z_layer
 ) {
     Base::extract( v, c );
-    Eigen::Matrix<double,Kernels,1> _z;
+    Eigen::Matrix<double,Kernels,1> _z, layer_z_distance;
     Eigen::Matrix<double,Kernels,2> z, z0, s0, delta_z, zn, sigmas;
 
     Base::template extract_param<MeanZ>(v, c, _z);
-    z.col(0) = _z;
-    z.col(1) = _z;
+    Base::template extract_param<LayerDistance>(v, c, layer_z_distance);
     extract_param_xy<BestSigmaX,BestSigmaY>( v, c, s0 );
     extract_param_xy<DeltaSigmaX,DeltaSigmaY>( v, c, delta_z );
     extract_param_xy<ZAtBestSigmaX,ZAtBestSigmaY>( v, c, z0 );
+
+    for (int i = 0; i < z.cols(); ++i) {
+        z.col(i) = _z;
+        z0.col(i) += layer_z_distance * z_layer;
+    }
     if ( Widening == Zhuang ) {
         delta_z = delta_z.cwise().sqrt();
     }

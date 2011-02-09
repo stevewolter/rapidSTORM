@@ -28,7 +28,7 @@ namespace spotFinders {
                        const engine::InputTraits::Size& size) 
             : SpotFinder(conf, size) {}
 
-        void smooth( const engine::Image &in ) {
+        void smooth( const engine::Image2D &in ) {
             smoothByAverage( in, *smoothed, msx, msy );
         }
     };

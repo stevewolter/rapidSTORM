@@ -1,12 +1,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include "Factory.h"
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/ModuleInterface.h>
 #include <dStorm/Config.h>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include "Factory.h"
 
 using namespace dStorm::gauss_3d_fitter;
 

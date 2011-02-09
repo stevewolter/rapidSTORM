@@ -6,14 +6,14 @@ namespace fitpp {
 template <typename Model,
           typename Deriver,
           typename DataType, 
-          int Width = Eigen::Dynamic, int Height = Eigen::Dynamic,
-          bool Compute_Variances = false>
+          int Width, int Height, int Depth,
+          bool Compute_Variances>
 struct LeastSquaresLatticeFitter
-: public LatticeFunction<DataType,Width,Height>,
+: public LatticeFunction<DataType,Width,Height,Depth>,
   public Deriver 
 {
   public:
-    typedef LatticePosition<Model::VarC,Width,Height> Position;
+    typedef LatticePosition<Model::VarC,Width,Height,Depth> Position;
     typedef typename Model::Variables Variables;
     typedef typename Model::Constants Constants;
     typedef FitFunction<Model::VarC, Compute_Variances> Function;
@@ -28,7 +28,7 @@ struct LeastSquaresLatticeFitter
 
     FitResult fit( Function& function ) {
         Position second;
-        second.residues.resize( position.residues.rows(), position.residues.cols() );
+        second.resize( position );
         std::pair<FitResult,Position*> result = 
             function.fit_with_deriver( position, second, *this );
 
@@ -41,7 +41,7 @@ struct LeastSquaresLatticeFitter
         Position& pos,
         Derivatives<Model::VarC>& derivatives
     ) {
-        bool ok = LatticeFunction<DataType,Width,Height>::
+        bool ok = LatticeFunction<DataType,Width,Height,Depth>::
           compute_derivatives
             ( pos, derivatives, constants, *this );
         if (!ok) return false;
@@ -54,7 +54,7 @@ struct LeastSquaresLatticeFitter
         { return this->residues; }
 
     void setSize(int width, int height) {
-        LatticeFunction<DataType,Width,Height>::
+        LatticeFunction<DataType,Width,Height,Depth>::
             setSize(width,height);
         Deriver::resize( width, height );
         position.resize(width,height);
