@@ -88,7 +88,7 @@ engine::Image& Source::iterator::dereference() const {
         sz[1] /= 2;
         sz[2] *= 2;
         o[2] = sz[1].value() * o[1];
-        i = engine::Image( sz, e.get_data_reference(), o, e.frame_number() );
+        i = engine::Image( sz, e.get_data_reference(), o, e.get_global_offset(), e.frame_number() );
     }
     return i;
 }
