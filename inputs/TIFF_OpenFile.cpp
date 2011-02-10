@@ -27,8 +27,9 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
 
     for (int i = 0; i < 3; ++i ) {
         uint32_t field;
-        TIFFGetField( tiff, size_tags[i], &field );
-        size[i] = size_tags[i];
+        if ( ! TIFFGetField( tiff, size_tags[i], &field ) )
+            field = 1;
+        size[i] = field;
     }
 
     int unit = RESUNIT_INCH;
@@ -65,12 +66,16 @@ OpenFile::getTraits()
         rv( new Traits<dStorm::Image<Pixel,Dim> >() );
     for (int i = 0; i < Dim; ++i) rv->size[i] = size[i] * camera::pixel;
     rv->dim = 1; /* TODO: Read from file */
-    rv->resolution = resolution;
+    for (int i = 0; i < 2; ++i)
+        rv->resolution[i] = resolution[i];
     if ( _no_images != -1 )
         rv->image_number().range().second = (_no_images - 1) * camera::frame;
 
     return rv;
 }
+
+template std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > > 
+    OpenFile::getTraits<unsigned short,3>();
 
 OpenFile::~OpenFile() {
     TIFFClose( tiff );

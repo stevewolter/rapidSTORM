@@ -53,6 +53,7 @@ RawImageFile::RawImageFile(const Config& config)
   tif( NULL ),
   next_image(0)
 {
+    DEBUG("Creating TIFF output for image " << filename);
     if ( ! config.outputFile )
         throw std::runtime_error(
             "No file name supplied for raw image output");
@@ -69,6 +70,7 @@ RawImageFile::announceStormSize(const Announcement &a)
 
     TIFFOperation op("in writing TIFF file", *this, false);
     if ( tif == NULL ) {
+        DEBUG("Opening TIFF output file");
         tif = TIFFOpen( filename.c_str(), "w" );
         if ( tif == NULL ) {
             op.throw_exception_for_errors();
@@ -142,9 +144,10 @@ void RawImageFile::delete_queue() {
 
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFOperation op("in writing TIFF file", *this, false);
-    DEBUG("Writing " << img.frame_number().value());
+    DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGEDEPTH, uint32_t(size.size.z() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );

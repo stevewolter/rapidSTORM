@@ -129,7 +129,8 @@ Source<Pixel,Dimensions>::iterator::check_params() const
     uint16_t bitspersample;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &height );
-    TIFFGetField( tiff, TIFFTAG_IMAGEDEPTH, &depth );
+    if ( ! TIFFGetField( tiff, TIFFTAG_IMAGEDEPTH, &depth ) )
+        depth = 1;
     TIFFGetField( tiff, TIFFTAG_BITSPERSAMPLE, &bitspersample );
 
     if ( int(width) != src->size[0] || int(height) != src->size[1] || int(depth) != src->size[2] ) {

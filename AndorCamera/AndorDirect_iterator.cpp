@@ -50,10 +50,10 @@ engine::Image& Source::iterator::dereference() const {
 void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
 {
     DEBUG("Allocating image " << fr.frame_number);
-    CamImage i(img.slice(2, 0));
+    img.invalidate();
     while ( img.is_invalid() ) {
         try {
-            i = CamImage(src->traits->size.start<2>(), fr.frame_number);
+            img = dStorm::engine::Image(src->traits->size, fr.frame_number);
         } catch( const std::bad_alloc& alloc ) {
             /* Do nothing. Try to wait until more memory is available.
                 * Maybe the ring buffer saves us. Maybe not, but we can't
@@ -61,32 +61,36 @@ void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
             continue;
         }
     }
+    CamImage i(img.slice(2, 0));
     i.frame_number() = fr.frame_number;
     DEBUG("Allocated image");
     src->connection->read_data( i );
     if ( src->live_view.get() )
         src->live_view->show( i );
-    img.slice(2,0) = i;
 }
 
 void Source::iterator::operator()( const CameraConnection::ImageError& fr )
 {
+    DEBUG("Image error for number " << fr.frame_number);
     img.invalidate();
     img.frame_number() = fr.frame_number;
 }
 
-void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& fr )
+void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& )
 {
+    DEBUG("Acquisition has ended");
     img.invalidate();
     src->has_ended = true;
     src = NULL;
 }
 
-void Source::iterator::operator()( const CameraConnection::Simparm& fr )
+void Source::iterator::operator()( const CameraConnection::Simparm& )
 {
+    DEBUG("Acquisition got simparm message ");
 }
 
 void Source::iterator::operator()( const CameraConnection::StatusChange& status ) {
+    DEBUG("Acquisition got status message " << status.status);
     src->status = status.status;
 }
 

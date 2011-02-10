@@ -139,7 +139,7 @@ static bool check() {
     compute_residues_naively( parameters, data, residues_naive, gradient_naive, hessian_naive );
 
     ToTest test;
-    test.prepare( vars, parameters.getConstants(), 0, 0 );
+    test.prepare( vars, parameters.getConstants(), 0, 0, 0 );
     test.compute( data, residues_optimized, gradient_optimized, hessian_optimized );
 
 #define CHECK(x) \

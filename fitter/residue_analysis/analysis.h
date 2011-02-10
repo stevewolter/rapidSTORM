@@ -26,7 +26,7 @@ SizedFitter<BaseFitter,Width,Height>
     const int Horizontal = 2, Vertical = 3, 
               MainDiagonal = 0, OffDiagonal = 1;
 
-  int worst_main_axis; double max_normed_diff = 0;
+  int worst_main_axis = Horizontal; double max_normed_diff = 0;
   for (unsigned int i = 0; i < this->deriver.getPosition().residues.size(); ++i) {
     const Eigen::Matrix<double,Height,Width>& R 
         = this->deriver.getPosition().residues[i];

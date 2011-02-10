@@ -133,6 +133,12 @@ dStorm::Display::ResizeChange Display::getSize() const
             if ( t.resolution[i].is_set() )
                 new_size.pixel_sizes[i] = *t.resolution[i];
         }
+    } else if (  context.get() && context->has_info_for<engine::Image>() ) {
+        const dStorm::input::Traits<engine::Image>& t = context->get_info_for<engine::Image>();
+        for (int i = 0; i < 2; ++i) {
+            if ( t.resolution[i].is_set() )
+                new_size.pixel_sizes[i] = *t.resolution[i];
+        }
     }
         
     return new_size;

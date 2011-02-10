@@ -115,7 +115,7 @@ static int check(double corr = 1) {
     ToTest test;
     if ( DynamicSize )
         test.resize( 9, 11 );
-    test.prepare( vars, constants, 0, 0 );
+    test.prepare( vars, constants, 0, 0, 0 );
     test.compute( data, residues_optimized, gradient_optimized, hessian_optimized );
 
 #define CHECK(x,y) \
@@ -125,7 +125,6 @@ static int check(double corr = 1) {
         std::cerr << std::endl; \
         return 1; \
     } else { \
-        std::cerr << x ## _naive << "\n\n" << x ## _optimized << "\n\n" << (x ## _naive - x ## _optimized) << std::endl; \
     }
     CHECK(residues, "residue matrix");
     CHECK(gradient, "gradient");

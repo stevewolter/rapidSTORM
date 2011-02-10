@@ -33,7 +33,7 @@ class RawImageFile : public OutputObject {
 
     class _Config;
 
-    input::ImageTraits<2> size;
+    input::Traits< engine::Image > size;
     simparm::optional<frame_count> last_frame;
 
   public:

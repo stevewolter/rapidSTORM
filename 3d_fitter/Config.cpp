@@ -27,8 +27,8 @@ std::string descs[] = { " Holtzer model", "parabolic model" };
 template <int Widening>
 Config<Widening>::Config() 
 : MarquardtConfig("3DFitter" + names[Widening], ("3D cylinder lens fit with " + descs[Widening])),
-  z_plane_x("XFocalPlane", "Position of X focal plane"),
-  z_plane_y("YFocalPlane", "Position of Y focal plane"),
+  z_plane_x("XFocalPlane", "Position of X focal plane", 0 * si::nanometre),
+  z_plane_y("YFocalPlane", "Position of Y focal plane", 0 * si::nanometre),
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", 1000 * boost::units::si::nanometre),
   defocus_constant_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
   defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y"),

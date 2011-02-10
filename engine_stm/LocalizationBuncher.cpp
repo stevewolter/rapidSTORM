@@ -80,6 +80,9 @@ LocalizationBuncher<Input>::LocalizationBuncher(
     bool end)
 : master(master)
 {
+    result.source = NULL;
+    result.smoothed = NULL;
+    result.candidates = NULL;
     if ( end ) {
         outputImage = master.lastImage;
     } else {
