@@ -65,6 +65,8 @@ struct Model<Kernels,Widening>::Accessor {
     METHODS(ZAtBestSigmaX,boost::units::si::nanolength);
     METHODS(ZAtBestSigmaY,boost::units::si::nanolength);
     METHODS(LayerDistance,boost::units::si::nanolength);
+    METHODS(LayerShiftX,boost::units::camera::length);
+    METHODS(LayerShiftY,boost::units::camera::length);
 #undef METHODS
     typedef boost::units::quantity<boost::units::camera::intensity,double>
         QuantityShift;

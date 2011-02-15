@@ -33,7 +33,9 @@ static const int
     ZAtBestSigmaX = 9,
     ZAtBestSigmaY = 10,
     LayerDistance = 11,
-    FunctionDeps = 11,
+    LayerShiftX = 12,
+    LayerShiftY = 13,
+    FunctionDeps = 13,
     Globals = 1;
 
 enum Widenings {

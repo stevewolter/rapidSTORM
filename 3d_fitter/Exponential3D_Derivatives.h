@@ -85,7 +85,6 @@ DerivativeHelper<Model>::compute(
         Eigen::Matrix<double,Ks,H> derivs
             = (this->xl.expTerm.col(col).cwise() * this->prefactor).asDiagonal()
                   * (this->yl.expTerm.cwise() * z_factors);
-        DEBUG("Derivatives for column " << col << " are " << derivs);
         gradient.template block<Kernels,1>(ZParam<0>::Index, 0)
             += (derivs * residues.col(col));
         hessian.template block<Kernels,VarC>(ZParam<0>::Index, 0) 

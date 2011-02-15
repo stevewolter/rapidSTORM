@@ -2,7 +2,7 @@
 #define GAUSS_FITTER_RESIDUE_ANALYSIS_H
 
 #include "main.h"
-#include <dStorm/BaseImage.h>
+#include <dStorm/Image_decl.h>
 #include <fit++/FitFunction_impl.hh>
 #include "fitter/FixedSized.h"
 

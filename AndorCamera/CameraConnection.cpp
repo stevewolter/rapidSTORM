@@ -15,11 +15,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-#ifdef HAVE_LIBB64
 extern "C" {
 #include <b64/cdecode.h>
 }
-#endif
 
 namespace dStorm {
 namespace AndorCamera {

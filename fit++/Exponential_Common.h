@@ -24,12 +24,13 @@ struct PrecalculatedLines<Lines,Size,false>
 
     inline void prepare(
         const int low,
+        const double scale,
         const Eigen::Matrix<double,Lines,1>& means,
         const Eigen::Matrix<double,Lines,1>& var_Invs
     ) {
         for (int c = 0; c < val.cols(); c++)
             val.col(c) =
-                ((-means).cwise()+(c+low)).cwise() * var_Invs;
+                ((-means).cwise()+(c*scale+low)).cwise() * var_Invs;
 
         sqr = val.cwise().square();
     }
@@ -49,11 +50,12 @@ struct PrecalculatedLines<Lines,Size,true>
     }
 
     inline void prepare(
-        const int low,
+        const double low,
+        const double scale,
         const Eigen::Matrix<double,Lines,1>& means,
         const Eigen::Matrix<double,Lines,1>& var_Invs
     ) {
-        Base::prepare(low, means, var_Invs);
+        Base::prepare(low, scale, means, var_Invs);
         expTerm = (Base::sqr * -0.5).cwise().exp();
     }
 };
@@ -63,7 +65,7 @@ struct ParameterHelper
 {
     static const int Ks = Space::Kernels;
     int width, height;
-    int shift;
+    double shift;
     int x_low;
 
     PrecalculatedLines<Ks,W,!Corr> xl;
@@ -73,6 +75,8 @@ struct ParameterHelper
         x0, y0, amp, sx, sy, 
         norms, prefactor, sxI, syI,
         ellip, ellipI;
+    Eigen::Matrix2d rotation;
+    Eigen::Vector2d translation;
 
     template <int Param> 
     inline static void extract_param(
@@ -92,6 +96,8 @@ struct ParameterHelper
         const typename Space::Variables& v,
         const typename Space::Constants& c
     ) {
+        rotation = Eigen::Matrix2d::Identity();
+        translation = Eigen::Vector2d::Zero();
         shift = Space::ParameterMap::template value<Shift,0>(v, c);
         extract_param<MeanX>( v, c, x0 );
         extract_param<MeanY>( v, c, y0 );

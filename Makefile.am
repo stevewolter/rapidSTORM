@@ -38,7 +38,7 @@ lib3d_fitter_la_SOURCES = \
     3d_fitter/Fitter.h 3d_fitter/Fitter.cpp \
     3d_fitter/Specialized.cpp 3d_fitter/Specialized_naive.cpp \
     3d_fitter/plugin.cpp 3d_fitter/ConstantTypes.h \
-    3d_fitter/Exponential3D_Accessor.h
+    3d_fitter/Exponential3D_Accessor.h 3d_fitter/Unspecialized.cpp
 lib3d_fitter_la_LDFLAGS = -no-undefined -version-info 1:0:0 -module
 lib3d_fitter_la_LIBADD = -lsimparm
 

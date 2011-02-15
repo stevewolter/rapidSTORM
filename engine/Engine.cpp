@@ -1,5 +1,6 @@
 #define DSTORM_ENGINE_CPP
 
+#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -19,6 +20,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/slice.h>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "SigmaGuesser.h"
 
@@ -69,8 +71,6 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_set() )
         rv.amplitude().range().first = *config.amplitude_threshold();
-    DEBUG("Last frame is set in input: " << imProp->last_frame.is_set());
-    DEBUG("Last frame is set: " << rv.last_frame.is_set());
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
     rvt->source_image_is_set = true;
@@ -154,7 +154,7 @@ class Engine::_iterator::WorkHorse {
     Config& config;
 
     int maximumLimit;
-    std::auto_ptr<SpotFinder> finder;
+    boost::ptr_vector<SpotFinder> finder;
     std::auto_ptr<SpotFitter> fitter;
     data_cpp::Vector<Localization> buffer;
     CandidateTree<SmoothedPixel> maximums;
@@ -163,8 +163,8 @@ class Engine::_iterator::WorkHorse {
   public:
     WorkHorse( Engine& engine );
     ~WorkHorse() {
-        DEBUG("Destructing spot finder");
-        finder.reset();
+        DEBUG("Destructing spot finders");
+        finder.clear();
         DEBUG("Destructing spot fitter");
         fitter.reset();
         DEBUG("Destructing rest");
@@ -211,11 +211,12 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
   origMotivation( config.motivation() )
 {
     DEBUG("Started piston");
-    DEBUG("Building spot finder with dimensions " << engine.imProp->dimx() <<
-           " " << engine.imProp->dimy());
+    DEBUG("Building spot finders with dimensions " << engine.imProp->size[0] <<
+           " " << engine.imProp->size[1]);
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
-    finder = config.spotFindingMethod().make_SpotFinder(config, engine.imProp->size);
+    for (int i = 0; i < engine.imProp->size[2].value(); ++i)
+        finder.push_back( config.spotFindingMethod().make_SpotFinder(config, engine.imProp->size) );
 
     DEBUG("Building spot fitter");
     fitter = config.spotFittingMethod().make_by_parts(config, *engine.imProp);
@@ -224,7 +225,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     maximums.setLimit(maximumLimit);
 
     DEBUG("Initialized motivation");
-    resultStructure.smoothed = &finder->getSmoothedImage();
+    resultStructure.smoothed = &finder[0].getSmoothedImage();
     resultStructure.candidates = &maximums;
 };
 
@@ -261,14 +262,15 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
     for (int i = 0; i < image.depth_in_pixels(); ++i)
-    finder->smooth(image.slice(2,i * camera::pixel));
+        finder[i].smooth(image.slice(2,i * camera::pixel));
     IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
 
     CandidateTree<SmoothedPixel>::iterator cM = maximums.begin();
     int motivation;
     recompress:  /* We jump here if maximum limit proves too small */
     IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
-    finder->findCandidates( maximums );
+    for (int i = 0; i < image.depth_in_pixels(); ++i)
+        finder[i].findCandidates( maximums );
     DEBUG("Found " << maximums.size() << " spots");
 
     IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );

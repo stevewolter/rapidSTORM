@@ -30,6 +30,8 @@ Config<Widening>::Config()
   z_plane_x("XFocalPlane", "Position of X focal plane", 0 * si::nanometre),
   z_plane_y("YFocalPlane", "Position of Y focal plane", 0 * si::nanometre),
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", 1000 * boost::units::si::nanometre),
+  delta_layer_x("XTranslation", "Translation of second layer in X direction", 0 * si::nanometre),
+  delta_layer_y("YTranslation", "Translation of second layer in Y direction", 0 * si::nanometre),
   defocus_constant_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
   defocus_constant_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y"),
   output_sigmas("OutputSigmas", "Output PSF covariance matrix", false)
@@ -52,6 +54,8 @@ void Config<Widening>::registerNamedEntries()
     push_back(z_range);
     push_back(defocus_constant_x);
     push_back(defocus_constant_y);
+    push_back(delta_layer_x);
+    push_back(delta_layer_y);
     push_back(output_sigmas);
     fitter::residue_analysis::Config::registerNamedEntries(*this);
 }

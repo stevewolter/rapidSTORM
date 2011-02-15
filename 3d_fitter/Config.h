@@ -22,7 +22,7 @@ class Config
     ~Config();
     void registerNamedEntries();
 
-    dStorm::FloatNanometreEntry z_plane_x, z_plane_y, z_range;
+    dStorm::FloatNanometreEntry z_plane_x, z_plane_y, z_range, delta_layer_x, delta_layer_y;
     simparm::UnitEntry<typename fitpp::Exponential3D::ConstantTypes<Widening>::ResolutionUnit,float>
         defocus_constant_x, defocus_constant_y;
     simparm::BoolEntry output_sigmas;

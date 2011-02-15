@@ -15,13 +15,14 @@ bool ParameterHelper< Kernels, Widening, W, H >::prepare(
 ) {
     Base::extract( v, c );
     Eigen::Matrix<double,Kernels,1> _z, layer_z_distance;
-    Eigen::Matrix<double,Kernels,2> z, z0, s0, delta_z, zn, sigmas;
+    Eigen::Matrix<double,Kernels,2> z, z0, s0, delta_z, zn, sigmas, layer_delta;
 
     Base::template extract_param<MeanZ>(v, c, _z);
     Base::template extract_param<LayerDistance>(v, c, layer_z_distance);
     extract_param_xy<BestSigmaX,BestSigmaY>( v, c, s0 );
     extract_param_xy<DeltaSigmaX,DeltaSigmaY>( v, c, delta_z );
     extract_param_xy<ZAtBestSigmaX,ZAtBestSigmaY>( v, c, z0 );
+    extract_param_xy<LayerShiftX,LayerShiftY>( v, c, layer_delta );
 
     for (int i = 0; i < z.cols(); ++i) {
         z.col(i) = _z;
@@ -30,6 +31,8 @@ bool ParameterHelper< Kernels, Widening, W, H >::prepare(
     if ( Widening == Zhuang ) {
         delta_z = delta_z.cwise().sqrt();
     }
+
+    this->translation = z_layer * layer_delta.row(0).transpose();
 
     zn = (z - z0).cwise() * delta_z;
     if ( Widening == Holtzer ) {

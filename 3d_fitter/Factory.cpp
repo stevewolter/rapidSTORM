@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "Factory.h"
 #include "Fitter.h"

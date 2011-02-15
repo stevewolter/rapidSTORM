@@ -277,12 +277,6 @@ void Car::run_computation()
     } catch ( const dStorm::runtime_error& e ) {
         simparm::Message m( e.get_message("Error in Job " + ident) );
         runtime_config.send(m);
-    } catch (const std::exception& e) {
-        simparm::Message m("Error in Job " + ident, e.what() );
-        runtime_config.send(m);
-    } catch (...) {
-        simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
-        runtime_config.send( m );
     }
     emergencyStop = error = true;
 }
@@ -386,12 +380,6 @@ void Car::drive() {
   } catch (const dStorm::runtime_error& e) {
     simparm::Message m( e.get_message("Error in Job " + ident) );
     runtime_config.send(m);
-  } catch (const std::exception& e) {
-    simparm::Message m("Error in Job " + ident, e.what() );
-    runtime_config.send(m);
-  } catch (...) {
-    simparm::Message m("Unspecified error", "Unknown type of failure. Sorry." );
-    runtime_config.send( m );
   }
 
     ost::MutexLock lock( terminationMutex );

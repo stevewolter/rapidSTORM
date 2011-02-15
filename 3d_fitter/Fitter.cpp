@@ -71,6 +71,8 @@ CommonInfo<Ks,Widening>::CommonInfo(
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
     params->template set_all_BestSigmaX( info.config.sigma_x() );
     params->template set_all_BestSigmaY( info.config.sigma_y() );
+    params->template set_all_LayerShiftX( quantity<camera::length>(c.delta_layer_x() * info.traits.resolution[0]->in_dpm()) );
+    params->template set_all_LayerShiftY( quantity<camera::length>(c.delta_layer_y() * info.traits.resolution[1]->in_dpm()) );
     if ( info.traits.resolution[2].is_set() ) {
         quantity<si::length> z_px_sz = camera::pixel / info.traits.resolution[2]->in_dpm();
         params->template set_all_LayerDistance( quantity<si::nanolength>(z_px_sz) );

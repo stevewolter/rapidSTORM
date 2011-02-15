@@ -40,6 +40,7 @@ template <typename Space, int W, int H, bool Corr>
 void ParameterHelper<Space,W,H,Corr>::precompute(
     const int x_low, const int y_low
 ) {
+    assert( abs( rotation(0,1) ) <= 1E-9 && abs( rotation(1,0) ) <= 1E-9 );
     sxI = sx.cwise().inverse();
     syI = sy.cwise().inverse();
     norms = (2 * M_PI * (sx.cwise() * sy)).cwise().inverse();
@@ -49,8 +50,8 @@ void ParameterHelper<Space,W,H,Corr>::precompute(
     }
     prefactor = norms.cwise() * amp;
 
-    xl.prepare( x_low, x0, sxI );
-    yl.prepare( y_low, y0, syI );
+    xl.prepare( x_low + translation.x(), rotation(0,0), x0, sxI );
+    yl.prepare( y_low + translation.y(), rotation(1,1), y0, syI );
 };
 
 }
