@@ -1,6 +1,5 @@
 #define DSTORM_ENGINE_CPP
 
-#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -89,7 +88,7 @@ Engine::TraitsPtr Engine::get_traits() {
         if ( imProp->background_stddev.is_set() ) {
             config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
         } else {
-            throw std::logic_error("Background standard deviation is neither set nor could be computed");
+            throw std::logic_error("Amplitude threshold is not set and could not be determined from background noise strength");
         }
         DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
     } else {

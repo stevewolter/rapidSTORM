@@ -1,3 +1,4 @@
+#define VERBOSE
 #define DSTORM_TIFFLOADER_CPP
 
 #ifdef HAVE_CONFIG_H
@@ -81,7 +82,7 @@ class Source<Pixel,Dimensions>::iterator
     Image& dereference() const; 
     bool equal(const iterator& i) const {
         DEBUG( "Comparing " << src << " " << i.src << " " << directory << " " << i.directory );
-        return (src == i.src) && (src == NULL || directory == i.directory);
+        return (src == i.src) && (src == NULL || i.src == NULL || directory == i.directory);
     }
     void increment() { 
         TIFFOperation op( "in reading TIFF file",
@@ -126,11 +127,17 @@ Source<Pixel,Dimensions>::iterator::check_params() const
 {
     ::TIFF *tiff = src->tiff;
     uint32_t width, height, depth;
-    uint16_t bitspersample;
+    uint16_t bitspersample, colors;
     TIFFGetField( tiff, TIFFTAG_IMAGEWIDTH, &width );
     TIFFGetField( tiff, TIFFTAG_IMAGELENGTH, &height );
     if ( ! TIFFGetField( tiff, TIFFTAG_IMAGEDEPTH, &depth ) )
         depth = 1;
+    if ( TIFFGetField( tiff, TIFFTAG_SAMPLESPERPIXEL, &colors ) && colors != 1 ) {
+        std::stringstream error;
+        error << "TIFF image no. " << TIFFCurrentDirectory(tiff)
+            << " has " << colors << " color channels, but only greyscale images can be processed. Aborting.";
+        throw std::runtime_error( error.str() );
+    }
     TIFFGetField( tiff, TIFFTAG_BITSPERSAMPLE, &bitspersample );
 
     if ( int(width) != src->size[0] || int(height) != src->size[1] || int(depth) != src->size[2] ) {
@@ -169,14 +176,15 @@ Source<Pixel,Dim>::iterator::dereference() const
             sz[i] = src->size[i] * camera::pixel;
         Image i( sz, directory * camera::frame);
 
-        DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->_width << " " << src->_height);
+        DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->size[0] << " " << src->size[1]);
 
-        Pixel* end_of_data = i.ptr() + i.size_in_pixels();
+        Pixel* data = i.ptr(), *end_of_data = data + i.size_in_pixels();
         for (tstrip_t strip = 0; strip < strip_count; strip++) {
-            Pixel *data = i.ptr() + (strip * strip_size / sizeof(Pixel));
             tsize_t remaining_space = sizeof(Pixel) * (end_of_data - data);
-            TIFFReadEncodedStrip( tiff, strip, data,
+            DEBUG("Reading strip into buffer starting at " << data << " and having " << remaining_space << " bytes remaining");
+            tsize_t really_read = TIFFReadEncodedStrip( tiff, strip, data,
                 std::min( remaining_space, strip_size ) );
+            data += std::min( really_read, strip_size ) / sizeof(Pixel);
         }
         img = i;
 
