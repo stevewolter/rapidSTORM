@@ -45,30 +45,36 @@ namespace fitpp {
                 Eigen::RowMajor>
             DataMatrix;
 
-        void setData(
-            const DataPoint *source_data,
-            int width, int height, int z_offset
-        )
+        template <typename Type>
+        void setData( const Type& data )
         { 
-            data = source_data;
-            dw = width, dh = height, this->z_offset = z_offset;
+            this->data = data.ptr();
+            for (int i = 0; i < Type::Dim; ++i) {
+                size[i] = data.sizes()[i].value();
+                delta[i] = data.get_offsets()[i];
+            }
+            for (int i = Type::Dim; i < 3; ++i) {
+                size[i] = 1;
+                pos[i] = 0;
+                delta[i] = 0;
+            }
         }
 
         void setUpperLeftCorner( int xl, int yl ) {
-            this->xl = xl;
-            this->yl = yl;
+            pos[0] = xl;
+            pos[1] = yl;
+            pos[2] = 0;
         }
 
       protected:
         const DataPoint* data;
-        int dw, dh, z_offset;
-        int xl, yl;
+        Eigen::Vector3i size, delta, pos;
 
         BaseLattice() { data = NULL; }
 
         inline DataPoint getPoint(int x, int y, int z) 
             const 
-            { return data[x + y*dw + z_offset*z ]; }
+            { Eigen::Vector3i p; p << x,y,z; return data[ (p + pos).dot(delta) ]; }
 
     };
 
@@ -95,51 +101,19 @@ namespace fitpp {
             BaseLattice::setUpperLeftCorner
                 (xl,yl);
             for (int i = 0; i < BaseLattice::Depth; ++i)
-                selectedData[i] = 
-                    BaseLattice::DataMatrix::Map(this->data+i*this->z_offset, this->dh, this->dw)
-                    .template block<H,W>( yl, xl )
-                    .template cast<double>();
+                for (int x = 0; x < selectedData[i].cols(); ++x)
+                    for (int y = 0; y < selectedData[i].rows(); ++y) {
+                        selectedData[i](y,x) = this->getPoint(x,y,i);
+                    }
         }
 
-        int getWidth() const { return W; }
-        int getHeight() const { return H; }
-
-        inline void setSize( int xs, int ys ) {
-            assert( xs == W && ys == H );
-        }
-    };
-
-    template <typename BaseLattice>
-    class SelectableLatticeFunction
-        <BaseLattice,Eigen::Dynamic,Eigen::Dynamic>
-    : public BaseLattice
-    {
-      public:
-        std::vector< Eigen::MatrixXd > selectedData;
-        SelectableLatticeFunction() : selectedData(BaseLattice::Depth) {}
-        void setUpperLeftCorner(int xl, int yl) 
-        {
-            BaseLattice::setUpperLeftCorner
-                (xl,yl);
-            for (int i = 0; i < BaseLattice::Depth; ++i)
-                selectedData[i] = 
-                    BaseLattice::DataMatrix
-                    ::Map(this->data+i*this->z_offset, this->dh, this->dw)
-                    .template block( yl, xl, Height, Width )
-                    .template cast<double>();
-        }
+        int getWidth() const { return selectedData[0].cols(); }
+        int getHeight() const { return selectedData[0].rows(); }
 
         void setSize( int xs, int ys ) {
-            this->Width = xs; this->Height = ys;
             for (int i = 0; i < BaseLattice::Depth; ++i)
-                selectedData[i].resize( this->Height, this->Width );
+                selectedData[i].resize( ys, xs );
         }
-
-        int getWidth() const { return Width; }
-        int getHeight() const { return Height; }
-
-      protected:
-        int Width, Height;
     };
 
     template <typename DataPoint, int Width, int Height, int Depth>
@@ -157,7 +131,7 @@ namespace fitpp {
         {
             bool position_ok
                 = my_deriver.prepare
-                    ( position.parameters, constants, this->xl, this->yl, 0 );
+                    ( position.parameters, constants, this->pos[0], this->pos[1], 0 );
             if ( !position_ok ) return false;
             my_deriver.compute( 
                 this->selectedData[0],
@@ -171,7 +145,7 @@ namespace fitpp {
                 Derivatives v;
 
                 position_ok = my_deriver.prepare
-                        ( position.parameters, constants, this->xl, this->yl, i );
+                        ( position.parameters, constants, this->pos[0], this->pos[1], i );
                 if ( ! position_ok ) return false;
                 my_deriver.compute( 
                     this->selectedData[i],
@@ -186,9 +160,9 @@ namespace fitpp {
         }
         
         DataPoint getCorner(int xfac, int yfac, int depth) {
-            const int x = this->xl+
+            const int x = this->pos[0]+
                 ((xfac == 1) ? this->getWidth()-1 : 0);
-            const int y = this->yl+
+            const int y = this->pos[1]+
                 ((yfac == 1) ? this->getHeight()-1 : 0);
             return this->getPoint(x, y, depth);
         }

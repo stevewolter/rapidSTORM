@@ -108,11 +108,7 @@ SizedFitter<BaseFitter,Width,Height>
     const int xl = oxl, yl = oyl;
 #endif
 
-    this->deriver.setData( 
-        image.ptr(),
-        image.width() / camera::pixel,
-        image.height() / camera::pixel,
-        image.depth_in_pixels() );
+    this->deriver.setData( image );
     this->deriver.setUpperLeftCorner( xl, yl );
 
     float half_dist = 1.8;

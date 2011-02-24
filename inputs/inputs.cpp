@@ -10,6 +10,7 @@
 #endif
 #include "BackgroundDeviationEstimator_decl.h"
 #include "Splitter_decl.h"
+#include "YMirror_decl.h"
 
 namespace dStorm {
 
@@ -30,6 +31,7 @@ void basic_inputs( input::Config* inputConfig ) {
 #endif
 
     inputConfig->add_filter( Splitter::makeLink(), true );
+    inputConfig->add_filter( YMirror::makeLink() );
     inputConfig->add_filter( BackgroundStddevEstimator::makeLink() );
     
 }

@@ -80,7 +80,7 @@ LocalizationBuncher<Input>::LocalizationBuncher(
     bool end)
 : master(master)
 {
-    result.source = NULL;
+    result.source.invalidate();
     result.smoothed = NULL;
     result.candidates = NULL;
     if ( end ) {

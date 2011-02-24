@@ -16,6 +16,8 @@
 #include <boost/units/systems/camera/luminance.hpp>
 #include <boost/units/systems/si/area.hpp>
 #include <dStorm/output/Localizations_iterator.h>
+#include <dStorm/Image.h>
+#include <dStorm/image/constructors.h>
 
 using namespace std;
 using namespace fitpp;
@@ -38,8 +40,7 @@ class GaussFitter {
     int total_count, center_bin;
     dStorm::Variance< quantity<si::length>, quantity<si::area> >
         average_sd_x, average_sd_y;
-    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Eigen::DontAlign > DataMatrix;
-    DataMatrix data;
+    dStorm::Image<double,3> data;
 
     void first_pass( const Localization& l ); 
     void second_pass( const Localization& l ); 
@@ -238,7 +239,12 @@ void GaussFitter::init_fit_data() {
         int(ceil(res_enh * data_range.value()));
     int bin_number = 2*center_bin+1;
 
-    data = DataMatrix::Zero( bin_number, bin_number );
+    dStorm::Image<double,3>::Size size;
+    size.fill(1 * boost::units::camera::pixel);
+    size.start<2>().fill( bin_number * boost::units::camera::pixel );
+
+    data = dStorm::Image<double,3>(size);
+    data.fill(0);
 }
 
 FitSigmas GaussFitter::perform_fit() {
@@ -248,8 +254,8 @@ FitSigmas GaussFitter::perform_fit() {
     typedef Exponential2D::Model<1,ExpFlags> Model;
     Model::Constants constants;
     Model::Fitter<double,Eigen::Dynamic,Eigen::Dynamic,1>::Type fitter(constants);
-    fitter.setSize(data.rows(), data.cols());
-    fitter.setData(data.data(), data.rows(), data.cols(), 0);
+    fitter.setSize(data.width_in_pixels(), data.height_in_pixels());
+    fitter.setData(data);
 
     FitSigmas result;
     result.n = total_count;
@@ -309,9 +315,9 @@ void GaussFitter::second_pass(const Localization& r )
                 y_off = (p->position().y() - r.position().y()) / si::metre * res_enh;
         int x_bin = int(round(x_off)) + center_bin,
             y_bin = int(round(y_off)) + center_bin;
-        if ( y_bin >= 0 && y_bin < data.rows() && 
-                x_bin >= 0 && x_bin < data.cols() )
-            this->data(y_bin, x_bin) += 1.0 / total_count;
+        if ( y_bin >= 0 && y_bin < data.height_in_pixels() && 
+                x_bin >= 0 && x_bin < data.width_in_pixels() )
+            this->data(y_bin, x_bin, 0) += 1.0 / total_count;
     }
 }
 

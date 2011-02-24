@@ -30,7 +30,7 @@ AverageImage* AverageImage::clone() const
 Output::Result
 AverageImage::receiveLocalizations(const EngineResult& er) {
     ost::MutexLock lock(mutex);
-    engine::Image::const_iterator i = er.source->begin();
+    engine::Image::const_iterator i = er.source.begin();
     for (Image::iterator j = image.begin(); j != image.end(); j++)
     {
         *j += *i++;

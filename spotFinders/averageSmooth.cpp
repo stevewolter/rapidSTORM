@@ -103,14 +103,21 @@ void smoothByAverage<StormPixel,SmoothedPixel>(
     }
 #elif defined(AVERAGE_BY_SEPARATION)
     for (int y = 0; y < int(input.height_in_pixels()); y++)
-        averageLine<StormPixel,SmoothedPixel>
-            ( input.ptr(0, y), 1, xr, input.width_in_pixels(),
-                     output.ptr(xr, y) );
+        averageLine<StormPixel,SmoothedPixel>(
+            input.ptr(0, y),
+            input.get_offsets().x(),
+            xr,
+            input.width_in_pixels(),
+            output.ptr(xr, y) 
+        );
     for (int x = xr; x < int(output.width_in_pixels()-xr); x++)
-        averageLine<SmoothedPixel,SmoothedPixel>
-            ( output.ptr(x, 0), output.width_in_pixels(),
-              yr, output.height_in_pixels(), 
-                     output.ptr(x, yr) );
+        averageLine<SmoothedPixel,SmoothedPixel>(
+            output.ptr(x, 0),
+            output.get_offsets().y(),
+            yr, 
+            output.height_in_pixels(), 
+            output.ptr(x, yr) 
+        );
 
 #ifdef NORMALIZE
     const unsigned int norm = (2*xr+1)*(2*yr+1), sz = output.size();

@@ -64,7 +64,7 @@ bool SigmaFitter::fit(const dStorm::Image<StormPixel,2> &i,
         return false;
 
     Fitting pos( &this->fitter->getVariables(), &constants );
-    fitter->setData(i.ptr(), i.width_in_pixels(), i.height_in_pixels(), 0);
+    fitter->setData(i);
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     
     double start_amp =  f.amplitude() / camera::ad_counts;

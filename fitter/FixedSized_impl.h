@@ -16,11 +16,7 @@ fit( const engine::Spot &spot,
      const engine::Image& image,
          int xl, int yl) 
 {
-    deriver.setData( 
-        image.ptr(), 
-        image.width() / camera::pixel,
-        image.height() / camera::pixel,
-        image.depth_in_pixels());
+    deriver.setData( image );
     deriver.setUpperLeftCorner( xl, yl );
 
     double corner_sum = 0;

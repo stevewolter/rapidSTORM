@@ -97,7 +97,8 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
      * smaller, indicates engine restart and we don't need to do
      * anything, if larger, we store the image for later use. */
     if ( er.forImage == next_image ) {
-            write_image( *er.source );
+            assert( er.source.is_valid() );
+            write_image( er.source );
             while ( !out_of_time.empty() &&
                     out_of_time.top().image_number() == next_image ) 
             {
@@ -106,7 +107,8 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
                 out_of_time.pop();
             }
     } else if ( er.forImage > next_image ) {
-        out_of_time.push( LookaheadImg( new LookaheadImg::Image(*er.source) ) );
+        assert( er.source.is_valid() );
+        out_of_time.push( LookaheadImg( new LookaheadImg::Image(er.source) ) );
     } else 
         /* Image already written. Drop. */;
     

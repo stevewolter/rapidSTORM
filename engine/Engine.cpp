@@ -246,7 +246,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         resultStructure.forImage = base->frame_number();
         resultStructure.first = NULL;
         resultStructure.number = 0;
-        resultStructure.source = &image;
+        resultStructure.source = image;
 
         ost::MutexLock lock( engine.mutex );
         engine.errors = engine.errors() + 1;
@@ -309,7 +309,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     resultStructure.forImage = base->frame_number();
     resultStructure.first = buffer.ptr();
     resultStructure.number = buffer.size();
-    resultStructure.source = &image;
+    resultStructure.source = image;
 }
 
 Engine::_iterator::~_iterator() {
