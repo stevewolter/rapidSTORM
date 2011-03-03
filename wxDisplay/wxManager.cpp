@@ -4,6 +4,7 @@
 #include "Window.h"
 #include <dStorm/helpers/Runnables.h>
 #include <boost/thread.hpp>
+#include <boost/ref.hpp>
 
 #include "debug.h"
 
@@ -22,7 +23,7 @@ struct wxManager::WindowHandle
 };
 
 struct wxManager::IdleCall
-: public ost::Runnable 
+: public Runnable 
 {
     wxManager& m;
     IdleCall(wxManager& m) : m(m) {}
@@ -30,8 +31,7 @@ struct wxManager::IdleCall
 };
 
 wxManager::wxManager() 
-: ost::Thread("wxWidgets"),
-  open_handles(0),
+: open_handles(0),
   closed_all_handles(mutex),
   was_started( false ),
   may_close( false ),
@@ -40,8 +40,8 @@ wxManager::wxManager()
 {
 }
 
-struct wxManager::Closer : public ost::Runnable {
-    void run() throw() { wxGetApp().close(); }
+struct wxManager::Closer {
+    void operator()() { wxGetApp().close(); }
 };
 
 wxManager::~wxManager() {
@@ -49,9 +49,9 @@ wxManager::~wxManager() {
     may_close = true;
     if ( toolkit_available && was_started ) {
         Closer closer;
-        run_in_GUI_thread( &closer );
+        run_in_GUI_thread( std::auto_ptr<Runnable>(new Runnable(closer)) );
         closed_all_handles.signal();
-        join();
+        gui_thread.join();
     } else {
         ost::MutexLock lock(mutex);
         closed_all_handles.signal();
@@ -63,7 +63,7 @@ void wxManager::run() throw()
 {
     DEBUG("Running display thread");
     int argc = 0;
-    App::idle_call = idle_call.get();
+    App::idle_call = *idle_call;
     if ( !may_close )
         wxEntry(argc, (wxChar**)NULL);
     DEBUG("Ran display thread");
@@ -92,7 +92,7 @@ void wxManager::decrease_handle_count() {
     }
 }
 
-struct wxManager::Creator : public ost::Runnable {
+struct wxManager::Creator {
     wxManager& m;
 
     Creator(wxManager& m) : m(m) {}
@@ -101,10 +101,10 @@ struct wxManager::Creator : public ost::Runnable {
     DataSource* handler;
     WindowHandle *handle;
 
-    void run() throw();
+    void operator()();
 };
 
-void wxManager::Creator::run() throw() {
+void wxManager::Creator::operator()() {
     if ( m.toolkit_available ) {
         Window * w = new Window( properties, handler, handle );
         handle->associated_window = w;
@@ -121,38 +121,35 @@ wxManager::register_data_source(
         ost::MutexLock lock( mutex );
         if ( ! was_started ) {
             was_started = true;
-            start();
+            gui_thread = boost::thread( &wxManager::run, this );
         }
     }
-    std::auto_ptr<Creator> creator( new Creator(*this) );
-    creator->properties = properties;
-    creator->handler = &handler;
+    Creator creator(*this);
+    creator.properties = properties;
+    creator.handler = &handler;
 
     std::auto_ptr<WindowHandle> 
         handle(new WindowHandle(*this));
     increase_handle_count();
-    creator->handle = handle.get();
+    creator.handle = handle.get();
 
-    run_in_GUI_thread( creator.release() );
+    run_in_GUI_thread( creator );
 
     return std::auto_ptr<Manager::WindowHandle>(
         handle.release() );
 }
 
 class wxManager::Disassociator
-: public ost::WaitableRunnable
 {
     WindowHandle& h;
     wxManager& m;
   public:
     Disassociator(wxManager& m, WindowHandle& handle) : h(handle), m(m) {}
-    void run() throw() {
+    void operator()() {
         DEBUG("Running disassociator");
         if ( h.associated_window != NULL )
             h.associated_window->remove_data_source();
         m.decrease_handle_count();
-
-        WaitableRunnable::run();
         DEBUG("Ran disassociator");
     }
 };
@@ -168,16 +165,15 @@ wxManager::WindowHandle::~WindowHandle()
     /* This code must be run even if associated_window is
      * NULL to avoid race condition where associated_window
      * is not yet set. */
-    Disassociator d(m, *this);
+    Waitable<Disassociator> d (m, *this);
     DEBUG("Running disassociator in GUI thread");
-    m.run_in_GUI_thread( &d );
+    m.run_in_GUI_thread( d );
     DEBUG("Waiting for disassociator to finish");
     d.wait();
     DEBUG("Finished running disassociator");
 }
 
 class StateFetcher
-: public ost::WaitableRunnable
 {
     Window*& window;
     std::auto_ptr<Change> rv;
@@ -185,40 +181,38 @@ class StateFetcher
     StateFetcher(Window*& window)
         : window(window) {}
 
-    void run() throw() {
+    void operator()() {
         try {
             if ( window != NULL )
                 rv = window->getState();
         } catch (const std::exception& e) {
             std::cerr << "Unable to get image from window: " << e.what() << std::endl;
         } 
-        ost::WaitableRunnable::run();
     }
 
-    std::auto_ptr<Change> result()
-        { this->wait(); return rv; }
+    std::auto_ptr<Change> result() { return rv; }
 };
 
 std::auto_ptr<Change>
 wxManager::WindowHandle::get_state()
 {
-    StateFetcher fetcher( associated_window );
+    Waitable<StateFetcher> fetcher( associated_window );
     DEBUG("Fetching results");
-    m.run_in_GUI_thread( &fetcher );
+    m.run_in_GUI_thread( boost::ref(fetcher) );
     DEBUG("Fetched results");
-    return fetcher.result();
+    fetcher.wait();
+    return fetcher.functor().result();
 }
 
-void wxManager::run_in_GUI_thread( ost::Runnable* code ) 
+void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 
 {
     DEBUG("Running code in GUI thread");
-    if ( ost::Thread::current_thread() == 
-         static_cast<ost::Thread*>(this) )
-        exec( code );
+    if ( boost::this_thread::get_id() == gui_thread.get_id() )
+        exec( *code );
     else {
         {
             ost::MutexLock lock(mutex);
-            run_queue.push( code );
+            run_queue.push_back( code );
         }
         wxWakeUpIdle();
         closed_all_handles.signal();
@@ -233,13 +227,13 @@ void wxManager::exec_waiting_runnables() {
         DEBUG("Running runnable");
         exec( run_queue.front() );
         DEBUG("Ran runnable");
-        run_queue.pop();
+        run_queue.pop_front();
     }
     DEBUG("Finished executing waiting runnables");
 }
 
-void wxManager::exec(ost::Runnable* runnable) {
-    runnable->run();
+void wxManager::exec(Runnable& runnable) {
+    runnable();
 }
 
 void wxManager::disassociate_window

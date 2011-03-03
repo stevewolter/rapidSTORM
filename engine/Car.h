@@ -16,6 +16,7 @@
 #include <set>
 #include <setjmp.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/thread/thread.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -26,7 +27,7 @@ namespace engine {
      *  the dStorm engine. */
     class Car 
         : boost::noncopyable, public Job,
-          public ost::Thread, private simparm::Node::Callback 
+          private simparm::Node::Callback 
     {
       private:
         std::set<std::string> used_output_filenames;
@@ -55,11 +56,9 @@ namespace engine {
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);
 
-        /** Run the computation subthread. */
-        void abnormal_termination(std::string) throw();
-
         class ComputationThread;
         boost::ptr_vector<ComputationThread> threads;
+        boost::thread master_thread;
 
         void add_additional_outputs();
 

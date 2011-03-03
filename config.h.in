@@ -21,6 +21,9 @@
 /* Define to 1 if you have the `boost_system' library (-lboost_system). */
 #undef HAVE_LIBBOOST_SYSTEM
 
+/* Define to 1 if you have the `boost_thread' library (-lboost_thread). */
+#undef HAVE_LIBBOOST_THREAD
+
 /* Define to 1 if you have the `dStorm' library (-ldStorm). */
 #undef HAVE_LIBDSTORM
 

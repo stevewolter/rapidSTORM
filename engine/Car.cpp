@@ -27,30 +27,17 @@ using dStorm::output::Output;
 namespace dStorm {
 namespace engine {
 
-class Car::ComputationThread : public ost::Thread {
+class Car::ComputationThread {
   private:
-    Car &car;
-    auto_ptr<string> nm;
+    boost::thread thread;
 
   public:
     ComputationThread(Car &car, 
                  auto_ptr<string> name) 
-        : ost::Thread(name->c_str()), 
-          car(car), nm(name) {}
+        { thread = boost::thread( &Car::run_computation, &car ); }
     ~ComputationThread() {
         DEBUG("Collecting piston");
-        join(); 
-    }
-    void run() throw() {
-        car.run_computation();
-    }
-    void abnormal_termination(std::string r) {
-        std::cerr << "Computation thread " << *nm 
-                  << " in job " << car.ident
-                  << " had a critical error: " << r
-                  << " Terminating job computation."
-                  << std::endl;
-        car.stop();
+        thread.join(); 
     }
 };
 
@@ -81,8 +68,7 @@ static std::string getRunNumber() {
 }
 
 Car::Car (JobMaster* input_stream, const dStorm::Config &new_config) 
-: ost::Thread("Car"),
-  simparm::Listener( simparm::Event::ValueChanged ),
+: simparm::Listener( simparm::Event::ValueChanged ),
   input_stream( input_stream ),
   config(new_config),
   ident( getRunNumber() ),
@@ -120,22 +106,18 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
     DEBUG("Registering at input_stream config " << input_stream);
     if ( input_stream )
         this->input_stream->register_node( *this );
+
+    master_thread = boost::thread( &Car::run, this );
 }
 
 Car::~Car() 
 {
     DEBUG("Destructing Car");
     DEBUG("Joining car subthread");
-    join();
+    master_thread.join();
 
     DEBUG("Sending destruction signal to outputs");
     output->propagate_signal( Output::Prepare_destruction );
-
-    DEBUG("Removing from input_stream config");
-    /* Remove from simparm parents to hide destruction process
-     * from interface. */
-    if ( input_stream )
-        input_stream->erase_node( *this );
 
     DEBUG("Deleting outputs");
     output.reset(NULL);
@@ -179,6 +161,13 @@ void Car::run() throw() {
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);
     }
+
+    DEBUG("Removing from input_stream config");
+    /* Remove from simparm parents to hide destruction process
+     * from interface. */
+    if ( input_stream )
+        input_stream->erase_node( *this );
+
 }
 
 void Car::add_thread()
@@ -189,7 +178,6 @@ void Car::add_thread()
     (*pistonName)[8] += pistonCount % 10;
     std::auto_ptr<ComputationThread> new_piston
         ( new ComputationThread(*this, pistonName) );
-    new_piston->start();
     threads.push_back( new_piston );
 }
 
@@ -405,12 +393,6 @@ void Car::drive() {
 void Car::stop() {
     abortJob.trigger();
     closeJob.trigger();
-}
-
-void Car::abnormal_termination(std::string r) throw() {
-    std::cerr << "Job " << ident << " had a critical "
-              << "error: " << r << " Terminating job."
-              << std::endl;
 }
 
 }

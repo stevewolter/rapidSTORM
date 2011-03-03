@@ -7,14 +7,12 @@
 
 #include <simparm/IO.hh>
 
-#include <dStorm/helpers/BlockingThreadRegistry.h>
 #include <dStorm/helpers/DisplayManager.h>
 
 namespace dStorm {
 
 struct InputStream::Pimpl
-: public dStorm::Thread,
-  public simparm::IO,
+: public simparm::IO,
   JobMaster
 {
     InputStream& impl_for;
@@ -29,6 +27,7 @@ struct InputStream::Pimpl
     std::auto_ptr<Config> config;
     std::auto_ptr<JobStarter> starter;
     simparm::Attribute<std::string> help_file;
+    boost::thread input_watcher;
 
     Pimpl(InputStream& papa, const Config*, 
           std::istream*, std::ostream*);
@@ -38,7 +37,6 @@ struct InputStream::Pimpl
     void erase_node( Job& );
 
     void run();
-    void abnormal_termination(std::string abnormal_term);
 
     void terminate_remaining_cars();
 
@@ -50,30 +48,24 @@ struct InputStream::Pimpl
 InputStream::InputStream(
     const Config& c,
     std::istream& i, std::ostream& o)
-: dStorm::Thread("InputWatcher"),
-  pimpl( new Pimpl(*this, &c, &i, &o) )
+: pimpl( new Pimpl(*this, &c, &i, &o) )
 {
 }
 
 InputStream::InputStream(std::istream* i, std::ostream* o)
-: dStorm::Thread("InputWatcher"),
-  pimpl( new Pimpl(*this, NULL, i, o) )
+: pimpl( new Pimpl(*this, NULL, i, o) )
 {
 }
 
 InputStream::~InputStream() 
 {
-    DEBUG("Joining input stream subthread");
-    join();
-    DEBUG("Joined input stream subthread");
 }
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
     const Config* c,
     std::istream* i, std::ostream* o)
-: dStorm::Thread("InputProcessor"),
-  simparm::IO(i,o),
+: simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
   exhausted_input( i == NULL ),
@@ -114,33 +106,11 @@ void InputStream::Pimpl::terminate_remaining_cars() {
 InputStream::Pimpl::~Pimpl() 
 {
     DEBUG("Destroying InputStream::Pimpl");
-    join();
+    input_watcher.join();
     DEBUG("Joined InputStream::Pimpl subthread");
     terminate_remaining_cars();
     while ( ! running_cars.empty() )
         all_cars_finished.wait();
-}
-
-void InputStream::run() {
-    while ( !pimpl->exhausted_input ) {
-        pimpl->start();
-        pimpl->join();
-    }
-}
-
-void InputStream::abnormal_termination(std::string reason) {
-    std::cerr << "The command stream managment thread had an unexpected "
-                 "error: " << reason << " Command processing must be "
-                 "abandoned; your interface will stop to react. Sorry."
-              << std::endl;
-}
-
-void InputStream::Pimpl::abnormal_termination(std::string reason) {
-    std::cerr << "Could not perform action due to serious unhandled error: "
-                 << reason << " I will recover this error and continue "
-                 "running the program, but something is seriously broken "
-                 "and it is quite likely that the program will behave "
-                 "incorrectly now. Please report this bug." << std::endl;
 }
 
 void InputStream::Pimpl::run() {
@@ -194,6 +164,10 @@ void InputStream::Pimpl::processCommand
         reset_config();
     } else
         simparm::IO::processCommand(cmd, rest);
+}
+
+void InputStream::start() {
+    pimpl->input_watcher = boost::thread( &InputStream::Pimpl::run, pimpl.get() );
 }
 
 }

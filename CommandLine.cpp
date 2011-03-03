@@ -59,6 +59,7 @@ class CommandLine::Pimpl
     ost::Mutex mutex;
     ost::Condition jobs_empty;
     std::list<Job*> jobs;
+    boost::ptr_list<Job> finished;
 
     bool load_config_file(const std::string& filename);
     void find_config_file();
@@ -69,23 +70,25 @@ class CommandLine::Pimpl
 
     void run();
     void register_node( dStorm::Job& j ) { 
+        DEBUG("Waiting for mutex to add job");
         ost::MutexLock lock(mutex);
         this->push_back(j.get_config());
         DEBUG("Pushed back " << j.get_config().getName());
         jobs.push_back( &j ); 
     }
     void erase_node( dStorm::Job& j ) {
+        DEBUG("Waiting for mutex to delete job");
         ost::MutexLock lock(mutex);
         this->erase(j.get_config());  
         DEBUG("Erased " << j.get_config().getName());
         jobs.remove( &j ); 
-        if ( jobs.empty() ) jobs_empty.broadcast();
+        finished.push_back( &j ); 
+        jobs_empty.broadcast();
     }
 };
 
 CommandLine::CommandLine(int argc, char *argv[])
-: Thread("CommandLineInterpreter"),
-  pimpl(new Pimpl(argc, argv))
+: pimpl(new Pimpl(argc, argv))
 {
 }
 CommandLine::~CommandLine()
@@ -95,11 +98,6 @@ void CommandLine::run() {
     pimpl->run();
 }
 
-void CommandLine::abnormal_termination(std::string reason) {
-    std::cerr << "Had an unexpected error while processing command line "
-                 "arguments: " << reason << " Aborting." << std::endl;
-    this->exit();
-}
 void CommandLine::Pimpl::run() {
     for ( int i = 0; i < argc; i++ ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
@@ -189,8 +187,13 @@ CommandLine::Pimpl::Pimpl(int argc, char *argv[])
 }
 CommandLine::Pimpl::~Pimpl() {
     ost::MutexLock lock(mutex);
-    while ( ! jobs.empty() )
-        jobs_empty.wait();
+    while ( ! jobs.empty() || ! finished.empty() ) {
+        finished.clear();
+        if ( ! jobs.empty() ) {
+            DEBUG("Waiting with " << jobs.size() << " jobs and " << finished.size() << " finished jobs");
+            jobs_empty.wait();
+        }
+    }
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter

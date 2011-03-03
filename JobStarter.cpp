@@ -27,11 +27,8 @@ void JobStarter::operator()( const simparm::Event& ) {
       if ( config != NULL ) {
         try {
             DEBUG("Creating job");
-            std::auto_ptr<engine::Car> car( 
-                new engine::Car(master, *config) );
+            new engine::Car(master, *config);
             DEBUG("Running job");
-            car->detach();
-            car.release();
         } catch ( const dStorm::runtime_error& e ) {
             simparm::Message m( e.get_message("Starting job failed") );
             DEBUG("Got dStorm exception");

@@ -3,7 +3,7 @@
 
 #include <wx/wx.h>
 #include <memory>
-#include <dStorm/helpers/thread.h>
+#include <boost/function/function0.hpp>
 
 namespace dStorm {
 namespace Display {
@@ -20,7 +20,7 @@ class App : public wxApp {
     App();
     ~App();
 
-    static ost::Runnable* idle_call;
+    static boost::function0<void> idle_call;
 
     bool OnInit(); 
     /** Command events sent to the App are interpreted as

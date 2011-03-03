@@ -38,7 +38,6 @@ Display::Display(
     Method& config
 )
 : simparm::Set("ViewportSelector", "Viewport settings"),
-  ost::Thread("Viewport Selector"),
   cam(cam),
   config(config),
   status("CameraStatus", "Camera status"),
@@ -58,7 +57,7 @@ Display::Display(
     //imageFile = context.output_basename + ".jpg";
 
     registerNamedEntries();
-    this->ost::Thread::start();
+    image_acquirer = boost::thread( &Display::run, this );
 }
 
 void Display::registerNamedEntries() {
@@ -76,7 +75,7 @@ void Display::registerNamedEntries() {
 Display::~Display() {
     DEBUG("Destructing ViewportSelector");
     paused = true;
-    join();
+    image_acquirer.join();
     DEBUG("Destructed ViewportSelector");
 }
 
@@ -357,9 +356,9 @@ void Display::operator()
         imageFile.editable = paused;
         save.editable = paused;
         if ( paused )
-            join();
+            image_acquirer.join();
         else
-            start();
+            image_acquirer = boost::thread( &Display::run, this );
     } else if (&e.source == &save.value && save.triggered()) {
         save.untrigger();
         if ( imageFile ) {

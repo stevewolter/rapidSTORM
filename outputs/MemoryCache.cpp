@@ -7,12 +7,13 @@
 
 #include <dStorm/traits/range_impl.h>
 #include <dStorm/output/Localizations_iterator.h>
+#include <boost/thread/thread.hpp>
 
 namespace dStorm {
 namespace output {
 
 class MemoryCache::ReEmitter 
-: public ost::Thread, public ResultRepeater
+: public ResultRepeater
 {
     /** Flag indicating whether reemittance is desired. This
       * flag will only be set to false in the subthread, thus
@@ -28,10 +29,10 @@ class MemoryCache::ReEmitter
     bool need_re_emitter;
 
     MemoryCache &work_for;
+    boost::thread emitter;
 
   public:
     ReEmitter(MemoryCache& work_for) :
-        ost::Thread("Localization re-emitter"),
         reemittance_needed(false),
         condition(mutex),
         need_re_emitter(true),
@@ -39,6 +40,7 @@ class MemoryCache::ReEmitter
     {
         ost::WriteLock lock( work_for.emissionMutex );
         work_for.Filter::propagate_signal( Engine_run_is_starting );
+        emitter = boost::thread( &MemoryCache::ReEmitter::run, this );
     }
 
     ~ReEmitter() { 
@@ -46,7 +48,7 @@ class MemoryCache::ReEmitter
         need_re_emitter = false; 
         condition.signal();
         DEBUG("Joining subthread");
-        join(); 
+        emitter.join(); 
         DEBUG("Joined subthread");
     }
 
@@ -96,7 +98,6 @@ MemoryCache::MemoryCache(
 : Filter(output),
   re_emitter( new ReEmitter(*this) )
 { 
-    re_emitter->start();
 }
 
 MemoryCache::MemoryCache(
@@ -105,7 +106,6 @@ MemoryCache::MemoryCache(
 : Filter(o),
   re_emitter( new ReEmitter(*this) )
 { 
-    re_emitter->start();
 }
 
 MemoryCache::~MemoryCache() {}

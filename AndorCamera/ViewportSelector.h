@@ -16,6 +16,7 @@
 #include "InputChainLink_decl.h"
 #include <dStorm/input/chain/Context.h>
 #include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/thread/thread.hpp>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -25,7 +26,6 @@ namespace AndorCamera {
     *  and configured interactively. */
 class Display : public simparm::Set,
                 private simparm::Node::Callback, 
-                private ost::Thread,
                 public dStorm::Display::DataSource
 {
   private:
@@ -69,6 +69,7 @@ class Display : public simparm::Set,
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
     boost::shared_ptr<const input::chain::Context> context;
+    boost::thread image_acquirer;
 
     /** Subthread for image acquisition. */
     virtual void run() throw();

@@ -77,6 +77,7 @@ AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
 AC_CHECK_LIB([boost_system], [main])
+AC_CHECK_LIB([boost_thread], [main])
 
 AC_CHECK_LIB([DummyAndorCamera], [main])
 AS_IF([test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes"],

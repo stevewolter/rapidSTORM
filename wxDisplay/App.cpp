@@ -10,7 +10,7 @@ BEGIN_EVENT_TABLE(App, wxApp)
     EVT_IDLE(App::OnIdle)
 END_EVENT_TABLE()
 
-ost::Runnable *App::idle_call = NULL;
+boost::function0<void> App::idle_call;
 
 App::App()
 {
@@ -31,7 +31,7 @@ bool App::OnInit()
 void App::OnIdle(wxIdleEvent&) {
     DEBUG("Idling");
     if ( idle_call )
-        idle_call->run();
+        idle_call();
     DEBUG("Idled");
 }
 

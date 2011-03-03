@@ -9,7 +9,7 @@
 namespace dStorm {
 
 class InputStream 
-: public Thread, public JobMaster
+: public JobMaster
 {
     class Pimpl;
     friend class Pimpl;
@@ -23,8 +23,7 @@ class InputStream
     
     void add_modules( Config& config );
 
-    void run();
-    void abnormal_termination(std::string reason);
+    void start();
 
     void register_node( Job& );
     void erase_node( Job& );
