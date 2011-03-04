@@ -2,14 +2,14 @@ Source: rapidstorm
 Section: science
 Priority: extra
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libdstorm-dev, libeigen2-dev, libreadsif-dev
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libdstorm-dev, libeigen2-dev, libreadsif-dev, java-compiler, libboost-all-dev, libcsunits-dev, libsimparm-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libberghenxml-dev, libwxgtk2.8-dev, libanyiterator-dev, librapidstormdoc-dev, twiddler
 Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
 
 Package: rapidstorm10
 Architecture: any
-Depends: ${misc:Depends}, libdstorm10
+Depends: ${misc:Depends}, libdstorm10, libb641, libgraphicsmagick1, libboost-thread1.42.0, libboost-system1.42.0, libreadsif1, libwxgtk2.8-0
 Conflicts: rapid2storm
 Provides: rapidstorm
 Description: Localization microscopy data evaluation tool

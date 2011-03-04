@@ -57,7 +57,9 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
 AC_CHECK_HEADERS([Magick++.h])
 AC_CHECK_HEADERS([tiffio.h])
+AC_CHECK_HEADERS([any_iterator.h])
 AC_CHECK_HEADERS([dStorm/Localization.h], [], [AC_ERROR([Missing dSTORM library])])
+AC_CHECK_HEADERS([dStorm/doc/context.h], [], [AC_ERROR([Missing dSTORM documentation library])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
