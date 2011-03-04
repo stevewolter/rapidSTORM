@@ -12,9 +12,6 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `ATMCD32D' library (-lATMCD32D). */
-#undef HAVE_LIBATMCD32D
-
 /* Define to 1 if you have the `b64' library (-lb64). */
 #undef HAVE_LIBB64
 
@@ -26,10 +23,6 @@
 
 /* Define to 1 if you have the `dStorm' library (-ldStorm). */
 #undef HAVE_LIBDSTORM
-
-/* Define to 1 if you have the `DummyAndorCamera' library
-   (-lDummyAndorCamera). */
-#undef HAVE_LIBDUMMYANDORCAMERA
 
 /* Define to 1 if you have the `GraphicsMagick' library (-lGraphicsMagick). */
 #undef HAVE_LIBGRAPHICSMAGICK

@@ -97,7 +97,6 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
      * smaller, indicates engine restart and we don't need to do
      * anything, if larger, we store the image for later use. */
     if ( er.forImage == next_image ) {
-            assert( er.source.is_valid() );
             write_image( er.source );
             while ( !out_of_time.empty() &&
                     out_of_time.top().image_number() == next_image ) 

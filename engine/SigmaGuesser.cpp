@@ -53,7 +53,7 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     if (defined_result != KeepRunning) return defined_result;
     DEBUG("Adding fits");
 
-    assert( er.source.is_valid() );
+    if ( ! er.source.is_valid() ) return KeepRunning;
     used_area += er.source.size() / camera::pixel;
     if ( used_area > maximum_area ) {
         DEBUG("Reached size limit");

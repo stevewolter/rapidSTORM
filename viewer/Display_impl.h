@@ -130,7 +130,10 @@ Display<Colorizer>::save_image(
         std::auto_ptr<dStorm::Display::Change>
             c = window_id->get_state();
         if ( c.get() != NULL ) {
-            if ( ! config.save_with_key() ) c->changed_keys.clear();
+            if ( ! config.save_with_key() ) {
+                c->changed_keys.clear();
+                c->resize_image.keys.clear();
+            }
             if ( ! config.save_scale_bar() ) {
                 c->resize_image.pixel_sizes[0].value = -1 / camera::pixel;
                 c->resize_image.pixel_sizes[1].value = -1 / camera::pixel;

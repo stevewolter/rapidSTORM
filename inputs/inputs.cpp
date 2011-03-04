@@ -5,9 +5,7 @@
 #include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
-#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
 #include "AndorCamera/InputChainLink.h"
-#endif
 #include "BackgroundDeviationEstimator_decl.h"
 #include "Splitter_decl.h"
 #include "YMirror_decl.h"
@@ -26,9 +24,7 @@ void basic_inputs( input::Config* inputConfig ) {
 #ifdef HAVE_TIFFIO_H
     inputConfig->add_file_method( new TIFF::ChainLink() );
 #endif
-#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
     inputConfig->add_method( new AndorCamera::Method() );
-#endif
 
     inputConfig->add_filter( Splitter::makeLink(), true );
     inputConfig->add_filter( YMirror::makeLink() );

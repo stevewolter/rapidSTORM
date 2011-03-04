@@ -70,22 +70,14 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([b64], [main])
-AC_CHECK_LIB([dStorm], [main])
-AC_CHECK_LIB([tiff], [main])
-AC_CHECK_LIB([GraphicsMagick], [main])
-AC_CHECK_LIB([GraphicsMagick++], [main])
-AC_CHECK_LIB([readsif], [main])
-AC_CHECK_LIB([boost_system], [main])
-AC_CHECK_LIB([boost_thread], [main])
-
-AC_CHECK_LIB([DummyAndorCamera], [main])
-AS_IF([test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes"],
-    [ AC_MSG_NOTICE([enabling simulated Andor camera support]) ],
-    [ AC_CHECK_LIB([ATMCD32D], [main]) ])
-AS_IF([test "x$ac_cv_lib_ATMCD32D_main" = "xyes"],
-    [ AC_MSG_NOTICE([enabling real Andor camera support]) ])
-AM_CONDITIONAL([BUILD_ANDORCAM], [test "x$ac_cv_lib_DummyAndorCamera_main" = "xyes" -o "x$ac_cv_lib_ATMCD32D_main" = "xyes"])
+AC_CHECK_LIB([b64], [main], , [AC_ERROR(Base64 encoding library not found)])
+AC_CHECK_LIB([dStorm], [main], , [AC_ERROR(dSTORM library not found)])
+AC_CHECK_LIB([tiff], [main], , [AC_ERROR(tiff library not found)])
+AC_CHECK_LIB([GraphicsMagick], [main], , [AC_ERROR(GraphicsMagick library not found)])
+AC_CHECK_LIB([GraphicsMagick++], [main], , [AC_ERROR(GraphicsMagick++ library not found)])
+AC_CHECK_LIB([readsif], [main], , [AC_ERROR(readsif library not found)])
+AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
+AC_CHECK_LIB([boost_thread], [main], , [AC_ERROR(boost thread library not found)])
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],

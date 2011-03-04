@@ -147,7 +147,7 @@ void Car::operator()(const simparm::Event& e) {
     }
 }
 
-void Car::run() throw() {
+void Car::run() {
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {
@@ -156,7 +156,7 @@ void Car::run() throw() {
     } catch ( const dStorm::runtime_error& e ) {
         simparm::Message m( e.get_message("Error in Job " + ident) );
         runtime_config.send(m);
-    } catch ( const std::exception& e ) {
+    } catch ( const std::runtime_error& e ) {
         simparm::Message m("Error in Job " + ident, 
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);

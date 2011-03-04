@@ -159,7 +159,7 @@ Source< dStorm::engine::Image >::get_traits() {
 }
 
 Config::Config() 
-: simparm::Object("YMirror", "Mirror input data along Y axis"),
+: simparm::Object("Mirror", "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
 }

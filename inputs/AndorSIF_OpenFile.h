@@ -45,6 +45,7 @@ class OpenFile : boost::noncopyable {
 
     int number_of_images() const { return im_count; }
     bool did_have_errors() const { return had_errors; }
+    std::string get_filename() const { return file_ident; }
 };
 
 }
