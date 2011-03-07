@@ -5,22 +5,17 @@
 AppName=@PACKAGE_NAME@
 AppID=@PACKAGE@
 AppVersion=@PACKAGE_VERSION@
-AppVerName=PicoQuant @PACKAGE_STRING@
-DefaultGroupName=PicoQuant @PACKAGE_NAME@
+AppVerName=@PACKAGE_STRING@
+DefaultGroupName=@PACKAGE_NAME@
 UsePreviousGroup=no
-DefaultDirName={pf}\PicoQuant\@PACKAGE@
+DefaultDirName={pf}\@PACKAGE@
 UsePreviousAppDir=yes
-WizardImageFile=inst.bmp
+; WizardImageFile=inst.bmp
 WizardImageStretch=no
 WizardImageBackColor=$FFFFFF
 LicenseFile=license.txt
 InfoBeforeFile=readme.txt
 AlwaysRestart=no
-
-;das bezieht sich auf Anzeige in Software unter W2k/XP
-AppCopyright=Copyright © 1999-2009 PicoQuant GmbH
-AppPublisher=PicoQuant GmbH
-AppPublisherURL=http://www.picoquant.com/
 
 ;privilegien nötig für Hardlock Driver
 ; PrivilegesRequired=admin
