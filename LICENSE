@@ -1,22 +1,41 @@
 rapid2STORM v1.3 - dSTORM analysis and data acquisition software
+PicoQuant GmbH - Dec. 2009
+
+Disclaimer
+
+PicoQuant GmbH disclaims all warranties with regard to this software 
+and associated documentation including all implied warranties of 
+merchantability and fitness. In no case shall PicoQuant GmbH be 
+liable for any direct, indirect or consequential damages or any material 
+or immaterial damages whatsoever resulting from loss of data, time 
+or profits arising from use or performance of this software.
+
 
 License and Copyright Notice
 
-With this software package, you have received a license to use the rapid2STORM 
+With this product, you have purchased a license to use the rapid2STORM 
 software on a single PC. You have not purchased the software itself. 
 The software is protected by copyright and intellectual property laws. 
 You may not distribute the software to third parties or reverse engineer, 
 decompile or disassemble the software or any part thereof. Copyright 
-of this manual belongs to AG Sauer. No parts of it may be 
+of this manual belongs to PicoQuant GmbH. No parts of it may be 
 reproduced or translated into other languages without written consent 
-of AG Sauer.
+of PicoQuant GmbH.
+
+
+Trademark Disclaimer
+
+Products and corporate names appearing in the rapid2STORM documentation
+may or may not be registered trademarks or copyrights of their respective
+owners. They are used only for identification or explanation and to the
+owner’s benefit, without intent to infringe.
+
 
 Contact and Support
 
-Steve Wolter
-AG Sauer
-Biocenter
-Department of Biotechnology & Biophysics 
-Würzburg University
-Germany
-email: steve.wolter@uni-wuerzburg.de
+PicoQuant GmbH
+Rudower Chaussee 29
+12489 Berlin, Germany
+Phone +49 30 6392 6560
+Fax   +49 30 6392 6561
+email info@picoquant.com

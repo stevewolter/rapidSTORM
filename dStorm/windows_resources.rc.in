@@ -13,11 +13,11 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName",      "\0"
+            VALUE "CompanyName",      "PicoQuant GmbH\0"
             VALUE "FileDescription",  "Base library for rapid2STORM plugins"
             VALUE "FileVersion",      "@LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@"
             VALUE "InternalName",     "@LIBDSTORM_FILENAME@"
-            VALUE "LegalCopyright",   "(C) 2010 Steve Wolter"
+            VALUE "LegalCopyright",   "(C) 2010 Steve Wolter and PicoQuant GmbH"
             VALUE "LegalTrademarks",   "rapid2STORM (TM)"
             /*VALUE "LegalTrademarks1", VER_LEGALTRADEMARKS1_STR*/
             /*VALUE "LegalTrademarks2", VER_LEGALTRADEMARKS2_STR*/
