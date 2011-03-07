@@ -1,10 +1,17 @@
 proc program_start { cmd args } {
+    global netcathost
     global spawn_id
 
-    if { ![host_info exists hostname] } {
-        spawn $cmd $args
+    if { [info exists netcathost] } {
+        puts "Running netcat"
+        spawn netcat $netcathost 1111
+    } elseif { [info exists executableinterpreter] } {
+        puts "Running $executableinterpreter $cmd $args"
+        spawn $executableinterpreter $cmd $args
     } else {
-        spawn ssh [host_info hostname] $cmd $args
+        set env(RAPIDSTORM_TESTPLUGIN_ENABLE) "1"
+        puts "Running $cmd $args"
+        spawn $cmd $args
     }
 }
 

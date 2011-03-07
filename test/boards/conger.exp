@@ -1,2 +1,3 @@
-set_board_info hostname "conger"
-puts "Conger board loaded"
+global netcathost
+load_generic_config "unix"
+set netcathost "kokolorix"
