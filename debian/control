@@ -9,7 +9,7 @@ Standards-Version: 3.8.4
 
 Package: rapidstorm10
 Architecture: any
-Depends: ${misc:Depends}, libdstorm10, libb641, libgraphicsmagick1, libboost-thread1.42.0, libboost-system1.42.0, libreadsif1, libwxgtk2.8-0
+Depends: ${misc:Depends}, libdstorm10, libb641, libgraphicsmagick1, libboost-thread1.42.0, libboost-system1.42.0, libreadsif1, libwxgtk2.8-0, libberghenxml2
 Conflicts: rapid2storm
 Provides: rapidstorm
 Description: Localization microscopy data evaluation tool
