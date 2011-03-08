@@ -23,11 +23,13 @@ struct wxManager::WindowHandle
 };
 
 struct wxManager::IdleCall
-: public Runnable 
 {
     wxManager& m;
     IdleCall(wxManager& m) : m(m) {}
-    void run() { m.exec_waiting_runnables(); }
+    void operator()() {
+        DEBUG("Idle call");
+        m.exec_waiting_runnables(); 
+    }
 };
 
 wxManager::wxManager() 
@@ -41,15 +43,20 @@ wxManager::wxManager()
 }
 
 struct wxManager::Closer {
-    void operator()() { wxGetApp().close(); }
+    void operator()() { 
+        DEBUG("Closing wxGetApp");
+        wxGetApp().close(); 
+        DEBUG("Closed wxGetApp");
+    }
 };
 
 wxManager::~wxManager() {
     DEBUG("Stopping display thread");
     may_close = true;
     if ( toolkit_available && was_started ) {
-        Closer closer;
-        run_in_GUI_thread( std::auto_ptr<Runnable>(new Runnable(closer)) );
+        DEBUG("Stopping display thread");
+        run_in_GUI_thread( Closer() );
+        DEBUG("Stopped display thread");
         closed_all_handles.signal();
         gui_thread.join();
     } else {
@@ -64,6 +71,7 @@ void wxManager::run() throw()
     DEBUG("Running display thread");
     int argc = 0;
     App::idle_call = *idle_call;
+    assert( App::idle_call );
     if ( !may_close )
         wxEntry(argc, (wxChar**)NULL);
     DEBUG("Ran display thread");
@@ -146,7 +154,7 @@ class wxManager::Disassociator
   public:
     Disassociator(wxManager& m, WindowHandle& handle) : h(handle), m(m) {}
     void operator()() {
-        DEBUG("Running disassociator");
+        DEBUG("Running disassociator on " << this);
         if ( h.associated_window != NULL )
             h.associated_window->remove_data_source();
         m.decrease_handle_count();
@@ -166,9 +174,9 @@ wxManager::WindowHandle::~WindowHandle()
      * NULL to avoid race condition where associated_window
      * is not yet set. */
     Waitable<Disassociator> d (m, *this);
-    DEBUG("Running disassociator in GUI thread");
+    DEBUG("Running disassociator in GUI thread ");
     m.run_in_GUI_thread( d );
-    DEBUG("Waiting for disassociator to finish");
+    DEBUG("Waiting for disassociator " << &d.functor() << " to finish");
     d.wait();
     DEBUG("Finished running disassociator");
 }

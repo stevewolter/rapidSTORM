@@ -14,6 +14,7 @@ boost::function0<void> App::idle_call;
 
 App::App()
 {
+    DEBUG("App has been constructed");
 }
 
 App::~App() {
@@ -37,7 +38,8 @@ void App::OnIdle(wxIdleEvent&) {
 
 void App::close() {
     DEBUG("Closing");
-    nevershow.release()->Destroy();
+    if ( nevershow.get() )
+        nevershow.release()->Destroy();
     DEBUG("Closed");
 }
 

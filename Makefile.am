@@ -226,7 +226,8 @@ EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest \
  3d_fitter/configure.ac 
 
 MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
-CONFIGFILE = dstorm-config-@DSTORM_LIB_VERSION@.txt
+CONFIGFILEBASE = dstorm-config-@DSTORM_LIB_VERSION@.txt
+CONFIGFILE = $(pkgdatadir)/dstorm-config-@DSTORM_LIB_VERSION@.txt
 
 CLEANFILES = rapidSTORM.jar \
 	3d_fitter/config.h 3d_fitter/config.status \
@@ -256,7 +257,7 @@ rapid2storm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
 rapid2storm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
 	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
 
-$(CONFIGFILE) : dstorm-config.txt
+$(CONFIGFILEBASE) : dstorm-config.txt
 	cat $< > $@
 
 menudir=$(sysconfdir)/menu
@@ -264,4 +265,4 @@ menu_DATA=rapid2storm-@DSTORM_LIB_VERSION@
 applicationsdir=$(datadir)/applications
 applications_DATA=rapid2storm-@DSTORM_LIB_VERSION@.desktop
 
-pkgdata_DATA = $(CONFIGFILE)
+pkgdata_DATA = $(CONFIGFILEBASE)
