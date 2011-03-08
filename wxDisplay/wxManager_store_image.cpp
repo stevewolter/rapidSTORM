@@ -9,6 +9,7 @@
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/ImageTraits.h>
+#include <simparm/Message.hh>
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
@@ -257,7 +258,11 @@ void wxManager::store_image(
         } catch (...) {}
     }
     
-    img.write( filename );
+    try {
+        img.write( filename );
+    } catch ( const Magick::Error& e ) {
+        throw std::runtime_error(e.what());
+    }
 
 #endif
 }
