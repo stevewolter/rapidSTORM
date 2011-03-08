@@ -1,3 +1,9 @@
+rapidstorm (1.5.2-4) unstable; urgency=low
+
+  * Fixed segfault occuring when closing application with window open.
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 08 Mar 2011 10:31:38 +0100
+
 rapidstorm (1.5.2-3) unstable; urgency=low
 
   * Fixed minor bug introduced in window handling.
