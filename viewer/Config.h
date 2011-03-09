@@ -11,7 +11,7 @@
 
 #include <dStorm/UnitEntries/PixelEntry.h>
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
-#include "ColourScheme_decl.h"
+#include "ColourScheme.h"
 
 namespace dStorm {
 namespace viewer {
