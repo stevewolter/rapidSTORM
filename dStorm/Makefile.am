@@ -36,6 +36,6 @@ libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
 		       error_handler.cpp JobMaster.cpp $(RESOURCE_FILE)
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la localization_file/liblocfile.la \
-    input/libinput.la helpers/libhelpers.la -lsimparm
+    input/libinput.la helpers/libhelpers.la 
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@ -Xlinker $(RESOURCE_FILE:.rc=.o)
 libdStorm_la_DEPENDENCIES = $(RESOURCE_FILE:.rc=.o) $(libdStorm_la_LIBADD)

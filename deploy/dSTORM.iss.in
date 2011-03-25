@@ -13,12 +13,12 @@ UsePreviousAppDir=yes
 ; WizardImageFile=inst.bmp
 WizardImageStretch=no
 WizardImageBackColor=$FFFFFF
-LicenseFile=license.txt
-InfoBeforeFile=readme.txt
+; LicenseFile=license.txt
+; InfoBeforeFile=readme.txt
 AlwaysRestart=no
 
 ;privilegien nötig für Hardlock Driver
-PrivilegesRequired=admin
+; PrivilegesRequired=admin
 
 DiskSpanning=no
 ReserveBytes=16384
