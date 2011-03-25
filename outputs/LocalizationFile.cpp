@@ -69,7 +69,7 @@ void LocalizationFile::open() {
 
     /** Write XML header for localization file */
     XMLNode topNode = 
-        XMLNode::createXMLTopNode( "rapid2storm" );
+        XMLNode::createXMLTopNode( "localizations" );
     fields.clear();
     fields = field::Interface::construct(traits);
     for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i )

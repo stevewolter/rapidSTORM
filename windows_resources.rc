@@ -13,7 +13,7 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName",      "PicoQuant GmbH"
+            VALUE "CompanyName",      ""
             VALUE "FileDescription",  "Program for analyzing photoswitching microscopy data"
             VALUE "FileVersion",      PACKAGE_VERSION
             VALUE "InternalName",     "dstorm"

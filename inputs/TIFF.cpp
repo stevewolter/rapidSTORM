@@ -1,4 +1,3 @@
-#define VERBOSE
 #define DSTORM_TIFFLOADER_CPP
 
 #ifdef HAVE_CONFIG_H

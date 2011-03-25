@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Main-Class: de/uni_bielefeld/physik/rapid2STORM/DStorm
+Main-Class: de/uni_bielefeld/physik/rapidSTORM/DStorm
 Implementation-Title: @PACKAGE_NAME@
 Implementation-Version: @PACKAGE_VERSION@
 SplashScreen-Image: logo.png

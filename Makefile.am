@@ -234,7 +234,7 @@ CLEANFILES = rapidSTORM.jar \
 	3d_fitter/libtool 3d_fitter/config.log \
 	gauss_fitter/config.h gauss_fitter/config.status \
 	gauss_fitter/libtool gauss_fitter/config.log \
-	rapid2storm-@DSTORM_LIB_VERSION@.desktop rapid2storm-@DSTORM_LIB_VERSION@
+	rapidstorm-@DSTORM_LIB_VERSION@.desktop rapidstorm-@DSTORM_LIB_VERSION@
 	$(CONFIGFILE)
 
 javabuilddir = classes
@@ -251,18 +251,18 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
 
-rapid2storm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
+rapidstorm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
 	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
 
-rapid2storm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
+rapidstorm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
 	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
 
 $(CONFIGFILEBASE) : dstorm-config.txt
 	cat $< > $@
 
 menudir=$(sysconfdir)/menu
-menu_DATA=rapid2storm-@DSTORM_LIB_VERSION@
+menu_DATA=rapidstorm-@DSTORM_LIB_VERSION@
 applicationsdir=$(datadir)/applications
-applications_DATA=rapid2storm-@DSTORM_LIB_VERSION@.desktop
+applications_DATA=rapidstorm-@DSTORM_LIB_VERSION@.desktop
 
 pkgdata_DATA = $(CONFIGFILEBASE)

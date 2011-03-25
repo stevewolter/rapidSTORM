@@ -1,4 +1,4 @@
-package de.uni_bielefeld.physik.rapid2STORM;
+package de.uni_bielefeld.physik.rapidSTORM;
 
 import  java.io.*;
 import java.util.Set;
@@ -118,7 +118,7 @@ class DStorm {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
         result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
-            tempdir.getPath() + File.separator + "lib" + File.separator + "rapid2storm"
+            tempdir.getPath() + File.separator + "lib" + File.separator + "rapidstorm"
             + File.separator + "plugins";
         result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
             tempdir.getPath() 
@@ -170,7 +170,7 @@ class DStorm {
         }
 
         File executable = new File(base_dir, "bin" + File.separator + "dstorm");
-        File config = new File(base_dir, "share" + File.separator + "rapid2storm" 
+        File config = new File(base_dir, "share" + File.separator + "rapidstorm" 
                                          + File.separator + "dstorm-config.txt");
 
         HelpManager.setHelpDirectory(

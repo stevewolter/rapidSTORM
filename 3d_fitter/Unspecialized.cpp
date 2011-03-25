@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "fitter/residue_analysis/fitter.h"
 #include "fit++/FitFunction_impl.hh"
 #include "Fitter.h"

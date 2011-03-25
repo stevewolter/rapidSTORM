@@ -152,7 +152,12 @@ OpenFile::load_image(int count, simparm::Node& node)
     DEBUG("Created new image");
     /* The pixel might need casting. This is done here. */
     for (int p = 0; p < sz; p++) {
-        (*result)[p] = (PixelType)buffer[p];
+        if ( float(std::numeric_limits<PixelType>::min()) > buffer[p] )
+            (*result)[p] = std::numeric_limits<PixelType>::min();
+        else if ( float(std::numeric_limits<PixelType>::max()) < buffer[p] )
+            (*result)[p] = std::numeric_limits<PixelType>::max();
+        else
+            (*result)[p] = (PixelType)buffer[p];
     }
     DEBUG("Loaded next image");
     return result;
