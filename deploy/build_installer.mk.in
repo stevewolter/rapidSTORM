@@ -79,7 +79,7 @@ endif
 
 ifneq ($(ISCC),)
 installer : $(INSTALLER).exe
-$(INSTALLER).exe : $(INSTALLER).iss Readme.txt License.txt inst.bmp
+$(INSTALLER).exe : $(INSTALLER).iss README LICENSE
 	'$(ISCC)' '$<'
 else
 installer : $(INSTALLER).tgz
@@ -88,17 +88,18 @@ $(INSTALLER).tgz : $(BUNDLE_LISTS)
 	tar cfz $@ -C $(TMP) --files-from=rel_file_list.lst \
 	           -C $(PREFIX) --files-from=prefix_file_list.lst
 
-prefix_file_list.lst : rapid2storm.iss
+prefix_file_list.lst : rapidstorm.iss
 	sed -n -e 's#.*Source: "$(PREFIX)[/\\]\([^"]*\)".*#\1#p' $< > $@
-rel_file_list.lst : rapid2storm.iss
+rel_file_list.lst : rapidstorm.iss
 	sed -n -e 's#.*Source: "\([^\\/][^"]*\)".*#\1#p' $< > $@
 endif
 
 .DELETE_ON_ERROR :
 
-Readme.txt : $(srcdir)/../README
-License.txt : $(srcdir)/../LICENSE
-inst.bmp : $(srcdir)/inst.bmp
+build/README : $(srcdir)/../README
+	cp $< $@
+build/LICENSE : $(srcdir)/../LICENSE
+	cp $< $@
 
 bundle_iss.lst : $(BUNDLE_ISS)
 	$(PATH_REWRITER) $(BUNDLE_ISS_OFFSET) > $@
@@ -184,3 +185,7 @@ auto.dep : loaded_DLLs.txt
 	sed -e 's/^tag \(.*\) \(.*\)/storm.out : \1\/\2/' $< > $@
 	sed -e 's§^tag \(.*\) \(.*\)§binaries : $(TMP)/\2§' $< >> $@
 	sed -e 's§^tag \(.*\) \(.*\)§$(TMP)/\2 : \1/\2§' $< >> $@
+
+setup.exe : $(BUNDLE) build/LICENSE build/README
+	tar xf $(BUNDLE) -C build 
+	cd build && wine 'C:\\Programme\\Inno Setup 5\\iscc.exe' installer.iss && mv Output/setup.exe ..

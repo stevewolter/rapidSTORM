@@ -62,7 +62,7 @@ void LocalizationFile::open() {
 
     /** Write XML header for localization file */
     XMLNode topNode = 
-        XMLNode::createXMLTopNode( "rapid2storm" );
+        XMLNode::createXMLTopNode( "localizations" );
     field::XCoordinate( traits ).makeNode( topNode );
     field::YCoordinate( traits ).makeNode( topNode );
     field::FrameNumber( traits ).makeNode( topNode );

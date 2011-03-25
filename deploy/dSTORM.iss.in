@@ -13,7 +13,7 @@ UsePreviousAppDir=yes
 ; WizardImageFile=inst.bmp
 WizardImageStretch=no
 WizardImageBackColor=$FFFFFF
-; LicenseFile=license.txt
+LicenseFile=LICENSE
 ; InfoBeforeFile=readme.txt
 AlwaysRestart=no
 
@@ -30,8 +30,6 @@ Name: "main"; Description: "Program files"; Types: full compact
 Name: "devel"; Description: "Plugin development files"; Types: full
 
 [Icons]
-Name: "{group}\rapid2STORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
+Name: "{group}\rapidSTORM";                                                               Filename: "{app}\share\java\rapidSTORM.jar"
 Name: "{group}\Online Help";                                                               Filename: "{app}/share/doc/@PACKAGE_TARNAME@/rapidstorm.chm"
-Name: "{group}\Uninstall\Uninstall rapid2STORM";                                           Filename: "{uninstallexe}"
-
-#include "local.iss"
+Name: "{group}\Uninstall\Uninstall rapidSTORM";                                           Filename: "{uninstallexe}"

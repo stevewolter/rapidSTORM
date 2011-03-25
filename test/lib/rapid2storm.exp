@@ -103,7 +103,7 @@ proc end_test_suite {} {
 proc load_default_config {} {
     global DSTORM
 
-    set config_file [file join [file dirname "$DSTORM"] .. share rapid2storm dstorm-config.txt]
+    set config_file [file join [file dirname "$DSTORM"] .. share rapidstorm dstorm-config.txt]
     set filestream [open "$config_file" r]
     while {[gets $filestream line] >= 0} {
         send "in Car $line\n"
