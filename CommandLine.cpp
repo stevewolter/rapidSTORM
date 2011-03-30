@@ -167,7 +167,7 @@ bool CommandLine::Pimpl::load_config_file(
             DEBUG("Processing command from " << name.c_str());
             try {
                 config.processCommand( config_file );
-            } catch (const std::exception& e) {
+            } catch (const std::runtime_error& e) {
                 simparm::Message m("Error in initialization file",
                     "Unable to read initialization file: " + std::string(e.what()) );
                 config.send(m);

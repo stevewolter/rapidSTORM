@@ -193,7 +193,7 @@ class StateFetcher
         try {
             if ( window != NULL )
                 rv = window->getState();
-        } catch (const std::exception& e) {
+        } catch (const std::runtime_error& e) {
             std::cerr << "Unable to get image from window: " << e.what() << std::endl;
         } 
     }

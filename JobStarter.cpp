@@ -33,13 +33,9 @@ void JobStarter::operator()( const simparm::Event& ) {
             simparm::Message m( e.get_message("Starting job failed") );
             DEBUG("Got dStorm exception");
             const_cast<Config&>(*config).send( m );
-        } catch ( const std::exception& e ) {
+        } catch ( const std::runtime_error& e ) {
             simparm::Message m("Starting job failed", e.what() );
             DEBUG("Got normal exception");
-            const_cast<Config&>(*config).send( m );
-        } catch (...) {
-            simparm::Message m("Starting job failed", "Starting the job failed for an unknown reason" );
-            DEBUG("Got unknown exception");
             const_cast<Config&>(*config).send( m );
         }
         DEBUG("Finished handling job start");

@@ -35,7 +35,26 @@ int main(int argc, char *argv[]) {
     putenv(english_env);
     Magick::InitializeMagick(argv[0]);
     /* GraphicsMagick tends to fuck up signal handling, restore the signals. */
-    int fuckedup[] = { SIGHUP, SIGINT, SIGQUIT, SIGABRT, SIGFPE, SIGTERM };
+    int fuckedup[] = {
+#ifdef SIGHUP
+        SIGHUP,
+#endif
+#ifdef SIGINT
+        SIGINT,
+#endif
+#ifdef SIGQUIT
+        SIGQUIT,
+#endif
+#ifdef SIGABRT
+        SIGABRT,
+#endif 
+#ifdef SIGFPE
+        SIGFPE,
+#endif
+#ifdef SIGTERM
+        SIGTERM
+#endif
+    };
     for (unsigned int i= 0; i < sizeof(fuckedup) / sizeof(int); ++i )
     signal(fuckedup[i], SIG_DFL);
 #endif
@@ -56,13 +75,9 @@ int main(int argc, char *argv[]) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 
                   << std::endl;
         exit_code = EXIT_FAILURE;
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
         std::cerr << PACKAGE_NAME << ": "
                   << e.what() << std::endl;
-        exit_code = EXIT_FAILURE;
-    } catch (...) {
-        std::cerr << PACKAGE_NAME << ": Unhandled exception."
-                  << std::endl;
         exit_code = EXIT_FAILURE;
     }
     DEBUG("exit: main");

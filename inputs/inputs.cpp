@@ -5,7 +5,6 @@
 #include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
-#include "AndorCamera/InputChainLink.h"
 #include "BackgroundDeviationEstimator_decl.h"
 #include "Splitter_decl.h"
 #include "YMirror_decl.h"
@@ -24,7 +23,6 @@ void basic_inputs( input::Config* inputConfig ) {
 #ifdef HAVE_TIFFIO_H
     inputConfig->add_file_method( new TIFF::ChainLink() );
 #endif
-    inputConfig->add_method( new AndorCamera::Method() );
 
     inputConfig->add_filter( Splitter::makeLink(), true );
     inputConfig->add_filter( YMirror::makeLink() );

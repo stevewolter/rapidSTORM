@@ -1,24 +1,27 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
-INSTALL_PROGRAM = ${INSTALL} -m 711
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@
 C_TESTS = alignment_test \
 	check_uncorrelated check_derivatives check_3d_plugin
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
-noinst_LTLIBRARIES = libfitter.la libAndorCamera.la \
+noinst_LTLIBRARIES = libfitter.la \
     libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libgauss_fitter.la libengine_stm.la
 
 install-exec-local :
-	$(RM) $(DESTDIR)$(bindir)/dstorm && ln -s dstorm-@DSTORM_LIB_VERSION@ $(DESTDIR)$(bindir)/dstorm
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(pkgdatadir)
+	$(RM) $(DESTDIR)$(bindir)/dstorm$(EXEEXT) && ln -s dstorm-@DSTORM_LIB_VERSION@$(EXEEXT) $(DESTDIR)$(bindir)/dstorm$(EXEEXT)
+	$(RM) $(DESTDIR)$(pkgdatadir)/dstorm-config.txt && ln -s dstorm-config-@DSTORM_LIB_VERSION@.txt $(DESTDIR)$(pkgdatadir)/dstorm-config.txt
 
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 plugin_lib_LTLIBRARIES = lib3d_fitter.la
 
 TESTS = $(C_TESTS)
+
+doc_DATA = $(srcdir)/README $(srcdir)/LICENSE
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
@@ -177,13 +180,6 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
-libAndorCamera_la_SOURCES = \
-    AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
-    AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
-    AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
-    AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp
-
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
@@ -205,7 +201,6 @@ dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libengine_stm.la \
     libengine.la libnoopengine.la libgauss_fitter.la  \
     libfitter.la libinputs.la \
-    libAndorCamera.la \
     libdStorm_display.la \
     -lltdl 
 
@@ -234,7 +229,7 @@ CLEANFILES = rapidSTORM.jar \
 	3d_fitter/libtool 3d_fitter/config.log \
 	gauss_fitter/config.h gauss_fitter/config.status \
 	gauss_fitter/libtool gauss_fitter/config.log \
-	rapidstorm-@DSTORM_LIB_VERSION@.desktop rapidstorm-@DSTORM_LIB_VERSION@
+	rapidstorm-@DSTORM_LIB_VERSION@.desktop rapidstorm-@DSTORM_LIB_VERSION@ \
 	$(CONFIGFILE)
 
 javabuilddir = classes

@@ -72,7 +72,6 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([b64], [main], , [AC_ERROR(Base64 encoding library not found)])
 AC_CHECK_LIB([dStorm], [main], , [AC_ERROR(dSTORM library not found)])
 AC_CHECK_LIB([tiff], [main], , [AC_ERROR(tiff library not found)])
 AC_CHECK_LIB([GraphicsMagick], [main], , [AC_ERROR(GraphicsMagick library not found)])

@@ -1,3 +1,9 @@
+rapidstorm (1.5.2-5) unstable; urgency=low
+
+  * Rebuilt for squeeze
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 28 Mar 2011 19:24:58 +0200
+
 rapidstorm (1.5.2-4) unstable; urgency=low
 
   * Fixed segfault occuring when closing application with window open.
