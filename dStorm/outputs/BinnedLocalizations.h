@@ -125,10 +125,17 @@ namespace outputs {
         /** Delete all localizations in this image and its listener. */
         void clear();
 
+#if cimg_version > 129
+        /** Width of the binned image. */
+        int width() const { return base_image.width(); }
+        /** Height of the binned image. */
+        int height() const { return base_image.height(); }
+#else
         /** Width of the binned image. */
         int width() const { return base_image.width; }
         /** Height of the binned image. */
         int height() const { return base_image.height; }
+#endif
 
         /** Change the resolution enhancement. The new image will be
          *  empty, and all localizations have to be re-sent. */

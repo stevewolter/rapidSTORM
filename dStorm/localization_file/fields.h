@@ -10,7 +10,7 @@
 #include <simparm/optional.hh>
 
 /* Berghen XML Parser */
-#include <xmlParser.h>
+#include <berghenxml/xmlParser.h>
 
 #include <dStorm/input/LocalizationTraits_decl.h>
 #include <dStorm/output/Traits_decl.h>

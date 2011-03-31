@@ -80,9 +80,14 @@ BinnedLocalizations<KeepUpdated>
         pixel_count lx = pixel_count(floor(enlarged.x())),
                     ly = pixel_count(floor(enlarged.y()));
         if (   lx < 0 * cs_units::camera::pixel || 
-               lx >= int(base_image.width-1) * cs_units::camera::pixel ||
                ly < 0 * cs_units::camera::pixel || 
+#if cimg_version > 129
+               lx >= int(base_image.width()-1) * cs_units::camera::pixel ||
+               ly >= int(base_image.height()-1) * cs_units::camera::pixel )
+#else
+               lx >= int(base_image.width-1) * cs_units::camera::pixel ||
                ly >= int(base_image.height-1) * cs_units::camera::pixel )
+#endif
             continue;
         float xf = (enlarged.x() - lx) / cs_units::camera::pixel,
               yf = (enlarged.y() - ly) / cs_units::camera::pixel;

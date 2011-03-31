@@ -59,10 +59,18 @@ bool SigmaFitter::fit(const cimg_library::CImg<StormPixel> &i,
     int cxr = round(cx), cyr = round(cy);
     /* Reject localizations too close to image border. */
     if ( cxr < msx || cyr < msy 
+#if cimg_version > 129
+         || cxr >= int(i.width()-msx) || cyr >= int(i.height()-msy) )
+#else
          || cxr >= int(i.width-msx) || cyr >= int(i.height-msy) )
+#endif
         return false;
 
+#if cimg_version > 129
+    fitter->setData(i.data(), i.width(), i.height());
+#else
     fitter->setData(i.ptr(), i.width, i.height);
+#endif
     fitter->setUpperLeftCorner( cxr-msx, cyr-msy );
     
     double start_amp =  f.getStrength() / cs_units::camera::ad_counts;

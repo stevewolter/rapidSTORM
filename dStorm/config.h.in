@@ -15,6 +15,10 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `berghen_xmlParser' library
+   (-lberghen_xmlParser). */
+#undef HAVE_LIBBERGHEN_XMLPARSER
+
 /* Define to 1 if you have the `GraphicsMagick++' library
    (-lGraphicsMagick++). */
 #undef HAVE_LIBGRAPHICSMAGICK__

@@ -64,7 +64,11 @@ Source<Pixel>::load()
     result = new CImg<Pixel>(my_traits.size.x().value(), my_traits.size.y().value());
     /* The pixel might need casting. This is done here. */
     for (int p = 0; p < sz; p++) {
+#if cimg_version > 129
+        result->data()[p] = (Pixel)buffer[p];
+#else
         result->data[p] = (Pixel)buffer[p];
+#endif
     }
     DEBUG("Loaded next image");
     return result;

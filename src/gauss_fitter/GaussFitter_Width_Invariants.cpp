@@ -118,8 +118,13 @@ Width_Invariants<FF,false>::set_start(
         * params.template getSigmaX<0>() * params.template getSigmaY<0>());
 
     StartInformation si;
+#if cimg_version > 129
+    si.maxs.x() = image.width()-1 - 1;
+    si.maxs.y() = image.height()-1 - 1;
+#else
     si.maxs.x() = image.width-1 - 1;
     si.maxs.y() = image.height-1 - 1;
+#endif
     si.start.x() = spot.x();
     si.start.y() = spot.y();
     return si;

@@ -27,7 +27,11 @@ Output::Result
 AverageImage::receiveLocalizations(const EngineResult& er) {
     ost::MutexLock lock(mutex);
     for (unsigned int j = 0; j < image.size(); j++)
+#if cimg_version <= 129
         image.data[j] += er.source->data[j];
+#else
+        image.data()[j] += er.source->data()[j];
+#endif
 
     return KeepRunning;
 }
@@ -40,7 +44,11 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
         try {
             image.get_normalize(0,255).save(filename.c_str());
         } catch (const cimg_library::CImgException& e) {
+#if cimg_version <= 129
             cerr << "CImg: " << e.message << endl;
+#else
+            cerr << "CImg: " << e.what() << endl;
+#endif
         }
     } else if (s == Engine_run_failed) {
         ost::MutexLock lock(mutex);

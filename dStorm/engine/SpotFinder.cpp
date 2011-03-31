@@ -19,10 +19,15 @@ SpotFinder::SpotFinder(const Config &c,
      {
         PROGRESS("Making SpotFinder with " 
                  << msx << " " << msy << " " << imw << " " << imh);
-        PROGRESS("Image pointer is " << smoothed->ptr() );
         /* Zero the border of the smoothed image to be sure no maximums
          * occur here regardless of mask size combinations. */
+#if cimg_version > 129
+        PROGRESS("Image pointer is " << smoothed->data() );
+        memset( smoothed->data(), 0, smoothed->size() * sizeof(SmoothedPixel) );
+#else
+        PROGRESS("Image pointer is " << smoothed->ptr() );
         memset( smoothed->ptr(), 0, smoothed->size() * sizeof(SmoothedPixel) );
+#endif
      }
 
 SpotFinder::~SpotFinder() {

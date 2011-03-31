@@ -39,22 +39,27 @@ void gsm_line(const InputPixel *input, int step, int radius, int size,
     }
 }
 
+#if cimg_version <= 129
+#define CIMG_PAR
+#else
+#define CIMG_PAR ()
+#endif
 void GaussSmoother::smooth( const Image &in )
  
 {
     /* Effective border width */
     int eby = max(0,by-msy);
 
-    for (int x = 0; x < int(in.height); x++)
-        gsm_line( in.ptr(x, 0), in.width, msy, in.height, 
-                  smoothed->ptr(x, 0), ykern.ptr() );
+    for (int x = 0; x < int(in.height CIMG_PAR); x++)
+        gsm_line( &in(x, 0), in.width CIMG_PAR, msy, in.height CIMG_PAR, 
+                  &(*smoothed)(x, 0), ykern.ptr() );
 
-    SmoothedPixel copy[smoothed->width];
-    for (int y = eby; y < int(smoothed->width - eby); y++) {
-        memcpy(copy, smoothed->ptr(0, y), 
-               sizeof(SmoothedPixel) * smoothed->width);
-        gsm_line( copy, 1, msx, smoothed->width,
-                               smoothed->ptr(0, y), xkern.ptr() );
+    SmoothedPixel copy[smoothed->width CIMG_PAR];
+    for (int y = eby; y < int(smoothed->width CIMG_PAR - eby); y++) {
+        memcpy(copy, &(*smoothed)(0, y), 
+               sizeof(SmoothedPixel) * smoothed->width CIMG_PAR);
+        gsm_line( copy, 1, msx, smoothed->width CIMG_PAR,
+                               &(*smoothed)(0, y), xkern.ptr() );
     }
 }
 

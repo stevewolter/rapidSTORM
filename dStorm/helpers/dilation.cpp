@@ -114,18 +114,34 @@ void rectangular_dilation(const cimg_library::CImg<PixelType> &i,
     ys = (mry > 1) ? &t : &i;
 
     if ( mry > 1 ) {
+#if cimg_version > 129
+        for (int x = borderX; x < int(i.width())-borderX; x++) {
+            dilate_line(&(*xs)(x, borderY), i.width(), i.height()-2*borderY, 
+#else
         for (int x = borderX; x < int(i.width)-borderX; x++) {
-            dilate_line(xs->ptr(x, borderY), i.width, i.height-2*borderY, 
-                2*mry+1, xr->ptr(x, borderY));
+            dilate_line(&(*xs)(x, borderY), i.width, i.height-2*borderY, 
+#endif
+                2*mry+1, &(*xr)(x, borderY));
         }
     }
 
     if ( mrx > 1 ) {
+#if cimg_version > 129
+        for (int y = borderY; y < int(i.height())-borderY; y++)
+            dilate_line(&(*ys)(borderX, y), 1, i.width()-2*borderX, 2*mrx+1,
+#else
         for (int y = borderY; y < int(i.height)-borderY; y++)
-            dilate_line(ys->ptr(borderX, y), 1, i.width-2*borderX, 2*mrx+1,
-                    yr->ptr(borderX, y));
+            dilate_line(&(*ys)(borderX, y), 1, i.width-2*borderX, 2*mrx+1,
+#endif
+                    &(*yr)(borderX, y));
     }
 }
+
+#if cimg_version > 129
+#define CIMG_PAR ()
+#else
+#define CIMG_PAR 
+#endif
 
 template <typename PixelType>
 void rectangular_erosion(const cimg_library::CImg<PixelType> &i, 
@@ -139,16 +155,16 @@ void rectangular_erosion(const cimg_library::CImg<PixelType> &i,
     ys = (mry > 1) ? &t : &i;
 
     if ( mry > 1 ) {
-        for (int x = borderX; x < int(i.width)-borderX; x++) {
-            erode_line(xs->ptr(x, borderY), i.width, i.height-2*borderY, 
-                2*mry+1, xr->ptr(x, borderY));
+        for (int x = borderX; x < int(i.width CIMG_PAR)-borderX; x++) {
+            erode_line(&(*xs)(x, borderY), i.width CIMG_PAR, i.height CIMG_PAR-2*borderY, 
+                2*mry+1, &(*xr)(x, borderY));
         }
     }
 
     if ( mrx > 1 ) {
-        for (int y = borderY; y < int(i.height)-borderY; y++)
-            erode_line(ys->ptr(borderX, y), 1, i.width-2*borderX, 2*mrx+1,
-                    yr->ptr(borderX, y));
+        for (int y = borderY; y < int(i.height CIMG_PAR)-borderY; y++)
+            erode_line(&(*ys)(borderX, y), 1, i.width CIMG_PAR-2*borderX, 2*mrx+1,
+                    &(*yr)(borderX, y));
     }
 }
 

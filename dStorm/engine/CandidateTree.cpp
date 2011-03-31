@@ -69,9 +69,17 @@ void CandidateTree<PixelType>::fill(const CImg<PixelType> &i)
     * ignore any maxima of this height. */
    PixelType largestReject = 0;
 
+#if cimg_version > 129
+   const int W = i.width(), H = i.height();
+#else
    const int W = i.width, H = i.height;
+#endif
    const int w = msx, h = msy;
+#if cimg_version > 129
+   const PixelType* I = i.data();
+#else
    const PixelType* I = i.ptr();
+#endif
    int cxs[(w+1)*(h+1)];
    int cys[(w+1)*(h+1)];
    const int lastValidX = W - (bx+1), lastValidY = H - (by+1);
@@ -196,9 +204,14 @@ void CandidateTree<PixelType>::fillMax(const CImg<PixelType> &i)
     * ignore any maxima of this height. */
    PixelType largestReject = 0;
 
+#if cimg_version > 129
+   const int W = i.width(), H = i.height();
+   const PixelType* I = i.data();
+#else
    const int W = i.width, H = i.height;
-   const int w = msx, h = msy;
    const PixelType* I = i.ptr();
+#endif
+   const int w = msx, h = msy;
    const int lastValidX = W - (w+w+1), lastValidY = H - (h+h+1);
 
     /* aneubeck's algorithm as documented on 

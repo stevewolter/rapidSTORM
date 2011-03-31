@@ -54,6 +54,7 @@ DX_INIT_DOXYGEN(dStorm)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h process.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
+AC_CHECK_HEADER([berghenxml/xmlParser.h], [], [AC_ERROR([Missing Berghen XML Parser header])])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -68,6 +69,7 @@ AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
 AC_CHECK_LIB([simparm], [main])
+AC_CHECK_LIB([berghen_xmlParser], [main])
 # AC_CHECK_LIB([GraphicsMagick], [InitializeMagick])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 

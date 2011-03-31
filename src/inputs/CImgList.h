@@ -34,12 +34,21 @@ namespace dStorm {
          Source(const char *src );
          virtual ~Source() {}
 
+#if cimg_version > 129
+         virtual int dimx() const 
+            { return sourceImages.front().width(); }
+         virtual int dimy() const 
+            { return sourceImages.front().height(); }
+         virtual int quantity() const 
+            { return sourceImages.size(); }
+#else
          virtual int dimx() const 
             { return sourceImages.front().width; }
          virtual int dimy() const 
             { return sourceImages.front().height; }
          virtual int quantity() const 
             { return sourceImages.size; }
+#endif
 
          Object& getConfig() { return *this; }
 

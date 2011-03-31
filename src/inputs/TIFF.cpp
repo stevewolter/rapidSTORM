@@ -94,7 +94,11 @@ Source<Pixel>::load()
 
     for (tstrip_t strip = 0; strip < strip_count; strip++) {
         TIFFReadEncodedStrip( tiff, strip, 
+#if cimg_version > 129
+            img->data() + (strip * strip_size / sizeof(Pixel)),
+#else
             img->ptr() + (strip * strip_size / sizeof(Pixel)),
+#endif
             strip_size );
 
     }

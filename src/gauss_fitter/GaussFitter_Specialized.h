@@ -137,7 +137,11 @@ SpecializedGaussFitter<Free_Sigmas,false, Corr, Width, Height>::
 fit( const Spot &spot, Localization *target, const Image& image,
          int xl, int yl) 
 {
+#if cimg_version > 129
+    deriver.setData( image.data(), image.width(), image.height() );
+#else
     deriver.setData( image.ptr(), image.width, image.height );
+#endif
     deriver.setUpperLeftCorner( xl, yl );
 
     Eigen::Matrix<double,1,1> corners =

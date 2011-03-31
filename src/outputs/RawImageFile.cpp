@@ -120,15 +120,20 @@ void RawImageFile::delete_queue() {
 
 void RawImageFile::write_image(const Image& img) {
     TIFFOperation op("in writing TIFF file", false);
+#if cimg_version <= 129
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height );
+#else
+    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, img.width() );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, img.height() );
+#endif
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     op.throw_exception_for_errors();
 
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
-    tdata_t data = const_cast<tdata_t>( (const tdata_t)img.ptr() );
+    tdata_t data = const_cast<tdata_t>( (const tdata_t)img.data() );
     for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
         tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
         if ( r == -1 /* Error occured */ ) 

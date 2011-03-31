@@ -103,19 +103,25 @@ void smoothByAverage<StormPixel,SmoothedPixel>
         }
     }
 #elif defined(AVERAGE_BY_SEPARATION)
-    for (int y = 0; y < int(input.height); y++)
+#if cimg_version <= 129
+#define CIMG_PAR
+#else
+#define CIMG_PAR ()
+#endif
+
+    for (int y = 0; y < int(input.height CIMG_PAR); y++)
         averageLine<StormPixel,SmoothedPixel>
-            ( input.ptr(0, y), 1, xr, input.width,
-                     output.ptr(xr, y) );
-    for (int x = xr; x < int(output.width-xr); x++)
+            ( &input(0, y), 1, xr, input.width CIMG_PAR,
+                     &output(xr, y) );
+    for (int x = xr; x < int(output.width CIMG_PAR-xr); x++)
         averageLine<SmoothedPixel,SmoothedPixel>
-            ( output.ptr(x, 0), output.width, yr, output.height, 
-                     output.ptr(x, yr) );
+            ( &output(x, 0), output.width CIMG_PAR, yr, output.height CIMG_PAR, 
+                     &output(x, yr) );
 
 #ifdef NORMALIZE
     const unsigned int norm = (2*xr+1)*(2*yr+1), sz = output.size();
     for (unsigned int i = 0; i < sz; i++)
-        output.data[i] /= norm;
+        output.data CIMG_PAR[i] /= norm;
 #endif
 #endif
 }

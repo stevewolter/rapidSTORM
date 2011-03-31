@@ -95,7 +95,11 @@ SpecializedGaussFitter<FS, true, Corr, Width, Height>
     const int xl = oxl, yl = oyl;
 #endif
 
+#if cimg_version > 129
+    deriver.setData( image.data(), image.width(), image.height() );
+#else
     deriver.setData( image.ptr(), image.width, image.height );
+#endif
     deriver.setUpperLeftCorner( xl, yl );
 
     common.start_from_splitted_single_fit( &a.parameters, direction );

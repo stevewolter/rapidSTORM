@@ -49,25 +49,30 @@ static void insertLine(const T* from, int step, T* into, int w) {
     }
 }
  
+#if cimg_version <= 129
+#define CIMG_PAR
+#else
+#define CIMG_PAR ()
+#endif
 void MedianSmoother::naiveMedian(const Image &in, SmoothedImage& out, 
                                  int mw, int mh)
  
 {
-    const StormPixel *line, *limit = in.ptr(0, in.height-mh);
+    const StormPixel *line, *limit = &in(0, in.height CIMG_PAR-mh);
     int ln;
     int ms = mw * mh;
     StormPixel buffer[ms], copy[ms];
     int offset = mw/2, median = ms/2;
 
-    for (ln = mh/2, line = in.ptr(); 
-         line <= limit; ln++, line += in.width) 
+    for (ln = mh/2, line = in.data CIMG_PAR; 
+         line <= limit; ln++, line += in.width CIMG_PAR) 
     {
-        for (unsigned int block = 0; block < in.width; block += mw)
+        for (unsigned int block = 0; block < (unsigned int)in.width CIMG_PAR; block += mw)
             for (int column = 0, coloff = 0; 
-                     column < mw && block+column < in.width; 
+                     column < mw && block+column < (unsigned int)in.width CIMG_PAR; 
                      column++,   coloff += mh)
             {
-                insertLine( line + block + column, in.width,
+                insertLine( line + block + column, in.width CIMG_PAR,
                             buffer + coloff, mh );
                 if (block == 0 && column < mw-1)
                     continue;
@@ -250,7 +255,7 @@ template <int strucSize>
 void ahmadMedian(const Image &in, SmoothedImage& out, int mw, int mh)
 
 {
-    const int W = in.width, H = in.height, xoff = -mw/2, yoff = mw/2;
+    const int W = in.width CIMG_PAR, H = in.height CIMG_PAR, xoff = -mw/2, yoff = mw/2;
     StormPixel median;
     SortedList<StormPixel,strucSize> sortedColumns[W];
 
@@ -282,7 +287,7 @@ void ahmadMedian(const Image &in, SmoothedImage& out, int mw, int mh)
 
             /* Update next column vector */
             if (y == 0)
-                sortedColumns[x].init( in.ptr(x,0), W, median );
+                sortedColumns[x].init( &in(x,0), W, median );
             else {
                 sortedColumns[x].adjustBorder( median );
                 sortedColumns[x].replace(replaceRow, in(x, y+mh-1),
