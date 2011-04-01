@@ -1,0 +1,5 @@
+rapidstorm (7.0.0-1) unstable; urgency=low
+
+  * Reverse-packaged old rapidSTORM version
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 31 Mar 2011 18:19:31 +0200

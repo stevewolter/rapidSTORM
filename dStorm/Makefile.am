@@ -11,8 +11,10 @@ AM_CPPFLAGS = \
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
+    RESOURCE_LINKING = -Xlinker windows_resources.o
 else
     RESOURCE_FILE =
+    RESOURCE_LINKING =
 endif
 
 .rc.o : 
@@ -37,5 +39,5 @@ libdStorm_la_SOURCES = Localization.cpp debug.h debug_print.h \
 libdStorm_la_LIBADD = outputs/liboutputs.la output/liboutput.la \
     engine/libengine.la localization_file/liblocfile.la \
     input/libinput.la helpers/libhelpers.la 
-libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@ -Xlinker $(RESOURCE_FILE:.rc=.o)
+libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@ $(RESOURCE_LINKING)
 libdStorm_la_DEPENDENCIES = $(RESOURCE_FILE:.rc=.o) $(libdStorm_la_LIBADD)

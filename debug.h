@@ -19,8 +19,10 @@
                              (std::ostream&)(*dbg) << x << "\n"; \
                              dbg->end(); }}
 #define STATUS(x) PRINT(x)
+#define DEBUG(x) PRINT(x)
 #else
 #define STATUS(x)
+#define DEBUG(x)
 #endif
 
 /** \def PROGRESS(x) The progress macro prints information about the

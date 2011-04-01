@@ -7,7 +7,10 @@ AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION,
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
 
-CPPFLAGS="$CPPFLAGS -I $top_srcdir"
+test "x$top_srcdir" == "x" || CPPFLAGS="$CPPFLAGS -I $top_srcdir"
+
+AC_LANG([C++])
+AC_PROG_CXX
 
 AC_ARG_ENABLE([doc-build],
     [AS_HELP_STRING([--enable-doc-build], [Build documentation @<:@default=yes@:>@])],

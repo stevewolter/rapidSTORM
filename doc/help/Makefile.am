@@ -11,7 +11,7 @@ HTMLHELP_FILES = rapidstorm.css rapidstorm-job-status.PNG \
 EXTRA_DIST = rapidstorm.xml rapidstorm.xsl rapidstorm_pre.xsl $(HTMLHELP_FILES)
 
 .hhp.chm : 
-	for i in $(HTMLHELP_FILES); do $(RM) $(builddir)/$$i; $(LN_S) $(srcdir)/$$i $(builddir)/$$i; done
+	test 'x$(builddir)' = 'x$(srcdir)' || for i in $(HTMLHELP_FILES); do $(RM) $(builddir)/$$i; $(LN_S) $(srcdir)/$$i $(builddir)/$$i; done
 	grep -q -v '#' alias.h || { echo DUMMY_ALIAS=index.html >> alias.h; echo '#define DUMMY_ALIAS 23' >> context.h; } # We need at least one non-anchored alias so aliasing works.
 	'$(HHC)' '$<' || test "$$?" = '1' # Ignore the error exit code; it is normal due to superfluous HHC warnings
 

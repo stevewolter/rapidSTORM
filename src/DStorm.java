@@ -169,7 +169,7 @@ class DStorm {
             base_dir = new File( install_dir );
         }
 
-        File executable = new File(base_dir, "bin" + File.separator + "dstorm");
+        File executable = new File(base_dir, "bin" + File.separator + "dstorm-7");
         File config = new File(base_dir, "share" + File.separator + "rapidstorm" 
                                          + File.separator + "dstorm-config.txt");
 

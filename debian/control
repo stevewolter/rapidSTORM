@@ -1,0 +1,66 @@
+Source: rapidstorm
+Priority: optional
+Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libsimparm1-dev, libeigen2-dev, libboost-all-dev, libcsunits1-dev, libberghenxml-dev, libgraphicsmagick++1-dev, libtiff4-dev, libreadsif-dev, libwxgtk2.8-dev, twiddler, linux-hhc, xsltproc, java-compiler 
+Standards-Version: 3.8.4
+Section: science
+Homepage: http://super-resolution.de
+
+Package: librapidstorm-dev
+Section: libdevel
+Architecture: any
+Depends: librapidstorm7 (= ${binary:Version}), librapidstorm7-headers (= ${binary:Version}), librapidstormdoc-dev, libsimparm1-dev, libboost-thread-dev, libboost-system-dev, libboost-dev, libberghenxml-dev, libeigen2-dev, libcsunits1-dev, libgraphicsmagick++1-dev
+Recommends: 
+Description: Processing interface for localization microscopy data -- development files
+
+Package: librapidstorm7-headers
+Section: libdevel
+Architecture: any
+Recommends: librapidstormdoc-dev, libsimparm-dev, libanyiterator-dev, libeigen2-dev
+Description: Processing interface for localization microscopy data -- headers only
+Replaces: libdstorm7-headers
+Conflicts: libdstorm7-headers
+Provides: libdstorm7-headers
+
+Package: librapidstorm7
+Section: libs
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Replaces: libdstorm7
+Conflicts: libdstorm7
+Provides: libdstorm7
+Description: Processing interface for localization microscopy data
+
+Package: rapidstorm7
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Conflicts: rapid2storm
+Provides: rapidstorm
+Description: Localization microscopy data evaluation tool
+
+Package: rapidstorm7-gui
+Architecture: any
+Depends: rapidstorm7, twiddler
+Provides: rapidstorm-gui
+Description: GUI interface for rapidSTORM
+
+Package: rapidstorm-plugin-testhelpers-dev
+Section: libs
+Architecture: any
+Depends: ${misc:Depends}, librapiddstorm-dev (= ${binary:Version}), rapidstorm-plugin-testhelpers7
+Description: Static libraries for rapidSTORM test plugins
+
+Package: rapidstorm-plugin-testhelpers7
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, librapiddstorm7
+Description: Plugins for rapidSTORM that ease testing
+
+Package: rapidstorm-doc
+Architecture: any
+Description: Documentation for rapidSTORM program
+
+Package: librapidstormdoc-dev
+Section: libdevel
+Architecture: any
+Description: rapidSTORM context help header

@@ -31,7 +31,7 @@ int main() {
     ::wxMilliSleep( 3000 );
 
     h.reset( NULL );
-    dStorm::Display::wxManager::destroySingleton();
+    //dStorm::Display::wxManager::destroySingleton();
 
     return 0;
 }

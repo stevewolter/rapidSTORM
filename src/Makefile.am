@@ -9,7 +9,7 @@ endif
 
 SUBDIRS = fit++ AndorCamera inputs engine gauss_fitter spotFinders outputs wxDisplay viewer $(DEBUGPLUGIN)
 
-bin_PROGRAMS = dstorm 
+bin_PROGRAMS = dstorm-7
 
 AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
@@ -17,8 +17,10 @@ AM_CPPFLAGS = \
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
+    RESOURCE_LINKING = -Xlinker windows_resources.o
 else
     RESOURCE_FILE =
+    RESOURCE_LINKING = 
 endif
 
 .rc.o : 
@@ -31,7 +33,7 @@ COMMON_LIBS = outputs/liboutputs.la viewer/libviewer.la \
     AndorCamera/libAndorCamera.la \
     wxDisplay/libdStorm_display.la \
     ../dStorm/libdStorm.la 
-dstorm_SOURCES = \
+dstorm_7_SOURCES = \
     dstorm.cpp \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
@@ -41,7 +43,8 @@ dstorm_SOURCES = \
     debug.h $(RESOURCE_FILE) \
     local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
-dstorm_LDADD = $(COMMON_LIBS) -lltdl 
+dstorm_7_LDADD = $(COMMON_LIBS) -lltdl 
+dstorm_7_LDFLAGS = $(RESOURCE_LINKING)
     
 javadir=$(datadir)/java
 java_DATA = rapidSTORM.jar
@@ -57,3 +60,18 @@ rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	cp $(TWIDDLER_JAR) $@
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
+
+MAINPROGRAM = $(bindir)/dstorm-7
+CONFIGFILEBASE = dstorm-config.txt
+CONFIGFILE = $(pkgdatadir)/dstorm-config.txt
+
+rapidstorm-7.desktop : $(srcdir)/desktop-icon.in
+	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
+
+rapidstorm-7 : $(srcdir)/menu.in
+	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
+
+menudir=$(sysconfdir)/menu
+menu_DATA=rapidstorm-7
+applicationsdir=$(datadir)/applications
+applications_DATA=rapidstorm-7.desktop

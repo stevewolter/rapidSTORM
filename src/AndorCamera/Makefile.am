@@ -25,8 +25,13 @@ endif
 libAndorCamera_la_SOURCES = Config.cpp Config.h $(ACS)
 
 C_TESTS = check_AndorCamera_with_DummyCamera
+if HAVE_LIBATMCD32D
 TESTS = $(C_TESTS)
 check_PROGRAMS = $(C_TESTS)
+else
+TESTS = 
+check_PROGRAMS = 
+endif
 check_AndorCamera_with_DummyCamera_SOURCES = \
     check_AndorCamera_with_DummyCamera.cpp
 check_AndorCamera_with_DummyCamera_LDADD = ../../dStorm/libdStorm.la ../wxDisplay/libdStorm_display.la libAndorCamera.la
