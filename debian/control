@@ -6,11 +6,13 @@ Standards-Version: 3.8.4
 Section: science
 Homepage: http://super-resolution.de
 
-Package: librapidstorm-dev
+Package: librapidstorm7-dev
 Section: libdevel
 Architecture: any
 Depends: librapidstorm7 (= ${binary:Version}), librapidstorm7-headers (= ${binary:Version}), librapidstormdoc-dev, libsimparm1-dev, libboost-thread-dev, libboost-system-dev, libboost-dev, libberghenxml-dev, libeigen2-dev, libcsunits1-dev, libgraphicsmagick++1-dev
 Recommends: 
+Provides: librapidstorm-dev
+Conflicts: librapidstorm-dev
 Description: Processing interface for localization microscopy data -- development files
 
 Package: librapidstorm7-headers
