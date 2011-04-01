@@ -1,7 +1,7 @@
 Source: rapidstorm
 Priority: optional
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libsimparm1-dev, libeigen2-dev, libboost-all-dev, libcsunits1-dev, libberghenxml-dev, libgraphicsmagick++1-dev, libtiff4-dev, libreadsif-dev, libwxgtk2.8-dev, twiddler, linux-hhc, xsltproc, java-compiler 
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, libsimparm1-dev, libeigen2-dev, libboost-all-dev, libcsunits1-dev, libberghenxml-dev, libgraphicsmagick++1-dev, libtiff4-dev, libreadsif-dev, libwxgtk2.8-dev, twiddler, linux-hhc, xsltproc, java-compiler, cimg-dev
 Standards-Version: 3.8.4
 Section: science
 Homepage: http://super-resolution.de

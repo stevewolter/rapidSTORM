@@ -1,5 +1,6 @@
 HTMLHELP_XSLT_FLAGS= \
     --stringparam manifest.in.base.dir 1
+XSLT_FLAGS += --nonet
 
 noinst_HEADERS = rapidstorm_help_file.h
 
