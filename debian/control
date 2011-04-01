@@ -9,7 +9,7 @@ Homepage: http://super-resolution.de
 Package: librapidstorm7-dev
 Section: libdevel
 Architecture: any
-Depends: librapidstorm7 (= ${binary:Version}), librapidstorm7-headers (= ${binary:Version}), librapidstormdoc-dev, libsimparm1-dev, libboost-thread-dev, libboost-system-dev, libboost-dev, libberghenxml-dev, libeigen2-dev, libcsunits1-dev, libgraphicsmagick++1-dev
+Depends: librapidstorm7 (= ${binary:Version}), librapidstorm7-headers (= ${binary:Version}), libsimparm1-dev, libboost-thread-dev, libboost-system-dev, libboost-dev, libberghenxml-dev, libeigen2-dev, libcsunits1-dev, libgraphicsmagick++1-dev
 Recommends: 
 Provides: librapidstorm-dev
 Conflicts: librapidstorm-dev
@@ -18,7 +18,7 @@ Description: Processing interface for localization microscopy data -- developmen
 Package: librapidstorm7-headers
 Section: libdevel
 Architecture: any
-Recommends: librapidstormdoc-dev, libsimparm-dev, libanyiterator-dev, libeigen2-dev
+Recommends: libsimparm-dev, libanyiterator-dev, libeigen2-dev
 Description: Processing interface for localization microscopy data -- headers only
 Replaces: libdstorm7-headers
 Conflicts: libdstorm7-headers
@@ -61,8 +61,3 @@ Description: Plugins for rapidSTORM that ease testing
 Package: rapidstorm-doc
 Architecture: any
 Description: Documentation for rapidSTORM program
-
-Package: librapidstormdoc-dev
-Section: libdevel
-Architecture: any
-Description: rapidSTORM context help header
