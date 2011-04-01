@@ -22,7 +22,7 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
     size[0] = size[1] = size[2] = 0;
     TIFFOperation op( "in opening TIFF file",
                       n, ignore_warnings );
-    tiff = TIFFOpen( filename.c_str(), "r" );
+    tiff = TIFFOpen( filename.c_str(), "rCm" );
     if ( tiff == NULL ) { op.throw_exception_for_errors(); throw std::logic_error("Undefined error in TIFF reading"); }
 
     for (int i = 0; i < 3; ++i ) {

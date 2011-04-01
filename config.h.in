@@ -1,7 +1,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the <any_iterator.h> header file. */
-#undef HAVE_ANY_ITERATOR_H
+/* Define to 1 if you have the <any_iterator.hpp> header file. */
+#undef HAVE_ANY_ITERATOR_HPP
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
