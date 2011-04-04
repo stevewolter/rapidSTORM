@@ -69,6 +69,7 @@ void Factory::set_traits( output::Traits& rv, const engine::JobInfo& info ) {
     rv.covariance_matrix().is_given.fill( freeSigmaFitting() );
     rv.position().is_given.start<2>().fill( true );
     rv.amplitude().is_given = true;
+    rv.fit_residues().is_given = true;
 
     if ( info.traits.photon_response.is_promised(deferred::JobTraits)
          && info.traits.background_stddev.is_promised(deferred::JobTraits) ) 

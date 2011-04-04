@@ -113,7 +113,7 @@ template <int Kernels,int FF>
 bool 
 CommonInfo<Kernels,FF>::check_result(
     Variables* variables,
-    double,
+    double chi_sq,
     Localization* target
 )
 {
@@ -129,6 +129,7 @@ CommonInfo<Kernels,FF>::check_result(
     new(target) Localization( 
         sample_space_pos, float( params.template getAmplitude<0>() )
                 * camera::ad_counts );
+    target->fit_residues() = chi_sq;
 
     DEBUG("Got fit " << p.x() << " " << p.y() << " " << target->strength());
     bool sx_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaX )))
