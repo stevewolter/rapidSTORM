@@ -1,5 +1,5 @@
 #include "MemoryCache.h"
-#include <dStorm/output/ResultRepeater.h>
+#include <dStorm/Engine.h>
 #include <dStorm/doc/context.h>
 
 #include "debug.h"
@@ -13,7 +13,7 @@ namespace dStorm {
 namespace output {
 
 class MemoryCache::ReEmitter 
-: public ResultRepeater
+: public dStorm::Engine
 {
     /** Flag indicating whether reemittance is desired. This
       * flag will only be set to false in the subthread, thus
@@ -90,6 +90,11 @@ class MemoryCache::ReEmitter
         reemittance_needed = true;
         condition.signal();
     }
+
+    void restart() { throw std::logic_error("Not implemented, sorry."); }
+    void stop() { throw std::logic_error("Not implemented, sorry."); }
+    bool can_repeat_results() { return true; }
+    void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
 };
 
 MemoryCache::MemoryCache(
@@ -147,7 +152,7 @@ MemoryCache::announceStormSize(const Announcement& a)
     }
 
     Announcement my_announcement(a);
-    my_announcement.result_repeater = re_emitter.get();
+    my_announcement.engine = re_emitter.get();
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
         "MemoryCache", AdditionalData().set_cluster_sources(), data );

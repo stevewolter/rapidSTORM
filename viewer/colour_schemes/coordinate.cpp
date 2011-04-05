@@ -1,6 +1,6 @@
 #include "coordinate.h"
 #include <dStorm/output/binning/binning.h>
-#include <dStorm/output/ResultRepeater.h>
+#include <dStorm/Engine.h>
 
 namespace dStorm {
 namespace viewer {
@@ -64,7 +64,7 @@ void Coordinate::create_full_key( dStorm::Display::Change::Keys::value_type& int
 
 void Coordinate::announce(const output::Output::Announcement& a)
 {
-    repeater = a.result_repeater;
+    repeater = a.engine;
     variable->announce(a);
     currently_mapping = variable->is_bounded();
     set_base_tone( 0, (currently_mapping) ? 1 : 0 );

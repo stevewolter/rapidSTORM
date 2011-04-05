@@ -14,7 +14,6 @@ namespace engine {
 ChainLink::ChainLink() 
 : simparm::Listener( simparm::Event::ValueChanged )
 {
-    receive_changes_from( config.fixSigma.value );
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
@@ -30,7 +29,6 @@ ChainLink::ChainLink(const ChainLink& c)
     if ( my_traits.get() != NULL )
         DEBUG("Basename after copying chain link is " << my_traits->suggested_output_basename << " or "
               << my_traits->suggested_output_basename << " in my own traits");
-    receive_changes_from( config.fixSigma.value );
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
@@ -96,7 +94,7 @@ ChainLink::context_changed(ContextRef r, Link* l)
         my_context->more_infos.push_back( new ImageTraits() );
     assert( my_context->has_info_for<engine::Image>() );
 
-    my_context->will_make_multiple_passes = ! config.fixSigma();
+    //my_context->will_make_multiple_passes = ! config.fixSigma();
 
     make_new_requirements();
     Link::context_changed(my_context, l);
@@ -124,10 +122,10 @@ void ChainLink::make_new_requirements() {
 
 void ChainLink::operator()( const simparm::Event& e ) {
     ost::MutexLock lock( input::global_mutex() );
-    if ( &e.source == &config.fixSigma.value ) {
+    /* TODO: if ( &e.source == &config.fixSigma.value ) {
         my_context->will_make_multiple_passes = ! config.fixSigma();
         notify_of_context_change( my_context );
-    } else if ( &e.source == &config.spotFindingMethod.value ) {
+    } else */ if ( &e.source == &config.spotFindingMethod.value ) {
         make_new_requirements();
         notify_of_context_change( my_context );
     } else if ( &e.source == &config.spotFittingMethod.value ) {

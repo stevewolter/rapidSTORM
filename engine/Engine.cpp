@@ -21,8 +21,6 @@
 #include <dStorm/image/slice.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "SigmaGuesser.h"
-
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
 clock_t smooth_time = 0, search_time = 0, fit_time = 0;
@@ -50,9 +48,6 @@ Engine::Engine(
     errors.viewable = false;
 
     push_back( *this->input );
-    push_back( config.sigma_x);
-    push_back( config.sigma_y);
-    push_back( config.sigma_xy);
     push_back( errors );
 }
 
@@ -101,8 +96,10 @@ Engine::TraitsPtr Engine::get_traits() {
     prv->image_number().is_given = true;
 
     DEBUG("Setting traits from spot fitter");
-    JobInfo info(config, *imProp);
-    config.spotFittingMethod().set_traits( *prv, info );
+    for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
+        JobInfo info(config, *imProp, imProp->fluorophores[fluorophore]);
+        config.spotFittingMethod().set_traits( *prv, info );
+    }
     DEBUG("Returning traits");
 
     return prv;
@@ -153,8 +150,8 @@ class Engine::_iterator::WorkHorse {
     Config& config;
 
     int maximumLimit;
-    boost::ptr_vector<SpotFinder> finder;
-    std::auto_ptr<SpotFitter> fitter;
+    std::vector< boost::ptr_vector<spot_finder::Base> > finder;
+    boost::ptr_vector<spot_fitter::Implementation> fitter;
     data_cpp::Vector<Localization> buffer;
     CandidateTree<SmoothedPixel> maximums;
     int origMotivation;
@@ -164,8 +161,8 @@ class Engine::_iterator::WorkHorse {
     ~WorkHorse() {
         DEBUG("Destructing spot finders");
         finder.clear();
-        DEBUG("Destructing spot fitter");
-        fitter.reset();
+        DEBUG("Destructing spot fitters");
+        fitter.clear();
         DEBUG("Destructing rest");
     }
     void compute( Input::iterator image );
@@ -204,8 +201,8 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   maximumLimit(20),
-  maximums(config.x_maskSize() / camera::pixel,
-         config.y_maskSize() / camera::pixel,
+  maximums(config.nms_x() / camera::pixel,
+         config.nms_y() / camera::pixel,
          1, 1),
   origMotivation( config.motivation() )
 {
@@ -214,17 +211,26 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
            " " << engine.imProp->size[1]);
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
-    for (int i = 0; i < engine.imProp->size[2].value(); ++i)
-        finder.push_back( config.spotFindingMethod().make_SpotFinder(config, engine.imProp->size) );
+    for (int plane = 0; plane < engine.imProp->plane_count(); ++plane) {
+        finder.push_back( boost::ptr_vector<spot_finder::Base>() );
+        for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
+            spot_finder::Job job( config, *engine.imProp, 
+                engine.imProp->plane(plane), engine.imProp->fluorophores[fluorophore]);
+            finder.back().push_back( config.spotFindingMethod().make(job) );
+        }
+    }
 
     DEBUG("Building spot fitter");
-    fitter = config.spotFittingMethod().make_by_parts(config, *engine.imProp);
+    for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
+        JobInfo info(config, *engine.imProp, engine.imProp->fluorophores[fluorophore]);
+        fitter.push_back( config.spotFittingMethod().make(info) );
+    }
 
     DEBUG("Building maximums");
     maximums.setLimit(maximumLimit);
 
     DEBUG("Initialized motivation");
-    resultStructure.smoothed = &finder[0].getSmoothedImage();
+    resultStructure.smoothed = &finder[0][0].getSmoothedImage();
     resultStructure.candidates = &maximums;
 };
 
@@ -260,16 +266,18 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
-    for (int i = 0; i < image.depth_in_pixels(); ++i)
-        finder[i].smooth(image.slice(2,i * camera::pixel));
+    for (unsigned int j = 0; j < finder.size(); ++j)
+        for (int i = 0; i < image.depth_in_pixels(); ++i)
+            finder[j][i].smooth(image.slice(2,i * camera::pixel));
     IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
 
     CandidateTree<SmoothedPixel>::iterator cM = maximums.begin();
     int motivation;
     recompress:  /* We jump here if maximum limit proves too small */
     IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
-    for (int i = 0; i < image.depth_in_pixels(); ++i)
-        finder[i].findCandidates( maximums );
+    for (unsigned int j = 0; j < finder.size(); ++j)
+        for (int i = 0; i < image.depth_in_pixels(); ++i)
+            finder[j][i].findCandidates( maximums );
     DEBUG("Found " << maximums.size() << " spots");
 
     IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );
@@ -281,18 +289,29 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         const Spot& s = cM->second;
         DEBUG("Trying candidate at " << s.x() << "," << s.y() );
         /* Get the next spot to fit and fit it. */
-        Localization *candidate = buffer.allocate();
-        int found_number = fitter->fitSpot(s, image, candidate);
-        if ( found_number > 0 ) {
-            DEBUG("Good fit");
-            for (int j = 0; j < found_number; j++)
+        Localization *candidate = buffer.allocate(5), *start = candidate;
+        double best_total_amplitude = 0;
+        int best_found = 0;
+        for (unsigned int i = 0; i < fitter.size(); ++i) {
+            candidate = start + best_found;
+            int found_number = fitter[i].fitSpot(s, image, candidate);
+            double total_amplitude = 0;
+            for (int j = 0; j < found_number; j++) {
                 candidate[j].frame_number() = base->frame_number();
-            motivation = origMotivation;
-            buffer.commit(found_number);
-        } else if ( found_number < 0 ) {
-            DEBUG("Bad fit");
-            motivation += found_number;
+                total_amplitude += candidate[j].amplitude() / camera::ad_count;
+            }
+            if ( total_amplitude > best_total_amplitude ) {
+                for (int i = 0; i < best_found && i < found_number; ++i)
+                    start[i] = candidate[found_number-i-1];
+                best_found = found_number;
+                best_total_amplitude = total_amplitude;
+            }
         }
+        buffer.commit(best_found);
+        if ( best_found > 0 )
+            motivation = origMotivation;
+        else
+            motivation += best_found;
     }
     if (motivation > 0 && cM.limitReached()) {
         maximumLimit *= 2;
@@ -329,10 +348,6 @@ Engine::Base::iterator Engine::end() {
 boost::ptr_vector<output::Output> Engine::additional_outputs()
 {
     boost::ptr_vector<output::Output> rv;
-
-    DEBUG("Making SigmaGuesser");
-    if ( ! config.fixSigma() ) 
-        rv.push_back( new SigmaGuesserMean( config ) );
     return rv;
 }
 

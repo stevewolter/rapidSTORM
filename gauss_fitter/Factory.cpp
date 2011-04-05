@@ -1,27 +1,27 @@
-#include "Factory.h"
 #include "no_analysis/main.h"
 #include "residue_analysis/main.h"
 #include "fitter/residue_analysis/main.h"
-#include <dStorm/output/Traits.h>
 #include "fitter/SizeSpecializing_impl.h"
 #include "fitter/MarquardtConfig_impl.h"
 #include "fitter/residue_analysis/Config_impl.h"
+#include "Factory.h"
+#include <dStorm/output/Traits.h>
 
 namespace dStorm {
 namespace gauss_2d_fitter {
 
-using engine::SpotFitter;
+namespace spot_fitter = engine::spot_fitter;
 using fitter::SizeSpecializing;
 
 Factory::Factory() 
 : simparm::Structure<Config>(),
-  SpotFitterFactory( static_cast<Config&>(*this) )
+  spot_fitter::Factory( static_cast<Config&>(*this) )
 {
 }
 
 Factory::Factory(const Factory& c)
 : simparm::Structure<Config>(c), 
-  SpotFitterFactory( static_cast<Config&>(*this) )
+  spot_fitter::Factory( static_cast<Config&>(*this) )
 {
 }
 
@@ -29,7 +29,7 @@ Factory::~Factory() {
 }
 
 template <int FitFlags,bool HonorCorrelation>
-std::auto_ptr<SpotFitter>
+std::auto_ptr<spot_fitter::Implementation>
 instantiate(const Config& c, const engine::JobInfo& i)
 {
     return fitter::residue_analysis::Fitter<
@@ -39,11 +39,10 @@ instantiate(const Config& c, const engine::JobInfo& i)
 
 using namespace fitpp::Exponential2D;
 
-std::auto_ptr<SpotFitter> 
+std::auto_ptr<spot_fitter::Implementation> 
 Factory::make (const engine::JobInfo &i)
 {
-    bool correlation_negligible = sigma_xy_negligible_limit() 
-        >= abs( i.config.sigma_xy() );
+    bool correlation_negligible = true;
 
     if ( freeSigmaFitting() )
         if ( fixCorrelationTerm() )

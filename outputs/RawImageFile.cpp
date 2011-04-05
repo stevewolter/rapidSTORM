@@ -152,10 +152,10 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
-    if ( size.resolution[0].is_set() )
-        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(size.resolution[0]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
-    if ( size.resolution[1].is_set() )
-        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(size.resolution[1]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size.plane(0).resolution[0].is_set() )
+        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(size.plane(0).resolution[0]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size.plane(0).resolution[1].is_set() )
+        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(size.plane(0).resolution[1]->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
     if ( last_frame.is_set() ) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / camera::frame),
                                             uint16_t(*last_frame / camera::frame + 1) );

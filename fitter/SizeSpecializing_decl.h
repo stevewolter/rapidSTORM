@@ -9,7 +9,7 @@ namespace fitter {
     class SizeSpecializing;
 
     template <typename BaseFitter>
-    inline std::auto_ptr<engine::SpotFitter>
+    inline std::auto_ptr<engine::spot_fitter::Implementation>
     create_SizeSpecializing(
         const typename BaseFitter::SizeInvariants::Config&,
         const engine::JobInfo&);

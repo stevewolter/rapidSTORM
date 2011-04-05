@@ -9,7 +9,7 @@
 #include <simparm/Object.hh>
 
 namespace dStorm {
-    class ErosionSmoother : public engine::SpotFinder {
+    class ErosionSmoother : public engine::spot_finder::Base {
       private:
         const int mw, mh;
         struct _Config : public simparm::Object {
@@ -18,11 +18,10 @@ namespace dStorm {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef engine::SpotFinderBuilder<ErosionSmoother> Factory;
+        typedef engine::spot_finder::Builder<ErosionSmoother> Factory;
 
-        ErosionSmoother (const Config&, const engine::Config &conf,
-                         const engine::InputTraits::Size& size) 
-            : SpotFinder(conf, size),
+        ErosionSmoother (const Config&, const engine::spot_finder::Job& job)
+            : Base(job),
               mw(msx+(1-msx%2)), mh(msy+(1-msy%2))
             {}
         ~ErosionSmoother() {}

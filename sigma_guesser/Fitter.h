@@ -8,21 +8,21 @@
 #include <dStorm/Localization.h>
 
 namespace dStorm {
-namespace engine {
+namespace sigma_guesser {
 
-class SigmaFitter {
+class Fitter {
   protected:
     double initial_sigmas[3], prefac;
     int msx, msy;
     typedef fitpp::Exponential2D::Model<1, 
                                 fitpp::Exponential2D::FixedCenter> Fitting;
-    typedef Fitting::Fitter<StormPixel, Eigen::Dynamic, Eigen::Dynamic, 1>::Type Fitter;
+    typedef Fitting::Fitter<engine::StormPixel, Eigen::Dynamic, Eigen::Dynamic, 1>::Type Fitter;
     Fitting::Constants constants;
     fitpp::FitFunction<Fitting::VarC,false> fit_function;
     std::auto_ptr< Fitter > fitter;
     
   public:
-    SigmaFitter(Config &config);
+    Fitter(Config &config);
     void useConfig(Config &config);
     /** This function writes sigma_x in deviations[0], sigma_y in
         *  deviations[1], amplitude in deviations[2] and
@@ -31,7 +31,7 @@ class SigmaFitter {
     bool fit(const dStorm::Image<StormPixel,2> &i,
              const Localization &location, double deviations[4]) 
 ;
-    ~SigmaFitter();
+    ~Fitter();
   
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

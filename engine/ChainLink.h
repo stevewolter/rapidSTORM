@@ -42,8 +42,8 @@ class ChainLink
     AtEnd traits_changed( TraitsRef r, Link* l );
     AtEnd context_changed(ContextRef, Link*);
 
-    void add_spot_finder( SpotFinderFactory& finder) { config.spotFindingMethod.addChoice(finder); }
-    void add_spot_fitter( SpotFitterFactory& fitter) { config.spotFittingMethod.addChoice(fitter); }
+    void add_spot_finder( spot_finder::Factory& finder) { config.spotFindingMethod.addChoice(finder); }
+    void add_spot_fitter( spot_fitter::Factory& fitter) { config.spotFittingMethod.addChoice(fitter); }
 };
 
 }

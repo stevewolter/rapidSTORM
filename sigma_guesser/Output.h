@@ -2,7 +2,7 @@
 #define DSTORM_SIGMAGUESSER_H
 
 #include <dStorm/units/amplitude.h>
-#include <dStorm/engine/Config.h>
+#include "Config.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/output/Output.h>
 #include <memory>
@@ -11,7 +11,7 @@
 #include <boost/units/systems/camera/area.hpp>
 
 namespace dStorm {
-namespace engine {
+namespace sigma_guesser {
     using namespace output;
     class SigmaFitter;
 
@@ -28,7 +28,7 @@ namespace engine {
       protected:
         ost::Mutex mutex;
 
-        Config &config;
+        boost::shared_ptr< input::Traits< engine::Image > > traits;
         /** Current mean and variance of sigma_x, sigma_y and sigma_xy. */
         Variance<double> data[3];
         /** Acception and rejection intervals around
@@ -55,12 +55,14 @@ namespace engine {
         simparm::StringEntry status;
 
       public:
-        SigmaGuesserMean( Config &config );
+        typedef simparm::Structure<_Config> Config;
+
+        SigmaGuesserMean();
         virtual ~SigmaGuesserMean();
         SigmaGuesserMean* clone() const 
             { throw std::runtime_error("SigmaGuesserMean unclonable."); }
 
-        AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
+        AdditionalData announceStormSize(const Announcement&);
         RunRequirements announce_run(const RunAnnouncement&) 
             { return RunRequirements().set(MayNeedRestart); }
         Result receiveLocalizations(const EngineResult&);

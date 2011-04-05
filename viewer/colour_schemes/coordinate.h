@@ -21,7 +21,7 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
     std::auto_ptr< output::binning::UserScaled > variable;
     static const int key_resolution = 100;
 
-    output::ResultRepeater *repeater;
+    Engine *repeater;
     bool is_for_image_number, currently_mapping;
 
   public:

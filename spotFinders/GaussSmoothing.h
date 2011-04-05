@@ -9,7 +9,7 @@
 namespace dStorm {
 namespace spotFinders {
 
-    class GaussSmoother : public engine::SpotFinder {
+    class GaussSmoother : public engine::spot_finder::Base {
         struct _Config : public simparm::Object {
             void registerNamedEntries() {}
             _Config() : simparm::Object("Gaussian", 
@@ -17,10 +17,9 @@ namespace spotFinders {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef engine::SpotFinderBuilder<GaussSmoother> Factory;
+        typedef engine::spot_finder::Builder<GaussSmoother> Factory;
 
-        GaussSmoother (const Config&, const engine::Config &, 
-                       const engine::InputTraits::Size& size );
+        GaussSmoother (const Config&, const engine::spot_finder::Job&);
 
         void smooth( const engine::Image2D &in );
 

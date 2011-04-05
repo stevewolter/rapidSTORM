@@ -8,7 +8,7 @@
 
 namespace dStorm {
 namespace spotFinders {
-    class MedianSmoother : public engine::SpotFinder {
+    class MedianSmoother : public engine::spot_finder::Base {
       private:
         typedef engine::Image2D Image;
         typedef engine::SmoothedImage SmoothedImage;
@@ -25,12 +25,11 @@ namespace spotFinders {
         };
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef engine::SpotFinderBuilder<MedianSmoother> Factory;
+        typedef engine::spot_finder::Builder<MedianSmoother> Factory;
 
         MedianSmoother (const Config&, 
-            const engine::Config &conf, 
-            const engine::InputTraits::Size& size) 
-            : SpotFinder(conf, size)
+            const engine::spot_finder::Job &job)
+            : Base(job)
             { chooseAhmad(msx, msy); }
 
         void smooth( const Image &in ) {

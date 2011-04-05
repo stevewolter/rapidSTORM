@@ -1,7 +1,7 @@
 #define DSTORM_SIGMAGUESSER_CPP
 #include "debug.h"
 #include <fit++/Exponential2D.hh>
-#include "engine/SigmaGuesser.h"
+#include "Fitter.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/slice.h>
@@ -12,7 +12,7 @@
 #include <math.h>
 
 #include "studentPinv.h"
-#include "engine/SigmaFitter.h"
+#include "Fitter.h"
 
 #include <sstream>
 #include <simparm/Message.hh>
@@ -25,24 +25,31 @@ namespace engine {
 
 void (*SigmaGuesser_fitCallback)(double , double, double, int , bool) = NULL;
 
-SigmaGuesserMean::SigmaGuesserMean(Config &c)
+SigmaGuesserMean::SigmaGuesserMean()
 : OutputObject("SigmaGuesser", "Standard deviation estimator"),
-  config(c), fitter(new SigmaFitter(c)),
-  status("Status", "Std. dev. estimation")
+  status("Status", "PSF size estimation")
 {
     nextCheck = 23;
     maximum_area = c.maximum_estimation_size();
     deleteAllResults();
 
-    stringstream ss;
-    ss << "Trying " << c.sigma_x() << ", " << c.sigma_y() << 
-          " with correlation " << c.sigma_xy();
-    status = ss.str();
+    status = "Waiting for initialization";
     status.editable = false;
 
     push_back( status );
 }
 SigmaGuesserMean::~SigmaGuesserMean() {}
+
+SigmaGuesserMean::announceStormSize(const Announcement& a) 
+{
+    traits = a.input_image_traits;
+    fitter.reset( new SigmaFitter(*traits) );
+    stringstream ss;
+    ss << "Trying (" << traits->psf_size.transpose() << ")";
+    status = ss.str();
+
+    return AdditionalData();
+}
 
 Output::Result
 SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
@@ -195,6 +202,17 @@ void SigmaGuesserMean::deleteAllResults() {
     fitter->useConfig(config);
     DEBUG("Deleted all results");
 }
+
+}
+
+namespace output {
+
+template <>
+std::auto_ptr<OutputSource> make_output_source<sigma_guesser::Output>()
+{
+    return std::auto_ptr<OutputSource>( new OutputBuilder<sigma_guesser::Output>() );
+}
+
 
 }
 }

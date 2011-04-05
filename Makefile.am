@@ -9,7 +9,7 @@ EXTRA_PROGRAMS = testDisplay
 noinst_LTLIBRARIES = libfitter.la \
     libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
-    libgauss_fitter.la libengine_stm.la
+    libgauss_fitter.la libengine_stm.la libsigmaguesser.la
 
 install-exec-local :
 	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(pkgdatadir)
@@ -81,10 +81,7 @@ libnoopengine_la_SOURCES = \
 libengine_la_SOURCES = \
     engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
-    engine/SigmaFitter.h engine/ImageFitter.h \
-    engine/SigmaGuesser.cpp engine/SigmaGuesser_FreeFormFitter.cpp \
-    engine/SigmaGuesser.h \
-    engine/studentPinv.c engine/studentPinv.h \
+    engine/ImageFitter.h \
     engine/SpotFinder.cpp engine/debug.h  \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp
 
@@ -180,6 +177,12 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
+libsigmaguesser_la_SOURCES = \
+	sigma_guesser/Output.h sigma_guesser/Output.cpp \
+	sigma_guesser/Config.h sigma_guesser/Config.cpp \
+	sigma_guesser/Fitter.h sigma_guesser/Fitter.cpp \
+	sigma_guesser/studentPinv.c sigma_guesser/studentPinv.h
+
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
@@ -200,7 +203,7 @@ dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libspotFinders.la \
     libengine_stm.la \
     libengine.la libnoopengine.la libgauss_fitter.la  \
-    libfitter.la libinputs.la \
+    libfitter.la libinputs.la libsigmaguesser.la \
     libdStorm_display.la \
     -lltdl 
 

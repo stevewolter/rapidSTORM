@@ -81,7 +81,7 @@ namespace dStorm {
         int current_directory;
 
         int size[3], _no_images;
-        dStorm::input::ImageTraits<2>::Resolutions resolution;
+        OpticalInfo<2>::Resolutions resolution;
 
         template <typename PixelType, int Dim> 
             friend class Source<PixelType,Dim>::iterator;

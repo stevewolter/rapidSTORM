@@ -1,4 +1,4 @@
-#include "engine/SigmaFitter.h"
+#include "Fitter.h"
 #include <fit++/FitFunction_impl.hh>
 #include <fit++/Exponential2D_impl.hh>
 #include <fit++/Exponential2D_Correlated_Derivatives.hh>

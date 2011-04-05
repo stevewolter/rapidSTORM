@@ -66,8 +66,9 @@ OpenFile::getTraits()
         rv( new Traits<dStorm::Image<Pixel,Dim> >() );
     for (int i = 0; i < Dim; ++i) rv->size[i] = size[i] * camera::pixel;
     rv->dim = 1; /* TODO: Read from file */
-    for (int i = 0; i < 2; ++i)
-        rv->resolution[i] = resolution[i];
+    for (int p = 0; p < rv->plane_count(); ++p)
+        for (int i = 0; i < 2; ++i)
+            rv->plane(p).resolution[i] = resolution[i];
     if ( _no_images != -1 )
         rv->image_number().range().second = (_no_images - 1) * camera::frame;
 

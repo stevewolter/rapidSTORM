@@ -28,7 +28,7 @@ CommonInfo<BaseInvariants>::CommonInfo(
   asymmetry_threshold( config.asymmetry_threshold() ),
   required_peak_distance_sq( 
     sq( (config.required_peak_distance() * 1E-9 * boost::units::si::meter)
-        * (info.traits.resolution[0]->in_dpm() + info.traits.resolution[1]->in_dpm()) * 0.5 / camera::pixel ) )
+        * (info.traits.plane(0).resolution[0]->in_dpm() + info.traits.plane(0).resolution[1]->in_dpm()) * 0.5 / camera::pixel ) )
 {
 }
 

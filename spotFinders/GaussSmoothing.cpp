@@ -16,14 +16,13 @@ static void fillWithGauss(int *values, int n, double sigma, int A) {
 }
 
 GaussSmoother::GaussSmoother (
-    const Config&, const engine::Config &conf, 
-    const engine::InputTraits::Size& size )
-: SpotFinder(conf, size), xkern(msx+1, 0), ykern(msy+1, 0)
+    const Config&, const engine::spot_finder::Job &job)
+: Base(job), xkern(msx+1, 0), ykern(msy+1, 0)
 {
     fillWithGauss(xkern.ptr(), msx+1, 
-        conf.sigma_x() / camera::pixel, 256);
+        job.sigma(0) / camera::pixel, 256);
     fillWithGauss(ykern.ptr(), msy+1, 
-        conf.sigma_y() / camera::pixel, 256);
+        job.sigma(1) / camera::pixel, 256);
 }
 
 template <typename InputPixel>
@@ -61,8 +60,8 @@ void GaussSmoother::smooth( const engine::Image2D &in )
     }
 }
 
-std::auto_ptr<engine::SpotFinderFactory> make_Gaussian() { 
-    return std::auto_ptr<engine::SpotFinderFactory>(new GaussSmoother::Factory()); 
+std::auto_ptr<engine::spot_finder::Factory> make_Gaussian() { 
+    return std::auto_ptr<engine::spot_finder::Factory>(new GaussSmoother::Factory()); 
 }
 
 }

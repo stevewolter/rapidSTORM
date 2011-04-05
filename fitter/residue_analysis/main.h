@@ -32,7 +32,7 @@ struct Fitter {
     typedef CommonInfo<typename BaseFitter::SizeInvariants> SizeInvariants;
     template <int X, int Y> struct Specialized;
 
-    static std::auto_ptr<engine::SpotFitter>
+    static std::auto_ptr<engine::spot_fitter::Implementation>
     select_fitter(const typename SizeInvariants::Config& config, 
                             const engine::JobInfo& info)
     {

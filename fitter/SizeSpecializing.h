@@ -12,7 +12,7 @@ namespace fitter {
 
 template <typename BaseFitter>
 class SizeSpecializing
-: boost::noncopyable, public engine::SpotFitter
+: boost::noncopyable, public engine::spot_fitter::Implementation
 {
   public:
     static const int MaxFitWidth = 17, MaxFitHeight = 17;
@@ -51,12 +51,12 @@ class SizeSpecializing
 };
 
 template <typename BaseFitter>
-std::auto_ptr<engine::SpotFitter>
+std::auto_ptr<engine::spot_fitter::Implementation>
 create_SizeSpecializing(
     const typename BaseFitter::SizeInvariants::Config& c,
     const engine::JobInfo& i)
 {
-    return std::auto_ptr<engine::SpotFitter>(
+    return std::auto_ptr<engine::spot_fitter::Implementation>(
         new SizeSpecializing<BaseFitter>(
             typename BaseFitter::SizeInvariants(c,i), i));
 }

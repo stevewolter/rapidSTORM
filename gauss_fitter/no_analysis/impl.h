@@ -27,9 +27,9 @@ CommonInfo<Ks,FF>::CommonInfo(
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
   amplitude_threshold( *info.config.amplitude_threshold() / camera::ad_counts ),
-  start_sx( info.config.sigma_x() / camera::pixel ),
-  start_sy( info.config.sigma_y() / camera::pixel ),
-  start_sxy( info.config.sigma_xy() ),
+  start_sx( info.sigma(0) / camera::pixel ),
+  start_sy( info.sigma(1) / camera::pixel ),
+  start_sxy( 0 ),
   compute_uncertainty( info.traits.photon_response.is_set() &&
                        info.traits.background_stddev.is_set() ),
   photon_response_factor( (compute_uncertainty) ? 
@@ -48,8 +48,8 @@ CommonInfo<Ks,FF>::CommonInfo(
         params.template set_all_SigmaXY( start_sxy );
 
     for (int i = 0; i < 2; ++i)
-        if ( info.traits.resolution[i].is_set() )
-            scale_factor[i] = 1.0f / (info.traits.resolution[i]->in_dpm() / camera::pixel * boost::units::si::metre);
+        if ( info.traits.plane(0).resolution[i].is_set() )
+            scale_factor[i] = 1.0f / (info.traits.plane(0).resolution[i]->in_dpm() / camera::pixel * boost::units::si::metre);
         else {
             throw std::logic_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
         }

@@ -3,8 +3,8 @@
 namespace dStorm {
 namespace spotFinders {
 
-std::auto_ptr<engine::SpotFinderFactory> make_Erosion() { 
-    return std::auto_ptr<engine::SpotFinderFactory>(new ErosionSmoother::Factory()); 
+std::auto_ptr<engine::spot_finder::Factory> make_Erosion() { 
+    return std::auto_ptr<engine::spot_finder::Factory>(new ErosionSmoother::Factory()); 
 }
 
 }
