@@ -126,7 +126,7 @@ AM_WITH_DMALLOC
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
-AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/libdstorm/plugins-v${DSTORM_LIB_VERSION}")
+AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/librapidstorm/plugins-v${DSTORM_LIB_VERSION}")
 AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])

@@ -118,7 +118,7 @@ class DStorm {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
         result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
-            tempdir.getPath() + File.separator + "lib" + File.separator + "libdstorm"
+            tempdir.getPath() + File.separator + "lib" + File.separator + "librapidstorm"
             + File.separator + "plugins-v10";
         result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
             tempdir.getPath() 

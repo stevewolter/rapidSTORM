@@ -1,3 +1,9 @@
+rapidstorm (1.5.3-2) unstable; urgency=low
+
+  * Added concrete implementation for virtual packages
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 05 Apr 2011 10:00:00 +0200
+
 rapidstorm (1.5.3-1) unstable; urgency=low
 
   * Released new upstream version 1.5.3
