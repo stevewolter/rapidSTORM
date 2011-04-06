@@ -34,7 +34,6 @@ Output::Output(const Config& c)
     nextCheck = 23;
     maximum_area = c.maximum_estimation_size();
     fitter.reset( new Fitter(c) );
-    deleteAllResults();
 
     status = "Waiting for initialization";
     status.editable = false;
@@ -48,7 +47,10 @@ Output::announceStormSize(const Announcement& a)
 {
     engine = a.engine;
     traits = a.input_image_traits;
-    use_traits( *traits );
+    if ( traits.get() ) {
+        use_traits( *traits );
+        deleteAllResults();
+    }
     return AdditionalData();
 }
 
@@ -67,6 +69,7 @@ Output::receiveLocalizations(const EngineResult& er)
     ost::MutexLock lock(mutex);
     DEBUG("Adding fits");
 
+    if ( ! traits.get() ) return RemoveThisOutput;
     if ( ! er.source.is_valid() ) return KeepRunning;
     used_area += er.source.size() / camera::pixel;
     if ( used_area > maximum_area ) {
