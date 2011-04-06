@@ -20,6 +20,7 @@ namespace spotFinders {
         typedef engine::spot_finder::Builder<GaussSmoother> Factory;
 
         GaussSmoother (const Config&, const engine::spot_finder::Job&);
+        GaussSmoother* clone() const { return new GaussSmoother(*this); }
 
         void smooth( const engine::Image2D &in );
 

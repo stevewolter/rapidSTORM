@@ -2,12 +2,12 @@
 #define DSTORM_ENGINE_GAUSS3DFITTERCONFIG_H
 
 #include "Config_decl.h"
+#include "ConstantTypes.h"
 #include <simparm/Set.hh>
 #include <fitter/MarquardtConfig.h>
 #include <fitter/residue_analysis/Config.h>
 #include <dStorm/UnitEntries/Nanometre.h>
 #include <boost/units/systems/camera/resolution.hpp>
-#include "ConstantTypes.h"
 
 namespace dStorm {
 namespace gauss_3d_fitter {

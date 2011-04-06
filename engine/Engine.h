@@ -10,6 +10,7 @@
 #include <boost/utility.hpp>
 #include <dStorm/output/LocalizedImage_decl.h>
 #include <dStorm/input/Source.h>
+#include <dStorm/Engine.h>
 
 namespace dStorm {
 namespace engine {
@@ -21,7 +22,8 @@ namespace engine {
    class Engine
    : public input::Source<output::LocalizedImage>,
      public input::Filter,
-     public simparm::Object
+     public simparm::Object,
+     public dStorm::Engine
    {
       public:
         typedef input::Source<Image> Input;
@@ -52,6 +54,12 @@ namespace engine {
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
             convert_traits( Config&, boost::shared_ptr< const input::Traits<engine::Image> > );
+
+        void restart();
+        void stop();
+        void repeat_results();
+        bool can_repeat_results();
+        void change_input_traits( std::auto_ptr< input::BaseTraits > );
    };
 }
 }

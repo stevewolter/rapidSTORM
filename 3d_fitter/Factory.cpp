@@ -1,5 +1,5 @@
-#include "debug.h"
 #include "Factory.h"
+#include "debug.h"
 #include "Fitter.h"
 #include <dStorm/output/Traits.h>
 #include "fitter/SizeSpecializing_impl.h"
@@ -12,20 +12,20 @@
 namespace dStorm {
 namespace gauss_3d_fitter {
 
-using engine::SpotFitter;
+namespace spf = engine::spot_fitter;
 using fitter::SizeSpecializing;
 
 template <int Widening>
 Factory<Widening>::Factory() 
 : simparm::Structure<Config<Widening> >(),
-  SpotFitterFactory( static_cast<Config<Widening> &>(*this) )
+  spf::Factory( static_cast<Config<Widening> &>(*this) )
 {
 }
 
 template <int Widening>
 Factory<Widening>::Factory(const Factory& c)
 : simparm::Structure<Config<Widening> >(c), 
-  SpotFitterFactory( static_cast<Config<Widening> &>(*this) )
+  spf::Factory( static_cast<Config<Widening> &>(*this) )
 {
 }
 
@@ -35,7 +35,7 @@ Factory<Widening>::~Factory() {
 }
 
 template <int Widening>
-std::auto_ptr<SpotFitter> 
+std::auto_ptr<spf::Implementation> 
 Factory<Widening>::make (const engine::JobInfo &i)
 {
     DEBUG("Creating 3D fitter");

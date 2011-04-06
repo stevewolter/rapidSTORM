@@ -72,18 +72,20 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp->clone() );
 
+    assert( rvt->position().resolution()[0].is_set() || ! imProp->plane(0).resolution[0].is_set() );
     return rvt;
 }
 
 Engine::TraitsPtr Engine::get_traits() {
-    imProp = input->get_traits();
+    if ( imProp.get() == NULL )
+        imProp = input->get_traits();
 
     if ( ! config.amplitude_threshold().is_set() ) {
         DEBUG("Guessing input threshold");
         if ( imProp->background_stddev.is_set() ) {
             config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
         } else {
-            throw std::logic_error("Amplitude threshold is not set and could not be determined from background noise strength");
+            throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");
         }
         DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
     } else {
@@ -94,6 +96,7 @@ Engine::TraitsPtr Engine::get_traits() {
         convert_traits(config, imProp);
     prv->carburettor = input.get();
     prv->image_number().is_given = true;
+    prv->engine = this;
 
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
@@ -211,6 +214,11 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
            " " << engine.imProp->size[1]);
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
+    if ( engine.imProp->plane_count() < 1 )
+        throw std::runtime_error("Zero or less optical paths given for input, cannot compute.");
+    if ( engine.imProp->fluorophores.size() < 1 )
+        throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
+
     for (int plane = 0; plane < engine.imProp->plane_count(); ++plane) {
         finder.push_back( boost::ptr_vector<spot_finder::Base>() );
         for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
@@ -349,6 +357,19 @@ boost::ptr_vector<output::Output> Engine::additional_outputs()
 {
     boost::ptr_vector<output::Output> rv;
     return rv;
+}
+
+void Engine::restart() { throw std::logic_error("Not implemented."); }
+void Engine::stop() { throw std::logic_error("Not implemented."); }
+void Engine::repeat_results() { throw std::logic_error("Not implemented."); }
+bool Engine::can_repeat_results() { return false; }
+void Engine::change_input_traits( std::auto_ptr< input::BaseTraits > traits )
+{
+    Input::TraitsPtr::element_type* t = dynamic_cast< Input::TraitsPtr::element_type* >(traits.get());
+    if ( t != NULL ) {
+        imProp.reset( t );
+        traits.release();
+    }
 }
 
 }

@@ -1,5 +1,5 @@
-#include "fitter/residue_analysis/main.h"
 #include "residue_analysis/impl.h"
+#include "fitter/residue_analysis/main.h"
 #include "no_analysis/impl.h"
 
 namespace dStorm {

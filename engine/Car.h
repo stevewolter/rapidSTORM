@@ -5,6 +5,7 @@
 
 #include <dStorm/Job.h>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/Engine.h>
 #include <dStorm/Config.h>
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
@@ -27,7 +28,8 @@ namespace engine {
      *  the dStorm engine. */
     class Car 
         : boost::noncopyable, public Job,
-          private simparm::Node::Callback 
+          private simparm::Node::Callback ,
+          public dStorm::Engine
     {
       private:
         std::set<std::string> used_output_filenames;
@@ -47,6 +49,7 @@ namespace engine {
         typedef input::Source< output::LocalizedImage > Input;
 
         std::auto_ptr<Input> input;
+        Engine* upstream_engine;
         std::auto_ptr<output::Output> output;
 
         ost::Mutex terminationMutex;
@@ -77,6 +80,11 @@ namespace engine {
 
         const dStorm::Config &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }
+
+        void restart();
+        void repeat_results();
+        bool can_repeat_results();
+        void change_input_traits( std::auto_ptr< input::BaseTraits > );
     };
 }
 }

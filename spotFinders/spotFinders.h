@@ -7,10 +7,10 @@
 namespace dStorm {
 namespace spotFinders {
 
-std::auto_ptr<engine::SpotFinderFactory> make_Spalttiefpass();
-std::auto_ptr<engine::SpotFinderFactory> make_Median();
-std::auto_ptr<engine::SpotFinderFactory> make_Erosion();
-std::auto_ptr<engine::SpotFinderFactory> make_Gaussian();
+std::auto_ptr<engine::spot_finder::Factory> make_Spalttiefpass();
+std::auto_ptr<engine::spot_finder::Factory> make_Median();
+std::auto_ptr<engine::spot_finder::Factory> make_Erosion();
+std::auto_ptr<engine::spot_finder::Factory> make_Gaussian();
 
 }
 }

@@ -1,6 +1,6 @@
+#include "Fitter.h"
 #include "fitter/residue_analysis/fitter.h"
 #include "fit++/FitFunction_impl.hh"
-#include "Fitter.h"
 #include "Exponential3D_Derivatives.h"
 #include "fitter/SizeSpecializing_filler.h"
 #ifdef HAVE_CONFIG_H

@@ -25,9 +25,10 @@ namespace dStorm {
               mw(msx+(1-msx%2)), mh(msy+(1-msy%2))
             {}
         ~ErosionSmoother() {}
+        ErosionSmoother* clone() const { return new ErosionSmoother(*this); }
 
         void smooth( const engine::Image2D &in ) {
-            rectangular_erosion( in, *smoothed, mw/2, mh/2, 0, 0);
+            rectangular_erosion( in, smoothed, mw/2, mh/2, 0, 0);
         }
     };
 }

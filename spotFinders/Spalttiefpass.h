@@ -26,9 +26,10 @@ namespace spotFinders {
 
         Spalttiefpass (const Config&, const engine::spot_finder::Job& job )
             : Base(job) {}
+        Spalttiefpass* clone() const { return new Spalttiefpass(*this); }
 
         void smooth( const engine::Image2D &in ) {
-            smoothByAverage( in, *smoothed, msx, msy );
+            smoothByAverage( in, smoothed, msx, msy );
         }
     };
 }

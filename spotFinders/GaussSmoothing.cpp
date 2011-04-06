@@ -49,14 +49,14 @@ void GaussSmoother::smooth( const engine::Image2D &in )
         gsm_line( 
             in.ptr(x, 0), in.width().value(),
             msy, in.height().value(),
-            smoothed->ptr(x, 0), ykern.ptr() );
+            smoothed.ptr(x, 0), ykern.ptr() );
 
-    SmoothedPixel copy[smoothed->width().value()];
-    for (int y = eby; y < int(smoothed->width_in_pixels() - eby); y++) {
-        memcpy(copy, smoothed->ptr(0, y), 
-               sizeof(SmoothedPixel) * smoothed->width_in_pixels());
-        gsm_line( copy, 1, msx, smoothed->width_in_pixels(),
-                               smoothed->ptr(0, y), xkern.ptr() );
+    SmoothedPixel copy[smoothed.width().value()];
+    for (int y = eby; y < int(smoothed.width_in_pixels() - eby); y++) {
+        memcpy(copy, smoothed.ptr(0, y), 
+               sizeof(SmoothedPixel) * smoothed.width_in_pixels());
+        gsm_line( copy, 1, msx, smoothed.width_in_pixels(),
+                               smoothed.ptr(0, y), xkern.ptr() );
     }
 }
 

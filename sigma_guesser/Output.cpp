@@ -1,9 +1,11 @@
 #define DSTORM_SIGMAGUESSER_CPP
 #include "debug.h"
 #include <fit++/Exponential2D.hh>
-#include "Fitter.h"
+#include "Output.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/output/OutputSource.h>
+#include <dStorm/output/OutputBuilder.h>
 #include <dStorm/image/slice.h>
 #include <limits>
 #include <boost/units/io.hpp>
@@ -21,16 +23,17 @@ using namespace std;
 using namespace fitpp;
 
 namespace dStorm {
-namespace engine {
+namespace sigma_guesser {
 
-void (*SigmaGuesser_fitCallback)(double , double, double, int , bool) = NULL;
-
-SigmaGuesserMean::SigmaGuesserMean()
+Output::Output(const Config& c)
 : OutputObject("SigmaGuesser", "Standard deviation estimator"),
+  engine(NULL),
+  delta( c.delta_sigma() ),
   status("Status", "PSF size estimation")
 {
     nextCheck = 23;
     maximum_area = c.maximum_estimation_size();
+    fitter.reset( new Fitter(c) );
     deleteAllResults();
 
     status = "Waiting for initialization";
@@ -38,26 +41,30 @@ SigmaGuesserMean::SigmaGuesserMean()
 
     push_back( status );
 }
-SigmaGuesserMean::~SigmaGuesserMean() {}
+Output::~Output() {}
 
-SigmaGuesserMean::announceStormSize(const Announcement& a) 
+output::Output::AdditionalData
+Output::announceStormSize(const Announcement& a) 
 {
+    engine = a.engine;
     traits = a.input_image_traits;
-    fitter.reset( new SigmaFitter(*traits) );
-    stringstream ss;
-    ss << "Trying (" << traits->psf_size.transpose() << ")";
-    status = ss.str();
-
+    use_traits( *traits );
     return AdditionalData();
 }
 
-Output::Result
-SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
+void Output::use_traits( const input::Traits<engine::Image>& traits )
+{
+    fitter->useConfig( traits );
+    stringstream ss;
+    ss << "Trying (" << traits.psf_size().x() * 2.35f << ", " << traits.psf_size().y() * 2.35f << ")";
+    status = ss.str();
+}
+
+output::Output::Result
+Output::receiveLocalizations(const EngineResult& er)
 
 {
-    if (defined_result != KeepRunning) return defined_result;
     ost::MutexLock lock(mutex);
-    if (defined_result != KeepRunning) return defined_result;
     DEBUG("Adding fits");
 
     if ( ! er.source.is_valid() ) return KeepRunning;
@@ -73,8 +80,7 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
             simparm::Message::Warning );
         send(m);
         nextCheck = numeric_limits<int>::max();
-        defined_result = RemoveThisOutput;
-        return defined_result;
+        return RemoveThisOutput;
     }
 
     for (int i = 0; i < er.number; i++)
@@ -105,24 +111,15 @@ SigmaGuesserMean::receiveLocalizations(const EngineResult& er)
     if (n >= nextCheck) {
         Output::Result r = check();
         nextCheck = 3*nextCheck/2;
-#ifndef NDEBUG
-        if (SigmaGuesser_fitCallback) {
-            if (r == RestartEngine || r == RemoveThisOutput)
-                SigmaGuesser_fitCallback(
-                    config.sigma_x() / camera::pixel,
-                    config.sigma_y() / camera::pixel,
-                    config.sigma_xy(), discarded, 
-                    ( r == RemoveThisOutput) );
-        }
-#endif
         return r;
     } else
         return KeepRunning;
 }
 
-Output::Result
-SigmaGuesserMean::check() {
+output::Output::Result
+Output::check() {
     DEBUG("Checking result");
+    std::auto_ptr< input::Traits< engine::Image > > new_traits;
     int converged = 0, failed = 0;
     double t_term = studentPinv95(n-1);
     for (int i = 0; i < 3; i++) {
@@ -142,14 +139,16 @@ SigmaGuesserMean::check() {
              confInterval[1] < decline[i][0] )
         {
             double newValue = curVal;
+            if ( new_traits.get() == NULL )
+                new_traits.reset( traits->clone() );
 
             DEBUG("Sigma " << i << " changed to " << newValue);
             if ( i == 0 )
-                config.sigma_x = float(newValue) * camera::pixel;
+                new_traits->psf_size().x() = float(newValue) * camera::pixel / traits->plane(0).resolution[0]->in_dpm();
             else if ( i == 1 )
-                config.sigma_y = float(newValue) * camera::pixel;
+                new_traits->psf_size().y() = float(newValue) * camera::pixel / traits->plane(0).resolution[1]->in_dpm();
             else
-                config.sigma_xy = newValue;
+                throw std::logic_error("Correlation changed even though it was fixed to zero. Confused.");
                     
             failed++;
         } else {
@@ -157,49 +156,49 @@ SigmaGuesserMean::check() {
         }
     }
     DEBUG("Checked result");
-    if (failed) {
+    if (failed && engine) {
         stringstream ss;
-        ss << "Trying " << config.sigma_x() << ", " << config.sigma_y() << 
-            " with correlation " << config.sigma_xy();
+        ss << "Trying (" << traits->psf_size().x() * 2.35f << ", " << traits->psf_size().y() * 2.35f << ")";
         status = ss.str();
 
-        defined_result = RestartEngine;
+        use_traits( *new_traits );
+        engine->change_input_traits( std::auto_ptr< input::BaseTraits >(new_traits.release()) );
+        engine->restart();
+        engine = NULL;
         nextCheck = n+1;
         DEBUG("Significant difference");
+        return KeepRunning;
     } else if (converged == 3) {
         nextCheck = numeric_limits<int>::max();
         DEBUG("Insignificant difference");
-        defined_result = RemoveThisOutput;
+        return RemoveThisOutput;
     } else {
         nextCheck = (3*n)/2;
         DEBUG("No significance. Next check at " << nextCheck);
+        return KeepRunning;
     }
-
-    return defined_result;
 }
 
-void SigmaGuesserMean::deleteAllResults() {
+void Output::deleteAllResults() {
     ost::MutexLock lock(mutex);
     DEBUG("Resetting entries");
     double sigmas[3] = {
-        config.sigma_x() / camera::pixel,
-        config.sigma_y() / camera::pixel,
-        config.sigma_xy() };
+        traits->psf_size().x() * traits->plane(0).resolution[0]->in_dpm() / camera::pixel,
+        traits->psf_size().y() * traits->plane(0).resolution[1]->in_dpm() / camera::pixel,
+        0 };
     for (int i = 0; i < 3; i++) {
-        double ds = config.delta_sigma() / ((i == 2) ? 2 : 1);
         data[i].reset();
-        accept[i][0] = sigmas[i] - ds;
-        accept[i][1] = sigmas[i] + ds;
-        decline[i][0] = sigmas[i] - 0.5 * ds;
-        decline[i][1] = sigmas[i] + 0.5 * ds;
+        accept[i][0] = sigmas[i] - delta;
+        accept[i][1] = sigmas[i] + delta;
+        decline[i][0] = sigmas[i] - 0.5 * delta;
+        decline[i][1] = sigmas[i] + 0.5 * delta;
     }
     n = discarded = 0;
-    defined_result = KeepRunning;
     meanAmplitude.reset();
     used_area = 0 * camera::pixel * camera::pixel;
 
     DEBUG("Resetting fitter");
-    fitter->useConfig(config);
+    fitter->useConfig(*traits);
     DEBUG("Deleted all results");
 }
 

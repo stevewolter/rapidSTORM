@@ -236,9 +236,9 @@ void Car::run_computation()
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
         {
             DEBUG("Computation loop iteration");
-            Output::Result r = 
-                output->receiveLocalizations( *i );
+            output->receiveLocalizations( *i );
             
+#if 0
             if (r == Output::RestartEngine || r == Output::StopEngine ) 
             {
                 DEBUG("Emergency stop: Engine restart requested");
@@ -247,6 +247,7 @@ void Car::run_computation()
                 if ( r == Output::StopEngine )
                     error = true;
             }
+#endif
 
             if (emergencyStop) 
             {
@@ -317,6 +318,8 @@ void Car::drive() {
 
     DEBUG("Creating announcement");
     Output::Announcement announcement( *input->get_traits() );
+    upstream_engine = announcement.engine;
+    announcement.engine = this;
     DEBUG("Sending announcement");
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
@@ -393,6 +396,22 @@ void Car::drive() {
 void Car::stop() {
     abortJob.trigger();
     closeJob.trigger();
+}
+
+void Car::restart() {
+    output->propagate_signal( Output::Engine_run_is_aborted );
+    emergencyStop = true;
+}
+
+void Car::repeat_results() {
+    throw std::logic_error("Cannot repeat results from dSTORM car");
+}
+bool Car::can_repeat_results() { return false; }
+
+void Car::change_input_traits( std::auto_ptr< input::BaseTraits > new_traits )
+{
+    if ( upstream_engine )
+        upstream_engine->change_input_traits( new_traits );
 }
 
 }

@@ -27,8 +27,8 @@ CommonInfo<Ks,FF>::CommonInfo(
 ) 
 : fitter::MarquardtInfo<FitGroup::VarC>(c,info),
   amplitude_threshold( *info.config.amplitude_threshold() / camera::ad_counts ),
-  start_sx( info.sigma(0) / camera::pixel ),
-  start_sy( info.sigma(1) / camera::pixel ),
+  start_sx( info.sigma(0,0) / camera::pixel ),
+  start_sy( info.sigma(1,0) / camera::pixel ),
   start_sxy( 0 ),
   compute_uncertainty( info.traits.photon_response.is_set() &&
                        info.traits.background_stddev.is_set() ),
@@ -131,7 +131,6 @@ CommonInfo<Kernels,FF>::check_result(
                 * camera::ad_counts );
     target->fit_residues() = chi_sq;
 
-    DEBUG("Got fit " << p.x() << " " << p.y() << " " << target->strength());
     bool sx_correct = ( ! (FF & ( 1 << fitpp::Exponential2D::SigmaX )))
         || ( params.template getSigmaX<0>() >= start_sx/4
           && params.template getSigmaX<0>() <= start_sx*4 );

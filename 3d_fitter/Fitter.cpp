@@ -69,12 +69,15 @@ CommonInfo<Ks,Widening>::CommonInfo(
     params->template set_all_ZAtBestSigmaY( c.z_plane_y() );
     params->template set_all_DeltaSigmaX( c.defocus_constant_x() );
     params->template set_all_DeltaSigmaY( c.defocus_constant_y() );
-    params->template set_all_BestSigmaX( info.config.sigma_x() );
-    params->template set_all_BestSigmaY( info.config.sigma_y() );
-    params->template set_all_LayerShiftX( quantity<camera::length>(c.delta_layer_x() * info.traits.resolution[0]->in_dpm()) );
-    params->template set_all_LayerShiftY( quantity<camera::length>(c.delta_layer_y() * info.traits.resolution[1]->in_dpm()) );
-    if ( info.traits.resolution[2].is_set() ) {
-        quantity<si::length> z_px_sz = camera::pixel / info.traits.resolution[2]->in_dpm();
+    params->template set_all_BestSigmaX( info.sigma(0,0) );
+    params->template set_all_BestSigmaY( info.sigma(1,0) );
+    params->template set_all_LayerShiftX( quantity<camera::length>(c.delta_layer_x() * info.traits.plane(0).resolution[0]->in_dpm()) );
+    params->template set_all_LayerShiftY( quantity<camera::length>(c.delta_layer_y() * info.traits.plane(0).resolution[1]->in_dpm()) );
+    bool all_planes_set = true;
+    for (int i = 0; i < info.traits.plane_count(); ++i)
+        all_planes_set = all_planes_set && info.traits.plane(i).z_position.is_set();
+    if ( all_planes_set && info.traits.plane_count() > 1 ) {
+        quantity<si::length> z_px_sz = *info.traits.plane(1).z_position - *info.traits.plane(0).z_position;
         params->template set_all_LayerDistance( quantity<si::nanolength>(z_px_sz) );
     } else if ( info.traits.size[2] == 1 * camera::pixel )
         params->template set_all_LayerDistance( 0 * boost::units::si::nanometre );
@@ -82,8 +85,8 @@ CommonInfo<Ks,Widening>::CommonInfo(
         throw std::runtime_error("Z resolution must be given to apply 3D fitter on multi-plane image");
 
     for (int i = 0; i < 2; ++i)
-        if ( info.traits.resolution[i].is_set() )
-            scale_factor[i] = info.traits.resolution[i]->in_dpm();
+        if ( info.traits.plane(0).resolution[i].is_set() )
+            scale_factor[i] = info.traits.plane(0).resolution[i]->in_dpm();
         else {
             throw std::runtime_error("Tried to use gauss fitter on image where pixel size is not given in nm.");
         }
@@ -179,7 +182,6 @@ CommonInfo<Kernels,Widening>::check_result(
     new(target) Localization( 
         pos, Localization::Amplitude::Type(params->template getAmplitude<0>()) );
 
-    DEBUG("Found position at " << p.x() << " " << p.y() << " " << target->zposition() << " " << target->strength());
     DEBUG("Amplitude threshold is " << amplitude_threshold);
     bool good = 
            target->amplitude() > amplitude_threshold 

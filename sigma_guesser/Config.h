@@ -5,11 +5,12 @@
 #include <simparm/Entry.hh>
 #include <simparm/NumericEntry.hh>
 #include <dStorm/UnitEntries/PixelEntry.h>
+#include <dStorm/output/Capabilities.h>
 
 namespace dStorm {
 namespace sigma_guesser {
 
-class Config : public simparm::Object {
+struct Config : public simparm::Object {
         /** If this option is set, the sigma estimation code is disabled. */
         simparm::BoolEntry fitSigma;
 
@@ -20,6 +21,10 @@ class Config : public simparm::Object {
 
         Config();
         void registerNamedEntries();
+
+        bool can_work_with(output::Capabilities cap)  {
+        	return cap.test( output::Capabilities::SourceImage );
+        }
 };
 
 }

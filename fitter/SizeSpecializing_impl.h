@@ -17,8 +17,8 @@ template <typename Type>
 SizeSpecializing<Type>::SizeSpecializing( 
     const Common& common, const engine::JobInfo& info )
 : common(common) ,
-    msx( info.mask_size(0) ),
-    msy( info.mask_size(1) )
+    msx( info.mask_size(0, 0) ),
+    msy( info.mask_size(1, 0) )
 {
     for (int i = 0; i < MaxFitWidth-1; i++)
         for (int j = 0; j < MaxFitHeight-1; j++) {

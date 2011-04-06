@@ -31,9 +31,10 @@ namespace spotFinders {
             const engine::spot_finder::Job &job)
             : Base(job)
             { chooseAhmad(msx, msy); }
+        MedianSmoother* clone() const { return new MedianSmoother(*this); }
 
         void smooth( const Image &in ) {
-            ahmad( in, *smoothed, 2*msx+1, 2*msy+1 );
+            ahmad( in, smoothed, 2*msx+1, 2*msy+1 );
         }
     };
 }
