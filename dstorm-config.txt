@@ -1,5 +1,5 @@
-in Input in SetResolution in PixelSizeInNMX in value set 105
-in Input in SetResolution in PixelSizeInNMY in value set 105
+in Input in Optics in PixelSizeInNMX in value set 105
+in Input in Optics in PixelSizeInNMY in value set 105
 in Output in EngineOutput in ChooseTransmission in value set Table
 in Output in EngineOutput in Output0 in Table in FailSilently in value set true
 in Output in EngineOutput in Output0 in Table in ToFile in extension set -raw.txt

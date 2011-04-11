@@ -3,7 +3,8 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@
 C_TESTS = alignment_test \
-	check_uncorrelated check_derivatives check_3d_plugin
+	check_uncorrelated check_derivatives check_3d_plugin \
+	check_resolutionsetter 
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = libfitter.la \
@@ -73,7 +74,10 @@ libinputs_la_SOURCES = \
 	inputs/BackgroundDeviationEstimator.cpp \
 	inputs/BackgroundDeviationEstimator.h \
 	inputs/Splitter_decl.h inputs/Splitter.h inputs/Splitter.cpp \
-	inputs/YMirror_decl.h inputs/YMirror.h inputs/YMirror.cpp
+	inputs/YMirror_decl.h inputs/YMirror.h inputs/YMirror.cpp \
+    inputs/ResolutionSetter.h \
+    inputs/ResolutionSetter_decl.h inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
+	inputs/SampleInfo.h inputs/SampleInfo.cpp
 
 libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
@@ -189,6 +193,8 @@ check_uncorrelated_SOURCES = gauss_fitter/check_uncorrelated.cpp
 check_derivatives_SOURCES = 3d_fitter/check_derivatives.cpp
 check_3d_plugin_SOURCES = 3d_fitter/check_plugin.cpp
 check_3d_plugin_LDADD = lib3d_fitter.la
+check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp
+check_resolutionsetter_LDADD = libinputs.la
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     dstorm.cpp \
