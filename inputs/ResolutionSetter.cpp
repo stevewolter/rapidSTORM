@@ -57,8 +57,10 @@ LayerConfig::LayerConfig(int number)
 
 void LayerConfig::set_traits( OpticalInfo<2>& t ) const
 {
+    DEBUG("Setting optical for a layer, pixel size in x is set: " << pixel_size_x().is_set() );
     if ( pixel_size_x().is_set() ) t.resolution[0] = Config::get(*pixel_size_x());
     if ( pixel_size_y().is_set() ) t.resolution[1] = Config::get(*pixel_size_y());
+    assert( ! pixel_size_x().is_set() || (t.resolution[0].is_set() && t.resolution[0]->is_in_dpm()) );
     t.tmc = std::vector<float>();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i)
         t.tmc->push_back( i->value() );
@@ -93,7 +95,9 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
     if ( int(layers.size()) < t.plane_count() )
        throw std::logic_error("Input announced too few planes");
     for ( int i = 0; i <  t.plane_count(); ++i ) {
+       DEBUG("Setting optical traits for layer " << i);
        t.plane(i).resolution[0] = Config::get(pixel_size_x());
+       assert( t.plane(i).resolution[0].is_set() && t.plane(i).resolution[0]->is_in_dpm() );
        t.plane(i).resolution[1] = Config::get(pixel_size_y());
        layers[i].set_traits( t.plane(i) ); 
     }
@@ -172,17 +176,17 @@ std::auto_ptr<chain::Forwarder> makeLink() {
     return std::auto_ptr<chain::Forwarder>( new ChainLink() );
 }
 
-boost::units::quantity<camera::resolution, float>
+ImageResolution
 Config::get( const FloatPixelSizeEntry::value_type& f ) {
     boost::units::quantity< boost::units::divide_typeof_helper<
         boost::units::si::length,camera::length>::type, float > q1;
     q1 = (f / (1E9 * boost::units::si::nanometre) * boost::units::si::metre);
-    return 1.0f / q1;
+    return q1;
 }
 
 void Config::set_traits( input::Traits<Localization>& t ) const {
-    t.position().resolution().x() = get(pixel_size_x());
-    t.position().resolution().y() = get(pixel_size_y());
+    t.position().resolution().x() = 1.0f / (pixel_size_x() / (1E9f * si::nanometre) * si::metre) ;
+    t.position().resolution().y() = 1.0f / (pixel_size_y() / (1E9f * si::nanometre) * si::metre) ;
 }
 
 }

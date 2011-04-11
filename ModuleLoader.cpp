@@ -5,7 +5,6 @@
 
 #include "inputs/inputs.h"
 #include "spotFinders/spotFinders.h"
-#include "gauss_fitter/Factory.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "outputs/BasicTransmissions.h"
 #include <dStorm/Config.h>
@@ -136,8 +135,6 @@ void ModuleLoader::add_modules
     car_config.add_spot_finder( spotFinders::make_Median() );
     car_config.add_spot_finder( spotFinders::make_Erosion() );
     car_config.add_spot_finder( spotFinders::make_Gaussian() );
-    DEBUG("Adding basic spot fitter");
-    car_config.add_spot_fitter( new gauss_2d_fitter::Factory() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config.outputConfig );
 

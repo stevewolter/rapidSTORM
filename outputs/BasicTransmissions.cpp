@@ -10,9 +10,7 @@
 #include <dStorm/expression/Source_decl.h>
 #include "Slicer.h"
 #include "RawImageFile.h"
-#include "PrecisionEstimator.h"
 #include "MemoryCache_decl.h"
-#include "sigma_guesser/decl.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -30,10 +28,7 @@ void basic_outputs( Config* o ) {
     o->addChoice( new TraceCountFilter::Source() );
     o->addChoice( new Slicer::Source() );
     o->addChoice( new RawImageFile::Source() );
-    o->addChoice( new SinglePrecisionEstimator::Source() );
-    o->addChoice( new MultiPrecisionEstimator::Source() );
     o->addChoice( make_output_source<expression::Source>().release() );
-    o->addChoice( make_output_source<sigma_guesser::Output>().release() );
 }
 
 }

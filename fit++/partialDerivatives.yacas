@@ -1,4 +1,0 @@
-eterm := Exp( - (1.0/(2 * (1-sxy^2))) * ((x-x0)^2/sx^2 - 2 * sxy * ((x-x0)/sx) * ((y-y0)/sy) + (y-y0)^2/sy^2) );
-exp := (A / (2 * Pi * sx * sy * Sqrt(1-sxy^2))) * eterm + b;
-beta := { Deriv(x0) exp, Deriv(y0) exp, Deriv(A) exp, Deriv(b) exp, Deriv(sx) exp, Deriv(sy) exp, Deriv(sxy) exp };
-gamma := Subst(eterm, phi) (beta);

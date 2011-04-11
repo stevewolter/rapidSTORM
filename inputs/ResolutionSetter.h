@@ -47,7 +47,7 @@ class Config : public simparm::Object {
     boost::ptr_vector< LayerConfig > layers;
 
   public:
-    static boost::units::quantity<camera::resolution, float>
+    static ImageResolution
         get( const FloatPixelSizeEntry::value_type& f );
     typedef input::chain::DefaultTypes SupportedTypes;
 
