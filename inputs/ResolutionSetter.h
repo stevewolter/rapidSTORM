@@ -79,11 +79,7 @@ class ResolutionSetter
     void dispatch(BaseSource::Messages m) { s->dispatch(m); }
     iterator begin() { return s->begin(); }
     iterator end() { return s->end(); }
-    TraitsPtr get_traits() {
-        TraitsPtr rv = s->get_traits();
-        config.set_traits(*rv);
-        return rv;
-    }
+    TraitsPtr get_traits();
 };
 
 

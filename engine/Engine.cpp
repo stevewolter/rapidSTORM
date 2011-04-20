@@ -101,7 +101,7 @@ Engine::TraitsPtr Engine::get_traits() {
 
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config, *imProp, imProp->fluorophores[fluorophore]);
+        JobInfo info(config, *imProp, fluorophore);
         config.spotFittingMethod().set_traits( *prv, info );
     }
     DEBUG("Returning traits");
@@ -231,7 +231,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     DEBUG("Building spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config, *engine.imProp, engine.imProp->fluorophores[fluorophore]);
+        JobInfo info(config, *engine.imProp, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 

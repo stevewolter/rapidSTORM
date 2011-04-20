@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "ResolutionSetter.h"
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/chain/Context_impl.h>
@@ -39,6 +40,16 @@ namespace Resolution {
 
 using namespace chain;
 
+template <typename ForwardedType>
+typename ResolutionSetter<ForwardedType>::TraitsPtr
+ResolutionSetter <ForwardedType>::get_traits()
+{
+    DEBUG("Setting traits in ResolutionSetter");
+    TraitsPtr rv = s->get_traits();
+    config.set_traits(*rv);
+    return rv;
+}
+
 LayerConfig::LayerConfig(int number)
 : simparm::Object("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number)),
@@ -53,6 +64,7 @@ LayerConfig::LayerConfig(int number)
         z_position.viewable = z_position.editable = false; 
 	micro_alignment.viewable = micro_alignment.editable = false;
     }
+    set_number_of_fluorophores(2);
 }
 
 void LayerConfig::set_traits( OpticalInfo<2>& t ) const
@@ -61,6 +73,7 @@ void LayerConfig::set_traits( OpticalInfo<2>& t ) const
     if ( pixel_size_x().is_set() ) t.resolution[0] = Config::get(*pixel_size_x());
     if ( pixel_size_y().is_set() ) t.resolution[1] = Config::get(*pixel_size_y());
     assert( ! pixel_size_x().is_set() || (t.resolution[0].is_set() && t.resolution[0]->is_in_dpm()) );
+    DEBUG( "TMC size in layer is " << transmissions.size());
     t.tmc = std::vector<float>();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i)
         t.tmc->push_back( i->value() );
@@ -90,6 +103,7 @@ void LayerConfig::registerNamedEntries() {
 
 void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
+    DEBUG("Setting traits in ResolutionSetter");
     t.psf_size().x() = 400E-9 * boost::units::si::meter;
     t.psf_size().y() = 400E-9 * boost::units::si::meter;
     if ( int(layers.size()) < t.plane_count() )
@@ -132,6 +146,7 @@ void Config::registerNamedEntries() {
 
 ChainLink::ChainLink() 
 {
+    DEBUG("Making ResolutionSetter chain link");
     receive_changes_from_subtree( config );
 }
 
@@ -173,6 +188,7 @@ BaseSource* ChainLink::makeSource() {
 }
 
 std::auto_ptr<chain::Forwarder> makeLink() {
+    DEBUG("Making resolution chain link");
     return std::auto_ptr<chain::Forwarder>( new ChainLink() );
 }
 
@@ -185,9 +201,12 @@ Config::get( const FloatPixelSizeEntry::value_type& f ) {
 }
 
 void Config::set_traits( input::Traits<Localization>& t ) const {
+    DEBUG("Setting resolution in Config");
     t.position().resolution().x() = 1.0f / (pixel_size_x() / (1E9f * si::nanometre) * si::metre) ;
     t.position().resolution().y() = 1.0f / (pixel_size_y() / (1E9f * si::nanometre) * si::metre) ;
 }
+
+
 
 }
 }
