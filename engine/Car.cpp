@@ -148,8 +148,11 @@ void Car::operator()(const simparm::Event& e) {
 }
 
 void Car::run() {
+#if 0
     try {
+#endif
         drive();
+#if 0
     } catch ( const std::bad_alloc& e ) {
         OutOfMemoryMessage m("Job " + ident);
         runtime_config.send(m);
@@ -161,6 +164,7 @@ void Car::run() {
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);
     }
+#endif
 
     DEBUG("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
@@ -174,6 +178,7 @@ void Car::add_thread()
 {
     int pistonCount = threads.size();
     std::auto_ptr<string> pistonName( new string("Piston 00") );
+    DEBUG("Spawning thread " << *pistonName );
     (*pistonName)[7] += pistonCount / 10;
     (*pistonName)[8] += pistonCount % 10;
     std::auto_ptr<ComputationThread> new_piston
@@ -183,8 +188,12 @@ void Car::add_thread()
 
 void Car::compute_until_terminated() {
     int number_of_threads = 1;
-    if ( input->flags.test( input::BaseSource::MultipleConcurrentIterators ) )
+    if ( input->flags.test( input::BaseSource::MultipleConcurrentIterators ) ) {
         number_of_threads = config.pistonCount();
+        DEBUG("Using " << number_of_threads << " threads");
+    } else {
+        DEBUG("Multiple concurrent iterators not supported, using only a single thread.");
+    }
 
     while (true) {
         DEBUG("Announcing run");
@@ -194,6 +203,7 @@ void Car::compute_until_terminated() {
             input->dispatch( Input::WillNeverRepeatAgain );
 
         DEBUG("Adding threads");
+        /* The first thread does not need to be instantiated, it is the current one. */
         for (int i = /* --> */ 1 /* <-- */; i < number_of_threads; ++i)
             add_thread();
         DEBUG("Running computation");
@@ -260,12 +270,14 @@ void Car::run_computation()
         DEBUG("Reached end of computation");
         return;
     } catch (const dStorm::abort&) {
+#if 0
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + ident);
         runtime_config.send(m);
     } catch ( const dStorm::runtime_error& e ) {
         simparm::Message m( e.get_message("Error in Job " + ident) );
         runtime_config.send(m);
+#endif
     }
     emergencyStop = error = true;
 }
@@ -365,12 +377,14 @@ void Car::drive() {
     DEBUG("Erased input");
   } catch (const dStorm::abort&) {
     DEBUG("Caught abortion signal");
+#if 0
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);
   } catch (const dStorm::runtime_error& e) {
     simparm::Message m( e.get_message("Error in Job " + ident) );
     runtime_config.send(m);
+#endif
   }
 
     ost::MutexLock lock( terminationMutex );

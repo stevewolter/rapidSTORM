@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "ResolutionSetter.h"
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/chain/Context_impl.h>
@@ -85,7 +84,7 @@ void LayerConfig::set_number_of_fluorophores(int number)
     while ( int(transmissions.size()) < number ) {
        std::string i = boost::lexical_cast<std::string>(transmissions.size());
        transmissions.push_back( new simparm::DoubleEntry("Transmission" + i,
-         	"Transmission of fluorophore " + i) );
+         	"Transmission of fluorophore " + i, 1) );
         push_back( transmissions.back() );
     }
 
@@ -104,8 +103,8 @@ void LayerConfig::registerNamedEntries() {
 void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter");
-    t.psf_size().x() = 400E-9 * boost::units::si::meter;
-    t.psf_size().y() = 400E-9 * boost::units::si::meter;
+    t.psf_size().x() = quantity<si::length>(psf_size_x() / si::nanometre * 1E-9 * si::metre) / 2.35;
+    t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
     if ( int(layers.size()) < t.plane_count() )
        throw std::logic_error("Input announced too few planes");
     for ( int i = 0; i <  t.plane_count(); ++i ) {
@@ -130,9 +129,9 @@ Config::Config()
   pixel_size_y("PixelSizeInNMY", "Size of one input pixel [y]",
                    105.0f * boost::units::si::nanometre / camera::pixel),
   psf_size_x("PSFX", "PSF FWHM in X",
-                  400.0 * boost::units::si::nanometre),
+                  493.5 * boost::units::si::nanometre),
   psf_size_y("PSFY", "PSF FWHM in Y",
-                  400.0 * boost::units::si::nanometre)
+                  493.5 * boost::units::si::nanometre)
 {
     layers.push_back( new LayerConfig(0) );
 }

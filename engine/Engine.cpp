@@ -296,19 +296,20 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     motivation = origMotivation;
     for ( cM = maximums.begin(); cM.hasMore() && motivation > 0; cM++){
         const Spot& s = cM->second;
-        DEBUG("Trying candidate at " << s.x() << "," << s.y() );
+        DEBUG("Trying candidate at " << s.x() << "," << s.y() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         Localization *candidate = buffer.allocate(5), *start = candidate;
-        double best_total_amplitude = 0;
+        double best_total_amplitude = -1;
         int best_found = 0;
         for (unsigned int i = 0; i < fitter.size(); ++i) {
-            candidate = start + best_found;
+            candidate = start + std::max(0, best_found);
             int found_number = fitter[i].fitSpot(s, image, candidate);
             double total_amplitude = 0;
             for (int j = 0; j < found_number; j++) {
                 candidate[j].frame_number() = base->frame_number();
                 total_amplitude += candidate[j].amplitude() / camera::ad_count;
             }
+            DEBUG("Fitter " << i << " found " << found_number << " with total amplitude " << total_amplitude);
             if ( total_amplitude > best_total_amplitude ) {
                 for (int i = 0; i < best_found && i < found_number; ++i)
                     start[i] = candidate[found_number-i-1];
@@ -316,7 +317,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
                 best_total_amplitude = total_amplitude;
             }
         }
-        buffer.commit(best_found);
+        buffer.commit(std::max(0,best_found));
         if ( best_found > 0 )
             motivation = origMotivation;
         else

@@ -94,7 +94,8 @@ ChainLink::context_changed(ContextRef r, Link* l)
         my_context->more_infos.push_back( new ImageTraits() );
     assert( my_context->has_info_for<engine::Image>() );
 
-    //my_context->will_make_multiple_passes = ! config.fixSigma();
+    my_context->will_make_multiple_passes = true;
+    my_context->need_multiple_concurrent_iterators = true;
 
     make_new_requirements();
     Link::context_changed(my_context, l);
