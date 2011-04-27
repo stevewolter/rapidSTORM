@@ -61,7 +61,6 @@ boost::shared_ptr< input::Traits<output::LocalizedImage> >
 Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<engine::Image> > imProp )
 {
     input::Traits<Localization> rv( *imProp );
-    assert( ! imProp->plane(0).resolution[0].is_set() || rv.position().resolution()[0].is_set() );
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_set() )
@@ -73,7 +72,6 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp->clone() );
 
-    assert( rvt->position().resolution()[0].is_set() || ! imProp->plane(0).resolution[0].is_set() );
     return rvt;
 }
 

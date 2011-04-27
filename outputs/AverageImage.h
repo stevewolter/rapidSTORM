@@ -5,6 +5,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/ImageTraits.h>
 #include <dStorm/engine/Input.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
@@ -19,7 +20,7 @@ class AverageImage : public OutputObject {
     std::string filename;
     typedef dStorm::Image<unsigned long,2> Image;
     Image image;
-    input::Traits<Image>::Resolutions resolution;
+    boost::array< input::ImageResolution, 2 > resolution;
     ost::Mutex mutex;
 
     class _Config;

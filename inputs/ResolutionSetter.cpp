@@ -69,9 +69,12 @@ LayerConfig::LayerConfig(int number)
 void LayerConfig::set_traits( OpticalInfo<2>& t ) const
 {
     DEBUG("Setting optical for a layer, pixel size in x is set: " << pixel_size_x().is_set() );
-    if ( pixel_size_x().is_set() ) t.resolution[0] = Config::get(*pixel_size_x());
-    if ( pixel_size_y().is_set() ) t.resolution[1] = Config::get(*pixel_size_y());
-    assert( ! pixel_size_x().is_set() || (t.resolution[0].is_set() && t.resolution[0]->is_in_dpm()) );
+    if ( pixel_size_x().is_set() && pixel_size_y().is_set() ) {
+        boost::array< ImageResolution, 2 > v;
+        v[0] = Config::get(*pixel_size_x());
+        v[1] = Config::get(*pixel_size_y());
+        t.set_resolution( v );
+    }
     DEBUG( "TMC size in layer is " << transmissions.size());
     t.tmc = std::vector<float>();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i)
@@ -107,11 +110,12 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
     t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
     if ( int(layers.size()) < t.plane_count() )
        throw std::logic_error("Input announced too few planes");
+    boost::array< ImageResolution, 2 > r;
+    r[0] = Config::get(pixel_size_x());
+    r[1] = Config::get(pixel_size_y());
     for ( int i = 0; i <  t.plane_count(); ++i ) {
        DEBUG("Setting optical traits for layer " << i);
-       t.plane(i).resolution[0] = Config::get(pixel_size_x());
-       assert( t.plane(i).resolution[0].is_set() && t.plane(i).resolution[0]->is_in_dpm() );
-       t.plane(i).resolution[1] = Config::get(pixel_size_y());
+       t.plane(i).set_resolution(r);
        layers[i].set_traits( t.plane(i) ); 
     }
 }

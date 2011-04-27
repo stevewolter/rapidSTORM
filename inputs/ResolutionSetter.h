@@ -15,6 +15,7 @@
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Filter.h>
 #include <dStorm/Image_decl.h>
+#include <dStorm/ImageTraits.h>
 
 namespace dStorm {
 namespace input {

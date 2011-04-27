@@ -6,6 +6,7 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/ImageTraits.h>
 #include <simparm/Message.hh>
 
 using namespace dStorm::engine;

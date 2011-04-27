@@ -60,11 +60,9 @@ struct LessSpecialized : public dStorm::input::chain::Forwarder {
 };
 
 struct Check {
-    typedef dStorm::input::OpticalInfo<2>::Resolutions Resolutions;
+    typedef boost::array<dStorm::input::ImageResolution,2> Resolutions;
     bool resolution_close_to( Resolutions r, const Resolutions& t ) {
-        if ( ! t[0].is_set() || ! t[1].is_set() )
-            throw std::logic_error("Resolution is not set at all");
-        else if ( ! similar( *t[0], *r[0] ) || ! similar( *t[1], *r[1] ) )
+        if ( ! similar( t[0], r[0] ) || ! similar( t[1], r[1] ) )
             throw std::logic_error("Resolution is not set correctly");
         else 
             return true;
@@ -76,7 +74,7 @@ struct Check {
         if ( ! c->has_info_for<dStorm::engine::Image>() )
             throw std::logic_error("Image context is not propagated to more specialized element");
         else 
-            return resolution_close_to( r, c->get_info_for<dStorm::engine::Image>().plane(0).resolution );
+            return resolution_close_to( r, c->get_info_for<dStorm::engine::Image>().plane(0).image_resolutions() );
     }
 
     bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const chain::MetaInfo> m ) {
@@ -85,7 +83,7 @@ struct Check {
         else if ( ! m->provides<engine::Image>() )
             throw std::logic_error("Image meta info is not propagated to less specialized element");
         else 
-            return resolution_close_to( r, m->traits<dStorm::engine::Image>()->plane(0).resolution );
+            return resolution_close_to( r, m->traits<dStorm::engine::Image>()->plane(0).image_resolutions() );
     }
 
     int do_check() {
@@ -108,7 +106,7 @@ struct Check {
         r.reset( new input::chain::Context() );
         r->more_infos.push_back( new input::Traits<dStorm::engine::Image>() );
         s.context_changed(r, NULL);
-        if ( context_resolution_close_to(correct.plane(0).resolution, m.declared_context) )
+        if ( context_resolution_close_to(correct.plane(0).image_resolutions(), m.declared_context) )
             m.declared_context.reset();
 
         DEBUG("Publishing image traits");
@@ -120,10 +118,10 @@ struct Check {
         l.config.pixel_size_x = 2.0f * l.config.pixel_size_x();
         l.config.set_traits( correct );
         DEBUG("Checking if config element change updates context");
-        if ( context_resolution_close_to(correct.plane(0).resolution, m.declared_context) )
+        if ( context_resolution_close_to(correct.plane(0).image_resolutions(), m.declared_context) )
             m.declared_context.reset();
         DEBUG("Checking if config element change updates traits");
-        if ( trait_resolution_close_to(correct.plane(0).resolution, s.declared_traits) )
+        if ( trait_resolution_close_to(correct.plane(0).image_resolutions(), s.declared_traits) )
             s.declared_traits.reset();
         
         DEBUG("Checking if source can be built");
@@ -133,7 +131,7 @@ struct Check {
         if ( source.get() == NULL )
             throw std::runtime_error("Source could not be built");
 
-        resolution_close_to(correct.plane(0).resolution, source->get_traits()->plane(0).resolution);
+        resolution_close_to(correct.plane(0).image_resolutions(), source->get_traits()->plane(0).image_resolutions());
         return 0;
     }
 };

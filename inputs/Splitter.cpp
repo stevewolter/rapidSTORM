@@ -9,6 +9,7 @@
 #include <dStorm/input/chain/Filter_impl.h>
 #include <simparm/Message.hh>
 #include <boost/iterator/iterator_adaptor.hpp>
+#include <dStorm/ImageTraits.h>
 
 using namespace dStorm::engine;
 
