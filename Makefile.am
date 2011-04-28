@@ -52,7 +52,8 @@ libengine_la_SOURCES = \
 	    engine/EngineDebug.h engine/Engine.h \
 	    engine/ImageFitter.h \
 	    engine/SpotFinder.cpp engine/debug.h  \
-	    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp
+	    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
+	    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
 libengine_stm_la_SOURCES = \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \

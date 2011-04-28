@@ -20,6 +20,7 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/slice.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include "PlaneFlattener.h"
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -152,7 +153,8 @@ class Engine::_iterator::WorkHorse {
     Config& config;
 
     int maximumLimit;
-    std::vector< boost::ptr_vector<spot_finder::Base> > finder;
+    PlaneFlattener flattener;
+    std::auto_ptr<spot_finder::Base> finder;
     boost::ptr_vector<spot_fitter::Implementation> fitter;
     data_cpp::Vector<Localization> buffer;
     CandidateTree<SmoothedPixel> maximums;
@@ -161,8 +163,8 @@ class Engine::_iterator::WorkHorse {
   public:
     WorkHorse( Engine& engine );
     ~WorkHorse() {
-        DEBUG("Destructing spot finders");
-        finder.clear();
+        DEBUG("Destructing spot finder");
+        finder.reset();
         DEBUG("Destructing spot fitters");
         fitter.clear();
         DEBUG("Destructing rest");
@@ -203,6 +205,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   maximumLimit(20),
+  flattener( *engine.imProp ),
   maximums(config.nms_x() / camera::pixel,
          config.nms_y() / camera::pixel,
          1, 1),
@@ -218,14 +221,8 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     if ( engine.imProp->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    for (int plane = 0; plane < engine.imProp->plane_count(); ++plane) {
-        finder.push_back( boost::ptr_vector<spot_finder::Base>() );
-        for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
-            spot_finder::Job job( config, *engine.imProp, 
-                engine.imProp->plane(plane), engine.imProp->fluorophores[fluorophore]);
-            finder.back().push_back( config.spotFindingMethod().make(job) );
-        }
-    }
+    spot_finder::Job job( config, *engine.imProp, 
+        engine.imProp->plane(0), engine.imProp->fluorophores[0]);
 
     DEBUG("Building spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
@@ -237,7 +234,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     maximums.setLimit(maximumLimit);
 
     DEBUG("Initialized motivation");
-    resultStructure.smoothed = &finder[0][0].getSmoothedImage();
+    resultStructure.smoothed = &finder->getSmoothedImage();
     resultStructure.candidates = &maximums;
 };
 
@@ -273,18 +270,15 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );
-    for (unsigned int j = 0; j < finder.size(); ++j)
-        for (int i = 0; i < image.depth_in_pixels(); ++i)
-            finder[j][i].smooth(image.slice(2,i * camera::pixel));
+    const Image2D flattened = flattener.flatten_image( image );
+    finder->smooth(flattened);
     IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
 
     CandidateTree<SmoothedPixel>::iterator cM = maximums.begin();
     int motivation;
     recompress:  /* We jump here if maximum limit proves too small */
     IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
-    for (unsigned int j = 0; j < finder.size(); ++j)
-        for (int i = 0; i < image.depth_in_pixels(); ++i)
-            finder[j][i].findCandidates( maximums );
+    finder->findCandidates( maximums );
     DEBUG("Found " << maximums.size() << " spots");
 
     IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );
