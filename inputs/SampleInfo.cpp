@@ -41,9 +41,12 @@ class FluorophoreConfig : public simparm::Object {
     void registerNamedEntries();
 };
 
+class ChainLink;
+
 class Config : public simparm::Object {
     boost::ptr_vector< FluorophoreConfig > fluorophores;
     simparm::TriggerEntry add_fluorophore;
+    friend class ChainLink;
 
   public:
     typedef input::chain::DefaultTypes SupportedTypes;
@@ -210,7 +213,10 @@ chain::Link::AtEnd ChainLink::context_changed( ContextRef c, Link *l )
 void ChainLink::operator()(const simparm::Event& e)
 {
     if ( e.cause == simparm::Event::ValueChanged) {
-	ost::MutexLock lock( global_mutex() );
+        if ( &e.source == &config.add_fluorophore.value ) {
+            config.fluorophores.push_back( new FluorophoreConfig(config.fluorophores.size()) );
+        }
+        ost::MutexLock lock( global_mutex() );
         if ( ! context.get() ) return;
         DefaultVisitor<Config> m(config);
         visit_context( m, context );

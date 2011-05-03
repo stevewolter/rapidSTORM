@@ -147,16 +147,14 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     TIFFOperation op("in writing TIFF file", *this, false);
     DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
-    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel) );
-    TIFFSetField( tif, TIFFTAG_IMAGEDEPTH, uint32_t(size.size.z() / camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel * size.size.z() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
-    if ( size.plane(0).resolution_is_set() ) 
-    {
-        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(*size.plane(0).resolution(0) * (0.01 * boost::units::si::meter) / camera::pixel) );
-        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(*size.plane(0).resolution(1) * (0.01 * boost::units::si::meter) / camera::pixel) );
-    }
+    if ( size.plane(0).resolution_given_in_dpm(0) ) 
+        TIFFSetField( tif, TIFFTAG_XRESOLUTION, int(size.plane(0).resolution(0)->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size.plane(0).resolution_given_in_dpm(1) ) 
+        TIFFSetField( tif, TIFFTAG_YRESOLUTION, int(size.plane(0).resolution(1)->in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
     if ( last_frame.is_set() ) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / camera::frame),
                                             uint16_t(*last_frame / camera::frame + 1) );

@@ -175,7 +175,7 @@ static void write_main_image(
 
 static void write_scale_bar(
     Magick::Image& image,
-    dStorm::input::ImageResolution ppm,
+    dStorm::traits::ImageResolution ppm,
     int width,
     int x_offset )
 {
@@ -202,8 +202,11 @@ void wxManager::store_image(
     const Change& image )
 {
     DEBUG("Storing image");
-    if ( !image.do_resize || !image.do_clear || image.resize_image.keys.size() != image.changed_keys.size() )
-        throw std::logic_error("No complete image given for store_image");
+    if ( !image.do_resize || image.resize_image.keys.size() != image.changed_keys.size() )
+        throw std::logic_error("Key information not given completely when saving image");
+    if ( ! image.do_clear )
+        throw std::logic_error("No background color defined for image");
+
 #if !defined(HAVE_LIBGRAPHICSMAGICK__) || !defined(HAVE_MAGICK___H)
     throw std::runtime_error("Cannot save images: Magick library not used in compilation");
 #else

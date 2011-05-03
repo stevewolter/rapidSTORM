@@ -20,7 +20,7 @@ class AverageImage : public OutputObject {
     std::string filename;
     typedef dStorm::Image<unsigned long,2> Image;
     Image image;
-    boost::array< input::ImageResolution, 2 > resolution;
+    traits::Optics<2>::Resolutions resolution;
     ost::Mutex mutex;
 
     class _Config;

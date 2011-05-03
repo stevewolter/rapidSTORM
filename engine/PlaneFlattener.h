@@ -8,7 +8,7 @@ namespace dStorm {
 namespace engine {
 
 class PlaneFlattener {
-    input::OpticalInfo<3> optics;
+    traits::Optics<3> optics;
     Image2D buffer;
     Eigen::Matrix< float, 3, Eigen::Dynamic > coordinates;
   public:

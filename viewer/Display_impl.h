@@ -67,8 +67,8 @@ void Display<Colorizer>::setSize(
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
     for (int i = 0; i < 2; ++i) 
-        if ( traits.resolution_is_set() )
-            size.pixel_sizes[i] = traits.image_resolution(i);
+        if ( traits.resolution(i).is_initialized() )
+            size.pixel_sizes[i] = *traits.resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
 

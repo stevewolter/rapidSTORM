@@ -18,7 +18,7 @@ bool similar( boost::units::quantity<Unit, float> a, boost::units::quantity<Unit
     return a.value() > 0.99 * b.value() && a.value() < 1.01 * b.value();
 }
 
-bool similar( const dStorm::input::ImageResolution & a, const dStorm::input::ImageResolution& b )
+bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::ImageResolution& b )
 {
     return a.unit_symbol == b.unit_symbol && similar(a.value, b.value);
 }
@@ -60,9 +60,11 @@ struct LessSpecialized : public dStorm::input::chain::Forwarder {
 };
 
 struct Check {
-    typedef boost::array<dStorm::input::ImageResolution,2> Resolutions;
+    typedef dStorm::traits::Optics<2>::Resolutions Resolutions;
     bool resolution_close_to( Resolutions r, const Resolutions& t ) {
-        if ( ! similar( t[0], r[0] ) || ! similar( t[1], r[1] ) )
+        if ( ! r[0].is_initialized() || ! r[1].is_initialized() )
+            throw std::logic_error("Resolution is not set at all");
+        if ( ! similar( *t[0], *r[0] ) || ! similar( *t[1], *r[1] ) )
             throw std::logic_error("Resolution is not set correctly");
         else 
             return true;
@@ -115,7 +117,8 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        l.config.pixel_size_x = 2.0f * l.config.pixel_size_x();
+        std::stringstream cmd("set 136.875");
+        l.config.cuboid_config["PixelSizeInNMX"]["value"].processCommand(cmd);
         l.config.set_traits( correct );
         DEBUG("Checking if config element change updates context");
         if ( context_resolution_close_to(correct.plane(0).image_resolutions(), m.declared_context) )

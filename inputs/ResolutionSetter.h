@@ -17,6 +17,8 @@
 #include <dStorm/Image_decl.h>
 #include <dStorm/ImageTraits.h>
 
+#include <dStorm/traits/optics_config.h>
+
 namespace dStorm {
 namespace input {
 
@@ -24,31 +26,14 @@ using namespace chain;
 
 namespace Resolution {
 
-class LayerConfig : public simparm::Object {
-    const bool is_first_layer;
-    simparm::OptionalEntry<boost::units::quantity<nanometer_pixel_size, float> >
-	pixel_size_x, pixel_size_y;
-    simparm::UnitEntry<boost::units::si::nanolength, double> z_position;
-    simparm::FileEntry micro_alignment;
-    typedef boost::ptr_vector< simparm::DoubleEntry > Transmissions;
-    Transmissions transmissions;
-
-  public:
-    LayerConfig(int number);
-    void set_traits( OpticalInfo<2>& t ) const;
-    void registerNamedEntries();
-    void set_number_of_fluorophores(int number);
-};
-
 class Config : public simparm::Object {
     friend class Check;
 
-    FloatPixelSizeEntry pixel_size_x, pixel_size_y;
     simparm::UnitEntry< si::nanolength, double > psf_size_x, psf_size_y;
-    boost::ptr_vector< LayerConfig > layers;
+    traits::CuboidConfig cuboid_config;
 
   public:
-    static ImageResolution
+    static traits::ImageResolution
         get( const FloatPixelSizeEntry::value_type& f );
     typedef input::chain::DefaultTypes SupportedTypes;
 
@@ -56,6 +41,7 @@ class Config : public simparm::Object {
     void registerNamedEntries();
     void set_traits( input::Traits<Localization>& ) const;
     void set_traits( input::Traits<engine::Image>& ) const;
+    void read_traits( const input::Traits<engine::Image>& );
 };
 
 template <typename ForwardedType>

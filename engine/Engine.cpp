@@ -1,5 +1,6 @@
 #define DSTORM_ENGINE_CPP
 
+#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -66,6 +67,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_set() )
         rv.amplitude().range().first = *config.amplitude_threshold();
+    rv.fluorophore().is_given = imProp->fluorophores.size() > 1;
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
     rvt->source_image_is_set = true;
@@ -212,7 +214,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
   origMotivation( config.motivation() )
 {
     DEBUG("Started piston");
-    DEBUG("Building spot finders with dimensions " << engine.imProp->size[0] <<
+    DEBUG("Building spot finder with dimensions " << engine.imProp->size[0] <<
            " " << engine.imProp->size[1]);
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
@@ -223,8 +225,9 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     spot_finder::Job job( config, *engine.imProp, 
         engine.imProp->plane(0), engine.imProp->fluorophores[0]);
+    finder = config.spotFindingMethod().make(job);
 
-    DEBUG("Building spot fitter");
+    DEBUG("Building spot fitter with " << engine.imProp->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
         JobInfo info(config, *engine.imProp, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
@@ -291,24 +294,32 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         DEBUG("Trying candidate at " << s.x() << "," << s.y() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         Localization *candidate = buffer.allocate(5), *start = candidate;
-        double best_total_amplitude = -1;
-        int best_found = 0;
-        for (unsigned int i = 0; i < fitter.size(); ++i) {
+        double best_total_residues = std::numeric_limits<double>::infinity();
+        int best_found = -1, fluorophore = 0;
+        for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
             candidate = start + std::max(0, best_found);
-            int found_number = fitter[i].fitSpot(s, image, candidate);
-            double total_amplitude = 0;
+            int found_number = fitter[fit_fluo].fitSpot(s, image, candidate);
+            double total_amplitude = 0, total_residues = 0;
             for (int j = 0; j < found_number; j++) {
                 candidate[j].frame_number() = base->frame_number();
                 total_amplitude += candidate[j].amplitude() / camera::ad_count;
             }
-            DEBUG("Fitter " << i << " found " << found_number << " with total amplitude " << total_amplitude);
-            if ( total_amplitude > best_total_amplitude ) {
+            if ( found_number > 0 )
+                total_residues = candidate[0].fit_residues().value();
+            else
+                total_residues = std::numeric_limits<double>::infinity();
+            DEBUG("Fitter " << fit_fluo << " found " << found_number << " with total amplitude " << total_amplitude << " and total residues " << total_residues);
+            if ( total_residues < best_total_residues ) {
                 for (int i = 0; i < best_found && i < found_number; ++i)
                     start[i] = candidate[found_number-i-1];
                 best_found = found_number;
-                best_total_amplitude = total_amplitude;
+                fluorophore = fit_fluo;
+                best_total_residues = total_residues;
             }
         }
+        for (int i = 0; i < best_found; ++i)
+            start[i].fluorophore = fluorophore;
+        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore);
         buffer.commit(std::max(0,best_found));
         if ( best_found > 0 )
             motivation = origMotivation;

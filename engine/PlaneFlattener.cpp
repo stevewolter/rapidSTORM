@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "PlaneFlattener.h"
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/slice.h>
@@ -26,7 +27,8 @@ PlaneFlattener::flatten_image( const engine::Image& multiplane )
 
     typedef dStorm::Image<StormPixel,1> Line;
 
-    for (int plane = 1; plane < multiplane.depth_in_pixels(); ++plane) 
+    for (int plane = 1; plane < multiplane.depth_in_pixels(); ++plane)  {
+        DEBUG("Flattening plane " << plane);
         for (int y = 0; y < multiplane.height_in_pixels(); ++y) {
             coordinates.row(1).fill( y );
 
@@ -37,9 +39,12 @@ PlaneFlattener::flatten_image( const engine::Image& multiplane )
                   ++i, ++p ) 
                 coordinates( 0, p ) = i.position().x();
 
-            optics.plane(plane).in_sample_space( coordinates );
-            optics.plane(0).in_image_space( coordinates );
+            DEBUG("Assembled line " << y << " to\n" << coordinates);
+            optics.plane(plane).points_in_sample_space( coordinates );
+            DEBUG("Intermediate-Transformed line " << y << " to\n" << coordinates);
+            optics.plane(0).points_in_image_space( coordinates );
 
+            DEBUG("Transformed line " << y << " to\n" << coordinates);
             p = 0;
             for ( Line::iterator i = line.begin(), e = line.end(); i != e; 
                   ++i, ++p ) 
@@ -49,13 +54,15 @@ PlaneFlattener::flatten_image( const engine::Image& multiplane )
                   for (int yo = 0; yo <= 1; ++yo) {
                     int x = bx + xo, y = by + yo;
                     if ( buffer.contains( x, y ) ) {
-                        buffer(x,y) += round(
-                            *i * (1 - std::abs( x - coordinates(0,p) )) 
-                               * (1 - std::abs( y - coordinates(1,p) )) );
+                        float factor = (1 - std::abs( x - coordinates(0,p) )) 
+                               * (1 - std::abs( y - coordinates(1,p) ));
+                        int value = round( *i * factor );
+                        buffer(x,y) += value;
                     }
                   }
             }
         }
+    }
 
     return buffer;
 }

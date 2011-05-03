@@ -45,7 +45,7 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
                 r = res * camera::pixel / (0.01f * boost::units::si::meters);
 
             if ( r.is_set() )
-                resolution[i] = ImageResolution(1.0f / *r);
+                resolution[i] = traits::ImageResolution(1.0f / *r);
         }
     }
 

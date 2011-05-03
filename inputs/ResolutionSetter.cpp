@@ -10,6 +10,7 @@
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
 #include <simparm/OptionalEntry_impl.hh>
+#include <boost/lexical_cast.hpp>
 
 namespace dStorm {
 namespace input {
@@ -49,75 +50,12 @@ ResolutionSetter <ForwardedType>::get_traits()
     return rv;
 }
 
-LayerConfig::LayerConfig(int number)
-: simparm::Object("InputLayer" + boost::lexical_cast<std::string>(number), 
-                  "Input layer " + boost::lexical_cast<std::string>(number)),
-  is_first_layer(number==0),
-  pixel_size_x("PixelSizeInNMX", "Size of one input pixel [x]"),
-  pixel_size_y("PixelSizeInNMY", "Size of one input pixel [y]"),
-  z_position("ZPosition", "Z position", 0 * boost::units::si::nanometre),
-  micro_alignment("MicroAlignmentFile", "Plane Alignment file")
-{
-    z_position.setHelp("Z position of this layer in sample space relative to the first layer");
-    if ( is_first_layer ) {
-        z_position.viewable = z_position.editable = false; 
-	micro_alignment.viewable = micro_alignment.editable = false;
-    }
-    set_number_of_fluorophores(2);
-}
-
-void LayerConfig::set_traits( OpticalInfo<2>& t ) const
-{
-    DEBUG("Setting optical for a layer, pixel size in x is set: " << pixel_size_x().is_set() );
-    if ( pixel_size_x().is_set() && pixel_size_y().is_set() ) {
-        boost::array< ImageResolution, 2 > v;
-        v[0] = Config::get(*pixel_size_x());
-        v[1] = Config::get(*pixel_size_y());
-        t.set_resolution( v );
-    }
-    DEBUG( "TMC size in layer is " << transmissions.size());
-    t.tmc = std::vector<float>();
-    for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-        t.tmc->push_back( i->value() );
-    t.z_position = z_position() * si::metre / (1E9 * si::nanometre);
-}
-
-void LayerConfig::set_number_of_fluorophores(int number)
-{
-    while ( int(transmissions.size()) < number ) {
-       std::string i = boost::lexical_cast<std::string>(transmissions.size());
-       transmissions.push_back( new simparm::DoubleEntry("Transmission" + i,
-         	"Transmission of fluorophore " + i, 1) );
-        push_back( transmissions.back() );
-    }
-
-    for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-	i->viewable = (i - transmissions.begin()) < number;
-}
-
-void LayerConfig::registerNamedEntries() {
-    push_back( pixel_size_x );
-    push_back( pixel_size_y );
-    push_back( z_position );
-    for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-        push_back( *i );
-}
-
 void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter");
     t.psf_size().x() = quantity<si::length>(psf_size_x() / si::nanometre * 1E-9 * si::metre) / 2.35;
     t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
-    if ( int(layers.size()) < t.plane_count() )
-       throw std::logic_error("Input announced too few planes");
-    boost::array< ImageResolution, 2 > r;
-    r[0] = Config::get(pixel_size_x());
-    r[1] = Config::get(pixel_size_y());
-    for ( int i = 0; i <  t.plane_count(); ++i ) {
-       DEBUG("Setting optical traits for layer " << i);
-       t.plane(i).set_resolution(r);
-       layers[i].set_traits( t.plane(i) ); 
-    }
+    static_cast<traits::Optics<3>&>(t) = cuboid_config.make_traits();
 }
 
 #if 0
@@ -128,23 +66,18 @@ void FluorophoreConfig::FluorophoreConfig(int number)
 
 Config::Config()
 : simparm::Object("Optics", "Optical parameters"),
-  pixel_size_x("PixelSizeInNMX", "Size of one input pixel [x]",
-                   105.0f * boost::units::si::nanometre / camera::pixel),
-  pixel_size_y("PixelSizeInNMY", "Size of one input pixel [y]",
-                   105.0f * boost::units::si::nanometre / camera::pixel),
   psf_size_x("PSFX", "PSF FWHM in X",
                   493.5 * boost::units::si::nanometre),
   psf_size_y("PSFY", "PSF FWHM in Y",
                   493.5 * boost::units::si::nanometre)
 {
-    layers.push_back( new LayerConfig(0) );
 }
 
 void Config::registerNamedEntries() {
-    push_back( pixel_size_x );
-    push_back( pixel_size_y );
     push_back( psf_size_x );
     push_back( psf_size_y );
+    cuboid_config.registerNamedEntries();
+    push_back( cuboid_config );
 }
 
 ChainLink::ChainLink() 
@@ -161,6 +94,9 @@ ChainLink::ChainLink(const ChainLink& o)
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
+    if ( c->provides< dStorm::engine::Image >() ) {
+        config.read_traits( *c->traits< dStorm::engine::Image >() );
+    }
     return input::chain::DelegateToVisitor::traits_changed(*this, c, l);
 }
 
@@ -195,7 +131,7 @@ std::auto_ptr<chain::Forwarder> makeLink() {
     return std::auto_ptr<chain::Forwarder>( new ChainLink() );
 }
 
-ImageResolution
+traits::ImageResolution
 Config::get( const FloatPixelSizeEntry::value_type& f ) {
     boost::units::quantity< boost::units::divide_typeof_helper<
         boost::units::si::length,camera::length>::type, float > q1;
@@ -205,11 +141,12 @@ Config::get( const FloatPixelSizeEntry::value_type& f ) {
 
 void Config::set_traits( input::Traits<Localization>& t ) const {
     DEBUG("Setting resolution in Config");
-    t.position().resolution().x() = 1.0f / (pixel_size_x() / (1E9f * si::nanometre) * si::metre) ;
-    t.position().resolution().y() = 1.0f / (pixel_size_y() / (1E9f * si::nanometre) * si::metre) ;
+    t.position().resolution() = cuboid_config.make_localization_traits();
 }
 
-
+void Config::read_traits( const input::Traits<engine::Image>& t ) {
+    cuboid_config.set_entries_to_traits( t, t.fluorophores.size() );
+}
 
 }
 }
