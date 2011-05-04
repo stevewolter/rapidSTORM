@@ -23,9 +23,10 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
 
     Engine *repeater;
     bool is_for_image_number, currently_mapping;
+    const float range;
 
   public:
-    Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled );
+    Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
 
     void setSize( const input::Traits<outputs::BinnedImage>& traits ) {

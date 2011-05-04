@@ -6,9 +6,10 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled )
+Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range )
 : BaseType(invert), HueSaturationMixer(0,0), variable( scaled ), repeater(NULL),
-  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ) 
+  is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
+  range(range)
 {
     currently_mapping = variable->is_bounded();
     set_base_tone( 0, (currently_mapping) ? 1 : 0 );
@@ -16,7 +17,8 @@ Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled 
 
 Coordinate::Coordinate( const Coordinate& o )
 : BaseType(o), HueSaturationMixer(o), variable( o.variable->clone() ), repeater(o.repeater),
-  is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping)
+  is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping),
+  range(o.range)
 {
 }
 
@@ -45,7 +47,7 @@ void Coordinate::create_full_key( dStorm::Display::Change::Keys::value_type& int
         const int key_count = key_resolution;
         into.reserve( key_count );
         for (int i = 0; i < key_count; ++i) {
-            float hue = (i * 0.666f / key_count);
+            float hue = (i * range / key_count);
             RGBWeight weights;
             rgb_weights_from_hue_saturation
                 ( hue, max_saturation, weights );
@@ -73,13 +75,13 @@ void Coordinate::announce(const output::Output::Announcement& a)
 void Coordinate::announce(const output::Output::EngineResult& er)
 {
     if ( currently_mapping && is_for_image_number && er.number > 0 )
-        set_tone( variable->bin_point(er.first[0]) * 0.666f );
+        set_tone( variable->bin_point(er.first[0]) * range );
 }
 
 void Coordinate::announce(const Localization& l)
 {
     if ( currently_mapping && ! is_for_image_number ) {
-        set_tone( variable->bin_point(l) * 0.666f );
+        set_tone( variable->bin_point(l) * range );
     }
 }
 

@@ -173,6 +173,9 @@ Source<InputType>::get_traits()
     input::Source<Localization>::TraitsPtr traits  = base->get_traits();
     traits::ImageNumber::RangeType& r = traits->image_number().range();
 
+    current = base->begin();
+    base_end = base->end();
+
     if ( ! r.first.is_set() || ! r.second.is_set() )
         throw std::runtime_error("Total number of frames in STM file must be known");
     firstImage = *r.first;
@@ -211,8 +214,7 @@ void Can::write( output::LocalizedImage& er )
 
 template <class InputType>
 Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
-: Base(config, base->flags), current(base->begin()), base_end(base->end()),
-  config(c), base(base) {}
+: Base(config, base->flags), config(c), base(base) {}
 
 template <class InputType>
 void Source<InputType>::dispatch(Messages m)
