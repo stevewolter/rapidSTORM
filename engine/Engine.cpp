@@ -1,6 +1,5 @@
 #define DSTORM_ENGINE_CPP
 
-#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -68,6 +67,8 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     if ( config.amplitude_threshold().is_set() )
         rv.amplitude().range().first = *config.amplitude_threshold();
     rv.fluorophore().is_given = imProp->fluorophores.size() > 1;
+    rv.fluorophore().range().first = 0;
+    rv.fluorophore().range().second = imProp->fluorophores.size();
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
     rvt->source_image_is_set = true;
