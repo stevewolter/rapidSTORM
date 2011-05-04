@@ -68,7 +68,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
         rv.amplitude().range().first = *config.amplitude_threshold();
     rv.fluorophore().is_given = imProp->fluorophores.size() > 1;
     rv.fluorophore().range().first = 0;
-    rv.fluorophore().range().second = imProp->fluorophores.size();
+    rv.fluorophore().range().second = imProp->fluorophores.size() - 1;
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
     rvt->source_image_is_set = true;
