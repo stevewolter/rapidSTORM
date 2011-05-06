@@ -2,11 +2,11 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidstorm], [1.5.3], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidstorm], [1.6.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
-DSTORM_LIB_VERSION=10
+DSTORM_LIB_VERSION=11
 AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
 
 AM_INIT_AUTOMAKE

@@ -2,39 +2,39 @@ Source: rapidstorm
 Section: science
 Priority: optional
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm10-dev, libeigen2-dev, libreadsif-dev, java-compiler, libboost-all-dev, libcsunits-dev, libsimparm-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libberghenxml-dev, libwxgtk2.8-dev, libanyiterator-dev, librapidstormdoc-dev, twiddler
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm11-dev, libeigen2-dev, libreadsif-dev, java-compiler, libboost-all-dev, libcsunits-dev, libsimparm-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libberghenxml-dev, libwxgtk2.8-dev, libanyiterator-dev, librapidstormdoc-dev, twiddler
 Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
 
 Package: rapidstorm
 Architecture: any
-Depends: rapidstorm10
+Depends: rapidstorm11
 Description: Localization microscopy data evaluation tool
 
-Package: rapidstorm10
+Package: rapidstorm11
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Localization microscopy data evaluation tool
 
 Package: rapidstorm-gui
 Architecture: any
-Depends: rapidstorm10-gui
+Depends: rapidstorm11-gui
 Description: GUI interface for rapidSTORM
 
-Package: rapidstorm10-gui
+Package: rapidstorm11-gui
 Architecture: any
-Depends: rapidstorm10, twiddler
+Depends: rapidstorm11, twiddler
 Description: GUI interface for rapidSTORM
 
 Package: rapidstorm-plugin-3dfitter
 Architecture: any
-Depends: rapidstorm-plugin-3dfitter10
+Depends: rapidstorm-plugin-3dfitter11
 Recommends: rapidstorm
 Description: Fitter for inferring 3D information from astigmatic input
 
-Package: rapidstorm-plugin-3dfitter10
+Package: rapidstorm-plugin-3dfitter11
 Architecture: any
-Depends: ${misc:Depends}, librapidstorm10, ${shlibs:Depends}
-Recommends: rapidstorm10
+Depends: ${misc:Depends}, librapidstorm11, ${shlibs:Depends}
+Recommends: rapidstorm11
 Description: Fitter for inferring 3D information from astigmatic input
