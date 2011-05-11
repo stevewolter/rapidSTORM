@@ -24,6 +24,7 @@ bool DefaultVisitor<Splitter::Config>::operator()( input::Traits<Type>& t ) {
     if ( this->config.enable() ) {
         t.size[2] = 2 * camera::pixel;
         t.size[1] /= 2;
+        t.planes.push_back( t.plane(0) );
     } else {
     }
     return true;
@@ -47,8 +48,8 @@ bool DefaultVisitor<Splitter::Config>::operator()( std::auto_ptr< input::Source<
 namespace Splitter {
 
 Config::Config() 
-: simparm::Object("BiplaneSplitter", "Split into biplane image"),
-  enable("Enable", "Biplane split")
+: simparm::Object("BiplaneSplitter", "Split dual view image"),
+  enable("DualView", "Input is dual view")
 {
 }
 

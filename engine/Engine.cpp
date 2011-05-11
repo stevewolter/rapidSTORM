@@ -80,6 +80,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
 }
 
 Engine::TraitsPtr Engine::get_traits() {
+    DEBUG("Retrieving input traits");
     if ( imProp.get() == NULL )
         imProp = input->get_traits();
 

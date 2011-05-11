@@ -4,6 +4,7 @@
 #include "debug.h"
 #include <dStorm/input/Source.h>
 
+#include <boost/units/power10.hpp>
 #include <simparm/TreeCallback.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/OptionalEntry.hh>
@@ -30,6 +31,10 @@ class Config : public simparm::Object {
     friend class Check;
 
     simparm::UnitEntry< si::nanolength, double > psf_size_x, psf_size_y;
+    typedef power_typeof_helper< 
+            power10< si::length, -6 >::type,
+            static_rational<-1> >::type PerMicro; 
+    simparm::OptionalEntry< quantity< PerMicro, float > > widening_x, widening_y;
     traits::CuboidConfig cuboid_config;
 
   public:

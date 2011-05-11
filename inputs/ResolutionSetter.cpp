@@ -11,6 +11,7 @@
 #include <boost/lexical_cast.hpp>
 #include <simparm/OptionalEntry_impl.hh>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/get.hpp>
 
 namespace dStorm {
 namespace input {
@@ -53,9 +54,17 @@ ResolutionSetter <ForwardedType>::get_traits()
 void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter");
+    static_cast<traits::Optics<3>&>(t) = cuboid_config.make_traits();
     t.psf_size().x() = quantity<si::length>(psf_size_x() / si::nanometre * 1E-9 * si::metre) / 2.35;
     t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
-    static_cast<traits::Optics<3>&>(t) = cuboid_config.make_traits();
+    if ( widening_x().is_set() && widening_y().is_set() ) {
+        traits::Zhuang3D zhuang;
+        zhuang.widening[0] = quantity<traits::Zhuang3D::Unit>( *widening_x() );
+        zhuang.widening[1] = quantity<traits::Zhuang3D::Unit>( *widening_y() );
+        t.depth_info = zhuang;
+    } else {
+        t.depth_info = traits::No3D();
+    }
 }
 
 #if 0
@@ -69,13 +78,17 @@ Config::Config()
   psf_size_x("PSFX", "PSF FWHM in X",
                   493.5 * boost::units::si::nanometre),
   psf_size_y("PSFY", "PSF FWHM in Y",
-                  493.5 * boost::units::si::nanometre)
+                  493.5 * boost::units::si::nanometre),
+  widening_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
+  widening_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y")
 {
 }
 
 void Config::registerNamedEntries() {
     push_back( psf_size_x );
     push_back( psf_size_y );
+    push_back( widening_x );
+    push_back( widening_y );
     cuboid_config.registerNamedEntries();
     push_back( cuboid_config );
 }
