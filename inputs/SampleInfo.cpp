@@ -165,10 +165,7 @@ void FluorophoreConfig::registerNamedEntries() {
 
 inline void Config::set_traits( DataSetTraits& t ) const
 {
-    while ( t.fluorophores.size() > fluorophores.size() )
-        t.fluorophores.pop_back();
-    while ( t.fluorophores.size() < fluorophores.size() )
-        t.fluorophores.push_back(FluorophoreTraits());
+    t.fluorophores.clear();
     for ( int i = 0; i < int(fluorophores.size()); ++i)
 	fluorophores[i].set_traits( t.fluorophores[i] );
 }

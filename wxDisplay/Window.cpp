@@ -187,8 +187,11 @@ void Window::remove_data_source() {
 }
 
 void Window::drawn_rectangle( wxRect rect ) {
+    DEBUG("Drawn rectangle");
     if ( notify_for_zoom ) {
+        DEBUG("Checking source");
         if ( source ) {
+            DEBUG("Calling notice_drawn_rectangle");
             source->notice_drawn_rectangle( 
                 rect.GetLeft(), rect.GetRight(), 
                 rect.GetTop(), rect.GetBottom() );
