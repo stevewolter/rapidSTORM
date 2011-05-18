@@ -31,7 +31,7 @@ namespace sample_info {
 
 using namespace chain;
 
-class FluorophoreConfig : public simparm::Object {
+class FluorophoreConfig : public simparm::Set {
     simparm::StringEntry name, label, concentration;
     simparm::UnitEntry<boost::units::si::nanolength, double> emission_wl;
 
@@ -43,9 +43,10 @@ class FluorophoreConfig : public simparm::Object {
 
 class ChainLink;
 
-class Config : public simparm::Object {
+class Config 
+: public simparm::Object {
+    simparm::UnsignedLongEntry fluorophore_count;
     boost::ptr_vector< FluorophoreConfig > fluorophores;
-    simparm::TriggerEntry add_fluorophore;
     friend class ChainLink;
 
   public:
@@ -139,8 +140,8 @@ bool DefaultVisitor<sample_info::Config>::operator()( std::auto_ptr< Source<Type
 namespace sample_info {
 
 FluorophoreConfig::FluorophoreConfig(int number)
-: simparm::Object("Fluorophore" + boost::lexical_cast<std::string>(number), 
-                  "Fluorophore " + boost::lexical_cast<std::string>(number)),
+: simparm::Set("Fluorophore" + boost::lexical_cast<std::string>(number), 
+                  "Info for fluorophore " + boost::lexical_cast<std::string>(number)),
   name("Chromophore", "Chromophore name"),
   label("Label", "Label/linker name"),
   concentration("Concentration", "Label concentration"),
@@ -166,23 +167,23 @@ void FluorophoreConfig::registerNamedEntries() {
 inline void Config::set_traits( DataSetTraits& t ) const
 {
     t.fluorophores.clear();
-    for ( int i = 0; i < int(fluorophores.size()); ++i)
+    for ( int i = 0; i < int(fluorophore_count()); ++i)
 	fluorophores[i].set_traits( t.fluorophores[i] );
 }
 
 Config::Config()
-: simparm::Object("SamleInfo", "Sample information"),
-  add_fluorophore("AddFluorophore", "Add a fluorophore")
+: simparm::Object("SampleInfo", "Sample information"),
+  fluorophore_count("FluorophoreCount", "Number of fluorophore types", 1)
 {
     fluorophores.push_back( new FluorophoreConfig(0) );
 }
 
 void Config::registerNamedEntries() {
+    push_back( fluorophore_count );
     for ( int i = 0; i < int(fluorophores.size()); ++i ) {
 	fluorophores[i].registerNamedEntries();
 	push_back( fluorophores[i] );
     }
-    push_back( add_fluorophore );
 }
 
 ChainLink::ChainLink() 
@@ -210,8 +211,17 @@ chain::Link::AtEnd ChainLink::context_changed( ContextRef c, Link *l )
 void ChainLink::operator()(const simparm::Event& e)
 {
     if ( e.cause == simparm::Event::ValueChanged) {
-        if ( &e.source == &config.add_fluorophore.value ) {
-            config.fluorophores.push_back( new FluorophoreConfig(config.fluorophores.size()) );
+        if ( &e.source == &config.fluorophore_count.value ) {
+            while ( config.fluorophores.size() < config.fluorophore_count() ) {
+                config.fluorophores.push_back( new FluorophoreConfig(config.fluorophores.size()) );
+                config.fluorophores.back().registerNamedEntries();
+                config.push_back( config.fluorophores.back() );
+            }
+            for ( boost::ptr_vector< FluorophoreConfig >::iterator i = config.fluorophores.begin(); 
+                  i != config.fluorophores.end(); ++i)
+            {
+                i->viewable = ( (i - config.fluorophores.begin()) < int(config.fluorophore_count()) );
+            }
         }
         ost::MutexLock lock( global_mutex() );
         if ( ! context.get() ) return;

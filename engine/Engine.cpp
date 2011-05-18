@@ -1,5 +1,6 @@
 #define DSTORM_ENGINE_CPP
 
+#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -321,7 +322,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         }
         for (int i = 0; i < best_found; ++i)
             start[i].fluorophore = fluorophore;
-        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore);
+        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << start[0].position().transpose());
         buffer.commit(std::max(0,best_found));
         if ( best_found > 0 )
             motivation = origMotivation;
