@@ -4,7 +4,7 @@
 #include <memory>
 #include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/engine/Config_decl.h>
+#include "Config_decl.h"
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/output/Traits_decl.h>
 #include <boost/utility.hpp>

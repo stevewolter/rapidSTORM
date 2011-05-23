@@ -48,6 +48,7 @@ libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 libengine_la_SOURCES = \
+	engine/Config.cpp engine/Config_decl.h engine/Config.h \
 	engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
 	    engine/EngineDebug.h engine/Engine.h \
 	    engine/ImageFitter.h \

@@ -104,7 +104,7 @@ Engine::TraitsPtr Engine::get_traits() {
 
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config, *imProp, fluorophore);
+        JobInfo info(config.fitSizeFactor(), *imProp, fluorophore);
         config.spotFittingMethod().set_traits( *prv, info );
     }
     DEBUG("Returning traits");
@@ -225,13 +225,13 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     if ( engine.imProp->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( config, *engine.imProp, 
+    spot_finder::Job job( config.maskSizeFactor(), *engine.imProp, 
         engine.imProp->plane(0), engine.imProp->fluorophores[0]);
     finder = config.spotFindingMethod().make(job);
 
     DEBUG("Building spot fitter with " << engine.imProp->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config, *engine.imProp, fluorophore);
+        JobInfo info(config.fitSizeFactor(), *engine.imProp, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 
