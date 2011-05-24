@@ -46,7 +46,7 @@ namespace output {
         }
         Result receiveLocalizations(const EngineResult& er) {
             ost::MutexLock lock(mutex);
-            count += er.number; 
+            count += er.size(); 
             if ( last_config_update + config_increment < er.forImage )
             {
                 update = count;

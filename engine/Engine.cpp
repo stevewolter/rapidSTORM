@@ -5,8 +5,8 @@
 #include "EngineDebug.h"
 #include "engine/Engine.h"
 
-#include <dStorm/data-c++/Vector.h>
 #include <cassert>
+#include <iterator>
 
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/engine/SpotFinder.h>
@@ -19,6 +19,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/slice.h>
+#include <dStorm/helpers/back_inserter.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "PlaneFlattener.h"
 
@@ -104,7 +105,7 @@ Engine::TraitsPtr Engine::get_traits() {
 
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config.fitSizeFactor(), *imProp, fluorophore);
+        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *imProp, fluorophore);
         config.spotFittingMethod().set_traits( *prv, info );
     }
     DEBUG("Returning traits");
@@ -160,7 +161,6 @@ class Engine::_iterator::WorkHorse {
     PlaneFlattener flattener;
     std::auto_ptr<spot_finder::Base> finder;
     boost::ptr_vector<spot_fitter::Implementation> fitter;
-    data_cpp::Vector<Localization> buffer;
     CandidateTree<SmoothedPixel> maximums;
     int origMotivation;
 
@@ -231,7 +231,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     DEBUG("Building spot fitter with " << engine.imProp->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config.fitSizeFactor(), *engine.imProp, fluorophore);
+        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *engine.imProp, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 
@@ -252,15 +252,14 @@ Engine::_iterator::_iterator( const _iterator& o )
 
 void Engine::_iterator::WorkHorse::compute( Input::iterator base ) 
 {
-    buffer.clear();
+    resultStructure.clear();
 
     DEBUG("Intake (" << base->frame_number() << ")");
 
     Image& image = *base;
     if ( image.is_invalid() ) {
         resultStructure.forImage = base->frame_number();
-        resultStructure.first = NULL;
-        resultStructure.number = 0;
+        resultStructure.clear();
         resultStructure.source = image;
 
         ost::MutexLock lock( engine.mutex );
@@ -295,34 +294,35 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         const Spot& s = cM->second;
         DEBUG("Trying candidate at " << s.x() << "," << s.y() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
-        Localization *candidate = buffer.allocate(5), *start = candidate;
+        std::vector<Localization>& buffer = resultStructure;
+        int candidate = buffer.size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
         int best_found = -1, fluorophore = 0;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
-            candidate = start + std::max(0, best_found);
-            int found_number = fitter[fit_fluo].fitSpot(s, image, candidate);
-            double total_amplitude = 0, total_residues = 0;
-            for (int j = 0; j < found_number; j++) {
-                candidate[j].frame_number() = base->frame_number();
-                total_amplitude += candidate[j].amplitude() / camera::ad_count;
-            }
+            candidate = buffer.size();
+            int found_number = fitter[fit_fluo].fitSpot(s, image, 
+                spot_fitter::Implementation::iterator( boost::back_inserter( buffer ) ) );
+            double total_residues = 0;
+
             if ( found_number > 0 )
-                total_residues = candidate[0].fit_residues().value();
+                for ( size_t i = candidate; i < buffer.size(); ++i )
+                    total_residues = buffer[i].fit_residues().value();
             else
                 total_residues = std::numeric_limits<double>::infinity();
-            DEBUG("Fitter " << fit_fluo << " found " << found_number << " with total amplitude " << total_amplitude << " and total residues " << total_residues);
+            DEBUG("Fitter " << fit_fluo << " found " << found_number << " with total residues " << total_residues);
             if ( total_residues < best_total_residues ) {
                 for (int i = 0; i < best_found && i < found_number; ++i)
-                    start[i] = candidate[found_number-i-1];
+                    buffer[start+i] = buffer[candidate+found_number-i-1];
                 best_found = found_number;
                 fluorophore = fit_fluo;
                 best_total_residues = total_residues;
             }
         }
-        for (int i = 0; i < best_found; ++i)
-            start[i].fluorophore = fluorophore;
+        for (int i = 0; i < best_found; ++i) {
+            buffer[i+start].fluorophore = fluorophore;
+            buffer[i+start].frame_number() = base->frame_number();
+        }
         DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << start[0].position().transpose());
-        buffer.commit(std::max(0,best_found));
         if ( best_found > 0 )
             motivation = origMotivation;
         else
@@ -332,7 +332,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         maximumLimit *= 2;
         DEBUG("Raising maximumLimit to " << maximumLimit);
         maximums.setLimit(maximumLimit);
-        buffer.clear();
+        resultStructure.clear();
         goto recompress;
     }
 
@@ -341,8 +341,6 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
     DEBUG("Power with " << buffer.size() << " localizations");
     resultStructure.forImage = base->frame_number();
-    resultStructure.first = buffer.ptr();
-    resultStructure.number = buffer.size();
     resultStructure.source = image;
 }
 

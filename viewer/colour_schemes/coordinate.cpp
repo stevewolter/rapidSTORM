@@ -74,8 +74,8 @@ void Coordinate::announce(const output::Output::Announcement& a)
 
 void Coordinate::announce(const output::Output::EngineResult& er)
 {
-    if ( currently_mapping && is_for_image_number && er.number > 0 )
-        set_tone( variable->bin_point(er.first[0]) * range );
+    if ( currently_mapping && is_for_image_number && ! er.empty() )
+        set_tone( variable->bin_point(er.front()) * range );
 }
 
 void Coordinate::announce(const Localization& l)

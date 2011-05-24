@@ -15,7 +15,6 @@
 namespace dStorm {
 namespace engine_stm {
 
-class Can;
 class Visitor;
 
 template <typename Input>
@@ -30,15 +29,14 @@ class LocalizationBuncher
 {
     Source<Input>& master;
 
-    boost::shared_ptr<Can> output;
+    boost::shared_ptr<output::LocalizedImage> output;
     frame_index outputImage;
-    mutable output::LocalizedImage result;
 
     void search_output_image();
     void claim_image();
 
     friend class boost::iterator_core_access;
-    output::LocalizedImage& dereference() const { return result; }
+    output::LocalizedImage& dereference() const { return *output; }
     bool equal(const LocalizationBuncher& o) const;
     void increment();
 
@@ -65,7 +63,7 @@ class Source
     ost::Mutex mutex;
     InputIterator current, base_end;
     frame_index next_image;
-    typedef boost::ptr_map<frame_index,Can> Canned;
+    typedef boost::ptr_map<frame_index,output::LocalizedImage> Canned;
     Canned canned;
 
     friend class LocalizationBuncher<InputType>;

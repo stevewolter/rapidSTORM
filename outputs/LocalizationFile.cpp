@@ -3,10 +3,10 @@
 #include "LocalizationFile.h"
 #include <string.h>
 #include <stdlib.h>
-#include <dStorm/output/Trace.h>
 #include <dStorm/doc/context.h>
 #include <dStorm/unit_matrix_operators.h>
 #include <iomanip>
+#include <boost/bind/bind.hpp>
 
 #include <dStorm/localization_file/fields.h>
 
@@ -33,12 +33,10 @@ void LocalizationFile::printFit(const Localization &f,
     int localizationDepth) 
 {
     //DEBUG("Beginning printFit");
-    if ( localizationDepth > 0 && f.has_source_trace() ) {
+    if ( localizationDepth > 0 && f.children.is_initialized() ) {
         (*file) << "\n\n";
-        const Trace& trace = f.get_source_trace();
-        for (Trace::const_iterator i = trace.begin(); 
-                                    i != trace.end(); i++)
-            printFit(*i, 0);
+        std::for_each( f.children->begin(), f.children->end(),
+            boost::bind( &LocalizationFile::printFit, this, _1, 0 ) );
     } else {
         bool first = true;
         for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i ) { 
@@ -87,17 +85,17 @@ LocalizationFile::announceStormSize(const Announcement &a) {
 
     open();
 
-    return AdditionalData().set_cluster_sources( localizationDepth > 0 );
+    return AdditionalData();/* TODO: Reactivate .set_cluster_sources( localizationDepth > 0 );*/
 }
 
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
 {
     ost::MutexLock lock(mutex);
-    if ( er.number == 0 )
+    if ( er.empty() )
         (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
     else
-        for (int i = 0; i < er.number; i++)
-            printFit(er.first[i], localizationDepth);
+        std::for_each( er.begin(), er.end(), 
+            boost::bind(&LocalizationFile::printFit, this, _1, localizationDepth) );
     if ( ! (*file) ) {
         std::cerr << "Warning: Writing localizations to "
                   << filename << " failed.\n";

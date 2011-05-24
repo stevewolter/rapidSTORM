@@ -57,8 +57,7 @@ void Mirrorer::operator()<const dStorm::Localization>( const dStorm::Localizatio
 template <> 
 void Mirrorer::operator()<output::LocalizedImage>( output::LocalizedImage& img )
 {
-    for (int i = 0; i < img.number; ++i)
-        (*this)( img.first[i] );
+    std::for_each( img.begin(), img.end(), *this );
 }
 
 template <> 
@@ -86,7 +85,6 @@ struct Source<Type>::iterator
   private:
     friend class boost::iterator_core_access;
     mutable Type converted;
-    mutable boost::shared_array<dStorm::Localization> mutated;
     mutable bool initialized;
     Range range;
 
@@ -105,13 +103,6 @@ struct Source<Type>::iterator
     }
 };
 
-template <>
-void Source<output::LocalizedImage>::iterator::copy() const {
-    converted = *this->base();
-    mutated.reset( new Localization[converted.number] );
-    std::copy( converted.first, converted.first + converted.number, mutated.get() );
-    converted.first = mutated.get();
-}
 template <typename Type>
 void Source<Type>::iterator::copy() const {
     converted = *this->base();

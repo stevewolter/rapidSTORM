@@ -51,8 +51,7 @@ class Engine::_iterator
     bool created;
     void create() {
         resultStructure.forImage = base->frame_number();
-        resultStructure.first = NULL;
-        resultStructure.number = 0;
+        resultStructure.clear();
         resultStructure.source = *base; 
         resultStructure.smoothed = NULL;
         resultStructure.candidates = NULL;

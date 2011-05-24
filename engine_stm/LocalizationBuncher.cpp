@@ -3,7 +3,6 @@
 #include "LocalizationBuncher.h"
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/output/Output.h>
-#include <dStorm/output/Trace.h>
 #include <boost/variant/apply_visitor.hpp>
 
 using namespace dStorm::output;
@@ -12,22 +11,11 @@ namespace dStorm {
 namespace engine_stm {
 
 enum VisitResult { KeepComing, IAmFinished, FinishedAndReject };
-class Can
-{
-    std::list< output::Trace > traces;
-
-    void deep_copy(const Localization& from, 
-                        output::Trace& to);
-  public:
-    Can() { traces.push_back( output::Trace() ); }
-    void push_back( const Localization& l );
-    void write( output::LocalizedImage& );
-};
 
 class Visitor 
 : public boost::static_visitor<VisitResult>
 {
-    std::auto_ptr<Can> can;
+    std::auto_ptr<output::LocalizedImage> can;
     simparm::optional<frame_index> my_image;
 
   public:
@@ -39,7 +27,8 @@ class Visitor
                 return FinishedAndReject;
         } else {
             my_image = l.frame_number();
-            can.reset( new Can() );
+            can.reset( new output::LocalizedImage() );
+            can->forImage = *my_image;
         }
         can->push_back( l );
         return KeepComing;
@@ -49,14 +38,15 @@ class Visitor
     {
         if ( ! my_image.is_set() ) {
             my_image = i.number;
-            can.reset( new Can() );
+            can.reset( new output::LocalizedImage() );
+            can->forImage = *my_image;
         }
         return IAmFinished;
     }
 
     template <typename Type> VisitResult add(Type& argument);
     frame_index for_frame() { assert(my_image.is_set()); return *my_image; }
-    std::auto_ptr<Can> get_result() { return can; }
+    std::auto_ptr<output::LocalizedImage> get_result() { return can; }
 };
 
 template <typename Type>
@@ -80,9 +70,6 @@ LocalizationBuncher<Input>::LocalizationBuncher(
     bool end)
 : master(master)
 {
-    result.source.invalidate();
-    result.smoothed = NULL;
-    result.candidates = NULL;
     if ( end ) {
         outputImage = master.lastImage;
     } else {
@@ -119,9 +106,6 @@ void LocalizationBuncher<Input>::search_output_image() {
         = master.canned.find(outputImage);
     if ( canned_output != master.canned.end() ) {
         output.reset( master.canned.release(canned_output).release() );
-        output->write( result );
-        result.forImage = outputImage;
-        DEBUG("Serving " << result.forImage << " from can");
         return;
     }
 
@@ -146,11 +130,9 @@ void LocalizationBuncher<Input>::search_output_image() {
     }
     if ( output.get() == NULL )
         /* End of file reached. Insert empty can. */
-        output.reset( new Can() );
+        output.reset( new output::LocalizedImage() );
 
-    output->write( result );
-    result.forImage = outputImage;
-    DEBUG("Serving " << result.forImage);
+    DEBUG("Serving " << output->forImage);
 }
 
 template <typename Input>
@@ -158,7 +140,7 @@ LocalizationBuncher<Input>::LocalizationBuncher
     (const LocalizationBuncher& o)
 : master( const_cast< Source<Input>& >(o.master) ),
   output(o.output),
-  outputImage(o.outputImage), result(o.result)
+  outputImage(o.outputImage)
 {
 }
 
@@ -183,33 +165,6 @@ Source<InputType>::get_traits()
     firstImage = std::min(firstImage, lastImage);
 
     return TraitsPtr( new TraitsPtr::element_type( *traits ) );
-}
-
-void Can::push_back( const Localization &loc )
-{
-    deep_copy( loc, traces.front() );
-}
-
-void Can::deep_copy( 
-    const Localization &loc, output::Trace& to )
-{
-    Localization *target = to.allocate(1);
-    new(target) Localization(loc);
-    if ( loc.has_source_trace() ) {
-        traces.push_back( output::Trace() );
-        Trace& my_trace = traces.back();
-        const Trace& t = loc.get_source_trace();
-        for ( Trace::const_iterator i = t.begin(); i != t.end(); i++)
-            deep_copy( *i, my_trace );
-        target->set_source_trace( my_trace );
-    }
-    to.commit(1);
-}
-
-void Can::write( output::LocalizedImage& er ) 
-{
-    er.first = traces.front().ptr();
-    er.number = traces.front().size();
 }
 
 template <class InputType>
