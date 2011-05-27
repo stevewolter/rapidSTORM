@@ -119,7 +119,7 @@ class DStorm {
         }
         result_env[i++] = "RAPIDSTORM_PLUGINDIR=" +
             tempdir.getPath() + File.separator + "lib" + File.separator + "librapidstorm"
-            + File.separator + "plugins-v10";
+            + File.separator + "plugins-v11";
         result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
             tempdir.getPath() 
                 + File.separator + "share" 
@@ -169,9 +169,9 @@ class DStorm {
             base_dir = new File( install_dir );
         }
 
-        File executable = new File(base_dir, "bin" + File.separator + "dstorm-10");
+        File executable = new File(base_dir, "bin" + File.separator + "dstorm-11");
         File config = new File(base_dir, "share" + File.separator + "rapidstorm" 
-                                         + File.separator + "dstorm-config-10.txt");
+                                         + File.separator + "dstorm-config-11.txt");
 
         HelpManager.setHelpDirectory(
             new File(base_dir, "share" + File.separator + "doc" ) );

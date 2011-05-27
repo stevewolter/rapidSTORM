@@ -67,7 +67,7 @@ namespace engine {
 
         void add_thread();
         void compute_until_terminated();
-        void run_computation();
+        void run_computation() __attribute__ (( __force_align_arg_pointer__));
 
       public:
         Car (JobMaster*, const dStorm::Config &config) ;

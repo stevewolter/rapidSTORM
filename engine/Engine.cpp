@@ -84,6 +84,7 @@ Engine::TraitsPtr Engine::get_traits() {
     DEBUG("Retrieving input traits");
     if ( imProp.get() == NULL )
         imProp = input->get_traits();
+    DEBUG("Retrieved input traits");
 
     if ( ! config.amplitude_threshold().is_set() ) {
         DEBUG("Guessing input threshold");
@@ -322,7 +323,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
             buffer[i+start].fluorophore = fluorophore;
             buffer[i+start].frame_number() = base->frame_number();
         }
-        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << start[0].position().transpose());
+        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << buffer[start].position().transpose());
         if ( best_found > 0 )
             motivation = origMotivation;
         else
@@ -336,10 +337,10 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         goto recompress;
     }
 
-    DEBUG("Found " << buffer.size() << " localizations");
+    DEBUG("Found " << resultStructure.size() << " localizations");
     IF_DSTORM_MEASURE_TIMES( fit_time += clock() - search_start );
 
-    DEBUG("Power with " << buffer.size() << " localizations");
+    DEBUG("Power with " << resultStructure.size() << " localizations");
     resultStructure.forImage = base->frame_number();
     resultStructure.source = image;
 }

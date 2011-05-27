@@ -224,13 +224,16 @@ void ChainLink::operator()(const simparm::Event& e)
             }
         }
         ost::MutexLock lock( global_mutex() );
-        if ( ! context.get() ) return;
         DefaultVisitor<Config> m(config);
-        visit_context( m, context );
-        notify_of_context_change( context );
-        MetaInfo::ConstPtr t( current_traits() );
-        visit_traits( m, t );
-        notify_of_trait_change( t );
+        if ( context.get() ) {
+            visit_context( m, context );
+            notify_of_context_change( context );
+        }
+        if ( current_traits().get() ) {
+            MetaInfo::ConstPtr t( current_traits() );
+            visit_traits( m, t );
+            notify_of_trait_change( t );
+        }
     } else 
 	TreeListener::add_new_children(e);
 }

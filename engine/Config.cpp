@@ -34,6 +34,9 @@ _Config::_Config()
     amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold")
 {
     DEBUG("Building dStorm Config");
+
+    nms_x.setUserLevel(Object::Intermediate);
+    nms_y.setUserLevel(Object::Intermediate);
     
     amplitude_threshold.value = 3000 * camera::ad_counts;
     amplitude_threshold().reset();

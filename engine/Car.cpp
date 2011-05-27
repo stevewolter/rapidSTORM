@@ -1,4 +1,5 @@
 #define DSTORM_CAR_CPP
+#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"
@@ -148,11 +149,8 @@ void Car::operator()(const simparm::Event& e) {
 }
 
 void Car::run() {
-#if 0
     try {
-#endif
         drive();
-#if 0
     } catch ( const std::bad_alloc& e ) {
         OutOfMemoryMessage m("Job " + ident);
         runtime_config.send(m);
@@ -164,7 +162,6 @@ void Car::run() {
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);
     }
-#endif
 
     DEBUG("Removing from input_stream config");
     /* Remove from simparm parents to hide destruction process
@@ -270,14 +267,12 @@ void Car::run_computation()
         DEBUG("Reached end of computation");
         return;
     } catch (const dStorm::abort&) {
-#if 0
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + ident);
         runtime_config.send(m);
     } catch ( const dStorm::runtime_error& e ) {
         simparm::Message m( e.get_message("Error in Job " + ident) );
         runtime_config.send(m);
-#endif
     }
     emergencyStop = error = true;
 }
@@ -377,14 +372,12 @@ void Car::drive() {
     DEBUG("Erased input");
   } catch (const dStorm::abort&) {
     DEBUG("Caught abortion signal");
-#if 0
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);
   } catch (const dStorm::runtime_error& e) {
     simparm::Message m( e.get_message("Error in Job " + ident) );
     runtime_config.send(m);
-#endif
   }
 
     ost::MutexLock lock( terminationMutex );

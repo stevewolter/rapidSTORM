@@ -169,7 +169,7 @@ Source<InputType>::get_traits()
 
 template <class InputType>
 Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
-: Base(config, base->flags), config(c), base(base) {}
+: Base(config, Capabilities(base->flags).reset( MultipleConcurrentIterators ) ), config(c), base(base) {}
 
 template <class InputType>
 void Source<InputType>::dispatch(Messages m)

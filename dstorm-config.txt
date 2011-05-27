@@ -1,5 +1,5 @@
-in Input in Optics in PixelSizeInNMX in value set 105
-in Input in Optics in PixelSizeInNMY in value set 105
+in Input in Optics in Optics in PixelSizeInNMX in value set 105
+in Input in Optics in Optics in PixelSizeInNMY in value set 105
 in Output in EngineOutput in ChooseTransmission in value set Table
 in Output in EngineOutput in Output0 in Table in FailSilently in value set true
 in Output in EngineOutput in Output0 in Table in ToFile in extension set -raw.txt
@@ -13,5 +13,7 @@ in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Choose
 in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output1 in Image in ShowOutput in value set true
 in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output1 in Image in ToFile in optional_given set true
 in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output1 in Image in CloseOnCompletion in value set true
-in Output in EngineOutput in ChooseTransmission in value set EstimatePSF
+in Output in EngineOutput in ChooseTransmission in value set FitPSFForm
+in Output in EngineOutput in Output4 in FitPSFForm in SelectSpots in value set false
+in Output in EngineOutput in Output4 in FitPSFForm in AutoDisable in value set true
 in AutoTerminate in value set false

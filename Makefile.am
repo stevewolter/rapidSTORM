@@ -143,7 +143,7 @@ dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     -lltdl 
 
 javadir=$(datadir)/java
-java_DATA = rapidSTORM.jar 
+java_DATA = rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar 
 JAVASOURCES = DStorm.java
 JARCONTENT = logo.png
 EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest
@@ -152,7 +152,7 @@ MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
 CONFIGFILEBASE = dstorm-config-@DSTORM_LIB_VERSION@.txt
 CONFIGFILE = $(pkgdatadir)/dstorm-config-@DSTORM_LIB_VERSION@.txt
 
-CLEANFILES = rapidSTORM.jar \
+CLEANFILES = rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar \
 	rapidstorm-@DSTORM_LIB_VERSION@.desktop rapidstorm-@DSTORM_LIB_VERSION@ \
 	$(CONFIGFILE)
 
@@ -163,7 +163,7 @@ clean-local :
 
 vpath %.jar $(DESTDIR)$(datarootdir)/java
 
-rapidSTORM.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
+rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(MKDIR_P) $(javabuilddir)
 	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $(filter %.java,$^)
 	cp $(TWIDDLER_JAR) $@
