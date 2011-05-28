@@ -1,3 +1,15 @@
+rapidstorm (2.0.0-1) unstable; urgency=low
+
+  * New public release for rapidSTORM 2
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 28 May 2011 17:06:01 +0200
+
+rapidstorm (2.0.0-1) unstable; urgency=low
+
+  * New public release for rapidSTORM 2
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Sat, 28 May 2011 17:05:15 +0200
+
 rapidstorm (1.5.3-2) unstable; urgency=low
 
   * Added concrete implementation for virtual packages
