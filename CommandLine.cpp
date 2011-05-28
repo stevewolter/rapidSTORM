@@ -59,7 +59,6 @@ class CommandLine::Pimpl
     ost::Mutex mutex;
     ost::Condition jobs_empty;
     std::list<Job*> jobs;
-    boost::ptr_list<Job> finished;
 
     bool load_config_file(const std::string& filename);
     void find_config_file();
@@ -82,7 +81,6 @@ class CommandLine::Pimpl
         this->erase(j.get_config());  
         DEBUG("Erased " << j.get_config().getName());
         jobs.remove( &j ); 
-        finished.push_back( &j ); 
         jobs_empty.broadcast();
     }
 };
@@ -187,10 +185,9 @@ CommandLine::Pimpl::Pimpl(int argc, char *argv[])
 }
 CommandLine::Pimpl::~Pimpl() {
     ost::MutexLock lock(mutex);
-    while ( ! jobs.empty() || ! finished.empty() ) {
-        finished.clear();
+    while ( ! jobs.empty() ) {
         if ( ! jobs.empty() ) {
-            DEBUG("Waiting with " << jobs.size() << " jobs and " << finished.size() << " finished jobs");
+            DEBUG("Waiting with " << jobs.size() << " jobs");
             jobs_empty.wait();
         }
     }

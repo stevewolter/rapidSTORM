@@ -1,5 +1,4 @@
 #define DSTORM_CAR_CPP
-#define VERBOSE
 #include "debug.h"
 
 #include "Car.h"
@@ -163,12 +162,13 @@ void Car::run() {
         runtime_config.send(m);
     }
 
-    DEBUG("Removing from input_stream config");
-    /* Remove from simparm parents to hide destruction process
-     * from interface. */
-    if ( input_stream )
+    if ( input_stream ) {
+        DEBUG("Removing from input_stream config");
         input_stream->erase_node( *this );
+    }
 
+    master_thread.detach();
+    delete this;
 }
 
 void Car::add_thread()
