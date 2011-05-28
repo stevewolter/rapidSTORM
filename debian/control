@@ -26,15 +26,3 @@ Package: rapidstorm11-gui
 Architecture: any
 Depends: rapidstorm11, twiddler
 Description: GUI interface for rapidSTORM
-
-Package: rapidstorm-plugin-3dfitter
-Architecture: any
-Depends: rapidstorm-plugin-3dfitter11
-Recommends: rapidstorm
-Description: Fitter for inferring 3D information from astigmatic input
-
-Package: rapidstorm-plugin-3dfitter11
-Architecture: any
-Depends: ${misc:Depends}, librapidstorm11, ${shlibs:Depends}
-Recommends: rapidstorm11
-Description: Fitter for inferring 3D information from astigmatic input
