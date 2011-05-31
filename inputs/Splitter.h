@@ -8,6 +8,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
+#include <simparm/ChoiceEntry.hh>
 #include <boost/mpl/vector.hpp>
 
 namespace dStorm {
@@ -16,10 +17,11 @@ namespace Splitter {
 struct Config : public simparm::Object
 {
     typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+    enum Splits { Horizontal, Vertical, None };
 
-    simparm::BoolEntry enable;
+    simparm::ChoiceEntry biplane_split;
     Config();
-    void registerNamedEntries() { push_back(enable); }
+    void registerNamedEntries() { push_back(biplane_split); }
 };
 
 class Source 
@@ -29,8 +31,10 @@ class Source
 {
     std::auto_ptr< input::Source<engine::Image> > base;
     struct iterator;
+    const bool vertical;
+
   public:
-    Source(std::auto_ptr< input::Source<engine::Image> > base);
+    Source(bool vertical, std::auto_ptr< input::Source<engine::Image> > base);
 
     input::Source<engine::Image>::iterator begin();
     input::Source<engine::Image>::iterator end();

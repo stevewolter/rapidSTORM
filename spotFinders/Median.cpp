@@ -94,10 +94,10 @@ class SortedList {
         nexts[dim] = _high = prevs[dim] = dim; inLow = 0; 
         for (int i = 0; i < dim; i++) valid[i] = false;
     }
-    inline void init(const T* content, int step, const T& median)
+    inline void init(const T* content, int step, const T& median, int size)
     {
         //cerr << "Initializing column vector with dim " << dim << " ";
-        for (int x = 0; x < dim; x++) {
+        for (int x = 0; x < size; x++) {
             //cerr << x << " ";
             insert(x, *content, median);
             content += step;
@@ -116,6 +116,26 @@ class SortedList {
         if (lowPart[place]) inLow--;
         valid[place] = false;
         assert( pixInSS1consistent() );
+    }
+    inline void insertPreferingHigher(int place, const T& value, const T& median)
+    {
+        assert( state_consistent(median) );
+        values[place] = value;
+        bool gr = ! (value < median);
+        int index = gr ? _high : nexts[dim];
+        while (index != dim && values[index] < value) 
+            index = nexts[index];
+
+        nexts[place] = index;
+        prevs[place] = prevs[index];
+        prevs[nexts[place]] = place;
+        nexts[prevs[place]] = place;
+
+        if (gr && nexts[place] == _high) _high = place;
+        if ( ! gr ) inLow++;
+        valid[place] = true;
+        lowPart[place] = !gr;
+        assert( state_consistent(median) );
     }
     inline void insert(int place, const T& value, const T& median)
     {
@@ -142,13 +162,20 @@ class SortedList {
         insert(place, value, median);
         assert( pixInSS1consistent() );
     }
+    inline void replacePreferingHigher(int place, T value, const T& median) {
+        remove(place);
+        insertPreferingHigher(place, value, median);
+        assert( pixInSS1consistent() );
+    }
 
     void adjustBorder(const T& median) {
+        assert( pixInSS1consistent() );
         while ( prevs[_high] != dim && values[prevs[_high]] > median ) {
             _high = prevs[_high];
             inLow--;
             lowPart[_high] = false;
         }
+        assert( pixInSS1consistent() );
         while ( _high != dim && values[_high] <= median ) {
             lowPart[_high] = true;
             _high = nexts[_high];
@@ -172,14 +199,20 @@ class SortedList {
     inline bool highEmpty() const { return dim == _high; }
 
     inline void oneToLower() { 
+        assert( ! highEmpty() );
+        assert( pixInSS1consistent() );
         lowPart[_high] = true;
-        _high = nexts[_high]; inLow++; 
+        _high = nexts[_high];
+        inLow++; 
+        assert( pixInSS1consistent() );
     }
     inline void oneToHigher() { 
+        assert( ! lowEmpty() );
         assert( pixInSS1consistent() );
         _high = prevs[_high]; 
         lowPart[_high] = false;
         inLow--; 
+        assert( pixInSS1consistent() );
     }
 
     void print(ostream &o) const {
@@ -194,7 +227,7 @@ class SortedList {
         o << "NL " << nexts[dim] << " " << prevs[dim] << " ";
         o << " H " << _high << " SS1 " << inLow << "\n";
         for (int i= 0; i < dim; i++)
-            if (valid[i]) o << i << " " << values[i] << " "<< nexts[i] << " "<< prevs[i] << " " << lowPart[i] << "\n";
+            o << i << " " << values[i] << " "<< nexts[i] << " "<< prevs[i] << " " << lowPart[i] << " " << valid[i] << "\n";
     }
 
     bool pixInSS1consistent() const {
@@ -252,7 +285,7 @@ void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh)
 {
     const int W = in.width_in_pixels(), H = in.height_in_pixels(), xoff = -mw/2, yoff = mw/2;
     StormPixel median;
-    SortedList<StormPixel,strucSize> sortedColumns[W];
+    SortedList<StormPixel,strucSize*2> sortedColumns[W];
 
     int targetPixInSS1 = mw*mh/2+1;
 
@@ -293,7 +326,7 @@ void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh)
 
             /* Update next column vector */
             if (y == 0)
-                sortedColumns[x].init( in.ptr(x,0), W, median );
+                sortedColumns[x].init( in.ptr(x,0), in.get_offsets().y(), median, mh );
             else {
                 sortedColumns[x].adjustBorder( median );
                 sortedColumns[x].replace(replaceRow, in(x, y+mh-1),
@@ -311,59 +344,38 @@ void ahmadMedian(const engine::Image2D &in, SmoothedImage& out, int mw, int mh)
 
             pixInSS1 += sortedColumns[x].numberInLowerSet();
 
-#if 0
-            cerr << "LINE " << y << " " << x << " " << " with median " << median << endl;
-            cerr << "Median " << median << ". Current sets are " << endl;
-            for (int xo = x-mw+1; xo <= x; xo++) {
-                if (xo < 0) { cerr << "BLANK" << endl; continue; }
-                cerr << sortedColumns[xo] << endl;
-            }
-            cerr << "Border " << border << endl;
-#endif
-
             if (x >= mw-1 ) {
                 if (x > mw-1)
                     pixInSS1 -= sortedColumns[x-mw].numberInLowerSet();
                 //cerr << "PixInSS1 " << pixInSS1 << endl;
 
-                if (pixInSS1 == targetPixInSS1)
-                    median = border.lowFront();
-                while (pixInSS1 < targetPixInSS1) {
-                    int movePos = border.highBegin();
+                while (pixInSS1 != targetPixInSS1) {
+                    bool move_down = pixInSS1 < targetPixInSS1;
+                    int movePos = (move_down) ? border.highBegin() : border.lowBegin();
                     int otherPos = borderOthers[movePos];
                     int moveCol = reverseMod[movePos];
 
-                    sortedColumns[moveCol].oneToLower();
-
-                    if ( ! sortedColumns[moveCol].highEmpty() )
-                        border.replace(otherPos,
-                            sortedColumns[moveCol].highFront(), median);
+                    if ( move_down )
+                        sortedColumns[moveCol].oneToLower();
                     else
-                        border.remove(otherPos);
+                        sortedColumns[moveCol].oneToHigher();
 
-                    border.oneToLower();
-                    median = border.lowFront();
-
-                    pixInSS1++;
-                }
-                while (pixInSS1 > targetPixInSS1) {
-                    int movePos = border.lowBegin();
-                    int otherPos = borderOthers[movePos];
-                    int moveCol = reverseMod[movePos];
-
-                    sortedColumns[moveCol].oneToHigher();
-
-                    if ( ! sortedColumns[moveCol].lowEmpty() )
+                    if ( move_down && ! sortedColumns[moveCol].highEmpty() )
+                        border.replacePreferingHigher(otherPos,
+                            sortedColumns[moveCol].highFront(), median);
+                    else if ( ! move_down && ! sortedColumns[moveCol].lowEmpty() ) {
                         border.replace(otherPos,
                             sortedColumns[moveCol].lowFront(), median);
-                    else
+                    } else {
                         border.remove(otherPos);
+                    }
 
-                    border.oneToHigher();
+                    if ( move_down ) border.oneToLower(); else border.oneToHigher();
+                    pixInSS1 += (move_down) ? 1 : -1;
                     median = border.lowFront();
-
-                    pixInSS1--;
+                    assert( border.state_consistent( median ) );
                 }
+                median = border.lowFront();
             }
             //cerr << "Result median " << median << endl;
 

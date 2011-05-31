@@ -1,0 +1,4 @@
+== Version 2.1.0 ==
+
+Moved Buffer, input ROI filter and basename code from libdSTORM here.
+Fixed bug in median smoothing occurring under strange circumstances.

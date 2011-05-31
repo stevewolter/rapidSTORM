@@ -1,3 +1,9 @@
+rapidstorm (2.1.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Tue, 31 May 2011 16:23:44 +0200
+
 rapidstorm (2.0.0-1) unstable; urgency=low
 
   * New public release for rapidSTORM 2

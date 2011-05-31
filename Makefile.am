@@ -1,9 +1,8 @@
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS = foreign subdir-objects
+AUTOMAKE_OPTIONS = subdir-objects
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@
-C_TESTS = \
-	check_resolutionsetter 
+C_TESTS = check_resolutionsetter 
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = testDisplay 
 noinst_LTLIBRARIES = \
@@ -42,7 +41,13 @@ libinputs_la_SOURCES = \
 	inputs/YMirror_decl.h inputs/YMirror.h inputs/YMirror.cpp \
 	inputs/ResolutionSetter.h \
 	inputs/ResolutionSetter_decl.h inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
-	inputs/SampleInfo.h inputs/SampleInfo.cpp
+	inputs/SampleInfo.h inputs/SampleInfo.cpp \
+    inputs/ROIFilter.h inputs/ROIFilter_decl.h inputs/ROIFilter.cpp \
+    inputs/Basename_decl.h inputs/Basename.h inputs/Basename.cpp \
+    inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
+    inputs/Buffer.cpp 
+
+# input/Slot_decl.h input/Slot.h input/Slot_impl.h 
 
 libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \

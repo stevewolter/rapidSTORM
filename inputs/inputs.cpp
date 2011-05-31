@@ -10,6 +10,9 @@
 #include "YMirror_decl.h"
 #include "SampleInfo.h"
 #include "ResolutionSetter_decl.h"
+#include "ROIFilter_decl.h"
+#include "Buffer_decl.h"
+#include "Basename_decl.h"
 
 namespace dStorm {
 
@@ -25,6 +28,10 @@ void basic_inputs( input::Config* inputConfig ) {
 #ifdef HAVE_TIFFIO_H
     inputConfig->add_file_method( new TIFF::ChainLink() );
 #endif
+
+    inputConfig->add_filter( ROIFilter::makeFilter() );
+    inputConfig->add_filter( input::makeBufferChainLink() );
+    inputConfig->add_filter( input::Basename::makeLink() );
 
     inputConfig->add_filter( Splitter::makeLink(), true );
     inputConfig->add_filter( YMirror::makeLink() );
