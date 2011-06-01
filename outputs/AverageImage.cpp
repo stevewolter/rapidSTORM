@@ -16,7 +16,6 @@ AverageImage::_Config::_Config()
 : Object("AverageImage", "Average images"),
     outputFile("ToFile", "Write averaged image to", ".jpg")
 { 
-    userLevel = Intermediate;
     outputFile.helpID = HELP_AverageImage_ToFile;
 }
 

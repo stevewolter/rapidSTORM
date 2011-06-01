@@ -11,7 +11,7 @@ namespace viewer {
 _Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
-  outputFile("ToFile", "Save image to", ".jpg"),
+  outputFile("ToFile", "Save image to", ".png"),
   histogramPower("HistogramPower", "Extent of histogram normalization",
                  0.3),
   colourScheme("ColourScheme", "Colour palette for display"),
@@ -20,7 +20,7 @@ _Config::_Config()
   save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
                       "Close display on job completion"),
-  border("Border", "Width of border to chop", 1 * camera::pixel)
+  border("Border", "Width of border to chop", 0 * camera::pixel)
 {
     DEBUG("Building Viewer Config");
 
