@@ -13,4 +13,4 @@ EXTRADIST = config/unix.exp \
     dstorm.test/nojob.exp \
     dstorm.test/output_exception.exp \
     dstorm.test/segfault.exp
-AM_RUNTESTFLAGS = DSTORM=$(DESTDIR)$(bindir)/dstorm$(EXEEXT)
+AM_RUNTESTFLAGS = DSTORM=$(DESTDIR)$(bindir)/dstorm-7$(EXEEXT)

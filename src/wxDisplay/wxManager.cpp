@@ -186,8 +186,10 @@ class StateFetcher
         try {
             if ( window != NULL )
                 rv = window->getState();
-        } catch (const std::exception& e) {
-            std::cerr << e.what() << std::endl;
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Saving image window contents failed: " << e.what() << std::endl;
+        } catch (const std::bad_alloc& e) {
+            std::cerr << "Saving image window contents failed for a lack of memory." << std::endl;
         } 
         ost::WaitableRunnable::run();
     }

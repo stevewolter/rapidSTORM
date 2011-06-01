@@ -1,0 +1,42 @@
+begin_test_suite
+load_default_config
+
+set tmpdir "/tmp"
+
+send "in Car in Method in InputMethod in Auto in InputFile in value set /srv/rapidSTORM-build/Sample_Workspace_dSTORM/Mikrotubuli.sif\n"
+send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set $tmpdir/test-output.png\n"
+
+set test "Job is started"
+dstorm_attach
+set job "NONE"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "declare Set\r?\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); pass "$test"; }
+}
+set test "Job gets close to finishing"
+expect {
+    -re "in Progress in value set 0.\[8-9\]" { pass "$test"; }
+    -re "in Progress in value set " {exp_continue;}
+    -re "in LocalizationCount in value set " {exp_continue;}
+}
+set test "Can change parameters at whim"
+set have_passed 0
+file delete -force "$tmpdir/test-output.png"
+set next_value 5
+while { $have_passed < 1 } {
+    send "in $job in Crankshaft in Output2 in AF in Crankshaft in Output0 in Display in HistogramPower in value set 0.$next_value\n"
+    expect {
+        -re "in HistogramPower in value set " {}
+    }
+    if { [file exists "$tmpdir/test-output.png"] } {
+        set have_passed 1
+        file delete -force "$tmpdir/test-output.png"
+        pass "$test"
+    }
+    set next_value [expr { ($next_value + 1) % 5 + 5 }]
+    set x 0
+    #while { $x < 50000 } { set x [expr $x + 1]; }
+}
+
