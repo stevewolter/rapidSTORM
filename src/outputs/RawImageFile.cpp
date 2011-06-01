@@ -133,7 +133,11 @@ void RawImageFile::write_image(const Image& img) {
 
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
+#if cimg_version <= 129
+    tdata_t data = const_cast<tdata_t>( (const tdata_t)img.data );
+#else
     tdata_t data = const_cast<tdata_t>( (const tdata_t)img.data() );
+#endif
     for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
         tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
         if ( r == -1 /* Error occured */ ) 
