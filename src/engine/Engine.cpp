@@ -132,7 +132,7 @@ void Engine::collectPistons() {
 output::Traits Engine::convert_traits( const Traits& in ) {
     output::Traits rv( 
         in.get_other_dimensionality<Localization::Dim>() );
-    rv.total_frame_count = input.size() * cs_units::camera::frame;
+    rv.total_frame_count = frame_index::from_value( input.size() );
     rv.min_amplitude 
         = float( config.amplitude_threshold() )
             * cs_units::camera::ad_count;

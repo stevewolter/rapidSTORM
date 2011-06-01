@@ -4,7 +4,7 @@
 AC_PREREQ(2.61)
 AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION, RAPIDSTORM_MAINTAINER)
 AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE([enable])
+AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([../m4])
@@ -50,6 +50,7 @@ DX_INIT_DOXYGEN(dStorm)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
 AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
+AC_CHECK_HEADER([Magick++.h], [], [AC_ERROR([Missing GraphicsMagick++ library])])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -135,6 +136,7 @@ case $host in
    *mingw32*) LIBCIMG_LIBS='-luser32 -lgdi32 ' ;;
    *)         LIBCIMG_LIBS=-lX11            ;;
 esac
+AC_SUBST([LIBCIMG_LIBS], "$LIBCIMG_LIBS")
 
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"

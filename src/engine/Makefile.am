@@ -1,7 +1,6 @@
 noinst_LTLIBRARIES = libengine.la
 
 AM_CPPFLAGS = \
-    -include $(top_srcdir)/../debug.h \
     -I $(top_builddir)/.. -I $(top_srcdir) -I $(top_srcdir)/../lib
 
 libengine_la_SOURCES = \
@@ -11,6 +10,6 @@ libengine_la_SOURCES = \
     LocalizationBuncher.cpp LocalizationBuncher.h \
     SigmaFitter.h ImageFitter.h \
     SigmaGuesser.cpp SigmaGuesser_FreeFormFitter.cpp \
-    SigmaGuesser.h SpotFitter.h \
+    SigmaGuesser.h \
     studentPinv.c studentPinv.h \
     SpotFinder.cpp debug.h

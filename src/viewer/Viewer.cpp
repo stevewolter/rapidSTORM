@@ -98,7 +98,7 @@ class ColourDependantImplementation
 
   public:
     ColourDependantImplementation(const Viewer::Config& config)
-        : image( config.res_enh(), 1 * cs_units::camera::pixel ),
+        : image( config.res_enh(), 0 * cs_units::camera::pixel ),
           colorizer(config),
           discretization( 4096, 
                 config.histogramPower(), image(),
@@ -134,7 +134,7 @@ class ColourDependantImplementation
 Viewer::_Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
-  outputFile("ToFile", "Save image to", ".jpg"),
+  outputFile("ToFile", "Save image to", ".png"),
   res_enh("ResEnhance", "Resolution Enhancement", 10),
   refreshCycle("ImageRefreshCycle", "Refresh image every x ms:", 100),
   histogramPower("HistogramPower", "Extent of histogram normalization",

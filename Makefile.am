@@ -4,7 +4,7 @@ EXTRA_DIST = debug.h Doxyfile
 
 dist_pkgdata_DATA = dstorm-config.txt
 
-if BUILD_LIBRARY
+if BUILD_DOC
 DOC=doc
 else
 DOC=
@@ -22,12 +22,6 @@ else
 EXEC_SUBDIR=
 endif
 
-if UNBUNDLE
-UNBUNDLE_SUBDIR=unbundle
-else
-UNBUNDLE_SUBDIR=
-endif
-
 if BUILD_TESTS
 TESTDIR=test
 else
@@ -40,7 +34,7 @@ else
 DEPLOYDIR=
 endif
 
-SUBDIRS = $(DOC) $(LIB_SUBDIR) $(EXEC_SUBDIR) $(UNBUNDLE_SUBDIR) $(TESTDIR) $(DEPLOYDIR)
+SUBDIRS = $(DOC) $(LIB_SUBDIR) $(EXEC_SUBDIR) $(TESTDIR) $(DEPLOYDIR)
 
 installer bundle :
 	test '$(DEPLOYDIR)' && make -C '$(DEPLOYDIR)' $@

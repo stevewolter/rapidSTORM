@@ -4,9 +4,11 @@
 AC_PREREQ(2.61)
 AC_INIT(RAPIDSTORM_NAME, RAPIDSTORM_VERSION,
         RAPIDSTORM_MAINTAINER)
-AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE([enable])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR([.])
 
+AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
 test "x$top_srcdir" == "x" || CPPFLAGS="$CPPFLAGS -I $top_srcdir"
 
 AC_LANG([C++])
@@ -37,14 +39,6 @@ if test "x$enable_exec_build" = "xyes"; then
     AC_CONFIG_SUBDIRS([src])
 fi
 AM_CONDITIONAL([BUILD_EXECUTABLE], [test "x$enable_exec_build" = "xyes"])
-AC_ARG_ENABLE([unbundling-build],
-    [AS_HELP_STRING([--enable-unbundling-build], [Unbundle lib/exec files from tar file])],
-    [],
-    [enable_unbundling_build=no])
-if test "x$enable_unbundling_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([unbundle])
-fi
-AM_CONDITIONAL([UNBUNDLE], [test "x$enable_unbundling_build" = "xyes"])
 
 AC_ARG_ENABLE([test-build],
     [AS_HELP_STRING([--enable-test-build], [Build tests @<:@default=yes@:>@])],

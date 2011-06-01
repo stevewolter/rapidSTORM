@@ -98,7 +98,6 @@ class HueingColorizer : public Colorizer<unsigned char> {
     void merge_tone( int x, int y, 
                      float old_data_weight, float new_data_weight )
     {
-        assert( int(colours.width) > x && int(colours.height) > y );
         ColourVector hs;
         if ( old_data_weight < 1E-3 ) {
             colours(x,y) = tone_point;

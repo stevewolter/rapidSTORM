@@ -11,4 +11,5 @@ libgauss_fitter_la_SOURCES = \
     GaussFitter_Specialized_FreeSigma.cpp \
     Specialized_UncorrelatedFreeSigma.cpp \
     GaussFitter_Specialized.h GaussFitter_Width_Invariants.cpp \
-    GaussFitter_Width_Invariants.h GaussFitterConfig.cpp
+    GaussFitter_Width_Invariants.h GaussFitterConfig.cpp \
+    GaussFitterFactory.h GaussFitterConfig_decl.h GaussFitterConfig.h

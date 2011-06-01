@@ -9,4 +9,4 @@ libviewer_la_SOURCES = \
     Display.h Display_inline.h Display_impl.h Display.cpp \
     ImageDiscretizer.h ImageDiscretizer_inline.h \
 	ImageDiscretizer_impl.h ImageDiscretizer.cpp \
-    ViewerConfig.h Viewer.cpp Viewer.h
+    ViewerConfig.h Viewer.cpp Viewer.h plugin.h

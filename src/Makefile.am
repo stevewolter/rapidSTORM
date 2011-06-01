@@ -40,17 +40,17 @@ dstorm_7_SOURCES = \
     LibraryHandle.h LibraryHandle.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
-    debug.h $(RESOURCE_FILE) \
+    debug.h debug_print.h $(RESOURCE_FILE) \
     local_cleanup.h local_cleanup.cpp \
     TIFFOperation.h TIFFOperation.cpp
-dstorm_7_LDADD = $(COMMON_LIBS) -lltdl 
+dstorm_7_LDADD = $(COMMON_LIBS) -lltdl $(LIBCIMG_LIBS)
 dstorm_7_LDFLAGS = $(RESOURCE_LINKING)
     
 javadir=$(datadir)/java
 java_DATA = rapidSTORM.jar
 JAVASOURCES = DStorm.java
 JARCONTENT = logo.png
-EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest
+EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest desktop-icon.in menu.in
 
 javabuilddir = classes
 
@@ -75,3 +75,6 @@ menudir=$(sysconfdir)/menu
 menu_DATA=rapidstorm-7
 applicationsdir=$(datadir)/applications
 applications_DATA=rapidstorm-7.desktop
+
+clean-local :
+	$(RM) -r $(javabuilddir) rapidstorm-7 rapidstorm-7.desktop rapidSTORM.jar

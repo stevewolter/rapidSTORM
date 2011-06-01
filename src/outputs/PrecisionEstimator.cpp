@@ -10,10 +10,10 @@
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/input/ImageTraits.h>
 #include <boost/units/cmath.hpp>
-#include <boost/units/io.hpp>
 #include <boost/units/unit.hpp>
 #include <dStorm/units/nanolength.h>
 #include <cs_units/camera/luminance.hpp>
+#include <boost/units/io.hpp>
 
 using namespace std;
 using namespace fitpp;
@@ -142,17 +142,17 @@ SinglePrecisionEstimator::receiveLocalizations( const EngineResult &er )
                 << setw(10) << l.y().value()
                 << setw(5)  << l.get_source_trace().size()
                 << setw(10) << setprecision(2) << 
-                    (compute_weighted_SD(
+                    quantity<si::length>(compute_weighted_SD(
                         l.get_source_trace(), 0) 
-                        *2.35* *pixel_dim ) / si::nanometre
+                        *2.35 / *pixel_dim ).value()
                 << setw(10) << setprecision(2) <<
-                    (compute_weighted_SD(
+                    quantity<si::length>(compute_weighted_SD(
                             l.get_source_trace(), 1)
-                        *2.35* *pixel_dim ) / si::nanometre
+                        *2.35 / *pixel_dim ).value()
                 << setw(10) << setprecision(2) << 
-                    ( s.x *2.35* *pixel_dim) / si::nanometre
+                    quantity<si::length>( s.x *2.35 / *pixel_dim).value()
                 << setw(10) << setprecision(2) <<
-                    ( s.y *2.35* *pixel_dim) / si::nanometre
+                    quantity<si::length>( s.y *2.35 / *pixel_dim).value()
                 << setw(10) << setprecision(3) << s.xy
                 << "\n";
         }

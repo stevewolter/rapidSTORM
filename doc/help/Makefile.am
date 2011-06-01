@@ -1,5 +1,6 @@
 HTMLHELP_XSLT_FLAGS= \
     --stringparam manifest.in.base.dir 1
+XSLT_FLAGS =
 XSLT_FLAGS += --nonet
 
 noinst_HEADERS = rapidstorm_help_file.h
@@ -30,3 +31,7 @@ EXTRA_DIST = rapidstorm.xml rapidstorm.xsl rapidstorm_pre.xsl $(HTMLHELP_FILES)
 
 rapidstorm_help_file.h :
 	echo 'namespace dStorm { static const char *HelpFileName = "$(PACKAGE)/rapidstorm.chm"; }' > $@
+
+clean-local :
+	$(RM) *.html alias.h context.h rapidstorm.chm rapidstorm.hhc rapidstorm.hhk rapidstorm_help_file.h rapidstorm.hhp
+	test 'x$(builddir)' = 'x$(srcdir)' || $(RM) $(HTMLHELP_FILES)

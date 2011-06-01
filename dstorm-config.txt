@@ -1,3 +1,4 @@
+in Method in InputMethod in Auto in PixelSizeInNM in value set 100
 in Output in EngineOutput in ChooseTransmission in value set Table
 in Output in EngineOutput in Output0 in Table in FailSilently in value set true
 in Output in EngineOutput in Output0 in Table in ToFile in extension set -raw.txt

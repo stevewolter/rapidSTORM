@@ -145,7 +145,7 @@ Config<Pixel>::Config( input::Config& src)
 
 template<typename Pixel>
 Config<Pixel>::Config(
-    const Config<Pixel>::Config &c,
+    const Config<Pixel> &c,
     input::Config& src
 ) 
 : FileBasedMethod< CImg<Pixel> >(c, src),
