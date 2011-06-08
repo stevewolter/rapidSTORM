@@ -136,8 +136,6 @@ Config<Pixel>::Config( input::Config& src)
   ignore_warnings("IgnoreLibtiffWarnings",
     "Ignore libtiff warnings", false)
 {
-    ignore_warnings.userLevel 
-        = simparm::Object::Intermediate;
     this->inputFile.push_back(tiff_extension);
     this->push_back( src.pixel_size_in_nm );
     this->push_back( ignore_warnings );
