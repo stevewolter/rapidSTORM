@@ -8,7 +8,8 @@ AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([../m4])
 
 # Check for ISCC Inno Setup help compiler
-AC_CHECK_PROGS([ISCC], [ISCC])
+AC_CHECK_PROGS([ISCC], [iscc])
+test "x$ISCC" != "x" || AC_ERROR([Inno Setup compiler not found])
 AC_CHECK_PROGS([WINE], [wine])
 AC_CHECK_PROGS([PATH_REWRITER], ["cygpath --windows" echo])
 

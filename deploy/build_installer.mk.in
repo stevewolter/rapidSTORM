@@ -17,9 +17,6 @@ TMP:=build
 BUNDLE:=$(PACKAGE_TARNAME)_$(PACKAGE_VERSION)_bin.tar
 INSTALLER:=$(PACKAGE_TARNAME)
 
-BUNDLE_ISS_OFFSET:=installer.iss
-BUNDLE_ISS:=$(TMP)/$(BUNDLE_ISS_OFFSET)
-
 GRAPHICSMAGICK_ROOT:=/srv/i586-builds/storm-deploy
 GRAPHICSMAGICK_EXPR:=-path '*/GraphicsMagick-1.3.6/config/*' -type f
 
@@ -53,60 +50,20 @@ prefix_bundle_iss.lst:=$(TMP)
 all : 
 
 $(INSTALLER).iss : dSTORM.iss
-$(INSTALLER).iss : unbundle.iss config_file.iss extra_installer.iss
+$(INSTALLER).iss : config_file.iss binaries.iss config_file.iss helpfiles.iss graphicsmagick.iss headers.iss simparm_headers.iss libs.iss java.iss extra_installer.iss
 $(INSTALLER).iss : $(srcdir)/dSTORM_tail.iss
 
-ifneq ($(WINE),)
-BUNDLE_LISTS:=binaries.lst config_file.lst helpfiles.lst graphicsmagick.lst headers.lst simparm_headers.lst libs.lst java.lst
-bundle : $(BUNDLE)
 include auto.dep
 include graphicsmagick.dep
 
-$(BUNDLE) : bundle_iss.lst $(BUNDLE_LISTS)
-	tar cf $@ -C $(prefix_bundle_iss.lst) --files-from=bundle_iss.lst \
-	$(foreach list,$(BUNDLE_LISTS), && tar rf $@ -C $(prefix_$(list)) --files-from=$(list))
-
-unbundle.iss : $(BUNDLE_ISS)
-	sed -e 's#:prefix:[/\\]##' $< > $@
-
-else
-unbundle.iss : $(pkgdatadir)/bundle.iss
-	sed -e 's#:prefix:/#$(shell $(PATH_REWRITER) $(PREFIX) | sed -e 's/\\/\\\\/g')#' $< > $@
-
-bundle :
-	false
-endif
-
-ifneq ($(ISCC),)
 installer : $(INSTALLER).exe
-$(INSTALLER).exe : $(INSTALLER).iss README LICENSE
+$(INSTALLER).exe : $(INSTALLER).iss $(srcdir)/README $(srcdir)/LICENSE
+	cp $(srcdir)/README $(srcdir)/LICENSE .
 	'$(ISCC)' '$<'
-else
-installer : $(INSTALLER).tgz
-
-$(INSTALLER).tgz : $(BUNDLE_LISTS)
-	tar cfz $@ -C $(TMP) --files-from=rel_file_list.lst \
-	           -C $(PREFIX) --files-from=prefix_file_list.lst
-
-prefix_file_list.lst : rapidstorm.iss
-	sed -n -e 's#.*Source: "$(PREFIX)[/\\]\([^"]*\)".*#\1#p' $< > $@
-rel_file_list.lst : rapidstorm.iss
-	sed -n -e 's#.*Source: "\([^\\/][^"]*\)".*#\1#p' $< > $@
-endif
 
 .DELETE_ON_ERROR :
 
-build/README : $(srcdir)/../README
-	cp $< $@
-build/LICENSE : $(srcdir)/../LICENSE
-	cp $< $@
-
-bundle_iss.lst : $(BUNDLE_ISS)
-	$(PATH_REWRITER) $(BUNDLE_ISS_OFFSET) > $@
-
-$(BUNDLE_ISS) : dSTORM.iss $(BUNDLE_LISTS:.lst=.iss) $(srcdir)/dSTORM_tail.iss
-	mkdir -p $(dir $@)
-	{ cat dSTORM.iss; cat $(BUNDLE_LISTS:.lst=.iss) | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}/\)\([^"]*\)"#Source: "\3\1"; DestDir: "\2\3"#'; cat $(srcdir)/dSTORM_tail.iss; } > $@
+#{ cat dSTORM.iss; cat $(BUNDLE_LISTS:.lst=.iss) | sed -e 's#Source: "[^"]*\(/[^/"]*\)"; DestDir: "\({.*}/\)\([^"]*\)"#Source: "\3\1"; DestDir: "\2\3"#'; cat $(srcdir)/dSTORM_tail.iss; } > $@
 
 extra_installer.iss : $(EXTRA_INSTALLER)
 	sed -e 's#Source: "#&$(shell $(PATH_REWRITER) $(dir $<) | sed -e 's/\\/\\\\/g')#' $(if $<,$<,/dev/null) > $@
@@ -161,7 +118,7 @@ simparm_headers.lst :
 	cp $< $@
 
 $(INSTALLER).iss :
-	cat $^ > $@
+	cat $^ | sed -e 's/Source: "\//Source: "Z:\//' > $@
 
 %.iss : %.lst
 	{ \
@@ -171,7 +128,7 @@ $(INSTALLER).iss :
 
 storm.out :
 	{ echo "attach"; echo "quit"; } |\
-	  WINEDEBUG="loaddll" RAPIDSTORM_PLUGINDIR=. wine $(PREFIX)/bin/dstorm.exe --Twiddler \
+	  WINEDEBUG="loaddll" wine $(PREFIX)/bin/dstorm-7.exe --Twiddler \
 	  > $@ 2>&1
 
 loaded_DLLs.txt : storm.out
