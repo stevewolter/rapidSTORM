@@ -212,8 +212,6 @@ Config::Config()
   determine_length("DetermineFileLength",
     "Determine length of file", false)
 {
-    ignore_warnings.userLevel 
-        = simparm::Object::Intermediate;
 }
 
 ChainLink::ChainLink() 
