@@ -164,14 +164,14 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     strip_size = TIFFStripSize( tif );
     tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
     if ( ! img.is_invalid() ) {
-        tdata_t data = const_cast<tdata_t>( (const tdata_t)img.ptr() );
-        for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
-            tsize_t r = TIFFWriteRawStrip(tif, strip, data, strip_size);
-            if ( r == -1 /* Error occured */ ) 
-                op.throw_exception_for_errors();
-            assert( sizeof(char) == 1 );
-            data= ((char*)data) +strip;
-        }
+        for (int z = 0; z < img.depth_in_pixels(); ++z)
+            for (int y = 0; y < img.height_in_pixels(); ++y)
+            {
+                tdata_t data = const_cast<tdata_t>( (const tdata_t)&img(0, y, z) );
+                tsize_t r = TIFFWriteScanline(tif, data, y + z * img.height_in_pixels(), 0);
+                if ( r == -1 /* Error occured */ ) 
+                    op.throw_exception_for_errors();
+            }
     } else {
         /* If the image is invalid, write empty image data */
         boost::scoped_array<StormPixel> nulls( new StormPixel[strip_size] );

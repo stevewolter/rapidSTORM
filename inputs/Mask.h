@@ -5,8 +5,8 @@
 #include <simparm/optional.hh>
 #include <simparm/FileEntry.hh>
 #include <boost/units/io.hpp>
-#include "Source.h"
-#include "Config.h"
+#include <dStorm/input/Source.h>
+#include <dStorm/input/Config.h>
 #include <vector>
 
 namespace dStorm {

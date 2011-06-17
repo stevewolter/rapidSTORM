@@ -44,7 +44,7 @@ libinputs_la_SOURCES = \
 	inputs/SampleInfo.h inputs/SampleInfo.cpp \
     inputs/ROIFilter.h inputs/ROIFilter_decl.h inputs/ROIFilter.cpp \
     inputs/Basename_decl.h inputs/Basename.h inputs/Basename.cpp \
-    input/Mask.h input/Mask.cpp \
+    inputs/Mask.h inputs/Mask.cpp \
     inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
     inputs/Buffer.cpp 
 

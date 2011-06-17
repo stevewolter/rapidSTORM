@@ -319,6 +319,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
                 best_total_residues = total_residues;
             }
         }
+        buffer.resize(start+best_found);
         for (int i = 0; i < best_found; ++i) {
             buffer[i+start].fluorophore = fluorophore;
             buffer[i+start].frame_number() = base->frame_number();
