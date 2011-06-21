@@ -252,13 +252,15 @@ void wxManager::store_image(
         write_scale_bar( img, image.resize_image.pixel_sizes[0],
                      scale_bar_width, std::max(0, width-scale_bar_width-5 ) );
         DEBUG("Wrote scale bar");
-        try {
+        if ( image.resize_image.pixel_sizes[0].is_in_dpm() && 
+             image.resize_image.pixel_sizes[1].is_in_dpm() )
+        {
             img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
             unsigned int pix_per_cm[2];
             for (int i = 0; i < 2; ++i)
                 pix_per_cm[i] = int( image.resize_image.pixel_sizes[i].in_dpm() * (0.01 * boost::units::si::metre) / camera::pixel );
             img.density(Magick::Geometry(pix_per_cm[0], pix_per_cm[1]));
-        } catch (...) {}
+        }
     }
     
     try {

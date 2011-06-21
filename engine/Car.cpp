@@ -323,8 +323,10 @@ void Car::drive() {
     DEBUG("Pushing back close job button");
     runtime_config.push_back( closeJob );
 
-    DEBUG("Creating announcement");
-    Output::Announcement announcement( *input->get_traits() );
+    DEBUG("Getting input traits from " << input.get());
+    Input::TraitsPtr traits = input->get_traits();
+    DEBUG("Creating announcement from traits " << traits.get());
+    Output::Announcement announcement( *traits );
     upstream_engine = announcement.engine;
     announcement.engine = this;
     DEBUG("Sending announcement");

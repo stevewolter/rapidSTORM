@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "ResolutionSetter.h"
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/chain/Context_impl.h>
@@ -48,6 +49,7 @@ ResolutionSetter <ForwardedType>::get_traits()
     DEBUG("Setting traits in ResolutionSetter");
     TraitsPtr rv = s->get_traits();
     config.set_traits(*rv);
+    DEBUG(this << " set traits in ResolutionSetter");
     return rv;
 }
 

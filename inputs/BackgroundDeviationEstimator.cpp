@@ -114,7 +114,9 @@ Source::get_traits()
         s->background_stddev = float(sqrt(variance)) * camera::ad_count;
     }
 
+    DEBUG("Dispatching restart message");
     base->dispatch( BaseSource::RepeatInput );
+    DEBUG("Finished background standard deviation estimation");
     
     return s;
 }

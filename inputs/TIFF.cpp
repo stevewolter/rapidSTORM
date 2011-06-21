@@ -175,7 +175,7 @@ Source<Pixel,Dim>::iterator::dereference() const
             sz[i] = src->size[i] * camera::pixel;
         Image i( sz, directory * camera::frame);
 
-        DEBUG("Reading image " << directory << " of size " << i.size() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->size[0] << " " << src->size[1]);
+        DEBUG("Reading image " << directory << " of size " << i.sizes().transpose() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->size[0] << " " << src->size[1]);
 
         Pixel* data = i.ptr(), *end_of_data = data + i.size_in_pixels();
         for (tstrip_t strip = 0; strip < strip_count; strip++) {
@@ -185,9 +185,11 @@ Source<Pixel,Dim>::iterator::dereference() const
                 std::min( remaining_space, strip_size ) );
             data += std::min( really_read, strip_size ) / sizeof(Pixel);
         }
+        DEBUG("Finished reading image");
         img = i;
 
         op.throw_exception_for_errors();
+        DEBUG("Thrown no exceptions");
     }
 
     return img;
@@ -258,7 +260,10 @@ ChainLink::context_changed( ContextRef ocontext, Link* link )
 template<typename Pixel, int Dimensions>
 typename Source<Pixel,Dimensions>::TraitsPtr 
 Source<Pixel,Dimensions>::get_traits() {
-    return TraitsPtr( file->getTraits<Pixel,Dimensions>().release() );
+    DEBUG("Creating traits from file object");
+    TraitsPtr rv = TraitsPtr( file->getTraits<Pixel,Dimensions>().release() );
+    DEBUG("Returning traits " << rv.get());
+    return rv;
 }
 
 template<typename Pixel, int Dimensions>

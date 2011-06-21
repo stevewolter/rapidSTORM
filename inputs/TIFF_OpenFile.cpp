@@ -1,4 +1,3 @@
-#undef NDEBUG
 #define DSTORM_TIFFLOADER_CPP
 #include <tiffio.h>
 #include "TIFF.h"
@@ -6,6 +5,8 @@
 #include <dStorm/ImageTraits.h>
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/units/io.hpp>
+
+#include "debug.h"
 
 namespace dStorm {
 namespace TIFF {
@@ -61,16 +62,21 @@ template<typename Pixel, int Dim>
 typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
 OpenFile::getTraits() 
 {
+    DEBUG("Creating traits for size " << Dim);
     BOOST_STATIC_ASSERT( Dim <= 3 );
     std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > >
         rv( new Traits<dStorm::Image<Pixel,Dim> >() );
     for (int i = 0; i < Dim; ++i) rv->size[i] = size[i] * camera::pixel;
     rv->dim = 1; /* TODO: Read from file */
+    DEBUG("Setting resolutions");
     for (int p = 0; p < rv->plane_count(); ++p)
         rv->plane(p).set_resolution( resolution );
+    DEBUG("Setting image range");
+    for (int p = 0; p < rv->plane_count(); ++p)
     if ( _no_images != -1 )
         rv->image_number().range().second = (_no_images - 1) * camera::frame;
 
+    DEBUG("Returning traits");
     return rv;
 }
 

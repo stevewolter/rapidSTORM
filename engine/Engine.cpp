@@ -298,7 +298,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         std::vector<Localization>& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
-        int best_found = -1, fluorophore = 0;
+        int best_found = 0, fluorophore = 0;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
             candidate = buffer.size();
             int found_number = fitter[fit_fluo].fitSpot(s, image, 

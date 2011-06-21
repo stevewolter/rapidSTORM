@@ -80,8 +80,10 @@ class Input
     iterator begin() { return s->begin(); }
     iterator end() { return s->end(); }
     TraitsPtr get_traits() {
+        DEBUG("Sample info creates traits");
         TraitsPtr rv = s->get_traits();
         config.set_traits(*rv);
+        DEBUG("Sample info created traits");
         return rv;
     }
 };

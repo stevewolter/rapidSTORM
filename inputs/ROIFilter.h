@@ -113,19 +113,17 @@ class Source<Ty>::_iterator
     mutable Ty i;
 
     friend class boost::iterator_core_access;
-    void increment() { ++this->base_reference(); seek_valid(); }
+    void increment() { 
+        ++this->base_reference(); 
+        if ( this->base() == end )
+            return;
+        else if ( s.is_in_range(*this->base()) )
+            select_plane();
+        else
+            this->base_reference() = end;
+    }
 
     void select_plane();
-    void seek_valid() {
-        DEBUG("Seeking valid image");
-        while ( this->base() != end && ! s.is_in_range(*this->base()) ) {
-            ++this->base_reference();
-        }
-        DEBUG("Got valid image");
-        if ( this->base() != end ) {
-            select_plane();
-        }
-    }
 
     Ty& dereference() const { return i; }
     
@@ -133,7 +131,9 @@ class Source<Ty>::_iterator
     explicit _iterator(const Source<Ty>& s, const Base& from, const Base& end)
       : _iterator::iterator_adaptor_(from), s(s), end(end) 
     {
-        seek_valid(); 
+        while ( this->base() != end && ! s.is_in_range(*this->base()) )
+            ++this->base_reference();
+        if ( this->base() != end ) select_plane();
     }
 };
 
