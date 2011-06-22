@@ -15,7 +15,7 @@ static ttag_t resolution_tags[2] = { TIFFTAG_XRESOLUTION, TIFFTAG_YRESOLUTION };
 static ttag_t size_tags[3] = { TIFFTAG_IMAGEWIDTH, TIFFTAG_IMAGELENGTH, TIFFTAG_IMAGEDEPTH };
 
 OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::Node& n)
-: ignore_warnings(config.ignore_warnings()),
+: ignore_warnings(config.ignore_warnings()), determine_length(config.determine_length()),
   file_ident(filename),
   current_directory(0),
   _no_images(-1)
@@ -50,18 +50,19 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
         }
     }
 
-    if ( config.determine_length() ) {
+}
+
+template<typename Pixel, int Dim>                                   
+typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
+OpenFile::getTraits( bool final ) 
+{
+    if ( determine_length && final ) {
         _no_images = 1;
         while ( TIFFReadDirectory(tiff) != 0 )
             _no_images += 1;
         TIFFSetDirectory(tiff, 0);
     }
-}
 
-template<typename Pixel, int Dim>                                   
-typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
-OpenFile::getTraits() 
-{
     DEBUG("Creating traits for size " << Dim);
     BOOST_STATIC_ASSERT( Dim <= 3 );
     std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > >
@@ -81,7 +82,7 @@ OpenFile::getTraits()
 }
 
 template std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > > 
-    OpenFile::getTraits<unsigned short,3>();
+    OpenFile::getTraits<unsigned short,3>(bool);
 
 OpenFile::~OpenFile() {
     TIFFClose( tiff );

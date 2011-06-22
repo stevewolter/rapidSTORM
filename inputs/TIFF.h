@@ -75,7 +75,7 @@ namespace dStorm {
 
     class OpenFile : boost::noncopyable {
         ::TIFF *tiff;
-        bool ignore_warnings;
+        bool ignore_warnings, determine_length;
         std::string file_ident;
 
         int current_directory;
@@ -94,7 +94,7 @@ namespace dStorm {
 
         template <typename PixelType, int Dimensions> 
             std::auto_ptr< Traits<dStorm::Image<PixelType,Dimensions> > > 
-            getTraits();
+            getTraits( bool final );
 
         template <typename PixelType, int Dimensions>
             std::auto_ptr< dStorm::Image<PixelType,Dimensions> >
