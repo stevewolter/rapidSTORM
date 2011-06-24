@@ -18,7 +18,7 @@ Basename Slicer::fn_for_slice( int i ) const
 }
 
 void Slicer::add_output_clone(int i) {
-    std::auto_ptr<Output> output;
+    boost::shared_ptr<Output> output;
     try {
         source->FilterSource::set_output_file_basename( 
             fn_for_slice(i) );
@@ -34,10 +34,11 @@ void Slicer::add_output_clone(int i) {
     std::stringstream name, desc;
     name << "SlicerNode" << i;
     desc << "Slice " << i;
-    simparm::Object* o = new simparm::Object(name.str(), desc.str());
+    boost::shared_ptr<simparm::Object> o 
+        ( new simparm::Object(name.str(), desc.str()) );
 
-    outputs[i].set( output.release(), o );
-    o->push_back( outputs[i]->getNode() );
+    o->push_back( output->getNode() );
+    outputs.replace( i, new Child( output, o ) );
     outputs_choice.push_back( *o );
 
     if ( announcement.get() != NULL )
@@ -78,7 +79,7 @@ Slicer::Slicer(const SourceBuilder& config)
   avoid_filenames(NULL),
   outputs_choice( "Outputs", "Outputs to slicer" )
 {
-    outputs.resize(1);
+    outputs.resize(1, NULL);
     add_output_clone(0);
     push_back( outputs_choice );
 }
@@ -109,7 +110,7 @@ void Slicer::propagate_signal(ProgressSignal s) {
     received_signals.push_back(s);
     ost::MutexLock lock( outputs_mutex );
     for (unsigned int i = 0; i < outputs.size(); i++)
-        if (outputs[i]) {
+        if (!outputs.is_null(i)) {
             if ( s == Engine_is_restarted )
                 outputs[i].images_in_output = 0;
             outputs[i]->propagate_signal(s);
@@ -131,22 +132,19 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
         first_slice += 1;
     int last_slice = cur_image / slice_distance;
     
-    if ( int( outputs.size() ) <= last_slice ) {
-        ost::MutexLock lock( outputs_mutex );
-        while ( int( outputs.size() ) <= last_slice )
-            outputs.push_back( Child() );
-    }
+    ost::MutexLock lock( outputs_mutex );
+    while ( int( outputs.size() ) <= last_slice )
+        outputs.push_back( NULL );
 
     for (int i = first_slice; i <= last_slice; i++) {
-        ost::MutexLock lock( outputs[i].mutex );
-        if ( !outputs[i] ) add_output_clone(i);
+        if ( outputs.is_null(i) ) add_output_clone(i);
         outputs[i].images_in_output += one_frame;
         outputs[i]->receiveLocalizations(er);
         if ( outputs[i].images_in_output == slice_size ) {
             outputs[i]->propagate_signal( Engine_run_succeeded );
             outputs[i]->propagate_signal( Job_finished_successfully );
             outputs[i]->propagate_signal( Prepare_destruction );
-            outputs[i].clear();
+            outputs.replace(i, NULL);
         }
     }
 

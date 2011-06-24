@@ -10,7 +10,7 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Structure.hh>
-#include <vector>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 
 namespace dStorm {
@@ -31,53 +31,24 @@ class Slicer : public OutputObject {
     std::auto_ptr<dStorm::output::FilterSource> source;
 
     class Child {
-        Output *output;
-        Node *node;
-        int *usage_counter;
+        boost::shared_ptr<simparm::Object> node;
+        boost::shared_ptr<Output> output;
       public:
         frame_count images_in_output;
-        ost::Mutex mutex;
 
-        Child() : output(NULL), usage_counter(NULL),
-                  images_in_output(0) {}
-        Child(const Child& c)
-            : output(c.output), node(c.node),
-              usage_counter(c.usage_counter),
-              images_in_output(c.images_in_output), mutex()
-            { if ( usage_counter ) *usage_counter += 1; }
-        ~Child() { 
-            clear();
-        }
-        void clear() {
-            if ( output != NULL ) {
-                *usage_counter -= 1;
-                if ( *usage_counter == 0 ) {
-                    delete usage_counter;
-                    usage_counter = NULL;
-                    delete output; 
-                    output = NULL;
-                    delete node; 
-                    node = NULL;
-                }
-            }
-        }
-        void set(Output *output, Node *node) {
-            clear();
-            this->output = output;
-            this->node = node;
-            usage_counter = new int;
-            *usage_counter = 1;
-            images_in_output = 0;
-        }
+        Child(boost::shared_ptr<Output> output, 
+             boost::shared_ptr<simparm::Object> node) 
+            : node(node), output(output), images_in_output(0) {}
+        ~Child() {}
 
         operator bool() const { return output != NULL; }
-        Output* operator->() { return output; }
-        const Output* operator->() const { return output; }
+        Output* operator->() { return output.get(); }
+        const Output* operator->() const { return output.get(); }
         Output& operator*() { return *output; }
         const Output& operator*() const { return *output; }
     };
     ost::Mutex outputs_mutex;
-    std::vector<Child> outputs;
+    boost::ptr_vector< boost::nullable<Child> > outputs;
     std::set<std::string>* avoid_filenames;
 
     /** Copy constructor undefined. */

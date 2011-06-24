@@ -298,7 +298,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         std::vector<Localization>& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
-        int best_found = 0, fluorophore = 0;
+        int best_found = -1, fluorophore = 0;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
             candidate = buffer.size();
             int found_number = fitter[fit_fluo].fitSpot(s, image, 
@@ -319,16 +319,19 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
                 best_total_residues = total_residues;
             }
         }
-        buffer.resize(start+best_found);
+        buffer.resize(start+std::max<int>(0,best_found));
         for (int i = 0; i < best_found; ++i) {
             buffer[i+start].fluorophore = fluorophore;
             buffer[i+start].frame_number() = base->frame_number();
         }
-        DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << buffer[start].position().transpose());
-        if ( best_found > 0 )
+        if ( best_found > 0 ) {
+            DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << buffer[start].position().transpose());
             motivation = origMotivation;
-        else
+        } else {
             motivation += best_found;
+            DEBUG("No localizations, decreased motivation by " << -best_found 
+                  << " to " << motivation);
+        }
     }
     if (motivation > 0 && cM.limitReached()) {
         maximumLimit *= 2;
