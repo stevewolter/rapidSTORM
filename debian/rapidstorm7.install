@@ -1,1 +1,3 @@
-usr/bin/dstorm-7
+etc/menu/*
+usr/share/applications/*
+usr/share/rapidstorm/*

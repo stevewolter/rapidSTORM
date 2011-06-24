@@ -1,3 +1,10 @@
+rapidstorm (7.0.1-2) unstable; urgency=low
+
+  * Renamed packages - main package is now rapidstorm, executable
+    rapidstorm-bin
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 24 Jun 2011 20:15:57 +0200
+
 rapidstorm (7.0.1-1) unstable; urgency=low
 
   * New upstream release

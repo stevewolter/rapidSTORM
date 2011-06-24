@@ -15,4 +15,4 @@ CPPFLAGS+=-I/usr/include/GraphicsMagick -I/usr/include/eigen2 -DNDEBUG
 	dh $@ 
 
 override_dh_auto_configure:
-	dh_auto_configure -- --disable-test-build
+	dh_auto_configure -- --disable-test-build --disable-deploy-build
