@@ -1,3 +1,14 @@
+== Version 2.1.1 ==
+
+* Fixed nasty locking bug in slicer by making mutex global.
+* Fixed recent bug introduced into engine that prevented images from being completely calculated.
+* Fixed length determination on TIFF files: Now determines length at job start, not before.
+* Fixed some stuff.
+* Fixed mask, raw image writing for horizontal biplane split and engine bug resulting in too many localizations
+* Moved mask filter out of core library
+* Changed user level for ignoring warnings to base
+* Fixed bug #76.
+
 == Version 2.1.0 ==
 
 Moved Buffer, input ROI filter and basename code from libdSTORM here.
