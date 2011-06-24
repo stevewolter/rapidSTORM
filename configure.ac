@@ -10,7 +10,7 @@ DSTORM_LIB_VERSION=11
 AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
 
 AM_INIT_AUTOMAKE
-AM_MAINTAINER_MODE([enable])
+AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -30,10 +30,6 @@ AC_PROG_CXX
 test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
 test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
-AC_PROG_JAVAC
-test "x$JAVAC" = "x" && AC_MSG_ERROR([unable to find Java compiler])
-AC_PROG_JAR
-test "x$JAR" = "x" && AC_MSG_ERROR([unable to find Java archiver])
 
 ACX_PTHREAD(
     [ LIBS="$PTHREAD_LIBS $LIBS"
@@ -92,12 +88,6 @@ AS_IF(
     [])
 AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
 
-AC_ARG_WITH([twiddler-jar],
-    [AS_HELP_STRING([--with-twiddler-jar],
-        [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
-        [],
-        [with_twiddler_jar=$prefix/share/java/twiddler.jar])
-
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
 AM_PATH_WXCONFIG($reqwx, wxWin=1)
@@ -127,11 +117,6 @@ AM_WITH_DMALLOC
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
-AC_SUBST([DSTORM_PLUGIN_DIR], "${libdir}/librapidstorm/plugins-v${DSTORM_LIB_VERSION}")
-AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
-
-AC_CONFIG_SUBDIRS([gauss_fitter 3d_fitter])
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([manifest])
 
 AC_OUTPUT

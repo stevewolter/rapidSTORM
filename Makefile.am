@@ -11,9 +11,8 @@ noinst_LTLIBRARIES = \
     libengine_stm.la 
 
 install-exec-local :
-	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(pkgdatadir)
+	mkdir -p $(DESTDIR)$(bindir)
 	$(RM) $(DESTDIR)$(bindir)/dstorm$(EXEEXT) && ln -s dstorm-@DSTORM_LIB_VERSION@$(EXEEXT) $(DESTDIR)$(bindir)/dstorm$(EXEEXT)
-	$(RM) $(DESTDIR)$(pkgdatadir)/dstorm-config.txt && ln -s dstorm-config-@DSTORM_LIB_VERSION@.txt $(DESTDIR)$(pkgdatadir)/dstorm-config.txt
 
 TESTS = $(C_TESTS)
 
@@ -47,8 +46,6 @@ libinputs_la_SOURCES = \
     inputs/Mask.h inputs/Mask.cpp \
     inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
     inputs/Buffer.cpp 
-
-# input/Slot_decl.h input/Slot.h input/Slot_impl.h 
 
 libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
@@ -148,46 +145,3 @@ dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libdStorm_display.la \
     -lltdl 
 
-javadir=$(datadir)/java
-java_DATA = rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar 
-JAVASOURCES = DStorm.java
-JARCONTENT = logo.png
-EXTRA_DIST = $(JAVASOURCES) $(JARCONTENT) manifest
-
-MAINPROGRAM = $(bindir)/dstorm-@DSTORM_LIB_VERSION@
-CONFIGFILEBASE = dstorm-config-@DSTORM_LIB_VERSION@.txt
-CONFIGFILE = $(pkgdatadir)/dstorm-config-@DSTORM_LIB_VERSION@.txt
-
-CLEANFILES = rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar \
-	rapidstorm-@DSTORM_LIB_VERSION@.desktop rapidstorm-@DSTORM_LIB_VERSION@ \
-	$(CONFIGFILE)
-
-javabuilddir = classes
-
-clean-local :
-	-rm -fr $(javabuilddir)
-
-vpath %.jar $(DESTDIR)$(datarootdir)/java
-
-rapidSTORM-@PACKAGE_MAJOR_VERSION@.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
-	$(MKDIR_P) $(javabuilddir)
-	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $(filter %.java,$^)
-	cp $(TWIDDLER_JAR) $@
-	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
-	$(JAR) -umf manifest $@
-
-rapidstorm-@DSTORM_LIB_VERSION@.desktop : $(srcdir)/desktop-icon.in
-	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
-
-rapidstorm-@DSTORM_LIB_VERSION@ : $(srcdir)/menu.in
-	sed -e 's;%MAINPROGRAM%;$(MAINPROGRAM);g' -e 's;%PACKAGE_VERSION%;$(PACKAGE_VERSION);g' -e 's;%CONFIGFILE%;$(CONFIGFILE);' $< > $@
-
-$(CONFIGFILEBASE) : dstorm-config.txt
-	cat $< > $@
-
-menudir=$(sysconfdir)/menu
-menu_DATA=rapidstorm-@DSTORM_LIB_VERSION@
-applicationsdir=$(datadir)/applications
-applications_DATA=rapidstorm-@DSTORM_LIB_VERSION@.desktop
-
-pkgdata_DATA = $(CONFIGFILEBASE)

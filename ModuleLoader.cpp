@@ -154,18 +154,6 @@ std::string ModuleLoader::makeProgramDescription() {
 std::string ModuleLoader::Pimpl::makeProgramDescription() {
     std::stringstream ss;
     ss << PACKAGE_STRING;
-    for ( List::iterator i = lib_handles.begin();
-                            i != lib_handles.end(); i++)
-    {
-        List::iterator end_test = i; ++end_test;
-        if ( i == lib_handles.begin() )
-            ss << " with ";
-        else if ( end_test == lib_handles.end() )
-            ss << " and ";
-        else 
-            ss << ", ";
-        ss << i->getDesc();
-    }
     return ss.str();
 }
 

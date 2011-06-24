@@ -7,22 +7,12 @@ Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
 
-Package: rapidstorm
+Package: rapidstorm-bin
 Architecture: any
-Depends: rapidstorm11
+Depends: rapidstorm11-bin
 Description: Localization microscopy data evaluation tool
 
-Package: rapidstorm11
+Package: rapidstorm11-bin
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Localization microscopy data evaluation tool
-
-Package: rapidstorm-gui
-Architecture: any
-Depends: rapidstorm11-gui
-Description: GUI interface for rapidSTORM
-
-Package: rapidstorm11-gui
-Architecture: any
-Depends: rapidstorm11, twiddler
-Description: GUI interface for rapidSTORM

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-update-alternatives --remove dstorm /usr/bin/dstorm-10
+update-alternatives --remove dstorm /usr/bin/dstorm-11
 
 #DEBHELPER#
 

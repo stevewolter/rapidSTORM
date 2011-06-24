@@ -1,7 +1,0 @@
-?package(rapidSTORM):\
-  needs="x11"\
-  section="Applications/Science"\
-  title="rapidSTORM %PACKAGE_VERSION%"\
-  command="%bindir%/twiddler %MAINPROGRAM% --config %CONFIGFILE% --Twiddler"\
-  icon="/usr/share/pixmaps/gcalctool.xpm"
-
