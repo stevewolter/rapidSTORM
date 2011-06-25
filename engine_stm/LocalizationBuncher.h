@@ -60,6 +60,9 @@ class Source
     typedef typename Input::iterator InputIterator;
     typedef input::Source<output::LocalizedImage> Base;
 
+  private:
+    std::auto_ptr< Input > base;
+  public:
     ost::Mutex mutex;
     InputIterator current, base_end;
     frame_index next_image;
@@ -70,10 +73,10 @@ class Source
 
   private:
     Config config;
-    std::auto_ptr< Input > base;
     frame_index firstImage, lastImage;
   public:
     Source( const Config& c, std::auto_ptr<Input> base ) ;
+    ~Source();
 
     void dispatch(Messages m);
     iterator begin() 

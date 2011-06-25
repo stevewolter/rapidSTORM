@@ -172,6 +172,16 @@ Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
 : Base(config, Capabilities(base->flags).reset( MultipleConcurrentIterators ) ), config(c), base(base) {}
 
 template <class InputType>
+Source<InputType>::~Source()
+{
+    DEBUG("Deleting base input for " << this);
+    canned.clear();
+    DEBUG("Deleting iterators and input");
+    current = base_end = InputIterator();
+    DEBUG("Deleting rest");
+}
+
+template <class InputType>
 void Source<InputType>::dispatch(Messages m)
 {
     if ( m.test( RepeatInput ) ) {
