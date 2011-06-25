@@ -67,7 +67,11 @@ void LiveView::compute_image_change
     ( const CamImage& image )
 {
     CameraPixel minPix, maxPix;
+#if cimg_version >= 129
+    minPix = image.min_max(maxPix);
+#else
     minPix = image.minmax(maxPix);
+#endif
 
     cimg_library::CImg<uint8_t> normalized( 
         image.get_normalize(0, 255) );
@@ -97,7 +101,11 @@ void LiveView::show( const CamImage& image, int number) {
     guard lock(window_mutex);
     if ( show_live() ) {
         if ( window.get() == NULL ) 
+#if cimg_version >= 129
+            show_window(image.width(), image.height());
+#else
             show_window(image.width, image.height);
+#endif
 
         quantity<si::time>
             image_time = frame / cycle_time,

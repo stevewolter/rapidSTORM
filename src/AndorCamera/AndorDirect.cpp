@@ -141,7 +141,11 @@ void Source::acquire()
             }
 
             Acquisition::Fetch nextIm =
-                acquisition.getNextImage( image->ptr() );
+#if cimg_version >= 129
+                acquisition.getNextImage( image->data() );
+#else
+                acquisition.getNextImage( image->ptr );
+#endif
             if ( nextIm.first == Acquisition::NoMoreImages )
                 break;
             else {
