@@ -81,6 +81,7 @@ proc stage_pass { } {
 
 proc wait_for_jobs { } {
     set timeout -1
+    set test "All jobs terminate"
     send "cmd 0 wait_for_jobs\n"
     expect -re "ack 0"
     set timeout 10
@@ -112,7 +113,7 @@ proc load_default_config {} {
 }
 
 proc disconnect_camera {} {
-    set timeout 10
+    set timeout 11
     set test "Disconnecting from camera"
     dstorm_attach
     set campath "in Car in Method in InputMethod in AndorDirectConfig"

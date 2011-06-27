@@ -1,6 +1,7 @@
 proc program_start { cmd args } {
     global netcathost
     global spawn_id
+    global executableinterpreter
 
     if { [info exists netcathost] } {
         puts "Running netcat"

@@ -102,7 +102,11 @@ USE_FUNCTION(WaitForAcquisition)
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
+#ifdef HAVE_LIBATMCD32D
 #include <ATMCD32D.H>
+#else
+#include <ATMCD32D_for_dummy.h>
+#endif
 #endif
 
 #define CHECK(x,y) try { checkAndorCodeStr( x, y ); } catch (Error& e) { throw e; }

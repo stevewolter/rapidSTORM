@@ -3,10 +3,10 @@ load_default_config
 send "in Car in AutoTerminate in value set true\n"
 set timeout 20
 
-set input_file "$workspace/Mikrotubuli.txt"
+set input_file "Mikrotubuli.txt"
 
 set test "Do not overwrite own input file"
-send "in Car in Method in InputMethod in Auto set InputFile in value set $input_file\n"
+send "in Car in Method in InputMethod in Auto set InputFile in value set ${workspace_target}$input_file\n"
 send "in Car in Run in value set 1\n"
 expect {
     -re "failed:.*was used by multiple outputs"
@@ -27,11 +27,11 @@ wait_for_jobs
 
 set timeout -1
 set test "Write file if output is changed"
-set output_file "$tmpdir/test-txt-output.txt"
-set output_img "$tmpdir/test-txt-output.jpg"
+set output_file "test-txt-output.txt"
+set output_img "test-txt-output.jpg"
 send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
-send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set $output_file\n"
-send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set $output_img\n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output0 in Table in ToFile in value set ${tmpdir_target}$output_file\n"
+send "in Car in Output in EngineOutput in Output3 in LocalizationFilter in Output1 in Image in ToFile in value set ${tmpdir_target}$output_img\n"
 
 dstorm_attach
 
@@ -42,31 +42,36 @@ expect {
         "\nin dStormJob" { exp_continue }
 }
 set test "Written output file exists"
-if { [file exists "$output_file"] == 1 } {
+if { [file exists "${tmpdir_host}$output_file"] == 1 } {
     pass "$test"
 } else {
     fail "$test"
 }
 set test "Output image file exists"
-if { [file exists "$output_img"] == 1 } {
+if { [file exists "${tmpdir_host}$output_img"] == 1 } {
     pass "$test"
 } else {
-    fail "$test"
+    xfail "Output image file has provided extension"
+    if { [file exists "${tmpdir_host}can-compute-cam-job-test.png"] == 1 } {
+        pass "$test"
+    } else {
+        fail "$test"
+    }
 }
 
 set test "Written output file has same number of lines as input file"
 
 set linecountdiff 0
-set filestream [open "$output_file" r]
+set filestream [open "${tmpdir_host}$output_file" r]
 while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
 close $filestream
 set linecountdiff -$linecountdiff
-set filestream [open "$input_file" r]
+set filestream [open "${workspace_host}$input_file" r]
 while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
 close $filestream
 if { $linecountdiff == 0 } {
     pass "$test"
-    file delete -force "$output_file"
+    file delete -force "${tmpdir_host}$output_file"
 } else {
     fail "$test"
 }

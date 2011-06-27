@@ -19,7 +19,7 @@ send "in Car in Output in EngineOutput set ToRemove in value set Output0\n"
 send "in Car in Output in EngineOutput set ChooseTransmission in value set Image\n"
 set test "Image output is created"
 expect {
-    -re "in Car in Output in EngineOutput declare Object\r?\nname (\[A-Za-z0-9\]*)\r?\n" 
+    -re "in Car in Output in EngineOutput declare Object\r*\nname (\[A-Za-z0-9\]*)\r*\n" 
         { pass "$test"; set imageOutput $expect_out(1,string) }
 }
 

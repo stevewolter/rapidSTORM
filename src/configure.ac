@@ -70,16 +70,32 @@ AC_CHECK_LIB([GraphicsMagick], [main])
 AC_CHECK_LIB([GraphicsMagick++], [main])
 AC_CHECK_LIB([readsif], [main])
 
-AC_ARG_WITH([andor-camera],
-    [AS_HELP_STRING([--with-andor-camera],
+AC_ARG_WITH([dummy-andor-camera],
+    [AS_HELP_STRING([--with-dummy-andor-camera],
         [support direct acquisition from Andor cameras by Andor SDK @<:@default=check@:>@])],
         [],
-        [with_andor_camera=check])
+        [with_dummy_andor_camera=check])
 AS_IF( 
     [test "x$with_andor_camera" != xno], 
-        [AC_CHECK_LIB([ATMCD32D], [main], ,
-            [with_andor_camera=no])] )
+        [AC_CHECK_LIB([DummyAndorCamera], [main], ,
+            [with_dummy_andor_camera=no])] )
+AM_CONDITIONAL( [HAVE_DUMMYANDORCAMERA], [test "x$with_dummy_andor_camera" != xno] )
+
+with_andor_camera=no
+if test "x$with_dummy_andor_camera" == xno; then
+    AC_ARG_WITH([andor-camera],
+        [AS_HELP_STRING([--with-andor-camera],
+            [support direct acquisition from Andor cameras by Andor SDK @<:@default=check@:>@])],
+            [],
+            [with_andor_camera=check])
+    AS_IF( 
+        [test "x$with_andor_camera" != xno], 
+            [AC_CHECK_LIB([ATMCD32D], [main], ,
+                [with_andor_camera=no])] )
+fi
 AM_CONDITIONAL( [HAVE_LIBATMCD32D], [test "x$with_andor_camera" != xno] )
+
+AM_CONDITIONAL( [HAVE_ANDORCAMERA], [test "x$with_dummy_andor_camera" != xno -o "x$with_andor_camera" != xno] )
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],

@@ -1,3 +1,6 @@
+# This code is highly machine-dependent because of timing issues. Do not run by default.
+# This bug should be checked with a unit test.
+if { 0 == 1 } {
 begin_test_suite
 load_default_config
 
@@ -39,4 +42,6 @@ while { $have_passed < 1 } {
     set x 0
     #while { $x < 50000 } { set x [expr $x + 1]; }
 }
-
+} else {
+    untested "Bug #80 resurfaced"
+}

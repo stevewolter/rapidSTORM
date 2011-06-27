@@ -1,7 +1,7 @@
 #ifndef CImgBuffer_ANDORDIRECT_H
 #define CImgBuffer_ANDORDIRECT_H
 
-#ifdef HAVE_LIBATMCD32D
+#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
 
 #include <dStorm/input/Config.h>
 #include <dStorm/input/Source.h>

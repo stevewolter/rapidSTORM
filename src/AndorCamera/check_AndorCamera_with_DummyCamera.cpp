@@ -110,8 +110,13 @@ int main(int argc, char *argv[]) {
         for ( ImBuf::iterator i = buffer.begin(); i != buffer.end(); i++ ) {
             Claim<AndorDirect::CamImage> claim = i->claim();
             AndorDirect::CamImage& image = *claim;
+#if cimg_version < 129
             for ( unsigned int x = 0; x < image.width; x+= 8 )
                 for ( unsigned int y = 0; y < image.height; y+= 7 )
+#else
+            for ( unsigned int x = 0; x < image.width(); x+= 8 )
+                for ( unsigned int y = 0; y < image.height(); y+= 7 )
+#endif
                 {
                     assert( image(x,y) == pixelValue(x,y,claim.index()+1));
                 }

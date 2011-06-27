@@ -15,7 +15,7 @@ void local_cleanup( dStorm::ErrorHandler::CleanupArgs& args,
         master.reset(is.release());
         args.pop_front();
     } else {
-#ifdef HAVE_LIBATMCD32D
+#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
         AndorCamera::EmergencyHandler::do_emergency_cleanup( args, *master );
 #endif
     }

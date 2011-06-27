@@ -4,14 +4,17 @@ global dirsep_host
 global dirsep_target
 global workspace_target
 global testcase_target
+global executableinterpreter
 
 set tmpdir_host "/tmp/rapidstorm-test/"
 set tmpdir_target "/tmp/rapidstorm-test/"
-set workspace_target "/srv/rapidSTORM-dev/test_cases/Sample_Workspace/"
+set workspace_target "/srv/rapidSTORM-build/Sample_Workspace_dSTORM/"
 set workspace_host "$workspace_target"
 set testcase_target "/srv/rapidSTORM-dev/test_cases/"
-set testcase_host "$testcase_target"
+
+set executableinterpreter "valgrind"
 
 if { [file exists $tmpdir_host] != 1 } {
     file mkdir $tmpdir_host
 }
+load_generic_config "unix"

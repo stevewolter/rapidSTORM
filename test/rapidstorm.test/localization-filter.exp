@@ -1,19 +1,24 @@
+start_test_suite
+
 set test "Localization filter works"
 send "attach\n"
-send "in Car in Method set InputMethod in Auto in InputFile in value set /srv/storm/ATTO655_DNA_OF2_3.sif\n"
+send "in Car in Method set InputMethod in Auto in InputFile in value set ${workspace_target}Mikrotubuli.sif\n"
 send "in Car in Output set EngineOutput in ChooseTransmission in value set LocalizationFilter\n"
 send "in Car in Output set EngineOutput in Output0 in LocalizationFilter in ChooseTransmission in value set Image\n"
 send "in Car in Output set EngineOutput in Output0 set LocalizationFilter in Output0 in Image in ShowOutput in value set true\n"
 send "in Car in Output in EngineOutput in Output0 in LocalizationFilter in Output0 in Image in CloseOnCompletion in value set true\n"
 send "in Car in Run in value set 1\n"
 expect  {
-    -re "declare Set\r?\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); }
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); }
 }
 sleep 1
 send "in $job in EngineStatus in EngineStopper in value set 1\n"
 sleep 1
-send "in $job in CloseJob in value set 1\n"
-sleep 1
+#send "in $job in CloseJob in value set 1\n"
+#sleep 1
+set timeout 10
 expect -re "\nremove "
 
 xfail "Localization speed in m/s"
+
+end_test_suite

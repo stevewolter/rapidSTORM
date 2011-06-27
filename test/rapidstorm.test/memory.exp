@@ -1,8 +1,5 @@
-begin_test_suite
-
 unsupported "No idea how to limit memory usage"
-end_test_suite
-continue
+if { 0 == 1 } {
 
 send "forSet Car forSet Method set InputMethod value AndorDirectConfig\n"
 send "forSet Car forSet Engine set FixSigma value true\n"
@@ -28,3 +25,4 @@ expect {
 }
 
 end_test_suite
+}

@@ -1,7 +1,7 @@
 #ifndef ANDORDIRECT_VIEWPORTSELECTOR_H
 #define ANDORDIRECT_VIEWPORTSELECTOR_H
 
-#ifdef HAVE_LIBATMCD32D
+#if defined(HAVE_LIBATMCD32D) || defined(HAVE_LIBDUMMYANDORCAMERA)
 
 #include <dStorm/helpers/thread.h>
 #include <dStorm/helpers/DisplayManager.h>

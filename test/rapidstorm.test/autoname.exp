@@ -23,7 +23,7 @@ set bnp_prefix ""
 if { $have_test_plugin == 1 } {
 send "cmd 1 in Car in Output in EngineOutput in ChooseTransmission in value set BasenamePrinter\n"
 expect {
-    -re "(in Car in Output in EngineOutput )declare Object\r?\nname Output(\[0-9\]*)" 
+    -re "(in Car in Output in EngineOutput )declare Object\r*\nname Output(\[0-9\]*)" 
         { 
             pass "$test"
             set bnp_prefix "$expect_out(1,string)in Output$expect_out(2,string) in BasenamePrinter" 
@@ -55,10 +55,11 @@ send "in Car in Run in value set 1\n"
 expect {
     -re "Output file basename is Job_(\[0-9\]*)"       
 	{ pass "$test"; set current_job $expect_out(1,string) }
-    -re "Output file basename is .*"        { fail "$test" }
+    -re "Output file basename is \[^J\].*"        { fail "$test" }
 }
+set test "camera job termination #$i"
 expect {
-    -re "in dStormJob$current_job declare TriggerEntry\r?\nname CloseJob" {}
+    -re "in dStormJob$current_job declare TriggerEntry\r*\nname CloseJob" {}
 }
 send "in dStormJob$current_job in CloseJob in value set 1\n"
 set current_job [expr $current_job+1]
@@ -74,7 +75,7 @@ foreach {i} {2 3 4} {
     }
     set test "camera job termination #$i"
     expect {
-        -re "in dStormJob(0?$current_job) declare TriggerEntry\r?\nname CloseJob" 
+        -re "in dStormJob(0*$current_job) declare TriggerEntry\r*\nname CloseJob" 
         {
             send "in dStormJob$expect_out(1,string) in CloseJob in value set 1\n"
         }
@@ -90,9 +91,9 @@ set test "basename switch"
 send "in Car in Method in InputMethod in DummyInput in Number in value set 1\n"
 send "cmd 0 in Car in Method in InputMethod in value set Auto\n"
 expect {
-    -re "Displaying output file name .foo" { exp_continue }
-    -re "Displaying output file name .*.foo" { fail "$test" }
+    -re "Displaying output file name ..*.foo" { fail "$test" }
     -re "ack 0" { pass "$test" }
+    -re "Displaying output file name .foo" { exp_continue }
 }
 
 set test "sif file basename"

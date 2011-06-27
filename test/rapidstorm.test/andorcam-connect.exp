@@ -28,7 +28,7 @@ send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Init
 expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Temperature in ReferenceTemperature in min min set (-\[0-9\]*)" {
         if { $have_verbose_dummy == 1 } {
-            if { $expect_out(string,1) == -81 } {
+            if { $expect_out(1,string) == -80 } {
                 pass "$test"
             } else {
                 fail "$test"
@@ -85,17 +85,21 @@ expect {
 }
 
 send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in Initialization in ConnectToCamera in value set 1\n"
+set reconnect_already_worked 0
 set test "Reconnect actually works"
 if { $have_verbose_dummy } {
     expect {
+        -re "in NumericState in value set 2" { set reconnect_already_worked 1; exp_continue; }
         -re "Dummy camera initialized" { pass "$test" }
     }
 } else {
     unsupported "$test"
 }
 set test "Reconnect seems to work"
+if { $reconnect_already_worked == 1 } { pass "$test"; } else {
 expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2" { pass "$test" }
+}
 }
 
 set test "Camera can be cooled"

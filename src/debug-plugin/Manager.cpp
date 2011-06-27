@@ -77,11 +77,11 @@ bool Manager::Source::get_and_handle_change() {
         current_display.fill(
             state.clear_image.background );
     } else if ( c->do_change_image ) {
-        for (int x = 0; x < current_display.rows(); x++)
-          for (int y = 0; y < current_display.cols(); y++)
+        for (int col = 0; col < current_display.cols(); col++)
+          for (int r = 0; r < current_display.rows(); r++)
           {
-            int i = y*current_display.cols()+x;
-            current_display(x,y) = 
+            int i = r*current_display.cols()+col;
+            current_display(r,col) = 
                 c->image_change.pixels[i];
           }
     }

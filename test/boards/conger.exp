@@ -1,3 +1,9 @@
 global netcathost
 load_generic_config "unix"
 set netcathost "kokolorix"
+set tmpdir_host "/srv/rapidSTORM-dev/tmpdir/"
+set tmpdir_target "Z:\\"
+set workspace_target "X:\\Sample_Workspace\\"
+set workspace_host "/srv/rapidSTORM-dev/test_cases/Sample_Workspace/"
+set testcase_target "X:\\"
+set testcase_host "/srv/rapidSTORM-dev/test_cases/"

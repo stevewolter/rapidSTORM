@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
     -include $(top_builddir)/config.h \
     -include $(top_srcdir)/../debug.h
 
-if HAVE_LIBATMCD32D
+if HAVE_ANDORCAMERA
     ACS = \
 	SDK.h SDK.cpp Error.cpp foreach.h \
 	Acquisition.cpp StateMachine.cpp StateMachine.h \
@@ -25,7 +25,7 @@ endif
 libAndorCamera_la_SOURCES = Config.cpp Config.h $(ACS)
 
 C_TESTS = check_AndorCamera_with_DummyCamera
-if HAVE_LIBATMCD32D
+if HAVE_ANDORCAMERA
 TESTS = $(C_TESTS)
 check_PROGRAMS = $(C_TESTS)
 else

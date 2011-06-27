@@ -71,14 +71,15 @@ expect {
 
 set test "Can save camera snapshot image"
 set outfile "cam_snapshot.png"
-if { [file exists $outfile] == 1 } { file delete -force $outfile }
+if { [file exists $tmpdir_host$outfile] == 1 } { file delete -force $tmpdir_host$outfile }
 
-send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImageFile in value set $outfile\n"
+send "in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImageFile in value set $tmpdir_target$outfile\n"
 send "cmd 101 in Car in Method set InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in SaveAcquiredImage in value set 1\n"
 set timeout -1
 expect {
     "ack 101" {
-        if { [file exists "$outfile"] == 1 } {
+        sleep 1
+        if { [file exists "$tmpdir_host$outfile"] == 1 } {
             pass "$test"
             #file delete -force "$outfile"
         } else {
@@ -95,14 +96,14 @@ expect {
     -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in CameraStatus in CameraStatus in value set Acquiring images"
         { pass "$test" }
 }
-set timeout -1
+set timeout 10
 set test "Am actually getting different images"
 set digest_a "nan"
 if { $have_test_plugin == 1 } {
     expect {
         -re "After change digest is (\[0-9a-f\]*)" {
             if { [string compare $digest_a "nan"] == 0 } {
-                set digest_a $expect_out(1,string)
+                set digest_a $expect_out(1,string); exp_continue
             } elseif { [string compare $digest_a $expect_out(1,string)] != 0 } {
                 pass "$test"
             } else {
@@ -117,16 +118,16 @@ if { $have_test_plugin == 1 } {
 
 
 for { set i 1 } { $i <= 5 } { incr i } {
-    set test "Can unpause for the $i-th time"
-    send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
-    expect {
-        -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 5"
-            { pass "$test" }
-    }
     set test "Can pause for the $i-th time"
     send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
     expect {
         -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 2"
+            { pass "$test" }
+    }
+    set test "Can unpause for the $i-th time"
+    send "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Readout in SelectImage in ViewportSelector in PauseCamera in value set 1\n"
+    expect {
+        -re "in Car in Method in InputMethod in AndorDirectConfig in CamControl in Initialization in NumericState in value set 5"
             { pass "$test" }
     }
 }
