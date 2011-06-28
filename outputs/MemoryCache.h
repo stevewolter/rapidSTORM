@@ -5,6 +5,7 @@
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/input/LocalizationTraits.h>
+#include <boost/ptr_container/ptr_list.hpp>
 
 namespace dStorm {
 namespace output {
@@ -24,7 +25,10 @@ class MemoryCache : public Filter
      *  thread emits other results. */
     ost::ThreadLock emissionMutex;
     /** Cache containing all localizations received so far. */
-    Localizations store;
+    struct Bunch;
+    std::auto_ptr<Bunch> master_bunch;
+    typedef boost::ptr_list<Bunch> Bunches;
+    Bunches bunches;
 
     enum State { PreStart, Running, Succeeded };
     State inputState, outputState;
@@ -38,6 +42,8 @@ class MemoryCache : public Filter
     void reemit_localizations(bool& terminate);
 
     class _Config;
+
+    static const int LocalizationsPerBunch;
   public:
     MemoryCache(std::auto_ptr<Output> output);
     MemoryCache( const MemoryCache& );

@@ -8,9 +8,51 @@
 #include <dStorm/traits/range_impl.h>
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/thread/thread.hpp>
+#include "MemoryCache_Cache.h"
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 namespace dStorm {
 namespace output {
+
+const int MemoryCache::LocalizationsPerBunch = 4000;
+
+class MemoryCache::Bunch 
+{
+    typedef memory_cache::Interface Part;
+    int current_offset;
+    std::vector< std::pair<frame_index,int> > offsets;
+    typedef boost::ptr_vector< Part > Parts;
+    Parts storages;
+    
+  public:
+    Bunch(const input::Traits<LocalizedImage>& traits)
+        : current_offset(0), 
+          storages( Part::instantiate_necessary_caches(traits) ) {}
+    ~Bunch() {}
+
+    void insert( const LocalizedImage& o ) {
+        int my_offset = current_offset;
+        offsets.push_back( std::make_pair( o.forImage, my_offset ) );
+        std::for_each( storages.begin(), storages.end(),
+            boost::bind( &Part::store, _1, o.begin(), o.end() ) );
+        current_offset += o.size();
+    }
+
+    int number_of_images() const { return offsets.size(); }
+    int number_of_localizations() const { return current_offset; }
+
+    void recall( int index, LocalizedImage& into ) const {
+        assert( index < number_of_images() );
+        into.clear();
+        int next_offset = (index+1 == offsets.size()) ? current_offset 
+                                                      : offsets[index+1].second;
+        into.resize( next_offset - offsets[index].second );
+        into.forImage = offsets[index].first;
+        for_each( into.begin(), into.end(), 
+            bind(&Localization::frame_number, boost::lambda::_1) = into.forImage );
+    }
+};
 
 class MemoryCache::ReEmitter 
 : public dStorm::Engine
@@ -123,13 +165,17 @@ void MemoryCache::reemit_localizations(bool& terminate) {
     if ( outputState != PreStart )
         Filter::propagate_signal( Output::Engine_is_restarted );
 
-    typedef Localizations::image_wise_const_iterator const_iterator;
-    for ( const_iterator i = store.begin_imagewise(); i != store.end_imagewise(); ++i )
+    LocalizedImage im;
+    for ( Bunches::const_iterator i = bunches.begin(); i != bunches.end(); ++i )
     {
-        Filter::receiveLocalizations( *i );
-        /* TODO: Result not checked for now. */
-        if ( terminate )
-            break;
+        for (int j = 0; j < i->number_of_images(); ++j) {
+            i->recall( j, im );
+            DEBUG("Reemitting " << im.size() << " localizations for image " << j << " in current bunch");
+            Filter::receiveLocalizations( im );
+            /* TODO: Result not checked for now. */
+            if ( terminate )
+                break;
+        }
     }
             
     if ( terminate ) {
@@ -148,7 +194,9 @@ MemoryCache::announceStormSize(const Announcement& a)
 { 
     {
         ost::MutexLock lock( locStoreMutex );
-        store = Localizations(a);
+        bunches.clear();
+        master_bunch.reset( new Bunch(a) );
+        bunches.push_back( new Bunch(*master_bunch) );
     }
 
     Announcement my_announcement(a);
@@ -165,7 +213,7 @@ void MemoryCache::propagate_signal(ProgressSignal s)
     if ( s == Engine_is_restarted )
     {
         ost::MutexLock lock( locStoreMutex );
-        store.clear();
+        bunches.clear();
     }
     ost::ReadLock lock( emissionMutex );
     if ( s == Engine_run_succeeded ) 
@@ -176,16 +224,17 @@ void MemoryCache::propagate_signal(ProgressSignal s)
 Output::Result 
 MemoryCache::receiveLocalizations(const EngineResult& e) 
 {
-    Localizations::image_wise_iterator i;
     {
         ost::MutexLock lock( locStoreMutex );
-        i = store.insert( e );
+        bunches.back().insert( e );
+        if ( bunches.back().number_of_localizations() >= LocalizationsPerBunch )
+            bunches.push_back( new Bunch( *master_bunch ) );
     }
 
     Output::Result rv;
     {
         ost::ReadLock lock( emissionMutex );
-        rv = Filter::receiveLocalizations( *i );
+        rv = Filter::receiveLocalizations( e );
     }
     return rv;
 }
