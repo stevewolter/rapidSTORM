@@ -75,7 +75,10 @@ AC_CHECK_LIB([GraphicsMagick], [main], , [AC_ERROR(GraphicsMagick library not fo
 AC_CHECK_LIB([GraphicsMagick++], [main], , [AC_ERROR(GraphicsMagick++ library not found)])
 AC_CHECK_LIB([readsif], [main], , [AC_ERROR(readsif library not found)])
 AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
-AC_CHECK_LIB([boost_thread], [main], , [AC_ERROR(boost thread library not found)])
+AC_CHECK_LIB([boost_thread], [main])
+AC_CHECK_LIB([boost_thread_win32], [main])
+AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
+    [AC_ERROR([No boost thread library found])], [])
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],

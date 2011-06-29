@@ -24,6 +24,10 @@
 /* Define to 1 if you have the `boost_thread' library (-lboost_thread). */
 #undef HAVE_LIBBOOST_THREAD
 
+/* Define to 1 if you have the `boost_thread_win32' library
+   (-lboost_thread_win32). */
+#undef HAVE_LIBBOOST_THREAD_WIN32
+
 /* Define to 1 if you have the `dStorm' library (-ldStorm). */
 #undef HAVE_LIBDSTORM
 
