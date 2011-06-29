@@ -13,5 +13,10 @@ CPPFLAGS+=-I/usr/include/GraphicsMagick -I/usr/include/eigen2 -DNDEBUG
 CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 CFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 
+ifeq ($(DEB_HOST_ARCH),mingw-i586)
+override_dh_shlibdeps :
+	i586-mingw-dh_shlibdeps
+endif
+
 %:
 	dh $@ 
