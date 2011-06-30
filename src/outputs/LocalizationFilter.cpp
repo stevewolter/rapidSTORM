@@ -224,22 +224,30 @@ void LocalizationFilter::copy_and_modify_localizations(
     Localization *to, int& to_count )
 
 {
+    /* This dummy assertion will be true for all normal floats, but trigger valgrinds 
+     * uninitialized value warnings. */
+    assert( (shift_velocity.cwise() >= 0).any() || (shift_velocity.cwise() <= 0).any() );
     for ( int i = 0; i < n; i++ ) {
         amplitude strength = from[i].getStrength();
         if ( strength >= v_from && strength <= v_to &&
              from[i].two_kernel_improvement() < two_kernel_significance() )
         {
+            assert( (from[i].position().cwise() >= 0).all() );
             /* Write localization behind array. Array will be enlarged
              * later. */
             new (to+to_count) Localization( from[i] );
             
+            assert( (to[to_count].position().cwise() >= 0).all() );
+            assert( to[to_count].getImageNumber().value() >= 0 );
             /* Move localization by drift correction. */
-            to[i].position() += 
-                shift_velocity * to[i].getImageNumber();
+            to[to_count].position() += 
+                shift_velocity * from[i].getImageNumber();
 
-            const Localization::Position& npos = to[i].position();
+            const Localization::Position& npos = to[to_count].position();
+            bool in_positive_range = (npos.cwise() >= 0).all();
             /* Check if new coordinates are still valid. */
-            if (    (npos.cwise() < 0).any() || 
+            if ( ! in_positive_range ) {
+            } else if ( 
                     (npos.cwise() >= traits.size.cast<
                         Localization::Coord>()).any() )
             {

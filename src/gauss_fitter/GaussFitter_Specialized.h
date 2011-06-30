@@ -188,6 +188,7 @@ fit( const Spot &spot, Localization *target, const Image& image,
     {
         case Single:
             target->two_kernel_improvement() = 0;
+            break;
         case Double:
         case Fishy:
             target->two_kernel_improvement() = 1 - double_fit_analysis

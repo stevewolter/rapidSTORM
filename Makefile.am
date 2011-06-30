@@ -28,13 +28,4 @@ else
 TESTDIR=
 endif
 
-if BUILD_DEPLOY
-DEPLOYDIR=deploy
-else
-DEPLOYDIR=
-endif
-
-SUBDIRS = $(DOC) $(LIB_SUBDIR) $(EXEC_SUBDIR) $(TESTDIR) $(DEPLOYDIR)
-
-installer bundle :
-	test '$(DEPLOYDIR)' && make -C '$(DEPLOYDIR)' $@
+SUBDIRS = $(DOC) $(LIB_SUBDIR) $(EXEC_SUBDIR) $(TESTDIR)

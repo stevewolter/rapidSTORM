@@ -23,6 +23,7 @@ ImageDiscretizer<Colorizer, ImageListener>
   pixels_by_value( d, HistogramPixel() ),
   in_depth( d ),
   out_depth( Colorizer::BrightnessDepth - 1 ),
+  pixels_above_used_max_value(0),
   histogram_power( hp ),
   binned_image(binned_image)
 {

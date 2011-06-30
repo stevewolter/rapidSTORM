@@ -193,6 +193,10 @@ start_from_splitted_single_fit(
 {
     typedef Width_Invariants<FF,false> Base;
 
+#ifndef NDEBUG
+    v->fill( -1 );
+#endif
+
     params.change_variable_set( v );
     params.setShift( Base::params.getShift() );
 
@@ -222,6 +226,7 @@ start_from_splitted_single_fit(
         params.template setSigmaXY<1>( this->start_sxy );
     }
 
+    assert( (v->cwise() > -1).all() );
 }
 
 template <int FF>

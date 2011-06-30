@@ -47,6 +47,7 @@ StateMachine::StateMachine(int index)
   currently_served( NULL ),
   current_state( Disconnected ),
   desired_state( Disconnected ),
+  tolerance( Precisely ),
   emergency_callback( new EmergencyCallback(*this) ),
   camID(index)
 {

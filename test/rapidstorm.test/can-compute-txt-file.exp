@@ -7,10 +7,12 @@ set input_file "Mikrotubuli.txt"
 
 set test "Do not overwrite own input file"
 send "in Car in Method in InputMethod in Auto set InputFile in value set ${workspace_target}$input_file\n"
-send "in Car in Run in value set 1\n"
+send "cmd 23 in Car in Run in value set 1\n"
+set timeout -1
 expect {
     -re "failed:.*was used by multiple outputs"
         { pass "$test" }
+    -re "ack 23" { fail "$test" }
 }
 
 set test "Do not overwrite own input file when STM is selected as input driver"

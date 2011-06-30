@@ -49,14 +49,5 @@ if test "x$enable_test_build" = "xyes"; then
 fi
 AM_CONDITIONAL([BUILD_TESTS], [test "x$enable_test_build" = "xyes"])
 
-AC_ARG_ENABLE([deploy-build],
-    [AS_HELP_STRING([--enable-deploy-build], [Build remote deployment files @<:@default=yes@:>@])],
-    [],
-    [enable_deploy_build=yes])
-if test "x$enable_deploy_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([deploy])
-fi
-AM_CONDITIONAL([BUILD_DEPLOY], [test "x$enable_deploy_build" = "xyes"])
-
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

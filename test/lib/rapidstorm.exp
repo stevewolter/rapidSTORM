@@ -35,7 +35,7 @@ proc dstorm_start {} {
 
 proc dstorm_attach {} {
     set test "attachment works"
-    set timeout 5
+    set timeout 15
     send "cmd 23 attach\n"
     expect {
         "ack 23" { pass "$test" }

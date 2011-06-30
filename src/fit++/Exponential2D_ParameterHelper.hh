@@ -21,18 +21,23 @@ bool ParameterHelper<Ks,PM,W,H,Corr>::prepare(
     extract_param<SigmaY>( v, c, sy );
     extract_param<SigmaXY>( v, c, rho );
     extract_param<Amp>( v, c, amp );
+    if ( (x_low < 0 ) ) return false;
+    if ( (x0.cwise() < 0 ).any() ) return false;
 
-    if (
-        /* Center out of lattice? */
-            ( x0.cwise() < x_low ).any() 
-        ||( x0.cwise() > (x_low + Width-1) ).any()
-        ||( y0.cwise() < y_low ).any()
-        ||( y0.cwise() > (y_low + Height-1) ).any()
+    /* Center out of lattice? */
+    if ( ( x0.cwise() < x_low ).any() )
+        return false;
+    if ( ( x0.cwise() > (x_low + Width-1) ).any() )
+        return false;
+    if ( ( y0.cwise() < y_low ).any()
+        ||( y0.cwise() > (y_low + Height-1) ).any() )
+        return false;
         /* Sigmas insane? */
-        ||( rho.cwise() < -1.0  ).any() || ( rho.cwise() >  1.0  ).any()
-        ||( sx.cwise() < 0 ).any() || ( sy.cwise() < 0 ).any()
-        /* Amplitude insane? */
-        ||( amp.cwise() < 0 ).any() )
+     if ( ( rho.cwise() < -1.0  ).any() || ( rho.cwise() >  1.0  ).any()
+        ||( sx.cwise() < 0 ).any() || ( sy.cwise() < 0 ).any() )
+        return false;
+    /* Amplitude sane? */
+    if ( ( amp.cwise() < 0 ).any() )
         return false;
 
     if ( Corr )

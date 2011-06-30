@@ -7,10 +7,10 @@ global testcase_target
 
 set tmpdir_host "/tmp/rapidstorm-test/"
 set tmpdir_target "/tmp/rapidstorm-test/"
-set workspace_target "/srv/rapidSTORM-dev/test_cases/Sample_Workspace/"
-set workspace_host "$workspace_target"
 set testcase_target "/srv/rapidSTORM-dev/test_cases/"
 set testcase_host "$testcase_target"
+set workspace_target "${testcase_target}Sample_Workspace/"
+set workspace_host "$workspace_target"
 
 if { [file exists $tmpdir_host] != 1 } {
     file mkdir $tmpdir_host

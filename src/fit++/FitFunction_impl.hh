@@ -13,7 +13,7 @@
 #include <Eigen/LU> 
 #include <Eigen/Array>
 
-#define FITTING(x) //cerr << x << endl
+#define FITTING(x) //std::cerr << x << endl
 
 namespace fitpp {
 using namespace std;
