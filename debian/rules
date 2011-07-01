@@ -28,6 +28,7 @@ override_dh_clean :
 	            -o -e debian/$$package.install.other-archs \
 	        && rm -f debian/$$package.install; \
 	done || true
+	/usr/bin/dh_auto_clean
 	/usr/bin/dh_clean
 
 %:
