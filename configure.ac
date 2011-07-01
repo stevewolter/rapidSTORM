@@ -18,35 +18,27 @@ AC_ARG_ENABLE([doc-build],
     [AS_HELP_STRING([--enable-doc-build], [Build documentation @<:@default=yes@:>@])],
     [],
     [enable_doc_build=yes])
-if test "x$enable_doc_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([doc])
-fi
+AC_CONFIG_SUBDIRS([doc])
 AM_CONDITIONAL([BUILD_DOC], [test "x$enable_doc_build" = "xyes"])
 
 AC_ARG_ENABLE([lib-build],
     [AS_HELP_STRING([--enable-lib-build], [Build library @<:@default=yes@:>@])],
     [],
     [enable_lib_build=yes])
-if test "x$enable_lib_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([dStorm])
-fi
+AC_CONFIG_SUBDIRS([dStorm])
 AM_CONDITIONAL([BUILD_LIBRARY], [test "x$enable_lib_build" = "xyes"])
 AC_ARG_ENABLE([exec-build],
     [AS_HELP_STRING([--enable-exec-build], [Build program executable @<:@default=yes@:>@])],
     [],
     [enable_exec_build=yes])
-if test "x$enable_exec_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([src])
-fi
+AC_CONFIG_SUBDIRS([src])
 AM_CONDITIONAL([BUILD_EXECUTABLE], [test "x$enable_exec_build" = "xyes"])
 
 AC_ARG_ENABLE([test-build],
     [AS_HELP_STRING([--enable-test-build], [Build tests @<:@default=yes@:>@])],
     [],
     [enable_test_build=yes])
-if test "x$enable_test_build" = "xyes"; then 
-    AC_CONFIG_SUBDIRS([test])
-fi
+AC_CONFIG_SUBDIRS([test])
 AM_CONDITIONAL([BUILD_TESTS], [test "x$enable_test_build" = "xyes"])
 
 AC_CONFIG_FILES([Makefile])

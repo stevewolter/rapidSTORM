@@ -1,0 +1,21 @@
+begin_test_suite
+load_default_config
+
+send "in Car in Method set InputMethod in Auto set InputFile value set ${testcase_target}bug91.tif\n"
+send "in Car in Method set InputMethod in Auto set PixelSizeInNM value set 103.0\n"
+send "in Car in Engine set FixSigma value set true\n"
+send "in Car in Engine set SpotFittingMethod in GaussFitter set FreeSigmaFitting value set true\n"
+send "in Car in Engine set AmplitudeThreshold value set 1000.0\n"
+send "in Car in Engine set SpotFittingMethod in GaussFitter set AsymmetryThreshold value set 0.1\n"
+dstorm_attach
+send "in Car in Engine set CPUNumber in value set 1\n"
+send "in Car set Run value set 1\n"
+
+set timeout -1
+set test "Bug 91 is fixed"
+expect {
+    -re "in LocalizationCount in value" { pass "$test"; }
+    -re "Conditional jump or move depends on uninitialised value" { fail "$test"; }
+}
+
+end_test_suite

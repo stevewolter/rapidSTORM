@@ -9,10 +9,29 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-CPPFLAGS+=-I/usr/include/GraphicsMagick -I/usr/include/eigen2 -DNDEBUG
+INCLUSION=$(if $(filter $(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE)),,/$(DEB_HOST_GNU_TYPE))
+CPPFLAGS+=-I/usr$(INCLUSION)/include/GraphicsMagick -I/usr$(INCLUSION)/include/eigen2 -DNDEBUG
+
+override_dh_install :
+	for package in `sed -n -e 's/Package: //p' debian/control`; do \
+	   if test -e debian/$$package.install.$(DEB_HOST_ARCH); then \
+	        ln debian/$$package.install.$(DEB_HOST_ARCH) debian/$$package.install; \
+	    elif test -e debian/$$package.install.other-archs; then \
+	          ln debian/$$package.install.other-archs debian/$$package.install; \
+	    fi; \
+	done
+	/usr/bin/dh_install
+
+override_dh_clean :
+	for package in `sed -n -e 's/Package: //p' debian/control`; do  \
+	    test -e debian/$package.install.${DEB_HOST_ARCH} \
+	            -o -e debian/$package.install.other-archs \
+	        && rm -f debian/$$package.install; \
+	done || true
+	/usr/bin/dh_clean
 
 %:
 	dh $@ 
 
 override_dh_auto_configure:
-	dh_auto_configure -- --disable-test-build --disable-deploy-build
+	dh_auto_configure -- --disable-test-build 
