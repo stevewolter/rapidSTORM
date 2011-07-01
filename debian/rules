@@ -14,5 +14,23 @@ CPPFLAGS+=-I/usr$(INCLUSION)/include/GraphicsMagick -I/usr$(INCLUSION)/include/e
 CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 CFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 
+override_dh_install :
+	for package in `sed -n -e 's/Package: //p' debian/control`; do \
+	   if test -e debian/$$package.install.$(DEB_HOST_ARCH); then \
+	        ln debian/$$package.install.$(DEB_HOST_ARCH) debian/$$package.install; \
+	    elif test -e debian/$$package.install.other-archs; then \
+	          ln debian/$$package.install.other-archs debian/$$package.install; \
+	    fi; \
+	done
+	/usr/bin/dh_install
+
+override_dh_clean :
+	for package in `sed -n -e 's/Package: //p' debian/control`; do  \
+	    test -e debian/$package.install.${DEB_HOST_ARCH} \
+	            -o -e debian/$package.install.other-archs \
+	        && rm -f debian/$$package.install; \
+	done || true
+	/usr/bin/dh_clean
+
 %:
 	dh $@ 

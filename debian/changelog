@@ -1,3 +1,9 @@
+rapidstorm (2.0.2-2) unstable; urgency=low
+
+  * Re-copied dh_install rules into package to avoid pbuilder fail
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Thu, 30 Jun 2011 21:33:54 +0200
+
 rapidstorm (2.0.2-1) unstable; urgency=low
 
   * New upstream release
