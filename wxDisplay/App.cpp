@@ -1,20 +1,27 @@
 #include "App.h"
 #include "wxManager.h"
+#include "Window.h"
 
 #include "debug.h"
 
 namespace dStorm {
 namespace Display {
 
+DECLARE_EVENT_TYPE(DISPLAY_TIMER, -1)
+DEFINE_EVENT_TYPE(DISPLAY_TIMER)
+
 BEGIN_EVENT_TABLE(App, wxApp)
+    EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
     EVT_IDLE(App::OnIdle)
 END_EVENT_TABLE()
 
 boost::function0<void> App::idle_call;
 
 App::App()
+: timer(this, DISPLAY_TIMER)
 {
     DEBUG("App has been constructed");
+    timer.Start( 100 );
 }
 
 App::~App() {
@@ -43,7 +50,10 @@ void App::close() {
     DEBUG("Closed");
 }
 
-}
+void Window::OnTimer(wxTimerEvent& event) {
+    for (std::set<Window*>::iterator i = windows.begin(); i != windows.end(); ++i)
+      (*i)->update_image();
+    event.Skip();
 }
 
 IMPLEMENT_APP_NO_MAIN( dStorm::Display::App );

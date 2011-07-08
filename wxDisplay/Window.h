@@ -22,7 +22,6 @@ class Window : public wxFrame, public Canvas::Listener
     ZoomSlider *zoom;
     ScaleBar *scale_bar;
     wxStaticText *position_label;
-    wxTimer timer;
 
     DataSource* source;
     wxManager::WindowHandle *handle;
@@ -33,7 +32,6 @@ class Window : public wxFrame, public Canvas::Listener
 
     DECLARE_EVENT_TABLE();
 
-    void OnTimer(wxTimerEvent& event);
     void OnLowerLimitChange(wxCommandEvent&);
     void OnUpperLimitChange(wxCommandEvent&);
 
@@ -51,6 +49,7 @@ class Window : public wxFrame, public Canvas::Listener
             wxManager::WindowHandle *my_handle );
     ~Window(); 
 
+    void update_image();
     void remove_data_source();
 
     std::auto_ptr<Change> getState();

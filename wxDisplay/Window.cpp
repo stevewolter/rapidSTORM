@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "App.h"
 #include "Canvas.h"
 #include "ZoomSlider.h"
 #include "Key.h"
@@ -11,9 +12,6 @@
 namespace dStorm {
 namespace Display {
 
-DECLARE_EVENT_TYPE(DISPLAY_TIMER, -1)
-DEFINE_EVENT_TYPE(DISPLAY_TIMER)
-
 wxString std_to_wx_string( const std::string& a ) {
     return wxString( a.c_str(), wxMBConvLibc() );
 }
@@ -25,7 +23,6 @@ Window::Window(
 )
 : wxFrame(NULL, wxID_ANY, std_to_wx_string( props.name ),
           wxDefaultPosition, wxSize(780, 780)),
-    timer(this, DISPLAY_TIMER),
     source(data_source),
     handle( my_handle ),
     close_on_completion( props.flags.get_close_window_on_unregister() ),
@@ -85,12 +82,13 @@ Window::Window(
         : 1 + int( floor(ratio) );
     canvas->set_zoom(new_zoom);
 
-    timer.Start( 100 );
+    wxGetApp().add_window(this);
     this->Raise();
 }
 
 Window::~Window()
 {
+    wxGetApp().remove_window(this);
     DEBUG("Destructing window");
     if ( source != NULL ) 
         source->notice_closed_data_window();
@@ -102,7 +100,7 @@ Window::~Window()
     DEBUG("Disassociated window");
 }
 
-void Window::OnTimer(wxTimerEvent& event) {
+void Window::update_image() {
     if ( !source ) return;
 
     DEBUG("Getting changes");
@@ -110,8 +108,6 @@ void Window::OnTimer(wxTimerEvent& event) {
     DEBUG("Got changes");
     commit_changes(*changes);
     DEBUG("Applied changes");
-
-    event.Skip();
 }
 
 template <typename Drawer>
@@ -174,8 +170,6 @@ void Window::remove_data_source() {
         DEBUG("Committing last change set");
         commit_changes(*changes);
     }
-    DEBUG("Stopping timer");
-    timer.Stop();
     for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
         (*i)->set_data_source(NULL);
     source = NULL;
@@ -223,7 +217,6 @@ void Window::zoom_changed( int to ) {
 }
 
 BEGIN_EVENT_TABLE(Window, wxFrame)
-    EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
     EVT_TEXT_ENTER(Key::LowerLimitID, Window::OnLowerLimitChange)
     EVT_TEXT_ENTER(Key::UpperLimitID, Window::OnUpperLimitChange)
 END_EVENT_TABLE()
