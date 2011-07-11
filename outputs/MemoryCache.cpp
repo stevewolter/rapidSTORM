@@ -214,6 +214,7 @@ void MemoryCache::propagate_signal(ProgressSignal s)
     {
         ost::MutexLock lock( locStoreMutex );
         bunches.clear();
+        bunches.push_back( new Bunch(*master_bunch) );
     }
     ost::ReadLock lock( emissionMutex );
     if ( s == Engine_run_succeeded ) 
