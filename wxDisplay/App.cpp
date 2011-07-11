@@ -11,7 +11,7 @@ DECLARE_EVENT_TYPE(DISPLAY_TIMER, -1)
 DEFINE_EVENT_TYPE(DISPLAY_TIMER)
 
 BEGIN_EVENT_TABLE(App, wxApp)
-    EVT_TIMER(DISPLAY_TIMER, Window::OnTimer)
+    EVT_TIMER(DISPLAY_TIMER, App::OnTimer)
     EVT_IDLE(App::OnIdle)
 END_EVENT_TABLE()
 
@@ -50,10 +50,13 @@ void App::close() {
     DEBUG("Closed");
 }
 
-void Window::OnTimer(wxTimerEvent& event) {
+void App::OnTimer(wxTimerEvent& event) {
     for (std::set<Window*>::iterator i = windows.begin(); i != windows.end(); ++i)
       (*i)->update_image();
     event.Skip();
+}
+
+}
 }
 
 IMPLEMENT_APP_NO_MAIN( dStorm::Display::App );

@@ -3,6 +3,7 @@
 
 #include <wx/wx.h>
 #include <memory>
+#include <set>
 #include <boost/function/function0.hpp>
 
 namespace dStorm {
@@ -30,6 +31,7 @@ class App : public wxApp {
     /** Command events sent to the App are interpreted as
      *  ost::Runnable objects to be run in the event queue. */
     void OnIdle( wxIdleEvent& );
+    void OnTimer( wxTimerEvent& );
     void close();
     void add_window(Window* w) { windows.insert(w); }
     void remove_window(Window* w) { windows.erase(w); }
