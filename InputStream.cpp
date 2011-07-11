@@ -115,6 +115,7 @@ InputStream::Pimpl::~Pimpl()
 
 void InputStream::Pimpl::run() {
     DEBUG("Running input processing loop");
+    std::cout << "# rapidSTORM waiting for commands" << std::endl;
     while ( !exhausted_input ) {
         try {
             DEBUG("Processing input");

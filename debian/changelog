@@ -1,3 +1,9 @@
+rapidstorm (2.0.2-4) testing; urgency=low
+
+  * Added readiness output to help tests
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 11 Jul 2011 13:26:54 +0200
+
 rapidstorm (2.0.2-3) testing; urgency=low
 
   * Corrected case in configure script
