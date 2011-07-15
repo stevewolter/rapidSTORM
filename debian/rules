@@ -13,6 +13,7 @@ INCLUSION=$(if $(filter $(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE)),,/$(DEB_HOST
 CPPFLAGS+=-I/usr$(INCLUSION)/include/GraphicsMagick -I/usr$(INCLUSION)/include/eigen2 -DNDEBUG
 CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse
 CFLAGS+=-O3 -msse -msse2 -mfpmath=sse
+CPPFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),-DBOOST_USE_WINDOWS_H,)
 
 %:
 	dh $@ 
