@@ -209,7 +209,7 @@ wxBitmap Canvas::zoomed_bitmap_for_canvas_region
                                        contents->GetHeight()) );
     wxRect rect = unclipped_rect.Intersect( canvas_coords( image_area ) );
 
-    wxRect subimage = image_coords( rect ), subcanvas = rect;
+    wxRect subimage = image_coords( rect );
     wxRect smoothing_region_in_image = subimage,
             smoothing_region_in_canvas;
 

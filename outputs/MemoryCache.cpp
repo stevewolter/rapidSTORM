@@ -45,7 +45,7 @@ class MemoryCache::Bunch
     void recall( int index, LocalizedImage& into ) const {
         assert( index < number_of_images() );
         into.clear();
-        int next_offset = (index+1 == offsets.size()) ? current_offset 
+        int next_offset = (index+1 == int(offsets.size())) ? current_offset 
                                                       : offsets[index+1].second;
         into.resize( next_offset - offsets[index].second );
         into.forImage = offsets[index].first;
