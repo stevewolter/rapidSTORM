@@ -33,10 +33,11 @@ OpenFile::OpenFile(const std::string& filename)
 
 void OpenFile::init(FILE *src)
 {
+    char readsif_error[4096];
     /* Open the SIF file and find a readable data set. */
     dataSet = NULL;
     stream = src;
-    file = readsif_open_File(src);
+    file = readsif_open_File(src, readsif_error, 4095);
     if (file == NULL) 
         throw std::runtime_error(file_ident + "is no valid SIF file");
 
@@ -68,6 +69,9 @@ template <typename PixelType>
 std::auto_ptr< Traits<dStorm::Image<PixelType,3> > >
 OpenFile::getTraits()
 {
+    char readsif_error[4096];
+    dataSet->error_buffer = readsif_error;
+
     std::auto_ptr< Traits<dStorm::Image<PixelType,3> > > 
         rv( new Traits<dStorm::Image<PixelType,3> >() );
     /* Read the additional information file from the SIF file
@@ -110,6 +114,9 @@ template<typename PixelType>
 std::auto_ptr< dStorm::Image<PixelType,3> >
 OpenFile::load_image(int count, simparm::Node& node)
 {
+    char readsif_error[4096];
+    dataSet->error_buffer = readsif_error;
+
     typedef dStorm::Image<PixelType,3> Image;
     DEBUG("Loading next image");
     std::auto_ptr< Image > result;
