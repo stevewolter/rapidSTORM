@@ -5,6 +5,7 @@
 #ifndef DSTORM_INPUT_IMAGEVECTOR_H
 #define DSTORM_INPUT_IMAGEVECTOR_H
 
+#include <dStorm/stack_realign.h>
 #include <memory>
 #include <iterator>
 #include <stdexcept>
@@ -75,7 +76,7 @@ namespace input {
         typename Slots::iterator get_free_slot();
         void discard( typename Slots::iterator slot );
 
-        void run();
+        DSTORM_REALIGN_STACK void run();
     };
 
 struct BufferConfig 

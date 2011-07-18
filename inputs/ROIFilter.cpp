@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "ROIFilter.h"
 #include <simparm/OptionalEntry_impl.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -29,6 +30,7 @@ template <>
 template <typename Type>
 bool DefaultVisitor<ROIFilter::Config>::operator()( std::auto_ptr< Source<Type> > s )
 {
+    DEBUG("Making source for ROI filter");
     assert( s.get() );
     typedef ROIFilter::Source<Type> Filter;
 
@@ -42,6 +44,7 @@ bool DefaultVisitor<ROIFilter::Config>::operator()( std::auto_ptr< Source<Type> 
         new_source.reset( new Filter( s, config.first_frame(), config.last_frame(), plane ) );
     } else
         new_source = s;
+    DEBUG("Made source for ROI filter");
     return true;
 }
 
@@ -75,7 +78,10 @@ ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) {
 
 input::BaseSource* ChainLink::makeSource()
 {
-    return input::chain::DelegateToVisitor::makeSource(*this);
+    DEBUG("Making source for ROI filter");
+    input::BaseSource* rv = input::chain::DelegateToVisitor::makeSource(*this);
+    DEBUG("Made source for ROI filter");
+    return rv;
 }
 
 std::auto_ptr<input::chain::Filter> makeFilter() 

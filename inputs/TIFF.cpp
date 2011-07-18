@@ -260,8 +260,11 @@ ChainLink::context_changed( ContextRef ocontext, Link* link )
 template<typename Pixel, int Dimensions>
 typename Source<Pixel,Dimensions>::TraitsPtr 
 Source<Pixel,Dimensions>::get_traits() {
+    simparm::LongEntry count( "EntryCount", "Number of images in TIFF file", 0 );
+    count.editable = false;
+    push_back(count);
     DEBUG("Creating traits from file object");
-    TraitsPtr rv = TraitsPtr( file->getTraits<Pixel,Dimensions>(true).release() );
+    TraitsPtr rv = TraitsPtr( file->getTraits<Pixel,Dimensions>(true, count).release() );
     DEBUG("Returning traits " << rv.get());
     return rv;
 }
@@ -284,7 +287,8 @@ void ChainLink::open_file() {
         file.reset( new OpenFile( context->input_file, config, config ) );
         info.reset( new chain::FileMetaInfo() );
 
-        info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>(false).release() );
+        simparm::LongEntry unused("Foo", "Foo");
+        info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>(false, unused).release() );
         info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
         info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
     } catch(...) {

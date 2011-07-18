@@ -6,6 +6,7 @@
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/units/io.hpp>
 
+#undef DEBUG
 #include "debug.h"
 
 namespace dStorm {
@@ -54,13 +55,29 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
 
 template<typename Pixel, int Dim>                                   
 typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
-OpenFile::getTraits( bool final ) 
+OpenFile::getTraits( bool final, simparm::LongEntry& n ) 
 {
     if ( determine_length && final ) {
+        TIFFOperation op( "in reading image count from TIFF file",
+                        n, ignore_warnings );
+        DEBUG("Counting images in file");
         _no_images = 1;
-        while ( TIFFReadDirectory(tiff) != 0 )
+        int last_output[2] = { 1, 1 };
+        while ( TIFFReadDirectory(tiff) != 0 ) {
             _no_images += 1;
+            if ( _no_images == last_output[0] + last_output[1] ) {
+                last_output[0] = last_output[1];
+                last_output[1] = _no_images;
+                n = _no_images;
+            }
+        }
+        DEBUG("Resetting position");
+#if 0 /* For some reason, this call just blocks under windows. Avoid it. */
         TIFFSetDirectory(tiff, 0);
+#else
+        TIFFClose(tiff);
+        tiff = TIFFOpen( file_ident.c_str(), "rCm" );
+#endif
     }
 
     DEBUG("Creating traits for size " << Dim);
@@ -82,7 +99,7 @@ OpenFile::getTraits( bool final )
 }
 
 template std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > > 
-    OpenFile::getTraits<unsigned short,3>(bool);
+    OpenFile::getTraits<unsigned short,3>(bool, simparm::LongEntry&);
 
 OpenFile::~OpenFile() {
     TIFFClose( tiff );

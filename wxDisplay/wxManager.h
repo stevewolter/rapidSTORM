@@ -1,6 +1,7 @@
 #ifndef DSTORM_DISPLAY_WXMANAGER_H
 #define DSTORM_DISPLAY_WXMANAGER_H
 
+#include <dStorm/stack_realign.h>
 #include <map>
 #include <queue>
 #include <dStorm/helpers/thread.h>
@@ -50,7 +51,7 @@ class wxManager : public Manager {
         run_in_GUI_thread( std::auto_ptr<Runnable>( new Runnable(f) ) );
     }
 
-    void run() throw();
+    DSTORM_REALIGN_STACK void run() throw();
 
   public:
     wxManager();

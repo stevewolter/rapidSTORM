@@ -5,6 +5,7 @@
 #include "debug.h"
 #include <string>
 
+#include <dStorm/stack_realign.h>
 #include <dStorm/traits/range_impl.h>
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/thread/thread.hpp>
@@ -94,7 +95,7 @@ class MemoryCache::ReEmitter
         DEBUG("Joined subthread");
     }
 
-    void run() throw()
+    DSTORM_REALIGN_STACK void run() 
     {
       DEBUG("Running localization reemitter");
         DEBUG("Acquiring mutex");

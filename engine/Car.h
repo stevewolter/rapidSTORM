@@ -3,6 +3,7 @@
 
 #include "Car_decl.h"
 
+#include <dStorm/stack_realign.h>
 #include <dStorm/Job.h>
 #include <dStorm/helpers/thread.h>
 #include <dStorm/Engine.h>
@@ -67,7 +68,7 @@ namespace engine {
 
         void add_thread();
         void compute_until_terminated();
-        void run_computation() __attribute__ (( __force_align_arg_pointer__));
+        DSTORM_REALIGN_STACK void run_computation();
 
       public:
         Car (JobMaster*, const dStorm::Config &config) ;
@@ -76,7 +77,7 @@ namespace engine {
         void drive();
         void stop();
         bool needs_stopping() { return true; }
-        void run();
+        DSTORM_REALIGN_STACK void run() ;
 
         const dStorm::Config &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }

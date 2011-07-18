@@ -44,7 +44,6 @@ Engine::Engine(
   errors("ErrorCount", "Number of dropped images", 0)
 {
     DEBUG("Constructing engine");
-    DEBUG("Spot fitter is named " << this->config.spotFittingMethod().getNode().getName());
 
     errors.editable = false;
     errors.viewable = false;
@@ -81,6 +80,8 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
 }
 
 Engine::TraitsPtr Engine::get_traits() {
+    if ( &config.spotFittingMethod() == NULL )
+        throw std::runtime_error("No spot fitter selected");
     DEBUG("Retrieving input traits");
     if ( imProp.get() == NULL )
         imProp = input->get_traits();
@@ -106,8 +107,11 @@ Engine::TraitsPtr Engine::get_traits() {
 
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
+        DEBUG("Constructing spot fitting info");
         JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *imProp, fluorophore);
+        DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
         config.spotFittingMethod().set_traits( *prv, info );
+        DEBUG("Finished setting traits, info now at " << &info);
     }
     DEBUG("Returning traits");
 

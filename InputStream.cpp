@@ -36,7 +36,7 @@ struct InputStream::Pimpl
     void register_node( Job& );
     void erase_node( Job& );
 
-    void run();
+    DSTORM_REALIGN_STACK void run();
 
     void terminate_remaining_cars();
 
@@ -113,7 +113,8 @@ InputStream::Pimpl::~Pimpl()
         all_cars_finished.wait();
 }
 
-void InputStream::Pimpl::run() {
+void InputStream::Pimpl::run()
+{
     DEBUG("Running input processing loop");
     std::cout << "# rapidSTORM waiting for commands" << std::endl;
     while ( !exhausted_input ) {

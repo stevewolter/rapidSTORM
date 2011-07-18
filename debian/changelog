@@ -1,6 +1,8 @@
 rapidstorm (2.0.2-6) testing; urgency=low
 
   * Fixed bug in caching repeating engine output
+  * Made rapidstorm-bin a provided virtual package
+  * Made rapidstorm recommend gsfonts, which is needed for image output
 
  -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 11 Jul 2011 15:31:31 +0200
 
