@@ -1,3 +1,12 @@
+== 2.0.3 ==
+
+* Adapted to new libreadsif version
+* Fixed minor compiler-issues in code.
+* Fixed bug in localization cache replay triggered for repeating engine output.
+* Added readiness output to help tests
+* Fixed bug #94.
+* Reset version number to sane values
+
 == Version 2.1.1 ==
 
 * Fixed nasty locking bug in slicer by making mutex global.
