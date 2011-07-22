@@ -55,7 +55,7 @@ ResolutionSetter <ForwardedType>::get_traits()
 
 void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
-    DEBUG("Setting traits in ResolutionSetter");
+    DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
     static_cast<traits::Optics<3>&>(t) = cuboid_config.make_traits();
     t.psf_size().x() = quantity<si::length>(psf_size_x() / si::nanometre * 1E-9 * si::metre) / 2.35;
     t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
