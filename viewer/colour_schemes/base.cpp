@@ -24,7 +24,7 @@ void rgb_weights_from_hue_saturation
     parts[T] = 1 - (1 - f) * saturation;
 
     for (int c = 0; c < 3; c++)
-        array[c] = parts[ color_index_table[hue_index][c] ];
+        array[c] = std::max(0.0f, parts[ color_index_table[hue_index][c] ] );
 
 }
 
@@ -57,6 +57,7 @@ void convert_xy_tone_to_hue_sat(
 
         float approximate_position = (2*v.y()) / v.x();
         hue = (rotations + approximate_position) / 12;
+        if (hue > 1) hue = 1;
     }
 }
 
