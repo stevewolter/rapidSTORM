@@ -109,7 +109,7 @@ ChainLink::ChainLink(const ChainLink& o)
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
-    if ( c->provides< dStorm::engine::Image >() ) {
+    if ( c.get() && c->provides< dStorm::engine::Image >() ) {
         config.read_traits( *c->traits< dStorm::engine::Image >() );
     }
     return input::chain::DelegateToVisitor::traits_changed(*this, c, l);

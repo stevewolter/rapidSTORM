@@ -224,7 +224,7 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
-: chain::Terminus(o), 
+: FileInput(o), 
   simparm::Listener( simparm::Event::ValueChanged ),
   config(o.config), file(o.file)
 {
@@ -241,7 +241,7 @@ ChainLink::makeSource()
 ChainLink::AtEnd
 ChainLink::context_changed( ContextRef ocontext, Link* link )
 {
-    Terminus::context_changed( ocontext, link );
+    FileInput::context_changed( ocontext, link );
 
     this->context = boost::dynamic_pointer_cast
         <const input::chain::FileContext, const input::chain::Context>

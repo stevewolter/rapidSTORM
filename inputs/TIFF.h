@@ -4,7 +4,7 @@
 #include <dStorm/Image_decl.h>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/FileInput.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -105,7 +105,7 @@ namespace dStorm {
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     class ChainLink
-    : public input::chain::Terminus, protected simparm::Listener
+    : public input::FileInput, protected simparm::Listener
     {
       public:
         ChainLink();

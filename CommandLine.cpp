@@ -125,8 +125,9 @@ void CommandLine::Pimpl::run() {
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
     for (int arg = first_nonoption; arg < argc; arg++) {
-        config.inputConfig.input_file() = std::string(argv[arg]);
-        starter.trigger();
+        std::cerr << "Warning: Command line argument " << argv[arg] << " was ignored." << std::endl;
+        //config.inputConfig.input_file() = std::string(argv[arg]);
+        //starter.trigger();
     }
     DEBUG("Finished processing commandline arguments");
 }

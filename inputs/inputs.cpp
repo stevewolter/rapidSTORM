@@ -19,14 +19,14 @@ namespace dStorm {
 using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
-    inputConfig->add_file_method( 
+    inputConfig->add_method( 
         new LocalizationFile::Reader::ChainLink() );
 #ifdef HAVE_LIBREADSIF
-    inputConfig->add_file_method( 
+    inputConfig->add_method( 
         new input::AndorSIF::Config<StormPixel>() );
 #endif
 #ifdef HAVE_TIFFIO_H
-    inputConfig->add_file_method( new TIFF::ChainLink() );
+    inputConfig->add_method( new TIFF::ChainLink() );
 #endif
 
     inputConfig->add_filter( ROIFilter::makeFilter() );

@@ -72,7 +72,7 @@ template<typename Pixel>
 input::chain::Link::AtEnd
 Config<Pixel>::context_changed( ContextRef ocontext, Link* link )
 {
-    Terminus::context_changed( ocontext, link );
+    FileInput::context_changed( ocontext, link );
     if ( ocontext.get() == NULL ) {
         DEBUG(this << ": Empty context provided");
         return this->notify_of_trait_change( TraitsRef() );
