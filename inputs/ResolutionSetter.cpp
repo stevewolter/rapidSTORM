@@ -64,8 +64,10 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
         zhuang.widening[0] = quantity<traits::Zhuang3D::Unit>( *widening_x() );
         zhuang.widening[1] = quantity<traits::Zhuang3D::Unit>( *widening_y() );
         t.depth_info = zhuang;
+        const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability(true);
     } else {
         t.depth_info = traits::No3D();
+        const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability(false);
     }
 }
 

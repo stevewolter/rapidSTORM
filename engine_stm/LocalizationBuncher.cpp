@@ -164,7 +164,7 @@ Source<InputType>::get_traits()
     lastImage = *r.second + 1 * camera::frame;
     firstImage = std::min(firstImage, lastImage);
 
-    return TraitsPtr( new TraitsPtr::element_type( *traits ) );
+    return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
 }
 
 template <class InputType>

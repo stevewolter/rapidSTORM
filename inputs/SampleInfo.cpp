@@ -32,7 +32,7 @@ namespace sample_info {
 using namespace chain;
 
 class FluorophoreConfig : public simparm::Set {
-    simparm::StringEntry name, label, concentration;
+    simparm::StringEntry description;
     simparm::UnitEntry<boost::units::si::nanolength, double> emission_wl;
 
   public:
@@ -144,25 +144,19 @@ namespace sample_info {
 FluorophoreConfig::FluorophoreConfig(int number)
 : simparm::Set("Fluorophore" + boost::lexical_cast<std::string>(number), 
                   "Info for fluorophore " + boost::lexical_cast<std::string>(number)),
-  name("Chromophore", "Chromophore name"),
-  label("Label", "Label/linker name"),
-  concentration("Concentration", "Label concentration"),
+  description("Description", "Description"),
   emission_wl("Wavelength", "Emission wavelength", 500.0 * boost::units::si::nanometre)
 {
 }
 
 void FluorophoreConfig::set_traits( FluorophoreTraits& t ) const
 {
-    t.chromophore_name = name();
-    t.label_name = label();
-    t.concentration = concentration();
+    t.description = description();
     t.wavelength = emission_wl() * si::meter / (1E9 * si::nanometre);
 }
 
 void FluorophoreConfig::registerNamedEntries() {
-    push_back( name );
-    push_back( label );
-    push_back( concentration );
+    push_back( description );
     push_back( emission_wl );
 }
 

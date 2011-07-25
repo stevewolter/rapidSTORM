@@ -32,7 +32,7 @@ class ChainLink::Visitor {
     bool operator()( input::Traits<Type>& source_traits ) { return true; }
     template <typename Type>
     bool operator()( const input::Traits<Type>& source_traits )
-        { new_traits.reset( new input::Traits<output::LocalizedImage>(source_traits) ); 
+        { new_traits.reset( new input::Traits<output::LocalizedImage>(source_traits, "STM", "Localizations") ); 
           return true; }
     template <typename Type>
     inline bool operator()( std::auto_ptr< input::Source< Type > > p );

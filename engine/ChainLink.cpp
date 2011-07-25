@@ -32,6 +32,13 @@ ChainLink::ChainLink(const ChainLink& c)
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
+
+    for ( simparm::NodeChoiceEntry< spot_fitter::Factory >::iterator 
+            i = config.spotFittingMethod.beginChoices(); 
+            i != config.spotFittingMethod.endChoices(); ++i )
+    {
+        i->register_trait_changing_nodes(*this);
+    }
 }
 
 input::Source<output::LocalizedImage>*
@@ -58,27 +65,36 @@ ChainLink::AtEnd
 ChainLink::traits_changed(TraitsRef r, Link* l)
 {
     Link::traits_changed(r, l);
-    if ( r.get() == NULL ) return notify_of_trait_change( r );
-    if ( ! r->provides< engine::Image>() ) {
-        if ( my_context->throw_errors ) {
-            throw std::runtime_error("rapidSTORM engine cannot process data of type " + r->base_traits().desc());
-        } else {
-            my_traits.reset();
-            return notify_of_trait_change(my_traits);
-        }
-    }
-    boost::shared_ptr< input::Traits<output::LocalizedImage> >
-        rt = Engine::convert_traits(config, r->traits<engine::Image>());
-
-    my_traits.reset( r->clone() );
-    my_traits->set_traits(rt);
-    DEBUG("Setting traits variable thres for traits " << my_traits.get() << " and basename " << &my_traits->suggested_output_basename);
-    my_traits->suggested_output_basename.set_variable
-        ( "thres", amplitude_threshold_string() );
-    DEBUG("Basename is now " << my_traits->suggested_output_basename << " for my traits " << my_traits.get() );
-    notify_of_trait_change(my_traits);
-    DEBUG("Finished notifying, traits are " << my_traits.get() << " " << current_traits().get());
+    upstream_traits = r;
+    make_new_traits();
     return AtEnd();
+}
+
+void ChainLink::make_new_traits() {
+    if ( upstream_traits.get() == NULL ) {
+        notify_of_trait_change( upstream_traits );
+    } else {
+        if ( ! upstream_traits->provides< engine::Image>() ) {
+            if ( my_context->throw_errors ) {
+                throw std::runtime_error("rapidSTORM engine cannot process data of type " + upstream_traits->base_traits().desc());
+            } else {
+                my_traits.reset();
+                notify_of_trait_change(my_traits);
+            }
+        }
+
+        boost::shared_ptr< input::Traits<output::LocalizedImage> >
+            rt = Engine::convert_traits(config, upstream_traits->traits<engine::Image>());
+
+        my_traits.reset( upstream_traits->clone() );
+        my_traits->set_traits(rt);
+        DEBUG("Setting traits variable thres for traits " << my_traits.get() << " and basename " << &my_traits->suggested_output_basename);
+        my_traits->suggested_output_basename.set_variable
+            ( "thres", amplitude_threshold_string() );
+        DEBUG("Basename is now " << my_traits->suggested_output_basename << " for my traits " << my_traits.get() );
+        notify_of_trait_change(my_traits);
+        DEBUG("Finished notifying, traits are " << my_traits.get() << " " << current_traits().get());
+    }
 }
 
 ChainLink::AtEnd
@@ -123,10 +139,7 @@ void ChainLink::make_new_requirements() {
 
 void ChainLink::operator()( const simparm::Event& e ) {
     ost::MutexLock lock( input::global_mutex() );
-    /* TODO: if ( &e.source == &config.fixSigma.value ) {
-        my_context->will_make_multiple_passes = ! config.fixSigma();
-        notify_of_context_change( my_context );
-    } else */ if ( &e.source == &config.spotFindingMethod.value ) {
+    if ( &e.source == &config.spotFindingMethod.value ) {
         make_new_requirements();
         notify_of_context_change( my_context );
     } else if ( &e.source == &config.spotFittingMethod.value ) {
@@ -140,6 +153,10 @@ void ChainLink::operator()( const simparm::Event& e ) {
         DEBUG("Basename is now " << my_traits->suggested_output_basename.new_basename() );
         notify_of_trait_change( my_traits );
         notify_of_context_change( my_context );
+    } else {
+        /* This else is called because some spot finder indicated that a
+         * value changed. */
+        make_new_traits();
     }
 }
 

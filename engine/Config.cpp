@@ -98,6 +98,7 @@ Config::Config(const Config& c)
     registerNamedEntries();
 }
 
+#if 0
 void _Config::addSpotFinder( std::auto_ptr<spot_finder::Factory> factory ) {
     spotFindingMethod.addChoice( factory );
 }
@@ -105,6 +106,7 @@ void _Config::addSpotFinder( std::auto_ptr<spot_finder::Factory> factory ) {
 void _Config::addSpotFitter( std::auto_ptr<spot_fitter::Factory> factory ) {
     spotFittingMethod.addChoice( factory );
 }
+#endif
 
 void _Config::set_variables( output::Basename& bn ) const
 {

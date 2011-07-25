@@ -21,11 +21,13 @@ class ChainLink
   protected simparm::Listener
 {
     input::chain::Context::Ptr my_context;
+    input::chain::Link::TraitsRef upstream_traits;
     input::chain::MetaInfo::Ptr my_traits;
     Config config;
 
     void make_new_requirements();
     std::string amplitude_threshold_string() const;
+    void make_new_traits();
 
   protected:
     void operator()( const simparm::Event& );
@@ -43,7 +45,10 @@ class ChainLink
     AtEnd context_changed(ContextRef, Link*);
 
     void add_spot_finder( spot_finder::Factory& finder) { config.spotFindingMethod.addChoice(finder); }
-    void add_spot_fitter( spot_fitter::Factory& fitter) { config.spotFittingMethod.addChoice(fitter); }
+    void add_spot_fitter( spot_fitter::Factory& fitter) { 
+        fitter.register_trait_changing_nodes(*this);
+        config.spotFittingMethod.addChoice(fitter); 
+    }
 };
 
 }

@@ -70,11 +70,22 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     rv.fluorophore().range().first = 0;
     rv.fluorophore().range().second = imProp->fluorophores.size() - 1;
 
-    boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( new TraitsPtr::element_type( rv ) );
+    boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
+        new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
     rvt->source_image_is_set = true;
     rvt->smoothed_image_is_set = true;
     rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp->clone() );
+
+    DEBUG("Setting traits from spot fitter");
+    for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
+        DEBUG("Constructing spot fitting info");
+        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *imProp, fluorophore);
+        DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
+        config.spotFittingMethod().set_traits( *rvt, info );
+        DEBUG("Finished setting traits, info now at " << &info);
+    }
+    DEBUG("Returning traits");
 
     return rvt;
 }
@@ -104,16 +115,6 @@ Engine::TraitsPtr Engine::get_traits() {
     prv->carburettor = input.get();
     prv->image_number().is_given = true;
     prv->engine = this;
-
-    DEBUG("Setting traits from spot fitter");
-    for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
-        DEBUG("Constructing spot fitting info");
-        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *imProp, fluorophore);
-        DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
-        config.spotFittingMethod().set_traits( *prv, info );
-        DEBUG("Finished setting traits, info now at " << &info);
-    }
-    DEBUG("Returning traits");
 
     return prv;
 }
@@ -325,7 +326,6 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         }
         buffer.resize(start+std::max<int>(0,best_found));
         for (int i = 0; i < best_found; ++i) {
-            buffer[i+start].fluorophore = fluorophore;
             buffer[i+start].frame_number() = base->frame_number();
         }
         if ( best_found > 0 ) {
