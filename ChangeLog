@@ -1,3 +1,7 @@
+== 2.1.4 ==
+
+* Fixed several bugs and interface quirks for multi-plane input
+
 == 2.0.4 ==
 
 * Fixed signage error incurred by imprecise arcsin approximation.
