@@ -80,6 +80,7 @@ void ChainLink::make_new_traits() {
             } else {
                 my_traits.reset();
                 notify_of_trait_change(my_traits);
+                return;
             }
         }
 
