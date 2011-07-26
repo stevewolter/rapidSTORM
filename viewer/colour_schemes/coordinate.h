@@ -38,7 +38,7 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
     Pixel getKeyPixel( unsigned char val ) const 
         { return inv( HueSaturationMixer::getKeyPixel(val) ); }
     void updatePixel(int x, int y, float oldVal, float newVal) 
-        { HueSaturationMixer::updatePixel(x,y, oldVal, newVal); }
+        { if ( currently_mapping) HueSaturationMixer::updatePixel(x,y, oldVal, newVal); }
 
     void announce(const output::Output::Announcement& a); 
     void announce(const output::Output::EngineResult& er);

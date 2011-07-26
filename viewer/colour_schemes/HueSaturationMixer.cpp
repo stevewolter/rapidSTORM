@@ -50,6 +50,9 @@ void HueSaturationMixer::setSize(const dStorm::Image<ColourVector,2>::Size& size
     rgb_weights.invalidate();
     colours = dStorm::Image<ColourVector,2>(size);
     rgb_weights = dStorm::Image<RGBWeight,2>(size);
+    RGBWeight zero;
+    std::fill( zero.begin(), zero.end(), 0 );
+    rgb_weights.fill(zero);
 }
 
 }
