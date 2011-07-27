@@ -23,6 +23,7 @@ Discretizer<ImageListener>
   transition(o.transition),
   in_depth( o.in_depth ),
   out_depth( o.out_depth ),
+  pixels_above_used_max_value( o.pixels_above_used_max_value ),
   histogram_power(o.histogram_power),
   binned_image(binned_image)
 {

@@ -126,7 +126,7 @@ make_key_image(
     for (int i = lh/3; i < width-(lh-lh/6); i += lh )
     {
         int index = round(i * key.size() * 1.0 / width );
-        index = std::max(0, std::min(index, key.size()));
+        index = std::max(0, std::min(index, key.size() -1));
         DEBUG("Annotating at index " << index << " for key size " << key.size() << " and position " << i << " of " << width);
         float value = key[ index ].value;
         std::string s = SIize(value);
