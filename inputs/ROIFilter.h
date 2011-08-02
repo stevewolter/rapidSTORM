@@ -2,10 +2,11 @@
 #define DSTORM_INPUT_ROIFILTER_H
 
 #include "debug.h"
+#include <simparm/BoostUnits.hh>
 #ifdef VERBOSE
 #include <boost/units/io.hpp>
 #endif
-#include <simparm/optional.hh>
+#include <boost/optional/optional.hpp>
 #include <simparm/OptionalEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/Structure.hh>
@@ -64,7 +65,7 @@ class Source
 : public input::Source<Ty>
 {
     const frame_index from;
-    const simparm::optional<frame_index> to;
+    const boost::optional<frame_index> to;
     const boost::optional<int> plane;
     const boost::shared_ptr< input::Source<Ty> > _upstream;
     typedef typename input::Source<Ty>::iterator base_iterator;
@@ -75,7 +76,7 @@ class Source
 
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
-            frame_index from, simparm::optional<frame_index> to, boost::optional<int> plane)
+            frame_index from, boost::optional<frame_index> to, boost::optional<int> plane)
         : input::Source<Ty>(*upstream, upstream->flags), from(from), to(to),
           plane(plane), _upstream(upstream) {}
     Source* clone() const { return new Source(*this); }
@@ -88,11 +89,11 @@ class Source
     {
         typename input::Source<Ty>::TraitsPtr p = _upstream->get_traits();
         frame_index from = std::max( this->from, *p->image_number().range().first );
-        if ( p->image_number().range().second.is_set() && to.is_set() ) {
+        if ( p->image_number().range().second.is_initialized() && to.is_initialized() ) {
             p->image_number().range().second = std::min(*to, *p->image_number().range().second);
         }
         p->image_number().range().first = from;
-        DEBUG("First frame of traits is " << *p->image_number().range().first << ", last frame set is " << p->image_number().range().second.is_set());
+        DEBUG("First frame of traits is " << *p->image_number().range().first << ", last frame set is " << p->image_number().range().second.is_initialized());
         return p;
     }
     void dispatch(typename input::Source<Ty>::Messages m) {
@@ -154,7 +155,7 @@ template <class Ty>
 bool Source<Ty>::is_in_range(const Ty& t) const
 {
     frame_index f = ImageNumber()(t);
-    bool rv = f >= from && (!to.is_set() || f <= *to);
+    bool rv = f >= from && (!to.is_initialized() || f <= *to);
     DEBUG("ROI filter returns " << rv << " for " << f);
     return rv;
 }

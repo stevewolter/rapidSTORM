@@ -17,7 +17,7 @@ class ProgressMeter : public OutputObject
     simparm::ProgressEntry progress;
     frame_count max;
     frame_count first;
-    simparm::optional<frame_count> length;
+    boost::optional<frame_count> length;
 
   protected:
     AdditionalData announceStormSize(const Announcement &a);

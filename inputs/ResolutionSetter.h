@@ -2,6 +2,7 @@
 #define DSTORM_INPUT_RESOLUTIONSETTER_H
 
 #include "debug.h"
+#include <simparm/BoostUnits.hh>
 #include <dStorm/input/Source.h>
 
 #include <boost/units/power10.hpp>
@@ -30,7 +31,7 @@ namespace Resolution {
 class Config : public simparm::Object {
     friend class Check;
 
-    simparm::UnitEntry< si::nanolength, double > psf_size_x, psf_size_y;
+    simparm::NumericEntry< quantity< si::nanolength, double > > psf_size_x, psf_size_y;
     typedef power_typeof_helper< 
             power10< si::length, -6 >::type,
             static_rational<-1> >::type PerMicro; 

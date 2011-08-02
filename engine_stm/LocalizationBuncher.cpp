@@ -16,13 +16,13 @@ class Visitor
 : public boost::static_visitor<VisitResult>
 {
     std::auto_ptr<output::LocalizedImage> can;
-    simparm::optional<frame_index> my_image;
+    boost::optional<frame_index> my_image;
 
   public:
     ~Visitor() {}
     VisitResult operator()( const dStorm::Localization& l ) 
     {
-        if ( my_image.is_set() ) {
+        if ( my_image.is_initialized() ) {
             if ( l.frame_number() != *my_image )
                 return FinishedAndReject;
         } else {
@@ -36,7 +36,7 @@ class Visitor
 
     VisitResult operator()( const dStorm::LocalizationFile::EmptyLine& i ) 
     {
-        if ( ! my_image.is_set() ) {
+        if ( ! my_image.is_initialized() ) {
             my_image = i.number;
             can.reset( new output::LocalizedImage() );
             can->forImage = *my_image;
@@ -45,7 +45,7 @@ class Visitor
     }
 
     template <typename Type> VisitResult add(Type& argument);
-    frame_index for_frame() { assert(my_image.is_set()); return *my_image; }
+    frame_index for_frame() { assert(my_image.is_initialized()); return *my_image; }
     std::auto_ptr<output::LocalizedImage> get_result() { return can; }
 };
 
@@ -158,7 +158,7 @@ Source<InputType>::get_traits()
     current = base->begin();
     base_end = base->end();
 
-    if ( ! r.first.is_set() || ! r.second.is_set() )
+    if ( ! r.first.is_initialized() || ! r.second.is_initialized() )
         throw std::runtime_error("Total number of frames in STM file must be known");
     firstImage = *r.first;
     lastImage = *r.second + 1 * camera::frame;

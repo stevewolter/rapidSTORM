@@ -40,13 +40,13 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
         float res;
         int given = TIFFGetField( tiff, resolution_tags[i], &res );
         if ( given == 1 ) {
-            simparm::optional< boost::units::quantity<camera::resolution,float> > r;
+            boost::optional< boost::units::quantity<camera::resolution,float> > r;
             if ( unit == RESUNIT_INCH )
                 r = res * camera::pixel / (0.0254f * boost::units::si::meters);
             else if ( unit == RESUNIT_CENTIMETER )
                 r = res * camera::pixel / (0.01f * boost::units::si::meters);
 
-            if ( r.is_set() )
+            if ( r.is_initialized() )
                 resolution[i] = traits::ImageResolution(1.0f / *r);
         }
     }

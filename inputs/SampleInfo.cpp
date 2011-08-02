@@ -1,3 +1,4 @@
+#include <simparm/BoostUnits.hh>
 #include "SampleInfo.h"
 
 #include "debug.h"
@@ -33,7 +34,7 @@ using namespace chain;
 
 class FluorophoreConfig : public simparm::Set {
     simparm::StringEntry description;
-    simparm::UnitEntry<boost::units::si::nanolength, double> emission_wl;
+    simparm::NumericEntry< boost::units::quantity<boost::units::si::nanolength, double> > emission_wl;
 
   public:
     FluorophoreConfig(int number);

@@ -1,6 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONS_SLICER_H
 #define DSTORM_TRANSMISSIONS_SLICER_H
 
+#include <simparm/BoostUnits.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/FileOutputBuilder.h>

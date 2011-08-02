@@ -3,6 +3,7 @@
 
 #include "Config_decl.h"
 
+#include <simparm/BoostUnits.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>

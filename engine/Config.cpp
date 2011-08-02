@@ -111,7 +111,7 @@ void _Config::addSpotFitter( std::auto_ptr<spot_fitter::Factory> factory ) {
 void _Config::set_variables( output::Basename& bn ) const
 {
     std::stringstream ss;
-    if ( amplitude_threshold().is_set() ) 
+    if ( amplitude_threshold().is_initialized() ) 
         ss << (*amplitude_threshold()).value();
     else
         ss << "auto";

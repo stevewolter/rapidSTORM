@@ -20,7 +20,7 @@ bool DefaultVisitor<ROIFilter::Config>::operator()( Traits<Type>& traits )
 {
     typedef Localization::ImageNumber::Traits ImT;
     traits.image_number().range().first = config.first_frame();
-    if ( config.last_frame().is_set() )
+    if ( config.last_frame().is_initialized() )
         traits.image_number().range().second = config.last_frame();
 
     return true;
@@ -35,7 +35,7 @@ bool DefaultVisitor<ROIFilter::Config>::operator()( std::auto_ptr< Source<Type> 
     typedef ROIFilter::Source<Type> Filter;
 
     if ( config.first_frame() > 0 * camera::frame 
-        || config.last_frame().is_set()
+        || config.last_frame().is_initialized()
         || config.which_plane() != -1 )
     {
         boost::optional<int> plane;

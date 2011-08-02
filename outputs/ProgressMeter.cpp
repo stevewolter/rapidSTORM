@@ -27,7 +27,7 @@ Output::AdditionalData
 ProgressMeter::announceStormSize(const Announcement &a) { 
         ost::MutexLock lock(mutex);
         first = *a.image_number().range().first;
-        if ( a.image_number().range().second.is_set() )
+        if ( a.image_number().range().second.is_initialized() )
             length = *a.image_number().range().second + first
                         + 1 * camera::frame;
         else
@@ -43,7 +43,7 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
     if ( er.forImage+1*camera::frame > max ) {
         max = er.forImage+1*camera::frame;
         DEBUG("Progress at " << max);
-        if ( length.is_set() ) {
+        if ( length.is_initialized() ) {
             boost::units::quantity<camera::time,float>
                 diff = (max - first);
             DEBUG("Diff is " << diff);

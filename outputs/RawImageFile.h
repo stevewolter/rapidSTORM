@@ -34,7 +34,7 @@ class RawImageFile : public OutputObject {
     class _Config;
 
     input::Traits< engine::Image > size;
-    simparm::optional<frame_count> last_frame;
+    boost::optional<frame_count> last_frame;
 
   public:
     typedef simparm::Structure<_Config> Config;

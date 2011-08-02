@@ -117,7 +117,7 @@ template <typename Type>
 Source< Type >::iterator::iterator( Range r, const typename Base::iterator& o )
         : iterator::iterator_adaptor_(o), initialized(false), range(r) 
     {
-        if ( need_range() && (! range.first.is_set() || ! range.second.is_set()) )
+        if ( need_range() && (! range.first.is_initialized() || ! range.second.is_initialized()) )
             throw std::runtime_error("Range for Y coordinate unknown, cannot mirror results");
     }
 

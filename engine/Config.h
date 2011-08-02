@@ -1,6 +1,7 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
+#include <simparm/BoostUnits.hh>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include <simparm/OptionalEntry.hh>

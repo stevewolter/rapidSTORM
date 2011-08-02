@@ -1,6 +1,7 @@
 #ifndef DSTORM_ENGINE_ENGINE_H
 #define DSTORM_ENGINE_ENGINE_H
 
+#include <simparm/BoostUnits.hh>
 #include <memory>
 #include <dStorm/helpers/thread.h>
 #include <simparm/TriggerEntry.hh>

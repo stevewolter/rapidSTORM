@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_MASKFILTER_H
 
 #include "debug.h"
-#include <simparm/optional.hh>
+#include <boost/optional/optional.hpp>
 #include <simparm/FileEntry.hh>
 #include <boost/units/io.hpp>
 #include <dStorm/input/Source.h>

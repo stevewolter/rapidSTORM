@@ -54,7 +54,7 @@ ChainLink::makeSource()
 std::string ChainLink::amplitude_threshold_string() const
 {
     std::stringstream ss; 
-    if ( config.amplitude_threshold().is_set() )
+    if ( config.amplitude_threshold().is_initialized() )
         ss << *config.amplitude_threshold();
     else 
         ss << "auto";
@@ -129,13 +129,6 @@ void ChainLink::make_new_requirements() {
     input::Traits<dStorm::engine::Image>& reqs = 
         my_context->get_info_for<engine::Image>();
     reqs = input::Traits<dStorm::engine::Image>();
-
-    if ( ! config.amplitude_threshold().is_set() )
-        reqs.background_stddev.require( deferred::JobTraits );
-    if ( config.spotFindingMethod.isValid() )
-        config.spotFindingMethod.value().set_requirements(reqs);
-    if ( config.spotFittingMethod.isValid() )
-        config.spotFittingMethod.value().set_requirements(reqs);
 }
 
 void ChainLink::operator()( const simparm::Event& e ) {

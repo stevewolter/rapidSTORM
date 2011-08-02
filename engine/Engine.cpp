@@ -98,9 +98,9 @@ Engine::TraitsPtr Engine::get_traits() {
         imProp = input->get_traits();
     DEBUG("Retrieved input traits");
 
-    if ( ! config.amplitude_threshold().is_set() ) {
+    if ( ! config.amplitude_threshold().is_initialized() ) {
         DEBUG("Guessing input threshold");
-        if ( imProp->background_stddev.is_set() ) {
+        if ( imProp->background_stddev.is_initialized() ) {
             config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
         } else {
             throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");

@@ -19,7 +19,6 @@ namespace chain {
 template <>
 template <typename Type>
 bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( input::Traits<Type>& t ) {
-    t.background_stddev.promise( deferred::JobTraits );
     return true;
 }
 
