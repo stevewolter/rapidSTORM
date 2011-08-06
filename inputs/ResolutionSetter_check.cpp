@@ -118,8 +118,8 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        std::stringstream cmd("set 136.875");
-        l.config.cuboid_config["InputLayer0"]["PixelSizeInNMX"]["value"].processCommand(cmd);
+        std::stringstream cmd("set 136.875,100");
+        l.config.cuboid_config["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
         l.config.set_traits( correct );
         DEBUG("Checking if config element change updates context");
         if ( context_resolution_close_to(correct.plane(0).image_resolutions(), m.declared_context) )

@@ -80,7 +80,10 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
         DEBUG("Constructing spot fitting info");
-        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *imProp, fluorophore);
+        JobInfo info(config.fitSizeFactor(), 
+            ( config.amplitude_threshold().is_set() ) ? *config.amplitude_threshold() 
+                                                      : 0 * boost::units::camera::ad_count,
+            *imProp, fluorophore);
         DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
         config.spotFittingMethod().set_traits( *rvt, info );
         DEBUG("Finished setting traits, info now at " << &info);

@@ -2,6 +2,7 @@
 #define DSTORM_INPUT_RESOLUTIONSETTER_H
 
 #include "debug.h"
+#include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
 #include <dStorm/input/Source.h>
 
@@ -31,11 +32,12 @@ namespace Resolution {
 class Config : public simparm::Object {
     friend class Check;
 
-    simparm::NumericEntry< quantity< si::nanolength, double > > psf_size_x, psf_size_y;
+    typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
+    simparm::NumericEntry<PSFSize> psf_size;
     typedef power_typeof_helper< 
             power10< si::length, -6 >::type,
             static_rational<-1> >::type PerMicro; 
-    simparm::OptionalEntry< quantity< PerMicro, float > > widening_x, widening_y;
+    simparm::OptionalEntry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
     traits::CuboidConfig cuboid_config;
 
   public:

@@ -144,7 +144,7 @@ namespace sample_info {
 
 FluorophoreConfig::FluorophoreConfig(int number)
 : simparm::Set("Fluorophore" + boost::lexical_cast<std::string>(number), 
-                  "Info for fluorophore " + boost::lexical_cast<std::string>(number)),
+                  "Info for fluorophore " + boost::lexical_cast<std::string>(number+1)),
   description("Description", "Description"),
   emission_wl("Wavelength", "Emission wavelength", 500.0 * boost::units::si::nanometre)
 {
@@ -173,6 +173,8 @@ Config::Config()
   fluorophore_count("FluorophoreCount", "Number of fluorophore types", 1)
 {
     fluorophores.push_back( new FluorophoreConfig(0) );
+    fluorophore_count.min = 1;
+    fluorophore_count.increment = 1;
 }
 
 void Config::registerNamedEntries() {

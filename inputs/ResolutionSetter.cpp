@@ -57,12 +57,12 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
     static_cast<traits::Optics<3>&>(t) = cuboid_config.make_traits();
-    t.psf_size().x() = quantity<si::length>(psf_size_x() / si::nanometre * 1E-9 * si::metre) / 2.35;
-    t.psf_size().y() = quantity<si::length>(psf_size_y() / si::nanometre * 1E-9 * si::metre) / 2.35;
-    if ( widening_x().is_initialized() && widening_y().is_initialized() ) {
+    for (int i = 0; i < 2; ++i)
+        t.psf_size()[i] = quantity<si::length>(psf_size()[i] / si::nanometre * 1E-9 * si::metre) / 2.35;
+    if ( widening().is_initialized() ) {
         traits::Zhuang3D zhuang;
-        zhuang.widening[0] = quantity<traits::Zhuang3D::Unit>( *widening_x() );
-        zhuang.widening[1] = quantity<traits::Zhuang3D::Unit>( *widening_y() );
+        for (int i = 0; i < 2; ++i)
+            zhuang.widening[i] = quantity<traits::Zhuang3D::Unit>( (*widening())[i] );
         t.depth_info = zhuang;
         const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability(true);
     } else {
@@ -79,20 +79,14 @@ void FluorophoreConfig::FluorophoreConfig(int number)
 
 Config::Config()
 : simparm::Object("Optics", "Optical parameters"),
-  psf_size_x("PSFX", "PSF FWHM in X",
-                  493.5 * boost::units::si::nanometre),
-  psf_size_y("PSFY", "PSF FWHM in Y",
-                  493.5 * boost::units::si::nanometre),
-  widening_x("XDefocusConstant", "Speed of PSF std. dev. growth in X"),
-  widening_y("YDefocusConstant", "Speed of PSF std. dev. growth in Y")
+  psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
+  widening("DefocusConstant", "Speed of PSF std. dev. growth")
 {
 }
 
 void Config::registerNamedEntries() {
-    push_back( psf_size_x );
-    push_back( psf_size_y );
-    push_back( widening_x );
-    push_back( widening_y );
+    push_back( psf_size );
+    push_back( widening );
     cuboid_config.registerNamedEntries();
     push_back( cuboid_config );
 }
