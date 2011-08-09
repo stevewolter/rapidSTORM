@@ -15,15 +15,7 @@ using namespace boost::units;
 class MemoryCache : public Filter
 {
   private:
-    /** Mutex for localizationsStore list. */
-    ost::Mutex locStoreMutex;
-    /** This thread lock controls the emittance of localizations to the
-     *  output transmission. Normal, parallel behaviour acquires read
-     *  locks on the emissionMutex, since multiple parallel invocations
-     *  of receiveLocalizations are allowed. When re-emittance of results
-     *  becomes necessary, a write lock is acquired to ensure no concurrent
-     *  thread emits other results. */
-    ost::ThreadLock emissionMutex;
+    boost::mutex* mutex;
     /** Cache containing all localizations received so far. */
     struct Bunch;
     std::auto_ptr<Bunch> master_bunch;

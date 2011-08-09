@@ -12,7 +12,6 @@ namespace dStorm {
 namespace output {
     class LocalizationCounter : public OutputObject {
       private:
-        ost::Mutex mutex;
       	int count;
         frame_count last_config_update, config_increment;
         simparm::UnsignedLongEntry update;
@@ -35,8 +34,6 @@ namespace output {
             { throw std::runtime_error("LC::clone Not implemented."); }
 
         AdditionalData announceStormSize(const Announcement &a) {
-            ost::MutexLock lock(mutex);
-
             update.setUserLevel(simparm::Object::Beginner);
             push_back(update);
             config_increment = 10 * camera::frame;
@@ -45,7 +42,6 @@ namespace output {
             return AdditionalData();
         }
         Result receiveLocalizations(const EngineResult& er) {
-            ost::MutexLock lock(mutex);
             count += er.size(); 
             if ( last_config_update + config_increment < er.forImage )
             {
@@ -55,7 +51,6 @@ namespace output {
             return KeepRunning; 
         }
         void propagate_signal(ProgressSignal s) {
-            ost::MutexLock lock(mutex);
             if ( s == Engine_is_restarted ) {
                 count = 0; 
                 update = 0; 

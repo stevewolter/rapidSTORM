@@ -3,7 +3,7 @@
 #include "ModuleLoader.h"
 #include <dStorm/doc/rapidstorm_help_file.h>
 #include "JobStarter.h"
-#include "engine/Car.h"
+#include "Car.h"
 
 #include <simparm/IO.hh>
 

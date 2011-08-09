@@ -6,6 +6,7 @@
 #include "Status_decl.h"
 #include "Config_decl.h"
 
+namespace boost { struct mutex; }
 namespace dStorm {
 namespace viewer {
 
@@ -20,6 +21,7 @@ struct Backend
     virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
+    virtual void set_output_mutex( boost::mutex* mutex ) {}
 
     template <typename Colorizer>
     static std::auto_ptr<Backend> create( const Colorizer&, Config&, Status& );

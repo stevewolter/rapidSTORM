@@ -16,7 +16,6 @@ namespace dStorm {
 namespace output {
 class LocalizationFile : public OutputObject {
   private: 
-    ost::Mutex mutex;
     std::string filename;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;

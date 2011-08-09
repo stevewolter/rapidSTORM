@@ -80,7 +80,6 @@ void LocalizationFile::open() {
 
 Output::AdditionalData
 LocalizationFile::announceStormSize(const Announcement &a) {
-    ost::MutexLock lock(mutex);
     traits = a;
 
     open();
@@ -90,7 +89,6 @@ LocalizationFile::announceStormSize(const Announcement &a) {
 
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
 {
-    ost::MutexLock lock(mutex);
     if ( er.empty() )
         (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
     else
@@ -105,7 +103,6 @@ Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er)
 }
 
 void LocalizationFile::propagate_signal(Output::ProgressSignal s) {
-    ost::MutexLock lock(mutex);
     if ( s == Engine_is_restarted ) {
         fileKeeper.reset(NULL);
         open();

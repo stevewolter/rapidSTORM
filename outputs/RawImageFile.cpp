@@ -86,7 +86,6 @@ RawImageFile::announceStormSize(const Announcement &a)
 
 Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
 {
-  ost::MutexLock lock(mutex);
   if ( tif == NULL ) 
     /* TIFF file got closed earlier. Return immediately. */
     return RemoveThisOutput;

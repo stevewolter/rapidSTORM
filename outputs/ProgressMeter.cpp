@@ -25,7 +25,6 @@ ProgressMeter::ProgressMeter(const Config &)
 
 Output::AdditionalData
 ProgressMeter::announceStormSize(const Announcement &a) { 
-        ost::MutexLock lock(mutex);
         first = *a.image_number().range().first;
         if ( a.image_number().range().second.is_initialized() )
             length = *a.image_number().range().second + first
@@ -39,7 +38,6 @@ ProgressMeter::announceStormSize(const Announcement &a) {
 
 Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er) 
 {
-    ost::MutexLock lock(mutex);
     if ( er.forImage+1*camera::frame > max ) {
         max = er.forImage+1*camera::frame;
         DEBUG("Progress at " << max);
@@ -60,7 +58,6 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
 
 void ProgressMeter::propagate_signal(ProgressSignal s)
 {
-    ost::MutexLock lock(mutex);
     if ( s == Engine_is_restarted) {
         progress.setValue(0); 
         max = 0;

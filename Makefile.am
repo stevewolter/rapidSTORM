@@ -52,7 +52,7 @@ libnoopengine_la_SOURCES = \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 libengine_la_SOURCES = \
 	engine/Config.cpp engine/Config_decl.h engine/Config.h \
-	engine/Car_decl.h engine/Car.cpp engine/Car.h engine/Engine.cpp \
+	engine/Engine.cpp \
 	    engine/EngineDebug.h engine/Engine.h \
 	    engine/ImageFitter.h \
 	    engine/SpotFinder.cpp engine/debug.h  \
@@ -137,7 +137,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE) \
-    TIFFOperation.h TIFFOperation.cpp
+    TIFFOperation.h TIFFOperation.cpp \
+    Car_decl.h Car.cpp Car.h 
 dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
     libspotFinders.la \
     libengine_stm.la \

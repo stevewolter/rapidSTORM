@@ -4,7 +4,7 @@
 #include <simparm/Message.hh>
 #include <dStorm/helpers/exception.h>
 
-#include "engine/Car.h"
+#include "Car.h"
 
 namespace dStorm {
 

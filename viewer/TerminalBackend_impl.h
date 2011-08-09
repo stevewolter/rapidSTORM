@@ -53,9 +53,6 @@ void TerminalBackend<Hueing>::save_image(
 
 template <typename Hueing>
 void TerminalBackend<Hueing>::set_histogram_power(float power) {
-    /* The \c image member is not involved here, so we have to lock
-        * it ourselves. */
-    ost::MutexLock lock( image.getMutex() );
     discretization.setHistogramPower( power ); 
 }
 

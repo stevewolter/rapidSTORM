@@ -19,6 +19,7 @@
 #include <setjmp.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -53,9 +54,9 @@ namespace engine {
         Engine* upstream_engine;
         std::auto_ptr<output::Output> output;
 
-        ost::Mutex terminationMutex;
+        boost::mutex mutex;
         bool terminate, emergencyStop, error, finished;
-        ost::Condition terminationChanged;
+        boost::condition terminationChanged;
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);

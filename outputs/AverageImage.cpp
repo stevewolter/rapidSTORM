@@ -28,7 +28,6 @@ AverageImage* AverageImage::clone() const
 
 Output::Result
 AverageImage::receiveLocalizations(const EngineResult& er) {
-    ost::MutexLock lock(mutex);
     engine::Image::const_iterator i = er.source.begin();
     for (Image::iterator j = image.begin(); j != image.end(); j++)
     {
@@ -42,7 +41,6 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
  
 {
     if (s == Engine_run_succeeded && filename != "" ) {
-        ost::MutexLock lock(mutex);
         Display::Change c(1);
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
@@ -52,7 +50,6 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
                 c.resize_image.pixel_sizes[i] = *resolution[i];
         Display::Manager::getSingleton().store_image(filename, c);
     } else if (s == Engine_run_failed) {
-        ost::MutexLock lock(mutex);
         image.fill(0);
     }
 }

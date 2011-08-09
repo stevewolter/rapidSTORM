@@ -17,7 +17,6 @@ class RawImageFile : public OutputObject {
   private:
     static void error_handler( const char* module,
                                const char* fmt, va_list ap );
-    ost::Mutex mutex;
 
     std::string filename;
 

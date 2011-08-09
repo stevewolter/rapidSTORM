@@ -10,12 +10,13 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
 #include <dStorm/helpers/DisplayManager.h>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "ColourScheme.h"
 #include "colour_schemes/hot_config.h"
 
 using namespace std;
-using namespace ost;
 
 using namespace dStorm::Display;
 using namespace dStorm::outputs;
@@ -39,6 +40,7 @@ Viewer::Viewer(const Viewer::Config& config)
   OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   config(config),
+  output_mutex(NULL),
   implementation( config.colourScheme.value().make_backend(this->config, *this) ),
   forwardOutput( &implementation->getForwardOutput() )
 {
@@ -70,21 +72,18 @@ Viewer::~Viewer() {
 Output::Result
 Viewer::receiveLocalizations(const EngineResult& er)
 {
-    MutexLock lock(implementation_mutex);
     return forwardOutput->receiveLocalizations(er);
 }
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
-    MutexLock lock(implementation_mutex);
+    output_mutex = a.output_chain_mutex;
+    implementation->set_output_mutex( output_mutex );
     return forwardOutput->announceStormSize(a);
 }
 
 void Viewer::propagate_signal(ProgressSignal s) {
-    {
-        MutexLock lock(implementation_mutex);
-        forwardOutput->propagate_signal(s);
-    }
+    forwardOutput->propagate_signal(s);
 
     if (s == Engine_run_succeeded && tifFile) {
         writeToFile(tifFile());
@@ -92,6 +91,8 @@ void Viewer::propagate_signal(ProgressSignal s) {
 }
 
 void Viewer::operator()(const simparm::Event& e) {
+    if ( ! output_mutex ) return;
+    boost::lock_guard<boost::mutex> lock(*output_mutex);
     if (&e.source == &reshow_output.value && reshow_output.triggered()) {
         reshow_output.untrigger();
         config.showOutput = true;
@@ -103,7 +104,6 @@ void Viewer::operator()(const simparm::Event& e) {
             writeToFile( tifFile() );
         }
     } else if (&e.source == &histogramPower.value) {
-        MutexLock lock(implementation_mutex);
         /* Change histogram power */
         implementation->set_histogram_power(histogramPower());
     } 
@@ -111,9 +111,9 @@ void Viewer::operator()(const simparm::Event& e) {
 
 void Viewer::adapt_to_changed_config() {
     DEBUG("Changing implementation, showing output is " << config.showOutput());
-    MutexLock lock(implementation_mutex);
     if ( implementation.get() ) {
         implementation = implementation->adapt( implementation, config, *this );
+        implementation->set_output_mutex( output_mutex );
         forwardOutput = &implementation->getForwardOutput();
         reshow_output.viewable = ! config.showOutput();
     }
@@ -122,8 +122,6 @@ void Viewer::adapt_to_changed_config() {
 
 void Viewer::writeToFile(const string &name) {
     try {
-        MutexLock lock(implementation_mutex);
-
         implementation->save_image(name, config);
     } catch ( const std::runtime_error& e ) {
         simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );

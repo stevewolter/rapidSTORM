@@ -54,7 +54,7 @@ class Viewer : public Status,
   private:
     Config config;
 
-    ost::Mutex implementation_mutex;
+    boost::mutex *output_mutex;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;
 

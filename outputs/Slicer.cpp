@@ -108,7 +108,6 @@ Slicer::announce_run(const RunAnnouncement& a)
 
 void Slicer::propagate_signal(ProgressSignal s) {
     received_signals.push_back(s);
-    ost::MutexLock lock( outputs_mutex );
     for (unsigned int i = 0; i < outputs.size(); i++)
         if (!outputs.is_null(i)) {
             if ( s == Engine_is_restarted )
@@ -132,7 +131,6 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
         first_slice += 1;
     int last_slice = cur_image / slice_distance;
     
-    ost::MutexLock lock( outputs_mutex );
     while ( int( outputs.size() ) <= last_slice )
         outputs.push_back( NULL );
 

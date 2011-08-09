@@ -42,15 +42,15 @@ class Car::ComputationThread {
 };
 
 /* ==== This code gives a new job ID on each call. === */
-static ost::Mutex *runNumberMutex = NULL;
+static boost::mutex *runNumberMutex = NULL;
 static char number[6];
 static std::string getRunNumber() {
     DEBUG("Making run number");
     if ( ! runNumberMutex) {
-        runNumberMutex = new ost::Mutex();
+        runNumberMutex = new boost::mutex();
         strcpy(number, "   00");
     }
-    ost::MutexLock lock(*runNumberMutex);
+    boost::lock_guard<boost::mutex> lock(*runNumberMutex);
 
     int index = strlen(number)-1;
     number[index]++;
@@ -78,8 +78,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   input(NULL),
   output(NULL),
   terminate( new_config.auto_terminate() ),
-  emergencyStop(false), error(false), finished(false),
-  terminationChanged( terminationMutex )
+  emergencyStop(false), error(false), finished(false)
 {
     //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
@@ -132,11 +131,11 @@ void Car::operator()(const simparm::Event& e) {
         closeJob.untrigger();
         closeJob.editable = false;
         DEBUG("Close job pressed, locking for job termination");
-        ost::MutexLock lock( terminationMutex );
+        boost::lock_guard<boost::mutex> lock( mutex );
         DEBUG("Job close button allows termination" );
         terminate = true;
         emergencyStop = error = true;
-        terminationChanged.signal();
+        terminationChanged.notify_all();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
         DEBUG("Abort job button pressed");
@@ -243,19 +242,9 @@ void Car::run_computation()
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
         {
             DEBUG("Computation loop iteration");
+            boost::lock_guard<boost::mutex> lock(mutex);
             output->receiveLocalizations( *i );
             
-#if 0
-            if (r == Output::RestartEngine || r == Output::StopEngine ) 
-            {
-                DEBUG("Emergency stop: Engine restart requested");
-                output->propagate_signal( Output::Engine_run_is_aborted );
-                emergencyStop = true;
-                if ( r == Output::StopEngine )
-                    error = true;
-            }
-#endif
-
             if (emergencyStop) 
             {
                 DEBUG("Emergency stop: " << emergencyStop);
@@ -329,6 +318,7 @@ void Car::drive() {
     Output::Announcement announcement( *traits );
     upstream_engine = announcement.engine;
     announcement.engine = this;
+    announcement.output_chain_mutex = &mutex;
     DEBUG("Sending announcement");
     Output::AdditionalData data 
         = output->announceStormSize(announcement);
@@ -382,10 +372,10 @@ void Car::drive() {
     runtime_config.send(m);
   }
 
-    ost::MutexLock lock( terminationMutex );
+    boost::unique_lock<boost::mutex> lock( mutex );
     DEBUG("Waiting for termination allowance");
     while ( ! terminate )
-        terminationChanged.wait();
+        terminationChanged.wait(lock);
     DEBUG("Allowed to terminate");
 
     /* TODO: We have to check here if the job was _really_ finished

@@ -13,7 +13,6 @@ namespace output {
 class ProgressMeter : public OutputObject
 {
   private:
-    ost::Mutex mutex;
     simparm::ProgressEntry progress;
     frame_count max;
     frame_count first;

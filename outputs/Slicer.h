@@ -48,7 +48,6 @@ class Slicer : public OutputObject {
         Output& operator*() { return *output; }
         const Output& operator*() const { return *output; }
     };
-    ost::Mutex outputs_mutex;
     boost::ptr_vector< boost::nullable<Child> > outputs;
     std::set<std::string>* avoid_filenames;
 

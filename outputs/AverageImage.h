@@ -21,7 +21,6 @@ class AverageImage : public OutputObject {
     typedef dStorm::Image<unsigned long,2> Image;
     Image image;
     traits::Optics<2>::Resolutions resolution;
-    ost::Mutex mutex;
 
     class _Config;
   public:
@@ -32,7 +31,6 @@ class AverageImage : public OutputObject {
     AverageImage *clone() const;
 
     AdditionalData announceStormSize(const Announcement &a) {
-        ost::MutexLock lock(mutex);
         if ( a.carburettor == NULL )
             throw std::logic_error("AverageImage needs access to "
                                    "input driver, but didn't get it.");
