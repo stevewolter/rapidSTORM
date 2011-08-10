@@ -192,12 +192,15 @@ void Car::compute_until_terminated() {
     }
 
     while (true) {
-        DEBUG("Announcing run");
-        Output::RunRequirements r = 
-            output->announce_run(Output::RunAnnouncement());
-        if ( ! r.test(Output::MayNeedRestart) )
-            input->dispatch( Input::WillNeverRepeatAgain );
-        next_output = first_output;
+        {
+            DEBUG("Announcing run");
+            boost::lock_guard<boost::mutex> lock( mutex );
+            Output::RunRequirements r = 
+                output->announce_run(Output::RunAnnouncement());
+            if ( ! r.test(Output::MayNeedRestart) )
+                input->dispatch( Input::WillNeverRepeatAgain );
+            next_output = first_output;
+        }
 
         DEBUG("Adding threads");
         /* The first thread does not need to be instantiated, it is the current one. */
@@ -209,6 +212,7 @@ void Car::compute_until_terminated() {
         threads.clear();
         DEBUG("Collected threads");
 
+        boost::lock_guard<boost::mutex> lock( mutex );
         if (emergencyStop) {
             if (error ) 
             {
@@ -237,7 +241,10 @@ void Car::run_computation()
 {
     try {
         DEBUG("Propagating start signal");
-        output->propagate_signal(Output::Engine_run_is_starting);
+        {
+            boost::lock_guard<boost::mutex> lock(mutex);
+            output->propagate_signal(Output::Engine_run_is_starting);
+        }
 
         DEBUG("Running computation loop");
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
@@ -326,8 +333,11 @@ void Car::drive() {
     announcement.engine = this;
     announcement.output_chain_mutex = &mutex;
     DEBUG("Sending announcement");
-    Output::AdditionalData data 
-        = output->announceStormSize(announcement);
+    Output::AdditionalData data;
+    {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        data = output->announceStormSize(announcement);
+    }
     DEBUG("Sent announcement");
 
     if ( data.test( output::Capabilities::ClustersWithSources ) ) {
