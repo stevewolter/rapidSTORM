@@ -21,7 +21,7 @@ struct Backend
     virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
-    virtual void set_output_mutex( boost::mutex* mutex ) {}
+    virtual void set_output_mutex( boost::recursive_mutex* mutex ) {}
 
     template <typename Colorizer>
     static std::auto_ptr<Backend> create( const Colorizer&, Config&, Status& );

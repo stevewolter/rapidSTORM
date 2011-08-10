@@ -9,7 +9,7 @@
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/helpers/DisplayManager.h>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {
 namespace viewer {
@@ -28,7 +28,7 @@ class LiveBackend
     Config& config;
     Status& status;
 
-    boost::mutex* mutex;
+    boost::recursive_mutex* mutex;
     std::auto_ptr<dStorm::Display::Change> get_changes();
 
     Accumulator image;
@@ -53,7 +53,8 @@ class LiveBackend
     void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
-    virtual void set_output_mutex( boost::mutex* mutex ) { this->mutex = mutex; }
+    void set_output_mutex( boost::recursive_mutex* mutex ) 
+        { this->mutex = mutex; cia.show_window(); }
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
 };
 

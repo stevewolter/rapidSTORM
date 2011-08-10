@@ -15,7 +15,7 @@ using namespace boost::units;
 class MemoryCache : public Filter
 {
   private:
-    boost::mutex* mutex;
+    boost::recursive_mutex* mutex;
     /** Cache containing all localizations received so far. */
     struct Bunch;
     std::auto_ptr<Bunch> master_bunch;

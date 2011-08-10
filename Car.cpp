@@ -131,7 +131,7 @@ void Car::operator()(const simparm::Event& e) {
         closeJob.untrigger();
         closeJob.editable = false;
         DEBUG("Close job pressed, locking for job termination");
-        boost::lock_guard<boost::mutex> lock( mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         DEBUG("Job close button allows termination" );
         terminate = true;
         emergencyStop = error = true;
@@ -194,7 +194,7 @@ void Car::compute_until_terminated() {
     while (true) {
         {
             DEBUG("Announcing run");
-            boost::lock_guard<boost::mutex> lock( mutex );
+            boost::lock_guard<boost::recursive_mutex> lock( mutex );
             Output::RunRequirements r = 
                 output->announce_run(Output::RunAnnouncement());
             if ( ! r.test(Output::MayNeedRestart) )
@@ -212,7 +212,7 @@ void Car::compute_until_terminated() {
         threads.clear();
         DEBUG("Collected threads");
 
-        boost::lock_guard<boost::mutex> lock( mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         if (emergencyStop) {
             if (error ) 
             {
@@ -242,7 +242,7 @@ void Car::run_computation()
     try {
         DEBUG("Propagating start signal");
         {
-            boost::lock_guard<boost::mutex> lock(mutex);
+            boost::lock_guard<boost::recursive_mutex> lock(mutex);
             output->propagate_signal(Output::Engine_run_is_starting);
         }
 
@@ -250,11 +250,13 @@ void Car::run_computation()
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
         {
             DEBUG("Computation loop iteration");
-            boost::unique_lock<boost::mutex> lock(mutex);
-            while ( next_output != i->forImage )
+            output::LocalizedImage& result = *i;
+
+            boost::unique_lock<boost::recursive_mutex> lock(mutex);
+            while ( next_output != result.forImage )
                 next_output_changed.wait(lock);
-            output->receiveLocalizations( *i );
-            next_output = i->forImage + 1 * boost::units::camera::frame;
+            output->receiveLocalizations( result );
+            next_output = result.forImage + 1 * boost::units::camera::frame;
             next_output_changed.notify_all();
             
             if (emergencyStop) 
@@ -335,7 +337,7 @@ void Car::drive() {
     DEBUG("Sending announcement");
     Output::AdditionalData data;
     {
-        boost::lock_guard<boost::mutex> lock(mutex);
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
         data = output->announceStormSize(announcement);
     }
     DEBUG("Sent announcement");
@@ -388,7 +390,7 @@ void Car::drive() {
     runtime_config.send(m);
   }
 
-    boost::unique_lock<boost::mutex> lock( mutex );
+    boost::unique_lock<boost::recursive_mutex> lock( mutex );
     DEBUG("Waiting for termination allowance");
     while ( ! terminate )
         terminationChanged.wait(lock);

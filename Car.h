@@ -5,7 +5,6 @@
 
 #include <dStorm/stack_realign.h>
 #include <dStorm/Job.h>
-#include <dStorm/helpers/thread.h>
 #include <dStorm/Engine.h>
 #include <dStorm/Config.h>
 #include <dStorm/output/OutputSource.h>
@@ -19,6 +18,7 @@
 #include <setjmp.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 
 namespace dStorm {
@@ -54,7 +54,7 @@ namespace engine {
         Engine* upstream_engine;
         std::auto_ptr<output::Output> output;
 
-        boost::mutex mutex;
+        boost::recursive_mutex mutex;
         bool terminate, emergencyStop, error, finished;
         boost::condition terminationChanged, next_output_changed;
         frame_index first_output, next_output;

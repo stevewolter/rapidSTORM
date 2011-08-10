@@ -19,7 +19,7 @@ struct wxManager::WindowHandle
     WindowHandle(wxManager& m);
     ~WindowHandle();
 
-    std::auto_ptr<Change> get_state(); 
+    void store_current_display( SaveRequest );
 };
 
 struct wxManager::IdleCall
@@ -183,33 +183,28 @@ wxManager::WindowHandle::~WindowHandle()
 
 class StateFetcher
 {
-    Window*& window;
-    std::auto_ptr<Change> rv;
+    wxManager::WindowHandle& handle;
+    SaveRequest request;
   public:
-    StateFetcher(Window*& window)
-        : window(window) {}
+    StateFetcher(wxManager::WindowHandle& handle, const SaveRequest& r )
+        : handle(handle), request(r) {}
 
     void operator()() {
         try {
-            if ( window != NULL )
-                rv = window->getState();
+            if ( ! handle.associated_window ) throw std::runtime_error("Window already destructed");
+            Window& window = *handle.associated_window;
+            std::auto_ptr<Change> c = window.getState();
+            if ( request.manipulator ) request.manipulator(*c);
+            wxManager().getSingleton().store_image( request.filename, *c );
         } catch (const std::runtime_error& e) {
-            std::cerr << "Unable to get image from window: " << e.what() << std::endl;
+            std::cerr << "Unable to save image: " << e.what() << std::endl;
         } 
     }
-
-    std::auto_ptr<Change> result() { return rv; }
 };
 
-std::auto_ptr<Change>
-wxManager::WindowHandle::get_state()
+void wxManager::WindowHandle::store_current_display( SaveRequest s )
 {
-    Waitable<StateFetcher> fetcher( associated_window );
-    DEBUG("Fetching results");
-    m.run_in_GUI_thread( boost::ref(fetcher) );
-    DEBUG("Fetched results");
-    fetcher.wait();
-    return fetcher.functor().result();
+    m.run_in_GUI_thread( StateFetcher(*this, s) );
 }
 
 void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 

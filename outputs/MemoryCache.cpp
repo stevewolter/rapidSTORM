@@ -14,7 +14,7 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 
 namespace dStorm {
@@ -84,7 +84,6 @@ class MemoryCache::ReEmitter
         need_re_emitter(true),
         work_for(work_for)
     {
-        boost::lock_guard<boost::mutex> lock( *work_for.mutex );
         work_for.Filter::propagate_signal( Engine_run_is_starting );
         emitter = boost::thread( &MemoryCache::ReEmitter::run, this );
     }
@@ -157,7 +156,7 @@ MemoryCache::MemoryCache(
 MemoryCache::~MemoryCache() {}
 
 void MemoryCache::reemit_localizations(bool& terminate) {
-    boost::lock_guard<boost::mutex> lock( *mutex );
+    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     if ( outputState == Running )
         Filter::propagate_signal( Output::Engine_run_is_aborted );
     if ( outputState != PreStart )

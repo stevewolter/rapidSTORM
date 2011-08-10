@@ -34,9 +34,11 @@ Display<Colorizer>::Display(
 template <typename Colorizer>
 void Display<Colorizer>::show_window()
 {
-    props.initial_size = my_size;
-    window_id = dStorm::Display::Manager::getSingleton()
-            .register_data_source( props, vph );
+    if ( window_id.get() == NULL && my_size.is_initialized() ) {
+        props.initial_size = *my_size;
+        window_id = dStorm::Display::Manager::getSingleton()
+                .register_data_source( props, vph );
+    }
 }
 
 template <typename Colorizer>
@@ -45,9 +47,9 @@ void Display<Colorizer>::setSize(
 ) {
     my_size = size;
 
-    ps.resize( my_size.size.x() * my_size.size.y()
+    ps.resize( my_size->size.x() * my_size->size.y()
         / camera::pixel / camera::pixel, false );
-    ps_step = my_size.size.x() / camera::pixel;
+    ps_step = my_size->size.x() / camera::pixel;
 
     this->clear();
 }
@@ -78,7 +80,7 @@ void Display<Colorizer>::setSize(
         show_window();
     } else {
         next_change->do_resize = true;
-        next_change->resize_image = my_size;
+        next_change->resize_image = *my_size;
     }
 }
 
@@ -117,6 +119,24 @@ Display<Colorizer>::get_changes() {
     return fresh;
 }
 
+struct KeyClearer : public std::unary_function<void,dStorm::Display::Change&> {
+    KeyClearer( const Config& c ) 
+        : clear_key( ! c.save_with_key() ), clear_scale_bar( ! c.save_scale_bar() ) {}
+    void operator()( dStorm::Display::Change& c ) {
+        if (clear_key) {
+            c.changed_keys.clear();
+            c.resize_image.keys.clear();
+        }
+        if (clear_scale_bar) {
+            c.resize_image.pixel_sizes[0].value = -1 / camera::pixel;
+            c.resize_image.pixel_sizes[1].value = -1 / camera::pixel;
+        }
+    }
+
+  private:
+    const bool clear_key, clear_scale_bar;
+};
+
 template <typename Colorizer>
 void
 Display<Colorizer>::save_image(
@@ -127,23 +147,7 @@ Display<Colorizer>::save_image(
             "Saving images after closing the "
             "display window not supported yet.");
     } else {
-        std::auto_ptr<dStorm::Display::Change>
-            c = window_id->get_state();
-        if ( c.get() != NULL ) {
-            if ( ! config.save_with_key() ) {
-                c->changed_keys.clear();
-                c->resize_image.keys.clear();
-            }
-            if ( ! config.save_scale_bar() ) {
-                c->resize_image.pixel_sizes[0].value = -1 / camera::pixel;
-                c->resize_image.pixel_sizes[1].value = -1 / camera::pixel;
-            }
-            dStorm::Display::Manager::getSingleton()
-                .store_image( filename, *c );
-        } else
-            throw std::runtime_error(
-                "Could not get displayed image "
-                "from window");
+        window_id->store_current_display( filename, KeyClearer(config) );
     }
 
 }

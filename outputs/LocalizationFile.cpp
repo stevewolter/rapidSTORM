@@ -11,6 +11,7 @@
 #include <dStorm/localization_file/fields.h>
 
 using namespace std;
+using dStorm::LocalizationFile::field::Interface;
 
 namespace dStorm {
 namespace output {
@@ -29,32 +30,6 @@ LocalizationFile::_Config::_Config()
     outputFile.helpID = HELP_Table_ToFile;
 }
 
-void LocalizationFile::printFit(const Localization &f, 
-    int localizationDepth) 
-{
-    //DEBUG("Beginning printFit");
-    if ( localizationDepth > 0 && f.children.is_initialized() ) {
-        (*file) << "\n\n";
-        std::for_each( f.children->begin(), f.children->end(),
-            boost::bind( &LocalizationFile::printFit, this, _1, 0 ) );
-    } else {
-        bool first = true;
-        for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i ) { 
-            if ( first ) first = false; else (*file) << " "; 
-            i->write( *file, f ); 
-        }
-        (*file) << "\n";
-#if 0
-        // TODO: Implement the setprecision in new framework
-      (*file) << std::fixed << std::setprecision(3) << f.position().x().value() << " " 
-           << f.position().y().value() << " "
-           << f.frame_number().value() << " "
-           << std::resetiosflags(ios_base::fixed) << std::setprecision(6)
-           << f.amplitude().value() ;
-#endif
-    }
-}
-
 using namespace dStorm::LocalizationFile;
 
 void LocalizationFile::open() {
@@ -65,15 +40,13 @@ void LocalizationFile::open() {
     } else
         file = &cout;
 
+    field = field::Interface::construct(traits);
     /** Write XML header for localization file */
     XMLNode topNode = 
-        XMLNode::createXMLTopNode( "localizations" );
-    fields.clear();
-    fields = field::Interface::construct(traits);
-    for ( Interfaces::iterator i = fields.begin(); i != fields.end(); ++i )
-        i->makeNode( topNode, traits );
+        XMLNode::createXMLTopNode( "dummy" );
+    field->makeNode( topNode, traits );
 
-    XMLSTR str = topNode.createXMLString(0);
+    XMLSTR str = topNode.getChildNode(0).createXMLString(0);
     *file << "# " << str << "\n";
     free( str );
 }
@@ -84,7 +57,12 @@ LocalizationFile::announceStormSize(const Announcement &a) {
 
     open();
 
-    return AdditionalData();/* TODO: Reactivate .set_cluster_sources( localizationDepth > 0 );*/
+    return AdditionalData();
+}
+
+void LocalizationFile::output( const Localization& l ) {
+    field->write( *file, l );
+    *file << "\n";
 }
 
 Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er) 
@@ -93,7 +71,7 @@ Output::Result LocalizationFile::receiveLocalizations(const EngineResult &er)
         (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
     else
         std::for_each( er.begin(), er.end(), 
-            boost::bind(&LocalizationFile::printFit, this, _1, localizationDepth) );
+            boost::bind(&LocalizationFile::output, this, _1) ); 
     if ( ! (*file) ) {
         std::cerr << "Warning: Writing localizations to "
                   << filename << " failed.\n";
@@ -115,7 +93,7 @@ void LocalizationFile::propagate_signal(Output::ProgressSignal s) {
 LocalizationFile::LocalizationFile(const Config &c) 
 
 : OutputObject("LocalizationFile", "File output status"),
-  filename(c.outputFile()), localizationDepth((c.traces()) ? 1 : 0) ,
+  filename(c.outputFile()),
   format( 4, Eigen::Raw, " ", " " )
 {
     if ( filename == "" )

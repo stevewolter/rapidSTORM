@@ -19,17 +19,15 @@ class LocalizationFile : public OutputObject {
     std::string filename;
     std::auto_ptr<std::ofstream> fileKeeper;
     std::ostream *file;
-    int localizationDepth;
     input::Traits<Localization> traits;
 
-    typedef boost::ptr_vector< dStorm::LocalizationFile::field::Interface > Interfaces;
-    Interfaces fields;
+    std::auto_ptr< dStorm::LocalizationFile::field::Interface > field;
 
     Eigen::IOFormat format;
 
     void open();
     template <int Field> void make_fields();
-    void printFit(const Localization &f, int localizationDepth);
+    void output( const Localization& );
 
     class _Config;
 

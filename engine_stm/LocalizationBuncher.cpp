@@ -128,9 +128,11 @@ void LocalizationBuncher<Input>::search_output_image() {
         } else
             master.canned.insert( v.for_frame(), v.get_result() );
     }
-    if ( output.get() == NULL )
+    if ( output.get() == NULL ) {
         /* End of file reached. Insert empty can. */
         output.reset( new output::LocalizedImage() );
+        output->forImage = outputImage;
+    }
 
     DEBUG("Serving " << output->forImage);
 }

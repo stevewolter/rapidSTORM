@@ -33,7 +33,7 @@ class Display
     std::auto_ptr<dStorm::Display::Change> next_change;
     std::auto_ptr<dStorm::Display::Manager::WindowHandle> window_id;
 
-    dStorm::Display::ResizeChange my_size;
+    boost::optional<dStorm::Display::ResizeChange> my_size;
 
     void setSize( const dStorm::Display::ResizeChange& size );
 
@@ -57,7 +57,7 @@ class Display
 
     void save_image(std::string filename, const Config&);
 
-    dStorm::Display::ResizeChange getSize() const { return my_size; }
+    dStorm::Display::ResizeChange getSize() const { return *my_size; }
     void show_window();
 };
 

@@ -16,6 +16,7 @@ namespace viewer {
 template <typename Hueing>
 LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Config& config, Status& s)
 : config(config), status(s), 
+  mutex( NULL ),
   image( config.binned_dimensions.make(), config.border() ),
   colorizer(col),
   discretization( 4096, 
@@ -53,13 +54,14 @@ void LiveBackend<Hueing>::set_histogram_power(float power) {
 template <typename Hueing>
 std::auto_ptr<dStorm::Display::Change> 
 LiveBackend<Hueing>::get_changes() {
-    boost::lock_guard<boost::mutex> lock( *mutex );
+    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     image.clean(); 
     return cia.get_changes();
 }
 
 template <typename Hueing>
 void LiveBackend<Hueing>::notice_closed_data_window() {
+    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     config.showOutput = false;
     status.adapt_to_changed_config();
 }
@@ -69,7 +71,7 @@ void LiveBackend<Hueing>::look_up_key_values(
     const PixelInfo& info,
     std::vector<float>& targets )
 {
-    boost::lock_guard<boost::mutex> lock( *mutex );
+    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     if ( ! targets.empty() ) {
         const dStorm::Image<float,2>& im = image();
         if ( im.width_in_pixels() > info.x && im.height_in_pixels() > info.y ) {
@@ -84,7 +86,7 @@ void LiveBackend<Hueing>::notice_user_key_limits(int key_index, bool lower, std:
     if ( key_index == 0 )
         throw std::runtime_error("Intensity key cannot be limited");
     else {
-        boost::lock_guard<boost::mutex> lock( *mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( *mutex );
         colorizer.notice_user_key_limits(key_index, lower, input);
     }
 }

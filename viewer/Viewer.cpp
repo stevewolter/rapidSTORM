@@ -11,7 +11,7 @@
 #include <simparm/Message.hh>
 #include <dStorm/helpers/DisplayManager.h>
 #include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 #include "ColourScheme.h"
 #include "colour_schemes/hot_config.h"
@@ -92,7 +92,7 @@ void Viewer::propagate_signal(ProgressSignal s) {
 
 void Viewer::operator()(const simparm::Event& e) {
     if ( ! output_mutex ) return;
-    boost::lock_guard<boost::mutex> lock(*output_mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
     if (&e.source == &reshow_output.value && reshow_output.triggered()) {
         reshow_output.untrigger();
         config.showOutput = true;
