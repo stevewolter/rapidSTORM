@@ -56,7 +56,8 @@ namespace engine {
 
         boost::mutex mutex;
         bool terminate, emergencyStop, error, finished;
-        boost::condition terminationChanged;
+        boost::condition terminationChanged, next_output_changed;
+        frame_index first_output, next_output;
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);

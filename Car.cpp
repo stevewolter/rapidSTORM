@@ -197,6 +197,7 @@ void Car::compute_until_terminated() {
             output->announce_run(Output::RunAnnouncement());
         if ( ! r.test(Output::MayNeedRestart) )
             input->dispatch( Input::WillNeverRepeatAgain );
+        next_output = first_output;
 
         DEBUG("Adding threads");
         /* The first thread does not need to be instantiated, it is the current one. */
@@ -242,8 +243,12 @@ void Car::run_computation()
         for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
         {
             DEBUG("Computation loop iteration");
-            boost::lock_guard<boost::mutex> lock(mutex);
+            boost::unique_lock<boost::mutex> lock(mutex);
+            while ( next_output != i->forImage )
+                next_output_changed.wait(lock);
             output->receiveLocalizations( *i );
+            next_output = i->forImage + 1 * boost::units::camera::frame;
+            next_output_changed.notify_all();
             
             if (emergencyStop) 
             {
@@ -314,6 +319,7 @@ void Car::drive() {
 
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits();
+    first_output = next_output = *traits->image_number().range().first;
     DEBUG("Creating announcement from traits " << traits.get());
     Output::Announcement announcement( *traits );
     upstream_engine = announcement.engine;
