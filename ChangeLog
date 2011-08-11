@@ -1,3 +1,15 @@
+== 2.2.0 ==
+
+* Normalized format for child localizations in STM format and centralized output lock
+* Added locking to run announcements
+* Made output occur in order of frames
+* Made all output operations to be single-threaded
+* Adapted to version 3 of libsimparm
+* Fixed bugs in image display and saving.
+* Fixed updating of pixels for uninitialized ranges
+* Fixed recently introduced bug with non-image traits in the rapidSTORM engine
+* Adapted to new optics trait structure
+
 == 2.1.4 ==
 
 * Fixed several bugs and interface quirks for multi-plane input
