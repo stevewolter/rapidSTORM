@@ -1,3 +1,8 @@
+== 2.2.1 ==
+
+* Added file output for localization counter.
+* Updated build dependency for new libsimparm
+
 == 2.2.0 ==
 
 * Normalized format for child localizations in STM format and centralized output lock
