@@ -3,9 +3,11 @@
 
 #include <dStorm/output/Output.h>
 #include <simparm/NumericEntry.hh>
+#include <simparm/FileEntry.hh>
 #include <iostream>
+#include <fstream>
 #include <memory>
-#include <dStorm/output/OutputBuilder.h>
+#include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/units/frame_count.h>
 
 namespace dStorm {
@@ -15,7 +17,7 @@ namespace output {
       	int count;
         frame_count last_config_update, config_increment;
         simparm::UnsignedLongEntry update;
-        std::ostream* printAtStop;
+        std::auto_ptr< std::ofstream > print_count;
 
         /** Copy constructor not implemented. */
         LocalizationCounter(const LocalizationCounter&);
@@ -23,10 +25,14 @@ namespace output {
         LocalizationCounter& operator=(const LocalizationCounter&);
 
       public:
-        struct Config : public simparm::Object { 
-            Config(); 
+        struct _Config : public simparm::Object { 
+            simparm::FileEntry output_file;
+
+            _Config(); 
             bool can_work_with(Capabilities) { return true; }
+            void registerNamedEntries() { push_back( output_file ); }
         };
+        typedef simparm::Structure<_Config> Config;
         typedef OutputBuilder<LocalizationCounter> Source;
 
         LocalizationCounter(const Config &);
@@ -43,6 +49,9 @@ namespace output {
         }
         Result receiveLocalizations(const EngineResult& er) {
             count += er.size(); 
+            if ( print_count.get() ) {
+                *print_count << er.forImage.value() << " " << er.size() << std::endl;
+            }
             if ( last_config_update + config_increment < er.forImage )
             {
                 update = count;

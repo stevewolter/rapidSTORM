@@ -4,9 +4,11 @@
 namespace dStorm {
 namespace output {
 
-LocalizationCounter::Config::Config()
-: simparm::Object("Count", "Count localizations")
+LocalizationCounter::_Config::_Config()
+: simparm::Object("Count", "Count localizations"),
+  output_file("ToFile", "Write localization count to file")
 {
+    output_file.userLevel = Object::Intermediate;
 }
 
 LocalizationCounter::LocalizationCounter(const Config &c)
@@ -14,10 +16,10 @@ LocalizationCounter::LocalizationCounter(const Config &c)
   count(0),
   last_config_update(0),
   update("LocalizationCount", 
-         "Number of localizations found", 0),
-  printAtStop(NULL) 
+         "Number of localizations found", 0)
 {
     update.helpID = HELP_Count_Count;
+    print_count.reset( new std::ofstream( c.output_file().c_str(), std::ios::out ) );
 }
 
 }
