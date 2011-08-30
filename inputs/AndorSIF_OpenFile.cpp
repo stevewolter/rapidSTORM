@@ -23,9 +23,10 @@ OpenFile::OpenFile(const std::string& filename)
   file_ident(filename)
 {
    FILE *result = fopen(filename.c_str(), "rb");
-   if (result != NULL)
+   if (result != NULL) {
+      DEBUG("Opened stream " << result << " on file " << filename);
       init(result);
-   else {
+   } else {
       throw std::runtime_error((("Could not open " + file_ident) + ": ") +
                          strerror(errno));
    }
@@ -53,7 +54,7 @@ void OpenFile::init(FILE *src)
                 "will be used." << std::endl;
 
     im_count = readsif_numberOfImages(dataSet);
-
+    DEBUG("After opening the file, the position of the stream is " << ftello(src));
 }
 
 struct Reader : public std::stringstream {
@@ -132,10 +133,11 @@ OpenFile::load_image(int count, simparm::Node& node)
     dim.y() = readsif_imageHeight(dataSet, 0)
         * camera::pixel;
 
-    DEBUG("Calling GetNextImage");
+    DEBUG("Calling GetNextImage at stream position " << ftello(dataSet->src) );
     int rv_of_readsif_getImage = 
             readsif_getImage( dataSet, count, buffer.get() );
     if ( rv_of_readsif_getImage == -1 ) {
+        DEBUG("Had error in stream " << stream << " at stream position " << ftello(dataSet->src) );
         simparm::Message m("Error in SIF file",
             "Error while reading SIF file: " + std::string(readsif_error)
                + ". Will skip remaining images.", 
@@ -183,6 +185,7 @@ OpenFile::~OpenFile() {
     if ( file != NULL )
         readsif_destroy_File( file );
     if ( stream != NULL && close_stream_when_finished ) {
+        DEBUG("Closing stream " << stream);
         fclose(stream);
     }
 }

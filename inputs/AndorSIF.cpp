@@ -39,7 +39,7 @@ template<typename Pixel>
 Source<Pixel>::Source(boost::shared_ptr<OpenFile> file)
 : Object("AndorSIF", "SIF file"),
   BaseSource(static_cast<simparm::Node&>(*this), Flags()),
-  file(new OpenFile(file->get_filename())),
+  file(file),
   has_been_iterated(false)
 {
 }
