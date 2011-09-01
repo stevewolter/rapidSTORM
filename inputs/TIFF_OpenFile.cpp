@@ -1,4 +1,3 @@
-#define VERBOSE
 #define DSTORM_TIFFLOADER_CPP
 #include <tiffio.h>
 #include "TIFF.h"
