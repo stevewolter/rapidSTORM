@@ -210,7 +210,7 @@ Source<Pixel,Dim>::end() {
 Config::Config()
 : simparm::Object("TIFF", "TIFF file"),
   ignore_warnings("IgnoreLibtiffWarnings",
-    "Ignore libtiff warnings", false),
+    "Ignore libtiff warnings", true),
   determine_length("DetermineFileLength",
     "Determine length of file", false)
 {

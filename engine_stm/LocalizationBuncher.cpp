@@ -165,6 +165,7 @@ Source<InputType>::get_traits()
     firstImage = *r.first;
     lastImage = *r.second + 1 * camera::frame;
     firstImage = std::min(firstImage, lastImage);
+    traits->in_sequence = true;
 
     return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
 }
