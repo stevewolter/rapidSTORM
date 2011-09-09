@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
 
         std::auto_ptr<CommandLine> cmd_line;
         cmd_line.reset( new CommandLine( argc, argv ) );
-        ModuleLoader::getSingleton().add_jobs( *cmd_line );
         cmd_line->run();
 
         cmd_line.reset();

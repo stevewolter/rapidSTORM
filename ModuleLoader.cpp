@@ -31,7 +31,6 @@ struct LibLT_Handler {
 };
 
 struct ModuleLoader::Pimpl
-: public JobMaster 
 {
     LibLT_Handler libLT_Handler;
     typedef boost::ptr_list<LibraryHandle> List;
@@ -39,7 +38,6 @@ struct ModuleLoader::Pimpl
     std::set<std::string> loaded;
 
     std::auto_ptr<Display::Manager> display;
-    std::list<Job*> jobs;
 
     Pimpl();
     ~Pimpl();
@@ -50,9 +48,6 @@ struct ModuleLoader::Pimpl
     static int lt_dlforeachfile_callback( 
         const char *filename, void* data );
     std::string makeProgramDescription();
-
-    void register_node( Job& j ) { jobs.push_back(&j); }
-    void erase_node( Job& j ) { jobs.remove(&j); }
 };
 
 ModuleLoader::ModuleLoader()
@@ -159,26 +154,6 @@ std::string ModuleLoader::Pimpl::makeProgramDescription() {
     return ss.str();
 }
 
-struct EmptyJobMaster : public JobMaster {
-    ost::Mutex mutex;
-    ost::Condition zero;
-    int count;
-    EmptyJobMaster() : zero(mutex), count(0) {}
-
-    void register_node( Job& ) { ost::MutexLock lock(mutex); count++;}
-    void erase_node( Job&  ) { 
-        ost::MutexLock lock(mutex);
-        count--;
-        if (count == 0) zero.signal();
-    }
-
-    ~EmptyJobMaster() { 
-        ost::MutexLock lock(mutex);
-        while (count) 
-            zero.wait();
-    }
-};
-
 static ModuleLoader *ml = NULL;
 
 void ModuleLoader::makeSingleton() 
@@ -192,11 +167,5 @@ ModuleLoader& ModuleLoader::getSingleton() {
 }
 void ModuleLoader::destroySingleton()
     { if ( ml != NULL ) { delete ml; ml = NULL; } }
-
-void ModuleLoader::add_jobs( JobMaster& master ) {
-    for ( std::list<Job*>::iterator i = pimpl->jobs.begin(); i != pimpl->jobs.end(); i++ ) {
-        master.register_node( **i );
-    }
-}
 
 }

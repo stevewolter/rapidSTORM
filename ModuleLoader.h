@@ -21,7 +21,6 @@ class ModuleLoader : boost::noncopyable {
 
     void add_modules( Config& );
     std::string makeProgramDescription();
-    void add_jobs( JobMaster& master );
 };
 
 }
