@@ -103,11 +103,18 @@ Engine::TraitsPtr Engine::get_traits() {
 
     if ( ! config.amplitude_threshold().is_initialized() ) {
         DEBUG("Guessing input threshold");
-        if ( imProp->background_stddev.is_initialized() ) {
-            config.amplitude_threshold = 35.0f * (*imProp->background_stddev);
-        } else {
-            throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");
+        for ( int i = 0; i < imProp->plane_count(); ++i ) {
+            if ( imProp->plane(i).background_stddev.is_initialized() ) {
+                camera_response threshold = 
+                    35.0f * *imProp->plane(i).background_stddev / 
+                        imProp->plane(i).transmission_coefficient(0);
+                if ( ! config.amplitude_threshold().is_initialized() ||
+                       *config.amplitude_threshold() > threshold )
+                    config.amplitude_threshold = threshold;
+            }
         }
+        if ( ! config.amplitude_threshold().is_initialized() )
+            throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");
         DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
     } else {
         DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
