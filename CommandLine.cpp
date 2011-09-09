@@ -63,23 +63,37 @@ class CommandLine::Pimpl
     bool load_config_file(const std::string& filename);
     void find_config_file();
 
+    class JobHandle : public dStorm::JobHandle {
+        Pimpl& master;
+        dStorm::Job& job;
+        bool registered;
+        ~JobHandle() { unregister_node(); master.deleted_node(job); }
+        void unregister_node() { if ( registered ) { master.erase_node(job); registered = false; } }
+      public:
+        JobHandle( Pimpl& m, dStorm::Job& j ) : master(m), job(j), registered(true) {}
+    };
+
   public:
     Pimpl(int argc, char *argv[]);
     ~Pimpl();
 
     void run();
-    void register_node( dStorm::Job& j ) { 
+    std::auto_ptr<dStorm::JobHandle> register_node( dStorm::Job& j ) { 
         DEBUG("Waiting for mutex to add job");
         ost::MutexLock lock(mutex);
         this->push_back(j.get_config());
         DEBUG("Pushed back " << j.get_config().getName());
         jobs.push_back( &j ); 
+        return std::auto_ptr<dStorm::JobHandle>( new JobHandle( *this, j ) );
     }
     void erase_node( dStorm::Job& j ) {
-        DEBUG("Waiting for mutex to delete job");
+        DEBUG("Waiting for mutex to delete job for " << j.get_config().getName());
         ost::MutexLock lock(mutex);
         this->erase(j.get_config());  
         DEBUG("Erased " << j.get_config().getName());
+    }
+    void deleted_node( dStorm::Job& j ) {
+        ost::MutexLock lock(mutex);
         jobs.remove( &j ); 
         jobs_empty.broadcast();
     }
@@ -252,7 +266,6 @@ void TwiddlerLauncher::operator()( const simparm::Event& )
 
 TwiddlerLauncher::~TwiddlerLauncher() {}
 
-void CommandLine::register_node( Job& j ) { pimpl->register_node( j ); }
-void CommandLine::erase_node( Job&  j ) { pimpl->erase_node( j ); }
+std::auto_ptr<JobHandle> CommandLine::register_node( Job& j ) { return pimpl->register_node( j ); }
 
 }
