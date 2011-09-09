@@ -78,6 +78,7 @@ Source::get_traits()
     else
         s->size[0] /= 2;
     s->size[2] *= 2;
+    s->planes.resize( s->size[2].value(), traits::Optics<2>() );
     return s;
 }
 
