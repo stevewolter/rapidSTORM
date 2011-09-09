@@ -36,7 +36,7 @@ namespace engine {
       private:
         std::set<std::string> used_output_filenames;
 
-        JobMaster* input_stream;
+        std::auto_ptr<JobHandle> job_handle;
         /** Construction Configuration. This is a copy of the Config used
          *  to build this car. */
         dStorm::Config config;

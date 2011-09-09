@@ -19,7 +19,7 @@ struct InputStream::Pimpl
     ost::Mutex mutex;
     ost::Condition all_cars_finished;
     typedef std::set<Job*> Jobs;
-    Jobs running_cars;
+    Jobs running_cars, stopping_cars;
 
     bool exhausted_input;
 
@@ -29,12 +29,23 @@ struct InputStream::Pimpl
     simparm::Attribute<std::string> help_file;
     boost::thread input_watcher;
 
+    class JobHandle : public dStorm::JobHandle {
+        Pimpl& master;
+        dStorm::Job& job;
+        bool registered;
+        ~JobHandle() { unregister_node(); master.deleted_node(job); }
+        void unregister_node() { if ( registered ) { master.erase_node(job); registered = false; } }
+      public:
+        JobHandle( Pimpl& m, dStorm::Job& j ) : master(m), job(j), registered(true) {}
+    };
+
     Pimpl(InputStream& papa, const Config*, 
           std::istream*, std::ostream*);
     ~Pimpl();
 
-    void register_node( Job& );
+    std::auto_ptr<dStorm::JobHandle> register_node( Job& );
     void erase_node( Job& );
+    void deleted_node( Job& );
 
     DSTORM_REALIGN_STACK void run();
 
@@ -109,7 +120,7 @@ InputStream::Pimpl::~Pimpl()
     input_watcher.join();
     DEBUG("Joined InputStream::Pimpl subthread");
     terminate_remaining_cars();
-    while ( ! running_cars.empty() )
+    while ( ! running_cars.empty() || ! stopping_cars.empty() )
         all_cars_finished.wait();
 }
 
@@ -133,20 +144,28 @@ void InputStream::Pimpl::run()
     }
 }
 
-void InputStream::register_node( Job& node ) {pimpl->register_node(node);}
-void InputStream::Pimpl::register_node( Job& node ) {
+std::auto_ptr<dStorm::JobHandle> InputStream::register_node( Job& node ) { return pimpl->register_node(node);}
+std::auto_ptr<dStorm::JobHandle> InputStream::Pimpl::register_node( Job& node ) {
     ost::MutexLock lock(mutex);
     simparm::Node::push_back( node.get_config() );
     if ( node.needs_stopping() )
         running_cars.insert( &node );
+    return std::auto_ptr<dStorm::JobHandle>( new JobHandle(*this, node) );
 }
 
-void InputStream::erase_node( Job& node ) {pimpl->erase_node(node);}
 void InputStream::Pimpl::erase_node( Job& node ) {
     ost::MutexLock lock(mutex);
+    DEBUG("Erasing node " << node.get_config().getName());
     simparm::Node::erase( node.get_config() );
     running_cars.erase( &node );
-    if ( running_cars.empty() )
+    stopping_cars.insert( &node );
+}
+
+void InputStream::Pimpl::deleted_node( Job& node ) {
+    ost::MutexLock lock(mutex);
+    DEBUG("Deleting node " << node.get_config().getName() << " from list");
+    stopping_cars.erase( &node );
+    if ( running_cars.empty() && stopping_cars.empty() )
         all_cars_finished.signal();
 }
 

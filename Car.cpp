@@ -69,7 +69,6 @@ static std::string getRunNumber() {
 
 Car::Car (JobMaster* input_stream, const dStorm::Config &new_config) 
 : simparm::Listener( simparm::Event::ValueChanged ),
-  input_stream( input_stream ),
   config(new_config),
   ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
@@ -104,7 +103,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
 
     DEBUG("Registering at input_stream config " << input_stream);
     if ( input_stream )
-        this->input_stream->register_node( *this );
+        job_handle = input_stream->register_node( *this );
 
     master_thread = boost::thread( &Car::run, this );
 }
@@ -117,6 +116,9 @@ Car::~Car()
 
     DEBUG("Sending destruction signal to outputs");
     output->propagate_signal( Output::Prepare_destruction );
+
+    if ( job_handle.get() != NULL )
+        job_handle->unregister_node();
 
     DEBUG("Deleting outputs");
     output.reset(NULL);
@@ -159,11 +161,6 @@ void Car::run() {
         simparm::Message m("Error in Job " + ident, 
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);
-    }
-
-    if ( input_stream ) {
-        DEBUG("Removing from input_stream config");
-        input_stream->erase_node( *this );
     }
 
     master_thread.detach();

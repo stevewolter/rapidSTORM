@@ -25,8 +25,7 @@ class InputStream
 
     void start();
 
-    void register_node( Job& );
-    void erase_node( Job& );
+    std::auto_ptr<JobHandle> register_node( Job& );
 };
 
 }
