@@ -1,3 +1,17 @@
+== 2.3.0 ==
+
+* Made threshold estimation multi-plane aware
+* Cleaned up JobMaster capabilities out of ModuleLoader
+* Redesigned JobMaster interface around RAII
+* Redesigned JobMaster interface around RAII
+* Made resolution setter modify instead of overwrite supplied optics traits
+* Rewrote background noise estimator to estimate each plane individually
+* Correctly defined traits in biplane splitter
+* Made ignoring TIFF warnings the default and saved in-sequence behaviour for localization buncher
+* Removed superfluous debug output
+* Added debug output
+* Fixed superfluous copy in reading Andor SIF files and added more debug output
+
 == 2.2.1 ==
 
 * Added file output for localization counter.
