@@ -47,8 +47,7 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
             DEBUG("Diff is " << diff);
             float ratio = diff / *length;
             DEBUG("Ratio is " << ratio);
-            progress.setValue( round(ratio / 0.01)
-                                * 0.01 );
+            progress.setValue( std::min( round(ratio / 0.01), 99.0 ) * 0.01 );
         } else {
             progress.setValue(0.5);
         }
