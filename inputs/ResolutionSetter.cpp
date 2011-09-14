@@ -162,3 +162,19 @@ void Config::read_traits( const input::Traits<engine::Image>& t ) {
 }
 }
 }
+
+namespace boost {
+namespace units {
+
+std::string name_string(const dStorm::input::Resolution::PerMicro&)
+{
+    return "micrometer^-1";
+}
+
+std::string symbol_string(const dStorm::input::Resolution::PerMicro&)
+{
+    return "µm^-1";
+}
+
+}
+}

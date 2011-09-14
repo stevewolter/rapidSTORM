@@ -91,6 +91,8 @@ class Source
         frame_index from = std::max( this->from, *p->image_number().range().first );
         if ( p->image_number().range().second.is_initialized() && to.is_initialized() ) {
             p->image_number().range().second = std::min(*to, *p->image_number().range().second);
+        } else if ( to.is_initialized() ) {
+            p->image_number().range().second = *to;
         }
         p->image_number().range().first = from;
         DEBUG("First frame of traits is " << *p->image_number().range().first << ", last frame set is " << p->image_number().range().second.is_initialized());

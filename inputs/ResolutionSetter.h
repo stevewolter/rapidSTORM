@@ -29,14 +29,15 @@ using namespace chain;
 
 namespace Resolution {
 
+typedef power_typeof_helper< 
+        power10< si::length, -6 >::type,
+        static_rational<-1> >::type PerMicro; 
+
 class Config : public simparm::Object {
     friend class Check;
 
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
     simparm::NumericEntry<PSFSize> psf_size;
-    typedef power_typeof_helper< 
-            power10< si::length, -6 >::type,
-            static_rational<-1> >::type PerMicro; 
     simparm::OptionalEntry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
     traits::CuboidConfig cuboid_config;
 
@@ -110,5 +111,13 @@ class ChainLink
 }
 }
 
+namespace boost {
+namespace units {
+
+std::string name_string(const dStorm::input::Resolution::PerMicro&);
+std::string symbol_string(const dStorm::input::Resolution::PerMicro&);
+
+}
+}
 
 #endif

@@ -49,8 +49,8 @@ void Slicer::add_output_clone(int i) {
 
 Slicer::_Config::_Config() 
 : simparm::Object("Slicer", "Slice localization set"),
-  slice_size("SliceSize", "Size of one slice in images"),
-  slice_distance("SliceDistance", "Start new slice every n images"),
+  slice_size("SliceSize", "Size of one slice in images", 500 * camera::frame),
+  slice_distance("SliceDistance", "Start new slice every n images", 100 * camera::frame),
   outputFile("BaseFileName", "File name pattern", "_$slice$")
 {
     slice_size.helpID = HELP_Slicer_Size;
