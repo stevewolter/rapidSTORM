@@ -66,9 +66,6 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_set() )
         rv.amplitude().range().first = *config.amplitude_threshold();
-    rv.fluorophore().is_given = imProp->fluorophores.size() > 1;
-    rv.fluorophore().range().first = 0;
-    rv.fluorophore().range().second = imProp->fluorophores.size() - 1;
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
@@ -89,6 +86,10 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
         DEBUG("Finished setting traits, info now at " << &info);
     }
     DEBUG("Returning traits");
+
+    rvt->fluorophore().is_given = imProp->fluorophores.size() > 1;
+    rvt->fluorophore().range().first = 0;
+    rvt->fluorophore().range().second = imProp->fluorophores.size() - 1;
 
     return rvt;
 }
