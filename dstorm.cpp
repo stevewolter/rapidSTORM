@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
     DEBUG("entry: main");
     int exit_code = EXIT_SUCCESS;
 
+    ios_base::sync_with_stdio(false);
+
     ost::DebugStream::set(cerr);
 #ifdef HAVE_LIBGRAPHICSMAGICK__
 #ifdef HAVE_MAGICK___H
