@@ -1,3 +1,10 @@
+== 2.3.2 ==
+
+* Incremented major component of librapidstorm version to 12 and made appropriate changes
+* Sped up I/O by disabling stdio compatibility
+* Fixed enabling of fluoropore field for one-fluorophore fits
+* Fixed several bugs, removed unnecessary files
+
 == 2.3.1 ==
 
 * Fixed bug in many tests where the set Progress value 1 line would predate additional job outputs
