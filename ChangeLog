@@ -1,3 +1,8 @@
+== 2.3.3 ==
+
+* Removed dmalloc from configure scripts
+* Added callback for SpotFitterFactories to throw errors before multi-threaded construction
+
 == 2.3.2 ==
 
 * Incremented major component of librapidstorm version to 12 and made appropriate changes
