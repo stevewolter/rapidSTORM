@@ -115,8 +115,6 @@ if echo "$LIBS" | grep "subsystem,windows"; then
     LIBS="$LIBS -Wl,--subsystem,console"
 fi
 
-AM_WITH_DMALLOC
-
 # Integrate the help, library and the current src directory
 CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
 
