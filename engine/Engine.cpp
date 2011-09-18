@@ -127,6 +127,8 @@ Engine::TraitsPtr Engine::get_traits() {
     prv->image_number().is_given = true;
     prv->engine = this;
 
+    this->config.spotFittingMethod().check_configuration( *imProp, *prv );
+
     return prv;
 }
 
@@ -314,7 +316,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         std::vector<Localization>& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
-        int best_found = -1, fluorophore = 0;
+        int best_found = -1;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
             candidate = buffer.size();
             int found_number = fitter[fit_fluo].fitSpot(s, image, 
@@ -331,7 +333,6 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
                 for (int i = 0; i < best_found && i < found_number; ++i)
                     buffer[start+i] = buffer[candidate+found_number-i-1];
                 best_found = found_number;
-                fluorophore = fit_fluo;
                 best_total_residues = total_residues;
             }
         }
@@ -340,7 +341,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
             buffer[i+start].frame_number() = base->frame_number();
         }
         if ( best_found > 0 ) {
-            DEBUG("Committing " << best_found << " localizations found for fluorophore " << fluorophore << " at position " << buffer[start].position().transpose());
+            DEBUG("Committing " << best_found << " localizations found at position " << buffer[start].position().transpose());
             motivation = origMotivation;
         } else {
             motivation += best_found;
