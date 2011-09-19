@@ -1,8 +1,14 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "debug.h"
 #include "Config.h"
 #include <math.h>
 #include <limits>
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
 #include <dStorm/doc/context.h>
+#endif
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitter.h>
 #include <dStorm/engine/SpotFitterFactory.h>
@@ -48,7 +54,6 @@ _Config::_Config()
                         "bad candidates are found.");
     motivation.setUserLevel(Object::Intermediate);
 
-    amplitude_threshold.helpID = HELP_AmplitudeThreshold;
     amplitude_threshold.setUserLevel(Object::Beginner);
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
@@ -60,7 +65,10 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+    amplitude_threshold.helpID = HELP_AmplitudeThreshold;
     spotFindingMethod.helpID = HELP_Smoother;
+#endif
     spotFindingMethod.set_auto_selection( true );
 
     spotFittingMethod.set_auto_selection( true );

@@ -1,8 +1,13 @@
 #define cimg_use_magick
 #define DSTORM_AVERAGEIMAGE_CPP
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+#include <dStorm/doc/context.h>
+#endif
 #include "AverageImage.h"
 #include <iostream>
-#include <dStorm/doc/context.h>
 #include <dStorm/Image_iterator.h>
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/helpers/DisplayDataSource_impl.h>
@@ -16,7 +21,9 @@ AverageImage::_Config::_Config()
 : Object("AverageImage", "Average images"),
     outputFile("ToFile", "Write averaged image to", ".jpg")
 { 
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
     outputFile.helpID = HELP_AverageImage_ToFile;
+#endif
 }
 
 AverageImage::AverageImage( const Config &config )

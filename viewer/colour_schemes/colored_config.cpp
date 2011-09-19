@@ -1,6 +1,11 @@
 #include "colored.h"
 #include "colored_config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
 #include <dStorm/doc/context.h>
+#endif
 #include "../Config.h"
 #include "base_impl.h"
 
@@ -13,7 +18,6 @@ ColoredConfig::ColoredConfig()
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1)
 {
-    hue.helpID = HELP_Viewer_Hue;
     hue.setMin(0);
     hue.setMax(1);
     hue.setHelp("Select a hue between 0 and 1 to display localizations in."
@@ -21,7 +25,10 @@ ColoredConfig::ColoredConfig()
                 "the natural spectrum from 0 (red) over 1/6 (yellow), "
                 "1/3 (green), 1/2 (cyan), 2/3 (blue) to 5/6 (violet) and "
                 "1 (red again)");
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+    hue.helpID = HELP_Viewer_Hue;
     saturation.helpID = HELP_Viewer_Saturation;
+#endif
     saturation.setMin(0);
     saturation.setMax(1);
     saturation.setHelp("Select a saturation between 0 and 1 for the color "

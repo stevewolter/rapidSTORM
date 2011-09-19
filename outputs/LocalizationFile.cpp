@@ -1,9 +1,14 @@
 #define DSTORM_LOCALIZATIONFILE_CPP
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+#include <dStorm/doc/context.h>
+#endif
 #include "debug.h"
 #include "LocalizationFile.h"
 #include <string.h>
 #include <stdlib.h>
-#include <dStorm/doc/context.h>
 #include <dStorm/unit_matrix_operators.h>
 #include <iomanip>
 #include <boost/bind/bind.hpp>
@@ -27,7 +32,9 @@ LocalizationFile::_Config::_Config()
         "line per fit, with X- and Y-coordinate, image number "
         "and fit amplitude, fields separated by spaces.");
     outputFile.setUserLevel(simparm::Object::Beginner);
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
     outputFile.helpID = HELP_Table_ToFile;
+#endif
 }
 
 using namespace dStorm::LocalizationFile;

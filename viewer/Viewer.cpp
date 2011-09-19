@@ -5,7 +5,12 @@
 #include <limits>
 #include <cassert>
 #include <dStorm/engine/Image.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
 #include <dStorm/doc/context.h>
+#endif
 
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
@@ -46,9 +51,11 @@ Viewer::Viewer(const Viewer::Config& config)
 {
     DEBUG("Building viewer");
 
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
     histogramPower.helpID = HELP_Viewer_Status_Power;
     tifFile.helpID = HELP_Viewer_Status_ToFile;
     save.helpID = HELP_Viewer_Status_Save;
+#endif
 
     reshow_output.viewable = ! config.showOutput();
 

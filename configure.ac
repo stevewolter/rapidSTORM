@@ -56,7 +56,7 @@ AC_CHECK_HEADERS([Magick++.h])
 AC_CHECK_HEADERS([tiffio.h])
 AC_CHECK_HEADERS([any_iterator.hpp], [], [AC_ERROR([Missing iterator type erasure header])])
 AC_CHECK_HEADERS([dStorm/Localization.h], [], [AC_ERROR([Missing dSTORM library])])
-AC_CHECK_HEADERS([dStorm/doc/context.h], [], [AC_ERROR([Missing dSTORM documentation library])])
+AC_CHECK_HEADERS([dStorm/doc/context.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

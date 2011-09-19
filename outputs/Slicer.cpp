@@ -1,6 +1,11 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+#include <dStorm/doc/context.h>
+#endif
 #include "Slicer.h"
 #include <sstream>
-#include <dStorm/doc/context.h>
 #include <stdio.h>
 
 #include <dStorm/outputs/NullOutput.h>
@@ -53,13 +58,15 @@ Slicer::_Config::_Config()
   slice_distance("SliceDistance", "Start new slice every n images", 100 * camera::frame),
   outputFile("BaseFileName", "File name pattern", "_$slice$")
 {
-    slice_size.helpID = HELP_Slicer_Size;
     slice_size.min = 1 * camera::frame;
 
-    slice_distance.helpID = HELP_Slicer_Dist;
     slice_distance.min = 1 * camera::frame;
 
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
+    slice_size.helpID = HELP_Slicer_Size;
+    slice_distance.helpID = HELP_Slicer_Dist;
     outputFile.helpID = HELP_Slicer_Pattern;
+#endif
     outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 

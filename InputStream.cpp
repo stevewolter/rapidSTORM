@@ -1,7 +1,13 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
 #include <dStorm/doc/rapidstorm_help_file.h>
+#endif
 #include "JobStarter.h"
 #include "Car.h"
 
@@ -82,7 +88,11 @@ InputStream::Pimpl::Pimpl(
   exhausted_input( i == NULL ),
   original( (c) ? new Config(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL ),
+#ifdef HAVE_DSTORM_DOC_CONTEXT_H
   help_file("help_file", dStorm::HelpFileName)
+#else
+  help_file("help_file", "")
+#endif
 {
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
