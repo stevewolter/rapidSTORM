@@ -12,7 +12,6 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/engine/SpotFitter.h>
-#include <dStorm/engine/Config.h>
 #include <dStorm/output/Traits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/output/LocalizedImage.h>
@@ -22,6 +21,7 @@
 #include <dStorm/helpers/back_inserter.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "PlaneFlattener.h"
+#include "Config.h"
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>

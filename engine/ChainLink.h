@@ -6,7 +6,7 @@
 #include <dStorm/input/chain/Filter.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/engine/Config.h>
+#include "Config.h"
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/engine/ClassicEngine.h>
 #include <simparm/ChoiceEntry_Impl.hh>

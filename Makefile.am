@@ -16,7 +16,7 @@ install-exec-local :
 
 TESTS = $(C_TESTS)
 
-doc_DATA = $(srcdir)/README $(srcdir)/LICENSE
+doc_DATA = $(srcdir)/README $(srcdir)/COPYING
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc

@@ -6,7 +6,9 @@
 #include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/input/chain/Filter_impl.h>
 #include <dStorm/input/chain/EngineHelpers.h>
+#include <dStorm/ImageTraits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 
 namespace dStorm {

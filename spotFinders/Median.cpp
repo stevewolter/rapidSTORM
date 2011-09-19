@@ -1,10 +1,11 @@
+#include <iostream>
 #include <dStorm/engine/Image.h>
 #include <algorithm>
 #include "spotFinders/MedianSmoother.h"
-#include <dStorm/engine/Config.h>
 #include <cassert>
 
 using namespace dStorm::engine;
+using std::ostream;
 
 namespace dStorm {
 namespace spotFinders {
