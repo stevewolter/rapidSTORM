@@ -1,3 +1,9 @@
+== 2.3.5 ==
+
+* Fixed cross-compiling-incompatible direct call to dpkg-config
+* Fixed missing pkg-config build dependency
+* Fixed compilation bugs due to remade GraphicsMagick dependency
+
 == 2.3.4 ==
 
 * Adapted to pc file for librapidstorm

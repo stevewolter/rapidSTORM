@@ -1,3 +1,9 @@
+rapidstorm (2.3.5-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 21 Sep 2011 23:08:13 +0200
+
 rapidstorm (2.3.4-2) testing; urgency=low
 
   * Fixed missing pkg-config build dependency
