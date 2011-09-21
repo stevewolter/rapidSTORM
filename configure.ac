@@ -6,9 +6,6 @@ AC_INIT([rapidSTORM], [2.3.3], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
-DSTORM_LIB_VERSION=12
-AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
-
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dstorm.cpp])
@@ -48,15 +45,21 @@ DX_PS_FEATURE(OFF)
 DX_PDF_FEATURE(OFF)
 DX_INIT_DOXYGEN(dStorm)
 
+PKG_CHECK_MODULES([LIBDSTORM], [librapidstorm])
+PKG_CHECK_MODULES([GM], [GraphicsMagick++])
+CPPFLAGS="$CPPFLAGS $LIBDSTORM_CFLAGS $GM_CFLAGS"
+LIBS="$LIBDSTORM_LIBS $GM_LIBS $LIBS"
+
+DSTORM_LIB_VERSION=`pkg-config --variable=identifier librapidstorm`
+AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
+DSTORM_PLUGIN_DIR=`pkg-config --variable=plugindir librapidstorm`
+AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
-AC_CHECK_HEADER([Eigen/Array], [], [AC_ERROR([Missing eigen2 library])])
-AC_CHECK_HEADERS([Magick++.h])
 AC_CHECK_HEADERS([tiffio.h])
 AC_CHECK_HEADERS([any_iterator.hpp], [], [AC_ERROR([Missing iterator type erasure header])])
-AC_CHECK_HEADERS([dStorm/Localization.h], [], [AC_ERROR([Missing dSTORM library])])
-AC_CHECK_HEADERS([dStorm/doc/context.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -69,10 +72,7 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([dStorm], [main], , [AC_ERROR(dSTORM library not found)])
 AC_CHECK_LIB([tiff], [main], , [AC_ERROR(tiff library not found)])
-AC_CHECK_LIB([GraphicsMagick], [main], , [AC_ERROR(GraphicsMagick library not found)])
-AC_CHECK_LIB([GraphicsMagick++], [main], , [AC_ERROR(GraphicsMagick++ library not found)])
 AC_CHECK_LIB([readsif], [main], , [AC_ERROR(readsif library not found)])
 AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
 AC_CHECK_LIB([boost_thread], [main])

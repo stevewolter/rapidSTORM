@@ -6,12 +6,6 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the <dStorm/doc/context.h> header file. */
-#undef HAVE_DSTORM_DOC_CONTEXT_H
-
-/* Define to 1 if you have the <dStorm/Localization.h> header file. */
-#undef HAVE_DSTORM_LOCALIZATION_H
-
 /* Define to 1 if you have the `floor' function. */
 #undef HAVE_FLOOR
 
@@ -28,24 +22,11 @@
    (-lboost_thread_win32). */
 #undef HAVE_LIBBOOST_THREAD_WIN32
 
-/* Define to 1 if you have the `dStorm' library (-ldStorm). */
-#undef HAVE_LIBDSTORM
-
-/* Define to 1 if you have the `GraphicsMagick' library (-lGraphicsMagick). */
-#undef HAVE_LIBGRAPHICSMAGICK
-
-/* Define to 1 if you have the `GraphicsMagick++' library
-   (-lGraphicsMagick++). */
-#undef HAVE_LIBGRAPHICSMAGICK__
-
 /* Define to 1 if you have the `readsif' library (-lreadsif). */
 #undef HAVE_LIBREADSIF
 
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF
-
-/* Define to 1 if you have the <Magick++.h> header file. */
-#undef HAVE_MAGICK___H
 
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC
@@ -134,6 +115,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Default directory for plugin files */
+#undef PLUGINDIR
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */

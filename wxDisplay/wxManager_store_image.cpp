@@ -10,6 +10,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/ImageTraits.h>
 #include <simparm/Message.hh>
+#include <stdio.h>
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
