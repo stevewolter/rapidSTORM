@@ -52,9 +52,9 @@ LIBS="$LIBDSTORM_LIBS $GM_LIBS $LIBS"
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-DSTORM_LIB_VERSION=`pkg-config --variable=identifier librapidstorm`
+DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`
 AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
-DSTORM_PLUGIN_DIR=`pkg-config --variable=plugindir librapidstorm`
+DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
 AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
 
 # Checks for header files.
