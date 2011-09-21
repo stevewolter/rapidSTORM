@@ -1,3 +1,9 @@
+rapidstorm (2.3.4-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Wed, 21 Sep 2011 14:05:08 +0200
+
 rapidstorm (2.3.3-2) testing; urgency=low
 
   * Forced recompilation with libdStorm 12.1.0

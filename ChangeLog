@@ -1,3 +1,10 @@
+== 2.3.4 ==
+
+* Adapted to pc file for librapidstorm
+* Forced recompilation for new libdStorm version
+* Made inclusion of dStorm-doc header optional
+* Removed dStorm self-referencing link because it was detrimental to clarity and broke make distcheck. Fixed distcheck and superfluous LICENSE file.
+
 == 2.3.3 ==
 
 * Removed dmalloc from configure scripts
