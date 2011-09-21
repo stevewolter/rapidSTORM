@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 #include "Mask.h"
-#ifdef HAVE_LIBGRAPHICSMAGICK__
+#ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
 
@@ -59,7 +59,7 @@ Mask<Ty>::Mask(std::auto_ptr< Source<Ty> > backend, const MaskConfig& config)
 {
     if ( !config.mask_image ) throw std::logic_error("No mask image given, but tried to apply mask filter");
 
-#ifndef HAVE_LIBGRAPHICSMAGICK__
+#ifndef USE_GRAPHICSMAGICK
     throw std::logic_error("rapidSTORM was compiled without mask image support, sorry.");
 #else
     Magick::Image mask_image( config.mask_image() );

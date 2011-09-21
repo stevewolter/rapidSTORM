@@ -12,7 +12,7 @@
 #include <locale.h>
 #include <stdlib.h>
 
-#ifdef HAVE_MAGICK___H
+#ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
 
@@ -30,8 +30,7 @@ int main(int argc, char *argv[]) {
     ios_base::sync_with_stdio(false);
 
     ost::DebugStream::set(cerr);
-#ifdef HAVE_LIBGRAPHICSMAGICK__
-#ifdef HAVE_MAGICK___H
+#ifdef USE_GRAPHICSMAGICK
     char english_env[] = { "LC_ALL=en_US" };
     /* Magick cannot save images in the de_DE locale. */
     putenv(english_env);
@@ -59,7 +58,6 @@ int main(int argc, char *argv[]) {
     };
     for (unsigned int i= 0; i < sizeof(fuckedup) / sizeof(int); ++i )
     signal(fuckedup[i], SIG_DFL);
-#endif
 #endif
 
     try {

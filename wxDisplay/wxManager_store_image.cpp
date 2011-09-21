@@ -3,7 +3,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#ifdef HAVE_MAGICK___H
+#ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
 #include <cmath>
@@ -29,7 +29,7 @@ std::string SIize( float value ) {
 namespace dStorm {
 namespace Display {
 
-#ifdef HAVE_LIBGRAPHICSMAGICK__
+#ifdef USE_GRAPHICSMAGICK
 template <int MagickDepth>
 inline void 
     make_magick_pixel( Magick::PixelPacket& mp, const dStorm::Pixel& p );
@@ -208,7 +208,7 @@ void wxManager::store_image(
     if ( ! image.do_clear )
         throw std::logic_error("No background color defined for image");
 
-#if !defined(HAVE_LIBGRAPHICSMAGICK__) || !defined(HAVE_MAGICK___H)
+#if !defined(USE_GRAPHICSMAGICK) 
     throw std::runtime_error("Cannot save images: Magick library not used in compilation");
 #else
     DEBUG("Image to store has width " << image.resize_image.size.x() << " and height " << image.resize_image.size.y()

@@ -129,6 +129,9 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
+/* Use the GraphicsMagick library */
+#undef USE_GRAPHICSMAGICK
+
 /* Version number of package */
 #undef VERSION
 

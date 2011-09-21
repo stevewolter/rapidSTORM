@@ -50,6 +50,8 @@ PKG_CHECK_MODULES([GM], [GraphicsMagick++])
 CPPFLAGS="$CPPFLAGS $LIBDSTORM_CFLAGS $GM_CFLAGS"
 LIBS="$LIBDSTORM_LIBS $GM_LIBS $LIBS"
 
+AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
+
 DSTORM_LIB_VERSION=`pkg-config --variable=identifier librapidstorm`
 AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
 DSTORM_PLUGIN_DIR=`pkg-config --variable=plugindir librapidstorm`
