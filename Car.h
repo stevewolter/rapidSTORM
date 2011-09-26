@@ -55,13 +55,14 @@ namespace engine {
         std::auto_ptr<output::Output> output;
 
         boost::recursive_mutex mutex;
-        bool terminate, emergencyStop, error, finished;
+        bool terminate, emergencyStop, error, finished, blocked;
         boost::condition terminationChanged, next_output_changed;
         frame_index first_output, next_output;
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);
 
+        class Block;
         class ComputationThread;
         boost::ptr_vector<ComputationThread> threads;
         boost::thread master_thread;
@@ -88,6 +89,7 @@ namespace engine {
         void repeat_results();
         bool can_repeat_results();
         void change_input_traits( std::auto_ptr< input::BaseTraits > );
+        std::auto_ptr<EngineBlock> block();
     };
 }
 }

@@ -398,5 +398,9 @@ void Engine::change_input_traits( std::auto_ptr< input::BaseTraits > traits )
     }
 }
 
+std::auto_ptr<EngineBlock> Engine::block() {
+    throw std::logic_error("Not implemented.");
+}
+
 }
 }

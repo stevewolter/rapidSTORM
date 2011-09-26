@@ -61,6 +61,7 @@ namespace engine {
         void repeat_results();
         bool can_repeat_results();
         void change_input_traits( std::auto_ptr< input::BaseTraits > );
+        std::auto_ptr<EngineBlock> block() ;
    };
 }
 }

@@ -82,7 +82,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   input(NULL),
   output(NULL),
   terminate( new_config.auto_terminate() ),
-  emergencyStop(false), error(false), finished(false)
+  emergencyStop(false), error(false), finished(false), blocked(false)
 {
     //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
@@ -144,14 +144,18 @@ void Car::operator()(const simparm::Event& e) {
         DEBUG("Job close button allows termination" );
         terminate = true;
         emergencyStop = error = true;
+        blocked = false;
         terminationChanged.notify_all();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
         DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         error = false;
         emergencyStop = finished = true;
+        blocked = false;
+        terminationChanged.notify_all();
     }
 }
 
@@ -268,6 +272,11 @@ void Car::run_computation()
                 DEBUG("Emergency stop: " << emergencyStop);
                 break;
             } else {
+                DEBUG("Waiting for blocks");
+                while ( blocked ) {
+                    terminationChanged.wait( lock );
+                    if ( emergencyStop ) break;
+                }
                 DEBUG("Continuing with computation");
             }
         }
@@ -433,6 +442,27 @@ void Car::change_input_traits( std::auto_ptr< input::BaseTraits > new_traits )
 {
     if ( upstream_engine )
         upstream_engine->change_input_traits( new_traits );
+}
+
+struct Car::Block : public EngineBlock {
+    Car& m;
+    Block( Car& m ) : m(m) {
+        boost::unique_lock<boost::recursive_mutex> lock(m.mutex);
+        DEBUG( "Block in place" );
+        m.blocked = true;
+    }
+
+    ~Block() {
+        DEBUG( "Waiting for lock to put block out of place" );
+        boost::unique_lock<boost::recursive_mutex> lock(m.mutex);
+        m.blocked = false;
+        DEBUG( "Block out of place" );
+        m.terminationChanged.notify_all();
+    }
+};
+
+std::auto_ptr<EngineBlock> Car::block() {
+    return std::auto_ptr<EngineBlock>( new Block(*this) );
 }
 
 }
