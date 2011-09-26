@@ -1,3 +1,7 @@
+== 2.3.7 ==
+
+* Fixed minor build errors.
+
 == 2.3.6 ==
 
 * Added a blocking semantic to fix #115
