@@ -22,9 +22,6 @@
    (-lboost_thread_win32). */
 #undef HAVE_LIBBOOST_THREAD_WIN32
 
-/* Define to 1 if you have the `readsif' library (-lreadsif). */
-#undef HAVE_LIBREADSIF
-
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF
 

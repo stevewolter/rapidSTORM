@@ -45,18 +45,6 @@ DX_PS_FEATURE(OFF)
 DX_PDF_FEATURE(OFF)
 DX_INIT_DOXYGEN(dStorm)
 
-PKG_CHECK_MODULES([LIBDSTORM], [librapidstorm])
-PKG_CHECK_MODULES([GM], [GraphicsMagick++])
-CPPFLAGS="$CPPFLAGS $LIBDSTORM_CFLAGS $GM_CFLAGS"
-LIBS="$LIBDSTORM_LIBS $GM_LIBS $LIBS"
-
-AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
-
-DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`
-AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
-DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
-AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
-
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
@@ -75,7 +63,6 @@ AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
 AC_CHECK_LIB([tiff], [main], , [AC_ERROR(tiff library not found)])
-AC_CHECK_LIB([readsif], [main], , [AC_ERROR(readsif library not found)])
 AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
 AC_CHECK_LIB([boost_thread], [main])
 AC_CHECK_LIB([boost_thread_win32], [main])
@@ -112,6 +99,17 @@ CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
 CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
+
+PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ libreadsif])
+CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
+LIBS="$DEPS_LIBS $LIBS"
+
+AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
+
+DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`
+AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
+DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
+AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
 
 if echo "$LIBS" | grep "subsystem,windows"; then
     LIBS="$LIBS -Wl,--subsystem,console"
