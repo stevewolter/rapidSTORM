@@ -1,3 +1,8 @@
+== 2.3.6 ==
+
+* Added a blocking semantic to fix #115
+* pkg-configed package
+
 == 2.3.5 ==
 
 * Fixed cross-compiling-incompatible direct call to dpkg-config
