@@ -49,7 +49,6 @@ DX_INIT_DOXYGEN(dStorm)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
 AC_CHECK_HEADERS([tiffio.h])
-AC_CHECK_HEADERS([any_iterator.hpp], [], [AC_ERROR([Missing iterator type erasure header])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -100,9 +99,16 @@ CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
 
-PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ libreadsif])
+PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator])
 CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
 LIBS="$DEPS_LIBS $LIBS"
+
+PKG_CHECK_MODULES([readsif], [libreadsif], [have_libreadsif=yes], [have_libreadsif=no])
+if test "$have_libreadsif" = "yes"; then
+    CPPFLAGS="$CPPFLAGS $readsif_CFLAGS"
+    LIBS="$readsif_LIBS $LIBS"
+    AC_DEFINE([HAVE_LIBREADSIF], [1], [Use readsif library])
+fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 

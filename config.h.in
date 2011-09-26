@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the <any_iterator.hpp> header file. */
-#undef HAVE_ANY_ITERATOR_HPP
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -21,6 +18,9 @@
 /* Define to 1 if you have the `boost_thread_win32' library
    (-lboost_thread_win32). */
 #undef HAVE_LIBBOOST_THREAD_WIN32
+
+/* Use readsif library */
+#undef HAVE_LIBREADSIF
 
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF

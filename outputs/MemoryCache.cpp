@@ -134,6 +134,7 @@ class MemoryCache::ReEmitter
     void stop() { throw std::logic_error("Not implemented, sorry."); }
     bool can_repeat_results() { return true; }
     void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
+    std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
 };
 
 MemoryCache::MemoryCache(
