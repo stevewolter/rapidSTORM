@@ -67,13 +67,13 @@ void Mirrorer::operator()<dStorm::engine::Image>( dStorm::engine::Image& l )
 }
 
 template <> 
-void Mirrorer::operator()<LocalizationFile::Record>( LocalizationFile::Record& l )
+void Mirrorer::operator()<localization::Record>( localization::Record& l )
 {
     boost::apply_visitor(*this, l );
 }
 
 template <> 
-void Mirrorer::operator()<LocalizationFile::EmptyLine>( LocalizationFile::EmptyLine& )
+void Mirrorer::operator()<localization::EmptyLine>( localization::EmptyLine& )
 {
 }
 

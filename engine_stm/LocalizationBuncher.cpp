@@ -4,6 +4,8 @@
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/output/Output.h>
 #include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <dStorm/localization/record.h>
 
 using namespace dStorm::output;
 
@@ -34,7 +36,7 @@ class Visitor
         return KeepComing;
     }
 
-    VisitResult operator()( const dStorm::LocalizationFile::EmptyLine& i ) 
+    VisitResult operator()( const dStorm::localization::EmptyLine& i ) 
     {
         if ( ! my_image.is_initialized() ) {
             my_image = i.number;
@@ -196,7 +198,7 @@ void Source<InputType>::dispatch(Messages m)
     base->dispatch(m);
 }
 
-template class Source<LocalizationFile::Record>;
+template class Source<localization::Record>;
 template class Source<Localization>;
 
 }

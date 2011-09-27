@@ -18,7 +18,7 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Filter.h>
-#include <dStorm/localization_file/record.h>
+#include <dStorm/localization/record.h>
 #include <dStorm/Localization.h>
 #include <dStorm/Image.h>
 #include <dStorm/ImageTraits.h>
@@ -47,14 +47,14 @@ struct Config : public simparm::Object {
 struct ImageNumber
 : public boost::static_visitor<frame_index>
 {
-    frame_index operator()( const LocalizationFile::EmptyLine& e )
+    frame_index operator()( const localization::EmptyLine& e )
         { return e.number; }
     frame_index operator()( const Localization& l )
         { return l.frame_number(); }
     template <typename PixelType, int Dim>
     frame_index operator()( const Image<PixelType,Dim>& l )
         { return l.frame_number(); }
-    frame_index operator()( const LocalizationFile::Record& r )
+    frame_index operator()( const localization::Record& r )
         { return boost::apply_visitor(*this, r); }
     frame_index operator()( const output::LocalizedImage& r )
         { return r.forImage; }

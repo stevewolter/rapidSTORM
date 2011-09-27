@@ -2,7 +2,6 @@
 
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Config.h>
-#include <dStorm/localization_file/reader.h>
 #include "AndorSIF.h"
 #include "TIFF.h"
 #include "BackgroundDeviationEstimator_decl.h"
@@ -19,8 +18,6 @@ namespace dStorm {
 using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
-    inputConfig->add_method( 
-        new LocalizationFile::Reader::ChainLink() );
 #ifdef HAVE_LIBREADSIF
     inputConfig->add_method( 
         new input::AndorSIF::Config<StormPixel>() );

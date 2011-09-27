@@ -6,7 +6,6 @@
 #include <dStorm/input/chain/Filter.h>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/localization_file/record.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 

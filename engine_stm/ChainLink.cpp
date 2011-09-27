@@ -9,7 +9,7 @@
 
 #include <boost/mpl/vector.hpp>
 #include <dStorm/output/LocalizedImage_decl.h>
-#include <dStorm/localization_file/record_decl.h>
+#include <dStorm/localization/record.h>
 #include <dStorm/Localization_decl.h>
 
 namespace dStorm {
@@ -18,7 +18,7 @@ namespace engine_stm {
 
 class ChainLink::Visitor {
   public:
-    typedef boost::mpl::vector<output::LocalizedImage,LocalizationFile::Record,dStorm::Localization>
+    typedef boost::mpl::vector<output::LocalizedImage,localization::Record,dStorm::Localization>
         SupportedTypes;
 
     const Config& config;

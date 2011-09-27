@@ -3,13 +3,13 @@
 
 #include <dStorm/input/Traits.h>
 #include <dStorm/Localization.h>
-#include <dStorm/localization_file/reader.h>
 #include <map>
 #include <memory>
 #include <dStorm/output/Output.h>
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <dStorm/helpers/thread.h>
+#include <dStorm/input/Source.h>
 #include "Config.h"
 
 namespace dStorm {

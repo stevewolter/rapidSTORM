@@ -6,6 +6,7 @@
 
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/FileInput.h>
+#include <dStorm/input/Source.h>
 #include <memory>
 #include <string>
 #include <stdexcept>

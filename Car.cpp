@@ -14,7 +14,6 @@
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>
-#include <dStorm/localization_file/reader.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
