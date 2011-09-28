@@ -1,3 +1,7 @@
+== 2.4.0 ==
+
+* Adapted to new string help ids
+
 == 2.3.8 ==
 
 * Moved STM file output into own plugin
