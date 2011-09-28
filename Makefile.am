@@ -73,7 +73,6 @@ liboutputs_la_SOURCES = \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h outputs/MemoryCache_decl.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp
-liboutputs_la_LIBADD = -lberghen_xmlParser
 
 libspotFinders_la_SOURCES = \
     spotFinders/averageSmooth.cpp \
