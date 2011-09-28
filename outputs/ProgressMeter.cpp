@@ -1,9 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/context.h>
-#endif
 #include "debug.h"
 #include "ProgressMeter.h"
 
@@ -20,9 +14,7 @@ ProgressMeter::ProgressMeter(const Config &)
     : OutputObject("ProgressMeter", "Progress status"),
       progress("Progress", "Progress on this job") 
     {
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-        progress.helpID = HELP_ProgressMeter_Progress;
-#endif
+        progress.helpID = "#ProgressMeter_Progress";
         progress.setEditable(false);
         progress.setViewable(true);
         progress.setUserLevel(simparm::Object::Beginner);

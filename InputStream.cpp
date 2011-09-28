@@ -1,13 +1,6 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/rapidstorm_help_file.h>
-#endif
 #include "JobStarter.h"
 #include "Car.h"
 
@@ -32,7 +25,6 @@ struct InputStream::Pimpl
     std::auto_ptr<Config> original;
     std::auto_ptr<Config> config;
     std::auto_ptr<JobStarter> starter;
-    simparm::Attribute<std::string> help_file;
     boost::thread input_watcher;
 
     class JobHandle : public dStorm::JobHandle {
@@ -87,16 +79,10 @@ InputStream::Pimpl::Pimpl(
   all_cars_finished( mutex ),
   exhausted_input( i == NULL ),
   original( (c) ? new Config(*c) : NULL ),
-  starter( (original.get()) ? new JobStarter(this) : NULL ),
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-  help_file("help_file", dStorm::HelpFileName)
-#else
-  help_file("help_file", "")
-#endif
+  starter( (original.get()) ? new JobStarter(this) : NULL )
 {
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
-    this->push_back( help_file );
     reset_config();
     if ( Display::Manager::getSingleton().getConfig() )
         this->push_back( *Display::Manager::getSingleton().getConfig() );

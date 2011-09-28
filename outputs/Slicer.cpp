@@ -1,9 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/context.h>
-#endif
 #include "Slicer.h"
 #include <sstream>
 #include <stdio.h>
@@ -62,11 +56,9 @@ Slicer::_Config::_Config()
 
     slice_distance.min = 1 * camera::frame;
 
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-    slice_size.helpID = HELP_Slicer_Size;
-    slice_distance.helpID = HELP_Slicer_Dist;
-    outputFile.helpID = HELP_Slicer_Pattern;
-#endif
+    slice_size.helpID = "#Slicer_Size";
+    slice_distance.helpID = "#Slicer_Dist";
+    outputFile.helpID = "#Slicer_Pattern";
     outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 

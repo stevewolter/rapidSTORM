@@ -1,14 +1,7 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "debug.h"
 #include "Config.h"
 #include <math.h>
 #include <limits>
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/context.h>
-#endif
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitter.h>
 #include <dStorm/engine/SpotFitterFactory.h>
@@ -18,10 +11,6 @@
 #include <dStorm/output/Basename.h>
 
 #include "config.h"
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
 namespace dStorm {
 namespace engine {
@@ -65,10 +54,9 @@ _Config::_Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-    amplitude_threshold.helpID = HELP_AmplitudeThreshold;
-    spotFindingMethod.helpID = HELP_Smoother;
-#endif
+    amplitude_threshold.helpID = "#AmplitudeThreshold";
+    spotFindingMethod.helpID = "#Smoother";
+
     spotFindingMethod.set_auto_selection( true );
 
     spotFittingMethod.set_auto_selection( true );

@@ -1,8 +1,5 @@
 #define DSTORM_CAR_CPP
 #include "debug.h"
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #include "Car.h"
 #include <dStorm/outputs/Crankshaft.h>
@@ -18,9 +15,6 @@
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/context.h>
-#endif
 
 extern void test_exception_site();
 
@@ -85,10 +79,8 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
 {
     //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-    closeJob.helpID = HELP_CloseJob;
-    abortJob.helpID = HELP_StopEngine;
-#endif
+    closeJob.helpID = "#CloseJob";
+    abortJob.helpID = "#StopEngine";
 
     receive_changes_from( abortJob.value );
     receive_changes_from( closeJob.value );

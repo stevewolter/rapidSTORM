@@ -1,9 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-#include <dStorm/doc/context.h>
-#endif
 #include "ColourScheme.h"
 #include "debug.h"
 #include "Config.h"
@@ -49,12 +43,10 @@ _Config::_Config()
     save_scale_bar.setUserLevel(simparm::Object::Intermediate);
     border.setUserLevel(simparm::Object::Intermediate);
 
-#ifdef HAVE_DSTORM_DOC_CONTEXT_H
-    outputFile.helpID = HELP_Viewer_ToFile;
-    showOutput.helpID = HELP_Viewer_ShowOutput;
-    colourScheme.helpID = HELP_Viewer_ColorScheme;
-    invert.helpID = HELP_Viewer_InvertColors;
-#endif
+    outputFile.helpID = "#Viewer_ToFile";
+    showOutput.helpID = "#Viewer_ShowOutput";
+    colourScheme.helpID = "#Viewer_ColorScheme";
+    invert.helpID = "#Viewer_InvertColors";
 
     DEBUG("Built Viewer Config");
 }
