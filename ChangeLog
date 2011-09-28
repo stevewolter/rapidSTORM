@@ -1,3 +1,7 @@
+== 2.4.1 ==
+
+* Removed left-over reference to berghen XML parser
+
 == 2.4.0 ==
 
 * Adapted to new string help ids
