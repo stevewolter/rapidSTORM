@@ -17,3 +17,6 @@ CPPFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),-DBOOST_USE_WINDOWS_H,)
 
 %:
 	dh $@ 
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
