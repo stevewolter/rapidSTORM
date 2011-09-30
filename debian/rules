@@ -9,14 +9,10 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-INCLUSION=$(if $(filter $(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE)),,/$(DEB_HOST_GNU_TYPE))
-CPPFLAGS+=-I/usr$(INCLUSION)/include/GraphicsMagick -I/usr$(INCLUSION)/include/eigen2 -DNDEBUG
-CXXFLAGS+=-O3 -msse -msse2 -mfpmath=sse
-CFLAGS+=-O3 -msse -msse2 -mfpmath=sse
+CPPFLAGS+=-DNDEBUG
+CXXFLAGS+=-O2 -msse -msse2 -mfpmath=sse
+CFLAGS+=-O2 -msse -msse2 -mfpmath=sse
 CPPFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),-DBOOST_USE_WINDOWS_H,)
 
 %:
 	dh $@ 
-
-override_dh_auto_install:
-	dh_auto_install --destdir=debian/tmp

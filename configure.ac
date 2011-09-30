@@ -20,6 +20,14 @@ AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor part of ve
 AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point part of version number])
 AC_SUBST([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION)
 
+AS_VAR_ARITH([current], $AX_MAJOR_VERSION+$AX_MINOR_VERSION)
+AS_VAR_ARITH([revision], $AX_POINT_VERSION)
+AS_VAR_ARITH([age], $AX_MINOR_VERSION)
+AC_SUBST([LIBTOOL_CURRENT], $current)
+AC_SUBST([LIBTOOL_REVISION], $revision)
+AC_SUBST([LIBTOOL_AGE], $age)
+AC_SUBST([LIBTOOL_VERSION_INFO], $current:$revision:$age)
+
 AC_LANG([C++])
 
 # Checks for programs.
@@ -99,9 +107,11 @@ CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
 
-PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator])
+PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator gsl])
 CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
 LIBS="$DEPS_LIBS $LIBS"
+
+PKG_CHECK_MODULES([librapidstormfile], [librapidstormfile])
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
@@ -109,6 +119,7 @@ DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`
 AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
 DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
 AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
+AC_SUBST([DSTORM_PLUGIN_DIR])
 
 if echo "$LIBS" | grep "subsystem,windows"; then
     LIBS="$LIBS -Wl,--subsystem,console"

@@ -1,14 +1,17 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@
-C_TESTS = check_resolutionsetter 
+plugin_libdir = $(DSTORM_PLUGIN_DIR)
+
+bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ 
+C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction
 check_PROGRAMS = $(C_TESTS)
-EXTRA_PROGRAMS = testDisplay 
+EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
 noinst_LTLIBRARIES = \
     libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libengine_stm.la 
+plugin_lib_LTLIBRARIES = liblocprec.la
 
 install-exec-local :
 	mkdir -p $(DESTDIR)$(bindir)
@@ -121,6 +124,43 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
+liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
+liblocprec_la_SOURCES = \
+    locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \
+    locprec/NoiseMeter.h locprec/Fluorophore.cpp \
+    locprec/pixelatedBessel.h locprec/pixelatedBessel.cpp \
+    locprec/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
+    locprec/RegionSegmenter.cpp \
+    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
+    locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
+    locprec/FluorophoreDistributions_Random.cpp \
+    locprec/FluorophoreDistributions_Lattice.cpp \
+    locprec/FluorophoreDistributions_Lines.cpp \
+    locprec/FluorophoreDistribution.h \
+    locprec/FluorophoreDistributions.h \
+    locprec/RegionSegmenter.h locprec/NoiseSource.h\
+    locprec/NoiseGenerator.h locprec/Fluorophore.h locprec/relate.h \
+    locprec/FillholeSmoother.h locprec/FillholeSmoother.cpp \
+    locprec/Reconstruction.hh locprec/Reconstruction.cc \
+    locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
+    locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
+    locprec/SourceValuePrinter.cpp locprec/SourceValuePrinter.h \
+    locprec/KalmanTrace.h locprec/DensityProfile.h \
+    locprec/biplane_alignment/decl.h locprec/biplane_alignment/impl.h \
+    locprec/biplane_alignment/Filter.cpp locprec/biplane_alignment/Source.cpp locprec/biplane_alignment/Config.cpp \
+    locprec/biplane_alignment/Derivator.h locprec/biplane_alignment/Derivator.cpp \
+    locprec/biplane_alignment/MotionModels.h
+
+fit_camera_noise_SOURCES = locprec/fitNoise.cpp
+fit_camera_noise_LDADD = liblocprec.la 
+gradient_SOURCES = locprec/gradient.cpp
+gradient_LDADD = liblocprec.la 
+checkplugin_locprec_SOURCES = locprec/check_plugin.cpp 
+checkplugin_locprec_LDADD = liblocprec.la 
+determine_clusters_from_centers_SOURCES = locprec/determine-clusters-from-centers.cpp
+determine_clusters_from_centers_LDADD = liblocprec.la $(librapidstormfile_LIBS)
+determine_clusters_from_centers_CPPFLAGS = $(librapidstormfile_CFLAGS)
+reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp

@@ -2,7 +2,7 @@ Source: rapidstorm
 Section: science
 Priority: optional
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm13-dev, libeigen2-dev, libboost-dev, libcsunits2-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, libanyiterator-dev, twiddler, libboost-system-dev, libboost-thread-dev, pkg-config
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm13-dev, libeigen2-dev, libboost-dev, libcsunits2-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, libanyiterator-dev, twiddler, libboost-system-dev, libboost-thread-dev, pkg-config, libgsl0-dev, librapidstormfile-dev
 Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
@@ -13,3 +13,10 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
 Provides: rapidstorm-bin
 Recommends: gsfonts
 Description: Localization microscopy data evaluation tool
+
+Package: rapidstorm13-plugin-locprec2
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, librapidstorm13
+Recommends: rapidstorm13
+Description: Experimental analysis tools for rapidSTORM
