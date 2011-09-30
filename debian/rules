@@ -14,5 +14,14 @@ CXXFLAGS+=-O2 -msse -msse2 -mfpmath=sse
 CFLAGS+=-O2 -msse -msse2 -mfpmath=sse
 CPPFLAGS+=$(if $(filter w64,$(DEB_HOST_ARCH_OS)),-DBOOST_USE_WINDOWS_H,)
 
+override_dh_install :
+	dh_crossinstall
+	/usr/bin/dh_install
+
+override_dh_clean :
+	dh_crossclean
+	/usr/bin/dh_auto_clean
+	/usr/bin/dh_clean
+
 %:
 	dh $@ 

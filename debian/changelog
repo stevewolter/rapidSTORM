@@ -1,3 +1,15 @@
+rapidstorm (4.0.1-3) testing; urgency=low
+
+  * Fixed missing build dependency on dh-crossinstall
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 30 Sep 2011 22:33:50 +0200
+
+rapidstorm (4.0.1-2) testing; urgency=low
+
+  * Added missing dh_crossinstall rules
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 30 Sep 2011 21:45:00 +0200
+
 rapidstorm (4.0.1-1) testing; urgency=low
 
   * New upstream release
