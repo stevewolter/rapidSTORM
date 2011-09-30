@@ -103,13 +103,6 @@ PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator])
 CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
 LIBS="$DEPS_LIBS $LIBS"
 
-PKG_CHECK_MODULES([readsif], [libreadsif], [have_libreadsif=yes], [have_libreadsif=no])
-if test "$have_libreadsif" = "yes"; then
-    CPPFLAGS="$CPPFLAGS $readsif_CFLAGS"
-    LIBS="$readsif_LIBS $LIBS"
-    AC_DEFINE([HAVE_LIBREADSIF], [1], [Use readsif library])
-fi
-
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
 DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`

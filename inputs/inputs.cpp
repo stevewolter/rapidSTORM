@@ -2,7 +2,6 @@
 
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Config.h>
-#include "AndorSIF.h"
 #include "TIFF.h"
 #include "BackgroundDeviationEstimator_decl.h"
 #include "Splitter_decl.h"
@@ -18,10 +17,6 @@ namespace dStorm {
 using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
-#ifdef HAVE_LIBREADSIF
-    inputConfig->add_method( 
-        new input::AndorSIF::Config<StormPixel>() );
-#endif
 #ifdef HAVE_TIFFIO_H
     inputConfig->add_method( new TIFF::ChainLink() );
 #endif

@@ -29,10 +29,9 @@ endif
 windows_resources.o : config.h
 
 libinputs_la_SOURCES = \
-	inputs/AndorSIF.cpp inputs/TIFF.cpp \
-	inputs/AndorSIF.h inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
+	inputs/TIFF.cpp \
+	inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
 	inputs/TIFF_OpenFile.cpp \
-	inputs/AndorSIF_OpenFile.h inputs/AndorSIF_OpenFile.cpp \
 	inputs/BackgroundDeviationEstimator_decl.h \
 	inputs/BackgroundDeviationEstimator.cpp \
 	inputs/BackgroundDeviationEstimator.h \
