@@ -137,6 +137,7 @@ void Car::operator()(const simparm::Event& e) {
         emergencyStop = error = true;
         blocked = false;
         terminationChanged.notify_all();
+        next_output_changed.notify_all();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
         DEBUG("Abort job button pressed");
@@ -147,6 +148,7 @@ void Car::operator()(const simparm::Event& e) {
         emergencyStop = finished = true;
         blocked = false;
         terminationChanged.notify_all();
+        next_output_changed.notify_all();
     }
 }
 
@@ -252,12 +254,11 @@ void Car::run_computation()
             output::LocalizedImage& result = *i;
 
             boost::unique_lock<boost::recursive_mutex> lock(mutex);
-            while ( next_output != result.forImage )
+            while ( next_output != result.forImage && !emergencyStop ) {
+                DEBUG("Waiting to deliver image " << result.forImage << " while current image is " << next_output);
                 next_output_changed.wait(lock);
-            output->receiveLocalizations( result );
-            next_output = result.forImage + 1 * boost::units::camera::frame;
-            next_output_changed.notify_all();
-            
+            }
+
             if (emergencyStop) 
             {
                 DEBUG("Emergency stop: " << emergencyStop);
@@ -268,6 +269,12 @@ void Car::run_computation()
                     terminationChanged.wait( lock );
                     if ( emergencyStop ) break;
                 }
+
+                DEBUG("Delivering image " << result.forImage);
+                output->receiveLocalizations( result );
+                next_output = result.forImage + 1 * boost::units::camera::frame;
+                next_output_changed.notify_all();
+            
                 DEBUG("Continuing with computation");
             }
         }
