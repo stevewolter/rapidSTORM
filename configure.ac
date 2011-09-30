@@ -55,7 +55,7 @@ DX_INIT_DOXYGEN(dStorm)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h math.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h winsock2.h math.h])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
