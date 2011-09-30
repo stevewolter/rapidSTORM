@@ -14,20 +14,20 @@ Provides: rapidstorm-bin
 Recommends: gsfonts
 Description: Localization microscopy data evaluation tool
 
-Package: rapidstorm13-plugin-locprec2
-Section: libs
+Package: rapidstorm13-plugin-locprec
+Section: science
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: rapidstorm13
 Description: Experimental analysis tools for rapidSTORM
 
-Package: rapidstorm13-plugin-camera2
+Package: rapidstorm13-plugin-camera
 Section: science
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: rapidSTORM plugin for direct camera control/acquisition
 
-Package: rapidstorm13-plugin-testhelpers2
+Package: rapidstorm13-plugin-testhelpers
 Section: science
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
