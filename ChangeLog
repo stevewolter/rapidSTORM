@@ -1,3 +1,8 @@
+== 4.0.1 ==
+
+* Added missing check for winsock2.h
+* Fixed unit testing code
+
 == 4.0.0 ==
 
 * Sanitized plugin naming scheme
