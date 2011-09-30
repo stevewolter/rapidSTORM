@@ -1,8 +1,8 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/constructors.h>
-#include "Reconstruction.hh"
-#include "Reconstruction.cc"
+#include "../Reconstruction.hh"
+#include "../Reconstruction.cc"
 
 #include <iostream>
 #include <iomanip>
