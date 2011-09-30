@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM], [2.4.2], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM], [2.4.3], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 

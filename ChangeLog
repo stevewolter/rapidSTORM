@@ -1,3 +1,7 @@
+== 2.4.3 ==
+
+* Fixed deadlock on emergency stop in engine
+
 == 2.4.2 ==
 
 * Removed Andor SIF reading code into own plugin to clean primary code
