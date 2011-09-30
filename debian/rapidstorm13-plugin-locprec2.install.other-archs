@@ -1,2 +1,2 @@
-usr/lib/librapidstorm/plugins-v13/lib*.so.*
-usr/lib/librapidstorm/plugins-v13/lib*.so
+usr/lib/librapidstorm/plugins-v13/liblocprec*.so.*
+usr/lib/librapidstorm/plugins-v13/liblocprec*.so

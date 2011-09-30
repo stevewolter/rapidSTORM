@@ -4,14 +4,14 @@ AUTOMAKE_OPTIONS = subdir-objects
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ 
-C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction
+C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin
 check_PROGRAMS = $(C_TESTS)
 EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
 noinst_LTLIBRARIES = \
     libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libengine_stm.la 
-plugin_lib_LTLIBRARIES = liblocprec.la
+plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la libtestplugin.la
 
 install-exec-local :
 	mkdir -p $(DESTDIR)$(bindir)
@@ -125,6 +125,8 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
+liblocprec_la_LIBADD = $(locprec_LIBS)
+liblocprec_la_CPPFLAGS = $(locprec_CFLAGS)
 liblocprec_la_SOURCES = \
     locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \
     locprec/NoiseMeter.h locprec/Fluorophore.cpp \
@@ -151,6 +153,29 @@ liblocprec_la_SOURCES = \
     locprec/biplane_alignment/Derivator.h locprec/biplane_alignment/Derivator.cpp \
     locprec/biplane_alignment/MotionModels.h
 
+libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
+libdirectcamerainput_la_LIBADD = $(libb64_LIBS)
+libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
+libdirectcamerainput_la_SOURCES = \
+    AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
+    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
+    AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
+    AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
+    AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
+
+libtestplugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
+libtestplugin_la_SOURCES = test-plugin/plugin.cpp test-plugin/SegmentationFault.h \
+    test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
+    test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
+    test-plugin/Manager.h test-plugin/Manager.cpp \
+    test-plugin/md5.h test-plugin/md5.c \
+    test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
+    test-plugin/DummyFitter.h test-plugin/DummyFitter.cpp \
+    test-plugin/Verbose.h \
+    test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
+    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
+
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
 fit_camera_noise_LDADD = liblocprec.la 
 gradient_SOURCES = locprec/gradient.cpp
@@ -165,6 +190,11 @@ testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
 check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp
 check_resolutionsetter_LDADD = libinputs.la
+checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
+checkplugin_camera_LDADD = libdirectcamerainput.la 
+checkplugin_camera_LDFLAGS = -no-undefined
+checkplugin_testplugin_SOURCES = test-plugin/check_plugin.cpp
+checkplugin_testplugin_LDADD = libtestplugin.la 
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     dstorm.cpp \

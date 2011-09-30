@@ -19,8 +19,14 @@
    (-lboost_thread_win32). */
 #undef HAVE_LIBBOOST_THREAD_WIN32
 
+/* Define to 1 if you have the `mswsock' library (-lmswsock). */
+#undef HAVE_LIBMSWSOCK
+
 /* Define to 1 if you have the `tiff' library (-ltiff). */
 #undef HAVE_LIBTIFF
+
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
+#undef HAVE_LIBWS2_32
 
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC

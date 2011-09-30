@@ -75,6 +75,8 @@ AC_CHECK_LIB([boost_thread], [main])
 AC_CHECK_LIB([boost_thread_win32], [main])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
+AC_CHECK_LIB([ws2_32], [main])
+AC_CHECK_LIB([mswsock], [main])
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
@@ -107,11 +109,13 @@ CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
 CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
 LIBS="$LIBS $WX_LIBS"
 
-PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator gsl])
+PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator libsimparm])
 CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
 LIBS="$DEPS_LIBS $LIBS"
 
 PKG_CHECK_MODULES([librapidstormfile], [librapidstormfile])
+PKG_CHECK_MODULES([libb64], [libb64])
+PKG_CHECK_MODULES([locprec], [gsl])
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
