@@ -1,3 +1,9 @@
+== 4.0.0 ==
+
+* Sanitized plugin naming scheme
+* Included camera, locprec and testhelper plugins directly into main package
+* Bumped version number above all plugin version numbers
+
 == 2.4.3 ==
 
 * Fixed deadlock on emergency stop in engine
