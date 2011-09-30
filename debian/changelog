@@ -1,3 +1,9 @@
+rapidstorm (2.4.2-1) testing; urgency=low
+
+  * New upstream release
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Fri, 30 Sep 2011 09:59:43 +0200
+
 rapidstorm (2.4.1-2) testing; urgency=low
 
   * Fixed docs declaration

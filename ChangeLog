@@ -1,3 +1,7 @@
+== 2.4.2 ==
+
+* Removed Andor SIF reading code into own plugin to clean primary code
+
 == 2.4.1 ==
 
 * Removed left-over reference to berghen XML parser
