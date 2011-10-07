@@ -2,7 +2,7 @@
 #define LOCPREC_FLUOROPHORE_DISTRIBUTIONS_H
 
 #include "FluorophoreDistribution.h"
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/TriggerEntry.hh>
@@ -19,7 +19,7 @@ class _Random : public FluorophoreDistribution {
     void registerNamedEntries() 
         { push_back( fluorophoreNumber ); }
   public:
-    simparm::UnsignedLongEntry fluorophoreNumber;
+    simparm::Entry<unsigned long> fluorophoreNumber;
 
     _Random();
     _Random* clone() const { return new _Random(*this); }
@@ -55,8 +55,8 @@ class _Lines : public FluorophoreDistribution,
       public:
         dStorm::NanometreEntry xoffset, yoffset, zoffset,
             density, x_spacing, y_spacing, z_spacing;
-        simparm::DoubleEntry angle, z_angle, max_count;
-        simparm::UnsignedLongEntry repeat;
+        simparm::Entry<double> angle, z_angle, max_count;
+        simparm::Entry<unsigned long> repeat;
 
         _Line(const std::string& ident);
         Positions fluorophore_positions(const Size& size, gsl_rng* rng) const

@@ -6,7 +6,7 @@
 #endif
 
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>

@@ -2,11 +2,11 @@
 #define DSTORM_CONFIG_H
 
 #include <simparm/BoostUnits.hh>
+#include <simparm/BoostOptional.hh>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
-#include <simparm/OptionalEntry.hh>
 #include <dStorm/UnitEntries.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
@@ -35,11 +35,11 @@ namespace engine {
         IntPixelEntry nms_x, nms_y;
 
         /** The proportionality factor for the smoothing & NMS mask size */
-        DoubleEntry maskSizeFactor;
+        Entry<double> maskSizeFactor;
         /** The proportionality factor for the fitting mask size (the fitting
         *  mask determines which pixel are fitted with the exponential PSF
         *  model). */
-        DoubleEntry fitSizeFactor;
+        Entry<double> fitSizeFactor;
 
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;
@@ -47,10 +47,10 @@ namespace engine {
         simparm::NodeChoiceEntry< spot_fitter::Factory > spotFittingMethod;
 
         /** Continue fitting until this number of bad fits occured. */
-        UnsignedLongEntry motivation;
+        Entry<unsigned long> motivation;
         /** Amplitude threshold to judge localizations by. */
-        simparm::OptionalEntry< boost::units::quantity<
-            camera::intensity, float> > amplitude_threshold;
+        simparm::Entry< boost::optional< boost::units::quantity<
+            camera::intensity, float> > > amplitude_threshold;
 
         void addSpotFinder( std::auto_ptr<spot_finder::Factory> factory );
         void addSpotFinder( spot_finder::Factory* factory ) 

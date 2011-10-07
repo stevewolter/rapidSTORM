@@ -2,7 +2,7 @@
 #define TESTPLUGIN_BASENAME_PRINTER_H
 
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <iostream>

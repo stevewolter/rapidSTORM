@@ -19,7 +19,7 @@ struct Status {
     simparm::TriggerEntry reshow_output;
     simparm::FileEntry tifFile;
     simparm::BoolEntry save_with_key;
-    simparm::DoubleEntry histogramPower;
+    simparm::Entry<double> histogramPower;
     simparm::TriggerEntry save;
 
     ost::Mutex mutex;

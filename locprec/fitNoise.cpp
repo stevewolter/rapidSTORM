@@ -1,6 +1,6 @@
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <gsl/gsl_statistics_double.h>
 #include <gsl/gsl_multifit_nlin.h>
@@ -136,7 +136,7 @@ void readNoise(const char *filename, vector<unsigned long>& values, int stride)
 
 int main(int argc, char *argv[]) {
     Set cs("", "");
-    UnsignedLongEntry adNoise("ADNoise", 
+    Entry<unsigned long>Entry adNoise("ADNoise", 
                         "ADNoise used in the NoiseMeter", 8);
     cs.push_back(adNoise);
     FileEntry fileName("InputFile", "");

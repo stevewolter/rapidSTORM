@@ -14,7 +14,7 @@
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/helpers/DisplayManager.h>
 #include <dStorm/helpers/thread.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/FileEntry.hh>
@@ -41,8 +41,8 @@ namespace locprec {
         std::auto_ptr<Announcement> announcement;
         SegmentationType howToSegment;
         boost::ptr_array< dStorm::output::binning::Unscaled, 2 > binners;
-        simparm::DoubleEntry threshold;
-        simparm::UnsignedLongEntry dilation;
+        simparm::Entry<double> threshold;
+        simparm::Entry<unsigned long> dilation;
         dStorm::output::Localizations points;
 
         dStorm::outputs::LocalizationList* filler;
@@ -95,8 +95,8 @@ namespace locprec {
     struct Segmenter::_Config : public simparm::Object {
         simparm::DataChoiceEntry<Segmenter::SegmentationType> method;
         dStorm::outputs::DimensionSelector selector;
-        simparm::DoubleEntry threshold;
-        simparm::UnsignedLongEntry dilation;
+        simparm::Entry<double> threshold;
+        simparm::Entry<unsigned long> dilation;
         simparm::FileEntry save_segmentation, load_segmentation;
         dStorm::output::TraceReducer::Config reducer;
         dStorm::outputs::TraceCountFilter::Source trace_filter;

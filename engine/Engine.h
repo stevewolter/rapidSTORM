@@ -37,7 +37,7 @@ namespace engine {
 
         Config& config;
         ost::Mutex mutex;
-        simparm::UnsignedLongEntry errors;
+        simparm::Entry<unsigned long> errors;
 
         class _iterator;
 

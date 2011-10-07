@@ -1,7 +1,7 @@
 #include <dStorm/Image.h>
 #include <dStorm/output/Output.h>
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <dStorm/output/TraceReducer.h>
 #include <cassert>
@@ -97,7 +97,7 @@ namespace locprec {
         void registerNamedEntries();
 
       public:
-        simparm::UnsignedLongEntry allowBlinking;
+        simparm::Entry<unsigned long> allowBlinking;
         dStorm::FloatNanometreEntry expectedDeviation;
         dStorm::output::TraceReducer::Config reducer;
 

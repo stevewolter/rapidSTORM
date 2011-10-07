@@ -64,7 +64,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     input::Traits<Localization> rv( *imProp );
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
-    if ( config.amplitude_threshold().is_set() )
+    if ( config.amplitude_threshold().is_initialized() )
         rv.amplitude().range().first = *config.amplitude_threshold();
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
@@ -78,7 +78,7 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
         DEBUG("Constructing spot fitting info");
         JobInfo info(config.fitSizeFactor(), 
-            ( config.amplitude_threshold().is_set() ) ? *config.amplitude_threshold() 
+            ( config.amplitude_threshold().is_initialized() ) ? *config.amplitude_threshold() 
                                                       : 0 * boost::units::camera::ad_count,
             *imProp, fluorophore);
         DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );

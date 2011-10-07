@@ -5,37 +5,48 @@
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/Engine.h>
+#include <dStorm/stack_realign.h>
 #include <boost/ptr_container/ptr_list.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/thread.hpp>
 
 namespace dStorm {
 namespace output {
 
 using namespace boost::units;
 
-class MemoryCache : public Filter
+class MemoryCache 
+    : public Filter, private dStorm::Engine
 {
   private:
-    boost::recursive_mutex* mutex;
+    boost::recursive_mutex* output_mutex;
     /** Cache containing all localizations received so far. */
     struct Bunch;
     std::auto_ptr<Bunch> master_bunch;
     typedef boost::ptr_list<Bunch> Bunches;
     Bunches bunches;
 
-    enum State { PreStart, Running, Succeeded };
-    State inputState, outputState;
+    boost::thread reemitter;
+    DSTORM_REALIGN_STACK void run_reemitter();
+    void reemit_localizations(const int);
 
-    /** Thread class that will do the actual re-emitting of localizations. */
-    class ReEmitter;
-    std::auto_ptr< ReEmitter > re_emitter;
-
-    /** This method will re-emit localizations while the flag
-      * given by \c terminate is false. */
-    void reemit_localizations(bool& terminate);
+    boost::mutex reemittance_mutex;
+    boost::condition count_changed;
+    int reemit_count;
+    bool engine_run_has_succeeded;
 
     class _Config;
 
     static const int LocalizationsPerBunch;
+
+    void repeat_results();
+    void restart() { throw std::logic_error("Not implemented, sorry."); }
+    void stop() { throw std::logic_error("Not implemented, sorry."); }
+    bool can_repeat_results() { return true; }
+    void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
+    std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
+
   public:
     MemoryCache(std::auto_ptr<Output> output);
     MemoryCache( const MemoryCache& );

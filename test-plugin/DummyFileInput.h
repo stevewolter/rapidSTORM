@@ -6,7 +6,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/ImageTraits.h>
 #include <simparm/Structure.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/FileInput.h>
 
@@ -18,7 +18,7 @@ class Config
 : public simparm::Object
 {
   public:
-    simparm::UnsignedLongEntry width, height, number;
+    simparm::Entry<unsigned long> width, height, number;
     simparm::BoolEntry goIntType;
 
     Config();

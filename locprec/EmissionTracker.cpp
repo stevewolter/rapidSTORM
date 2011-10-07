@@ -62,7 +62,7 @@ EmissionTracker::_Config::_Config()
 : simparm::Object("EmissionTracker", "Track emissions"),
   allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
   expectedDeviation("ExpectedDeviation", "SD of expected distance between tracked localizations", 
-    20 * boost::units::si::nanometre, 1 * boost::units::si::nanometre)
+    20 * boost::units::si::nanometre)
 {
 }
 

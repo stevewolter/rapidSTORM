@@ -13,7 +13,7 @@
 
 #include <memory>
 
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 
 #include <Eigen/Core>

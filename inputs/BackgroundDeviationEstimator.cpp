@@ -43,8 +43,9 @@ namespace BackgroundStddevEstimator {
 
 Config::Config() 
 : simparm::Object("BackgroundEstimator", "Estimate background variance"),
-  disable("Disable", "Disable background variance estimation")
+  enable("Enable", "Estimate background variance", true)
 {
+    enable.userLevel = simparm::Object::Intermediate;
 }
 
 ImagePlane::ImagePlane( int binning ) 
@@ -151,7 +152,7 @@ ChainLink::context_changed( ChainLink::ContextRef c, Link* l)
 
 input::BaseSource* ChainLink::makeSource()
 {
-    if ( config.disable() )
+    if ( ! config.enable() )
         return Forwarder::makeSource();
     else
         return input::chain::DelegateToVisitor::makeSource(*this);

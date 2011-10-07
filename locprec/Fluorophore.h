@@ -10,7 +10,7 @@
 #include <gsl/gsl_matrix.h>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry_Impl.hh>
+#include <simparm/Entry_Impl.hh>
 #include <simparm/Structure.hh>
 #include <vector>
 #include <Eigen/Core>
@@ -33,10 +33,10 @@ class _FluorophoreConfig : public simparm::Set {
     _FluorophoreConfig();
     ~_FluorophoreConfig() {}
 
-    simparm::UnsignedLongEntry countsPerPhoton;
-    simparm::DoubleEntry averageActivationTime, averageDeactivationTime;
-    simparm::DoubleEntry photonEmittanceRate;
-    simparm::DoubleEntry numerical_aperture, refractive_index;
+    simparm::Entry<unsigned long> countsPerPhoton;
+    simparm::Entry<double> averageActivationTime, averageDeactivationTime;
+    simparm::Entry<double> photonEmittanceRate;
+    simparm::Entry<double> numerical_aperture, refractive_index;
     dStorm::FloatNanometreEntry wavelength;
 };
 

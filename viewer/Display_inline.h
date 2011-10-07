@@ -15,6 +15,7 @@ void Display<Colorizer>::pixelChanged(int x, int y) {
         new(p) dStorm::Display::PixelChange(x,y);
         /* The color field will be set when the clean handler
             * runs. */
+        is_on = true;
     }
 }
 

@@ -4,16 +4,17 @@
 #include "debug.h"
 #include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
+#include <simparm/BoostOptional.hh>
 #include <dStorm/input/Source.h>
 
 #include <boost/units/power10.hpp>
 #include <simparm/TreeCallback.hh>
 #include <simparm/FileEntry.hh>
-#include <simparm/OptionalEntry.hh>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/localization/Traits.h>
 #include <simparm/Structure.hh>
+#include <simparm/ChoiceEntry.hh>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Filter.h>
@@ -33,12 +34,41 @@ typedef power_typeof_helper<
         power10< si::length, -6 >::type,
         static_rational<-1> >::type PerMicro; 
 
+struct ThreeDConfig {
+    virtual ~ThreeDConfig() {}
+    virtual void set_traits( input::Traits<engine::Image>& ) const = 0;
+    virtual simparm::Node& getNode() = 0;
+    operator simparm::Node&() { return getNode(); }
+    operator const simparm::Node&() const { return const_cast<ThreeDConfig&>(*this).getNode(); }
+    virtual ThreeDConfig* clone() const = 0;
+};
+
+class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
+    void set_traits( input::Traits<engine::Image>& ) const;
+    simparm::Node& getNode() { return *this; }
+  public:
+    NoThreeDConfig() : simparm::Object("No3D", "No 3D") {}
+    NoThreeDConfig* clone() const { return new NoThreeDConfig(); }
+};
+
+class ZhuangThreeDConfig : public simparm::Object, public ThreeDConfig {
+    simparm::Entry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
+
+    void set_traits( input::Traits<engine::Image>& ) const;
+    simparm::Node& getNode() { return *this; }
+    void registerNamedEntries() { push_back( widening ); }
+  public:
+    ZhuangThreeDConfig();
+    ZhuangThreeDConfig(const ZhuangThreeDConfig&);
+    ZhuangThreeDConfig* clone() const { return new ZhuangThreeDConfig(*this); }
+};
+
 class Config : public simparm::Object {
     friend class Check;
 
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
-    simparm::NumericEntry<PSFSize> psf_size;
-    simparm::OptionalEntry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
+    simparm::Entry<PSFSize> psf_size;
+    simparm::NodeChoiceEntry< ThreeDConfig > three_d;
     traits::CuboidConfig cuboid_config;
 
   public:

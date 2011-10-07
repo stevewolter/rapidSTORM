@@ -53,108 +53,36 @@ class MemoryCache::Bunch
                                                       : offsets[index+1].second;
         into.resize( next_offset - offsets[index].second );
         into.forImage = offsets[index].first;
+        std::for_each( storages.begin(), storages.end(),
+            boost::bind( &Part::recall, _1, offsets[index].second, into.begin(), into.end() ) );
         for_each( into.begin(), into.end(), 
             bind(&Localization::frame_number, boost::lambda::_1) = into.forImage );
     }
 };
 
-class MemoryCache::ReEmitter 
-: public dStorm::Engine
-{
-    /** Flag indicating whether reemittance is desired. This
-      * flag will only be set to false in the subthread, thus
-      * not needing a mutex. */
-    bool reemittance_needed;
-    /** Mutex for the condition. */
-    boost::mutex mutex;
-    /** Condition that indicates change in parameter_changed
-      * or need_re_emitter. */
-    boost::condition condition;
-    /** This flag will be set to false when the re_emitter should
-      * terminate for destruction of the MemoryCache. */
-    bool need_re_emitter;
-
-    MemoryCache &work_for;
-    boost::thread emitter;
-
-  public:
-    ReEmitter(MemoryCache& work_for) :
-        reemittance_needed(false),
-        need_re_emitter(true),
-        work_for(work_for)
-    {
-        work_for.Filter::propagate_signal( Engine_run_is_starting );
-        emitter = boost::thread( &MemoryCache::ReEmitter::run, this );
-    }
-
-    ~ReEmitter() { 
-        DEBUG("Destructing Reemitter");
-        need_re_emitter = false; 
-        condition.notify_all();
-        DEBUG("Joining subthread");
-        emitter.join(); 
-        DEBUG("Joined subthread");
-    }
-
-    DSTORM_REALIGN_STACK void run() 
-    {
-        boost::unique_lock< boost::mutex > lock( mutex );
-        while (need_re_emitter) {
-            if ( reemittance_needed ) {
-                reemittance_needed = false;
-                lock.unlock();
-                try {
-                    work_for.reemit_localizations( reemittance_needed );
-                } catch (const std::bad_alloc& e) {
-                    std::cerr << "Ran out of memory." << std::endl;
-                } catch (const std::exception& e) {
-                    std::cerr << "An error occured during result recomputation: "
-                            << e.what() << std::endl;
-                } catch (...) {
-                    std::cerr << "An unknown error occured during result recomputation."
-                            << std::endl;
-                }
-                lock.lock();
-            }
-            if (!reemittance_needed && need_re_emitter) {
-                DEBUG("Waiting for next iteration");
-                condition.wait(lock);
-                DEBUG("Waited for next iteration");
-            }
-        }
-      DEBUG("Finished reemitter subthread");
-    }
-
-    void repeat_results() {
-        reemittance_needed = true;
-        condition.notify_one();
-    }
-
-    void restart() { throw std::logic_error("Not implemented, sorry."); }
-    void stop() { throw std::logic_error("Not implemented, sorry."); }
-    bool can_repeat_results() { return true; }
-    void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
-    std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
-};
-
 MemoryCache::MemoryCache(
     std::auto_ptr<output::Output> output
 )
-: Filter(output),
-  re_emitter( new ReEmitter(*this) )
+: Filter(output), engine_run_has_succeeded(false)
 { 
 }
 
-MemoryCache::MemoryCache(
-    const MemoryCache& o
-)
-: Filter(o),
-  re_emitter( new ReEmitter(*this) )
+MemoryCache::MemoryCache( const MemoryCache& o )
+: Filter(o)
 { 
+    throw std::logic_error("Not implemented");
 }
 
-MemoryCache::~MemoryCache() {}
+MemoryCache::~MemoryCache() {
+    {
+        boost::lock_guard<boost::mutex> lock(reemittance_mutex);
+        reemit_count = -1;
+        count_changed.notify_all();
+    }
+    reemitter.join();
+}
 
+#if 0
 void MemoryCache::reemit_localizations(bool& terminate) {
     boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     if ( outputState == Running )
@@ -185,21 +113,84 @@ void MemoryCache::reemit_localizations(bool& terminate) {
         outputState = Succeeded;
     }
 }
+#endif
+
+void MemoryCache::run_reemitter() {
+    int last_reemit = 0;
+    while ( true ) {
+        DEBUG("Locking re-emittance mutex");
+        boost::unique_lock<boost::mutex> lock(reemittance_mutex);
+        DEBUG("Acting on " << reemit_count << " " << last_reemit);
+        if ( reemit_count < last_reemit ) {
+            DEBUG("Aborting");
+            break;
+        } else if ( reemit_count == last_reemit ) {
+            DEBUG("Waiting for work");
+            count_changed.wait( lock );
+        } else {
+            DEBUG("Re-emitting localizations");
+            int my_count = ++last_reemit;
+            lock.unlock();
+            try {
+                reemit_localizations(my_count);
+            } catch (const std::bad_alloc& e) {
+                std::cerr << "Ran out of memory. Your results may be incomplete." << std::endl;
+            } catch (const std::runtime_error& e) {
+                std::cerr << "An error occured during result recomputation: "
+                        << e.what() << std::endl;
+            }
+
+            lock.lock();
+            DEBUG("Re-emitted localizations");
+        }
+    }
+}
+
+void MemoryCache::repeat_results() {
+    boost::lock_guard<boost::mutex> lock(reemittance_mutex);
+    ++reemit_count;
+    count_changed.notify_all();
+}
+
+void MemoryCache::reemit_localizations(const int my_count) {
+    boost::unique_lock<boost::recursive_mutex> lock( *output_mutex );
+    DEBUG("Got output lock");
+    LocalizedImage output;
+    Filter::propagate_signal( Output::Engine_run_is_aborted );
+    Filter::propagate_signal( Output::Engine_is_restarted );
+
+    for ( Bunches::iterator i = bunches.begin(); i != bunches.end(); ++i ) 
+        for ( int image = 0; image < i->number_of_images(); ++image ) 
+        {
+            {
+                boost::lock_guard<boost::mutex> guard( reemittance_mutex );
+                if ( my_count < reemit_count ) return;
+            }
+            i->recall(image, output);
+            Filter::receiveLocalizations( output );
+        }
+    if ( engine_run_has_succeeded )
+        Filter::propagate_signal( Output::Engine_run_succeeded );
+}
 
 Output::AdditionalData
 MemoryCache::announceStormSize(const Announcement& a) 
 { 
-    mutex = a.output_chain_mutex;
+    output_mutex = a.output_chain_mutex;
     bunches.clear();
     master_bunch.reset( new Bunch(a) );
     bunches.push_back( new Bunch(*master_bunch) );
 
+    reemit_count = 0;
+    DEBUG("Making reemitter thread");
+    reemitter = boost::thread( &MemoryCache::run_reemitter, this );
+    DEBUG("Made reemitter thread");
+
     Announcement my_announcement(a);
-    my_announcement.engine = re_emitter.get();
+    my_announcement.engine = this;
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
         "MemoryCache", AdditionalData().set_cluster_sources(), data );
-    inputState = outputState = Running;
     return data;
 }
 
@@ -207,11 +198,11 @@ void MemoryCache::propagate_signal(ProgressSignal s)
 {
     if ( s == Engine_is_restarted )
     {
+        engine_run_has_succeeded = false;
         bunches.clear();
         bunches.push_back( new Bunch(*master_bunch) );
-    }
-    if ( s == Engine_run_succeeded ) 
-        inputState = outputState = Succeeded;
+    } else if ( s == Engine_run_succeeded )
+        engine_run_has_succeeded = true;
     Filter::propagate_signal(s); 
 }
 

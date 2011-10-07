@@ -8,7 +8,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <simparm/Set.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <Eigen/Core>
 #include <Eigen/Array>
 
@@ -16,7 +16,7 @@ using namespace locprec;
 
 int main(int argc, char *argv[]) {
     dStorm::input::Config inputConfig;
-    simparm::UnsignedLongEntry runs("Runs", "Number of runs to average over", 1); 
+    simparm::Entry<unsigned long>Entry runs("Runs", "Number of runs to average over", 1); 
     NoiseConfig<uint16_t> config( inputConfig );
     simparm::Set cmdline("cmdline", "");
     cmdline.push_back(config);

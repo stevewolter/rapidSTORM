@@ -2,7 +2,7 @@
 #define TESTPLUGIN_EXCEPTION_H
 
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>
@@ -41,7 +41,7 @@ struct Exception::_Config
  : public simparm::Object 
 {
     simparm::BoolEntry onConstruction, onAnnouncement;
-    simparm::LongEntry onImageNumber;
+    simparm::Entry<long> onImageNumber;
 
     _Config();
     void registerNamedEntries() {

@@ -2,7 +2,7 @@
 #define TESTPLUGIN_SEGFAULT_H
 
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>
@@ -44,7 +44,7 @@ struct SegmentationFault::_Config
  : public simparm::Object 
 {
     simparm::BoolEntry onConstruction, onAnnouncement,onDestruction;
-    simparm::LongEntry onImageNumber;
+    simparm::Entry<long> onImageNumber;
     simparm::BoolEntry myCopy, myDestruction;
 
     _Config();

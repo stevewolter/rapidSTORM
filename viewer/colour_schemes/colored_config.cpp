@@ -12,8 +12,8 @@ ColoredConfig::ColoredConfig()
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1)
 {
-    hue.setMin(0);
-    hue.setMax(1);
+    hue.min = (0);
+    hue.max = (1);
     hue.setHelp("Select a hue between 0 and 1 to display localizations in."
                 " The hue is selected along the HSV color axis, following "
                 "the natural spectrum from 0 (red) over 1/6 (yellow), "
@@ -22,8 +22,8 @@ ColoredConfig::ColoredConfig()
     hue.helpID = "#Viewer_Hue";
     saturation.helpID = "#Viewer_Saturation";
 
-    saturation.setMin(0);
-    saturation.setMax(1);
+    saturation.min = (0);
+    saturation.max = (1);
     saturation.setHelp("Select a saturation between 0 and 1 for the color "
                        "in the display. Saturation 0 means no color (pure "
                        "black to pure white) and 1 means fully saturated "

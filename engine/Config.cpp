@@ -33,9 +33,6 @@ _Config::_Config()
     nms_x.setUserLevel(Object::Intermediate);
     nms_y.setUserLevel(Object::Intermediate);
     
-    amplitude_threshold.value = 3000 * camera::ad_counts;
-    amplitude_threshold().reset();
-
     maskSizeFactor.setUserLevel(Object::Expert);
     fitSizeFactor.setUserLevel(Object::Expert);
 
@@ -43,7 +40,7 @@ _Config::_Config()
                         "bad candidates are found.");
     motivation.setUserLevel(Object::Intermediate);
 
-    amplitude_threshold.setUserLevel(Object::Beginner);
+    amplitude_threshold.setUserLevel(Object::Intermediate);
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
                                 "localization, and those below the threshold "
@@ -56,6 +53,8 @@ _Config::_Config()
 
     amplitude_threshold.helpID = "#AmplitudeThreshold";
     spotFindingMethod.helpID = "#Smoother";
+    spotFindingMethod.userLevel = simparm::Object::Intermediate;
+    spotFittingMethod.userLevel = simparm::Object::Intermediate;
 
     spotFindingMethod.set_auto_selection( true );
 

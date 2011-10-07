@@ -9,7 +9,7 @@ SpotMeter::_Config::_Config()
   modulus("BinSize", "Size for histogram bins") 
 { 
     userLevel = Expert;
-    modulus.setMin(1); 
+    modulus.min = (1); 
 }
 
 }

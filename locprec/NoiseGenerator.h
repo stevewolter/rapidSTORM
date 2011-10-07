@@ -3,7 +3,7 @@
 
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <memory>
@@ -14,11 +14,11 @@ namespace locprec {
       protected:
         void registerNamedEntries();
       public:
-        simparm::DoubleEntry ups_G, ups_mu, ups_sigma, ups_x0, ups_theta;
+        simparm::Entry<double> ups_G, ups_mu, ups_sigma, ups_x0, ups_theta;
         simparm::FileEntry noiseFile;
-        simparm::DoubleEntry varianceScale;
-        simparm::UnsignedLongEntry width, height;
-        simparm::UnsignedLongEntry random_seed;
+        simparm::Entry<double> varianceScale;
+        simparm::Entry<unsigned long> width, height;
+        simparm::Entry<unsigned long> random_seed;
 
         _NoiseGeneratorConfig();
     };

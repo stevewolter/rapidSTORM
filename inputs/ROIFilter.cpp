@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "ROIFilter.h"
-#include <simparm/OptionalEntry_impl.hh>
+#include <simparm/Entry_Impl.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/input/chain/Filter_impl.h>
 #include <dStorm/input/LocalizationTraits.h>
@@ -60,6 +60,9 @@ Config::Config()
   which_plane( "OnlyPlane", "Process only given plane" )
 {
     which_plane.addChoice(-1, "AllPlanes", "All planes");
+    first_frame.userLevel = simparm::Object::Intermediate;
+    last_frame.userLevel = simparm::Object::Intermediate;
+    which_plane.userLevel = simparm::Object::Expert;
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 

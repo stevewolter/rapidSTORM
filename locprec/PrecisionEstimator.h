@@ -7,7 +7,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 
 #include <Eigen/Core>
@@ -102,7 +102,7 @@ class PrecisionEstimator::_Config : public simparm::Object
          }
 
       public:
-         simparm::DoubleEntry h_value, confidence_interval;
+         simparm::Entry<double> h_value, confidence_interval;
          dStorm::output::BasenameAdjustedFileEntry outputFile;
 
          _Config();

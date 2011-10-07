@@ -29,8 +29,8 @@ _Config::_Config()
 
     showOutput.setUserLevel(simparm::Object::Beginner);
 
-    histogramPower.setMin(0);
-    histogramPower.setMax(1);
+    histogramPower.min = (0);
+    histogramPower.max = (1);
     /* This level is reset in carStarted() */
     histogramPower.setUserLevel(simparm::Object::Expert);
 
@@ -42,6 +42,7 @@ _Config::_Config()
     save_with_key.setUserLevel(simparm::Object::Intermediate);
     save_scale_bar.setUserLevel(simparm::Object::Intermediate);
     border.setUserLevel(simparm::Object::Intermediate);
+    invert.userLevel = simparm::Object::Intermediate;
 
     outputFile.helpID = "#Viewer_ToFile";
     showOutput.helpID = "#Viewer_ShowOutput";

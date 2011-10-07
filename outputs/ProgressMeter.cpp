@@ -18,7 +18,7 @@ ProgressMeter::ProgressMeter(const Config &)
         progress.setEditable(false);
         progress.setViewable(true);
         progress.setUserLevel(simparm::Object::Beginner);
-        progress.setIncrement(0.02);
+        progress.increment = (0.02);
         push_back(progress);
     }
 
@@ -45,7 +45,7 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
                 diff = (max - first);
             DEBUG("Diff is " << diff);
             float ratio = diff / *length;
-            DEBUG("Ratio is " << ratio);
+            DEBUG("Ratio is " << ratio << " at progress " << progress());
             progress.setValue( std::min( round(ratio / 0.01), 99.0 ) * 0.01 );
         } else {
             progress.setValue(0.5);

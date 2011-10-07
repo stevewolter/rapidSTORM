@@ -31,7 +31,7 @@ namespace locprec {
         void registerNamedEntries();
       public:
         /** Mask sizes */
-        simparm::UnsignedLongEntry spots, background;
+        simparm::Entry<unsigned long> spots, background;
 
         _Config();
     };

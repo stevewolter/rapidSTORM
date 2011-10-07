@@ -3,7 +3,7 @@
 
 #include <viewer/ColourScheme.h>
 #include <simparm/Object.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 
 namespace dStorm {
 namespace viewer {
@@ -11,7 +11,7 @@ namespace colour_schemes {
 
 struct ColoredConfig : public ColourScheme, public simparm::Object
 {
-    simparm::DoubleEntry hue, saturation;
+    simparm::Entry<double> hue, saturation;
 
     ColoredConfig();
     ColoredConfig(const ColoredConfig&);

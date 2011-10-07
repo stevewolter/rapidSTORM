@@ -9,7 +9,7 @@
 #include <iostream>
 #include "Counter.h"
 #include <dStorm/Image.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 
 namespace locprec {
@@ -35,7 +35,7 @@ namespace locprec {
             }
                 
           public:
-            simparm::UnsignedLongEntry adCorrection;
+            simparm::Entry<unsigned long> adCorrection;
             simparm::FileEntry outputFile;
 
             _Config();

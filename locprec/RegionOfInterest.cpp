@@ -5,7 +5,7 @@
 #include <Eigen/Array>
 
 namespace simparm {
-template class NumericEntry< dStorm::samplepos::Scalar>;
+template class Entry< dStorm::samplepos::Scalar>;
 }
 
 namespace locprec {

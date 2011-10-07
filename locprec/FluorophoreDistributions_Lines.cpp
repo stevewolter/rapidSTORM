@@ -66,10 +66,10 @@ _Lines::_Line::_Line(const std::string& ident)
   max_count("MaxPerLine", "Maximal number of fluorophores per line", 0),
   repeat("Repeat", "Repeat line n times", 1)
 {
-    angle.setMin(0);
-    angle.setMax(360);
-    z_angle.setMin(-90);
-    z_angle.setMax(90);
+    angle.min = (0);
+    angle.max = (360);
+    z_angle.min = (-90);
+    z_angle.max = (90);
 }
 
 void _Lines::registerNamedEntries() {

@@ -5,7 +5,7 @@
 #include "Counter.h"
 #include <dStorm/output/OutputBuilder.h>
 #include <simparm/FileEntry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 
 namespace locprec {
     using namespace boost::units;
@@ -27,7 +27,7 @@ namespace locprec {
 
           public:
             simparm::FileEntry targetFile;
-            simparm::UnsignedLongEntry modulus;
+            simparm::Entry<unsigned long> modulus;
 
             _Config();
             bool can_work_with( dStorm::output::Capabilities )

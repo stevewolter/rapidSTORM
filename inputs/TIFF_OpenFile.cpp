@@ -55,7 +55,7 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
 
 template<typename Pixel, int Dim>                                   
 typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
-OpenFile::getTraits( bool final, simparm::LongEntry& n ) 
+OpenFile::getTraits( bool final, simparm::Entry<long>& n ) 
 {
     if ( determine_length && final ) {
         TIFFOperation op( "in reading image count from TIFF file",
@@ -105,7 +105,7 @@ OpenFile::getTraits( bool final, simparm::LongEntry& n )
 }
 
 template std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > > 
-    OpenFile::getTraits<unsigned short,3>(bool, simparm::LongEntry&);
+    OpenFile::getTraits<unsigned short,3>(bool, simparm::Entry<long>&);
 
 OpenFile::~OpenFile() {
     TIFFClose( tiff );

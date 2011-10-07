@@ -18,9 +18,9 @@ struct Config : public simparm::Object
 {
     typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
 
-    simparm::BoolEntry disable;
+    simparm::BoolEntry enable;
     Config();
-    void registerNamedEntries() { push_back(disable); }
+    void registerNamedEntries() { push_back(enable); }
 };
 
 struct lowest_histogram_mode_is_strongest : public std::runtime_error {

@@ -26,7 +26,7 @@ namespace locprec {
       public dStorm::input::Source< dStorm::Image<PixelType,3> >
     {
       private:
-        simparm::UnsignedLongEntry &randomSeedEntry;
+        simparm::Entry<unsigned long> &randomSeedEntry;
         std::auto_ptr< NoiseGenerator<PixelType> > noiseGenerator;
 
         typedef dStorm::Image<PixelType,3> Image;
@@ -73,7 +73,7 @@ namespace locprec {
         simparm::NodeChoiceEntry<FluorophoreDistribution>
             distribution;
         simparm::FileEntry store, recall;
-        simparm::UnsignedLongEntry fluorophore_index;
+        simparm::Entry<unsigned long> fluorophore_index;
 
         std::auto_ptr< boost::ptr_list<Fluorophore> > create_fluorophores(
             dStorm::engine::Image::Size,
@@ -104,10 +104,10 @@ namespace locprec {
         NoiseGeneratorConfig noiseGeneratorConfig;
 
         simparm::TriggerEntry newSet;
-        simparm::UnsignedLongEntry imageNumber;
-        simparm::DoubleEntry integrationTime;
+        simparm::Entry<unsigned long> imageNumber;
+        simparm::Entry<double> integrationTime;
         simparm::FileEntry saveActivity;
-        simparm::UnsignedLongEntry layer_count;
+        simparm::Entry<unsigned long> layer_count;
         dStorm::traits::CuboidConfig optics;
 
         typedef dStorm::engine::Image Image;

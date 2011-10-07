@@ -2,7 +2,7 @@
 #define DSTORM_LOCALIZATIONCOUNTER_H
 
 #include <dStorm/output/Output.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@ namespace output {
       private:
       	int count;
         frame_count last_config_update, config_increment;
-        simparm::UnsignedLongEntry update;
+        simparm::Entry<unsigned long> update;
         std::auto_ptr< std::ofstream > print_count;
 
         /** Copy constructor not implemented. */

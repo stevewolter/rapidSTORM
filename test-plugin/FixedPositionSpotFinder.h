@@ -27,7 +27,7 @@ class Finder::_Config : public simparm::Object
   protected:
     void registerNamedEntries() { push_back(x); push_back(y); }
     public:
-    simparm::UnsignedLongEntry x, y;
+    simparm::Entry<unsigned long> x, y;
 
     _Config() : simparm::Object("FixedPosition", "Find at fixed position"), x("XSinglePixel", "Position to find spots at [x]"), y("YSinglePixel", "Position to find spots at [y]") {}
 };

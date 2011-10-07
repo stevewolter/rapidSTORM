@@ -1,10 +1,10 @@
 #include <simparm/BoostUnits.hh>
+#include <simparm/BoostOptional.hh>
 #include "SampleInfo.h"
 
 #include "debug.h"
 #include <simparm/TreeCallback.hh>
 #include <simparm/FileEntry.hh>
-#include <simparm/OptionalEntry.hh>
 #include <dStorm/input/Source.h>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/units/nanolength.h>
@@ -24,7 +24,6 @@
 #include <dStorm/input/chain/DefaultFilterTypes.h>
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
-#include <simparm/OptionalEntry_impl.hh>
 
 namespace dStorm {
 namespace input {
@@ -32,9 +31,9 @@ namespace sample_info {
 
 using namespace chain;
 
-class FluorophoreConfig : public simparm::Set {
+class FluorophoreConfig : public simparm::Object {
     simparm::StringEntry description;
-    simparm::NumericEntry< boost::units::quantity<boost::units::si::nanolength, double> > emission_wl;
+    simparm::Entry< boost::units::quantity<boost::units::si::nanolength, double> > emission_wl;
 
   public:
     FluorophoreConfig(int number);
@@ -46,7 +45,7 @@ class ChainLink;
 
 class Config 
 : public simparm::Object {
-    simparm::UnsignedLongEntry fluorophore_count;
+    simparm::Entry<unsigned long> fluorophore_count;
     boost::ptr_vector< FluorophoreConfig > fluorophores;
     friend class ChainLink;
 
@@ -143,11 +142,13 @@ bool DefaultVisitor<sample_info::Config>::operator()( std::auto_ptr< Source<Type
 namespace sample_info {
 
 FluorophoreConfig::FluorophoreConfig(int number)
-: simparm::Set("Fluorophore" + boost::lexical_cast<std::string>(number), 
+: simparm::Object("Fluorophore" + boost::lexical_cast<std::string>(number), 
                   "Info for fluorophore " + boost::lexical_cast<std::string>(number+1)),
-  description("Description", "Description"),
+  description("Description", "Description for fluorophore " + boost::lexical_cast<std::string>(number+1)),
   emission_wl("Wavelength", "Emission wavelength", 500.0 * boost::units::si::nanometre)
 {
+    description.userLevel = 40; /* Not relevant at the moment. */
+    emission_wl.userLevel = 40; /* Not relevant at the moment. */
 }
 
 void FluorophoreConfig::set_traits( FluorophoreTraits& t ) const
@@ -170,7 +171,7 @@ inline void Config::set_traits( DataSetTraits& t ) const
 
 Config::Config()
 : simparm::Object("SampleInfo", "Sample information"),
-  fluorophore_count("FluorophoreCount", "Number of fluorophore types", 1)
+  fluorophore_count("FluorophoreCount", "Fluorophore types", 1)
 {
     fluorophores.push_back( new FluorophoreConfig(0) );
     fluorophore_count.min = 1;

@@ -7,7 +7,7 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <dStorm/UnitEntries/FrameEntry.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Structure.hh>

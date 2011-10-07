@@ -3,7 +3,7 @@
 
 #include <viewer/ColourScheme.h>
 #include <simparm/Object.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/binning/config.h>
 
 namespace dStorm {
@@ -13,7 +13,7 @@ namespace colour_schemes {
 struct CoordinateConfig : public ColourScheme, public simparm::Object
 {
     output::binning::FieldChoice choice;
-    simparm::DoubleEntry range;
+    simparm::Entry<double> range;
 
     CoordinateConfig();
     CoordinateConfig(const CoordinateConfig&);

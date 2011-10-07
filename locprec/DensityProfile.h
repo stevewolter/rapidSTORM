@@ -5,7 +5,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <vector>
@@ -23,14 +23,14 @@ class DensityProfile : public dStorm::output::OutputObject {
             { push_back( angle ); push_back( binSize );
               push_back( expectedPeriod ); }
       public:
-        simparm::DoubleEntry angle, binSize, expectedPeriod;
+        simparm::Entry<double> angle, binSize, expectedPeriod;
 
         _Config()
             : Object("DensityProfile", ""),
             angle("RotationAngle", "Rotation angle in degrees") ,
             binSize("BinSize", "Bin size in pixels", 0.1),
             expectedPeriod("ExpectedPeriod", "Expected period", -1)
-            { binSize.setMin(1E-5); userLevel = Expert; }
+            { binSize.min = (1E-5); userLevel = Expert; }
         bool can_work_with( dStorm::output::Capabilities ) {return true;}
     };
   public:

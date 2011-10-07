@@ -3,11 +3,11 @@
 
 #include <simparm/BoostUnits.hh>
 #include <dStorm/output/FilterBuilder.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/Engine.h>
 #include <simparm/Structure.hh>
 #include <dStorm/UnitEntries.h>
-#include <simparm/NumericEntry_Impl.hh>
+#include <simparm/Entry_Impl.hh>
 
 namespace locprec {
 
@@ -47,7 +47,7 @@ class ROIFilter::_Config
 : public simparm::Object
 {
   public:
-    simparm::NumericEntry< dStorm::samplepos::Scalar >
+    simparm::Entry< dStorm::samplepos::Scalar >
         left, right, top, bottom;
 
     _Config();

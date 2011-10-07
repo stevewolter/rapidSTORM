@@ -5,7 +5,7 @@
 #include <dStorm/helpers/thread.h>
 #include <dStorm/helpers/DisplayManager.h>
 #include <simparm/Entry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>

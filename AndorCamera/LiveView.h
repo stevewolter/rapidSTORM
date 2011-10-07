@@ -10,7 +10,7 @@
 #include <boost/units/systems/camera/frame_rate.hpp>
 #include <dStorm/helpers/thread.h>
 #include <dStorm/ImageTraits.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 
 namespace dStorm {
 namespace AndorCamera {

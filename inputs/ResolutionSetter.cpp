@@ -10,9 +10,9 @@
 #include <dStorm/input/chain/DefaultFilterTypes.h>
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
-#include <simparm/OptionalEntry_impl.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/get.hpp>
+#include <simparm/ChoiceEntry_Impl.hh>
 
 namespace dStorm {
 namespace input {
@@ -59,16 +59,21 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
     cuboid_config.set_traits(t);
     for (int i = 0; i < 2; ++i)
         t.psf_size()[i] = quantity<si::length>(psf_size()[i] / si::nanometre * 1E-9 * si::metre) / 2.35;
-    if ( widening().is_initialized() ) {
-        traits::Zhuang3D zhuang;
-        for (int i = 0; i < 2; ++i)
-            zhuang.widening[i] = quantity<traits::Zhuang3D::Unit>( (*widening())[i] );
-        t.depth_info = zhuang;
-        const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability(true);
-    } else {
-        t.depth_info = traits::No3D();
-        const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability(false);
-    }
+
+    three_d().set_traits( t );
+    const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability( 
+        boost::get<traits::No3D>(&t.depth_info) == NULL );
+}
+
+void NoThreeDConfig::set_traits( input::Traits<engine::Image>& t ) const {
+    t.depth_info = traits::No3D();
+}
+
+void ZhuangThreeDConfig::set_traits( input::Traits<engine::Image>& t ) const {
+    traits::Zhuang3D zhuang;
+    for (int i = 0; i < 2; ++i)
+        zhuang.widening[i] = quantity<traits::Zhuang3D::Unit>( widening()[i] );
+    t.depth_info = zhuang;
 }
 
 #if 0
@@ -77,16 +82,32 @@ void FluorophoreConfig::FluorophoreConfig(int number)
                   "Fluorophore " + boost::lexical_cast<std::string>(number)),
 #endif
 
+ZhuangThreeDConfig::ZhuangThreeDConfig()
+: simparm::Object("Zhuang3D", "Parabolic 3D"),
+  widening("DefocusConstant", "Speed of PSF std. dev. growth")
+{
+    registerNamedEntries();
+}
+
+ZhuangThreeDConfig::ZhuangThreeDConfig(const ZhuangThreeDConfig& o)
+: simparm::Object(o), widening(o.widening)
+{
+    registerNamedEntries();
+}
+
 Config::Config()
 : simparm::Object("Optics", "Optical parameters"),
   psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
-  widening("DefocusConstant", "Speed of PSF std. dev. growth")
+  three_d("ThreeD", "3D PSF model")
 {
+    three_d.addChoice( new NoThreeDConfig() );
+    three_d.addChoice( new ZhuangThreeDConfig() );
+    cuboid_config.set_3d_availability(false);
 }
 
 void Config::registerNamedEntries() {
     push_back( psf_size );
-    push_back( widening );
+    push_back( three_d );
     cuboid_config.registerNamedEntries();
     push_back( cuboid_config );
 }
@@ -121,13 +142,16 @@ void ChainLink::operator()(const simparm::Event& e)
 {
     if ( e.cause == simparm::Event::ValueChanged) {
 	ost::MutexLock lock( global_mutex() );
-        if ( ! context.get() ) return;
         DefaultVisitor<Config> m(config);
-        visit_context( m, context );
-        notify_of_context_change( context );
-        MetaInfo::ConstPtr t( current_traits() );
-        visit_traits( m, t );
-        notify_of_trait_change( t );
+        if ( context.get() ) {
+            visit_context( m, context );
+            notify_of_context_change( context );
+        }
+        if ( current_traits().get() ) {
+            MetaInfo::ConstPtr t( current_traits() );
+            visit_traits( m, t );
+            notify_of_trait_change( t );
+        }
     } else 
 	TreeListener::add_new_children(e);
 }

@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <stdio.h>
 #include <simparm/FileEntry.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/FileContext.h>
@@ -95,7 +95,7 @@ namespace dStorm {
 
         template <typename PixelType, int Dimensions> 
             std::auto_ptr< Traits<dStorm::Image<PixelType,Dimensions> > > 
-            getTraits( bool final, simparm::LongEntry& );
+            getTraits( bool final, simparm::Entry<long>& );
 
         template <typename PixelType, int Dimensions>
             std::auto_ptr< dStorm::Image<PixelType,Dimensions> >

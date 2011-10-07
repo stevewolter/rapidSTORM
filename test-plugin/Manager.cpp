@@ -12,7 +12,7 @@
 #include <sstream>
 #include <boost/units/io.hpp>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/helpers/Variance.h>
 #include <dStorm/image/iterator.h>
@@ -26,8 +26,8 @@ class Manager::ControlConfig
 {
     Manager& m;
     simparm::DataChoiceEntry<int> which_window;
-    simparm::UnsignedLongEntry which_key;
-    simparm::UnsignedLongEntry top, bottom, left, right;
+    simparm::Entry<unsigned long> which_key;
+    simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;
     simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
 
@@ -76,12 +76,18 @@ class Manager::ControlConfig
 
     void operator()(const simparm::Event& e) {
         if ( e.cause != simparm::Event::ValueChanged ) return;
+        if ( ! which_window.isValid() ) {
+            std::cerr << "No valid window selected" << std::endl;
+            return;
+        }
         boost::shared_ptr<Source> src;
         {
             boost::lock_guard<boost::recursive_mutex> lock(m.mutex);
             src = m.sources[which_window()];
         }
-        if ( ! src ) { std::cerr << "Window " << which_window() << " not found" << std::endl; return; }
+        if ( ! src ) { 
+            std::cerr << "Window " << which_window() << " not found" << std::endl; return; 
+        }
 
         if ( &e.source == &close.value && close.triggered() ) {
             close.untrigger();

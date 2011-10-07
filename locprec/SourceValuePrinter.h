@@ -3,7 +3,7 @@
 
 #include <simparm/BoostUnits.hh>
 #include <dStorm/output/FileOutputBuilder.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/Engine.h>
 #include <simparm/Structure.hh>
 #include <dStorm/UnitEntries.h>

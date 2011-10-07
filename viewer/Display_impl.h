@@ -115,6 +115,7 @@ std::auto_ptr<dStorm::Display::Change>
 Display<Colorizer>::get_changes() {
     std::auto_ptr<dStorm::Display::Change> fresh
         ( new dStorm::Display::Change(Colorizer::KeyCount) );
+    clean(false);
     std::swap( fresh, next_change );
     return fresh;
 }

@@ -7,7 +7,7 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
-#include <simparm/NumericEntry.hh>
+#include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
@@ -23,7 +23,7 @@ class _Config : public simparm::Object {
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
     outputs::DimensionSelector binned_dimensions;
-    simparm::DoubleEntry histogramPower;
+    simparm::Entry<double> histogramPower;
     simparm::NodeChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
     dStorm::IntPixelEntry border;

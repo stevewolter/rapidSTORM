@@ -7,7 +7,6 @@
 #include <boost/units/io.hpp>
 #endif
 #include <boost/optional/optional.hpp>
-#include <simparm/OptionalEntry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/UnitEntries/FrameEntry.h>
@@ -33,7 +32,7 @@ struct Config : public simparm::Object {
     typedef input::chain::DefaultTypes SupportedTypes;
 
     IntFrameEntry first_frame;
-    simparm::OptionalEntry< frame_index > last_frame;
+    simparm::Entry< boost::optional< frame_index > > last_frame;
     simparm::ChoiceEntry which_plane;
 
     Config();

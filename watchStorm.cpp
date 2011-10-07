@@ -24,13 +24,13 @@ int main(int argc, char *argv[]) {
    FileEntry saveMovie("saveMovie", "");
    FileEntry outputPixels("outputPixels", "");
    BoolEntry show("show", "", true);
-   UnsignedLongEntry maxPix("max", "", numeric_limits<StormPixel>::max());
+   Entry<unsigned long>Entry maxPix("max", "", numeric_limits<StormPixel>::max());
    BoolEntry saveImages("SaveImages", "Save each image into Snapshot_NUMBER.png");
 
-   UnsignedLongEntry markX("MarkX", "Mark column", 1000);
-   UnsignedLongEntry markY("MarkY", "Mark row", 1000);
+   Entry<unsigned long>Entry markX("MarkX", "Mark column", 1000);
+   Entry<unsigned long>Entry markY("MarkY", "Mark row", 1000);
 
-   DoubleEntry fps("FPS", "Frames per second", 0.5);
+   Entry<double> fps("FPS", "Frames per second", 0.5);
 
    config.push_back(fps);
    config.push_back(saveImages);

@@ -153,6 +153,7 @@ Config::Config()
 : simparm::Object("Mirror", "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
+    mirror_y.userLevel = simparm::Object::Expert;
 }
 
 input::BaseSource* ChainLink::makeSource()

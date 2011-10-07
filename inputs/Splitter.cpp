@@ -54,11 +54,12 @@ namespace Splitter {
 
 Config::Config() 
 : simparm::Object("BiplaneSplitter", "Split dual view image"),
-  biplane_split("DualView", "Dual view type")
+  biplane_split("DualView", "Dual view")
 {
     biplane_split.addChoice( None, "None", "None" );
-    biplane_split.addChoice( Horizontal, "Horizontally", "Horizontally" );
-    biplane_split.addChoice( Vertical, "Vertically", "Vertically" );
+    biplane_split.addChoice( Horizontal, "Horizontally", "Horizontal" );
+    biplane_split.addChoice( Vertical, "Vertically", "Vertical" );
+    biplane_split.userLevel = simparm::Object::Intermediate;
 }
 
 Source::Source(bool vertical, std::auto_ptr<input::Source<engine::Image> > base)
