@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM], [4.1.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM-bin], [4.1.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -15,17 +15,9 @@ AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
 
 AX_SPLIT_VERSION
-AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major part of version number])
-AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor part of version number])
-AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point part of version number])
-AC_SUBST([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION)
-
 AS_VAR_ARITH([current], $AX_MAJOR_VERSION+$AX_MINOR_VERSION)
 AS_VAR_ARITH([revision], $AX_POINT_VERSION)
 AS_VAR_ARITH([age], $AX_MINOR_VERSION)
-AC_SUBST([LIBTOOL_CURRENT], $current)
-AC_SUBST([LIBTOOL_REVISION], $revision)
-AC_SUBST([LIBTOOL_AGE], $age)
 AC_SUBST([LIBTOOL_VERSION_INFO], $current:$revision:$age)
 
 AC_LANG([C++])
