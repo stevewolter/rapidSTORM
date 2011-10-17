@@ -1,3 +1,7 @@
+== 4.1.1 ==
+
+* Renamed package to avoid collision with master package and cleaned up unnecessary variables
+
 == 4.1.0 ==
 
 * Bugfixing and code cleanup
