@@ -28,6 +28,10 @@ test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
 test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
 
+AC_PROG_JAVAC
+AC_CHECK_PROGS([JAR], [jar])
+AM_CONDITIONAL([HAVE_JAVA_TOOLCHAIN], [test "x$JAVAC" != "x" -a "x$JAR" != "x"])
+
 ACX_PTHREAD(
     [ LIBS="$PTHREAD_LIBS $LIBS"
       CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
@@ -111,19 +115,24 @@ PKG_CHECK_MODULES([locprec], [gsl])
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-DSTORM_LIB_VERSION=`${PKG_CONFIG} --variable=identifier librapidstorm`
-AC_SUBST([DSTORM_LIB_VERSION], $DSTORM_LIB_VERSION)
+AC_SUBST([DSTORM_LIB_VERSION], `${PKG_CONFIG} --variable=identifier librapidstorm`)
 DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
 AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
 AC_SUBST([DSTORM_PLUGIN_DIR])
+AC_SUBST([DSTORM_PLUGIN_PREFIX], `${PKG_CONFIG} --variable=prefix librapidstorm`)
+
+AC_ARG_WITH([twiddler-jar],
+    [AS_HELP_STRING([--with-twiddler-jar],
+        [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
+        [],
+        [with_twiddler_jar=$prefix/share/java/twiddler.jar])
+
+AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
 
 if echo "$LIBS" | grep "subsystem,windows"; then
     LIBS="$LIBS -Wl,--subsystem,console"
 fi
 
-# Integrate the help, library and the current src directory
-CPPFLAGS="-I \$(top_builddir)/.. -I \$(top_srcdir) -I \$(top_srcdir)/.. $CPPFLAGS"
-
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile DefaultPath.java rapidstorm rapidstorm.desktop manifest])
 
 AC_OUTPUT

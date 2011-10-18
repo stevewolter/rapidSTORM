@@ -1,8 +1,8 @@
-Source: rapidstorm
+Source: rapidstorm-bin
 Section: science
 Priority: optional
 Maintainer: Steve Wolter <swolter@sdf.lonestar.org>
-Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm13-dev, libeigen2-dev, libboost-dev, libcsunits2-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, libanyiterator-dev, twiddler, libboost-system-dev, libboost-thread-dev, pkg-config, libgsl0-dev, librapidstormfile-dev, dh-crossinstall
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, librapidstorm13-dev, libeigen2-dev, libboost-dev, libcsunits2-dev, libgraphicsmagick1-dev, libgraphicsmagick++1-dev, libb64-dev, libtiff4-dev, libwxgtk2.8-dev | libwxmsw2.8-dev, libanyiterator-dev, twiddler, libboost-system-dev, libboost-thread-dev, pkg-config, libgsl0-dev, librapidstormfile-dev, dh-crossinstall, openjdk-6-jdk, twiddler (>= 3.0.5-1)
 Standards-Version: 3.8.4
 #Vcs-Git: git://git.debian.org/collab-maint/rapidstorm.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/rapidstorm.git;a=summary
@@ -32,3 +32,7 @@ Section: science
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Plugins for rapidSTORM that ease testing
+
+Package: rapidstorm13-gui
+Architecture: any
+Description: GUI interface for rapidSTORM

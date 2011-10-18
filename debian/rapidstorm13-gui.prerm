@@ -1,0 +1,7 @@
+#!/bin/sh
+
+update-alternatives --remove rapidstorm /usr/bin/rapidstorm13
+
+#DEBHELPER#
+
+exit 0

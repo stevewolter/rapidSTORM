@@ -1,0 +1,63 @@
+package de.uni_bielefeld.physik.rapidSTORM;
+
+import  java.io.File;
+
+class DefaultPath {
+    File root;
+    String conffile = "dstorm-config-@DSTORM_LIB_VERSION@.txt";
+
+    private File reroot( File original )  {
+        String orig_prefix = "@prefix@";
+        if ( original.toString().startsWith( orig_prefix ) )  {
+            return new File( root, original.toString().substring( orig_prefix.length() ) );
+        } else {
+            return original;
+        }
+    }
+
+    public DefaultPath( File chroot ) { 
+        if ( chroot == null )
+            root = new File ("@prefix@");
+        else
+            root = chroot;
+    }
+
+    public File getPrefix() { return root; }
+    public File getPluginDir() {
+        String prefix = "@prefix@";
+        String plugin_prefix = "@DSTORM_PLUGIN_PREFIX@";
+        String abs_plugin_dir = "@DSTORM_PLUGIN_DIR@";
+        if ( abs_plugin_dir.startsWith( plugin_prefix ) ) {
+            abs_plugin_dir = abs_plugin_dir.substring( plugin_prefix.length() );
+        } else if ( abs_plugin_dir.startsWith( prefix ) ) {
+            abs_plugin_dir = abs_plugin_dir.substring( prefix.length() );
+        }
+        return new File(root, abs_plugin_dir.replace( "/", File.separator ) );
+    }
+    public File getExecutable() {
+        return new File(root, "bin" + File.separator + "dstorm-@DSTORM_LIB_VERSION@" );
+    }
+    public File getSystemConfigFile() {
+        File sysconfdir = new File(new String("@sysconfdir@").replace("${prefix}", "@prefix@").replace("/", File.separator));
+        File rapidstormconfdir = new File( reroot(sysconfdir), "rapidstorm" );
+        File system_conf = new File( rapidstormconfdir, conffile );
+        if ( system_conf.exists() )
+            return system_conf;
+        else
+            return new File(root, "share" + File.separator + "rapidstorm" 
+                                         + File.separator + conffile);
+    }
+    public File getUserConfigFile() {
+        return new File( System.getProperty("user.home"), ".rapidstorm" + File.separator + conffile);
+    }
+    public File getVersionFile() {
+        return new File( root, "share" + File.separator + "rapidstorm" + File.separator + "version-@DSTORM_LIB_VERSION@.txt" );
+    }
+    public File getDocPath() {
+        return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm-doc"  );
+    }
+    public File getDocDataPath() {
+        return new File( root, "share" + File.separator + "rapidstorm-doc"  );
+    }
+
+}

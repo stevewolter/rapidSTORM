@@ -2,24 +2,53 @@ ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects
 
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
+javadir=$(datadir)/java
+javabuilddir = classes
+applicationsdir=$(datadir)/applications
+
+C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ 
-C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin
+bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
-EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
 noinst_LTLIBRARIES = \
     libinputs.la libnoopengine.la libengine.la liboutputs.la \
     libspotFinders.la libviewer.la libdStorm_display.la \
     libengine_stm.la 
 plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la libtestplugin.la
+if HAVE_JAVA_TOOLCHAIN
+java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
+applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
+endif
+doc_DATA = $(srcdir)/README 
+pkgdata_DATA = 
 
-install-exec-local :
-	mkdir -p $(DESTDIR)$(bindir)
-	$(RM) $(DESTDIR)$(bindir)/dstorm$(EXEEXT) && ln -s dstorm-@DSTORM_LIB_VERSION@$(EXEEXT) $(DESTDIR)$(bindir)/dstorm$(EXEEXT)
+JAVASOURCES = DStorm.java DefaultPath.java
+JARCONTENT = logo.png
+
+EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
+EXTRA_DIST = DStorm.java $(JARCONTENT) 
+CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
+	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@
+
+rapidSTORM@DSTORM_LIB_VERSION@.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
+	$(MKDIR_P) $(javabuilddir)
+	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $(filter %.java,$^)
+	cp $(TWIDDLER_JAR) $@
+	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
+	$(JAR) -umf manifest $@
+
+rapidstorm@DSTORM_LIB_VERSION@.desktop : rapidstorm.desktop
+	cp $< $@
+
+rapidstorm@DSTORM_LIB_VERSION@ : rapidstorm
+	cp $< $@
+
+clean-local :
+	-rm -fr $(javabuilddir)
 
 TESTS = $(C_TESTS)
 
-doc_DATA = $(srcdir)/README $(srcdir)/COPYING
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc

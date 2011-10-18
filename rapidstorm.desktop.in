@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=rapidSTORM
+GenericName=Localization microscopy analyzer
+Comment=Image processing and analysis
+Comment[en_GB]=Image processing and analysis
+Exec=rapidstorm@DSTORM_LIB_VERSION@
+Icon=microscope
+Categories=Graphics;Science;Biology;
+MimeType=

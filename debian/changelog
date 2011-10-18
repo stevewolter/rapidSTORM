@@ -1,3 +1,10 @@
+rapidstorm-bin (4.1.1-2) testing; urgency=low
+
+  * Clarified source package name to avoid collision with new package
+    rapidstorm
+
+ -- Steve Wolter <swolter@sdf.lonestar.org>  Mon, 17 Oct 2011 20:20:52 +0200
+
 rapidstorm (4.1.1-1) testing; urgency=low
 
   * New upstream release
