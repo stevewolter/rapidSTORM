@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: librapidstormfile
+Description: Library for reading rapidSTORM STM data files
+Version: @PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -lrapidstormfile
+Requires: libsimparm librapidstorm
+Requires.private: tinyxml

@@ -6,16 +6,19 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin
+C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin \
+    Pixel_test check_Alternatives \
+    check_localization_variable check_expression_parser \
+    check_image_slicing check_image_iterator \
+    check_traits check_file_plugin \
+    check_unittable
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ 
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
-noinst_LTLIBRARIES = \
-    libinputs.la libnoopengine.la libengine.la liboutputs.la \
-    libspotFinders.la libviewer.la libdStorm_display.la \
-    libengine_stm.la 
-plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la libtestplugin.la
+lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
+plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la \
+    libtestplugin.la librapidstormfile-plugin.la
 if HAVE_JAVA_TOOLCHAIN
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
@@ -27,13 +30,24 @@ JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
 EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
-EXTRA_DIST = DStorm.java $(JARCONTENT) 
+EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT) 
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
-	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@
+	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
+	java-built-stamp
 
-rapidSTORM@DSTORM_LIB_VERSION@.jar : $(JAVASOURCES) manifest $(TWIDDLER_JAR) $(JARCONTENT)
+java-built-stamp : $(JAVASOURCES)
 	$(MKDIR_P) $(javabuilddir)
-	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $(filter %.java,$^)
+	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $^
+	touch $@
+
+DefaultPath.java : $(srcdir)/DefaultPath.java.in
+	sed -e 's:[@]DSTORM_LIB_VERSION[@]:$(DSTORM_LIB_VERSION):g' \
+	    -e 's:[@]DSTORM_PLUGIN_DIR[@]:$(DSTORM_PLUGIN_DIR):g' \
+	    -e 's:[@]prefix[@]:$(prefix):g' \
+	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
+	    $< > $@
+
+rapidSTORM@DSTORM_LIB_VERSION@.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	cp $(TWIDDLER_JAR) $@
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
@@ -49,18 +63,211 @@ clean-local :
 
 TESTS = $(C_TESTS)
 
-
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
+    RESOURCE_OBJECT = windows_resources.o
+    LIBDSTORM_RESOURCE_FILE = dStorm/windows_resources.rc
+    LIBDSTORM_RESOURCE_OBJECT = dStorm/windows_resources.o
+    LINKER_RESOURCE = -Xlinker
 else
     RESOURCE_FILE =
 endif
 
 .rc.o : 
 	$(WINDRES) -I . '$<' '$@'
-windows_resources.o : config.h
 
-libinputs_la_SOURCES = \
+headerdir = $(includedir)/dStorm
+nobase_include_HEADERS = \
+    dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
+    dStorm/units_Eigen_traits.h dStorm/unit_matrix_operators.h \
+    dStorm/matrix_operators.h dStorm/Pixel_decl.h dStorm/Pixel.h \
+    dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
+    dStorm/ImageTraits_decl.h dStorm/ImageTraits.h dStorm/ImageTraits_impl.h \
+    dStorm/DataSetTraits.h \
+    dStorm/Job.h dStorm/JobMaster.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
+    dStorm/Config_decl.h dStorm/Config.h \
+    dStorm/Engine.h dStorm/Engine_decl.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
+    dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
+    dStorm/output/binning/binning.h dStorm/output/binning/binning_decl.h \
+    dStorm/output/binning/inversion.h \
+    dStorm/output/binning/localization.h \
+    dStorm/output/binning/localization_impl.h \
+    dStorm/output/binning/localization_config_decl.h \
+    dStorm/output/binning/localization_config.h \
+    dStorm/output/binning/localization_config_impl.h \
+    dStorm/output/binning/config_decl.h \
+    dStorm/output/binning/config.h \
+    dStorm/unit_interval.h \
+    dStorm/expression/Config.h  dStorm/expression/Config_decl.h \
+    dStorm/expression/Source.h  dStorm/expression/Source_decl.h \
+    dStorm/stack_realign.h dStorm/dimension_names.h \
+    dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
+    dStorm/traits/covariance_matrix.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
+    dStorm/traits/no_resolution.h dStorm/traits/position.h dStorm/traits/range.h \
+    dStorm/traits/range_impl.h dStorm/traits/residues.h dStorm/traits/resolution.h \
+    dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \
+    dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
+    dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
+    dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
+    dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
+    dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
+    dStorm/localization/record_decl.h dStorm/localization/record.h\
+    dStorm/outputs/BinnedLocalizations.h dStorm/outputs/BinnedLocalizations_decl.h \
+    dStorm/outputs/LocalizationList.h dStorm/outputs/TraceFilter.h \
+    dStorm/outputs/Crankshaft.h dStorm/outputs/NullOutput.h \
+    dStorm/outputs/BinnedLocalizations_converter.h \
+    dStorm/outputs/BinnedLocalizations_strategies_impl.h \
+    dStorm/outputs/BinnedLocalizations_strategies_config.h \
+    dStorm/outputs/BinnedLocalizations_strategies.h \
+    dStorm/outputs/BinnedLocalizations_impl.h \
+    dStorm/output/Basename_decl.h dStorm/output/Basename.h \
+    dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
+    dStorm/output/Capabilities.h dStorm/output/Capabilities_decl.h \
+    dStorm/output/Config.h \
+    dStorm/output/FileOutputBuilder.h \
+    dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
+    dStorm/output/FilterSource.h \
+    dStorm/output/Localizations.h \
+    dStorm/output/Localizations_iterator.h \
+    dStorm/output/OutputBuilder.h dStorm/output/OutputBuilder_impl.h \
+    dStorm/output/SourceFactory_decl.h dStorm/output/SourceFactory.h \
+    dStorm/output/Output_decl.h dStorm/output/Output.h dStorm/output/Filter.h \
+    dStorm/output/OutputSource.h \
+    dStorm/output/Traits_decl.h dStorm/output/Traits.h \
+    dStorm/output/TraceReducer.h \
+    dStorm/output/LocalizedImage_decl.h dStorm/output/LocalizedImage.h dStorm/output/LocalizedImage_traits.h \
+    dStorm/engine/ClassicEngine.h \
+    dStorm/engine/Candidate_decl.h dStorm/engine/Candidate.h \
+    dStorm/engine/CandidateTree_decl.h dStorm/engine/CandidateTree.h \
+    dStorm/engine/Image_decl.h dStorm/engine/Image.h \
+    dStorm/engine/Input_decl.h dStorm/engine/Input.h \
+    dStorm/engine/Spot_decl.h dStorm/engine/Spot.h \
+    dStorm/engine/SpotFinder_decl.h dStorm/engine/SpotFinder.h \
+    dStorm/engine/JobInfo_decl.h dStorm/engine/JobInfo.h \
+    dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
+    dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
+    dStorm/engine/SpotFitterBuilder.h \
+    dStorm/input/chain/Choice.h dStorm/input/chain/Choice_decl.h \
+    dStorm/input/chain/Link_decl.h dStorm/input/chain/Link.h \
+    dStorm/input/chain/Singleton_decl.h dStorm/input/chain/Singleton.h \
+    dStorm/input/chain/Forwarder.h dStorm/input/chain/Forwarder_decl.h \
+    dStorm/input/chain/Filter.h dStorm/input/chain/Filter_decl.h \
+    dStorm/input/chain/Filter_impl.h dStorm/input/chain/DefaultFilterTypes.h \
+    dStorm/input/chain/Context_decl.h dStorm/input/chain/Context.h dStorm/input/chain/Context_impl.h \
+    dStorm/input/chain/FileContext_decl.h dStorm/input/chain/FileContext.h \
+    dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
+    dStorm/input/chain/Alternatives.h dStorm/input/chain/EngineHelpers.h \
+    dStorm/input/Config_decl.h dStorm/input/Config.h \
+    dStorm/input/Drain_decl.h dStorm/input/Drain.h \
+    dStorm/input/Source_decl.h dStorm/input/Source.h dStorm/input/Source_impl.h \
+    dStorm/input/Traits.h  \
+    dStorm/input/LocalizationTraits_decl.h dStorm/input/LocalizationTraits.h \
+    dStorm/input/InputFilter.h dStorm/input/InputFilter_impl.h \
+    dStorm/input/FileMethod_decl.h dStorm/input/InputMutex.h \
+    dStorm/input/FileInput.h \
+    dStorm/helpers/thread.h dStorm/helpers/Runnables.h dStorm/helpers/dilation.h dStorm/helpers/Variance.h \
+    dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
+    dStorm/helpers/DisplayManager.h dStorm/helpers/MayBeASignal.h \
+    dStorm/helpers/dilation_impl.h dStorm/helpers/OutOfMemory.h \
+    dStorm/helpers/exception.h dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
+    dStorm/helpers/back_inserter.h \
+    dStorm/data-c++/Vector.h dStorm/data-c++/MergingTree.h \
+    dStorm/data-c++/VectorList.h dStorm/data-c++/impl/MergingTree.cpp \
+    dStorm/data-c++/Traits.h \
+    dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
+    dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
+    dStorm/units/amplitude.h dStorm/units/frame_count.h \
+    dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
+    dStorm/units/microtime.h dStorm/units/nanolength.h \
+    dStorm/units/nanoresolution.h dStorm/units/prefixes.h \
+    dStorm/units/camera_response.h \
+    dStorm/UnitEntries/FrameEntry.h dStorm/UnitEntries/Hertz.h \
+    dStorm/UnitEntries/Nanometre.h dStorm/UnitEntries/PixelEntry.h \
+    dStorm/UnitEntries/PixelSize.h dStorm/UnitEntries/TemperatureEntry.h \
+    dStorm/UnitEntries/TimeEntry.h dStorm/UnitEntries/ADC.h \
+    dStorm/localization_file/field_decl.h dStorm/localization_file/field.h \
+    dStorm/localization_file/reader.h dStorm/localization_file/converter.h
+
+libdStorm_la_SOURCES = \
+    dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
+    dStorm/JobMaster.cpp dStorm/UnitEntries.cpp dStorm/Config.cpp \
+    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
+    dStorm/localization/Field.cpp \
+    dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
+    dStorm/traits/optics.cpp dStorm/input/debug.h \
+    dStorm/localization/record.cpp \
+    dStorm/expression/Evaluator.h dStorm/expression/Simplifier.h dStorm/expression/UnitChecker.h \
+    dStorm/expression/Expression.cpp dStorm/expression/Expression.h \
+    dStorm/expression/localization_variable.cpp dStorm/expression/localization_variable_decl.h \
+    dStorm/expression/localization_variable.h dStorm/expression/localization_variable_impl.h \
+    dStorm/expression/Parser.cpp dStorm/expression/Parser.h dStorm/expression/Parser_impl.h \
+    dStorm/expression/SIPrefixes.h \
+    dStorm/expression/tokens.cpp dStorm/expression/tokens_decl.h dStorm/expression/tokens.h \
+    dStorm/expression/types.cpp dStorm/expression/types.h dStorm/expression/types_decl.h \
+    dStorm/expression/UnitTable.cpp dStorm/expression/UnitTable.h dStorm/expression/UnitTable_impl.h \
+    dStorm/expression/Config.cpp dStorm/expression/Source.cpp \
+    dStorm/expression/CommandLine.h dStorm/expression/Source_filters.h \
+    dStorm/expression/SimpleFilters.h dStorm/expression/SimpleFilters.cpp \
+    dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
+    dStorm/helpers/OutOfMemory.cpp \
+    dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
+    dStorm/input/Source.cpp \
+    dStorm/input/Config.cpp dStorm/input/chain/Link.cpp dStorm/input/chain/Singleton.cpp dStorm/input/chain/Choice.cpp \
+    dStorm/input/FileMethod.h dStorm/input/FileMethod.cpp dStorm/input/chain/Alternatives.cpp \
+    dStorm/input/chain/Forwarder.cpp dStorm/input/chain/Filter.cpp \
+    dStorm/input/LocalizationTraits.cpp \
+    dStorm/input/InputMethods.h dStorm/input/InputMethods.cpp \
+    dStorm/input/join.h dStorm/input/join.cpp \
+    dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
+    dStorm/input/join/iterator.hpp dStorm/input/join/iterator.cpp \
+    dStorm/input/join/spatial.hpp dStorm/input/join/spatial.cpp \
+    dStorm/input/join/temporal.hpp dStorm/input/join/temporal.cpp \
+    dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
+    dStorm/engine/JobInfo.cpp \
+    dStorm/output/debug.h \
+    dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
+    dStorm/output/Basename.cpp \
+    dStorm/output/BasenameAdjustedFileEntry.cpp \
+    dStorm/output/Config.cpp \
+    dStorm/output/FilterSource.cpp \
+    dStorm/output/OutputSource.cpp dStorm/output/Trace.cpp \
+    dStorm/output/Traits.cpp \
+    dStorm/output/Localizations.cpp \
+    dStorm/output/TraceReducers.cpp \
+    dStorm/output/SourceFactory.cpp  \
+    dStorm/output/LocalizedImage_traits.cpp \
+    dStorm/output/binning/localization.cpp \
+    dStorm/output/binning/localization_config.cpp \
+    dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
+    dStorm/output/Filter.cpp \
+    dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
+    dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp
+libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
+libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
+
+librapidstormfile_la_SOURCES = \
+    dStorm/localization_file/fields.cpp dStorm/localization_file/reader.cpp \
+    dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
+    dStorm/localization_file/localization_field_impl.h dStorm/localization_file/localization_field.h \
+    dStorm/localization_file/unknown_field.h 
+librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
+    dstorm.cpp \
+    CommandLine.h CommandLine.cpp \
+    ModuleLoader.h ModuleLoader.cpp \
+    LibraryHandle.h LibraryHandle.cpp \
+    JobStarter.h JobStarter.cpp \
+    InputStream.h InputStream.cpp \
+    debug.h debug_print.h $(RESOURCE_FILE) \
+    TIFFOperation.h TIFFOperation.cpp \
+    Car_decl.h Car.cpp Car.h 
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(dstorm_LIBS) $(WX_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(dstorm_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
+dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	inputs/TIFF.cpp \
 	inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
 	inputs/TIFF_OpenFile.cpp \
@@ -78,10 +285,10 @@ libinputs_la_SOURCES = \
     inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
     inputs/Buffer.cpp 
 
-libnoopengine_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
-libengine_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	engine/Config.cpp engine/Config_decl.h engine/Config.h \
 	engine/Engine.cpp \
 	    engine/EngineDebug.h engine/Engine.h \
@@ -90,12 +297,12 @@ libengine_la_SOURCES = \
 	    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
 	    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
-libengine_stm_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/Config.h engine_stm/Config.cpp \
 	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
-liboutputs_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -105,7 +312,7 @@ liboutputs_la_SOURCES = \
     outputs/MemoryCache.cpp outputs/MemoryCache.h outputs/MemoryCache_decl.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp
 
-libspotFinders_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.h \
@@ -119,7 +326,7 @@ libspotFinders_la_SOURCES = \
     spotFinders/Spalttiefpass.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
-libviewer_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
@@ -146,7 +353,7 @@ libviewer_la_SOURCES = \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-libdStorm_display_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
     wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
@@ -154,7 +361,7 @@ libdStorm_display_la_SOURCES = \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-liblocprec_la_LIBADD = $(locprec_LIBS)
+liblocprec_la_LIBADD = libdStorm.la $(locprec_LIBS)
 liblocprec_la_CPPFLAGS = $(locprec_CFLAGS)
 liblocprec_la_SOURCES = \
     locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \
@@ -183,8 +390,8 @@ liblocprec_la_SOURCES = \
     locprec/biplane_alignment/MotionModels.h
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = $(libb64_LIBS)
-libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
+libdirectcamerainput_la_LIBADD = libdStorm.la $(directcamera_LIBS)
+libdirectcamerainput_la_CPPFLAGS = $(directcamera_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
     AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
@@ -204,6 +411,13 @@ libtestplugin_la_SOURCES = test-plugin/plugin.cpp test-plugin/SegmentationFault.
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
+libtestplugin_la_LIBADD = libdStorm.la
+
+librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
+    dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
+    dStorm/localization_file/Output.cpp
+librapidstormfile_plugin_la_LIBADD = librapidstormfile.la libdStorm.la $(librapidstormfile_LIBS)
+librapidstormfile_plugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
 fit_camera_noise_LDADD = liblocprec.la 
@@ -217,29 +431,30 @@ determine_clusters_from_centers_CPPFLAGS = $(librapidstormfile_CFLAGS)
 reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
-check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp
-check_resolutionsetter_LDADD = libinputs.la
+check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp inputs/ResolutionSetter.cpp
+check_resolutionsetter_LDADD = libdStorm.la
 checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
 checkplugin_camera_LDADD = libdirectcamerainput.la 
 checkplugin_camera_LDFLAGS = -no-undefined
 checkplugin_testplugin_SOURCES = test-plugin/check_plugin.cpp
 checkplugin_testplugin_LDADD = libtestplugin.la 
+Pixel_test_SOURCES = dStorm/Pixel_test.cpp
+check_Alternatives_SOURCES = dStorm/input/chain/check_Alternatives.cpp
+check_Alternatives_LDADD = libdStorm.la
+check_traits_SOURCES = dStorm/traits/scalar_check.cpp
+check_traits_LDADD = libdStorm.la
+check_unittable_SOURCES = dStorm/expression/UnitTable_check.cpp 
+check_unittable_LDADD = libdStorm.la
+check_localization_variable_SOURCES = dStorm/expression/localization_variable_check.cpp
+check_localization_variable_LDADD = libdStorm.la
+check_expression_parser_SOURCES = dStorm/expression/Parser_test.cpp
+check_expression_parser_LDADD = libdStorm.la
+check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
+check_image_slicing_LDADD = libdStorm.la
+check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
+check_image_iterator_LDADD = libdStorm.la
+check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp 
+check_file_plugin_LDADD = librapidstormfile-plugin.la
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
-    dstorm.cpp \
-    CommandLine.h CommandLine.cpp \
-    ModuleLoader.h ModuleLoader.cpp \
-    LibraryHandle.h LibraryHandle.cpp \
-    JobStarter.h JobStarter.cpp \
-    InputStream.h InputStream.cpp \
-    debug.h debug_print.h $(RESOURCE_FILE) \
-    TIFFOperation.h TIFFOperation.cpp \
-    Car_decl.h Car.cpp Car.h 
-dstorm_@DSTORM_LIB_VERSION@_LDADD = liboutputs.la libviewer.la \
-    libspotFinders.la \
-    libengine_stm.la \
-    libengine.la libnoopengine.la \
-    libinputs.la \
-    libdStorm_display.la \
-    -lltdl 
-
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc

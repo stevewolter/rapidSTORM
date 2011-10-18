@@ -101,7 +101,7 @@ int ModuleLoader::Pimpl::lt_dlforeachfile_callback
 
 void ModuleLoader::Pimpl::load_plugins()
 {
-    std::string compiled_plugin_dir = PLUGINDIR;
+    std::string compiled_plugin_dir = RAPIDSTORM_PLUGIN_DIR;
     const char *plugin_dir = compiled_plugin_dir.c_str();
     char *env_plugin_dir = getenv("RAPIDSTORM_PLUGINDIR");
     if ( env_plugin_dir != NULL )

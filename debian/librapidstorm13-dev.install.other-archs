@@ -1,0 +1,5 @@
+usr/lib/libdstorm*.a
+usr/lib/libdstorm*.so
+usr/lib/libdstorm*.la
+usr/include/*
+usr/lib/pkgconfig/librapidstorm.pc

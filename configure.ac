@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM-bin], [4.2.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM-bin], [13.1.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -15,12 +15,17 @@ AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
 
 AX_SPLIT_VERSION
+AC_SUBST( [PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION )
+AC_SUBST( [PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION )
+AC_SUBST( [PACKAGE_POINT_VERSION], $AX_POINT_VERSION )
 AS_VAR_ARITH([current], $AX_MAJOR_VERSION+$AX_MINOR_VERSION)
 AS_VAR_ARITH([revision], $AX_POINT_VERSION)
 AS_VAR_ARITH([age], $AX_MINOR_VERSION)
 AC_SUBST([LIBTOOL_VERSION_INFO], $current:$revision:$age)
 
 AC_LANG([C++])
+
+AC_LIBTOOL_WIN32_DLL
 
 # Checks for programs.
 AC_PROG_CXX
@@ -42,16 +47,10 @@ ACX_PTHREAD(
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
 
-# Enable doxygen support
-AX_PROG_DOXYGEN
-DX_HTML_FEATURE(ON)
-DX_PS_FEATURE(OFF)
-DX_PDF_FEATURE(OFF)
-DX_INIT_DOXYGEN(dStorm)
-
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h windows.h winsock2.h math.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h winsock2.h math.h])
+AC_CHECK_HEADER([boost/utility.hpp], [], [AC_ERROR([Missing boost headers])])
 AC_CHECK_HEADERS([tiffio.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -73,6 +72,7 @@ AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread
     [AC_ERROR([No boost thread library found])], [])
 AC_CHECK_LIB([ws2_32], [main])
 AC_CHECK_LIB([mswsock], [main])
+AC_CHECK_LIB([ltdl], [main])
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
@@ -100,39 +100,32 @@ if test "$wxWin" != 1; then
     ])
 fi
 
-CPPFLAGS="$CPPFLAGS $WX_CPPFLAGS"
-CXXFLAGS="$CXXFLAGS $WX_CXXFLAGS_ONLY"
-CFLAGS="$CFLAGS $WX_CFLAGS_ONLY"
-LIBS="$LIBS $WX_LIBS"
+PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
+CPPFLAGS="$CPPFLAGS $base_CFLAGS"
+LIBS="$base_LIBS $LIBS"
 
-PKG_CHECK_MODULES([DEPS], [librapidstorm GraphicsMagick++ any_iterator libsimparm])
-CPPFLAGS="$CPPFLAGS $DEPS_CFLAGS"
-LIBS="$DEPS_LIBS $LIBS"
-
-PKG_CHECK_MODULES([librapidstormfile], [librapidstormfile])
-PKG_CHECK_MODULES([libb64], [libb64])
+PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
+PKG_CHECK_MODULES([librapidstormfile], [tinyxml])
+PKG_CHECK_MODULES([directcamera], [libb64])
 PKG_CHECK_MODULES([locprec], [gsl])
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-AC_SUBST([DSTORM_LIB_VERSION], `${PKG_CONFIG} --variable=identifier librapidstorm`)
-DSTORM_PLUGIN_DIR=`${PKG_CONFIG} --variable=plugindir librapidstorm`
-AC_DEFINE_UNQUOTED([PLUGINDIR], "$DSTORM_PLUGIN_DIR", [Default directory for plugin files])
-AC_SUBST([DSTORM_PLUGIN_DIR])
-AC_SUBST([DSTORM_PLUGIN_PREFIX], `${PKG_CONFIG} --variable=prefix librapidstorm`)
+AC_SUBST([DSTORM_LIB_VERSION], $AX_MAJOR_VERSION)
+AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm-v$AX_MAJOR_VERSION")
+# This substitution is not used, but necessary to touch config.h on
+# change of the major version to propagate the name of the plugin directory,
+# which is only defined through the Makefile
+AC_DEFINE_UNQUOTED([DSTORM_GENERATION], "$AX_MAJOR_VERSION", "rapidSTORM generation")
 
-AC_ARG_WITH([twiddler-jar],
-    [AS_HELP_STRING([--with-twiddler-jar],
-        [location of simparm twiddler.jar @<:@default=${prefix}/share/java/twiddler.jar@:>@])],
-        [],
-        [with_twiddler_jar=$prefix/share/java/twiddler.jar])
-
-AC_SUBST([TWIDDLER_JAR], $with_twiddler_jar)
+AC_SUBST([TWIDDLER_JAR], "`pkg-config --variable=prefix libsimparm`/share/java/twiddler.jar")
 
 if echo "$LIBS" | grep "subsystem,windows"; then
     LIBS="$LIBS -Wl,--subsystem,console"
 fi
 
-AC_CONFIG_FILES([Makefile DefaultPath.java rapidstorm rapidstorm.desktop manifest])
+AC_CONFIG_FILES([Makefile rapidstorm rapidstorm.desktop manifest])
+AC_CONFIG_FILES([dStorm/windows_resources.rc])
+AC_CONFIG_FILES([librapidstorm.pc librapidstormfile.pc])
 
 AC_OUTPUT

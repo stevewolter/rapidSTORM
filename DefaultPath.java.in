@@ -24,21 +24,15 @@ class DefaultPath {
 
     public File getPrefix() { return root; }
     public File getPluginDir() {
-        String prefix = "@prefix@";
-        String plugin_prefix = "@DSTORM_PLUGIN_PREFIX@";
         String abs_plugin_dir = "@DSTORM_PLUGIN_DIR@";
-        if ( abs_plugin_dir.startsWith( plugin_prefix ) ) {
-            abs_plugin_dir = abs_plugin_dir.substring( plugin_prefix.length() );
-        } else if ( abs_plugin_dir.startsWith( prefix ) ) {
-            abs_plugin_dir = abs_plugin_dir.substring( prefix.length() );
-        }
-        return new File(root, abs_plugin_dir.replace( "/", File.separator ) );
+        File plugin_dir = new File(abs_plugin_dir.replace( "/", File.separator ));
+        return reroot(plugin_dir);
     }
     public File getExecutable() {
         return new File(root, "bin" + File.separator + "dstorm-@DSTORM_LIB_VERSION@" );
     }
     public File getSystemConfigFile() {
-        File sysconfdir = new File(new String("@sysconfdir@").replace("${prefix}", "@prefix@").replace("/", File.separator));
+        File sysconfdir = new File(new String("@sysconfdir@").replace("/", File.separator));
         File rapidstormconfdir = new File( reroot(sysconfdir), "rapidstorm" );
         File system_conf = new File( rapidstormconfdir, conffile );
         if ( system_conf.exists() )
