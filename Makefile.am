@@ -33,7 +33,7 @@ EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testD
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT) 
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
-	java-built-stamp
+	java-built-stamp DefaultPath.java
 
 java-built-stamp : $(JAVASOURCES)
 	$(MKDIR_P) $(javabuilddir)
