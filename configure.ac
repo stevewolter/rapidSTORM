@@ -112,7 +112,7 @@ PKG_CHECK_MODULES([locprec], [gsl])
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
 AC_SUBST([DSTORM_LIB_VERSION], $AX_MAJOR_VERSION)
-AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm-v$AX_MAJOR_VERSION")
+AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugin-v$AX_MAJOR_VERSION")
 # This substitution is not used, but necessary to touch config.h on
 # change of the major version to propagate the name of the plugin directory,
 # which is only defined through the Makefile
