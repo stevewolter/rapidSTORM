@@ -1,3 +1,7 @@
+== 13.2.2 ==
+
+* Added missing libraries for librapidstormfile.la which are necessary for Win32 compilation
+
 == 13.2.1 ==
 
 * Fixed plugin installation path
