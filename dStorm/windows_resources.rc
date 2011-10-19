@@ -2,7 +2,7 @@
 #include <winver.h>
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION @LIBDSTORM_CURRENT@,@LIBDSTORM_AGE@,@LIBDSTORM_REVISION@,0
+FILEVERSION PACKAGE_MAJOR_VERSION,PACKAGE_MINOR_VERSION,PACKAGE_POINT_VERSION,0
 PRODUCTVERSION PACKAGE_MAJOR_VERSION,PACKAGE_MINOR_VERSION,PACKAGE_POINT_VERSION,0
 FILEFLAGS   VS_FFI_FILEFLAGSMASK
 FILEOS   VOS_NT
@@ -15,15 +15,15 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      ""
             VALUE "FileDescription",  "Base library for rapidSTORM plugins"
-            VALUE "FileVersion",      "@LIBDSTORM_CURRENT@:@LIBDSTORM_REVISION@:@LIBDSTORM_AGE@"
-            VALUE "InternalName",     "@LIBDSTORM_FILENAME@"
+            VALUE "FileVersion",      PACKAGE_VERSION
+            VALUE "InternalName",     "libdStorm"
             VALUE "LegalCopyright",   "(C) 2010 Steve Wolter"
             VALUE "LegalTrademarks",   ""
             /*VALUE "LegalTrademarks1", VER_LEGALTRADEMARKS1_STR*/
             /*VALUE "LegalTrademarks2", VER_LEGALTRADEMARKS2_STR*/
-            VALUE "OriginalFilename", "@LIBDSTORM_FILENAME@.dll"
-            VALUE "ProductName",      "@PACKAGE_NAME@"
-            VALUE "ProductVersion",   "@PACKAGE_VERSION@"
+            VALUE "OriginalFilename", "libdStorm.dll"
+            VALUE "ProductName",      PACKAGE_NAME
+            VALUE "ProductVersion",   PACKAGE_VERSION
         END
     END
     BLOCK "VarFileInfo"

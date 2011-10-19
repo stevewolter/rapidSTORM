@@ -18,6 +18,10 @@ AX_SPLIT_VERSION
 AC_SUBST( [PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION )
 AC_SUBST( [PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION )
 AC_SUBST( [PACKAGE_POINT_VERSION], $AX_POINT_VERSION )
+# Substitute package version in the resource file
+AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major component of package version])
+AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor component of package version])
+AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point component of package version])
 AS_VAR_ARITH([current], $AX_MAJOR_VERSION+$AX_MINOR_VERSION)
 AS_VAR_ARITH([revision], $AX_POINT_VERSION)
 AS_VAR_ARITH([age], $AX_MINOR_VERSION)
@@ -112,7 +116,7 @@ PKG_CHECK_MODULES([locprec], [gsl])
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
 AC_SUBST([DSTORM_LIB_VERSION], $AX_MAJOR_VERSION)
-AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugin-v$AX_MAJOR_VERSION")
+AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugins-v$AX_MAJOR_VERSION")
 # This substitution is not used, but necessary to touch config.h on
 # change of the major version to propagate the name of the plugin directory,
 # which is only defined through the Makefile
@@ -125,7 +129,6 @@ if echo "$LIBS" | grep "subsystem,windows"; then
 fi
 
 AC_CONFIG_FILES([Makefile rapidstorm rapidstorm.desktop manifest])
-AC_CONFIG_FILES([dStorm/windows_resources.rc])
 AC_CONFIG_FILES([librapidstorm.pc librapidstormfile.pc])
 
 AC_OUTPUT

@@ -30,7 +30,7 @@ JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
 EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
-EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT) 
+EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
 	java-built-stamp DefaultPath.java
@@ -251,6 +251,7 @@ librapidstormfile_la_SOURCES = \
     dStorm/localization_file/localization_field_impl.h dStorm/localization_file/localization_field.h \
     dStorm/localization_file/unknown_field.h 
 librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
+librapidstormfile_la_LIBADD = libdStorm.la $(librapidstormfile_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     dstorm.cpp \
