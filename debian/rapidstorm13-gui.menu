@@ -1,7 +1,0 @@
-?package(rapidSTORM):\
-  needs="x11"\
-  section="Applications/Science"\
-  title="rapidSTORM"\
-  command="/usr/bin/rapidstorm13"\
-  icon="/usr/share/pixmaps/gcalctool.xpm"
-

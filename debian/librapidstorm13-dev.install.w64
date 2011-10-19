@@ -1,4 +1,0 @@
-usr/lib/libdstorm*.a
-usr/lib/libdstorm*.la
-usr/include/*
-usr/lib/pkgconfig/librapidstorm.pc

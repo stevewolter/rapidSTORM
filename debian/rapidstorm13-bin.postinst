@@ -1,7 +1,0 @@
-#!/bin/sh
-
-update-alternatives --install /usr/bin/dstorm dstorm /usr/bin/dstorm-13 13
-
-#DEBHELPER#
-
-exit 0

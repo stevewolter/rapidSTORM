@@ -1,5 +1,0 @@
-usr/lib/librapidstormfile*.a
-usr/lib/librapidstormfile*.so
-usr/lib/librapidstormfile*.la
-usr/include/dStorm/localization_file/*
-usr/lib/pkgconfig/librapidstormfile.pc
