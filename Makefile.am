@@ -19,7 +19,7 @@ check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
 plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la \
     libtestplugin.la librapidstormfile-plugin.la
-if HAVE_JAVA_TOOLCHAIN
+if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
 endif
@@ -370,7 +370,7 @@ liblocprec_la_SOURCES = \
     locprec/pixelatedBessel.h locprec/pixelatedBessel.cpp \
     locprec/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
-    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
+    locprec/EmissionTracker_decl.h locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
     locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
     locprec/FluorophoreDistributions_Random.cpp \
     locprec/FluorophoreDistributions_Lattice.cpp \

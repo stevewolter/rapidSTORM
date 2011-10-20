@@ -39,7 +39,6 @@ test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
 
 AC_PROG_JAVAC
 AC_CHECK_PROGS([JAR], [jar])
-AM_CONDITIONAL([HAVE_JAVA_TOOLCHAIN], [test "x$JAVAC" != "x" -a "x$JAR" != "x"])
 
 ACX_PTHREAD(
     [ LIBS="$PTHREAD_LIBS $LIBS"
@@ -104,6 +103,10 @@ if test "$wxWin" != 1; then
     ])
 fi
 
+if echo "$WX_LIBS" | grep "subsystem,windows"; then
+    WX_LIBS="$WX_LIBS -Wl,--subsystem,console"
+fi
+
 PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
@@ -122,11 +125,17 @@ AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugins-v$AX_MAJOR_VERSION"
 # which is only defined through the Makefile
 AC_DEFINE_UNQUOTED([DSTORM_GENERATION], "$AX_MAJOR_VERSION", "rapidSTORM generation")
 
-AC_SUBST([TWIDDLER_JAR], "`pkg-config --variable=prefix libsimparm`/share/java/twiddler.jar")
-
-if echo "$LIBS" | grep "subsystem,windows"; then
-    LIBS="$LIBS -Wl,--subsystem,console"
+if test -z "$twiddler_jar"; then
+    f="`pkg-config --variable=prefix libsimparm`/share/java/twiddler.jar"
+    test -e "$f" && twiddler_jar="$f"
 fi
+if test -z "$twiddler_jar"; then
+    f="$prefix/share/java/twiddler.jar"
+    test -e "$f" && twiddler_jar="$f"
+fi
+AC_SUBST([TWIDDLER_JAR], "$twiddler_jar")
+
+AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" -a "x$twiddler_jar" != "x"])
 
 AC_CONFIG_FILES([Makefile rapidstorm rapidstorm.desktop manifest])
 AC_CONFIG_FILES([librapidstorm.pc librapidstormfile.pc])
