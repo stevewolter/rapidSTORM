@@ -15,10 +15,11 @@ TerminalCache<Hueing>::TerminalCache()
 }
 
 template <typename Hueing>
-TerminalCache<Hueing>::TerminalCache( 
-    dStorm::Display::ResizeChange size
-) : size(size)
+void TerminalCache<Hueing>::setSize( 
+    const dStorm::Display::ResizeChange& size
+)
 {
+    this->size = size;
 }
 
 template <typename Hueing>

@@ -363,6 +363,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 liblocprec_la_LIBADD = libdStorm.la $(locprec_LIBS)
+liblocprec_la_DEPENDENCIES = libdStorm.la
 liblocprec_la_CPPFLAGS = $(locprec_CFLAGS)
 liblocprec_la_SOURCES = \
     locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \

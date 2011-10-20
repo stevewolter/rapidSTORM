@@ -57,7 +57,8 @@ class Display
 
     void save_image(std::string filename, const Config&);
 
-    dStorm::Display::ResizeChange getSize() const { return *my_size; }
+    const boost::optional<dStorm::Display::ResizeChange>&
+        getSize() const { return my_size; }
     void show_window();
 };
 

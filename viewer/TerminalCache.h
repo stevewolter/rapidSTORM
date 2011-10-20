@@ -19,11 +19,11 @@ class TerminalCache
     typedef MyColorizer Colorizer;
 
     TerminalCache();
-    TerminalCache(dStorm::Display::ResizeChange size);
 
     const dStorm::Display::ResizeChange& getSize() const 
         { return size; }
     void setSize(const input::Traits< Image<int,2> >&);
+    void setSize(const dStorm::Display::ResizeChange& size);
 
     std::auto_ptr<dStorm::Display::Change> 
     get_result(const Colorizer& colorizer) const;
