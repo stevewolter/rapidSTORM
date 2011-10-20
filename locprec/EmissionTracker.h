@@ -18,18 +18,20 @@
 #include <boost/optional/optional.hpp>
 
 namespace locprec {
+namespace emission_tracker {
+
     template <typename Type>
     struct address_is_less : public std::binary_function<Type,Type,bool> {
         bool operator()( const Type& a, const Type& b ) const { return &a < &b; };
     };
 
-    class EmissionTracker 
+    class Output 
     : public dStorm::output::OutputObject 
     {
         class _Config;
       public:
         typedef simparm::Structure<_Config> Config;
-        typedef dStorm::output::FilterBuilder<EmissionTracker> Source;
+        typedef dStorm::output::FilterBuilder<Output> Source;
 
       private:
         class lowest_mahalanobis_distance;
@@ -37,7 +39,7 @@ namespace locprec {
             int hope;
           public:
             boost::optional<Eigen::Vector2i> cache_position;
-            TracedObject(const EmissionTracker &papa);
+            TracedObject(const Output &papa);
             ~TracedObject();
 
             void add( const dStorm::Localization& l)
@@ -60,8 +62,7 @@ namespace locprec {
         struct TrackingInformation;
         boost::ptr_vector<TrackingInformation> tracking;
 
-        Eigen::Matrix<double,2,2> measurement_covar;
-        Eigen::Matrix<double,4,4> random_system_dynamics_covar;
+        KalmanMetaInfo<2> kalman_info;
 
         TracedObject* search_closest_trace(
             const dStorm::Localization &loc, 
@@ -72,16 +73,16 @@ namespace locprec {
         std::auto_ptr<dStorm::output::TraceReducer> reducer;
         std::auto_ptr<dStorm::output::Output> target;
 
-        double maxDist;
+        const double maxDist;
 
       public:
-        EmissionTracker( const Config& config,
+        Output( const Config& config,
                          std::auto_ptr<dStorm::output::Output> output );
-        ~EmissionTracker();
-        EmissionTracker( const EmissionTracker& );
-        EmissionTracker *clone() const
+        ~Output();
+        Output( const Output& );
+        Output *clone() const
             {throw std::logic_error("Emission tracker is not cloneable.");}
-        EmissionTracker& operator=( const EmissionTracker& );
+        Output& operator=( const Output& );
 
         AdditionalData announceStormSize(const Announcement &) 
 ;
@@ -91,7 +92,7 @@ namespace locprec {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
-    class EmissionTracker::_Config : public simparm::Object {
+    class Output::_Config : public simparm::Object {
       protected:
         _Config();
         void registerNamedEntries();
@@ -99,7 +100,10 @@ namespace locprec {
       public:
         simparm::Entry<unsigned long> allowBlinking;
         dStorm::FloatNanometreEntry expectedDeviation;
+        simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
+        simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
         dStorm::output::TraceReducer::Config reducer;
+        simparm::Entry<float> distance_threshold;
 
         bool determine_output_capabilities
             ( dStorm::output::Capabilities& cap ) 
@@ -110,4 +114,5 @@ namespace locprec {
         }
     };
 
+}
 }

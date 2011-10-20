@@ -5,12 +5,42 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <dStorm/unit_matrix_operators.h>
+#include <boost/units/systems/si/length.hpp>
+#include <boost/units/systems/camera/time.hpp>
 
 namespace locprec {
 
 using namespace boost::units;
 
-extern int traceNumber;
+template <int Dimensions> class KalmanTrace;
+
+template <int Dimensions>
+struct KalmanMetaInfo {
+    typedef boost::units::si::length observation_unit;
+    typedef boost::units::multiply_typeof_helper<observation_unit,observation_unit>::type obs_variance_unit;
+    typedef boost::units::camera::time time_unit;
+    typedef boost::units::divide_typeof_helper< observation_unit, time_unit >::type speed_unit;
+    typedef boost::units::divide_typeof_helper< obs_variance_unit, time_unit >::type diffusion_unit;
+    typedef boost::units::divide_typeof_helper< 
+        boost::units::multiply_typeof_helper<speed_unit,speed_unit>::type,
+        time_unit >::type mobility_unit;
+
+    KalmanMetaInfo()
+        : measurement_covar( Eigen::Matrix<double,Dimensions,Dimensions>::Zero() ),
+          random_system_dynamics_covar( Eigen::Matrix<double,2*Dimensions,2*Dimensions>::Zero() ) {}
+
+    void set_measurement_covariance(int dim, quantity<obs_variance_unit> value)
+        { measurement_covar(dim,dim) = value.value(); }
+    void set_diffusion(int dim, quantity<diffusion_unit> value)
+        { random_system_dynamics_covar(dim,dim) = value.value(); }
+    void set_mobility(int dim, quantity<mobility_unit> value)
+        { random_system_dynamics_covar(dim+Dimensions,dim+Dimensions) = value.value(); }
+
+  private:
+    friend class KalmanTrace<Dimensions>;
+    Eigen::Matrix<double,Dimensions,Dimensions> measurement_covar;
+    Eigen::Matrix<double,2*Dimensions,2*Dimensions> random_system_dynamics_covar;
+};
 
 template <int Dimensions>
 class KalmanTrace : public std::vector<dStorm::Localization> {
@@ -24,11 +54,12 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
         }
     };
 
+    const KalmanMetaInfo<Dimensions>& meta;
+
     Eigen::Matrix<double,State,State>  state_transition;
     Eigen::Matrix<double,Obs,State>    observation_matrix;
 
-    const Eigen::Matrix<double,Obs,Obs>* measurement_covar;
-    const Eigen::Matrix<double,State,State>* random_system_dynamics_covar;
+    Eigen::Matrix<double,State,State> system_covar;
 
     int position;
     Eigen::Matrix<double,State,1>      position_estimate;
@@ -53,22 +84,17 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
     void update_position( const Observation& measurement_vector,
                           const int time );
     
-    int myNumber;
-
   public:
+#if 0
     /** Dummy constructor for dummy tracing objects. Will not produce
      *  useful tracers. */
     KalmanTrace() : measurement_covar(NULL), 
                             random_system_dynamics_covar(NULL) {}
+#endif
 
-    KalmanTrace(
-        const Eigen::Matrix<double,Obs,Obs>& measurement_covar,
-        const Eigen::Matrix<double,State,State>&
-                    random_system_dynamics_covar
-    );
+    KalmanTrace( const KalmanMetaInfo<Dimensions>& meta );
 
-    float sq_distance_in_sigmas( const dStorm::Localization& position )
-; 
+    float sq_distance_in_sigmas( const dStorm::Localization& position ) ; 
     void add( const dStorm::Localization& l );
     void clear();
 
@@ -80,11 +106,9 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
 
 template <int Dimensions>
 KalmanTrace<Dimensions>::KalmanTrace(
-    const Eigen::Matrix<double,Obs,Obs>& measurement_covar,
-    const Eigen::Matrix<double,State,State>& random_system_dynamics_covar
+    const KalmanMetaInfo<Dimensions>& meta
 )
-: measurement_covar( &measurement_covar ),
-  random_system_dynamics_covar( &random_system_dynamics_covar )
+: meta(meta)
 {
     state_transition.setIdentity();
     observation_matrix.setZero();
@@ -100,6 +124,7 @@ void KalmanTrace<Dimensions>::set_time_in_state_transition(const int t)
     for (int i = 0; i < Dimensions; i++) {
         state_transition(i, Dimensions+i) = t;
     }
+    system_covar = t * meta.random_system_dynamics_covar;
 }
 
 template <int Dimensions>
@@ -118,7 +143,7 @@ void KalmanTrace<Dimensions>::update_prediction( const int to_prediction )
     prediction_precision = 
           state_transition * estimation_precision * 
                 state_transition.transpose()
-        + (*random_system_dynamics_covar);
+        + system_covar;
     
     have_prediction = true;
 }
@@ -133,7 +158,7 @@ void KalmanTrace<Dimensions>::update_position(
     /* Weight equation */
     Eigen::Matrix<double,State,Obs> weight_vector
         = prediction_precision * observation_matrix.transpose()
-          * ( *measurement_covar +
+          * ( meta.measurement_covar +
                   observation_matrix * prediction_precision
                       * observation_matrix.transpose() )
             .inverse();
@@ -166,7 +191,7 @@ float KalmanTrace<Dimensions>::sq_distance_in_sigmas (
             * observation_matrix.transpose();
 
     Eigen::Matrix<double,Obs,Obs> covar_of_next_measurement =
-            covar_of_observations + *measurement_covar;
+            covar_of_observations + meta.measurement_covar;
 
     Observation real_observation(position);
 
@@ -216,16 +241,14 @@ template <int Dimensions>
 void KalmanTrace<Dimensions>::clear() 
 {
     estimation_precision = 
-        observation_matrix.transpose() * (*measurement_covar)
+        observation_matrix.transpose() * meta.measurement_covar
                                        * observation_matrix;
     for (int i = Dimensions; i < 2*Dimensions; i++)
         estimation_precision(i,i) = 0;
     have_prediction = false;
     std::vector<dStorm::Localization>::clear();
-
-    myNumber = traceNumber++;
 }
 
-};
+}
 
 #endif

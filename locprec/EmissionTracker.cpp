@@ -1,4 +1,6 @@
+#include <simparm/BoostUnits.hh>
 #include "EmissionTracker.h"
+#include <simparm/Entry_Impl.hh>
 #include <algorithm>
 #include <numeric>
 #include <dStorm/unit_matrix_operators.h>
@@ -13,6 +15,7 @@ using namespace std;
 using namespace boost::units::camera;
 
 namespace locprec {
+namespace emission_tracker {
 
 int traceNumber = 0;
 static int number_of_emission_nodes = 0;
@@ -27,7 +30,7 @@ double distSq(const Localization& e, const Localization &loc) {
 }
 #endif
 
-struct EmissionTracker::TrackingInformation {
+struct Output::TrackingInformation {
     int imageNumber;
     std::set< TracedObject* > emissions;
     Eigen::Vector2d displacement;
@@ -51,52 +54,62 @@ struct EmissionTracker::TrackingInformation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-EmissionTracker::TracedObject::TracedObject(const EmissionTracker& papa)
-: KalmanTrace<2>(papa.measurement_covar, papa.random_system_dynamics_covar)
+Output::TracedObject::TracedObject(const Output& papa)
+: KalmanTrace<2>(papa.kalman_info)
 {
 }
-EmissionTracker::TracedObject::~TracedObject() {
+Output::TracedObject::~TracedObject() {
 }
 
-EmissionTracker::_Config::_Config() 
+Output::_Config::_Config() 
 : simparm::Object("EmissionTracker", "Track emissions"),
   allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
   expectedDeviation("ExpectedDeviation", "SD of expected distance between tracked localizations", 
-    20 * boost::units::si::nanometre)
+    20 * boost::units::si::nanometre),
+  diffusion("DiffusionConstant", "Diffusion constant"),
+  mobility("Mobility", "Mobility constant"),
+  distance_threshold("DistanceThreshold", "Distance threshold", 2)
 {
+    allowBlinking.helpID = "EmissionTracker.Allow_Blinking";
+    expectedDeviation.helpID = "EmissionTracker.Expected_Deviation";
+    diffusion.helpID = "EmissionTracker.Diffusion_Constant";
+    mobility.helpID = "EmissionTracker.Mobility_Constant";
 }
 
-void EmissionTracker::_Config::registerNamedEntries()
+void Output::_Config::registerNamedEntries()
 
 {
+    push_back( distance_threshold );
     push_back( allowBlinking );
     push_back( expectedDeviation );
+    push_back( diffusion );
+    push_back( mobility );
     push_back( reducer );
 }
 
-EmissionTracker::EmissionTracker( 
+Output::Output( 
     const Config &config,
-    std::auto_ptr<Output> output )
+    std::auto_ptr<dStorm::output::Output> output )
 : OutputObject("EmissionTracker", "Emission tracking status"),
   track_modulo( config.allowBlinking()+2 ), 
-  measurement_covar( Eigen::Matrix<double,2,2>::Identity() * 
-                     pow( quantity<si::length>(config.expectedDeviation()).value(), 2) ),
-  random_system_dynamics_covar( Eigen::Matrix<double,4,4>::Identity() * 
-                                pow(0.0f, 2) ),
   reducer( config.reducer.make_trace_reducer() ), 
   target(output),
-  maxDist(2)
+  maxDist( config.distance_threshold() )
 {
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i) {
         binners.replace(i, new dStorm::output::binning::Localization<0,dStorm::output::binning::ScaledToInterval,true>(50,i,0) );
+        kalman_info.set_measurement_covariance(i, pow<2>( quantity<si::length>(config.expectedDeviation()) ));
+        kalman_info.set_diffusion(i, config.diffusion() * 2.0);
+        kalman_info.set_mobility(i, config.mobility());
+    }
     push_back(target->getNode());
 }
 
-EmissionTracker::~EmissionTracker() {
+Output::~Output() {
 }
 
 output::Output::AdditionalData
-EmissionTracker::announceStormSize(const Announcement &a) 
+Output::announceStormSize(const Announcement &a) 
 {
     Announcement my_announcement(a);
     static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
@@ -126,12 +139,14 @@ EmissionTracker::announceStormSize(const Announcement &a)
     return AdditionalData();
 }
 
-struct EmissionTracker::lowest_mahalanobis_distance
+struct Output::lowest_mahalanobis_distance
 : public std::binary_function< TracedObject*, TracedObject*, TracedObject* > {
     const Localization& to;
     const std::set<TracedObject*>& excluded;
-    static const double max_sq_distance = 4;
-    lowest_mahalanobis_distance(const Localization& to, const std::set<TracedObject*>& excluded) : to(to), excluded(excluded) {}
+    const double max_sq_distance;
+    lowest_mahalanobis_distance(
+        const Localization& to, const std::set<TracedObject*>& excluded,
+        double threshold) : to(to), excluded(excluded), max_sq_distance(threshold) {}
 
     TracedObject* operator()( TracedObject* a, TracedObject* b ) {
         if ( excluded.find(a) != excluded.end() ) a = NULL;
@@ -150,8 +165,8 @@ struct EmissionTracker::lowest_mahalanobis_distance
     }
 };
 
-EmissionTracker::TracedObject*
-EmissionTracker::search_closest_trace(
+Output::TracedObject*
+Output::search_closest_trace(
     const Localization &loc,
     const std::set<TracedObject*>& excluded
     )
@@ -170,13 +185,13 @@ EmissionTracker::search_closest_trace(
         for (int y = range[1][0]; y < range[1][1]; ++y)
             best = std::accumulate( 
                 positional(x,y).begin(), positional(x,y).end(), 
-                best, lowest_mahalanobis_distance(loc, excluded) );
+                best, lowest_mahalanobis_distance(loc, excluded, maxDist * maxDist) );
     
     return best;
 }
 
 void
-EmissionTracker::update_positional( TracedObject& object ) 
+Output::update_positional( TracedObject& object ) 
 {
     dStorm::Localization estimate;
     estimate.position().start<2>() = 
@@ -199,7 +214,7 @@ EmissionTracker::update_positional( TracedObject& object )
 }
 
 output::Output::Result
-EmissionTracker::receiveLocalizations(const EngineResult &er)
+Output::receiveLocalizations(const EngineResult &er)
 {
     if (stopped) return KeepRunning;
 
@@ -231,7 +246,7 @@ EmissionTracker::receiveLocalizations(const EngineResult &er)
     return KeepRunning;
 }
 
-void EmissionTracker::finalizeImage(int imNum) {
+void Output::finalizeImage(int imNum) {
     TrackingInformation &data = tracking[imNum % track_modulo];
 
     EngineResult er;
@@ -253,7 +268,7 @@ void EmissionTracker::finalizeImage(int imNum) {
     target->receiveLocalizations(er);
 }
 
-void EmissionTracker::propagate_signal(ProgressSignal s) {
+void Output::propagate_signal(ProgressSignal s) {
     if ( s == Engine_run_is_aborted ) {
         stopped = true;
     } else if ( s == Engine_is_restarted ) {
@@ -265,4 +280,17 @@ void EmissionTracker::propagate_signal(ProgressSignal s) {
         target->propagate_signal(s);
 }
 
+}
+}
+
+namespace dStorm {
+namespace output {
+
+template <>
+std::auto_ptr<OutputSource> make_output_source<locprec::emission_tracker::Output>()
+{
+    return std::auto_ptr<OutputSource>( new locprec::emission_tracker::Output::Source() );
+}
+
+}
 }

@@ -9,7 +9,7 @@
 #include "NoiseMeter.h"
 #include "SpotMeter.h"
 //#include "locprec/SpotFinderEstimator.h"
-#include "EmissionTracker.h"
+#include "EmissionTracker_decl.h"
 #include "DensityProfile.h"
 #include "FillholeSmoother.h"
 #include "PrecisionEstimator.h"
@@ -32,7 +32,7 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     //config->inputConfig.add_filter( locprec::biplane_alignment::make_filter() );
     config->add_spot_finder( 
         new locprec::FillholeSmoother::Factory() );
-    config->outputConfig.addChoice( new locprec::EmissionTracker::Source() );
+    config->outputConfig.addChoice( make_output_source<locprec::emission_tracker::Output>().release() );
     config->outputConfig.addChoice( new locprec::Segmenter::Source() );
     config->outputConfig.addChoice( new locprec::NoiseMeter::Source() ) /*, Expert )*/;
     config->outputConfig.addChoice( new locprec::SpotMeter::Source() )/*, Expert )*/;
