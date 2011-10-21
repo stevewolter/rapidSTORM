@@ -7,7 +7,7 @@ class DefaultPath {
     String conffile = "dstorm-config-@DSTORM_LIB_VERSION@.txt";
 
     private File reroot( File original )  {
-        String orig_prefix = "@prefix@";
+        String orig_prefix = new String("@prefix@").replace("/", File.separator);
         if ( original.toString().startsWith( orig_prefix ) )  {
             return new File( root, original.toString().substring( orig_prefix.length() ) );
         } else {
@@ -20,6 +20,7 @@ class DefaultPath {
             root = new File ("@prefix@");
         else
             root = chroot;
+        System.err.println("Rerooting to " + root );
     }
 
     public File getPrefix() { return root; }
