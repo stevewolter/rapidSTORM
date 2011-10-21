@@ -57,8 +57,8 @@ Config::Config()
   biplane_split("DualView", "Dual view")
 {
     biplane_split.addChoice( None, "None", "None" );
-    biplane_split.addChoice( Horizontal, "Horizontally", "Horizontal" );
-    biplane_split.addChoice( Vertical, "Vertically", "Vertical" );
+    biplane_split.addChoice( Horizontal, "Horizontally", "Left and right" );
+    biplane_split.addChoice( Vertical, "Vertically", "Top and bottom" );
     biplane_split.userLevel = simparm::Object::Intermediate;
 }
 
