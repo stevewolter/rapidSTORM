@@ -79,8 +79,12 @@ class DStorm {
         String[] environment = build_environment( path );
         java.util.Vector<String> args = new java.util.Vector<String>();
         args.add(path.getExecutable().getPath() );
-        if ( cmdline_args.length > 0 && cmdline_args[0].equals("--StderrPipe") ) args.add("--StderrPipe");
-        if ( cmdline_args.length > 1 && cmdline_args[1].equals("--StdoutPipe") ) args.add("--StdoutPipe");
+        boolean gui = true;
+        for (int i = 0; i < cmdline_args.length; ++i) {
+            if ( cmdline_args[i].equals("--StderrPipe") ) args.add("--StderrPipe");
+            if ( cmdline_args[i].equals("--StdoutPipe") ) args.add("--StdoutPipe");
+            if ( cmdline_args[i].equals("--no-gui") ) gui = false;
+        }
         args.add("--config");
         args.add( path.getSystemConfigFile().getPath() );
         if ( path.getUserConfigFile().exists() ) {
@@ -89,14 +93,28 @@ class DStorm {
         }
         args.add("--Twiddler");
 
-        Main.StartWithEnv(args.toArray( new String[0] ), environment, title);
+        String[] to_exec = args.toArray( new String[0] );
+        if ( gui ) {
+            Main.StartWithEnv(to_exec, environment, title);
+        } else {
+            Process p = Runtime.getRuntime().exec( to_exec, environment );
+            Thread in = new au.com.pulo.kev.simparm.PipingThread( System.in, new PrintStream(p.getOutputStream()) );
+            Thread out = new au.com.pulo.kev.simparm.PipingThread( p.getInputStream(), System.out );
+            Thread err = new au.com.pulo.kev.simparm.PipingThread( p.getErrorStream(), System.err );
+            out.start();
+            err.start();
+            in.start();
+            p.waitFor();
+            out.join();
+            err.join();
+        }
      } catch (Exception e) {
         try {
             JOptionPane.showMessageDialog
                         (null, e.getMessage(), "Error while starting program",
                         JOptionPane.ERROR_MESSAGE);
         } catch (Exception e2) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
      } finally {
      }
