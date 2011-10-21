@@ -1,3 +1,8 @@
+== 13.2.5 ==
+
+* Added no-gui mode to wrapper jar
+* Fixed #121
+
 == 13.2.4 ==
 
 * Fixed libdStorm <- liblocprec dependency and race condition in window closing
