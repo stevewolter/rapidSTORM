@@ -1,3 +1,7 @@
+== 13.2.7 ==
+
+* Made dependency handling in configure script more specific to avoid explicit dependency on libtiff in librapidstorm
+
 == 13.2.6 ==
 
 * Fixed handling of paths in GUI jar
