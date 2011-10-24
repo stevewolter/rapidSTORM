@@ -50,6 +50,15 @@ ACX_PTHREAD(
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
 
+PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
+CPPFLAGS="$CPPFLAGS $base_CFLAGS"
+LIBS="$base_LIBS $LIBS"
+
+PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
+PKG_CHECK_MODULES([librapidstormfile], [tinyxml])
+PKG_CHECK_MODULES([directcamera], [libb64])
+PKG_CHECK_MODULES([locprec], [gsl])
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h winsock2.h math.h])
@@ -67,15 +76,19 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([tiff], [main], , [AC_ERROR(tiff library not found)])
 AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
 AC_CHECK_LIB([boost_thread], [main])
 AC_CHECK_LIB([boost_thread_win32], [main])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
-AC_CHECK_LIB([ws2_32], [main])
-AC_CHECK_LIB([mswsock], [main])
-AC_CHECK_LIB([ltdl], [main])
+
+AC_CHECK_LIB([ws2_32], [main], [directcamera_LIBS="$directcamera_LIBS -lws2_32"])
+AC_CHECK_LIB([mswsock], [main], [directcamera_LIBS="$directcamera_LIBS -lmswsock"])
+AC_SUBST([directcamera_LIBS], "$directcamera_LIBS")
+
+AC_CHECK_LIB([tiff], [main], [dstorm_LIBS="$dstorm_LIBS -ltiff"], [AC_ERROR(tiff library not found)])
+AC_CHECK_LIB([ltdl], [main], [dstorm_LIBS="$dstorm_LIBS -lltdl"], [AC_ERROR(libtool ltdl library not found)])
+AC_SUBST([dstorm_LIBS], "$dstorm_LIBS")
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
@@ -106,15 +119,6 @@ fi
 if echo "$WX_LIBS" | grep "subsystem,windows"; then
     WX_LIBS="$WX_LIBS -Wl,--subsystem,console"
 fi
-
-PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
-CPPFLAGS="$CPPFLAGS $base_CFLAGS"
-LIBS="$base_LIBS $LIBS"
-
-PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
-PKG_CHECK_MODULES([librapidstormfile], [tinyxml])
-PKG_CHECK_MODULES([directcamera], [libb64])
-PKG_CHECK_MODULES([locprec], [gsl])
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
