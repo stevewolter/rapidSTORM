@@ -18,6 +18,8 @@ FileMethod::FileMethod()
   input_file("InputFile", "Input file"),
   children("FileType", "File type", true)
 {
+    input_file.helpID = "InputFile";
+    children.helpID = "FileType";
     DEBUG("Created file method");
     push_back( input_file );
     push_back( children );

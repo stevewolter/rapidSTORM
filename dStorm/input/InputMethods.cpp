@@ -11,6 +11,7 @@ InputMethods::InputMethods()
 : Choice("InputMethod", "Input type", false),
   file_method( new FileMethod() )
 {
+    helpID = "InputType";
     userLevel = simparm::Object::Intermediate;
     add_choice(*file_method, simparm::NodeChoiceEntry<Link>::beginChoices());
 }

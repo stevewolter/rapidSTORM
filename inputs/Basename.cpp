@@ -9,7 +9,9 @@ namespace Basename {
 Config::Config()
 : simparm::Object("OutputBasename", "Set output basename"),
   output("Basename", "Output file basename", "")
-{}
+{
+    output.helpID = "OutputBasename";
+}
 
 void Config::registerNamedEntries() {
     push_back( output );

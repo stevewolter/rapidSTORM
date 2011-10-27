@@ -202,6 +202,8 @@ Link::Link( std::string name, std::string desc, std::auto_ptr<chain::Link> child
   channel_count("ChannelCount", "Number of input channels", 1)
 {
     channel_count.min = 1;
+    channel_count.helpID = "#join.ChannelCount";
+    join_type.helpID = "#join.JoinOn";
 
     push_back( channel_count );
     push_back( channels );

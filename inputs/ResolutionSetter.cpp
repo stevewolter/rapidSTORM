@@ -86,6 +86,7 @@ ZhuangThreeDConfig::ZhuangThreeDConfig()
 : simparm::Object("Zhuang3D", "Parabolic 3D"),
   widening("DefocusConstant", "Speed of PSF std. dev. growth")
 {
+    widening.helpID = "zhuang.DefocusConstant";
     registerNamedEntries();
 }
 
@@ -100,6 +101,8 @@ Config::Config()
   psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   three_d("ThreeD", "3D PSF model")
 {
+    psf_size.helpID = "PSF.FWHM";
+    three_d.helpID = "3DType";
     three_d.addChoice( new NoThreeDConfig() );
     three_d.addChoice( new ZhuangThreeDConfig() );
     cuboid_config.set_3d_availability(false);
