@@ -59,6 +59,33 @@ class DStorm {
         return result_env;
    }
 
+    private static class DefaultsSaver implements au.com.pulo.kev.simparm.Twiddler.DefaultsSaver {
+        private File file;
+        private java.util.regex.Pattern is_car_line;
+        public DefaultsSaver( File default_file ) {
+            file = default_file;
+            is_car_line = java.util.regex.Pattern.compile( "!at [0-9]+ in Car (.*)" );
+        }
+
+        public void save_defaults( java.util.List<String> commands ) {
+            try {
+                file.getParentFile().mkdirs();
+                PrintWriter writer = new PrintWriter(file);
+                for ( String s : commands ) {
+                    java.util.regex.Matcher m = is_car_line.matcher(s);
+                    if ( m.matches() && ! m.group(1).startsWith("in Run in value set ") ) {
+                        writer.println(m.group(1));
+                    }
+                }
+                writer.close();
+            } catch ( FileNotFoundException err ) {
+                JOptionPane.showMessageDialog
+                (null, err, "Unable to save defaults",
+                JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
    public static void main(String[] cmdline_args) throws IOException,Exception {
       try {
         DefaultPath path = new DefaultPath( get_install_directory() );
@@ -69,6 +96,8 @@ class DStorm {
             File doc_data_path = path.getDocDataPath();
             HelpManager.getSingleton().setCHManual( new File(doc_path, "rapidstorm.chm" ), new File(doc_data_path, "alias.h"), new File(doc_data_path, "context.h") );
         }
+
+        au.com.pulo.kev.simparm.Twiddler.setDefaultsSaver( new DefaultsSaver( path.getUserConfigFile() ) );
 
         String title = null;
         try {

@@ -22,8 +22,7 @@ using namespace output;
 
 class TransmissionTreePrinter 
 : public simparm::TriggerEntry,
-  simparm::Listener,
-  boost::noncopyable
+  simparm::Listener
 {
     const dStorm::Config &config;
     void operator()( const simparm::Event& );
@@ -36,8 +35,7 @@ class TransmissionTreePrinter
 
 class TwiddlerLauncher
 : public simparm::TriggerEntry,
-  simparm::Listener,
-  boost::noncopyable
+  simparm::Listener
 {
     dStorm::Config &config;
     std::list<Job*> &jobs;
@@ -153,11 +151,14 @@ void CommandLine::Pimpl::find_config_file() {
                *homepath = getenv("HOMEPATH");
     bool have_file = false;
     DEBUG("Checking for command line config file");
-    if ( !have_file && argc > 2 && std::string(argv[1]) == "--config" ) {
-        have_file = load_config_file(std::string(argv[2]));
-        if ( !have_file )
+    int configs = 0;
+    while ( argc > 2 && std::string(argv[1]) == "--config" ) {
+        bool successfully_opened = load_config_file(std::string(argv[2]));
+        have_file = have_file || successfully_opened;
+        if ( !successfully_opened )
             DEBUG("Skipped unreadable config file '" << argv[2] << "'");
         argc -= 2;
+        argv[2] = argv[0];
         argv = argv + 2;
     }
     DEBUG("Checking for home directory config file");
@@ -172,12 +173,13 @@ void CommandLine::Pimpl::find_config_file() {
 bool CommandLine::Pimpl::load_config_file(
     const std::string& name
 ) {
+    DEBUG("Opening config file " << name);
     std::ifstream config_file( name.c_str() );
     if ( !config_file )
         return false;
     else {
         while ( config_file ) {
-            DEBUG("Processing command from " << name.c_str());
+            DEBUG("Processing command from " << name);
             try {
                 config.processCommand( config_file );
             } catch (const std::runtime_error& e) {
