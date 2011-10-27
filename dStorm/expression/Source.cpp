@@ -55,6 +55,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
 {
     repeater = a.engine;
     my_announcement = a;
+    simple_filters.set_visibility(a);
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i ) 
         if ( &*i != NULL )
             i->announce(*variables, *my_announcement);

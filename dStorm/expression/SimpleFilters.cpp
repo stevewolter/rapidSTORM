@@ -71,15 +71,39 @@ class DriftCorrection : public source::LValue {
 
 };
 
+class TwoKernelImprovement : public source::LValue {
+    typedef float Value;
+    Value value;
+  public:
+    typedef bool result_type;
+    TwoKernelImprovement( const Value& v ) : value(v) {}
+    TwoKernelImprovement* clone() const { return new TwoKernelImprovement(*this); }
+    iterator evaluate( 
+        const variable_table&, const input::Traits<Localization>&, 
+        iterator begin, iterator end ) const 
+    {
+        return std::remove_if( begin, end, *this );
+    }
+    void announce( const variable_table&, input::Traits<Localization>& traits ) const { }
+
+    bool operator()( const Localization& l ) { return l.two_kernel_improvement() > value; }
+};
+
 SimpleFilters::SimpleFilters( boost::shared_ptr<variable_table> variables )
 : simparm::Listener(simparm::Event::ValueChanged),
   manager(NULL), 
   lower_amplitude("LowerAmplitudeThreshold", "Minimum localization strength") ,
   drift_correction("LinearDriftCorrection", "Linear drift correction"),
+  two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1),
   variables(variables)
 {
+    two_kernel_improvement.min  = 0;
+    two_kernel_improvement.max  = 1;
+    two_kernel_improvement.increment  = 0.01;
+
     receive_changes_from( lower_amplitude.value );
     receive_changes_from( drift_correction.value );
+    receive_changes_from( two_kernel_improvement.value );
 }
 
 SimpleFilters::SimpleFilters( const SimpleFilters& o )
@@ -87,18 +111,22 @@ SimpleFilters::SimpleFilters( const SimpleFilters& o )
   manager(o.manager), 
   lower_amplitude(o.lower_amplitude) ,
   drift_correction(o.drift_correction),
+  two_kernel_improvement(o.two_kernel_improvement),
   variables(o.variables)
 {
     receive_changes_from( lower_amplitude.value );
     receive_changes_from( drift_correction.value );
+    receive_changes_from( two_kernel_improvement.value );
 }
 
 void SimpleFilters::set_manager(config::ExpressionManager* m) {
     manager = m;
     if ( m ) m->getNode().push_back( lower_amplitude );
     if ( m ) m->getNode().push_back( drift_correction );
+    if ( m ) m->getNode().push_back( two_kernel_improvement );
     publish_amp();
     publish_drift_correction();
+    publish_tki();
 }
 
 void SimpleFilters::operator()(const simparm::Event& e)
@@ -107,6 +135,8 @@ void SimpleFilters::operator()(const simparm::Event& e)
         publish_amp();
     if ( &e.source == &drift_correction.value )
         publish_drift_correction();
+    if ( &e.source == &two_kernel_improvement.value )
+        publish_tki();
 }
 
 void SimpleFilters::publish_amp() 
@@ -129,6 +159,20 @@ void SimpleFilters::publish_drift_correction()
     if ( drift_correction().is_initialized() )
         rv.reset( new DriftCorrection(*drift_correction()) );
     manager->expression_changed("SimpleFilters.Amp", rv);
+}
+
+void SimpleFilters::publish_tki() 
+{
+    if ( !manager ) return;
+
+    std::auto_ptr< source::LValue > rv;
+    if ( two_kernel_improvement() <= 0.999999 )
+        rv.reset( new TwoKernelImprovement(two_kernel_improvement()) );
+    manager->expression_changed("SimpleFilters.TKI", rv);
+}
+
+void SimpleFilters::set_visibility( const input::Traits<Localization>& a ) {
+    two_kernel_improvement.viewable = ( a.two_kernel_improvement().is_given );
 }
 
 }

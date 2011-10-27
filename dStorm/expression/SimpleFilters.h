@@ -9,6 +9,7 @@
 #include <simparm/Entry.hh>
 #include "CommandLine.h"
 #include <dStorm/units/nanolength.h>
+#include <dStorm/localization/Traits.h>
 
 namespace dStorm {
 namespace expression {
@@ -19,6 +20,7 @@ struct SimpleFilters
     SimpleFilters( boost::shared_ptr<variable_table> variables );
     SimpleFilters(const SimpleFilters&);
     void set_manager( config::ExpressionManager * manager );
+    void set_visibility( const input::Traits<Localization>& );
 
     typedef boost::units::divide_typeof_helper< 
         boost::units::power10< boost::units::si::length, -12 >::type,
@@ -30,10 +32,12 @@ struct SimpleFilters
         lower_amplitude;
     simparm::Entry< boost::optional< Eigen::Matrix< boost::units::quantity<ShiftSpeed,float>, 3, 1, Eigen::DontAlign> > >
         drift_correction;
+    simparm::Entry< float > two_kernel_improvement;
     boost::shared_ptr<variable_table> variables;
     void operator()(const simparm::Event&);
     void publish_amp();
     void publish_drift_correction();
+    void publish_tki();
 };
 
 }
