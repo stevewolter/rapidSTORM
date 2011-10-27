@@ -53,7 +53,8 @@ const TwoKernelImprovement::ValueType TwoKernelImprovement::default_value = 0;
 template <>
 const TwoKernelImprovement::RangeType
 NoRange<TwoKernelImprovement>::static_range 
-    = TwoKernelImprovement::BoundPair();
+    = TwoKernelImprovement::BoundPair(
+        boost::optional< TwoKernelImprovement::ValueType >(0), boost::optional< TwoKernelImprovement::ValueType >(1) );
 std::string TwoKernelImprovement::get_shorthand() { return "fishy"; }
 
 std::string FitResidues::get_ident() { return "FitResidues"; }
