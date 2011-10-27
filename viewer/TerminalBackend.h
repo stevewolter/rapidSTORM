@@ -32,6 +32,7 @@ class TerminalBackend
     /** Discretized version of \c image. */
     MyDiscretizer discretization;
     Cache cache;
+    std::string window_name;
 
     friend class LiveBackend<Hueing>;
 
@@ -44,6 +45,8 @@ class TerminalBackend
     void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
+    void set_job_name( const std::string& name ) { this->window_name = name; }
+    const std::string& get_job_name() const { return window_name; }
 
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
     std::auto_ptr<dStorm::Display::Change> get_result(bool with_key = true) const;

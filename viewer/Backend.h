@@ -22,6 +22,7 @@ struct Backend
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_output_mutex( boost::recursive_mutex* mutex ) {}
+    virtual void set_job_name( const std::string& name ) = 0;
 
     template <typename Colorizer>
     static std::auto_ptr<Backend> create( const Colorizer&, Config&, Status& );

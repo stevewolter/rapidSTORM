@@ -60,6 +60,8 @@ class Display
     const boost::optional<dStorm::Display::ResizeChange>&
         getSize() const { return my_size; }
     void show_window();
+
+    void set_job_name( const std::string& name ) { props.name = name; }
 };
 
 

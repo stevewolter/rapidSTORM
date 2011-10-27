@@ -22,6 +22,7 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Config &c
   cache( 4096, other.cache.getSize().size ),
   cia( discretization, c, *this, colorizer, other.get_result() )
 {
+    cia.set_job_name( other.get_job_name() );
     image.setListener(&discretization);
     discretization.setListener(&cache);
     cache.setListener(&cia);

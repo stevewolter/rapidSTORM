@@ -46,6 +46,7 @@ Viewer::Viewer(const Viewer::Config& config)
     DEBUG("Building viewer");
 
     histogramPower.helpID = "#Viewer_Status_Power";
+    histogramPower.userLevel = simparm::Object::Beginner;
     tifFile.helpID = "#Viewer_Status_ToFile";
     save.helpID = "#Viewer_Status_Save";
 
@@ -78,6 +79,7 @@ Output::AdditionalData
 Viewer::announceStormSize(const Announcement &a) {
     output_mutex = a.output_chain_mutex;
     implementation->set_output_mutex( output_mutex );
+    implementation->set_job_name( a.description );
     return forwardOutput->announceStormSize(a);
 }
 

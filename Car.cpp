@@ -345,6 +345,8 @@ void Car::drive() {
     upstream_engine = announcement.engine;
     announcement.engine = this;
     announcement.output_chain_mutex = &mutex;
+    announcement.name = "Job" + ident;
+    announcement.description = "Result image for Job " + ident;
     DEBUG("Sending announcement");
     Output::AdditionalData data;
     {
