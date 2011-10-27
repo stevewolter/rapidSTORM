@@ -164,7 +164,7 @@ class Manager::Handle
         my_source.reset( new Source(properties, source, m.number++) );
         m.sources.insert( std::make_pair( my_source->number, my_source ) );
         m.control_config->added_choice( my_source->number );
-        LOG( "Created new window number " << my_source->number );
+        LOG( "Created new window number " << my_source->number << " named " << properties.name );
     }
     ~Handle() {
         Disassociation destruction;
