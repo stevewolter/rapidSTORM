@@ -16,6 +16,7 @@
 #include "RegionOfInterest.h"
 #include "SourceValuePrinter.h"
 #include "biplane_alignment/decl.h"
+#include "RipleyK.h"
 
 using namespace dStorm::output;
 
@@ -41,6 +42,7 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->outputConfig.addChoice( new locprec::PrecisionEstimator::Source() );
     config->outputConfig.addChoice( new locprec::ROIFilter::Source() );
     config->outputConfig.addChoice( new locprec::SourceValuePrinter::Source() );
+    config->outputConfig.addChoice( make_output_source<ripley_k::Output>().release() );
 }
 
 dStorm::Display::Manager*
