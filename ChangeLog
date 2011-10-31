@@ -1,3 +1,13 @@
+== 13.3.0 ==
+
+* Implemented an output for the ripley K function
+* Added more help IDs for expanding documentation
+* Fixed #126
+* Fixed static range of TKI to fix TKI-colored image view
+* Added test for bug #81
+* Fixed bug #125 and #81
+* Fixed bug #124
+
 == 13.2.7 ==
 
 * Made dependency handling in configure script more specific to avoid explicit dependency on libtiff in librapidstorm
