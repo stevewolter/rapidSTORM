@@ -173,7 +173,7 @@ Config::Config()
 : simparm::Object("SampleInfo", "Sample information"),
   fluorophore_count("FluorophoreCount", "Fluorophore types", 1)
 {
-    fluorophores.helpID = "FluorophoreTypeCount";
+    fluorophore_count.helpID = "FluorophoreTypeCount";
     fluorophores.push_back( new FluorophoreConfig(0) );
     fluorophore_count.min = 1;
     fluorophore_count.increment = 1;
