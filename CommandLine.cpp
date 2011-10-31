@@ -151,7 +151,6 @@ void CommandLine::Pimpl::find_config_file() {
                *homepath = getenv("HOMEPATH");
     bool have_file = false;
     DEBUG("Checking for command line config file");
-    int configs = 0;
     while ( argc > 2 && std::string(argv[1]) == "--config" ) {
         bool successfully_opened = load_config_file(std::string(argv[2]));
         have_file = have_file || successfully_opened;
