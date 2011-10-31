@@ -27,12 +27,10 @@ const unsigned int roundDiv(unsigned int in) {
 
 void Histogram::init_vec( int bin_count )
 {
-    bin_positions.resize( bin_count, 0 );
     counts.resize( bin_count, 0 );
 
     for (int i = 0; i < bin_count; i++) {
         counts[i] = 0;
-        bin_positions[i] = double(i);
     }
 }
 
@@ -87,7 +85,7 @@ Histogram::Histogram(
 ) : offset(0)
 {
     blocks.push_back( Block::Zero() );
-    float min_dimension_size = std::numeric_limits<float>::max();
+    min_dimension_size = std::numeric_limits<float>::max();
     for (int i = 0; i < 2; i++) {
         min_dimension_size = std::min(min_dimension_size, 
                                       max_value[i]/2);
