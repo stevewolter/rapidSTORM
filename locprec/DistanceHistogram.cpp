@@ -34,19 +34,6 @@ void Histogram::init_vec( int bin_count )
     }
 }
 
-void Histogram::sort_into_blocks( 
-    const Input& localizations,
-    Blocks& list
-) {
-    int offset = 0;
-
-    for ( Input::const_iterator 
-            i = localizations.begin(); i != localizations.end(); i++ )
-    {
-    }
-
-}
-
 void Histogram::shift_down( const Block& from, Block& to, const int amount )
 {
     to.block( to.rows()-amount, 0, amount, Dim )
