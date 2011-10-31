@@ -179,6 +179,7 @@ nobase_include_HEADERS = \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
+    dStorm/units/microlength.h \
     dStorm/units/nanoresolution.h dStorm/units/prefixes.h \
     dStorm/units/camera_response.h \
     dStorm/UnitEntries/FrameEntry.h dStorm/UnitEntries/Hertz.h \

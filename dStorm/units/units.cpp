@@ -1,6 +1,7 @@
 #include "nanoresolution.h"
 #include "megafrequency.h"
 #include "nanolength.h"
+#include "microlength.h"
 
 namespace boost {
 namespace units {

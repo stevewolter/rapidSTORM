@@ -9,6 +9,7 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/FileOutputBuilder.h>
+#include <dStorm/units/microlength.h>
 
 namespace ripley_k {
 
@@ -110,6 +111,7 @@ void Output::propagate_signal(ProgressSignal e) {
         std::ostream& output = filename.get_output_stream();
 
         typedef  boost::units::power_typeof_helper< si::area, boost::units::static_rational<-1> >::type per_area;
+        typedef  boost::units::power_typeof_helper< si::microlength, boost::units::static_rational<2> >::type microarea;
         quantity<per_area>
             average_count_density = (localization_count * 1.0) / measured_area;
         distance_histogram::Histogram& h = *histogram;
@@ -124,13 +126,13 @@ void Output::propagate_signal(ProgressSignal e) {
 
             quantity<si::area> ripley_k = (accum * 1.0 / (average_count_density * (1.0 * localization_count)));
             quantity<si::length> ripley_l = sqrt(ripley_k / M_PI);
-            output << bin_center.value() << "\t" 
-                      << ring_area.value() << "\t"
+            output << quantity<si::microlength>(bin_center).value() << "\t" 
+                      << quantity<microarea>(ring_area).value() << "\t"
                       << (h.counts[i] * 2) << "\t"
-                      << (h.counts[i] * 2.0 / localization_count / (ring_area * average_count_density)).value() << " "
-                      << ripley_k.value() << " "
-                      << ripley_l.value() << " "
-                      << (ripley_l - bin_outer_edge).value() << " "
+                      << quantity<si::dimensionless>(h.counts[i] * 2.0 / localization_count / (ring_area * average_count_density)).value() << "\t"
+                      << quantity<microarea>(ripley_k).value() << "\t"
+                      << quantity<si::microlength>(ripley_l).value() << "\t"
+                      << quantity<si::microlength>(ripley_l - bin_outer_edge).value() 
                       << "\n";
         }
     }
