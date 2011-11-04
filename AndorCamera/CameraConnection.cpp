@@ -15,9 +15,11 @@
 
 #include <boost/lexical_cast.hpp>
 
+#if HAVE_LIBB64
 extern "C" {
 #include <b64/cdecode.h>
 }
+#endif
 
 namespace dStorm {
 namespace AndorCamera {
@@ -207,6 +209,7 @@ void CameraConnection::read_data( CamImage& img ) {
     boost::shared_array<char> buffer( new char[brokenlineslength] );
     stream.read( buffer.get(), brokenlineslength );
 
+#if HAVE_LIBB64
     base64_decodestate state;
     base64_init_decodestate(&state);
     int codedlength = base64_decode_block( 
@@ -216,6 +219,9 @@ void CameraConnection::read_data( CamImage& img ) {
             boost::lexical_cast<std::string>( decodelength ) + ", but decoded " +
             boost::lexical_cast<std::string>( codedlength ) );
     DEBUG("Did read image");
+#else
+    throw std::runtime_error("Andor camera support compiled without Base 64 support, cannot read data");
+#endif
 }
 
 void CameraConnection::send( const std::string& s ) {

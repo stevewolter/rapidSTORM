@@ -54,10 +54,13 @@ PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 
+have_libb64=yes
 PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
 PKG_CHECK_MODULES([librapidstormfile], [tinyxml])
-PKG_CHECK_MODULES([directcamera], [libb64])
+PKG_CHECK_MODULES([directcamera], [libb64], , [have_libb64=no])
 PKG_CHECK_MODULES([locprec], [gsl])
+
+AS_IF([test "$have_libb64" = yes], AC_DEFINE([HAVE_LIBB64], [1], [LibB64 library is available]))
 
 # Checks for header files.
 AC_HEADER_STDC
