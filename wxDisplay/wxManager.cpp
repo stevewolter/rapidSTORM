@@ -1,5 +1,5 @@
-#include "wxManager.h"
 #include <wx/wx.h>
+#include "wxManager.h"
 #include "App.h"
 #include "Window.h"
 #include <dStorm/helpers/Runnables.h>
