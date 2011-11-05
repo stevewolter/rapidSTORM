@@ -1,3 +1,7 @@
+== 13.3.3 ==
+
+* Fixed header inclusion order for wxWidgets MSW
+
 == 13.3.2 ==
 
 * Made b64 library optional
