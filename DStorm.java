@@ -95,6 +95,7 @@ class DStorm {
             HelpManager.getSingleton().setManual( new File(doc_path, "rapidstorm.html" ) );
             File doc_data_path = path.getDocDataPath();
             HelpManager.getSingleton().setCHManual( new File(doc_path, "rapidstorm.chm" ), new File(doc_data_path, "alias.h"), new File(doc_data_path, "context.h") );
+            HelpManager.getSingleton().add_URI( "Report a bug", new java.net.URI("https://idefix.biozentrum.uni-wuerzburg.de/bugzilla3/") );
         }
 
         au.com.pulo.kev.simparm.Twiddler.setDefaultsSaver( new DefaultsSaver( path.getUserConfigFile() ) );

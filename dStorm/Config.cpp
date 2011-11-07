@@ -289,11 +289,6 @@ Config::Config()
    configTarget.setUserLevel(simparm::Object::Intermediate);
    auto_terminate.setUserLevel(simparm::Object::Expert);
 
-   helpMenu.push_back( std::auto_ptr<simparm::Node>(
-        new simparm::URI("BugTracker", "Report a bug", 
-            "https://idefix.biozentrum.uni-wuerzburg.de/bugzilla3" ) ),
-            true );
-
     pistonCount.setUserLevel(simparm::Object::Expert);
     pistonCount.helpID = "#CPUNumber";
     pistonCount.setHelp("Use this many parallel threads to compute the "
@@ -351,7 +346,6 @@ void Config::registerNamedEntries() {
    push_back( outputBox );
    push_back( configTarget );
    push_back( auto_terminate );
-   push_back( helpMenu );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 
