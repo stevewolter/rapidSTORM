@@ -311,7 +311,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/ProgressMeter.h outputs/RawImageFile.cpp outputs/RawImageFile.h outputs/Slicer.cpp \
     outputs/Slicer.h \
     outputs/BasicTransmissions.h \
-    outputs/MemoryCache.cpp outputs/MemoryCache.h outputs/MemoryCache_decl.h \
+    outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
