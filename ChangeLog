@@ -1,3 +1,8 @@
+== 13.3.5 ==
+
+* Removed obsolete header file
+* Fixed caching of subordinate localizations and refactored code
+
 == 13.3.4 ==
 
 * Moved help menu into simparm library
