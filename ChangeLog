@@ -1,3 +1,8 @@
+== 13.3.4 ==
+
+* Moved help menu into simparm library
+* Fixed bug #132
+
 == 13.3.3 ==
 
 * Fixed header inclusion order for wxWidgets MSW
