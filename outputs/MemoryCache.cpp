@@ -4,6 +4,16 @@
 #include "debug.h"
 #include <string>
 
+#include <dStorm/output/Filter.h>
+#include <dStorm/output/FilterSource.h>
+#include <dStorm/output/Localizations.h>
+#include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/Engine.h>
+#include <dStorm/stack_realign.h>
+#include <boost/ptr_container/ptr_list.hpp>
+#include <boost/thread/condition.hpp>
+#include <boost/thread/thread.hpp>
+
 #include <dStorm/stack_realign.h>
 #include <dStorm/traits/range_impl.h>
 #include <dStorm/output/Localizations_iterator.h>
@@ -17,63 +27,172 @@
 #include <boost/thread/condition.hpp>
 
 namespace dStorm {
-namespace output {
+namespace memory_cache {
 
-const int MemoryCache::LocalizationsPerBunch = 4000;
-
-class MemoryCache::Bunch 
-{
-    typedef memory_cache::Interface Part;
+struct StoreTree {
+    typedef boost::ptr_vector< Store > Stores;
+    Stores parts;
+    boost::optional<int> repetitions;
+    typedef std::vector< StoreTree > Children;
+    Children children_parts;
     int current_offset;
-    std::vector< std::pair<frame_index,int> > offsets;
-    typedef boost::ptr_vector< Part > Parts;
-    Parts storages;
-    
-  public:
-    Bunch(const input::Traits<LocalizedImage>& traits)
-        : current_offset(0), 
-          storages( Part::instantiate_necessary_caches(traits) ) {}
-    ~Bunch() {}
 
-    void insert( const LocalizedImage& o ) {
-        int my_offset = current_offset;
-        offsets.push_back( std::make_pair( o.forImage, my_offset ) );
-        std::for_each( storages.begin(), storages.end(),
-            boost::bind( &Part::store, _1, o.begin(), o.end() ) );
-        current_offset += o.size();
-    }
-
-    int number_of_images() const { return offsets.size(); }
-    int number_of_localizations() const { return current_offset; }
-
-    void recall( int index, LocalizedImage& into ) const {
-        assert( index < number_of_images() );
-        into.clear();
-        int next_offset = (index+1 == int(offsets.size())) ? current_offset 
-                                                      : offsets[index+1].second;
-        into.resize( next_offset - offsets[index].second );
-        into.forImage = offsets[index].first;
-        std::for_each( storages.begin(), storages.end(),
-            boost::bind( &Part::recall, _1, offsets[index].second, into.begin(), into.end() ) );
-        for_each( into.begin(), into.end(), 
-            bind(&Localization::frame_number, boost::lambda::_1) = into.forImage );
+    StoreTree( const input::Traits<Localization>& traits ) 
+        : repetitions( traits.repetitions ), current_offset(0)
+    {
+        parts = Store::instantiate_necessary_caches( traits );
+        for ( input::Traits<Localization>::Sources::const_iterator 
+            i = traits.source_traits.begin(); i != traits.source_traits.end(); ++i )
+            children_parts.push_back( StoreTree( **i ) );
     }
 };
 
-MemoryCache::MemoryCache(
+struct Localizations {
+    short offset, count;
+    boost::optional< std::vector< Localizations > > children;
+    typedef std::vector<Localization>::iterator Input;
+    typedef std::vector<Localization>::const_iterator ConstInput;
+
+    Localizations( ConstInput b, ConstInput last, StoreTree& n );
+    void recall( Input begin, const StoreTree& n ) const;
+};
+
+class Bunch 
+{
+    StoreTree storages_root;
+    std::vector< Localizations > offsets;
+
+  public:
+    Bunch(const input::Traits<output::LocalizedImage>& traits) 
+        : storages_root( traits) {}
+    ~Bunch() {}
+
+    void insert( const output::LocalizedImage& o );
+    int number_of_images() const { return offsets.size(); }
+    int number_of_localizations() const { return offsets.back().offset + offsets.back().count; }
+    void recall( int index, output::LocalizedImage& into ) const; 
+};
+
+class Output 
+    : public output::Filter, private dStorm::Engine
+{
+  private:
+    boost::recursive_mutex* output_mutex;
+    std::auto_ptr<Bunch> master_bunch;
+    typedef boost::ptr_list<Bunch> Bunches;
+    Bunches bunches;
+
+    boost::thread reemitter;
+    DSTORM_REALIGN_STACK void run_reemitter();
+    void reemit_localizations(const int);
+
+    boost::mutex reemittance_mutex;
+    boost::condition count_changed;
+    int reemit_count;
+    bool engine_run_has_succeeded;
+
+    class _Config;
+
+    static const int LocalizationsPerBunch = 100000;
+
+    void repeat_results();
+    void restart() { throw std::logic_error("Not implemented, sorry."); }
+    void stop() { throw std::logic_error("Not implemented, sorry."); }
+    bool can_repeat_results() { return true; }
+    void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
+    std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
+
+  public:
+    Output(std::auto_ptr<output::Output> output);
+    Output( const Output& );
+    ~Output();
+    Output* clone() const { return new Output(*this); }
+
+    AdditionalData announceStormSize(const Announcement&);
+    void propagate_signal(ProgressSignal s);
+    Result receiveLocalizations(const EngineResult& e);
+
+};
+
+struct Source : public simparm::Object, public output::FilterSource
+{
+    Source();
+    Source(const Source&);
+    Source* clone() const
+        { return new Source(*this); }
+    virtual std::string getDesc() const { return Object::desc(); }
+    std::auto_ptr<output::Output> make_output(); 
+};
+
+
+Localizations::Localizations( ConstInput b, ConstInput last, StoreTree& n )
+: offset( n.current_offset ), count( (n.repetitions.is_initialized()) ? *n.repetitions : (last-b) )
+{
+    ConstInput e = b + count;
+    for ( StoreTree::Stores::iterator i = n.parts.begin(); i != n.parts.end(); ++i )
+        i->store( b, e );
+    n.current_offset += count;
+
+    if ( n.children_parts.size() > 0 ) {
+        children = std::vector<Localizations>();
+        children->reserve( n.children_parts.size() * (e-b) );
+        for ( ConstInput i = b; i != e; ++i ) {
+            Localization::Children::const_iterator c = i->children->begin(), ce = i->children->end();
+            StoreTree::Children::iterator part = n.children_parts.begin();
+            for ( ; part != n.children_parts.end(); ++part ) {
+                children->push_back( Localizations( c, ce, *part ) );
+                c += children->back().count;
+            }
+        }
+    }
+}
+    
+void Localizations::recall( Input begin, const StoreTree& n ) const {
+    std::for_each( n.parts.begin(), n.parts.end(),
+        boost::bind( &Store::recall, _1, offset, begin, begin+count ) );
+
+    if ( ! n.children_parts.empty() ) {
+        std::vector< Localizations >::const_iterator offset;
+        offset = children->begin();
+        for ( Input l = begin; l != begin+count; ++l ) {
+            int children_count = 0;
+            for ( std::vector< Localizations >::const_iterator i = offset; i != offset + n.children_parts.size(); ++i )
+                children_count += i->count;
+            l->children = std::vector<Localization>( children_count );
+            std::vector<Localization>::iterator current = l->children->begin();
+            for (StoreTree::Children::const_iterator i = n.children_parts.begin(); i != n.children_parts.end(); ++i) {
+                offset->recall( current, *i );
+                current += offset->count;
+                ++offset;
+            }
+        }
+    }
+}
+
+void Bunch::recall( int index, output::LocalizedImage& into ) const {
+    assert( index < number_of_images() );
+    into.resize( offsets[index].count );
+    offsets[index].recall( into.begin(), storages_root );
+}
+
+void Bunch::insert( const output::LocalizedImage& o ) {
+    offsets.push_back( Localizations( o.begin(), o.end(), storages_root ) );
+}
+
+Output::Output(
     std::auto_ptr<output::Output> output
 )
 : Filter(output), engine_run_has_succeeded(false)
 { 
 }
 
-MemoryCache::MemoryCache( const MemoryCache& o )
+Output::Output( const Output& o )
 : Filter(o)
 { 
     throw std::logic_error("Not implemented");
 }
 
-MemoryCache::~MemoryCache() {
+Output::~Output() {
     {
         boost::lock_guard<boost::mutex> lock(reemittance_mutex);
         reemit_count = -1;
@@ -82,40 +201,7 @@ MemoryCache::~MemoryCache() {
     reemitter.join();
 }
 
-#if 0
-void MemoryCache::reemit_localizations(bool& terminate) {
-    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
-    if ( outputState == Running )
-        Filter::propagate_signal( Output::Engine_run_is_aborted );
-    if ( outputState != PreStart )
-        Filter::propagate_signal( Output::Engine_is_restarted );
-
-    LocalizedImage im;
-    for ( Bunches::const_iterator i = bunches.begin(); i != bunches.end(); ++i )
-    {
-        for (int j = 0; j < i->number_of_images(); ++j) {
-            i->recall( j, im );
-            DEBUG("Reemitting " << im.size() << " localizations for image " << j << " in current bunch");
-            Filter::receiveLocalizations( im );
-            /* TODO: Result not checked for now. */
-            if ( terminate )
-                break;
-        }
-    }
-            
-    if ( terminate ) {
-        Filter::propagate_signal( Engine_run_is_aborted );
-        return;
-    }
-
-    if ( inputState == Succeeded ) {
-        Filter::propagate_signal( Engine_run_succeeded );
-        outputState = Succeeded;
-    }
-}
-#endif
-
-void MemoryCache::run_reemitter() {
+void Output::run_reemitter() {
     int last_reemit = 0;
     while ( true ) {
         DEBUG("Locking re-emittance mutex");
@@ -146,16 +232,16 @@ void MemoryCache::run_reemitter() {
     }
 }
 
-void MemoryCache::repeat_results() {
+void Output::repeat_results() {
     boost::lock_guard<boost::mutex> lock(reemittance_mutex);
     ++reemit_count;
     count_changed.notify_all();
 }
 
-void MemoryCache::reemit_localizations(const int my_count) {
+void Output::reemit_localizations(const int my_count) {
     boost::unique_lock<boost::recursive_mutex> lock( *output_mutex );
     DEBUG("Got output lock");
-    LocalizedImage output;
+    output::LocalizedImage output;
     Filter::propagate_signal( Output::Engine_run_is_aborted );
     Filter::propagate_signal( Output::Engine_is_restarted );
 
@@ -174,7 +260,7 @@ void MemoryCache::reemit_localizations(const int my_count) {
 }
 
 Output::AdditionalData
-MemoryCache::announceStormSize(const Announcement& a) 
+Output::announceStormSize(const Announcement& a) 
 { 
     output_mutex = a.output_chain_mutex;
     bunches.clear();
@@ -183,7 +269,7 @@ MemoryCache::announceStormSize(const Announcement& a)
 
     reemit_count = 0;
     DEBUG("Making reemitter thread");
-    reemitter = boost::thread( &MemoryCache::run_reemitter, this );
+    reemitter = boost::thread( &Output::run_reemitter, this );
     DEBUG("Made reemitter thread");
 
     Announcement my_announcement(a);
@@ -194,7 +280,7 @@ MemoryCache::announceStormSize(const Announcement& a)
     return data;
 }
 
-void MemoryCache::propagate_signal(ProgressSignal s)
+void Output::propagate_signal(ProgressSignal s)
 {
     if ( s == Engine_is_restarted )
     {
@@ -207,7 +293,7 @@ void MemoryCache::propagate_signal(ProgressSignal s)
 }
 
 Output::Result 
-MemoryCache::receiveLocalizations(const EngineResult& e) 
+Output::receiveLocalizations(const EngineResult& e) 
 {
     bunches.back().insert( e );
     if ( bunches.back().number_of_localizations() >= LocalizationsPerBunch )
@@ -216,22 +302,21 @@ MemoryCache::receiveLocalizations(const EngineResult& e)
     return Filter::receiveLocalizations( e );
 }
 
-MemoryCacheSource::MemoryCacheSource()
+Source::Source()
 : simparm::Object("Cache", "Cache localizations"),
   FilterSource( static_cast<simparm::Node&>(*this) ) {}
 
-MemoryCacheSource::MemoryCacheSource(const MemoryCacheSource& o)
+Source::Source(const Source& o)
 : simparm::Object(o), FilterSource(static_cast<simparm::Node&>(*this), o) {}
 
-std::auto_ptr<Output> MemoryCacheSource::make_output()
+std::auto_ptr<output::Output> Source::make_output()
 {
-    return std::auto_ptr<Output>( new MemoryCache( FilterSource::make_output() ) );
+    return std::auto_ptr<output::Output>( new Output( FilterSource::make_output() ) );
 }
 
-template <>
-std::auto_ptr<OutputSource> make_output_source<MemoryCache>()
+std::auto_ptr<output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<OutputSource>( new MemoryCacheSource() );
+    return std::auto_ptr<output::OutputSource>( new memory_cache::Source() );
 }
 
 

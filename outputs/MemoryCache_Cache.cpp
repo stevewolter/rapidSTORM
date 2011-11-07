@@ -9,11 +9,10 @@
 #include <boost/ptr_container/ptr_inserter.hpp>
 
 namespace dStorm {
-namespace output {
 namespace memory_cache {
 
 template <typename Field, typename Tag>
-class Implementation : public Interface
+class Implementation : public Store
 {
   public:
     typedef typename boost::fusion::result_of::value_at<Localization, Field >::type::Traits TraitsType;
@@ -47,16 +46,8 @@ class Implementation : public Interface
 struct CacheCreator {
     typedef void result_type;
 
-    template <typename OutputIterator>
-    void operator()( 
-        boost::mpl::int_<dStorm::Localization::Fields::ImageNumber>,
-        traits::value_tag,
-        const input::Traits<LocalizedImage>& ,
-        OutputIterator
-    ) {}
-
     template <typename Field, typename Tag, typename OutputIterator>
-    void operator()( Field, Tag, const input::Traits<LocalizedImage>& traits, OutputIterator o ) const
+    void operator()( Field, Tag, const input::Traits<Localization>& traits, OutputIterator o ) const
     {
         typedef Implementation<Field,Tag> Result;
         typedef typename Result::Scalar Scalar;
@@ -70,23 +61,22 @@ struct FieldCacheCreator
 {
     typedef void result_type;
     template <typename Field, typename OutputIterator>
-    void operator()( Field, const input::Traits<LocalizedImage>& traits, OutputIterator o ) const
+    void operator()( Field, const input::Traits<Localization>& traits, OutputIterator o ) const
     {
         boost::mpl::for_each< traits::tags >(
             boost::bind( CacheCreator(), Field(), _1, traits, o ) );
     }
 };
 
-boost::ptr_vector<Interface>
-Interface::instantiate_necessary_caches( const input::Traits<LocalizedImage>& traits )
+boost::ptr_vector<Store>
+Store::instantiate_necessary_caches( const input::Traits<Localization>& traits )
 {
-    boost::ptr_vector<Interface> rv;
+    boost::ptr_vector<Store> rv;
     boost::mpl::for_each< localization::FieldIndices >
         ( boost::bind( FieldCacheCreator(),
             _1, traits, boost::ptr_container::ptr_back_inserter(rv) ) );
     return rv;
 }
 
-}
 }
 }
