@@ -63,7 +63,8 @@ Output* Output::clone() const { return new Output(*this); }
 Output::Output( const Config& config ) 
 : OutputObject("RipleyK", "Ripley K function computation"),
   filename( config.outputFile ),
-  bin_size( config.bin_size() )
+  bin_size( config.bin_size() ),
+  localization_count( 0 )
 {
     Scaler::value v( config.bin_size() );
     for (int i = 0; i < 2; ++i )
@@ -107,6 +108,7 @@ static quantity<si::area> area_of_ring(
 void Output::propagate_signal(ProgressSignal e) {
     if ( e == Engine_is_restarted && histogram.is_initialized() ) {
         histogram->clear();
+        localization_count = 0;
     } else if ( e == Engine_run_succeeded && histogram.is_initialized() ) {
         std::ostream& output = filename.get_output_stream();
 
