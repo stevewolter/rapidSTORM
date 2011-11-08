@@ -58,7 +58,7 @@ inline void
 
 static
 std::auto_ptr<Magick::Image> 
-make_palette( const data_cpp::Vector<KeyChange>& key ) 
+make_palette( const std::vector<KeyChange>& key ) 
 {
     DEBUG("Making palette");
     std::auto_ptr< Magick::Image > rv
@@ -69,7 +69,7 @@ make_palette( const data_cpp::Vector<KeyChange>& key )
 
     Magick::PixelPacket *pixels = 
         rv->getPixels(0, 0, key.size(), 1);
-    for (int i = 0; i < key.size(); i++)
+    for (size_t i = 0; i < key.size(); i++)
         make_magick_pixel<QuantumDepth>
             ( pixels[i], key[i].color );
 
@@ -108,7 +108,7 @@ make_key_image(
     Magick::Color foreground,
     Magick::Color background,
     const dStorm::Display::KeyDeclaration& kd,
-    const data_cpp::Vector<KeyChange>& key )
+    const std::vector<KeyChange>& key )
 {
     DEBUG("Making annotated key");
     std::auto_ptr<Magick::Image> rv, palette = make_palette(key);
@@ -127,7 +127,7 @@ make_key_image(
     for (int i = lh/3; i < width-(lh-lh/6); i += lh )
     {
         int index = round(i * key.size() * 1.0 / width );
-        index = std::max(0, std::min(index, key.size() -1));
+        index = std::max(0, std::min(index, int(key.size()) -1));
         DEBUG("Annotating at index " << index << " for key size " << key.size() << " and position " << i << " of " << width);
         float value = key[ index ].value;
         std::string s = SIize(value);

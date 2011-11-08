@@ -1,8 +1,6 @@
 #ifndef DSTORM_DISPLAY_DATASOURCE_H
 #define DSTORM_DISPLAY_DATASOURCE_H
 
-#include "../data-c++/Vector.h"
-#include "../data-c++/VectorList.h"
 #include <memory>
 #include <vector>
 #include <list>
@@ -22,18 +20,6 @@ namespace Display {
     struct PixelChange;
     struct KeyChange;
 }
-}
-
-namespace data_cpp {
-    template <>
-    class Traits<dStorm::Display::PixelChange> 
-        : public Traits<int> {};
-    template <>
-    class Traits<dStorm::Display::KeyChange> 
-        : public Traits<int> {};
-    template <>
-    class Traits<dStorm::Display::Color> 
-        : public Traits<int> {};
 }
 
 namespace dStorm {
@@ -83,8 +69,8 @@ struct KeyChange {
 };
 
 struct Change {
-    typedef data_cpp::VectorList<PixelChange> PixelQueue;
-    typedef std::vector< data_cpp::Vector<KeyChange> > Keys;
+    typedef std::vector<PixelChange> PixelQueue;
+    typedef std::vector< std::vector<KeyChange> > Keys;
 
     bool do_resize, do_clear, do_change_image;
     ResizeChange resize_image;

@@ -223,15 +223,12 @@ void Display::draw_image( const CamImage& data) {
             normalization_factor.second = (*upper_user_limit) / camera::ad_count;
 
         change->changed_keys.front().clear();
-        dStorm::Display::KeyChange *keys 
-            = change->changed_keys.front().allocate( imageDepth );
-        for (int i = 0; i < imageDepth; i++) {
-            keys[i].index = i;
-            keys[i].color = dStorm::Pixel(i);
-            keys[i].value = i * 1.0 * (normalization_factor.second - normalization_factor.first)
-                / imageDepth + normalization_factor.first;
-        }
-        change->changed_keys.front().commit( imageDepth );
+        change->changed_keys.front().reserve( imageDepth );
+        for (int i = 0; i < imageDepth; i++)
+            change->changed_keys.front().push_back( dStorm::Display::KeyChange(
+                i, dStorm::Pixel(i),
+                i * 1.0 * (normalization_factor.second - normalization_factor.first)
+                    / imageDepth + normalization_factor.first ));
         redeclare_key = false;
     }
     /* Normalize pixels and store result in the ImageChange vector */

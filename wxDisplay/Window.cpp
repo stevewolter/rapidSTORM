@@ -127,7 +127,7 @@ void Window::draw_image_window( const Change& changes ) {
                 drawer.draw(x, y, changes.image_change.new_image(x,y));
     }
             
-    data_cpp::VectorList<PixelChange>::const_iterator 
+    std::vector<PixelChange>::const_iterator 
         i = changes.change_pixels.begin(),
         end = changes.change_pixels.end();
     for ( ; i != end; i++)

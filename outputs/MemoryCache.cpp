@@ -47,29 +47,44 @@ struct StoreTree {
     }
 };
 
-struct Localizations {
+class Localizations {
+  protected:
     short offset, count;
     boost::optional< std::vector< Localizations > > children;
     typedef std::vector<Localization>::iterator Input;
     typedef std::vector<Localization>::const_iterator ConstInput;
 
+  public:
     Localizations( ConstInput b, ConstInput last, StoreTree& n );
     void recall( Input begin, const StoreTree& n ) const;
+};
+
+class LocalizedImage : private Localizations {
+    frame_index for_image;
+  public:
+    LocalizedImage( const output::LocalizedImage& i, StoreTree& n )
+        : Localizations( i.begin(), i.end(), n ), for_image( i.forImage ) {}
+    void recall( output::LocalizedImage& to, const StoreTree& n ) const {
+        to.resize( count );
+        Localizations::recall( to.begin(), n );
+        to.forImage = for_image;
+    }
 };
 
 class Bunch 
 {
     StoreTree storages_root;
-    std::vector< Localizations > offsets;
+    std::vector< LocalizedImage > offsets;
+    int localization_count;
 
   public:
     Bunch(const input::Traits<output::LocalizedImage>& traits) 
-        : storages_root( traits) {}
+        : storages_root( traits), localization_count(0) {}
     ~Bunch() {}
 
     void insert( const output::LocalizedImage& o );
     int number_of_images() const { return offsets.size(); }
-    int number_of_localizations() const { return offsets.back().offset + offsets.back().count; }
+    int number_of_localizations() const { return localization_count; }
     void recall( int index, output::LocalizedImage& into ) const; 
 };
 
@@ -171,12 +186,12 @@ void Localizations::recall( Input begin, const StoreTree& n ) const {
 
 void Bunch::recall( int index, output::LocalizedImage& into ) const {
     assert( index < number_of_images() );
-    into.resize( offsets[index].count );
-    offsets[index].recall( into.begin(), storages_root );
+    offsets[index].recall( into, storages_root );
 }
 
 void Bunch::insert( const output::LocalizedImage& o ) {
-    offsets.push_back( Localizations( o.begin(), o.end(), storages_root ) );
+    offsets.push_back( LocalizedImage( o, storages_root ) );
+    localization_count += o.size();
 }
 
 Output::Output(

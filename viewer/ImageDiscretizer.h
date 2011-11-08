@@ -1,12 +1,12 @@
 #ifndef DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/Pixel.h>
 #include "Publisher.h"
 #include "HighDepth.h"
+#include <vector>
 
 namespace dStorm {
 namespace viewer {
@@ -59,7 +59,7 @@ class Discretizer
 
     typedef Image<float,2> InputImage;
 
-    typedef data_cpp::Vector<LowDepth> TransitionTable;
+    typedef std::vector<LowDepth> TransitionTable;
 
     unsigned int total_pixel_count;
     Colorizer& colorizer;
@@ -67,7 +67,7 @@ class Discretizer
     float max_value, max_value_used_for_disc_factor,
           disc_factor;
 
-    data_cpp::Vector<unsigned int> histogram;
+    std::vector<unsigned int> histogram;
     TransitionTable transition;
 
     static const HighDepth background_threshold;

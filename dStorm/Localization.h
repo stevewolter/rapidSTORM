@@ -89,13 +89,4 @@ BOOST_FUSION_ADAPT_STRUCT(
     (dStorm::Localization::LocalBackground, local_background)
 )
 
-#include "data-c++/Traits.h"
-
-namespace data_cpp {
-
-template <> class Traits<dStorm::Localization>
-    : public Traits<int> {};
-
-}
-
 #endif

@@ -25,7 +25,7 @@ namespace spotFinders {
         void smooth( const engine::Image2D &in );
 
       protected:
-        data_cpp::Vector<int> xkern, ykern;
+        std::vector<int> xkern, ykern;
     };
 
 }

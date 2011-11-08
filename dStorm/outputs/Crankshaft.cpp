@@ -11,7 +11,6 @@
 #include <boost/units/io.hpp>
 
 using namespace std;
-using namespace data_cpp;
 using namespace dStorm::output;
 
 namespace dStorm {

@@ -417,14 +417,10 @@ void Segmenter::display_image( const ColorImage& img ) {
         display = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
         next_change.reset( new dStorm::Display::Change(1) );
-        dStorm::Display::KeyChange* keys =
-            next_change->changed_keys.front().allocate( new_size.keys.front().size );
-        for (int i = 0; i < new_size.keys.front().size; i++) {
-            keys[i].index = i;
-            keys[i].color = (i == 0) ? dStorm::Pixel::Black() : colors[i-1];
-            keys[i].value = i;
-        }
-        next_change->changed_keys.front().commit( new_size.keys.front().size );
+        next_change->changed_keys.front().reserve( new_size.keys.front().size );
+        for (int i = 0; i < new_size.keys.front().size; i++)
+            next_change->changed_keys.front().push_back( dStorm::Display::KeyChange(
+                i, (i == 0) ? dStorm::Pixel::Black() : colors[i-1], i ) );
     } else {
         next_change->do_resize = true;
         next_change->resize_image = new_size;

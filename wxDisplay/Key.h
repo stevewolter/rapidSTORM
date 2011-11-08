@@ -52,7 +52,7 @@ class Key : public wxWindow {
     Key( int number, wxWindow* parent, wxSize size, const Declaration& );
     ~Key();
 
-    void draw_keys( const data_cpp::Vector<KeyChange>& kcs );
+    void draw_keys( const std::vector<KeyChange>& kcs );
 
     void OnPaint( wxPaintEvent& event );
     void OnResize( wxSizeEvent& );
@@ -62,7 +62,7 @@ class Key : public wxWindow {
     void resize( const Declaration& );
 
     Declaration getDeclaration() const;
-    data_cpp::Vector<KeyChange> getKeys() const;
+    std::vector<KeyChange> getKeys() const;
 
     wxStaticText *getLabel() const { return label; }
     wxStaticText *getCursorText() const { return cursor; }

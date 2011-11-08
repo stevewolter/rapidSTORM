@@ -247,7 +247,7 @@ bool Manager::Source::get_and_handle_change() {
     }
 
     for ( size_t j = 0; j < c->changed_keys.size(); ++j)
-        for ( int i = 0; i < c->changed_keys[j].size(); i++ )
+        for ( size_t i = 0; i < c->changed_keys[j].size(); i++ )
         {
             dStorm::Display::KeyChange kc = c->changed_keys[j][i];
             if ( i == 31 )

@@ -73,14 +73,10 @@ TerminalBackend<Hueing>::get_result(bool with_key) const {
         assert( int(c->changed_keys.size()) >= Colorizer::KeyCount );
         dStorm::Display::Change::Keys::iterator key = c->changed_keys.begin();
         int key_count = Colorizer::BrightnessDepth;
-        dStorm::Display::KeyChange* k = key->allocate(key_count);
-        for (int i = 0; i < key_count; i++) {
-            k->index = i;
-            k->color = colorizer.getKeyPixel( i );
-            k->value = discretization.key_value( i );
-            k++;
-        }
-        key->commit( key_count );
+        key->reserve( key_count + key->size() );
+        for (int i = 0; i < key_count; i++)
+            key->push_back( dStorm::Display::KeyChange( i, 
+                colorizer.getKeyPixel( i ), discretization.key_value( i ) ) );
         int index = 1;
         for ( ++key ; key != c->changed_keys.end(); ++key ) {
             key->clear();

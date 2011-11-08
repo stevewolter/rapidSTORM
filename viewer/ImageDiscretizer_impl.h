@@ -59,7 +59,7 @@ void Discretizer<ImageListener>
     if ( final || pixels_above_used_max_value >
            non_background_pixels() / 100 )
     {
-        for (int i = 0; i < histogram.size(); i++)
+        for (size_t i = 0; i < histogram.size(); i++)
             histogram[i] = 0;
 
         float new_disc_fac = (in_depth-1) * 1.0 / max_value;
@@ -122,7 +122,6 @@ void Discretizer<ImageListener>
 
     bool histogram_has_changed = false;
     TransitionTable new_transition( in_depth );
-    new_transition.allocate( in_depth );
 
     if ( power <= 1E-5 ) {
         accum = in_depth - start;
@@ -152,8 +151,6 @@ void Discretizer<ImageListener>
         } else
             new_transition[i] = oldValue;
     }
-
-    new_transition.commit( in_depth );
 
     if ( histogram_has_changed ) {
         publish_differences_in_transitions(&transition, new_transition);

@@ -122,14 +122,14 @@ void Key::draw_key( int index, wxDC &dc )
         }
     }
 
-void Key::draw_keys( const data_cpp::Vector<KeyChange>& kcs )
+void Key::draw_keys( const std::vector<KeyChange>& kcs )
 {
     wxClientDC dc( this );
     dc.SetBackground( this->GetBackgroundColour() );
     wxBufferedDC buffer( &dc, *this->buffer );
     //buffer.SetTextForeground( *wxWHITE );
 
-    data_cpp::Vector<KeyChange>::const_iterator 
+    std::vector<KeyChange>::const_iterator 
         i = kcs.begin(), end = kcs.end();
 
     for ( ; i != end; i++) {
@@ -197,18 +197,15 @@ dStorm::Display::KeyDeclaration Key::getDeclaration() const
     return current_declaration;
 }
 
-data_cpp::Vector<KeyChange>
+std::vector<KeyChange>
     Key::getKeys() const
 {
-    data_cpp::Vector<KeyChange> rv;
-    KeyChange *ne = rv.allocate(num_keys);
+    std::vector<KeyChange> rv;
+    rv.reserve(num_keys);
     for (int i = 0; i < num_keys; i++) {
         int rev = num_keys - i - 1;
-        ne[rev].index = rev;
-        ne[rev].color = colors[i];
-        ne[rev].value = values[i];
+        rv.push_back( KeyChange(rev, colors[i], values[i]) );
     }
-    rv.commit(num_keys);
     return rv;
 }
 

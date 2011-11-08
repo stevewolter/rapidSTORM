@@ -11,7 +11,6 @@
 #include <map>
 
 using namespace std;
-using namespace data_cpp;
 
 namespace dStorm {
 namespace output {
