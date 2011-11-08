@@ -1,3 +1,7 @@
+== 13.3.6 ==
+
+* Purged obsolete data-c++ library because it caused crashes on amd64 architecture
+
 == 13.3.5 ==
 
 * Removed obsolete header file
