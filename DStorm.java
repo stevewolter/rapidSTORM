@@ -109,7 +109,6 @@ class DStorm {
 
         String[] environment = build_environment( path );
         java.util.Vector<String> args = new java.util.Vector<String>();
-        args.add(path.getExecutable().getPath() );
         boolean gui = true, load_config = true, verbose = false;
         for (int i = 0; i < cmdline_args.length; ++i) {
             if ( cmdline_args[i].equals("--StderrPipe") ) args.add("--StderrPipe");
@@ -118,6 +117,7 @@ class DStorm {
             if ( cmdline_args[i].equals("--no-load-config") ) load_config = false;
             if ( cmdline_args[i].equals("--verbose") ) verbose = true;
         }
+        args.add(path.getExecutable().getPath() );
         if ( load_config ) {
             args.add("--config");
             args.add( path.getSystemConfigFile().getPath() );
