@@ -32,6 +32,7 @@ void LiveCache<Listener>::pixelChanged( int x, int y, HighDepth to ) {
 
 template < typename Listener>
 void LiveCache<Listener>::changeBrightness( HighDepth i ) {
+    assert( list_is_loop_free( &pixels_by_value[i] ) );
     for ( HistogramPixel* j = pixels_by_value[i].next; 
                     j != &pixels_by_value[i]; j = j->next)
         this->publish().pixelChanged( j->x, j->y );

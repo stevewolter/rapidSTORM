@@ -33,6 +33,7 @@ class LiveCache :
     HighDepth in_depth;
 
     void set_xy();
+    static bool list_is_loop_free( HistogramPixel* start );
 
   public:
     static const int NeedLiveHistogram = true;

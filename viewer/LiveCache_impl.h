@@ -56,6 +56,20 @@ void LiveCache<Listener>::clear() {
     this->publish().clear();
 }
 
+template < typename Listener>
+bool LiveCache<Listener>::list_is_loop_free( HistogramPixel* start ) {
+    HistogramPixel* tortoise = start, *hare = start;
+
+    do {
+        hare = hare->next;
+        if ( hare == start ) return true;
+        hare = hare->next;
+        tortoise = tortoise->next;
+        if ( hare == tortoise ) return false;
+    } while ( hare != start );
+    return true;
+}
+
 }
 }
 
