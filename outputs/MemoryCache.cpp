@@ -49,7 +49,7 @@ struct StoreTree {
 
 class Localizations {
   protected:
-    short offset, count;
+    int offset, count;
     boost::optional< std::vector< Localizations > > children;
     typedef std::vector<Localization>::iterator Input;
     typedef std::vector<Localization>::const_iterator ConstInput;
