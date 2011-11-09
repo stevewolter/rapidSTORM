@@ -98,6 +98,7 @@ class Output
     Bunches bunches;
 
     boost::thread reemitter;
+    boost::recursive_mutex suboutputs;
     DSTORM_REALIGN_STACK void run_reemitter();
     void reemit_localizations(const int);
 
@@ -257,8 +258,11 @@ void Output::reemit_localizations(const int my_count) {
     boost::unique_lock<boost::recursive_mutex> lock( *output_mutex );
     DEBUG("Got output lock");
     output::LocalizedImage output;
-    Filter::propagate_signal( Output::Engine_run_is_aborted );
-    Filter::propagate_signal( Output::Engine_is_restarted );
+    {
+        boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
+        Filter::propagate_signal( Output::Engine_run_is_aborted );
+        Filter::propagate_signal( Output::Engine_is_restarted );
+    }
 
     for ( Bunches::iterator i = bunches.begin(); i != bunches.end(); ++i ) 
         for ( int image = 0; image < i->number_of_images(); ++image ) 
@@ -268,10 +272,13 @@ void Output::reemit_localizations(const int my_count) {
                 if ( my_count < reemit_count ) return;
             }
             i->recall(image, output);
+            boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
             Filter::receiveLocalizations( output );
         }
-    if ( engine_run_has_succeeded )
+    if ( engine_run_has_succeeded ) {
+        boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
         Filter::propagate_signal( Output::Engine_run_succeeded );
+    }
 }
 
 Output::AdditionalData
@@ -289,6 +296,8 @@ Output::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.engine = this;
+    my_announcement.output_chain_mutex = &suboutputs;
+    boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
         "MemoryCache", AdditionalData().set_cluster_sources(), data );
@@ -304,6 +313,7 @@ void Output::propagate_signal(ProgressSignal s)
         bunches.push_back( new Bunch(*master_bunch) );
     } else if ( s == Engine_run_succeeded )
         engine_run_has_succeeded = true;
+    boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
     Filter::propagate_signal(s); 
 }
 
@@ -314,6 +324,7 @@ Output::receiveLocalizations(const EngineResult& e)
     if ( bunches.back().number_of_localizations() >= LocalizationsPerBunch )
         bunches.push_back( new Bunch( *master_bunch ) );
 
+    boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
     return Filter::receiveLocalizations( e );
 }
 
