@@ -141,7 +141,7 @@ class Localization<Index, InteractivelyScaledToInterval, false> : public Localiz
     std::pair< float, float > get_minmax() const { return Base::get_minmax(); }
 
   private:
-    std::bitset<2> given, user;
+    std::bitset<2> not_given, user;
     typename traits::Scalar< TraitsType >::range_type orig_range;
 };
 

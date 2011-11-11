@@ -39,6 +39,7 @@ template <int Index>
 Localization<Index,InteractivelyScaledToInterval,false>::Localization(float desired_range, int row, int column) 
 : Base(desired_range, row, column)
 {
+    not_given.set();
 }
 
 template <int Index>
@@ -70,7 +71,7 @@ template <int Index>
 float
 Localization<Index,InteractivelyScaledToInterval,false>::bin_point( const dStorm::Localization& l ) const
 {
-    if ( given.all() ) {
+    if ( not_given.none() ) {
         DEBUG("Range given interactively, binning");
         return Base::bin_point(l);
     } else {
@@ -107,7 +108,7 @@ template <int Index>
 void
 Localization<Index,InteractivelyScaledToInterval,false>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
 {
-    if ( given.all() )
+    if ( not_given.none() )
         return Base::bin_points(l, target, stride);
     else
         for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, target += stride)
@@ -151,10 +152,10 @@ void Localization<Index,InteractivelyScaledToInterval,false>::announce(const out
 { 
     orig_range = Base::scalar.range(a);
     if ( orig_range.first.is_initialized() && ! user.test(0) ) 
-        { Base::range[0] = * orig_range.first; given.set(0); }
+        { Base::range[0] = * orig_range.first; not_given.reset(0); }
     if ( orig_range.second.is_initialized() && ! user.test(1) ) 
-        { Base::range[1] = * orig_range.second; given.set(1); }
-    if ( given.all() ) Base::recompute_scale();
+        { Base::range[1] = * orig_range.second; not_given.reset(1); }
+    if ( not_given.none() ) Base::recompute_scale();
 }
 
 template <int Index>
@@ -245,7 +246,7 @@ std::pair< float, float > Localization<Index,ScaledByResolution,false>::get_minm
 template <int Index>
 bool Localization<Index,InteractivelyScaledToInterval,false>::is_bounded() const
 {
-    return given.all();
+    return not_given.none();
 }
 
 template <int Index>
@@ -269,7 +270,7 @@ void Localization<Index,InteractivelyScaledToInterval,false>::set_user_limit( bo
         if ( bound.is_initialized() )
             Base::range[i] = *bound;
         else 
-            given.reset(i);
+            not_given.set(i);
         user.reset(i);
     } else {
         typename value::value_type f;
@@ -277,9 +278,9 @@ void Localization<Index,InteractivelyScaledToInterval,false>::set_user_limit( bo
         ss >> f;
         Base::range[i] = value::from_value(f);
         user.set(i);
-        given.set(i);
+        not_given.reset(i);
     }
-    if ( given.all() ) Base::recompute_scale();
+    if ( not_given.none() ) Base::recompute_scale();
 }
 
 template <int Index>
@@ -292,7 +293,7 @@ Display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval,false>:
     rv.can_set_lower_limit = rv.can_set_upper_limit = true;
     std::stringstream s[2];
     for (int i = 0; i < 2; ++i)
-        if ( given[i] ) s[i] << Base::range[i].value();
+        if ( ! not_given[i] ) s[i] << Base::range[i].value();
     rv.lower_limit = s[0].str();
     rv.upper_limit = s[1].str();
     return rv;
