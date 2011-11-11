@@ -1,3 +1,14 @@
+== 13.3.7 ==
+
+* Renamed library dependencies with the names of the included library to avoid confusion on error messages
+* Added non-pkgconfig fallback check for tinyxml on non-Debian systems
+* Added explicit cast for scaled value type to avoid compilation warnings
+* Fixed non-standard use of bitset::all()
+* Fixed handling of stderrpipe/stdoutpipe handling in java wrapper
+* Fixed bug #131
+* Added check for loop-free lists
+* Fixed bug #133
+
 == 13.3.6 ==
 
 * Purged obsolete data-c++ library because it caused crashes on amd64 architecture
