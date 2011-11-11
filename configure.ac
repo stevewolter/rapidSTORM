@@ -56,10 +56,19 @@ LIBS="$base_LIBS $LIBS"
 
 have_libb64=yes
 PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
-PKG_CHECK_MODULES([librapidstormfile], [tinyxml])
-PKG_CHECK_MODULES([directcamera], [libb64], , [have_libb64=no])
 PKG_CHECK_MODULES([locprec], [gsl])
 
+tinyxml_has_pkgconfig=yes
+PKG_CHECK_MODULES([librapidstormfile], [tinyxml], , [tinyxml_has_pkgconfig=no])
+if test "$tinyxml_has_pkgconfig" = no; then
+    librapidstormfile_CFLAGS=
+    AC_CHECK_HEADER([tinyxml.h], [ true ], [ AC_ERROR([tinyxml.h header file not found]) )
+    AC_CHECK_LIB([tinyxml], [main], [ librapidstormfile_LIBS="-ltinyxml" ], [ AC_ERROR([tinyxml library not found]) )
+fi
+AC_SUBST([librapidstormfile_LIBS])
+AC_SUBST([librapidstormfile_CFLAGS])
+
+PKG_CHECK_MODULES([directcamera], [libb64], , [have_libb64=no])
 AS_IF([test "$have_libb64" = yes], AC_DEFINE([HAVE_LIBB64], [1], [LibB64 library is available]))
 
 # Checks for header files.
