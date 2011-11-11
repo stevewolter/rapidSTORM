@@ -252,7 +252,7 @@ librapidstormfile_la_SOURCES = \
     dStorm/localization_file/localization_field_impl.h dStorm/localization_file/localization_field.h \
     dStorm/localization_file/unknown_field.h 
 librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
-librapidstormfile_la_LIBADD = libdStorm.la $(librapidstormfile_LIBS)
+librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     dstorm.cpp \
@@ -264,8 +264,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     debug.h debug_print.h $(RESOURCE_FILE) \
     TIFFOperation.h TIFFOperation.cpp \
     Car_decl.h Car.cpp Car.h 
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(dstorm_LIBS) $(WX_LIBS)
-dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(dstorm_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
 dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
 
@@ -363,9 +363,9 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-liblocprec_la_LIBADD = libdStorm.la $(locprec_LIBS)
+liblocprec_la_LIBADD = libdStorm.la $(gsl_LIBS)
 liblocprec_la_DEPENDENCIES = libdStorm.la
-liblocprec_la_CPPFLAGS = $(locprec_CFLAGS)
+liblocprec_la_CPPFLAGS = $(gsl_CFLAGS)
 liblocprec_la_SOURCES = \
     locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \
     locprec/NoiseMeter.h locprec/Fluorophore.cpp \
@@ -395,8 +395,8 @@ liblocprec_la_SOURCES = \
     locprec/RipleyK.h locprec/RipleyK.cpp
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = libdStorm.la $(directcamera_LIBS)
-libdirectcamerainput_la_CPPFLAGS = $(directcamera_CFLAGS)
+libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS)
+libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
     AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
@@ -421,7 +421,7 @@ libtestplugin_la_LIBADD = libdStorm.la
 librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
     dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
     dStorm/localization_file/Output.cpp
-librapidstormfile_plugin_la_LIBADD = librapidstormfile.la libdStorm.la $(librapidstormfile_LIBS)
+librapidstormfile_plugin_la_LIBADD = librapidstormfile.la libdStorm.la $(tinyxml_LIBS)
 librapidstormfile_plugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
@@ -431,8 +431,8 @@ gradient_LDADD = liblocprec.la
 checkplugin_locprec_SOURCES = locprec/check_plugin.cpp 
 checkplugin_locprec_LDADD = liblocprec.la 
 determine_clusters_from_centers_SOURCES = locprec/determine-clusters-from-centers.cpp
-determine_clusters_from_centers_LDADD = liblocprec.la $(librapidstormfile_LIBS)
-determine_clusters_from_centers_CPPFLAGS = $(librapidstormfile_CFLAGS)
+determine_clusters_from_centers_LDADD = liblocprec.la $(tinyxml_LIBS)
+determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
 reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la

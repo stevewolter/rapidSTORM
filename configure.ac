@@ -55,20 +55,20 @@ CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 
 have_libb64=yes
-PKG_CHECK_MODULES([dstorm], [GraphicsMagick++])
-PKG_CHECK_MODULES([locprec], [gsl])
+PKG_CHECK_MODULES([GraphicsMagick], [GraphicsMagick++])
+PKG_CHECK_MODULES([gsl], [gsl])
 
 tinyxml_has_pkgconfig=yes
-PKG_CHECK_MODULES([librapidstormfile], [tinyxml], , [tinyxml_has_pkgconfig=no])
+PKG_CHECK_MODULES([tinyxml], [tinyxml], , [tinyxml_has_pkgconfig=no])
 if test "$tinyxml_has_pkgconfig" = no; then
-    librapidstormfile_CFLAGS=
-    AC_CHECK_HEADER([tinyxml.h], [ true ], [ AC_ERROR([tinyxml.h header file not found]) )
-    AC_CHECK_LIB([tinyxml], [main], [ librapidstormfile_LIBS="-ltinyxml" ], [ AC_ERROR([tinyxml library not found]) )
+    tinyxml_CFLAGS=
+    AC_CHECK_HEADER([tinyxml.h], [ true ], [ AC_ERROR([tinyxml.h header file not found]) ] )
+    AC_CHECK_LIB([tinyxml], [main], [ tinyxml_LIBS="-ltinyxml" ], [ AC_ERROR([tinyxml library not found]) ] )
 fi
-AC_SUBST([librapidstormfile_LIBS])
-AC_SUBST([librapidstormfile_CFLAGS])
+AC_SUBST([tinyxml_LIBS])
+AC_SUBST([tinyxml_CFLAGS])
 
-PKG_CHECK_MODULES([directcamera], [libb64], , [have_libb64=no])
+PKG_CHECK_MODULES([libb64], [libb64], , [have_libb64=no])
 AS_IF([test "$have_libb64" = yes], AC_DEFINE([HAVE_LIBB64], [1], [LibB64 library is available]))
 
 # Checks for header files.
@@ -94,13 +94,13 @@ AC_CHECK_LIB([boost_thread_win32], [main])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
 
-AC_CHECK_LIB([ws2_32], [main], [directcamera_LIBS="$directcamera_LIBS -lws2_32"])
-AC_CHECK_LIB([mswsock], [main], [directcamera_LIBS="$directcamera_LIBS -lmswsock"])
-AC_SUBST([directcamera_LIBS], "$directcamera_LIBS")
+AC_CHECK_LIB([ws2_32], [main], [libb64_LIBS="$libb64_LIBS -lws2_32"])
+AC_CHECK_LIB([mswsock], [main], [libb64_LIBS="$libb64_LIBS -lmswsock"])
+AC_SUBST([libb64_LIBS], "$libb64_LIBS")
 
-AC_CHECK_LIB([tiff], [main], [dstorm_LIBS="$dstorm_LIBS -ltiff"], [AC_ERROR(tiff library not found)])
-AC_CHECK_LIB([ltdl], [main], [dstorm_LIBS="$dstorm_LIBS -lltdl"], [AC_ERROR(libtool ltdl library not found)])
-AC_SUBST([dstorm_LIBS], "$dstorm_LIBS")
+AC_CHECK_LIB([tiff], [main], [GraphicsMagick_LIBS="$GraphicsMagick_LIBS -ltiff"], [AC_ERROR(tiff library not found)])
+AC_CHECK_LIB([ltdl], [main], [GraphicsMagick_LIBS="$GraphicsMagick_LIBS -lltdl"], [AC_ERROR(libtool ltdl library not found)])
+AC_SUBST([GraphicsMagick_LIBS], "$GraphicsMagick_LIBS")
 
 AC_ARG_WITH([windres],
     [AS_HELP_STRING([--with-windres],
