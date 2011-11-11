@@ -215,6 +215,7 @@ Output::~Output() {
         count_changed.notify_all();
     }
     reemitter.join();
+    destroy_suboutput();
 }
 
 void Output::run_reemitter() {
