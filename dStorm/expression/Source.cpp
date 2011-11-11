@@ -48,7 +48,7 @@ void Source::registerNamedEntries() {
     std::for_each( command_lines.begin(), command_lines.end(),
         boost::bind( &config::CommandLine::set_manager, _1, this ) );
 
-    push_back( fwd->getNode() );
+    push_back( Filter::getNode() );
 }
 
 Source::AdditionalData Source::announceStormSize(const Announcement& a)
@@ -59,7 +59,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i ) 
         if ( &*i != NULL )
             i->announce(*variables, *my_announcement);
-    return fwd->announceStormSize(*my_announcement);
+    return Filter::announceStormSize(*my_announcement);
 }
 
 Source::Result Source::receiveLocalizations(const EngineResult& er)
@@ -71,7 +71,7 @@ Source::Result Source::receiveLocalizations(const EngineResult& er)
             end = i->evaluate( *variables, *my_announcement, rv.begin(), end );
     }
     rv.erase( end, rv.end() );
-    return fwd->receiveLocalizations(rv);
+    return Filter::receiveLocalizations(rv);
 }
 
 void Source::expression_changed( std::string ident, std::auto_ptr<source::LValue> expression )

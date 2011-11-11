@@ -6,9 +6,11 @@
 namespace dStorm {
 namespace output {
 
-struct Filter : public Output 
+class Filter : public Output 
 {
     std::auto_ptr<Output> fwd;
+  protected:
+    void destroy_suboutput();
   public:
     Filter( std::auto_ptr<Output> downstream ) : fwd(downstream) {}
     Filter( const Filter& o ) : fwd( (o.fwd.get() ? o.fwd->clone() : NULL) ) {}
