@@ -86,9 +86,10 @@ void Variable<Field,Tag>::set( input::Traits<Localization>& traits, const Dynami
                  ", but is assigned from a quantity with dimension " << to.unit;
             throw std::runtime_error(e.str());
         }
+        typedef typename optional_removed<typename Scalar::template result_of<Tag>::set>::type my_quantity;
         scalar.template set<Tag>( traits ) 
-            = optional_removed<typename Scalar::template result_of<Tag>::set>::type::from_value( 
-                boost::fusion::at_c<0>(to) / scale );
+            = my_quantity::from_value( static_cast<typename my_quantity::value_type>(
+                boost::fusion::at_c<0>(to) / scale ) );
     } else if ( Tag::is_given_tag::template in<TraitsType>::in_traits ) {
         scalar.template set<typename Tag::is_given_tag>( traits ) = true;
     }
@@ -134,9 +135,10 @@ bool Variable<Field,Tag>::set( const input::Traits<Localization>& context,
                  ", but is assigned from a quantity with dimension " << to.unit;
             throw std::runtime_error(e.str());
         }
+        typedef typename optional_removed<typename Scalar::template result_of<Tag>::set>::type my_quantity;
         scalar.template set_field<Tag,Field>( l ) 
-            = optional_removed<typename Scalar::template result_of<Tag>::set>::type::from_value( 
-                boost::fusion::at_c<0>(to) / scale );
+            = my_quantity::from_value( static_cast<typename my_quantity::value_type>(
+                boost::fusion::at_c<0>(to) / scale ) );
     }
     good = good && ! out_of_range<Field, traits::min_tag, Tag>( scalar, context )(l);
     good = good && ! out_of_range<Field, traits::max_tag, Tag>( scalar, context )(l);
