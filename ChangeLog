@@ -1,3 +1,8 @@
+== 13.3.8 ==
+
+* Encapsulated forward output of Filter
+* Fixed destruction order of memory cache
+
 == 13.3.7 ==
 
 * Renamed library dependencies with the names of the included library to avoid confusion on error messages
