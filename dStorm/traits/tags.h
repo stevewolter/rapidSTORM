@@ -25,15 +25,20 @@ struct in_base {
         { throw std::logic_error("Method undefined for localization-only tag."); }
 };
 
-struct empty_tag {
+struct true_tag {
+    static bool all_true( bool ) { return true; }
+    template <int Rs, int Cs, int Fs, int MRs, int MCs>
+    static Eigen::Matrix<bool,Rs,Cs,Fs,MRs,MCs> all_true( Eigen::Matrix<bool,Rs,Cs,Fs,MRs,MCs> ) 
+        { return Eigen::Matrix<bool,Rs,Cs,Fs,MRs,MCs>::Constant(true); }
+
     template <typename Traits>
     struct in : public in_base<Traits,typename Traits::IsGivenType> {
         typedef typename Traits::IsGivenType type; 
         typedef in_base<Traits,type> base;
         static type get(const localization::Field<Traits>& t) { return base::get(t); }
         static type& set(localization::Field<Traits>& t) { return base::set(t); }
-        static type get(const Traits& t) { return base::get(t); }
-        static type& set(Traits& t) { return base::set(t); }
+        static type get(const Traits&) { return all_true( type() ); }
+        static type& set(Traits& t) { throw std::logic_error("This type is always given"); }
     };
 };
 
@@ -100,7 +105,7 @@ struct uncertainty_is_given_tag {
 };
 
 struct resolution_tag {
-    typedef empty_tag is_given_tag;
+    typedef true_tag is_given_tag;
     template <typename Traits>
     struct in: public in_base<Traits,typename Traits::ResolutionType> { 
         typedef typename Traits::ResolutionType type; 
@@ -116,7 +121,7 @@ struct resolution_tag {
 };
 
 struct min_tag {
-    typedef empty_tag is_given_tag;
+    typedef true_tag is_given_tag;
     template <typename Traits>
     struct in : public in_base<Traits,typename Traits::RangeBoundType> { 
         typedef typename Traits::RangeBoundType type; 
@@ -140,7 +145,7 @@ struct min_tag {
 };
 
 struct max_tag {
-    typedef empty_tag is_given_tag;
+    typedef true_tag is_given_tag;
     template <typename Traits>
     struct in : public in_base<Traits,typename Traits::RangeBoundType> { 
         typedef typename Traits::RangeBoundType type; 

@@ -8,6 +8,8 @@
 #include <boost/bind/bind.hpp>
 #include <boost/ptr_container/ptr_inserter.hpp>
 
+#include <iostream>
+
 namespace dStorm {
 namespace memory_cache {
 
@@ -31,10 +33,8 @@ class Implementation : public Store
     Implementation<Field,Tag>* make_empty_clone() const
         { return new Implementation(scalar); }
     void store(const_loc_iter from, const_loc_iter to) {
-        values.reserve( values.size() + (to - from) );
-        for ( const_loc_iter i = from; i != to; ++i ) {
-            values.push_back( scalar.template get_field<Tag,Field::value>( *i ) );
-        }
+        for ( ; from != to; ++from )
+            values.push_back( scalar.template get_field<Tag,Field::value>( *from ) );
     }
     void recall(int offset, loc_iter from, loc_iter to) const {
         for ( loc_iter i = from; i != to; ++i ) {
@@ -52,8 +52,9 @@ struct CacheCreator {
         typedef Implementation<Field,Tag> Result;
         typedef typename Result::Scalar Scalar;
         for ( typename Scalar::Iterator i = Scalar::begin(); i != Scalar::end(); ++i )
-            if ( i->is_given( traits ) && Result::TaggedTraits::in_localization )
+            if ( i->template get< typename Tag::is_given_tag >( traits ) && Result::TaggedTraits::in_localization ) {
                 *o = new Result(*i);
+            }
     }
 };
 
