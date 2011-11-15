@@ -1,3 +1,7 @@
+== 13.4.0 ==
+
+* Fixed #139 and fixed spurious saving of uncertainties
+
 == 13.3.8 ==
 
 * Encapsulated forward output of Filter
