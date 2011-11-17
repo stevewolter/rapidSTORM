@@ -19,6 +19,9 @@ struct JobInfo {
 
     JobInfo( float msf, Intensity amp_thres, const InputTraits& i, int fluorophore )
         : mask_size_factor(msf), amplitude_threshold(amp_thres), traits(i), fluorophore(fluorophore) {}
+    JobInfo( const JobInfo& o, const InputTraits& t )
+        : mask_size_factor(o.mask_size_factor), amplitude_threshold(o.amplitude_threshold),
+          traits(t), fluorophore(o.fluorophore) {}
 
     int mask_size( int dimension, int plane ) const;
     boost::units::quantity< boost::units::camera::length > sigma( int dimension, int plane ) const;
