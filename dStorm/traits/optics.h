@@ -112,7 +112,8 @@ struct Optics<3>
     Optics() { planes.push_back( Optics<2>() ); }
     typedef std::vector< Optics<2> > Planes;
     Planes planes;
-    boost::variant< Zhuang3D, No3D > depth_info;
+    typedef boost::variant< Zhuang3D, No3D > DepthInfo;
+    DepthInfo depth_info;
 
     Optics<2>& plane( int i ) { return planes.at(i); }
     const Optics<2>& plane( int i ) const { return planes.at(i); }
