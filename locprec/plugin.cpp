@@ -17,6 +17,7 @@
 #include "SourceValuePrinter.h"
 #include "biplane_alignment/decl.h"
 #include "RipleyK.h"
+#include "VarianceEstimator.h"
 
 using namespace dStorm::output;
 
@@ -43,6 +44,7 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->outputConfig.addChoice( new locprec::ROIFilter::Source() );
     config->outputConfig.addChoice( new locprec::SourceValuePrinter::Source() );
     config->outputConfig.addChoice( make_output_source<ripley_k::Output>().release() );
+    config->outputConfig.addChoice( make_output_source<variance_estimator::Output>().release() );
 }
 
 dStorm::Display::Manager*

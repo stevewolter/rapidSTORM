@@ -394,7 +394,8 @@ liblocprec_la_SOURCES = \
     locprec/biplane_alignment/Derivator.h locprec/biplane_alignment/Derivator.cpp \
     locprec/biplane_alignment/MotionModels.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
-    locprec/RipleyK.h locprec/RipleyK.cpp
+    locprec/RipleyK.h locprec/RipleyK.cpp \
+    locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS)
