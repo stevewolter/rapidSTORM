@@ -109,6 +109,7 @@ nobase_include_HEADERS = \
     dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
+    dStorm/traits/resolution_config.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
@@ -242,7 +243,8 @@ libdStorm_la_SOURCES = \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
-    dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp
+    dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
+    dStorm/traits/resolution_config.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 

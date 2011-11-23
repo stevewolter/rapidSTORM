@@ -59,8 +59,10 @@ class Traits< dStorm::Image<PixelType,Dimensions> >
   public ImageTraits<Dimensions>,
   public traits::Optics<Dimensions>
 {
+  public:
     typedef Eigen::Matrix< boost::units::quantity< boost::units::si::length, float >, 2,1, Eigen::DontAlign > PSF;
-    PSF psf;
+  private:
+    boost::optional< PSF > psf;
     traits::ImageNumber in;
   public:
     Traits() {}
@@ -72,8 +74,8 @@ class Traits< dStorm::Image<PixelType,Dimensions> >
     traits::ImageNumber& image_number() { return in; }
     const traits::ImageNumber& image_number() const { return in; }
 
-    PSF& psf_size() { return psf; }
-    const PSF& psf_size() const { return psf; }
+    boost::optional<PSF>& psf_size() { return psf; }
+    const boost::optional<PSF>& psf_size() const { return psf; }
 
 };
 

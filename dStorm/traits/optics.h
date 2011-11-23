@@ -31,7 +31,9 @@ struct Zhuang3D {
     typedef units::power_typeof_helper< 
             units::si::length,
             units::static_rational<-1> >::type Unit; 
-    Eigen::Matrix< units::quantity< Unit >, 2, 1, Eigen::DontAlign > widening;
+    typedef Eigen::Matrix< units::quantity< Unit >, 2, 1, Eigen::DontAlign > 
+        Widening;
+    Widening widening;
 };
 
 template <>
@@ -113,7 +115,7 @@ struct Optics<3>
     typedef std::vector< Optics<2> > Planes;
     Planes planes;
     typedef boost::variant< Zhuang3D, No3D > DepthInfo;
-    DepthInfo depth_info;
+    boost::optional< DepthInfo > depth_info;
 
     Optics<2>& plane( int i ) { return planes.at(i); }
     const Optics<2>& plane( int i ) const { return planes.at(i); }

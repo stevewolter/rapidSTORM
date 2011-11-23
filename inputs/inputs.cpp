@@ -29,7 +29,7 @@ void basic_inputs( input::Config* inputConfig ) {
     inputConfig->add_filter( YMirror::makeLink() );
     inputConfig->add_filter( BackgroundStddevEstimator::makeLink() );
     inputConfig->add_filter( input::sample_info::makeLink() );
-    inputConfig->add_filter( input::Resolution::makeLink() );
+    inputConfig->add_filter( input::resolution::makeLink() );
     
 }
 

@@ -7,13 +7,13 @@
 namespace dStorm {
 namespace input {
 
-namespace Resolution {
+namespace resolution {
 
 std::auto_ptr<chain::Filter> makeLink();
 class Config;
 class ChainLink;
 template <typename ForwardedType>
-class ResolutionSetter;
+class Source;
 
 }
 }
