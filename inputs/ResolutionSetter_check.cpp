@@ -1,3 +1,6 @@
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
 #include "debug.h"
 #include "ResolutionSetter.h"
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -10,8 +13,8 @@
 #include <dStorm/helpers/thread.h>
 
 namespace dStorm {
-namespace input {
-namespace Resolution {
+namespace traits {
+namespace resolution {
 
 template <typename Unit>
 bool similar( boost::units::quantity<Unit, float> a, boost::units::quantity<Unit, float> b )
@@ -24,10 +27,10 @@ bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::I
     return a.unit_symbol == b.unit_symbol && similar(a.value, b.value);
 }
 
-struct DummyImageSource : simparm::Object, public Source<engine::Image>
+struct DummyImageSource : simparm::Object, public input::Source<engine::Image>
 {
     typedef Source<engine::Image>::iterator iterator;
-    DummyImageSource() : simparm::Object("DummySource", "DummySource"), Source<engine::Image>(*this, Flags()) {}
+    DummyImageSource() : simparm::Object("DummySource", "DummySource"), input::Source<engine::Image>(*this, Flags()) {}
     void dispatch(Messages m) {}
     iterator begin() { return iterator(); }
     iterator end() { return iterator(); }
@@ -42,7 +45,7 @@ struct MoreSpecialized : public dStorm::input::chain::Link {
     virtual AtEnd traits_changed( TraitsRef r, Link* ) { return notify_of_trait_change(r); }
     virtual AtEnd context_changed( ContextRef c, Link* ) { declared_context = c; return AtEnd(); }
 
-    virtual BaseSource* makeSource() { return new DummyImageSource(); }
+    virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
     virtual simparm::Node& getNode() { return node; }
     void insert_new_node( std::auto_ptr<dStorm::input::chain::Link> ) {}
@@ -56,7 +59,7 @@ struct LessSpecialized : public dStorm::input::chain::Forwarder {
     virtual AtEnd traits_changed( TraitsRef r, Link* ) { declared_traits = r; return AtEnd(); }
     virtual AtEnd context_changed( ContextRef c, Link* ) { return notify_of_context_change(c); }
 
-    virtual BaseSource* makeSource() { return Forwarder::makeSource(); }
+    virtual input::BaseSource* makeSource() { return Forwarder::makeSource(); }
     virtual LessSpecialized* clone() const { return new LessSpecialized(*this); }
     virtual simparm::Node& getNode() { return node; }
 };
@@ -72,7 +75,7 @@ struct Check {
             return true;
     }
 
-    bool context_resolution_close_to( Resolutions r, boost::shared_ptr<const chain::Context> c ) {
+    bool context_resolution_close_to( Resolutions r, boost::shared_ptr<const input::chain::Context> c ) {
         if ( ! c )
             throw std::logic_error("Context is not propagated to less specialized element");
         if ( ! c->has_info_for<dStorm::engine::Image>() )
@@ -81,7 +84,7 @@ struct Check {
             return resolution_close_to( r, c->get_info_for<dStorm::engine::Image>().plane(0).image_resolutions() );
     }
 
-    bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const chain::MetaInfo> m ) {
+    bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::chain::MetaInfo> m ) {
         if ( ! m )
             throw std::logic_error("Meta info is not propagated to less specialized element");
         else if ( ! m->provides<engine::Image>() )
@@ -92,7 +95,7 @@ struct Check {
 
     int do_check() {
         MoreSpecialized m;
-        ChainLink l;
+        input::resolution::ChainLink l;
         LessSpecialized s;
 
         s.set_more_specialized_link_element( &l );
@@ -102,7 +105,7 @@ struct Check {
         l.config.set_traits( correct );
 
         DEBUG("Publishing empty context");
-        chain::Context::Ptr r( new input::chain::Context() );
+        input::chain::Context::Ptr r( new input::chain::Context() );
         s.context_changed(r, NULL);
         m.declared_context.reset();
 
@@ -114,8 +117,8 @@ struct Check {
             m.declared_context.reset();
 
         DEBUG("Publishing image traits");
-        chain::MetaInfo::Ptr tp( new input::chain::MetaInfo() );
-        tp->set_traits( new Traits<engine::Image>() );
+        input::chain::MetaInfo::Ptr tp( new input::chain::MetaInfo() );
+        tp->set_traits( new input::Traits<engine::Image>() );
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
@@ -130,9 +133,9 @@ struct Check {
             s.declared_traits.reset();
         
         DEBUG("Checking if source can be built");
-        std::auto_ptr<BaseSource> bs( s.makeSource() );
+        std::auto_ptr<input::BaseSource> bs( s.makeSource() );
         std::auto_ptr< input::Source<engine::Image> > source
-            = BaseSource::downcast< engine::Image >( bs );
+            = input::BaseSource::downcast< engine::Image >( bs );
         if ( source.get() == NULL )
             throw std::runtime_error("Source could not be built");
 
@@ -147,5 +150,5 @@ struct Check {
 
 int main() {
     ost::DebugStream::set( std::cerr );
-    return dStorm::input::Resolution::Check().do_check();
+    return dStorm::traits::resolution::Check().do_check();
 }

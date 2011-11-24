@@ -13,9 +13,10 @@ namespace si = boost::units::si;
 
 class Output : public dStorm::output::OutputObject {
     typedef boost::accumulators::accumulator_set< double,
-        stats< tag::immediate_mean, tag::variance(immediate) > > Accumulator;
-    Accumulator acc[2];
+        stats< tag::count, tag::immediate_mean, tag::variance(immediate) > > Accumulator;
+    Accumulator acc[3];
     class _Config;
+    const std::string tag;
 
   public:
     typedef simparm::Structure<_Config> Config;
@@ -33,17 +34,20 @@ class Output : public dStorm::output::OutputObject {
 struct Output::_Config 
 : public simparm::Object
 {
+    simparm::Entry<std::string> tag;
   public:
     _Config() 
-        : simparm::Object("VarianceEstimator", "Estimate variance") {}
-    void registerNamedEntries() { userLevel = simparm::Object::Expert; }
+        : simparm::Object("VarianceEstimator", "Estimate variance"),
+          tag("Tag", "Tag at start of line", "Precision") {}
+    void registerNamedEntries() { userLevel = simparm::Object::Expert; push_back(tag); }
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 
 Output* Output::clone() const { return new Output(*this); }
 
 Output::Output( const Config& config ) 
-: OutputObject("VarianceEstimator", "Estimate variance")
+: OutputObject("VarianceEstimator", "Estimate variance"),
+  tag(config.tag())
 {
 }
 
@@ -55,16 +59,19 @@ Output::Result Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {
         for (int j = 0; j < 2; ++j)
             acc[j]( i->position()[j].value() );
+        acc[2]( i->amplitude().value() );
     }
     return KeepRunning;
 }
 
 void Output::propagate_signal(ProgressSignal e) {
     if ( e == Engine_is_restarted ) {
-        for (int j = 0; j < 2; ++j) acc[j] = Accumulator();
+        for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
     } else if ( e == Engine_run_succeeded  ) {
-        for (int j = 0; j < 2; ++j) 
-            std::cerr << mean( acc[j] ) << " " << sqrt( variance(acc[j]) ) << std::endl;
+        std::cout << tag;
+        for (int j = 0; j < 3; ++j) 
+            std::cout << " " << count( acc[j] ) << " " << mean( acc[j] ) << " " << sqrt( variance(acc[j]) );
+        std::cout << "\n";
     }
 }
 

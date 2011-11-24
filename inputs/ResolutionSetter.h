@@ -13,6 +13,7 @@
 #include <dStorm/input/chain/Filter.h>
 
 namespace dStorm {
+namespace traits { namespace resolution { class Check; } }
 namespace input {
 
 using namespace chain;
@@ -54,7 +55,7 @@ class ChainLink
 {
     typedef input::chain::DefaultVisitor< SourceConfig > Visitor;
     friend class input::chain::DelegateToVisitor;
-    friend class Check;
+    friend class ::dStorm::traits::resolution::Check;
 
     simparm::Structure<SourceConfig> config;
     simparm::Structure<SourceConfig>& get_config() { return config; }
