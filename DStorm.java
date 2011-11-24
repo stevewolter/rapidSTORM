@@ -110,14 +110,22 @@ class DStorm {
         String[] environment = build_environment( path );
         java.util.Vector<String> args = new java.util.Vector<String>();
         boolean gui = true, load_config = true, verbose = false;
+        String exec_stem = "dstorm-";
         for (int i = 0; i < cmdline_args.length; ++i) {
             if ( cmdline_args[i].equals("--StderrPipe") ) args.add("--StderrPipe");
             if ( cmdline_args[i].equals("--StdoutPipe") ) args.add("--StdoutPipe");
             if ( cmdline_args[i].equals("--no-gui") ) gui = false;
             if ( cmdline_args[i].equals("--no-load-config") ) load_config = false;
             if ( cmdline_args[i].equals("--verbose") ) verbose = true;
+            if ( cmdline_args[i].equals("--executable") ) {
+                ++i;
+                if ( i < cmdline_args.length )
+                    exec_stem = cmdline_args[i];
+                else
+                    throw new IllegalArgumentException("--executable requires an argument");
+            }
         }
-        args.add(path.getExecutable().getPath() );
+        args.add(path.getExecutable(exec_stem).getPath() );
         if ( load_config ) {
             args.add("--config");
             args.add( path.getSystemConfigFile().getPath() );

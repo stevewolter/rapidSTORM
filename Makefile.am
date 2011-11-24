@@ -13,7 +13,7 @@ C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_
     check_traits check_file_plugin \
     check_unittable
 
-bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ 
+bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
@@ -463,6 +463,10 @@ check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
 check_image_iterator_LDADD = libdStorm.la
 check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp 
 check_file_plugin_LDADD = librapidstormfile-plugin.la
+
+align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
+align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
+align_biplane_rapidstorm@DSTORM_LIB_VERSION@_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc

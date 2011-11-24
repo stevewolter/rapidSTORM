@@ -29,8 +29,8 @@ class DefaultPath {
         File plugin_dir = new File(abs_plugin_dir.replace( "/", File.separator ));
         return reroot(plugin_dir);
     }
-    public File getExecutable() {
-        return new File(root, "bin" + File.separator + "dstorm-@DSTORM_LIB_VERSION@" );
+    public File getExecutable(String stem) {
+        return new File(root, "bin" + File.separator + stem + "@DSTORM_LIB_VERSION@" );
     }
     public File getSystemConfigFile() {
         File sysconfdir = new File(new String("@sysconfdir@").replace("/", File.separator));
