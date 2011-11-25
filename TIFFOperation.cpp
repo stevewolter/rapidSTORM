@@ -64,7 +64,7 @@ void TIFFOperation::ignore(
 void TIFFOperation::throw_exception_for_errors()
 {
     if ( ! errors.empty() ) {
-        dStorm::runtime_error_message error( errors.front() );
+        dStorm::runtime_error error( errors.front().get_message(), errors.front().helpID() );
         errors.clear();
         throw error;
     }
