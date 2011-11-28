@@ -9,7 +9,7 @@
 #include <dStorm/engine/CandidateTree.h>
 #include <boost/units/quantity.hpp>
 #include <boost/units/cmath.hpp>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <dStorm/output/Localizations_iterator.h>
 
 #include <dStorm/Image_impl.h>

@@ -12,7 +12,7 @@
 #include <boost/array.hpp>
 #include "image_resolution.h"
 #include <vector>
-#include "../units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include "../units/camera_response.h"
 
 namespace dStorm {

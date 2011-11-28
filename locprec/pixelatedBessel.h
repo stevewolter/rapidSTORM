@@ -2,7 +2,7 @@
 #define LOCPREC_PIXELATED_BESSEL_H
 
 #include <dStorm/traits/optics.h>
-#include <dStorm/units_Eigen_traits.h>
+#include <boost/units/Eigen/Core>
 
 namespace locprec {
 

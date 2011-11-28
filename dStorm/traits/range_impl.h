@@ -2,7 +2,7 @@
 #define DSTORM_TRAITS_RANGE_IMPL_H
 
 #include "base_apply.h"
-#include "../units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include "../pair_Eigen_traits.h"
 
 namespace dStorm {

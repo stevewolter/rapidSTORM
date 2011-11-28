@@ -11,7 +11,7 @@
 #include <boost/units/systems/camera/pixel_size.hpp>
 #include "../units/nanoresolution.h"
 #include "../units/nanolength.h"
-#include "../units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 
 namespace Eigen {
 template <typename Type>

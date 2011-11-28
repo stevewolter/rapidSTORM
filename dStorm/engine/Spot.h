@@ -2,7 +2,7 @@
 #define DSTORM_ENGINE_SPOT_H
 
 #include <Eigen/Core>
-#include "../units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/camera/length.hpp>
 

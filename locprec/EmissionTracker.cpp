@@ -3,11 +3,11 @@
 #include <simparm/Entry_Impl.hh>
 #include <algorithm>
 #include <numeric>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/output/binning/localization.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <Eigen/Array>
 
 using namespace dStorm;

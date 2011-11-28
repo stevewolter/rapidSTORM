@@ -1,5 +1,5 @@
 #include "TraceReducer.h"
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <dStorm/units/amplitude.h>
 #include <boost/units/systems/camera/intensity.hpp>
 

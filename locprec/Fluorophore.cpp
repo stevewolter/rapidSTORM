@@ -7,7 +7,7 @@
 #include <gsl/gsl_sf.h>
 
 #include <dStorm/matrix_operators.h>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 
 #include <iostream>

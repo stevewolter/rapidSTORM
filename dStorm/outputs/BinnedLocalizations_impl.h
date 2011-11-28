@@ -5,7 +5,7 @@
 #include <Eigen/Array>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>
-#include "../unit_matrix_operators.h"
+#include <boost/units/Eigen/Array>
 #include "../matrix_operators.h"
 #include "../units/amplitude.h"
 #include <boost/units/io.hpp>

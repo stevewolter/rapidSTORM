@@ -1,7 +1,7 @@
 #include <dStorm/localization_file/reader.h>
 #include <boost/variant/get.hpp>
 #include <gsl/gsl_multimin.h>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <iomanip>
 #include <simparm/Entry_Impl.hh>
 #include <simparm/IO.hh>

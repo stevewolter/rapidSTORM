@@ -3,7 +3,7 @@
 #include "Output.h"
 #include <string.h>
 #include <stdlib.h>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <iomanip>
 #include <boost/bind/bind.hpp>
 

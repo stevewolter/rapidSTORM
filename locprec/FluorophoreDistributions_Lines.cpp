@@ -1,7 +1,7 @@
 #include "FluorophoreDistributions.h"
 #include <Eigen/Core>
 #include <Eigen/Array>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 
 using namespace Eigen;
 using namespace boost::units;

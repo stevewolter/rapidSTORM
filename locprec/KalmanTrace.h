@@ -4,7 +4,7 @@
 #include <dStorm/Localization.h>
 #include <Eigen/Core>
 #include <Eigen/LU>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/camera/time.hpp>
 

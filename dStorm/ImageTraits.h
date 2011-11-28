@@ -8,7 +8,7 @@
 #include "input/Traits.h"
 #include "ImageTraits_decl.h"
 #include "Image_decl.h"
-#include "units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include "units/camera_response.h"
 #include "DataSetTraits.h"
 #include "traits/image_number.h"

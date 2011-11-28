@@ -2,7 +2,7 @@
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf_bessel.h>
 #include <Eigen/Array>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <complex>

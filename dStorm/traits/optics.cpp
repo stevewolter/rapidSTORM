@@ -4,7 +4,7 @@
 #include <Eigen/LU>
 #include <Eigen/Array>
 #include <Eigen/Geometry>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <dStorm/matrix_operators.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>

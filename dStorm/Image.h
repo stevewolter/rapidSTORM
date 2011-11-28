@@ -9,7 +9,7 @@
 #include <boost/units/systems/camera/area.hpp>
 #include "units/camera_response.h"
 #include <Eigen/Core>
-#include "units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include "units/camera_response.h"
 #include <boost/static_assert.hpp>
 

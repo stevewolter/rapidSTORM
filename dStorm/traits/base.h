@@ -6,7 +6,7 @@
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <Eigen/Core>
 #include "../pair_Eigen_traits.h"
-#include "../units_Eigen_traits.h"
+#include <boost/units/Eigen/Core>
 #include <boost/optional/optional.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/is_const.hpp>

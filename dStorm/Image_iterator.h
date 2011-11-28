@@ -3,7 +3,7 @@
 
 #include "Image.h"
 #include <boost/iterator/iterator_facade.hpp>
-#include "unit_matrix_operators.h"
+#include <boost/units/Eigen/Array>
 
 namespace dStorm {
 

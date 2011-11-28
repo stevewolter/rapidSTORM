@@ -16,7 +16,7 @@
 #include <dStorm/Image_impl.h>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/unit_matrix_operators.h>
+#include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
 
 #include "FluorophoreDistributions.h"

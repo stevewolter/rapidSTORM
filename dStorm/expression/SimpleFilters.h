@@ -3,7 +3,7 @@
 
 #include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
-#include <dStorm/units_Eigen_traits.h>
+#include <boost/units/Eigen/Core>
 #include <simparm/Eigen.hh>
 #include <simparm/BoostOptional.hh>
 #include <simparm/Entry.hh>
