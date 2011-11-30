@@ -346,7 +346,6 @@ void Segmenter::maximums() {
     EngineResult engineResult;
     engineResult.forImage = frame_count::from_value(0);
 
-    std::cerr << mapper.getMapping().size() << std::endl;
     for ( Mapper::Map::const_iterator i = mapper.getMapping().begin();
           i != mapper.getMapping().end(); i++)
     {

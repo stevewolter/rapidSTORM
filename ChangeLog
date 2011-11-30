@@ -1,3 +1,8 @@
+== 13.5.3 ==
+
+* Fixed bugs #150 and #151
+* Moved Boost.Units adapter for Eigen from rapidSTORM to cs_units
+
 == 13.5.2 ==
 
 * Fixed bug #148
