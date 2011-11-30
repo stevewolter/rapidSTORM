@@ -57,18 +57,23 @@ void DimensionSelector::set_visibility(const input::Traits<Localization>& t) {
     for (int i = 0; i < 3; ++i)
         components[i].set_visibility(t, (i == 2));
 }
-std::auto_ptr<BinningStrategy> DimensionSelector::make() const
-{
+std::auto_ptr< output::binning::Scaled > DimensionSelector::make_x() const
+    { return components[0].value().make_scaled_binner(); }
+std::auto_ptr< output::binning::Scaled > DimensionSelector::make_y() const {
     std::auto_ptr<output::binning::Scaled> y( components[1].value().make_scaled_binner() );
     if ( invert_y_axis() ) {
         boost::shared_ptr<output::binning::Scaled> base_y( y.release() );
         y.reset( new output::binning::Inversion<output::binning::Scaled>(base_y) );
     }
+    return y;
+}
+std::auto_ptr< output::binning::Unscaled > DimensionSelector::make_i() const 
+    { return components[2].value().make_unscaled_binner(); }
+std::auto_ptr<BinningStrategy> DimensionSelector::make() const
+{
     return std::auto_ptr<BinningStrategy>(
         new binning_strategy::ThreeComponent(
-            components[0].value().make_scaled_binner(),
-            y,
-            components[2].value().make_unscaled_binner() ));
+            make_x(), make_y(), make_i() ) );
 }
 std::auto_ptr< output::binning::Unscaled > DimensionSelector::make_unscaled(int field) const
 {

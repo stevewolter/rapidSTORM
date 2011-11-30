@@ -13,11 +13,11 @@ namespace output {
     *  with common width and height. */
    class Localizations {
         typedef LocalizedImage OneImage;
-        std::list< OneImage > localizations;
+        typedef std::list< OneImage > ImageSequence;
+        ImageSequence localizations;
         input::Traits<Localization> t;
 
-        template <typename L1, typename L2, typename ValueType>
-            struct _iterator;
+        struct _iterator;
 
       public:
         Localizations() {}
@@ -27,7 +27,7 @@ namespace output {
         void setDim(const input::Traits<Localization>& t) 
             { this->t = t; }
 
-        typedef _iterator< std::list<OneImage>::const_iterator, OneImage::const_iterator, const Localization > const_iterator;
+        typedef _iterator const_iterator;
         inline const_iterator begin() const;
         inline const_iterator end() const;
         typedef const_iterator iterator;

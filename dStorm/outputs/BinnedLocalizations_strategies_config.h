@@ -28,6 +28,9 @@ class DimensionSelector
 
     std::auto_ptr< BinningStrategy > make() const;
     std::auto_ptr< output::binning::Unscaled > make_unscaled(int field) const;
+    std::auto_ptr< output::binning::Scaled > make_x() const;
+    std::auto_ptr< output::binning::Scaled > make_y() const;
+    std::auto_ptr< output::binning::Unscaled > make_i() const;
     void set_visibility(const input::Traits<Localization>&);
 };
 

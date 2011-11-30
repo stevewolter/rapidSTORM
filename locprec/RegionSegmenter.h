@@ -45,7 +45,6 @@ namespace locprec {
         simparm::Entry<unsigned long> dilation;
         dStorm::output::Localizations points;
 
-        dStorm::outputs::LocalizationList* filler;
         dStorm::outputs::BinnedLocalizations
             <dStorm::outputs::DummyBinningListener>* bins;
 

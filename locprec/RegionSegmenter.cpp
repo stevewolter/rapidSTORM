@@ -10,7 +10,9 @@
 #include <boost/units/quantity.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
+#include <boost/ptr_container/ptr_map.hpp>
 #include <dStorm/output/Localizations_iterator.h>
+#include <boost/foreach.hpp>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/helpers/dilation_impl.h>
@@ -74,12 +76,11 @@ Segmenter::Segmenter(
 {
     desc = "Region segmenter";
 
-    filler = new dStorm::outputs::LocalizationList(&points);
     bins = new dStorm::outputs::BinnedLocalizations<dStorm::outputs::DummyBinningListener>(config.selector.make());
-    binners.replace(0, config.selector.make_unscaled(0));
-    binners.replace(1, config.selector.make_unscaled(1));
+    binners.replace(0, config.selector.make_x());
+    binners.replace(1, config.selector.make_y());
 
-    add( filler );
+    add( new dStorm::outputs::LocalizationList(&points) );
     add( bins );
 
     if ( howToSegment == Region ) {
@@ -100,8 +101,11 @@ Output::AdditionalData Segmenter::announceStormSize
 {
     ost::MutexLock lock( mutex );
     announcement.reset( new Announcement(a) );
+    typedef dStorm::input::Traits<dStorm::Localization> InputTraits;
+    announcement->source_traits.push_back( 
+        boost::shared_ptr<InputTraits>( new InputTraits(a) ) );
     /* TODO: Evaluate return */
-    output->announceStormSize(a);
+    output->announceStormSize(*announcement);
     return Crankshaft::announceStormSize(a);
 }
 
@@ -279,94 +283,49 @@ void Segmenter::segment()
 
 template <typename To> To sq(To a) { return a*a; }
 
-template <typename From, typename To, typename Store>
+template <typename From, typename To>
 class LocalizationMapper 
     : public unary_function<void, From>
 {
+    const std::list<To>& spots;
     const boost::ptr_array< dStorm::output::binning::Unscaled, 2 >& binners;
+    typedef std::vector<From> Store;
   public:
-    typedef map<const To*, Store* > Map;
-    typedef pair<const To*, Store* > Pair;
-
-    LocalizationMapper( const boost::ptr_array< dStorm::output::binning::Unscaled, 2 >& binners) : binners(binners) {}
-    LocalizationMapper(const LocalizationMapper&);
-    LocalizationMapper& operator=(const LocalizationMapper&);
-    ~LocalizationMapper() {
-        for (typename Map::iterator i = mapping.begin(); 
-                                    i != mapping.end(); i++)
-            if ( i->second != NULL ) {
-                delete i->second;
-                i->second = NULL;
-            }
-    }
+    typedef boost::ptr_map<const To*, Store > Map;
 
     LocalizationMapper(const std::list<To>& spots, const boost::ptr_array< dStorm::output::binning::Unscaled, 2 >& binners)
-        : binners(binners)
+        : spots(spots), binners(binners)
     {
-        typename std::list<To>::const_iterator spot;
-        for (spot = spots.begin();
-                spot != spots.end(); spot++)
-        {
-            int cx = spot->x(), cy = spot->y();
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dy = -1; dy <= 1; dy++) {
-                if (int(cache.size()) <= cy+dy)
-                    cache.resize(cy+dy+20);
-                if (cy+dy >= 0 && int(cache[cy+dy].size()) <= cx+dx)
-                    cache[cy+dy].resize(cx+dx+20);
-
-                if ( cy+dy >= 0 && cx+dx >= 0 )
-                    cache[cy+dy][cx+dx].push_back( &*spot );
-            }
-        }
     }
 
     void operator()(const From& loc)
     {
         double minDist = std::numeric_limits<double>::max();
         const To* minCand = NULL;
-        // TODO: We need smaller bins here.
-        Eigen::Vector2f locpos;
+        float locpos[2];
         for (int i = 0; i < 2; ++i)
             locpos[i] = binners[i].bin_point(loc);
-        int cx = round(locpos[0]),
-            cy = round(locpos[1]);
-        if (cy < 0 || int(cache.size()) <= cy ||
-            cx < 0 || int(cache[cy].size()) <= cx) 
+        BOOST_FOREACH( const Spot& spot, spots )
         {
-            //cout << "Too small cache for " << cy << " " << cx << endl;
-            return;
-        }
-        typename std::list<const To*>::const_iterator spot;
-        for ( spot = cache[cy][cx].begin(); 
-                spot != cache[cy][cx].end(); spot++ )
-        {
-            double dist = sq((*spot)->x() - locpos[0]) +
-                            sq((*spot)->y() - locpos[1]);
+            double dist = sq(spot.x() - locpos[0]) +
+                            sq(spot.y() - locpos[1]);
             if (dist < minDist) {
                 minDist = dist;
-                minCand = *spot;
+                minCand = &spot;
             }
         }
-        if (minCand) {
-            typename Map::iterator rightStore = mapping.find(minCand);
-            if ( rightStore == mapping.end() )
-                rightStore = mapping.insert(
-                    make_pair(minCand, new Store()) ).first;
-
-            rightStore->second->push_back( loc );
-        }
+        assert( minCand );
+        mapping[minCand].push_back( loc );
     }
 
     const Map& getMapping() const { return mapping; }
 
   private:
     Map mapping;
-    vector<vector<std::list<const To*> > > cache;
 };
 
 typedef 
-LocalizationMapper<const Localization, Spot, std::vector<Localization> > Mapper;
+LocalizationMapper<Localization, Spot> Mapper;
 
 void Segmenter::maximums() {
     dStorm::engine::CandidateTree<float> candidates(3,3,0,0);
@@ -385,8 +344,9 @@ void Segmenter::maximums() {
         mapper(*i);
 
     EngineResult engineResult;
-    engineResult.forImage = frame_count::from_value(-1);
+    engineResult.forImage = frame_count::from_value(0);
 
+    std::cerr << mapper.getMapping().size() << std::endl;
     for ( Mapper::Map::const_iterator i = mapper.getMapping().begin();
           i != mapper.getMapping().end(); i++)
     {
