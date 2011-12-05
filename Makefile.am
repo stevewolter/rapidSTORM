@@ -245,7 +245,7 @@ libdStorm_la_SOURCES = \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/traits/resolution_config.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
-libdStorm_la_LIBADD = $(boost_thread_LIB)
+libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 
 librapidstormfile_la_SOURCES = \
@@ -398,7 +398,7 @@ liblocprec_la_SOURCES = \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_thread_LIBS)
+libdirectcamerainput_la_LIBADD = $(boost_system_LIB) libdStorm.la $(libb64_LIBS) $(boost_system_LIB)
 libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
@@ -419,7 +419,7 @@ libtestplugin_la_SOURCES = test-plugin/plugin.cpp test-plugin/SegmentationFault.
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
-libtestplugin_la_LIBADD = libdStorm.la $(boost_thread_LIBS)
+libtestplugin_la_LIBADD = libdStorm.la $(boost_thread_LIB)
 
 librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
     dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \

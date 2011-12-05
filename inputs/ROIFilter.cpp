@@ -78,7 +78,7 @@ Config::Config()
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
-    if ( c->provides< dStorm::engine::Image >() ) {
+    if ( c.get() && c->provides< dStorm::engine::Image >() ) {
         boost::shared_ptr<const input::Traits<engine::Image> > t = 
             c->traits< engine::Image >();
         for (int i = config.which_plane.numChoices()-1; i < t->plane_count(); ++i) {
