@@ -245,6 +245,7 @@ libdStorm_la_SOURCES = \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/traits/resolution_config.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
+libdStorm_la_LIBADD = $(boost_thread_LIB)
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 
 librapidstormfile_la_SOURCES = \
@@ -265,7 +266,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     debug.h debug_print.h $(RESOURCE_FILE) \
     TIFFOperation.h TIFFOperation.cpp \
     Car_decl.h Car.cpp Car.h 
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
 dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
@@ -364,7 +365,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-liblocprec_la_LIBADD = libdStorm.la $(gsl_LIBS)
+liblocprec_la_LIBADD = libdStorm.la $(gsl_LIBS) $(boost_thread_LIB)
 liblocprec_la_DEPENDENCIES = libdStorm.la
 liblocprec_la_CPPFLAGS = $(gsl_CFLAGS)
 liblocprec_la_SOURCES = \
@@ -397,7 +398,7 @@ liblocprec_la_SOURCES = \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS)
+libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_thread_LIBS)
 libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
@@ -418,7 +419,7 @@ libtestplugin_la_SOURCES = test-plugin/plugin.cpp test-plugin/SegmentationFault.
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
-libtestplugin_la_LIBADD = libdStorm.la
+libtestplugin_la_LIBADD = libdStorm.la $(boost_thread_LIBS)
 
 librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
     dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
@@ -465,7 +466,7 @@ check_file_plugin_LDADD = librapidstormfile-plugin.la
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
-align_biplane_rapidstorm@DSTORM_LIB_VERSION@_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS)
+align_biplane_rapidstorm@DSTORM_LIB_VERSION@_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc

@@ -88,11 +88,13 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
 
 # Checks for libraries.
-AC_CHECK_LIB([boost_system], [main], , [AC_ERROR(boost system library not found)])
-AC_CHECK_LIB([boost_thread], [main])
-AC_CHECK_LIB([boost_thread_win32], [main])
+AC_CHECK_LIB([boost_system], [main], [boost_system_LIB=-lboost_system], [AC_ERROR(boost system library not found)])
+AC_CHECK_LIB([boost_thread], [main], [boost_thread_LIB=-lboost_thread])
+AC_CHECK_LIB([boost_thread_win32], [main], [boost_thread_LIB=-lboost_thread_win32])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
+AC_SUBST([boost_system_LIB])
+AC_SUBST([boost_thread_LIB])
 
 AC_CHECK_LIB([ws2_32], [main], [libb64_LIBS="$libb64_LIBS -lws2_32"])
 AC_CHECK_LIB([mswsock], [main], [libb64_LIBS="$libb64_LIBS -lmswsock"])
