@@ -106,7 +106,6 @@ std::auto_ptr<input::chain::Filter> makeFilter()
 
 void ChainLink::operator()( const simparm::Event& ) {
     if ( last_traits.get() ) {
-        std::cerr << "Re-publishing traits" << std::endl;
         input::chain::DelegateToVisitor::traits_changed(*this, last_traits, NULL);
     }
 }

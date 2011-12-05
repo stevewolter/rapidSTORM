@@ -398,7 +398,7 @@ liblocprec_la_SOURCES = \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
 
 libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = $(boost_system_LIB) libdStorm.la $(libb64_LIBS) $(boost_system_LIB)
+libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
 libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
