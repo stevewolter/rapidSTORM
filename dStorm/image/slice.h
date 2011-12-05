@@ -20,7 +20,8 @@ Image<PixelType,Dimensions-1> Image<PixelType,Dimensions>::slice( int dimension,
             rv.offsets[j] = this->offsets[i];
             ++j;
         } else {
-            rv.global_offset = this->global_offset + layer.value() * this->offsets[j];
+            assert( layer < this->sz[i] );
+            rv.global_offset = this->global_offset + layer.value() * this->offsets[i];
         }
     }
 

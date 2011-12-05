@@ -14,6 +14,14 @@ namespace dStorm {
 namespace input {
 namespace chain {
 
+void delete_plane( Traits<engine::Image>& traits, int plane ) 
+{
+    std::swap( traits.planes[0], traits.planes[ plane ] );
+    traits.planes.resize(1);
+}
+template <typename T>
+void delete_plane( Traits<T>&, int ) {}
+
 template <>
 template <typename Type>
 bool DefaultVisitor<ROIFilter::Config>::operator()( Traits<Type>& traits )
@@ -22,6 +30,9 @@ bool DefaultVisitor<ROIFilter::Config>::operator()( Traits<Type>& traits )
     traits.image_number().range().first = config.first_frame();
     if ( config.last_frame().is_initialized() )
         traits.image_number().range().second = config.last_frame();
+    if ( config.which_plane() != -1 ) {
+        delete_plane( traits, config.which_plane() );
+    }
 
     return true;
 }
@@ -39,8 +50,9 @@ bool DefaultVisitor<ROIFilter::Config>::operator()( std::auto_ptr< Source<Type> 
         || config.which_plane() != -1 )
     {
         boost::optional<int> plane;
-        if ( config.which_plane() != -1 )
+        if ( config.which_plane() != -1 ) {
             plane = config.which_plane();
+        }
         new_source.reset( new Filter( s, config.first_frame(), config.last_frame(), plane ) );
     } else
         new_source = s;
@@ -66,9 +78,9 @@ Config::Config()
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
-    const traits::Optics<3>* t = 
-        dynamic_cast< const traits::Optics<3>* >(c.get());
-    if ( t ) {
+    if ( c->provides< dStorm::engine::Image >() ) {
+        boost::shared_ptr<const input::Traits<engine::Image> > t = 
+            c->traits< engine::Image >();
         for (int i = config.which_plane.numChoices()-1; i < t->plane_count(); ++i) {
             std::string id = boost::lexical_cast<std::string>(i);
             config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
@@ -90,6 +102,26 @@ input::BaseSource* ChainLink::makeSource()
 std::auto_ptr<input::chain::Filter> makeFilter() 
 {
     return std::auto_ptr<input::chain::Filter> (new ChainLink());
+}
+
+void ChainLink::operator()( const simparm::Event& ) {
+    if ( last_traits.get() ) {
+        std::cerr << "Re-publishing traits" << std::endl;
+        input::chain::DelegateToVisitor::traits_changed(*this, last_traits, NULL);
+    }
+}
+
+ChainLink::ChainLink()
+: simparm::Listener( simparm::Event::ValueChanged )
+{
+    receive_changes_from( config.which_plane.value );
+}
+
+ChainLink::ChainLink(const ChainLink& o)
+: Filter(o), simparm::Listener( simparm::Event::ValueChanged ),
+  last_traits(o.last_traits), config(o.config)
+{
+    receive_changes_from( config.which_plane.value );
 }
 
 

@@ -14,7 +14,8 @@ extend( const Image<PixelType, OrigDim>& orig, const Image<PixelType,NewDim>& )
     nsz.template start< OrigDim >() = orig.sizes();
     typename New::Offsets no = New::Offsets::Constant( orig.size_in_pixels() );
     no.template start< OrigDim >() = orig.get_offsets();
-    return New( nsz, orig.get_data_reference(), no, orig.get_global_offset(), orig.frame_number() );
+    New rv( nsz, orig.get_data_reference(), no, orig.get_global_offset(), orig.frame_number() );
+    return rv;
 }
 
 }

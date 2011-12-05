@@ -312,11 +312,7 @@ void CuboidConfig::set_traits(traits::Optics<3>& rv) const
     traits::Optics<2>::Resolutions defaults;
     defaults = make_resolution(pixel_size());
 
-    while ( rv.planes.size() > layers.size() ) rv.planes.pop_back();
-    while ( rv.planes.size() < layers.size() )
-        rv.planes.push_back( layers[rv.planes.size()].make_traits( defaults ) );
-
-    for (int i = 0; i < int( layers.size() ); ++i) {
+    for (int i = 0; i < int( layers.size() ) && i < rv.plane_count(); ++i) {
         layers[i].set_traits( rv.planes[i], defaults );
     }
 }
@@ -324,6 +320,7 @@ void CuboidConfig::set_traits(traits::Optics<3>& rv) const
 traits::Optics<3> CuboidConfig::make_traits() const
 {
     traits::Optics<3> rv;
+    rv.planes.resize( layers.size() );
     set_traits(rv);
     return rv;
 }

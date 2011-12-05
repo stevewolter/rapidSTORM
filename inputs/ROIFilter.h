@@ -73,6 +73,15 @@ class Source
 
     inline bool is_in_range(const Ty& t) const;
 
+    void reduce_planes( input::Traits<engine::Image>& t ) {
+        if ( plane.is_initialized() ) {
+            std::swap(t.planes[0], t.planes[*plane]);
+            t.planes.resize(1);
+        }
+    }
+    template <class Other>
+    void reduce_planes( input::Traits<Other>& ) {}
+
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
             frame_index from, boost::optional<frame_index> to, boost::optional<int> plane)
@@ -95,6 +104,7 @@ class Source
         }
         p->image_number().range().first = from;
         DEBUG("First frame of traits is " << *p->image_number().range().first << ", last frame set is " << p->image_number().range().second.is_initialized());
+        reduce_planes(*p);
         return p;
     }
     void dispatch(typename input::Source<Ty>::Messages m) {
@@ -143,7 +153,9 @@ template <>
 void Source< dStorm::engine::Image >::_iterator::select_plane()
 {
     if ( s.plane.is_initialized() ) {
-        i = extend( base()->slice(2, *s.plane * camera::pixel ), engine::Image() );
+        dStorm::Image< unsigned short, 2 > slice
+            = base()->slice(2, *s.plane * camera::pixel );
+        i = extend( slice, engine::Image() );
     } else {
         i = *this->base();
     }
@@ -175,15 +187,19 @@ Source<Ty>::end()
         _iterator( *this, _upstream->end(), _upstream->end() ) ); }
 
 class ChainLink 
-: public input::chain::Filter
+: public input::chain::Filter, public simparm::Listener
 {
+    TraitsRef last_traits;
     typedef input::chain::DefaultVisitor< Config > Visitor;
     friend class input::chain::DelegateToVisitor;
 
     simparm::Structure<Config> config;
     simparm::Structure<Config>& get_config() { return config; }
+    void operator()( const simparm::Event& );
 
   public:
+    ChainLink();
+    ChainLink(const ChainLink&);
     ChainLink* clone() const { return new ChainLink(*this); }
     simparm::Node& getNode() { return config; }
 
