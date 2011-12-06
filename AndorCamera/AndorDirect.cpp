@@ -2,6 +2,7 @@
 
 #include "debug.h"
 
+#include "CameraConnection.h"
 #include "AndorDirect.h"
 #include <string.h>
 #include <sstream>
@@ -11,9 +12,6 @@
 #include <boost/utility.hpp>
 
 #include "LiveView.h"
-#include "CameraConnection.h"
-
-#define CHECK(x) checkAndorCode( x, __LINE__ )
 
 using namespace std;
 using namespace dStorm::input;

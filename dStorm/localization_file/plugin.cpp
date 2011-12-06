@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "reader.h"
 #include "Output_decl.h"
 #include <dStorm/Config.h>
@@ -13,7 +9,7 @@ extern "C" {
 #endif
 
 const char * rapidSTORM_Plugin_Desc() {
-    return PACKAGE_STRING;
+    return "";
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
