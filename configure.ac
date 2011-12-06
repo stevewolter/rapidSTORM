@@ -73,7 +73,7 @@ AS_IF([test "$have_libb64" = yes], AC_DEFINE([HAVE_LIBB64], [1], [LibB64 library
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h winsock2.h math.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h winsock2.h math.h sys/time.h sys/resource.h errno.h])
 AC_CHECK_HEADER([boost/utility.hpp], [], [AC_ERROR([Missing boost headers])])
 AC_CHECK_HEADERS([tiffio.h])
 
@@ -85,7 +85,7 @@ AC_TYPE_SIZE_T
 AC_STRUCT_TM
 
 # Checks for library functions.
-AC_CHECK_FUNCS([malloc floor sqrt strerror usleep])
+AC_CHECK_FUNCS([malloc floor sqrt strerror usleep getrusage])
 
 # Checks for libraries.
 AC_CHECK_LIB([boost_system], [main], [boost_system_LIB=-lboost_system], [AC_ERROR(boost system library not found)])
