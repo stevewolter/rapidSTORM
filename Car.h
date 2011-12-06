@@ -20,6 +20,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/array.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -54,24 +55,31 @@ namespace engine {
         Engine* upstream_engine;
         std::auto_ptr<output::Output> output;
 
+        boost::mutex ring_buffer_mutex;
+        bool terminate, repeat_run, blocked;
         boost::recursive_mutex mutex;
-        bool terminate, emergencyStop, error, finished, blocked;
-        boost::condition terminationChanged, next_output_changed;
+        boost::condition producer_can_continue, consumer_can_continue;
         frame_index first_output, next_output;
+        boost::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
+        int producer_count;
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);
 
+        void output_or_store( const output::LocalizedImage& output );
+        bool have_output_threads() const;
+
         class Block;
         class ComputationThread;
+        class ActiveProducer;
         boost::ptr_vector<ComputationThread> threads;
         boost::thread master_thread;
 
         void add_additional_outputs();
 
-        void add_thread();
         void compute_until_terminated();
-        DSTORM_REALIGN_STACK void run_computation();
+        void output_ring_buffer();
+        void run_computation( std::auto_ptr<ActiveProducer>, bool& stop );
 
       public:
         Car (JobMaster*, const dStorm::Config &config) ;

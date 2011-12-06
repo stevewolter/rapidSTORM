@@ -1,7 +1,6 @@
 
 #include "debug.h"
 
-#include <dStorm/helpers/exception.h>
 #include "FilterSource.h"
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -186,10 +185,9 @@ std::auto_ptr<Output>
 FilterSource::make_output()
 {
     if ( outputs.size() == 0 )
-        throw dStorm::runtime_error(
-            "No output selected for module '" + getDesc() + "'",
-            "#NoOutputSelected"
-        );
+        // TODO: Re-add help info "#NoOutputSelected"
+        throw std::runtime_error(
+            "No output selected for module '" + getDesc() + "'");
     else if ( outputs.size() == 1 ) {
         DEBUG(this << ": Have only a single output, calling its make_output()");
         std::auto_ptr<Output> o = 

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <dStorm/helpers/thread.h>
 #include <limits>
-#include <dStorm/helpers/exception.h>
 
 #include "Buffer.h"
 #include <dStorm/input/Source.h>
@@ -82,7 +81,6 @@ void Buffer<Object,RunConcurrently>::run()
             if ( fetch_is_finished ) break;
         }
         DEBUG("Iterated source in subthread, fetch_is_finished " << fetch_is_finished);
-    } catch (const dStorm::abort&) {
     } catch (const std::exception& e) {
         std::cerr << "Error in reading input: " << e.what() << std::endl;
     } catch (...) {

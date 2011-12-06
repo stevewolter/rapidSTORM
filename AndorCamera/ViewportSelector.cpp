@@ -7,9 +7,9 @@
 #include <limits>
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <simparm/Message.hh>
 
 #include <dStorm/Image_impl.h>
-#include <dStorm/helpers/exception.h>
 #include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Context_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -264,9 +264,6 @@ void Display::run() throw() {
     try {
         acquire(); 
         return;
-    } catch (const dStorm::runtime_error& e) {
-        simparm::Message m( e.get_message("Could not acquire images for aiming view") );
-        send(m);
     } catch (const std::exception& e) {
         simparm::Message m( "Could not acquire images for aiming view", e.what() );
         send(m);

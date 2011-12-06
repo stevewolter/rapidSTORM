@@ -1,4 +1,3 @@
-#include <dStorm/helpers/exception.h>
 #include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
@@ -117,9 +116,6 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
         simparm::Message::Warning);
     this->send( m );
     return KeepRunning;
-  } catch ( const dStorm::exception& e ) {
-    simparm::Message m = e.get_message("Disabling TIFF output");
-    this->send( m );
   } catch ( const std::exception& e ) {
     simparm::Message m("Error in writing TIFF file",
         std::string(e.what()) + ". Disabling TIFF output for this job.");

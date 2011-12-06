@@ -169,7 +169,7 @@ nobase_include_HEADERS = \
     dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
     dStorm/helpers/DisplayManager.h dStorm/helpers/MayBeASignal.h \
     dStorm/helpers/dilation_impl.h dStorm/helpers/OutOfMemory.h \
-    dStorm/helpers/exception.h dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
+    dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
     dStorm/data-c++/Vector.h dStorm/data-c++/MergingTree.h \
     dStorm/data-c++/impl/MergingTree.cpp \

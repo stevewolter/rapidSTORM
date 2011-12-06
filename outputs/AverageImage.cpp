@@ -48,7 +48,7 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
             if ( resolution[i].is_initialized() )
                 c.resize_image.pixel_sizes[i] = *resolution[i];
         Display::Manager::getSingleton().store_image(filename, c);
-    } else if (s == Engine_run_failed) {
+    } else if (s == Engine_is_restarted) {
         image.fill(0);
     }
 }

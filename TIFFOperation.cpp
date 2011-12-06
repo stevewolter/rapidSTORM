@@ -1,7 +1,7 @@
 #include "TIFFOperation.h"
 #include <simparm/Message.hh>
-#include <dStorm/helpers/exception.h>
 #include <cassert>
+#include <stdexcept>
 
 namespace dStorm {
 
@@ -64,7 +64,7 @@ void TIFFOperation::ignore(
 void TIFFOperation::throw_exception_for_errors()
 {
     if ( ! errors.empty() ) {
-        dStorm::runtime_error error( errors.front().get_message(), errors.front().helpID() );
+        std::runtime_error error( errors.front().get_message() );
         errors.clear();
         throw error;
     }
