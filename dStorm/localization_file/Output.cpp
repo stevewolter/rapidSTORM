@@ -86,8 +86,7 @@ void Output::propagate_signal(Output::ProgressSignal s) {
 Output::Output(const Config &c) 
 
 : OutputObject("LocalizationFile", "File output status"),
-  filename(c.outputFile()),
-  format( 4, Eigen::Raw, " ", " " )
+  filename(c.outputFile())
 {
     if ( filename == "" )
         throw std::runtime_error("No filename provided for "

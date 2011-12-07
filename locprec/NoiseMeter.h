@@ -69,7 +69,7 @@ namespace locprec {
         {
             const dStorm::engine::Image& image = er.source;
             noisePixels.fill(true);
-            Eigen::Matrix2i centers;
+            Eigen::Vector2i centers;
             for (EngineResult::const_iterator l = er.begin(); l != er.end(); ++l) {
                 for (int i = 0; i < 2; ++i) {
                     boost::units::quantity<boost::units::camera::length> 

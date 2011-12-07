@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
                 const dStorm::Localization* l = boost::get<dStorm::Localization>(&*i);
                 if ( l && l->frame_number().value() >= image_count.value() ) continue;
                 if ( l ) { images[ l->frame_number().value() ][m].push_back( 
-                            Eigen::unitless_value( l->position() ).start<2>() * 1E6 ); }
+                            boost::units::value( l->position() ).head<2>() * 1E6 ); }
             }
 
         parameters params;

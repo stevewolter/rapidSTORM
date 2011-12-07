@@ -1,6 +1,5 @@
 #include <stdexcept>
 #include "types.h"
-#include <Eigen/Array>
 #include <boost/fusion/include/at_c.hpp>
 
 namespace dStorm {
@@ -14,7 +13,7 @@ bool approx_equal( double a, double b ) { return a >= 0.99999 * b && a <= 1.0000
 
 bool operator==( const DynamicUnit& a, const DynamicUnit& b )
 {
-    return (a.cwise() >= b * 0.999).all() && (a.cwise() <= b * 1.001).all();
+    return a.isApprox( b, 1E-5 );
 }
 
 bool operator!=( const DynamicUnit& a, const DynamicUnit& b )

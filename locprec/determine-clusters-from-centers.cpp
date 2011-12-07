@@ -5,7 +5,7 @@
 #include <dStorm/output/Localizations.h>
 #include "PrecisionEstimator.h"
 #include <boost/variant/get.hpp>
-#include <Eigen/Array>
+#include <Eigen/Core>
 
 using namespace locprec;
 using namespace boost::units;

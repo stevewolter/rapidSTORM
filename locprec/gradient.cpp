@@ -10,7 +10,6 @@
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include <Eigen/Core>
-#include <Eigen/Array>
 
 using namespace locprec;
 

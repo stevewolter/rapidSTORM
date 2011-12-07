@@ -3,7 +3,6 @@
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/slice.h>
 #include <dStorm/image/constructors.h>
-#include <dStorm/matrix_operators.h>
 
 namespace dStorm {
 namespace engine {
@@ -11,7 +10,7 @@ namespace engine {
 PlaneFlattener::PlaneFlattener( const dStorm::engine::InputTraits& traits )
 : optics(traits)
 {
-    buffer = Image2D( traits.size.start<2>() );
+    buffer = Image2D( traits.size.head<2>() );
     coordinates.resize( 3, traits.size.x() / camera::pixel );
 }
 

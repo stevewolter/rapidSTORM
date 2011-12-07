@@ -8,7 +8,6 @@
 #include <dStorm/output/binning/localization.h>
 #include <dStorm/image/iterator.h>
 #include <boost/units/Eigen/Array>
-#include <Eigen/Array>
 
 using namespace dStorm;
 using namespace std;
@@ -194,18 +193,18 @@ void
 Output::update_positional( TracedObject& object ) 
 {
     dStorm::Localization estimate;
-    estimate.position().start<2>() = 
-        Eigen::quantity_matrix< boost::units::si::length >::from_value(object.getPositionEstimate().cast<float>());
-    Eigen::Vector2i new_pos;
+    estimate.position().head<2>() = 
+        boost::units::from_value< boost::units::si::length >(object.getPositionEstimate().cast<float>());
+    Eigen::Array2i new_pos;
     new_pos.x() = round(binners[0].bin_point(estimate));
     new_pos.y() = round(binners[1].bin_point(estimate));
 
-    new_pos = new_pos.cwise().max( Eigen::Vector2i::Zero() )
-                     .cwise().min( unitless_value( positional.sizes() ).cwise() - 1 );
+    new_pos = new_pos.cwiseMax( Eigen::Array2i::Zero() )
+                     .cwiseMin( boost::units::value( positional.sizes() ).array() - 1 );
 
     if ( ! object.cache_position.is_initialized() ) {
         positional( new_pos.x(), new_pos.y() ).insert( &object );
-    } else if ( *object.cache_position != new_pos ) {
+    } else if ( (object.cache_position->array() != new_pos).any() ) {
         positional( object.cache_position->x(), object.cache_position->y() ).erase( &object );
         positional( new_pos.x(), new_pos.y() ).insert( &object );
     }

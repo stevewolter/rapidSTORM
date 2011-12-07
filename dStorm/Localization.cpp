@@ -2,7 +2,7 @@
 #include "input/LocalizationTraits.h"
 #include <boost/units/io.hpp>
 #include <boost/fusion/include/iteration.hpp>
-#include <Eigen/Array>
+#include <Eigen/Core>
 
 namespace dStorm {
 

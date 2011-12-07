@@ -2,7 +2,7 @@
 #include <boost/multi_array.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <Eigen/Array>
+#include <Eigen/Core>
 #include <dStorm/Image.h>
 
 namespace locprec {

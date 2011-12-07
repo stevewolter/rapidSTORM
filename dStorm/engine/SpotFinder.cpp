@@ -23,7 +23,7 @@ Base::Base(const Job& job)
      bx( job.sigma(0) * job.smoothing_mask/ camera::pixel),
      by( job.sigma(1) * job.smoothing_mask/ camera::pixel),
      imw(job.size.x().value()), imh(job.size.y().value()),
-     smoothed( job.size.start<2>(), 0 * camera::frame )
+     smoothed( job.size.head<2>(), 0 * camera::frame )
      {
         DEBUG("Making SpotFinder with " 
                  << msx << " " << msy << " " << imw << " " << imh);

@@ -1,6 +1,5 @@
 #include "FluorophoreDistributions.h"
 #include <Eigen/Core>
-#include <Eigen/Array>
 #include <boost/units/Eigen/Array>
 
 using namespace Eigen;
@@ -130,12 +129,12 @@ FluorophoreDistribution::Positions _Lines::_Line::
         start.z() = Fluorophore::Position::Scalar(zoffset() + double(i)*z_spacing());
         for(
             Fluorophore::Position p = start;
-            (zero.cwise() <= p).all() && (p.cwise() < border).all() && (max_count() == 0 || number < max_count());
+            (zero.array() <= p.array()).all() && (p.array() < border.array()).all() && (max_count() == 0 || number < max_count());
             p += shift
         ) { rv.push(p); number++; }
         for(
             Fluorophore::Position p = start - shift;
-            (zero.cwise() <= p).all() && (p.cwise() < border).all() && (max_count() == 0 || number < max_count());
+            (zero.array() <= p.array()).all() && (p.array() < border.array()).all() && (max_count() == 0 || number < max_count());
             p -= shift
         ) { rv.push(p); number++; }
     }

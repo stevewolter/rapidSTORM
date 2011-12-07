@@ -35,7 +35,7 @@ static const Eigen::Rotation2D<float>
 void convert_xy_tone_to_hue_sat( 
     float x, float y, float& hue, float& sat ) 
 {
-    Eigen::Vector2f v(x,y), ov = v;
+    Eigen::Vector2f v(x,y);
     if ( v.squaredNorm() < 1E-4 )  {
         hue = 0;
         sat = 0;

@@ -163,7 +163,7 @@ FluorophoreSetConfig::create_fluorophores(
         FluorophoreDistribution::Positions positions;
         const FluorophoreDistribution& distribution = this->distribution.value();
         positions = distribution.fluorophore_positions(
-            optics.size_in_sample_space( imS.start<2>().cast< dStorm::traits::Optics<2>::SubpixelImagePosition::Scalar >() ), rng);
+            optics.size_in_sample_space( imS.head<2>().cast< dStorm::traits::Optics<2>::SubpixelImagePosition::Scalar >() ), rng);
 
         int bins = 100;
         dStorm::Image<Fluorophore*,2>::Size sz;

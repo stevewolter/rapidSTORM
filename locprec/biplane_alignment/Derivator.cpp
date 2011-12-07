@@ -1,7 +1,7 @@
 #define BOOST_DISABLE_ASSERTS
 #include "Derivator.h"
 #include "MotionModels.h"
-#include <Eigen/Array>
+#include <Eigen/Core>
 #include <dStorm/image/slice.h>
 #include <dStorm/image/constructors.h>
 #include <gsl/gsl_blas.h>
@@ -54,7 +54,7 @@ int Derivator::f( const gsl_vector * x, void * params, gsl_vector * f )
 {
     assert( f->stride == 1 );
     assert( x->stride == 1 );
-    Eigen::VectorXd::UnalignedMapType d( f->data, f->size );
+    Eigen::Map<Eigen::VectorXd> d( f->data, f->size );
     DEBUG("Evaluating function for " << Eigen::VectorXd::Map( x->data, x->size ).transpose() );
     static_cast<Derivator*>(params)->evaluate( Eigen::VectorXd::Map( x->data, x->size ), &d, NULL );
     DEBUG( "Evaluated function to chisq " << d.transpose() * d );
@@ -65,7 +65,7 @@ int Derivator::df( const gsl_vector * x, void * params, gsl_matrix * J )
 {
     assert( J->size2 == J->tda );
     assert( x->stride == 1 );
-    GSLMatrix::UnalignedMapType eJ( J->data, J->size1, J->size2 );
+    Eigen::Map<GSLMatrix> eJ( J->data, J->size1, J->size2 );
     DEBUG("Evaluating derivatives for " << Eigen::VectorXd::Map( x->data, x->size ).transpose() );
     static_cast<Derivator*>(params)->evaluate( Eigen::VectorXd::Map( x->data, x->size ), NULL, &eJ );
     DEBUG( "Evaluated derivatives" );
@@ -76,8 +76,8 @@ int Derivator::fdf( const gsl_vector * x, void * params, gsl_vector* f, gsl_matr
 {
     assert( J->size2 == J->tda );
     assert( x->stride == 1 );
-    Eigen::VectorXd::UnalignedMapType d( f->data, f->size );
-    GSLMatrix::UnalignedMapType eJ( J->data, J->size1, J->size2 );
+    Eigen::Map<Eigen::VectorXd> d( f->data, f->size );
+    Eigen::Map<GSLMatrix> eJ( J->data, J->size1, J->size2 );
     DEBUG("Evaluating function and derivatives for " << Eigen::VectorXd::Map( x->data, x->size ).transpose() );
     static_cast<Derivator*>(params)->evaluate( Eigen::VectorXd::Map( x->data, x->size ), &d, &eJ );
     DEBUG( "Evaluated function to chisq " << d.transpose() * d );
@@ -87,18 +87,19 @@ int Derivator::fdf( const gsl_vector * x, void * params, gsl_vector* f, gsl_matr
 using namespace boost::units;
 
 template <typename Pixel>
-typename Eigen::Matrix<Pixel, Eigen::Dynamic, 1>::UnalignedMapType
+Eigen::Map< Eigen::Matrix<Pixel, Eigen::Dynamic, 1> >
 eigen_map( const dStorm::Image<Pixel,1>& img )
 {
-    return Eigen::Matrix<Pixel, Eigen::Dynamic, 1>::Map( img.ptr(), img.width_in_pixels() );
+    return Eigen::Map< Eigen::Matrix<Pixel, Eigen::Dynamic, 1> >( const_cast<Pixel*>(img.ptr()), img.width_in_pixels() );
         
 }
 
 template <typename Pixel>
-typename Eigen::Matrix<Pixel, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::UnalignedMapType
+Eigen::Map< Eigen::Matrix<Pixel, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> >
 eigen_map( const dStorm::Image<Pixel,2>& img )
 {
-    return Eigen::Matrix<Pixel, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Map( img.ptr(), img.height_in_pixels(), img.width_in_pixels() );
+    return Eigen::Matrix<Pixel, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Map( 
+        const_cast<Pixel*>(img.ptr()), img.height_in_pixels(), img.width_in_pixels() );
         
 }
 
@@ -131,7 +132,7 @@ inline void save_image( const dStorm::Image<Pixel,2>& image, std::string filenam
 }
 #endif
 
-void Derivator::evaluate( const Eigen::VectorXd& parameters, Eigen::VectorXd::UnalignedMapType* function, GSLMatrix::UnalignedMapType* jacobian )
+void Derivator::evaluate( const Eigen::VectorXd& parameters, Eigen::Map<Eigen::VectorXd>* function, Eigen::Map<GSLMatrix>* jacobian )
 {
     DEBUG("Evaluating function");
     std::vector< Source::Image >::const_iterator next_slice = planes.begin(), end_of_slice;
@@ -163,8 +164,7 @@ __attribute__ (( force_align_arg_pointer))
 #endif
 void Derivator::evaluate_range( 
     const Eigen::VectorXd& parameters,
-    Eigen::VectorXd::UnalignedMapType* function, 
-    GSLMatrix::UnalignedMapType* jacobian,
+    Values* function, Jacobian* jacobian,
     std::vector< Source::Image >::const_iterator begin,
     std::vector< Source::Image >::const_iterator end )
 {
@@ -335,9 +335,9 @@ Eigen::VectorXd Derivator::improve_parameters_on_half_scale(Eigen::VectorXd init
 
     Derivator d( model, half_scale, scale_factor * f );
     Eigen::VectorXd scaled_guess = initial_guess;
-    scaled_guess.start<2>() /= f;
+    scaled_guess.head<2>() /= f;
     initial_guess = d.fit( initial_guess / f );
-    initial_guess.start<2>() *= f;
+    initial_guess.head<2>() *= f;
     return initial_guess;
 }
 

@@ -172,8 +172,8 @@ void Source::apply_motion( const dStorm::Image<Pixel,2>& img, const MotionModel:
         in_target_space.y() = i.position().y();
         in_target_space.z() = 1;
         
-        Eigen::Vector2d src = (inverse_motion * in_target_space).start<2>();
-        DEBUG("Position in source space for " << in_target_space.start<2>().transpose() << " is " << src.transpose());
+        Eigen::Vector2d src = (inverse_motion * in_target_space).head<2>();
+        DEBUG("Position in source space for " << in_target_space.head<2>().transpose() << " is " << src.transpose());
         /* Linear interpolation */
         Eigen::Vector2f x_dist, y_dist;
         int xb = floor(src.x()), yb = floor(src.y());

@@ -2,11 +2,10 @@
 #include "../Engine.h"
 #include "../ImageTraits.h"
 #include "../image/iterator.h"
-#include <Eigen/Array>
+#include <Eigen/Core>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
-#include "../matrix_operators.h"
 #include "../units/amplitude.h"
 #include <boost/units/io.hpp>
 

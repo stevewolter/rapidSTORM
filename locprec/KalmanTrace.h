@@ -99,7 +99,7 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
     void clear();
 
     int getPosition() const { return position; }
-    Eigen::Matrix<double,2,1> getPositionEstimate() const { return position_estimate.template start<2>(); }
+    Eigen::Matrix<double,2,1> getPositionEstimate() const { return position_estimate.template head<2>(); }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

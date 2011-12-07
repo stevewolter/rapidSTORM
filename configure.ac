@@ -50,7 +50,7 @@ ACX_PTHREAD(
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
 
-PKG_CHECK_MODULES([base], [cs_units eigen2 any_iterator libsimparm])
+PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator libsimparm])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 

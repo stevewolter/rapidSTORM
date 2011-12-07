@@ -56,7 +56,7 @@ namespace engine {
         std::auto_ptr<output::Output> output;
 
         boost::mutex ring_buffer_mutex;
-        bool terminate, repeat_run, blocked;
+        bool close_job, terminate_early, repeat_run, blocked;
         boost::recursive_mutex mutex;
         boost::condition producer_can_continue, consumer_can_continue;
         frame_index first_output, next_output;

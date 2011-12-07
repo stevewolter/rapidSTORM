@@ -45,19 +45,17 @@ class Car::ComputationThread {
     Car& car;
     std::auto_ptr<ActiveProducer> producer;
     boost::exception_ptr error;
-    bool terminate_early;
 
   public:
     ComputationThread(Car &car) 
-    : car(car), producer(new ActiveProducer(car) ),
-      terminate_early(false)
+    : car(car), producer(new ActiveProducer(car) )
     { 
         thread = boost::thread( &ComputationThread::run, this );
     }
 
     DSTORM_REALIGN_STACK void run() {
         try {
-            car.run_computation( producer, terminate_early );
+            car.run_computation( producer, car.terminate_early );
         } catch ( const boost::exception& e ) {
             error = boost::current_exception();
         } catch ( const std::runtime_error& e ) {
@@ -67,7 +65,6 @@ class Car::ComputationThread {
 
     ~ComputationThread() {
         DEBUG("Collecting piston");
-        terminate_early = true;
         car.producer_can_continue.notify_all();
         thread.join(); 
         if ( error )
@@ -110,7 +107,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
-  terminate( new_config.auto_terminate() ),
+  close_job( new_config.auto_terminate() ),
   repeat_run(false),
   blocked(false),
   ring_buffer(),
@@ -170,21 +167,20 @@ void Car::operator()(const simparm::Event& e) {
         closeJob.untrigger();
         closeJob.editable = false;
         DEBUG("Close job pressed, locking for job termination");
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
         DEBUG("Job close button allows termination" );
-        terminate = true;
-        threads.clear();
+        close_job = true;
         consumer_can_continue.notify_all();
+        terminate_early = true;
+        producer_can_continue.notify_all();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
         DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
-        threads.clear();
-        consumer_can_continue.notify_all();
+        terminate_early = true;
+        producer_can_continue.notify_all();
     }
 }
 
@@ -252,7 +248,7 @@ void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop)
     for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
     {
         const output::LocalizedImage& r = *i;
-        boost::unique_lock<boost::recursive_mutex> lock(mutex);
+        boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
         while ( (r.forImage - next_output).value() >=
                 int(ring_buffer.size()) ) 
         {
@@ -407,7 +403,7 @@ void Car::drive() {
 
     boost::unique_lock<boost::recursive_mutex> lock( mutex );
     DEBUG("Waiting for termination allowance");
-    while ( ! terminate )
+    while ( ! close_job )
         consumer_can_continue.wait(lock);
     DEBUG("Allowed to terminate");
 

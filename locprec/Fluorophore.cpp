@@ -6,7 +6,6 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf.h>
 
-#include <dStorm/matrix_operators.h>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 
@@ -87,7 +86,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
         p.pixel = o.nearest_point_in_image_space(plane_pos);
 
         Position pixel_shift = o.point_in_sample_space(p.pixel) - o.point_in_sample_space( 
-            dStorm::traits::Optics<2>::ImagePosition(p.pixel.cwise() + 1 * camera::pixel) );
+            dStorm::traits::Optics<2>::ImagePosition(p.pixel.array() + 1 * camera::pixel) );
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 
             << p.pixel.transpose() << "( " << o.point_in_sample_space(p.pixel) 
             << ") and pixel size " << pixel_shift.transpose());

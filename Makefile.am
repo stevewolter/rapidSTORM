@@ -79,7 +79,7 @@ endif
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
-    dStorm/matrix_operators.h dStorm/Pixel_decl.h dStorm/Pixel.h \
+    dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
     dStorm/ImageTraits_decl.h dStorm/ImageTraits.h dStorm/ImageTraits_impl.h \
     dStorm/DataSetTraits.h \

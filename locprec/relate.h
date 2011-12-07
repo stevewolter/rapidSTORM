@@ -5,7 +5,7 @@
 #include <limits>
 #include <queue>
 #include <boost/units/cmath.hpp>
-#include <Eigen/Array>
+#include <Eigen/Core>
 #include <dStorm/unit_matrix_operators.h>
 
 namespace Eigen {

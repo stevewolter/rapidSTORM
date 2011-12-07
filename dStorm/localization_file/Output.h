@@ -25,8 +25,6 @@ class Output : public output::OutputObject {
 
     std::auto_ptr< Field > field;
 
-    Eigen::IOFormat format;
-
     void open();
     template <int Field> void make_fields();
     void output( const Localization& );

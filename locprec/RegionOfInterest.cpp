@@ -2,7 +2,7 @@
 #include <boost/multi_array.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <Eigen/Array>
+#include <Eigen/Core>
 
 namespace simparm {
 template class Entry< dStorm::samplepos::Scalar>;
@@ -44,7 +44,7 @@ ROIFilter::receiveLocalizations(const EngineResult& e) {
     EngineResult oe = e;
     int back = 0;
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i)
-        if ( (i->position().cwise() >= from).all() && (i->position().cwise() <= to).all() )
+        if ( (i->position().array() >= from.array()).all() && (i->position().array() <= to.array()).all() )
             oe[++back] = *i;
 
     oe.resize(back);

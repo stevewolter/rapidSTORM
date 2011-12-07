@@ -19,7 +19,6 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <Eigen/QR> 
-#include <Eigen/Array> 
 #include <Eigen/LU>
 
 #include <cstdlib>
@@ -41,6 +40,8 @@ using namespace boost::units;
 
 namespace locprec {
 
+const int PrecisionEstimator::Dimensions;
+
 PrecisionEstimator::EstimationResult
 PrecisionEstimator::estimate_deviation_from_initial_estimate(
    const PointSet& all_data, const SubSet& estimate )
@@ -60,7 +61,7 @@ PrecisionEstimator::estimate_deviation_from_initial_estimate(
 std::ostream& operator<<(std::ostream& o, const PrecisionEstimator::EstimationResult& r)
 {	
 	Eigen::VectorXf vec = r.sd;
-	vec = vec.cwise().sqrt();
+	vec = vec.array().sqrt();
 	// fwhm
 	vec *= 2.35;
 
@@ -107,7 +108,7 @@ const PrecisionEstimator::PointSet &m )
 void PrecisionEstimator::SubSet::center(PointSet &m) {
 	Eigen::VectorXf col_sums = m.colwise().sum().transpose() / m.rows();
 	for(int j=0; j<m.cols(); j++)
-           m.col(j).cwise() -= col_sums[j];
+           m.col(j).array() -= col_sums[j];
 }
 
 PrecisionEstimator::PointMatrix PrecisionEstimator::SubSet::cov (
@@ -188,7 +189,7 @@ PrecisionEstimator::receiveLocalizations( const EngineResult &er )
 
 float PrecisionEstimator::median_absolute_distance( const SubSet& subset) 
 {
-	assert((subset.covariance().cwise() > 0).any());
+	assert((subset.covariance().array() > 0).any());
 
 	const PointMatrix inv_S = subset.covariance().inverse ();
 	const PointSet& points = subset.points();
@@ -271,14 +272,14 @@ PrecisionEstimator::SubSet PrecisionEstimator::compute_robust_subset(const Point
 
 		// compute initial subset H with length h
 		PrecisionEstimator::PointSet H_0 = cStep (S, j.center_of_mass(), data);
-		H_0 = H_0.corner( Eigen::TopLeft, h, Dimensions );
+		H_0 = H_0.topLeftCorner( h, Dimensions );
 		
 		PrecisionEstimator::SubSet H(H_0);
 
 		// two c-steps
 		for ( int x = 0; x < 2; x++) {
 			PrecisionEstimator::PointSet H_step = cStep (
-			     H.covariance(), H.center_of_mass(), data).corner( Eigen::TopLeft, h, Dimensions);
+			     H.covariance(), H.center_of_mass(), data).topLeftCorner( h, Dimensions);
 
 			PrecisionEstimator::SubSet h (H_step);
 			H = h;
@@ -304,7 +305,7 @@ PrecisionEstimator::SubSet PrecisionEstimator::compute_robust_subset(const Point
 			const Point& tVector = results[i].center_of_mass();
 
 			PointSet hMatrix =
-			    cStep ( covMatrix, tVector, data).corner( Eigen::TopLeft, h, Dimensions);
+			    cStep ( covMatrix, tVector, data).topLeftCorner( h, Dimensions);
 
 			PrecisionEstimator::SubSet new_subset ( hMatrix );
 
@@ -399,7 +400,7 @@ PrecisionEstimator::PointSet PrecisionEstimator::remove_outliers(const PointSet&
 
 	assert(last_a > -1);
 
-	return sorted_points.corner( Eigen::TopLeft, last_a+1, Dimensions);
+	return sorted_points.topLeftCorner( last_a+1, Dimensions);
 }
 
 
@@ -418,13 +419,13 @@ PrecisionEstimator::EstimationResult PrecisionEstimator
          * points to zero mean. */
 	PointSet goodSub = good_points.points();
 	for(int i =0; i < Dimensions; i++)
-		goodSub.col(i).cwise() -= robustCenter(i);
+		goodSub.col(i).array() -= robustCenter(i);
 
 	PointMatrix robustCovariance = (goodSub.transpose() * goodSub)  /
 			(goodSub.rows()-1) * variance_correction;
 
 	// run SVD on the robust covariancematrix
-	Eigen::SVD<Eigen::MatrixXf> svd ( robustCovariance );
+	Eigen::JacobiSVD<Eigen::MatrixXf> svd ( robustCovariance );
 
 	Eigen::Matrix<float, Dimensions, 1> sd = Eigen::Matrix<float, Dimensions, 1>::Zero();
 	sd<< svd.singularValues()[0],svd.singularValues()[1];

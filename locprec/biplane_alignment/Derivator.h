@@ -11,6 +11,9 @@ namespace biplane_alignment {
 class Derivator {
     typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Eigen::DontAlign> GSLMatrix;
 
+    typedef Eigen::Map<Eigen::VectorXd> Values;
+    typedef Eigen::Map<GSLMatrix> Jacobian;
+
     const MotionModel& model;
     const std::vector< Source::Image >& planes;
     gsl_multifit_fdfsolver* solver;
@@ -18,21 +21,19 @@ class Derivator {
     int pixel_count;
     double scale_factor;
     void (Derivator::* evaluator)(const Eigen::VectorXd& parameters,
-        Eigen::VectorXd::UnalignedMapType* function,
-        GSLMatrix::UnalignedMapType* jacobian,
+        Values* function,
+        Jacobian* jacobian,
         std::vector< Source::Image >::const_iterator begin,
         std::vector< Source::Image >::const_iterator end );
 
     void image_gradient( const Source::Plane&, int line, Eigen::MatrixXd& );
     void evaluate( 
         const Eigen::VectorXd& parameters,
-        Eigen::VectorXd::UnalignedMapType* function,
-        GSLMatrix::UnalignedMapType* jacobian );
+        Values* function, Jacobian* jacobian );
     template <typename MotionModel>
     void evaluate_range( 
         const Eigen::VectorXd& parameters,
-        Eigen::VectorXd::UnalignedMapType* function,
-        GSLMatrix::UnalignedMapType* jacobian,
+        Values* function, Jacobian* jacobian,
         std::vector< Source::Image >::const_iterator begin,
         std::vector< Source::Image >::const_iterator end );
 

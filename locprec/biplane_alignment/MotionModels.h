@@ -48,7 +48,7 @@ struct ScaledTranslation : public simparm::Object, public MotionModel {
     }
     Motion get_motion( const Eigen::Matrix<double, Eigen::Dynamic, 1>& variables ) const { 
         Motion m = Motion::Identity(); 
-        m.block<2,1>(0,2) = variables.start<2>(); 
+        m.block<2,1>(0,2) = variables.head<2>(); 
         m(0,0) = 1+variables[2];
         m(1,1) = 1+variables[3];
         return m; 
@@ -64,7 +64,7 @@ struct Euclidean : public simparm::Object, public MotionModel {
     static void set_field_jacobian(FieldJacobian&, int, int) {}
     Motion get_motion( const Eigen::Matrix<double, Eigen::Dynamic, 1>& variables ) const { 
         Motion m = Motion::Identity(); 
-        m.block<2,1>(0,2) = variables.start<2>(); 
+        m.block<2,1>(0,2) = variables.head<2>(); 
         m(0,0) = m(1,1) = cos( variables[2] );
         m(0,1) = -sin( variables[2] );
         m(1,0) = - m(0,1);
@@ -87,7 +87,7 @@ struct Similarity : public simparm::Object, public MotionModel {
     }
     Motion get_motion( const Eigen::Matrix<double, Eigen::Dynamic, 1>& variables ) const { 
         Motion m = Motion::Identity(); 
-        m.block<2,1>(0,2) = variables.start<2>(); 
+        m.block<2,1>(0,2) = variables.head<2>(); 
         m(0,0) = m(1,1) = 1 + variables[2];
         m(0,1) = - variables[3];
         m(1,0) = - m(0,1);
@@ -110,7 +110,7 @@ struct Affine : public simparm::Object, public MotionModel {
     }
     Motion get_motion( const Eigen::Matrix<double, Eigen::Dynamic, 1>& variables ) const { 
         Motion m = Motion::Identity(); 
-        m.block<2,1>(0,2) = variables.start<2>(); 
+        m.block<2,1>(0,2) = variables.head<2>(); 
         m(0,0) = 1 + variables[2];
         m(1,0) = variables[3];
         m(0,1) = variables[4];

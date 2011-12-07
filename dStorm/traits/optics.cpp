@@ -1,13 +1,13 @@
 #include "debug.h"
 #include "optics.h"
 #include "optics_config.h"
+#include <Eigen/Core>
 #include <Eigen/LU>
-#include <Eigen/Array>
 #include <Eigen/Geometry>
 #include <boost/units/Eigen/Array>
-#include <dStorm/matrix_operators.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
+#include <functional>
 
 namespace dStorm {
 namespace traits {
@@ -25,29 +25,33 @@ static Eigen::TransformTraits eigen_traits( Optics<2>::TransformationClass c )
 struct Optics<2>::Pimpl {
     TransformationClass trafo_class;
 
-    Eigen::Transform2f to_sample, to_image;
+    Eigen::Affine2f to_sample, to_image;
     /** Transmission coefficients indexed by fluorophore */
     std::vector< float > tmc;
 
     Pimpl( quantity<camera::resolution> x, quantity<camera::resolution> y, 
-           Eigen::Transform2f after_transform );
+           Eigen::Affine2f after_transform );
 };
 
 Optics<2>::Pimpl::Pimpl( quantity<camera::resolution> x, quantity<camera::resolution> y,
-    Eigen::Transform2f after_transform)
+    Eigen::Affine2f after_transform)
 {
     if ( ( (after_transform.matrix().row(2).transpose() - Eigen::Vector3f::Unit(2))
-            .cwise().abs().cwise() > 1E-20 ).any() )
+            .array().abs() > 1E-20 ).any() )
+    {
+        throw std::runtime_error("Sorry, projective transforms are not "
+                                 "supported yet due to a perceived lack "
+                                 "of demand.");
         trafo_class = Projective;
-    else if ( std::abs( after_transform.matrix()(0,1) ) > 1E-20 ||
+    } else if ( std::abs( after_transform.matrix()(0,1) ) > 1E-20 ||
               std::abs( after_transform.matrix()(1,0) ) > 1E-20 )
         trafo_class = Affine;
-    else if ( (after_transform.matrix().col(2).start<2>()
-                .cwise().abs().cwise() > 1E-20).any() )
+    else if ( std::abs( after_transform.matrix()( 0,2 ) ) > 1E-20 ||
+              std::abs( after_transform.matrix()( 1,2 ) ) > 1E-20 )
         trafo_class = ScaledTranslation;
     else
         trafo_class = Scaled;
-    to_sample = after_transform * Eigen::Scaling2f( 1.0 / x.value(), 1.0 / y.value() );
+    to_sample = after_transform * Eigen::DiagonalMatrix<float,2>( 1.0 / x.value(), 1.0 / y.value() );
     to_image = to_sample.inverse( eigen_traits( trafo_class ) );
 }
 
@@ -129,8 +133,8 @@ Optics<2>::nearest_point_in_image_space( const Optics<2>::SamplePosition& pos ) 
     assert( pimpl.get() );
     assert( abs( pos[2] - *z_position ) <= 1E-9 * si::meter );
 
-    Optics<2>::ImagePosition rv = Eigen::quantity_matrix< camera::length >::from_value(
-        std::round( pimpl->to_image * unitless_value(pos).start<2>() ).cast<int>() );
+    Optics<2>::ImagePosition rv = from_value<camera::length>(
+        round( pimpl->to_image * units::value(pos).head<2>()).cast<int>() );
     return rv;
 }
 
@@ -140,8 +144,8 @@ Optics<2>::point_in_image_space( const Optics<2>::SamplePosition& pos ) const
     assert( pimpl.get() );
     assert( abs( pos[2] - *z_position ) <= 1E-9 * si::meter );
 
-    return Eigen::quantity_matrix< camera::length >::from_value(
-        pimpl->to_image * unitless_value(pos).start<2>() );
+    return from_value< camera::length >(
+        pimpl->to_image * units::value(pos).head<2>() );
 }
 
 Optics<2>::SubpixelImagePosition
@@ -150,8 +154,8 @@ Optics<2>::vector_in_image_space( const Optics<2>::SamplePosition& pos ) const
     assert( pimpl.get() );
     assert( abs( pos[2] ) <= 1E-9 * si::meter );
 
-    return Eigen::quantity_matrix< camera::length >::from_value(
-        pimpl->to_image.linear() * unitless_value(pos).start<2>() );
+    return from_value< camera::length >(
+        pimpl->to_image.linear() * units::value(pos).head<2>() );
 }
 
 Optics<2>::SamplePosition
@@ -160,8 +164,8 @@ Optics<2>::point_in_sample_space( const ImagePosition& pos ) const
     assert( pimpl.get() );
 
     SamplePosition rv;
-    rv.start<2>() = Eigen::quantity_matrix< si::length >::from_value(
-        pimpl->to_sample * unitless_value(pos).cast<float>() );
+    rv.head<2>() = from_value< si::length >(
+        pimpl->to_sample * units::value(pos).cast<float>() );
     rv[2] = *z_position;
     return rv;
 }
@@ -172,8 +176,8 @@ Optics<2>::point_in_sample_space( const SubpixelImagePosition& pos ) const
     assert( pimpl.get() );
 
     SamplePosition rv;
-    rv.start<2>() = Eigen::quantity_matrix< si::length >::from_value(
-        pimpl->to_sample * unitless_value(pos) );
+    rv.head<2>() = from_value< si::length >(
+        pimpl->to_sample * units::value(pos) );
     rv[2] = *z_position;
     return rv;
 }
@@ -184,8 +188,8 @@ Optics<2>::vector_in_sample_space( const SubpixelImagePosition& pos ) const
     assert( pimpl.get() );
 
     SamplePosition rv;
-    rv.start<2>() = Eigen::quantity_matrix< si::length >::from_value(
-        pimpl->to_sample.linear() * unitless_value(pos) );
+    rv.head<2>() = from_value< si::length >(
+        pimpl->to_sample.linear() * units::value(pos) );
     rv[2] = 0;
     return rv;
 }
@@ -212,7 +216,7 @@ void Optics<2>::points_in_sample_space( PointSet& points ) const
     points.row(2).fill(1);
     points = pimpl->to_sample.matrix() * points;
     for (int i = 0; i < 2; ++i)
-        points.row(0).cwise() /= points.row(2);
+        points.row(0).array() /= points.row(2).array();
 }
 
 void Optics<2>::points_in_image_space( PointSet& points ) const
@@ -222,7 +226,7 @@ void Optics<2>::points_in_image_space( PointSet& points ) const
     points.row(2).fill(1);
     points = pimpl->to_image.matrix() * points;
     for (int i = 0; i < 2; ++i)
-        points.row(0).cwise() /= points.row(2);
+        points.row(0).array() /= points.row(2).array();
 }
 
 void Optics<2>::set_resolution( const boost::array< ImageResolution, 2 >& f )
@@ -237,7 +241,7 @@ void Optics<2>::set_resolution( const Resolutions& f )
     resolutions = f;
     if ( f[0].is_initialized() && f[0]->is_in_dpm() && f[1].is_initialized() && f[1]->is_in_dpm() )
     {
-        Eigen::Transform2f trafo;
+        Eigen::Affine2f trafo;
         trafo.setIdentity();
         std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
         pimpl.reset( new Pimpl( f[0]->in_dpm(), f[1]->in_dpm(), trafo ) );
@@ -258,7 +262,7 @@ Optics<2>::TransformationClass Optics<2>::transformation_class() const
 CuboidConfig::CuboidConfig() 
 : simparm::Object("Optics", "Optical pathway properties"),
   pixel_size("PixelSizeInNM", "Size of one input pixel",
-                   PixelSize::Constant(105.0f * boost::units::si::nanometre / camera::pixel))
+                   PixelSize::Constant(105.0f * si::nanometre / camera::pixel))
 {
     layers.push_back( new PlaneConfig(0) );
     set_number_of_planes( 1 );
@@ -295,12 +299,12 @@ int CuboidConfig::number_of_planes() const
     { return layers.size(); }
 
 traits::Optics<2>::Resolutions
-static make_resolution( const Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign >& f ) {
-    boost::units::quantity< boost::units::divide_typeof_helper<
-        boost::units::si::length,camera::length>::type, float > q1;
+static make_resolution( const Eigen::Matrix< quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign >& f ) {
+    quantity< divide_typeof_helper<
+        si::length,camera::length>::type, float > q1;
     traits::Optics<2>::Resolutions r;
     for (int i = 0; i < 2; ++i) {
-        q1 = (f[i] / (1E9 * boost::units::si::nanometre) * boost::units::si::metre);
+        q1 = (f[i] / (1E9 * si::nanometre) * si::metre);
         r[i] = q1;
     }
     return r;
@@ -337,7 +341,7 @@ PlaneConfig::PlaneConfig(int number)
 : simparm::Set("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
   is_first_layer(number==0),
-  z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * boost::units::si::nanometre)),
+  z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
   micro_alignment("AlignmentFile", "Plane Alignment file")
@@ -399,7 +403,7 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
         const_cast<simparm::FileEntry&>(micro_alignment).close_input_stream();
     }
     rv.pimpl.reset( new traits::Optics<2>::Pimpl( 
-        rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Transform2f(elements) ) );
+        rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
     DEBUG( "Transformation is " << rv.pimpl->to_sample.matrix() );
     rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
@@ -443,7 +447,7 @@ void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
     assert( pimpl.get() );
     std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
     pimpl.reset( new Pimpl( resolutions[0]->in_dpm(), resolutions[1]->in_dpm(), 
-                            Eigen::Transform2f(t) ) );
+                            Eigen::Affine2f(t) ) );
     pimpl->tmc = tmc;
 }
 

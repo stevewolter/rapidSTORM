@@ -1,6 +1,6 @@
 #define BOOST_DISABLE_ASSERTS
 #include "impl.h"
-#include <Eigen/Array>
+#include <Eigen/Core>
 #include "MotionModels.h"
 
 namespace locprec {

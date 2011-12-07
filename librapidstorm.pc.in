@@ -10,4 +10,4 @@ Description: Processing interface for localization microscopy data
 Version: @PACKAGE_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -ldStorm
-Requires: eigen2 libsimparm any_iterator cs_units
+Requires: eigen3 libsimparm any_iterator cs_units

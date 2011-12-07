@@ -1,6 +1,5 @@
 //#include "fast_int_sqrt.h"
 #include "DistanceHistogram.h"
-#include <Eigen/Array>
 #include <Eigen/Core>
 #include <limits>
 #include <boost/units/cmath.hpp>
@@ -110,12 +109,11 @@ void Histogram::compute() {
 
             /* Distances with other blocks */
             for (unsigned int j = i+1; j < blocks.size(); j++) {
-                Block diffs = (b-shifted_blocks[j]).cwise().abs();
+                Block diffs = (b-shifted_blocks[j]).cwiseAbs();
 
                 Eigen::Matrix<float,VecsPerBlock,1> dists
-                    = diffs.cwise().min(boundaries - diffs)
-                      .rowwise().squaredNorm()
-                      .cwise().sqrt();
+                    = diffs.array().min(boundaries.array() - diffs.array())
+                      .matrix().rowwise().norm();
                 for (int k = 0; k < VecsPerBlock; k++) {
                     assert(dists[k] >= 0);
                     int dist = round(dists[k]);
