@@ -1,6 +1,11 @@
 #ifndef DSTORM_INPUT_CHAIN_ENGINE_HELPERS
 #define DSTORM_INPUT_CHAIN_ENGINE_HELPERS
 
+#include "Context.h"
+#include "MetaInfo.h"
+#include <dStorm/output/LocalizedImage.h>
+#include <dStorm/output/LocalizedImage_traits.h>
+
 namespace dStorm {
 namespace input {
 namespace chain {

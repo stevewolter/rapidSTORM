@@ -1,6 +1,8 @@
 #ifndef DSTORM_TRAITS_RESOLUTION_H
 #define DSTORM_TRAITS_RESOLUTION_H
 
+#include "base.h"
+
 namespace dStorm {
 namespace traits {
 

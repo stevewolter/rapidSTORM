@@ -2,7 +2,10 @@
 #define DSTORM_TRAITS_AMPLITUDE_H
 
 #include "base.h"
+#include "resolution.h"
+#include "range.h"
 #include <boost/units/systems/camera/intensity.hpp>
+#include <boost/units/quantity.hpp>
 
 namespace dStorm {
 namespace traits {

@@ -5,6 +5,7 @@
 #include "no_resolution.h"
 #include "no_range.h"
 #include <boost/units/systems/si/area.hpp>
+#include <boost/units/systems/si/length.hpp>
 #include <boost/units/power10.hpp>
 
 namespace dStorm {

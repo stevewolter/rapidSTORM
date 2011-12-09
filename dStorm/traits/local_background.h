@@ -2,7 +2,10 @@
 #define DSTORM_TRAITS_LOCAL_BACKGROUND_H
 
 #include "base.h"
+#include "range.h"
+#include "resolution.h"
 #include <boost/units/systems/camera/intensity.hpp>
+#include <boost/units/quantity.hpp>
 
 namespace dStorm {
 namespace traits {

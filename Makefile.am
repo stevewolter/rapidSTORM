@@ -128,7 +128,6 @@ nobase_include_HEADERS = \
     dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
     dStorm/output/FilterSource.h \
     dStorm/output/Localizations.h \
-    dStorm/output/Localizations_iterator.h \
     dStorm/output/OutputBuilder.h dStorm/output/OutputBuilder_impl.h \
     dStorm/output/SourceFactory_decl.h dStorm/output/SourceFactory.h \
     dStorm/output/Output_decl.h dStorm/output/Output.h dStorm/output/Filter.h \

@@ -4,6 +4,7 @@
 #include "tokens.h"
 #include "types.h"
 #include <boost/utility/enable_if.hpp>
+#include <boost/variant/apply_visitor.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
 namespace dStorm {

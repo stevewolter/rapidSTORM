@@ -1,6 +1,8 @@
 #ifndef DSTORM_IMAGE_CROP_H
 #define DSTORM_IMAGE_CROP_H
 
+#include "../Image.h"
+
 namespace dStorm {
 
 template <typename PixelType, int Dimensions>

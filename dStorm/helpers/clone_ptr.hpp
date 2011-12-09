@@ -2,6 +2,7 @@
 #define BOOST_SMART_PTR_CLONE_PTR_HPP
 
 #include <memory>
+#include <cstring>
 
 namespace boost {
 

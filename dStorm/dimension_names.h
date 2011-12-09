@@ -1,6 +1,8 @@
 #ifndef DSTORM_DIMENSION_NAMES_H
 #define DSTORM_DIMENSION_NAMES_H
 
+#include <string>
+
 namespace dStorm {
 
 template <int Dimension>

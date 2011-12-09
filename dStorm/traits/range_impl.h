@@ -4,6 +4,7 @@
 #include "base_apply.h"
 #include <boost/units/Eigen/Core>
 #include "../pair_Eigen_traits.h"
+#include "range.h"
 
 namespace dStorm {
 namespace traits {

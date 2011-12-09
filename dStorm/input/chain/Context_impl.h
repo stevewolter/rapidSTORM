@@ -2,6 +2,7 @@
 #define DSTORM_CONTEXT_IMPL_H
 
 #include "Context.h"
+#include <stdexcept>
 
 namespace dStorm {
 namespace input {
