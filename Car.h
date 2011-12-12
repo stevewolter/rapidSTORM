@@ -21,6 +21,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/array.hpp>
+#include <boost/exception_ptr.hpp>
 
 namespace dStorm {
 namespace output { class Output; }
@@ -62,6 +63,7 @@ namespace engine {
         frame_index first_output, next_output;
         boost::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
         int producer_count;
+        boost::exception_ptr error;
 
         /** Receive the signal from closeJob. */
         void operator()(const simparm::Event&);

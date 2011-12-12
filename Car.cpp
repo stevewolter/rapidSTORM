@@ -15,7 +15,6 @@
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/range/algorithm/fill.hpp>
-#include <boost/exception_ptr.hpp>
 
 using dStorm::output::Output;
 
@@ -44,7 +43,6 @@ class Car::ComputationThread {
     boost::thread thread;
     Car& car;
     std::auto_ptr<ActiveProducer> producer;
-    boost::exception_ptr error;
 
   public:
     ComputationThread(Car &car) 
@@ -57,9 +55,9 @@ class Car::ComputationThread {
         try {
             car.run_computation( producer, car.terminate_early );
         } catch ( const boost::exception& e ) {
-            error = boost::current_exception();
+            car.error = boost::current_exception();
         } catch ( const std::runtime_error& e ) {
-            error = boost::copy_exception(e);
+            car.error = boost::copy_exception(e);
         }
     }
 
@@ -67,8 +65,6 @@ class Car::ComputationThread {
         DEBUG("Collecting piston");
         car.producer_can_continue.notify_all();
         thread.join(); 
-        if ( error )
-            boost::rethrow_exception(error);
     }
 };
 
@@ -231,6 +227,9 @@ void Car::compute_until_terminated() {
         DEBUG("Collecting threads");
         threads.clear();
         DEBUG("Collected threads");
+
+        if ( error )
+            boost::rethrow_exception(error);
 
         boost::lock_guard<boost::recursive_mutex> lock( mutex );
         if ( repeat_run ) {
