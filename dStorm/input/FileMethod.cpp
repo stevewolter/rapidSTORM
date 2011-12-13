@@ -5,6 +5,7 @@
 
 #include "FileMethod.h"
 #include "chain/FileContext.h"
+#include "InputFileNameChange.h"
 
 namespace dStorm {
 namespace input {
@@ -58,6 +59,8 @@ void FileMethod::operator()( const simparm::Event& )
         nc->input_file = input_file();
         context = nc;
         notify_of_context_change( context );
+        if ( this->meta_info.get() != NULL )
+            this->meta_info->get_signal< InputFileNameChange >()( input_file() );
     } else {
         DEBUG("Not changing context");
     }

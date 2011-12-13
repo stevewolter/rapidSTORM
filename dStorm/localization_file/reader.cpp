@@ -146,7 +146,6 @@ ChainLink::AtEnd ChainLink::context_changed( ContextRef context, Link* link )
 
         try {
             File::Traits t;
-            if ( context->has_info_for<localization::Record>() ) t = context->get_info_for<localization::Record>();
             file.reset( new File(input_file, t) );
             boost::shared_ptr<input::chain::FileMetaInfo> rv( new input::chain::FileMetaInfo() );
             rv->set_traits( new File::Traits(file->getTraits()) );

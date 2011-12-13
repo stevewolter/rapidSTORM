@@ -189,6 +189,7 @@ nobase_include_HEADERS = \
     dStorm/localization_file/reader.h dStorm/localization_file/converter.h
 
 libdStorm_la_SOURCES = \
+    dStorm/input/chain/MetaInfo.cpp \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp dStorm/Config.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
