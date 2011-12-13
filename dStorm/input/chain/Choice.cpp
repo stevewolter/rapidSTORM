@@ -3,6 +3,8 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/input/chain/MetaInfo.h>
+#include <boost/foreach.hpp>
 
 namespace dStorm {
 namespace input {
@@ -50,21 +52,32 @@ Choice::~Choice() {
 void Choice::operator()(const simparm::Event&)
 {
     ost::MutexLock lock( global_mutex() );
-    if ( value.hasValue() && value().current_traits().get() != NULL )
-        notify_of_trait_change( value().current_traits() );
+    if ( value.hasValue() )
+        publish_traits( value().current_traits() );
 }
 
 Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
-    if ( auto_select && &( value() ) == NULL && t.get() != NULL )
+    if ( auto_select && &( value() ) == NULL && ( t.get() != NULL && ! t->provides_nothing() ) )
         value = *from;
     if ( from == &( value() ) )
-        return notify_of_trait_change( t );
+        return publish_traits( t );
     else {
         /* The traits are not needed since its source is not
          * the current choice. */
         return AtEnd();
     }
+}
+
+Choice::AtEnd Choice::publish_traits( TraitsRef t ) {
+    if ( t.get() != NULL ) {
+        my_traits.reset( new MetaInfo(*t) );
+        BOOST_FOREACH( const Link& link, choices )
+            my_traits->forward_connections( link.current_traits() );
+    } else {
+        my_traits.reset();
+    }
+    return notify_of_trait_change( my_traits );
 }
 
 Choice::AtEnd Choice::context_changed( ContextRef context, Link* link ) {

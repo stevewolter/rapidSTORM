@@ -14,9 +14,12 @@ class Choice
   public simparm::Listener
 {
     ContextRef current_context;
+    boost::shared_ptr<MetaInfo> my_traits;
     boost::shared_ptr<Context> no_throw_context;
     bool auto_select;
     boost::ptr_vector< Link > choices;
+
+    Choice::AtEnd publish_traits( TraitsRef );
 
   protected:
     virtual void operator()(const simparm::Event&);
