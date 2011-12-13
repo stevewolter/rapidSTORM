@@ -77,7 +77,8 @@ void Output::propagate_signal(Output::ProgressSignal s) {
     if ( s == Engine_is_restarted ) {
         fileKeeper.reset(NULL);
         open();
-    } else if ( s == Prepare_destruction ) {
+    } else if ( s == Engine_run_succeeded || s == Engine_run_failed ) {
+        file->flush();
         if (fileKeeper.get() != NULL) fileKeeper->close();
         fileKeeper.reset(NULL);
     }

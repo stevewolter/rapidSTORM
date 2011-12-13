@@ -55,8 +55,10 @@ class Car::ComputationThread {
         try {
             car.run_computation( producer, car.terminate_early );
         } catch ( const boost::exception& e ) {
+            boost::lock_guard<boost::mutex> lock2( car.ring_buffer_mutex );
             car.error = boost::current_exception();
         } catch ( const std::runtime_error& e ) {
+            boost::lock_guard<boost::mutex> lock2( car.ring_buffer_mutex );
             car.error = boost::copy_exception(e);
         }
     }
@@ -104,6 +106,7 @@ Car::Car (JobMaster* input_stream, const dStorm::Config &new_config)
   input(NULL),
   output(NULL),
   close_job( new_config.auto_terminate() ),
+  terminate_early(false),
   repeat_run(false),
   blocked(false),
   ring_buffer(),
@@ -187,9 +190,11 @@ void Car::run() {
         OutOfMemoryMessage m("Job " + ident);
         runtime_config.send(m);
     } catch ( const std::runtime_error& e ) {
+        DEBUG("Sending message in run loop " << e.what());
         simparm::Message m("Error in Job " + ident, 
                                "Job " + ident + " failed: " + e.what() );
         runtime_config.send(m);
+        DEBUG("Sent message in run loop " << e.what());
     }
 
     master_thread.detach();
@@ -248,10 +253,11 @@ void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop)
     {
         const output::LocalizedImage& r = *i;
         boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
+        DEBUG("Inserting output for " << i->forImage);
         while ( (r.forImage - next_output).value() >=
                 int(ring_buffer.size()) ) 
         {
-            if ( stop ) return;
+            if ( stop ) { DEBUG("Abnormal finish"); return; }
             producer_can_continue.wait(lock);
         }
 
@@ -261,6 +267,7 @@ void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop)
         if ( r.forImage == next_output )
             consumer_can_continue.notify_all();
     }
+    DEBUG("Normal finish");
 }
 
 void Car::output_ring_buffer() {
@@ -339,6 +346,7 @@ void Car::drive() {
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits();
     first_output = next_output = *traits->image_number().range().first;
+    DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());
     Output::Announcement announcement( *traits );
     upstream_engine = announcement.engine;
@@ -396,8 +404,10 @@ void Car::drive() {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);
   } catch (const std::runtime_error& e) {
+    DEBUG("Sending message in drive mode");
     simparm::Message m( "Error in Job " + ident, e.what() );
     runtime_config.send(m);
+    DEBUG("Sent message in drive mode");
   }
 
     boost::unique_lock<boost::recursive_mutex> lock( mutex );
