@@ -48,13 +48,6 @@ namespace output {
             *  starting or restarting. It is sent once per computation
             *  thread. */
             Engine_run_is_starting,
-            /** This signal is sent when any piston terminates the engine
-            *  run. It is called in the context of the first thread that
-            *  terminates the run.
-            *  Outputs must make sure that control flows of all
-            *  threads leaves the transmission upon receival of this
-            *  signal. */
-            Engine_run_is_aborted,
             /** This signal is sent after all pistons aborted work and
              *  the engine prepares to relaunch. */
             Engine_is_restarted,
@@ -62,15 +55,7 @@ namespace output {
              *  the engine decides to abort the run. */
             Engine_run_failed,
             /** This signal is sent after all pistons finished work. */
-            Engine_run_succeeded,
-            /** This signal indicates that the job is completed 
-             *  successfully, files should be closed and saves committed.*/
-            Job_finished_successfully,
-            /** This signal is sent when the engine has completed operations
-             *  and is prepared to destruct transmissions. Any transmission
-             *  that cannot be destructed yet should block the reception
-             *  of this signal. */
-            Prepare_destruction 
+            Engine_run_succeeded
         };
 
 

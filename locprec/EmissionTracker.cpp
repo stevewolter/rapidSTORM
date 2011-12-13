@@ -127,7 +127,6 @@ Output::announceStormSize(const Announcement &a)
         sizes[i] = int(ceil(binners[i].get_size())) * boost::units::camera::pixel;
     }
 
-    stopped = false;
     positional = Positional(sizes);
     while ( int(tracking.size()) < track_modulo )
         tracking.push_back( new TrackingInformation() );
@@ -215,8 +214,6 @@ Output::update_positional( TracedObject& object )
 output::Output::Result
 Output::receiveLocalizations(const EngineResult &er)
 {
-    if (stopped) return KeepRunning;
-
     int imNum = er.forImage / frame;
     TrackingInformation &current = tracking[imNum % track_modulo];
 
@@ -268,11 +265,7 @@ void Output::finalizeImage(int imNum) {
 }
 
 void Output::propagate_signal(ProgressSignal s) {
-    if ( s == Engine_run_is_aborted ) {
-        stopped = true;
-    } else if ( s == Engine_is_restarted ) {
-        stopped = false;
-    } else if ( s == Engine_run_succeeded ) {
+    if ( s == Engine_run_succeeded ) {
         /* TODO: Emit last few images that are in the ring buffer but not finalized */
     }
     if ( target.get() != NULL )

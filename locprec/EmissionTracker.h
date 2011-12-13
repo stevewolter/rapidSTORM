@@ -54,7 +54,6 @@ namespace emission_tracker {
         typedef dStorm::Image< std::set<TracedObject*>, 2 > Positional;
         Positional positional;
 
-        bool stopped;
         int track_modulo;
 
         boost::ptr_set< TracedObject, address_is_less<TracedObject> > traced_objects;

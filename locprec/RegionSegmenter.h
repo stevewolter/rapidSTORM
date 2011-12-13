@@ -83,9 +83,6 @@ namespace locprec {
                 else
                     segment();
             }
-            if ( s == Job_finished_successfully ||
-                 s == Prepare_destruction )
-                output->propagate_signal(s);
         }
 
         void operator()(const simparm::Event&);

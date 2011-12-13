@@ -66,7 +66,6 @@ namespace output {
                 last_config_update = 0;
             } else if ( s == Engine_run_succeeded ) {
                 update = count;
-            } else if ( s == Job_finished_successfully ) {
                 if (!this->isActive()) std::cout << count << "\n"; 
             }
         }

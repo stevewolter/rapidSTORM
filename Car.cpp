@@ -147,9 +147,6 @@ Car::~Car()
     DEBUG("Joining car subthread");
     master_thread.join();
 
-    DEBUG("Sending destruction signal to outputs");
-    output->propagate_signal( Output::Prepare_destruction );
-
     if ( job_handle.get() != NULL )
         job_handle->unregister_node();
 
@@ -266,6 +263,7 @@ void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop)
         ring_buffer[ring] = r;
         if ( r.forImage == next_output )
             consumer_can_continue.notify_all();
+        if ( stop ) { DEBUG("Abnormal finish"); return; }
     }
     DEBUG("Normal finish");
 }
@@ -416,11 +414,6 @@ void Car::drive() {
         consumer_can_continue.wait(lock);
     DEBUG("Allowed to terminate");
 
-    /* TODO: We have to check here if the job was _really_ finished
-    * successfully. */
-    output->propagate_signal( 
-        Output::Job_finished_successfully );
-
     if ( config.configTarget ) {
         std::ostream& stream = config.configTarget.get_output_stream();
         std::list<std::string> lns = config.printValues();
@@ -436,9 +429,8 @@ void Car::stop() {
 }
 
 void Car::restart() {
-    output->propagate_signal( Output::Engine_run_is_aborted );
     repeat_run = true;
-    threads.clear();
+    terminate_early = true;
 }
 
 void Car::repeat_results() {

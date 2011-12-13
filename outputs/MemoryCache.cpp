@@ -261,7 +261,6 @@ void Output::reemit_localizations(const int my_count) {
     output::LocalizedImage output;
     {
         boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-        Filter::propagate_signal( Output::Engine_run_is_aborted );
         Filter::propagate_signal( Output::Engine_is_restarted );
     }
 

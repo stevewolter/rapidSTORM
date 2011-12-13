@@ -139,8 +139,6 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
         outputs[i]->receiveLocalizations(er);
         if ( outputs[i].images_in_output == slice_size ) {
             outputs[i]->propagate_signal( Engine_run_succeeded );
-            outputs[i]->propagate_signal( Job_finished_successfully );
-            outputs[i]->propagate_signal( Prepare_destruction );
             outputs.replace(i, NULL);
         }
     }

@@ -88,18 +88,12 @@ std::ostream &operator<<(std::ostream &o,
     switch( p ) {
       case Output::Engine_run_is_starting:
         return o << "Engine_run_is_starting";
-      case Output::Engine_run_is_aborted: 
-        return o << "Engine_run_is_aborted";
       case Output::Engine_is_restarted: 
         return o << "Engine_is_restarted";
       case Output::Engine_run_failed: 
         return o << "Engine_run_failed";
       case Output::Engine_run_succeeded: 
         return o << "Engine_run_succeeded";
-      case Output::Job_finished_successfully:
-        return o << "Job_finished_successfully";
-      case Output::Prepare_destruction: 
-        return o << "Prepare_destruction";
       default: return o << "unknown signal";
     }
 }
