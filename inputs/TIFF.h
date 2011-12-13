@@ -14,6 +14,7 @@
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/FileContext.h>
+#include <boost/signals2/connection.hpp>
 
 #ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;
@@ -115,13 +116,14 @@ namespace dStorm {
         BaseSource* makeSource();
         AtEnd context_changed( ContextRef, Link* );
         simparm::Node& getNode() { return config; }
+        void open_file( const std::string& filename );
 
       private:
         simparm::Structure<Config> config;
         boost::shared_ptr<OpenFile> file;
         boost::shared_ptr<const input::chain::FileContext> context;
+        std::auto_ptr< boost::signals2::scoped_connection > filename_change;
 
-        void open_file();
       protected:
         void operator()(const simparm::Event&);
     };

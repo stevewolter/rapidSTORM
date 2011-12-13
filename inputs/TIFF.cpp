@@ -33,6 +33,7 @@
 
 #include "TIFFOperation.h"
 #include <dStorm/input/chain/FileContext.h>
+#include <dStorm/input/InputFileNameChange.h>
 #include <dStorm/input/InputMutex.h>
 
 using namespace std;
@@ -246,15 +247,7 @@ ChainLink::context_changed( ContextRef ocontext, Link* link )
     this->context = boost::dynamic_pointer_cast
         <const input::chain::FileContext, const input::chain::Context>
         ( ocontext );
-    if ( ! file.get() || file->for_file() != context->input_file ) {
-        open_file();
-        /* open_file will have published traits, if necessary */
-        return AtEnd();
-    } else {
-        /* No change, and we have previously published traits
-         * since file is not NULL. */
-        return AtEnd();
-    }
+    return AtEnd();
 }
 
 template<typename Pixel, int Dimensions>
@@ -274,29 +267,35 @@ Source<Pixel,Dimensions>::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
     ost::MutexLock lock( global_mutex() );
-    if ( file.get() ) {
-        open_file();
-    }
+    open_file( (file.get()) ? file->for_file() : "" );
 }
 
-void ChainLink::open_file() {
-  file.reset();
-  boost::shared_ptr<chain::FileMetaInfo> info;
-  if ( context->input_file != "" ) {
-    try {
-        file.reset( new OpenFile( context->input_file, config, config ) );
-        info.reset( new chain::FileMetaInfo() );
+void ChainLink::open_file( const std::string& filename ) {
+    const std::string& old_name = (file.get()) ? file->for_file() : "";
+    if ( old_name == filename ) {
+        return;
+    } else {
+        file.reset();
+        boost::shared_ptr<chain::FileMetaInfo> info;
+        if ( filename != "" ) {
+            try {
+                file.reset( new OpenFile( filename, config, config ) );
+                info.reset( new chain::FileMetaInfo() );
 
-        simparm::Entry<long> unused("Foo", "Foo");
-        info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>(false, unused).release() );
-        info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
-        info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
-    } catch(...) {
-        if ( context->throw_errors )
-            throw;
+                simparm::Entry<long> unused("Foo", "Foo");
+                info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>(false, unused).release() );
+                info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+                info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+                filename_change.reset( new boost::signals2::scoped_connection
+                    ( info->get_signal< InputFileNameChange >().connect
+                        (boost::bind( &ChainLink::open_file, *this, _1) ) ) );
+            } catch(...) {
+                if ( context.get() && context->throw_errors )
+                    throw;
+            }
+        }
+        this->notify_of_trait_change( info );
     }
-  }
-  this->notify_of_trait_change( info );
 }
 
 }
