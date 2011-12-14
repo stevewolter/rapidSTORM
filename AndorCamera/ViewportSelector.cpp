@@ -54,7 +54,6 @@ Display::Display(
 {
     imageFile.editable = false;
     save.editable = false;
-    //imageFile = context.output_basename + ".jpg";
 
     registerNamedEntries();
     image_acquirer = boost::thread( &Display::run, this );
@@ -126,18 +125,7 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
     new_size.keys.back().upper_limit = "";
-    if ( context.get() && context->has_info_for<CamImage>() ) {
-        const dStorm::input::Traits<CamImage>& t = context->get_info_for<CamImage>();
-        for (int i = 0; i < 2; ++i)
-            if ( t.resolution(i).is_initialized() )
-                new_size.pixel_sizes[i] = *t.resolution(i);
-    } else if (  context.get() && context->has_info_for<engine::Image>() ) {
-        const dStorm::input::Traits<engine::Image>& t = context->get_info_for<engine::Image>();
-        for (int i = 0; i < 2; ++i)
-            if ( t.plane(0).resolution(i).is_initialized() )
-                new_size.pixel_sizes[i] = *t.plane(0).resolution(i);
-    }
-        
+    std::copy( resolution, resolution+2, new_size.pixel_sizes );
     return new_size;
 }
 
@@ -179,9 +167,20 @@ void Display::initialize_display()
 }
 
 void Display::context_changed( boost::shared_ptr<const input::chain::Context> context ) {
-    this->context = context;
     imageFile = context->output_basename + ".jpg";
 
+    if ( context.get() && context->has_info_for<CamImage>() ) {
+        const dStorm::input::Traits<CamImage>& t = context->get_info_for<CamImage>();
+        for (int i = 0; i < 2; ++i)
+            if ( t.resolution(i).is_initialized() )
+                resolution[i] = *t.resolution(i);
+    } else if (  context.get() && context->has_info_for<engine::Image>() ) {
+        const dStorm::input::Traits<engine::Image>& t = context->get_info_for<engine::Image>();
+        for (int i = 0; i < 2; ++i)
+            if ( t.plane(0).resolution(i).is_initialized() )
+                resolution[i] = *t.plane(0).resolution(i);
+    }
+        
     change->do_resize = true;
     change->resize_image = getSize();
 }

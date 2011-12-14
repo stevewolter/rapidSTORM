@@ -15,9 +15,10 @@
 
 #include <dStorm/ImageTraits.h>
 #include "InputChainLink_decl.h"
-#include <dStorm/input/chain/Context.h>
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
+#include <dStorm/traits/image_resolution.h>
+#include <dStorm/input/chain/Context.h>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -69,7 +70,7 @@ class Display : public simparm::Set,
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
-    boost::shared_ptr<const input::chain::Context> context;
+    traits::ImageResolution resolution[2];
     boost::thread image_acquirer;
 
     /** Subthread for image acquisition. */

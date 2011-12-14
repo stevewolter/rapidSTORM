@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "Link.h"
 #include <simparm/Node.hh>

@@ -1,3 +1,5 @@
+#define VERBOSE
+#include "debug.h"
 #include "Choice.h"
 #include "Context.h"
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -24,6 +26,7 @@ Choice::Choice(const Choice& o)
   auto_select(o.auto_select),
   choices()
 {
+    DEBUG("Copied " << &o << " to " << this);
 #if 0
     /* Code here does not get executed because no entries were copied */
     for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
@@ -32,11 +35,8 @@ Choice::Choice(const Choice& o)
     }
 #endif
     receive_changes_from( value );
-    for ( boost::ptr_vector< Link >::const_iterator l = o.choices.begin(); l != o.choices.end(); ++l ) {
-        choices.push_back( l->clone() );
-        addChoice(endChoices(), choices.back());
-        Choice::set_upstream_element( choices.back(), *this, Add );
-    }
+    for ( boost::ptr_vector< Link >::const_iterator l = o.choices.begin(); l != o.choices.end(); ++l )
+        add_choice( std::auto_ptr<Link>(l->clone()) );
 }
 
 Choice::~Choice() {
@@ -87,23 +87,17 @@ simparm::Node& Choice::getNode() {
     return *this;
 }
 
-void Choice::add_choice( Link& choice, ChoiceEntry::iterator where) 
+void Choice::add_choice( std::auto_ptr<Link> fresh ) 
 {
-    this->addChoice( where, choice );
-    Choice::set_upstream_element( choice, *this, Add );
-    traits_changed( choice.current_traits(), &choice );
-}
-void Choice::insert_new_node( std::auto_ptr<Link> c, Place ) {
-    add_choice( *c, endChoices() );
-    TraitsRef nt = c->current_traits();
-    Link* nc = c.get();
-    choices.push_back( c );
-    traits_changed( nt, nc );
+    Link& l = *fresh;
+    ChoiceEntry::addChoice( ChoiceEntry::endChoices(), *fresh );
+    Choice::set_upstream_element( *fresh, *this, Add );
+    choices.push_back( fresh );
+    traits_changed( l.current_traits(), &l );
 }
 
-void Choice::remove_choice( Link& choice ) {
-    Choice::set_upstream_element( choice, *this, Remove );
-    this->removeChoice( choice );
+void Choice::insert_new_node( std::auto_ptr<Link> l, Place ) {
+    add_choice(l);
 }
 
 }

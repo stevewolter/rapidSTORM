@@ -35,10 +35,10 @@ class Choice
     virtual Choice* clone() const;
     virtual simparm::Node& getNode();
 
-    virtual void add_choice( Link&, ChoiceEntry::iterator where );
-    virtual void remove_choice( Link& );
+    void add_choice( std::auto_ptr<Link> );
 
     void insert_new_node( std::auto_ptr<Link>, Place );
+    Link& get_first_link() { return choices[0]; }
 
     operator const simparm::Node&() const { return *this; }
     operator simparm::Node&() { return *this; }

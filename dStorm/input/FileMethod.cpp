@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 
 #include <boost/algorithm/string.hpp>
@@ -32,11 +33,12 @@ FileMethod::FileMethod()
 
 FileMethod::FileMethod(const FileMethod& o)
 : simparm::Set(o),
-  chain::Forwarder(),
+  chain::Forwarder(o),
   simparm::Listener( simparm::Event::ValueChanged ),
   input_file(o.input_file),
   children(o.children)
 {
+    DEBUG("Copied file method " << this << " from " << &o);
     push_back( input_file );
     push_back( children );
     receive_changes_from( input_file.value );
@@ -51,6 +53,7 @@ FileMethod::~FileMethod() {}
 void FileMethod::operator()( const simparm::Event& )
 {
     ost::MutexLock lock( global_mutex() );
+    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << this->meta_info.get() );
     if ( this->meta_info.get() != NULL ) {
         this->meta_info->get_signal< InputFileNameChange >()( input_file() );
     }
@@ -65,7 +68,9 @@ class BasenameApplier {
     void operator()( const std::pair<std::string,std::string>& p ) {
         if ( applied ) return;
         std::string suffix = p.second;
-        if ( boost::iequals( basename.substr( basename.length() - suffix.length() ), suffix ) ) {
+        if ( basename.length() >= suffix.length() &&
+            boost::iequals( basename.substr( basename.length() - suffix.length() ), suffix ) ) 
+        {
             basename = basename.substr( 0, basename.length() - suffix.length() );
             applied = true;
         }
@@ -76,7 +81,9 @@ class BasenameApplier {
 Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
     Link::traits_changed( traits, from );
+    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << traits.get() );
     if ( traits.get() == NULL ) return notify_of_trait_change( traits );
+    DEBUG( "FileMethod " << this << " got traits " << traits->provides_nothing() );
     traits->get_signal< InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
@@ -130,6 +137,18 @@ void FileMethod::unit_test( TestState& t ) {
     file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), FileReader );
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
+
+    file_method.input_file = "";
+    FileMethod copy(file_method);
+    copy.input_file = TIFF::test_file_name;
+    t.testrun( copy.current_traits().get() && 
+               copy.current_traits()->provides<dStorm::engine::Image>() &&
+               copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+        "Copied file method can adapt to input file" );
+    t.testrun( copy.current_traits().get() && 
+               copy.current_traits()->provides<dStorm::engine::Image>() &&
+               copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+        "Copied file method is not mutated by original" );
 }
 
 }

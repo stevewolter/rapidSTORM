@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "../debug.h"
 
 #include "Alternatives.h"
@@ -42,6 +43,7 @@ class Alternatives::UpstreamCollector
     }
 
     AtEnd traits_changed( TraitsRef r, Link* from ) {
+        DEBUG("Traits changed from upstream in " << this  << " from " << from << " to " << r.get() );
         Link::traits_changed(r,from);
         traits = r;
         AtEnd rv;
@@ -53,33 +55,7 @@ class Alternatives::UpstreamCollector
         Link::context_changed(r,from);
         DEBUG("Context for " << from->getNode().getName() << " to " << this << " changed to " << r.get());
         contexts[from->getNode().getName()] = r;
-        if ( papa.value.hasValue() && from == &( papa.value() ) && r.get() == NULL ) {
-            DEBUG("Deselecting current choice");
-            bool found = false;
-            for ( iterator i = papa.beginChoices(); i != papa.endChoices(); ++i ) {
-                Contexts::iterator j = contexts.find(i->getNode().getName());
-                if ( j != contexts.end() && j->second.get() != NULL ) {
-                    papa.value = &*i;
-                    found = true;
-                }
-            }
-            if ( ! found ) {
-                papa.value = NULL;
-            }
-            /* The current field's value has just changed, triggering papa's
-             * operator() and thereby a context publication. We don't need
-             * to republish anything. */
-            return AtEnd();
-        } else if ( r.get() != NULL && ! papa.value.hasValue() && 
-                    from->current_traits().get() != NULL )
-        {
-            DEBUG("Selecting current choice");
-            papa.value = dynamic_cast<Filter*>(from);
-            /* The current field's value has just changed, triggering papa's
-             * operator() and thereby a context publication. We don't need
-             * to republish anything. */
-            return AtEnd();
-        } else if ( from == &(papa.value()) ) {
+        if ( from == &(papa.value()) ) {
             DEBUG("Forwarding context");
             return notify_of_context_change( r );
         } else {
@@ -189,8 +165,7 @@ Link::AtEnd Alternatives::traits_changed( TraitsRef t, Link* from ) {
         }
         if ( ! found ) 
             value = NULL;
-    } else if ( ! isValid() && t.get() != NULL 
-                && collector->has_valid_context(from) )
+    } else if ( ! isValid() && t.get() != NULL )
     {
         value = dynamic_cast<Filter*>(from);
     }

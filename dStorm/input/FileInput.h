@@ -1,6 +1,7 @@
 #ifndef DSTORM_INPUT_FILEINPUT_H
 #define DSTORM_INPUT_FILEINPUT_H
 
+#include <dStorm/debug.h>
 #include "chain/Link.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
@@ -20,6 +21,7 @@ class FileInput
     std::auto_ptr< boost::signals2::scoped_connection > filename_change;
 
     void open_file( const std::string& filename ) {
+        DEBUG(this << " got callback for filename " << filename);
         if ( ! current_file.is_initialized() || *current_file != filename ) {
             current_file = filename;
             reread_file();
@@ -46,16 +48,19 @@ class FileInput
         static_cast<CRTP&>(*this).modify_meta_info(*info);
         if ( file.get() )
             info->set_traits( file->getTraits().release() );
+        DEBUG(this << " is unregistering from " << filename_change.get());
         filename_change.reset( new boost::signals2::scoped_connection
             ( info->get_signal< InputFileNameChange >().connect
                 (boost::bind( &FileInput::open_file, boost::ref(*this), _1) ) ) );
+        DEBUG(this << " registered as " << filename_change.get() << " to " << info.get());
         this->notify_of_trait_change( info );
     }
   public:
     FileInput() { republish_traits(); }
     FileInput( const FileInput& o ) : chain::Terminus(o), 
         current_file(o.current_file), file(o.file), error(o.error)
-        { republish_traits(); }
+        { DEBUG("Copying file input " << &o << " to " << this); republish_traits(); }
+    ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     
     AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 };

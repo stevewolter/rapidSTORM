@@ -21,8 +21,11 @@ void Forwarder::set_more_specialized_link_element(Link* l) {
         set_upstream_element( *more_specialized, *this, Remove ); 
     }
     more_specialized = (l) ;
-    if ( l ) 
+    if ( l ) {
         set_upstream_element( *more_specialized, *this, Add ); 
+        if ( more_specialized->current_traits().get() )
+            this->traits_changed( more_specialized->current_traits(), more_specialized );
+    }
 }
 
 simparm::Node& Forwarder::getNode() {

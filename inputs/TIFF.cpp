@@ -1,5 +1,6 @@
 #define DSTORM_TIFFLOADER_CPP
 
+#define VERBOSE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -270,6 +271,7 @@ void ChainLink::modify_meta_info( chain::MetaInfo& i ) {
 }
 OpenFile* ChainLink::make_file( const std::string& n ) 
 {
+    DEBUG( "Creating file structure for " << n );
     return new OpenFile( n, config, config );
 }
 
