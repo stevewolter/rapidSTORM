@@ -18,7 +18,7 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    config->inputConfig.add_method( new dStorm::AndorCamera::Method(), dStorm::input::chain::Link::InputMethod );
+    config->add_input( new dStorm::AndorCamera::Method(), dStorm::InputMethod );
 }
 
 dStorm::Display::Manager*

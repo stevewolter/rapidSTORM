@@ -6,7 +6,7 @@
 #include <dStorm/stack_realign.h>
 #include <dStorm/Job.h>
 #include <dStorm/Engine.h>
-#include <dStorm/Config.h>
+#include "config/Grand.h"
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
@@ -41,7 +41,7 @@ namespace engine {
         std::auto_ptr<JobHandle> job_handle;
         /** Construction Configuration. This is a copy of the Config used
          *  to build this car. */
-        dStorm::Config config;
+        dStorm::GrandConfig config;
         /** Unique job identifier. */
         std::string ident;
         /** Runtime configuration. This is the storage locations for all
@@ -84,7 +84,7 @@ namespace engine {
         void run_computation( std::auto_ptr<ActiveProducer>, bool& stop );
 
       public:
-        Car (JobMaster*, const dStorm::Config &config) ;
+        Car (JobMaster*, const dStorm::GrandConfig &config) ;
         virtual ~Car();
 
         void drive();
@@ -92,7 +92,7 @@ namespace engine {
         bool needs_stopping() { return true; }
         DSTORM_REALIGN_STACK void run() ;
 
-        const dStorm::Config &getConfig() const { return config; }
+        const dStorm::GrandConfig &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }
 
         void restart();

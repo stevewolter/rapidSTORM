@@ -1,10 +1,9 @@
 #ifndef DSTORM_CARCONFIG_H
 #define DSTORM_CARCONFIG_H
 
-#include "engine/SpotFinder_decl.h"
-#include "engine/SpotFitterFactory_decl.h"
-#include "output/Config.h"
-#include "input/Config.h"
+#include <dStorm/Config.h>
+#include <dStorm/output/Config.h>
+#include <dStorm/input/Config.h>
 #include <memory>
 #include <list>
 #include <simparm/Set.hh>
@@ -19,7 +18,7 @@ namespace dStorm {
 
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
-    class Config : public simparm::Set
+    class GrandConfig : public simparm::Set, public Config
     {
       private:
         class TreeRoot;
@@ -34,10 +33,10 @@ namespace dStorm {
         void registerNamedEntries();
 
       public:
-        Config();
-        Config(const Config &c);
-        ~Config();
-        Config *clone() const { return new Config(*this); }
+        GrandConfig();
+        GrandConfig(const GrandConfig &c);
+        ~GrandConfig();
+        GrandConfig *clone() const { return new GrandConfig(*this); }
 
         input::Config& inputConfig;
         output::OutputSource& outputSource;
@@ -50,6 +49,8 @@ namespace dStorm {
         /** Number of parallel computation threads to run. */
         simparm::Entry<unsigned long> pistonCount;
 
+        void add_input( std::auto_ptr<input::chain::Link>, InsertionPlace );
+        void add_input( std::auto_ptr<input::chain::Filter>, InsertionPlace );
         void add_engine( std::auto_ptr<input::chain::Filter> );
         void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
         void add_spot_finder( engine::spot_finder::Factory* f ) 
@@ -57,6 +58,7 @@ namespace dStorm {
         void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> );
         void add_spot_fitter( engine::spot_fitter::Factory* f ) 
             { add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory>(f) ); }
+        void add_output( std::auto_ptr<output::OutputSource> );
 
         const input::chain::MetaInfo& get_meta_info() const;
         std::auto_ptr<input::BaseSource> makeSource();

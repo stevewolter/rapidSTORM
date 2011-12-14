@@ -12,6 +12,7 @@
 #include <simparm/Node_decl.hh>
 #include "Context_decl.h"
 #include "MetaInfo_decl.h"
+#include <dStorm/InsertionPlace.h>
 
 namespace dStorm {
 namespace input {
@@ -48,7 +49,7 @@ class Link {
 
     TraitsRef current_traits() const { return meta_info; }
 
-    enum Place { FileReader, InputMethod };
+    typedef dStorm::InsertionPlace Place;
     virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
  
   protected:

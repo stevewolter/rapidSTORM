@@ -24,8 +24,8 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace outputs {
 
-void add_viewer( output::Config& config ) {
-    config.addChoice( new viewer::Viewer::Source() );
+void add_viewer( Config& config ) {
+    config.add_output( new viewer::Viewer::Source() );
 }
 
 }

@@ -128,12 +128,9 @@ namespace input {
 using namespace chain;
 
 void FileMethod::unit_test( TestState& t ) {
-#if 1
-    t.untested("File method tests because of linkage problems");
-#else
     FileMethod file_method;
 
-    file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), chain::Link::FileReader );
+    file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), FileReader );
     t.testrun( file_method.current_traits().get(), 
         "Test method publishes traits" );
     t.testrun( file_method.current_traits()->provides_nothing(), 
@@ -149,7 +146,10 @@ void FileMethod::unit_test( TestState& t ) {
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
-    file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), chain::Link::FileReader );
+#if 1
+    t.untested("File method tests because of linkage problems");
+#else
+    file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), FileReader );
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 #endif

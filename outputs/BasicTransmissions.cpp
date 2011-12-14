@@ -17,16 +17,16 @@ using namespace dStorm::outputs;
 namespace dStorm {
 namespace output {
 
-void basic_outputs( Config* o ) {
+void basic_outputs( dStorm::Config* o ) {
     outputs::add_viewer( *o );
-    o->addChoice( new ProgressMeter::Source() );
-    o->addChoice( new LocalizationCounter::Source() );
-    o->addChoice( new AverageImage::Source() );
-    o->addChoice( memory_cache::make_output_source().release() );
-    o->addChoice( new TraceCountFilter::Source() );
-    o->addChoice( new Slicer::Source() );
-    o->addChoice( new RawImageFile::Source() );
-    o->addChoice( make_output_source<expression::Source>().release() );
+    o->add_output( new ProgressMeter::Source() );
+    o->add_output( new LocalizationCounter::Source() );
+    o->add_output( new AverageImage::Source() );
+    o->add_output( memory_cache::make_output_source().release() );
+    o->add_output( new TraceCountFilter::Source() );
+    o->add_output( new Slicer::Source() );
+    o->add_output( new RawImageFile::Source() );
+    o->add_output( make_output_source<expression::Source>().release() );
 }
 
 }

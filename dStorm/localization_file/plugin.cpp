@@ -13,13 +13,11 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    config->inputConfig.add_method( 
+    config->add_input( 
         new dStorm::localization_file::Reader::ChainLink(),
-        dStorm::input::chain::Link::FileReader );
-    config->outputConfig.addChoice( 
-        dStorm::output::make_output_source< dStorm::localization_file::writer::Output >().release() );
-    //config->inputConfig.add_filter( locprec::biplane_alignment::make_filter() );
-    //config->outputConfig.addChoice( write_help_file( new locprec::SpotFinderEstimator::Source() ) );
+        dStorm::FileReader );
+    config->add_output( 
+        dStorm::output::make_output_source< dStorm::localization_file::writer::Output >() );
 }
 
 dStorm::Display::Manager*

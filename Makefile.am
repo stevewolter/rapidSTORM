@@ -17,6 +17,7 @@ bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_V
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
+noinst_LTLIBRARIES = libcode.la
 plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la \
     libtestplugin.la librapidstormfile-plugin.la
 if CAN_BUILD_TWIDDLER
@@ -78,7 +79,7 @@ endif
 
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
-    dStorm/input/InputFileNameChange.h \
+    dStorm/InsertionPlace.h dStorm/input/InputFileNameChange.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
@@ -124,7 +125,6 @@ nobase_include_HEADERS = \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
     dStorm/output/Capabilities.h dStorm/output/Capabilities_decl.h \
-    dStorm/output/Config.h \
     dStorm/output/FileOutputBuilder.h \
     dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
     dStorm/output/FilterSource.h \
@@ -157,7 +157,6 @@ nobase_include_HEADERS = \
     dStorm/input/chain/FileContext_decl.h dStorm/input/chain/FileContext.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
     dStorm/input/chain/Alternatives.h dStorm/input/chain/EngineHelpers.h \
-    dStorm/input/Config_decl.h dStorm/input/Config.h \
     dStorm/input/Drain_decl.h dStorm/input/Drain.h \
     dStorm/input/Source_decl.h dStorm/input/Source.h dStorm/input/Source_impl.h \
     dStorm/input/Traits.h  \
@@ -192,7 +191,7 @@ nobase_include_HEADERS = \
 libdStorm_la_SOURCES = \
     dStorm/input/chain/MetaInfo.cpp \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
-    dStorm/JobMaster.cpp dStorm/UnitEntries.cpp dStorm/Config.cpp \
+    dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
     dStorm/localization/Field.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
@@ -214,11 +213,10 @@ libdStorm_la_SOURCES = \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
     dStorm/input/Source.cpp \
-    dStorm/input/Config.cpp dStorm/input/chain/Link.cpp dStorm/input/chain/Singleton.cpp dStorm/input/chain/Choice.cpp \
-    dStorm/input/FileMethod.h dStorm/input/FileMethod.cpp dStorm/input/chain/Alternatives.cpp \
+    dStorm/input/chain/Link.cpp dStorm/input/chain/Singleton.cpp dStorm/input/chain/Choice.cpp \
+    dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp dStorm/input/chain/Filter.cpp \
     dStorm/input/LocalizationTraits.cpp \
-    dStorm/input/InputMethods.h dStorm/input/InputMethods.cpp \
     dStorm/input/join.h dStorm/input/join.cpp \
     dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
     dStorm/input/join/iterator.hpp dStorm/input/join/iterator.cpp \
@@ -257,7 +255,15 @@ librapidstormfile_la_SOURCES = \
 librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
 librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libcode.la
+dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
+dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+
+libcode_la_CXXFLAGS = $(WX_CXXFLAGS)
+libcode_la_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+libcode_la_LIBADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
+libcode_la_SOURCES = \
     dstorm.cpp \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
@@ -266,13 +272,16 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE) \
     TIFFOperation.h TIFFOperation.cpp \
-    Car_decl.h Car.cpp Car.h 
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
-dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
-dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
+    Car_decl.h Car.cpp Car.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
+    dStorm/input/FileMethod.h dStorm/input/FileMethod.cpp \
+    dStorm/input/Config.cpp dStorm/output/Config.h \
+    dStorm/input/Config_decl.h dStorm/input/Config.h \
+    dStorm/input/InputMethods.h dStorm/input/InputMethods.cpp \
+    config/Grand.h config/Grand.cpp 
+
+libcode_la_SOURCES += \
 	inputs/TIFF.cpp \
 	inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
 	inputs/TIFF_OpenFile.cpp \
@@ -290,24 +299,25 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
     inputs/Buffer.cpp 
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
-	engine/Config.cpp engine/Config_decl.h engine/Config.h \
-	engine/Engine.cpp \
-	    engine/EngineDebug.h engine/Engine.h \
-	    engine/ImageFitter.h \
-	    engine/SpotFinder.cpp engine/debug.h  \
-	    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
-	    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
+    engine/Config.cpp engine/Config_decl.h engine/Config.h \
+    engine/Engine.cpp \
+    engine/EngineDebug.h engine/Engine.h \
+    engine/ImageFitter.h \
+    engine/SpotFinder.cpp engine/debug.h  \
+    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
+    engine/PlaneFlattener.h engine/PlaneFlattener.cpp
+
+libcode_la_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/Config.h engine_stm/Config.cpp \
 	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -317,7 +327,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.h \
@@ -331,7 +341,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/Spalttiefpass.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
@@ -466,7 +476,7 @@ check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp
 check_file_plugin_LDADD = librapidstormfile-plugin.la
 
 unit_tests_SOURCES = unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
-unit_tests_LDADD = libdStorm.la libtestplugin.la $(GraphicsMagick_LIBS)
+unit_tests_LDADD = libcode.la libtestplugin.la
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

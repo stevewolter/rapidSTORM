@@ -11,7 +11,6 @@
 
 #include "Traits.h"
 #include "Source_decl.h"
-#include "Config_decl.h"
 
 #include <any_iterator.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>

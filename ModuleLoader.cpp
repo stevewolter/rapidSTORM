@@ -120,18 +120,18 @@ void ModuleLoader::add_modules
     ( dStorm::Config& car_config )
 {
     DEBUG("Adding basic input modules");
-    dStorm::basic_inputs( &car_config.inputConfig );
+    dStorm::basic_inputs( &car_config );
     DEBUG("Adding rapidSTORM engine");
-    car_config.add_engine( engine::make_rapidSTORM_engine_link() );
-    car_config.add_engine( engine_stm::make_STM_engine_link() );
-    car_config.add_engine( noop_engine::makeLink() );
+    car_config.add_input( engine::make_rapidSTORM_engine_link(), AsEngine );
+    car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
+    car_config.add_input( noop_engine::makeLink(), AsEngine );
     DEBUG("Adding basic spot finders");
     car_config.add_spot_finder( spotFinders::make_Spalttiefpass() );
     car_config.add_spot_finder( spotFinders::make_Median() );
     car_config.add_spot_finder( spotFinders::make_Erosion() );
     car_config.add_spot_finder( spotFinders::make_Gaussian() );
     DEBUG("Adding basic output modules");
-    dStorm::output::basic_outputs( &car_config.outputConfig );
+    dStorm::output::basic_outputs( &car_config );
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();

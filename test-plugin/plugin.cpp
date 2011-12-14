@@ -36,26 +36,21 @@ const char * rapidSTORM_Plugin_Desc() {
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     if ( !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) return;
 
-    config->inputConfig.add_method( new dummy_file_input::Method(), dStorm::input::chain::Link::FileReader );
-    config->inputConfig.add_filter( make_verbose_input_filter() );
+    config->add_input( new dummy_file_input::Method(), dStorm::FileReader );
+    config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
     config->add_spot_finder( std::auto_ptr<dStorm::engine::spot_finder::Factory>(
         new FixedPositionSpotFinder::Finder::Factory() ) );
     config->add_spot_fitter( std::auto_ptr<dStorm::engine::spot_fitter::Factory>(
         new dStorm::debugplugin::DummyFitter::Source() ) );
 
-    dStorm::output::Config* outputs = &config->outputConfig;
-    try {
-        outputs->addChoice( new SegmentationFault::Source() );
-        outputs->addChoice( new Exception::Source() );
-        outputs->addChoice( new Memalloc::Source() );
-        outputs->addChoice( new Verbose::Source() );
-        outputs->addChoice( new Delayer::Source() );
-        outputs->addChoice( new BasenamePrinter::Source() );
-        outputs->addChoice( new Repeat::Source() );
-        outputs->addChoice( new SmoothedImageSave::Source() );
-    } catch ( const std::exception& e ) {
-        std::cerr << "Unable to add debug plugin: " << e.what() << "\n";
-    }
+    config->add_output( new SegmentationFault::Source() );
+    config->add_output( new Exception::Source() );
+    config->add_output( new Memalloc::Source() );
+    config->add_output( new Verbose::Source() );
+    config->add_output( new Delayer::Source() );
+    config->add_output( new BasenamePrinter::Source() );
+    config->add_output( new Repeat::Source() );
+    config->add_output( new SmoothedImageSave::Source() );
 }
 
 dStorm::Display::Manager*

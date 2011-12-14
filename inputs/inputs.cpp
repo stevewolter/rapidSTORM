@@ -1,7 +1,7 @@
 #include "config.h"
 
 #include <dStorm/engine/Image_decl.h>
-#include <dStorm/input/Config.h>
+#include <dStorm/Config.h>
 #include "TIFF.h"
 #include "BackgroundDeviationEstimator_decl.h"
 #include "Splitter_decl.h"
@@ -16,20 +16,20 @@ namespace dStorm {
 
 using engine::StormPixel;
 
-void basic_inputs( input::Config* inputConfig ) {
+void basic_inputs( dStorm::Config* config ) {
 #ifdef HAVE_TIFFIO_H
-    inputConfig->add_method( new TIFF::ChainLink(), dStorm::input::chain::Link::FileReader );
+    config->add_input( new TIFF::ChainLink(), dStorm::FileReader );
 #endif
 
-    inputConfig->add_filter( ROIFilter::makeFilter() );
-    inputConfig->add_filter( input::makeBufferChainLink() );
-    inputConfig->add_filter( input::Basename::makeLink() );
+    config->add_input( Splitter::makeLink(), BeforeEngine );
+    config->add_input( ROIFilter::makeFilter(), BeforeEngine );
+    config->add_input( input::makeBufferChainLink(), BeforeEngine );
+    config->add_input( input::Basename::makeLink(), BeforeEngine );
 
-    inputConfig->add_filter( Splitter::makeLink(), true );
-    inputConfig->add_filter( YMirror::makeLink() );
-    inputConfig->add_filter( BackgroundStddevEstimator::makeLink() );
-    inputConfig->add_filter( input::sample_info::makeLink() );
-    inputConfig->add_filter( input::resolution::makeLink() );
+    config->add_input( YMirror::makeLink(), BeforeEngine );
+    config->add_input( BackgroundStddevEstimator::makeLink(), BeforeEngine );
+    config->add_input( input::sample_info::makeLink(), BeforeEngine );
+    config->add_input( input::resolution::makeLink(), BeforeEngine );
     
 }
 

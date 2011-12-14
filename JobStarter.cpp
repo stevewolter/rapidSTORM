@@ -31,7 +31,7 @@ void JobStarter::operator()( const simparm::Event& ) {
         } catch ( const std::runtime_error& e ) {
             simparm::Message m("Starting job failed", e.what() );
             DEBUG("Got normal exception");
-            const_cast<Config&>(*config).send( m );
+            const_cast<GrandConfig&>(*config).send( m );
         }
         DEBUG("Finished handling job start");
       }

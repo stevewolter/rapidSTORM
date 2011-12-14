@@ -8,6 +8,8 @@
 
 namespace dStorm {
 
+class GrandConfig;
+
 class InputStream 
 : public JobMaster
 {
@@ -16,7 +18,7 @@ class InputStream
     std::auto_ptr<Pimpl> pimpl;
 
   public:
-    InputStream(const Config&,
+    InputStream(const GrandConfig&,
                 std::istream&, std::ostream&);
     InputStream(std::istream*, std::ostream*);
     ~InputStream();

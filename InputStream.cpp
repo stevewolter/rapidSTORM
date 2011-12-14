@@ -6,6 +6,7 @@
 #include "ModuleLoader.h"
 #include "JobStarter.h"
 #include "Car.h"
+#include "config/Grand.h"
 
 #include <simparm/IO.hh>
 
@@ -36,8 +37,8 @@ struct InputStream::Pimpl
 
     bool exhausted_input;
 
-    std::auto_ptr<Config> original;
-    std::auto_ptr<Config> config;
+    std::auto_ptr<GrandConfig> original;
+    std::auto_ptr<GrandConfig> config;
     std::auto_ptr<JobStarter> starter;
     boost::thread input_watcher;
 
@@ -51,7 +52,7 @@ struct InputStream::Pimpl
         JobHandle( Pimpl& m, dStorm::Job& j ) : master(m), job(j), registered(true) {}
     };
 
-    Pimpl(InputStream& papa, const Config*, 
+    Pimpl(InputStream& papa, const GrandConfig*, 
           std::istream*, std::ostream*);
     ~Pimpl();
 
@@ -69,7 +70,7 @@ struct InputStream::Pimpl
 };
 
 InputStream::InputStream(
-    const Config& c,
+    const GrandConfig& c,
     std::istream& i, std::ostream& o)
 : pimpl( new Pimpl(*this, &c, &i, &o) )
 {
@@ -86,13 +87,13 @@ InputStream::~InputStream()
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
-    const Config* c,
+    const GrandConfig* c,
     std::istream* i, std::ostream* o)
 : simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
   exhausted_input( i == NULL ),
-  original( (c) ? new Config(*c) : NULL ),
+  original( (c) ? new GrandConfig(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL )
 {
     this->showTabbed = true;
@@ -105,7 +106,7 @@ InputStream::Pimpl::Pimpl(
 void InputStream::Pimpl::reset_config() {
     ost::MutexLock lock(mutex);
     if ( original.get() ) {
-        config.reset( new Config(*original) );
+        config.reset( new GrandConfig(*original) );
         this->push_back( *config );
         config->push_back( *starter );
         starter->setConfig( *config );

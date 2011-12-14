@@ -3,24 +3,24 @@
 #include "config.h"
 #endif
 #include "debug.h"
-#include "Config.h"
-#include "engine/SpotFitterFactory.h"
-#include "engine/SpotFinder.h"
-#include "input/Config.h"
-#include "output/FilterSource.h"
-#include "output/SourceFactory.h"
-#include "output/Basename.h"
-#include "engine/ClassicEngine.h"
-#include "Engine.h"
+#include "config/Grand.h"
+#include <dStorm/engine/SpotFitterFactory.h>
+#include <dStorm/engine/SpotFinder.h>
+#include <dStorm/input/Config.h>
+#include <dStorm/output/FilterSource.h>
+#include <dStorm/output/SourceFactory.h>
+#include <dStorm/output/Basename.h>
+#include <dStorm/engine/ClassicEngine.h>
+#include <dStorm/Engine.h>
 
-#include "helpers/thread.h"
+#include <dStorm/helpers/thread.h>
 #include <sstream>
 
 #include <simparm/ChoiceEntry_Impl.hh>
-#include "input/chain/MetaInfo.h"
-#include "input/chain/Context.h"
-#include "input/chain/Alternatives.h"
-#include "input/InputMutex.h"
+#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/chain/Context.h>
+#include <dStorm/input/chain/Alternatives.h>
+#include <dStorm/input/InputMutex.h>
 
 #include <cassert>
 
@@ -56,7 +56,7 @@ namespace boost {
 
 namespace dStorm {
 
-class Config::TreeRoot : public simparm::Object, public output::FilterSource
+class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
     output::Config* my_config;
     output::Capabilities cap;
@@ -89,7 +89,7 @@ class Config::TreeRoot : public simparm::Object, public output::FilterSource
     }
 };
 
-class Config::EngineChoice
+class GrandConfig::EngineChoice
 : input::chain::Link {
     input::chain::Alternatives alternatives;
     boost::ptr_list<input::chain::Filter> engines;
@@ -150,7 +150,7 @@ class Config::EngineChoice
     }
     
   public:
-    EngineChoice(Config& config) 
+    EngineChoice(GrandConfig& config) 
         : alternatives("Engine", "Choose engine") ,
           initial_context( new input::chain::Context() )
     {
@@ -165,7 +165,7 @@ class Config::EngineChoice
         initial_context->need_multiple_concurrent_iterators = true;
         alternatives.context_changed( initial_context, this );
     }
-    EngineChoice(const EngineChoice& o, Config& config) 
+    EngineChoice(const EngineChoice& o, GrandConfig& config) 
     : alternatives(o.alternatives),
       finders(o.finders),
       fitters(o.fitters),
@@ -243,7 +243,7 @@ class Config::EngineChoice
     }
 };
 
-Config::TreeRoot::TreeRoot()
+GrandConfig::TreeRoot::TreeRoot()
 : simparm::Object("EngineOutput", "dSTORM engine output"),
   output::FilterSource( static_cast<simparm::Object&>(*this) ),
   cap( output::Capabilities()
@@ -270,7 +270,7 @@ Config::TreeRoot::TreeRoot()
     DEBUG("Finished building output tree node");
 }
 
-Config::Config() 
+GrandConfig::GrandConfig() 
 : Set("Car", "Job options"),
   _inputConfig( new input::Config() ),
   outputRoot( new TreeRoot() ),
@@ -311,7 +311,7 @@ Config::Config()
     registerNamedEntries();
 }
 
-Config::Config(const Config &c) 
+GrandConfig::GrandConfig(const GrandConfig &c) 
 : simparm::Set(c),
   _inputConfig(c.inputConfig.clone()),
   outputRoot(c.outputRoot->clone()),
@@ -329,14 +329,14 @@ Config::Config(const Config &c)
     DEBUG("Copied Car config");
 }
 
-Config::~Config() {
+GrandConfig::~GrandConfig() {
     ost::MutexLock lock( input::global_mutex() );
     outputRoot.reset( NULL );
     engine_choice.reset( NULL );
     _inputConfig.reset( NULL );
 }
 
-void Config::registerNamedEntries() {
+void GrandConfig::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputBox.push_back( *outputRoot );
    push_back( inputConfig );
@@ -348,24 +348,47 @@ void Config::registerNamedEntries() {
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 
-void Config::add_engine( std::auto_ptr<input::chain::Filter> engine) {
+void GrandConfig::add_engine( std::auto_ptr<input::chain::Filter> engine) {
     engine_choice->add( engine );
 }
 
-void Config::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> engine) {
+void GrandConfig::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> engine) {
     engine_choice->add( engine );
 }
 
-void Config::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> engine) {
+void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> engine) {
     engine_choice->add( engine );
 }
 
-std::auto_ptr<input::BaseSource> Config::makeSource() {
+void GrandConfig::add_input( std::auto_ptr<input::chain::Filter> f, InsertionPlace p) {
+    if ( p == AsEngine )
+        engine_choice->add( f );
+    else if ( p == AfterChannels ) {
+        _inputConfig->add_filter( f, true );
+    } else if ( p == BeforeEngine ) {
+        _inputConfig->add_filter( f, false );
+    } else
+        assert(false);
+}
+
+void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
+    if ( p == FileReader || p == InputMethod )
+        _inputConfig->add_method( l, p );
+    else
+        assert(false);
+        
+}
+
+void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
+    outputConfig.addChoice( o.release() );
+}
+
+std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
     return std::auto_ptr<input::BaseSource>( engine_choice->makeSource() );
 }
 
 const input::chain::MetaInfo&
-Config::get_meta_info() const {
+GrandConfig::get_meta_info() const {
     return engine_choice->get_meta_info();
 }
 
