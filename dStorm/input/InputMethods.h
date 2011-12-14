@@ -16,7 +16,7 @@ class InputMethods
     InputMethods(const InputMethods&);
     ~InputMethods();
     InputMethods* clone() const { return new InputMethods(*this); }
-    void insert_new_node( std::auto_ptr<chain::Link> );
+    void insert_new_node( std::auto_ptr<chain::Link>, Place );
 };
 
 }

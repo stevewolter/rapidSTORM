@@ -46,9 +46,9 @@ BaseSource* Forwarder::makeSource() {
     return ms;
 }
 
-void Forwarder::insert_new_node( std::auto_ptr<Link> n ) {
+void Forwarder::insert_new_node( std::auto_ptr<Link> n, Place p ) {
     assert( more_specialized );
-    more_specialized->insert_new_node(n);
+    more_specialized->insert_new_node(n,p);
 }
 
 }

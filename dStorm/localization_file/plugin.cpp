@@ -14,7 +14,8 @@ const char * rapidSTORM_Plugin_Desc() {
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->inputConfig.add_method( 
-        new dStorm::localization_file::Reader::ChainLink() );
+        new dStorm::localization_file::Reader::ChainLink(),
+        dStorm::input::chain::Link::FileReader );
     config->outputConfig.addChoice( 
         dStorm::output::make_output_source< dStorm::localization_file::writer::Output >().release() );
     //config->inputConfig.add_filter( locprec::biplane_alignment::make_filter() );

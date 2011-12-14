@@ -30,7 +30,7 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    config->inputConfig.add_method( new locprec::NoiseConfig() );
+    config->inputConfig.add_method( new locprec::NoiseConfig(), dStorm::input::chain::Link::InputMethod );
     //config->inputConfig.add_filter( locprec::biplane_alignment::make_filter() );
     config->add_spot_finder( 
         new locprec::FillholeSmoother::Factory() );

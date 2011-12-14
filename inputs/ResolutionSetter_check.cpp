@@ -48,7 +48,7 @@ struct MoreSpecialized : public dStorm::input::chain::Link {
     virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
     virtual simparm::Node& getNode() { return node; }
-    void insert_new_node( std::auto_ptr<dStorm::input::chain::Link> ) {}
+    void insert_new_node( std::auto_ptr<dStorm::input::chain::Link>, Place ) {}
 };
 
 struct LessSpecialized : public dStorm::input::chain::Forwarder {

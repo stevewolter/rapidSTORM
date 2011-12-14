@@ -273,9 +273,9 @@ void Alternatives::throw_exception_for_invalid_configuration() const
     throw std::runtime_error("No alternative chosen for '" + getDesc() + "'");
 }
 
-void Alternatives::insert_new_node( std::auto_ptr<Link> link )
+void Alternatives::insert_new_node( std::auto_ptr<Link> link, Place p )
 {
-    collector->insert_new_node(link);
+    collector->insert_new_node(link,p);
 }
 
 }

@@ -48,7 +48,8 @@ class Link {
 
     TraitsRef current_traits() const { return meta_info; }
 
-    virtual void insert_new_node( std::auto_ptr<Link> ) = 0;
+    enum Place { FileReader, InputMethod };
+    virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
  
   protected:
     enum SetType { Add, Remove };
@@ -66,9 +67,10 @@ struct Terminus : public Link {
      *  for its virtual table entry and will simply throw an error when
      *  called. */
     virtual AtEnd traits_changed( TraitsRef, Link* );
+    AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 
     virtual Terminus* clone() const = 0;
-    virtual void insert_new_node( std::auto_ptr<Link> l ); 
+    virtual void insert_new_node( std::auto_ptr<Link> l, Place ); 
 };
 
 }

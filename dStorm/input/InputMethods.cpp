@@ -1,6 +1,5 @@
 #include "InputMethods.h"
 #include "FileMethod.h"
-#include "FileInput.h"
 #include <simparm/ChoiceEntry_Iterator.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 
@@ -31,12 +30,14 @@ InputMethods::~InputMethods()
     remove_choice(*file_method);
 }
 
-void InputMethods::insert_new_node( std::auto_ptr<Link> l ) 
+void InputMethods::insert_new_node( std::auto_ptr<Link> l, Place p ) 
 {
-    if ( dynamic_cast< FileInput* >(l.get()) )
-        file_method->insert_new_node(l);
+    if ( p == FileReader )
+        file_method->insert_new_node(l,p);
+    else if ( p == InputMethod )
+        Choice::insert_new_node(l,p);
     else
-        Choice::insert_new_node(l);
+        throw std::logic_error("No appropriate place to insert input filter");
 }
 
 }

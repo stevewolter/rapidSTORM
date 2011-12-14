@@ -238,8 +238,8 @@ class Config::EngineChoice
         }
     }
 
-    void insert_new_node( std::auto_ptr<Link> link ) {
-        alternatives.insert_new_node(link);
+    void insert_new_node( std::auto_ptr<Link> link, Place p ) {
+        alternatives.insert_new_node(link,p);
     }
 };
 

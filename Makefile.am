@@ -11,7 +11,7 @@ C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
     check_traits check_file_plugin \
-    check_unittable
+    check_unittable unit_tests
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
@@ -78,6 +78,7 @@ endif
 
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
+    dStorm/input/InputFileNameChange.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
@@ -463,6 +464,9 @@ check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
 check_image_iterator_LDADD = libdStorm.la
 check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp 
 check_file_plugin_LDADD = librapidstormfile-plugin.la
+
+unit_tests_SOURCES = unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
+unit_tests_LDADD = libdStorm.la libtestplugin.la $(GraphicsMagick_LIBS)
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

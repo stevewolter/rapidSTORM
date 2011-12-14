@@ -8,6 +8,8 @@
 #include <dStorm/image/constructors.h>
 #include <boost/iterator/iterator_facade.hpp>
 #include <dStorm/input/chain/FileContext.h>
+#include <dStorm/input/InputFileNameChange.h>
+#include <dStorm/input/InputMutex.h>
 
 #undef DEBUG
 #define VERBOSE
@@ -17,31 +19,14 @@ using namespace dStorm::input;
 using namespace dStorm::input::chain;
 using namespace boost::units;
 
-namespace dStorm {
-namespace input {
-
-template <>
-class Traits<int> 
-: public BaseTraits {
-    Traits<int>* clone() const { return new Traits<int>(*this); }
-    std::string desc() const { return "int"; }
-};
-
-}
-}
-
 namespace dummy_file_input {
 
-Source::Source(const Config& config, Context::ConstPtr ptr) 
+Source::Source(const Config& config, boost::shared_ptr<OpenFile> of) 
 : simparm::Set("YDummyInput", "Dummy input"),
   dStorm::input::Source<dStorm::engine::Image>
     ( static_cast<simparm::Node&>(*this), Capabilities() ),
-  number( config.number() )
+  of( of )
 {
-    const FileContext& context = static_cast<const FileContext&>(*ptr);
-    size.x() = config.width() * boost::units::camera::pixel;
-    size.y() = config.height() * boost::units::camera::pixel;
-    DEBUG( "Simulating file input from '" << context.input_file << "'" );
 }
 
 Source::~Source() {}
@@ -49,11 +34,7 @@ Source::~Source() {}
 Source::TraitsPtr
 Source::get_traits()
 {
-    TraitsPtr rv( new TraitsPtr::element_type() );
-    rv->size = size;
-    rv->image_number().range().first = 0 * camera::frame;
-    rv->image_number().range().second = (number - 1) * camera::frame;
-    return rv;
+    return TraitsPtr( dynamic_cast< Traits* >(of->getTraits().release()) );
 }
 
 class Source::_iterator 
@@ -70,15 +51,15 @@ class Source::_iterator
     bool equal(const _iterator& o) const { return o.n == n; }
 
   public:
-    _iterator(int pos, dStorm::engine::Image::Size sz) 
-        : sz(sz), image(sz), n(pos) { image.fill(0); }
+    _iterator(int pos, const OpenFile& of) 
+        : sz(of.get_size()), image(sz), n(pos) { image.fill(0); }
 };
 
 Source::iterator Source::begin() {
-    return iterator( _iterator(0, size) );
+    return iterator( _iterator(0, *of) );
 }
 Source::iterator Source::end() {
-    return iterator( _iterator(number, size) );
+    return iterator( _iterator(of->image_number(), *of) );
 }
 
 Config::Config()
@@ -103,63 +84,13 @@ Method::Method()
     registerNamedEntries();
 }
 
-Method::Method(const Method& o) 
-: dStorm::input::FileInput(o),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  config(o.config),
-  context(o.context),
-  currently_loaded_file(o.currently_loaded_file)
-{
-    registerNamedEntries();
-}
-
 Source* Method::makeSource() {
-    return new Source(config, context);
-}
-
-Method::AtEnd Method::make_new_traits() {
-    MetaInfo::Ptr rv( new dStorm::input::chain::FileMetaInfo() );
-    if ( config.goIntType() ) {
-        rv->set_traits( new dStorm::input::Traits<int>() );
-    } else {
-        dStorm::input::Traits<dStorm::engine::Image> t;
-        t.size.x() = config.width() * camera::pixel;
-        t.size.y() = config.height() * camera::pixel;
-        t.image_number().range().first = 0 * camera::frame;
-        t.image_number().range().second = 
-            dStorm::traits::ImageNumber::ValueType::from_value(config.number() - 1);
-        rv->set_traits( new dStorm::input::Traits<dStorm::engine::Image>(t) );
-    }
-    rv->suggested_output_basename.unformatted() = "testoutputfile";
-    return notify_of_trait_change( rv );
-}
-
-Method::AtEnd Method::context_changed( ContextRef ctx, Link* l )
-{
-    FileInput::context_changed(ctx, l);
-    context = ctx;
-
-    std::string new_file = static_cast<const FileContext&>(*ctx).input_file;
-    if ( new_file != currently_loaded_file ) {
-        if ( new_file != "" ) {
-            std::ifstream test(new_file.c_str(), std::ios_base::in);
-            if ( test ) {
-                currently_loaded_file = new_file;
-                return make_new_traits();
-            } else {
-                return notify_of_trait_change( MetaInfo::Ptr() );
-            }
-        } else {
-            currently_loaded_file = new_file;
-            return notify_of_trait_change( MetaInfo::Ptr() );
-        }
-    } else {
-        return Method::AtEnd();
-    }
+    return new Source(config, get_file());
 }
 
 void Method::operator()(const simparm::Event& e) {
-    make_new_traits();
+    ost::MutexLock lock( global_mutex() );
+    reread_file();
 }
 
 void Method::registerNamedEntries() {

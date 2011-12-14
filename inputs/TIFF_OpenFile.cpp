@@ -21,6 +21,11 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
   current_directory(0),
   _no_images(-1)
 {
+    if ( filename == test_file_name ) {
+        size[0] = size[1] = size[2] = 42;
+        tiff = NULL;
+        return;
+    }
     size[0] = size[1] = size[2] = 0;
     TIFFOperation op( "in opening TIFF file",
                       n, ignore_warnings );
@@ -104,11 +109,14 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
     return rv;
 }
 
-template std::auto_ptr< Traits<dStorm::Image<unsigned short,3> > > 
-    OpenFile::getTraits<unsigned short,3>(bool, simparm::Entry<long>&);
-
 OpenFile::~OpenFile() {
-    TIFFClose( tiff );
+    if ( tiff ) TIFFClose( tiff );
+}
+
+std::auto_ptr<BaseTraits> OpenFile::getTraits()
+{
+    simparm::Entry<long> unused("Foo", "Foo");
+    return std::auto_ptr<BaseTraits>( getTraits<unsigned short,3>(false, unused).release() );
 }
 
 }

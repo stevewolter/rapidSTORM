@@ -15,16 +15,18 @@ struct MetaInfo {
     typedef boost::shared_ptr<const MetaInfo> ConstPtr;
 
     MetaInfo();
+    MetaInfo( const MetaInfo& );
     virtual ~MetaInfo();
     virtual MetaInfo* clone() const { return new MetaInfo(*this); }
 
   private:
     struct Signals;
-    boost::shared_ptr<Signals> _signals;
+    std::auto_ptr<Signals> _signals;
     boost::shared_ptr<BaseTraits> _traits;
   public:
     dStorm::output::Basename suggested_output_basename;
     std::set<std::string> forbidden_filenames;
+    std::list< std::pair<std::string,std::string> > accepted_basenames;
 
     void set_traits( boost::shared_ptr<BaseTraits> t ) { _traits = (t); }
     void set_traits( BaseTraits* t ) { _traits.reset(t); }
@@ -40,12 +42,12 @@ struct MetaInfo {
     template <typename Type>
     boost::shared_ptr< const Traits<Type> > traits() const
         { return boost::dynamic_pointer_cast< const Traits<Type>, BaseTraits >(_traits); }
-    bool provides_nothing() const { return _traits.get(); }
+    bool provides_nothing() const { return _traits.get() == NULL; }
 
     template <typename Type> Type& get_signal();
     template <typename Type> const Type& get_signal() const 
         { return const_cast<MetaInfo&>(*this).get_signal<Type>(); }
-    void forward_connections( boost::shared_ptr<const MetaInfo> );
+    void forward_connections( const MetaInfo& );
 };
 
 }

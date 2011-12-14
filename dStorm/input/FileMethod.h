@@ -8,6 +8,8 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
 
+class TestState;
+
 namespace dStorm {
 namespace input {
 
@@ -16,7 +18,6 @@ class FileMethod
   public chain::Forwarder,
   protected simparm::Listener
 {
-  public:
     boost::shared_ptr<const chain::FileContext> context;
     simparm::FileEntry input_file;
     chain::Choice children;
@@ -37,6 +38,7 @@ class FileMethod
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 
+    static void unit_test( TestState& ); 
 };
 
 }

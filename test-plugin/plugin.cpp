@@ -36,7 +36,7 @@ const char * rapidSTORM_Plugin_Desc() {
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     if ( !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) return;
 
-    config->inputConfig.add_method( new dummy_file_input::Method() );
+    config->inputConfig.add_method( new dummy_file_input::Method(), dStorm::input::chain::Link::FileReader );
     config->inputConfig.add_filter( make_verbose_input_filter() );
     config->add_spot_finder( std::auto_ptr<dStorm::engine::spot_finder::Factory>(
         new FixedPositionSpotFinder::Finder::Factory() ) );

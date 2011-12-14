@@ -1,10 +1,12 @@
+#define VERBOSE
 #include "debug.h"
 #include "Link.h"
 #include <simparm/Node.hh>
 
 #ifdef VERBOSE
-#include "engine/Image.h"
-#include "ImageTraits.h"
+#include "dStorm/engine/Image.h"
+#include "dStorm/ImageTraits.h"
+#include "MetaInfo.h"
 #include "Context_impl.h"
 #endif
 
@@ -53,7 +55,7 @@ Link::AtEnd Link::context_changed( ContextRef r, Link* l ) {
     return AtEnd();
 }
 Link::AtEnd Link::traits_changed( TraitsRef r, Link* l ) {
-    DEBUG("Traits " << r.get() << " passing from " << l << "(" << ((l) ? l->getNode().getName() : "NULL") << ") by " << this << "(" << getNode().getName()  << ")");
+    DEBUG("Traits " << r.get() << " providing " << ((r.get() && r->provides_nothing()) ? "nothing" : "something") << " passing from " << l << "(" << ((l) ? l->getNode().getName() : "NULL") << ") by " << this << "(" << getNode().getName()  << ")");
     return AtEnd();
 }
 
@@ -67,7 +69,7 @@ Terminus::AtEnd Terminus::traits_changed( TraitsRef, Link* )
     return AtEnd();
 }
 
-void Terminus::insert_new_node( std::auto_ptr<Link> l ) {
+void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {
         throw std::logic_error("No insertion point found for " + l->getNode().getName());
     }
 

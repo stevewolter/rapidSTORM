@@ -19,7 +19,6 @@ struct FileContext : public Context {
 struct FileMetaInfo : public MetaInfo {
     virtual FileMetaInfo* clone() const { return new FileMetaInfo(*this); }
 
-    std::list< std::pair<std::string,std::string> > accepted_basenames;
 };
 
 }

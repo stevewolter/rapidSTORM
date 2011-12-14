@@ -36,10 +36,14 @@
 #include <dStorm/input/InputFileNameChange.h>
 #include <dStorm/input/InputMutex.h>
 
+#include "dejagnu.h"
+
 using namespace std;
 
 namespace dStorm {
 namespace TIFF {
+
+const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
 template<typename Pixel, int Dimensions>
 Source<Pixel,Dimensions>::Source( boost::shared_ptr<OpenFile> file )
@@ -224,30 +228,10 @@ ChainLink::ChainLink()
     receive_changes_from( config.determine_length.value );
 }
 
-ChainLink::ChainLink(const ChainLink& o) 
-: FileInput(o), 
-  simparm::Listener( simparm::Event::ValueChanged ),
-  config(o.config), file(o.file)
-{
-    receive_changes_from( config.ignore_warnings.value );
-    receive_changes_from( config.determine_length.value );
-}
-
 BaseSource*
 ChainLink::makeSource()
 {
-    return new Source<engine::Image::Pixel,engine::Image::Dim>( file );
-}
-
-ChainLink::AtEnd
-ChainLink::context_changed( ContextRef ocontext, Link* link )
-{
-    FileInput::context_changed( ocontext, link );
-
-    this->context = boost::dynamic_pointer_cast
-        <const input::chain::FileContext, const input::chain::Context>
-        ( ocontext );
-    return AtEnd();
+    return new Source<engine::Image::Pixel,engine::Image::Dim>( get_file() );
 }
 
 template<typename Pixel, int Dimensions>
@@ -267,35 +251,27 @@ Source<Pixel,Dimensions>::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
     ost::MutexLock lock( global_mutex() );
-    open_file( (file.get()) ? file->for_file() : "" );
+    republish_traits();
 }
 
-void ChainLink::open_file( const std::string& filename ) {
-    const std::string& old_name = (file.get()) ? file->for_file() : "";
-    if ( old_name == filename ) {
-        return;
-    } else {
-        file.reset();
-        boost::shared_ptr<chain::FileMetaInfo> info;
-        if ( filename != "" ) {
-            try {
-                file.reset( new OpenFile( filename, config, config ) );
-                info.reset( new chain::FileMetaInfo() );
+void ChainLink::unit_test( TestState& s ) {
+    ChainLink l;
+    s.testrun( l.current_traits().get() 
+            && l.current_traits()->provides_nothing(),
+        "Traits are right for empty file" );
+    l.current_traits()->get_signal< InputFileNameChange >()( test_file_name );
+    s.testrun( l.current_traits().get() 
+            && ! l.current_traits()->provides_nothing(),
+        "Traits are right for test file" );
+}
 
-                simparm::Entry<long> unused("Foo", "Foo");
-                info->set_traits( file->getTraits<engine::Image::Pixel, engine::Image::Dim>(false, unused).release() );
-                info->accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
-                info->accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
-                filename_change.reset( new boost::signals2::scoped_connection
-                    ( info->get_signal< InputFileNameChange >().connect
-                        (boost::bind( &ChainLink::open_file, *this, _1) ) ) );
-            } catch(...) {
-                if ( context.get() && context->throw_errors )
-                    throw;
-            }
-        }
-        this->notify_of_trait_change( info );
-    }
+void ChainLink::modify_meta_info( chain::MetaInfo& i ) {
+    i.accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
+    i.accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
+}
+OpenFile* ChainLink::make_file( const std::string& n ) 
+{
+    return new OpenFile( n, config, config );
 }
 
 }

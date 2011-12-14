@@ -15,7 +15,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/shared_ptr.hpp>
 #include <list>
-#include "chain/Link_decl.h"
+#include "chain/Link.h"
 
 /** The dStorm::input namespace provides the functionality to read
  *  sequences of images. The Buffer class provides a simple, vectoresque
@@ -45,9 +45,9 @@ namespace input {
         void add_filter( std::auto_ptr<chain::Filter> forwarder, bool front = false );
         void add_filter( chain::Filter* forwarder, bool front = false ) 
             { add_filter( std::auto_ptr<chain::Filter>(forwarder), front ); }
-        void add_method( std::auto_ptr<chain::Link> method );
-        void add_method( chain::Link* forwarder ) 
-            { add_method( std::auto_ptr<chain::Link>(forwarder) ); }
+        void add_method( std::auto_ptr<chain::Link> method, chain::Link::Place );
+        void add_method( chain::Link* forwarder, chain::Link::Place p ) 
+            { add_method( std::auto_ptr<chain::Link>(forwarder), p ); }
 
         //simparm::Attribute<std::string>& input_file();
 

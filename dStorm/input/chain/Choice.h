@@ -13,13 +13,11 @@ class Choice
 : public Link, public simparm::NodeChoiceEntry<Link>, 
   public simparm::Listener
 {
-    ContextRef current_context;
     boost::shared_ptr<MetaInfo> my_traits;
-    boost::shared_ptr<Context> no_throw_context;
     bool auto_select;
     boost::ptr_vector< Link > choices;
 
-    Choice::AtEnd publish_traits( TraitsRef );
+    Choice::AtEnd publish_traits();
 
   protected:
     virtual void operator()(const simparm::Event&);
@@ -31,7 +29,7 @@ class Choice
     ~Choice();
     
     virtual AtEnd traits_changed( TraitsRef, Link* );
-    virtual AtEnd context_changed( ContextRef, Link* );
+    virtual AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 
     virtual BaseSource* makeSource();
     virtual Choice* clone() const;
@@ -40,7 +38,7 @@ class Choice
     virtual void add_choice( Link&, ChoiceEntry::iterator where );
     virtual void remove_choice( Link& );
 
-    void insert_new_node( std::auto_ptr<Link> );
+    void insert_new_node( std::auto_ptr<Link>, Place );
 
     operator const simparm::Node&() const { return *this; }
     operator simparm::Node&() { return *this; }

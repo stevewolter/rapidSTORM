@@ -13,6 +13,7 @@
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/input/LocalizationTraits.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "field_decl.h"
 #include <dStorm/localization/record.h>
@@ -36,7 +37,7 @@ namespace Reader {
 
         File(std::string filename, const Traits& );
         ~File();
-        Traits getTraits() const;
+        std::auto_ptr<Traits> getTraits() const;
         localization::Record read_next();
 
         int number_of_newlines();
@@ -81,17 +82,16 @@ namespace Reader {
     };
 
     class ChainLink
-    : public input::FileInput
+    : public input::FileInput< ChainLink, File >
     {
-        boost::shared_ptr<File> file;
-
         simparm::Structure<Config> config;
+        friend class input::FileInput<ChainLink,File>;
+        File* make_file( const std::string& );
+        void modify_meta_info( input::chain::MetaInfo& info );
 
       public:
         ChainLink();
         ~ChainLink();
-
-        virtual AtEnd context_changed( ContextRef context, Link* );
 
         virtual input::Source<localization::Record>* makeSource();
         virtual ChainLink* clone() const { return new ChainLink(*this); }

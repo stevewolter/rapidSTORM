@@ -21,8 +21,6 @@ Choice::Choice(std::string name, std::string desc, bool auto_select)
 Choice::Choice(const Choice& o)
 : Link(o), simparm::NodeChoiceEntry<Link>(o, simparm::NodeChoiceEntry<Link>::NoCopy),
   simparm::Listener( simparm::Event::ValueChanged ),
-  current_context(o.current_context),
-  no_throw_context(o.no_throw_context),
   auto_select(o.auto_select),
   choices()
 {
@@ -52,56 +50,34 @@ Choice::~Choice() {
 void Choice::operator()(const simparm::Event&)
 {
     ost::MutexLock lock( global_mutex() );
-    if ( value.hasValue() )
-        publish_traits( value().current_traits() );
+    publish_traits();
 }
 
 Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
-    if ( auto_select && &( value() ) == NULL && ( t.get() != NULL && ! t->provides_nothing() ) )
+    if ( auto_select && ! isValid() && ( t.get() != NULL && ! t->provides_nothing() ) )
         value = *from;
-    if ( from == &( value() ) )
-        return publish_traits( t );
-    else {
-        /* The traits are not needed since its source is not
-         * the current choice. */
-        return AtEnd();
-    }
+    return publish_traits();
 }
 
-Choice::AtEnd Choice::publish_traits( TraitsRef t ) {
-    if ( t.get() != NULL ) {
-        my_traits.reset( new MetaInfo(*t) );
-        BOOST_FOREACH( const Link& link, choices )
-            my_traits->forward_connections( link.current_traits() );
-    } else {
-        my_traits.reset();
+Choice::AtEnd Choice::publish_traits() {
+    TraitsRef exemplar;
+    if ( this->isValid() && value().current_traits().get() )
+        exemplar = value().current_traits();
+    if ( exemplar.get() )
+        my_traits.reset( new MetaInfo(*exemplar) );
+    else
+        my_traits.reset( new MetaInfo() );
+    BOOST_FOREACH( const Link& link, choices ) {
+        if ( link.current_traits() != exemplar && link.current_traits().get() )
+            my_traits->forward_connections( *link.current_traits() );
     }
     return notify_of_trait_change( my_traits );
 }
 
-Choice::AtEnd Choice::context_changed( ContextRef context, Link* link ) {
-    Link::context_changed(context, link);
-    current_context = context;
-    if ( context.get() ) {
-        no_throw_context.reset( context->clone() );
-        no_throw_context->throw_errors = false;
-    } else {
-        no_throw_context.reset();
-    }
-    AtEnd rv;
-    for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-        if ( &value() == &*i )
-            rv = i->context_changed( current_context, this );
-        else
-            rv = i->context_changed( no_throw_context, this );
-    }
-    if ( context->throw_errors && !isValid() )
-        throw std::runtime_error("No choice selected for '" + getDesc() + "'");
-    return rv;
-}
-
 BaseSource* Choice::makeSource() {
+    if ( ! isValid() )
+        throw std::runtime_error("No choice selected for '" + getDesc() + "'");
     return value().makeSource();
 }
 
@@ -115,13 +91,14 @@ void Choice::add_choice( Link& choice, ChoiceEntry::iterator where)
 {
     this->addChoice( where, choice );
     Choice::set_upstream_element( choice, *this, Add );
-    if ( no_throw_context.get() != NULL )
-        choice.context_changed( no_throw_context, this );
     traits_changed( choice.current_traits(), &choice );
 }
-void Choice::insert_new_node( std::auto_ptr<Link> c) {
+void Choice::insert_new_node( std::auto_ptr<Link> c, Place ) {
     add_choice( *c, endChoices() );
+    TraitsRef nt = c->current_traits();
+    Link* nc = c.get();
     choices.push_back( c );
+    traits_changed( nt, nc );
 }
 
 void Choice::remove_choice( Link& choice ) {

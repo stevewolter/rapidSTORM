@@ -13,16 +13,17 @@
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/input/chain/FileContext.h>
-#include <boost/signals2/connection.hpp>
 
 #ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;
 #endif
 
+struct TestState;
+
 namespace dStorm {
-  namespace TIFF {
+namespace TIFF {
     using namespace dStorm::input;
+    extern const std::string test_file_name;
 
     struct Config : public simparm::Object {
         simparm::BoolEntry ignore_warnings, determine_length;
@@ -92,11 +93,10 @@ namespace dStorm {
         OpenFile(const std::string& filename, const Config&, simparm::Node&);
         ~OpenFile();
 
-        const std::string for_file() const { return file_ident; }
-
         template <typename PixelType, int Dimensions> 
             std::auto_ptr< Traits<dStorm::Image<PixelType,Dimensions> > > 
             getTraits( bool final, simparm::Entry<long>& );
+        std::auto_ptr< BaseTraits > getTraits();
 
         template <typename PixelType, int Dimensions>
             std::auto_ptr< dStorm::Image<PixelType,Dimensions> >
@@ -106,23 +106,22 @@ namespace dStorm {
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     class ChainLink
-    : public input::FileInput, protected simparm::Listener
+    : public input::FileInput<ChainLink,OpenFile>, protected simparm::Listener
     {
       public:
         ChainLink();
-        ChainLink(const ChainLink& o);
 
         ChainLink* clone() const { return new ChainLink(*this); }
-        BaseSource* makeSource();
-        AtEnd context_changed( ContextRef, Link* );
         simparm::Node& getNode() { return config; }
-        void open_file( const std::string& filename );
+        BaseSource* makeSource();
+
+        static void unit_test( TestState& );
 
       private:
         simparm::Structure<Config> config;
-        boost::shared_ptr<OpenFile> file;
-        boost::shared_ptr<const input::chain::FileContext> context;
-        std::auto_ptr< boost::signals2::scoped_connection > filename_change;
+        friend class input::FileInput<ChainLink,OpenFile>;
+        OpenFile* make_file( const std::string& );
+        void modify_meta_info( chain::MetaInfo& info );
 
       protected:
         void operator()(const simparm::Event&);

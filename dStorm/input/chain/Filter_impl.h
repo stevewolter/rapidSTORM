@@ -124,7 +124,7 @@ template <typename Visitor>
 void visit_traits
     ( Visitor &visitor, MetaInfo::ConstPtr& t )
 {
-    if ( t.get() != NULL ) {
+    if ( t.get() != NULL && ! t->provides_nothing() ) {
         bool one_matched = false;
         boost::mpl::for_each<typename Visitor::SupportedTypes>(
             apply_until_match( visitor, t->base_traits(), one_matched ) );

@@ -45,7 +45,7 @@ class Alternatives
 
     void push_back_choice( Filter& l);
     void throw_exception_for_invalid_configuration() const;
-    void insert_new_node( std::auto_ptr<Link> );
+    void insert_new_node( std::auto_ptr<Link>, Place );
 
     operator const simparm::Node&() const { return *this; }
     operator simparm::Node&() { return *this; }

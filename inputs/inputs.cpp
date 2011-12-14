@@ -18,7 +18,7 @@ using engine::StormPixel;
 
 void basic_inputs( input::Config* inputConfig ) {
 #ifdef HAVE_TIFFIO_H
-    inputConfig->add_method( new TIFF::ChainLink() );
+    inputConfig->add_method( new TIFF::ChainLink(), dStorm::input::chain::Link::FileReader );
 #endif
 
     inputConfig->add_filter( ROIFilter::makeFilter() );

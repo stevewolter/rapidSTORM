@@ -22,7 +22,7 @@ struct Forwarder : public Link {
     virtual AtEnd context_changed( ContextRef, Link* ) = 0;
     virtual simparm::Node& getNode();
     const simparm::Node& getNode() const { return Link::getNode(); }
-    void insert_new_node( std::auto_ptr<Link> );
+    void insert_new_node( std::auto_ptr<Link>, Place );
 
     AtEnd notify_of_context_change( ContextRef new_context );
 };

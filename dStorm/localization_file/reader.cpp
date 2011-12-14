@@ -17,6 +17,7 @@
 #include <boost/variant/get.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
 #include <dStorm/input/chain/Context_impl.h>
+#include <dStorm/input/InputFileNameChange.h>
 
 namespace dStorm {
 namespace localization_file {
@@ -134,41 +135,19 @@ Config::Config()
 {
 }
 
-ChainLink::AtEnd ChainLink::context_changed( ContextRef context, Link* link )
-{
-    Terminus::context_changed( context, link );
-
-    std::string input_file = dynamic_cast<const input::chain::FileContext&>(*context).input_file;
-    if ( file.get() == NULL || file->filename != input_file ) {
-        file.reset();
-        if ( input_file == "" )
-            return this->notify_of_trait_change( boost::shared_ptr<input::chain::MetaInfo>() );
-
-        try {
-            File::Traits t;
-            if ( context->has_info_for<localization::Record>() ) t = context->get_info_for<localization::Record>();
-            file.reset( new File(input_file, t) );
-            boost::shared_ptr<input::chain::FileMetaInfo> rv( new input::chain::FileMetaInfo() );
-            rv->set_traits( new File::Traits(file->getTraits()) );
-            rv->forbidden_filenames.insert( input_file );
-            rv->accepted_basenames.push_back( std::make_pair("extension_stm", ".stm") );
-            rv->accepted_basenames.push_back( std::make_pair("extension_txt", ".txt") );
-            return this->notify_of_trait_change( rv );
-        } catch (const std::runtime_error&) {
-            if ( context->throw_errors )
-                throw;
-            else
-                return this->notify_of_trait_change( boost::shared_ptr<input::chain::MetaInfo>() );
-        }
-    } else {
-        return AtEnd();
-    }
+void ChainLink::modify_meta_info( input::chain::MetaInfo& info ) {
+    info.accepted_basenames.push_back( std::make_pair("extension_stm", ".stm") );
+    info.accepted_basenames.push_back( std::make_pair("extension_txt", ".txt") );
 }
 
+File* ChainLink::make_file( const std::string& name )
+{
+    return new File( name, File::Traits() );
+}
+
+
 input::Source<localization::Record>* ChainLink::makeSource() {
-    if ( file.get() == NULL )
-        throw std::logic_error("No input file name set.");
-    return new Source(*file, config.trace_reducer.make_trace_reducer());
+    return new Source(*get_file(), config.trace_reducer.make_trace_reducer());
 }
 
 File::File(std::string filename, const File::Traits& traits ) 
@@ -195,8 +174,8 @@ File::File(std::string filename, const File::Traits& traits )
 
 File::~File() {}
 
-input::Traits<localization::Record> File::getTraits() const {
-    return traits;
+std::auto_ptr< input::Traits<localization::Record> > File::getTraits() const {
+    return std::auto_ptr<Traits>(new Traits(traits));
 }
 
 localization::Record File::read_next()
@@ -285,7 +264,7 @@ std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const inpu
 }
 
 Source::TraitsPtr Source::get_traits() { 
-    TraitsPtr tp( new File::Traits(file.getTraits()) ); 
+    TraitsPtr tp( file.getTraits().release() ); 
     return tp;
 }
 

@@ -189,7 +189,7 @@ class Link
     BaseSource* makeSource();
     simparm::Node& getNode() { return *this; }
 
-    void insert_new_node( std::auto_ptr<chain::Link> );
+    void insert_new_node( std::auto_ptr<chain::Link>, Place );
     operator const simparm::Node&() const { return *this; }
     operator simparm::Node&() { return *this; }
 };
@@ -288,10 +288,10 @@ BaseSource* Link::makeSource() {
     }
 }
 
-void Link::insert_new_node( std::auto_ptr<chain::Link> l ) {
+void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
     for (size_t i = 1; i < children.size(); ++i)
-        children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ) );
-    children[0].insert_new_node(l);
+        children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ), p );
+    children[0].insert_new_node(l,p);
 }
 
 void Link::operator()(const simparm::Event& e) {

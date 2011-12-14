@@ -55,9 +55,9 @@ Config::~Config() {
     forwards.back().set_more_specialized_link_element( NULL );
 }
 
-void Config::add_method( std::auto_ptr<chain::Link> method )
+void Config::add_method( std::auto_ptr<chain::Link> method, chain::Link::Place p )
 {
-    this->method->insert_new_node( method );
+    this->method->insert_new_node( method, p );
 }
 
 void Config::add_filter( std::auto_ptr<chain::Filter> forwarder, bool front )

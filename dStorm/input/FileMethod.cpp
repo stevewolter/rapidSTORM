@@ -59,10 +59,11 @@ void FileMethod::operator()( const simparm::Event& )
         nc->input_file = input_file();
         context = nc;
         notify_of_context_change( context );
-        if ( this->meta_info.get() != NULL )
-            this->meta_info->get_signal< InputFileNameChange >()( input_file() );
     } else {
         DEBUG("Not changing context");
+    }
+    if ( this->meta_info.get() != NULL ) {
+        this->meta_info->get_signal< InputFileNameChange >()( input_file() );
     }
 }
 
@@ -87,8 +88,13 @@ Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
     Link::traits_changed( traits, from );
     if ( traits.get() == NULL ) return notify_of_trait_change( traits );
-    boost::shared_ptr<chain::FileMetaInfo> my_traits( new chain::FileMetaInfo   
-            ( dynamic_cast<const chain::FileMetaInfo&>(*traits) ) );
+    traits->get_signal< InputFileNameChange >()( input_file() );
+    /* The signal might have forced a traits update that already did our
+     * work for us. */
+    if ( this->more_specialized->current_traits() != traits )
+        return Link::AtEnd();
+
+    boost::shared_ptr<chain::MetaInfo> my_traits( new chain::MetaInfo(*traits) );
     if ( my_traits->suggested_output_basename.unformatted()() == "" ) {
         BasenameApplier a( input_file() );
         std::string new_basename = 
@@ -106,7 +112,47 @@ Link::AtEnd FileMethod::context_changed( ContextRef context, Link* from )
     Link::context_changed( context, from );
     this->context.reset( new FileContext(*context, input_file()) );
 
-    return notify_of_context_change( this->context );
+    return AtEnd();
+}
+
+}
+}
+
+#include "inputs/TIFF.h"
+#include "test-plugin/DummyFileInput.h"
+#include "dejagnu.h"
+
+namespace dStorm {
+namespace input {
+
+using namespace chain;
+
+void FileMethod::unit_test( TestState& t ) {
+#if 1
+    t.untested("File method tests because of linkage problems");
+#else
+    FileMethod file_method;
+
+    file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), chain::Link::FileReader );
+    t.testrun( file_method.current_traits().get(), 
+        "Test method publishes traits" );
+    t.testrun( file_method.current_traits()->provides_nothing(), 
+        "Test method provides nothing without an input file" );
+
+    file_method.input_file = TIFF::test_file_name;
+    t.testrun( file_method.current_traits().get(), 
+        "Test method publishes traits for TIFF file name" );
+    t.testrun( ! file_method.current_traits()->provides_nothing(), 
+        "Test method provides something for TIFF file name" );
+    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >(),
+        "Test method provides correct image type" );
+    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+        "Test method provides correct width for TIFF file name" );
+
+    file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), chain::Link::FileReader );
+    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+        "Test method provides correct width for TIFF file name" );
+#endif
 }
 
 }

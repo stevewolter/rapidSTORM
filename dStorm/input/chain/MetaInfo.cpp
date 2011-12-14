@@ -1,5 +1,6 @@
 #include "MetaInfo.h"
 #include <dStorm/input/InputFileNameChange.h>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace input {
@@ -8,11 +9,22 @@ namespace chain {
 struct MetaInfo::Signals
 : public InputFileNameChange
 {
+    boost::ptr_vector< boost::signals2::scoped_connection > listeners;
 };
 
 MetaInfo::MetaInfo() 
 : _signals(new Signals())
     {}
+
+MetaInfo::MetaInfo(const MetaInfo& o) 
+: _signals(new Signals()),
+  _traits(o._traits),
+  suggested_output_basename( o.suggested_output_basename ),
+  forbidden_filenames( o.forbidden_filenames ),
+  accepted_basenames( o.accepted_basenames )
+{
+    forward_connections(o);
+}
 
 MetaInfo::~MetaInfo() 
     {}
@@ -22,12 +34,11 @@ Type& MetaInfo::get_signal() { return *_signals; }
 
 template InputFileNameChange& MetaInfo::get_signal<InputFileNameChange>();
 
-void MetaInfo::forward_connections( boost::shared_ptr<const MetaInfo> s )
+void MetaInfo::forward_connections( const MetaInfo& s )
 {
-    if ( s->_signals != _signals )
-        _signals->connect(
-            InputFileNameChange::slot_type( *_signals )
-            .track( s->_signals ) );
+    s._signals->listeners.push_back( 
+        new boost::signals2::scoped_connection( 
+            _signals->connect( *s._signals ) ) );
 }
 
 }
