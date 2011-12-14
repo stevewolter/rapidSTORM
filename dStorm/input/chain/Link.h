@@ -35,7 +35,7 @@ class Link {
     /** Method which is called by the downstream element (e.g. input) 
      *  to notify the upstream element (e.g. engine) of changed capabilities. */
     virtual AtEnd traits_changed( TraitsRef, Link* ) = 0;
-    virtual AtEnd context_changed( ContextRef, Link* ) = 0;
+    virtual AtEnd context_changed( ContextRef, Link* );
 
     virtual BaseSource* makeSource() = 0;
     virtual Link* clone() const = 0;

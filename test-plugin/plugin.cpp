@@ -20,20 +20,10 @@
 
 using namespace dStorm::output;
 
-static Manager *manager = NULL;
+namespace dStorm {
+namespace test {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-const char * rapidSTORM_Plugin_Desc() {
-    if ( getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") )
-        return "Tests";
-    else
-        return NULL;
-}
-
-void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
+void make_config ( dStorm::Config* config ) {
     if ( !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) return;
 
     config->add_input( new dummy_file_input::Method(), dStorm::FileReader );
@@ -54,18 +44,15 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
 }
 
 dStorm::Display::Manager*
-rapidSTORM_Display_Driver
-    (dStorm::Display::Manager *old)
+make_display (dStorm::Display::Manager *old)
 {
     if ( getenv("DEBUGPLUGIN_LEAVE_DISPLAY") || !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) {
         return old;
     } else {
         std::cerr << "Test plugin loaded" << std::endl;
-        manager = new Manager(old);
-        return manager;
+        return new Manager(old);
     }
 }
 
-#ifdef __cplusplus
 }
-#endif
+}

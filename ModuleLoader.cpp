@@ -15,6 +15,7 @@
 #include <dStorm/helpers/DisplayManager.h>
 #include "wxDisplay/wxManager.h"
 #include "LibraryHandle.h"
+#include "test-plugin/plugin.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -54,6 +55,8 @@ ModuleLoader::ModuleLoader()
 ModuleLoader::Pimpl::Pimpl()
 : display( new Display::wxManager() )
 {
+    std::auto_ptr< Display::Manager > tmp = display;
+    display.reset( test::make_display( tmp.release() ) );
     load_plugins();
 }
 
@@ -132,6 +135,8 @@ void ModuleLoader::add_modules
     car_config.add_spot_finder( spotFinders::make_Gaussian() );
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config );
+
+    test::make_config( &car_config );
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();

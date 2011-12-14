@@ -13,7 +13,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/io.hpp>
 
-#include <dStorm/input/chain/FileContext.h>
 #include <boost/variant/get.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
 #include <dStorm/input/chain/Context_impl.h>

@@ -3,7 +3,6 @@
 
 #include "chain/Choice.h"
 #include "chain/Forwarder.h"
-#include "chain/FileContext_decl.h"
 #include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
@@ -18,7 +17,6 @@ class FileMethod
   public chain::Forwarder,
   protected simparm::Listener
 {
-    boost::shared_ptr<const chain::FileContext> context;
     simparm::FileEntry input_file;
     chain::Choice children;
 
@@ -31,7 +29,6 @@ class FileMethod
     ~FileMethod();
 
     virtual AtEnd traits_changed( TraitsRef, Link* );
-    virtual AtEnd context_changed( ContextRef, Link* );
 
     FileMethod* clone() const { return new FileMethod(*this); }
     simparm::Node& getNode() { return *this; }

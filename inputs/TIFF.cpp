@@ -32,7 +32,6 @@
 #include <boost/units/base_units/us/inch.hpp>
 
 #include "TIFFOperation.h"
-#include <dStorm/input/chain/FileContext.h>
 #include <dStorm/input/InputFileNameChange.h>
 #include <dStorm/input/InputMutex.h>
 

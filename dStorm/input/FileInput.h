@@ -2,7 +2,6 @@
 #define DSTORM_INPUT_FILEINPUT_H
 
 #include "chain/Link.h"
-#include "chain/FileContext_decl.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
 #include <dStorm/input/chain/MetaInfo.h>

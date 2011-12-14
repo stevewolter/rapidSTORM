@@ -2,9 +2,9 @@
 
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/input/chain/MetaInfo.h>
 
 #include "FileMethod.h"
-#include "chain/FileContext.h"
 #include "InputFileNameChange.h"
 
 namespace dStorm {
@@ -34,7 +34,6 @@ FileMethod::FileMethod(const FileMethod& o)
 : simparm::Set(o),
   chain::Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
-  context(o.context),
   input_file(o.input_file),
   children(o.children)
 {
@@ -52,16 +51,6 @@ FileMethod::~FileMethod() {}
 void FileMethod::operator()( const simparm::Event& )
 {
     ost::MutexLock lock( global_mutex() );
-    if ( context.get() && context->input_file != input_file() ) {
-        DEBUG("Filename changed, notifying with new context");
-        children.value = NULL;
-        boost::shared_ptr<chain::FileContext> nc(context->clone());
-        nc->input_file = input_file();
-        context = nc;
-        notify_of_context_change( context );
-    } else {
-        DEBUG("Not changing context");
-    }
     if ( this->meta_info.get() != NULL ) {
         this->meta_info->get_signal< InputFileNameChange >()( input_file() );
     }
@@ -107,14 +96,6 @@ Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
     return notify_of_trait_change( my_traits );
 }
 
-Link::AtEnd FileMethod::context_changed( ContextRef context, Link* from )
-{
-    Link::context_changed( context, from );
-    this->context.reset( new FileContext(*context, input_file()) );
-
-    return AtEnd();
-}
-
 }
 }
 
@@ -146,13 +127,9 @@ void FileMethod::unit_test( TestState& t ) {
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
-#if 1
-    t.untested("File method tests because of linkage problems");
-#else
     file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), FileReader );
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
-#endif
 }
 
 }

@@ -6,7 +6,7 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera checkplugin_testplugin \
+C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera \
     Pixel_test check_Alternatives \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
@@ -17,9 +17,9 @@ bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_V
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
-noinst_LTLIBRARIES = libcode.la
+noinst_LTLIBRARIES = libcode.la 
 plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la \
-    libtestplugin.la librapidstormfile-plugin.la
+    librapidstormfile-plugin.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
@@ -154,7 +154,6 @@ nobase_include_HEADERS = \
     dStorm/input/chain/Filter.h dStorm/input/chain/Filter_decl.h \
     dStorm/input/chain/Filter_impl.h dStorm/input/chain/DefaultFilterTypes.h \
     dStorm/input/chain/Context_decl.h dStorm/input/chain/Context.h dStorm/input/chain/Context_impl.h \
-    dStorm/input/chain/FileContext_decl.h dStorm/input/chain/FileContext.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
     dStorm/input/chain/Alternatives.h dStorm/input/chain/EngineHelpers.h \
     dStorm/input/Drain_decl.h dStorm/input/Drain.h \
@@ -368,7 +367,18 @@ libcode_la_SOURCES += \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+libcode_la_SOURCES += test-plugin/plugin.cpp test-plugin/SegmentationFault.h \
+    test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
+    test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
+    test-plugin/Manager.h test-plugin/Manager.cpp \
+    test-plugin/md5.h test-plugin/md5.c \
+    test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
+    test-plugin/DummyFitter.h test-plugin/DummyFitter.cpp \
+    test-plugin/Verbose.h \
+    test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
+    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
+
+libcode_la_SOURCES += \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
     wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
@@ -419,19 +429,6 @@ libdirectcamerainput_la_SOURCES = \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
-libtestplugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libtestplugin_la_SOURCES = test-plugin/plugin.cpp test-plugin/SegmentationFault.h \
-    test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
-    test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
-    test-plugin/Manager.h test-plugin/Manager.cpp \
-    test-plugin/md5.h test-plugin/md5.c \
-    test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
-    test-plugin/DummyFitter.h test-plugin/DummyFitter.cpp \
-    test-plugin/Verbose.h \
-    test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
-    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
-libtestplugin_la_LIBADD = libdStorm.la $(boost_thread_LIB)
-
 librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
     dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
     dStorm/localization_file/Output.cpp
@@ -455,8 +452,6 @@ check_resolutionsetter_LDADD = libdStorm.la
 checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
 checkplugin_camera_LDADD = libdirectcamerainput.la 
 checkplugin_camera_LDFLAGS = -no-undefined
-checkplugin_testplugin_SOURCES = test-plugin/check_plugin.cpp
-checkplugin_testplugin_LDADD = libtestplugin.la 
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
 check_Alternatives_SOURCES = dStorm/input/chain/check_Alternatives.cpp
 check_Alternatives_LDADD = libdStorm.la
@@ -476,7 +471,7 @@ check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp
 check_file_plugin_LDADD = librapidstormfile-plugin.la
 
 unit_tests_SOURCES = unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
-unit_tests_LDADD = libcode.la libtestplugin.la
+unit_tests_LDADD = libcode.la 
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
