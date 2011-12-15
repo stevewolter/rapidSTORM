@@ -17,7 +17,8 @@ DummyFitterConfig::~DummyFitterConfig()
 {
 }
 
-DummyFitter::DummyFitter(const Config&, const dStorm::engine::JobInfo& i) : counter(0), length(5) {}
+DummyFitter::DummyFitter(const Config&, const dStorm::engine::JobInfo& i) 
+    : traits(i.traits), counter(0), length(5) {}
 
 int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine::Image &im, iterator target )
 {

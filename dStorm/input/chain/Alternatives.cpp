@@ -8,6 +8,7 @@
 #include <map>
 #include "Filter.h"
 #include "../InputMutex.h"
+#include <dStorm/input/chain/MetaInfo.h>
 
 namespace dStorm {
 namespace input {
@@ -151,20 +152,21 @@ void Alternatives::operator()(const simparm::Event&)
 
 Link::AtEnd Alternatives::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t,from);
-    DEBUG("Alternatives " << this << " traits changed to " << t.get() << " from " << from);
-    if ( &( value() ) == from && t.get() == NULL ) {
-        DEBUG("Auto-deselecting value");
+    DEBUG("Alternatives " << this << " traits changed to " << t.get() << " from " << from->getNode().getName());
+    bool has_a_value = t.get() != NULL && ! t->provides_nothing();
+    if ( &( value() ) == from && ! has_a_value ) {
+        DEBUG("Auto-deselecting value other than the current");
         /* Choice can deliver no traits, i.e. is invalid. Find valid one. */
         bool found = false;
         for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-            if ( i->current_traits().get() != NULL ) {
+            if ( i->current_traits().get() != NULL && ! i->current_traits()->provides_nothing() ) {
                 value = &(*i);
                 found = true;
             }
         }
         if ( ! found ) 
             value = NULL;
-    } else if ( ! isValid() && t.get() != NULL )
+    } else if ( ! isValid() && has_a_value )
     {
         value = dynamic_cast<Filter*>(from);
     }

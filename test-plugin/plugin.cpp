@@ -30,8 +30,12 @@ void make_config ( dStorm::Config* config ) {
     config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
     config->add_spot_finder( std::auto_ptr<dStorm::engine::spot_finder::Factory>(
         new FixedPositionSpotFinder::Finder::Factory() ) );
+#if 0
+    /* The dummy fitter is currently positioned first in the fitter selection
+     * and breaks the program. */
     config->add_spot_fitter( std::auto_ptr<dStorm::engine::spot_fitter::Factory>(
         new dStorm::debugplugin::DummyFitter::Source() ) );
+#endif
 
     config->add_output( new SegmentationFault::Source() );
     config->add_output( new Exception::Source() );
