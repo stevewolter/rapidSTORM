@@ -54,6 +54,11 @@ void Forwarder::insert_new_node( std::auto_ptr<Link> n, Place p ) {
     more_specialized->insert_new_node(n,p);
 }
 
+Link::TraitsRef Forwarder::upstream_traits() const {
+    assert( more_specialized );
+    return more_specialized->current_traits();
+}
+
 }
 }
 }

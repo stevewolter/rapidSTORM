@@ -24,6 +24,7 @@ struct Forwarder : public Link {
     void insert_new_node( std::auto_ptr<Link>, Place );
 
     AtEnd notify_of_context_change( ContextRef new_context );
+    TraitsRef upstream_traits() const;
 };
 
 }

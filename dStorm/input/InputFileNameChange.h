@@ -1,4 +1,5 @@
 #ifndef DSTORM_INPUT_INPUTFILENAME_CHANGED_H
+#define DSTORM_INPUT_INPUTFILENAME_CHANGED_H
 
 #include <string>
 #include <boost/signals2/slot.hpp>

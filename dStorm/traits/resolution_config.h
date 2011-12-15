@@ -72,6 +72,7 @@ class Config : public simparm::Object {
     void set_traits( input::Traits<engine::Image>& ) const;
     void read_traits( const input::Traits<engine::Image>& );
     void read_traits( const input::Traits<Localization>& );
+    traits::Optics<2>::Resolutions get_resolution() const;
 };
 
 

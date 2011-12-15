@@ -258,12 +258,12 @@ void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop)
             producer_can_continue.wait(lock);
         }
 
+        if ( stop ) { DEBUG("Abnormal finish"); return; }
         int ring = r.forImage.value() % ring_buffer.size();
         assert( ! ring_buffer[ring].is_initialized() );
         ring_buffer[ring] = r;
         if ( r.forImage == next_output )
             consumer_can_continue.notify_all();
-        if ( stop ) { DEBUG("Abnormal finish"); return; }
     }
     DEBUG("Normal finish");
 }

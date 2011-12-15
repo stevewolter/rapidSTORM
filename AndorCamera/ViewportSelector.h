@@ -70,7 +70,7 @@ class Display : public simparm::Set,
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::Image<dStorm::Pixel,2> last_image;
-    traits::ImageResolution resolution[2];
+    traits::Optics<2>::Resolutions resolution;
     boost::thread image_acquirer;
 
     /** Subthread for image acquisition. */
@@ -110,7 +110,8 @@ class Display : public simparm::Set,
     virtual ~Display();
 
     void terminate();
-    void context_changed( boost::shared_ptr<const input::chain::Context> );
+    void resolution_changed( traits::Optics<2>::Resolutions );
+    void basename_changed( const std::string& basename );
 };
 
 }

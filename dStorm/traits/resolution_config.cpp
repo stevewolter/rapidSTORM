@@ -106,6 +106,11 @@ void Config::read_traits( const input::Traits<engine::Image>& t ) {
     }
 }
 
+traits::Optics<2>::Resolutions Config::get_resolution() const
+{
+    return cuboid_config.make_traits().plane(0).image_resolutions();
+}
+
 }
 }
 }

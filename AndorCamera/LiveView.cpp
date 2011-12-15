@@ -39,6 +39,7 @@ LiveView::~LiveView() {
 void LiveView::show_window(CamImage::Size size) {
     if ( window.get() == NULL ) {
         DEBUG("Showing live view window");
+        assert( size.x() < 10240 * camera::pixel && size.y() < 10240 * camera::pixel);
         dStorm::Display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
@@ -50,7 +51,8 @@ void LiveView::show_window(CamImage::Size size) {
         props.initial_size.keys.back().lower_limit = "";
         props.initial_size.keys.back().upper_limit = "";
         for (int i = 0; i < 2; ++i)
-            props.initial_size.pixel_sizes[i] = *resolution[i];
+            if ( resolution[i].is_initialized() )
+                props.initial_size.pixel_sizes[i] = *resolution[i];
 
         window = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );

@@ -63,10 +63,11 @@ void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
     }
     CamImage i(img.slice(2, 0));
     i.frame_number() = fr.frame_number;
-    DEBUG("Allocated image");
+    DEBUG("Reading image " << fr.frame_number);
     src->connection->read_data( i );
     if ( src->live_view.get() )
         src->live_view->show( i );
+    src->publish_image = true;
 }
 
 void Source::iterator::operator()( const CameraConnection::ImageError& fr )
@@ -74,6 +75,7 @@ void Source::iterator::operator()( const CameraConnection::ImageError& fr )
     DEBUG("Image error for number " << fr.frame_number);
     img.invalidate();
     img.frame_number() = fr.frame_number;
+    src->publish_image = true;
 }
 
 void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& )
@@ -81,7 +83,6 @@ void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& )
     DEBUG("Acquisition has ended");
     img.invalidate();
     src->has_ended = true;
-    src = NULL;
 }
 
 void Source::iterator::operator()( const CameraConnection::Simparm& )
@@ -97,12 +98,16 @@ void Source::iterator::operator()( const CameraConnection::StatusChange& status 
 void Source::iterator::increment() {
     if ( !src ) return;
 
-    boost::lock_guard<boost::mutex> guard(src->mutex);
-    if ( src->has_ended ) 
-        src = NULL;
-    else {
+    while ( true ) {
         CameraConnection::FrameFetch f = src->connection->next_frame();
         boost::apply_visitor(*this, f);
+        if ( src->has_ended ) {
+            src = NULL;
+            break;
+        } else if ( src->publish_image ) {
+            src->publish_image = false;
+            break;
+        }
     }
 }
 

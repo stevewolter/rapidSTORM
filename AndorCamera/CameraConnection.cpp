@@ -44,63 +44,6 @@ CameraConnection::~CameraConnection() {
     DEBUG("Destructing camera connection " << this);
 }
 
-#if 0
-template <typename Type>
-struct remove_optional { typedef Type type; };
-template <typename Type>
-struct remove_optional< dStorm::optional<Type> > { typedef Type type; };
-
-struct from_value {
-    template <typename Left, typename Right>
-    struct result { typedef bool type; };
-
-    template <typename Left, typename Right>
-    bool operator()( Left assign, Right arg ) const {
-        DEBUG( "Assigning " << arg << " to " << &assign );
-        assign = remove_optional<Left>::type::from_value(arg);
-        return true;
-    }
-};
-
-template <typename Iterator>
-struct declaration_parser : qi::grammar<Iterator, bool()>
-{
-    struct assign_width {
-        input::Traits<engine::Image>& traits;
-        assign_width( input::Traits<engine::Image>& traits ) : traits(traits) {}
-        void operator()( int i, boost::spirit::unused_type, boost::spirit::unused_type ) const { traits.size.x() = i * camera::pixel; DEBUG("Written width"); }
-    };
-
-    struct assign_height {
-        input::Traits<engine::Image>& traits;
-        assign_height( input::Traits<engine::Image>& traits ) : traits(traits) {}
-        void operator()( int i, boost::spirit::unused_type, boost::spirit::unused_type ) const { traits.size.y() = i * camera::pixel; DEBUG("Written height"); }
-    };
-
-    struct assign_imnum {
-        input::Traits<engine::Image>& traits;
-        assign_imnum( input::Traits<engine::Image>& traits ) : traits(traits) {}
-        void operator()( int i, boost::spirit::unused_type, boost::spirit::unused_type ) const { traits.image_number().range().second = i * camera::frame; DEBUG("Written imnum"); }
-    };
-
-#define ASSIGN(x) _val = phx::function<from_value>()( phx::ref(traits. x) , _1 )
-    declaration_parser( input::Traits<engine::Image>& traits )
-    : declaration_parser::base_type(final) , traits(traits)
-    {
-        namespace phx = boost::phoenix;
-        using qi::labels::_val;
-        using qi::labels::_1;
-        length = ("length " >> qi::int_)[assign_imnum(traits)][_val = phx::val(true)];
-        width = ("width " >> qi::int_)[assign_width(traits)][_val = phx::val(true)];
-        height = ("height " >> qi::int_)[assign_height(traits)][_val = phx::val(true)];
-        acquisition = qi::lit("acquisition has started")[_val = phx::val(false)];
-        final = acquisition[_val = _1] | length[_val = _1] | width[_val = _1] | height[_val = _1];
-    }
-    qi::rule<Iterator, bool()> acquisition, final, length, height, width;
-    input::Traits<engine::Image>& traits;
-};
-#endif
-
 void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntry& status )
 {
     DEBUG("Sending start acquisition command");
@@ -128,8 +71,12 @@ void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntr
             traits.image_number().range().second = (boost::lexical_cast<int>(args)-1) * camera::frame;
         } else if ( command == "width" ) {
             traits.size.x() = (boost::lexical_cast<int>(args)) * camera::pixel;
+            if ( traits.size.x() >= 10240 * camera::pixel || traits.size.x() <= 0 * camera::pixel )
+                throw std::runtime_error("Camera sent bogus width " + args);
         } else if ( command == "height" ) {
             traits.size.y() = (boost::lexical_cast<int>(args)) * camera::pixel;
+            if ( traits.size.y() >= 10240 * camera::pixel || traits.size.y() <= 0 * camera::pixel )
+                throw std::runtime_error("Camera sent bogus height " + args);
         } else if ( command == "acquisition" && args == "has started") {
             break;
         }

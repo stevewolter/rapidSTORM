@@ -10,6 +10,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <memory>
+#include <dStorm/traits/image_resolution.h>
+#include <boost/signals2/connection.hpp>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -33,13 +35,19 @@ class Method
     std::auto_ptr<Display> active_selector;
     simparm::TriggerEntry select_ROI, view_ROI;
 
+    traits::Optics<2>::Resolutions resolution;
+    std::string basename;
+
     AtEnd publish_meta_info();
     simparm::BoolEntry show_live_by_default;
+    std::auto_ptr< boost::signals2::scoped_connection > resolution_listener, 
+                                                          basename_listener;
 
     void registerNamedEntries();
     AtEnd context_changed( ContextRef, Link * );
 
     void operator()( const simparm::Event& );
+    void resolution_changed( const dStorm::traits::Optics<2>::Resolutions& );
 
   public:
     Method();

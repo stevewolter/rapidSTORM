@@ -11,7 +11,6 @@
 #include <simparm/Set.hh>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include "LiveView.h"
 
@@ -28,9 +27,8 @@ struct CameraConnection;
     {
       private:
         std::auto_ptr<CameraConnection> connection;
-        boost::mutex mutex;
         TraitsPtr traits;
-        bool has_ended, show_live;
+        bool has_ended, publish_image, show_live;
         std::auto_ptr<LiveView> live_view;
         LiveView::Resolution resolution;
         class iterator;

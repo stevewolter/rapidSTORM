@@ -125,7 +125,9 @@ dStorm::Display::ResizeChange Display::getSize() const
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
     new_size.keys.back().upper_limit = "";
-    std::copy( resolution, resolution+2, new_size.pixel_sizes );
+    for (int i = 0; i < 2; ++i)
+        if ( resolution[i].is_initialized() )
+            new_size.pixel_sizes[i] = *resolution[i];
     return new_size;
 }
 
@@ -166,23 +168,15 @@ void Display::initialize_display()
         
 }
 
-void Display::context_changed( boost::shared_ptr<const input::chain::Context> context ) {
-    imageFile = context->output_basename + ".jpg";
-
-    if ( context.get() && context->has_info_for<CamImage>() ) {
-        const dStorm::input::Traits<CamImage>& t = context->get_info_for<CamImage>();
-        for (int i = 0; i < 2; ++i)
-            if ( t.resolution(i).is_initialized() )
-                resolution[i] = *t.resolution(i);
-    } else if (  context.get() && context->has_info_for<engine::Image>() ) {
-        const dStorm::input::Traits<engine::Image>& t = context->get_info_for<engine::Image>();
-        for (int i = 0; i < 2; ++i)
-            if ( t.plane(0).resolution(i).is_initialized() )
-                resolution[i] = *t.plane(0).resolution(i);
-    }
-        
+void Display::resolution_changed( traits::Optics<2>::Resolutions r )
+{
+    this->resolution = r;
     change->do_resize = true;
     change->resize_image = getSize();
+}
+
+void Display::basename_changed( const std::string& basename ) {
+    imageFile = basename + ".jpg";
 }
 
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
@@ -251,8 +245,6 @@ void Display::draw_image( const CamImage& data) {
                     img(l,y) = img(r,y) = Pixel::Red();
         }
         }
-#if 0
-#endif
     }
     change->do_change_image = true;
 
@@ -295,7 +287,6 @@ void Display::run() throw() {
             namespace ascii = boost::spirit::ascii;
             namespace fsn = boost::fusion;
 
-            std::cerr << "ViewportSelector got message '" << sm.message << "'" << std::endl;
             std::string::const_iterator begin = sm.message.begin(), end = sm.message.end();
             fsn::vector2<int,int> assignment;
             bool success = phrase_parse( begin, end,
@@ -318,10 +309,6 @@ void Display::acquire()
     configure_camera();
     cam->start_acquisition( traits, status );
     DEBUG("Started acquisition");
-#if 0
-    statusBox.push_back( acq.status );
-    statusBox.viewable = true;
-#endif
 
     initialize_display();
 

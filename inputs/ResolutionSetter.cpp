@@ -15,6 +15,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <dStorm/input/ResolutionChange.h>
 
 namespace dStorm {
 namespace input {
@@ -91,9 +92,10 @@ void ChainLink::operator()(const simparm::Event& e)
             notify_of_context_change( context );
         }
         if ( current_traits().get() ) {
-            MetaInfo::ConstPtr t( current_traits() );
+            MetaInfo::ConstPtr t( upstream_traits() );
             visit_traits( m, t );
             notify_of_trait_change( t );
+            t->get_signal< ResolutionChange >()( config.get_resolution() );
         }
     } else 
 	TreeListener::add_new_children(e);

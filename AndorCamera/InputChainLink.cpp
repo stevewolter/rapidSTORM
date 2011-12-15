@@ -40,6 +40,7 @@ Method::Method()
     registerNamedEntries();
 
     DEBUG("Made AndorDirect config");
+    publish_meta_info();
 }
 
 Method::Method(const Method &c) 
@@ -51,6 +52,7 @@ Method::Method(const Method &c)
 {
     registerNamedEntries();
     DEBUG("Copied AndorDirect Config");
+    publish_meta_info();
 }
 
 Method::~Method() {
@@ -70,8 +72,21 @@ Method::context_changed( ContextRef initial_context, Link* link )
 {
     dStorm::input::chain::Link::context_changed(initial_context, link);
     last_context = initial_context;
-    if ( active_selector.get() )
-        active_selector->context_changed( last_context );
+
+    if ( last_context.get() ) {
+        if (  last_context.get() && last_context->has_info_for<engine::Image>() ) {
+            const dStorm::input::Traits<engine::Image>& t = last_context->get_info_for<engine::Image>();
+            resolution = t.plane(0).image_resolutions();
+        }
+        basename = last_context->output_basename;
+    }
+
+    if ( active_selector.get() ) 
+    {
+        active_selector->resolution_changed( resolution );
+        active_selector->basename_changed( basename );
+    }
+
     if ( ! published.get() )
         return publish_meta_info();
     else
@@ -80,42 +95,21 @@ Method::context_changed( ContextRef initial_context, Link* link )
 
 dStorm::input::BaseSource* Method::makeSource()
 {
-    LiveView::Resolution resolution;
-    if ( last_context->has_info_for<engine::Image>() )
-        for (int i = 0; i < 2; ++i)
-            resolution = last_context->get_info_for<engine::Image>().plane(0).image_resolutions();
-
-#if 0
-    quantity<camera::frame_rate> cycle_time
-        = camera::frame / cam->config().cycleTime();
-    boost::shared_ptr<LiveView> live_view( 
-        new LiveView( context->default_to_live_view, resolution, cycle_time ) );
-#endif
     std::auto_ptr<CameraConnection> srccon(new CameraConnection("localhost", 0, "52377"));
     std::auto_ptr<CamSource> cam_source( new Source(srccon, show_live_by_default(), resolution ) );
     return cam_source.release();
 }
 
 input::chain::Link::AtEnd Method::publish_meta_info() {
-    if ( last_context.get() == NULL )  {
-        DEBUG("CameraLink publishing null traits");
-        return notify_of_trait_change( TraitsRef() );
-    } else if ( published.get() != NULL ) {
-        return notify_of_trait_change( published );
-    } else {
-        boost::shared_ptr< dStorm::input::Traits<engine::Image> > traits;
-        if ( last_context->has_info_for<engine::Image>() )
-            traits.reset( last_context->get_info_for<engine::Image>().clone() );
-        else
-            traits.reset( new dStorm::input::Traits<engine::Image>() );
-        traits->image_number().range().first = 0 * camera::frame;
+    boost::shared_ptr< dStorm::input::Traits<engine::Image> > traits;
+    traits.reset( new dStorm::input::Traits<engine::Image>() );
+    traits->image_number().range().first = 0 * camera::frame;
 
-        dStorm::input::chain::MetaInfo::Ptr mi
-            ( new dStorm::input::chain::MetaInfo() );
-        mi->set_traits( traits );
-        published = mi;
-        return notify_of_trait_change( published );
-    }
+    dStorm::input::chain::MetaInfo::Ptr mi
+        ( new dStorm::input::chain::MetaInfo() );
+    mi->set_traits( traits );
+    published = mi;
+    return notify_of_trait_change( published );
 }
 
 void Method::set_display( std::auto_ptr< Display > d ) 
@@ -123,8 +117,8 @@ void Method::set_display( std::auto_ptr< Display > d )
     boost::lock_guard<boost::mutex> lock( active_selector_mutex );
     active_selector = d;
     if ( active_selector.get() ) {
-        if ( last_context.get() )
-            active_selector->context_changed( last_context );
+        active_selector->resolution_changed( resolution );
+        active_selector->basename_changed( basename );
         this->simparm::Node::push_back( *active_selector );
     }
 
@@ -148,6 +142,13 @@ void Method::operator()(const simparm::Event& e)
         std::auto_ptr<CameraConnection> con( new CameraConnection("localhost", 0, "52377") );
         set_display( std::auto_ptr<Display>(new Display( con, *mode, *this ) ) );
     }
+}
+
+void Method::resolution_changed( const dStorm::traits::Optics<2>::Resolutions& resolution )
+{
+    this->resolution = resolution;
+    if ( active_selector.get() )
+        active_selector->resolution_changed( resolution );
 }
 
 
