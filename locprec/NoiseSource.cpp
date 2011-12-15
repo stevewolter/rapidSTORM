@@ -90,6 +90,8 @@ NoiseConfig::NoiseConfig()
     create_fluo_set();
     registerNamedEntries();
     optics.set_number_of_fluorophores(2);
+    current_traits = make_traits();
+    notify_of_trait_change( current_traits );
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
@@ -307,15 +309,6 @@ NoiseSource<Pixel>::get_traits() {
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = (imN - 1) * camera::frame;
     return rv;
-}
-
-NoiseConfig::AtEnd
-NoiseConfig::context_changed( ContextRef, Link* ) {
-    if ( ! current_traits.get() ) {
-        current_traits = make_traits();
-        return notify_of_trait_change( current_traits );
-    } else
-        return NoiseConfig::AtEnd();
 }
 
 NoiseConfig::TraitsRef

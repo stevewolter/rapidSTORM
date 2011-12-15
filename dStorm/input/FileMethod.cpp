@@ -42,9 +42,6 @@ FileMethod::FileMethod(const FileMethod& o)
     push_back( children );
     receive_changes_from( input_file.value );
     chain::Forwarder::set_more_specialized_link_element( &children );
-
-    if ( o.children.isValid() )
-        children.choose( o.children.value().getNode().getName() );
 }
 
 FileMethod::~FileMethod() {}
@@ -133,11 +130,16 @@ void FileMethod::unit_test( TestState& t ) {
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
-    file_method.insert_new_node( std::auto_ptr<Link>( new dummy_file_input::Method() ), FileReader );
+    std::auto_ptr<  dStorm::input::chain::Link > foo = dummy_file_input::make();
+    file_method.insert_new_node( foo, FileReader );
+    std::cerr << foo.get() << std::endl;
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
-    file_method.input_file = "";
+    file_method.input_file = "foobar.dummy";
+    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
+        "Test method can change file type" );
+
     FileMethod copy(file_method);
     copy.input_file = TIFF::test_file_name;
     t.testrun( copy.current_traits().get() && 

@@ -112,7 +112,6 @@ namespace locprec {
 
         typedef dStorm::engine::Image Image;
 
-        AtEnd context_changed( ContextRef, Link* );
         simparm::Node& getNode() { return *this; }
 
         NoiseConfig();

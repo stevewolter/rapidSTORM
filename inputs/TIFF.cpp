@@ -253,7 +253,7 @@ void ChainLink::operator()(const simparm::Event& e) {
     republish_traits();
 }
 
-void ChainLink::unit_test( TestState& s ) {
+void unit_test( TestState& s ) {
     ChainLink l;
     s.testrun( l.current_traits().get() 
             && l.current_traits()->provides_nothing(),
@@ -268,10 +268,10 @@ void ChainLink::modify_meta_info( chain::MetaInfo& i ) {
     i.accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
     i.accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
 }
-OpenFile* ChainLink::make_file( const std::string& n ) 
+OpenFile* ChainLink::make_file( const std::string& n ) const
 {
     DEBUG( "Creating file structure for " << n );
-    return new OpenFile( n, config, config );
+    return new OpenFile( n, config, const_cast<simparm::Structure<Config>&>(config) );
 }
 
 }

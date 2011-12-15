@@ -26,7 +26,7 @@ namespace test {
 void make_config ( dStorm::Config* config ) {
     if ( !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) return;
 
-    config->add_input( new dummy_file_input::Method(), dStorm::FileReader );
+    config->add_input( dummy_file_input::make(), dStorm::FileReader );
     config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
     config->add_spot_finder( std::auto_ptr<dStorm::engine::spot_finder::Factory>(
         new FixedPositionSpotFinder::Finder::Factory() ) );

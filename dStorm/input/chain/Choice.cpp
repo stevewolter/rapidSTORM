@@ -36,6 +36,9 @@ Choice::Choice(const Choice& o)
     receive_changes_from( value );
     for ( boost::ptr_vector< Link >::const_iterator l = o.choices.begin(); l != o.choices.end(); ++l )
         add_choice( std::auto_ptr<Link>(l->clone()) );
+
+    if ( o.isValid() )
+        choose( o.value().getNode().getName() );
 }
 
 Choice::~Choice() {
@@ -54,8 +57,10 @@ void Choice::operator()(const simparm::Event&)
 
 Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
-    if ( auto_select && ! isValid() && ( t.get() != NULL && ! t->provides_nothing() ) )
-        value = *from;
+    if ( auto_select && ! isValid() && ( t.get() != NULL && ! t->provides_nothing() ) ) {
+        DEBUG("Auto-selecting " << from->getNode().getName() );
+        value = from;
+    }
     return publish_traits();
 }
 

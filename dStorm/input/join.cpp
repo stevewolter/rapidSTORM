@@ -262,9 +262,11 @@ Link::AtEnd Link::traits_changed( TraitsRef r, chain::Link* l ) {
     if ( children.size() == 1 ) {
         t = input_traits[0];
     } else {
+        DEBUG("Making traits for size " << children.size());
         try {
             t = join_type().make_traits( input_traits ) ;
         } catch (const std::runtime_error&) {}
+        DEBUG("Made traits providing nothing: " << ((t.get()) ? t->provides_nothing() : true));
     }
     return notify_of_trait_change(t);
 }

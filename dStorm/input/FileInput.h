@@ -30,7 +30,13 @@ class FileInput
 
 
   protected:
-    boost::shared_ptr<FileRepresentation> get_file() const { return file; }
+    boost::shared_ptr<FileRepresentation> get_file() const {
+        if ( file.get() )
+            return file; 
+        else 
+            return boost::shared_ptr<FileRepresentation>( 
+                static_cast<const CRTP&>(*this).make_file(*current_file) );
+    }
     void reread_file() {
         file.reset();
         try {

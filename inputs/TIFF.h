@@ -115,17 +115,18 @@ namespace TIFF {
         simparm::Node& getNode() { return config; }
         BaseSource* makeSource();
 
-        static void unit_test( TestState& );
-
       private:
         simparm::Structure<Config> config;
         friend class input::FileInput<ChainLink,OpenFile>;
-        OpenFile* make_file( const std::string& );
+        OpenFile* make_file( const std::string& ) const;
         void modify_meta_info( chain::MetaInfo& info );
 
       protected:
         void operator()(const simparm::Event&);
     };
+
+void unit_test( TestState& );
+
 }
 
 }
