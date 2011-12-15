@@ -8,4 +8,5 @@ int main() {
     TestState state;
     dStorm::input::FileMethod::unit_test( state );
     dStorm::TIFF::unit_test( state );
+    return ( state.had_errors() ? EXIT_FAILURE : EXIT_SUCCESS );
 }

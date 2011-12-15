@@ -136,7 +136,9 @@ void FileMethod::unit_test( TestState& t ) {
         "Test method provides correct width for TIFF file name" );
 
     file_method.input_file = "foobar.dummy";
-    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
+    t.testrun( file_method.current_traits().get() &&
+               file_method.current_traits()->traits< dStorm::engine::Image >().get() &&
+               file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
         "Test method can change file type" );
 
     FileMethod copy(file_method);

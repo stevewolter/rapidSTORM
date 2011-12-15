@@ -86,7 +86,7 @@ namespace Reader {
     {
         simparm::Structure<Config> config;
         friend class input::FileInput<ChainLink,File>;
-        File* make_file( const std::string& );
+        File* make_file( const std::string& ) const;
         void modify_meta_info( input::chain::MetaInfo& info );
 
       public:

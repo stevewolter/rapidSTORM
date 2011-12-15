@@ -57,7 +57,21 @@ void Choice::operator()(const simparm::Event&)
 
 Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
-    if ( auto_select && ! isValid() && ( t.get() != NULL && ! t->provides_nothing() ) ) {
+    bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
+    if ( auto_select && &( value() ) == from && ! provides_something ) {
+        DEBUG("Auto-deselecting value other than the current");
+        /* Choice can deliver no traits, i.e. is invalid. Find valid one. */
+        bool found = false;
+        for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
+            if ( i->current_traits().get() != NULL && ! i->current_traits()->provides_nothing() ) {
+                value = &(*i);
+                found = true;
+            }
+        }
+        if ( ! found ) 
+            value = NULL;
+    }
+    if ( auto_select && ! isValid() && provides_something ) {
         DEBUG("Auto-selecting " << from->getNode().getName() );
         value = from;
     }

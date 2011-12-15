@@ -139,7 +139,7 @@ void ChainLink::modify_meta_info( input::chain::MetaInfo& info ) {
     info.accepted_basenames.push_back( std::make_pair("extension_txt", ".txt") );
 }
 
-File* ChainLink::make_file( const std::string& name )
+File* ChainLink::make_file( const std::string& name ) const
 {
     return new File( name, File::Traits() );
 }

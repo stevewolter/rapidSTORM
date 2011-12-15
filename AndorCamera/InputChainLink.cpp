@@ -10,7 +10,6 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include <dStorm/input/chain/Choice.h>
-#include <dStorm/input/chain/Singleton.h>
 #include <dStorm/input/chain/Link.h>
 #include <dStorm/input/chain/Context_impl.h>
 #include "LiveView.h"

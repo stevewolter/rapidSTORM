@@ -40,6 +40,7 @@ class FileInput
     void reread_file() {
         file.reset();
         try {
+            DEBUG("Trying to open " << *current_file << " with " << getNode().getName());
             if ( *current_file != "" )
                 file.reset( static_cast<CRTP&>(*this).make_file(*current_file) );
             else
@@ -47,6 +48,7 @@ class FileInput
         } catch ( const std::runtime_error& e ) {
             error = boost::copy_exception(e);
         }
+        DEBUG("Result is " << (file.get() != NULL) << " " << bool(error));
         republish_traits();
     }
     void republish_traits() {
