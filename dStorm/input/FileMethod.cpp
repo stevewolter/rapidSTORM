@@ -132,7 +132,6 @@ void FileMethod::unit_test( TestState& t ) {
 
     std::auto_ptr<  dStorm::input::chain::Link > foo = dummy_file_input::make();
     file_method.insert_new_node( foo, FileReader );
-    std::cerr << foo.get() << std::endl;
     t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
