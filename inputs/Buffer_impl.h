@@ -16,6 +16,10 @@ using namespace std;
 namespace dStorm {
 namespace input {
 
+template <typename Type, int Dim>
+std::ostream &operator<<( std::ostream& o, const dStorm::Image<Type,Dim>& i ) { return o << i.frame_number(); }
+std::ostream &operator<<( std::ostream& o, const dStorm::output::LocalizedImage& i ) { return o; }
+
 template<typename Object, bool RunConcurrently>
 Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src) 
 : Source<Object>( src->getNode(), BaseSource::Flags().set(BaseSource::Repeatable).set(BaseSource::MultipleConcurrentIterators) ),
@@ -31,7 +35,7 @@ Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src)
         need_to_init_iterators = true;
     }
 
-    DEBUG("Created image buffer");
+    DEBUG("Created image buffer, concurrent fetch is " << RunConcurrently);
 }
 
 template<typename Object, bool RunConcurrently>
@@ -104,7 +108,7 @@ Buffer<Object,RunConcurrently>::get_free_slot()
     ost::MutexLock lock(mutex);
     while ( true ) {
         if ( next_output != buffer.end() ) {
-            DEBUG("Returning stored object");
+            DEBUG("Returning stored object " << *next_output);
             return next_output++;
         } else if ( 
              (RunConcurrently) 
@@ -120,6 +124,7 @@ Buffer<Object,RunConcurrently>::get_free_slot()
             DEBUG("Getting input");
             buffer.push_back( *current_input );
             ++current_input;
+            DEBUG("Got input " << buffer.back());
             return --buffer.end();
         }
     }

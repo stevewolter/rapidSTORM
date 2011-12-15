@@ -20,9 +20,10 @@ class Source::iterator
   private:
     Source* src;
     mutable engine::Image img;
+    bool image_ready;
 
   public:
-    iterator() : src(NULL) {}
+    iterator() : src(NULL), image_ready(false) {}
     iterator(Source &ad);
 
     engine::Image& dereference() const;
@@ -37,7 +38,7 @@ class Source::iterator
 };
 
 Source::iterator::iterator(Source &ad) 
-    : src(&ad)
+    : src(&ad), image_ready(false)
 {
     increment();
 }
@@ -67,7 +68,7 @@ void Source::iterator::operator()( const CameraConnection::FetchImage& fr )
     src->connection->read_data( i );
     if ( src->live_view.get() )
         src->live_view->show( i );
-    src->publish_image = true;
+    image_ready = true;
 }
 
 void Source::iterator::operator()( const CameraConnection::ImageError& fr )
@@ -75,7 +76,7 @@ void Source::iterator::operator()( const CameraConnection::ImageError& fr )
     DEBUG("Image error for number " << fr.frame_number);
     img.invalidate();
     img.frame_number() = fr.frame_number;
-    src->publish_image = true;
+    image_ready = true;
 }
 
 void Source::iterator::operator()( const CameraConnection::EndOfAcquisition& )
@@ -98,17 +99,18 @@ void Source::iterator::operator()( const CameraConnection::StatusChange& status 
 void Source::iterator::increment() {
     if ( !src ) return;
 
-    while ( true ) {
+    while ( ! image_ready ) {
+        DEBUG("Waiting for frame in camera connection");
         CameraConnection::FrameFetch f = src->connection->next_frame();
         boost::apply_visitor(*this, f);
         if ( src->has_ended ) {
+            DEBUG("Got end of file");
             src = NULL;
-            break;
-        } else if ( src->publish_image ) {
-            src->publish_image = false;
             break;
         }
     }
+    image_ready = false;
+    DEBUG("Incremented to image " << img.frame_number() << " (" << img.is_valid() << ")");
 }
 
 CamSource::iterator

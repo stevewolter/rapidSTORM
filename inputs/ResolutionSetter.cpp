@@ -70,6 +70,8 @@ ChainLink::ChainLink(const ChainLink& o)
 }
 
 ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
+    if ( c.get() )
+        c->get_signal< ResolutionChange >()( config.get_resolution() );
     if ( c.get() && c->provides< dStorm::engine::Image >() ) {
         config.read_traits( *c->traits< dStorm::engine::Image >() );
     }

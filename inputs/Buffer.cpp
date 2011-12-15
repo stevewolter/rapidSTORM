@@ -50,8 +50,7 @@ BufferChainLink::makeSource()
         needs_to_be_buffered = true;
     if ( ! rv->flags.test( BaseSource::Repeatable ) && my_config.needs_multiple_passes ) 
         needs_to_be_buffered = true;
-    if ( ! rv->flags.test( BaseSource::MultipleConcurrentIterators ) 
-         && my_config.needs_concurrent_iterators ) 
+    if ( ! rv->flags.test( BaseSource::MultipleConcurrentIterators ) ) 
         needs_to_be_buffered = true;
 
     if ( needs_to_be_buffered )

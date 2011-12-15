@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 
 #include "CameraConnection.h"
@@ -16,6 +17,7 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 #include <boost/optional.hpp>
+#include <dStorm/input/ResolutionChange.h>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -32,7 +34,7 @@ Method::Method()
                        "Show camera images live by default",
                        true)
 {
-    DEBUG("Making AndorDirect config");
+    DEBUG("Making AndorDirect config " << this);
 
     show_live_by_default.userLevel = Object::Expert;
     
@@ -48,8 +50,10 @@ Method::Method(const Method &c)
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),
+  resolution(c.resolution), basename(c.basename),
   show_live_by_default( c.show_live_by_default )
 {
+    DEBUG( this << " copied resolution " << resolution[0].is_initialized() << " from " << &c );
     registerNamedEntries();
     DEBUG("Copied AndorDirect Config");
     publish_meta_info();
@@ -67,17 +71,8 @@ void Method::registerNamedEntries() {
     push_back( show_live_by_default );
 }
 
-dStorm::input::chain::Link::AtEnd
-Method::context_changed( ContextRef initial_context, Link* link ) 
-{
-    dStorm::input::chain::Link::context_changed(initial_context, link);
-    last_context = initial_context;
-
+#if 0
     if ( last_context.get() ) {
-        if (  last_context.get() && last_context->has_info_for<engine::Image>() ) {
-            const dStorm::input::Traits<engine::Image>& t = last_context->get_info_for<engine::Image>();
-            resolution = t.plane(0).image_resolutions();
-        }
         basename = last_context->output_basename;
     }
 
@@ -86,15 +81,11 @@ Method::context_changed( ContextRef initial_context, Link* link )
         active_selector->resolution_changed( resolution );
         active_selector->basename_changed( basename );
     }
-
-    if ( ! published.get() )
-        return publish_meta_info();
-    else
-        return AtEnd();
-}
+#endif
 
 dStorm::input::BaseSource* Method::makeSource()
 {
+    DEBUG(this << " giving resolution " << resolution[0].is_initialized() << " to source");
     std::auto_ptr<CameraConnection> srccon(new CameraConnection("localhost", 0, "52377"));
     std::auto_ptr<CamSource> cam_source( new Source(srccon, show_live_by_default(), resolution ) );
     return cam_source.release();
@@ -108,8 +99,12 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
     dStorm::input::chain::MetaInfo::Ptr mi
         ( new dStorm::input::chain::MetaInfo() );
     mi->set_traits( traits );
-    published = mi;
-    return notify_of_trait_change( published );
+    resolution_listener.reset( new boost::signals2::scoped_connection(
+        mi->get_signal< input::ResolutionChange >().connect(
+            boost::bind( &Method::resolution_changed, boost::ref(*this), _1 ) )
+        ) 
+    );
+    return notify_of_trait_change( mi );
 }
 
 void Method::set_display( std::auto_ptr< Display > d ) 
@@ -146,11 +141,17 @@ void Method::operator()(const simparm::Event& e)
 
 void Method::resolution_changed( const dStorm::traits::Optics<2>::Resolutions& resolution )
 {
+    DEBUG( this << " setting resolution " << resolution[0].is_initialized() );
     this->resolution = resolution;
     if ( active_selector.get() )
         active_selector->resolution_changed( resolution );
 }
 
+std::auto_ptr< dStorm::input::chain::Link > 
+get_method() {
+    DEBUG("Creating method instance");
+    return std::auto_ptr< dStorm::input::chain::Link >(new Method());
+}
 
 }
 }

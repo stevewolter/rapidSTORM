@@ -27,9 +27,6 @@ class Method
 : public dStorm::input::chain::Terminus, public simparm::Object, public simparm::Node::Callback
 {
   private:
-    ContextRef last_context;
-    TraitsRef published;
-
     boost::mutex active_selector_mutex;
     boost::condition_variable active_selector_changed;
     std::auto_ptr<Display> active_selector;
@@ -44,7 +41,6 @@ class Method
                                                           basename_listener;
 
     void registerNamedEntries();
-    AtEnd context_changed( ContextRef, Link * );
 
     void operator()( const simparm::Event& );
     void resolution_changed( const dStorm::traits::Optics<2>::Resolutions& );
@@ -53,11 +49,11 @@ class Method
     Method();
     Method(const Method &c);
     virtual ~Method();
+    Method* clone() const { return new Method(*this); }
 
     simparm::Node& getNode() { return *this; }
     dStorm::input::BaseSource* makeSource() ;
 
-    Method* clone() const { return new Method(*this); }
     bool uses_input_file() const { return false; }
 
     void set_display( std::auto_ptr< Display > );

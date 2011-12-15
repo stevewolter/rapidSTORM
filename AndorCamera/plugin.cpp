@@ -1,13 +1,18 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/ModuleInterface.h>
 #include <dStorm/Config.h>
-#include "AndorCamera/InputChainLink.h"
+#include <dStorm/input/chain/Link.h>
+#include <dStorm/helpers/DisplayManager.h>
 
-using namespace dStorm::output;
+namespace dStorm {
+namespace AndorCamera {
+
+std::auto_ptr< dStorm::input::chain::Link > get_method();
+
+}
+}
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,7 +23,8 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    config->add_input( new dStorm::AndorCamera::Method(), dStorm::InputMethod );
+    std::auto_ptr< dStorm::input::chain::Link > m = dStorm::AndorCamera::get_method();
+    config->add_input( m, dStorm::InputMethod );
 }
 
 dStorm::Display::Manager*

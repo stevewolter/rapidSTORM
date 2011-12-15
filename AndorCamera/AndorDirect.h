@@ -28,7 +28,7 @@ struct CameraConnection;
       private:
         std::auto_ptr<CameraConnection> connection;
         TraitsPtr traits;
-        bool has_ended, publish_image, show_live;
+        bool has_ended, show_live;
         std::auto_ptr<LiveView> live_view;
         LiveView::Resolution resolution;
         class iterator;
