@@ -74,7 +74,11 @@ std::auto_ptr<Display::Change> LiveView::get_changes()
     std::auto_ptr<Display::Change> fresh( new Display::Change(1) );
     ost::MutexLock lock(change_mutex);
     DEBUG("Getting live view changes");
-    compute_image_change( current_image_content );
+    if ( current_image_content.is_valid() ) {
+        compute_image_change( current_image_content );
+        current_image_content.invalidate();
+    }
+
     std::swap( fresh, change );
     DEBUG("Got live view changes");
     return fresh;
