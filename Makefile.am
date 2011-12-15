@@ -149,7 +149,6 @@ nobase_include_HEADERS = \
     dStorm/engine/SpotFitterBuilder.h \
     dStorm/input/chain/Choice.h dStorm/input/chain/Choice_decl.h \
     dStorm/input/chain/Link_decl.h dStorm/input/chain/Link.h \
-    dStorm/input/chain/Singleton_decl.h dStorm/input/chain/Singleton.h \
     dStorm/input/chain/Forwarder.h dStorm/input/chain/Forwarder_decl.h \
     dStorm/input/chain/Filter.h dStorm/input/chain/Filter_decl.h \
     dStorm/input/chain/Filter_impl.h dStorm/input/chain/DefaultFilterTypes.h \
@@ -212,7 +211,7 @@ libdStorm_la_SOURCES = \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
     dStorm/input/Source.cpp \
-    dStorm/input/chain/Link.cpp dStorm/input/chain/Singleton.cpp dStorm/input/chain/Choice.cpp \
+    dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
     dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp dStorm/input/chain/Filter.cpp \
     dStorm/input/LocalizationTraits.cpp \

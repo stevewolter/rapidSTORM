@@ -23,8 +23,9 @@ class Link {
   protected:
     typedef boost::shared_ptr<const MetaInfo> TraitsRef;
     typedef boost::shared_ptr<const Context> ContextRef;
+  private:
     TraitsRef meta_info;
-
+  public:
     class AtEnd {};
 
   public:

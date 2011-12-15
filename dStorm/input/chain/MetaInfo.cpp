@@ -36,7 +36,6 @@ template InputFileNameChange& MetaInfo::get_signal<InputFileNameChange>();
 
 void MetaInfo::forward_connections( const MetaInfo& s )
 {
-    std::cerr << "Forwarding from " << this << " to " << &s << std::endl;
     s._signals->listeners.push_back( 
         new boost::signals2::scoped_connection( 
             _signals->connect( *s._signals ) ) );

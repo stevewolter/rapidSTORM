@@ -1,4 +1,3 @@
-#define VERBOSE
 #include "debug.h"
 
 #include <boost/algorithm/string.hpp>
@@ -53,9 +52,9 @@ FileMethod::~FileMethod() {}
 void FileMethod::operator()( const simparm::Event& )
 {
     ost::MutexLock lock( global_mutex() );
-    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << this->meta_info.get() );
-    if ( this->meta_info.get() != NULL ) {
-        this->meta_info->get_signal< InputFileNameChange >()( input_file() );
+    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_traits().get() );
+    if ( current_traits().get() != NULL ) {
+        current_traits()->get_signal< InputFileNameChange >()( input_file() );
     }
 }
 

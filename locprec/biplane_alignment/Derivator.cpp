@@ -7,7 +7,6 @@
 #include <gsl/gsl_blas.h>
 #include <boost/thread/thread.hpp>
 
-#define VERBOSE
 #ifdef VERBOSE
 #undef VERBOSE
 #include <dStorm/helpers/DisplayManager.h>

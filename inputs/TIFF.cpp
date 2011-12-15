@@ -1,6 +1,5 @@
 #define DSTORM_TIFFLOADER_CPP
 
-#define VERBOSE
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
