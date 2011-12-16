@@ -125,29 +125,22 @@ Source< Type >::iterator::iterator( Range r, const typename Base::iterator& o )
 template <typename Type>
 typename Source< Type>::Base::iterator
 Source< Type>::begin() {
-    return typename Base::iterator( iterator( range, base->begin() ) );
+    return typename Base::iterator( iterator( range, this->base().begin() ) );
 }
 
 template <typename Type>
 typename Source< Type >::Base::iterator
 Source< Type >::end() {
-    return typename Base::iterator( iterator( range, base->end() ) );
+    return typename Base::iterator( iterator( range, this->base().end() ) );
 }
 
 template <typename Type>
-typename Source<Type>::Base::TraitsPtr
-Source< Type >::get_traits() {
-    typename Base::TraitsPtr traits = base->get_traits();
-    range = traits->position().range()[1];
-    return traits;
+void Source< Type >::modify_traits( input::Traits<Type>& t ) {
+    range = t.position().range()[1];
 }
 
 template <>
-Source< dStorm::engine::Image >::Base::TraitsPtr
-Source< dStorm::engine::Image >::get_traits() {
-    Base::TraitsPtr traits = base->get_traits();
-    return traits;
-}
+void Source< engine::Image >::modify_traits( input::Traits<engine::Image>& ) {}
 
 Config::Config() 
 : simparm::Object("Mirror", "Mirror input data along Y axis"),

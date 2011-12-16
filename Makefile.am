@@ -80,8 +80,8 @@ endif
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
     dStorm/InsertionPlace.h dStorm/input/InputFileNameChange.h \
-    dStorm/input/ResolutionChange.h \
-    dStorm/input/BasenameChange.h \
+    dStorm/input/AdapterSource.h \
+    dStorm/input/ResolutionChange.h dStorm/input/BasenameChange.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
@@ -189,6 +189,7 @@ nobase_include_HEADERS = \
     dStorm/localization_file/reader.h dStorm/localization_file/converter.h
 
 libdStorm_la_SOURCES = \
+    dStorm/input/Source.cpp \
     dStorm/input/chain/MetaInfo.cpp \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
@@ -212,7 +213,6 @@ libdStorm_la_SOURCES = \
     dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
-    dStorm/input/Source.cpp \
     dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
     dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp dStorm/input/chain/Filter.cpp \

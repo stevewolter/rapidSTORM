@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_RESOLUTIONSETTER_H
 
 #include "debug.h"
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/traits/resolution_config.h>
 
 #include <simparm/TreeCallback.hh>
@@ -26,27 +26,17 @@ class SourceConfig : public traits::resolution::Config {
 
 template <typename ForwardedType>
 class Source 
-: public input::Source<ForwardedType>, public input::Filter
+: public input::AdapterSource<ForwardedType>
 {
-    std::auto_ptr< input::Source<ForwardedType> > s;
     SourceConfig config;
 
+    void modify_traits( input::Traits<ForwardedType>& t )
+        { config.set_traits(t); }
   public:
     Source(
         std::auto_ptr< input::Source<ForwardedType> > backend,
         const SourceConfig& config ) 
-        : input::Source<ForwardedType>( backend->getNode(), backend->flags ),
-          s(backend), config(config) {}
-
-    BaseSource& upstream() { return *s; }
-
-    typedef typename input::Source<ForwardedType>::iterator iterator;
-    typedef typename input::Source<ForwardedType>::TraitsPtr TraitsPtr;
-
-    void dispatch(BaseSource::Messages m) { s->dispatch(m); }
-    iterator begin() { return s->begin(); }
-    iterator end() { return s->end(); }
-    TraitsPtr get_traits();
+        : input::AdapterSource<ForwardedType>( backend ), config(config) {}
 };
 
 

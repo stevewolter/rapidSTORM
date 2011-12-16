@@ -93,13 +93,15 @@ class Source : public simparm::Set,
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
+    simparm::Node& node() { return *this; }
   public:
     Source(const Config&, boost::shared_ptr<OpenFile> of);
     ~Source();
 
     iterator begin();
     iterator end();
-    TraitsPtr get_traits();
+    TraitsPtr get_traits( Wishes );
+    Capabilities capabilities() const { return Capabilities(); }
 };
 
 class Method
@@ -130,8 +132,6 @@ class Method
 
 Source::Source(const Config& config, boost::shared_ptr<OpenFile> of) 
 : simparm::Set("YDummyInput", "Dummy input"),
-  dStorm::input::Source<dStorm::engine::Image>
-    ( static_cast<simparm::Node&>(*this), Capabilities() ),
   of( of )
 {
     assert( of.get() );
@@ -140,7 +140,7 @@ Source::Source(const Config& config, boost::shared_ptr<OpenFile> of)
 Source::~Source() {}
 
 Source::TraitsPtr
-Source::get_traits()
+Source::get_traits( Wishes )
 {
     assert( of.get() );
     return TraitsPtr( dynamic_cast< Traits* >(of->getTraits().release()) );

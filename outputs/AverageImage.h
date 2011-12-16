@@ -31,10 +31,7 @@ class AverageImage : public OutputObject {
     AverageImage *clone() const;
 
     AdditionalData announceStormSize(const Announcement &a) {
-        if ( a.carburettor == NULL )
-            throw std::logic_error("AverageImage needs access to "
-                                   "input driver, but didn't get it.");
-        boost::shared_ptr<engine::InputTraits> t = a.carburettor->get_traits();
+        boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
         image = Image(t->size.head<2>(), 0 * camera::frame);
         image.fill(0);
         return AdditionalData().set_source_image(); 

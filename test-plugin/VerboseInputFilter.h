@@ -2,7 +2,7 @@
 #define VERBOSE_INPUT_FILTER_H
 
 #include <dStorm/log.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/AdapterSource.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
@@ -21,7 +21,7 @@ struct Config : public simparm::Object {
 };
 
 template <typename Type>
-class Source : public Config, public dStorm::input::Source<Type> {
+class Source : public Config, public dStorm::input::AdapterSource<Type> {
     typedef typename dStorm::input::Source<Type>::iterator iterator;
     class _iterator 
       : public boost::iterator_adaptor<_iterator, iterator>
@@ -34,14 +34,11 @@ class Source : public Config, public dStorm::input::Source<Type> {
             friend class boost::iterator_core_access;
             inline void increment(); 
     };
-    std::auto_ptr< dStorm::input::Source<Type> > base;
   public:
     Source(const Config& c, std::auto_ptr< dStorm::input::Source<Type> > base) 
-        : Config(c), dStorm::input::Source<Type>(*this, base->flags), base(base) {}
-    void dispatch(typename Source<Type>::Messages m) { base->dispatch(m); }
-    iterator begin() { return iterator(_iterator(base->begin())); }
-    iterator end() { return iterator(_iterator(base->end())); }
-    typename Source<Type>::TraitsPtr get_traits() { return base->get_traits(); }
+        : Config(c), dStorm::input::AdapterSource<Type>(base) {}
+    iterator begin() { return iterator(_iterator(this->base().begin())); }
+    iterator end() { return iterator(_iterator(this->base().end())); }
 };
 
 template <>

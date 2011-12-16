@@ -22,13 +22,13 @@ std::ostream &operator<<( std::ostream& o, const dStorm::output::LocalizedImage&
 
 template<typename Object, bool RunConcurrently>
 Buffer<Object,RunConcurrently>::Buffer(std::auto_ptr< Source<Object> > src) 
-: Source<Object>( src->getNode(), BaseSource::Flags().set(BaseSource::Repeatable).set(BaseSource::MultipleConcurrentIterators) ),
+: AdapterSource<Object>(src),
   fetch_is_finished(false),
   mayDiscard( false ), need_to_init_iterators(false),
+  is_transparent(true),
   new_data(mutex),
   next_output( buffer.begin() )
 {
-    this->source = src;
     if ( RunConcurrently ) {
         concurrent_fetch = boost::thread( &Buffer<Object,RunConcurrently>::run, this );
     } else {
@@ -43,9 +43,6 @@ Buffer<Object,RunConcurrently>::~Buffer() {
     DEBUG("Joining subthread");
     fetch_is_finished = true;
     concurrent_fetch.join();
-    DEBUG("Destructing " << (void*)this);
-    source.reset( NULL );
-    DEBUG("Destructed source for " << this);
 }
 
 template<typename Object, bool RunConcurrently>
@@ -65,7 +62,7 @@ void Buffer<Object,RunConcurrently>::dispatch(BaseSource::Messages m) {
         if ( mayDiscard ) throw std::runtime_error("Buffer is not repeatable any more");
         next_output = buffer.begin();
     }
-    source->dispatch(m);
+    this->base().dispatch(m);
     DEBUG("Dispatched message " << m.to_string() << " to buffer");
 }
 
@@ -76,7 +73,7 @@ void Buffer<Object,RunConcurrently>::run()
         typename Source<Object>::iterator i, e;
 
         DEBUG("Iterating source in subthread");
-        for (i = source->begin(), e = source->end(); i != e; ++i ) 
+        for (i = this->base().begin(), e = this->base().end(); i != e; ++i ) 
         {
             ost::MutexLock lock(mutex);
             buffer.push_back( *i );
@@ -93,12 +90,6 @@ void Buffer<Object,RunConcurrently>::run()
 
     fetch_is_finished = true;
     new_data.broadcast();
-}
-
-template<typename Object, bool RunConcurrently>
-simparm::Node& Buffer<Object,RunConcurrently>::getConfig()
-{
-    return source->getNode();
 }
 
 template<typename Object, bool RunConcurrently>
@@ -142,29 +133,41 @@ template<typename Object, bool RunConcurrently>
 typename Source<Object>::iterator
 Buffer<Object,RunConcurrently>::begin() 
 { 
-    assert( ! need_to_init_iterators );
-    return typename Source<Object>::iterator( iterator(*this) );
+    if ( ! is_transparent ) {
+        assert( ! need_to_init_iterators );
+        return typename Source<Object>::iterator( iterator(*this) );
+    } else {
+        return this->base().begin();
+    }
 }
 
 template<typename Object, bool RunConcurrently>
 typename Source<Object>::iterator
 Buffer<Object,RunConcurrently>::end() 
 { 
-    assert( ! need_to_init_iterators );
-    return typename Source<Object>::iterator( iterator() );
+    if ( ! is_transparent ) {
+        assert( ! need_to_init_iterators );
+        return typename Source<Object>::iterator( iterator() );
+    } else {
+        return this->base().end();
+    }
 }
 
 template<typename Object, bool RunConcurrently>
 typename Source<Object>::TraitsPtr
-Buffer<Object,RunConcurrently>::get_traits() {
-    DEBUG("Getting traits from buffer");
-    typename Source<Object>::TraitsPtr traits = source->get_traits();
-    if ( need_to_init_iterators ) {
-        current_input = source->begin();
-        end_of_input = source->end();
+Buffer<Object,RunConcurrently>::get_traits( BaseSource::Wishes w ) 
+{
+    typename Source<Object>::TraitsPtr t = this->base().get_traits(w);
+    BaseSource::Capabilities c = this->base().capabilities();
+    is_transparent = 
+        ( c.test( BaseSource::Repeatable ) || ! w.test( BaseSource::MultiplePasses ) ) && 
+        ( c.test( BaseSource::ConcurrentIterators ) || ! w.test( BaseSource::Concurrency ) );
+    if ( !is_transparent && need_to_init_iterators ) {
+        current_input = this->base().begin();
+        end_of_input = this->base().end();
         need_to_init_iterators = false;
     }
-    return traits;
+    return t;
 }
 
 }

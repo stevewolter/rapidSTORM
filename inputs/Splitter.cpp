@@ -63,24 +63,18 @@ Config::Config()
 }
 
 Source::Source(bool vertical, std::auto_ptr<input::Source<engine::Image> > base)
-: input::Source<engine::Image>(base->getNode(), base->flags),
-  base(base),
-  vertical(vertical)
+: input::AdapterSource<engine::Image>(base), vertical(vertical)
 {
 }
 
-Source::TraitsPtr 
-Source::get_traits()
-{
+void Source::modify_traits( input::Traits<engine::Image>& s ) {
     DEBUG("Running background standard deviation estimation");
-    Source::TraitsPtr s = base->get_traits();
     if ( vertical )
-        s->size[1] /= 2;
+        s.size[1] /= 2;
     else
-        s->size[0] /= 2;
-    s->size[2] *= 2;
-    s->planes.resize( s->size[2].value(), traits::Optics<2>() );
-    return s;
+        s.size[0] /= 2;
+    s.size[2] *= 2;
+    s.planes.resize( s.size[2].value(), traits::Optics<2>() );
 }
 
 struct Source::iterator 
@@ -112,12 +106,12 @@ engine::Image& Source::iterator::dereference() const {
 
 input::Source<engine::Image>::iterator
 Source::begin() {
-    return input::Source<engine::Image>::iterator( iterator(vertical, base->begin()) );
+    return input::Source<engine::Image>::iterator( iterator(vertical, base().begin()) );
 }
 
 input::Source<engine::Image>::iterator
 Source::end() {
-    return input::Source<engine::Image>::iterator( iterator(vertical, base->end()) );
+    return input::Source<engine::Image>::iterator( iterator(vertical, base().end()) );
 }
 
 input::chain::Link::AtEnd

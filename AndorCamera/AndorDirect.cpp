@@ -24,7 +24,6 @@ namespace AndorCamera {
 Source::Source
     (std::auto_ptr<CameraConnection> connection, bool show_live, LiveView::Resolution res )
 : Set("AndorDirect", "Direct acquisition"),
-  CamSource( static_cast<simparm::Node&>(*this), BaseSource::Flags() ),
   connection(connection),
   has_ended(false), show_live(show_live), resolution(res),
   status("CameraStatus", "Camera status")
@@ -39,7 +38,7 @@ Source::~Source() {
     DEBUG( "Destructing source " << this );
 }
 
-Source::TraitsPtr Source::get_traits() 
+Source::TraitsPtr Source::get_traits( Wishes ) 
 {
     CamTraits cam_traits;
     DEBUG("Starting acquisition");

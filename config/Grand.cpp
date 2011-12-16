@@ -162,7 +162,6 @@ class GrandConfig::EngineChoice
             &config._inputConfig->get_link_element() );
 
         Link::set_upstream_element( alternatives, *this, Add );
-        initial_context->need_multiple_concurrent_iterators = true;
         alternatives.context_changed( initial_context, this );
     }
     EngineChoice(const EngineChoice& o, GrandConfig& config) 

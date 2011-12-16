@@ -36,6 +36,7 @@ struct CameraConnection;
         simparm::StringEntry status;
 
         void dispatch(Messages m) { assert( ! m.any() ); }
+        simparm::Node& node() { return *this; }
 
       public:
         Source( std::auto_ptr<CameraConnection> connection, bool live_view, LiveView::Resolution );
@@ -46,7 +47,8 @@ struct CameraConnection;
 
         virtual CamSource::iterator begin();
         virtual CamSource::iterator end();
-        virtual TraitsPtr get_traits();
+        virtual TraitsPtr get_traits( Wishes );
+        Capabilities capabilities() const { return Capabilities(); }
     };
 }
 }

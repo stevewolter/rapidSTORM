@@ -22,13 +22,15 @@ namespace noop_engine {
         std::auto_ptr<Input> input;
 
         class _iterator;
+        simparm::Node& node() { return *this; }
 
       public:
         Engine(std::auto_ptr<Input> input);
         void dispatch(Messages m);
         Base::iterator begin();
         Base::iterator end();
-        TraitsPtr get_traits();
+        TraitsPtr get_traits(Wishes);
+        Capabilities capabilities() const { return input->capabilities(); }
 
         static TraitsPtr convert_traits( const Input::Traits& i );
    };

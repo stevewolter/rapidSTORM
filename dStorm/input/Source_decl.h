@@ -5,7 +5,6 @@
 namespace dStorm {
 namespace input {
     class BaseSource;
-    class Filter;
     template <typename ObjectType> class Source;
 }
 }

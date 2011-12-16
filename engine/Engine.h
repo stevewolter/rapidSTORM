@@ -22,7 +22,6 @@ namespace engine {
     *  SpotFitter and output the results to the Output. */
    class Engine
    : public input::Source<output::LocalizedImage>,
-     public input::Filter,
      public simparm::Object,
      public dStorm::Engine
    {
@@ -40,6 +39,7 @@ namespace engine {
         simparm::Entry<unsigned long> errors;
 
         class _iterator;
+        simparm::Node& node() { return *this; }
 
       public:
         Engine(Config& config, std::auto_ptr<Input> input);
@@ -48,10 +48,11 @@ namespace engine {
         void dispatch(Messages m);
         Base::iterator begin();
         Base::iterator end();
-        TraitsPtr get_traits();
+        TraitsPtr get_traits(Wishes);
 
         BaseSource& upstream() { return *input; }
         boost::ptr_vector<output::Output> additional_outputs();
+        Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
             convert_traits( Config&, boost::shared_ptr< const input::Traits<engine::Image> > );

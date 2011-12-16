@@ -21,10 +21,7 @@ bool DefaultVisitor<BufferConfig>::operator()( input::Traits<Type>& ) {
 template <>
 template <typename Type>
 bool DefaultVisitor<BufferConfig>::operator()( std::auto_ptr< Source<Type> > p ) {
-    if ( p->flags.test( BaseSource::TimeCritical ) )
-        new_source.reset( new Buffer<Type, true>(p) );
-    else
-        new_source.reset( new Buffer<Type, false>(p) );
+    new_source.reset( new Buffer<Type, false>(p) );
     return true;
 }
 
@@ -45,23 +42,8 @@ BufferChainLink::makeSource()
 {
     std::auto_ptr<BaseSource> rv( Forwarder::makeSource() );
     assert( rv.get() );
-    bool needs_to_be_buffered = true;
-    if ( rv->flags.test( BaseSource::TimeCritical ) ) 
-        needs_to_be_buffered = true;
-    if ( ! rv->flags.test( BaseSource::Repeatable ) && my_config.needs_multiple_passes ) 
-        needs_to_be_buffered = true;
-    if ( ! rv->flags.test( BaseSource::MultipleConcurrentIterators ) ) 
-        needs_to_be_buffered = true;
-
-    if ( needs_to_be_buffered )
-    {
-        DEBUG("Buffer is inserted into source chain");
-        chain::DefaultVisitor<BufferConfig> visitor(my_config);
-        return specialize_source( visitor, rv.release() );
-    } else {
-        DEBUG("Buffer is not needed, not inserting into source chain");
-        return rv.release();
-    }
+    chain::DefaultVisitor<BufferConfig> visitor(my_config);
+    return specialize_source( visitor, rv.release() );
 }
 
 BufferChainLink::BufferChainLink() 
@@ -76,23 +58,6 @@ BufferChainLink::traits_changed( TraitsRef r, Link* l ) {
     chain::DefaultVisitor<BufferConfig> visitor(my_config);
     visit_traits( visitor, r );
     return notify_of_trait_change( r );
-}
-
-chain::Link::AtEnd BufferChainLink::context_changed( ContextRef c, Link *link ) {
-    Link::context_changed(c,link);
-    if ( c.get() ) {
-        my_config.needs_concurrent_iterators = c->need_multiple_concurrent_iterators;
-        my_config.needs_multiple_passes = c->will_make_multiple_passes;
-        my_config.throw_errors = c->throw_errors;
-    }
-
-    if ( my_config.needs_concurrent_iterators ) {
-        chain::Context::Ptr no_concurrent( c->clone() );
-        no_concurrent->need_multiple_concurrent_iterators = false;
-        return Forwarder::notify_of_context_change(no_concurrent);
-    } else {
-        return Forwarder::notify_of_context_change(c);
-    }
 }
 
 std::auto_ptr<chain::Forwarder> makeBufferChainLink() { 

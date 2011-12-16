@@ -37,8 +37,7 @@ Engine::Engine(
     Config &config, 
     std::auto_ptr<Input> input
 )
-: Base(*this, input->flags ),
-  Object("EngineStatus", "Computation status"),
+: Object("EngineStatus", "Computation status"),
   input(input), 
   config(config),
   errors("ErrorCount", "Number of dropped images", 0)
@@ -94,12 +93,15 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     return rvt;
 }
 
-Engine::TraitsPtr Engine::get_traits() {
+Engine::TraitsPtr Engine::get_traits(Wishes w) {
     if ( &config.spotFittingMethod() == NULL )
         throw std::runtime_error("No spot fitter selected");
     DEBUG("Retrieving input traits");
+    if ( ! config.amplitude_threshold().is_initialized() )
+        w.set( InputStandardDeviation );
+
     if ( imProp.get() == NULL )
-        imProp = input->get_traits();
+        imProp = input->get_traits(w);
     DEBUG("Retrieved input traits");
 
     if ( ! config.amplitude_threshold().is_initialized() ) {

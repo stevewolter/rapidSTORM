@@ -5,7 +5,7 @@
 #include <boost/optional/optional.hpp>
 #include <simparm/FileEntry.hh>
 #include <boost/units/io.hpp>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Config.h>
 #include <vector>
 
@@ -24,9 +24,8 @@ class MaskConfig
 
 template <typename Ty>
 class Mask
-: public Source<Ty>, public Filter
+: public AdapterSource<Ty>
 {
-    std::auto_ptr< Source<Ty> > s;
     std::vector<bool> mask;
 
     class _iterator;
@@ -34,16 +33,12 @@ class Mask
   public:
     Mask(std::auto_ptr< Source<Ty> > backend, const MaskConfig& config);
     
-    BaseSource& upstream() { return *s; }
-
     typedef typename Source<Ty>::iterator iterator;
     typedef typename Source<Ty>::TraitsPtr TraitsPtr;
     typedef Ty value_type;
 
-    void dispatch(BaseSource::Messages m) { s->dispatch(m); }
     iterator begin();
     iterator end();
-    TraitsPtr get_traits() { return s->get_traits(); }
 };
 
 }

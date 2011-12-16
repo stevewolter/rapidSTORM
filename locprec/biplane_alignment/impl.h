@@ -3,7 +3,7 @@
 
 #include <dStorm/Image.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/log.h>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
@@ -43,22 +43,20 @@ struct Config : public simparm::Object {
 
 struct Source
 : public simparm::Object,
-  public dStorm::input::Source< dStorm::engine::Image >
+  public dStorm::input::AdapterSource< dStorm::engine::Image >
 {
     typedef dStorm::input::Source<dStorm::engine::Image> Base;
 
     Source( const Config& c, std::auto_ptr< Base > base);
-    void dispatch(Base::Messages m) { base->dispatch(m); }
     Base::iterator begin();
     Base::iterator end();
-    Base::TraitsPtr get_traits();
+    void modify_traits( dStorm::input::Traits< dStorm::engine::Image >&);
     
   private:
     friend class Derivator;
     typedef dStorm::Image< float, 3 > Image;
     typedef dStorm::Image< float, 2 > Plane;
     typedef dStorm::Image< float, 1 > Line;
-    std::auto_ptr< Base > base;
     std::auto_ptr< MotionModel > model;
     MotionModel::Motion motion;
     class _iterator;
@@ -70,6 +68,8 @@ struct Source
     template <typename Pixel>
     static void apply_motion( const dStorm::Image<Pixel,2>&, const MotionModel::Motion&, dStorm::Image<Pixel,2>& );
     Whitening get_whitening_factors();
+
+    simparm::Node& node() { return *this; }
 };
 
 struct Filter

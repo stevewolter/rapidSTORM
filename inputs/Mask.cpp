@@ -54,8 +54,7 @@ class Mask<Ty>::_iterator
 
 template <typename Ty>
 Mask<Ty>::Mask(std::auto_ptr< Source<Ty> > backend, const MaskConfig& config)
-: Source<Ty>(backend->getNode(), backend->flags),
-  s(backend)
+: AdapterSource<Ty>(backend)
 {
     if ( !config.mask_image ) throw std::logic_error("No mask image given, but tried to apply mask filter");
 
@@ -76,11 +75,11 @@ Mask<Ty>::Mask(std::auto_ptr< Source<Ty> > backend, const MaskConfig& config)
 
 template <typename Ty>
 typename Mask<Ty>::iterator
-Mask<Ty>::begin() { return iterator(_iterator(s->begin(), mask)); }
+Mask<Ty>::begin() { return iterator(_iterator(this->base().begin(), mask)); }
 
 template <typename Ty>
 typename Mask<Ty>::iterator
-Mask<Ty>::end() { return iterator(_iterator(s->end(), mask)); }
+Mask<Ty>::end() { return iterator(_iterator(this->base().end(), mask)); }
 
 template class Mask<dStorm::engine::Image>;
 

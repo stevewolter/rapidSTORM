@@ -51,10 +51,10 @@ namespace TIFF {
         typedef dStorm::Image<PixelType,Dimensions> Image;
         typedef input::Source<Image> BaseSource;
         typedef typename BaseSource::iterator base_iterator;
-        typedef typename BaseSource::Flags Flags;
         typedef typename BaseSource::TraitsPtr TraitsPtr;
 
         class iterator;
+        simparm::Node& node() { return *this; }
 
       public:
         Source(boost::shared_ptr<OpenFile> file);
@@ -62,10 +62,12 @@ namespace TIFF {
 
         base_iterator begin();
         base_iterator end();
-        TraitsPtr get_traits();
+        TraitsPtr get_traits(typename BaseSource::Wishes);
 
         Object& getConfig() { return *this; }
         void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
+        typename BaseSource::Capabilities capabilities() const 
+            { return typename BaseSource::Capabilities(); }
 
       private:
         boost::shared_ptr<OpenFile> file;

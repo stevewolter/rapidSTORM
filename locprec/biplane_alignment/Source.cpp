@@ -42,14 +42,13 @@ struct Source::_iterator
 
 Source::Source( const Config& c, std::auto_ptr< Base > base )
 : Object("BiplaneAlignment", "Biplane alignment"),
-  Base(*this, base->flags),
-  base(base), model( c.model().clone() )
+  dStorm::input::AdapterSource< dStorm::engine::Image >(base), model( c.model().clone() )
 {
     model->parameter_count();
 }
 
-Source::Base::iterator Source::begin() { return Base::iterator(_iterator(base->begin(), motion)); }
-Source::Base::iterator Source::end() { return Base::iterator(_iterator(base->end(), motion)); }
+Source::Base::iterator Source::begin() { return Base::iterator(_iterator(base().begin(), motion)); }
+Source::Base::iterator Source::end() { return Base::iterator(_iterator(base().end(), motion)); }
 
 class Source::Whitening 
 {
@@ -67,7 +66,7 @@ Source::Whitening Source::get_whitening_factors()
     Eigen::Matrix<double, max_images, max_depth> sums;
     int c = 0, pixel_count = 0;
     double c0 = 0, c1 = 1.0001, cov00, cov01, cov11, residues;
-    for ( Source::Base::iterator i = base->begin(); i != base->end(); ++i, ++c )
+    for ( Source::Base::iterator i = base().begin(); i != base().end(); ++i, ++c )
     {
         for (int j = 0; j < max_depth; ++j) {
             dStorm::Image<unsigned short,2> s = i->slice( 2, j * boost::units::camera::pixel );
@@ -110,15 +109,14 @@ struct adder : public Base {
 template <typename Base>
 adder<Base> make_adder( const Base& b ) { return adder<Base>(b); }
 
-Source::Base::TraitsPtr Source::get_traits()
+void Source::modify_traits( dStorm::input::Traits<dStorm::engine::Image>& rv )
 {
     using boost::units::camera::pixel;
-    Source::Base::TraitsPtr rv = base->get_traits();
     std::vector< Image > image_data;
 
     Whitening whitening = get_whitening_factors();
-    base->dispatch( BaseSource::RepeatInput );
-    for ( Source::Base::iterator i = base->begin(); i != base->end(); ++i )
+    base().dispatch( BaseSource::RepeatInput );
+    for ( Source::Base::iterator i = base().begin(); i != base().end(); ++i )
     {
         Image my_copy( i->sizes() );
         Plane keep = my_copy.slice(2, 0 * pixel);
@@ -132,7 +130,7 @@ Source::Base::TraitsPtr Source::get_traits()
             DEBUG("Whitened planes have means " << std::accumulate( to_whiten.begin(), to_whiten.end(), 0.0 ) << " and " << 
                 std::accumulate( keep.begin(), keep.end(), 0.0 ) );
         }
-        for (int acc = 1; acc < 10 && i != base->end(); ++i, ++acc) {
+        for (int acc = 1; acc < 10 && i != base().end(); ++i, ++acc) {
             std::copy( i->slice(2, 0 * pixel).begin(), i->slice(2, 0 * pixel).end(), make_adder( keep.begin() ) );
             for (int j = 1; j < my_copy.depth_in_pixels(); ++j ) {
                 dStorm::Image<dStorm::engine::Image::Pixel,2> orig = i->slice(2,j*pixel);
@@ -143,7 +141,7 @@ Source::Base::TraitsPtr Source::get_traits()
         image_data.push_back( my_copy );
         if ( image_data.size() >= 1 ) break;
     }
-    base->dispatch( BaseSource::RepeatInput );
+    base().dispatch( BaseSource::RepeatInput );
 
     Derivator d( *model, image_data );
     Eigen::VectorXd parameters( model->parameter_count(), 1 );
@@ -152,8 +150,6 @@ Source::Base::TraitsPtr Source::get_traits()
     motion = model->get_motion( parameters );
     std::cerr << "Final motion model " << motion << std::endl;
     DEBUG("Motion model is\n" << motion);
-
-    return rv;
 }
 
 #undef DEBUG

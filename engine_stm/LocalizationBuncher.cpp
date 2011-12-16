@@ -154,9 +154,10 @@ LocalizationBuncher<Input>::~LocalizationBuncher() {
 
 template <typename InputType>
 typename Source<InputType>::TraitsPtr
-Source<InputType>::get_traits()
+Source<InputType>::get_traits( Wishes w )
 {
-    input::Source<Localization>::TraitsPtr traits  = base->get_traits();
+    w.reset( input::BaseSource::ConcurrentIterators );
+    input::Source<Localization>::TraitsPtr traits  = base->get_traits( w );
     traits::ImageNumber::RangeType& r = traits->image_number().range();
 
     current = base->begin();
@@ -174,7 +175,7 @@ Source<InputType>::get_traits()
 
 template <class InputType>
 Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
-: Base(config, Capabilities(base->flags).reset( MultipleConcurrentIterators ) ), base(base), config(c) {}
+: base(base), config(c) {}
 
 template <class InputType>
 Source<InputType>::~Source()

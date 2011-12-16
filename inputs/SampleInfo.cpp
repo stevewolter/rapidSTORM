@@ -5,7 +5,7 @@
 #include "debug.h"
 #include <simparm/TreeCallback.hh>
 #include <simparm/FileEntry.hh>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/localization/Traits.h>
@@ -59,33 +59,16 @@ class Config
 
 template <typename ForwardedType>
 class Input 
-: public input::Source<ForwardedType>, public input::Filter
+: public input::AdapterSource<ForwardedType>
 {
-    std::auto_ptr< input::Source<ForwardedType> > s;
     Config config;
+    void modify_traits( input::Traits<ForwardedType>& t ) { config.set_traits(t); }
 
   public:
     Input(
         std::auto_ptr< input::Source<ForwardedType> > backend,
         const Config& config ) 
-        : input::Source<ForwardedType>( backend->getNode(), backend->flags ),
-          s(backend), config(config) {}
-
-    BaseSource& upstream() { return *s; }
-
-    typedef typename input::Source<ForwardedType>::iterator iterator;
-    typedef typename input::Source<ForwardedType>::TraitsPtr TraitsPtr;
-
-    void dispatch(BaseSource::Messages m) { s->dispatch(m); }
-    iterator begin() { return s->begin(); }
-    iterator end() { return s->end(); }
-    TraitsPtr get_traits() {
-        DEBUG("Sample info creates traits");
-        TraitsPtr rv = s->get_traits();
-        config.set_traits(*rv);
-        DEBUG("Sample info created traits");
-        return rv;
-    }
+        : input::AdapterSource<ForwardedType>( backend ), config(config) {}
 };
 
 

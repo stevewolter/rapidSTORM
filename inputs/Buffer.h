@@ -14,7 +14,7 @@
 
 #include <dStorm/input/Drain.h>
 #include <dStorm/input/Traits.h>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/chain/Filter.h>
 
 #include <dStorm/Localization_decl.h>
@@ -32,8 +32,7 @@ namespace input {
      *  revoked by the setDiscardingLicense() method.
      */
     template <typename Ty, bool RunConcurrently> 
-    class Buffer
-        : public Source<Ty>, public Filter
+    class Buffer : public AdapterSource<Ty>
     {
       public:
         /** Constructor using an explicitly given input source. */
@@ -43,24 +42,26 @@ namespace input {
 
         void dispatch(BaseSource::Messages m);
 
-        simparm::Node& getConfig();
-        typename Source<Ty>::TraitsPtr get_traits();
-
         typename Source<Ty>::iterator begin();
         typename Source<Ty>::iterator end();
 
-        virtual BaseSource& upstream() { return *source; }
+        BaseSource::Capabilities capabilities() const {
+            return this->base().capabilities().set(BaseSource::Repeatable)
+                .set(BaseSource::ConcurrentIterators);
+        }
+        typename Source<Ty>::TraitsPtr get_traits( BaseSource::Wishes );
 
       protected:
         void init( std::auto_ptr< Source<Ty> > );
-        /** Storage for the image Source. */
-        std::auto_ptr< Source<Ty> > source;
         /** Iterators to the source, used only in non-concurrent mode */
         typename Source<Ty>::iterator current_input, end_of_input;
         /** Status of concurrent fetch */
         bool fetch_is_finished;
         /** Discarding license variable. Is set to true on WillNeverRepeatAgain message. */
         bool mayDiscard, need_to_init_iterators;
+        /** When the wishes indicate no buffer is needed, this variable is set 
+         *  to true to avoid buffering. */
+        bool is_transparent;
 
         class iterator;
 
@@ -91,32 +92,6 @@ struct BufferConfig
           throw_errors(false) {}
 };
 
-#if 0
-template <class Object>
-class TypedFilter
-: public chain::TypedFilter<Object>,
-  public virtual BufferConfig 
-{
-    inline chain::Link::AtEnd
-        traits_changed( 
-            chain::Link::TraitsRef, chain::Link*, 
-            typename chain::TypedFilter<Object>::ObjectTraitsPtr );
-    Source<Object>* makeSource( std::auto_ptr< Source<Object> > );
-    void modify_context( input::Traits<Object>& ) {}
-    void notice_context( const input::Traits<Object>& ) {}
-};
-
-template <typename Object>
-Source<Object>* 
-TypedFilter<Object>::makeSource( std::auto_ptr< Source<Object> > rv ) {
-    if ( rv->flags.test( BaseSource::TimeCritical ) ) {
-        return new Buffer<Object, true>(rv);
-    } else {
-        return new Buffer<Object, false>(rv);
-    }
-}
-#endif
-
 class BufferChainLink 
 : public input::chain::Filter
 {
@@ -131,7 +106,6 @@ class BufferChainLink
 
     simparm::Node& getNode() { return config; }
     AtEnd traits_changed( TraitsRef r, Link* l );
-    AtEnd context_changed( ContextRef, Link* );
 
     BaseSource* makeSource();
 };

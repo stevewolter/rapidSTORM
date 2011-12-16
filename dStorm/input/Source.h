@@ -31,32 +31,29 @@ namespace input {
     class BaseSource 
     {
       public:
-        enum Capability { 
-            TimeCritical, 
-            Repeatable,
-            MultipleConcurrentIterators };
+        enum Capability { Repeatable, ConcurrentIterators };
         enum Message {RepeatInput, WillNeverRepeatAgain};
-        typedef std::bitset<3> Capabilities;
-        typedef Capabilities Flags;
+        enum Wish { Concurrency, MultiplePasses, InputStandardDeviation };
+        typedef std::bitset<2> Capabilities;
         typedef std::bitset<2> Messages;
-        const Flags flags;
+        typedef std::bitset<3> Wishes;
 
       private:
-        simparm::Node& node;
+        virtual simparm::Node& node() = 0;
 
       public:
-        BaseSource(simparm::Node& node, Flags flags);
         virtual ~BaseSource();
 
-        simparm::Node& getNode() { return node; }
-        operator simparm::Node&() { return node; }
-        const simparm::Node& getNode() const { return node; }
-        operator const simparm::Node&() const { return node; }
+        simparm::Node& getNode() { return node(); }
+        operator simparm::Node&() { return node(); }
+        const simparm::Node& getNode() const { return const_cast<BaseSource&>(*this).node(); }
+        operator const simparm::Node&() const { return const_cast<BaseSource&>(*this).node(); }
 
         void dispatch(Message m) {
             dispatch(Messages().set(m));
         }
         virtual void dispatch(Messages m) = 0;
+        virtual Capabilities capabilities() const = 0;
 
         template <typename Type> bool can_provide() const;
         template <typename Type> Source<Type>& downcast() const;
@@ -78,9 +75,6 @@ namespace input {
     template <class Type> class Source 
     : public BaseSource
     {
-      protected:
-        inline Source(simparm::Node& node, const BaseSource::Flags&);
-
       public:
         typedef Type value_type;
 
@@ -91,14 +85,7 @@ namespace input {
 
         virtual iterator begin() = 0;
         virtual iterator end() = 0;
-        virtual TraitsPtr get_traits() = 0;
-    };
-
-    class Filter {
-      public:
-        virtual BaseSource& upstream() = 0;
-        virtual boost::ptr_vector<output::Output>
-            additional_outputs() { return upstream().additional_outputs(); }
+        virtual TraitsPtr get_traits(BaseSource::Wishes) = 0;
     };
 
     template <typename Type>

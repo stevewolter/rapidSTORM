@@ -15,15 +15,14 @@ namespace dStorm {
 namespace noop_engine {
 
 Engine::Engine( std::auto_ptr<Input> input )
-: Base(*this, input->flags ),
-  Object("EngineStatus", "Computation status"),
+: Object("EngineStatus", "Computation status"),
   input(input)
 {
     push_back( *this->input );
 }
 
-Engine::TraitsPtr Engine::get_traits() {
-    Engine::TraitsPtr rv = convert_traits( *input->get_traits() );
+Engine::TraitsPtr Engine::get_traits(Wishes w) {
+    Engine::TraitsPtr rv = convert_traits( *input->get_traits(w) );
     rv->carburettor = input.get();
     return rv;
 }

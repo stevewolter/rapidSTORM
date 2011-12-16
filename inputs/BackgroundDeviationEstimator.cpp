@@ -25,7 +25,6 @@ bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( input::Trait
 
 template <>
 bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( Context& c ) {
-    c.will_make_multiple_passes = true;
     return true;
 }
 
@@ -95,19 +94,23 @@ camera_response ImagePlane::background_stddev() const
 }
 
 Source::Source(std::auto_ptr<input::Source<engine::Image> > base)
-: input::Source<engine::Image>(base->getNode(), base->flags),
-  base(base), confidence_limit(8), binning(3)
+: input::AdapterSource<engine::Image>(base),
+  confidence_limit(8), binning(3)
 {
 }
 
 Source::TraitsPtr 
-Source::get_traits()
+Source::get_traits( Wishes w )
 {
+    if ( ! w.test( InputStandardDeviation ) ) return base().get_traits(w);
+
+    w.set( MultiplePasses );
     DEBUG("Running background standard deviation estimation");
-    Source::TraitsPtr s = base->get_traits();
+    Source::TraitsPtr s = base().get_traits(w);
+    if ( ! base().capabilities().test( Repeatable ) ) return s;
     std::vector<ImagePlane> planes( s->plane_count(), ImagePlane(binning) );
 
-    for (input::Source<engine::Image>::iterator i = base->begin(), e = base->end(); i != e; ++i ) {
+    for (input::Source<engine::Image>::iterator i = base().begin(), e = base().end(); i != e; ++i ) {
         DEBUG("Loaded image " << i->frame_number());
         if ( i->is_invalid() ) continue;
         DEBUG("Got image of size " << i->width_in_pixels() << " " << i->height_in_pixels() << " " << i->depth_in_pixels());
@@ -129,11 +132,11 @@ Source::get_traits()
                 "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "
                 "Some things, like determining precision of localization, will not work.",
                 simparm::Message::Warning);
-            base->getNode().send(m);
+            base().getNode().send(m);
         }
 
     DEBUG("Dispatching restart message");
-    base->dispatch( BaseSource::RepeatInput );
+    base().dispatch( BaseSource::RepeatInput );
     DEBUG("Finished background standard deviation estimation");
     
     return s;

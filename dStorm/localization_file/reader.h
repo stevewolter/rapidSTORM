@@ -61,6 +61,7 @@ namespace Reader {
         std::auto_ptr<output::TraceReducer> reducer;
 
         void dispatch(Messages m) { assert( ! m.any() ); }
+        simparm::Node& node() { return *this; }
 
       public:
         Source(const File& file, std::auto_ptr<output::TraceReducer>);
@@ -70,7 +71,8 @@ namespace Reader {
 
         input::Source<localization::Record>::iterator begin();
         input::Source<localization::Record>::iterator end();
-        TraitsPtr get_traits();
+        TraitsPtr get_traits(BaseSource::Wishes);
+        Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
     };
 
     struct Config 

@@ -45,17 +45,6 @@ namespace resolution {
 
 using namespace chain;
 
-template <typename ForwardedType>
-typename Source<ForwardedType>::TraitsPtr
-Source<ForwardedType>::get_traits()
-{
-    DEBUG("Setting traits in ResolutionSetter");
-    TraitsPtr rv = s->get_traits();
-    config.set_traits(*rv);
-    DEBUG(this << " set traits in ResolutionSetter");
-    return rv;
-}
-
 ChainLink::ChainLink() 
 {
     DEBUG("Making ResolutionSetter chain link");

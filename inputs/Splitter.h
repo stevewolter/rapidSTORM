@@ -4,7 +4,7 @@
 #include "Splitter_decl.h"
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
@@ -25,22 +25,18 @@ struct Config : public simparm::Object
 };
 
 class Source 
-: public input::Source<engine::Image>,
-  public input::Filter,
+: public input::AdapterSource<engine::Image>,
   boost::noncopyable
 {
-    std::auto_ptr< input::Source<engine::Image> > base;
     struct iterator;
     const bool vertical;
 
+    void modify_traits( input::Traits<engine::Image>& );
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::Image> > base);
 
     input::Source<engine::Image>::iterator begin();
     input::Source<engine::Image>::iterator end();
-    TraitsPtr get_traits();
-    BaseSource& upstream() { return *base; }
-    void dispatch(BaseSource::Messages m) { upstream().dispatch(m); }
 };
 
 class ChainLink

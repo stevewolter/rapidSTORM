@@ -42,7 +42,6 @@ Filter::context_changed( ContextRef ref, Link *link )
 {
     Link::context_changed( ref, link );
     boost::shared_ptr< dStorm::input::chain::Context > mine( ref->clone() );
-    mine->will_make_multiple_passes = true;
     return notify_of_context_change( mine );
 }
 

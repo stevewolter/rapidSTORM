@@ -4,7 +4,7 @@
 #include "YMirror_decl.h"
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/Image.h>
 #include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
@@ -24,25 +24,20 @@ struct Config : public simparm::Object
 
 template <typename Type>
 class Source
-: public input::Source< Type >,
-  public input::Filter,
+: public input::AdapterSource< Type >,
   boost::noncopyable
 {
     typedef Type Input;
     typedef input::Source<Input> Base;
-    std::auto_ptr< Base > base;
     typedef Localization::Position::Traits::RangeType::Scalar Range;
     Range range;
     struct iterator;
+    void modify_traits( input::Traits<Type>& );
 
   public:
-    Source( std::auto_ptr< Base > base ) 
-        : Base(base->getNode(), base->flags), base(base) {}
+    Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
     typename Base::iterator begin();
     typename Base::iterator end();
-    typename Base::TraitsPtr get_traits();
-    input::BaseSource& upstream() { return *base; }
-    void dispatch(input::BaseSource::Messages m) { upstream().dispatch(m); }
 };
 
 class ChainLink

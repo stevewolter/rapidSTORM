@@ -48,20 +48,30 @@ class Source
     std::vector< boost::shared_ptr< const input::Traits<Type> > > base_traits;
     typename Base::TraitsPtr traits;
 
+    simparm::Node& node() { return *sources[0]; }
+
   public:
-    Source( const Sources& s ) : input::Source<Type>(*s[0]), sources(s) {}
+    Source( const Sources& s ) : sources(s) {}
     void dispatch(BaseSource::Messages m) {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i)
             (*i)->dispatch(m);
     }
     typename Base::iterator begin();
     typename Base::iterator end();
-    typename Base::TraitsPtr get_traits() {
+    typename Base::TraitsPtr get_traits( input::BaseSource::Wishes r ) {
         for (typename Sources::iterator i = sources.begin(); i != sources.end(); ++i) {
-            base_traits.push_back( (*i)->get_traits() );
+            base_traits.push_back( (*i)->get_traits(r) );
         }
         traits.reset(  merge_traits<Type,Tag>()(base_traits).release()  );
         return traits;
+    }
+
+    BaseSource::Capabilities capabilities() const {
+        BaseSource::Capabilities rv;
+        rv.set();
+        for (typename Sources::const_iterator i = sources.begin(); i != sources.end(); ++i)
+            rv = rv.to_ulong() & (*i)->capabilities().to_ulong();
+        return rv;
     }
 };
 

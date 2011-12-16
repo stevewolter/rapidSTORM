@@ -27,14 +27,15 @@ bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::I
     return a.unit_symbol == b.unit_symbol && similar(a.value, b.value);
 }
 
-struct DummyImageSource : simparm::Object, public input::Source<engine::Image>
+struct DummyImageSource : public input::Source<engine::Image>
 {
+    simparm::Node& node() { throw std::logic_error("Not Implemented"); }
     typedef Source<engine::Image>::iterator iterator;
-    DummyImageSource() : simparm::Object("DummySource", "DummySource"), input::Source<engine::Image>(*this, Flags()) {}
     void dispatch(Messages m) {}
     iterator begin() { return iterator(); }
     iterator end() { return iterator(); }
-    TraitsPtr get_traits() { return TraitsPtr( new TraitsPtr::element_type()); }
+    TraitsPtr get_traits( Wishes ) { return TraitsPtr( new TraitsPtr::element_type()); }
+    Capabilities capabilities() const { return Capabilities(); }
 };
 
 struct MoreSpecialized : public dStorm::input::chain::Link {
@@ -139,7 +140,8 @@ struct Check {
         if ( source.get() == NULL )
             throw std::runtime_error("Source could not be built");
 
-        resolution_close_to(correct.plane(0).image_resolutions(), source->get_traits()->plane(0).image_resolutions());
+        resolution_close_to(correct.plane(0).image_resolutions(), 
+            source->get_traits( dStorm::input::BaseSource::Wishes() )->plane(0).image_resolutions());
         return 0;
     }
 };

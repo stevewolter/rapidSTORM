@@ -195,9 +195,6 @@ template <typename Pixel>
 NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
 
 : simparm::Set("NoiseSource", "Noise source status"),
-  dStorm::input::Source< dStorm::engine::Image >(
-    static_cast<simparm::Set&>(*this), dStorm::input::BaseSource::Capabilities() ),
-  
   randomSeedEntry(config.noiseGeneratorConfig.random_seed),
   optics( config.optics.make_traits() )
 {
@@ -302,7 +299,7 @@ NoiseSource<Pixel>::end() {
 
 template <typename Pixel>
 typename NoiseSource<Pixel>::Source::TraitsPtr
-NoiseSource<Pixel>::get_traits() {
+NoiseSource<Pixel>::get_traits( typename Source::Wishes ) {
     typename Source::TraitsPtr rv( new dStorm::input::Traits< dStorm::Image<Pixel,3> >() );
     static_cast< dStorm::traits::Optics<3>& >(*rv) = optics;
     rv->size = imS;

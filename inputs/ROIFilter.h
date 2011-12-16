@@ -11,7 +11,7 @@
 #include <simparm/Structure.hh>
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <dStorm/units/frame_count.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -61,12 +61,11 @@ struct ImageNumber
 
 template <typename Ty>
 class Source
-: public input::Source<Ty>
+: public input::AdapterSource<Ty>
 {
     const frame_index from;
     const boost::optional<frame_index> to;
     const boost::optional<int> plane;
-    const boost::shared_ptr< input::Source<Ty> > _upstream;
     typedef typename input::Source<Ty>::iterator base_iterator;
 
     struct _iterator;
@@ -85,32 +84,24 @@ class Source
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
             frame_index from, boost::optional<frame_index> to, boost::optional<int> plane)
-        : input::Source<Ty>(*upstream, upstream->flags), from(from), to(to),
-          plane(plane), _upstream(upstream) {}
+        : input::AdapterSource<Ty>(upstream), from(from), to(to),
+          plane(plane) {}
     Source* clone() const { return new Source(*this); }
-
-    input::Source<Ty>& upstream() { return *_upstream; }
 
     base_iterator begin();
     base_iterator end();
-    typename input::Source<Ty>::TraitsPtr get_traits()
+    void get_traits( input::Traits<Ty>& p)
     {
-        typename input::Source<Ty>::TraitsPtr p = _upstream->get_traits();
-        frame_index from = std::max( this->from, *p->image_number().range().first );
-        if ( p->image_number().range().second.is_initialized() && to.is_initialized() ) {
-            p->image_number().range().second = std::min(*to, *p->image_number().range().second);
+        frame_index from = std::max( this->from, *p.image_number().range().first );
+        if ( p.image_number().range().second.is_initialized() && to.is_initialized() ) {
+            p.image_number().range().second = std::min(*to, *p.image_number().range().second);
         } else if ( to.is_initialized() ) {
-            p->image_number().range().second = *to;
+            p.image_number().range().second = *to;
         }
-        p->image_number().range().first = from;
-        DEBUG("First frame of traits is " << *p->image_number().range().first << ", last frame set is " << p->image_number().range().second.is_initialized());
-        reduce_planes(*p);
-        return p;
+        p.image_number().range().first = from;
+        DEBUG("First frame of traits is " << *p.image_number().range().first << ", last frame set is " << p.image_number().range().second.is_initialized());
+        reduce_planes(p);
     }
-    void dispatch(typename input::Source<Ty>::Messages m) {
-        _upstream->dispatch(m);
-    }
-
 };
 
 template <typename Ty>
@@ -177,14 +168,14 @@ template <typename Ty>
 typename Source<Ty>::base_iterator
 Source<Ty>::begin() { 
     return typename Source<Ty>::base_iterator( 
-        _iterator( *this, _upstream->begin(), _upstream->end() ) ); 
+        _iterator( *this, this->base().begin(), this->base().end() ) ); 
 }
 
 template <typename Ty>
 typename Source<Ty>::base_iterator
 Source<Ty>::end() 
     { return typename Source<Ty>::base_iterator( 
-        _iterator( *this, _upstream->end(), _upstream->end() ) ); }
+        _iterator( *this, this->base().end(), this->base().end() ) ); }
 
 class ChainLink 
 : public input::chain::Filter, public simparm::Listener

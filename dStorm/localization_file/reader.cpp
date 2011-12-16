@@ -56,8 +56,6 @@ class Source::iterator
 Source::Source( const File& file, 
                 std::auto_ptr<output::TraceReducer> red )
 : simparm::Object("STM_Show", "Input options"),
-  input::Source<localization::Record>
-    (*this, Flags().set(Repeatable)),
     file(file.filename, file.traits),
     reducer(red)
 {
@@ -262,7 +260,7 @@ std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const inpu
     }
 }
 
-Source::TraitsPtr Source::get_traits() { 
+Source::TraitsPtr Source::get_traits(input::BaseSource::Wishes r) { 
     TraitsPtr tp( file.getTraits().release() ); 
     return tp;
 }

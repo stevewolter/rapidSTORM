@@ -43,6 +43,7 @@ namespace locprec {
         void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
 
         class iterator;
+        simparm::Node& node() { return *this; }
 
       protected:
         gsl_rng *rng;
@@ -55,12 +56,13 @@ namespace locprec {
 
         const boost::ptr_list<Fluorophore>& getFluorophores() const
             { return fluorophores; }
-        simparm::Object& getConfig() { return *this; }
 
         typedef typename Source::iterator base_iterator;
         base_iterator begin();
         base_iterator end();
-        typename Source::TraitsPtr get_traits();
+        typename Source::TraitsPtr get_traits( typename Source::Wishes );
+        typename Source::Capabilities capabilities() const 
+            { return typename Source::Capabilities(); }
     };
 
     struct FluorophoreSetConfig : public simparm::Set {

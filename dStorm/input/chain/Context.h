@@ -15,15 +15,12 @@ struct Context {
     typedef boost::shared_ptr<Context> Ptr;
     typedef boost::shared_ptr<const Context> ConstPtr;
 
-    Context() : need_multiple_concurrent_iterators(false), 
-                will_make_multiple_passes(false),
-                throw_errors(false) {}
+    Context() : throw_errors(false) {}
     virtual ~Context() {}
     virtual Context* clone() const { return new Context(*this); }
 
     std::string output_basename;
-    bool need_multiple_concurrent_iterators, will_make_multiple_passes,
-         throw_errors;
+    bool throw_errors;
 
     boost::ptr_vector<BaseTraits> more_infos;
 

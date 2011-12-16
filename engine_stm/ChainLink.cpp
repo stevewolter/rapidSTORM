@@ -39,7 +39,6 @@ class ChainLink::Visitor {
 
     bool operator()( input::chain::MetaInfo& ) { return true; }
     bool operator()( input::chain::Context& c ) {
-        c.need_multiple_concurrent_iterators = false;
         boost::mpl::for_each<SupportedTypes>( input::chain::ContextTraitCreator(c) );
         return true;
     }

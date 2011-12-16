@@ -47,8 +47,6 @@ const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 template<typename Pixel, int Dimensions>
 Source<Pixel,Dimensions>::Source( boost::shared_ptr<OpenFile> file )
 : simparm::Set("TIFF", "TIFF image reader"),
-  BaseSource( static_cast<simparm::Node&>(*this),    
-      Flags() ),
   file(file)
 {
 }
@@ -235,7 +233,7 @@ ChainLink::makeSource()
 
 template<typename Pixel, int Dimensions>
 typename Source<Pixel,Dimensions>::TraitsPtr 
-Source<Pixel,Dimensions>::get_traits() {
+Source<Pixel,Dimensions>::get_traits(typename BaseSource::Wishes) {
     simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
     count.editable = false;
     push_back(count);

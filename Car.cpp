@@ -200,7 +200,7 @@ void Car::run() {
 
 void Car::compute_until_terminated() {
     int number_of_threads = 1;
-    if ( input->flags.test( input::BaseSource::MultipleConcurrentIterators ) ) {
+    if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) ) {
         number_of_threads = config.pistonCount();
         DEBUG("Using " << number_of_threads << " threads");
     } else {
@@ -331,18 +331,17 @@ void Car::drive() {
 
     add_additional_outputs();
 
-    DEBUG("Input has config node " << static_cast<simparm::Node&>(*input).getName());
-    DEBUG("Pushing back input config");
     runtime_config.push_back( *input );
-    DEBUG("Pushing back output config");
     runtime_config.push_back( output->getNode() );
-    DEBUG("Pushing back abort job button");
     runtime_config.push_back( abortJob );
-    DEBUG("Pushing back close job button");
     runtime_config.push_back( closeJob );
 
+    input::BaseSource::Wishes requirements;
+    if ( config.pistonCount() > 1 )
+        requirements.set( input::BaseSource::Concurrency );
+
     DEBUG("Getting input traits from " << input.get());
-    Input::TraitsPtr traits = input->get_traits();
+    Input::TraitsPtr traits = input->get_traits(requirements);
     first_output = next_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());

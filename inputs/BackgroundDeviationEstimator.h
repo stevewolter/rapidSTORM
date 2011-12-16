@@ -4,7 +4,7 @@
 #include "BackgroundDeviationEstimator_decl.h"
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/input/Source.h>
+#include <dStorm/input/AdapterSource.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
@@ -40,21 +40,14 @@ struct ImagePlane {
 };
 
 class Source 
-: public input::Source<engine::Image>,
-  public input::Filter,
+: public input::AdapterSource<engine::Image>,
   boost::noncopyable
 {
-    std::auto_ptr< input::Source<engine::Image> > base;
     int confidence_limit, binning;
 
   public:
     Source(std::auto_ptr< input::Source<engine::Image> > base);
-
-    input::Source<engine::Image>::iterator begin() { return base->begin(); }
-    input::Source<engine::Image>::iterator end() { return base->end(); }
-    TraitsPtr get_traits();
-    BaseSource& upstream() { return *base; }
-    void dispatch(BaseSource::Messages m) { upstream().dispatch(m); }
+    TraitsPtr get_traits( Wishes );
 };
 
 class ChainLink

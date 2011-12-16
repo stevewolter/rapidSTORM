@@ -52,7 +52,6 @@ class LocalizationBuncher
 template <typename InputType>
 class Source
 : public input::Source<output::LocalizedImage>,
-  public input::Filter,
   boost::noncopyable
 {
   public:
@@ -74,6 +73,7 @@ class Source
   private:
     Config config;
     frame_index firstImage, lastImage;
+    simparm::Node& node() { return base->getNode(); }
   public:
     Source( const Config& c, std::auto_ptr<Input> base ) ;
     ~Source();
@@ -85,8 +85,10 @@ class Source
     iterator end()
         { return iterator( LocalizationBuncher<InputType>
             (config, *this, true) ); }
-    TraitsPtr get_traits();
+    TraitsPtr get_traits( input::BaseSource::Wishes );
     BaseSource& upstream() { return *base; }
+    Capabilities capabilities() const 
+        { return base->capabilities().reset( ConcurrentIterators ); }
 };
 
 }
