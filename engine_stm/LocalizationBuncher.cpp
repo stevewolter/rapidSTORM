@@ -180,11 +180,8 @@ Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
 template <class InputType>
 Source<InputType>::~Source()
 {
-    DEBUG("Deleting base input for " << this);
     canned.clear();
-    DEBUG("Deleting iterators and input");
     current = base_end = InputIterator();
-    DEBUG("Deleting rest");
 }
 
 template <class InputType>

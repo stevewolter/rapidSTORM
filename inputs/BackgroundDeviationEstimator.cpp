@@ -104,7 +104,7 @@ Source::get_traits( Wishes w )
 {
     if ( ! w.test( InputStandardDeviation ) ) return base().get_traits(w);
 
-    w.set( MultiplePasses );
+    w.set( Repeatable );
     DEBUG("Running background standard deviation estimation");
     Source::TraitsPtr s = base().get_traits(w);
     if ( ! base().capabilities().test( Repeatable ) ) return s;

@@ -18,23 +18,22 @@ struct Input : public Terminus {
     bool declared;
     bool current;
     simparm::Object node;
-    Input() : Terminus(), declared(false), current(false), node("Input", "Input") {}
+    Input() : Terminus(), declared(false), current(false), node("Input", "Input") 
+    {
+        make_image_traits();
+    }
     Input *clone() const { return new Input(*this); }
     simparm::Node& getNode() { return node; }
 
-    AtEnd context_changed( ContextRef ctx, Link* link ) {
-        DEBUG("Context change with " << ctx.get());
-        if ( ctx.get() && (!declared || ctx->need_multiple_concurrent_iterators != current) ) {
-            current = ctx->need_multiple_concurrent_iterators;
-            MetaInfo::Ptr mi( new MetaInfo() );
-            if ( current )
-                mi->set_traits( new Traits<dStorm::Localization>() );
-            else
-                mi->set_traits( new Traits<dStorm::engine::Image>() );
-            declared = true;
-            return notify_of_trait_change( mi );
-        } else
-            return AtEnd();
+    void make_image_traits() {
+        MetaInfo::Ptr mi( new MetaInfo() );
+        mi->set_traits( new Traits<dStorm::engine::Image>() );
+        notify_of_trait_change(mi);
+    }
+    void make_localization_traits() {
+        MetaInfo::Ptr mi( new MetaInfo() );
+        mi->set_traits( new Traits<dStorm::Localization>() );
+        notify_of_trait_change(mi);
     }
 
     BaseSource* makeSource() { assert( false ); throw std::logic_error(""); }
@@ -127,17 +126,10 @@ int main() {
     alternatives.push_back_choice( image_alternative );
     alternatives.push_back_choice( loc_alternative );
 
-    if ( getName(alternatives) != "" ) return 1;
-
-    Context::Ptr c( new Context() );
-    chain_base.set_context( c );
-
+    input.make_image_traits();
     if ( getName(alternatives) != "AIm" ) return 1;
 
-    c.reset( new Context() );
-    c->need_multiple_concurrent_iterators = true;
-    chain_base.set_context( c );
-
+    input.make_localization_traits();
     if ( getName(alternatives) != "AL" ) return 1;
 
     return 0;

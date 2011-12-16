@@ -31,12 +31,11 @@ namespace input {
     class BaseSource 
     {
       public:
-        enum Capability { Repeatable, ConcurrentIterators };
-        enum Message {RepeatInput, WillNeverRepeatAgain};
-        enum Wish { Concurrency, MultiplePasses, InputStandardDeviation };
-        typedef std::bitset<2> Capabilities;
-        typedef std::bitset<2> Messages;
+        enum Capability { Repeatable, ConcurrentIterators, InputStandardDeviation };
+        typedef std::bitset<3> Capabilities;
         typedef std::bitset<3> Wishes;
+        enum Message {RepeatInput, WillNeverRepeatAgain};
+        typedef std::bitset<2> Messages;
 
       private:
         virtual simparm::Node& node() = 0;

@@ -338,7 +338,7 @@ void Car::drive() {
 
     input::BaseSource::Wishes requirements;
     if ( config.pistonCount() > 1 )
-        requirements.set( input::BaseSource::Concurrency );
+        requirements.set( input::BaseSource::ConcurrentIterators );
 
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits(requirements);

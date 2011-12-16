@@ -159,9 +159,12 @@ Buffer<Object,RunConcurrently>::get_traits( BaseSource::Wishes w )
 {
     typename Source<Object>::TraitsPtr t = this->base().get_traits(w);
     BaseSource::Capabilities c = this->base().capabilities();
-    is_transparent = 
-        ( c.test( BaseSource::Repeatable ) || ! w.test( BaseSource::MultiplePasses ) ) && 
-        ( c.test( BaseSource::ConcurrentIterators ) || ! w.test( BaseSource::Concurrency ) );
+    BaseSource::Capability providing[] = 
+        { BaseSource::Repeatable, BaseSource::ConcurrentIterators };
+    is_transparent = true;
+    for (int i = 0; i < 2; ++i)
+        is_transparent = is_transparent &&
+            ( c.test( providing[i] ) || ! w.test( providing[i] ) );
     if ( !is_transparent && need_to_init_iterators ) {
         current_input = this->base().begin();
         end_of_input = this->base().end();
