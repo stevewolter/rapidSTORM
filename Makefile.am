@@ -81,6 +81,7 @@ headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
     dStorm/InsertionPlace.h dStorm/input/InputFileNameChange.h \
     dStorm/input/ResolutionChange.h \
+    dStorm/input/BasenameChange.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \

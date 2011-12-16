@@ -1,6 +1,7 @@
 #include "MetaInfo.h"
 #include <dStorm/input/InputFileNameChange.h>
 #include <dStorm/input/ResolutionChange.h>
+#include <dStorm/input/BasenameChange.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
@@ -9,7 +10,8 @@ namespace chain {
 
 struct MetaInfo::Signals
 : public InputFileNameChange,
-  public ResolutionChange
+  public ResolutionChange,
+  public BasenameChange
 {
     boost::ptr_vector< boost::signals2::scoped_connection > listeners;
 };
@@ -36,6 +38,7 @@ Type& MetaInfo::get_signal() { return *_signals; }
 
 template InputFileNameChange& MetaInfo::get_signal<InputFileNameChange>();
 template ResolutionChange& MetaInfo::get_signal<ResolutionChange>();
+template BasenameChange& MetaInfo::get_signal<BasenameChange>();
 
 void MetaInfo::forward_connections( const MetaInfo& s )
 {
@@ -45,6 +48,9 @@ void MetaInfo::forward_connections( const MetaInfo& s )
     s._signals->listeners.push_back( 
         new boost::signals2::scoped_connection( 
             get_signal<ResolutionChange>().connect( static_cast<ResolutionChange&>(*s._signals) ) ) );
+    s._signals->listeners.push_back( 
+        new boost::signals2::scoped_connection( 
+            get_signal<BasenameChange>().connect( static_cast<BasenameChange&>(*s._signals) ) ) );
 }
 
 }

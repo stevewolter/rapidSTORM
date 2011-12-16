@@ -8,8 +8,10 @@
 namespace dStorm {
 namespace input {
 
-typedef typename boost::signals2::signal< void (const std::string&) > 
-    InputFileNameChange;
+struct InputFileNameChange
+: public boost::signals2::signal< void (const std::string&) > 
+{
+};
 
 }
 }

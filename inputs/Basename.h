@@ -42,7 +42,6 @@ class ChainLink
     simparm::Node& getNode() { return static_cast<Config&>(*this); }
 
     AtEnd traits_changed( TraitsRef r, Link* l);
-    AtEnd context_changed( ContextRef r, Link* l) ;
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 };

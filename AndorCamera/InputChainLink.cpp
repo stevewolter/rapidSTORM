@@ -18,6 +18,7 @@
 #include <dStorm/input/InputMutex.h>
 #include <boost/optional.hpp>
 #include <dStorm/input/ResolutionChange.h>
+#include <dStorm/input/BasenameChange.h>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -71,17 +72,14 @@ void Method::registerNamedEntries() {
     push_back( show_live_by_default );
 }
 
-#if 0
-    if ( last_context.get() ) {
-        basename = last_context->output_basename;
-    }
-
-    if ( active_selector.get() ) 
-    {
-        active_selector->resolution_changed( resolution );
+void Method::basename_changed( const dStorm::output::Basename& bn ) {
+    dStorm::output::Basename b = bn;
+    b.set_variable("run", "snapshot");
+    basename = b.new_basename();
+    if ( active_selector.get() ) {
         active_selector->basename_changed( basename );
     }
-#endif
+}
 
 dStorm::input::BaseSource* Method::makeSource()
 {
@@ -102,6 +100,11 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
     resolution_listener.reset( new boost::signals2::scoped_connection(
         mi->get_signal< input::ResolutionChange >().connect(
             boost::bind( &Method::resolution_changed, boost::ref(*this), _1 ) )
+        ) 
+    );
+    basename_listener.reset( new boost::signals2::scoped_connection(
+        mi->get_signal< input::BasenameChange >().connect(
+            boost::bind( &Method::basename_changed, boost::ref(*this), _1 ) )
         ) 
     );
     return notify_of_trait_change( mi );

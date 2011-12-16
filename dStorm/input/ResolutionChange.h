@@ -9,8 +9,9 @@
 namespace dStorm {
 namespace input {
 
-typedef typename boost::signals2::signal< void (const traits::Optics<2>::Resolutions&) > 
-    ResolutionChange;
+struct ResolutionChange 
+: public boost::signals2::signal< void (const traits::Optics<2>::Resolutions&) > 
+    {};
 
 }
 }

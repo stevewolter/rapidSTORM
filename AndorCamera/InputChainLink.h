@@ -11,6 +11,7 @@
 #include <boost/thread/condition_variable.hpp>
 #include <memory>
 #include <dStorm/traits/image_resolution.h>
+#include <dStorm/output/Basename.h>
 #include <boost/signals2/connection.hpp>
 
 namespace dStorm {
@@ -44,6 +45,7 @@ class Method
 
     void operator()( const simparm::Event& );
     void resolution_changed( const dStorm::traits::Optics<2>::Resolutions& );
+    void basename_changed( const dStorm::output::Basename& );
 
   public:
     Method();

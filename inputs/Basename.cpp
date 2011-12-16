@@ -1,6 +1,7 @@
 #include "Basename.h"
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/input/BasenameChange.h>
 
 namespace dStorm {
 namespace input {
@@ -51,17 +52,13 @@ chain::Link::AtEnd ChainLink::traits_changed( TraitsRef traits, Link *l )
 
     if ( user_changed_output ) {
         this->traits->suggested_output_basename.unformatted() = output();
+        traits->get_signal< BasenameChange >()( this->traits->suggested_output_basename );
         return notify_of_trait_change(this->traits);
     } else {
+        /* The operator() will take care of traits publishing */
         output = default_output_basename;
-        return notify_of_trait_change(traits);
+        return AtEnd();
     }
-}
-
-chain::Link::AtEnd ChainLink::context_changed( ContextRef context, Link *l )
-{
-    Link::context_changed(context,l); 
-    return this->notify_of_context_change(context); 
 }
 
 void ChainLink::operator()(const simparm::Event&)
@@ -71,6 +68,7 @@ void ChainLink::operator()(const simparm::Event&)
     user_changed_output = ( output() != "" && output() != default_output_basename );
     if ( traits.get() ) {
         traits->suggested_output_basename.unformatted() = output();
+        traits->get_signal< BasenameChange >()( traits->suggested_output_basename );
         notify_of_trait_change( this->traits );
     }
 }
