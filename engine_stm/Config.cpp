@@ -4,7 +4,7 @@ namespace dStorm {
 namespace engine_stm {
 
 Config::Config()
-: simparm::Object("LocalizationBuncher", "Replay localizations"), throw_errors(false) {}
+: simparm::Object("LocalizationBuncher", "Replay localizations") {}
 
 }
 }

@@ -15,12 +15,7 @@ struct Context {
     typedef boost::shared_ptr<Context> Ptr;
     typedef boost::shared_ptr<const Context> ConstPtr;
 
-    Context() : throw_errors(false) {}
-    virtual ~Context() {}
-    virtual Context* clone() const { return new Context(*this); }
-
-    std::string output_basename;
-    bool throw_errors;
+    Context* clone() const { return new Context(*this); }
 
     boost::ptr_vector<BaseTraits> more_infos;
 

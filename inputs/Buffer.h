@@ -80,22 +80,9 @@ namespace input {
         DSTORM_REALIGN_STACK void run();
     };
 
-struct BufferConfig 
-{
-    typedef input::chain::DefaultTypes SupportedTypes;
-
-    bool needs_concurrent_iterators, needs_multiple_passes, throw_errors;
-
-    BufferConfig() 
-        : needs_concurrent_iterators(false),
-          needs_multiple_passes(false),
-          throw_errors(false) {}
-};
-
 class BufferChainLink 
 : public input::chain::Filter
 {
-    BufferConfig my_config;
     simparm::Object config;
 
     void unrecognized_traits() const;

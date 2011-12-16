@@ -126,11 +126,7 @@ class GrandConfig::EngineChoice
         }
 
         std::string filename = bn.new_basename();
-        if ( filename != initial_context->output_basename ) {
-            initial_context->output_basename = filename;
-            return alternatives.context_changed( initial_context, this );
-        } else
-            return AtEnd();
+        return AtEnd();
     }
 
     AtEnd context_changed( ContextRef, Link* ) {
@@ -138,13 +134,8 @@ class GrandConfig::EngineChoice
         throw std::logic_error("dStorm::input::Config::ChainTerminus can have no context"); 
     }
 
-    void set_initial_context( bool show_error ) {
-        DEBUG("Setting initial context " << show_error << " and " << initial_context->throw_errors);
-        if ( initial_context->throw_errors == show_error )
-            return;
-        if ( ! initial_context.unique() )
-            initial_context.reset( initial_context->clone() );
-        initial_context->throw_errors = show_error;
+    void set_initial_context() {
+        if ( initial_context.get() ) return;
         ost::MutexLock lock( input::global_mutex() );
         alternatives.context_changed( initial_context, this );
     }
@@ -226,7 +217,6 @@ class GrandConfig::EngineChoice
             return *alternatives.current_traits();
         } else {
             DEBUG("Traits are invalid, trying to enforce exception throwing");
-            set_initial_context(true);
             if ( alternatives.current_traits().get() ) {
                 return *alternatives.current_traits();
             } else {

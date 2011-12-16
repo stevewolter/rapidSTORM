@@ -75,13 +75,9 @@ void ChainLink::make_new_traits() {
         notify_of_trait_change( upstream_traits );
     } else {
         if ( ! upstream_traits->provides< engine::Image>() ) {
-            if ( my_context->throw_errors ) {
-                throw std::runtime_error("rapidSTORM engine cannot process data of type " + upstream_traits->base_traits().desc());
-            } else {
-                my_traits.reset();
-                notify_of_trait_change(my_traits);
-                return;
-            }
+            my_traits.reset();
+            notify_of_trait_change(my_traits);
+            return;
         }
 
         boost::shared_ptr< input::Traits<output::LocalizedImage> >
@@ -102,8 +98,6 @@ ChainLink::AtEnd
 ChainLink::context_changed(ContextRef r, Link* l)
 {
     Link::context_changed(r, l);
-    if ( r->throw_errors && current_traits().get() == NULL )
-        throw std::runtime_error("rapidSTORM engine cannot process the given data");
 
     my_context.reset( r->clone() );
     typedef input::Traits<dStorm::engine::Image> ImageTraits;

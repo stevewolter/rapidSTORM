@@ -9,6 +9,11 @@
 namespace dStorm { 
 namespace input { 
 
+class BufferConfig {
+    typedef chain::DefaultTypes SupportedTypes;
+};
+
+
 namespace chain {
 
 template <>
@@ -25,16 +30,6 @@ bool DefaultVisitor<BufferConfig>::operator()( std::auto_ptr< Source<Type> > p )
     return true;
 }
 
-template <>
-bool DefaultVisitor<BufferConfig>::unknown_trait(std::string desc) const
-{
-    if ( config.throw_errors )
-        throw std::runtime_error("Input data need buffering, but the standard dSTORM buffer is not "
-                                 "configured for data of type " + desc);
-    else
-        return true;
-}
-
 }
 
 input::BaseSource*
@@ -42,20 +37,21 @@ BufferChainLink::makeSource()
 {
     std::auto_ptr<BaseSource> rv( Forwarder::makeSource() );
     assert( rv.get() );
-    chain::DefaultVisitor<BufferConfig> visitor(my_config);
+    BufferConfig c;
+    chain::DefaultVisitor<BufferConfig> visitor(c);
     return specialize_source( visitor, rv.release() );
 }
 
 BufferChainLink::BufferChainLink() 
 : config("Buffer", "Buffer") 
 {
-    my_config.throw_errors = false;
 }
 
 chain::Link::AtEnd
 BufferChainLink::traits_changed( TraitsRef r, Link* l ) {
     Link::traits_changed(r,l);
-    chain::DefaultVisitor<BufferConfig> visitor(my_config);
+    BufferConfig c;
+    chain::DefaultVisitor<BufferConfig> visitor(c);
     visit_traits( visitor, r );
     return notify_of_trait_change( r );
 }

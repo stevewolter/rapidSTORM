@@ -18,7 +18,7 @@ class Alternatives
     std::auto_ptr<UpstreamCollector> collector;
 
     ContextRef current_context;
-    boost::shared_ptr<Context> no_throw_context;
+    ContextRef no_throw_context;
 
     virtual void downstream_element_destroyed( Link& which );
 

@@ -71,8 +71,6 @@ class Alternatives::UpstreamCollector
             AtEnd rv = notify_of_context_change(ctx);
             return rv;
         } else {
-            if ( ctx->throw_errors && ! traits.get() )
-                throw std::runtime_error("The choice for " + papa.getDesc() + " cannot handle the current input");
             return AtEnd();
         }
     }
@@ -186,11 +184,7 @@ Link::AtEnd Alternatives::context_changed( ContextRef context, Link* link ) {
     AtEnd rv = Link::context_changed(context, link);
     collector->freeze();
     current_context = context;
-    if ( context.get() ) {
-        no_throw_context.reset( context->clone() );
-        no_throw_context->throw_errors = false;
-    } else
-        no_throw_context.reset();
+    no_throw_context = context;
     collector->set_default_context( context );
     for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
         if ( &value() == &*i )
@@ -199,10 +193,6 @@ Link::AtEnd Alternatives::context_changed( ContextRef context, Link* link ) {
             rv = i->context_changed( no_throw_context, this );
     }
     collector->thaw();
-    if ( context->throw_errors && !isValid() )
-        throw std::runtime_error("No alternative selected for '" + getDesc() + "'");
-    else if ( context->throw_errors )
-        DEBUG("Alternative " << value().getNode().getName() << " selected");
     DEBUG("Processed alternatives context change");
     return rv;
 }

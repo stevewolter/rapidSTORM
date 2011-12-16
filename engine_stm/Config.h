@@ -8,7 +8,6 @@ namespace engine_stm {
 
 struct Config : public simparm::Object
 {
-    bool throw_errors;
     Config();
 };
 

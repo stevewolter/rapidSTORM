@@ -16,8 +16,7 @@ namespace noop_engine {
 
 struct ChainLink::Config {
     typedef boost::mpl::vector<dStorm::engine::Image> SupportedTypes;
-    bool throw_errors;
-    Config() : throw_errors(false) {}
+    Config() {}
 };
 
 ChainLink::Config ChainLink::get_config() { return Config(); }
@@ -41,9 +40,11 @@ class ChainLink::Visitor {
         new_traits = Engine::convert_traits( source_traits ); 
         return true; 
     }
-    template <typename Type>
-    bool operator()( std::auto_ptr< input::Source< Type > > p )
+    bool operator()( std::auto_ptr< input::Source< engine::Image > > p )
         { new_source.reset( new Engine(p) ); return true; }
+    template <typename Type>
+    bool operator()( std::auto_ptr< input::Source<Type> > p )
+        { throw std::runtime_error("No-op engine cannot work with this input"); }
 
     bool operator()( input::chain::MetaInfo& ) { return true; }
     bool operator()( input::chain::Context& c ) {
@@ -51,12 +52,7 @@ class ChainLink::Visitor {
         return true;
     }
 
-    bool unknown_trait(std::string trait_desc) const {
-        if ( config.throw_errors )
-            throw std::runtime_error("No-op engine cannot work with input of type " + trait_desc);
-        else
-            return false;
-    }
+    bool unknown_trait(std::string trait_desc) const { return false; }
     bool no_context_visited_is_ok() const { return true; }
     void unknown_base_source() const {
         throw std::runtime_error("No-op engine cannot process input of the given type");

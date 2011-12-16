@@ -6,6 +6,7 @@
 #include <dStorm/input/chain/Filter_impl.h>
 #include <dStorm/input/chain/EngineHelpers.h>
 #include <dStorm/output/LocalizedImage_traits.h>
+#include <dStorm/ImageTraits.h>
 
 #include <boost/mpl/vector.hpp>
 #include <dStorm/output/LocalizedImage_decl.h>
@@ -44,10 +45,7 @@ class ChainLink::Visitor {
     }
 
     bool unknown_trait(std::string trait_desc) const {
-        if ( config.throw_errors )
-            throw std::runtime_error("Localization replay engine cannot work with input of type " + trait_desc);
-        else
-            return false;
+        return false;
     }
     bool no_context_visited_is_ok() const { return true; }
     void unknown_base_source() const {
@@ -73,13 +71,14 @@ bool ChainLink::Visitor::operator()( std::auto_ptr< input::Source< Type > > inpu
 
 input::BaseSource* ChainLink::makeSource() 
 {
+    if ( ! upstream_traits()->provides< dStorm::engine::Image >() )
+        throw std::runtime_error("Localization replay engine cannot work with image input");
     return input::chain::DelegateToVisitor::makeSource(*this);
 }
 
 ChainLink::AtEnd
 ChainLink::context_changed(ContextRef r, Link* l)
 {
-    config.throw_errors = r->throw_errors;
     return input::chain::DelegateToVisitor::context_changed(*this, r, l);
 }
 
