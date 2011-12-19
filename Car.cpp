@@ -121,10 +121,9 @@ Car::Car (JobMaster* input_stream, const dStorm::GrandConfig &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
-    //DEBUG("Determining input file name from basename " << config.get_meta_info().suggested_output_basename.new_basename());
     output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
-    //DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
+    DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     config.outputSource.set_output_file_basename( bn );
     DEBUG("Building output");
     output = config.outputSource.make_output();

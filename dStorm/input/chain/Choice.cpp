@@ -25,13 +25,6 @@ Choice::Choice(const Choice& o)
   choices()
 {
     DEBUG("Copied " << &o << " to " << this);
-#if 0
-    /* Code here does not get executed because no entries were copied */
-    for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-        set_upstream_element( *i, *this, Add );
-        traits_changed( i->current_traits(), &*i );
-    }
-#endif
     receive_changes_from( value );
     for ( boost::ptr_vector< Link >::const_iterator l = o.choices.begin(); l != o.choices.end(); ++l )
         add_choice( std::auto_ptr<Link>(l->clone()) );

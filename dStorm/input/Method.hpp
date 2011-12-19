@@ -77,9 +77,11 @@ struct Method<CRTP>::source_maker {
     void operator()( Method<CRTP>& me, Type, Src& orig, Src& result) const
     {
         if ( result.get() ) return;
-        std::auto_ptr< Source<Type> > typed = BaseSource::downcast<Type>(orig);
-        if ( typed.get() )
+        Source<Type>* test = dynamic_cast< Source<Type>* >(orig.get());
+        if ( test ) {
+            std::auto_ptr< Source<Type> > typed = BaseSource::downcast<Type>(orig);
             result.reset( static_cast<CRTP&>(me).make_source(typed) );
+        }
     }
 };
 

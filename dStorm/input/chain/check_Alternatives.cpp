@@ -102,16 +102,12 @@ int main() {
     ost::DebugStream::set(std::cerr);
 
     Input input;
-    Alternatives alternatives("Alternatives", "Alternatives");
+    Alternatives alternatives("Alternatives", "Alternatives", true);
     ChainBase chain_base;
 
-    ImageAlternative image_alternative;
-    LocalizationAlternative loc_alternative;
-
     alternatives.set_more_specialized_link_element( &input );
-    chain_base.set_more_specialized_link_element( &alternatives );
-    alternatives.push_back_choice( image_alternative );
-    alternatives.push_back_choice( loc_alternative );
+    alternatives.add_choice( std::auto_ptr<Link>( new ImageAlternative ) );
+    alternatives.add_choice( std::auto_ptr<Link>( new LocalizationAlternative ) );
 
     input.make_image_traits();
     if ( getName(alternatives) != "AIm" ) return 1;

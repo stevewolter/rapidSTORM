@@ -18,8 +18,10 @@ class ChainLink
 {
     friend class input::Method<ChainLink>;
     typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+    bool ignore_unknown_type() const { return true; }
     template <typename Type>
-    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& ) {}
+    bool changes_traits( const input::chain::MetaInfo&, const input::Traits<Type>& )
+        { return false; }
     template <typename Type>
     input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
         if ( config.enable() )

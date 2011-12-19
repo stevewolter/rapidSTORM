@@ -90,8 +90,8 @@ class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSourc
 
 class GrandConfig::EngineChoice
 : input::chain::Link {
+    TraitsRef current_traits;
     input::chain::Alternatives alternatives;
-    boost::ptr_list<input::chain::Link> engines;
     boost::ptr_list<engine::spot_finder::Factory> finders;
     boost::ptr_list<engine::spot_fitter::Factory> fitters;
 
@@ -123,12 +123,13 @@ class GrandConfig::EngineChoice
         }
 
         std::string filename = bn.new_basename();
+        current_traits = traits;
         return AtEnd();
     }
 
   public:
     EngineChoice(GrandConfig& config) 
-        : alternatives("Engine", "Choose engine")
+        : alternatives("Engine", "Choose engine", true)
     {
         assert( config.outputRoot.get() );
         outputRoot = config.outputRoot.get();
@@ -144,22 +145,19 @@ class GrandConfig::EngineChoice
       finders(o.finders),
       fitters(o.fitters)
     {
+        DEBUG("Copied config to " << this);
         assert( config.outputRoot.get() );
         outputRoot = config.outputRoot.get();
+
+        traits_changed( alternatives.current_traits(), &alternatives );
 
         ost::MutexLock lock( input::global_mutex() );
         alternatives.set_more_specialized_link_element( 
             &config._inputConfig->get_link_element() );
 
         Link::set_upstream_element( alternatives, *this, Add );
-        clone( o.engines );
-
-        if ( o.alternatives.isValid() )
-            alternatives.choose( o.alternatives.value().getNode().getName() );
     }
     ~EngineChoice() {
-        engines.clear();
-        Link::set_upstream_element( alternatives, *this, Remove );
     }
 
     input::BaseSource* makeSource() { 
@@ -174,9 +172,7 @@ class GrandConfig::EngineChoice
         ost::MutexLock lock( input::global_mutex() );
         engine::ClassicEngine* ce = dynamic_cast<engine::ClassicEngine*>(e.get());
         if ( ce != NULL ) classic_engines.push_back(ce);
-        alternatives.add_choice( dynamic_cast<input::chain::Forwarder&>(*e), alternatives.endChoices() );
-        DEBUG("Adding engine " << e->getNode().getName() << " to " << this );
-        engines.push_back(e);
+        alternatives.add_choice( e );
     }
 
     void add( std::auto_ptr<engine::spot_finder::Factory> s ) {
@@ -196,17 +192,11 @@ class GrandConfig::EngineChoice
     }
 
     const input::chain::MetaInfo& get_meta_info() {
-        if ( alternatives.current_traits().get() ) {
-            return *alternatives.current_traits();
+        if ( current_traits.get() ) {
+            DEBUG("Returning meta info " << current_traits.get() << " for engine");
+            return *current_traits;
         } else {
-            DEBUG("Traits are invalid, trying to enforce exception throwing");
-            if ( alternatives.current_traits().get() ) {
-                return *alternatives.current_traits();
-            } else {
-                DEBUG("No traits set for current engine");
-                DEBUG("Current engine is " << ((alternatives.isValid()) ? alternatives.value().getNode().getName() : "invalid"));
-                throw std::runtime_error("No usable configuration was found");
-            }
+            throw std::runtime_error("No usable configuration was found");
         }
     }
 

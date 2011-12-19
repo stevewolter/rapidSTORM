@@ -66,8 +66,6 @@ bool ChainLink::Visitor::operator()( std::auto_ptr< input::Source< Type > > inpu
 
 input::BaseSource* ChainLink::makeSource() 
 {
-    if ( ! upstream_traits()->provides< dStorm::engine::Image >() )
-        throw std::runtime_error("Localization replay engine cannot work with image input");
     return input::chain::DelegateToVisitor::makeSource(*this);
 }
 
