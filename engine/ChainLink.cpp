@@ -110,10 +110,10 @@ ChainLink::context_changed(ContextRef r, Link* l)
     return notify_of_context_change( my_context );
 }
 
-std::auto_ptr<input::chain::Filter>
+std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link()
 {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink( ) );
+    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
 }
 
 void ChainLink::make_new_requirements() {

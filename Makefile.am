@@ -6,7 +6,7 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = check_resolutionsetter checkplugin_locprec reconstruction checkplugin_camera \
+C_TESTS = checkplugin_locprec reconstruction checkplugin_camera \
     Pixel_test check_Alternatives \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
@@ -410,10 +410,6 @@ liblocprec_la_SOURCES = \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
     locprec/SourceValuePrinter.cpp locprec/SourceValuePrinter.h \
     locprec/KalmanTrace.h locprec/DensityProfile.h \
-    locprec/biplane_alignment/decl.h locprec/biplane_alignment/impl.h \
-    locprec/biplane_alignment/Filter.cpp locprec/biplane_alignment/Source.cpp locprec/biplane_alignment/Config.cpp \
-    locprec/biplane_alignment/Derivator.h locprec/biplane_alignment/Derivator.cpp \
-    locprec/biplane_alignment/MotionModels.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
@@ -447,8 +443,6 @@ determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
 reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
-check_resolutionsetter_SOURCES = inputs/ResolutionSetter_check.cpp inputs/ResolutionSetter.cpp
-check_resolutionsetter_LDADD = libdStorm.la
 checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
 checkplugin_camera_LDADD = libdirectcamerainput.la 
 checkplugin_camera_LDFLAGS = -no-undefined

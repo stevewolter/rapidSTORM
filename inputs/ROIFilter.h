@@ -177,29 +177,6 @@ Source<Ty>::end()
     { return typename Source<Ty>::base_iterator( 
         _iterator( *this, this->base().end(), this->base().end() ) ); }
 
-class ChainLink 
-: public input::chain::Filter, public simparm::Listener
-{
-    TraitsRef last_traits;
-    typedef input::chain::DefaultVisitor< Config > Visitor;
-    friend class input::chain::DelegateToVisitor;
-
-    simparm::Structure<Config> config;
-    simparm::Structure<Config>& get_config() { return config; }
-    void operator()( const simparm::Event& );
-
-  public:
-    ChainLink();
-    ChainLink(const ChainLink&);
-    ChainLink* clone() const { return new ChainLink(*this); }
-    simparm::Node& getNode() { return config; }
-
-    Link::AtEnd traits_changed( Link::TraitsRef r, Link* l );
-    AtEnd context_changed( ContextRef c, Link* l )
-        { Link::context_changed(c,l); return notify_of_context_change(c); }
-    input::BaseSource* makeSource();
-};
-
 }
 }
 

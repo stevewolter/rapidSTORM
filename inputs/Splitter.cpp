@@ -4,9 +4,8 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context.h>
-#include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/Method.hpp>
+#include <dStorm/input/InputMutex.h>
 #include <simparm/Message.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/iterator/iterator_adaptor.hpp>
@@ -15,42 +14,45 @@
 using namespace dStorm::engine;
 
 namespace dStorm {
-
-namespace input {
-namespace chain {
-
-template <>
-template <typename Type>
-bool DefaultVisitor<Splitter::Config>::operator()( input::Traits<Type>& t ) {
-    if ( this->config.biplane_split() != Splitter::Config::None ) {
-        t.size[2] = 2 * camera::pixel;
-        if ( this->config.biplane_split() == Splitter::Config::Vertical )
-            t.size[1] /= 2;
-        else
-            t.size[0] /= 2;
-        t.planes.push_back( t.plane(0) );
-    } else {
-    }
-    return true;
-}
-
-template <>
-bool DefaultVisitor<Splitter::Config>::operator()( Context& c ) {
-    return true;
-}
-
-template <>
-template <typename Type>
-bool DefaultVisitor<Splitter::Config>::operator()( std::auto_ptr< input::Source<Type> > p ) {
-    bool is_vertical = (this->config.biplane_split() == Splitter::Config::Vertical);
-    new_source.reset( new Splitter::Source( is_vertical, p) );
-    return true;
-}
-
-}
-}
-
 namespace Splitter {
+
+class ChainLink
+: public input::Method<ChainLink>, public simparm::Listener
+{
+    friend class input::Method<ChainLink>;
+    typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+
+    bool ignore_unknown_type() const { return true; }
+
+    input::Source<engine::Image>* make_source( std::auto_ptr< input::Source<engine::Image> > p ) {
+        switch( config.biplane_split() ) {
+            case Config::Vertical: return new Source( true, p );
+            case Config::Horizontal: return new Source( false, p );
+            case Config::None: return p.release();
+            default: throw std::logic_error("Case fall-through");
+        }
+    }
+
+    void update_traits( input::chain::MetaInfo&, input::Traits<engine::Image>& t ) {
+        if ( config.biplane_split() != Config::None ) {
+            t.size[2] = 2 * camera::pixel;
+            if ( config.biplane_split() == Config::Vertical )
+                t.size[1] /= 2;
+            else
+                t.size[0] /= 2;
+            t.planes.push_back( t.plane(0) );
+        }
+    }
+
+    simparm::Structure<Config>& get_config() { return config; }
+    simparm::Structure<Config> config;
+    void operator()( const simparm::Event& );
+  public:
+    ChainLink();
+    ChainLink(const ChainLink&);
+
+    simparm::Node& getNode() { return config; }
+};
 
 Config::Config() 
 : simparm::Object("BiplaneSplitter", "Split dual view image"),
@@ -114,30 +116,9 @@ Source::end() {
     return input::Source<engine::Image>::iterator( iterator(vertical, base().end()) );
 }
 
-input::chain::Link::AtEnd
-ChainLink::traits_changed( ChainLink::TraitsRef r, Link* l) {
-    last_traits = r;
-    return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
-}
-
-input::chain::Link::AtEnd
-ChainLink::context_changed( ChainLink::ContextRef c, Link* l)
-{
-    return input::chain::DelegateToVisitor::context_changed(*this,c,l);
-}
-
-input::BaseSource* ChainLink::makeSource()
-{
-    if ( config.biplane_split() == Config::None ) {
-        return Forwarder::makeSource();
-    } else
-        return input::chain::DelegateToVisitor::makeSource(*this);
-}
-
 void ChainLink::operator()( const simparm::Event& ) {
-    if ( last_traits.get() ) {
-        input::chain::DelegateToVisitor::traits_changed(*this, last_traits, NULL);
-    }
+    ost::MutexLock lock( input::global_mutex() );
+    republish_traits();
 }
 
 ChainLink::ChainLink()
@@ -147,14 +128,14 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o)
-: Filter(o), simparm::Listener( simparm::Event::ValueChanged ),
-  last_traits(o.last_traits), config(o.config)
+: input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
+  config(o.config)
 {
     receive_changes_from( config.biplane_split.value );
 }
 
-std::auto_ptr<input::chain::Filter> makeLink() {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink() );
+std::auto_ptr<input::chain::Link> makeLink() {
+    return std::auto_ptr<input::chain::Link>( new ChainLink() );
 }
 
 }

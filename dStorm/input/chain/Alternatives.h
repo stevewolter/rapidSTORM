@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_ALTERNATIVES_H
 
 #include "Link.h"
-#include "Filter.h"
+#include "Forwarder.h"
 #include <simparm/ChoiceEntry.hh>
 #include <set>
 
@@ -11,7 +11,7 @@ namespace input {
 namespace chain {
 
 class Alternatives
-: public Link, public simparm::NodeChoiceEntry<chain::Filter>, 
+: public Link, public simparm::NodeChoiceEntry<chain::Forwarder>, 
   public simparm::Listener
 {
     class UpstreamCollector;
@@ -25,7 +25,7 @@ class Alternatives
   protected:
     virtual void operator()(const simparm::Event&);
   public:
-    typedef simparm::NodeChoiceEntry<Filter> ChoiceEntry;
+    typedef simparm::NodeChoiceEntry<Forwarder> ChoiceEntry;
 
     Alternatives(std::string name, std::string desc);
     Alternatives(const Alternatives&);
@@ -40,10 +40,10 @@ class Alternatives
     virtual Alternatives* clone() const;
     virtual simparm::Node& getNode();
 
-    virtual void add_choice( Filter&, ChoiceEntry::iterator where );
-    virtual void remove_choice( Filter& );
+    virtual void add_choice( Forwarder&, ChoiceEntry::iterator where );
+    virtual void remove_choice( Forwarder& );
 
-    void push_back_choice( Filter& l);
+    void push_back_choice( Forwarder& l);
     void throw_exception_for_invalid_configuration() const;
     void insert_new_node( std::auto_ptr<Link>, Place );
 

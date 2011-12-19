@@ -92,7 +92,7 @@ class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSourc
 class GrandConfig::EngineChoice
 : input::chain::Link {
     input::chain::Alternatives alternatives;
-    boost::ptr_list<input::chain::Filter> engines;
+    boost::ptr_list<input::chain::Link> engines;
     boost::ptr_list<engine::spot_finder::Factory> finders;
     boost::ptr_list<engine::spot_fitter::Factory> fitters;
 
@@ -187,11 +187,11 @@ class GrandConfig::EngineChoice
 
     simparm::Node& getNode() { return alternatives.getNode(); }
 
-    void add( std::auto_ptr<input::chain::Filter> e ) {
+    void add( std::auto_ptr<input::chain::Link> e ) {
         ost::MutexLock lock( input::global_mutex() );
         engine::ClassicEngine* ce = dynamic_cast<engine::ClassicEngine*>(e.get());
         if ( ce != NULL ) classic_engines.push_back(ce);
-        alternatives.add_choice( *e, alternatives.endChoices() );
+        alternatives.add_choice( dynamic_cast<input::chain::Forwarder&>(*e), alternatives.endChoices() );
         DEBUG("Adding engine " << e->getNode().getName() << " to " << this );
         engines.push_back(e);
     }
@@ -337,7 +337,7 @@ void GrandConfig::registerNamedEntries() {
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 
-void GrandConfig::add_engine( std::auto_ptr<input::chain::Filter> engine) {
+void GrandConfig::add_engine( std::auto_ptr<input::chain::Link> engine) {
     engine_choice->add( engine );
 }
 
@@ -349,23 +349,17 @@ void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> e
     engine_choice->add( engine );
 }
 
-void GrandConfig::add_input( std::auto_ptr<input::chain::Filter> f, InsertionPlace p) {
-    if ( p == AsEngine )
-        engine_choice->add( f );
-    else if ( p == AfterChannels ) {
-        _inputConfig->add_filter( f, true );
-    } else if ( p == BeforeEngine ) {
-        _inputConfig->add_filter( f, false );
-    } else
-        assert(false);
-}
-
 void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
     if ( p == FileReader || p == InputMethod )
         _inputConfig->add_method( l, p );
-    else
+    else if ( p == AsEngine )
+        engine_choice->add( l );
+    else if ( p == AfterChannels )
+        _inputConfig->add_filter( l, true );
+    else if ( p == BeforeEngine )
+        _inputConfig->add_filter( l, false );
+    else 
         assert(false);
-        
 }
 
 void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {

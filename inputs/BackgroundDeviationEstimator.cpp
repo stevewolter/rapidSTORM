@@ -3,9 +3,7 @@
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context.h>
-#include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/Method.hpp>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/image/slice.h>
 #include <simparm/Message.hh>
@@ -13,32 +11,28 @@
 using namespace dStorm::engine;
 
 namespace dStorm {
-
-namespace input {
-namespace chain {
-
-template <>
-template <typename Type>
-bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( input::Traits<Type>& t ) {
-    return true;
-}
-
-template <>
-bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( Context& c ) {
-    return true;
-}
-
-template <>
-template <typename Type>
-bool DefaultVisitor<BackgroundStddevEstimator::Config>::operator()( std::auto_ptr< input::Source<Type> > p ) {
-    new_source.reset( new BackgroundStddevEstimator::Source(p) );
-    return true;
-}
-
-}
-}
-
 namespace BackgroundStddevEstimator {
+
+class ChainLink
+: public input::Method<ChainLink>
+{
+    friend class input::Method<ChainLink>;
+    typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+    template <typename Type>
+    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& ) {}
+    template <typename Type>
+    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
+        if ( config.enable() )
+            return new BackgroundStddevEstimator::Source(p);
+        else
+            return p.release();
+    }
+
+    simparm::Structure<Config>& get_config() { return config; }
+    simparm::Structure<Config> config;
+  public:
+    simparm::Node& getNode() { return config; }
+};
 
 Config::Config() 
 : simparm::Object("BackgroundEstimator", "Estimate background variance"),
@@ -142,27 +136,8 @@ Source::get_traits( Wishes w )
     return s;
 }
 
-input::chain::Link::AtEnd
-ChainLink::traits_changed( ChainLink::TraitsRef r, Link* l) {
-    return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
-}
-
-input::chain::Link::AtEnd
-ChainLink::context_changed( ChainLink::ContextRef c, Link* l)
-{
-    return input::chain::DelegateToVisitor::context_changed(*this,c,l);
-}
-
-input::BaseSource* ChainLink::makeSource()
-{
-    if ( ! config.enable() )
-        return Forwarder::makeSource();
-    else
-        return input::chain::DelegateToVisitor::makeSource(*this);
-}
-
-std::auto_ptr<input::chain::Filter> makeLink() {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink() );
+std::auto_ptr<input::chain::Link> makeLink() {
+    return std::auto_ptr<input::chain::Link>( new ChainLink() );
 }
 
 }

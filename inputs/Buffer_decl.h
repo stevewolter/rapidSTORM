@@ -4,13 +4,13 @@
 #ifndef DSTORM_BUFFER_DECL_H
 #define DSTORM_BUFFER_DECL_H
 
-#include <dStorm/input/chain/Filter_decl.h>
+#include <dStorm/input/chain/Link_decl.h>
 
 namespace dStorm {
 namespace input {
     template <typename Ty> class Buffer;
     class BufferChainLink;
-    std::auto_ptr<chain::Filter> makeBufferChainLink();
+    std::auto_ptr<chain::Link> makeBufferChainLink();
 }
 }
 

@@ -2,37 +2,37 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/image/mirror.h>
-#include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/Method.hpp>
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
 namespace dStorm {
-
-namespace input {
-namespace chain {
-
-template <>
-template <typename Type>
-bool DefaultVisitor<YMirror::Config>::operator()( input::Traits<Type>& t ) {
-    return true;
-}
-
-template <>
-bool DefaultVisitor<YMirror::Config>::operator()( Context& c ) {
-    return true;
-}
-
-template <>
-template <typename Type>
-bool DefaultVisitor<YMirror::Config>::operator()( std::auto_ptr< input::Source<Type> > p ) {
-    new_source.reset( new YMirror::Source<Type>(p) );
-    return true;
-}
-
-}
-}
-
 namespace YMirror {
+
+class ChainLink
+: public input::Method< ChainLink >
+{
+    friend class input::Method< ChainLink >;
+
+    template <typename Type>
+    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) 
+    {
+        if ( config.mirror_y() )
+            return new Source<Type>(p);
+        else
+            return p.release();
+    }
+    template <typename Type>
+    bool changes_traits( const input::chain::MetaInfo&, const input::Traits<Type>& ) 
+        { return false; }
+
+    simparm::Structure<Config>& get_config() { return config; }
+    simparm::Structure<Config> config;
+  public:
+    ChainLink() {}
+
+    simparm::Node& getNode() { return config; }
+};
 
 struct Mirrorer : public boost::static_visitor<void> {
     typedef Localization::Position::Traits::RangeType::Scalar Range;
@@ -149,27 +149,8 @@ Config::Config()
     mirror_y.userLevel = simparm::Object::Expert;
 }
 
-input::BaseSource* ChainLink::makeSource()
-{
-    if ( ! config.mirror_y() )
-        return Forwarder::makeSource();
-    else
-        return input::chain::DelegateToVisitor::makeSource(*this);
-}
-
-input::chain::Link::AtEnd
-ChainLink::traits_changed( ChainLink::TraitsRef r, Link* l) {
-    return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
-}
-
-input::chain::Link::AtEnd
-ChainLink::context_changed( ChainLink::ContextRef c, Link* l)
-{
-    return input::chain::DelegateToVisitor::context_changed(*this,c,l);
-}
-
-std::auto_ptr<input::chain::Filter> makeLink() {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink() );
+std::auto_ptr<input::chain::Link> makeLink() {
+    return std::auto_ptr<input::chain::Link>( new ChainLink() );
 }
 
 }

@@ -12,7 +12,6 @@
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/chain/Context.h>
-#include <dStorm/input/chain/Filter.h>
 #include <dStorm/Image_decl.h>
 #include <dStorm/input/Source_impl.h>
 #include <dStorm/input/chain/Context_impl.h>
@@ -20,8 +19,7 @@
 #include <dStorm/Localization.h>
 #include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/input/InputMutex.h>
-#include <dStorm/input/chain/Filter_impl.h>
-#include <dStorm/input/chain/DefaultFilterTypes.h>
+#include <dStorm/input/Method.hpp>
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
 
@@ -50,8 +48,6 @@ class Config
     friend class ChainLink;
 
   public:
-    typedef input::chain::DefaultTypes SupportedTypes;
-
     Config();
     void registerNamedEntries();
     void set_traits( DataSetTraits& ) const;
@@ -73,17 +69,22 @@ class Input
 
 
 class ChainLink 
-: public input::chain::Filter, public simparm::TreeListener 
+: public input::Method<ChainLink>, public simparm::TreeListener 
 {
-    typedef input::chain::DefaultVisitor< Config > Visitor;
-    friend class input::chain::DelegateToVisitor;
+    friend class input::Method<ChainLink>;
     friend class Check;
 
     simparm::Structure<Config> config;
     simparm::Structure<Config>& get_config() { return config; }
-    ContextRef context;
 
-    class TraitMaker;
+    template <typename Type>
+    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& t ) {
+        config.set_traits( t );
+    }
+    template <typename Type>
+    Input<Type>* make_source( std::auto_ptr< input::Source<Type> > s ) {
+        return new Input<Type>(s, config);
+    }
 
   protected:
     void operator()(const simparm::Event&);
@@ -91,38 +92,8 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
-    ChainLink* clone() const { return new ChainLink(*this); }
     simparm::Node& getNode() { return config; }
-
-    AtEnd traits_changed( TraitsRef r, Link* l);
-    AtEnd context_changed( ContextRef r, Link* l);
-    BaseSource* makeSource();
 };
-
-}
-
-namespace chain {
-
-template <>
-template <typename Type>
-bool DefaultVisitor<sample_info::Config>::operator()( Traits<Type>& traits )
-{
-    config.set_traits( traits );
-    return true;
-}
-
-template <>
-template <typename Type>
-bool DefaultVisitor<sample_info::Config>::operator()( std::auto_ptr< Source<Type> > s )
-{
-    assert( s.get() );
-    new_source.reset( new sample_info::Input<Type>(s, config) );
-    return true;
-}
-
-}
-
-namespace sample_info {
 
 FluorophoreConfig::FluorophoreConfig(int number)
 : simparm::Object("Fluorophore" + boost::lexical_cast<std::string>(number), 
@@ -176,20 +147,9 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
-: Filter(o),
-  config(o.config), context(o.context)
+: input::Method<ChainLink>(o), config(o.config)
 {
     receive_changes_from_subtree( config );
-}
-
-ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
-    return input::chain::DelegateToVisitor::traits_changed(*this, c, l);
-}
-
-chain::Link::AtEnd ChainLink::context_changed( ContextRef c, Link *l )
-{
-    this->context = c;
-    return input::chain::DelegateToVisitor::context_changed(*this, c, l);
 }
 
 void ChainLink::operator()(const simparm::Event& e)
@@ -208,27 +168,13 @@ void ChainLink::operator()(const simparm::Event& e)
             }
         }
         ost::MutexLock lock( global_mutex() );
-        DefaultVisitor<Config> m(config);
-        if ( context.get() ) {
-            visit_context( m, context );
-            notify_of_context_change( context );
-        }
-        if ( current_traits().get() ) {
-            MetaInfo::ConstPtr t( current_traits() );
-            visit_traits( m, t );
-            notify_of_trait_change( t );
-        }
+        republish_traits();
     } else 
 	TreeListener::add_new_children(e);
 }
 
-BaseSource* ChainLink::makeSource() { 
-    DefaultVisitor<Config> visitor(config);
-    return specialize_source( visitor, Forwarder::makeSource() );
-}
-
-std::auto_ptr<chain::Filter> makeLink() {
-    return std::auto_ptr<chain::Filter>( new ChainLink() );
+std::auto_ptr<chain::Link> makeLink() {
+    return std::auto_ptr<chain::Link>( new ChainLink() );
 }
 
 }

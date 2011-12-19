@@ -80,23 +80,6 @@ namespace input {
         DSTORM_REALIGN_STACK void run();
     };
 
-class BufferChainLink 
-: public input::chain::Filter
-{
-    simparm::Object config;
-
-    void unrecognized_traits() const;
-
-  public:
-    BufferChainLink();
-    BufferChainLink* clone() const { return new BufferChainLink(*this); }
-
-    simparm::Node& getNode() { return config; }
-    AtEnd traits_changed( TraitsRef r, Link* l );
-
-    BaseSource* makeSource();
-};
-
 }
 }
 

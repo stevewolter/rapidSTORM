@@ -6,7 +6,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
 #include <map>
-#include "Filter.h"
+#include "Forwarder.h"
 #include "../InputMutex.h"
 #include <dStorm/input/chain/MetaInfo.h>
 
@@ -109,16 +109,16 @@ class Alternatives::UpstreamCollector
 };
 
 Alternatives::Alternatives(std::string name, std::string desc)
-: simparm::NodeChoiceEntry<Filter>(name, desc),
+: simparm::NodeChoiceEntry<Forwarder>(name, desc),
   simparm::Listener( simparm::Event::ValueChanged ),
   collector( new UpstreamCollector(*this) )
 {
-    simparm::NodeChoiceEntry<Filter>::set_auto_selection( false );
+    simparm::NodeChoiceEntry<Forwarder>::set_auto_selection( false );
     receive_changes_from( value );
 }
 
 Alternatives::Alternatives(const Alternatives& o)
-: Link(o), simparm::NodeChoiceEntry<Filter>(o, simparm::NodeChoiceEntry<Filter>::NoCopy),
+: Link(o), simparm::NodeChoiceEntry<Forwarder>(o, simparm::NodeChoiceEntry<Forwarder>::NoCopy),
   simparm::Listener( simparm::Event::ValueChanged ),
   collector( new UpstreamCollector(*this, *o.collector) )
 {
@@ -166,7 +166,7 @@ Link::AtEnd Alternatives::traits_changed( TraitsRef t, Link* from ) {
             value = NULL;
     } else if ( ! isValid() && has_a_value )
     {
-        value = dynamic_cast<Filter*>(from);
+        value = dynamic_cast<Forwarder*>(from);
     }
     DEBUG("Finished possible auto-deselection");
     if ( from == &( value() ) ) {
@@ -208,7 +208,7 @@ simparm::Node& Alternatives::getNode() {
     return *this;
 }
 
-void Alternatives::add_choice( Filter& choice, ChoiceEntry::iterator where) 
+void Alternatives::add_choice( Forwarder& choice, ChoiceEntry::iterator where) 
 {
     this->addChoice( where, choice );
     Alternatives::set_upstream_element( choice, *this, Add );
@@ -217,11 +217,11 @@ void Alternatives::add_choice( Filter& choice, ChoiceEntry::iterator where)
         choice.context_changed( current_context, this );
     traits_changed( choice.current_traits(), &choice );
 }
-void Alternatives::push_back_choice( Filter& c) {
+void Alternatives::push_back_choice( Forwarder& c) {
     add_choice( c, endChoices() );
 }
 
-void Alternatives::remove_choice( Filter& choice ) {
+void Alternatives::remove_choice( Forwarder& choice ) {
     choice.set_more_specialized_link_element( NULL );
     Alternatives::set_upstream_element( choice, *this, Remove );
     this->removeChoice( choice );
@@ -229,9 +229,9 @@ void Alternatives::remove_choice( Filter& choice ) {
 
 void Alternatives::downstream_element_destroyed( Link& which )
 {
-    /* Only a static cast here since the Filter part of the object *
+    /* Only a static cast here since the Forwarder part of the object *
      * is most probably already destroyed. */
-    removeChoice_noNode( static_cast<Filter&>(which) );
+    removeChoice_noNode( static_cast<Forwarder&>(which) );
 }
 
 void Alternatives::throw_exception_for_invalid_configuration() const

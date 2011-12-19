@@ -12,7 +12,7 @@ template <typename Type> class Source;
 template <typename Type> class TypedFilter;
 class FullFilter;
 
-std::auto_ptr<input::chain::Filter> makeFilter();
+std::auto_ptr<input::chain::Link> makeFilter();
 
 }
 }

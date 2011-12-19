@@ -1,6 +1,5 @@
 #include "debug.h"
 
-#include "chain/Filter.h"
 #include "Config.h"
 #include <simparm/ChoiceEntry_Iterator.hh>
 #include <algorithm>
@@ -9,6 +8,7 @@
 #include "chain/Context.h"
 #include "join.h"
 #include "InputMethods.h"
+#include <dStorm/input/chain/Forwarder.h>
 
 namespace dStorm {
 namespace input {
@@ -43,16 +43,16 @@ Config::Config(const Config& c)
     push_back( method->getNode() );
     terminal_node->set_more_specialized_link_element( method.get() );
 
-    for ( boost::ptr_list<chain::Filter>::const_iterator 
+    for ( boost::ptr_list<chain::Link>::const_iterator 
           i = c.forwards.begin(); i != c.forwards.end(); ++i )
     {
-        add_filter( std::auto_ptr<chain::Filter>( i->clone() ) );
+        add_filter( std::auto_ptr<chain::Link>( i->clone() ) );
     }
 }
 
 Config::~Config() {
     terminal_node->set_more_specialized_link_element( NULL );
-    forwards.back().set_more_specialized_link_element( NULL );
+    dynamic_cast< dStorm::input::chain::Forwarder& >(forwards.back()).set_more_specialized_link_element( NULL );
 }
 
 void Config::add_method( std::auto_ptr<chain::Link> method, chain::Link::Place p )
@@ -60,20 +60,20 @@ void Config::add_method( std::auto_ptr<chain::Link> method, chain::Link::Place p
     this->method->insert_new_node( method, p );
 }
 
-void Config::add_filter( std::auto_ptr<chain::Filter> forwarder, bool front )
+void Config::add_filter( std::auto_ptr<chain::Link> forwarder, bool front )
 {
     if ( front && ! forwards.empty() ) {
-        forwards.front().set_more_specialized_link_element(NULL);
+        dynamic_cast< chain::Forwarder& >(forwards.front()).set_more_specialized_link_element(NULL);
     } else {
         terminal_node->set_more_specialized_link_element(NULL);
     }
     if ( forwards.empty() || front ) {
-        forwarder->set_more_specialized_link_element( method.get() );
+        dynamic_cast< chain::Forwarder& >(*forwarder).set_more_specialized_link_element( method.get() );
     } else {
-        forwarder->set_more_specialized_link_element( &forwards.back() );
+        dynamic_cast< chain::Forwarder& >(*forwarder).set_more_specialized_link_element( &forwards.back() );
     }
     if ( front && ! forwards.empty() ) {
-        forwards.front().set_more_specialized_link_element( forwarder.get() );
+        dynamic_cast< chain::Forwarder& >(forwards.front()).set_more_specialized_link_element( forwarder.get() );
     } else
         terminal_node->set_more_specialized_link_element( forwarder.get() );
 

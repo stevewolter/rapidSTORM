@@ -50,8 +50,7 @@ namespace dStorm {
         simparm::Entry<unsigned long> pistonCount;
 
         void add_input( std::auto_ptr<input::chain::Link>, InsertionPlace );
-        void add_input( std::auto_ptr<input::chain::Filter>, InsertionPlace );
-        void add_engine( std::auto_ptr<input::chain::Filter> );
+        void add_engine( std::auto_ptr<input::chain::Link> );
         void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
         void add_spot_finder( engine::spot_finder::Factory* f ) 
             { add_spot_finder( std::auto_ptr<engine::spot_finder::Factory>(f) ); }

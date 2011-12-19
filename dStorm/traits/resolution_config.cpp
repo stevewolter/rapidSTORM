@@ -106,6 +106,11 @@ void Config::read_traits( const input::Traits<engine::Image>& t ) {
     }
 }
 
+void Config::read_traits( const input::Traits<dStorm::Localization>& ) {
+    /* TODO: Implementation of this function would enable displaying resolutions
+     * from STM files. */
+}
+
 traits::Optics<2>::Resolutions Config::get_resolution() const
 {
     return cuboid_config.make_traits().plane(0).image_resolutions();

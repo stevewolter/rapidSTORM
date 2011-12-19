@@ -6,7 +6,6 @@
 #include <simparm/Structure.hh>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/Image.h>
-#include <dStorm/input/chain/Filter.h>
 #include <simparm/Entry.hh>
 #include <dStorm/input/chain/DefaultFilterTypes.h>
 
@@ -38,25 +37,6 @@ class Source
     Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
     typename Base::iterator begin();
     typename Base::iterator end();
-};
-
-class ChainLink
-: public input::chain::Filter
-{
-    typedef input::chain::DefaultVisitor< Config > Visitor;
-    friend class input::chain::DelegateToVisitor;
-    simparm::Structure<Config>& get_config() { return config; }
-
-    simparm::Structure<Config> config;
-  public:
-    ChainLink() {}
-    ChainLink* clone() const { return new ChainLink(*this); }
-
-    AtEnd traits_changed( TraitsRef r, Link* l ) ;
-    AtEnd context_changed( ContextRef c, Link* l );
-    input::BaseSource* makeSource() ;
-
-    simparm::Node& getNode() { return config; }
 };
 
 }

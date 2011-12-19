@@ -73,8 +73,8 @@ void ChainLink::operator()(const simparm::Event&)
     }
 }
 
-std::auto_ptr<chain::Filter> makeLink() {
-    return std::auto_ptr<chain::Filter>( new ChainLink() );
+std::auto_ptr<chain::Link> makeLink() {
+    return std::auto_ptr<chain::Link>( new ChainLink() );
 }
 
 }

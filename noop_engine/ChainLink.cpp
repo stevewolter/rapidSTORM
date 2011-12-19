@@ -82,10 +82,10 @@ ChainLink::context_changed(ContextRef r, Link* l)
     return input::chain::DelegateToVisitor::context_changed(*this,r,l);
 }
 
-std::auto_ptr<input::chain::Filter>
+std::auto_ptr<input::chain::Link>
 makeLink()
 {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink( ) );
+    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
 }
 
 }

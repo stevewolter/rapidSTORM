@@ -15,7 +15,6 @@
 #include "PrecisionEstimator.h"
 #include "RegionOfInterest.h"
 #include "SourceValuePrinter.h"
-#include "biplane_alignment/decl.h"
 #include "RipleyK.h"
 #include "VarianceEstimator.h"
 
@@ -31,7 +30,6 @@ const char * rapidSTORM_Plugin_Desc() {
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->add_input( new locprec::NoiseConfig(), dStorm::InputMethod );
-    //config->inputConfig.add_filter( locprec::biplane_alignment::make_filter() );
     config->add_spot_finder( 
         new locprec::FillholeSmoother::Factory() );
     config->add_output( make_output_source<locprec::emission_tracker::Output>().release() );

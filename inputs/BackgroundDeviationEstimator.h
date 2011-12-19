@@ -6,7 +6,7 @@
 #include <simparm/Structure.hh>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/input/chain/Filter.h>
+#include <dStorm/input/Method.hpp>
 #include <simparm/Entry.hh>
 #include <boost/mpl/vector.hpp>
 #include <boost/shared_array.hpp>
@@ -16,8 +16,6 @@ namespace BackgroundStddevEstimator {
 
 struct Config : public simparm::Object
 {
-    typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
-
     simparm::BoolEntry enable;
     Config();
     void registerNamedEntries() { push_back(enable); }
@@ -48,26 +46,6 @@ class Source
   public:
     Source(std::auto_ptr< input::Source<engine::Image> > base);
     TraitsPtr get_traits( Wishes );
-};
-
-class ChainLink
-: public input::chain::Filter
-{
-    typedef input::chain::DefaultVisitor< Config > Visitor;
-    friend class input::chain::DelegateToVisitor;
-    simparm::Structure<Config>& get_config() { return config; }
-
-    simparm::Structure<Config> config;
-    bool do_make_source;
-  public:
-    ChainLink() : do_make_source(false) {}
-    ChainLink* clone() const { return new ChainLink(*this); }
-
-    AtEnd traits_changed( TraitsRef r, Link* l ) ;
-    AtEnd context_changed( ContextRef c, Link* l );
-    input::BaseSource* makeSource() ;
-
-    simparm::Node& getNode() { return config; }
 };
 
 }

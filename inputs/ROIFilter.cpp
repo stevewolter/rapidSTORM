@@ -2,68 +2,74 @@
 #include "ROIFilter.h"
 #include <simparm/Entry_Impl.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/Method.hpp>
 #include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/input/chain/DefaultFilterTypes.h>
 #include <boost/lexical_cast.hpp>
+#include <dStorm/input/InputMutex.h>
 
 namespace dStorm {
 
-namespace input {
-namespace chain {
+namespace ROIFilter {
 
-void delete_plane( Traits<engine::Image>& traits, int plane ) 
+class ChainLink 
+: public input::Method<ChainLink>, public simparm::Listener
 {
-    std::swap( traits.planes[0], traits.planes[ plane ] );
-    traits.planes.resize(1);
-}
-template <typename T>
-void delete_plane( Traits<T>&, int ) {}
+    friend class input::Method<ChainLink>;
 
-template <>
-template <typename Type>
-bool DefaultVisitor<ROIFilter::Config>::operator()( Traits<Type>& traits )
-{
-    typedef Localization::ImageNumber::Traits ImT;
-    traits.image_number().range().first = config.first_frame();
-    if ( config.last_frame().is_initialized() )
-        traits.image_number().range().second = config.last_frame();
-    if ( config.which_plane() != -1 ) {
-        delete_plane( traits, config.which_plane() );
+    simparm::Structure<Config> config;
+    simparm::Structure<Config>& get_config() { return config; }
+    void operator()( const simparm::Event& );
+
+    typedef Localization::ImageNumber::Traits TemporalTraits;
+
+    void set_temporal_ROI( TemporalTraits& t ) {
+        t.range().first = config.first_frame();
+        if ( config.last_frame().is_initialized() )
+            t.range().second = config.last_frame();
+    }
+    void update_traits( input::chain::MetaInfo&, input::Traits<engine::Image>& traits ) {
+        set_temporal_ROI( traits.image_number() );
+        if ( config.which_plane() != -1 ) {
+            std::swap( traits.planes[0], traits.planes[ config.which_plane() ] );
+            traits.planes.resize(1);
+        }
+    }
+    template <typename Type>
+    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& traits ) 
+        { set_temporal_ROI( traits.image_number() ); }
+
+    void notice_traits( const input::chain::MetaInfo&, const input::Traits<engine::Image>& t ) {
+        for (int i = config.which_plane.numChoices()-1; i < t.plane_count(); ++i) {
+            std::string id = boost::lexical_cast<std::string>(i);
+            config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
+        }
+        for (int i = t.plane_count(); i < config.which_plane.numChoices()-1; ++i)
+            config.which_plane.removeChoice( i );
+    }
+    template <typename Type>
+    void notice_traits( const input::chain::MetaInfo&, const input::Traits<Type>& ) {}
+
+    template <typename Type>
+    input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
+        boost::optional<int> plane;
+        if ( config.which_plane() != -1 ) plane = config.which_plane();
+        if ( config.first_frame() > 0 * camera::frame 
+            || config.last_frame().is_initialized()
+            || plane.is_initialized() )
+        {
+            return new Source<Type>( p, config.first_frame(), config.last_frame(), 
+                               plane );
+        } else
+            return p.release();
     }
 
-    return true;
-}
-
-template <>
-template <typename Type>
-bool DefaultVisitor<ROIFilter::Config>::operator()( std::auto_ptr< Source<Type> > s )
-{
-    DEBUG("Making source for ROI filter");
-    assert( s.get() );
-    typedef ROIFilter::Source<Type> Filter;
-
-    if ( config.first_frame() > 0 * camera::frame 
-        || config.last_frame().is_initialized()
-        || config.which_plane() != -1 )
-    {
-        boost::optional<int> plane;
-        if ( config.which_plane() != -1 ) {
-            plane = config.which_plane();
-        }
-        new_source.reset( new Filter( s, config.first_frame(), config.last_frame(), plane ) );
-    } else
-        new_source = s;
-    DEBUG("Made source for ROI filter");
-    return true;
-}
-
-}
-}
-
-namespace ROIFilter {
+  public:
+    ChainLink();
+    ChainLink(const ChainLink&);
+    simparm::Node& getNode() { return config; }
+};
 
 Config::Config() 
 : simparm::Object("ROIFilter", "Image selection filter"),
@@ -77,37 +83,14 @@ Config::Config()
     which_plane.userLevel = simparm::Object::Expert;
 }
 
-ChainLink::AtEnd ChainLink::traits_changed( TraitsRef c, Link* l ) { 
-    if ( c.get() && c->provides< dStorm::engine::Image >() ) {
-        boost::shared_ptr<const input::Traits<engine::Image> > t = 
-            c->traits< engine::Image >();
-        for (int i = config.which_plane.numChoices()-1; i < t->plane_count(); ++i) {
-            std::string id = boost::lexical_cast<std::string>(i);
-            config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
-        }
-        for (int i = t->plane_count(); i < config.which_plane.numChoices()-1; ++i)
-            config.which_plane.removeChoice( i );
-    }
-    return input::chain::DelegateToVisitor::traits_changed( *this, c, l );
-}
-
-input::BaseSource* ChainLink::makeSource()
+std::auto_ptr<input::chain::Link> makeFilter() 
 {
-    DEBUG("Making source for ROI filter");
-    input::BaseSource* rv = input::chain::DelegateToVisitor::makeSource(*this);
-    DEBUG("Made source for ROI filter");
-    return rv;
-}
-
-std::auto_ptr<input::chain::Filter> makeFilter() 
-{
-    return std::auto_ptr<input::chain::Filter> (new ChainLink());
+    return std::auto_ptr<input::chain::Link> (new ChainLink());
 }
 
 void ChainLink::operator()( const simparm::Event& ) {
-    if ( last_traits.get() ) {
-        input::chain::DelegateToVisitor::traits_changed(*this, last_traits, NULL);
-    }
+    ost::MutexLock lock( input::global_mutex() );
+    republish_traits();
 }
 
 ChainLink::ChainLink()
@@ -117,8 +100,8 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o)
-: Filter(o), simparm::Listener( simparm::Event::ValueChanged ),
-  last_traits(o.last_traits), config(o.config)
+: input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
+  config(o.config)
 {
     receive_changes_from( config.which_plane.value );
 }

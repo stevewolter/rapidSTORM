@@ -3,17 +3,15 @@
 
 #include <dStorm/log.h>
 #include <dStorm/input/AdapterSource.h>
+#include <dStorm/localization/record.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <dStorm/input/chain/Filter.h>
-#include <dStorm/input/chain/DefaultFilterTypes.h>
 
 namespace VerboseInputFilter {
 
 struct Config : public simparm::Object {
-    typedef dStorm::input::chain::DefaultTypes SupportedTypes;
     simparm::BoolEntry verbose;
     Config() : Object("VerboseInput", "Verbose input filter"), 
                verbose("BeVerbose", "Be verbose") {}
@@ -71,25 +69,6 @@ void Source<dStorm::localization::Record>::_iterator::increment()
 template <typename Type>
 void Source<Type>::_iterator::increment()
 { ++this->base_reference(); }
-
-class VerboseInputFilter 
-: public dStorm::input::chain::Filter
-{
-  public:
-    typedef dStorm::input::chain::DefaultVisitor<Config> Visitor;
-    simparm::Structure<Config> config;
-    const Config& get_config() { return config; }
-
-    VerboseInputFilter() : dStorm::input::chain::Filter() {}
-    ~VerboseInputFilter() {}
-    VerboseInputFilter* clone() const { return new VerboseInputFilter(*this); }
-
-    AtEnd traits_changed( TraitsRef, Link* );
-    AtEnd context_changed( ContextRef, Link* );
-    dStorm::input::BaseSource* makeSource();
-
-    simparm::Node& getNode() { return static_cast<Config&>(config); }
-};
 
 }
 

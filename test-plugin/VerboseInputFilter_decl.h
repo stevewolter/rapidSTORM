@@ -3,7 +3,7 @@
 
 #include <dStorm/input/chain/Filter.h>
 
-std::auto_ptr<dStorm::input::chain::Filter>
+std::auto_ptr<dStorm::input::chain::Link>
 make_verbose_input_filter();
 
 #endif

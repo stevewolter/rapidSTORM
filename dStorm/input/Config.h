@@ -6,7 +6,6 @@
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include "chain/Choice_decl.h"
-#include "chain/Filter_decl.h"
 #include "chain/Link_decl.h"
 #include "chain/MetaInfo_decl.h"
 #include "chain/Forwarder_decl.h"
@@ -29,7 +28,7 @@ namespace input {
     class Config
     : public simparm::Set
     {
-        boost::ptr_list<chain::Filter> forwards;
+        boost::ptr_list<chain::Link> forwards;
 
         std::auto_ptr<chain::Link> method;
         class InputChainBase;
@@ -42,9 +41,9 @@ namespace input {
 
         Config* clone() const { return new Config(*this); }
 
-        void add_filter( std::auto_ptr<chain::Filter> forwarder, bool front = false );
-        void add_filter( chain::Filter* forwarder, bool front = false ) 
-            { add_filter( std::auto_ptr<chain::Filter>(forwarder), front ); }
+        void add_filter( std::auto_ptr<chain::Link> forwarder, bool front = false );
+        void add_filter( chain::Link* forwarder, bool front = false ) 
+            { add_filter( std::auto_ptr<chain::Link>(forwarder), front ); }
         void add_method( std::auto_ptr<chain::Link> method, chain::Link::Place );
         void add_method( chain::Link* forwarder, chain::Link::Place p ) 
             { add_method( std::auto_ptr<chain::Link>(forwarder), p ); }

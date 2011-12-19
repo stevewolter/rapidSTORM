@@ -88,10 +88,10 @@ ChainLink::traits_changed(TraitsRef r, Link* l)
     return input::chain::DelegateToVisitor::traits_changed(*this, r, l);
 }
 
-std::auto_ptr<input::chain::Filter>
+std::auto_ptr<input::chain::Link>
 make_STM_engine_link()
 {
-    return std::auto_ptr<input::chain::Filter>( new ChainLink( ) );
+    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
 }
 
 }

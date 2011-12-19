@@ -2,9 +2,8 @@
 #include <boost/variant.hpp>
 #include <boost/serialization/variant.hpp> 
 #include "VerboseInputFilter.h"
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Filter_impl.h>
+#include <dStorm/input/Method.hpp>
 #include <dStorm/Image.h>
 #include <iostream>
 
@@ -12,57 +11,39 @@
 #define VERBOSE
 #include <dStorm/debug.h>
 
-namespace dStorm {
-namespace input {
-namespace chain {
-
-template <>
-template <typename Type>
-bool
-DefaultVisitor<VerboseInputFilter::Config>::operator()
-    ( std::auto_ptr< dStorm::input::Source<Type> > rv )
-{
-    if ( config.verbose() ) {
-        DEBUG( "Source of type " << typeid(*rv.get()).name() << " is passing" );
-        new_source.reset( new VerboseInputFilter::Source<Type>(config, rv) );
-    } else
-        new_source.reset( rv.release() );
-    return true;
-}
-
-}
-}
-}
-
 namespace VerboseInputFilter {
 
-VerboseInputFilter::AtEnd
-VerboseInputFilter::traits_changed( TraitsRef ref, Link *link )
+using namespace dStorm::input;
+
+class ChainLink 
+: public dStorm::input::Method< ChainLink >
 {
-    Link::traits_changed( ref, link );
-    if ( config.verbose() )
-        DEBUG("Traits " << ref.get() << " are passing on " << getNode().getName() << " (" << this << ")");
-    return notify_of_trait_change( ref );
+    friend class dStorm::input::Method< ChainLink >;
+
+    template <typename Type>
+    bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
+        { return false; }
+    template <typename Type>
+    void notice_traits( const chain::MetaInfo& ref, const Traits<Type>& ) {
+        if ( config.verbose() )
+            DEBUG("Traits " << &ref << " are passing on " << getNode().getName() << " (" << this << ")");
+    }
+
+  public:
+    simparm::Structure<Config> config;
+    BaseSource* makeSource() {
+        std::auto_ptr<BaseSource> rv( Forwarder::makeSource() );
+        DEBUG( "Source of type " << typeid(*rv.get()).name() << " is passing" );
+        return rv.release();
+    }
+
+    simparm::Node& getNode() { return static_cast<Config&>(config); }
+};
+
 }
 
-VerboseInputFilter::AtEnd
-VerboseInputFilter::context_changed( ContextRef ref, Link *link )
-{
-    Link::context_changed( ref, link );
-    if ( config.verbose() )
-        DEBUG("Context " << ref.get() << " is passing on " << getNode().getName() << " (" << this << ")");
-    return notify_of_context_change( ref );
-}
-
-dStorm::input::BaseSource* VerboseInputFilter::makeSource()
-{
-    return dStorm::input::chain::DelegateToVisitor::makeSource(*this);
-}
-
-}
-
-std::auto_ptr<dStorm::input::chain::Filter>
+std::auto_ptr<dStorm::input::chain::Link>
 make_verbose_input_filter() {
-    return std::auto_ptr<dStorm::input::chain::Filter>
-        (new VerboseInputFilter::VerboseInputFilter());
+    return std::auto_ptr<dStorm::input::chain::Link>
+        (new VerboseInputFilter::ChainLink());
 }
