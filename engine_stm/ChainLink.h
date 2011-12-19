@@ -4,7 +4,6 @@
 #include "ChainLink_decl.h"
 #include "Config.h"
 #include <dStorm/input/chain/Filter.h>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -16,7 +15,6 @@ class ChainLink : public input::chain::Filter
 {
     class Visitor;
     friend class input::chain::DelegateToVisitor;
-    input::chain::Context::Ptr my_context;
     Config config;
     Config& get_config() { return config; }
 
@@ -27,7 +25,6 @@ class ChainLink : public input::chain::Filter
 
     input::BaseSource* makeSource() ;
     AtEnd traits_changed( TraitsRef r, Link* l );
-    AtEnd context_changed(ContextRef, Link*);
 };
 
 }

@@ -9,7 +9,6 @@
 #include <dStorm/units/nanolength.h>
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Link.h>
 
 namespace dStorm {

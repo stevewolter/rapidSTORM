@@ -10,7 +10,6 @@
 #include <utility>
 #include <memory>
 #include <simparm/Node_decl.hh>
-#include "Context_decl.h"
 #include "MetaInfo_decl.h"
 #include <dStorm/InsertionPlace.h>
 
@@ -22,7 +21,6 @@ class Link {
     Link *less_specialized;
   protected:
     typedef boost::shared_ptr<const MetaInfo> TraitsRef;
-    typedef boost::shared_ptr<const Context> ContextRef;
   private:
     TraitsRef meta_info;
   public:
@@ -36,7 +34,6 @@ class Link {
     /** Method which is called by the downstream element (e.g. input) 
      *  to notify the upstream element (e.g. engine) of changed capabilities. */
     virtual AtEnd traits_changed( TraitsRef, Link* ) = 0;
-    virtual AtEnd context_changed( ContextRef, Link* );
 
     virtual BaseSource* makeSource() = 0;
     virtual Link* clone() const = 0;
@@ -69,7 +66,6 @@ struct Terminus : public Link {
      *  for its virtual table entry and will simply throw an error when
      *  called. */
     virtual AtEnd traits_changed( TraitsRef, Link* );
-    AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 
     virtual Terminus* clone() const = 0;
     virtual void insert_new_node( std::auto_ptr<Link> l, Place ); 

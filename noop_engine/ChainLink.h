@@ -31,7 +31,6 @@ class ChainLink
     input::BaseSource* makeSource() ;
 
     AtEnd traits_changed( TraitsRef r, Link* l );
-    AtEnd context_changed(ContextRef, Link*);
 };
 
 }

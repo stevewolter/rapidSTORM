@@ -39,15 +39,10 @@ class ChainLink::Visitor {
     inline bool operator()( std::auto_ptr< input::Source< Type > > p );
 
     bool operator()( input::chain::MetaInfo& ) { return true; }
-    bool operator()( input::chain::Context& c ) {
-        boost::mpl::for_each<SupportedTypes>( input::chain::ContextTraitCreator(c) );
-        return true;
-    }
 
     bool unknown_trait(std::string trait_desc) const {
         return false;
     }
-    bool no_context_visited_is_ok() const { return true; }
     void unknown_base_source() const {
         throw std::runtime_error("Localization replay engine cannot process input of the given type");
     }
@@ -74,12 +69,6 @@ input::BaseSource* ChainLink::makeSource()
     if ( ! upstream_traits()->provides< dStorm::engine::Image >() )
         throw std::runtime_error("Localization replay engine cannot work with image input");
     return input::chain::DelegateToVisitor::makeSource(*this);
-}
-
-ChainLink::AtEnd
-ChainLink::context_changed(ContextRef r, Link* l)
-{
-    return input::chain::DelegateToVisitor::context_changed(*this, r, l);
 }
 
 ChainLink::AtEnd

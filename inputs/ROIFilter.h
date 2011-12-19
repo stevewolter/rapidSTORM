@@ -15,7 +15,6 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Filter.h>
 #include <dStorm/localization/record.h>
 #include <dStorm/Localization.h>

@@ -1,7 +1,6 @@
 #include "../debug.h"
 
 #include "Alternatives.h"
-#include "Context.h"
 #include "Forwarder.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
@@ -18,31 +17,20 @@ class Alternatives::UpstreamCollector
 : public Forwarder, boost::noncopyable
 {
     TraitsRef traits;
-    ContextRef null_context;
-    typedef std::map<std::string,ContextRef> Contexts;
-    Contexts contexts;
     Alternatives& papa;
-    bool frozen, action_in_frozen;
 
   public:
-    UpstreamCollector(Alternatives& papa) : papa(papa), frozen(false) {}
+    UpstreamCollector(Alternatives& papa) : papa(papa) {}
     UpstreamCollector(Alternatives& papa, const UpstreamCollector& o)
-        : null_context(o.null_context), contexts(o.contexts), papa(papa), frozen(false) {}
+        : traits(o.traits), papa(papa) {}
 
     UpstreamCollector* clone() const 
         { assert(false); throw std::logic_error("UpstreamCollector unclonable"); }
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 
-    AtEnd notify_of_context_change( ContextRef ctx ) {
-        if ( frozen ) {
-            action_in_frozen = true;
-            return AtEnd();
-        } else
-            return Forwarder::notify_of_context_change(ctx);
-    }
-
     AtEnd traits_changed( TraitsRef r, Link* from ) {
+        /* TODO: This method needs to be aware of traits-run-throughs during updates. */
         DEBUG("Traits changed from upstream in " << this  << " from " << from << " to " << r.get() );
         Link::traits_changed(r,from);
         traits = r;
@@ -51,59 +39,10 @@ class Alternatives::UpstreamCollector
             rv = i->traits_changed( r, this );
         return rv;
     }
-    AtEnd context_changed( ContextRef r, Link* from ) {
-        Link::context_changed(r,from);
-        DEBUG("Context for " << from->getNode().getName() << " to " << this << " changed to " << r.get());
-        contexts[from->getNode().getName()] = r;
-        if ( from == &(papa.value()) ) {
-            DEBUG("Forwarding context");
-            return notify_of_context_change( r );
-        } else {
-            DEBUG("No action taken: " << r.get() << " " << papa.value.hasValue() << " " << from->current_traits().get());
-            /* Choice is not the current choice - do nothing. */
-            return AtEnd();
-        }
-    }
-
-    AtEnd set_default_context( ContextRef ctx ) { 
-        null_context = ctx; 
-        if ( ! papa.isValid() ) {
-            AtEnd rv = notify_of_context_change(ctx);
-            return rv;
-        } else {
-            return AtEnd();
-        }
-    }
-
-    void chose_alternative( Link* link ) {
-        if ( !link )
-            notify_of_context_change( null_context );
-        else if ( contexts.find(link->getNode().getName() ) != contexts.end() ) {
-            notify_of_context_change( contexts[link->getNode().getName()] );
-        }
-    }
-
-    bool has_valid_context( Link *l ) const { 
-        if ( l == NULL ) return false;
-        Contexts::const_iterator probe = contexts.find(l->getNode().getName());
-        DEBUG("Checking if context for " << l << " is valid: " << ( probe != contexts.end() && probe->second.get() != NULL ));
-        return ( probe != contexts.end() && probe->second.get() != NULL );
-    }
 
     void set_upstream_element( Link& element, SetType type ) {
         if ( type == Add ) {
             assert( papa.hasChoice( element.getNode().getName() ) );
-        }
-    }
-
-    void freeze() { action_in_frozen = false; frozen = true; }
-    void thaw() { 
-        frozen = false; 
-        if ( action_in_frozen )  {
-            if ( papa.isValid() )
-                notify_of_context_change( contexts[papa.value().getNode().getName()] );
-            else
-                notify_of_context_change( null_context );
         }
     }
 };
@@ -142,10 +81,6 @@ void Alternatives::operator()(const simparm::Event&)
         DEBUG("Propagating traits for new value");
         notify_of_trait_change( value().current_traits() );
     }
-    if ( value.hasValue() )
-        collector->chose_alternative( &value() );
-    else
-        collector->chose_alternative( NULL );
 }
 
 Link::AtEnd Alternatives::traits_changed( TraitsRef t, Link* from ) {
@@ -179,24 +114,6 @@ Link::AtEnd Alternatives::traits_changed( TraitsRef t, Link* from ) {
     }
 }
 
-Link::AtEnd Alternatives::context_changed( ContextRef context, Link* link ) {
-    DEBUG("Alternatives context changed");
-    AtEnd rv = Link::context_changed(context, link);
-    collector->freeze();
-    current_context = context;
-    no_throw_context = context;
-    collector->set_default_context( context );
-    for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-        if ( &value() == &*i )
-            rv = i->context_changed( current_context, this );
-        else
-            rv = i->context_changed( no_throw_context, this );
-    }
-    collector->thaw();
-    DEBUG("Processed alternatives context change");
-    return rv;
-}
-
 BaseSource* Alternatives::makeSource() {
     if ( ! isValid() ) throw std::runtime_error("No alternative selected for '" + getDesc() + "'");
     return value().makeSource();
@@ -213,8 +130,6 @@ void Alternatives::add_choice( Forwarder& choice, ChoiceEntry::iterator where)
     this->addChoice( where, choice );
     Alternatives::set_upstream_element( choice, *this, Add );
     choice.set_more_specialized_link_element( collector.get() );
-    if ( current_context.get() != NULL )
-        choice.context_changed( current_context, this );
     traits_changed( choice.current_traits(), &choice );
 }
 void Alternatives::push_back_choice( Forwarder& c) {

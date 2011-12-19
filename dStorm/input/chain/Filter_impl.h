@@ -4,7 +4,6 @@
 #include "../../debug.h"
 #include "Filter.h"
 
-#include "Context_impl.h"
 #include "MetaInfo.h"
 
 #include <boost/mpl/for_each.hpp>
@@ -71,24 +70,16 @@ struct DefaultVisitor {
     inline bool operator()( std::auto_ptr< input::Source<Type> > p );
 
     inline bool unknown_trait(std::string trait_desc) const;
-    inline bool no_context_visited_is_ok() const;
     inline void unknown_base_source() const;
 
     inline bool operator()( MetaInfo& );
-    inline bool operator()( Context& );
 };
 
 template <typename Config>
 bool DefaultVisitor<Config>::operator()( MetaInfo& ) { return true; }
 
 template <typename Config>
-bool DefaultVisitor<Config>::operator()( Context& ) { return true; }
-
-template <typename Config>
 bool DefaultVisitor<Config>::unknown_trait(std::string) const { return true; }
-
-template <typename Config>
-bool DefaultVisitor<Config>::no_context_visited_is_ok() const { return true; }
 
 template <typename Config>
 void DefaultVisitor<Config>::unknown_base_source() const {}
@@ -139,30 +130,6 @@ void visit_traits
 }
 
 template <typename Visitor>
-void visit_context
-    ( Visitor &visitor, Context::ConstPtr& c )
-{
-    if ( c.get() ) {
-        input::chain::Context::Ptr p( c->clone() );
-        bool some_context_visited = false;
-        for ( boost::ptr_vector<BaseTraits>::iterator i = p->more_infos.begin(); i != p->more_infos.end(); ++i ) 
-        {
-            boost::mpl::for_each<typename Visitor::SupportedTypes>(
-                apply_until_match(visitor, *i, some_context_visited) );
-        }
-        if ( some_context_visited || visitor.no_context_visited_is_ok() ) {
-            DEBUG("Was able to apply to context or applying to unvisited context");
-            if ( visitor( *p ) ) {
-                DEBUG("Context successfully applied");
-                c = p;
-            }
-        } else {
-            c.reset();
-        }
-    }
-}
-
-template <typename Visitor>
 BaseSource* specialize_source(Visitor &visitor, BaseSource* src) {
     DEBUG("Specializing source");
     std::auto_ptr<BaseSource> b(src);
@@ -192,14 +159,6 @@ struct DelegateToVisitor {
         typename Type::Visitor visitor(f.get_config());
         visit_traits( visitor, r );
         return f.notify_of_trait_change(r);
-    }
-    template <typename Type>
-    static Link::AtEnd context_changed( Type& f, Link::ContextRef r, Link* l) 
-    {
-        f.Link::context_changed(r,l);
-        typename Type::Visitor visitor(f.get_config());
-        visit_context( visitor, r );
-        return f.notify_of_context_change(r);
     }
     template <typename Type>
     static BaseSource* makeSource( Type& f) 

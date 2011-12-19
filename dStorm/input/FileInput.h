@@ -69,8 +69,6 @@ class FileInput
         current_file(o.current_file), file(o.file), error(o.error)
         { DEBUG("Copying file input " << &o << " to " << this); republish_traits(); }
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
-    
-    AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 };
 
 }

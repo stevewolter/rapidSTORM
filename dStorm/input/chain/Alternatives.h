@@ -17,9 +17,6 @@ class Alternatives
     class UpstreamCollector;
     std::auto_ptr<UpstreamCollector> collector;
 
-    ContextRef current_context;
-    ContextRef no_throw_context;
-
     virtual void downstream_element_destroyed( Link& which );
 
   protected:
@@ -34,7 +31,6 @@ class Alternatives
     void set_more_specialized_link_element( Link* );
     
     virtual AtEnd traits_changed( TraitsRef, Link* );
-    virtual AtEnd context_changed( ContextRef, Link* );
 
     virtual BaseSource* makeSource();
     virtual Alternatives* clone() const;

@@ -15,7 +15,6 @@
 
 #include <boost/variant/get.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
-#include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/input/InputFileNameChange.h>
 
 namespace dStorm {

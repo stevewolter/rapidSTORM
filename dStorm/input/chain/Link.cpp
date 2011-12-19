@@ -6,7 +6,6 @@
 #include "dStorm/engine/Image.h"
 #include "dStorm/ImageTraits.h"
 #include "MetaInfo.h"
-#include "Context_impl.h"
 #endif
 
 namespace dStorm {
@@ -48,11 +47,6 @@ void Link::set_upstream_element( Link& element, SetType type ) {
     }
 }
 
-Link::AtEnd Link::context_changed( ContextRef r, Link* l ) {
-    assert( r.get() );
-    DEBUG("Context " << r.get() << " passing from " << l << "(" << ((l) ? l->getNode().getName() : "NULL") << ") by " << this << "(" << getNode().getName()  << ")");
-    return AtEnd();
-}
 Link::AtEnd Link::traits_changed( TraitsRef r, Link* l ) {
     DEBUG("Traits " << r.get() << " providing " << ((r.get() && r->provides_nothing()) ? "nothing" : "something") << " passing from " << l << "(" << ((l) ? l->getNode().getName() : "NULL") << ") by " << this << "(" << getNode().getName()  << ")");
     return AtEnd();

@@ -10,8 +10,6 @@
 #include <simparm/Message.hh>
 
 #include <dStorm/Image_impl.h>
-#include <dStorm/input/chain/Context.h>
-#include <dStorm/input/chain/Context_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>

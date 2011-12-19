@@ -5,7 +5,6 @@
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>

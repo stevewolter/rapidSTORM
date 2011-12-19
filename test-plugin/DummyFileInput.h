@@ -7,7 +7,6 @@
 #include <dStorm/ImageTraits.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/FileInput.h>
 #include <boost/signals2/connection.hpp>
 #include <fstream>

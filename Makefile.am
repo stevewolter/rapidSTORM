@@ -154,7 +154,6 @@ nobase_include_HEADERS = \
     dStorm/input/chain/Forwarder.h dStorm/input/chain/Forwarder_decl.h \
     dStorm/input/chain/Filter.h dStorm/input/chain/Filter_decl.h \
     dStorm/input/chain/Filter_impl.h dStorm/input/chain/DefaultFilterTypes.h \
-    dStorm/input/chain/Context_decl.h dStorm/input/chain/Context.h dStorm/input/chain/Context_impl.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
     dStorm/input/chain/Alternatives.h dStorm/input/chain/EngineHelpers.h \
     dStorm/input/Drain_decl.h dStorm/input/Drain.h \

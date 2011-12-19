@@ -18,7 +18,6 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context.h>
 #include <dStorm/input/chain/Alternatives.h>
 #include <dStorm/input/InputMutex.h>
 
@@ -98,8 +97,6 @@ class GrandConfig::EngineChoice
 
     std::list<engine::ClassicEngine*> classic_engines;
 
-    input::chain::Context::Ptr initial_context;
-
     TreeRoot* outputRoot;
 
     template <typename Type>
@@ -129,21 +126,9 @@ class GrandConfig::EngineChoice
         return AtEnd();
     }
 
-    AtEnd context_changed( ContextRef, Link* ) {
-        assert(false); 
-        throw std::logic_error("dStorm::input::Config::ChainTerminus can have no context"); 
-    }
-
-    void set_initial_context() {
-        if ( initial_context.get() ) return;
-        ost::MutexLock lock( input::global_mutex() );
-        alternatives.context_changed( initial_context, this );
-    }
-    
   public:
     EngineChoice(GrandConfig& config) 
-        : alternatives("Engine", "Choose engine") ,
-          initial_context( new input::chain::Context() )
+        : alternatives("Engine", "Choose engine")
     {
         assert( config.outputRoot.get() );
         outputRoot = config.outputRoot.get();
@@ -153,13 +138,11 @@ class GrandConfig::EngineChoice
             &config._inputConfig->get_link_element() );
 
         Link::set_upstream_element( alternatives, *this, Add );
-        alternatives.context_changed( initial_context, this );
     }
     EngineChoice(const EngineChoice& o, GrandConfig& config) 
     : alternatives(o.alternatives),
       finders(o.finders),
-      fitters(o.fitters),
-      initial_context(o.initial_context)
+      fitters(o.fitters)
     {
         assert( config.outputRoot.get() );
         outputRoot = config.outputRoot.get();

@@ -8,7 +8,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context.h>
 
 namespace dStorm {
 namespace input {

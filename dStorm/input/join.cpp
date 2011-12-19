@@ -178,7 +178,6 @@ class Link
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
     boost::ptr_vector< chain::Link > children;
-    ContextRef current_context;
     std::vector< TraitsRef > input_traits;
     simparm::Set channels;
     simparm::NodeChoiceEntry< Strategist > join_type;
@@ -194,7 +193,6 @@ class Link
     Link* clone() const { return new Link(*this); }
 
     AtEnd traits_changed( TraitsRef, chain::Link* );
-    AtEnd context_changed( ContextRef, chain::Link* );
 
     BaseSource* makeSource();
     simparm::Node& getNode() { return *this; }
@@ -242,7 +240,7 @@ Link::Link( const Link& o )
 : chain::Link(o), simparm::Object(o), 
   simparm::Listener( simparm::Event::ValueChanged ),
   connection_nodes(o.connection_nodes),
-  children( o.children ), current_context( o.current_context ),
+  children( o.children ), 
   input_traits( o.input_traits ),
   channels(o.channels), join_type( o.join_type ), channel_count(o.channel_count)
 {
@@ -279,13 +277,6 @@ Link::AtEnd Link::traits_changed( TraitsRef r, chain::Link* l ) {
         DEBUG("Made traits providing nothing: " << ((t.get()) ? t->provides_nothing() : true));
     }
     return notify_of_trait_change(t);
-}
-
-Link::AtEnd Link::context_changed( ContextRef c, chain::Link* l ) {
-    current_context = c;
-    for (size_t i = 0; i < children.size(); ++i)
-        children[i].context_changed( c, this );
-    return AtEnd();
 }
 
 BaseSource* Link::makeSource() {

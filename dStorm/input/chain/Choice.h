@@ -29,7 +29,6 @@ class Choice
     ~Choice();
     
     virtual AtEnd traits_changed( TraitsRef, Link* );
-    virtual AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
 
     virtual BaseSource* makeSource();
     virtual Choice* clone() const;

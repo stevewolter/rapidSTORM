@@ -18,7 +18,6 @@
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <dStorm/traits/image_resolution.h>
-#include <dStorm/input/chain/Context.h>
 
 namespace dStorm {
 namespace AndorCamera {

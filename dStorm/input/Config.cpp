@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <functional>
 #include "chain/Link.h"
-#include "chain/Context.h"
 #include "join.h"
 #include "InputMethods.h"
 #include <dStorm/input/chain/Forwarder.h>
@@ -20,9 +19,6 @@ struct Config::InputChainBase
     AtEnd traits_changed( TraitsRef t, Link* l ) 
         { chain::Link::traits_changed(t,l);
           return notify_of_trait_change(t); }
-    AtEnd context_changed( ContextRef t, Link* l ) 
-        { chain::Link::context_changed(t,l);
-          return notify_of_context_change(t); }
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 };
 

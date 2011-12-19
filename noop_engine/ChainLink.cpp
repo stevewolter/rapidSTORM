@@ -3,7 +3,6 @@
 #include "ChainLink.h"
 #include "Engine.h"
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/input/chain/Filter_impl.h>
 #include <dStorm/input/chain/EngineHelpers.h>
 #include <dStorm/ImageTraits.h>
@@ -47,10 +46,6 @@ class ChainLink::Visitor {
         { throw std::runtime_error("No-op engine cannot work with this input"); }
 
     bool operator()( input::chain::MetaInfo& ) { return true; }
-    bool operator()( input::chain::Context& c ) {
-        boost::mpl::for_each<SupportedTypes>( input::chain::ContextTraitCreator(c) );
-        return true;
-    }
 
     bool unknown_trait(std::string trait_desc) const { return false; }
     bool no_context_visited_is_ok() const { return true; }
@@ -74,12 +69,6 @@ ChainLink::AtEnd
 ChainLink::traits_changed(TraitsRef r, Link* l)
 {
     return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
-}
-
-ChainLink::AtEnd
-ChainLink::context_changed(ContextRef r, Link* l)
-{
-    return input::chain::DelegateToVisitor::context_changed(*this,r,l);
 }
 
 std::auto_ptr<input::chain::Link>

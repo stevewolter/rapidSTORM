@@ -8,7 +8,6 @@
 #include <dStorm/ImageTraits.h>
 #include <stdexcept>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/Context_impl.h>
 
 namespace dStorm {
 namespace input {

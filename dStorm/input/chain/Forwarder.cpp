@@ -33,12 +33,6 @@ simparm::Node& Forwarder::getNode() {
     return more_specialized->getNode();
 }
 
-Link::AtEnd Forwarder::notify_of_context_change( ContextRef new_context )
-{
-    assert( more_specialized );
-    return more_specialized->context_changed(new_context, this);
-}
-
 Forwarder::~Forwarder() { 
 }
 

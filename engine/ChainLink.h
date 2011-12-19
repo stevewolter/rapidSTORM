@@ -20,12 +20,10 @@ class ChainLink
 : public ClassicEngine,
   protected simparm::Listener
 {
-    input::chain::Context::Ptr my_context;
     input::chain::Link::TraitsRef upstream_traits;
     input::chain::MetaInfo::Ptr my_traits;
     Config config;
 
-    void make_new_requirements();
     std::string amplitude_threshold_string() const;
     void make_new_traits();
 
@@ -42,7 +40,6 @@ class ChainLink
     input::Source<output::LocalizedImage>* makeSource() ;
 
     AtEnd traits_changed( TraitsRef r, Link* l );
-    AtEnd context_changed(ContextRef, Link*);
 
     void add_spot_finder( spot_finder::Factory& finder) { config.spotFindingMethod.addChoice(finder); }
     void add_spot_fitter( spot_fitter::Factory& fitter) { 

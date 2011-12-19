@@ -7,7 +7,6 @@
 #include "Alternatives.h"
 #include "Filter.h"
 #include "MetaInfo.h"
-#include "Context.h"
 #include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/input/chain/Filter_impl.h>
 
@@ -57,11 +56,6 @@ struct ImageAlternative : public dStorm::input::chain::Filter
         }
     }
 
-    AtEnd context_changed( ContextRef c, Link *l ) {
-        DEBUG("Context changed for image alternative");
-        return notify_of_context_change(c);
-    }
-
     BaseSource* makeSource() { assert( false ); throw std::logic_error(""); }
 };
 
@@ -83,11 +77,6 @@ struct LocalizationAlternative : public dStorm::input::chain::Filter
         }
     }
 
-    AtEnd context_changed( ContextRef c, Link *l ) {
-        DEBUG("Context changed for localization alternative");
-        return notify_of_context_change(c);
-    }
-
     BaseSource* makeSource() {  assert( false ); throw std::logic_error(""); }
 };
 
@@ -101,8 +90,6 @@ struct ChainBase : public Forwarder
     TraitsRef current_traits;
 
     AtEnd traits_changed( TraitsRef t, Link* )  { current_traits = t; return AtEnd(); }
-    AtEnd context_changed( ContextRef, Link* ) { return AtEnd(); }
-    void set_context( ContextRef c ) { notify_of_context_change(c); }
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 };
 

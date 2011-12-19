@@ -3,7 +3,6 @@
 #include "ChainLink.h"
 #include "Engine.h"
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/units/io.hpp>
 #include <dStorm/input/InputMutex.h>
@@ -22,7 +21,7 @@ ChainLink::ChainLink()
 ChainLink::ChainLink(const ChainLink& c)
 : ClassicEngine(c),
   simparm::Listener( simparm::Event::ValueChanged ),
-  my_context(c.my_context), my_traits(c.my_traits), config(c.config)
+  my_traits(c.my_traits), config(c.config)
 {
     DEBUG("Traits were copied from " << c.my_traits.get() << "," << c.current_traits().get() << " to "
             << my_traits.get() << "," << current_traits().get())
@@ -94,50 +93,24 @@ void ChainLink::make_new_traits() {
     }
 }
 
-ChainLink::AtEnd
-ChainLink::context_changed(ContextRef r, Link* l)
-{
-    Link::context_changed(r, l);
-
-    my_context.reset( r->clone() );
-    typedef input::Traits<dStorm::engine::Image> ImageTraits;
-    if ( ! my_context->has_info_for<engine::Image>() )
-        my_context->more_infos.push_back( new ImageTraits() );
-    assert( my_context->has_info_for<engine::Image>() );
-
-    make_new_requirements();
-    Link::context_changed(my_context, l);
-    return notify_of_context_change( my_context );
-}
-
 std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link()
 {
     return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
 }
 
-void ChainLink::make_new_requirements() {
-    input::Traits<dStorm::engine::Image>& reqs = 
-        my_context->get_info_for<engine::Image>();
-    reqs = input::Traits<dStorm::engine::Image>();
-}
-
 void ChainLink::operator()( const simparm::Event& e ) {
     ost::MutexLock lock( input::global_mutex() );
     if ( &e.source == &config.spotFindingMethod.value ) {
-        make_new_requirements();
-        notify_of_context_change( my_context );
+        /* TODO: Only a context was published here. Are traits needed? */
     } else if ( &e.source == &config.spotFittingMethod.value ) {
-        make_new_requirements();
-        notify_of_context_change( my_context );
+        /* TODO: Only a context was published here. Are traits needed? */
     } else if ( &e.source == &config.amplitude_threshold.value ) {
         if ( my_traits.get() )
             my_traits->suggested_output_basename.set_variable
                 ( "thres", amplitude_threshold_string() );
-        make_new_requirements();
         DEBUG("Basename is now " << my_traits->suggested_output_basename.new_basename() );
         notify_of_trait_change( my_traits );
-        notify_of_context_change( my_context );
     } else {
         /* This else is called because some spot finder indicated that a
          * value changed. */

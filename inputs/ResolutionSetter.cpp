@@ -4,7 +4,6 @@
 #include <simparm/Eigen.hh>
 #include "ResolutionSetter.h"
 #include <dStorm/input/Source_impl.h>
-#include <dStorm/input/chain/Context_impl.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/Localization.h>
 #include <dStorm/input/LocalizationTraits.h>
@@ -156,10 +155,6 @@ struct Check {
 
         dStorm::input::Traits< dStorm::engine::Image > correct;
         l.config.set_traits( correct );
-
-        DEBUG("Publishing empty context");
-        input::chain::Context::Ptr r( new input::chain::Context() );
-        s.context_changed(r, NULL);
 
         DEBUG("Publishing image traits");
         input::chain::MetaInfo::Ptr tp( new input::chain::MetaInfo() );

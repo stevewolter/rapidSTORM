@@ -10,7 +10,6 @@
 #include <simparm/ChoiceEntry.hh>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
-#include <dStorm/input/chain/Context.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Engine.h>
 #include <dStorm/engine/Image_decl.h>
@@ -60,8 +59,6 @@ namespace engine {
             { addSpotFitter(std::auto_ptr<spot_fitter::Factory>(factory)); }
 
         void set_variables( output::Basename& ) const;
-
-        boost::shared_ptr<input::chain::Context> makeContext() const;
    };
 
    class Config : public _Config {

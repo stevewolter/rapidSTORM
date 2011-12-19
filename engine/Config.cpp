@@ -116,10 +116,5 @@ void _Config::set_variables( output::Basename& bn ) const
     spotFittingMethod().set_variables( bn );
 }
 
-boost::shared_ptr<input::chain::Context> _Config::makeContext() const {
-    boost::shared_ptr<input::chain::Context> rv( new input::chain::Context() );
-    return rv;
-}
-
 }
 }
