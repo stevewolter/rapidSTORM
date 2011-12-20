@@ -10,12 +10,35 @@ namespace input {
 namespace chain {
 
 class Choice
-: public Link, public simparm::NodeChoiceEntry<Link>, 
-  public simparm::Listener
+: public Link, public simparm::Listener
 {
+  protected:
+    class LinkAdaptor {
+        simparm::Object node;
+        std::auto_ptr<input::chain::Link> _link;
+
+      public:
+        LinkAdaptor( std::auto_ptr<input::chain::Link> l );
+        ~LinkAdaptor();
+        simparm::Node& getNode() { return node[_link->name()]; }
+        const simparm::Node& getNode() const { return node[_link->name()]; }
+        operator simparm::Node&() { return getNode(); }
+        operator const simparm::Node&() const { return getNode(); }
+        Link& link() { return *_link; }
+        const Link& link() const { return *_link; }
+        void registerNamedEntries() {
+            _link->registerNamedEntries( node );
+        }
+        LinkAdaptor* clone() const {
+            std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
+            rv->registerNamedEntries();
+            return rv.release();
+        }
+    };
+
+    simparm::NodeChoiceEntry<LinkAdaptor> choices;
     boost::shared_ptr<MetaInfo> my_traits;
     bool auto_select;
-    boost::ptr_vector< Link > choices;
 
     Choice::AtEnd publish_traits();
 
@@ -30,17 +53,21 @@ class Choice
     
     virtual AtEnd traits_changed( TraitsRef, Link* );
 
-    virtual BaseSource* makeSource();
-    virtual Choice* clone() const;
-    virtual simparm::Node& getNode();
+    BaseSource* makeSource();
+    Choice* clone() const;
+    void registerNamedEntries( simparm::Node& );
+    std::string name() const { return choices.getName(); }
+    std::string description() const { return choices.getDesc(); }
 
     void add_choice( std::auto_ptr<Link> );
 
     void insert_new_node( std::auto_ptr<Link>, Place );
-    Link& get_first_link() { return choices[0]; }
+    Link& get_first_link();
 
-    operator const simparm::Node&() const { return *this; }
-    operator simparm::Node&() { return *this; }
+    void set_help_id( std::string id ) { choices.helpID = id; }
+
+    operator const simparm::Node&() const { return choices; }
+    operator simparm::Node&() { return choices; }
 };
 
 }

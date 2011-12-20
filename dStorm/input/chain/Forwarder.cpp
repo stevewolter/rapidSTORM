@@ -28,9 +28,9 @@ void Forwarder::set_more_specialized_link_element(Link* l) {
     }
 }
 
-simparm::Node& Forwarder::getNode() {
+void Forwarder::registerNamedEntries(simparm::Node& n) {
     assert( more_specialized );
-    return more_specialized->getNode();
+    return more_specialized->registerNamedEntries(n);
 }
 
 Forwarder::~Forwarder() { 

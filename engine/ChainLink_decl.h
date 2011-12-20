@@ -4,6 +4,8 @@
 #include <dStorm/input/chain/Link_decl.h>
 #include <memory>
 
+class TestState;
+
 namespace dStorm {
 namespace engine {
 
@@ -11,6 +13,7 @@ class ChainLink;
 
 std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link();
+void unit_test( TestState& );
 
 }
 }

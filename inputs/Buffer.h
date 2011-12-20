@@ -15,7 +15,6 @@
 #include <dStorm/input/Drain.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/chain/Filter.h>
 
 #include <dStorm/Localization_decl.h>
 #include <dStorm/engine/Image_decl.h>

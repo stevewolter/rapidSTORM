@@ -31,7 +31,13 @@ class FileMethod
     virtual AtEnd traits_changed( TraitsRef, Link* );
 
     FileMethod* clone() const { return new FileMethod(*this); }
-    simparm::Node& getNode() { return *this; }
+    void registerNamedEntries( simparm::Node& node ) { 
+        this->push_back( input_file );
+        children.registerNamedEntries(*this);
+        node.push_back( *this );
+    }
+    std::string name() const { return getName(); }
+    std::string description() const { return getDesc(); }
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 

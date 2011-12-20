@@ -15,7 +15,6 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/input/chain/Filter.h>
 #include <dStorm/localization/record.h>
 #include <dStorm/Localization.h>
 #include <dStorm/Image.h>
@@ -28,8 +27,6 @@ namespace dStorm {
 namespace ROIFilter {
 
 struct Config : public simparm::Object {
-    typedef input::chain::DefaultTypes SupportedTypes;
-
     IntFrameEntry first_frame;
     simparm::Entry< boost::optional< frame_index > > last_frame;
     simparm::ChoiceEntry which_plane;

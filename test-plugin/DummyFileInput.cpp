@@ -118,12 +118,12 @@ class Method
     void modify_meta_info( dStorm::input::chain::MetaInfo& info ) {
         info.suggested_output_basename.unformatted() = "testoutputfile";
     }
+    simparm::Object& getNode() { return config; }
 
   public:
     Method();
 
     Source* makeSource();
-    simparm::Node& getNode() { return config; }
 
     Method* clone() const { return new Method(*this); }
 

@@ -120,6 +120,9 @@ namespace locprec {
         NoiseConfig( const NoiseConfig &copy );
         ~NoiseConfig() {}
         void registerNamedEntries();
+        void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
+        std::string name() const { return getName(); }
+        std::string description() const { return getDesc(); }
 
         virtual dStorm::input::Source<Image>* makeSource()
             { return new NoiseSource<Image::Pixel>(*this); }

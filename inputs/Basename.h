@@ -3,7 +3,7 @@
 
 #include "Basename_decl.h"
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/Filter.h>
+#include <dStorm/input/chain/Forwarder.h>
 
 #include <simparm/Entry.hh>
 #include <simparm/Structure.hh>
@@ -25,7 +25,7 @@ class Config : public simparm::Object {
 };
 
 class ChainLink 
-: public chain::Filter, public simparm::Listener , simparm::Structure<Config>
+: public chain::Forwarder, public simparm::Listener , simparm::Structure<Config>
 {
     chain::MetaInfo::Ptr traits;
     std::string default_output_basename;
@@ -39,6 +39,12 @@ class ChainLink
     ChainLink(const ChainLink&);
     ChainLink* clone() const { return new ChainLink(*this); }
     simparm::Node& getNode() { return static_cast<Config&>(*this); }
+    void registerNamedEntries( simparm::Node& n ) {
+        chain::Forwarder::registerNamedEntries(n);
+        n.push_back( *this );
+    }
+    std::string name() const { return getName(); }
+    std::string description() const { return getDesc(); }
 
     AtEnd traits_changed( TraitsRef r, Link* l);
 

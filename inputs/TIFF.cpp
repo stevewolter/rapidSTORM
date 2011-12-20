@@ -269,7 +269,7 @@ void ChainLink::modify_meta_info( chain::MetaInfo& i ) {
 OpenFile* ChainLink::make_file( const std::string& n ) const
 {
     DEBUG( "Creating file structure for " << n );
-    return new OpenFile( n, config, const_cast<simparm::Structure<Config>&>(config) );
+    return new OpenFile( n, config, const_cast<simparm::Node&>(static_cast<const simparm::Node&>(config)) );
 }
 
 }

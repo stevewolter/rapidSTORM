@@ -104,7 +104,6 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
         imProp = input->get_traits(w);
     DEBUG("Retrieved input traits");
 
-    std::cerr << "Retrieved input traits " << imProp.get() << std::endl;
     if ( ! config.amplitude_threshold().is_initialized() ) {
         DEBUG("Guessing input threshold");
         for ( int i = 0; i < imProp->plane_count(); ++i ) {

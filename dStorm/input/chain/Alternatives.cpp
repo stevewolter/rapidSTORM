@@ -33,12 +33,14 @@ class Alternatives::UpstreamCollector
         assert( upstream_traits() == r );
         Link::traits_changed(r,from);
         AtEnd rv;
-        for ( Alternatives::iterator i = papa.beginChoices(); i != papa.endChoices(); ++i ) {
-            rv = i->traits_changed( r, this );
+        for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = papa.choices.beginChoices(); i != papa.choices.endChoices(); ++i ) {
+            rv = i->link().traits_changed( r, this );
             if ( upstream_traits() != r ) return AtEnd();
         }
         return rv;
     }
+    std::string name() const { return "EngineUpstreamCollector"; }
+    std::string description() const { return "Engine choice upstream collector"; }
 };
 
 Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
@@ -49,14 +51,12 @@ Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
 Alternatives::Alternatives(const Alternatives& o)
 : Choice(o), collector( new UpstreamCollector(*this, *o.collector) )
 {
-    for ( Alternatives::iterator i = beginChoices(); i != endChoices(); ++i ) {
-        dynamic_cast<Forwarder&>(*i).more_specialized = collector.get();
+    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
+        dynamic_cast<Forwarder&>(i->link()).more_specialized = collector.get();
     }
-    receive_changes_from( value );
 }
 
 Alternatives::~Alternatives() {
-    stop_receiving_changes_from(value);
 }
 
 void Alternatives::set_more_specialized_link_element( Link* l ) {

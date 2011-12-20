@@ -19,9 +19,8 @@ struct Forwarder : public Link {
     virtual Forwarder* clone() const = 0;
     virtual BaseSource* makeSource() = 0;
     virtual AtEnd traits_changed( TraitsRef, Link* ) = 0;
-    virtual simparm::Node& getNode();
-    const simparm::Node& getNode() const { return Link::getNode(); }
     void insert_new_node( std::auto_ptr<Link>, Place );
+    void registerNamedEntries( simparm::Node& );
 
     TraitsRef upstream_traits() const;
 };

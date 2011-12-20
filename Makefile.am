@@ -7,7 +7,7 @@ javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
 C_TESTS = checkplugin_locprec reconstruction checkplugin_camera \
-    Pixel_test check_Alternatives \
+    Pixel_test \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
     check_traits check_file_plugin \
@@ -152,10 +152,9 @@ nobase_include_HEADERS = \
     dStorm/input/chain/Choice.h dStorm/input/chain/Choice_decl.h \
     dStorm/input/chain/Link_decl.h dStorm/input/chain/Link.h \
     dStorm/input/chain/Forwarder.h dStorm/input/chain/Forwarder_decl.h \
-    dStorm/input/chain/Filter.h dStorm/input/chain/Filter_decl.h \
-    dStorm/input/chain/Filter_impl.h dStorm/input/chain/DefaultFilterTypes.h \
+    dStorm/input/chain/DefaultFilterTypes.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
-    dStorm/input/chain/Alternatives.h dStorm/input/chain/EngineHelpers.h \
+    dStorm/input/chain/Alternatives.h \
     dStorm/input/Drain_decl.h dStorm/input/Drain.h \
     dStorm/input/Source_decl.h dStorm/input/Source.h dStorm/input/Source_impl.h \
     dStorm/input/Traits.h  \
@@ -214,7 +213,7 @@ libdStorm_la_SOURCES = \
     dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
     dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
     dStorm/input/chain/Alternatives.cpp \
-    dStorm/input/chain/Forwarder.cpp dStorm/input/chain/Filter.cpp \
+    dStorm/input/chain/Forwarder.cpp \
     dStorm/input/LocalizationTraits.cpp \
     dStorm/input/join.h dStorm/input/join.cpp \
     dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
@@ -446,8 +445,6 @@ checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
 checkplugin_camera_LDADD = libdirectcamerainput.la 
 checkplugin_camera_LDFLAGS = -no-undefined
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
-check_Alternatives_SOURCES = dStorm/input/chain/check_Alternatives.cpp
-check_Alternatives_LDADD = libdStorm.la
 check_traits_SOURCES = dStorm/traits/scalar_check.cpp
 check_traits_LDADD = libdStorm.la
 check_unittable_SOURCES = dStorm/expression/UnitTable_check.cpp 

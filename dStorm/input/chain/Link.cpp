@@ -52,8 +52,6 @@ Link::AtEnd Link::traits_changed( TraitsRef r, Link* l ) {
     return AtEnd();
 }
 
-std::string Link::getName() { return getNode().getName(); }
-
 Terminus::AtEnd Terminus::traits_changed( TraitsRef, Link* )
 {
     /* This point should never be reached since a chain terminus cannot
@@ -63,8 +61,10 @@ Terminus::AtEnd Terminus::traits_changed( TraitsRef, Link* )
 }
 
 void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {
-        throw std::logic_error("No insertion point found for " + l->getNode().getName());
+        throw std::logic_error("No insertion point found for " + l->description());
     }
+
+std::string Link::name() const { throw std::logic_error("Not implemented"); }
 
 }
 }

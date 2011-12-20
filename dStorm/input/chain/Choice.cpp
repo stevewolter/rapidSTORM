@@ -11,34 +11,27 @@ namespace input {
 namespace chain {
 
 Choice::Choice(std::string name, std::string desc, bool auto_select)
-: simparm::NodeChoiceEntry<Link>(name, desc),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  auto_select(auto_select)
+: simparm::Listener( simparm::Event::ValueChanged ),
+  choices(name, desc), auto_select(auto_select)
 {
-    receive_changes_from( value );
+    receive_changes_from( choices.value );
 }
 
 Choice::Choice(const Choice& o)
-: Link(o), simparm::NodeChoiceEntry<Link>(o, simparm::NodeChoiceEntry<Link>::NoCopy),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  auto_select(o.auto_select),
-  choices()
+: Link(o), simparm::Listener( simparm::Event::ValueChanged ),
+  choices(o.choices, simparm::NodeChoiceEntry<LinkAdaptor>::DeepCopy),
+  my_traits(o.my_traits),
+  auto_select(o.auto_select)
 {
     DEBUG("Copied " << &o << " to " << this);
-    receive_changes_from( value );
-    for ( boost::ptr_vector< Link >::const_iterator l = o.choices.begin(); l != o.choices.end(); ++l )
-        add_choice( std::auto_ptr<Link>(l->clone()) );
-
-    if ( o.isValid() )
-        choose( o.value().getNode().getName() );
+    receive_changes_from( choices.value );
+    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
+        Choice::set_upstream_element( i->link(), *this, Add );
+    publish_traits();
 }
 
 Choice::~Choice() {
-    stop_receiving_changes_from(value);
-    for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-        set_upstream_element( *i, *this, Remove );
-    }
-    this->simparm::NodeChoiceEntry<Link>::removeAllChoices();
+    stop_receiving_changes_from(choices.value);
 }
     
 void Choice::operator()(const simparm::Event&)
@@ -50,64 +43,82 @@ void Choice::operator()(const simparm::Event&)
 Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
-    if ( auto_select && &( value() ) == from && ! provides_something ) {
+    if ( auto_select && choices.isValid() && &choices.value().link() == from && ! provides_something ) {
         DEBUG("Auto-deselecting value other than the current");
         /* Choice can deliver no traits, i.e. is invalid. Find valid one. */
         bool found = false;
-        for ( iterator i = beginChoices(); i != endChoices(); ++i ) {
-            if ( i->current_traits().get() != NULL && ! i->current_traits()->provides_nothing() ) {
-                value = &(*i);
+        for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
+            if ( i->link().current_traits().get() != NULL && ! i->link().current_traits()->provides_nothing() ) {
+                choices.value = &(*i);
                 found = true;
             }
         }
         if ( ! found ) 
-            value = NULL;
+            choices.value = NULL;
     }
-    if ( auto_select && ! isValid() && provides_something ) {
-        DEBUG("Auto-selecting " << from->getNode().getName() );
-        value = from;
+    if ( auto_select && ! choices.isValid() && provides_something ) {
+        DEBUG("Auto-selecting " << from->link->getName() );
+        for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
+            if ( &i->link() == from )
+                choices.value = &*i;
     }
     return publish_traits();
 }
 
 Choice::AtEnd Choice::publish_traits() {
     TraitsRef exemplar;
-    if ( this->isValid() && value().current_traits().get() )
-        exemplar = value().current_traits();
+    if ( choices.isValid() && choices.value().link().current_traits().get() )
+        exemplar = choices.value().link().current_traits();
     if ( exemplar.get() )
         my_traits.reset( new MetaInfo(*exemplar) );
     else
         my_traits.reset( new MetaInfo() );
-    BOOST_FOREACH( const Link& link, choices ) {
-        if ( link.current_traits() != exemplar && link.current_traits().get() )
-            my_traits->forward_connections( *link.current_traits() );
+    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
+        if ( i->link().current_traits() != exemplar && i->link().current_traits().get() )
+            my_traits->forward_connections( *i->link().current_traits() );
     }
     return notify_of_trait_change( my_traits );
 }
 
 BaseSource* Choice::makeSource() {
-    if ( ! isValid() )
-        throw std::runtime_error("No choice selected for '" + getDesc() + "'");
-    return value().makeSource();
+    if ( ! choices.isValid() )
+        throw std::runtime_error("No choice selected for '" + description() + "'");
+    return choices.value().link().makeSource();
 }
 
 Choice* Choice::clone() const 
     { return new Choice(*this); }
-simparm::Node& Choice::getNode() {
-    return *this;
+void Choice::registerNamedEntries( simparm::Node& node ) {
+    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
+        i->registerNamedEntries();
+    node.push_back( *this );
 }
 
 void Choice::add_choice( std::auto_ptr<Link> fresh ) 
 {
     Link& l = *fresh;
-    ChoiceEntry::addChoice( ChoiceEntry::endChoices(), *fresh );
     Choice::set_upstream_element( *fresh, *this, Add );
-    choices.push_back( fresh );
+    std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
+    adaptor->registerNamedEntries();
+    choices.addChoice( choices.endChoices(), adaptor );
     traits_changed( l.current_traits(), &l );
+}
+
+Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::chain::Link> l ) 
+    : node(l->name(), l->description()), _link(l) 
+{
+}
+
+Choice::LinkAdaptor::~LinkAdaptor() {
+    _link.reset();
 }
 
 void Choice::insert_new_node( std::auto_ptr<Link> l, Place ) {
     add_choice(l);
+}
+
+Link& Choice::get_first_link() { 
+    return choices.beginChoices()->link(); 
 }
 
 }

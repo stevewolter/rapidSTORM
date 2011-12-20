@@ -40,7 +40,7 @@ class FileInput
     void reread_file() {
         file.reset();
         try {
-            DEBUG("Trying to open " << *current_file << " with " << getNode().getName());
+            DEBUG("Trying to open " << *current_file << " with " << name());
             if ( *current_file != "" )
                 file.reset( static_cast<CRTP&>(*this).make_file(*current_file) );
             else
@@ -69,6 +69,12 @@ class FileInput
         current_file(o.current_file), file(o.file), error(o.error)
         { DEBUG("Copying file input " << &o << " to " << this); republish_traits(); }
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
+    std::string name() const 
+        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getName(); }
+    std::string description() const
+        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getDesc(); }
+    void registerNamedEntries( simparm::Node& n ) 
+        { n.push_back( static_cast<CRTP&>(*this).getNode() ); }
 };
 
 }

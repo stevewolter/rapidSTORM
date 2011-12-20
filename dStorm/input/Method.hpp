@@ -20,6 +20,14 @@ class Method
     BaseClass* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
     BaseSource* makeSource();
     typename BaseClass::AtEnd traits_changed( TraitsRef, Link* );
+    void registerNamedEntries( simparm::Node& node ) { 
+        BaseClass::registerNamedEntries( node );
+        node.push_back( static_cast<CRTP&>(*this).getNode() ); 
+    }
+    std::string name() const
+        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getName(); }
+    std::string description() const 
+        { return static_cast<simparm::Object&>(const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode()).getDesc(); }
 
   protected:
     typedef chain::DefaultTypes SupportedTypes;
@@ -104,7 +112,7 @@ BaseSource* Method<CRTP,BaseClass>::makeSource() {
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return orig.release();
     else
-        throw std::runtime_error(BaseClass::getNode().getName() + " cannot process input "
+        throw std::runtime_error(BaseClass::name() + " cannot process input "
             "of the current type");
 }
 

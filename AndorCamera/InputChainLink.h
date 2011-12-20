@@ -54,6 +54,9 @@ class Method
 
     simparm::Node& getNode() { return *this; }
     dStorm::input::BaseSource* makeSource() ;
+    void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
+    std::string name() const { return getName(); }
+    std::string description() const { return getDesc(); }
 
     bool uses_input_file() const { return false; }
 

@@ -20,6 +20,8 @@ struct Config::InputChainBase
         { chain::Link::traits_changed(t,l);
           return notify_of_trait_change(t); }
     BaseSource* makeSource() { return Forwarder::makeSource(); }
+    std::string name() const { return "InputChainBase"; }
+    std::string description() const { return "InputChainBase"; }
 };
 
 Config::Config()
@@ -27,7 +29,6 @@ Config::Config()
   method( join::create_link( std::auto_ptr<chain::Link>( new InputMethods() ) ) ),
   terminal_node( new InputChainBase() )
 {
-    push_back( method->getNode() );
     terminal_node->set_more_specialized_link_element( method.get() );
 }
 
@@ -36,7 +37,6 @@ Config::Config(const Config& c)
   method( c.method->clone() ),
   terminal_node( new InputChainBase(*c.terminal_node) )
 {
-    push_back( method->getNode() );
     terminal_node->set_more_specialized_link_element( method.get() );
 
     for ( boost::ptr_list<chain::Link>::const_iterator 
@@ -75,12 +75,8 @@ void Config::add_filter( std::auto_ptr<chain::Link> forwarder, bool front )
 
 
     if ( front ) {
-        simparm::Node::iterator i = this->begin();
-        while ( &*i != &forwards.front().getNode() ) ++i;
-        insert( i, forwarder->getNode() );
         forwards.push_front( forwarder );
     } else {
-        push_back( forwarder->getNode() );
         forwards.push_back( forwarder );
     }
 }

@@ -7,6 +7,7 @@
 #include <boost/units/io.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/Method.hpp>
+#include "dejagnu.h"
 
 namespace dStorm {
 namespace engine {
@@ -45,6 +46,7 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
+    ~ChainLink() {}
 
     simparm::Node& getNode() { return config; }
 
@@ -93,7 +95,18 @@ std::string ChainLink::amplitude_threshold_string() const
 std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link()
 {
-    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
+    std::auto_ptr<input::chain::Link> rv( new ChainLink( ) );
+            std::cerr << __FILE__ << ":" << rv.get() << std::endl;
+    return rv;
+}
+
+void unit_test( TestState& state ) {
+    std::auto_ptr<input::chain::Link> rv = make_rapidSTORM_engine_link();
+    rv.reset();
+    state.pass("Destruction of engine works");
+    rv.reset( make_rapidSTORM_engine_link()->clone() );
+    rv.reset();
+    state.pass("Destruction of engine works");
 }
 
 }

@@ -37,18 +37,14 @@ class Link {
 
     virtual BaseSource* makeSource() = 0;
     virtual Link* clone() const = 0;
-    virtual simparm::Node& getNode() = 0;
-    const simparm::Node& getNode() const { return const_cast<Link&>(*this).getNode(); }
-    std::string getName();
-
-    operator const simparm::Node&() const 
-        { return const_cast<Link*>(this)->getNode(); }
-    operator simparm::Node&() { return getNode(); }
+    virtual void registerNamedEntries( simparm::Node& ) = 0;
 
     TraitsRef current_traits() const { return meta_info; }
 
     typedef dStorm::InsertionPlace Place;
     virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
+    virtual std::string name() const = 0;
+    virtual std::string description() const = 0;
  
   protected:
     enum SetType { Add, Remove };

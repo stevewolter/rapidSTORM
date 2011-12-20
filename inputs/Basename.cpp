@@ -19,7 +19,7 @@ void Config::registerNamedEntries() {
 }
 
 ChainLink::ChainLink() 
-: input::chain::Filter(),
+: input::chain::Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
   default_output_basename(""),
   user_changed_output(false)
@@ -28,7 +28,7 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
-: input::chain::Filter(o),
+: input::chain::Forwarder(o),
   simparm::Listener( simparm::Event::ValueChanged ),
   traits(o.traits),
   default_output_basename(o.default_output_basename),

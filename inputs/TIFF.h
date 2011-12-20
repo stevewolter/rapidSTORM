@@ -114,7 +114,6 @@ namespace TIFF {
         ChainLink();
 
         ChainLink* clone() const { return new ChainLink(*this); }
-        simparm::Node& getNode() { return config; }
         BaseSource* makeSource();
 
       private:
@@ -122,6 +121,7 @@ namespace TIFF {
         friend class input::FileInput<ChainLink,OpenFile>;
         OpenFile* make_file( const std::string& ) const;
         void modify_meta_info( chain::MetaInfo& info );
+        simparm::Object& getNode() { return config; }
 
       protected:
         void operator()(const simparm::Event&);

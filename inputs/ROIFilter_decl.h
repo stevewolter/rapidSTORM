@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_ROIFILTER_DECL_H
 
 #include <memory>
-#include <dStorm/input/chain/Filter_decl.h>
+#include <dStorm/input/chain/Link_decl.h>
 
 namespace dStorm {
 namespace ROIFilter {

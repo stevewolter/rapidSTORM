@@ -20,12 +20,8 @@ FileMethod::FileMethod()
   children("FileType", "File type", true)
 {
     input_file.helpID = "InputFile";
-    children.helpID = "FileType";
+    children.set_help_id( "FileType" );
     DEBUG("Created file method");
-    push_back( input_file );
-    push_back( children );
-    children.set_auto_selection(false);
-    children.value = NULL;
     receive_changes_from( input_file.value );
     chain::Forwarder::set_more_specialized_link_element( &children );
 }
@@ -38,8 +34,6 @@ FileMethod::FileMethod(const FileMethod& o)
   children(o.children)
 {
     DEBUG("Copied file method " << this << " from " << &o);
-    push_back( input_file );
-    push_back( children );
     receive_changes_from( input_file.value );
     chain::Forwarder::set_more_specialized_link_element( &children );
 }
@@ -147,6 +141,7 @@ void FileMethod::unit_test( TestState& t ) {
                copy.current_traits()->provides<dStorm::engine::Image>() &&
                copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Copied file method can adapt to input file" );
+    file_method.input_file = "";
     t.testrun( copy.current_traits().get() && 
                copy.current_traits()->provides<dStorm::engine::Image>() &&
                copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,

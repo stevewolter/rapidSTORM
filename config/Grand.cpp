@@ -37,9 +37,9 @@ using namespace std;
 
 namespace boost {
     template <>
-    inline dStorm::input::chain::Filter* 
-    new_clone<dStorm::input::chain::Filter>
-        ( const dStorm::input::chain::Filter& o )
+    inline dStorm::input::chain::Link* 
+    new_clone<dStorm::input::chain::Link>
+        ( const dStorm::input::chain::Link& o )
         { return o.clone(); }
     template <>
     inline dStorm::engine::spot_finder::Factory* 
@@ -166,7 +166,10 @@ class GrandConfig::EngineChoice
     }
     Link* clone() const { return new EngineChoice(*this); }
 
-    simparm::Node& getNode() { return alternatives.getNode(); }
+    void registerNamedEntries( simparm::Node& n ) 
+        { alternatives.registerNamedEntries(n); }
+    std::string name() const { return alternatives.name(); }
+    std::string description() const { return alternatives.description(); }
 
     void add( std::auto_ptr<input::chain::Link> e ) {
         ost::MutexLock lock( input::global_mutex() );
@@ -302,7 +305,7 @@ void GrandConfig::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputBox.push_back( *outputRoot );
    push_back( inputConfig );
-   push_back( engine_choice->getNode() );
+   engine_choice->registerNamedEntries(*this);
    push_back( pistonCount );
    push_back( outputBox );
    push_back( configTarget );
@@ -323,6 +326,8 @@ void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> e
 }
 
 void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
+    static int count = 0;
+    std::cerr << __FILE__ << ":" << l.get() << " " << ++count << std::endl;
     if ( p == FileReader || p == InputMethod )
         _inputConfig->add_method( l, p );
     else if ( p == AsEngine )

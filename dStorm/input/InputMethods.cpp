@@ -9,8 +9,8 @@ namespace input {
 InputMethods::InputMethods()
 : Choice("InputMethod", "Input type", false)
 {
-    helpID = "InputType";
-    userLevel = simparm::Object::Intermediate;
+    choices.helpID = "InputType";
+    choices.userLevel = simparm::Object::Intermediate;
     add_choice( std::auto_ptr<Link>(new FileMethod()) );
 }
 
@@ -21,7 +21,6 @@ InputMethods::InputMethods(const InputMethods& o)
 
 InputMethods::~InputMethods()
 {
-    Choice::stop_receiving_changes_from(value);
 }
 
 void InputMethods::insert_new_node( std::auto_ptr<Link> l, Place p ) 

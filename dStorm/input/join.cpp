@@ -195,7 +195,13 @@ class Link
     AtEnd traits_changed( TraitsRef, chain::Link* );
 
     BaseSource* makeSource();
-    simparm::Node& getNode() { return *this; }
+    std::string name() const { return getName(); }
+    std::string description() const { return getDesc(); }
+    void registerNamedEntries( simparm::Node& n ) { 
+        for (unsigned i = 0; i < children.size(); ++i)
+            children[i].registerNamedEntries( connection_nodes[i] );
+        n.push_back(*this); 
+    }
 
     void insert_new_node( std::auto_ptr<chain::Link>, Place );
     operator const simparm::Node&() const { return *this; }
@@ -219,7 +225,6 @@ Link::Link( std::string name, std::string desc, std::auto_ptr<chain::Link> child
 
     input_traits.push_back( child->current_traits() );
     connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
-    connection_nodes[0].push_back( *child );
     channels.push_back(connection_nodes[0]);
     children.push_back( child );
     set_upstream_element( children.back(), *this, Add );
@@ -246,7 +251,6 @@ Link::Link( const Link& o )
 {
     assert( children.size() == connection_nodes.size() );
     for (size_t i = 0; i < children.size() ; ++i) {
-        connection_nodes[i].push_back(children[i]);
         channels.push_back(connection_nodes[i]);
         set_upstream_element( children[i], *this, Add );
     }
@@ -311,7 +315,7 @@ void Link::operator()(const simparm::Event& e) {
             children.push_back( children[0].clone() );
             std::string i = boost::lexical_cast<std::string>(children.size());
             connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
-            connection_nodes.back().push_back( children.back() );
+            children.back().registerNamedEntries( connection_nodes.back() );
             channels.push_back( connection_nodes.back() );
             input_traits.push_back( children.back().current_traits() );
             set_upstream_element( children.back(), *this, Add );

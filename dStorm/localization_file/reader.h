@@ -97,7 +97,7 @@ namespace Reader {
 
         virtual input::Source<localization::Record>* makeSource();
         virtual ChainLink* clone() const { return new ChainLink(*this); }
-        virtual simparm::Node& getNode() { return config; }
+        virtual simparm::Object& getNode() { return config; }
 
         static std::auto_ptr<Source> read_file( simparm::FileEntry& name, const input::Traits<localization::Record>& context );
 
