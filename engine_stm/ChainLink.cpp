@@ -18,6 +18,8 @@
 namespace dStorm {
 namespace engine_stm {
 
+using namespace input;
+
 class ChainLink : public input::Method< ChainLink >
 {
     friend class input::Method< ChainLink >;
@@ -27,22 +29,23 @@ class ChainLink : public input::Method< ChainLink >
     typedef boost::mpl::vector<output::LocalizedImage,localization::Record,dStorm::Localization>
         SupportedTypes;
     template <typename Type>
-    struct result { typedef output::LocalizedImage type; };
-    template <typename Type>
     bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
         { return true; }
-    void update_traits( chain::MetaInfo&, Traits<output::LocalizedImage>& ) {}
+    template <typename Type>
+    BaseTraits* create_traits( chain::MetaInfo&, const Traits<output::LocalizedImage>& p ) 
+        { return new Traits<output::LocalizedImage>(p); }
+    template <typename Type>
+    BaseTraits* create_traits( chain::MetaInfo&, const Traits<Type>& p ) 
+        { return new Traits<output::LocalizedImage>(p, "STM", "Localizations file"); }
 
     input::BaseSource* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > p ) 
         { return p.release(); }
     template <typename Type>
     input::BaseSource* make_source( std::auto_ptr< input::Source<Type> > p ) 
-        { return new Source<Type>( config, input ); }
+        { return new Source<Type>( config, p ); }
 
   public:
     simparm::Node& getNode() { return config; }
-
-    AtEnd traits_changed( TraitsRef r, Link* l );
 };
 
 std::auto_ptr<input::chain::Link>

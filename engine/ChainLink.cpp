@@ -6,9 +6,54 @@
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/units/io.hpp>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/input/Method.hpp>
 
 namespace dStorm {
 namespace engine {
+
+using namespace input;
+
+class ChainLink
+: protected simparm::Listener,
+  public input::Method< ChainLink, ClassicEngine >
+{
+    friend class input::Method< ChainLink, ClassicEngine >;
+    typedef boost::mpl::vector< engine::Image > SupportedTypes;
+
+    boost::shared_ptr< BaseTraits > 
+    create_traits( chain::MetaInfo& mi, 
+                const Traits<Image>& upstream )
+    {
+        boost::shared_ptr< input::Traits<output::LocalizedImage> >
+            rt = Engine::convert_traits(config, upstream);
+        mi.suggested_output_basename.set_variable
+            ( "thres", amplitude_threshold_string() );
+        return rt;
+    }
+    BaseSource* make_source( std::auto_ptr< Source<Image> > base ) 
+        { return new Engine( config, base ); }
+    Config config;
+
+    std::string amplitude_threshold_string() const;
+
+  protected:
+    void operator()( const simparm::Event& ) {
+        ost::MutexLock lock( input::global_mutex() );
+        republish_traits();
+    }
+
+  public:
+    ChainLink();
+    ChainLink(const ChainLink&);
+
+    simparm::Node& getNode() { return config; }
+
+    void add_spot_finder( spot_finder::Factory& finder) { config.spotFindingMethod.addChoice(finder); }
+    void add_spot_fitter( spot_fitter::Factory& fitter) { 
+        fitter.register_trait_changing_nodes(*this);
+        config.spotFittingMethod.addChoice(fitter); 
+    }
+};
 
 ChainLink::ChainLink() 
 : simparm::Listener( simparm::Event::ValueChanged )
@@ -19,15 +64,10 @@ ChainLink::ChainLink()
 }
 
 ChainLink::ChainLink(const ChainLink& c)
-: ClassicEngine(c),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  my_traits(c.my_traits), config(c.config)
+: simparm::Listener( simparm::Event::ValueChanged ),
+  Method<ChainLink,ClassicEngine>(c),
+  config(c.config)
 {
-    DEBUG("Traits were copied from " << c.my_traits.get() << "," << c.current_traits().get() << " to "
-            << my_traits.get() << "," << current_traits().get())
-    if ( my_traits.get() != NULL )
-        DEBUG("Basename after copying chain link is " << my_traits->suggested_output_basename << " or "
-              << my_traits->suggested_output_basename << " in my own traits");
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
@@ -40,16 +80,6 @@ ChainLink::ChainLink(const ChainLink& c)
     }
 }
 
-input::Source<output::LocalizedImage>*
-ChainLink::makeSource()
-{
-    std::auto_ptr<input::BaseSource> base( Forwarder::makeSource() );
-    if ( base->can_provide<engine::Image>() )
-        return new Engine( config, input::BaseSource::downcast<engine::Image>(base) );
-    else
-        throw std::runtime_error("rapidSTORM engine cannot process the provided input");
-}
-
 std::string ChainLink::amplitude_threshold_string() const
 {
     std::stringstream ss; 
@@ -60,62 +90,10 @@ std::string ChainLink::amplitude_threshold_string() const
     return ss.str();
 }
 
-ChainLink::AtEnd
-ChainLink::traits_changed(TraitsRef r, Link* l)
-{
-    Link::traits_changed(r, l);
-    upstream_traits = r;
-    make_new_traits();
-    return AtEnd();
-}
-
-void ChainLink::make_new_traits() {
-    if ( upstream_traits.get() == NULL ) {
-        notify_of_trait_change( upstream_traits );
-    } else {
-        if ( ! upstream_traits->provides< engine::Image>() ) {
-            my_traits.reset();
-            notify_of_trait_change(my_traits);
-            return;
-        }
-
-        boost::shared_ptr< input::Traits<output::LocalizedImage> >
-            rt = Engine::convert_traits(config, upstream_traits->traits<engine::Image>());
-
-        my_traits.reset( upstream_traits->clone() );
-        my_traits->set_traits(rt);
-        DEBUG("Setting traits variable thres for traits " << my_traits.get() << " and basename " << &my_traits->suggested_output_basename);
-        my_traits->suggested_output_basename.set_variable
-            ( "thres", amplitude_threshold_string() );
-        DEBUG("Basename is now " << my_traits->suggested_output_basename << " for my traits " << my_traits.get() );
-        notify_of_trait_change(my_traits);
-        DEBUG("Finished notifying, traits are " << my_traits.get() << " " << current_traits().get());
-    }
-}
-
 std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link()
 {
     return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
-}
-
-void ChainLink::operator()( const simparm::Event& e ) {
-    ost::MutexLock lock( input::global_mutex() );
-    if ( &e.source == &config.spotFindingMethod.value ) {
-        /* TODO: Only a context was published here. Are traits needed? */
-    } else if ( &e.source == &config.spotFittingMethod.value ) {
-        /* TODO: Only a context was published here. Are traits needed? */
-    } else if ( &e.source == &config.amplitude_threshold.value ) {
-        if ( my_traits.get() )
-            my_traits->suggested_output_basename.set_variable
-                ( "thres", amplitude_threshold_string() );
-        DEBUG("Basename is now " << my_traits->suggested_output_basename.new_basename() );
-        notify_of_trait_change( my_traits );
-    } else {
-        /* This else is called because some spot finder indicated that a
-         * value changed. */
-        make_new_traits();
-    }
 }
 
 }

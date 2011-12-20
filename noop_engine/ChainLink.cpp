@@ -3,73 +3,44 @@
 #include "ChainLink.h"
 #include "Engine.h"
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Filter_impl.h>
-#include <dStorm/input/chain/EngineHelpers.h>
+#include <dStorm/input/Method.hpp>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 
+#include <dStorm/input/Source.h>
+#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/output/LocalizedImage.h>
+
 namespace dStorm {
 namespace noop_engine {
 
-struct ChainLink::Config {
+using namespace input;
+
+class ChainLink
+: public simparm::Object,
+  public input::Method< ChainLink >
+{
+    friend class input::Method< ChainLink >;
     typedef boost::mpl::vector<dStorm::engine::Image> SupportedTypes;
-    Config() {}
-};
 
-ChainLink::Config ChainLink::get_config() { return Config(); }
+    boost::shared_ptr< Traits<output::LocalizedImage> >
+    create_traits( chain::MetaInfo& my_info,
+                   const Traits<engine::Image>& orig_traits ) 
+    {
+        return Engine::convert_traits(orig_traits);
+    }
 
-class ChainLink::Visitor {
+    BaseSource* make_source( std::auto_ptr< Source<engine::Image> > p )
+        { return new Engine(p); }
+
   public:
-    typedef boost::mpl::vector<engine::Image>
-        SupportedTypes;
+    ChainLink()
+        : simparm::Object("Noop", "Do not localize") {}
 
-    const Config& config;
-    typedef std::auto_ptr< input::Source<output::LocalizedImage> > SourceResult;
-    boost::shared_ptr<input::BaseTraits> new_traits;
-    SourceResult new_source;
-
-    Visitor(const Config& config ) : config(config) {}
-
-    template <typename Type>
-    bool operator()( input::Traits<Type>& source_traits ) { return true; }
-    template <typename Type>
-    bool operator()( const input::Traits<Type>& source_traits ) { 
-        new_traits = Engine::convert_traits( source_traits ); 
-        return true; 
-    }
-    bool operator()( std::auto_ptr< input::Source< engine::Image > > p )
-        { new_source.reset( new Engine(p) ); return true; }
-    template <typename Type>
-    bool operator()( std::auto_ptr< input::Source<Type> > p )
-        { throw std::runtime_error("No-op engine cannot work with this input"); }
-
-    bool operator()( input::chain::MetaInfo& ) { return true; }
-
-    bool unknown_trait(std::string trait_desc) const { return false; }
-    bool no_context_visited_is_ok() const { return true; }
-    void unknown_base_source() const {
-        throw std::runtime_error("No-op engine cannot process input of the given type");
-    }
+    simparm::Node& getNode() { return *this; }
 };
-
-ChainLink::ChainLink() 
-: simparm::Object("Noop", "Do not localize")
-{
-}
-
-input::BaseSource*
-ChainLink::makeSource()
-{
-    return input::chain::DelegateToVisitor::makeSource(*this);
-}
-
-ChainLink::AtEnd
-ChainLink::traits_changed(TraitsRef r, Link* l)
-{
-    return input::chain::DelegateToVisitor::traits_changed(*this,r,l);
-}
 
 std::auto_ptr<input::chain::Link>
 makeLink()

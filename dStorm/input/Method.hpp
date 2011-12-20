@@ -11,19 +11,21 @@
 namespace dStorm {
 namespace input {
 
-template <typename CRTP>
-struct Method
-: public chain::Forwarder
+template <typename CRTP, typename BaseClass = chain::Forwarder>
+class Method
+: public BaseClass
 {
-    chain::Forwarder* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
+    typedef boost::shared_ptr< const chain::MetaInfo > TraitsRef;
+    typedef chain::Link Link;
+    BaseClass* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
     BaseSource* makeSource();
-    AtEnd traits_changed( TraitsRef, Link* );
+    typename BaseClass::AtEnd traits_changed( TraitsRef, Link* );
 
   protected:
     typedef chain::DefaultTypes SupportedTypes;
     bool ignore_unknown_type() const { return false; }
     template <typename Type>
-    Source<Type>* make_source( std::auto_ptr< Source<Type> > ) {
+    BaseSource* make_source( std::auto_ptr< Source<Type> > ) {
         throw std::logic_error("Source creation not implemented");
     }
     template <typename Type>
@@ -32,18 +34,21 @@ struct Method
     template <typename Type>
     void notice_traits( const chain::MetaInfo&, const Traits<Type>& ) {}
     template <typename Type>
-    inline void update_traits( chain::MetaInfo&, Traits<Type>& ) {
+    void update_traits( chain::MetaInfo&, Traits<Type>& ) {
         throw std::logic_error("Trait update not implemented");
     }
-
     template <typename Type>
-    struct result {
-        typedef Type type;
-    };
+    BaseTraits* create_traits( chain::MetaInfo& my_info,
+                               const Traits<Type>& orig_traits ) 
+    {
+        std::auto_ptr< Traits<Type> > my_traits( new Traits<Type>(orig_traits) );
+        static_cast<CRTP&>(*this).update_traits( my_info, *my_traits );
+        return my_traits.release();
+    }
 
     void republish_traits() { 
-        if ( upstream_traits().get() )
-            traits_changed( chain::Forwarder::upstream_traits(), NULL ); 
+        if ( BaseClass::upstream_traits().get() )
+            traits_changed( BaseClass::upstream_traits(), NULL ); 
     }
   private:
     typedef std::auto_ptr<BaseSource> Src;
@@ -51,11 +56,11 @@ struct Method
     struct make_traits;
 };
 
-template <typename CRTP>
-struct Method<CRTP>::make_traits {
+template <typename CRTP, typename BaseClass>
+struct Method<CRTP,BaseClass>::make_traits {
     typedef void result_type;
     template <typename Type>
-    void operator()( Method<CRTP>& me, Type, TraitsRef orig, TraitsRef& result)
+    void operator()( Method<CRTP,BaseClass>& me, Type, TraitsRef orig, TraitsRef& result)
     {
         if ( result.get() ) return;
         if ( orig->provides<Type>() ) {
@@ -64,10 +69,7 @@ struct Method<CRTP>::make_traits {
             static_cast<CRTP&>(me).notice_traits( *orig, *orig_traits );
             if ( static_cast<CRTP&>(me).changes_traits( *orig, *orig_traits ) ) {
                 boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
-                typedef input::Traits< typename CRTP::template result<Type>::type > Result;
-                boost::shared_ptr< Result > my_traits( new Result(*orig_traits) );
-                static_cast<CRTP&>(me).update_traits( *my_info, *my_traits );
-                my_info->set_traits( my_traits );
+                my_info->set_traits( static_cast<CRTP&>(me).create_traits( *my_info, *orig_traits ) );
                 result = my_info;
             } else {
                 result = orig;
@@ -76,11 +78,11 @@ struct Method<CRTP>::make_traits {
     }
 };
 
-template <typename CRTP>
-struct Method<CRTP>::source_maker {
+template <typename CRTP, class BaseClass>
+struct Method<CRTP,BaseClass>::source_maker {
     typedef void result_type;
     template <typename Type>
-    void operator()( Method<CRTP>& me, Type, Src& orig, Src& result) const
+    void operator()( Method<CRTP,BaseClass>& me, Type, Src& orig, Src& result) const
     {
         if ( result.get() ) return;
         Source<Type>* test = dynamic_cast< Source<Type>* >(orig.get());
@@ -91,9 +93,9 @@ struct Method<CRTP>::source_maker {
     }
 };
 
-template <typename CRTP>
-BaseSource* Method<CRTP>::makeSource() {
-    Src orig( Forwarder::makeSource() ), result;
+template <typename CRTP, class BaseClass>
+BaseSource* Method<CRTP,BaseClass>::makeSource() {
+    Src orig( BaseClass::makeSource() ), result;
     boost::mpl::for_each< typename CRTP::SupportedTypes >(
         boost::bind( source_maker(), boost::ref(*this), _1, boost::ref(orig),
                      boost::ref(result) ) );
@@ -102,12 +104,12 @@ BaseSource* Method<CRTP>::makeSource() {
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return orig.release();
     else
-        throw std::runtime_error(getNode().getName() + " cannot process input "
+        throw std::runtime_error(BaseClass::getNode().getName() + " cannot process input "
             "of the current type");
 }
 
-template <typename CRTP>
-chain::Link::AtEnd Method<CRTP>::traits_changed( TraitsRef orig, Link* ) {
+template <typename CRTP, class BaseClass>
+typename BaseClass::AtEnd Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
     TraitsRef result;
     if ( orig.get() )
         boost::mpl::for_each< typename CRTP::SupportedTypes >(

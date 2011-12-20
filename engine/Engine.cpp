@@ -58,9 +58,9 @@ Engine::~Engine() {
 }
 
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
-Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<engine::Image> > imProp )
+Engine::convert_traits( Config& config, const input::Traits<engine::Image>& imProp )
 {
-    input::Traits<Localization> rv( *imProp );
+    input::Traits<Localization> rv( imProp );
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_initialized() )
@@ -71,24 +71,24 @@ Engine::convert_traits( Config& config, boost::shared_ptr< const input::Traits<e
     rvt->source_image_is_set = true;
     rvt->smoothed_image_is_set = true;
     rvt->candidate_tree_is_set = true;
-    rvt->input_image_traits.reset( imProp->clone() );
+    rvt->input_image_traits.reset( imProp.clone() );
 
     DEBUG("Setting traits from spot fitter");
-    for (unsigned int fluorophore = 0; fluorophore < imProp->fluorophores.size(); ++fluorophore) {
+    for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
         DEBUG("Constructing spot fitting info");
         JobInfo info(config.fitSizeFactor(), 
             ( config.amplitude_threshold().is_initialized() ) ? *config.amplitude_threshold() 
                                                       : 0 * boost::units::camera::ad_count,
-            *imProp, fluorophore);
+            imProp, fluorophore);
         DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
         config.spotFittingMethod().set_traits( *rvt, info );
         DEBUG("Finished setting traits, info now at " << &info);
     }
     DEBUG("Returning traits");
 
-    rvt->fluorophore().is_given = imProp->fluorophores.size() > 1;
+    rvt->fluorophore().is_given = imProp.fluorophores.size() > 1;
     rvt->fluorophore().range().first = 0;
-    rvt->fluorophore().range().second = imProp->fluorophores.size() - 1;
+    rvt->fluorophore().range().second = imProp.fluorophores.size() - 1;
 
     return rvt;
 }
@@ -125,7 +125,7 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
     }
 
     input::Traits<output::LocalizedImage>::Ptr prv =
-        convert_traits(config, imProp);
+        convert_traits(config, *imProp);
     prv->carburettor = input.get();
     prv->image_number().is_given = true;
     prv->engine = this;

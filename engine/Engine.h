@@ -55,7 +55,7 @@ namespace engine {
         Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
-            convert_traits( Config&, boost::shared_ptr< const input::Traits<engine::Image> > );
+            convert_traits( Config&, const input::Traits<engine::Image>& );
 
         void restart();
         void stop();
