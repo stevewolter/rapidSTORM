@@ -36,6 +36,11 @@ struct Method
         throw std::logic_error("Trait update not implemented");
     }
 
+    template <typename Type>
+    struct result {
+        typedef Type type;
+    };
+
     void republish_traits() { 
         if ( upstream_traits().get() )
             traits_changed( chain::Forwarder::upstream_traits(), NULL ); 
@@ -59,7 +64,8 @@ struct Method<CRTP>::make_traits {
             static_cast<CRTP&>(me).notice_traits( *orig, *orig_traits );
             if ( static_cast<CRTP&>(me).changes_traits( *orig, *orig_traits ) ) {
                 boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
-                boost::shared_ptr< Traits<Type> > my_traits( new Traits<Type>(*orig_traits) );
+                typedef input::Traits< typename CRTP::template result<Type>::type > Result;
+                boost::shared_ptr< Result > my_traits( new Result(*orig_traits) );
                 static_cast<CRTP&>(me).update_traits( *my_info, *my_traits );
                 my_info->set_traits( my_traits );
                 result = my_info;

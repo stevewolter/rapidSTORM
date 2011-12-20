@@ -29,7 +29,7 @@ struct Traits<output::LocalizedImage>
         : carburettor(NULL), engine(NULL), name(name), description(description) {}
     Traits( 
         const Traits<Localization>& traits,
-        const std::string& name, const std::string& description,
+        const std::string& name = "", const std::string& description = "",
         dStorm::engine::Input* carburettor = NULL,
         Engine *engine = NULL);
     ~Traits();

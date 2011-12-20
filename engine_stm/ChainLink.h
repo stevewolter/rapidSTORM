@@ -3,29 +3,10 @@
 
 #include "ChainLink_decl.h"
 #include "Config.h"
-#include <dStorm/input/chain/Filter.h>
-#include <dStorm/input/Source.h>
-#include <dStorm/output/LocalizedImage.h>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <dStorm/input/chain/Link.h>
 
 namespace dStorm {
 namespace engine_stm {
-
-class ChainLink : public input::chain::Filter
-{
-    class Visitor;
-    friend class input::chain::DelegateToVisitor;
-    Config config;
-    Config& get_config() { return config; }
-
-  public:
-    ChainLink* clone() const { return new ChainLink(*this); }
-
-    simparm::Node& getNode() { return config; }
-
-    input::BaseSource* makeSource() ;
-    AtEnd traits_changed( TraitsRef r, Link* l );
-};
 
 }
 }
