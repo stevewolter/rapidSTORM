@@ -198,8 +198,7 @@ class Link
     std::string name() const { return getName(); }
     std::string description() const { return getDesc(); }
     void registerNamedEntries( simparm::Node& n ) { 
-        for (unsigned i = 0; i < children.size(); ++i)
-            children[i].registerNamedEntries( connection_nodes[i] );
+        children[0].registerNamedEntries( connection_nodes[0] );
         n.push_back(*this); 
     }
 

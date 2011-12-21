@@ -304,7 +304,6 @@ GrandConfig::~GrandConfig() {
 void GrandConfig::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputBox.push_back( *outputRoot );
-   push_back( inputConfig );
    engine_choice->registerNamedEntries(*this);
    push_back( pistonCount );
    push_back( outputBox );
@@ -326,8 +325,6 @@ void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> e
 }
 
 void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
-    static int count = 0;
-    std::cerr << __FILE__ << ":" << l.get() << " " << ++count << std::endl;
     if ( p == FileReader || p == InputMethod )
         _inputConfig->add_method( l, p );
     else if ( p == AsEngine )

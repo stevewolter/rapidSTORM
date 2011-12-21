@@ -22,6 +22,7 @@ class Alternatives
     void set_more_specialized_link_element( Link* );
     void add_choice( std::auto_ptr<Link> );
     void insert_new_node( std::auto_ptr<Link> link, Place p );
+    void registerNamedEntries( simparm::Node& );
 };
 
 }

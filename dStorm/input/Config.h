@@ -26,7 +26,6 @@
 namespace dStorm {
 namespace input {
     class Config
-    : public simparm::Set
     {
         boost::ptr_list<chain::Link> forwards;
 

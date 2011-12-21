@@ -15,6 +15,9 @@ namespace input {
 struct Config::InputChainBase 
 : public chain::Forwarder
 {
+    simparm::Set input_config;
+    InputChainBase() : input_config("Input", "Input options") {}
+
     InputChainBase* clone() const { return new InputChainBase(); }
     AtEnd traits_changed( TraitsRef t, Link* l ) 
         { chain::Link::traits_changed(t,l);
@@ -22,19 +25,21 @@ struct Config::InputChainBase
     BaseSource* makeSource() { return Forwarder::makeSource(); }
     std::string name() const { return "InputChainBase"; }
     std::string description() const { return "InputChainBase"; }
+    void registerNamedEntries( simparm::Node& node ) {
+        chain::Forwarder::registerNamedEntries( input_config );
+        node.push_back( input_config );
+    }
 };
 
 Config::Config()
-: simparm::Set("Input", "Input options"),
-  method( join::create_link( std::auto_ptr<chain::Link>( new InputMethods() ) ) ),
+: method( join::create_link( std::auto_ptr<chain::Link>( new InputMethods() ) ) ),
   terminal_node( new InputChainBase() )
 {
     terminal_node->set_more_specialized_link_element( method.get() );
 }
 
 Config::Config(const Config& c)
-: simparm::Set(c),
-  method( c.method->clone() ),
+: method( c.method->clone() ),
   terminal_node( new InputChainBase(*c.terminal_node) )
 {
     terminal_node->set_more_specialized_link_element( method.get() );
@@ -80,12 +85,6 @@ void Config::add_filter( std::auto_ptr<chain::Link> forwarder, bool front )
         forwards.push_back( forwarder );
     }
 }
-
-#if 0
-simparm::Attribute<std::string>& Config::input_file() {
-    return file_method->input_file.value;
-}
-#endif
 
 chain::Link& Config::get_link_element() {
     return *terminal_node;

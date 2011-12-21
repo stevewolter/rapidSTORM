@@ -96,7 +96,6 @@ std::auto_ptr<input::chain::Link>
 make_rapidSTORM_engine_link()
 {
     std::auto_ptr<input::chain::Link> rv( new ChainLink( ) );
-            std::cerr << __FILE__ << ":" << rv.get() << std::endl;
     return rv;
 }
 

@@ -89,8 +89,6 @@ BaseSource* Choice::makeSource() {
 Choice* Choice::clone() const 
     { return new Choice(*this); }
 void Choice::registerNamedEntries( simparm::Node& node ) {
-    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
-        i->registerNamedEntries();
     node.push_back( *this );
 }
 

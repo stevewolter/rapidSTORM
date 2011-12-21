@@ -39,6 +39,15 @@ class Alternatives::UpstreamCollector
         }
         return rv;
     }
+
+    void registerNamedEntries( simparm::Node& ) {
+        /* Do not register any sub-nodes. This method is called from one of the
+         * alternatives, and we would register once for each alternative. */
+    }
+    void registerSubEntries( simparm::Node& node ) {
+        Forwarder::registerNamedEntries(node);
+    }
+
     std::string name() const { return "EngineUpstreamCollector"; }
     std::string description() const { return "Engine choice upstream collector"; }
 };
@@ -72,6 +81,11 @@ void Alternatives::add_choice( std::auto_ptr<Link> choice )
 void Alternatives::insert_new_node( std::auto_ptr<Link> link, Place p )
 {
     collector->insert_new_node(link,p);
+}
+
+void Alternatives::registerNamedEntries( simparm::Node& node ) {
+    collector->registerSubEntries(node);
+    Choice::registerNamedEntries(node);
 }
 
 }
