@@ -274,10 +274,12 @@ libcode_la_SOURCES = \
 
 libcode_la_SOURCES += \
     dStorm/input/FileMethod.h dStorm/input/FileMethod.cpp \
-    dStorm/input/Config.cpp dStorm/output/Config.h \
-    dStorm/input/Config_decl.h dStorm/input/Config.h \
+    dStorm/output/Config.h \
     dStorm/input/InputMethods.h dStorm/input/InputMethods.cpp \
-    config/Grand.h config/Grand.cpp 
+    config/Grand.h config/Grand.cpp  \
+    config/EngineChoice.cpp config/EngineChoice.h \
+    config/InputBase.cpp config/InputBase.h \
+    config/InsertionPoint.cpp config/InsertionPoint.h
 
 libcode_la_SOURCES += \
 	inputs/TIFF.cpp \

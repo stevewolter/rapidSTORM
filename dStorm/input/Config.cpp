@@ -12,25 +12,6 @@
 namespace dStorm {
 namespace input {
 
-struct Config::InputChainBase 
-: public chain::Forwarder
-{
-    simparm::Set input_config;
-    InputChainBase() : input_config("Input", "Input options") {}
-
-    InputChainBase* clone() const { return new InputChainBase(); }
-    AtEnd traits_changed( TraitsRef t, Link* l ) 
-        { chain::Link::traits_changed(t,l);
-          return notify_of_trait_change(t); }
-    BaseSource* makeSource() { return Forwarder::makeSource(); }
-    std::string name() const { return "InputChainBase"; }
-    std::string description() const { return "InputChainBase"; }
-    void registerNamedEntries( simparm::Node& node ) {
-        chain::Forwarder::registerNamedEntries( input_config );
-        node.push_back( input_config );
-    }
-};
-
 Config::Config()
 : method( join::create_link( std::auto_ptr<chain::Link>( new InputMethods() ) ) ),
   terminal_node( new InputChainBase() )

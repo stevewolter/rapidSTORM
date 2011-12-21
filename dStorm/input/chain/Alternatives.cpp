@@ -40,16 +40,27 @@ class Alternatives::UpstreamCollector
         return rv;
     }
 
-    void registerNamedEntries( simparm::Node& ) {
-        /* Do not register any sub-nodes. This method is called from one of the
-         * alternatives, and we would register once for each alternative. */
-    }
-    void registerSubEntries( simparm::Node& node ) {
-        Forwarder::registerNamedEntries(node);
-    }
+    std::string name() const { throw std::logic_error("Not implemented"); }
+    std::string description() const { throw std::logic_error("Not implemented"); }
+};
 
-    std::string name() const { return "EngineUpstreamCollector"; }
-    std::string description() const { return "Engine choice upstream collector"; }
+class Alternatives::UpstreamLink
+: public Link 
+{
+    UpstreamCollector& collector;
+
+  public:
+    UpstreamLink( UpstreamCollector& collector ) : collector(collector) {}
+    /** This clone() implementation returns no object. The new upstream links
+     *  are inserted by the Alternatives class. */
+    UpstreamLink* clone() const { return NULL; }
+    void registerNamedEntries( simparm::Node& ) {}
+    std::string name() const { throw std::logic_error("Not implemented"); }
+    std::string description() const { throw std::logic_error("Not implemented"); }
+    BaseSource* makeSource() { return collector.makeSource(); }
+    AtEnd traits_changed( TraitsRef, Link* ) { /* TODO: This method should be used for traits injection. */
+       throw std::logic_error("Not implemented"); }
+    void insert_new_node( std::auto_ptr<Link>, Place ) { throw std::logic_error("Not implemented"); }
 };
 
 Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
@@ -61,20 +72,16 @@ Alternatives::Alternatives(const Alternatives& o)
 : Choice(o), collector( new UpstreamCollector(*this, *o.collector) )
 {
     for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
-        dynamic_cast<Forwarder&>(i->link()).more_specialized = collector.get();
+        i->link().insert_new_node( std::auto_ptr< Link >(new UpstreamLink(*collector) ), Anywhere );
     }
 }
 
 Alternatives::~Alternatives() {
 }
 
-void Alternatives::set_more_specialized_link_element( Link* l ) {
-    collector->set_more_specialized_link_element( l );
-}
-    
 void Alternatives::add_choice( std::auto_ptr<Link> choice ) 
 {
-    dynamic_cast<Forwarder&>(*choice).more_specialized = collector.get();
+    choice->insert_new_node( std::auto_ptr< Link >(new UpstreamLink(*collector) ), Anywhere );
     Choice::add_choice(choice);
 }
 
@@ -84,7 +91,7 @@ void Alternatives::insert_new_node( std::auto_ptr<Link> link, Place p )
 }
 
 void Alternatives::registerNamedEntries( simparm::Node& node ) {
-    collector->registerSubEntries(node);
+    collector->registerNamedEntries(node);
     Choice::registerNamedEntries(node);
 }
 

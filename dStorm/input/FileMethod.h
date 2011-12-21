@@ -18,7 +18,6 @@ class FileMethod
   protected simparm::Listener
 {
     simparm::FileEntry input_file;
-    chain::Choice children;
 
   protected:
     void operator()( const simparm::Event& );
@@ -33,7 +32,7 @@ class FileMethod
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 
         this->push_back( input_file );
-        children.registerNamedEntries(*this);
+        chain::Forwarder::registerNamedEntries(*this);
         node.push_back( *this );
     }
     std::string name() const { return getName(); }

@@ -187,7 +187,7 @@ class Link
     virtual void operator()(const simparm::Event&);
 
   public:
-    Link( std::string name, std::string desc, std::auto_ptr<chain::Link> child );
+    Link();
     Link( const Link& );
     ~Link();
     Link* clone() const { return new Link(*this); }
@@ -207,7 +207,7 @@ class Link
     operator simparm::Node&() { return *this; }
 };
 
-Link::Link( std::string name, std::string desc, std::auto_ptr<chain::Link> child )
+Link::Link()
 : simparm::Object("MultiChannel", "Multi-channel input"),
   simparm::Listener( simparm::Event::ValueChanged ),
   channels("Channels", "Channels"),
@@ -222,10 +222,6 @@ Link::Link( std::string name, std::string desc, std::auto_ptr<chain::Link> child
     push_back( channels );
     push_back( join_type );
 
-    input_traits.push_back( child->current_traits() );
-    connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
-    channels.push_back(connection_nodes[0]);
-    children.push_back( child );
     set_upstream_element( children.back(), *this, Add );
     join_type.addChoice( new StrategistImplementation< spatial_tag<0> >() );
     join_type.addChoice( new StrategistImplementation< spatial_tag<1> >() );
@@ -295,9 +291,16 @@ BaseSource* Link::makeSource() {
 }
 
 void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
-    for (size_t i = 1; i < children.size(); ++i)
-        children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ), p );
-    children[0].insert_new_node(l,p);
+    if ( children.size() == 0 ) {
+        input_traits.push_back( l->current_traits() );
+        connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
+        channels.push_back(connection_nodes[0]);
+        children.push_back( l );
+    } else {
+        for (size_t i = 1; i < children.size(); ++i)
+            children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ), p );
+        children[0].insert_new_node(l,p);
+    }
 }
 
 void Link::operator()(const simparm::Event& e) {
@@ -332,9 +335,9 @@ void Link::operator()(const simparm::Event& e) {
     }
 }
 
-std::auto_ptr<chain::Link> create_link( std::auto_ptr<chain::Link> child )
+std::auto_ptr<chain::Link> create_link()
 {
-    return std::auto_ptr<chain::Link>( new Link("MultiChannel", "Multi-channel input", child) );
+    return std::auto_ptr<chain::Link>( new Link() );
 }
 
 }

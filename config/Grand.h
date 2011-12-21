@@ -3,7 +3,7 @@
 
 #include <dStorm/Config.h>
 #include <dStorm/output/Config.h>
-#include <dStorm/input/Config.h>
+#include <dStorm/input/chain/Link.h>
 #include <memory>
 #include <list>
 #include <simparm/Set.hh>
@@ -12,6 +12,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/Entry.hh>
 #include <boost/ptr_container/ptr_list.hpp>
+#include "EngineChoice.h"
 
 namespace dStorm {
     namespace output { class OutputSource; }
@@ -21,16 +22,16 @@ namespace dStorm {
     class GrandConfig : public simparm::Set, public Config
     {
       private:
+        friend class EngineChoice;
         class TreeRoot;
         class InputListener;
-        class EngineChoice;
 
-        std::auto_ptr<input::Config> _inputConfig;
         std::auto_ptr<TreeRoot> outputRoot;
         std::auto_ptr<InputListener> input_listener;
-        std::auto_ptr<EngineChoice> engine_choice;
+        std::auto_ptr<IEngineChoice> engine_choice;
 
         void registerNamedEntries();
+        void traits_changed( const input::chain::MetaInfo& );
 
       public:
         GrandConfig();
@@ -38,7 +39,6 @@ namespace dStorm {
         ~GrandConfig();
         GrandConfig *clone() const { return new GrandConfig(*this); }
 
-        input::Config& inputConfig;
         output::OutputSource& outputSource;
         output::Config& outputConfig;
 

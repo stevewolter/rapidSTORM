@@ -150,12 +150,14 @@ struct Check {
     }
 
     int do_check() {
-        MoreSpecialized m;
-        input::resolution::ChainLink l;
+        std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
+        MoreSpecialized& m(*ms);
+        std::auto_ptr<input::resolution::ChainLink> ls( new input::resolution::ChainLink() );
+        input::resolution::ChainLink& l(*ls);
         LessSpecialized s;
 
-        s.set_more_specialized_link_element( &l );
-        l.set_more_specialized_link_element( &m );
+        s.insert_new_node( std::auto_ptr<input::chain::Link>(ls), Anywhere );
+        s.insert_new_node( std::auto_ptr<input::chain::Link>(ms), Anywhere );
 
         dStorm::input::Traits< dStorm::engine::Image > correct;
         l.config.set_traits( correct );

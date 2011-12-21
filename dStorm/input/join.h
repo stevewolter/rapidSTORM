@@ -8,7 +8,7 @@ namespace dStorm {
 namespace input {
 namespace join {
 
-std::auto_ptr<chain::Link> create_link( std::auto_ptr<chain::Link> child );
+std::auto_ptr<chain::Link> create_link();
 
 }
 }

@@ -7,21 +7,23 @@ namespace dStorm {
 namespace input {
 namespace chain {
 
-struct Forwarder : public Link {
-    Link *more_specialized;
+class Forwarder : public Link {
+    std::auto_ptr<Link> more_specialized;
   public:
     Forwarder();
     Forwarder(const Forwarder&);
-    Forwarder(Link& more_specialized);
     ~Forwarder();
-    void set_more_specialized_link_element(Link* l);
 
     virtual Forwarder* clone() const = 0;
-    virtual BaseSource* makeSource() = 0;
-    virtual AtEnd traits_changed( TraitsRef, Link* ) = 0;
+    virtual BaseSource* makeSource();
+    virtual AtEnd traits_changed( TraitsRef, Link* );
     void insert_new_node( std::auto_ptr<Link>, Place );
     void registerNamedEntries( simparm::Node& );
+    std::string name() const;
+    std::string description() const;
 
+  protected:
+    void insert_here( std::auto_ptr<Link> );
     TraitsRef upstream_traits() const;
 };
 

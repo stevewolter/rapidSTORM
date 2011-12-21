@@ -16,26 +16,24 @@ FileMethod::FileMethod()
 : simparm::Set("FileMethod", "File"),
   chain::Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
-  input_file("InputFile", "Input file"),
-  children("FileType", "File type", true)
+  input_file("InputFile", "Input file")
 {
     input_file.helpID = "InputFile";
-    children.set_help_id( "FileType" );
+    /* TODO: children.set_help_id( "FileType" ); */
     DEBUG("Created file method");
     receive_changes_from( input_file.value );
-    chain::Forwarder::set_more_specialized_link_element( &children );
+    chain::Forwarder::insert_here( 
+        std::auto_ptr<Link>( new Choice("FileType", "File type", true) ) );
 }
 
 FileMethod::FileMethod(const FileMethod& o)
 : simparm::Set(o),
   chain::Forwarder(o),
   simparm::Listener( simparm::Event::ValueChanged ),
-  input_file(o.input_file),
-  children(o.children)
+  input_file(o.input_file)
 {
     DEBUG("Copied file method " << this << " from " << &o);
     receive_changes_from( input_file.value );
-    chain::Forwarder::set_more_specialized_link_element( &children );
 }
 
 FileMethod::~FileMethod() {}
@@ -77,7 +75,7 @@ Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
     traits->get_signal< InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
-    if ( this->more_specialized->current_traits() != traits )
+    if ( upstream_traits() != traits )
         return Link::AtEnd();
 
     boost::shared_ptr<chain::MetaInfo> my_traits( new chain::MetaInfo(*traits) );

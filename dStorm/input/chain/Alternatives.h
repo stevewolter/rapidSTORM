@@ -11,6 +11,7 @@ class Alternatives
 : public Choice 
 {
     class UpstreamCollector;
+    class UpstreamLink;
     std::auto_ptr<UpstreamCollector> collector;
 
   public:

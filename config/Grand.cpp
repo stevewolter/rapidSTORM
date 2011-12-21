@@ -3,23 +3,24 @@
 #include "config.h"
 #endif
 #include "debug.h"
-#include "config/Grand.h"
-#include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/engine/SpotFinder.h>
-#include <dStorm/input/Config.h>
+#include "Grand.h"
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/SourceFactory.h>
 #include <dStorm/output/Basename.h>
-#include <dStorm/engine/ClassicEngine.h>
 #include <dStorm/Engine.h>
 
 #include <dStorm/helpers/thread.h>
 #include <sstream>
 
-#include <simparm/ChoiceEntry_Impl.hh>
 #include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Alternatives.h>
 #include <dStorm/input/InputMutex.h>
+
+#include "EngineChoice.h"
+#include "InsertionPoint.h"
+#include "InputBase.h"
+#include <dStorm/input/InputMethods.h>
+#include <dStorm/input/FileMethod.h>
+#include <dStorm/input/join.h>
 
 #include <cassert>
 
@@ -35,25 +36,8 @@
 
 using namespace std;
 
-namespace boost {
-    template <>
-    inline dStorm::input::chain::Link* 
-    new_clone<dStorm::input::chain::Link>
-        ( const dStorm::input::chain::Link& o )
-        { return o.clone(); }
-    template <>
-    inline dStorm::engine::spot_finder::Factory* 
-    new_clone<dStorm::engine::spot_finder::Factory>
-        ( const dStorm::engine::spot_finder::Factory& o )
-        { return o.clone(); }
-    template <>
-    inline dStorm::engine::spot_fitter::Factory* 
-    new_clone<dStorm::engine::spot_fitter::Factory>
-        ( const dStorm::engine::spot_fitter::Factory& o )
-        { return o.clone(); }
-}
-
 namespace dStorm {
+
 
 class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
@@ -88,126 +72,6 @@ class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSourc
     }
 };
 
-class GrandConfig::EngineChoice
-: input::chain::Link {
-    TraitsRef current_traits;
-    input::chain::Alternatives alternatives;
-    boost::ptr_list<engine::spot_finder::Factory> finders;
-    boost::ptr_list<engine::spot_fitter::Factory> fitters;
-
-    std::list<engine::ClassicEngine*> classic_engines;
-
-    TreeRoot* outputRoot;
-
-    template <typename Type>
-    void clone( const boost::ptr_list<Type>& l ) {
-        typedef typename boost::ptr_list<Type>::const_iterator const_iterator;
-        for ( const_iterator i = l.begin(); i != l.end(); ++i )
-            add( std::auto_ptr<Type>( i->clone() ) );
-    }
-
-    AtEnd traits_changed( TraitsRef traits, input::chain::Link* el ) {
-        DEBUG("Traits for input chain base changed to " << traits.get());
-        assert( el == &alternatives );
-        if ( traits.get() == NULL ) return AtEnd();
-
-        DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
-        output::Basename bn( traits->suggested_output_basename );
-        bn.set_variable("run", "snapshot");
-        
-        DEBUG("Got new basename " << bn << " for config " << this);
-        outputRoot->set_output_file_basename( bn );
-        if ( traits->provides<output::LocalizedImage>() ) 
-        {
-            outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
-        }
-
-        std::string filename = bn.new_basename();
-        current_traits = traits;
-        return AtEnd();
-    }
-
-  public:
-    EngineChoice(GrandConfig& config) 
-        : alternatives("Engine", "Choose engine", true)
-    {
-        assert( config.outputRoot.get() );
-        outputRoot = config.outputRoot.get();
-
-        ost::MutexLock lock( input::global_mutex() );
-        alternatives.set_more_specialized_link_element( 
-            &config._inputConfig->get_link_element() );
-
-        Link::set_upstream_element( alternatives, *this, Add );
-    }
-    EngineChoice(const EngineChoice& o, GrandConfig& config) 
-    : alternatives(o.alternatives),
-      finders(o.finders),
-      fitters(o.fitters)
-    {
-        DEBUG("Copied config to " << this);
-        assert( config.outputRoot.get() );
-        outputRoot = config.outputRoot.get();
-
-        traits_changed( alternatives.current_traits(), &alternatives );
-
-        ost::MutexLock lock( input::global_mutex() );
-        alternatives.set_more_specialized_link_element( 
-            &config._inputConfig->get_link_element() );
-
-        Link::set_upstream_element( alternatives, *this, Add );
-    }
-    ~EngineChoice() {
-    }
-
-    input::BaseSource* makeSource() { 
-        ost::MutexLock lock( input::global_mutex() );
-        return alternatives.makeSource(); 
-    }
-    Link* clone() const { return new EngineChoice(*this); }
-
-    void registerNamedEntries( simparm::Node& n ) 
-        { alternatives.registerNamedEntries(n); }
-    std::string name() const { return alternatives.name(); }
-    std::string description() const { return alternatives.description(); }
-
-    void add( std::auto_ptr<input::chain::Link> e ) {
-        ost::MutexLock lock( input::global_mutex() );
-        engine::ClassicEngine* ce = dynamic_cast<engine::ClassicEngine*>(e.get());
-        if ( ce != NULL ) classic_engines.push_back(ce);
-        alternatives.add_choice( e );
-    }
-
-    void add( std::auto_ptr<engine::spot_finder::Factory> s ) {
-        ost::MutexLock lock( input::global_mutex() );
-        for ( std::list<engine::ClassicEngine*>::iterator 
-              i = classic_engines.begin(); i != classic_engines.end(); ++i )
-            (*i)->add_spot_finder( *s );
-        finders.push_back(s);
-    }
-
-    void add( std::auto_ptr<engine::spot_fitter::Factory> s ) {
-        ost::MutexLock lock( input::global_mutex() );
-        for ( std::list<engine::ClassicEngine*>::iterator 
-              i = classic_engines.begin(); i != classic_engines.end(); ++i )
-            (*i)->add_spot_fitter( *s );
-        fitters.push_back(s);
-    }
-
-    const input::chain::MetaInfo& get_meta_info() {
-        if ( current_traits.get() ) {
-            DEBUG("Returning meta info " << current_traits.get() << " for engine");
-            return *current_traits;
-        } else {
-            throw std::runtime_error("No usable configuration was found");
-        }
-    }
-
-    void insert_new_node( std::auto_ptr<Link> link, Place p ) {
-        alternatives.insert_new_node(link,p);
-    }
-};
-
 GrandConfig::TreeRoot::TreeRoot()
 : simparm::Object("EngineOutput", "dSTORM engine output"),
   output::FilterSource( static_cast<simparm::Object&>(*this) ),
@@ -237,10 +101,8 @@ GrandConfig::TreeRoot::TreeRoot()
 
 GrandConfig::GrandConfig() 
 : Set("Car", "Job options"),
-  _inputConfig( new input::Config() ),
   outputRoot( new TreeRoot() ),
-  engine_choice( new EngineChoice(*this) ),
-  inputConfig(*_inputConfig),
+  engine_choice( make_engine_choice(*this) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( "HelpMenu", "Help" ),
@@ -250,6 +112,13 @@ GrandConfig::GrandConfig()
                  true),
   pistonCount("CPUNumber", "Number of CPUs to use")
 {
+   engine_choice->insert_new_node( make_input_base(), BeforeEngine );
+   engine_choice->insert_new_node( make_insertion_place_link(AfterChannels), AfterChannels );
+   engine_choice->insert_new_node( input::join::create_link(), AfterChannels );
+   engine_choice->insert_new_node( make_insertion_place_link(BeforeChannels), BeforeChannels );
+   engine_choice->insert_new_node( std::auto_ptr< input::chain::Link >(new input::InputMethods()), BeforeChannels );
+   engine_choice->insert_new_node( std::auto_ptr< input::chain::Link >(new input::FileMethod()), InputMethod );
+
    configTarget.setUserLevel(simparm::Object::Intermediate);
    auto_terminate.setUserLevel(simparm::Object::Expert);
 
@@ -278,10 +147,8 @@ GrandConfig::GrandConfig()
 
 GrandConfig::GrandConfig(const GrandConfig &c) 
 : simparm::Set(c),
-  _inputConfig(c.inputConfig.clone()),
   outputRoot(c.outputRoot->clone()),
-  engine_choice( new EngineChoice(*c.engine_choice, *this) ),
-  inputConfig(*_inputConfig),
+  engine_choice( copy_engine_choice(*c.engine_choice, *this) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( c.helpMenu ),
@@ -298,7 +165,6 @@ GrandConfig::~GrandConfig() {
     ost::MutexLock lock( input::global_mutex() );
     outputRoot.reset( NULL );
     engine_choice.reset( NULL );
-    _inputConfig.reset( NULL );
 }
 
 void GrandConfig::registerNamedEntries() {
@@ -313,7 +179,7 @@ void GrandConfig::registerNamedEntries() {
 }
 
 void GrandConfig::add_engine( std::auto_ptr<input::chain::Link> engine) {
-    engine_choice->add( engine );
+    engine_choice->insert_new_node( engine, AsEngine );
 }
 
 void GrandConfig::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> engine) {
@@ -325,16 +191,7 @@ void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> e
 }
 
 void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
-    if ( p == FileReader || p == InputMethod )
-        _inputConfig->add_method( l, p );
-    else if ( p == AsEngine )
-        engine_choice->add( l );
-    else if ( p == AfterChannels )
-        _inputConfig->add_filter( l, true );
-    else if ( p == BeforeEngine )
-        _inputConfig->add_filter( l, false );
-    else 
-        assert(false);
+    engine_choice->insert_new_node( l, p );
 }
 
 void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
@@ -347,7 +204,18 @@ std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
 
 const input::chain::MetaInfo&
 GrandConfig::get_meta_info() const {
-    return engine_choice->get_meta_info();
+    return *engine_choice->current_traits();
+}
+
+void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {
+    DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
+    output::Basename bn( traits.suggested_output_basename );
+    bn.set_variable("run", "snapshot");
+    
+    DEBUG("Got new basename " << bn << " for config " << this);
+    outputRoot->set_output_file_basename( bn );
+    if ( traits.provides<output::LocalizedImage>() ) 
+        outputRoot->set_trace_capability( *traits.traits<output::LocalizedImage>() );
 }
 
 }
