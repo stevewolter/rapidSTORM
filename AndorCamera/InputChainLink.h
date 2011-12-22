@@ -35,7 +35,6 @@ class Method
     traits::Optics<2>::Resolutions resolution;
     std::string basename;
 
-    AtEnd publish_meta_info();
     simparm::BoolEntry show_live_by_default;
     std::auto_ptr< boost::signals2::scoped_connection > resolution_listener, 
                                                           basename_listener;
@@ -57,6 +56,7 @@ class Method
     void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
     std::string name() const { return getName(); }
     std::string description() const { return getDesc(); }
+    void publish_meta_info();
 
     bool uses_input_file() const { return false; }
 

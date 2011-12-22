@@ -1,7 +1,6 @@
 #ifndef DSTORM_INPUT_FILEMETHOD_H
 #define DSTORM_INPUT_FILEMETHOD_H
 
-#include "chain/Choice.h"
 #include "chain/Forwarder.h"
 #include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>

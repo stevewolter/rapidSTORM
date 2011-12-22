@@ -24,17 +24,6 @@ ChainLink::ChainLink()
   default_output_basename(""),
   user_changed_output(false)
 {
-    receive_changes_from( output.value );
-}
-
-ChainLink::ChainLink(const ChainLink& o) 
-: input::chain::Forwarder(o),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  traits(o.traits),
-  default_output_basename(o.default_output_basename),
-  user_changed_output(o.user_changed_output)
-{
-    receive_changes_from( output.value );
 }
 
 chain::Link::AtEnd ChainLink::traits_changed( TraitsRef traits, Link *l )
@@ -53,12 +42,12 @@ chain::Link::AtEnd ChainLink::traits_changed( TraitsRef traits, Link *l )
     if ( user_changed_output ) {
         this->traits->suggested_output_basename.unformatted() = output();
         traits->get_signal< BasenameChange >()( this->traits->suggested_output_basename );
-        return notify_of_trait_change(this->traits);
     } else {
-        /* The operator() will take care of traits publishing */
         output = default_output_basename;
-        return AtEnd();
+        if ( upstream_traits() != traits )
+            return AtEnd();
     }
+    return notify_of_trait_change(this->traits);
 }
 
 void ChainLink::operator()(const simparm::Event&)

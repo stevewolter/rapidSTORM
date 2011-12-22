@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/chain/MetaInfo.h>
+#include "chain/Choice.h"
 
 #include "FileMethod.h"
 #include "InputFileNameChange.h"
@@ -11,6 +12,21 @@ namespace dStorm {
 namespace input {
 
 using namespace chain;
+
+class FileTypeChoice 
+: public chain::Choice
+{
+    void insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
+        if ( p == FileReader )
+            chain::Choice::add_choice(l);
+        else
+            chain::Choice::insert_new_node(l,p);
+    }
+
+  public:
+    FileTypeChoice() 
+        : chain::Choice("FileType", "File type", true) {}
+};
 
 FileMethod::FileMethod()
 : simparm::Set("FileMethod", "File"),
@@ -22,8 +38,7 @@ FileMethod::FileMethod()
     /* TODO: children.set_help_id( "FileType" ); */
     DEBUG("Created file method");
     receive_changes_from( input_file.value );
-    chain::Forwarder::insert_here( 
-        std::auto_ptr<Link>( new Choice("FileType", "File type", true) ) );
+    chain::Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
 }
 
 FileMethod::FileMethod(const FileMethod& o)

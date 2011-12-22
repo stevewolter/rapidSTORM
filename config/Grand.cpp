@@ -157,6 +157,7 @@ GrandConfig::GrandConfig(const GrandConfig &c)
   auto_terminate(c.auto_terminate),
   pistonCount(c.pistonCount)
 {
+    engine_choice->publish_meta_info();
     registerNamedEntries();
     DEBUG("Copied Car config");
 }
@@ -209,13 +210,13 @@ GrandConfig::get_meta_info() const {
 
 void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {
     DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
-    output::Basename bn( traits.suggested_output_basename );
-    bn.set_variable("run", "snapshot");
-    
-    DEBUG("Got new basename " << bn << " for config " << this);
-    outputRoot->set_output_file_basename( bn );
+    outputRoot->set_output_file_basename( traits.suggested_output_basename );
     if ( traits.provides<output::LocalizedImage>() ) 
         outputRoot->set_trace_capability( *traits.traits<output::LocalizedImage>() );
+}
+
+void GrandConfig::all_modules_loaded() {
+    engine_choice->publish_meta_info();
 }
 
 }

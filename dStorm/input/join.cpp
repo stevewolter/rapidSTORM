@@ -182,6 +182,7 @@ class Link
     simparm::Set channels;
     simparm::NodeChoiceEntry< Strategist > join_type;
     simparm::Entry<unsigned long> channel_count;
+    bool registered_node;
 
   protected:
     virtual void operator()(const simparm::Event&);
@@ -198,8 +199,22 @@ class Link
     std::string name() const { return getName(); }
     std::string description() const { return getDesc(); }
     void registerNamedEntries( simparm::Node& n ) { 
-        children[0].registerNamedEntries( connection_nodes[0] );
+        receive_changes_from( join_type.value );
+        receive_changes_from( channel_count.value );
+        for (unsigned i = 0; i < children.size(); ++i) {
+            children[i].registerNamedEntries( connection_nodes[i] );
+            channels.push_back( connection_nodes[i] );
+        }
+        push_back( channel_count );
+        push_back( channels );
+        push_back( join_type );
         n.push_back(*this); 
+        registered_node = true;
+    }
+    void publish_meta_info() {
+        for (unsigned i = 0; i < children.size(); ++i)
+            children[i].publish_meta_info();
+        assert( current_traits().get() );
     }
 
     void insert_new_node( std::auto_ptr<chain::Link>, Place );
@@ -212,17 +227,13 @@ Link::Link()
   simparm::Listener( simparm::Event::ValueChanged ),
   channels("Channels", "Channels"),
   join_type("JoinOn", "Join inputs on"),
-  channel_count("ChannelCount", "Number of input channels", 1)
+  channel_count("ChannelCount", "Number of input channels", 1),
+  registered_node(false)
 {
     channel_count.min = 1;
     channel_count.helpID = "#join.ChannelCount";
     join_type.helpID = "#join.JoinOn";
 
-    push_back( channel_count );
-    push_back( channels );
-    push_back( join_type );
-
-    set_upstream_element( children.back(), *this, Add );
     join_type.addChoice( new StrategistImplementation< spatial_tag<0> >() );
     join_type.addChoice( new StrategistImplementation< spatial_tag<1> >() );
     join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
@@ -231,9 +242,6 @@ Link::Link()
     join_type.choose( spatial_tag<2>::get_name() );
     join_type.viewable = false;
     channels.showTabbed = true;
-
-    receive_changes_from( join_type.value );
-    receive_changes_from( channel_count.value );
 }
 
 Link::Link( const Link& o )
@@ -242,19 +250,13 @@ Link::Link( const Link& o )
   connection_nodes(o.connection_nodes),
   children( o.children ), 
   input_traits( o.input_traits ),
-  channels(o.channels), join_type( o.join_type ), channel_count(o.channel_count)
+  channels(o.channels), join_type( o.join_type ), channel_count(o.channel_count),
+  registered_node(false)
 {
     assert( children.size() == connection_nodes.size() );
     for (size_t i = 0; i < children.size() ; ++i) {
-        channels.push_back(connection_nodes[i]);
         set_upstream_element( children[i], *this, Add );
     }
-    receive_changes_from( join_type.value );
-    receive_changes_from( channel_count.value );
-
-    push_back( channel_count );
-    push_back( channels );
-    push_back( join_type );
 }
 
 Link::~Link() {
@@ -294,8 +296,8 @@ void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
     if ( children.size() == 0 ) {
         input_traits.push_back( l->current_traits() );
         connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
-        channels.push_back(connection_nodes[0]);
         children.push_back( l );
+        set_upstream_element( children.back(), *this, Add );
     } else {
         for (size_t i = 1; i < children.size(); ++i)
             children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ), p );
@@ -315,11 +317,14 @@ void Link::operator()(const simparm::Event& e) {
         join_type.viewable = channel_count() > 1;
         while ( children.size() < channel_count() ) {
             children.push_back( children[0].clone() );
+            children.back().publish_meta_info();
             std::string i = boost::lexical_cast<std::string>(children.size());
             connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
-            children.back().registerNamedEntries( connection_nodes.back() );
-            channels.push_back( connection_nodes.back() );
             input_traits.push_back( children.back().current_traits() );
+            if ( registered_node ) {
+                children.back().registerNamedEntries( connection_nodes.back() );
+                channels.push_back( connection_nodes.back() );
+            }
             set_upstream_element( children.back(), *this, Add );
         }
         while ( children.size() > channel_count() ) {

@@ -36,10 +36,10 @@ class ChainLink
 
   public:
     ChainLink();
-    ChainLink(const ChainLink&);
     ChainLink* clone() const { return new ChainLink(*this); }
     simparm::Node& getNode() { return static_cast<Config&>(*this); }
     void registerNamedEntries( simparm::Node& n ) {
+        receive_changes_from( output.value );
         chain::Forwarder::registerNamedEntries(n);
         n.push_back( *this );
     }

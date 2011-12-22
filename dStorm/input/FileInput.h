@@ -64,11 +64,11 @@ class FileInput
         this->notify_of_trait_change( info );
     }
   public:
-    FileInput() { republish_traits(); }
+    FileInput() {}
     FileInput( const FileInput& o ) : chain::Terminus(o), 
-        current_file(o.current_file), file(o.file), error(o.error)
-        { DEBUG("Copying file input " << &o << " to " << this); republish_traits(); }
+        current_file(o.current_file), file(o.file), error(o.error) {}
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
+    void publish_meta_info() { republish_traits(); }
     std::string name() const 
         { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getName(); }
     std::string description() const

@@ -39,9 +39,6 @@ Method::Method()
     
     DEBUG("Receiving attach event");
     registerNamedEntries();
-
-    DEBUG("Made AndorDirect config");
-    publish_meta_info();
 }
 
 Method::Method(const Method &c) 
@@ -55,7 +52,6 @@ Method::Method(const Method &c)
     DEBUG( this << " copied resolution " << resolution[0].is_initialized() << " from " << &c );
     registerNamedEntries();
     DEBUG("Copied AndorDirect Config");
-    publish_meta_info();
 }
 
 Method::~Method() {
@@ -73,9 +69,14 @@ void Method::registerNamedEntries() {
 void Method::basename_changed( const dStorm::output::Basename& bn ) {
     dStorm::output::Basename b = bn;
     b.set_variable("run", "snapshot");
-    basename = b.new_basename();
-    if ( active_selector.get() ) {
-        active_selector->basename_changed( basename );
+    try {
+        basename = b.new_basename();
+        if ( active_selector.get() ) {
+            active_selector->basename_changed( basename );
+        }
+    } catch ( std::runtime_error& ) {
+        /* The basename might be nonevaluable due to the presence of 
+         * runtime-expanded variables. */
     }
 }
 
@@ -87,7 +88,7 @@ dStorm::input::BaseSource* Method::makeSource()
     return cam_source.release();
 }
 
-input::chain::Link::AtEnd Method::publish_meta_info() {
+void Method::publish_meta_info() {
     boost::shared_ptr< dStorm::input::Traits<engine::Image> > traits;
     traits.reset( new dStorm::input::Traits<engine::Image>() );
     traits->image_number().range().first = 0 * camera::frame;
@@ -105,7 +106,7 @@ input::chain::Link::AtEnd Method::publish_meta_info() {
             boost::bind( &Method::basename_changed, boost::ref(*this), _1 ) )
         ) 
     );
-    return notify_of_trait_change( mi );
+    notify_of_trait_change( mi );
 }
 
 void Method::set_display( std::auto_ptr< Display > d ) 

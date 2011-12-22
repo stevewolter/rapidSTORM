@@ -45,7 +45,8 @@ Link::TraitsRef Forwarder::upstream_traits() const {
     return more_specialized->current_traits();
 }
 
-input::chain::Link::AtEnd Forwarder::traits_changed( TraitsRef ref, Link* ) {
+input::chain::Link::AtEnd Forwarder::traits_changed( TraitsRef ref, Link* l ) {
+    Link::traits_changed(ref,l);
     return notify_of_trait_change(ref);
 }
 
@@ -68,6 +69,14 @@ void Forwarder::insert_here( std::auto_ptr<Link> link ) {
     if ( more_specialized.get() ) {
         set_upstream_element( *more_specialized, *this, Add ); 
     }
+}
+
+void Forwarder::publish_meta_info() {
+    if ( ! more_specialized.get() )
+        throw std::logic_error(name() + " needs a subinput to publish meta info");
+    more_specialized->publish_meta_info();
+    if ( ! current_traits().get() )
+        throw std::logic_error(name() + " did not publish meta info on request");
 }
 
 }

@@ -21,6 +21,7 @@ class Forwarder : public Link {
     void registerNamedEntries( simparm::Node& );
     std::string name() const;
     std::string description() const;
+    void publish_meta_info();
 
   protected:
     void insert_here( std::auto_ptr<Link> );

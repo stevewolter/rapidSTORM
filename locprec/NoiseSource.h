@@ -97,9 +97,6 @@ namespace locprec {
         void create_fluo_set();
         void add_fluo_set( std::auto_ptr<FluorophoreSetConfig> );
 
-        TraitsRef current_traits;
-        TraitsRef make_traits() const;
-
       protected:
         void operator()( const simparm::Event& );
       public:
@@ -123,6 +120,7 @@ namespace locprec {
         void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
         std::string name() const { return getName(); }
         std::string description() const { return getDesc(); }
+        void publish_meta_info();
 
         virtual dStorm::input::Source<Image>* makeSource()
             { return new NoiseSource<Image::Pixel>(*this); }

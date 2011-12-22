@@ -8,7 +8,7 @@
 #include "YMirror_decl.h"
 #include "SampleInfo.h"
 #include "ResolutionSetter_decl.h"
-#include "ROIFilter_decl.h"
+#include "ROIFilter.h"
 #include "Buffer_decl.h"
 #include "Basename_decl.h"
 
@@ -22,7 +22,7 @@ void basic_inputs( dStorm::Config* config ) {
 #endif
 
     config->add_input( Splitter::makeLink(), BeforeEngine );
-    config->add_input( ROIFilter::makeFilter(), BeforeEngine );
+    config->add_input( ROIFilter::make_link(), BeforeEngine );
     config->add_input( input::makeBufferChainLink(), BeforeEngine );
     config->add_input( input::Basename::makeLink(), BeforeEngine );
 

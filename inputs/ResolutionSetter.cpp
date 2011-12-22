@@ -113,6 +113,7 @@ struct MoreSpecialized : public dStorm::input::chain::Link {
     void registerNamedEntries( simparm::Node& ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
+    void publish_meta_info() {}
 };
 
 struct LessSpecialized : public dStorm::input::chain::Forwarder {
@@ -127,6 +128,7 @@ struct LessSpecialized : public dStorm::input::chain::Forwarder {
     void registerNamedEntries( simparm::Node& ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
+    void publish_meta_info() {}
 };
 
 struct Check {

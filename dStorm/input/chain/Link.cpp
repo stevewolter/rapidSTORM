@@ -20,7 +20,7 @@ Link::Link()
 Link::Link(const Link& o) 
 : less_specialized(NULL), meta_info(o.meta_info)
 {
-    DEBUG("Cloned " << o.getNode().getName() << " to have context " << meta_info.get());
+    DEBUG("Cloned " << o.name() << " to have context " << meta_info.get());
 }
 
 Link::~Link() {
@@ -28,11 +28,12 @@ Link::~Link() {
 
 Link::AtEnd Link::notify_of_trait_change( TraitsRef new_traits ) 
 {
-    DEBUG(this << " got trait change to " << new_traits.get());
     meta_info = new_traits;
     if ( less_specialized )  {
+        DEBUG(name() << "(" << this << ") publishes trait change to " << new_traits.get());
         return less_specialized->traits_changed( new_traits, this );
     } else {
+        DEBUG(name() << "(" << this << ") cannot publish trait change");
         return AtEnd();
     }
 }
@@ -48,7 +49,8 @@ void Link::set_upstream_element( Link& element, SetType type ) {
 }
 
 Link::AtEnd Link::traits_changed( TraitsRef r, Link* l ) {
-    DEBUG("Traits " << r.get() << " providing " << ((r.get() && r->provides_nothing()) ? "nothing" : "something") << " passing from " << l << "(" << ((l) ? l->getNode().getName() : "NULL") << ") by " << this << "(" << getNode().getName()  << ")");
+    meta_info = r;
+    DEBUG("Traits " << r.get() << " providing " << ((r.get() && r->provides_nothing()) ? "nothing" : "something") << " passing from " << l << "(" << ((l) ? l->name() : "NULL") << ") by " << this << "(" << name()  << ")");
     return AtEnd();
 }
 

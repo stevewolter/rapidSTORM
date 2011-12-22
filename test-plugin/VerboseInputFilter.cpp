@@ -1,7 +1,6 @@
 #define BOOST_DISABLE_ASSERTS
 #include <boost/variant.hpp>
 #include <boost/serialization/variant.hpp> 
-#include "VerboseInputFilter.h"
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/Image.h>
@@ -10,6 +9,7 @@
 #undef DEBUG
 #define VERBOSE
 #include <dStorm/debug.h>
+#include "VerboseInputFilter.h"
 
 namespace VerboseInputFilter {
 
@@ -28,14 +28,14 @@ class ChainLink
         if ( config.verbose() )
             DEBUG("Traits " << &ref << " are passing on " << getNode().getName() << " (" << this << ")");
     }
+    template <typename Type>
+    BaseSource* make_source( std::auto_ptr< dStorm::input::Source<Type> > p ) {
+        DEBUG( "Source of type " << typeid(*p.get()).name() << " is passing" );
+        return new VerboseInputFilter::Source<Type>(config,p);
+    }
 
   public:
     simparm::Structure<Config> config;
-    BaseSource* makeSource() {
-        std::auto_ptr<BaseSource> rv( Forwarder::makeSource() );
-        DEBUG( "Source of type " << typeid(*rv.get()).name() << " is passing" );
-        return rv.release();
-    }
 
     simparm::Node& getNode() { return static_cast<Config&>(config); }
 };

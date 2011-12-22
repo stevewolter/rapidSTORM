@@ -39,6 +39,7 @@ class Link {
     virtual Link* clone() const = 0;
     virtual void registerNamedEntries( simparm::Node& ) = 0;
 
+    virtual void publish_meta_info() = 0;
     TraitsRef current_traits() const { return meta_info; }
 
     typedef dStorm::InsertionPlace Place;

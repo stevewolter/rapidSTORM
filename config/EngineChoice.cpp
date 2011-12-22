@@ -42,8 +42,10 @@ class EngineChoice
 
     AtEnd traits_changed( TraitsRef traits, input::chain::Link* el ) {
         assert( el == &alternatives );
+        IEngineChoice::traits_changed( traits, el );
         if ( traits.get() != NULL ) 
             config.traits_changed(*traits);
+        assert( traits == current_traits() );
         return AtEnd();
     }
 
@@ -73,7 +75,7 @@ class EngineChoice
 
     void registerNamedEntries( simparm::Node& n ) 
         { alternatives.registerNamedEntries(n); }
-    std::string name() const { return alternatives.name(); }
+    std::string name() const { return "EngineChoice"; }
     std::string description() const { return alternatives.description(); }
 
     void add( std::auto_ptr<input::chain::Link> e ) {
@@ -104,6 +106,10 @@ class EngineChoice
             add( link );
         else
             alternatives.insert_new_node(link,p);
+    }
+    void publish_meta_info() { 
+        alternatives.publish_meta_info(); 
+        assert( current_traits().get() );
     }
 };
 

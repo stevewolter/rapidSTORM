@@ -215,11 +215,6 @@ libdStorm_la_SOURCES = \
     dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp \
     dStorm/input/LocalizationTraits.cpp \
-    dStorm/input/join.h dStorm/input/join.cpp \
-    dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
-    dStorm/input/join/iterator.hpp dStorm/input/join/iterator.cpp \
-    dStorm/input/join/spatial.hpp dStorm/input/join/spatial.cpp \
-    dStorm/input/join/temporal.hpp dStorm/input/join/temporal.cpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp \
     dStorm/output/debug.h \
@@ -279,7 +274,12 @@ libcode_la_SOURCES += \
     config/Grand.h config/Grand.cpp  \
     config/EngineChoice.cpp config/EngineChoice.h \
     config/InputBase.cpp config/InputBase.h \
-    config/InsertionPoint.cpp config/InsertionPoint.h
+    config/InsertionPoint.cpp config/InsertionPoint.h \
+    dStorm/input/join.h dStorm/input/join.cpp \
+    dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
+    dStorm/input/join/iterator.hpp dStorm/input/join/iterator.cpp \
+    dStorm/input/join/spatial.hpp dStorm/input/join/spatial.cpp \
+    dStorm/input/join/temporal.hpp dStorm/input/join/temporal.cpp
 
 libcode_la_SOURCES += \
 	inputs/TIFF.cpp \
@@ -293,7 +293,7 @@ libcode_la_SOURCES += \
 	inputs/ResolutionSetter.h \
 	inputs/ResolutionSetter_decl.h inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
 	inputs/SampleInfo.h inputs/SampleInfo.cpp \
-    inputs/ROIFilter.h inputs/ROIFilter_decl.h inputs/ROIFilter.cpp \
+    inputs/ROIFilter.h inputs/ROIFilter.cpp \
     inputs/Basename_decl.h inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
     inputs/Buffer.cpp 

@@ -61,6 +61,8 @@ namespace dStorm {
 
         const input::chain::MetaInfo& get_meta_info() const;
         std::auto_ptr<input::BaseSource> makeSource();
+
+        void all_modules_loaded();
     };
 }
 

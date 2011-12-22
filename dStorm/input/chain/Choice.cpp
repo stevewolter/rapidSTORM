@@ -27,7 +27,6 @@ Choice::Choice(const Choice& o)
     receive_changes_from( choices.value );
     for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
         Choice::set_upstream_element( i->link(), *this, Add );
-    publish_traits();
 }
 
 Choice::~Choice() {
@@ -111,12 +110,17 @@ Choice::LinkAdaptor::~LinkAdaptor() {
     _link.reset();
 }
 
-void Choice::insert_new_node( std::auto_ptr<Link> l, Place ) {
-    add_choice(l);
+void Choice::insert_new_node( std::auto_ptr<Link> l, Place p ) {
+    choices.beginChoices()->link().insert_new_node(l,p); 
 }
 
-Link& Choice::get_first_link() { 
-    return choices.beginChoices()->link(); 
+void Choice::publish_meta_info() {
+    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
+        i->link().publish_meta_info();
+    }
+    publish_traits();
+    if ( ! current_traits().get() )
+        throw std::logic_error(name() + " did not publish meta info on request");
 }
 
 }

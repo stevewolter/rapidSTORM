@@ -127,8 +127,13 @@ typename BaseClass::AtEnd Method<CRTP,BaseClass>::traits_changed( TraitsRef orig
         return this->notify_of_trait_change(result);
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return this->notify_of_trait_change(orig);
-    else
-        return this->notify_of_trait_change( TraitsRef() );
+    else if ( orig.get() ) {
+        boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
+        my_info->set_traits( NULL );
+        return this->notify_of_trait_change( my_info );
+    } else {
+        return this->notify_of_trait_change( orig );
+    }
 }
 
 }

@@ -90,8 +90,6 @@ NoiseConfig::NoiseConfig()
     create_fluo_set();
     registerNamedEntries();
     optics.set_number_of_fluorophores(2);
-    current_traits = make_traits();
-    notify_of_trait_change( current_traits );
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
@@ -120,11 +118,9 @@ void NoiseConfig::operator()( const simparm::Event& e)
         create_fluo_set();
         newSet.untrigger();
     } else if ( e.cause == simparm::Event::ValueChanged ) {
-        if ( &e.source == &layer_count.value ) {
+        if ( &e.source == &layer_count.value )
             optics.set_number_of_planes( layer_count() );
-        }
-        current_traits = make_traits();
-        notify_of_trait_change( current_traits );
+        publish_meta_info();
     } else 
 	TreeListener::add_new_children(e);
 }
@@ -308,9 +304,7 @@ NoiseSource<Pixel>::get_traits( typename Source::Wishes ) {
     return rv;
 }
 
-NoiseConfig::TraitsRef
-NoiseConfig::make_traits() const
-{
+void NoiseConfig::publish_meta_info() {
     typedef dStorm::input::Traits<Image> Traits;
 
     boost::shared_ptr< Traits > rv( new Traits() );
@@ -324,7 +318,7 @@ NoiseConfig::make_traits() const
 
     dStorm::input::chain::MetaInfo::Ptr t( new dStorm::input::chain::MetaInfo() );
     t->set_traits( rv );
-    return t;
+    notify_of_trait_change( t );
 }
 
 }

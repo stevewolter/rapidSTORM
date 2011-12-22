@@ -58,11 +58,11 @@ class Choice
     void registerNamedEntries( simparm::Node& );
     std::string name() const { return choices.getName(); }
     std::string description() const { return choices.getDesc(); }
+    void publish_meta_info();
 
     void add_choice( std::auto_ptr<Link> );
 
     void insert_new_node( std::auto_ptr<Link>, Place );
-    Link& get_first_link();
 
     void set_help_id( std::string id ) { choices.helpID = id; }
 

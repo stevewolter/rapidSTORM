@@ -21,7 +21,7 @@ class Alternatives::UpstreamCollector
   public:
     UpstreamCollector(Alternatives& papa) : papa(papa) {}
     UpstreamCollector(Alternatives& papa, const UpstreamCollector& o)
-        : papa(papa) {}
+        : Forwarder(o), papa(papa) {}
 
     UpstreamCollector* clone() const 
         { assert(false); throw std::logic_error("UpstreamCollector unclonable"); }
@@ -32,6 +32,7 @@ class Alternatives::UpstreamCollector
         DEBUG("Traits changed from upstream in " << this  << " from " << from << " to " << r.get() );
         assert( upstream_traits() == r );
         Link::traits_changed(r,from);
+        notify_of_trait_change( r );
         AtEnd rv;
         for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = papa.choices.beginChoices(); i != papa.choices.endChoices(); ++i ) {
             rv = i->link().traits_changed( r, this );
@@ -40,7 +41,7 @@ class Alternatives::UpstreamCollector
         return rv;
     }
 
-    std::string name() const { throw std::logic_error("Not implemented"); }
+    std::string name() const { return "AlternativesUpstreamCollector"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
 };
 
@@ -55,12 +56,13 @@ class Alternatives::UpstreamLink
      *  are inserted by the Alternatives class. */
     UpstreamLink* clone() const { return NULL; }
     void registerNamedEntries( simparm::Node& ) {}
-    std::string name() const { throw std::logic_error("Not implemented"); }
+    std::string name() const { return "AlternativesUpstreamLink"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
     BaseSource* makeSource() { return collector.makeSource(); }
     AtEnd traits_changed( TraitsRef, Link* ) { /* TODO: This method should be used for traits injection. */
        throw std::logic_error("Not implemented"); }
     void insert_new_node( std::auto_ptr<Link>, Place ) { throw std::logic_error("Not implemented"); }
+    void publish_meta_info() {}
 };
 
 Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
@@ -93,6 +95,12 @@ void Alternatives::insert_new_node( std::auto_ptr<Link> link, Place p )
 void Alternatives::registerNamedEntries( simparm::Node& node ) {
     collector->registerNamedEntries(node);
     Choice::registerNamedEntries(node);
+}
+
+void Alternatives::publish_meta_info() {
+    collector->publish_meta_info();
+    Choice::publish_meta_info();
+    assert( current_traits().get() );
 }
 
 }
