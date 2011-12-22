@@ -1,13 +1,45 @@
 #include "YMirror.h"
+
 #include <boost/iterator/transform_iterator.hpp>
-#include <dStorm/input/Source_impl.h>
-#include <dStorm/image/mirror.h>
-#include <dStorm/input/Method.hpp>
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <dStorm/Image.h>
+#include <dStorm/image/mirror.h>
+#include <dStorm/input/AdapterSource.h>
+#include <dStorm/input/Method.hpp>
+#include <simparm/Entry.hh>
+#include <simparm/Object.hh>
+#include <simparm/Structure.hh>
 
 namespace dStorm {
 namespace YMirror {
+
+struct Config : public simparm::Object
+{
+    typedef input::chain::DefaultTypes SupportedTypes;
+
+    simparm::BoolEntry mirror_y;
+    Config();
+    void registerNamedEntries() { push_back(mirror_y); }
+};
+
+template <typename Type>
+class Source
+: public input::AdapterSource< Type >,
+  boost::noncopyable
+{
+    typedef Type Input;
+    typedef input::Source<Input> Base;
+    typedef Localization::Position::Traits::RangeType::Scalar Range;
+    Range range;
+    struct iterator;
+    void modify_traits( input::Traits<Type>& );
+
+  public:
+    Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
+    typename Base::iterator begin();
+    typename Base::iterator end();
+};
 
 class ChainLink
 : public input::Method< ChainLink >

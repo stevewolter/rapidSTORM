@@ -1,24 +1,50 @@
-#include "debug.h"
 #include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
+
 #include "ResolutionSetter.h"
-#include <dStorm/input/Source_impl.h>
+#include "debug.h"
+
+#include <boost/lexical_cast.hpp>
 #include <dStorm/engine/Image.h>
-#include <dStorm/Localization.h>
-#include <dStorm/input/LocalizationTraits.h>
-#include <dStorm/input/InputMutex.h>
 #include <dStorm/ImageTraits_impl.h>
-#include <boost/lexical_cast.hpp>
-#include <boost/lexical_cast.hpp>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <dStorm/input/ResolutionChange.h>
+#include <dStorm/input/AdapterSource.h>
+#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/InputMutex.h>
+#include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/input/Method.hpp>
+#include <dStorm/input/ResolutionChange.h>
+#include <dStorm/input/Source_impl.h>
+#include <dStorm/Localization.h>
+#include <dStorm/traits/resolution_config.h>
+#include <dStorm/units/nanolength.h>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Eigen.hh>
+#include <simparm/Structure.hh>
+#include <simparm/TreeCallback.hh>
 #include "dejagnu.h"
 
 namespace dStorm {
 namespace input {
 namespace resolution {
+
+class Config : public traits::resolution::Config {};
+
+template <typename ForwardedType>
+class Source 
+: public input::AdapterSource<ForwardedType>
+{
+    Config config;
+
+    void modify_traits( input::Traits<ForwardedType>& t ) { 
+        config.set_traits(t); 
+    }
+  public:
+    Source(
+        std::auto_ptr< input::Source<ForwardedType> > backend,
+        const Config& config ) 
+        : input::AdapterSource<ForwardedType>( backend ), config(config) {}
+};
 
 class ChainLink 
 : public input::Method<ChainLink>, public simparm::TreeListener 
@@ -26,10 +52,7 @@ class ChainLink
     friend class Check;
     friend class input::Method<ChainLink>;
 
-    simparm::Structure<SourceConfig> config;
-    simparm::Structure<SourceConfig>& get_config() { return config; }
-
-    class TraitMaker;
+    simparm::Structure<Config> config;
 
     void operator()(const simparm::Event&);
 

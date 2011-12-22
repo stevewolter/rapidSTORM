@@ -1,20 +1,51 @@
 #include "debug.h"
 #include "Splitter.h"
-#include <dStorm/input/Source_impl.h>
+#include <boost/iterator/iterator_adaptor.hpp>
+#include <boost/mpl/vector.hpp>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/input/InputMutex.h>
-#include <simparm/Message.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <boost/iterator/iterator_adaptor.hpp>
 #include <dStorm/ImageTraits.h>
+#include <dStorm/input/AdapterSource.h>
+#include <dStorm/input/InputMutex.h>
+#include <dStorm/input/Method.hpp>
+#include <dStorm/input/Source.h>
+#include <simparm/ChoiceEntry.hh>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Entry.hh>
+#include <simparm/Message.hh>
+#include <simparm/Object.hh>
+#include <simparm/Structure.hh>
 
 using namespace dStorm::engine;
 
 namespace dStorm {
 namespace Splitter {
+
+struct Config : public simparm::Object
+{
+    enum Splits { Horizontal, Vertical, None };
+
+    simparm::ChoiceEntry biplane_split;
+    Config();
+    void registerNamedEntries() { push_back(biplane_split); }
+};
+
+class Source 
+: public input::AdapterSource<engine::Image>,
+  boost::noncopyable
+{
+    struct iterator;
+    const bool vertical;
+
+    void modify_traits( input::Traits<engine::Image>& );
+  public:
+    Source(bool vertical, std::auto_ptr< input::Source<engine::Image> > base);
+
+    input::Source<engine::Image>::iterator begin();
+    input::Source<engine::Image>::iterator end();
+};
+
 
 class ChainLink
 : public input::Method<ChainLink>, public simparm::Listener

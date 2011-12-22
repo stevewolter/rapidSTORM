@@ -3,14 +3,14 @@
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/Config.h>
 #include "TIFF.h"
-#include "BackgroundDeviationEstimator_decl.h"
-#include "Splitter_decl.h"
-#include "YMirror_decl.h"
+#include "BackgroundDeviationEstimator.h"
+#include "Splitter.h"
+#include "YMirror.h"
 #include "SampleInfo.h"
-#include "ResolutionSetter_decl.h"
+#include "ResolutionSetter.h"
 #include "ROIFilter.h"
-#include "Buffer_decl.h"
-#include "Basename_decl.h"
+#include "Buffer.h"
+#include "Basename.h"
 
 namespace dStorm {
 
@@ -23,8 +23,8 @@ void basic_inputs( dStorm::Config* config ) {
 
     config->add_input( Splitter::makeLink(), BeforeEngine );
     config->add_input( ROIFilter::make_link(), BeforeEngine );
-    config->add_input( input::makeBufferChainLink(), BeforeEngine );
-    config->add_input( input::Basename::makeLink(), BeforeEngine );
+    config->add_input( input_buffer::makeLink(), BeforeEngine );
+    config->add_input( basename_input_field::makeLink(), BeforeEngine );
 
     config->add_input( YMirror::makeLink(), BeforeEngine );
     config->add_input( BackgroundStddevEstimator::makeLink(), BeforeEngine );

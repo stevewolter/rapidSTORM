@@ -282,21 +282,18 @@ libcode_la_SOURCES += \
     dStorm/input/join/temporal.hpp dStorm/input/join/temporal.cpp
 
 libcode_la_SOURCES += \
-	inputs/TIFF.cpp \
-	inputs/TIFF.h inputs/inputs.h inputs/inputs.cpp \
-	inputs/TIFF_OpenFile.cpp \
-	inputs/BackgroundDeviationEstimator_decl.h \
-	inputs/BackgroundDeviationEstimator.cpp \
-	inputs/BackgroundDeviationEstimator.h \
-	inputs/Splitter_decl.h inputs/Splitter.h inputs/Splitter.cpp \
-	inputs/YMirror_decl.h inputs/YMirror.h inputs/YMirror.cpp \
-	inputs/ResolutionSetter.h \
-	inputs/ResolutionSetter_decl.h inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
-	inputs/SampleInfo.h inputs/SampleInfo.cpp \
+    inputs/inputs.h inputs/inputs.cpp \
+    inputs/TIFF.h inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp \
+    inputs/BackgroundDeviationEstimator.cpp \
+    inputs/BackgroundDeviationEstimator.h \
+    inputs/Splitter.h inputs/Splitter.cpp \
+    inputs/YMirror.h inputs/YMirror.cpp \
+    inputs/ResolutionSetter.h \
+    inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
+    inputs/SampleInfo.h inputs/SampleInfo.cpp \
     inputs/ROIFilter.h inputs/ROIFilter.cpp \
-    inputs/Basename_decl.h inputs/Basename.h inputs/Basename.cpp \
-    inputs/Buffer_decl.h inputs/Buffer.h inputs/Buffer_impl.h inputs/Buffer_impl_iterator.h \
-    inputs/Buffer.cpp 
+    inputs/Basename.h inputs/Basename.cpp \
+    inputs/Buffer.h inputs/Buffer.cpp 
 
 libcode_la_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
