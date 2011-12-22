@@ -40,7 +40,7 @@ class Choice
     boost::shared_ptr<MetaInfo> my_traits;
     bool auto_select;
 
-    Choice::AtEnd publish_traits();
+    void publish_traits();
 
   protected:
     virtual void operator()(const simparm::Event&);
@@ -51,7 +51,7 @@ class Choice
     Choice(const Choice&);
     ~Choice();
     
-    virtual AtEnd traits_changed( TraitsRef, Link* );
+    virtual void traits_changed( TraitsRef, Link* );
 
     BaseSource* makeSource();
     Choice* clone() const;

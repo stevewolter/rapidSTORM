@@ -56,9 +56,9 @@ FileMethod::~FileMethod() {}
 void FileMethod::operator()( const simparm::Event& )
 {
     ost::MutexLock lock( global_mutex() );
-    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_traits().get() );
-    if ( current_traits().get() != NULL ) {
-        current_traits()->get_signal< InputFileNameChange >()( input_file() );
+    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_meta_info().get() );
+    if ( current_meta_info().get() != NULL ) {
+        current_meta_info()->get_signal< InputFileNameChange >()( input_file() );
     }
 }
 
@@ -81,17 +81,16 @@ class BasenameApplier {
     const std::string& get_result() const { return basename; }
 };
 
-Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
+void FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
     Link::traits_changed( traits, from );
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << traits.get() );
-    if ( traits.get() == NULL ) return notify_of_trait_change( traits );
+    if ( traits.get() == NULL ) return update_current_meta_info( traits );
     DEBUG( "FileMethod " << this << " got traits " << traits->provides_nothing() );
     traits->get_signal< InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
-    if ( upstream_traits() != traits )
-        return Link::AtEnd();
+    if ( upstream_traits() != traits ) return;
 
     boost::shared_ptr<chain::MetaInfo> my_traits( new chain::MetaInfo(*traits) );
     if ( my_traits->suggested_output_basename.unformatted()() == "" ) {
@@ -103,7 +102,7 @@ Link::AtEnd FileMethod::traits_changed( TraitsRef traits, Link* from )
         my_traits->suggested_output_basename.unformatted() = new_basename;
     }
     my_traits->forbidden_filenames.insert( input_file() );
-    return notify_of_trait_change( my_traits );
+    update_current_meta_info( my_traits );
 }
 
 }
@@ -122,42 +121,42 @@ void FileMethod::unit_test( TestState& t ) {
     FileMethod file_method;
 
     file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), FileReader );
-    t.testrun( file_method.current_traits().get(), 
+    t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits" );
-    t.testrun( file_method.current_traits()->provides_nothing(), 
+    t.testrun( file_method.current_meta_info()->provides_nothing(), 
         "Test method provides nothing without an input file" );
 
     file_method.input_file = TIFF::test_file_name;
-    t.testrun( file_method.current_traits().get(), 
+    t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits for TIFF file name" );
-    t.testrun( ! file_method.current_traits()->provides_nothing(), 
+    t.testrun( ! file_method.current_meta_info()->provides_nothing(), 
         "Test method provides something for TIFF file name" );
-    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >(),
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >(),
         "Test method provides correct image type" );
-    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
     std::auto_ptr<  dStorm::input::chain::Link > foo = dummy_file_input::make();
     file_method.insert_new_node( foo, FileReader );
-    t.testrun( file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
     file_method.input_file = "foobar.dummy";
-    t.testrun( file_method.current_traits().get() &&
-               file_method.current_traits()->traits< dStorm::engine::Image >().get() &&
-               file_method.current_traits()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
+    t.testrun( file_method.current_meta_info().get() &&
+               file_method.current_meta_info()->traits< dStorm::engine::Image >().get() &&
+               file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
         "Test method can change file type" );
 
     FileMethod copy(file_method);
     copy.input_file = TIFF::test_file_name;
-    t.testrun( copy.current_traits().get() && 
-               copy.current_traits()->provides<dStorm::engine::Image>() &&
-               copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( copy.current_meta_info().get() && 
+               copy.current_meta_info()->provides<dStorm::engine::Image>() &&
+               copy.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Copied file method can adapt to input file" );
     file_method.input_file = "";
-    t.testrun( copy.current_traits().get() && 
-               copy.current_traits()->provides<dStorm::engine::Image>() &&
-               copy.current_traits()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( copy.current_meta_info().get() && 
+               copy.current_meta_info()->provides<dStorm::engine::Image>() &&
+               copy.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Copied file method is not mutated by original" );
 }
 

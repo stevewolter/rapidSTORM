@@ -106,7 +106,7 @@ void Method::publish_meta_info() {
             boost::bind( &Method::basename_changed, boost::ref(*this), _1 ) )
         ) 
     );
-    notify_of_trait_change( mi );
+    update_current_meta_info( mi );
 }
 
 void Method::set_display( std::auto_ptr< Display > d ) 

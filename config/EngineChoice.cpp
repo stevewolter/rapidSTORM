@@ -40,13 +40,12 @@ class EngineChoice
             add( std::auto_ptr<Type>( i->clone() ) );
     }
 
-    AtEnd traits_changed( TraitsRef traits, input::chain::Link* el ) {
+    void traits_changed( TraitsRef traits, input::chain::Link* el ) {
         assert( el == &alternatives );
         IEngineChoice::traits_changed( traits, el );
         if ( traits.get() != NULL ) 
             config.traits_changed(*traits);
-        assert( traits == current_traits() );
-        return AtEnd();
+        assert( traits == current_meta_info() );
     }
 
   public:
@@ -62,7 +61,7 @@ class EngineChoice
       fitters(o.fitters),
       config(config)
     {
-        traits_changed( alternatives.current_traits(), &alternatives );
+        traits_changed( alternatives.current_meta_info(), &alternatives );
         Link::set_upstream_element( alternatives, *this, Add );
     }
     ~EngineChoice() { }
@@ -109,7 +108,7 @@ class EngineChoice
     }
     void publish_meta_info() { 
         alternatives.publish_meta_info(); 
-        assert( current_traits().get() );
+        assert( current_meta_info().get() );
     }
 };
 

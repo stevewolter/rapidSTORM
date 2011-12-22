@@ -191,9 +191,24 @@ class Link
     Link();
     Link( const Link& );
     ~Link();
+
+  private:
     Link* clone() const { return new Link(*this); }
 
-    AtEnd traits_changed( TraitsRef, chain::Link* );
+    void traits_changed( TraitsRef, chain::Link* );
+    void recompute_meta_info() {
+        TraitsRef t;
+        if ( children.size() == 1 ) {
+            t = input_traits[0];
+        } else {
+            DEBUG("Making traits for size " << children.size());
+            try {
+                t = join_type().make_traits( input_traits ) ;
+            } catch (const std::runtime_error&) {}
+            DEBUG("Made traits providing nothing: " << ((t.get()) ? t->provides_nothing() : true));
+        }
+        update_current_meta_info(t);
+    }
 
     BaseSource* makeSource();
     std::string name() const { return getName(); }
@@ -214,7 +229,7 @@ class Link
     void publish_meta_info() {
         for (unsigned i = 0; i < children.size(); ++i)
             children[i].publish_meta_info();
-        assert( current_traits().get() );
+        assert( current_meta_info().get() );
     }
 
     void insert_new_node( std::auto_ptr<chain::Link>, Place );
@@ -262,22 +277,12 @@ Link::Link( const Link& o )
 Link::~Link() {
 }
 
-Link::AtEnd Link::traits_changed( TraitsRef r, chain::Link* l ) {
+void Link::traits_changed( TraitsRef r, chain::Link* l ) {
     assert( children.size() == input_traits.size() );
     for (size_t i = 0; i < children.size(); ++i)
         if ( &children[i] == l )
             input_traits[i] = r;
-    TraitsRef t;
-    if ( children.size() == 1 ) {
-        t = input_traits[0];
-    } else {
-        DEBUG("Making traits for size " << children.size());
-        try {
-            t = join_type().make_traits( input_traits ) ;
-        } catch (const std::runtime_error&) {}
-        DEBUG("Made traits providing nothing: " << ((t.get()) ? t->provides_nothing() : true));
-    }
-    return notify_of_trait_change(t);
+    recompute_meta_info();
 }
 
 BaseSource* Link::makeSource() {
@@ -294,7 +299,7 @@ BaseSource* Link::makeSource() {
 
 void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
     if ( children.size() == 0 ) {
-        input_traits.push_back( l->current_traits() );
+        input_traits.push_back( l->current_meta_info() );
         connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
         children.push_back( l );
         set_upstream_element( children.back(), *this, Add );
@@ -307,11 +312,7 @@ void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
 
 void Link::operator()(const simparm::Event& e) {
     if ( &e.source == &join_type.value ) {
-        TraitsRef t;
-        try {
-            t = join_type().make_traits( input_traits ) ;
-        } catch (const std::runtime_error&) {}
-        notify_of_trait_change(t);
+        recompute_meta_info();
     } else if ( &e.source == &channel_count.value ) {
         DEBUG("Channel count changed to " << channel_count());
         join_type.viewable = channel_count() > 1;
@@ -320,7 +321,7 @@ void Link::operator()(const simparm::Event& e) {
             children.back().publish_meta_info();
             std::string i = boost::lexical_cast<std::string>(children.size());
             connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
-            input_traits.push_back( children.back().current_traits() );
+            input_traits.push_back( children.back().current_meta_info() );
             if ( registered_node ) {
                 children.back().registerNamedEntries( connection_nodes.back() );
                 channels.push_back( connection_nodes.back() );
@@ -332,11 +333,7 @@ void Link::operator()(const simparm::Event& e) {
             connection_nodes.pop_back();
             input_traits.pop_back();
         }
-        TraitsRef t;
-        try {
-            t = join_type().make_traits( input_traits ) ;
-        } catch (const std::runtime_error& e) {}
-        notify_of_trait_change(t);
+        recompute_meta_info();
     }
 }
 

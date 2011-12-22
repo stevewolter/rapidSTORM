@@ -205,7 +205,7 @@ std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
 
 const input::chain::MetaInfo&
 GrandConfig::get_meta_info() const {
-    return *engine_choice->current_traits();
+    return *engine_choice->current_meta_info();
 }
 
 void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {

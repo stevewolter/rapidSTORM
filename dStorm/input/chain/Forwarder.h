@@ -16,7 +16,7 @@ class Forwarder : public Link {
 
     virtual Forwarder* clone() const = 0;
     virtual BaseSource* makeSource();
-    virtual AtEnd traits_changed( TraitsRef, Link* );
+    virtual void traits_changed( TraitsRef, Link* );
     void insert_new_node( std::auto_ptr<Link>, Place );
     void registerNamedEntries( simparm::Node& );
     std::string name() const;

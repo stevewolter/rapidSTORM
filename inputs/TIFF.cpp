@@ -253,12 +253,12 @@ void ChainLink::operator()(const simparm::Event& e) {
 
 void unit_test( TestState& s ) {
     ChainLink l;
-    s.testrun( l.current_traits().get() 
-            && l.current_traits()->provides_nothing(),
+    s.testrun( l.current_meta_info().get() 
+            && l.current_meta_info()->provides_nothing(),
         "Traits are right for empty file" );
-    l.current_traits()->get_signal< InputFileNameChange >()( test_file_name );
-    s.testrun( l.current_traits().get() 
-            && ! l.current_traits()->provides_nothing(),
+    l.current_meta_info()->get_signal< InputFileNameChange >()( test_file_name );
+    s.testrun( l.current_meta_info().get() 
+            && ! l.current_meta_info()->provides_nothing(),
         "Traits are right for test file" );
 }
 

@@ -26,7 +26,7 @@ class FileMethod
     FileMethod(const FileMethod&);
     ~FileMethod();
 
-    virtual AtEnd traits_changed( TraitsRef, Link* );
+    virtual void traits_changed( TraitsRef, Link* );
 
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 

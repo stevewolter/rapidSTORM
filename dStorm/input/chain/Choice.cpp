@@ -39,7 +39,7 @@ void Choice::operator()(const simparm::Event&)
     publish_traits();
 }
 
-Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
+void Choice::traits_changed( TraitsRef t, Link* from ) {
     Link::traits_changed(t, from);
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
     if ( auto_select && choices.isValid() && &choices.value().link() == from && ! provides_something ) {
@@ -47,7 +47,7 @@ Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
         /* Choice can deliver no traits, i.e. is invalid. Find valid one. */
         bool found = false;
         for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
-            if ( i->link().current_traits().get() != NULL && ! i->link().current_traits()->provides_nothing() ) {
+            if ( i->link().current_meta_info().get() != NULL && ! i->link().current_meta_info()->provides_nothing() ) {
                 choices.value = &(*i);
                 found = true;
             }
@@ -61,22 +61,22 @@ Choice::AtEnd Choice::traits_changed( TraitsRef t, Link* from ) {
             if ( &i->link() == from )
                 choices.value = &*i;
     }
-    return publish_traits();
+    publish_traits();
 }
 
-Choice::AtEnd Choice::publish_traits() {
+void Choice::publish_traits() {
     TraitsRef exemplar;
-    if ( choices.isValid() && choices.value().link().current_traits().get() )
-        exemplar = choices.value().link().current_traits();
+    if ( choices.isValid() && choices.value().link().current_meta_info().get() )
+        exemplar = choices.value().link().current_meta_info();
     if ( exemplar.get() )
         my_traits.reset( new MetaInfo(*exemplar) );
     else
         my_traits.reset( new MetaInfo() );
     for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
-        if ( i->link().current_traits() != exemplar && i->link().current_traits().get() )
-            my_traits->forward_connections( *i->link().current_traits() );
+        if ( i->link().current_meta_info() != exemplar && i->link().current_meta_info().get() )
+            my_traits->forward_connections( *i->link().current_meta_info() );
     }
-    return notify_of_trait_change( my_traits );
+    update_current_meta_info( my_traits );
 }
 
 BaseSource* Choice::makeSource() {
@@ -98,7 +98,7 @@ void Choice::add_choice( std::auto_ptr<Link> fresh )
     std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
     adaptor->registerNamedEntries();
     choices.addChoice( choices.endChoices(), adaptor );
-    traits_changed( l.current_traits(), &l );
+    traits_changed( l.current_meta_info(), &l );
 }
 
 Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::chain::Link> l ) 
@@ -119,7 +119,7 @@ void Choice::publish_meta_info() {
         i->link().publish_meta_info();
     }
     publish_traits();
-    if ( ! current_traits().get() )
+    if ( ! current_meta_info().get() )
         throw std::logic_error(name() + " did not publish meta info on request");
 }
 

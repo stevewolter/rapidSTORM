@@ -17,9 +17,11 @@ class Method
 {
     typedef boost::shared_ptr< const chain::MetaInfo > TraitsRef;
     typedef chain::Link Link;
+
+  public:
     BaseClass* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
     BaseSource* makeSource();
-    typename BaseClass::AtEnd traits_changed( TraitsRef, Link* );
+    void traits_changed( TraitsRef, Link* );
     void registerNamedEntries( simparm::Node& node ) { 
         BaseClass::registerNamedEntries( node );
         node.push_back( static_cast<CRTP&>(*this).getNode() ); 
@@ -117,22 +119,22 @@ BaseSource* Method<CRTP,BaseClass>::makeSource() {
 }
 
 template <typename CRTP, class BaseClass>
-typename BaseClass::AtEnd Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
+void Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
     TraitsRef result;
     if ( orig.get() )
         boost::mpl::for_each< typename CRTP::SupportedTypes >(
             boost::bind( make_traits(), boost::ref(*this), _1, orig,
                         boost::ref(result) ) );
     if ( result.get() )
-        return this->notify_of_trait_change(result);
+        return this->update_current_meta_info(result);
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
-        return this->notify_of_trait_change(orig);
+        return this->update_current_meta_info(orig);
     else if ( orig.get() ) {
         boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
         my_info->set_traits( NULL );
-        return this->notify_of_trait_change( my_info );
+        return this->update_current_meta_info( my_info );
     } else {
-        return this->notify_of_trait_change( orig );
+        return this->update_current_meta_info( orig );
     }
 }
 

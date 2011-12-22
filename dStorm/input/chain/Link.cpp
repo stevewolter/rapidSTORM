@@ -26,15 +26,14 @@ Link::Link(const Link& o)
 Link::~Link() {
 }
 
-Link::AtEnd Link::notify_of_trait_change( TraitsRef new_traits ) 
+void Link::update_current_meta_info( TraitsRef new_traits ) 
 {
     meta_info = new_traits;
     if ( less_specialized )  {
         DEBUG(name() << "(" << this << ") publishes trait change to " << new_traits.get());
-        return less_specialized->traits_changed( new_traits, this );
+        less_specialized->traits_changed( new_traits, this );
     } else {
         DEBUG(name() << "(" << this << ") cannot publish trait change");
-        return AtEnd();
     }
 }
 
@@ -48,18 +47,15 @@ void Link::set_upstream_element( Link& element, SetType type ) {
     }
 }
 
-Link::AtEnd Link::traits_changed( TraitsRef r, Link* l ) {
+void Link::traits_changed( TraitsRef r, Link* l ) {
     meta_info = r;
     DEBUG("Traits " << r.get() << " providing " << ((r.get() && r->provides_nothing()) ? "nothing" : "something") << " passing from " << l << "(" << ((l) ? l->name() : "NULL") << ") by " << this << "(" << name()  << ")");
-    return AtEnd();
 }
 
-Terminus::AtEnd Terminus::traits_changed( TraitsRef, Link* )
+void Terminus::traits_changed( TraitsRef, Link* )
 {
-    /* This point should never be reached since a chain terminus cannot
-     * be a less specialized element. */
-    assert( false );
-    return AtEnd();
+    throw std::runtime_error("Called method on input chain terminus that "
+                             "is reserved for forwarders");
 }
 
 void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {

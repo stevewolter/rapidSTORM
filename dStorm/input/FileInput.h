@@ -61,7 +61,7 @@ class FileInput
             ( info->get_signal< InputFileNameChange >().connect
                 (boost::bind( &FileInput::open_file, boost::ref(*this), _1) ) ) );
         DEBUG(this << " registered as " << filename_change.get() << " to " << info.get());
-        this->notify_of_trait_change( info );
+        this->update_current_meta_info( info );
     }
   public:
     FileInput() {}

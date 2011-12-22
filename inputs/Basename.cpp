@@ -26,7 +26,7 @@ ChainLink::ChainLink()
 {
 }
 
-chain::Link::AtEnd ChainLink::traits_changed( TraitsRef traits, Link *l )
+void ChainLink::traits_changed( TraitsRef traits, Link *l )
 {
     Link::traits_changed(traits,l); 
 
@@ -44,10 +44,10 @@ chain::Link::AtEnd ChainLink::traits_changed( TraitsRef traits, Link *l )
         traits->get_signal< BasenameChange >()( this->traits->suggested_output_basename );
     } else {
         output = default_output_basename;
-        if ( upstream_traits() != traits )
-            return AtEnd();
     }
-    return notify_of_trait_change(this->traits);
+    /* Check that no recursive call triggered by a signal happened */
+    if ( upstream_traits() == traits ) 
+        update_current_meta_info(this->traits);
 }
 
 void ChainLink::operator()(const simparm::Event&)
@@ -58,7 +58,7 @@ void ChainLink::operator()(const simparm::Event&)
     if ( traits.get() ) {
         traits->suggested_output_basename.unformatted() = output();
         traits->get_signal< BasenameChange >()( traits->suggested_output_basename );
-        notify_of_trait_change( this->traits );
+        update_current_meta_info( this->traits );
     }
 }
 

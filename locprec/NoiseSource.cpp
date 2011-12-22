@@ -318,7 +318,7 @@ void NoiseConfig::publish_meta_info() {
 
     dStorm::input::chain::MetaInfo::Ptr t( new dStorm::input::chain::MetaInfo() );
     t->set_traits( rv );
-    notify_of_trait_change( t );
+    update_current_meta_info( t );
 }
 
 }

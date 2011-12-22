@@ -46,7 +46,7 @@ class ChainLink
     std::string name() const { return getName(); }
     std::string description() const { return getDesc(); }
 
-    AtEnd traits_changed( TraitsRef r, Link* l);
+    void traits_changed( TraitsRef r, Link* l);
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 };

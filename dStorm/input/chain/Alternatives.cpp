@@ -28,17 +28,15 @@ class Alternatives::UpstreamCollector
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 
-    AtEnd traits_changed( TraitsRef r, Link* from ) {
+    void traits_changed( TraitsRef r, Link* from ) {
         DEBUG("Traits changed from upstream in " << this  << " from " << from << " to " << r.get() );
         assert( upstream_traits() == r );
         Link::traits_changed(r,from);
-        notify_of_trait_change( r );
-        AtEnd rv;
+        update_current_meta_info( r );
         for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = papa.choices.beginChoices(); i != papa.choices.endChoices(); ++i ) {
-            rv = i->link().traits_changed( r, this );
-            if ( upstream_traits() != r ) return AtEnd();
+            i->link().traits_changed( r, this );
+            if ( upstream_traits() != r ) return;
         }
-        return rv;
     }
 
     std::string name() const { return "AlternativesUpstreamCollector"; }
@@ -59,7 +57,7 @@ class Alternatives::UpstreamLink
     std::string name() const { return "AlternativesUpstreamLink"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
     BaseSource* makeSource() { return collector.makeSource(); }
-    AtEnd traits_changed( TraitsRef, Link* ) { /* TODO: This method should be used for traits injection. */
+    void traits_changed( TraitsRef, Link* ) { /* TODO: This method should be used for traits injection. */
        throw std::logic_error("Not implemented"); }
     void insert_new_node( std::auto_ptr<Link>, Place ) { throw std::logic_error("Not implemented"); }
     void publish_meta_info() {}
@@ -100,7 +98,7 @@ void Alternatives::registerNamedEntries( simparm::Node& node ) {
 void Alternatives::publish_meta_info() {
     collector->publish_meta_info();
     Choice::publish_meta_info();
-    assert( current_traits().get() );
+    assert( current_meta_info().get() );
 }
 
 }

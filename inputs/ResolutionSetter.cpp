@@ -105,26 +105,11 @@ struct MoreSpecialized : public dStorm::input::chain::Link {
     simparm::Object node;
 
     MoreSpecialized() : node("Downstream", "Downstream") {}
-    virtual AtEnd traits_changed( TraitsRef r, Link* ) { return notify_of_trait_change(r); }
+    virtual void traits_changed( TraitsRef r, Link* ) { return update_current_meta_info(r); }
 
     virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
     void insert_new_node( std::auto_ptr<dStorm::input::chain::Link>, Place ) {}
-    void registerNamedEntries( simparm::Node& ) { }
-    std::string name() const { return node.getName(); }
-    std::string description() const { return node.getDesc(); }
-    void publish_meta_info() {}
-};
-
-struct LessSpecialized : public dStorm::input::chain::Forwarder {
-    simparm::Object node;
-    TraitsRef declared_traits;
-
-    LessSpecialized() : node("Upstream", "Upstream") {}
-    virtual AtEnd traits_changed( TraitsRef r, Link* ) { declared_traits = r; return AtEnd(); }
-
-    virtual input::BaseSource* makeSource() { return Forwarder::makeSource(); }
-    virtual LessSpecialized* clone() const { return new LessSpecialized(*this); }
     void registerNamedEntries( simparm::Node& ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
@@ -154,12 +139,9 @@ struct Check {
     int do_check() {
         std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
         MoreSpecialized& m(*ms);
-        std::auto_ptr<input::resolution::ChainLink> ls( new input::resolution::ChainLink() );
-        input::resolution::ChainLink& l(*ls);
-        LessSpecialized s;
+        input::resolution::ChainLink l;
 
-        s.insert_new_node( std::auto_ptr<input::chain::Link>(ls), Anywhere );
-        s.insert_new_node( std::auto_ptr<input::chain::Link>(ms), Anywhere );
+        l.insert_new_node( std::auto_ptr<input::chain::Link>(ms), Anywhere );
 
         dStorm::input::Traits< dStorm::engine::Image > correct;
         l.config.set_traits( correct );
@@ -174,11 +156,11 @@ struct Check {
         l.config["Optics"]["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
         l.config.set_traits( correct );
         DEBUG("Checking if config element change updates traits");
-        if ( trait_resolution_close_to(correct.plane(0).image_resolutions(), s.declared_traits) )
-            s.declared_traits.reset();
+        if ( trait_resolution_close_to(correct.plane(0).image_resolutions(), l.current_meta_info()) )
+            l.current_meta_info().reset();
         
         DEBUG("Checking if source can be built");
-        std::auto_ptr<input::BaseSource> bs( s.makeSource() );
+        std::auto_ptr<input::BaseSource> bs( l.makeSource() );
         std::auto_ptr< input::Source<engine::Image> > source
             = input::BaseSource::downcast< engine::Image >( bs );
         if ( source.get() == NULL )
