@@ -12,7 +12,7 @@
 #include <simparm/Structure.hh>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/Image_decl.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/Localization.h>
 #include <dStorm/input/LocalizationTraits.h>

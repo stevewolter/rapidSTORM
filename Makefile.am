@@ -138,7 +138,6 @@ nobase_include_HEADERS = \
     dStorm/output/Traits_decl.h dStorm/output/Traits.h \
     dStorm/output/TraceReducer.h \
     dStorm/output/LocalizedImage_decl.h dStorm/output/LocalizedImage.h dStorm/output/LocalizedImage_traits.h \
-    dStorm/engine/ClassicEngine.h \
     dStorm/engine/Candidate_decl.h dStorm/engine/Candidate.h \
     dStorm/engine/CandidateTree_decl.h dStorm/engine/CandidateTree.h \
     dStorm/engine/Image_decl.h dStorm/engine/Image.h \
@@ -155,12 +154,10 @@ nobase_include_HEADERS = \
     dStorm/input/chain/DefaultFilterTypes.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
     dStorm/input/chain/Alternatives.h \
-    dStorm/input/Drain_decl.h dStorm/input/Drain.h \
-    dStorm/input/Source_decl.h dStorm/input/Source.h dStorm/input/Source_impl.h \
+    dStorm/input/Source_decl.h dStorm/input/Source.h \
     dStorm/input/Traits.h  \
     dStorm/input/LocalizationTraits_decl.h dStorm/input/LocalizationTraits.h \
-    dStorm/input/InputFilter.h dStorm/input/InputFilter_impl.h \
-    dStorm/input/FileMethod_decl.h dStorm/input/InputMutex.h \
+    dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
     dStorm/helpers/thread.h dStorm/helpers/Runnables.h dStorm/helpers/dilation.h dStorm/helpers/Variance.h \
     dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
@@ -184,7 +181,8 @@ nobase_include_HEADERS = \
     dStorm/UnitEntries/PixelSize.h dStorm/UnitEntries/TemperatureEntry.h \
     dStorm/UnitEntries/TimeEntry.h dStorm/UnitEntries/ADC.h \
     dStorm/localization_file/field_decl.h dStorm/localization_file/field.h \
-    dStorm/localization_file/reader.h dStorm/localization_file/converter.h
+    dStorm/localization_file/reader.h dStorm/localization_file/converter.h \
+    dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h
 
 libdStorm_la_SOURCES = \
     dStorm/input/Source.cpp \
@@ -194,7 +192,7 @@ libdStorm_la_SOURCES = \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
     dStorm/localization/Field.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
-    dStorm/traits/optics.cpp dStorm/input/debug.h \
+    dStorm/traits/optics.cpp \
     dStorm/localization/record.cpp \
     dStorm/expression/Evaluator.h dStorm/expression/Simplifier.h dStorm/expression/UnitChecker.h \
     dStorm/expression/Expression.cpp dStorm/expression/Expression.h \
@@ -210,7 +208,7 @@ libdStorm_la_SOURCES = \
     dStorm/expression/SimpleFilters.h dStorm/expression/SimpleFilters.cpp \
     dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
-    dStorm/input/ImageSource.cpp dStorm/input/InputMutex.cpp \
+    dStorm/input/InputMutex.cpp \
     dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
     dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp \
@@ -268,21 +266,21 @@ libcode_la_SOURCES = \
     Car_decl.h Car.cpp Car.h
 
 libcode_la_SOURCES += \
-    dStorm/input/FileMethod.h dStorm/input/FileMethod.cpp \
     dStorm/output/Config.h \
-    dStorm/input/InputMethods.h dStorm/input/InputMethods.cpp \
-    config/Grand.h config/Grand.cpp  \
-    config/EngineChoice.cpp config/EngineChoice.h \
-    config/InputBase.cpp config/InputBase.h \
-    config/InsertionPoint.cpp config/InsertionPoint.h \
-    dStorm/input/join.h dStorm/input/join.cpp \
-    dStorm/input/join/iterator_decl.hpp dStorm/input/join/iterator_generic.hpp \
-    dStorm/input/join/iterator.hpp dStorm/input/join/iterator.cpp \
-    dStorm/input/join/spatial.hpp dStorm/input/join/spatial.cpp \
-    dStorm/input/join/temporal.hpp dStorm/input/join/temporal.cpp
+    config/Grand.h config/Grand.cpp
 
 libcode_la_SOURCES += \
     inputs/inputs.h inputs/inputs.cpp \
+    inputs/FileMethod.h inputs/FileMethod.cpp \
+    inputs/InputMethods.h inputs/InputMethods.cpp \
+    inputs/EngineChoice.cpp inputs/EngineChoice.h \
+    inputs/InputBase.cpp inputs/InputBase.h \
+    inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
+    inputs/join.h inputs/join.cpp \
+    inputs/join/iterator_decl.hpp inputs/join/iterator_generic.hpp \
+    inputs/join/iterator.hpp inputs/join/iterator.cpp \
+    inputs/join/spatial.hpp inputs/join/spatial.cpp \
+    inputs/join/temporal.hpp inputs/join/temporal.cpp \
     inputs/TIFF.h inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp \
     inputs/BackgroundDeviationEstimator.cpp \
     inputs/BackgroundDeviationEstimator.h \

@@ -15,12 +15,7 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 
-#include "EngineChoice.h"
-#include "InsertionPoint.h"
-#include "InputBase.h"
-#include <dStorm/input/InputMethods.h>
-#include <dStorm/input/FileMethod.h>
-#include <dStorm/input/join.h>
+#include <dStorm/input/chain/Forwarder.h>
 
 #include <cassert>
 
@@ -34,10 +29,32 @@
 #include <simparm/Menu.hh>
 #include <simparm/URI.hh>
 
+#include <dStorm/signals/UseSpotFinder.h>
+#include <dStorm/signals/UseSpotFitter.h>
+
 using namespace std;
 
 namespace dStorm {
 
+class GrandConfig::InputListener
+: public input::chain::Forwarder
+{
+    GrandConfig& config;
+
+    InputListener* clone() const { throw std::logic_error("Not implemented"); }
+    void traits_changed( TraitsRef traits, input::chain::Link* el ) {
+        if ( traits.get() != NULL ) 
+            config.traits_changed(*traits);
+        input::chain::Forwarder::traits_changed( traits, el );
+    }
+    std::string name() const { return "InputListener"; }
+
+  public:
+    InputListener( GrandConfig& config ) : config(config) {}
+    InputListener( GrandConfig& config, const InputListener& l ) 
+        : input::chain::Forwarder(l), config(config) {}
+
+};
 
 class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
@@ -102,7 +119,7 @@ GrandConfig::TreeRoot::TreeRoot()
 GrandConfig::GrandConfig() 
 : Set("Car", "Job options"),
   outputRoot( new TreeRoot() ),
-  engine_choice( make_engine_choice(*this) ),
+  input_listener( new InputListener(*this) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( "HelpMenu", "Help" ),
@@ -112,13 +129,6 @@ GrandConfig::GrandConfig()
                  true),
   pistonCount("CPUNumber", "Number of CPUs to use")
 {
-   engine_choice->insert_new_node( make_input_base(), BeforeEngine );
-   engine_choice->insert_new_node( make_insertion_place_link(AfterChannels), AfterChannels );
-   engine_choice->insert_new_node( input::join::create_link(), AfterChannels );
-   engine_choice->insert_new_node( make_insertion_place_link(BeforeChannels), BeforeChannels );
-   engine_choice->insert_new_node( std::auto_ptr< input::chain::Link >(new input::InputMethods()), BeforeChannels );
-   engine_choice->insert_new_node( std::auto_ptr< input::chain::Link >(new input::FileMethod()), InputMethod );
-
    configTarget.setUserLevel(simparm::Object::Intermediate);
    auto_terminate.setUserLevel(simparm::Object::Expert);
 
@@ -148,7 +158,7 @@ GrandConfig::GrandConfig()
 GrandConfig::GrandConfig(const GrandConfig &c) 
 : simparm::Set(c),
   outputRoot(c.outputRoot->clone()),
-  engine_choice( copy_engine_choice(*c.engine_choice, *this) ),
+  input_listener( new InputListener( *this, *c.input_listener ) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( c.helpMenu ),
@@ -157,7 +167,7 @@ GrandConfig::GrandConfig(const GrandConfig &c)
   auto_terminate(c.auto_terminate),
   pistonCount(c.pistonCount)
 {
-    engine_choice->publish_meta_info();
+    input_listener->publish_meta_info();
     registerNamedEntries();
     DEBUG("Copied Car config");
 }
@@ -165,13 +175,13 @@ GrandConfig::GrandConfig(const GrandConfig &c)
 GrandConfig::~GrandConfig() {
     ost::MutexLock lock( input::global_mutex() );
     outputRoot.reset( NULL );
-    engine_choice.reset( NULL );
+    input_listener.reset( NULL );
 }
 
 void GrandConfig::registerNamedEntries() {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputBox.push_back( *outputRoot );
-   engine_choice->registerNamedEntries(*this);
+   input_listener->registerNamedEntries(*this);
    push_back( pistonCount );
    push_back( outputBox );
    push_back( configTarget );
@@ -179,20 +189,18 @@ void GrandConfig::registerNamedEntries() {
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 
-void GrandConfig::add_engine( std::auto_ptr<input::chain::Link> engine) {
-    engine_choice->insert_new_node( engine, AsEngine );
+void GrandConfig::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> finder) {
+    input_listener->publish_meta_info();
+    input_listener->current_meta_info()->get_signal< signals::UseSpotFinder >()( *finder );
 }
 
-void GrandConfig::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> engine) {
-    engine_choice->add( engine );
-}
-
-void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> engine) {
-    engine_choice->add( engine );
+void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> fitter) {
+    input_listener->publish_meta_info();
+    input_listener->current_meta_info()->get_signal< signals::UseSpotFitter >()( *fitter );
 }
 
 void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
-    engine_choice->insert_new_node( l, p );
+    input_listener->insert_new_node( l, p );
 }
 
 void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
@@ -200,12 +208,12 @@ void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
 }
 
 std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
-    return std::auto_ptr<input::BaseSource>( engine_choice->makeSource() );
+    return std::auto_ptr<input::BaseSource>( input_listener->makeSource() );
 }
 
 const input::chain::MetaInfo&
 GrandConfig::get_meta_info() const {
-    return *engine_choice->current_meta_info();
+    return *input_listener->current_meta_info();
 }
 
 void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {
@@ -216,7 +224,7 @@ void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {
 }
 
 void GrandConfig::all_modules_loaded() {
-    engine_choice->publish_meta_info();
+    input_listener->publish_meta_info();
 }
 
 }

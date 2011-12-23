@@ -3,7 +3,6 @@
 
 #include <dStorm/Image_decl.h>
 #include <dStorm/ImageTraits.h>
-#include <dStorm/input/Config.h>
 #include <dStorm/input/FileInput.h>
 #include <memory>
 #include <string>
@@ -13,6 +12,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
+#include <simparm/Set.hh>
 
 #ifndef DSTORM_TIFFLOADER_CPP
 typedef void TIFF;

@@ -2,16 +2,53 @@
 
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/engine/Image.h>
 #include <dStorm/input/chain/MetaInfo.h>
-#include "chain/Choice.h"
+#include <dStorm/input/chain/Choice.h>
+#include <dStorm/input/chain/Forwarder.h>
+#include <simparm/FileEntry.hh>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <simparm/Set.hh>
 
 #include "FileMethod.h"
-#include "InputFileNameChange.h"
+#include <dStorm/input/InputFileNameChange.h>
 
 namespace dStorm {
 namespace input {
+namespace file_method {
 
 using namespace chain;
+
+class FileMethod
+: public simparm::Set,
+  public chain::Forwarder,
+  private simparm::Listener
+{
+    friend void unit_test(TestState&);
+    simparm::FileEntry input_file;
+
+    void operator()( const simparm::Event& );
+    virtual void traits_changed( TraitsRef, Link* );
+
+    FileMethod* clone() const { return new FileMethod(*this); }
+    void registerNamedEntries( simparm::Node& node ) { 
+        this->push_back( input_file );
+        chain::Forwarder::registerNamedEntries(*this);
+        node.push_back( *this );
+    }
+    std::string name() const { return getName(); }
+    std::string description() const { return getDesc(); }
+
+    BaseSource* makeSource() { return Forwarder::makeSource(); }
+
+
+  public:
+    FileMethod();
+    FileMethod(const FileMethod&);
+    ~FileMethod();
+
+    static void unit_test( TestState& ); 
+};
 
 class FileTypeChoice 
 : public chain::Choice
@@ -105,6 +142,11 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
     update_current_meta_info( my_traits );
 }
 
+std::auto_ptr<chain::Link> makeLink() {
+    return std::auto_ptr<chain::Link>( new FileMethod() );
+}
+
+}
 }
 }
 
@@ -114,10 +156,11 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
 
 namespace dStorm {
 namespace input {
+namespace file_method {
 
 using namespace chain;
 
-void FileMethod::unit_test( TestState& t ) {
+void unit_test( TestState& t ) {
     FileMethod file_method;
 
     file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), FileReader );
@@ -160,5 +203,6 @@ void FileMethod::unit_test( TestState& t ) {
         "Copied file method is not mutated by original" );
 }
 
+}
 }
 }

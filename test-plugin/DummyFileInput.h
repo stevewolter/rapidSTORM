@@ -1,15 +1,8 @@
 #ifndef DUMMY_FILE_INPUT_H
 #define DUMMY_FILE_INPUT_H
 
-#include <dStorm/input/Source_impl.h>
-#include <dStorm/input/Config.h>
-#include <dStorm/engine/Image.h>
-#include <dStorm/ImageTraits.h>
-#include <simparm/Structure.hh>
-#include <simparm/Entry.hh>
-#include <dStorm/input/FileInput.h>
-#include <boost/signals2/connection.hpp>
-#include <fstream>
+#include <memory>
+#include <dStorm/input/chain/Link_decl.h>
 
 namespace dummy_file_input {
 

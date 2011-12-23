@@ -2,6 +2,14 @@
 #include <dStorm/namespaces.h>
 #include <dStorm/log.h>
 #include "DummyFileInput.h"
+#include <dStorm/input/Source.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/ImageTraits.h>
+#include <simparm/Structure.hh>
+#include <simparm/Entry.hh>
+#include <dStorm/input/FileInput.h>
+#include <boost/signals2/connection.hpp>
+#include <fstream>
 #include <iostream>
 #include <fstream>
 #include <dStorm/engine/Image.h>

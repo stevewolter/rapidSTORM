@@ -14,7 +14,7 @@
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <dStorm/Image_impl.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>

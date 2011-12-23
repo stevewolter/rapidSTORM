@@ -12,7 +12,6 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/Entry.hh>
 #include <boost/ptr_container/ptr_list.hpp>
-#include "EngineChoice.h"
 
 namespace dStorm {
     namespace output { class OutputSource; }
@@ -28,7 +27,6 @@ namespace dStorm {
 
         std::auto_ptr<TreeRoot> outputRoot;
         std::auto_ptr<InputListener> input_listener;
-        std::auto_ptr<IEngineChoice> engine_choice;
 
         void registerNamedEntries();
         void traits_changed( const input::chain::MetaInfo& );
@@ -50,13 +48,8 @@ namespace dStorm {
         simparm::Entry<unsigned long> pistonCount;
 
         void add_input( std::auto_ptr<input::chain::Link>, InsertionPlace );
-        void add_engine( std::auto_ptr<input::chain::Link> );
         void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
-        void add_spot_finder( engine::spot_finder::Factory* f ) 
-            { add_spot_finder( std::auto_ptr<engine::spot_finder::Factory>(f) ); }
         void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> );
-        void add_spot_fitter( engine::spot_fitter::Factory* f ) 
-            { add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory>(f) ); }
         void add_output( std::auto_ptr<output::OutputSource> );
 
         const input::chain::MetaInfo& get_meta_info() const;

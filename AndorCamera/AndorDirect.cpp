@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <dStorm/output/Basename.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <boost/utility.hpp>
 
 #include "LiveView.h"

@@ -8,7 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
-#include "Source.h"
+#include <dStorm/input/Source.h>
 #include <dStorm/input/chain/DefaultFilterTypes.h>
 #include <dStorm/input/chain/MetaInfo.h>
 

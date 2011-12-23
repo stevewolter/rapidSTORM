@@ -1,7 +1,7 @@
 #include "debug.h"
 
 #include "LocalizationBuncher.h"
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/output/Output.h>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>

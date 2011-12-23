@@ -14,7 +14,7 @@
 #include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/ResolutionChange.h>
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/Localization.h>
 #include <dStorm/traits/resolution_config.h>
 #include <dStorm/units/nanolength.h>

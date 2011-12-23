@@ -24,7 +24,6 @@
 
 #include "TIFF.h"
 #include <dStorm/input/Source.h>
-#include <dStorm/input/Source_impl.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/ImageTraits.h>
 

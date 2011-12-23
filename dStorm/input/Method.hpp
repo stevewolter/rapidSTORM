@@ -47,6 +47,7 @@ class Method
     void update_traits( chain::MetaInfo&, Traits<Type>& ) {
         throw std::logic_error("Trait update not implemented");
     }
+    void update_meta_info( chain::MetaInfo& ) {}
     template <typename Type>
     BaseTraits* create_traits( chain::MetaInfo& my_info,
                                const Traits<Type>& orig_traits ) 
@@ -132,6 +133,7 @@ void Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
     else if ( orig.get() ) {
         boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
         my_info->set_traits( NULL );
+        static_cast<CRTP&>(*this).update_meta_info( *my_info );
         return this->update_current_meta_info( my_info );
     } else {
         return this->update_current_meta_info( orig );

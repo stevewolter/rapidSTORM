@@ -7,7 +7,6 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/input/Config.h>
 #include <fstream>
 #include <queue>
 #include <dStorm/output/Output.h>

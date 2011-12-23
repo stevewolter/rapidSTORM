@@ -8,7 +8,7 @@
 #include <cassert>
 #include <iterator>
 
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/engine/SpotFitter.h>

@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/output/Traits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/output/LocalizedImage.h>

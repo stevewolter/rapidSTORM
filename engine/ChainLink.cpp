@@ -7,19 +7,24 @@
 #include <boost/units/io.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/Method.hpp>
+#include <dStorm/signals/UseSpotFinder.h>
+#include <dStorm/signals/UseSpotFitter.h>
 #include "dejagnu.h"
 
 namespace dStorm {
 namespace engine {
 
 using namespace input;
+using boost::signals2::scoped_connection;
 
 class ChainLink
 : protected simparm::Listener,
-  public input::Method< ChainLink, ClassicEngine >
+  public input::Method< ChainLink >
 {
-    friend class input::Method< ChainLink, ClassicEngine >;
+    friend class input::Method< ChainLink >;
     typedef boost::mpl::vector< engine::Image > SupportedTypes;
+
+    std::auto_ptr< scoped_connection > finder_con, fitter_con;
 
     boost::shared_ptr< BaseTraits > 
     create_traits( chain::MetaInfo& mi, 
@@ -27,10 +32,20 @@ class ChainLink
     {
         boost::shared_ptr< input::Traits<output::LocalizedImage> >
             rt = Engine::convert_traits(config, upstream);
-        mi.suggested_output_basename.set_variable
-            ( "thres", amplitude_threshold_string() );
+        update_meta_info( mi );
         return rt;
     }
+    void update_meta_info( chain::MetaInfo& mi ) {
+        mi.suggested_output_basename.set_variable
+            ( "thres", amplitude_threshold_string() );
+        finder_con.reset( new scoped_connection( 
+            mi.get_signal< signals::UseSpotFinder >().connect( 
+                boost::bind( &ChainLink::add_spot_finder, this, _1 ) ) ) );
+        fitter_con.reset( new scoped_connection( 
+            mi.get_signal< signals::UseSpotFitter >().connect( 
+                boost::bind( &ChainLink::add_spot_fitter, this, _1 ) ) ) );
+    }
+
     BaseSource* make_source( std::auto_ptr< Source<Image> > base ) 
         { return new Engine( config, base ); }
     Config config;
@@ -50,10 +65,12 @@ class ChainLink
 
     simparm::Node& getNode() { return config; }
 
-    void add_spot_finder( spot_finder::Factory& finder) { config.spotFindingMethod.addChoice(finder); }
-    void add_spot_fitter( spot_fitter::Factory& fitter) { 
-        fitter.register_trait_changing_nodes(*this);
-        config.spotFittingMethod.addChoice(fitter); 
+    void add_spot_finder( const spot_finder::Factory& finder) 
+        { config.spotFindingMethod.addChoice(finder.clone()); }
+    void add_spot_fitter( const spot_fitter::Factory& fitter) { 
+        std::auto_ptr< spot_fitter::Factory > my_fitter(fitter.clone());
+        my_fitter->register_trait_changing_nodes(*this);
+        config.spotFittingMethod.addChoice(my_fitter); 
     }
 };
 
@@ -67,7 +84,7 @@ ChainLink::ChainLink()
 
 ChainLink::ChainLink(const ChainLink& c)
 : simparm::Listener( simparm::Event::ValueChanged ),
-  Method<ChainLink,ClassicEngine>(c),
+  Method<ChainLink>(c),
   config(c.config)
 {
     receive_changes_from( config.amplitude_threshold.value );

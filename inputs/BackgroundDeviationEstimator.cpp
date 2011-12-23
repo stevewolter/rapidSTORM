@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "BackgroundDeviationEstimator.h"
-#include <dStorm/input/Source_impl.h>
+#include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/input/Method.hpp>

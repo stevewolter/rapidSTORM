@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "Forwarder.h"
 #include <simparm/Node.hh>
 #include <dStorm/input/Source.h>
@@ -74,7 +75,9 @@ void Forwarder::insert_here( std::auto_ptr<Link> link ) {
 void Forwarder::publish_meta_info() {
     if ( ! more_specialized.get() )
         throw std::logic_error(name() + " needs a subinput to publish meta info");
+    DEBUG(name() << " calls for publishment of meta info");
     more_specialized->publish_meta_info();
+    DEBUG(name() << " called for publishment of meta info");
     if ( ! current_meta_info().get() )
         throw std::logic_error(name() + " did not publish meta info on request");
 }
