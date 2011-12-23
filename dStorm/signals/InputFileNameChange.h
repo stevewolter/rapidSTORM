@@ -6,7 +6,7 @@
 #include <boost/signals2/signal.hpp>
 
 namespace dStorm {
-namespace input {
+namespace signals {
 
 struct InputFileNameChange
 : public boost::signals2::signal< void (const std::string&) > 

@@ -15,7 +15,6 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
 #include <boost/iterator/iterator_facade.hpp>
-#include <dStorm/input/InputFileNameChange.h>
 #include <dStorm/input/InputMutex.h>
 
 #undef DEBUG

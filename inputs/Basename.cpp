@@ -1,7 +1,7 @@
 #include "Basename.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/InputMutex.h>
-#include <dStorm/input/BasenameChange.h>
+#include <dStorm/signals/BasenameChange.h>
 #include <dStorm/input/chain/Forwarder.h>
 #include <simparm/Entry.hh>
 #include <simparm/Structure.hh>
@@ -82,7 +82,7 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
 
     if ( user_changed_output ) {
         this->traits->suggested_output_basename.unformatted() = output();
-        traits->get_signal< BasenameChange >()( this->traits->suggested_output_basename );
+        traits->get_signal< signals::BasenameChange >()( this->traits->suggested_output_basename );
     } else {
         output = default_output_basename;
     }
@@ -98,7 +98,7 @@ void ChainLink::operator()(const simparm::Event&)
     user_changed_output = ( output() != "" && output() != default_output_basename );
     if ( traits.get() ) {
         traits->suggested_output_basename.unformatted() = output();
-        traits->get_signal< BasenameChange >()( traits->suggested_output_basename );
+        traits->get_signal< signals::BasenameChange >()( traits->suggested_output_basename );
         update_current_meta_info( this->traits );
     }
 }

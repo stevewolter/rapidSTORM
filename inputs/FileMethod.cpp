@@ -11,7 +11,7 @@
 #include <simparm/Set.hh>
 
 #include "FileMethod.h"
-#include <dStorm/input/InputFileNameChange.h>
+#include <dStorm/signals/InputFileNameChange.h>
 
 namespace dStorm {
 namespace input {
@@ -95,7 +95,7 @@ void FileMethod::operator()( const simparm::Event& )
     ost::MutexLock lock( global_mutex() );
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_meta_info().get() );
     if ( current_meta_info().get() != NULL ) {
-        current_meta_info()->get_signal< InputFileNameChange >()( input_file() );
+        current_meta_info()->get_signal< signals::InputFileNameChange >()( input_file() );
     }
 }
 
@@ -124,7 +124,7 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << traits.get() );
     if ( traits.get() == NULL ) return update_current_meta_info( traits );
     DEBUG( "FileMethod " << this << " got traits " << traits->provides_nothing() );
-    traits->get_signal< InputFileNameChange >()( input_file() );
+    traits->get_signal< signals::InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
     if ( upstream_traits() != traits ) return;

@@ -79,9 +79,8 @@ endif
 
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
-    dStorm/InsertionPlace.h dStorm/input/InputFileNameChange.h \
+    dStorm/InsertionPlace.h \
     dStorm/input/AdapterSource.h \
-    dStorm/input/ResolutionChange.h dStorm/input/BasenameChange.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
@@ -182,7 +181,8 @@ nobase_include_HEADERS = \
     dStorm/UnitEntries/TimeEntry.h dStorm/UnitEntries/ADC.h \
     dStorm/localization_file/field_decl.h dStorm/localization_file/field.h \
     dStorm/localization_file/reader.h dStorm/localization_file/converter.h \
-    dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h
+    dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h \
+    dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h
 
 libdStorm_la_SOURCES = \
     dStorm/input/Source.cpp \

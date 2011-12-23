@@ -15,8 +15,8 @@
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 #include <boost/optional.hpp>
-#include <dStorm/input/ResolutionChange.h>
-#include <dStorm/input/BasenameChange.h>
+#include <dStorm/signals/ResolutionChange.h>
+#include <dStorm/signals/BasenameChange.h>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -97,12 +97,12 @@ void Method::publish_meta_info() {
         ( new dStorm::input::chain::MetaInfo() );
     mi->set_traits( traits );
     resolution_listener.reset( new boost::signals2::scoped_connection(
-        mi->get_signal< input::ResolutionChange >().connect(
+        mi->get_signal< signals::ResolutionChange >().connect(
             boost::bind( &Method::resolution_changed, boost::ref(*this), _1 ) )
         ) 
     );
     basename_listener.reset( new boost::signals2::scoped_connection(
-        mi->get_signal< input::BasenameChange >().connect(
+        mi->get_signal< signals::BasenameChange >().connect(
             boost::bind( &Method::basename_changed, boost::ref(*this), _1 ) )
         ) 
     );

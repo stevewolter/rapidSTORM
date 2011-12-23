@@ -1,7 +1,7 @@
 #include "MetaInfo.h"
-#include <dStorm/input/InputFileNameChange.h>
-#include <dStorm/input/ResolutionChange.h>
-#include <dStorm/input/BasenameChange.h>
+#include <dStorm/signals/InputFileNameChange.h>
+#include <dStorm/signals/ResolutionChange.h>
+#include <dStorm/signals/BasenameChange.h>
 #include <dStorm/signals/UseSpotFinder.h>
 #include <dStorm/signals/UseSpotFitter.h>
 #include <boost/ptr_container/ptr_vector.hpp>

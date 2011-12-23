@@ -31,7 +31,7 @@
 #include <boost/units/base_units/us/inch.hpp>
 
 #include "TIFFOperation.h"
-#include <dStorm/input/InputFileNameChange.h>
+#include <dStorm/signals/InputFileNameChange.h>
 #include <dStorm/input/InputMutex.h>
 
 #include "dejagnu.h"
@@ -255,7 +255,7 @@ void unit_test( TestState& s ) {
     s.testrun( l.current_meta_info().get() 
             && l.current_meta_info()->provides_nothing(),
         "Traits are right for empty file" );
-    l.current_meta_info()->get_signal< InputFileNameChange >()( test_file_name );
+    l.current_meta_info()->get_signal< signals::InputFileNameChange >()( test_file_name );
     s.testrun( l.current_meta_info().get() 
             && ! l.current_meta_info()->provides_nothing(),
         "Traits are right for test file" );

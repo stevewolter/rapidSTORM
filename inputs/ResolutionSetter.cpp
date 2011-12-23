@@ -13,8 +13,8 @@
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/LocalizationTraits.h>
 #include <dStorm/input/Method.hpp>
-#include <dStorm/input/ResolutionChange.h>
 #include <dStorm/input/Source.h>
+#include <dStorm/signals/ResolutionChange.h>
 #include <dStorm/Localization.h>
 #include <dStorm/traits/resolution_config.h>
 #include <dStorm/units/nanolength.h>
@@ -62,7 +62,7 @@ class ChainLink
     }
     template <typename Type>
     void update_traits( chain::MetaInfo& i, Traits<Type>& traits ) { 
-        i.get_signal< ResolutionChange >()( config.get_resolution() );
+        i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
         config.read_traits( traits );
         config.set_traits(traits); 
     }

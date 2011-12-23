@@ -14,7 +14,7 @@
 
 #include <boost/variant/get.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
-#include <dStorm/input/InputFileNameChange.h>
+#include <dStorm/signals/InputFileNameChange.h>
 
 namespace dStorm {
 namespace localization_file {

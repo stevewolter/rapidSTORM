@@ -7,7 +7,7 @@
 #include <dStorm/output/Basename.h>
 
 namespace dStorm {
-namespace input {
+namespace signals {
 
 struct BasenameChange 
 : public boost::signals2::signal< void (const output::Basename&) > 

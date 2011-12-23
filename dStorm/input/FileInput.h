@@ -6,7 +6,7 @@
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
 #include <dStorm/input/chain/MetaInfo.h>
-#include "InputFileNameChange.h"
+#include <dStorm/signals/InputFileNameChange.h>
 
 namespace dStorm {
 namespace input {
@@ -58,7 +58,7 @@ class FileInput
             info->set_traits( file->getTraits().release() );
         DEBUG(this << " is unregistering from " << filename_change.get());
         filename_change.reset( new boost::signals2::scoped_connection
-            ( info->get_signal< InputFileNameChange >().connect
+            ( info->get_signal< signals::InputFileNameChange >().connect
                 (boost::bind( &FileInput::open_file, boost::ref(*this), _1) ) ) );
         DEBUG(this << " registered as " << filename_change.get() << " to " << info.get());
         this->update_current_meta_info( info );
