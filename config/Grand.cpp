@@ -152,6 +152,8 @@ GrandConfig::GrandConfig(const GrandConfig &c)
 GrandConfig::~GrandConfig() {
     ost::MutexLock lock( input::global_mutex() );
     outputRoot.reset( NULL );
+    input_listener.reset();
+    input.reset();
 }
 
 void GrandConfig::create_input( std::auto_ptr<input::Link> p ) {
