@@ -1,9 +1,9 @@
 #include "inputs/FileMethod.h"
-#include "inputs/ResolutionSetter_decl.h"
+#include "inputs/ResolutionSetter.h"
 #include "inputs/TIFF.h"
 #include "dejagnu.h"
 #include <dStorm/helpers/thread.h>
-#include "engine/Chainfwd.h"
+#include "engine/ChainLink_decl.h"
 
 int main() {
     ost::DebugStream::set( std::cerr );

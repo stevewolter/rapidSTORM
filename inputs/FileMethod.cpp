@@ -160,6 +160,7 @@ void unit_test( TestState& t ) {
     FileMethod file_method;
 
     file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), FileReader );
+    file_method.publish_meta_info();
     t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits" );
     t.testrun( file_method.current_meta_info()->provides_nothing(), 
@@ -177,6 +178,7 @@ void unit_test( TestState& t ) {
 
     std::auto_ptr<  dStorm::input::Link > foo = dummy_file_input::make();
     file_method.insert_new_node( foo, FileReader );
+    file_method.publish_meta_info();
     t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
@@ -187,6 +189,7 @@ void unit_test( TestState& t ) {
         "Test method can change file type" );
 
     FileMethod copy(file_method);
+    copy.publish_meta_info();
     copy.input_file = TIFF::test_file_name;
     t.testrun( copy.current_meta_info().get() && 
                copy.current_meta_info()->provides<dStorm::engine::Image>() &&
