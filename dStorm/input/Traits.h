@@ -1,7 +1,6 @@
 #ifndef DSTORM_INPUT_TRAITS_H
 #define DSTORM_INPUT_TRAITS_H
 
-#include <boost/ptr_container/clone_allocator.hpp>
 #include <string>
 
 namespace dStorm {
@@ -17,16 +16,8 @@ struct BaseTraits {
     virtual BaseTraits* clone() const = 0;
     virtual std::string desc() const = 0;
 };
-}
-}
 
-namespace boost {
-template <>
-inline dStorm::input::BaseTraits* 
-new_clone<dStorm::input::BaseTraits>
-    ( const dStorm::input::BaseTraits& o ) 
-    { return o.clone(); }
 }
-
+}
 
 #endif

@@ -20,7 +20,7 @@ class ChainLink
     typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
     bool ignore_unknown_type() const { return true; }
     template <typename Type>
-    bool changes_traits( const input::chain::MetaInfo&, const input::Traits<Type>& )
+    bool changes_traits( const input::MetaInfo&, const input::Traits<Type>& )
         { return false; }
     template <typename Type>
     input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
@@ -138,8 +138,8 @@ Source::get_traits( Wishes w )
     return s;
 }
 
-std::auto_ptr<input::chain::Link> makeLink() {
-    return std::auto_ptr<input::chain::Link>( new ChainLink() );
+std::auto_ptr<input::Link> makeLink() {
+    return std::auto_ptr<input::Link>( new ChainLink() );
 }
 
 }

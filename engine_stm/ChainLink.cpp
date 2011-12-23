@@ -2,7 +2,7 @@
 
 #include "ChainLink.h"
 #include "LocalizationBuncher.h"
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/ImageTraits.h>
@@ -29,13 +29,13 @@ class ChainLink : public input::Method< ChainLink >
     typedef boost::mpl::vector<output::LocalizedImage,localization::Record,dStorm::Localization>
         SupportedTypes;
     template <typename Type>
-    bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
+    bool changes_traits( const MetaInfo&, const Traits<Type>& )
         { return true; }
     template <typename Type>
-    BaseTraits* create_traits( chain::MetaInfo&, const Traits<output::LocalizedImage>& p ) 
+    BaseTraits* create_traits( MetaInfo&, const Traits<output::LocalizedImage>& p ) 
         { return new Traits<output::LocalizedImage>(p); }
     template <typename Type>
-    BaseTraits* create_traits( chain::MetaInfo&, const Traits<Type>& p ) 
+    BaseTraits* create_traits( MetaInfo&, const Traits<Type>& p ) 
         { return new Traits<output::LocalizedImage>(p, "STM", "Localizations file"); }
 
     input::BaseSource* make_source( std::auto_ptr< input::Source<output::LocalizedImage> > p ) 
@@ -48,10 +48,10 @@ class ChainLink : public input::Method< ChainLink >
     simparm::Node& getNode() { return config; }
 };
 
-std::auto_ptr<input::chain::Link>
+std::auto_ptr<input::Link>
 make_STM_engine_link()
 {
-    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
+    return std::auto_ptr<input::Link>( new ChainLink( ) );
 }
 
 }

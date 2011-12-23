@@ -78,7 +78,6 @@ endif
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
     dStorm/InsertionPlace.h \
-    dStorm/input/AdapterSource.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
@@ -145,13 +144,14 @@ nobase_include_HEADERS = \
     dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
-    dStorm/input/chain/Choice.h \
-    dStorm/input/chain/Link_decl.h dStorm/input/chain/Link.h \
-    dStorm/input/chain/Forwarder.h \
-    dStorm/input/chain/DefaultFilterTypes.h \
-    dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
-    dStorm/input/chain/Alternatives.h \
-    dStorm/input/Source_decl.h dStorm/input/Source.h \
+    dStorm/input/AdapterSource.h \
+    dStorm/input/Choice.h \
+    dStorm/input/fwd.h dStorm/input/Link.h \
+    dStorm/input/Forwarder.h \
+    dStorm/input/DefaultFilterTypes.h \
+    dStorm/input/MetaInfo.h \
+    dStorm/input/Alternatives.h \
+    dStorm/input/Source.h \
     dStorm/input/Traits.h  \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
@@ -183,7 +183,7 @@ nobase_include_HEADERS = \
 
 libdStorm_la_SOURCES = \
     dStorm/input/Source.cpp \
-    dStorm/input/chain/MetaInfo.cpp \
+    dStorm/input/MetaInfo.cpp \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
@@ -207,9 +207,9 @@ libdStorm_la_SOURCES = \
     dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/InputMutex.cpp \
-    dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
-    dStorm/input/chain/Alternatives.cpp \
-    dStorm/input/chain/Forwarder.cpp \
+    dStorm/input/Link.cpp dStorm/input/Choice.cpp \
+    dStorm/input/Alternatives.cpp \
+    dStorm/input/Forwarder.cpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp \
     dStorm/output/debug.h \
@@ -294,7 +294,7 @@ libcode_la_SOURCES += \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
 libcode_la_SOURCES += \
-	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
+	noop_engine/ChainLink.cpp noop_engine/Chainfwd.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 
 libcode_la_SOURCES += \
@@ -303,13 +303,13 @@ libcode_la_SOURCES += \
     engine/EngineDebug.h engine/Engine.h \
     engine/ImageFitter.h \
     engine/SpotFinder.cpp engine/debug.h  \
-    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
+    engine/Chainfwd.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
 libcode_la_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/Config.h engine_stm/Config.cpp \
-	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
+	    engine_stm/Chainfwd.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
 libcode_la_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
@@ -415,17 +415,11 @@ libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_system_LIB)
 libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/InputChainfwd.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
-
-librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
-    dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
-    dStorm/localization_file/Output.cpp
-librapidstormfile_plugin_la_LIBADD = libdStorm.la 
-librapidstormfile_plugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
 fit_camera_noise_LDADD = liblocprec.la 

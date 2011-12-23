@@ -1,18 +1,18 @@
 #include "InputMethods.h"
 #include <simparm/ChoiceEntry_Iterator.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include <dStorm/input/chain/Choice.h>
+#include <dStorm/input/Choice.h>
 
 namespace dStorm {
 namespace inputs {
 namespace InputMethods {
 
 struct Link 
-: public input::chain::Choice 
+: public input::Choice 
 {
     Link();
     Link* clone() const { return new Link(*this); }
-    void insert_new_node( std::auto_ptr<input::chain::Link>, Place );
+    void insert_new_node( std::auto_ptr<input::Link>, Place );
 };
 
 Link::Link()
@@ -22,7 +22,7 @@ Link::Link()
     choices.userLevel = simparm::Object::Intermediate;
 }
 
-void Link::insert_new_node( std::auto_ptr<input::chain::Link> l, Place p ) 
+void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) 
 {
     if ( p == InputMethod )
         Choice::add_choice(l);
@@ -30,8 +30,8 @@ void Link::insert_new_node( std::auto_ptr<input::chain::Link> l, Place p )
         Choice::insert_new_node(l,p);
 }
 
-std::auto_ptr< input::chain::Link > create()
-    { return std::auto_ptr< input::chain::Link >(new Link()); }
+std::auto_ptr< input::Link > create()
+    { return std::auto_ptr< input::Link >(new Link()); }
 
 }
 }

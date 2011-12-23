@@ -3,6 +3,7 @@
 #ifndef DSTORM_INPUT_SOURCE_H
 #define DSTORM_INPUT_SOURCE_H
 
+#include "fwd.h"
 #include <stdexcept>
 #include <memory>
 #include <limits>
@@ -10,7 +11,6 @@
 #include <simparm/Object.hh>
 
 #include "Traits.h"
-#include "Source_decl.h"
 
 #include <any_iterator.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>

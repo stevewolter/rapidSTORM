@@ -1,11 +1,11 @@
 #ifndef DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 #define DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Link.h>
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <memory>
@@ -24,7 +24,7 @@ struct Display;
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::chain::Terminus, public simparm::Object, public simparm::Node::Callback
+: public dStorm::input::Terminus, public simparm::Object, public simparm::Node::Callback
 {
   private:
     boost::mutex active_selector_mutex;

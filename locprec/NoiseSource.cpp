@@ -15,7 +15,7 @@
 #include <boost/units/io.hpp>
 #include <dStorm/Image_impl.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
 
@@ -94,7 +94,7 @@ NoiseConfig::NoiseConfig()
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
 : simparm::Object(cp),
-  dStorm::input::chain::Terminus(cp),
+  dStorm::input::Terminus(cp),
   simparm::TreeListener(),
   next_fluo_id(cp.next_fluo_id),
   noiseGeneratorConfig(cp.noiseGeneratorConfig),
@@ -316,7 +316,7 @@ void NoiseConfig::publish_meta_info() {
     static_cast< dStorm::traits::Optics<3>& >(*rv) = optics.make_traits();
     rv->fluorophores[1].wavelength = rv->fluorophores[0].wavelength;
 
-    dStorm::input::chain::MetaInfo::Ptr t( new dStorm::input::chain::MetaInfo() );
+    dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
     t->set_traits( rv );
     update_current_meta_info( t );
 }

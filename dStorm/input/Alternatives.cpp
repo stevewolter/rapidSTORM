@@ -6,12 +6,11 @@
 #include <simparm/Message.hh>
 #include <map>
 #include "Forwarder.h"
-#include "../InputMutex.h"
-#include <dStorm/input/chain/MetaInfo.h>
+#include "InputMutex.h"
+#include <dStorm/input/MetaInfo.h>
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class Alternatives::UpstreamCollector 
 : public Forwarder, boost::noncopyable
@@ -101,6 +100,5 @@ void Alternatives::publish_meta_info() {
     assert( current_meta_info().get() );
 }
 
-}
 }
 }

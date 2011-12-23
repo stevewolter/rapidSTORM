@@ -2,12 +2,12 @@
 #define DSTORM_INPUT_IMAGEVECTOR_H
 
 #include <memory>
-#include <dStorm/input/chain/Link_decl.h>
+#include <dStorm/input/fwd.h>
 
 namespace dStorm { 
 namespace input_buffer { 
 
-std::auto_ptr<input::chain::Link> makeLink();
+std::auto_ptr<input::Link> makeLink();
 
 }
 }

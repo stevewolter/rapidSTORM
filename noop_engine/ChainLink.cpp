@@ -2,7 +2,7 @@
 
 #include "ChainLink.h"
 #include "Engine.h"
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
@@ -10,7 +10,7 @@
 #include <boost/mpl/for_each.hpp>
 
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/output/LocalizedImage.h>
 
 namespace dStorm {
@@ -26,7 +26,7 @@ class ChainLink
     typedef boost::mpl::vector<dStorm::engine::Image> SupportedTypes;
 
     boost::shared_ptr< Traits<output::LocalizedImage> >
-    create_traits( chain::MetaInfo& my_info,
+    create_traits( MetaInfo& my_info,
                    const Traits<engine::Image>& orig_traits ) 
     {
         return Engine::convert_traits(orig_traits);
@@ -42,10 +42,10 @@ class ChainLink
     simparm::Node& getNode() { return *this; }
 };
 
-std::auto_ptr<input::chain::Link>
+std::auto_ptr<input::Link>
 makeLink()
 {
-    return std::auto_ptr<input::chain::Link>( new ChainLink( ) );
+    return std::auto_ptr<input::Link>( new ChainLink( ) );
 }
 
 }

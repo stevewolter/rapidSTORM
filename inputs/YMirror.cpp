@@ -16,7 +16,7 @@ namespace YMirror {
 
 struct Config : public simparm::Object
 {
-    typedef input::chain::DefaultTypes SupportedTypes;
+    typedef input::DefaultTypes SupportedTypes;
 
     simparm::BoolEntry mirror_y;
     Config();
@@ -55,7 +55,7 @@ class ChainLink
             return p.release();
     }
     template <typename Type>
-    bool changes_traits( const input::chain::MetaInfo&, const input::Traits<Type>& ) 
+    bool changes_traits( const input::MetaInfo&, const input::Traits<Type>& ) 
         { return false; }
 
     simparm::Structure<Config>& get_config() { return config; }
@@ -181,8 +181,8 @@ Config::Config()
     mirror_y.userLevel = simparm::Object::Expert;
 }
 
-std::auto_ptr<input::chain::Link> makeLink() {
-    return std::auto_ptr<input::chain::Link>( new ChainLink() );
+std::auto_ptr<input::Link> makeLink() {
+    return std::auto_ptr<input::Link>( new ChainLink() );
 }
 
 }

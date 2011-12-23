@@ -2,13 +2,13 @@
 #include "config.h"
 #endif
 #include <dStorm/Config.h>
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Link.h>
 #include <dStorm/helpers/DisplayManager.h>
 
 namespace dStorm {
 namespace AndorCamera {
 
-std::auto_ptr< dStorm::input::chain::Link > get_method();
+std::auto_ptr< dStorm::input::Link > get_method();
 
 }
 }
@@ -23,7 +23,7 @@ const char * rapidSTORM_Plugin_Desc() {
 }
 
 void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
-    std::auto_ptr< dStorm::input::chain::Link > m = dStorm::AndorCamera::get_method();
+    std::auto_ptr< dStorm::input::Link > m = dStorm::AndorCamera::get_method();
     config->add_input( m, dStorm::InputMethod );
 }
 

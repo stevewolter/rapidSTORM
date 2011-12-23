@@ -3,7 +3,7 @@
 
 #include "ChainLink_decl.h"
 #include "Config.h"
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Link.h>
 
 namespace dStorm {
 namespace engine_stm {

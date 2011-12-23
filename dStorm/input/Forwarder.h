@@ -5,7 +5,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class Forwarder : public Link {
     std::auto_ptr<Link> more_specialized;
@@ -28,7 +27,6 @@ class Forwarder : public Link {
     TraitsRef upstream_traits() const;
 };
 
-}
 }
 }
 

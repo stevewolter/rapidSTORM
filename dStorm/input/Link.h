@@ -1,21 +1,19 @@
 #ifndef DSTORM_INPUT_MANAGER_H
 #define DSTORM_INPUT_MANAGER_H
 
-#include "Link_decl.h"
+#include "fwd.h"
 
-#include "../Source_decl.h"
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <list>
 #include <utility>
 #include <memory>
 #include <simparm/Node_decl.hh>
-#include "MetaInfo_decl.h"
 #include <dStorm/InsertionPlace.h>
+#include <boost/ptr_container/clone_allocator.hpp>
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class Link {
   protected:
@@ -67,6 +65,16 @@ struct Terminus : public Link {
 
 }
 }
+
+namespace boost {
+
+template <>
+inline dStorm::input::Link* new_clone<dStorm::input::Link>( const dStorm::input::Link& l )
+    { return l.clone(); }
+template <>
+inline void delete_clone<dStorm::input::Link>(const dStorm::input::Link* l) 
+    { delete l; }
+
 }
 
 

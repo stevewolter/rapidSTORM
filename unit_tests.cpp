@@ -3,7 +3,7 @@
 #include "inputs/TIFF.h"
 #include "dejagnu.h"
 #include <dStorm/helpers/thread.h>
-#include "engine/ChainLink_decl.h"
+#include "engine/Chainfwd.h"
 
 int main() {
     ost::DebugStream::set( std::cerr );

@@ -4,7 +4,7 @@
 #include "ChainLink_decl.h"
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include "Config.h"
 #include <dStorm/output/LocalizedImage.h>
 #include <simparm/ChoiceEntry_Impl.hh>

@@ -2,13 +2,13 @@
 #define DSTORM_INPUT_SAMPLEINFO_H
 
 #include <memory>
-#include <dStorm/input/chain/Link_decl.h>
+#include <dStorm/input/fwd.h>
 
 namespace dStorm {
 namespace input {
 namespace sample_info {
 
-std::auto_ptr<chain::Link> makeLink();
+std::auto_ptr<Link> makeLink();
 class Config;
 class Source;
 template <typename ForwardedType>

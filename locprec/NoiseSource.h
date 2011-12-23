@@ -5,7 +5,7 @@
 #include "FluorophoreDistribution.h"
 #include "NoiseGenerator.h"
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Link.h>
 #include <dStorm/ImageTraits.h>
 #include <gsl/gsl_rng.h>
 #include <dStorm/helpers/thread.h>
@@ -84,7 +84,7 @@ namespace locprec {
 
     class NoiseConfig
     : public simparm::Object,
-      public dStorm::input::chain::Terminus,
+      public dStorm::input::Terminus,
       public simparm::TreeListener
     {
       public:

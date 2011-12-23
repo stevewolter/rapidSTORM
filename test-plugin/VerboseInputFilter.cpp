@@ -1,7 +1,7 @@
 #define BOOST_DISABLE_ASSERTS
 #include <boost/variant.hpp>
 #include <boost/serialization/variant.hpp> 
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/Image.h>
 #include <iostream>
@@ -21,10 +21,10 @@ class ChainLink
     friend class dStorm::input::Method< ChainLink >;
 
     template <typename Type>
-    bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
+    bool changes_traits( const MetaInfo&, const Traits<Type>& )
         { return false; }
     template <typename Type>
-    void notice_traits( const chain::MetaInfo& ref, const Traits<Type>& ) {
+    void notice_traits( const MetaInfo& ref, const Traits<Type>& ) {
         if ( config.verbose() )
             DEBUG("Traits " << &ref << " are passing on " << getNode().getName() << " (" << this << ")");
     }
@@ -42,8 +42,8 @@ class ChainLink
 
 }
 
-std::auto_ptr<dStorm::input::chain::Link>
+std::auto_ptr<dStorm::input::Link>
 make_verbose_input_filter() {
-    return std::auto_ptr<dStorm::input::chain::Link>
+    return std::auto_ptr<dStorm::input::Link>
         (new VerboseInputFilter::ChainLink());
 }

@@ -3,12 +3,11 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
 #include <dStorm/input/InputMutex.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <boost/foreach.hpp>
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 Choice::Choice(std::string name, std::string desc, bool auto_select)
 : simparm::Listener( simparm::Event::ValueChanged ),
@@ -101,7 +100,7 @@ void Choice::add_choice( std::auto_ptr<Link> fresh )
     traits_changed( l.current_meta_info(), &l );
 }
 
-Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::chain::Link> l ) 
+Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::Link> l ) 
     : node(l->name(), l->description()), _link(l) 
 {
 }
@@ -123,6 +122,5 @@ void Choice::publish_meta_info() {
         throw std::logic_error(name() + " did not publish meta info on request");
 }
 
-}
 }
 }

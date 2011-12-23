@@ -236,9 +236,9 @@ class ChainLink
     BaseSource* make_source( std::auto_ptr< input::Source<Type> > p ) 
         { return new Source<Type>(p); }
     template <typename Type>
-    void update_traits( chain::MetaInfo&, Traits<Type>& ) {}
+    void update_traits( MetaInfo&, Traits<Type>& ) {}
     template <typename Type>
-    bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
+    bool changes_traits( const MetaInfo&, const Traits<Type>& )
         { return false; }
 
   public:
@@ -251,8 +251,8 @@ ChainLink::ChainLink()
 {
 }
 
-std::auto_ptr<chain::Link> makeLink() { 
-    return std::auto_ptr<chain::Link>( new ChainLink() );
+std::auto_ptr<Link> makeLink() { 
+    return std::auto_ptr<Link>( new ChainLink() );
 }
 
 }

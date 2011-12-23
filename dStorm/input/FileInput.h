@@ -2,10 +2,10 @@
 #define DSTORM_INPUT_FILEINPUT_H
 
 #include <dStorm/debug.h>
-#include "chain/Link.h"
+#include "Link.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/signals/InputFileNameChange.h>
 
 namespace dStorm {
@@ -13,7 +13,7 @@ namespace input {
 
 template <typename CRTP, typename FileRepresentation>
 class FileInput 
-: public chain::Terminus
+: public Terminus
 {
     boost::optional<std::string> current_file;
     boost::shared_ptr<FileRepresentation> file;
@@ -52,7 +52,7 @@ class FileInput
         republish_traits();
     }
     void republish_traits() {
-        boost::shared_ptr<chain::MetaInfo> info( new chain::MetaInfo() );
+        boost::shared_ptr<MetaInfo> info( new MetaInfo() );
         static_cast<CRTP&>(*this).modify_meta_info(*info);
         if ( file.get() )
             info->set_traits( file->getTraits().release() );
@@ -65,7 +65,7 @@ class FileInput
     }
   public:
     FileInput() {}
-    FileInput( const FileInput& o ) : chain::Terminus(o), 
+    FileInput( const FileInput& o ) : Terminus(o), 
         current_file(o.current_file), file(o.file), error(o.error) {}
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     void publish_meta_info() { republish_traits(); }

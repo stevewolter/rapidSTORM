@@ -22,7 +22,6 @@
 #include <dStorm/log.h>
 
 using namespace dStorm::input;
-using namespace dStorm::input::chain;
 using namespace boost::units;
 
 namespace dStorm {
@@ -122,7 +121,7 @@ class Method
     OpenFile* make_file( const std::string& name ) const {
         return new OpenFile( name, config );
     }
-    void modify_meta_info( dStorm::input::chain::MetaInfo& info ) {
+    void modify_meta_info( dStorm::input::MetaInfo& info ) {
         info.suggested_output_basename.unformatted() = "testoutputfile";
     }
     simparm::Object& getNode() { return config; }
@@ -216,10 +215,10 @@ void Method::registerNamedEntries() {
     receive_changes_from( config.goIntType.value );
 }
 
-std::auto_ptr< dStorm::input::chain::Link >
+std::auto_ptr< dStorm::input::Link >
     make()
 {
-    return std::auto_ptr< dStorm::input::chain::Link >( new Method() );
+    return std::auto_ptr< dStorm::input::Link >( new Method() );
 }
 
 }

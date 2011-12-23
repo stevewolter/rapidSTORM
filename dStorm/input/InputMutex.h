@@ -1,3 +1,4 @@
+#include "fwd.h"
 #include "../helpers/thread.h"
 
 namespace dStorm {

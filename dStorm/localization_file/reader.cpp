@@ -130,7 +130,7 @@ Config::Config()
 {
 }
 
-void ChainLink::modify_meta_info( input::chain::MetaInfo& info ) {
+void ChainLink::modify_meta_info( input::MetaInfo& info ) {
     info.accepted_basenames.push_back( std::make_pair("extension_stm", ".stm") );
     info.accepted_basenames.push_back( std::make_pair("extension_txt", ".txt") );
 }

@@ -1,10 +1,10 @@
 #include "InsertionPoint.h"
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/Forwarder.h>
 
 namespace dStorm {
 
 class InsertionPoint
-: public input::chain::Forwarder
+: public input::Forwarder
 {
     InsertionPlace p;
 
@@ -20,8 +20,8 @@ class InsertionPoint
     InsertionPoint(InsertionPlace p) : p(p) {}
 };
 
-std::auto_ptr< input::chain::Link > make_insertion_place_link(InsertionPlace p) {
-    return std::auto_ptr< input::chain::Link >( new InsertionPoint(p) );
+std::auto_ptr< input::Link > make_insertion_place_link(InsertionPlace p) {
+    return std::auto_ptr< input::Link >( new InsertionPoint(p) );
 }
 
 }

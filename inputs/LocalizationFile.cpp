@@ -5,8 +5,8 @@ namespace dStorm {
 namespace inputs {
 namespace LocalizationFile {
 
-std::auto_ptr<input::chain::Link> create() {
-    return std::auto_ptr<input::chain::Link>( new dStorm::localization_file::Reader::ChainLink() );
+std::auto_ptr<input::Link> create() {
+    return std::auto_ptr<input::Link>( new dStorm::localization_file::Reader::ChainLink() );
 }
 
 }

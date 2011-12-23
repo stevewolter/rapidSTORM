@@ -2,7 +2,7 @@
 
 #include "ChainLink.h"
 #include "Engine.h"
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/units/io.hpp>
 #include <dStorm/input/InputMutex.h>
@@ -27,7 +27,7 @@ class ChainLink
     std::auto_ptr< scoped_connection > finder_con, fitter_con;
 
     boost::shared_ptr< BaseTraits > 
-    create_traits( chain::MetaInfo& mi, 
+    create_traits( MetaInfo& mi, 
                 const Traits<Image>& upstream )
     {
         boost::shared_ptr< input::Traits<output::LocalizedImage> >
@@ -35,7 +35,7 @@ class ChainLink
         update_meta_info( mi );
         return rt;
     }
-    void update_meta_info( chain::MetaInfo& mi ) {
+    void update_meta_info( MetaInfo& mi ) {
         mi.suggested_output_basename.set_variable
             ( "thres", amplitude_threshold_string() );
         finder_con.reset( new scoped_connection( 
@@ -109,15 +109,15 @@ std::string ChainLink::amplitude_threshold_string() const
     return ss.str();
 }
 
-std::auto_ptr<input::chain::Link>
+std::auto_ptr<input::Link>
 make_rapidSTORM_engine_link()
 {
-    std::auto_ptr<input::chain::Link> rv( new ChainLink( ) );
+    std::auto_ptr<input::Link> rv( new ChainLink( ) );
     return rv;
 }
 
 void unit_test( TestState& state ) {
-    std::auto_ptr<input::chain::Link> rv = make_rapidSTORM_engine_link();
+    std::auto_ptr<input::Link> rv = make_rapidSTORM_engine_link();
     rv.reset();
     state.pass("Destruction of engine works");
     rv.reset( make_rapidSTORM_engine_link()->clone() );

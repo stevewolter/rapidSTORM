@@ -2,16 +2,15 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/signals/BasenameChange.h>
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/Forwarder.h>
 #include <simparm/Entry.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 
 namespace dStorm {
 namespace basename_input_field {
 
 using namespace input;
-using namespace input::chain;
 
 class Config : public simparm::Object {
   public:
@@ -22,9 +21,9 @@ class Config : public simparm::Object {
 };
 
 class ChainLink 
-: public chain::Forwarder, public simparm::Listener , simparm::Structure<Config>
+: public Forwarder, public simparm::Listener , simparm::Structure<Config>
 {
-    chain::MetaInfo::Ptr traits;
+    MetaInfo::Ptr traits;
     std::string default_output_basename;
     bool user_changed_output;
 
@@ -37,7 +36,7 @@ class ChainLink
     simparm::Node& getNode() { return static_cast<Config&>(*this); }
     void registerNamedEntries( simparm::Node& n ) {
         receive_changes_from( output.value );
-        chain::Forwarder::registerNamedEntries(n);
+        Forwarder::registerNamedEntries(n);
         n.push_back( *this );
     }
     std::string name() const { return getName(); }
@@ -60,7 +59,7 @@ void Config::registerNamedEntries() {
 }
 
 ChainLink::ChainLink() 
-: input::chain::Forwarder(),
+: input::Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
   default_output_basename(""),
   user_changed_output(false)
@@ -103,8 +102,8 @@ void ChainLink::operator()(const simparm::Event&)
     }
 }
 
-std::auto_ptr<chain::Link> makeLink() {
-    return std::auto_ptr<chain::Link>( new ChainLink() );
+std::auto_ptr<Link> makeLink() {
+    return std::auto_ptr<Link>( new ChainLink() );
 }
 
 }

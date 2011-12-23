@@ -9,8 +9,8 @@
 #include <boost/mpl/for_each.hpp>
 #include <vector>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/DefaultFilterTypes.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/DefaultFilterTypes.h>
+#include <dStorm/input/MetaInfo.h>
 
 #include "join/spatial.hpp"
 #include "join/temporal.hpp"
@@ -32,8 +32,8 @@ struct Strategist
 {
     Strategist(std::string name, std::string desc) : Object(name, desc) {}
     virtual Strategist* clone() const = 0;
-    virtual boost::shared_ptr< const chain::MetaInfo > make_traits(
-        const std::vector< boost::shared_ptr< const chain::MetaInfo > >& v ) = 0;
+    virtual boost::shared_ptr< const MetaInfo > make_traits(
+        const std::vector< boost::shared_ptr< const MetaInfo > >& v ) = 0;
     virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
     virtual ~Strategist() {}
 };
@@ -123,9 +123,9 @@ class StrategistImplementation
 
     template <typename Type>
     void operator()( 
-        const std::vector< boost::shared_ptr< const chain::MetaInfo > >& v,
+        const std::vector< boost::shared_ptr< const MetaInfo > >& v,
         const Type&,
-        boost::shared_ptr< const chain::MetaInfo >& result
+        boost::shared_ptr< const MetaInfo >& result
     ) {
         if ( result.get() ) return;
         typename traits_merger<Type>::argument_type traits;
@@ -137,7 +137,7 @@ class StrategistImplementation
                 return;
         std::auto_ptr<BaseTraits> base( merge_traits<Type,Tag>()( traits ).release() );
         if ( ! base.get() ) return;
-        std::auto_ptr< chain::MetaInfo > rv(new chain::MetaInfo(*v[0]) );
+        std::auto_ptr< MetaInfo > rv(new MetaInfo(*v[0]) );
         rv->set_traits( base );
         result.reset( rv.release() );
     }
@@ -157,27 +157,27 @@ class StrategistImplementation
         result = make_specialized_source( typed, Tag() );
     }
 
-    boost::shared_ptr< const chain::MetaInfo > make_traits(
-        const std::vector< boost::shared_ptr< const chain::MetaInfo > >& v ) 
+    boost::shared_ptr< const MetaInfo > make_traits(
+        const std::vector< boost::shared_ptr< const MetaInfo > >& v ) 
     {
-        boost::shared_ptr<const chain::MetaInfo> result;
-        boost::mpl::for_each< chain::DefaultTypes >(
+        boost::shared_ptr<const MetaInfo> result;
+        boost::mpl::for_each< DefaultTypes >(
             boost::bind( boost::ref(*this), boost::ref(v), _1, boost::ref(result) ) );
         return result;
     }
     std::auto_ptr<BaseSource> make_source( const Sources& sources ) { 
         std::auto_ptr<BaseSource> result;
-        boost::mpl::for_each< chain::DefaultTypes >(
+        boost::mpl::for_each< DefaultTypes >(
             boost::bind( boost::ref(*this), boost::ref(sources), _1, boost::ref(result) ) );
         return result;
     }
 };
 
 class Link 
-: public chain::Link, public simparm::Object, public simparm::Listener
+: public input::Link, public simparm::Object, public simparm::Listener
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
-    boost::ptr_vector< chain::Link > children;
+    boost::ptr_vector< input::Link > children;
     std::vector< TraitsRef > input_traits;
     simparm::Set channels;
     simparm::NodeChoiceEntry< Strategist > join_type;
@@ -195,7 +195,7 @@ class Link
   private:
     Link* clone() const { return new Link(*this); }
 
-    void traits_changed( TraitsRef, chain::Link* );
+    void traits_changed( TraitsRef, input::Link* );
     void recompute_meta_info() {
         TraitsRef t;
         if ( children.size() == 1 ) {
@@ -232,7 +232,7 @@ class Link
         assert( current_meta_info().get() );
     }
 
-    void insert_new_node( std::auto_ptr<chain::Link>, Place );
+    void insert_new_node( std::auto_ptr<input::Link>, Place );
     operator const simparm::Node&() const { return *this; }
     operator simparm::Node&() { return *this; }
 };
@@ -260,7 +260,7 @@ Link::Link()
 }
 
 Link::Link( const Link& o )
-: chain::Link(o), simparm::Object(o), 
+: input::Link(o), simparm::Object(o), 
   simparm::Listener( simparm::Event::ValueChanged ),
   connection_nodes(o.connection_nodes),
   children( o.children ), 
@@ -277,7 +277,7 @@ Link::Link( const Link& o )
 Link::~Link() {
 }
 
-void Link::traits_changed( TraitsRef r, chain::Link* l ) {
+void Link::traits_changed( TraitsRef r, input::Link* l ) {
     assert( children.size() == input_traits.size() );
     for (size_t i = 0; i < children.size(); ++i)
         if ( &children[i] == l )
@@ -297,7 +297,7 @@ BaseSource* Link::makeSource() {
     }
 }
 
-void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
+void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
     if ( children.size() == 0 ) {
         input_traits.push_back( l->current_meta_info() );
         connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
@@ -305,7 +305,7 @@ void Link::insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
         set_upstream_element( children.back(), *this, Add );
     } else {
         for (size_t i = 1; i < children.size(); ++i)
-            children[i].insert_new_node( std::auto_ptr<chain::Link>( l->clone() ), p );
+            children[i].insert_new_node( std::auto_ptr<input::Link>( l->clone() ), p );
         children[0].insert_new_node(l,p);
     }
 }
@@ -337,9 +337,9 @@ void Link::operator()(const simparm::Event& e) {
     }
 }
 
-std::auto_ptr<chain::Link> create_link()
+std::auto_ptr<input::Link> create_link()
 {
-    return std::auto_ptr<chain::Link>( new Link() );
+    return std::auto_ptr<input::Link>( new Link() );
 }
 
 }

@@ -261,7 +261,7 @@ void unit_test( TestState& s ) {
         "Traits are right for test file" );
 }
 
-void ChainLink::modify_meta_info( chain::MetaInfo& i ) {
+void ChainLink::modify_meta_info( MetaInfo& i ) {
     i.accepted_basenames.push_back( make_pair("extension_tif", ".tif") );
     i.accepted_basenames.push_back( make_pair("extension_tiff", ".tiff") );
 }

@@ -5,7 +5,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class Alternatives
 : public Choice 
@@ -27,7 +26,6 @@ class Alternatives
     void publish_meta_info();
 };
 
-}
 }
 }
 

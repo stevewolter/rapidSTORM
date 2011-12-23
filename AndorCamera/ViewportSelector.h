@@ -14,7 +14,6 @@
 #include "AndorDirect.h"
 
 #include <dStorm/ImageTraits.h>
-#include "InputChainLink_decl.h"
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <dStorm/traits/image_resolution.h>

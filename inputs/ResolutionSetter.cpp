@@ -8,8 +8,8 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/ImageTraits_impl.h>
 #include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/chain/Link.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/Link.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/localization/Traits.h>
 #include <dStorm/input/Method.hpp>
@@ -61,7 +61,7 @@ class ChainLink
         return new resolution::Source<Type>(upstream, config); 
     }
     template <typename Type>
-    void update_traits( chain::MetaInfo& i, Traits<Type>& traits ) { 
+    void update_traits( MetaInfo& i, Traits<Type>& traits ) { 
         i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
         config.read_traits( traits );
         config.set_traits(traits); 
@@ -95,9 +95,9 @@ void ChainLink::operator()(const simparm::Event& e)
 	TreeListener::add_new_children(e);
 }
 
-std::auto_ptr<chain::Link> makeLink() {
+std::auto_ptr<Link> makeLink() {
     DEBUG("Making resolution chain link");
-    return std::auto_ptr<chain::Link>( new ChainLink() );
+    return std::auto_ptr<Link>( new ChainLink() );
 }
 
 template <typename Unit>
@@ -124,7 +124,7 @@ struct DummyImageSource : public input::Source<engine::Image>
     Capabilities capabilities() const { return Capabilities(); }
 };
 
-struct MoreSpecialized : public dStorm::input::chain::Link {
+struct MoreSpecialized : public dStorm::input::Link {
     simparm::Object node;
 
     MoreSpecialized() : node("Downstream", "Downstream") {}
@@ -132,7 +132,7 @@ struct MoreSpecialized : public dStorm::input::chain::Link {
 
     virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
-    void insert_new_node( std::auto_ptr<dStorm::input::chain::Link>, Place ) {}
+    void insert_new_node( std::auto_ptr<dStorm::input::Link>, Place ) {}
     void registerNamedEntries( simparm::Node& ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
@@ -150,7 +150,7 @@ struct Check {
             return true;
     }
 
-    bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::chain::MetaInfo> m ) {
+    bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::MetaInfo> m ) {
         if ( ! m )
             throw std::logic_error("Meta info is not propagated to less specialized element");
         else if ( ! m->provides<engine::Image>() )
@@ -164,13 +164,13 @@ struct Check {
         MoreSpecialized& m(*ms);
         input::resolution::ChainLink l;
 
-        l.insert_new_node( std::auto_ptr<input::chain::Link>(ms), Anywhere );
+        l.insert_new_node( std::auto_ptr<input::Link>(ms), Anywhere );
 
         dStorm::input::Traits< dStorm::engine::Image > correct;
         l.config.set_traits( correct );
 
         DEBUG("Publishing image traits");
-        input::chain::MetaInfo::Ptr tp( new input::chain::MetaInfo() );
+        input::MetaInfo::Ptr tp( new input::MetaInfo() );
         tp->set_traits( new input::Traits<engine::Image>() );
         m.traits_changed( tp, NULL );
 

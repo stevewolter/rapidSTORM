@@ -1,11 +1,11 @@
 #include "InputBase.h"
 #include <simparm/Set.hh>
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/Forwarder.h>
 
 namespace dStorm {
 
 struct InputChainBase 
-: public input::chain::Forwarder
+: public input::Forwarder
 {
     simparm::Set input_config;
     InputChainBase() : input_config("Input", "Input options") {}
@@ -25,8 +25,8 @@ struct InputChainBase
     }
 };
 
-std::auto_ptr< input::chain::Link > make_input_base() {
-    return std::auto_ptr< input::chain::Link >( new InputChainBase() );
+std::auto_ptr< input::Link > make_input_base() {
+    return std::auto_ptr< input::Link >( new InputChainBase() );
 }
 
 }

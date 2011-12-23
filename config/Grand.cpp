@@ -12,10 +12,10 @@
 #include <dStorm/helpers/thread.h>
 #include <sstream>
 
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/Forwarder.h>
 
 #include <cassert>
 
@@ -37,22 +37,22 @@ using namespace std;
 namespace dStorm {
 
 class GrandConfig::InputListener
-: public input::chain::Forwarder
+: public input::Forwarder
 {
     GrandConfig& config;
 
     InputListener* clone() const { throw std::logic_error("Not implemented"); }
-    void traits_changed( TraitsRef traits, input::chain::Link* el ) {
+    void traits_changed( TraitsRef traits, input::Link* el ) {
         if ( traits.get() != NULL ) 
             config.traits_changed(*traits);
-        input::chain::Forwarder::traits_changed( traits, el );
+        input::Forwarder::traits_changed( traits, el );
     }
     std::string name() const { return "InputListener"; }
 
   public:
     InputListener( GrandConfig& config ) : config(config) {}
     InputListener( GrandConfig& config, const InputListener& l ) 
-        : input::chain::Forwarder(l), config(config) {}
+        : input::Forwarder(l), config(config) {}
 
 };
 
@@ -199,7 +199,7 @@ void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> f
     input_listener->current_meta_info()->get_signal< signals::UseSpotFitter >()( *fitter );
 }
 
-void GrandConfig::add_input( std::auto_ptr<input::chain::Link> l, InsertionPlace p) {
+void GrandConfig::add_input( std::auto_ptr<input::Link> l, InsertionPlace p) {
     input_listener->insert_new_node( l, p );
 }
 
@@ -211,12 +211,12 @@ std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
     return std::auto_ptr<input::BaseSource>( input_listener->makeSource() );
 }
 
-const input::chain::MetaInfo&
+const input::MetaInfo&
 GrandConfig::get_meta_info() const {
     return *input_listener->current_meta_info();
 }
 
-void GrandConfig::traits_changed( const input::chain::MetaInfo& traits ) {
+void GrandConfig::traits_changed( const input::MetaInfo& traits ) {
     DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
     outputRoot->set_output_file_basename( traits.suggested_output_basename );
     if ( traits.provides<output::LocalizedImage>() ) 

@@ -10,7 +10,7 @@
 #include <dStorm/units/nanolength.h>
 #include <dStorm/localization/Traits.h>
 #include <simparm/Structure.hh>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/Image_decl.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
@@ -24,8 +24,6 @@
 namespace dStorm {
 namespace input {
 namespace sample_info {
-
-using namespace chain;
 
 class FluorophoreConfig : public simparm::Object {
     simparm::StringEntry description;
@@ -76,7 +74,7 @@ class ChainLink
     simparm::Structure<Config>& get_config() { return config; }
 
     template <typename Type>
-    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& t ) {
+    void update_traits( input::MetaInfo&, input::Traits<Type>& t ) {
         config.set_traits( t );
     }
     template <typename Type>
@@ -171,8 +169,8 @@ void ChainLink::operator()(const simparm::Event& e)
 	TreeListener::add_new_children(e);
 }
 
-std::auto_ptr<chain::Link> makeLink() {
-    return std::auto_ptr<chain::Link>( new ChainLink() );
+std::auto_ptr<Link> makeLink() {
+    return std::auto_ptr<Link>( new ChainLink() );
 }
 
 }

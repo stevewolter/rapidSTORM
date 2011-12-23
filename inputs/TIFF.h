@@ -120,7 +120,7 @@ namespace TIFF {
         simparm::Structure<Config> config;
         friend class input::FileInput<ChainLink,OpenFile>;
         OpenFile* make_file( const std::string& ) const;
-        void modify_meta_info( chain::MetaInfo& info );
+        void modify_meta_info( MetaInfo& info );
         simparm::Object& getNode() { return config; }
 
       protected:

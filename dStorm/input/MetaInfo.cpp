@@ -8,7 +8,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 using namespace signals;
 
@@ -67,6 +66,5 @@ void MetaInfo::forward_connections( const MetaInfo& s )
             get_signal<UseSpotFitter>().connect( static_cast<UseSpotFitter&>(*s._signals) ) ) );
 }
 
-}
 }
 }

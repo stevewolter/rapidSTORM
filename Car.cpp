@@ -12,7 +12,7 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <boost/range/algorithm/fill.hpp>
 
 using dStorm::output::Output;

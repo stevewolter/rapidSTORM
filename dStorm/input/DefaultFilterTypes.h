@@ -1,6 +1,7 @@
 #ifndef DSTORM_INPUT_CHAIN_DEFAULTFILTERTYPES_H
 #define DSTORM_INPUT_CHAIN_DEFAULTFILTERTYPES_H
 
+#include "fwd.h"
 #include <boost/mpl/vector.hpp>
 #include <dStorm/Localization_decl.h>
 #include <dStorm/engine/Image_decl.h>
@@ -12,14 +13,12 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class DefaultTypes 
 : public boost::mpl::vector<
     dStorm::engine::Image, dStorm::output::LocalizedImage, dStorm::localization::Record, dStorm::Localization>
 {};
 
-}
 }
 }
 

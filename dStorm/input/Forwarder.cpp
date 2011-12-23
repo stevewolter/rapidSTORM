@@ -5,7 +5,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 Forwarder::Forwarder() {}
 Forwarder::Forwarder(const Forwarder& o) : Link(o)
@@ -82,6 +81,5 @@ void Forwarder::publish_meta_info() {
         throw std::logic_error(name() + " did not publish meta info on request");
 }
 
-}
 }
 }

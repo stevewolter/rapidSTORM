@@ -1,7 +1,7 @@
 #ifndef ANDORCAMERA_ANDORDIRECT_DECL_H
 #define ANDORCAMERA_ANDORDIRECT_DECL_H
 
-#include <dStorm/input/Source_decl.h>
+#include <dStorm/input/fwd.h>
 #include <dStorm/ImageTraits_decl.h>
 #include <dStorm/engine/Image_decl.h>
 #include <stdint.h>

@@ -64,7 +64,7 @@ class ChainLink
         }
     }
 
-    void update_traits( input::chain::MetaInfo&, input::Traits<engine::Image>& t ) {
+    void update_traits( input::MetaInfo&, input::Traits<engine::Image>& t ) {
         if ( config.biplane_split() != Config::None ) {
             t.size[2] = 2 * camera::pixel;
             if ( config.biplane_split() == Config::Vertical )
@@ -165,8 +165,8 @@ ChainLink::ChainLink(const ChainLink& o)
     receive_changes_from( config.biplane_split.value );
 }
 
-std::auto_ptr<input::chain::Link> makeLink() {
-    return std::auto_ptr<input::chain::Link>( new ChainLink() );
+std::auto_ptr<input::Link> makeLink() {
+    return std::auto_ptr<input::Link>( new ChainLink() );
 }
 
 }

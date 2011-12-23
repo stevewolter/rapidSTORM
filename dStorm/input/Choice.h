@@ -7,7 +7,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 class Choice
 : public Link, public simparm::Listener
@@ -15,10 +14,10 @@ class Choice
   protected:
     class LinkAdaptor {
         simparm::Object node;
-        std::auto_ptr<input::chain::Link> _link;
+        std::auto_ptr<input::Link> _link;
 
       public:
-        LinkAdaptor( std::auto_ptr<input::chain::Link> l );
+        LinkAdaptor( std::auto_ptr<input::Link> l );
         ~LinkAdaptor();
         simparm::Node& getNode() { return node[_link->name()]; }
         const simparm::Node& getNode() const { return node[_link->name()]; }
@@ -70,7 +69,6 @@ class Choice
     operator simparm::Node&() { return choices; }
 };
 
-}
 }
 }
 

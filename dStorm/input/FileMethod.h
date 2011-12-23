@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_FILEMETHOD_H
 #define DSTORM_INPUT_FILEMETHOD_H
 
-#include "chain/Forwarder.h"
+#include "Forwarder.h"
 #include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
@@ -13,7 +13,7 @@ namespace input {
 
 class FileMethod
 : public simparm::Set,
-  public chain::Forwarder,
+  public Forwarder,
   protected simparm::Listener
 {
     simparm::FileEntry input_file;
@@ -31,7 +31,7 @@ class FileMethod
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 
         this->push_back( input_file );
-        chain::Forwarder::registerNamedEntries(*this);
+        Forwarder::registerNamedEntries(*this);
         node.push_back( *this );
     }
     std::string name() const { return getName(); }

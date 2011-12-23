@@ -1,22 +1,21 @@
 #ifndef DSTORM_INPUT_METHOD_H
 #define DSTORM_INPUT_METHOD_H
 
-#include <dStorm/input/chain/Forwarder.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/Forwarder.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Source.h>
-#include <dStorm/input/chain/DefaultFilterTypes.h>
+#include <dStorm/input/DefaultFilterTypes.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 
 namespace dStorm {
 namespace input {
 
-template <typename CRTP, typename BaseClass = chain::Forwarder>
+template <typename CRTP, typename BaseClass = Forwarder>
 class Method
 : public BaseClass
 {
-    typedef boost::shared_ptr< const chain::MetaInfo > TraitsRef;
-    typedef chain::Link Link;
+    typedef boost::shared_ptr< const MetaInfo > TraitsRef;
 
   public:
     BaseClass* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
@@ -32,24 +31,24 @@ class Method
         { return static_cast<simparm::Object&>(const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode()).getDesc(); }
 
   protected:
-    typedef chain::DefaultTypes SupportedTypes;
+    typedef DefaultTypes SupportedTypes;
     bool ignore_unknown_type() const { return false; }
     template <typename Type>
     BaseSource* make_source( std::auto_ptr< Source<Type> > ) {
         throw std::logic_error("Source creation not implemented");
     }
     template <typename Type>
-    bool changes_traits( const chain::MetaInfo&, const Traits<Type>& )
+    bool changes_traits( const MetaInfo&, const Traits<Type>& )
         { return true; }
     template <typename Type>
-    void notice_traits( const chain::MetaInfo&, const Traits<Type>& ) {}
+    void notice_traits( const MetaInfo&, const Traits<Type>& ) {}
     template <typename Type>
-    void update_traits( chain::MetaInfo&, Traits<Type>& ) {
+    void update_traits( MetaInfo&, Traits<Type>& ) {
         throw std::logic_error("Trait update not implemented");
     }
-    void update_meta_info( chain::MetaInfo& ) {}
+    void update_meta_info( MetaInfo& ) {}
     template <typename Type>
-    BaseTraits* create_traits( chain::MetaInfo& my_info,
+    BaseTraits* create_traits( MetaInfo& my_info,
                                const Traits<Type>& orig_traits ) 
     {
         std::auto_ptr< Traits<Type> > my_traits( new Traits<Type>(orig_traits) );
@@ -79,7 +78,7 @@ struct Method<CRTP,BaseClass>::make_traits {
                 = orig->traits<Type>();
             static_cast<CRTP&>(me).notice_traits( *orig, *orig_traits );
             if ( static_cast<CRTP&>(me).changes_traits( *orig, *orig_traits ) ) {
-                boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
+                boost::shared_ptr< MetaInfo > my_info( new MetaInfo(*orig) );
                 my_info->set_traits( static_cast<CRTP&>(me).create_traits( *my_info, *orig_traits ) );
                 result = my_info;
             } else {
@@ -131,7 +130,7 @@ void Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return this->update_current_meta_info(orig);
     else if ( orig.get() ) {
-        boost::shared_ptr< chain::MetaInfo > my_info( new chain::MetaInfo(*orig) );
+        boost::shared_ptr< MetaInfo > my_info( new MetaInfo(*orig) );
         my_info->set_traits( NULL );
         static_cast<CRTP&>(*this).update_meta_info( *my_info );
         return this->update_current_meta_info( my_info );

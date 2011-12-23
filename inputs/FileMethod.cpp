@@ -3,9 +3,9 @@
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/input/chain/MetaInfo.h>
-#include <dStorm/input/chain/Choice.h>
-#include <dStorm/input/chain/Forwarder.h>
+#include <dStorm/input/MetaInfo.h>
+#include <dStorm/input/Choice.h>
+#include <dStorm/input/Forwarder.h>
 #include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
@@ -17,11 +17,9 @@ namespace dStorm {
 namespace input {
 namespace file_method {
 
-using namespace chain;
-
 class FileMethod
 : public simparm::Set,
-  public chain::Forwarder,
+  public Forwarder,
   private simparm::Listener
 {
     friend void unit_test(TestState&);
@@ -33,7 +31,7 @@ class FileMethod
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 
         this->push_back( input_file );
-        chain::Forwarder::registerNamedEntries(*this);
+        Forwarder::registerNamedEntries(*this);
         node.push_back( *this );
     }
     std::string name() const { return getName(); }
@@ -51,23 +49,23 @@ class FileMethod
 };
 
 class FileTypeChoice 
-: public chain::Choice
+: public Choice
 {
-    void insert_new_node( std::auto_ptr<chain::Link> l, Place p ) {
+    void insert_new_node( std::auto_ptr<Link> l, Place p ) {
         if ( p == FileReader )
-            chain::Choice::add_choice(l);
+            Choice::add_choice(l);
         else
-            chain::Choice::insert_new_node(l,p);
+            Choice::insert_new_node(l,p);
     }
 
   public:
     FileTypeChoice() 
-        : chain::Choice("FileType", "File type", true) {}
+        : Choice("FileType", "File type", true) {}
 };
 
 FileMethod::FileMethod()
 : simparm::Set("FileMethod", "File"),
-  chain::Forwarder(),
+  Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
   input_file("InputFile", "Input file")
 {
@@ -75,12 +73,12 @@ FileMethod::FileMethod()
     /* TODO: children.set_help_id( "FileType" ); */
     DEBUG("Created file method");
     receive_changes_from( input_file.value );
-    chain::Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
+    Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
 }
 
 FileMethod::FileMethod(const FileMethod& o)
 : simparm::Set(o),
-  chain::Forwarder(o),
+  Forwarder(o),
   simparm::Listener( simparm::Event::ValueChanged ),
   input_file(o.input_file)
 {
@@ -129,7 +127,7 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
      * work for us. */
     if ( upstream_traits() != traits ) return;
 
-    boost::shared_ptr<chain::MetaInfo> my_traits( new chain::MetaInfo(*traits) );
+    boost::shared_ptr<MetaInfo> my_traits( new MetaInfo(*traits) );
     if ( my_traits->suggested_output_basename.unformatted()() == "" ) {
         BasenameApplier a( input_file() );
         std::string new_basename = 
@@ -142,8 +140,8 @@ void FileMethod::traits_changed( TraitsRef traits, Link* from )
     update_current_meta_info( my_traits );
 }
 
-std::auto_ptr<chain::Link> makeLink() {
-    return std::auto_ptr<chain::Link>( new FileMethod() );
+std::auto_ptr<Link> makeLink() {
+    return std::auto_ptr<Link>( new FileMethod() );
 }
 
 }
@@ -157,8 +155,6 @@ std::auto_ptr<chain::Link> makeLink() {
 namespace dStorm {
 namespace input {
 namespace file_method {
-
-using namespace chain;
 
 void unit_test( TestState& t ) {
     FileMethod file_method;
@@ -179,7 +175,7 @@ void unit_test( TestState& t ) {
     t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
-    std::auto_ptr<  dStorm::input::chain::Link > foo = dummy_file_input::make();
+    std::auto_ptr<  dStorm::input::Link > foo = dummy_file_input::make();
     file_method.insert_new_node( foo, FileReader );
     t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );

@@ -11,7 +11,7 @@
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/engine/Input_decl.h>
-#include <dStorm/input/Source_decl.h>
+#include <dStorm/input/fwd.h>
 #include <dStorm/JobMaster.h>
 #include <boost/utility.hpp>
 #include <set>

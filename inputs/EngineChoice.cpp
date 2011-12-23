@@ -2,13 +2,13 @@
 #define DSTORM_CONFIG_ENGINE_CHOICE_H
 
 #include "EngineChoice.h"
-#include <dStorm/input/chain/Alternatives.h>
+#include <dStorm/input/Alternatives.h>
 #include <dStorm/input/InputMutex.h>
 
 namespace dStorm {
 
 class EngineChoice
-: public input::chain::Alternatives
+: public input::Alternatives
 {
   public:
     EngineChoice() 
@@ -25,8 +25,8 @@ class EngineChoice
     }
 };
 
-std::auto_ptr< input::chain::Link > make_engine_choice()
-    { return std::auto_ptr< input::chain::Link >( new EngineChoice() ); }
+std::auto_ptr< input::Link > make_engine_choice()
+    { return std::auto_ptr< input::Link >( new EngineChoice() ); }
 
 }
 

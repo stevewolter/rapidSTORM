@@ -13,6 +13,7 @@
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/camera/length.hpp>
+#include <boost/ptr_container/clone_allocator.hpp>
 
 namespace dStorm {
 namespace engine {

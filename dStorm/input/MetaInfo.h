@@ -1,14 +1,14 @@
 #ifndef DSTORM_INPUT_METAINFO_H
 #define DSTORM_INPUT_METAINFO_H
 
-#include "../Traits.h"
-#include "../../output/Basename.h"
+#include "fwd.h"
+#include "Traits.h"
+#include <dStorm/output/Basename.h>
 #include <set>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 struct MetaInfo {
     typedef boost::shared_ptr<MetaInfo> Ptr;
@@ -50,7 +50,6 @@ struct MetaInfo {
     void forward_connections( const MetaInfo& );
 };
 
-}
 }
 }
 

@@ -10,7 +10,6 @@
 
 namespace dStorm {
 namespace input {
-namespace chain {
 
 Link::Link() 
 : less_specialized(NULL)
@@ -54,7 +53,7 @@ void Link::traits_changed( TraitsRef r, Link* l ) {
 
 void Terminus::traits_changed( TraitsRef, Link* )
 {
-    throw std::runtime_error("Called method on input chain terminus that "
+    throw std::runtime_error("Called method on input terminus that "
                              "is reserved for forwarders");
 }
 
@@ -66,16 +65,4 @@ std::string Link::name() const { throw std::logic_error("Not implemented"); }
 
 }
 }
-}
 
-namespace boost {
-template <>
-dStorm::input::chain::Link* new_clone<dStorm::input::chain::Link>
-    ( const dStorm::input::chain::Link& l )
-{ return l.clone(); }
-template <>
-void delete_clone<dStorm::input::chain::Link>(const dStorm::input::chain::Link* l)
-{
-    delete l;
-}
-}

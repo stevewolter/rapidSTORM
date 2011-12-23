@@ -9,10 +9,10 @@
 #include "ViewportSelector.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
-#include <dStorm/input/chain/Choice.h>
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Choice.h>
+#include <dStorm/input/Link.h>
 #include "LiveView.h"
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 #include <boost/optional.hpp>
 #include <dStorm/signals/ResolutionChange.h>
@@ -93,8 +93,8 @@ void Method::publish_meta_info() {
     traits.reset( new dStorm::input::Traits<engine::Image>() );
     traits->image_number().range().first = 0 * camera::frame;
 
-    dStorm::input::chain::MetaInfo::Ptr mi
-        ( new dStorm::input::chain::MetaInfo() );
+    dStorm::input::MetaInfo::Ptr mi
+        ( new dStorm::input::MetaInfo() );
     mi->set_traits( traits );
     resolution_listener.reset( new boost::signals2::scoped_connection(
         mi->get_signal< signals::ResolutionChange >().connect(
@@ -149,10 +149,10 @@ void Method::resolution_changed( const dStorm::traits::Optics<2>::Resolutions& r
         active_selector->resolution_changed( resolution );
 }
 
-std::auto_ptr< dStorm::input::chain::Link > 
+std::auto_ptr< dStorm::input::Link > 
 get_method() {
     DEBUG("Creating method instance");
-    return std::auto_ptr< dStorm::input::chain::Link >(new Method());
+    return std::auto_ptr< dStorm::input::Link >(new Method());
 }
 
 }

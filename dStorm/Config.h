@@ -1,7 +1,7 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
-#include <dStorm/input/chain/Link_decl.h>
+#include <dStorm/input/fwd.h>
 #include <dStorm/engine/SpotFinder_decl.h>
 #include <dStorm/engine/SpotFitterFactory_decl.h>
 #include "InsertionPlace.h"
@@ -13,9 +13,9 @@ namespace output { class OutputSource; }
 struct Config 
 {
     virtual ~Config() {}
-    virtual void add_input( std::auto_ptr<input::chain::Link>, InsertionPlace ) = 0;
-    void add_input( input::chain::Link* s, InsertionPlace p ) 
-        { add_input( std::auto_ptr<input::chain::Link>(s), p ); }
+    virtual void add_input( std::auto_ptr<input::Link>, InsertionPlace ) = 0;
+    void add_input( input::Link* s, InsertionPlace p ) 
+        { add_input( std::auto_ptr<input::Link>(s), p ); }
     virtual void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> ) = 0;
     void add_spot_finder( engine::spot_finder::Factory* f ) 
             { add_spot_finder( std::auto_ptr<engine::spot_finder::Factory>(f) ); }

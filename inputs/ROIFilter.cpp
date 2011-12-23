@@ -15,7 +15,7 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/chain/MetaInfo.h>
+#include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/localization/Traits.h>
 #include <dStorm/input/Method.hpp>
@@ -192,7 +192,7 @@ class ChainLink
         if ( config.last_frame().is_initialized() )
             t.range().second = config.last_frame();
     }
-    void update_traits( input::chain::MetaInfo&, input::Traits<engine::Image>& traits ) {
+    void update_traits( input::MetaInfo&, input::Traits<engine::Image>& traits ) {
         set_temporal_ROI( traits.image_number() );
         if ( config.which_plane() != -1 ) {
             std::swap( traits.planes[0], traits.planes[ config.which_plane() ] );
@@ -200,10 +200,10 @@ class ChainLink
         }
     }
     template <typename Type>
-    void update_traits( input::chain::MetaInfo&, input::Traits<Type>& traits ) 
+    void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) 
         { set_temporal_ROI( traits.image_number() ); }
 
-    void notice_traits( const input::chain::MetaInfo&, const input::Traits<engine::Image>& t ) {
+    void notice_traits( const input::MetaInfo&, const input::Traits<engine::Image>& t ) {
         for (int i = config.which_plane.numChoices()-1; i < t.plane_count(); ++i) {
             std::string id = boost::lexical_cast<std::string>(i);
             config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
@@ -212,7 +212,7 @@ class ChainLink
             config.which_plane.removeChoice( i );
     }
     template <typename Type>
-    void notice_traits( const input::chain::MetaInfo&, const input::Traits<Type>& ) {}
+    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {}
 
     template <typename Type>
     input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
@@ -264,8 +264,8 @@ ChainLink::ChainLink(const ChainLink& o)
     receive_changes_from( config.which_plane.value );
 }
 
-std::auto_ptr<input::chain::Link> make_link() {
-    return std::auto_ptr<input::chain::Link>( new ChainLink() );
+std::auto_ptr<input::Link> make_link() {
+    return std::auto_ptr<input::Link>( new ChainLink() );
 }
 
 }

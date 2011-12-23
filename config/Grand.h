@@ -3,7 +3,7 @@
 
 #include <dStorm/Config.h>
 #include <dStorm/output/Config.h>
-#include <dStorm/input/chain/Link.h>
+#include <dStorm/input/Link.h>
 #include <memory>
 #include <list>
 #include <simparm/Set.hh>
@@ -29,7 +29,7 @@ namespace dStorm {
         std::auto_ptr<InputListener> input_listener;
 
         void registerNamedEntries();
-        void traits_changed( const input::chain::MetaInfo& );
+        void traits_changed( const input::MetaInfo& );
 
       public:
         GrandConfig();
@@ -47,12 +47,12 @@ namespace dStorm {
         /** Number of parallel computation threads to run. */
         simparm::Entry<unsigned long> pistonCount;
 
-        void add_input( std::auto_ptr<input::chain::Link>, InsertionPlace );
+        void add_input( std::auto_ptr<input::Link>, InsertionPlace );
         void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );
         void add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> );
         void add_output( std::auto_ptr<output::OutputSource> );
 
-        const input::chain::MetaInfo& get_meta_info() const;
+        const input::MetaInfo& get_meta_info() const;
         std::auto_ptr<input::BaseSource> makeSource();
 
         void all_modules_loaded();
