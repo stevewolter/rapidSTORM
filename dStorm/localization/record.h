@@ -3,7 +3,7 @@
 
 #include "record_decl.h"
 #include "../Localization.h"
-#include "../input/LocalizationTraits.h"
+#include "Traits.h"
 #include "../units/frame_count.h"
 #include <iostream>
 

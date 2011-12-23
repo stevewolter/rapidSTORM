@@ -3,7 +3,7 @@
 
 #include "debug.h"
 #include "localization_field.h"
-#include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/localization/Traits.h>
 #include <dStorm/output/Traits.h>
 #include <boost/units/io.hpp>
 #include <iomanip>

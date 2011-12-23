@@ -1,15 +1,13 @@
-#ifndef DSTORM_INPUT_INPUTMETHODS_H
-#define DSTORM_INPUT_INPUTMETHODS_H
+#ifndef DSTORM_INPUTS_LOCALIZATIONFILE_H
+#define DSTORM_INPUTS_LOCALIZATIONFILE_H
 
-#include <memory>
 #include <dStorm/input/chain/Link_decl.h>
+#include <memory>
 
 namespace dStorm {
 namespace inputs {
-namespace InputMethods {
-
+namespace LocalizationFile {
 std::auto_ptr<input::chain::Link> create();
-
 }
 }
 }

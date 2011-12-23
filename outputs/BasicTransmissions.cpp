@@ -10,6 +10,7 @@
 #include "Slicer.h"
 #include "RawImageFile.h"
 #include "MemoryCache.h"
+#include "LocalizationFile.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -18,6 +19,7 @@ namespace dStorm {
 namespace output {
 
 void basic_outputs( dStorm::Config* o ) {
+    o->add_output( localization_file::writer::create() );
     outputs::add_viewer( *o );
     o->add_output( new ProgressMeter::Source() );
     o->add_output( new LocalizationCounter::Source() );

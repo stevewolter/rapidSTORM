@@ -11,7 +11,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/output/TraceReducer.h>
-#include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/localization/Traits.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/signals2/connection.hpp>
 

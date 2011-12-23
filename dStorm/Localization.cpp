@@ -1,5 +1,5 @@
 #include "Localization.h"
-#include "input/LocalizationTraits.h"
+#include "localization/Traits.h"
 #include <boost/units/io.hpp>
 #include <boost/fusion/include/iteration.hpp>
 #include <Eigen/Core>

@@ -10,16 +10,14 @@ C_TESTS = checkplugin_locprec reconstruction checkplugin_camera \
     Pixel_test \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
-    check_traits check_file_plugin \
-    check_unittable unit_tests
+    check_traits check_unittable unit_tests
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
 noinst_LTLIBRARIES = libcode.la 
-plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la \
-    librapidstormfile-plugin.la
+plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
@@ -147,15 +145,14 @@ nobase_include_HEADERS = \
     dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
-    dStorm/input/chain/Choice.h dStorm/input/chain/Choice_decl.h \
+    dStorm/input/chain/Choice.h \
     dStorm/input/chain/Link_decl.h dStorm/input/chain/Link.h \
-    dStorm/input/chain/Forwarder.h dStorm/input/chain/Forwarder_decl.h \
+    dStorm/input/chain/Forwarder.h \
     dStorm/input/chain/DefaultFilterTypes.h \
     dStorm/input/chain/MetaInfo_decl.h dStorm/input/chain/MetaInfo.h \
     dStorm/input/chain/Alternatives.h \
     dStorm/input/Source_decl.h dStorm/input/Source.h \
     dStorm/input/Traits.h  \
-    dStorm/input/LocalizationTraits_decl.h dStorm/input/LocalizationTraits.h \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
     dStorm/helpers/thread.h dStorm/helpers/Runnables.h dStorm/helpers/dilation.h dStorm/helpers/Variance.h \
@@ -191,6 +188,7 @@ libdStorm_la_SOURCES = \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
     dStorm/localization/Field.cpp \
+    dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/localization/record.cpp \
@@ -212,7 +210,6 @@ libdStorm_la_SOURCES = \
     dStorm/input/chain/Link.cpp dStorm/input/chain/Choice.cpp \
     dStorm/input/chain/Alternatives.cpp \
     dStorm/input/chain/Forwarder.cpp \
-    dStorm/input/LocalizationTraits.cpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp \
     dStorm/output/debug.h \
@@ -253,7 +250,9 @@ dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "
 
 libcode_la_CXXFLAGS = $(WX_CXXFLAGS)
 libcode_la_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-libcode_la_LIBADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
+libcode_la_LIBADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+libcode_la_LIBADD += $(boost_system_LIB) $(boost_thread_LIB) 
+libcode_la_LIBADD += librapidstormfile.la $(tinyxml_LIBS)
 libcode_la_SOURCES = \
     dstorm.cpp \
     CommandLine.h CommandLine.cpp \
@@ -291,7 +290,8 @@ libcode_la_SOURCES += \
     inputs/SampleInfo.h inputs/SampleInfo.cpp \
     inputs/ROIFilter.h inputs/ROIFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
-    inputs/Buffer.h inputs/Buffer.cpp 
+    inputs/Buffer.h inputs/Buffer.cpp \
+    inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
 libcode_la_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
@@ -319,7 +319,8 @@ libcode_la_SOURCES += \
     outputs/Slicer.h \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
-    outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp
+    outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
+    outputs/LocalizationFile.h outputs/LocalizationFile.cpp
 
 libcode_la_SOURCES += \
     spotFinders/averageSmooth.cpp \
@@ -423,7 +424,7 @@ libdirectcamerainput_la_SOURCES = \
 librapidstormfile_plugin_la_SOURCES = dStorm/localization_file/plugin.cpp \
     dStorm/localization_file/Output_decl.h dStorm/localization_file/Output.h \
     dStorm/localization_file/Output.cpp
-librapidstormfile_plugin_la_LIBADD = librapidstormfile.la libdStorm.la $(tinyxml_LIBS)
+librapidstormfile_plugin_la_LIBADD = libdStorm.la 
 librapidstormfile_plugin_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
@@ -454,8 +455,6 @@ check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
 check_image_slicing_LDADD = libdStorm.la
 check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
 check_image_iterator_LDADD = libdStorm.la
-check_file_plugin_SOURCES = dStorm/localization_file/check_plugin.cpp 
-check_file_plugin_LDADD = librapidstormfile-plugin.la
 
 unit_tests_SOURCES = unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
 unit_tests_LDADD = libcode.la 

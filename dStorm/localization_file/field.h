@@ -12,7 +12,7 @@
 
 #include <tinyxml.h>
 
-#include <dStorm/input/LocalizationTraits_decl.h>
+#include <dStorm/localization/Traits_decl.h>
 #include <dStorm/output/Traits_decl.h>
 #include <dStorm/Localization.h>
 

@@ -17,7 +17,7 @@
 #include "InputMethods.h"
 #include "FileMethod.h"
 #include "join.h"
-
+#include "LocalizationFile.h"
 
 namespace dStorm {
 
@@ -29,12 +29,13 @@ void basic_inputs( dStorm::Config* config ) {
     config->add_input( make_insertion_place_link(AfterChannels), AfterChannels );
     config->add_input( input::join::create_link(), AfterChannels );
     config->add_input( make_insertion_place_link(BeforeChannels), BeforeChannels );
-    config->add_input( std::auto_ptr< input::chain::Link >(new input::InputMethods()), BeforeChannels );
+    config->add_input( inputs::InputMethods::create(), BeforeChannels );
     config->add_input( input::file_method::makeLink(), InputMethod );
 
 #ifdef HAVE_TIFFIO_H
     config->add_input( new TIFF::ChainLink(), dStorm::FileReader );
 #endif
+    config->add_input( inputs::LocalizationFile::create(), dStorm::FileReader );
 
     config->add_input( Splitter::makeLink(), BeforeEngine );
     config->add_input( ROIFilter::make_link(), BeforeEngine );

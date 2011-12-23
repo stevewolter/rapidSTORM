@@ -3,7 +3,7 @@
 
 #include "../input/Traits.h"
 #include "../output/LocalizedImage_decl.h"
-#include "../input/LocalizationTraits.h"
+#include "../localization/Traits.h"
 #include "../engine/Input_decl.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <vector>

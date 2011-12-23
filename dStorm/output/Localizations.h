@@ -5,7 +5,7 @@
 #include "../output/LocalizedImage.h"
 #include <vector>
 #include <list>
-#include "../input/LocalizationTraits.h"
+#include "../localization/Traits.h"
 
 namespace dStorm {
 namespace output {

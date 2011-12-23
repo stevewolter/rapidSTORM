@@ -7,7 +7,7 @@
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/Localizations.h>
-#include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/localization/Traits.h>
 #include <dStorm/Engine.h>
 #include <dStorm/stack_realign.h>
 #include <boost/ptr_container/ptr_list.hpp>

@@ -11,7 +11,7 @@
 #include <dStorm/input/chain/Link.h>
 #include <dStorm/input/chain/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
-#include <dStorm/input/LocalizationTraits.h>
+#include <dStorm/localization/Traits.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
 #include <dStorm/signals/ResolutionChange.h>

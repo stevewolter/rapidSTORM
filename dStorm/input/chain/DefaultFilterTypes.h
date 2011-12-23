@@ -2,15 +2,13 @@
 #define DSTORM_INPUT_CHAIN_DEFAULTFILTERTYPES_H
 
 #include <boost/mpl/vector.hpp>
-#include "../../Localization_decl.h"
-#include "../../engine/Image_decl.h"
-#include "../../localization/record_decl.h"
-#include "../../output/LocalizedImage_decl.h"
-#include "../../output/LocalizedImage.h"
-#include "../LocalizationTraits.h"
-#include "../../ImageTraits.h"
-#include "../../localization/record.h"
-#include "../../output/LocalizedImage_traits.h"
+#include <dStorm/Localization_decl.h>
+#include <dStorm/engine/Image_decl.h>
+#include <dStorm/output/LocalizedImage.h>
+#include <dStorm/localization/Traits.h>
+#include <dStorm/ImageTraits.h>
+#include <dStorm/localization/record.h>
+#include <dStorm/output/LocalizedImage_traits.h>
 
 namespace dStorm {
 namespace input {
