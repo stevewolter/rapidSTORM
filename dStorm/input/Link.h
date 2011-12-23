@@ -11,6 +11,10 @@
 #include <simparm/Node_decl.hh>
 #include <dStorm/InsertionPlace.h>
 #include <boost/ptr_container/clone_allocator.hpp>
+#include <boost/signals2/slot.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/signal_type.hpp>
+#include <boost/signals2/dummy_mutex.hpp>
 
 namespace dStorm {
 namespace input {
@@ -19,16 +23,20 @@ class Link {
   protected:
     typedef boost::shared_ptr<const MetaInfo> TraitsRef;
   private:
-    Link *less_specialized;
+    typedef boost::signals2::keywords::mutex_type<boost::signals2::dummy_mutex>
+        no_mutex;
+    typedef boost::signals2::signal_type< void (TraitsRef), no_mutex >::type 
+        TraitsSignal;
+  public:
+    typedef std::auto_ptr<boost::signals2::scoped_connection> Connection;
+  private:
+        
     TraitsRef meta_info;
+    TraitsSignal meta_info_signal;
   public:
     Link();
     Link(const Link&);
     virtual ~Link();
-
-    /** Method which is called by the downstream element (e.g. input) 
-     *  to notify the upstream element (e.g. engine) of changed capabilities. */
-    virtual void traits_changed( TraitsRef, Link* ) = 0;
 
     virtual BaseSource* makeSource() = 0;
     virtual Link* clone() const = 0;
@@ -41,24 +49,18 @@ class Link {
     virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
     virtual std::string name() const = 0;
     virtual std::string description() const = 0;
+
+    Connection notify( const TraitsSignal::slot_type& whom )
+        { return Connection( new boost::signals2::scoped_connection(
+            meta_info_signal.connect( whom ) ) ); }
  
   protected:
-    enum SetType { Add, Remove };
-    virtual void set_upstream_element( Link& element, SetType );
-    static void set_upstream_element( Link& on, Link& to, SetType type )
-        { on.set_upstream_element(to, type); }
     void update_current_meta_info( TraitsRef new_traits );
 };
 
 /** Specialized case of Link for terminal nodes, that is,
  *  those that need no further elements up the chain. */
 struct Terminus : public Link {
-    /** This method makes no sense for a terminus, since it should be
-     *  called by predecessors, which are nonexistent. It is only defined
-     *  for its virtual table entry and will simply throw an error when
-     *  called. */
-    virtual void traits_changed( TraitsRef, Link* );
-
     virtual Terminus* clone() const = 0;
     virtual void insert_new_node( std::auto_ptr<Link> l, Place ); 
 };

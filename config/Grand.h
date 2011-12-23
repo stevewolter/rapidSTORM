@@ -18,24 +18,33 @@ namespace dStorm {
 
     /** Configuration that summarises all
      *  configuration items offered by the dStorm library. */
-    class GrandConfig : public simparm::Set, public Config
+    class GrandConfig : public Config
     {
       private:
         friend class EngineChoice;
         class TreeRoot;
         class InputListener;
 
-        std::auto_ptr<TreeRoot> outputRoot;
-        std::auto_ptr<InputListener> input_listener;
+        simparm::Set car_config;
 
-        void registerNamedEntries();
-        void traits_changed( const input::MetaInfo& );
+        std::auto_ptr<TreeRoot> outputRoot;
+        std::auto_ptr<input::Link> input;
+        input::Link::Connection input_listener;
+
+        void traits_changed( boost::shared_ptr<const input::MetaInfo> );
+        void create_input( std::auto_ptr<input::Link> );
 
       public:
         GrandConfig();
         GrandConfig(const GrandConfig &c);
         ~GrandConfig();
         GrandConfig *clone() const { return new GrandConfig(*this); }
+
+        void registerNamedEntries( simparm::Node& at );
+        void processCommand( std::istream& i ) { car_config.processCommand(i); }
+        void send( simparm::Message& m ) { car_config.send(m); }
+        void push_back( simparm::Node& run ) { car_config.push_back(run); }
+        std::list<std::string> printValues() { return car_config.printValues(); }
 
         output::OutputSource& outputSource;
         output::Config& outputConfig;

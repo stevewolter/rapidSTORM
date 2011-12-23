@@ -36,26 +36,6 @@ using namespace std;
 
 namespace dStorm {
 
-class GrandConfig::InputListener
-: public input::Forwarder
-{
-    GrandConfig& config;
-
-    InputListener* clone() const { throw std::logic_error("Not implemented"); }
-    void traits_changed( TraitsRef traits, input::Link* el ) {
-        if ( traits.get() != NULL ) 
-            config.traits_changed(*traits);
-        input::Forwarder::traits_changed( traits, el );
-    }
-    std::string name() const { return "InputListener"; }
-
-  public:
-    InputListener( GrandConfig& config ) : config(config) {}
-    InputListener( GrandConfig& config, const InputListener& l ) 
-        : input::Forwarder(l), config(config) {}
-
-};
-
 class GrandConfig::TreeRoot : public simparm::Object, public output::FilterSource
 {
     output::Config* my_config;
@@ -117,9 +97,8 @@ GrandConfig::TreeRoot::TreeRoot()
 }
 
 GrandConfig::GrandConfig() 
-: Set("Car", "Job options"),
+: car_config("Car", "Job options"),
   outputRoot( new TreeRoot() ),
-  input_listener( new InputListener(*this) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( "HelpMenu", "Help" ),
@@ -151,14 +130,11 @@ GrandConfig::GrandConfig()
 #endif
 
    DEBUG("Made menu items");
-
-    registerNamedEntries();
 }
 
 GrandConfig::GrandConfig(const GrandConfig &c) 
-: simparm::Set(c),
+: car_config(c.car_config),
   outputRoot(c.outputRoot->clone()),
-  input_listener( new InputListener( *this, *c.input_listener ) ),
   outputSource(*outputRoot),
   outputConfig(outputRoot->root_factory()),
   helpMenu( c.helpMenu ),
@@ -167,40 +143,49 @@ GrandConfig::GrandConfig(const GrandConfig &c)
   auto_terminate(c.auto_terminate),
   pistonCount(c.pistonCount)
 {
-    input_listener->publish_meta_info();
-    registerNamedEntries();
+    if ( c.input.get() )
+        create_input( std::auto_ptr<input::Link>(c.input->clone()) );
+    input->publish_meta_info();
     DEBUG("Copied Car config");
 }
 
 GrandConfig::~GrandConfig() {
     ost::MutexLock lock( input::global_mutex() );
     outputRoot.reset( NULL );
-    input_listener.reset( NULL );
 }
 
-void GrandConfig::registerNamedEntries() {
+void GrandConfig::create_input( std::auto_ptr<input::Link> p ) {
+    input_listener = p->notify( boost::bind(&GrandConfig::traits_changed, this, _1) );
+    input = p;
+}
+
+void GrandConfig::registerNamedEntries( simparm::Node& at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputBox.push_back( *outputRoot );
-   input_listener->registerNamedEntries(*this);
-   push_back( pistonCount );
-   push_back( outputBox );
-   push_back( configTarget );
-   push_back( auto_terminate );
+   input->registerNamedEntries(car_config);
+   car_config.push_back( pistonCount );
+   car_config.push_back( outputBox );
+   car_config.push_back( configTarget );
+   car_config.push_back( auto_terminate );
+   at.push_back( car_config );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 
 void GrandConfig::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> finder) {
-    input_listener->publish_meta_info();
-    input_listener->current_meta_info()->get_signal< signals::UseSpotFinder >()( *finder );
+    input->publish_meta_info();
+    input->current_meta_info()->get_signal< signals::UseSpotFinder >()( *finder );
 }
 
 void GrandConfig::add_spot_fitter( std::auto_ptr<engine::spot_fitter::Factory> fitter) {
-    input_listener->publish_meta_info();
-    input_listener->current_meta_info()->get_signal< signals::UseSpotFitter >()( *fitter );
+    input->publish_meta_info();
+    input->current_meta_info()->get_signal< signals::UseSpotFitter >()( *fitter );
 }
 
 void GrandConfig::add_input( std::auto_ptr<input::Link> l, InsertionPlace p) {
-    input_listener->insert_new_node( l, p );
+    if ( input.get() )
+        input->insert_new_node( l, p );
+    else
+        create_input( l );
 }
 
 void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
@@ -208,23 +193,23 @@ void GrandConfig::add_output( std::auto_ptr<output::OutputSource> o ) {
 }
 
 std::auto_ptr<input::BaseSource> GrandConfig::makeSource() {
-    return std::auto_ptr<input::BaseSource>( input_listener->makeSource() );
+    return std::auto_ptr<input::BaseSource>( input->makeSource() );
 }
 
 const input::MetaInfo&
 GrandConfig::get_meta_info() const {
-    return *input_listener->current_meta_info();
+    return *input->current_meta_info();
 }
 
-void GrandConfig::traits_changed( const input::MetaInfo& traits ) {
+void GrandConfig::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
-    outputRoot->set_output_file_basename( traits.suggested_output_basename );
-    if ( traits.provides<output::LocalizedImage>() ) 
-        outputRoot->set_trace_capability( *traits.traits<output::LocalizedImage>() );
+    outputRoot->set_output_file_basename( traits->suggested_output_basename );
+    if ( traits->provides<output::LocalizedImage>() ) 
+        outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
 }
 
 void GrandConfig::all_modules_loaded() {
-    input_listener->publish_meta_info();
+    input->publish_meta_info();
 }
 
 }

@@ -13,31 +13,10 @@ namespace dStorm {
 namespace input {
 
 class Alternatives::UpstreamCollector 
-: public Forwarder, boost::noncopyable
+: public Forwarder
 {
-    Alternatives& papa;
-
   public:
-    UpstreamCollector(Alternatives& papa) : papa(papa) {}
-    UpstreamCollector(Alternatives& papa, const UpstreamCollector& o)
-        : Forwarder(o), papa(papa) {}
-
-    UpstreamCollector* clone() const 
-        { assert(false); throw std::logic_error("UpstreamCollector unclonable"); }
-
-    BaseSource* makeSource() { return Forwarder::makeSource(); }
-
-    void traits_changed( TraitsRef r, Link* from ) {
-        DEBUG("Traits changed from upstream in " << this  << " from " << from << " to " << r.get() );
-        assert( upstream_traits() == r );
-        Link::traits_changed(r,from);
-        update_current_meta_info( r );
-        for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = papa.choices.beginChoices(); i != papa.choices.endChoices(); ++i ) {
-            i->link().traits_changed( r, this );
-            if ( upstream_traits() != r ) return;
-        }
-    }
-
+    UpstreamCollector* clone() const { return new UpstreamCollector(*this); }
     std::string name() const { return "AlternativesUpstreamCollector"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
 };
@@ -46,9 +25,14 @@ class Alternatives::UpstreamLink
 : public Link 
 {
     UpstreamCollector& collector;
+    Link::Connection connection;
+    void update_current_meta_info( TraitsRef t ) 
+        { Link::update_current_meta_info(t); }
 
   public:
-    UpstreamLink( UpstreamCollector& collector ) : collector(collector) {}
+    UpstreamLink( UpstreamCollector& collector ) 
+        : collector(collector), connection( collector.notify( 
+            boost::bind( &UpstreamLink::update_current_meta_info, this, _1 ) ) ) {}
     /** This clone() implementation returns no object. The new upstream links
      *  are inserted by the Alternatives class. */
     UpstreamLink* clone() const { return NULL; }
@@ -56,19 +40,17 @@ class Alternatives::UpstreamLink
     std::string name() const { return "AlternativesUpstreamLink"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
     BaseSource* makeSource() { return collector.makeSource(); }
-    void traits_changed( TraitsRef, Link* ) { /* TODO: This method should be used for traits injection. */
-       throw std::logic_error("Not implemented"); }
     void insert_new_node( std::auto_ptr<Link>, Place ) { throw std::logic_error("Not implemented"); }
     void publish_meta_info() {}
 };
 
 Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
-: Choice(name, desc, auto_select), collector( new UpstreamCollector(*this) )
+: Choice(name, desc, auto_select), collector( new UpstreamCollector() )
 {
 }
 
 Alternatives::Alternatives(const Alternatives& o)
-: Choice(o), collector( new UpstreamCollector(*this, *o.collector) )
+: Choice(o), collector( o.collector->clone() )
 {
     for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
         i->link().insert_new_node( std::auto_ptr< Link >(new UpstreamLink(*collector) ), Anywhere );

@@ -15,6 +15,8 @@ class Choice
     class LinkAdaptor {
         simparm::Object node;
         std::auto_ptr<input::Link> _link;
+        Choice *target;
+        Link::Connection connection;
 
       public:
         LinkAdaptor( std::auto_ptr<input::Link> l );
@@ -33,6 +35,10 @@ class Choice
             rv->registerNamedEntries();
             return rv.release();
         }
+        void connect( Choice& c ) {
+            connection = _link->notify( boost::bind(
+                &Choice::traits_changed, &c, _1, _link.get() ) );
+        }
     };
 
     simparm::NodeChoiceEntry<LinkAdaptor> choices;
@@ -40,6 +46,7 @@ class Choice
     bool auto_select;
 
     void publish_traits();
+    void traits_changed( TraitsRef, Link* );
 
   protected:
     virtual void operator()(const simparm::Event&);
@@ -50,8 +57,6 @@ class Choice
     Choice(const Choice&);
     ~Choice();
     
-    virtual void traits_changed( TraitsRef, Link* );
-
     BaseSource* makeSource();
     Choice* clone() const;
     void registerNamedEntries( simparm::Node& );

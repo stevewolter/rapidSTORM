@@ -68,8 +68,6 @@ ChainLink::ChainLink()
 
 void ChainLink::traits_changed( TraitsRef traits, Link *l )
 {
-    Link::traits_changed(traits,l); 
-
     if ( traits.get() == NULL )  {
         default_output_basename = "";
         this->traits.reset();

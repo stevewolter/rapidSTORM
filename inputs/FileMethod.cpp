@@ -118,7 +118,6 @@ class BasenameApplier {
 
 void FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
-    Link::traits_changed( traits, from );
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << traits.get() );
     if ( traits.get() == NULL ) return update_current_meta_info( traits );
     DEBUG( "FileMethod " << this << " got traits " << traits->provides_nothing() );

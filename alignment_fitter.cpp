@@ -7,6 +7,7 @@
 #include <simparm/IO.hh>
 #include <simparm/Set.hh>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/command_line.hh>
 
 typedef std::list<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> > PositionList;
 typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
@@ -78,7 +79,7 @@ int main(int argc, char *argv[]) {
     twiddler.userLevel = simparm::Object::Debug;
     cur_step.editable = cur_step.viewable = false;
     cur_volume.editable = cur_volume.viewable = false;
-    config.readConfig(argc, argv);
+    readConfig(config, argc, argv);
     simparm::IO io(NULL, &std::cout);
     io.push_back(config);
     io.desc = "Linear alignment fitter for rapidSTORM files";

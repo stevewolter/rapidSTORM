@@ -9,12 +9,11 @@ namespace input {
 Forwarder::Forwarder() {}
 Forwarder::Forwarder(const Forwarder& o) : Link(o)
 {
-    if ( o.more_specialized.get() ) {
+    if ( o.more_specialized.get() )
         more_specialized.reset( o.more_specialized->clone() );
-    }
-    if ( more_specialized.get() ) {
-        set_upstream_element( *more_specialized, *this, Add ); 
-    }
+    if ( more_specialized.get() )
+        connection = more_specialized->notify( 
+            boost::bind( &Forwarder::traits_changed, this, _1, more_specialized.get() ) );
 }
 
 Forwarder::~Forwarder() { 
@@ -46,8 +45,7 @@ Link::TraitsRef Forwarder::upstream_traits() const {
 }
 
 void Forwarder::traits_changed( TraitsRef ref, Link* l ) {
-    Link::traits_changed(ref,l);
-    return update_current_meta_info(ref);
+    update_current_meta_info(ref);
 }
 
 std::string Forwarder::name() const { 
@@ -61,13 +59,12 @@ std::string Forwarder::description() const {
 }
 
 void Forwarder::insert_here( std::auto_ptr<Link> link ) {
-    if ( more_specialized.get() ) {
-        set_upstream_element( *more_specialized, *this, Remove ); 
+    if ( more_specialized.get() )
         link->insert_new_node( more_specialized, Anywhere );
-    }
     more_specialized = link;
     if ( more_specialized.get() ) {
-        set_upstream_element( *more_specialized, *this, Add ); 
+        connection = more_specialized->notify( 
+            boost::bind( &Forwarder::traits_changed, this, _1, more_specialized.get() ) );
     }
 }
 

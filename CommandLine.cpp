@@ -13,6 +13,7 @@
 #include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
 #include <simparm/IO.hh>
+#include <simparm/command_line.hh>
 #include <dStorm/helpers/DisplayManager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "config/Grand.h"
@@ -48,9 +49,9 @@ class TwiddlerLauncher
 };
 
 class CommandLine::Pimpl
-: public JobMaster,
-  public simparm::IO
+: public JobMaster
 {
+    simparm::IO io;
     int argc;
     char **argv;
     dStorm::GrandConfig config;
@@ -80,7 +81,7 @@ class CommandLine::Pimpl
     std::auto_ptr<dStorm::JobHandle> register_node( dStorm::Job& j ) { 
         DEBUG("Waiting for mutex to add job");
         ost::MutexLock lock(mutex);
-        this->push_back(j.get_config());
+        io.push_back(j.get_config());
         DEBUG("Pushed back " << j.get_config().getName());
         jobs.push_back( &j ); 
         return std::auto_ptr<dStorm::JobHandle>( new JobHandle( *this, j ) );
@@ -88,7 +89,7 @@ class CommandLine::Pimpl
     void erase_node( dStorm::Job& j ) {
         DEBUG("Waiting for mutex to delete job for " << j.get_config().getName());
         ost::MutexLock lock(mutex);
-        this->erase(j.get_config());  
+        io.erase(j.get_config());  
         DEBUG("Erased " << j.get_config().getName());
     }
     void deleted_node( dStorm::Job& j ) {
@@ -114,26 +115,22 @@ void CommandLine::Pimpl::run() {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
     }
 
-    simparm::Set cmd_line_args
-        ("dSTORM", "dSTORM command line");
-    cmd_line_args.push_back( config );
-    cmd_line_args.push_back(
+    io.push_back(
         std::auto_ptr<simparm::Node>(new
             TransmissionTreePrinter(config)));
-    cmd_line_args.push_back(
+    io.push_back(
         std::auto_ptr<simparm::Node>(new
             TwiddlerLauncher(config, jobs)));
-    cmd_line_args.push_back( starter );
+    io.push_back( starter );
     if ( Display::Manager::getSingleton().getConfig() )
-        cmd_line_args.push_back( *Display::Manager::getSingleton().getConfig() );
+        io.push_back( *Display::Manager::getSingleton().getConfig() );
 
     find_config_file();
 
     DEBUG("Reading command line arguments");
     int first_nonoption = 0;
     if (argc > 0) {
-        first_nonoption = 
-            cmd_line_args.readConfig(argc, argv);
+        first_nonoption = readConfig(io, argc, argv);
     }
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
@@ -183,9 +180,7 @@ bool CommandLine::Pimpl::load_config_file(
             try {
                 config.processCommand( config_file );
             } catch (const std::runtime_error& e) {
-                simparm::Message m("Error in initialization file",
-                    "Unable to read initialization file: " + std::string(e.what()) );
-                config.send(m);
+                std::cerr << "Unable to read initialization file: " + std::string(e.what())  << std::endl;
             }
         }
         return true;
@@ -193,13 +188,13 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: IO(NULL, NULL), argc(argc), argv(argv), starter(this),
+: io(NULL, NULL), argc(argc), argv(argv), starter(this),
   jobs_empty(mutex)
 {
-    push_back(config);
     starter.setConfig(config);
     ModuleLoader::getSingleton().add_modules( config );
     config.all_modules_loaded();
+    config.registerNamedEntries(io);
 }
 CommandLine::Pimpl::~Pimpl() {
     ost::MutexLock lock(mutex);

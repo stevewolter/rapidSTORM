@@ -178,6 +178,7 @@ class Link
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
     boost::ptr_vector< input::Link > children;
+    boost::ptr_vector< boost::signals2::scoped_connection > connections;
     std::vector< TraitsRef > input_traits;
     simparm::Set channels;
     simparm::NodeChoiceEntry< Strategist > join_type;
@@ -270,7 +271,8 @@ Link::Link( const Link& o )
 {
     assert( children.size() == connection_nodes.size() );
     for (size_t i = 0; i < children.size() ; ++i) {
-        set_upstream_element( children[i], *this, Add );
+        connections.push_back( children[i].notify(
+            boost::bind( &Link::traits_changed, this, _1, &children[i] ) ) );
     }
 }
 
@@ -302,7 +304,8 @@ void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
         input_traits.push_back( l->current_meta_info() );
         connection_nodes.push_back( new simparm::Object("Channel1", "Channel 1") );
         children.push_back( l );
-        set_upstream_element( children.back(), *this, Add );
+        connections.push_back( children.back().notify(
+            boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );
     } else {
         for (size_t i = 1; i < children.size(); ++i)
             children[i].insert_new_node( std::auto_ptr<input::Link>( l->clone() ), p );
@@ -326,7 +329,8 @@ void Link::operator()(const simparm::Event& e) {
                 children.back().registerNamedEntries( connection_nodes.back() );
                 channels.push_back( connection_nodes.back() );
             }
-            set_upstream_element( children.back(), *this, Add );
+            connections.push_back( children.back().notify(
+                boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );
         }
         while ( children.size() > channel_count() ) {
             children.pop_back();

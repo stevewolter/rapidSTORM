@@ -25,7 +25,7 @@ Choice::Choice(const Choice& o)
     DEBUG("Copied " << &o << " to " << this);
     receive_changes_from( choices.value );
     for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i )
-        Choice::set_upstream_element( i->link(), *this, Add );
+        i->connect(*this);
 }
 
 Choice::~Choice() {
@@ -39,7 +39,6 @@ void Choice::operator()(const simparm::Event&)
 }
 
 void Choice::traits_changed( TraitsRef t, Link* from ) {
-    Link::traits_changed(t, from);
     bool provides_something = ( t.get() != NULL && ! t->provides_nothing() );
     if ( auto_select && choices.isValid() && &choices.value().link() == from && ! provides_something ) {
         DEBUG("Auto-deselecting value other than the current");
@@ -92,12 +91,10 @@ void Choice::registerNamedEntries( simparm::Node& node ) {
 
 void Choice::add_choice( std::auto_ptr<Link> fresh ) 
 {
-    Link& l = *fresh;
-    Choice::set_upstream_element( *fresh, *this, Add );
     std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
+    adaptor->connect( *this );
     adaptor->registerNamedEntries();
     choices.addChoice( choices.endChoices(), adaptor );
-    traits_changed( l.current_meta_info(), &l );
 }
 
 Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::Link> l ) 

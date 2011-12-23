@@ -107,7 +107,7 @@ void InputStream::Pimpl::reset_config() {
     ost::MutexLock lock(mutex);
     if ( original.get() ) {
         config.reset( new GrandConfig(*original) );
-        this->push_back( *config );
+        config->registerNamedEntries( *this );
         config->push_back( *starter );
         starter->setConfig( *config );
     }

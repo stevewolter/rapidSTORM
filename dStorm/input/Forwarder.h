@@ -8,6 +8,7 @@ namespace input {
 
 class Forwarder : public Link {
     std::auto_ptr<Link> more_specialized;
+    Connection connection;
   public:
     Forwarder();
     Forwarder(const Forwarder&);
@@ -15,12 +16,13 @@ class Forwarder : public Link {
 
     virtual Forwarder* clone() const = 0;
     virtual BaseSource* makeSource();
-    virtual void traits_changed( TraitsRef, Link* );
     void insert_new_node( std::auto_ptr<Link>, Place );
     void registerNamedEntries( simparm::Node& );
     std::string name() const;
     std::string description() const;
     void publish_meta_info();
+
+    virtual void traits_changed( TraitsRef, Link* );
 
   protected:
     void insert_here( std::auto_ptr<Link> );

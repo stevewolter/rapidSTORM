@@ -31,7 +31,10 @@ class ChainLink
     template <typename Type>
     BaseSource* make_source( std::auto_ptr< dStorm::input::Source<Type> > p ) {
         DEBUG( "Source of type " << typeid(*p.get()).name() << " is passing" );
-        return new VerboseInputFilter::Source<Type>(config,p);
+        if ( config.verbose() )
+            return new VerboseInputFilter::Source<Type>(config,p);
+        else
+            return p.release();
     }
 
   public:
