@@ -64,8 +64,11 @@ namespace locprec {
             traits = a;
             return AdditionalData().set_source_image();
         }
-        Result receiveLocalizations(const EngineResult &er) 
- 
+        RunRequirements announce_run(const RunAnnouncement&) {
+            countMap.clear();
+            return RunRequirements();
+        }
+        void receiveLocalizations(const EngineResult &er) 
         {
             const dStorm::engine::Image& image = er.source;
             noisePixels.fill(true);
@@ -92,16 +95,11 @@ namespace locprec {
                 for (int x = 0; x < image.width_in_pixels(); x++)
                     if ( noisePixels(x,y) == true )
                         countMap[ (image(x,y,z) / adNoise) ]++;
-
-            return KeepRunning;
         }
-        void propagate_signal(ProgressSignal s) {
-            if ( s == Engine_is_restarted )
-                countMap.clear();
-            else if ( s == Engine_run_succeeded )
-                for (CountMap::iterator i = countMap.begin(); i!=countMap.end(); i++)
-                    output << i->first * adNoise + adNoise / 2 << " "
-                        << i->second << "\n";
+        void store_results() {
+            for (CountMap::iterator i = countMap.begin(); i!=countMap.end(); i++)
+                output << i->first * adNoise + adNoise / 2 << " "
+                    << i->second << "\n";
         }
     };
 }

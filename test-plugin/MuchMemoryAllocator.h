@@ -18,49 +18,37 @@ struct Memalloc
     struct large_struct { double array[100000]; };
     boost::ptr_list<large_struct> much_memory;
 
-    bool destroy;
-
     Memalloc(const Config& config) ;
     Memalloc* clone() const;
 
     AdditionalData announceStormSize(const Announcement&)
         { return AdditionalData(); }
-    Result receiveLocalizations(const EngineResult& er) {
+    void receiveLocalizations(const EngineResult& er) {
         try {
             much_memory.push_back( new large_struct() );
             if ( er.forImage.value() % 999 == 998 ) {
                 std::cerr << "Emptying memory\n";
                 much_memory.clear();
             }
-            return KeepRunning;
         } catch ( const std::bad_alloc& alloc ) {
             std::cerr << "Memalloc is out of memory\n";
-            if ( destroy )
-                return RemoveThisOutput;
-            else
-                return KeepRunning;
         }
     }
-    void propagate_signal(ProgressSignal) {}
+    void store_results() {}
 
 };
 
 struct Memalloc::_Config
  : public simparm::Object 
 {
-    simparm::BoolEntry destroy_on_out_of_memory;
-
     _Config();
-    void registerNamedEntries() {
-        push_back( destroy_on_out_of_memory );
-    }
+    void registerNamedEntries() {}
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
 };
 
 Memalloc::_Config::_Config()
- : simparm::Object("MuchMem", "MuchMem"),
-   destroy_on_out_of_memory("DestroyWhenNoMem", "Destroy output when out of memory", false)
+ : simparm::Object("MuchMem", "MuchMem")
 {
 }
 
@@ -68,7 +56,6 @@ Memalloc* Memalloc::clone() const
         { return new Memalloc(*this); }
 
 Memalloc::Memalloc( const Config& c )
-        : OutputObject("MuchMem", "MuchMem"),
-          destroy(c.destroy_on_out_of_memory()) {}
+        : OutputObject("MuchMem", "MuchMem") {}
 
 #endif

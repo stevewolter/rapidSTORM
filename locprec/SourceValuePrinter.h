@@ -39,9 +39,8 @@ class SourceValuePrinter : public dStorm::output::OutputObject
     inline SourceValuePrinter* clone() const ;
 
     AdditionalData announceStormSize(const Announcement &a);
-    void propagate_signal(ProgressSignal) {}
-
-    Result receiveLocalizations(const EngineResult& e);
+    void receiveLocalizations(const EngineResult& e);
+    void store_results() {}
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)

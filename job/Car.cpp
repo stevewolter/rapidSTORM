@@ -1,8 +1,7 @@
-#define DSTORM_CAR_CPP
 #include "debug.h"
 
 #include "Car.h"
-#include <dStorm/outputs/Crankshaft.h>
+#include "Run.h"
 #include <dStorm/ImageTraits.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
@@ -13,61 +12,11 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/input/MetaInfo.h>
-#include <boost/range/algorithm/fill.hpp>
 
 using dStorm::output::Output;
 
 namespace dStorm {
-namespace engine {
-
-class Car::ActiveProducer {
-    Car& c;
-    boost::unique_lock< boost::mutex > lock;
-  public:
-    ActiveProducer( Car& c ) 
-        : c(c), lock(c.ring_buffer_mutex)
-    { 
-        ++c.producer_count; 
-        lock.unlock();
-    }
-    ~ActiveProducer() {
-        lock.lock();
-        --c.producer_count; 
-        c.consumer_can_continue.notify_all();
-    }
-};
-
-class Car::ComputationThread {
-  private:
-    boost::thread thread;
-    Car& car;
-    std::auto_ptr<ActiveProducer> producer;
-
-  public:
-    ComputationThread(Car &car) 
-    : car(car), producer(new ActiveProducer(car) )
-    { 
-        thread = boost::thread( &ComputationThread::run, this );
-    }
-
-    DSTORM_REALIGN_STACK void run() {
-        try {
-            car.run_computation( producer, car.terminate_early );
-        } catch ( const boost::exception& e ) {
-            boost::lock_guard<boost::mutex> lock2( car.ring_buffer_mutex );
-            car.error = boost::current_exception();
-        } catch ( const std::runtime_error& e ) {
-            boost::lock_guard<boost::mutex> lock2( car.ring_buffer_mutex );
-            car.error = boost::copy_exception(e);
-        }
-    }
-
-    ~ComputationThread() {
-        DEBUG("Collecting piston");
-        car.producer_can_continue.notify_all();
-        thread.join(); 
-    }
-};
+namespace job {
 
 /* ==== This code gives a new job ID on each call. === */
 static boost::mutex *runNumberMutex = NULL;
@@ -95,7 +44,7 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (JobMaster* input_stream, const dStorm::GrandConfig &new_config) 
+Car::Car (JobMaster* input_stream, const Config &new_config) 
 : simparm::Listener( simparm::Event::ValueChanged ),
   config(new_config),
   ident( getRunNumber() ),
@@ -105,11 +54,7 @@ Car::Car (JobMaster* input_stream, const dStorm::GrandConfig &new_config)
   input(NULL),
   output(NULL),
   close_job( new_config.auto_terminate() ),
-  terminate_early(false),
-  repeat_run(false),
-  blocked(false),
-  ring_buffer(),
-  producer_count(0)
+  abort_job( false )
 {
     //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
@@ -149,7 +94,7 @@ Car::~Car()
         job_handle->unregister_node();
 
     DEBUG("Deleting outputs");
-    output.reset(NULL);
+    output.reset();
     DEBUG("Deleting input");
     input.reset(NULL);
     DEBUG("Commencing destruction");
@@ -160,21 +105,20 @@ void Car::operator()(const simparm::Event& e) {
     {
         closeJob.untrigger();
         closeJob.editable = false;
-        DEBUG("Close job pressed, locking for job termination");
-        boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
         DEBUG("Job close button allows termination" );
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         close_job = true;
-        consumer_can_continue.notify_all();
-        terminate_early = true;
-        producer_can_continue.notify_all();
+        abort_job = true;
+        computation_thread.interrupt();
+        allow_termination.notify_all();
     } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
     {
         DEBUG("Abort job button pressed");
         abortJob.untrigger();
         abortJob.editable = false;
-        boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
-        terminate_early = true;
-        producer_can_continue.notify_all();
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
+        abort_job = true;
+        computation_thread.interrupt();
     }
 }
 
@@ -196,125 +140,7 @@ void Car::run() {
     delete this;
 }
 
-void Car::compute_until_terminated() {
-    int number_of_threads = 1;
-    if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) ) {
-        number_of_threads = config.pistonCount();
-        DEBUG("Using " << number_of_threads << " threads");
-    } else {
-        DEBUG("Multiple concurrent iterators not supported, using only a single thread.");
-    }
-
-    while (true) {
-        {
-            DEBUG("Announcing run");
-            boost::lock_guard<boost::recursive_mutex> lock( mutex );
-            Output::RunRequirements r = 
-                output->announce_run(Output::RunAnnouncement());
-            if ( ! r.test(Output::MayNeedRestart) )
-                input->dispatch( Input::WillNeverRepeatAgain );
-            next_output = first_output;
-            boost::range::fill( ring_buffer, 
-                boost::optional<output::LocalizedImage>() );
-            repeat_run = false;
-        }
-
-        DEBUG("Adding computation threads");
-        for (int i = 0; i < number_of_threads; ++i) 
-            threads.push_back(  new ComputationThread(*this) );
-        DEBUG("Running output thread");
-        output_ring_buffer();
-        DEBUG("Collecting threads");
-        threads.clear();
-        DEBUG("Collected threads");
-
-        if ( error )
-            boost::rethrow_exception(error);
-
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
-        if ( repeat_run ) {
-            output->propagate_signal( Output::Engine_is_restarted );
-            continue;
-        } else {
-            output->propagate_signal( Output::Engine_run_succeeded );
-            break;
-        }
-    }
-}
-
-void Car::run_computation(std::auto_ptr<ActiveProducer>, bool& stop) 
-{
-    for (Input::iterator i = input->begin(), e = input->end(); i != e; ++i) 
-    {
-        const output::LocalizedImage& r = *i;
-        boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
-        DEBUG("Inserting output for " << i->forImage);
-        while ( (r.forImage - next_output).value() >=
-                int(ring_buffer.size()) ) 
-        {
-            if ( stop ) { DEBUG("Abnormal finish"); return; }
-            producer_can_continue.wait(lock);
-        }
-
-        if ( stop ) { DEBUG("Abnormal finish"); return; }
-        int ring = r.forImage.value() % ring_buffer.size();
-        assert( ! ring_buffer[ring].is_initialized() );
-        ring_buffer[ring] = r;
-        if ( r.forImage == next_output )
-            consumer_can_continue.notify_all();
-    }
-    DEBUG("Normal finish");
-}
-
-void Car::output_ring_buffer() {
-    boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
-    const int mod = ring_buffer.size();
-    while ( true ) 
-    {
-        const int ring = next_output.value() % mod;
-        while ( ! ring_buffer[ring].is_initialized() )
-        {
-            if ( producer_count == 0 ) return;
-            consumer_can_continue.wait( lock );
-        }
-        while ( blocked ) { consumer_can_continue.wait( lock ); }
-
-        lock.unlock();
-
-        boost::unique_lock<boost::recursive_mutex> output_lock(mutex);
-        assert( ring_buffer[ring].is_initialized() );
-        output->receiveLocalizations( *ring_buffer[ring] );
-        ring_buffer[ring].reset();
-        output_lock.unlock();
-
-        lock.lock();
-        next_output += 1 * camera::frame;
-        producer_can_continue.notify_all();
-    }
-}
-
-void Car::add_additional_outputs() {
-    boost::ptr_vector<output::Output> o = input->additional_outputs();
-
-    if ( ! o.empty() ) 
-    {
-        outputs::Crankshaft *crankshaft = 
-            dynamic_cast<outputs::Crankshaft*>(output.get());
-        if ( crankshaft == NULL )  {
-            std::auto_ptr<outputs::Crankshaft> 
-                temporaryCrankshaft( new outputs::Crankshaft() );
-            crankshaft = temporaryCrankshaft.get();
-
-            temporaryCrankshaft->add( output );
-            this->output.reset( temporaryCrankshaft.release() );
-        }
-
-        while ( ! o.empty() )
-            crankshaft->add( o.pop_back().release() );
-    }
-}
-
-void Car::drive() {
+void Car::compute() {
   try {
     DEBUG("Trying to make source");
     std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
@@ -327,8 +153,6 @@ void Car::drive() {
     else 
         throw std::runtime_error("Engine output does not seem to be localizations");
 
-    add_additional_outputs();
-
     runtime_config.push_back( *input );
     runtime_config.push_back( output->getNode() );
     runtime_config.push_back( abortJob );
@@ -340,7 +164,7 @@ void Car::drive() {
 
     DEBUG("Getting input traits from " << input.get());
     Input::TraitsPtr traits = input->get_traits(requirements);
-    first_output = next_output = *traits->image_number().range().first;
+    first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());
     Output::Announcement announcement( *traits );
@@ -389,12 +213,32 @@ void Car::drive() {
         simparm::Message m("Unable to provide data", ss.str());
         runtime_config.send(m);
     } else {
-        compute_until_terminated();
+        int number_of_threads = 1;
+        if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
+            number_of_threads = config.pistonCount();
+        while ( true ) {
+            current_run.reset( new Run( mutex, first_output, *input, *output,
+                                        number_of_threads ) );
+            Run::Result result = current_run->run();
+            if ( result == Run::Succeeded ) {
+                boost::lock_guard< boost::recursive_mutex > lock(mutex);
+                output->store_results();
+                break;
+            } else if ( result == Run::Failed ) {
+                break;
+            }
+        }
     }
 
-    DEBUG("Erasing input " << input.get());
-    input.reset(NULL);
-    DEBUG("Erased input");
+    if ( config.configTarget ) {
+        std::ostream& stream = config.configTarget.get_output_stream();
+        std::list<std::string> lns = config.printValues();
+        for (std::list<std::string>::const_iterator i = lns.begin(); i != lns.end(); i++)
+            stream << *i << "\n";
+        config.configTarget.close_output_stream();
+    }
+
+  } catch ( boost::thread_interrupted ) {
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);
@@ -404,20 +248,18 @@ void Car::drive() {
     runtime_config.send(m);
     DEBUG("Sent message in drive mode");
   }
+}
 
+void Car::drive() {
+    computation_thread = boost::thread( &Car::compute, this );
+    computation_thread.join();
+    current_run.reset();
     boost::unique_lock<boost::recursive_mutex> lock( mutex );
     DEBUG("Waiting for termination allowance");
     while ( ! close_job )
-        consumer_can_continue.wait(lock);
+        allow_termination.wait(lock);
     DEBUG("Allowed to terminate");
 
-    if ( config.configTarget ) {
-        std::ostream& stream = config.configTarget.get_output_stream();
-        std::list<std::string> lns = config.printValues();
-        for (std::list<std::string>::const_iterator i = lns.begin(); i != lns.end(); i++)
-            stream << *i << "\n";
-        config.configTarget.close_output_stream();
-    }
 }
 
 void Car::stop() {
@@ -426,8 +268,7 @@ void Car::stop() {
 }
 
 void Car::restart() {
-    repeat_run = true;
-    terminate_early = true;
+    current_run->restart();
 }
 
 void Car::repeat_results() {
@@ -441,25 +282,8 @@ void Car::change_input_traits( std::auto_ptr< input::BaseTraits > new_traits )
         upstream_engine->change_input_traits( new_traits );
 }
 
-struct Car::Block : public EngineBlock {
-    Car& m;
-    Block( Car& m ) : m(m) {
-        boost::unique_lock<boost::mutex> lock(m.ring_buffer_mutex);
-        DEBUG( "Block in place" );
-        m.blocked = true;
-    }
-
-    ~Block() {
-        DEBUG( "Waiting for lock to put block out of place" );
-        boost::unique_lock<boost::mutex> lock(m.ring_buffer_mutex);
-        m.blocked = false;
-        DEBUG( "Block out of place" );
-        m.consumer_can_continue.notify_all();
-    }
-};
-
 std::auto_ptr<EngineBlock> Car::block() {
-    return std::auto_ptr<EngineBlock>( new Block(*this) );
+    return current_run->block();
 }
 
 }

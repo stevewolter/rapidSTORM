@@ -3,7 +3,7 @@
 
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/Config.h>
-#include "config/Grand.h"
+#include "job/Config.h"
 #include <dStorm/JobMaster.h>
 
 namespace dStorm {
@@ -13,12 +13,12 @@ class JobStarter
   simparm::Listener
 {
     JobMaster* master;
-    const GrandConfig* config;
+    job::Config* config;
 
     void operator()( const simparm::Event& );
   public:
     JobStarter( JobMaster* );
-    void setConfig( const GrandConfig& config ) 
+    void setConfig( job::Config& config ) 
         { this->config= &config; }
 };
 

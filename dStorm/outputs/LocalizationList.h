@@ -27,12 +27,10 @@ namespace outputs {
             { throw std::runtime_error("Not implemented."); }
 
         AdditionalData announceStormSize(const Announcement &a);
-        Result receiveLocalizations(const EngineResult&);
-        void propagate_signal(ProgressSignal s) { 
-            if ( s == Engine_is_restarted ) {
-                target->clear(); 
-            }
-        }
+        void receiveLocalizations(const EngineResult&);
+        RunRequirements announce_run(const RunAnnouncement&) 
+            { target->clear(); return RunRequirements(); }
+        void store_results() {}
 
         bool hasResults() const { return target != NULL; }
         const output::Localizations& getResults() const { return *target; }

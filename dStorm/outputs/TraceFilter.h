@@ -50,11 +50,11 @@ class TraceCountFilter : public output::OutputObject,
 
     AdditionalData announceStormSize(const Announcement &a) ;
     RunRequirements announce_run(const RunAnnouncement& a) 
-        { return output->announce_run(a); }
+        { processed_locs = 0; return output->announce_run(a); }
 
-    void propagate_signal(ProgressSignal s);
+    void store_results();
 
-    Result receiveLocalizations(const EngineResult& e);
+    void receiveLocalizations(const EngineResult& e);
 };
 
 class TraceCountFilter::_Config 

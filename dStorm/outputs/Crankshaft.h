@@ -46,8 +46,8 @@ class Crankshaft : public output::OutputObject {
 
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement&);
-    void propagate_signal(ProgressSignal);
-    Result receiveLocalizations(const EngineResult&);
+    void receiveLocalizations(const EngineResult&);
+    void store_results();
 
     bool empty() const { return clutches.empty(); }
     void check_for_duplicate_filenames

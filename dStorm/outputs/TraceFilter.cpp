@@ -71,17 +71,13 @@ TraceCountFilter::announceStormSize(const Announcement &a)
     return output->announceStormSize(a).set_cluster_sources();
 }
 
-void TraceCountFilter::propagate_signal(ProgressSignal s) { 
-    if ( s == Engine_is_restarted )
-        processed_locs = 0;
-    else if ( s == Engine_run_succeeded && selectSpecific() ) {
+void TraceCountFilter::store_results() { 
+    if ( selectSpecific() )
         whichSpecific.max = processed_locs;
-    }
-    output->propagate_signal(s); 
+    output->store_results(); 
 }
 
-Output::Result
-TraceCountFilter::receiveLocalizations(const EngineResult& e)
+void TraceCountFilter::receiveLocalizations(const EngineResult& e)
 {
     localizations.clear();
     if ( selectSpecific() ) {
@@ -95,7 +91,7 @@ TraceCountFilter::receiveLocalizations(const EngineResult& e)
             
     EngineResult eo(e);
     std::swap( static_cast< std::vector<Localization>& >(eo), localizations );
-    return output->receiveLocalizations(eo);
+    output->receiveLocalizations(eo);
 }
 
 TraceCountFilter::_Config::_Config()

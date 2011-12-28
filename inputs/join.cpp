@@ -5,6 +5,7 @@
 #include <simparm/ChoiceEntry_Iterator.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry.hh>
+#include <simparm/Set.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>

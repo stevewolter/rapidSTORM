@@ -24,8 +24,12 @@ class Output : public dStorm::output::OutputObject {
     Output( const Config& );
     Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
-    void propagate_signal(ProgressSignal);
-    Result receiveLocalizations(const EngineResult&);
+    RunRequirements announce_run(const RunAnnouncement&) { 
+        for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
+        return RunRequirements(); 
+    }
+    void store_results();
+    void receiveLocalizations(const EngineResult&);
 
     void check_for_duplicate_filenames
             (std::set<std::string>&) { }
@@ -55,24 +59,19 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     return Output::AdditionalData();
 }
 
-Output::Result Output::receiveLocalizations(const EngineResult& e) {
+void Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {
         for (int j = 0; j < 2; ++j)
             acc[j]( i->position()[j].value() );
         acc[2]( i->amplitude().value() );
     }
-    return KeepRunning;
 }
 
-void Output::propagate_signal(ProgressSignal e) {
-    if ( e == Engine_is_restarted ) {
-        for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
-    } else if ( e == Engine_run_succeeded  ) {
-        std::cout << tag;
-        for (int j = 0; j < 3; ++j) 
-            std::cout << " " << count( acc[j] ) << " " << mean( acc[j] ) << " " << sqrt( variance(acc[j]) );
-        std::cout << "\n";
-    }
+void Output::store_results() {
+    std::cout << tag;
+    for (int j = 0; j < 3; ++j) 
+        std::cout << " " << count( acc[j] ) << " " << mean( acc[j] ) << " " << sqrt( variance(acc[j]) );
+    std::cout << "\n";
 }
 
 }

@@ -39,6 +39,13 @@ namespace output {
         LocalizationCounter* clone() const 
             { throw std::runtime_error("LC::clone Not implemented."); }
 
+        RunRequirements announce_run(const RunAnnouncement&) {
+            count = 0; 
+            update = 0; 
+            last_config_update = 0;
+
+            return RunRequirements();
+        }
         AdditionalData announceStormSize(const Announcement &a) {
             update.setUserLevel(simparm::Object::Beginner);
             push_back(update);
@@ -47,7 +54,7 @@ namespace output {
             count = 0; 
             return AdditionalData();
         }
-        Result receiveLocalizations(const EngineResult& er) {
+        void receiveLocalizations(const EngineResult& er) {
             count += er.size(); 
             if ( print_count.get() ) {
                 *print_count << er.forImage.value() << " " << er.size() << std::endl;
@@ -57,17 +64,10 @@ namespace output {
                 update = count;
                 last_config_update = er.forImage;
             }
-            return KeepRunning; 
         }
-        void propagate_signal(ProgressSignal s) {
-            if ( s == Engine_is_restarted ) {
-                count = 0; 
-                update = 0; 
-                last_config_update = 0;
-            } else if ( s == Engine_run_succeeded ) {
-                update = count;
-                if (!this->isActive()) std::cout << count << "\n"; 
-            }
+        void store_results() {
+            update = count;
+            if (!this->isActive()) std::cout << count << "\n"; 
         }
 
     };

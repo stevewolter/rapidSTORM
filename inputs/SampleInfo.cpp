@@ -20,6 +20,7 @@
 #include <dStorm/input/Method.hpp>
 #include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace input {

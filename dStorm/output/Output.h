@@ -42,28 +42,6 @@ namespace output {
         /** An EngineResult structure is sent when localizations were
         *  found and are published to transmissions. */
         typedef LocalizedImage EngineResult;
-        enum Result { KeepRunning, RemoveThisOutput };
-        enum ProgressSignal { 
-            /** This signal is sent just before the rapidSTORM engine is
-            *  starting or restarting. It is sent once per computation
-            *  thread. */
-            Engine_run_is_starting,
-            /** This signal is sent after all pistons aborted work and
-             *  the engine prepares to relaunch. */
-            Engine_is_restarted,
-            /** This signal is sent after all pistons aborted work and
-             *  the engine decides to abort the run. */
-            Engine_run_failed,
-            /** This signal is sent after all pistons finished work. */
-            Engine_run_succeeded
-        };
-
-
-      public:
-        friend std::ostream &
-            operator<<(std::ostream &o, Result r);
-        friend std::ostream &
-            operator<<(std::ostream &o, ProgressSignal r);
 
       protected:
         /** Method throws an exception when \c can_provide does not
@@ -93,9 +71,8 @@ namespace output {
         virtual AdditionalData announceStormSize(const Announcement&) = 0;
         virtual RunRequirements announce_run(const RunAnnouncement&) 
             { return RunRequirements(); }
-        virtual void propagate_signal(ProgressSignal) = 0;
-        virtual Result receiveLocalizations(const EngineResult&)
-            = 0;
+        virtual void receiveLocalizations(const EngineResult&) = 0;
+        virtual void store_results() = 0;
     };
 
     class OutputObject : public simparm::Object, public Output {

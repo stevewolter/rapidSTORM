@@ -39,8 +39,7 @@ ROIFilter::announceStormSize(const Announcement &a)
     return output->announceStormSize(my_announcement);
 }
 
-dStorm::output::Output::Result
-ROIFilter::receiveLocalizations(const EngineResult& e) {
+void ROIFilter::receiveLocalizations(const EngineResult& e) {
     EngineResult oe = e;
     int back = 0;
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i)
@@ -48,7 +47,7 @@ ROIFilter::receiveLocalizations(const EngineResult& e) {
             oe[++back] = *i;
 
     oe.resize(back);
-    return output->receiveLocalizations(oe);
+    output->receiveLocalizations(oe);
 }
 
 ROIFilter::_Config::_Config() 

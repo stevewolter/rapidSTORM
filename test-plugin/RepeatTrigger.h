@@ -39,8 +39,8 @@ struct Repeat
         repeat.viewable = r;
         return AdditionalData(); 
     }
-    Result receiveLocalizations(const EngineResult& er) { return KeepRunning; }
-    void propagate_signal(ProgressSignal) {}
+    void receiveLocalizations(const EngineResult&) {}
+    void store_results() {}
 
     void operator()( const simparm::Event& ) {
         if ( r && repeat.triggered() ) { 

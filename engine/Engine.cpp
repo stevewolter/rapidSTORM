@@ -381,12 +381,6 @@ Engine::Base::iterator Engine::end() {
     return Base::iterator( _iterator( *this, input->end() ) );
 }
 
-boost::ptr_vector<output::Output> Engine::additional_outputs()
-{
-    boost::ptr_vector<output::Output> rv;
-    return rv;
-}
-
 void Engine::restart() { throw std::logic_error("Not implemented."); }
 void Engine::stop() { throw std::logic_error("Not implemented."); }
 void Engine::repeat_results() { throw std::logic_error("Not implemented."); }

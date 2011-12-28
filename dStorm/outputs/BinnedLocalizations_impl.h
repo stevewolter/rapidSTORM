@@ -46,21 +46,17 @@ BinnedLocalizations<KeepUpdated>
 
 template <typename KeepUpdated>
 void BinnedLocalizations<KeepUpdated>
-::propagate_signal(ProgressSignal s)
+::store_results()
 {
-    if ( s == Engine_is_restarted ) {
-        clear();
-    } else if ( s == Engine_run_succeeded ) {
-        this->binningListener().clean( true );
-    }
+    this->binningListener().clean( true );
 }
 
 template <typename KeepUpdated>
-output::Output::Result 
+void
 BinnedLocalizations<KeepUpdated>
 ::receiveLocalizations(const EngineResult& er)
 {
-    if ( er.size() == 0 ) return KeepRunning;
+    if ( er.size() == 0 ) return;
     this->binningListener().announce(er);
 
     typedef boost::units::quantity<camera::length,int> 
@@ -99,7 +95,6 @@ BinnedLocalizations<KeepUpdated>
                     ( xp, yp, old_val, base_image(xp,yp) );
             }
     }
-    return KeepRunning;
 }
 
 template <typename KeepUpdated>

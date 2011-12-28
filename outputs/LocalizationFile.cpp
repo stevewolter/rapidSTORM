@@ -49,8 +49,9 @@ class Output : public output::OutputObject {
             "LocalizationFile::clone not implemented"); }
 
     AdditionalData announceStormSize(const Announcement &a);
-    Result receiveLocalizations(const EngineResult&);
-    void propagate_signal(ProgressSignal);
+    RunRequirements announce_run(const RunAnnouncement&);
+    void receiveLocalizations(const EngineResult&);
+    void store_results();
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
@@ -109,9 +110,6 @@ void Output::open() {
 Output::AdditionalData
 Output::announceStormSize(const Announcement &a) {
     traits = a;
-
-    open();
-
     return AdditionalData();
 }
 
@@ -120,8 +118,9 @@ void Output::output( const Localization& l ) {
     *file << "\n";
 }
 
-Output::Result Output::receiveLocalizations(const EngineResult &er) 
+void Output::receiveLocalizations(const EngineResult &er) 
 {
+    if ( file == NULL ) return;
     if ( er.empty() )
         (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
     else
@@ -130,20 +129,21 @@ Output::Result Output::receiveLocalizations(const EngineResult &er)
     if ( ! (*file) ) {
         std::cerr << "Warning: Writing localizations to "
                   << filename << " failed.\n";
-        return RemoveThisOutput;
+        file = NULL;
+        fileKeeper.reset();
     }
-    return KeepRunning;
 }
 
-void Output::propagate_signal(Output::ProgressSignal s) {
-    if ( s == Engine_is_restarted ) {
-        fileKeeper.reset(NULL);
-        open();
-    } else if ( s == Engine_run_succeeded || s == Engine_run_failed ) {
-        file->flush();
-        if (fileKeeper.get() != NULL) fileKeeper->close();
-        fileKeeper.reset(NULL);
-    }
+Output::RunRequirements Output::announce_run(const RunAnnouncement&) {
+    fileKeeper.reset(NULL);
+    open();
+    return Output::RunRequirements();
+}
+
+void Output::store_results() {
+    file->flush();
+    if (fileKeeper.get() != NULL) fileKeeper->close();
+    fileKeeper.reset(NULL);
 }
 
 Output::Output(const Config &c) 

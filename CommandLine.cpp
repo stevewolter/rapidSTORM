@@ -16,7 +16,7 @@
 #include <simparm/command_line.hh>
 #include <dStorm/helpers/DisplayManager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include "config/Grand.h"
+#include "job/Config.h"
 
 namespace dStorm {
 
@@ -26,25 +26,25 @@ class TransmissionTreePrinter
 : public simparm::TriggerEntry,
   simparm::Listener
 {
-    const dStorm::GrandConfig &config;
+    const job::Config &config;
     void operator()( const simparm::Event& );
     void printNode( 
         const output::OutputSource& src,
         int indent );
   public:
-    TransmissionTreePrinter(const dStorm::GrandConfig&);
+    TransmissionTreePrinter(const job::Config&);
 };
 
 class TwiddlerLauncher
 : public simparm::TriggerEntry,
   simparm::Listener
 {
-    dStorm::GrandConfig &config;
+    job::Config &config;
     std::list<Job*> &jobs;
     boost::ptr_vector<InputStream> streams;
     void operator()( const simparm::Event& );
   public:
-    TwiddlerLauncher(dStorm::GrandConfig&, std::list<Job*>&);
+    TwiddlerLauncher(job::Config&, std::list<Job*>&);
     ~TwiddlerLauncher();
 };
 
@@ -54,7 +54,7 @@ class CommandLine::Pimpl
     simparm::IO io;
     int argc;
     char **argv;
-    dStorm::GrandConfig config;
+    job::Config config;
     JobStarter starter;
     ost::Mutex mutex;
     ost::Condition jobs_empty;
@@ -207,7 +207,7 @@ CommandLine::Pimpl::~Pimpl() {
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter
-    ( const dStorm::GrandConfig& c )
+    ( const job::Config& c )
 : simparm::TriggerEntry("ShowTransmissionTree", 
                         "Print tree view of outputs"),
   simparm::Listener( simparm::Event::ValueChanged ),
@@ -239,7 +239,7 @@ void TransmissionTreePrinter::printNode(
 }
 
 TwiddlerLauncher::TwiddlerLauncher
-    ( dStorm::GrandConfig& c, std::list<Job*>& j )
+    ( job::Config& c, std::list<Job*>& j )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
   simparm::Listener( simparm::Event::ValueChanged ),

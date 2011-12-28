@@ -70,34 +70,6 @@ std::ostream &operator<<(std::ostream &o,
     return (o << rv);
 }
 
-std::ostream &operator<<(std::ostream &o, 
-                         Output::Result r) 
-{
-    switch( r ) {
-      case Output::KeepRunning: 
-        return o << "KeepRunning";
-      case Output::RemoveThisOutput:
-        return o << "RemoveThisOutput";
-      default: return o << "unknown result";
-    }
-}
-
-std::ostream &operator<<(std::ostream &o, 
-                         Output::ProgressSignal p) 
-{
-    switch( p ) {
-      case Output::Engine_run_is_starting:
-        return o << "Engine_run_is_starting";
-      case Output::Engine_is_restarted: 
-        return o << "Engine_is_restarted";
-      case Output::Engine_run_failed: 
-        return o << "Engine_run_failed";
-      case Output::Engine_run_succeeded: 
-        return o << "Engine_run_succeeded";
-      default: return o << "unknown signal";
-    }
-}
-
 void Output::check_additional_data_with_provided
 (std::string name, AdditionalData can_provide, AdditionalData are_desired)
 {

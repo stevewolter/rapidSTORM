@@ -46,8 +46,8 @@ class RawImageFile : public OutputObject {
             "RawImageFile::clone not implemented"); }
 
     AdditionalData announceStormSize(const Announcement &a);
-    Result receiveLocalizations(const EngineResult&);
-    void propagate_signal(ProgressSignal);
+    void receiveLocalizations(const EngineResult&);
+    void store_results();
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)

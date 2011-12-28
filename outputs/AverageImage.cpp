@@ -25,21 +25,18 @@ AverageImage::AverageImage( const Config &config )
 AverageImage* AverageImage::clone() const 
     { return new AverageImage(*this); }
 
-Output::Result
+void
 AverageImage::receiveLocalizations(const EngineResult& er) {
     engine::Image::const_iterator i = er.source.begin();
     for (Image::iterator j = image.begin(); j != image.end(); j++)
     {
         *j += *i++;
     }
-
-    return KeepRunning;
 }
 
-void AverageImage::propagate_signal(Output::ProgressSignal s)
- 
+void AverageImage::store_results()
 {
-    if (s == Engine_run_succeeded && filename != "" ) {
+    if (filename != "" ) {
         Display::Change c(1);
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
@@ -48,8 +45,6 @@ void AverageImage::propagate_signal(Output::ProgressSignal s)
             if ( resolution[i].is_initialized() )
                 c.resize_image.pixel_sizes[i] = *resolution[i];
         Display::Manager::getSingleton().store_image(filename, c);
-    } else if (s == Engine_is_restarted) {
-        image.fill(0);
     }
 }
 

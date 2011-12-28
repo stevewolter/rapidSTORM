@@ -33,8 +33,13 @@ class Output : public dStorm::output::OutputObject {
     Output( const Config& );
     Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
-    void propagate_signal(ProgressSignal);
-    Result receiveLocalizations(const EngineResult&);
+    void receiveLocalizations(const EngineResult&);
+    void store_results();
+    RunRequirements announce_run(const RunAnnouncement&) { 
+        histogram->clear();
+        localization_count = 0;
+        return RunRequirements(); 
+    }
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
@@ -84,7 +89,7 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     return Output::AdditionalData();
 }
 
-Output::Result Output::receiveLocalizations(const EngineResult& e) {
+void Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {
         boost::array< float, 2 > line;
         for (int j = 0; j < 2; ++j)
@@ -92,7 +97,6 @@ Output::Result Output::receiveLocalizations(const EngineResult& e) {
         histogram->push_back( line );
     }
     localization_count += e.size();
-    return KeepRunning;
 }
 
 static quantity<si::area> area_of_ring( 
@@ -105,11 +109,8 @@ static quantity<si::area> area_of_ring(
         return M_PI * thickness * (2.0 * outer_radius - thickness);
 }
 
-void Output::propagate_signal(ProgressSignal e) {
-    if ( e == Engine_is_restarted && histogram.is_initialized() ) {
-        histogram->clear();
-        localization_count = 0;
-    } else if ( e == Engine_run_succeeded && histogram.is_initialized() ) {
+void Output::store_results() {
+    if ( histogram.is_initialized() ) {
         std::ostream& output = filename.get_output_stream();
 
         typedef  boost::units::power_typeof_helper< si::area, boost::units::static_rational<-1> >::type per_area;

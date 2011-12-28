@@ -3,6 +3,7 @@
 
 #include "iterator.hpp"
 #include <dStorm/dimension_names.h>
+#include <dStorm/engine/Image.h>
 
 namespace dStorm {
 namespace input {

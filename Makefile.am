@@ -261,12 +261,16 @@ libcode_la_SOURCES = \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE) \
-    TIFFOperation.h TIFFOperation.cpp \
-    Car_decl.h Car.cpp Car.h
+    TIFFOperation.h TIFFOperation.cpp
 
 libcode_la_SOURCES += \
-    dStorm/output/Config.h \
-    config/Grand.h config/Grand.cpp
+    job/Car.cpp job/Car.h job/ComputationThread.h \
+    job/Config.h job/Config.cpp \
+    job/Queue.h job/Queue.cpp \
+    job/Run.h job/Run.cpp
+
+libcode_la_SOURCES += \
+    dStorm/output/Config.h
 
 libcode_la_SOURCES += \
     inputs/inputs.h inputs/inputs.cpp \

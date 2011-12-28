@@ -5,6 +5,7 @@
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/input/Traits.h>
+#include <boost/optional/optional.hpp>
 
 #include "iterator_decl.hpp"
 

@@ -36,9 +36,8 @@ SourceValuePrinter::announceStormSize(const Announcement &a)
     return Output::AdditionalData().set_source_image();
 }
 
-dStorm::output::Output::Result
-SourceValuePrinter::receiveLocalizations(const EngineResult& e) {
-    if ( e.source.is_invalid() || e.forImage < from_image || e.forImage > to_image ) return KeepRunning;
+void SourceValuePrinter::receiveLocalizations(const EngineResult& e) {
+    if ( e.source.is_invalid() || e.forImage < from_image || e.forImage > to_image ) return;
     const dStorm::engine::Image& i = e.source;
     for (int x = std::max<int>( from.x().value(), 0 ); x < std::min( to.x(), i.width() ).value(); ++x )
         {
@@ -47,8 +46,6 @@ SourceValuePrinter::receiveLocalizations(const EngineResult& e) {
                 (*output) << e.forImage.value() << " " << x << " " << y << " " << " " << z << " " << i(x,y,z) << "\n";
         (*output) << "\n";
         }
-
-    return KeepRunning;
 }
 
 SourceValuePrinter::_Config::_Config() 

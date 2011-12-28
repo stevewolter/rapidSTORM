@@ -153,8 +153,7 @@ PrecisionEstimator::announceStormSize(const Announcement& a)
 }
 
 
-Output::Result
-PrecisionEstimator::receiveLocalizations( const EngineResult &er )
+void PrecisionEstimator::receiveLocalizations( const EngineResult &er )
 {
     for (EngineResult::const_iterator loc = er.begin(); loc != er.end(); ++loc) {
         assert( loc->children.is_initialized() );
@@ -182,8 +181,6 @@ PrecisionEstimator::receiveLocalizations( const EngineResult &er )
                   << estimate_deviation(m, compute_robust_subset(m)) << "\n";
 	}
      }
-
-    return KeepRunning;
 }
 
 
@@ -440,10 +437,8 @@ PrecisionEstimator::EstimationResult PrecisionEstimator
 }
 
 
-void PrecisionEstimator::propagate_signal (Output::ProgressSignal s) {
-	if ( s == Engine_is_restarted || s == Engine_run_succeeded ) {
-		printTo.close_output_stream();
-	}
+void PrecisionEstimator::store_results() {
+    printTo.close_output_stream();
 }
 
 }

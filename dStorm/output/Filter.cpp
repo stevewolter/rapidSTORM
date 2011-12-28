@@ -3,9 +3,9 @@
 namespace dStorm {
 namespace output {
 
-Filter::Result Filter::receiveLocalizations(const EngineResult& er)
+void Filter::receiveLocalizations(const EngineResult& er)
 { 
-    return fwd->receiveLocalizations(er); 
+    fwd->receiveLocalizations(er); 
 }
 
 void Filter::destroy_suboutput() {

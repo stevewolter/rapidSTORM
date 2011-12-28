@@ -74,15 +74,13 @@ namespace locprec {
             { throw std::runtime_error("Object unclonable."); }
 
         AdditionalData announceStormSize(const Announcement &a) ;
-        void propagate_signal(ProgressSignal s) {
-            dStorm::outputs::Crankshaft::propagate_signal(s);
-            if ( s == Engine_run_succeeded ) {
-                ost::MutexLock lock(mutex);
-                if ( howToSegment == Maximum )
-                    maximums();
-                else
-                    segment();
-            }
+        void store_results() {
+            dStorm::outputs::Crankshaft::store_results();
+            ost::MutexLock lock(mutex);
+            if ( howToSegment == Maximum )
+                maximums();
+            else
+                segment();
         }
 
         void operator()(const simparm::Event&);

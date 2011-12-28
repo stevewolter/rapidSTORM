@@ -86,8 +86,8 @@ class PrecisionEstimator
             const PointSet& all_data, const SubSet& estimate );
 
         AdditionalData announceStormSize(const Announcement&); 
-        Result receiveLocalizations(const EngineResult&);
-        void propagate_signal(ProgressSignal);
+        void receiveLocalizations(const EngineResult&);
+        void store_results();
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };

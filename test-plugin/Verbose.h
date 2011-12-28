@@ -41,15 +41,18 @@ struct Verbose
         }
         return AdditionalData(); 
     }
-    Result receiveLocalizations(const EngineResult& er) {
+    RunRequirements announce_run(const RunAnnouncement&) {
+        LOG("Verbose plugin got signal Engine_is_restarted");
+        return RunRequirements();
+    }
+    void receiveLocalizations(const EngineResult& er) {
         LOG( "Verbose plugin got " << er.size() << " localizations for " << er.forImage);
         if ( er.source.is_valid() ) {
             LOG( "Source image is attached with size " << er.source.sizes().transpose() );
         }
-        return KeepRunning;
     }
-    void propagate_signal(ProgressSignal s) {
-        LOG("Verbose plugin got signal " << s);
+    void store_results() {
+        LOG("Verbose plugin got signal Engine_run_succeeded");
     }
 
 };

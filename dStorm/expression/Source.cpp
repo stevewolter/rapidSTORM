@@ -62,7 +62,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
     return Filter::announceStormSize(*my_announcement);
 }
 
-Source::Result Source::receiveLocalizations(const EngineResult& er)
+void Source::receiveLocalizations(const EngineResult& er)
 {
     EngineResult rv(er);
     EngineResult::iterator end = rv.end();
@@ -71,7 +71,7 @@ Source::Result Source::receiveLocalizations(const EngineResult& er)
             end = i->evaluate( *variables, *my_announcement, rv.begin(), end );
     }
     rv.erase( end, rv.end() );
-    return Filter::receiveLocalizations(rv);
+    Filter::receiveLocalizations(rv);
 }
 
 void Source::expression_changed( std::string ident, std::auto_ptr<source::LValue> expression )

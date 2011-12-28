@@ -45,22 +45,22 @@ namespace locprec {
 
         AdditionalData announceStormSize(const Announcement&)
             { return AdditionalData(); }
-        Result receiveLocalizations(const EngineResult &er) 
+        RunRequirements announce_run(const RunAnnouncement&) {
+            countMap.clear();
+            return RunRequirements();
+        }
+        void receiveLocalizations(const EngineResult &er) 
  
         {
             for (EngineResult::const_iterator i = er.begin(); i != er.end(); ++i) {
                 double realAmp = i->amplitude() / camera::ad_count;
                 countMap[ int(realAmp / binSize) * binSize ]++;
             }
-            return KeepRunning;
         }
-        void propagate_signal(ProgressSignal s) {
-            if ( s == Engine_is_restarted )
-                countMap.clear();
-            else if ( s == Engine_run_succeeded )
-                for (CountMap::iterator i = countMap.begin(); 
-                                        i != countMap.end(); i++)
-                    to << i->first << " " << i->second << "\n";
+        void store_results() {
+            for (CountMap::iterator i = countMap.begin(); 
+                                    i != countMap.end(); i++)
+                to << i->first << " " << i->second << "\n";
         }
     };
 

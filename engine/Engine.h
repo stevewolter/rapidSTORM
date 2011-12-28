@@ -51,7 +51,6 @@ namespace engine {
         TraitsPtr get_traits(Wishes);
 
         BaseSource& upstream() { return *input; }
-        boost::ptr_vector<output::Output> additional_outputs();
         Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >

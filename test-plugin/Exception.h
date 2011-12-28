@@ -27,13 +27,12 @@ struct Exception
 
     AdditionalData announceStormSize(const Announcement&)
         { if ( onAnnouncement ) segfault(); return AdditionalData(); }
-    Result receiveLocalizations(const EngineResult& er) {
+    void receiveLocalizations(const EngineResult& er) {
         std::cerr << "Got " << er.forImage.value() << " " << onImageNumber << "\n";
         if ( er.forImage.value() == onImageNumber )
             segfault();
-        return KeepRunning;
     }
-    void propagate_signal(ProgressSignal) {}
+    void store_results() {}
 
 };
 

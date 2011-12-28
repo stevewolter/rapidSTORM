@@ -28,16 +28,14 @@ struct Delayer
     AdditionalData announceStormSize(const Announcement& a) { 
         return AdditionalData(); 
     }
-    Result receiveLocalizations(const EngineResult& er) {
+    void receiveLocalizations(const EngineResult& er) {
 #ifdef HAVE_USLEEP
         usleep( 1E5 );
 #elif HAVE_WINDOWS_H
 	Sleep( 100 );
 #endif
-        return KeepRunning;
     }
-    void propagate_signal(ProgressSignal s) {
-    }
+    void store_results() { }
 
 };
 

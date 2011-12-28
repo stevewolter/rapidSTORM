@@ -3,8 +3,6 @@
 #include "JobStarter.h"
 #include <simparm/Message.hh>
 
-#include "Car.h"
-
 namespace dStorm {
 
 JobStarter::JobStarter(JobMaster* m )
@@ -26,12 +24,12 @@ void JobStarter::operator()( const simparm::Event& ) {
       if ( config != NULL ) {
         try {
             DEBUG("Creating job");
-            new engine::Car(master, *config);
+            config->create_and_run( *master );
             DEBUG("Running job");
         } catch ( const std::runtime_error& e ) {
             simparm::Message m("Starting job failed", e.what() );
             DEBUG("Got normal exception");
-            const_cast<GrandConfig&>(*config).send( m );
+            const_cast<job::Config&>(*config).send( m );
         }
         DEBUG("Finished handling job start");
       }

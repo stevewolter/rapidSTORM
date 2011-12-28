@@ -137,6 +137,10 @@ Output::announceStormSize(const Announcement &a)
     return AdditionalData();
 }
 
+Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {
+    return target->announce_run(a);
+}
+
 struct Output::lowest_mahalanobis_distance
 : public std::binary_function< TracedObject*, TracedObject*, TracedObject* > {
     const Localization& to;
@@ -211,7 +215,7 @@ Output::update_positional( TracedObject& object )
     object.cache_position = new_pos;
 }
 
-output::Output::Result
+void
 Output::receiveLocalizations(const EngineResult &er)
 {
     int imNum = er.forImage / frame;
@@ -238,8 +242,6 @@ Output::receiveLocalizations(const EngineResult &er)
 
     if ( imNum >= track_modulo-1)
         finalizeImage(imNum - track_modulo + 1);
-
-    return KeepRunning;
 }
 
 void Output::finalizeImage(int imNum) {
@@ -264,12 +266,10 @@ void Output::finalizeImage(int imNum) {
     target->receiveLocalizations(er);
 }
 
-void Output::propagate_signal(ProgressSignal s) {
-    if ( s == Engine_run_succeeded ) {
-        /* TODO: Emit last few images that are in the ring buffer but not finalized */
-    }
+void Output::store_results() {
+    /* TODO: Emit last few images that are in the ring buffer but not finalized */
     if ( target.get() != NULL )
-        target->propagate_signal(s);
+        target->store_results();
 }
 
 }

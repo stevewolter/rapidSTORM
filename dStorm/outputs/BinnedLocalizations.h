@@ -133,8 +133,10 @@ namespace outputs {
             { return new BinnedLocalizations<KeepUpdated>(*this); }
         
         AdditionalData announceStormSize(const Announcement&);
-        Result receiveLocalizations(const EngineResult&);
-        void propagate_signal(ProgressSignal s); 
+        RunRequirements announce_run(const RunAnnouncement&) 
+            { clear(); return RunRequirements(); }
+        void receiveLocalizations(const EngineResult&);
+        void store_results(); 
 
         const BinnedImage& operator()() const { return base_image; }
 

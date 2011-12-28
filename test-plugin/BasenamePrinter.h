@@ -20,10 +20,8 @@ struct BasenamePrinter
 
     AdditionalData announceStormSize(const Announcement& a) 
         { return AdditionalData(); }
-    Result receiveLocalizations(const EngineResult& er) 
-        { return KeepRunning; }
-    void propagate_signal(ProgressSignal s) {
-    }
+    void receiveLocalizations(const EngineResult&) {}
+    void store_results() {}
 
 };
 

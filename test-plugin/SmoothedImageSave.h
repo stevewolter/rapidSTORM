@@ -37,7 +37,7 @@ struct SmoothedImageSave
     ~SmoothedImageSave() {}
     SmoothedImageSave* clone() const { return new SmoothedImageSave(*this); }
     AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
-    Result receiveLocalizations(const EngineResult& er) {
+    void receiveLocalizations(const EngineResult& er) {
         if ( er.smoothed && er.smoothed->is_valid() ) {
             dStorm::Display::Change c(1);
             c.do_clear = true;
@@ -45,9 +45,8 @@ struct SmoothedImageSave
             c.display_normalized( *er.smoothed );
             dStorm::Display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
-        return KeepRunning;
     }
-    void propagate_signal(ProgressSignal s) {}
+    void store_results() {}
 };
 
 #endif

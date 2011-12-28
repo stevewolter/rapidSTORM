@@ -83,10 +83,10 @@ namespace emission_tracker {
             {throw std::logic_error("Emission tracker is not cloneable.");}
         Output& operator=( const Output& );
 
-        AdditionalData announceStormSize(const Announcement &) 
-;
-        void propagate_signal(ProgressSignal s); 
-        Result receiveLocalizations(const EngineResult &);
+        AdditionalData announceStormSize(const Announcement &);
+        RunRequirements announce_run(const RunAnnouncement &);
+        void store_results(); 
+        void receiveLocalizations(const EngineResult &);
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };

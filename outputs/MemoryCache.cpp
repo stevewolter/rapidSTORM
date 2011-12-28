@@ -125,8 +125,9 @@ class Output
     Output* clone() const { return new Output(*this); }
 
     AdditionalData announceStormSize(const Announcement&);
-    void propagate_signal(ProgressSignal s);
-    Result receiveLocalizations(const EngineResult& e);
+    RunRequirements announce_run(const RunAnnouncement& r) ;
+    void store_results();
+    void receiveLocalizations(const EngineResult& e);
 
 };
 
@@ -261,7 +262,7 @@ void Output::reemit_localizations(const int my_count) {
     output::LocalizedImage output;
     {
         boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-        Filter::propagate_signal( Output::Engine_is_restarted );
+        Filter::announce_run( RunAnnouncement() );
     }
 
     for ( Bunches::iterator i = bunches.begin(); i != bunches.end(); ++i ) 
@@ -277,7 +278,7 @@ void Output::reemit_localizations(const int my_count) {
         }
     if ( engine_run_has_succeeded ) {
         boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-        Filter::propagate_signal( Output::Engine_run_succeeded );
+        Filter::store_results();
     }
 }
 
@@ -285,9 +286,7 @@ Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 { 
     output_mutex = a.output_chain_mutex;
-    bunches.clear();
     master_bunch.reset( new Bunch(a) );
-    bunches.push_back( new Bunch(*master_bunch) );
 
     reemit_count = 0;
     DEBUG("Making reemitter thread");
@@ -304,28 +303,28 @@ Output::announceStormSize(const Announcement& a)
     return data;
 }
 
-void Output::propagate_signal(ProgressSignal s)
-{
-    if ( s == Engine_is_restarted )
-    {
-        engine_run_has_succeeded = false;
-        bunches.clear();
-        bunches.push_back( new Bunch(*master_bunch) );
-    } else if ( s == Engine_run_succeeded )
-        engine_run_has_succeeded = true;
-    boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    Filter::propagate_signal(s); 
+Output::RunRequirements Output::announce_run(const RunAnnouncement& r) {
+    engine_run_has_succeeded = false;
+    bunches.clear();
+    bunches.push_back( new Bunch(*master_bunch) );
+    return Filter::announce_run(r);
 }
 
-Output::Result 
-Output::receiveLocalizations(const EngineResult& e) 
+void Output::store_results()
+{
+    engine_run_has_succeeded = true;
+    boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
+    Filter::store_results(); 
+}
+
+void Output::receiveLocalizations(const EngineResult& e) 
 {
     bunches.back().insert( e );
     if ( bunches.back().number_of_localizations() >= LocalizationsPerBunch )
         bunches.push_back( new Bunch( *master_bunch ) );
 
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    return Filter::receiveLocalizations( e );
+    Filter::receiveLocalizations( e );
 }
 
 Source::Source()

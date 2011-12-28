@@ -69,10 +69,9 @@ Viewer::~Viewer() {
 }
 
 
-Output::Result
-Viewer::receiveLocalizations(const EngineResult& er)
+void Viewer::receiveLocalizations(const EngineResult& er)
 {
-    return forwardOutput->receiveLocalizations(er);
+    forwardOutput->receiveLocalizations(er);
 }
 
 Output::AdditionalData 
@@ -83,12 +82,10 @@ Viewer::announceStormSize(const Announcement &a) {
     return forwardOutput->announceStormSize(a);
 }
 
-void Viewer::propagate_signal(ProgressSignal s) {
-    forwardOutput->propagate_signal(s);
-
-    if (s == Engine_run_succeeded && tifFile) {
+void Viewer::store_results() {
+    forwardOutput->store_results();
+    if (tifFile)
         writeToFile(tifFile());
-    }
 }
 
 void Viewer::operator()(const simparm::Event& e) {

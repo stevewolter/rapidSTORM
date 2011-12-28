@@ -37,7 +37,7 @@ class Source
     Source* clone() const { return new Source(*this); }
     ~Source();
     AdditionalData announceStormSize(const Announcement&);
-    Result receiveLocalizations(const EngineResult&);
+    void receiveLocalizations(const EngineResult&);
     void expression_changed( std::string ident, std::auto_ptr<source::LValue> expression );
 
     bool localization_is_filtered_out( const Localization& ) const;

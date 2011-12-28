@@ -14,11 +14,6 @@
 
 #include <any_iterator.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include "../output/Output_decl.h"
-#ifndef BOOST_ENABLE_ASSERTS
-#include "../output/Output.h"
-#endif
 
 namespace dStorm { 
 namespace input { 
@@ -59,9 +54,6 @@ namespace input {
         template <typename Type>
         inline static std::auto_ptr< Source<Type> >
             downcast( std::auto_ptr<BaseSource> );
-
-        virtual boost::ptr_vector<output::Output>
-            additional_outputs() { return boost::ptr_vector<output::Output>(); }
     };
 
     /** A Source object of some given type. Provides default 

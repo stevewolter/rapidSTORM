@@ -35,7 +35,7 @@ ProgressMeter::announceStormSize(const Announcement &a) {
         return AdditionalData(); 
     }
 
-Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er) 
+void ProgressMeter::receiveLocalizations(const EngineResult& er) 
 {
     if ( er.forImage+1*camera::frame > max ) {
         max = er.forImage+1*camera::frame;
@@ -51,20 +51,14 @@ Output::Result ProgressMeter::receiveLocalizations(const EngineResult& er)
             progress.setValue(0.5);
         }
     }
-    return KeepRunning;
 }
 
-void ProgressMeter::propagate_signal(ProgressSignal s)
+void ProgressMeter::store_results()
 {
-    if ( s == Engine_is_restarted) {
-        progress.setValue(0); 
-        max = 0;
-    } else if ( s == Engine_run_succeeded || s == Engine_run_failed ) {
-        double save_increment = progress.increment();
-        progress.increment = 0;
-        progress.setValue(1); 
-        progress.increment = save_increment;
-    }
+    double save_increment = progress.increment();
+    progress.increment = 0;
+    progress.setValue(1); 
+    progress.increment = save_increment;
 }
 
 }

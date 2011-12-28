@@ -22,9 +22,8 @@ class Filter : public Output
         { return fwd->announceStormSize(a); }
     RunRequirements announce_run(const RunAnnouncement& r) 
         { return fwd->announce_run(r); }
-    void propagate_signal(ProgressSignal s) 
-        { return fwd->propagate_signal(s); }
-    Result receiveLocalizations(const EngineResult& er);
+    void store_results() { fwd->store_results(); }
+    void receiveLocalizations(const EngineResult& er);
     void check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
         { fwd->check_for_duplicate_filenames(present_filenames); }

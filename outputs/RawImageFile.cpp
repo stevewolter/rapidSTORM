@@ -83,11 +83,11 @@ RawImageFile::announceStormSize(const Announcement &a)
     return AdditionalData().set_source_image();
 }
 
-Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
+void RawImageFile::receiveLocalizations(const EngineResult& er)
 {
   if ( tif == NULL ) 
     /* TIFF file got closed earlier. Return immediately. */
-    return RemoveThisOutput;
+    return;
 
   try {
     DEBUG("Got " << er.forImage << " while expecting " << next_image);
@@ -108,14 +108,13 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
         out_of_time.push( LookaheadImg( new LookaheadImg::Image(er.source) ) );
     } else 
         /* Image already written. Drop. */;
-    
-    return KeepRunning;
+    return;
   } catch ( const std::bad_alloc& a ) {
     simparm::Message m( "Out of memory while writing TIFF image",
         "The memory was exhausted while writing to the TIFF output file. The current image is dropped and not stored.",
         simparm::Message::Warning);
     this->send( m );
-    return KeepRunning;
+    return;
   } catch ( const std::exception& e ) {
     simparm::Message m("Error in writing TIFF file",
         std::string(e.what()) + ". Disabling TIFF output for this job.");
@@ -128,7 +127,6 @@ Output::Result RawImageFile::receiveLocalizations(const EngineResult& er)
      * unconditionally. Rather accept leaks than call it. */
     // TIFFClose( tif );
     tif = NULL;
-    return RemoveThisOutput;
 }
 
 void RawImageFile::delete_queue() {
@@ -182,7 +180,7 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     next_image = next_image + 1 * camera::frame;
 }
 
-void RawImageFile::propagate_signal(ProgressSignal) {
+void RawImageFile::store_results() {
 }
 
 RawImageFile::~RawImageFile() {

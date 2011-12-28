@@ -33,11 +33,14 @@ class AverageImage : public OutputObject {
     AdditionalData announceStormSize(const Announcement &a) {
         boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
         image = Image(t->size.head<2>(), 0 * camera::frame);
-        image.fill(0);
         return AdditionalData().set_source_image(); 
     }
-    Result receiveLocalizations(const EngineResult&);
-    void propagate_signal(ProgressSignal s);
+    RunRequirements announce_run(const RunAnnouncement&) {
+        image.fill(0);
+        return RunRequirements();
+    }
+    void receiveLocalizations(const EngineResult&);
+    void store_results();
 
     const char *getName() { return "AverageImage"; }
 

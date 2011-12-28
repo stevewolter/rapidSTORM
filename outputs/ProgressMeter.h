@@ -20,9 +20,8 @@ class ProgressMeter : public OutputObject
 
   protected:
     AdditionalData announceStormSize(const Announcement &a);
-    Result receiveLocalizations(const EngineResult& er);
-
-    void propagate_signal(ProgressSignal s);
+    void receiveLocalizations(const EngineResult& er);
+    void store_results();
 
   public:
     class Config;
@@ -34,6 +33,11 @@ class ProgressMeter : public OutputObject
           progress(c.progress), max(c.max), length(c.length)
         { push_back(progress); }
     virtual ~ProgressMeter() {}
+    RunRequirements announce_run(const RunAnnouncement&) {
+        progress.setValue(0); 
+        max = 0;
+        return RunRequirements();
+    }
 
     ProgressMeter *clone() const { return new ProgressMeter(*this); }
 };

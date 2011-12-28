@@ -101,21 +101,20 @@ Output::RunRequirements
 Slicer::announce_run(const RunAnnouncement& a)
 {
     run_announcement.reset( new RunAnnouncement(a) );
+    for (unsigned int i = 0; i < outputs.size(); i++)
+        if (!outputs.is_null(i))
+            outputs[i].images_in_output = 0;
 
     return outputs[0]->announce_run(a);
 }
 
-void Slicer::propagate_signal(ProgressSignal s) {
-    received_signals.push_back(s);
+void Slicer::store_results() {
     for (unsigned int i = 0; i < outputs.size(); i++)
-        if (!outputs.is_null(i)) {
-            if ( s == Engine_is_restarted )
-                outputs[i].images_in_output = 0;
-            outputs[i]->propagate_signal(s);
-        }
+        if (!outputs.is_null(i))
+            outputs[i]->store_results();
 }
 
-Output::Result Slicer::receiveLocalizations(const EngineResult& er)
+void Slicer::receiveLocalizations(const EngineResult& er)
 {
     frame_count one_frame( 1 * camera::frame );
     frame_index
@@ -138,12 +137,10 @@ Output::Result Slicer::receiveLocalizations(const EngineResult& er)
         outputs[i].images_in_output += one_frame;
         outputs[i]->receiveLocalizations(er);
         if ( outputs[i].images_in_output == slice_size ) {
-            outputs[i]->propagate_signal( Engine_run_succeeded );
+            outputs[i]->store_results();
             outputs.replace(i, NULL);
         }
     }
-
-    return KeepRunning;
 }
 
 Slicer::~Slicer() 

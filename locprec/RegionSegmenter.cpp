@@ -276,9 +276,9 @@ void Segmenter::segment()
             dStorm::samplepos::Constant( 0 * si::meter ) );
     }
 
-    output->propagate_signal(Engine_is_restarted);
+    output->announce_run(RunAnnouncement());
     output->receiveLocalizations(engineResult);
-    output->propagate_signal(Engine_run_succeeded);
+    output->store_results();
 }
 
 template <typename To> To sq(To a) { return a*a; }
@@ -356,9 +356,9 @@ void Segmenter::maximums() {
         );
     }
 
-    output->propagate_signal(Engine_is_restarted);
+    output->announce_run(RunAnnouncement());
     output->receiveLocalizations(engineResult);
-    output->propagate_signal(Engine_run_succeeded);
+    output->store_results();
 }
 
 void Segmenter::display_image( const ColorImage& img ) {

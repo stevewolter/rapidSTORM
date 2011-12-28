@@ -36,11 +36,9 @@ class ROIFilter : public dStorm::output::OutputObject
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement& a) 
         { return output->announce_run(a); }
+    void store_results() { output->store_results(); }
 
-    void propagate_signal(ProgressSignal s) 
-        { output->propagate_signal(s); }
-
-    Result receiveLocalizations(const EngineResult& e);
+    void receiveLocalizations(const EngineResult& e);
 };
 
 class ROIFilter::_Config 

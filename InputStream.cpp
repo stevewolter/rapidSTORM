@@ -5,12 +5,13 @@
 #include "InputStream.h"
 #include "ModuleLoader.h"
 #include "JobStarter.h"
-#include "Car.h"
-#include "config/Grand.h"
+#include "job/Config.h"
 
 #include <simparm/IO.hh>
 
 #include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/stack_realign.h>
+#include <boost/thread/thread.hpp>
 
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -37,8 +38,8 @@ struct InputStream::Pimpl
 
     bool exhausted_input;
 
-    std::auto_ptr<GrandConfig> original;
-    std::auto_ptr<GrandConfig> config;
+    std::auto_ptr<job::Config> original;
+    std::auto_ptr<job::Config> config;
     std::auto_ptr<JobStarter> starter;
     boost::thread input_watcher;
 
@@ -52,7 +53,7 @@ struct InputStream::Pimpl
         JobHandle( Pimpl& m, dStorm::Job& j ) : master(m), job(j), registered(true) {}
     };
 
-    Pimpl(InputStream& papa, const GrandConfig*, 
+    Pimpl(InputStream& papa, const job::Config*, 
           std::istream*, std::ostream*);
     ~Pimpl();
 
@@ -70,7 +71,7 @@ struct InputStream::Pimpl
 };
 
 InputStream::InputStream(
-    const GrandConfig& c,
+    const job::Config& c,
     std::istream& i, std::ostream& o)
 : pimpl( new Pimpl(*this, &c, &i, &o) )
 {
@@ -87,13 +88,13 @@ InputStream::~InputStream()
 
 InputStream::Pimpl::Pimpl(
     InputStream& impl_for,
-    const GrandConfig* c,
+    const job::Config* c,
     std::istream* i, std::ostream* o)
 : simparm::IO(i,o),
   impl_for( impl_for ),
   all_cars_finished( mutex ),
   exhausted_input( i == NULL ),
-  original( (c) ? new GrandConfig(*c) : NULL ),
+  original( (c) ? new job::Config(*c) : NULL ),
   starter( (original.get()) ? new JobStarter(this) : NULL )
 {
     this->showTabbed = true;
@@ -106,7 +107,7 @@ InputStream::Pimpl::Pimpl(
 void InputStream::Pimpl::reset_config() {
     ost::MutexLock lock(mutex);
     if ( original.get() ) {
-        config.reset( new GrandConfig(*original) );
+        config.reset( new job::Config(*original) );
         config->registerNamedEntries( *this );
         config->push_back( *starter );
         starter->setConfig( *config );

@@ -2,6 +2,7 @@
 #define DSTORM_INPUT_JOIN_ITERATOR_DECL_HPP
 
 #include <dStorm/input/Source.h>
+#include <vector>
 
 namespace dStorm {
 namespace input {

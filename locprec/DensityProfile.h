@@ -47,19 +47,19 @@ class DensityProfile : public dStorm::output::OutputObject {
 
     AdditionalData announceStormSize(const Announcement &) 
         { return AdditionalData(); }
-    void propagate_signal(ProgressSignal s) {
-        if ( s == Engine_is_restarted ) {
-            pos_counts.clear();
-            neg_counts.clear();
-        } else if ( s == Engine_run_succeeded ) {
-            for ( int i = neg_counts.size()-1; i >= 0; i--)
-                std::cout << (-i-1)*binSize << " " 
-                          << neg_counts[i] << "\n";
-            for ( unsigned int i = 0; i < pos_counts.size(); i++)
-                std::cout << i * binSize << " " << pos_counts[i] << "\n";
-        }
+    RunRequirements announce_run(const RunAnnouncement&) {
+        pos_counts.clear();
+        neg_counts.clear();
+        return RunRequirements(); 
     }
-    Result receiveLocalizations(const EngineResult &er) 
+    void store_results() {
+        for ( int i = neg_counts.size()-1; i >= 0; i--)
+            std::cout << (-i-1)*binSize << " " 
+                        << neg_counts[i] << "\n";
+        for ( unsigned int i = 0; i < pos_counts.size(); i++)
+            std::cout << i * binSize << " " << pos_counts[i] << "\n";
+    }
+    void receiveLocalizations(const EngineResult &er) 
     {
         for (EngineResult::const_iterator i = er.begin(); i != er.end(); ++i)
         {
@@ -78,7 +78,6 @@ class DensityProfile : public dStorm::output::OutputObject {
             if ( v.size() <= vecbin ) v.resize( vecbin + 10, 0 );
             v[vecbin]++;
         }
-        return KeepRunning;
     }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

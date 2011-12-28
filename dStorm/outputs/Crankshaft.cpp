@@ -94,37 +94,15 @@ Crankshaft::announce_run(const RunAnnouncement& a)
     return requirements;
 }
 
-void Crankshaft::propagate_signal(ProgressSignal s) {
-    DEBUG("Announcing engine start");
-    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++) {
-        DEBUG("Announcing engine start to " << (*i)->getNode().getName());
-        (*i)->propagate_signal(s);
-        DEBUG("Announced engine start to " << (*i)->getNode().getName());
-    }
-    DEBUG("Announced engine start");
+void Crankshaft::store_results() {
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end(); ++i)
+        (*i)->store_results();
 }
 
-Output::Result Crankshaft::receiveLocalizations(const EngineResult& er) 
+void Crankshaft::receiveLocalizations(const EngineResult& er) 
 {
-    DEBUG("Receiving " << er.number << " locs for " << er.forImage);
-    bool haveImportantOutput = false;
-    for (Clutches::iterator i = clutches.begin(); i != clutches.end();)
-    {
-        Output::Result r = (*i)->receiveLocalizations( er );
-        switch (r) {
-            case Output::KeepRunning:
-                haveImportantOutput |= i->isImportant();
-                ++i;
-                break;
-            case Output::RemoveThisOutput:
-                i = clutches.erase( i );
-                i++;
-                break;
-        }
-    }
-    DEBUG("Releasing readLock");
-
-    return Output::KeepRunning;
+    for (Clutches::iterator i = clutches.begin(); i != clutches.end(); ++i)
+        (*i)->receiveLocalizations( er );
 }
 
 void Crankshaft::check_for_duplicate_filenames
