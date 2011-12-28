@@ -126,7 +126,7 @@ nobase_include_HEADERS = \
     dStorm/output/FileOutputBuilder.h \
     dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
     dStorm/output/FilterSource.h \
-    dStorm/output/Localizations.h \
+    dStorm/output/Localizations.h dStorm/output/Localizations_iterator.h \
     dStorm/output/OutputBuilder.h dStorm/output/OutputBuilder_impl.h \
     dStorm/output/SourceFactory_decl.h dStorm/output/SourceFactory.h \
     dStorm/output/Output_decl.h dStorm/output/Output.h dStorm/output/Filter.h \
@@ -182,8 +182,6 @@ nobase_include_HEADERS = \
     dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h
 
 libdStorm_la_SOURCES = \
-    dStorm/input/Source.cpp \
-    dStorm/input/MetaInfo.cpp \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
@@ -206,10 +204,13 @@ libdStorm_la_SOURCES = \
     dStorm/expression/SimpleFilters.h dStorm/expression/SimpleFilters.cpp \
     dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
+    dStorm/input/Source.cpp \
+    dStorm/input/MetaInfo.cpp \
     dStorm/input/InputMutex.cpp \
     dStorm/input/Link.cpp dStorm/input/Choice.cpp \
     dStorm/input/Alternatives.cpp \
     dStorm/input/Forwarder.cpp \
+    dStorm/input/Method.hpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp \
     dStorm/output/debug.h \
@@ -298,7 +299,7 @@ libcode_la_SOURCES += \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
 libcode_la_SOURCES += \
-	noop_engine/ChainLink.cpp noop_engine/Chainfwd.h \
+	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 
 libcode_la_SOURCES += \
@@ -307,13 +308,13 @@ libcode_la_SOURCES += \
     engine/EngineDebug.h engine/Engine.h \
     engine/ImageFitter.h \
     engine/SpotFinder.cpp engine/debug.h  \
-    engine/Chainfwd.h engine/ChainLink.h engine/ChainLink.cpp \
+    engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
 libcode_la_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/Config.h engine_stm/Config.cpp \
-	    engine_stm/Chainfwd.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
+	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
 libcode_la_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
@@ -367,7 +368,7 @@ libcode_la_SOURCES += \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-libcode_la_SOURCES += test-plugin/plugin.cpp test-plugin/SegmentationFault.h \
+libcode_la_SOURCES += test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
     test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/Manager.h test-plugin/Manager.cpp \
@@ -419,7 +420,7 @@ libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_system_LIB)
 libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
 libdirectcamerainput_la_SOURCES = \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainfwd.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \

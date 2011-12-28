@@ -254,6 +254,7 @@ void Car::drive() {
     computation_thread = boost::thread( &Car::compute, this );
     computation_thread.join();
     current_run.reset();
+    input.reset();
     boost::unique_lock<boost::recursive_mutex> lock( mutex );
     DEBUG("Waiting for termination allowance");
     while ( ! close_job )

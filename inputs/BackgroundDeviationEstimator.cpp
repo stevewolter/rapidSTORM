@@ -1,18 +1,57 @@
 #include "debug.h"
 #include "BackgroundDeviationEstimator.h"
-#include <dStorm/input/Source.h>
+#include <boost/mpl/vector.hpp>
+#include <boost/shared_array.hpp>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
-#include <dStorm/input/Method.hpp>
-#include <dStorm/ImageTraits.h>
 #include <dStorm/image/slice.h>
+#include <dStorm/ImageTraits.h>
+#include <dStorm/input/AdapterSource.h>
+#include <dStorm/input/Method.hpp>
+#include <dStorm/input/Source.h>
+#include <simparm/Entry.hh>
 #include <simparm/Message.hh>
+#include <simparm/Object.hh>
+#include <simparm/Structure.hh>
 
 using namespace dStorm::engine;
 
 namespace dStorm {
 namespace BackgroundStddevEstimator {
 
+struct Config : public simparm::Object
+{
+    simparm::BoolEntry enable;
+    Config();
+    void registerNamedEntries() { push_back(enable); }
+};
+
+struct lowest_histogram_mode_is_strongest : public std::runtime_error {
+    lowest_histogram_mode_is_strongest() 
+        : std::runtime_error("The lowest histogram pixel in the background estimation is the strongest") {}
+};
+
+struct ImagePlane {
+    ImagePlane( int binning );
+    void add_image( const Image<engine::StormPixel,2>& );
+    bool converged() const;
+    camera_response background_stddev() const;
+  private:
+    const int binning;
+    int highest_bin, total_counts;
+    boost::shared_array<int> histogram;
+};
+
+class Source 
+: public input::AdapterSource<engine::Image>,
+  boost::noncopyable
+{
+    int confidence_limit, binning;
+
+  public:
+    Source(std::auto_ptr< input::Source<engine::Image> > base);
+    TraitsPtr get_traits( Wishes );
+};
 class ChainLink
 : public input::Method<ChainLink>
 {
