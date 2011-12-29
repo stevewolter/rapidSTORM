@@ -12,7 +12,7 @@
 #include <dStorm/outputs/Crankshaft.h>
 #include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/thread/mutex.hpp>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
@@ -23,7 +23,7 @@
 namespace locprec {
     class Segmenter : public dStorm::outputs::Crankshaft,
         public simparm::Node::Callback,
-        private dStorm::Display::DataSource
+        private dStorm::display::DataSource
     {
         class _Config;
       public:
@@ -48,8 +48,8 @@ namespace locprec {
         dStorm::outputs::BinnedLocalizations
             <dStorm::outputs::DummyBinningListener>* bins;
 
-        std::auto_ptr< dStorm::Display::Change > next_change;
-        std::auto_ptr< dStorm::Display::Manager::WindowHandle > display;
+        std::auto_ptr< dStorm::display::Change > next_change;
+        std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
 
         std::auto_ptr< dStorm::output::Output > output;
         std::auto_ptr< dStorm::output::TraceReducer > reducer;
@@ -58,7 +58,7 @@ namespace locprec {
 
         static ColorImage color_regions( const RegionImage& );
         void display_image( const ColorImage& );
-        std::auto_ptr<dStorm::Display::Change> get_changes();
+        std::auto_ptr<dStorm::display::Change> get_changes();
 
       protected:
         RegionImage segment_image();

@@ -91,8 +91,10 @@ BinnedLocalizations<KeepUpdated>
                 float old_val = base_image(xp, yp);
 
                 base_image(xp, yp) += val;
-                this->binningListener().updatePixel
-                    ( xp, yp, old_val, base_image(xp,yp) );
+                BinnedImage::Position p;
+                p.x() = xp;
+                p.y() = yp;
+                this->binningListener().updatePixel( p, old_val, base_image(p) );
             }
     }
 }

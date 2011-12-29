@@ -27,19 +27,19 @@ class HueSaturationMixer {
     void set_base_tone( double hue, double saturation ) { base_tone[0] = hue; base_tone[1] = saturation; }
     ~HueSaturationMixer();
     void set_tone( float hue );
-    void merge_tone( int x, int y, 
+    void merge_tone( const Im::Position&, 
                      float old_data_weight, float new_data_weight );
     void setSize( const dStorm::Image<ColourVector,2>::Size& size );
 
-    inline Pixel getPixel( int x, int y, 
+    inline Pixel getPixel( const Im::Position& p,
                            unsigned char val )  const
-        { return Pixel( val * rgb_weights(x,y) ); }
+        { return Pixel( val * rgb_weights(p) ); }
     inline Pixel getKeyPixel( unsigned char val ) const 
         { return Pixel( val ); }
 
-    inline void updatePixel(int x, int y, 
+    inline void updatePixel(const Im::Position& p,
                             float oldVal, float newVal) 
-        { merge_tone(x, y, oldVal, newVal - oldVal); }
+        { merge_tone(p, oldVal, newVal - oldVal); }
 };
 
 }

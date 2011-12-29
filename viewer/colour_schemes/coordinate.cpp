@@ -22,10 +22,10 @@ Coordinate::Coordinate( const Coordinate& o )
 {
 }
 
-dStorm::Display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
+display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
     if ( index != 1 ) throw std::logic_error("Request to create unknown key");
 
-    dStorm::Display::KeyDeclaration rv = variable->key_declaration();
+    display::KeyDeclaration rv = variable->key_declaration();
     rv.size = key_resolution;
     if ( ! repeater ) {
         rv.can_set_lower_limit = rv.can_set_upper_limit = false;
@@ -33,7 +33,7 @@ dStorm::Display::KeyDeclaration Coordinate::create_key_declaration( int index ) 
     return rv;
 }
 
-void Coordinate::create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
+void Coordinate::create_full_key( display::Change::Keys::value_type& into, int index ) const
 {
     if ( index != 1 ) {
         BaseType::create_full_key( into, index );
@@ -55,7 +55,7 @@ void Coordinate::create_full_key( dStorm::Display::Change::Keys::value_type& int
             /* Key value in frames */
             float value = variable->reverse_mapping( (1.0f * i + 0.5f) / key_count );
 
-            into.push_back( dStorm::Display::KeyChange(
+            into.push_back( display::KeyChange(
                 /* index */ i,
                 /* color */ weights * max_brightness,
                 /* value */ value ) );

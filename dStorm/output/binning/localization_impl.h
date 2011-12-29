@@ -3,7 +3,7 @@
 
 #include "../../debug.h"
 #include "localization.h"
-#include "../../helpers/DisplayDataSource.h"
+#include "../../display/DataSource.h"
 
 namespace dStorm {
 namespace output {
@@ -284,10 +284,10 @@ void Localization<Index,InteractivelyScaledToInterval,false>::set_user_limit( bo
 }
 
 template <int Index>
-Display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval,false>::key_declaration() const
+display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval,false>::key_declaration() const
 {
     traits::ImageResolution resolution = this->resolution();
-    dStorm::Display::KeyDeclaration rv(
+    dStorm::display::KeyDeclaration rv(
         resolution.unit_symbol,
         resolution.unit_name, 1);
     rv.can_set_lower_limit = rv.can_set_upper_limit = true;

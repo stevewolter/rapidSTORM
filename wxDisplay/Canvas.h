@@ -2,10 +2,10 @@
 #define DSTORM_DISPLAY_CANVAS_H
 
 #include <wx/wx.h>
-#include "dStorm/helpers/DisplayDataSource.h"
+#include "dStorm/display/DataSource.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class Canvas : public wxScrolledWindow {
   public:

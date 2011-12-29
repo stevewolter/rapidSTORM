@@ -33,19 +33,19 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
         BaseType::setSize(traits);
         HueSaturationMixer::setSize(traits.size);
     }
-    Pixel getPixel(int x, int y, BrightnessType val)
-        { if ( ! currently_mapping ) return inv( val ); else return inv( HueSaturationMixer::getPixel(x,y,val) ); }
+    Pixel getPixel(const Im::Position& p, BrightnessType val)
+        { if ( ! currently_mapping ) return inv( val ); else return inv( HueSaturationMixer::getPixel(p,val) ); }
     Pixel getKeyPixel( unsigned char val ) const 
         { return inv( HueSaturationMixer::getKeyPixel(val) ); }
-    void updatePixel(int x, int y, float oldVal, float newVal) 
-        { if ( currently_mapping) HueSaturationMixer::updatePixel(x,y, oldVal, newVal); }
+    void updatePixel(const Im::Position& p, float oldVal, float newVal) 
+        { if ( currently_mapping) HueSaturationMixer::updatePixel(p, oldVal, newVal); }
 
     void announce(const output::Output::Announcement& a); 
     void announce(const output::Output::EngineResult& er);
     void announce(const Localization&);
 
-    dStorm::Display::KeyDeclaration create_key_declaration( int index ) const;
-    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const;
+    dStorm::display::KeyDeclaration create_key_declaration( int index ) const;
+    void create_full_key( dStorm::display::Change::Keys::value_type& into, int index ) const;
     void notice_user_key_limits(int, bool, std::string);
 };
 

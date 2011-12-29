@@ -3,8 +3,8 @@
 #include "AverageImage.h"
 #include <iostream>
 #include <dStorm/Image_iterator.h>
-#include <dStorm/helpers/DisplayManager.h>
-#include <dStorm/helpers/DisplayDataSource_impl.h>
+#include <dStorm/display/Manager.h>
+#include <dStorm/display/display_normalized.hpp>
 #include <dStorm/Image_impl.h>
 
 using namespace std;
@@ -37,14 +37,14 @@ AverageImage::receiveLocalizations(const EngineResult& er) {
 void AverageImage::store_results()
 {
     if (filename != "" ) {
-        Display::Change c(1);
+        display::Change c(1);
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
-        c.display_normalized( image );
+        display_normalized( c, image );
         for (int i = 0; i < 2; ++i)
             if ( resolution[i].is_initialized() )
                 c.resize_image.pixel_sizes[i] = *resolution[i];
-        Display::Manager::getSingleton().store_image(filename, c);
+        display::Manager::getSingleton().store_image(filename, c);
     }
 }
 

@@ -9,7 +9,7 @@
 
 #include <simparm/IO.hh>
 
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <dStorm/stack_realign.h>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -101,8 +101,8 @@ InputStream::Pimpl::Pimpl(
     this->showTabbed = true;
     setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
     reset_config();
-    if ( Display::Manager::getSingleton().getConfig() )
-        this->push_back( *Display::Manager::getSingleton().getConfig() );
+    if ( display::Manager::getSingleton().getConfig() )
+        this->push_back( *display::Manager::getSingleton().getConfig() );
 }
 
 void InputStream::Pimpl::reset_config() {

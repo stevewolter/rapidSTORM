@@ -8,7 +8,7 @@
 
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Message.hh>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-using namespace dStorm::Display;
+using namespace dStorm::display;
 using namespace dStorm::outputs;
 using namespace dStorm::output;
 

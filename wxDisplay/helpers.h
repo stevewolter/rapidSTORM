@@ -3,10 +3,10 @@
 
 #include <iostream>
 
-#include "dStorm/helpers/DisplayDataSource.h"
+#include "dStorm/display/DataSource.h"
 
 inline wxColor
-makeColor( const dStorm::Display::Color& c ) {
+makeColor( const dStorm::display::Color& c ) {
     return wxColor( c.red(), c.green(), c.blue() );
 }
 

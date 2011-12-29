@@ -50,9 +50,9 @@ LibraryHandle::~LibraryHandle()
     }
 
 void LibraryHandle::replace_display(
-    std::auto_ptr<Display::Manager>& driver 
+    std::auto_ptr<display::Manager>& driver 
 ) {
-    Display::Manager *d = driver.release();
+    display::Manager *d = driver.release();
     try {
         d = (*display_driver)( d );
     } catch (...) {

@@ -4,9 +4,10 @@
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <limits>
 #include <dStorm/Pixel.h>
-#include <dStorm/helpers/DisplayDataSource.h>
+#include <dStorm/display/DataSource.h>
 #include <boost/array.hpp>
 #include <stdint.h>
+#include "../Image.h"
 
 namespace dStorm {
 namespace viewer {
@@ -52,9 +53,9 @@ class Base
     Pixel getKeyPixel( BrightnessType brightness ) const;
     Pixel get_background() const { return inv(Pixel(0)); }
 
-    dStorm::Display::KeyDeclaration create_key_declaration( int index ) const
+    dStorm::display::KeyDeclaration create_key_declaration( int index ) const
         { throw std::logic_error("Request to declare unknown key"); }
-    void create_full_key( dStorm::Display::Change::Keys::value_type& into, int index ) const
+    void create_full_key( dStorm::display::Change::Keys::value_type& into, int index ) const
         { throw std::logic_error("Request to write unknown key"); }
     void notice_user_key_limits(int, bool, std::string)
         { throw std::logic_error("Request to set limits for unknown key"); }

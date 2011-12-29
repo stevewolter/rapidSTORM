@@ -2,24 +2,24 @@
 #define DSTORM_MODULE_INTERFACE_H
 
 #include "Config_decl.h"
-#include "helpers/DisplayManager.h"
+#include "display/Manager.h"
 #include "JobMaster.h"
 
 typedef const char* (*RapidSTORM_Plugin_Desc) ();
 typedef void (*RapidSTORM_Config_Augmenter)
     ( dStorm::Config* inputs );
-typedef dStorm::Display::Manager* 
+typedef dStorm::display::Manager* 
     (*RapidSTORM_Display_Driver)
-    (dStorm::Display::Manager* current_manager);
+    (dStorm::display::Manager* current_manager);
 
 extern "C" {
 
 const char* rapidSTORM_Plugin_Desc();
 void rapidSTORM_Config_Augmenter
     ( dStorm::Config* inputs );
-dStorm::Display::Manager* 
+dStorm::display::Manager* 
     rapidSTORM_Display_Driver
-    (dStorm::Display::Manager* current_manager);
+    (dStorm::display::Manager* current_manager);
 
 }
 

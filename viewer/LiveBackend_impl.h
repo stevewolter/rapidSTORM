@@ -52,7 +52,7 @@ void LiveBackend<Hueing>::set_histogram_power(float power) {
 }
 
 template <typename Hueing>
-std::auto_ptr<dStorm::Display::Change> 
+std::auto_ptr<dStorm::display::Change> 
 LiveBackend<Hueing>::get_changes() {
     boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     image.clean(); 
@@ -74,8 +74,8 @@ void LiveBackend<Hueing>::look_up_key_values(
     boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     if ( ! targets.empty() ) {
         const dStorm::Image<float,2>& im = image();
-        if ( im.width_in_pixels() > info.x && im.height_in_pixels() > info.y ) {
-            targets[0] = im(info.x, info.y);
+        if ( im.width_in_pixels() > info.x() && im.height_in_pixels() > info.y() ) {
+            targets[0] = im(info);
         }
     }
 }

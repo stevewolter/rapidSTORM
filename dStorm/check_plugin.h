@@ -9,7 +9,7 @@ inline void check_plugin() {
     /* Only compile the code, do not run it. */
     return;
     dStorm::Config* e = NULL;
-    dStorm::Display::Manager* current_manager = NULL;
+    dStorm::display::Manager* current_manager = NULL;
     rapidSTORM_Plugin_Desc();
     rapidSTORM_Config_Augmenter( e );
     rapidSTORM_Display_Driver( current_manager );

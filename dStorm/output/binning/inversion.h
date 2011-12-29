@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_INVERSION_H
 #define DSTORM_OUTPUT_BINNING_INVERSION_H
 #include "binning.h"
-#include <dStorm/helpers/DisplayDataSource.h>
+#include <dStorm/display/DataSource.h>
 
 namespace dStorm {
 namespace output {
@@ -41,7 +41,7 @@ struct Inversion
     void set_user_limit( bool lower_limit, const std::string& s ) 
         { throw std::runtime_error("Setting a user-defined limit on inverted axes is not implemented. Sorry."); }
     bool is_bounded() const { return base->is_bounded(); }
-    Display::KeyDeclaration key_declaration() const { return base->key_declaration(); }
+    display::KeyDeclaration key_declaration() const { return base->key_declaration(); }
 };
 
 }

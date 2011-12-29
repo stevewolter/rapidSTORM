@@ -8,7 +8,7 @@
 #include "TerminalBackend_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {
@@ -17,7 +17,7 @@ namespace viewer {
 template <typename Hueing>
 class LiveBackend 
 : public Backend,
-  public dStorm::Display::DataSource
+  public dStorm::display::DataSource
 {
     typedef Hueing MyColorizer;
     typedef Display< MyColorizer > MyDisplay;
@@ -29,7 +29,7 @@ class LiveBackend
     Status& status;
 
     boost::recursive_mutex* mutex;
-    std::auto_ptr<dStorm::Display::Change> get_changes();
+    std::auto_ptr<dStorm::display::Change> get_changes();
 
     Accumulator image;
     MyColorizer colorizer;

@@ -23,11 +23,11 @@ void HistogramPixel::unlink() {
 }
 
 template < typename Listener>
-void LiveCache<Listener>::pixelChanged( int x, int y, HighDepth to ) {
+void LiveCache<Listener>::pixelChanged( const Im::Position& p, HighDepth to ) {
     pixels_by_value[to]
-        .push_back( pixels_by_position(x,y) );
+        .push_back( pixels_by_position(p) );
 
-    this->publish().pixelChanged( x, y );
+    this->publish().pixelChanged( p );
 }
 
 template < typename Listener>
@@ -35,7 +35,7 @@ void LiveCache<Listener>::changeBrightness( HighDepth i ) {
     assert( list_is_loop_free( &pixels_by_value[i] ) );
     for ( HistogramPixel* j = pixels_by_value[i].next; 
                     j != &pixels_by_value[i]; j = j->next)
-        this->publish().pixelChanged( j->x, j->y );
+        this->publish().pixelChanged( j->pos.cast<int>() );
 }
 
 template <typename Listener>

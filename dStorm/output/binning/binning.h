@@ -7,7 +7,7 @@
 #include "../../ImageTraits.h"
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include "../../helpers/DisplayDataSource_decl.h"
+#include "../../display/fwd.h"
 
 namespace dStorm {
 namespace output {
@@ -41,7 +41,7 @@ struct UserScaled
     virtual UserScaled* clone() const = 0;
     virtual void set_user_limit( bool lower_limit, const std::string& s ) = 0;
     virtual bool is_bounded() const = 0;
-    virtual Display::KeyDeclaration key_declaration() const = 0;
+    virtual display::KeyDeclaration key_declaration() const = 0;
 };
 
 }

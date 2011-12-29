@@ -3,10 +3,10 @@
 
 #include <wx/wx.h>
 #include <boost/units/quantity.hpp>
-#include <dStorm/helpers/DisplayDataSource.h>
+#include <dStorm/display/DataSource.h>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class ScaleBar
 : public wxWindow

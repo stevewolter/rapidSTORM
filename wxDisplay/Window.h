@@ -2,12 +2,12 @@
 #define DSTORM_DISPLAY_APPWINDOW_H
 
 #include <wx/wx.h>
-#include "dStorm/helpers/DisplayDataSource.h"
+#include "dStorm/display/DataSource.h"
 #include "wxManager.h"
 #include "Canvas.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class ZoomSlider;
 class Key;

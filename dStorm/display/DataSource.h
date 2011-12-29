@@ -1,29 +1,20 @@
 #ifndef DSTORM_DISPLAY_DATASOURCE_H
 #define DSTORM_DISPLAY_DATASOURCE_H
 
+#include "fwd.h"
+
 #include <memory>
 #include <vector>
 #include <list>
-#include "../Pixel.h"
-#include "../Image.h"
+#include <dStorm/Pixel.h>
+#include <dStorm/Image.h>
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include "../ImageTraits.h"
-#include "../image/constructors.h"
+#include <dStorm/ImageTraits.h>
+#include <dStorm/image/constructors.h>
 
 namespace dStorm {
-namespace Display {
-    typedef dStorm::Pixel Color;
-    struct ClearChange;
-    struct ResizeChange;
-    struct ImageChange;
-    struct PixelChange;
-    struct KeyChange;
-}
-}
-
-namespace dStorm {
-namespace Display {
+namespace display {
 
 typedef dStorm::Image<dStorm::Pixel,2> Image;
 
@@ -46,16 +37,15 @@ struct ResizeChange {
     std::vector<KeyDeclaration> keys;
     /* Size of one pixel in meters. */
     typedef dStorm::traits::ImageResolution Resolution;
-    Resolution pixel_sizes[2]; 
+    Resolution pixel_sizes[3]; 
 };
 struct ImageChange {
     Image new_image;
 };
-struct PixelChange { 
-    int x, y; 
+struct PixelChange : public Image::Position { 
     Color color;
 
-    PixelChange(int x, int y) : x(x), y(y) {}
+    PixelChange(Image::Position p) : Image::Position(p) {}
 };
 struct KeyChange {
     int index;
@@ -90,12 +80,9 @@ struct Change {
     }
 
     void make_linear_key(Image::PixelPair range);
-    template <class PixelType>
-    void display_normalized(const dStorm::Image<PixelType,2>&);
 };
 
-class DataSource {
-    public:
+struct DataSource {
     DataSource() {}
     virtual ~DataSource() {}
     virtual std::auto_ptr<Change> get_changes() = 0;
@@ -105,10 +92,10 @@ class DataSource {
         (int, int, int, int) {}
     virtual void notice_user_key_limits(int key_index, bool lower, std::string input);
 
-    struct PixelInfo {
-        int x,y;
+    struct PixelInfo : public Image::Position {
         const Color& pixel;
-        PixelInfo( int x, int y, const Color& p) : x(x), y(y), pixel(p) {}
+        PixelInfo( Image::Position pos, const Color& p) 
+            : Image::Position(pos), pixel(p) {}
     };
     /** This method should fill the fields in the vector \c targets, which has
      *  one pre-allocated field for each declared key, with the value displayed

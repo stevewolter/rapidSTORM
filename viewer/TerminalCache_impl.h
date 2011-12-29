@@ -11,12 +11,12 @@ namespace viewer {
 template <typename Hueing>
 TerminalCache<Hueing>::TerminalCache()
 {
-    size.keys.push_back( Display::KeyDeclaration("ADC", "total A/D counts per pixel", Colorizer::BrightnessDepth) );
+    size.keys.push_back( display::KeyDeclaration("ADC", "total A/D counts per pixel", Colorizer::BrightnessDepth) );
 }
 
 template <typename Hueing>
 void TerminalCache<Hueing>::setSize( 
-    const dStorm::Display::ResizeChange& size
+    const display::ResizeChange& size
 )
 {
     this->size = size;
@@ -36,11 +36,11 @@ void TerminalCache<Hueing>::setSize(
 }
 
 template <typename Hueing>
-std::auto_ptr<dStorm::Display::Change> 
+std::auto_ptr<display::Change> 
 TerminalCache<Hueing>::get_result(const Colorizer& colorizer) const
 {
-    std::auto_ptr<dStorm::Display::Change> rv
-        ( new dStorm::Display::Change(Hueing::KeyCount) );
+    std::auto_ptr<display::Change> rv
+        ( new display::Change(Hueing::KeyCount) );
 
     rv->do_resize = true;
     rv->resize_image = size;

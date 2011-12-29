@@ -4,7 +4,7 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 ScaleBar::ScaleBar( wxWindow* parent, const wxSize& size )
 : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),

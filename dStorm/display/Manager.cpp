@@ -1,10 +1,10 @@
-#include "DisplayManager.h"
-#include "DisplayDataSource.h"
+#include "Manager.h"
+#include "DataSource.h"
 #include <dStorm/Image_impl.h>
 #include <limits>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 void DataSource::notice_user_key_limits(int, bool, std::string) {}
 
@@ -37,7 +37,5 @@ void DataSource::look_up_key_values( const PixelInfo& info, std::vector<float>& 
 }
 
 }
-//template class Image<dStorm::Pixel,2>;
-//template class Image<dStorm::Pixel,3>;
 }
 

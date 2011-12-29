@@ -19,12 +19,12 @@ class Colored
         rgb_weights_from_hue_saturation
             ( hue, saturation, weights );
     }
-    Pixel getPixel( int, int, BrightnessType val )  const
+    Pixel getPixel( Im::Position, BrightnessType val )  const
     {
         return inv( weights * val );
     }
     inline Pixel getKeyPixel( BrightnessType br )  const
-        { return getPixel(0, 0, br ); }
+        { return getPixel(Im::Position::Zero(), br ); }
 };
 
 }

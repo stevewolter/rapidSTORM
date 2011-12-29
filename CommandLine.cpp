@@ -14,7 +14,7 @@
 #include "ModuleLoader.h"
 #include <simparm/IO.hh>
 #include <simparm/command_line.hh>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/condition.hpp>
 #include "job/Config.h"
@@ -123,8 +123,8 @@ void CommandLine::Pimpl::run() {
         std::auto_ptr<simparm::Node>(new
             TwiddlerLauncher(config, jobs)));
     io.push_back( starter );
-    if ( Display::Manager::getSingleton().getConfig() )
-        io.push_back( *Display::Manager::getSingleton().getConfig() );
+    if ( display::Manager::getSingleton().getConfig() )
+        io.push_back( *display::Manager::getSingleton().getConfig() );
 
     find_config_file();
 

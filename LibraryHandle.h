@@ -45,7 +45,7 @@ class LibraryHandle {
     inline bool operator!=(const LibraryHandle& l) const
         { return l.handle != handle; }
 
-    void replace_display( std::auto_ptr<Display::Manager>& );
+    void replace_display( std::auto_ptr<display::Manager>& );
 
     const char *getDesc() { return (*desc)(); }
 };

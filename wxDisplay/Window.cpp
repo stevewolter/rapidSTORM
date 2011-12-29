@@ -10,7 +10,7 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 wxString std_to_wx_string( const std::string& a ) {
     return wxString( a.c_str(), wxMBConvLibc() );
@@ -131,7 +131,7 @@ void Window::draw_image_window( const Change& changes ) {
         i = changes.change_pixels.begin(),
         end = changes.change_pixels.end();
     for ( ; i != end; i++)
-        drawer.draw( i->x, i->y, i->color );
+        drawer.draw( i->x(), i->y(), i->color );
 
     drawer.finish();
 }
@@ -202,7 +202,10 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     label_text << "(" << point.x << ", " << point.y << ")";
     position_label->SetLabel( std_to_wx_string( label_text.str() ) );
 
-    dStorm::Display::DataSource::PixelInfo info( point.x, point.y, color );
+    Image::Position pos = Image::Position::Zero();
+    pos.x() = point.x;
+    pos.y() = point.y;
+    dStorm::display::DataSource::PixelInfo info( pos, color );
     std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
     if ( source )
         source->look_up_key_values( info, key_values );

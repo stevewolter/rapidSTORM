@@ -33,7 +33,7 @@ namespace outputs {
         /** Called when a pixel changes in the binned image. The parameters
          *  give the x and y position of the changed pixel and its old and
          *  new value. */
-        inline void updatePixel(int, int, float, float) ;
+        inline void updatePixel(const BinnedImage::Position&, float, float) ;
         /** Forwards the call to BinnedLocalizations::clean(), that is,
          *  the listener should clean its state.
          *  @param lastClean    This clean is the final clean after the
@@ -54,7 +54,7 @@ namespace outputs {
         void announce(const output::Output::Announcement&) {}
         void announce(const output::Output::EngineResult&) {}
         void announce(const Localization&) {}
-        void updatePixel(int, int, float, float) {}
+        void updatePixel(const BinnedImage::Position&, float, float) {}
         void clean(bool) {}
         void clear() {}
     };

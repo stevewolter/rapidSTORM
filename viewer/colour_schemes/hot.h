@@ -16,7 +16,7 @@ class Hot
 
     Hot(bool invert)
         : Base<unsigned short>(invert) {} 
-    Pixel getPixel( int, int, BrightnessType br ) const {
+    Pixel getPixel( Im::Position, BrightnessType br ) const {
         unsigned char part = br & 0xFF;
         return inv(
             ( br < 0x100 ) ? Pixel( part, 0, 0 ) :
@@ -24,7 +24,7 @@ class Hot
                              Pixel( 0xFF, 0xFF, part ) );
     }
     inline Pixel getKeyPixel( BrightnessType br )  const
-        { return getPixel(0, 0, br ); }
+        { return getPixel(Im::Position::Zero(), br ); }
 };
 
 }

@@ -144,14 +144,14 @@ void Manager::ControlConfig::processCommand( std::istream& in )
     }
 
 class Manager::Handle 
-: public dStorm::Display::Manager::WindowHandle {
+: public dStorm::display::Manager::WindowHandle {
     boost::shared_ptr<Source> my_source;
     Manager& m;
 
   public:
     Handle( 
         const WindowProperties& properties,
-        dStorm::Display::DataSource& source,
+        dStorm::display::DataSource& source,
         Manager& m ) : m(m) 
     {
         my_source.reset( new Source(properties, source, m.number++) );
@@ -167,12 +167,12 @@ class Manager::Handle
             destruction.c.wait( l );
     }
 
-    void store_current_display( dStorm::Display::SaveRequest );
+    void store_current_display( dStorm::display::SaveRequest );
 };
 
 Manager::Source::Source(
     const WindowProperties& properties,
-    dStorm::Display::DataSource& source,
+    dStorm::display::DataSource& source,
     int n)
 : handler(source), state(0), number(n),
   wants_closing(false), may_close(false)
@@ -182,7 +182,7 @@ Manager::Source::Source(
 }
 
 void Manager::Source::handle_resize( 
-    const dStorm::Display::ResizeChange& r)
+    const dStorm::display::ResizeChange& r)
 {
     LOG( "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
@@ -203,7 +203,7 @@ void Manager::Source::handle_resize(
 }
 
 bool Manager::Source::get_and_handle_change() {
-    std::auto_ptr<dStorm::Display::Change> c
+    std::auto_ptr<dStorm::display::Change> c
         = handler.get_changes();
 
     if ( c.get() == NULL ) {
@@ -214,7 +214,7 @@ bool Manager::Source::get_and_handle_change() {
     bool has_changed = c->do_resize || c->do_clear ||
                        c->do_change_image || 
                        (c->change_pixels.size() > 0);
-    for (dStorm::Display::Change::Keys::const_iterator i = c->changed_keys.begin(); 
+    for (dStorm::display::Change::Keys::const_iterator i = c->changed_keys.begin(); 
                                       i != c->changed_keys.end(); ++i)
         has_changed = has_changed || (i->size() > 0);
 
@@ -232,17 +232,17 @@ bool Manager::Source::get_and_handle_change() {
         current_display = c->image_change.new_image;
     }
     
-    for( dStorm::Display::Change::PixelQueue::const_iterator
+    for( dStorm::display::Change::PixelQueue::const_iterator
                 i = c->change_pixels.begin(); 
                 i != c->change_pixels.end(); i++)
     {
-         current_display(i->x,i->y) = i->color;
+         current_display(*i) = i->color;
     }
 
     for ( size_t j = 0; j < c->changed_keys.size(); ++j)
         for ( size_t i = 0; i < c->changed_keys[j].size(); i++ )
         {
-            dStorm::Display::KeyChange kc = c->changed_keys[j][i];
+            dStorm::display::KeyChange kc = c->changed_keys[j][i];
             if ( i == 31 )
                 LOG("Window " << number << " key " << j << " value 31 has value " << kc.value);
             state.changed_keys[j][kc.index] = kc;
@@ -256,11 +256,11 @@ void Manager::run() {
     dispatch_events(); 
 }
 
-std::auto_ptr<dStorm::Display::Manager::WindowHandle>
+std::auto_ptr<dStorm::display::Manager::WindowHandle>
     Manager::register_data_source
 (
     const WindowProperties& props,
-    dStorm::Display::DataSource& handler
+    dStorm::display::DataSource& handler
 ) {
     boost::lock_guard< boost::recursive_mutex > lock(mutex);
     if ( !running ) {
@@ -269,10 +269,10 @@ std::auto_ptr<dStorm::Display::Manager::WindowHandle>
         ui_thread = boost::thread( &Manager::run, this );
     }
     return 
-        std::auto_ptr<dStorm::Display::Manager::WindowHandle>( new Handle(props, handler, *this) );
+        std::auto_ptr<dStorm::display::Manager::WindowHandle>( new Handle(props, handler, *this) );
 }
 
-std::ostream& operator<<(std::ostream& o, dStorm::Display::Color c)
+std::ostream& operator<<(std::ostream& o, dStorm::display::Color c)
 {
     return ( o << int(c.red()) << " " << int(c.green()) << " " << int(c.blue()) );
 }
@@ -338,7 +338,7 @@ void Manager::dispatch_events() {
     DEBUG("Finished event loop");
 }
 
-Manager::Manager(dStorm::Display::Manager *p)
+Manager::Manager(dStorm::display::Manager *p)
 : running(false),
   number(0),
   previous(p)
@@ -356,13 +356,13 @@ Manager::~Manager()
 
 void Manager::store_image(
         std::string filename,
-        const dStorm::Display::Change& image )
+        const dStorm::display::Change& image )
 {
     std::cerr << "Storing result image under " << filename << std::endl;
     previous->store_image(filename, image);
 }
 
-void Manager::Handle::store_current_display( dStorm::Display::SaveRequest s )
+void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 {
     DEBUG("Got store request to " << s.filename);
     m.request_action( my_source, s );
@@ -385,9 +385,9 @@ void Manager::heed_requests() {
             boost::apply_visitor( boost::bind( boost::ref(*i.first), _1, boost::ref(*this) ), i.second );
 }
 
-void Manager::Source::operator()( const dStorm::Display::SaveRequest& i, Manager& m ) {
-    std::auto_ptr<dStorm::Display::Change>
-        rv( new dStorm::Display::Change(state) );
+void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager& m ) {
+    std::auto_ptr<dStorm::display::Change>
+        rv( new dStorm::display::Change(state) );
     if ( ! rv->do_resize )
         throw std::runtime_error("State not yet initialized");
     rv->do_change_image = true;

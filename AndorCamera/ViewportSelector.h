@@ -3,7 +3,7 @@
 
 #include <dStorm/stack_realign.h>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <simparm/Entry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
@@ -26,7 +26,7 @@ namespace AndorCamera {
     *  and configured interactively. */
 class Display : public simparm::Set,
                 private simparm::Node::Callback, 
-                public dStorm::Display::DataSource
+                public display::DataSource
 {
   private:
     struct FetchHandler;
@@ -53,8 +53,8 @@ class Display : public simparm::Set,
 
     /** Buffer image for acquisition. Made class member to allow 
         *  saving to file. */
-    std::auto_ptr<dStorm::Display::Change> change;
-    std::auto_ptr<dStorm::Display::Manager::WindowHandle> handle;
+    std::auto_ptr<display::Change> change;
+    std::auto_ptr<display::Manager::WindowHandle> handle;
 
     CamTraits traits;
     /** Currently used normalization boundaries. Will be set for each new
@@ -74,7 +74,7 @@ class Display : public simparm::Set,
     /** Subthread for image acquisition. */
     DSTORM_REALIGN_STACK virtual void run() throw();
     /** Method implementing data source interface. */
-    virtual std::auto_ptr<dStorm::Display::Change> get_changes();
+    virtual std::auto_ptr<display::Change> get_changes();
     /** Method implementing data source interface. */
     virtual void notice_closed_data_window();
     /** Method implementing data source interface. */
@@ -88,7 +88,7 @@ class Display : public simparm::Set,
     void initialize_display();
     void draw_image(const CamImage& data);
 
-    dStorm::Display::ResizeChange getSize() const;
+    display::ResizeChange getSize() const;
 
     /** Undefined copy constructor to avoid implicit copy construction. */
     Display(const Display&);

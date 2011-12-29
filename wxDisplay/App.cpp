@@ -5,7 +5,7 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 DECLARE_EVENT_TYPE(DISPLAY_TIMER, -1)
 DEFINE_EVENT_TYPE(DISPLAY_TIMER)
@@ -59,4 +59,4 @@ void App::OnTimer(wxTimerEvent& event) {
 }
 }
 
-IMPLEMENT_APP_NO_MAIN( dStorm::Display::App );
+IMPLEMENT_APP_NO_MAIN( dStorm::display::App );

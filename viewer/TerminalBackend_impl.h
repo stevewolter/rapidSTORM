@@ -8,7 +8,7 @@
 #include "ImageDiscretizer_inline.h"
 #include "Display_inline.h"
 
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <dStorm/image/iterator.h>
 
 #include "Config.h"
@@ -40,13 +40,13 @@ void TerminalBackend<Hueing>::save_image(
 )
 { 
     DEBUG("Storing results");
-    std::auto_ptr<dStorm::Display::Change> result
+    std::auto_ptr<display::Change> result
         = get_result(config.save_with_key());
     if ( ! config.save_scale_bar() )
         for (int i = 0; i < 2; ++i)
             result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
-    dStorm::Display::Manager::getSingleton().store_image( 
+    display::Manager::getSingleton().store_image( 
         filename, *result);
     DEBUG("Finished");
 }
@@ -57,25 +57,25 @@ void TerminalBackend<Hueing>::set_histogram_power(float power) {
 }
 
 template <typename Hueing>
-std::auto_ptr<dStorm::Display::Change> 
+std::auto_ptr<display::Change> 
 TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");
-    std::auto_ptr<dStorm::Display::Change> c = cache.get_result(colorizer);
+    std::auto_ptr<display::Change> c = cache.get_result(colorizer);
     c->do_clear = true;
     c->clear_image.background = colorizer.get_background();
     Im& im = c->image_change.new_image;
     DEBUG("Writing result image of size " << im.width_in_pixels() << " " << im.height_in_pixels());
     for ( Im::iterator i = im.begin(); i != im.end(); i++ ) {
-        *i = discretization.get_pixel( i.x(), i.y() );
+        *i = discretization.get_pixel( i.position() );
     }
     if ( with_key && Colorizer::KeyCount > 0 ) {
         DEBUG("Creating keys");
         assert( int(c->changed_keys.size()) >= Colorizer::KeyCount );
-        dStorm::Display::Change::Keys::iterator key = c->changed_keys.begin();
+        display::Change::Keys::iterator key = c->changed_keys.begin();
         int key_count = Colorizer::BrightnessDepth;
         key->reserve( key_count + key->size() );
         for (int i = 0; i < key_count; i++)
-            key->push_back( dStorm::Display::KeyChange( i, 
+            key->push_back( display::KeyChange( i, 
                 colorizer.getKeyPixel( i ), discretization.key_value( i ) ) );
         int index = 1;
         for ( ++key ; key != c->changed_keys.end(); ++key ) {

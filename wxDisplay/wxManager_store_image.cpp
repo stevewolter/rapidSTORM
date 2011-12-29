@@ -27,7 +27,7 @@ std::string SIize( float value ) {
 }
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 #ifdef USE_GRAPHICSMAGICK
 template <int MagickDepth>
@@ -107,7 +107,7 @@ make_key_image(
     int width,
     Magick::Color foreground,
     Magick::Color background,
-    const dStorm::Display::KeyDeclaration& kd,
+    const dStorm::display::KeyDeclaration& kd,
     const std::vector<KeyChange>& key )
 {
     DEBUG("Making annotated key");

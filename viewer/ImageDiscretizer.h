@@ -7,6 +7,7 @@
 #include "Publisher.h"
 #include "HighDepth.h"
 #include <vector>
+#include "Image.h"
 
 namespace dStorm {
 namespace viewer {
@@ -17,10 +18,10 @@ struct DiscretizationListener {
     /** The setSize method is called before any announcements are made,
         *  and is called afterwards when the image size changes. */
     void setSize(
-        const input::Traits< Image<int,2> >&);
+        const input::Traits< Im >&);
     /** Called when a pixel changes in the image. The parameters
         *  give the position of the changed pixel. */
-    void pixelChanged(int x, int y, HighDepth to_value);
+    void pixelChanged(Im::Position, HighDepth to_value);
     /** Update the output brightness of all pixels with input brightness
      *  level \c at */
     void changeBrightness(HighDepth at);
@@ -41,8 +42,8 @@ struct DiscretizationListener {
 struct DummyDiscretizationListener {
     static const bool NeedLiveHistogram = false;
 
-    void setSize(const input::Traits< Image<int,2> >&) {}
-    void pixelChanged(int, int, HighDepth) {}
+    void setSize(const input::Traits< Im >&) {}
+    void pixelChanged(Im::Position, HighDepth) {}
     void changeBrightness(HighDepth at) {}
     void clean(bool) {}
     void clear() {}
@@ -57,7 +58,7 @@ class Discretizer
     typedef typename ImageListener::Colorizer Colorizer;
     typedef typename Colorizer::BrightnessType LowDepth;
 
-    typedef Image<float,2> InputImage;
+    typedef Image<float,Im::Dim> InputImage;
 
     typedef std::vector<LowDepth> TransitionTable;
 
@@ -94,17 +95,17 @@ class Discretizer
     Discretizer(
         int intermediate_depth, 
         float histogram_power, 
-        const Image<float,2>& binned_image,
+        const InputImage& binned_image,
         Colorizer& colorizer);
     template <typename OtherListener>
     Discretizer( 
         const Discretizer<OtherListener>&, 
-        const Image<float,2>& binned_image,
+        const InputImage& binned_image,
         Colorizer& colorizer);
     ~Discretizer();
 
     void setSize( const input::Traits<InputImage>& );
-    inline void updatePixel(int, int, float, float);
+    inline void updatePixel(const Im::Position&, float, float);
     void clean(bool final);
     void clear();
 
@@ -115,12 +116,12 @@ class Discretizer
     void announce(const Localization& loc)
         { colorizer.announce( loc ); }
 
-    Pixel get_pixel( int x, int y ) const {
-        return colorizer.getPixel(x, y, 
-            transition[ discretize( binned_image(x,y) ) ]);
+    Pixel get_pixel( const Im::Position& p ) const {
+        return colorizer.getPixel(p,
+            transition[ discretize( binned_image(p) ) ]);
     }
-    Pixel get_pixel( int x, int y, HighDepth discretized ) const {
-        return colorizer.getPixel(x, y, transition[ discretized ]);
+    Pixel get_pixel( const Im::Position& p, HighDepth discretized ) const {
+        return colorizer.getPixel(p, transition[ discretized ]);
     }
     Pixel get_background() const
         { return colorizer.get_background(); }

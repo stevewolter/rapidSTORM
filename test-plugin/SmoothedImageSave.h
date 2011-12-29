@@ -10,8 +10,8 @@
 #include <boost/units/io.hpp>
 
 #include <boost/lexical_cast.hpp>
-#include <dStorm/helpers/DisplayManager.h>
-#include <dStorm/helpers/DisplayDataSource_impl.h>
+#include <dStorm/display/Manager.h>
+#include <dStorm/display/display_normalized.hpp>
 #include <dStorm/image/minmax.h>
 #include <dStorm/image/convert.h>
 
@@ -39,11 +39,11 @@ struct SmoothedImageSave
     AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
     void receiveLocalizations(const EngineResult& er) {
         if ( er.smoothed && er.smoothed->is_valid() ) {
-            dStorm::Display::Change c(1);
+            dStorm::display::Change c(1);
             c.do_clear = true;
             c.clear_image.background = dStorm::Pixel::Black();
-            c.display_normalized( *er.smoothed );
-            dStorm::Display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
+            display_normalized( c, *er.smoothed );
+            dStorm::display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
     }
     void store_results() {}

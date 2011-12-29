@@ -363,22 +363,22 @@ void Segmenter::maximums() {
 
 void Segmenter::display_image( const ColorImage& img ) {
     if ( announcement.get() == NULL ) return;
-    dStorm::Display::ResizeChange new_size;
+    dStorm::display::ResizeChange new_size;
     new_size.size = img.sizes();
-    new_size.keys.push_back( dStorm::Display::KeyDeclaration( "Segment", "Index of associated region", 1+(sizeof(colors)/sizeof(colors[0])) ));
+    new_size.keys.push_back( dStorm::display::KeyDeclaration( "Segment", "Index of associated region", 1+(sizeof(colors)/sizeof(colors[0])) ));
     for (int i = 0; i < 2; ++i)
         new_size.pixel_sizes[i] = binners[i].resolution();
 
     if ( display.get() == NULL ) {
-        dStorm::Display::Manager::WindowProperties props;
+        dStorm::display::Manager::WindowProperties props;
         props.initial_size = new_size;
 
-        display = dStorm::Display::Manager::getSingleton()
+        display = dStorm::display::Manager::getSingleton()
             .register_data_source( props, *this );
-        next_change.reset( new dStorm::Display::Change(1) );
+        next_change.reset( new dStorm::display::Change(1) );
         next_change->changed_keys.front().reserve( new_size.keys.front().size );
         for (int i = 0; i < new_size.keys.front().size; i++)
-            next_change->changed_keys.front().push_back( dStorm::Display::KeyChange(
+            next_change->changed_keys.front().push_back( dStorm::display::KeyChange(
                 i, (i == 0) ? dStorm::Pixel::Black() : colors[i-1], i ) );
     } else {
         next_change->do_resize = true;
@@ -389,8 +389,8 @@ void Segmenter::display_image( const ColorImage& img ) {
     next_change->image_change.new_image = img;
 }
 
-std::auto_ptr<dStorm::Display::Change> Segmenter::get_changes() {
-    std::auto_ptr<dStorm::Display::Change> fresh( new dStorm::Display::Change(1) );
+std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
+    std::auto_ptr<dStorm::display::Change> fresh( new dStorm::display::Change(1) );
     boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( fresh, next_change );
     return fresh;

@@ -13,9 +13,9 @@ template <typename Colorizer>
 Display<Colorizer>::Display( 
     MyDiscretizer& disc, 
     const Config& config,
-    dStorm::Display::DataSource& vph ,
+    dStorm::display::DataSource& vph ,
     const Colorizer& colorizer,
-    std::auto_ptr<dStorm::Display::Change> initial_state
+    std::auto_ptr<dStorm::display::Change> initial_state
 ) 
 : discretizer(disc), 
   colorizer(colorizer),
@@ -25,7 +25,7 @@ Display<Colorizer>::Display(
     if ( config.close_on_completion() )
         props.flags.close_window_on_unregister();
     if ( next_change.get() == NULL )
-        next_change.reset( new dStorm::Display::Change(Colorizer::KeyCount) );
+        next_change.reset( new dStorm::display::Change(Colorizer::KeyCount) );
     else
         setSize( next_change->resize_image );
 
@@ -36,21 +36,17 @@ void Display<Colorizer>::show_window()
 {
     if ( window_id.get() == NULL && my_size.is_initialized() ) {
         props.initial_size = *my_size;
-        window_id = dStorm::Display::Manager::getSingleton()
+        window_id = dStorm::display::Manager::getSingleton()
                 .register_data_source( props, vph );
     }
 }
 
 template <typename Colorizer>
 void Display<Colorizer>::setSize(
-    const dStorm::Display::ResizeChange& size
+    const dStorm::display::ResizeChange& size
 ) {
     my_size = size;
-
-    ps.resize( my_size->size.x() * my_size->size.y()
-        / camera::pixel / camera::pixel, false );
-    ps_step = my_size->size.x() / camera::pixel;
-
+    BaseDisplay::setSize( size.size );
     this->clear();
 }
 
@@ -59,11 +55,11 @@ void Display<Colorizer>::setSize(
     const input::Traits< Image<int,2> >& traits
 )
 { 
-    dStorm::Display::ResizeChange size;
+    dStorm::display::ResizeChange size;
     size.size = traits.size;
 
     size.keys.push_back(
-        dStorm::Display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
+        dStorm::display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
     for (int j = 1; j < Colorizer::KeyCount; ++j) {
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );
@@ -86,20 +82,20 @@ void Display<Colorizer>::setSize(
 
 template <typename Colorizer>
 void Display<Colorizer>::clean(bool) {
-    typedef dStorm::Display::Change::PixelQueue PixQ;
+    typedef dStorm::display::Change::PixelQueue PixQ;
     const PixQ::iterator end 
         = next_change->change_pixels.end();
     for ( PixQ::iterator i = 
         next_change->change_pixels.begin(); i != end; ++i )
     {
-        i->color = discretizer.get_pixel(i->x, i->y);
-        ps[ i->y * ps_step + i->x ] = false;
+        i->color = discretizer.get_pixel(*i);
+        is_on(*i) = false;
     }
 }
 
 template <typename Colorizer>
 void Display<Colorizer>::clear() {
-    dStorm::Display::ClearChange &c = next_change->clear_image;
+    dStorm::display::ClearChange &c = next_change->clear_image;
     c.background = discretizer.get_background();
     next_change->do_clear = true;
 
@@ -107,23 +103,23 @@ void Display<Colorizer>::clear() {
     next_change->changed_keys.front().clear();
     for (int j = 1; j < Colorizer::KeyCount; ++j)
         colorizer.create_full_key( next_change->changed_keys[j] , j );
-    fill( ps.begin(), ps.end(), false );
+    BaseDisplay::clear();
 }
 
 template <typename Colorizer>
-std::auto_ptr<dStorm::Display::Change>
+std::auto_ptr<dStorm::display::Change>
 Display<Colorizer>::get_changes() {
-    std::auto_ptr<dStorm::Display::Change> fresh
-        ( new dStorm::Display::Change(Colorizer::KeyCount) );
+    std::auto_ptr<dStorm::display::Change> fresh
+        ( new dStorm::display::Change(Colorizer::KeyCount) );
     clean(false);
     std::swap( fresh, next_change );
     return fresh;
 }
 
-struct KeyClearer : public std::unary_function<void,dStorm::Display::Change&> {
+struct KeyClearer : public std::unary_function<void,dStorm::display::Change&> {
     KeyClearer( const Config& c ) 
         : clear_key( ! c.save_with_key() ), clear_scale_bar( ! c.save_scale_bar() ) {}
-    void operator()( dStorm::Display::Change& c ) {
+    void operator()( dStorm::display::Change& c ) {
         if (clear_key) {
             c.changed_keys.clear();
             c.resize_image.keys.clear();

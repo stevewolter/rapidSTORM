@@ -7,7 +7,7 @@
 #include <boost/function/function0.hpp>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 struct Window;
 
@@ -40,6 +40,6 @@ class App : public wxApp {
 }
 }
 
-DECLARE_APP(dStorm::Display::App);
+DECLARE_APP(dStorm::display::App);
 
 #endif

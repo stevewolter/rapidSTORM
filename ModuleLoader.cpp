@@ -12,7 +12,7 @@
 #include "engine_stm/ChainLink_decl.h"
 #include "noop_engine/ChainLink_decl.h"
 
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include "wxDisplay/wxManager.h"
 #include "LibraryHandle.h"
 #include "test-plugin/plugin.h"
@@ -36,7 +36,7 @@ struct ModuleLoader::Pimpl
     List lib_handles;
     std::set<std::string> loaded;
 
-    std::auto_ptr<Display::Manager> display;
+    std::auto_ptr<display::Manager> display;
 
     Pimpl();
     ~Pimpl();
@@ -53,9 +53,9 @@ ModuleLoader::ModuleLoader()
 : pimpl( new Pimpl() ) {}
 
 ModuleLoader::Pimpl::Pimpl()
-: display( new Display::wxManager() )
+: display( new display::wxManager() )
 {
-    std::auto_ptr< Display::Manager > tmp = display;
+    std::auto_ptr< display::Manager > tmp = display;
     display.reset( test::make_display( tmp.release() ) );
     load_plugins();
 }
@@ -116,7 +116,7 @@ void ModuleLoader::Pimpl::load_plugins()
         throw std::runtime_error("No plugins have been found in " + std::string(plugin_dir) + ". Please set the environment variable RAPIDSTORM_PLUGINDIR to the directory containing plugins. This executable cannot do anything sensible without any plugin and is terminating now.");
     DEBUG("Found plugins");
 
-    Display::Manager::setSingleton( *display );
+    display::Manager::setSingleton( *display );
 }
 
 void ModuleLoader::add_modules

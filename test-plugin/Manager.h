@@ -1,7 +1,7 @@
 #ifndef TEST_PLUGIN_DISPLAY_MANAGER_H
 #define TEST_PLUGIN_DISPLAY_MANAGER_H
 
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -23,7 +23,7 @@ template <> class NumTraits<dStorm::Pixel>
 }
 
 class Manager 
-: public dStorm::Display::Manager
+: public dStorm::display::Manager
 {
     class Handle;
     class ControlConfig;
@@ -31,7 +31,7 @@ class Manager
     std::auto_ptr<WindowHandle>
         register_data_source
         (const WindowProperties& properties,
-         dStorm::Display::DataSource& handler);
+         dStorm::display::DataSource& handler);
 
     struct Disassociation {
         bool commenced;
@@ -45,7 +45,7 @@ class Manager
         SetLimit(bool b, int key, std::string limit) : lower_limit(b), key(key), limit(limit) {} };
     struct DrawRectangle { int l, r, t, b; DrawRectangle(int l, int r, int t, int b) : l(l), r(r), t(t), b(b) {} };
 
-    typedef boost::variant< Close, SetLimit, DrawRectangle, dStorm::Display::SaveRequest, boost::reference_wrapper<Disassociation> > Request;
+    typedef boost::variant< Close, SetLimit, DrawRectangle, dStorm::display::SaveRequest, boost::reference_wrapper<Disassociation> > Request;
 
     boost::recursive_mutex mutex;
     boost::mutex request_mutex;
@@ -57,24 +57,24 @@ class Manager
 
     struct Source : public boost::static_visitor<void> 
     {
-        typedef dStorm::Image<dStorm::Pixel,2> Image;
-        dStorm::Display::DataSource& handler;
+        typedef dStorm::display::Image Image;
+        dStorm::display::DataSource& handler;
         Image current_display;
-        dStorm::Display::Change state;
+        dStorm::display::Change state;
         int number;
         bool wants_closing, may_close;
 
         Source( const WindowProperties& properties,
-                dStorm::Display::DataSource& source,
+                dStorm::display::DataSource& source,
                 int number);
         void handle_resize( 
-            const dStorm::Display::ResizeChange& );
+            const dStorm::display::ResizeChange& );
         bool get_and_handle_change();
 
         void operator()( const Close&, Manager& m );
         void operator()( const SetLimit&, Manager& m );
         void operator()( const DrawRectangle&, Manager& m );
-        void operator()( const dStorm::Display::SaveRequest&, Manager& m );
+        void operator()( const dStorm::display::SaveRequest&, Manager& m );
         void operator()( Disassociation&, Manager& m );
     };
     typedef std::map<int, boost::shared_ptr<Source> > Sources;
@@ -83,7 +83,7 @@ class Manager
         Requests;
     Requests requests;
     
-    std::auto_ptr<dStorm::Display::Manager>
+    std::auto_ptr<dStorm::display::Manager>
         previous;
     boost::thread ui_thread;
 
@@ -94,7 +94,7 @@ class Manager
     void heed_requests();
 
   public:
-    Manager(dStorm::Display::Manager *p);
+    Manager(dStorm::display::Manager *p);
     Manager(const Manager&);
     ~Manager();
 
@@ -102,7 +102,7 @@ class Manager
 
     void store_image(
         std::string filename,
-        const dStorm::Display::Change& image);
+        const dStorm::display::Change& image);
 
     void stop() {}
     void request_action( boost::shared_ptr<Source>& on, const Request& request );

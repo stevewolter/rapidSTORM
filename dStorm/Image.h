@@ -10,6 +10,7 @@
 #include "units/camera_response.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
+#include <boost/units/Eigen/Array>
 #include "units/camera_response.h"
 #include <boost/static_assert.hpp>
 
@@ -18,9 +19,9 @@ namespace dStorm {
 template <int Dimensions>
 struct ImageTypes {
     typedef boost::units::quantity<camera::length,int> Span;
-    typedef Eigen::Matrix<Span,Dimensions,1,Eigen::DontAlign> Size;
-    typedef Eigen::Matrix<int,Dimensions,1,Eigen::DontAlign> Position;
-    typedef Eigen::Matrix<int,Dimensions,1,Eigen::DontAlign> Offsets;
+    typedef Eigen::Array<Span,Dimensions,1,Eigen::DontAlign> Size;
+    typedef Eigen::Array<int,Dimensions,1,Eigen::DontAlign> Position;
+    typedef Eigen::Array<int,Dimensions,1,Eigen::DontAlign> Offsets;
 };
 
 template <typename PixelType, int Dimensions>
@@ -72,6 +73,11 @@ class Image
     Image<bool,Dimensions> threshold( PixelType threshold ) const;
     Image deep_copy() const;
 
+    const PixelType& operator()(const Position& p) const 
+        { return ptr()[ (p * offsets).sum() ]; }
+    PixelType& operator()(const Position& p) 
+        { return ptr()[ (p * offsets).sum() ]; }
+
     const PixelType& operator()(int x, int y) const { 
         BOOST_STATIC_ASSERT(Dimensions == 2);
         return ptr()[x*offsets.x()+y*offsets.y()]; 
@@ -120,6 +126,7 @@ class Image
         BOOST_STATIC_ASSERT(Dimensions >= 3);
         return sz.z() / camera::pixel; }
     const Size& sizes() const { return sz; }
+    const Position sizes_in_pixels() const { return value( sz ); }
 
     const Offsets& get_offsets() const { return offsets; }
     size_t get_global_offset() const { return global_offset; }

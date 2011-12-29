@@ -3,13 +3,13 @@
 
 #include <memory>
 #include <bitset>
-#include "DisplayDataSource.h"
+#include "DataSource.h"
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
 #include <simparm/Node_decl.hh>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class DataSource;
 class ResizeChange;

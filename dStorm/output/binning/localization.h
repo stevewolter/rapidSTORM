@@ -7,7 +7,7 @@
 
 #include <boost/units/io.hpp>
 #include <bitset>
-#include "../../helpers/DisplayDataSource.h"
+#include "../../display/DataSource.h"
 
 namespace dStorm {
 namespace output {
@@ -137,7 +137,7 @@ class Localization<Index, InteractivelyScaledToInterval, false> : public Localiz
     double reverse_mapping( float f ) const { return Base::reverse_mapping(f); }
     void set_user_limit( bool lower_limit, const std::string& s );
     bool is_bounded() const;
-    Display::KeyDeclaration key_declaration() const;
+    display::KeyDeclaration key_declaration() const;
     std::pair< float, float > get_minmax() const { return Base::get_minmax(); }
 
   private:
@@ -171,7 +171,7 @@ struct Localization<Index,Mode,true>
 
     void set_user_limit( bool lower_limit, const std::string& s ) { Base::set_user_limit(lower_limit, s); }
     bool is_bounded() const { return Base::is_bounded(); }
-    Display::KeyDeclaration key_declaration() const { return Base::key_declaration(); }
+    display::KeyDeclaration key_declaration() const { return Base::key_declaration(); }
 };
 
 }

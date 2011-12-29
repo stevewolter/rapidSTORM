@@ -58,7 +58,7 @@ struct Waitable
     const Functor& functor() const { return _functor; }
 };
 
-namespace Display {
+namespace display {
 
 struct wxManager::WindowHandle
 : public Manager::WindowHandle

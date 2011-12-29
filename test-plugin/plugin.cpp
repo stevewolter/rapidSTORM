@@ -47,8 +47,8 @@ void make_config ( dStorm::Config* config ) {
     config->add_output( new SmoothedImageSave::Source() );
 }
 
-dStorm::Display::Manager*
-make_display (dStorm::Display::Manager *old)
+dStorm::display::Manager*
+make_display (dStorm::display::Manager *old)
 {
     if ( getenv("DEBUGPLUGIN_LEAVE_DISPLAY") || !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) {
         return old;

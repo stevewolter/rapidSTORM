@@ -70,7 +70,7 @@ void Discretizer<ImageListener>
             HighDepth n = discretize( *i, new_disc_fac );
 
             if ( discretize( *i ) != n )
-                this->publish().pixelChanged( i.x(), i.y(), n );
+                this->publish().pixelChanged( i.position(), n );
 
             ++histogram[n];
         }

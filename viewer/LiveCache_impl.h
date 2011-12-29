@@ -27,17 +27,14 @@ LiveCache<Listener>::LiveCache(
 
 template < typename Listener>
 void LiveCache<Listener>::set_xy() {
-    Image<HistogramPixel,2>::iterator i;
+    HistogramImage::iterator i;
     for ( i = pixels_by_position.begin(); i != pixels_by_position.end(); ++i)
-    {
-        i->x = i.x();
-        i->y = i.y();
-    }
+        i->pos = i.position().cast<unsigned short>();
 }
 
 template < typename Listener>
 void LiveCache<Listener>::setSize( const input::Traits< Image<int,2> >& traits ) {
-    pixels_by_position = Image<HistogramPixel,2>( traits.size );
+    pixels_by_position = HistogramImage( traits.size );
 
     set_xy();
 

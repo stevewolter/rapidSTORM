@@ -1,7 +1,13 @@
+#ifndef DSTORM_DISPLAY_FWD_H
+#define DSTORM_DISPLAY_FWD_H
 
 namespace dStorm {
-namespace Display {
 
+struct Pixel;
+
+namespace display {
+
+typedef dStorm::Pixel Color;
 struct ClearChange;
 struct KeyDeclaration;
 struct ResizeChange;
@@ -13,3 +19,5 @@ struct DataSource;
 
 }
 }
+
+#endif

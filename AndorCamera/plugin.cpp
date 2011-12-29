@@ -3,7 +3,7 @@
 #endif
 #include <dStorm/Config.h>
 #include <dStorm/input/Link.h>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -27,9 +27,9 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->add_input( m, dStorm::InputMethod );
 }
 
-dStorm::Display::Manager*
+dStorm::display::Manager*
 rapidSTORM_Display_Driver
-    (dStorm::Display::Manager *old)
+    (dStorm::display::Manager *old)
 {
     return old;
 }

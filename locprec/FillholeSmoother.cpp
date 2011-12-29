@@ -12,8 +12,6 @@
 #include "FillholeSmoother.h"
 #include <dStorm/Image_iterator.h>
 
-#include <dStorm/helpers/DisplayManager.h>
-#include <dStorm/helpers/DisplayDataSource_impl.h>
 #include <dStorm/image/convert.h>
 #include <dStorm/image/constructors.h>
 

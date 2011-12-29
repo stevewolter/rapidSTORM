@@ -3,7 +3,7 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 ZoomSlider::ZoomSlider( wxWindow *parent, Canvas &canvas )
 : wxSlider( parent, wxID_ANY, 0, -16, 16, 

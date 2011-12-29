@@ -14,10 +14,10 @@ class Mono
     typedef Base<unsigned char>::BrightnessType BrightnessType;
     Mono(bool invert)
         : Base<unsigned char>(invert) {} 
-    inline Pixel getPixel( int, int, BrightnessType br ) const
+    inline Pixel getPixel( Im::Position, BrightnessType br ) const
             { return inv( Pixel(br) ); }
     inline Pixel getKeyPixel( BrightnessType br ) const
-        { return getPixel(0, 0, br ); }
+        { return getPixel(Im::Position::Zero(), br ); }
 };
 
 }

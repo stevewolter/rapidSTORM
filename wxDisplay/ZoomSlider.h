@@ -5,7 +5,7 @@
 #include "Canvas.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class ZoomSlider 
     : public wxSlider,

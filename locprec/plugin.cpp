@@ -45,9 +45,9 @@ void rapidSTORM_Config_Augmenter ( dStorm::Config* config ) {
     config->add_output( make_output_source<variance_estimator::Output>().release() );
 }
 
-dStorm::Display::Manager*
+dStorm::display::Manager*
 rapidSTORM_Display_Driver
-    (dStorm::Display::Manager *current)
+    (dStorm::display::Manager *current)
 {
     return current;
 }

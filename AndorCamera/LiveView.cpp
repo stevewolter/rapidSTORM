@@ -20,7 +20,7 @@ LiveView::LiveView(
 : Object("LiveView", "Live view options"),
   resolution( resolution ),
   show_live("ShowLive", "Show camera image", on_by_default),
-  change( new dStorm::Display::Change(1) )
+  change( new display::Change(1) )
 {
     DEBUG("LiveView constructed");
     registerNamedEntries();
@@ -38,12 +38,12 @@ void LiveView::show_window(CamImage::Size size) {
     if ( window.get() == NULL ) {
         DEBUG("Showing live view window");
         assert( size.x() < 10240 * camera::pixel && size.y() < 10240 * camera::pixel);
-        dStorm::Display::Manager::WindowProperties props;
+        display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
         props.initial_size.size = size;
         props.initial_size.keys.push_back( 
-            dStorm::Display::KeyDeclaration("ADC", "A/D counts", 256) );
+            display::KeyDeclaration("ADC", "A/D counts", 256) );
         props.initial_size.keys.back().can_set_lower_limit = true;
         props.initial_size.keys.back().can_set_upper_limit = true;
         props.initial_size.keys.back().lower_limit = "";
@@ -52,7 +52,7 @@ void LiveView::show_window(CamImage::Size size) {
             if ( resolution[i].is_initialized() )
                 props.initial_size.pixel_sizes[i] = *resolution[i];
 
-        window = dStorm::Display::Manager::getSingleton()
+        window = display::Manager::getSingleton()
             .register_data_source( props, *this );
         DEBUG("Success in showing live view window");
     }
@@ -66,10 +66,10 @@ void LiveView::hide_window() {
     }
 }
 
-std::auto_ptr<Display::Change> LiveView::get_changes()
+std::auto_ptr<display::Change> LiveView::get_changes()
 {
     DEBUG("Locking changes");
-    std::auto_ptr<Display::Change> fresh( new Display::Change(1) );
+    std::auto_ptr<display::Change> fresh( new display::Change(1) );
     boost::lock_guard<boost::mutex> lock(change_mutex);
     DEBUG("Getting live view changes");
     if ( current_image_content.is_valid() ) {

@@ -6,7 +6,7 @@
 #include <boost/units/quantity.hpp>
 #include <simparm/Object.hh>
 #include <boost/optional/optional.hpp>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/ImageTraits.h>
@@ -17,7 +17,7 @@ namespace AndorCamera {
 
 class LiveView :
     boost::noncopyable, public simparm::Object,
-    public dStorm::Display::DataSource
+    public dStorm::display::DataSource
 {
   public:
     typedef traits::Optics<2>::Resolutions Resolution;
@@ -31,8 +31,8 @@ class LiveView :
     boost::mutex window_mutex, change_mutex;
     CamImage current_image_content;
 
-    std::auto_ptr<dStorm::Display::Change> change;
-    std::auto_ptr<dStorm::Display::Manager::WindowHandle> window;
+    std::auto_ptr<dStorm::display::Change> change;
+    std::auto_ptr<dStorm::display::Manager::WindowHandle> window;
 
     void registerNamedEntries();
 
@@ -43,7 +43,7 @@ class LiveView :
     void compute_key_change( CameraPixel darkest,
                              CameraPixel brightest );
 
-    std::auto_ptr<dStorm::Display::Change> get_changes();
+    std::auto_ptr<dStorm::display::Change> get_changes();
     void notice_closed_data_window();
     void notice_user_key_limits(int, bool, std::string);
 

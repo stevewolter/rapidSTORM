@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include <dStorm/image/constructors.h>
+#include <dStorm/image/contains.h>
 
 using namespace boost::units;
 
@@ -19,23 +20,23 @@ void HueSaturationMixer::set_tone( float hue ) {
                         * current_tone[1];
 }
 
-void HueSaturationMixer::merge_tone( int x, int y, 
+void HueSaturationMixer::merge_tone( const Im::Position& pos,
                     float old_data_weight, float new_data_weight )
 {
-    assert( int(colours.width_in_pixels()) > x && int(colours.height_in_pixels()) > y );
+    assert( contains( colours, pos ) );
     ColourVector hs;
     if ( old_data_weight < 1E-3 ) {
-        colours(x,y) = tone_point;
+        colours(pos) = tone_point;
         hs = current_tone;
     } else {
-        colours(x,y) = 
-            ( colours(x,y) * old_data_weight + 
+        colours(pos) = 
+            ( colours(pos) * old_data_weight + 
                 tone_point * new_data_weight ) /
                 ( old_data_weight + new_data_weight );
         convert_xy_tone_to_hue_sat
-            ( colours(x,y).x(), colours(x,y).y(), hs[0], hs[1] );
+            ( colours(pos).x(), colours(pos).y(), hs[0], hs[1] );
     }
-    rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(x,y) );
+    rgb_weights_from_hue_saturation( hs[0], hs[1], rgb_weights(pos) );
             
 }
 

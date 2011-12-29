@@ -21,9 +21,9 @@ Discretizer< ImageListener>::key_value( LowDepth key ) const
 
 template < typename ImageListener>
 void Discretizer< ImageListener>
-::updatePixel(int x, int y, float from, float to) 
+::updatePixel(const Im::Position& p, float from, float to) 
 {
-    colorizer.updatePixel( x, y, from, to );
+    colorizer.updatePixel( p, from, to );
 
     if ( ImageListener::NeedLiveHistogram ) {
         if ( to > max_value_used_for_disc_factor ) {
@@ -39,7 +39,7 @@ void Discretizer< ImageListener>
             ++histogram[ n ];
             if ( histogram[o] > 0U )
                 --histogram[o];
-            this->publish().pixelChanged( x, y, n );
+            this->publish().pixelChanged( p, n );
         }
     } else {
         max_value = std::max( max_value, to );

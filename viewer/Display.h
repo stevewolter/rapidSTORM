@@ -6,14 +6,25 @@
 #include "Config_decl.h"
 #include "Status_decl.h"
 #include <vector>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 
 namespace dStorm {
 namespace viewer {
 
+class BaseDisplay {
+    std::vector< bool > ps;
+    int ps_step[ display::Image::Dim - 1 ];
+  public:
+    void setSize( const display::Image::Size& size );
+    inline std::vector<bool>::reference
+        is_on( const display::Image::Position& );
+    void clear();
+};
+
 template <typename UsedColorizer>
 class Display 
-    : public DiscretizationListener
+    : public DiscretizationListener,
+      private BaseDisplay
 {
   public:
     typedef UsedColorizer Colorizer;
@@ -21,43 +32,39 @@ class Display
 
   private:
     MyDiscretizer& discretizer;
-    typedef std::vector< bool > PixelSet;
-    PixelSet ps;
-    int ps_step;
-
     const Colorizer& colorizer;
 
-    dStorm::Display::Manager::WindowProperties props;
-    dStorm::Display::DataSource& vph;
+    dStorm::display::Manager::WindowProperties props;
+    dStorm::display::DataSource& vph;
 
-    std::auto_ptr<dStorm::Display::Change> next_change;
-    std::auto_ptr<dStorm::Display::Manager::WindowHandle> window_id;
+    std::auto_ptr<dStorm::display::Change> next_change;
+    std::auto_ptr<dStorm::display::Manager::WindowHandle> window_id;
 
-    boost::optional<dStorm::Display::ResizeChange> my_size;
+    boost::optional<dStorm::display::ResizeChange> my_size;
 
-    void setSize( const dStorm::Display::ResizeChange& size );
+    void setSize( const dStorm::display::ResizeChange& size );
 
   public:
     Display( 
         MyDiscretizer& disc, 
         const Config& config,
-        dStorm::Display::DataSource& vph,
+        dStorm::display::DataSource& vph,
         const Colorizer& colorizer,
-        std::auto_ptr<dStorm::Display::Change> initial_state
-            = std::auto_ptr<dStorm::Display::Change>()
+        std::auto_ptr<dStorm::display::Change> initial_state
+            = std::auto_ptr<dStorm::display::Change>()
     );
     void setSize(const input::Traits< Image<int,2> >& traits);
 
-    inline void pixelChanged(int x, int y);
+    inline void pixelChanged( const display::Image::Position& );
     void clean(bool);
     void clear(); 
     inline void notice_key_change( int index, Pixel pixel, float value );
 
-    std::auto_ptr<dStorm::Display::Change> get_changes();
+    std::auto_ptr<dStorm::display::Change> get_changes();
 
     void save_image(std::string filename, const Config&);
 
-    const boost::optional<dStorm::Display::ResizeChange>&
+    const boost::optional<dStorm::display::ResizeChange>&
         getSize() const { return my_size; }
     void show_window();
 

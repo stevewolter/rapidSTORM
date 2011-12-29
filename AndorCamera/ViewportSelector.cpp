@@ -45,7 +45,7 @@ Display::Display(
   save("SaveAcquiredImage", "Save camera snapshot"),
   aimed( mode == SelectROI ),
   paused(false),
-  change( new dStorm::Display::Change(1) ),
+  change( new display::Change(1) ),
   normalization_factor( 0, 1 ),
   lock_normalization( false ),
   redeclare_key(false)
@@ -76,12 +76,12 @@ Display::~Display() {
     DEBUG("Destructed ViewportSelector");
 }
 
-std::auto_ptr<dStorm::Display::Change> 
+std::auto_ptr<display::Change> 
 Display::get_changes()
 {
     DEBUG("Fetching changes");
-    std::auto_ptr<dStorm::Display::Change> other
-        ( new dStorm::Display::Change(1) );
+    std::auto_ptr<display::Change> other
+        ( new display::Change(1) );
 
     boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( other, this->change );
@@ -113,12 +113,12 @@ void Display::configure_camera()
     DEBUG("Configured camera");
 }
 
-dStorm::Display::ResizeChange Display::getSize() const
+display::ResizeChange Display::getSize() const
 {
-    dStorm::Display::ResizeChange new_size;
+    display::ResizeChange new_size;
     new_size.size = traits.size.head<2>();
     new_size.keys.push_back( 
-        dStorm::Display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
+        display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.keys.back().can_set_lower_limit = true;
     new_size.keys.back().can_set_upper_limit = true;
     new_size.keys.back().lower_limit = "";
@@ -133,7 +133,7 @@ void Display::initialize_display()
 {
 
     if ( handle.get() == NULL ) {
-        dStorm::Display::Manager::WindowProperties props;
+        display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
         if ( aimed )
@@ -145,7 +145,7 @@ void Display::initialize_display()
         DEBUG("Initializing display handle");
         boost::lock_guard<boost::mutex> lock(mutex);
         DEBUG("Got lock for display handle");
-        handle = dStorm::Display::Manager::getSingleton()
+        handle = display::Manager::getSingleton()
             .register_data_source( props, *this );
         change->do_resize = false;
         change->do_clear = true;
@@ -216,7 +216,7 @@ void Display::draw_image( const CamImage& data) {
         change->changed_keys.front().clear();
         change->changed_keys.front().reserve( imageDepth );
         for (int i = 0; i < imageDepth; i++)
-            change->changed_keys.front().push_back( dStorm::Display::KeyChange(
+            change->changed_keys.front().push_back( display::KeyChange(
                 i, dStorm::Pixel(i),
                 i * 1.0 * (normalization_factor.second - normalization_factor.first)
                     / imageDepth + normalization_factor.first ));

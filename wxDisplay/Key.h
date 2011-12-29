@@ -4,16 +4,16 @@
 #include <wx/wx.h>
 #include <memory>
 #include <vector>
-#include "dStorm/helpers/DisplayDataSource.h"
+#include "dStorm/display/DataSource.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class Key : public wxWindow {
   public:
     static const int LowerLimitID = 1, UpperLimitID = 2;
   private:
-    typedef dStorm::Display::KeyDeclaration Declaration;
+    typedef dStorm::display::KeyDeclaration Declaration;
 
     wxWindow *parent;
     wxStaticText *label;

@@ -8,7 +8,7 @@
 #include "LiveBackend_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include <dStorm/helpers/DisplayManager.h>
+#include <dStorm/display/Manager.h>
 
 namespace dStorm {
 namespace viewer {
@@ -24,7 +24,7 @@ class TerminalBackend
     typedef Discretizer<Cache> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer> Accumulator;
 
-    typedef dStorm::Image<dStorm::Pixel,2> Im;
+    typedef display::Image Im;
 
     /** Binned image with all localizations in localizationsStore.*/
     Accumulator image;
@@ -49,7 +49,7 @@ class TerminalBackend
     const std::string& get_job_name() const { return window_name; }
 
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
-    std::auto_ptr<dStorm::Display::Change> get_result(bool with_key = true) const;
+    std::auto_ptr<dStorm::display::Change> get_result(bool with_key = true) const;
 };
 
 }

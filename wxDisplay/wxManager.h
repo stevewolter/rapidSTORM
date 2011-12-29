@@ -4,7 +4,7 @@
 #include <dStorm/stack_realign.h>
 #include <map>
 #include <queue>
-#include "dStorm/helpers/DisplayManager.h"
+#include <dStorm/display/Manager.h>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
@@ -12,7 +12,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 class Window;
 

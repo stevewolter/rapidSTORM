@@ -7,13 +7,13 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 std::ostream& operator<<(std::ostream& o, const wxRect& r) {
     return o << r.GetLeft() << "-" << r.GetRight() << " " << r.GetTop() << "-" << r.GetRight();
 }
 
-wxColor makeColor( const dStorm::Display::Color& c ) {
+wxColor makeColor( const dStorm::display::Color& c ) {
     return wxColor( c.red(), c.green(), c.blue() );
 }
 
@@ -411,9 +411,9 @@ std::auto_ptr<ImageChange>
     if ( contents.get() == NULL )
         return rv;
 
-    rv->new_image = dStorm::Display::Image( mkImgSize(getSize()) );
+    rv->new_image = dStorm::display::Image( mkImgSize(getSize()) );
     unsigned char *d = contents->GetData();
-    dStorm::Display::Image::iterator i;
+    dStorm::display::Image::iterator i;
     for (i = rv->new_image.begin(); i != rv->new_image.end(); i++) {
         i->red() = *d++;
         i->green() = *d++;

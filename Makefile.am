@@ -154,8 +154,6 @@ nobase_include_HEADERS = \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
     dStorm/helpers/thread.h \
-    dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
-    dStorm/helpers/DisplayManager.h \
     dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
@@ -175,7 +173,10 @@ nobase_include_HEADERS = \
     dStorm/localization_file/field_decl.h dStorm/localization_file/field.h \
     dStorm/localization_file/reader.h dStorm/localization_file/converter.h \
     dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h \
-    dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h
+    dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h \
+    dStorm/display/fwd.h \
+    dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
+    dStorm/display/Manager.h
 
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
@@ -186,7 +187,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/localization/record.cpp \
-    dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/image/dilation.cpp \
+    dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/Source.cpp \
     dStorm/input/MetaInfo.cpp \

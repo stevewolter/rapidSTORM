@@ -4,15 +4,15 @@
 #include <vector>
 #include "Publisher.h"
 #include "HighDepth.h"
-#include <dStorm/Image.h>
 #include <dStorm/Pixel.h>
+#include "Image.h"
 
 namespace dStorm {
 namespace viewer {
 
 struct HistogramPixel { 
     /** Pixel position in image */
-    unsigned short x, y;
+    Eigen::Matrix< unsigned short, Im::Dim, 1, Eigen::DontAlign > pos;
     /** Linked list with pixels of same value. */
     HistogramPixel *prev, *next; 
 
@@ -29,7 +29,8 @@ class LiveCache :
     public Publisher<Listener>
 {
     std::vector<HistogramPixel> pixels_by_value;
-    Image<HistogramPixel,2> pixels_by_position;
+    typedef Image<HistogramPixel,Im::Dim> HistogramImage;
+    HistogramImage pixels_by_position;
     HighDepth in_depth;
 
     void set_xy();
@@ -39,10 +40,10 @@ class LiveCache :
     static const int NeedLiveHistogram = true;
     typedef typename Listener::Colorizer Colorizer;
     LiveCache(HighDepth depth);
-    LiveCache(HighDepth depth, Image<HistogramPixel,2>::Size size);
+    LiveCache(HighDepth depth, Im::Size size);
 
-    void setSize( const input::Traits< Image<int,2> >& );
-    inline void pixelChanged( int x, int y, HighDepth to );
+    void setSize( const input::Traits< Im >& );
+    inline void pixelChanged( const Im::Position& p, HighDepth to );
     inline void changeBrightness( HighDepth at );
     void clean( bool final );
     inline void notice_key_change( int index, Pixel pixel, float value );

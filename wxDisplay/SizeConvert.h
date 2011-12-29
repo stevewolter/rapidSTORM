@@ -1,20 +1,20 @@
 #ifndef DSTORM_WXDISPLAY_SIZECONV_H
 #define DSTORM_WXDISPLAY_SIZECONV_H
 
-#include <dStorm/helpers/DisplayDataSource.h>
+#include <dStorm/display/DataSource.h>
 #include <wx/font.h>
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
-inline wxSize mkWxSize( const dStorm::Display::Image::Size& s ) 
+inline wxSize mkWxSize( const dStorm::display::Image::Size& s ) 
 {
     return wxSize( s.x() / camera::pixel,
                    s.y() / camera::pixel );
 }
-inline dStorm::Display::Image::Size mkImgSize( const wxSize& s ) 
+inline dStorm::display::Image::Size mkImgSize( const wxSize& s ) 
 {
-    dStorm::Display::Image::Size rv;
+    dStorm::display::Image::Size rv;
     rv.x() = s.GetWidth() * camera::pixel,
     rv.y() = s.GetHeight() * camera::pixel;
     return rv;

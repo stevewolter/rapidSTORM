@@ -7,7 +7,7 @@
 #include "debug.h"
 
 namespace dStorm {
-namespace Display {
+namespace display {
 
 Key::Key( int number, wxWindow* parent, wxSize size, 
           const Declaration& decl )
@@ -192,7 +192,7 @@ BEGIN_EVENT_TABLE(Key, wxWindow)
     EVT_SIZE(Key::OnResize)
 END_EVENT_TABLE()
 
-dStorm::Display::KeyDeclaration Key::getDeclaration() const
+dStorm::display::KeyDeclaration Key::getDeclaration() const
 {
     return current_declaration;
 }
