@@ -4,7 +4,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Structure.hh>
-#include <dStorm/helpers/dilation.h>
+#include <dStorm/image/dilation.h>
 #include <simparm/Object.hh>
 
 namespace dStorm {

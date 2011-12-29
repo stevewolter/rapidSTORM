@@ -155,14 +155,15 @@ nobase_include_HEADERS = \
     dStorm/input/Traits.h  \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
-    dStorm/helpers/thread.h dStorm/helpers/dilation.h \
+    dStorm/helpers/thread.h \
     dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
     dStorm/helpers/DisplayManager.h \
-    dStorm/helpers/dilation_impl.h dStorm/helpers/OutOfMemory.h \
+    dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
+    dStorm/image/dilation.h dStorm/image/dilation_impl.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
@@ -199,7 +200,7 @@ libdStorm_la_SOURCES = \
     dStorm/expression/Config.cpp dStorm/expression/Source.cpp \
     dStorm/expression/CommandLine.h dStorm/expression/Source_filters.h \
     dStorm/expression/SimpleFilters.h dStorm/expression/SimpleFilters.cpp \
-    dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/helpers/dilation.cpp \
+    dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/Source.cpp \
     dStorm/input/MetaInfo.cpp \

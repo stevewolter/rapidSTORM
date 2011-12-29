@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <dStorm/Image_iterator.h>
 #include <dStorm/engine/Spot.h>
-#include <dStorm/helpers/dilation.h>
+#include <dStorm/image/dilation.h>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/engine/CandidateTree.h>
 #include <boost/units/quantity.hpp>
@@ -15,7 +15,7 @@
 #include <boost/foreach.hpp>
 
 #include <dStorm/Image_impl.h>
-#include <dStorm/helpers/dilation_impl.h>
+#include <dStorm/image/dilation_impl.h>
 #include <dStorm/output/binning/binning.h>
 
 namespace locprec {

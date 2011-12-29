@@ -5,11 +5,6 @@ using namespace std;
 
 #define USE_ANEUBECK_NMS
 
-#ifndef USE_ANEUBECK_NMS
-#define DATA_CPP_MERGINGTREE_INLINE_COMPARISON
-#include <dStorm/spotFinders/dilation.h>
-#endif
-
 namespace dStorm {
 namespace engine {
 
