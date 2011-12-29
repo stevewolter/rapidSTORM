@@ -90,7 +90,7 @@ FileMethod::~FileMethod() {}
 
 void FileMethod::operator()( const simparm::Event& )
 {
-    boost::lock_guard<boost::mutex> lock( global_mutex() );
+    InputMutexGuard lock( global_mutex() );
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_meta_info().get() );
     if ( current_meta_info().get() != NULL ) {
         current_meta_info()->get_signal< signals::InputFileNameChange >()( input_file() );

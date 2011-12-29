@@ -246,7 +246,7 @@ template<typename Pixel, int Dimensions>
 Source<Pixel,Dimensions>::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
-    boost::lock_guard<boost::mutex> lock( global_mutex() );
+    InputMutexGuard lock( global_mutex() );
     republish_traits();
 }
 

@@ -205,7 +205,7 @@ Source* Method::makeSource() {
 }
 
 void Method::operator()(const simparm::Event& e) {
-    boost::lock_guard<boost::mutex> lock( global_mutex() );
+    dStorm::input::InputMutexGuard lock( global_mutex() );
     reread_file();
 }
 

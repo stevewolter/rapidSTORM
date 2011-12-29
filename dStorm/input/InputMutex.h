@@ -1,8 +1,9 @@
 #include "fwd.h"
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {
 namespace input {
-boost::mutex& global_mutex();
+boost::recursive_mutex& global_mutex();
+typedef boost::lock_guard<boost::recursive_mutex> InputMutexGuard;
 }
 }

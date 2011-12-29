@@ -2,8 +2,8 @@
 
 namespace dStorm {
 namespace input {
-boost::mutex& global_mutex() {
-    static boost::mutex mutex;
+boost::recursive_mutex& global_mutex() {
+    static boost::recursive_mutex mutex;
     return mutex;
 }
 }

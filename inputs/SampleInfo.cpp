@@ -164,7 +164,7 @@ void ChainLink::operator()(const simparm::Event& e)
                 i->viewable = ( (i - config.fluorophores.begin()) < int(config.fluorophore_count()) );
             }
         }
-        boost::lock_guard<boost::mutex> lock( global_mutex() );
+        input::InputMutexGuard lock( global_mutex() );
         republish_traits();
     } else 
 	TreeListener::add_new_children(e);

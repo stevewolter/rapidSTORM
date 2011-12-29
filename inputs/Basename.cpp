@@ -90,7 +90,7 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
 
 void ChainLink::operator()(const simparm::Event&)
 {
-    boost::lock_guard<boost::mutex> lock( global_mutex() );
+    input::InputMutexGuard lock( global_mutex() );
     if ( output() == "" ) output = default_output_basename;
     user_changed_output = ( output() != "" && output() != default_output_basename );
     if ( traits.get() ) {
