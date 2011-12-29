@@ -8,7 +8,6 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
-#include <dStorm/helpers/Variance.h>
 #include <dStorm/image/iterator.h>
 #include <boost/foreach.hpp>
 #include <boost/variant/static_visitor.hpp>

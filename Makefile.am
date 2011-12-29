@@ -155,9 +155,9 @@ nobase_include_HEADERS = \
     dStorm/input/Traits.h  \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
-    dStorm/helpers/thread.h dStorm/helpers/Runnables.h dStorm/helpers/dilation.h dStorm/helpers/Variance.h \
+    dStorm/helpers/thread.h dStorm/helpers/dilation.h \
     dStorm/helpers/DisplayDataSource.h dStorm/helpers/DisplayDataSource_decl.h dStorm/helpers/DisplayDataSource_impl.h \
-    dStorm/helpers/DisplayManager.h dStorm/helpers/MayBeASignal.h \
+    dStorm/helpers/DisplayManager.h \
     dStorm/helpers/dilation_impl.h dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
