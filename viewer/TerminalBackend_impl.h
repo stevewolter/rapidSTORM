@@ -63,10 +63,10 @@ TerminalBackend<Hueing>::get_result(bool with_key) const {
     std::auto_ptr<display::Change> c = cache.get_result(colorizer);
     c->do_clear = true;
     c->clear_image.background = colorizer.get_background();
-    Im& im = c->image_change.new_image;
-    DEBUG("Writing result image of size " << im.width_in_pixels() << " " << im.height_in_pixels());
-    for ( Im::iterator i = im.begin(); i != im.end(); i++ ) {
-        *i = discretization.get_pixel( i.position() );
+    display::Image& im = c->image_change.new_image;
+    DEBUG("Writing result image of size " << im.sizes());
+    for ( display::Image::iterator i = im.begin(); i != im.end(); i++ ) {
+        *i = discretization.get_pixel( i.position().head<2>() );
     }
     if ( with_key && Colorizer::KeyCount > 0 ) {
         DEBUG("Creating keys");

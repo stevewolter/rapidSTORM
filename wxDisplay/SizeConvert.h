@@ -15,6 +15,7 @@ inline wxSize mkWxSize( const dStorm::display::Image::Size& s )
 inline dStorm::display::Image::Size mkImgSize( const wxSize& s ) 
 {
     dStorm::display::Image::Size rv;
+    rv.fill( 1 * camera::pixel );
     rv.x() = s.GetWidth() * camera::pixel,
     rv.y() = s.GetHeight() * camera::pixel;
     return rv;

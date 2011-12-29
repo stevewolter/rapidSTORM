@@ -16,7 +16,7 @@
 namespace dStorm {
 namespace display {
 
-typedef dStorm::Image<dStorm::Pixel,2> Image;
+typedef dStorm::Image<dStorm::Pixel,3> Image;
 
 struct ClearChange {
     Color background;
@@ -37,7 +37,11 @@ struct ResizeChange {
     std::vector<KeyDeclaration> keys;
     /* Size of one pixel in meters. */
     typedef dStorm::traits::ImageResolution Resolution;
-    Resolution pixel_sizes[3]; 
+    Resolution pixel_sizes[Image::Dim]; 
+
+    void set_size( const ImageTypes<3>::Size& sz ) { size = sz; }
+    void set_size( const ImageTypes<2>::Size& sz ) 
+        { size.fill( 1 * camera::pixel ); size.head<2>() = sz; }
 };
 struct ImageChange {
     Image new_image;
@@ -46,6 +50,10 @@ struct PixelChange : public Image::Position {
     Color color;
 
     PixelChange(Image::Position p) : Image::Position(p) {}
+    PixelChange(ImageTypes<2>::Position p) {
+        Image::Position::fill(0);
+        Image::Position::head<2>() = p;
+    }
 };
 struct KeyChange {
     int index;

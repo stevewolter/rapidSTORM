@@ -24,8 +24,6 @@ class TerminalBackend
     typedef Discretizer<Cache> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer> Accumulator;
 
-    typedef display::Image Im;
-
     /** Binned image with all localizations in localizationsStore.*/
     Accumulator image;
     Colorizer colorizer;

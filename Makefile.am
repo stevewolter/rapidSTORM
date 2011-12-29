@@ -159,7 +159,7 @@ nobase_include_HEADERS = \
     dStorm/helpers/back_inserter.h \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
-    dStorm/image/dilation.h dStorm/image/dilation_impl.h \
+    dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
@@ -343,7 +343,7 @@ libcode_la_SOURCES += \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 libcode_la_SOURCES += \
-    viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
+    viewer/Image.h viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
     viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \

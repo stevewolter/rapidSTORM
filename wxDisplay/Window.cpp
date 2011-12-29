@@ -122,9 +122,15 @@ void Window::draw_image_window( const Change& changes ) {
     int width = canvas->getWidth();
     int height = canvas->getHeight();
     if ( changes.do_change_image ) {
-        for ( int y = 0; y < height; y++ )
-            for ( int x = 0; x < width; x++)
-                drawer.draw(x, y, changes.image_change.new_image(x,y));
+        display::Image::Position pos;
+        pos.fill(0);
+        for ( int y = 0; y < height; y++ ) {
+            pos.y() = y;
+            for ( int x = 0; x < width; x++) {
+                pos.x() = x;
+                drawer.draw(x, y, changes.image_change.new_image(pos));
+            }
+        }
     }
             
     std::vector<PixelChange>::const_iterator 

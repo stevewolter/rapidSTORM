@@ -67,7 +67,7 @@ class Display : public simparm::Set,
         lower_user_limit, upper_user_limit;
 
     /** Saved data of the last camera image to enable saving. */
-    dStorm::Image<dStorm::Pixel,2> last_image;
+    dStorm::display::Image last_image;
     traits::Optics<2>::Resolutions resolution;
     boost::thread image_acquirer;
 

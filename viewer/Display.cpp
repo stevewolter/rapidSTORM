@@ -9,7 +9,7 @@ namespace viewer {
 #include "colour_schemes/instantiate.h"
 
 void BaseDisplay::setSize(
-    const display::Image::Size& size
+    const Im::Size& size
 ) {
     int count = 1;
     for (int i = 0; i < size.rows(); ++i) {

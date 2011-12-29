@@ -10,6 +10,7 @@
 #include <simparm/Message.hh>
 
 #include <dStorm/Image_impl.h>
+#include <dStorm/image/extend.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -116,7 +117,7 @@ void Display::configure_camera()
 display::ResizeChange Display::getSize() const
 {
     display::ResizeChange new_size;
-    new_size.size = traits.size.head<2>();
+    new_size.set_size( engine::Image::Size(traits.size) );
     new_size.keys.push_back( 
         display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.keys.back().can_set_lower_limit = true;
@@ -192,7 +193,7 @@ void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
             boost::lexical_cast<std::string>(b));
 
         change->do_change_image = true;
-        change->image_change.new_image = last_image;
+        change->image_change.new_image = extend( last_image, dStorm::display::Image() );
     }
 }
 
@@ -223,8 +224,8 @@ void Display::draw_image( const CamImage& data) {
         redeclare_key = false;
     }
     /* Normalize pixels and store result in the ImageChange vector */
-    dStorm::Image<dStorm::Pixel,2>& img = change->image_change.new_image;
-    img = data.normalize<dStorm::Pixel>(normalization_factor);
+    dStorm::display::Image& img = change->image_change.new_image;
+    img = extend( data.normalize<dStorm::Pixel>(normalization_factor), dStorm::display::Image() );
     DEBUG("Max for normalized image is " << img.minmax().first);
 
     if ( aimed ) {
@@ -238,9 +239,9 @@ void Display::draw_image( const CamImage& data) {
             * borders */
             for (int v = 0; v < 3; v++) {
                 for (int x = l; x <= r; x++)
-                    img(x,t) = img(x,b) = Pixel::Red();
+                    img(x,t,0) = img(x,b,0) = Pixel::Red();
                 for (int y = t; y <= b; y++)
-                    img(l,y) = img(r,y) = Pixel::Red();
+                    img(l,y,0) = img(r,y,0) = Pixel::Red();
         }
         }
     }

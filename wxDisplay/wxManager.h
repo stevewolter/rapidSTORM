@@ -6,7 +6,7 @@
 #include <queue>
 #include <dStorm/display/Manager.h>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/function/function0.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
@@ -31,7 +31,7 @@ class wxManager : public Manager {
     void increase_handle_count();
     void decrease_handle_count();
 
-    boost::mutex mutex;
+    boost::recursive_mutex mutex;
     boost::condition closed_all_handles;
      
     boost::ptr_list<Runnable> run_queue;

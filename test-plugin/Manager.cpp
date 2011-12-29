@@ -9,6 +9,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <dStorm/image/iterator.h>
+#include <dStorm/image/contains.h>
 #include <boost/foreach.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -107,7 +108,8 @@ void Manager::ControlConfig::processCommand( std::istream& in )
         if ( command == "pixel_value" ) {
             DEBUG("Reading instructions");
             std::string window;
-            int x, y, number;
+            dStorm::display::Image::Position pos;
+            int number;
             Sources::iterator i = m.sources.end();
             std::stringstream msg;
 
@@ -115,19 +117,20 @@ void Manager::ControlConfig::processCommand( std::istream& in )
                 DEBUG("Finding window");
                 number = which_window();
                 i = m.sources.find(number);
-                in >> x >> y;
+                pos.fill(0);
+                in >> pos.x() >> pos.y();
                 msg << "window " << number;
             } else {
                 msg << "result for unset WhichWindow field";
             }
             if ( i != m.sources.end() ) {
                 DEBUG("Found window");
-                msg << " pixel at x " << x << " y " << y;
+                msg << " pixel at (" << pos.transpose() << ")";
                 Source& source = *i->second;
-                if ( source.current_display.contains( x, y ) )
-                    msg << " has value r " << int(source.current_display( x, y ).red() )
-                                   << " g " << int(source.current_display( x, y ).green())
-                                   << " b " << int(source.current_display( x, y ).blue());
+                if ( contains( source.current_display, pos ) )
+                    msg << " has value r " << int(source.current_display( pos ).red() )
+                                   << " g " << int(source.current_display( pos ).green())
+                                   << " b " << int(source.current_display( pos ).blue());
                 else
                     msg << " is out of image dimensions";
             } else {

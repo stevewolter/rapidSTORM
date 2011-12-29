@@ -6,6 +6,7 @@
 #include <dStorm/display/Manager.h>
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/Image_impl.h>
+#include <dStorm/image/extend.h>
 
 using namespace std;
 namespace dStorm {
@@ -40,7 +41,7 @@ void AverageImage::store_results()
         display::Change c(1);
         c.do_clear = true;
         c.clear_image.background = dStorm::Pixel::Black();
-        display_normalized( c, image );
+        display_normalized( c, extend( image, dStorm::Image<unsigned long,display::Image::Dim>() ) );
         for (int i = 0; i < 2; ++i)
             if ( resolution[i].is_initialized() )
                 c.resize_image.pixel_sizes[i] = *resolution[i];

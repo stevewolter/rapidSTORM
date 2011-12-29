@@ -109,7 +109,7 @@ wxManager::~wxManager() {
         closed_all_handles.notify_all();
         gui_thread.join();
     } else {
-        boost::lock_guard<boost::mutex> lock(mutex);
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
         closed_all_handles.notify_all();
     }
     DEBUG("Stopped display thread");
@@ -126,7 +126,7 @@ void wxManager::run() throw()
     DEBUG("Ran display thread");
     toolkit_available = false;
 
-    boost::unique_lock<boost::mutex> lock( mutex );
+    boost::unique_lock<boost::recursive_mutex> lock( mutex );
     exec_waiting_runnables();
     while ( !may_close || open_handles > 0 ) {
         closed_all_handles.wait(mutex);
@@ -135,12 +135,12 @@ void wxManager::run() throw()
 }
 
 void wxManager::increase_handle_count() {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     open_handles++;
 }
 
 void wxManager::decrease_handle_count() {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     open_handles--;
     if ( open_handles == 0 && may_close ) {
         closed_all_handles.notify_all();
@@ -175,7 +175,7 @@ wxManager::register_data_source(
 )
 {
     if ( ! was_started ) {
-        boost::lock_guard<boost::mutex> lock( mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( mutex );
         if ( ! was_started ) {
             was_started = true;
             gui_thread = boost::thread( &wxManager::run, this );
@@ -263,7 +263,7 @@ void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code )
         exec( *code );
     else {
         {
-            boost::lock_guard<boost::mutex> lock(mutex);
+            boost::lock_guard<boost::recursive_mutex> lock(mutex);
             run_queue.push_back( code );
         }
         wxWakeUpIdle();
@@ -274,7 +274,7 @@ void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code )
 
 void wxManager::exec_waiting_runnables() {
     DEBUG("Acquiring runnables lock");
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     while ( ! run_queue.empty() ) {
         DEBUG("Running runnable");
         exec( run_queue.front() );

@@ -75,7 +75,7 @@ void LiveBackend<Hueing>::look_up_key_values(
     if ( ! targets.empty() ) {
         const dStorm::Image<float,2>& im = image();
         if ( im.width_in_pixels() > info.x() && im.height_in_pixels() > info.y() ) {
-            targets[0] = im(info);
+            targets[0] = im(info.head<Im::Dim>());
         }
     }
 }

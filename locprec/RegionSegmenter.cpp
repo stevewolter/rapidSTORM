@@ -5,6 +5,7 @@
 #include <dStorm/Image_iterator.h>
 #include <dStorm/engine/Spot.h>
 #include <dStorm/image/dilation.h>
+#include <dStorm/image/extend.h>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/engine/CandidateTree.h>
 #include <boost/units/quantity.hpp>
@@ -364,7 +365,7 @@ void Segmenter::maximums() {
 void Segmenter::display_image( const ColorImage& img ) {
     if ( announcement.get() == NULL ) return;
     dStorm::display::ResizeChange new_size;
-    new_size.size = img.sizes();
+    new_size.set_size( img.sizes() );
     new_size.keys.push_back( dStorm::display::KeyDeclaration( "Segment", "Index of associated region", 1+(sizeof(colors)/sizeof(colors[0])) ));
     for (int i = 0; i < 2; ++i)
         new_size.pixel_sizes[i] = binners[i].resolution();
@@ -386,7 +387,7 @@ void Segmenter::display_image( const ColorImage& img ) {
     }
 
     next_change->do_change_image = true;
-    next_change->image_change.new_image = img;
+    next_change->image_change.new_image = extend( img, dStorm::display::Image() );
 }
 
 std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {

@@ -14,6 +14,7 @@
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/image/minmax.h>
 #include <dStorm/image/convert.h>
+#include <dStorm/image/extend.h>
 
 struct SmoothedImageSave
 : public dStorm::output::OutputObject
@@ -42,7 +43,7 @@ struct SmoothedImageSave
             dStorm::display::Change c(1);
             c.do_clear = true;
             c.clear_image.background = dStorm::Pixel::Black();
-            display_normalized( c, *er.smoothed );
+            display_normalized( c, extend( *er.smoothed, dStorm::Image<dStorm::engine::SmoothedPixel,3>() ) );
             dStorm::display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
     }

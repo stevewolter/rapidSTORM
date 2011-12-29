@@ -24,10 +24,10 @@ void TerminalCache<Hueing>::setSize(
 
 template <typename Hueing>
 void TerminalCache<Hueing>::setSize(
-    const input::Traits< Image<int,2> >& traits
+    const input::Traits< Im >& traits
 ) {
     DEBUG("Setting size of image to " << traits.size.x() << " " <<traits.size.y());
-    size.size = traits.size;
+    size.set_size( Im::Size(traits.size) );
     for (int i = 0; i < 2; ++i)
         if ( traits.resolution(i).is_initialized() )
             size.pixel_sizes[i] = *traits.resolution(i);
@@ -45,7 +45,7 @@ TerminalCache<Hueing>::get_result(const Colorizer& colorizer) const
     rv->do_resize = true;
     rv->resize_image = size;
     rv->do_change_image = true;
-    rv->image_change.new_image = Im(size.size);
+    rv->image_change.new_image = display::Image(size.size);
 
     if ( int(size.keys.size()) < Hueing::KeyCount ) {
         for (int j = 1; j < Hueing::KeyCount; ++j ) {

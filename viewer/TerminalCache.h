@@ -11,8 +11,6 @@ template <typename MyColorizer>
 class TerminalCache 
 : public DummyDiscretizationListener
 {
-    typedef display::Image Im;
-
     dStorm::display::ResizeChange size;
 
   public:

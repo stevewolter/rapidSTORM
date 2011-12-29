@@ -46,7 +46,7 @@ void Display<Colorizer>::setSize(
     const dStorm::display::ResizeChange& size
 ) {
     my_size = size;
-    BaseDisplay::setSize( size.size );
+    BaseDisplay::setSize( size.size.head<Im::Dim>() );
     this->clear();
 }
 
@@ -56,7 +56,7 @@ void Display<Colorizer>::setSize(
 )
 { 
     dStorm::display::ResizeChange size;
-    size.size = traits.size;
+    size.set_size( Im::Size(traits.size) );
 
     size.keys.push_back(
         dStorm::display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
@@ -88,8 +88,8 @@ void Display<Colorizer>::clean(bool) {
     for ( PixQ::iterator i = 
         next_change->change_pixels.begin(); i != end; ++i )
     {
-        i->color = discretizer.get_pixel(*i);
-        is_on(*i) = false;
+        i->color = discretizer.get_pixel(i->head<Im::Dim>());
+        is_on(i->head<Im::Dim>()) = false;
     }
 }
 

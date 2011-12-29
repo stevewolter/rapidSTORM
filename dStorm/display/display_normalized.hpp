@@ -6,14 +6,13 @@
 namespace dStorm {
 namespace display {
 
-template <class PixelType, int Dimensions>
+template <class PixelType>
 void display_normalized(
     Change& result,
-    const dStorm::Image<PixelType,Dimensions>& i
+    const dStorm::Image<PixelType,Image::Dim>& i
 ) 
 {
-    BOOST_STATIC_ASSERT(( Dimensions == Image::Dim ));
-    typename dStorm::Image<PixelType,2>::PixelPair p = i.minmax();
+    typename dStorm::Image<PixelType,Image::Dim>::PixelPair p = i.minmax();
     result.do_resize = true;
     result.resize_image.size = i.sizes();
     result.resize_image.keys.clear();

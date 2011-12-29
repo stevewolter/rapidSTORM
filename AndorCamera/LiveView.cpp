@@ -4,6 +4,7 @@
 #include <boost/thread/locks.hpp>
 #include "AndorDirect.h"
 #include <dStorm/Image.h>
+#include <dStorm/image/extend.h>
 #include <dStorm/Image_impl.h>
 
 using namespace boost::units;
@@ -41,7 +42,7 @@ void LiveView::show_window(CamImage::Size size) {
         display::Manager::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
-        props.initial_size.size = size;
+        props.initial_size.set_size( size );
         props.initial_size.keys.push_back( 
             display::KeyDeclaration("ADC", "A/D counts", 256) );
         props.initial_size.keys.back().can_set_lower_limit = true;
@@ -98,7 +99,7 @@ void LiveView::compute_image_change
         DEBUG("Normalizing");
         change->do_change_image = true;
         change->image_change.new_image = 
-            image.normalize<dStorm::Pixel>( minmax );
+            extend( image.normalize<dStorm::Pixel>( minmax ), dStorm::display::Image() );
         DEBUG("Making key");
         change->make_linear_key( minmax );
     }

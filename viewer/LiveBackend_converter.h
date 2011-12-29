@@ -19,7 +19,7 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Config &c
   colorizer( other.colorizer ),
   discretization( other.discretization,
                   image(), colorizer ),
-  cache( 4096, other.cache.getSize().size ),
+  cache( 4096, other.cache.getSize().size.template head<2>() ),
   cia( discretization, c, *this, colorizer, other.get_result() )
 {
     cia.set_job_name( other.get_job_name() );

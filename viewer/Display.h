@@ -13,11 +13,11 @@ namespace viewer {
 
 class BaseDisplay {
     std::vector< bool > ps;
-    int ps_step[ display::Image::Dim - 1 ];
+    int ps_step[ Im::Dim - 1 ];
   public:
-    void setSize( const display::Image::Size& size );
+    void setSize( const Im::Size& size );
     inline std::vector<bool>::reference
-        is_on( const display::Image::Position& );
+        is_on( const Im::Position& );
     void clear();
 };
 
@@ -55,7 +55,7 @@ class Display
     );
     void setSize(const input::Traits< Image<int,2> >& traits);
 
-    inline void pixelChanged( const display::Image::Position& );
+    inline void pixelChanged( const Im::Position& );
     void clean(bool);
     void clear(); 
     inline void notice_key_change( int index, Pixel pixel, float value );
