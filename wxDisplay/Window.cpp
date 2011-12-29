@@ -26,7 +26,8 @@ Window::Window(
     source(data_source),
     handle( my_handle ),
     close_on_completion( props.flags.get_close_window_on_unregister() ),
-    notify_for_zoom( props.flags.get_notice_drawn_rectangle() )
+    notify_for_zoom( props.flags.get_notice_drawn_rectangle() ),
+    has_3d( false )
 {
     const ResizeChange& init_size = props.initial_size;
     SetBackgroundColour(
@@ -37,6 +38,7 @@ Window::Window(
                 * ver_sizer2 = new wxBoxSizer( wxVERTICAL ),
                 * hor_sizer = new wxBoxSizer( wxHORIZONTAL ),
                 * key_sizer = new wxBoxSizer( wxHORIZONTAL );
+    has_3d = init_size.size.z() > 1 * camera::pixel;
     wxSize initSize = mkWxSize(init_size.size);
     canvas = new Canvas(this, wxID_ANY, initSize);
     zoom = new ZoomSlider( this, *canvas );
@@ -137,7 +139,8 @@ void Window::draw_image_window( const Change& changes ) {
         i = changes.change_pixels.begin(),
         end = changes.change_pixels.end();
     for ( ; i != end; i++)
-        drawer.draw( i->x(), i->y(), i->color );
+        if ( i->z() == 0 )
+            drawer.draw( i->x(), i->y(), i->color );
 
     drawer.finish();
 }
@@ -149,6 +152,7 @@ void Window::commit_changes(const Change& changes)
         DEBUG("Resize");
         const ResizeChange& r = changes.resize_image;
         canvas->resize( mkWxSize( r.size ) );
+        has_3d = r.size.z() > 1 * camera::pixel;
         assert( keys.size() >= r.keys.size() );
         for (unsigned int i = 0; i < r.keys.size(); ++i) {
             keys[i]->resize( r.keys[i] );
@@ -232,6 +236,7 @@ END_EVENT_TABLE()
 
 std::auto_ptr<Change> Window::getState() 
 {
+    if ( has_3d ) std::cerr << "Warning: Only the lowest Z layer is saved when images are shown live. (Bug #170)" << std::endl;
     std::auto_ptr<Change> changes = source->get_changes();
     commit_changes(*changes);
 

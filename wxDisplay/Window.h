@@ -28,7 +28,7 @@ class Window : public wxFrame, public Canvas::Listener
 
     Color background;
 
-    bool close_on_completion, notify_for_zoom;
+    bool close_on_completion, notify_for_zoom, has_3d;
 
     DECLARE_EVENT_TABLE();
 
