@@ -13,14 +13,11 @@ class HueSaturationMixer {
     typedef Eigen::Matrix<float,2,1,Eigen::DontAlign> ColourVector;
 
     /** Offset for tone calculations. */
-    ColourVector base_tone,
-    /** Tone for currently processed points in radial Hue/Sat space */
-                 current_tone;
+    ColourVector base_tone;
     /** Tone for currently processed points in cartesian Hue/Sat space. */
     ColourVector tone_point;
 
     dStorm::Image<ColourVector,Im::Dim> colours;
-    dStorm::Image<RGBWeight,Im::Dim> rgb_weights;
 
   public:
     HueSaturationMixer( double base_hue, double base_saturation );
@@ -31,9 +28,8 @@ class HueSaturationMixer {
                      float old_data_weight, float new_data_weight );
     void setSize( const dStorm::Image<ColourVector,Im::Dim>::Size& size );
 
-    inline Pixel getPixel( const Im::Position& p,
-                           unsigned char val )  const
-        { return Pixel( val * rgb_weights(p) ); }
+    Pixel getPixel( const Im::Position& p,
+                           unsigned char val )  const;
     inline Pixel getKeyPixel( unsigned char val ) const 
         { return Pixel( val ); }
 
