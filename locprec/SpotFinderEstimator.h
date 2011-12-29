@@ -3,7 +3,7 @@
 
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include "NoiseSource.h"
 #include <list>
 #include <simparm/FileEntry.hh>
@@ -17,7 +17,7 @@ namespace locprec {
         dStorm::engine::Input *carburettor;
         boost::units::quantity< camera::length, int > msx, msy;
 
-        ost::Mutex mutex;
+        boost::mutex mutex;
         int numberOfSamples;
         int noCol;
         std::vector<double[8]> data;

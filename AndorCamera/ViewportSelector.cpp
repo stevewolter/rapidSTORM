@@ -83,7 +83,7 @@ Display::get_changes()
     std::auto_ptr<dStorm::Display::Change> other
         ( new dStorm::Display::Change(1) );
 
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( other, this->change );
     DEBUG("Fetched changes");
     return other;
@@ -143,7 +143,7 @@ void Display::initialize_display()
         props.initial_size = getSize();
 
         DEBUG("Initializing display handle");
-        ost::MutexLock lock(mutex);
+        boost::lock_guard<boost::mutex> lock(mutex);
         DEBUG("Got lock for display handle");
         handle = dStorm::Display::Manager::getSingleton()
             .register_data_source( props, *this );
@@ -154,7 +154,7 @@ void Display::initialize_display()
         /* Window already open. The size, however, might have changed if
          * we have aimed member set, so we have to reset it. */
         if ( aimed ) {
-            ost::MutexLock lock(mutex);
+            boost::lock_guard<boost::mutex> lock(mutex);
             change->do_resize = true;
             change->resize_image = getSize();
             change->do_clear = true;
@@ -178,7 +178,7 @@ void Display::basename_changed( const std::string& basename ) {
 }
 
 void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     if ( aimed ) {
         /* TODO: Not only for cam 0. */
         std::string prefix = "in Camera0 in Readout in ImageReadout";
@@ -197,7 +197,7 @@ void Display::notice_drawn_rectangle(int l, int r, int t, int b) {
 }
 
 void Display::draw_image( const CamImage& data) {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
 
     /* Compute normalization and new key. */
     if ( ! lock_normalization ) {
@@ -354,7 +354,7 @@ void Display::operator()
 
 void Display::notice_user_key_limits(int key_index, bool lower, std::string input)
 {
-    ost::MutexLock lock( mutex );
+    boost::lock_guard<boost::mutex> lock( mutex );
     boost::optional< boost::units::quantity<camera::intensity> > v;
     if ( input != "" )
         v = atof(input.c_str()) * camera::ad_count;

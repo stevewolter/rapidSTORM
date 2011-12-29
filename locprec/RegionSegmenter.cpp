@@ -99,7 +99,7 @@ Segmenter::~Segmenter() {
 Output::AdditionalData Segmenter::announceStormSize
             (const Announcement &a) 
 {
-    ost::MutexLock lock( mutex );
+    boost::lock_guard<boost::mutex> lock( mutex );
     announcement.reset( new Announcement(a) );
     typedef dStorm::input::Traits<dStorm::Localization> InputTraits;
     announcement->source_traits.push_back( 
@@ -111,7 +111,7 @@ Output::AdditionalData Segmenter::announceStormSize
 
 void Segmenter::operator()(const simparm::Event&)
 {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     segment();
 }
 
@@ -391,7 +391,7 @@ void Segmenter::display_image( const ColorImage& img ) {
 
 std::auto_ptr<dStorm::Display::Change> Segmenter::get_changes() {
     std::auto_ptr<dStorm::Display::Change> fresh( new dStorm::Display::Change(1) );
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( fresh, next_change );
     return fresh;
 }

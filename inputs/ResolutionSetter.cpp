@@ -89,7 +89,7 @@ ChainLink::ChainLink(const ChainLink& o)
 void ChainLink::operator()(const simparm::Event& e)
 {
     if ( e.cause == simparm::Event::ValueChanged) {
-	ost::MutexLock lock( global_mutex() );
+	boost::lock_guard<boost::mutex> lock( global_mutex() );
         republish_traits();
     } else 
 	TreeListener::add_new_children(e);

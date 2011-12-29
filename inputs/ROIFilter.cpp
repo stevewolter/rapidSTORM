@@ -247,7 +247,7 @@ Config::Config()
 }
 
 void ChainLink::operator()( const simparm::Event& ) {
-    ost::MutexLock lock( input::global_mutex() );
+    boost::lock_guard<boost::mutex> lock( input::global_mutex() );
     republish_traits();
 }
 

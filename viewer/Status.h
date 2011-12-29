@@ -7,7 +7,7 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 
 namespace dStorm {
 namespace viewer {
@@ -22,7 +22,7 @@ struct Status {
     simparm::Entry<double> histogramPower;
     simparm::TriggerEntry save;
 
-    ost::Mutex mutex;
+    boost::mutex mutex;
 
     virtual void adapt_to_changed_config() = 0;
 };

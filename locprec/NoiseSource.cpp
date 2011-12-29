@@ -8,7 +8,6 @@
 #include <gsl/gsl_statistics.h>
 #include "foreach.h"
 #include <cassert>
-#include <dStorm/helpers/thread.h>
 #include <dStorm/engine/Image.h>
 #include <fstream>
 #include <boost/units/cmath.hpp>
@@ -236,7 +235,7 @@ NoiseSource<Pixel>::~NoiseSource()
 template <typename Pixel>
 dStorm::engine::Image* NoiseSource<Pixel>::fetch( int imNum )
 {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     std::auto_ptr<dStorm::engine::Image>
         result(new dStorm::engine::Image(this->imS, imNum * camera::frame));
 

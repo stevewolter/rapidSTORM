@@ -2,7 +2,6 @@
 #define TEST_PLUGIN_DISPLAY_MANAGER_H
 
 #include <dStorm/helpers/DisplayManager.h>
-#include <dStorm/helpers/thread.h>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/recursive_mutex.hpp>

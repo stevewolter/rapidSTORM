@@ -6,8 +6,6 @@
 #include <dStorm/Image.h>
 #include <dStorm/Image_impl.h>
 
-typedef ost::MutexLock guard;
-
 using namespace boost::units;
 using namespace camera;
 using namespace dStorm;
@@ -72,7 +70,7 @@ std::auto_ptr<Display::Change> LiveView::get_changes()
 {
     DEBUG("Locking changes");
     std::auto_ptr<Display::Change> fresh( new Display::Change(1) );
-    ost::MutexLock lock(change_mutex);
+    boost::lock_guard<boost::mutex> lock(change_mutex);
     DEBUG("Getting live view changes");
     if ( current_image_content.is_valid() ) {
         compute_image_change( current_image_content );
@@ -108,7 +106,7 @@ void LiveView::compute_image_change
 
 void LiveView::show( const CamImage& image) {
     DEBUG("Showing image");
-    guard lock(window_mutex);
+    boost::lock_guard<boost::mutex> lock(window_mutex);
     DEBUG("Got mutex for showing image");
     if ( show_live() ) {
         DEBUG("Performing show");
@@ -123,13 +121,13 @@ void LiveView::show( const CamImage& image) {
 }
 
 void LiveView::notice_closed_data_window() {
-    guard lock(window_mutex);
+    boost::lock_guard<boost::mutex> lock(window_mutex);
     hide_window();
 }
 
 void LiveView::notice_user_key_limits(int key_index, bool lower, std::string input)
 {
-    guard lock( window_mutex );
+    boost::lock_guard<boost::mutex> lock( window_mutex );
     boost::optional< boost::units::quantity<camera::intensity> > v;
     if ( input != "" )
         v = atof(input.c_str()) * camera::ad_count;

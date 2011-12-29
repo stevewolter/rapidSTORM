@@ -34,7 +34,7 @@ Choice::~Choice() {
     
 void Choice::operator()(const simparm::Event&)
 {
-    ost::MutexLock lock( global_mutex() );
+    boost::lock_guard<boost::mutex> lock( global_mutex() );
     publish_traits();
 }
 

@@ -1,8 +1,8 @@
 #include "fwd.h"
-#include "../helpers/thread.h"
+#include <boost/thread/mutex.hpp>
 
 namespace dStorm {
 namespace input {
-ost::Mutex& global_mutex();
+boost::mutex& global_mutex();
 }
 }

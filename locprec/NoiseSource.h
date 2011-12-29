@@ -8,7 +8,7 @@
 #include <dStorm/input/Link.h>
 #include <dStorm/ImageTraits.h>
 #include <gsl/gsl_rng.h>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <dStorm/engine/Image_decl.h>
 
 #include <simparm/ChoiceEntry.hh>
@@ -36,7 +36,7 @@ namespace locprec {
         boost::units::quantity<boost::units::si::time> integration_time;
         typedef boost::ptr_list<Fluorophore> FluorophoreList;
         FluorophoreList fluorophores;
-        ost::Mutex mutex;
+        boost::mutex mutex;
         dStorm::traits::Optics<3> optics;
 
         std::auto_ptr<std::ostream> output;

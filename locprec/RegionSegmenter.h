@@ -13,7 +13,7 @@
 #include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/helpers/DisplayManager.h>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
@@ -36,7 +36,7 @@ namespace locprec {
         typedef dStorm::Image<dStorm::Pixel,2> ColorImage;
         typedef dStorm::Image<int,2> RegionImage;
 
-        ost::Mutex mutex;
+        boost::mutex mutex;
 
         std::auto_ptr<Announcement> announcement;
         SegmentationType howToSegment;
@@ -76,7 +76,7 @@ namespace locprec {
         AdditionalData announceStormSize(const Announcement &a) ;
         void store_results() {
             dStorm::outputs::Crankshaft::store_results();
-            ost::MutexLock lock(mutex);
+            boost::lock_guard<boost::mutex> lock(mutex);
             if ( howToSegment == Maximum )
                 maximums();
             else

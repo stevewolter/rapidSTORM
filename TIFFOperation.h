@@ -1,4 +1,4 @@
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <string>
 #include <list>
 #include <tiffio.h>
@@ -8,10 +8,10 @@
 namespace dStorm {
 
 class TIFFOperation {
-    static ost::Mutex mutex;
+    static boost::mutex mutex;
     static TIFFOperation* current;
 
-    ost::MutexLock lock;
+    boost::lock_guard<boost::mutex> lock;
     simparm::Node& message_handler;
     std::list<simparm::Message> errors;
     const std::string error_title;

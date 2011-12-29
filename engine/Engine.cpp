@@ -283,7 +283,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         resultStructure.clear();
         resultStructure.source = image;
 
-        ost::MutexLock lock( engine.mutex );
+        boost::lock_guard<boost::mutex> lock( engine.mutex );
         engine.errors = engine.errors() + 1;
         engine.errors.viewable = true;
         return;

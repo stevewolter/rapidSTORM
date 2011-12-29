@@ -4,9 +4,10 @@
 #include <dStorm/stack_realign.h>
 #include <map>
 #include <queue>
-#include <dStorm/helpers/thread.h>
 #include "dStorm/helpers/DisplayManager.h"
 #include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
 #include <boost/function/function0.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
@@ -30,8 +31,8 @@ class wxManager : public Manager {
     void increase_handle_count();
     void decrease_handle_count();
 
-    ost::Mutex mutex;
-    ost::Condition closed_all_handles;
+    boost::mutex mutex;
+    boost::condition closed_all_handles;
      
     boost::ptr_list<Runnable> run_queue;
 

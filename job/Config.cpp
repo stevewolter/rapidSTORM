@@ -9,7 +9,6 @@
 #include <dStorm/output/Basename.h>
 #include <dStorm/Engine.h>
 
-#include <dStorm/helpers/thread.h>
 #include <sstream>
 
 #include <dStorm/input/MetaInfo.h>
@@ -153,7 +152,7 @@ Config::Config(const Config &c)
 }
 
 Config::~Config() {
-    ost::MutexLock lock( input::global_mutex() );
+    boost::lock_guard<boost::mutex> lock( input::global_mutex() );
     outputRoot.reset( NULL );
     input_listener.reset();
     input.reset();

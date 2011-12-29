@@ -3,7 +3,7 @@
 
 #include <simparm/BoostUnits.hh>
 #include <memory>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <simparm/TriggerEntry.hh>
 #include "Config_decl.h"
 #include <dStorm/engine/Input_decl.h>
@@ -35,7 +35,7 @@ namespace engine {
         Input::TraitsPtr imProp;
 
         Config& config;
-        ost::Mutex mutex;
+        boost::mutex mutex;
         simparm::Entry<unsigned long> errors;
 
         class _iterator;

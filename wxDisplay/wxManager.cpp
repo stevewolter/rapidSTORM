@@ -83,7 +83,7 @@ struct wxManager::IdleCall
 
 wxManager::wxManager() 
 : open_handles(0),
-  closed_all_handles(mutex),
+  closed_all_handles(),
   was_started( false ),
   may_close( false ),
   toolkit_available( true ),
@@ -106,11 +106,11 @@ wxManager::~wxManager() {
         DEBUG("Stopping display thread");
         run_in_GUI_thread( Closer() );
         DEBUG("Stopped display thread");
-        closed_all_handles.signal();
+        closed_all_handles.notify_all();
         gui_thread.join();
     } else {
-        ost::MutexLock lock(mutex);
-        closed_all_handles.signal();
+        boost::lock_guard<boost::mutex> lock(mutex);
+        closed_all_handles.notify_all();
     }
     DEBUG("Stopped display thread");
 }
@@ -126,24 +126,24 @@ void wxManager::run() throw()
     DEBUG("Ran display thread");
     toolkit_available = false;
 
-    ost::MutexLock lock( mutex );
+    boost::unique_lock<boost::mutex> lock( mutex );
     exec_waiting_runnables();
     while ( !may_close || open_handles > 0 ) {
-        closed_all_handles.wait();
+        closed_all_handles.wait(mutex);
         exec_waiting_runnables();
     }
 }
 
 void wxManager::increase_handle_count() {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     open_handles++;
 }
 
 void wxManager::decrease_handle_count() {
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     open_handles--;
     if ( open_handles == 0 && may_close ) {
-        closed_all_handles.signal();
+        closed_all_handles.notify_all();
         if ( toolkit_available )
             wxGetApp().close();
     }
@@ -175,7 +175,7 @@ wxManager::register_data_source(
 )
 {
     if ( ! was_started ) {
-        ost::MutexLock lock( mutex );
+        boost::lock_guard<boost::mutex> lock( mutex );
         if ( ! was_started ) {
             was_started = true;
             gui_thread = boost::thread( &wxManager::run, this );
@@ -263,18 +263,18 @@ void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code )
         exec( *code );
     else {
         {
-            ost::MutexLock lock(mutex);
+            boost::lock_guard<boost::mutex> lock(mutex);
             run_queue.push_back( code );
         }
         wxWakeUpIdle();
-        closed_all_handles.signal();
+        closed_all_handles.notify_all();
     }
     DEBUG("Ran code in GUI thread");
 }
 
 void wxManager::exec_waiting_runnables() {
     DEBUG("Acquiring runnables lock");
-    ost::MutexLock lock(mutex);
+    boost::lock_guard<boost::mutex> lock(mutex);
     while ( ! run_queue.empty() ) {
         DEBUG("Running runnable");
         exec( run_queue.front() );

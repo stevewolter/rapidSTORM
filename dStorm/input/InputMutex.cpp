@@ -2,8 +2,8 @@
 
 namespace dStorm {
 namespace input {
-ost::Mutex& global_mutex() {
-    static ost::Mutex mutex;
+boost::mutex& global_mutex() {
+    static boost::mutex mutex;
     return mutex;
 }
 }

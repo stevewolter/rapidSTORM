@@ -1,7 +1,6 @@
 #ifndef DSTORM_INPUTSTREAM_H
 #define DSTORM_INPUTSTREAM_H
 
-#include <dStorm/helpers/thread.h>
 #include <simparm/Node.hh>
 #include <dStorm/Config_decl.h>
 #include <dStorm/JobMaster.h>

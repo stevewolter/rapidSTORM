@@ -8,7 +8,7 @@
 #include <dStorm/output/Output.h>
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <dStorm/input/Source.h>
 #include "Config.h"
 
@@ -62,7 +62,7 @@ class Source
   private:
     std::auto_ptr< Input > base;
   public:
-    ost::Mutex mutex;
+    boost::mutex mutex;
     InputIterator current, base_end;
     frame_index next_image;
     typedef boost::ptr_map<frame_index,output::LocalizedImage> Canned;

@@ -83,7 +83,7 @@ LocalizationBuncher<Input>::LocalizationBuncher(
 template <typename Input>
 void LocalizationBuncher<Input>::claim_image()
 {
-    ost::MutexLock lock(master.mutex);
+    boost::lock_guard<boost::mutex> lock(master.mutex);
     outputImage = master.next_image;
     master.next_image += 1 * camera::frame;
 }
@@ -103,7 +103,7 @@ bool LocalizationBuncher<Input>::equal(const LocalizationBuncher<Input>& o) cons
 
 template <typename Input>
 void LocalizationBuncher<Input>::search_output_image() {
-    ost::MutexLock lock( master.mutex );
+    boost::lock_guard<boost::mutex> lock( master.mutex );
     typename Source<Input>::Canned::iterator canned_output
         = master.canned.find(outputImage);
     if ( canned_output != master.canned.end() ) {

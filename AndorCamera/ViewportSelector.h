@@ -2,7 +2,7 @@
 #define ANDORDIRECT_VIEWPORTSELECTOR_H
 
 #include <dStorm/stack_realign.h>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <dStorm/helpers/DisplayManager.h>
 #include <simparm/Entry.hh>
 #include <simparm/Entry.hh>
@@ -45,7 +45,7 @@ class Display : public simparm::Set,
     /** Reference to the config element to be configured. */
     bool aimed;
 
-    ost::Mutex mutex;
+    boost::mutex mutex;
     /** Flag is set to true when the display should be paused. */
     bool paused;
 

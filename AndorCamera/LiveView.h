@@ -8,7 +8,7 @@
 #include <boost/optional/optional.hpp>
 #include <dStorm/helpers/DisplayManager.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
-#include <dStorm/helpers/thread.h>
+#include <boost/thread/mutex.hpp>
 #include <dStorm/ImageTraits.h>
 #include <simparm/Entry.hh>
 
@@ -28,7 +28,7 @@ class LiveView :
     boost::optional< boost::units::quantity<boost::units::camera::intensity> >
         lower_user_limit, upper_user_limit;
 
-    ost::Mutex window_mutex, change_mutex;
+    boost::mutex window_mutex, change_mutex;
     CamImage current_image_content;
 
     std::auto_ptr<dStorm::Display::Change> change;

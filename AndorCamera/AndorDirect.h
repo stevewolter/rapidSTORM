@@ -7,7 +7,6 @@
 #include <dStorm/ImageTraits.h>
 #include <memory>
 #include <string>
-#include <dStorm/helpers/thread.h>
 #include <simparm/Set.hh>
 
 #include <boost/shared_ptr.hpp>

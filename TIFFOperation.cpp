@@ -5,7 +5,7 @@
 
 namespace dStorm {
 
-ost::Mutex TIFFOperation::mutex;
+boost::mutex TIFFOperation::mutex;
 TIFFOperation* TIFFOperation::current = NULL;
 
 TIFFOperation::TIFFOperation( 

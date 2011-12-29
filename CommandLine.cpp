@@ -16,6 +16,7 @@
 #include <simparm/command_line.hh>
 #include <dStorm/helpers/DisplayManager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/thread/condition.hpp>
 #include "job/Config.h"
 
 namespace dStorm {
@@ -56,8 +57,8 @@ class CommandLine::Pimpl
     char **argv;
     job::Config config;
     JobStarter starter;
-    ost::Mutex mutex;
-    ost::Condition jobs_empty;
+    boost::mutex mutex;
+    boost::condition jobs_empty;
     std::list<Job*> jobs;
 
     bool load_config_file(const std::string& filename);
@@ -80,7 +81,7 @@ class CommandLine::Pimpl
     void run();
     std::auto_ptr<dStorm::JobHandle> register_node( dStorm::Job& j ) { 
         DEBUG("Waiting for mutex to add job");
-        ost::MutexLock lock(mutex);
+        boost::lock_guard<boost::mutex> lock(mutex);
         io.push_back(j.get_config());
         DEBUG("Pushed back " << j.get_config().getName());
         jobs.push_back( &j ); 
@@ -88,14 +89,14 @@ class CommandLine::Pimpl
     }
     void erase_node( dStorm::Job& j ) {
         DEBUG("Waiting for mutex to delete job for " << j.get_config().getName());
-        ost::MutexLock lock(mutex);
+        boost::lock_guard<boost::mutex> lock(mutex);
         io.erase(j.get_config());  
         DEBUG("Erased " << j.get_config().getName());
     }
     void deleted_node( dStorm::Job& j ) {
-        ost::MutexLock lock(mutex);
+        boost::lock_guard<boost::mutex> lock(mutex);
         jobs.remove( &j ); 
-        jobs_empty.broadcast();
+        jobs_empty.notify_all();
     }
 };
 
@@ -188,8 +189,7 @@ bool CommandLine::Pimpl::load_config_file(
 }
 
 CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: io(NULL, NULL), argc(argc), argv(argv), starter(this),
-  jobs_empty(mutex)
+: io(NULL, NULL), argc(argc), argv(argv), starter(this)
 {
     starter.setConfig(config);
     ModuleLoader::getSingleton().add_modules( config );
@@ -197,11 +197,11 @@ CommandLine::Pimpl::Pimpl(int argc, char *argv[])
     config.registerNamedEntries(io);
 }
 CommandLine::Pimpl::~Pimpl() {
-    ost::MutexLock lock(mutex);
+    boost::unique_lock<boost::mutex> lock(mutex);
     while ( ! jobs.empty() ) {
         if ( ! jobs.empty() ) {
             DEBUG("Waiting with " << jobs.size() << " jobs");
-            jobs_empty.wait();
+            jobs_empty.wait(lock);
         }
     }
 }
