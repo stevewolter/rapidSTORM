@@ -1,7 +1,6 @@
 #ifndef DSTORM_SPALTTIEFPASS_H
 #define DSTORM_SPALTTIEFPASS_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include "averageSmooth.h"

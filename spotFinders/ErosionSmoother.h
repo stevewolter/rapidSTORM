@@ -1,7 +1,6 @@
 #ifndef DSTORM_EROSIONSMOOTHER_H
 #define DSTORM_EROSIONSMOOTHER_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Structure.hh>

@@ -1,7 +1,6 @@
 #ifndef DSTORM_MEDIANSMOOTHER_H
 #define DSTORM_MEDIANSMOOTHER_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>

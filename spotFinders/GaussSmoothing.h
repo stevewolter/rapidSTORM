@@ -1,7 +1,6 @@
 #ifndef DSTORM_GAUSSSMOOTHING_H
 #define DSTORM_GAUSSSMOOTHING_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
