@@ -299,19 +299,18 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     finder->smooth(flattened);
     IF_DSTORM_MEASURE_TIMES( smooth_time += clock() - prepre );
 
-    CandidateTree<SmoothedPixel>::iterator cM = maximums.begin();
     int motivation;
     recompress:  /* We jump here if maximum limit proves too small */
     IF_DSTORM_MEASURE_TIMES( clock_t pre = clock() );
     finder->findCandidates( maximums );
-    DEBUG("Found " << maximums.size() << " spots");
+    DEBUG("Found spots");
 
     IF_DSTORM_MEASURE_TIMES( clock_t search_start = clock() );
     IF_DSTORM_MEASURE_TIMES( search_time += search_start - pre );
 
     /* Motivational fitting */
     motivation = origMotivation;
-    for ( cM = maximums.begin(); cM.hasMore() && motivation > 0; cM++){
+    for ( CandidateTree<SmoothedPixel>::const_iterator cM = maximums.begin(), cE = maximums.end(); cM != cE; ++cM){
         const Spot& s = cM->second;
         DEBUG("Trying candidate at " << s.x() << "," << s.y() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
@@ -349,9 +348,10 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
             motivation += best_found;
             DEBUG("No localizations, decreased motivation by " << -best_found 
                   << " to " << motivation);
+            if ( motivation <= 0 ) break;
         }
     }
-    if (motivation > 0 && cM.limitReached()) {
+    if (motivation > 0 && maximums.reached_size_limit()) {
         maximumLimit *= 2;
         DEBUG("Raising maximumLimit to " << maximumLimit);
         maximums.setLimit(maximumLimit);

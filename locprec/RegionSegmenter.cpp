@@ -333,8 +333,8 @@ void Segmenter::maximums() {
     const dStorm::outputs::BinnedImage& image = (*bins)();
     candidates.fillMax(image);
     std::list<Spot> foundSpots;
-    for (dStorm::engine::CandidateTree<float>::iterator
-            it = candidates.begin(); it.hasMore(); it++)
+    for (dStorm::engine::CandidateTree<float>::const_iterator
+            it = candidates.begin(); it != candidates.end(); ++it)
         foundSpots.push_back( Spot( it->second.x(), it->second.y() ) );
 
     Localizations& locs = points;

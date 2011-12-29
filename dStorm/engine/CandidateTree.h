@@ -3,7 +3,7 @@
 
 #include "Candidate.h"
 #include "Image_decl.h"
-#include "../data-c++/MergingTree.h"
+#include <vector>
 
 namespace dStorm {
 namespace engine {
@@ -17,10 +17,12 @@ namespace engine {
      *  insert the found maximums into itself. */
     template <typename PixelType>
     class CandidateTree 
-    : public data_cpp::MergingTree< Candidate<PixelType> > 
     {
       private:
+        std::vector< Candidate<PixelType> > elements;
         const int msx, msy, bx, by;
+        unsigned limit_;
+        inline void insert( const Candidate<PixelType>&, PixelType& );
       public:
         typedef Candidate<PixelType> Element;
         typedef dStorm::Image<PixelType,2> Input;
@@ -33,8 +35,9 @@ namespace engine {
          *             in Y direction
          **/
         CandidateTree(int msx, int msy, int bx, int by)
-        : msx(msx), msy(msy), bx(bx), by(by) {}
+        : msx(msx), msy(msy), bx(bx), by(by), limit_(10) {}
         virtual ~CandidateTree();
+        void setLimit( int limit ) { limit_ = limit; }
 
         /** Perform inclusive non-maximum suppression on the supplied
          *  image. Fill this tree with the results, use the parameters
@@ -45,14 +48,11 @@ namespace engine {
          *  supplied in constructor. */
         void fillMax(const Input& findIn);
 
-        /** Helper function for MergingTree. Compares \c a and \c b and
-         *  returns a value < or = or > 0 if a < or = or > b, 
-         *  respectively. */
-        virtual int compare(const Candidate<PixelType> &a,
-                            const Candidate<PixelType> &b);
-        virtual void merge(Candidate<PixelType> &a, 
-                           const Candidate<PixelType> &b)
-            { a.merge(b); }
+        typedef typename std::vector< Candidate<PixelType> >::const_iterator const_iterator;
+        const_iterator begin() const { return elements.begin(); }
+        const_iterator end() const { return elements.end(); }
+
+        bool reached_size_limit() const { return elements.size() == limit_; }
     };
 }
 }

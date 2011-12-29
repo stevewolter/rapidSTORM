@@ -1,7 +1,6 @@
 #ifndef LOCPREC_RELATE_H
 #define LOCPREC_RELATE_H
 
-#include <dStorm/data-c++/Vector.h>
 #include <limits>
 #include <queue>
 #include <boost/units/cmath.hpp>
@@ -28,9 +27,9 @@ ei_abs( const boost::units::quantity<boost::units::camera::length,float>& v )
 namespace locprec {
 
 template <typename ObjectA, typename ObjectB>
-void relate(const data_cpp::Vector<ObjectB> &objects,
-            const data_cpp::Vector<const ObjectA*>& fluorophores,
-            data_cpp::Vector<const ObjectA*>& relations,
+void relate(const std::vector<ObjectB> &objects,
+            const std::vector<const ObjectA*>& fluorophores,
+            std::vector<const ObjectA*>& relations,
             quantity<camera::length,float> max_dist_x,
             quantity<camera::length,float> max_dist_y
 )
@@ -39,9 +38,9 @@ void relate(const data_cpp::Vector<ObjectB> &objects,
     max_dist.x() = max_dist_x;
     max_dist.y() = max_dist_y;
 
-    data_cpp::Vector<double> 
+    std::vector<double> 
         distances(fluorophores.size(), std::numeric_limits<double>::max());
-    data_cpp::Vector<int> fluorRel(fluorophores.size(), -1);
+    std::vector<int> fluorRel(fluorophores.size(), -1);
     std::queue<int> process;
     double delta = 1E-10;
 
@@ -57,7 +56,7 @@ void relate(const data_cpp::Vector<ObjectB> &objects,
         const ObjectA *best_fluorophore = NULL;
 
         int dist_index = 0, take_fluorophore = -1;
-        for (typename data_cpp::Vector<const ObjectA*>::const_iterator fluo = fluorophores.begin(); fluo != fluorophores.end(); fluo++)
+        for (typename std::vector<const ObjectA*>::const_iterator fluo = fluorophores.begin(); fluo != fluorophores.end(); fluo++)
         {
             if ( (unitless_value( (*fluo)->position() - *object).cwise().abs().cwise() <= unitless_value(max_dist)).all() )
             {

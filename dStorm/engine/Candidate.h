@@ -14,10 +14,10 @@ namespace engine {
    template <typename PixelType>
    class Candidate : public std::pair<PixelType, Spot> {
       private:
-        int weight;
+        int weight_;
       public:
          Candidate(const PixelType& p, const Spot &s)
-            : std::pair<PixelType, Spot>(p, s), weight(1) {}
+            : std::pair<PixelType, Spot>(p, s), weight_(1) {}
 
          void merge(const Candidate<PixelType> &with)
             { this->second.add(with.second); }
@@ -28,8 +28,9 @@ namespace engine {
               else if (this->second.x() > other.second.x()) return false;
               else return this->second.y() < other.second.y(); }
 
-        double x() const { return this->second.x(); }
-        double y() const { return this->second.y(); }
+        float x() const { return this->second.x(); }
+        float y() const { return this->second.y(); }
+        int weight() const { return weight_; }
    };
 }
 }

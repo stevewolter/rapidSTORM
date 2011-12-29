@@ -6,7 +6,6 @@
 #include <dStorm/helpers/thread.h>
 #include "NoiseSource.h"
 #include <list>
-#include <dStorm/data-c++/Vector.h>
 #include <simparm/FileEntry.hh>
 
 namespace locprec {
@@ -21,7 +20,7 @@ namespace locprec {
         ost::Mutex mutex;
         int numberOfSamples;
         int noCol;
-        data_cpp::Vector<double[8]> data;
+        std::vector<double[8]> data;
         std::ostream &out;
 
         dStorm::input::Traits<dStorm::Localization> traits;

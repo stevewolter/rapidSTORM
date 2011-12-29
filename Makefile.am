@@ -161,9 +161,6 @@ nobase_include_HEADERS = \
     dStorm/helpers/dilation_impl.h dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
-    dStorm/data-c++/Vector.h dStorm/data-c++/MergingTree.h \
-    dStorm/data-c++/impl/MergingTree.cpp \
-    dStorm/data-c++/Traits.h \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
