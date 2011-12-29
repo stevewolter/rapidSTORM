@@ -19,8 +19,8 @@ class HueSaturationMixer {
     /** Tone for currently processed points in cartesian Hue/Sat space. */
     ColourVector tone_point;
 
-    dStorm::Image<ColourVector,2> colours;
-    dStorm::Image<RGBWeight,2> rgb_weights;
+    dStorm::Image<ColourVector,Im::Dim> colours;
+    dStorm::Image<RGBWeight,Im::Dim> rgb_weights;
 
   public:
     HueSaturationMixer( double base_hue, double base_saturation );
@@ -29,7 +29,7 @@ class HueSaturationMixer {
     void set_tone( float hue );
     void merge_tone( const Im::Position&, 
                      float old_data_weight, float new_data_weight );
-    void setSize( const dStorm::Image<ColourVector,2>::Size& size );
+    void setSize( const dStorm::Image<ColourVector,Im::Dim>::Size& size );
 
     inline Pixel getPixel( const Im::Position& p,
                            unsigned char val )  const

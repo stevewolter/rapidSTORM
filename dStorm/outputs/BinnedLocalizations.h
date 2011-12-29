@@ -11,12 +11,13 @@
 namespace dStorm {
 namespace outputs {
 
-    typedef dStorm::Image<float,2> BinnedImage;
-
     /** Public interface necessary for a class listening
      *  to \c BinnedLocalizations. */
+    template <int Dimensions = 2>
     class BinningListener {
       public:
+        typedef dStorm::Image<float,Dimensions> BinnedImage;
+
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes.
          *  @param traits     Traits of the binned image
@@ -33,7 +34,7 @@ namespace outputs {
         /** Called when a pixel changes in the binned image. The parameters
          *  give the x and y position of the changed pixel and its old and
          *  new value. */
-        inline void updatePixel(const BinnedImage::Position&, float, float) ;
+        inline void updatePixel(const typename BinnedImage::Position&, float, float) ;
         /** Forwards the call to BinnedLocalizations::clean(), that is,
          *  the listener should clean its state.
          *  @param lastClean    This clean is the final clean after the
@@ -49,12 +50,14 @@ namespace outputs {
      *  All methods are empty so that, after inlining, no superfluous
      *  code is left in BinnedLocalizations for an empty listener
      *  slot. */
-    struct DummyBinningListener : public BinningListener {
+    template <int Dimensions>
+    struct DummyBinningListener : public BinningListener<Dimensions> {
+        typedef dStorm::Image<float,Dimensions> BinnedImage;
         void setSize(const input::Traits< BinnedImage >&) {}
         void announce(const output::Output::Announcement&) {}
         void announce(const output::Output::EngineResult&) {}
         void announce(const Localization&) {}
-        void updatePixel(const BinnedImage::Position&, float, float) {}
+        void updatePixel(const typename BinnedImage::Position&, float, float) {}
         void clean(bool) {}
         void clear() {}
     };
@@ -62,11 +65,12 @@ namespace outputs {
     /** The BinningPublisher class stores a pointer to the currently
      *  set listener, if any is provided. The publisher acts as a
      *  pointer to a class compatible to DummyBinningListener. */
-    template <typename Listener>
+    template <int Dimensions, typename Listener>
     struct BinningPublisher
     {
         Listener *fwd;
       public:
+        typedef dStorm::Image<float,Dimensions> BinnedImage;
         inline void setListener(Listener* target)
             { fwd = target; }
         inline Listener& binningListener() { return *fwd; }
@@ -75,13 +79,14 @@ namespace outputs {
         inline float get_binned_pixel(int x, int y);
     };
 
+    template <int Dim>
     struct BinningStrategy {
-        typedef Eigen::Matrix<float, Eigen::Dynamic, 3> Result;
+        typedef Eigen::Matrix<float, Eigen::Dynamic, Dim> Result;
 
         virtual BinningStrategy* clone() const = 0;
         virtual ~BinningStrategy() {}
         virtual void announce(const output::Output::Announcement&) = 0;
-        virtual Eigen::Matrix<quantity<camera::length>, 2, 1> get_size() = 0;
+        virtual Eigen::Matrix<quantity<camera::length>, Dim, 1> get_size() = 0;
         virtual traits::Optics<2>::Resolutions get_resolution() = 0;
         virtual void bin_points( 
             const output::LocalizedImage&, Result& ) = 0;
@@ -96,11 +101,12 @@ namespace outputs {
      *  \date   October 2008
      *  \sa dStorm::Viewer
      **/
-    template <typename KeepUpdated>
+    template <typename KeepUpdated, int Dim>
     class BinnedLocalizations 
-        : public output::OutputObject, public BinningPublisher<KeepUpdated>
+        : public output::OutputObject, public BinningPublisher<Dim,KeepUpdated>
     {
       public:
+        typedef dStorm::Image<float,Dim> BinnedImage;
         typedef boost::units::quantity<camera::length,int>
             Crop;
       protected:
@@ -113,24 +119,24 @@ namespace outputs {
          *  Used in set_resolution_enhancement. */
         std::auto_ptr<Announcement> announcement;
 
-        std::auto_ptr<BinningStrategy> strategy;
+        std::auto_ptr<BinningStrategy<Dim> > strategy;
 
         void set_base_image_size();
         
-        template<typename Listener> friend class BinnedLocalizations;
+        template<typename Listener, int ODim> friend class BinnedLocalizations;
 
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
-        BinnedLocalizations(std::auto_ptr<BinningStrategy> strategy, Crop crop = 0);
+        BinnedLocalizations(std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop = 0);
         BinnedLocalizations(const BinnedLocalizations&);
 
         template <typename OtherListener>
-        BinnedLocalizations(const BinnedLocalizations<OtherListener>&);
+        BinnedLocalizations(const BinnedLocalizations<OtherListener,Dim>&);
 
         virtual ~BinnedLocalizations() {}
-        BinnedLocalizations<KeepUpdated>* clone() const 
-            { return new BinnedLocalizations<KeepUpdated>(*this); }
+        BinnedLocalizations* clone() const 
+            { return new BinnedLocalizations(*this); }
         
         AdditionalData announceStormSize(const Announcement&);
         RunRequirements announce_run(const RunAnnouncement&) 

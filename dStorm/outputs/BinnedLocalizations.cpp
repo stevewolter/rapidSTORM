@@ -5,10 +5,11 @@
 
 namespace dStorm {
 namespace input {
-    template class Traits< outputs::BinnedImage >;
+    template class Traits< Image<float,2> >;
+    template class Traits< Image<float,3> >;
 }
 
 namespace outputs {
-    template class BinnedLocalizations<DummyBinningListener>;
+    template class BinnedLocalizations<DummyBinningListener<2>, 2>;
 }
 }

@@ -13,6 +13,7 @@
 #include <dStorm/UnitEntries/PixelEntry.h>
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include "ColourScheme.h"
+#include "Image.h"
 
 namespace dStorm {
 namespace viewer {
@@ -22,7 +23,7 @@ class _Config : public simparm::Object {
 
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
-    outputs::DimensionSelector binned_dimensions;
+    outputs::DimensionSelector<Im::Dim> binned_dimensions;
     simparm::Entry<double> histogramPower;
     simparm::NodeChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;

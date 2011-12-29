@@ -6,12 +6,11 @@
 namespace dStorm {
 namespace outputs {
 
-typedef dStorm::Image<float,2> BinnedImage;
-class BinningListener;
-class DummyBinningListener;
-template <typename Listener> class BinningPublisher;
-struct BinningStrategy;
-template <typename KeepUpdated = DummyBinningListener>
+template <int Dimensions> class BinningListener;
+template <int Dimensions> class DummyBinningListener;
+template <int Dimensions, typename Listener> class BinningPublisher;
+template <int Dimensions> struct BinningStrategy;
+template <typename KeepUpdated = DummyBinningListener<2>, int Dimensions = 2>
 class BinnedLocalizations;
 
 }

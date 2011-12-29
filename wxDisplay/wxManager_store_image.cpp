@@ -9,6 +9,7 @@
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/ImageTraits.h>
+#include <dStorm/image/slice.h>
 #include <simparm/Message.hh>
 #include <stdio.h>
 
@@ -155,20 +156,21 @@ static void write_main_image(
     Magick::Image& image,
     int width,
     const ImageChange& whole_image,
-    const Change::PixelQueue& small_changes
+    const Change::PixelQueue& small_changes,
+    int layer
 ) {
     DEBUG("Writing main image");
     int cols = width, rows = whole_image.new_image.height_in_pixels();
     DEBUG("Using stride " << width);
 
-    const Pixel *p = whole_image.new_image.ptr();
+    dStorm::Image<Pixel,2> slice = whole_image.new_image.slice(2, layer * camera::pixel);
     for (int y = 0; y < rows; y++) {
         Magick::PixelPacket *pixels = image.setPixels
             ( 0, y, cols, 1 );
-        for (int x = 0; x < cols; x++) {
-            make_magick_pixel<QuantumDepth>( pixels[x], *p );
-            ++p;
-        }
+        dStorm::Image<Pixel,1> row = slice.slice(1, y * camera::pixel);
+        dStorm::Image<Pixel,1>::const_iterator p = row.begin();
+        for (int x = 0; x < cols; x++)
+            make_magick_pixel<QuantumDepth>( pixels[x], *p++ );
         image.syncPixels();
     }
     DEBUG("Wrote main image");
@@ -198,19 +200,7 @@ static void write_scale_bar(
 }
 #endif
 
-void wxManager::store_image(
-    std::string filename,
-    const Change& image )
-{
-    DEBUG("Storing image");
-    if ( !image.do_resize || image.resize_image.keys.size() != image.changed_keys.size() )
-        throw std::logic_error("Key information not given completely when saving image");
-    if ( ! image.do_clear )
-        throw std::logic_error("No background color defined for image");
-
-#if !defined(USE_GRAPHICSMAGICK) 
-    throw std::runtime_error("Cannot save images: Magick library not used in compilation");
-#else
+std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer ) {
     DEBUG("Image to store has width " << image.resize_image.size.x() << " and height " << image.resize_image.size.y()
         <<" and has " << image.changed_keys.size() << " keys");
     int width = image.resize_image.size.x() / camera::pixel; 
@@ -234,38 +224,57 @@ void wxManager::store_image(
     }
 
     DEBUG("Creating image sized " << width << " by " << total_height);
-    Magick::Image img( Magick::Geometry(width, total_height), background );
-    img.type(Magick::TrueColorType);
-    img.strokeColor( foreground );
-    img.fillColor( foreground );
+    std::auto_ptr<Magick::Image> img( new Magick::Image( Magick::Geometry(width, total_height), background ) );
+    img->type(Magick::TrueColorType);
+    img->strokeColor( foreground );
+    img->fillColor( foreground );
 
-    write_main_image( img, width, image.image_change, image.change_pixels );
+    write_main_image( *img, width, image.image_change, image.change_pixels, layer );
     int key_pos = main_height;
     for (boost::ptr_list< Magick::Image >::iterator i = key_imgs.begin(); i != key_imgs.end(); ++i )
     {
-        img.composite( *i, 0, key_pos, Magick::OverCompositeOp );
+        img->composite( *i, 0, key_pos, Magick::OverCompositeOp );
         key_pos += i->rows();
     }
     int scale_bar_width = std::min( width/3, 100 );
     if ( image.resize_image.pixel_sizes[0].value > 0 / camera::pixel
           && image.resize_image.pixel_sizes[1].value > 0 / camera::pixel ) 
     {
-        write_scale_bar( img, image.resize_image.pixel_sizes[0],
+        write_scale_bar( *img, image.resize_image.pixel_sizes[0],
                      scale_bar_width, std::max(0, width-scale_bar_width-5 ) );
         DEBUG("Wrote scale bar");
         if ( image.resize_image.pixel_sizes[0].is_in_dpm() && 
              image.resize_image.pixel_sizes[1].is_in_dpm() )
         {
-            img.resolutionUnits( Magick::PixelsPerCentimeterResolution );
+            img->resolutionUnits( Magick::PixelsPerCentimeterResolution );
             unsigned int pix_per_cm[2];
             for (int i = 0; i < 2; ++i)
                 pix_per_cm[i] = int( image.resize_image.pixel_sizes[i].in_dpm() * (0.01 * boost::units::si::metre) / camera::pixel );
-            img.density(Magick::Geometry(pix_per_cm[0], pix_per_cm[1]));
+            img->density(Magick::Geometry(pix_per_cm[0], pix_per_cm[1]));
         }
     }
     
+    return img;
+}
+
+void wxManager::store_image(
+    std::string filename,
+    const Change& image )
+{
+    DEBUG("Storing image");
+    if ( !image.do_resize || image.resize_image.keys.size() != image.changed_keys.size() )
+        throw std::logic_error("Key information not given completely when saving image");
+    if ( ! image.do_clear )
+        throw std::logic_error("No background color defined for image");
+
+#if !defined(USE_GRAPHICSMAGICK) 
+    throw std::runtime_error("Cannot save images: Magick library not used in compilation");
+#else
+    std::vector< Magick::Image > layers;
+    for (int z = 0; z < image.resize_image.size.z().value(); ++z)
+        layers.push_back( *create_layer( image, z ) );
     try {
-        img.write( filename );
+        writeImages( layers.begin(), layers.end(), filename );
     } catch ( const Magick::Error& e ) {
         throw std::runtime_error(e.what());
     }

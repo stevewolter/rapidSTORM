@@ -12,7 +12,7 @@ template <typename OtherListener>
 Discretizer<ImageListener>
 ::Discretizer(
     const Discretizer<OtherListener>& o,
-    const Image<float,2>& binned_image,
+    const Image<float,Im::Dim>& binned_image,
     Colorizer& colorizer) 
 : total_pixel_count(o.total_pixel_count),
   colorizer(colorizer),

@@ -20,7 +20,7 @@ class TerminalCache
 
     const dStorm::display::ResizeChange& getSize() const 
         { return size; }
-    void setSize(const input::Traits< Image<int,2> >&);
+    void setSize(const input::Traits< Image<int,Im::Dim> >&);
     void setSize(const dStorm::display::ResizeChange& size);
 
     std::auto_ptr<dStorm::display::Change> 

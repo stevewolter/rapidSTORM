@@ -52,7 +52,7 @@ struct DummyDiscretizationListener {
 
 template <typename ImageListener>
 class Discretizer 
-: public outputs::BinningListener,
+: public outputs::BinningListener<Im::Dim>,
   public Publisher<ImageListener>
 {
     typedef typename ImageListener::Colorizer Colorizer;

@@ -15,7 +15,7 @@ namespace viewer {
 template <typename ImageListener>
 Discretizer<ImageListener>
 ::Discretizer(int d, float hp,
-    const Image<float,2>& binned_image,
+    const Image<float,Im::Dim>& binned_image,
     Colorizer& colorizer) 
 : colorizer(colorizer),
   max_value(10), 
@@ -41,7 +41,7 @@ void Discretizer<ImageListener>
 {
     colorizer.setSize( traits );
     this->publish().setSize( 
-        input::Traits< Image<int,2> >(traits) );
+        input::Traits< Im >(traits) );
     int w = traits.size.x() / camera::pixel,
         h = traits.size.y() / camera::pixel;
 

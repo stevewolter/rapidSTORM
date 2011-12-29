@@ -29,7 +29,7 @@ class Coordinate : public Base<unsigned char>, public HueSaturationMixer {
     Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
 
-    void setSize( const input::Traits<outputs::BinnedImage>& traits ) {
+    void setSize( const input::Traits<BinnedImage>& traits ) {
         BaseType::setSize(traits);
         HueSaturationMixer::setSize(traits.size);
     }

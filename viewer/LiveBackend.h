@@ -23,7 +23,7 @@ class LiveBackend
     typedef Display< MyColorizer > MyDisplay;
     typedef LiveCache< MyDisplay > MyCache;
     typedef Discretizer< MyCache> MyDiscretizer;
-    typedef outputs::BinnedLocalizations<MyDiscretizer> Accumulator;
+    typedef outputs::BinnedLocalizations<MyDiscretizer, Im::Dim> Accumulator;
 
     Config& config;
     Status& status;

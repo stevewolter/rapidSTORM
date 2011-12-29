@@ -14,29 +14,30 @@ namespace outputs {
 
 namespace binning_strategy {
 
-struct ThreeComponent
-: public BinningStrategy 
+template <int Dim>
+struct ComponentWise
+: public BinningStrategy<Dim>
 {
   private:
     typedef output::binning::Scaled ScaledBin;
     typedef output::binning::Unscaled UnscaledBin;
 
-    boost::ptr_array<ScaledBin, 2> xy;
+    boost::ptr_array<ScaledBin, Dim> xy;
     boost::clone_ptr<UnscaledBin> intensity;
 
   public:
-    ThreeComponent(std::auto_ptr<ScaledBin> x, std::auto_ptr<ScaledBin> y, std::auto_ptr<UnscaledBin> intensity)
-        : intensity(intensity) { xy.replace(0, x); xy.replace(1, y); }
-    ThreeComponent* clone() const { return new ThreeComponent(*this); }
-    ~ThreeComponent() {}
+    ComponentWise( boost::ptr_array<ScaledBin, Dim> dims, std::auto_ptr<UnscaledBin> intensity)
+        : xy(dims), intensity(intensity) {}
+    ComponentWise* clone() const { return new ComponentWise(*this); }
+    ~ComponentWise() {}
 
     void announce(const output::Output::Announcement& a) { 
-        for (int i = 0; i < 2; ++i) xy[i].announce(a);
+        for (int i = 0; i < Dim; ++i) xy[i].announce(a);
         intensity->announce(a);
     }
-    Eigen::Matrix<quantity<camera::length>, 2, 1> get_size() {
-        Eigen::Matrix<quantity<camera::length>, 2, 1> rv;
-        for (int i = 0; i < 2; ++i)
+    Eigen::Matrix<quantity<camera::length>, Dim, 1> get_size() {
+        Eigen::Matrix<quantity<camera::length>, Dim, 1> rv;
+        for (int i = 0; i < Dim; ++i)
             rv[i] = xy[i].get_size() * camera::pixel;
         return rv;
     }
@@ -48,11 +49,11 @@ struct ThreeComponent
         }
         return rv;
     }
-    void bin_points( const output::LocalizedImage& l, BinningStrategy::Result& r ) {
-        static const bool stride = (BinningStrategy::Result::Flags & Eigen::RowMajorBit) ? r.stride() : 1;
-        for (int i = 0; i < 2; ++i)
+    void bin_points( const output::LocalizedImage& l, typename BinningStrategy<Dim>::Result& r ) {
+        static const bool stride = (BinningStrategy<Dim>::Result::Flags & Eigen::RowMajorBit) ? r.stride() : 1;
+        for (int i = 0; i < Dim; ++i)
             xy[i].bin_points(l, &r.coeffRef(0,i), stride);
-        intensity->bin_points(l, &r.coeffRef(0,2), stride);
+        intensity->bin_points(l, &r.coeffRef(0,Dim), stride);
     }
 };
 

@@ -5,10 +5,10 @@
 namespace dStorm {
 namespace outputs {
 
-template <typename Listener>
+template <typename Listener, int Dim>
 template <typename OtherListener>
-BinnedLocalizations<Listener>::
-    BinnedLocalizations(const BinnedLocalizations<OtherListener>& o)
+BinnedLocalizations<Listener,Dim>::
+    BinnedLocalizations(const BinnedLocalizations<OtherListener,Dim>& o)
 : OutputObject("BinnedLocalizations", ""),
   crop(o.crop),
   base_image(o.base_image),

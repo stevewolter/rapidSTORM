@@ -45,8 +45,7 @@ namespace locprec {
         simparm::Entry<unsigned long> dilation;
         dStorm::output::Localizations points;
 
-        dStorm::outputs::BinnedLocalizations
-            <dStorm::outputs::DummyBinningListener>* bins;
+        dStorm::outputs::BinnedLocalizations<>* bins;
 
         std::auto_ptr< dStorm::display::Change > next_change;
         std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
@@ -88,7 +87,7 @@ namespace locprec {
 
     struct Segmenter::_Config : public simparm::Object {
         simparm::DataChoiceEntry<Segmenter::SegmentationType> method;
-        dStorm::outputs::DimensionSelector selector;
+        dStorm::outputs::DimensionSelector<2> selector;
         simparm::Entry<double> threshold;
         simparm::Entry<unsigned long> dilation;
         simparm::FileEntry save_segmentation, load_segmentation;

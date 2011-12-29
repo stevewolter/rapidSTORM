@@ -53,7 +53,7 @@ class Display
         std::auto_ptr<dStorm::display::Change> initial_state
             = std::auto_ptr<dStorm::display::Change>()
     );
-    void setSize(const input::Traits< Image<int,2> >& traits);
+    void setSize(const input::Traits< Im >& traits);
 
     inline void pixelChanged( const Im::Position& );
     void clean(bool);

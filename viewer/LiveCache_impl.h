@@ -17,7 +17,7 @@ LiveCache<Listener>::LiveCache(HighDepth d)
 
 template < typename Listener>
 LiveCache<Listener>::LiveCache(
-    HighDepth d, Image<HistogramPixel,2>::Size size) 
+    HighDepth d, Image<HistogramPixel,Im::Dim>::Size size) 
 : pixels_by_value( d, HistogramPixel() ),
   pixels_by_position( size ),
   in_depth(d)
@@ -33,7 +33,7 @@ void LiveCache<Listener>::set_xy() {
 }
 
 template < typename Listener>
-void LiveCache<Listener>::setSize( const input::Traits< Image<int,2> >& traits ) {
+void LiveCache<Listener>::setSize( const input::Traits< Im >& traits ) {
     pixels_by_position = HistogramImage( traits.size );
 
     set_xy();

@@ -43,7 +43,7 @@ void TerminalBackend<Hueing>::save_image(
     std::auto_ptr<display::Change> result
         = get_result(config.save_with_key());
     if ( ! config.save_scale_bar() )
-        for (int i = 0; i < 2; ++i)
+        for (int i = 0; i < Im::Dim; ++i)
             result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
     display::Manager::getSingleton().store_image( 
@@ -66,7 +66,7 @@ TerminalBackend<Hueing>::get_result(bool with_key) const {
     display::Image& im = c->image_change.new_image;
     DEBUG("Writing result image of size " << im.sizes());
     for ( display::Image::iterator i = im.begin(); i != im.end(); i++ ) {
-        *i = discretization.get_pixel( i.position().head<2>() );
+        *i = discretization.get_pixel( i.position().head<Im::Dim>() );
     }
     if ( with_key && Colorizer::KeyCount > 0 ) {
         DEBUG("Creating keys");

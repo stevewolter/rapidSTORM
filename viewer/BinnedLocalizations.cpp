@@ -14,12 +14,12 @@ namespace outputs {
             viewer::Discretizer<\
                 viewer::LiveCache<\
                     viewer::Display<\
-                        viewer::Hueing > > > >; \
+                        viewer::Hueing > > >, viewer::Im::Dim >; \
     template class \
         BinnedLocalizations< \
             viewer::Discretizer<\
                 viewer::TerminalCache<\
-                    viewer::Hueing > > > \
+                    viewer::Hueing > >, viewer::Im::Dim > \
 
 #include "colour_schemes/instantiate.h"
 

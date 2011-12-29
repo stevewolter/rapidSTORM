@@ -96,6 +96,7 @@ nobase_include_HEADERS = \
     dStorm/output/binning/localization_config_impl.h \
     dStorm/output/binning/config_decl.h \
     dStorm/output/binning/config.h \
+    dStorm/output/binning/dummy_binner.h \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \

@@ -6,7 +6,7 @@
 namespace dStorm {
 namespace viewer {
 
-typedef Image<int,2> Im;
+typedef Image<int,3> Im;
 
 }
 }

@@ -73,7 +73,7 @@ void LiveBackend<Hueing>::look_up_key_values(
 {
     boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     if ( ! targets.empty() ) {
-        const dStorm::Image<float,2>& im = image();
+        const dStorm::Image<float,Im::Dim>& im = image();
         if ( im.width_in_pixels() > info.x() && im.height_in_pixels() > info.y() ) {
             targets[0] = im(info.head<Im::Dim>());
         }

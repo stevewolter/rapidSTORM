@@ -52,7 +52,7 @@ void Display<Colorizer>::setSize(
 
 template <typename Colorizer>
 void Display<Colorizer>::setSize(
-    const input::Traits< Image<int,2> >& traits
+    const input::Traits< Im >& traits
 )
 { 
     dStorm::display::ResizeChange size;
@@ -64,9 +64,9 @@ void Display<Colorizer>::setSize(
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
-    for (int i = 0; i < 2; ++i) 
-        if ( traits.resolution(i).is_initialized() )
-            size.pixel_sizes[i] = *traits.resolution(i);
+    for (int i = 0; i < std::min(2, Im::Dim); ++i) 
+        if ( traits.plane(0).resolution(i).is_initialized() )
+            size.pixel_sizes[i] = *traits.plane(0).resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
 

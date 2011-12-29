@@ -25,7 +25,7 @@ void convert_xy_tone_to_hue_sat(
 
 template <typename _BrightnessType>
 class Base 
-    : public outputs::DummyBinningListener 
+    : public outputs::DummyBinningListener<Im::Dim>
 {
   public:
     typedef _BrightnessType BrightnessType;

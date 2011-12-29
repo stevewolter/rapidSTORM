@@ -77,7 +77,7 @@ Segmenter::Segmenter(
 {
     desc = "Region segmenter";
 
-    bins = new dStorm::outputs::BinnedLocalizations<dStorm::outputs::DummyBinningListener>(config.selector.make());
+    bins = new dStorm::outputs::BinnedLocalizations<>(config.selector.make());
     binners.replace(0, config.selector.make_x());
     binners.replace(1, config.selector.make_y());
 
@@ -162,7 +162,7 @@ static void merge(std::vector<int>& labArray, int a, int b) {
 
 Segmenter::RegionImage Segmenter::segment_image()
 {
-    const dStorm::outputs::BinnedImage& src = (*bins)();
+    const dStorm::Image<float,2>& src = (*bins)();
     dStorm::Image<bool,2> thres = src.threshold( threshold() ),
                dilated( src.sizes() );
     if ( dilation() > 0 )
@@ -331,7 +331,7 @@ LocalizationMapper<Localization, Spot> Mapper;
 void Segmenter::maximums() {
     dStorm::engine::CandidateTree<float> candidates(3,3,0,0);
     candidates.setLimit(100000);
-    const dStorm::outputs::BinnedImage& image = (*bins)();
+    const dStorm::Image<float,2>& image = (*bins)();
     candidates.fillMax(image);
     std::list<Spot> foundSpots;
     for (dStorm::engine::CandidateTree<float>::const_iterator
