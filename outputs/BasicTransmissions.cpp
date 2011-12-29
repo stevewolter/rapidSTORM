@@ -6,7 +6,7 @@
 #include "ProgressMeter.h"
 #include "AverageImage.h"
 #include <dStorm/outputs/TraceFilter.h>
-#include <dStorm/expression/Source_decl.h>
+#include "expression/Source_decl.h"
 #include "Slicer.h"
 #include "RawImageFile.h"
 #include "MemoryCache.h"

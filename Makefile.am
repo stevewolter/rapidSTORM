@@ -97,8 +97,6 @@ nobase_include_HEADERS = \
     dStorm/output/binning/config_decl.h \
     dStorm/output/binning/config.h \
     dStorm/unit_interval.h \
-    dStorm/expression/Config.h  dStorm/expression/Config_decl.h \
-    dStorm/expression/Source.h  dStorm/expression/Source_decl.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
     dStorm/traits/covariance_matrix.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
@@ -188,18 +186,6 @@ libdStorm_la_SOURCES = \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/localization/record.cpp \
-    dStorm/expression/Evaluator.h dStorm/expression/Simplifier.h dStorm/expression/UnitChecker.h \
-    dStorm/expression/Expression.cpp dStorm/expression/Expression.h \
-    dStorm/expression/localization_variable.cpp dStorm/expression/localization_variable_decl.h \
-    dStorm/expression/localization_variable.h dStorm/expression/localization_variable_impl.h \
-    dStorm/expression/Parser.cpp dStorm/expression/Parser.h dStorm/expression/Parser_impl.h \
-    dStorm/expression/SIPrefixes.h \
-    dStorm/expression/tokens.cpp dStorm/expression/tokens_decl.h dStorm/expression/tokens.h \
-    dStorm/expression/types.cpp dStorm/expression/types.h dStorm/expression/types_decl.h \
-    dStorm/expression/UnitTable.cpp dStorm/expression/UnitTable.h dStorm/expression/UnitTable_impl.h \
-    dStorm/expression/Config.cpp dStorm/expression/Source.cpp \
-    dStorm/expression/CommandLine.h dStorm/expression/Source_filters.h \
-    dStorm/expression/SimpleFilters.h dStorm/expression/SimpleFilters.cpp \
     dStorm/helpers/thread.cpp dStorm/helpers/DisplayManager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/Source.cpp \
@@ -313,6 +299,22 @@ libcode_la_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/Config.h engine_stm/Config.cpp \
 	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
+
+libcode_la_SOURCES += \
+    expression/Config.h  expression/Config_decl.h \
+    expression/Source.h  expression/Source_decl.h \
+    expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
+    expression/Expression.cpp expression/Expression.h \
+    expression/localization_variable.cpp expression/localization_variable_decl.h \
+    expression/localization_variable.h expression/localization_variable_impl.h \
+    expression/Parser.cpp expression/Parser.h expression/Parser_impl.h \
+    expression/SIPrefixes.h \
+    expression/tokens.cpp expression/tokens_decl.h expression/tokens.h \
+    expression/types.cpp expression/types.h expression/types_decl.h \
+    expression/UnitTable.cpp expression/UnitTable.h expression/UnitTable_impl.h \
+    expression/Config.cpp expression/Source.cpp \
+    expression/CommandLine.h expression/Source_filters.h \
+    expression/SimpleFilters.h expression/SimpleFilters.cpp
 
 libcode_la_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
@@ -442,11 +444,11 @@ checkplugin_camera_LDFLAGS = -no-undefined
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
 check_traits_SOURCES = dStorm/traits/scalar_check.cpp
 check_traits_LDADD = libdStorm.la
-check_unittable_SOURCES = dStorm/expression/UnitTable_check.cpp 
+check_unittable_SOURCES = expression/UnitTable_check.cpp 
 check_unittable_LDADD = libdStorm.la
-check_localization_variable_SOURCES = dStorm/expression/localization_variable_check.cpp
+check_localization_variable_SOURCES = expression/localization_variable_check.cpp
 check_localization_variable_LDADD = libdStorm.la
-check_expression_parser_SOURCES = dStorm/expression/Parser_test.cpp
+check_expression_parser_SOURCES = expression/Parser_test.cpp
 check_expression_parser_LDADD = libdStorm.la
 check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
 check_image_slicing_LDADD = libdStorm.la
