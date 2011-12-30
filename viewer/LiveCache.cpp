@@ -13,6 +13,4 @@ namespace viewer {
 #include "colour_schemes/instantiate.h"
 
 }
-
-//template class Image<viewer::HistogramPixel,2>;
 }

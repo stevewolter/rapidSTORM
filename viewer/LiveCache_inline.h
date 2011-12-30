@@ -2,6 +2,7 @@
 #define DSTORM_VIEWER_LIVECACHE_INLINE_H
 
 #include "LiveCache.h"
+#include <dStorm/image/find_by_offset.hpp>
 
 namespace dStorm {
 namespace viewer {
@@ -32,10 +33,10 @@ void LiveCache<Listener>::pixelChanged( const Im::Position& p, HighDepth to ) {
 
 template < typename Listener>
 void LiveCache<Listener>::changeBrightness( HighDepth i ) {
-    assert( list_is_loop_free( &pixels_by_value[i] ) );
     for ( HistogramPixel* j = pixels_by_value[i].next; 
                     j != &pixels_by_value[i]; j = j->next)
-        this->publish().pixelChanged( j->pos.cast<int>() );
+        this->publish().pixelChanged( find_by_offset( pixels_by_position,
+            j - pixels_by_position.ptr() ) );
 }
 
 template <typename Listener>

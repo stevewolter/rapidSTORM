@@ -11,8 +11,6 @@ namespace dStorm {
 namespace viewer {
 
 struct HistogramPixel { 
-    /** Pixel position in image */
-    Eigen::Matrix< unsigned short, Im::Dim, 1, Eigen::DontAlign > pos;
     /** Linked list with pixels of same value. */
     HistogramPixel *prev, *next; 
 
@@ -32,9 +30,6 @@ class LiveCache :
     typedef Image<HistogramPixel,Im::Dim> HistogramImage;
     HistogramImage pixels_by_position;
     HighDepth in_depth;
-
-    void set_xy();
-    static bool list_is_loop_free( HistogramPixel* start );
 
   public:
     static const int NeedLiveHistogram = true;

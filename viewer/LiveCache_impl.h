@@ -22,21 +22,11 @@ LiveCache<Listener>::LiveCache(
   pixels_by_position( size ),
   in_depth(d)
 {
-    set_xy();
-}
-
-template < typename Listener>
-void LiveCache<Listener>::set_xy() {
-    HistogramImage::iterator i;
-    for ( i = pixels_by_position.begin(); i != pixels_by_position.end(); ++i)
-        i->pos = i.position().cast<unsigned short>();
 }
 
 template < typename Listener>
 void LiveCache<Listener>::setSize( const input::Traits< Im >& traits ) {
     pixels_by_position = HistogramImage( traits.size );
-
-    set_xy();
 
     this->publish().setSize( traits );
 }
@@ -51,20 +41,6 @@ void LiveCache<Listener>::clear() {
     for (unsigned int i = 0; i < in_depth; i++)
         pixels_by_value[i].unlink();
     this->publish().clear();
-}
-
-template < typename Listener>
-bool LiveCache<Listener>::list_is_loop_free( HistogramPixel* start ) {
-    HistogramPixel* tortoise = start, *hare = start;
-
-    do {
-        hare = hare->next;
-        if ( hare == start ) return true;
-        hare = hare->next;
-        tortoise = tortoise->next;
-        if ( hare == tortoise ) return false;
-    } while ( hare != start );
-    return true;
 }
 
 }
