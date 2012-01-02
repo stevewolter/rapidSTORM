@@ -116,6 +116,7 @@ MeasuredNoiseSource<Pixel>::MeasuredNoiseSource
                      << endl;
         }
     }
+    if ( total == 0 ) throw std::runtime_error("The noise file has no entries");
     
     valueCount = pixelList.size();
     double d_pixels[valueCount], d_weights[valueCount];
