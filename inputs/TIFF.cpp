@@ -59,9 +59,7 @@ class Source<Pixel,Dimensions>::iterator
     int directory;
     mutable Image img;
 
-    void go_to_position() const {
-        TIFFOperation op( "in reading TIFF file",
-                          *msg, src->ignore_warnings );
+    void go_to_position(TIFFOperation& op) const {
         int rv = TIFFSetDirectory(src->tiff, directory);
         if ( rv == 1 ) {
             src->current_directory = directory;
@@ -69,9 +67,9 @@ class Source<Pixel,Dimensions>::iterator
             op.throw_exception_for_errors();
         }
     }
-    void check_position() const {
+    void check_position(TIFFOperation& op) const {
         if ( src->current_directory != directory )
-            go_to_position();
+            go_to_position(op);
     }
     void check_params() const;
 
@@ -87,7 +85,7 @@ class Source<Pixel,Dimensions>::iterator
     void increment() { 
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );
-        check_position();
+        check_position(op);
         img.invalidate(); 
         if ( TIFFReadDirectory(src->tiff) != 1 ) {
             op.throw_exception_for_errors();
@@ -106,11 +104,15 @@ class Source<Pixel,Dimensions>::iterator
             src = NULL; 
         else {
             --directory;
+            TIFFOperation op( "in reading TIFF file",
+                            *msg, src->ignore_warnings );
             go_to_position();
         }
     }
     void advance(int n) { 
         if (n) {
+            TIFFOperation op( "in reading TIFF file",
+                            *msg, src->ignore_warnings );
             img.invalidate(); 
             directory += n;
             go_to_position();
@@ -164,7 +166,7 @@ Source<Pixel,Dim>::iterator::dereference() const
     if ( img.is_invalid() ) {
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );
-        check_position();
+        check_position(op);
         check_params();
 
         typename Image::Size sz;
