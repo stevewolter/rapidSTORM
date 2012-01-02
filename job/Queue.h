@@ -18,6 +18,7 @@ class Queue {
     boost::array< boost::optional<output::LocalizedImage>, 64 > ring_buffer;
     int producer_count;
     boost::exception_ptr error;
+    bool interruption;
 
     int ring() const { return next_output.value() % ring_buffer.size(); }
   public:
@@ -37,6 +38,7 @@ class Queue {
     void rethrow_exception();
 
     void producer_finished();
+    void interrupt_producers();
 };
 
 }

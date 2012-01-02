@@ -5,7 +5,7 @@ namespace dStorm {
 namespace job {
 
 Queue::Queue( frame_index i, int producer_count ) 
-: next_output(i), producer_count(producer_count)
+: next_output(i), producer_count(producer_count), interruption( false )
 {
     DEBUG("Starting queue with first output " << next_output);
 }
@@ -38,7 +38,10 @@ void Queue::push( const output::LocalizedImage& r ) {
     DEBUG("Pushing image " << r.forImage);
     while ( (r.forImage - next_output).value() >=
             int(ring_buffer.size()) ) 
+    {
+        if ( interruption ) throw boost::thread_interrupted();
         producer_can_continue.wait(lock);
+    }
 
     int ring = r.forImage.value() % ring_buffer.size();
     assert( ! ring_buffer[ring].is_initialized() );
@@ -46,7 +49,7 @@ void Queue::push( const output::LocalizedImage& r ) {
     if ( r.forImage == next_output )
         consumer_can_continue.notify_all();
 
-    boost::this_thread::interruption_point();
+    if ( interruption ) throw boost::thread_interrupted();
 }
 
 bool Queue::has_more_input() {
@@ -69,6 +72,12 @@ void Queue::pop() {
     boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
     ring_buffer[ring()].reset();
     next_output += 1 * camera::frame;
+    producer_can_continue.notify_all();
+}
+
+void Queue::interrupt_producers() {
+    boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
+    interruption = true;
     producer_can_continue.notify_all();
 }
 

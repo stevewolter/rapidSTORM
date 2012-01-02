@@ -252,7 +252,7 @@ libcode_la_SOURCES = \
     TIFFOperation.h TIFFOperation.cpp
 
 libcode_la_SOURCES += \
-    job/Car.cpp job/Car.h job/ComputationThread.h \
+    job/Car.cpp job/Car.h \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
     job/Run.h job/Run.cpp

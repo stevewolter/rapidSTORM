@@ -1,5 +1,7 @@
 #include "Run.h"
 #include "debug.h"
+#include <boost/thread/thread.hpp>
+#include <dStorm/engine/Input.h>
 
 namespace dStorm {
 namespace job {
@@ -13,8 +15,15 @@ Run::Run( boost::recursive_mutex& mutex, frame_index first_image,
 }
 
 Run::~Run() {
-    DEBUG("Clearing threads");
-    threads.clear();
+    boost::this_thread::disable_interruption di;
+    stop_computation();
+}
+
+void Run::stop_computation() {
+    queue.interrupt_producers();
+    DEBUG("Joining threads");
+    std::for_each( threads.begin(), threads.end(), 
+        std::mem_fun_ref( &boost::thread::join ) );
     DEBUG("Cleared threads");
 }
 
@@ -26,10 +35,11 @@ Run::Result Run::run() {
     if ( ! r.test(Output::MayNeedRestart) )
         input.dispatch( Input::WillNeverRepeatAgain );
 
-    for (int i = 0; i < piston_count; ++i) 
-        threads.push_back(  new ComputationThread(queue, input) );
-
     lock.unlock();
+
+    for (int i = 0; i < piston_count; ++i)
+        threads.push_back( new boost::thread( &Run::compute_input, this ) );
+
     while ( queue.has_more_input() )
     {
         lock.lock();
@@ -43,7 +53,7 @@ Run::Result Run::run() {
         if ( restarted ) return Restart;
     }
     DEBUG("Collecting threads");
-    threads.clear();
+    stop_computation();
     DEBUG("Collected threads");
 
     queue.rethrow_exception();
@@ -74,6 +84,23 @@ std::auto_ptr<EngineBlock> Run::block() {
 void Run::restart() {
     restarted = true;
 }
+
+void Run::compute_input() {
+    try {
+        std::copy( input.begin(), input.end(), 
+            std::back_inserter( queue ) );
+    } catch ( const boost::thread_interrupted& e ) {
+        /* Terminate normally. */
+    } catch ( const boost::exception& e ) {
+        queue.notice_error( boost::current_exception() );
+    } catch ( const std::runtime_error& e ) {
+        queue.notice_error( boost::copy_exception(e) );
+    } catch (...) {
+        std::cerr << "Unknown error occured in result computation" << std::endl;
+    }
+    queue.producer_finished();
+}
+
 
 }
 }

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <dStorm/log.h>
 #include "Manager.h"
 #include "md5.h"
