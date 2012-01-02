@@ -308,8 +308,8 @@ class LocalizationMapper
             locpos[i] = binners[i].bin_point(loc);
         BOOST_FOREACH( const Spot& spot, spots )
         {
-            double dist = sq(spot.x() - locpos[0]) +
-                            sq(spot.y() - locpos[1]);
+            double dist = sq(spot.position().x().value() - locpos[0]) +
+                            sq(spot.position().y().value() - locpos[1]);
             if (dist < minDist) {
                 minDist = dist;
                 minCand = &spot;
@@ -336,7 +336,7 @@ void Segmenter::maximums() {
     std::list<Spot> foundSpots;
     for (dStorm::engine::CandidateTree<float>::const_iterator
             it = candidates.begin(); it != candidates.end(); ++it)
-        foundSpots.push_back( Spot( it->second.x(), it->second.y() ) );
+        foundSpots.push_back( Spot( it->spot() ) );
 
     Localizations& locs = points;
     Mapper mapper(foundSpots, binners);

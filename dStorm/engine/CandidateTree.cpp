@@ -14,21 +14,14 @@ namespace engine {
 template <typename PixelType>
 CandidateTree<PixelType>::~CandidateTree() {}
 
-template <class PixelType>
-struct by_weight 
-: public std::binary_function< Candidate<PixelType>, Candidate<PixelType>, bool > 
-{
-    bool operator()( const Candidate<PixelType>& a, const Candidate<PixelType>& b ) const
-        { return a.weight() < b.weight(); }
-};
-
 template <typename PixelType>
 void CandidateTree<PixelType>::insert( const Element& e, PixelType& largestReject ) {
     typedef typename std::vector< Candidate<PixelType> >::iterator Iter;
     std::pair<Iter,Iter> places = 
-        std::equal_range( elements.begin(), elements.end(), e, by_weight<PixelType>() );
+        std::equal_range( elements.begin(), elements.end(), e, 
+            typename Candidate<PixelType>::decreasing_strength() );
     for ( Iter i = places.first; i != places.second; ++i ) {
-        if ( std::abs(i->x() - e.x()) < msx && std::abs(i->y() - e.y()) < msy ) {
+        if ( i->spot().closer_than( e.spot(), msx, msy ) ) {
             i->merge( e );
             return;
         }
@@ -36,7 +29,7 @@ void CandidateTree<PixelType>::insert( const Element& e, PixelType& largestRejec
     elements.insert( places.first, e );
     if ( elements.size() > limit_ ) {
         elements.pop_back();
-        largestReject = elements.back().weight();
+        largestReject = elements.back().strength();
     }
 }
 

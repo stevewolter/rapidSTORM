@@ -311,8 +311,8 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     /* Motivational fitting */
     motivation = origMotivation;
     for ( CandidateTree<SmoothedPixel>::const_iterator cM = maximums.begin(), cE = maximums.end(); cM != cE; ++cM){
-        const Spot& s = cM->second;
-        DEBUG("Trying candidate at " << s.x() << "," << s.y() << " at motivation " << motivation );
+        const Spot& s = cM->spot();
+        DEBUG("Trying candidate " << s.position() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         std::vector<Localization>& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;

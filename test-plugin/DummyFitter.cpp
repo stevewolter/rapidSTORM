@@ -25,8 +25,9 @@ int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine
     if ( ++counter % length == 0 ) {
         DEBUG("Using result in image " << im.frame_number() << " at counter " << counter);
         Localization::Position::Type p;
-        p.x() = spot.x() * camera::pixel / traits.plane(0).resolution(0)->in_dpm();
-        p.y() = spot.y() * camera::pixel / traits.plane(0).resolution(1)->in_dpm();
+        p.fill( 0 * si::meter );
+        for (int i = 0; i < 2; ++i)
+            p[i] = spot.position()[i] / traits.plane(0).resolution(i)->in_dpm();
         *target++ = dStorm::Localization( p, 1000 * camera::ad_counts );
         return 1;
     } else {
