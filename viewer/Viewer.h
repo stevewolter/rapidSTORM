@@ -36,6 +36,7 @@ class Viewer : public Status,
         { throw std::runtime_error("No Viewer::clone()"); }
 
     AdditionalData announceStormSize(const Announcement &a);
+    RunRequirements announce_run(const RunAnnouncement&) ;
     void receiveLocalizations(const EngineResult&);
     void store_results();
 

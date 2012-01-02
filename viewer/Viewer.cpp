@@ -82,6 +82,10 @@ Viewer::announceStormSize(const Announcement &a) {
     return forwardOutput->announceStormSize(a);
 }
 
+Viewer::RunRequirements Viewer::announce_run(const RunAnnouncement& a) {
+    return forwardOutput->announce_run(a);
+}
+
 void Viewer::store_results() {
     forwardOutput->store_results();
     if (tifFile)
