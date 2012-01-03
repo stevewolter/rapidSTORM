@@ -42,6 +42,9 @@ void basic_inputs( dStorm::Config* config ) {
     config->add_input( new TIFF::ChainLink(), dStorm::FileReader );
 #endif
 
+    config->add_input( ROIFilter::make_link(), BeforeChannels );
+    config->add_input( YMirror::makeLink(), BeforeChannels );
+
     config->add_input( Splitter::makeLink(), BeforeEngine );
     config->add_input( ROIFilter::make_link(), BeforeEngine );
     config->add_input( input_buffer::makeLink(), BeforeEngine );
