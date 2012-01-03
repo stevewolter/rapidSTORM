@@ -300,8 +300,7 @@ libcode_la_SOURCES += \
 
 libcode_la_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
-	    engine_stm/Config.h engine_stm/Config.cpp \
-	    engine_stm/ChainLink_decl.h engine_stm/ChainLink.h engine_stm/ChainLink.cpp
+	    engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
 libcode_la_SOURCES += \
     expression/Config.h  expression/Config_decl.h \

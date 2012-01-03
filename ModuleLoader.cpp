@@ -9,7 +9,7 @@
 #include "outputs/BasicTransmissions.h"
 #include <dStorm/Config.h>
 #include "engine/ChainLink_decl.h"
-#include "engine_stm/ChainLink_decl.h"
+#include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
 
 #include <dStorm/display/Manager.h>

@@ -16,7 +16,7 @@ namespace input {
 
 class DefaultTypes 
 : public boost::mpl::vector<
-    dStorm::engine::Image, dStorm::output::LocalizedImage, dStorm::localization::Record, dStorm::Localization>
+    dStorm::engine::Image, dStorm::output::LocalizedImage>
 {};
 
 }

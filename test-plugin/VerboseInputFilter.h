@@ -3,7 +3,6 @@
 
 #include <dStorm/log.h>
 #include <dStorm/input/AdapterSource.h>
-#include <dStorm/localization/record.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
@@ -30,7 +29,10 @@ class Source : public Config, public dStorm::input::AdapterSource<Type> {
         
         private:
             friend class boost::iterator_core_access;
-            inline void increment(); 
+            inline void increment() {
+                LOG("Advancing from " << this->base()->frame_number());
+                ++this->base_reference();
+            }
     };
   public:
     Source(const Config& c, std::auto_ptr< dStorm::input::Source<Type> > base) 
@@ -38,37 +40,6 @@ class Source : public Config, public dStorm::input::AdapterSource<Type> {
     iterator begin() { return iterator(_iterator(this->base().begin())); }
     iterator end() { return iterator(_iterator(this->base().end())); }
 };
-
-template <>
-void Source<dStorm::Localization>::_iterator::increment()
-{ LOG("Advancing from " << this->base()->frame_number()); ++this->base_reference(); }
-
-struct OstreamVisitor : public boost::static_visitor<std::ostream&>
-{
-    std::ostream& o;
-    OstreamVisitor(std::ostream& o) : o(o) {}
-    std::ostream& operator()(const dStorm::Localization& l)
-        { return (o << l); }
-    std::ostream& operator()(const dStorm::localization::EmptyLine& i)
-        { return (o << i); }
-};
-
-std::ostream& operator<<( std::ostream& o, dStorm::localization::Record& r )
-{
-    OstreamVisitor v(o);
-    return boost::apply_visitor(v, r);
-}
-
-template <>
-void Source<dStorm::localization::Record>::_iterator::increment()
-{ 
-    LOG("Advancing from " << *this->base());
-    ++this->base_reference();
-}
-
-template <typename Type>
-void Source<Type>::_iterator::increment()
-{ ++this->base_reference(); }
 
 }
 

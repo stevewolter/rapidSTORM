@@ -140,35 +140,20 @@ bool iterator<Type,temporal_tag>::equal( const iterator& o ) const {
     return bases == o.bases;
 }
 
-struct frame_number 
-: public boost::static_visitor<frame_index&>
-{
-    frame_index& operator()( engine::Image& a ) const { return a.frame_number(); }
-    frame_index& operator()( dStorm::output::LocalizedImage& a ) const { return a.forImage; }
-    frame_index& operator()( dStorm::Localization& a ) const { return a.frame_number(); }
-    frame_index& operator()( dStorm::localization::EmptyLine& a ) const { return a.number; }
-    frame_index& operator()( dStorm::localization::Record& a ) const {
-        return boost::apply_visitor(*this, a); }
-};
-
 template <typename Type>
 Type& iterator<Type,temporal_tag>::dereference() const
 {
     if ( ! joined.is_initialized() ) {
         joined = *bases.front().begin;
-        max_frame_count = std::max( frame_number()( *joined ), max_frame_count );
-        frame_number()( *joined ) += current_offset;
+        max_frame_count = std::max( joined->frame_number(), max_frame_count );
+        joined->set_frame_number( joined->frame_number() + current_offset );
     }
     return *joined;
 }
 
 template class iterator< engine::Image, temporal_tag >;
-template class iterator< dStorm::Localization, temporal_tag >;
-template class iterator< dStorm::localization::Record, temporal_tag >;
 template class iterator< dStorm::output::LocalizedImage, temporal_tag >;
 template class merge_traits< engine::Image, temporal_tag >;
-template class merge_traits< dStorm::Localization, temporal_tag >;
-template class merge_traits< dStorm::localization::Record, temporal_tag >;
 template class merge_traits< dStorm::output::LocalizedImage, temporal_tag >;
 
 }

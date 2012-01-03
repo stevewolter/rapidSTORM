@@ -67,7 +67,6 @@ Visitor::add<Localization>(Localization& argument)
 
 template <typename Input>
 LocalizationBuncher<Input>::LocalizationBuncher(
-    const Config& config,
     Source<Input>& master,
     bool end)
 : master(master)
@@ -174,8 +173,8 @@ Source<InputType>::get_traits( Wishes w )
 }
 
 template <class InputType>
-Source<InputType>::Source( const Config& c, std::auto_ptr<Input> base )
-: base(base), config(c) {}
+Source<InputType>::Source( std::auto_ptr<Input> base )
+: base(base) {}
 
 template <class InputType>
 Source<InputType>::~Source()

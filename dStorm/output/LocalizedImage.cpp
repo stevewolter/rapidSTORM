@@ -8,5 +8,12 @@ LocalizedImage::LocalizedImage()
 {
 }
 
+void LocalizedImage::set_frame_number( frame_index n ) 
+{
+    forImage = n;
+    for ( iterator i = begin(); i != end(); ++i )
+        i->frame_number() = n;
+}
+
 }
 }

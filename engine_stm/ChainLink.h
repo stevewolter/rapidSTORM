@@ -1,12 +1,16 @@
-#ifndef DSTORM_STM_ENGINE_CHAINLINK_H
-#define DSTORM_STM_ENGINE_CHAINLINK_H
+#ifndef DSTORM_ENGINE_STM_CHAINLINK_DECL_H
+#define DSTORM_ENGINE_STM_CHAINLINK_DECL_H
 
-#include "ChainLink_decl.h"
-#include "Config.h"
-#include <dStorm/input/Link.h>
+#include <dStorm/input/fwd.h>
+#include <memory>
 
 namespace dStorm {
 namespace engine_stm {
+
+class ChainLink;
+
+std::auto_ptr<input::Link> make_localization_buncher();
+std::auto_ptr<input::Link> make_STM_engine_link();
 
 }
 }

@@ -28,6 +28,9 @@ struct LocalizedImage
         *candidates;
 
     LocalizedImage();
+
+    frame_index frame_number() const { return forImage; }
+    void set_frame_number(frame_index);
 };
 
 }

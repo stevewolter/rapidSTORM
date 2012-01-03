@@ -146,6 +146,7 @@ class Image
     }
     frame_index frame_number() const { return fn; }
     frame_index& frame_number() { return fn; }
+    void set_frame_number( frame_index n ) { fn = n; }
 
     camera_response background_standard_deviation() const { return bg_sigma; }
     camera_response& background_standard_deviation() { return bg_sigma; }

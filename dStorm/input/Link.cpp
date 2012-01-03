@@ -4,6 +4,10 @@
 
 #ifdef VERBOSE
 #include "dStorm/engine/Image.h"
+#include "dStorm/output/LocalizedImage.h"
+#include "dStorm/output/LocalizedImage_traits.h"
+#include "dStorm/localization/Traits.h"
+#include "dStorm/Localization.h"
 #include "dStorm/ImageTraits.h"
 #include "MetaInfo.h"
 #endif

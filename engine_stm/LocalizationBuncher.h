@@ -10,7 +10,6 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/input/Source.h>
-#include "Config.h"
 
 namespace dStorm {
 namespace engine_stm {
@@ -42,7 +41,6 @@ class LocalizationBuncher
 
   public:
     LocalizationBuncher(
-        const Config&, 
         Source<Input>& master,
         bool end);
     LocalizationBuncher(const LocalizationBuncher&);
@@ -71,20 +69,17 @@ class Source
     friend class LocalizationBuncher<InputType>;
 
   private:
-    Config config;
     frame_index firstImage, lastImage;
     simparm::Node& node() { return base->getNode(); }
   public:
-    Source( const Config& c, std::auto_ptr<Input> base ) ;
+    Source( std::auto_ptr<Input> base ) ;
     ~Source();
 
     void dispatch(Messages m);
     iterator begin() 
-        { return iterator( LocalizationBuncher<InputType>
-            (config, *this, false) ); }
+        { return iterator( LocalizationBuncher<InputType>(*this, false) ); }
     iterator end()
-        { return iterator( LocalizationBuncher<InputType>
-            (config, *this, true) ); }
+        { return iterator( LocalizationBuncher<InputType>(*this, true) ); }
     TraitsPtr get_traits( input::BaseSource::Wishes );
     BaseSource& upstream() { return *base; }
     Capabilities capabilities() const 

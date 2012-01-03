@@ -107,6 +107,7 @@ Choice::LinkAdaptor::~LinkAdaptor() {
 }
 
 void Choice::insert_new_node( std::auto_ptr<Link> l, Place p ) {
+    assert( choices.numChoices() > 0 );
     choices.beginChoices()->link().insert_new_node(l,p); 
 }
 
