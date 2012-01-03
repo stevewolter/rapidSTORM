@@ -98,17 +98,6 @@ void Mirrorer::operator()<dStorm::engine::Image>( dStorm::engine::Image& l )
     l = image::mirror< unsigned short, 3, 1 >(l);
 }
 
-template <> 
-void Mirrorer::operator()<localization::Record>( localization::Record& l )
-{
-    boost::apply_visitor(*this, l );
-}
-
-template <> 
-void Mirrorer::operator()<localization::EmptyLine>( localization::EmptyLine& )
-{
-}
-
 template <typename Type>
 struct Source<Type>::iterator
 : public boost::iterator_adaptor< iterator, typename Base::iterator >

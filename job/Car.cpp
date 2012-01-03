@@ -216,7 +216,7 @@ void Car::compute() {
         int number_of_threads = 1;
         if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
             number_of_threads = config.pistonCount();
-        while ( true ) {
+        while ( ! abort_job ) {
             current_run.reset( new Run( mutex, first_output, *input, *output,
                                         number_of_threads ) );
             Run::Result result = current_run->run();
@@ -251,8 +251,10 @@ void Car::compute() {
 }
 
 void Car::drive() {
-    computation_thread = boost::thread( &Car::compute, this );
-    computation_thread.join();
+    if ( ! abort_job ) {
+        computation_thread = boost::thread( &Car::compute, this );
+        computation_thread.join();
+    }
     current_run.reset();
     input.reset();
     boost::unique_lock<boost::recursive_mutex> lock( mutex );

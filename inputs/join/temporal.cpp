@@ -1,7 +1,6 @@
 #include "temporal.hpp"
 #include <dStorm/ImageTraits.h>
 #include <Eigen/Core>
-#include <dStorm/localization/record.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <boost/variant/apply_visitor.hpp>

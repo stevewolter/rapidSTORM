@@ -19,8 +19,6 @@
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/localization/Traits.h>
 #include <dStorm/input/Method.hpp>
-#include <dStorm/Localization.h>
-#include <dStorm/localization/record.h>
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 #include <dStorm/UnitEntries/FrameEntry.h>
@@ -45,17 +43,9 @@ struct Config : public simparm::Object {
 struct ImageNumber
 : public boost::static_visitor<frame_index>
 {
-    frame_index operator()( const localization::EmptyLine& e )
-        { return e.number; }
-    frame_index operator()( const Localization& l )
-        { return l.frame_number(); }
-    template <typename PixelType, int Dim>
-    frame_index operator()( const Image<PixelType,Dim>& l )
-        { return l.frame_number(); }
-    frame_index operator()( const localization::Record& r )
-        { return boost::apply_visitor(*this, r); }
-    frame_index operator()( const output::LocalizedImage& r )
-        { return r.forImage; }
+    template <typename Type>
+    frame_index operator()( const Type& e )
+        { return e.frame_number(); }
 };
 
 template <typename Ty>
