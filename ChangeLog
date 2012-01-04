@@ -1,3 +1,17 @@
+== 14.0.0 ==
+
+* Implemented #165
+* Fixed minor bugs
+* Reduced live viewer memory usage by removing unnecessary x/y positions in live cache
+* Added 3D capability to viewer
+* Moved much input code out of dStorm library into executable
+* Pruned reinvention of boost::thread out of helpers/thread.h
+* Finally deleted data-c++ abomination
+* Fixed engine thread-safety issues
+* Migrated to Eigen 3
+* Refactored input chain code to clarify and ease extensioning
+* Fixed bug #147
+
 == 13.5.3 ==
 
 * Fixed bugs #150 and #151
