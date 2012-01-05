@@ -234,6 +234,7 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
 dstorm_@DSTORM_LIB_VERSION@_LDADD = libcode.la
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
+dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libcode.la
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
 
 libcode_la_CXXFLAGS = $(WX_CXXFLAGS)
@@ -344,7 +345,8 @@ libcode_la_SOURCES += \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 libcode_la_SOURCES += \
-    viewer/Image.h viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
+    viewer/Image.h viewer/Image.cpp \
+    viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
     viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \

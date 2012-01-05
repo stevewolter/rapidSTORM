@@ -1,15 +1,15 @@
 #include "CandidateTree.h"
 #include "Image.h"
-
-using namespace std;
+#include <iostream>
+#include <cassert>
 
 #define USE_ANEUBECK_NMS
 
 namespace dStorm {
 namespace engine {
 
-#include <iostream>
-#include <cassert>
+using std::min;
+using std::max;
 
 template <typename PixelType>
 CandidateTree<PixelType>::~CandidateTree() {}
