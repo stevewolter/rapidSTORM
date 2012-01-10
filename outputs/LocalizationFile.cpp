@@ -121,7 +121,7 @@ void Output::output( const Localization& l ) {
 void Output::receiveLocalizations(const EngineResult &er) 
 {
     if ( file == NULL ) return;
-    if ( er.empty() )
+    if ( ! traits.in_sequence && er.empty() )
         (*file) << "# No localizations in image " << er.forImage.value() << std::endl;
     else
         std::for_each( er.begin(), er.end(), 

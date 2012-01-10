@@ -26,13 +26,10 @@ class LocalizationBuncher
     output::LocalizedImage,
     std::input_iterator_tag>
 {
-    Source<Input>& master;
+    Source<Input>* master;
 
     boost::shared_ptr<output::LocalizedImage> output;
     frame_index outputImage;
-
-    void search_output_image();
-    void claim_image();
 
     friend class boost::iterator_core_access;
     output::LocalizedImage& dereference() const { return *output; }
@@ -40,9 +37,7 @@ class LocalizationBuncher
     void increment();
 
   public:
-    LocalizationBuncher(
-        Source<Input>& master,
-        bool end);
+    LocalizationBuncher( Source<Input>* master, frame_index image );
     LocalizationBuncher(const LocalizationBuncher&);
     ~LocalizationBuncher();
 };
@@ -59,17 +54,18 @@ class Source
 
   private:
     std::auto_ptr< Input > base;
-  public:
-    boost::mutex mutex;
     InputIterator current, base_end;
-    frame_index next_image;
+    frame_index first_image;
+    boost::optional<frame_index> last_image;
     typedef boost::ptr_map<frame_index,output::LocalizedImage> Canned;
     Canned canned;
+    bool in_sequence;
 
-    friend class LocalizationBuncher<InputType>;
+  public:
+    std::auto_ptr<output::LocalizedImage> read( frame_index );
+    bool is_finished( frame_index current ) const;
 
   private:
-    frame_index firstImage, lastImage;
     simparm::Node& node() { return base->getNode(); }
   public:
     Source( std::auto_ptr<Input> base ) ;
@@ -77,9 +73,9 @@ class Source
 
     void dispatch(Messages m);
     iterator begin() 
-        { return iterator( LocalizationBuncher<InputType>(*this, false) ); }
+        { return iterator( LocalizationBuncher<InputType>(this, first_image) ); }
     iterator end()
-        { return iterator( LocalizationBuncher<InputType>(*this, true) ); }
+        { return iterator( LocalizationBuncher<InputType>(NULL, first_image) ); }
     TraitsPtr get_traits( input::BaseSource::Wishes );
     BaseSource& upstream() { return *base; }
     Capabilities capabilities() const 

@@ -200,6 +200,7 @@ void File::read_XML(const std::string& line, Traits& t) {
         if ( p.get() != NULL )
             fs.push_back( p );
     }
+    t.in_sequence = topNode->Attribute("insequence") && topNode->Attribute("insequence") == std::string("true");
 }
 
 void File::read_classic(const std::string& line, Traits& t) {

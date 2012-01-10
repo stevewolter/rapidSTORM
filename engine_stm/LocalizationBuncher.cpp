@@ -24,6 +24,7 @@ class Visitor
     ~Visitor() {}
     VisitResult operator()( const dStorm::Localization& l ) 
     {
+        DEBUG( "Got localization " << l.frame_number() );
         if ( my_image.is_initialized() ) {
             if ( l.frame_number() != *my_image )
                 return FinishedAndReject;
@@ -38,17 +39,23 @@ class Visitor
 
     VisitResult operator()( const dStorm::localization::EmptyLine& i ) 
     {
-        if ( ! my_image.is_initialized() ) {
-            my_image = i.number;
-            can.reset( new output::LocalizedImage() );
-            can->forImage = *my_image;
-        }
+        DEBUG( "Got empty line " << i.number );
+        default_to( i.number );
         return IAmFinished;
     }
 
     template <typename Type> VisitResult add(Type& argument);
-    frame_index for_frame() { assert(my_image.is_initialized()); return *my_image; }
-    std::auto_ptr<output::LocalizedImage> get_result() { return can; }
+    frame_index for_frame() { return *my_image; }
+    std::auto_ptr<output::LocalizedImage> get_result() { 
+        assert( can.get() );
+        return can; 
+    }
+    void default_to( frame_index i ) { 
+        if ( ! my_image.is_initialized() ) {
+            my_image = i;
+            can.reset( new output::LocalizedImage(i) );
+        }
+    }
 };
 
 template <typename Type>
@@ -66,82 +73,75 @@ Visitor::add<Localization>(Localization& argument)
 }
 
 template <typename Input>
-LocalizationBuncher<Input>::LocalizationBuncher(
-    Source<Input>& master,
-    bool end)
-: master(master)
+LocalizationBuncher<Input>::LocalizationBuncher( Source<Input>* master, frame_index first_image )
+: master(master), outputImage( first_image - 1 * camera::frame )
 {
-    if ( end ) {
-        outputImage = master.lastImage;
-    } else {
-        claim_image();
-        search_output_image();
-    }
-}
-
-template <typename Input>
-void LocalizationBuncher<Input>::claim_image()
-{
-    boost::lock_guard<boost::mutex> lock(master.mutex);
-    outputImage = master.next_image;
-    master.next_image += 1 * camera::frame;
+    if ( master ) { increment(); }
 }
 
 template <typename Input>
 void LocalizationBuncher<Input>::increment() {
     output.reset();
-    claim_image();
-    search_output_image();
+    outputImage += 1 * camera::frame;
+    if ( master->is_finished( outputImage ) ) {
+        DEBUG("Not serving after " << outputImage);
+        master = NULL;
+    } else {
+        output = master->read( outputImage );
+        DEBUG("Serving " << output->forImage);
+    }
 }
 
 template <typename Input>
 bool LocalizationBuncher<Input>::equal(const LocalizationBuncher<Input>& o) const
 {
-    return outputImage == o.outputImage;
+    return master == o.master && ( master == NULL || outputImage == o.outputImage );
 }
 
 template <typename Input>
-void LocalizationBuncher<Input>::search_output_image() {
-    boost::lock_guard<boost::mutex> lock( master.mutex );
-    typename Source<Input>::Canned::iterator canned_output
-        = master.canned.find(outputImage);
-    if ( canned_output != master.canned.end() ) {
-        output.reset( master.canned.release(canned_output).release() );
-        return;
-    }
-
-    DEBUG("Reading " << outputImage << " into can");
-    while ( master.current != master.base_end ) {
+std::auto_ptr<output::LocalizedImage> 
+Source<Input>::read( frame_index outputImage )
+{
+    DEBUG("Seeking " << outputImage);
+    while ( canned.find(outputImage) == canned.end() )
+    {
         Visitor v;
-        for ( ; master.current != master.base_end; ++master.current )  {
-            VisitResult r = v.add(*master.current);
+        for ( ; current != base_end; ++current )  {
+            VisitResult r = v.add(*current);
             if ( r == FinishedAndReject )
                 break;
             else if ( r == IAmFinished ) {
-                ++master.current;
+                ++current;
                 break;
             }
         }
+        v.default_to( outputImage );
         DEBUG("Visitor declares to be finished with " << v.for_frame() << ", want " << outputImage);
-        if ( v.for_frame() == outputImage ) {
-            output = v.get_result();
-            break;
-        } else
-            master.canned.insert( v.for_frame(), v.get_result() );
-    }
-    if ( output.get() == NULL ) {
-        /* End of file reached. Insert empty can. */
-        output.reset( new output::LocalizedImage() );
-        output->forImage = outputImage;
-    }
 
-    DEBUG("Serving " << output->forImage);
+        if ( in_sequence ) {
+            for ( frame_index f = outputImage; f < v.for_frame(); 
+                    f += 1 * camera::frame ) 
+            {
+                DEBUG("Putting " << f << " into the can");
+                canned.insert( f, new output::LocalizedImage(f) );
+            }
+        }
+
+        DEBUG("Putting " << v.for_frame() << " into the can");
+        canned.insert( v.for_frame(), v.get_result() );
+    }
+    DEBUG("Removing " << outputImage << " from the can");
+    assert( canned.find(outputImage) != canned.end() );
+    std::auto_ptr<output::LocalizedImage> rv( 
+        canned.release(canned.find(outputImage)).release() );
+    assert( rv.get() );
+    return rv;
 }
 
 template <typename Input>
 LocalizationBuncher<Input>::LocalizationBuncher
     (const LocalizationBuncher& o)
-: master( const_cast< Source<Input>& >(o.master) ),
+: master( const_cast< Source<Input>* >(o.master) ),
   output(o.output),
   outputImage(o.outputImage)
 {
@@ -158,15 +158,16 @@ Source<InputType>::get_traits( Wishes w )
     w.reset( input::BaseSource::ConcurrentIterators );
     input::Source<Localization>::TraitsPtr traits  = base->get_traits( w );
     traits::ImageNumber::RangeType& r = traits->image_number().range();
+    this->in_sequence = traits->in_sequence;
+    DEBUG("Localizations are " << ((this->in_sequence) ? "" : "not") << " in sequence");
 
     current = base->begin();
     base_end = base->end();
 
-    if ( ! r.first.is_initialized() || ! r.second.is_initialized() )
-        throw std::runtime_error("Total number of frames in STM file must be known");
-    firstImage = *r.first;
-    lastImage = *r.second + 1 * camera::frame;
-    firstImage = std::min(firstImage, lastImage);
+    if ( ! r.first.is_initialized() )
+        throw std::runtime_error("First image index in STM file must be known");
+    first_image = *r.first;
+    last_image = r.second;
     traits->in_sequence = true;
 
     return TraitsPtr( new TraitsPtr::element_type( *traits, "Buncher", "Localizations" ) );
@@ -193,6 +194,14 @@ void Source<InputType>::dispatch(Messages m)
     }
     m.reset( WillNeverRepeatAgain );
     base->dispatch(m);
+}
+
+template <class InputType>
+bool Source<InputType>::is_finished( frame_index at_image ) const { 
+    if ( last_image.is_initialized() )
+        return *last_image < at_image;
+    else
+        return current == base_end && canned.empty();
 }
 
 template class Source<localization::Record>;
