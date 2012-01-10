@@ -93,6 +93,12 @@ Output::_Config::_Config()
         "and fit amplitude, fields separated by spaces.");
     outputFile.setUserLevel(simparm::Object::Beginner);
     outputFile.helpID = "Table_ToFile";
+
+    xyztI.setHelp( 
+        "Output only the most common subset of the possible information. "
+        "The X,Y and Z coordinates will be displayed along with the frame "
+        "number and the intensity, but no other columns. If no Z information "
+        "is present, no output will be produced.");
 }
 
 void Output::open() {
