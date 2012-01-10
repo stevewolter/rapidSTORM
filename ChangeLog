@@ -1,3 +1,9 @@
+== 14.1.0 ==
+
+* Implemented #172
+* Removed "# No localizations" lines in STM output and input for in-sequence files
+* Fixed minor compilation bugs
+
 == 14.0.0 ==
 
 * Implemented #165
