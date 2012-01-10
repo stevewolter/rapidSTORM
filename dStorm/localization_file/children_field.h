@@ -19,8 +19,13 @@ struct ChildrenField : public Field {
 
     Field* clone() const { return new ChildrenField(*this); }
   public:
+    ChildrenField( const Traits& traits );
     ChildrenField( const Traits& traits, int level );
     ChildrenField( const TiXmlElement&, Traits& traits );
+
+    void add_field( std::auto_ptr<Field> f )
+        { attributes.push_back( f ); }
+    void add_field( Field* f ) { add_field( std::auto_ptr<Field>(f) ); }
 };
 
 }

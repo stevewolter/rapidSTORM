@@ -32,6 +32,7 @@ class Output : public output::OutputObject {
     input::Traits<Localization> traits;
 
     std::auto_ptr< Field > field;
+    bool xyztI_format;
 
     void open();
     template <int Field> void make_fields();
@@ -65,10 +66,11 @@ class Output::_Config : public simparm::Object {
     void registerNamedEntries() {
         push_back( outputFile );
         push_back( traces );
+        push_back( xyztI );
     }
   public:
     output::BasenameAdjustedFileEntry outputFile;
-    simparm::BoolEntry traces;
+    simparm::BoolEntry traces, xyztI;
 
     _Config();
 
@@ -81,7 +83,8 @@ class Output::_Config : public simparm::Object {
 Output::_Config::_Config() 
 : simparm::Object("Table", "Localizations file"),
   outputFile("ToFile", "Write localizations to", ".txt"),
-  traces("Traces", "Print localizations seperated by traces")
+  traces("Traces", "Print localizations seperated by traces"),
+  xyztI("XYZTI",   "Output only Malk fields (x,y,z,t,I)")
 {
     outputFile.setHelp(
         "If given, this parameters determines a file to which "
@@ -100,7 +103,10 @@ void Output::open() {
     } else
         file = &cout;
 
-    field = Field::construct(traits);
+    if ( xyztI_format )
+        field = Field::construct_xyztI(traits);
+    else
+        field = Field::construct(traits);
     /** Write XML header for localization file */
     std::auto_ptr<TiXmlNode> node = field->makeNode( traits );
 
@@ -147,9 +153,9 @@ void Output::store_results() {
 }
 
 Output::Output(const Config &c) 
-
 : OutputObject("LocalizationFile", "File output status"),
-  filename(c.outputFile())
+  filename(c.outputFile()),
+  xyztI_format( c.xyztI() )
 {
     if ( filename == "" )
         throw std::runtime_error("No filename provided for "

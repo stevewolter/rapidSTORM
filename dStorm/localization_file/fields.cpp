@@ -93,6 +93,18 @@ void create_localization_fields( const Field::Traits& traits, Field::Fields& res
     create_localization_fields_recursive<0>( traits, result );
 }
 
+std::auto_ptr<Field> Field::construct_xyztI( const Field::Traits& traits )
+{
+    std::auto_ptr<ChildrenField> rv( new ChildrenField(traits) );
+    rv->add_field( new LocalizationField< Localization::Fields::Position >(0) );
+    rv->add_field( new LocalizationField< Localization::Fields::Position >(1) );
+    if ( traits.position().is_given[2] )
+        rv->add_field( new LocalizationField< Localization::Fields::Position >(2) );
+    rv->add_field( new LocalizationField< Localization::Fields::ImageNumber >() );
+    rv->add_field( new LocalizationField< Localization::Fields::Amplitude >() );
+    return std::auto_ptr<Field>(rv.release());
+}
+
 std::auto_ptr<Field> Field::construct( const Field::Traits& traits )
 {
     return std::auto_ptr<Field>( new ChildrenField(traits, 0) );

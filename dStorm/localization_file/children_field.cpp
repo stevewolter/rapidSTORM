@@ -63,6 +63,10 @@ std::auto_ptr<TiXmlNode> ChildrenField::makeNode( const Traits& traits ) {
     return std::auto_ptr<TiXmlNode>( rv.release() );
 }
 
+ChildrenField::ChildrenField( const Traits& traits)
+: separator( "\n" ), repetitions( traits.repetitions )
+{}
+
 ChildrenField::ChildrenField( const Traits& traits, int level )
 : separator( level > 0 ? " " : "\n" ), repetitions( traits.repetitions )
 {
