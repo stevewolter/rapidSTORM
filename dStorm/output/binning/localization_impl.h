@@ -4,6 +4,7 @@
 #include "../../debug.h"
 #include "localization.h"
 #include "../../display/DataSource.h"
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace output {
@@ -53,7 +54,9 @@ float Localization<Index,IsUnscaled,false>::bin_point( const dStorm::Localizatio
 template <int Index>
 float Localization<Index,Bounded,false>::bin_point( const dStorm::Localization& l ) const
 {
-    float rv = (Base::scalar.value(boost::fusion::at_c<Index>(l).value()) - range[0]).value();
+    value clipped = Base::scalar.value(boost::fusion::at_c<Index>(l).value());
+    clipped = std::max( range[0], std::min( clipped, range[1] ) );
+    float rv = (clipped - range[0]).value();
     DEBUG("Coordinate index " << Index << " with bounded binning returns " << rv);
     return rv;
 }
@@ -62,7 +65,9 @@ template <int Index>
 float
 Localization<Index,ScaledByResolution,false>::bin_point( const dStorm::Localization& l ) const
 {
-    float rv = (Base::scalar.value(boost::fusion::at_c<Index>(l).value()) - Base::range[0]) * scale;
+    value clipped = Base::scalar.value(boost::fusion::at_c<Index>(l).value());
+    clipped = std::max( Base::range[0], std::min( clipped, Base::range[1] ) );
+    float rv = (clipped - Base::range[0]) * scale;
     DEBUG("Coordinate index " << Index << " with resolution-scaled binning returns " << rv << " with scale " << scale << " and base " << Base::range[0]);
     return rv;
 }
