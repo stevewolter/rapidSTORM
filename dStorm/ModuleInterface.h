@@ -14,12 +14,12 @@ typedef dStorm::display::Manager*
 
 extern "C" {
 
-const char* rapidSTORM_Plugin_Desc();
+const char* rapidSTORM_Plugin_Desc() __attribute__ ((visibility ("default")));
 void rapidSTORM_Config_Augmenter
-    ( dStorm::Config* inputs );
+    ( dStorm::Config* inputs ) __attribute__ ((visibility ("default")));
 dStorm::display::Manager* 
     rapidSTORM_Display_Driver
-    (dStorm::display::Manager* current_manager);
+    (dStorm::display::Manager* current_manager) __attribute__ ((visibility ("default")));
 
 }
 

@@ -29,6 +29,10 @@ AC_SUBST([LIBTOOL_VERSION_INFO], $current:$revision:$age)
 
 AC_LANG([C++])
 
+DX_HTML_FEATURE(ON)
+DX_PDF_FEATURE(ON)
+DX_INIT_DOXYGEN(rapidstorm, Doxyfile.in)
+
 AC_LIBTOOL_WIN32_DLL
 
 # Checks for programs.
@@ -114,6 +118,18 @@ AS_IF(
     [AC_CHECK_TOOL([WINDRES], [windres])],
     [])
 AM_CONDITIONAL([HAVE_WINDRES], [test "x$WINDRES" != "x"])
+
+AC_ARG_ENABLE([specialized-fitters],
+    [AS_HELP_STRING([--enable-specialized-fitters],
+        [enable use of specialized fitters for common array sizes @<:@default=no@:>@])],
+        [],
+        [enable_specialized_fitters=no])
+AS_IF(
+    [test "x$enable_specialized_fitters" = xyes],
+    [ AC_DEFINE([USE_SPECIALIZED_FITTERS], [1], [Use fitters specialized for common array sizes]) ],
+    []
+)
+AM_CONDITIONAL([COMPILE_SPECIALIZED_FITTERS], [test "x$enable_specialized_fitters" = xyes])
 
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0

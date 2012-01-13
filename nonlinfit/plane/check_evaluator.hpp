@@ -1,0 +1,47 @@
+#ifndef NONLINFIT_PLANE_CHECK_EVALUATOR_HPP
+#define NONLINFIT_PLANE_CHECK_EVALUATOR_HPP
+
+#include "fwd.h"
+#include <nonlinfit/Lambda.h>
+#include <nonlinfit/Evaluation.hpp>
+#include <nonlinfit/BoundFunction.hpp>
+#include <nonlinfit/plane/JointData.hpp>
+#include <nonlinfit/plane/Distance.hpp>
+#include <cassert>
+
+namespace nonlinfit {
+namespace plane {
+
+/** Tests whether two tagged invocations of Distance yield the same result. */
+template <
+    class Metric,
+    class Tag,
+    class RefTag,
+    class Function>
+bool compare_evaluators( 
+    const Function& model,
+    const typename Tag::Data& data
+)
+{
+    BoundFunction< Distance< Function, Tag, Metric > > test;
+    BoundFunction< Distance< Function, RefTag, Metric > > ref;
+    test.get_data() = data;
+    ref.get_data() = data;
+    test.get_expression() = model;
+    ref.get_expression() = test.get_expression();
+
+    typedef typename Tag::Number Num;
+    typename get_evaluation< Function, Num >::type
+        test_result, reference_result;
+    test.evaluate( test_result );
+    ref.evaluate( reference_result );
+
+    assert(( ! test_result.contains_NaN() ));
+    assert(( ! reference_result.contains_NaN() ));
+    return test_result == reference_result;
+}
+
+}
+}
+
+#endif

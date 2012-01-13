@@ -1,0 +1,23 @@
+#ifndef DSTORM_GUF_PSF_FREEFORM_H
+#define DSTORM_GUF_PSF_FREEFORM_H
+
+#include "parameters.h"
+
+namespace dStorm {
+namespace guf {
+namespace PSF {
+
+struct FreeForm
+{
+    template <typename Type> struct apply { typedef boost::mpl::false_ type; };
+};
+template <int Dim> struct FreeForm::apply< Mean<Dim> > { typedef boost::mpl::true_ type; };
+template <> struct FreeForm::apply< MeanZ > { typedef boost::mpl::true_ type; };
+template <> struct FreeForm::apply< Amplitude > { typedef boost::mpl::true_ type; };
+template <int Dim> struct FreeForm::apply< BestSigma<Dim> > { typedef boost::mpl::true_ type; };
+
+}
+}
+}
+
+#endif

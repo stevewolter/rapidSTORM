@@ -1,6 +1,10 @@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects
 
+# Doxygen support
+include aminclude.am
+MOSTLYCLEANFILES = $(DX_CLEANFILES)
+
 plugin_libdir = $(DSTORM_PLUGIN_DIR)
 javadir=$(datadir)/java
 javabuilddir = classes
@@ -10,13 +14,13 @@ C_TESTS = checkplugin_locprec reconstruction checkplugin_camera \
     Pixel_test \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
-    check_traits check_unittable unit_tests
+    check_traits check_unittable unit_tests \
+    check_guf_naive_fitter
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
-noinst_LTLIBRARIES = libcode.la 
 plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
@@ -232,18 +236,15 @@ librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO
 librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libcode.la
-dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT)
-dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libcode.la
+dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) 
+dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS)
 
-libcode_la_CXXFLAGS = $(WX_CXXFLAGS)
-libcode_la_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-libcode_la_LIBADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
-libcode_la_LIBADD += $(boost_system_LIB) $(boost_thread_LIB) 
-libcode_la_LIBADD += librapidstormfile.la $(tinyxml_LIBS)
-libcode_la_SOURCES = \
-    dstorm.cpp \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
     LibraryHandle.h LibraryHandle.cpp \
@@ -252,16 +253,16 @@ libcode_la_SOURCES = \
     debug.h debug_print.h $(RESOURCE_FILE) \
     TIFFOperation.h TIFFOperation.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     job/Car.cpp job/Car.h \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
     job/Run.h job/Run.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     dStorm/output/Config.h
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     inputs/inputs.h inputs/inputs.cpp \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputMethods.h inputs/InputMethods.cpp \
@@ -286,11 +287,11 @@ libcode_la_SOURCES += \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
@@ -299,11 +300,11 @@ libcode_la_SOURCES += \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/Config.h  expression/Config_decl.h \
     expression/Source.h  expression/Source_decl.h \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
@@ -319,7 +320,7 @@ libcode_la_SOURCES += \
     expression/CommandLine.h expression/Source_filters.h \
     expression/SimpleFilters.h expression/SimpleFilters.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -330,7 +331,7 @@ libcode_la_SOURCES += \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.h \
@@ -344,7 +345,7 @@ libcode_la_SOURCES += \
     spotFinders/Spalttiefpass.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
@@ -372,7 +373,8 @@ libcode_la_SOURCES += \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-libcode_la_SOURCES += test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
     test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/Manager.h test-plugin/Manager.cpp \
@@ -383,12 +385,192 @@ libcode_la_SOURCES += test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/Se
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
 
-libcode_la_SOURCES += \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
     wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    guf/form_fitter/Output.h guf/form_fitter/Output.cpp \
+    guf/form_fitter/Fitter.h guf/form_fitter/Fitter.cpp \
+    guf/form_fitter/Config.h guf/form_fitter/Config.cpp \
+    guf/form_fitter/decl.h guf/form_fitter/Tile.h \
+    guf/form_fitter/GUI.h guf/form_fitter/GUI.cpp \
+    guf/form_fitter/Input.h guf/form_fitter/Input.cpp \
+    guf/form_fitter/LocalizationValueFinder.h guf/form_fitter/LocalizationValueFinder.cpp
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    nonlinfit/AbstractFunction.h \
+    nonlinfit/AbstractMoveable.h \
+    nonlinfit/AbstractTerminator.h \
+    nonlinfit/AbstractFunctionAdapter.h \
+    nonlinfit/access_parameters.hpp \
+    nonlinfit/append.h \
+    nonlinfit/assignments.h \
+    nonlinfit/BoundFunction.h nonlinfit/BoundFunction.hpp \
+    nonlinfit/DerivationSummand.h \
+    nonlinfit/Evaluation.h \
+    nonlinfit/Evaluator.h \
+    nonlinfit/derive_by.hpp \
+    nonlinfit/Bind.h nonlinfit/Bind.hpp \
+    nonlinfit/FunctionConverter.h \
+    nonlinfit/VectorPosition.h nonlinfit/VectorPosition.hpp \
+    nonlinfit/fwd.h \
+    nonlinfit/index_of.h \
+    nonlinfit/make_bitset.h \
+    nonlinfit/make_functor.hpp \
+    nonlinfit/Lambda.h \
+    nonlinfit/Terminator.h \
+    nonlinfit/TermParameter.h \
+    nonlinfit/Evaluation.hpp \
+    nonlinfit/Xs.h \
+    nonlinfit/Xs.hpp \
+    nonlinfit/functions/Constant.h \
+    nonlinfit/functions/Polynom.h \
+    nonlinfit/functions/Zero.h \
+    nonlinfit/levmar/Config.h \
+    nonlinfit/levmar/Fitter.hpp \
+    nonlinfit/levmar/Fitter.h \
+    nonlinfit/levmar/exceptions.h \
+    nonlinfit/levmar/fwd.h \
+    nonlinfit/levmar/Fitter.cpp \
+    nonlinfit/plane/fwd.h \
+    nonlinfit/plane/check_evaluator.hpp \
+    nonlinfit/plane/ComputationWay.h \
+    nonlinfit/plane/Distance.h nonlinfit/plane/Distance.hpp \
+    nonlinfit/plane/Joint.h \
+    nonlinfit/plane/Disjoint.h nonlinfit/plane/Disjoint.hpp \
+    nonlinfit/plane/JointData.h \
+    nonlinfit/plane/DisjointData.h nonlinfit/plane/DisjointData.hpp \
+    nonlinfit/plane/GenericData.h \
+    nonlinfit/plane/JointData.hpp \
+    nonlinfit/plane/Jacobian.h \
+    nonlinfit/terminators/RelativeChange.h nonlinfit/terminators/RelativeChange.cpp \
+    nonlinfit/terminators/StepLimit.h nonlinfit/terminators/StepLimit.cpp \
+    nonlinfit/terminators/All.h \
+    nonlinfit/terminators/fwd.h \
+    nonlinfit/sum/AbstractFunction.h \
+    nonlinfit/sum/AbstractFunction.hpp \
+    nonlinfit/sum/AbstractMap.h \
+    nonlinfit/sum/AbstractMap.hpp \
+    nonlinfit/sum/Evaluator.h \
+    nonlinfit/sum/Evaluator.hpp \
+    nonlinfit/sum/Function.h \
+    nonlinfit/sum/fwd.h \
+    nonlinfit/sum/Lambda.h
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    guf/fitter.h guf/fitter.cpp \
+    guf/guf/EvaluationTags.h \
+    guf/guf/mle_converter.h \
+    guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
+    guf/guf/DataCube.cpp guf/guf/DataCube.h \
+    guf/guf/DataPlane.cpp guf/guf/DataPlane.h \
+    guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
+    guf/guf/Factory.cpp guf/guf/Factory.h \
+    guf/guf/FitAnalysis.h \
+    guf/guf/FitPosition.hpp \
+    guf/guf/fit_position_out_of_range.h \
+    guf/guf/Fitter.cpp guf/guf/Fitter.h \
+    guf/guf/InitialValueFinder.h guf/guf/InitialValueFinder.cpp \
+    guf/guf/TraitValueFinder.h \
+    guf/guf/NaiveFitter.h guf/guf/NaiveFitter.cpp \
+    guf/guf/ModelledFitter.h guf/guf/ModelledFitter.hpp \
+    guf/guf/LocalizationChecker.h guf/guf/LocalizationChecker.cpp \
+    guf/guf/LocalizationCreator.h guf/guf/LocalizationCreator.cpp \
+    guf/guf/Data_fwd.h \
+    guf/guf/KernelCreator.h guf/guf/KernelCreator.cpp \
+    guf/guf/FitTerminator.h \
+    guf/guf/TransformedImage.hpp \
+    guf/guf/Statistics.h \
+    guf/guf/TransformedImage_cut_region.h \
+    guf/guf/PlaneFunction.h guf/guf/PlaneFunction.hpp \
+    guf/guf/DistanceMetric.h guf/guf/InputPlane.h \
+    guf/guf/Spot.h \
+    guf/guf/Centroid.h guf/guf/Centroid.cpp \
+    guf/guf/TransformedImage.h
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    guf/psf/fwd.h guf/psf/parameters.h guf/psf/parameters.hpp \
+    guf/psf/BaseEvaluator.h guf/psf/BaseEvaluator.cpp \
+    guf/psf/DisjointEvaluator.h \
+    guf/psf/Derivable.h \
+    guf/psf/free_form.h \
+    guf/psf/fixed_form.h \
+    guf/psf/BaseExpression.h guf/psf/expressions.cpp \
+    guf/psf/expressions.h guf/psf/Base3D.h \
+    guf/psf/Zhuang.h guf/psf/Zhuang.cpp \
+    guf/psf/No3D.h guf/psf/No3D.cpp \
+    guf/psf/is_plane_dependent.h \
+    guf/psf/JointEvaluator.h \
+    guf/psf/StandardFunction.h \
+    guf/psf/LengthUnit.h guf/psf/ostream.h \
+    guf/psf/unit_test.h guf/psf/unit_test.cpp \
+    guf/psf/ReferenceEvaluation.h \
+    guf/constant_background_fwd.hpp guf/constant_background.hpp
+
+# Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
+# empty suffix to generate lists
+INST_DIR = guf/instantiations/
+INST_MODEL = $(INST_DIR:=zhuang_-_) $(INST_DIR:=no3d_-_)
+INST_KERNEL = \
+    $(INST_MODEL:=free_form_model_-_one_kernel_-_) \
+    $(INST_MODEL:=fixed_form_model_-_one_kernel_-_) \
+    $(INST_MODEL:=fixed_form_model_-_two_kernel_-_)
+
+INST_NUMTYPE = $(INST_KERNEL:=float_-_) $(INST_KERNEL:=double_-_)
+INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
+if COMPILE_SPECIALIZED_FITTERS
+INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
+    $(INST_NUMTYPE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
+    $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE:=disjoint_18) \
+    $(INST_NUMTYPE:=disjoint_20) 
+endif
+
+INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
+INSTANTIATIONS_UNCPP = \
+    $(INST_KERNEL:=FunctionRepository) $(INST_KERNEL:=ModelledFitter) \
+    $(INST_KERNEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
+INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    guf/instantiations/one_kernel.h \
+    guf/instantiations/two_kernel.h \
+    guf/instantiations/no3d.h \
+    guf/instantiations/zhuang.h \
+    guf/instantiations/fixed_form_model.h \
+    guf/instantiations/free_form_model.h \
+    guf/instantiations/float.h \
+    guf/instantiations/double.h \
+    guf/instantiations/disjoint.h \
+    guf/instantiations/joint_8.h \
+    guf/instantiations/FunctionRepository.h \
+    guf/instantiations/PlaneFunction.h \
+    guf/instantiations/ModelledFitter.h \
+    guf/instantiations/Moveable.h \
+    guf/instantiations/Fitter.cpp
+nodist_dstorm_@DSTORM_LIB_VERSION@_SOURCES = $(INSTANTIATIONS)
+CLEANFILES += $(INSTANTIATIONS)
+
+$(INSTANTIATIONS) : 
+	echo $@  \
+	    | grep -v '/float_-_.*_-_disjoint_1[048]_-_' \
+	    | sed -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
+	    | awk '{ for (i = 1; i <= NF; ++i) print "#include \"" $$i ".h\""; }' \
+	    | sed -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
+	    | sed -e 's:#include ":&guf/instantiations/:' > $@
+
+unit_tests_SOURCES = \
+    nonlinfit/unit_test.cpp \
+    nonlinfit/sum/unit_test.cpp \
+    nonlinfit/terminators/unit_test.cpp \
+    unit_tests.cpp
+#unit_tests_SOURCES = unit_tests.cpp 
+#unit_tests_LDADD = librapidstorm-fitter.la
+#check_guf_naive_fitter_SOURCES = guf/check_naive_fitter.cpp 
+#check_guf_naive_fitter_LDADD = libguf.la libpsf.la libinstantiations.la -lgsl -lgslcblas
 
 liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
 liblocprec_la_LIBADD = libdStorm.la $(gsl_LIBS) $(boost_thread_LIB)
@@ -448,19 +630,19 @@ checkplugin_camera_LDFLAGS = -no-undefined
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
 check_traits_SOURCES = dStorm/traits/scalar_check.cpp
 check_traits_LDADD = libdStorm.la
-check_unittable_SOURCES = expression/UnitTable_check.cpp 
-check_unittable_LDADD = libcode.la
-check_localization_variable_SOURCES = expression/localization_variable_check.cpp
-check_localization_variable_LDADD = libcode.la
-check_expression_parser_SOURCES = expression/Parser_test.cpp
-check_expression_parser_LDADD = libcode.la
+#TODO: check_unittable_SOURCES = expression/UnitTable_check.cpp 
+#TODO: check_unittable_LDADD = libcode.la
+#TODO: check_localization_variable_SOURCES = expression/localization_variable_check.cpp
+#TODO: check_localization_variable_LDADD = libcode.la
+#check_expression_parser_SOURCES = expression/Parser_test.cpp
+#check_expression_parser_LDADD = libcode.la
 check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
 check_image_slicing_LDADD = libdStorm.la
 check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
 check_image_iterator_LDADD = libdStorm.la
 
-unit_tests_SOURCES = unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
-unit_tests_LDADD = libcode.la 
+#unit_tests_SOURCES += unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
+#unit_tests_LDADD = libcode.la 
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

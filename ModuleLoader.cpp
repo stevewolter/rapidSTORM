@@ -11,6 +11,7 @@
 #include "engine/ChainLink_decl.h"
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
+#include "guf/fitter.h"
 
 #include <dStorm/display/Manager.h>
 #include "wxDisplay/wxManager.h"
@@ -137,6 +138,7 @@ void ModuleLoader::add_modules
     dStorm::output::basic_outputs( &car_config );
 
     test::make_config( &car_config );
+    guf::augment_config( car_config );
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();

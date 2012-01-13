@@ -9,6 +9,9 @@ namespace dStorm {
 //template class Image<engine::StormPixel,2>;
 //template class Image<engine::SmoothedPixel,2>;
 
+template Image< dStorm::engine::SmoothedPixel, 2 >::~Image();
+template void Image< dStorm::engine::SmoothedPixel, 2 >::fill( engine::SmoothedPixel );
+
 namespace input {
 
 template class Traits< dStorm::engine::Image >;

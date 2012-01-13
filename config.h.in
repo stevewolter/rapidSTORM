@@ -134,6 +134,9 @@
 /* Use the GraphicsMagick library */
 #undef USE_GRAPHICSMAGICK
 
+/* Use fitters specialized for common array sizes */
+#undef USE_SPECIALIZED_FITTERS
+
 /* Version number of package */
 #undef VERSION
 

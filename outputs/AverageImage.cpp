@@ -26,6 +26,8 @@ AverageImage::AverageImage( const Config &config )
 AverageImage* AverageImage::clone() const 
     { return new AverageImage(*this); }
 
+AverageImage::~AverageImage() {}
+
 void
 AverageImage::receiveLocalizations(const EngineResult& er) {
     engine::Image::const_iterator i = er.source.begin();
@@ -49,6 +51,18 @@ void AverageImage::store_results()
     }
 }
 
+AverageImage::RunRequirements AverageImage::announce_run( const RunAnnouncement& )
+{
+    image.fill(0);
+    return RunRequirements();
+}
+
+AverageImage::AdditionalData AverageImage::announceStormSize(const Announcement &a)
+{
+    boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
+    image = Image(t->size.head<2>(), 0 * camera::frame);
+    return AdditionalData().set_source_image(); 
+}
 
 }
 }

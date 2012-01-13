@@ -1,0 +1,108 @@
+#include <Eigen/StdVector>
+#include "debug.h"
+#include "Fitter.h"
+#include "Config.h"
+#include <boost/static_assert.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
+#include <dStorm/image/crop.h>
+#include <dStorm/image/constructors.h>
+#include <dStorm/engine/Spot.h>
+#include <dStorm/Localization.h>
+#include <boost/units/cmath.hpp>
+#include <boost/bind/bind.hpp>
+#include "Centroid.h"
+#include <nonlinfit/levmar/exceptions.h>
+#include "fit_position_out_of_range.h"
+
+namespace dStorm {
+namespace guf {
+
+using guf::Spot;
+
+Fitter::Fitter(
+    const dStorm::engine::JobInfo& info,
+    const Config& config
+)
+: traits(info.traits),
+  info(info,traits),
+  data_creator( config, this->info ),
+  initial_value_finder( config, this->info ),
+  one_kernel_fitter( NaiveFitter::create<1>(config, info) ),
+  two_kernels_fitter( ( config.two_kernel_fitting() ) ? NaiveFitter::create<2>(config, info).release() : NULL ),
+  create_localization( config, this->info ),
+  is_good_localization( config, this->info ),
+  add_new_kernel(),
+  first_plane_optics(this->info.traits.plane(0)),
+  mle( config.mle_fitting() ), 
+  two_kernel_analysis( config.two_kernel_fitting() )
+{
+}
+
+int Fitter::fitSpot(
+    const engine::Spot& spot, 
+    const engine::Image &im,
+    iterator target 
+) {
+    BOOST_STATIC_ASSERT( engine::Image::Dim == 3 );
+
+    try {
+        Spot guf_spot = dStorm_spot_to_guf( spot );
+        boost::scoped_ptr< DataCube > data( data_creator.set_image( im, guf_spot ) );
+
+        DEBUG("Fitting at " << guf_spot.transpose() );
+        FitPosition& one_kernel = one_kernel_fitter->fit_position();
+        boost::optional< double > mle_result;
+        double improvement = 0;
+        initial_value_finder( one_kernel, guf_spot, data->get_statistics() );
+        double simple = one_kernel_fitter->fit( *data, false );
+        if ( ! is_good_localization( one_kernel, guf_spot ) ) { DEBUG("No good spot"); return -1; }
+        if ( mle )
+            mle_result = one_kernel_fitter->fit( *data, true );
+        if ( two_kernel_analysis ) {
+            try {
+                FitPosition& two_kernel_model = two_kernels_fitter->fit_position();
+                add_new_kernel( two_kernel_model, one_kernel, 
+                    data->residue_centroid().current_position().cast< Spot::Scalar >() );
+                double two_kernel_result = two_kernels_fitter->fit( *data, false );
+                if ( is_good_localization( two_kernel_model, guf_spot ) )
+                    improvement = 1.0 - two_kernel_result / simple;
+            } catch ( const nonlinfit::levmar::SingularMatrix&) {
+                improvement = 0;
+            } catch ( const nonlinfit::levmar::InvalidStartPosition& s ) {
+                assert( false );
+                improvement = 0;
+            } catch ( const fit_position_out_of_range& ) {
+                throw std::logic_error("Fit position out of range for two-kernel fit although it was in range for one-kernel");
+            }
+        } 
+            
+        double result = (mle_result.is_initialized()) ? *mle_result : simple;
+        Localization& loc = *target;
+        create_localization( loc, one_kernel, result, *data );
+        loc.frame_number = im.frame_number();
+        loc.two_kernel_improvement = improvement;
+        if ( loc.children.is_initialized() )
+            for ( std::vector<Localization>::iterator i = loc.children->begin(); i != loc.children->end(); ++i )
+                i->frame_number = im.frame_number();
+        return 1;
+    } catch ( const fit_position_out_of_range& ) {
+        DEBUG("Fit position is out of range");
+        return 0;
+    } catch (const nonlinfit::levmar::InvalidStartPosition&) {
+        DEBUG("Invalid start position");
+        return 0;
+    } catch (const nonlinfit::levmar::SingularMatrix&) {
+        DEBUG("Singular fit matrix");
+        return 0;
+    }
+}
+
+Spot Fitter::dStorm_spot_to_guf( const engine::Spot& spot ) const {
+    traits::Optics<2>::ImagePosition p = spot.position();
+    return
+        first_plane_optics.point_in_sample_space(p).head<2>()
+            .cast< Spot::Scalar >(); 
+}
+
+}
+}
