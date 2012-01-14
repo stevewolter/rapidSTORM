@@ -31,7 +31,7 @@ class TestState {
     }
 
   bool had_errors() const { return (failed > 0 || xpassed > 0); }
-  ~TestState (void) { totals(); }
+  ~TestState (void) { }
 
   void operator()( bool b, std::string s ) { testrun(b,s); }
   void operator()( bool b ) { testrun(b, "Anonymous test"); }
