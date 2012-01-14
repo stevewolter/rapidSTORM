@@ -10,7 +10,7 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = checkplugin_locprec reconstruction checkplugin_camera \
+C_TESTS = reconstruction checkplugin_camera \
     Pixel_test \
     check_localization_variable check_expression_parser \
     check_image_slicing check_image_iterator \
@@ -21,7 +21,7 @@ bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_V
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
-plugin_lib_LTLIBRARIES = liblocprec.la libdirectcamerainput.la
+plugin_lib_LTLIBRARIES = libdirectcamerainput.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
@@ -239,10 +239,10 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS)
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) 
-dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -572,12 +572,9 @@ unit_tests_SOURCES = \
 #check_guf_naive_fitter_SOURCES = guf/check_naive_fitter.cpp 
 #check_guf_naive_fitter_LDADD = libguf.la libpsf.la libinstantiations.la -lgsl -lgslcblas
 
-liblocprec_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-liblocprec_la_LIBADD = libdStorm.la $(gsl_LIBS) $(boost_thread_LIB)
-liblocprec_la_DEPENDENCIES = libdStorm.la
-liblocprec_la_CPPFLAGS = $(gsl_CFLAGS)
-liblocprec_la_SOURCES = \
-    locprec/plugin.cpp locprec/foreach.h locprec/NoiseSource.cpp \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    locprec/plugin.cpp locprec/plugin.h \
+    locprec/foreach.h locprec/NoiseSource.cpp \
     locprec/NoiseMeter.h locprec/Fluorophore.cpp \
     locprec/pixelatedBessel.h locprec/pixelatedBessel.cpp \
     locprec/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
@@ -616,10 +613,8 @@ fit_camera_noise_SOURCES = locprec/fitNoise.cpp
 fit_camera_noise_LDADD = liblocprec.la 
 gradient_SOURCES = locprec/gradient.cpp
 gradient_LDADD = liblocprec.la 
-checkplugin_locprec_SOURCES = locprec/check_plugin.cpp 
-checkplugin_locprec_LDADD = liblocprec.la 
 determine_clusters_from_centers_SOURCES = locprec/determine-clusters-from-centers.cpp
-determine_clusters_from_centers_LDADD = liblocprec.la $(tinyxml_LIBS)
+determine_clusters_from_centers_LDADD = libcode.la $(tinyxml_LIBS)
 determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
 reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
