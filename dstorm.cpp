@@ -18,7 +18,7 @@
 
 #include "debug.h"
 
-#include "pthread.h"
+#include "unit_tests.h"
 
 using namespace dStorm;
 using namespace std;
@@ -59,6 +59,9 @@ int main(int argc, char *argv[]) {
     for (unsigned int i= 0; i < sizeof(fuckedup) / sizeof(int); ++i )
     signal(fuckedup[i], SIG_DFL);
 #endif
+
+    if ( argc <= 1 )
+        return run_unit_tests();
 
     try {
         DEBUG("Making module handler");

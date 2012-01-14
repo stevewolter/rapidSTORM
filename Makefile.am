@@ -10,12 +10,9 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = reconstruction checkplugin_camera \
+C_TESTS = dstorm-@DSTORM_LIB_VERSION@ reconstruction checkplugin_camera \
     Pixel_test \
-    check_localization_variable check_expression_parser \
-    check_image_slicing check_image_iterator \
-    check_traits check_unittable unit_tests \
-    check_guf_naive_fitter
+    check_image_slicing check_image_iterator check_traits
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
@@ -318,7 +315,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/UnitTable.cpp expression/UnitTable.h expression/UnitTable_impl.h \
     expression/Config.cpp expression/Source.cpp \
     expression/CommandLine.h expression/Source_filters.h \
-    expression/SimpleFilters.h expression/SimpleFilters.cpp
+    expression/SimpleFilters.h expression/SimpleFilters.cpp \
+    expression/unit_test.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
@@ -562,15 +560,12 @@ $(INSTANTIATIONS) :
 	    | sed -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
 	    | sed -e 's:#include ":&guf/instantiations/:' > $@
 
-unit_tests_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/unit_test.cpp \
     nonlinfit/sum/unit_test.cpp \
     nonlinfit/terminators/unit_test.cpp \
+    guf/unit_tests.cpp \
     unit_tests.cpp
-#unit_tests_SOURCES = unit_tests.cpp 
-#unit_tests_LDADD = librapidstorm-fitter.la
-#check_guf_naive_fitter_SOURCES = guf/check_naive_fitter.cpp 
-#check_guf_naive_fitter_LDADD = libguf.la libpsf.la libinstantiations.la -lgsl -lgslcblas
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
@@ -625,19 +620,10 @@ checkplugin_camera_LDFLAGS = -no-undefined
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
 check_traits_SOURCES = dStorm/traits/scalar_check.cpp
 check_traits_LDADD = libdStorm.la
-#TODO: check_unittable_SOURCES = expression/UnitTable_check.cpp 
-#TODO: check_unittable_LDADD = libcode.la
-#TODO: check_localization_variable_SOURCES = expression/localization_variable_check.cpp
-#TODO: check_localization_variable_LDADD = libcode.la
-#check_expression_parser_SOURCES = expression/Parser_test.cpp
-#check_expression_parser_LDADD = libcode.la
 check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
 check_image_slicing_LDADD = libdStorm.la
 check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
 check_image_iterator_LDADD = libdStorm.la
-
-#unit_tests_SOURCES += unit_tests.cpp inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp TIFFOperation.cpp dejagnu.h
-#unit_tests_LDADD = libcode.la 
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

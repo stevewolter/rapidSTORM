@@ -41,6 +41,8 @@ test "x$CXX" = "x" && AC_MSG_ERROR([unable to find C++ compiler])
 AC_PROG_CC
 test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
 
+AM_PROG_CC_C_O
+
 AC_PROG_JAVAC
 AC_CHECK_PROGS([JAR], [jar])
 

@@ -2,6 +2,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <dStorm/traits/scalar_iterator.h>
 #include <dStorm/traits/range_impl.h>
+#include "dejagnu.h"
 
 namespace dStorm {
 namespace expression {
@@ -37,6 +38,29 @@ variables_for_localization_fields() {
     boost::ptr_vector<variable> rv;
     FieldAdder<0>(rv).add_variables_for_field();
     return rv.release();
+}
+
+void check_localization_variable( TestState& state ) {
+    dStorm::input::Traits<dStorm::Localization> traits;
+    dStorm::Localization loc;
+
+    loc.position().x() = 15 * boost::units::si::meter;
+
+    Variable<0,dStorm::traits::value_tag> v( dStorm::traits::Scalar< dStorm::traits::Position >(0,0) );
+
+    try {
+        v.get(traits);
+        state.fail( "No error thrown when traits with X coordinate unset were provided to get()" );
+    } catch (...) {}
+
+    DynamicUnit meter_only;
+    meter_only[ *UnitTable().find("m") ] = 1;
+    DynamicQuantity fifteen_meters( 15, meter_only );
+
+    traits.position().is_given(0,0) = true;
+    state( v.is_static(traits) == false );
+    state( v.get(traits) != fifteen_meters );
+    state( v.get(loc) == fifteen_meters );
 }
 
 }

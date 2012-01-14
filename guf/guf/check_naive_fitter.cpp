@@ -107,7 +107,7 @@ double data[5][16][12] = {
 namespace camera = boost::units::camera;
 namespace si = boost::units::si;
 
-int main(int argc, char *argv[])
+void check_naive_fitter( TestState& state )
 {
     ost::DebugStream::set(std::cerr);
     Config config;
@@ -165,10 +165,9 @@ int main(int argc, char *argv[])
     std::vector<dStorm::Localization> locs;
     int found = dStorm::guf::Fitter( job_info, config )
         .fitSpot( spot, image, dStorm::engine::spot_fitter::Implementation::iterator( boost::back_inserter(locs) ) );
-    assert( found == 1 );
-    assert( abs( locs[0].position().x() - 586E-9 * si::meter ) < 1E-8 * si::meter );
-    assert( abs( locs[0].position().y() - 700E-9 * si::meter ) < 1E-8 * si::meter );
-    assert( abs( locs[0].position().z() - 85E-9 * si::meter ) < 1E-8 * si::meter );
-    assert( abs( locs[0].amplitude() - 50000 * camera::ad_count ) < 1000 * camera::ad_count );
-    return 0;
+    state( found == 1 );
+    state( abs( locs[0].position().x() - 586E-9 * si::meter ) < 1E-8 * si::meter );
+    state( abs( locs[0].position().y() - 700E-9 * si::meter ) < 1E-8 * si::meter );
+    state( abs( locs[0].position().z() - 85E-9 * si::meter ) < 1E-8 * si::meter );
+    state( abs( locs[0].amplitude() - 50000 * camera::ad_count ) < 1000 * camera::ad_count );
 }
