@@ -6,7 +6,7 @@
 namespace dStorm {
 namespace form_fitter {
 
-Input::Input(const Config& c, const output::Output::Announcement& a )
+Input::Input(const Config& c, const output::Output::Announcement& a, dStorm::traits::Optics<2>::PSF psf_size )
 : number_of_spots( c.number_of_spots() )
 {
     traits = a.input_image_traits;
@@ -18,7 +18,7 @@ Input::Input(const Config& c, const output::Output::Announcement& a )
     fluorophore_count = std::max(1, int(traits->fluorophores.size()));
     guf::Spot max_width;
     for (int i = 0; i < max_width.rows(); ++i)
-        max_width[i] = 5.0f * (*traits->psf_size())[i];
+        max_width[i] = 5.0f * psf_size[i];
     transforms.clear();
     for (int i = 0; i < traits->plane_count(); ++i)
         transforms.push_back( new Transformed(max_width, traits->plane(i) ) );

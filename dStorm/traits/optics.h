@@ -45,6 +45,7 @@ struct Optics<2>
     typedef Eigen::Matrix< units::quantity<units::camera::length,int>, 2, 1, Eigen::DontAlign > ImagePosition;
     typedef Eigen::Matrix< units::quantity<units::camera::length,float>, 2, 1, Eigen::DontAlign > SubpixelImagePosition;
     typedef Eigen::Matrix< int, 2, 1, Eigen::DontAlign > UnitlessImagePosition;
+    typedef Eigen::Array< boost::units::quantity< boost::units::si::length, float >, 2,1, Eigen::DontAlign > PSF;
 
     typedef Eigen::Matrix< float, 3, Eigen::Dynamic > PointSet;
 
@@ -56,6 +57,7 @@ struct Optics<2>
     struct Pimpl;
     std::auto_ptr< Pimpl > pimpl;
     boost::array< boost::optional<ImageResolution> ,2> resolutions;
+    boost::optional< PSF > psf;
 
   public:
     friend class dStorm::traits::PlaneConfig;
@@ -68,6 +70,9 @@ struct Optics<2>
     boost::optional< units::quantity< units::si::length > > z_position, offsets[2];
     boost::optional<camera_response> photon_response, background_stddev;
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
+
+    boost::optional<PSF>& psf_size( int ) { return psf; }
+    boost::optional<PSF> psf_size( int ) const { return psf; }
 
     SamplePosition point_in_sample_space( const ImagePosition& pos ) const;
     SamplePosition point_in_sample_space( const SubpixelImagePosition& pos ) const;

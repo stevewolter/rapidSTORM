@@ -28,10 +28,11 @@ bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot
     bool makes_it_in_one_plane = false;
     for (FitPosition::const_iterator i = result.begin(); i != result.end(); ++i) {
         for ( FittedPlane::const_iterator j = i->begin(); j != i->end(); ++j ) {
-            if ( ! check_kernel(*j, spot) ) return false;
+            int plane = i - result.begin();
+            if ( ! check_kernel(*j, spot, plane) ) return false;
             DEBUG("Checking amplitude threshold");
             quantity<camera::intensity> photon = 
-                info.traits.plane(i-result.begin())
+                info.traits.plane(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
             if ( local_threshold < (*j)( PSF::Amplitude() ) * (*j)( PSF::Prefactor() ) )
@@ -48,21 +49,21 @@ bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot
 }
 
 template <int Dim>
-bool LocalizationChecker::check_kernel_dimension( const PSF::BaseExpression& k, const guf::Spot& spot ) const
+bool LocalizationChecker::check_kernel_dimension( const PSF::BaseExpression& k, const guf::Spot& spot, int plane ) const
 {
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
         abs( quantity<si::length>(k( PSF::Mean<Dim>() ) ) - spot[Dim] ) 
-            < (*info.traits.psf_size())[Dim] * 3.0f;
+            < (*info.traits.plane(plane).psf_size( info.fluorophore ))[Dim] * 3.0f;
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }
 
-bool LocalizationChecker::check_kernel( const PSF::BaseExpression& k, const guf::Spot& s ) const
+bool LocalizationChecker::check_kernel( const PSF::BaseExpression& k, const guf::Spot& s, int plane ) const
 {
     bool kernels_ok =
-        check_kernel_dimension<0>(k,s) &&
-        check_kernel_dimension<1>(k,s);
+        check_kernel_dimension<0>(k,s, plane) &&
+        check_kernel_dimension<1>(k,s, plane);
     const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &k );
     return kernels_ok && (!threed || 
         contains(allowed_z_positions, 

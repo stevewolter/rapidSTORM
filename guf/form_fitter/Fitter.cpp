@@ -40,6 +40,8 @@
 namespace dStorm {
 namespace form_fitter {
 
+extern traits::Optics<2>::PSF max_psf_size( const input::Traits<engine::Image>& traits );
+
 namespace PSF = dStorm::guf::PSF;
 
 using namespace nonlinfit;
@@ -273,9 +275,7 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
 : traits(traits), table( config, traits, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
-    guf::Spot max_distance;
-    for (int i = 0; i < max_distance.rows(); ++i)
-        max_distance[i] = (*traits.psf_size())[i] * 5.0f;
+    guf::Spot max_distance = max_psf_size( traits );
     for ( int i = 0; i < traits.plane_count(); ++i ) {
         transformations.push_back( new Transformation(max_distance, traits.plane(i)) );
     }
@@ -340,11 +340,11 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::Image >& new_traits )
             new_traits.plane(j).set_fluorophore_transmission_coefficient(i, 
                 result(i,j)( PSF::Prefactor() )
                     * target_transmission / total_transmission );
+            for (int k = 0; k < 2; ++k)
+                (*new_traits.plane(j).psf_size(i))[k] = quantity<si::length>(
+                    result(i,j).template get< PSF::BestSigma >(k) * new_traits.fluorophores.at(i).wavelength * 1.075);
         }
     }
-    for (int i = 0; i < 2; ++i)
-        (*new_traits.psf_size())[i] = quantity<si::length>(
-            result().template get< PSF::BestSigma >(i) * new_traits.fluorophores.at(0).wavelength * 1.075);
     new_traits.depth_info = get_3d( result() );
 }
 

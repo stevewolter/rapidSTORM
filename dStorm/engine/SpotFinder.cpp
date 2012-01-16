@@ -13,7 +13,7 @@ double na_scale_factor = 3.8317 * 2.35 / (2*2*1.61632);
 boost::units::quantity< boost::units::camera::length > Job::sigma(int dim) const
 {
     return optics.length_in_image_space(dim, 
-        quantity<si::length,float>((*traits.psf_size())[dim] * fluorophore.wavelength / 
+        quantity<si::length,float>((*traits.plane(0).psf_size(0))[dim] * fluorophore.wavelength / 
             traits.fluorophores.find(0)->second.wavelength) );
 }
 

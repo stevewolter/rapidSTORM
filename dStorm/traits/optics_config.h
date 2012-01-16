@@ -29,6 +29,8 @@ class PlaneConfig : public simparm::Set {
     simparm::FileEntry micro_alignment;
     typedef boost::ptr_vector< simparm::Entry<double> > Transmissions;
     Transmissions transmissions;
+    typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
+    simparm::Entry<PSFSize> psf_size;
 
   public:
     PlaneConfig(int number);

@@ -344,8 +344,10 @@ PlaneConfig::PlaneConfig(int number)
   z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
-  micro_alignment("AlignmentFile", "Plane Alignment file")
+  micro_alignment("AlignmentFile", "Plane Alignment file"),
+  psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre))
 {
+    psf_size.helpID = "PSF.FWHM";
     z_position.setHelp("Z position where this layer is sharpest in this dimension");
     if ( is_first_layer ) {
 	micro_alignment.viewable = micro_alignment.editable = false;
@@ -358,7 +360,9 @@ PlaneConfig::PlaneConfig(int number)
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
 : simparm::Set(o), is_first_layer(o.is_first_layer), 
-  z_position(o.z_position), counts_per_photon(o.counts_per_photon), dark_current(o.dark_current), micro_alignment(o.micro_alignment)
+  z_position(o.z_position), counts_per_photon(o.counts_per_photon), 
+  dark_current(o.dark_current), micro_alignment(o.micro_alignment),
+  psf_size(o.psf_size)
 {
     for (Transmissions::const_iterator i = o.transmissions.begin(), e = o.transmissions.end(); i != e; ++i)
     {
@@ -368,6 +372,7 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
 
 void PlaneConfig::registerNamedEntries()
 {
+    push_back( psf_size );
     push_back( z_position );
     push_back( counts_per_photon );
     push_back( dark_current );
@@ -416,6 +421,9 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i) {
         rv.pimpl->tmc.push_back( i->value() );
     }
+    rv.psf_size(0) = psf_size().cast< quantity<si::length,float> >();
+    for (int i = 0; i < 2; ++i)
+        (*rv.psf_size(0))[i] /= 2.35;
 }
 
 traits::Optics<2> PlaneConfig::make_traits( traits::Optics<2>::Resolutions defaults ) const
@@ -451,57 +459,6 @@ void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
     pimpl->tmc = tmc;
 }
 
-#if 0
-bool Optics<2>::transformation_is_just_scaling_and_translation() const 
-{
-    if ( ! to_sample_space.is_initialized() ) return true;
-    Eigen::Matrix3f check = *to_sample_space;
-    check.diagonal().fill(0); check.col(2).fill(0);
-    return (check.cwise().abs().cwise() < 1E-20).all();
-}
-
-void Optics<2>::apply_transformation( const Eigen::Matrix3d& trafo ) 
-{
-    set_resolution( resolutions );
-    if ( to_sample_space.is_initialized() ) {
-        to_sample_space = trafo.cast<float>() * (*to_sample_space);
-        from_sample_space = to_sample_space->inverse();
-        DEBUG("After applying\n" << trafo << "\n have conversions\n" << *to_sample_space << "\nand\n" << *from_sample_space);
-    }
-}
-
-LayerConfig::LayerConfig(int number)
-
-void LayerConfig::set_traits( traits::Optics<2>& t ) const
-{
-    DEBUG("Setting optical for a layer, pixel size in x is set: " << pixel_size_x().is_set() );
-    if ( pixel_size_x().is_set() && pixel_size_y().is_set() ) {
-        boost::array< traits::ImageResolution, 2 > v;
-        v[0] = Config::get(*pixel_size_x());
-        v[1] = Config::get(*pixel_size_y());
-        t.set_resolution( v );
-    }
-    DEBUG( "TMC size in layer is " << transmissions.size());
-    for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-        t.set_fluorophore_transmission_coefficient( i - transmissions.begin(), i->value() );
-    t.z_position = z_position() * si::metre / (1E9 * si::nanometre);
-}
-
-void LayerConfig::set_number_of_fluorophores(int number)
-
-void LayerConfig::registerNamedEntries() {
-    push_back( pixel_size_x );
-    push_back( pixel_size_y );
-    push_back( z_position );
-    for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-        push_back( *i );
-}
-
-    traits::Optics<2>::Resolutions defaults;
-    defaults[0] = Config::get(pixel_size_x());
-    defaults[1] = Config::get(pixel_size_y());
-#endif
-
 void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 {
     set_number_of_planes( t.plane_count() );
@@ -515,6 +472,11 @@ void PlaneConfig::set_entries_to_traits( const traits::Optics<2>& t, int fc )
     if ( ! t.pimpl.get() ) return;
     for (int i = 0; i < fc; ++i) {
         transmissions[i] = t.transmission_coefficient( i );
+    }
+    if ( t.psf_size(0).is_initialized() ) {
+        PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
+        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
+        psf_size = s;
     }
 }
 

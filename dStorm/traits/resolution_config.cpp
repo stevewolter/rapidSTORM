@@ -9,10 +9,8 @@ namespace resolution {
 
 Config::Config()
 : simparm::Object("Optics", "Optical parameters"),
-  psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   three_d("ThreeD", "3D PSF model")
 {
-    psf_size.helpID = "PSF.FWHM";
     three_d.helpID = "3DType";
     three_d.addChoice( new NoThreeDConfig() );
     three_d.addChoice( new ZhuangThreeDConfig() );
@@ -22,7 +20,6 @@ Config::Config()
 Config::~Config() {}
 
 void Config::registerNamedEntries() {
-    push_back( psf_size );
     push_back( three_d );
     cuboid_config.registerNamedEntries();
     push_back( cuboid_config );
@@ -46,9 +43,6 @@ void Config::set_traits( input::Traits<engine::Image>& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
     cuboid_config.set_traits(t);
-    t.psf_size() = psf_size().cast< quantity<si::length,float> >();
-    for (int i = 0; i < 2; ++i)
-        (*t.psf_size())[i] /= 2.35;
 
     three_d().set_traits( t );
     const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability( 
@@ -92,11 +86,6 @@ void Config::set_traits( input::Traits<Localization>& t ) const {
 
 void Config::read_traits( const input::Traits<engine::Image>& t ) {
     cuboid_config.set_entries_to_traits( t, t.fluorophores.size() );
-    if ( t.psf_size().is_initialized() ) {
-        PSFSize s = (*t.psf_size() ).cast< PSFSize::Scalar >();
-        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
-        psf_size = s;
-    }
     if ( t.depth_info.is_initialized() ) {
         if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) )
             three_d.choose( "No3D" );

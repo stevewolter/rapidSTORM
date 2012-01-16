@@ -21,8 +21,8 @@ class LocalizationChecker {
     AllowedZPositions allowed_z_positions;
 
     template <int Dim>
-    bool check_kernel_dimension( const PSF::BaseExpression&, const guf::Spot& ) const;
-    bool check_kernel( const PSF::BaseExpression&, const guf::Spot& ) const;
+    bool check_kernel_dimension( const PSF::BaseExpression&, const guf::Spot&, int plane ) const;
+    bool check_kernel( const PSF::BaseExpression&, const guf::Spot&, int plane ) const;
 
   public:
     LocalizationChecker( const Config&, const dStorm::engine::JobInfo& );

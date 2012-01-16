@@ -54,8 +54,6 @@ class ZhuangThreeDConfig : public simparm::Object, public ThreeDConfig {
 };
 
 class Config : public simparm::Object {
-    typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
-    simparm::Entry<PSFSize> psf_size;
     simparm::NodeChoiceEntry< ThreeDConfig > three_d;
     traits::CuboidConfig cuboid_config;
 

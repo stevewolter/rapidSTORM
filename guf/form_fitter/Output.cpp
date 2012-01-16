@@ -22,6 +22,17 @@
 namespace dStorm {
 namespace form_fitter {
 
+traits::Optics<2>::PSF max_psf_size( const input::Traits<engine::Image>& traits )
+{
+   traits::Optics<2>::PSF max_psf = *traits.plane(0).psf_size(0);
+    for (int p = 0; p < traits.plane_count(); ++p) {
+        for (std::map<int,FluorophoreTraits>::const_iterator i = traits.fluorophores.begin();
+              i != traits.fluorophores.end(); ++i)
+            max_psf = max_psf.max( *traits.plane(p).psf_size(i->first) );
+    }
+    return max_psf;
+}
+
 const int GUI::tile_rows;
 const int GUI::tile_cols;
 
@@ -45,18 +56,21 @@ output::Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 {
     engine = a.engine;
+
+    dStorm::traits::Optics<2>::PSF max_psf = max_psf_size( *a.input_image_traits );
+    for (int i = 0; i < 2; ++i ) {
+        bounds[i] = boost::icl::interval< samplepos::Scalar >::closed(
+            *a.position().range()[i].first + 2.0f*max_psf[i],
+            *a.position().range()[i].second - 2.0f*max_psf[i]
+        );
+    } 
+
     if ( a.input_image_traits.get() == NULL && config.auto_disable() )
         return AdditionalData();
     else
-        input.reset( new Input( config, a ) );
+        input.reset( new Input( config, a, max_psf ) );
 
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
-    for (int i = 0; i < 2; ++i ) {
-        bounds[i] = boost::icl::interval< samplepos::Scalar >::closed(
-            *a.position().range()[i].first + 2.0f*(*a.input_image_traits->psf_size())[i],
-            *a.position().range()[i].second - 2.0f*(*a.input_image_traits->psf_size())[i]
-        );
-    }
 
     DEBUG( "New input traits are announced" );
     result_config.read_traits( *input->traits );
@@ -161,14 +175,16 @@ void Output::do_the_fit() {
 
     result_config.read_traits( *new_traits );
     if ( ! this->isActive() ) {
-            std::cerr << "Auto-guessed PSF has " << (new_traits->psf_size()->x() * 2.35f) << " FWHM ";
+            std::cerr << "Auto-guessed PSF has";
             if ( boost::get< traits::Zhuang3D >(new_traits->depth_info.get_ptr()) )
-                std::cerr << " and 3D widening " << boost::get< traits::Zhuang3D >( *new_traits->depth_info ).widening.transpose();
+                std::cerr << " 3D widening " << boost::get< traits::Zhuang3D >( *new_traits->depth_info ).widening.transpose();
+            else
+                std::cerr << " no 3D information";
             for ( size_t i = 0; i < new_traits->fluorophores.size(); ++i )
             {
                 for ( int j = 0; j < new_traits->plane_count(); ++j)
                     std::cerr << ", fluorophore " << i << " in plane " << j << 
-                                 " has transmission " << new_traits->plane(j).transmission_coefficient(i);
+                                 " has PSF FWHM " << new_traits->plane(j).psf_size(i) << " transmission " << new_traits->plane(j).transmission_coefficient(i);
             }
             std::cerr << std::endl;
     }

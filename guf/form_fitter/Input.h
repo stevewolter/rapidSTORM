@@ -17,7 +17,7 @@ struct Input {
     const int number_of_spots;
     int fluorophore_count;
 
-    Input( const Config&, const output::Output::Announcement& );
+    Input( const Config&, const output::Output::Announcement&, traits::Optics<2>::PSF );
 };
 
 }

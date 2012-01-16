@@ -23,6 +23,8 @@ class is_plane_independent
     bool operator()( Amplitude ) { return !disamp; }
     bool operator()( Prefactor ) { return false; }
     bool operator()( constant_background::Amount ) { return false; }
+    template <int Dim>
+    bool operator()( BestSigma<Dim> ) { return false; }
 
     template <class SubFunction, typename Base>
     bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
@@ -36,6 +38,8 @@ struct is_fluorophore_dependent
     typedef bool result_type;
 
     bool operator()( Wavelength ) { return true; }
+    template <int Dim>
+    bool operator()( BestSigma<Dim> ) { return true; }
     bool operator()( Prefactor ) { return true; }
 
     template <class SubFunction, typename Base>

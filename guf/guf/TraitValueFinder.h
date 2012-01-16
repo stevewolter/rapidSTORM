@@ -16,6 +16,7 @@ namespace guf {
 struct TraitValueFinder {
     const dStorm::engine::JobInfo& info;
     const dStorm::traits::Optics<2>& plane;
+    const boost::optional<traits::Optics<2>::PSF> psf;
     const quantity<si::length> zero_wavelength;
     const bool is_3d;
 
@@ -24,12 +25,13 @@ struct TraitValueFinder {
     TraitValueFinder( 
         const dStorm::engine::JobInfo& info, const dStorm::traits::Optics<2>& plane )
         : info(info), plane(plane), 
+          psf( plane.psf_size(info.fluorophore) ),
           zero_wavelength( info.traits.fluorophores.at(0).wavelength ),
           is_3d( boost::get<traits::Zhuang3D>(info.traits.depth_info.get_ptr()) ) {}
 
     template <int Dim, typename Structure>
     void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
-        { m(p) = (*info.traits.psf_size())[Dim] / zero_wavelength; }
+        { m(p) = (*psf)[Dim] / zero_wavelength; }
     template <int Dim, typename Structure>
     void operator()( PSF::DeltaSigma<Dim> p, Structure& m ) const {
         if ( is_3d )
