@@ -81,7 +81,7 @@ namespace outputs {
 
     template <int Dim>
     struct BinningStrategy {
-        typedef Eigen::Matrix<float, Eigen::Dynamic, Dim> Result;
+        typedef Eigen::Matrix<float, Eigen::Dynamic, Dim+1> Result;
 
         virtual BinningStrategy* clone() const = 0;
         virtual ~BinningStrategy() {}
