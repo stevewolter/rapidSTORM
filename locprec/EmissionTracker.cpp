@@ -256,7 +256,7 @@ void Output::finalizeImage(int imNum) {
         TracedObject& o = **i;
         reducer->reduce_trace_to_localization( 
             o.begin(), o.end(),
-            boost::back_inserter(static_cast<std::vector<dStorm::Localization>&>(er)), 
+            boost::back_inserter(er), 
             dStorm::samplepos::Constant(0*si::meter) );
         positional( o.cache_position->x(), o.cache_position->y() ).erase( &o );
         traced_objects.erase( o );

@@ -10,7 +10,7 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = dstorm-@DSTORM_LIB_VERSION@ reconstruction checkplugin_camera \
+C_TESTS = dstorm-@DSTORM_LIB_VERSION@ reconstruction \
     Pixel_test \
     check_image_slicing check_image_iterator check_traits
 
@@ -18,7 +18,6 @@ bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_V
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
-plugin_lib_LTLIBRARIES = libdirectcamerainput.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
@@ -236,9 +235,9 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS)
+dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
 dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
-dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) 
+dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
@@ -593,16 +592,13 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
 
-libdirectcamerainput_la_LDFLAGS = -no-undefined -version-info $(LIBTOOL_VERSION_INFO) -module
-libdirectcamerainput_la_LIBADD = libdStorm.la $(libb64_LIBS) $(boost_system_LIB) $(boost_thread_LIB)
-libdirectcamerainput_la_CPPFLAGS = $(libb64_CFLAGS)
-libdirectcamerainput_la_SOURCES = \
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
     AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
-    AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
+    AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
 fit_camera_noise_SOURCES = locprec/fitNoise.cpp
 fit_camera_noise_LDADD = liblocprec.la 

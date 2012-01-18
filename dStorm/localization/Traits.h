@@ -40,10 +40,11 @@ struct Traits< Localization >
   public traits::Fluorophore,
   public traits::LocalBackground
 {
-    Traits() : in_sequence(false) {}
+    Traits();
+    Traits( const Traits& );
     Traits( const dStorm::input::Traits<dStorm::engine::Image>& );
-    Traits* clone() const { return new Traits(*this); }
-    std::string desc() const { return "localization"; }
+    Traits* clone() const;
+    std::string desc() const;
 
 #define ACCESSORS(x,n) \
     x& n() { return *this; } \

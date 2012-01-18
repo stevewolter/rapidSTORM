@@ -14,7 +14,7 @@ class TraceCountFilter : public output::OutputObject,
                          public simparm::Node::Callback
 {
   private:
-    std::vector<Localization> localizations;
+    EngineResult localizations;
     int minCount;
     bool disassemble;
     std::auto_ptr< output::Output > output;

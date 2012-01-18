@@ -31,11 +31,11 @@ bool BaseEvaluator<Number,Expression>::prepare_iteration( const Data& data )
 
 template <>
 Eigen::Matrix<double,2,1> BaseEvaluator<double,No3D>::get_sigma() const {
-        return (expr->best_sigma * wavelength).cast<double>();
+        return (expr->best_sigma * expr->wavelength).cast<double>();
 }
 template <>
 Eigen::Matrix<float,2,1> BaseEvaluator<float,No3D>::get_sigma() const {
-        return (expr->best_sigma * wavelength).cast<float>();
+        return (expr->best_sigma * expr->wavelength).cast<float>();
 }
 
 template <typename Number, typename Model>
@@ -43,7 +43,7 @@ Eigen::Matrix<Number,2,1> BaseEvaluator<Number,Model>::get_sigma() const {
     BOOST_STATIC_ASSERT (( boost::is_same<Model,Zhuang>::value ));
     Eigen::Vector2d relative_z = 
         (Eigen::Vector2d::Constant( expr->zposition - expr->axial_mean ) - expr->z_offset);
-    return ((relative_z.array().square() * expr->delta_sigma.array() + expr->best_sigma.array()) * wavelength).template cast<Number>();
+    return ((relative_z.array().square() * expr->delta_sigma.array() + expr->best_sigma.array()) * expr->wavelength).template cast<Number>();
 }
 
 template <typename Number, typename Model>

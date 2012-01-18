@@ -59,18 +59,20 @@ Optics<2>::Pimpl::Pimpl( quantity<camera::resolution> x, quantity<camera::resolu
 Optics<2>::Optics() {}
 
 Optics<2>::Optics( const Optics &o ) 
-: resolutions(o.resolutions),
+: pimpl( (o.pimpl.get()) ? new Pimpl(*o.pimpl) : NULL ),
+  resolutions(o.resolutions),
+  psf(o.psf),
   z_position(o.z_position),
   offsets(o.offsets),
   photon_response(o.photon_response),
   background_stddev(o.background_stddev),
   dark_current(o.dark_current)
 {
-    if ( o.pimpl.get() ) pimpl.reset( new Pimpl(*o.pimpl) );
 }
 
 Optics<2>& Optics<2>::operator=( const Optics<2> &o ) 
 {
+    psf = o.psf;
     resolutions = o.resolutions;
     z_position = o.z_position;
     offsets[0] = o.offsets[0];

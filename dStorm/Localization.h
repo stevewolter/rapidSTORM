@@ -60,21 +60,16 @@ class Localization  {
     inline const_iterator begin() const;
     inline const_iterator end() const;
 
-    Localization() {}
-    inline Localization( const Position::Type& position, 
+    Localization();
+    Localization( const Position::Type& position, 
                     Amplitude::Type strength );
+    Localization( const Localization& );
+    ~Localization();
 };
 
 std::ostream&
 operator<<(std::ostream &o, const Localization& loc);
 
-Localization::Localization( 
-    const Position::Type& position,
-    Amplitude::Type strength
-)
-: position(position), amplitude(strength)
-{}
-              
 }
 
 BOOST_FUSION_ADAPT_STRUCT(

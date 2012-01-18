@@ -18,6 +18,7 @@
 #include "LibraryHandle.h"
 #include "test-plugin/plugin.h"
 #include "locprec/plugin.h"
+#include "AndorCamera/plugin.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -138,9 +139,10 @@ void ModuleLoader::add_modules
     DEBUG("Adding basic output modules");
     dStorm::output::basic_outputs( &car_config );
 
-    test::make_config( &car_config );
     guf::augment_config( car_config );
+    AndorCamera::augment_config( car_config );
     locprec::augment_config( car_config );
+    test::make_config( &car_config );
 
     DEBUG("Iterating plugins");
     for ( Pimpl::List::iterator i = pimpl->lib_handles.begin(); i != pimpl->lib_handles.end();

@@ -314,7 +314,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         const Spot& s = cM->spot();
         DEBUG("Trying candidate " << s.position() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
-        std::vector<Localization>& buffer = resultStructure;
+        output::LocalizedImage& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;
         double best_total_residues = std::numeric_limits<double>::infinity();
         int best_found = -1;

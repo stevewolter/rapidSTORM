@@ -41,7 +41,7 @@ void TraceCountFilter::processLocalization( const Localization& l)
 {
     if ( count_localizations_in( l ) >= minCount ) {
         if (disassemble && l.children.is_initialized() ) {
-            std::copy( l.children->begin(), l.children->end(), back_inserter( localizations ) );
+            std::copy( l.children->begin(), l.children->end(), std::back_inserter( localizations ) );
         } else {
             localizations.push_back( l );
         }
@@ -90,7 +90,7 @@ void TraceCountFilter::receiveLocalizations(const EngineResult& e)
             boost::bind( &TraceCountFilter::processLocalization, this, _1 ) );
             
     EngineResult eo(e);
-    std::swap( static_cast< std::vector<Localization>& >(eo), localizations );
+    std::swap( eo, localizations );
     output->receiveLocalizations(eo);
 }
 

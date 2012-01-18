@@ -14,6 +14,35 @@ LocalizedImage::LocalizedImage(frame_index i)
 {
 }
 
+LocalizedImage::LocalizedImage(const LocalizedImage& o) 
+: results(o.results), source(o.source), smoothed(o.smoothed), 
+  candidates(o.candidates)
+{
+}
+
+LocalizedImage::~LocalizedImage()
+{
+}
+
+LocalizedImage& LocalizedImage::operator=( const LocalizedImage& o ) {
+    results = o.results;
+    source = o.source;
+    smoothed = o.smoothed;
+    candidates = o.candidates;
+    return *this;
+}
+
+void LocalizedImage::push_back( const Localization& l ) { results.push_back(l); }
+void LocalizedImage::clear() { results.clear(); }
+void LocalizedImage::resize( size_t size ) { results.resize( size ); }
+
+bool LocalizedImage::empty() const { return results.empty(); }
+
+LocalizedImage::iterator LocalizedImage::erase( iterator p ) 
+    { return results.erase(p); }
+LocalizedImage::iterator LocalizedImage::erase( iterator f, iterator t ) 
+    { return results.erase(f,t); }
+
 void LocalizedImage::set_frame_number( frame_index n ) 
 {
     forImage = n;

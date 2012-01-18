@@ -10,8 +10,9 @@ namespace dStorm {
 namespace output {
 
 struct LocalizedImage
-: public std::vector<Localization>
 {
+    std::vector<Localization> results;
+  public:
     /** Number of the image the localizations were found in. */
     frame_index forImage;
     /** If the SourceImage AdditionalData field was set,
@@ -29,6 +30,36 @@ struct LocalizedImage
 
     LocalizedImage();
     LocalizedImage(frame_index);
+    LocalizedImage( const LocalizedImage& );
+    ~LocalizedImage();
+    LocalizedImage& operator=( const LocalizedImage& );
+
+    typedef std::vector<Localization>::value_type value_type;
+    typedef std::vector<Localization>::reference reference;
+    typedef std::vector<Localization>::const_reference const_reference;
+    typedef std::vector<Localization>::iterator iterator;
+    typedef std::vector<Localization>::const_iterator const_iterator;
+    size_t size() const { return results.size(); }
+    Localization& operator[]( int i ) { return results[i]; }
+    const Localization& operator[]( int i ) const { return results[i]; }
+    std::vector<Localization>::const_iterator begin() const 
+        { return results.begin(); }
+    std::vector<Localization>::const_iterator end() const 
+        { return results.end(); }
+    std::vector<Localization>::iterator begin() 
+        { return results.begin(); }
+    std::vector<Localization>::iterator end()
+        { return results.end(); }
+    void push_back( const Localization& l );
+    void clear();
+    void resize( size_t size );
+    const Localization& front() const { return results.front(); }
+    Localization& front() { return results.front(); }
+    Localization& back() { return results.back(); }
+    const Localization& back() const { return results.back(); }
+    iterator erase( iterator p );
+    iterator erase( iterator f, iterator t );
+    bool empty() const;
 
     frame_index frame_number() const { return forImage; }
     void set_frame_number(frame_index);
