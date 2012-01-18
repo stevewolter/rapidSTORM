@@ -1,3 +1,4 @@
+#define VERBOSE
 #include "debug.h"
 #include "RawImageFile.h"
 #include <cassert>
@@ -137,8 +138,9 @@ void RawImageFile::delete_queue() {
 }
 
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
-    TIFFOperation op("in writing TIFF file", *this, false);
     DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
+    assert( (size.size.array() == img.sizes().array()).all() );
+    TIFFOperation op("in writing TIFF file", *this, false);
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel * size.size.z() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
@@ -154,8 +156,6 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
     }
     op.throw_exception_for_errors();
 
-    strip_size = TIFFStripSize( tif );
-    tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
     if ( ! img.is_invalid() ) {
         for (int z = 0; z < img.depth_in_pixels(); ++z)
             for (int y = 0; y < img.height_in_pixels(); ++y)
@@ -166,6 +166,8 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
                     op.throw_exception_for_errors();
             }
     } else {
+        strip_size = TIFFStripSize( tif );
+        tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
         /* If the image is invalid, write empty image data */
         boost::scoped_array<StormPixel> nulls( new StormPixel[strip_size] );
         for (int i = 0; i < strip_size; ++i ) nulls[i] = 0;
@@ -181,6 +183,12 @@ void RawImageFile::write_image(const dStorm::engine::Image& img) {
 }
 
 void RawImageFile::store_results() {
+    if ( tif != NULL ) {
+        DEBUG("Closing TIFF output file");
+        TIFFOperation op("in closing TIFF file", *this, false);
+        TIFFClose( tif );
+        tif = NULL;
+    }
 }
 
 RawImageFile::~RawImageFile() {
@@ -189,6 +197,7 @@ RawImageFile::~RawImageFile() {
         DEBUG("Closing TIFF output file");
         TIFFOperation op("in closing TIFF file", *this, false);
         TIFFClose( tif );
+        tif = NULL;
     }
 }
 

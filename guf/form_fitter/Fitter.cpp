@@ -287,7 +287,7 @@ bool Fitter<Metric,Lambda>::
 add_image( const engine::Image& image, const Localization& position, int fluorophore ) 
 {
     for (int i = 0; i < image.depth_in_pixels(); ++i) {
-        DEBUG("Adding layer " << i << " of " << image.depth_in_pixels() << " to model with " << combiner.evaluator_count()
+        DEBUG("Adding layer " << i << " of " << image.depth_in_pixels() << " to model with " << evaluators.size()
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 

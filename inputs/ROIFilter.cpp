@@ -65,6 +65,7 @@ class Source
         if ( plane.is_initialized() ) {
             std::swap(t.planes[0], t.planes[*plane]);
             t.planes.resize(1);
+            t.size.z() = 1 * camera::pixel;
         }
     }
     template <class Other>

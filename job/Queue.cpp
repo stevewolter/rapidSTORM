@@ -16,8 +16,10 @@ Queue::~Queue() {
 
 void Queue::producer_finished()
 {
+    DEBUG("Noticing that producer has finished");
     boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
     --producer_count; 
+    DEBUG("Have now " << producer_count << " producers");
     if ( producer_count == 0 )
         consumer_can_continue.notify_all();
 }
@@ -40,9 +42,11 @@ void Queue::push( const output::LocalizedImage& r ) {
             int(ring_buffer.size()) ) 
     {
         if ( interruption ) throw boost::thread_interrupted();
+        DEBUG("Waiting for space for " << r.forImage);
         producer_can_continue.wait(lock);
     }
 
+    DEBUG("Inserting image " << r.forImage << " into queue");
     int ring = r.forImage.value() % ring_buffer.size();
     assert( ! ring_buffer[ring].is_initialized() );
     ring_buffer[ring] = r;
@@ -65,10 +69,12 @@ bool Queue::has_more_input() {
 }
 
 const output::LocalizedImage& Queue::front() const {
+    DEBUG("Accessed " << ring());
     return *ring_buffer[ring()];
 }
 
 void Queue::pop() {
+    DEBUG("Removed image " << ring());
     boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
     ring_buffer[ring()].reset();
     next_output += 1 * camera::frame;
@@ -77,6 +83,7 @@ void Queue::pop() {
 
 void Queue::interrupt_producers() {
     boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
+    DEBUG("Interrupting all producers");
     interruption = true;
     producer_can_continue.notify_all();
 }
