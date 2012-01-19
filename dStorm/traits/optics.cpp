@@ -472,14 +472,6 @@ void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 void PlaneConfig::set_entries_to_traits( const traits::Optics<2>& t, int fc )
 {
     if ( ! t.pimpl.get() ) return;
-    for (int i = 0; i < fc; ++i) {
-        transmissions[i] = t.transmission_coefficient( i );
-    }
-    if ( t.psf_size(0).is_initialized() ) {
-        PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
-        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
-        psf_size = s;
-    }
 }
 
 void CuboidConfig::set_3d_availability(bool available) {
