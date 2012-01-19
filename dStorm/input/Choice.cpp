@@ -80,7 +80,7 @@ void Choice::publish_traits() {
 BaseSource* Choice::makeSource() {
     if ( ! choices.isValid() )
         throw std::runtime_error("No choice selected for '" + description() + "'");
-    return choices.value().link().makeSource();
+    return choices.value().link().make_source().release();
 }
 
 Choice* Choice::clone() const 

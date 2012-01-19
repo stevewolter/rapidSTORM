@@ -25,11 +25,13 @@ void Forwarder::registerNamedEntries(simparm::Node& n) {
         more_specialized->registerNamedEntries(n);
 }
 
-BaseSource* Forwarder::makeSource() { 
+std::auto_ptr<BaseSource> Forwarder::upstream_source() { 
     assert( more_specialized.get() );
-    BaseSource* ms = more_specialized->makeSource();
-    assert( ms );
-    return ms;
+    return more_specialized->make_source();
+}
+
+BaseSource* Forwarder::makeSource() { 
+    return upstream_source().release();
 }
 
 void Forwarder::insert_new_node( std::auto_ptr<Link> n, Place p ) {

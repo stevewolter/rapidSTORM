@@ -183,7 +183,7 @@ struct Check {
             l.current_meta_info().reset();
         
         DEBUG("Checking if source can be built");
-        std::auto_ptr<input::BaseSource> bs( l.makeSource() );
+        std::auto_ptr<input::BaseSource> bs( static_cast<input::Link&>(l).make_source() );
         std::auto_ptr< input::Source<engine::Image> > source
             = input::BaseSource::downcast< engine::Image >( bs );
         if ( source.get() == NULL )

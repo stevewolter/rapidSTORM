@@ -290,12 +290,12 @@ void Link::traits_changed( TraitsRef r, input::Link* l ) {
 
 BaseSource* Link::makeSource() {
     if ( children.size() == 1 ) {
-        return children[0].makeSource();
+        return children[0].make_source().release();
     } else {
         Sources sources;
         for (size_t i = 0; i < children.size(); ++i)
             sources.push_back( boost::shared_ptr<BaseSource>( 
-                children[i].makeSource() ) );
+                children[i].make_source() ) );
         return join_type().make_source( sources ).release();
     }
 }

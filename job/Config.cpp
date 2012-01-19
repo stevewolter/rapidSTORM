@@ -197,7 +197,7 @@ void Config::add_output( std::auto_ptr<output::OutputSource> o ) {
 }
 
 std::auto_ptr<input::BaseSource> Config::makeSource() {
-    return std::auto_ptr<input::BaseSource>( input->makeSource() );
+    return input->make_source();
 }
 
 const input::MetaInfo&

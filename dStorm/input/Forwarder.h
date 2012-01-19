@@ -27,6 +27,7 @@ class Forwarder : public Link {
   protected:
     void insert_here( std::auto_ptr<Link> );
     TraitsRef upstream_traits() const;
+    std::auto_ptr< BaseSource > upstream_source();
 };
 
 }

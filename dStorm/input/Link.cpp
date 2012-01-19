@@ -40,6 +40,10 @@ void Terminus::insert_new_node( std::auto_ptr<Link> l, Place ) {
 
 std::string Link::name() const { throw std::logic_error("Not implemented"); }
 
+std::auto_ptr<BaseSource> Link::make_source() {
+    return std::auto_ptr<BaseSource>(makeSource());
+}
+
 }
 }
 

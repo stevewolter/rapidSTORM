@@ -11,18 +11,18 @@
 namespace dStorm {
 namespace input {
 
-template <typename CRTP, typename BaseClass = Forwarder>
+template <typename CRTP>
 class Method
-: public BaseClass
+: public Forwarder
 {
     typedef boost::shared_ptr< const MetaInfo > TraitsRef;
+    BaseSource* makeSource();
 
   public:
-    BaseClass* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
-    BaseSource* makeSource();
+    Forwarder* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
     void traits_changed( TraitsRef, Link* );
     void registerNamedEntries( simparm::Node& node ) { 
-        BaseClass::registerNamedEntries( node );
+        Forwarder::registerNamedEntries( node );
         node.push_back( static_cast<CRTP&>(*this).getNode() ); 
     }
     std::string name() const
@@ -57,8 +57,8 @@ class Method
     }
 
     void republish_traits() { 
-        if ( BaseClass::upstream_traits().get() )
-            traits_changed( BaseClass::upstream_traits(), NULL ); 
+        if ( Forwarder::upstream_traits().get() )
+            traits_changed( Forwarder::upstream_traits(), NULL ); 
     }
   private:
     typedef std::auto_ptr<BaseSource> Src;
@@ -66,11 +66,11 @@ class Method
     struct make_traits;
 };
 
-template <typename CRTP, typename BaseClass>
-struct Method<CRTP,BaseClass>::make_traits {
+template <typename CRTP>
+struct Method<CRTP>::make_traits {
     typedef void result_type;
     template <typename Type>
-    void operator()( Method<CRTP,BaseClass>& me, Type, TraitsRef orig, TraitsRef& result)
+    void operator()( Method<CRTP>& me, Type, TraitsRef orig, TraitsRef& result)
     {
         if ( result.get() ) return;
         if ( orig->provides<Type>() ) {
@@ -88,11 +88,11 @@ struct Method<CRTP,BaseClass>::make_traits {
     }
 };
 
-template <typename CRTP, class BaseClass>
-struct Method<CRTP,BaseClass>::source_maker {
+template <typename CRTP>
+struct Method<CRTP>::source_maker {
     typedef void result_type;
     template <typename Type>
-    void operator()( Method<CRTP,BaseClass>& me, Type, Src& orig, Src& result) const
+    void operator()( Method<CRTP>& me, Type, Src& orig, Src& result) const
     {
         if ( result.get() ) return;
         Source<Type>* test = dynamic_cast< Source<Type>* >(orig.get());
@@ -103,9 +103,9 @@ struct Method<CRTP,BaseClass>::source_maker {
     }
 };
 
-template <typename CRTP, class BaseClass>
-BaseSource* Method<CRTP,BaseClass>::makeSource() {
-    Src orig( BaseClass::makeSource() ), result;
+template <typename CRTP>
+BaseSource* Method<CRTP>::makeSource() {
+    Src orig( Forwarder::upstream_source() ), result;
     boost::mpl::for_each< typename CRTP::SupportedTypes >(
         boost::bind( source_maker(), boost::ref(*this), _1, boost::ref(orig),
                      boost::ref(result) ) );
@@ -114,12 +114,12 @@ BaseSource* Method<CRTP,BaseClass>::makeSource() {
     else if ( static_cast<CRTP&>(*this).ignore_unknown_type() )
         return orig.release();
     else
-        throw std::runtime_error(BaseClass::name() + " cannot process input "
+        throw std::runtime_error(Forwarder::name() + " cannot process input "
             "of the current type");
 }
 
-template <typename CRTP, class BaseClass>
-void Method<CRTP,BaseClass>::traits_changed( TraitsRef orig, Link* ) {
+template <typename CRTP>
+void Method<CRTP>::traits_changed( TraitsRef orig, Link* ) {
     TraitsRef result;
     if ( orig.get() )
         boost::mpl::for_each< typename CRTP::SupportedTypes >(

@@ -30,15 +30,17 @@ class Link {
   public:
     typedef std::auto_ptr<boost::signals2::scoped_connection> Connection;
   private:
-        
     TraitsRef meta_info;
     TraitsSignal meta_info_signal;
+
+    virtual BaseSource* makeSource() = 0;
+
   public:
     Link();
     Link(const Link&);
     virtual ~Link();
 
-    virtual BaseSource* makeSource() = 0;
+    std::auto_ptr<BaseSource> make_source();
     virtual Link* clone() const = 0;
     virtual void registerNamedEntries( simparm::Node& ) = 0;
 
