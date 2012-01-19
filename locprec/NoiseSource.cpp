@@ -312,8 +312,9 @@ void NoiseConfig::publish_meta_info() {
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
-    static_cast< dStorm::traits::Optics<3>& >(*rv) = optics.make_traits();
-    rv->fluorophores[1].wavelength = rv->fluorophores[0].wavelength;
+    dStorm::traits::Optics<3> optics = this->optics.make_traits();
+    rv->size.z() = optics.plane_count() * camera::pixel;
+    rv->planes.resize( optics.plane_count() );
 
     dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
     t->set_traits( rv );
