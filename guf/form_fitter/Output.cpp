@@ -128,6 +128,7 @@ void Output::receiveLocalizations(const EngineResult& er)
             } else {
                 Tiles new_tiles = gui_result.get();
                 selected.transfer( selected.end(), new_tiles.begin(), new_tiles.end(), new_tiles );
+                DEBUG("Got results from GUI, have now " << selected.size() << " spots");
                 if ( selected.size() >= config.number_of_spots() ) {
                     try {
                         for (Tiles::const_iterator i = selected.begin(); i != selected.end(); ++i) {
@@ -184,7 +185,7 @@ void Output::do_the_fit() {
             {
                 for ( int j = 0; j < new_traits->plane_count(); ++j)
                     std::cerr << ", fluorophore " << i << " in plane " << j << 
-                                 " has PSF FWHM " << new_traits->plane(j).psf_size(i) << " transmission " << new_traits->plane(j).transmission_coefficient(i);
+                                 " has PSF FWHM " << new_traits->plane(j).psf_size(i)->transpose() << " transmission " << new_traits->plane(j).transmission_coefficient(i);
             }
             std::cerr << std::endl;
     }

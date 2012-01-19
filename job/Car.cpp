@@ -227,6 +227,7 @@ void Car::compute() {
             } else if ( result == Run::Failed ) {
                 break;
             } else {
+                current_run.reset();
                 input->dispatch( input::BaseSource::RepeatInput );
             }
         }

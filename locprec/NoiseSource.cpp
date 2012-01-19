@@ -296,7 +296,7 @@ template <typename Pixel>
 typename NoiseSource<Pixel>::Source::TraitsPtr
 NoiseSource<Pixel>::get_traits( typename Source::Wishes ) {
     typename Source::TraitsPtr rv( new dStorm::input::Traits< dStorm::Image<Pixel,3> >() );
-    static_cast< dStorm::traits::Optics<3>& >(*rv) = optics;
+    rv->planes.resize( imS[2].value() );
     rv->size = imS;
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = (imN - 1) * camera::frame;
