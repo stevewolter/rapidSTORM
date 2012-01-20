@@ -19,7 +19,7 @@ namespace si = boost::units::si;
 
 class Output : public dStorm::output::OutputObject {
     simparm::FileEntry filename;
-    typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution, false > Scaler;
+    typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
     boost::optional<distance_histogram::Histogram> histogram;
     boost::ptr_array< Scaler, 2 > scalers;
     class _Config;
@@ -92,9 +92,14 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
 void Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {
         boost::array< float, 2 > line;
-        for (int j = 0; j < 2; ++j)
-            line[j] = scalers[j].bin_point( *i );
-        histogram->push_back( line );
+        bool is_good = true;
+        for (int j = 0; j < 2; ++j) {
+            boost::optional<float> v = scalers[j].bin_point( *i );
+            if ( ! v ) { is_good = false; continue; }
+            line[j] = *v;
+        }
+        if ( is_good )
+            histogram->push_back( line );
     }
     localization_count += e.size();
 }

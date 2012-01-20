@@ -87,7 +87,7 @@ nobase_include_HEADERS = \
     dStorm/Config_decl.h dStorm/Config.h \
     dStorm/Engine.h dStorm/Engine_decl.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
-    dStorm/output/binning/binning.h dStorm/output/binning/binning_decl.h \
+    dStorm/output/binning/binning.h dStorm/output/binning/binning.hpp dStorm/output/binning/binning_decl.h \
     dStorm/output/binning/inversion.h \
     dStorm/output/binning/localization.h \
     dStorm/output/binning/localization_impl.h \
@@ -610,9 +610,6 @@ determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
 reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
-checkplugin_camera_SOURCES = AndorCamera/check_plugin.cpp
-checkplugin_camera_LDADD = libdirectcamerainput.la 
-checkplugin_camera_LDFLAGS = -no-undefined
 Pixel_test_SOURCES = dStorm/Pixel_test.cpp
 check_traits_SOURCES = dStorm/traits/scalar_check.cpp
 check_traits_LDADD = libdStorm.la

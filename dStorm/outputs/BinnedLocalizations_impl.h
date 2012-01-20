@@ -66,9 +66,9 @@ BinnedLocalizations<KeepUpdated,Dim>
     typedef Eigen::Matrix< pixel_count, Dim, 1> Position;
 
     typename BinningStrategy<Dim>::Result r( er.size(), Dim+1 );
-    strategy->bin_points(er, r);
+    int point_count = strategy->bin_points(er, r);
 
-    for (size_t i = 0; i < er.size(); i++) {
+    for (int i = 0; i < point_count; i++) {
         const Localization& l = er[i];
 
         Eigen::Array<float,Dim,1> values, lower, terms;

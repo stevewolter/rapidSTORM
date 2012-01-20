@@ -258,9 +258,17 @@ void Segmenter::segment()
     for ( Localizations::const_iterator fit = points.begin(); 
              fit != points.end(); fit++)
     {
-        int x_bin = round(binners[0].bin_point(*fit)),
-            y_bin = round(binners[0].bin_point(*fit));
-        int region = segmentation(x_bin, y_bin);
+        int bins[2];
+        bool good = true;
+        for (int i = 0; i < 2; ++i) {
+            boost::optional<float> v = binners[i].bin_point(*fit);
+            if ( ! v ) 
+                good = false;
+            else
+                bins[i] = round(*v);
+        }
+        if ( ! good ) return;
+        int region = segmentation(bins[0], bins[1]);
         if (srMap[region] == NULL) {
             regions.push_back( Trace() );
             regions.back().push_back( *fit );
@@ -306,8 +314,11 @@ class LocalizationMapper
         double minDist = std::numeric_limits<double>::max();
         const To* minCand = NULL;
         float locpos[2];
-        for (int i = 0; i < 2; ++i)
-            locpos[i] = binners[i].bin_point(loc);
+        for (int i = 0; i < 2; ++i) {
+            boost::optional<float> v = binners[i].bin_point(loc);
+            if ( ! v ) return;
+            locpos[i] = *v;
+        }
         BOOST_FOREACH( const Spot& spot, spots )
         {
             double dist = sq(spot.position().x().value() - locpos[0]) +

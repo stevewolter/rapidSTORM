@@ -11,122 +11,167 @@ namespace output {
 namespace binning {
 
 template <int Index>
-Localization<Index,IsUnscaled,false>::Localization(int row, int column)
+Localization<Index,IsUnscaled>::Localization(int row, int column)
 : scalar(row, column)
 {
 }
 
 template <int Index>
-Localization<Index,Bounded,false>::Localization(int row, int column)
-: Base(row, column)
+Localization<Index,Bounded>::Localization(int row, int column)
+: Base(row, column), discard( true )
 {
 }
 
 template <int Index>
-Localization<Index,ScaledByResolution,false>::Localization(value res, int row, int column) 
+Localization<Index,ScaledByResolution>::Localization(value res, int row, int column) 
 : Base(row, column), scale(1.0f / quantity<typename value::unit_type,float>(res))
 {
     DEBUG("Scale factor for field " << Index << ":" << row << ":" << column << " is " << scale);
 }
 
 template <int Index>
-Localization<Index,ScaledToInterval,false>::Localization(float desired_range, int row, int column) 
+Localization<Index,ScaledToInterval>::Localization(float desired_range, int row, int column) 
 : Base(row, column), desired_range(desired_range)
 {
     DEBUG("Desired range for field " << Index << ":" << row << ":" << column << " is " << desired_range);
 }
 
 template <int Index>
-Localization<Index,InteractivelyScaledToInterval,false>::Localization(float desired_range, int row, int column) 
+Localization<Index,InteractivelyScaledToInterval>::Localization(float desired_range, int row, int column) 
 : Base(desired_range, row, column)
 {
     not_given.set();
 }
 
 template <int Index>
-float Localization<Index,IsUnscaled,false>::bin_point( const dStorm::Localization& l ) const
+typename Localization<Index,IsUnscaled>::value
+Localization<Index,IsUnscaled>::bin_naively( const dStorm::Localization& l ) const
 {
-    float rv = scalar.value(boost::fusion::at_c<Index>(l).value()).value();
-    DEBUG("Coordinate index " << Index << " with unscaled binning returns " << rv);
-    return rv;
+    return scalar.value(boost::fusion::at_c<Index>(l).value());
 }
 
 template <int Index>
-float Localization<Index,Bounded,false>::bin_point( const dStorm::Localization& l ) const
+bool
+Localization<Index,Bounded>::in_range( value v ) const
 {
-    value clipped = Base::scalar.value(boost::fusion::at_c<Index>(l).value());
-    clipped = std::max( range[0], std::min( clipped, range[1] ) );
-    float rv = (clipped - range[0]).value();
-    DEBUG("Coordinate index " << Index << " with bounded binning returns " << rv);
-    return rv;
+    return (v >= range[0] && v <= range[1]);
 }
 
 template <int Index>
 float
-Localization<Index,ScaledByResolution,false>::bin_point( const dStorm::Localization& l ) const
+Localization<Index,Bounded>::scale( value v ) const
 {
-    value clipped = Base::scalar.value(boost::fusion::at_c<Index>(l).value());
-    clipped = std::max( Base::range[0], std::min( clipped, Base::range[1] ) );
-    float rv = (clipped - Base::range[0]) * scale;
-    DEBUG("Coordinate index " << Index << " with resolution-scaled binning returns " << rv << " with scale " << scale << " and base " << Base::range[0]);
-    return rv;
+    return (v - range[0]).value();
 }
 
 template <int Index>
-float
-Localization<Index,InteractivelyScaledToInterval,false>::bin_point( const dStorm::Localization& l ) const
+typename Localization<Index,Bounded>::value
+Localization<Index,Bounded>::clip( value v ) const
+{
+    return std::max( range[0], std::min( v, range[1] ) );
+}
+
+
+template <int Index>
+boost::optional<float>
+Localization<Index,IsUnscaled>::bin_point( const dStorm::Localization& l ) const
+{
+    return bin_naively(l).value(); 
+}
+
+template <int Index>
+boost::optional<float>
+Localization<Index,Bounded>::bin_point( const dStorm::Localization& l ) const
+{
+    value v = this->bin_naively(l);
+    if ( discard ) {
+        if ( ! in_range(v) )
+            return boost::optional<float>();
+        else
+            return scale(v);
+    } else {
+        return scale( clip(v) );
+    }
+}
+
+template <int Index>
+boost::optional<float>
+Localization<Index,ScaledByResolution>::bin_point( const dStorm::Localization& l ) const
+{
+    boost::optional<float> f = Base::bin_point( l );
+    if ( f.is_initialized() )
+        return *f * scale.value();
+    else
+        return f;
+}
+
+template <int Index>
+boost::optional<float>
+Localization<Index,InteractivelyScaledToInterval>::bin_point( const dStorm::Localization& l ) const
 {
     if ( not_given.none() ) {
         DEBUG("Range given interactively, binning");
         return Base::bin_point(l);
     } else {
         DEBUG("Range not given, not binning");
+        return boost::optional<float>();
+    }
+}
+
+template <int Index>
+int
+Localization<Index,IsUnscaled>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+{
+    float *t = target;
+    for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, t += stride)
+        *t = bin_naively(*i).value();
+    return (t - target) / stride;
+}
+
+template <int Index>
+int
+Localization<Index,Bounded>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+{
+    float *t = target;
+    for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+        value v = this->bin_naively( *i );
+        if ( ! discard || in_range( v ) ) {
+            *target = scale( (!discard) ? clip(v) : v );
+            target += stride;
+        }
+    }
+    return (t - target) / stride;
+}
+
+template <int Index>
+int
+Localization<Index,ScaledByResolution>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+{
+    int c = Base::bin_points(l, target, stride);
+    for (int i = 0; i < c; ++i)
+        target[i * stride] *= scale.value();
+    return c;
+}
+
+template <int Index>
+int
+Localization<Index,InteractivelyScaledToInterval>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
+{
+    if ( not_given.none() )
+        return Base::bin_points(l, target, stride);
+    else {
         return 0;
     }
 }
 
 template <int Index>
-void
-Localization<Index,IsUnscaled,false>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
-{
-    for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, target += stride)
-        *target = bin_point(*i);
-}
-
-template <int Index>
-void
-Localization<Index,Bounded,false>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
-{
-    for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, target += stride)
-        *target = bin_point(*i);
-}
-
-template <int Index>
-void
-Localization<Index,ScaledByResolution,false>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
-{
-    for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, target += stride)
-        *target = bin_point(*i);
-}
-
-template <int Index>
-void
-Localization<Index,InteractivelyScaledToInterval,false>::bin_points(const output::LocalizedImage& l, float *target, int stride) const
-{
-    if ( not_given.none() )
-        return Base::bin_points(l, target, stride);
-    else
-        for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i, target += stride)
-            *target = 0;
-}
-
-template <int Index>
-void Localization<Index,IsUnscaled,false>::announce(const output::Output::Announcement& a) 
+void Localization<Index,IsUnscaled>::announce(const output::Output::Announcement& a) 
 { 
 }
 
 template <int Index>
-void Localization<Index,Bounded,false>::announce(const output::Output::Announcement& a) 
+void Localization<Index,Bounded>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
     if ( ! Base::scalar.range(a).first.is_initialized() || ! Base::scalar.range(a).second.is_initialized() ) {
@@ -145,7 +190,7 @@ void Localization<Index,Bounded,false>::announce(const output::Output::Announcem
 }
 
 template <int Index>
-void Localization<Index,ScaledToInterval,false>::announce(const output::Output::Announcement& a) 
+void Localization<Index,ScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
     Base::announce(a);
 
@@ -153,7 +198,7 @@ void Localization<Index,ScaledToInterval,false>::announce(const output::Output::
 }
 
 template <int Index>
-void Localization<Index,InteractivelyScaledToInterval,false>::announce(const output::Output::Announcement& a) 
+void Localization<Index,InteractivelyScaledToInterval>::announce(const output::Output::Announcement& a) 
 { 
     orig_range = Base::scalar.range(a);
     if ( orig_range.first.is_initialized() && ! user.test(0) ) 
@@ -164,32 +209,32 @@ void Localization<Index,InteractivelyScaledToInterval,false>::announce(const out
 }
 
 template <int Index>
-float Localization<Index,Bounded,false>::get_size() const
+float Localization<Index,Bounded>::get_size() const
 {
     DEBUG("Interval for " << Index << " goes from " << range[0] << " " << range[1]);
     return (range[1] - range[0]).value();
 }
 template <int Index>
-float Localization<Index,ScaledByResolution,false>::get_size() const
+float Localization<Index,ScaledByResolution>::get_size() const
 {
     float rv = Base::get_size() * scale.value();
     DEBUG( "Size for field " << Index << ":" << Base::scalar.row() << ":" << Base::scalar.column() << " is " << rv );
     return rv;
 }
 template <int Index>
-float Localization<Index,ScaledToInterval,false>::get_size() const
+float Localization<Index,ScaledToInterval>::get_size() const
 {
     return desired_range;
 }
 
 template <int Index>
-void Localization<Index,ScaledToInterval,false>::recompute_scale() 
+void Localization<Index,ScaledToInterval>::recompute_scale() 
 {
     Base::scale = desired_range / typename Base::InvScale(Base::range[1] - Base::range[0]);
 }
 
 template <int Index>
-traits::ImageResolution Localization<Index,IsUnscaled,false>::resolution() const
+traits::ImageResolution Localization<Index,IsUnscaled>::resolution() const
 {
     traits::ImageResolution rv( value::from_value(1.0) / camera::pixel );
     assert( rv.unit_symbol == symbol_string(typename value::unit_type()) );
@@ -197,7 +242,7 @@ traits::ImageResolution Localization<Index,IsUnscaled,false>::resolution() const
 }
 
 template <int Index>
-traits::ImageResolution Localization<Index,ScaledByResolution,false>::resolution() const
+traits::ImageResolution Localization<Index,ScaledByResolution>::resolution() const
 {
     traits::ImageResolution rv( static_cast<typename Base::Scale::value_type>(1.0) / scale / camera::pixel );
     assert( rv.unit_symbol == symbol_string(typename value::unit_type()) );
@@ -205,69 +250,69 @@ traits::ImageResolution Localization<Index,ScaledByResolution,false>::resolution
 }
 
 template <int Index>
-bool Localization<Index,IsUnscaled,false>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,IsUnscaled>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
 {
     traits::Scalar<TraitsType> s(row, column);
     return s.is_given(t);
 } 
 
 template <int Index>
-bool Localization<Index,Bounded,false>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,Bounded>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
 {
     traits::Scalar<TraitsType> s(row, column);
     return Base::can_work_with(t, row, column) && s.range(t).first.is_initialized() && s.range(t).second.is_initialized();
 }
 
 template <int Index>
-bool Localization<Index,ScaledByResolution,false>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,ScaledByResolution>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
 {
     return Base::can_work_with(t, row, column);
 }
 
 template <int Index>
-bool Localization<Index,ScaledToInterval,false>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,ScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
 {
     return Base::can_work_with(t, row, column);
 }
 
 template <int Index>
-bool Localization<Index,InteractivelyScaledToInterval,false>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
+bool Localization<Index,InteractivelyScaledToInterval>::can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column )
 {
     return traits::Scalar<TraitsType>(row, column).is_given(t);
 }
 
 template <int Index>
-std::pair< float, float > Localization<Index,Bounded,false>::get_minmax() const
+std::pair< float, float > Localization<Index,Bounded>::get_minmax() const
 {
     return std::make_pair( range[0].value(), range[1].value() );
 }
 
 template <int Index>
-std::pair< float, float > Localization<Index,ScaledByResolution,false>::get_minmax() const
+std::pair< float, float > Localization<Index,ScaledByResolution>::get_minmax() const
 {
     return std::make_pair( Base::range[0] * scale, Base::range[1] * scale );
 }
 
 template <int Index>
-bool Localization<Index,InteractivelyScaledToInterval,false>::is_bounded() const
+bool Localization<Index,InteractivelyScaledToInterval>::is_bounded() const
 {
     return not_given.none();
 }
 
 template <int Index>
-double Localization<Index,Bounded,false>::reverse_mapping( float mapped_value ) const
+double Localization<Index,Bounded>::reverse_mapping( float mapped_value ) const
 {
     return mapped_value + range[0].value();
 }
 
 template <int Index>
-double Localization<Index,ScaledByResolution,false>::reverse_mapping( float mapped_value ) const
+double Localization<Index,ScaledByResolution>::reverse_mapping( float mapped_value ) const
 {
     return value(mapped_value / scale + Base::range[0]).value();
 }
 
 template <int Index>
-void Localization<Index,InteractivelyScaledToInterval,false>::set_user_limit( bool lower_limit, const std::string& s )
+void Localization<Index,InteractivelyScaledToInterval>::set_user_limit( bool lower_limit, const std::string& s )
 {
     int i = (lower_limit) ? 0 : 1;
     if ( s == "" ) {
@@ -289,7 +334,7 @@ void Localization<Index,InteractivelyScaledToInterval,false>::set_user_limit( bo
 }
 
 template <int Index>
-display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval,false>::key_declaration() const
+display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval>::key_declaration() const
 {
     traits::ImageResolution resolution = this->resolution();
     dStorm::display::KeyDeclaration rv(

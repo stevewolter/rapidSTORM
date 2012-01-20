@@ -7,16 +7,17 @@ namespace viewer {
 namespace colour_schemes {
 
 Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range )
-: BaseType(invert), HueSaturationMixer(0,0), variable( scaled ), repeater(NULL),
+: BaseType(invert), mixer(0,0), variable( scaled ), repeater(NULL),
   is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
   range(range)
 {
     currently_mapping = variable->is_bounded();
-    set_base_tone( 0, (currently_mapping) ? 1 : 0 );
+    mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
+    variable->set_clipping( false );
 }
 
 Coordinate::Coordinate( const Coordinate& o )
-: BaseType(o), HueSaturationMixer(o), variable( o.variable->clone() ), repeater(o.repeater),
+: BaseType(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
   is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping),
   range(o.range)
 {
@@ -69,20 +70,29 @@ void Coordinate::announce(const output::Output::Announcement& a)
     repeater = a.engine;
     variable->announce(a);
     currently_mapping = variable->is_bounded();
-    set_base_tone( 0, (currently_mapping) ? 1 : 0 );
+    mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
 }
 
 void Coordinate::announce(const output::Output::EngineResult& er)
 {
-    if ( currently_mapping && is_for_image_number && ! er.empty() )
-        set_tone( variable->bin_point(er.front()) * range );
+    if ( currently_mapping && is_for_image_number && ! er.empty() ) {
+        set_tone( er.front() );
+    }
 }
 
 void Coordinate::announce(const Localization& l)
 {
     if ( currently_mapping && ! is_for_image_number ) {
-        set_tone( variable->bin_point(l) * range );
+        set_tone( l );
     }
+}
+
+void Coordinate::set_tone( const Localization& l ) {
+    boost::optional<float> v = variable->bin_point(l);
+    if ( v.is_initialized() )
+        mixer.set_tone( *v * range );
+    else
+        mixer.set_tone( 0 );
 }
 
 void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string s)
@@ -92,7 +102,7 @@ void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string
         if ( ! repeater ) throw std::runtime_error("Missing old localization data for re-keying");
         variable->set_user_limit( lower_limit, s );
         currently_mapping = variable->is_bounded();
-        set_base_tone( 0, (currently_mapping) ? 1 : 0 );
+        mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
         repeater->repeat_results();
     } else
         BaseType::notice_user_key_limits( index, lower_limit, s );

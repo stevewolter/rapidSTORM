@@ -8,7 +8,7 @@
 #include "RegionSegmenter.h"
 #include "NoiseMeter.h"
 #include "SpotMeter.h"
-#include "EmissionTracker_decl.h"
+#include "EmissionTracker.h"
 #include "DensityProfile.h"
 #include "FillholeSmoother.h"
 #include "PrecisionEstimator.h"
@@ -25,7 +25,7 @@ void augment_config ( dStorm::Config& config ) {
     config.add_input( new locprec::NoiseConfig(), dStorm::InputMethod );
     config.add_spot_finder( 
         new locprec::FillholeSmoother::Factory() );
-    config.add_output( make_output_source<locprec::emission_tracker::Output>().release() );
+    config.add_output( locprec::emission_tracker::create() );
     config.add_output( new locprec::Segmenter::Source() );
     config.add_output( new locprec::NoiseMeter::Source() ) /*, Expert )*/;
     config.add_output( new locprec::SpotMeter::Source() )/*, Expert )*/;

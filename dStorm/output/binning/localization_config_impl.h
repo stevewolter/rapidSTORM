@@ -3,6 +3,7 @@
 
 #include <simparm/BoostUnits.hh>
 #include "localization_config.h"
+#include "binning.hpp"
 #include <sstream>
 #include <simparm/Entry_Impl.hh>
 
@@ -74,16 +75,16 @@ std::auto_ptr<Scaled>
 LocalizationConfig<Field>::make_scaled_binner() const 
 {
     if ( range.is_initialized() ) {
-        std::auto_ptr<output::binning::Scaled> rv( new output::binning::Localization<Field,ScaledToInterval>(*range, row, column) );
-        return rv;
+        typedef Localization<Field,ScaledToInterval> T;
+        return std::auto_ptr<Scaled>( 
+            new BinningAdapter<T,Scaled>( T(*range, row, column) ) );
     } else {
+        typedef Localization<Field,ScaledByResolution> T;
         Resolution r1( resolution() );
         typename Traits::OutputType o( r1 * camera::pixel );
         typename traits::Scalar<Traits>::value_type r(o);
-        std::auto_ptr<output::binning::Scaled> rv( 
-            new output::binning::Localization<Field,ScaledByResolution>
-                (r, row, column) );
-        return rv;
+        return std::auto_ptr<Scaled>( 
+            new BinningAdapter<T,Scaled>( T(r, row, column) ) );
     }
 }
 
@@ -94,7 +95,9 @@ LocalizationConfig<Field>::make_user_scaled_binner() const
     if ( range.is_initialized() ) {
         std::auto_ptr< output::binning::Localization<Field,InteractivelyScaledToInterval> >
             o ( new output::binning::Localization<Field,InteractivelyScaledToInterval>(*range, row, column) );
-        std::auto_ptr<output::binning::UserScaled> rv(o);
+        typedef binning::Localization<Field,InteractivelyScaledToInterval> T;
+        std::auto_ptr<UserScaled> rv( new BinningAdapter< T, UserScaled >( 
+            T(*range,row,column) ) );
         return rv;
     } else 
         throw std::logic_error("Range not set");
@@ -104,7 +107,8 @@ template <int Field>
 std::auto_ptr<Unscaled>
 LocalizationConfig<Field>::make_unscaled_binner() const 
 {
-    return std::auto_ptr<output::binning::Unscaled>(new output::binning::Localization<Field, IsUnscaled>(row, column) );
+    typedef binning::Localization<Field,IsUnscaled> T;
+    return make_BinningAdapter<Unscaled>( T(row, column));
 }
 
 template <int Field>

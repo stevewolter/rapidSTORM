@@ -1,4 +1,19 @@
 #include <simparm/BoostUnits.hh>
+#include <simparm/Entry.hh>
+#include <simparm/Entry.hh>
+#include <simparm/FileEntry.hh>
+#include <dStorm/output/TraceReducer.h>
+#include <cassert>
+#include <Eigen/Core>
+#include <vector>
+#include "KalmanTrace.h"
+#include <dStorm/output/FilterBuilder.h>
+#include <dStorm/output/binning/binning.h>
+#include <dStorm/UnitEntries/Nanometre.h>
+#include <boost/ptr_container/ptr_set.hpp>
+#include <boost/ptr_container/ptr_array.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/optional/optional.hpp>
 #include "EmissionTracker.h"
 #include <simparm/Entry_Impl.hh>
 #include <algorithm>
@@ -8,6 +23,7 @@
 #include <dStorm/output/binning/localization.h>
 #include <dStorm/image/iterator.h>
 #include <boost/units/Eigen/Array>
+#include <boost/utility/in_place_factory.hpp>
 
 using namespace dStorm;
 using namespace std;
@@ -15,6 +31,101 @@ using namespace boost::units::camera;
 
 namespace locprec {
 namespace emission_tracker {
+
+template <typename Type>
+struct address_is_less : public std::binary_function<Type,Type,bool> {
+    bool operator()( const Type& a, const Type& b ) const { return &a < &b; };
+};
+
+class Output 
+: public dStorm::output::OutputObject 
+{
+    class _Config;
+    public:
+    typedef simparm::Structure<_Config> Config;
+    typedef dStorm::output::FilterBuilder<Output> Source;
+
+    private:
+    class lowest_mahalanobis_distance;
+    class TracedObject : public KalmanTrace<2> {
+        int hope;
+        public:
+        boost::optional<Eigen::Vector2i> cache_position;
+        TracedObject(const Output &papa);
+        ~TracedObject();
+
+        void add( const dStorm::Localization& l)
+            { hope = 2; KalmanTrace<2>::add(l); }
+        bool has_lost_hope(int time_difference) const 
+            { return (hope - time_difference) < 0; }
+        void make_hope() { hope++; }
+    };
+
+    boost::optional< dStorm::output::binning::Localization<0,dStorm::output::binning::ScaledToInterval> >
+        binners[2];
+    float binner_starts[2];
+    typedef dStorm::Image< std::set<TracedObject*>, 2 > Positional;
+    Positional positional;
+
+    int track_modulo;
+
+    boost::ptr_set< TracedObject, address_is_less<TracedObject> > traced_objects;
+
+    struct TrackingInformation;
+    boost::ptr_vector<TrackingInformation> tracking;
+
+    KalmanMetaInfo<2> kalman_info;
+
+    TracedObject* search_closest_trace(
+        const dStorm::Localization &loc, 
+        const std::set<TracedObject*>& excluded);
+    void update_positional( TracedObject& object );
+    void finalizeImage(int i);
+
+    std::auto_ptr<dStorm::output::TraceReducer> reducer;
+    std::auto_ptr<dStorm::output::Output> target;
+
+    const double maxDist;
+
+    public:
+    Output( const Config& config,
+                        std::auto_ptr<dStorm::output::Output> output );
+    ~Output();
+    Output( const Output& );
+    Output *clone() const
+        {throw std::logic_error("Emission tracker is not cloneable.");}
+    Output& operator=( const Output& );
+
+    AdditionalData announceStormSize(const Announcement &);
+    RunRequirements announce_run(const RunAnnouncement &);
+    void store_results(); 
+    void receiveLocalizations(const EngineResult &);
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
+class Output::_Config : public simparm::Object {
+    protected:
+    _Config();
+    void registerNamedEntries();
+
+    public:
+    simparm::Entry<unsigned long> allowBlinking;
+    dStorm::FloatNanometreEntry expectedDeviation;
+    simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
+    simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
+    dStorm::output::TraceReducer::Config reducer;
+    simparm::Entry<float> distance_threshold;
+
+    bool determine_output_capabilities
+        ( dStorm::output::Capabilities& cap ) 
+    { 
+        cap.set_intransparency_for_source_data();
+        cap.set_cluster_sources( true );
+        return true;
+    }
+};
+
 
 int traceNumber = 0;
 static int number_of_emission_nodes = 0;
@@ -96,7 +207,7 @@ Output::Output(
   maxDist( config.distance_threshold() )
 {
     for (int i = 0; i < 2; ++i) {
-        binners.replace(i, new dStorm::output::binning::Localization<0,dStorm::output::binning::ScaledToInterval,true>(50,i,0) );
+        binners[i] = boost::in_place( 50,i,0 );
         kalman_info.set_measurement_covariance(i, pow<2>( quantity<si::length>(config.expectedDeviation()) ));
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());
@@ -122,9 +233,9 @@ Output::announceStormSize(const Announcement &a)
 
     dStorm::ImageTypes<2>::Size sizes;
     for (int i = 0; i < 2; ++i) {
-        binners[i].announce(a);
-        binner_starts[i] = binners[i].get_minmax().first;
-        sizes[i] = int(ceil(binners[i].get_size())) * boost::units::camera::pixel;
+        binners[i]->announce(a);
+        binner_starts[i] = binners[i]->get_minmax().first;
+        sizes[i] = int(ceil(binners[i]->get_size())) * boost::units::camera::pixel;
     }
 
     positional = Positional(sizes);
@@ -175,8 +286,10 @@ Output::search_closest_trace(
 {
     int range[2][2];
     for (int i = 0; i < 2; ++i) {
-        range[i][0] = int(floor(binners[i].bin_point(loc)-maxDist));
-        range[i][1] = int(ceil(binners[i].bin_point(loc)+maxDist));
+        boost::optional<float> v = binners[i]->bin_point(loc);
+        if ( ! v.is_initialized() ) return NULL;
+        range[i][0] = int(floor(*v-maxDist));
+        range[i][1] = int(ceil(*v+maxDist));
         for (int j = 0; j < 2; ++j) {
             range[i][j] = std::max(0, std::min( range[i][j], positional.sizes()[i].value()-1 ) );
         }
@@ -199,8 +312,11 @@ Output::update_positional( TracedObject& object )
     estimate.position().head<2>() = 
         boost::units::from_value< boost::units::si::length >(object.getPositionEstimate().cast<float>());
     Eigen::Array2i new_pos;
-    new_pos.x() = round(binners[0].bin_point(estimate));
-    new_pos.y() = round(binners[1].bin_point(estimate));
+    for (int i = 0; i < 2; ++i) {
+        boost::optional<float> v = binners[i]->bin_point(estimate);
+        if ( ! v.is_initialized() ) return;
+        new_pos[i] = round(*v);
+    }
 
     new_pos = new_pos.cwiseMax( Eigen::Array2i::Zero() )
                      .cwiseMin( boost::units::value( positional.sizes() ).array() - 1 );
@@ -272,16 +388,9 @@ void Output::store_results() {
         target->store_results();
 }
 
-}
-}
-
-namespace dStorm {
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<locprec::emission_tracker::Output>()
+std::auto_ptr<dStorm::output::OutputSource> create()
 {
-    return std::auto_ptr<OutputSource>( new locprec::emission_tracker::Output::Source() );
+    return std::auto_ptr<dStorm::output::OutputSource>( new Output::Source() );
 }
 
 }

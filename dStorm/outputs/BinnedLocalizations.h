@@ -88,7 +88,7 @@ namespace outputs {
         virtual void announce(const output::Output::Announcement&) = 0;
         virtual Eigen::Matrix<quantity<camera::length>, Dim, 1> get_size() = 0;
         virtual traits::Optics<2>::Resolutions get_resolution() = 0;
-        virtual void bin_points( 
+        virtual int bin_points( 
             const output::LocalizedImage&, Result& ) = 0;
     };
 

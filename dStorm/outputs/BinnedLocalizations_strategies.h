@@ -49,11 +49,24 @@ struct ComponentWise
         }
         return rv;
     }
-    void bin_points( const output::LocalizedImage& l, typename BinningStrategy<Dim>::Result& r ) {
-        static const bool stride = (BinningStrategy<Dim>::Result::Flags & Eigen::RowMajorBit) ? r.stride() : 1;
-        for (int i = 0; i < Dim; ++i)
-            xy[i].bin_points(l, &r.coeffRef(0,i), stride);
-        intensity->bin_points(l, &r.coeffRef(0,Dim), stride);
+    int bin_points( const output::LocalizedImage& l, typename BinningStrategy<Dim>::Result& r ) {
+        int rv = 0;
+        for ( output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i ) {
+            bool is_good = true;
+            for (int d = 0; d < Dim; ++d)
+                is_good = is_good && bin( *i, xy[d], r( rv, d ) );
+            bin( *i, *intensity, r(rv,Dim) );
+            if ( is_good ) ++rv;
+        }
+        return rv;
+    }
+
+  private:
+    bool bin( const Localization& l, const UnscaledBin& b, float& target ) {
+        boost::optional<float> f = b.bin_point(l);
+        if ( f.is_initialized() )
+            target = *f;
+        return f.is_initialized();
     }
 };
 

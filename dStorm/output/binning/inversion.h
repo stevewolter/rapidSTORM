@@ -22,15 +22,18 @@ struct Inversion
 
     void announce(const Output::Announcement& a) { base->announce(a); range = base->get_minmax(); }
     traits::ImageResolution resolution() const { return base->resolution(); }
-    void bin_points( const output::LocalizedImage& l, float* target, int stride ) const {
-        base->bin_points(l, target, stride);
-        for (output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i) {
-            *target = invert(*target);
-            target += stride;
-        }
+    int bin_points( const output::LocalizedImage& l, float* target, int stride ) const {
+        int c = base->bin_points(l, target, stride);
+        for (int i = 0; i < c; ++i)
+            target[i*stride] = invert( target[i*stride] );
+        return c;
     }
-    float bin_point( const Localization& l ) const {
-        return invert( base->bin_point(l) );
+    boost::optional<float> bin_point( const Localization& l ) const {
+        boost::optional<float> v = base->bin_point(l);
+        if ( v.is_initialized() )
+            return invert( *v );
+        else    
+            return v;
     }
 
     int field_number() const { return base->field_number(); }
@@ -42,6 +45,7 @@ struct Inversion
         { throw std::runtime_error("Setting a user-defined limit on inverted axes is not implemented. Sorry."); }
     bool is_bounded() const { return base->is_bounded(); }
     display::KeyDeclaration key_declaration() const { return base->key_declaration(); }
+    void set_clipping( bool b ) { base->set_clipping(b); }
 };
 
 }

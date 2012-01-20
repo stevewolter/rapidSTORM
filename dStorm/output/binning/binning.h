@@ -6,6 +6,7 @@
 #include "../Output.h"
 #include "../../ImageTraits.h"
 #include <boost/units/quantity.hpp>
+#include <boost/optional/optional.hpp>
 #include <boost/units/systems/camera/length.hpp>
 #include "../../display/fwd.h"
 
@@ -18,8 +19,8 @@ struct Unscaled {
     virtual Unscaled* clone() const = 0;
     virtual void announce(const Output::Announcement& a) = 0;
     virtual traits::ImageResolution resolution() const = 0;
-    virtual void bin_points( const output::LocalizedImage&, float* target, int stride ) const = 0;
-    virtual float bin_point( const Localization& ) const = 0;
+    virtual int bin_points( const output::LocalizedImage&, float* target, int stride ) const = 0;
+    virtual boost::optional<float> bin_point( const Localization& ) const = 0;
 
     virtual int field_number() const = 0;
 };
@@ -32,6 +33,7 @@ struct Scaled
     virtual float get_size() const = 0;
     virtual std::pair< float, float > get_minmax() const = 0;
     virtual double reverse_mapping( float ) const = 0;
+    virtual void set_clipping( bool discard_outliers ) = 0;
 };
 
 struct UserScaled
