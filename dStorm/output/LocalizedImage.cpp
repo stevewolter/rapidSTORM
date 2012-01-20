@@ -26,6 +26,7 @@ LocalizedImage::~LocalizedImage()
 }
 
 LocalizedImage& LocalizedImage::operator=( const LocalizedImage& o ) {
+    forImage = o.forImage;
     results = o.results;
     source = o.source;
     smoothed = o.smoothed;
