@@ -101,6 +101,8 @@ Output::AdditionalData Segmenter::announceStormSize
             (const Announcement &a) 
 {
     boost::lock_guard<boost::mutex> lock( mutex );
+    for (int i = 0; i < 2; ++i)
+        binners[i].announce( a );
     announcement.reset( new Announcement(a) );
     typedef dStorm::input::Traits<dStorm::Localization> InputTraits;
     announcement->source_traits.push_back( 
@@ -336,7 +338,9 @@ void Segmenter::maximums() {
     std::list<Spot> foundSpots;
     for (dStorm::engine::CandidateTree<float>::const_iterator
             it = candidates.begin(); it != candidates.end(); ++it)
+    {
         foundSpots.push_back( Spot( it->spot() ) );
+    }
 
     Localizations& locs = points;
     Mapper mapper(foundSpots, binners);
