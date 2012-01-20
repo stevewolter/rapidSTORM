@@ -276,6 +276,7 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
 {
     DEBUG("Creating form fitter");
     guf::Spot max_distance = max_psf_size( traits );
+    for (int i = 0; i < 2; ++i) max_distance[i] *= 5.0f;
     for ( int i = 0; i < traits.plane_count(); ++i ) {
         transformations.push_back( new Transformation(max_distance, traits.plane(i)) );
     }
@@ -301,6 +302,7 @@ add_image( const engine::Image& image, const Localization& position, int fluorop
                 guf::mle_converter(traits.plane(i))  );
         /* Check the number pixels used in PSF estimation for this spot & plane. */
         assert ( stats.pixel_count > 0 );
+        DEBUG("Size is now " << new_evaluator->get_data().min.transpose() << " - " << new_evaluator->get_data().max.transpose() );
 
         dStorm::engine::JobInfo info( 0, 0 * camera::ad_count, traits, fluorophore );
         LocalizationValueFinder iv(info, traits.plane(i), position, i);
@@ -340,9 +342,10 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::Image >& new_traits )
             new_traits.plane(j).set_fluorophore_transmission_coefficient(i, 
                 result(i,j)( PSF::Prefactor() )
                     * target_transmission / total_transmission );
-            for (int k = 0; k < 2; ++k)
+            for (int k = 0; k < 2; ++k) {
                 (*new_traits.plane(j).psf_size(i))[k] = quantity<si::length>(
                     result(i,j).template get< PSF::BestSigma >(k) * new_traits.fluorophores.at(i).wavelength * 1.075);
+            }
         }
     }
     new_traits.depth_info = get_3d( result() );

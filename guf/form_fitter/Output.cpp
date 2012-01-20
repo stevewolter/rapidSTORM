@@ -58,10 +58,11 @@ Output::announceStormSize(const Announcement& a)
     engine = a.engine;
 
     dStorm::traits::Optics<2>::PSF max_psf = max_psf_size( *a.input_image_traits );
+    DEBUG("Maximum PSF size is " << max_psf.transpose());
     for (int i = 0; i < 2; ++i ) {
         bounds[i] = boost::icl::interval< samplepos::Scalar >::closed(
-            *a.position().range()[i].first + 2.0f*max_psf[i],
-            *a.position().range()[i].second - 2.0f*max_psf[i]
+            *a.position().range()[i].first + 3.0f*max_psf[i],
+            *a.position().range()[i].second - 3.0f*max_psf[i]
         );
     } 
 
