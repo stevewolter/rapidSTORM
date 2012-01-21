@@ -33,6 +33,8 @@ class DimensionSelector
     std::auto_ptr< output::binning::Scaled > make_y() const;
     std::auto_ptr< output::binning::Unscaled > make_i() const;
     void set_visibility(const input::Traits<Localization>&);
+
+    bool is_3d() const { return use_z_axis(); }
 };
 
 }

@@ -79,7 +79,7 @@ BinnedLocalizations<KeepUpdated,Dim>
         this->binningListener().announce( l );
 
         const typename BinnedImage::Position base_pos 
-            = lower.template cast<int>() - crop.value();
+            = lower.template cast<int>() - value( crop );
 
         /* This loops iterates over the linear interpolation terms,
          * i.e. the corners of the hypercube. */
@@ -124,7 +124,7 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
 
     traits.size.fill( 1 * camera::pixel );
     for (int i = 0; i < Dim; i++) {
-        PreciseSize dp_size = strategy->get_size()[i] - 2*crop;
+        PreciseSize dp_size = strategy->get_size()[i] - 2*crop[i];
         traits.size[i] = std::max( ceil( dp_size), one_pixel );
     }
     DEBUG("Size of binned image is " << traits.size.transpose());
@@ -135,6 +135,11 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
     base_image.fill(0); 
     this->binningListener().setSize(traits);
 }
+
+template <typename KeepUpdated, int Dim>
+const typename BinnedLocalizations<KeepUpdated,Dim>::Crop
+BinnedLocalizations<KeepUpdated,Dim>::no_crop
+    = BinnedLocalizations<KeepUpdated,Dim>::Crop::Constant( 0 * boost::units::camera::pixel );
 
 }
 }

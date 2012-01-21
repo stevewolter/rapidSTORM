@@ -17,7 +17,7 @@ template <typename Hueing>
 LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Config& config, Status& s)
 : config(config), status(s), 
   mutex( NULL ),
-  image( config.binned_dimensions.make(), config.border() ),
+  image( config.binned_dimensions.make(), config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         config.histogramPower(), image(),

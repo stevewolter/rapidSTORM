@@ -1,8 +1,9 @@
+#include "Config.h"
 #include "ColourScheme.h"
 #include "debug.h"
-#include "Config.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "colour_schemes/decl.h"
+#include <simparm/Entry_Impl.hh>
 
 namespace dStorm {
 namespace viewer {
@@ -19,7 +20,7 @@ _Config::_Config()
   save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
                       "Close display on job completion"),
-  border("Border", "Width of border to chop", 0 * camera::pixel)
+  border("Border", "Width of border to chop", CropBorder::Constant(0 * camera::pixel))
 {
     DEBUG("Building Viewer Config");
 
@@ -66,6 +67,15 @@ void _Config::registerNamedEntries() {
 }
 
 _Config::~_Config() {}
+
+_Config::CropBorder
+_Config::crop_border() const
+{
+    CropBorder rv = border();
+    if ( ! binned_dimensions.is_3d() )
+        rv[2] = 0 * camera::pixel;
+    return rv;
+}
 
 }
 }

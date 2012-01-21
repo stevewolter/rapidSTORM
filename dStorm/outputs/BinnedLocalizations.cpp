@@ -11,5 +11,6 @@ namespace input {
 
 namespace outputs {
     template class BinnedLocalizations<DummyBinningListener<2>, 2>;
+
 }
 }

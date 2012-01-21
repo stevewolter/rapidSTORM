@@ -3,6 +3,7 @@
 
 #include "BinnedLocalizations_decl.h"
 #include <Eigen/Core>
+#include <boost/units/Eigen/Core>
 #include "../Image.h"
 #include "../ImageTraits.h"
 #include "../output/Output.h"
@@ -107,8 +108,11 @@ namespace outputs {
     {
       public:
         typedef dStorm::Image<float,Dim> BinnedImage;
-        typedef boost::units::quantity<camera::length,int>
-            Crop;
+        typedef Eigen::Array< boost::units::quantity<camera::length,int>, 
+                              Dim, 1, Eigen::DontAlign > 
+                Crop;
+
+        static const Crop no_crop;
       protected:
         /** Crop given in the constructor. */
         Crop crop;
@@ -128,7 +132,7 @@ namespace outputs {
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
-        BinnedLocalizations(std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop = 0);
+        BinnedLocalizations(std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop = no_crop);
         BinnedLocalizations(const BinnedLocalizations&);
 
         template <typename OtherListener>

@@ -18,7 +18,7 @@ namespace viewer {
 
 template <typename Hueing>
 TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, const Config& config)
-: image( config.binned_dimensions.make(), config.border() ),
+: image( config.binned_dimensions.make(), config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         config.histogramPower(), image(),
