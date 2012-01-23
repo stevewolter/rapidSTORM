@@ -25,7 +25,7 @@ CoordinateConfig::CoordinateConfig(const CoordinateConfig& o)
 
 std::auto_ptr<Backend> CoordinateConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Coordinate >(Coordinate(config.invert(), choice.value().make_user_scaled_binner(), range()), config, status);
+    return Backend::create< Coordinate >(Coordinate(config.invert(), choice.value().make_user_scaled_binner(), range()), status);
 }
 
 }

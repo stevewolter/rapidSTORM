@@ -11,7 +11,7 @@ MonoConfig::MonoConfig()
 
 std::auto_ptr<Backend> MonoConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Mono >(Mono(config.invert()), config, status);
+    return Backend::create< Mono >(Mono(config.invert()), status);
 }
 
 }

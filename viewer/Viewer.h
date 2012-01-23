@@ -52,8 +52,6 @@ class Viewer : public Status,
     void writeToFile(const std::string& name);
 
   private:
-    Config config;
-
     boost::recursive_mutex *output_mutex;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;

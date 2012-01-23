@@ -43,7 +43,7 @@ ColoredConfig::ColoredConfig(const ColoredConfig& o)
 
 std::auto_ptr<Backend> ColoredConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Colored >(Colored(config.invert(), hue(), saturation()), config, status);
+    return Backend::create< Colored >(Colored(config.invert(), hue(), saturation()), status);
 }
 
 }

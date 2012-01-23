@@ -16,7 +16,7 @@ struct Backend
     virtual output::Output& getForwardOutput() = 0;
 
     virtual std::auto_ptr<Backend> adapt( 
-        std::auto_ptr<Backend> self, Config&, Status& ) = 0;
+        std::auto_ptr<Backend> self, Status& ) = 0;
 
     virtual void save_image(std::string filename, const Config&) = 0;
 
@@ -25,7 +25,7 @@ struct Backend
     virtual void set_job_name( const std::string& name ) = 0;
 
     template <typename Colorizer>
-    static std::auto_ptr<Backend> create( const Colorizer&, Config&, Status& );
+    static std::auto_ptr<Backend> create( const Colorizer&, Status& );
 };
 
 }

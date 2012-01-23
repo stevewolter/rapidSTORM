@@ -1,11 +1,13 @@
 #include "Status.h"
 #include "Config.h"
+#include <simparm/ChoiceEntry_Impl.hh>
 
 namespace dStorm {
 namespace viewer {
 
 Status::Status(const Config& config)
-: save("SaveImage", "Save current image"),
+: config(config),
+  save("SaveImage", "Save current image"),
   manager(NULL)
 {
 }

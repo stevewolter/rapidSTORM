@@ -28,7 +28,6 @@ Viewer::Viewer(const Viewer::Config& config)
 : Status(config),
   OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
-  config(config),
   output_mutex(NULL),
   implementation( config.colourScheme.value().make_backend(this->config, *this) ),
   forwardOutput( &implementation->getForwardOutput() )
@@ -37,15 +36,15 @@ Viewer::Viewer(const Viewer::Config& config)
 
     this->registerNamedEntries( *this );
 
-    receive_changes_from( config.showOutput.value );
+    receive_changes_from( this->config.showOutput.value );
     receive_changes_from( save.value );
-    receive_changes_from( config.histogramPower.value );
+    receive_changes_from( this->config.histogramPower.value );
 
     DEBUG("Built viewer");
 }
 
 Viewer::~Viewer() {
-    DEBUG("Destructing Viewer");
+    DEBUG("Destructing Viewer " << this);
 }
 
 
@@ -93,7 +92,7 @@ void Viewer::operator()(const simparm::Event& e) {
 void Viewer::adapt_to_changed_config() {
     DEBUG("Changing implementation, showing output is " << config.showOutput());
     if ( implementation.get() ) {
-        implementation = implementation->adapt( implementation, config, *this );
+        implementation = implementation->adapt( implementation, *this );
         implementation->set_output_mutex( output_mutex );
         forwardOutput = &implementation->getForwardOutput();
     }

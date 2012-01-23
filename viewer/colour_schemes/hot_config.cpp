@@ -11,7 +11,7 @@ HotConfig::HotConfig()
 
 std::auto_ptr<Backend> HotConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Hot >(Hot(config.invert()), config, status);
+    return Backend::create< Hot >(Hot(config.invert()), status);
 }
 
 }

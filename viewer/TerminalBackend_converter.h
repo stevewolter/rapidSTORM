@@ -7,18 +7,19 @@
 #include "LiveBackend.h"
 #include "TerminalBackend.h"
 #include "Config.h"
+#include "Status.h"
 
 namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
 TerminalBackend<Hueing>::TerminalBackend(
-    const LiveBackend<Hueing>& other, const Config &c)
+    const LiveBackend<Hueing>& other, Status& s )
 : image( other.image ),
   colorizer( other.colorizer ),
   discretization( other.discretization, image(), colorizer ),
   cache(),
-  status( other.get_status() )
+  status( s )
 {
     if ( other.cia.getSize().is_initialized() )
         cache.setSize( *other.cia.getSize() );
@@ -28,11 +29,11 @@ TerminalBackend<Hueing>::TerminalBackend(
 
 template <typename Hueing>
 std::auto_ptr<Backend>
-LiveBackend<Hueing>::adapt( std::auto_ptr<Backend> self, Config& c, Status& s ) {
+LiveBackend<Hueing>::adapt( std::auto_ptr<Backend> self, Status& s ) {
     assert( self.get() == this );
 
-    if ( ! c.showOutput() ) {
-        std::auto_ptr<Backend> fresh( new TerminalBackend<Hueing>(*this, c) );
+    if ( ! s.config.showOutput() ) {
+        std::auto_ptr<Backend> fresh( new TerminalBackend<Hueing>(*this, s) );
         std::swap( fresh, self );
         /* Self is now destructed! Take care not to modify or access this. */
     }

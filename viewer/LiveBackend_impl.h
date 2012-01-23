@@ -14,16 +14,16 @@ namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
-LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Config& config, Status& s)
-: config(config), status(s), 
+LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
+: status(s), 
   mutex( NULL ),
-  image( config.binned_dimensions.make(), config.crop_border() ),
+  image( s.config.binned_dimensions.make(), s.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
-        config.histogramPower(), image(),
+        s.config.histogramPower(), image(),
         colorizer),
   cache( 4096 ),
-  cia( discretization, config, *this, colorizer )
+  cia( discretization, s.config, *this, colorizer )
 {
     image.setListener(&discretization);
     discretization.setListener(&cache);
@@ -32,7 +32,7 @@ LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Config& config, Status&
 
 template <typename Hueing>
 LiveBackend<Hueing>::~LiveBackend() {
-    DEBUG("Destructing viewer implementation");
+    DEBUG("Destructing viewer implementation " << this);
 }
 
 template <typename Hueing>
@@ -61,9 +61,10 @@ LiveBackend<Hueing>::get_changes() {
 
 template <typename Hueing>
 void LiveBackend<Hueing>::notice_closed_data_window() {
+    DEBUG( "Noticing closed data window in " << this );
     boost::lock_guard<boost::recursive_mutex> lock( *mutex );
-    config.showOutput = false;
-    status.adapt_to_changed_config();
+    status.config.showOutput = false;
+    DEBUG( "Noticed closed data window in " << this );
 }
 
 template <typename Hueing>

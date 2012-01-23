@@ -18,11 +18,11 @@ namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
-TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, const Config& config, Status& status)
-: image( config.binned_dimensions.make(), config.crop_border() ),
+TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, Status& status)
+: image( status.config.binned_dimensions.make(), status.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
-        config.histogramPower(), image(),
+        status.config.histogramPower(), image(),
         colorizer),
   cache(),
   status(status)

@@ -25,7 +25,6 @@ class LiveBackend
     typedef Discretizer< MyCache> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer, Im::Dim> Accumulator;
 
-    Config& config;
     Status& status;
 
     boost::recursive_mutex* mutex;
@@ -45,8 +44,8 @@ class LiveBackend
     void notice_user_key_limits(int key_index, bool lower, std::string input);
 
   public:
-    LiveBackend(const MyColorizer&, Config& config, Status&);
-    LiveBackend(const TerminalBackend<Hueing>& other, Config& config, Status&);
+    LiveBackend(const MyColorizer&, Status&);
+    LiveBackend(const TerminalBackend<Hueing>& other, Status&);
     ~LiveBackend() ;
 
     output::Output& getForwardOutput() { return image; }
@@ -57,7 +56,7 @@ class LiveBackend
         { this->mutex = mutex; cia.show_window(); }
     void set_job_name( const std::string& name ) 
         { cia.set_job_name( name ); }
-    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
+    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Status& );
     Status& get_status() const { return status; }
 };
 

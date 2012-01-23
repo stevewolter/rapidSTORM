@@ -8,7 +8,7 @@ namespace viewer {
 
 #define DISC_INSTANCE(Hueing) template \
     std::auto_ptr<Backend> LiveBackend<Hueing> \
-        ::adapt( std::auto_ptr<Backend> self, Config& c, Status& s )
+        ::adapt( std::auto_ptr<Backend> self, Status& s )
 
 #include "colour_schemes/instantiate.h"
 

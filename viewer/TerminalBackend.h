@@ -37,8 +37,8 @@ class TerminalBackend
     friend class LiveBackend<Hueing>;
 
   public:
-    TerminalBackend(const Colorizer&, const Config& config, Status& status );
-    TerminalBackend(const LiveBackend<Hueing>& other, const Config&);
+    TerminalBackend(const Colorizer&, Status& status );
+    TerminalBackend(const LiveBackend<Hueing>& other, Status& );
     ~TerminalBackend() ;
 
     output::Output& getForwardOutput() { return image; }
@@ -48,7 +48,7 @@ class TerminalBackend
     void set_job_name( const std::string& name ) { this->window_name = name; }
     const std::string& get_job_name() const { return window_name; }
 
-    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
+    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Status& );
     std::auto_ptr<dStorm::display::Change> get_result(bool with_key = true) const;
 };
 
