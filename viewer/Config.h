@@ -36,7 +36,8 @@ class _Config : public simparm::Object {
     _Config();
     ~_Config();
 
-    void registerNamedEntries();
+    void registerNamedEntries() { registerNamedEntries(*this); }
+    void registerNamedEntries( simparm::Node& at );
     static bool can_work_with(output::Capabilities) { return true; }
     
     CropBorder crop_border() const;

@@ -53,17 +53,17 @@ _Config::_Config()
     DEBUG("Built Viewer Config");
 }
 
-void _Config::registerNamedEntries() {
-   push_back(outputFile);
-   push_back(save_with_key);
-   push_back(save_scale_bar);
-   push_back(showOutput);
-   push_back(binned_dimensions);
-   push_back(histogramPower);
-   push_back(colourScheme);
-   push_back(invert);
-   push_back(close_on_completion);
-   push_back(border);
+void _Config::registerNamedEntries( simparm::Node& n ) {
+   n.push_back(outputFile);
+   n.push_back(save_with_key);
+   n.push_back(save_scale_bar);
+   n.push_back(showOutput);
+   n.push_back(binned_dimensions);
+   n.push_back(histogramPower);
+   n.push_back(colourScheme);
+   n.push_back(invert);
+   n.push_back(close_on_completion);
+   n.push_back(border);
 }
 
 _Config::~_Config() {}

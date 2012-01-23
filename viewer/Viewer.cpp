@@ -35,21 +35,11 @@ Viewer::Viewer(const Viewer::Config& config)
 {
     DEBUG("Building viewer");
 
-    histogramPower.helpID = "#Viewer_Status_Power";
-    histogramPower.userLevel = simparm::Object::Beginner;
-    tifFile.helpID = "#Viewer_Status_ToFile";
-    save.helpID = "#Viewer_Status_Save";
+    this->registerNamedEntries( *this );
 
-    reshow_output.viewable = ! config.showOutput();
-
-    push_back( histogramPower );
-    push_back( tifFile );
-    push_back( save );
-    push_back( reshow_output );
-
-    receive_changes_from( reshow_output.value );
+    receive_changes_from( config.showOutput.value );
     receive_changes_from( save.value );
-    receive_changes_from( histogramPower.value );
+    receive_changes_from( config.histogramPower.value );
 
     DEBUG("Built viewer");
 }
@@ -79,26 +69,24 @@ Viewer::RunRequirements Viewer::announce_run(const RunAnnouncement& a) {
 
 void Viewer::store_results() {
     forwardOutput->store_results();
-    if (tifFile)
-        writeToFile(tifFile());
+    if (config.outputFile)
+        writeToFile(config.outputFile());
 }
 
 void Viewer::operator()(const simparm::Event& e) {
     if ( ! output_mutex ) return;
     boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
-    if (&e.source == &reshow_output.value && reshow_output.triggered()) {
-        reshow_output.untrigger();
-        config.showOutput = true;
+    if (&e.source == &config.showOutput.value) {
         adapt_to_changed_config();
     } else if (&e.source == &save.value && save.triggered()) {
         /* Save image */
         save.untrigger();
-        if ( tifFile ) {
-            writeToFile( tifFile() );
+        if ( config.outputFile ) {
+            writeToFile( config.outputFile() );
         }
-    } else if (&e.source == &histogramPower.value) {
+    } else if (&e.source == &config.histogramPower.value) {
         /* Change histogram power */
-        implementation->set_histogram_power(histogramPower());
+        implementation->set_histogram_power(config.histogramPower());
     } 
 }
 
@@ -108,7 +96,6 @@ void Viewer::adapt_to_changed_config() {
         implementation = implementation->adapt( implementation, config, *this );
         implementation->set_output_mutex( output_mutex );
         forwardOutput = &implementation->getForwardOutput();
-        reshow_output.viewable = ! config.showOutput();
     }
     DEBUG("Changed implementation to " << implementation.get());
 }
@@ -125,7 +112,7 @@ void Viewer::writeToFile(const string &name) {
 void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
 {
-    insert_filename_with_check( tifFile(), present_filenames );
+    insert_filename_with_check( config.outputFile(), present_filenames );
 }
 
 std::auto_ptr<output::OutputSource> make_output_source() {

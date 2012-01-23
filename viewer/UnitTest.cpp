@@ -37,8 +37,7 @@ void unit_test( TestState& state ) {
     state( image.resize_image.size.y() == 500 * camera::pixel, "Image has correct height" );
     state( image.resize_image.size.z() == 1 * camera::pixel, "Image has correct depth" );
     state( image.do_clear, "Background color of image is given" );
-    std::cerr << *tock - *tick << std::endl;
-    state( ! tick || ! tock || (*tock - *tick) < 0.7, "Image creation is sufficiently fast" );
+    state( ! tick || ! tock || (*tock - *tick) < 0.1, "Image creation is sufficiently fast" );
 }
 
 }
