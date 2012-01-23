@@ -385,7 +385,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
-    test-plugin/xenophon.h test-plugin/xenophon.cpp
+    test-plugin/xenophon.h test-plugin/xenophon.cpp \
+    test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/fwd.h \

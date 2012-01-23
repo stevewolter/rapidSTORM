@@ -1,11 +1,9 @@
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
 #include "JobStarter.h"
 #include "job/Config.h"
+#include "test-plugin/cpu_time.h"
 
 #include <simparm/IO.hh>
 
@@ -14,17 +12,6 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#if HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
-#endif
-#include <string.h>
-#if HAVE_ERRNO_H
-#include <errno.h>
-#endif
 
 namespace dStorm {
 
@@ -196,19 +183,11 @@ void InputStream::Pimpl::processCommand
             all_cars_finished.wait( lock );
         DEBUG("Processed command to wait for jobs");
     } else if ( cmd == "resource_usage" ) {
-#if HAVE_GETRUSAGE
-        struct rusage usage;
-        int rv = getrusage(RUSAGE_SELF, &usage);
-        if ( rv == -1 ) {
-            std::cout << "Getting resource usage failed: " 
-                      << strerror(errno) << std::endl;
-        } else {
-            std::cout << "Current CPU time: " << usage.ru_utime.tv_sec << "."
-                                              << usage.ru_utime.tv_usec << "\n";
-        }
-#else
-        std::cout << "Resource usage not supported" << std::endl;
-#endif
+        boost::optional<double> cpu_time = get_cpu_time();
+        if ( cpu_time )
+            std::cout << "Current CPU time: " << *cpu_time << std::endl;
+        else
+            std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
         reset_config();
     } else

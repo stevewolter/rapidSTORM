@@ -120,7 +120,9 @@ void unit_test( TestState& state ) {
     std::auto_ptr<input::Link> rv = make_rapidSTORM_engine_link();
     rv.reset();
     state.pass("Destruction of engine works");
-    rv.reset( make_rapidSTORM_engine_link()->clone() );
+    std::auto_ptr<input::Link> cloner = make_rapidSTORM_engine_link();
+    rv.reset( cloner->clone() );
+    cloner.reset();
     rv.reset();
     state.pass("Destruction of engine works");
 }

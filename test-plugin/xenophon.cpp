@@ -36,6 +36,7 @@ std::vector< output::LocalizedImage > xenophon()
             l.position().y() = (rand()*scale) * 0.5f * si::meter;
             l.position().z() = (rand()*scale) * 0.2f * si::meter;
             l.amplitude() = rand() * M_PI * 1E-6 * camera::ad_count;
+            result.push_back( l );
         }
         rv.push_back( result );
     }

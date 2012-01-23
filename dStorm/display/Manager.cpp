@@ -27,6 +27,7 @@ std::auto_ptr<Manager::WindowHandle> Manager::register_data_source
 
 void Manager::store_image( std::string filename, const Change& image )
 {
+    assert( this );
     store_image_impl( filename, image );
 }
 

@@ -12,6 +12,7 @@
 #include <dStorm/image/iterator.h>
 
 #include "Config.h"
+#include "Status.h"
 
 namespace dStorm {
 namespace viewer {
@@ -47,8 +48,7 @@ void TerminalBackend<Hueing>::save_image(
         for (int i = 0; i < Im::Dim; ++i)
             result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
-    display::Manager::getSingleton().store_image( 
-        filename, *result);
+    status.manager->store_image( filename, *result);
     DEBUG("Finished");
 }
 

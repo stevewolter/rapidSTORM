@@ -9,7 +9,8 @@ Status::Status(const Config& config)
   tifFile( "ToFile", "Save image to", ( config.outputFile.is_given() ? config.outputFile() : "" ) ),
   save_with_key( config.save_with_key ),
   histogramPower( config.histogramPower ),
-  save("SaveImage", "Save image")
+  save("SaveImage", "Save image"),
+  manager(NULL)
 {}
 
 Status::~Status() {}
