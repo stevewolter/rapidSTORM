@@ -178,7 +178,8 @@ nobase_include_HEADERS = \
     dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h \
     dStorm/display/fwd.h \
     dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
-    dStorm/display/Manager.h
+    dStorm/display/Manager.h \
+    dStorm/display/DummyManager.h 
 
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
@@ -218,7 +219,8 @@ libdStorm_la_SOURCES = \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
-    dStorm/traits/resolution_config.cpp
+    dStorm/traits/resolution_config.cpp \
+    dStorm/display/DummyManager.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
@@ -343,6 +345,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    viewer/fwd.h \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
@@ -360,7 +363,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
     viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
     viewer/ImageDiscretizer_converter.h \
-    viewer/plugin.h \
+    viewer/plugin.h viewer/plugin.cpp \
     viewer/ColourScheme_decl.h viewer/ColourScheme.h  \
     viewer/colour_schemes/base.cpp viewer/colour_schemes/base_impl.h viewer/colour_schemes/base.h \
     viewer/colour_schemes/decl.h viewer/colour_schemes/impl.h viewer/colour_schemes/instantiate.h \
@@ -368,7 +371,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/colour_schemes/mono_config.cpp viewer/colour_schemes/mono_config.h viewer/colour_schemes/mono.h \
     viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored_config.h viewer/colour_schemes/colored.h \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
-    viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
+    viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp \
+    viewer/UnitTest.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
@@ -380,9 +384,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     test-plugin/DummyFitter.h test-plugin/DummyFitter.cpp \
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
-    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h
+    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
+    test-plugin/xenophon.h test-plugin/xenophon.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    wxDisplay/fwd.h \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
     wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \

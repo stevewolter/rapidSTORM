@@ -20,6 +20,7 @@
 #include "LocalizedImage_traits.h"
 
 namespace dStorm {
+namespace display { class Manager; }
 namespace output {
     class Engine;
 
@@ -30,7 +31,7 @@ namespace output {
      *  structures which contain localizations to process. */
     class Output {
       public:
-        typedef input::Traits<LocalizedImage> Announcement;
+        struct Announcement;
         typedef Capabilities AdditionalData;
 
         enum RunRequirement {
@@ -88,6 +89,18 @@ namespace output {
         const simparm::Node& getNode() const { return *this; }
 
     };
+
+class Output::Announcement
+: public input::Traits<LocalizedImage>
+{
+    display::Manager* manager;
+
+  public:
+    Announcement( 
+        const input::Traits<LocalizedImage>& traits,
+        display::Manager& manager );
+    display::Manager& display_manager() const { return *manager; }
+};
 
 }
 }

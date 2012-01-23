@@ -29,7 +29,7 @@ class Manager
     class ControlConfig;
 
     std::auto_ptr<WindowHandle>
-        register_data_source
+        register_data_source_impl
         (const WindowProperties& properties,
          dStorm::display::DataSource& handler);
 
@@ -93,16 +93,16 @@ class Manager
     void print_status(Source& source, std::string prefix, bool force_print = false);
     void heed_requests();
 
+    void store_image_impl(
+        std::string filename,
+        const dStorm::display::Change& image);
+
   public:
     Manager(dStorm::display::Manager *p);
     Manager(const Manager&);
     ~Manager();
 
     simparm::Node* getConfig();
-
-    void store_image(
-        std::string filename,
-        const dStorm::display::Change& image);
 
     void stop() {}
     void request_action( boost::shared_ptr<Source>& on, const Request& request );

@@ -63,7 +63,7 @@ class wxManager : public Manager {
     simparm::Node* getConfig() { return NULL; }
 
     std::auto_ptr<Manager::WindowHandle>
-    register_data_source(
+    register_data_source_impl(
         const WindowProperties& properties,
         DataSource& handler
     );
@@ -73,7 +73,7 @@ class wxManager : public Manager {
 
     void exec_waiting_runnables();
 
-    void store_image(
+    void store_image_impl(
         std::string filename,
         const Change& image );
 };

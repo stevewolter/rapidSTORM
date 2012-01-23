@@ -25,7 +25,6 @@ class Viewer : public Status,
 {
   public:
     typedef viewer::Config Config;
-    typedef output::FileOutputBuilder<Viewer> Source;
 
     /** Constructor will not display image; this is deferred
         *  until announceStormSize(). */

@@ -17,13 +17,14 @@ namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
-TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, const Config& config)
+TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, const Config& config, Status& status)
 : image( config.binned_dimensions.make(), config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         config.histogramPower(), image(),
         colorizer),
-  cache()
+  cache(),
+  status(status)
 {
     image.setListener(&discretization);
     discretization.setListener(&cache);

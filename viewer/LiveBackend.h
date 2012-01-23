@@ -58,6 +58,7 @@ class LiveBackend
     void set_job_name( const std::string& name ) 
         { cia.set_job_name( name ); }
     std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Config&, Status& );
+    Status& get_status() const { return status; }
 };
 
 }

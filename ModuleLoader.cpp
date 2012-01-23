@@ -14,11 +14,12 @@
 #include "guf/fitter.h"
 
 #include <dStorm/display/Manager.h>
-#include "wxDisplay/wxManager.h"
+#include "wxDisplay/fwd.h"
 #include "LibraryHandle.h"
 #include "test-plugin/plugin.h"
 #include "locprec/plugin.h"
 #include "AndorCamera/plugin.h"
+#include "viewer/plugin.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -56,7 +57,7 @@ ModuleLoader::ModuleLoader()
 : pimpl( new Pimpl() ) {}
 
 ModuleLoader::Pimpl::Pimpl()
-: display( new display::wxManager() )
+: display( dStorm::display::make_wx_manager() )
 {
     std::auto_ptr< display::Manager > tmp = display;
     display.reset( test::make_display( tmp.release() ) );
@@ -137,6 +138,7 @@ void ModuleLoader::add_modules
     car_config.add_spot_finder( spotFinders::make_Erosion() );
     car_config.add_spot_finder( spotFinders::make_Gaussian() );
     DEBUG("Adding basic output modules");
+    dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
 
     guf::augment_config( car_config );

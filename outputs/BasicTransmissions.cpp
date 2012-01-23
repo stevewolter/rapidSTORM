@@ -1,7 +1,6 @@
 #define CImgBuffer_TIFFLOADER_CPP
 #include "BasicTransmissions.h"
 
-#include "../viewer/plugin.h"
 #include "LocalizationCounter.h"
 #include "ProgressMeter.h"
 #include "AverageImage.h"
@@ -20,7 +19,6 @@ namespace output {
 
 void basic_outputs( dStorm::Config* o ) {
     o->add_output( localization_file::writer::create() );
-    outputs::add_viewer( *o );
     o->add_output( new ProgressMeter::Source() );
     o->add_output( new LocalizationCounter::Source() );
     o->add_output( new AverageImage::Source() );

@@ -22,16 +22,6 @@ using namespace dStorm::outputs;
 using namespace dStorm::output;
 
 namespace dStorm {
-namespace outputs {
-
-void add_viewer( Config& config ) {
-    config.add_output( new viewer::Viewer::Source() );
-}
-
-}
-}
-
-namespace dStorm {
 namespace viewer {
 
 Viewer::Viewer(const Viewer::Config& config)
@@ -79,6 +69,7 @@ Viewer::announceStormSize(const Announcement &a) {
     output_mutex = a.output_chain_mutex;
     implementation->set_output_mutex( output_mutex );
     implementation->set_job_name( a.description );
+    this->manager = &a.display_manager();
     return forwardOutput->announceStormSize(a);
 }
 
@@ -135,6 +126,10 @@ void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
 {
     insert_filename_with_check( tifFile(), present_filenames );
+}
+
+std::auto_ptr<output::OutputSource> make_output_source() {
+    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Viewer>() );
 }
 
 }

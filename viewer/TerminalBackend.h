@@ -6,6 +6,7 @@
 #include "Backend.h"
 #include "TerminalCache.h"
 #include "LiveBackend_decl.h"
+#include "Status_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/display/Manager.h>
@@ -31,11 +32,12 @@ class TerminalBackend
     MyDiscretizer discretization;
     Cache cache;
     std::string window_name;
+    Status& status;
 
     friend class LiveBackend<Hueing>;
 
   public:
-    TerminalBackend(const Colorizer&, const Config& config);
+    TerminalBackend(const Colorizer&, const Config& config, Status& status );
     TerminalBackend(const LiveBackend<Hueing>& other, const Config&);
     ~TerminalBackend() ;
 

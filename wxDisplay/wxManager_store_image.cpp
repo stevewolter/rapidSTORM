@@ -257,7 +257,7 @@ std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer ) {
     return img;
 }
 
-void wxManager::store_image(
+void wxManager::store_image_impl(
     std::string filename,
     const Change& image )
 {

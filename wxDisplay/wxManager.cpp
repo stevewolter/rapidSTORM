@@ -169,7 +169,7 @@ void wxManager::Creator::operator()() {
 }
 
 std::auto_ptr<Manager::WindowHandle>
-wxManager::register_data_source(
+wxManager::register_data_source_impl(
     const WindowProperties& properties,
     DataSource& handler
 )
@@ -292,6 +292,10 @@ void wxManager::disassociate_window
     ( Window *, WindowHandle* handle )
 {
     handle->associated_window = NULL;
+}
+
+std::auto_ptr< Manager > make_wx_manager() {
+    return std::auto_ptr< Manager >( new wxManager() );
 }
 
 }

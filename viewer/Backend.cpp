@@ -12,7 +12,7 @@ std::auto_ptr<Backend> Backend::create( const Colorizer& col, Config& config, St
     if ( config.showOutput() )
         return std::auto_ptr<Backend>(new LiveBackend<Colorizer>(col, config, status ));
     else
-        return std::auto_ptr<Backend>(new TerminalBackend<Colorizer>(col, config ));
+        return std::auto_ptr<Backend>(new TerminalBackend<Colorizer>(col, config, status ));
 }
 
 #define DISC_INSTANCE(Hueing) \

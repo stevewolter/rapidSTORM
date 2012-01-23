@@ -267,7 +267,7 @@ void Manager::run() {
 }
 
 std::auto_ptr<dStorm::display::Manager::WindowHandle>
-    Manager::register_data_source
+    Manager::register_data_source_impl
 (
     const WindowProperties& props,
     dStorm::display::DataSource& handler
@@ -364,7 +364,7 @@ Manager::~Manager()
     }
 }
 
-void Manager::store_image(
+void Manager::store_image_impl(
         std::string filename,
         const dStorm::display::Change& image )
 {

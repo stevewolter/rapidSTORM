@@ -12,6 +12,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/input/MetaInfo.h>
+#include <dStorm/display/Manager.h>
 
 using dStorm::output::Output;
 
@@ -167,7 +168,7 @@ void Car::compute() {
     first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());
-    Output::Announcement announcement( *traits );
+    Output::Announcement announcement( *traits, display::Manager::getSingleton() );
     upstream_engine = announcement.engine;
     announcement.engine = this;
     announcement.output_chain_mutex = &mutex;

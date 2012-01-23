@@ -10,6 +10,7 @@
 #include <boost/thread/mutex.hpp>
 
 namespace dStorm {
+namespace display { class Manager; }
 namespace viewer {
 
 struct Status {
@@ -23,6 +24,7 @@ struct Status {
     simparm::TriggerEntry save;
 
     boost::mutex mutex;
+    display::Manager *manager;
 
     virtual void adapt_to_changed_config() = 0;
 };

@@ -15,3 +15,14 @@ void delete_clone<dStorm::output::Output>(const dStorm::output::Output* o)
 }
 
 }
+
+namespace dStorm {
+namespace output {
+
+Output::Announcement::Announcement( 
+    const input::Traits<LocalizedImage>& traits,
+    display::Manager& manager )
+    : input::Traits<LocalizedImage>(traits), manager(&manager) {}
+
+}
+}

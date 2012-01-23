@@ -17,7 +17,8 @@ TerminalBackend<Hueing>::TerminalBackend(
 : image( other.image ),
   colorizer( other.colorizer ),
   discretization( other.discretization, image(), colorizer ),
-  cache()
+  cache(),
+  status( other.get_status() )
 {
     if ( other.cia.getSize().is_initialized() )
         cache.setSize( *other.cia.getSize() );

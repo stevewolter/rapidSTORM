@@ -18,6 +18,18 @@ Manager& Manager::getSingleton() {
     return *m;
 }
 
+std::auto_ptr<Manager::WindowHandle> Manager::register_data_source
+    (const WindowProperties& properties,
+        DataSource& handler)
+{
+    return register_data_source_impl( properties, handler );
+}
+
+void Manager::store_image( std::string filename, const Change& image )
+{
+    store_image_impl( filename, image );
+}
+
 void Change::make_linear_key(Image::PixelPair range) {
     if ( changed_keys.empty() ) changed_keys.push_back( std::vector<KeyChange>() );
     changed_keys.front().reserve( 256 );
@@ -34,6 +46,16 @@ void DataSource::look_up_key_values( const PixelInfo& info, std::vector<float>& 
     {
         *i = std::numeric_limits<float>::quiet_NaN();
     }
+}
+
+void Manager::WindowHandle::store_current_display( 
+    std::string filename, 
+    SaveRequest::ImageManipulator manip )
+{
+    SaveRequest r;
+    r.filename = filename;
+    r.manipulator = manip;
+    store_current_display(r);
 }
 
 }

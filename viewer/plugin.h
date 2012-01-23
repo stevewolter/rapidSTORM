@@ -1,9 +1,10 @@
-#include <dStorm/Config.h>
-
 namespace dStorm {
-namespace outputs {
+ 
+class Config;
 
-void add_viewer( dStorm::Config& config );
+namespace viewer {
+
+void augment_config( dStorm::Config& config );
 
 }
 }
