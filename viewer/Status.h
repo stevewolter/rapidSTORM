@@ -25,6 +25,7 @@ struct Status {
 
     virtual void adapt_to_changed_config() = 0;
     void registerNamedEntries( simparm::Node& name );
+    void add_listener( simparm::Listener& );
 };
 
 }

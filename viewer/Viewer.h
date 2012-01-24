@@ -55,6 +55,8 @@ class Viewer : public Status,
     boost::recursive_mutex *output_mutex;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;
+    Engine* repeater;
+    boost::optional< Announcement > announcement;
 
     void adapt_to_changed_config();
 };

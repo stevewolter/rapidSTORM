@@ -41,13 +41,14 @@ class Display
     std::auto_ptr<dStorm::display::Manager::WindowHandle> window_id;
 
     boost::optional<dStorm::display::ResizeChange> my_size;
+    display::Manager& manager;
 
     void setSize( const dStorm::display::ResizeChange& size );
 
   public:
     Display( 
         MyDiscretizer& disc, 
-        const Config& config,
+        const Status& config,
         dStorm::display::DataSource& vph,
         const Colorizer& colorizer,
         std::auto_ptr<dStorm::display::Change> initial_state

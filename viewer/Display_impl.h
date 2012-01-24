@@ -12,7 +12,7 @@ namespace viewer {
 template <typename Colorizer>
 Display<Colorizer>::Display( 
     MyDiscretizer& disc, 
-    const Config& config,
+    const Status& config,
     dStorm::display::DataSource& vph ,
     const Colorizer& colorizer,
     std::auto_ptr<dStorm::display::Change> initial_state
@@ -20,9 +20,11 @@ Display<Colorizer>::Display(
 : discretizer(disc), 
   colorizer(colorizer),
   vph(vph), 
-  next_change( initial_state )
+  next_change( initial_state ),
+  manager( *config.manager )
 {
-    if ( config.close_on_completion() )
+    assert( config.manager );
+    if ( config.config.close_on_completion() )
         props.flags.close_window_on_unregister();
     if ( next_change.get() == NULL )
         next_change.reset( new dStorm::display::Change(Colorizer::KeyCount) );
@@ -36,8 +38,7 @@ void Display<Colorizer>::show_window()
 {
     if ( window_id.get() == NULL && my_size.is_initialized() ) {
         props.initial_size = *my_size;
-        window_id = dStorm::display::Manager::getSingleton()
-                .register_data_source( props, vph );
+        window_id = manager.register_data_source( props, vph );
     }
 }
 

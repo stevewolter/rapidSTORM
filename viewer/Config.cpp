@@ -66,6 +66,15 @@ void _Config::registerNamedEntries( simparm::Node& n ) {
    n.push_back(border);
 }
 
+void _Config::add_listener( simparm::Listener& l ) {
+    l.receive_changes_from( showOutput.value );
+    //l.receive_changes_from( binned_dimensions.value );
+    l.receive_changes_from( histogramPower.value );
+    l.receive_changes_from( colourScheme.value );
+    l.receive_changes_from( invert.value );
+    l.receive_changes_from( border.value );
+}
+
 _Config::~_Config() {}
 
 _Config::CropBorder

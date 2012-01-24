@@ -23,7 +23,7 @@ LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
         s.config.histogramPower(), image(),
         colorizer),
   cache( 4096 ),
-  cia( discretization, s.config, *this, colorizer )
+  cia( discretization, s, *this, colorizer )
 {
     image.setListener(&discretization);
     discretization.setListener(&cache);

@@ -20,5 +20,10 @@ void Status::registerNamedEntries( simparm::Node& name )
     name.push_back( save );
 }
 
+void Status::add_listener( simparm::Listener& l ) {
+    config.add_listener(l);
+    l.receive_changes_from( save.value );
+}
+
 }
 }

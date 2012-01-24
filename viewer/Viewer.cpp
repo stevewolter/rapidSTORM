@@ -29,16 +29,12 @@ Viewer::Viewer(const Viewer::Config& config)
   OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   output_mutex(NULL),
-  implementation( config.colourScheme.value().make_backend(this->config, *this) ),
-  forwardOutput( &implementation->getForwardOutput() )
+  repeater( NULL )
 {
     DEBUG("Building viewer");
 
     this->registerNamedEntries( *this );
-
-    receive_changes_from( this->config.showOutput.value );
-    receive_changes_from( save.value );
-    receive_changes_from( this->config.histogramPower.value );
+    Status::add_listener( *this );
 
     DEBUG("Built viewer");
 }
@@ -55,10 +51,14 @@ void Viewer::receiveLocalizations(const EngineResult& er)
 
 Output::AdditionalData 
 Viewer::announceStormSize(const Announcement &a) {
+    announcement = a;
+    repeater = a.engine;
     output_mutex = a.output_chain_mutex;
+    this->manager = &a.display_manager();
+    implementation = config.colourScheme.value().make_backend(this->config, *this);
     implementation->set_output_mutex( output_mutex );
     implementation->set_job_name( a.description );
-    this->manager = &a.display_manager();
+    forwardOutput = &implementation->getForwardOutput();
     return forwardOutput->announceStormSize(a);
 }
 
@@ -74,19 +74,40 @@ void Viewer::store_results() {
 
 void Viewer::operator()(const simparm::Event& e) {
     if ( ! output_mutex ) return;
-    boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
     if (&e.source == &config.showOutput.value) {
+        boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
         adapt_to_changed_config();
-    } else if (&e.source == &save.value && save.triggered()) {
-        /* Save image */
-        save.untrigger();
-        if ( config.outputFile ) {
-            writeToFile( config.outputFile() );
+    } else if (&e.source == &save.value) {
+        if ( save.triggered() ) {
+            boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
+            /* Save image */
+            save.untrigger();
+            if ( config.outputFile ) {
+                writeToFile( config.outputFile() );
+            }
         }
     } else if (&e.source == &config.histogramPower.value) {
         /* Change histogram power */
+        boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
         implementation->set_histogram_power(config.histogramPower());
-    } 
+    } else if ( announcement ) {
+        /* Store the old implementation past the mutex lock to allow mutex 
+         * locking in the course of the destructor. This is needed when the
+         * live backend is destructed because a last update is fetched by
+         * the display thread. */
+        std::auto_ptr<Backend> old_implementation;
+        {
+            boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
+            old_implementation = implementation;
+            implementation = config.colourScheme.value().make_backend(this->config, *this);
+            implementation->set_output_mutex( output_mutex );
+            implementation->set_job_name( announcement->description );
+            forwardOutput = &implementation->getForwardOutput();
+            forwardOutput->announceStormSize(*announcement);
+            if ( repeater ) repeater->repeat_results();
+        }
+        old_implementation.reset();
+    }
 }
 
 void Viewer::adapt_to_changed_config() {
