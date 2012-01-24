@@ -48,7 +48,9 @@ void TerminalBackend<Hueing>::save_image(
         for (int i = 0; i < Im::Dim; ++i)
             result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
-    status.manager->store_image( filename, *result);
+    display::StorableImage i( filename, *result );
+    i.scale_bar = quantity<si::length>(config.scale_bar_length());
+    status.manager->store_image(i);
     DEBUG("Finished");
 }
 

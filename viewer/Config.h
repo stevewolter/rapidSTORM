@@ -11,6 +11,7 @@
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <simparm/Entry.hh>
 #include <dStorm/output/Output.h>
+#include <dStorm/units/microlength.h>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
@@ -32,6 +33,7 @@ class _Config : public simparm::Object {
     simparm::NodeChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
     simparm::Entry< CropBorder > border;
+    simparm::Entry< boost::units::quantity<boost::units::si::microlength> > scale_bar_length;
 
     _Config();
     ~_Config();

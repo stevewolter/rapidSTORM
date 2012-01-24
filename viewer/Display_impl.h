@@ -145,7 +145,11 @@ Display<Colorizer>::save_image(
             "Saving images after closing the "
             "display window not supported yet.");
     } else {
-        window_id->store_current_display( filename, KeyClearer(config) );
+        display::SaveRequest request;
+        request.filename = filename;
+        request.manipulator = KeyClearer(config);
+        request.scale_bar = quantity<si::length>(config.scale_bar_length());
+        window_id->store_current_display( request );
     }
 
 }

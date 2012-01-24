@@ -20,13 +20,15 @@ _Config::_Config()
   save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
                       "Close display on job completion"),
-  border("Border", "Width of border to chop", CropBorder::Constant(0 * camera::pixel))
+  border("Border", "Width of border to chop", CropBorder::Constant(0 * camera::pixel)),
+  scale_bar_length("ScaleBarLength", "Length of scale bar", 5 * boost::units::si::micrometer)
 {
     DEBUG("Building Viewer Config");
 
     outputFile.make_optional();
     outputFile.optional_given = true;
     outputFile.setUserLevel(simparm::Object::Beginner);
+    scale_bar_length.setUserLevel( simparm::Object::Intermediate );
 
     showOutput.setUserLevel(simparm::Object::Beginner);
 
@@ -64,6 +66,7 @@ void _Config::registerNamedEntries( simparm::Node& n ) {
    n.push_back(invert);
    n.push_back(close_on_completion);
    n.push_back(border);
+   n.push_back(scale_bar_length);
 }
 
 void _Config::add_listener( simparm::Listener& l ) {
