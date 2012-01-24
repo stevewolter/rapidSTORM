@@ -74,10 +74,7 @@ void Viewer::store_results() {
 
 void Viewer::operator()(const simparm::Event& e) {
     if ( ! output_mutex ) return;
-    if (&e.source == &config.showOutput.value) {
-        boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
-        adapt_to_changed_config();
-    } else if (&e.source == &save.value) {
+    if (&e.source == &save.value) {
         if ( save.triggered() ) {
             boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
             /* Save image */
@@ -91,28 +88,35 @@ void Viewer::operator()(const simparm::Event& e) {
         boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
         implementation->set_histogram_power(config.histogramPower());
     } else if ( announcement ) {
-        /* Store the old implementation past the mutex lock to allow mutex 
-         * locking in the course of the destructor. This is needed when the
-         * live backend is destructed because a last update is fetched by
-         * the display thread. */
-        std::auto_ptr<Backend> old_implementation;
-        {
-            boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
-            old_implementation = implementation;
-            implementation = config.colourScheme.value().make_backend(this->config, *this);
-            implementation->set_output_mutex( output_mutex );
-            implementation->set_job_name( announcement->description );
-            forwardOutput = &implementation->getForwardOutput();
-            forwardOutput->announceStormSize(*announcement);
-            if ( repeater ) repeater->repeat_results();
+        if ( repeater ) {
+            /* Store the old implementation past the mutex lock to allow mutex 
+            * locking in the course of the destructor. This is needed when the
+            * live backend is destructed because a last update is fetched by
+            * the display thread. */
+            std::auto_ptr<Backend> old_implementation;
+            {
+                boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
+                old_implementation = implementation;
+                implementation = config.colourScheme.value().make_backend(this->config, *this);
+                implementation->set_output_mutex( output_mutex );
+                implementation->set_job_name( announcement->description );
+                forwardOutput = &implementation->getForwardOutput();
+                forwardOutput->announceStormSize(*announcement);
+                repeater->repeat_results();
+            }
+            old_implementation.reset();
+        } else {
+            simparm::Message m("Cannot change display parameters without cache",
+                "Changing the display parameters has no effect without a Cache output.",
+                simparm::Message::Warning);
         }
-        old_implementation.reset();
     }
 }
 
 void Viewer::adapt_to_changed_config() {
     DEBUG("Changing implementation, showing output is " << config.showOutput());
     if ( implementation.get() ) {
+        boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
         implementation = implementation->adapt( implementation, *this );
         implementation->set_output_mutex( output_mutex );
         forwardOutput = &implementation->getForwardOutput();

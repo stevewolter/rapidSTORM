@@ -62,7 +62,6 @@ LiveBackend<Hueing>::get_changes() {
 template <typename Hueing>
 void LiveBackend<Hueing>::notice_closed_data_window() {
     DEBUG( "Noticing closed data window in " << this );
-    boost::lock_guard<boost::recursive_mutex> lock( *mutex );
     status.config.showOutput = false;
     DEBUG( "Noticed closed data window in " << this );
 }
