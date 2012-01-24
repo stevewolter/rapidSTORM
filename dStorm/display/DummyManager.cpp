@@ -21,8 +21,8 @@ std::auto_ptr<Manager::WindowHandle> DummyManager::register_data_source_impl(
     return std::auto_ptr<WindowHandle>(handle.release());
 }
 
-void DummyManager::store_image_impl( std::string filename, const Change& image ) {
-    this->image = image;
+void DummyManager::store_image_impl( const StorableImage& i ) {
+    this->image = i.image;
 }
 
 DummyManager::~DummyManager() {}

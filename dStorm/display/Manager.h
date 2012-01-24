@@ -17,7 +17,18 @@ class ResizeChange;
 struct SaveRequest {
     typedef boost::function<void (Change&)> ImageManipulator;
     std::string filename;
+    boost::units::quantity< boost::units::si::length > scale_bar;
     ImageManipulator manipulator;
+
+    SaveRequest();
+};
+
+struct StorableImage {
+    const Change& image;
+    std::string filename;
+    boost::units::quantity< boost::units::si::length > scale_bar;
+
+    StorableImage( const std::string& filename, const Change& image );
 };
 
 /** The Manager class provides is the primary public
@@ -43,9 +54,7 @@ class Manager : boost::noncopyable {
          DataSource& handler) = 0;
 
     /** \copydoc store_image_impl */
-    virtual void store_image_impl(
-        std::string filename,
-        const Change& image ) = 0;
+    virtual void store_image_impl( const StorableImage& ) = 0;
 
   public:
     virtual ~Manager() {}
@@ -63,10 +72,8 @@ class Manager : boost::noncopyable {
          DataSource& handler);
 
     /** Store the given image on the hard disk. The Change structure given should have the resize and clear flags set. */
-    void store_image(
-        std::string filename,
-        const Change& image );
-
+    void store_image( std::string filename, const Change& image );
+    void store_image( const StorableImage& );
 };
 
 /** WindowFlags summarize boolean flags for window
@@ -129,9 +136,6 @@ class Manager::WindowHandle {
     virtual ~WindowHandle() {}
 
     virtual void store_current_display( SaveRequest ) = 0;
-    void store_current_display( 
-        std::string filename, 
-        SaveRequest::ImageManipulator manip = SaveRequest::ImageManipulator() );
 };
 
 /** The WindowProperties class provides the data

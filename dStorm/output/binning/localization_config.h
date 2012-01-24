@@ -39,6 +39,7 @@ class LocalizationConfig : public FieldConfig, public simparm::Object
     virtual std::auto_ptr<UserScaled> make_user_scaled_binner() const;
 
     void set_visibility(const input::Traits<dStorm::Localization>& t, bool unscaled_suffices); 
+    void add_listener( simparm::Listener& l );
 };
 
 }

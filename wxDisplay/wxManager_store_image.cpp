@@ -200,7 +200,7 @@ static void write_scale_bar(
 }
 #endif
 
-std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer ) {
+std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer, quantity<si::length> scale_bar ) {
     DEBUG("Image to store has width " << image.resize_image.size.x() << " and height " << image.resize_image.size.y()
         <<" and has " << image.changed_keys.size() << " keys");
     int width = image.resize_image.size.x() / camera::pixel; 
@@ -237,6 +237,10 @@ std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer ) {
         key_pos += i->rows();
     }
     int scale_bar_width = std::min( width/3, 100 );
+    if ( image.resize_image.pixel_sizes[0].is_in_dpm() ) {
+        scale_bar_width = 
+            round( (image.resize_image.pixel_sizes[0].in_dpm() * scale_bar) / camera::pixel );
+    }
     if ( image.resize_image.pixel_sizes[0].value > 0 / camera::pixel
           && image.resize_image.pixel_sizes[1].value > 0 / camera::pixel ) 
     {
@@ -257,10 +261,9 @@ std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer ) {
     return img;
 }
 
-void wxManager::store_image_impl(
-    std::string filename,
-    const Change& image )
+void wxManager::store_image_impl( const StorableImage& i )
 {
+    const Change& image = i.image;
     DEBUG("Storing image");
     if ( !image.do_resize || image.resize_image.keys.size() != image.changed_keys.size() )
         throw std::logic_error("Key information not given completely when saving image");
@@ -272,9 +275,9 @@ void wxManager::store_image_impl(
 #else
     std::vector< Magick::Image > layers;
     for (int z = 0; z < image.resize_image.size.z().value(); ++z)
-        layers.push_back( *create_layer( image, z ) );
+        layers.push_back( *create_layer( image, z, i.scale_bar ) );
     try {
-        writeImages( layers.begin(), layers.end(), filename );
+        writeImages( layers.begin(), layers.end(), i.filename );
     } catch ( const Magick::Error& e ) {
         throw std::runtime_error(e.what());
     }

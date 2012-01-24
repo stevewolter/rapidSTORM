@@ -35,6 +35,7 @@ class DimensionSelector
     void set_visibility(const input::Traits<Localization>&);
 
     bool is_3d() const { return use_z_axis(); }
+    void add_listener( simparm::Listener& );
 };
 
 }

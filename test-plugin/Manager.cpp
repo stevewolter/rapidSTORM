@@ -364,12 +364,10 @@ Manager::~Manager()
     }
 }
 
-void Manager::store_image_impl(
-        std::string filename,
-        const dStorm::display::Change& image )
+void Manager::store_image_impl( const dStorm::display::StorableImage& i )
 {
-    std::cerr << "Storing result image under " << filename << std::endl;
-    previous->store_image(filename, image);
+    std::cerr << "Storing result image under " << i.filename << std::endl;
+    previous->store_image(i);
 }
 
 void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
@@ -405,7 +403,9 @@ void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager
 
     if ( i.manipulator )
         i.manipulator(*rv);
-    m.store_image( i.filename, *rv );
+    dStorm::display::StorableImage result( i.filename, *rv );
+    result.scale_bar = i.scale_bar;
+    m.store_image( result );
 }
 
 void Manager::Source::operator()( const Close&, Manager& ) {

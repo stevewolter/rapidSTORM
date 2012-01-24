@@ -18,7 +18,7 @@ class DummyManager : public Manager
         const WindowProperties& properties,
         DataSource& handler);
 
-    void store_image_impl( std::string filename, const Change& image );
+    void store_image_impl( const StorableImage& );
     simparm::Node* getConfig() { return NULL; }
   public:
     ~DummyManager();

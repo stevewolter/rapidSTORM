@@ -93,9 +93,7 @@ class Manager
     void print_status(Source& source, std::string prefix, bool force_print = false);
     void heed_requests();
 
-    void store_image_impl(
-        std::string filename,
-        const dStorm::display::Change& image);
+    void store_image_impl( const dStorm::display::StorableImage& );
 
   public:
     Manager(dStorm::display::Manager *p);

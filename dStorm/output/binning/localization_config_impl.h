@@ -126,6 +126,13 @@ void LocalizationConfig<Field>::set_visibility(
     this->viewable = v;
 }
 
+template <int Field>
+void LocalizationConfig<Field>::add_listener( simparm::Listener& l )
+{
+    l.receive_changes_from(resolution.value);
+}
+
+
 }
 }
 }

@@ -244,7 +244,7 @@ class StateFetcher
             Window& window = *handle.associated_window;
             std::auto_ptr<Change> c = window.getState();
             if ( request.manipulator ) request.manipulator(*c);
-            wxManager().getSingleton().store_image( request.filename, *c );
+            wxManager::getSingleton().store_image( request.filename, *c );
         } catch (const std::runtime_error& e) {
             std::cerr << "Unable to save image: " << e.what() << std::endl;
         } 

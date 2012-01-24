@@ -40,6 +40,12 @@ void FieldChoice::fill< dStorm::Localization::Fields::Count >(BinningType type, 
 FieldChoice::FieldChoice(const FieldChoice& o) : simparm::NodeChoiceEntry<FieldConfig>(o, DeepCopy) {}
 FieldChoice::~FieldChoice() {}
 
+void FieldChoice::add_listener( simparm::Listener& l ) {
+    l.receive_changes_from(value);
+    for ( iterator i = beginChoices(); i != endChoices(); ++i )
+        i->add_listener( l );
+}
+
 
 }
 }

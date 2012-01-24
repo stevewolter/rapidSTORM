@@ -73,9 +73,7 @@ class wxManager : public Manager {
 
     void exec_waiting_runnables();
 
-    void store_image_impl(
-        std::string filename,
-        const Change& image );
+    void store_image_impl( const StorableImage& );
 };
 
 }

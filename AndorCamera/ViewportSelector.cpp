@@ -340,7 +340,9 @@ void Display::operator()
         save.untrigger();
         if ( imageFile ) {
             DEBUG("Getting current image display status");
-            handle->store_current_display( imageFile() );
+            display::SaveRequest request;
+            request.filename = imageFile();
+            handle->store_current_display( request );
             DEBUG("Saved image");
         } else {
             simparm::Message m( "Unable to save image",

@@ -27,8 +27,10 @@ std::auto_ptr<Manager::WindowHandle> Manager::register_data_source
 
 void Manager::store_image( std::string filename, const Change& image )
 {
-    assert( this );
-    store_image_impl( filename, image );
+    store_image_impl( StorableImage( filename, image ) );
+}
+void Manager::store_image( const StorableImage& i ) {
+    store_image_impl(i);
 }
 
 void Change::make_linear_key(Image::PixelPair range) {
@@ -49,14 +51,12 @@ void DataSource::look_up_key_values( const PixelInfo& info, std::vector<float>& 
     }
 }
 
-void Manager::WindowHandle::store_current_display( 
-    std::string filename, 
-    SaveRequest::ImageManipulator manip )
+SaveRequest::SaveRequest() 
+: scale_bar( 1E-6 * boost::units::si::meter ) {}
+
+StorableImage::StorableImage( const std::string& filename, const Change& image )
+: image(image), filename(filename), scale_bar( 1E-6 * boost::units::si::meter )
 {
-    SaveRequest r;
-    r.filename = filename;
-    r.manipulator = manip;
-    store_current_display(r);
 }
 
 }

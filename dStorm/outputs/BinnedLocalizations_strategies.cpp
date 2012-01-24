@@ -114,6 +114,14 @@ std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_unscaled
     return components[field].value().make_unscaled_binner();
 }
 
+template <int Dim>
+void DimensionSelector<Dim>::add_listener( simparm::Listener& l ) {
+    for (int i = 0; i < Dim+1; ++i)
+        components[i].add_listener(l);
+    l.receive_changes_from( invert_y_axis.value );
+    l.receive_changes_from( use_z_axis.value );
+}
+
 template class DimensionSelector<2>;
 template class DimensionSelector<3>;
 

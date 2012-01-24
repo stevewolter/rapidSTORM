@@ -23,6 +23,8 @@ struct FieldConfig {
 
     operator simparm::Node&() { return const_cast<simparm::Node&>(const_cast<FieldConfig&>(*this).getNode()); }
     operator const simparm::Node&() const { return getNode(); }
+
+    virtual void add_listener( simparm::Listener& l ) = 0;
 };
 
 struct FieldChoice 
@@ -39,6 +41,7 @@ struct FieldChoice
 
     FieldChoice* clone() const { return new FieldChoice(*this); }
     ~FieldChoice();
+    void add_listener( simparm::Listener& l );
 };
 
 }
