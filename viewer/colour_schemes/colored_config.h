@@ -18,6 +18,7 @@ struct ColoredConfig : public ColourScheme, public simparm::Object
     ColoredConfig* clone() const { return new ColoredConfig(*this); }
     simparm::Node& getNode() { return *this; }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
+    void add_listener( simparm::Listener& );
 };
 
 }

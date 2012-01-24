@@ -10,16 +10,18 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-struct CoordinateConfig : public ColourScheme, public simparm::Object
+struct CoordinateConfig : public ColourScheme
 {
+    simparm::Object object;
     output::binning::FieldChoice choice;
     simparm::Entry<double> range;
 
     CoordinateConfig();
     CoordinateConfig(const CoordinateConfig&);
     CoordinateConfig* clone() const { return new CoordinateConfig(*this); }
-    simparm::Node& getNode() { return *this; }
+    simparm::Node& getNode() { return object; }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
+    void add_listener( simparm::Listener& );
 };
 
 }

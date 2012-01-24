@@ -8,20 +8,26 @@ namespace viewer {
 namespace colour_schemes {
 
 CoordinateConfig::CoordinateConfig() 
-: simparm::Object("ByCoordinate", "Vary hue with coordinate value"),
+: object("ByCoordinate", "Vary hue with coordinate value"),
   choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval, "Hue"),
   range("HueRange", "Range of hue", 0.666)
 {
-    push_back( choice );
-    push_back( range );
+    object.push_back( choice );
+    object.push_back( range );
 }
 
 CoordinateConfig::CoordinateConfig(const CoordinateConfig& o) 
-: ColourScheme(o), simparm::Object(o), choice(o.choice), range(o.range)
+: ColourScheme(o), object(o.object), choice(o.choice), range(o.range)
 {
-    push_back( choice );
-    push_back( range );
+    object.push_back( choice );
+    object.push_back( range );
 }
+
+void CoordinateConfig::add_listener( simparm::Listener& l ) {
+    choice.add_listener( l );
+    l.receive_changes_from( range );
+}
+
 
 std::auto_ptr<Backend> CoordinateConfig::make_backend( Config& config, Status& status ) const
 {

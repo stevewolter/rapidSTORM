@@ -68,11 +68,14 @@ void _Config::registerNamedEntries( simparm::Node& n ) {
 
 void _Config::add_listener( simparm::Listener& l ) {
     l.receive_changes_from( showOutput.value );
-    //l.receive_changes_from( binned_dimensions.value );
+    binned_dimensions.add_listener(l);
     l.receive_changes_from( histogramPower.value );
     l.receive_changes_from( colourScheme.value );
     l.receive_changes_from( invert.value );
     l.receive_changes_from( border.value );
+
+    for ( simparm::NodeChoiceEntry<ColourScheme>::iterator i = colourScheme.beginChoices(); i != colourScheme.endChoices(); ++i)
+        i->add_listener( l );
 }
 
 _Config::~_Config() {}

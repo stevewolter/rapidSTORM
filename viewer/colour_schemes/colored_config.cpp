@@ -41,6 +41,11 @@ ColoredConfig::ColoredConfig(const ColoredConfig& o)
     push_back( saturation );
 }
 
+void ColoredConfig::add_listener( simparm::Listener& l ) {
+    l.receive_changes_from( hue.value );
+    l.receive_changes_from( saturation.value );
+}
+
 std::auto_ptr<Backend> ColoredConfig::make_backend( Config& config, Status& status ) const
 {
     return Backend::create< Colored >(Colored(config.invert(), hue(), saturation()), status);
