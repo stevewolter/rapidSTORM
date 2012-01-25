@@ -32,7 +32,7 @@ class LocalizationBuncher
     frame_index outputImage;
 
     friend class boost::iterator_core_access;
-    output::LocalizedImage& dereference() const { return *output; }
+    output::LocalizedImage& dereference() const;
     bool equal(const LocalizationBuncher& o) const;
     void increment();
 

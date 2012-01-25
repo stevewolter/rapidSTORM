@@ -73,6 +73,13 @@ Visitor::add<Localization>(Localization& argument)
 }
 
 template <typename Input>
+output::LocalizedImage& LocalizationBuncher<Input>::dereference() const
+{
+    DEBUG("Returning " << output.get() << " for " << this );
+    return *output;
+}
+
+template <typename Input>
 LocalizationBuncher<Input>::LocalizationBuncher( Source<Input>* master, frame_index first_image )
 : master(master), outputImage( first_image - 1 * camera::frame )
 {
@@ -81,20 +88,28 @@ LocalizationBuncher<Input>::LocalizationBuncher( Source<Input>* master, frame_in
 
 template <typename Input>
 void LocalizationBuncher<Input>::increment() {
+    DEBUG("Incrementing iterator with master " << master);
     output.reset();
-    outputImage += 1 * camera::frame;
-    if ( master->is_finished( outputImage ) ) {
-        DEBUG("Not serving after " << outputImage);
+    try {
+        outputImage += 1 * camera::frame;
+        if ( master->is_finished( outputImage ) ) {
+            DEBUG("Not serving after " << outputImage);
+            master = NULL;
+        } else {
+            output = master->read( outputImage );
+            DEBUG("Serving " << output->forImage);
+        }
+    } catch (...) {
         master = NULL;
-    } else {
-        output = master->read( outputImage );
-        DEBUG("Serving " << output->forImage);
+        throw;
     }
 }
 
 template <typename Input>
 bool LocalizationBuncher<Input>::equal(const LocalizationBuncher<Input>& o) const
 {
+    DEBUG("Comparing " << master << " " << o.master << " " << outputImage 
+          << " " << o.outputImage << " for equality");
     return master == o.master && ( master == NULL || outputImage == o.outputImage );
 }
 

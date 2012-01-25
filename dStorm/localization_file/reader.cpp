@@ -4,7 +4,6 @@
 #include "reader.h"
 #include "field.h"
 #include "unknown_field.h"
-//#include "fields_impl.h"
 
 #include <fstream>
 #include <ctype.h>
@@ -30,10 +29,10 @@ class Source::iterator
 
     void increment() { 
         trace_buffer.clear(); 
+        DEBUG("Reading localization");
         current = read_localization( file->level );
         if ( ! file->input ) { file = NULL; }
-        DEBUG("Iterator positioned at " << boost::get<Localization>(current) 
-              << " with source trace " << boost::get<Localization>(current).has_source_trace());
+        DEBUG("Read localization, file is now " << file);
     }
 
     localization::Record& dereference() const { return current; }
@@ -176,13 +175,10 @@ std::auto_ptr< input::Traits<localization::Record> > File::getTraits() const {
 localization::Record File::read_next()
 {
     localization::Record rv = Localization();
-    DEBUG("Source trace is " << boost::get<Localization>(rv).has_source_trace());
     Localization& target = boost::get<Localization>(rv);
-    DEBUG("Source trace is " << target.has_source_trace());
     Fields::iterator i;
     for ( i = fs.begin(); i != fs.end(); ++i ) {
         i->parse( input, target );
-        DEBUG("Source trace is " << target.has_source_trace());
     }
     if ( input && input.peek() != '\r' && input.peek() != '\n' )
         throw std::runtime_error("Expected end of line in localization file " + filename + ", " +
