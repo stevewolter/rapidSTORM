@@ -7,23 +7,18 @@
 namespace dStorm {
 namespace viewer {
 
-template <typename MyColorizer>
 class TerminalCache 
 : public DummyDiscretizationListener
 {
-    dStorm::display::ResizeChange size;
-    typedef MyColorizer Colorizer;
+    display::ResizeChange size;
 
   public:
     TerminalCache();
 
-    const dStorm::display::ResizeChange& getSize() const 
+    const display::ResizeChange& getSize() const 
         { return size; }
     void setSize(const input::Traits< Image<int,Im::Dim> >&);
     void setSize(const dStorm::display::ResizeChange& size);
-
-    std::auto_ptr<dStorm::display::Change> 
-    get_result(const Colorizer& colorizer) const;
 };
 
 }

@@ -21,7 +21,7 @@ class TerminalBackend
 {
   private:
     typedef Hueing Colorizer;
-    typedef TerminalCache<Colorizer> Cache;
+    typedef TerminalCache Cache;
     typedef Discretizer<Cache,Colorizer> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer, Im::Dim> Accumulator;
 
@@ -33,6 +33,7 @@ class TerminalBackend
     Cache cache;
     std::string window_name;
     Status& status;
+    std::auto_ptr< display::Change > get_state() const;
 
     friend class LiveBackend<Hueing>;
 

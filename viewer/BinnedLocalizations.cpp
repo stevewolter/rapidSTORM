@@ -18,8 +18,7 @@ namespace outputs {
     template class \
         BinnedLocalizations< \
             viewer::Discretizer<\
-                viewer::TerminalCache<\
-                    viewer::Hueing >, viewer::Hueing >, viewer::Im::Dim > \
+                viewer::TerminalCache, viewer::Hueing >, viewer::Im::Dim > \
 
 #include "colour_schemes/instantiate.h"
 

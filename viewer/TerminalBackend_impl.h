@@ -37,18 +37,38 @@ TerminalBackend<Hueing>::~TerminalBackend() {
 }
 
 template <typename Hueing>
+std::auto_ptr< display::Change > TerminalBackend<Hueing>::get_state() const
+{
+    DEBUG("Storing results");
+    std::auto_ptr<display::Change> rv
+        ( new display::Change(Hueing::KeyCount) );
+
+    display::ResizeChange size = cache.getSize();
+    size.keys.push_back( display::KeyDeclaration("ADC", "total A/D counts per pixel", Colorizer::BrightnessDepth) );
+    rv->do_resize = true;
+    rv->resize_image = size;
+    rv->do_change_image = true;
+    rv->image_change.new_image = display::Image(size.size);
+
+    if ( int(size.keys.size()) < Hueing::KeyCount ) {
+        for (int j = 1; j < Hueing::KeyCount; ++j ) {
+            rv->resize_image.keys.push_back( colorizer.create_key_declaration( j ) );
+        }
+    }
+    return rv;
+}
+
+template <typename Hueing>
 void TerminalBackend<Hueing>::save_image(
     std::string filename, const Config& config
 )
 { 
-    DEBUG("Storing results");
-    std::auto_ptr<display::Change> result
-        = get_result(config.save_with_key());
+    std::auto_ptr<display::Change> rv = get_result( config.save_with_key() );
     if ( ! config.save_scale_bar() )
         for (int i = 0; i < Im::Dim; ++i)
-            result->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
+            rv->resize_image.pixel_sizes[i].value = -1 / camera::pixel;
 
-    display::StorableImage i( filename, *result );
+    display::StorableImage i( filename, *rv );
     i.scale_bar = quantity<si::length>(config.scale_bar_length());
     status.manager->store_image(i);
     DEBUG("Finished");
@@ -63,7 +83,7 @@ template <typename Hueing>
 std::auto_ptr<display::Change> 
 TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");
-    std::auto_ptr<display::Change> c = cache.get_result(colorizer);
+    std::auto_ptr<display::Change> c = get_state();
     c->do_clear = true;
     c->clear_image.background = colorizer.get_background();
     display::Image& im = c->image_change.new_image;
