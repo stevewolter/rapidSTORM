@@ -67,7 +67,8 @@ class Output
     typedef dStorm::Image< std::set<TracedObject*>, 2 > Positional;
     Positional positional;
 
-    int track_modulo;
+    const int track_modulo;
+    frame_index last_seen_frame;
 
     boost::ptr_set< TracedObject, address_is_less<TracedObject> > traced_objects;
 
@@ -202,6 +203,7 @@ Output::Output(
     std::auto_ptr<dStorm::output::Output> output )
 : OutputObject("EmissionTracker", "Emission tracking status"),
   track_modulo( config.allowBlinking()+2 ), 
+  last_seen_frame( 0 * camera::frame ),
   reducer( config.reducer.make_trace_reducer() ), 
   target(output),
   maxDist( config.distance_threshold() )
@@ -356,6 +358,8 @@ Output::receiveLocalizations(const EngineResult &er)
         current.emissions.insert( trace );
     }
 
+    last_seen_frame = std::max( last_seen_frame, imNum * frame );
+
     if ( imNum >= track_modulo-1)
         finalizeImage(imNum - track_modulo + 1);
 }
@@ -383,7 +387,9 @@ void Output::finalizeImage(int imNum) {
 }
 
 void Output::store_results() {
-    /* TODO: Emit last few images that are in the ring buffer but not finalized */
+    for (int i = track_modulo+2; i >= 0; --i)
+        if ( last_seen_frame >= i * frame )
+            finalizeImage( last_seen_frame.value() - i );
     if ( target.get() != NULL )
         target->store_results();
 }
