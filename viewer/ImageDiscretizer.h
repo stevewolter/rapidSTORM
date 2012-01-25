@@ -50,12 +50,12 @@ struct DummyDiscretizationListener {
     void notice_key_change( int, Pixel, float ) {}
 };
 
-template <typename ImageListener>
+template <typename ImageListener, typename Colorizer_>
 class Discretizer 
 : public outputs::BinningListener<Im::Dim>,
   public Publisher<ImageListener>
 {
-    typedef typename ImageListener::Colorizer Colorizer;
+    typedef Colorizer_ Colorizer;
     typedef typename Colorizer::BrightnessType LowDepth;
 
     typedef Image<float,Im::Dim> InputImage;
@@ -89,7 +89,7 @@ class Discretizer
         TransitionTable* old_table, TransitionTable& new_table );
     inline unsigned long int non_background_pixels();
 
-    template <class> friend class Discretizer;
+    template <class,class> friend class Discretizer;
 
   public:
     Discretizer(
@@ -99,7 +99,7 @@ class Discretizer
         Colorizer& colorizer);
     template <typename OtherListener>
     Discretizer( 
-        const Discretizer<OtherListener>&, 
+        const Discretizer<OtherListener,Colorizer>&, 
         const InputImage& binned_image,
         Colorizer& colorizer);
     ~Discretizer();

@@ -26,6 +26,7 @@ template <typename Listener>
 class LiveCache :
     public Publisher<Listener>
 {
+    typedef typename Listener::Colorizer Colorizer;
     std::vector<HistogramPixel> pixels_by_value;
     typedef Image<HistogramPixel,Im::Dim> HistogramImage;
     HistogramImage pixels_by_position;
@@ -33,7 +34,6 @@ class LiveCache :
 
   public:
     static const int NeedLiveHistogram = true;
-    typedef typename Listener::Colorizer Colorizer;
     LiveCache(HighDepth depth);
     LiveCache(HighDepth depth, Im::Size size);
 

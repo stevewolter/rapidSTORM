@@ -9,8 +9,8 @@ namespace dStorm {
 namespace viewer {
 
 #define DISC_INSTANCE(Hueing) template class Discretizer< \
-        LiveCache< Display< Hueing > > >; \
-   template class Discretizer< TerminalCache< Hueing > >
+        LiveCache< Display< Hueing > >, Hueing >; \
+   template class Discretizer< TerminalCache< Hueing >, Hueing >
 
 #include "colour_schemes/instantiate.h"
 

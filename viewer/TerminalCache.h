@@ -12,10 +12,9 @@ class TerminalCache
 : public DummyDiscretizationListener
 {
     dStorm::display::ResizeChange size;
-
-  public:
     typedef MyColorizer Colorizer;
 
+  public:
     TerminalCache();
 
     const dStorm::display::ResizeChange& getSize() const 

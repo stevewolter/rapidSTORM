@@ -28,9 +28,8 @@ class Display
 {
   public:
     typedef UsedColorizer Colorizer;
-    typedef Discretizer< LiveCache<Display> > MyDiscretizer;
-
   private:
+    typedef Discretizer< LiveCache<Display>, Colorizer > MyDiscretizer;
     MyDiscretizer& discretizer;
     const Colorizer& colorizer;
 

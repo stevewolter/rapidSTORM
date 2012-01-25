@@ -6,21 +6,21 @@
 namespace dStorm {
 namespace viewer {
 
-template < typename ImageListener>
+template < typename ImageListener, typename Colorizer_>
 const HighDepth
-Discretizer< ImageListener>::background_threshold = 1;
+Discretizer< ImageListener,Colorizer_>::background_threshold = 1;
 
-template < typename ImageListener>
+template < typename ImageListener, typename Colorizer_>
 float 
-Discretizer< ImageListener>::key_value( LowDepth key ) const
+Discretizer< ImageListener,Colorizer_>::key_value( LowDepth key ) const
 {
     unsigned int n = -1; 
     while ( n+1 < in_depth && transition[n+1] <= key ) n++;
     return (n+0.5f) / disc_factor;
 }
 
-template < typename ImageListener>
-void Discretizer< ImageListener>
+template < typename ImageListener, typename Colorizer_>
+void Discretizer< ImageListener,Colorizer_>
 ::updatePixel(const Im::Position& p, float from, float to) 
 {
     colorizer.updatePixel( p, from, to );
@@ -46,8 +46,8 @@ void Discretizer< ImageListener>
     }
 }
 
-template < typename ImageListener>
-inline unsigned long int Discretizer< ImageListener>::non_background_pixels()
+template < typename ImageListener, typename Colorizer_>
+inline unsigned long int Discretizer< ImageListener,Colorizer_>::non_background_pixels()
 {
     long int accum = 0;
     assert( histogram.size() >= background_threshold );

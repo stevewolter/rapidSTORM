@@ -22,7 +22,7 @@ class TerminalBackend
   private:
     typedef Hueing Colorizer;
     typedef TerminalCache<Colorizer> Cache;
-    typedef Discretizer<Cache> MyDiscretizer;
+    typedef Discretizer<Cache,Colorizer> MyDiscretizer;
     typedef outputs::BinnedLocalizations<MyDiscretizer, Im::Dim> Accumulator;
 
     /** Binned image with all localizations in localizationsStore.*/

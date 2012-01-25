@@ -7,11 +7,11 @@
 namespace dStorm {
 namespace viewer {
 
-template <typename ImageListener>
+template <typename ImageListener, class Colorizer_>
 template <typename OtherListener>
-Discretizer<ImageListener>
+Discretizer<ImageListener,Colorizer_>
 ::Discretizer(
-    const Discretizer<OtherListener>& o,
+    const Discretizer<OtherListener,Colorizer_>& o,
     const Image<float,Im::Dim>& binned_image,
     Colorizer& colorizer) 
 : total_pixel_count(o.total_pixel_count),

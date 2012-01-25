@@ -12,8 +12,8 @@
 namespace dStorm {
 namespace viewer {
 
-template <typename ImageListener>
-Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+Discretizer<ImageListener,Colorizer_>
 ::Discretizer(int d, float hp,
     const Image<float,Im::Dim>& binned_image,
     Colorizer& colorizer) 
@@ -31,12 +31,12 @@ Discretizer<ImageListener>
 {
 }
 
-template <typename ImageListener>
-Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+Discretizer<ImageListener,Colorizer_>
 ::~Discretizer() {}
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
 ::setSize( const input::Traits<InputImage>& traits )
 {
     colorizer.setSize( traits );
@@ -52,8 +52,8 @@ void Discretizer<ImageListener>
     }
 }
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
   ::clean(bool final)
 {
     if ( final || pixels_above_used_max_value >
@@ -85,8 +85,8 @@ void Discretizer<ImageListener>
     this->publish().clean(final);
 }
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
   ::publish_differences_in_transitions
   ( TransitionTable* old_table, TransitionTable& new_table )
 {
@@ -104,8 +104,8 @@ void Discretizer<ImageListener>
     }
 }
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
     ::normalize_histogram()
 {
     const unsigned long used_histogram_pixels = 
@@ -158,8 +158,8 @@ void Discretizer<ImageListener>
     }
 }
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
 ::clear()
 {
     this->publish().clear();
@@ -172,8 +172,8 @@ void Discretizer<ImageListener>
     max_value = max_value_used_for_disc_factor;
 }
 
-template <typename ImageListener>
-void Discretizer<ImageListener>
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
 ::setHistogramPower(float power) 
 {
     this->histogram_power = power;
