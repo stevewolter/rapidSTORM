@@ -56,7 +56,7 @@ class LiveBackend
         { this->mutex = mutex; cia.show_window(); }
     void set_job_name( const std::string& name ) 
         { cia.set_job_name( name ); }
-    std::auto_ptr<Backend> adapt( std::auto_ptr<Backend> self, Status& );
+    std::auto_ptr<Backend> change_liveness( Status& );
     Status& get_status() const { return status; }
 };
 

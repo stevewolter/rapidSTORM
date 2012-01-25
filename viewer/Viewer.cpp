@@ -74,7 +74,9 @@ void Viewer::store_results() {
 
 void Viewer::operator()(const simparm::Event& e) {
     if ( ! output_mutex ) return;
-    if (&e.source == &save.value) {
+    if ( &e.source == &config.showOutput.value ) {
+        adapt_to_changed_config();
+    } else if (&e.source == &save.value) {
         if ( save.triggered() ) {
             boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
             /* Save image */
@@ -115,11 +117,19 @@ void Viewer::operator()(const simparm::Event& e) {
 
 void Viewer::adapt_to_changed_config() {
     DEBUG("Changing implementation, showing output is " << config.showOutput());
+    std::auto_ptr<Backend> backend;
     if ( implementation.get() ) {
+        /* The backends are swapped under the mutex here, but
+         * destruction is delayed until the mutex is given up.
+         * Otherwise, the live backend would lock up when it tries
+         * to give up its display under the mutex. */
         boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
-        implementation = implementation->adapt( implementation, *this );
-        implementation->set_output_mutex( output_mutex );
-        forwardOutput = &implementation->getForwardOutput();
+        backend = implementation->change_liveness( *this );
+        if ( backend.get() ) {
+            std::swap( backend, implementation );
+            implementation->set_output_mutex( output_mutex );
+            forwardOutput = &implementation->getForwardOutput();
+        }
     }
     DEBUG("Changed implementation to " << implementation.get());
 }

@@ -15,8 +15,7 @@ struct Backend
     virtual ~Backend() {}
     virtual output::Output& getForwardOutput() = 0;
 
-    virtual std::auto_ptr<Backend> adapt( 
-        std::auto_ptr<Backend> self, Status& ) = 0;
+    virtual std::auto_ptr<Backend> change_liveness( Status& ) = 0;
 
     virtual void save_image(std::string filename, const Config&) = 0;
 

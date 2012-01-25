@@ -30,16 +30,12 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Status& s
 
 template <typename Hueing>
 std::auto_ptr<Backend>
-TerminalBackend<Hueing>::adapt( std::auto_ptr<Backend> self, Status& s ) {
-    assert( self.get() == this );
-
+TerminalBackend<Hueing>::change_liveness( Status& s ) {
     if ( s.config.showOutput() ) {
-        std::auto_ptr<Backend> fresh( new LiveBackend<Hueing>(*this, s) );
-        std::swap( fresh, self );
-        /* Self is now destructed! Take care not to modify or access this. */
+        return std::auto_ptr<Backend>( new LiveBackend<Hueing>(*this, s) );
+    } else {
+        return std::auto_ptr<Backend>();
     }
-
-    return self;
 }
 
 }
