@@ -44,6 +44,7 @@ std::auto_ptr< display::Change > TerminalBackend<Hueing>::get_state() const
         ( new display::Change(Hueing::KeyCount) );
 
     display::ResizeChange size = cache.getSize();
+    size.keys.clear();
     size.keys.push_back( display::KeyDeclaration("ADC", "total A/D counts per pixel", Colorizer::BrightnessDepth) );
     rv->do_resize = true;
     rv->resize_image = size;

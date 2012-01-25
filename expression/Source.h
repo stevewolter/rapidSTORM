@@ -8,6 +8,7 @@
 #include <dStorm/output/Filter.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/utility.hpp>
+#include <boost/thread/mutex.hpp>
 #include "types.h"
 
 namespace dStorm {
@@ -22,6 +23,7 @@ class Source
   public:
     typedef expression::Config Config;
   private:
+    boost::mutex mutex;
     boost::ptr_vector< config::CommandLine > command_lines;
     SimpleFilters simple_filters;
     boost::ptr_vector< boost::nullable< source::LValue > > expressions;

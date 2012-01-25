@@ -41,8 +41,6 @@ struct Traits<output::LocalizedImage>
     bool source_image_is_set, smoothed_image_is_set, candidate_tree_is_set;
     boost::shared_ptr< const input::Traits< engine::Image > > input_image_traits;
     std::string name, description;
-
-    boost::recursive_mutex *output_chain_mutex;
 };
 
 }

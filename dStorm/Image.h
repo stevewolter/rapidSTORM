@@ -164,7 +164,9 @@ class Image
     const PixelType& operator[](const int i) const
         { return this->ptr()[i]; }
 
-    bool contains( int x, int y ) { 
+    bool contains( const Position& p ) const
+        { return (p >= 0).all() && (p < sizes_in_pixels()).all(); }
+    bool contains( int x, int y ) const { 
         BOOST_STATIC_ASSERT( Dimensions == 2 );
         return ( x >= 0 && x < this->width_in_pixels() &&
                    y >= 0 && y < this->height_in_pixels() ); 

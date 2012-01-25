@@ -53,6 +53,7 @@ void Source::registerNamedEntries() {
 
 Source::AdditionalData Source::announceStormSize(const Announcement& a)
 {
+    boost::lock_guard<boost::mutex> guard(mutex);
     repeater = a.engine;
     my_announcement = a;
     simple_filters.set_visibility(a);
@@ -64,6 +65,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
 
 void Source::receiveLocalizations(const EngineResult& er)
 {
+    boost::lock_guard<boost::mutex> guard(mutex);
     EngineResult rv(er);
     EngineResult::iterator end = rv.end();
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i )  {
@@ -77,10 +79,8 @@ void Source::receiveLocalizations(const EngineResult& er)
 
 void Source::expression_changed( std::string ident, std::auto_ptr<source::LValue> expression )
 {
-    boost::optional< boost::lock_guard<boost::recursive_mutex> > guard;
-    if ( my_announcement.is_initialized() && ! repeater ) return;
-    if ( my_announcement.is_initialized() && my_announcement->output_chain_mutex )
-        guard = in_place( boost::ref(*my_announcement->output_chain_mutex) );
+    boost::lock_guard<boost::mutex> guard(mutex);
+    if ( my_announcement.is_initialized() && ! ( repeater && repeater->can_repeat_results() ) ) return;
 
     std::map< std::string, int >::iterator i = expression_map.find(ident);
     if ( i == expression_map.end() ) {
@@ -92,7 +92,7 @@ void Source::expression_changed( std::string ident, std::auto_ptr<source::LValue
         expression->announce( *variables, *my_announcement );
     expressions.replace(i->second, expression);
 
-    if ( repeater ) repeater->repeat_results();
+    if ( repeater && repeater->can_repeat_results() ) repeater->repeat_results();
 }
 
 namespace source {

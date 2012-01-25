@@ -92,7 +92,7 @@ class Output
     : public output::Filter, private dStorm::Engine
 {
   private:
-    boost::recursive_mutex* output_mutex;
+    boost::mutex output_mutex;
     std::auto_ptr<Bunch> master_bunch;
     typedef boost::ptr_list<Bunch> Bunches;
     Bunches bunches;
@@ -257,7 +257,7 @@ void Output::repeat_results() {
 }
 
 void Output::reemit_localizations(const int my_count) {
-    boost::unique_lock<boost::recursive_mutex> lock( *output_mutex );
+    boost::unique_lock<boost::mutex> lock( output_mutex );
     DEBUG("Got output lock");
     output::LocalizedImage output;
     {
@@ -285,7 +285,7 @@ void Output::reemit_localizations(const int my_count) {
 Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 { 
-    output_mutex = a.output_chain_mutex;
+    boost::lock_guard<boost::mutex> lock(output_mutex);
     master_bunch.reset( new Bunch(a) );
 
     reemit_count = 0;
@@ -295,7 +295,6 @@ Output::announceStormSize(const Announcement& a)
 
     Announcement my_announcement(a);
     my_announcement.engine = this;
-    my_announcement.output_chain_mutex = &suboutputs;
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
     AdditionalData data = Filter::announceStormSize(my_announcement); 
     Output::check_additional_data_with_provided(
@@ -304,6 +303,7 @@ Output::announceStormSize(const Announcement& a)
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement& r) {
+    boost::lock_guard<boost::mutex> lock(output_mutex);
     engine_run_has_succeeded = false;
     bunches.clear();
     bunches.push_back( new Bunch(*master_bunch) );
@@ -319,6 +319,7 @@ void Output::store_results()
 
 void Output::receiveLocalizations(const EngineResult& e) 
 {
+    boost::lock_guard<boost::mutex> lock(output_mutex);
     bunches.back().insert( e );
     if ( bunches.back().number_of_localizations() >= LocalizationsPerBunch )
         bunches.push_back( new Bunch( *master_bunch ) );

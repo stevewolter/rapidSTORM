@@ -27,7 +27,6 @@ class LiveBackend
 
     Status& status;
 
-    boost::recursive_mutex* mutex;
     std::auto_ptr<dStorm::display::Change> get_changes();
 
     Accumulator image;
@@ -52,8 +51,6 @@ class LiveBackend
     void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
-    void set_output_mutex( boost::recursive_mutex* mutex ) 
-        { this->mutex = mutex; cia.show_window(); }
     void set_job_name( const std::string& name ) 
         { cia.set_job_name( name ); }
     std::auto_ptr<Backend> change_liveness( Status& );

@@ -171,7 +171,6 @@ void Car::compute() {
     Output::Announcement announcement( *traits, display::Manager::getSingleton() );
     upstream_engine = announcement.engine;
     announcement.engine = this;
-    announcement.output_chain_mutex = &mutex;
     announcement.name = "Job" + ident;
     announcement.description = "Result image for Job " + ident;
     DEBUG("Sending announcement");
