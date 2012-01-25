@@ -67,8 +67,9 @@ void Source::receiveLocalizations(const EngineResult& er)
     EngineResult rv(er);
     EngineResult::iterator end = rv.end();
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i )  {
-        if ( &*i )
+        if ( &*i ) {
             end = i->evaluate( *variables, *my_announcement, rv.begin(), end );
+        }
     }
     rv.erase( end, rv.end() );
     Filter::receiveLocalizations(rv);

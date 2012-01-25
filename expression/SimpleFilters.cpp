@@ -153,12 +153,10 @@ void SimpleFilters::publish_drift_correction()
 {
     if ( !manager ) return;
 
-    typedef Variable< Localization::Fields::Amplitude, traits::value_tag > MyVariable;
-
     std::auto_ptr< source::LValue > rv;
     if ( drift_correction().is_initialized() )
         rv.reset( new DriftCorrection(*drift_correction()) );
-    manager->expression_changed("SimpleFilters.Amp", rv);
+    manager->expression_changed("SimpleFilters.DriftCorrection", rv);
 }
 
 void SimpleFilters::publish_tki() 
