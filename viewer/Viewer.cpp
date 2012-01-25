@@ -88,7 +88,7 @@ void Viewer::operator()(const simparm::Event& e) {
         boost::lock_guard<boost::recursive_mutex> lock(*output_mutex);
         implementation->set_histogram_power(config.histogramPower());
     } else if ( announcement ) {
-        if ( repeater ) {
+        if ( repeater && repeater->can_repeat_results() ) {
             /* Store the old implementation past the mutex lock to allow mutex 
             * locking in the course of the destructor. This is needed when the
             * live backend is destructed because a last update is fetched by
