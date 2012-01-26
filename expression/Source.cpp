@@ -38,6 +38,7 @@ Source::Source( const Source& o )
 }
 
 Source::~Source() {
+    std::cerr << "Destructing expression output" << std::endl;
     simple_filters.set_manager( NULL );
     std::for_each( command_lines.begin(), command_lines.end(),
         boost::bind( &config::CommandLine::set_manager, _1, static_cast<config::ExpressionManager*>(NULL) ) );

@@ -41,10 +41,7 @@ class Crankshaft::Clutch : public simparm::Object {
         {
             this->simparm::Node::push_back( output.getNode() );
         }
-    ~Clutch() 
-    {
-        this->simparm::Node::erase( output.getNode() );
-    }
+    ~Clutch() {}
     
     Output* operator->() { return &output; }
     Output& operator*() { return output; }
