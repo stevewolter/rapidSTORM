@@ -95,17 +95,20 @@ void Viewer::operator()(const simparm::Event& e) {
             * locking in the course of the destructor. This is needed when the
             * live backend is destructed because a last update is fetched by
             * the display thread. */
-            std::auto_ptr<Backend> old_implementation;
+            std::auto_ptr<Backend> behind_the_scenes( new NoOpBackend() );
             {
                 boost::lock_guard<boost::mutex> lock(mutex);
-                old_implementation = implementation;
-                implementation = config.colourScheme.value().make_backend(this->config, *this);
-                implementation->set_job_name( announcement->description );
+                std::swap( behind_the_scenes, implementation );
                 forwardOutput = &implementation->getForwardOutput();
-                forwardOutput->announceStormSize(*announcement);
-                repeater->repeat_results();
             }
-            old_implementation.reset();
+            behind_the_scenes.reset();
+            behind_the_scenes = config.colourScheme.value().make_backend(this->config, *this);
+            behind_the_scenes->set_job_name( announcement->description );
+            behind_the_scenes->getForwardOutput().announceStormSize(*announcement);
+            boost::lock_guard<boost::mutex> lock(mutex);
+            std::swap( behind_the_scenes, implementation );
+            forwardOutput = &implementation->getForwardOutput();
+            repeater->repeat_results();
         } else {
             simparm::Message m("Cannot change display parameters without cache",
                 "Changing the display parameters has no effect without a Cache output.",

@@ -138,7 +138,7 @@ void RawImageFile::delete_queue() {
 
 void RawImageFile::write_image(const dStorm::engine::Image& img) {
     DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
-    assert( (size.size.array() == img.sizes().array()).all() );
+    assert( img.is_invalid() || (size.size.array() == img.sizes().array()).all() );
     TIFFOperation op("in writing TIFF file", *this, false);
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel * size.size.z() / camera::pixel) );

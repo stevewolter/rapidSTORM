@@ -26,6 +26,34 @@ struct Backend
     static std::auto_ptr<Backend> create( const Colorizer&, Status& );
 };
 
+struct NoOpBackend : public Backend
+{
+    struct Output : public output::Output {
+        Output* clone() const { return new Output(*this); }
+        const simparm::Node& getNode() const { throw std::logic_error("Not implemented"); }
+        simparm::Node& getNode() { throw std::logic_error("Not implemented"); }
+        AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
+        RunRequirements announce_run(const RunAnnouncement&) { return RunRequirements(); }
+        void receiveLocalizations(const EngineResult&) {}
+        void store_results() {}
+    };
+    Output o;
+
+    ~NoOpBackend() {}
+    output::Output& getForwardOutput() { return o; }
+
+    std::auto_ptr<Backend> change_liveness( Status& ) 
+        { throw std::logic_error("Not implemented"); }
+
+    void save_image(std::string , const Config&) 
+        { throw std::logic_error("Not implemented"); }
+
+    void set_histogram_power(float) 
+        { throw std::logic_error("Not implemented"); }
+    void set_job_name( const std::string& ) 
+        { throw std::logic_error("Not implemented"); }
+};
+
 }
 }
 
