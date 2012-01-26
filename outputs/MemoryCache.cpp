@@ -215,11 +215,8 @@ Output::~Output() {
         reemit_count = -1;
         count_changed.notify_all();
     }
-    std::cerr << "Point A" << std::endl;
     reemitter.join();
-    std::cerr << "Point B" << std::endl;
     destroy_suboutput();
-    std::cerr << "Point C" << std::endl;
 }
 
 void Output::run_reemitter() {
