@@ -1,3 +1,13 @@
+== 14.2.0 ==
+
+* Fixed minor bugs
+* Localized output mutex
+* Fixed #174 to #180
+* Made PSF configurable per plane
+* Moved unit tests into main executable
+* Included rapidSTORM fitter into main code
+* Physically included plugins into executable
+
 == 14.1.0 ==
 
 * Implemented #172
