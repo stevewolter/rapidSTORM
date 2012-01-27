@@ -1,3 +1,7 @@
+== 14.2.1 ==
+
+* Added version number callback on command line
+
 == 14.2.0 ==
 
 * Fixed minor bugs
