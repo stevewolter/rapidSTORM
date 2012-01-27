@@ -13,6 +13,7 @@
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
+#include <iostream>
 
 boost::optional<double> get_cpu_time() {
 #if HAVE_GETRUSAGE

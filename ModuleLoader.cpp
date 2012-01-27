@@ -116,8 +116,6 @@ void ModuleLoader::Pimpl::load_plugins()
 
     DEBUG("Finding plugins in " << plugin_dir);
     lt_dlforeachfile( plugin_dir, lt_dlforeachfile_callback, this );
-    if ( loaded.empty() ) 
-        throw std::runtime_error("No plugins have been found in " + std::string(plugin_dir) + ". Please set the environment variable RAPIDSTORM_PLUGINDIR to the directory containing plugins. This executable cannot do anything sensible without any plugin and is terminating now.");
     DEBUG("Found plugins");
 
     display::Manager::setSingleton( *display );

@@ -357,7 +357,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/LiveBackend_decl.h viewer/LiveBackend.h viewer/LiveBackend_impl.h viewer/LiveBackend.cpp \
     viewer/LiveCache.h viewer/LiveCache_inline.h viewer/LiveCache_impl.h viewer/LiveCache.cpp \
     viewer/TerminalBackend_decl.h viewer/TerminalBackend.h viewer/TerminalBackend_inline.h viewer/TerminalBackend_impl.h viewer/TerminalBackend.cpp \
-    viewer/TerminalCache.h viewer/TerminalCache_inline.h viewer/TerminalCache_impl.h viewer/TerminalCache.cpp \
+    viewer/TerminalCache.h viewer/TerminalCache_inline.h viewer/TerminalCache.cpp \
     viewer/BinnedLocalizations.cpp \
     viewer/Status_decl.h viewer/Status.h viewer/Status.cpp \
     viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
@@ -412,7 +412,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/AbstractFunctionAdapter.h \
     nonlinfit/access_parameters.hpp \
     nonlinfit/append.h \
-    nonlinfit/assignments.h \
     nonlinfit/BoundFunction.h nonlinfit/BoundFunction.hpp \
     nonlinfit/DerivationSummand.h \
     nonlinfit/Evaluation.h \
@@ -461,7 +460,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/sum/AbstractMap.hpp \
     nonlinfit/sum/Evaluator.h \
     nonlinfit/sum/Evaluator.hpp \
-    nonlinfit/sum/Function.h \
     nonlinfit/sum/fwd.h \
     nonlinfit/sum/Lambda.h
 
@@ -494,7 +492,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/DistanceMetric.h guf/guf/InputPlane.h \
     guf/guf/Spot.h \
     guf/guf/Centroid.h guf/guf/Centroid.cpp \
-    guf/guf/TransformedImage.h
+    guf/guf/TransformedImage.h \
+    guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/psf/fwd.h guf/psf/parameters.h guf/psf/parameters.hpp \
@@ -571,7 +570,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/sum/unit_test.cpp \
     nonlinfit/terminators/unit_test.cpp \
     guf/unit_tests.cpp \
-    unit_tests.cpp
+    dejagnu.h unit_tests.h unit_tests.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
@@ -580,7 +579,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/pixelatedBessel.h locprec/pixelatedBessel.cpp \
     locprec/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
-    locprec/EmissionTracker_decl.h locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
+    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
     locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
     locprec/FluorophoreDistributions_Random.cpp \
     locprec/FluorophoreDistributions_Lattice.cpp \

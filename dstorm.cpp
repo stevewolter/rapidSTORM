@@ -62,6 +62,10 @@ int main(int argc, char *argv[]) {
 
     if ( argc <= 1 )
         return run_unit_tests();
+    else if ( std::string(argv[1]) == "--version" ) {
+        std::cout << PACKAGE_VERSION << std::endl;
+        return 0;
+    }
 
     try {
         DEBUG("Making module handler");
