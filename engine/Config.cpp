@@ -7,6 +7,7 @@
 #include <dStorm/engine/SpotFitterFactory.h>
 
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Entry_Impl.hh>
 #include <dStorm/output/Basename.h>
 
 #include "config.h"
