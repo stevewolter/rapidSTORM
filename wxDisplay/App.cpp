@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "App.h"
 #include "wxManager.h"
 #include "Window.h"
@@ -20,8 +21,14 @@ boost::function0<void> App::idle_call;
 App::App()
 : timer(this, DISPLAY_TIMER)
 {
+    int display_timer = 100;
+    if ( getenv("RAPIDSTORM_DISPLAY_FREQUENCY") ) {
+        float f = atof(getenv("RAPIDSTORM_DISPLAY_FREQUENCY"));
+        if ( f > 0 )
+            display_timer = 1000 / f;
+    }
     DEBUG("App has been constructed");
-    timer.Start( 100 );
+    timer.Start( display_timer );
 }
 
 App::~App() {
