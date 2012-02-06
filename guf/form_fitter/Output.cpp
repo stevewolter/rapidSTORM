@@ -186,7 +186,8 @@ void Output::do_the_fit() {
             {
                 for ( int j = 0; j < new_traits->plane_count(); ++j)
                     std::cerr << ", fluorophore " << i << " in plane " << j << 
-                                 " has PSF FWHM " << new_traits->plane(j).psf_size(i)->transpose() << " transmission " << new_traits->plane(j).transmission_coefficient(i);
+                                 " has PSF FWHM " 
+                            << from_value<si::length>( value( new_traits->plane(j).psf_size(i)->transpose() ) * 2.35 ) << " transmission " << new_traits->plane(j).transmission_coefficient(i);
             }
             std::cerr << std::endl;
     }
