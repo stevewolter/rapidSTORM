@@ -7,6 +7,7 @@
 #include <boost/units/io.hpp>
 #include <complex>
 #include <gsl/gsl_errno.h>
+#include <dStorm/traits/Projection.h>
 
 namespace locprec {
 
@@ -75,7 +76,8 @@ double BesselFunction::theta_callback(double theta, void *params)
 
 double BesselFunction::compute_point( const Subpixel& position, IntegrationInfo& info ) const
 {
-    dStorm::traits::Optics<2>::SamplePosition sample = trafo.point_in_sample_space(position);
+    dStorm::traits::Optics<2>::SamplePosition sample = 
+        trafo.projection().point_in_sample_space(position);
     sample -= fluorophore;
     quantity<si::length> distance = sqrt( pow<2>(sample[0]) + pow<2>(sample[1]) );
     info.bessel_factor = double( distance * info.wavenumber);
