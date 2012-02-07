@@ -66,8 +66,8 @@ void Display<Colorizer>::setSize(
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
     for (int i = 0; i < std::min(2, Im::Dim); ++i) 
-        if ( traits.plane(0).resolution(i).is_initialized() )
-            size.pixel_sizes[i] = *traits.plane(0).resolution(i);
+        if ( traits.plane(0).has_resolution() )
+            size.pixel_sizes[i] = traits.plane(0).resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
 

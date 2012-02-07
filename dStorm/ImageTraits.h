@@ -70,6 +70,7 @@ class Traits< dStorm::Image<PixelType,Dimensions> >
 
     traits::ImageNumber& image_number() { return in; }
     const traits::ImageNumber& image_number() const { return in; }
+    samplepos size_in_sample_space() const;
 };
 
 #if 0

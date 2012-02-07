@@ -15,6 +15,7 @@
 #include <boost/units/Eigen/Core>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "../units/camera_response.h"
+#include <dStorm/types/samplepos.h>
 
 namespace dStorm {
 namespace traits {
@@ -43,22 +44,11 @@ template <>
 struct Optics<2>
 {
     typedef units::quantity< units::camera::resolution, float > Resolution;
-    typedef Eigen::Matrix< units::quantity<units::si::length,float>, 3, 1, Eigen::DontAlign >
-        SamplePosition;
-    typedef Eigen::Matrix< units::quantity<units::camera::length,int>, 2, 1, Eigen::DontAlign > ImagePosition;
-    typedef Eigen::Matrix< units::quantity<units::camera::length,float>, 2, 1, Eigen::DontAlign > SubpixelImagePosition;
-    typedef Eigen::Matrix< int, 2, 1, Eigen::DontAlign > UnitlessImagePosition;
     typedef Eigen::Array< boost::units::quantity< boost::units::si::length, float >, 2,1, Eigen::DontAlign > PSF;
-
-    typedef Eigen::Matrix< float, 3, Eigen::Dynamic > PointSet;
-
-    enum TransformationClass { Scaled, ScaledTranslation, Affine, Projective };
-
     typedef boost::array< boost::optional<ImageResolution>,2> Resolutions;
 
   private:
-    struct Pimpl;
-    std::auto_ptr< Pimpl > pimpl;
+    std::vector<float> tmc;
     boost::array< boost::optional<ImageResolution> ,2> resolutions;
     boost::optional< PSF > psf;
     boost::shared_ptr< const Projection > projection_;
@@ -80,39 +70,15 @@ struct Optics<2>
     boost::shared_ptr< const Projection > projection() const
         { return projection_; }
 
-    SamplePosition point_in_sample_space( const ImagePosition& pos ) const;
-    SamplePosition point_in_sample_space( const SubpixelImagePosition& pos ) const;
-    SamplePosition vector_in_sample_space( const ImagePosition& pos ) const;
-    SamplePosition vector_in_sample_space( const SubpixelImagePosition& pos ) const;
-    units::quantity<units::si::length,float>
-        point_offset_in_sample_space( int dimension, units::quantity<units::camera::length,float> ) const;
-    units::quantity<units::si::length,float>
-        length_in_sample_space( int dimension, units::quantity<units::camera::length,float> ) const;
-
-    void points_in_sample_space( PointSet& pos ) const;
-    void points_in_image_space( PointSet& pos ) const;
-
-    ImagePosition nearest_point_in_image_space( const SamplePosition& pos ) const;
-    SubpixelImagePosition point_in_image_space( const SamplePosition& pos ) const;
-    SubpixelImagePosition vector_in_image_space( const SamplePosition& pos ) const;
-    units::quantity<units::camera::length,float>
-        point_offset_in_image_space( int dimension, units::quantity<units::si::length,float> ) const;
-    units::quantity<units::camera::length,float>
-        length_in_image_space( int dimension, units::quantity<units::si::length,float> ) const;
-
-    inline boost::optional<ImageResolution> resolution(int r) const 
-        { assert( transformation_class() <= Scaled); return resolutions[r]; }
-    inline bool resolution_given_in_dpm(int r) const { 
-        return resolutions[r].is_initialized() && resolutions[r]->is_in_dpm() && transformation_class() <= Scaled; }
-    inline const Resolutions& image_resolutions() const { return resolutions; }
-    TransformationClass transformation_class() const;
+    ImageResolution resolution(int r) const;
+    bool has_resolution() const;
+    const Resolutions& image_resolutions() const;
 
     float transmission_coefficient( int fluorophore ) const;
 
     void set_resolution( const boost::array< ImageResolution, 2 >& f );
     void set_resolution( const Resolutions& f );
     void set_fluorophore_transmission_coefficient( int fluorophore, float );
-    void apply_transformation( const Eigen::Matrix3f& );
 
     Optics<2>& plane( int i ) { assert(i == 0); return *this; }
     const Optics<2>& plane( int i ) const { assert(i == 0); return *this; }
@@ -131,9 +97,6 @@ struct Optics<3>
     Optics<2>& plane( int i ) { return planes.at(i); }
     const Optics<2>& plane( int i ) const { return planes.at(i); }
     int plane_count() const { return planes.size(); }
-
-    Optics<2>::SamplePosition 
-        size_in_sample_space( const Optics<2>::SubpixelImagePosition& projection_size ) const;
 };
 
 }

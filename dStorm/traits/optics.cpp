@@ -9,31 +9,14 @@
 #include <boost/units/cmath.hpp>
 #include <functional>
 #include "AffineProjection.h"
+#include "ScaledProjection.h"
 
 namespace dStorm {
 namespace traits {
 
 using namespace boost::units;
 
-static Eigen::TransformTraits eigen_traits( Optics<2>::TransformationClass c )
-{
-    if ( c == Optics<2>::Projective )
-        return Eigen::Projective;
-    else 
-        return Eigen::Affine;
-}
-
-struct Optics<2>::Pimpl {
-    TransformationClass trafo_class;
-
-    Eigen::Affine2f to_sample, to_image;
-    /** Transmission coefficients indexed by fluorophore */
-    std::vector< float > tmc;
-
-    Pimpl( quantity<camera::resolution> x, quantity<camera::resolution> y, 
-           Eigen::Affine2f after_transform );
-};
-
+#if 0
 Optics<2>::Pimpl::Pimpl( quantity<camera::resolution> x, quantity<camera::resolution> y,
     Eigen::Affine2f after_transform)
 {
@@ -55,13 +38,13 @@ Optics<2>::Pimpl::Pimpl( quantity<camera::resolution> x, quantity<camera::resolu
     to_sample = after_transform * Eigen::DiagonalMatrix<float,2>( 1.0 / x.value(), 1.0 / y.value() );
     to_image = to_sample.inverse( eigen_traits( trafo_class ) );
 }
+#endif
 
 
 Optics<2>::Optics() {}
 
 Optics<2>::Optics( const Optics &o ) 
-: pimpl( (o.pimpl.get()) ? new Pimpl(*o.pimpl) : NULL ),
-  resolutions(o.resolutions),
+: resolutions(o.resolutions),
   psf(o.psf),
   projection_(o.projection_),
   z_position(o.z_position),
@@ -84,18 +67,12 @@ Optics<2>& Optics<2>::operator=( const Optics<2> &o )
     background_stddev = o.background_stddev;
     dark_current = o.dark_current;
     resolutions = o.resolutions;
-    if ( o.pimpl.get() )
-        if ( pimpl.get() )
-            *pimpl = *o.pimpl;
-        else 
-            pimpl.reset( new Pimpl(*o.pimpl) );
-    else
-        pimpl.reset();
     return *this;
 }
 
 Optics<2>::~Optics<2>() {}
 
+#if 0
 quantity<si::length,float>
 Optics<2>::point_offset_in_sample_space( int dimension, quantity<camera::length,float> g ) const
 {
@@ -233,6 +210,7 @@ void Optics<2>::points_in_image_space( PointSet& points ) const
     for (int i = 0; i < 2; ++i)
         points.row(0).array() /= points.row(2).array();
 }
+#endif
 
 void Optics<2>::set_resolution( const boost::array< ImageResolution, 2 >& f )
 {
@@ -248,15 +226,13 @@ void Optics<2>::set_resolution( const Resolutions& f )
     {
         Eigen::Affine2f trafo;
         trafo.setIdentity();
-        std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
-        pimpl.reset( new Pimpl( f[0]->in_dpm(), f[1]->in_dpm(), trafo ) );
-        projection_.reset( new AffineProjection( f[0]->in_dpm(), f[1]->in_dpm(), trafo ) );
-        pimpl->tmc = tmc;
+        projection_.reset( new ScaledProjection( f[0]->in_dpm(), f[1]->in_dpm() ) );
     } else {
-        pimpl.reset();
+        projection_.reset();
     }
 }
 
+#if 0
 Optics<2>::TransformationClass Optics<2>::transformation_class() const
 {
     if ( pimpl.get() )
@@ -264,6 +240,7 @@ Optics<2>::TransformationClass Optics<2>::transformation_class() const
     else
         return Scaled;
 }
+#endif
 
 CuboidConfig::CuboidConfig() 
 : simparm::Object("Optics", "Optical pathway properties"),
@@ -412,12 +389,12 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
             for (int c = 0; c < 3; ++c)
                 is >> elements(r,c);
         const_cast<simparm::FileEntry&>(micro_alignment).close_input_stream();
+        rv.projection_.reset( new AffineProjection( 
+            rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
+    } else {
+        rv.projection_.reset( new ScaledProjection(
+            rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm() ) );
     }
-    rv.pimpl.reset( new traits::Optics<2>::Pimpl( 
-        rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
-    rv.projection_.reset( new AffineProjection( 
-        rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
-    DEBUG( "Transformation is " << rv.pimpl->to_sample.matrix() );
     rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
     rv.dark_current = dark_current();
@@ -425,9 +402,9 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
         rv.offsets[i] = z_position()[i] / si::nanometre * 1E-9 * si::metre;
         rv.offsets[i] = *rv.offsets[i] - *rv.z_position;
     }
-    rv.pimpl->tmc.clear();
+    rv.tmc.clear();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i) {
-        rv.pimpl->tmc.push_back( i->value() );
+        rv.tmc.push_back( i->value() );
     }
     rv.psf_size(0) = psf_size().cast< quantity<si::length,float> >();
     for (int i = 0; i < 2; ++i)
@@ -443,24 +420,21 @@ traits::Optics<2> PlaneConfig::make_traits( traits::Optics<2>::Resolutions defau
 
 float traits::Optics<2>::transmission_coefficient( int fluorophore ) const
 {
-    assert( pimpl.get() );
-    if ( int(pimpl->tmc.size()) <= fluorophore )
-        return 1.0f;
-    else
-        return pimpl->tmc[fluorophore];
+    assert ( int(tmc.size()) <= fluorophore );
+    return tmc[fluorophore];
 }
 
 void traits::Optics<2>::set_fluorophore_transmission_coefficient( int fluorophore, float value ) 
 {
-    assert( pimpl.get() );
-    while ( int(pimpl->tmc.size()) <= fluorophore )
-        pimpl->tmc.push_back( 1.0f );
-    pimpl->tmc[fluorophore] = value;
+    while ( int(tmc.size()) <= fluorophore )
+        tmc.push_back( 1.0f );
+    tmc[fluorophore] = value;
 }
 
+#if 0
+    void apply_transformation( const Eigen::Matrix3f& );
 void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
 {
-    assert( pimpl.get() );
     std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
     pimpl.reset( new Pimpl( resolutions[0]->in_dpm(), resolutions[1]->in_dpm(), 
                             Eigen::Affine2f(t) ) );
@@ -468,6 +442,7 @@ void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
         resolutions[1]->in_dpm(), Eigen::Affine2f(t) ) );
     pimpl->tmc = tmc;
 }
+#endif
 
 void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 {
@@ -479,7 +454,6 @@ void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 
 void PlaneConfig::set_entries_to_traits( const traits::Optics<2>& t, int fc )
 {
-    if ( ! t.pimpl.get() ) return;
     for (int i = 0; i < fc; ++i) {
         transmissions[i] = t.transmission_coefficient( i );
     }

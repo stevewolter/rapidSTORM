@@ -11,7 +11,7 @@ namespace locprec {
 
 class FluorophoreDistribution : public simparm::Object {
   public:
-    typedef dStorm::traits::Optics<2>::SamplePosition Size;
+    typedef dStorm::samplepos Size;
     typedef std::queue< Fluorophore::Position,
                         std::deque<Fluorophore::Position,
                         Eigen::aligned_allocator<Fluorophore::Position> > >

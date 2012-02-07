@@ -43,7 +43,7 @@ struct BesselFunction::IntegrationInfo
 
 BesselFunction::BesselFunction( 
         const dStorm::traits::Optics<2>& transformation_into_sample_space,
-        const dStorm::traits::Optics<2>::SamplePosition& fluorophore_position_in_sample_space,
+        const dStorm::samplepos& fluorophore_position_in_sample_space,
         double num_apert, double opt_density, quantity<si::length> wavelength,
         quantity<si::area> pixel_size )
         : trafo( transformation_into_sample_space ),
@@ -76,8 +76,12 @@ double BesselFunction::theta_callback(double theta, void *params)
 
 double BesselFunction::compute_point( const Subpixel& position, IntegrationInfo& info ) const
 {
-    dStorm::traits::Optics<2>::SamplePosition sample = 
-        trafo.projection().point_in_sample_space(position);
+    dStorm::samplepos sample;
+    sample.head<2>() =
+        trafo.projection()->point_in_sample_space(
+            dStorm::traits::Projection::SubpixelImagePosition(
+                position.head<2>()));
+    sample.z() = *trafo.z_position;
     sample -= fluorophore;
     quantity<si::length> distance = sqrt( pow<2>(sample[0]) + pow<2>(sample[1]) );
     info.bessel_factor = double( distance * info.wavenumber);

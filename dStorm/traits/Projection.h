@@ -8,6 +8,7 @@
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/area.hpp>
 #include <vector>
+#include <boost/array.hpp>
 
 namespace dStorm {
 namespace traits {
@@ -36,12 +37,21 @@ struct Projection {
         cut_region_of_interest_( 
             const SamplePosition& center,
             const SamplePosition& width ) const = 0;
+    virtual boost::array< ImagePosition, 2 >
+        get_region_of_interest_( 
+            const SamplePosition& center,
+            const SamplePosition& width ) const = 0;
+    virtual ImagePosition nearest_point_in_image_space_
+        ( const SamplePosition& pos ) const = 0;
 
   public:
+    ImagePosition nearest_point_in_image_space
+        ( const SamplePosition& pos ) const
+        { return nearest_point_in_image_space_(pos); }
     SamplePosition point_in_sample_space
         ( const SubpixelImagePosition& pos ) const 
         { return point_in_sample_space_(pos); }
-    SamplePosition point_in_sample_space
+    SamplePosition pixel_in_sample_space
         ( const ImagePosition& pos ) const 
         { return point_in_sample_space_(pos.cast< SubpixelImagePosition::Scalar >()); }
     units::quantity<units::si::area> pixel_size
@@ -54,6 +64,11 @@ struct Projection {
             const SamplePosition& width ) const
         { return cut_region_of_interest_( center, width ); }
 
+    typedef boost::array< ImagePosition, 2 > Bounds;
+    Bounds get_region_of_interest(
+            const SamplePosition& center,
+            const SamplePosition& width ) const
+        { return get_region_of_interest_( center, width ); }
 };
 
 }

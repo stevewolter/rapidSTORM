@@ -19,6 +19,7 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/slice.h>
 #include <dStorm/helpers/back_inserter.h>
+#include <dStorm/traits/Projection.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "PlaneFlattener.h"
 #include "Config.h"
@@ -202,9 +203,9 @@ class Engine::_iterator::WorkHorse {
 
 FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
 {
-    traits::Optics<2>::ImagePosition p = spot.position();
     return
-        engine.imProp->plane(0).point_in_sample_space(p).head<2>()
+        engine.imProp->plane(0).projection()->
+            pixel_in_sample_space( spot.position() ).head<2>()
             .cast< FitPosition::Scalar >(); 
 }
 

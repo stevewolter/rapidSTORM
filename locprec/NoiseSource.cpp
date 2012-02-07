@@ -141,9 +141,9 @@ void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
 
 std::auto_ptr< boost::ptr_list<Fluorophore> >
 FluorophoreSetConfig::create_fluorophores(
-    dStorm::engine::Image::Size imS,
+    const dStorm::input::Traits< dStorm::Image<unsigned short,3> >& t,
     gsl_rng *rng,
-    int imN, const dStorm::traits::Optics<3>& optics) const
+    int imN ) const
 {
     std::auto_ptr< boost::ptr_list<Fluorophore> > fluorophores
         ( new boost::ptr_list<Fluorophore>() );
@@ -157,10 +157,9 @@ FluorophoreSetConfig::create_fluorophores(
             fluorophores->push_back( new Fluorophore( in,
                 fluorophoreConfig ) );
     } else {
-        FluorophoreDistribution::Positions positions;
         const FluorophoreDistribution& distribution = this->distribution.value();
-        positions = distribution.fluorophore_positions(
-            optics.size_in_sample_space( imS.head<2>().cast< dStorm::traits::Optics<2>::SubpixelImagePosition::Scalar >() ), rng);
+        FluorophoreDistribution::Positions positions = 
+            distribution.fluorophore_positions( t.size_in_sample_space(), rng);
 
         int bins = 100;
         dStorm::Image<Fluorophore*,2>::Size sz;
@@ -169,7 +168,7 @@ FluorophoreSetConfig::create_fluorophores(
         cache.fill(0);
 
         while ( ! positions.empty() ) {
-            fluorophores->push_back( new Fluorophore(positions.front(), imN, fluorophoreConfig, optics, fluorophore_index()) );
+            fluorophores->push_back( new Fluorophore(positions.front(), imN, fluorophoreConfig, t, fluorophore_index()) );
             positions.pop();
         }
     }
@@ -188,11 +187,12 @@ FluorophoreSetConfig::create_fluorophores(
 
 template <typename Pixel>
 NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
-
 : simparm::Set("NoiseSource", "Noise source status"),
   randomSeedEntry(config.noiseGeneratorConfig.random_seed),
-  optics( config.optics.make_traits() )
+  t( new dStorm::input::Traits< dStorm::Image<Pixel,3> >() )
 {
+    static_cast< dStorm::traits::Optics<3>&>(*t) = config.optics.make_traits();
+
     DEBUG("Just made traits for noise source");
     rng = gsl_rng_alloc(gsl_rng_mt19937);
     DEBUG("Using random seed " << randomSeedEntry());
@@ -200,10 +200,10 @@ NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
     noiseGenerator = 
         NoiseGenerator<Pixel>::factory(config.noiseGeneratorConfig, rng);
 
-    this->imS.fill(1 * camera::pixel);
-    this->imS.x() = config.noiseGeneratorConfig.width() * camera::pixel;
-    this->imS.y() = config.noiseGeneratorConfig.height() * camera::pixel;
-    this->imS.z() = config.optics.number_of_planes() * camera::pixel;
+    t->size.fill(1 * camera::pixel);
+    t->size.x() = config.noiseGeneratorConfig.width() * camera::pixel;
+    t->size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
+    t->size.z() = config.optics.number_of_planes() * camera::pixel;
     imN = config.imageNumber();
     integration_time = config.integrationTime() * si::seconds;
 
@@ -216,7 +216,7 @@ NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
             i != config.get_fluorophore_sets().end(); ++i)
     {
         std::auto_ptr<FluorophoreList> l = 
-            (*i)->create_fluorophores( imS, rng, imN, optics );
+            (*i)->create_fluorophores( *t, rng, imN );
         fluorophores.transfer( fluorophores.end(), *l );
     }
 
@@ -237,7 +237,7 @@ dStorm::engine::Image* NoiseSource<Pixel>::fetch( int imNum )
 {
     boost::lock_guard<boost::mutex> lock(mutex);
     std::auto_ptr<dStorm::engine::Image>
-        result(new dStorm::engine::Image(this->imS, imNum * camera::frame));
+        result(new dStorm::engine::Image(t->size, imNum * camera::frame));
 
     noiseGenerator->pixelNoise(result->ptr(), result->size_in_pixels());
 
@@ -295,12 +295,7 @@ NoiseSource<Pixel>::end() {
 template <typename Pixel>
 typename NoiseSource<Pixel>::Source::TraitsPtr
 NoiseSource<Pixel>::get_traits( typename Source::Wishes ) {
-    typename Source::TraitsPtr rv( new dStorm::input::Traits< dStorm::Image<Pixel,3> >() );
-    rv->planes.resize( imS[2].value() );
-    rv->size = imS;
-    rv->image_number().range().first = 0 * camera::frame;
-    rv->image_number().range().second = (imN - 1) * camera::frame;
-    return rv;
+    return t;
 }
 
 void NoiseConfig::publish_meta_info() {

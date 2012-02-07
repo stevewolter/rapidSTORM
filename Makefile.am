@@ -191,6 +191,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
+    dStorm/traits/ScaledProjection.h dStorm/traits/ScaledProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \

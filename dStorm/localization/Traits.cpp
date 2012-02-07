@@ -31,8 +31,8 @@ Traits<dStorm::Localization>::Traits(
 {
     for (int i = 0; i < 2; ++i) {
         position().range()[i].first = 0 * si::meter;
-        if ( imageTraits.plane(0).resolution_given_in_dpm(i) ) {
-            position().resolution()[i] = imageTraits.plane(0).resolution(i)->in_dpm();
+        if ( imageTraits.plane(0).has_resolution() ) {
+            position().resolution()[i] = imageTraits.plane(0).resolution(i).in_dpm();
             position().range()[i].second = (imageTraits.size[i]-1*camera::pixel) / *position().resolution()[i];
         }
     }

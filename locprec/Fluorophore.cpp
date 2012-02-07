@@ -14,6 +14,7 @@
 
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
+#include <dStorm/traits/Projection.h>
 
 using namespace std;
 
@@ -83,18 +84,15 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
         p.densities = Eigen::MatrixXd::Constant(p.range[0].value()*2+1, p.range[1].value()*2+1, -1);
         Position plane_pos = pos;
         plane_pos[2] = *o.z_position;
-        p.pixel = o.nearest_point_in_image_space(plane_pos);
+        p.pixel = o.projection()->nearest_point_in_image_space(plane_pos.head<2>());
 
-        Position pixel_shift = o.point_in_sample_space(p.pixel) - o.point_in_sample_space( 
-            dStorm::traits::Optics<2>::ImagePosition(p.pixel.array() + 1 * camera::pixel) );
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 
-            << p.pixel.transpose() << "( " << o.point_in_sample_space(p.pixel) 
-            << ") and pixel size " << pixel_shift.transpose());
+            << p.pixel.transpose() << "( " << o.projection()->point_in_sample_space(p.pixel) << ")");
 
         BesselFunction bessel( optics.plane(i), pos, 
             config.numerical_aperture(), config.refractive_index(),
             quantity<si::length>( config.wavelength() ),
-            abs( pixel_shift[0] * pixel_shift[1] ) );
+            o.projection()->pixel_size( p.pixel ) );
 
         const PixelIndex one_pixel = 1 * camera::pixel;
         double total = 0, delta = 0.75;
@@ -223,8 +221,7 @@ void Fluorophore::recenter( Position np, const dStorm::traits::Optics<2>& optics
 {
     assert( int(planes.size()) == 1 );
     pos = np;
-    planes[0].pixel = floor( optics.point_in_image_space(pos) )
-        .cast< dStorm::traits::Optics<2>::ImagePosition::Scalar >();
+    planes[0].pixel = optics.projection()->nearest_point_in_image_space(np.head<2>());
 }
 
 std::ostream& operator<<(std::ostream& o, const Fluorophore& f) {

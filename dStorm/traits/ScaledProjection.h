@@ -1,5 +1,5 @@
-#ifndef DSTORM_TRAITS_AFFINE_PROJECTION_H
-#define DSTORM_TRAITS_AFFINE_PROJECTION_H
+#ifndef DSTORM_TRAITS_SCALED_PROJECTION_H
+#define DSTORM_TRAITS_SCALED_PROJECTION_H
 
 #include "Projection.h"
 #include <Eigen/Geometry>
@@ -9,8 +9,8 @@
 namespace dStorm {
 namespace traits {
 
-class AffineProjection : public Projection {
-    Eigen::Affine2f to_sample, to_image;
+class ScaledProjection : public Projection {
+    Eigen::DiagonalMatrix<float,2> to_sample, to_image;
 
     SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const;
@@ -27,10 +27,17 @@ class AffineProjection : public Projection {
         ( const SamplePosition& pos ) const;
 
   public:
-    AffineProjection( 
+    ScaledProjection( 
         units::quantity<units::camera::resolution> x, 
-        units::quantity<units::camera::resolution> y, 
-        Eigen::Affine2f after_transform );
+        units::quantity<units::camera::resolution> y );
+
+    units::quantity<units::camera::length,float>
+        length_in_image_space( int d, units::quantity<units::si::length,float> l ) const
+        { return to_image.diagonal()[d] * l.value() * units::camera::pixel; }
+    units::quantity<units::si::length,float>
+        length_in_sample_space( int d, units::quantity<units::camera::length,float> l ) const
+        { return to_sample.diagonal()[d] * l.value() * units::si::meter; }
+    SubpixelImagePosition point_in_image_space( SamplePosition ) const;
 };
 
 }

@@ -3,6 +3,8 @@
 
 #include <dStorm/traits/optics.h>
 #include <boost/units/Eigen/Core>
+#include <dStorm/types/samplepos.h>
+#include <dStorm/traits/Projection.h>
 
 namespace locprec {
 
@@ -13,13 +15,13 @@ class BesselFunction {
     /** Affine transformation from image space into sample space */
     const dStorm::traits::Optics<2>& trafo;
     /** Position of fluorophore in sample space */
-    const dStorm::traits::Optics<2>::SamplePosition fluorophore;
+    const dStorm::samplepos fluorophore;
     const double na, n, theta_max;
     const quantity<si::length> lambda;
     const quantity< si::area > pixel_size;
 
   public:
-    typedef dStorm::traits::Optics<2>::SubpixelImagePosition Subpixel;
+    typedef dStorm::traits::Projection::SubpixelImagePosition Subpixel;
 
   private:
     struct IntegrationInfo;
@@ -37,7 +39,7 @@ class BesselFunction {
     typedef Eigen::Matrix< quantity<si::length,float>, 2, 1> HalfWidths;
     BesselFunction( 
         const dStorm::traits::Optics<2>& transformation_into_sample_space,
-        const dStorm::traits::Optics<2>::SamplePosition& fluorophore_position_in_sample_space,
+        const dStorm::samplepos& fluorophore_position_in_sample_space,
         double num_apert, double opt_density,
         quantity<si::length> wavelength,
         quantity<si::area> pixel_size );

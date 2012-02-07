@@ -20,8 +20,8 @@ AffineProjection::pixel_size_
     ( const ImagePosition& at ) const
 {
     SamplePosition 
-        upper_left = point_in_sample_space( ImagePosition(at.array()-1*camera::pixel) ),
-        lower_right = point_in_sample_space( ImagePosition(at.array()+1*camera::pixel) );
+        upper_left = pixel_in_sample_space( ImagePosition(at.array()-1*camera::pixel) ),
+        lower_right = pixel_in_sample_space( ImagePosition(at.array()+1*camera::pixel) );
     return (value(lower_right - upper_left).array() / 2).prod() * si::meter * si::meter;
 }
 
@@ -31,7 +31,7 @@ AffineProjection::cut_region_of_interest_(
     const SamplePosition& radius ) const
 {
     std::vector< MappedPoint > rv;
-    Bounds bb = roi_bounding_box( center, radius );
+    Bounds bb = get_region_of_interest_( center, radius );
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
     rv.reserve( ((bb[1].x() - bb[0].x()).value() + 1) * ((bb[1].y() - bb[0].y()).value() + 1) );
@@ -39,7 +39,7 @@ AffineProjection::cut_region_of_interest_(
         pos.x() = x;
         for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
             pos.y() = y;
-            SamplePosition sample = point_in_sample_space( pos );
+            SamplePosition sample = pixel_in_sample_space( pos );
             if ( (sample.array() >= (center - radius).array()).all() && 
                  (sample.array() <= (center + radius).array()).all() )
                 rv.push_back( MappedPoint( pos, sample ) );
@@ -49,7 +49,7 @@ AffineProjection::cut_region_of_interest_(
 }
 
 AffineProjection::Bounds
-AffineProjection::roi_bounding_box( 
+AffineProjection::get_region_of_interest_( 
     const SamplePosition& center,
     const SamplePosition& radius ) const
 {
@@ -85,6 +85,14 @@ AffineProjection::AffineProjection(
 {
     to_sample = after_transform * Eigen::DiagonalMatrix<float,2>( 1.0 / x.value(), 1.0 / y.value() );
     to_image = to_sample.inverse();
+}
+
+AffineProjection::ImagePosition
+AffineProjection::nearest_point_in_image_space_
+    ( const SamplePosition& pos ) const
+{
+    return from_value< camera::length >( round(
+        to_image * value(pos).cast<float>()).cast<int>() );
 }
 
 }

@@ -20,6 +20,7 @@
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/power10.hpp>
 #include <dStorm/traits/optics.h>
+#include <dStorm/traits/Projection.h>
 #include <dStorm/UnitEntries/Nanometre.h>
 
 namespace locprec {
@@ -44,7 +45,7 @@ typedef simparm::Structure<_FluorophoreConfig> FluorophoreConfig;
 
 class Fluorophore {
   public:
-    typedef dStorm::traits::Optics<2>::SamplePosition Position;
+    typedef dStorm::samplepos Position;
   private:
     Position pos;
     bool isOn;
@@ -62,7 +63,7 @@ class Fluorophore {
 
     struct Plane {
         Eigen::MatrixXd densities;
-        dStorm::traits::Optics<2>::ImagePosition pixel, range;
+        dStorm::traits::Projection::ImagePosition pixel, range;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
     std::vector<Plane> planes;

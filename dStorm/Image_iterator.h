@@ -85,10 +85,11 @@ class Image<PixelType,Dimensions>::_iterator
         _iterator(const _iterator<OtherIteratedType>& o) 
         : p(o.p), pos(o.pos), im(o.im) {}
 
-    const Position& position() { return pos; }
+    const Position& position() const { return pos; }
     int x() { return pos.x(); }
     int y() { return pos.y(); }
     int z() { return pos.z(); }
+    const Size uposition() const { return from_value< camera::length >(pos); }
     _iterator& seek(const Position& npos) { pos = npos; _seek(); }
 };
 

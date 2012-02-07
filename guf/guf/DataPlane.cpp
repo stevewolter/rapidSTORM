@@ -160,8 +160,8 @@ InputPlane::make_max_distance( const dStorm::engine::JobInfo& info, int plane_nu
 InputPlane::InputPlane( const Config& c, const dStorm::engine::JobInfo& info, int plane_number )
 : im_size( info.traits.size.head<2>().array() - 1 * camera::pixel ),
   transformation(make_max_distance(info,plane_number), info.traits.plane(plane_number)),
-  can_do_disjoint_fitting( c.allow_disjoint() && info.traits.plane(plane_number).transformation_class()
-    <= traits::Optics<2>::ScaledTranslation ),
+  can_do_disjoint_fitting( c.allow_disjoint() && 
+    dynamic_cast< const traits::ScaledProjection* >( info.traits.plane(plane_number).projection().get() ) ),
   use_floats( !c.double_computation() )
 {
     const traits::Optics<2>& t = info.traits.plane(plane_number);

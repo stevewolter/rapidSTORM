@@ -8,6 +8,7 @@
 #include <boost/optional/optional.hpp>
 #include "guf/psf/LengthUnit.h"
 #include <dStorm/engine/JobInfo.h>
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace guf {
@@ -17,7 +18,7 @@ class DataPlane;
 class InputPlane {
     typedef guf::TransformedImage< PSF::LengthUnit > TransformedImage;
 
-    typename dStorm::traits::Optics<2>::ImagePosition im_size;
+    traits::Projection::ImagePosition im_size;
     TransformedImage transformation;
 
     quantity< camera::intensity > photon_response_;

@@ -157,7 +157,7 @@ dStorm::engine::Image::Size GUI::get_maximum_tile_size()
         assert( int(input.transforms.size()) >= i->image.depth_in_pixels() );
         i->bounds.clear();
         for (int p = 0; p < i->image.depth_in_pixels(); ++p) {
-            traits::Optics<2>::ImagePosition sz = (i->image.sizes().array() - 1 * camera::pixel).head<2>();
+            traits::Projection::ImagePosition sz = (i->image.sizes().array() - 1 * camera::pixel).head<2>();
             i->bounds.push_back( input.transforms[p].cut_region( i->spot.position().head<2>(), sz ) );
             const Transformed::Bounds& b = i->bounds.back();
             for (int i = 0; i < 2; ++i)

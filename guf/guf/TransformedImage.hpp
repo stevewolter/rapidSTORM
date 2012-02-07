@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <nonlinfit/plane/JointData.hpp>
 #include <dStorm/traits/Projection.h>
+#include <dStorm/traits/ScaledProjection.h>
 
 namespace dStorm {
 namespace guf {
@@ -22,19 +23,9 @@ void
 TransformedImage<LengthUnit>::set_generic_data( 
     nonlinfit::plane::GenericData<LengthUnit>& g, const Spot& center ) const
 {
-    Optics::SamplePosition sample_pos;
-    sample_pos.head<2>() = center.template cast<Optics::SamplePosition::Scalar>();
-    sample_pos[2] = *optics.z_position;
-    PixelPosition center_pixel = this->optics.point_in_image_space( sample_pos );
-
-    PixelPosition 
-        lower = center_pixel.array() - 1 * camera::pixel,
-        upper = center_pixel.array() + 1 * camera::pixel;
-    dStorm::traits::Optics<2>::SamplePosition pixel_measurements = 
-        (optics.vector_in_sample_space(upper) - 
-            optics.vector_in_sample_space(lower));
-    g.pixel_size = quantity< LengthUnit >(pixel_measurements[0]/2.0f) * 
-                       quantity<LengthUnit>(pixel_measurements[1]/2.0f);
+    g.pixel_size = quantity<typename nonlinfit::plane::GenericData<LengthUnit>::AreaUnit>(
+        optics.projection()->pixel_size( 
+            optics.projection()->nearest_point_in_image_space( center ) ) );
 
     /** This method initializes the min and max fields to the center coordinate. */
     g.min = center.template cast< quantity<LengthUnit> >();
@@ -91,16 +82,18 @@ TransformedImage<LengthUnit>::set_data(
     std::vector< PixelType > pixels;
     pixels.reserve( rv.pixel_count );
 
-    target.min[0] = quantity<LengthUnit>( optics.length_in_sample_space( 0, cut_region(0,0) ) );
-    target.max[0] = quantity<LengthUnit>( optics.length_in_sample_space( 0, cut_region(0,1) ) );
-    target.min[1] = quantity<LengthUnit>( optics.length_in_sample_space( 1, cut_region(1,0) ) );
-    target.max[1] = quantity<LengthUnit>( optics.length_in_sample_space( 1, cut_region(1,1) ) );
+    const traits::ScaledProjection& scale = 
+        dynamic_cast< const traits::ScaledProjection& >( *this->optics.projection() );
+    for (int i = 0; i < 2; ++i) {
+        target.min[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,0) ) );
+        target.max[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,1) ) );
+    }
 
     for (Pixel x = cut_region(0,0); x <= cut_region(0,1); x += one_pixel) {
         int dx = (x - cut_region(0,0)).value();
         target.xs[dx] = 
             quantity<LengthUnit>
-                (optics.length_in_sample_space( 0, x )).value();
+                (scale.length_in_sample_space( 0, x )).value();
     }
     DEBUG("X coordinates are " << target.xs.transpose());
     target.data.clear();
@@ -111,7 +104,7 @@ TransformedImage<LengthUnit>::set_data(
         DEBUG("Cutting line " << y << " from " << cut_region(0,0) << " to " << 
               cut_region(0,1) << " from image of size " << image.sizes().transpose() );
 
-        quantity<LengthUnit> sample_y( optics.length_in_sample_space( 1, y ) );
+        quantity<LengthUnit> sample_y( scale.length_in_sample_space( 1, y ) );
         current.inputs(0,0) = sample_y.value();
         for (Pixel x = cut_region(0,0); x <= cut_region(0,1); x += one_pixel) {
             Num value = transform( image(x,y) );

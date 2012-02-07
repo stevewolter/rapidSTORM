@@ -17,7 +17,7 @@ FluorophoreDistribution::Positions _Random::fluorophore_positions(
 ) const {
     Positions rv;
     for (unsigned int i = 0; i < fluorophoreNumber(); i++) {
-        dStorm::traits::Optics<2>::SamplePosition pos;
+        dStorm::samplepos pos;
         for (int d = 0; d < size.rows() && d < pos.rows(); d++)
             pos[d] = float(gsl_rng_uniform(rng)) * size[d];
         rv.push( pos );

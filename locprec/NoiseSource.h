@@ -17,6 +17,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
+#include <dStorm/ImageTraits.h>
 
 namespace locprec {
     class NoiseConfig;
@@ -31,13 +32,12 @@ namespace locprec {
 
         typedef dStorm::Image<PixelType,3> Image;
         typedef dStorm::input::Source<Image> Source;
-        typename Image::Size imS;
+        boost::shared_ptr< dStorm::input::Traits< dStorm::Image<PixelType,3> > > t;
         int imN;
         boost::units::quantity<boost::units::si::time> integration_time;
         typedef boost::ptr_list<Fluorophore> FluorophoreList;
         FluorophoreList fluorophores;
         boost::mutex mutex;
-        dStorm::traits::Optics<3> optics;
 
         std::auto_ptr<std::ostream> output;
         void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
@@ -78,8 +78,8 @@ namespace locprec {
         simparm::Entry<unsigned long> fluorophore_index;
 
         std::auto_ptr< boost::ptr_list<Fluorophore> > create_fluorophores(
-            dStorm::engine::Image::Size,
-            gsl_rng*, int imN, const dStorm::traits::Optics<3>& optics) const;
+            const dStorm::input::Traits< dStorm::Image<unsigned short,3> >& t,
+            gsl_rng*, int imN) const;
     };
 
     class NoiseConfig

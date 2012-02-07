@@ -95,8 +95,6 @@ void Run::compute_input() {
         queue.notice_error( boost::current_exception() );
     } catch ( const std::runtime_error& e ) {
         queue.notice_error( boost::copy_exception(e) );
-    } catch (...) {
-        std::cerr << "Unknown error occured in result computation" << std::endl;
     }
     queue.producer_finished();
 }

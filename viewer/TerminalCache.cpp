@@ -23,8 +23,8 @@ void TerminalCache::setSize(
     DEBUG("Setting size of image to " << traits.size.x() << " " <<traits.size.y());
     size.set_size( Im::Size(traits.size) );
     for (int i = 0; i < std::min(2, Im::Dim); ++i)
-        if ( traits.plane(0).resolution(i).is_initialized() )
-            size.pixel_sizes[i] = *traits.plane(0).resolution(i);
+        if ( traits.plane(0).has_resolution() )
+            size.pixel_sizes[i] = traits.plane(0).resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
 }

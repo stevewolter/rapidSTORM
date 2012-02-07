@@ -82,8 +82,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 bool Factory::can_compute_uncertainty( const traits::Optics<2>& t ) const
 {
     return t.photon_response.is_initialized() && 
-           t.resolution(0)->is_in_dpm() &&
-           t.resolution(1)->is_in_dpm() &&
+           t.has_resolution() &&
            t.background_stddev.is_initialized();
 }
 
