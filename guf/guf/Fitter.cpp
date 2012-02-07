@@ -39,23 +39,22 @@ Fitter::Fitter(
 }
 
 int Fitter::fitSpot(
-    const engine::Spot& spot, 
+    const engine::FitPosition& spot, 
     const engine::Image &im,
     iterator target 
 ) {
     BOOST_STATIC_ASSERT( engine::Image::Dim == 3 );
 
     try {
-        Spot guf_spot = dStorm_spot_to_guf( spot );
-        boost::scoped_ptr< DataCube > data( data_creator.set_image( im, guf_spot ) );
+        boost::scoped_ptr< DataCube > data( data_creator.set_image( im, spot ) );
 
-        DEBUG("Fitting at " << guf_spot.transpose() );
+        DEBUG("Fitting at " << spot.transpose() );
         FitPosition& one_kernel = one_kernel_fitter->fit_position();
         boost::optional< double > mle_result;
         double improvement = 0;
-        initial_value_finder( one_kernel, guf_spot, data->get_statistics() );
+        initial_value_finder( one_kernel, spot, data->get_statistics() );
         double simple = one_kernel_fitter->fit( *data, false );
-        if ( ! is_good_localization( one_kernel, guf_spot ) ) { DEBUG("No good spot"); return -1; }
+        if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )
             mle_result = one_kernel_fitter->fit( *data, true );
         if ( two_kernel_analysis ) {
@@ -64,7 +63,7 @@ int Fitter::fitSpot(
                 add_new_kernel( two_kernel_model, one_kernel, 
                     data->residue_centroid().current_position().cast< Spot::Scalar >() );
                 double two_kernel_result = two_kernels_fitter->fit( *data, false );
-                if ( is_good_localization( two_kernel_model, guf_spot ) )
+                if ( is_good_localization( two_kernel_model, spot ) )
                     improvement = 1.0 - two_kernel_result / simple;
             } catch ( const nonlinfit::levmar::SingularMatrix&) {
                 improvement = 0;
@@ -95,13 +94,6 @@ int Fitter::fitSpot(
         DEBUG("Singular fit matrix");
         return 0;
     }
-}
-
-Spot Fitter::dStorm_spot_to_guf( const engine::Spot& spot ) const {
-    traits::Optics<2>::ImagePosition p = spot.position();
-    return
-        first_plane_optics.point_in_sample_space(p).head<2>()
-            .cast< Spot::Scalar >(); 
 }
 
 }

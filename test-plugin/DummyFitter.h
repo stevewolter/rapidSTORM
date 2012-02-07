@@ -24,7 +24,7 @@ class DummyFitter : public dStorm::engine::spot_fitter::Implementation {
     typedef DummyFitterConfig Config;
     typedef dStorm::engine::spot_fitter::Builder<DummyFitter> Source;
     DummyFitter(const Config& config, const dStorm::engine::JobInfo& info);
-    int fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine::Image &im,
+    int fitSpot( const dStorm::engine::FitPosition& spot, const dStorm::engine::Image &im,
                         iterator target );
 };
 

@@ -2,7 +2,7 @@
 #define DSTORM_SPOTFITTER_H
 
 #include "Image_decl.h"
-#include "Spot_decl.h"
+#include "FitPosition.h"
 #include "../Localization_decl.h"
 #include <memory>
 #include <iterator>
@@ -27,7 +27,7 @@ namespace spot_fitter {
           *  \param im          Image to be fitted.
           *  \param number      Number of the image to be fitted.
           *  \return            Number of found spots */
-         virtual int fitSpot( const Spot& spot, const Image &im,
+         virtual int fitSpot( const FitPosition& spot, const Image &im,
                               iterator target ) = 0;
    };
 

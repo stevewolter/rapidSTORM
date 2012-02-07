@@ -28,14 +28,13 @@ class Fitter
     KernelCreator add_new_kernel;
     Eigen::Vector2i mask_size;
     const traits::Optics<2>& first_plane_optics;
-    guf::Spot dStorm_spot_to_guf( const engine::Spot& ) const;
     bool mle, two_kernel_analysis;
 
   public:
     Fitter(
         const dStorm::engine::JobInfo& info,
         const Config& config );
-    int fitSpot( const engine::Spot& spot, const engine::Image &im,
+    int fitSpot( const engine::FitPosition& spot, const engine::Image &im,
                  iterator target );
 };
 

@@ -20,14 +20,13 @@ DummyFitterConfig::~DummyFitterConfig()
 DummyFitter::DummyFitter(const Config&, const dStorm::engine::JobInfo& i) 
     : traits(i.traits), counter(0), length(5) {}
 
-int DummyFitter::fitSpot( const dStorm::engine::Spot& spot, const dStorm::engine::Image &im, iterator target )
+int DummyFitter::fitSpot( const dStorm::engine::FitPosition& spot, const dStorm::engine::Image &im, iterator target )
 {
     if ( ++counter % length == 0 ) {
         DEBUG("Using result in image " << im.frame_number() << " at counter " << counter);
         Localization::Position::Type p;
         p.fill( 0 * si::meter );
-        for (int i = 0; i < 2; ++i)
-            p[i] = spot.position()[i] / traits.plane(0).resolution(i)->in_dpm();
+        p.head<2>() = spot;
         *target++ = dStorm::Localization( p, 1000 * camera::ad_counts );
         return 1;
     } else {

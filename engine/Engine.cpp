@@ -184,6 +184,7 @@ class Engine::_iterator::WorkHorse {
     boost::ptr_vector<spot_fitter::Implementation> fitter;
     CandidateTree<SmoothedPixel> maximums;
     int origMotivation;
+    FitPosition get_fit_position( const Spot& ) const;
 
   public:
     WorkHorse( Engine& engine );
@@ -198,6 +199,15 @@ class Engine::_iterator::WorkHorse {
 
     output::LocalizedImage resultStructure;
 };
+
+FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
+{
+    traits::Optics<2>::ImagePosition p = spot.position();
+    return
+        engine.imProp->plane(0).point_in_sample_space(p).head<2>()
+            .cast< FitPosition::Scalar >(); 
+}
+
 
 output::LocalizedImage& Engine::_iterator::dereference() const
 {
@@ -311,8 +321,8 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     /* Motivational fitting */
     motivation = origMotivation;
     for ( CandidateTree<SmoothedPixel>::const_iterator cM = maximums.begin(), cE = maximums.end(); cM != cE; ++cM){
-        const Spot& s = cM->spot();
-        DEBUG("Trying candidate " << s.position() << " at motivation " << motivation );
+        FitPosition fit_position = get_fit_position( cM->spot() );
+        DEBUG("Trying candidate " << fit_position.transpose() << " at motivation " << motivation );
         /* Get the next spot to fit and fit it. */
         output::LocalizedImage& buffer = resultStructure;
         int candidate = buffer.size(), start = candidate;
@@ -320,7 +330,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         int best_found = -1;
         for (unsigned int fit_fluo = 0; fit_fluo < fitter.size(); ++fit_fluo) {
             candidate = buffer.size();
-            int found_number = fitter[fit_fluo].fitSpot(s, image, 
+            int found_number = fitter[fit_fluo].fitSpot(fit_position, image, 
                 spot_fitter::Implementation::iterator( boost::back_inserter( buffer ) ) );
             double total_residues = 0;
 

@@ -23,8 +23,7 @@ struct JobInfo {
         : mask_size_factor(o.mask_size_factor), amplitude_threshold(o.amplitude_threshold),
           traits(t), fluorophore(o.fluorophore) {}
 
-    int mask_size( int dimension, int plane ) const;
-    boost::units::quantity< boost::units::camera::length > sigma( int dimension, int plane ) const;
+  public:
     boost::units::quantity< boost::units::si::length > sigma_in_si( int dimension, int plane ) const;
     boost::units::quantity< boost::units::si::length > mask_size_in_si( int dimension, int plane ) const;
 };
