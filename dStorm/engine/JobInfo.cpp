@@ -18,17 +18,5 @@ boost::units::quantity< boost::units::si::length > JobInfo::mask_size_in_si( int
     return max_sigma * mask_size_factor;
 }
 
-boost::units::quantity< boost::units::si::length > JobInfo::sigma_in_si( int dimension, int plane ) const
-{
-    assert( (*traits.plane(plane).psf_size(0))[dimension] > 0 * boost::units::si::meter );
-    assert( traits.fluorophores.at(fluorophore).wavelength > 0 * boost::units::si::meter );
-    assert( traits.fluorophores.at(0).wavelength > 0 * boost::units::si::meter );
-    float factor = (traits.fluorophores.at(fluorophore).wavelength / traits.fluorophores.at(0).wavelength);
-    boost::units::quantity< boost::units::si::length > sigma =
-        (*traits.plane(plane).psf_size(0))[dimension] * factor;
-    DEBUG( "Sigma for dimension " << dimension << " and plane " << plane << " is " << sigma );
-    return sigma;
-}
-
 }
 }

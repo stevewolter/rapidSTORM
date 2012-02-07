@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
 #include <functional>
+#include "AffineProjection.h"
 
 namespace dStorm {
 namespace traits {
@@ -62,6 +63,7 @@ Optics<2>::Optics( const Optics &o )
 : pimpl( (o.pimpl.get()) ? new Pimpl(*o.pimpl) : NULL ),
   resolutions(o.resolutions),
   psf(o.psf),
+  projection_(o.projection_),
   z_position(o.z_position),
   offsets(o.offsets),
   photon_response(o.photon_response),
@@ -73,6 +75,7 @@ Optics<2>::Optics( const Optics &o )
 Optics<2>& Optics<2>::operator=( const Optics<2> &o ) 
 {
     psf = o.psf;
+    projection_ = o.projection_;
     resolutions = o.resolutions;
     z_position = o.z_position;
     offsets[0] = o.offsets[0];
@@ -247,6 +250,7 @@ void Optics<2>::set_resolution( const Resolutions& f )
         trafo.setIdentity();
         std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
         pimpl.reset( new Pimpl( f[0]->in_dpm(), f[1]->in_dpm(), trafo ) );
+        projection_.reset( new AffineProjection( f[0]->in_dpm(), f[1]->in_dpm(), trafo ) );
         pimpl->tmc = tmc;
     } else {
         pimpl.reset();
@@ -411,6 +415,8 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
     }
     rv.pimpl.reset( new traits::Optics<2>::Pimpl( 
         rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
+    rv.projection_.reset( new AffineProjection( 
+        rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
     DEBUG( "Transformation is " << rv.pimpl->to_sample.matrix() );
     rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
@@ -458,6 +464,8 @@ void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
     std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
     pimpl.reset( new Pimpl( resolutions[0]->in_dpm(), resolutions[1]->in_dpm(), 
                             Eigen::Affine2f(t) ) );
+    projection_.reset( new AffineProjection( resolutions[0]->in_dpm(), 
+        resolutions[1]->in_dpm(), Eigen::Affine2f(t) ) );
     pimpl->tmc = tmc;
 }
 

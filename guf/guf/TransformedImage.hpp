@@ -10,6 +10,7 @@
 #include <boost/units/cmath.hpp>
 #include <algorithm>
 #include <nonlinfit/plane/JointData.hpp>
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace guf {
@@ -151,38 +152,29 @@ TransformedImage<LengthUnit>::set_data(
     rv.peak_intensity = rv.integral = 0 * camera::ad_count;
     rv.peak_pixel_area = quantity< si::area >( target.pixel_size );
 
-    typedef quantity< LengthUnit, float > Length;
-    DEBUG("Setting data from image of size " << image.sizes().transpose() << " and center " << center.transpose());
-    Bounds cut_region = this->cut_region(
-            center, image.sizes().array() - 1 * camera::pixel);
-
-    const int max_pixel_count =  
-        ( (cut_region(0,1) - cut_region(0,0)).value() + 1 )
-      * ( (cut_region(1,1) - cut_region(1,0)).value() + 1 ) ;
-    std::vector< PixelType > pixels;
-    pixels.reserve(max_pixel_count);
     DEBUG("Cutting outer box " << cut_region.row(0) << " in x and in y " << cut_region.row(1));
-    typename dStorm::traits::Optics<2>::ImagePosition pos;
-    typedef quantity< camera::length, int > Pixel;
+    traits::Projection::ROI points = 
+        optics.projection()->
+            cut_region_of_interest( center.head<2>(), max_distance.head<2>() );
     target.clear();
-    target.reserve( max_pixel_count / ChunkSize + 1 );
+    target.reserve( points.size() );
+    std::vector< PixelType > pixels;
+    pixels.reserve( points.size() );
     typename Data::data_point_iterator o = target.point_back_inserter();
-    for (Pixel x = cut_region(0,0); x <= cut_region(0,1); x += 1 * camera::pixel) {
-      pos.x() = x;
-      for (Pixel y = cut_region(1,0); y <= cut_region(1,1); y += 1 * camera::pixel) {
-        pos.y() = y;
-
-        Spot sample = optics.point_in_sample_space(pos).template head<2>();
-        if ( (sample.array() < (center - max_distance).array()).any() || 
-             (sample.array() > (center + max_distance).array()).any() )
+    for ( traits::Projection::ROI::const_iterator i = points.begin(); i != points.end(); ++i )
+    {
+        if ( ! image.contains( value(i->image_position) ) )
             continue;
 
         for (int d = 0; d < 2; ++d) {
-            target.min[d] = std::min( quantity<LengthUnit>(sample[d]), target.min[d] );
-            target.max[d] = std::max( quantity<LengthUnit>(sample[d]), target.max[d] );
+            target.min[d] = std::min( quantity<LengthUnit>(i->sample_position[d]), target.min[d] );
+            target.max[d] = std::max( quantity<LengthUnit>(i->sample_position[d]), target.max[d] );
         }
 
-        const Num value = transform( image(x,y) );
+        Spot sample;
+        sample.head<2>() = i->sample_position;
+        sample.z() = *optics.z_position;
+        const Num value = transform( image( boost::units::value(i->image_position) ) );
         pixels.push_back( value );
         rv.integral += value * boost::units::camera::ad_count;
         if ( value * camera::ad_count >= rv.peak_intensity ) {
@@ -191,9 +183,8 @@ TransformedImage<LengthUnit>::set_data(
         }
 
         *o++ = typename Data::DataPoint( sample, value );
-      }
-
     }
+
     o.pad_last_chunk();
     rv.pixel_count = pixels.size();
 

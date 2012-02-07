@@ -24,7 +24,6 @@ struct JobInfo {
           traits(t), fluorophore(o.fluorophore) {}
 
   public:
-    boost::units::quantity< boost::units::si::length > sigma_in_si( int dimension, int plane ) const;
     boost::units::quantity< boost::units::si::length > mask_size_in_si( int dimension, int plane ) const;
 };
 

@@ -13,10 +13,13 @@
 #include "image_resolution.h"
 #include <vector>
 #include <boost/units/Eigen/Core>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include "../units/camera_response.h"
 
 namespace dStorm {
 namespace traits {
+
+class Projection;
 
 namespace units = boost::units;
 
@@ -58,6 +61,7 @@ struct Optics<2>
     std::auto_ptr< Pimpl > pimpl;
     boost::array< boost::optional<ImageResolution> ,2> resolutions;
     boost::optional< PSF > psf;
+    boost::shared_ptr< const Projection > projection_;
 
   public:
     friend class dStorm::traits::PlaneConfig;
@@ -73,6 +77,8 @@ struct Optics<2>
 
     boost::optional<PSF>& psf_size( int ) { return psf; }
     boost::optional<PSF> psf_size( int ) const { return psf; }
+    boost::shared_ptr< const Projection > projection() const
+        { return projection_; }
 
     SamplePosition point_in_sample_space( const ImagePosition& pos ) const;
     SamplePosition point_in_sample_space( const SubpixelImagePosition& pos ) const;
