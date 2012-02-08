@@ -105,7 +105,7 @@ nobase_include_HEADERS = \
     dStorm/traits/range_impl.h dStorm/traits/residues.h dStorm/traits/resolution.h \
     dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \
     dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
-    dStorm/traits/Projection.h \
+    dStorm/traits/Projection.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h \
@@ -190,8 +190,11 @@ libdStorm_la_SOURCES = \
     dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
+    dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
+    dStorm/traits/Projection.cpp \
     dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
-    dStorm/traits/ScaledProjection.h dStorm/traits/ScaledProjection.cpp \
+    dStorm/traits/ScaledProjection.cpp \
+    dStorm/traits/SupportPointProjection.h dStorm/traits/SupportPointProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \

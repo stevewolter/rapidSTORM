@@ -32,7 +32,7 @@ struct Projection {
     virtual SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const = 0;
     virtual units::quantity<units::si::area> pixel_size_
-        ( const ImagePosition& at ) const = 0;
+        ( const ImagePosition& at ) const;
     virtual std::vector< MappedPoint >
         cut_region_of_interest_( 
             const SamplePosition& center,
@@ -43,6 +43,9 @@ struct Projection {
             const SamplePosition& width ) const = 0;
     virtual ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const = 0;
+    virtual SamplePosition pixel_in_sample_space_
+        ( const ImagePosition& pos ) const 
+        { return point_in_sample_space_(pos.cast< SubpixelImagePosition::Scalar >()); }
 
   public:
     ImagePosition nearest_point_in_image_space
@@ -53,7 +56,7 @@ struct Projection {
         { return point_in_sample_space_(pos); }
     SamplePosition pixel_in_sample_space
         ( const ImagePosition& pos ) const 
-        { return point_in_sample_space_(pos.cast< SubpixelImagePosition::Scalar >()); }
+        { return pixel_in_sample_space_(pos); }
     units::quantity<units::si::area> pixel_size
         ( const ImagePosition& at ) const 
         { return pixel_size_(at); }

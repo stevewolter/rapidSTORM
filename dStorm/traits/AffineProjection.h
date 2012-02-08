@@ -14,8 +14,6 @@ class AffineProjection : public Projection {
 
     SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const;
-    units::quantity<units::si::area> pixel_size_
-        ( const ImagePosition& at ) const;
     std::vector< MappedPoint >
         cut_region_of_interest_( 
             const SamplePosition& center,

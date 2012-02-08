@@ -6,6 +6,7 @@
 #include <dStorm/helpers/thread.h>
 #include "engine/ChainLink_decl.h"
 #include "guf/unit_tests.h"
+#include <dStorm/traits/unit_tests.h>
 #include "viewer/fwd.h"
 
 namespace dStorm {
@@ -25,6 +26,7 @@ int run_unit_tests() {
     dStorm::guf::run_unit_tests(state);
     dStorm::expression::unit_test( state );
     dStorm::viewer::unit_test( state );
+    dStorm::traits::run_unit_tests( state );
 
     return ( state.had_errors() ? EXIT_FAILURE : EXIT_SUCCESS );
 }

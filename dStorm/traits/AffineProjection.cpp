@@ -15,16 +15,6 @@ AffineProjection::point_in_sample_space_
     return boost::units::from_value< si::length >( to_sample * units::value( pos ) );
 }
 
-units::quantity<units::si::area> 
-AffineProjection::pixel_size_
-    ( const ImagePosition& at ) const
-{
-    SamplePosition 
-        upper_left = pixel_in_sample_space( ImagePosition(at.array()-1*camera::pixel) ),
-        lower_right = pixel_in_sample_space( ImagePosition(at.array()+1*camera::pixel) );
-    return (value(lower_right - upper_left).array() / 2).prod() * si::meter * si::meter;
-}
-
 std::vector< Projection::MappedPoint >
 AffineProjection::cut_region_of_interest_( 
     const SamplePosition& center,

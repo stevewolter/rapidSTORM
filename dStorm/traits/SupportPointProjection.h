@@ -11,14 +11,15 @@ namespace dStorm {
 namespace traits {
 
 class SupportPointProjection : public Projection {
-    Eigen::DiagonalMatrix<float,2> to_prewarp;
-    dStorm::Image< SamplePosition, 2 > prewarp_to_warp;
-    Eigen::Affine2f approx_to_image;
+    typedef dStorm::Image< SamplePosition, 2 > Map;
+    Eigen::Array2f higher_density;
+    Map high_density_map, forward_map;
+    Eigen::Affine2f approx_reverse;
 
     SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const;
-    units::quantity<units::si::area> pixel_size_
-        ( const ImagePosition& at ) const;
+    SamplePosition pixel_in_sample_space_
+        ( const ImagePosition& pos ) const;
     std::vector< MappedPoint >
         cut_region_of_interest_( 
             const SamplePosition& center,
@@ -28,6 +29,9 @@ class SupportPointProjection : public Projection {
         const SamplePosition& width ) const;
     ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const;
+
+    void compute_forward_map();
+    void approximate_reverse_transformation();
 
   public:
     SupportPointProjection( 
