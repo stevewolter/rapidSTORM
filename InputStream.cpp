@@ -12,6 +12,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <dStorm/helpers/thread.h>
 
 namespace dStorm {
 
@@ -57,7 +58,14 @@ struct InputStream::Pimpl
     void processCommand(const std::string& cmd, std::istream& rest);
 
     void reset_config();
+    void print(const std::string& what);
 };
+
+void InputStream::Pimpl::print(const std::string& what) {
+    ost::DebugStream::get()->ost::LockedStream::begin();
+    simparm::IO::print(what);
+    ost::DebugStream::get()->ost::LockedStream::end();
+}
 
 InputStream::InputStream(
     const job::Config& c,

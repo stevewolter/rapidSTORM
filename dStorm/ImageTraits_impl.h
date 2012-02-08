@@ -6,6 +6,7 @@
 #include <boost/units/systems/si/io.hpp>
 #include <boost/units/io.hpp>
 #include "units/nanolength.h"
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace input {
@@ -18,16 +19,24 @@ Traits< dStorm::Image<PixelType,Dimensions> >::Traits
   traits::Optics<Dimensions>(o)
 {}
 
-#if 0
-template <typename Pixel, int Dim>
-void
-Traits< dStorm::Image<Pixel,Dim> >::
-compute_resolution( const Config& config ) {
-    this->resolution = typename SizeTraits<Dim>::Resolution::value_type( 
-        camera::pixels_per_meter /
-            (config.pixel_size_in_nm() / 1E9) );
+template <typename PixelType, int Dimensions>
+samplepos Traits< dStorm::Image<PixelType,Dimensions> >
+::size_in_sample_space() const
+{
+    typename ImageTraits<Dimensions>::Size size = this->size;
+    size.array() -= 1 * camera::pixel;
+    samplepos p = samplepos::Constant(0.0f * si::meter);
+    for (int pl = 0; pl < this->plane_count(); ++pl) {
+        traits::Projection::SamplePosition xy
+            = this->plane(pl).projection()->pixel_in_sample_space( 
+                                         size.template head<2>() );
+        p.x() = std::max( p.x(), xy.x() );
+        p.y() = std::max( p.y(), xy.y() );
+        p.z() = std::max( p.z(), 
+                          samplepos::Scalar(*this->plane(pl).z_position) );
+    }
+    return p;
 }
-#endif
 
 }
 }

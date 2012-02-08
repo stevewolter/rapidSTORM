@@ -72,5 +72,12 @@ ScaledProjection::nearest_point_in_image_space_
         to_image * value(pos).cast<float>()).cast<int>() );
 }
 
+Projection::SubpixelImagePosition
+ScaledProjection::point_in_image_space( SamplePosition pos ) const
+{
+    return from_value< camera::length >(
+        to_image * value(pos).cast<float>());
+}
+
 }
 }

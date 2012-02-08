@@ -164,9 +164,7 @@ TransformedImage<LengthUnit>::set_data(
             target.max[d] = std::max( quantity<LengthUnit>(i->sample_position[d]), target.max[d] );
         }
 
-        Spot sample;
-        sample.head<2>() = i->sample_position;
-        sample.z() = *optics.z_position;
+        Spot sample = i->sample_position;
         const Num value = transform( image( boost::units::value(i->image_position) ) );
         pixels.push_back( value );
         rv.integral += value * boost::units::camera::ad_count;

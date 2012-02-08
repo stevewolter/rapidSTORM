@@ -16,35 +16,11 @@ namespace traits {
 
 using namespace boost::units;
 
-#if 0
-Optics<2>::Pimpl::Pimpl( quantity<camera::resolution> x, quantity<camera::resolution> y,
-    Eigen::Affine2f after_transform)
-{
-    if ( ( (after_transform.matrix().row(2).transpose() - Eigen::Vector3f::Unit(2))
-            .array().abs() > 1E-20 ).any() )
-    {
-        throw std::runtime_error("Sorry, projective transforms are not "
-                                 "supported yet due to a perceived lack "
-                                 "of demand.");
-        trafo_class = Projective;
-    } else if ( std::abs( after_transform.matrix()(0,1) ) > 1E-20 ||
-              std::abs( after_transform.matrix()(1,0) ) > 1E-20 )
-        trafo_class = Affine;
-    else if ( std::abs( after_transform.matrix()( 0,2 ) ) > 1E-20 ||
-              std::abs( after_transform.matrix()( 1,2 ) ) > 1E-20 )
-        trafo_class = ScaledTranslation;
-    else
-        trafo_class = Scaled;
-    to_sample = after_transform * Eigen::DiagonalMatrix<float,2>( 1.0 / x.value(), 1.0 / y.value() );
-    to_image = to_sample.inverse( eigen_traits( trafo_class ) );
-}
-#endif
-
-
 Optics<2>::Optics() {}
 
 Optics<2>::Optics( const Optics &o ) 
-: resolutions(o.resolutions),
+: tmc(o.tmc),
+  resolutions(o.resolutions),
   psf(o.psf),
   projection_(o.projection_),
   z_position(o.z_position),
@@ -53,10 +29,13 @@ Optics<2>::Optics( const Optics &o )
   background_stddev(o.background_stddev),
   dark_current(o.dark_current)
 {
+    DEBUG("Copied " << this << " from " << &o);
 }
 
 Optics<2>& Optics<2>::operator=( const Optics<2> &o ) 
 {
+    DEBUG("Setting " << this << " to " << &o);
+    tmc = o.tmc;
     psf = o.psf;
     projection_ = o.projection_;
     resolutions = o.resolutions;
@@ -71,146 +50,6 @@ Optics<2>& Optics<2>::operator=( const Optics<2> &o )
 }
 
 Optics<2>::~Optics<2>() {}
-
-#if 0
-quantity<si::length,float>
-Optics<2>::point_offset_in_sample_space( int dimension, quantity<camera::length,float> g ) const
-{
-    assert( pimpl.get() && pimpl->trafo_class <= ScaledTranslation );
-
-    Eigen::Vector2f x = Eigen::Vector2f::Unit(dimension) * g.value();
-    return (pimpl->to_sample * x)[dimension] * si::meter;
-}
-
-quantity<si::length,float>
-Optics<2>::length_in_sample_space( int dimension, quantity<camera::length,float> g ) const
-{
-    assert( pimpl.get() && pimpl->trafo_class <= ScaledTranslation );
-
-    Eigen::Vector2f x = Eigen::Vector2f::Unit(dimension) * g.value();
-    return (pimpl->to_sample.linear() * x)[dimension] * si::meter;
-}
-
-quantity<camera::length,float>
-Optics<2>::point_offset_in_image_space( int dimension, quantity<si::length,float> g ) const
-{
-    assert( pimpl.get() && pimpl->trafo_class <= ScaledTranslation );
-
-    Eigen::Vector2f x = Eigen::Vector2f::Unit(dimension) * g.value();
-    return (pimpl->to_image * x)[dimension] * camera::pixel;
-}
-
-quantity<camera::length,float>
-Optics<2>::length_in_image_space( int dimension, quantity<si::length,float> g ) const
-{
-    assert( pimpl.get() && pimpl->trafo_class <= ScaledTranslation );
-
-    Eigen::Vector2f x = Eigen::Vector2f::Unit(dimension) * g.value();
-    return (pimpl->to_image.linear() * x)[dimension] * camera::pixel;
-}
-
-Optics<2>::ImagePosition
-Optics<2>::nearest_point_in_image_space( const Optics<2>::SamplePosition& pos ) const
-{
-    assert( pimpl.get() );
-    assert( abs( pos[2] - *z_position ) <= 1E-9 * si::meter );
-
-    Optics<2>::ImagePosition rv = from_value<camera::length>(
-        round( pimpl->to_image * units::value(pos).head<2>()).cast<int>() );
-    return rv;
-}
-
-Optics<2>::SubpixelImagePosition
-Optics<2>::point_in_image_space( const Optics<2>::SamplePosition& pos ) const
-{
-    assert( pimpl.get() );
-    assert( abs( pos[2] - *z_position ) <= 1E-9 * si::meter );
-
-    return from_value< camera::length >(
-        pimpl->to_image * units::value(pos).head<2>() );
-}
-
-Optics<2>::SubpixelImagePosition
-Optics<2>::vector_in_image_space( const Optics<2>::SamplePosition& pos ) const
-{
-    assert( pimpl.get() );
-    assert( abs( pos[2] ) <= 1E-9 * si::meter );
-
-    return from_value< camera::length >(
-        pimpl->to_image.linear() * units::value(pos).head<2>() );
-}
-
-Optics<2>::SamplePosition
-Optics<2>::point_in_sample_space( const ImagePosition& pos ) const
-{
-    assert( pimpl.get() );
-
-    SamplePosition rv;
-    rv.head<2>() = from_value< si::length >(
-        pimpl->to_sample * units::value(pos).cast<float>() );
-    rv[2] = *z_position;
-    return rv;
-}
-
-Optics<2>::SamplePosition
-Optics<2>::point_in_sample_space( const SubpixelImagePosition& pos ) const
-{
-    assert( pimpl.get() );
-
-    SamplePosition rv;
-    rv.head<2>() = from_value< si::length >(
-        pimpl->to_sample * units::value(pos) );
-    rv[2] = *z_position;
-    return rv;
-}
-
-Optics<2>::SamplePosition
-Optics<2>::vector_in_sample_space( const SubpixelImagePosition& pos ) const
-{
-    assert( pimpl.get() );
-
-    SamplePosition rv;
-    rv.head<2>() = from_value< si::length >(
-        pimpl->to_sample.linear() * units::value(pos) );
-    rv[2] = 0;
-    return rv;
-}
-
-Optics<2>::SamplePosition
-Optics<3>::size_in_sample_space( const Optics<2>::SubpixelImagePosition& pos ) const
-{
-    quantity<si::length> a = *plane(0).z_position, b = *plane(0).z_position;
-    for (int i = 1; i < plane_count(); ++i) {
-        a = std::min( a, *plane(i).z_position );
-        b = std::max( b, *plane(i).z_position );
-    }
-
-    Optics<2>::SamplePosition rv;
-    rv = plane(0).vector_in_sample_space(pos);
-    rv[2] = b - a;
-    return rv;
-}
-
-void Optics<2>::points_in_sample_space( PointSet& points ) const
-{
-    assert( pimpl.get() );
-
-    points.row(2).fill(1);
-    points = pimpl->to_sample.matrix() * points;
-    for (int i = 0; i < 2; ++i)
-        points.row(0).array() /= points.row(2).array();
-}
-
-void Optics<2>::points_in_image_space( PointSet& points ) const
-{
-    assert( pimpl.get() );
-
-    points.row(2).fill(1);
-    points = pimpl->to_image.matrix() * points;
-    for (int i = 0; i < 2; ++i)
-        points.row(0).array() /= points.row(2).array();
-}
-#endif
 
 void Optics<2>::set_resolution( const boost::array< ImageResolution, 2 >& f )
 {
@@ -231,16 +70,6 @@ void Optics<2>::set_resolution( const Resolutions& f )
         projection_.reset();
     }
 }
-
-#if 0
-Optics<2>::TransformationClass Optics<2>::transformation_class() const
-{
-    if ( pimpl.get() )
-        return pimpl->trafo_class;
-    else
-        return Scaled;
-}
-#endif
 
 CuboidConfig::CuboidConfig() 
 : simparm::Object("Optics", "Optical pathway properties"),
@@ -404,6 +233,7 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
     }
     rv.tmc.clear();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i) {
+        DEBUG("Set transmission of " << rv.tmc.size() << " to " << i->value() << " at " << &rv);
         rv.tmc.push_back( i->value() );
     }
     rv.psf_size(0) = psf_size().cast< quantity<si::length,float> >();
@@ -420,29 +250,20 @@ traits::Optics<2> PlaneConfig::make_traits( traits::Optics<2>::Resolutions defau
 
 float traits::Optics<2>::transmission_coefficient( int fluorophore ) const
 {
-    assert ( int(tmc.size()) <= fluorophore );
-    return tmc[fluorophore];
+    DEBUG("Getting transmission of " << fluorophore << " of " << tmc.size() << " at " << this);
+    if ( int(tmc.size()) > fluorophore )
+        return tmc[fluorophore];
+    else
+        return 1.0f;
 }
 
 void traits::Optics<2>::set_fluorophore_transmission_coefficient( int fluorophore, float value ) 
 {
+    DEBUG("Did set transmission of " << fluorophore << " to " << value << " at " << this);
     while ( int(tmc.size()) <= fluorophore )
         tmc.push_back( 1.0f );
     tmc[fluorophore] = value;
 }
-
-#if 0
-    void apply_transformation( const Eigen::Matrix3f& );
-void traits::Optics<2>::apply_transformation( const Eigen::Matrix3f& t )
-{
-    std::vector<float> tmc = ( pimpl.get() ) ? pimpl->tmc : std::vector<float>();
-    pimpl.reset( new Pimpl( resolutions[0]->in_dpm(), resolutions[1]->in_dpm(), 
-                            Eigen::Affine2f(t) ) );
-    projection_.reset( new AffineProjection( resolutions[0]->in_dpm(), 
-        resolutions[1]->in_dpm(), Eigen::Affine2f(t) ) );
-    pimpl->tmc = tmc;
-}
-#endif
 
 void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 {
@@ -454,8 +275,8 @@ void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
 
 void PlaneConfig::set_entries_to_traits( const traits::Optics<2>& t, int fc )
 {
-    for (int i = 0; i < fc; ++i) {
-        transmissions[i] = t.transmission_coefficient( i );
+    for (int i = 0; i < fc && i < int(t.tmc.size()); ++i) {
+        transmissions[i] = t.tmc[i];
     }
     if ( t.psf_size(0).is_initialized() ) {
         PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
@@ -472,6 +293,20 @@ void CuboidConfig::set_3d_availability(bool available) {
 
 void PlaneConfig::set_3d_availability(bool available) {
     z_position.viewable = available;
+}
+
+ImageResolution Optics<2>::resolution(int r) const {
+    assert( resolutions[r].is_initialized() );
+    return *resolutions[r];
+}
+
+bool Optics<2>::has_resolution() const {
+    return resolutions[0] && resolutions[1] && 
+        dynamic_cast< const ScaledProjection* >( projection().get() );
+}
+const Optics<2>::Resolutions& 
+Optics<2>::image_resolutions() const {
+    return resolutions;
 }
 
 }
