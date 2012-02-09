@@ -1,6 +1,7 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/constructors.h>
+#include <boost/units/io.hpp>
 #include "../Reconstruction.hh"
 #include "../Reconstruction.cc"
 

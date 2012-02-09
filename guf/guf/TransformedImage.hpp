@@ -148,7 +148,7 @@ TransformedImage<LengthUnit>::set_data(
     DEBUG("Cutting outer box " << cut_region.row(0) << " in x and in y " << cut_region.row(1));
     traits::Projection::ROI points = 
         optics.projection()->
-            cut_region_of_interest( center.head<2>(), max_distance.head<2>() );
+            cut_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );
     target.clear();
     target.reserve( points.size() );
     std::vector< PixelType > pixels;
@@ -156,7 +156,7 @@ TransformedImage<LengthUnit>::set_data(
     typename Data::data_point_iterator o = target.point_back_inserter();
     for ( traits::Projection::ROI::const_iterator i = points.begin(); i != points.end(); ++i )
     {
-        if ( ! image.contains( value(i->image_position) ) )
+        if ( ! image.contains( i->image_position ) )
             continue;
 
         for (int d = 0; d < 2; ++d) {
@@ -165,7 +165,7 @@ TransformedImage<LengthUnit>::set_data(
         }
 
         Spot sample = i->sample_position;
-        const Num value = transform( image( boost::units::value(i->image_position) ) );
+        const Num value = transform( image( i->image_position ) );
         pixels.push_back( value );
         rv.integral += value * boost::units::camera::ad_count;
         if ( value * camera::ad_count >= rv.peak_intensity ) {

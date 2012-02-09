@@ -9,9 +9,9 @@ namespace viewer {
 inline std::vector<bool>::reference
     BaseDisplay::is_on( const Im::Position& i )
 {
-    int offset = i[0];
+    int offset = i[0].value();
     for (int j = 1; j < Im::Dim; ++j)
-        offset += ps_step[j-1] * i[j];
+        offset += ps_step[j-1] * i[j].value();
     return ps[ offset ];
 }
 

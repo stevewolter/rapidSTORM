@@ -10,12 +10,13 @@
 #include <simparm/BoostOptional.hh>
 #include "../UnitEntries/PixelSize.h"
 #include "../units/nanolength.h"
-#include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
 #include <simparm/Entry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.hh>
 
 #include "position.h"
+#include "ProjectionConfig.h"
 
 namespace dStorm {
 namespace traits {
@@ -26,7 +27,7 @@ class PlaneConfig : public simparm::Set {
     simparm::Entry< ZPosition > z_position;
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
-    simparm::FileEntry micro_alignment;
+    simparm::NodeChoiceEntry< ProjectionConfig > alignment;
     typedef boost::ptr_vector< simparm::Entry<double> > Transmissions;
     Transmissions transmissions;
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;

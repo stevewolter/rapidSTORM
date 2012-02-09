@@ -127,9 +127,9 @@ void Window::draw_image_window( const Change& changes ) {
         display::Image::Position pos;
         pos.fill(0);
         for ( int y = 0; y < height; y++ ) {
-            pos.y() = y;
+            pos.y() = y * camera::pixel;
             for ( int x = 0; x < width; x++) {
-                pos.x() = x;
+                pos.x() = x * camera::pixel;
                 drawer.draw(x, y, changes.image_change.new_image(pos));
             }
         }
@@ -139,8 +139,8 @@ void Window::draw_image_window( const Change& changes ) {
         i = changes.change_pixels.begin(),
         end = changes.change_pixels.end();
     for ( ; i != end; i++)
-        if ( i->z() == 0 )
-            drawer.draw( i->x(), i->y(), i->color );
+        if ( i->z() == 0 * camera::pixel )
+            drawer.draw( i->x() / camera::pixel, i->y() / camera::pixel, i->color );
 
     drawer.finish();
 }
@@ -213,8 +213,8 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     position_label->SetLabel( std_to_wx_string( label_text.str() ) );
 
     Image::Position pos = Image::Position::Zero();
-    pos.x() = point.x;
-    pos.y() = point.y;
+    pos.x() = point.x * camera::pixel;
+    pos.y() = point.y * camera::pixel;
     dStorm::display::DataSource::PixelInfo info( pos, color );
     std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
     if ( source )

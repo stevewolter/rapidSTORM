@@ -102,7 +102,7 @@ void DisplayHandler::colour_fluorophore( const Tile& i )
     for ( dStorm::display::Image::const_iterator j = orig_crop.begin(); j != orig_crop.end(); ++j)
     {
         display::Image::Position pos = j.position();
-        pos += value( i.region_start );
+        pos += i.region_start;
         display::PixelChange p( pos );
         p.color.red() = ( i.fluorophore == 0 || i.fluorophore == fluorophore_count )
             ? j->red() : 0;

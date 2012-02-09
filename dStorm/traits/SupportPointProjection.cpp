@@ -7,6 +7,10 @@
 #include <boost/spirit/include/phoenix_container.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
+#include <Eigen/Dense>
+#include <boost/foreach.hpp>
+#include <set>
+#include <queue>
 
 #include "debug.h"
 #include "dejagnu.h"
@@ -17,6 +21,20 @@ namespace traits {
 using namespace boost::units;
 namespace qi = boost::spirit::qi;
 namespace phoenix = boost::phoenix;
+
+struct SupportPointProjection::PointOrdering
+: public std::binary_function< ImagePosition, ImagePosition, bool >
+{
+    bool operator()( const ImagePosition& a, const ImagePosition& b ) {
+        for (int i = 0; i < a.rows(); ++i) {
+            if ( a[i] < b[i] )
+                return true;
+            else if ( a[i] > b[i] )
+                return false;
+        }
+        return false;
+    }
+};
 
 template <typename Expr>
 bool parse( std::istream& in, const Expr& expr )
@@ -68,8 +86,11 @@ SupportPointProjection::SupportPointProjection(
         i->y() = *(vy++) * camera::pixel / map_y;
     }
 
+    std::cerr << "Computing forward map" << std::endl;
     compute_forward_map();
+    std::cerr << "Computing reverse transformation" << std::endl;
     approximate_reverse_transformation();
+    std::cerr << "Computed reverse transformation" << std::endl;
 }
 
 void SupportPointProjection::compute_forward_map() {
@@ -79,29 +100,55 @@ void SupportPointProjection::compute_forward_map() {
     forward_map = Map(im_sz);
     Eigen::Vector2f one = Eigen::Vector2f::Constant(1);
     for ( Map::iterator i = forward_map.begin(); i != forward_map.end(); ++i )
-        *i = point_in_sample_space_( i.uposition().cast< SubpixelImagePosition::Scalar >() );
+        *i = point_in_sample_space_( i.position().cast< SubpixelImagePosition::Scalar >() );
 }
 
 void SupportPointProjection::approximate_reverse_transformation() {
+    const float scale = 1E-7;
+    Eigen::Matrix< float, Eigen::Dynamic, 3 > inputs( forward_map.size_in_pixels(), 3 );
+    Eigen::VectorXf x_outputs( forward_map.size_in_pixels() ), y_outputs( x_outputs );
+    int c = 0;
+    for ( Map::const_iterator i = forward_map.begin(); i != forward_map.end(); ++i )
+    {
+        /* Sample position is scaled into sane dimensions to enhance
+         * numerical stability. */
+        inputs( c, 0 ) = i->x() / (scale * si::meter);
+        inputs( c, 1 ) = i->y() / (scale * si::meter);
+        x_outputs[c] = i.position().x() / camera::pixel;
+        y_outputs[c] = i.position().y() / camera::pixel;
+        ++c;
+    }
+    inputs.col(2).fill(1);
+    /* The Jacobi SVD solves the least-squares problem, directly giving the
+     * coefficients of a linear transformation. */
+    Eigen::JacobiSVD< Eigen::Matrix<float, Eigen::Dynamic, 3> > svd(inputs, 
+                    Eigen::ComputeThinU | Eigen::ComputeThinV);
 
+    approx_reverse = Eigen::Affine2f::Identity();
+    approx_reverse.matrix().row(0) = svd.solve( x_outputs ).transpose();
+    approx_reverse.matrix().row(1) = svd.solve( y_outputs ).transpose();
+    approx_reverse.matrix().topLeftCorner<2,2>() /= scale;
 }
 
 Projection::SamplePosition 
 SupportPointProjection::point_in_sample_space_
     ( const SubpixelImagePosition& pos ) const
 {
-    Projection::SamplePosition rv = Projection::SamplePosition::Constant( 0.0f * si::meter );
-    Eigen::Vector2f one = Eigen::Vector2f::Constant(1),
-                    p = value(pos).array() / higher_density;
-    Eigen::Vector2i b = p.cast<int>();
+    SamplePosition rv = SamplePosition::Constant( 0.0f * si::meter );
+    Eigen::Vector2f one = Eigen::Vector2f::Constant(1);
+    SubpixelImagePosition p = from_value< camera::length >
+        (value(pos).array() / higher_density);
     for (int dx = 0; dx <= 1; ++dx)
         for (int dy = 0; dy <= 1; ++dy)
         {
-            Eigen::Vector2i d; d << dx, dy;
-            float f = std::abs( (one.array() - (p - (b+d).cast<float>()).array().abs()).prod() );
-            if ( high_density_map.contains( b+d ) ) {
-                rv += from_value< si::length >(value( high_density_map( b+d ) ) * f);
-            }
+            ImagePosition r = floor( p ).cast<ImagePosition::Scalar>(); 
+            r.x() += dx * camera::pixel;
+            r.y() += dy * camera::pixel;
+            SubpixelImagePosition diff = 
+                p - r.cast<SubpixelImagePosition::Scalar>();
+            float f = std::abs( (1 - value(diff).array().abs()).prod() );
+            if ( high_density_map.contains( r ) )
+                rv += from_value< si::length >(value( high_density_map( r ) ) * f);
         }
     return rv;
 }
@@ -110,30 +157,108 @@ Projection::SamplePosition
 SupportPointProjection::pixel_in_sample_space_
     ( const ImagePosition& pos ) const
 {
-    return forward_map( value(pos) );
+    return forward_map( pos );
 }
 
 std::vector< Projection::MappedPoint >
-SupportPointProjection::cut_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+SupportPointProjection::cut_region_of_interest_naively( const ROISpecification& roi ) const
 {
-    throw std::logic_error("Not implemented");
+    std::vector< Projection::MappedPoint > rv;
+    for ( Map::const_iterator i = forward_map.begin(); i != forward_map.end(); ++i )
+    {
+        if ( roi.contains( *i ) ) 
+            rv.push_back( Projection::MappedPoint( i.position(), *i ) );
+    }
+    return rv;
+}
+
+std::vector< Projection::MappedPoint >
+SupportPointProjection::cut_region_of_interest_( const ROISpecification& roi ) const
+{
+    std::vector< Projection::MappedPoint > rv;
+    boost::array<ImagePosition,4> neighbours;
+    for (int i = 0; i < 4; ++i) 
+        neighbours[i] = ImagePosition::Constant(0 * camera::pixel);
+    neighbours[0].x() = 1 * camera::pixel;
+    neighbours[1].x() = -1 * camera::pixel;
+    neighbours[2].y() = 1 * camera::pixel;
+    neighbours[3].y() = -1 * camera::pixel;
+
+    std::set< ImagePosition, PointOrdering > past;
+    std::queue< ImagePosition > future;
+    ImagePosition central = nearest_point_in_image_space( roi.center );
+    future.push( central );
+    past.insert( central );
+
+    while ( ! future.empty() ) {
+        const ImagePosition& present = future.front();
+        DEBUG("Considering " << present.transpose());
+        SamplePosition p = forward_map( present );
+        if ( roi.contains( p ) ) {
+            DEBUG(present.transpose() << " is in the ROI");
+            rv.push_back( MappedPoint( present, p ) );
+            BOOST_FOREACH( const ImagePosition& d, neighbours ) {
+                ImagePosition o = present + d;
+                if ( forward_map.contains(o) && past.find( o ) == past.end() ) {
+                    DEBUG("Adding " << o.transpose() << " to work list");
+                    past.insert( o );
+                    future.push( o );
+                }
+            }
+        }
+        future.pop();
+    }
+
+    return rv;
 }
 
 SupportPointProjection::Bounds
-SupportPointProjection::get_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+SupportPointProjection::get_region_of_interest_( const ROISpecification& roi ) const
 {
-    throw std::logic_error("Not implemented");
+    ImagePosition lower = nearest_point_in_image_space( roi.center - roi.width ),
+                  upper = nearest_point_in_image_space( roi.center + roi.width );
+    SupportPointProjection::Bounds rv;
+    rv[0] = lower;
+    rv[1] = upper;
+    return rv;
 }
 
 SupportPointProjection::ImagePosition
 SupportPointProjection::nearest_point_in_image_space_
     ( const SamplePosition& pos ) const
 {
-    throw std::logic_error("Not implemented");
+    /* First compute a good estimate with the linear approximation transform. */
+    ImagePosition best_estimate = 
+        from_value<camera::length>( round(
+            approx_reverse * value(pos).cast<float>()
+        ).cast<int>() );
+    float best_distance = 
+        value( forward_map( best_estimate ) - pos ).squaredNorm();
+    
+    /* Improve the estimate with gradient descent. */
+    do {
+        ImagePosition new_best_estimate = best_estimate;
+        for (int dx = -1; dx <= 1; ++dx)
+            for (int dy = -1; dy <= 1; ++dy)
+            {
+                if ( dx == 0 && dy == 0 ) continue;
+                ImagePosition t = best_estimate;
+                t.x() += dx * camera::pixel;
+                t.y() += dy * camera::pixel;
+                float distance = value( forward_map( best_estimate ) - pos )
+                    .squaredNorm();
+                if ( distance < best_distance ) {
+                    new_best_estimate = t;
+                    best_distance = distance;
+                }
+            }
+        if ( new_best_estimate == best_estimate )
+            break;
+        else
+            best_estimate = new_best_estimate;
+    } while ( true );
+
+    return best_estimate;
 }
 
 static const char *the_test_file = 
@@ -230,7 +355,17 @@ void run_support_point_projection_unit_tests( TestState& state )
     interpolated.y() += 0.2f * camera::pixel;
     Projection::SamplePosition interpolated_sample = foo.point_in_sample_space( interpolated ), interpolated_norm;
     interpolated_norm << 2.13765e-07f * si::meter, 1.39906e-07f * si::meter;
-    state( value(interpolated_sample - interpolated_norm).norm() < 1E-10 );
+    state( value(interpolated_sample - interpolated_norm).norm() < 1E-10,
+           "Interpolated point is transformed correctly" );
+
+    state( foo.nearest_point_in_image_space( interpolated_sample ) == middle,
+           "Reverse transform works" );
+
+    Projection::SamplePosition center;
+    center << 90E-9f * si::meter, 10E-9f * si::meter;
+    Projection::ROISpecification roi( center, Projection::SamplePosition::Constant( 65 * si::meter ) );
+    state( foo.cut_region_of_interest_naively(roi).size() == foo.cut_region_of_interest(roi).size(),
+           "Naively and cleverly selected ROIs match in size");
 }
 
 }

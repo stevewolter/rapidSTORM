@@ -11,6 +11,8 @@ namespace dStorm {
 namespace traits {
 
 class SupportPointProjection : public Projection {
+    class PointOrdering;
+
     typedef dStorm::Image< SamplePosition, 2 > Map;
     Eigen::Array2f higher_density;
     Map high_density_map, forward_map;
@@ -21,12 +23,8 @@ class SupportPointProjection : public Projection {
     SamplePosition pixel_in_sample_space_
         ( const ImagePosition& pos ) const;
     std::vector< MappedPoint >
-        cut_region_of_interest_( 
-            const SamplePosition& center,
-            const SamplePosition& width ) const;
-    Bounds get_region_of_interest_( 
-        const SamplePosition& center, 
-        const SamplePosition& width ) const;
+        cut_region_of_interest_( const ROISpecification& ) const;
+    Bounds get_region_of_interest_( const ROISpecification& ) const;
     ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const;
 
@@ -40,6 +38,9 @@ class SupportPointProjection : public Projection {
         units::quantity<units::camera::resolution> map_x, 
         units::quantity<units::camera::resolution> map_y,
         std::istream& file_map );
+
+    std::vector< MappedPoint >
+        cut_region_of_interest_naively( const ROISpecification& ) const;
 };
 
 }

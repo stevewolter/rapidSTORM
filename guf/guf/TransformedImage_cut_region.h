@@ -29,7 +29,7 @@ TransformedImage<LengthUnit>::cut_region(
           << " and range " << max_distance.transpose());
 
     traits::Projection::Bounds bounds = optics.projection()->
-        get_region_of_interest( center.head<2>(), max_distance.head<2>() );
+        get_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );
     Bounds r;
     for (int i = 0; i < 2; ++i) 
         r.col(i) = bounds[i].array().min( upper_bound.head<2>().array() ).

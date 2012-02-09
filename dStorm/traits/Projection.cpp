@@ -17,5 +17,15 @@ Projection::pixel_size_
     return (value(lower_right - upper_left).array() / 2).prod() * si::meter * si::meter;
 }
 
+bool Projection::ROISpecification::contains( const SamplePosition& p ) const
+{
+    return ( (p.array() >= (center - width).array()).all() && 
+             (p.array() <= (center + width).array()).all() );
+}
+
+Projection::ROISpecification::ROISpecification( const SamplePosition& center_, 
+                          const SamplePosition& width_ )
+: center(center_), width(width_) {}
+
 }
 }

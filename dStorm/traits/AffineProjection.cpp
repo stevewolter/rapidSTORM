@@ -16,12 +16,10 @@ AffineProjection::point_in_sample_space_
 }
 
 std::vector< Projection::MappedPoint >
-AffineProjection::cut_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+AffineProjection::cut_region_of_interest_( const ROISpecification& r ) const
 {
     std::vector< MappedPoint > rv;
-    Bounds bb = get_region_of_interest_( center, radius );
+    Bounds bb = get_region_of_interest_( r );
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
     rv.reserve( ((bb[1].x() - bb[0].x()).value() + 1) * ((bb[1].y() - bb[0].y()).value() + 1) );
@@ -30,8 +28,7 @@ AffineProjection::cut_region_of_interest_(
         for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
             pos.y() = y;
             SamplePosition sample = pixel_in_sample_space( pos );
-            if ( (sample.array() >= (center - radius).array()).all() && 
-                 (sample.array() <= (center + radius).array()).all() )
+            if ( r.contains( sample ) )
                 rv.push_back( MappedPoint( pos, sample ) );
         }
     }
@@ -39,9 +36,7 @@ AffineProjection::cut_region_of_interest_(
 }
 
 AffineProjection::Bounds
-AffineProjection::get_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
 {
     /* Determine bounds of region of interest */
     DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
@@ -57,7 +52,7 @@ AffineProjection::get_region_of_interest_(
       for (dir[1] = -1; dir[1] <= 1; dir[1] += 2)
     {
         for (int d = 0; d < 2; ++d)
-            sample_pos[d] = center[d] + float(dir[d]) * radius[d];
+            sample_pos[d] = roi.center[d] + float(dir[d]) * roi.width[d];
         SubpixelImagePosition im = from_value< camera::length >(to_image * value(sample_pos));
         for (int d = 0; d < 2; ++d)
             if ( dir[d] < 0 ) r[0][d] = std::min( ImagePosition::Scalar(ceil(im[d])), r[0][d] );

@@ -125,7 +125,8 @@ void Manager::ControlConfig::processCommand( std::istream& in )
                 number = which_window();
                 i = m.sources.find(number);
                 pos.fill(0);
-                in >> pos.x() >> pos.y();
+                in >> boost::units::quantity_cast<int&>(pos.x()) 
+                   >> boost::units::quantity_cast<int&>(pos.y());
                 msg << "window " << number;
             } else {
                 msg << "result for unset WhichWindow field";
@@ -134,7 +135,7 @@ void Manager::ControlConfig::processCommand( std::istream& in )
                 DEBUG("Found window");
                 msg << " pixel at (" << pos.transpose() << ")";
                 Source& source = *i->second;
-                if ( contains( source.current_display, pos ) )
+                if ( source.current_display.contains( pos ) )
                     msg << " has value r " << int(source.current_display( pos ).red() )
                                    << " g " << int(source.current_display( pos ).green())
                                    << " b " << int(source.current_display( pos ).blue());

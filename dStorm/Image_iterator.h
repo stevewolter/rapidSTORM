@@ -13,8 +13,6 @@ class Image<PixelType,Dimensions>::_iterator
 : public boost::iterator_facade<
     _iterator<IteratedType>, IteratedType, boost::random_access_traversal_tag>
 {
-  public:
-    typedef Eigen::Matrix<int,Dimensions,1,Eigen::DontAlign> Position;
   private:
     friend class boost::iterator_core_access;
     IteratedType *p;
@@ -22,7 +20,7 @@ class Image<PixelType,Dimensions>::_iterator
     const Image* im;
     friend class Image<PixelType,Dimensions>;
     _iterator(const Image& i)
-        : p( const_cast<IteratedType*>(i.ptr()) ), pos( Position::Zero() ), im(&i) {}
+        : p( const_cast<IteratedType*>(i.ptr()) ), pos( Position::Constant( 0 * camera::pixel ) ), im(&i) {}
     _iterator(const Image& i, const Position& pos)
         : p( NULL ), pos(pos), im(&i) { _seek(); }
 
@@ -33,17 +31,21 @@ class Image<PixelType,Dimensions>::_iterator
     bool equal(const _iterator<OtherIteratedType>& o) const 
         { return p == o.p; }
     void increment() { 
-        ++p; ++pos[0];
+        ++p; pos[0] += 1 * camera::pixel;
         for ( int i = 1; i < Dimensions; i++ )
-            if ( pos[i-1] >= im->sz[i-1].value() )
-                { pos[i-1] = 0; p -= im->sz[i-1].value() * im->offsets[i-1]; ++pos[i]; p += im->offsets[i]; }
-            else break;
+            if ( pos[i-1] >= im->sz[i-1] ) { 
+                pos[i-1] = 0; 
+                p -= im->sz[i-1].value() * im->offsets[i-1]; 
+                pos[i] += 1 * camera::pixel;
+                p += im->offsets[i]; 
+            } else 
+                break;
     }
     void decrement() { 
-        --p; --pos[0];
-        for ( int i = 1; i < Dimensions && pos[i-1] < 0; ++i ) { 
-            pos[i-1] += im->sz[i-1].value(); 
-            --pos[i];
+        --p; pos[0] -= 1 * camera::pixel;
+        for ( int i = 1; i < Dimensions && pos[i-1].value() < 0; ++i ) { 
+            pos[i-1] += im->sz[i-1];
+            pos[i] -= 1 * camera::pixel;
             p += im->sz[i-1].value() * im->offsets[i-1] - im->offsets[i];
         }
     }
@@ -65,7 +67,7 @@ class Image<PixelType,Dimensions>::_iterator
         int rv = 0;
         for (int i = Dimensions-1; i >= 0; --i) {
             rv *= im->sz[i].value();
-            rv += (o.pos[i] - pos[i]);
+            rv += (o.pos[i] - pos[i]).value();
         }
         return rv;
     }
@@ -73,7 +75,7 @@ class Image<PixelType,Dimensions>::_iterator
     void _seek() {
         p = const_cast<IteratedType*>(im->ptr());
         for (int i = 0; i < Dimensions; ++i)
-            p += pos[i] * im->offsets[i];
+            p += pos[i].value() * im->offsets[i];
     }
 
     template <class> friend class _iterator;
@@ -86,10 +88,9 @@ class Image<PixelType,Dimensions>::_iterator
         : p(o.p), pos(o.pos), im(o.im) {}
 
     const Position& position() const { return pos; }
-    int x() { return pos.x(); }
-    int y() { return pos.y(); }
-    int z() { return pos.z(); }
-    const Size uposition() const { return from_value< camera::length >(pos); }
+    quantity<camera::length,int> x() { return pos.x(); }
+    quantity<camera::length,int> y() { return pos.y(); }
+    quantity<camera::length,int> z() { return pos.z(); }
     _iterator& seek(const Position& npos) { pos = npos; _seek(); }
 };
 
@@ -104,8 +105,8 @@ template <typename PixelType, int Dimensions>
 typename Image<PixelType,Dimensions>::iterator
 Image<PixelType,Dimensions>::end() 
 {
-    typename iterator::Position e = iterator::Position::Zero();
-    e[Dimensions-1] = sz[Dimensions-1].value();
+    Position e = Position::Constant( 0 * camera::pixel );
+    e[Dimensions-1] = sz[Dimensions-1];
     return iterator(*this, e);
 }
 
@@ -120,8 +121,8 @@ template <typename PixelType, int Dimensions>
 typename Image<PixelType,Dimensions>::const_iterator
 Image<PixelType,Dimensions>::end()  const
 {
-    typename iterator::Position e = iterator::Position::Zero();
-    e[Dimensions-1] = sz[Dimensions-1].value();
+    Position e = Position::Constant( 0 * camera::pixel );
+    e[Dimensions-1] = sz[Dimensions-1];
     return const_iterator(*this, e);
 }
 

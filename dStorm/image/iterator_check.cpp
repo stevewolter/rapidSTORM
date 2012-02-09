@@ -16,16 +16,16 @@ int main() {
     dStorm::Image<int,3>::iterator i = image.begin(), e = image.end();
     int count = 0;
     for ( ; i != e; ++i, --i, ++i ) {
-        assert( count == i.position().x() + sz.x().value() * i.position().y() + (sz.x() * sz.y()).value() * i.position().z() );
-        assert( *i == i.position().x() + 100 * i.position().y() + 10000 * i.position().z() );
+        assert( count == i.position().x().value() + sz.x().value() * i.position().y().value() + (sz.x() * sz.y()).value() * i.position().z().value() );
+        assert( *i == i.position().x().value() + 100 * i.position().y().value() + 10000 * i.position().z().value() );
         ++count;
     }
     assert( count == (sz.x() * sz.y() * sz.z()).value() );
 
     count = 0;
     for ( dStorm::Image<int,3>::const_iterator i = static_cast<const Image&>(image).begin(), e = image.end(); i != e; ++i ) {
-        assert( count == i.position().x() + sz.x().value() * i.position().y() + (sz.x() * sz.y()).value() * i.position().z() );
-        assert( *i == i.position().x() + 100 * i.position().y() + 10000 * i.position().z() );
+        assert( count == i.position().x().value() + (sz.x() * i.position().y()).value() + (sz.x() * sz.y() * i.position().z()).value() );
+        assert( *i == i.position().x().value() + (100 * i.position().y()).value() + (10000 * i.position().z()).value() );
         ++count;
     }
     assert( count == (sz.x() * sz.y() * sz.z()).value() );

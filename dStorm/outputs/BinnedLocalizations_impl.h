@@ -79,7 +79,7 @@ BinnedLocalizations<KeepUpdated,Dim>
         this->binningListener().announce( l );
 
         const typename BinnedImage::Position base_pos 
-            = lower.template cast<int>() - value( crop );
+            = from_value<camera::length>(lower.template cast<int>()) - crop;
 
         /* This loops iterates over the linear interpolation terms,
          * i.e. the corners of the hypercube. */
@@ -87,8 +87,8 @@ BinnedLocalizations<KeepUpdated,Dim>
             typename BinnedImage::Position p = base_pos;
             std::bitset<Dim> high_corner( corner_ );
             for (int j = 0; j < Dim; ++j)
-                if ( high_corner[j] ) p[j] += 1;
-            if ( ! contains( base_image, p ) ) continue;
+                if ( high_corner[j] ) p[j] += 1 * camera::pixel;
+            if ( ! base_image.contains( p ) ) continue;
             for (int j = 0; j < Dim; ++j)
                     terms[j] = (high_corner[j]) ? (values[j] - lower[j]) : 1.0f - (values[j] - lower[j]);
 

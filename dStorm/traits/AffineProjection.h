@@ -15,12 +15,8 @@ class AffineProjection : public Projection {
     SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const;
     std::vector< MappedPoint >
-        cut_region_of_interest_( 
-            const SamplePosition& center,
-            const SamplePosition& width ) const;
-    Bounds get_region_of_interest_( 
-        const SamplePosition& center, 
-        const SamplePosition& width ) const;
+        cut_region_of_interest_( const ROISpecification& ) const;
+    Bounds get_region_of_interest_( const ROISpecification& ) const;
     ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const;
 

@@ -20,7 +20,7 @@ template <int Dimensions>
 struct ImageTypes {
     typedef boost::units::quantity<camera::length,int> Span;
     typedef Eigen::Array<Span,Dimensions,1,Eigen::DontAlign> Size;
-    typedef Eigen::Array<int,Dimensions,1,Eigen::DontAlign> Position;
+    typedef Eigen::Array<Span,Dimensions,1,Eigen::DontAlign> Position;
     typedef Eigen::Array<int,Dimensions,1,Eigen::DontAlign> Offsets;
 };
 
@@ -74,9 +74,9 @@ class Image
     Image deep_copy() const;
 
     const PixelType& operator()(const Position& p) const 
-        { return ptr()[ (p * offsets).sum() ]; }
+        { return ptr()[ (value(p) * offsets).sum() ]; }
     PixelType& operator()(const Position& p) 
-        { return ptr()[ (p * offsets).sum() ]; }
+        { return ptr()[ (value(p) * offsets).sum() ]; }
 
     const PixelType& operator()(int x, int y) const { 
         BOOST_STATIC_ASSERT(Dimensions == 2);
@@ -126,7 +126,6 @@ class Image
         BOOST_STATIC_ASSERT(Dimensions >= 3);
         return sz.z() / camera::pixel; }
     const Size& sizes() const { return sz; }
-    const Position sizes_in_pixels() const { return value( sz ); }
 
     const Offsets& get_offsets() const { return offsets; }
     size_t get_global_offset() const { return global_offset; }
@@ -165,7 +164,7 @@ class Image
         { return this->ptr()[i]; }
 
     bool contains( const Position& p ) const
-        { return (p >= 0).all() && (p < sizes_in_pixels()).all(); }
+        { return (p >= 0 * camera::pixel).all() && (p < sz).all(); }
     bool contains( int x, int y ) const { 
         BOOST_STATIC_ASSERT( Dimensions == 2 );
         return ( x >= 0 && x < this->width_in_pixels() &&

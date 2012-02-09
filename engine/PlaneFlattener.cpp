@@ -22,7 +22,7 @@ PlaneFlattener::PlaneFlattener( const dStorm::engine::InputTraits& traits )
         for ( Transformed::iterator i = t.begin(); i != t.end(); ++i )
             *i = value( in_result.point_in_image_space(
                 traits.plane( p ).projection()->
-                    pixel_in_sample_space( i.uposition()) ) );
+                    pixel_in_sample_space( i.position()) ) );
         transformed.push_back( t );
     }
 }

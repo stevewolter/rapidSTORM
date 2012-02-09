@@ -25,7 +25,7 @@ void HueSaturationMixer::set_tone( float hue ) {
 void HueSaturationMixer::merge_tone( const Im::Position& pos,
                     float old_data_weight, float new_data_weight )
 {
-    assert( contains( colours, pos ) );
+    assert( colours.contains( pos ) );
     if ( old_data_weight < 1E-3 ) {
         colours(pos) = tone_point;
         DEBUG("Used tone point " << colours(pos).transpose() << " for new point");

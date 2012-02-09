@@ -29,6 +29,11 @@ struct ImageResolution {
     bool is_in_dpm() const { return dpm_value.is_initialized(); }
     boost::units::quantity< boost::units::camera::resolution, float > in_dpm() const
         { return *dpm_value; }
+
+    bool operator==( const ImageResolution& o ) const {
+        return unit_name == o.unit_name && unit_symbol == o.unit_symbol 
+            && dpm_value == o.dpm_value;
+    }
 };
 
 template <typename Unit, typename Type>

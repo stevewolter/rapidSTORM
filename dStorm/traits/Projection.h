@@ -27,6 +27,16 @@ struct Projection {
             : image_position(i), sample_position(s) {}
     };
 
+    struct ROISpecification {
+        SamplePosition center;
+        SamplePosition width;
+        ROISpecification( const SamplePosition& center_, 
+                          const SamplePosition& width_ );
+        bool contains( const SamplePosition& ) const;
+    };
+    typedef std::vector< MappedPoint > ROI;
+    typedef boost::array< ImagePosition, 2 > Bounds;
+
     virtual ~Projection() {}
   private:
     virtual SamplePosition point_in_sample_space_
@@ -34,13 +44,9 @@ struct Projection {
     virtual units::quantity<units::si::area> pixel_size_
         ( const ImagePosition& at ) const;
     virtual std::vector< MappedPoint >
-        cut_region_of_interest_( 
-            const SamplePosition& center,
-            const SamplePosition& width ) const = 0;
+        cut_region_of_interest_( const ROISpecification& ) const = 0;
     virtual boost::array< ImagePosition, 2 >
-        get_region_of_interest_( 
-            const SamplePosition& center,
-            const SamplePosition& width ) const = 0;
+        get_region_of_interest_( const ROISpecification& ) const = 0;
     virtual ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const = 0;
     virtual SamplePosition pixel_in_sample_space_
@@ -61,17 +67,11 @@ struct Projection {
         ( const ImagePosition& at ) const 
         { return pixel_size_(at); }
 
-    typedef std::vector< MappedPoint > ROI;
-    ROI cut_region_of_interest( 
-            const SamplePosition& center,
-            const SamplePosition& width ) const
-        { return cut_region_of_interest_( center, width ); }
+    ROI cut_region_of_interest( const ROISpecification& r ) const
+        { return cut_region_of_interest_( r ); }
 
-    typedef boost::array< ImagePosition, 2 > Bounds;
-    Bounds get_region_of_interest(
-            const SamplePosition& center,
-            const SamplePosition& width ) const
-        { return get_region_of_interest_( center, width ); }
+    Bounds get_region_of_interest( const ROISpecification& r ) const
+        { return get_region_of_interest_( r ); }
 };
 
 }

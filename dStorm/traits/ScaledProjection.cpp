@@ -23,12 +23,10 @@ ScaledProjection::pixel_size_
 }
 
 std::vector< Projection::MappedPoint >
-ScaledProjection::cut_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+ScaledProjection::cut_region_of_interest_( const ROISpecification& r ) const
 {
     std::vector< MappedPoint > rv;
-    Bounds bb = get_region_of_interest_( center, radius );
+    Bounds bb = get_region_of_interest_( r );
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
     rv.reserve( (value( bb[1] - bb[0] ).array() + 1).prod() );
@@ -43,17 +41,15 @@ ScaledProjection::cut_region_of_interest_(
 }
 
 ScaledProjection::Bounds
-ScaledProjection::get_region_of_interest_( 
-    const SamplePosition& center,
-    const SamplePosition& radius ) const
+ScaledProjection::get_region_of_interest_( const ROISpecification& r ) const
 {
     /* Determine bounds of region of interest */
     DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
           << " and range " << radius.transpose());
-    Bounds r;
-    r[0] = from_value< camera::length >( ceil(to_image * value(center - radius)).cast<int>() );
-    r[1] = from_value< camera::length >( floor(to_image * value(center + radius)).cast<int>() );
-    return r;
+    Bounds rv;
+    rv[0] = from_value< camera::length >( ceil(to_image * value(r.center - r.width)).cast<int>() );
+    rv[1] = from_value< camera::length >( floor(to_image * value(r.center + r.width)).cast<int>() );
+    return rv;
 }
 
 ScaledProjection::ScaledProjection( 

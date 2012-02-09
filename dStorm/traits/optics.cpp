@@ -8,7 +8,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
 #include <functional>
-#include "AffineProjection.h"
 #include "ScaledProjection.h"
 
 namespace dStorm {
@@ -45,7 +44,6 @@ Optics<2>& Optics<2>::operator=( const Optics<2> &o )
     photon_response = o.photon_response;
     background_stddev = o.background_stddev;
     dark_current = o.dark_current;
-    resolutions = o.resolutions;
     return *this;
 }
 
@@ -156,14 +154,17 @@ PlaneConfig::PlaneConfig(int number)
   z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
-  micro_alignment("AlignmentFile", "Plane Alignment file"),
+  alignment( "Alignment", "Plane alignment" ),
   psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre))
 {
+    alignment.addChoice( make_scaling_projection_config() );
+    if ( ! is_first_layer ) {
+        alignment.addChoice( make_affine_projection_config() );
+        alignment.addChoice( make_support_point_projection_config() );
+    }
+
     psf_size.helpID = "PSF.FWHM";
     z_position.setHelp("Z position where this layer is sharpest in this dimension");
-    if ( is_first_layer ) {
-	micro_alignment.viewable = micro_alignment.editable = false;
-    }
     transmissions.push_back( new simparm::Entry<double>("Transmission0", "Transmission of fluorophore 0", 1) );
 
     counts_per_photon.userLevel = Object::Intermediate;
@@ -173,7 +174,7 @@ PlaneConfig::PlaneConfig(int number)
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
 : simparm::Set(o), is_first_layer(o.is_first_layer), 
   z_position(o.z_position), counts_per_photon(o.counts_per_photon), 
-  dark_current(o.dark_current), micro_alignment(o.micro_alignment),
+  dark_current(o.dark_current), alignment( o.alignment ),
   psf_size(o.psf_size)
 {
     for (Transmissions::const_iterator i = o.transmissions.begin(), e = o.transmissions.end(); i != e; ++i)
@@ -188,7 +189,7 @@ void PlaneConfig::registerNamedEntries()
     push_back( z_position );
     push_back( counts_per_photon );
     push_back( dark_current );
-    push_back( micro_alignment );
+    push_back( alignment );
 
     for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i)
         push_back( *i );
@@ -210,20 +211,7 @@ void PlaneConfig::set_number_of_fluorophores(int number, bool has_multiple_layer
 void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Resolutions& defaults ) const
 {
     rv.resolutions = defaults;
-    Eigen::Matrix3f elements = Eigen::Matrix3f::Identity();
-    if ( micro_alignment ) {
-        DEBUG("Micro alignment is given as " << micro_alignment());
-        std::istream& is = const_cast<simparm::FileEntry&>(micro_alignment).get_input_stream();
-        for (int r = 0; r < 3; ++r)
-            for (int c = 0; c < 3; ++c)
-                is >> elements(r,c);
-        const_cast<simparm::FileEntry&>(micro_alignment).close_input_stream();
-        rv.projection_.reset( new AffineProjection( 
-            rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm(), Eigen::Affine2f(elements) ) );
-    } else {
-        rv.projection_.reset( new ScaledProjection(
-            rv.resolutions[0]->in_dpm(), rv.resolutions[1]->in_dpm() ) );
-    }
+    rv.projection_ = alignment().get_projection( rv.resolutions );
     rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
     rv.dark_current = dark_current();
