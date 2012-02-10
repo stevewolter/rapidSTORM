@@ -1,3 +1,14 @@
+== 14.3.0 ==
+
+* Added bound-getting function for images
+* Made plane weights for plane flattener configurable
+* Made PSF selection display normalize per plane instead of globally
+* Implemented support point alignment
+* Moved layer alignment into virtual class family
+* Fixed output from PSF sigma to FWHM
+* Made display frequency configurable
+* Fixed windows build bug
+
 == 14.2.1 ==
 
 * Added version number callback on command line
