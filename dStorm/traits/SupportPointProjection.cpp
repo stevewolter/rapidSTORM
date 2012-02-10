@@ -1,5 +1,6 @@
 #include "SupportPointProjection.h"
 #include <dStorm/image/constructors.h>
+#include <dStorm/image/corners.h>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
@@ -86,11 +87,8 @@ SupportPointProjection::SupportPointProjection(
         i->y() = *(vy++) * camera::pixel / map_y;
     }
 
-    std::cerr << "Computing forward map" << std::endl;
     compute_forward_map();
-    std::cerr << "Computing reverse transformation" << std::endl;
     approximate_reverse_transformation();
-    std::cerr << "Computed reverse transformation" << std::endl;
 }
 
 void SupportPointProjection::compute_forward_map() {
@@ -98,14 +96,15 @@ void SupportPointProjection::compute_forward_map() {
     for (int j = 0; j < 2; ++j)
         im_sz[j] = ceil( quantity< camera::length, float >(high_density_map.sizes()[j]) * higher_density[j] );
     forward_map = Map(im_sz);
-    Eigen::Vector2f one = Eigen::Vector2f::Constant(1);
     for ( Map::iterator i = forward_map.begin(); i != forward_map.end(); ++i )
         *i = point_in_sample_space_( i.position().cast< SubpixelImagePosition::Scalar >() );
 }
 
 void SupportPointProjection::approximate_reverse_transformation() {
     const float scale = 1E-7;
-    Eigen::Matrix< float, Eigen::Dynamic, 3 > inputs( forward_map.size_in_pixels(), 3 );
+    /* This matrix has 3 columns, but cannot be given statically because
+     * thin U/V computation is only available on dynamic sizes. */
+    Eigen::MatrixXf inputs( forward_map.size_in_pixels(), 3 );
     Eigen::VectorXf x_outputs( forward_map.size_in_pixels() ), y_outputs( x_outputs );
     int c = 0;
     for ( Map::const_iterator i = forward_map.begin(); i != forward_map.end(); ++i )
@@ -121,7 +120,7 @@ void SupportPointProjection::approximate_reverse_transformation() {
     inputs.col(2).fill(1);
     /* The Jacobi SVD solves the least-squares problem, directly giving the
      * coefficients of a linear transformation. */
-    Eigen::JacobiSVD< Eigen::Matrix<float, Eigen::Dynamic, 3> > svd(inputs, 
+    Eigen::JacobiSVD< Eigen::MatrixXf > svd(inputs, 
                     Eigen::ComputeThinU | Eigen::ComputeThinV);
 
     approx_reverse = Eigen::Affine2f::Identity();
@@ -135,7 +134,6 @@ SupportPointProjection::point_in_sample_space_
     ( const SubpixelImagePosition& pos ) const
 {
     SamplePosition rv = SamplePosition::Constant( 0.0f * si::meter );
-    Eigen::Vector2f one = Eigen::Vector2f::Constant(1);
     SubpixelImagePosition p = from_value< camera::length >
         (value(pos).array() / higher_density);
     for (int dx = 0; dx <= 1; ++dx)
@@ -147,8 +145,11 @@ SupportPointProjection::point_in_sample_space_
             SubpixelImagePosition diff = 
                 p - r.cast<SubpixelImagePosition::Scalar>();
             float f = std::abs( (1 - value(diff).array().abs()).prod() );
-            if ( high_density_map.contains( r ) )
-                rv += from_value< si::length >(value( high_density_map( r ) ) * f);
+            /* Look up the value of the nearest existing pixel, but use the
+             * unmodified weight to assure the sum is 1. */
+            ImagePosition l = r.array().max( lower_corner( high_density_map ) )
+                 .min( upper_corner( high_density_map ) );
+            rv += from_value< si::length >(value( high_density_map( l ) ) * f);
         }
     return rv;
 }
@@ -209,6 +210,7 @@ SupportPointProjection::cut_region_of_interest_( const ROISpecification& roi ) c
         future.pop();
     }
 
+    assert( rv.size() == cut_region_of_interest_naively(roi).size() );
     return rv;
 }
 

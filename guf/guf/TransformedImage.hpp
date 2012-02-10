@@ -123,9 +123,11 @@ TransformedImage<LengthUnit>::set_data(
         DEBUG("Y coordinate is " << current.inputs(0,0) << " and values are " << current.output.transpose());
     }
 
-    typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
-    std::nth_element( pixels.begin(), qp, pixels.end());
-    rv.quarter_percentile_pixel = *qp * camera::ad_count;
+    if ( ! pixels.empty() ) {
+        typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
+        std::nth_element( pixels.begin(), qp, pixels.end());
+        rv.quarter_percentile_pixel = *qp * camera::ad_count;
+    }
     return rv;
 }
 
@@ -179,9 +181,11 @@ TransformedImage<LengthUnit>::set_data(
     o.pad_last_chunk();
     rv.pixel_count = pixels.size();
 
-    typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
-    std::nth_element( pixels.begin(), qp, pixels.end());
-    rv.quarter_percentile_pixel = *qp * camera::ad_count;
+    if ( ! pixels.empty() ) {
+        typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
+        std::nth_element( pixels.begin(), qp, pixels.end());
+        rv.quarter_percentile_pixel = *qp * camera::ad_count;
+    }
     return rv;
 }
 

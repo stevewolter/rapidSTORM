@@ -35,14 +35,6 @@ class SupportPointProjectionConfig
         if ( have_cache && cached_resolution == res && cached_file == micro_alignment() && cached_size == resolution() )
             /* Use cache. */ ;
         else {
-            if ( ! have_cache )
-                std::cerr << "No cache yet" << std::endl;
-            if ( ! (cached_resolution == res) )
-                std::cerr << "Resolution changed" << std::endl;
-            if ( ! (cached_file == micro_alignment()) )
-                std::cerr << "Alignment file changed" << std::endl;
-            if ( ! (cached_size == resolution()) )
-                std::cerr << "File resolution changed" << std::endl;
             cache.reset( make_projection_(res) );
             cached_resolution = res;
             cached_file = micro_alignment();

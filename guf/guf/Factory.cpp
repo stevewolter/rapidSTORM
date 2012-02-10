@@ -15,7 +15,9 @@ Factory::Factory()
 : spf::Factory( static_cast<Config&>(*this) ) {}
 Factory::Factory(const Factory& c)
 : simparm::Structure<Config>(c),
-  spf::Factory( static_cast<Config&>(*this) ) {}
+  spf::Factory( static_cast<Config&>(*this) ) 
+{
+}
 
 Factory::~Factory() {}
 
