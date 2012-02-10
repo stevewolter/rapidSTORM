@@ -9,6 +9,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry_Impl.hh>
 #include <dStorm/output/Basename.h>
+#include <boost/bind/bind.hpp>
 
 #include "config.h"
 
@@ -24,6 +25,7 @@ _Config::_Config()
     fitSizeFactor("FitSizeFactor", "Proportionality factor for fit "
                     "window size", 3),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
+    weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
     motivation("Motivation", "Spot search eagerness", 3),
     amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold")
@@ -75,6 +77,9 @@ void _Config::registerNamedEntries() {
     push_back(maskSizeFactor);
     push_back(fitSizeFactor);
     push_back(spotFindingMethod);
+    push_back( weights );
+    std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),
+        boost::bind( &simparm::Node::push_back, boost::ref(weights), _1 ) );
     push_back(spotFittingMethod);
 
     push_back(motivation);
@@ -92,16 +97,6 @@ Config::Config(const Config& c)
 { 
     registerNamedEntries();
 }
-
-#if 0
-void _Config::addSpotFinder( std::auto_ptr<spot_finder::Factory> factory ) {
-    spotFindingMethod.addChoice( factory );
-}
-
-void _Config::addSpotFitter( std::auto_ptr<spot_fitter::Factory> factory ) {
-    spotFittingMethod.addChoice( factory );
-}
-#endif
 
 void _Config::set_variables( output::Basename& bn ) const
 {

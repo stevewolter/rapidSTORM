@@ -9,6 +9,7 @@
 #include <dStorm/input/Method.hpp>
 #include <dStorm/signals/UseSpotFinder.h>
 #include <dStorm/signals/UseSpotFitter.h>
+#include <boost/lexical_cast.hpp>
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -25,7 +26,26 @@ class ChainLink
     typedef boost::mpl::vector< engine::Image > SupportedTypes;
 
     std::auto_ptr< scoped_connection > finder_con, fitter_con;
+    Config config;
 
+    void notice_traits( const MetaInfo&, const Traits< Image >& traits ) {
+        int soll = traits.plane_count() - 1;
+        while ( soll > int(config.spot_finder_weights.size()) ) {
+            int id = config.spot_finder_weights.size();
+            std::string ident = boost::lexical_cast<std::string>(id + 1);
+            config.spot_finder_weights.push_back( 
+                new simparm::Entry<float>(
+                    "WeightInPlane" + boost::lexical_cast<std::string>(id + 1),
+                    "Input layer " + boost::lexical_cast<std::string>(id + 2),
+                    1.0f
+                )
+            );
+            config.weights.push_back( config.spot_finder_weights.back() );
+        }
+
+        for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)
+            config.spot_finder_weights[i].viewable = i < soll;
+    }
     boost::shared_ptr< BaseTraits > 
     create_traits( MetaInfo& mi, 
                 const Traits<Image>& upstream )
@@ -48,7 +68,6 @@ class ChainLink
 
     BaseSource* make_source( std::auto_ptr< Source<Image> > base ) 
         { return new Engine( config, base ); }
-    Config config;
 
     std::string amplitude_threshold_string() const;
 

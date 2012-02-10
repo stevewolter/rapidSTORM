@@ -13,8 +13,9 @@ class PlaneFlattener {
     typedef Eigen::Array< float, 2, 1, Eigen::DontAlign > Subpixel;
     typedef dStorm::Image< Subpixel, 2 > Transformed;
     std::vector<Transformed> transformed;
+    std::vector<float> weights;
   public:
-    PlaneFlattener( const dStorm::engine::InputTraits& );
+    PlaneFlattener( const dStorm::engine::InputTraits&, std::vector<float> weights );
     const Image2D flatten_image( const engine::Image& multiplane );
 };
 

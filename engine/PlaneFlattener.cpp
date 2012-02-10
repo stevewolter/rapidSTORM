@@ -8,8 +8,10 @@
 namespace dStorm {
 namespace engine {
 
-PlaneFlattener::PlaneFlattener( const dStorm::engine::InputTraits& traits )
-: optics(traits)
+PlaneFlattener::PlaneFlattener( 
+    const dStorm::engine::InputTraits& traits,
+    const std::vector<float> weights
+) : optics(traits), weights(weights)
 {
     buffer = Image2D( traits.size.head<2>() );
 
@@ -25,6 +27,8 @@ PlaneFlattener::PlaneFlattener( const dStorm::engine::InputTraits& traits )
                     pixel_in_sample_space( i.position()) ) );
         transformed.push_back( t );
     }
+
+    assert( int(weights.size()) == traits.plane_count() - 1 );
 }
 
 const Image2D
@@ -56,7 +60,7 @@ PlaneFlattener::flatten_image( const engine::Image& multiplane )
                     if ( buffer.contains( x, y ) ) {
                         float factor = (1 - std::abs( x - t->x() )) 
                                 * (1 - std::abs( y - t->y() ));
-                        int value = round( *i * factor );
+                        int value = round( *i * factor * weights[plane-1] );
                         buffer(x,y) += value;
                     }
                 }

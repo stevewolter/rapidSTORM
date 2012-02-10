@@ -241,7 +241,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
   maximumLimit(20),
-  flattener( *engine.imProp ),
+  flattener( *engine.imProp, engine.make_plane_weight_vector() ),
   maximums(config.nms_x() / camera::pixel,
          config.nms_y() / camera::pixel,
          1, 1),
@@ -407,6 +407,14 @@ void Engine::change_input_traits( std::auto_ptr< input::BaseTraits > traits )
 
 std::auto_ptr<EngineBlock> Engine::block() {
     throw std::logic_error("Not implemented.");
+}
+
+std::vector<float> Engine::make_plane_weight_vector() const {
+    assert( int(config.spot_finder_weights.size()) >= imProp->plane_count() - 1 );
+    std::vector<float> rv;
+    for (int i = 1; i < imProp->plane_count(); ++i)
+        rv.push_back( config.spot_finder_weights[i-1]() );
+    return rv;
 }
 
 }

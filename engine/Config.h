@@ -17,6 +17,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace engine {
@@ -42,9 +43,13 @@ namespace engine {
 
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;
+
+        simparm::Set weights;
+        boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
+
         /** The method to use for spot fitting. */
         simparm::NodeChoiceEntry< spot_fitter::Factory > spotFittingMethod;
-
+        
         /** Continue fitting until this number of bad fits occured. */
         Entry<unsigned long> motivation;
         /** Amplitude threshold to judge localizations by. */

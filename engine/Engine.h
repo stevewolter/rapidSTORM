@@ -40,6 +40,7 @@ namespace engine {
 
         class _iterator;
         simparm::Node& node() { return *this; }
+        std::vector<float> make_plane_weight_vector() const;
 
       public:
         Engine(Config& config, std::auto_ptr<Input> input);
