@@ -163,6 +163,7 @@ nobase_include_HEADERS = \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
     dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
     dStorm/image/find_by_offset.hpp dStorm/image/normalize.h \
+    dStorm/image/corners.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
