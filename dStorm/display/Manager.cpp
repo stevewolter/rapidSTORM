@@ -33,13 +33,21 @@ void Manager::store_image( const StorableImage& i ) {
     store_image_impl(i);
 }
 
+std::vector<KeyChange> 
+KeyChange::make_linear_key( std::pair<float,float> range )
+{
+    std::vector<KeyChange> rv;
+    rv.reserve( 256 );
+    for (int i = 0; i <= 255; i++)
+        rv.push_back( KeyChange(
+            i, Color(i),
+            range.first + i * (range.second - range.first) / 255.0) );
+    return rv;
+}
+
 void Change::make_linear_key(Image::PixelPair range) {
     if ( changed_keys.empty() ) changed_keys.push_back( std::vector<KeyChange>() );
-    changed_keys.front().reserve( 256 );
-    for (int i = 0; i <= 255; i++)
-        changed_keys.front().push_back( KeyChange(
-            i, Color(i),
-            range.first + Pixel(i * (uint8_t(range.second - range.first) / 255.0)) ) );
+    changed_keys[0] = KeyChange::make_linear_key( std::pair<float,float>( range.first, range.second ) );
 }
 
 void DataSource::look_up_key_values( const PixelInfo& info, std::vector<float>& targets )

@@ -7,6 +7,8 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/convert.h>
 #include <dStorm/image/extend.h>
+#include <dStorm/image/normalize.h>
+#include <dStorm/image/slice.h>
 
 namespace dStorm {
 namespace form_fitter {
@@ -170,7 +172,7 @@ dStorm::engine::Image::Size GUI::get_maximum_tile_size()
     
 std::auto_ptr< dStorm::display::Change > 
 GUI::make_spot_display() {
-    typedef dStorm::Image< engine::StormPixel, display::Image::Dim > TargetImage;
+    typedef dStorm::Image< dStorm::Pixel, display::Image::Dim > TargetImage;
     dStorm::engine::Image::Size selection_size = get_maximum_tile_size();
     TargetImage::Size tile_size, image_size;
     const quantity<camera::length,int> plane_height = (selection_size.y() + 1 * camera::pixel);
@@ -183,8 +185,26 @@ GUI::make_spot_display() {
     image_size.y() = tile_size.y() * tile_rows;
     DEBUG("Tile size is " << tile_size.transpose() << " " << image_size.transpose());
 
-    TargetImage unnormalized( image_size );
-    unnormalized.fill( 0 );
+    TargetImage normalized( image_size );
+    normalized.fill( 0 );
+
+    std::vector< dStorm::Image<engine::StormPixel,2>::PixelPair > ranges;
+    for ( boost::ptr_vector<Tile>::iterator i = work.begin(); i != work.end(); ++i )
+    {
+        const int d = i->image.depth_in_pixels();
+
+        for (int j = 0; j < d; ++j) {
+            dStorm::Image<engine::StormPixel,2>::PixelPair local 
+                = i->image.slice( 2, j * camera::pixel ).minmax();
+            if ( int(ranges.size()) <= j ) {
+                ranges.push_back( local );
+                assert( int(ranges.size()) == j + 1 );
+            } else {
+                ranges[j].first = std::min( ranges[j].first, local.first );
+                ranges[j].second = std::max( ranges[j].second, local.second );
+            }
+        }
+    }
 
     quantity<camera::length,int> 
         current_line_top( 0 * camera::pixel ), current_left_edge( 0 * camera::pixel),
@@ -214,11 +234,12 @@ GUI::make_spot_display() {
                   from_upper.transpose() << " from " << i->image.sizes().transpose());
             engine::Image cropped = crop( i->image, from_lower, from_upper );
             DEBUG("Transform-Cropping " << to_lower.transpose() << " to " << 
-                  to_upper.transpose() << " from " << unnormalized.sizes().transpose());
-            TargetImage target_window = crop( unnormalized, to_lower, to_upper );
+                  to_upper.transpose() << " from " << normalized.sizes().transpose());
+            TargetImage target_window = crop( normalized, to_lower, to_upper );
             DEBUG("Sizes are " << cropped.size_in_pixels() << " and " << target_window.size_in_pixels() );
             assert( cropped.size_in_pixels() <= target_window.size_in_pixels() );
-            std::copy( cropped.begin(), cropped.end(), target_window.begin() );
+            std::transform( cropped.begin(), cropped.end(), target_window.begin(), 
+                normalize( ranges[p], std::make_pair( 0, 255 ) ) );
 
             current_plane_top += plane_height;
         }
@@ -231,16 +252,18 @@ GUI::make_spot_display() {
         }
     }
 
-    unsigned short min_not_0 = std::numeric_limits<unsigned short>::max();
-    for ( TargetImage::iterator i = unnormalized.begin(); i != unnormalized.end(); ++i)
-        if ( *i > 0 ) min_not_0 = std::min( min_not_0, *i );
-    for ( TargetImage::iterator i = unnormalized.begin(); i != unnormalized.end(); ++i)
-        if ( *i == 0 ) *i = min_not_0;
-
-    std::auto_ptr<dStorm::display::Change> c( new dStorm::display::Change(1));
+    std::auto_ptr<dStorm::display::Change> c( new dStorm::display::Change(0));
     c->do_clear = true;
     c->clear_image.background = dStorm::Pixel::Black();
-    display_normalized( *c, unnormalized );
+    c->do_resize = true;
+    c->resize_image.size = normalized.sizes();
+    for (int i = 0; i < int(ranges.size()); ++i)
+        c->resize_image.keys.push_back( display::KeyDeclaration("ADC", "A/D counts per pixel", 256) );
+    c->do_change_image = true;
+    c->image_change.new_image = normalized;
+    std::transform( ranges.begin(), ranges.end(),
+                    std::back_inserter( c->changed_keys ),
+                    &display::KeyChange::make_linear_key );
     return c;
 }
 

@@ -51,13 +51,13 @@ class Image<PixelType,Dimensions>::_iterator
     }
     void advance(int n) { 
         for ( int i = 0; i < Dimensions; ++i) {
-            pos[i] += n; 
-            if ( pos[i] > im->sz[i].value() ) {
-                n = pos[i] / im->sz[i].value();
-                pos[i] %= im->sz[i].value();
-            } else if ( pos[i] < 0 ) {
-                n = pos[i] / im->sz[i].value() - 1;
-                pos[i] = pos[i] % im->sz[i].value() + im->sz[i].value();
+            pos[i] += n * camera::pixel; 
+            if ( pos[i] > im->sz[i] ) {
+                n = pos[i] / im->sz[i];
+                pos[i] = (pos[i].value() % im->sz[i].value()) * camera::pixel;
+            } else if ( pos[i] < 0 * camera::pixel ) {
+                n = pos[i] / im->sz[i] - 1;
+                pos[i] = (pos[i].value() % im->sz[i].value()) * camera::pixel + im->sz[i];
             } else 
                 break;
         }

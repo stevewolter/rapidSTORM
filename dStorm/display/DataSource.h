@@ -64,6 +64,8 @@ struct KeyChange {
     KeyChange() {}
     KeyChange( int index, Color color, float value )
         : index(index), color(color), value(value) {}
+    
+    static std::vector<KeyChange> make_linear_key( std::pair<float,float> range );
 };
 
 struct Change {
