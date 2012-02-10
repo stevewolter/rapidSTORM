@@ -10,7 +10,7 @@
 #include <dStorm/display/Manager.h>
 #include <dStorm/stack_realign.h>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <dStorm/helpers/thread.h>
 
@@ -21,7 +21,7 @@ struct InputStream::Pimpl
   JobMaster
 {
     InputStream& impl_for;
-    boost::mutex mutex;
+    boost::recursive_mutex mutex;
     boost::condition all_cars_finished;
     typedef std::set<Job*> Jobs;
     Jobs running_cars, stopping_cars;
@@ -101,7 +101,7 @@ InputStream::Pimpl::Pimpl(
 }
 
 void InputStream::Pimpl::reset_config() {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     if ( original.get() ) {
         config.reset( new job::Config(*original) );
         config->registerNamedEntries( *this );
@@ -111,7 +111,7 @@ void InputStream::Pimpl::reset_config() {
 }
 
 void InputStream::Pimpl::terminate_remaining_cars() {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     DEBUG("Terminate remaining cars");
     for ( Jobs::iterator i = running_cars.begin();
           i != running_cars.end(); ++i )
@@ -128,7 +128,7 @@ InputStream::Pimpl::~Pimpl()
     input_watcher.join();
     DEBUG("Joined InputStream::Pimpl subthread");
     terminate_remaining_cars();
-    boost::unique_lock<boost::mutex> lock(mutex);
+    boost::unique_lock<boost::recursive_mutex> lock(mutex);
     while ( ! running_cars.empty() || ! stopping_cars.empty() )
         all_cars_finished.wait(mutex);
 }
@@ -155,7 +155,7 @@ void InputStream::Pimpl::run()
 
 std::auto_ptr<dStorm::JobHandle> InputStream::register_node( Job& node ) { return pimpl->register_node(node);}
 std::auto_ptr<dStorm::JobHandle> InputStream::Pimpl::register_node( Job& node ) {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     simparm::Node::push_back( node.get_config() );
     if ( node.needs_stopping() )
         running_cars.insert( &node );
@@ -163,14 +163,14 @@ std::auto_ptr<dStorm::JobHandle> InputStream::Pimpl::register_node( Job& node ) 
 }
 
 void InputStream::Pimpl::erase_node( Job& node ) {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     DEBUG("Erasing node " << node.get_config().getName());
     running_cars.erase( &node );
     stopping_cars.insert( &node );
 }
 
 void InputStream::Pimpl::deleted_node( Job& node ) {
-    boost::lock_guard<boost::mutex> lock(mutex);
+    boost::lock_guard<boost::recursive_mutex> lock(mutex);
     DEBUG("Deleting node " << node.get_config().getName() << " from list");
     stopping_cars.erase( &node );
     if ( running_cars.empty() && stopping_cars.empty() )
@@ -185,7 +185,7 @@ void InputStream::Pimpl::processCommand
         DEBUG("Got command to wait for jobs");
         terminate_remaining_cars();
         DEBUG("Terminated remaining cars");
-        boost::unique_lock<boost::mutex> lock(mutex);
+        boost::unique_lock<boost::recursive_mutex> lock(mutex);
         while ( ! running_cars.empty() )
             all_cars_finished.wait( lock );
         DEBUG("Processed command to wait for jobs");
@@ -197,8 +197,12 @@ void InputStream::Pimpl::processCommand
             std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
         reset_config();
-    } else
+    } else if ( cmd == "cmd" ) {
         simparm::IO::processCommand(cmd, rest);
+    } else {
+        boost::unique_lock<boost::recursive_mutex> lock(mutex);
+        simparm::IO::processCommand(cmd, rest);
+    }
 }
 
 void InputStream::start() {
