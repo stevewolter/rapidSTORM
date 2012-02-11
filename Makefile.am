@@ -142,6 +142,7 @@ nobase_include_HEADERS = \
     dStorm/engine/SpotFinder_decl.h dStorm/engine/SpotFinder.h \
     dStorm/engine/JobInfo_decl.h dStorm/engine/JobInfo.h \
     dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
+    dStorm/engine/FitPosition.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
     dStorm/input/AdapterSource.h \
