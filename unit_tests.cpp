@@ -9,7 +9,16 @@
 #include <dStorm/traits/unit_tests.h>
 #include "viewer/fwd.h"
 
+void pixel_unit_test(TestState& state);
+
+namespace locprec {
+void run_unit_tests( TestState& );
+}
+
 namespace dStorm {
+
+void image_unit_tests( TestState& state );
+
 namespace expression {
 
 void unit_test( TestState& );
@@ -27,6 +36,9 @@ int run_unit_tests() {
     dStorm::expression::unit_test( state );
     dStorm::viewer::unit_test( state );
     dStorm::traits::run_unit_tests( state );
+    pixel_unit_test( state );
+    locprec::run_unit_tests( state );
+    dStorm::image_unit_tests( state );
 
     return ( state.had_errors() ? EXIT_FAILURE : EXIT_SUCCESS );
 }

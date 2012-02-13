@@ -10,9 +10,7 @@ javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
 
-C_TESTS = dstorm-@DSTORM_LIB_VERSION@ reconstruction \
-    Pixel_test \
-    check_image_slicing check_image_iterator check_traits
+C_TESTS = dstorm-@DSTORM_LIB_VERSION@
 
 bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
 bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
@@ -230,7 +228,10 @@ libdStorm_la_SOURCES = \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/traits/resolution_config.cpp \
-    dStorm/display/DummyManager.cpp
+    dStorm/display/DummyManager.cpp \
+    dStorm/Pixel_test.cpp \
+    dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
+    dStorm/traits/scalar_check.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
@@ -599,14 +600,15 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/RegionSegmenter.h locprec/NoiseSource.h\
     locprec/NoiseGenerator.h locprec/Fluorophore.h locprec/relate.h \
     locprec/FillholeSmoother.h locprec/FillholeSmoother.cpp \
-    locprec/Reconstruction.hh locprec/Reconstruction.cc \
+    locprec/Reconstruction.hh locprec/Reconstruction.hpp \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
     locprec/SourceValuePrinter.cpp locprec/SourceValuePrinter.h \
     locprec/KalmanTrace.h locprec/DensityProfile.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
-    locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp
+    locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
+    locprec/unit_tests.cpp locprec/Reconstruction.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
@@ -623,16 +625,8 @@ gradient_LDADD = liblocprec.la
 determine_clusters_from_centers_SOURCES = locprec/determine-clusters-from-centers.cpp
 determine_clusters_from_centers_LDADD = libcode.la $(tinyxml_LIBS)
 determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
-reconstruction_SOURCES = locprec/test/Reconstruction.cpp
 testDisplay_SOURCES = wxDisplay/test.cpp
 testDisplay_LDADD = libdStorm_display.la
-Pixel_test_SOURCES = dStorm/Pixel_test.cpp
-check_traits_SOURCES = dStorm/traits/scalar_check.cpp
-check_traits_LDADD = libdStorm.la
-check_image_slicing_SOURCES = dStorm/image/slice_check.cpp
-check_image_slicing_LDADD = libdStorm.la
-check_image_iterator_SOURCES = dStorm/image/iterator_check.cpp
-check_image_iterator_LDADD = libdStorm.la
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

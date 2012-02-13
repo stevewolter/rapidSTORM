@@ -7,7 +7,7 @@
 #include <dStorm/engine/Input.h>
 
 #include "Reconstruction.hh"
-#include "Reconstruction.cc"
+#include "Reconstruction.hpp"
 #include <dStorm/image/dilation.h>
 #include "FillholeSmoother.h"
 #include <dStorm/Image_iterator.h>
