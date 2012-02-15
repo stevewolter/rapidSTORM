@@ -1,11 +1,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "NoiseSource.h"
-#include <dStorm/ModuleInterface.h>
+#include "RegionSegmenter.h"
 #include <dStorm/Config.h>
 #include <dStorm/engine/SpotFitterFactory.h>
-#include "RegionSegmenter.h"
 #include "NoiseMeter.h"
 #include "SpotMeter.h"
 #include "EmissionTracker.h"
@@ -22,7 +20,6 @@ using namespace dStorm::output;
 namespace locprec {
 
 void augment_config ( dStorm::Config& config ) {
-    config.add_input( new locprec::NoiseConfig(), dStorm::InputMethod );
     config.add_spot_finder( 
         new locprec::FillholeSmoother::Factory() );
     config.add_output( locprec::emission_tracker::create() );

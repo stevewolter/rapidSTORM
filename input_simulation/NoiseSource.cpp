@@ -6,7 +6,6 @@
 #include <time.h>
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_statistics.h>
-#include "foreach.h"
 #include <cassert>
 #include <dStorm/engine/Image.h>
 #include <fstream>
@@ -17,6 +16,7 @@
 #include <dStorm/input/MetaInfo.h>
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/foreach.hpp>
 
 #include "FluorophoreDistributions.h"
 
@@ -245,9 +245,9 @@ dStorm::engine::Image* NoiseSource<Pixel>::fetch( int imNum )
     DEBUG("Making glare for " << fluorophores.size() << " fluorophores");
     if ( output.get() ) *output << imNum;
     int index = 0;
-    foreach( fl, FluorophoreList, fluorophores )  {
+    BOOST_FOREACH( Fluorophore& fl, fluorophores )  {
         int photons =
-            fl->glareInImage(rng, *result, imNum, integration_time);
+            fl.glareInImage(rng, *result, imNum, integration_time);
         if ( photons > 0 && output.get() ) *output << ", " << index << " " << photons;
         ++index;
     }

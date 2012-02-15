@@ -1,6 +1,9 @@
 #ifndef LOCPREC_REGIONSEGMENTER_H
 #define LOCPREC_REGIONSEGMENTER_H
 
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/binning/config.h>

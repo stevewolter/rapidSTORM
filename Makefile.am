@@ -584,21 +584,22 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     dejagnu.h unit_tests.h unit_tests.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    input_simulation/plugin.cpp input_simulation/plugin.h \
     locprec/plugin.cpp locprec/plugin.h \
-    locprec/foreach.h locprec/NoiseSource.cpp \
-    locprec/NoiseMeter.h locprec/Fluorophore.cpp \
-    locprec/pixelatedBessel.h locprec/pixelatedBessel.cpp \
-    locprec/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
+    locprec/foreach.h input_simulation/NoiseSource.cpp \
+    input_simulation/NoiseMeter.h input_simulation/Fluorophore.cpp \
+    input_simulation/pixelatedBessel.h input_simulation/pixelatedBessel.cpp \
+    input_simulation/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
     locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
-    locprec/FluorophoreDistributions_Random.cpp \
-    locprec/FluorophoreDistributions_Lattice.cpp \
-    locprec/FluorophoreDistributions_Lines.cpp \
-    locprec/FluorophoreDistribution.h \
-    locprec/FluorophoreDistributions.h \
-    locprec/RegionSegmenter.h locprec/NoiseSource.h\
-    locprec/NoiseGenerator.h locprec/Fluorophore.h locprec/relate.h \
+    input_simulation/FluorophoreDistributions_Random.cpp \
+    input_simulation/FluorophoreDistributions_Lattice.cpp \
+    input_simulation/FluorophoreDistributions_Lines.cpp \
+    input_simulation/FluorophoreDistribution.h \
+    input_simulation/FluorophoreDistributions.h \
+    locprec/RegionSegmenter.h input_simulation/NoiseSource.h\
+    input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h locprec/relate.h \
     locprec/FillholeSmoother.h locprec/FillholeSmoother.cpp \
     locprec/Reconstruction.hh locprec/Reconstruction.hpp \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
