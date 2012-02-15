@@ -59,7 +59,7 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
   fluorophore_index("FluorophoreIndex", "Fluorophore ident for transmission", 0)
 { 
     distribution.addChoice( new FluorophoreDistributions::Random());
-    distribution.addChoice( new FluorophoreDistributions::Lattice());
+    distribution.addChoice( FluorophoreDistributions::make_lattice());
     distribution.addChoice( new FluorophoreDistributions::Lines());
 
     registerNamedEntries();

@@ -1,6 +1,9 @@
 #ifndef LOCPREC_FLUOROPHORE_DISTRIBUTIONS_H
 #define LOCPREC_FLUOROPHORE_DISTRIBUTIONS_H
 
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
 #include "FluorophoreDistribution.h"
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
@@ -28,19 +31,7 @@ class _Random : public FluorophoreDistribution {
 };
 typedef simparm::Structure<_Random> Random;
 
-class _Lattice : public FluorophoreDistribution {
-  protected:
-    void registerNamedEntries() 
-        { push_back( latticeDistance ); push_back(border); }
-  public:
-    dStorm::NanometreEntry latticeDistance, border;
-
-    _Lattice();
-    _Lattice* clone() const { return new _Lattice(*this); }
-    virtual Positions fluorophore_positions(
-        const Size& size, gsl_rng* rng) const;
-};
-typedef simparm::Structure<_Lattice> Lattice;
+std::auto_ptr< FluorophoreDistribution > make_lattice();
 
 class _Lines : public FluorophoreDistribution, 
                public simparm::Node::Callback 
