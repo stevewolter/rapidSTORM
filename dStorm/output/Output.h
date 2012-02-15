@@ -53,6 +53,8 @@ namespace output {
         static void insert_filename_with_check(
             std::string file, std::set<std::string>& present_filenames );
 
+        virtual void prepare_destruction_() {}
+
       public:
         virtual ~Output() {}
         virtual Output* clone() const = 0;
@@ -74,6 +76,7 @@ namespace output {
             { return RunRequirements(); }
         virtual void receiveLocalizations(const EngineResult&) = 0;
         virtual void store_results() = 0;
+        void prepare_destruction() { prepare_destruction_(); }
     };
 
     class OutputObject : public simparm::Object, public Output {

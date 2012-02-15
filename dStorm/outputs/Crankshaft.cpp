@@ -109,5 +109,10 @@ void Crankshaft::check_for_duplicate_filenames
         (*i)->check_for_duplicate_filenames(present_filenames);
 }
 
+void Crankshaft::prepare_destruction_() {
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
+        (*i)->prepare_destruction();
+}
+
 }
 }

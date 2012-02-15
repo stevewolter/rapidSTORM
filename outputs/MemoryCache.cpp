@@ -118,6 +118,8 @@ class Output
     void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
     std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
 
+    void prepare_destruction_();
+
   public:
     Output(std::auto_ptr<output::Output> output);
     Output( const Output& );
@@ -209,13 +211,17 @@ Output::Output( const Output& o )
     throw std::logic_error("Not implemented");
 }
 
-Output::~Output() {
+void Output::prepare_destruction_() {
     {
         boost::lock_guard<boost::mutex> lock(reemittance_mutex);
         reemit_count = -1;
         count_changed.notify_all();
     }
     reemitter.join();
+}
+
+Output::~Output() {
+    prepare_destruction_();
     destroy_suboutput();
 }
 

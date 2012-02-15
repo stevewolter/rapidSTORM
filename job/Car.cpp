@@ -91,6 +91,8 @@ Car::~Car()
     DEBUG("Joining car subthread");
     master_thread.join();
 
+    output->prepare_destruction();
+
     if ( job_handle.get() != NULL )
         job_handle->unregister_node();
 

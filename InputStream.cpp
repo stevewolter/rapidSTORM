@@ -165,6 +165,7 @@ std::auto_ptr<dStorm::JobHandle> InputStream::Pimpl::register_node( Job& node ) 
 void InputStream::Pimpl::erase_node( Job& node ) {
     boost::lock_guard<boost::recursive_mutex> lock(mutex);
     DEBUG("Erasing node " << node.get_config().getName());
+    Node::erase( node.get_config() );
     running_cars.erase( &node );
     stopping_cars.insert( &node );
 }

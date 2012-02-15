@@ -11,6 +11,7 @@ class Filter : public Output
     std::auto_ptr<Output> fwd;
   protected:
     void destroy_suboutput();
+    void prepare_destruction_() { fwd->prepare_destruction(); }
   public:
     Filter( std::auto_ptr<Output> downstream ) : fwd(downstream) {}
     Filter( const Filter& o ) : fwd( (o.fwd.get() ? o.fwd->clone() : NULL) ) {}
