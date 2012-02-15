@@ -64,6 +64,7 @@ void TerminalBackend<Hueing>::save_image(
     std::string filename, const Config& config
 )
 { 
+    image.store_results();
     std::auto_ptr<display::Change> rv = get_result( config.save_with_key() );
     if ( ! config.save_scale_bar() )
         for (int i = 0; i < Im::Dim; ++i)
