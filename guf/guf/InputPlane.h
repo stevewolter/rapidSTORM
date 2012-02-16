@@ -25,7 +25,7 @@ class InputPlane {
     quantity< camera::intensity, int > dark_current;
     boost::optional< float > background_noise_variance_;
     bool can_do_disjoint_fitting, has_precision,
-         do_mle, use_floats;
+         use_floats, poisson_background_;
 
     static guf::Spot
         make_max_distance( const dStorm::engine::JobInfo& info, int plane_number );
@@ -43,6 +43,8 @@ class InputPlane {
     inline const Statistics<2> set_data(Data&, const Image&, const Spot&) const;
     bool can_compute_localization_precision() const { return has_precision; }
     float background_noise_variance() const { return *background_noise_variance_; }
+    bool background_is_poisson_distributed() const 
+        { return poisson_background_; }
     quantity< camera::intensity > photon_response() const { return photon_response_; }
 };
 

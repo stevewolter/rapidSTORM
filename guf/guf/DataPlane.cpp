@@ -173,6 +173,8 @@ InputPlane::InputPlane( const Config& c, const dStorm::engine::JobInfo& info, in
     has_precision 
         = t.photon_response.is_initialized() &&
           background_noise_variance_.is_initialized();
+    poisson_background_ = 
+        t.dark_current.is_initialized() && t.photon_response.is_initialized();
 }
 
 int InputPlane::get_fit_window_width(const Spot& at) const

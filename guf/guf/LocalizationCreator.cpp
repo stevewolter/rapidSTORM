@@ -91,17 +91,20 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPla
     /* Mortenson formula */
     /* Number of photons */
     double N = m[0]( PSF::Amplitude() ) * m[0]( PSF::Prefactor() );
+    double B = m.background_model()( constant_background::Amount() );
+    double background_variance = 
+        ( p.input_plane().background_is_poisson_distributed() )
+        ? B
+        : p.input_plane().background_noise_variance();
     /* Compute/get \sigma */
-    Eigen::Vector2d psf_variance = boost::units::value( rv.fit_covariance_matrix().diagonal() ).cast<double>();
-    /* Add a^2/12 term to arrive at \sigma_a. */
-    psf_variance.array() += quantity<si::area>(p.pixel_size()).value() / 12;
-    Eigen::Vector2d background_factor
-        = psf_variance * 8 * M_PI * p.input_plane().background_noise_variance() / N;
-    background_factor.array() += 16.0 / 9.0;
-
-    Eigen::Vector2d variance = psf_variance.array() * background_factor.array() / N;
-    for (int i = 0; i < 2; ++i)
-        rv.position.uncertainty()[i] = float(sqrt(variance[i])) * boost::units::si::metre;
+    for (int i = 0; i < 2; ++i) {
+        quantity<si::area> psf_variance 
+            = rv.fit_covariance_matrix()(i,i) + p.pixel_size() / 12.0;
+        double background_term
+            = psf_variance * 8.0 * M_PI * B / (N * p.pixel_size());
+        rv.position.uncertainty()[i] 
+            = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) );
+    }
 }
 
 void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane& m, double chi_sq, const DataPlane& data ) const
