@@ -4,7 +4,7 @@
 #include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>
-#include "optics.h"
+#include <dStorm/engine/InputTraits.h>
 #include <simparm/Object.hh>
 #include <simparm/Callback.hh>
 #include <simparm/BoostOptional.hh>
@@ -37,9 +37,9 @@ class PlaneConfig : public simparm::Set {
     PlaneConfig(int number);
     PlaneConfig( const PlaneConfig& );
 
-    traits::Optics<2> make_traits( traits::Optics<2>::Resolutions defaults ) const;
-    void set_traits( traits::Optics<2>&, const traits::Optics<2>::Resolutions& ) const;
-    void set_entries_to_traits( const traits::Optics<2>&, int fluorophore_count );
+    traits::Optics make_traits() const;
+    void set_traits( traits::Optics& ) const;
+    void set_entries_to_traits( const traits::Optics&, int fluorophore_count );
     void registerNamedEntries();
     void set_number_of_fluorophores(int number, bool have_multiple_layers);
     void set_3d_availability(bool);
@@ -61,10 +61,10 @@ class CuboidConfig
     void set_3d_availability(bool);
     int number_of_planes() const;
 
-    traits::Optics<3> make_traits() const;
-    void set_traits(traits::Optics<3>&) const;
-    void set_entries_to_traits( const traits::Optics<3>&, int fluorophore_count );
+    void set_traits( input::Traits<engine::ImageStack>&) const;
+    void set_entries_to_traits( const input::Traits<engine::ImageStack>&, int fluorophore_count );
     Position::ResolutionType make_localization_traits() const;
+    image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
 }

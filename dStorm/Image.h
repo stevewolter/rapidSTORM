@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_H
 #define DSTORM_IMAGE_H
 
-#include "Image_decl.h"
+#include <dStorm/image/fwd.h>
 #include "units/frame_count.h"
 #include <boost/shared_array.hpp>
 #include <boost/units/pow.hpp>

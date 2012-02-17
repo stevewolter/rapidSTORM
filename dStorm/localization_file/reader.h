@@ -1,7 +1,7 @@
 #ifndef DSTORM_LOCALIZATION_FILE_READER_H
 #define DSTORM_LOCALIZATION_FILE_READER_H
 
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <iostream>
 #include <memory>
 #include <string>

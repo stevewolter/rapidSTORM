@@ -1,12 +1,95 @@
-#include "AffineProjection.h"
+#include "Projection.h"
+#include "ProjectionFactory.h"
+#include "ProjectionConfig.h"
+#include <Eigen/Geometry>
+#include <boost/array.hpp>
+#include <boost/units/systems/camera/resolution.hpp>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
+#include <simparm/Object.hh>
+#include <simparm/FileEntry.hh>
+#include <dStorm/image/MetaInfo.h>
 #include "debug.h"
+#include <fstream>
 
 namespace dStorm {
 namespace traits {
 
 using namespace boost::units;
+
+class AffineProjection : public Projection {
+    Eigen::Affine2f to_sample, to_image;
+
+    SamplePosition point_in_sample_space_
+        ( const SubpixelImagePosition& pos ) const;
+    std::vector< MappedPoint >
+        cut_region_of_interest_( const ROISpecification& ) const;
+    Bounds get_region_of_interest_( const ROISpecification& ) const;
+    ImagePosition nearest_point_in_image_space_
+        ( const SamplePosition& pos ) const;
+
+  public:
+    AffineProjection( 
+        units::quantity<units::camera::resolution> x, 
+        units::quantity<units::camera::resolution> y, 
+        Eigen::Affine2f after_transform );
+};
+
+class AffineProjectionFactory
+: public ProjectionFactory
+{
+    std::string micro_alignment_file;
+
+    Projection* get_projection_( const image::MetaInfo<2>& mi ) const 
+    {
+        if ( micro_alignment_file == "" ) 
+            throw std::runtime_error("An alignment matrix file must be given "
+                                     "for affine alignment");
+        Eigen::Matrix3f elements = Eigen::Matrix3f::Identity();
+        DEBUG("Micro alignment is given as " << micro_alignment());
+        std::ifstream is( micro_alignment_file.c_str(), std::ios::in );
+        for (int r = 0; r < 3; ++r)
+            for (int c = 0; c < 3; ++c)
+                is >> elements(r,c);
+        return new AffineProjection(
+            mi.resolution(0).in_dpm(), 
+            mi.resolution(1).in_dpm(), 
+            Eigen::Affine2f(elements) );
+    }
+
+  public:
+    AffineProjectionFactory( std::string micro_alignment_file )
+        : micro_alignment_file(micro_alignment_file) {}
+};
+
+class AffineProjectionConfig
+: public ProjectionConfig
+{
+    simparm::Object node;
+    simparm::FileEntry micro_alignment;
+    simparm::Node& getNode_() { return node; }
+    ProjectionFactory* get_projection_factory_() const { 
+        return new AffineProjectionFactory( micro_alignment() );
+    }
+
+    AffineProjectionConfig* clone_() const 
+        { return new AffineProjectionConfig(*this); }
+
+  public:
+    AffineProjectionConfig() 
+    : node("AffineProjection", "Linear alignment"),
+      micro_alignment("AlignmentFile", "Plane Alignment file") 
+      { node.push_back( micro_alignment ); }
+    AffineProjectionConfig( const AffineProjectionConfig& o )
+    : node(o.node), micro_alignment(o.micro_alignment) 
+    {
+        node.push_back( micro_alignment );
+    }
+};
+
+std::auto_ptr<ProjectionConfig> make_affine_projection_config() {
+    return std::auto_ptr<ProjectionConfig>( new AffineProjectionConfig() );
+}
 
 Projection::SamplePosition 
 AffineProjection::point_in_sample_space_

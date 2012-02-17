@@ -5,6 +5,7 @@
 #include "../output/LocalizedImage_decl.h"
 #include "../localization/Traits.h"
 #include "../engine/Input_decl.h"
+#include "../engine/InputTraits.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <vector>
 #include <dStorm/Engine.h>
@@ -39,7 +40,7 @@ struct Traits<output::LocalizedImage>
     typedef boost::shared_ptr<const Traits> ConstPtr;
 
     bool source_image_is_set, smoothed_image_is_set, candidate_tree_is_set;
-    boost::shared_ptr< const input::Traits< engine::Image > > input_image_traits;
+    boost::shared_ptr< const engine::InputTraits > input_image_traits;
     std::string name, description;
 };
 

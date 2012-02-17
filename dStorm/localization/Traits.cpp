@@ -1,7 +1,7 @@
 #include "Traits.h"
 
-#include <dStorm/ImageTraits.h>
 #include <dStorm/unit_interval.h>
+#include <dStorm/engine/InputTraits.h>
 
 namespace dStorm {
 namespace input {
@@ -26,14 +26,15 @@ Traits<dStorm::Localization>::Traits( const Traits<Localization>& i )
 {}
 
 Traits<dStorm::Localization>::Traits(
-    const dStorm::input::Traits<dStorm::engine::Image>& imageTraits )
+    const dStorm::input::Traits<dStorm::engine::ImageStack>& imageTraits )
 : in_sequence(true)
 {
     for (int i = 0; i < 2; ++i) {
         position().range()[i].first = 0 * si::meter;
-        if ( imageTraits.plane(0).has_resolution() ) {
-            position().resolution()[i] = imageTraits.plane(0).resolution(i).in_dpm();
-            position().range()[i].second = (imageTraits.size[i]-1*camera::pixel) / *position().resolution()[i];
+        const image::MetaInfo<2>& im = imageTraits.plane(0).image;
+        if ( im.has_resolution() ) {
+            position().resolution()[i] = im.resolution(i).in_dpm();
+            position().range()[i].second = (im.size[i]-1*camera::pixel) / *position().resolution()[i];
         }
     }
 

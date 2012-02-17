@@ -1,23 +1,3 @@
-#ifndef DSTORM_IMAGETRAITS_IMPL_H
-#define DSTORM_IMAGETRAITS_IMPL_H
-
-#include "ImageTraits.h"
-#include <stdint.h>
-#include <boost/units/systems/si/io.hpp>
-#include <boost/units/io.hpp>
-#include "units/nanolength.h"
-#include <dStorm/traits/Projection.h>
-
-namespace dStorm {
-namespace input {
-
-template <typename PixelType, int Dimensions>
-template <typename OtherPixelType>
-Traits< dStorm::Image<PixelType,Dimensions> >::Traits
-    ( const Traits< dStorm::Image<OtherPixelType,Dimensions> >& o )
-: input::BaseTraits(o), DataSetTraits(o), ImageTraits<Dimensions>(o), 
-  traits::Optics<Dimensions>(o)
-{}
 
 template <typename PixelType, int Dimensions>
 samplepos Traits< dStorm::Image<PixelType,Dimensions> >
@@ -37,8 +17,3 @@ samplepos Traits< dStorm::Image<PixelType,Dimensions> >
     }
     return p;
 }
-
-}
-}
-
-#endif

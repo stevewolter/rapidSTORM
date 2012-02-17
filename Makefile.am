@@ -78,8 +78,6 @@ nobase_include_HEADERS = \
     dStorm/InsertionPlace.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
-    dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
-    dStorm/ImageTraits_decl.h dStorm/ImageTraits.h dStorm/ImageTraits_impl.h \
     dStorm/DataSetTraits.h \
     dStorm/Job.h dStorm/JobMaster.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
     dStorm/Config_decl.h dStorm/Config.h \
@@ -158,6 +156,9 @@ nobase_include_HEADERS = \
     dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
+    dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
+    dStorm/image/Image.h dStorm/image/Image.hpp \
+    dStorm/image/fwd.h dStorm/image/MetaInfo.h dStorm/image/MetaInfo.hpp \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
     dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
@@ -185,18 +186,15 @@ nobase_include_HEADERS = \
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
-    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
+    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
     dStorm/localization/Field.cpp \
     dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
-    dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
-    dStorm/traits/AffineProjectionConfig.cpp \
-    dStorm/traits/ScaledProjection.cpp dStorm/traits/ScaledProjectionConfig.cpp \
-    dStorm/traits/SupportPointProjection.h dStorm/traits/SupportPointProjection.cpp \
-    dStorm/traits/SupportPointProjectionConfig.cpp \
+    dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \
+    dStorm/traits/SupportPointProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \

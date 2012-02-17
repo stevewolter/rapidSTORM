@@ -12,6 +12,7 @@
 namespace dStorm {
 
 struct FluorophoreTraits {
+    int ident;
     std::string description;
     boost::units::quantity< boost::units::si::length > wavelength;
 };

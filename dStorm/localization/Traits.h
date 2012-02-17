@@ -42,7 +42,7 @@ struct Traits< Localization >
 {
     Traits();
     Traits( const Traits& );
-    Traits( const dStorm::input::Traits<dStorm::engine::Image>& );
+    Traits( const dStorm::input::Traits<dStorm::engine::ImageStack>& );
     Traits* clone() const;
     std::string desc() const;
 

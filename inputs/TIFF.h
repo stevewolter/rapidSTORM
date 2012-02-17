@@ -1,8 +1,8 @@
 #ifndef CImgBuffer_TIFF_H
 #define CImgBuffer_TIFF_H
 
-#include <dStorm/Image_decl.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/fwd.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/input/FileInput.h>
 #include <memory>
 #include <string>
@@ -86,7 +86,7 @@ namespace TIFF {
         int current_directory;
 
         int size[3], _no_images;
-        traits::Optics<2>::Resolutions resolution;
+        image::MetaInfo<2>::Resolutions resolution;
 
         template <typename PixelType, int Dim> 
             friend class Source<PixelType,Dim>::iterator;

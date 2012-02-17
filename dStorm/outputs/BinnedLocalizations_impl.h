@@ -3,7 +3,7 @@
 #endif
 #include "BinnedLocalizations.h"
 #include "../Engine.h"
-#include "../ImageTraits.h"
+#include <dStorm/image/MetaInfo.h>
 #include "../image/iterator.h"
 #include <dStorm/image/contains.h>
 #include <Eigen/Core>
@@ -115,7 +115,7 @@ template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size() 
  
 {
-    input::Traits<BinnedImage> traits;
+    image::MetaInfo<Dim> traits;
 
     typedef quantity<camera::length>
         PreciseSize;
@@ -129,7 +129,7 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
     }
     DEBUG("Size of binned image is " << traits.size.transpose());
 
-    traits.plane(0).set_resolution( strategy->get_resolution() );
+    traits.set_resolution( strategy->get_resolution() );
 
     base_image = BinnedImage(traits.size, base_image.frame_number());
     base_image.fill(0); 

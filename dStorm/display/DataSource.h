@@ -10,7 +10,7 @@
 #include <dStorm/Image.h>
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/constructors.h>
 
 namespace dStorm {

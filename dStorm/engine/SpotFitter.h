@@ -27,7 +27,7 @@ namespace spot_fitter {
           *  \param im          Image to be fitted.
           *  \param number      Number of the image to be fitted.
           *  \return            Number of found spots */
-         virtual int fitSpot( const FitPosition& spot, const Image &im,
+         virtual int fitSpot( const FitPosition& spot, const ImageStack &im,
                               iterator target ) = 0;
    };
 

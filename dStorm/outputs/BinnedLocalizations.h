@@ -5,7 +5,7 @@
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
 #include "../Image.h"
-#include "../ImageTraits.h"
+#include <dStorm/image/MetaInfo.h>
 #include "../output/Output.h"
 #include <cassert>
 
@@ -18,12 +18,13 @@ namespace outputs {
     class BinningListener {
       public:
         typedef dStorm::Image<float,Dimensions> BinnedImage;
+        typedef dStorm::image::MetaInfo<Dimensions> MetaInfo;
 
         /** The setSize method is called before any announcements are made,
          *  and is called afterwards when the image size changes.
          *  @param traits     Traits of the binned image
          */
-        inline void setSize(const input::Traits< BinnedImage >&) ;
+        inline void setSize(const MetaInfo&) ;
         /** This method is a forward for dStorm::Output method 
          *  announceStormSize. */
         inline void announce(const output::Output::Announcement&) ;
@@ -54,7 +55,8 @@ namespace outputs {
     template <int Dimensions>
     struct DummyBinningListener : public BinningListener<Dimensions> {
         typedef dStorm::Image<float,Dimensions> BinnedImage;
-        void setSize(const input::Traits< BinnedImage >&) {}
+        typedef typename BinningListener<Dimensions>::MetaInfo MetaInfo;
+        void setSize(const MetaInfo&) {}
         void announce(const output::Output::Announcement&) {}
         void announce(const output::Output::EngineResult&) {}
         void announce(const Localization&) {}
@@ -88,7 +90,7 @@ namespace outputs {
         virtual ~BinningStrategy() {}
         virtual void announce(const output::Output::Announcement&) = 0;
         virtual Eigen::Matrix<quantity<camera::length>, Dim, 1> get_size() = 0;
-        virtual traits::Optics<2>::Resolutions get_resolution() = 0;
+        virtual typename image::MetaInfo<Dim>::Resolutions get_resolution() = 0;
         virtual int bin_points( 
             const output::LocalizedImage&, Result& ) = 0;
     };

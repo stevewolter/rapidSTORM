@@ -1,5 +1,5 @@
 #include "localization_impl.h"
-#include <dStorm/ImageTraits_impl.h>
+#include <dStorm/image/MetaInfo.hpp>
 
 namespace dStorm {
 namespace output {

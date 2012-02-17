@@ -1,6 +1,7 @@
 #include "Image.h"
-#include "../Image_impl.h"
-#include "../ImageTraits_impl.h"
+#include <dStorm/image/Image.hpp>
+#include <dStorm/image/MetaInfo.h>
+#include <dStorm/engine/InputTraits.h>
 
 namespace dStorm {
 
@@ -14,8 +15,7 @@ template void Image< dStorm::engine::SmoothedPixel, 2 >::fill( engine::SmoothedP
 
 namespace input {
 
-template class Traits< dStorm::engine::Image >;
-template class Traits< dStorm::engine::SmoothedImage >;
+template class Traits< dStorm::engine::ImageStack >;
     
 }
 }

@@ -1,17 +1,38 @@
-#include "SupportPointProjection.h"
-#include <dStorm/image/constructors.h>
-#include <dStorm/image/corners.h>
-#include <boost/units/Eigen/Array>
-#include <boost/units/cmath.hpp>
+#include <queue>
+#include <set>
+#include <fstream>
+
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
+#include <simparm/Entry_Impl.hh>
+#include <simparm/FileEntry.hh>
+#include <simparm/Object.hh>
+
+#include <boost/array.hpp>
+#include <boost/foreach.hpp>
+#include <boost/spirit/include/phoenix_container.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_container.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
+#include <boost/units/cmath.hpp>
+#include <boost/units/Eigen/Array>
+#include <boost/units/systems/camera/resolution.hpp>
+
 #include <Eigen/Dense>
-#include <boost/foreach.hpp>
-#include <set>
-#include <queue>
+#include <Eigen/Geometry>
+
+#include <dStorm/image/constructors.h>
+#include <dStorm/image/corners.h>
+#include <dStorm/image/MetaInfo.h>
+#include <dStorm/Image.h>
+#include <dStorm/UnitEntries/PixelSize.h>
+
+#include "optics.h"
+#include "ProjectionConfig.h"
+#include "ProjectionFactory.h"
+#include "Projection.h"
 
 #include "debug.h"
 #include "dejagnu.h"
@@ -22,6 +43,115 @@ namespace traits {
 using namespace boost::units;
 namespace qi = boost::spirit::qi;
 namespace phoenix = boost::phoenix;
+
+class SupportPointProjection : public Projection {
+    class PointOrdering;
+
+    typedef dStorm::Image< SamplePosition, 2 > Map;
+    Eigen::Array2f higher_density;
+    Map high_density_map, forward_map;
+    Eigen::Affine2f approx_reverse;
+
+    SamplePosition point_in_sample_space_
+        ( const SubpixelImagePosition& pos ) const;
+    SamplePosition pixel_in_sample_space_
+        ( const ImagePosition& pos ) const;
+    std::vector< MappedPoint >
+        cut_region_of_interest_( const ROISpecification& ) const;
+    Bounds get_region_of_interest_( const ROISpecification& ) const;
+    ImagePosition nearest_point_in_image_space_
+        ( const SamplePosition& pos ) const;
+
+    void compute_forward_map();
+    void approximate_reverse_transformation();
+
+  public:
+    SupportPointProjection( 
+        units::quantity<units::camera::resolution> x, 
+        units::quantity<units::camera::resolution> y, 
+        units::quantity<units::camera::resolution> map_x, 
+        units::quantity<units::camera::resolution> map_y,
+        std::istream& file_map );
+
+    std::vector< MappedPoint >
+        cut_region_of_interest_naively( const ROISpecification& ) const;
+};
+
+class SupportPointProjectionFactory
+: public ProjectionFactory
+{
+    std::string micro_alignment_file;
+    units::quantity<units::camera::resolution> file_resolution[2];
+
+    Projection* get_projection_( const image::MetaInfo<2>& mi ) const 
+    {
+        if ( micro_alignment_file == "" ) 
+            throw std::runtime_error("An alignment image file must be given "
+                                     "for support point alignment");
+        std::ifstream is( micro_alignment_file.c_str(), std::ios::in );
+        return new SupportPointProjection(
+            mi.resolution(0).in_dpm(), 
+            mi.resolution(1).in_dpm(), 
+            file_resolution[0],
+            file_resolution[1],
+            is );
+    }
+
+  public:
+    SupportPointProjectionFactory( 
+        std::string micro_alignment_file,
+        units::quantity<units::camera::resolution> map_x, 
+        units::quantity<units::camera::resolution> map_y )
+    : micro_alignment_file(micro_alignment_file) 
+    {
+        file_resolution[0] = map_x;
+        file_resolution[1] = map_y;
+    }
+};
+
+class SupportPointProjectionConfig
+: public ProjectionConfig
+{
+    simparm::Object node;
+    simparm::FileEntry micro_alignment;
+    typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >,
+                           2, 1, Eigen::DontAlign > PixelSize;
+    simparm::Entry<PixelSize> resolution;
+
+    simparm::Node& getNode_() { return node; }
+    ProjectionFactory* get_projection_factory_() const { 
+        return new SupportPointProjectionFactory(
+            micro_alignment(),
+            quantity<camera::resolution>((1E9f * si::nanometre / si::metre) / (resolution().x())),
+            quantity<camera::resolution>(1E9f * si::nanometre / si::metre / (resolution().y()))
+        );
+    }
+
+    SupportPointProjectionConfig* clone_() const 
+        { return new SupportPointProjectionConfig(*this); }
+
+  public:
+    SupportPointProjectionConfig() 
+    : node("SupportPointProjection", "Support point alignment"),
+      micro_alignment("AlignmentFile", "bUnwarpJ transformation"),
+      resolution( "Resolution", "Transformation resolution", 
+                  PixelSize::Constant(10.0f * si::nanometre / camera::pixel) )
+    { 
+        node.push_back( micro_alignment ); 
+        node.push_back( resolution ); 
+    }
+    SupportPointProjectionConfig( const SupportPointProjectionConfig& o )
+    : node(o.node), micro_alignment(o.micro_alignment), resolution(o.resolution)
+    {
+        node.push_back( micro_alignment );
+        node.push_back( resolution ); 
+    }
+};
+
+std::auto_ptr<ProjectionConfig> make_support_point_projection_config() {
+    return std::auto_ptr<ProjectionConfig>( new SupportPointProjectionConfig() );
+}
+
 
 struct SupportPointProjection::PointOrdering
 : public std::binary_function< ImagePosition, ImagePosition, bool >
