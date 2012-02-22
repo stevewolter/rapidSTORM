@@ -104,7 +104,7 @@ nobase_include_HEADERS = \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
-    dStorm/traits/resolution_config.h \
+    dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
@@ -141,7 +141,7 @@ nobase_include_HEADERS = \
     dStorm/engine/FitPosition.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
-    dStorm/engine/InputTraits.h \
+    dStorm/engine/InputTraits.h dStorm/engine/InputPlane.h \
     dStorm/input/AdapterSource.h \
     dStorm/input/Choice.h \
     dStorm/input/fwd.h dStorm/input/Link.h \
@@ -208,6 +208,7 @@ libdStorm_la_SOURCES = \
     dStorm/input/Method.hpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp dStorm/engine/InputTraits.cpp \
+    dStorm/engine/InputPlane.cpp \
     dStorm/output/debug.h \
     dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
     dStorm/output/Basename.cpp \

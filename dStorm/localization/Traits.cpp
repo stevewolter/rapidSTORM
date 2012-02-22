@@ -29,13 +29,10 @@ Traits<dStorm::Localization>::Traits(
     const dStorm::input::Traits<dStorm::engine::ImageStack>& imageTraits )
 : in_sequence(true)
 {
+    samplepos size = imageTraits.size_in_sample_space();
     for (int i = 0; i < 2; ++i) {
         position().range()[i].first = 0 * si::meter;
-        const image::MetaInfo<2>& im = imageTraits.plane(0).image;
-        if ( im.has_resolution() ) {
-            position().resolution()[i] = im.resolution(i).in_dpm();
-            position().range()[i].second = (im.size[i]-1*camera::pixel) / *position().resolution()[i];
-        }
+        position().range()[i].second = size[i];
     }
 
     image_number() = imageTraits.image_number();

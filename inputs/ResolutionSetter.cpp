@@ -35,7 +35,13 @@ class Source
 {
     Config config;
 
-    void modify_traits( input::Traits<ForwardedType>& t ) { 
+    void modify_traits( input::Traits<engine::ImageStack>& t ) { 
+        config.set_traits(t); 
+        for (int p = 0; p < t.plane_count(); ++p)
+            t.plane(p).create_projection();
+    }
+    template <typename OtherTypes>
+    void modify_traits( input::Traits<OtherTypes>& t ) { 
         config.set_traits(t); 
     }
   public:

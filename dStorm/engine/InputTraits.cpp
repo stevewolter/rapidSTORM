@@ -1,4 +1,5 @@
 #include "InputTraits.h"
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace input {
