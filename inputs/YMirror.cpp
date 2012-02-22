@@ -93,9 +93,12 @@ void Mirrorer::operator()<output::LocalizedImage>( output::LocalizedImage& img )
 }
 
 template <> 
-void Mirrorer::operator()<dStorm::engine::Image>( dStorm::engine::Image& l )
+void Mirrorer::operator()<dStorm::engine::ImageStack>( dStorm::engine::ImageStack& l )
 {
-    l = image::mirror< unsigned short, 3, 1 >(l);
+    for (int i = 0; i < l.plane_count(); ++i)
+    {
+        l.plane(i) = image::mirror(l.plane(i), 1);
+    }
 }
 
 template <typename Type>
@@ -132,7 +135,7 @@ void Source<Type>::iterator::copy() const {
 template <typename Type>
 bool Source<Type>::iterator::need_range() const { return true; }
 template <>
-bool Source<dStorm::engine::Image>::iterator::need_range() const { return false; }
+bool Source<dStorm::engine::ImageStack>::iterator::need_range() const { return false; }
 
 template <typename Type>
 Source< Type >::iterator::iterator( Range r, const typename Base::iterator& o )
@@ -161,7 +164,7 @@ void Source< Type >::modify_traits( input::Traits<Type>& t ) {
 }
 
 template <>
-void Source< engine::Image >::modify_traits( input::Traits<engine::Image>& ) {}
+void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageStack>& ) {}
 
 Config::Config() 
 : simparm::Object("Mirror", "Mirror input data along Y axis"),

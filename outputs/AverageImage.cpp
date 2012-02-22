@@ -30,7 +30,7 @@ AverageImage::~AverageImage() {}
 
 void
 AverageImage::receiveLocalizations(const EngineResult& er) {
-    engine::Image::const_iterator i = er.source.begin();
+    engine::Image2D::const_iterator i = er.source->plane(0).begin();
     for (Image::iterator j = image.begin(); j != image.end(); j++)
     {
         *j += *i++;
@@ -60,7 +60,7 @@ AverageImage::RunRequirements AverageImage::announce_run( const RunAnnouncement&
 AverageImage::AdditionalData AverageImage::announceStormSize(const Announcement &a)
 {
     boost::shared_ptr<const engine::InputTraits> t = a.input_image_traits;
-    image = Image(t->size.head<2>(), 0 * camera::frame);
+    image = Image(t->image(0).size, 0 * camera::frame);
     return AdditionalData().set_source_image(); 
 }
 

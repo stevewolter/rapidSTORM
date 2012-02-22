@@ -5,7 +5,6 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/slice.h>
-#include <dStorm/ImageTraits.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
@@ -43,20 +42,20 @@ struct ImagePlane {
 };
 
 class Source 
-: public input::AdapterSource<engine::Image>,
+: public input::AdapterSource<engine::ImageStack>,
   boost::noncopyable
 {
     int confidence_limit, binning;
 
   public:
-    Source(std::auto_ptr< input::Source<engine::Image> > base);
+    Source(std::auto_ptr< input::Source<engine::ImageStack> > base);
     TraitsPtr get_traits( Wishes );
 };
 class ChainLink
 : public input::Method<ChainLink>
 {
     friend class input::Method<ChainLink>;
-    typedef boost::mpl::vector< dStorm::engine::Image > SupportedTypes;
+    typedef boost::mpl::vector< dStorm::engine::ImageStack > SupportedTypes;
     bool ignore_unknown_type() const { return true; }
     template <typename Type>
     bool changes_traits( const input::MetaInfo&, const input::Traits<Type>& )
@@ -128,8 +127,8 @@ camera_response ImagePlane::background_stddev() const
 
 }
 
-Source::Source(std::auto_ptr<input::Source<engine::Image> > base)
-: input::AdapterSource<engine::Image>(base),
+Source::Source(std::auto_ptr<input::Source<engine::ImageStack> > base)
+: input::AdapterSource<engine::ImageStack>(base),
   confidence_limit(8), binning(3)
 {
 }
@@ -145,15 +144,15 @@ Source::get_traits( Wishes w )
     if ( ! base().capabilities().test( Repeatable ) ) return s;
     std::vector<ImagePlane> planes( s->plane_count(), ImagePlane(binning) );
 
-    for (input::Source<engine::Image>::iterator i = base().begin(), e = base().end(); i != e; ++i ) {
+    for (input::Source<engine::ImageStack>::iterator i = base().begin(), e = base().end(); i != e; ++i ) {
         DEBUG("Loaded image " << i->frame_number());
-        if ( i->is_invalid() ) continue;
-        DEBUG("Got image of size " << i->width_in_pixels() << " " << i->height_in_pixels() << " " << i->depth_in_pixels());
         DEBUG("Adding image to histogram");
         
         bool all_images_converged = true;
         for (int j = 0; j < s->plane_count(); ++j) {
-            planes[j].add_image( i->slice(2, j * camera::pixel) );
+            if ( i->plane(j).is_invalid() )
+                continue;
+            planes[j].add_image( i->plane(j) );
             all_images_converged = all_images_converged && planes[j].converged();
         }
         if ( all_images_converged ) break;
@@ -161,7 +160,7 @@ Source::get_traits( Wishes w )
 
     for (int j = 0; j < s->plane_count(); ++j) 
         try {
-            s->plane(j).background_stddev = planes[j].background_stddev();
+            s->plane(j).optics.background_stddev = planes[j].background_stddev();
         } catch ( const lowest_histogram_mode_is_strongest& ) {
             simparm::Message m("Background standard deviation estimation failed",
                 "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "

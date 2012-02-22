@@ -9,7 +9,6 @@
 #include <simparm/FileEntry.hh>
 
 #include <queue>
-#include <dStorm/ImageTraits.h>
 
 namespace dStorm {
 namespace output {
@@ -25,14 +24,11 @@ class RawImageFile : public OutputObject {
     tstrip_t strips_per_image;
 
     frame_count next_image;
-    class LookaheadImg;
-    std::priority_queue<LookaheadImg> out_of_time;
-    void write_image(const engine::Image& img);
-    void delete_queue();
+    void write_image(const engine::ImageStack& img);
 
     class _Config;
 
-    input::Traits< engine::Image > size;
+    std::vector< image::MetaInfo<2> > size;
     boost::optional<frame_count> last_frame;
 
   public:

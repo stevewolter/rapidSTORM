@@ -14,7 +14,7 @@ namespace noop_engine {
      public simparm::Object
    {
       public:
-        typedef input::Source< engine::Image > Input;
+        typedef input::Source< engine::ImageStack > Input;
         typedef input::Source<output::LocalizedImage>::TraitsPtr TraitsPtr;
       private:
         typedef input::Source<output::LocalizedImage> Base;

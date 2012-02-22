@@ -141,6 +141,7 @@ nobase_include_HEADERS = \
     dStorm/engine/FitPosition.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
+    dStorm/engine/InputTraits.h \
     dStorm/input/AdapterSource.h \
     dStorm/input/Choice.h \
     dStorm/input/fwd.h dStorm/input/Link.h \
@@ -206,7 +207,7 @@ libdStorm_la_SOURCES = \
     dStorm/input/Forwarder.cpp \
     dStorm/input/Method.hpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
-    dStorm/engine/JobInfo.cpp \
+    dStorm/engine/JobInfo.cpp dStorm/engine/InputTraits.cpp \
     dStorm/output/debug.h \
     dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
     dStorm/output/Basename.cpp \
@@ -585,12 +586,12 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     input_simulation/plugin.cpp input_simulation/plugin.h \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h input_simulation/NoiseSource.cpp \
-    input_simulation/NoiseMeter.h input_simulation/Fluorophore.cpp \
+    input_simulation/Fluorophore.cpp \
     input_simulation/pixelatedBessel.h input_simulation/pixelatedBessel.cpp \
     input_simulation/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
-    locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
+    locprec/SpotMeter.cpp \
     input_simulation/FluorophoreDistributions_Random.cpp \
     input_simulation/FluorophoreDistributions_Lattice.cpp \
     input_simulation/FluorophoreDistributions_Lines.cpp \

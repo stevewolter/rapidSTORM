@@ -18,7 +18,7 @@ struct mle_converter {
     )
         : dark_current( dark.value() ),
           photon_response( photon_response.value() ) {}
-    mle_converter( const dStorm::traits::Optics<2>& input )
+    mle_converter( const dStorm::traits::Optics& input )
         : dark_current( input.dark_current.get_value_or( 0*camera::ad_count ).value() ),
           photon_response( input.photon_response.get_value_or( 1 * camera::ad_count).value() ) {}
     double operator() ( const dStorm::engine::StormPixel& pixel ) const

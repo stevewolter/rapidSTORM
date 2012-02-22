@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "guf/psf/BaseExpression.h"
 #include "guf/psf/Base3D.h"
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 
 namespace dStorm {
 namespace guf {
@@ -18,8 +18,8 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
         allowed_z_positions += AllowedZPositions::interval_type( 
-                *info.traits.plane(i).z_position - quantity<si::length>(config.z_range()),
-                *info.traits.plane(i).z_position + quantity<si::length>(config.z_range()) );
+                *info.traits.optics(i).z_position - quantity<si::length>(config.z_range()),
+                *info.traits.optics(i).z_position + quantity<si::length>(config.z_range()) );
     }
 }
 
@@ -32,7 +32,7 @@ bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot
             if ( ! check_kernel(*j, spot, plane) ) return false;
             DEBUG("Checking amplitude threshold");
             quantity<camera::intensity> photon = 
-                info.traits.plane(plane)
+                info.traits.optics(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
             if ( local_threshold < (*j)( PSF::Amplitude() ) * (*j)( PSF::Prefactor() ) )
@@ -54,7 +54,7 @@ bool LocalizationChecker::check_kernel_dimension( const PSF::BaseExpression& k, 
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
         abs( quantity<si::length>(k( PSF::Mean<Dim>() ) ) - spot[Dim] ) 
-            < (*info.traits.plane(plane).psf_size( info.fluorophore ))[Dim] * 3.0f;
+            < (*info.traits.optics(plane).psf_size( info.fluorophore ))[Dim] * 3.0f;
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }

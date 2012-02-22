@@ -29,8 +29,6 @@
 clock_t smooth_time = 0, search_time = 0, fit_time = 0;
 #endif
 
-static double background_variance = 0;
-
 namespace dStorm {
 namespace engine {
 
@@ -59,7 +57,7 @@ Engine::~Engine() {
 }
 
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
-Engine::convert_traits( Config& config, const input::Traits<engine::Image>& imProp )
+Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>& imProp )
 {
     input::Traits<Localization> rv( imProp );
     DEBUG("Getting other traits dimensionality");
@@ -108,10 +106,10 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
     if ( ! config.amplitude_threshold().is_initialized() ) {
         DEBUG("Guessing input threshold");
         for ( int i = 0; i < imProp->plane_count(); ++i ) {
-            if ( imProp->plane(i).background_stddev.is_initialized() ) {
+            if ( imProp->plane(i).optics.background_stddev.is_initialized() ) {
                 camera_response threshold = 
-                    35.0f * *imProp->plane(i).background_stddev / 
-                        imProp->plane(i).transmission_coefficient(0);
+                    35.0f * *imProp->optics(i).background_stddev / 
+                        imProp->optics(i).transmission_coefficient(0);
                 if ( ! config.amplitude_threshold().is_initialized() ||
                        *config.amplitude_threshold() > threshold )
                     config.amplitude_threshold = threshold;
@@ -204,7 +202,7 @@ class Engine::_iterator::WorkHorse {
 FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
 {
     return
-        engine.imProp->plane(0).projection()->
+        engine.imProp->plane(0).projection().
             pixel_in_sample_space( spot.position() ).head<2>()
             .cast< FitPosition::Scalar >(); 
 }
@@ -257,7 +255,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     if ( engine.imProp->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( config.maskSizeFactor(), *engine.imProp, 
+    spot_finder::Job job( config.maskSizeFactor(), 
         engine.imProp->plane(0), engine.imProp->fluorophores[0]);
     finder = config.spotFindingMethod().make(job);
 
@@ -288,8 +286,8 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
     DEBUG("Intake (" << base->frame_number() << ")");
 
-    Image& image = *base;
-    if ( image.is_invalid() ) {
+    ImageStack& image = *base;
+    if ( image.has_invalid_planes() ) {
         resultStructure.forImage = base->frame_number();
         resultStructure.clear();
         resultStructure.source = image;
@@ -301,8 +299,6 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
     } else {
         DEBUG("Image " << base->ptr() << " is valid");
     }
-
-    base->background_standard_deviation() = background_variance * camera::ad_count;
 
     DEBUG("Compression (" << base->frame_number() << ")");
     IF_DSTORM_MEASURE_TIMES( clock_t prepre = clock() );

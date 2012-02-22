@@ -2,6 +2,7 @@
 #include "SpotFinder.h"
 #include <dStorm/Config.h>
 #include <dStorm/traits/ScaledProjection.h>
+#include <boost/units/cmath.hpp>
 
 using namespace std;
 
@@ -16,6 +17,16 @@ boost::units::quantity< boost::units::camera::length > Job::sigma(int dim) const
     return dynamic_cast< const traits::ScaledProjection& >(traits.projection())
         .length_in_image_space(dim, 
         (*traits.optics.psf_size(fluorophore.ident))[dim] );
+}
+
+boost::units::quantity< boost::units::camera::length, int > Job::mask_size(int dim) const
+{
+    return boost::units::quantity< boost::units::camera::length, int >( round( smoothing_mask * sigma(dim) ) );
+}
+
+ImageTypes<2>::Size Job::size() const
+{
+    return traits.image.size;
 }
 
 Base::Base(const Job& job)

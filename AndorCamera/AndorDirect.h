@@ -4,7 +4,6 @@
 #include "AndorDirect_decl.h"
 
 #include <dStorm/input/Source.h>
-#include <dStorm/ImageTraits.h>
 #include <memory>
 #include <string>
 #include <simparm/Set.hh>

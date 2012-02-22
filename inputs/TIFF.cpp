@@ -25,7 +25,7 @@
 #include "TIFF.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
@@ -43,21 +43,19 @@ namespace TIFF {
 
 const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
-template<typename Pixel, int Dimensions>
-Source<Pixel,Dimensions>::Source( boost::shared_ptr<OpenFile> file )
+Source::Source( boost::shared_ptr<OpenFile> file )
 : simparm::Set("TIFF", "TIFF image reader"),
   file(file)
 {
 }
 
-template<typename Pixel, int Dimensions>
-class Source<Pixel,Dimensions>::iterator 
+class Source::iterator 
 : public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
 {
     mutable OpenFile* src;
     mutable simparm::Node* msg;
     int directory;
-    mutable Image img;
+    mutable boost::optional<Image> img;
 
     void go_to_position(TIFFOperation& op) const {
         int rv = TIFFSetDirectory(src->tiff, directory);
@@ -86,7 +84,7 @@ class Source<Pixel,Dimensions>::iterator
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );
         check_position(op);
-        img.invalidate(); 
+        img.reset(); 
         if ( TIFFReadDirectory(src->tiff) != 1 ) {
             op.throw_exception_for_errors();
             /* Code from here only executed when no error
@@ -99,23 +97,23 @@ class Source<Pixel,Dimensions>::iterator
         }
     }
     void decrement() { 
-        img.invalidate(); 
+        img.reset(); 
         if ( directory == 0 ) 
             src = NULL; 
         else {
             --directory;
             TIFFOperation op( "in reading TIFF file",
                             *msg, src->ignore_warnings );
-            go_to_position();
+            go_to_position(op);
         }
     }
     void advance(int n) { 
         if (n) {
             TIFFOperation op( "in reading TIFF file",
                             *msg, src->ignore_warnings );
-            img.invalidate(); 
+            img.reset(); 
             directory += n;
-            go_to_position();
+            go_to_position(op);
         }
     }
     int distance_to(const iterator& i) {
@@ -123,9 +121,7 @@ class Source<Pixel,Dimensions>::iterator
     }
 };
 
-template<typename Pixel, int Dimensions>
-void
-Source<Pixel,Dimensions>::iterator::check_params() const
+void Source::iterator::check_params() const
 {
     ::TIFF *tiff = src->tiff;
     uint32_t width, height, depth;
@@ -159,24 +155,23 @@ Source<Pixel,Dimensions>::iterator::check_params() const
     }
 }
 
-template<typename Pixel, int Dim>
-typename Source<Pixel,Dim>::Image&
-Source<Pixel,Dim>::iterator::dereference() const
+Source::Image&
+Source::iterator::dereference() const
 { 
-    if ( img.is_invalid() ) {
+    if ( ! img.is_initialized() ) {
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );
         check_position(op);
         check_params();
 
-        typename Image::Size sz;
+        typename Plane::Size sz;
         ::TIFF *tiff = src->tiff;
         tsize_t strip_size = TIFFStripSize( tiff );
         tstrip_t strip_count = TIFFNumberOfStrips( tiff );
         assert( sz.rows() <= 3 );
         for (int i = 0; i < sz.rows(); ++i)
             sz[i] = src->size[i] * camera::pixel;
-        Image i( sz, directory * camera::frame);
+        Plane i( sz, directory * camera::frame);
 
         DEBUG("Reading image " << directory << " of size " << i.sizes().transpose() << " from TIFF with " << strip_count << " strips with " << strip_size / sizeof(Pixel) << " pixels each for an image sized " << src->size[0] << " " << src->size[1]);
 
@@ -195,18 +190,16 @@ Source<Pixel,Dim>::iterator::dereference() const
         DEBUG("Thrown no exceptions");
     }
 
-    return img;
+    return *img;
 }
 
-template<typename Pixel, int Dim>
-typename Source<Pixel,Dim>::base_iterator
-Source<Pixel,Dim>::begin() {
+Source::base_iterator
+Source::begin() {
     return base_iterator( iterator(*this) );
 }
 
-template<typename Pixel, int Dim>
-typename Source<Pixel,Dim>::base_iterator
-Source<Pixel,Dim>::end() {
+Source::base_iterator
+Source::end() {
     return base_iterator( iterator() );
 }
 
@@ -229,23 +222,21 @@ ChainLink::ChainLink()
 BaseSource*
 ChainLink::makeSource()
 {
-    return new Source<engine::Image::Pixel,engine::Image::Dim>( get_file() );
+    return new Source( get_file() );
 }
 
-template<typename Pixel, int Dimensions>
-typename Source<Pixel,Dimensions>::TraitsPtr 
-Source<Pixel,Dimensions>::get_traits(typename BaseSource::Wishes) {
+Source::TraitsPtr 
+Source::get_traits(typename BaseSource::Wishes) {
     simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
     count.editable = false;
     push_back(count);
     DEBUG("Creating traits from file object");
-    TraitsPtr rv = TraitsPtr( file->getTraits<Pixel,Dimensions>(true, count).release() );
+    TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
     DEBUG("Returning traits " << rv.get());
     return rv;
 }
 
-template<typename Pixel, int Dimensions>
-Source<Pixel,Dimensions>::~Source() {}
+Source::~Source() {}
 
 void ChainLink::operator()(const simparm::Event& e) {
     InputMutexGuard lock( global_mutex() );

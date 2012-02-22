@@ -18,7 +18,7 @@
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <dStorm/engine/JobInfo.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 #include "DataCube.h"
 #include <nonlinfit/AbstractTerminator.h>
 

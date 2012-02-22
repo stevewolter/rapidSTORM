@@ -11,6 +11,7 @@
 #include <memory>
 #include <dStorm/traits/image_resolution.h>
 #include <dStorm/output/Basename.h>
+#include <dStorm/image/MetaInfo.h>
 #include <boost/signals2/connection.hpp>
 
 namespace dStorm {
@@ -32,7 +33,7 @@ class Method
     std::auto_ptr<Display> active_selector;
     simparm::TriggerEntry select_ROI, view_ROI;
 
-    traits::Optics<2>::Resolutions resolution;
+    image::MetaInfo<2>::Resolutions resolution;
     std::string basename;
 
     simparm::BoolEntry show_live_by_default;
@@ -42,7 +43,7 @@ class Method
     void registerNamedEntries();
 
     void operator()( const simparm::Event& );
-    void resolution_changed( const dStorm::traits::Optics<2>::Resolutions& );
+    void resolution_changed( const image::MetaInfo<2>::Resolutions& );
     void basename_changed( const dStorm::output::Basename& );
 
   public:

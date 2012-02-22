@@ -21,7 +21,7 @@ Factory::Factory(const Factory& c)
 
 Factory::~Factory() {}
 
-bool Factory::can_do_3d( const input::Traits<engine::Image>& t ) const
+bool Factory::can_do_3d( const input::Traits<engine::ImageStack>& t ) const
 {
     bool do_3d = boost::get< traits::Zhuang3D >( t.depth_info.get_ptr() ) != NULL;
     return do_3d;
@@ -55,8 +55,8 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.position().range().z().second = samplepos::Scalar(+z_range());
     for (int i = 1; i < info.traits.plane_count(); ++i)
     {
-        samplepos::Scalar low = samplepos::Scalar(*info.traits.plane(i).z_position -samplepos::Scalar( z_range())),
-                          high = samplepos::Scalar(*info.traits.plane(i).z_position +samplepos::Scalar(z_range()));
+        samplepos::Scalar low = samplepos::Scalar(*info.traits.optics(i).z_position -samplepos::Scalar( z_range())),
+                          high = samplepos::Scalar(*info.traits.optics(i).z_position +samplepos::Scalar(z_range()));
         traits.position().range().z().first = std::min( low, *traits.position().range().z().first );
         traits.position().range().z().second = std::max( high, *traits.position().range().z().second );
     }
@@ -81,14 +81,14 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     my_traits = traits;
 }
 
-bool Factory::can_compute_uncertainty( const traits::Optics<2>& t ) const
+bool Factory::can_compute_uncertainty( const engine::InputPlane& t ) const
 {
-    return t.photon_response.is_initialized() && 
-           t.has_resolution() &&
-           t.background_stddev.is_initialized();
+    return t.optics.photon_response.is_initialized() && 
+           t.image.has_resolution() &&
+           t.optics.background_stddev.is_initialized();
 }
 
-void Factory::set_requirements( input::Traits<engine::Image>& ) {}
+void Factory::set_requirements( input::Traits<engine::ImageStack>& ) {}
 
 void Factory::register_trait_changing_nodes( simparm::Listener& l )
 {
@@ -104,7 +104,7 @@ void Factory::check_configuration(
 ) {
     bool spectral_unmixing = true;
     for (int i = 0; i < info.traits.plane_count(); ++i)
-        spectral_unmixing = spectral_unmixing && std::abs( info.traits.plane(i)
+        spectral_unmixing = spectral_unmixing && std::abs( info.traits.optics(i)
             .transmission_coefficient(info.fluorophore) ) > 0.01;
     if ( laempi_fit() && ! spectral_unmixing )
         throw std::runtime_error("You asked for a Lämpi fit, but some "
@@ -140,8 +140,8 @@ void Factory::check_configuration(
     bool can_do_mle = true;
     for(int i = 0; i < info.traits.plane_count(); ++i) {
         can_do_mle = can_do_mle
-            && info.traits.plane(i).dark_current.is_initialized() 
-            && info.traits.plane(i).photon_response.is_initialized() ;
+            && info.traits.optics(i).dark_current.is_initialized() 
+            && info.traits.optics(i).photon_response.is_initialized() ;
     }
     if ( ! can_do_mle && mle_fitting() ) {
         throw std::runtime_error("Enabling " + mle_fitting.getDesc() + " requires "

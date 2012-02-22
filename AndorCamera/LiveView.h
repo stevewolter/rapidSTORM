@@ -9,7 +9,6 @@
 #include <dStorm/display/Manager.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/ImageTraits.h>
 #include <simparm/Entry.hh>
 
 namespace dStorm {
@@ -20,7 +19,7 @@ class LiveView :
     public dStorm::display::DataSource
 {
   public:
-    typedef traits::Optics<2>::Resolutions Resolution;
+    typedef image::MetaInfo<2>::Resolutions Resolution;
 
   private:
     Resolution resolution;

@@ -11,14 +11,12 @@
 #include <dStorm/localization/Traits.h>
 #include <simparm/Structure.hh>
 #include <dStorm/input/MetaInfo.h>
-#include <dStorm/Image_decl.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/Localization.h>
 #include <dStorm/localization/Traits.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/Method.hpp>
-#include <dStorm/ImageTraits_impl.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 

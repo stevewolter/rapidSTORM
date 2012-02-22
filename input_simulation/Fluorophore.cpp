@@ -15,6 +15,7 @@
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <dStorm/traits/Projection.h>
+#include <dStorm/engine/InputTraits.h>
 
 using namespace std;
 
@@ -57,7 +58,7 @@ void Fluorophore::initTimes( const FluorophoreConfig& config ) {
 
 Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
                          const FluorophoreConfig& config,
-                         const dStorm::traits::Optics<3>& optics,
+                         const dStorm::input::Traits< dStorm::engine::ImageStack >& optics,
                          const int fluorophore_index)
 : pos(pos), isOn(false), restTime(0)
 {
@@ -75,16 +76,16 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
     planes.resize( optics.plane_count() );
     DEBUG("Generating fluorophore at " << pos.transpose());
     for (int i = 0; i < optics.plane_count(); ++i) {
-        DEBUG("Generating plane " << i << " with z position " << *optics.plane(i).z_position);
+        DEBUG("Generating plane " << i << " with z position " << *optics.optics(i).z_position);
         Plane& p = planes[i];
-        const dStorm::traits::Optics<2>& o = optics.plane(i);
+        const dStorm::traits::Optics& o = optics.optics(i);
         /* This size of the fluorophore is a safe initial guess - we might need more pixels,
         * and this case is detected by the loop below. */
         p.range[0] = p.range[1] = 4 * camera::pixel;
         p.densities = Eigen::MatrixXd::Constant(p.range[0].value()*2+1, p.range[1].value()*2+1, -1);
         Position plane_pos = pos;
         plane_pos[2] = *o.z_position;
-        p.pixel = o.projection()->nearest_point_in_image_space(plane_pos.head<2>());
+        p.pixel = optics.plane(i).projection().nearest_point_in_image_space(plane_pos.head<2>());
 
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 
             << p.pixel.transpose() << "( " << o.projection()->point_in_sample_space(p.pixel) << ")");
@@ -92,7 +93,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
         BesselFunction bessel( optics.plane(i), pos, 
             config.numerical_aperture(), config.refractive_index(),
             quantity<si::length>( config.wavelength() ),
-            o.projection()->pixel_size( p.pixel ) );
+            optics.plane(i).projection().pixel_size( p.pixel ) );
 
         const PixelIndex one_pixel = 1 * camera::pixel;
         double total = 0, delta = 0.75;
@@ -127,7 +128,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
                 p.densities = new_densities;
             }
         }
-        p.densities *= optics.plane(i).transmission_coefficient( fluorophore_index ) / complete_bessel_integral_value;
+        p.densities *= optics.optics(i).transmission_coefficient( fluorophore_index ) / complete_bessel_integral_value;
 #if 0
         if ( i == 0 ) {
             for (int j = -p.range[0].value(); j <= p.range[0].value(); ++j) {
@@ -144,7 +145,7 @@ Fluorophore::~Fluorophore() {
 }
 
 int Fluorophore::glareInImage(gsl_rng *rng, 
-         dStorm::engine::Image &targetImage, int imNum,
+         dStorm::engine::ImageStack &targetImage, int imNum,
          quantity<si::time> integrationTime) 
 {
     //history[imNum] = 0;
@@ -155,11 +156,7 @@ int Fluorophore::glareInImage(gsl_rng *rng,
     }
 
     unsigned int sum_of_photons = 0;
-    const PixelIndex one_pixel = 1 * camera::pixel,
-                     top_border = 0 * camera::pixel,
-                     left_border = 0 * camera::pixel,
-                     right_border = targetImage.width() - one_pixel,
-                     bottom_border = targetImage.height() - one_pixel;
+    const PixelIndex one_pixel = 1 * camera::pixel;
     while (integrationTime > 0 * si::seconds) {
         if (isOn) {
             quantity<si::time> glareTime = min(restTime, integrationTime);
@@ -168,26 +165,24 @@ int Fluorophore::glareInImage(gsl_rng *rng,
             double photonPart;
             unsigned int photonCount, photonSum = 0;
 
-            for ( int plane = 0; plane < targetImage.depth_in_pixels(); ++plane ) {
+            for ( int plane = 0; plane < targetImage.plane_count(); ++plane ) {
+                dStorm::engine::Image2D::Position pos;
                 Plane& p = planes[plane];
                 for (PixelIndex x = -p.range[0]; x <= p.range[0]; x += one_pixel) {
-                    PixelIndex xi = x+p.pixel[0]; 
-                    if (xi < left_border)         continue;
-                    else if (xi > right_border)   break;
-
+                    pos.x() = x+p.pixel[0]; 
                     for (PixelIndex y = -p.range[1]; y <= p.range[1]; 
                         y+=one_pixel) 
                     {
-                        PixelIndex yi = y+p.pixel[1];
-                        if (yi < top_border)                continue;
-                        else if (yi > bottom_border)       break;
+                        pos.y() = x+p.pixel[0]; 
+                        if ( ! targetImage.plane(plane).contains(pos) )
+                            continue;
 
                         photonPart = p.densities( (x+p.range[0])/camera::pixel,
                                                 (y+p.range[1])/camera::pixel );
                         photonCount = gsl_ran_binomial(rng, photonPart,
                                                 totalPhotons);
                         photonSum += photonCount;
-                        targetImage(xi/camera::pixel, yi/camera::pixel, plane)
+                        targetImage.plane(plane)(pos)
                             += photonWeight * photonCount;
                     }
                 }
@@ -217,11 +212,11 @@ Fluorophore::remaining_time_in_current_state(gsl_rng *rng)
                 ((isOn) ? av_t_on : av_t_off).value()) );
 }
 
-void Fluorophore::recenter( Position np, const dStorm::traits::Optics<2>& optics )
+void Fluorophore::recenter( Position np, const dStorm::traits::Projection& optics )
 {
     assert( int(planes.size()) == 1 );
     pos = np;
-    planes[0].pixel = optics.projection()->nearest_point_in_image_space(np.head<2>());
+    planes[0].pixel = optics.nearest_point_in_image_space(np.head<2>());
 }
 
 std::ostream& operator<<(std::ostream& o, const Fluorophore& f) {

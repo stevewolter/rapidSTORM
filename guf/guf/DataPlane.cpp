@@ -16,6 +16,7 @@
 #include "mle_converter.h"
 #include <boost/type_traits/is_same.hpp>
 #include "Statistics.h"
+#include <dStorm/engine/InputTraits.h>
 
 using namespace nonlinfit::plane;
 
@@ -158,13 +159,13 @@ InputPlane::make_max_distance( const dStorm::engine::JobInfo& info, int plane_nu
 }
 
 InputPlane::InputPlane( const Config& c, const dStorm::engine::JobInfo& info, int plane_number )
-: im_size( info.traits.size.head<2>().array() - 1 * camera::pixel ),
+: im_size( info.traits.image(plane_number).size.array() - 1 * camera::pixel ),
   transformation(make_max_distance(info,plane_number), info.traits.plane(plane_number)),
   can_do_disjoint_fitting( c.allow_disjoint() && 
-    dynamic_cast< const traits::ScaledProjection* >( info.traits.plane(plane_number).projection().get() ) ),
+    dynamic_cast< const traits::ScaledProjection* >( &info.traits.plane(plane_number).projection() ) ),
   use_floats( !c.double_computation() )
 {
-    const traits::Optics<2>& t = info.traits.plane(plane_number);
+    const traits::Optics& t = info.traits.optics(plane_number);
     photon_response_ = t.photon_response.get_value_or( 1 * camera::ad_count );
     dark_current = quantity<camera::intensity,int>
         (t.dark_current.get_value_or(0*camera::ad_count));

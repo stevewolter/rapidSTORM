@@ -26,7 +26,7 @@ namespace engine {
      public dStorm::Engine
    {
       public:
-        typedef input::Source<Image> Input;
+        typedef input::Source<ImageStack> Input;
         typedef input::Source<output::LocalizedImage>::TraitsPtr TraitsPtr;
       private:
         typedef input::Source<output::LocalizedImage> Base;
@@ -55,7 +55,7 @@ namespace engine {
         Capabilities capabilities() const { return input->capabilities(); }
 
         static boost::shared_ptr< input::Traits<output::LocalizedImage> >
-            convert_traits( Config&, const input::Traits<engine::Image>& );
+            convert_traits( Config&, const input::Traits<engine::ImageStack>& );
 
         void restart();
         void stop();

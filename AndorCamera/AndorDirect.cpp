@@ -10,6 +10,7 @@
 #include <dStorm/output/Basename.h>
 #include <dStorm/input/Source.h>
 #include <boost/utility.hpp>
+#include <dStorm/engine/InputTraits.h>
 
 #include "LiveView.h"
 

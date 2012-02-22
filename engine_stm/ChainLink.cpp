@@ -5,7 +5,6 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/output/LocalizedImage_traits.h>
-#include <dStorm/ImageTraits.h>
 
 #include <boost/mpl/vector.hpp>
 #include <dStorm/output/LocalizedImage_decl.h>

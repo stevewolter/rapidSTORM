@@ -32,7 +32,7 @@ class Coordinate : public Base<unsigned char> {
     Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
 
-    void setSize( const input::Traits<BinnedImage>& traits ) {
+    void setSize( const MetaInfo& traits ) {
         BaseType::setSize(traits);
         mixer.setSize(traits.size);
     }

@@ -9,7 +9,6 @@
 
 #include "AndorDirect_decl.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <dStorm/ImageTraits.h>
 #include <dStorm/engine/Image.h>
 #include <boost/variant/variant.hpp>
 #include <simparm/Entry.hh>
@@ -21,7 +20,7 @@ struct CameraConnection {
     typedef quantity<camera::length,int> pixel;
     CameraConnection(const std::string& hostname, int camera, const std::string& port);
     ~CameraConnection();
-    void set_traits( input::Traits<engine::Image>& );
+    void set_traits( CamTraits& );
     void send( const std::string& );
     void start_acquisition( CamTraits&, simparm::StringEntry& status );
     void stop_acquisition();

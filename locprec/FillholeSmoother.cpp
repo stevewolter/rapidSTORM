@@ -86,7 +86,7 @@ FillholeSmoother::FillholeSmoother(
     rms2(myConf.background())
 {
     for (int i = 0; i < 3; i++)
-        buffer[i] = SmoothedImage( job.size.head<2>() );
+        buffer[i] = SmoothedImage( job.size().head<2>() );
 }
 
 FillholeSmoother::_Config::_Config()

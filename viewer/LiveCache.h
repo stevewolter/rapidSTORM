@@ -37,7 +37,7 @@ class LiveCache :
     LiveCache(HighDepth depth);
     LiveCache(HighDepth depth, Im::Size size);
 
-    void setSize( const input::Traits< Im >& );
+    void setSize( const image::MetaInfo<Im::Dim>& );
     inline void pixelChanged( const Im::Position& p, HighDepth to );
     inline void changeBrightness( HighDepth at );
     void clean( bool final );

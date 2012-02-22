@@ -6,7 +6,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <dStorm/engine/Image.h>
-#include <dStorm/ImageTraits_impl.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Link.h>
 #include <dStorm/input/MetaInfo.h>
@@ -111,16 +110,22 @@ bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::I
     return a.unit_symbol == b.unit_symbol && similar(a.value, b.value);
 }
 
-struct DummyImageSource : public input::Source<engine::Image>
+struct DummyImageSource : public input::Source<engine::ImageStack>
 {
     simparm::Object foo;
     DummyImageSource() : foo("Foo", "Foo") {}
     simparm::Node& node() { return foo; }
-    typedef Source<engine::Image>::iterator iterator;
+    typedef Source<engine::ImageStack>::iterator iterator;
     void dispatch(Messages m) {}
     iterator begin() { return iterator(); }
     iterator end() { return iterator(); }
-    TraitsPtr get_traits( Wishes ) { return TraitsPtr( new TraitsPtr::element_type()); }
+    TraitsPtr get_traits( Wishes ) { 
+        return TraitsPtr( 
+            new TraitsPtr::element_type(
+                image::MetaInfo<2>()
+            )
+        ); 
+    }
     Capabilities capabilities() const { return Capabilities(); }
 };
 
@@ -140,7 +145,7 @@ struct MoreSpecialized : public dStorm::input::Link {
 };
 
 struct Check {
-    typedef dStorm::traits::Optics<2>::Resolutions Resolutions;
+    typedef dStorm::image::MetaInfo<2>::Resolutions Resolutions;
     bool resolution_close_to( Resolutions r, const Resolutions& t ) {
         if ( ! r[0].is_initialized() || ! r[1].is_initialized() )
             throw std::logic_error("Resolution is not set at all");
@@ -153,10 +158,10 @@ struct Check {
     bool trait_resolution_close_to( Resolutions r, boost::shared_ptr<const input::MetaInfo> m ) {
         if ( ! m )
             throw std::logic_error("Meta info is not propagated to less specialized element");
-        else if ( ! m->provides<engine::Image>() )
+        else if ( ! m->provides<engine::ImageStack>() )
             throw std::logic_error("Image meta info is not propagated to less specialized element");
         else 
-            return resolution_close_to( r, m->traits<dStorm::engine::Image>()->plane(0).image_resolutions() );
+            return resolution_close_to( r, m->traits<engine::ImageStack>()->plane(0).image.image_resolutions() );
     }
 
     int do_check() {
@@ -166,12 +171,12 @@ struct Check {
 
         l.insert_new_node( std::auto_ptr<input::Link>(ms), Anywhere );
 
-        dStorm::input::Traits< dStorm::engine::Image > correct;
+        dStorm::input::Traits< engine::ImageStack > correct( ( image::MetaInfo<2>() ) );
         l.config.set_traits( correct );
 
         DEBUG("Publishing image traits");
         input::MetaInfo::Ptr tp( new input::MetaInfo() );
-        tp->set_traits( new input::Traits<engine::Image>() );
+        tp->set_traits( new input::Traits<engine::ImageStack>( (image::MetaInfo<2>()) ) );
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
@@ -179,22 +184,22 @@ struct Check {
         l.config["Optics"]["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
         l.config.set_traits( correct );
         DEBUG("Checking if config element change updates traits");
-        if ( trait_resolution_close_to(correct.plane(0).image_resolutions(), l.current_meta_info()) )
+        if ( trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l.current_meta_info()) )
             l.current_meta_info().reset();
         
         DEBUG("Checking if source can be built");
         std::auto_ptr<input::BaseSource> bs( static_cast<input::Link&>(l).make_source() );
-        std::auto_ptr< input::Source<engine::Image> > source
-            = input::BaseSource::downcast< engine::Image >( bs );
+        std::auto_ptr< input::Source<engine::ImageStack> > source
+            = input::BaseSource::downcast< engine::ImageStack >( bs );
         if ( source.get() == NULL )
             throw std::runtime_error("Source could not be built");
 
-        boost::shared_ptr< const dStorm::input::Traits<engine::Image> > source_traits
+        boost::shared_ptr< const dStorm::input::Traits<engine::ImageStack> > source_traits
             = source->get_traits( dStorm::input::BaseSource::Wishes() );
 
-        resolution_close_to(correct.plane(0).image_resolutions(), 
-            source_traits->plane(0).image_resolutions());
-        assert( source_traits->plane(0).transmission_coefficient(0) == 1.0f );
+        resolution_close_to(correct.plane(0).image.image_resolutions(), 
+            source_traits->plane(0).image.image_resolutions());
+        assert( source_traits->plane(0).optics.transmission_coefficient(0) == 1.0f );
         return 0;
     }
 };

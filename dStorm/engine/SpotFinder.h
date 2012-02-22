@@ -31,7 +31,7 @@ class Job {
           traits(traits), fluorophore(fluorophore) {}
 
     boost::units::quantity< boost::units::camera::length > sigma(int dimension) const;
-    boost::units::quantity< boost::units::camera::length > mask_size( int dimension ) const;
+    boost::units::quantity< boost::units::camera::length, int > mask_size( int dimension ) const;
     ImageTypes<2>::Size size() const;
 };
 

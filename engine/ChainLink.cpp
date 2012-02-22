@@ -23,12 +23,12 @@ class ChainLink
   public input::Method< ChainLink >
 {
     friend class input::Method< ChainLink >;
-    typedef boost::mpl::vector< engine::Image > SupportedTypes;
+    typedef boost::mpl::vector< engine::ImageStack > SupportedTypes;
 
     std::auto_ptr< scoped_connection > finder_con, fitter_con;
     Config config;
 
-    void notice_traits( const MetaInfo&, const Traits< Image >& traits ) {
+    void notice_traits( const MetaInfo&, const Traits< ImageStack >& traits ) {
         int soll = traits.plane_count() - 1;
         while ( soll > int(config.spot_finder_weights.size()) ) {
             int id = config.spot_finder_weights.size();
@@ -48,7 +48,7 @@ class ChainLink
     }
     boost::shared_ptr< BaseTraits > 
     create_traits( MetaInfo& mi, 
-                const Traits<Image>& upstream )
+                const Traits<ImageStack>& upstream )
     {
         boost::shared_ptr< input::Traits<output::LocalizedImage> >
             rt = Engine::convert_traits(config, upstream);
@@ -66,7 +66,7 @@ class ChainLink
                 boost::bind( &ChainLink::add_spot_fitter, this, _1 ) ) ) );
     }
 
-    BaseSource* make_source( std::auto_ptr< Source<Image> > base ) 
+    BaseSource* make_source( std::auto_ptr< Source<ImageStack> > base ) 
         { return new Engine( config, base ); }
 
     std::string amplitude_threshold_string() const;

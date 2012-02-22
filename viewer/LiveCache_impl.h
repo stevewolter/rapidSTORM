@@ -2,7 +2,7 @@
 #define DSTORM_VIEWER_LIVECACHE_IMPL_H
 
 #include "LiveCache_inline.h"
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/iterator.h>
 
 namespace dStorm {
@@ -25,7 +25,7 @@ LiveCache<Listener>::LiveCache(
 }
 
 template < typename Listener>
-void LiveCache<Listener>::setSize( const input::Traits< Im >& traits ) {
+void LiveCache<Listener>::setSize( const Im::MetaInfo& traits ) {
     pixels_by_position = HistogramImage( traits.size );
 
     this->publish().setSize( traits );

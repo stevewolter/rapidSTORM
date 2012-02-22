@@ -88,12 +88,11 @@ Source<Type,Tag>::end()  {
     return typename Base::iterator( iterator<Type,Tag>(traits, base_traits, sources, true) );
 }
 
-template <int Dim>
 std::auto_ptr< BaseSource > make_specialized_source( 
-        const std::vector< boost::shared_ptr< input::Source<engine::Image> > >& v ,
-        spatial_tag<Dim>
+        const std::vector< boost::shared_ptr< input::Source<engine::ImageStack> > >& v ,
+        spatial_tag<2>
 ) { 
-    return std::auto_ptr< BaseSource >( new Source<engine::Image, spatial_tag<Dim> >(v) ); 
+    return std::auto_ptr< BaseSource >( new Source<engine::ImageStack, spatial_tag<2> >(v) ); 
 }
 
 template <typename Type>
@@ -251,8 +250,6 @@ Link::Link()
     channel_count.helpID = "#join.ChannelCount";
     join_type.helpID = "#join.JoinOn";
 
-    join_type.addChoice( new StrategistImplementation< spatial_tag<0> >() );
-    join_type.addChoice( new StrategistImplementation< spatial_tag<1> >() );
     join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
     join_type.addChoice( new StrategistImplementation< temporal_tag >() );
     // TODO: Implement join_type.addChoice( new StrategistImplementation< fluorophore_tag >() );

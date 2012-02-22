@@ -1,6 +1,5 @@
 #include <Eigen/StdVector>
 #include <dStorm/engine/JobInfo.h>
-#include <dStorm/ImageTraits.h>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
@@ -26,7 +25,7 @@ class InitialValueFinder::set_parameter {
 
   public:
     typedef void result_type;
-    set_parameter( const InitialValueFinder& p, const guf::Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics<2>& o ) 
+    set_parameter( const InitialValueFinder& p, const guf::Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
         : base( p.info, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
@@ -55,28 +54,18 @@ void InitialValueFinder::operator()(
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
 
-    typedef boost::tuple<
-            FitPosition::iterator,
-            std::vector<PlaneEstimate>::const_iterator,
-            dStorm::traits::Optics<3>::Planes::const_iterator >
-        the_iterator_tuple;
-    typedef boost::zip_iterator< the_iterator_tuple >
-        the_zip_iterator;
-
-    the_zip_iterator i, end = the_zip_iterator( the_iterator_tuple( position.end(), e.end(), info.traits.planes.end() ) );
-    for ( i = the_zip_iterator( the_iterator_tuple(position.begin(), e.begin(), info.traits.planes.begin()) ); i != end; ++i )
-    {
-        assert( ( i->get<0>().kernel_count() ) == 1 );
-        set_parameter s( *this, spot, i->get<1>(), i->get<2>() );
-        if ( PSF::Zhuang* z = dynamic_cast<PSF::Zhuang*>(&i->get<0>()[0]) )
+    for (int p = 0; p < info.traits.plane_count(); ++p) {
+        assert( ( position[p].kernel_count() ) == 1 );
+        set_parameter s( *this, spot, e[p], info.traits.optics(p) );
+        if ( PSF::Zhuang* z = dynamic_cast<PSF::Zhuang*>(&position[p][0]) )
             boost::mpl::for_each< PSF::Zhuang::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&i->get<0>()[0]) )
+        else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) )
             boost::mpl::for_each< PSF::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
-        s( constant_background::Amount(), i->get<0>().background_model() );
+        s( constant_background::Amount(), position[p].background_model() );
     }
 }
 
@@ -102,7 +91,7 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {
         /* Value of perfectly sharp PSF at Z = 0 */
-        double pif = info.traits.plane(i).transmission_coefficient(info.fluorophore);
+        double pif = info.traits.optics(i).transmission_coefficient(info.fluorophore);
             
         /* Solution of equation system:
             * peak_intensity == bg_estimate + pif * amp_estimate

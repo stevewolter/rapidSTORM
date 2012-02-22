@@ -3,7 +3,7 @@
 #include "colour_schemes/impl.h"
 #include "LiveCache_inline.h"
 #include "TerminalBackend.h"
-#include <dStorm/ImageTraits_impl.h>
+#include <dStorm/image/MetaInfo.hpp>
 
 namespace dStorm {
 namespace viewer {

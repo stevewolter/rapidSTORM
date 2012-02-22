@@ -8,7 +8,6 @@
 #endif
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
-#include <dStorm/ImageTraits.h>
 #include <dStorm/image/slice.h>
 #include <simparm/Message.hh>
 #include <stdio.h>

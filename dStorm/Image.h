@@ -36,6 +36,7 @@ class Image
     typedef typename ImageTypes<Dimensions>::Size Size;
     typedef typename ImageTypes<Dimensions>::Position Position;
     typedef typename ImageTypes<Dimensions>::Offsets Offsets;
+    typedef image::MetaInfo< Dimensions > MetaInfo;
 
   protected:
     template <typename OtherPixelType, int OtherDimension> friend class Image;

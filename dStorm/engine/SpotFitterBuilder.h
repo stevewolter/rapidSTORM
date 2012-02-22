@@ -28,7 +28,7 @@ class Builder
         { return std::auto_ptr<Implementation>(new BaseClass( *this, info )); }
     void set_traits( output::Traits& t, const JobInfo& e )
         { BaseClass::Config::set_traits(t, e); }
-    void set_requirements( input::Traits<engine::Image>& t ) 
+    void set_requirements( input::Traits<engine::ImageStack>& t ) 
         { BaseClass::Config::set_requirements(t); }
     void register_trait_changing_nodes( simparm::Listener& ) {}
 };

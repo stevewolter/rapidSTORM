@@ -6,7 +6,7 @@
 #include "NoiseGenerator.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/input/Link.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 #include <gsl/gsl_rng.h>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/engine/Image_decl.h>
@@ -17,22 +17,22 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 
 namespace locprec {
     class NoiseConfig;
 
-    template <typename PixelType> class NoiseSource 
+    class NoiseSource 
     : public simparm::Set,
-      public dStorm::input::Source< dStorm::Image<PixelType,3> >
+      public dStorm::input::Source< dStorm::engine::ImageStack >
     {
       private:
         simparm::Entry<unsigned long> &randomSeedEntry;
-        std::auto_ptr< NoiseGenerator<PixelType> > noiseGenerator;
+        std::auto_ptr< NoiseGenerator<unsigned short> > noiseGenerator;
 
-        typedef dStorm::Image<PixelType,3> Image;
+        typedef dStorm::engine::ImageStack Image;
         typedef dStorm::input::Source<Image> Source;
-        boost::shared_ptr< dStorm::input::Traits< dStorm::Image<PixelType,3> > > t;
+        boost::shared_ptr< dStorm::input::Traits< Image > > t;
         int imN;
         boost::units::quantity<boost::units::si::time> integration_time;
         typedef boost::ptr_list<Fluorophore> FluorophoreList;
@@ -52,7 +52,7 @@ namespace locprec {
         NoiseSource(NoiseConfig &config);
         ~NoiseSource();
 
-        dStorm::engine::Image* fetch(int index);
+        dStorm::engine::ImageStack* fetch(int index);
 
         const boost::ptr_list<Fluorophore>& getFluorophores() const
             { return fluorophores; }
@@ -78,7 +78,7 @@ namespace locprec {
         simparm::Entry<unsigned long> fluorophore_index;
 
         std::auto_ptr< boost::ptr_list<Fluorophore> > create_fluorophores(
-            const dStorm::input::Traits< dStorm::Image<unsigned short,3> >& t,
+            const dStorm::engine::InputTraits& t,
             gsl_rng*, int imN) const;
     };
 
@@ -109,7 +109,7 @@ namespace locprec {
         simparm::Entry<unsigned long> layer_count;
         dStorm::traits::CuboidConfig optics;
 
-        typedef dStorm::engine::Image Image;
+        typedef dStorm::engine::ImageStack Image;
 
         simparm::Node& getNode() { return *this; }
 
@@ -123,7 +123,7 @@ namespace locprec {
         void publish_meta_info();
 
         virtual dStorm::input::Source<Image>* makeSource()
-            { return new NoiseSource<Image::Pixel>(*this); }
+            { return new NoiseSource(*this); }
         virtual NoiseConfig* clone() const 
             { return ( new NoiseConfig(*this) ); }
     };

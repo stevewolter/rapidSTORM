@@ -14,6 +14,7 @@
 #include <dStorm/Image_impl.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/input/MetaInfo.h>
+#include <dStorm/engine/InputTraits.h>
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/foreach.hpp>
@@ -141,7 +142,7 @@ void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
 
 std::auto_ptr< boost::ptr_list<Fluorophore> >
 FluorophoreSetConfig::create_fluorophores(
-    const dStorm::input::Traits< dStorm::Image<unsigned short,3> >& t,
+    const dStorm::engine::InputTraits& t,
     gsl_rng *rng,
     int imN ) const
 {
@@ -185,25 +186,26 @@ FluorophoreSetConfig::create_fluorophores(
     return fluorophores;
 }
 
-template <typename Pixel>
-NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
+NoiseSource::NoiseSource( NoiseConfig &config )
 : simparm::Set("NoiseSource", "Noise source status"),
   randomSeedEntry(config.noiseGeneratorConfig.random_seed),
-  t( new dStorm::input::Traits< dStorm::Image<Pixel,3> >() )
+  t( new dStorm::engine::InputTraits() )
 {
-    static_cast< dStorm::traits::Optics<3>&>(*t) = config.optics.make_traits();
+    config.optics.set_traits( *t );
 
     DEBUG("Just made traits for noise source");
     rng = gsl_rng_alloc(gsl_rng_mt19937);
     DEBUG("Using random seed " << randomSeedEntry());
     gsl_rng_set(rng, randomSeedEntry() );
     noiseGenerator = 
-        NoiseGenerator<Pixel>::factory(config.noiseGeneratorConfig, rng);
+        NoiseGenerator<unsigned short>::factory(config.noiseGeneratorConfig, rng);
 
-    t->size.fill(1 * camera::pixel);
-    t->size.x() = config.noiseGeneratorConfig.width() * camera::pixel;
-    t->size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
-    t->size.z() = config.optics.number_of_planes() * camera::pixel;
+    for (int p = 0; p < config.optics.number_of_planes(); ++p) {
+        dStorm::image::MetaInfo<2> size;
+        size.size.x() = config.noiseGeneratorConfig.width() * camera::pixel;
+        size.size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
+        t->push_back( size, dStorm::traits::Optics() );
+    }
     imN = config.imageNumber();
     integration_time = config.integrationTime() * si::seconds;
 
@@ -222,8 +224,7 @@ NoiseSource<Pixel>::NoiseSource( NoiseConfig &config )
 
 }
 
-template <typename Pixel>
-NoiseSource<Pixel>::~NoiseSource()
+NoiseSource::~NoiseSource()
 
 {
     /* The last value of our random number generator is the next
@@ -232,14 +233,17 @@ NoiseSource<Pixel>::~NoiseSource()
     gsl_rng_free(rng);
 }
 
-template <typename Pixel>
-dStorm::engine::Image* NoiseSource<Pixel>::fetch( int imNum )
+dStorm::engine::ImageStack* NoiseSource::fetch( int imNum )
 {
     boost::lock_guard<boost::mutex> lock(mutex);
-    std::auto_ptr<dStorm::engine::Image>
-        result(new dStorm::engine::Image(t->size, imNum * camera::frame));
+    std::auto_ptr<dStorm::engine::ImageStack>
+        result(new dStorm::engine::ImageStack(imNum * camera::frame));
 
-    noiseGenerator->pixelNoise(result->ptr(), result->size_in_pixels());
+    for ( int p = 0; p < t->plane_count(); ++p ) {
+        dStorm::engine::Image2D i( t->image(p).size );
+        noiseGenerator->pixelNoise(i.ptr(), i.size_in_pixels());
+        result->push_back( i );
+    }
 
     /* Then add the fluorophores. */
     DEBUG("Making glare for " << fluorophores.size() << " fluorophores");
@@ -256,13 +260,11 @@ dStorm::engine::Image* NoiseSource<Pixel>::fetch( int imNum )
     return result.release();
 }
 
-
-template <typename Pixel>
-class NoiseSource<Pixel>::iterator
+class NoiseSource::iterator
 : public boost::iterator_facade<iterator,Image,std::input_iterator_tag>
 {
     friend class boost::iterator_core_access;
-    NoiseSource<Pixel>* const src;
+    NoiseSource* const src;
     mutable boost::shared_ptr<Image> img;
     int image_number;
     
@@ -277,24 +279,21 @@ class NoiseSource<Pixel>::iterator
 
   public:
     iterator() : src(NULL), image_number(0) {}
-    iterator(NoiseSource<Pixel>& ns, int im) : src(&ns), image_number(im) {}
+    iterator(NoiseSource& ns, int im) : src(&ns), image_number(im) {}
 };
 
-template <typename Pixel>
-typename NoiseSource<Pixel>::base_iterator 
-NoiseSource<Pixel>::begin() {
+NoiseSource::base_iterator 
+NoiseSource::begin() {
     return base_iterator( iterator(*this, 0) );
 }
 
-template <typename Pixel>
-typename NoiseSource<Pixel>::base_iterator 
-NoiseSource<Pixel>::end() {
+NoiseSource::base_iterator 
+NoiseSource::end() {
     return base_iterator( iterator(*this, imN) );
 }
 
-template <typename Pixel>
-typename NoiseSource<Pixel>::Source::TraitsPtr
-NoiseSource<Pixel>::get_traits( typename Source::Wishes ) {
+NoiseSource::Source::TraitsPtr
+NoiseSource::get_traits( typename Source::Wishes ) {
     return t;
 }
 
@@ -302,14 +301,14 @@ void NoiseConfig::publish_meta_info() {
     typedef dStorm::input::Traits<Image> Traits;
 
     boost::shared_ptr< Traits > rv( new Traits() );
-    rv->size.x() = noiseGeneratorConfig.width() * camera::pixel;
-    rv->size.y() = noiseGeneratorConfig.height() * camera::pixel;
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
-    dStorm::traits::Optics<3> optics = this->optics.make_traits();
-    rv->size.z() = optics.plane_count() * camera::pixel;
-    rv->planes.resize( optics.plane_count() );
+    this->optics.set_traits( *rv );
+    for (int p = 0; p < rv->plane_count(); ++p) {
+        rv->image(p).size.x() = noiseGeneratorConfig.width() * camera::pixel;
+        rv->image(p).size.y() = noiseGeneratorConfig.height() * camera::pixel;
+    }
 
     dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
     t->set_traits( rv );

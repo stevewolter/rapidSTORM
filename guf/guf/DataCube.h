@@ -19,7 +19,7 @@ struct InputCube {
   public:
     InputCube( const Config&, const dStorm::engine::JobInfo& );
     std::auto_ptr< DataCube >
-        set_image( const dStorm::engine::Image& image,
+        set_image( const dStorm::engine::ImageStack& image,
                    const guf::Spot& position ) const;
 };
 

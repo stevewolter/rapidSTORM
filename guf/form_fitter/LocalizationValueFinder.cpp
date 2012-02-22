@@ -18,7 +18,7 @@ struct LocalizationValueFinder::application {
     guf::TraitValueFinder tvf;
 
     application( 
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics<2>& plane,
+        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number )
         : parent(parent), 
           child( 
@@ -49,7 +49,7 @@ struct LocalizationValueFinder::application {
 };
 
 LocalizationValueFinder::LocalizationValueFinder(
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics<2>& plane,
+        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number )
 : appl_( new application(info,plane,parent,plane_number) ) {}
 

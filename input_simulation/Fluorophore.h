@@ -69,13 +69,13 @@ class Fluorophore {
     std::vector<Plane> planes;
   public:
     Fluorophore(const Position& pos, int noImages,
-                const FluorophoreConfig&, const dStorm::traits::Optics<3>&, 
+                const FluorophoreConfig&, const dStorm::input::Traits< dStorm::engine::ImageStack >& optics,
                 const int fluorophore_index);
     Fluorophore(std::istream&, const FluorophoreConfig&);
     ~Fluorophore();
 
     /** @return Total number of photons emitted in image. */
-    int glareInImage(gsl_rng *, dStorm::engine::Image &targetImage, 
+    int glareInImage(gsl_rng *, dStorm::engine::ImageStack &targetImage, 
                      int imNum, quantity<si::time> integrationTime);
     /** @return Total number of photons emitted in image. */
     int wasOnInImage(int index) const { return history[index]; }
@@ -84,7 +84,7 @@ class Fluorophore {
     Position::Scalar y() const { return pos[1]; }
     const Position& position() const { return pos; }
 
-    void recenter( Position new_position, const dStorm::traits::Optics<2>& optics );
+    void recenter( Position new_position, const dStorm::traits::Projection& optics );
 
     friend std::ostream& operator<<(std::ostream&, const Fluorophore&);
 

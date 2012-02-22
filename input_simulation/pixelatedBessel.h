@@ -2,6 +2,7 @@
 #define LOCPREC_PIXELATED_BESSEL_H
 
 #include <dStorm/traits/optics.h>
+#include <dStorm/engine/InputPlane.h>
 #include <boost/units/Eigen/Core>
 #include <dStorm/types/samplepos.h>
 #include <dStorm/traits/Projection.h>
@@ -13,7 +14,7 @@ using namespace boost::units;
 /** Sample space is measured in meters. */
 class BesselFunction {
     /** Affine transformation from image space into sample space */
-    const dStorm::traits::Optics<2>& trafo;
+    const dStorm::engine::InputPlane& trafo;
     /** Position of fluorophore in sample space */
     const dStorm::samplepos fluorophore;
     const double na, n, theta_max;
@@ -38,7 +39,7 @@ class BesselFunction {
   public:
     typedef Eigen::Matrix< quantity<si::length,float>, 2, 1> HalfWidths;
     BesselFunction( 
-        const dStorm::traits::Optics<2>& transformation_into_sample_space,
+        const dStorm::engine::InputPlane& transformation_into_sample_space,
         const dStorm::samplepos& fluorophore_position_in_sample_space,
         double num_apert, double opt_density,
         quantity<si::length> wavelength,

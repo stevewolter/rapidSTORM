@@ -28,6 +28,9 @@ public:
 
     typedef std::vector< engine::InputPlane >::iterator iterator;
     typedef std::vector< engine::InputPlane >::const_iterator const_iterator;
+    typedef std::vector< engine::InputPlane >::reference reference;
+    typedef std::vector< engine::InputPlane >::const_reference const_reference;
+
     iterator begin() { return planes_.begin(); }
     const_iterator begin() const { return planes_.begin(); }
     iterator end() { return planes_.end(); }
@@ -42,6 +45,13 @@ public:
 
     std::string desc() const { return "image"; }
     Traits* clone() const { return new Traits(*this); }
+
+    void push_back( const image::MetaInfo<2>&, const traits::Optics& );
+    void push_back( const engine::InputPlane& );
+    void clear();
+
+    Traits();
+    Traits( const image::MetaInfo<2>& );
 
 private:
     std::vector< engine::InputPlane > planes_;

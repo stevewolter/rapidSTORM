@@ -9,8 +9,6 @@
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_randist.h>
 
-#include <dStorm/ImageTraits.h>
-
 #include <memory>
 
 #include <simparm/Entry.hh>

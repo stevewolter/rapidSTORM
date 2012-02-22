@@ -17,7 +17,7 @@ class TerminalCache
 
     const display::ResizeChange& getSize() const 
         { return size; }
-    void setSize(const input::Traits< Image<int,Im::Dim> >&);
+    void setSize(const image::MetaInfo<Im::Dim>&);
     void setSize(const dStorm::display::ResizeChange& size);
 };
 

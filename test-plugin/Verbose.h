@@ -47,8 +47,8 @@ struct Verbose
     }
     void receiveLocalizations(const EngineResult& er) {
         LOG( "Verbose plugin got " << er.size() << " localizations for " << er.forImage);
-        if ( er.source.is_valid() ) {
-            LOG( "Source image is attached with size " << er.source.sizes().transpose() );
+        if ( er.source->plane(0).is_valid() ) {
+            LOG( "Source image is attached with size " << er.source->plane(0).sizes().transpose() );
         }
     }
     void store_results() {

@@ -18,7 +18,7 @@ class Config;
 class Fitter 
 : public engine::spot_fitter::Implementation
 {
-    dStorm::engine::InputTraits traits;
+    const dStorm::engine::InputTraits& traits;
     dStorm::engine::JobInfo info;
     InputCube data_creator;
     InitialValueFinder initial_value_finder;
@@ -27,14 +27,14 @@ class Fitter
     LocalizationChecker is_good_localization;
     KernelCreator add_new_kernel;
     Eigen::Vector2i mask_size;
-    const traits::Optics<2>& first_plane_optics;
+    const traits::Optics& first_plane_optics;
     bool mle, two_kernel_analysis;
 
   public:
     Fitter(
         const dStorm::engine::JobInfo& info,
         const Config& config );
-    int fitSpot( const engine::FitPosition& spot, const engine::Image &im,
+    int fitSpot( const engine::FitPosition& spot, const engine::ImageStack &im,
                  iterator target );
 };
 
