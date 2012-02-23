@@ -159,8 +159,9 @@ FluorophoreSetConfig::create_fluorophores(
                 fluorophoreConfig ) );
     } else {
         const FluorophoreDistribution& distribution = this->distribution.value();
+        dStorm::samplepos size = t.size_in_sample_space();
         FluorophoreDistribution::Positions positions = 
-            distribution.fluorophore_positions( t.size_in_sample_space(), rng);
+            distribution.fluorophore_positions( size, rng);
 
         int bins = 100;
         dStorm::Image<Fluorophore*,2>::Size sz;

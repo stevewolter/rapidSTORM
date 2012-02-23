@@ -173,7 +173,7 @@ int Fluorophore::glareInImage(gsl_rng *rng,
                     for (PixelIndex y = -p.range[1]; y <= p.range[1]; 
                         y+=one_pixel) 
                     {
-                        pos.y() = x+p.pixel[0]; 
+                        pos.y() = y+p.pixel[1]; 
                         if ( ! targetImage.plane(plane).contains(pos) )
                             continue;
 
