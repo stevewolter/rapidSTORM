@@ -148,7 +148,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
                 data = empty_scanline;
             else
                 data = const_cast<tdata_t>( (const tdata_t)&img.plane(p)(0, y) );
-            tsize_t r = TIFFWriteScanline(tif, data, ++current_line, 0);
+            tsize_t r = TIFFWriteScanline(tif, data, current_line++, 0);
             if ( r == -1 /* Error occured */ ) 
                 op.throw_exception_for_errors();
         }

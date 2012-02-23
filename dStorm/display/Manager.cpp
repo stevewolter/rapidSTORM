@@ -68,5 +68,9 @@ StorableImage::StorableImage( const std::string& filename, const Change& image )
 }
 
 }
+
+template <>
+const int Image< dStorm::Pixel, 3 >::Dim;
+
 }
 

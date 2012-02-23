@@ -59,7 +59,11 @@ Engine::~Engine() {
 boost::shared_ptr< input::Traits<output::LocalizedImage> >
 Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>& imProp )
 {
-    input::Traits<Localization> rv( imProp );
+    assert( imProp.plane_count() > 0 );
+    input::Traits<Localization> rv;
+    rv.in_sequence = true;
+    rv.image_number() = imProp.image_number();
+
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
     if ( config.amplitude_threshold().is_initialized() )
@@ -124,6 +128,13 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
 
     input::Traits<output::LocalizedImage>::Ptr prv =
         convert_traits(config, *imProp);
+
+    samplepos size = imProp->size_in_sample_space();
+    for (int i = 0; i < 2; ++i) {
+        prv->position().range()[i].first = 0 * si::meter;
+        prv->position().range()[i].second = size[i];
+    }
+
     prv->carburettor = input.get();
     prv->image_number().is_given = true;
     prv->engine = this;

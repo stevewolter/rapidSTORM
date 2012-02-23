@@ -50,6 +50,8 @@ Source::TraitsPtr Source::get_traits( Wishes )
     DEBUG("Returning traits");
     traits = rv;
     assert( rv.get() ); /* Make sure noone changed type to auto_ptr */
+    assert( cam_traits.plane_count() > 0 );
+    assert( rv->plane_count() > 0 );
     return rv;
 }
 

@@ -15,8 +15,9 @@ engine::ImageStack merge_data< engine::ImageStack, spatial_tag<2> >::operator()(
     const std::vector< input::Source<engine::ImageStack>::iterator >& s,
     spatial_tag<2> ) const
 {
-    engine::ImageStack rv;
-    for (size_t i = 0; i < s.size(); ++i) {
+    assert( ! s.empty() );
+    engine::ImageStack rv( *s[0] );
+    for (size_t i = 1; i < s.size(); ++i) {
         std::copy( s[i]->begin(), s[i]->end(),
             std::back_inserter( rv ) );
     }

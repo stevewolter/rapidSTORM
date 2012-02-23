@@ -22,7 +22,8 @@ void TerminalCache::setSize(
 ) {
     DEBUG("Setting size of image to " << traits.size.x() << " " <<traits.size.y());
     size.set_size( Im::Size(traits.size) );
-    for (int i = 0; i < std::min(display::Image::Dim, Im::Dim); ++i)
+    const int display_dim = display::Image::Dim;
+    for (int i = 0; i < std::min(display_dim, Im::Dim); ++i)
         if ( traits.has_resolution() )
             size.pixel_sizes[i] = traits.resolution(i);
         else

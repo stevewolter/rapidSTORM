@@ -51,6 +51,7 @@ void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntr
     traits.image_number().range().first = 0 * camera::frame;
     dStorm::image::MetaInfo<2> size;
     size.size.fill( 1 * camera::pixel );
+    traits.clear();
     traits.push_back( size, dStorm::traits::Optics() );
     stream << "start_acquisition" << std::endl;
     while ( true ) {

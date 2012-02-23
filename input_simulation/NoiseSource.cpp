@@ -191,7 +191,6 @@ NoiseSource::NoiseSource( NoiseConfig &config )
   randomSeedEntry(config.noiseGeneratorConfig.random_seed),
   t( new dStorm::engine::InputTraits() )
 {
-    config.optics.set_traits( *t );
 
     DEBUG("Just made traits for noise source");
     rng = gsl_rng_alloc(gsl_rng_mt19937);
@@ -205,6 +204,10 @@ NoiseSource::NoiseSource( NoiseConfig &config )
         size.size.x() = config.noiseGeneratorConfig.width() * camera::pixel;
         size.size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
         t->push_back( size, dStorm::traits::Optics() );
+    }
+    config.optics.set_traits( *t );
+    for (int p = 0; p < t->plane_count(); ++p) {
+        t->plane(p).create_projection();
     }
     imN = config.imageNumber();
     integration_time = config.integrationTime() * si::seconds;
@@ -304,11 +307,13 @@ void NoiseConfig::publish_meta_info() {
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
-    this->optics.set_traits( *rv );
-    for (int p = 0; p < rv->plane_count(); ++p) {
-        rv->image(p).size.x() = noiseGeneratorConfig.width() * camera::pixel;
-        rv->image(p).size.y() = noiseGeneratorConfig.height() * camera::pixel;
+    for (int p = 0; p < optics.number_of_planes(); ++p) {
+        dStorm::image::MetaInfo<2> p;
+        p.size.x() = noiseGeneratorConfig.width() * camera::pixel;
+        p.size.y() = noiseGeneratorConfig.height() * camera::pixel;
+        rv->push_back( p, dStorm::traits::Optics() );
     }
+    this->optics.set_traits( *rv );
 
     dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
     t->set_traits( rv );

@@ -81,6 +81,7 @@ class Source::iterator
         return (src == i.src) && (src == NULL || i.src == NULL || directory == i.directory);
     }
     void increment() { 
+        DEBUG("Incrementing TIFF iterator " << this);
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );
         check_position(op);
@@ -97,6 +98,7 @@ class Source::iterator
         }
     }
     void decrement() { 
+        DEBUG("Decrementing TIFF iterator " << this);
         img.reset(); 
         if ( directory == 0 ) 
             src = NULL; 
@@ -108,6 +110,7 @@ class Source::iterator
         }
     }
     void advance(int n) { 
+        DEBUG("Advancing TIFF iterator " << this);
         if (n) {
             TIFFOperation op( "in reading TIFF file",
                             *msg, src->ignore_warnings );
@@ -158,6 +161,8 @@ void Source::iterator::check_params() const
 Source::Image&
 Source::iterator::dereference() const
 { 
+    DEBUG("Dereferencing TIFF iterator " << this);
+    static int count = 0;
     if ( ! img.is_initialized() ) {
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );

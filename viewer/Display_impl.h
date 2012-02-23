@@ -63,7 +63,8 @@ void Display<Colorizer>::setSize( const MetaInfo& traits)
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
-    for (int i = 0; i < std::min(display::Image::Dim, Im::Dim); ++i) 
+    const int display_dim = display::Image::Dim;
+    for (int i = 0; i < std::min(display_dim, Im::Dim); ++i) 
         if ( traits.has_resolution() )
             size.pixel_sizes[i] = traits.resolution(i);
         else

@@ -26,8 +26,9 @@ class Alternatives::UpstreamLink
 {
     UpstreamCollector& collector;
     Link::Connection connection;
-    void update_current_meta_info( TraitsRef t ) 
-        { Link::update_current_meta_info(t); }
+    void update_current_meta_info( TraitsRef t ) { 
+        Link::update_current_meta_info(t); 
+    }
 
   public:
     UpstreamLink( UpstreamCollector& collector ) 

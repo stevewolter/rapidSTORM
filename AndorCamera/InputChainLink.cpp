@@ -89,8 +89,8 @@ dStorm::input::BaseSource* Method::makeSource()
 }
 
 void Method::publish_meta_info() {
-    boost::shared_ptr< CamTraits > traits;
-    traits.reset( new CamTraits() );
+    boost::shared_ptr< CamTraits > traits( new CamTraits() );
+    traits->push_back( engine::InputPlane() );
     traits->image_number().range().first = 0 * camera::frame;
 
     dStorm::input::MetaInfo::Ptr mi
