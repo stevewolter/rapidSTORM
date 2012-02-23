@@ -257,8 +257,6 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
   origMotivation( config.motivation() )
 {
     DEBUG("Started piston");
-    DEBUG("Building spot finder with dimensions " << engine.imProp->size[0] <<
-           " " << engine.imProp->size[1]);
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
     if ( engine.imProp->plane_count() < 1 )
@@ -308,7 +306,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
         engine.errors.viewable = true;
         return;
     } else {
-        DEBUG("Image " << base->ptr() << " is valid");
+        DEBUG("Image " << base->frame_number() << " is valid");
     }
 
     DEBUG("Compression (" << base->frame_number() << ")");
