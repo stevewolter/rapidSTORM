@@ -1,7 +1,7 @@
 #ifndef DSTORM_RECONSTRUCTION_H
 #define DSTORM_RECONSTRUCTION_H
 
-#include <dStorm/Image_decl.h>
+#include <dStorm/image/fwd.h>
 
 namespace dStorm {
     /** Perform reconstruction by dilation on the image src with mask

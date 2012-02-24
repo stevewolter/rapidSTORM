@@ -85,13 +85,6 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
                           const int time );
     
   public:
-#if 0
-    /** Dummy constructor for dummy tracing objects. Will not produce
-     *  useful tracers. */
-    KalmanTrace() : measurement_covar(NULL), 
-                            random_system_dynamics_covar(NULL) {}
-#endif
-
     KalmanTrace( const KalmanMetaInfo<Dimensions>& meta );
 
     float sq_distance_in_sigmas( const dStorm::Localization& position ) ; 
@@ -200,16 +193,6 @@ float KalmanTrace<Dimensions>::sq_distance_in_sigmas (
 
     double sq_dist = difference.dot( 
         covar_of_next_measurement.inverse() * difference );
-#if 0
-    std::cout << "0 " 
-        << myNumber << " "
-        << position.getImageNumber() << " "
-        << size() << " "
-        << expected_observation.transpose() << " "
-        << real_observation.transpose() << " "
-        << covar_of_next_measurement.diagonal().transpose() << " "
-        << sq_dist << "\n";
-#endif
     return sq_dist;
 }
 
@@ -224,16 +207,6 @@ void KalmanTrace<Dimensions>::add( const dStorm::Localization& l )
         position_estimate = observation_matrix.transpose() * obs;
         position = l.frame_number() / camera::frame;
     }
-#if 0
-    std::cout << "1 " 
-        << myNumber << " "
-        << l.getImageNumber() << " "
-        << size() << " "
-        << obs.transpose() << " "
-        << position_estimate.transpose() << " "
-        << estimation_precision.diagonal().transpose() << " for "
-        << this << "\n";
-#endif
     this->push_back( l );
 }
 

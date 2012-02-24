@@ -6,7 +6,7 @@
 #include "Config.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/traits/optics.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 #include <boost/variant/get.hpp>
 #include "guf/psf/parameters.h"
 
@@ -15,15 +15,15 @@ namespace guf {
 
 struct TraitValueFinder {
     const dStorm::engine::JobInfo& info;
-    const dStorm::traits::Optics<2>& plane;
-    const boost::optional<traits::Optics<2>::PSF> psf;
+    const dStorm::traits::Optics& plane;
+    const boost::optional<traits::Optics::PSF> psf;
     const quantity<si::length> zero_wavelength;
     const bool is_3d;
 
   public:
     typedef void result_type;
     TraitValueFinder( 
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics<2>& plane )
+        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane )
         : info(info), plane(plane), 
           psf( plane.psf_size(info.fluorophore) ),
           zero_wavelength( info.traits.fluorophores.at(0).wavelength ),

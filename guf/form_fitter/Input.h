@@ -12,12 +12,12 @@ namespace form_fitter {
 struct Input {
     typedef guf::TransformedImage< si::length > Transformed;
 
-    boost::shared_ptr< const input::Traits< engine::Image > > traits;
+    boost::shared_ptr< const input::Traits< engine::ImageStack > > traits;
     boost::ptr_vector<Transformed> transforms;
     const int number_of_spots;
     int fluorophore_count;
 
-    Input( const Config&, const output::Output::Announcement&, traits::Optics<2>::PSF );
+    Input( const Config&, const output::Output::Announcement&, traits::Optics::PSF );
 };
 
 }

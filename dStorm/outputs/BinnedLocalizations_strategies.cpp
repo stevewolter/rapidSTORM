@@ -5,7 +5,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include <simparm/Entry_Impl.hh>
-#include <dStorm/ImageTraits_impl.h>
+#include <dStorm/image/MetaInfo.h>
 
 #include <dStorm/output/binning/config.h>
 #include <dStorm/output/binning/inversion.h>

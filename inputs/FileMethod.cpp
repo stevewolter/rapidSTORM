@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/Image.h>
+#include <dStorm/engine/InputTraits.h>
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Choice.h>
 #include <dStorm/input/Forwarder.h>
@@ -170,34 +171,34 @@ void unit_test( TestState& t ) {
         "Test method publishes traits for TIFF file name" );
     t.testrun( ! file_method.current_meta_info()->provides_nothing(), 
         "Test method provides something for TIFF file name" );
-    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >(),
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >(),
         "Test method provides correct image type" );
-    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
     std::auto_ptr<  dStorm::input::Link > foo = dummy_file_input::make();
     file_method.insert_new_node( foo, FileReader );
     file_method.publish_meta_info();
-    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+    t.testrun( file_method.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Test method provides correct width for TIFF file name" );
 
     file_method.input_file = "foobar.dummy";
     t.testrun( file_method.current_meta_info().get() &&
-               file_method.current_meta_info()->traits< dStorm::engine::Image >().get() &&
-               file_method.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 50 * camera::pixel,
+               file_method.current_meta_info()->traits< dStorm::engine::ImageStack >().get() &&
+               file_method.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 50 * camera::pixel,
         "Test method can change file type" );
 
     FileMethod copy(file_method);
     copy.publish_meta_info();
     copy.input_file = TIFF::test_file_name;
     t.testrun( copy.current_meta_info().get() && 
-               copy.current_meta_info()->provides<dStorm::engine::Image>() &&
-               copy.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+               copy.current_meta_info()->provides<dStorm::engine::ImageStack>() &&
+               copy.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Copied file method can adapt to input file" );
     file_method.input_file = "";
     t.testrun( copy.current_meta_info().get() && 
-               copy.current_meta_info()->provides<dStorm::engine::Image>() &&
-               copy.current_meta_info()->traits< dStorm::engine::Image >()->size[1] == 42 * camera::pixel,
+               copy.current_meta_info()->provides<dStorm::engine::ImageStack>() &&
+               copy.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,
         "Copied file method is not mutated by original" );
 }
 

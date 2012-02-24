@@ -20,7 +20,7 @@ DummyFitterConfig::~DummyFitterConfig()
 DummyFitter::DummyFitter(const Config&, const dStorm::engine::JobInfo& i) 
     : traits(i.traits), counter(0), length(5) {}
 
-int DummyFitter::fitSpot( const dStorm::engine::FitPosition& spot, const dStorm::engine::Image &im, iterator target )
+int DummyFitter::fitSpot( const dStorm::engine::FitPosition& spot, const dStorm::engine::ImageStack &im, iterator target )
 {
     if ( ++counter % length == 0 ) {
         DEBUG("Using result in image " << im.frame_number() << " at counter " << counter);

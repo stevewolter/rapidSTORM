@@ -4,6 +4,7 @@
 
 #include "debug.h"
 #include "CameraConnection.h"
+#include <dStorm/engine/InputTraits.h>
 
 #include <boost/asio/ip/basic_resolver.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -48,7 +49,10 @@ void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntr
 {
     DEBUG("Sending start acquisition command");
     traits.image_number().range().first = 0 * camera::frame;
-    traits.size.fill( 1 * camera::pixel );
+    dStorm::image::MetaInfo<2> size;
+    size.size.fill( 1 * camera::pixel );
+    traits.clear();
+    traits.push_back( size, dStorm::traits::Optics() );
     stream << "start_acquisition" << std::endl;
     while ( true ) {
         DEBUG("Reading acquisition start line in " << this);
@@ -70,12 +74,12 @@ void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntr
         } else if ( command == "length" ) {
             traits.image_number().range().second = (boost::lexical_cast<int>(args)-1) * camera::frame;
         } else if ( command == "width" ) {
-            traits.size.x() = (boost::lexical_cast<int>(args)) * camera::pixel;
-            if ( traits.size.x() >= 10240 * camera::pixel || traits.size.x() <= 0 * camera::pixel )
+            traits.image(0).size.x() = (boost::lexical_cast<int>(args)) * camera::pixel;
+            if ( traits.image(0).size.x() >= 10240 * camera::pixel || traits.image(0).size.x() <= 0 * camera::pixel )
                 throw std::runtime_error("Camera sent bogus width " + args);
         } else if ( command == "height" ) {
-            traits.size.y() = (boost::lexical_cast<int>(args)) * camera::pixel;
-            if ( traits.size.y() >= 10240 * camera::pixel || traits.size.y() <= 0 * camera::pixel )
+            traits.image(0).size.y() = (boost::lexical_cast<int>(args)) * camera::pixel;
+            if ( traits.image(0).size.y() >= 10240 * camera::pixel || traits.image(0).size.y() <= 0 * camera::pixel )
                 throw std::runtime_error("Camera sent bogus height " + args);
         } else if ( command == "acquisition" && args == "has started") {
             break;
@@ -84,7 +88,7 @@ void CameraConnection::start_acquisition( CamTraits& traits, simparm::StringEntr
     DEBUG("Acquisition started");
 }
 
-void CameraConnection::set_traits( input::Traits<engine::Image>& traits )
+void CameraConnection::set_traits( CamTraits& traits )
 {
     traits.image_number().range().first = 0 * camera::frame;
 }

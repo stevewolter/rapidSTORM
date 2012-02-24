@@ -1,5 +1,5 @@
 #include "temporal.hpp"
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <Eigen/Core>
 #include <dStorm/output/LocalizedImage.h>
 #include <dStorm/output/LocalizedImage_traits.h>
@@ -21,14 +21,22 @@ bool iterator<Type,temporal_tag>::InputPart::operator==( const InputPart& o ) co
     return source.get() == o.source.get() && begin == o.begin && end == o.end;
 }
 
-void merge_size( Traits<engine::Image>& onto, const Traits<engine::Image> with, int i )
+void merge_size( Traits<engine::ImageStack>& onto, const Traits<engine::ImageStack> with, int i )
 {
-        if ( onto.size != with.size ) {
+    if ( onto.plane_count() != with.plane_count() ) {
             std::stringstream ss;
-            ss << "Image dimensions for channel 0 (" << onto.size << ") and for channel " << i 
-                << " (" << with.size << ") do not agree." << std::endl;
+            ss << "Number of planes for channel 0 (" << onto.plane_count() << ") and for channel " << i 
+                << " (" << with.plane_count() << ") do not agree." << std::endl;
+            throw std::runtime_error(ss.str());
+    }
+    for (int i = 0; i < onto.plane_count(); ++i) {
+        if ( onto.plane(i).image.size != with.plane(i).image.size ) {
+            std::stringstream ss;
+            ss << "Image dimensions for channel 0 (" << onto.plane(i).image.size.transpose() << ") and for channel " << i 
+                << " (" << with.plane(i).image.size.transpose() << ") do not agree." << std::endl;
             throw std::runtime_error(ss.str());
         }
+    }
 }
 
 template <typename Exception>
@@ -150,9 +158,9 @@ Type& iterator<Type,temporal_tag>::dereference() const
     return *joined;
 }
 
-template class iterator< engine::Image, temporal_tag >;
+template class iterator< engine::ImageStack, temporal_tag >;
 template class iterator< dStorm::output::LocalizedImage, temporal_tag >;
-template class merge_traits< engine::Image, temporal_tag >;
+template class merge_traits< engine::ImageStack, temporal_tag >;
 template class merge_traits< dStorm::output::LocalizedImage, temporal_tag >;
 
 }

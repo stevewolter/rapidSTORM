@@ -30,6 +30,7 @@
 #include <boost/variant/get.hpp>
 #include <nonlinfit/BoundFunction.hpp>
 #include "guf/guf/mle_converter.h"
+#include <dStorm/engine/InputTraits.h>
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -40,7 +41,7 @@
 namespace dStorm {
 namespace form_fitter {
 
-extern traits::Optics<2>::PSF max_psf_size( const input::Traits<engine::Image>& traits );
+extern traits::Optics::PSF max_psf_size( const input::Traits<engine::ImageStack>& traits );
 
 namespace PSF = dStorm::guf::PSF;
 
@@ -124,7 +125,7 @@ class VariableReduction
      *  add_plane() has been called for nop times.
      *
      *  @param nop Number of planes to generate a matrix for. */
-    VariableReduction( const Config& config, const input::Traits< engine::Image >& traits, int nop );
+    VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop );
     void add_plane( const int layer, const int fluorophore );
     /** Find the first plane that has been adding with matching parameters. */
     inline int find_plane( const int layer, const int fluorophore );
@@ -153,7 +154,7 @@ struct is_positional {
 };
 
 template <typename Lambda>
-VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::Image >& traits, int nop )
+VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
 : first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
   plane_count(0), max_plane_count(nop)
 {
@@ -248,7 +249,7 @@ class Fitter
         return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
     }
 
-    dStorm::traits::Optics<3>::DepthInfo get_3d( const PSF::Zhuang& m ) {
+    dStorm::traits::DepthInfo get_3d( const PSF::Zhuang& m ) {
         traits::Zhuang3D three_d;
         for (int i = 0; i < 2; ++i)
             three_d.widening[i] = quantity<traits::Zhuang3D::Unit>( 
@@ -256,22 +257,22 @@ class Fitter
         return three_d;
     }
 
-    dStorm::traits::Optics<3>::DepthInfo get_3d( const PSF::No3D& ) {
+    dStorm::traits::DepthInfo get_3d( const PSF::No3D& ) {
         return traits::No3D();
     }
 
 
   public:
     /** \see FittingVariant::create(). */
-    Fitter( const Config& config, const input::Traits< engine::Image >& traits, int images );
+    Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images );
     /** \see FittingVariant::add_image(). */
-    bool add_image( const engine::Image& image, const Localization& position, int fluorophore );
+    bool add_image( const engine::ImageStack& image, const Localization& position, int fluorophore );
     /** \see FittingVariant::fit(). */
-    void fit( input::Traits< engine::Image >& new_traits );
+    void fit( input::Traits< engine::ImageStack >& new_traits );
 };
 
 template <class Metric, class Lambda>
-Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::Image >& traits, int images )
+Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 : traits(traits), table( config, traits, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
@@ -285,10 +286,10 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
 
 template <class Metric, class Lambda>
 bool Fitter<Metric,Lambda>::
-add_image( const engine::Image& image, const Localization& position, int fluorophore ) 
+add_image( const engine::ImageStack& image, const Localization& position, int fluorophore ) 
 {
-    for (int i = 0; i < image.depth_in_pixels(); ++i) {
-        DEBUG("Adding layer " << i << " of " << image.depth_in_pixels() << " to model with " << evaluators.size()
+    for (int i = 0; i < image.plane_count(); ++i) {
+        DEBUG("Adding layer " << i << " of " << image.plane_count() << " to model with " << evaluators.size()
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
@@ -297,15 +298,15 @@ add_image( const engine::Image& image, const Localization& position, int fluorop
         guf::Statistics<2> stats = 
             transformations[ i ].set_data( 
                 new_evaluator->get_data(),
-                image.slice(2, i * camera::pixel),
+                image.plane(i),
                 guf::Spot( position.position().template head<2>() ),
-                guf::mle_converter(traits.plane(i))  );
+                guf::mle_converter(traits.optics(i))  );
         /* Check the number pixels used in PSF estimation for this spot & plane. */
         assert ( stats.pixel_count > 0 );
         DEBUG("Size is now " << new_evaluator->get_data().min.transpose() << " - " << new_evaluator->get_data().max.transpose() );
 
         dStorm::engine::JobInfo info( 0, 0 * camera::ad_count, traits, fluorophore );
-        LocalizationValueFinder iv(info, traits.plane(i), position, i);
+        LocalizationValueFinder iv(info, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
 
@@ -318,7 +319,7 @@ add_image( const engine::Image& image, const Localization& position, int fluorop
 }
     
 template <class Metric, class Lambda>
-void Fitter<Metric,Lambda>::fit( input::Traits< engine::Image >& new_traits ) 
+void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits ) 
 {
     CombinedFunction combiner( table.get_reduction_matrix() );
     combiner.set_fitters( evaluators.begin(), evaluators.end() );
@@ -336,14 +337,14 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::Image >& new_traits )
         float target_transmission = 0, total_transmission = 0; 
         for (int j = 0; j < traits.plane_count(); ++j) {
             total_transmission += result(i,j)( PSF::Prefactor() );
-            target_transmission += traits.plane(j).transmission_coefficient(i);
+            target_transmission += traits.optics(j).transmission_coefficient(i);
         }
         for (int j = 0; j < traits.plane_count(); ++j) {
-            new_traits.plane(j).set_fluorophore_transmission_coefficient(i, 
+            new_traits.optics(j).set_fluorophore_transmission_coefficient(i, 
                 result(i,j)( PSF::Prefactor() )
                     * target_transmission / total_transmission );
             for (int k = 0; k < 2; ++k) {
-                (*new_traits.plane(j).psf_size(i))[k] = quantity<si::length>(
+                (*new_traits.optics(j).psf_size(i))[k] = quantity<si::length>(
                     result(i,j).template get< PSF::BestSigma >(k) * new_traits.fluorophores.at(i).wavelength * 1.075);
             }
         }
@@ -354,7 +355,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::Image >& new_traits )
 /** Helper for FittingVariant::create() that instantiates a Fitter class. */
 template <class Lambda>
 std::auto_ptr<FittingVariant>
-create2( const Config& config, const input::Traits< engine::Image >& traits, int images )
+create2( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     if ( config.mle() )
         return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
@@ -366,7 +367,7 @@ create2( const Config& config, const input::Traits< engine::Image >& traits, int
  *  the number of layers. */
 template <typename Expression>
 std::auto_ptr<FittingVariant>
-create1( const Config& config, const input::Traits< engine::Image >& traits, int images )
+create1( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     if ( traits.plane_count() > 1 )
         return create2< nonlinfit::Bind<Expression, MultiPlaneAssignment> >( config, traits, images );
@@ -375,7 +376,7 @@ create1( const Config& config, const input::Traits< engine::Image >& traits, int
 }
 
 std::auto_ptr<FittingVariant>
-FittingVariant::create( const Config& config, const input::Traits< engine::Image >& traits, int images )
+FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     std::auto_ptr<FittingVariant> rv;
     bool has_3d = boost::get< traits::Zhuang3D >( traits.depth_info.get_ptr() ) != NULL;

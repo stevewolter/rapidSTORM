@@ -3,13 +3,13 @@
 
 #include <boost/signals2/slot.hpp>
 #include <boost/signals2/signal.hpp>
-#include <dStorm/traits/optics.h>
+#include <dStorm/image/MetaInfo.h>
 
 namespace dStorm {
 namespace signals {
 
 struct ResolutionChange 
-: public boost::signals2::signal< void (const traits::Optics<2>::Resolutions&) > 
+: public boost::signals2::signal< void (const image::MetaInfo<2>::Resolutions&) > 
     {};
 
 }

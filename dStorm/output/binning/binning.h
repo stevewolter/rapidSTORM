@@ -4,7 +4,7 @@
 #include "binning_decl.h"
 
 #include "../Output.h"
-#include "../../ImageTraits.h"
+#include "../../traits/image_resolution.h"
 #include <boost/units/quantity.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/systems/camera/length.hpp>

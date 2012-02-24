@@ -14,22 +14,22 @@ template <int Dim> struct spatial_tag {
     static std::string get_desc() { return "Spatially in " + spatial_dimension_name<Dim>() + " dimension"; }
 };
 
-template <int Dim>
-struct merge_traits< engine::Image, spatial_tag<Dim> > : public traits_merger<engine::Image>
+template <>
+struct merge_traits< engine::ImageStack, spatial_tag<2> >
+: public traits_merger<engine::ImageStack>
 {
-    typename traits_merger<engine::Image>::result_type
-        operator()( const typename traits_merger<engine::Image>::argument_type& ) const;
+    result_type operator()( const argument_type& ) const;
 };
 
-template <int Dim>
-struct merge_data< engine::Image, spatial_tag<Dim> >
+template <>
+struct merge_data< engine::ImageStack, spatial_tag<2> >
 {
-    typedef engine::Image result_type;
+    typedef engine::ImageStack result_type;
 
-    engine::Image operator()( 
-        const input::Traits<engine::Image>& traits,
-        const std::vector< input::Source<engine::Image>::iterator >& s,
-        spatial_tag<Dim> ) const;
+    engine::ImageStack operator()( 
+        const input::Traits<engine::ImageStack>& traits,
+        const std::vector< input::Source<engine::ImageStack>::iterator >& s,
+        spatial_tag<2> ) const;
 };
 
 }

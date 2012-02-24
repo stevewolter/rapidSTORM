@@ -37,15 +37,18 @@ SourceValuePrinter::announceStormSize(const Announcement &a)
 }
 
 void SourceValuePrinter::receiveLocalizations(const EngineResult& e) {
-    if ( e.source.is_invalid() || e.forImage < from_image || e.forImage > to_image ) return;
-    const dStorm::engine::Image& i = e.source;
-    for (int x = std::max<int>( from.x().value(), 0 ); x < std::min( to.x(), i.width() ).value(); ++x )
-        {
-        for (int y = std::max<int>( from.y().value(), 0 ); y < std::min( to.y(), i.height() ).value(); ++y )
-            for (int z = 0; z < i.depth_in_pixels(); ++z)
-                (*output) << e.forImage.value() << " " << x << " " << y << " " << " " << z << " " << i(x,y,z) << "\n";
-        (*output) << "\n";
-        }
+    if ( ! e.source.is_initialized() || e.forImage < from_image || e.forImage > to_image ) return;
+    const dStorm::engine::ImageStack& ip = *e.source;
+    for (int z = 0; z < ip.plane_count(); ++z) {
+        const dStorm::engine::Image2D& i = ip.plane(z);
+        if ( i.is_invalid() ) continue;
+        for (int x = std::max<int>( from.x().value(), 0 ); x < std::min( to.x(), i.width() ).value(); ++x )
+            {
+            for (int y = std::max<int>( from.y().value(), 0 ); y < std::min( to.y(), i.height() ).value(); ++y )
+                    (*output) << e.forImage.value() << " " << x << " " << y << " " << " " << z << " " << i(x,y) << "\n";
+            (*output) << "\n";
+            }
+    }
 }
 
 SourceValuePrinter::_Config::_Config() 

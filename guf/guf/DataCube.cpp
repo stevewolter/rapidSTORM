@@ -3,6 +3,8 @@
 
 #include "DataCube.h"
 #include <dStorm/image/slice.h>
+#include <dStorm/engine/InputTraits.h>
+#include <dStorm/engine/Image.h>
 #include "Centroid.h"
 
 namespace dStorm {
@@ -16,15 +18,14 @@ InputCube::InputCube( const Config& ad, const dStorm::engine::JobInfo& info )
 
 std::auto_ptr< DataCube >
 InputCube::set_image( 
-    const dStorm::engine::Image& image,
+    const dStorm::engine::ImageStack& image,
     const guf::Spot& position ) const
 {
     std::auto_ptr< DataCube > rv( new DataCube() );
     typename boost::ptr_vector< InputPlane >::const_iterator b, i, e = planes.end();
     for ( b = i = planes.begin(); i != e; ++i) {
         rv->planes.push_back( 
-            i->set_image( image.slice(2, int(i - b) * camera::pixel),
-                          position ) );
+            i->set_image( image.plane(i - b), position ) );
     }
     return rv;
 }

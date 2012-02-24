@@ -13,7 +13,7 @@
 #include <map>
 #include "AndorDirect.h"
 
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include <dStorm/traits/image_resolution.h>
@@ -68,7 +68,7 @@ class Display : public simparm::Set,
 
     /** Saved data of the last camera image to enable saving. */
     dStorm::display::Image last_image;
-    traits::Optics<2>::Resolutions resolution;
+    image::MetaInfo<2>::Resolutions resolution;
     boost::thread image_acquirer;
 
     /** Subthread for image acquisition. */
@@ -108,7 +108,7 @@ class Display : public simparm::Set,
     virtual ~Display();
 
     void terminate();
-    void resolution_changed( traits::Optics<2>::Resolutions );
+    void resolution_changed( image::MetaInfo<2>::Resolutions );
     void basename_changed( const std::string& basename );
 };
 

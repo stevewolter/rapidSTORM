@@ -24,8 +24,8 @@ TransformedImage<LengthUnit>::set_generic_data(
     nonlinfit::plane::GenericData<LengthUnit>& g, const Spot& center ) const
 {
     g.pixel_size = quantity<typename nonlinfit::plane::GenericData<LengthUnit>::AreaUnit>(
-        optics.projection()->pixel_size( 
-            optics.projection()->nearest_point_in_image_space( center ) ) );
+        optics.projection().pixel_size( 
+            optics.projection().nearest_point_in_image_space( center ) ) );
 
     /** This method initializes the min and max fields to the center coordinate. */
     g.min = center.template cast< quantity<LengthUnit> >();
@@ -83,7 +83,7 @@ TransformedImage<LengthUnit>::set_data(
     pixels.reserve( rv.pixel_count );
 
     const traits::ScaledProjection& scale = 
-        dynamic_cast< const traits::ScaledProjection& >( *this->optics.projection() );
+        dynamic_cast< const traits::ScaledProjection& >( this->optics.projection() );
     for (int i = 0; i < 2; ++i) {
         target.min[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,0) ) );
         target.max[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,1) ) );
@@ -149,7 +149,7 @@ TransformedImage<LengthUnit>::set_data(
 
     DEBUG("Cutting outer box " << cut_region.row(0) << " in x and in y " << cut_region.row(1));
     traits::Projection::ROI points = 
-        optics.projection()->
+        optics.projection().
             cut_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );
     target.clear();
     target.reserve( points.size() );

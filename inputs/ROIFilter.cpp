@@ -13,7 +13,6 @@
 #include <dStorm/image/extend.h>
 #include <dStorm/Image.h>
 #include <dStorm/image/slice.h>
-#include <dStorm/ImageTraits.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
@@ -61,11 +60,11 @@ class Source
 
     inline bool is_in_range(const Ty& t) const;
 
-    void reduce_planes( input::Traits<engine::Image>& t ) {
+    void reduce_planes( input::Traits<engine::ImageStack>& t ) {
         if ( plane.is_initialized() ) {
-            std::swap(t.planes[0], t.planes[*plane]);
-            t.planes.resize(1);
-            t.size.z() = 1 * camera::pixel;
+            engine::InputPlane only = t.plane(*plane);
+            t.clear();
+            t.push_back( only );
         }
     }
     template <class Other>
@@ -131,14 +130,13 @@ class Source<Ty>::_iterator
 };
 
 template <>
-void Source< dStorm::engine::Image >::_iterator::select_plane()
+void Source< dStorm::engine::ImageStack >::_iterator::select_plane()
 {
+    i = *this->base();
     if ( s.plane.is_initialized() ) {
-        dStorm::Image< unsigned short, 2 > slice
-            = base()->slice(2, *s.plane * camera::pixel );
-        i = extend( slice, engine::Image() );
-    } else {
-        i = *this->base();
+        engine::Image2D plane = i.plane( *s.plane );
+        i.clear();
+        i.push_back( plane );
     }
 }
 
@@ -183,18 +181,19 @@ class ChainLink
         if ( config.last_frame().is_initialized() )
             t.range().second = config.last_frame();
     }
-    void update_traits( input::MetaInfo&, input::Traits<engine::Image>& traits ) {
+    void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {
         set_temporal_ROI( traits.image_number() );
         if ( config.which_plane() != -1 ) {
-            std::swap( traits.planes[0], traits.planes[ config.which_plane() ] );
-            traits.planes.resize(1);
+            engine::InputPlane only = traits.plane( config.which_plane() );
+            traits.clear();
+            traits.push_back( only );
         }
     }
     template <typename Type>
     void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) 
         { set_temporal_ROI( traits.image_number() ); }
 
-    void notice_traits( const input::MetaInfo&, const input::Traits<engine::Image>& t ) {
+    void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
         for (int i = config.which_plane.numChoices()-1; i < t.plane_count(); ++i) {
             std::string id = boost::lexical_cast<std::string>(i);
             config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );

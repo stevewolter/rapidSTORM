@@ -2,7 +2,7 @@
 
 #include "Car.h"
 #include "Run.h"
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/engine/Image.h>
@@ -45,19 +45,18 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (JobMaster* input_stream, const Config &new_config) 
+Car::Car (JobMaster* input_stream, const Config &config) 
 : simparm::Listener( simparm::Event::ValueChanged ),
-  config(new_config),
   ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
   abortJob("StopComputation", "Stop computation"),
   closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
-  close_job( new_config.auto_terminate() ),
-  abort_job( false )
+  close_job( config.auto_terminate() ),
+  abort_job( false ),
+  piston_count( config.pistonCount() )
 {
-    //DEBUG("Building car from config " << &config << " and meta info " << &(config.get_meta_info()) );
     used_output_filenames = config.get_meta_info().forbidden_filenames;
     closeJob.helpID = "#CloseJob";
     abortJob.helpID = "#StopEngine";
@@ -66,12 +65,25 @@ Car::Car (JobMaster* input_stream, const Config &new_config)
     receive_changes_from( closeJob.value );
     receive_changes_from( runtime_config );
 
+    DEBUG("Trying to make source");
+    std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
+    if ( ! rawinput.get() )
+        throw std::logic_error("No input source was created");
+    DEBUG("Made source");
+    input.reset( dynamic_cast< Input* >(rawinput.get()) );
+    if ( input.get() )
+        rawinput.release();
+    else 
+        throw std::runtime_error("Engine output does not seem to be localizations");
+
     output::Basename bn( config.get_meta_info().suggested_output_basename );
     bn.set_variable("run", ident);
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
-    config.outputSource.set_output_file_basename( bn );
+    std::auto_ptr< output::OutputSource > 
+        basename_adjusted_output( config.outputSource.clone() );
+    basename_adjusted_output->set_output_file_basename( bn );
     DEBUG("Building output");
-    output = config.outputSource.make_output();
+    output = basename_adjusted_output->make_output();
     if ( output.get() == NULL )
         throw std::invalid_argument("No valid output supplied.");
     DEBUG("Checking for duplicate filenames");
@@ -145,24 +157,13 @@ void Car::run() {
 
 void Car::compute() {
   try {
-    DEBUG("Trying to make source");
-    std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
-    if ( ! rawinput.get() )
-        throw std::logic_error("No input source was created");
-    DEBUG("Made source");
-    input.reset( dynamic_cast< Input* >(rawinput.get()) );
-    if ( input.get() )
-        rawinput.release();
-    else 
-        throw std::runtime_error("Engine output does not seem to be localizations");
-
     runtime_config.push_back( *input );
     runtime_config.push_back( output->getNode() );
     runtime_config.push_back( abortJob );
     runtime_config.push_back( closeJob );
 
     input::BaseSource::Wishes requirements;
-    if ( config.pistonCount() > 1 )
+    if ( piston_count > 1 )
         requirements.set( input::BaseSource::ConcurrentIterators );
 
     DEBUG("Getting input traits from " << input.get());
@@ -217,7 +218,7 @@ void Car::compute() {
     } else {
         int number_of_threads = 1;
         if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
-            number_of_threads = config.pistonCount();
+            number_of_threads = piston_count;
         while ( ! abort_job ) {
             current_run.reset( new Run( mutex, first_output, *input, *output,
                                         number_of_threads ) );
@@ -235,6 +236,7 @@ void Car::compute() {
         }
     }
 
+#if 0
     if ( config.configTarget ) {
         std::ostream& stream = config.configTarget.get_output_stream();
         std::list<std::string> lns = config.printValues();
@@ -242,6 +244,7 @@ void Car::compute() {
             stream << *i << "\n";
         config.configTarget.close_output_stream();
     }
+#endif
 
   } catch ( boost::thread_interrupted ) {
   } catch (const std::bad_alloc& e) {

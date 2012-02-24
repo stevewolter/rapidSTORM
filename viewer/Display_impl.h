@@ -3,7 +3,7 @@
 #include "Display_inline.h"
 #include <boost/units/io.hpp>
 #include <dStorm/output/Traits.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include "Status.h"
 
 namespace dStorm {
@@ -52,9 +52,7 @@ void Display<Colorizer>::setSize(
 }
 
 template <typename Colorizer>
-void Display<Colorizer>::setSize(
-    const input::Traits< Im >& traits
-)
+void Display<Colorizer>::setSize( const MetaInfo& traits)
 { 
     dStorm::display::ResizeChange size;
     size.set_size( Im::Size(traits.size) );
@@ -65,9 +63,10 @@ void Display<Colorizer>::setSize(
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );
     }
-    for (int i = 0; i < std::min(2, Im::Dim); ++i) 
-        if ( traits.plane(0).has_resolution() )
-            size.pixel_sizes[i] = traits.plane(0).resolution(i);
+    const int display_dim = display::Image::Dim;
+    for (int i = 0; i < std::min(display_dim, Im::Dim); ++i) 
+        if ( traits.has_resolution(i) )
+            size.pixel_sizes[i] = traits.resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
 

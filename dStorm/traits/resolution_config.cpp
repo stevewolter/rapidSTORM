@@ -39,36 +39,34 @@ ZhuangThreeDConfig::ZhuangThreeDConfig(const ZhuangThreeDConfig& o)
     registerNamedEntries();
 }
 
-void Config::set_traits( input::Traits<engine::Image>& t ) const
+void Config::set_traits( engine::InputTraits& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
     cuboid_config.set_traits(t);
 
-    three_d().set_traits( t );
+    t.depth_info = three_d().set_traits();
     const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability( 
         boost::get<traits::No3D>(t.depth_info.get_ptr()) == NULL );
 }
 
-void NoThreeDConfig::set_traits( input::Traits<engine::Image>& t ) const {
-    t.depth_info = traits::No3D();
-}
+DepthInfo NoThreeDConfig::set_traits() const { return traits::No3D(); }
 
-void NoThreeDConfig::read_traits( const dStorm::traits::Optics<3>::DepthInfo& d )
+void NoThreeDConfig::read_traits( const DepthInfo& d )
 {
     assert( boost::get< traits::No3D >( &d ) );
 }
 
-void ZhuangThreeDConfig::read_traits( const dStorm::traits::Optics<3>::DepthInfo& d )
+void ZhuangThreeDConfig::read_traits( const DepthInfo& d )
 {
     const Zhuang3D::Widening& w = boost::get< traits::Zhuang3D >(d).widening;
     widening = w.cast< quantity<PerMicro,float> >();
 }
 
-void ZhuangThreeDConfig::set_traits( input::Traits<engine::Image>& t ) const {
+DepthInfo ZhuangThreeDConfig::set_traits() const {
     traits::Zhuang3D zhuang;
     for (int i = 0; i < 2; ++i)
         zhuang.widening[i] = quantity<traits::Zhuang3D::Unit>( widening()[i] );
-    t.depth_info = zhuang;
+    return zhuang;
 }
 
 traits::ImageResolution
@@ -84,7 +82,7 @@ void Config::set_traits( input::Traits<Localization>& t ) const {
     t.position().resolution() = cuboid_config.make_localization_traits();
 }
 
-void Config::read_traits( const input::Traits<engine::Image>& t ) {
+void Config::read_traits( const engine::InputTraits& t ) {
     cuboid_config.set_entries_to_traits( t, t.fluorophores.size() );
     if ( t.depth_info.is_initialized() ) {
         if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) )
@@ -100,9 +98,9 @@ void Config::read_traits( const input::Traits<dStorm::Localization>& ) {
      * from STM files. */
 }
 
-traits::Optics<2>::Resolutions Config::get_resolution() const
+image::MetaInfo<2>::Resolutions Config::get_resolution() const
 {
-    return cuboid_config.make_traits().plane(0).image_resolutions();
+    return cuboid_config.get_resolution();
 }
 
 }

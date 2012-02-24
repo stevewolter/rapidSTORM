@@ -8,20 +8,19 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
 #include <functional>
-#include "ScaledProjection.h"
+#include "ProjectionFactory.h"
 
 namespace dStorm {
 namespace traits {
 
 using namespace boost::units;
 
-Optics<2>::Optics() {}
+Optics::Optics() {}
 
-Optics<2>::Optics( const Optics &o ) 
+Optics::Optics( const Optics &o ) 
 : tmc(o.tmc),
-  resolutions(o.resolutions),
   psf(o.psf),
-  projection_(o.projection_),
+  projection_factory_(o.projection_factory_),
   z_position(o.z_position),
   offsets(o.offsets),
   photon_response(o.photon_response),
@@ -31,13 +30,12 @@ Optics<2>::Optics( const Optics &o )
     DEBUG("Copied " << this << " from " << &o);
 }
 
-Optics<2>& Optics<2>::operator=( const Optics<2> &o ) 
+Optics& Optics::operator=( const Optics &o ) 
 {
     DEBUG("Setting " << this << " to " << &o);
     tmc = o.tmc;
     psf = o.psf;
-    projection_ = o.projection_;
-    resolutions = o.resolutions;
+    projection_factory_ = o.projection_factory_;
     z_position = o.z_position;
     offsets[0] = o.offsets[0];
     offsets[1] = o.offsets[1];
@@ -47,27 +45,7 @@ Optics<2>& Optics<2>::operator=( const Optics<2> &o )
     return *this;
 }
 
-Optics<2>::~Optics<2>() {}
-
-void Optics<2>::set_resolution( const boost::array< ImageResolution, 2 >& f )
-{
-    resolutions[0] = f[0];
-    resolutions[1] = f[1];
-    set_resolution( resolutions );
-}
-
-void Optics<2>::set_resolution( const Resolutions& f )
-{
-    resolutions = f;
-    if ( f[0].is_initialized() && f[0]->is_in_dpm() && f[1].is_initialized() && f[1]->is_in_dpm() )
-    {
-        Eigen::Affine2f trafo;
-        trafo.setIdentity();
-        projection_.reset( new ScaledProjection( f[0]->in_dpm(), f[1]->in_dpm() ) );
-    } else {
-        projection_.reset();
-    }
-}
+Optics::~Optics() {}
 
 CuboidConfig::CuboidConfig() 
 : simparm::Object("Optics", "Optical pathway properties"),
@@ -108,11 +86,13 @@ void CuboidConfig::set_number_of_fluorophores(int number)
 int CuboidConfig::number_of_planes() const
     { return layers.size(); }
 
-traits::Optics<2>::Resolutions
-static make_resolution( const Eigen::Matrix< quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign >& f ) {
+image::MetaInfo<2>::Resolutions
+CuboidConfig::get_resolution() const {
+    const Eigen::Matrix< quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign >
+        f = pixel_size();
     quantity< divide_typeof_helper<
         si::length,camera::length>::type, float > q1;
-    traits::Optics<2>::Resolutions r;
+    image::MetaInfo<2>::Resolutions r;
     for (int i = 0; i < 2; ++i) {
         q1 = (f[i] / (1E9 * si::nanometre) * si::metre);
         r[i] = q1;
@@ -121,22 +101,14 @@ static make_resolution( const Eigen::Matrix< quantity< nanometer_pixel_size, flo
 }
 
 
-void CuboidConfig::set_traits(traits::Optics<3>& rv) const
+void CuboidConfig::set_traits( input::Traits<engine::ImageStack>& t ) const
 {
-    traits::Optics<2>::Resolutions defaults;
-    defaults = make_resolution(pixel_size());
+    image::MetaInfo<2>::Resolutions defaults = get_resolution();
 
-    for (int i = 0; i < int( layers.size() ) && i < rv.plane_count(); ++i) {
-        layers[i].set_traits( rv.planes[i], defaults );
+    for (int i = 0; i < int( layers.size() ) && i < t.plane_count(); ++i) {
+        layers[i].set_traits( t.optics(i) );
+        t.image(i).set_resolution( defaults );
     }
-}
-
-traits::Optics<3> CuboidConfig::make_traits() const
-{
-    traits::Optics<3> rv;
-    rv.planes.resize( layers.size() );
-    set_traits(rv);
-    return rv;
 }
 
 Position::ResolutionType CuboidConfig::make_localization_traits() const
@@ -208,10 +180,9 @@ void PlaneConfig::set_number_of_fluorophores(int number, bool has_multiple_layer
 	i->viewable = (i - transmissions.begin()) < number && (number > 1 || has_multiple_layers);
 }
 
-void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Resolutions& defaults ) const
+void PlaneConfig::set_traits( traits::Optics& rv ) const
 {
-    rv.resolutions = defaults;
-    rv.projection_ = alignment().get_projection( rv.resolutions );
+    rv.projection_factory_ = alignment().get_projection_factory();
     rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
     rv.dark_current = dark_current();
@@ -229,14 +200,14 @@ void PlaneConfig::set_traits( traits::Optics<2>& rv, const traits::Optics<2>::Re
         (*rv.psf_size(0))[i] /= 2.35;
 }
 
-traits::Optics<2> PlaneConfig::make_traits( traits::Optics<2>::Resolutions defaults ) const
+traits::Optics PlaneConfig::make_traits() const
 {
-    traits::Optics<2> rv;
-    set_traits(rv, defaults);
+    traits::Optics rv;
+    set_traits(rv);
     return rv;
 }
 
-float traits::Optics<2>::transmission_coefficient( int fluorophore ) const
+float traits::Optics::transmission_coefficient( int fluorophore ) const
 {
     DEBUG("Getting transmission of " << fluorophore << " of " << tmc.size() << " at " << this);
     if ( int(tmc.size()) > fluorophore )
@@ -245,7 +216,7 @@ float traits::Optics<2>::transmission_coefficient( int fluorophore ) const
         return 1.0f;
 }
 
-void traits::Optics<2>::set_fluorophore_transmission_coefficient( int fluorophore, float value ) 
+void traits::Optics::set_fluorophore_transmission_coefficient( int fluorophore, float value ) 
 {
     DEBUG("Did set transmission of " << fluorophore << " to " << value << " at " << this);
     while ( int(tmc.size()) <= fluorophore )
@@ -253,15 +224,15 @@ void traits::Optics<2>::set_fluorophore_transmission_coefficient( int fluorophor
     tmc[fluorophore] = value;
 }
 
-void CuboidConfig::set_entries_to_traits( const traits::Optics<3>& t, int fc )
+void CuboidConfig::set_entries_to_traits( const input::Traits<engine::ImageStack>& t, int fc )
 {
     set_number_of_planes( t.plane_count() );
     set_number_of_fluorophores(fc);
     for (int i = 0; i < t.plane_count(); ++i)
-        layers[i].set_entries_to_traits( t.plane(i), fc );
+        layers[i].set_entries_to_traits( t.optics(i), fc );
 }
 
-void PlaneConfig::set_entries_to_traits( const traits::Optics<2>& t, int fc )
+void PlaneConfig::set_entries_to_traits( const traits::Optics& t, int fc )
 {
     for (int i = 0; i < fc && i < int(t.tmc.size()); ++i) {
         transmissions[i] = t.tmc[i];
@@ -283,19 +254,6 @@ void PlaneConfig::set_3d_availability(bool available) {
     z_position.viewable = available;
 }
 
-ImageResolution Optics<2>::resolution(int r) const {
-    assert( resolutions[r].is_initialized() );
-    return *resolutions[r];
-}
-
-bool Optics<2>::has_resolution() const {
-    return resolutions[0] && resolutions[1] && 
-        dynamic_cast< const ScaledProjection* >( projection().get() );
-}
-const Optics<2>::Resolutions& 
-Optics<2>::image_resolutions() const {
-    return resolutions;
-}
 
 }
 }

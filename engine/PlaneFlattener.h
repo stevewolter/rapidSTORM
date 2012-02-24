@@ -2,13 +2,13 @@
 #define DSTORM_ENGINE_PLANE_JOINER_H
 
 #include <dStorm/engine/Image.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 
 namespace dStorm {
 namespace engine {
 
 class PlaneFlattener {
-    traits::Optics<3> optics;
+    const dStorm::engine::InputTraits& traits;
     Image2D buffer;
     typedef Eigen::Array< float, 2, 1, Eigen::DontAlign > Subpixel;
     typedef dStorm::Image< Subpixel, 2 > Transformed;
@@ -16,7 +16,7 @@ class PlaneFlattener {
     std::vector<float> weights;
   public:
     PlaneFlattener( const dStorm::engine::InputTraits&, std::vector<float> weights );
-    const Image2D flatten_image( const engine::Image& multiplane );
+    const Image2D flatten_image( const engine::ImageStack& multiplane );
 };
 
 }

@@ -9,6 +9,7 @@ struct InputChainBase
 {
     simparm::Set input_config;
     InputChainBase() : input_config("Input", "Input options") {}
+    ~InputChainBase() {}
 
     InputChainBase* clone() const { return new InputChainBase(*this); }
     std::string name() const { return input_config.getName(); }

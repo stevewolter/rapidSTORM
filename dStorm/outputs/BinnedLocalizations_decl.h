@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_DECL_H
 #define DSTORM_OUTPUTS_BINNEDLOCALIZATIONS_DECL_H
 
-#include "../Image_decl.h"
+#include "../image/fwd.h"
 
 namespace dStorm {
 namespace outputs {

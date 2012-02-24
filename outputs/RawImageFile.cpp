@@ -12,22 +12,6 @@ namespace output {
 
 using namespace engine;
 
-class RawImageFile::LookaheadImg 
-{
-  public:
-    typedef dStorm::engine::Image Image;
-  private:
-    Image* image;
-  public:
-    LookaheadImg(Image* image) : image(image) {}
-    const Image* get() const { return image; }
-    frame_index image_number() const { return image->frame_number(); }
-    /* Invert sense of matching to put smallest image first in
-        * queue. */
-    bool operator<( const LookaheadImg& o ) const
-        { return o.image->frame_number() < image->frame_number(); }
-};
-
 static std::string tiff_error;
 
 void RawImageFile::error_handler( const char* module,
@@ -62,9 +46,14 @@ Output::AdditionalData
 RawImageFile::announceStormSize(const Announcement &a) 
 {
     last_frame = a.image_number().range().second;
-    if ( a.input_image_traits.get() )
-        size = *a.input_image_traits;
-    else
+    if ( a.input_image_traits.get() ) {
+        size.clear();
+        for (int p = 0; p < a.input_image_traits->plane_count(); ++p) {
+            size.push_back( a.input_image_traits->image(p) );
+            if ( size.back().size[0] != size[0].size[0] )
+                throw std::runtime_error("Only planes of equal width can be written to a TIFF file");
+        }
+    } else
         throw std::runtime_error("The raw images output needs access to the raw image data, but these are not provided by the preceding modules");
 
     TIFFOperation op("in writing TIFF file", *this, false);
@@ -95,19 +84,14 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
      * smaller, indicates engine restart and we don't need to do
      * anything, if larger, we store the image for later use. */
     if ( er.forImage == next_image ) {
-            write_image( er.source );
-            while ( !out_of_time.empty() &&
-                    out_of_time.top().image_number() == next_image ) 
-            {
-                write_image( *out_of_time.top().get() );
-                delete out_of_time.top().get();
-                out_of_time.pop();
-            }
-    } else if ( er.forImage > next_image ) {
-        assert( er.source.is_valid() );
-        out_of_time.push( LookaheadImg( new LookaheadImg::Image(er.source) ) );
-    } else 
+        if ( er.source )
+            write_image( *er.source );
+        else
+            next_image = next_image + 1 * camera::frame;
+    } else {
+        assert( er.forImage < next_image );
         /* Image already written. Drop. */;
+    }
     return;
   } catch ( const std::bad_alloc& a ) {
     simparm::Message m( "Out of memory while writing TIFF image",
@@ -121,57 +105,50 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
     this->send( m );
   }
 
-    /* If we got here, we had an exception. */
-    delete_queue();
     /* When errors occured, TIFFClose tends to kill the whole program
      * unconditionally. Rather accept leaks than call it. */
     // TIFFClose( tif );
     tif = NULL;
 }
 
-void RawImageFile::delete_queue() {
-    while ( ! out_of_time.empty() ) {
-        delete out_of_time.top().get();
-        out_of_time.pop();
-    }
-}
-
-void RawImageFile::write_image(const dStorm::engine::Image& img) {
+void RawImageFile::write_image(const engine::ImageStack& img) {
     DEBUG("Writing " << img.frame_number().value() << " of size " << size.size.transpose());
-    assert( img.is_invalid() || (size.size.array() == img.sizes().array()).all() );
+    assert( img.has_invalid_planes() || (size[0].size.array() == img.plane(0).sizes().array()).all() );
+    int lines = 0;
+    for (int p = 0; p < img.plane_count(); ++p)
+        lines += img.plane(p).height_in_pixels();
+
     TIFFOperation op("in writing TIFF file", *this, false);
-    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size.size.x() / camera::pixel) );
-    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(size.size.y() / camera::pixel * size.size.z() / camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size[0].size.x() / camera::pixel) );
+    TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(lines) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
-    if ( size.plane(0).has_resolution() )  {
-        TIFFSetField( tif, TIFFTAG_XRESOLUTION, float(size.plane(0).resolution(0).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
-        TIFFSetField( tif, TIFFTAG_YRESOLUTION, float(size.plane(0).resolution(1).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
-    }
+    if ( size[0].has_resolution(0) )
+        TIFFSetField( tif, TIFFTAG_XRESOLUTION, float(size[0].resolution(0).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size[0].has_resolution(1) )
+        TIFFSetField( tif, TIFFTAG_YRESOLUTION, float(size[0].resolution(1).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
     if ( last_frame.is_initialized() ) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / camera::frame),
                                             uint16_t(*last_frame / camera::frame + 1) );
     }
     op.throw_exception_for_errors();
 
-    if ( ! img.is_invalid() ) {
-        for (int z = 0; z < img.depth_in_pixels(); ++z)
-            for (int y = 0; y < img.height_in_pixels(); ++y)
-            {
-                tdata_t data = const_cast<tdata_t>( (const tdata_t)&img(0, y, z) );
-                tsize_t r = TIFFWriteScanline(tif, data, y + z * img.height_in_pixels(), 0);
-                if ( r == -1 /* Error occured */ ) 
-                    op.throw_exception_for_errors();
-            }
-    } else {
-        strip_size = TIFFStripSize( tif );
-        tstrip_t number_of_strips = TIFFNumberOfStrips( tif );
-        /* If the image is invalid, write empty image data */
-        boost::scoped_array<StormPixel> nulls( new StormPixel[strip_size] );
-        for (int i = 0; i < strip_size; ++i ) nulls[i] = 0;
-        for ( tstrip_t strip = 0; strip < number_of_strips; strip++ ) {
-            tsize_t r = TIFFWriteRawStrip(tif, strip, nulls.get(), strip_size);
+    tsize_t scanline_size = TIFFScanlineSize(tif);
+    char empty_scanline[scanline_size];
+    std::fill( empty_scanline, empty_scanline + scanline_size, 0 );
+
+    int current_line = 0;
+    for (int p = 0; p < img.plane_count(); ++p)
+    {
+        for (int y = 0; y < img.plane(p).height_in_pixels(); ++y)
+        {
+            tdata_t data;
+            if ( img.plane(p).is_invalid() )
+                data = empty_scanline;
+            else
+                data = const_cast<tdata_t>( (const tdata_t)&img.plane(p)(0, y) );
+            tsize_t r = TIFFWriteScanline(tif, data, current_line++, 0);
             if ( r == -1 /* Error occured */ ) 
                 op.throw_exception_for_errors();
         }
@@ -191,7 +168,6 @@ void RawImageFile::store_results() {
 }
 
 RawImageFile::~RawImageFile() {
-    delete_queue();
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
         TIFFOperation op("in closing TIFF file", *this, false);

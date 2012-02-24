@@ -4,6 +4,7 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/image/constructors.h>
 #include <dStorm/traits/ScaledProjection.h>
+#include <dStorm/engine/InputTraits.h>
 
 namespace dStorm {
 namespace engine {
@@ -11,20 +12,20 @@ namespace engine {
 PlaneFlattener::PlaneFlattener( 
     const dStorm::engine::InputTraits& traits,
     const std::vector<float> weights
-) : optics(traits), weights(weights)
+) : traits(traits), weights(weights)
 {
-    buffer = Image2D( traits.size.head<2>() );
+    buffer = Image2D( traits.image(0).size );
 
     const traits::ScaledProjection& in_result = 
         dynamic_cast< const traits::ScaledProjection& >
-            ( *traits.plane(0).projection() );
+            ( traits.plane(0).projection() );
 
     for (int p = 1; p < traits.plane_count(); ++p) {
-        Transformed t( traits.size.head<2>() );
+        Transformed t( traits.image(0).size );
+        const traits::Projection& proj = traits.plane( p ).projection();
         for ( Transformed::iterator i = t.begin(); i != t.end(); ++i )
             *i = value( in_result.point_in_image_space(
-                traits.plane( p ).projection()->
-                    pixel_in_sample_space( i.position()) ) );
+                    proj.pixel_in_sample_space( i.position()) ) );
         transformed.push_back( t );
     }
 
@@ -32,22 +33,21 @@ PlaneFlattener::PlaneFlattener(
 }
 
 const Image2D
-PlaneFlattener::flatten_image( const engine::Image& multiplane )
+PlaneFlattener::flatten_image( const engine::ImageStack& multiplane )
 {
-    if ( multiplane.depth_in_pixels() == 1 ) return multiplane.slice(2, 0 * camera::pixel);
+    if ( multiplane.plane_count() == 1 ) return multiplane.plane(0);
 
     std::copy( 
-        multiplane.slice(2, 0 * camera::pixel).begin(), 
-        multiplane.slice(2, 0 * camera::pixel).end(), 
+        multiplane.plane(0).begin(), 
+        multiplane.plane(0).end(), 
         buffer.begin() );
 
     typedef dStorm::Image<StormPixel,1> Line;
 
-    assert( multiplane.depth_in_pixels() == int(transformed.size()) + 1 );
-    for (int plane = 1; plane < multiplane.depth_in_pixels(); ++plane)  {
+    assert( multiplane.plane_count() == int(transformed.size()) + 1 );
+    for (int plane = 1; plane < multiplane.plane_count(); ++plane)  {
         DEBUG("Flattening plane " << plane);
-        dStorm::Image< engine::StormPixel, 2 > p = 
-            multiplane.slice( 2, plane * camera::pixel );
+        dStorm::Image< engine::StormPixel, 2 > p = multiplane.plane(plane);
         DEBUG("Sizes are " << p.sizes().transpose() << " and " << transformed[plane-1].sizes().transpose() );
         assert( (p.sizes() == transformed[plane-1].sizes()).all() );
         Transformed::const_iterator t = transformed[plane-1].begin();

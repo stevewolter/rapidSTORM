@@ -1,7 +1,8 @@
 #ifndef DSTORM_ENGINE_IMG_DECL_H
 #define DSTORM_ENGINE_IMG_DECL_H
 
-#include "../Image_decl.h"
+#include <dStorm/input/Traits.h>
+#include <dStorm/image/fwd.h>
 
 namespace dStorm {
 namespace engine {
@@ -11,11 +12,11 @@ namespace engine {
     typedef unsigned int SmoothedPixel;
     /** Input image type for STORM engine */
     typedef dStorm::Image<StormPixel,2> Image2D;
-    typedef dStorm::Image<StormPixel,3> Image;
+    class ImageStack;
     /** Output image type for STORM engine. */
     typedef dStorm::Image<SmoothedPixel,2> SmoothedImage;
 
-    typedef input::Traits<Image> InputTraits;
+    typedef input::Traits<ImageStack> InputTraits;
 }
 
 }

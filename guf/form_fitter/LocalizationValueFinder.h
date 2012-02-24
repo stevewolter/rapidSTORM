@@ -21,7 +21,7 @@ struct LocalizationValueFinder
 
   public:
     LocalizationValueFinder( 
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics<2>& plane,
+        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number );
 
     void find_values( guf::PSF::Zhuang& z ) { find_values_(z); }

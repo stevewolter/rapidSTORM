@@ -14,6 +14,7 @@
 
 #include <dStorm/stack_realign.h>
 #include <boost/optional/optional.hpp>
+#include <boost/variant/variant.hpp>
 
 namespace Eigen {
 

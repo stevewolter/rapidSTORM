@@ -1,7 +1,7 @@
 #ifndef DSTORM_IMAGE_H
 #define DSTORM_IMAGE_H
 
-#include "Image_decl.h"
+#include <dStorm/image/fwd.h>
 #include "units/frame_count.h"
 #include <boost/shared_array.hpp>
 #include <boost/units/pow.hpp>
@@ -36,6 +36,7 @@ class Image
     typedef typename ImageTypes<Dimensions>::Size Size;
     typedef typename ImageTypes<Dimensions>::Position Position;
     typedef typename ImageTypes<Dimensions>::Offsets Offsets;
+    typedef image::MetaInfo< Dimensions > MetaInfo;
 
   protected:
     template <typename OtherPixelType, int OtherDimension> friend class Image;

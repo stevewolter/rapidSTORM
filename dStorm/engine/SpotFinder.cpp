@@ -2,6 +2,7 @@
 #include "SpotFinder.h"
 #include <dStorm/Config.h>
 #include <dStorm/traits/ScaledProjection.h>
+#include <boost/units/cmath.hpp>
 
 using namespace std;
 
@@ -9,30 +10,35 @@ namespace dStorm {
 namespace engine {
 namespace spot_finder {
 
-double na_scale_factor = 3.8317 * 2.35 / (2*2*1.61632);
-
 boost::units::quantity< boost::units::camera::length > Job::sigma(int dim) const
 {
-    return dynamic_cast< const traits::ScaledProjection& >(*optics.projection())
+    return dynamic_cast< const traits::ScaledProjection& >(traits.projection())
         .length_in_image_space(dim, 
-        quantity<si::length,float>((*traits.plane(0).psf_size(0))[dim] * fluorophore.wavelength / 
-            traits.fluorophores.find(0)->second.wavelength) );
+        (*traits.optics.psf_size(fluorophore.ident))[dim] );
+}
+
+boost::units::quantity< boost::units::camera::length, int > Job::mask_size(int dim) const
+{
+    return boost::units::quantity< boost::units::camera::length, int >( round( smoothing_mask * sigma(dim) ) );
+}
+
+ImageTypes<2>::Size Job::size() const
+{
+    return traits.image.size;
 }
 
 Base::Base(const Job& job)
-   : msx( job.sigma(0) * job.smoothing_mask / camera::pixel ),
-     msy( job.sigma(1) * job.smoothing_mask / camera::pixel ),
-     bx( job.sigma(0) * job.smoothing_mask/ camera::pixel),
-     by( job.sigma(1) * job.smoothing_mask/ camera::pixel),
-     imw(job.size.x().value()), imh(job.size.y().value()),
-     smoothed( job.size.head<2>(), 0 * camera::frame )
+   : msx( job.mask_size(0) / camera::pixel ),
+     msy( job.mask_size(1) / camera::pixel ),
+     bx( msx ),
+     by( msy ),
+     smoothed( job.size(), 0 * camera::frame )
      {
-        DEBUG("Making SpotFinder with " 
-                 << msx << " " << msy << " " << imw << " " << imh);
+        DEBUG("Making SpotFinder with " << msx << " " << msy );
         DEBUG("Image pointer is " << smoothed.ptr() );
         /* Zero the border of the smoothed image to be sure no maximums
          * occur here regardless of mask size combinations. */
-        memset( smoothed.ptr(), 0, smoothed.size_in_pixels() * sizeof(SmoothedPixel) );
+        smoothed.fill(0);
      }
 
 Base::~Base() {

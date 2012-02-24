@@ -22,13 +22,13 @@
 namespace dStorm {
 namespace form_fitter {
 
-traits::Optics<2>::PSF max_psf_size( const input::Traits<engine::Image>& traits )
+traits::Optics::PSF max_psf_size( const input::Traits<engine::ImageStack>& traits )
 {
-   traits::Optics<2>::PSF max_psf = *traits.plane(0).psf_size(0);
+   traits::Optics::PSF max_psf = *traits.optics(0).psf_size(0);
     for (int p = 0; p < traits.plane_count(); ++p) {
         for (std::map<int,FluorophoreTraits>::const_iterator i = traits.fluorophores.begin();
               i != traits.fluorophores.end(); ++i)
-            max_psf = max_psf.max( *traits.plane(p).psf_size(i->first) );
+            max_psf = max_psf.max( *traits.optics(p).psf_size(i->first) );
     }
     return max_psf;
 }
@@ -57,7 +57,7 @@ Output::announceStormSize(const Announcement& a)
 {
     engine = a.engine;
 
-    dStorm::traits::Optics<2>::PSF max_psf = max_psf_size( *a.input_image_traits );
+    dStorm::traits::Optics::PSF max_psf = max_psf_size( *a.input_image_traits );
     DEBUG("Maximum PSF size is " << max_psf.transpose());
     for (int i = 0; i < 2; ++i ) {
         bounds[i] = boost::icl::interval< samplepos::Scalar >::closed(
@@ -108,7 +108,7 @@ void Output::receiveLocalizations(const EngineResult& er)
         }
         if ( visual_select ) {
             std::auto_ptr<Tile> tile( new Tile() );
-            tile->image = er.source;
+            tile->image = *er.source;
             tile->spot = *i;
             tile->fluorophore = i->fluorophore();
             tiles.push_back( tile );
@@ -154,7 +154,7 @@ void Output::receiveLocalizations(const EngineResult& er)
             }
         } else {
             seen_fluorophores[ i->fluorophore() ] = true;
-            bool enough_images = fitter->add_image( er.source, *i, i->fluorophore() );
+            bool enough_images = fitter->add_image( *er.source, *i, i->fluorophore() );
             if ( enough_images ) { do_the_fit(); break; }
         }
         DEBUG("Used localization " << i - er.begin());
@@ -171,7 +171,7 @@ void Output::do_the_fit() {
             << ". I am not going to fit anything until you do." << std::endl;
         return;
     }
-    std::auto_ptr< input::Traits< engine::Image > > new_traits;
+    std::auto_ptr< input::Traits< engine::ImageStack > > new_traits;
     new_traits.reset( input->traits->clone() );
     fitter->fit(*new_traits);
 
@@ -187,7 +187,7 @@ void Output::do_the_fit() {
                 for ( int j = 0; j < new_traits->plane_count(); ++j)
                     std::cerr << ", fluorophore " << i << " in plane " << j << 
                                  " has PSF FWHM " 
-                            << from_value<si::length>( value( new_traits->plane(j).psf_size(i)->transpose() ) * 2.35 ) << " transmission " << new_traits->plane(j).transmission_coefficient(i);
+                            << from_value<si::length>( value( new_traits->optics(j).psf_size(i)->transpose() ) * 2.35 ) << " transmission " << new_traits->optics(j).transmission_coefficient(i);
             }
             std::cerr << std::endl;
     }

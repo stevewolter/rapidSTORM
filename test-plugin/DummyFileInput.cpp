@@ -4,7 +4,6 @@
 #include "DummyFileInput.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/ImageTraits.h>
 #include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
@@ -15,8 +14,10 @@
 #include <fstream>
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/constructors.h>
+#include <dStorm/image/MetaInfo.h>
 #include <boost/iterator/iterator_facade.hpp>
 #include <dStorm/input/InputMutex.h>
+#include <dStorm/engine/InputTraits.h>
 
 #undef DEBUG
 #define VERBOSE
@@ -73,19 +74,19 @@ class OpenFile
         if ( int_type ) {
             rv.reset( new dStorm::input::Traits<int>() );
         } else {
-            dStorm::input::Traits<dStorm::engine::Image> t;
-            t.size = get_size();
+            dStorm::image::MetaInfo<2> size_info;
+            size_info.size = get_size();
+            dStorm::input::Traits<dStorm::engine::ImageStack> t( size_info );
             t.image_number().range().first = 0 * boost::units::camera::frame;
             t.image_number().range().second = 
                 dStorm::traits::ImageNumber::ValueType::from_value(number - 1);
-            rv.reset( new dStorm::input::Traits<dStorm::engine::Image>(t) );
+            rv.reset( new dStorm::input::Traits<dStorm::engine::ImageStack>(t) );
         }
         return rv;
     }
 
-    dStorm::engine::Image::Size get_size() const {
-        dStorm::engine::Image::Size rv;
-        rv.fill( 1 * boost::units::camera::pixel );
+    dStorm::image::MetaInfo<2>::Size get_size() const {
+        dStorm::image::MetaInfo<2>::Size rv;
         rv.x() = width * boost::units::camera::pixel;
         rv.y() = height * boost::units::camera::pixel;
         return rv;
@@ -93,12 +94,12 @@ class OpenFile
 };
 
 class Source : public simparm::Set,
-               public dStorm::input::Source<dStorm::engine::Image>
+               public dStorm::input::Source<dStorm::engine::ImageStack>
 {
     boost::shared_ptr<OpenFile> of;
-    dStorm::engine::Image* load();
+    dStorm::engine::ImageStack* load();
     class _iterator;
-    typedef dStorm::input::Source<dStorm::engine::Image>::iterator iterator;
+    typedef dStorm::input::Source<dStorm::engine::ImageStack>::iterator iterator;
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
     simparm::Node& node() { return *this; }
   public:
@@ -154,21 +155,29 @@ Source::get_traits( Wishes )
 }
 
 class Source::_iterator 
-: public boost::iterator_facade<_iterator,dStorm::engine::Image,std::input_iterator_tag>
+: public boost::iterator_facade<_iterator,dStorm::engine::ImageStack,std::input_iterator_tag>
 {
-    dStorm::engine::Image::Size sz;
-    mutable dStorm::engine::Image image;
+    std::vector<dStorm::engine::Image2D::Size> sz;
+    mutable dStorm::engine::ImageStack image;
     int n;
 
     friend class boost::iterator_core_access;
 
-    dStorm::engine::Image& dereference() const { DEBUG( "Image number " << n << " is accessed" ); return image; }
-    void increment() { n++; image = dStorm::engine::Image(sz, n * boost::units::camera::frame); }
+    dStorm::engine::ImageStack& dereference() const { DEBUG( "Image number " << n << " is accessed" ); return image; }
+    void increment() { 
+        n++; 
+        image = dStorm::engine::ImageStack( n * boost::units::camera::frame);
+        for (int p = 0; p < int(sz.size()); ++p) {
+            dStorm::engine::Image2D rv(sz[p], n * boost::units::camera::frame);
+            rv.fill( 0 );
+            image.push_back( rv  ); 
+        }
+    }
     bool equal(const _iterator& o) const { return o.n == n; }
 
   public:
     _iterator(int pos, const OpenFile& of) 
-        : sz(of.get_size()), image(sz), n(pos) { image.fill(0); }
+        : sz(1, of.get_size()), image(), n(pos) {}
 };
 
 Source::iterator Source::begin() {

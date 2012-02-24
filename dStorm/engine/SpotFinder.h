@@ -6,7 +6,7 @@
 
 #include "Image.h"
 #include "CandidateTree.h"
-#include "../ImageTraits.h"
+#include "InputTraits.h"
 #include "../output/Basename_decl.h"
 #include "../output/Traits_decl.h"
 #include "JobInfo_decl.h"
@@ -19,19 +19,20 @@ namespace dStorm {
 namespace engine {
 namespace spot_finder {
 
-struct Job {
+class Job {
     const double smoothing_mask;
-    const InputTraits::Size& size;
-    const InputTraits& traits;
-    const traits::Optics<2>& optics;
+    const InputPlane& traits;
     const FluorophoreTraits& fluorophore;
 
-    Job( double smoothing_mask, const InputTraits& traits, 
-         const traits::Optics<2>& optics, const FluorophoreTraits& fluorophore )
+  public:
+    Job( double smoothing_mask, const InputPlane& traits, 
+         const FluorophoreTraits& fluorophore )
         : smoothing_mask(smoothing_mask), 
-          size(traits.size), traits(traits), optics(optics), fluorophore(fluorophore) {}
+          traits(traits), fluorophore(fluorophore) {}
 
     boost::units::quantity< boost::units::camera::length > sigma(int dimension) const;
+    boost::units::quantity< boost::units::camera::length, int > mask_size( int dimension ) const;
+    ImageTypes<2>::Size size() const;
 };
 
    /** The SpotFinder class is the base class for all spot 
@@ -50,10 +51,8 @@ struct Job {
                   msy, /**< Smoothing mask radius in Y */
                   bx,  /**< Border (non-smoothed at image border)
                             radius in X */
-                  by,  /**< Border (non-smoothed at image border)
+                  by;  /**< Border (non-smoothed at image border)
                             radius in Y */
-                  imw, /**< Width of the smoothed image */
-                  imh; /**< Height of the smoothed image */
         /** Buffer that contains the smoothed image. */
         SmoothedImage smoothed; 
 
@@ -86,7 +85,7 @@ struct Job {
             ( const Job& job ) const = 0;
         virtual Factory* clone() const = 0;
         virtual ~Factory() {}
-        virtual void set_requirements( input::Traits<engine::Image>& ) {}
+        virtual void set_requirements( InputTraits& ) {}
         virtual void set_traits( output::Traits&, const JobInfo& ) {}
         virtual void set_variables( output::Basename& ) const {}
     };

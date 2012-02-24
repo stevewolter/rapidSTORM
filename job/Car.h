@@ -39,9 +39,6 @@ namespace job {
         std::set<std::string> used_output_filenames;
 
         std::auto_ptr<JobHandle> job_handle;
-        /** Construction Configuration. This is a copy of the Config used
-         *  to build this car. */
-        job::Config config;
         /** Unique job identifier. */
         std::string ident;
         /** Runtime configuration. This is the storage locations for all
@@ -60,6 +57,7 @@ namespace job {
         bool close_job, abort_job;
         boost::condition allow_termination;
         frame_index first_output;
+        const int piston_count;
 
         std::auto_ptr<Run> current_run;
 
@@ -81,7 +79,6 @@ namespace job {
         bool needs_stopping() { return true; }
         DSTORM_REALIGN_STACK void run() ;
 
-        const job::Config &getConfig() const { return config; }
         simparm::Node& get_config() { return runtime_config; }
 
         void restart();

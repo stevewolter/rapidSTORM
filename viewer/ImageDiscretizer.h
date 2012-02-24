@@ -14,11 +14,11 @@ namespace viewer {
 
 struct DiscretizationListener {
     static const bool NeedLiveHistogram = true;
+    typedef dStorm::image::MetaInfo<Im::Dim> MetaInfo;
 
     /** The setSize method is called before any announcements are made,
         *  and is called afterwards when the image size changes. */
-    void setSize(
-        const input::Traits< Im >&);
+    void setSize( const MetaInfo& );
     /** Called when a pixel changes in the image. The parameters
         *  give the position of the changed pixel. */
     void pixelChanged(Im::Position, HighDepth to_value);
@@ -41,8 +41,9 @@ struct DiscretizationListener {
 
 struct DummyDiscretizationListener {
     static const bool NeedLiveHistogram = false;
+    typedef DiscretizationListener::MetaInfo MetaInfo;
 
-    void setSize(const input::Traits< Im >&) {}
+    void setSize(const MetaInfo&) {}
     void pixelChanged(Im::Position, HighDepth) {}
     void changeBrightness(HighDepth at) {}
     void clean(bool) {}
@@ -104,7 +105,7 @@ class Discretizer
         Colorizer& colorizer);
     ~Discretizer();
 
-    void setSize( const input::Traits<InputImage>& );
+    void setSize( const MetaInfo& );
     inline void updatePixel(const Im::Position&, float, float);
     void clean(bool final);
     void clear();

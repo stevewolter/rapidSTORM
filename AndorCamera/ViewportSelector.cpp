@@ -116,8 +116,9 @@ void Display::configure_camera()
 
 display::ResizeChange Display::getSize() const
 {
+    assert( traits.plane_count() > 0 );
     display::ResizeChange new_size;
-    new_size.set_size( engine::Image::Size(traits.size) );
+    new_size.set_size( ImageTypes<2>::Size(traits.image(0).size) );
     new_size.keys.push_back( 
         display::KeyDeclaration("ADC", "A/D counts", imageDepth) );
     new_size.keys.back().can_set_lower_limit = true;
@@ -156,10 +157,12 @@ void Display::initialize_display()
          * we have aimed member set, so we have to reset it. */
         if ( aimed ) {
             boost::lock_guard<boost::mutex> lock(mutex);
-            change->do_resize = true;
-            change->resize_image = getSize();
-            change->do_clear = true;
-            change->clear_image.background = 0;
+            if ( traits.plane_count() > 0 ) {
+                change->do_resize = true;
+                change->resize_image = getSize();
+                change->do_clear = true;
+                change->clear_image.background = 0;
+            }
         }
     }
 
@@ -167,11 +170,13 @@ void Display::initialize_display()
         
 }
 
-void Display::resolution_changed( traits::Optics<2>::Resolutions r )
+void Display::resolution_changed( image::MetaInfo<2>::Resolutions r )
 {
     this->resolution = r;
-    change->do_resize = true;
-    change->resize_image = getSize();
+    if ( traits.plane_count() > 0 ) {
+        change->do_resize = true;
+        change->resize_image = getSize();
+    }
 }
 
 void Display::basename_changed( const std::string& basename ) {
@@ -273,7 +278,8 @@ void Display::run() throw() {
         FetchHandler(Display& d ) : d(d) {
             border_names.add("Left", 0)("Right", 1)("Top", 2)("Bottom", 3); };
         bool operator()( const CameraConnection::FetchImage& fe ) {
-            CamImage img( d.traits.size.head<2>(), fe.frame_number );
+            assert( d.traits.plane_count() > 0 );
+            CamImage img( d.traits.image(0).size, fe.frame_number );
             d.cam->read_data(img);
             d.draw_image(img);
             return true;

@@ -2,7 +2,7 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_IMPL_H
 
 #include <boost/units/io.hpp>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/Image_iterator.h>
 #include <dStorm/Image_impl.h>
 #include <algorithm>
@@ -37,11 +37,10 @@ Discretizer<ImageListener,Colorizer_>
 
 template <typename ImageListener, typename Colorizer_>
 void Discretizer<ImageListener,Colorizer_>
-::setSize( const input::Traits<InputImage>& traits )
+::setSize( const MetaInfo& traits )
 {
     colorizer.setSize( traits );
-    this->publish().setSize( 
-        input::Traits< Im >(traits) );
+    this->publish().setSize( traits );
     int w = traits.size.x() / camera::pixel,
         h = traits.size.y() / camera::pixel;
 

@@ -5,7 +5,7 @@
 #include <boost/mpl/vector.hpp>
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/output/LocalizedImage.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/engine/InputTraits.h>
 #include <dStorm/output/LocalizedImage_traits.h>
 
 namespace dStorm {
@@ -13,7 +13,7 @@ namespace input {
 
 class DefaultTypes 
 : public boost::mpl::vector<
-    dStorm::engine::Image, dStorm::output::LocalizedImage>
+    dStorm::engine::ImageStack, dStorm::output::LocalizedImage>
 {};
 
 }

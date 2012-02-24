@@ -151,21 +151,20 @@ boost::ptr_vector<Tile> GUI::let_user_select()
     return work;
 }
 
-dStorm::engine::Image::Size GUI::get_maximum_tile_size() 
+dStorm::engine::Image2D::Size GUI::get_maximum_tile_size() 
 {
-    dStorm::engine::Image::Size rv = dStorm::engine::Image::Size::Constant( 1 * camera::pixel );
+    dStorm::engine::Image2D::Size rv = dStorm::engine::Image2D::Size::Constant( 1 * camera::pixel );
     for ( boost::ptr_vector<Tile>::iterator i = work.begin(); i != work.end(); ++i )
     {
-        assert( int(input.transforms.size()) >= i->image.depth_in_pixels() );
+        assert( int(input.transforms.size()) >= i->image.plane_count() );
         i->bounds.clear();
-        for (int p = 0; p < i->image.depth_in_pixels(); ++p) {
-            traits::Projection::ImagePosition sz = (i->image.sizes().array() - 1 * camera::pixel).head<2>();
+        for (int p = 0; p < i->image.plane_count(); ++p) {
+            traits::Projection::ImagePosition sz = i->image.plane(p).sizes().array() - 1 * camera::pixel;
             i->bounds.push_back( input.transforms[p].cut_region( i->spot.position().head<2>(), sz ) );
             const Transformed::Bounds& b = i->bounds.back();
             for (int i = 0; i < 2; ++i)
                 rv[i] = std::max( b(i,1) - b (i,0) + 1 * camera::pixel, rv[i] );
         }
-        rv.z() = std::max( i->image.depth(), rv.z() );
     }
     return rv;
 }
@@ -173,7 +172,7 @@ dStorm::engine::Image::Size GUI::get_maximum_tile_size()
 std::auto_ptr< dStorm::display::Change > 
 GUI::make_spot_display() {
     typedef dStorm::Image< dStorm::Pixel, display::Image::Dim > TargetImage;
-    dStorm::engine::Image::Size selection_size = get_maximum_tile_size();
+    dStorm::engine::Image2D::Size selection_size = get_maximum_tile_size();
     TargetImage::Size tile_size, image_size;
     const quantity<camera::length,int> plane_height = (selection_size.y() + 1 * camera::pixel);
 
@@ -181,7 +180,7 @@ GUI::make_spot_display() {
     image_size.fill( 1 * camera::pixel );
     tile_size.x() = (selection_size.x() + 2 * camera::pixel);
     image_size.x() = tile_size.x() * tile_cols;
-    tile_size.y() = (plane_height * selection_size.z().value() + 1 * camera::pixel);
+    tile_size.y() = (plane_height * input.traits->plane_count() + 1 * camera::pixel);
     image_size.y() = tile_size.y() * tile_rows;
     DEBUG("Tile size is " << tile_size.transpose() << " " << image_size.transpose());
 
@@ -191,11 +190,11 @@ GUI::make_spot_display() {
     std::vector< dStorm::Image<engine::StormPixel,2>::PixelPair > ranges;
     for ( boost::ptr_vector<Tile>::iterator i = work.begin(); i != work.end(); ++i )
     {
-        const int d = i->image.depth_in_pixels();
+        const int d = i->image.plane_count();
 
         for (int j = 0; j < d; ++j) {
             dStorm::Image<engine::StormPixel,2>::PixelPair local 
-                = i->image.slice( 2, j * camera::pixel ).minmax();
+                = i->image.plane( j ).minmax();
             if ( int(ranges.size()) <= j ) {
                 ranges.push_back( local );
                 assert( int(ranges.size()) == j + 1 );
@@ -213,13 +212,13 @@ GUI::make_spot_display() {
     for ( boost::ptr_vector<Tile>::iterator i = work.begin(); i != work.end(); ++i )
     {
         DEBUG("Tile " << i->spot.position().transpose());
-        assert( i->image.is_valid() );
+        assert( ! i->image.has_invalid_planes() );
         current_plane_top = current_line_top;
-        for (int p = 0; p < i->image.depth_in_pixels(); ++p )
+        for (int p = 0; p < i->image.plane_count(); ++p )
         {
             assert( int(i->bounds.size()) > p );
             Transformed::Bounds b = i->bounds[p];
-            engine::Image::Size from_lower, from_upper;
+            engine::Image2D::Size from_lower, from_upper;
             TargetImage::Size to_lower, to_upper;
             from_lower.fill( p * camera::pixel ); from_upper = from_lower;
             from_lower.head<2>() = b.col(0);
@@ -227,12 +226,11 @@ GUI::make_spot_display() {
             to_lower.x() = current_left_edge + 1 * camera::pixel;
             to_lower.y() = current_plane_top + 1 * camera::pixel;
             to_upper.head<2>() = (from_upper - from_lower).head<2>() + to_lower.head<2>();
-            to_lower.z() = to_upper.z() = 0 * camera::pixel;
             if ( p == 0 ) i->region_start = to_lower; 
-            if ( p == i->image.depth_in_pixels()-1 ) i->region_end = to_upper;
+            if ( p == i->image.plane_count()-1 ) i->region_end = to_upper;
             DEBUG("Cropping " << from_lower.transpose() << " to " << 
                   from_upper.transpose() << " from " << i->image.sizes().transpose());
-            engine::Image cropped = crop( i->image, from_lower, from_upper );
+            engine::Image2D cropped = crop( i->image.plane(p), from_lower, from_upper );
             DEBUG("Transform-Cropping " << to_lower.transpose() << " to " << 
                   to_upper.transpose() << " from " << normalized.sizes().transpose());
             TargetImage target_window = crop( normalized, to_lower, to_upper );

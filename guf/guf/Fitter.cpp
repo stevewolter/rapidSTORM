@@ -13,6 +13,8 @@
 #include "Centroid.h"
 #include <nonlinfit/levmar/exceptions.h>
 #include "fit_position_out_of_range.h"
+#include <dStorm/engine/InputTraits.h>
+#include <dStorm/engine/Image.h>
 
 namespace dStorm {
 namespace guf {
@@ -32,7 +34,7 @@ Fitter::Fitter(
   create_localization( config, this->info ),
   is_good_localization( config, this->info ),
   add_new_kernel(),
-  first_plane_optics(this->info.traits.plane(0)),
+  first_plane_optics(this->info.traits.optics(0)),
   mle( config.mle_fitting() ), 
   two_kernel_analysis( config.two_kernel_fitting() )
 {
@@ -40,11 +42,9 @@ Fitter::Fitter(
 
 int Fitter::fitSpot(
     const engine::FitPosition& spot, 
-    const engine::Image &im,
+    const engine::ImageStack &im,
     iterator target 
 ) {
-    BOOST_STATIC_ASSERT( engine::Image::Dim == 3 );
-
     try {
         boost::scoped_ptr< DataCube > data( data_creator.set_image( im, spot ) );
 
@@ -75,7 +75,7 @@ int Fitter::fitSpot(
             }
         } 
             
-        double result = (mle_result.is_initialized()) ? *mle_result : simple;
+        double result = mle_result.get_value_or( simple );
         Localization& loc = *target;
         create_localization( loc, one_kernel, result, *data );
         loc.frame_number = im.frame_number();

@@ -89,8 +89,8 @@ dStorm::input::BaseSource* Method::makeSource()
 }
 
 void Method::publish_meta_info() {
-    boost::shared_ptr< dStorm::input::Traits<engine::Image> > traits;
-    traits.reset( new dStorm::input::Traits<engine::Image>() );
+    boost::shared_ptr< CamTraits > traits( new CamTraits() );
+    traits->push_back( engine::InputPlane() );
     traits->image_number().range().first = 0 * camera::frame;
 
     dStorm::input::MetaInfo::Ptr mi
@@ -141,7 +141,7 @@ void Method::operator()(const simparm::Event& e)
     }
 }
 
-void Method::resolution_changed( const dStorm::traits::Optics<2>::Resolutions& resolution )
+void Method::resolution_changed( const image::MetaInfo<2>::Resolutions& resolution )
 {
     DEBUG( this << " setting resolution " << resolution[0].is_initialized() );
     this->resolution = resolution;

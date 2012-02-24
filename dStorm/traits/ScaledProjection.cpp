@@ -1,12 +1,44 @@
 #include "ScaledProjection.h"
+#include "ProjectionConfig.h"
+#include "ProjectionFactory.h"
+#include <simparm/Object.hh>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
+#include <dStorm/image/MetaInfo.h>
 #include "debug.h"
 
 namespace dStorm {
 namespace traits {
 
 using namespace boost::units;
+
+class ScaledProjectionFactory
+: public ProjectionFactory
+{
+    Projection* get_projection_( const image::MetaInfo<2>& o ) const { 
+        return new ScaledProjection(
+            o.resolution(0).in_dpm(), 
+            o.resolution(1).in_dpm() );
+    }
+};
+
+class ScaledProjectionConfig
+: public ProjectionConfig
+{
+    simparm::Object node;
+    simparm::Node& getNode_() { return node; }
+    ProjectionFactory* get_projection_factory_() const 
+        { return new ScaledProjectionFactory(); }
+    ProjectionConfig* clone_() const 
+        { return new ScaledProjectionConfig(*this); }
+
+  public:
+    ScaledProjectionConfig() : node("ScaledProjection", "No alignment") {}
+};
+
+std::auto_ptr<ProjectionConfig> make_scaling_projection_config() {
+    return std::auto_ptr<ProjectionConfig>( new ScaledProjectionConfig() );
+}
 
 Projection::SamplePosition 
 ScaledProjection::point_in_sample_space_

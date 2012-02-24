@@ -2,18 +2,17 @@
 #define DSTORM_TRAITS_PROJECTION_CONFIG_H
 
 #include <simparm/Node.hh>
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include "optics.h"
+#include <memory>
 
 namespace dStorm {
 namespace traits {
 
-class Projection;
+class ProjectionFactory;
 
 class ProjectionConfig {
     virtual ProjectionConfig* clone_() const = 0;
     virtual simparm::Node& getNode_() = 0;
-    virtual boost::shared_ptr<Projection> get_projection_( const Optics<2>::Resolutions& ) const = 0;
+    virtual ProjectionFactory* get_projection_factory_() const = 0;
   public:
     virtual ~ProjectionConfig() {}
     ProjectionConfig* clone() const { return clone_(); }
@@ -21,8 +20,8 @@ class ProjectionConfig {
     const simparm::Node& getNode() const { return const_cast<ProjectionConfig&>(*this).getNode_(); }
     operator simparm::Node&() { return getNode_(); }
     operator const simparm::Node&() const { return getNode(); }
-    boost::shared_ptr<Projection> get_projection( const Optics<2>::Resolutions& r ) const 
-        { return get_projection_(r); }
+    std::auto_ptr<ProjectionFactory> get_projection_factory() const 
+        { return std::auto_ptr<ProjectionFactory>(get_projection_factory_()); }
 };
 
 std::auto_ptr<ProjectionConfig> make_scaling_projection_config();

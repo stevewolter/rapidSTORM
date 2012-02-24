@@ -3,6 +3,6 @@
 
 namespace dStorm {
 namespace engine {
-typedef input::Source<Image> Input;
+typedef input::Source<ImageStack> Input;
 }
 }

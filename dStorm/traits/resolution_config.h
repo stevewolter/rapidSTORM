@@ -9,8 +9,8 @@
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/localization/Traits.h>
 #include <simparm/ChoiceEntry.hh>
-#include <dStorm/Image_decl.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/fwd.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/traits/optics_config.h>
 
 namespace dStorm {
@@ -23,8 +23,8 @@ typedef power_typeof_helper<
 
 struct ThreeDConfig {
     virtual ~ThreeDConfig() {}
-    virtual void set_traits( input::Traits<engine::Image>& ) const = 0;
-    virtual void read_traits( const dStorm::traits::Optics<3>::DepthInfo& ) = 0;
+    virtual DepthInfo set_traits() const = 0;
+    virtual void read_traits( const DepthInfo& ) = 0;
     virtual simparm::Node& getNode() = 0;
     operator simparm::Node&() { return getNode(); }
     operator const simparm::Node&() const { return const_cast<ThreeDConfig&>(*this).getNode(); }
@@ -32,8 +32,8 @@ struct ThreeDConfig {
 };
 
 class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
-    void set_traits( input::Traits<engine::Image>& ) const;
-    void read_traits( const dStorm::traits::Optics<3>::DepthInfo& );
+    DepthInfo set_traits() const;
+    void read_traits( const DepthInfo& );
     simparm::Node& getNode() { return *this; }
   public:
     NoThreeDConfig() : simparm::Object("No3D", "No 3D") {}
@@ -43,8 +43,8 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
 class ZhuangThreeDConfig : public simparm::Object, public ThreeDConfig {
     simparm::Entry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
 
-    void set_traits( input::Traits<engine::Image>& ) const;
-    void read_traits( const dStorm::traits::Optics<3>::DepthInfo& );
+    DepthInfo set_traits() const;
+    void read_traits( const DepthInfo& );
     simparm::Node& getNode() { return *this; }
     void registerNamedEntries() { push_back( widening ); }
   public:
@@ -65,10 +65,10 @@ class Config : public simparm::Object {
     ~Config();
     void registerNamedEntries();
     void set_traits( input::Traits<Localization>& ) const;
-    void set_traits( input::Traits<engine::Image>& ) const;
-    void read_traits( const input::Traits<engine::Image>& );
+    void set_traits( engine::InputTraits& ) const;
+    void read_traits( const engine::InputTraits& );
     void read_traits( const input::Traits<Localization>& );
-    traits::Optics<2>::Resolutions get_resolution() const;
+    image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
 

@@ -78,8 +78,6 @@ nobase_include_HEADERS = \
     dStorm/InsertionPlace.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
-    dStorm/Image_decl.h dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
-    dStorm/ImageTraits_decl.h dStorm/ImageTraits.h dStorm/ImageTraits_impl.h \
     dStorm/DataSetTraits.h \
     dStorm/Job.h dStorm/JobMaster.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
     dStorm/Config_decl.h dStorm/Config.h \
@@ -106,7 +104,7 @@ nobase_include_HEADERS = \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
-    dStorm/traits/resolution_config.h \
+    dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
@@ -143,6 +141,7 @@ nobase_include_HEADERS = \
     dStorm/engine/FitPosition.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
+    dStorm/engine/InputTraits.h dStorm/engine/InputPlane.h \
     dStorm/input/AdapterSource.h \
     dStorm/input/Choice.h \
     dStorm/input/fwd.h dStorm/input/Link.h \
@@ -158,6 +157,9 @@ nobase_include_HEADERS = \
     dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
+    dStorm/Image.h dStorm/Image_impl.h dStorm/Image_iterator.h \
+    dStorm/image/Image.h dStorm/image/Image.hpp \
+    dStorm/image/fwd.h dStorm/image/MetaInfo.h dStorm/image/MetaInfo.hpp \
     dStorm/image/constructors.h dStorm/image/convert.h dStorm/image/iterator.h dStorm/image/minmax.h dStorm/image/slice.h \
     dStorm/image/mirror.h dStorm/image/crop.h dStorm/image/extend.h \
     dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
@@ -185,18 +187,15 @@ nobase_include_HEADERS = \
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
-    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/ImageTraits.cpp \
+    dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
     dStorm/localization/Field.cpp \
     dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
-    dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
-    dStorm/traits/AffineProjectionConfig.cpp \
-    dStorm/traits/ScaledProjection.cpp dStorm/traits/ScaledProjectionConfig.cpp \
-    dStorm/traits/SupportPointProjection.h dStorm/traits/SupportPointProjection.cpp \
-    dStorm/traits/SupportPointProjectionConfig.cpp \
+    dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \
+    dStorm/traits/SupportPointProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
@@ -208,7 +207,8 @@ libdStorm_la_SOURCES = \
     dStorm/input/Forwarder.cpp \
     dStorm/input/Method.hpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
-    dStorm/engine/JobInfo.cpp \
+    dStorm/engine/JobInfo.cpp dStorm/engine/InputTraits.cpp \
+    dStorm/engine/InputPlane.cpp \
     dStorm/output/debug.h \
     dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
     dStorm/output/Basename.cpp \
@@ -587,12 +587,12 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     input_simulation/plugin.cpp input_simulation/plugin.h \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h input_simulation/NoiseSource.cpp \
-    input_simulation/NoiseMeter.h input_simulation/Fluorophore.cpp \
+    input_simulation/Fluorophore.cpp \
     input_simulation/pixelatedBessel.h input_simulation/pixelatedBessel.cpp \
     input_simulation/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
-    locprec/SpotMeter.cpp locprec/NoiseMeter.cpp \
+    locprec/SpotMeter.cpp \
     input_simulation/FluorophoreDistributions_Random.cpp \
     input_simulation/FluorophoreDistributions_Lattice.cpp \
     input_simulation/FluorophoreDistributions_Lines.cpp \

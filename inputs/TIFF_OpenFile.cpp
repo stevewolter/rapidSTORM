@@ -2,8 +2,9 @@
 #include <tiffio.h>
 #include "TIFF.h"
 #include "TIFFOperation.h"
-#include <dStorm/ImageTraits.h>
-#include <dStorm/ImageTraits_impl.h>
+#include <dStorm/engine/InputTraits.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/image/MetaInfo.h>
 #include <boost/units/io.hpp>
 
 #undef DEBUG
@@ -58,8 +59,7 @@ OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::N
 
 }
 
-template<typename Pixel, int Dim>                                   
-typename std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > > 
+std::auto_ptr< Traits<engine::ImageStack > > 
 OpenFile::getTraits( bool final, simparm::Entry<long>& n ) 
 {
     if ( determine_length && final ) {
@@ -91,21 +91,20 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
 #endif
     }
 
+    static const int Dim = engine::ImageStack::Plane::Dim;
     DEBUG("Creating traits for size " << Dim);
     BOOST_STATIC_ASSERT( Dim <= 3 );
-    std::auto_ptr< Traits<dStorm::Image<Pixel,Dim> > >
-        rv( new Traits<dStorm::Image<Pixel,Dim> >() );
-    for (int i = 0; i < Dim; ++i) rv->size[i] = size[i] * camera::pixel;
-    rv->dim = 1; /* TODO: Read from file */
+    image::MetaInfo<2> plane;
+    for (int i = 0; i < Dim; ++i) plane.size[i] = size[i] * camera::pixel;
     DEBUG("Setting resolutions");
-    for (int p = 0; p < rv->plane_count(); ++p)
-        rv->plane(p).set_resolution( resolution );
+    plane.set_resolution( resolution );
     DEBUG("Setting image range");
-    for (int p = 0; p < rv->plane_count(); ++p)
-    if ( _no_images != -1 )
-        rv->image_number().range().second = (_no_images - 1) * camera::frame;
 
     DEBUG("Returning traits");
+    std::auto_ptr< Traits<engine::ImageStack > > rv
+        ( new Traits<engine::ImageStack >(plane) );
+    if ( _no_images != -1 )
+        rv->image_number().range().second = (_no_images - 1) * camera::frame;
     return rv;
 }
 
@@ -116,7 +115,7 @@ OpenFile::~OpenFile() {
 std::auto_ptr<BaseTraits> OpenFile::getTraits()
 {
     simparm::Entry<long> unused("Foo", "Foo");
-    return std::auto_ptr<BaseTraits>( getTraits<unsigned short,3>(false, unused).release() );
+    return std::auto_ptr<BaseTraits>( getTraits(false, unused).release() );
 }
 
 }

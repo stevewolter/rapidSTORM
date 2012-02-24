@@ -15,7 +15,7 @@ class GUI {
     std::auto_ptr< display::Change > make_spot_display();
     void mark_fluorophores( display::Image orig_image );
     void show_selection_window();
-    dStorm::engine::Image::Size get_maximum_tile_size();
+    dStorm::engine::Image2D::Size get_maximum_tile_size();
     static const int tile_cols = 7, tile_rows = 6;
 
     typedef guf::TransformedImage< si::length > Transformed;

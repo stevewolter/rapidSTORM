@@ -1,9 +1,11 @@
 #ifndef CImgBuffer_TIFF_H
 #define CImgBuffer_TIFF_H
 
-#include <dStorm/Image_decl.h>
-#include <dStorm/ImageTraits.h>
+#include <dStorm/image/fwd.h>
+#include <dStorm/image/MetaInfo.h>
 #include <dStorm/input/FileInput.h>
+#include <dStorm/engine/InputTraits.h>
+#include <dStorm/input/Source.h>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -44,19 +46,20 @@ namespace TIFF {
      *  unsigned int and float. The loaded TIFF file must match
      *  this data type exactly; no up- or downsampling is per-
      *  formed. */
-    template <typename PixelType, int Dimensions>
     class Source : public simparm::Set,
-                   public input::Source< Image<PixelType,Dimensions> >
+                   public input::Source< engine::ImageStack >
     {
-        typedef dStorm::Image<PixelType,Dimensions> Image;
-        typedef input::Source<Image> BaseSource;
+        typedef engine::StormPixel Pixel;
+        typedef engine::ImageStack Image;
+        typedef engine::Image2D Plane;
+        typedef input::Source<engine::ImageStack> BaseSource;
         typedef typename BaseSource::iterator base_iterator;
         typedef typename BaseSource::TraitsPtr TraitsPtr;
 
-        class iterator;
         simparm::Node& node() { return *this; }
 
       public:
+        class iterator;
         Source(boost::shared_ptr<OpenFile> file);
         virtual ~Source();
 
@@ -86,22 +89,19 @@ namespace TIFF {
         int current_directory;
 
         int size[3], _no_images;
-        traits::Optics<2>::Resolutions resolution;
+        image::MetaInfo<2>::Resolutions resolution;
 
-        template <typename PixelType, int Dim> 
-            friend class Source<PixelType,Dim>::iterator;
+        friend class Source::iterator;
 
       public:
         OpenFile(const std::string& filename, const Config&, simparm::Node&);
         ~OpenFile();
 
-        template <typename PixelType, int Dimensions> 
-            std::auto_ptr< Traits<dStorm::Image<PixelType,Dimensions> > > 
+        std::auto_ptr< Traits<engine::ImageStack> > 
             getTraits( bool final, simparm::Entry<long>& );
         std::auto_ptr< BaseTraits > getTraits();
 
-        template <typename PixelType, int Dimensions>
-            std::auto_ptr< dStorm::Image<PixelType,Dimensions> >
+        std::auto_ptr< engine::ImageStack >
             load_image( int index );
     };
 

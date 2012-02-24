@@ -42,8 +42,8 @@ struct ComponentWise
         return rv;
     }
 
-    traits::Optics<2>::Resolutions get_resolution() {
-        traits::Optics<2>::Resolutions rv;
+    typename image::MetaInfo<Dim>::Resolutions get_resolution() {
+        typename image::MetaInfo<Dim>::Resolutions rv;
         for (int i = 0; i < 2; ++i) {
             rv[i] = xy[i].resolution();
         }

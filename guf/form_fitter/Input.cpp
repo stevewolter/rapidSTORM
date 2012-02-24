@@ -6,7 +6,7 @@
 namespace dStorm {
 namespace form_fitter {
 
-Input::Input(const Config& c, const output::Output::Announcement& a, dStorm::traits::Optics<2>::PSF psf_size )
+Input::Input(const Config& c, const output::Output::Announcement& a, dStorm::traits::Optics::PSF psf_size )
 : number_of_spots( c.number_of_spots() )
 {
     traits = a.input_image_traits;
