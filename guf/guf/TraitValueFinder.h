@@ -23,11 +23,7 @@ struct TraitValueFinder {
   public:
     typedef void result_type;
     TraitValueFinder( 
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane )
-        : info(info), plane(plane), 
-          psf( plane.psf_size(info.fluorophore) ),
-          zero_wavelength( info.traits.fluorophores.at(0).wavelength ),
-          is_3d( boost::get<traits::Zhuang3D>(info.traits.depth_info.get_ptr()) ) {}
+        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane );
 
     template <int Dim, typename Structure>
     void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
@@ -39,8 +35,10 @@ struct TraitValueFinder {
     }
 
     template <typename Structure>
-    void operator()( PSF::ZPosition p, Structure& m ) const
-        { m( p ) = *plane.z_position; }
+    void operator()( PSF::ZPosition p, Structure& m ) const { 
+        if ( is_3d )
+            m( p ) = *plane.z_position; 
+    }
 
     template <int Dim, typename Structure>
     void operator()( PSF::ZOffset<Dim> p, Structure& m ) const { 

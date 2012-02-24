@@ -1,5 +1,6 @@
 #define DSTORM_ENGINE_CPP
 
+#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"
@@ -187,6 +188,7 @@ class Engine::_iterator
 class Engine::_iterator::WorkHorse {
     Engine& engine;
     Config& config;
+    Input::TraitsPtr meta_info;
 
     int maximumLimit;
     PlaneFlattener flattener;
@@ -213,7 +215,7 @@ class Engine::_iterator::WorkHorse {
 FitPosition Engine::_iterator::WorkHorse::get_fit_position( const Spot& spot ) const
 {
     return
-        engine.imProp->plane(0).projection().
+        meta_info->plane(0).projection().
             pixel_in_sample_space( spot.position() ).head<2>()
             .cast< FitPosition::Scalar >(); 
 }
@@ -249,8 +251,9 @@ Engine::_iterator::_iterator( Engine& engine, Input::iterator base )
 Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 : engine(engine),
   config(engine.config),
+  meta_info( engine.imProp ),
   maximumLimit(20),
-  flattener( *engine.imProp, engine.make_plane_weight_vector() ),
+  flattener( *meta_info, engine.make_plane_weight_vector() ),
   maximums(config.nms_x() / camera::pixel,
          config.nms_y() / camera::pixel,
          1, 1),
@@ -259,18 +262,18 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     DEBUG("Started piston");
     if ( ! config.spotFindingMethod.isValid() )
         throw std::runtime_error("No spot finding method selected.");
-    if ( engine.imProp->plane_count() < 1 )
+    if ( meta_info->plane_count() < 1 )
         throw std::runtime_error("Zero or less optical paths given for input, cannot compute.");
-    if ( engine.imProp->fluorophores.size() < 1 )
+    if ( meta_info->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
     spot_finder::Job job( config.maskSizeFactor(), 
-        engine.imProp->plane(0), engine.imProp->fluorophores[0]);
+        meta_info->plane(0), meta_info->fluorophores[0]);
     finder = config.spotFindingMethod().make(job);
 
-    DEBUG("Building spot fitter with " << engine.imProp->fluorophores.size() << " fluorophores");
-    for (unsigned int fluorophore = 0; fluorophore < engine.imProp->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *engine.imProp, fluorophore);
+    DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
+    for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
+        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *meta_info, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 
@@ -404,6 +407,7 @@ bool Engine::can_repeat_results() { return false; }
 void Engine::change_input_traits( std::auto_ptr< input::BaseTraits > traits )
 {
     Input::TraitsPtr::element_type* t = dynamic_cast< Input::TraitsPtr::element_type* >(traits.get());
+    DEBUG("Changing input traits to " << t << " with plane count " << t->plane_count() << " and PSF " << t->optics(0).psf_size(0));
     if ( t != NULL ) {
         imProp.reset( t );
         traits.release();

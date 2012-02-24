@@ -488,7 +488,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/fit_position_out_of_range.h \
     guf/guf/Fitter.cpp guf/guf/Fitter.h \
     guf/guf/InitialValueFinder.h guf/guf/InitialValueFinder.cpp \
-    guf/guf/TraitValueFinder.h \
+    guf/guf/TraitValueFinder.h guf/guf/TraitValueFinder.cpp \
     guf/guf/NaiveFitter.h guf/guf/NaiveFitter.cpp \
     guf/guf/ModelledFitter.h guf/guf/ModelledFitter.hpp \
     guf/guf/LocalizationChecker.h guf/guf/LocalizationChecker.cpp \

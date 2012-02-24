@@ -32,7 +32,7 @@ namespace engine {
         typedef input::Source<output::LocalizedImage> Base;
 
         std::auto_ptr<Input> input;
-        Input::TraitsPtr imProp;
+        Input::TraitsPtr imProp, last_run_meta_info;
 
         Config& config;
         boost::mutex mutex;
