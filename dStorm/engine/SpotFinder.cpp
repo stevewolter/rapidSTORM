@@ -10,8 +10,6 @@ namespace dStorm {
 namespace engine {
 namespace spot_finder {
 
-double na_scale_factor = 3.8317 * 2.35 / (2*2*1.61632);
-
 boost::units::quantity< boost::units::camera::length > Job::sigma(int dim) const
 {
     return dynamic_cast< const traits::ScaledProjection& >(traits.projection())

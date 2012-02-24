@@ -21,11 +21,8 @@ traits::ImageResolution MetaInfo<Dimensions>::resolution(int r) const {
 }
 
 template <int Dimensions>
-bool MetaInfo<Dimensions>::has_resolution() const {
-    bool all_set = true;
-    for (int i = 0; i < Dimensions; ++i)
-        all_set = all_set && resolutions_[i];
-    return all_set;
+bool MetaInfo<Dimensions>::has_resolution(int dim) const {
+    return resolutions_[dim];
 }
 
 template <int Dimensions>

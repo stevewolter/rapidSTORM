@@ -124,10 +124,10 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
     TIFFSetField( tif, TIFFTAG_BITSPERSAMPLE, sizeof(StormPixel) * 8 );
     TIFFSetField( tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER );
-    if ( size[0].has_resolution() )  {
+    if ( size[0].has_resolution(0) )
         TIFFSetField( tif, TIFFTAG_XRESOLUTION, float(size[0].resolution(0).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
+    if ( size[0].has_resolution(1) )
         TIFFSetField( tif, TIFFTAG_YRESOLUTION, float(size[0].resolution(1).in_dpm() * (0.01 * boost::units::si::meter) / camera::pixel) );
-    }
     if ( last_frame.is_initialized() ) {
         TIFFSetField( tif, TIFFTAG_PAGENUMBER, uint16_t(img.frame_number() / camera::frame),
                                             uint16_t(*last_frame / camera::frame + 1) );

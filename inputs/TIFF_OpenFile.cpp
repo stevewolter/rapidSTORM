@@ -4,7 +4,7 @@
 #include "TIFFOperation.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/image/MetaInfo.hpp>
+#include <dStorm/image/MetaInfo.h>
 #include <boost/units/io.hpp>
 
 #undef DEBUG

@@ -27,7 +27,7 @@ public:
     MetaInfo();
 
     traits::ImageResolution resolution(int r) const;
-    bool has_resolution() const;
+    bool has_resolution(int dim) const;
     const Resolutions& image_resolutions() const;
     void set_resolution( int dimension, const traits::ImageResolution& resolution );
     void set_resolution( const Resolutions& f );

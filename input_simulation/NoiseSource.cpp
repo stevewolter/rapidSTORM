@@ -314,7 +314,6 @@ void NoiseConfig::publish_meta_info() {
         p.size.y() = noiseGeneratorConfig.height() * camera::pixel;
         rv->push_back( p, dStorm::traits::Optics() );
     }
-    this->optics.set_traits( *rv );
 
     dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
     t->set_traits( rv );

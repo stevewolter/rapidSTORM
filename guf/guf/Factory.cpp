@@ -84,7 +84,6 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 bool Factory::can_compute_uncertainty( const engine::InputPlane& t ) const
 {
     return t.optics.photon_response.is_initialized() && 
-           t.image.has_resolution() &&
            t.optics.background_stddev.is_initialized();
 }
 

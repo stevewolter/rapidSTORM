@@ -65,7 +65,7 @@ void Display<Colorizer>::setSize( const MetaInfo& traits)
     }
     const int display_dim = display::Image::Dim;
     for (int i = 0; i < std::min(display_dim, Im::Dim); ++i) 
-        if ( traits.has_resolution() )
+        if ( traits.has_resolution(i) )
             size.pixel_sizes[i] = traits.resolution(i);
         else
             size.pixel_sizes[i].value = -1 / camera::pixel;
