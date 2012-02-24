@@ -187,16 +187,16 @@ FluorophoreSetConfig::create_fluorophores(
     return fluorophores;
 }
 
-NoiseSource::NoiseSource( NoiseConfig &config )
+NoiseSource::NoiseSource( const NoiseConfig &config )
 : simparm::Set("NoiseSource", "Noise source status"),
-  randomSeedEntry(config.noiseGeneratorConfig.random_seed),
+  randomSeed(config.noiseGeneratorConfig.random_seed()),
   t( new dStorm::engine::InputTraits() )
 {
 
     DEBUG("Just made traits for noise source");
     rng = gsl_rng_alloc(gsl_rng_mt19937);
-    DEBUG("Using random seed " << randomSeedEntry());
-    gsl_rng_set(rng, randomSeedEntry() );
+    DEBUG("Using random seed " << randomSeed);
+    gsl_rng_set(rng, randomSeed );
     noiseGenerator = 
         NoiseGenerator<unsigned short>::factory(config.noiseGeneratorConfig, rng);
 
@@ -231,9 +231,6 @@ NoiseSource::NoiseSource( NoiseConfig &config )
 NoiseSource::~NoiseSource()
 
 {
-    /* The last value of our random number generator is the next
-     * seed. */
-    randomSeedEntry = gsl_rng_get(rng);
     gsl_rng_free(rng);
 }
 

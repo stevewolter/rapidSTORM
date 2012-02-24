@@ -52,9 +52,7 @@ class Link {
     virtual std::string name() const = 0;
     virtual std::string description() const = 0;
 
-    Connection notify( const TraitsSignal::slot_type& whom )
-        { return Connection( new boost::signals2::scoped_connection(
-            meta_info_signal.connect( whom ) ) ); }
+    Connection notify( const TraitsSignal::slot_type& whom );
  
   protected:
     void update_current_meta_info( TraitsRef new_traits );

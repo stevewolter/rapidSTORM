@@ -64,7 +64,7 @@ class Config : public dStorm::Config
     void add_output( std::auto_ptr<output::OutputSource> );
 
     const input::MetaInfo& get_meta_info() const;
-    std::auto_ptr<input::BaseSource> makeSource();
+    std::auto_ptr<input::BaseSource> makeSource() const;
 
     void all_modules_loaded();
     void create_and_run( JobMaster& );

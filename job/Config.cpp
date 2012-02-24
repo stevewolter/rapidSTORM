@@ -196,7 +196,7 @@ void Config::add_output( std::auto_ptr<output::OutputSource> o ) {
     outputConfig.addChoice( o.release() );
 }
 
-std::auto_ptr<input::BaseSource> Config::makeSource() {
+std::auto_ptr<input::BaseSource> Config::makeSource() const {
     return input->make_source();
 }
 

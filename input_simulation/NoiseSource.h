@@ -27,7 +27,7 @@ namespace locprec {
       public dStorm::input::Source< dStorm::engine::ImageStack >
     {
       private:
-        simparm::Entry<unsigned long> &randomSeedEntry;
+        unsigned long randomSeed;
         std::auto_ptr< NoiseGenerator<unsigned short> > noiseGenerator;
 
         typedef dStorm::engine::ImageStack Image;
@@ -49,7 +49,7 @@ namespace locprec {
         gsl_rng *rng;
 
       public:
-        NoiseSource(NoiseConfig &config);
+        NoiseSource(const NoiseConfig &config);
         ~NoiseSource();
 
         dStorm::engine::ImageStack* fetch(int index);
@@ -89,7 +89,7 @@ namespace locprec {
     {
       public:
         typedef std::list< FluorophoreSetConfig* > FluoSets;
-        const FluoSets& get_fluorophore_sets() 
+        const FluoSets& get_fluorophore_sets() const
             { return fluorophore_sets; }
       private:
         int next_fluo_id;

@@ -17,6 +17,7 @@ Forwarder::Forwarder(const Forwarder& o) : Link(o)
 }
 
 Forwarder::~Forwarder() { 
+    DEBUG("Destructing " << this);
 }
 
 
@@ -47,6 +48,7 @@ Link::TraitsRef Forwarder::upstream_traits() const {
 }
 
 void Forwarder::traits_changed( TraitsRef ref, Link* l ) {
+    DEBUG("Forwarder " << this << " got meta info update from " << l << " for " << ref.get() );
     update_current_meta_info(ref);
 }
 
