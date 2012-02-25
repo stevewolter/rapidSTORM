@@ -1,6 +1,5 @@
 #define DSTORM_ENGINE_CPP
 
-#define VERBOSE
 #include "debug.h"
 
 #include "EngineDebug.h"

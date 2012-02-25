@@ -266,7 +266,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     job/Car.cpp job/Car.h \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
-    job/Run.h job/Run.cpp
+    job/Run.h job/Run.cpp \
+    job/Control.h job/Control.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     dStorm/output/Config.h

@@ -7,11 +7,11 @@ namespace job {
 Queue::Queue( frame_index i, int producer_count ) 
 : next_output(i), producer_count(producer_count), interruption( false )
 {
-    DEBUG("Starting queue with first output " << next_output);
+    DEBUG("Starting queue " << this << " with first output " << next_output);
 }
 
 Queue::~Queue() {
-    DEBUG("Destructing queue");
+    DEBUG("Destructing queue " << this);
 }
 
 void Queue::producer_finished()
@@ -37,7 +37,7 @@ void Queue::rethrow_exception() {
 
 void Queue::push( const output::LocalizedImage& r ) {
     boost::unique_lock<boost::mutex> lock(ring_buffer_mutex);
-    DEBUG("Pushing image " << r.forImage);
+    DEBUG("Pushing image " << r.forImage << " into " << this);
     while ( (r.forImage - next_output).value() >=
             int(ring_buffer.size()) ) 
     {
@@ -46,7 +46,7 @@ void Queue::push( const output::LocalizedImage& r ) {
         producer_can_continue.wait(lock);
     }
 
-    DEBUG("Inserting image " << r.forImage << " into queue");
+    DEBUG("Inserting image " << r.forImage << " into queue " << this);
     int ring = r.forImage.value() % ring_buffer.size();
     assert( ! ring_buffer[ring].is_initialized() );
     ring_buffer[ring] = r;
@@ -83,7 +83,7 @@ void Queue::pop() {
 
 void Queue::interrupt_producers() {
     boost::lock_guard<boost::mutex> lock(ring_buffer_mutex);
-    DEBUG("Interrupting all producers");
+    DEBUG("Interrupting all producers for queue " << this);
     interruption = true;
     producer_can_continue.notify_all();
 }

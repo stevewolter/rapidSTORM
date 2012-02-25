@@ -2,6 +2,7 @@
 #include "debug.h"
 #include <boost/thread/thread.hpp>
 #include <dStorm/engine/Input.h>
+#include <boost/version.hpp>
 
 namespace dStorm {
 namespace job {
@@ -12,19 +13,29 @@ Run::Run( boost::recursive_mutex& mutex, frame_index first_image,
   restarted(false), blocked(false),
   input(input), output(output), piston_count(piston_count)
 {
+    DEBUG("Created run " << this);
 }
 
 Run::~Run() {
+    DEBUG("Destructing run " << this);
     boost::this_thread::disable_interruption di;
     stop_computation();
 }
 
+void Run::interrupt() {
+    DEBUG("Interrupting run " << this);
+    queue.interrupt_producers();
+#if BOOST_VERSION >= 104800
+    /* Avoid boost thread interruption errors on Debian in 1.46.1 */
+#endif
+}
+
 void Run::stop_computation() {
     queue.interrupt_producers();
-    DEBUG("Joining threads");
+    DEBUG("Joining threads for queue " << this);
     std::for_each( threads.begin(), threads.end(), 
         std::mem_fun_ref( &boost::thread::join ) );
-    DEBUG("Cleared threads");
+    DEBUG("Cleared threads for queue " << this);
 }
 
 Run::Result Run::run() {

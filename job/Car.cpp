@@ -13,6 +13,7 @@
 #include <dStorm/helpers/OutOfMemory.h>
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/display/Manager.h>
+#include <boost/smart_ptr/make_shared.hpp>
 
 using dStorm::output::Output;
 
@@ -46,24 +47,14 @@ static std::string getRunNumber() {
 }
 
 Car::Car (JobMaster* input_stream, const Config &config) 
-: simparm::Listener( simparm::Event::ValueChanged ),
-  ident( getRunNumber() ),
+: ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
-  abortJob("StopComputation", "Stop computation"),
-  closeJob("CloseJob", "Close job"),
   input(NULL),
   output(NULL),
-  close_job( config.auto_terminate() ),
-  abort_job( false ),
-  piston_count( config.pistonCount() )
+  piston_count( config.pistonCount() ),
+  control( config.auto_terminate() )
 {
     used_output_filenames = config.get_meta_info().forbidden_filenames;
-    closeJob.helpID = "#CloseJob";
-    abortJob.helpID = "#StopEngine";
-
-    receive_changes_from( abortJob.value );
-    receive_changes_from( closeJob.value );
-    receive_changes_from( runtime_config );
 
     DEBUG("Trying to make source");
     std::auto_ptr<input::BaseSource> rawinput( config.makeSource() );
@@ -115,28 +106,6 @@ Car::~Car()
     DEBUG("Commencing destruction");
 }
 
-void Car::operator()(const simparm::Event& e) {
-    if ( &e.source == &closeJob.value && e.cause == simparm::Event::ValueChanged && closeJob.triggered() )
-    {
-        closeJob.untrigger();
-        closeJob.editable = false;
-        DEBUG("Job close button allows termination" );
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
-        close_job = true;
-        abort_job = true;
-        computation_thread.interrupt();
-        allow_termination.notify_all();
-    } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
-    {
-        DEBUG("Abort job button pressed");
-        abortJob.untrigger();
-        abortJob.editable = false;
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
-        abort_job = true;
-        computation_thread.interrupt();
-    }
-}
-
 void Car::run() {
     try {
         drive();
@@ -155,12 +124,11 @@ void Car::run() {
     delete this;
 }
 
-void Car::compute() {
+void Car::drive() {
   try {
     runtime_config.push_back( *input );
     runtime_config.push_back( output->getNode() );
-    runtime_config.push_back( abortJob );
-    runtime_config.push_back( closeJob );
+    control.registerNamedEntries( runtime_config );
 
     input::BaseSource::Wishes requirements;
     if ( piston_count > 1 )
@@ -173,7 +141,7 @@ void Car::compute() {
     DEBUG("Creating announcement from traits " << traits.get());
     Output::Announcement announcement( *traits, display::Manager::getSingleton() );
     upstream_engine = announcement.engine;
-    announcement.engine = this;
+    announcement.engine = &control;
     announcement.name = "Job" + ident;
     announcement.description = "Result image for Job " + ident;
     DEBUG("Sending announcement");
@@ -199,6 +167,7 @@ void Car::compute() {
                    "the input. Either remove the output or " +
                    "choose a different input file or method.");
         runtime_config.send(m);
+        return;
     } else if (
         ( data.test( output::Capabilities::SmoothedImage ) && 
           ! announcement.smoothed_image_is_set ) ||
@@ -215,26 +184,38 @@ void Car::compute() {
             "present in the current input.";
         simparm::Message m("Unable to provide data", ss.str());
         runtime_config.send(m);
-    } else {
-        int number_of_threads = 1;
-        if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
-            number_of_threads = piston_count;
-        while ( ! abort_job ) {
-            current_run.reset( new Run( mutex, first_output, *input, *output,
-                                        number_of_threads ) );
-            Run::Result result = current_run->run();
-            if ( result == Run::Succeeded ) {
-                boost::lock_guard< boost::recursive_mutex > lock(mutex);
-                output->store_results();
-                break;
-            } else if ( result == Run::Failed ) {
-                break;
-            } else {
-                current_run.reset();
-                input->dispatch( input::BaseSource::RepeatInput );
-            }
+        return;
+    }
+
+    int number_of_threads = 1;
+    if ( input->capabilities().test( input::BaseSource::ConcurrentIterators ) )
+        number_of_threads = piston_count;
+    bool run_succeeded = false;
+    while ( ! run_succeeded && control.continue_computing() ) {
+        current_run = boost::make_shared<Run>
+            ( boost::ref(mutex), first_output, boost::ref(*input), boost::ref(*output), number_of_threads );
+        control.set_current_run( current_run );
+        Run::Result result = current_run->run();
+        current_run.reset();
+        control.set_current_run( current_run );
+
+        if ( result == Run::Restart ) {
+            if ( control.traits_changed() )
+                upstream_engine->change_input_traits( control.new_traits() );
+            input->dispatch( input::BaseSource::RepeatInput );
+        } else if ( result == Run::Succeeded ) {
+            run_succeeded = true;
+        } else if ( result == Run::Failed ) {
+            /* This should not happen, since any failure condition should
+             * throw an exception. Abort, it seems the safest option. */
+            throw boost::thread_interrupted();
+        } else {
+            assert( false );
         }
     }
+
+    if ( ! control.aborted_by_user() )
+        output->store_results();
 
 #if 0
     if ( config.configTarget ) {
@@ -256,45 +237,15 @@ void Car::compute() {
     runtime_config.send(m);
     DEBUG("Sent message in drive mode");
   }
-}
 
-void Car::drive() {
-    if ( ! abort_job ) {
-        computation_thread = boost::thread( &Car::compute, this );
-        computation_thread.join();
-    }
     current_run.reset();
+    control.set_current_run( current_run );
     input.reset();
-    boost::unique_lock<boost::recursive_mutex> lock( mutex );
-    DEBUG("Waiting for termination allowance");
-    while ( ! close_job )
-        allow_termination.wait(lock);
-    DEBUG("Allowed to terminate");
-
+    control.wait_until_termination_is_allowed();
 }
 
 void Car::stop() {
-    abortJob.trigger();
-    closeJob.trigger();
-}
-
-void Car::restart() {
-    current_run->restart();
-}
-
-void Car::repeat_results() {
-    throw std::logic_error("Cannot repeat results from dSTORM car");
-}
-bool Car::can_repeat_results() { return false; }
-
-void Car::change_input_traits( std::auto_ptr< input::BaseTraits > new_traits )
-{
-    if ( upstream_engine )
-        upstream_engine->change_input_traits( new_traits );
-}
-
-std::auto_ptr<EngineBlock> Car::block() {
-    return current_run->block();
+    control.stop();
 }
 
 }

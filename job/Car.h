@@ -5,7 +5,6 @@
 
 #include <dStorm/stack_realign.h>
 #include <dStorm/Job.h>
-#include <dStorm/Engine.h>
 #include "Config.h"
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
@@ -19,6 +18,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
+#include "Control.h"
 
 namespace dStorm {
 namespace output { class Output; }
@@ -31,9 +32,7 @@ namespace job {
      *  the desired output elements and run (concurrently or not)
      *  the dStorm engine. */
     class Car 
-        : boost::noncopyable, public Job,
-          private simparm::Node::Callback ,
-          public dStorm::Engine
+        : boost::noncopyable, public Job
     {
       private:
         std::set<std::string> used_output_filenames;
@@ -44,8 +43,6 @@ namespace job {
         /** Runtime configuration. This is the storage locations for all
          *  configuration items which show job progress and status. */
         simparm::Set runtime_config;
-        simparm::TriggerEntry abortJob;
-        simparm::TriggerEntry closeJob;
 
         typedef input::Source< output::LocalizedImage > Input;
 
@@ -54,15 +51,11 @@ namespace job {
         std::auto_ptr<output::Output> output;
 
         boost::recursive_mutex mutex;
-        bool close_job, abort_job;
-        boost::condition allow_termination;
         frame_index first_output;
         const int piston_count;
 
-        std::auto_ptr<Run> current_run;
-
-        /** Receive the signal from closeJob. */
-        void operator()(const simparm::Event&);
+        boost::shared_ptr<Run> current_run;
+        Control control;
 
         void output_or_store( const output::LocalizedImage& output );
         bool have_output_threads() const;
@@ -81,11 +74,6 @@ namespace job {
 
         simparm::Node& get_config() { return runtime_config; }
 
-        void restart();
-        void repeat_results();
-        bool can_repeat_results();
-        void change_input_traits( std::auto_ptr< input::BaseTraits > );
-        std::auto_ptr<EngineBlock> block();
     };
 }
 }

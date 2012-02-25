@@ -24,6 +24,7 @@ class Run
     Result run();
     ~Run();
 
+    void interrupt();
     void restart();
     std::auto_ptr<EngineBlock> block();
 
