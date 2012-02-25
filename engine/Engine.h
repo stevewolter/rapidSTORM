@@ -63,6 +63,8 @@ namespace engine {
         bool can_repeat_results();
         void change_input_traits( std::auto_ptr< input::BaseTraits > );
         std::auto_ptr<EngineBlock> block() ;
+        std::auto_ptr<EngineBlock> block_termination() 
+            { throw std::logic_error("Not implemented"); }
    };
 }
 }

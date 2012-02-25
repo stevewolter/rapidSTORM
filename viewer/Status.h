@@ -8,6 +8,7 @@
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Structure.hh>
 #include <boost/thread/mutex.hpp>
+#include <dStorm/Engine.h>
 
 namespace dStorm {
 namespace display { class Manager; }
@@ -22,6 +23,7 @@ struct Status {
 
     boost::mutex mutex;
     display::Manager *manager;
+    dStorm::Engine* engine;
 
     virtual void adapt_to_changed_config() = 0;
     void registerNamedEntries( simparm::Node& name );

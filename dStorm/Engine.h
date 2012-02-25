@@ -17,6 +17,7 @@ struct Engine {
     virtual bool can_repeat_results() = 0;
     virtual void change_input_traits( std::auto_ptr< input::BaseTraits > ) = 0;
     virtual std::auto_ptr<EngineBlock> block() = 0;
+    virtual std::auto_ptr<EngineBlock> block_termination() = 0;
 };
 
 }

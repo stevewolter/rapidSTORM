@@ -21,12 +21,17 @@ class Control
     simparm::TriggerEntry abortJob;
     simparm::TriggerEntry closeJob;
     boost::condition allow_termination;
+    int active_termination_blocks;
 
     boost::shared_ptr<Run> current_run;
     std::auto_ptr< input::BaseTraits > next_run_traits;
 
     /** Receive the signal from closeJob. */
     void operator()(const simparm::Event&);
+
+    class TerminationBlock;
+
+    std::auto_ptr<EngineBlock> block_termination();
 
 public:
     Control( bool auto_terminate );

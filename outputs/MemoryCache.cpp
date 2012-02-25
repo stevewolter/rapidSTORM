@@ -107,6 +107,8 @@ class Output
     int reemit_count;
     bool engine_run_has_succeeded;
 
+    Engine* upstream;
+
     class _Config;
 
     static const int LocalizationsPerBunch = 100000;
@@ -116,7 +118,10 @@ class Output
     void stop() { throw std::logic_error("Not implemented, sorry."); }
     bool can_repeat_results() { return true; }
     void change_input_traits( std::auto_ptr< input::BaseTraits > ) { throw std::logic_error("Not implemented, sorry."); }
-    std::auto_ptr<EngineBlock> block() { throw std::logic_error("Not implemented"); }
+    std::auto_ptr<EngineBlock> block() 
+        { return upstream->block(); }
+    std::auto_ptr<EngineBlock> block_termination() 
+        { return upstream->block_termination(); }
 
     void prepare_destruction_();
 
@@ -292,6 +297,7 @@ Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 { 
     boost::lock_guard<boost::mutex> lock(output_mutex);
+    upstream = a.engine;
     master_bunch.reset( new Bunch(a) );
 
     reemit_count = 0;

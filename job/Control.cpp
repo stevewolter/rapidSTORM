@@ -10,7 +10,8 @@ Control::Control( bool auto_terminate )
   close_job( auto_terminate ),
   abort_job( false ),
   abortJob("StopComputation", "Stop computation"),
-  closeJob("CloseJob", "Close job")
+  closeJob("CloseJob", "Close job"),
+  active_termination_blocks(0)
 {
     closeJob.helpID = "#CloseJob";
     abortJob.helpID = "#StopEngine";
@@ -28,7 +29,7 @@ void Control::registerNamedEntries( simparm::Node& runtime_config )
 void Control::wait_until_termination_is_allowed()
 {
     boost::unique_lock<boost::mutex> lock( mutex );
-    while ( ! close_job )
+    while ( ! close_job || active_termination_blocks > 0 )
         allow_termination.wait(lock);
 }
 
@@ -101,6 +102,29 @@ bool Control::aborted_by_user() const
 bool Control::continue_computing() const {
     boost::lock_guard<boost::mutex> lock( mutex );
     return ! abort_job;
+}
+
+class Control::TerminationBlock 
+: public EngineBlock
+{
+    Control& c;
+public:
+    TerminationBlock( Control& c ) : c(c) {
+        boost::lock_guard<boost::mutex> lock( c.mutex );
+        ++c.active_termination_blocks;
+    }
+
+    ~TerminationBlock() {
+        boost::lock_guard<boost::mutex> lock( c.mutex );
+        --c.active_termination_blocks;
+        if ( c.active_termination_blocks == 0 )
+            c.allow_termination.notify_all();
+    }
+};
+
+std::auto_ptr<EngineBlock> Control::block_termination()
+{
+    return std::auto_ptr<EngineBlock>( new TerminationBlock(*this) );
 }
 
 }

@@ -7,6 +7,7 @@
 #include "Status_decl.h"
 #include <vector>
 #include <dStorm/display/Manager.h>
+#include <dStorm/Engine.h>
 
 namespace dStorm {
 namespace viewer {
@@ -38,9 +39,11 @@ class Display
 
     std::auto_ptr<dStorm::display::Change> next_change;
     std::auto_ptr<dStorm::display::Manager::WindowHandle> window_id;
+    std::auto_ptr<dStorm::EngineBlock> termination_block;
 
     boost::optional<dStorm::display::ResizeChange> my_size;
     display::Manager& manager;
+    const Status& status;
 
     void setSize( const dStorm::display::ResizeChange& size );
 
