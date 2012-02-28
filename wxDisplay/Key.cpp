@@ -269,5 +269,24 @@ void Key::OnUpperLimitChange( wxCommandEvent& ) {
             std::string(upperBoundary->GetValue().mb_str()) );
 }
 
+void make_editable( wxTextCtrl *o, bool e ) {
+    if ( o ) {
+        o->SetEditable( e );
+        if ( e )
+            o->SetBackgroundStyle( wxBG_STYLE_SYSTEM );
+        else {
+            o->SetBackgroundStyle( wxBG_STYLE_COLOUR );
+            o->SetBackgroundColour( *wxLIGHT_GREY );
+        }
+    }
+}
+
+void Key::set_data_source( DataSource* src )
+{
+    source = src;
+    make_editable( lowerBoundary, src != NULL );
+    make_editable( upperBoundary, src != NULL );
+}
+
 }
 }

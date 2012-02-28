@@ -162,7 +162,6 @@ Source::Image&
 Source::iterator::dereference() const
 { 
     DEBUG("Dereferencing TIFF iterator " << this);
-    static int count = 0;
     if ( ! img.is_initialized() ) {
         TIFFOperation op( "in reading TIFF file",
                           *msg, src->ignore_warnings );

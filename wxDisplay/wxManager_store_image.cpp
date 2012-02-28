@@ -120,32 +120,34 @@ make_key_image(
         width, midline, text_area_height + key_annotation_height,
         background, palette);
 
-    DEBUG("Annotating");
-    Magick::TypeMetric metrics;
-    rv->strokeColor( foreground );
-    rv->fillColor( foreground );
-    for (int i = lh/3; i < width-(lh-lh/6); i += lh )
-    {
-        int index = round(i * key.size() * 1.0 / width );
-        index = std::max(0, std::min(index, int(key.size()) -1));
-        DEBUG("Annotating at index " << index << " for key size " << key.size() << " and position " << i << " of " << width);
-        float value = key[ index ].value;
-        std::string s = SIize(value);
-        rv->annotate(s, 
-            Magick::Geometry( lh, text_area_height-5,
-                                i-lh/6, midline+5),
-            Magick::NorthWestGravity, 90 );
-        rv->draw( Magick::DrawableLine( i, midline,
-                                        i, midline+3 ) );
-    }
+    if ( ! key.empty() ) {
+        DEBUG("Annotating");
+        Magick::TypeMetric metrics;
+        rv->strokeColor( foreground );
+        rv->fillColor( foreground );
+        for (int i = lh/3; i < width-(lh-lh/6); i += lh )
+        {
+            int index = round(i * key.size() * 1.0 / width );
+            index = std::max(0, std::min(index, int(key.size()) -1));
+            DEBUG("Annotating at index " << index << " for key size " << key.size() << " and position " << i << " of " << width);
+            float value = key[ index ].value;
+            std::string s = SIize(value);
+            rv->annotate(s, 
+                Magick::Geometry( lh, text_area_height-5,
+                                    i-lh/6, midline+5),
+                Magick::NorthWestGravity, 90 );
+            rv->draw( Magick::DrawableLine( i, midline,
+                                            i, midline+3 ) );
+        }
 
-    DEBUG("Writing key annotation");
-    std::string message = "Key: " + kd.description;
-    if ( width >= 20*lh )
-      rv->annotate( message,
-        Magick::Geometry( width, 
-            key_annotation_height, 0, midline+text_area_height ),
-            Magick::NorthGravity, 0);
+        DEBUG("Writing key annotation");
+        std::string message = "Key: " + kd.description;
+        if ( width >= 20*lh )
+        rv->annotate( message,
+            Magick::Geometry( width, 
+                key_annotation_height, 0, midline+text_area_height ),
+                Magick::NorthGravity, 0);
+    }
 
     DEBUG("Made annotated key");
     return rv;

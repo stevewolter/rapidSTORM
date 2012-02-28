@@ -41,7 +41,7 @@ void Display<Colorizer>::show_window()
     if ( window_id.get() == NULL && my_size.is_initialized() ) {
         props.initial_size = *my_size;
         window_id = manager.register_data_source( props, vph );
-        termination_block = status.engine->block_termination();
+        //termination_block = status.engine->block_termination();
     }
 }
 

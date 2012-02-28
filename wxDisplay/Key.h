@@ -72,7 +72,7 @@ class Key : public wxWindow {
     wxBoxSizer *getBox();
 
     void cursor_value( const DataSource::PixelInfo&, float value );
-    void set_data_source( DataSource* src ) { source = src; }
+    void set_data_source( DataSource* src );
 
     DECLARE_EVENT_TABLE();
 };

@@ -101,7 +101,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPla
         quantity<si::area> psf_variance 
             = rv.fit_covariance_matrix()(i,i) + p.pixel_size() / 12.0;
         double background_term
-            = psf_variance * 8.0 * M_PI * B / (N * p.pixel_size());
+            = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size());
         rv.position.uncertainty()[i] 
             = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) );
     }
