@@ -9,7 +9,7 @@
 #include <memory>
 #include <gsl/gsl_rng.h>
 
-namespace locprec {
+namespace input_simulation {
     class _NoiseGeneratorConfig : public simparm::Set {
       protected:
         void registerNamedEntries();

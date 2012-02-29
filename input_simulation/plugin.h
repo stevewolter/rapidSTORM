@@ -1,2 +1,2 @@
 namespace dStorm { class Config; }
-namespace locprec { void input_simulation ( dStorm::Config& config ); }
+namespace input_simulation { void input_simulation ( dStorm::Config& config ); }

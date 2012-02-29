@@ -1,21 +1,21 @@
-#include <dStorm/engine/Image.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/constructors.h>
 #include <boost/units/io.hpp>
-#include "Reconstruction.hh"
-#include "Reconstruction.hpp"
+#include "morphological_reconstruction.hpp"
 #include "dejagnu.h"
 
 #include <iostream>
 #include <iomanip>
 
+namespace dStorm {
+namespace image {
+
 using namespace std;
-using namespace dStorm;
 using namespace boost::units;
 
 static const int n = 8;
 
-int marker[][n] = {
+static int marker[][n] = {
     { 255, 255, 255, 255, 255, 255, 255, 255 },
     { 255, 10, 11, 10, 11, 10, 1, 255 },
     { 255, 14, 13, 12, 12, 10, 1, 255 },
@@ -26,7 +26,7 @@ int marker[][n] = {
     { 255, 255, 255, 255, 255, 255, 255, 255 }
 };
 
-int mask[][n] = {
+static int mask[][n] = {
     { 255, 255, 255, 255, 255, 255, 255, 255 },
     { 255, 20, 20, 20, 20, 20, 20, 255 },
     { 255, 20, 15, 14, 14, 12, 20, 255 },
@@ -37,7 +37,7 @@ int mask[][n] = {
     { 255, 255, 255, 255, 255, 255, 255, 255 }
 };
 
-int normResult[][n] = {
+static int normResult[][n] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 },
    { 0, 16,   16,   16,   16,   16,16, 0 },
    { 0, 16,   15,   14,   14,   12,16, 0 },
@@ -49,10 +49,10 @@ int normResult[][n] = {
 };
 
 void reconstruction_by_dilation_test( TestState& state ) {
-    engine::SmoothedImage::Size size;
+    Image<int,2>::Size size;
     size.x() = n * camera::pixel;
     size.y() = n * camera::pixel;
-    engine::SmoothedImage imark(size), imask(size), iresult(size);
+    Image<int,2> imark(size), imask(size), iresult(size);
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++) {
@@ -62,14 +62,17 @@ void reconstruction_by_dilation_test( TestState& state ) {
             iresult(j,i) = normResult[i][j];
         }
 
-    engine::SmoothedImage test(size);
-    dStorm::ReconstructionByDilationII<engine::SmoothedPixel>(imark, imask, test);
+    Image<int,2> test(size);
+    reconstruction_by_dilation(imark, imask, test);
     bool isEqual = true;
-    for (engine::SmoothedImage::const_iterator i = test.begin(), j = iresult.begin(); i != test.end(); ++i, ++j) {
+    for (Image<int,2>::const_iterator i = test.begin(), j = iresult.begin(); i != test.end(); ++i, ++j) {
         if ( *i != *j ) {
             std::cerr << "Difference at " << i.x() << " " << i.y() << ", value is " << *i << " and should be " << *j << std::endl;
             isEqual = false;
         }
     }
     state( isEqual, "Reconstruction by dilation works" );
+}
+
+}
 }

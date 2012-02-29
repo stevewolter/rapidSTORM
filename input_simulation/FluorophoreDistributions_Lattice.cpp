@@ -2,7 +2,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/units/cmath.hpp>
 
-namespace locprec {
+namespace input_simulation {
 namespace FluorophoreDistributions {
 
 class _Lattice : public FluorophoreDistribution {

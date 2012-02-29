@@ -12,7 +12,7 @@
 #include <simparm/Structure.hh>
 #include <dStorm/UnitEntries.h>
 
-namespace locprec {
+namespace input_simulation {
 namespace FluorophoreDistributions {
 
 using namespace boost::units;

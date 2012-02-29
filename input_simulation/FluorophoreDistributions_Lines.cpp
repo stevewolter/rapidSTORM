@@ -5,7 +5,7 @@
 using namespace Eigen;
 using namespace boost::units;
 
-namespace locprec {
+namespace input_simulation {
 namespace FluorophoreDistributions {
 
 using namespace boost::units;

@@ -11,7 +11,7 @@ using namespace std;
 
 typedef unsigned short Pixel;
 
-namespace locprec {
+namespace input_simulation {
 
 template <typename PixelType> class CombinedDistributionSource
 : public NoiseGenerator<PixelType>

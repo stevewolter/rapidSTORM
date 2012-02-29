@@ -143,7 +143,7 @@ void ModuleLoader::add_modules
     guf::augment_config( car_config );
     AndorCamera::augment_config( car_config );
     locprec::augment_config( car_config );
-    locprec::input_simulation( car_config );
+    input_simulation::input_simulation( car_config );
     test::make_config( &car_config );
 
     DEBUG("Iterating plugins");

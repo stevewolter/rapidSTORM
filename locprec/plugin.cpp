@@ -7,7 +7,6 @@
 #include "SpotMeter.h"
 #include "EmissionTracker.h"
 #include "DensityProfile.h"
-#include "FillholeSmoother.h"
 #include "PrecisionEstimator.h"
 #include "RegionOfInterest.h"
 #include "SourceValuePrinter.h"
@@ -19,8 +18,6 @@ using namespace dStorm::output;
 namespace locprec {
 
 void augment_config ( dStorm::Config& config ) {
-    config.add_spot_finder( 
-        new locprec::FillholeSmoother::Factory() );
     config.add_output( locprec::emission_tracker::create() );
     config.add_output( new locprec::Segmenter::Source() );
     config.add_output( new locprec::SpotMeter::Source() )/*, Expert )*/;

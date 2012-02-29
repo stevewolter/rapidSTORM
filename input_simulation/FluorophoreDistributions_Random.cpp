@@ -1,7 +1,7 @@
 #include <boost/units/io.hpp>
 #include "FluorophoreDistributions.h"
 
-namespace locprec {
+namespace input_simulation {
 namespace FluorophoreDistributions {
 
 _Random::_Random()

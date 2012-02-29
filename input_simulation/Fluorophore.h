@@ -23,7 +23,7 @@
 #include <dStorm/traits/Projection.h>
 #include <dStorm/UnitEntries/Nanometre.h>
 
-namespace locprec {
+namespace input_simulation {
 
 using namespace boost::units;
 

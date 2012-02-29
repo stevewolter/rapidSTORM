@@ -7,7 +7,7 @@
 #include <dStorm/types/samplepos.h>
 #include <dStorm/traits/Projection.h>
 
-namespace locprec {
+namespace input_simulation {
 
 using namespace boost::units;
 

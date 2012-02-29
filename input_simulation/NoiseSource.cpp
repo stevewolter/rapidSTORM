@@ -23,7 +23,7 @@
 
 using namespace boost::units;
 
-namespace locprec {
+namespace input_simulation {
 
 void FluorophoreSetConfig::registerNamedEntries() {
     this->push_back( fluorophoreConfig );

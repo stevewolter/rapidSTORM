@@ -9,7 +9,7 @@
 #include <gsl/gsl_errno.h>
 #include <dStorm/traits/Projection.h>
 
-namespace locprec {
+namespace input_simulation {
 
 struct BesselFunction::IntegrationInfo
 {

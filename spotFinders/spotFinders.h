@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <dStorm/engine/SpotFinder_decl.h>
+#include "Fillhole.h"
 
 namespace dStorm {
 namespace spotFinders {

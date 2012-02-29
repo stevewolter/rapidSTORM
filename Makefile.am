@@ -165,6 +165,8 @@ nobase_include_HEADERS = \
     dStorm/image/dilation.h dStorm/image/dilation_impl.h dStorm/image/contains.h \
     dStorm/image/find_by_offset.hpp dStorm/image/normalize.h \
     dStorm/image/corners.h \
+    dStorm/image/morphological_reconstruction.h \
+    dStorm/image/morphological_reconstruction.hpp \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
@@ -231,7 +233,8 @@ libdStorm_la_SOURCES = \
     dStorm/display/DummyManager.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
-    dStorm/traits/scalar_check.cpp
+    dStorm/traits/scalar_check.cpp \
+    dStorm/image/morphological_reconstruction.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
@@ -352,8 +355,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/Median.cpp \
     spotFinders/MedianSmoother.h \
     spotFinders/MedianSmoother.cpp \
-    spotFinders/Spalttiefpass.h \
-    spotFinders/Spalttiefpass.cpp \
+    spotFinders/Spalttiefpass.h spotFinders/Spalttiefpass.cpp \
+    spotFinders/Fillhole.h spotFinders/Fillhole.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
@@ -586,23 +589,26 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     input_simulation/plugin.cpp input_simulation/plugin.h \
-    locprec/plugin.cpp locprec/plugin.h \
-    locprec/foreach.h input_simulation/NoiseSource.cpp \
+    input_simulation/NoiseSource.h input_simulation/NoiseSource.cpp \
+    input_simulation/NoiseGenerator.cpp \
     input_simulation/Fluorophore.cpp \
     input_simulation/pixelatedBessel.h input_simulation/pixelatedBessel.cpp \
-    input_simulation/NoiseGenerator.cpp locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
-    locprec/RegionSegmenter.cpp \
-    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
-    locprec/SpotMeter.cpp \
     input_simulation/FluorophoreDistributions_Random.cpp \
     input_simulation/FluorophoreDistributions_Lattice.cpp \
     input_simulation/FluorophoreDistributions_Lines.cpp \
     input_simulation/FluorophoreDistribution.h \
     input_simulation/FluorophoreDistributions.h \
-    locprec/RegionSegmenter.h input_simulation/NoiseSource.h\
-    input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h locprec/relate.h \
-    locprec/FillholeSmoother.h locprec/FillholeSmoother.cpp \
-    locprec/Reconstruction.hh locprec/Reconstruction.hpp \
+    input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    locprec/plugin.cpp locprec/plugin.h \
+    locprec/foreach.h \
+    locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
+    locprec/RegionSegmenter.cpp \
+    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
+    locprec/SpotMeter.cpp \
+    locprec/RegionSegmenter.h \
+    locprec/relate.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
     locprec/SourceValuePrinter.cpp locprec/SourceValuePrinter.h \
@@ -610,7 +616,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
-    locprec/unit_tests.cpp locprec/Reconstruction.cpp
+    locprec/unit_tests.cpp 
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \

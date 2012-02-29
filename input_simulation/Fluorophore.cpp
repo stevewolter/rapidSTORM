@@ -19,7 +19,7 @@
 
 using namespace std;
 
-namespace locprec {
+namespace input_simulation {
 
 #define NAME "Fluorophore"
 #define DESC "Fluorophore characteristics"
@@ -221,12 +221,6 @@ void Fluorophore::recenter( Position np, const dStorm::traits::Projection& optic
 
 std::ostream& operator<<(std::ostream& o, const Fluorophore& f) {
     throw std::logic_error("Fluorophore writing and reading needs to be reimplemented.");
-#if 0
-    return (o << std::fixed << std::setprecision(3) << unitless_value(f.pos.transpose()) << " "
-              << unitless_value(f.pixel.transpose()) << " "
-              << unitless_value(f.range.transpose()) << "\n"
-              << std::scientific << std::setprecision(6) << f.densities << "\n");
-#endif
 }
 
 }
@@ -250,20 +244,11 @@ std::istream& operator>>(std::istream& i,
     return i;
 }
 
-namespace locprec {
+namespace input_simulation {
 
 Fluorophore::Fluorophore(std::istream& i, const FluorophoreConfig& c) {
     throw std::logic_error("Fluorophore writing and reading needs to be reimplemented.");
     initTimes(c);
-
-#if 0
-    i >> pos;
-    i >> pixel;
-    i >> range;
-    densities = Eigen::MatrixXd(range[0]/camera::pixel*2+1,
-                                range[1]/camera::pixel*2+1);
-    i >> densities;
-#endif
 }
 
 }

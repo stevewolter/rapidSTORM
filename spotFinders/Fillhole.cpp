@@ -1,3 +1,6 @@
+#include <simparm/Object.hh>
+#include <simparm/Structure.hh>
+#include <dStorm/engine/SpotFinder.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/output/Output.h>
@@ -6,19 +9,44 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Input.h>
 
-#include "Reconstruction.hh"
-#include "Reconstruction.hpp"
 #include <dStorm/image/dilation.h>
-#include "FillholeSmoother.h"
+#include <dStorm/image/morphological_reconstruction.hpp>
+#include "Fillhole.h"
 #include <dStorm/Image_iterator.h>
 
 #include <dStorm/image/convert.h>
 #include <dStorm/image/constructors.h>
 
-using namespace dStorm;
-using namespace dStorm::engine;
+namespace dStorm {
+namespace spotFinders {
 
-namespace locprec {
+class FillholeSmoother : public engine::spot_finder::Base {
+    private:
+    engine::SmoothedImage buffer[3];
+    int rms1, rms2;
+
+    class _Config;
+    public:
+    typedef simparm::Structure<_Config> Config;
+
+    FillholeSmoother (const Config& myconf,
+                        const dStorm::engine::spot_finder::Job &conf);
+    ~FillholeSmoother() {}
+    FillholeSmoother* clone() const { return new FillholeSmoother(*this); }
+
+    void smooth( const dStorm::engine::Image2D &in );
+};
+
+class FillholeSmoother::_Config : public simparm::Object
+{
+    protected:
+    void registerNamedEntries();
+    public:
+    /** Mask sizes */
+    simparm::Entry<unsigned long> spots, background;
+
+    _Config();
+};
 
 /** Produce an image that is unchanged throughout but for the border of
  *  width \c border, which is from \c source. */
@@ -48,7 +76,7 @@ struct Invert {
 
 void
 FillholeSmoother::smooth( const dStorm::engine::Image2D &image ) {
-        SmoothedImage &inv_image = buffer[0],
+        engine::SmoothedImage &inv_image = buffer[0],
                       &inv_fillhole_mask = buffer[1],
                       &recon = buffer[2];
         /* Remember that reconstruction by erosion is equivalent
@@ -62,7 +90,7 @@ FillholeSmoother::smooth( const dStorm::engine::Image2D &image ) {
 
         /* This is effectively the fillhole transformation on image with
          * the inverted result stored in recon. */
-        ReconstructionByDilationII<SmoothedPixel> 
+        image::reconstruction_by_dilation
             (inv_fillhole_mask, inv_image, recon);
             
         std::transform( recon.begin(), recon.end(), recon.begin(), 
@@ -86,7 +114,7 @@ FillholeSmoother::FillholeSmoother(
     rms2(myConf.background())
 {
     for (int i = 0; i < 3; i++)
-        buffer[i] = SmoothedImage( job.size().head<2>() );
+        buffer[i] = engine::SmoothedImage( job.size().head<2>() );
 }
 
 FillholeSmoother::_Config::_Config()
@@ -104,4 +132,12 @@ void FillholeSmoother::_Config::registerNamedEntries()
     push_back( background );
 }
 
+std::auto_ptr< engine::spot_finder::Factory >
+    make_fillhole_smoother()
+{
+    return std::auto_ptr< engine::spot_finder::Factory >(
+        new engine::spot_finder::Builder<FillholeSmoother>() );
+}
+
+}
 }

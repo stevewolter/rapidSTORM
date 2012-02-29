@@ -19,7 +19,7 @@
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/engine/InputTraits.h>
 
-namespace locprec {
+namespace input_simulation {
     class NoiseConfig;
 
     class NoiseSource 

@@ -6,10 +6,10 @@
 
 using namespace dStorm::output;
 
-namespace locprec {
+namespace input_simulation {
 
 void input_simulation ( dStorm::Config& config ) {
-    config.add_input( new locprec::NoiseConfig(), dStorm::InputMethod );
+    config.add_input( new NoiseConfig(), dStorm::InputMethod );
 }
 
 }

@@ -7,7 +7,7 @@
 #include <Eigen/Core>
 #include <queue>
 
-namespace locprec {
+namespace input_simulation {
 
 class FluorophoreDistribution : public simparm::Object {
   public:

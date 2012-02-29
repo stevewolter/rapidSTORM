@@ -1,23 +1,12 @@
-#include "Reconstruction.hh"
+#include "morphological_reconstruction.h"
 #include <math.h>
-#include <string.h>
 #include <float.h>
-#include <stdio.h>
 
 #include <stdlib.h>
-#include <list>
-#include <vector>
+#include <queue>
 #include <cassert>
 #include <iostream>
 #include <iomanip>
-
-#ifndef MINIMUM
-	#define MINIMUM(A,B) ((A<B)?(A):(B))
-#endif
-
-#ifndef MAXIMUM
-	#define MAXIMUM(A,B) ((A>B)?(A):(B))
-#endif
 
 //#define MEASURE_TIME
 #ifdef MEASURE_TIME
@@ -29,12 +18,14 @@
 using namespace std;
 
 namespace dStorm {
+namespace image {
+
+namespace detail {
 
 template <typename InstanceType, int Dim>
 bool firstIsBrighter( 
     const dStorm::Image<InstanceType,Dim>& a,
     const dStorm::Image<InstanceType,Dim>& b ) 
-throw() 
 {
     unsigned long sz = a.size_in_pixels();
     for (unsigned long i = 0; i < sz; i++)
@@ -44,12 +35,14 @@ throw()
 }
 
 template <typename InstanceType>
-void add_border_to_image (dStorm::Image<InstanceType,2>& src) throw()
+void add_border_to_image (dStorm::Image<InstanceType,2>& src) 
 {
   for (int x = 0; x < src.width_in_pixels(); x++)
     src(x,0) = src(x,src.height_in_pixels()-1) = 0;
   for (int y = 0; y < src.height_in_pixels(); y++)
     src(0,y) = src(src.width_in_pixels()-1,y) = 0;
+
+}
 
 }
 
@@ -68,10 +61,9 @@ void add_border_to_image (dStorm::Image<InstanceType,2>& src) throw()
     
 */
 template <typename InstanceType>
-void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src, 
+void reconstruction_by_dilation(dStorm::Image<InstanceType,2>& src, 
     dStorm::Image<InstanceType,2>& mask,
     dStorm::Image<InstanceType,2>& target)
-    throw()
 {
 	register int x,y,k;
 	InstanceType d,q;
@@ -80,11 +72,11 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
 	TIME_MEASUREMENT( clock_t t1 = clock(); clock_t t2; )
 	
         assert( src.size() == mask.size() );
-        assert( firstIsBrighter(mask, src) );
+        assert( detail::firstIsBrighter(mask, src) );
 	
-	add_border_to_image(src);
-	add_border_to_image(mask);
-	add_border_to_image(target);
+	detail::add_border_to_image(src);
+	detail::add_border_to_image(mask);
+	detail::add_border_to_image(target);
 
 	// neighbourhood group forward scan
 	int  m[4] = {-(step+1),-(step),-(step)+1,-1};
@@ -107,17 +99,17 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
             for (k=0; k< 4;k++)
             {
                         // rand des bildes 0, daher kein randwertproblem
-                        d=MAXIMUM(src.ptr()[base+m[k]],d); 
+                        d=std::max(src.ptr()[base+m[k]],d); 
             }
             
             // compare mask and maximum value of neighbourhood
             // write this value on position i,j
             
-            d = MINIMUM(mask.ptr()[base],d);
+            d = std::min(mask.ptr()[base],d);
             target.ptr()[base] = d;
         }
 			
-	std::list<int> fifo;  
+	std::queue<int> fifo;  
 			
 	// backward reconstruction
 	for(y=height-2;y>=0;y--)
@@ -130,13 +122,13 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
                 for (k=0; k< 4;k++)
                 {
                     // rand des bildes 0, daher kein randwertproblem
-                    d=MAXIMUM(target.ptr()[base+n[k]],d);
+                    d=std::max(target.ptr()[base+n[k]],d);
                 }
 		    
                 // compare mask and maximum value of neighbourhood
                 // write this value on position i,j
 		    		    
-                d = MINIMUM(mask.ptr()[base],d);
+                d = std::min(mask.ptr()[base],d);
                 target.ptr()[base]=d;
 
                 for (k=0; k< 4;k++)
@@ -144,14 +136,14 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
                     /* Check if the current position might be changed in a forward scan */
                     q=target.ptr()[base+n[k]];
                     if((q<d)&&(q<mask.ptr()[base+n[k]]))
-                        fifo.push_back(base);
+                        fifo.push(base);
                 } 	
             } 	
 	
 	while(!(fifo.empty()))
 	{
             int base=fifo.front();
-            fifo.pop_front();
+            fifo.pop();
 	
             d=target.ptr()[base];
             for (k=0; k< 8;k++) 		// complete neighbourhood
@@ -161,8 +153,8 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
                     if((q<d)&&(q < mask.ptr()[base_new]))
                     {
                         target.ptr()[base_new]=
-                            MINIMUM(d,mask.ptr()[base_new]);  	
-                        fifo.push_back(base_new);
+                            std::min(d,mask.ptr()[base_new]);  	
+                        fifo.push(base_new);
                     } 
             }	
 	}
@@ -173,4 +165,5 @@ void ReconstructionByDilationII(dStorm::Image<InstanceType,2>& src,
 #endif
 }
 
+}
 }
