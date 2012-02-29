@@ -7,7 +7,6 @@
 #include <dStorm/outputs/TraceFilter.h>
 #include "expression/Source_decl.h"
 #include "Slicer.h"
-#include "RawImageFile.h"
 #include "MemoryCache.h"
 #include "LocalizationFile.h"
 
@@ -25,7 +24,6 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( memory_cache::make_output_source().release() );
     o->add_output( new TraceCountFilter::Source() );
     o->add_output( new Slicer::Source() );
-    o->add_output( new RawImageFile::Source() );
     o->add_output( make_output_source<expression::Source>().release() );
 }
 

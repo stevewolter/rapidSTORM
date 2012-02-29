@@ -1,7 +1,7 @@
 #include "unit_tests.h"
 #include "inputs/FileMethod.h"
 #include "inputs/ResolutionSetter.h"
-#include "inputs/TIFF.h"
+#include "tiff/TIFF.h"
 #include "dejagnu.h"
 #include <dStorm/helpers/thread.h>
 #include "engine/ChainLink_decl.h"
@@ -30,7 +30,7 @@ int run_unit_tests() {
     TestState state;
     dStorm::engine::unit_test(state);
     dStorm::input::file_method::unit_test( state );
-    dStorm::TIFF::unit_test( state );
+    dStorm::tiff::unit_test( state );
     dStorm::input::resolution::unit_test(state);
     dStorm::guf::run_unit_tests(state);
     dStorm::expression::unit_test( state );

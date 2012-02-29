@@ -148,7 +148,7 @@ std::auto_ptr<Link> makeLink() {
 }
 }
 
-#include "inputs/TIFF.h"
+#include "tiff/TIFF.h"
 #include "test-plugin/DummyFileInput.h"
 #include "dejagnu.h"
 
@@ -159,14 +159,14 @@ namespace file_method {
 void unit_test( TestState& t ) {
     FileMethod file_method;
 
-    file_method.insert_new_node( std::auto_ptr<Link>( new TIFF::ChainLink() ), FileReader );
+    file_method.insert_new_node( tiff::make_input(), FileReader );
     file_method.publish_meta_info();
     t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits" );
     t.testrun( file_method.current_meta_info()->provides_nothing(), 
         "Test method provides nothing without an input file" );
 
-    file_method.input_file = TIFF::test_file_name;
+    file_method.input_file = tiff::test_file_name;
     t.testrun( file_method.current_meta_info().get(), 
         "Test method publishes traits for TIFF file name" );
     t.testrun( ! file_method.current_meta_info()->provides_nothing(), 
@@ -190,7 +190,7 @@ void unit_test( TestState& t ) {
 
     FileMethod copy(file_method);
     copy.publish_meta_info();
-    copy.input_file = TIFF::test_file_name;
+    copy.input_file = tiff::test_file_name;
     t.testrun( copy.current_meta_info().get() && 
                copy.current_meta_info()->provides<dStorm::engine::ImageStack>() &&
                copy.current_meta_info()->traits< dStorm::engine::ImageStack >()->plane(0).image.size[1] == 42 * camera::pixel,

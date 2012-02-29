@@ -3,7 +3,6 @@
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Link.h>
 #include <dStorm/Config.h>
-#include "TIFF.h"
 #include "BackgroundDeviationEstimator.h"
 #include "Splitter.h"
 #include "YMirror.h"
@@ -37,10 +36,6 @@ void basic_inputs( dStorm::Config* config ) {
     std::auto_ptr< input::Link > p = engine_stm::make_localization_buncher();
     p->insert_new_node( inputs::LocalizationFile::create(), Anywhere );
     config->add_input( p, dStorm::FileReader );
-
-#ifdef HAVE_TIFFIO_H
-    config->add_input( new TIFF::ChainLink(), dStorm::FileReader );
-#endif
 
     config->add_input( ROIFilter::make_link(), BeforeChannels );
     config->add_input( YMirror::makeLink(), BeforeChannels );

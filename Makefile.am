@@ -261,8 +261,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     LibraryHandle.h LibraryHandle.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
-    debug.h debug_print.h $(RESOURCE_FILE) \
-    TIFFOperation.h TIFFOperation.cpp
+    debug.h debug_print.h $(RESOURCE_FILE)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     job/Car.cpp job/Car.h \
@@ -286,7 +285,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     inputs/join/iterator.hpp inputs/join/iterator.cpp \
     inputs/join/spatial.hpp inputs/join/spatial.cpp \
     inputs/join/temporal.hpp inputs/join/temporal.cpp \
-    inputs/TIFF.h inputs/TIFF.cpp inputs/TIFF_OpenFile.cpp \
     inputs/BackgroundDeviationEstimator.cpp \
     inputs/BackgroundDeviationEstimator.h \
     inputs/Splitter.h inputs/Splitter.cpp \
@@ -337,8 +335,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
-    outputs/ProgressMeter.h outputs/RawImageFile.cpp outputs/RawImageFile.h outputs/Slicer.cpp \
-    outputs/Slicer.h \
+    outputs/ProgressMeter.h \
+    outputs/Slicer.cpp outputs/Slicer.h \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
@@ -624,6 +622,13 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    tiff/TIFF.h tiff/TIFF.cpp /
+    tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
+    tiff/RawImageFile.cpp tiff/RawImageFile.h \
+    tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
+    tiff/augment_config.h tiff/augment_config.cpp
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

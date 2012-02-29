@@ -21,6 +21,7 @@
 #include "input_simulation/plugin.h"
 #include "AndorCamera/plugin.h"
 #include "viewer/plugin.h"
+#include "tiff/augment_config.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -139,6 +140,7 @@ void ModuleLoader::add_modules
     DEBUG("Adding basic output modules");
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
+    dStorm::tiff::augment_config( car_config );
 
     guf::augment_config( car_config );
     AndorCamera::augment_config( car_config );
