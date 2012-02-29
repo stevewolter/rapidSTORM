@@ -12,6 +12,7 @@
 #include <dStorm/output/LocalizedImage_decl.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/Engine.h>
+#include "Config.h"
 
 namespace dStorm {
 namespace engine {
@@ -34,7 +35,7 @@ namespace engine {
         std::auto_ptr<Input> input;
         Input::TraitsPtr imProp, last_run_meta_info;
 
-        Config& config;
+        Config config;
         boost::mutex mutex;
         simparm::Entry<unsigned long> errors;
 
@@ -43,7 +44,7 @@ namespace engine {
         std::vector<float> make_plane_weight_vector() const;
 
       public:
-        Engine(Config& config, std::auto_ptr<Input> input);
+        Engine(const Config& config, std::auto_ptr<Input> input);
         virtual ~Engine();
 
         void dispatch(Messages m);

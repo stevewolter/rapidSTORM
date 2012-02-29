@@ -137,9 +137,11 @@ AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
         for (int d = 0; d < 2; ++d)
             sample_pos[d] = roi.center[d] + float(dir[d]) * roi.width[d];
         SubpixelImagePosition im = from_value< camera::length >(to_image * value(sample_pos));
-        for (int d = 0; d < 2; ++d)
-            if ( dir[d] < 0 ) r[0][d] = std::min( ImagePosition::Scalar(ceil(im[d])), r[0][d] );
-            else              r[1][d] = std::max( ImagePosition::Scalar(floor(im[d])), r[1][d] );
+        for (int d = 0; d < 2; ++d) {
+            ImagePosition::Scalar p = ImagePosition::Scalar(im[d]);
+            r[0][d] = std::min( r[0][d], p );
+            r[1][d] = std::max( r[1][d], p );
+        }
     }
 
     DEBUG("Got box " << r.col(0).transpose() << " to " << r.col(1).transpose());

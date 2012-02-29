@@ -33,7 +33,7 @@ namespace dStorm {
 namespace engine {
 
 Engine::Engine(
-    Config &config, 
+    const Config &config, 
     std::auto_ptr<Input> input
 )
 : Object("EngineStatus", "Computation status"),
