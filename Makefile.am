@@ -624,7 +624,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
-    tiff/TIFF.h tiff/TIFF.cpp /
+    tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp \

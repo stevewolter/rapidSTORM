@@ -183,8 +183,9 @@ OpenFile::Image OpenFile::read_image( simparm::Node& msg ) const
 {
     TIFFOperation op( "in reading TIFF file",
                         msg, ignore_warnings );
-    uint16_t bitspersample, colors;
+    uint16_t bitspersample, colors, sampleformat = SAMPLEFORMAT_VOID;
     TIFFGetField( tiff, TIFFTAG_BITSPERSAMPLE, &bitspersample );
+    TIFFGetField( tiff, TIFFTAG_SAMPLEFORMAT, &sampleformat );
     if ( TIFFGetField( tiff, TIFFTAG_SAMPLESPERPIXEL, &colors ) && colors != 1 ) {
         std::stringstream error;
         error << "TIFF image no. " << TIFFCurrentDirectory(tiff)
@@ -209,16 +210,32 @@ OpenFile::Image OpenFile::read_image( simparm::Node& msg ) const
 
     Image result( sz );
 
-    if ( bitspersample == 1 )
+    if ( sampleformat == SAMPLEFORMAT_VOID )
+        /* Try unsigned int and hope for the best. */
+        sampleformat = SAMPLEFORMAT_UINT;
+
+    if ( bitspersample == 1 && sampleformat == SAMPLEFORMAT_UINT )
         read_data_<bool>( result, op );
-    else if ( bitspersample == 8 )
+    else if ( bitspersample == 8 && sampleformat == SAMPLEFORMAT_UINT )
         read_data_<uint8_t>( result, op );
-    else if ( bitspersample == 16 )
+    else if ( bitspersample == 16 && sampleformat == SAMPLEFORMAT_UINT )
         read_data_<uint16_t>( result, op );
-    else if ( bitspersample == 32 )
+    else if ( bitspersample == 32 && sampleformat == SAMPLEFORMAT_UINT )
         read_data_<uint32_t>( result, op );
-    else if ( bitspersample == 64 )
+    else if ( bitspersample == 64 && sampleformat == SAMPLEFORMAT_UINT )
         read_data_<uint64_t>( result, op );
+    else if ( bitspersample == 8 && sampleformat == SAMPLEFORMAT_INT )
+        read_data_<int8_t>( result, op );
+    else if ( bitspersample == 16 && sampleformat == SAMPLEFORMAT_INT )
+        read_data_<int16_t>( result, op );
+    else if ( bitspersample == 32 && sampleformat == SAMPLEFORMAT_INT )
+        read_data_<int32_t>( result, op );
+    else if ( bitspersample == 64 && sampleformat == SAMPLEFORMAT_INT )
+        read_data_<int64_t>( result, op );
+    else if ( bitspersample == sizeof(float)*8 && sampleformat == SAMPLEFORMAT_IEEEFP )
+        read_data_<float>( result, op );
+    else if ( bitspersample == sizeof(double)*8 && sampleformat == SAMPLEFORMAT_IEEEFP )
+        read_data_<double>( result, op );
     else {
         std::stringstream error;
         error << "TIFF image " << current_directory << " in file " << file_ident
