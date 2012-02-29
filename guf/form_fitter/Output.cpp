@@ -171,8 +171,8 @@ void Output::do_the_fit() {
             << ". I am not going to fit anything until you do." << std::endl;
         return;
     }
-    std::auto_ptr< input::Traits< engine::ImageStack > > new_traits;
-    new_traits.reset( input->traits->clone() );
+    std::auto_ptr< input::Traits< engine::ImageStack > > new_traits
+        ( new input::Traits< engine::ImageStack >(*input->traits) );
     fitter->fit(*new_traits);
 
     result_config.read_traits( *new_traits );

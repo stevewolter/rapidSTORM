@@ -42,6 +42,16 @@ struct LocalizationValueFinder::application {
     void operator()( constant_background::Amount p, Structure& m ) const
         { m(p) = mle.convert_shift( ( child ) ? child->local_background() : parent.local_background() ); }
 
+    /** This overload is responsible to set the transmission 
+     *  coefficient to a positive value. This avoids zero
+     *  gradients for transmission coefficients. */
+    template <typename Structure>
+    void operator()( PSF::Prefactor p, Structure& m ) const { 
+        tvf( p, m );  
+        if ( m(p).value() < 1E-3 )
+            m(p) = 1E-3;
+    }
+
     template <typename Parameter, typename Structure>
     void operator()( Parameter p, Structure& m ) const { 
         tvf( p, m );  
