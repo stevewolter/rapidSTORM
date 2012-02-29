@@ -26,7 +26,6 @@ pkgdata_DATA =
 JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
-EXTRA_PROGRAMS = gradient determine-clusters-from-centers fit-camera-noise testDisplay 
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
@@ -625,16 +624,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
-
-fit_camera_noise_SOURCES = locprec/fitNoise.cpp
-fit_camera_noise_LDADD = liblocprec.la 
-gradient_SOURCES = locprec/gradient.cpp
-gradient_LDADD = liblocprec.la 
-determine_clusters_from_centers_SOURCES = locprec/determine-clusters-from-centers.cpp
-determine_clusters_from_centers_LDADD = libcode.la $(tinyxml_LIBS)
-determine_clusters_from_centers_CPPFLAGS = $(tinyxml_CFLAGS)
-testDisplay_SOURCES = wxDisplay/test.cpp
-testDisplay_LDADD = libdStorm_display.la
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
