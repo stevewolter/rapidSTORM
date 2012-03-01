@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "LocalizationValueFinder.h"
 #include "guf/guf/TraitValueFinder.h"
 #include <dStorm/Localization.h>
@@ -36,8 +37,10 @@ struct LocalizationValueFinder::application {
     void operator()( PSF::MeanZ p, Structure& m ) const
         { m(p) = parent.position()[2]; }
     template <typename Structure>
-    void operator()( PSF::Amplitude p, Structure& m ) const
-        { m(p) = mle.convert_amplitude( parent.amplitude() ); }
+    void operator()( PSF::Amplitude p, Structure& m ) const { 
+        m(p) = mle.convert_amplitude( parent.amplitude() ); 
+        DEBUG( "Have set amplitude to " << m(p).value() );
+    }
     template <typename Structure>
     void operator()( constant_background::Amount p, Structure& m ) const
         { m(p) = mle.convert_shift( ( child ) ? child->local_background() : parent.local_background() ); }

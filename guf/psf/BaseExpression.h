@@ -26,6 +26,7 @@ struct BaseExpression
     typedef boost::units::quantity< boost::units::multiply_typeof_helper<
         Micrometers, Micrometers >::type > PixelSize;
 
+    BaseExpression();
     virtual ~BaseExpression();
     virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
     virtual BaseExpression& copy( const BaseExpression& ) = 0;
@@ -33,11 +34,14 @@ struct BaseExpression
     using nonlinfit::access_parameters< BaseExpression >::operator();
     using nonlinfit::access_parameters< BaseExpression >::get;
 
+    void allow_leaving_ROI( bool do_allow ) { may_leave_roi = do_allow; }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   protected:
     Eigen::Array<double,2,1> spatial_position, spatial_mean, best_sigma;
     double amplitude, transmission, wavelength;
+    bool may_leave_roi;
     typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type
         PixelSizeUnit;
     typedef boost::mpl::vector< 

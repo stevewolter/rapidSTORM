@@ -147,7 +147,6 @@ TransformedImage<LengthUnit>::set_data(
     rv.peak_intensity = rv.integral = 0 * camera::ad_count;
     rv.peak_pixel_area = quantity< si::area >( target.pixel_size );
 
-    DEBUG("Cutting outer box " << cut_region.row(0) << " in x and in y " << cut_region.row(1));
     traits::Projection::ROI points = 
         optics.projection().
             cut_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );

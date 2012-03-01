@@ -309,6 +309,8 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
         LocalizationValueFinder iv(info, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
+        new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ).
+            allow_leaving_ROI( true );
 
         /* After adding the evaluator to the table and the combiner, it is only
          * kept for later reference with the result() function. */

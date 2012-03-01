@@ -29,6 +29,7 @@ void AbstractFunction<F,M,PC,MPC,MOVC>::get_position( Position& p ) const
     for (int i = 0; i < plane_count; ++i) {
         assert( movers[i] );
         movers[i]->get_position( onepos );
+        DEBUG("Getting parameters " << onepos.transpose() << " from upstream #" << i);
         for (int j = 0; j < InputVarC; ++j) {
             typename Position::Scalar& mapped_variable = p[ map(i,j) ];
             assert( std::isnan( mapped_variable ) || std::abs( mapped_variable - onepos[j] ) < 1E-50 );
@@ -46,6 +47,7 @@ void AbstractFunction<F,M,PC,MPC,MOVC>::set_position( const Position& p )
         assert( movers[i] );
         for (int r = 0; r < InputVarC; ++r)
             upstream[r] = p[ map(i,r) ];
+        DEBUG("Setting parameters " << upstream.transpose() << " for upstream #" << i);
         movers[i]->set_position( upstream );
     }
 }
@@ -63,6 +65,7 @@ bool AbstractFunction<F,M,PC,MPC,MOVC>::evaluate( Derivatives& p )
     for ( int i = 0; i < plane_count; ++i )
     {
         assert( fitters[i] );
+        DEBUG("Evaluating upstream #" << i);
         if ( ! fitters[i]->evaluate( upstream ) )
             return false;
         assert( ! upstream.contains_NaN() );

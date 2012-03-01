@@ -22,6 +22,7 @@ bool BaseEvaluator<Number,Expression>::prepare_iteration( const Data& data )
     wavelength = expr->wavelength;
     transmission = expr->transmission;
     sigma = get_sigma();
+    DEBUG("Sigma is " << sigma.transpose());
     sigmaI = sigma.array().inverse();
     prefactor = data.pixel_size.value() * amplitude * transmission 
             / (2 * M_PI * sigma.x() * sigma.y());
