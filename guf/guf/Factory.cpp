@@ -120,7 +120,7 @@ void Factory::check_configuration(
     }
     if ( info.traits.plane_count() > Config::maximum_plane_count )
         throw std::runtime_error(
-            "You have requested more input layers than hell itself has. "
+            "You have requested more input layers than hell has circles. "
             "Sorry, this is not implemented. Please send a bug report, "
             "a photo of your setup and of the poor lad who had to calibrate it.");
     if ( laempi_fit() && two_kernel_fitting() ) {

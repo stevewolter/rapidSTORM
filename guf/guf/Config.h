@@ -13,7 +13,7 @@ namespace guf {
 struct Config
 : public simparm::Set
 {
-    static const int maximum_plane_count = 7;
+    static const int maximum_plane_count = 9;
 
     Config();
     void registerNamedEntries();
