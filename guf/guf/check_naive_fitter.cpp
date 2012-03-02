@@ -119,8 +119,6 @@ void check_naive_fitter( TestState& state )
     traits.depth_info = threed;
     dStorm::engine::JobInfo job_info( 4, 3000 * camera::ad_count, traits, 0 );
 
-    traits.fluorophores[0].wavelength = 500E-9 * si::meter;
-
     dStorm::engine::Image::Size sz;
     sz.x() = 12 * boost::units::camera::pixel;
     sz.y() = 16 * boost::units::camera::pixel;

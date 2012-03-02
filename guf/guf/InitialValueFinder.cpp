@@ -35,7 +35,7 @@ class InitialValueFinder::set_parameter {
     template <int Dim, typename Model>
     void operator()( PSF::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
-    void operator()( PSF::MeanZ p, PSF::Zhuang& m ) 
+    void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
         { m( p ) = 1E-10 * boost::units::si::meter; }
     template <typename Model>
     void operator()( PSF::Amplitude a, Model& m ) 
@@ -57,8 +57,8 @@ void InitialValueFinder::operator()(
     for (int p = 0; p < info.traits.plane_count(); ++p) {
         assert( ( position[p].kernel_count() ) == 1 );
         set_parameter s( *this, spot, e[p], info.traits.optics(p) );
-        if ( PSF::Zhuang* z = dynamic_cast<PSF::Zhuang*>(&position[p][0]) )
-            boost::mpl::for_each< PSF::Zhuang::Variables >( 
+        if ( PSF::Polynomial3D* z = dynamic_cast<PSF::Polynomial3D*>(&position[p][0]) )
+            boost::mpl::for_each< PSF::Polynomial3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) )
             boost::mpl::for_each< PSF::No3D::Variables >( 

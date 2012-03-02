@@ -72,7 +72,7 @@ void LocalizationValueFinder::find_values_( Type& z ) {
         boost::bind( boost::ref(*appl_), _1, boost::ref(z) ) );
 }
 
-template void LocalizationValueFinder::find_values_<guf::PSF::Zhuang>( guf::PSF::Zhuang& );
+template void LocalizationValueFinder::find_values_<guf::PSF::Polynomial3D>( guf::PSF::Polynomial3D& );
 template void LocalizationValueFinder::find_values_<guf::PSF::No3D>( guf::PSF::No3D& );
 template void LocalizationValueFinder::find_values_<constant_background::Expression>( constant_background::Expression& );
 }

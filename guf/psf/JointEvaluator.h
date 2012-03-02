@@ -14,13 +14,13 @@ namespace PSF {
 
 template <typename Num, typename Expression, int ChunkSize>
 struct JointEvaluator
-: public BaseEvaluator<Num, Expression >
+: public Parameters<Num, Expression >
 {
     Eigen::Array<Num, ChunkSize, 2> normed, squared;
     Eigen::Array<Num, ChunkSize, 1> expT;
 
     JointEvaluator() {}
-    JointEvaluator( const Expression& e ) : BaseEvaluator<Num, Expression >(e) {}
+    JointEvaluator( const Expression& e ) : Parameters<Num, Expression >(e) {}
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs ) 
     {
         normed = (xs.rowwise() - this->spatial_mean.transpose())
@@ -44,13 +44,12 @@ struct JointEvaluator
     }
     template <typename Target>
     void derivative( Target target, const MeanZ& ) {
-        target = ((squared - 1).matrix() * this->z_deriv_prefactor)
+        target = ((squared - 1).matrix() * this->z_deriv_prefactor.matrix())
                     .array() * expT;
     }
-    template <typename Target>
-    void derivative( Target target, const ZPosition& ) {
-        target = ((squared - 1).matrix() * -this->z_deriv_prefactor)
-                    .array() * expT;
+    template <typename Target, int Dim>
+    void derivative( Target target, const ZPosition<Dim>& ) {
+        target = ((squared.col(Dim) - 1) * -this->z_deriv_prefactor[Dim]) * expT;
     }
 
     template <typename Target>
@@ -60,12 +59,7 @@ struct JointEvaluator
 
     template <typename Target, int Dim>
     void derivative( Target target, const BestSigma<Dim>& ) {
-        target = (squared.col(Dim) - 1) * expT * this->sigmaI[Dim] * this->wavelength;
-    }
-
-    template <typename Target>
-    void derivative( Target target, const Wavelength& ) {
-        target = (squared - 1).rowwise().sum() * expT / this->wavelength;
+        target = (squared.col(Dim) - 1) * expT * this->sigmaI[Dim];
     }
 
     template <typename Target>
@@ -73,15 +67,10 @@ struct JointEvaluator
         target = expT / this->transmission;
     }
 
-    template <typename Target, int Dim>
-    void derivative( Target target, const DeltaSigma<Dim>& ) { 
-        target = this->delta_z_deriv_prefactor[Dim] * 
+    template <typename Target, int Dim, int Term>
+    void derivative( Target target, const DeltaSigma<Dim,Term>& ) { 
+        target = this->delta_z_deriv_prefactor(Dim,Term) * 
             ((squared.col(Dim) - 1) * expT);
-    }
-
-    template <typename Target, int Dim>
-    void derivative( Target target, const ZOffset<Dim>& ) { 
-        target = ((squared.col(Dim) - 1) * this->z_deriv_prefactor[Dim]) * expT;
     }
 };
 
@@ -102,7 +91,7 @@ struct get_evaluator< \
         dStorm::guf::PSF::JointEvaluator< Num, Expression, ChunkSize > \
     >::type type;  \
 };
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::Zhuang)
+DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::Polynomial3D)
 DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::No3D)
 #undef DSTORM_GUF_PSF_JOINT_SPECIALIZATION
 

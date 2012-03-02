@@ -31,7 +31,7 @@ class creator3
     NaiveFitter::Ptr 
     operator()( const Config& c, const dStorm::engine::JobInfo& i, 
                 const dStorm::traits::Zhuang3D ) const
-        { return result< PSF::Zhuang >(c,i); }
+        { return result< PSF::Polynomial3D >(c,i); }
     NaiveFitter::Ptr 
     operator()( const Config& c, const dStorm::engine::JobInfo& i, 
                 const dStorm::traits::No3D ) const

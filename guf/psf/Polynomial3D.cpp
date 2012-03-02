@@ -1,6 +1,6 @@
 #include <Eigen/StdVector>
 #include "unit_test.h"
-#include "Zhuang.h"
+#include "Polynomial3D.h"
 #include "ReferenceEvaluation.h"
 #include <nonlinfit/plane/DisjointData.hpp>
 #include <nonlinfit/plane/Joint.h>
@@ -20,15 +20,20 @@ void check_zhuang_evaluator( TestState& state ) {
     typedef  xs_joint<double,dStorm::guf::PSF::LengthUnit, 8>::type Joint;
     typedef  xs_joint<double,dStorm::guf::PSF::LengthUnit, 1>::type RefTag;
     MockDataTag::Data data = mock_data();
-    Zhuang z = mock_model<Zhuang>();
+    Polynomial3D z = mock_model<Polynomial3D>();
     state.testrun( compare_evaluators< squared_deviations, Joint, RefTag >( z, data),
-                   "Zhuang joint LSQ evaluator works" );
+                   "Polynomial3D joint LSQ evaluator works" );
     state.testrun( compare_evaluators< negative_poisson_likelihood, Joint, RefTag >( z, data),
-                   "Zhuang joint ML evaluator works" );
+                   "Polynomial3D joint ML evaluator works" );
     state.testrun( compare_evaluators< squared_deviations, MockDataTag, RefTag >( z, data),
-                   "Zhuang disjoint LSQ evaluator works" );
+                   "Polynomial3D disjoint LSQ evaluator works" );
     state.testrun( compare_evaluators< negative_poisson_likelihood, MockDataTag, RefTag >( z, data),
-                   "Zhuang disjoint ML evaluator works" );
+                   "Polynomial3D disjoint ML evaluator works" );
+}
+
+boost::units::quantity< Micrometers > Polynomial3D::get_delta_sigma( int dimension, int term) const
+{
+    return boost::units::quantity< Micrometers >::from_value( delta_sigma( dimension, term ) );
 }
 
 }

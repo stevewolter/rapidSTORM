@@ -17,16 +17,17 @@ struct Base3D
     using nonlinfit::access_parameters< Base3D >::get;
 
   protected:
-    typedef boost::mpl::vector< ZPosition, MeanZ, ZOffset<0>, ZOffset<1> > MyParameters;
+    typedef boost::mpl::vector< MeanZ, ZPosition<0>, ZPosition<1> > MyParameters;
     typedef nonlinfit::append< BaseExpression::Variables, MyParameters >::type
         Variables;
 
-    double zposition, axial_mean;
-    Eigen::Vector2d z_offset;
+    double axial_mean;
+    Eigen::Vector2d zposition;
+
+    template <typename Num, typename Expression> friend class Parameters;
 
     template <typename Type> friend class nonlinfit::access_parameters;
-    template <int Index> double& access( ZOffset<Index> ) { return z_offset[Index]; }
-    double& access( ZPosition ) { return zposition; }
+    template <int Index> double& access( ZPosition<Index> ) { return zposition[Index]; }
     double& access( MeanZ ) { return axial_mean; }
     using BaseExpression::access;
 };

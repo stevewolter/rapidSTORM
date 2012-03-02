@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_FORM_FITTER_LOCALIZATIONVALUEFINDER_H
 #define DSTORM_GUF_FORM_FITTER_LOCALIZATIONVALUEFINDER_H
 
-#include "guf/psf/Zhuang.h"
+#include "guf/psf/Polynomial3D.h"
 #include "guf/psf/No3D.h"
 #include "guf/constant_background.hpp"
 #include <memory>
@@ -24,7 +24,7 @@ struct LocalizationValueFinder
         const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number );
 
-    void find_values( guf::PSF::Zhuang& z ) { find_values_(z); }
+    void find_values( guf::PSF::Polynomial3D& z ) { find_values_(z); }
     void find_values( guf::PSF::No3D& z ) { find_values_(z); }
     void find_values( constant_background::Expression& z ) { find_values_(z); }
 };

@@ -1,3 +1,3 @@
-#include "guf/psf/Zhuang.h"
+#include "guf/psf/Polynomial3D.h"
 
-typedef dStorm::guf::PSF::Zhuang InstantiatedExpression;
+typedef dStorm::guf::PSF::Polynomial3D InstantiatedExpression;

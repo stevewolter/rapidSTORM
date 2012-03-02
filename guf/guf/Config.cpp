@@ -3,9 +3,6 @@
 #include <simparm/Entry_Impl.hh>
 #include "guf/psf/parameters.h"
 
-namespace simparm {
-template class simparm::Entry< boost::units::quantity<dStorm::guf::PSF::DeltaSigma<0>::Unit, double> >;
-}
 namespace dStorm {
 namespace guf {
 

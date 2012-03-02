@@ -32,7 +32,7 @@ struct dimension_mismatch< nonlinfit::Xs<Dim,LengthUnit>, nonlinfit::Xs<Dim,Leng
 
 template <typename DerivationSummand>
 struct is_always_zero {
-    typedef boost::mpl::vector<ZPosition,Wavelength,MeanZ> Duals;
+    typedef boost::mpl::vector<MeanZ> Duals;
     typedef boost::mpl::vector<Amplitude,Prefactor> XOnly;
     typedef typename DerivationSummand::Parameter Parameter;
     typedef typename DerivationSummand::Summand Summand;
@@ -50,9 +50,9 @@ struct is_always_zero {
 
 template <typename Num, typename Expression, int ChunkSize>
 struct DisjointEvaluator
-: public BaseEvaluator< Num, Expression >
+: public Parameters< Num, Expression >
 {
-    typedef BaseEvaluator< Num, Expression > Base;
+    typedef Parameters< Num, Expression > Base;
     typedef Eigen::Array<Num, ChunkSize, 1> ChunkVector;
     typedef Eigen::Array<Num, 1, 1> SingleElement;
     typedef vector< ChunkVector, SingleElement >
@@ -106,16 +106,12 @@ struct DisjointEvaluator
         target *= (at<Dim>(squared) - 1) * this->z_deriv_prefactor[Dim::value];
     }
     template <typename Target, class Dim>
-    void multiply( Target target, ZPosition, Dim ) {
+    void multiply( Target target, ZPosition<Dim::value>, Dim ) { 
         target *= (at<Dim>(squared) - 1) * -this->z_deriv_prefactor[Dim::value];
     }
     template <typename Target, class Dim>
-    void multiply( Target target, Wavelength, Dim ) {
-        target *= (at<Dim>(squared) - 1) / this->wavelength;
-    }
-    template <typename Target, class Dim>
     void multiply( Target target, BestSigma<Dim::value>, Dim ) {
-        target *= (at<Dim>(squared) - 1) * this->sigmaI[Dim::value] * this->wavelength;
+        target *= (at<Dim>(squared) - 1) * this->sigmaI[Dim::value];
     }
     template <typename Target>
     void multiply( Target target, Prefactor, OnlySummand ) 
@@ -123,13 +119,9 @@ struct DisjointEvaluator
     template <typename Target>
     void multiply( Target target, Amplitude, OnlySummand ) 
         { target /= this->amplitude; }
-    template <typename Target, class Dim>
-    void multiply( Target target, DeltaSigma<Dim::value>, Dim ) { 
-        target *= this->delta_z_deriv_prefactor[Dim::value] * (at<Dim>(squared) - 1);
-    }
-    template <typename Target, class Dim>
-    void multiply( Target target, ZOffset<Dim::value>, Dim ) { 
-        target *= (at<Dim>(squared) - 1) * this->z_deriv_prefactor[Dim::value];
+    template <typename Target, class Dim, int Term>
+    void multiply( Target target, DeltaSigma<Dim::value, Term>, Dim ) { 
+        target *= this->delta_z_deriv_prefactor(Dim::value,Term) * (at<Dim>(squared) - 1);
     }
     template <typename Target, class Param, class Dim>
     void multiply( Target, Param, Dim ) {}
@@ -151,11 +143,11 @@ namespace nonlinfit {
 
 template <typename Num, int ChunkSize> 
 struct get_evaluator< 
-    dStorm::guf::PSF::Zhuang, 
+    dStorm::guf::PSF::Polynomial3D, 
     plane::Disjoint<Num,ChunkSize,dStorm::guf::PSF::XPosition,
                                   dStorm::guf::PSF::YPosition>
 > {
-    typedef dStorm::guf::PSF::DisjointEvaluator<Num, dStorm::guf::PSF::Zhuang, ChunkSize > type; 
+    typedef dStorm::guf::PSF::DisjointEvaluator<Num, dStorm::guf::PSF::Polynomial3D, ChunkSize > type; 
 };
 
 template <typename Num, int ChunkSize> 

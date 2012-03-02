@@ -18,7 +18,7 @@
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/make_functor.hpp>
 #include "guf/psf/is_plane_dependent.h"
-#include "guf/psf/Zhuang.h"
+#include "guf/psf/Polynomial3D.h"
 #include "guf/psf/No3D.h"
 #include "guf/psf/fixed_form.h"
 #include "guf/psf/StandardFunction.h"
@@ -52,9 +52,7 @@ struct OnePlaneAssignment
     template <typename Type> struct apply { typedef boost::mpl::true_ type; };
 };
 template <> struct OnePlaneAssignment::apply< guf::PSF::Prefactor > { typedef boost::mpl::false_ type; };
-template <> struct OnePlaneAssignment::apply< guf::PSF::Wavelength > { typedef boost::mpl::false_ type; };
-template <> struct OnePlaneAssignment::apply< guf::PSF::ZPosition > { typedef boost::mpl::false_ type; };
-template <int Dim> struct OnePlaneAssignment::apply< guf::PSF::ZOffset<Dim> > { typedef boost::mpl::false_ type; };
+template <int Dim> struct OnePlaneAssignment::apply< guf::PSF::ZPosition<Dim> > { typedef boost::mpl::false_ type; };
 template <int Dim> struct OnePlaneAssignment::apply< nonlinfit::Xs<Dim,PSF::LengthUnit> > { typedef boost::mpl::false_ type; };
 
 struct MultiPlaneAssignment
@@ -69,7 +67,8 @@ struct vanishes_when_circular
     typedef bool result_type;
 
     bool operator()( PSF::BestSigma<1> ) { return true; }
-    bool operator()( PSF::DeltaSigma<1> ) { return true; }
+    template <int Term>
+    bool operator()( PSF::DeltaSigma<1,Term> ) { return true; }
 
     template <class SubFunction, typename Base>
     bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
@@ -249,11 +248,11 @@ class Fitter
         return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
     }
 
-    dStorm::traits::DepthInfo get_3d( const PSF::Zhuang& m ) {
+    dStorm::traits::DepthInfo get_3d( const PSF::Polynomial3D& m ) {
         traits::Zhuang3D three_d;
         for (int i = 0; i < 2; ++i)
             three_d.widening[i] = quantity<traits::Zhuang3D::Unit>( 
-                m.get< PSF::DeltaSigma >(i) * m( PSF::Wavelength() ) );
+                1.0 / m.get_delta_sigma(i, 4) );
         return three_d;
     }
 
@@ -335,7 +334,6 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
             std::cerr << "Have seen no examples of fluorophore " << i << " and left its parameters unchanged." << std::endl;
             continue;
         }
-        new_traits.fluorophores.at(i).wavelength = quantity<si::length>( result(i)( PSF::Wavelength() ) );
         float target_transmission = 0, total_transmission = 0; 
         for (int j = 0; j < traits.plane_count(); ++j) {
             total_transmission += result(i,j)( PSF::Prefactor() );
@@ -346,8 +344,10 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
                 result(i,j)( PSF::Prefactor() )
                     * target_transmission / total_transmission );
             for (int k = 0; k < 2; ++k) {
+                /* The factor of 1.075 here accounts for systematic underestimation
+                 * of the PSF width. */
                 (*new_traits.optics(j).psf_size(i))[k] = quantity<si::length>(
-                    result(i,j).template get< PSF::BestSigma >(k) * new_traits.fluorophores.at(i).wavelength * 1.075);
+                    result(i,j).template get< PSF::BestSigma >(k) * 1.075);
             }
         }
     }
@@ -383,7 +383,7 @@ FittingVariant::create( const Config& config, const input::Traits< engine::Image
     std::auto_ptr<FittingVariant> rv;
     bool has_3d = boost::get< traits::Zhuang3D >( traits.depth_info.get_ptr() ) != NULL;
     if ( has_3d )
-        return create1< PSF::Zhuang >( config, traits, images );
+        return create1< PSF::Polynomial3D >( config, traits, images );
     else
         return create1< PSF::No3D >( config, traits, images );
 }

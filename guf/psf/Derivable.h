@@ -11,9 +11,6 @@ struct Derivable {
         typedef boost::mpl::bool_<true> type;
     };
 };
-template <> struct Derivable::apply< dStorm::guf::PSF::ZPosition > {
-        typedef boost::mpl::bool_<false> type;
-};
 
 }
 }

@@ -19,20 +19,15 @@ template <int _Dimension> struct Mean {
 };
 
 struct MeanZ { typedef Micrometers Unit; };
-typedef nonlinfit::Xs< 2,LengthUnit > ZPosition;
 template <int _Dimension> struct BestSigma {
-    typedef si::dimensionless Unit;
+    typedef Micrometers Unit;
     static const int Dimension = _Dimension;
 };
-template <int _Dimension> struct DeltaSigma {
+template <int _Dimension, int Power> struct DeltaSigma {
     static const int Dimension = _Dimension;
-    typedef 
-        power_typeof_helper<
-            power10< si::length, -6 >::type,
-            static_rational<-2>
-        >::type Unit;
+    typedef Micrometers Unit;
 };
-template <int _Dimension> struct ZOffset {
+template <int _Dimension> struct ZPosition {
     static const int Dimension = _Dimension;
     typedef Micrometers Unit;
 };
@@ -41,9 +36,6 @@ struct Amplitude {
 };
 struct Prefactor {
     typedef si::dimensionless Unit;
-};
-struct Wavelength {
-    typedef Micrometers Unit;
 };
 
 }

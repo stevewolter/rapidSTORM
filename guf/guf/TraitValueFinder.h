@@ -9,6 +9,7 @@
 #include <dStorm/engine/InputTraits.h>
 #include <boost/variant/get.hpp>
 #include "guf/psf/parameters.h"
+#include <limits>
 
 namespace dStorm {
 namespace guf {
@@ -17,7 +18,6 @@ struct TraitValueFinder {
     const dStorm::engine::JobInfo& info;
     const dStorm::traits::Optics& plane;
     const boost::optional<traits::Optics::PSF> psf;
-    const quantity<si::length> zero_wavelength;
     const bool is_3d;
 
   public:
@@ -27,28 +27,21 @@ struct TraitValueFinder {
 
     template <int Dim, typename Structure>
     void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
-        { m(p) = (*psf)[Dim] / zero_wavelength; }
+        { m(p) = (*psf)[Dim]; }
     template <int Dim, typename Structure>
-    void operator()( PSF::DeltaSigma<Dim> p, Structure& m ) const {
+    void operator()( PSF::DeltaSigma<Dim,4> p, Structure& m ) const {
         if ( is_3d )
-            m(p) = boost::get<traits::Zhuang3D>(*info.traits.depth_info).widening[Dim] / zero_wavelength;
+            m(p) = 1.0 / boost::get<traits::Zhuang3D>(*info.traits.depth_info).widening[Dim];
     }
-
-    template <typename Structure>
-    void operator()( PSF::ZPosition p, Structure& m ) const { 
-        if ( is_3d )
-            m( p ) = *plane.z_position; 
+    template <int Dim, int Term, typename Structure>
+    void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
+        m(p) = quantity< typename PSF::DeltaSigma<Dim,Term>::Unit >::from_value( std::numeric_limits<double>::max() );
     }
 
     template <int Dim, typename Structure>
-    void operator()( PSF::ZOffset<Dim> p, Structure& m ) const { 
-        m(p) = ( plane.offsets[Dim].is_initialized() ) 
-           ? *plane.offsets[Dim]
-           : 0;
-    }
-    template <typename Structure>
-    void operator()( PSF::Wavelength p, Structure& m ) const { 
-        m(p) = info.traits.fluorophores.at(info.fluorophore).wavelength;
+    void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
+        if ( is_3d )
+            m( p ) = *plane.z_position + *plane.offsets[Dim]; 
     }
 
     template <typename Structure>

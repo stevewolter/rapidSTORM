@@ -40,7 +40,7 @@ struct BaseExpression
 
   protected:
     Eigen::Array<double,2,1> spatial_position, spatial_mean, best_sigma;
-    double amplitude, transmission, wavelength;
+    double amplitude, transmission;
     bool may_leave_roi;
     typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type
         PixelSizeUnit;
@@ -48,10 +48,11 @@ struct BaseExpression
         nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
         Mean<0>, Mean<1>, 
         BestSigma<0>, BestSigma<1>, 
-        Amplitude, Prefactor, Wavelength
+        Amplitude, Prefactor
     > Variables;
 
-    template <class Num, class Expression> friend class BaseEvaluator;
+    template <class Num> friend class BaseParameters;
+    template <class Num, class Expression> friend class Parameters;
     template <class Num, class Expression, int Size> friend class JointEvaluator;
     template <class Num, class Expression, int Size> friend class DisjointEvaluator;
 
@@ -63,7 +64,6 @@ struct BaseExpression
     template <int Index> double& access( BestSigma<Index> ) { return best_sigma[Index]; }
     double& access( Amplitude ) { return amplitude; }
     double& access( Prefactor ) { return transmission; }
-    double& access( Wavelength ) { return wavelength; }
 
     bool form_parameters_are_sane() const;
 

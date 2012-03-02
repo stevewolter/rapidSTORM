@@ -2,7 +2,7 @@
 #include <Eigen/StdVector>
 #include "unit_test.h"
 #include "parameters.h"
-#include "Zhuang.h"
+#include "Polynomial3D.h"
 #include "No3D.h"
 
 namespace dStorm {
@@ -45,13 +45,11 @@ struct RandomParameterSetter {
     void operator()( dStorm::guf::PSF::Mean<Dim> p ) { m(p).set_value( 2.500+ 0.050*Dim ); }
     void operator()( dStorm::guf::PSF::MeanZ p ) { m(p).set_value( 0.600 ); }
     template <int Dim>
-    void operator()( dStorm::guf::PSF::ZOffset<Dim> p ) { m(p).set_value( 0.200- 0.050*Dim ); }
+    void operator()( dStorm::guf::PSF::ZPosition<Dim> p ) { m(p).set_value( 0.200- 0.050*Dim ); }
     void operator()( dStorm::guf::PSF::Amplitude p ) { m(p).set_value( 1E7 ); }
-    template <int Dim>
-    void operator()( dStorm::guf::PSF::DeltaSigma<Dim> p ) { m(p).set_value( 0.6 + 0.4 * Dim ); }
+    template <int Dim, int Term>
+    void operator()( dStorm::guf::PSF::DeltaSigma<Dim,Term> p ) { m(p).set_value( 1.6 - 0.4 * Dim - 0.1 * Term ); }
     void operator()( dStorm::guf::PSF::Prefactor p ) { m(p).set_value( 0.3 ); }
-    void operator()( dStorm::guf::PSF::Wavelength p ) { m(p).set_value( 0.5 ); }
-    void operator()( dStorm::guf::PSF::ZPosition p ) { m(p).set_value( 1E-2 ); }
 
     const Expression& operator()() { 
         boost::mpl::for_each< typename Expression::Variables >( boost::ref(*this) );
@@ -62,7 +60,7 @@ struct RandomParameterSetter {
 template <typename Expression> 
 Expression mock_model() { return RandomParameterSetter<Expression>()(); }
 
-template Zhuang mock_model<Zhuang>();
+template Polynomial3D mock_model<Polynomial3D>();
 template No3D mock_model<No3D>();
 
 void run_unit_tests( TestState &state ) {

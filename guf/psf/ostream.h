@@ -13,15 +13,13 @@ template <int Dim>
 inline std::ostream& operator<<(std::ostream& o, Mean<Dim>)  { return (o << "mean" << Dim); }
 template <int Dim>
 inline std::ostream& operator<<(std::ostream& o, BestSigma<Dim>)  { return (o << "best sigma " << Dim); }
+template <int Dim, int Term>
+inline std::ostream& operator<<(std::ostream& o, DeltaSigma<Dim,Term>)  { return (o << "delta sigma " << Dim << " term " << Term); }
 template <int Dim>
-inline std::ostream& operator<<(std::ostream& o, DeltaSigma<Dim>)  { return (o << "delta sigma " << Dim); }
-template <int Dim>
-inline std::ostream& operator<<(std::ostream& o, ZOffset<Dim>)  { return (o << "z offset " << Dim); }
+inline std::ostream& operator<<(std::ostream& o, ZPosition<Dim>)  { return (o << "z position " << Dim); }
 inline std::ostream& operator<<(std::ostream& o, Amplitude)  { return (o << "amplitude"); }
-inline std::ostream& operator<<(std::ostream& o, ZPosition)  { return (o << "z position"); }
 inline std::ostream& operator<<(std::ostream& o, MeanZ)  { return (o << "mean z"); }
 inline std::ostream& operator<<(std::ostream& o, Prefactor)  { return (o << "prefactor"); }
-inline std::ostream& operator<<(std::ostream& o, Wavelength)  { return (o << "wavelength"); }
 
 inline std::ostream& operator<<( std::ostream& o, const BaseExpression& m ) {
     o << m( Amplitude() ) << " * " << m( Prefactor() ) << " * exp( -0.5 * [ "

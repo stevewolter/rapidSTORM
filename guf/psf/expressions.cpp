@@ -13,15 +13,14 @@ BaseExpression::~BaseExpression() {}
 
 bool BaseExpression::form_parameters_are_sane() const {
     bool is_good = (best_sigma.array() >= 0).all() 
-        && amplitude >= 0 && transmission >= 0 && wavelength >= 0;
+        && amplitude >= 0 && transmission >= 0;
     if ( ! is_good ) {
         DEBUG("The form parameters " << best_sigma.transpose() << " " 
-              << amplitude << " " << transmission << " " << wavelength 
-              << " are insane");
+              << amplitude << " " << transmission << " are insane");
     }
     return is_good;
 }
-bool Zhuang::form_parameters_are_sane() const {
+bool Polynomial3D::form_parameters_are_sane() const {
     return BaseExpression::form_parameters_are_sane() && (delta_sigma.array() >= 0).all();
 }
 
@@ -42,13 +41,13 @@ bool BaseExpression::sigma_is_negligible( quantity<PixelSizeUnit> pixel_size ) c
 
 Eigen::Matrix< quantity<LengthUnit>, 2, 1 > No3D::get_sigma() const
 {
-    return boost::units::from_value< LengthUnit >( 
-        BaseEvaluator<double,No3D>(*this).get_sigma() );
+    Parameters<double,No3D> evaluator(*this);
+    return boost::units::from_value< LengthUnit >( evaluator.compute_sigma() );
 }
-Eigen::Matrix< quantity<LengthUnit>, 2, 1 > Zhuang::get_sigma() const
+Eigen::Matrix< quantity<LengthUnit>, 2, 1 > Polynomial3D::get_sigma() const
 {
-    return boost::units::from_value< LengthUnit >( 
-        BaseEvaluator<double,Zhuang>(*this).get_sigma() );
+    Parameters<double,Polynomial3D> evaluator(*this);
+    return boost::units::from_value< LengthUnit >( evaluator.compute_sigma() );
 }
 
 }

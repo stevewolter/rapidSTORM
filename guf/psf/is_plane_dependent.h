@@ -37,7 +37,6 @@ struct is_fluorophore_dependent
 {
     typedef bool result_type;
 
-    bool operator()( Wavelength ) { return true; }
     template <int Dim>
     bool operator()( BestSigma<Dim> ) { return true; }
     bool operator()( Prefactor ) { return true; }
