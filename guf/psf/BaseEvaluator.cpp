@@ -20,7 +20,7 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     spatial_mean = expr->spatial_mean.template cast<Number>();
     amplitude = expr->amplitude;
     transmission = expr->transmission;
-    compute_sigma();
+    sigma = compute_sigma();
     DEBUG("Sigma is " << sigma.transpose());
     sigmaI = sigma.array().inverse();
     prefactor = data.pixel_size.value() * amplitude * transmission 
@@ -40,7 +40,6 @@ Eigen::Array<Number,2,1> Parameters<Number,Polynomial3D>::compute_sigma_() {
     threed_factor = Eigen::Array<Number,2,1>::Constant(1);
     for (int term = 1; term <= Polynomial3D::Order; ++term)
         threed_factor += (relative_z / expr->delta_sigma.col(term).cast<Number>()).pow(term);
-    std::cerr << "Computed sigmaX for " << expr->zposition[0] << " " << expr->axial_mean << " is " << expr->best_sigma[0] * sqrt(threed_factor[0]) << std::endl;
     return expr->best_sigma.array().cast< Number >() * threed_factor.sqrt();
 }
 
@@ -54,10 +53,13 @@ void Parameters<Number,Polynomial3D>::compute_prefactors_() {
         z_deriv_prefactor += - delta_z_deriv_prefactor.col(term)
             * expr->delta_sigma.col(term).cast<Number>() / relative_z;
     }
+    this->sigma_deriv = expr->best_sigma.cast<Number>().inverse();
 }
 
 template <typename Number>
-void Parameters<Number,No3D>::compute_prefactors_() {}
+void Parameters<Number,No3D>::compute_prefactors_() {
+    this->sigma_deriv = expr->best_sigma.cast<Number>().inverse();
+}
 
 template class BaseParameters< double >;
 template class BaseParameters< float >;

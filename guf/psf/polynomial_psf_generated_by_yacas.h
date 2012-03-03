@@ -1,8 +1,4 @@
     void add_value( Eigen::Array<Number,1,1>& result ) {
-        std::cerr << "Reference sigmaX for " << zx << " " << z0 << " is " << ( s0x * sqrt(( zx -
-        z0)  / dzx[1] + pow(( zx - z0)  / dzx[2], 2) + pow(( zx - z0)  /
-        dzx[3], 3) + pow(( zx - z0)  / dzx[4], 4) + 1)) << std::endl;
-
         result(0,0) = ( exp( - 0.5 * ( pow(( x - x0)  / ( s0x * sqrt(( zx -
         z0)  / dzx[1] + pow(( zx - z0)  / dzx[2], 2) + pow(( zx - z0)  /
         dzx[3], 3) + pow(( zx - z0)  / dzx[4], 4) + 1)) , 2) + pow(( y - y0)

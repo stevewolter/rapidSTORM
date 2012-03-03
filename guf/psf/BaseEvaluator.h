@@ -14,7 +14,7 @@ class BaseParameters {
   private:
     const BaseExpression* expr;
   protected:
-    Eigen::Array<Num,2,1> sigma, sigmaI, spatial_mean;
+    Eigen::Array<Num,2,1> sigma, sigmaI, spatial_mean, sigma_deriv;
     Num prefactor, amplitude, transmission;
 
     void compute_prefactors() { compute_prefactors_(); }

@@ -44,12 +44,12 @@ struct JointEvaluator
     }
     template <typename Target>
     void derivative( Target target, const MeanZ& ) {
-        target = ((squared - 1).matrix() * this->z_deriv_prefactor.matrix())
+        target = ((squared - 1).matrix() * -this->z_deriv_prefactor.matrix())
                     .array() * expT;
     }
     template <typename Target, int Dim>
     void derivative( Target target, const ZPosition<Dim>& ) {
-        target = ((squared.col(Dim) - 1) * -this->z_deriv_prefactor[Dim]) * expT;
+        target = ((squared.col(Dim) - 1) * this->z_deriv_prefactor[Dim]) * expT;
     }
 
     template <typename Target>
@@ -59,7 +59,7 @@ struct JointEvaluator
 
     template <typename Target, int Dim>
     void derivative( Target target, const BestSigma<Dim>& ) {
-        target = (squared.col(Dim) - 1) * expT * this->sigmaI[Dim];
+        target = (squared.col(Dim) - 1) * expT * this->sigma_deriv[Dim];
     }
 
     template <typename Target>

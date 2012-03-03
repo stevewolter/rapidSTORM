@@ -26,6 +26,9 @@ struct dimension_mismatch : public true_ {};
 template <template <int Foo> class Param, int Dim>
 struct dimension_mismatch< Param<Dim>, nonlinfit::Xs<Dim,LengthUnit> > 
     : public false_ {};
+template <template <int Foo, int Bar> class Param, int Dim, int Term>
+struct dimension_mismatch< Param<Dim,Term>, nonlinfit::Xs<Dim,LengthUnit> > 
+    : public false_ {};
 template <int Dim>
 struct dimension_mismatch< nonlinfit::Xs<Dim,LengthUnit>, nonlinfit::Xs<Dim,LengthUnit> > 
     : public false_ {};
@@ -103,15 +106,15 @@ struct DisjointEvaluator
         { target *= at<Dim>(normed) * this->sigmaI[Dim::value]; }
     template <typename Target, class Dim>
     void multiply( Target target, MeanZ, Dim ) {
-        target *= (at<Dim>(squared) - 1) * this->z_deriv_prefactor[Dim::value];
-    }
-    template <typename Target, class Dim>
-    void multiply( Target target, ZPosition<Dim::value>, Dim ) { 
         target *= (at<Dim>(squared) - 1) * -this->z_deriv_prefactor[Dim::value];
     }
     template <typename Target, class Dim>
+    void multiply( Target target, ZPosition<Dim::value>, Dim ) { 
+        target *= (at<Dim>(squared) - 1) * this->z_deriv_prefactor[Dim::value];
+    }
+    template <typename Target, class Dim>
     void multiply( Target target, BestSigma<Dim::value>, Dim ) {
-        target *= (at<Dim>(squared) - 1) * this->sigmaI[Dim::value];
+        target *= (at<Dim>(squared) - 1) * this->sigma_deriv[Dim::value];
     }
     template <typename Target>
     void multiply( Target target, Prefactor, OnlySummand ) 

@@ -516,7 +516,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/psf/fixed_form.h \
     guf/psf/BaseExpression.h guf/psf/expressions.cpp \
     guf/psf/expressions.h guf/psf/Base3D.h \
-    guf/psf/Zhuang.h guf/psf/Zhuang.cpp \
+    guf/psf/Polynomial3D.h guf/psf/Polynomial3D.cpp \
     guf/psf/No3D.h guf/psf/No3D.cpp \
     guf/psf/is_plane_dependent.h \
     guf/psf/JointEvaluator.h \
