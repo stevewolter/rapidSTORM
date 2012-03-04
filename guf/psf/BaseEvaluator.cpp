@@ -20,7 +20,12 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     spatial_mean = expr->spatial_mean.template cast<Number>();
     amplitude = expr->amplitude;
     transmission = expr->transmission;
-    sigma = compute_sigma();
+    boost::optional< Eigen::Array<Number,2,1> > new_sigma = compute_sigma_();
+    if ( new_sigma )
+        sigma = *new_sigma;
+    else
+        return false;
+    assert( (sigma == sigma).all() );
     DEBUG("Sigma is " << sigma.transpose());
     sigmaI = sigma.array().inverse();
     prefactor = data.pixel_size.value() * amplitude * transmission 
@@ -30,17 +35,22 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
 }
 
 template <typename Number>
-Eigen::Array<Number,2,1> Parameters<Number,No3D>::compute_sigma_() {
-        return expr->best_sigma.cast<Number>();
+boost::optional< Eigen::Array<Number,2,1> >
+Parameters<Number,No3D>::compute_sigma_() {
+        return Eigen::Array<Number,2,1>( expr->best_sigma.cast<Number>() );
 }
 
 template <typename Number>
-Eigen::Array<Number,2,1> Parameters<Number,Polynomial3D>::compute_sigma_() {
+boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Polynomial3D>::compute_sigma_() {
     relative_z = expr->zposition.array().cast<Number>() - Eigen::Array<Number,2,1>::Constant( expr->axial_mean );
     threed_factor = Eigen::Array<Number,2,1>::Constant(1);
     for (int term = 1; term <= Polynomial3D::Order; ++term)
         threed_factor += (relative_z / expr->delta_sigma.col(term).cast<Number>()).pow(term);
-    return expr->best_sigma.array().cast< Number >() * threed_factor.sqrt();
+    DEBUG("Computed threed factor of " << threed_factor.transpose() << " from " << expr->delta_sigma.transpose() << " and " << relative_z.transpose());
+    if ( (threed_factor < 0).any() )
+        return boost::optional< Eigen::Array<Number,2,1> >();
+    else
+        return Eigen::Array<Number,2,1>(expr->best_sigma.array().cast< Number >() * threed_factor.sqrt());
 }
 
 template <typename Number>

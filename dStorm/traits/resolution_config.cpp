@@ -13,7 +13,7 @@ Config::Config()
 {
     three_d.helpID = "3DType";
     three_d.addChoice( new NoThreeDConfig() );
-    three_d.addChoice( new ZhuangThreeDConfig() );
+    three_d.addChoice( new Polynomial3DConfig() );
     cuboid_config.set_3d_availability(false);
 }
 
@@ -25,16 +25,25 @@ void Config::registerNamedEntries() {
     push_back( cuboid_config );
 }
 
-ZhuangThreeDConfig::ZhuangThreeDConfig()
-: simparm::Object("Zhuang3D", "Parabolic 3D"),
-  widening("DefocusConstant", "Speed of PSF std. dev. growth")
+Polynomial3DConfig::Polynomial3DConfig()
+: simparm::Object("Polynomial3D", "Parabolic 3D"),
+  focal_depth("FocusDepth", "Focus Depth"),
+  prefactors("Weights", "Polynom term weights")
 {
-    widening.helpID = "zhuang.DefocusConstant";
+    focal_depth.helpID = "Polynomial3D.FocusDepth";
+    prefactors.helpID = "Polynomial3D.Weights";
+
+    PrefactorEntry::value_type init_prefactors;
+    init_prefactors.fill(0);
+    for (int i = Direction_First; i < Direction_2D; ++i)
+        init_prefactors(i,Polynomial3D::PrimaryTerm-Polynomial3D::MinTerm) = 1;
+    prefactors = init_prefactors;
+
     registerNamedEntries();
 }
 
-ZhuangThreeDConfig::ZhuangThreeDConfig(const ZhuangThreeDConfig& o)
-: simparm::Object(o), widening(o.widening)
+Polynomial3DConfig::Polynomial3DConfig(const Polynomial3DConfig& o)
+: simparm::Object(o), focal_depth(o.focal_depth), prefactors(o.prefactors)
 {
     registerNamedEntries();
 }
@@ -56,17 +65,32 @@ void NoThreeDConfig::read_traits( const DepthInfo& d )
     assert( boost::get< traits::No3D >( &d ) );
 }
 
-void ZhuangThreeDConfig::read_traits( const DepthInfo& d )
+void Polynomial3DConfig::read_traits( const DepthInfo& d )
 {
-    const Zhuang3D::Widening& w = boost::get< traits::Zhuang3D >(d).widening;
-    widening = w.cast< quantity<PerMicro,float> >();
+    const Polynomial3D& p = boost::get< traits::Polynomial3D >(d);
+    FocalDepthEntry::value_type focal_depth;
+    PrefactorEntry::value_type prefactors;
+
+    for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
+        focal_depth[dir] = FocalDepthEntry::value_type::Scalar( p.get_focal_depth(dir) );
+        for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
+            prefactors(dir, term-Polynomial3D::MinTerm) = p.get_prefactor(dir,term);
+        }
+    }
+    this->focal_depth = focal_depth;
+    this->prefactors = prefactors;
 }
 
-DepthInfo ZhuangThreeDConfig::set_traits() const {
-    traits::Zhuang3D zhuang;
-    for (int i = 0; i < 2; ++i)
-        zhuang.widening[i] = quantity<traits::Zhuang3D::Unit>( widening()[i] );
-    return zhuang;
+DepthInfo Polynomial3DConfig::set_traits() const {
+    traits::Polynomial3D p;
+    for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
+        for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
+            p.set_prefactor(dir, term, 
+                Polynomial3D::FocalDepth( focal_depth()[ dir ] ), 
+                prefactors()( dir, term-Polynomial3D::MinTerm ) );
+        }
+    }
+    return p;
 }
 
 traits::ImageResolution
@@ -87,8 +111,8 @@ void Config::read_traits( const engine::InputTraits& t ) {
     if ( t.depth_info.is_initialized() ) {
         if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) )
             three_d.choose( "No3D" );
-        else if ( boost::get< traits::Zhuang3D >( t.depth_info.get_ptr() ) )
-            three_d.choose( "Zhuang3D" );
+        else if ( boost::get< traits::Polynomial3D >( t.depth_info.get_ptr() ) )
+            three_d.choose( "Polynomial3D" );
         three_d().read_traits( *t.depth_info );
     }
 }

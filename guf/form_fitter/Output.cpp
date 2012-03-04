@@ -178,9 +178,10 @@ void Output::do_the_fit() {
     result_config.read_traits( *new_traits );
     if ( ! this->isActive() ) {
             std::cerr << "Auto-guessed PSF has";
-            if ( boost::get< traits::Zhuang3D >(new_traits->depth_info.get_ptr()) )
-                std::cerr << " 3D widening " << boost::get< traits::Zhuang3D >( *new_traits->depth_info ).widening.transpose();
-            else
+            if ( traits::Polynomial3D* p = boost::get< traits::Polynomial3D >(new_traits->depth_info.get_ptr()) ) {
+                std::cerr << " focus depth " << p->get_focal_depth().transpose() << " and prefactors\n"
+                          << p->get_prefactors() << std::endl;
+            } else
                 std::cerr << " no 3D information";
             for ( size_t i = 0; i < new_traits->fluorophores.size(); ++i )
             {

@@ -5,6 +5,7 @@
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>
 #include <simparm/BoostOptional.hh>
+#include <simparm/VectorEntry.hh>
 #include <boost/units/power10.hpp>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/localization/Traits.h>
@@ -12,6 +13,8 @@
 #include <dStorm/image/fwd.h>
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/traits/optics_config.h>
+#include <dStorm/Direction.h>
+#include <dStorm/units/microlength.h>
 
 namespace dStorm {
 namespace traits {
@@ -40,17 +43,22 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
     NoThreeDConfig* clone() const { return new NoThreeDConfig(); }
 };
 
-class ZhuangThreeDConfig : public simparm::Object, public ThreeDConfig {
-    simparm::Entry< Eigen::Matrix< quantity< PerMicro, float >, 2, 1, Eigen::DontAlign > > widening;
+class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
+    typedef simparm::vector_entry< quantity< si::microlength >, Direction_2D >::type
+        FocalDepthEntry;
+    typedef simparm::matrix_entry
+        < double, Direction_2D, Polynomial3D::Order >::type PrefactorEntry;
+    FocalDepthEntry focal_depth;
+    PrefactorEntry prefactors;
 
     DepthInfo set_traits() const;
     void read_traits( const DepthInfo& );
     simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( widening ); }
+    void registerNamedEntries() { push_back( focal_depth ); push_back( prefactors); }
   public:
-    ZhuangThreeDConfig();
-    ZhuangThreeDConfig(const ZhuangThreeDConfig&);
-    ZhuangThreeDConfig* clone() const { return new ZhuangThreeDConfig(*this); }
+    Polynomial3DConfig();
+    Polynomial3DConfig(const Polynomial3DConfig&);
+    Polynomial3DConfig* clone() const { return new Polynomial3DConfig(*this); }
 };
 
 class Config : public simparm::Object {

@@ -17,8 +17,10 @@ class Polynomial3D
     static const int Order = 4;
   private:
     typedef boost::mpl::vector< 
-        DeltaSigma<0,1>, DeltaSigma<0,2>, DeltaSigma<0,3>, DeltaSigma<0,4>, 
-        DeltaSigma<1,1>, DeltaSigma<1,2>, DeltaSigma<1,3>, DeltaSigma<1,4> > ExtraParameters;
+        DeltaSigma<0,1>, DeltaSigma<1,1>, 
+        DeltaSigma<0,2>, DeltaSigma<1,2>, 
+        DeltaSigma<0,3>, DeltaSigma<1,3>, 
+        DeltaSigma<0,4>, DeltaSigma<1,4> > ExtraParameters;
     template <typename Type> friend class nonlinfit::access_parameters;
     template <class Num, typename Expression> friend class Parameters;
     template <class Num, typename Expression, int Size> friend class JointEvaluator;

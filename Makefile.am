@@ -183,7 +183,8 @@ nobase_include_HEADERS = \
     dStorm/display/fwd.h \
     dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
     dStorm/display/Manager.h \
-    dStorm/display/DummyManager.h 
+    dStorm/display/DummyManager.h  \
+    dStorm/Direction.h
 
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
@@ -197,6 +198,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/Projection.cpp \
     dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \
     dStorm/traits/SupportPointProjection.cpp \
+    dStorm/traits/DepthInfo.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \

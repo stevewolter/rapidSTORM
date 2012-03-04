@@ -47,20 +47,27 @@ namespace PSF = dStorm::guf::PSF;
 
 using namespace nonlinfit;
 
-struct OnePlaneAssignment
+struct Assignment
 {
-    template <typename Type> struct apply { typedef boost::mpl::true_ type; };
+    template <typename Type, class QuadraticTerm, class UnevenTerms> struct apply { typedef boost::mpl::true_ type; };
 };
-template <> struct OnePlaneAssignment::apply< guf::PSF::Prefactor > { typedef boost::mpl::false_ type; };
-template <int Dim> struct OnePlaneAssignment::apply< guf::PSF::ZPosition<Dim> > { typedef boost::mpl::false_ type; };
-template <int Dim> struct OnePlaneAssignment::apply< nonlinfit::Xs<Dim,PSF::LengthUnit> > { typedef boost::mpl::false_ type; };
-
-struct MultiPlaneAssignment
-{
-    template <typename Type> struct apply
-        { typedef typename OnePlaneAssignment::apply<Type>::type type; };
-};
-template <> struct MultiPlaneAssignment::apply< guf::PSF::Prefactor > { typedef boost::mpl::true_ type; };
+template <class QuadraticTerm, class UnevenTerms>
+struct Assignment::apply< guf::PSF::Prefactor, QuadraticTerm, UnevenTerms > { typedef boost::mpl::false_ type; };
+template <class QuadraticTerm, class UnevenTerms, int Dim> 
+struct Assignment::apply< guf::PSF::ZPosition<Dim>, QuadraticTerm, UnevenTerms > 
+    { typedef boost::mpl::false_ type; };
+template <class QuadraticTerm, class UnevenTerms, int Dim> 
+struct Assignment::apply< QuadraticTerm, UnevenTerms, nonlinfit::Xs<Dim,PSF::LengthUnit> >
+    { typedef boost::mpl::false_ type; };
+template <class QuadraticTerm, class UnevenTerms, int Dim> 
+struct Assignment::apply< guf::PSF::DeltaSigma<Dim,1>, QuadraticTerm, UnevenTerms > 
+    { typedef UnevenTerms type; };
+template <class QuadraticTerm, class UnevenTerms, int Dim> 
+struct Assignment::apply< guf::PSF::DeltaSigma<Dim,3>, QuadraticTerm, UnevenTerms > 
+    { typedef UnevenTerms type; };
+template <class QuadraticTerm, class UnevenTerms, int Dim> 
+struct Assignment::apply< guf::PSF::DeltaSigma<Dim,4>, QuadraticTerm, UnevenTerms > 
+    { typedef QuadraticTerm type; };
 
 struct vanishes_when_circular
 {
@@ -249,10 +256,12 @@ class Fitter
     }
 
     dStorm::traits::DepthInfo get_3d( const PSF::Polynomial3D& m ) {
-        traits::Zhuang3D three_d;
-        for (int i = 0; i < 2; ++i)
-            three_d.widening[i] = quantity<traits::Zhuang3D::Unit>( 
-                1.0 / m.get_delta_sigma(i, 4) );
+        traits::Polynomial3D three_d;
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
+            for (int term = traits::Polynomial3D::MinTerm; term <= traits::Polynomial3D::Order; ++term) {
+                three_d.set_slope( dir, term, traits::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
+            }
+        }
         return three_d;
     }
 
@@ -367,25 +376,31 @@ create2( const Config& config, const input::Traits< engine::ImageStack >& traits
 
 /** Helper for FittingVariant::create() that selects an assignment based on 
  *  the number of layers. */
-template <typename Expression>
+template <typename Expression, bool QuadraticTerm, bool UnevenTerms>
 std::auto_ptr<FittingVariant>
 create1( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
-    if ( traits.plane_count() > 1 )
-        return create2< nonlinfit::Bind<Expression, MultiPlaneAssignment> >( config, traits, images );
-    else
-        return create2< nonlinfit::Bind<Expression, OnePlaneAssignment> >( config, traits, images );
+    return create2< nonlinfit::Bind<Expression, boost::mpl::bind3< Assignment, boost::mpl::bool_<QuadraticTerm>, boost::mpl::bool_<UnevenTerms>, boost::mpl::_1 > > >( config, traits, images );
 }
 
 std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     std::auto_ptr<FittingVariant> rv;
-    bool has_3d = boost::get< traits::Zhuang3D >( traits.depth_info.get_ptr() ) != NULL;
+    bool has_3d = boost::get< traits::Polynomial3D >( traits.depth_info.get_ptr() ) != NULL;
     if ( has_3d )
-        return create1< PSF::Polynomial3D >( config, traits, images );
+        if ( config.uneven_terms() )
+            if ( config.quadratic_term() )
+                return create1< PSF::Polynomial3D, true, true >( config, traits, images );
+            else
+                return create1< PSF::Polynomial3D, true, false >( config, traits, images );
+        else 
+            if ( config.quadratic_term() )
+                return create1< PSF::Polynomial3D, false, true >( config, traits, images );
+            else
+                return create1< PSF::Polynomial3D, false, false >( config, traits, images );
     else
-        return create1< PSF::No3D >( config, traits, images );
+        return create1< PSF::No3D, false, false >( config, traits, images );
 }
 
 }

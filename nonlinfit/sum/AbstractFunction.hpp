@@ -32,6 +32,9 @@ void AbstractFunction<F,M,PC,MPC,MOVC>::get_position( Position& p ) const
         DEBUG("Getting parameters " << onepos.transpose() << " from upstream #" << i);
         for (int j = 0; j < InputVarC; ++j) {
             typename Position::Scalar& mapped_variable = p[ map(i,j) ];
+            DEBUG("Downstream variable of upstream " << i << " and variable " << j << " is at " 
+                   << map(i,j) << " and is changed from " << mapped_variable
+                   << " to " << onepos[j]);
             assert( std::isnan( mapped_variable ) || std::abs( mapped_variable - onepos[j] ) < 1E-50 );
             mapped_variable = onepos[j];
         }

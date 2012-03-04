@@ -13,7 +13,8 @@ struct Config : public simparm::Object {
         simparm::BoolEntry auto_disable, mle;
         simparm::Entry<unsigned long> number_of_spots;
         simparm::BoolEntry visual_selection, circular_psf, 
-                           laempi_fit, disjoint_amplitudes;
+                           laempi_fit, disjoint_amplitudes,
+                           uneven_terms, quadratic_term;
 
         Config();
         void registerNamedEntries();

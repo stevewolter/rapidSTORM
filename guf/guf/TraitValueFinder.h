@@ -28,14 +28,11 @@ struct TraitValueFinder {
     template <int Dim, typename Structure>
     void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
         { m(p) = (*psf)[Dim]; }
-    template <int Dim, typename Structure>
-    void operator()( PSF::DeltaSigma<Dim,4> p, Structure& m ) const {
-        if ( is_3d )
-            m(p) = 1.0 / boost::get<traits::Zhuang3D>(*info.traits.depth_info).widening[Dim];
-    }
-    template <int Dim, int Term, typename Structure>
+    template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
-        m(p) = quantity< typename PSF::DeltaSigma<Dim,Term>::Unit >::from_value( std::numeric_limits<double>::max() );
+        if ( is_3d )
+            m(p) = boost::get<traits::Polynomial3D>(*info.traits.depth_info)
+                .get_slope( static_cast<dStorm::Direction>(Dim), Term );
     }
 
     template <int Dim, typename Structure>
