@@ -15,7 +15,10 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     if ( ! expr->form_parameters_are_sane() || 
             ! expr->mean_within_range(data.min, data.max) ||
             expr->sigma_is_negligible( data.pixel_size ) )
+    {
+        DEBUG("Start parameters are invalid");
         return false;
+    }
 
     spatial_mean = expr->spatial_mean.template cast<Number>();
     amplitude = expr->amplitude;
@@ -23,8 +26,10 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     boost::optional< Eigen::Array<Number,2,1> > new_sigma = compute_sigma_();
     if ( new_sigma )
         sigma = *new_sigma;
-    else
+    else {
+        DEBUG("Unable to compute sigma");
         return false;
+    }
     assert( (sigma == sigma).all() );
     DEBUG("Sigma is " << sigma.transpose());
     sigmaI = sigma.array().inverse();

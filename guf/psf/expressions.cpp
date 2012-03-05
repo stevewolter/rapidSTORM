@@ -36,7 +36,12 @@ bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper )
 }
 
 bool BaseExpression::sigma_is_negligible( quantity<PixelSizeUnit> pixel_size ) const {
-    return ( pixel_size.value() / (best_sigma[0] * best_sigma[1]) ) > 10;
+    bool pixel_larger_than_sigma = ( pixel_size.value() / (best_sigma[0] * best_sigma[1]) ) > 10;
+    if ( pixel_larger_than_sigma ) {
+        DEBUG("Covariance " << best_sigma[0] * best_sigma[1] << " is way smaller than "
+              << pixel_size);
+    }
+    return pixel_larger_than_sigma;
 }
 
 Eigen::Matrix< quantity<LengthUnit>, 2, 1 > No3D::get_sigma() const

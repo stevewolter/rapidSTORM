@@ -58,8 +58,10 @@ class Evaluator
     struct Prepare_iteration {
         typedef bool result_type;
         template <typename Evaluator, typename Data>
-        bool operator()( bool last_evaluation, Evaluator& e, const Data& data ) const
-            { return last_evaluation && e.prepare_iteration(data); }
+        bool operator()( bool last_evaluation, Evaluator& e, const Data& data ) const { 
+            bool this_summand_good = e.prepare_iteration(data); 
+            return last_evaluation && this_summand_good;
+        }
     };
     /** Free functor for the prepare_chunk method of a base evaluator.
      *  \sa nonlinfit::plane::Evaluator::prepare_chunk() */
@@ -84,8 +86,9 @@ class Evaluator
 
     template <typename Data>
     bool prepare_iteration( const Data& data ) {
-        return fold( parts, true, boost::bind( 
+        bool all_good = fold( parts, true, boost::bind( 
             Prepare_iteration(), _1, _2, boost::ref(data) ) );
+        return all_good;
     }
 
     template <typename Target>
