@@ -44,17 +44,14 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
 };
 
 class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
-    typedef simparm::vector_entry< quantity< si::microlength >, Direction_2D >::type
-        FocalDepthEntry;
     typedef simparm::matrix_entry
-        < double, Direction_2D, Polynomial3D::Order >::type PrefactorEntry;
-    FocalDepthEntry focal_depth;
-    PrefactorEntry prefactors;
+        < quantity<PerMicro>, Direction_2D, Polynomial3D::Order >::type SlopeEntry;
+    SlopeEntry slopes;
 
     DepthInfo set_traits() const;
     void read_traits( const DepthInfo& );
     simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( focal_depth ); push_back( prefactors); }
+    void registerNamedEntries() { push_back( slopes ); }
   public:
     Polynomial3DConfig();
     Polynomial3DConfig(const Polynomial3DConfig&);

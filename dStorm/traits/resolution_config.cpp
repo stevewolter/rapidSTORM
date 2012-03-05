@@ -26,24 +26,16 @@ void Config::registerNamedEntries() {
 }
 
 Polynomial3DConfig::Polynomial3DConfig()
-: simparm::Object("Polynomial3D", "Parabolic 3D"),
-  focal_depth("FocusDepth", "Focus Depth"),
-  prefactors("Weights", "Polynom term weights")
+: simparm::Object("Polynomial3D", "Polynomial 3D"),
+  slopes("WideningConstants", "Widening slopes")
 {
-    focal_depth.helpID = "Polynomial3D.FocusDepth";
-    prefactors.helpID = "Polynomial3D.Weights";
-
-    PrefactorEntry::value_type init_prefactors;
-    init_prefactors.fill(0);
-    for (int i = Direction_First; i < Direction_2D; ++i)
-        init_prefactors(i,Polynomial3D::PrimaryTerm-Polynomial3D::MinTerm) = 1;
-    prefactors = init_prefactors;
+    slopes.helpID = "Polynomial3D.WideningSlopes";
 
     registerNamedEntries();
 }
 
 Polynomial3DConfig::Polynomial3DConfig(const Polynomial3DConfig& o)
-: simparm::Object(o), focal_depth(o.focal_depth), prefactors(o.prefactors)
+: simparm::Object(o), slopes(o.slopes)
 {
     registerNamedEntries();
 }
@@ -68,26 +60,22 @@ void NoThreeDConfig::read_traits( const DepthInfo& d )
 void Polynomial3DConfig::read_traits( const DepthInfo& d )
 {
     const Polynomial3D& p = boost::get< traits::Polynomial3D >(d);
-    FocalDepthEntry::value_type focal_depth;
-    PrefactorEntry::value_type prefactors;
+    SlopesEntry::value_type slopes;
 
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
-        focal_depth[dir] = FocalDepthEntry::value_type::Scalar( p.get_focal_depth(dir) );
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
-            prefactors(dir, term-Polynomial3D::MinTerm) = p.get_prefactor(dir,term);
+            slopes(dir, term-Polynomial3D::MinTerm) = 1.0 / p.get_prefactor(dir,term);
         }
     }
-    this->focal_depth = focal_depth;
-    this->prefactors = prefactors;
+    this->slopes = slopes;
 }
 
 DepthInfo Polynomial3DConfig::set_traits() const {
     traits::Polynomial3D p;
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
-            p.set_prefactor(dir, term, 
-                Polynomial3D::FocalDepth( focal_depth()[ dir ] ), 
-                prefactors()( dir, term-Polynomial3D::MinTerm ) );
+            p.set_slope(dir, term, 
+                1.0 / slopes()( dir, term-Polynomial3D::MinTerm ) );
         }
     }
     return p;
