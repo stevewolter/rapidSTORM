@@ -5,7 +5,6 @@
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>
 #include <simparm/BoostOptional.hh>
-#include <simparm/VectorEntry.hh>
 #include <boost/units/power10.hpp>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/localization/Traits.h>
@@ -44,8 +43,9 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
 };
 
 class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
-    typedef simparm::matrix_entry
-        < quantity<PerMicro>, Direction_2D, Polynomial3D::Order >::type SlopeEntry;
+    typedef simparm::Entry< 
+        Eigen::Matrix< quantity<PerMicro>, Direction_2D, 
+                       Polynomial3D::Order, Eigen::DontAlign > > SlopeEntry;
     SlopeEntry slopes;
 
     DepthInfo set_traits() const;

@@ -60,11 +60,12 @@ void NoThreeDConfig::read_traits( const DepthInfo& d )
 void Polynomial3DConfig::read_traits( const DepthInfo& d )
 {
     const Polynomial3D& p = boost::get< traits::Polynomial3D >(d);
-    SlopesEntry::value_type slopes;
+    SlopeEntry::value_type slopes;
 
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
-            slopes(dir, term-Polynomial3D::MinTerm) = 1.0 / p.get_prefactor(dir,term);
+            slopes(dir, term-Polynomial3D::MinTerm) = 
+                SlopeEntry::value_type::Scalar(1.0 / p.get_slope(dir,term));
         }
     }
     this->slopes = slopes;
@@ -74,8 +75,11 @@ DepthInfo Polynomial3DConfig::set_traits() const {
     traits::Polynomial3D p;
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
-            p.set_slope(dir, term, 
-                1.0 / slopes()( dir, term-Polynomial3D::MinTerm ) );
+            quantity< PerMicro > s = slopes()( dir, term-Polynomial3D::MinTerm );
+            if ( s < 1E-30 / si::micrometer )
+                p.set_slope( dir, term, 1E24 * si::meter );
+            else
+                p.set_slope(dir, term, traits::Polynomial3D::WidthSlope( pow<-1>(s) ) ) ;
         }
     }
     return p;
