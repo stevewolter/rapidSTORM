@@ -92,6 +92,7 @@ nobase_include_HEADERS = \
     dStorm/output/binning/config_decl.h \
     dStorm/output/binning/config.h \
     dStorm/output/binning/dummy_binner.h \
+    dStorm/output/binning/constant_binner.h \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
@@ -227,6 +228,7 @@ libdStorm_la_SOURCES = \
     dStorm/output/binning/localization.cpp \
     dStorm/output/binning/localization_config.cpp \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
+    dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \

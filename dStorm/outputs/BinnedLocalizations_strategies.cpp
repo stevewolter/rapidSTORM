@@ -10,6 +10,7 @@
 #include <dStorm/output/binning/config.h>
 #include <dStorm/output/binning/inversion.h>
 #include <dStorm/output/binning/dummy_binner.h>
+#include <dStorm/output/binning/constant_binner.h>
 
 namespace dStorm {
 namespace outputs {
@@ -30,6 +31,7 @@ DimensionSelector<Dim>::DimensionSelector()
         push_back( components[i] );
     }
     components.replace( Dim, new output::binning::FieldChoice("IDimension", "Intensity", output::binning::IsUnscaled, "I") );
+    components[Dim].addChoice( dStorm::output::binning::make_constant_binner_config() );
     push_back( components[Dim] );
     push_back( invert_y_axis );
     if ( Dim > 2 ) {
