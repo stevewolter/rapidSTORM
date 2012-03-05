@@ -13,8 +13,10 @@ Config::Config()
     circular_psf("CircularPSF", "Assume circular PSF", true),
     laempi_fit("LaempiPosition", "Laempi fit for positions", false),
     disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
-    uneven_terms("UnevenTerms", "Fit uneven terms of polynomial 3D", false),
-    quadratic_term("QuadraticTerm", "Fit quadratic term of polynomial 3D", true)
+    linear_term("LinearTerm", "Fit linear term of polynomial 3D", false),
+    quadratic_term("QuadraticTerm", "Fit quadratic term of polynomial 3D", true),
+    cubic_term("CubicTerm", "Fit cubic term of polynomial 3D", false),
+    quartic_term("QuarticTerm", "Fit quartic term of polynomial 3D", false)
 {
     auto_disable.userLevel = simparm::Object::Intermediate;
 }
@@ -27,8 +29,10 @@ void Config::registerNamedEntries() {
     push_back( circular_psf );
     push_back( laempi_fit );
     push_back( disjoint_amplitudes );
-    push_back( uneven_terms );
+    push_back( linear_term );
     push_back( quadratic_term );
+    push_back( cubic_term );
+    push_back( quartic_term );
 }
 
 }

@@ -14,7 +14,8 @@ struct Config : public simparm::Object {
         simparm::Entry<unsigned long> number_of_spots;
         simparm::BoolEntry visual_selection, circular_psf, 
                            laempi_fit, disjoint_amplitudes,
-                           uneven_terms, quadratic_term;
+                           linear_term, quadratic_term, 
+                           cubic_term, quartic_term;
 
         Config();
         void registerNamedEntries();

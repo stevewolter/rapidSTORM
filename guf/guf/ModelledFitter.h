@@ -31,9 +31,8 @@ class ModelledFitter
     typedef nonlinfit::sum::AbstractFunction< 
         typename Repository::result_type,
         typename Repository::Mover,
-        Eigen::Dynamic, /* plane count */
-        Config::maximum_plane_count> 
-        Function;
+        nonlinfit::sum::BoundedPolicy<Config::maximum_plane_count>
+    > Function;
 
     Function fitter;
     PlaneFunctions evaluators;

@@ -41,7 +41,9 @@ void AbstractMap<VarC>::add_function( const Function& reducer_functor )
     for (int j = 0; j < VarC; ++j)  {
         std::pair<int,int> reduction = reducer_functor( my_row, j );
         assert( reduction.first <= my_row && reduction.second <= j );
-        if ( reduction.first == my_row && reduction.second == j )
+        if ( reduction.second < 0 )
+            map[my_row][j] = -1;
+        else if ( reduction.first == my_row && reduction.second == j )
             map[my_row][j] = output_var_c++;
         else
             map[my_row][j] = map[reduction.first][reduction.second];

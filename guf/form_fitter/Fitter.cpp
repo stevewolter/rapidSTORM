@@ -49,25 +49,14 @@ using namespace nonlinfit;
 
 struct Assignment
 {
-    template <typename Type, class QuadraticTerm, class UnevenTerms> struct apply { typedef boost::mpl::true_ type; };
+    template <typename Type> struct apply { typedef boost::mpl::true_ type; };
 };
-template <class QuadraticTerm, class UnevenTerms>
-struct Assignment::apply< guf::PSF::Prefactor, QuadraticTerm, UnevenTerms > { typedef boost::mpl::false_ type; };
-template <class QuadraticTerm, class UnevenTerms, int Dim> 
-struct Assignment::apply< guf::PSF::ZPosition<Dim>, QuadraticTerm, UnevenTerms > 
+template <int Dim> 
+struct Assignment::apply< guf::PSF::ZPosition<Dim> > 
     { typedef boost::mpl::false_ type; };
-template <class QuadraticTerm, class UnevenTerms, int Dim> 
-struct Assignment::apply< QuadraticTerm, UnevenTerms, nonlinfit::Xs<Dim,PSF::LengthUnit> >
+template <int Dim> 
+struct Assignment::apply< nonlinfit::Xs<Dim,PSF::LengthUnit> >
     { typedef boost::mpl::false_ type; };
-template <class QuadraticTerm, class UnevenTerms, int Dim> 
-struct Assignment::apply< guf::PSF::DeltaSigma<Dim,1>, QuadraticTerm, UnevenTerms > 
-    { typedef UnevenTerms type; };
-template <class QuadraticTerm, class UnevenTerms, int Dim> 
-struct Assignment::apply< guf::PSF::DeltaSigma<Dim,3>, QuadraticTerm, UnevenTerms > 
-    { typedef UnevenTerms type; };
-template <class QuadraticTerm, class UnevenTerms, int Dim> 
-struct Assignment::apply< guf::PSF::DeltaSigma<Dim,4>, QuadraticTerm, UnevenTerms > 
-    { typedef QuadraticTerm type; };
 
 struct vanishes_when_circular
 {
@@ -110,7 +99,8 @@ class VariableReduction
         layer_dependent, /**< E.g. shift or z offset. */
         fluorophore_dependent, /**< Variables depending on fluorophore type,
                                     e.g. transmission coefficients. */
-        vanishes /**< Parameters that are redundant for circular PSFs */;
+        merged       /**< Parameters that are redundant for circular PSFs */,
+        constant     /**< Parameter is runtime-determined constant. */;
     /** The plane numbers for each fluorophore type's first occurence. */
     std::vector<int> first_fluorophore_occurence;
     int plane_count;
@@ -159,6 +149,31 @@ struct is_positional {
     }
 };
 
+class constant_parameter {
+    const Config& config;
+    bool multiplane;
+
+public:
+    constant_parameter( bool has_multiple_planes, const Config& config )
+        : config(config), multiplane(has_multiple_planes) {}
+
+    typedef bool result_type;
+    template <typename Func, typename Base>
+    bool operator()( TermParameter< Func, Base > ) { return (*this)( Base() ); }
+
+    template <int Dim>
+    bool operator()( PSF::DeltaSigma<Dim,1> ) { return ! config.linear_term(); }
+    template <int Dim>
+    bool operator()( PSF::DeltaSigma<Dim,2> ) { return ! config.quadratic_term(); }
+    template <int Dim>
+    bool operator()( PSF::DeltaSigma<Dim,3> ) { return ! config.cubic_term(); }
+    template <int Dim>
+    bool operator()( PSF::DeltaSigma<Dim,4> ) { return ! config.quartic_term(); }
+
+    template <typename Parameter>
+    bool operator()( Parameter ) { return false; }
+};
+
 template <typename Lambda>
 VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
 : first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
@@ -170,8 +185,9 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
         guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes()) );
     layer_dependent.flip();
     fluorophore_dependent = make_bitset( Variables(), guf::PSF::is_fluorophore_dependent() );
-    vanishes = make_bitset( Variables(), vanishes_when_circular() );
-    if ( ! config.circular_psf() ) vanishes.reset();
+    merged = make_bitset( Variables(), vanishes_when_circular() );
+    constant = make_bitset( Variables(), constant_parameter( traits.plane_count() > 1, config ) );
+    if ( ! config.circular_psf() ) merged.reset();
 }
 
 template <typename Lambda>
@@ -188,27 +204,29 @@ void VariableReduction<Lambda>::add_plane( const int layer, const int fluorophor
 
 template <typename Lambda>
 std::pair<int,int>
-VariableReduction<Lambda>::reducer::operator()( const int function, const int j ) const
+VariableReduction<Lambda>::reducer::operator()( const int function, const int parameter ) const
 {
     int base_row = function,
-        base_col = j;
+        base_col = parameter;
     int my_layer = layer;
-    if ( ! r.layer_dependent[j] ) {
+    if ( r.constant[parameter] ) 
+        return std::make_pair(-1,-1);
+    if ( ! r.layer_dependent[parameter] ) {
         /* Plane-independent parameters can be reduced to the first plane. */
         base_row -= layer; 
         my_layer = 0;
     }
-    if ( ! r.positional[j] && ! r.fluorophore_dependent[j] ) {
+    if ( ! r.positional[parameter] && ! r.fluorophore_dependent[parameter] ) {
         /* The parameter is common to all fluorophores regardless of type.
             * Reduce to the matching plane of the first fluorophore. */
             base_row = my_layer;
     }
-    if (  ! r.positional[j] && r.fluorophore_dependent[j] ) {
+    if (  ! r.positional[parameter] && r.fluorophore_dependent[parameter] ) {
         /* The parameter is common to all fluorophores of this type. Locate
             * the first instance of the current fluorophore type and reduce to it. */
         base_row = r.first_fluorophore_occurence[ fluorophore_type ] + my_layer;
     }
-    if ( r.vanishes[j] )
+    if ( r.merged[parameter] )
         --base_col;
     return std::make_pair( base_row, base_col );
 }
@@ -238,7 +256,7 @@ class Fitter
             Metric > > 
         PlaneFunction;
     typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
-    typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, Eigen::Dynamic > CombinedFunction;
+    typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
     typedef guf::TransformedImage< PSF::LengthUnit > Transformation;
 
     /** Transformations indexed by input layer. */
@@ -376,11 +394,11 @@ create2( const Config& config, const input::Traits< engine::ImageStack >& traits
 
 /** Helper for FittingVariant::create() that selects an assignment based on 
  *  the number of layers. */
-template <typename Expression, bool QuadraticTerm, bool UnevenTerms>
+template <typename Expression>
 std::auto_ptr<FittingVariant>
 create1( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
-    return create2< nonlinfit::Bind<Expression, boost::mpl::bind3< Assignment, boost::mpl::bool_<QuadraticTerm>, boost::mpl::bool_<UnevenTerms>, boost::mpl::_1 > > >( config, traits, images );
+    return create2< nonlinfit::Bind<Expression, Assignment > >( config, traits, images );
 }
 
 std::auto_ptr<FittingVariant>
@@ -389,18 +407,9 @@ FittingVariant::create( const Config& config, const input::Traits< engine::Image
     std::auto_ptr<FittingVariant> rv;
     bool has_3d = boost::get< traits::Polynomial3D >( traits.depth_info.get_ptr() ) != NULL;
     if ( has_3d )
-        if ( config.uneven_terms() )
-            if ( config.quadratic_term() )
-                return create1< PSF::Polynomial3D, true, true >( config, traits, images );
-            else
-                return create1< PSF::Polynomial3D, true, false >( config, traits, images );
-        else 
-            if ( config.quadratic_term() )
-                return create1< PSF::Polynomial3D, false, true >( config, traits, images );
-            else
-                return create1< PSF::Polynomial3D, false, false >( config, traits, images );
+        return create1< PSF::Polynomial3D >( config, traits, images );
     else
-        return create1< PSF::No3D, false, false >( config, traits, images );
+        return create1< PSF::No3D >( config, traits, images );
 }
 
 }

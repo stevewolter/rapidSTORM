@@ -8,6 +8,19 @@
 namespace nonlinfit {
 namespace sum {
 
+class VariableDropPolicy {
+public:
+    static const bool VariablesAreDropped = true;
+    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = Eigen::Dynamic;
+};
+
+template <int MaxPlaneCount>
+class BoundedPolicy {
+public:
+    static const bool VariablesAreDropped = false;
+    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = MaxPlaneCount;
+};
+
 /** A function representing the sum of a dynamic number of equal-type functions.
  *
  *  This class implements a dynamically sized abstract function by summing 
@@ -21,20 +34,23 @@ namespace sum {
 template <
     typename _Function,
     typename _Moveable,
-    int PlaneCount = Eigen::Dynamic,
-    int MaxPlaneCount = PlaneCount,
-    int MaxOutputVarC = ( MaxPlaneCount != Eigen::Dynamic )
-        ? (MaxPlaneCount * _Function::Derivatives::VariableCount) : Eigen::Dynamic >
+    typename Policy >
 class AbstractFunction
 {
     static const int InputVarC = _Function::Derivatives::VariableCount;
+    static const int OutputVariableCountMax = 
+        ( Policy::PlaneCountMax == Eigen::Dynamic ) 
+            ? Eigen::Dynamic
+            : Policy::PlaneCountMax * InputVarC;
   public:
     /** The input function type. */
     typedef _Function argument_type;
     typedef _Moveable moveable_type;
     /** The type of the implemented, resulting function. */
-    typedef Evaluation<typename _Function::Derivatives::Scalar, Eigen::Dynamic, 
-        MaxOutputVarC> Derivatives;
+    typedef Evaluation<
+        typename _Function::Derivatives::Scalar, 
+        Eigen::Dynamic, 
+        OutputVariableCountMax> Derivatives;
     typedef typename Derivatives::Vector Position;
 
     /** The correct instance of the variable mapping helper class. */
