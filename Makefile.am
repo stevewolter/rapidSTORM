@@ -26,7 +26,8 @@ pkgdata_DATA =
 JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
-EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc
+EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
+    guf/psf/make_psf.sh
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
 	java-built-stamp DefaultPath.java
@@ -102,7 +103,8 @@ nobase_include_HEADERS = \
     dStorm/traits/range_impl.h dStorm/traits/residues.h dStorm/traits/resolution.h \
     dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \
     dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
-    dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h dStorm/traits/ScaledProjection.h \
+    dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
+    dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
@@ -529,7 +531,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/psf/LengthUnit.h guf/psf/ostream.h \
     guf/psf/unit_test.h guf/psf/unit_test.cpp \
     guf/psf/ReferenceEvaluation.h \
-    guf/constant_background_fwd.hpp guf/constant_background.hpp
+    guf/constant_background_fwd.hpp guf/constant_background.hpp \
+    guf/psf/polynomial_psf_generated_by_yacas.h
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists

@@ -42,7 +42,7 @@ _Config::_Config()
                         "bad candidates are found.");
     motivation.setUserLevel(Object::Intermediate);
 
-    amplitude_threshold.setUserLevel(Object::Intermediate);
+    amplitude_threshold.setUserLevel(Object::Beginner);
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
                                 "localization, and those below the threshold "

@@ -31,10 +31,11 @@ Config::Config()
     auto_disable.userLevel = simparm::Object::Intermediate;
     BOOST_STATIC_ASSERT( int(sizeof(term_names) / sizeof(term_names[0])) >= polynomial_3d::Order );
     for (int i = 0; i < polynomial_3d::Order; ++i)
-        z_terms[i] = boost::in_place( term_names[i], 
+        z_terms[i] = boost::in_place( term_names[i] + std::string("Term"), 
             std::string("Fit ") + 
             char( tolower( term_names[i][0] ) ) + std::string( term_names[i]+1 ) +
             std::string("of polynomial 3D") );
+    (*z_terms[1]) = true;
 }
 
 void Config::registerNamedEntries() {
