@@ -1,3 +1,34 @@
+== 14.4.0 ==
+
+* Defaulted QuadraticTerm option in FitPSFForm
+* Made amplitude threshold more visible to avoid users setting high expertise levels
+* Added missing files to dist
+* Implemented PSF Z calibration
+* Fixed #192
+* Fixed bugs in entry format conversion
+* Made constants for form fitter runtime-selectable
+* Converted Zhuang 3D PSF to multi-term polynomial format
+* Raised plane limit to 9
+* Allowed positions in PSF form fitter to leave ROI
+* Fixed PSF form fitting for start value zero for PSF transmission coefficient
+* Fixed visibility of histogram normalization in job window
+* Fixed handling of negative scale factors in alignment matrices
+* Moved TIFF code into its own directory and fixed reading of 8-bit or 32-bit deep TIFFs
+* Removed obsolete programs
+* Fixed namespace of input simulation and moved fillhole smoother to spot finders
+* Fixed #189
+* Fixed race conditions in job control
+* Fixed race condition in destruction of old traits in PSF form estimator
+* Merged image-stack branch into main line. Images are now represented as vectors of 2D images
+* Fixed precision computation
+* Fixed long-time-standing instabilities in job destruction
+* Fixed #186
+* Physically moved input simulation code into own module
+* Fixed #188
+* Merged all unit tests into dstorm executable to reduce linking time and space
+* Fixed distcheck
+* Added locking to input stream node to avoid destruction race conditions
+
 == 14.3.0 ==
 
 * Added bound-getting function for images
