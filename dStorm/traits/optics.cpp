@@ -22,7 +22,6 @@ Optics::Optics( const Optics &o )
   psf(o.psf),
   projection_factory_(o.projection_factory_),
   z_position(o.z_position),
-  offsets(o.offsets),
   photon_response(o.photon_response),
   background_stddev(o.background_stddev),
   dark_current(o.dark_current)
@@ -37,8 +36,6 @@ Optics& Optics::operator=( const Optics &o )
     psf = o.psf;
     projection_factory_ = o.projection_factory_;
     z_position = o.z_position;
-    offsets[0] = o.offsets[0];
-    offsets[1] = o.offsets[1];
     photon_response = o.photon_response;
     background_stddev = o.background_stddev;
     dark_current = o.dark_current;
@@ -183,13 +180,9 @@ void PlaneConfig::set_number_of_fluorophores(int number, bool has_multiple_layer
 void PlaneConfig::set_traits( traits::Optics& rv ) const
 {
     rv.projection_factory_ = alignment().get_projection_factory();
-    rv.z_position = (z_position()[0] + z_position()[1]) / si::nanometre * (2.0 * 1E-9) * si::metre;
     rv.photon_response = counts_per_photon();
     rv.dark_current = dark_current();
-    for (int i = 0; i < 2; ++i) {
-        rv.offsets[i] = z_position()[i] / si::nanometre * 1E-9 * si::metre;
-        rv.offsets[i] = *rv.offsets[i] - *rv.z_position;
-    }
+    rv.z_position = z_position().cast< quantity<si::length,float> >();
     rv.tmc.clear();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i) {
         DEBUG("Set transmission of " << rv.tmc.size() << " to " << i->value() << " at " << &rv);

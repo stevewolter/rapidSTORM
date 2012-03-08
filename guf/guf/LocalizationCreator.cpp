@@ -21,7 +21,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
     bool one_axis_found = false;
     for (int p = 0; p < info.traits.plane_count(); ++p)
         for (int xy = 0; xy < 2; ++xy) {
-            quantity< si::length > plane = *info.traits.optics(p).z_position + *info.traits.optics(p).offsets[xy];
+            quantity< si::length > plane = (*info.traits.optics(p).z_position)[xy];
             if ( info.traits.optics(p).transmission_coefficient(info.fluorophore) > 5E-2 )
             {
                 if ( z_symmetry.is_initialized() && abs( plane - *z_symmetry ) > 1E-9 * si::meter )

@@ -74,6 +74,7 @@ endif
 
 headerdir = $(includedir)/dStorm
 nobase_include_HEADERS = \
+    dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \

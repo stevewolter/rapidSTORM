@@ -40,7 +40,9 @@ samplepos Traits< engine::ImageStack >
         p.x() = std::max( p.x(), xy.x() );
         p.y() = std::max( p.y(), xy.y() );
         p.z() = std::max( p.z(), 
-                          samplepos::Scalar(*plane(pl).optics.z_position) );
+                          std::max( 
+                            samplepos::Scalar( (*plane(pl).optics.z_position)[0] ),
+                            samplepos::Scalar( (*plane(pl).optics.z_position)[1] ) ) );
     }
     return p;
 }

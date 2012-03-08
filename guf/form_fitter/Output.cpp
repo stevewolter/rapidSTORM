@@ -179,8 +179,15 @@ void Output::do_the_fit() {
     if ( ! this->isActive() ) {
             std::cerr << "Auto-guessed PSF has";
             if ( traits::Polynomial3D* p = boost::get< traits::Polynomial3D >(new_traits->depth_info.get_ptr()) ) {
-                std::cerr << " focus depth " << p->get_focal_depth().transpose() << " and prefactors\n"
-                          << p->get_prefactors() << std::endl;
+                std::cerr << " X focus depths " ;
+                for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
+                    std::cerr << 1.0 / p->get_slope(Direction_X, j) << " ";
+                std::cerr << " and Y focus depth " ;
+                for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
+                    std::cerr << 1.0 / p->get_slope(Direction_Y, j) << " ";
+                for ( int j = 0; j < new_traits->plane_count(); ++j) {
+                    std::cerr << " and focus planes " << new_traits->optics(j).z_position->transpose();
+                }
             } else
                 std::cerr << " no 3D information";
             for ( size_t i = 0; i < new_traits->fluorophores.size(); ++i )

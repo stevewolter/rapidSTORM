@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 #include <nonlinfit/plane/fwd.h>
 #include <boost/optional.hpp>
+#include <dStorm/polynomial_3d.h>
 
 namespace dStorm {
 namespace guf {
@@ -60,7 +61,7 @@ class Parameters< Num, Polynomial3D >
   protected:
     const Polynomial3D* expr;
     Eigen::Array<Num,2,1> z_deriv_prefactor, relative_z, threed_factor;
-    Eigen::Array<Num,2,5> delta_z_deriv_prefactor;
+    Eigen::Array<Num,2,polynomial_3d::Order+1> delta_z_deriv_prefactor;
   public:
     Parameters() {}
     Parameters( const Polynomial3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}

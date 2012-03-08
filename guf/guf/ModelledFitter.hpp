@@ -71,7 +71,11 @@ double ModelledFitter<_Function>::fit(
     AbstractMoveable moveable( fitter );
     MyTerminator concrete_terminator(terminator);
     AbstractTerminator abstract_terminator(concrete_terminator);
-    return lm.fit( function.abstract(), moveable.abstract(),
+    return lm.fit< 
+        typename AbstractFunction::abstract_type,
+        typename AbstractMoveable::abstract_type,
+        TerminatorInterface& >
+        ( function.abstract(), moveable.abstract(),
                    static_cast<TerminatorInterface&>(abstract_terminator) );
 }
 

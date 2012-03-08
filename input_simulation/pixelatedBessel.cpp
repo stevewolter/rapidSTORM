@@ -81,7 +81,7 @@ double BesselFunction::compute_point( const Subpixel& position, IntegrationInfo&
         trafo.projection().point_in_sample_space(
             dStorm::traits::Projection::SubpixelImagePosition(
                 position.head<2>()));
-    sample.z() = *trafo.optics.z_position;
+    sample.z() = (*trafo.optics.z_position)[0];
     sample -= fluorophore;
     quantity<si::length> distance = sqrt( pow<2>(sample[0]) + pow<2>(sample[1]) );
     info.bessel_factor = double( distance * info.wavenumber);
@@ -149,7 +149,7 @@ double BesselFunction::wavelength_callback(double l, void *params)
     IntegrationInfo *i = static_cast<IntegrationInfo*>(params);
     quantity<si::length> lambda = l * si::meter;
     i->wavenumber = (i->function->n * 2 * M_PI / lambda);
-    i->z_offset = -1.0 * ((*i->function->trafo.optics.z_position - i->function->fluorophore.z()) * i->wavenumber);
+    i->z_offset = -1.0 * ((i->function->trafo.optics.z_position->x() - i->function->fluorophore.z()) * i->wavenumber);
 
     double yc = i->orig_position.y().value(), val, abserr;
 

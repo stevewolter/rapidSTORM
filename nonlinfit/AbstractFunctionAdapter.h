@@ -21,7 +21,8 @@ class AbstractFunctionAdapter
     AbstractFunctionAdapter( Function& f ) : fi(f) {}
     bool evaluate( typename Function::Derivatives& p ) { return fi.evaluate(p); }
     int variable_count() const { return fi.variable_count(); }
-    AbstractFunction< typename Function::Derivatives >& abstract() { return *this; }
+    typedef AbstractFunction< typename Function::Derivatives > abstract_type;
+    abstract_type& abstract() { return *this; }
 };
 
 template <typename Function>

@@ -4,6 +4,11 @@
 #include "Base3D.h"
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>
+#include <nonlinfit/DerivationSummand.h>
+#include <boost/mpl/iter_fold.hpp>
+#include <boost/mpl/range_c.hpp>
+#include <dStorm/polynomial_3d.h>
+#include <dStorm/Direction.h>
 
 namespace dStorm {
 namespace guf {
@@ -14,24 +19,34 @@ class Polynomial3D
   public nonlinfit::access_parameters<Polynomial3D>
 {
   public:
-    static const int Order = 4;
+    static const int Order = polynomial_3d::Order;
   private:
-    typedef boost::mpl::vector< 
-        DeltaSigma<0,1>, DeltaSigma<1,1>, 
-        DeltaSigma<0,2>, DeltaSigma<1,2>, 
-        DeltaSigma<0,3>, DeltaSigma<1,3>, 
-        DeltaSigma<0,4>, DeltaSigma<1,4> > ExtraParameters;
     template <typename Type> friend class nonlinfit::access_parameters;
     template <class Num, typename Expression> friend class Parameters;
     template <class Num, typename Expression, int Size> friend class JointEvaluator;
     template <class Num, typename Expression, int Size> friend class DisjointEvaluator;
-    Eigen::Array< double, 2, 5 > delta_sigma;
+    Eigen::Array< double, 2, Order+1 > delta_sigma;
     template <int Index, int Term> double& access( DeltaSigma<Index,Term> ) { return delta_sigma(Index,Term); }
     using Base3D::access;
 
+    template <class Sequence, class Number>
+    struct add_delta_sigmas {
+        typedef typename boost::mpl::push_back< 
+            typename boost::mpl::push_back< 
+                Sequence, 
+                DeltaSigma<Direction_X,Number::value> >::type,
+            DeltaSigma<Direction_Y,Number::value> 
+        >::type type;
+    };
+
   public:
-    typedef nonlinfit::append< Base3D::Variables, ExtraParameters >::type
-        Variables;
+    /* The variables in Polynomial3D are the DeltaSigma in X and Y for each 
+     * power term. */
+    typedef typename boost::mpl::fold<
+        boost::mpl::range_c<int,polynomial_3d::FirstTerm,polynomial_3d::LastTerm+1>,
+        typename Base3D::Variables,
+        boost::mpl::quote2<add_delta_sigmas>
+    >::type Variables;
 
     Polynomial3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
 

@@ -175,7 +175,7 @@ Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveabl
 }
 
 template <typename _Function, typename _Moveable, typename _Terminator>
-double Fitter::fit( _Function& f, _Moveable& m, _Terminator& t )
+double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
 {
     State<_Function,_Moveable> state(f, m, f.variable_count());
     double lambda = initial_lambda;

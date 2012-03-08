@@ -38,7 +38,7 @@ struct TraitValueFinder {
     template <int Dim, typename Structure>
     void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
         if ( is_3d )
-            m( p ) = *plane.z_position + *plane.offsets[Dim]; 
+            m( p ) = (*plane.z_position)[Dim];
     }
 
     template <typename Structure>

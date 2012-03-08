@@ -31,6 +31,7 @@
 #include <nonlinfit/BoundFunction.hpp>
 #include "guf/guf/mle_converter.h"
 #include <dStorm/engine/InputTraits.h>
+#include <fstream>
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -47,16 +48,14 @@ namespace PSF = dStorm::guf::PSF;
 
 using namespace nonlinfit;
 
-struct Assignment
-{
-    template <typename Type> struct apply { typedef boost::mpl::true_ type; };
+struct print_state {
+	void matrix_is_unsolvable(){}
+        template <typename Position>
+        void improved( const Position& current, const Position& shift )
+            { std::cerr << current.template head<15>().transpose() << std::endl; }
+        void failed_to_improve( bool ) {}
+        bool should_continue_fitting() const { return true; }
 };
-template <int Dim> 
-struct Assignment::apply< guf::PSF::ZPosition<Dim> > 
-    { typedef boost::mpl::false_ type; };
-template <int Dim> 
-struct Assignment::apply< nonlinfit::Xs<Dim,PSF::LengthUnit> >
-    { typedef boost::mpl::false_ type; };
 
 struct vanishes_when_circular
 {
@@ -152,23 +151,25 @@ struct is_positional {
 class constant_parameter {
     const Config& config;
     bool multiplane;
+    bool is_calibrated;
 
 public:
     constant_parameter( bool has_multiple_planes, const Config& config )
-        : config(config), multiplane(has_multiple_planes) {}
+        : config(config), multiplane(has_multiple_planes), 
+          is_calibrated( config.z_calibration() != "" ) {}
 
     typedef bool result_type;
     template <typename Func, typename Base>
     bool operator()( TermParameter< Func, Base > ) { return (*this)( Base() ); }
 
-    template <int Dim>
-    bool operator()( PSF::DeltaSigma<Dim,1> ) { return ! config.linear_term(); }
-    template <int Dim>
-    bool operator()( PSF::DeltaSigma<Dim,2> ) { return ! config.quadratic_term(); }
-    template <int Dim>
-    bool operator()( PSF::DeltaSigma<Dim,3> ) { return ! config.cubic_term(); }
-    template <int Dim>
-    bool operator()( PSF::DeltaSigma<Dim,4> ) { return ! config.quartic_term(); }
+    template <int Dim> 
+    bool operator()( nonlinfit::Xs<Dim,PSF::LengthUnit> ) { return true; }
+    template <int Dim> 
+    bool operator()( guf::PSF::ZPosition<Dim> ) { return ! is_calibrated; }
+    bool operator()( guf::PSF::MeanZ ) { return is_calibrated; }
+    template <int Dim, int Term>
+    bool operator()( PSF::DeltaSigma<Dim,Term> ) { return ! (*config.z_terms[Term-1])(); }
+    bool operator()( PSF::Prefactor ) { return ! multiplane; }
 
     template <typename Parameter>
     bool operator()( Parameter ) { return false; }
@@ -238,6 +239,25 @@ int VariableReduction<Lambda>::find_plane( const int layer, const int fluorophor
     return first_fluorophore_occurence[fluorophore] + layer; 
 }
 
+typedef std::map< frame_index, quantity<si::length> > ZCalibration;
+
+ZCalibration read_calibration_file( std::string name )
+{
+    ZCalibration z_calibration;
+    std::ifstream input( name.c_str() );
+    while ( true ) {
+        frame_index image_number;
+        quantity<si::length> z_position;
+        input >> boost::units::quantity_cast<int&>(image_number)
+                >> boost::units::quantity_cast<double&>(z_position);
+        if ( input )
+            z_calibration[image_number] = z_position;
+        else
+            break;
+    }
+    return z_calibration;
+}
+
 /** Specialization of a FittingVariant for a concrete PSF model and
  *  parameter assignment.
  *
@@ -248,6 +268,8 @@ template <class Metric, typename Lambda>
 class Fitter
 : public FittingVariant
 {
+    struct less_amplitude;
+
     typedef typename PSF::StandardFunction< Lambda, 1 >::type TheoreticalFunction;
     typedef BoundFunction< 
         nonlinfit::plane::Distance<
@@ -262,9 +284,12 @@ class Fitter
     /** Transformations indexed by input layer. */
     boost::ptr_vector<Transformation> transformations;
     /** Transformations indexed by input plane. */
-    boost::ptr_vector< PlaneFunction > evaluators;
+    typedef boost::ptr_vector< PlaneFunction > Evaluators;
+    Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
     VariableReduction<TheoreticalFunction> table;
+
+    boost::optional< ZCalibration > z_calibration;
 
     /** Get one of the model instances matching the given fluorophore type and layer. */
     const Lambda& result( int fluorophore = -1, int layer = 0 ) {
@@ -287,6 +312,14 @@ class Fitter
         return traits::No3D();
     }
 
+    void set_z_value( PSF::No3D&, quantity<si::length> ) const {}
+    void set_z_value( PSF::Polynomial3D& m, quantity<si::length> z ) const 
+        { m( PSF::MeanZ() ) = z; }
+    void apply_z_calibration();
+    static Lambda& gaussian_kernel( PlaneFunction& e ) 
+        { return e.get_expression().get_part( boost::mpl::int_<0>() ); }
+    static const Lambda& gaussian_kernel( const PlaneFunction& e ) 
+        { return e.get_expression().get_part( boost::mpl::int_<0>() ); }
 
   public:
     /** \see FittingVariant::create(). */
@@ -308,6 +341,8 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
         transformations.push_back( new Transformation(max_distance, traits.plane(i)) );
     }
 
+    if ( config.z_calibration )
+        z_calibration = read_calibration_file( config.z_calibration() );
 }
 
 template <class Metric, class Lambda>
@@ -335,8 +370,19 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
         LocalizationValueFinder iv(info, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
-        new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ).
-            allow_leaving_ROI( true );
+        gaussian_kernel( *new_evaluator ).allow_leaving_ROI( true );
+        if ( z_calibration ) {
+            ZCalibration::const_iterator z_entry 
+                = z_calibration->find( image.frame_number() );
+            if ( z_entry != z_calibration->end() )
+                set_z_value( gaussian_kernel( *new_evaluator ), z_entry->second );
+            else {
+                std::stringstream error;
+                error << "Image number " << image.frame_number() << " missing "
+                         "from Z calibration file";
+                throw std::runtime_error( error.str() );
+            }
+        }
 
         /* After adding the evaluator to the table and the combiner, it is only
          * kept for later reference with the result() function. */
@@ -345,17 +391,56 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
     }
     return ! table.needs_more_planes();
 }
+
+template <class Metric, typename Lambda>
+struct Fitter<Metric,Lambda>::less_amplitude
+: public std::binary_function<bool,const PlaneFunction&,const PlaneFunction&>
+{
+    bool operator()( const PlaneFunction& a, const PlaneFunction& b ) {
+        return gaussian_kernel( a )( PSF::Amplitude() ) < gaussian_kernel( b )( PSF::Amplitude() );
+    }
+};
+
+template <>
+void Fitter<plane::negative_poisson_likelihood,PSF::No3D>::apply_z_calibration() {}
+template <>
+void Fitter<plane::squared_deviations,PSF::No3D>::apply_z_calibration() {}
+template <class Metric, class Lambda>
+void Fitter<Metric,Lambda>::apply_z_calibration()
+{
+    typename Evaluators::iterator highest_amp = std::max_element( 
+        evaluators.begin(), evaluators.end(), less_amplitude() );
+    quantity<PSF::MeanZ::Unit> focus_z = gaussian_kernel( *highest_amp )( PSF::MeanZ() );
+    BOOST_FOREACH( PlaneFunction& f, evaluators ) {
+        /* Deviate minimally from the ideal Z position to avoid Z equalities */
+        gaussian_kernel( f )( PSF::ZPosition<0>() ) = focus_z - quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
+        gaussian_kernel( f )( PSF::ZPosition<1>() ) = focus_z + quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
+    }
+}
+
+void set_z_position( traits::Optics& o, const PSF::No3D& ) {}
+void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m ) {
+    o.z_position->x() = quantity<si::length>(m( PSF::ZPosition<0>() ));
+    o.z_position->y() = quantity<si::length>(m( PSF::ZPosition<1>() ));
+}
     
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits ) 
 {
+    if ( z_calibration )
+        apply_z_calibration();
+
     CombinedFunction combiner( table.get_reduction_matrix() );
     combiner.set_fitters( evaluators.begin(), evaluators.end() );
 
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();
     nonlinfit::terminators::StepLimit terminator(300);
-    fitter.fit( combiner, combiner, terminator );
+    fitter.fit( combiner, combiner, 
+        all( nonlinfit::terminators::StepLimit(300), all( print_state(), nonlinfit::terminators::RelativeChange(1E-4) ) ) );
 
+    for (int j = 0; j < traits.plane_count(); ++j) {
+        set_z_position( new_traits.optics(j), result(-1,j) );
+    }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {
             std::cerr << "Have seen no examples of fluorophore " << i << " and left its parameters unchanged." << std::endl;
@@ -392,24 +477,15 @@ create2( const Config& config, const input::Traits< engine::ImageStack >& traits
         return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
 }
 
-/** Helper for FittingVariant::create() that selects an assignment based on 
- *  the number of layers. */
-template <typename Expression>
-std::auto_ptr<FittingVariant>
-create1( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-{
-    return create2< nonlinfit::Bind<Expression, Assignment > >( config, traits, images );
-}
-
 std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     std::auto_ptr<FittingVariant> rv;
     bool has_3d = boost::get< traits::Polynomial3D >( traits.depth_info.get_ptr() ) != NULL;
     if ( has_3d )
-        return create1< PSF::Polynomial3D >( config, traits, images );
+        return create2< PSF::Polynomial3D >( config, traits, images );
     else
-        return create1< PSF::No3D >( config, traits, images );
+        return create2< PSF::No3D >( config, traits, images );
 }
 
 }

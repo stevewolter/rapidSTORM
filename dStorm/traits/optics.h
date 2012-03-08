@@ -42,7 +42,7 @@ struct Optics
     Optics& operator=( const Optics& );
     ~Optics();
 
-    boost::optional< units::quantity< units::si::length > > z_position, offsets[2];
+    boost::optional< PSF > z_position;
     boost::optional<camera_response> photon_response, background_stddev;
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
 

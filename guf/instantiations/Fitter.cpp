@@ -4,6 +4,7 @@
 #include <nonlinfit/AbstractMoveable.h>
 #include <nonlinfit/AbstractTerminator.h>
 #include <nonlinfit/sum/AbstractFunction.h>
+#include <boost/ref.hpp>
 
 namespace nonlinfit {
 namespace levmar {
@@ -13,7 +14,7 @@ template double \
 Fitter::fit<  \
     AbstractFunction< Evaluation<double, Eigen::Dynamic, 9*width> >, \
     AbstractMoveable< Eigen::Matrix<double, Eigen::Dynamic, 1, 0, 9*width, 1> >, \
-    AbstractTerminator<Eigen::Matrix<double, Eigen::Dynamic, 1, 0, 9*width, 1> > > \
+    AbstractTerminator<Eigen::Matrix<double, Eigen::Dynamic, 1, 0, 9*width, 1> >& > \
 (  \
     AbstractFunction< Evaluation<double, Eigen::Dynamic, 9*width> >&, \
     AbstractMoveable< Eigen::Matrix<double, Eigen::Dynamic, 1, 0, 9*width, 1> >&, \

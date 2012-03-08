@@ -19,6 +19,7 @@ struct ConstantBinner
             *target = 1;
             target += stride;
         }
+        return er.size();
     }
     boost::optional<float> bin_point( const Localization& ) const 
         { return 1.0f; }

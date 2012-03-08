@@ -14,7 +14,8 @@ class RelativeChange {
     void matrix_is_unsolvable() {}
     template <typename Position>
     void improved( const Position& current, const Position& shift ) {
-        converged = ( (shift.array().abs() / current.array()).maxCoeff() < limit );
+        double largest_rel_change = (shift.array().abs() / current.array()).maxCoeff();
+        converged = ( largest_rel_change < limit );
     }
     void failed_to_improve( bool ) {}
     bool should_continue_fitting() const { return ! converged; }

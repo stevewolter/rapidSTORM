@@ -8,6 +8,8 @@
 #include <nonlinfit/Evaluator.h>
 #include <boost/units/systems/si/area.hpp>
 #include <boost/units/cmath.hpp>
+#include <boost/mpl/for_each.hpp>
+#include <boost/bind/bind.hpp>
 
 namespace dStorm {
 namespace guf {
@@ -16,6 +18,15 @@ namespace PSF {
 template <typename Model, typename Number, typename P1, typename P2>
 class ReferenceEvaluator ;
 
+struct set_delta_sigma {
+    typedef void result_type;
+    template <typename Number, typename Index>
+    void operator()( Number* x, Number* y, const Polynomial3D& expr, Index ) {
+        x[Index::value] = expr( DeltaSigma<Direction_X,Index::value>() ).value();
+        y[Index::value] = expr( DeltaSigma<Direction_Y,Index::value>() ).value();
+    }
+};
+
 template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <Polynomial3D, Number, P1, P2>
 {
@@ -23,7 +34,7 @@ class ReferenceEvaluator <Polynomial3D, Number, P1, P2>
     Number x, y, x0, y0, s0x, s0y;
     Number A, theta;
     Number pixelarea;
-    Number zx, zy, z0, dzx[5], dzy[5];
+    Number zx, zy, z0, dzx[Polynomial3D::Order+1], dzy[Polynomial3D::Order+1];
     static const Number Pi = M_PI;
   public:
     ReferenceEvaluator( Polynomial3D& expr ) { this->expr = &expr; }
@@ -47,14 +58,8 @@ class ReferenceEvaluator <Polynomial3D, Number, P1, P2>
         zx = (*expr)( ZPosition<0>() ).value();
         zy = (*expr)( ZPosition<1>() ).value();
         z0 = (*expr)( MeanZ() ).value();
-        dzx[1] = (*expr)( DeltaSigma<0,1>() ).value();
-        dzx[2] = (*expr)( DeltaSigma<0,2>() ).value();
-        dzx[3] = (*expr)( DeltaSigma<0,3>() ).value();
-        dzx[4] = (*expr)( DeltaSigma<0,4>() ).value();
-        dzy[1] = (*expr)( DeltaSigma<1,1>() ).value();
-        dzy[2] = (*expr)( DeltaSigma<1,2>() ).value();
-        dzy[3] = (*expr)( DeltaSigma<1,3>() ).value();
-        dzy[4] = (*expr)( DeltaSigma<1,4>() ).value();
+        boost::mpl::for_each< boost::mpl::range_c<int,1,polynomial_3d::Order+1> >
+            ( boost::bind( set_delta_sigma(), dzx,dzy, *expr, _1) );
     }
     void value( Eigen::Array<Number,1,1>& result ) 
         { result.fill(0); add_value(result); }

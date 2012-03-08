@@ -55,8 +55,11 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.position().range().z().second = samplepos::Scalar(+z_range());
     for (int i = 1; i < info.traits.plane_count(); ++i)
     {
-        samplepos::Scalar low = samplepos::Scalar(*info.traits.optics(i).z_position -samplepos::Scalar( z_range())),
-                          high = samplepos::Scalar(*info.traits.optics(i).z_position +samplepos::Scalar(z_range()));
+        quantity<si::length> equifocal = 
+            ( (*info.traits.optics(i).z_position)[0] + 
+              (*info.traits.optics(i).z_position)[1] ) / 2.0f;
+        samplepos::Scalar low = samplepos::Scalar(equifocal -samplepos::Scalar( z_range())),
+                          high = samplepos::Scalar(equifocal +samplepos::Scalar(z_range()));
         traits.position().range().z().first = std::min( low, *traits.position().range().z().first );
         traits.position().range().z().second = std::max( high, *traits.position().range().z().second );
     }

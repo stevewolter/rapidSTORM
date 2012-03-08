@@ -84,7 +84,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
         p.range[0] = p.range[1] = 4 * camera::pixel;
         p.densities = Eigen::MatrixXd::Constant(p.range[0].value()*2+1, p.range[1].value()*2+1, -1);
         Position plane_pos = pos;
-        plane_pos[2] = *o.z_position;
+        plane_pos[2] = o.z_position->x();
         p.pixel = optics.plane(i).projection().nearest_point_in_image_space(plane_pos.head<2>());
 
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 

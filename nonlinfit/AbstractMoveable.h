@@ -36,8 +36,8 @@ struct AbstractMoveableAdapter
     /** Change the variable values of the Lambda to the provided values. */
     void set_position( const Position& p ) { m.set_position(p); }
 
-    typename get_abstract_moveable<Moveable_>::type& abstract() 
-        { return *this; }
+    typedef typename get_abstract_moveable<Moveable_>::type abstract_type;
+    abstract_type& abstract() { return *this; }
 };
 
 template <typename Moveable_>

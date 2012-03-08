@@ -32,7 +32,7 @@ class Fitter {
      *  \return The function value at the minimal position.
      **/
     template <typename Function_, typename Moveable_, typename _Terminator>
-    double fit( Function_& function, Moveable_& moveable, _Terminator& terminator );
+    double fit( Function_& function, Moveable_& moveable, _Terminator terminator );
 };
 
 Fitter::Fitter( const Config& config ) 

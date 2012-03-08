@@ -6,6 +6,7 @@
 #include <boost/units/systems/si/length.hpp>
 #include <boost/variant/variant.hpp>
 #include <Eigen/Core>
+#include <dStorm/polynomial_3d.h>
 
 namespace dStorm {
 namespace traits {
@@ -14,7 +15,7 @@ struct No3D {};
 
 class Polynomial3D {
 public:
-    static const int Order = 4, PrimaryTerm = 2, MinTerm = 1;
+    static const int Order = polynomial_3d::Order, PrimaryTerm = 2, MinTerm = 1;
     typedef boost::units::quantity< boost::units::si::length > FocalDepth;
     typedef boost::units::quantity< boost::units::si::length > WidthSlope;
 private:
