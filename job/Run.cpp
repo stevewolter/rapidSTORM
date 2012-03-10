@@ -67,6 +67,9 @@ Run::Result Run::run() {
     stop_computation();
     DEBUG("Collected threads");
 
+    output.run_finished( output::Output::RunFinished() );
+    if ( restarted ) return Restart;
+
     queue.rethrow_exception();
     return Succeeded;
 }

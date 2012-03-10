@@ -32,6 +32,7 @@ Engine::TraitsPtr Engine::convert_traits( const Input::Traits& p ) {
     prv->in_sequence = true;
     prv->source_image_is_set = true;
     prv->image_number() = p.image_number();
+    prv->input_image_traits.reset( p.clone() );
 
     return prv;
 }

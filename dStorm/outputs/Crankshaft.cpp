@@ -114,5 +114,10 @@ void Crankshaft::prepare_destruction_() {
         (*i)->prepare_destruction();
 }
 
+void Crankshaft::run_finished_( const RunFinished& info ) {
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
+        (*i)->run_finished( info );
+}
+
 }
 }

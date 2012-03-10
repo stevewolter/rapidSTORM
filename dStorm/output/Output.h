@@ -32,6 +32,7 @@ namespace output {
     class Output {
       public:
         struct Announcement;
+        struct RunFinished {};
         typedef Capabilities AdditionalData;
 
         enum RunRequirement {
@@ -54,6 +55,7 @@ namespace output {
             std::string file, std::set<std::string>& present_filenames );
 
         virtual void prepare_destruction_() {}
+        virtual void run_finished_(const RunFinished&) {}
 
       public:
         virtual ~Output() {}
@@ -77,6 +79,7 @@ namespace output {
         virtual void receiveLocalizations(const EngineResult&) = 0;
         virtual void store_results() = 0;
         void prepare_destruction() { prepare_destruction_(); }
+        void run_finished( const RunFinished& i ) { run_finished_(i); }
     };
 
     class OutputObject : public simparm::Object, public Output {

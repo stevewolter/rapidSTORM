@@ -347,7 +347,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
-    outputs/LocalizationFile.h outputs/LocalizationFile.cpp
+    outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
+    outputs/Calibrate3D.h outputs/Calibrate3D.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \

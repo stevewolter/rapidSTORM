@@ -17,6 +17,7 @@ class Crankshaft : public output::OutputObject {
 
     void _add( Output *tm, bool important, bool manage, bool front = false );
     void prepare_destruction_();
+    void run_finished_( const RunFinished& );
 
     /** No copy constructor defined. */
     Crankshaft( const Crankshaft& );

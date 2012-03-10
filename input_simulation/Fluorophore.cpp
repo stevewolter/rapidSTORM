@@ -88,7 +88,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
         p.pixel = optics.plane(i).projection().nearest_point_in_image_space(plane_pos.head<2>());
 
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 
-            << p.pixel.transpose() << "( " << o.projection()->point_in_sample_space(p.pixel) << ")");
+            << p.pixel.transpose());
 
         BesselFunction bessel( optics.plane(i), pos, 
             config.numerical_aperture(), config.refractive_index(),
@@ -96,7 +96,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
             optics.plane(i).projection().pixel_size( p.pixel ) );
 
         const PixelIndex one_pixel = 1 * camera::pixel;
-        double total = 0, delta = 0.75;
+        double total = 0, delta = 0.80;
         BesselFunction::Subpixel to_detect;
 
         while ( true /* until total area under PSF has been increased by less than delta */ ) {
@@ -114,7 +114,7 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
             //DEBUG( std::setprecision(10) << "Total increased to " << total );
             
             DEBUG("Integration yielded " << total << " of " << complete_bessel_integral_value);
-            if ( total >= delta * complete_bessel_integral_value || p.range[0] >= 13 * camera::pixel )
+            if ( total >= delta * complete_bessel_integral_value || p.range[0] >= 20 * camera::pixel )
                 break;
             else {
                 /* Extend by one pixel */

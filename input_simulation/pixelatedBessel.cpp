@@ -56,7 +56,7 @@ BesselFunction::BesselFunction(
 }
 
 /* PSF computation done with Dusch et al, Journal of Microscopy 2007, Vol. 228 pg. 132, Eq. 4.
- * Added a 2 PI hack to the distance because it was necessary to yield sensible widths. */
+ * Added a 2 PI hack because it was necessary to yield sensible widths. */
 
 template <bool imag_part>
 double BesselFunction::theta_callback(double theta, void *params) 
