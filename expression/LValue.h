@@ -22,31 +22,13 @@ struct LValue {
     virtual void announce( const variable_table&, input::Traits<Localization>& ) const = 0;
 };
 
-struct ExpressionBasedLValue : public LValue {
+class ExpressionBasedLValue : public LValue {
+protected:
     mutable tree_node original, simple;
     ExpressionBasedLValue( const tree_node& expression, const tree_node& def_simple ) : original(expression), simple(def_simple) {}
 
     void simplify( const variable_table&, const input::Traits<Localization>& ) const;
     void evaluate( const variable_table&, iterator begin, iterator end, EvaluationResult* result ) const;
-};
-
-struct Filter : public ExpressionBasedLValue {
-    Filter( const tree_node& expression ) : ExpressionBasedLValue(expression, true) {}
-    LValue* clone() const { return new Filter(*this); }
-    void announce( const variable_table& vt, input::Traits<Localization>& t ) const { simplify(vt, t); }
-    iterator evaluate( const variable_table&, const input::Traits<Localization>& bounds,
-                  iterator, iterator ) const;
-};
-
-struct Assignment : public ExpressionBasedLValue {
-    boost::shared_ptr<variable> v;
-
-    Assignment( const variable& v,  const tree_node& expression );
-    Assignment* clone() const { return new Assignment(*this); }
-    
-    void announce( const variable_table& vt, input::Traits<Localization>& t ) const;
-    iterator evaluate( const variable_table&, const input::Traits<Localization>& bounds,
-                  iterator, iterator ) const;
 };
 
 }

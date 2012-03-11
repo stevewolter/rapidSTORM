@@ -325,7 +325,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/Config.h  expression/Config_decl.h \
     expression/Source.h  expression/Source_decl.h \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
-    expression/Expression.cpp expression/Expression.h \
     expression/localization_variable.cpp expression/localization_variable_decl.h \
     expression/localization_variable.h expression/localization_variable_impl.h \
     expression/Parser.cpp expression/Parser.h expression/Parser_impl.h \
@@ -334,8 +333,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/types.cpp expression/types.h expression/types_decl.h \
     expression/UnitTable.cpp expression/UnitTable.h expression/UnitTable_impl.h \
     expression/Config.cpp expression/Source.cpp \
-    expression/CommandLine.h expression/Source_filters.h \
+    expression/CommandLine.h expression/CommandLine.cpp \
+    expression/LValue.h expression/LValue.cpp \
     expression/SimpleFilters.h expression/SimpleFilters.cpp \
+    expression/VariableLValue.h expression/VariableLValue.cpp \
+    expression/Filter.h expression/Filter.cpp \
     expression/unit_test.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \

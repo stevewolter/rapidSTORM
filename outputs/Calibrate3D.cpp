@@ -18,6 +18,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/count.hpp>
 #include <boost/foreach.hpp>
+#include "expression/Filter.h"
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -28,19 +29,23 @@ std::ostream& operator<<( std::ostream& o, const gsl_vector& v ) {
     return o;
 }
 
-struct Config_ : public simparm::Object {
-        Config_();
-        void registerNamedEntries();
+class Config_ : public simparm::Object {
+    simparm::Entry<std::string> filter;
+public:
+    Config_();
+    void registerNamedEntries();
     bool can_work_with(output::Capabilities cap) 
         { return cap.test( output::Capabilities::SourceImage ); }
 };
 
 Config_::Config_()
-:   simparm::Object("Calibrate3D", "Calibrate 3D on known data")
+: simparm::Object("Calibrate3D", "Calibrate 3D on known data"),
+  filter("3DFilter", "Filter expression for usable spots")
 {
 }
 
 void Config_::registerNamedEntries() {
+    push_back( filter );
 }
 
 class Output : public output::OutputObject {

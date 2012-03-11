@@ -42,12 +42,6 @@ struct expression_parser : qi::grammar<Iterator, tree_node(), ascii::space_type>
     qi::rule<Iterator, tree_node(), ascii::space_type> unit, number, atom, atoms,
         power, product, sum, choice, boolean, comparison, negated, anded, ored, numeric;
 
-#if 0
-    qi::rule<Iterator, double()> si_prefix;
-    qi::rule<Iterator, ascii::space_type> unit_p, number_with_unit;
-    qi::rule<Iterator, ascii::space_type> op, start, factor, term, and_expression, or_expression, comparison,
-                                            not_expression, function, boolean, number;
-#endif
 };
 
 }
