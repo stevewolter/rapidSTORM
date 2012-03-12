@@ -22,7 +22,8 @@ class Simplifier : public boost::static_visitor< tree_node >
     }
 
     bool is_static( const tree_node& t ) {
-        return boost::get<DynamicQuantity>(&t) || boost::get<bool>(&t);
+        bool rv = boost::get<DynamicQuantity>(&t) || boost::get<bool>(&t);
+        return rv;
     }
 
   public:
@@ -31,8 +32,11 @@ class Simplifier : public boost::static_visitor< tree_node >
     tree_node operator()( const DynamicQuantity& d ) { return d; }
     tree_node operator()( const bool d ) { return d; }
     tree_node operator()( const variable_table_index i ) { 
-        const variable& d = variables[i];
-        if ( d.is_static(traits) ) return d.get(traits); else return i;
+        const Variable& d = variables[i];
+        if ( d.is_static(traits) ) 
+            return d.get(traits); 
+        else 
+            return i;
     }
     template <typename Operator>
     typename boost::enable_if< boost::is_base_of<tokens::trinary_op, Operator>, tree_node >::type

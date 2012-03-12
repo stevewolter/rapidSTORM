@@ -350,7 +350,9 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
-    outputs/Calibrate3D.h outputs/Calibrate3D.cpp
+    outputs/Calibrate3D.h outputs/Calibrate3D.cpp \
+    outputs/calibrate_3d/Config.h outputs/calibrate_3d/Config.cpp \
+    outputs/calibrate_3d/ParameterLinearizer.h outputs/calibrate_3d/ParameterLinearizer.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \

@@ -11,11 +11,11 @@
 
 namespace dStorm {
 namespace expression {
+class Parser;
+
 namespace config {
 
 struct LValue : public simparm::Object {
-    typedef parser::expression_parser< std::string::const_iterator > Parser;
-
     LValue( const std::string& name, const std::string& desc ) : simparm::Object(name, desc) {}
     virtual ~LValue() {}
     LValue* clone() const = 0;
@@ -32,7 +32,7 @@ struct ExpressionManager {
 };
 
 struct CommandLine : public simparm::Object, public simparm::Listener {
-    CommandLine( std::string node_ident, boost::shared_ptr<variable_table> );
+    CommandLine( std::string node_ident, boost::shared_ptr<Parser> );
     CommandLine(const CommandLine&);
     CommandLine* clone() const { return new CommandLine(*this); }
     ~CommandLine();
@@ -45,14 +45,12 @@ struct CommandLine : public simparm::Object, public simparm::Listener {
     template <int Field>
     struct Instantiator;
 
-    void init_parser_symbol_table();
     void registerNamedEntries();
 
     typedef simparm::NodeChoiceEntry< LValue > LValues;
     LValues lvalue;
     simparm::StringEntry expression;
-    LValue::Parser parser;
-    boost::shared_ptr< boost::ptr_vector<variable> > variables;
+    boost::shared_ptr<Parser> parser;
     ExpressionManager* manager;
 
     void operator()( const simparm::Event& );

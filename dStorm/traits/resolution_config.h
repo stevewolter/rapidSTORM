@@ -76,7 +76,6 @@ class Config : public simparm::Object {
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
-
 }
 }
 }

@@ -27,18 +27,19 @@ struct TraitValueFinder {
 
     template <int Dim, typename Structure>
     void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
-        { m(p) = (*psf)[Dim]; }
+        { m(p) = quantity< typename PSF::Micrometers >((*psf)[Dim]); }
     template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
         if ( is_3d )
-            m(p) = boost::get<traits::Polynomial3D>(*info.traits.depth_info)
-                .get_slope( static_cast<dStorm::Direction>(Dim), Term );
+            m(p) = quantity< typename PSF::Micrometers >(
+                boost::get<traits::Polynomial3D>(*info.traits.depth_info)
+                    .get_slope( static_cast<dStorm::Direction>(Dim), Term ) );
     }
 
     template <int Dim, typename Structure>
     void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
         if ( is_3d )
-            m( p ) = (*plane.z_position)[Dim];
+            m( p ) = quantity< typename PSF::ZPosition<Dim>::Unit >((*plane.z_position)[Dim]);
     }
 
     template <typename Structure>

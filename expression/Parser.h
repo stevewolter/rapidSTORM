@@ -1,50 +1,29 @@
 #ifndef DSTORM_EXPRESSION_PARSER_H
 #define DSTORM_EXPRESSION_PARSER_H
 
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/include/begin.hpp>
-#include <boost/fusion/include/io.hpp>
-#include <boost/fusion/include/vector.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/qi.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-
-#include <iostream>
-#include <string>
-#include <complex>
-#include <map>
-#include <cassert>
-
-#include "types.h"
-#include "UnitTable.h"
+#include <memory>
 
 namespace dStorm {
 namespace expression {
-namespace parser {
 
-namespace qi = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
-namespace fsn = boost::fusion;
+class AbstractSyntaxTree;
+class VariableTable;
+class Variable;
 
-template <typename Iterator>
-struct expression_parser : qi::grammar<Iterator, tree_node(), ascii::space_type>
-{
-   expression_parser();
+class Parser {
+    struct Pimpl;
+    boost::shared_ptr<Pimpl> pimpl;
+public:
+    Parser();
+    boost::shared_ptr<AbstractSyntaxTree> parse_boolean( const std::string& ) const;
+    boost::shared_ptr<AbstractSyntaxTree> parse_numeric( const std::string& ) const;
 
-    UnitTable units;
-    const SIPrefixTable prefixes;
-    qi::symbols<char, variable_table_index> symbols;
-    qi::rule<Iterator, double(), ascii::space_type> exponent;
-    qi::rule<Iterator, tree_node(), ascii::space_type> unit, number, atom, atoms,
-        power, product, sum, choice, boolean, comparison, negated, anded, ored, numeric;
-
+    VariableTable& get_variable_table();
+    const VariableTable& get_variable_table() const;
+    void add_variable( std::auto_ptr<Variable> );
 };
 
-}
 }
 }
 

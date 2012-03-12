@@ -21,6 +21,12 @@ public:
     static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = MaxPlaneCount;
 };
 
+class UnboundedPolicy {
+public:
+    static const bool VariablesAreDropped = false;
+    static const int PlaneCount = Eigen::Dynamic, PlaneCountMax = Eigen::Dynamic;
+};
+
 /** A function representing the sum of a dynamic number of equal-type functions.
  *
  *  This class implements a dynamically sized abstract function by summing 
@@ -33,8 +39,8 @@ public:
  */
 template <
     typename _Function,
-    typename _Moveable,
-    typename Policy >
+    typename _Moveable = _Function,
+    typename Policy = UnboundedPolicy >
 class AbstractFunction
 {
     static const int InputVarC = _Function::Derivatives::VariableCount;

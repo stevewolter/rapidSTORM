@@ -4,7 +4,10 @@
 namespace dStorm {
 namespace polynomial_3d {
 
-static const int FirstTerm = 1, Order = 4, LastTerm = Order;
+typedef int Term;
+static const Term FirstTerm = 1, Order = 4, LastTerm = Order, Quadratic = 2;
+
+inline int offset( Term t ) { return t - FirstTerm; }
 
 }
 }

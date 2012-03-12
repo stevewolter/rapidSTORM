@@ -176,29 +176,8 @@ void Output::do_the_fit() {
     fitter->fit(*new_traits);
 
     result_config.read_traits( *new_traits );
-    if ( ! this->isActive() ) {
-            std::cerr << "Auto-guessed PSF has";
-            if ( traits::Polynomial3D* p = boost::get< traits::Polynomial3D >(new_traits->depth_info.get_ptr()) ) {
-                std::cerr << " X focus depths " ;
-                for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
-                    std::cerr << 1.0 / p->get_slope(Direction_X, j) << " ";
-                std::cerr << " and Y focus depth " ;
-                for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
-                    std::cerr << 1.0 / p->get_slope(Direction_Y, j) << " ";
-                for ( int j = 0; j < new_traits->plane_count(); ++j) {
-                    std::cerr << " and focus planes " << new_traits->optics(j).z_position->transpose();
-                }
-            } else
-                std::cerr << " no 3D information";
-            for ( size_t i = 0; i < new_traits->fluorophores.size(); ++i )
-            {
-                for ( int j = 0; j < new_traits->plane_count(); ++j)
-                    std::cerr << ", fluorophore " << i << " in plane " << j << 
-                                 " has PSF FWHM " 
-                            << from_value<si::length>( value( new_traits->optics(j).psf_size(i)->transpose() ) * 2.35 ) << " transmission " << new_traits->optics(j).transmission_coefficient(i);
-            }
-            std::cerr << std::endl;
-    }
+    if ( ! this->isActive() )
+        new_traits->print_psf_info( std::cerr << "Auto-guessed PSF has " ) << std::endl;
 
     DEBUG("Signalling restart");
     engine->change_input_traits( std::auto_ptr< input::BaseTraits >(new_traits.release()) );

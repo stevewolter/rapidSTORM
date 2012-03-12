@@ -89,13 +89,12 @@ class TwoKernelImprovement : public source::LValue {
     bool operator()( const Localization& l ) { return l.two_kernel_improvement() > value; }
 };
 
-SimpleFilters::SimpleFilters( boost::shared_ptr<variable_table> variables )
+SimpleFilters::SimpleFilters()
 : simparm::Listener(simparm::Event::ValueChanged),
   manager(NULL), 
   lower_amplitude("LowerAmplitudeThreshold", "Minimum localization strength") ,
   drift_correction("LinearDriftCorrection", "Linear drift correction"),
-  two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1),
-  variables(variables)
+  two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1)
 {
     two_kernel_improvement.min  = 0;
     two_kernel_improvement.max  = 1;
@@ -111,8 +110,7 @@ SimpleFilters::SimpleFilters( const SimpleFilters& o )
   manager(o.manager), 
   lower_amplitude(o.lower_amplitude) ,
   drift_correction(o.drift_correction),
-  two_kernel_improvement(o.two_kernel_improvement),
-  variables(o.variables)
+  two_kernel_improvement(o.two_kernel_improvement)
 {
     receive_changes_from( lower_amplitude.value );
     receive_changes_from( drift_correction.value );

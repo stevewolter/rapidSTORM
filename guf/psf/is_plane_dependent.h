@@ -11,12 +11,12 @@ namespace PSF {
 
 class is_plane_independent 
 {
-    bool laempi, disamp;
+    bool laempi, disamp, universal_best_sigma;
   public:
     typedef bool result_type;
 
-    is_plane_independent( bool disjunct_means, bool disjunct_amplitudes )
-        : laempi( disjunct_means ), disamp( disjunct_amplitudes ) {}
+    is_plane_independent( bool disjunct_means, bool disjunct_amplitudes, bool universal_best_sigma = false )
+        : laempi( disjunct_means ), disamp( disjunct_amplitudes ), universal_best_sigma( universal_best_sigma ) {}
 
     template <int Dim>
     bool operator()( Mean<Dim> ) { return !laempi; }
@@ -24,7 +24,9 @@ class is_plane_independent
     bool operator()( Prefactor ) { return false; }
     bool operator()( constant_background::Amount ) { return false; }
     template <int Dim>
-    bool operator()( BestSigma<Dim> ) { return false; }
+    bool operator()( BestSigma<Dim> ) { return universal_best_sigma; }
+    template <int Dim>
+    bool operator()( ZPosition<Dim> ) { return false; }
 
     template <class SubFunction, typename Base>
     bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }

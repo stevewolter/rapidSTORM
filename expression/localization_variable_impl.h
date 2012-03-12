@@ -12,13 +12,6 @@ namespace dStorm {
 namespace expression {
 
 template <typename Type>
-struct optional_removed {
-    typedef Type type; 
-};
-template <typename Type>
-struct optional_removed< boost::optional<Type> > { typedef Type type; };
-
-template <typename Type>
 Type& deref_optional( Type& t ) { return t; }
 template <typename Type>
 const Type& deref_optional( const Type& t ) { return t; }
@@ -28,68 +21,46 @@ template <typename Type>
 Type& deref_optional( boost::optional<Type>& t ) { return *t; }
 
 template <int Field, typename Tag>
-Variable<Field,Tag>::Variable(const Scalar& s )
-: variable( name( s ) ), scalar(s)
+LocalizationVariable<Field,Tag>::LocalizationVariable(const Scalar& s )
+: Variable( name( s ) ), scalar(s)
 {
-    std::string symbol = boost::units::symbol_string( typename Scalar::value_type::unit_type() );
-    boost_units_unit_parser< std::string::const_iterator > parser;
-    std::string::const_iterator begin = symbol.begin(), end = symbol.end();
-
-    double result;
-
-    bool success = boost::spirit::qi::phrase_parse(begin, end, parser, boost::spirit::ascii::space, result);
-    assert( success && begin == end );
-
-    unit = parser.result;
-    scale = result;
 }
 
 template <int Field, typename Tag>
-bool Variable<Field,Tag>::is_static( const input::Traits<Localization>& traits ) const
+bool LocalizationVariable<Field,Tag>::is_static( const input::Traits<Localization>& traits ) const
 {
     return ! ( TaggedTraits::in_localization );
 }
 
 template <int Field, typename Tag>
-DynamicQuantity Variable<Field,Tag>::get( const input::Traits<Localization>& traits ) const
+DynamicQuantity LocalizationVariable<Field,Tag>::get( const input::Traits<Localization>& traits ) const
 {
     if ( TaggedTraits::in_traits ) {
-        double rv = scale * deref_optional(scalar.template get<Tag>( traits )).value();
-        return DynamicQuantity(rv, unit);
+        return dynamizer( deref_optional(scalar.template get<Tag>( traits )) );
     } else {
         if ( Tag::is_given_tag::template in<TraitsType>::in_traits &&
              ! scalar.template get<typename Tag::is_given_tag>( traits ) )
-            throw std::runtime_error("Tried to read variable " + this->variable::name + ", but it is not defined.");
+            throw std::runtime_error("Tried to read variable " + this->Variable::name + ", but it is not defined.");
         else
-            return DynamicQuantity( std::numeric_limits<double>::quiet_NaN(), unit );
+            return dynamizer.from_value( std::numeric_limits<double>::quiet_NaN() );
     }
 }
 
 template <int Field, typename Tag>
-DynamicQuantity Variable<Field,Tag>::get( const Localization& l ) const
+DynamicQuantity LocalizationVariable<Field,Tag>::get( const Localization& l ) const
 {
     if ( TaggedTraits::in_localization ) {
-        double rv = scale * deref_optional(scalar.template get_field<Tag,Field>( l )).value();
-        return DynamicQuantity(rv, unit);
+        return dynamizer( deref_optional(scalar.template get_field<Tag,Field>( l )) );
     } else {
-        throw std::logic_error("The variable " + this->variable::name + " is not defined in a localization");
+        throw std::logic_error("The variable " + this->Variable::name + " is not defined in a localization");
     }
 }
 
 template <int Field, typename Tag>
-void Variable<Field,Tag>::set( input::Traits<Localization>& traits, const DynamicQuantity& to ) const
+void LocalizationVariable<Field,Tag>::set( input::Traits<Localization>& traits, const DynamicQuantity& to ) const
 {
     if ( TaggedTraits::in_traits ) {
-        if ( unit != boost::fusion::at_c<1>(to) ) {
-            std::stringstream e;
-            e << "The variable " << variable::name << " has dimension " << unit << 
-                 ", but is assigned from a quantity with dimension " << to.unit;
-            throw std::runtime_error(e.str());
-        }
-        typedef typename optional_removed<typename Scalar::template result_of<Tag>::set>::type my_quantity;
-        scalar.template set<Tag>( traits ) 
-            = my_quantity::from_value( static_cast<typename my_quantity::value_type>(
-                boost::fusion::at_c<0>(to) / scale ) );
+        scalar.template set<Tag>( traits ) = dynamizer( to );
     } else if ( Tag::is_given_tag::template in<TraitsType>::in_traits ) {
         scalar.template set<typename Tag::is_given_tag>( traits ) = true;
     }
@@ -124,21 +95,12 @@ struct out_of_range<Field, traits::max_tag, traits::value_tag> {
 
 
 template <int Field, typename Tag>
-bool Variable<Field,Tag>::set( const input::Traits<Localization>& context,
+bool LocalizationVariable<Field,Tag>::set( const input::Traits<Localization>& context,
     Localization& l, const DynamicQuantity& to ) const
 {
     bool good = true;
     if ( TaggedTraits::in_localization ) {
-        if ( unit != to.unit ) {
-            std::stringstream e;
-            e << "The variable " << variable::name << " has dimension " << unit << 
-                 ", but is assigned from a quantity with dimension " << to.unit;
-            throw std::runtime_error(e.str());
-        }
-        typedef typename optional_removed<typename Scalar::template result_of<Tag>::set>::type my_quantity;
-        scalar.template set_field<Tag,Field>( l ) 
-            = my_quantity::from_value( static_cast<typename my_quantity::value_type>(
-                boost::fusion::at_c<0>(to) / scale ) );
+        scalar.template set_field<Tag,Field>( l ) = dynamizer( to );
     }
     good = good && ! out_of_range<Field, traits::min_tag, Tag>( scalar, context )(l);
     good = good && ! out_of_range<Field, traits::max_tag, Tag>( scalar, context )(l);
@@ -147,7 +109,7 @@ bool Variable<Field,Tag>::set( const input::Traits<Localization>& context,
 }
 
 template <int Field, typename Tag>
-std::string Variable<Field,Tag>::name(const Scalar& s) 
+std::string LocalizationVariable<Field,Tag>::name(const Scalar& s) 
 {
     return s.template shorthand< Tag >();
 }

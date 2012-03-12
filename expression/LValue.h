@@ -25,7 +25,8 @@ struct LValue {
 class ExpressionBasedLValue : public LValue {
 protected:
     mutable tree_node original, simple;
-    ExpressionBasedLValue( const tree_node& expression, const tree_node& def_simple ) : original(expression), simple(def_simple) {}
+    ExpressionBasedLValue( const tree_node& expression, 
+                           const tree_node& def_simple ) : original(expression), simple(def_simple) {}
 
     void simplify( const variable_table&, const input::Traits<Localization>& ) const;
     void evaluate( const variable_table&, iterator begin, iterator end, EvaluationResult* result ) const;

@@ -57,13 +57,17 @@ struct print_state {
         bool should_continue_fitting() const { return true; }
 };
 
-struct vanishes_when_circular
+class vanishes_when_circular
 {
+    const Config& config;
+public:
+    vanishes_when_circular( const Config& config ) : config(config) {}
     typedef bool result_type;
 
-    bool operator()( PSF::BestSigma<1> ) { return true; }
+    bool operator()( PSF::ZPosition<1> ) { return ! config.astigmatism(); }
+    bool operator()( PSF::BestSigma<1> ) { return config.symmetric(); }
     template <int Term>
-    bool operator()( PSF::DeltaSigma<1,Term> ) { return true; }
+    bool operator()( PSF::DeltaSigma<1,Term> ) { return config.symmetric(); }
 
     template <class SubFunction, typename Base>
     bool operator()( nonlinfit::TermParameter<SubFunction,Base> ) { return operator()(Base()); }
@@ -168,7 +172,7 @@ public:
     bool operator()( guf::PSF::ZPosition<Dim> ) { return ! is_calibrated; }
     bool operator()( guf::PSF::MeanZ ) { return is_calibrated; }
     template <int Dim, int Term>
-    bool operator()( PSF::DeltaSigma<Dim,Term> ) { return ! (*config.z_terms[Term-1])(); }
+    bool operator()( PSF::DeltaSigma<Dim,Term> ) { return ! config.fit_z_term(static_cast<Direction>(Dim), Term); }
     bool operator()( PSF::Prefactor ) { return ! multiplane; }
 
     template <typename Parameter>
@@ -183,12 +187,11 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
     positional = make_bitset( Variables(), is_positional() );
     assert( positional.any() );
     layer_dependent = make_bitset( Variables(), 
-        guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes()) );
+        guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma()) );
     layer_dependent.flip();
     fluorophore_dependent = make_bitset( Variables(), guf::PSF::is_fluorophore_dependent() );
-    merged = make_bitset( Variables(), vanishes_when_circular() );
+    merged = make_bitset( Variables(), vanishes_when_circular(config) );
     constant = make_bitset( Variables(), constant_parameter( traits.plane_count() > 1, config ) );
-    if ( ! config.circular_psf() ) merged.reset();
 }
 
 template <typename Lambda>

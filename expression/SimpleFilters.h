@@ -17,7 +17,7 @@ namespace expression {
 struct SimpleFilters 
 : public simparm::Listener
 {
-    SimpleFilters( boost::shared_ptr<variable_table> variables );
+    SimpleFilters();
     SimpleFilters(const SimpleFilters&);
     void set_manager( config::ExpressionManager * manager );
     void set_visibility( const input::Traits<Localization>& );
@@ -33,7 +33,6 @@ struct SimpleFilters
     simparm::Entry< boost::optional< Eigen::Matrix< boost::units::quantity<ShiftSpeed,float>, 3, 1, Eigen::DontAlign> > >
         drift_correction;
     simparm::Entry< float > two_kernel_improvement;
-    boost::shared_ptr<variable_table> variables;
     void operator()(const simparm::Event&);
     void publish_amp();
     void publish_drift_correction();

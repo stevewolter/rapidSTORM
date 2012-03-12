@@ -16,7 +16,7 @@ struct SIPrefixTable : public boost::spirit::qi::symbols<char, double>
          ("f", 1E-15)
          ("p", 1E-12)
          ("n", 1E-9)
-         ("µ", 1E-6)
+         ("u", 1E-6)
          ("m", 1E-3)
          ("c", 1E-2)
          ("d", 1E-1)

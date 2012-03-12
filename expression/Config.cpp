@@ -3,7 +3,6 @@
 #include "LValue.h"
 #include "Parser.h"
 #include "CommandLine.h"
-#include "localization_variable_decl.h"
 #include <dStorm/Localization.h>
 #include <dStorm/localization/Traits.h>
 #include <simparm/Entry.hh>
@@ -19,8 +18,7 @@ namespace expression {
 Config::Config() 
 : simparm::Object("Expression", "Expression filter"),
   simparm::Listener( simparm::Event::ValueChanged ),
-  variables( variables_for_localization_fields() ),
-  simple( variables ),
+  parser( new Parser() ),
   new_line("NewExpression", "Add expression"),
   next_ident(0)
 { 
@@ -32,7 +30,7 @@ Config::Config()
 Config::Config(const Config& o) 
 : simparm::Object(o),
   simparm::Listener( simparm::Event::ValueChanged ),
-  variables(o.variables), simple(o.simple),
+  parser(o.parser), 
   lines(o.lines), new_line(o.new_line), next_ident(o.next_ident)
 { 
     registerNamedEntries(); 
@@ -58,7 +56,7 @@ void Config::operator()(const simparm::Event& e)
         std::stringstream ident;
         ident << next_ident++;
         new_line.untrigger();
-        lines.push_back( new config::CommandLine(ident.str(), variables) );
+        lines.push_back( new config::CommandLine(ident.str(), parser) );
         push_back( lines.back() );
     }
 }

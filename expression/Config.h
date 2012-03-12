@@ -8,12 +8,13 @@
 #include <boost/units/systems/camera/intensity.hpp>
 #include "Config_decl.h"
 #include "CommandLine.h"
-#include "types.h"
 #include <dStorm/output/Capabilities.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
 namespace expression {
+
+class Parser;
 
 struct Config : public simparm::Object, public simparm::Listener, public config::ExpressionManager
 {
@@ -30,7 +31,7 @@ struct Config : public simparm::Object, public simparm::Listener, public config:
 
     friend class Source;
 
-    boost::shared_ptr< variable_table > variables;
+    boost::shared_ptr<Parser> parser;
     SimpleFilters simple;
     typedef boost::ptr_vector< config::CommandLine > Lines;
     Lines lines;

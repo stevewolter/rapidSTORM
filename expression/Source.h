@@ -28,7 +28,7 @@ class Source
     SimpleFilters simple_filters;
     boost::ptr_vector< boost::nullable< source::LValue > > expressions;
     std::map< std::string, int > expression_map;
-    boost::shared_ptr< variable_table > variables;
+    boost::shared_ptr< Parser > parser;
     Engine* repeater;
     boost::optional<Announcement> my_announcement;
 

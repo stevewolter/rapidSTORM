@@ -53,6 +53,8 @@ public:
     Traits();
     Traits( const image::MetaInfo<2>& );
 
+    std::ostream& print_psf_info( std::ostream& ) const;
+
 private:
     std::vector< engine::InputPlane > planes_;
     traits::ImageNumber in;

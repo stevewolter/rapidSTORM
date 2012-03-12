@@ -20,7 +20,7 @@ Source::Source( const Config& config, std::auto_ptr<output::Output> downstream )
   Object("Expression", "Expression") ,
   command_lines( config.lines ),
   simple_filters( config.simple ),
-  variables( config.variables ),
+  parser( config.parser ),
   repeater( NULL )
 {
     registerNamedEntries();
@@ -31,7 +31,7 @@ Source::Source( const Source& o )
   command_lines( o.command_lines ),
   simple_filters( o.simple_filters ),
   expressions(),
-  variables( o.variables ),
+  parser( o.parser ),
   repeater(o.repeater)
 {
     registerNamedEntries();
@@ -59,7 +59,7 @@ Source::AdditionalData Source::announceStormSize(const Announcement& a)
     simple_filters.set_visibility(a);
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i ) 
         if ( &*i != NULL )
-            i->announce(*variables, *my_announcement);
+            i->announce(parser->get_variable_table(), *my_announcement);
     return Filter::announceStormSize(*my_announcement);
 }
 
@@ -70,7 +70,7 @@ void Source::receiveLocalizations(const EngineResult& er)
     EngineResult::iterator end = rv.end();
     for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i )  {
         if ( &*i ) {
-            end = i->evaluate( *variables, *my_announcement, rv.begin(), end );
+            end = i->evaluate( parser->get_variable_table(), *my_announcement, rv.begin(), end );
         }
     }
     rv.erase( end, rv.end() );
@@ -89,7 +89,7 @@ void Source::expression_changed( std::string ident, std::auto_ptr<source::LValue
     }
 
     if ( expression.get() && my_announcement.is_initialized() )
-        expression->announce( *variables, *my_announcement );
+        expression->announce( parser->get_variable_table(), *my_announcement );
     expressions.replace(i->second, expression);
 
     if ( repeater && repeater->can_repeat_results() ) repeater->repeat_results();

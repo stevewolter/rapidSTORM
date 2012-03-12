@@ -9,13 +9,13 @@ namespace expression {
 
 template <int Field>
 struct FieldAdder : public FieldAdder<Field+1> {
-    boost::ptr_vector<variable>& target;
-    FieldAdder( boost::ptr_vector<variable>& target )
+    boost::ptr_vector<Variable>& target;
+    FieldAdder( boost::ptr_vector<Variable>& target )
         : FieldAdder<Field+1>(target), target(target) {}
 
     template <typename Tag>
     void operator()(const Tag&) const {
-        typedef Variable<Field,Tag> Target;
+        typedef LocalizationVariable<Field,Tag> Target;
         typedef typename Target::Scalar Scalar;
         for ( typename Scalar::Iterator i = Scalar::begin(); i != Scalar::end(); ++i )
             target.push_back( new Target(*i) );
@@ -29,13 +29,13 @@ struct FieldAdder : public FieldAdder<Field+1> {
 
 template <>
 struct FieldAdder<Localization::Fields::Count> {
-    FieldAdder( boost::ptr_vector<variable>& ) {}
+    FieldAdder( boost::ptr_vector<Variable>& ) {}
     void add_variables_for_field() const {}
 };
 
-std::auto_ptr< boost::ptr_vector<variable> >
+std::auto_ptr< boost::ptr_vector<Variable> >
 variables_for_localization_fields() {
-    boost::ptr_vector<variable> rv;
+    boost::ptr_vector<Variable> rv;
     FieldAdder<0>(rv).add_variables_for_field();
     return rv.release();
 }
@@ -46,7 +46,7 @@ void check_localization_variable( TestState& state ) {
 
     loc.position().x() = 15 * boost::units::si::meter;
 
-    Variable<0,dStorm::traits::value_tag> v( dStorm::traits::Scalar< dStorm::traits::Position >(0,0) );
+    LocalizationVariable<0,dStorm::traits::value_tag> v( dStorm::traits::Scalar< dStorm::traits::Position >(0,0) );
 
     try {
         v.get(traits);

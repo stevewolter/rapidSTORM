@@ -3,12 +3,12 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <memory>
-#include "types_decl.h"
+#include "Variable.h"
 
 namespace dStorm {
 namespace expression {
 
-std::auto_ptr< boost::ptr_vector<variable> >
+std::auto_ptr< boost::ptr_vector<Variable> >
     variables_for_localization_fields();
 
 }
