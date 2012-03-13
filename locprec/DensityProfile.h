@@ -33,6 +33,15 @@ class DensityProfile : public dStorm::output::OutputObject {
             { binSize.min = (1E-5); userLevel = Expert; }
         bool can_work_with( dStorm::output::Capabilities ) {return true;}
     };
+
+    void store_results_( bool success ) {
+        for ( int i = neg_counts.size()-1; i >= 0; i--)
+            std::cout << (-i-1)*binSize << " " 
+                        << neg_counts[i] << "\n";
+        for ( unsigned int i = 0; i < pos_counts.size(); i++)
+            std::cout << i * binSize << " " << pos_counts[i] << "\n";
+    }
+
   public:
     typedef simparm::Structure<_Config> Config;
     typedef dStorm::output::OutputBuilder<DensityProfile> Source;
@@ -51,13 +60,6 @@ class DensityProfile : public dStorm::output::OutputObject {
         pos_counts.clear();
         neg_counts.clear();
         return RunRequirements(); 
-    }
-    void store_results() {
-        for ( int i = neg_counts.size()-1; i >= 0; i--)
-            std::cout << (-i-1)*binSize << " " 
-                        << neg_counts[i] << "\n";
-        for ( unsigned int i = 0; i < pos_counts.size(); i++)
-            std::cout << i * binSize << " " << pos_counts[i] << "\n";
     }
     void receiveLocalizations(const EngineResult &er) 
     {

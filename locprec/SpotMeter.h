@@ -33,6 +33,13 @@ namespace locprec {
             bool can_work_with( dStorm::output::Capabilities )
                 {return true;}
         };
+        void store_results_( bool success ) {
+            if ( success ) {
+                for (CountMap::iterator i = countMap.begin(); 
+                                        i != countMap.end(); i++)
+                    to << i->first << " " << i->second << "\n";
+            }
+        }
 
       public:
         typedef simparm::VirtualStructure<_Config> Config;
@@ -56,11 +63,6 @@ namespace locprec {
                 double realAmp = i->amplitude() / camera::ad_count;
                 countMap[ int(realAmp / binSize) * binSize ]++;
             }
-        }
-        void store_results() {
-            for (CountMap::iterator i = countMap.begin(); 
-                                    i != countMap.end(); i++)
-                to << i->first << " " << i->second << "\n";
         }
     };
 

@@ -22,6 +22,7 @@ class AverageImage : public OutputObject {
     image::MetaInfo<2>::Resolutions resolution;
 
     class _Config;
+    void store_results_( bool success );
   public:
     typedef simparm::Structure<_Config> Config;
     typedef FileOutputBuilder<AverageImage> Source;
@@ -33,7 +34,6 @@ class AverageImage : public OutputObject {
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement&); 
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 
     const char *getName() { return "AverageImage"; }
 

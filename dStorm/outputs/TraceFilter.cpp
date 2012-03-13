@@ -71,10 +71,10 @@ TraceCountFilter::announceStormSize(const Announcement &a)
     return output->announceStormSize(a).set_cluster_sources();
 }
 
-void TraceCountFilter::store_results() { 
+void TraceCountFilter::store_results_( bool success ) { 
     if ( selectSpecific() )
         whichSpecific.max = processed_locs;
-    output->store_results(); 
+    output->store_results( success ); 
 }
 
 void TraceCountFilter::receiveLocalizations(const EngineResult& e)

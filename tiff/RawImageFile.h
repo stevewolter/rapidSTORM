@@ -30,6 +30,7 @@ class RawImageFile : public OutputObject {
 
     std::vector< image::MetaInfo<2> > size;
     boost::optional<frame_count> last_frame;
+    void store_results_( bool );
 
   public:
     typedef simparm::Structure<_Config> Config;
@@ -43,7 +44,6 @@ class RawImageFile : public OutputObject {
 
     AdditionalData announceStormSize(const Announcement &a);
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)

@@ -75,6 +75,7 @@ class PrecisionEstimator
 	EstimationResult estimate_deviation(const PointSet& data, const SubSet& robust_subset );
 
 	friend std::ostream& operator<<(std::ostream&, const PrecisionEstimator::EstimationResult&);
+        void store_results_( bool success );
       public:
         typedef simparm::Structure<_Config> Config;
         typedef dStorm::output::FileOutputBuilder<PrecisionEstimator> Source;
@@ -87,7 +88,6 @@ class PrecisionEstimator
 
         AdditionalData announceStormSize(const Announcement&); 
         void receiveLocalizations(const EngineResult&);
-        void store_results();
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };

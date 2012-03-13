@@ -30,7 +30,6 @@ namespace outputs {
         void receiveLocalizations(const EngineResult&);
         RunRequirements announce_run(const RunAnnouncement&) 
             { target->clear(); return RunRequirements(); }
-        void store_results() {}
 
         bool hasResults() const { return target != NULL; }
         const output::Localizations& getResults() const { return *target; }

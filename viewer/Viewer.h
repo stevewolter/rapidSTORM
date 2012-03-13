@@ -37,7 +37,6 @@ class Viewer : public Status,
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement&) ;
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames);
@@ -57,6 +56,7 @@ class Viewer : public Status,
     Engine* repeater;
     boost::optional< Announcement > announcement;
 
+    void store_results_( bool job_successful );
     void adapt_to_changed_config();
 };
 

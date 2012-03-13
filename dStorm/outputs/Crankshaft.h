@@ -3,11 +3,15 @@
 
 #include "../output/Output.h"
 #include <list>
+#include <boost/noncopyable.hpp>
 
 namespace dStorm {
 namespace outputs {
 
-class Crankshaft : public output::OutputObject {
+class Crankshaft
+: public output::OutputObject,
+  private boost::noncopyable 
+{
     class Source;
 
     class Clutch;
@@ -16,11 +20,10 @@ class Crankshaft : public output::OutputObject {
     int id;
 
     void _add( Output *tm, bool important, bool manage, bool front = false );
+  protected:
     void prepare_destruction_();
+    void store_results_( bool success );
     void run_finished_( const RunFinished& );
-
-    /** No copy constructor defined. */
-    Crankshaft( const Crankshaft& );
 
   public:
     enum Type { Yield, State };
@@ -49,7 +52,6 @@ class Crankshaft : public output::OutputObject {
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 
     bool empty() const { return clutches.empty(); }
     void check_for_duplicate_filenames

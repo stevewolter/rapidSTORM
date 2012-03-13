@@ -62,6 +62,15 @@ namespace locprec {
         void display_image( const ColorImage& );
         std::auto_ptr<dStorm::display::Change> get_changes();
 
+        void store_results_( bool success ) {
+            dStorm::outputs::Crankshaft::store_results_( success );
+            boost::lock_guard<boost::mutex> lock(mutex);
+            if ( howToSegment == Maximum )
+                maximums();
+            else
+                segment();
+        }
+
       protected:
         RegionImage segment_image();
         void segment();
@@ -76,14 +85,6 @@ namespace locprec {
             { throw std::runtime_error("Object unclonable."); }
 
         AdditionalData announceStormSize(const Announcement &a) ;
-        void store_results() {
-            dStorm::outputs::Crankshaft::store_results();
-            boost::lock_guard<boost::mutex> lock(mutex);
-            if ( howToSegment == Maximum )
-                maximums();
-            else
-                segment();
-        }
 
         void operator()(const simparm::Event&);
     };

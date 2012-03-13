@@ -40,7 +40,6 @@ struct Repeat
         return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult&) {}
-    void store_results() {}
 
     void operator()( const simparm::Event& ) {
         if ( r && repeat.triggered() ) { 

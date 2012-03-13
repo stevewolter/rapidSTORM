@@ -34,7 +34,6 @@ struct Memalloc
             std::cerr << "Memalloc is out of memory\n";
         }
     }
-    void store_results() {}
 
 };
 

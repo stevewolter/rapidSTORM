@@ -54,8 +54,6 @@ namespace form_fitter {
         RunRequirements announce_run(const RunAnnouncement&) 
             { if ( engine!= NULL ) return RunRequirements().set(MayNeedRestart); else return RunRequirements(); }
         void receiveLocalizations(const EngineResult&);
-        void store_results() {}
-
     };
 }
 }

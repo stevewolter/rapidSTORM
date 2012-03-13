@@ -53,7 +53,7 @@ void ProgressMeter::receiveLocalizations(const EngineResult& er)
     }
 }
 
-void ProgressMeter::store_results()
+void ProgressMeter::store_results_( bool success )
 {
     double save_increment = progress.increment();
     progress.increment = 0;

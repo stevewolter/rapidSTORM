@@ -51,8 +51,8 @@ struct Verbose
             LOG( "Source image is attached with size " << er.source->plane(0).sizes().transpose() );
         }
     }
-    void store_results() {
-        LOG("Verbose plugin got signal Engine_run_succeeded");
+    void store_results_(bool succeeded) {
+        LOG("Verbose plugin got store_results signal, success " << succeeded);
     }
 
 };

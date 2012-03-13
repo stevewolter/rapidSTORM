@@ -34,6 +34,8 @@ class TraceCountFilter : public output::OutputObject,
 
     class _Config;
 
+    void store_results_( bool success );
+
   public:
     class Config;
     typedef output::FilterBuilder<TraceCountFilter> Source;
@@ -51,8 +53,6 @@ class TraceCountFilter : public output::OutputObject,
     AdditionalData announceStormSize(const Announcement &a) ;
     RunRequirements announce_run(const RunAnnouncement& a) 
         { processed_locs = 0; return output->announce_run(a); }
-
-    void store_results();
 
     void receiveLocalizations(const EngineResult& e);
 };

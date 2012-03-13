@@ -91,9 +91,9 @@ Crankshaft::announce_run(const RunAnnouncement& a)
     return requirements;
 }
 
-void Crankshaft::store_results() {
+void Crankshaft::store_results_( bool success ) {
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end(); ++i)
-        (*i)->store_results();
+        (*i)->store_results( success );
 }
 
 void Crankshaft::receiveLocalizations(const EngineResult& er) 

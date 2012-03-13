@@ -108,10 +108,10 @@ Slicer::announce_run(const RunAnnouncement& a)
     return outputs[0]->announce_run(a);
 }
 
-void Slicer::store_results() {
+void Slicer::store_results_( bool success ) {
     for (unsigned int i = 0; i < outputs.size(); i++)
         if (!outputs.is_null(i))
-            outputs[i]->store_results();
+            outputs[i]->store_results( success );
 }
 
 void Slicer::receiveLocalizations(const EngineResult& er)
@@ -137,7 +137,7 @@ void Slicer::receiveLocalizations(const EngineResult& er)
         outputs[i].images_in_output += one_frame;
         outputs[i]->receiveLocalizations(er);
         if ( outputs[i].images_in_output == slice_size ) {
-            outputs[i]->store_results();
+            outputs[i]->store_results( true );
             outputs.replace(i, NULL);
         }
     }

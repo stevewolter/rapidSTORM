@@ -406,7 +406,11 @@ void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager
         i.manipulator(*rv);
     dStorm::display::StorableImage result( i.filename, *rv );
     result.scale_bar = i.scale_bar;
-    m.store_image( result );
+    try {
+        m.store_image( result );
+    } catch ( const std::runtime_error& e ) {
+        std::cerr << "Failed to store image: " << e.what() << std::endl;
+    }
 }
 
 void Manager::Source::operator()( const Close&, Manager& ) {

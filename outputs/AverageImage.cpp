@@ -37,7 +37,7 @@ AverageImage::receiveLocalizations(const EngineResult& er) {
     }
 }
 
-void AverageImage::store_results()
+void AverageImage::store_results_( bool )
 {
     if (filename != "" ) {
         display::Change c(1);

@@ -54,6 +54,7 @@ namespace output {
         static void insert_filename_with_check(
             std::string file, std::set<std::string>& present_filenames );
 
+        virtual void store_results_(bool) {}
         virtual void prepare_destruction_() {}
         virtual void run_finished_(const RunFinished&) {}
 
@@ -77,7 +78,7 @@ namespace output {
         virtual RunRequirements announce_run(const RunAnnouncement&) 
             { return RunRequirements(); }
         virtual void receiveLocalizations(const EngineResult&) = 0;
-        virtual void store_results() = 0;
+        void store_results( bool job_successful ) { store_results_(job_successful); }
         void prepare_destruction() { prepare_destruction_(); }
         void run_finished( const RunFinished& i ) { run_finished_(i); }
     };

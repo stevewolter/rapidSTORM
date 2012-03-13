@@ -37,6 +37,7 @@ class Output : public output::OutputObject {
     void open();
     template <int Field> void make_fields();
     void output( const Localization& );
+    void store_results_( bool success );
 
     class _Config;
 
@@ -52,7 +53,6 @@ class Output : public output::OutputObject {
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement&);
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)
@@ -152,15 +152,17 @@ Output::RunRequirements Output::announce_run(const RunAnnouncement&) {
     return Output::RunRequirements();
 }
 
-void Output::store_results() {
-    file->flush();
+void Output::store_results_( bool ) {
+    if ( file ) file->flush();
     if (fileKeeper.get() != NULL) fileKeeper->close();
     fileKeeper.reset(NULL);
+    file = NULL;
 }
 
 Output::Output(const Config &c) 
 : OutputObject("LocalizationFile", "File output status"),
   filename(c.outputFile()),
+  file(NULL),
   xyztI_format( c.xyztI() )
 {
     if ( filename == "" )

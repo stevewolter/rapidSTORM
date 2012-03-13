@@ -131,6 +131,8 @@ namespace outputs {
         
         template<typename Listener, int ODim> friend class BinnedLocalizations;
 
+        void store_results_( bool success ); 
+
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
@@ -148,7 +150,6 @@ namespace outputs {
         RunRequirements announce_run(const RunAnnouncement&) 
             { clear(); return RunRequirements(); }
         void receiveLocalizations(const EngineResult&);
-        void store_results(); 
 
         const BinnedImage& operator()() const { return base_image; }
 

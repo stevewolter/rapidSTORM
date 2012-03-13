@@ -158,7 +158,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     next_image = next_image + 1 * camera::frame;
 }
 
-void RawImageFile::store_results() {
+void RawImageFile::store_results_( bool ) {
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
         TIFFOperation op("in closing TIFF file", *this, false);

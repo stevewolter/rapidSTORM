@@ -289,7 +289,7 @@ void Segmenter::segment()
 
     output->announce_run(RunAnnouncement());
     output->receiveLocalizations(engineResult);
-    output->store_results();
+    output->store_results( true );
 }
 
 template <typename To> To sq(To a) { return a*a; }
@@ -374,7 +374,7 @@ void Segmenter::maximums() {
 
     output->announce_run(RunAnnouncement());
     output->receiveLocalizations(engineResult);
-    output->store_results();
+    output->store_results( true );
 }
 
 void Segmenter::display_image( const ColorImage& img ) {

@@ -21,7 +21,6 @@ struct BasenamePrinter
     AdditionalData announceStormSize(const Announcement& a) 
         { return AdditionalData(); }
     void receiveLocalizations(const EngineResult&) {}
-    void store_results() {}
 
 };
 

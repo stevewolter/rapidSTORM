@@ -21,7 +21,7 @@ class ProgressMeter : public OutputObject
   protected:
     AdditionalData announceStormSize(const Announcement &a);
     void receiveLocalizations(const EngineResult& er);
-    void store_results();
+    void store_results_( bool success );
 
   public:
     class Config;

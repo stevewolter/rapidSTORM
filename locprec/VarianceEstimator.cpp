@@ -18,6 +18,8 @@ class Output : public dStorm::output::OutputObject {
     class _Config;
     const std::string tag;
 
+    void store_results_( bool success );
+
   public:
     typedef simparm::Structure<_Config> Config;
 
@@ -28,7 +30,6 @@ class Output : public dStorm::output::OutputObject {
         for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
         return RunRequirements(); 
     }
-    void store_results();
     void receiveLocalizations(const EngineResult&);
 
     void check_for_duplicate_filenames
@@ -67,11 +68,13 @@ void Output::receiveLocalizations(const EngineResult& e) {
     }
 }
 
-void Output::store_results() {
-    std::cout << tag;
-    for (int j = 0; j < 3; ++j) 
-        std::cout << " " << count( acc[j] ) << " " << mean( acc[j] ) << " " << sqrt( variance(acc[j]) );
-    std::cout << "\n";
+void Output::store_results_( bool success ) {
+    if ( success ) {
+        std::cout << tag;
+        for (int j = 0; j < 3; ++j) 
+            std::cout << " " << count( acc[j] ) << " " << mean( acc[j] ) << " " << sqrt( variance(acc[j]) );
+        std::cout << "\n";
+    }
 }
 
 }

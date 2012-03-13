@@ -47,7 +47,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 
 template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>
-::store_results()
+::store_results_( bool )
 {
     this->binningListener().clean( true );
 }

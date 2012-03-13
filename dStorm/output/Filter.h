@@ -23,7 +23,7 @@ class Filter : public Output
         { return fwd->announceStormSize(a); }
     RunRequirements announce_run(const RunAnnouncement& r) 
         { return fwd->announce_run(r); }
-    void store_results() { fwd->store_results(); }
+    void store_results_(bool success) { fwd->store_results(success); }
     void receiveLocalizations(const EngineResult& er);
     void check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)

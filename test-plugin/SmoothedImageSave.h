@@ -47,7 +47,6 @@ struct SmoothedImageSave
             dStorm::display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
     }
-    void store_results() {}
 };
 
 #endif

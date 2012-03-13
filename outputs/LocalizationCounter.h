@@ -24,6 +24,11 @@ namespace output {
         /** Assignment not implemented. */
         LocalizationCounter& operator=(const LocalizationCounter&);
 
+        void store_results_( bool success ) {
+            update = count;
+            if ( success && !this->isActive()) std::cout << count << "\n"; 
+        }
+
       public:
         struct _Config : public simparm::Object { 
             simparm::FileEntry output_file;
@@ -64,10 +69,6 @@ namespace output {
                 update = count;
                 last_config_update = er.forImage;
             }
-        }
-        void store_results() {
-            update = count;
-            if (!this->isActive()) std::cout << count << "\n"; 
         }
 
     };

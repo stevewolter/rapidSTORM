@@ -435,7 +435,7 @@ PrecisionEstimator::EstimationResult PrecisionEstimator
 }
 
 
-void PrecisionEstimator::store_results() {
+void PrecisionEstimator::store_results_( bool ) {
     printTo.close_output_stream();
 }
 

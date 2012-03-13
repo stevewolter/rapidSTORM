@@ -125,6 +125,7 @@ void Car::run() {
 }
 
 void Car::drive() {
+  bool run_successful = false;
   try {
     runtime_config.push_back( *input );
     runtime_config.push_back( output->getNode() );
@@ -214,8 +215,7 @@ void Car::drive() {
         }
     }
 
-    if ( ! control.aborted_by_user() )
-        output->store_results();
+    run_successful = ! control.aborted_by_user();
 
 #if 0
     if ( config.configTarget ) {
@@ -232,11 +232,19 @@ void Car::drive() {
     OutOfMemoryMessage m("Job " + ident);
     runtime_config.send(m);
   } catch (const std::runtime_error& e) {
-    DEBUG("Sending message in drive mode");
     simparm::Message m( "Error in Job " + ident, e.what() );
     runtime_config.send(m);
-    DEBUG("Sent message in drive mode");
   }
+
+    try {
+        output->store_results( run_successful );
+    } catch (const std::bad_alloc& e) {
+        OutOfMemoryMessage m("Job " + ident);
+        runtime_config.send(m);
+    } catch (const std::runtime_error& e) {
+        simparm::Message m( "Error while saving results of Job " + ident, e.what() );
+        runtime_config.send(m);
+    }
 
     current_run.reset();
     control.set_current_run( current_run );

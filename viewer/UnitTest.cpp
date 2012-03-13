@@ -28,7 +28,7 @@ void unit_test( TestState& state ) {
             boost::bind( &output::Output::receiveLocalizations, 
                          viewer.get(), _1 ) );
     }
-    viewer->store_results();
+    viewer->store_results(true);
     boost::optional<double> tock = get_cpu_time();
 
     const display::Change& image = manager.get_stored_image();

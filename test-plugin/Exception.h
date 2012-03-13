@@ -32,7 +32,6 @@ struct Exception
         if ( er.forImage.value() == onImageNumber )
             segfault();
     }
-    void store_results() {}
 
 };
 

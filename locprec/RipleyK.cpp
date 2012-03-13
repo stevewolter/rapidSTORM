@@ -26,6 +26,7 @@ class Output : public dStorm::output::OutputObject {
     const quantity<si::length> bin_size;
     quantity<si::area> measured_area;
     long int localization_count;
+    void store_results_( bool success );
 
   public:
     typedef simparm::Structure<_Config> Config;
@@ -34,7 +35,6 @@ class Output : public dStorm::output::OutputObject {
     Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
     void receiveLocalizations(const EngineResult&);
-    void store_results();
     RunRequirements announce_run(const RunAnnouncement&) { 
         histogram->clear();
         localization_count = 0;
@@ -114,7 +114,7 @@ static quantity<si::area> area_of_ring(
         return M_PI * thickness * (2.0 * outer_radius - thickness);
 }
 
-void Output::store_results() {
+void Output::store_results_( bool success ) {
     if ( histogram.is_initialized() ) {
         std::ostream& output = filename.get_output_stream();
 

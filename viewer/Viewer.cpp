@@ -67,10 +67,10 @@ Viewer::RunRequirements Viewer::announce_run(const RunAnnouncement& a) {
     return forwardOutput->announce_run(a);
 }
 
-void Viewer::store_results() {
+void Viewer::store_results_( bool job_successful ) {
     boost::lock_guard<boost::mutex> lock(mutex);
-    forwardOutput->store_results();
-    if (config.outputFile)
+    forwardOutput->store_results(job_successful);
+    if (job_successful && config.outputFile)
         writeToFile(config.outputFile());
 }
 

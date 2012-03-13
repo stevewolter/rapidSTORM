@@ -87,8 +87,9 @@ class Output
     std::auto_ptr<dStorm::output::Output> target;
 
     const double maxDist;
+    void store_results_( bool success ); 
 
-    public:
+public:
     Output( const Config& config,
                         std::auto_ptr<dStorm::output::Output> output );
     ~Output();
@@ -99,7 +100,6 @@ class Output
 
     AdditionalData announceStormSize(const Announcement &);
     RunRequirements announce_run(const RunAnnouncement &);
-    void store_results(); 
     void receiveLocalizations(const EngineResult &);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -386,12 +386,12 @@ void Output::finalizeImage(int imNum) {
     target->receiveLocalizations(er);
 }
 
-void Output::store_results() {
+void Output::store_results_( bool success ) {
     for (int i = track_modulo+2; i >= 0; --i)
         if ( last_seen_frame >= i * frame )
             finalizeImage( last_seen_frame.value() - i );
     if ( target.get() != NULL )
-        target->store_results();
+        target->store_results( success );
 }
 
 std::auto_ptr<dStorm::output::OutputSource> create()

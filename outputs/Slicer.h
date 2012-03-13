@@ -61,6 +61,7 @@ class Slicer : public OutputObject {
 
     std::auto_ptr<Announcement> announcement;
     std::auto_ptr<RunAnnouncement> run_announcement;
+    void store_results_( bool success );
 
   public:
 
@@ -76,7 +77,6 @@ class Slicer : public OutputObject {
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement& a);
     void receiveLocalizations(const EngineResult&);
-    void store_results();
 };
 
 class Slicer::_Config : public simparm::Object {

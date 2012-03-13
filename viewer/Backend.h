@@ -35,7 +35,6 @@ struct NoOpBackend : public Backend
         AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
         RunRequirements announce_run(const RunAnnouncement&) { return RunRequirements(); }
         void receiveLocalizations(const EngineResult&) {}
-        void store_results() {}
     };
     Output o;
 

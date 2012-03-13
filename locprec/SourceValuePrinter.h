@@ -40,7 +40,6 @@ class SourceValuePrinter : public dStorm::output::OutputObject
 
     AdditionalData announceStormSize(const Announcement &a);
     void receiveLocalizations(const EngineResult& e);
-    void store_results() {}
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames)

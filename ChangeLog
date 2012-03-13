@@ -1,3 +1,11 @@
+== 14.5.0 ==
+
+* Refactored 3D calibration code to join common parts of signal-based and localization-based fitter
+* Made config fields for min loc count and missing loc penalty for 3D calibrater and fixed PSF width bug
+* Refactored expression module to aid integration into 3D calibration
+* Refactored form fitter to aid integration with Nelder-Mead calibration
+* Implemented Nelder-Mead 3D parameter optimizer
+
 == 14.4.0 ==
 
 * Defaulted QuadraticTerm option in FitPSFForm

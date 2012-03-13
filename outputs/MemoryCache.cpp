@@ -105,7 +105,7 @@ class Output
     boost::mutex reemittance_mutex;
     boost::condition count_changed;
     int reemit_count;
-    bool engine_run_has_succeeded;
+    boost::optional<bool> engine_run_has_succeeded;
 
     Engine* upstream;
 
@@ -124,6 +124,7 @@ class Output
         { return upstream->block_termination(); }
 
     void prepare_destruction_();
+    void store_results_( bool success );
 
   public:
     Output(std::auto_ptr<output::Output> output);
@@ -133,7 +134,6 @@ class Output
 
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement& r) ;
-    void store_results();
     void receiveLocalizations(const EngineResult& e);
 
 };
@@ -206,7 +206,7 @@ void Bunch::insert( const output::LocalizedImage& o ) {
 Output::Output(
     std::auto_ptr<output::Output> output
 )
-: Filter(output), engine_run_has_succeeded(false)
+: Filter(output)
 { 
 }
 
@@ -289,7 +289,7 @@ void Output::reemit_localizations(const int my_count) {
         }
     if ( engine_run_has_succeeded ) {
         boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-        Filter::store_results();
+        Filter::store_results_( *engine_run_has_succeeded );
     }
 }
 
@@ -316,17 +316,17 @@ Output::announceStormSize(const Announcement& a)
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement& r) {
     boost::lock_guard<boost::mutex> lock(output_mutex);
-    engine_run_has_succeeded = false;
+    engine_run_has_succeeded.reset();
     bunches.clear();
     bunches.push_back( new Bunch(*master_bunch) );
     return Filter::announce_run(r);
 }
 
-void Output::store_results()
+void Output::store_results_( bool success )
 {
-    engine_run_has_succeeded = true;
+    engine_run_has_succeeded = success;
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    Filter::store_results(); 
+    Filter::store_results_( *engine_run_has_succeeded ); 
 }
 
 void Output::receiveLocalizations(const EngineResult& e) 

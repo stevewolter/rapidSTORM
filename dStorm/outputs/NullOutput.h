@@ -12,7 +12,6 @@ struct NullOutput : public output::OutputObject
     NullOutput* clone() const { return new NullOutput(); }
     AdditionalData announceStormSize(const Announcement&) 
         { return AdditionalData(); }
-    void store_results() {}
     void receiveLocalizations(const EngineResult&) {}
 };
 

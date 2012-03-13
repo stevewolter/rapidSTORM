@@ -35,7 +35,6 @@ struct Delayer
 	Sleep( 100 );
 #endif
     }
-    void store_results() { }
 
 };
 

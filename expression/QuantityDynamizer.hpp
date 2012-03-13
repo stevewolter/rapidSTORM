@@ -3,6 +3,7 @@
 
 #include "QuantityDynamizer.h"
 #include "UnitTable.h"
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace expression {
