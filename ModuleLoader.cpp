@@ -22,6 +22,7 @@
 #include "AndorCamera/plugin.h"
 #include "viewer/plugin.h"
 #include "tiff/augment_config.h"
+#include "calibrate_3d/fwd.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -143,6 +144,7 @@ void ModuleLoader::add_modules
     dStorm::tiff::augment_config( car_config );
 
     guf::augment_config( car_config );
+    car_config.add_output( calibrate_3d::make_output_source() );
     AndorCamera::augment_config( car_config );
     locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );

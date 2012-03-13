@@ -9,7 +9,6 @@
 #include "Slicer.h"
 #include "MemoryCache.h"
 #include "LocalizationFile.h"
-#include "calibrate_3d/fwd.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -26,7 +25,6 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( new TraceCountFilter::Source() );
     o->add_output( new Slicer::Source() );
     o->add_output( make_output_source<expression::Source>().release() );
-    o->add_output( calibrate_3d::make_output_source() );
 }
 
 }
