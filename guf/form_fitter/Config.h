@@ -16,6 +16,7 @@ namespace form_fitter {
 class FormCalibratorConfig {
     boost::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
     simparm::Entry< bool > circular_psf_, astigmatism_, universal_best_sigma_;
+    simparm::Entry< bool > fit_best_sigma_, fit_focus_plane_;
 public:
     FormCalibratorConfig();
     void registerNamedEntries( simparm::Node& at );
@@ -25,6 +26,8 @@ public:
     bool symmetric() const { return circular_psf_(); }
     bool astigmatism() const { return astigmatism_(); }
     bool universal_best_sigma() const { return universal_best_sigma_(); }
+    bool fit_best_sigma() const { return fit_best_sigma_(); }
+    bool fit_focus_plane() const { return fit_focus_plane_(); }
 };
 
 struct Config : public simparm::Object, public FormCalibratorConfig {

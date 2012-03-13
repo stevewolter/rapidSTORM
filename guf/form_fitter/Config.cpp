@@ -19,7 +19,9 @@ static const char *term_names[] = {
 FormCalibratorConfig::FormCalibratorConfig()
 : circular_psf_("CircularPSF", "Assume circular PSF", true),
   astigmatism_("Astigmatism", "Allow astigmatism", false),
-  universal_best_sigma_("UniversalBestSigma", "PSF FWHM common to all layers", false )
+  universal_best_sigma_("UniversalBestSigma", "PSF FWHM common to all layers", false ),
+  fit_best_sigma_( "FitBestSigma", "Fit PSF FWHM", true ),
+  fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", true )
 {
     BOOST_STATIC_ASSERT( int(sizeof(term_names) / sizeof(term_names[0])) >= polynomial_3d::Order );
     for (int i = 0; i < polynomial_3d::Order; ++i)
@@ -36,6 +38,8 @@ void FormCalibratorConfig::registerNamedEntries( simparm::Node& at )
     at.push_back( circular_psf_ );
     at.push_back( astigmatism_ );
     at.push_back( universal_best_sigma_ );
+    at.push_back( fit_best_sigma_ );
+    at.push_back( fit_focus_plane_ );
     for (int i = 0; i < polynomial_3d::Order; ++i)
         at.push_back( *z_terms[i] );
 }

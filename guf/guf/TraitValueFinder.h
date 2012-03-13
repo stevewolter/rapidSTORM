@@ -26,8 +26,9 @@ struct TraitValueFinder {
         const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane );
 
     template <int Dim, typename Structure>
-    void operator()( PSF::BestSigma<Dim> p, Structure& m ) const 
-        { m(p) = quantity< typename PSF::Micrometers >((*psf)[Dim]); }
+    void operator()( PSF::BestSigma<Dim> p, Structure& m ) const { 
+        m(p) = quantity< typename PSF::Micrometers >((*psf)[Dim]); 
+    }
     template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
         if ( is_3d )

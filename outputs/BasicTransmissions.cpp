@@ -9,7 +9,7 @@
 #include "Slicer.h"
 #include "MemoryCache.h"
 #include "LocalizationFile.h"
-#include "Calibrate3D.h"
+#include "calibrate_3d/fwd.h"
 
 using namespace std;
 using namespace dStorm::outputs;

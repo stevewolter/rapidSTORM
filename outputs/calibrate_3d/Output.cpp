@@ -1,36 +1,14 @@
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
 #include "debug.h"
-#include "Calibrate3D.h"
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
-#include <dStorm/output/Capabilities.h>
-#include <dStorm/traits/resolution_config.h>
-#include <boost/array.hpp>
-#include <boost/optional/optional.hpp>
+#include "Output.h"
 #include <boost/variant/get.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <dStorm/polynomial_3d.h>
-#include <dStorm/units/nanolength.h>
 #include <gsl/gsl_multimin.h>
 #include <dStorm/output/OutputBuilder_impl.h>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/statistics/count.hpp>
 #include <boost/foreach.hpp>
-#include "expression/Parser.h"
 #include "expression/Filter.h"
-#include "expression/LValue.h"
 #include "expression/VariableLValue.h"
 #include "expression/Variable.h"
 #include "expression/QuantityDynamizer.hpp"
-
-#include "calibrate_3d/ParameterLinearizer.h"
-#include "calibrate_3d/Config.h"
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -68,66 +46,13 @@ std::ostream& operator<<( std::ostream& o, const gsl_vector& v ) {
     return o;
 }
 
-class Output : public output::OutputObject {
-  private:
-    expression::Parser parser;
-    TrueZ *new_z_variable;
-    input::Traits<Localization> localization_traits;
-    boost::shared_ptr< engine::InputTraits > initial_traits;
-    ParameterLinearizer linearizer;
-    Engine* engine;
-    std::auto_ptr< expression::source::LValue > filter, new_z_expression;
-    dStorm::traits::resolution::Config result_config;
-
-    boost::thread calibration_thread;
-    boost::mutex mutex;
-    boost::condition new_job, value_computed;
-    boost::optional<double> position_value;
-    boost::optional< std::auto_ptr<engine::InputTraits> > trial_position;
-    bool have_set_traits_myself, terminate, fitter_finished;
-
-    typedef boost::accumulators::accumulator_set< 
-            double,
-            boost::accumulators::stats< 
-                boost::accumulators::tag::variance,
-                boost::accumulators::tag::count > >
-        Variance;
-    Variance delta_z;
-
-    double target_volume;
-    simparm::Entry<double> current_volume;
-    simparm::Entry< quantity<si::nanolength> > residuals;
-
-    std::vector<int> variable_map;
-
-    void run_finished_(const RunFinished&);
-    void run_fitter();
-    double evaluate_function( const gsl_vector *x );
-    static double gsl_callback( const gsl_vector * x, void * params )
-        { return static_cast<Output*>(params)->evaluate_function(x); }
-
-  public:
-    typedef simparm::Structure<Config_> Config;
-
-    Output(const Config &config);
-    Output *clone() const { throw std::logic_error("Not implemented"); }
-    ~Output();
-
-    AdditionalData announceStormSize(const Announcement &);
-    RunRequirements announce_run(const RunAnnouncement&);
-    void receiveLocalizations(const EngineResult&);
-    void store_results() {}
-
-    const char *getName() { return "Calibrate 3D"; }
-};
-
 Output::Output(const Config & config )
 : OutputObject("Calibrate3D", "Calibrate 3D"),
   linearizer(config),
   have_set_traits_myself(false),
   terminate(false),
   fitter_finished(false),
-  target_volume( config.target_volume() ),
+  config( config ),
   current_volume("CurrentVolume", "Current estimation volume", 0),
   residuals("Accuracy", "Residual error", 0)
 {
@@ -219,7 +144,7 @@ void Output::run_fitter()
             residuals = gsl_multimin_fminimizer_minimum(solver) * si::nanometre;
             current_volume.viewable = true;
             residuals.viewable = true;
-            if ( size < target_volume ) {
+            if ( size < config.target_volume() ) {
                 fitting_was_successful = true;
                 break;
             }
@@ -281,7 +206,7 @@ void Output::receiveLocalizations(const Output::EngineResult& localizations )
         quantity<si::length> z_position = 
             (i->position().x() - 1E-6 * si::meter ) * tan( 3 * 3.1415 / 180 ) + 
             (i->position().y() - 1.2E-6 * si::meter ) / 1573.0 * 30.0;
-        delta_z( (i->position().z() - new_z_variable->value(*i) ) / (1E-9 * si::meter) );
+        delta_z( quantity<si::nanolength>(i->position().z() - new_z_variable->value(*i) ).value() );
     }
 }
 
@@ -291,8 +216,11 @@ void Output::run_finished_( const RunFinished& ) {
     if ( have_set_traits_myself ) {
         double variance = boost::accumulators::variance( delta_z );
         int spots = boost::accumulators::count( delta_z );
-        int missing_spots = std::max( 0, 371 - spots );
-        position_value = sqrt( (variance * spots + 2E6 * missing_spots) / (spots + missing_spots) );
+        int missing_spots = std::max( 0, config.target_localization_number() - spots );
+        position_value = sqrt( 
+            ( variance * spots + 
+              pow<2>( quantity<si::nanolength>(config.missing_penalty()) ).value() * missing_spots
+            ) / (spots + missing_spots) );
         DEBUG("Position's value is " << *position_value );
         value_computed.notify_all();
     }

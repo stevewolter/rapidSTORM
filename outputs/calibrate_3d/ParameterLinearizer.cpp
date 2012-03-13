@@ -46,9 +46,9 @@ public:
         : config(config) {}
 
     template <int Dim> 
-    bool operator()( guf::PSF::BestSigma<Dim> ) { return false; }
+    bool operator()( guf::PSF::BestSigma<Dim> ) { return ! config.fit_best_sigma(); }
     template <int Dim> 
-    bool operator()( guf::PSF::ZPosition<Dim> ) { return false; }
+    bool operator()( guf::PSF::ZPosition<Dim> ) { return ! config.fit_focus_plane(); }
     template <int Dim, int Term>
     bool operator()( guf::PSF::DeltaSigma<Dim,Term> ) { return ! config.fit_z_term(static_cast<Direction>(Dim), Term); }
 };
@@ -183,9 +183,9 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
         traits.optics(plane_index).z_position->x() = quantity<si::length>(*m( guf::PSF::ZPosition<0>() ));
         traits.optics(plane_index).z_position->y() = quantity<si::length>(*m( guf::PSF::ZPosition<1>() ));
         traits.optics(plane_index).psf_size(fluorophore)->x() 
-            = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ) * 2.35);
+            = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ));
         traits.optics(plane_index).psf_size(fluorophore)->y()
-            = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ) * 2.35);
+            = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ));
     }
 
     traits::Polynomial3D& p = boost::get<traits::Polynomial3D>(*traits.depth_info);
