@@ -47,8 +47,6 @@ Output::Output(const Config& c)
     result_config.registerNamedEntries();
     push_back( result_config );
 
-    if ( ! config.has_z_truth() && config.fit_focus_plane() )
-        throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 }
 
 Output::~Output() {
@@ -61,6 +59,9 @@ output::Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 {
     engine = a.engine;
+    if ( ! boost::get<traits::No3D>( a.input_image_traits->depth_info.get_ptr() ) 
+         && ! config.has_z_truth() && config.fit_focus_plane() )
+        throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
     dStorm::traits::Optics::PSF max_psf = max_psf_size( *a.input_image_traits );
     DEBUG("Maximum PSF size is " << max_psf.transpose());
@@ -76,7 +77,8 @@ Output::announceStormSize(const Announcement& a)
     else
         input.reset( new Input( config, a, max_psf ) );
 
-    z_truth->set_meta_info(a);
+    if ( z_truth.get() )
+        z_truth->set_meta_info(a);
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
 
     DEBUG( "New input traits are announced" );

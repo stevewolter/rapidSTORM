@@ -22,7 +22,7 @@ FormCalibrationConfig::FormCalibrationConfig()
   astigmatism_("Astigmatism", "Allow astigmatism", false),
   universal_best_sigma_("UniversalBestSigma", "PSF FWHM common to all layers", false ),
   fit_best_sigma_( "FitBestSigma", "Fit PSF FWHM", true ),
-  fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", true ),
+  fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", false ),
   fit_prefactors_( "FitPrefactors", "Fit transmission factors", true ),
   filter_("3DFilter", "Filter expression for usable spots"),
   new_z_("CalibratedZ", "Expression for true Z value")

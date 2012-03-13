@@ -9,7 +9,9 @@ namespace expression {
 namespace source {
 
 class Filter : public ExpressionBasedLValue {
-    void announce( const variable_table& vt, input::Traits<Localization>& t ) const { simplify(vt, t); }
+    void announce( const variable_table& vt, input::Traits<Localization>& t ) const { 
+        simplify(vt, t); 
+    }
     iterator evaluate( const variable_table&, const input::Traits<Localization>& bounds,
                   iterator, iterator ) const;
 public:

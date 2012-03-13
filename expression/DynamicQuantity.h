@@ -25,6 +25,7 @@ struct DynamicUnit : public Eigen::Matrix<double, BaseUnits::Number, 1, Eigen::D
     DynamicUnit( const Base& b ) : Base(b) {}
     template <typename Type>
     explicit DynamicUnit( const Type& t ) : Base(t) {}
+    static DynamicUnit Dimensionless() { return DynamicUnit(); }
 };
 
 struct DynamicQuantity {

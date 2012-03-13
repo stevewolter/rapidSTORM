@@ -30,7 +30,16 @@ QuantityDynamizer<Quantity>::operator()( const DynamicQuantity& v ) const
 {
     if ( unit != boost::fusion::at_c<1>(v) ) {
         std::stringstream e;
-        e << "Cannot assign a quantity with dimension " << v.unit << " to a variable with dimension " << unit;
+        e << "Cannot assign a ";
+        if ( v.unit == DynamicUnit::Dimensionless() )
+            e << "dimensionless quantity";
+        else
+            e << "quantity with dimension " << v.unit;
+        e << " to a ";
+        if ( unit == DynamicUnit::Dimensionless() )
+            e << "dimensionless variable";
+        else
+            e << "variable with dimension " << unit;
         throw std::runtime_error(e.str());
     }
     return Quantity::from_value( static_cast<typename Quantity::value_type>(

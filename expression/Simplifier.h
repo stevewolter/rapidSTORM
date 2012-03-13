@@ -60,8 +60,10 @@ class Simplifier : public boost::static_visitor< tree_node >
         nodes[0] = boost::apply_visitor(*this, o[0]);
         nodes[1] = boost::apply_visitor(*this, o[1]);
         if ( is_static(nodes[0]) && is_static(nodes[1]) ) {
-            return o( apply_me<typename Operator::first_argument_type>(nodes[0]),
-                    apply_me<typename Operator::second_argument_type>(nodes[1]) );
+            tree_node result = o(
+                boost::get<typename Operator::first_argument_type>(nodes[0]),
+                boost::get<typename Operator::second_argument_type>(nodes[1]) );
+            return result;
         } else {
             return Operator( nodes[0], nodes[1] );
         }

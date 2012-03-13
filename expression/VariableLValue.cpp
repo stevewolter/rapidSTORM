@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "VariableLValue.h"
 #include "LValue.h"
 #include <boost/variant/get.hpp>
@@ -24,6 +25,7 @@ Assignment::Assignment( const Variable& v,  const tree_node& expression )
 void Assignment::announce( const variable_table& vt, input::Traits<Localization>& t ) const 
 { 
     ExpressionBasedLValue::simplify(vt, t); 
+    DEBUG( "Simplifying announcement " << this << " from " << original << " to " << simple );
     tree_node& result = ExpressionBasedLValue::simple;
     if ( DynamicQuantity *rv = boost::get<DynamicQuantity>(&result) ) {
         v.set( t, *rv );
@@ -39,6 +41,7 @@ Assignment::iterator
 Assignment::evaluate( const variable_table& vt, const input::Traits<Localization>& bounds,
                 iterator begin, iterator end ) const
 {
+    DEBUG( "Evaluating announcement " << this << " (was " << original << ") from " << simple );
     EvaluationResult r[end-begin];
     ExpressionBasedLValue::evaluate(vt, begin, end, r);
 
@@ -69,14 +72,15 @@ namespace config {
 struct VariableLValue : public LValue
 {
     const Variable& v;
-    tree_node expression;
+    boost::shared_ptr<AbstractSyntaxTree> expression;
 
     VariableLValue( const Variable& v ) 
-        : LValue(v.name, v.name), v(v), expression(DynamicQuantity()) {}
+        : LValue(v.name, v.name), v(v) {}
     VariableLValue* clone() const { return new VariableLValue(*this); }
-    source::LValue* make_lvalue() const { return new source::Assignment( v, expression ); }
+    source::LValue* make_lvalue() const { return new source::Assignment( v, expression->root_node ); }
     void set_expression_string( const std::string& expression, Parser& parser ) {
-        parser.parse_numeric( expression );
+        this->expression = parser.parse_numeric( expression );
+        DEBUG( this << " parsed expression " << this->expression->root_node << " from " << expression );
     }
 };
 
