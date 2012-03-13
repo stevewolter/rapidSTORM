@@ -18,6 +18,7 @@
 #include <boost/variant/get.hpp>
 
 #include "nonlinfit/levmar/exceptions.h"
+#include "calibrate_3d/ZTruth.h"
 
 namespace dStorm {
 namespace form_fitter {
@@ -40,10 +41,14 @@ Output::Output(const Config& c)
 : OutputObject("FitPSFForm", "PSF Form estimation"),
   config(c),
   engine(NULL),
-  visual_select( c.visual_selection() )
+  visual_select( c.visual_selection() ),
+  z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL )
 {
     result_config.registerNamedEntries();
     push_back( result_config );
+
+    if ( ! config.has_z_truth() && config.fit_focus_plane() )
+        throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 }
 
 Output::~Output() {
@@ -71,6 +76,7 @@ Output::announceStormSize(const Announcement& a)
     else
         input.reset( new Input( config, a, max_psf ) );
 
+    z_truth->set_meta_info(a);
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
 
     DEBUG( "New input traits are announced" );
@@ -92,23 +98,33 @@ class DummyBind {
     }
 };
 
-void Output::receiveLocalizations(const EngineResult& er)
+void Output::receiveLocalizations(const EngineResult& engine_result)
 {
     boost::lock_guard<boost::mutex> lock(mutex);
     if ( ! engine || ! input->traits.get() ) return;
     DEBUG("Started using image with engine " << engine);
-    for (EngineResult::const_iterator i = er.begin(); i != er.end(); ++i) {
-        DEBUG("Using localization " << i-er.begin() << " at " << i->position().transpose() << " with type " << i->fluorophore());
+
+    EngineResult copy( engine_result );
+    EngineResult::iterator end = copy.end();
+    if ( z_truth.get() ) {
+        end = z_truth->calibrate( copy );
+        for (EngineResult::iterator i = copy.begin(); i != end; ++i)
+            i->position().z() = z_truth->true_z( *i );
+    }
+
+    for (EngineResult::const_iterator i = copy.begin(); i != end; ++i) {
+        DEBUG("Using localization " << i-copy.begin() << " at " << i->position().transpose() << " with type " << i->fluorophore());
         bool is_close_to_border = false;
         for (int j = 0; j < 2; ++j)
             is_close_to_border = is_close_to_border || ! ( contains( bounds[j], i->position()[j] ) );
         if ( is_close_to_border ) {
-            DEBUG("Rejecting localization " << i-er.begin() << " because it is too close to the border");
+            DEBUG("Rejecting localization " << i-copy.begin() << " because it is too close to the border");
             continue;
         }
+
         if ( visual_select ) {
             std::auto_ptr<Tile> tile( new Tile() );
-            tile->image = *er.source;
+            tile->image = *copy.source;
             tile->spot = *i;
             tile->fluorophore = i->fluorophore();
             tiles.push_back( tile );
@@ -154,10 +170,10 @@ void Output::receiveLocalizations(const EngineResult& er)
             }
         } else {
             seen_fluorophores[ i->fluorophore() ] = true;
-            bool enough_images = fitter->add_image( *er.source, *i, i->fluorophore() );
+            bool enough_images = fitter->add_image( *copy.source, *i, i->fluorophore() );
             if ( enough_images ) { do_the_fit(); break; }
         }
-        DEBUG("Used localization " << i - er.begin());
+        DEBUG("Used localization " << i - copy.begin());
     }
     DEBUG("Finished with image");
 }

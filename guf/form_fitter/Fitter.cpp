@@ -38,6 +38,7 @@
 #include <nonlinfit/terminators/All.h>
 
 #include "LocalizationValueFinder.h"
+#include "calibrate_3d/constant_parameter.hpp"
 
 namespace dStorm {
 namespace form_fitter {
@@ -96,6 +97,7 @@ class VariableReduction
     typedef typename Lambda::Variables Variables;
     static const int VariableCount = boost::mpl::size< Variables >::value;
 
+    const Config config;
     std::bitset< VariableCount > 
         positional, /**< Indicates per-fluorophore parameters like amplitude,
                          position or shift. Indexed by variable number. */
@@ -139,7 +141,15 @@ class VariableReduction
      *  sufficiently often. */
     const sum::AbstractMap< VariableCount >& get_reduction_matrix() const
         { return result; }
+    template <typename Parameter>
+    bool is_layer_independent( Parameter );
 };
+
+template <typename Lambda>
+template <typename Parameter>
+bool VariableReduction<Lambda>::is_layer_independent( Parameter p ) {
+    return guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma())(p);
+}
 
 struct is_positional {
     typedef bool result_type;
@@ -152,36 +162,10 @@ struct is_positional {
     }
 };
 
-class constant_parameter {
-    const Config& config;
-    bool multiplane;
-    bool is_calibrated;
-
-public:
-    constant_parameter( bool has_multiple_planes, const Config& config )
-        : config(config), multiplane(has_multiple_planes), 
-          is_calibrated( config.z_calibration() != "" ) {}
-
-    typedef bool result_type;
-    template <typename Func, typename Base>
-    bool operator()( TermParameter< Func, Base > ) { return (*this)( Base() ); }
-
-    template <int Dim> 
-    bool operator()( nonlinfit::Xs<Dim,PSF::LengthUnit> ) { return true; }
-    template <int Dim> 
-    bool operator()( guf::PSF::ZPosition<Dim> ) { return ! is_calibrated; }
-    bool operator()( guf::PSF::MeanZ ) { return is_calibrated; }
-    template <int Dim, int Term>
-    bool operator()( PSF::DeltaSigma<Dim,Term> ) { return ! config.fit_z_term(static_cast<Direction>(Dim), Term); }
-    bool operator()( PSF::Prefactor ) { return ! multiplane; }
-
-    template <typename Parameter>
-    bool operator()( Parameter ) { return false; }
-};
-
 template <typename Lambda>
 VariableReduction<Lambda>::VariableReduction( const Config& config, const input::Traits< engine::ImageStack >& traits, int nop )
-: first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
+: config(config), 
+  first_fluorophore_occurence( traits.fluorophores.size(), -1 ),
   plane_count(0), max_plane_count(nop)
 {
     positional = make_bitset( Variables(), is_positional() );
@@ -191,7 +175,7 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
     layer_dependent.flip();
     fluorophore_dependent = make_bitset( Variables(), guf::PSF::is_fluorophore_dependent() );
     merged = make_bitset( Variables(), vanishes_when_circular(config) );
-    constant = make_bitset( Variables(), constant_parameter( traits.plane_count() > 1, config ) );
+    constant = make_bitset( Variables(), calibrate_3d::constant_parameter( traits.plane_count() > 1, config ) );
 }
 
 template <typename Lambda>
@@ -242,25 +226,6 @@ int VariableReduction<Lambda>::find_plane( const int layer, const int fluorophor
     return first_fluorophore_occurence[fluorophore] + layer; 
 }
 
-typedef std::map< frame_index, quantity<si::length> > ZCalibration;
-
-ZCalibration read_calibration_file( std::string name )
-{
-    ZCalibration z_calibration;
-    std::ifstream input( name.c_str() );
-    while ( true ) {
-        frame_index image_number;
-        quantity<si::length> z_position;
-        input >> boost::units::quantity_cast<int&>(image_number)
-                >> boost::units::quantity_cast<double&>(z_position);
-        if ( input )
-            z_calibration[image_number] = z_position;
-        else
-            break;
-    }
-    return z_calibration;
-}
-
 /** Specialization of a FittingVariant for a concrete PSF model and
  *  parameter assignment.
  *
@@ -291,8 +256,7 @@ class Fitter
     Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
     VariableReduction<TheoreticalFunction> table;
-
-    boost::optional< ZCalibration > z_calibration;
+    const double width_correction;
 
     /** Get one of the model instances matching the given fluorophore type and layer. */
     const Lambda& result( int fluorophore = -1, int layer = 0 ) {
@@ -315,9 +279,6 @@ class Fitter
         return traits::No3D();
     }
 
-    void set_z_value( PSF::No3D&, quantity<si::length> ) const {}
-    void set_z_value( PSF::Polynomial3D& m, quantity<si::length> z ) const 
-        { m( PSF::MeanZ() ) = z; }
     void apply_z_calibration();
     static Lambda& gaussian_kernel( PlaneFunction& e ) 
         { return e.get_expression().get_part( boost::mpl::int_<0>() ); }
@@ -335,7 +296,7 @@ class Fitter
 
 template <class Metric, class Lambda>
 Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-: traits(traits), table( config, traits, images * traits.plane_count() )
+: traits(traits), table( config, traits, images * traits.plane_count() ), width_correction( config.width_correction() )
 {
     DEBUG("Creating form fitter");
     guf::Spot max_distance = max_psf_size( traits );
@@ -343,9 +304,6 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
     for ( int i = 0; i < traits.plane_count(); ++i ) {
         transformations.push_back( new Transformation(max_distance, traits.plane(i)) );
     }
-
-    if ( config.z_calibration )
-        z_calibration = read_calibration_file( config.z_calibration() );
 }
 
 template <class Metric, class Lambda>
@@ -374,18 +332,6 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
         gaussian_kernel( *new_evaluator ).allow_leaving_ROI( true );
-        if ( z_calibration ) {
-            ZCalibration::const_iterator z_entry 
-                = z_calibration->find( image.frame_number() );
-            if ( z_entry != z_calibration->end() )
-                set_z_value( gaussian_kernel( *new_evaluator ), z_entry->second );
-            else {
-                std::stringstream error;
-                error << "Image number " << image.frame_number() << " missing "
-                         "from Z calibration file";
-                throw std::runtime_error( error.str() );
-            }
-        }
 
         /* After adding the evaluator to the table and the combiner, it is only
          * kept for later reference with the result() function. */
@@ -416,8 +362,10 @@ void Fitter<Metric,Lambda>::apply_z_calibration()
     quantity<PSF::MeanZ::Unit> focus_z = gaussian_kernel( *highest_amp )( PSF::MeanZ() );
     BOOST_FOREACH( PlaneFunction& f, evaluators ) {
         /* Deviate minimally from the ideal Z position to avoid Z equalities */
-        gaussian_kernel( f )( PSF::ZPosition<0>() ) = focus_z - quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
-        gaussian_kernel( f )( PSF::ZPosition<1>() ) = focus_z + quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
+        if ( table.is_layer_independent( PSF::ZPosition<0>() ) )
+            gaussian_kernel( f )( PSF::ZPosition<0>() ) = focus_z - quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
+        if ( table.is_layer_independent( PSF::ZPosition<1>() ) )
+            gaussian_kernel( f )( PSF::ZPosition<1>() ) = focus_z + quantity<PSF::MeanZ::Unit>(1E-10 * si::meters);
     }
 }
 
@@ -430,8 +378,7 @@ void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m ) {
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits ) 
 {
-    if ( z_calibration )
-        apply_z_calibration();
+    apply_z_calibration();
 
     CombinedFunction combiner( table.get_reduction_matrix() );
     combiner.set_fitters( evaluators.begin(), evaluators.end() );
@@ -439,7 +386,13 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     nonlinfit::levmar::Fitter fitter = nonlinfit::levmar::Config();
     nonlinfit::terminators::StepLimit terminator(300);
     fitter.fit( combiner, combiner, 
-        all( nonlinfit::terminators::StepLimit(300), all( print_state(), nonlinfit::terminators::RelativeChange(1E-4) ) ) );
+        all( nonlinfit::terminators::StepLimit(300), 
+#ifdef VERBOSE_STATE
+        all( print_state(), nonlinfit::terminators::RelativeChange(1E-4) )
+#else
+        nonlinfit::terminators::RelativeChange(1E-4)
+#endif
+        ) );
 
     for (int j = 0; j < traits.plane_count(); ++j) {
         set_z_position( new_traits.optics(j), result(-1,j) );
@@ -462,7 +415,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
                 /* The factor of 1.075 here accounts for systematic underestimation
                  * of the PSF width. */
                 (*new_traits.optics(j).psf_size(i))[k] = quantity<si::length>(
-                    result(i,j).template get< PSF::BestSigma >(k) * 1.075);
+                    result(i,j).template get< PSF::BestSigma >(k) * width_correction);
             }
         }
     }

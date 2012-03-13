@@ -14,6 +14,7 @@
 #include "Input.h"
 #include <boost/array.hpp>
 #include <boost/icl/interval.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 
 namespace dStorm {
 namespace form_fitter {
@@ -37,6 +38,7 @@ namespace form_fitter {
         dStorm::traits::resolution::Config result_config;
         boost::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
         std::vector<bool> seen_fluorophores;
+        boost::scoped_ptr<calibrate_3d::ZTruth> z_truth;
 
         void do_the_fit();
 

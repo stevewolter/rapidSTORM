@@ -5,40 +5,12 @@
 #include <gsl/gsl_multimin.h>
 #include <dStorm/output/OutputBuilder_impl.h>
 #include <boost/foreach.hpp>
-#include "expression/Filter.h"
-#include "expression/VariableLValue.h"
-#include "expression/Variable.h"
-#include "expression/QuantityDynamizer.hpp"
+#include "ZTruth.h"
 
 namespace dStorm {
 namespace calibrate_3d {
 
 class Output;
-
-/** \todo TrueZ saves its state in the two kernel improvement field.
- *        This is a pretty dirty hack, even though it doesn't hurt for now. */
-class TrueZ 
-: public expression::Variable {
-    expression::QuantityDynamizer< samplepos::Scalar > reader;
-public:
-    TrueZ() : Variable("truez") {}
-    const samplepos::Scalar value(const Localization& l) const { 
-        return samplepos::Scalar::from_value( l.two_kernel_improvement() );
-    }
-
-    Variable* clone() const { assert( false ); return new TrueZ(); }
-    bool is_static( const input::Traits<Localization>& ) const { return false; }
-    expression::DynamicQuantity get( const input::Traits<Localization>& ) const 
-        { return reader.from_value( std::numeric_limits<double>::quiet_NaN() ); }
-    expression::DynamicQuantity get( const Localization& l ) const 
-        { return reader( value(l) ); }
-    void set( input::Traits<Localization>&, const expression::DynamicQuantity& ) const {}
-    bool set( const input::Traits<Localization>&, Localization& l, const expression::DynamicQuantity& v ) const { 
-        l.two_kernel_improvement() = reader(v).value();
-        return true;
-    }
-    
-};
 
 std::ostream& operator<<( std::ostream& o, const gsl_vector& v ) {
     for (size_t i = 0; i < v.size; ++i)
@@ -48,6 +20,7 @@ std::ostream& operator<<( std::ostream& o, const gsl_vector& v ) {
 
 Output::Output(const Config & config )
 : OutputObject("Calibrate3D", "Calibrate 3D"),
+  z_truth( config.get_z_truth() ),
   linearizer(config),
   have_set_traits_myself(false),
   terminate(false),
@@ -56,15 +29,6 @@ Output::Output(const Config & config )
   current_volume("CurrentVolume", "Current estimation volume", 0),
   residuals("Accuracy", "Residual error", 0)
 {
-    std::auto_ptr<TrueZ> my_new_z( new TrueZ() );
-    new_z_variable = my_new_z.get();
-    parser.add_variable( std::auto_ptr<expression::Variable>(my_new_z) );
-    if ( config.filter() != "" )
-        filter = expression::source::make_filter( config.filter(), parser );
-    if ( config.new_z() == "" )
-        throw std::runtime_error("An expression for the true Z value must be given to the 3D calibrator");
-    new_z_expression = expression::source::make_variable_lvalue( *new_z_variable, config.new_z(), parser );
-
     result_config.viewable = false;
     current_volume.viewable = false;
     residuals.viewable = false;
@@ -88,11 +52,8 @@ Output::AdditionalData Output::announceStormSize(const Output::Announcement &a)
         throw std::runtime_error("Source images are not given to 3D calibrator");
     initial_traits.reset( a.input_image_traits->clone() );
     engine = a.engine;
-    localization_traits = a;
-    if ( filter.get() )
-        filter->announce( parser.get_variable_table(), localization_traits );
-    new_z_expression->announce( parser.get_variable_table(), localization_traits );
 
+    z_truth->set_meta_info( a );
     linearizer.set_traits( *initial_traits );
 
     calibration_thread = boost::thread( &Output::run_fitter, this );
@@ -195,18 +156,9 @@ void Output::receiveLocalizations(const Output::EngineResult& localizations )
 {
     DEBUG("Using " << localizations.size() << " localizations from " << localizations.frame_number() );
     Output::EngineResult copied_locs = localizations;
-    Output::EngineResult::iterator end = copied_locs.end();
-    end = new_z_expression->evaluate(
-        parser.get_variable_table(), localization_traits,
-        copied_locs.begin(), copied_locs.end() );
-    if ( filter.get() ) 
-        end = filter->evaluate( parser.get_variable_table(), localization_traits,
-                                copied_locs.begin(), copied_locs.end() );
-    for ( Output::EngineResult::iterator i = copied_locs.begin(); i != end; ++i ) {
-        quantity<si::length> z_position = 
-            (i->position().x() - 1E-6 * si::meter ) * tan( 3 * 3.1415 / 180 ) + 
-            (i->position().y() - 1.2E-6 * si::meter ) / 1573.0 * 30.0;
-        delta_z( quantity<si::nanolength>(i->position().z() - new_z_variable->value(*i) ).value() );
+    Output::EngineResult::iterator begin = copied_locs.begin(), end = z_truth->calibrate( copied_locs );
+    for ( Output::EngineResult::iterator i = begin; i != end; ++i ) {
+        delta_z( quantity<si::nanolength>(i->position().z() - z_truth->true_z(*i)).value() );
     }
 }
 

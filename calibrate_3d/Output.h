@@ -1,6 +1,8 @@
 #ifndef DSTORM_CALIBRATE_3D_OUTPUT_H
 #define DSTORM_CALIBRATE_3D_OUTPUT_H
 
+#include <boost/smart_ptr/scoped_ptr.hpp>
+
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
@@ -32,17 +34,12 @@
 namespace dStorm {
 namespace calibrate_3d {
 
-class TrueZ;
-
 class Output : public output::OutputObject {
   private:
-    expression::Parser parser;
-    TrueZ *new_z_variable;
-    input::Traits<Localization> localization_traits;
+    boost::scoped_ptr<ZTruth> z_truth;
     boost::shared_ptr< engine::InputTraits > initial_traits;
     ParameterLinearizer linearizer;
     Engine* engine;
-    std::auto_ptr< expression::source::LValue > filter, new_z_expression;
     dStorm::traits::resolution::Config result_config;
 
     boost::thread calibration_thread;

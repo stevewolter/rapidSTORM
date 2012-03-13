@@ -9,6 +9,7 @@
 #include "guf/psf/is_plane_dependent.h"
 #include "guf/guf/TraitValueFinder.h"
 #include <dStorm/engine/JobInfo.h>
+#include "constant_parameter.hpp"
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -37,22 +38,6 @@ public:
     template <typename Parameter>
     bool operator()( Parameter ) { return false; }
 };
-
-class constant_parameter {
-    const Config_& config;
-
-public:
-    constant_parameter( const Config_& config )
-        : config(config) {}
-
-    template <int Dim> 
-    bool operator()( guf::PSF::BestSigma<Dim> ) { return ! config.fit_best_sigma(); }
-    template <int Dim> 
-    bool operator()( guf::PSF::ZPosition<Dim> ) { return ! config.fit_focus_plane(); }
-    template <int Dim, int Term>
-    bool operator()( guf::PSF::DeltaSigma<Dim,Term> ) { return ! config.fit_z_term(static_cast<Direction>(Dim), Term); }
-};
-
 
 template <typename Lambda>
 class BoundMoveable {
@@ -101,7 +86,7 @@ ParameterLinearizer::Pimpl::Pimpl( const Config_& config )
     plane_independent = nonlinfit::make_bitset( PSF::Variables(),
         guf::PSF::is_plane_independent(false, false, config.universal_best_sigma()) );
     constant = nonlinfit::make_bitset( PSF::Variables(),
-        constant_parameter(config) );
+        constant_parameter(false, config) );
 }
 
 void ParameterLinearizer::Pimpl::set_plane_count( int plane_count )

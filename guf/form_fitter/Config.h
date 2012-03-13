@@ -9,40 +9,27 @@
 #include <boost/optional/optional.hpp>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Direction.h>
+#include <memory>
+
+#include "calibrate_3d/FormCalibrationConfig.h"
 
 namespace dStorm {
 namespace form_fitter {
 
-class FormCalibratorConfig {
-    boost::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
-    simparm::Entry< bool > circular_psf_, astigmatism_, universal_best_sigma_;
-    simparm::Entry< bool > fit_best_sigma_, fit_focus_plane_;
-public:
-    FormCalibratorConfig();
-    void registerNamedEntries( simparm::Node& at );
+struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConfig
+{
+    simparm::BoolEntry auto_disable, mle;
+    simparm::Entry<unsigned long> number_of_spots, max_per_image;
+    simparm::Entry<double> width_correction;
+    simparm::BoolEntry visual_selection, 
+                        laempi_fit, disjoint_amplitudes;
 
-    bool fit_z_term( Direction, polynomial_3d::Term term ) const
-        { return (*z_terms[ polynomial_3d::offset(term) ])(); }
-    bool symmetric() const { return circular_psf_(); }
-    bool astigmatism() const { return astigmatism_(); }
-    bool universal_best_sigma() const { return universal_best_sigma_(); }
-    bool fit_best_sigma() const { return fit_best_sigma_(); }
-    bool fit_focus_plane() const { return fit_focus_plane_(); }
-};
+    Config();
+    void registerNamedEntries();
 
-struct Config : public simparm::Object, public FormCalibratorConfig {
-        simparm::BoolEntry auto_disable, mle;
-        simparm::Entry<unsigned long> number_of_spots, max_per_image;
-        simparm::BoolEntry visual_selection, 
-                           laempi_fit, disjoint_amplitudes;
-        simparm::FileEntry z_calibration;
-
-        Config();
-        void registerNamedEntries();
-
-        bool can_work_with(output::Capabilities cap)  {
-        	return cap.test( output::Capabilities::SourceImage );
-        }
+    bool can_work_with(output::Capabilities cap)  {
+            return cap.test( output::Capabilities::SourceImage );
+    }
 };
 
 }
