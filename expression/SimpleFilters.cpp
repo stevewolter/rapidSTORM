@@ -107,7 +107,7 @@ SimpleFilters::SimpleFilters()
 
 SimpleFilters::SimpleFilters( const SimpleFilters& o )
 : simparm::Listener(simparm::Event::ValueChanged),
-  manager(o.manager), 
+  manager(NULL), 
   lower_amplitude(o.lower_amplitude) ,
   drift_correction(o.drift_correction),
   two_kernel_improvement(o.two_kernel_improvement)

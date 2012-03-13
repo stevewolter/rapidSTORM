@@ -31,6 +31,7 @@ Config::Config(const Config& o)
 : simparm::Object(o),
   simparm::Listener( simparm::Event::ValueChanged ),
   parser(o.parser), 
+  simple(o.simple),
   lines(o.lines), new_line(o.new_line), next_ident(o.next_ident)
 { 
     registerNamedEntries(); 
