@@ -39,6 +39,7 @@ namespace form_fitter {
         boost::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
         std::vector<bool> seen_fluorophores;
         boost::scoped_ptr<calibrate_3d::ZTruth> z_truth;
+        double current_limit;
 
         void do_the_fit();
 

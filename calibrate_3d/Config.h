@@ -9,7 +9,7 @@
 #include <simparm/Entry.hh>
 #include <string>
 #include <dStorm/output/Capabilities.h>
-#include "guf/form_fitter/Config.h"
+#include "FormCalibrationConfig.h"
 #include <dStorm/units/microlength.h>
 #include <boost/units/quantity.hpp>
 

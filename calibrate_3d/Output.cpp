@@ -87,7 +87,7 @@ void Output::run_fitter()
     linearizer.linearize( *initial_traits, initial_position );
     for (size_t i = 0; i < initial_position->size; ++i)
         gsl_vector_set( initial_step_size, i,
-            std::max( 0.1, gsl_vector_get( initial_position, i ) / 5 ) );
+            std::max( 0.1, gsl_vector_get( initial_position, i ) / 2 ) );
 
     DEBUG("Starting at position " << *initial_position);
     int success = gsl_multimin_fminimizer_set (solver, &function, 
@@ -154,7 +154,6 @@ double Output::evaluate_function( const gsl_vector *x ) {
 
 void Output::receiveLocalizations(const Output::EngineResult& localizations )
 {
-    DEBUG("Using " << localizations.size() << " localizations from " << localizations.frame_number() );
     Output::EngineResult copied_locs = localizations;
     Output::EngineResult::iterator begin = copied_locs.begin(), end = z_truth->calibrate( copied_locs );
     for ( Output::EngineResult::iterator i = begin; i != end; ++i ) {
@@ -166,13 +165,15 @@ void Output::run_finished_( const RunFinished& ) {
     DEBUG("Storing job results");
     boost::unique_lock<boost::mutex> lock( mutex );
     if ( have_set_traits_myself ) {
-        double variance = boost::accumulators::variance( delta_z );
-        int spots = boost::accumulators::count( delta_z );
-        int missing_spots = std::max( 0, config.target_localization_number() - spots );
-        position_value = sqrt( 
+        quantity<si::area> variance = quantity<si::area>(boost::accumulators::variance( delta_z ) * si::nanometre * si::nanometre);
+        double spots = boost::accumulators::count( delta_z );
+        double missing_spots = std::max( 0.0, config.target_localization_number() - spots );
+        DEBUG("Localzied " << spots << " spots with SD " << sqrt(variance) << " and have " << missing_spots << " missing spots");
+        quantity<si::length> score = sqrt( 
             ( variance * spots + 
-              pow<2>( quantity<si::nanolength>(config.missing_penalty()) ).value() * missing_spots
+              pow<2>( quantity<si::length>(config.missing_penalty()) ) * missing_spots
             ) / (spots + missing_spots) );
+        position_value = quantity<si::nanolength>(score).value();
         DEBUG("Position's value is " << *position_value );
         value_computed.notify_all();
     }

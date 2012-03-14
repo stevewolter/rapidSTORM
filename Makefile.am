@@ -327,8 +327,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
     expression/localization_variable.cpp expression/localization_variable_decl.h \
     expression/localization_variable.h expression/localization_variable_impl.h \
-    expression/Parser.cpp expression/Parser.h expression/Parser_impl.h \
     expression/SIPrefixes.h \
+    expression/Variable.h \
+    expression/DynamicQuantity.h \
+    expression/Parser.h expression/Parser.cpp expression/Parser_test.cpp \
+    expression/QuantityDynamizer.h expression/QuantityDynamizer.hpp \
     expression/tokens.cpp expression/tokens_decl.h expression/tokens.h \
     expression/types.cpp expression/types.h expression/types_decl.h \
     expression/UnitTable.cpp expression/UnitTable.h expression/UnitTable_impl.h \

@@ -19,8 +19,8 @@ namespace form_fitter {
 struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConfig
 {
     simparm::BoolEntry auto_disable, mle;
-    simparm::Entry<unsigned long> number_of_spots, max_per_image;
-    simparm::Entry<double> width_correction;
+    simparm::Entry<unsigned long> number_of_spots; 
+    simparm::Entry<double> width_correction, max_per_image;
     simparm::BoolEntry visual_selection, 
                         laempi_fit, disjoint_amplitudes;
 

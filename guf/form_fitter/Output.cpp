@@ -42,7 +42,8 @@ Output::Output(const Config& c)
   config(c),
   engine(NULL),
   visual_select( c.visual_selection() ),
-  z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL )
+  z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL ),
+  current_limit( 0 )
 {
     result_config.registerNamedEntries();
     push_back( result_config );
@@ -84,6 +85,7 @@ Output::announceStormSize(const Announcement& a)
     DEBUG( "New input traits are announced" );
     result_config.read_traits( *input->traits );
     fitter = FittingVariant::create( config, *input->traits, input->number_of_spots );
+    current_limit = 0;
     return AdditionalData();
 }
 
@@ -114,6 +116,8 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
             i->position().z() = z_truth->true_z( *i );
     }
 
+    if ( copy.begin() != end )
+        current_limit += config.max_per_image();
     for (EngineResult::const_iterator i = copy.begin(); i != end; ++i) {
         DEBUG("Using localization " << i-copy.begin() << " at " << i->position().transpose() << " with type " << i->fluorophore());
         bool is_close_to_border = false;
@@ -122,6 +126,12 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
         if ( is_close_to_border ) {
             DEBUG("Rejecting localization " << i-copy.begin() << " because it is too close to the border");
             continue;
+        }
+        if ( current_limit < 1 ) {
+            DEBUG("Rejecting localization because we have too many");
+            continue;
+        } else {
+            current_limit -= 1;
         }
 
         if ( visual_select ) {

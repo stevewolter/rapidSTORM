@@ -1,3 +1,4 @@
+#include <Eigen/StdVector>
 #include "ParameterLinearizer.h"
 #include "guf/psf/Polynomial3D.h"
 #include <nonlinfit/Bind.h>
@@ -67,7 +68,7 @@ struct ParameterLinearizer::Pimpl
     std::pair<int,int> reduce( const int plane, const int parameter ) const;
 
     std::bitset< VariableCount > reducible, plane_independent, constant;
-    mutable std::vector< OnePlane > planes;
+    mutable std::vector< OnePlane, Eigen::aligned_allocator<OnePlane> > planes;
     typedef nonlinfit::sum::AbstractFunction< OnePlane, OnePlane, nonlinfit::sum::VariableDropPolicy > MultiPlane;
     mutable boost::optional< MultiPlane > multiplane;
 
