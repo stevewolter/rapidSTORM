@@ -1,3 +1,11 @@
+== 14.5.1 ==
+
+* Included simparm entry implementation explicitly to avoid compilation errors
+* Added missing files to fix distcheck errors.
+* Implemented max spots per image feature.
+* Fixed copying of simple filters
+* Fixed bugs introduced in refactoring
+
 == 14.5.0 ==
 
 * Refactored 3D calibration code to join common parts of signal-based and localization-based fitter
