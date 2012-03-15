@@ -23,7 +23,7 @@ Factory::~Factory() {}
 
 bool Factory::can_do_3d( const input::Traits<engine::ImageStack>& t ) const
 {
-    bool do_3d = boost::get< traits::Polynomial3D >( t.depth_info.get_ptr() ) != NULL;
+    bool do_3d = boost::get< traits::Polynomial3D >( t.optics(0).depth_info().get_ptr() ) != NULL;
     return do_3d;
 }
 

@@ -19,14 +19,14 @@ struct LocalizationValueFinder::application {
     guf::TraitValueFinder tvf;
 
     application( 
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
+        const int fluorophore, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number )
         : parent(parent), 
           child( 
                 (parent.children.is_initialized() && parent.children->size() > plane_number )
                 ? &(*parent.children)[plane_number] : NULL ),
           mle( plane ),
-          tvf(info,plane) {}
+          tvf(fluorophore,plane) {}
 
     template <int Dim, typename Structure>
     void operator()( nonlinfit::Xs<Dim,PSF::LengthUnit>, Structure& ) const {}
@@ -62,9 +62,9 @@ struct LocalizationValueFinder::application {
 };
 
 LocalizationValueFinder::LocalizationValueFinder(
-        const dStorm::engine::JobInfo& info, const dStorm::traits::Optics& plane,
+        const int fluorophore, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number )
-: appl_( new application(info,plane,parent,plane_number) ) {}
+: appl_( new application(fluorophore,plane,parent,plane_number) ) {}
 
 template <typename Type>
 void LocalizationValueFinder::find_values_( Type& z ) {

@@ -45,9 +45,10 @@ void Config::write_traits( engine::InputTraits& t ) const
     DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
     cuboid_config.write_traits(t);
 
-    t.depth_info = three_d().set_traits();
+    for (int p = 0; p < t.plane_count(); ++p)
+        t.optics(p).depth_info() = three_d().set_traits();
     const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability( 
-        boost::get<traits::No3D>(t.depth_info.get_ptr()) == NULL );
+        boost::get<traits::No3D>(t.optics(0).depth_info().get_ptr()) == NULL );
 }
 
 DepthInfo NoThreeDConfig::set_traits() const { return traits::No3D(); }
@@ -109,16 +110,17 @@ void Config::read_plane_count( const input::Traits<Localization>& t ) {
 
 void Config::read_traits( const engine::InputTraits& t ) {
     cuboid_config.read_traits( t );
-    if ( t.depth_info.is_initialized() ) {
-        if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) ) {
+    const boost::optional<traits::DepthInfo> d = t.optics(0).depth_info();
+    if ( d.is_initialized() ) {
+        if ( boost::get< traits::No3D >( d.get_ptr() ) ) {
             three_d.choose( "No3D" );
             cuboid_config.set_3d_availability(false);
-        } else if ( boost::get< traits::Polynomial3D >( t.depth_info.get_ptr() ) ) {
+        } else if ( boost::get< traits::Polynomial3D >( d.get_ptr() ) ) {
             three_d.choose( "Polynomial3D" );
             cuboid_config.set_3d_availability(true);
         } else
             throw std::runtime_error("ThreeD info not recognized");
-        three_d().read_traits( *t.depth_info );
+        three_d().read_traits( *d );
     }
 }
 

@@ -327,8 +327,7 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
         assert ( stats.pixel_count > 0 );
         DEBUG("Size is now " << new_evaluator->get_data().min.transpose() << " - " << new_evaluator->get_data().max.transpose() );
 
-        dStorm::engine::JobInfo info( 0, 0 * camera::ad_count, traits, fluorophore );
-        LocalizationValueFinder iv(info, traits.optics(i), position, i);
+        LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<1>() ) );
         gaussian_kernel( *new_evaluator ).allow_leaving_ROI( true );
@@ -396,6 +395,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
 
     for (int j = 0; j < traits.plane_count(); ++j) {
         set_z_position( new_traits.optics(j), result(-1,j) );
+        new_traits.optics(j).depth_info() = get_3d( result() );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {
@@ -419,7 +419,6 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
             }
         }
     }
-    new_traits.depth_info = get_3d( result() );
 }
 
 /** Helper for FittingVariant::create() that instantiates a Fitter class. */
@@ -437,8 +436,7 @@ std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
     std::auto_ptr<FittingVariant> rv;
-    bool has_3d = boost::get< traits::Polynomial3D >( traits.depth_info.get_ptr() ) != NULL;
-    if ( has_3d )
+    if ( boost::get< traits::Polynomial3D >( traits.optics(0).depth_info().get_ptr() ) )
         return create2< PSF::Polynomial3D >( config, traits, images );
     else
         return create2< PSF::No3D >( config, traits, images );

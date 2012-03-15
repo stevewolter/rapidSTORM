@@ -14,6 +14,7 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "../units/camera_response.h"
 #include <dStorm/types/samplepos.h>
+#include <dStorm/traits/DepthInfo.h>
 
 namespace dStorm {
 namespace traits {
@@ -33,6 +34,7 @@ struct Optics
     std::vector<float> tmc;
     boost::optional< PSF > psf;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
+    boost::optional< traits::DepthInfo > depth_info_;
 
   public:
     friend class dStorm::traits::PlaneConfig;
@@ -47,12 +49,15 @@ struct Optics
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
 
     boost::optional<PSF>& psf_size( int ) { return psf; }
-    boost::optional<PSF> psf_size( int ) const { return psf; }
-    boost::shared_ptr< const ProjectionFactory > projection_factory() const
+    const boost::optional<PSF> psf_size( int ) const { return psf; }
+    const boost::shared_ptr< const ProjectionFactory > 
+        projection_factory() const
         { return projection_factory_; }
 
-    float transmission_coefficient( int fluorophore ) const;
+    boost::optional< traits::DepthInfo >& depth_info() { return depth_info_; }
+    const boost::optional< traits::DepthInfo > depth_info() const { return depth_info_; }
 
+    float transmission_coefficient( int fluorophore ) const;
     void set_fluorophore_transmission_coefficient( int fluorophore, float );
 };
 

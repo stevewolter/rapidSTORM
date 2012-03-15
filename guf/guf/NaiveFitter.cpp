@@ -46,7 +46,7 @@ create1(
 {
     return boost::apply_visitor( 
         boost::bind( creator3<Kernels,Assignment>(), boost::cref(c), boost::cref(i), _1 ),
-        *i.traits.depth_info );
+        *i.traits.optics(0).depth_info() );
 }
 
 template <>

@@ -146,11 +146,10 @@ void ParameterLinearizer::delinearize( const gsl_vector* x, engine::InputTraits&
 Eigen::VectorXd ParameterLinearizer::Pimpl::linearize( const engine::InputTraits& traits ) const {
     assert( traits.plane_count() == int(planes.size()) );
     const int fluorophore = 0;
-    engine::JobInfo info( 0, 0 * camera::ad_count, traits, fluorophore );
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
         guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
         /* Set the parameters of the model to the traits' values. */
-        guf::TraitValueFinder iv( info, traits.optics(plane_index) );
+        guf::TraitValueFinder iv( fluorophore, traits.optics(plane_index) );
         boost::mpl::for_each< PSF::Variables >( 
             boost::bind( boost::ref(iv), _1, boost::ref(m) ) );
     }
@@ -166,18 +165,17 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
     multiplane->set_position( parameters );
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
         guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
-        traits.optics(plane_index).z_position->x() = quantity<si::length>(*m( guf::PSF::ZPosition<0>() ));
-        traits.optics(plane_index).z_position->y() = quantity<si::length>(*m( guf::PSF::ZPosition<1>() ));
-        traits.optics(plane_index).psf_size(fluorophore)->x() 
-            = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ));
-        traits.optics(plane_index).psf_size(fluorophore)->y()
-            = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ));
-    }
+        traits::Optics& o = traits.optics(plane_index);
+        o.z_position->x() = quantity<si::length>(*m( guf::PSF::ZPosition<0>() ));
+        o.z_position->y() = quantity<si::length>(*m( guf::PSF::ZPosition<1>() ));
+        o.psf_size(fluorophore)->x() = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ));
+        o.psf_size(fluorophore)->y() = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ));
 
-    traits::Polynomial3D& p = boost::get<traits::Polynomial3D>(*traits.depth_info);
-    for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
-        for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
-            p.set_slope( dir, term, traits::Polynomial3D::WidthSlope(planes[0].get_expression().get_delta_sigma( dir, term )) );
+        traits::Polynomial3D& p = boost::get<traits::Polynomial3D>(*o.depth_info());
+        for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
+            for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
+                p.set_slope( dir, term, traits::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ class InitialValueFinder::set_parameter {
   public:
     typedef void result_type;
     set_parameter( const InitialValueFinder& p, const guf::Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
-        : base( p.info, o ), p(p), s(s), e(e), 
+        : base( p.info.fluorophore, o ), p(p), s(s), e(e), 
           equifocal_plane( (o.z_position->x() + o.z_position->y()) / 2.0f ) {}
 
     template <typename Model>

@@ -59,9 +59,10 @@ output::Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 {
     engine = a.engine;
-    if ( ! boost::get<traits::No3D>( a.input_image_traits->depth_info.get_ptr() ) 
-         && ! config.has_z_truth() && config.fit_focus_plane() )
-        throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
+    for (int plane = 0; plane < a.input_image_traits->plane_count(); ++plane)
+        if ( ! boost::get<traits::No3D>( a.input_image_traits->optics(plane).depth_info().get_ptr() ) 
+            && ! config.has_z_truth() && config.fit_focus_plane() )
+            throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
     dStorm::traits::Optics::PSF max_psf = max_psf_size( *a.input_image_traits );
     DEBUG("Maximum PSF size is " << max_psf.transpose());

@@ -6,7 +6,6 @@
 #include <dStorm/traits/image_number.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/DataSetTraits.h>
-#include <dStorm/traits/DepthInfo.h>
 
 namespace dStorm {
 namespace input {
@@ -37,8 +36,6 @@ public:
     const_iterator end() const { return planes_.end(); }
 
     samplepos size_in_sample_space() const;
-
-    boost::optional< traits::DepthInfo > depth_info;
 
     traits::ImageNumber& image_number() { return in; }
     const traits::ImageNumber& image_number() const { return in; }
