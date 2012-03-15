@@ -206,7 +206,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
         size.size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
         t->push_back( size, dStorm::traits::Optics() );
     }
-    config.optics.set_traits( *t );
+    config.optics.write_traits( *t );
     for (int p = 0; p < t->plane_count(); ++p) {
         t->plane(p).create_projection();
     }

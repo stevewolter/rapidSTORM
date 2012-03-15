@@ -98,12 +98,12 @@ CuboidConfig::get_resolution() const {
 }
 
 
-void CuboidConfig::set_traits( input::Traits<engine::ImageStack>& t ) const
+void CuboidConfig::write_traits( input::Traits<engine::ImageStack>& t ) const
 {
     image::MetaInfo<2>::Resolutions defaults = get_resolution();
 
     for (int i = 0; i < int( layers.size() ) && i < t.plane_count(); ++i) {
-        layers[i].set_traits( t.optics(i) );
+        layers[i].write_traits( t.optics(i) );
         t.image(i).set_resolution( defaults );
     }
 }
@@ -177,7 +177,7 @@ void PlaneConfig::set_number_of_fluorophores(int number, bool has_multiple_layer
 	i->viewable = (i - transmissions.begin()) < number && (number > 1 || has_multiple_layers);
 }
 
-void PlaneConfig::set_traits( traits::Optics& rv ) const
+void PlaneConfig::write_traits( traits::Optics& rv ) const
 {
     rv.projection_factory_ = alignment().get_projection_factory();
     rv.photon_response = counts_per_photon();
@@ -193,11 +193,19 @@ void PlaneConfig::set_traits( traits::Optics& rv ) const
         (*rv.psf_size(0))[i] /= 2.35;
 }
 
-traits::Optics PlaneConfig::make_traits() const
+void PlaneConfig::read_traits( const traits::Optics& t )
 {
-    traits::Optics rv;
-    set_traits(rv);
-    return rv;
+    for (int i = 0; i < int(t.tmc.size()); ++i) {
+        transmissions[i] = t.tmc[i];
+    }
+    if ( t.psf_size(0).is_initialized() ) {
+        PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
+        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
+        psf_size = s;
+    }
+    if ( t.z_position ) z_position = t.z_position->cast< quantity<si::nanolength> >();
+    if ( t.photon_response ) counts_per_photon = *t.photon_response;
+    if ( t.dark_current ) dark_current = *t.dark_current;
 }
 
 float traits::Optics::transmission_coefficient( int fluorophore ) const
@@ -217,25 +225,11 @@ void traits::Optics::set_fluorophore_transmission_coefficient( int fluorophore, 
     tmc[fluorophore] = value;
 }
 
-void CuboidConfig::set_entries_to_traits( const input::Traits<engine::ImageStack>& t, int fc )
+void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t )
 {
     set_number_of_planes( t.plane_count() );
-    set_number_of_fluorophores(fc);
-    for (int i = 0; i < t.plane_count(); ++i)
-        layers[i].set_entries_to_traits( t.optics(i), fc );
-}
-
-void PlaneConfig::set_entries_to_traits( const traits::Optics& t, int fc )
-{
-    for (int i = 0; i < fc && i < int(t.tmc.size()); ++i) {
-        transmissions[i] = t.tmc[i];
-    }
-    if ( t.psf_size(0).is_initialized() ) {
-        PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
-        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
-        psf_size = s;
-    }
-
+    for (int i = 0; i < t.plane_count() && i < int(layers.size()); ++i)
+        layers[i].read_traits( t.optics(i) );
 }
 
 void CuboidConfig::set_3d_availability(bool available) {

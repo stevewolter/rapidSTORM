@@ -69,10 +69,12 @@ class Config : public simparm::Object {
     Config();
     ~Config();
     void registerNamedEntries();
-    void set_traits( input::Traits<Localization>& ) const;
-    void set_traits( engine::InputTraits& ) const;
+    void write_traits( input::Traits<Localization>& ) const;
+    void write_traits( engine::InputTraits& ) const;
     void read_traits( const engine::InputTraits& );
     void read_traits( const input::Traits<Localization>& );
+    void read_plane_count( const engine::InputTraits& );
+    void read_plane_count( const input::Traits<Localization>& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 

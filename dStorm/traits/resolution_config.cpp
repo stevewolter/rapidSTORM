@@ -40,10 +40,10 @@ Polynomial3DConfig::Polynomial3DConfig(const Polynomial3DConfig& o)
     registerNamedEntries();
 }
 
-void Config::set_traits( engine::InputTraits& t ) const
+void Config::write_traits( engine::InputTraits& t ) const
 {
     DEBUG("Setting traits in ResolutionSetter, input is " << t.size.transpose());
-    cuboid_config.set_traits(t);
+    cuboid_config.write_traits(t);
 
     t.depth_info = three_d().set_traits();
     const_cast< traits::CuboidConfig& >(cuboid_config).set_3d_availability( 
@@ -93,18 +93,31 @@ Config::get( const FloatPixelSizeEntry::value_type& f ) {
     return q1;
 }
 
-void Config::set_traits( input::Traits<Localization>& t ) const {
+void Config::write_traits( input::Traits<Localization>& t ) const {
     DEBUG("Setting resolution in Config");
     t.position().resolution() = cuboid_config.make_localization_traits();
 }
 
+void Config::read_plane_count( const engine::InputTraits& t ) {
+    cuboid_config.set_number_of_planes( t.plane_count() );
+    cuboid_config.set_number_of_fluorophores( t.fluorophores.size() );
+}
+void Config::read_plane_count( const input::Traits<Localization>& t ) {
+    cuboid_config.set_number_of_planes( 1 );
+    cuboid_config.set_number_of_fluorophores( t.fluorophores.size() );
+}
+
 void Config::read_traits( const engine::InputTraits& t ) {
-    cuboid_config.set_entries_to_traits( t, t.fluorophores.size() );
+    cuboid_config.read_traits( t );
     if ( t.depth_info.is_initialized() ) {
-        if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) )
+        if ( boost::get< traits::No3D >( t.depth_info.get_ptr() ) ) {
             three_d.choose( "No3D" );
-        else if ( boost::get< traits::Polynomial3D >( t.depth_info.get_ptr() ) )
+            cuboid_config.set_3d_availability(false);
+        } else if ( boost::get< traits::Polynomial3D >( t.depth_info.get_ptr() ) ) {
             three_d.choose( "Polynomial3D" );
+            cuboid_config.set_3d_availability(true);
+        } else
+            throw std::runtime_error("ThreeD info not recognized");
         three_d().read_traits( *t.depth_info );
     }
 }

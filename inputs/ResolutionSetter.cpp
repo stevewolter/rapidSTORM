@@ -36,13 +36,13 @@ class Source
     Config config;
 
     void modify_traits( input::Traits<engine::ImageStack>& t ) { 
-        config.set_traits(t); 
+        config.write_traits(t); 
         for (int p = 0; p < t.plane_count(); ++p)
             t.plane(p).create_projection();
     }
     template <typename OtherTypes>
     void modify_traits( input::Traits<OtherTypes>& t ) { 
-        config.set_traits(t); 
+        config.write_traits(t); 
     }
   public:
     Source(
@@ -68,8 +68,8 @@ class ChainLink
     template <typename Type>
     void update_traits( MetaInfo& i, Traits<Type>& traits ) { 
         i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
-        config.read_traits( traits );
-        config.set_traits(traits); 
+        config.read_plane_count( traits );
+        config.write_traits(traits); 
     }
 
   public:
@@ -178,7 +178,7 @@ struct Check {
         l.insert_new_node( std::auto_ptr<input::Link>(ms), Anywhere );
 
         dStorm::input::Traits< engine::ImageStack > correct( ( image::MetaInfo<2>() ) );
-        l.config.set_traits( correct );
+        l.config.write_traits( correct );
 
         DEBUG("Publishing image traits");
         input::MetaInfo::Ptr tp( new input::MetaInfo() );
@@ -188,7 +188,7 @@ struct Check {
         DEBUG("Changing context element");
         std::stringstream cmd("set 136.875,100");
         l.config["Optics"]["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
-        l.config.set_traits( correct );
+        l.config.write_traits( correct );
         DEBUG("Checking if config element change updates traits");
         if ( trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l.current_meta_info()) )
             l.current_meta_info().reset();

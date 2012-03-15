@@ -46,7 +46,6 @@ Output::Output(const Config& c)
   current_limit( 0 )
 {
     result_config.registerNamedEntries();
-    push_back( result_config );
 
 }
 
@@ -206,6 +205,7 @@ void Output::do_the_fit() {
     result_config.read_traits( *new_traits );
     if ( ! this->isActive() )
         new_traits->print_psf_info( std::cerr << "Auto-guessed PSF has " ) << std::endl;
+    push_back( result_config );
 
     DEBUG("Signalling restart");
     engine->change_input_traits( std::auto_ptr< input::BaseTraits >(new_traits.release()) );
