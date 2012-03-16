@@ -43,10 +43,17 @@ Output::Output(const Config& c)
   engine(NULL),
   visual_select( c.visual_selection() ),
   z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL ),
-  current_limit( 0 )
+  current_limit( 0 ),
+  collection("CollectionProgress", "Spots for form estimation"),
+  fit("FitProgress", "Form estimation fit progress")
 {
     result_config.registerNamedEntries();
+    fit.viewable = false;
+    collection.userLevel = simparm::Object::Beginner;
+    fit.userLevel = simparm::Object::Beginner;
 
+    push_back( collection );
+    push_back( fit );
 }
 
 Output::~Output() {
@@ -165,6 +172,8 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
                             if ( fitter->add_image( i->image, i->spot, i->fluorophore ) ) {
                                 do_the_fit();
                                 break;
+                            } else {
+                                collection.setValue( fitter->collection_state() );
                             }
                         }
                     } catch ( const nonlinfit::levmar::SingularMatrix& o ) {
@@ -183,7 +192,12 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
         } else {
             seen_fluorophores[ i->fluorophore() ] = true;
             bool enough_images = fitter->add_image( *copy.source, *i, i->fluorophore() );
-            if ( enough_images ) { do_the_fit(); break; }
+            if ( enough_images ) {
+                do_the_fit(); 
+                break; 
+            } else {
+                collection.setValue( fitter->collection_state() );
+            }
         }
         DEBUG("Used localization " << i - copy.begin());
     }
@@ -191,10 +205,13 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
 }
 
 void Output::do_the_fit() {
+    collection.setValue(1);
+    fit.setValue( 0 );
+    fit.viewable = true;
     DEBUG("Finally doing the fit");
     std::auto_ptr< input::Traits< engine::ImageStack > > new_traits
         ( new input::Traits< engine::ImageStack >(*input->traits) );
-    fitter->fit(*new_traits);
+    fitter->fit(*new_traits, fit);
 
     result_config.read_traits( *new_traits );
     if ( ! this->isActive() )

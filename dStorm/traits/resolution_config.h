@@ -19,45 +19,6 @@ namespace dStorm {
 namespace traits {
 namespace resolution {
 
-typedef power_typeof_helper< 
-        power10< si::length, -6 >::type,
-        static_rational<-1> >::type PerMicro; 
-
-struct ThreeDConfig {
-    virtual ~ThreeDConfig() {}
-    virtual DepthInfo set_traits() const = 0;
-    virtual void read_traits( const DepthInfo& ) = 0;
-    virtual simparm::Node& getNode() = 0;
-    operator simparm::Node&() { return getNode(); }
-    operator const simparm::Node&() const { return const_cast<ThreeDConfig&>(*this).getNode(); }
-    virtual ThreeDConfig* clone() const = 0;
-};
-
-class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
-    DepthInfo set_traits() const;
-    void read_traits( const DepthInfo& );
-    simparm::Node& getNode() { return *this; }
-  public:
-    NoThreeDConfig() : simparm::Object("No3D", "No 3D") {}
-    NoThreeDConfig* clone() const { return new NoThreeDConfig(); }
-};
-
-class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
-    typedef simparm::Entry< 
-        Eigen::Matrix< quantity<PerMicro>, Direction_2D, 
-                       Polynomial3D::Order, Eigen::DontAlign > > SlopeEntry;
-    SlopeEntry slopes;
-
-    DepthInfo set_traits() const;
-    void read_traits( const DepthInfo& );
-    simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( slopes ); }
-  public:
-    Polynomial3DConfig();
-    Polynomial3DConfig(const Polynomial3DConfig&);
-    Polynomial3DConfig* clone() const { return new Polynomial3DConfig(*this); }
-};
-
 class Config : public simparm::Object {
     simparm::NodeChoiceEntry< ThreeDConfig > three_d;
     traits::CuboidConfig cuboid_config;
@@ -73,21 +34,12 @@ class Config : public simparm::Object {
     void write_traits( engine::InputTraits& ) const;
     void read_traits( const engine::InputTraits& );
     void read_traits( const input::Traits<Localization>& );
-    void read_plane_count( const engine::InputTraits& );
-    void read_plane_count( const input::Traits<Localization>& );
+    void set_context( const engine::InputTraits& );
+    void set_context( const input::Traits<Localization>& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
 }
-}
-}
-
-namespace boost {
-namespace units {
-
-std::string name_string(const dStorm::traits::resolution::PerMicro&);
-std::string symbol_string(const dStorm::traits::resolution::PerMicro&);
-
 }
 }
 

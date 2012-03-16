@@ -18,6 +18,7 @@
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/foreach.hpp>
+#include <dStorm/traits/DepthInfoConfig.h>
 
 #include "FluorophoreDistributions.h"
 
@@ -89,7 +90,6 @@ NoiseConfig::NoiseConfig()
 {
     create_fluo_set();
     registerNamedEntries();
-    optics.set_number_of_fluorophores(2);
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
@@ -118,8 +118,6 @@ void NoiseConfig::operator()( const simparm::Event& e)
         create_fluo_set();
         newSet.untrigger();
     } else if ( e.cause == simparm::Event::ValueChanged ) {
-        if ( &e.source == &layer_count.value )
-            optics.set_number_of_planes( layer_count() );
         publish_meta_info();
     } else 
 	TreeListener::add_new_children(e);
@@ -200,13 +198,14 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
     noiseGenerator = 
         NoiseGenerator<unsigned short>::factory(config.noiseGeneratorConfig, rng);
 
-    for (int p = 0; p < config.optics.number_of_planes(); ++p) {
+    for (size_t p = 0; p < config.layer_count(); ++p) {
         dStorm::image::MetaInfo<2> size;
         size.size.x() = config.noiseGeneratorConfig.width() * camera::pixel;
         size.size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
         t->push_back( size, dStorm::traits::Optics() );
     }
-    config.optics.write_traits( *t );
+    std::auto_ptr< dStorm::traits::ThreeDConfig > three_d = dStorm::traits::make_no_3d_config();
+    config.optics.write_traits( *t, *three_d );
     for (int p = 0; p < t->plane_count(); ++p) {
         t->plane(p).create_projection();
     }
@@ -305,7 +304,7 @@ void NoiseConfig::publish_meta_info() {
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
-    for (int p = 0; p < optics.number_of_planes(); ++p) {
+    for (int p = 0; p < layer_count(); ++p) {
         dStorm::image::MetaInfo<2> p;
         p.size.x() = noiseGeneratorConfig.width() * camera::pixel;
         p.size.y() = noiseGeneratorConfig.height() * camera::pixel;

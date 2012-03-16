@@ -144,6 +144,8 @@ class VariableReduction
         { return result; }
     template <typename Parameter>
     bool is_layer_independent( Parameter );
+
+    double collection_state() const { return double(plane_count) / max_plane_count; }
 };
 
 template <typename Lambda>
@@ -292,7 +294,8 @@ class Fitter
     /** \see FittingVariant::add_image(). */
     bool add_image( const engine::ImageStack& image, const Localization& position, int fluorophore );
     /** \see FittingVariant::fit(). */
-    void fit( input::Traits< engine::ImageStack >& new_traits );
+    void fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress );
+    double collection_state() const { return table.collection_state(); }
 };
 
 template <class Metric, class Lambda>
@@ -376,9 +379,11 @@ void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m ) {
 }
     
 template <class Metric, class Lambda>
-void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits ) 
+void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress ) 
 {
     apply_z_calibration();
+    progress.indeterminate = true;
+    progress.setValue( 0.5 );
 
     CombinedFunction combiner( table.get_reduction_matrix() );
     combiner.set_fitters( evaluators.begin(), evaluators.end() );
@@ -393,6 +398,9 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
         nonlinfit::terminators::RelativeChange(1E-4)
 #endif
         ) );
+
+    progress.indeterminate = false;
+    progress.setValue( 1 );
 
     for (int j = 0; j < traits.plane_count(); ++j) {
         set_z_position( new_traits.optics(j), result(-1,j) );

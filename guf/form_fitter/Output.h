@@ -4,6 +4,7 @@
 #include <dStorm/traits/resolution_config.h>
 #include "decl.h"
 #include <simparm/Structure.hh>
+#include <simparm/ProgressEntry.hh>
 #include "Config.h"
 #include <dStorm/engine/Input.h>
 #include <dStorm/output/Output.h>
@@ -40,6 +41,7 @@ namespace form_fitter {
         std::vector<bool> seen_fluorophores;
         boost::scoped_ptr<calibrate_3d::ZTruth> z_truth;
         double current_limit;
+        simparm::ProgressEntry collection, fit;
 
         void do_the_fit();
 

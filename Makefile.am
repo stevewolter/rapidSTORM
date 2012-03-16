@@ -106,6 +106,7 @@ nobase_include_HEADERS = \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
+    dStorm/traits/DepthInfoConfig.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
@@ -173,7 +174,7 @@ nobase_include_HEADERS = \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
-    dStorm/units/microlength.h \
+    dStorm/units/microlength.h dStorm/units/permicrolength.h \
     dStorm/units/nanoresolution.h dStorm/units/prefixes.h \
     dStorm/units/camera_response.h \
     dStorm/UnitEntries/FrameEntry.h dStorm/UnitEntries/Hertz.h \
@@ -197,7 +198,8 @@ libdStorm_la_SOURCES = \
     dStorm/localization/Field.cpp \
     dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
-    dStorm/traits/optics.cpp \
+    dStorm/traits/optics.cpp dStorm/traits/optics_config.cpp \
+    dStorm/traits/DepthInfoConfig.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
     dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \

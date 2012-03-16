@@ -17,6 +17,9 @@
 
 #include "position.h"
 #include "ProjectionConfig.h"
+#include "DepthInfoConfig.h"
+#include <dStorm/units/permicrolength.h>
+#include <dStorm/Localization_decl.h>
 
 namespace dStorm {
 namespace traits {
@@ -32,16 +35,30 @@ class PlaneConfig : public simparm::Set {
     Transmissions transmissions;
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
     simparm::Entry<PSFSize> psf_size;
+    typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > PixelSize;
+    simparm::Entry<PixelSize> pixel_size;
+
+    typedef simparm::Entry< 
+        Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
+                       Polynomial3D::Order, Eigen::DontAlign > > SlopeEntry;
+    SlopeEntry slopes;
+
+    friend class NoThreeDConfig;
+    friend class Polynomial3DConfig;
+
+    void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
   public:
     PlaneConfig(int number);
     PlaneConfig( const PlaneConfig& );
     void registerNamedEntries();
 
-    void write_traits( traits::Optics& ) const;
-    void read_traits( const traits::Optics& );
-    void set_number_of_fluorophores(int number, bool have_multiple_layers);
-    void set_3d_availability(bool);
+    void set_context( const traits::Optics&, int fluorophore_count, bool multilayer, ThreeDConfig& );
+    void set_context( const input::Traits<Localization>&, int fluorophore_count, ThreeDConfig& );
+    void write_traits( traits::Optics&, const ThreeDConfig& ) const;
+    void write_traits( input::Traits<Localization>&, const ThreeDConfig& ) const;
+    void read_traits( const traits::Optics&, ThreeDConfig& );
+    image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
 class CuboidConfig
@@ -49,20 +66,18 @@ class CuboidConfig
 {
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;
-    typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > PixelSize;
-    simparm::Entry<PixelSize> pixel_size;
-  
+
+    void set_number_of_planes(int);
+
   public:
     CuboidConfig();
     void registerNamedEntries();
-    void set_number_of_fluorophores(int number);
-    void set_number_of_planes( int );
-    void set_3d_availability(bool);
-    int number_of_planes() const;
 
-    void write_traits( input::Traits<engine::ImageStack>&) const;
-    void read_traits( const input::Traits<engine::ImageStack>& );
-    Position::ResolutionType make_localization_traits() const;
+    void set_context( const input::Traits<engine::ImageStack>&, ThreeDConfig& );
+    void set_context( const input::Traits<Localization>&, ThreeDConfig& );
+    void read_traits( const input::Traits<engine::ImageStack>&, ThreeDConfig& );
+    void write_traits( input::Traits<engine::ImageStack>&, const ThreeDConfig&) const;
+    void write_traits( input::Traits<Localization>&, const ThreeDConfig&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 

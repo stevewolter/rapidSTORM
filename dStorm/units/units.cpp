@@ -2,6 +2,7 @@
 #include "megafrequency.h"
 #include "nanolength.h"
 #include "microlength.h"
+#include "permicrolength.h"
 
 namespace boost {
 namespace units {
@@ -28,6 +29,14 @@ std::string name_string(const si::nanolength&) {
 std::string symbol_string(const si::nanolength&)
 {
     return "nm";
+}
+
+std::string name_string(const si::permicrolength&) {
+    return "micrometer^-1";
+}
+std::string symbol_string(const si::permicrolength&)
+{
+    return "µm^-1";
 }
 
 

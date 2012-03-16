@@ -68,7 +68,7 @@ class ChainLink
     template <typename Type>
     void update_traits( MetaInfo& i, Traits<Type>& traits ) { 
         i.get_signal< signals::ResolutionChange >()( config.get_resolution() );
-        config.read_plane_count( traits );
+        config.set_context( traits );
         config.write_traits(traits); 
     }
 
