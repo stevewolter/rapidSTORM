@@ -151,7 +151,7 @@ class VariableReduction
 template <typename Lambda>
 template <typename Parameter>
 bool VariableReduction<Lambda>::is_layer_independent( Parameter p ) {
-    return guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma())(p);
+    return guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma(), config.universal_3d())(p);
 }
 
 struct is_positional {

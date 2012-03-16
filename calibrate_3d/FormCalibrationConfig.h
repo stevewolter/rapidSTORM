@@ -14,7 +14,7 @@ class ZTruth;
 
 class FormCalibrationConfig {
     boost::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
-    simparm::Entry< bool > circular_psf_, astigmatism_, universal_best_sigma_;
+    simparm::Entry< bool > circular_psf_, astigmatism_, universal_best_sigma_, universal_prefactors_;
     simparm::Entry< bool > fit_best_sigma_, fit_focus_plane_, fit_prefactors_;
     simparm::Entry<std::string> filter_, new_z_;
 public:
@@ -29,6 +29,7 @@ public:
     bool symmetric() const { return circular_psf_(); }
     bool astigmatism() const { return astigmatism_(); }
     bool universal_best_sigma() const { return universal_best_sigma_(); }
+    bool universal_3d() const { return universal_prefactors_(); }
     bool fit_best_sigma() const { return fit_best_sigma_(); }
     bool fit_focus_plane() const { return fit_focus_plane_(); }
     bool fit_transmission() const { return fit_prefactors_(); }

@@ -21,6 +21,7 @@ FormCalibrationConfig::FormCalibrationConfig()
 : circular_psf_("CircularPSF", "Assume circular PSF", true),
   astigmatism_("Astigmatism", "Allow astigmatism", false),
   universal_best_sigma_("UniversalBestSigma", "PSF FWHM common to all layers", false ),
+  universal_prefactors_("UniversalWidening", "3D widening common to all layers", false ),
   fit_best_sigma_( "FitBestSigma", "Fit PSF FWHM", true ),
   fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", false ),
   fit_prefactors_( "FitPrefactors", "Fit transmission factors", true ),
@@ -42,6 +43,7 @@ void FormCalibrationConfig::registerNamedEntries( simparm::Node& at )
     at.push_back( circular_psf_ );
     at.push_back( astigmatism_ );
     at.push_back( universal_best_sigma_ );
+    at.push_back( universal_prefactors_ );
     at.push_back( fit_best_sigma_ );
     at.push_back( fit_focus_plane_ );
     for (int i = 0; i < polynomial_3d::Order; ++i)

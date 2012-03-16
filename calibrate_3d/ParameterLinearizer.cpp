@@ -85,7 +85,7 @@ ParameterLinearizer::Pimpl::Pimpl( const Config_& config )
     reducible = nonlinfit::make_bitset( PSF::Variables(), 
         reducible_to_preceding_parameter(config) );
     plane_independent = nonlinfit::make_bitset( PSF::Variables(),
-        guf::PSF::is_plane_independent(false, false, config.universal_best_sigma()) );
+        guf::PSF::is_plane_independent(false, false, config.universal_best_sigma(), config.universal_3d()) );
     constant = nonlinfit::make_bitset( PSF::Variables(),
         constant_parameter(false, config) );
 }
