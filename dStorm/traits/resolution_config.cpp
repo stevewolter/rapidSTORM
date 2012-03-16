@@ -121,6 +121,9 @@ void Config::read_traits( const engine::InputTraits& t ) {
         } else
             throw std::runtime_error("ThreeD info not recognized");
         three_d().read_traits( *d );
+    } else {
+        /* Do not change three_d. Technically wrong, but this case doesn't happen
+         * for now. */
     }
 }
 

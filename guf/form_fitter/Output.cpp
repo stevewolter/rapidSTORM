@@ -192,13 +192,6 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
 
 void Output::do_the_fit() {
     DEBUG("Finally doing the fit");
-    std::vector<bool>::const_iterator unfound_fluo = std::find(seen_fluorophores.begin(), seen_fluorophores.end(), false );
-    if ( false && unfound_fluo != seen_fluorophores.end() ) {
-        std::cerr << "You showed me not a single instance of fluorophore " 
-            << (unfound_fluo-seen_fluorophores.begin()+1)
-            << ". I am not going to fit anything until you do." << std::endl;
-        return;
-    }
     std::auto_ptr< input::Traits< engine::ImageStack > > new_traits
         ( new input::Traits< engine::ImageStack >(*input->traits) );
     fitter->fit(*new_traits);

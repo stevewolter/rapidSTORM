@@ -17,31 +17,6 @@ using namespace boost::units;
 
 Optics::Optics() {}
 
-Optics::Optics( const Optics &o ) 
-: tmc(o.tmc),
-  psf(o.psf),
-  projection_factory_(o.projection_factory_),
-  z_position(o.z_position),
-  photon_response(o.photon_response),
-  background_stddev(o.background_stddev),
-  dark_current(o.dark_current)
-{
-    DEBUG("Copied " << this << " from " << &o);
-}
-
-Optics& Optics::operator=( const Optics &o ) 
-{
-    DEBUG("Setting " << this << " to " << &o);
-    tmc = o.tmc;
-    psf = o.psf;
-    projection_factory_ = o.projection_factory_;
-    z_position = o.z_position;
-    photon_response = o.photon_response;
-    background_stddev = o.background_stddev;
-    dark_current = o.dark_current;
-    return *this;
-}
-
 Optics::~Optics() {}
 
 CuboidConfig::CuboidConfig() 

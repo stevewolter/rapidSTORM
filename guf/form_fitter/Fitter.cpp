@@ -2,6 +2,7 @@
 #include <Eigen/StdVector>
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/variant/apply_visitor.hpp>
 #include "Fitter.h"
 #include "Config.h"
 #include <dStorm/image/slice.h>
@@ -421,25 +422,38 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     }
 }
 
-/** Helper for FittingVariant::create() that instantiates a Fitter class. */
-template <class Lambda>
-std::auto_ptr<FittingVariant>
-create2( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
+template <class Traits3D>
+class select_3d_lambda;
+
+template <> struct select_3d_lambda<traits::Polynomial3D> { typedef PSF::Polynomial3D type; };
+template <> struct select_3d_lambda<traits::No3D> { typedef PSF::No3D type; };
+
+/** Helper for FittingVariant::create() that instantiates a Fitter class depending on the 3D model. */
+class create_3d_visitor
+: public boost::static_visitor< std::auto_ptr<FittingVariant> >
 {
-    if ( config.mle() )
-        return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
-    else
-        return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
-}
+    const Config& config;
+    const input::Traits< engine::ImageStack >& traits;
+    const int images;
+public:
+    create_3d_visitor( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
+        : config(config), traits(traits), images(images) {}
+
+    template <typename Model3D>
+    std::auto_ptr<FittingVariant>
+    operator()( const Model3D& ) const {
+        typedef typename select_3d_lambda<Model3D>::type Lambda;
+        if ( config.mle() )
+            return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
+        else
+            return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
+    }
+};
 
 std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
-    std::auto_ptr<FittingVariant> rv;
-    if ( boost::get< traits::Polynomial3D >( traits.optics(0).depth_info().get_ptr() ) )
-        return create2< PSF::Polynomial3D >( config, traits, images );
-    else
-        return create2< PSF::No3D >( config, traits, images );
+    return boost::apply_visitor( create_3d_visitor(config,traits,images), *traits.optics(0).depth_info() );
 }
 
 }

@@ -40,8 +40,6 @@ struct Optics
     friend class dStorm::traits::PlaneConfig;
 
     Optics();
-    Optics( const Optics& );
-    Optics& operator=( const Optics& );
     ~Optics();
 
     boost::optional< PSF > z_position;
