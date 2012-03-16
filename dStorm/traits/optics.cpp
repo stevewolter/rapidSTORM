@@ -203,8 +203,10 @@ void traits::Optics::set_fluorophore_transmission_coefficient( int fluorophore, 
 void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t )
 {
     set_number_of_planes( t.plane_count() );
-    for (int i = 0; i < t.plane_count() && i < int(layers.size()); ++i)
+    for (int i = 0; i < t.plane_count(); ++i) {
+        layers[i].set_number_of_fluorophores( t.fluorophores.size(), t.plane_count() > 1 );
         layers[i].read_traits( t.optics(i) );
+    }
 }
 
 void CuboidConfig::set_3d_availability(bool available) {
