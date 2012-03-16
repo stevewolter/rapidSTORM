@@ -1,3 +1,13 @@
+== 14.6.0 ==
+
+* Made 3D parameters fitable per plane
+* Moved input pixel size into optics config and made 3D slopes per-plane.
+* Added progress indicators for form fitting progress.
+* Fixed fluorophore count setting
+* Fixed bugs introduced by depth info move
+* Moved depth info into optics class to simplify class forest
+* Fixed display of Z focus plane coordinates
+
 == 14.5.1 ==
 
 * Included simparm entry implementation explicitly to avoid compilation errors
