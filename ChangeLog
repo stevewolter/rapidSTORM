@@ -1,3 +1,7 @@
+== 14.7.0 ==
+
+* Fixed 3D calibration distance metric and z initial parameter estimate
+
 == 14.6.0 ==
 
 * Made 3D parameters fitable per plane
