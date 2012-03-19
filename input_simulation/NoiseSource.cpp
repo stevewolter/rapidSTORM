@@ -304,7 +304,7 @@ void NoiseConfig::publish_meta_info() {
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
-    for (int p = 0; p < layer_count(); ++p) {
+    for (size_t p = 0; p < layer_count(); ++p) {
         dStorm::image::MetaInfo<2> p;
         p.size.x() = noiseGeneratorConfig.width() * camera::pixel;
         p.size.y() = noiseGeneratorConfig.height() * camera::pixel;

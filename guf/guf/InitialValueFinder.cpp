@@ -38,7 +38,7 @@ class InitialValueFinder::set_parameter {
     void operator()( PSF::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
     void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
-        { m( p ) = 1E-10 * boost::units::si::meter; }
+        { m( p ) = equifocal_plane; }
     template <typename Model>
     void operator()( PSF::Amplitude a, Model& m ) 
         { m( a ) = e.amp; }

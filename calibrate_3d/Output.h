@@ -3,16 +3,14 @@
 
 #include <boost/smart_ptr/scoped_ptr.hpp>
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/statistics/count.hpp>
-
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 
 #include <boost/optional/optional.hpp>
+
+#include <boost/units/systems/si/area.hpp>
+#include <boost/units/quantity.hpp>
 
 #include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
@@ -49,13 +47,8 @@ class Output : public output::OutputObject {
     boost::optional< std::auto_ptr<engine::InputTraits> > trial_position;
     bool have_set_traits_myself, terminate, fitter_finished;
 
-    typedef boost::accumulators::accumulator_set< 
-            double,
-            boost::accumulators::stats< 
-                boost::accumulators::tag::variance,
-                boost::accumulators::tag::count > >
-        Variance;
-    Variance delta_z;
+    int found_spots;
+    quantity<si::area> squared_errors;
 
     const Config_ config;
     simparm::Entry<double> current_volume;

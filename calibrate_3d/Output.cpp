@@ -41,7 +41,8 @@ Output::Output(const Config & config )
 Output::RunRequirements Output::announce_run(const RunAnnouncement&)
 { 
     DEBUG("New run is announced");
-    delta_z = Variance(); 
+    found_spots = 0;
+    squared_errors = 0 * si::meter * si::meter;
     return RunRequirements().set(MayNeedRestart); 
 }
 
@@ -157,7 +158,8 @@ void Output::receiveLocalizations(const Output::EngineResult& localizations )
     Output::EngineResult copied_locs = localizations;
     Output::EngineResult::iterator begin = copied_locs.begin(), end = z_truth->calibrate( copied_locs );
     for ( Output::EngineResult::iterator i = begin; i != end; ++i ) {
-        delta_z( quantity<si::nanolength>(i->position().z() - z_truth->true_z(*i)).value() );
+        ++found_spots;
+        squared_errors += pow<2>( i->position().z() - z_truth->true_z(*i) );
     }
 }
 
@@ -165,15 +167,13 @@ void Output::run_finished_( const RunFinished& ) {
     DEBUG("Storing job results");
     boost::unique_lock<boost::mutex> lock( mutex );
     if ( have_set_traits_myself ) {
-        quantity<si::area> variance = quantity<si::area>(boost::accumulators::variance( delta_z ) * si::nanometre * si::nanometre);
-        double spots = boost::accumulators::count( delta_z );
-        double missing_spots = std::max( 0.0, config.target_localization_number() - spots );
+        double missing_spots = std::max( 0.0, double(config.target_localization_number() - found_spots) );
         DEBUG("Localzied " << spots << " spots with SD " << sqrt(variance) << " and have " << missing_spots << " missing spots");
-        quantity<si::length> score = sqrt( 
-            ( variance * spots + 
+        quantity<si::length> rmse = sqrt( 
+            ( squared_errors + 
               pow<2>( quantity<si::length>(config.missing_penalty()) ) * missing_spots
-            ) / (spots + missing_spots) );
-        position_value = quantity<si::nanolength>(score).value();
+            ) / (found_spots + missing_spots) );
+        position_value = quantity<si::nanolength>(rmse).value();
         DEBUG("Position's value is " << *position_value );
         value_computed.notify_all();
     }

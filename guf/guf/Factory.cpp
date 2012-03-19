@@ -51,17 +51,22 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     laempi_fit.viewable = info.traits.plane_count() > 1;
     disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
 
-    traits.position().range().z().first = samplepos::Scalar(-z_range());
-    traits.position().range().z().second = samplepos::Scalar(+z_range());
-    for (int i = 1; i < info.traits.plane_count(); ++i)
-    {
-        quantity<si::length> equifocal = 
-            ( (*info.traits.optics(i).z_position)[0] + 
-              (*info.traits.optics(i).z_position)[1] ) / 2.0f;
-        samplepos::Scalar low = samplepos::Scalar(equifocal -samplepos::Scalar( z_range())),
-                          high = samplepos::Scalar(equifocal +samplepos::Scalar(z_range()));
-        traits.position().range().z().first = std::min( low, *traits.position().range().z().first );
-        traits.position().range().z().second = std::max( high, *traits.position().range().z().second );
+    if ( info.traits.optics(0).z_position ) {
+        quantity<si::length> equifocal_first = 
+                ( info.traits.optics(0).z_position->x() + 
+                info.traits.optics(0).z_position->y() ) / 2.0f;
+        traits.position().range().z().first = samplepos::Scalar(equifocal_first-quantity<si::length>(z_range()));
+        traits.position().range().z().second = samplepos::Scalar(equifocal_first+quantity<si::length>(z_range()));
+        for (int i = 1; i < info.traits.plane_count(); ++i)
+        {
+            quantity<si::length> equifocal = 
+                ( (*info.traits.optics(i).z_position)[0] + 
+                (*info.traits.optics(i).z_position)[1] ) / 2.0f;
+            samplepos::Scalar low = samplepos::Scalar(equifocal -samplepos::Scalar( z_range())),
+                            high = samplepos::Scalar(equifocal +samplepos::Scalar(z_range()));
+            traits.position().range().z().first = std::min( low, *traits.position().range().z().first );
+            traits.position().range().z().second = std::max( high, *traits.position().range().z().second );
+        }
     }
 
     bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
