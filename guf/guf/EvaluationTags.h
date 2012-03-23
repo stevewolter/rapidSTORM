@@ -13,6 +13,7 @@ typedef boost::mpl::vector<
 #if defined(USE_SPECIALIZED_FITTERS)
     nonlinfit::plane::xs_disjoint<float,PSF::LengthUnit,8>::type,
     nonlinfit::plane::xs_disjoint<float,PSF::LengthUnit,12>::type,
+    nonlinfit::plane::xs_disjoint<float,PSF::LengthUnit,16>::type,
     nonlinfit::plane::xs_disjoint<float,PSF::LengthUnit,20>::type,
 #endif
     nonlinfit::plane::xs_joint<float,PSF::LengthUnit,8>::type,
