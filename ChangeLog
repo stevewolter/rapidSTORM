@@ -1,3 +1,9 @@
+== 14.8.0 ==
+
+* Implemented #195 and #196
+* Lowered default value of max histogram bin to enable re-normalization on low numbers of localizations
+* Added missing float specialization for fit window width 16
+
 == 14.7.0 ==
 
 * Fixed 3D calibration distance metric and z initial parameter estimate
