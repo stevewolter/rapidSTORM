@@ -19,7 +19,7 @@ Discretizer<ImageListener,Colorizer_>
     Colorizer& colorizer) 
 : colorizer(colorizer),
   max_value(10), 
-  max_value_used_for_disc_factor(10),
+  max_value_used_for_disc_factor(0.1),
   disc_factor( (d-1) * 1.0 / max_value_used_for_disc_factor ),
   histogram( d, 0 ),
   transition( d, 0 ),
