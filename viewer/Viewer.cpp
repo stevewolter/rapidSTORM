@@ -157,7 +157,8 @@ void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
 {
     insert_filename_with_check( config.outputFile(), present_filenames );
-    insert_filename_with_check( config.density_matrix(), present_filenames );
+    if ( config.density_matrix_given() )
+        insert_filename_with_check( config.density_matrix(), present_filenames );
 }
 
 void Viewer::save_density_map() {
