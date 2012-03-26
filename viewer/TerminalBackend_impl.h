@@ -82,6 +82,11 @@ void TerminalBackend<Hueing>::set_histogram_power(float power) {
 }
 
 template <typename Hueing>
+void TerminalBackend<Hueing>::set_top_cutoff(float cutoff) {
+    discretization.set_top_cutoff( cutoff ); 
+}
+
+template <typename Hueing>
 std::auto_ptr<display::Change> 
 TerminalBackend<Hueing>::get_result(bool with_key) const {
     DEBUG("Getting results");

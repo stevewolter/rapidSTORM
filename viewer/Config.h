@@ -29,7 +29,7 @@ class _Config : public simparm::Object {
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
     outputs::DimensionSelector<Im::Dim> binned_dimensions;
-    simparm::Entry<double> histogramPower;
+    simparm::Entry<double> histogramPower, top_cutoff;
     simparm::NodeChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
     simparm::Entry< CropBorder > border;

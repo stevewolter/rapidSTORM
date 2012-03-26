@@ -27,6 +27,7 @@ Discretizer<ImageListener,Colorizer_>
   out_depth( Colorizer::BrightnessDepth - 1 ),
   pixels_above_used_max_value(0),
   histogram_power( hp ),
+  cutoff_factor( 1 ),
   binned_image(binned_image)
 {
 }
@@ -58,30 +59,36 @@ void Discretizer<ImageListener,Colorizer_>
     if ( final || pixels_above_used_max_value >
            non_background_pixels() / 100 )
     {
-        for (size_t i = 0; i < histogram.size(); i++)
-            histogram[i] = 0;
-
-        float new_disc_fac = (in_depth-1) * 1.0 / max_value;
-
-        for( InputImage::const_iterator i = binned_image.begin();
-            i != binned_image.end(); i++)
-        {
-            HighDepth n = discretize( *i, new_disc_fac );
-
-            if ( discretize( *i ) != n )
-                this->publish().pixelChanged( i.position(), n );
-
-            ++histogram[n];
-        }
-
-        disc_factor = new_disc_fac;
+        rediscretize();
         publish_differences_in_transitions( NULL, transition );
-        max_value_used_for_disc_factor = max_value;
-        pixels_above_used_max_value = 0;
     }
     normalize_histogram();
     colorizer.clean(final);
     this->publish().clean(final);
+}
+
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>::rediscretize()
+{
+    for (size_t i = 0; i < histogram.size(); i++)
+        histogram[i] = 0;
+
+    float new_disc_fac = (in_depth-1) * 1.0 / (max_value * std::max( cutoff_factor, 1E-10f ) );
+
+    for( InputImage::const_iterator i = binned_image.begin();
+        i != binned_image.end(); i++)
+    {
+        HighDepth n = discretize( *i, new_disc_fac );
+
+        if ( discretize( *i ) != n )
+            this->publish().pixelChanged( i.position(), n );
+
+        ++histogram[n];
+    }
+
+    disc_factor = new_disc_fac;
+    max_value_used_for_disc_factor = max_value;
+    pixels_above_used_max_value = 0;
 }
 
 template <typename ImageListener, typename Colorizer_>
@@ -176,6 +183,16 @@ void Discretizer<ImageListener,Colorizer_>
 ::setHistogramPower(float power) 
 {
     this->histogram_power = power;
+    normalize_histogram();
+    publish_differences_in_transitions( NULL, transition );
+}
+
+template <typename ImageListener, typename Colorizer_>
+void Discretizer<ImageListener,Colorizer_>
+::set_top_cutoff(float cutoff) 
+{
+    this->cutoff_factor = cutoff;
+    rediscretize();
     normalize_histogram();
     publish_differences_in_transitions( NULL, transition );
 }

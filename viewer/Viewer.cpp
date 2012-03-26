@@ -87,9 +87,11 @@ void Viewer::operator()(const simparm::Event& e) {
             }
         }
     } else if (&e.source == &config.histogramPower.value) {
-        /* Change histogram power */
         boost::lock_guard<boost::mutex> lock(mutex);
         implementation->set_histogram_power(config.histogramPower());
+    } else if (&e.source == &config.top_cutoff.value) {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        implementation->set_top_cutoff(config.top_cutoff());
     } else if ( announcement ) {
         if ( repeater && repeater->can_repeat_results() ) {
             /* Store the old implementation past the mutex lock to allow mutex 

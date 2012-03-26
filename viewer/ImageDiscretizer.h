@@ -75,7 +75,7 @@ class Discretizer
     static const HighDepth background_threshold;
     unsigned int in_depth, out_depth,
                  pixels_above_used_max_value;
-    float histogram_power;
+    float histogram_power, cutoff_factor;
 
     const InputImage& binned_image;
 
@@ -85,6 +85,7 @@ class Discretizer
     HighDepth discretize( float value ) const
         { return discretize(value, disc_factor); }
 
+    void rediscretize();
     void normalize_histogram();
     void publish_differences_in_transitions( 
         TransitionTable* old_table, TransitionTable& new_table );
@@ -130,6 +131,7 @@ class Discretizer
     inline float key_value( LowDepth key ) const;
 
     void setHistogramPower(float power);
+    void set_top_cutoff(float value);
 };
 
 }

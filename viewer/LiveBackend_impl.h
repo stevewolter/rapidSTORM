@@ -46,9 +46,12 @@ void LiveBackend<Hueing>::save_image(
 
 template <typename Hueing>
 void LiveBackend<Hueing>::set_histogram_power(float power) {
-    /* The \c image member is not involved here, so we have to lock
-        * it ourselves. */
     discretization.setHistogramPower( power ); 
+}
+
+template <typename Hueing>
+void LiveBackend<Hueing>::set_top_cutoff(float cutoff) {
+    discretization.set_top_cutoff(cutoff);
 }
 
 template <typename Hueing>

@@ -12,8 +12,8 @@ _Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
   outputFile("ToFile", "Save image to", ".png"),
-  histogramPower("HistogramPower", "Extent of histogram normalization",
-                 0.3),
+  histogramPower("HistogramPower", "Extent of histogram normalization", 0.3),
+  top_cutoff("IntensityCutoff", "Intensity cutoff", 1.0),
   colourScheme("ColourScheme", "Colour palette for display"),
   invert("InvertColours", "Invert colours", false),
   save_with_key("SaveWithKey", "Save output image with key", true),
@@ -36,6 +36,11 @@ _Config::_Config()
     histogramPower.max = (1);
     /* This level is reset in carStarted() */
     histogramPower.setUserLevel(simparm::Object::Expert);
+    top_cutoff.min = 0;
+    top_cutoff.max = 1.0;
+    top_cutoff.userLevel = simparm::Object::Expert;
+    top_cutoff.help = "Maximum displayed intensity as a fraction of the "
+       "maximum found intensity";
 
 #define DISC_INSTANCE(Scheme) \
     colourScheme.addChoice( ColourScheme::config_for<Scheme>() );
@@ -51,6 +56,7 @@ _Config::_Config()
     showOutput.helpID = "#Viewer_ShowOutput";
     colourScheme.helpID = "#Viewer_ColorScheme";
     invert.helpID = "#Viewer_InvertColors";
+    top_cutoff.helpID = "#Viewer_TopCutoff";
 
     DEBUG("Built Viewer Config");
 }
@@ -62,6 +68,7 @@ void _Config::registerNamedEntries( simparm::Node& n ) {
    n.push_back(showOutput);
    n.push_back(binned_dimensions);
    n.push_back(histogramPower);
+   n.push_back(top_cutoff);
    n.push_back(colourScheme);
    n.push_back(invert);
    n.push_back(close_on_completion);
@@ -73,6 +80,7 @@ void _Config::add_listener( simparm::Listener& l ) {
     l.receive_changes_from( showOutput.value );
     binned_dimensions.add_listener(l);
     l.receive_changes_from( histogramPower.value );
+    l.receive_changes_from( top_cutoff.value );
     l.receive_changes_from( colourScheme.value );
     l.receive_changes_from( invert.value );
     l.receive_changes_from( border.value );

@@ -46,6 +46,7 @@ class TerminalBackend
     void save_image(std::string filename, const Config&);
 
     void set_histogram_power(float power);
+    void set_top_cutoff(float);
     void set_job_name( const std::string& name ) { this->window_name = name; }
     const std::string& get_job_name() const { return window_name; }
 

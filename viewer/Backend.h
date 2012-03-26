@@ -20,6 +20,7 @@ struct Backend
     virtual void save_image(std::string filename, const Config&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
+    virtual void set_top_cutoff(float fraction) = 0;
     virtual void set_job_name( const std::string& name ) = 0;
 
     template <typename Colorizer>
@@ -48,6 +49,8 @@ struct NoOpBackend : public Backend
         { throw std::logic_error("Not implemented"); }
 
     void set_histogram_power(float) 
+        { throw std::logic_error("Not implemented"); }
+    void set_top_cutoff(float) 
         { throw std::logic_error("Not implemented"); }
     void set_job_name( const std::string& ) 
         { throw std::logic_error("Not implemented"); }
