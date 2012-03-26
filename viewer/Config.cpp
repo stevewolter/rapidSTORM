@@ -12,6 +12,8 @@ _Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
   outputFile("ToFile", "Save image to", ".png"),
+  density_matrix_given("SaveDensityMatrix", "Save density matrix", false ),
+  density_matrix("DensityMatrixFile", "Save density matrix to", "-density.txt"),
   histogramPower("HistogramPower", "Extent of histogram normalization", 0.3),
   top_cutoff("IntensityCutoff", "Intensity cutoff", 1.0),
   colourScheme("ColourScheme", "Colour palette for display"),
@@ -25,9 +27,12 @@ _Config::_Config()
 {
     DEBUG("Building Viewer Config");
 
-    outputFile.make_optional();
-    outputFile.optional_given = true;
     outputFile.setUserLevel(simparm::Object::Beginner);
+
+    density_matrix_given.setUserLevel(simparm::Object::Expert);
+    density_matrix.setUserLevel(simparm::Object::Expert);
+    density_matrix.help = "Save a text file with the unnormalized intensities of the result image";
+
     scale_bar_length.setUserLevel( simparm::Object::Intermediate );
 
     showOutput.setUserLevel(simparm::Object::Beginner);
@@ -66,6 +71,9 @@ void _Config::registerNamedEntries( simparm::Node& n ) {
    n.push_back(save_with_key);
    n.push_back(save_scale_bar);
    n.push_back(showOutput);
+   n.push_back(density_matrix_given);
+   n.push_back(density_matrix);
+
    n.push_back(binned_dimensions);
    n.push_back(histogramPower);
    n.push_back(top_cutoff);

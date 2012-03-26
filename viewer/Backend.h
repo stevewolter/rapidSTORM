@@ -18,6 +18,7 @@ struct Backend
     virtual std::auto_ptr<Backend> change_liveness( Status& ) = 0;
 
     virtual void save_image(std::string filename, const Config&) = 0;
+    virtual void save_density_map(std::ostream&) = 0;
 
     virtual void set_histogram_power(float power) = 0;
     virtual void set_top_cutoff(float fraction) = 0;
@@ -46,6 +47,8 @@ struct NoOpBackend : public Backend
         { throw std::logic_error("Not implemented"); }
 
     void save_image(std::string , const Config&) 
+        { throw std::logic_error("Not implemented"); }
+    void save_density_map(std::ostream&)
         { throw std::logic_error("Not implemented"); }
 
     void set_histogram_power(float) 

@@ -58,6 +58,7 @@ class Viewer : public Status,
 
     void store_results_( bool job_successful );
     void adapt_to_changed_config();
+    void save_density_map();
 };
 
 }

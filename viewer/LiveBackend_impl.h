@@ -45,6 +45,12 @@ void LiveBackend<Hueing>::save_image(
 }
 
 template <typename Hueing>
+void LiveBackend<Hueing>::save_density_map( std::ostream& o )
+{
+    image.write_density_matrix( o );
+}
+
+template <typename Hueing>
 void LiveBackend<Hueing>::set_histogram_power(float power) {
     discretization.setHistogramPower( power ); 
 }

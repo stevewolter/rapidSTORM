@@ -44,6 +44,7 @@ class TerminalBackend
 
     output::Output& getForwardOutput() { return image; }
     void save_image(std::string filename, const Config&);
+    void save_density_map(std::ostream&);
 
     void set_histogram_power(float power);
     void set_top_cutoff(float);

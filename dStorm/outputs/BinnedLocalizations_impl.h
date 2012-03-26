@@ -113,7 +113,6 @@ void BinnedLocalizations<KeepUpdated,Dim>::clear() {
 
 template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size() 
- 
 {
     image::MetaInfo<Dim> traits;
 
@@ -134,6 +133,13 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
     base_image = BinnedImage(traits.size, base_image.frame_number());
     base_image.fill(0); 
     this->binningListener().setSize(traits);
+}
+
+template <typename KeepUpdated, int Dim>
+void BinnedLocalizations<KeepUpdated,Dim>::write_density_matrix( std::ostream& o ) 
+{
+    for ( typename BinnedImage::iterator i = base_image.begin(); i != base_image.end(); ++i )
+        o << value( i.position() ).transpose() << " " << *i << "\n";
 }
 
 template <typename KeepUpdated, int Dim>

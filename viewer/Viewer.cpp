@@ -15,6 +15,8 @@
 #include "ColourScheme.h"
 #include "colour_schemes/hot_config.h"
 
+#include <fstream>
+
 using namespace std;
 
 using namespace dStorm::display;
@@ -72,6 +74,8 @@ void Viewer::store_results_( bool job_successful ) {
     forwardOutput->store_results(job_successful);
     if (job_successful && config.outputFile)
         writeToFile(config.outputFile());
+    if (job_successful && config.density_matrix && config.density_matrix_given())
+        save_density_map();
 }
 
 void Viewer::operator()(const simparm::Event& e) {
@@ -85,6 +89,8 @@ void Viewer::operator()(const simparm::Event& e) {
             if ( config.outputFile ) {
                 writeToFile( config.outputFile() );
             }
+            if ( config.density_matrix_given() && config.density_matrix )
+                save_density_map();
         }
     } else if (&e.source == &config.histogramPower.value) {
         boost::lock_guard<boost::mutex> lock(mutex);
@@ -151,10 +157,24 @@ void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
 {
     insert_filename_with_check( config.outputFile(), present_filenames );
+    insert_filename_with_check( config.density_matrix(), present_filenames );
 }
 
+void Viewer::save_density_map() {
+    std::ofstream file( config.density_matrix().c_str() );
+    implementation->save_density_map( file );
+}
+
+struct OutputSource : public output::OutputBuilder< Viewer > {
+    OutputSource() : output::OutputBuilder< Viewer >(false)
+        { adjust_to_basename( Config::outputFile ); adjust_to_basename( Config::density_matrix ); }
+    OutputSource( const OutputSource& o ) : output::OutputBuilder< Viewer >(o)
+        { adjust_to_basename( Config::outputFile ); adjust_to_basename( Config::density_matrix ); }
+    OutputSource* clone() const { return new OutputSource(*this); }
+};
+
 std::auto_ptr<output::OutputSource> make_output_source() {
-    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Viewer>() );
+    return std::auto_ptr<output::OutputSource>( new OutputSource() );
 }
 
 }

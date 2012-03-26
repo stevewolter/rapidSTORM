@@ -157,6 +157,8 @@ namespace outputs {
         void clean();
         /** Delete all localizations in this image and its listener. */
         void clear();
+        
+        void write_density_matrix( std::ostream& );
     };
 }
 }

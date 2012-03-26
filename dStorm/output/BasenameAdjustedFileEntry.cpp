@@ -11,9 +11,7 @@ BasenameAdjustedFileEntry:: BasenameAdjustedFileEntry
     std::string suffix
 ) 
 : simparm::FileEntry(name,desc),
-  has_been_user_modified(false),
-  is_optional(false),
-  optional_given("optional_given", false)
+  has_been_user_modified(false)
 {
     registerNamedEntries();
     default_extension = suffix;
@@ -25,25 +23,14 @@ BasenameAdjustedFileEntry::BasenameAdjustedFileEntry
   simparm::Listener( simparm::Event::ValueChanged ),
   last_basename(o.last_basename),
   has_been_user_modified(o.has_been_user_modified),
-  expect_change(o.expect_change), is_optional(false),
-  optional_given("optional_given", o.optional_given())
+  expect_change(o.expect_change)
 {
     DEBUG("Copying " << last_basename.unformatted()() << " -- " << default_extension() << " -- " << has_been_user_modified << " -- " << value() );
     registerNamedEntries();
-    if ( o.is_optional )
-        make_optional();
 }
 
 BasenameAdjustedFileEntry::~BasenameAdjustedFileEntry() 
 {
-}
-
-void BasenameAdjustedFileEntry::make_optional()
-{
-    if ( ! is_optional ) {
-        is_optional = true;
-        push_back( optional_given );
-    }
 }
 
 void BasenameAdjustedFileEntry::

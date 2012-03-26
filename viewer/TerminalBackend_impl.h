@@ -60,6 +60,12 @@ std::auto_ptr< display::Change > TerminalBackend<Hueing>::get_state() const
 }
 
 template <typename Hueing>
+void TerminalBackend<Hueing>::save_density_map( std::ostream& o )
+{
+    image.write_density_matrix( o );
+}
+
+template <typename Hueing>
 void TerminalBackend<Hueing>::save_image(
     std::string filename, const Config& config
 )

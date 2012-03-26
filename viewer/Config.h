@@ -26,8 +26,8 @@ class _Config : public simparm::Object {
     typedef Eigen::Matrix< boost::units::quantity<boost::units::camera::length,int>, 3, 1 >
         CropBorder;
 
-    simparm::BoolEntry showOutput;
-    output::BasenameAdjustedFileEntry outputFile;
+    simparm::BoolEntry showOutput, density_matrix_given;
+    output::BasenameAdjustedFileEntry outputFile, density_matrix;
     outputs::DimensionSelector<Im::Dim> binned_dimensions;
     simparm::Entry<double> histogramPower, top_cutoff;
     simparm::NodeChoiceEntry<ColourScheme> colourScheme;
