@@ -95,9 +95,9 @@ void Output::run_fitter()
         initial_position, initial_step_size );
 
     bool fitting_was_successful = false;
-    /* I have no idea what is actually returned from this function, and
-     * the documentation doesn't tell. */
     try {
+        /* I have no idea what is actually returned from gsl_multimin_fminimizer_set, and
+        * the documentation doesn't tell. */
         while ( success == GSL_SUCCESS ) {
             success = gsl_multimin_fminimizer_iterate( solver );
             DEBUG("Size is " << gsl_multimin_fminimizer_size(solver));
@@ -168,7 +168,7 @@ void Output::run_finished_( const RunFinished& ) {
     boost::unique_lock<boost::mutex> lock( mutex );
     if ( have_set_traits_myself ) {
         double missing_spots = std::max( 0.0, double(config.target_localization_number() - found_spots) );
-        DEBUG("Localzied " << spots << " spots with SD " << sqrt(variance) << " and have " << missing_spots << " missing spots");
+        DEBUG("Localized " << found_spots << " spots with SD " << sqrt(squared_errors/double(found_spots)) << " and have " << missing_spots << " missing spots");
         quantity<si::length> rmse = sqrt( 
             ( squared_errors + 
               pow<2>( quantity<si::length>(config.missing_penalty()) ) * missing_spots
