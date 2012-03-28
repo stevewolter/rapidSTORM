@@ -26,8 +26,7 @@ struct Traits<output::LocalizedImage>
     engine::Input* carburettor;
     Engine *engine;
 
-    Traits( const std::string& name, const std::string& description )
-        : carburettor(NULL), engine(NULL), name(name), description(description) {}
+    Traits( const std::string& name, const std::string& description );
     Traits( 
         const Traits<Localization>& traits,
         const std::string& name = "", const std::string& description = "",
