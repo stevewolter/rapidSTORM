@@ -78,8 +78,10 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
     }
 
     if ( user_changed_output ) {
-        this->traits->suggested_output_basename.unformatted() = output();
-        traits->get_signal< signals::BasenameChange >()( this->traits->suggested_output_basename );
+        if ( this->traits.get() )
+            this->traits->suggested_output_basename.unformatted() = output();
+        if ( traits.get() )
+            traits->get_signal< signals::BasenameChange >()( this->traits->suggested_output_basename );
     } else {
         output = default_output_basename;
     }

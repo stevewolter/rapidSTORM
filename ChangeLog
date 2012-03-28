@@ -1,3 +1,8 @@
+== 14.9.0 ==
+
+* Fixed output of focus planes for multiple planes
+* Fixed initial Z estimation for biplane 3D
+
 == 14.8.0 ==
 
 * Implemented #195 and #196
