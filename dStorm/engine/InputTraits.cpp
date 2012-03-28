@@ -63,9 +63,7 @@ std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) co
             o << " and Y focus depth " ;
             for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
                 o << 1.0 / p->get_slope(Direction_Y, j) << " ";
-            for ( int j = 0; j < plane_count(); ++j) {
-                o << " and focus planes " << optics.z_position->transpose();
-            }
+            o << " and focal planes " << optics.z_position->transpose();
         } else
             o << " no 3D information";
         for ( size_t i = 0; i < fluorophores.size(); ++i )
