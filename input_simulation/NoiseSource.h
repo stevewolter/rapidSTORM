@@ -13,6 +13,7 @@
 
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/ProgressEntry.hh>
 #include <simparm/TreeCallback.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/ptr_container/ptr_list.hpp>
@@ -79,7 +80,8 @@ namespace input_simulation {
 
         std::auto_ptr< boost::ptr_list<Fluorophore> > create_fluorophores(
             const dStorm::engine::InputTraits& t,
-            gsl_rng*, int imN) const;
+            gsl_rng*, int imN,
+            simparm::ProgressEntry& ) const;
     };
 
     class NoiseConfig
@@ -96,6 +98,8 @@ namespace input_simulation {
         FluoSets fluorophore_sets;
         void create_fluo_set();
         void add_fluo_set( std::auto_ptr<FluorophoreSetConfig> );
+        std::auto_ptr< dStorm::input::Traits<dStorm::engine::ImageStack> > 
+            make_image_size() const;
 
       protected:
         void operator()( const simparm::Event& );

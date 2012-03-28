@@ -118,6 +118,13 @@ void NoiseConfig::operator()( const simparm::Event& e)
         create_fluo_set();
         newSet.untrigger();
     } else if ( e.cause == simparm::Event::ValueChanged ) {
+        if ( &e.source == &layer_count.value ) {
+            std::auto_ptr< dStorm::input::Traits<Image> > image
+                = make_image_size();
+            std::auto_ptr< dStorm::traits::ThreeDConfig > three_d 
+                = dStorm::traits::make_no_3d_config();
+            optics.set_context( *image, *three_d );
+        }
         publish_meta_info();
     } else 
 	TreeListener::add_new_children(e);
@@ -142,7 +149,8 @@ std::auto_ptr< boost::ptr_list<Fluorophore> >
 FluorophoreSetConfig::create_fluorophores(
     const dStorm::engine::InputTraits& t,
     gsl_rng *rng,
-    int imN ) const
+    int imN,
+    simparm::ProgressEntry& progress ) const
 {
     std::auto_ptr< boost::ptr_list<Fluorophore> > fluorophores
         ( new boost::ptr_list<Fluorophore>() );
@@ -167,7 +175,9 @@ FluorophoreSetConfig::create_fluorophores(
         dStorm::Image<Fluorophore*,2> cache(sz);
         cache.fill(0);
 
+        int target_fluorophore_count = positions.size();
         while ( ! positions.empty() ) {
+            progress.setValue( double(fluorophores->size()) / target_fluorophore_count );
             fluorophores->push_back( new Fluorophore(positions.front(), imN, fluorophoreConfig, t, fluorophore_index()) );
             positions.pop();
         }
@@ -216,15 +226,17 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
         output.reset( new std::ofstream
             ( config.saveActivity().c_str() ));
 
+    simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
+    push_back( progress );
+    if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
     for ( NoiseConfig::FluoSets::const_iterator
             i = config.get_fluorophore_sets().begin();
             i != config.get_fluorophore_sets().end(); ++i)
     {
         std::auto_ptr<FluorophoreList> l = 
-            (*i)->create_fluorophores( *t, rng, imN );
+            (*i)->create_fluorophores( *t, rng, imN, progress );
         fluorophores.transfer( fluorophores.end(), *l );
     }
-
 }
 
 NoiseSource::~NoiseSource()
@@ -297,10 +309,12 @@ NoiseSource::get_traits( typename Source::Wishes ) {
     return t;
 }
 
-void NoiseConfig::publish_meta_info() {
-    typedef dStorm::input::Traits<Image> Traits;
+std::auto_ptr< dStorm::input::Traits<dStorm::engine::ImageStack> >
+NoiseConfig::make_image_size() const
+{
+    typedef dStorm::input::Traits<dStorm::engine::ImageStack> Traits;
 
-    boost::shared_ptr< Traits > rv( new Traits() );
+    std::auto_ptr< Traits > rv( new Traits() );
     rv->image_number().range().first = 0 * camera::frame;
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
@@ -310,9 +324,12 @@ void NoiseConfig::publish_meta_info() {
         p.size.y() = noiseGeneratorConfig.height() * camera::pixel;
         rv->push_back( p, dStorm::traits::Optics() );
     }
+    return rv;
+}
 
+void NoiseConfig::publish_meta_info() {
     dStorm::input::MetaInfo::Ptr t( new dStorm::input::MetaInfo() );
-    t->set_traits( rv );
+    t->set_traits( make_image_size().release() );
     update_current_meta_info( t );
 }
 
