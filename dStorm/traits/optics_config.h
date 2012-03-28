@@ -71,6 +71,7 @@ class CuboidConfig
 
   public:
     CuboidConfig();
+    ~CuboidConfig();
     void registerNamedEntries();
 
     void set_context( const input::Traits<engine::ImageStack>&, ThreeDConfig& );

@@ -133,8 +133,14 @@ void PlaneConfig::write_traits( input::Traits<Localization>& t, const ThreeDConf
 CuboidConfig::CuboidConfig() 
 : simparm::Object("Optics", "Optical pathway properties")
 {
+    DEBUG("Constructing " << this);
     layers.push_back( new PlaneConfig(0) );
     set_number_of_planes( 1 );
+}
+
+CuboidConfig::~CuboidConfig()
+{
+    DEBUG("Destructing " << this);
 }
 
 void CuboidConfig::registerNamedEntries()
@@ -198,6 +204,7 @@ void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t, Thre
 
 void CuboidConfig::set_context( const input::Traits<engine::ImageStack>& t, ThreeDConfig& t3 ) 
 {
+    DEBUG( "Setting context on " << this );
     set_number_of_planes( t.plane_count() );
     for (int i = 0; i < t.plane_count(); ++i) {
         layers[i].set_context( t.optics(i), t.fluorophores.size(), (t.plane_count() > 1), t3 );
