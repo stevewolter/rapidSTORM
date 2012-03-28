@@ -11,6 +11,12 @@
 namespace dStorm {
 namespace guf {
 
+struct InitialValueFinder::PlaneEstimate { 
+    double bg; 
+    double amp; 
+    boost::units::quantity<boost::units::si::length> z_estimate; 
+};
+
 InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
 : info(info),
   disjoint_amplitudes( config.disjoint_amplitudes() )
@@ -27,8 +33,7 @@ class InitialValueFinder::set_parameter {
   public:
     typedef void result_type;
     set_parameter( const InitialValueFinder& p, const guf::Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
-        : base( p.info.fluorophore, o ), p(p), s(s), e(e), 
-          equifocal_plane( (o.z_position->x() + o.z_position->y()) / 2.0f ) {}
+        : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
     void operator()( nonlinfit::Xs<0,PSF::LengthUnit> p, Model& m ) {}
@@ -38,7 +43,7 @@ class InitialValueFinder::set_parameter {
     void operator()( PSF::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
     void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
-        { m( p ) = equifocal_plane; }
+        { m( p ) = e.z_estimate; }
     template <typename Model>
     void operator()( PSF::Amplitude a, Model& m ) 
         { m( a ) = e.amp; }
@@ -92,8 +97,9 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
 ) const {
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {
+        const traits::Optics& o = info.traits.optics(i);
         /* Value of perfectly sharp PSF at Z = 0 */
-        double pif = info.traits.optics(i).transmission_coefficient(info.fluorophore);
+        double pif = o.transmission_coefficient(info.fluorophore);
             
         /* Solution of equation system:
             * peak_intensity == bg_estimate + pif * amp_estimate
@@ -107,7 +113,20 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].amp = 0;
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
+        if ( o.z_position )
+            rv[i].z_estimate = (o.z_position->x() + o.z_position->y()) / 2.0f;
     }
+
+    int highest_amp_plane = 0;
+    for (int i = 1; i < int(s.size()); ++i) {
+        if ( rv[i].amp > rv[highest_amp_plane].amp )
+            highest_amp_plane = i;
+    }
+
+    for (int i = 0; i < int(s.size()); ++i) {
+        rv[i].z_estimate = rv[highest_amp_plane].z_estimate;
+    }
+
     return rv;
 }
 

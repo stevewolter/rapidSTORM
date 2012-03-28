@@ -17,7 +17,7 @@ struct InitialValueFinder {
     const dStorm::engine::JobInfo& info;
     const bool disjoint_amplitudes;
 
-    struct PlaneEstimate { double bg; double amp; };
+    struct PlaneEstimate;
     std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const Statistics<3> & ) const;
     void join_amp_estimates( std::vector<PlaneEstimate>& v ) const;
 

@@ -23,7 +23,7 @@ class is_plane_independent
     bool operator()( nonlinfit::Xs<Dim,LengthUnit> ) { return false; }
     template <int Dim>
     bool operator()( Mean<Dim> ) { return !laempi; }
-    bool operator()( MeanZ ) { return false; }
+    bool operator()( MeanZ ) { return true; }
     bool operator()( Amplitude ) { return !disamp; }
     bool operator()( Prefactor ) { return false; }
     bool operator()( constant_background::Amount ) { return false; }
