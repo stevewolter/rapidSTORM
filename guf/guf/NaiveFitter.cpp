@@ -11,6 +11,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/InputTraits.h>
 #include <nonlinfit/Bind.h>
+#include "../select_3d_lambda.hpp"
 
 namespace dStorm {
 namespace guf {
@@ -19,23 +20,17 @@ template <int Kernels, typename Assignment>
 class creator3
 : public boost::static_visitor< NaiveFitter::Ptr >
 {
-    template <typename Expression>
+  public:
+    template <typename Traits3D>
     NaiveFitter::Ptr 
-    result( const Config& c, const dStorm::engine::JobInfo& i ) const {
-        typedef typename PSF::StandardFunction< nonlinfit::Bind<Expression,Assignment> ,Kernels>
+    operator()( const Config& c, const dStorm::engine::JobInfo& i, 
+                const Traits3D ) const
+    { 
+        typedef typename PSF::StandardFunction< 
+            nonlinfit::Bind< typename select_3d_lambda<Traits3D>::type ,Assignment> ,Kernels>
             ::type F;
         return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
     }
-
-  public:
-    NaiveFitter::Ptr 
-    operator()( const Config& c, const dStorm::engine::JobInfo& i, 
-                const dStorm::traits::Polynomial3D ) const
-        { return result< PSF::Polynomial3D >(c,i); }
-    NaiveFitter::Ptr 
-    operator()( const Config& c, const dStorm::engine::JobInfo& i, 
-                const dStorm::traits::No3D ) const
-        { return result< PSF::No3D >(c,i); }
 };
 
 template <int Kernels, typename Assignment>

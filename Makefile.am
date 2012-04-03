@@ -553,12 +553,13 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/psf/unit_test.h guf/psf/unit_test.cpp \
     guf/psf/ReferenceEvaluation.h \
     guf/constant_background_fwd.hpp guf/constant_background.hpp \
-    guf/psf/polynomial_psf_generated_by_yacas.h
+    guf/psf/polynomial_psf_generated_by_yacas.h \
+    guf/select_3d_lambda.hpp
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
-INST_MODEL = $(INST_DIR:=zhuang_-_) $(INST_DIR:=no3d_-_)
+INST_MODEL = $(INST_DIR:=zhuang_-_) $(INST_DIR:=no3d_-_) $(INST_DIR:=spline3d_-_)
 INST_KERNEL = \
     $(INST_MODEL:=free_form_model_-_one_kernel_-_) \
     $(INST_MODEL:=fixed_form_model_-_one_kernel_-_) \
@@ -584,6 +585,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
     guf/instantiations/zhuang.h \
+    guf/instantiations/spline3d.h \
     guf/instantiations/fixed_form_model.h \
     guf/instantiations/free_form_model.h \
     guf/instantiations/float.h \

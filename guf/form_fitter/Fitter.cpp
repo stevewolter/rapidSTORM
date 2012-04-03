@@ -20,6 +20,7 @@
 #include <nonlinfit/make_functor.hpp>
 #include "guf/psf/is_plane_dependent.h"
 #include "guf/psf/Polynomial3D.h"
+#include "guf/psf/Spline3D.h"
 #include "guf/psf/No3D.h"
 #include "guf/psf/fixed_form.h"
 #include "guf/psf/StandardFunction.h"
@@ -33,6 +34,7 @@
 #include "guf/guf/mle_converter.h"
 #include <dStorm/engine/InputTraits.h>
 #include <fstream>
+#include "guf/select_3d_lambda.hpp"
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -278,6 +280,10 @@ class Fitter
         return three_d;
     }
 
+    dStorm::traits::DepthInfo get_3d( const PSF::Spline3D& s ) {
+        return traits::Spline3D( s.get_spline_ptr() );
+    }
+
     dStorm::traits::DepthInfo get_3d( const PSF::No3D& ) {
         return traits::No3D();
     }
@@ -357,6 +363,10 @@ template <>
 void Fitter<plane::negative_poisson_likelihood,PSF::No3D>::apply_z_calibration() {}
 template <>
 void Fitter<plane::squared_deviations,PSF::No3D>::apply_z_calibration() {}
+template <>
+void Fitter<plane::negative_poisson_likelihood,PSF::Spline3D>::apply_z_calibration() {}
+template <>
+void Fitter<plane::squared_deviations,PSF::Spline3D>::apply_z_calibration() {}
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::apply_z_calibration()
 {
@@ -372,8 +382,18 @@ void Fitter<Metric,Lambda>::apply_z_calibration()
     }
 }
 
-void set_z_position( traits::Optics& o, const PSF::No3D& ) {}
-void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m ) {
+void set_z_position( traits::Optics& o, const PSF::No3D& m, double width_correction ) {
+    for (int k = 0; k < 2; ++k) {
+        (*o.psf_size(0))[k] = quantity<si::length>(
+            m.get< PSF::BestSigma >(k) * width_correction);
+    }
+}
+void set_z_position( traits::Optics& o, const PSF::Spline3D&, double ) {}
+void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m, double width_correction ) {
+    for (int k = 0; k < 2; ++k) {
+        (*o.psf_size(0))[k] = quantity<si::length>(
+            m.get< PSF::BestSigma >(k) * width_correction);
+    }
     o.z_position->x() = quantity<si::length>(m( PSF::ZPosition<0>() ));
     o.z_position->y() = quantity<si::length>(m( PSF::ZPosition<1>() ));
 }
@@ -403,7 +423,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     progress.setValue( 1 );
 
     for (int j = 0; j < traits.plane_count(); ++j) {
-        set_z_position( new_traits.optics(j), result(-1,j) );
+        set_z_position( new_traits.optics(j), result(-1,j), width_correction );
         new_traits.optics(j).depth_info() = get_3d( result() );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
@@ -420,21 +440,9 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
             new_traits.optics(j).set_fluorophore_transmission_coefficient(i, 
                 result(i,j)( PSF::Prefactor() )
                     * target_transmission / total_transmission );
-            for (int k = 0; k < 2; ++k) {
-                /* The factor of 1.075 here accounts for systematic underestimation
-                 * of the PSF width. */
-                (*new_traits.optics(j).psf_size(i))[k] = quantity<si::length>(
-                    result(i,j).template get< PSF::BestSigma >(k) * width_correction);
-            }
         }
     }
 }
-
-template <class Traits3D>
-class select_3d_lambda;
-
-template <> struct select_3d_lambda<traits::Polynomial3D> { typedef PSF::Polynomial3D type; };
-template <> struct select_3d_lambda<traits::No3D> { typedef PSF::No3D type; };
 
 /** Helper for FittingVariant::create() that instantiates a Fitter class depending on the 3D model. */
 class create_3d_visitor
@@ -450,7 +458,7 @@ public:
     template <typename Model3D>
     std::auto_ptr<FittingVariant>
     operator()( const Model3D& ) const {
-        typedef typename select_3d_lambda<Model3D>::type Lambda;
+        typedef typename guf::select_3d_lambda<Model3D>::type Lambda;
         if ( config.mle() )
             return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
         else

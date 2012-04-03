@@ -5,6 +5,7 @@
 #include "guf/guf/mle_converter.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
+#include "guf/psf/Spline3D.h"
 
 namespace dStorm {
 namespace form_fitter {
@@ -73,6 +74,7 @@ void LocalizationValueFinder::find_values_( Type& z ) {
 }
 
 template void LocalizationValueFinder::find_values_<guf::PSF::Polynomial3D>( guf::PSF::Polynomial3D& );
+template void LocalizationValueFinder::find_values_<guf::PSF::Spline3D>( guf::PSF::Spline3D& );
 template void LocalizationValueFinder::find_values_<guf::PSF::No3D>( guf::PSF::No3D& );
 template void LocalizationValueFinder::find_values_<constant_background::Expression>( constant_background::Expression& );
 }

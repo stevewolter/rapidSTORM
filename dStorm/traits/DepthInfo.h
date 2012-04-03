@@ -7,6 +7,8 @@
 #include <boost/variant/variant.hpp>
 #include <Eigen/Core>
 #include <dStorm/polynomial_3d.h>
+#include <dStorm/threed_info/fwd.h>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
 namespace traits {
@@ -33,7 +35,16 @@ public:
     Eigen::Matrix< double, Direction_2D, Order > get_prefactors() const;
 };
 
-typedef boost::variant< traits::Polynomial3D, traits::No3D > DepthInfo;
+class Spline3D {
+    boost::shared_ptr< const threed_info::Spline > spline;
+  public:
+    Spline3D ( boost::shared_ptr< const threed_info::Spline > s ) : spline(s) {}
+    const boost::shared_ptr< const threed_info::Spline > get_spline() const
+        { return spline; }
+    boost::units::quantity< boost::units::si::length > equifocal_plane() const;
+};
+
+typedef boost::variant< traits::Polynomial3D, traits::No3D, traits::Spline3D > DepthInfo;
 
 }
 }

@@ -7,6 +7,8 @@
 #include "guf/psf/expressions.h"
 #include "guf/constant_background.hpp"
 #include "TraitValueFinder.h"
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/apply_visitor.hpp>
 
 namespace dStorm {
 namespace guf {
@@ -28,7 +30,6 @@ class InitialValueFinder::set_parameter {
     const InitialValueFinder& p;
     const guf::Spot& s;
     const PlaneEstimate& e;
-    const quantity<si::length> equifocal_plane;
 
   public:
     typedef void result_type;
@@ -43,6 +44,8 @@ class InitialValueFinder::set_parameter {
     void operator()( PSF::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
     void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
+        { m( p ) = e.z_estimate; }
+    void operator()( PSF::MeanZ p, PSF::Spline3D& m ) 
         { m( p ) = e.z_estimate; }
     template <typename Model>
     void operator()( PSF::Amplitude a, Model& m ) 
@@ -70,6 +73,9 @@ void InitialValueFinder::operator()(
         else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) )
             boost::mpl::for_each< PSF::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
+        else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) )
+            boost::mpl::for_each< PSF::Spline3D::Variables >( 
+                boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );
@@ -90,6 +96,25 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
+struct initial_focal_plane
+: public boost::static_visitor< quantity<si::length,float> >
+{
+private:
+    const traits::Optics& o;
+public:
+    initial_focal_plane( const traits::Optics& o ) : o(o) {}
+    quantity<si::length,float> operator()( const traits::No3D& ) const
+        { return 0 * si::meter; }
+    quantity<si::length,float> operator()( const traits::Polynomial3D& ) const
+        { return (o.z_position->x() + o.z_position->y()) / 2.0f; }
+    quantity<si::length,float> operator()( const traits::Spline3D& s ) const { 
+        return quantity<si::length,float>(s.equifocal_plane());
+    }
+
+    quantity<si::length,float> compute() const {
+        return boost::apply_visitor( *this, *o.depth_info() );
+    }
+};
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const guf::Spot&,
@@ -113,8 +138,7 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].amp = 0;
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
-        if ( o.z_position )
-            rv[i].z_estimate = (o.z_position->x() + o.z_position->y()) / 2.0f;
+        rv[i].z_estimate = initial_focal_plane( o ).compute();
     }
 
     int highest_amp_plane = 0;
