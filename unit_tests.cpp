@@ -8,6 +8,7 @@
 #include "guf/unit_tests.h"
 #include <dStorm/traits/unit_tests.h>
 #include "viewer/fwd.h"
+#include <dStorm/threed_info/fwd.h>
 
 void pixel_unit_test(TestState& state);
 
@@ -39,6 +40,7 @@ int run_unit_tests() {
     pixel_unit_test( state );
     locprec::run_unit_tests( state );
     dStorm::image_unit_tests( state );
+    dStorm::threed_info::unit_tests( state );
 
     return ( state.had_errors() ? EXIT_FAILURE : EXIT_SUCCESS );
 }

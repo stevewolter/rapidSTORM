@@ -189,7 +189,9 @@ nobase_include_HEADERS = \
     dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
     dStorm/display/Manager.h \
     dStorm/display/DummyManager.h  \
-    dStorm/Direction.h
+    dStorm/Direction.h \
+    dStorm/threed_info/Spline.h \
+    dStorm/threed_info/fwd.h
 
 libdStorm_la_SOURCES = \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
@@ -242,7 +244,8 @@ libdStorm_la_SOURCES = \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
-    dStorm/image/morphological_reconstruction.cpp
+    dStorm/image/morphological_reconstruction.cpp \
+    dStorm/threed_info/Spline.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
