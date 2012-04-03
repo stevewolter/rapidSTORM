@@ -357,7 +357,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/BasicTransmissions.h \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
-    outputs/LocalizationFile.h outputs/LocalizationFile.cpp
+    outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
+    outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     calibrate_3d/fwd.h \

@@ -4,8 +4,12 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
 #include <stdexcept>
+#include <fstream>
 
 #include <boost/units/cmath.hpp>
+#include <boost/units/io.hpp>
+
+#include <dStorm/Localization.h>
 
 namespace dStorm {
 namespace threed_info {
@@ -13,6 +17,18 @@ namespace threed_info {
 struct InterpolationDeleter {
     void operator()( gsl_interp* p ) { gsl_interp_free(p); }
 };
+
+SplineFactory::SplineFactory( const std::string& file ) {
+    std::ifstream i( file.c_str() );
+    while ( i ) {
+        double z_in_nm, sigma_x_in_mum, sigma_y_in_mum;
+        i >> z_in_nm >> sigma_x_in_mum >> sigma_y_in_mum;
+        if ( i )
+            add_point( z_in_nm * 1E-9 * si::meter, 
+                       sigma_x_in_mum * 1E-6 * si::meter,
+                       sigma_y_in_mum * 1E-6 * si::meter );
+    }
+}
 
 void SplineFactory::add_point( 
     quantity<si::length> z_position, 
@@ -68,6 +84,16 @@ Spline::Sigma Spline::get_sigma( Direction dir, quantity<si::length> z ) const {
 }
 
 Spline::ZPosition Spline::look_up_sigma_diff( 
+    const Localization& l, quantity<si::length> precision
+) const
+{
+    return look_up_sigma_diff( 
+        sqrt( l.fit_covariance_matrix()(0,0) ),
+        sqrt( l.fit_covariance_matrix()(1,1) ),
+        precision );
+}
+
+Spline::ZPosition Spline::look_up_sigma_diff( 
     quantity<si::length> sigma_x, quantity<si::length> sigma_y ,
     quantity<si::length> precision
 ) const
@@ -75,16 +101,36 @@ Spline::ZPosition Spline::look_up_sigma_diff(
     quantity<si::length> searched = sigma_x - sigma_y;
     quantity<si::length> lower_bound = zs[0] * si::meter, upper_bound = zs[N-1] * si::meter;
 
-    while ( upper_bound - lower_bound > precision ) {
-        quantity<si::length> test_x = (lower_bound + upper_bound) / 2.0;
-        quantity<si::length> test_y = *get_sigma_diff( test_x );
-        if ( test_y > searched )
-            upper_bound = test_x;
-        else
-            lower_bound = test_x;
-    }
+    /* Switch bounds if the gradient is negative, so we can assume in 
+     * the rest of the search that lower_bound is at the Y-larger-X end
+     * (not necessarily the low-Z end). */
+    if ( *get_sigma_diff( lower_bound ) > *get_sigma_diff( upper_bound ) )
+        std::swap( lower_bound, upper_bound );
+    assert( *get_sigma_diff( lower_bound ) < *get_sigma_diff( upper_bound ) );
 
-    return (upper_bound - lower_bound) / 2.0;
+    if ( *get_sigma_diff(lower_bound) > searched )
+        return Spline::ZPosition();
+    else if ( *get_sigma_diff(upper_bound) < searched)
+        return Spline::ZPosition();
+    else {
+        while ( abs( upper_bound - lower_bound ) > precision ) {
+            quantity<si::length> test_x = (lower_bound + upper_bound) / 2.0;
+            quantity<si::length> test_y = *get_sigma_diff( test_x );
+            if ( test_y > searched )
+                upper_bound = test_x;
+            else
+                lower_bound = test_x;
+        }
+
+        return (upper_bound + lower_bound) / 2.0;
+    }
+}
+
+std::pair< Spline::ZPosition, Spline::ZPosition > Spline::get_range() const {
+    std::pair< ZPosition, ZPosition > rv;
+    rv.first = std::min( zs[0], zs[N-1] ) * si::meter;
+    rv.second = std::max( zs[0], zs[N-1] ) * si::meter;
+    return rv;
 }
 
 static double spline_test_data[][3] = {
@@ -159,11 +205,11 @@ void unit_tests( TestState& state ) {
 
     const int ti = 25;
     Spline::ZPosition z1 = s.look_up_sigma_diff( 
-        spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-9 * si::meter,
-        spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-9 * si::meter,
+        spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter,
+        spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter,
         1E-9 * si::meter );
     state( z1 && *z1 < spline_test_data[ti][0] * 1E-9 * si::meter 
-              && *z1 < spline_test_data[ti-1][0] * 1E-9 * si::meter,
+              && *z1 > spline_test_data[ti-1][0] * 1E-9 * si::meter,
            "Z determination through sigmadiff works" );
 }
 

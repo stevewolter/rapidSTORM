@@ -10,6 +10,8 @@
 #include <dStorm/Direction.h>
 #include <gsl/gsl_interp.h>
 
+#include <dStorm/Localization_decl.h>
+
 namespace dStorm {
 namespace threed_info {
 
@@ -29,6 +31,9 @@ public:
     typedef boost::optional< quantity<si::length> > ZPosition;
     ZPosition look_up_sigma_diff( quantity<si::length> sigma_x, quantity<si::length> sigma_y,
                                   quantity<si::length> precision ) const;
+    ZPosition look_up_sigma_diff( const Localization&, quantity<si::length> precision ) const;
+
+    std::pair< ZPosition, ZPosition > get_range() const;
 
 private:
     const int N;
@@ -43,6 +48,8 @@ private:
 
 class SplineFactory {
 public:
+    SplineFactory() {}
+    SplineFactory( const std::string& file );
     void add_point( 
         quantity<si::length> z_position,
         quantity<si::length> sigma_x,

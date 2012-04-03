@@ -9,6 +9,7 @@
 #include "Slicer.h"
 #include "MemoryCache.h"
 #include "LocalizationFile.h"
+#include "SigmaDiff3D.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -25,6 +26,7 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( new TraceCountFilter::Source() );
     o->add_output( new Slicer::Source() );
     o->add_output( make_output_source<expression::Source>().release() );
+    o->add_output( make_sigma_diff_3d().release() );
 }
 
 }
