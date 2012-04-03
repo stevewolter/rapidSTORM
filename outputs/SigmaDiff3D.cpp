@@ -75,6 +75,7 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
         }
     }
 
+    r.erase( e, r.end() );
     Filter::receiveLocalizations( r );
 }
 
