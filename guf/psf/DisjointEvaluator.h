@@ -144,23 +144,19 @@ struct DisjointEvaluator
 
 namespace nonlinfit {
 
-template <typename Num, int ChunkSize> 
-struct get_evaluator< 
-    dStorm::guf::PSF::Polynomial3D, 
-    plane::Disjoint<Num,ChunkSize,dStorm::guf::PSF::XPosition,
-                                  dStorm::guf::PSF::YPosition>
-> {
-    typedef dStorm::guf::PSF::DisjointEvaluator<Num, dStorm::guf::PSF::Polynomial3D, ChunkSize > type; 
+#define DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(Expression) \
+template <typename Num, int ChunkSize> \
+struct get_evaluator< \
+    Expression, \
+    plane::Disjoint<Num,ChunkSize,dStorm::guf::PSF::XPosition,\
+                                  dStorm::guf::PSF::YPosition > \
+> {\
+    typedef dStorm::guf::PSF::DisjointEvaluator<Num, Expression, ChunkSize > type; \
 };
-
-template <typename Num, int ChunkSize> 
-struct get_evaluator< 
-    dStorm::guf::PSF::No3D, 
-    plane::Disjoint<Num,ChunkSize,dStorm::guf::PSF::XPosition,
-                                  dStorm::guf::PSF::YPosition>
-> {
-    typedef dStorm::guf::PSF::DisjointEvaluator<Num, dStorm::guf::PSF::No3D, ChunkSize > type; 
-};
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::Polynomial3D)
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::No3D)
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::Spline3D)
+#undef DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION
 
 }
 

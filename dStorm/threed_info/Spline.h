@@ -28,12 +28,16 @@ public:
     Sigma get_sigma( Direction dir, quantity<si::length> z ) const;
     Sigma get_sigma_diff( quantity<si::length> z ) const;
 
+    typedef boost::optional< double > SigmaDerivative;
+    SigmaDerivative get_sigma_deriv( Direction dir, quantity<si::length> z ) const;
+
     typedef boost::optional< quantity<si::length> > ZPosition;
     ZPosition look_up_sigma_diff( quantity<si::length> sigma_x, quantity<si::length> sigma_y,
                                   quantity<si::length> precision ) const;
     ZPosition look_up_sigma_diff( const Localization&, quantity<si::length> precision ) const;
 
-    std::pair< ZPosition, ZPosition > get_range() const;
+    typedef std::pair< ZPosition, ZPosition > Range;
+    Range get_range() const;
 
 private:
     const int N;
@@ -50,6 +54,9 @@ class SplineFactory {
 public:
     SplineFactory() {}
     SplineFactory( const std::string& file );
+
+    static SplineFactory Mock();
+
     void add_point( 
         quantity<si::length> z_position,
         quantity<si::length> sigma_x,

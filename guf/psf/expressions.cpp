@@ -12,16 +12,12 @@ BaseExpression::BaseExpression()
 BaseExpression::~BaseExpression() {}
 
 bool BaseExpression::form_parameters_are_sane() const {
-    bool is_good = (best_sigma.array() >= 0).all() 
-        && amplitude >= 0 && transmission >= 0;
+    bool is_good = amplitude >= 0 && transmission >= 0;
     if ( ! is_good ) {
         DEBUG("The form parameters " << best_sigma.transpose() << " " 
               << amplitude << " " << transmission << " are insane");
     }
     return is_good;
-}
-bool Polynomial3D::form_parameters_are_sane() const {
-    return BaseExpression::form_parameters_are_sane() && (delta_sigma.array() >= 0).all();
 }
 
 bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper ) const {
@@ -33,26 +29,6 @@ bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper )
         DEBUG( "Spatial mean " << spatial_mean.transpose() << " is outside the boundaries " << lower.transpose() << " and " << upper.transpose() );
     }
     return is_good;
-}
-
-bool BaseExpression::sigma_is_negligible( quantity<PixelSizeUnit> pixel_size ) const {
-    bool pixel_larger_than_sigma = ( pixel_size.value() / (best_sigma[0] * best_sigma[1]) ) > 10;
-    if ( pixel_larger_than_sigma ) {
-        DEBUG("Covariance " << best_sigma[0] * best_sigma[1] << " is way smaller than "
-              << pixel_size);
-    }
-    return pixel_larger_than_sigma;
-}
-
-Eigen::Matrix< quantity<LengthUnit>, 2, 1 > No3D::get_sigma() const
-{
-    Parameters<double,No3D> evaluator(*this);
-    return boost::units::from_value< LengthUnit >( evaluator.compute_sigma() );
-}
-Eigen::Matrix< quantity<LengthUnit>, 2, 1 > Polynomial3D::get_sigma() const
-{
-    Parameters<double,Polynomial3D> evaluator(*this);
-    return boost::units::from_value< LengthUnit >( evaluator.compute_sigma() );
 }
 
 }

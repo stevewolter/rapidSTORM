@@ -39,7 +39,7 @@ struct BaseExpression
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   protected:
-    Eigen::Array<double,2,1> spatial_position, spatial_mean, best_sigma;
+    Eigen::Array<double,2,1> spatial_position, spatial_mean;
     double amplitude, transmission;
     bool may_leave_roi;
     typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type
@@ -47,7 +47,6 @@ struct BaseExpression
     typedef boost::mpl::vector< 
         nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
         Mean<0>, Mean<1>, 
-        BestSigma<0>, BestSigma<1>, 
         Amplitude, Prefactor
     > Variables;
 
@@ -61,7 +60,6 @@ struct BaseExpression
         return spatial_position[Index];
     }
     template <int Index> double& access( Mean<Index> ) { return spatial_mean[Index]; }
-    template <int Index> double& access( BestSigma<Index> ) { return best_sigma[Index]; }
     double& access( Amplitude ) { return amplitude; }
     double& access( Prefactor ) { return transmission; }
 

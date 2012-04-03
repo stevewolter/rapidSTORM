@@ -4,6 +4,9 @@
 #include "parameters.h"
 #include "Polynomial3D.h"
 #include "No3D.h"
+#include "Spline3D.h"
+#include <boost/smart_ptr/make_shared.hpp>
+#include <dStorm/threed_info/Spline.h>
 
 namespace dStorm {
 namespace guf {
@@ -62,10 +65,18 @@ Expression mock_model() { return RandomParameterSetter<Expression>()(); }
 
 template Polynomial3D mock_model<Polynomial3D>();
 template No3D mock_model<No3D>();
+template <>
+Spline3D mock_model<Spline3D>() {
+    Spline3D result = RandomParameterSetter<Spline3D>()();
+    result.set_spline( boost::make_shared< threed_info::Spline >( 
+        threed_info::SplineFactory::Mock() ) );
+    return result;
+}
 
 void run_unit_tests( TestState &state ) {
     check_zhuang_evaluator( state );
     check_no3d_evaluator( state );
+    check_spline_evaluator( state );
 }
     
 }

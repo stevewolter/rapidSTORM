@@ -35,38 +35,6 @@ class BaseParameters {
 
 };
 
-template <typename Num, typename Expression> class Parameters;
-
-template <typename Num>
-class Parameters< Num, No3D >
-: public BaseParameters<Num>
-{
-    const No3D* expr;
-
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
-    void compute_prefactors_();
-
-  public:
-    Parameters() {}
-    Parameters( const No3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
-};
-
-template <typename Num>
-class Parameters< Num, Polynomial3D >
-: public BaseParameters<Num>
-{
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
-    void compute_prefactors_();
-
-  protected:
-    const Polynomial3D* expr;
-    Eigen::Array<Num,2,1> z_deriv_prefactor, relative_z, threed_factor;
-    Eigen::Array<Num,2,polynomial_3d::Order+1> delta_z_deriv_prefactor;
-  public:
-    Parameters() {}
-    Parameters( const Polynomial3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
-};
-
 }
 }
 }

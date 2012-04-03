@@ -83,6 +83,18 @@ Spline::Sigma Spline::get_sigma( Direction dir, quantity<si::length> z ) const {
         throw std::logic_error("Unexpected error in Z depth spline range");
 }
 
+Spline::SigmaDerivative
+Spline::get_sigma_deriv( Direction dir, quantity<si::length> z ) const {
+    double result;
+    int error = gsl_interp_eval_deriv_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
+    if ( error == GSL_SUCCESS )
+        return result;
+    else if ( error == GSL_EDOM )
+        return Spline::SigmaDerivative();
+    else
+        throw std::logic_error("Unexpected error in Z depth spline range");
+}
+
 Spline::ZPosition Spline::look_up_sigma_diff( 
     const Localization& l, quantity<si::length> precision
 ) const
@@ -186,12 +198,17 @@ static double spline_test_data[][3] = {
     { 3992.0, 0.156646332553, 0.413667317271}, 
 };
 
-void unit_tests( TestState& state ) {
-    SplineFactory f;
+SplineFactory SplineFactory::Mock() {
+    SplineFactory rv;
     for (size_t i = 0; i < sizeof(spline_test_data) / sizeof(spline_test_data[0]); ++i)
-        f.add_point( spline_test_data[i][0] * 1E-9 * si::meter,
+        rv.add_point( spline_test_data[i][0] * 1E-9 * si::meter,
                      spline_test_data[i][1] * 1E-6 * si::meter,
                      spline_test_data[i][2] * 1E-6 * si::meter );
+    return rv;
+}
+
+void unit_tests( TestState& state ) {
+    SplineFactory f = SplineFactory::Mock();
 
     Spline s( f );
     Spline::Sigma s1 = s.get_sigma(Direction_X, 1.6E-6 * si::meter);

@@ -545,6 +545,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/psf/expressions.h guf/psf/Base3D.h \
     guf/psf/Polynomial3D.h guf/psf/Polynomial3D.cpp \
     guf/psf/No3D.h guf/psf/No3D.cpp \
+    guf/psf/Spline3D.h guf/psf/Spline3D.cpp \
     guf/psf/is_plane_dependent.h \
     guf/psf/JointEvaluator.h \
     guf/psf/StandardFunction.h \
