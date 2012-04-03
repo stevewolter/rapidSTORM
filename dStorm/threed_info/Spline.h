@@ -26,7 +26,12 @@ public:
     Sigma get_sigma( Direction dir, quantity<si::length> z ) const;
     Sigma get_sigma_diff( quantity<si::length> z ) const;
 
+    typedef boost::optional< quantity<si::length> > ZPosition;
+    ZPosition look_up_sigma_diff( quantity<si::length> sigma_x, quantity<si::length> sigma_y,
+                                  quantity<si::length> precision ) const;
+
 private:
+    const int N;
     friend class SplineFactory;
     struct Point {
         quantity<si::length> z;
