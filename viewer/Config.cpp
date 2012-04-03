@@ -11,8 +11,8 @@ namespace viewer {
 _Config::_Config()
 : simparm::Object("Image", "Image display"),
   showOutput("ShowOutput", "Display dSTORM result image"),
-  outputFile("ToFile", "Save image to", ".png"),
   density_matrix_given("SaveDensityMatrix", "Save density matrix", false ),
+  outputFile("ToFile", "Save image to", ".png"),
   density_matrix("DensityMatrixFile", "Save density matrix to", "-density.txt"),
   histogramPower("HistogramPower", "Extent of histogram normalization", 0.3),
   top_cutoff("IntensityCutoff", "Intensity cutoff", 1.0),
