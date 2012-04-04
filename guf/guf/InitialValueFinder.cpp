@@ -9,6 +9,7 @@
 #include "TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
+#include <dStorm/threed_info/equifocal_plane.h>
 
 namespace dStorm {
 namespace guf {
@@ -73,10 +74,13 @@ void InitialValueFinder::operator()(
         else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) )
             boost::mpl::for_each< PSF::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) )
+        else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        else
+            const traits::Spline3D& t = boost::get< traits::Spline3D >(
+                        *info.traits.optics(p).depth_info());
+            z->set_spline( t.get_spline() );
+        } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );
     }
@@ -95,26 +99,6 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
     for (int i = 0; i < int(v.size()); ++i)
         v[i].amp = mean_amplitude;
 }
-
-struct initial_focal_plane
-: public boost::static_visitor< quantity<si::length,float> >
-{
-private:
-    const traits::Optics& o;
-public:
-    initial_focal_plane( const traits::Optics& o ) : o(o) {}
-    quantity<si::length,float> operator()( const traits::No3D& ) const
-        { return 0 * si::meter; }
-    quantity<si::length,float> operator()( const traits::Polynomial3D& ) const
-        { return (o.z_position->x() + o.z_position->y()) / 2.0f; }
-    quantity<si::length,float> operator()( const traits::Spline3D& s ) const { 
-        return quantity<si::length,float>(s.equifocal_plane());
-    }
-
-    quantity<si::length,float> compute() const {
-        return boost::apply_visitor( *this, *o.depth_info() );
-    }
-};
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const guf::Spot&,
@@ -138,7 +122,7 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].amp = 0;
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
-        rv[i].z_estimate = initial_focal_plane( o ).compute();
+        rv[i].z_estimate = equifocal_plane( o );
     }
 
     int highest_amp_plane = 0;

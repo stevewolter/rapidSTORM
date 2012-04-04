@@ -20,7 +20,8 @@ PlaneConfig::PlaneConfig(int number)
   psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   pixel_size("PixelSizeInNM", "Size of one input pixel",
                    PixelSize::Constant(107.0f * si::nanometre / camera::pixel)),
-  slopes("WideningConstants", "Widening slopes")
+  slopes("WideningConstants", "Widening slopes"),
+  z_calibration_file("ZCalibration", "Z calibration file")
 {
     slopes.helpID = "Polynomial3D.WideningSlopes";
     alignment.addChoice( make_scaling_projection_config() );
@@ -45,7 +46,8 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
   dark_current(o.dark_current), alignment( o.alignment ),
   psf_size(o.psf_size),
   pixel_size(o.pixel_size),
-  slopes(o.slopes)
+  slopes(o.slopes),
+  z_calibration_file(o.z_calibration_file)
 {
     for (Transmissions::const_iterator i = o.transmissions.begin(), e = o.transmissions.end(); i != e; ++i)
     {
@@ -59,6 +61,7 @@ void PlaneConfig::registerNamedEntries()
     push_back( psf_size );
     push_back( z_position );
     push_back( slopes );
+    push_back( z_calibration_file );
     push_back( counts_per_photon );
     push_back( dark_current );
     push_back( alignment );

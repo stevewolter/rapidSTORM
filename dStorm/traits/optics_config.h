@@ -12,6 +12,7 @@
 #include "../units/nanolength.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
+#include <simparm/FileEntry.hh>
 #include <simparm/Entry_Impl.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 
@@ -42,9 +43,11 @@ class PlaneConfig : public simparm::Set {
         Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
                        Polynomial3D::Order, Eigen::DontAlign > > SlopeEntry;
     SlopeEntry slopes;
+    simparm::FileEntry z_calibration_file;
 
     friend class NoThreeDConfig;
     friend class Polynomial3DConfig;
+    friend class Spline3DConfig;
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 

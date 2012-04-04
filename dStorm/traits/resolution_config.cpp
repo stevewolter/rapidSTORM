@@ -14,6 +14,7 @@ Config::Config()
 {
     three_d.helpID = "3DType";
     three_d.addChoice( make_no_3d_config() );
+    three_d.addChoice( make_spline_3d_config() );
     three_d.addChoice( make_polynomial_3d_config() );
 }
 

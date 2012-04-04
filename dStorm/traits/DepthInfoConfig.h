@@ -22,6 +22,7 @@ struct ThreeDConfig {
 
 std::auto_ptr< ThreeDConfig > make_no_3d_config();
 std::auto_ptr< ThreeDConfig > make_polynomial_3d_config();
+std::auto_ptr< ThreeDConfig > make_spline_3d_config();
 
 }
 }

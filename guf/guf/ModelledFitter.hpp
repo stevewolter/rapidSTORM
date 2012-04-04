@@ -45,12 +45,10 @@ ModelledFitter<_Function>::ModelledFitter(
     nonlinfit::terminators::StepLimit(config.maximumIterationSteps()),
     FitTerminator<_Function>(config) )
 {
-    for (int i = 0; i < info.traits.plane_count(); ++i )
+    for (int i = 0; i < info.traits.plane_count(); ++i ) {
         evaluators.push_back( new Repository() );
-
-    for (typename PlaneFunctions::iterator i = evaluators.begin();
-         i != evaluators.end(); ++i) 
-        _model.push_back( FittedPlane( i->get_expression() ) );
+        _model.push_back( FittedPlane( evaluators[i].get_expression() ) );
+    }
 }
 
 template <class _Function>

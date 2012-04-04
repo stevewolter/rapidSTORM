@@ -1,4 +1,5 @@
 #include "DepthInfo.h"
+#include <dStorm/threed_info/Spline.h>
 
 namespace dStorm {
 namespace traits {
@@ -52,6 +53,9 @@ Eigen::Matrix< double, Direction_2D, Polynomial3D::Order > Polynomial3D::get_pre
         rv(dir,term-MinTerm) = get_prefactor( dir, term );
     return rv;
 }
+
+boost::units::quantity< boost::units::si::length > Spline3D::equifocal_plane() const
+    { return spline->equifocal_plane(); }
 
 }
 }

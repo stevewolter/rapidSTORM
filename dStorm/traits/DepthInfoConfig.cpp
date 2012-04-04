@@ -2,7 +2,9 @@
 #include "DepthInfoConfig.h"
 #include <simparm/Object.hh>
 #include <boost/variant/get.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
 #include <dStorm/units/microlength.h>
+#include <dStorm/threed_info/Spline.h>
 
 namespace dStorm {
 namespace traits {
@@ -17,6 +19,7 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
     void set_context( PlaneConfig& pc ) {
         pc.z_position.viewable = false;
         pc.slopes.viewable = false;
+        pc.z_calibration_file.viewable = false;
     }
     simparm::Node& getNode() { return *this; }
   public:
@@ -30,12 +33,12 @@ class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
     void set_context( PlaneConfig& pc ) {
         pc.z_position.viewable = true;
         pc.slopes.viewable = true;
+        pc.z_calibration_file.viewable = false;
     }
     simparm::Node& getNode() { return *this; }
     void registerNamedEntries() {}
   public:
     Polynomial3DConfig();
-    Polynomial3DConfig(const Polynomial3DConfig&);
     Polynomial3DConfig* clone() const { return new Polynomial3DConfig(*this); }
 };
 
@@ -73,15 +76,35 @@ Polynomial3DConfig::Polynomial3DConfig()
 {
 }
 
-Polynomial3DConfig::Polynomial3DConfig(const Polynomial3DConfig& o)
-: simparm::Object(o)
-{
-}
+class Spline3DConfig : public simparm::Object, public ThreeDConfig {
+    DepthInfo make_traits( const PlaneConfig& c ) const {
+        if ( c.z_calibration_file )
+            return traits::Spline3D( boost::make_shared<threed_info::Spline>(
+                threed_info::SplineFactory( c.z_calibration_file() ) ) );
+        else
+            return traits::No3D();
+    }
+    void read_traits( const DepthInfo&, PlaneConfig& pc ) 
+        { pc.z_calibration_file = ""; }
+    void set_context( PlaneConfig& pc ) {
+        pc.z_position.viewable = false;
+        pc.slopes.viewable = false;
+        pc.z_calibration_file.viewable = true;
+    }
+    simparm::Node& getNode() { return *this; }
+    void registerNamedEntries() {}
+  public:
+    Spline3DConfig() : simparm::Object("Spline3D", "Interpolated 3D") {}
+    Spline3DConfig* clone() const { return new Spline3DConfig(*this); }
+};
+
 
 std::auto_ptr< ThreeDConfig > make_no_3d_config() 
     { return std::auto_ptr< ThreeDConfig >( new NoThreeDConfig() ); }
 std::auto_ptr< ThreeDConfig > make_polynomial_3d_config()
     { return std::auto_ptr< ThreeDConfig >( new Polynomial3DConfig() ); }
+std::auto_ptr< ThreeDConfig > make_spline_3d_config()
+    { return std::auto_ptr< ThreeDConfig >( new Spline3DConfig() ); }
 
 }
 }

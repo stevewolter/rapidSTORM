@@ -5,6 +5,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/output/Traits.h>
 #include <boost/variant/get.hpp>
+#include <dStorm/threed_info/equifocal_plane.h>
 
 namespace dStorm {
 namespace guf {
@@ -53,15 +54,13 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 
     if ( info.traits.optics(0).z_position ) {
         quantity<si::length> equifocal_first = 
-                ( info.traits.optics(0).z_position->x() + 
-                info.traits.optics(0).z_position->y() ) / 2.0f;
+                equifocal_plane( info.traits.optics(0) );
         traits.position().range().z().first = samplepos::Scalar(equifocal_first-quantity<si::length>(z_range()));
         traits.position().range().z().second = samplepos::Scalar(equifocal_first+quantity<si::length>(z_range()));
         for (int i = 1; i < info.traits.plane_count(); ++i)
         {
             quantity<si::length> equifocal = 
-                ( (*info.traits.optics(i).z_position)[0] + 
-                (*info.traits.optics(i).z_position)[1] ) / 2.0f;
+                equifocal_plane( info.traits.optics(i) );
             samplepos::Scalar low = samplepos::Scalar(equifocal -samplepos::Scalar( z_range())),
                             high = samplepos::Scalar(equifocal +samplepos::Scalar(z_range()));
             traits.position().range().z().first = std::min( low, *traits.position().range().z().first );

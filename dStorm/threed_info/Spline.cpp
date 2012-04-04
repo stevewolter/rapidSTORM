@@ -60,6 +60,12 @@ Spline::Spline( const SplineFactory& f )
         gsl_interp_init( spline, this->zs.get(), sigmas[dim].get(), N );
         splines[dim].reset( spline, InterpolationDeleter() );
     }
+
+    ZPosition maybe_equifocal_plane = look_up_sigma_diff( 0 * si::meter, 1 * si::meter );
+    if ( maybe_equifocal_plane )
+        equifocal_plane_ = *maybe_equifocal_plane;
+    else
+        throw std::runtime_error("Z spline has no point where widths are equal");
 }
 
 Spline::Sigma Spline::get_sigma_diff( quantity<si::length> z ) const { 
@@ -110,7 +116,14 @@ Spline::ZPosition Spline::look_up_sigma_diff(
     quantity<si::length> precision
 ) const
 {
-    quantity<si::length> searched = sigma_x - sigma_y;
+    return look_up_sigma_diff( sigma_x - sigma_y, precision );
+}
+
+Spline::ZPosition Spline::look_up_sigma_diff( 
+    quantity<si::length> searched,
+    quantity<si::length> precision
+) const
+{
     quantity<si::length> lower_bound = zs[0] * si::meter, upper_bound = zs[N-1] * si::meter;
 
     /* Switch bounds if the gradient is negative, so we can assume in 
