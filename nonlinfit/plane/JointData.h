@@ -7,22 +7,25 @@
 #include "fwd.h"
 #include <vector>
 #include <boost/static_assert.hpp>
+#include "DataPoint.h"
+#include "DataFacade.h"
 
 namespace nonlinfit {
 namespace plane {
 
 /** Data structure for the Joint computation way. */
-template <typename Number, typename LengthUnit, int ChunkSize>
-class JointData
-: public GenericData<LengthUnit>
+template <typename Number, typename LengthUnit, int ChunkSize_>
+class JointCoreData
 {
-    BOOST_STATIC_ASSERT((ChunkSize != Eigen::Dynamic));
+    BOOST_STATIC_ASSERT((ChunkSize_ != Eigen::Dynamic));
   public:
+    static const int ChunkSize = ChunkSize_;
+    typedef DataPoint<LengthUnit,Number> data_point;
     typedef Eigen::Array<Number, ChunkSize, 2> Input;
     typedef Eigen::Array<Number, ChunkSize, 1> Output;
 
     struct DataRow {
-        typedef JointData::Output Output;
+        typedef JointCoreData::Output Output;
         /** The X and Y coordinates for the current row in LengthUnit. */
         Input inputs;
         /** The measurements for the matching row in #inputs. */
@@ -34,39 +37,17 @@ class JointData
         mutable Output residues;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
-  private:
-    typedef std::vector<DataRow, Eigen::aligned_allocator<DataRow> > Data;
-    Data data;
 
-  public:
-    typedef DataRow value_type;
-    typedef typename Data::const_iterator const_iterator;
-    const_iterator begin() const { return data.begin(); }
-    const_iterator end() const { return data.end(); }
-    void clear() { data.clear(); }
-    void reserve(int n) { data.reserve(n); }
+    data_point get( const DataRow& chunk, int in_chunk ) const;
+    void set( DataRow& chunk, int in_chunk, const data_point& );
+};
 
-    struct data_point_iterator;
-    data_point_iterator point_back_inserter();
-
-    struct DataPoint {
-        friend class DataPointReference;
-        Number x, y, o;
-      public:
-        DataPoint( Number x, Number y, Number output )
-            : x(x), y(y), o(output) {}
-        template <typename Derived>
-        DataPoint( const Eigen::DenseBase<Derived>& p, Number v ) {
-            o = v;
-            x = boost::units::quantity< LengthUnit >(p.x()).value();
-            y = boost::units::quantity< LengthUnit >(p.y()).value();
-        }
-    };
-
-  private:
-    struct DataPointReference;
-
-  public:
+template <typename Number, typename LengthUnit, int ChunkSize>
+class JointData
+: public DataFacade< JointCoreData<Number,LengthUnit,ChunkSize> >,
+  public GenericData<LengthUnit>
+{
+public:
     JointData() {}
     template <typename ONum, int Width>
     JointData( const DisjointData< ONum, LengthUnit,Width >& );

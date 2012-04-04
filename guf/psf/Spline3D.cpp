@@ -23,10 +23,11 @@ boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
         threed_info::Spline::Sigma s = expr->spline->get_sigma(i, z);
-        if ( s )
+        if ( s ) {
             rv[i] = quantity< BestSigma<0>::Unit >( *s ).value();
-        else
+        } else {
             return boost::optional< Eigen::Array<Number,2,1> >();
+        }
     }
     return rv;
 }

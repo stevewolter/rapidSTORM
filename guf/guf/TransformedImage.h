@@ -34,12 +34,12 @@ struct TransformedImage {
 
     template <typename PixelType, typename Num, int ChunkSize, typename Transform >
     Statistics<2> set_data( 
-      nonlinfit::plane::DisjointData< Num,LengthUnit,ChunkSize >& target,
+      nonlinfit::plane::DisjointData< Num, LengthUnit,ChunkSize >& target,
       const dStorm::Image< PixelType, 2 >& image, const Spot& center,
       const Transform& ) const;
     template <typename PixelType, typename Num, int ChunkSize, typename Transform >
     Statistics<2> set_data( 
-      nonlinfit::plane::JointData< Num, LengthUnit,ChunkSize >& target,
+      nonlinfit::plane::JointData< Num, LengthUnit, ChunkSize >& target,
       const dStorm::Image< PixelType, 2 >& image, const Spot& center,
       const Transform& ) const;
 };

@@ -5,6 +5,7 @@
 #include "guf/psf/BaseExpression.h"
 #include "guf/psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
+#include <dStorm/threed_info/equifocal_plane.h>
 
 namespace dStorm {
 namespace guf {
@@ -17,9 +18,7 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        quantity<si::length> equifocal = 
-            ( (*info.traits.optics(i).z_position)[0] + 
-              (*info.traits.optics(i).z_position)[1] ) / 2.0f;
+        quantity<si::length> equifocal = equifocal_plane( info.traits.optics(i) );
         allowed_z_positions += AllowedZPositions::interval_type( 
                 equifocal - quantity<si::length>(config.z_range()),
                 equifocal + quantity<si::length>(config.z_range()) );

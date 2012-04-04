@@ -488,7 +488,10 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/plane/Disjoint.h nonlinfit/plane/Disjoint.hpp \
     nonlinfit/plane/JointData.h \
     nonlinfit/plane/DisjointData.h nonlinfit/plane/DisjointData.hpp \
+    nonlinfit/plane/DisjointData.cpp \
+    nonlinfit/plane/DataFacade.h nonlinfit/plane/DataFacade.hpp \
     nonlinfit/plane/GenericData.h \
+    nonlinfit/plane/DataPoint.h \
     nonlinfit/plane/JointData.hpp \
     nonlinfit/plane/Jacobian.h \
     nonlinfit/terminators/RelativeChange.h nonlinfit/terminators/RelativeChange.cpp \

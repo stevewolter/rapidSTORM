@@ -32,7 +32,7 @@ class Distance
     typedef typename get_evaluation< Lambda, Number >::type Derivatives;
 
   private:
-    typedef typename Data::value_type DataRow;
+    typedef typename Data::ChunkView::value_type DataRow;
     typedef typename get_evaluator< Lambda, Tag >::type Evaluator;
     const Data* data;
   protected:
@@ -99,7 +99,7 @@ class Distance< _Lambda,Disjoint<Num,_ChunkSize,P1,P2>, squared_deviations >
     typedef typename Tag::Data Data;
     typedef typename get_evaluation< Lambda, Num >::type Derivatives;
   private:
-    typedef typename Data::value_type DataRow;
+    typedef typename Data::ChunkView::value_type DataRow;
     typedef typename Tag::template make_derivative_terms<Lambda,P1>::type 
         OuterTerms;
     typedef typename Tag::template make_derivative_terms<Lambda,P2>::type 

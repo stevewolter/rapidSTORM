@@ -34,7 +34,7 @@ template <typename Num, typename LengthUnit, int ChunkSize>
 Centroid residue_centroid( const JointData<Num,LengthUnit,ChunkSize>& d ) {
     Centroid rv( d.min.template head<2>(), d.max.template head<2>() );
 
-    for ( typename JointData<Num,LengthUnit,ChunkSize>::const_iterator i= d.begin(), e = d.end(); i != e; ++i ) {
+    for ( typename JointData<Num,LengthUnit,ChunkSize>::ChunkView::const_iterator i= d.chunk_view().begin(), e = d.chunk_view().end(); i != e; ++i ) {
         for (int j = 0; j < i->residues.rows(); ++j) {
 	    rv.add( boost::units::from_value< LengthUnit >(i->inputs.row(j).template cast<double>())
                 , i->residues[j] );
@@ -49,7 +49,7 @@ Centroid
 residue_centroid( const DisjointData< Num,LengthUnit,ChunkSize >& d ) {
     Centroid rv( d.min.template head<2>(), d.max.template head<2>() );
 
-    for ( typename DisjointData< Num,LengthUnit,ChunkSize >::const_iterator i= d.data.begin(), e = d.data.end(); i != e; ++i ) {
+    for ( typename DisjointData<Num,LengthUnit,ChunkSize>::ChunkView::const_iterator i= d.chunk_view().begin(), e = d.chunk_view().end(); i != e; ++i ) {
         for (int j = 0; j < i->residues.rows(); ++j) {
             typename Centroid::Spot spot;
             spot.x() = Centroid::Coordinate::from_value(d.xs[j]);

@@ -35,6 +35,7 @@ public:
     ZPosition look_up_sigma_diff( quantity<si::length> sigma_x, quantity<si::length> sigma_y,
                                   quantity<si::length> precision ) const;
     ZPosition look_up_sigma_diff( const Localization&, quantity<si::length> precision ) const;
+    ZPosition look_up_sigma_diff( quantity<si::length> sigma_diff, quantity<si::length> precision ) const;
 
     typedef std::pair< ZPosition, ZPosition > Range;
     Range get_range() const;
@@ -52,8 +53,6 @@ private:
     boost::shared_array<const double> zs, sigmas[Direction_2D];
     boost::shared_ptr< const gsl_interp > splines[Direction_2D];
     quantity<si::length> equifocal_plane_;
-
-    ZPosition look_up_sigma_diff( quantity<si::length> sigma_diff, quantity<si::length> precision ) const;
 };
 
 class SplineFactory {

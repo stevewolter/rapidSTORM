@@ -7,6 +7,7 @@
 #include "GenericData.h"
 #include "fwd.h"
 #include <boost/static_assert.hpp>
+#include "DataFacade.h"
 
 namespace nonlinfit {
 namespace plane {
@@ -17,15 +18,16 @@ namespace plane {
  *  the #xs member and the inner dimension residing in
  *  DataRow::inputs. */
 template <typename Number, typename LengthUnit, int _ChunkSize>
-struct DisjointData
-    : public GenericData<LengthUnit>
+struct DisjointCoreData
 {
     BOOST_STATIC_ASSERT((_ChunkSize != Eigen::Dynamic));
+    static const int ChunkSize = _ChunkSize;
     typedef Eigen::Array<Number,1,1> Input;
     typedef Eigen::Array<Number, _ChunkSize, 1> Output;
+    typedef DataPoint<LengthUnit,Number> data_point;
 
     struct DataRow {
-        typedef DisjointData::Output Output;
+        typedef DisjointCoreData::Output Output;
         /** The Y coordinate for the current row in LengthUnit. */
         Input inputs;
         /** The measurements for the matching row in #xs and the row's Y. */
@@ -38,18 +40,18 @@ struct DisjointData
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
-    typedef std::vector<DataRow, Eigen::aligned_allocator<DataRow> > Data;
-    Data data;
     /** The X coordinates for all DataRow instances in the data vector. */
     Eigen::Array<Number, _ChunkSize, 1> xs;
 
-    typedef DataRow value_type;
-    typedef typename Data::const_iterator const_iterator;
-    const_iterator begin() const { return data.begin(); }
-    const_iterator end() const { return data.end(); }
-    void clear() { data.clear(); }
+    data_point get( const DataRow& chunk, int in_chunk ) const;
+    void set( DataRow& chunk, int in_chunk, const data_point& );
+};
 
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+template <typename Number, typename LengthUnit, int ChunkSize>
+struct DisjointData
+: public DataFacade< DisjointCoreData<Number,LengthUnit,ChunkSize> >,
+  public GenericData<LengthUnit>
+{
 };
 
 }

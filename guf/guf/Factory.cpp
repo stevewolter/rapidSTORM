@@ -52,7 +52,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     laempi_fit.viewable = info.traits.plane_count() > 1;
     disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
 
-    if ( info.traits.optics(0).z_position ) {
+    if ( boost::get<traits::No3D>(info.traits.optics(0).depth_info().get_ptr()) == NULL ) {
         quantity<si::length> equifocal_first = 
                 equifocal_plane( info.traits.optics(0) );
         traits.position().range().z().first = samplepos::Scalar(equifocal_first-quantity<si::length>(z_range()));

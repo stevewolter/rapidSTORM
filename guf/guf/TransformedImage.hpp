@@ -13,6 +13,14 @@
 #include <dStorm/traits/Projection.h>
 #include <dStorm/traits/ScaledProjection.h>
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/weighted_variance.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+
+#include <boost/foreach.hpp>
+
+using namespace boost::accumulators;
+
 namespace dStorm {
 namespace guf {
 
@@ -98,6 +106,7 @@ TransformedImage<LengthUnit>::set_data(
     DEBUG("X coordinates are " << target.xs.transpose());
     target.data.clear();
     target.data.reserve( (cut_region(1,1) - cut_region(1,0)).value() + 1 );
+
     for (Pixel y = cut_region(1,0); y <= cut_region(1,1); y += one_pixel) {
         target.data.push_back( typename Target::DataRow() );
         typename Target::DataRow& current = target.data.back();
@@ -116,31 +125,32 @@ TransformedImage<LengthUnit>::set_data(
                 rv.highest_pixel.x() = Spot::Scalar(
                     quantity<LengthUnit>::from_value(
                         target.xs[(x - cut_region(0,0)).value()]) );
-                rv.highest_pixel.y() = Spot::Scalar(
-                    quantity<LengthUnit>::from_value(current.inputs(0,0)) );
+                rv.highest_pixel.y() = Spot::Scalar( sample_y );
             }
         }
         DEBUG("Y coordinate is " << current.inputs(0,0) << " and values are " << current.output.transpose());
     }
 
+    /* Compute 25th percentile pixel as background approximation */ 
     if ( ! pixels.empty() ) {
         typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
         std::nth_element( pixels.begin(), qp, pixels.end());
         rv.quarter_percentile_pixel = *qp * camera::ad_count;
     }
+    
     return rv;
 }
 
 template <typename LengthUnit>
-template <typename PixelType, typename Num, int ChunkSize, typename Transform>
+template <typename PixelType, typename Num, int ChunkSize, typename Transform >
 Statistics<2>
 TransformedImage<LengthUnit>::set_data( 
-   nonlinfit::plane::JointData< Num, LengthUnit, ChunkSize >& target,
+   nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize>& target,
    const dStorm::Image< PixelType, 2 >& image,
    const Spot& center,
    const Transform& transform )  const
 {
-    typedef nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize > Data;
+    typedef nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize> Data;
     typedef typename Data::DataRow DataRow;
     set_generic_data(target, center);
     Statistics<2> rv;
@@ -154,7 +164,8 @@ TransformedImage<LengthUnit>::set_data(
     target.reserve( points.size() );
     std::vector< PixelType > pixels;
     pixels.reserve( points.size() );
-    typename Data::data_point_iterator o = target.point_back_inserter();
+    std::back_insert_iterator<Data> o = std::back_inserter( target );
+    typedef Bounds::Scalar Pixel;
     for ( traits::Projection::ROI::const_iterator i = points.begin(); i != points.end(); ++i )
     {
         if ( ! image.contains( i->image_position ) )
@@ -166,7 +177,7 @@ TransformedImage<LengthUnit>::set_data(
         }
 
         Spot sample = i->sample_position;
-        const Num value = transform( image( i->image_position ) );
+        const typename Data::value_type::Intensity value = transform( image( i->image_position ) );
         pixels.push_back( value );
         rv.integral += value * boost::units::camera::ad_count;
         if ( value * camera::ad_count >= rv.peak_intensity ) {
@@ -174,16 +185,29 @@ TransformedImage<LengthUnit>::set_data(
             rv.highest_pixel = sample;
         }
 
-        *o++ = typename Data::DataPoint( sample, value );
+        *o++ = typename Data::value_type( sample, value );
     }
 
-    o.pad_last_chunk();
+    target.pad_last_chunk();
     rv.pixel_count = pixels.size();
 
     if ( ! pixels.empty() ) {
         typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
         std::nth_element( pixels.begin(), qp, pixels.end());
         rv.quarter_percentile_pixel = *qp * camera::ad_count;
+
+        accumulator_set<double, stats<tag::weighted_variance(lazy)>, double> acc[2];
+
+        for ( typename Data::const_iterator i = target.begin(); i != target.end(); ++i )
+        {
+            for (int dim = 0; dim < 2; ++dim) {
+                quantity<LengthUnit> offset = i->position(dim) - quantity< LengthUnit >(rv.highest_pixel[dim]);
+                acc[dim]( offset.value(),
+                    weight = (i->value() - rv.quarter_percentile_pixel.value()) );
+            }
+        }
+        rv.sigma_diff = quantity<si::length>( quantity<LengthUnit>::from_value
+            (sqrt( weighted_variance(acc[0]) ) - sqrt( weighted_variance(acc[1]) )) );
     }
     return rv;
 }

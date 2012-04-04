@@ -61,9 +61,9 @@ Spline::Spline( const SplineFactory& f )
         splines[dim].reset( spline, InterpolationDeleter() );
     }
 
-    ZPosition maybe_equifocal_plane = look_up_sigma_diff( 0 * si::meter, 1 * si::meter );
+    ZPosition maybe_equifocal_plane = look_up_sigma_diff( 0 * si::meter, 1E-9 * si::meter );
     if ( maybe_equifocal_plane )
-        equifocal_plane_ = *maybe_equifocal_plane;
+        equifocal_plane_ = *maybe_equifocal_plane - 1E-6 * si::meter;
     else
         throw std::runtime_error("Z spline has no point where widths are equal");
 }
