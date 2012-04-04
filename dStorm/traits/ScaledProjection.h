@@ -10,6 +10,7 @@ namespace dStorm {
 namespace traits {
 
 class ScaledProjection : public Projection {
+    ImagePosition size;
     Eigen::DiagonalMatrix<float,2> to_sample, to_image;
 
     SamplePosition point_in_sample_space_
@@ -21,9 +22,11 @@ class ScaledProjection : public Projection {
     Bounds get_region_of_interest_( const ROISpecification& ) const;
     ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const;
+    bool supports_guaranteed_row_width_() const { return true; }
 
   public:
     ScaledProjection( 
+        ImagePosition size,
         units::quantity<units::camera::resolution> x, 
         units::quantity<units::camera::resolution> y );
 

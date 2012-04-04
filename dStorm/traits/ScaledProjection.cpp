@@ -17,6 +17,7 @@ class ScaledProjectionFactory
 {
     Projection* get_projection_( const image::MetaInfo<2>& o ) const { 
         return new ScaledProjection(
+            o.size,
             o.resolution(0).in_dpm(), 
             o.resolution(1).in_dpm() );
     }
@@ -59,14 +60,37 @@ ScaledProjection::cut_region_of_interest_( const ROISpecification& r ) const
 {
     std::vector< MappedPoint > rv;
     Bounds bb = get_region_of_interest_( r );
+
+    if ( r.guaranteed_row_width ) {
+        quantity< camera::length, int > one =1 * camera::pixel, 
+                                        width = bb[1].x() - bb[0].x() + one;
+        if ( width < *r.guaranteed_row_width ) { 
+            bb[0].x() -= one; width += one; 
+            if ( width < *r.guaranteed_row_width ) 
+                { bb[1].x() += one; width += one; }
+        } else if ( width > *r.guaranteed_row_width ) {
+            bb[1].x() -= one; width -= one;
+        }
+        assert( width == *r.guaranteed_row_width );
+        while ( bb[1].x() >= size.x() )
+            { bb[1].x() -= one; bb[0].x() -= one; }
+        while ( bb[0].x() < 0 * camera::pixel )
+            { bb[0].x() += one; bb[1].x() += one; }
+        if ( bb[1].x() >= size.x() )
+            throw std::runtime_error("Image is too small for desired ROI");
+    }
+
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
     rv.reserve( (value( bb[1] - bb[0] ).array() + 1).prod() );
-    for (Pixel x = bb[0].x(); x <= bb[1].x(); x += 1 * camera::pixel) {
-        pos.x() = x;
-        for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
-            pos.y() = y;
-            rv.push_back( MappedPoint( pos, pixel_in_sample_space( pos ) ) );
+    SamplePosition sample;
+    for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
+        pos.y() = y;
+        sample.y() = to_sample.diagonal().y() * y.value() * si::meter;
+        for (Pixel x = bb[0].x(); x <= bb[1].x(); x += 1 * camera::pixel) {
+            pos.x() = x;
+            sample.x() = to_sample.diagonal().x() * x.value() * si::meter;
+            rv.push_back( MappedPoint( pos, sample ) );
         }
     }
     return rv;
@@ -81,13 +105,18 @@ ScaledProjection::get_region_of_interest_( const ROISpecification& r ) const
     Bounds rv;
     rv[0] = from_value< camera::length >( ceil(to_image * value(r.center - r.width)).cast<int>() );
     rv[1] = from_value< camera::length >( floor(to_image * value(r.center + r.width)).cast<int>() );
+    for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 2; ++j)
+            rv[i][j] = std::max( 0 * camera::pixel, std::min( rv[i][j], size[j] - 1 * camera::pixel ) );
     return rv;
 }
 
 ScaledProjection::ScaledProjection( 
+        ImagePosition size,
         quantity<camera::resolution> x, 
         quantity<camera::resolution> y )
-: to_sample( 1.0 / x.value() , 1.0 / y.value() ),
+: size(size),
+  to_sample( 1.0 / x.value() , 1.0 / y.value() ),
   to_image( to_sample.inverse() )
 {
 }

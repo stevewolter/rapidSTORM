@@ -23,7 +23,7 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     boost::optional< Eigen::Array<Number,2,1> > new_sigma = compute_sigma_();
     if ( new_sigma ) {
         sigma = *new_sigma;
-        double covariance_ellipse_area = M_PI * sigma[0] * sigma[1],
+        double covariance_ellipse_area = 4 * M_PI * sigma[0] * sigma[1],
                pixel_size_in_sqmum = quantity< BaseExpression::PixelSizeUnit >(data.pixel_size).value();
         if ( pixel_size_in_sqmum > covariance_ellipse_area )
             return false;

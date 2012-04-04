@@ -32,14 +32,9 @@ struct TransformedImage {
     const Spot& get_max_distance() const { return max_distance; }
     Bounds cut_region( const Spot& center, const ImageSize& upper_bound ) const; 
 
-    template <typename PixelType, typename Num, int ChunkSize, typename Transform >
+    template <typename PixelType, typename Data, typename Transform >
     Statistics<2> set_data( 
-      nonlinfit::plane::DisjointData< Num, LengthUnit,ChunkSize >& target,
-      const dStorm::Image< PixelType, 2 >& image, const Spot& center,
-      const Transform& ) const;
-    template <typename PixelType, typename Num, int ChunkSize, typename Transform >
-    Statistics<2> set_data( 
-      nonlinfit::plane::JointData< Num, LengthUnit, ChunkSize >& target,
+      Data& target,
       const dStorm::Image< PixelType, 2 >& image, const Spot& center,
       const Transform& ) const;
 };

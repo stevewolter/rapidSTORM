@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <nonlinfit/plane/JointData.hpp>
 #include <dStorm/traits/Projection.h>
-#include <dStorm/traits/ScaledProjection.h>
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/weighted_variance.hpp>
@@ -40,126 +39,40 @@ TransformedImage<LengthUnit>::set_generic_data(
     g.max = center.template cast< quantity<LengthUnit> >();
 }
 
-template <typename LengthUnit>
-template <typename PixelType, typename Num, int ChunkSize, typename Transform >
-Statistics<2>
-TransformedImage<LengthUnit>::set_data( 
-   nonlinfit::plane::DisjointData< Num,LengthUnit,ChunkSize >& target,
-   const dStorm::Image< PixelType, 2 >& image,
-   const Spot& center,
-   const Transform& transform ) const
+template <typename Num, typename LengthUnit, int ChunkSize>
+inline boost::optional< quantity<camera::length,int> >
+row_width( const nonlinfit::plane::DisjointData<Num,LengthUnit,ChunkSize>& )
 {
-    set_generic_data(target, center);
+    return ChunkSize * camera::pixel;
+}
 
-    typedef nonlinfit::plane::DisjointData< Num,LengthUnit,ChunkSize > Target;
-    Statistics<2> rv;
-    rv.peak_intensity = rv.integral = 0 * camera::ad_count;
-    rv.peak_pixel_area = quantity< si::area >( target.pixel_size );
-
-    const typename Bounds::Scalar one_pixel = 1 * camera::pixel;
-
-    ImageSize upper_bound;
-    upper_bound.x() = image.sizes().x() - one_pixel;
-    upper_bound.y() = image.sizes().y() - one_pixel;
-    Bounds cut_region = this->cut_region(center, upper_bound);
-    typedef Bounds::Scalar Pixel;
-
-    const int orig_width = (cut_region(0,1) - cut_region(0,0)).value() + 1;
-    switch ( ChunkSize - orig_width ) {
-        case 2: cut_region(0,1) += 1 * camera::pixel;
-        case 1: cut_region(0,0) -= 1 * camera::pixel;
-        case 0: break;
-        case -1: cut_region(0,1) -= 1 * camera::pixel;
-    }
-    if ( cut_region(0,0) < 0 * camera::pixel ) {
-        cut_region(0,1) += - cut_region(0,0);
-        cut_region(0,0) = 0 * camera::pixel;
-    }
-    if ( cut_region(0,1) > upper_bound.x() ) {
-        cut_region(0,0) -= cut_region(0,1) - upper_bound.x();
-        cut_region(0,1) = upper_bound.x();
-    }
-    if ( (cut_region(0,1) - cut_region(0,0)).value() + 1 != ChunkSize ) {
-        assert(false);
-        throw std::runtime_error("Could not find appropriate fit window width");
-    }
-
-    rv.pixel_count = (cut_region(0,1) - cut_region(0,0)).value() + 1;
-    rv.pixel_count *= (cut_region(1,1) - cut_region(1,0)).value() + 1;
-
-    std::vector< PixelType > pixels;
-    pixels.reserve( rv.pixel_count );
-
-    const traits::ScaledProjection& scale = 
-        dynamic_cast< const traits::ScaledProjection& >( this->optics.projection() );
-    for (int i = 0; i < 2; ++i) {
-        target.min[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,0) ) );
-        target.max[i] = quantity<LengthUnit>( scale.length_in_sample_space( i, cut_region(i,1) ) );
-    }
-
-    for (Pixel x = cut_region(0,0); x <= cut_region(0,1); x += one_pixel) {
-        int dx = (x - cut_region(0,0)).value();
-        target.xs[dx] = 
-            quantity<LengthUnit>
-                (scale.length_in_sample_space( 0, x )).value();
-    }
-    DEBUG("X coordinates are " << target.xs.transpose());
-    target.data.clear();
-    target.data.reserve( (cut_region(1,1) - cut_region(1,0)).value() + 1 );
-
-    for (Pixel y = cut_region(1,0); y <= cut_region(1,1); y += one_pixel) {
-        target.data.push_back( typename Target::DataRow() );
-        typename Target::DataRow& current = target.data.back();
-        DEBUG("Cutting line " << y << " from " << cut_region(0,0) << " to " << 
-              cut_region(0,1) << " from image of size " << image.sizes().transpose() );
-
-        quantity<LengthUnit> sample_y( scale.length_in_sample_space( 1, y ) );
-        current.inputs(0,0) = sample_y.value();
-        for (Pixel x = cut_region(0,0); x <= cut_region(0,1); x += one_pixel) {
-            Num value = transform( image(x,y) );
-            current.output[(x - cut_region(0,0)).value()] = value;
-            rv.integral += value * camera::ad_count;
-            pixels.push_back( value );
-            if ( value * camera::ad_count > rv.peak_intensity ) {
-                rv.peak_intensity = value * camera::ad_count;
-                rv.highest_pixel.x() = Spot::Scalar(
-                    quantity<LengthUnit>::from_value(
-                        target.xs[(x - cut_region(0,0)).value()]) );
-                rv.highest_pixel.y() = Spot::Scalar( sample_y );
-            }
-        }
-        DEBUG("Y coordinate is " << current.inputs(0,0) << " and values are " << current.output.transpose());
-    }
-
-    /* Compute 25th percentile pixel as background approximation */ 
-    if ( ! pixels.empty() ) {
-        typename std::vector<PixelType>::iterator qp = pixels.begin() + pixels.size() / 4;
-        std::nth_element( pixels.begin(), qp, pixels.end());
-        rv.quarter_percentile_pixel = *qp * camera::ad_count;
-    }
-    
-    return rv;
+template <typename Num, typename LengthUnit, int ChunkSize>
+inline boost::optional< quantity<camera::length,int> >
+row_width( const nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize>& )
+{
+    return boost::optional< quantity<camera::length,int> >();
 }
 
 template <typename LengthUnit>
-template <typename PixelType, typename Num, int ChunkSize, typename Transform >
+template <typename PixelType, typename Data, typename Transform >
 Statistics<2>
 TransformedImage<LengthUnit>::set_data( 
-   nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize>& target,
+   Data& target,
    const dStorm::Image< PixelType, 2 >& image,
    const Spot& center,
    const Transform& transform )  const
 {
-    typedef nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize> Data;
     typedef typename Data::DataRow DataRow;
     set_generic_data(target, center);
     Statistics<2> rv;
     rv.peak_intensity = rv.integral = 0 * camera::ad_count;
     rv.peak_pixel_area = quantity< si::area >( target.pixel_size );
 
+    traits::Projection::ROISpecification roi_request( center, max_distance );
+    roi_request.guaranteed_row_width = row_width( target );
     traits::Projection::ROI points = 
-        optics.projection().
-            cut_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );
+        optics.projection().cut_region_of_interest( roi_request );
+
     target.clear();
     target.reserve( points.size() );
     std::vector< PixelType > pixels;

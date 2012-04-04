@@ -12,7 +12,8 @@ void JointCoreData<Num,LengthUnit,ChunkSize>::set( DataRow& row, int current_poi
     row.inputs( current_point, 0 ) = point.x().value();
     row.inputs( current_point, 1 ) = point.y().value();
     row.output[ current_point ] = point.value();
-    row.logoutput[ current_point ] = (point.value() < 1E-10) ? -23*point.value() : point.value() * log(point.value()) ;
+    row.logoutput[ current_point ] = point.logoutput();
+    row.residues[ current_point ] = point.residue();
 }
 
 template <typename Num,typename LengthUnit, int ChunkSize>
@@ -22,7 +23,9 @@ JointCoreData<Num,LengthUnit,ChunkSize>::get( const DataRow& chunk, int in_chunk
     return data_point( 
             data_point::Length::from_value(chunk.inputs(in_chunk,0)),
             data_point::Length::from_value(chunk.inputs(in_chunk,1)),
-            chunk.output[in_chunk] );
+            chunk.output[in_chunk],
+            chunk.logoutput[in_chunk],
+            chunk.residues[in_chunk]);
 }
 
 template <typename Num, typename LengthUnit, int ChunkSize>

@@ -30,46 +30,19 @@ const Statistics<2> InputPlane::set_data( Data& d, const Image& i, const Spot& s
     return transformation.set_data( d, i, s, t );
 }
 
-template <typename Num, typename LengthUnit, int ChunkSize>
-Centroid residue_centroid( const JointData<Num,LengthUnit,ChunkSize>& d ) {
-    Centroid rv( d.min.template head<2>(), d.max.template head<2>() );
-
-    for ( typename JointData<Num,LengthUnit,ChunkSize>::ChunkView::const_iterator i= d.chunk_view().begin(), e = d.chunk_view().end(); i != e; ++i ) {
-        for (int j = 0; j < i->residues.rows(); ++j) {
-	    rv.add( boost::units::from_value< LengthUnit >(i->inputs.row(j).template cast<double>())
-                , i->residues[j] );
-        }
-    }
-
-    return rv;
-}
-
-template <typename Num, typename LengthUnit, int ChunkSize>
-Centroid
-residue_centroid( const DisjointData< Num,LengthUnit,ChunkSize >& d ) {
-    Centroid rv( d.min.template head<2>(), d.max.template head<2>() );
-
-    for ( typename DisjointData<Num,LengthUnit,ChunkSize>::ChunkView::const_iterator i= d.chunk_view().begin(), e = d.chunk_view().end(); i != e; ++i ) {
-        for (int j = 0; j < i->residues.rows(); ++j) {
-            typename Centroid::Spot spot;
-            spot.x() = Centroid::Coordinate::from_value(d.xs[j]);
-            spot.y() = Centroid::Coordinate::from_value(i->inputs(0,0));
-	    rv.add( spot, i->residues[j] );
-        }
-    }
-
-    return rv;
-}
-
-
 template <typename Tag>
 struct TaggedDataPlane
 : public DataPlane {
     typename Tag::Data data;
     Statistics<2> image_stats;
     virtual const void* get_data() const { return &data; }
-    virtual std::auto_ptr<Centroid> _residue_centroid() const 
-        { return std::auto_ptr<Centroid>( new Centroid(guf::residue_centroid( data )) );  }
+    virtual std::auto_ptr<Centroid> _residue_centroid() const { 
+        std::auto_ptr<Centroid> rv( new Centroid( data.min, data.max ) );  
+        for ( typename Tag::Data::const_iterator i= data.begin(), e = data.end(); i != e; ++i )
+            rv->add( i->position().template cast< Centroid::Coordinate >(), i->residue() );
+
+        return rv;
+    }
     virtual quantity< si::area > pixel_size() const 
         { return quantity< si::area >(data.pixel_size); }
     virtual const Statistics<2>& get_statistics() const { return image_stats; }
@@ -162,7 +135,7 @@ InputPlane::InputPlane( const Config& c, const dStorm::engine::JobInfo& info, in
 : im_size( info.traits.image(plane_number).size.array() - 1 * camera::pixel ),
   transformation(make_max_distance(info,plane_number), info.traits.plane(plane_number)),
   can_do_disjoint_fitting( c.allow_disjoint() && 
-    dynamic_cast< const traits::ScaledProjection* >( &info.traits.plane(plane_number).projection() ) ),
+    info.traits.plane(plane_number).projection().supports_guaranteed_row_width() ),
   use_floats( !c.double_computation() )
 {
     const traits::Optics& t = info.traits.optics(plane_number);

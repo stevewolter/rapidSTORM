@@ -7,6 +7,7 @@
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/area.hpp>
+#include <boost/optional/optional.hpp>
 #include <vector>
 #include <boost/array.hpp>
 
@@ -30,6 +31,9 @@ struct Projection {
     struct ROISpecification {
         SamplePosition center;
         SamplePosition width;
+        boost::optional< units::quantity<units::camera::length,int> > 
+            guaranteed_row_width;
+
         ROISpecification( const SamplePosition& center_, 
                           const SamplePosition& width_ );
         bool contains( const SamplePosition& ) const;
@@ -52,6 +56,8 @@ struct Projection {
     virtual SamplePosition pixel_in_sample_space_
         ( const ImagePosition& pos ) const 
         { return point_in_sample_space_(pos.cast< SubpixelImagePosition::Scalar >()); }
+    virtual bool supports_guaranteed_row_width_() const 
+        { return false; }
 
   public:
     ImagePosition nearest_point_in_image_space
@@ -72,6 +78,9 @@ struct Projection {
 
     Bounds get_region_of_interest( const ROISpecification& r ) const
         { return get_region_of_interest_( r ); }
+
+    bool supports_guaranteed_row_width() const 
+        { return supports_guaranteed_row_width_(); }
 };
 
 }

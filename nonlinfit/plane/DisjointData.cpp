@@ -14,7 +14,7 @@ void run_unit_tests(TestState& state) {
     Data data;
 
     for (int i = 0; i < 28; ++i)
-        data.push_back( Data::value_type( (i%7) * si::meter, - (i/7) * 5 * si::meter, i * 500 ) );
+        data.push_back( Data::value_type( (i%7) * si::meter, - (i/7) * 5 * si::meter, i * 500, i * 10, 0 ) );
     data.pad_last_chunk();
 
     int i = 0;
