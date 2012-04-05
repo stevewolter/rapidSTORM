@@ -151,13 +151,6 @@ Spline::ZPosition Spline::look_up_sigma_diff(
     }
 }
 
-std::pair< Spline::ZPosition, Spline::ZPosition > Spline::get_range() const {
-    std::pair< ZPosition, ZPosition > rv;
-    rv.first = std::min( zs[0], zs[N-1] ) * si::meter;
-    rv.second = std::max( zs[0], zs[N-1] ) * si::meter;
-    return rv;
-}
-
 static double spline_test_data[][3] = {
     { 72.0, 0.551030474849, 0.295956171647}, 
     { 152.0, 0.556805487709, 0.299537279667}, 

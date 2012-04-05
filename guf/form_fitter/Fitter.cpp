@@ -272,6 +272,8 @@ class Fitter
 
     dStorm::traits::DepthInfo get_3d( const PSF::Polynomial3D& m ) {
         traits::Polynomial3D three_d;
+        three_d.focal_planes() 
+            = m.get< PSF::ZPosition >().cast< traits::Polynomial3D::FocalPlanes::Scalar >();
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
             for (int term = traits::Polynomial3D::MinTerm; term <= traits::Polynomial3D::Order; ++term) {
                 three_d.set_slope( dir, term, traits::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
@@ -394,8 +396,6 @@ void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m, double width
         (*o.psf_size(0))[k] = quantity<si::length>(
             m.get< PSF::BestSigma >(k) * width_correction);
     }
-    o.z_position->x() = quantity<si::length>(m( PSF::ZPosition<0>() ));
-    o.z_position->y() = quantity<si::length>(m( PSF::ZPosition<1>() ));
 }
     
 template <class Metric, class Lambda>

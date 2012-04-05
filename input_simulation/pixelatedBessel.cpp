@@ -8,6 +8,7 @@
 #include <complex>
 #include <gsl/gsl_errno.h>
 #include <dStorm/traits/Projection.h>
+#include <dStorm/threed_info/equifocal_plane.h>
 
 namespace input_simulation {
 
@@ -26,6 +27,7 @@ struct BesselFunction::IntegrationInfo
     quantity< power_typeof_helper< si::length, static_rational<-1> >::type > 
         wavenumber;
     double bessel_factor, z_offset;
+    quantity<si::length> delta_z;
 
     IntegrationInfo() 
         : integration_size(10000),
@@ -81,7 +83,6 @@ double BesselFunction::compute_point( const Subpixel& position, IntegrationInfo&
         trafo.projection().point_in_sample_space(
             dStorm::traits::Projection::SubpixelImagePosition(
                 position.head<2>()));
-    sample.z() = (*trafo.optics.z_position)[0];
     sample -= fluorophore;
     quantity<si::length> distance = sqrt( pow<2>(sample[0]) + pow<2>(sample[1]) );
     info.bessel_factor = double( distance * info.wavenumber);
@@ -149,7 +150,7 @@ double BesselFunction::wavelength_callback(double l, void *params)
     IntegrationInfo *i = static_cast<IntegrationInfo*>(params);
     quantity<si::length> lambda = l * si::meter;
     i->wavenumber = (i->function->n * 2 * M_PI / lambda);
-    i->z_offset = -1.0 * ((i->function->trafo.optics.z_position->x() - i->function->fluorophore.z()) * i->wavenumber);
+    i->z_offset = -1.0 * (i->delta_z * i->wavenumber);
 
     double yc = i->orig_position.y().value(), val, abserr;
 
@@ -168,6 +169,7 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
 {
     gsl_error_handler_t * old_handler=gsl_set_error_handler_off();
     double val = -1, abserr;
+    int_info->delta_z = (equifocal_plane( *trafo.optics.depth_info() ) - fluorophore.z());
 
     int_info->orig_position = pixel_center;
     int_info->function = this;

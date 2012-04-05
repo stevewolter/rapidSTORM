@@ -10,6 +10,7 @@
 #include <gsl/gsl_rng.h>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/engine/Image_decl.h>
+#include <dStorm/units/microlength.h>
 
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/TriggerEntry.hh>
@@ -80,7 +81,7 @@ namespace input_simulation {
 
         std::auto_ptr< boost::ptr_list<Fluorophore> > create_fluorophores(
             const dStorm::engine::InputTraits& t,
-            gsl_rng*, int imN,
+            gsl_rng*, const NoiseConfig&,
             simparm::ProgressEntry& ) const;
     };
 
@@ -108,6 +109,7 @@ namespace input_simulation {
 
         simparm::TriggerEntry newSet;
         simparm::Entry<unsigned long> imageNumber;
+        simparm::Entry< quantity<si::microlength> > sample_depth;
         simparm::Entry<double> integrationTime;
         simparm::FileEntry saveActivity;
         simparm::Entry<unsigned long> layer_count;

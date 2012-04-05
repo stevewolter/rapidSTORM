@@ -45,6 +45,7 @@ void NoiseConfig::registerNamedEntries() {
     this->push_back( optics );
     this->push_back( newSet );
     this->push_back( imageNumber );
+    this->push_back( sample_depth );
     this->push_back( integrationTime );
     this->push_back( saveActivity );
 }
@@ -84,6 +85,7 @@ NoiseConfig::NoiseConfig()
   next_fluo_id(1),
   newSet("NewFluorophoreSet", "Add fluorophore set"),
   imageNumber("ImageNumber", "Number of source images to generate", 10000),
+  sample_depth("SampleDepth", "Depth of virtual sample", 1 * si::micrometer),
   integrationTime("IntegrationTime", "Integration time for one image", 0.1),
   saveActivity( "SaveActivity", "Save fluorophore activity information to file" ),
   layer_count( "LayerCount", "Number of layers to generate", 1 )
@@ -100,6 +102,7 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
   noiseGeneratorConfig(cp.noiseGeneratorConfig),
   newSet(cp.newSet),
   imageNumber(cp.imageNumber),
+  sample_depth(cp.sample_depth),
   integrationTime(cp.integrationTime),
   saveActivity(cp.saveActivity),
   layer_count(cp.layer_count),
@@ -149,7 +152,7 @@ std::auto_ptr< boost::ptr_list<Fluorophore> >
 FluorophoreSetConfig::create_fluorophores(
     const dStorm::engine::InputTraits& t,
     gsl_rng *rng,
-    int imN,
+    const NoiseConfig& config,
     simparm::ProgressEntry& progress ) const
 {
     std::auto_ptr< boost::ptr_list<Fluorophore> > fluorophores
@@ -165,7 +168,8 @@ FluorophoreSetConfig::create_fluorophores(
                 fluorophoreConfig ) );
     } else {
         const FluorophoreDistribution& distribution = this->distribution.value();
-        dStorm::samplepos size = t.size_in_sample_space();
+        dStorm::samplepos size = t.size_in_sample_space().second;
+        size.z() = quantity<si::length>(config.sample_depth());
         FluorophoreDistribution::Positions positions = 
             distribution.fluorophore_positions( size, rng);
 
@@ -178,7 +182,7 @@ FluorophoreSetConfig::create_fluorophores(
         int target_fluorophore_count = positions.size();
         while ( ! positions.empty() ) {
             progress.setValue( double(fluorophores->size()) / target_fluorophore_count );
-            fluorophores->push_back( new Fluorophore(positions.front(), imN, fluorophoreConfig, t, fluorophore_index()) );
+            fluorophores->push_back( new Fluorophore(positions.front(), config.imageNumber(), fluorophoreConfig, t, fluorophore_index()) );
             positions.pop();
         }
     }
@@ -234,7 +238,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
             i != config.get_fluorophore_sets().end(); ++i)
     {
         std::auto_ptr<FluorophoreList> l = 
-            (*i)->create_fluorophores( *t, rng, imN, progress );
+            (*i)->create_fluorophores( *t, rng, config, progress );
         fluorophores.transfer( fluorophores.end(), *l );
     }
 }

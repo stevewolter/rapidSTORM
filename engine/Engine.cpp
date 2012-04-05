@@ -129,10 +129,10 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
     input::Traits<output::LocalizedImage>::Ptr prv =
         convert_traits(config, *imProp);
 
-    samplepos size = imProp->size_in_sample_space();
+    std::pair<samplepos,samplepos> size = imProp->size_in_sample_space();
     for (int i = 0; i < 2; ++i) {
-        prv->position().range()[i].first = 0 * si::meter;
-        prv->position().range()[i].second = size[i];
+        prv->position().range()[i].first = size.first[i];
+        prv->position().range()[i].second = size.second[i];
     }
 
     prv->carburettor = input.get();

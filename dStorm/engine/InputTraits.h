@@ -35,7 +35,7 @@ public:
     iterator end() { return planes_.end(); }
     const_iterator end() const { return planes_.end(); }
 
-    samplepos size_in_sample_space() const;
+    std::pair<samplepos,samplepos> size_in_sample_space() const;
 
     traits::ImageNumber& image_number() { return in; }
     const traits::ImageNumber& image_number() const { return in; }

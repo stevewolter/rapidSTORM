@@ -110,6 +110,9 @@ nobase_include_HEADERS = \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
     dStorm/threed_info/equifocal_plane.h \
+    dStorm/threed_info/look_up_sigma_diff.h \
+    dStorm/threed_info/depth_range.h \
+    dStorm/threed_info/symmetry_axis.h \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
@@ -247,7 +250,10 @@ libdStorm_la_SOURCES = \
     dStorm/traits/scalar_check.cpp \
     dStorm/image/morphological_reconstruction.cpp \
     dStorm/threed_info/Spline.cpp \
-    dStorm/threed_info/equifocal_plane.cpp
+    dStorm/threed_info/look_up_sigma_diff.cpp \
+    dStorm/threed_info/depth_range.cpp \
+    dStorm/threed_info/equifocal_plane.cpp \
+    dStorm/threed_info/symmetry_axis.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_LIBADD = $(boost_thread_LIB) 
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 

@@ -18,7 +18,7 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        quantity<si::length> equifocal = equifocal_plane( info.traits.optics(i) );
+        quantity<si::length> equifocal = equifocal_plane( *info.traits.optics(i).depth_info() );
         allowed_z_positions += AllowedZPositions::interval_type( 
                 equifocal - quantity<si::length>(config.z_range()),
                 equifocal + quantity<si::length>(config.z_range()) );

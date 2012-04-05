@@ -98,7 +98,6 @@ void PlaneConfig::write_traits( traits::Optics& rv, const ThreeDConfig& t3) cons
     rv.projection_factory_ = alignment().get_projection_factory();
     rv.photon_response = counts_per_photon();
     rv.dark_current = dark_current();
-    rv.z_position = z_position().cast< quantity<si::length,float> >();
     rv.tmc.clear();
     for ( Transmissions::const_iterator i = transmissions.begin(); i != transmissions.end(); ++i) {
         DEBUG("Set transmission of " << rv.tmc.size() << " to " << i->value() << " at " << &rv);
@@ -120,7 +119,6 @@ void PlaneConfig::read_traits( const traits::Optics& t, ThreeDConfig& t3 )
         for (int i = 0; i < 2; ++i) s[i] *= 2.35;
         psf_size = s;
     }
-    if ( t.z_position ) z_position = t.z_position->cast< quantity<si::nanolength> >();
     if ( t.photon_response ) counts_per_photon = *t.photon_response;
     if ( t.dark_current ) dark_current = *t.dark_current;
     if ( t.depth_info() ) t3.read_traits( *t.depth_info(), *this );

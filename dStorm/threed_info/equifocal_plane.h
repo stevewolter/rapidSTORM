@@ -3,14 +3,13 @@
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/length.hpp>
+#include <dStorm/traits/DepthInfo.h>
 
 namespace dStorm {
 namespace traits {
 
-struct Optics;
-
 boost::units::quantity<boost::units::si::length,float>
-    equifocal_plane( const Optics& o );
+    equifocal_plane( const DepthInfo& o );
 
 }
 }

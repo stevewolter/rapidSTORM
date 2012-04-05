@@ -54,8 +54,8 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
 
     Announcement my_announcement(a);
     my_announcement.position().is_given[2] = true;
-    my_announcement.position().range().z().first = spline.get_range().first;
-    my_announcement.position().range().z().second = spline.get_range().second;
+    my_announcement.position().range().z().first = spline.lowest_z();
+    my_announcement.position().range().z().second = spline.highest_z();
     return Filter::announceStormSize( my_announcement );
 }
 

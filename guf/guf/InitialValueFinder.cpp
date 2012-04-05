@@ -10,7 +10,7 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/threed_info/equifocal_plane.h>
-#include <dStorm/threed_info/Spline.h>
+#include <dStorm/threed_info/look_up_sigma_diff.h>
 
 namespace dStorm {
 namespace guf {
@@ -101,32 +101,6 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
-struct z_position_for_sigma_diff_visitor 
-: public boost::static_visitor< quantity<si::length> >
-{
-    const quantity<si::length> sigma_diff;
-    const traits::Optics& o;
-    z_position_for_sigma_diff_visitor( quantity<si::length> sigma_diff, const traits::Optics& o ) : sigma_diff(sigma_diff), o(o) {}
-    /** The return value of this method is inconsequential because the 
-     *  z estimate is not used. */
-    quantity<si::length> operator()( const traits::No3D& ) const
-        { return 0 * si::meter; }
-    quantity<si::length> operator()( const traits::Spline3D& s ) const
-    { 
-        return s.get_spline()->look_up_sigma_diff( sigma_diff, 1E-8 * si::meter )
-            .get_value_or( s.equifocal_plane() );
-    }
-    quantity<si::length> operator()( const traits::Polynomial3D& s ) const
-    {
-        return equifocal_plane(o);
-    }
-};
-
-quantity<si::length> z_position_for_sigma_diff( const traits::DepthInfo& o, const quantity<si::length>& d, const traits::Optics& op )
-{
-    return boost::apply_visitor( z_position_for_sigma_diff_visitor(d,op), o );
-}
-
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const guf::Spot&,
     const guf::Statistics<3> & s
@@ -149,7 +123,7 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].amp = 0;
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
-        rv[i].z_estimate = z_position_for_sigma_diff( *o.depth_info(), s[i].sigma_diff, o );
+        rv[i].z_estimate = look_up_sigma_diff( *o.depth_info(), s[i].sigma_diff );
     }
 
     int highest_amp_plane = 0;

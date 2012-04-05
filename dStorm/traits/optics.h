@@ -42,7 +42,6 @@ struct Optics
     Optics();
     ~Optics();
 
-    boost::optional< PSF > z_position;
     boost::optional<camera_response> photon_response, background_stddev;
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
 

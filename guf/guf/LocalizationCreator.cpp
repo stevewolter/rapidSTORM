@@ -11,6 +11,8 @@
 #include "guf/constant_background.hpp"
 #include "guf/psf/Base3D.h"
 #include <boost/units/Eigen/Array>
+#include <dStorm/threed_info/symmetry_axis.h>
+#include <boost/variant/get.hpp>
 
 namespace dStorm {
 namespace guf {
@@ -18,20 +20,14 @@ namespace guf {
 LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::engine::JobInfo& info )
 : fluorophore(info.fluorophore), output_sigmas( config.output_sigmas() ), laempi_fit( config.laempi_fit() )
 {
-    bool one_axis_found = false;
+    traits::Symmetry symmetry = traits::TotallySymmetric();
     for (int p = 0; p < info.traits.plane_count(); ++p)
-        for (int xy = 0; xy < 2; ++xy) {
-            quantity< si::length > plane = (*info.traits.optics(p).z_position)[xy];
-            if ( info.traits.optics(p).transmission_coefficient(info.fluorophore) > 5E-2 )
-            {
-                if ( z_symmetry.is_initialized() && abs( plane - *z_symmetry ) > 1E-9 * si::meter )
-                    z_symmetry.reset();
-                else if ( ! z_symmetry.is_initialized() && ! one_axis_found ) {
-                    z_symmetry = plane;
-                    one_axis_found = true;
-                }
-            }
-        }
+        if ( info.traits.optics(p).transmission_coefficient(info.fluorophore) > 5E-2 )
+            symmetry = merge_symmetries( symmetry, symmetry_axis( *info.traits.optics(p).depth_info() ) );
+
+    traits::AxisSymmetric * axis_symmetry = boost::get<traits::AxisSymmetric>(&symmetry);
+    if ( axis_symmetry )
+        z_symmetry = axis_symmetry->axis;
 }
 
 void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos, double chi_sq, const DataCube& data ) const

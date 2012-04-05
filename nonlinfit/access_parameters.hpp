@@ -73,6 +73,17 @@ struct access_parameters {
         else if ( dim == 1 ) return (*this)( Parameter<1>() );
         else throw std::logic_error("Unknown dimension");
     }
+
+    /** Get read-only access to a vector of templated parameters. 
+     *  \note Is only implemented for two-dimensional vectors. */
+    template <template <int Dim> class Parameter>
+    Eigen::Matrix< boost::units::quantity<typename Parameter<0>::Unit>, 2, 1 > 
+    get() const {
+        Eigen::Matrix< boost::units::quantity<typename Parameter<0>::Unit>, 2, 1 > rv;
+        rv[0] = (*this)( Parameter<0>() );
+        rv[1] = (*this)( Parameter<1>() );
+        return rv;
+    }
 };
 
 }

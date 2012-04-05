@@ -5,6 +5,7 @@
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/variant/variant.hpp>
+#include <boost/optional/optional.hpp>
 #include <Eigen/Core>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/threed_info/fwd.h>
@@ -20,7 +21,9 @@ public:
     static const int Order = polynomial_3d::Order, PrimaryTerm = 2, MinTerm = 1;
     typedef boost::units::quantity< boost::units::si::length > FocalDepth;
     typedef boost::units::quantity< boost::units::si::length > WidthSlope;
+    typedef Eigen::Array< FocalDepth, 2,1, Eigen::DontAlign > FocalPlanes;
 private:
+    boost::optional< FocalPlanes > z_position;
     Eigen::Matrix< FocalDepth, 2, Order, Eigen::DontAlign > widening;
 
 public:
@@ -30,6 +33,9 @@ public:
 
     WidthSlope get_slope( Direction, int term ) const;
     void set_slope( Direction, int term, WidthSlope );
+
+    const boost::optional< FocalPlanes > focal_planes() const { return z_position; }
+    boost::optional< FocalPlanes >& focal_planes() { return z_position; }
 
     Eigen::Matrix< FocalDepth, Direction_2D, 1 > get_focal_depth() const;
     Eigen::Matrix< double, Direction_2D, Order > get_prefactors() const;

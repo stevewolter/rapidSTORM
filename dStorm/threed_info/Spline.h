@@ -37,8 +37,8 @@ public:
     ZPosition look_up_sigma_diff( const Localization&, quantity<si::length> precision ) const;
     ZPosition look_up_sigma_diff( quantity<si::length> sigma_diff, quantity<si::length> precision ) const;
 
-    typedef std::pair< ZPosition, ZPosition > Range;
-    Range get_range() const;
+    quantity<si::length,float> lowest_z() const { return float(zs[0]) * si::meter; }
+    quantity<si::length,float> highest_z() const { return float(zs[N-1]) * si::meter; }
 
     quantity<si::length> equifocal_plane() const
         { return equifocal_plane_; }

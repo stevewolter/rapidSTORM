@@ -10,6 +10,8 @@
 #include "guf/psf/is_plane_dependent.h"
 #include "guf/guf/TraitValueFinder.h"
 #include <dStorm/engine/JobInfo.h>
+#include <dStorm/traits/DepthInfo.h>
+#include <boost/variant/get.hpp>
 #include "constant_parameter.hpp"
 
 namespace dStorm {
@@ -166,12 +168,11 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
         guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
         traits::Optics& o = traits.optics(plane_index);
-        o.z_position->x() = quantity<si::length>(*m( guf::PSF::ZPosition<0>() ));
-        o.z_position->y() = quantity<si::length>(*m( guf::PSF::ZPosition<1>() ));
+        traits::Polynomial3D& p = boost::get<traits::Polynomial3D>(*o.depth_info());
+        p.focal_planes() = m.get< guf::PSF::ZPosition >().cast< quantity<si::length> >();
         o.psf_size(fluorophore)->x() = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ));
         o.psf_size(fluorophore)->y() = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ));
 
-        traits::Polynomial3D& p = boost::get<traits::Polynomial3D>(*o.depth_info());
         for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
             for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
                 p.set_slope( dir, term, traits::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );

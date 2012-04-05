@@ -7,8 +7,7 @@ TraitValueFinder::TraitValueFinder(
     const int fluorophore, 
     const dStorm::traits::Optics& plane )
 : fluorophore(fluorophore), plane(plane), 
-    psf( plane.psf_size(fluorophore) ),
-    is_3d( boost::get<traits::Polynomial3D>(plane.depth_info().get_ptr()) ) 
+    psf( plane.psf_size(fluorophore) )
 {
     assert( psf.is_initialized() );
 }

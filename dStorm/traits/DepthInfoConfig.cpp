@@ -45,6 +45,7 @@ class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
 void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
 {
     const Polynomial3D& p = boost::get< traits::Polynomial3D >(d);
+    if ( p.focal_planes() ) pc.z_position = p.focal_planes()->cast< quantity<si::nanolength> >();
     PlaneConfig::SlopeEntry::value_type slopes;
 
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
@@ -58,6 +59,7 @@ void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
 
 DepthInfo Polynomial3DConfig::make_traits(const PlaneConfig& pc) const {
     traits::Polynomial3D p;
+    p.focal_planes() = pc.z_position().cast< quantity<si::length> >();
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
             quantity< si::permicrolength > s = pc.slopes()( dir, term-Polynomial3D::MinTerm );

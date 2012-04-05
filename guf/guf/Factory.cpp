@@ -6,6 +6,7 @@
 #include <dStorm/output/Traits.h>
 #include <boost/variant/get.hpp>
 #include <dStorm/threed_info/equifocal_plane.h>
+#include <dStorm/threed_info/depth_range.h>
 
 namespace dStorm {
 namespace guf {
@@ -52,20 +53,13 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     laempi_fit.viewable = info.traits.plane_count() > 1;
     disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
 
-    if ( boost::get<traits::No3D>(info.traits.optics(0).depth_info().get_ptr()) == NULL ) {
-        quantity<si::length> equifocal_first = 
-                equifocal_plane( info.traits.optics(0) );
-        traits.position().range().z().first = samplepos::Scalar(equifocal_first-quantity<si::length>(z_range()));
-        traits.position().range().z().second = samplepos::Scalar(equifocal_first+quantity<si::length>(z_range()));
-        for (int i = 1; i < info.traits.plane_count(); ++i)
-        {
-            quantity<si::length> equifocal = 
-                equifocal_plane( info.traits.optics(i) );
-            samplepos::Scalar low = samplepos::Scalar(equifocal -samplepos::Scalar( z_range())),
-                            high = samplepos::Scalar(equifocal +samplepos::Scalar(z_range()));
-            traits.position().range().z().first = std::min( low, *traits.position().range().z().first );
-            traits.position().range().z().second = std::max( high, *traits.position().range().z().second );
-        }
+    boost::optional<traits::ZRange> z_range;
+    for (int i = 0; i < info.traits.plane_count(); ++i)
+        z_range = traits::merge_z_range( z_range, 
+            get_z_range( *info.traits.optics(i).depth_info() ) );
+    if ( z_range ) {
+        traits.position().range().z().first = z_range->lower();
+        traits.position().range().z().second = z_range->upper();
     }
 
     bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
