@@ -145,6 +145,7 @@ void ModuleLoader::add_modules
 
     guf::augment_config( car_config );
     car_config.add_output( calibrate_3d::make_output_source() );
+    car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     AndorCamera::augment_config( car_config );
     locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );

@@ -379,7 +379,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     calibrate_3d/ParameterLinearizer.h calibrate_3d/ParameterLinearizer.cpp \
     calibrate_3d/FormCalibrationConfig.h calibrate_3d/FormCalibrationConfig.cpp \
     calibrate_3d/ZTruth.h calibrate_3d/ZTruth.cpp \
-    calibrate_3d/constant_parameter.hpp
+    calibrate_3d/constant_parameter.hpp \
+    calibrate_3d/SigmaCurve.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \

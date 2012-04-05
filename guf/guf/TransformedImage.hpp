@@ -18,12 +18,11 @@
 
 #include <boost/foreach.hpp>
 
-using namespace boost::accumulators;
-
 namespace dStorm {
 namespace guf {
 
 using namespace boost::units;
+using namespace boost::accumulators;
 
 template <typename LengthUnit>
 void 

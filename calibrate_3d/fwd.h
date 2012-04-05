@@ -9,7 +9,12 @@ namespace calibrate_3d {
 
 std::auto_ptr<output::OutputSource> make_output_source();
 
+namespace sigma_curve {
+std::auto_ptr<output::OutputSource> make_output_source();
 }
+
+}
+
 }
 
 #endif
