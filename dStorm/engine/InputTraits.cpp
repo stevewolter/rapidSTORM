@@ -5,6 +5,7 @@
 #include <boost/units/Eigen/Array>
 #include <dStorm/units/microlength.h>
 #include <dStorm/threed_info/depth_range.h>
+#include <boost/variant/apply_visitor.hpp>
 
 namespace dStorm {
 namespace input {
@@ -47,7 +48,7 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
         min[1] = std::min( min[1], 0.0f * si::meter );
         max[0] = std::max( max[0], xy[0] );
         max[1] = std::max( max[1], xy[1] );
-        boost::optional< traits::ZRange > z_range = get_z_range( *optics(pl).depth_info() );
+        boost::optional< threed_info::ZRange > z_range = get_z_range( *optics(pl).depth_info() );
         if ( z_range ) {
             min.z() = std::min( z_range->lower(), min.z() );
             max.z() = std::max( z_range->upper(), max.z() );
@@ -56,21 +57,35 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
     return std::make_pair( min, max );
 }
 
+class print_threed_info 
+: public boost::static_visitor<void>
+{
+    std::ostream& o;
+public:
+    print_threed_info( std::ostream& target ) : o(target) {}
+    void operator()( const threed_info::Polynomial3D& p ) const {
+        o << "polynomial 3D with X focus depths " ;
+        for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
+            o << 1.0 / p.get_slope(Direction_X, j) << " ";
+        o << " and Y focus depth " ;
+        for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
+            o << 1.0 / p.get_slope(Direction_Y, j) << " ";
+        o << " and focal planes " << p.focal_planes()->transpose();
+    }
+    void operator()( const threed_info::No3D& p ) const {
+            o << "no 3D information";
+    }
+    void operator()( const threed_info::Spline3D& p ) const {
+            o << "spline 3D information";
+    }
+};
+
 std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) const {
     for ( int j = 0; j < plane_count(); ++j) {
         const traits::Optics& optics = this->optics(j);
         if ( j != 0 ) o << ", ";
-        o << "plane " << j << " has";
-        if ( const traits::Polynomial3D* p = boost::get< traits::Polynomial3D >(optics.depth_info().get_ptr()) ) {
-            o << " X focus depths " ;
-            for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
-                o << 1.0 / p->get_slope(Direction_X, j) << " ";
-            o << " and Y focus depth " ;
-            for (int j = traits::Polynomial3D::MinTerm; j <= traits::Polynomial3D::Order; ++j)
-                o << 1.0 / p->get_slope(Direction_Y, j) << " ";
-            o << " and focal planes " << p->focal_planes()->transpose();
-        } else
-            o << " no 3D information";
+        o << "plane " << j << " has ";
+        boost::apply_visitor( print_threed_info( o ), *optics.depth_info() );
         for ( size_t i = 0; i < fluorophores.size(); ++i )
         {
             traits::Optics::PSF psf = *optics.psf_size(i);

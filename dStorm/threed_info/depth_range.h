@@ -1,12 +1,12 @@
 #ifndef DSTORM_THREED_INFO_DEPTH_RANGE_H
 #define DSTORM_THREED_INFO_DEPTH_RANGE_H
 
-#include <dStorm/traits/DepthInfo.h>
+#include <dStorm/threed_info/DepthInfo.h>
 #include <boost/icl/continuous_interval.hpp>
 #include <dStorm/types/samplepos.h>
 
 namespace dStorm {
-namespace traits {
+namespace threed_info {
 
 typedef boost::icl::continuous_interval< samplepos::Scalar >
     ZRange;

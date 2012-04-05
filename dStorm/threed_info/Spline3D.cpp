@@ -1,5 +1,5 @@
 #include "dejagnu.h"
-#include "Spline.h"
+#include "Spline3D.h"
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
@@ -35,14 +35,14 @@ void SplineFactory::add_point(
     quantity<si::length> sigma_x,
     quantity<si::length> sigma_y )
 {
-    Spline::Point p;
+    Spline3D::Point p;
     p.z = z_position;
     p.sigma[Direction_X] = sigma_x;
     p.sigma[Direction_Y] = sigma_y;
     points.push_back( p );
 }
 
-Spline::Spline( const SplineFactory& f )
+Spline3D::Spline3D( const SplineFactory& f )
 : N( f.points.size() )
 {
     double *zs = new double[N];
@@ -68,40 +68,40 @@ Spline::Spline( const SplineFactory& f )
         throw std::runtime_error("Z spline has no point where widths are equal");
 }
 
-Spline::Sigma Spline::get_sigma_diff( quantity<si::length> z ) const { 
-    Spline::Sigma
+Spline3D::Sigma Spline3D::get_sigma_diff( quantity<si::length> z ) const { 
+    Sigma
         x = get_sigma( Direction_X, z ),
         y = get_sigma( Direction_Y, z );
     if ( x && y ) 
         return *x - *y; 
     else 
-        return Spline::Sigma();
+        return Sigma();
 }
 
-Spline::Sigma Spline::get_sigma( Direction dir, quantity<si::length> z ) const {
+Spline3D::Sigma Spline3D::get_sigma( Direction dir, quantity<si::length> z ) const {
     double result;
     int error = gsl_interp_eval_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
     if ( error == GSL_SUCCESS )
         return quantity<si::length>::from_value( result );
     else if ( error == GSL_EDOM )
-        return Spline::Sigma();
+        return Sigma();
     else
         throw std::logic_error("Unexpected error in Z depth spline range");
 }
 
-Spline::SigmaDerivative
-Spline::get_sigma_deriv( Direction dir, quantity<si::length> z ) const {
+Spline3D::SigmaDerivative
+Spline3D::get_sigma_deriv( Direction dir, quantity<si::length> z ) const {
     double result;
     int error = gsl_interp_eval_deriv_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
     if ( error == GSL_SUCCESS )
         return result;
     else if ( error == GSL_EDOM )
-        return Spline::SigmaDerivative();
+        return SigmaDerivative();
     else
         throw std::logic_error("Unexpected error in Z depth spline range");
 }
 
-Spline::ZPosition Spline::look_up_sigma_diff( 
+Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
     const Localization& l, quantity<si::length> precision
 ) const
 {
@@ -111,7 +111,7 @@ Spline::ZPosition Spline::look_up_sigma_diff(
         precision );
 }
 
-Spline::ZPosition Spline::look_up_sigma_diff( 
+Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
     quantity<si::length> sigma_x, quantity<si::length> sigma_y ,
     quantity<si::length> precision
 ) const
@@ -119,7 +119,7 @@ Spline::ZPosition Spline::look_up_sigma_diff(
     return look_up_sigma_diff( sigma_x - sigma_y, precision );
 }
 
-Spline::ZPosition Spline::look_up_sigma_diff( 
+Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
     quantity<si::length> searched,
     quantity<si::length> precision
 ) const
@@ -134,9 +134,9 @@ Spline::ZPosition Spline::look_up_sigma_diff(
     assert( *get_sigma_diff( lower_bound ) < *get_sigma_diff( upper_bound ) );
 
     if ( *get_sigma_diff(lower_bound) > searched )
-        return Spline::ZPosition();
+        return ZPosition();
     else if ( *get_sigma_diff(upper_bound) < searched)
-        return Spline::ZPosition();
+        return ZPosition();
     else {
         while ( abs( upper_bound - lower_bound ) > precision ) {
             quantity<si::length> test_x = (lower_bound + upper_bound) / 2.0;
@@ -216,18 +216,18 @@ SplineFactory SplineFactory::Mock() {
 void unit_tests( TestState& state ) {
     SplineFactory f = SplineFactory::Mock();
 
-    Spline s( f );
-    Spline::Sigma s1 = s.get_sigma(Direction_X, 1.6E-6 * si::meter);
+    Spline3D s( f );
+    Spline3D::Sigma s1 = s.get_sigma(Direction_X, 1.6E-6 * si::meter);
     state( s1 && abs( *s1 - 0.37E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good X values" );
-    Spline::Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6 * si::meter);
+    Spline3D::Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6 * si::meter);
     state( s1 && abs( *s2 - 0.153E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good Y values" );
-    Spline::Sigma s3 = s.get_sigma(Direction_X, 5.0E-6 * si::meter);
+    Spline3D::Sigma s3 = s.get_sigma(Direction_X, 5.0E-6 * si::meter);
     state( ! s3, "Spline reacts gracefully to domain error" );
 
     const int ti = 25;
-    Spline::ZPosition z1 = s.look_up_sigma_diff( 
+    Spline3D::ZPosition z1 = s.look_up_sigma_diff( 
         spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter,
         spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter,
         1E-9 * si::meter );

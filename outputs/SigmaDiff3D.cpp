@@ -6,7 +6,7 @@
 
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterBuilder.h>
-#include <dStorm/threed_info/Spline.h>
+#include <dStorm/threed_info/Spline3D.h>
 
 namespace dStorm {
 namespace output {
@@ -18,7 +18,7 @@ public:
     typedef simparm::Structure<_Config> Config;
 
 private:
-    threed_info::Spline spline;
+    threed_info::Spline3D spline;
 
 public:
     SigmaDiff3D( const Config&, std::auto_ptr< Output > );
@@ -64,7 +64,7 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
 
     EngineResult::iterator i, e = r.end();
     for ( i = r.begin(); i != e; ) {
-        threed_info::Spline::ZPosition pos = 
+        threed_info::Spline3D::ZPosition pos = 
             spline.look_up_sigma_diff( *i, 1E-9 * si::meter );
         if ( pos ) {
             i->position().z() = *pos;

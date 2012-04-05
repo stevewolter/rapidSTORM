@@ -3,6 +3,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/variant/get.hpp>
 #include <dStorm/units/permicrolength.h>
+#include <dStorm/threed_info/config_name.h>
 
 namespace dStorm {
 namespace traits {
@@ -13,9 +14,9 @@ Config::Config()
   three_d("ThreeD", "3D PSF model")
 {
     three_d.helpID = "3DType";
-    three_d.addChoice( make_no_3d_config() );
-    three_d.addChoice( make_spline_3d_config() );
-    three_d.addChoice( make_polynomial_3d_config() );
+    three_d.addChoice( threed_info::make_no_3d_config() );
+    three_d.addChoice( threed_info::make_spline_3d_config() );
+    three_d.addChoice( threed_info::make_polynomial_3d_config() );
 }
 
 Config::~Config() {}
@@ -54,15 +55,7 @@ void Config::set_context( const input::Traits<Localization>& t ) {
 
 void Config::read_traits( const engine::InputTraits& t ) {
     set_context( t );
-    const boost::optional<traits::DepthInfo> d = t.optics(0).depth_info();
-    assert( d.is_initialized() );
-    if ( boost::get< traits::No3D >( d.get_ptr() ) ) {
-        three_d.choose( "No3D" );
-    } else if ( boost::get< traits::Polynomial3D >( d.get_ptr() ) ) {
-        three_d.choose( "Polynomial3D" );
-    } else
-        throw std::runtime_error("ThreeD info not recognized");
-
+    three_d.choose( config_name( *t.optics(0).depth_info() ) );
     cuboid_config.read_traits( t, three_d() );
 }
 

@@ -106,11 +106,12 @@ nobase_include_HEADERS = \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
-    dStorm/traits/DepthInfoConfig.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
-    dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
-    dStorm/threed_info/Polynomial3D.h \
+    dStorm/traits/resolution_config.h \
+    dStorm/threed_info/DepthInfo.h \
+    dStorm/threed_info/Config.h \
     dStorm/threed_info/equifocal_plane.h \
+    dStorm/threed_info/config_name.h \
     dStorm/threed_info/look_up_sigma_diff.h \
     dStorm/threed_info/depth_range.h \
     dStorm/threed_info/symmetry_axis.h \
@@ -195,7 +196,8 @@ nobase_include_HEADERS = \
     dStorm/display/Manager.h \
     dStorm/display/DummyManager.h  \
     dStorm/Direction.h \
-    dStorm/threed_info/Spline.h \
+    dStorm/threed_info/Polynomial3D.h \
+    dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
 
 libdStorm_la_SOURCES = \
@@ -206,12 +208,10 @@ libdStorm_la_SOURCES = \
     dStorm/localization/Traits.cpp \
     dStorm/traits/traits.cpp dStorm/image/instantiate.cpp \
     dStorm/traits/optics.cpp dStorm/traits/optics_config.cpp \
-    dStorm/traits/DepthInfoConfig.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
     dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \
     dStorm/traits/SupportPointProjection.cpp \
-    dStorm/traits/DepthInfo.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
     dStorm/helpers/OutOfMemory.cpp \
@@ -250,7 +250,10 @@ libdStorm_la_SOURCES = \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
     dStorm/image/morphological_reconstruction.cpp \
-    dStorm/threed_info/Spline.cpp \
+    dStorm/threed_info/DepthInfo.cpp \
+    dStorm/threed_info/config_name.cpp \
+    dStorm/threed_info/Config.cpp \
+    dStorm/threed_info/Spline3D.cpp \
     dStorm/threed_info/look_up_sigma_diff.cpp \
     dStorm/threed_info/depth_range.cpp \
     dStorm/threed_info/equifocal_plane.cpp \

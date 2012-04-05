@@ -9,7 +9,6 @@
 #include "guf/psf/JointEvaluator.h"
 #include "guf/psf/DisjointEvaluator.h"
 #include <nonlinfit/plane/check_evaluator.hpp>
-#include <dStorm/threed_info/Spline.h>
 
 namespace dStorm {
 namespace guf {
@@ -22,7 +21,7 @@ boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute
     Eigen::Array<Number,2,1> rv;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
-        threed_info::Spline::Sigma s = expr->spline->get_sigma(i, z);
+        threed_info::Spline3D::Sigma s = expr->spline->get_sigma(i, z);
         if ( s ) {
             rv[i] = quantity< BestSigma<0>::Unit >( *s ).value();
         } else {

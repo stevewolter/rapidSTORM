@@ -19,7 +19,7 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        boost::optional< traits::ZRange > range = get_z_range( *info.traits.optics(i).depth_info() );
+        boost::optional< threed_info::ZRange > range = get_z_range( *info.traits.optics(i).depth_info() );
         DEBUG("Allowed Z positions in plane " << i << ": " << range->lower() << " to " << range->upper() );
         if ( range )
             allowed_z_positions += *range;

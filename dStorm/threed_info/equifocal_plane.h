@@ -3,10 +3,10 @@
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/length.hpp>
-#include <dStorm/traits/DepthInfo.h>
+#include "DepthInfo.h"
 
 namespace dStorm {
-namespace traits {
+namespace threed_info {
 
 boost::units::quantity<boost::units::si::length,float>
     equifocal_plane( const DepthInfo& o );

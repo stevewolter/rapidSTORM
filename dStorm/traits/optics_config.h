@@ -18,7 +18,7 @@
 
 #include "position.h"
 #include "ProjectionConfig.h"
-#include "DepthInfoConfig.h"
+#include <dStorm/threed_info/Config.h>
 #include <dStorm/units/permicrolength.h>
 #include <dStorm/Localization_decl.h>
 
@@ -41,13 +41,13 @@ class PlaneConfig : public simparm::Set {
 
     typedef simparm::Entry< 
         Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
-                       Polynomial3D::Order, Eigen::DontAlign > > SlopeEntry;
+                       polynomial_3d::Order, Eigen::DontAlign > > SlopeEntry;
     SlopeEntry slopes;
     simparm::FileEntry z_calibration_file;
 
-    friend class NoThreeDConfig;
-    friend class Polynomial3DConfig;
-    friend class Spline3DConfig;
+    friend class threed_info::No3DConfig;
+    friend class threed_info::Polynomial3DConfig;
+    friend class threed_info::Spline3DConfig;
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
@@ -56,11 +56,11 @@ class PlaneConfig : public simparm::Set {
     PlaneConfig( const PlaneConfig& );
     void registerNamedEntries();
 
-    void set_context( const traits::Optics&, int fluorophore_count, bool multilayer, ThreeDConfig& );
-    void set_context( const input::Traits<Localization>&, int fluorophore_count, ThreeDConfig& );
-    void write_traits( traits::Optics&, const ThreeDConfig& ) const;
-    void write_traits( input::Traits<Localization>&, const ThreeDConfig& ) const;
-    void read_traits( const traits::Optics&, ThreeDConfig& );
+    void set_context( const traits::Optics&, int fluorophore_count, bool multilayer, threed_info::Config& );
+    void set_context( const input::Traits<Localization>&, int fluorophore_count, threed_info::Config& );
+    void write_traits( traits::Optics&, const threed_info::Config& ) const;
+    void write_traits( input::Traits<Localization>&, const threed_info::Config& ) const;
+    void read_traits( const traits::Optics&, threed_info::Config& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
@@ -77,11 +77,11 @@ class CuboidConfig
     ~CuboidConfig();
     void registerNamedEntries();
 
-    void set_context( const input::Traits<engine::ImageStack>&, ThreeDConfig& );
-    void set_context( const input::Traits<Localization>&, ThreeDConfig& );
-    void read_traits( const input::Traits<engine::ImageStack>&, ThreeDConfig& );
-    void write_traits( input::Traits<engine::ImageStack>&, const ThreeDConfig&) const;
-    void write_traits( input::Traits<Localization>&, const ThreeDConfig&) const;
+    void set_context( const input::Traits<engine::ImageStack>&, threed_info::Config& );
+    void set_context( const input::Traits<Localization>&, threed_info::Config& );
+    void read_traits( const input::Traits<engine::ImageStack>&, threed_info::Config& );
+    void write_traits( input::Traits<engine::ImageStack>&, const threed_info::Config&) const;
+    void write_traits( input::Traits<Localization>&, const threed_info::Config&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 

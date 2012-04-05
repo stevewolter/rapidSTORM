@@ -2,27 +2,27 @@
 #include <boost/variant/apply_visitor.hpp>
 
 namespace dStorm {
-namespace traits {
+namespace threed_info {
 
 class merge_symmetries_visitor
-: public boost::static_visitor<traits::Symmetry>
+: public boost::static_visitor<Symmetry>
 {
 public:
     template <typename Second>
-    traits::Symmetry operator()( traits::Unsymmetric, Second ) const 
-        { return traits::Unsymmetric(); }
-    traits::Symmetry operator()( traits::AxisSymmetric, traits::Unsymmetric s ) const 
+    Symmetry operator()( Unsymmetric, Second ) const 
+        { return Unsymmetric(); }
+    Symmetry operator()( AxisSymmetric, Unsymmetric s ) const 
         { return s; }
-    traits::Symmetry operator()( traits::AxisSymmetric s1, traits::AxisSymmetric s2 ) const { 
+    Symmetry operator()( AxisSymmetric s1, AxisSymmetric s2 ) const { 
         if ( (s1.axis - s2.axis) < 1E-9 * boost::units::si::meter ) 
             return s1;
         else
-            return traits::Unsymmetric();
+            return Unsymmetric();
     }
-    traits::Symmetry operator()( traits::AxisSymmetric s, traits::TotallySymmetric ) const
+    Symmetry operator()( AxisSymmetric s, NoDepthInformation ) const
         { return s; }
     template <typename Second>
-    traits::Symmetry operator()( traits::TotallySymmetric, Second s ) const 
+    Symmetry operator()( NoDepthInformation, Second s ) const 
         { return s; }
 
 };
@@ -32,23 +32,33 @@ Symmetry merge_symmetries( const Symmetry& s1, const Symmetry& s2 ) {
 }
 
 struct symmetry_visitor
-: public boost::static_visitor<traits::Symmetry>
+: public boost::static_visitor<Symmetry>
 {
-    traits::Symmetry operator()( const traits::No3D& ) const { return traits::TotallySymmetric(); }
-    traits::Symmetry operator()( const traits::Polynomial3D& p ) const {
+    Symmetry operator()( const No3D& ) const { return NoDepthInformation(); }
+    Symmetry operator()( const Polynomial3D& p ) const {
         if ( ( p.focal_planes()->x() - p.focal_planes()->y() ) < 1E-9 * boost::units::si::meter )
         {
-            traits::AxisSymmetric rv;
+            AxisSymmetric rv;
             rv.axis = p.focal_planes()->x();
             return rv;
         } else
-            return traits::Unsymmetric();
+            return Unsymmetric();
     }
-    traits::Symmetry operator()( const traits::Spline3D& ) const { return traits::Unsymmetric(); }
+    Symmetry operator()( const Spline3D& ) const { return Unsymmetric(); }
 };
 
 Symmetry symmetry_axis( const DepthInfo& d ) {
     return boost::apply_visitor( symmetry_visitor(), d );
+}
+
+struct has_z_information_visitor : public boost::static_visitor<bool> {
+    bool operator()( NoDepthInformation ) const { return false; }
+    bool operator()( Unsymmetric ) const { return true; }
+    bool operator()( AxisSymmetric ) const { return true; }
+};
+
+bool has_z_information( const Symmetry& d ) {
+    return boost::apply_visitor( has_z_information_visitor(), d );
 }
 
 }

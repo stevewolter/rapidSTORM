@@ -29,14 +29,14 @@ struct TraitValueFinder {
     template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
         m(p) = quantity< typename PSF::Micrometers >(
-            boost::get<traits::Polynomial3D>(*plane.depth_info())
+            boost::get<threed_info::Polynomial3D>(*plane.depth_info())
                 .get_slope( static_cast<dStorm::Direction>(Dim), Term ) );
     }
 
     template <int Dim, typename Structure>
     void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
         m( p ) = quantity< typename PSF::ZPosition<Dim>::Unit >(
-            boost::get<traits::Polynomial3D>(*plane.depth_info())
+            boost::get<threed_info::Polynomial3D>(*plane.depth_info())
                 .focal_planes()->coeff(Dim,0) );
     }
 

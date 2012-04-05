@@ -20,7 +20,7 @@ namespace traits {
 namespace resolution {
 
 class Config : public simparm::Object {
-    simparm::NodeChoiceEntry< ThreeDConfig > three_d;
+    simparm::NodeChoiceEntry< threed_info::Config > three_d;
     traits::CuboidConfig cuboid_config;
 
   public:

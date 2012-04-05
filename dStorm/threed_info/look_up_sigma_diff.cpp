@@ -1,15 +1,14 @@
 #include <boost/units/Eigen/Core>
 #include "look_up_sigma_diff.h"
 #include "equifocal_plane.h"
-#include <dStorm/traits/optics.h>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/threed_info/Spline.h>
+#include <dStorm/threed_info/Spline3D.h>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace dStorm {
-namespace traits {
+namespace threed_info {
 
 using namespace boost::units;
 
@@ -20,9 +19,9 @@ class look_up_sigma_diff_visitor
 public:
     look_up_sigma_diff_visitor( quantity<si::length> sigma_diff ) 
         : sigma_diff(sigma_diff) {}
-    quantity<si::length,float> operator()( const traits::No3D& ) const
+    quantity<si::length,float> operator()( const No3D& ) const
         { return 0 * si::meter; }
-    quantity<si::length,float> operator()( const traits::Polynomial3D& p ) const {
+    quantity<si::length,float> operator()( const Polynomial3D& p ) const {
         quantity<si::length> lower_bound = p.lowest_z(), upper_bound = p.highest_z(),
                              precision = 1e-9 * si::meter;
 
@@ -56,10 +55,10 @@ public:
             return quantity<si::length,float>(upper_bound + lower_bound) / 2.0f;
         }
     }
-    quantity<si::length,float> operator()( const traits::Spline3D& s ) const
+    quantity<si::length,float> operator()( const Spline3D& s ) const
     { 
-        return quantity<si::length,float>(s.get_spline()->look_up_sigma_diff( sigma_diff, 1E-8 * si::meter )
-            .get_value_or( s.equifocal_plane() ));
+        return quantity<si::length,float>(s.look_up_sigma_diff( sigma_diff, 1E-8 * si::meter )
+            .get_value_or( equifocal_plane(s) ));
     }
 };
 

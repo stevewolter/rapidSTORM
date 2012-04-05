@@ -7,6 +7,7 @@
 #include <boost/variant/get.hpp>
 #include <dStorm/threed_info/equifocal_plane.h>
 #include <dStorm/threed_info/depth_range.h>
+#include <dStorm/threed_info/symmetry_axis.h>
 
 namespace dStorm {
 namespace guf {
@@ -23,12 +24,6 @@ Factory::Factory(const Factory& c)
 
 Factory::~Factory() {}
 
-bool Factory::can_do_3d( const input::Traits<engine::ImageStack>& t ) const
-{
-    bool do_3d = boost::get< traits::No3D >( t.optics(0).depth_info().get_ptr() ) == NULL;
-    return do_3d;
-}
-
 std::auto_ptr<engine::spot_fitter::Implementation>
 Factory::make( const engine::JobInfo& info )
 {
@@ -39,10 +34,22 @@ Factory::make( const engine::JobInfo& info )
 
 void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 {
+    boost::optional<threed_info::ZRange> z_range;
+    threed_info::Symmetry symmetry;
+    for (int i = 0; i < info.traits.plane_count(); ++i) {
+        z_range = threed_info::merge_z_range( z_range, 
+            get_z_range( *info.traits.optics(i).depth_info() ) );
+        symmetry = threed_info::merge_symmetries( symmetry,
+            symmetry_axis( *info.traits.optics(i).depth_info() ) );
+    }
+    if ( z_range ) {
+        traits.position().range().z().first = z_range->lower();
+        traits.position().range().z().second = z_range->upper();
+    }
 
     traits.covariance_matrix().is_given.diagonal().fill( output_sigmas() );
     traits.position().is_given.head<2>().fill( true );
-    traits.position().is_given[2] = can_do_3d( info.traits );
+    traits.position().is_given[2] = has_z_information(symmetry);
     traits.amplitude().is_given= true;
     traits.fit_residues().is_given= true;
     traits.local_background().is_given = (info.traits.plane_count() < 1);
@@ -51,15 +58,6 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 
     laempi_fit.viewable = info.traits.plane_count() > 1;
     disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
-
-    boost::optional<traits::ZRange> z_range;
-    for (int i = 0; i < info.traits.plane_count(); ++i)
-        z_range = traits::merge_z_range( z_range, 
-            get_z_range( *info.traits.optics(i).depth_info() ) );
-    if ( z_range ) {
-        traits.position().range().z().first = z_range->lower();
-        traits.position().range().z().second = z_range->upper();
-    }
 
     bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
     traits.source_traits.clear();

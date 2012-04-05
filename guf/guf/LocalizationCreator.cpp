@@ -20,12 +20,12 @@ namespace guf {
 LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::engine::JobInfo& info )
 : fluorophore(info.fluorophore), output_sigmas( config.output_sigmas() ), laempi_fit( config.laempi_fit() )
 {
-    traits::Symmetry symmetry = traits::TotallySymmetric();
+    threed_info::Symmetry symmetry;
     for (int p = 0; p < info.traits.plane_count(); ++p)
         if ( info.traits.optics(p).transmission_coefficient(info.fluorophore) > 5E-2 )
             symmetry = merge_symmetries( symmetry, symmetry_axis( *info.traits.optics(p).depth_info() ) );
 
-    traits::AxisSymmetric * axis_symmetry = boost::get<traits::AxisSymmetric>(&symmetry);
+    threed_info::AxisSymmetric * axis_symmetry = boost::get<threed_info::AxisSymmetric>(&symmetry);
     if ( axis_symmetry )
         z_symmetry = axis_symmetry->axis;
 }

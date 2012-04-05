@@ -14,7 +14,7 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "../units/camera_response.h"
 #include <dStorm/types/samplepos.h>
-#include <dStorm/traits/DepthInfo.h>
+#include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
 namespace traits {
@@ -34,7 +34,7 @@ struct Optics
     std::vector<float> tmc;
     boost::optional< PSF > psf;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
-    boost::optional< traits::DepthInfo > depth_info_;
+    boost::optional< threed_info::DepthInfo > depth_info_;
 
   public:
     friend class dStorm::traits::PlaneConfig;
@@ -51,8 +51,8 @@ struct Optics
         projection_factory() const
         { return projection_factory_; }
 
-    boost::optional< traits::DepthInfo >& depth_info() { return depth_info_; }
-    const boost::optional< traits::DepthInfo > depth_info() const { return depth_info_; }
+    boost::optional< threed_info::DepthInfo >& depth_info() { return depth_info_; }
+    const boost::optional< threed_info::DepthInfo > depth_info() const { return depth_info_; }
 
     float transmission_coefficient( int fluorophore ) const;
     void set_fluorophore_transmission_coefficient( int fluorophore, float );

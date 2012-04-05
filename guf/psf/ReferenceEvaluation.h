@@ -11,7 +11,7 @@
 #include <boost/units/cmath.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include <dStorm/threed_info/Spline.h>
+#include <dStorm/threed_info/Spline3D.h>
 
 namespace dStorm {
 namespace guf {

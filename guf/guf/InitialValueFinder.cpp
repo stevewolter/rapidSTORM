@@ -79,9 +79,9 @@ void InitialValueFinder::operator()(
         else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            const traits::Spline3D& t = boost::get< traits::Spline3D >(
+            const threed_info::Spline3D& t = boost::get< threed_info::Spline3D >(
                         *info.traits.optics(p).depth_info());
-            z->set_spline( t.get_spline() );
+            z->set_spline( t );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );

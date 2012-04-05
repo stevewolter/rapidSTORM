@@ -20,9 +20,9 @@ namespace si = boost::units::si;
 
 class SplineFactory;
 
-class Spline {
+class Spline3D {
 public:
-    Spline( const SplineFactory& );
+    Spline3D( const SplineFactory& );
 
     typedef boost::optional< quantity<si::length> > Sigma;
     Sigma get_sigma( Direction dir, quantity<si::length> z ) const;
@@ -44,7 +44,7 @@ public:
         { return equifocal_plane_; }
 
 private:
-    const int N;
+    int N;
     friend class SplineFactory;
     struct Point {
         quantity<si::length> z;
@@ -68,8 +68,8 @@ public:
         quantity<si::length> sigma_y );
 
 private:
-    friend class Spline;
-    typedef std::vector< Spline::Point > Points;
+    friend class Spline3D;
+    typedef std::vector< Spline3D::Point > Points;
     Points points;
 };
 

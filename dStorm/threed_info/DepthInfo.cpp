@@ -1,10 +1,10 @@
 #include "DepthInfo.h"
-#include <dStorm/threed_info/Spline.h>
+#include <dStorm/threed_info/Spline3D.h>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 
 namespace dStorm {
-namespace traits {
+namespace threed_info {
 
 using namespace boost::units;
 
@@ -55,9 +55,6 @@ Eigen::Matrix< double, Direction_2D, Polynomial3D::Order > Polynomial3D::get_pre
         rv(dir,term-MinTerm) = get_prefactor( dir, term );
     return rv;
 }
-
-boost::units::quantity< boost::units::si::length > Spline3D::equifocal_plane() const
-    { return spline->equifocal_plane(); }
 
 boost::optional< Polynomial3D::Sigma > 
     Polynomial3D::get_sigma_diff( FocalDepth z ) const 
