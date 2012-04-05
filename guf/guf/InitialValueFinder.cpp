@@ -1,3 +1,4 @@
+#include "debug.h"
 #include <Eigen/StdVector>
 #include <dStorm/engine/JobInfo.h>
 #include <boost/iterator/zip_iterator.hpp>
@@ -124,6 +125,7 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
         rv[i].z_estimate = look_up_sigma_diff( *o.depth_info(), s[i].sigma_diff );
+        DEBUG("Initial Z estimate for plane " << i << " with sigma-diff " << s[i].sigma_diff << " is " << rv[i].z_estimate);
     }
 
     int highest_amp_plane = 0;

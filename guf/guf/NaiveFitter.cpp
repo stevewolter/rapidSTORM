@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "NaiveFitter.h"
 #include "ModelledFitter.h"
 #include "guf/psf/StandardFunction.h"
@@ -24,11 +25,13 @@ class creator3
     template <typename Traits3D>
     NaiveFitter::Ptr 
     operator()( const Config& c, const dStorm::engine::JobInfo& i, 
-                const Traits3D ) const
+                const Traits3D t3d ) const
     { 
         typedef typename PSF::StandardFunction< 
             nonlinfit::Bind< typename select_3d_lambda<Traits3D>::type ,Assignment> ,Kernels>
             ::type F;
+        DEBUG("Model has " << boost::mpl::size<typename F::Variables>::type::value << " variables from "
+              << "original kernel's " << boost::mpl::size<typename select_3d_lambda<Traits3D>::type::Variables>::type::value);
         return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
     }
 };

@@ -1,5 +1,7 @@
 #include "DepthInfo.h"
 #include <dStorm/threed_info/Spline.h>
+#include <boost/units/cmath.hpp>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace traits {
@@ -56,6 +58,21 @@ Eigen::Matrix< double, Direction_2D, Polynomial3D::Order > Polynomial3D::get_pre
 
 boost::units::quantity< boost::units::si::length > Spline3D::equifocal_plane() const
     { return spline->equifocal_plane(); }
+
+boost::optional< Polynomial3D::Sigma > 
+    Polynomial3D::get_sigma_diff( FocalDepth z ) const 
+{
+    if ( z < lowest_z() || z > highest_z() ) return boost::optional< Polynomial3D::Sigma >();
+    double prefactor[2] = {1,1};
+    for (int i = MinTerm; i <= Order; ++i ) {
+        for ( Direction dir = Direction_First; dir != Direction_2D; ++dir ) {
+            prefactor[dir] += 
+                pow( (z - (*z_position)[dir]) / widening( i-1, dir ), i );
+        }
+    }
+    Polynomial3D::Sigma diff = sigmas_.x() * sqrt(prefactor[0]) - sigmas_.y() * sqrt(prefactor[1]);
+    return diff;
+}
 
 }
 }

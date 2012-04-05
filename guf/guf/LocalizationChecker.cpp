@@ -6,6 +6,7 @@
 #include "guf/psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/equifocal_plane.h>
+#include <dStorm/threed_info/depth_range.h>
 
 namespace dStorm {
 namespace guf {
@@ -18,10 +19,10 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        quantity<si::length> equifocal = equifocal_plane( *info.traits.optics(i).depth_info() );
-        allowed_z_positions += AllowedZPositions::interval_type( 
-                equifocal - quantity<si::length>(config.z_range()),
-                equifocal + quantity<si::length>(config.z_range()) );
+        boost::optional< traits::ZRange > range = get_z_range( *info.traits.optics(i).depth_info() );
+        DEBUG("Allowed Z positions in plane " << i << ": " << range->lower() << " to " << range->upper() );
+        if ( range )
+            allowed_z_positions += *range;
     }
 }
 
@@ -47,6 +48,7 @@ bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot
             }
         }
     }
+    DEBUG("Amplitude threshold is met: " << makes_it_in_one_plane);
     return makes_it_in_one_plane;
 }
 
@@ -67,9 +69,11 @@ bool LocalizationChecker::check_kernel( const PSF::BaseExpression& k, const guf:
         check_kernel_dimension<0>(k,s, plane) &&
         check_kernel_dimension<1>(k,s, plane);
     const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &k );
-    return kernels_ok && (!threed || 
+    bool z_ok = (!threed || 
         contains(allowed_z_positions, 
-             quantity<si::length>( (*threed)( PSF::MeanZ() ) ) ) );
+             samplepos::Scalar( (*threed)( PSF::MeanZ() ) ) ) );
+    DEBUG("Z position " << (*threed)( PSF::MeanZ() ) << " OK: " << z_ok);
+    return kernels_ok && z_ok;
 }
 
 }

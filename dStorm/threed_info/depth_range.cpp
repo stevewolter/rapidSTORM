@@ -4,6 +4,7 @@
 #include <dStorm/traits/optics.h>
 #include <boost/variant/apply_visitor.hpp>
 #include "Spline.h"
+#include <stdexcept>
 
 namespace dStorm {
 namespace traits {
@@ -17,9 +18,11 @@ public:
     boost::optional<ZRange> operator()( const traits::No3D& ) const
         { return boost::optional<ZRange>(); }
     boost::optional<ZRange> operator()( const traits::Polynomial3D& p ) const { 
-        samplepos::Scalar center = equifocal_plane(p),
-                          range = 1E-6f * si::meter;
-        return ZRange( center - range, center + range );
+        if ( ! p.focal_planes() || ! p.z_range() )
+            throw std::logic_error("Polynomial3D is incomplete in get_z_range");
+        return ZRange( 
+            samplepos::Scalar((*p.focal_planes() - *p.z_range()).minCoeff()),
+            samplepos::Scalar((*p.focal_planes() + *p.z_range()).maxCoeff()) );
     }
     boost::optional<ZRange> operator()( const traits::Spline3D& s ) const { 
         return ZRange( s.get_spline()->lowest_z(), s.get_spline()->highest_z() );

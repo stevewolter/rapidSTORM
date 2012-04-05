@@ -48,7 +48,7 @@ class Polynomial3D
     };
 
     typedef typename nonlinfit::append< 
-            typename BaseExpression::Variables,
+            typename Base3D::Variables,
             boost::mpl::vector< BestSigma<0>, BestSigma<1>, ZPosition<0>, ZPosition<1> >
         >::type BaseVariables;
 

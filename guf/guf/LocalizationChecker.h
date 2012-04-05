@@ -7,14 +7,14 @@
 #include "guf/psf/fwd.h"
 #include "Spot.h"
 #include "FitAnalysis.h"
+#include <dStorm/types/samplepos.h>
 
 namespace dStorm {
 namespace guf {
 
 /** Functor checking whether a fitted position is a valid localization. */
 class LocalizationChecker {
-    typedef boost::icl::interval_set< boost::units::quantity<
-        boost::units::si::length > > AllowedZPositions;
+    typedef boost::icl::interval_set< samplepos::Scalar > AllowedZPositions;
 
     const dStorm::engine::JobInfo& info;
     const boost::units::quantity<boost::units::si::length> theta_dist;

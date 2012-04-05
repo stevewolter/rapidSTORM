@@ -14,6 +14,7 @@ PlaneConfig::PlaneConfig(int number)
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
   is_first_layer(number==0),
   z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
+  z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
   alignment( "Alignment", "Plane alignment" ),
@@ -42,7 +43,9 @@ PlaneConfig::PlaneConfig(int number)
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
 : simparm::Set(o), is_first_layer(o.is_first_layer), 
-  z_position(o.z_position), counts_per_photon(o.counts_per_photon), 
+  z_position(o.z_position),
+  z_range(o.z_range),
+  counts_per_photon(o.counts_per_photon), 
   dark_current(o.dark_current), alignment( o.alignment ),
   psf_size(o.psf_size),
   pixel_size(o.pixel_size),
@@ -60,6 +63,7 @@ void PlaneConfig::registerNamedEntries()
     push_back( pixel_size );
     push_back( psf_size );
     push_back( z_position );
+    push_back( z_range );
     push_back( slopes );
     push_back( z_calibration_file );
     push_back( counts_per_photon );

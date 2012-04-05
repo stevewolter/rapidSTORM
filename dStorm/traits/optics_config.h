@@ -28,7 +28,7 @@ namespace traits {
 class PlaneConfig : public simparm::Set {
     const bool is_first_layer;
     typedef Eigen::Matrix< boost::units::quantity<boost::units::si::nanolength, double>, 2, 1, Eigen::DontAlign > ZPosition;
-    simparm::Entry< ZPosition > z_position;
+    simparm::Entry< ZPosition > z_position, z_range;
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
     simparm::NodeChoiceEntry< ProjectionConfig > alignment;

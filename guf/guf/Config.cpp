@@ -10,7 +10,6 @@ using namespace boost::units;
 
 Config::Config() 
 : simparm::Set("GUF", "Grand unified fitter"),
-  z_range("ZRange", "Maximum sensible Z distance from equifocused plane", 1000 * boost::units::si::nanometre),
   theta_dist("ThetaDist", "Two-kernel distance threshold", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 
         "Terminate at axial step length", 1E-2f * boost::units::si::nanometre),
@@ -40,7 +39,6 @@ Config::Config()
 
 void Config::registerNamedEntries()
 {
-    push_back( z_range );
     push_back( marquardtStartLambda );
     push_back( negligible_x_step );
     push_back( maximumIterationSteps );

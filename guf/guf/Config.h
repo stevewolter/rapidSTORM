@@ -17,7 +17,7 @@ struct Config
 
     Config();
     void registerNamedEntries();
-    dStorm::FloatNanometreEntry z_range, theta_dist, negligible_x_step;
+    dStorm::FloatNanometreEntry theta_dist, negligible_x_step;
     simparm::Entry<double> marquardtStartLambda, maximumIterationSteps;
     simparm::BoolEntry free_sigmas, output_sigmas, laempi_fit, disjoint_amplitudes, two_kernel_fitting,
        mle_fitting, allow_disjoint, double_computation;

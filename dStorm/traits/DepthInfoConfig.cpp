@@ -17,6 +17,7 @@ class NoThreeDConfig : public simparm::Object, public ThreeDConfig {
         assert( boost::get< traits::No3D >( &d ) );
     }
     void set_context( PlaneConfig& pc ) {
+        pc.z_range.viewable = false;
         pc.z_position.viewable = false;
         pc.slopes.viewable = false;
         pc.z_calibration_file.viewable = false;
@@ -31,6 +32,7 @@ class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
     DepthInfo make_traits( const PlaneConfig& ) const;
     void read_traits( const DepthInfo&, PlaneConfig& pc );
     void set_context( PlaneConfig& pc ) {
+        pc.z_range.viewable = true;
         pc.z_position.viewable = true;
         pc.slopes.viewable = true;
         pc.z_calibration_file.viewable = false;
@@ -45,6 +47,7 @@ class Polynomial3DConfig : public simparm::Object, public ThreeDConfig {
 void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
 {
     const Polynomial3D& p = boost::get< traits::Polynomial3D >(d);
+    if ( p.z_range() ) pc.z_range = p.z_range()->cast< quantity<si::nanolength> >();
     if ( p.focal_planes() ) pc.z_position = p.focal_planes()->cast< quantity<si::nanolength> >();
     PlaneConfig::SlopeEntry::value_type slopes;
 
@@ -59,8 +62,10 @@ void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
 
 DepthInfo Polynomial3DConfig::make_traits(const PlaneConfig& pc) const {
     traits::Polynomial3D p;
+    p.z_range() = pc.z_range().cast< quantity<si::length> >();
     p.focal_planes() = pc.z_position().cast< quantity<si::length> >();
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
+        p.set_base_width( dir, Polynomial3D::Sigma(pc.psf_size()[dir] / 2.35) );
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
             quantity< si::permicrolength > s = pc.slopes()( dir, term-Polynomial3D::MinTerm );
             if ( s < 1E-30 / si::micrometer )
@@ -89,6 +94,7 @@ class Spline3DConfig : public simparm::Object, public ThreeDConfig {
     void read_traits( const DepthInfo&, PlaneConfig& pc ) 
         { pc.z_calibration_file = ""; }
     void set_context( PlaneConfig& pc ) {
+        pc.z_range.viewable = false;
         pc.z_position.viewable = false;
         pc.slopes.viewable = false;
         pc.z_calibration_file.viewable = true;

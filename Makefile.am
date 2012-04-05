@@ -109,6 +109,7 @@ nobase_include_HEADERS = \
     dStorm/traits/DepthInfoConfig.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h dStorm/traits/DepthInfo.h \
+    dStorm/threed_info/Polynomial3D.h \
     dStorm/threed_info/equifocal_plane.h \
     dStorm/threed_info/look_up_sigma_diff.h \
     dStorm/threed_info/depth_range.h \

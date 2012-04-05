@@ -270,11 +270,13 @@ class Fitter
         return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
     }
 
-    dStorm::traits::DepthInfo get_3d( const PSF::Polynomial3D& m ) {
-        traits::Polynomial3D three_d;
+    dStorm::traits::DepthInfo get_3d( const PSF::Polynomial3D& m, int plane ) {
+        traits::Polynomial3D three_d( boost::get< traits::Polynomial3D >(*traits.optics(plane).depth_info()) );
         three_d.focal_planes() 
             = m.get< PSF::ZPosition >().cast< traits::Polynomial3D::FocalPlanes::Scalar >();
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
+            three_d.set_base_width(dir, traits::Polynomial3D::Sigma(
+                m.get< PSF::BestSigma >(dir) * width_correction ) );
             for (int term = traits::Polynomial3D::MinTerm; term <= traits::Polynomial3D::Order; ++term) {
                 three_d.set_slope( dir, term, traits::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
             }
@@ -282,11 +284,11 @@ class Fitter
         return three_d;
     }
 
-    dStorm::traits::DepthInfo get_3d( const PSF::Spline3D& s ) {
+    dStorm::traits::DepthInfo get_3d( const PSF::Spline3D& s, int plane ) {
         return traits::Spline3D( s.get_spline_ptr() );
     }
 
-    dStorm::traits::DepthInfo get_3d( const PSF::No3D& ) {
+    dStorm::traits::DepthInfo get_3d( const PSF::No3D&, int plane ) {
         return traits::No3D();
     }
 
@@ -424,7 +426,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
 
     for (int j = 0; j < traits.plane_count(); ++j) {
         set_z_position( new_traits.optics(j), result(-1,j), width_correction );
-        new_traits.optics(j).depth_info() = get_3d( result() );
+        new_traits.optics(j).depth_info() = get_3d( result(), j );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {

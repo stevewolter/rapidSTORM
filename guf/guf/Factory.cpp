@@ -49,7 +49,6 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.fluorophore().is_given = true;
     traits.two_kernel_improvement().is_given= two_kernel_fitting();
 
-    z_range.viewable = traits.position().is_given[2];
     laempi_fit.viewable = info.traits.plane_count() > 1;
     disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
 
@@ -92,7 +91,6 @@ void Factory::set_requirements( input::Traits<engine::ImageStack>& ) {}
 
 void Factory::register_trait_changing_nodes( simparm::Listener& l )
 {
-    l.receive_changes_from( z_range.value );
     l.receive_changes_from( free_sigmas.value );
     l.receive_changes_from( output_sigmas.value );
     l.receive_changes_from( laempi_fit.value );
