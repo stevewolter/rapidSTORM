@@ -259,7 +259,8 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/equifocal_plane.cpp \
     dStorm/threed_info/symmetry_axis.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
-libdStorm_la_LIBADD = $(boost_thread_LIB) 
+libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
+libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS)
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 
 librapidstormfile_la_SOURCES = \
