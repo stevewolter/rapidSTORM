@@ -1,3 +1,21 @@
+== 14.10.0 ==
+
+* Added GSL lib linking to libdSTORM
+* Added sigma-calibration-curve output
+* Moved all threed_info code into its directory and namespace
+* Implemented sigma-diff lookup and range determination for polynomial 3D
+* Refactored 3D code into own directory
+* Refactored region-cutting, summarizing and residue-centroiding code
+* Refactored nonlinfit data structures
+* Enabled Spline3D fitting in configuration
+* Added spline 3D to 3D traits and added matching specialization to fitter
+* Added PSF model for 3D splines
+* Fixed order of entries to avoid compilation warnings
+* Fixed deletion of invalid localizations for 3D sigma diff
+* Added sigma-difference input for 3D
+* Implemented lookup of sigmadiff values for Z position
+* Implemented 3D spline lookup
+
 == 14.9.0 ==
 
 * Fixed output of focus planes for multiple planes
