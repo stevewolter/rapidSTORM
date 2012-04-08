@@ -1,3 +1,8 @@
+== 14.11.0 ==
+
+* Moved 3D filtering code out of sigma curve since it is already covered by the expression filter.
+* Added correction terms for object size and wavelength.
+
 == 14.10.0 ==
 
 * Added GSL lib linking to libdSTORM
