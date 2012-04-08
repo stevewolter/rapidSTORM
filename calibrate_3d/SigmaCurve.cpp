@@ -15,8 +15,6 @@
 #include <boost/accumulators/statistics/weighted_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 
-#include "calibrate_3d/ZTruth.h"
-
 using namespace boost::accumulators;
 
 namespace dStorm {
@@ -27,22 +25,22 @@ class Configuration : public simparm::Object {
   protected:
     void registerNamedEntries() {
         push_back( outputFile );
-        push_back( filter_ );
-        push_back( new_z_ );
+        push_back( object_size );
+        push_back( wavelength_correction );
         push_back( step_size );
         push_back( sigma );
     }
   public:
     output::BasenameAdjustedFileEntry outputFile;
-    simparm::StringEntry filter_, new_z_;
-    simparm::Entry< quantity<si::nanolength> > step_size, sigma;
+    simparm::Entry< quantity<si::nanolength> > object_size, step_size, sigma;
+    simparm::Entry< double > wavelength_correction;
     Configuration()
         : simparm::Object("SigmaCurve", "3D PSF width calibration table"),
           outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
-          filter_("Filter", "Filter expression for usable spots"),
-          new_z_("TrueZ", "Expression for true Z value"),
+          object_size("ObjectSize", "FWHM correction for object size", 0 * si::nanometre),
           step_size("StepSize", "Calibration point distance", 150 * si::nanometre),
-          sigma("SmoothingFactor", "Smoothing Gaussian's sigma", 35 * si::nanometre)
+          sigma("SmoothingFactor", "Smoothing Gaussian's sigma", 35 * si::nanometre),
+          wavelength_correction("WavelengthCorrection", "WavelengthCorrectionFactor", 1)
         {}
 
     bool can_work_with(output::Capabilities cap) { 
@@ -71,17 +69,22 @@ private:
     };
     typedef std::map< int, SigmaEstimate > Slots;
     Slots checkpoints;
-    std::string output_file;
-    quantity<si::length> step_width, sigma;
-    calibrate_3d::ZTruth z_truth;
+    const Configuration config;
 
+    float z_step( const Localization& l, double distance ) const {
+         return (quantity<si::nanolength>(l.position().z()) + distance * config.sigma()) / config.step_size();
+    }
+    quantity<si::length> correct_for_size( quantity<si::length> v) const
+    {
+        return (v - quantity<si::length>(config.object_size() / 2.35)) * config.wavelength_correction();
+    }
     void store_results_( bool success ) {
         if ( success ) {
-            std::ofstream o( output_file.c_str() );
+            std::ofstream o ( config.outputFile().c_str() );
             for ( Slots::const_iterator i = checkpoints.begin(); i != checkpoints.end(); ++i )
                 o << quantity<si::nanolength>( i->second.center() ).value() << " "
-                  << quantity<si::microlength>( i->second.average_sigma(0) ).value() << " "
-                  << quantity<si::microlength>( i->second.average_sigma(1) ).value() << "\n";
+                  << quantity<si::microlength>( correct_for_size(i->second.average_sigma(0)) ).value() << " "
+                  << quantity<si::microlength>( correct_for_size(i->second.average_sigma(1)) ).value() << "\n";
         }
     }
 
@@ -90,10 +93,7 @@ public:
 
     Output(const Config &c) 
         : OutputObject(c.getName(), c.getDesc()),
-          output_file(c.outputFile()),
-          step_width( c.step_size() ),
-          sigma( c.sigma() ),
-          z_truth( c.filter_(), c.new_z_() ) {}
+          config(c) {}
     Output* clone() const { throw std::runtime_error(getDesc() + " cannot be copied"); }
 
     RunRequirements announce_run(const RunAnnouncement&) {
@@ -105,18 +105,18 @@ public:
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");
         if ( ! a.covariance_matrix().is_given(1,1) )
             throw std::runtime_error("PSF width in Y is not given for sigma curve generation");
-        z_truth.set_meta_info( a );
         return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult& er) {
-        Output::EngineResult ls = er;
-        Output::EngineResult::iterator begin = ls.begin(), end = z_truth.calibrate( ls );
-        for ( EngineResult::iterator i = ls.begin(); i != end; ++i) {
-            i->position().z() = z_truth.true_z( *i );
-            int lower_bound = ceil( (i->position().z() - 4.0 * sigma) / step_width );
-            int upper_bound = floor( (i->position().z() + 4.0 * sigma) / step_width );
+        for ( EngineResult::const_iterator i = er.begin(); i != er.end(); ++i) {
+            int lower_bound = ceil( z_step( *i, -4 ) );
+            int upper_bound = floor( z_step( *i, +4 ) );
             for ( int bin = lower_bound; bin <= upper_bound; ++bin ) {
-                Slots::value_type default_content( bin, SigmaEstimate(double(bin) * step_width, sigma) );
+                Slots::value_type default_content( 
+                    bin, 
+                    SigmaEstimate(
+                        double(bin) * quantity<si::length>(config.step_size()), 
+                        quantity<si::length>(config.sigma())) );
                 SigmaEstimate& e = checkpoints.insert( default_content ).first->second;
                 e.add( *i );
             }
