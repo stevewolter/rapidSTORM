@@ -5,8 +5,6 @@
 #include "guf/psf/BaseExpression.h"
 #include "guf/psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
-#include <dStorm/threed_info/equifocal_plane.h>
-#include <dStorm/threed_info/depth_range.h>
 
 namespace dStorm {
 namespace guf {
@@ -19,10 +17,7 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        boost::optional< threed_info::ZRange > range = get_z_range( *info.traits.optics(i).depth_info() );
-        DEBUG("Allowed Z positions in plane " << i << ": " << range->lower() << " to " << range->upper() );
-        if ( range )
-            allowed_z_positions += *range;
+        allowed_z_positions += info.traits.optics(i).depth_info()->z_range();
     }
 }
 

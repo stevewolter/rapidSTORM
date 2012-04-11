@@ -3,7 +3,6 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/variant/get.hpp>
 #include <dStorm/units/permicrolength.h>
-#include <dStorm/threed_info/config_name.h>
 
 namespace dStorm {
 namespace traits {
@@ -55,7 +54,7 @@ void Config::set_context( const input::Traits<Localization>& t ) {
 
 void Config::read_traits( const engine::InputTraits& t ) {
     set_context( t );
-    three_d.choose( config_name( *t.optics(0).depth_info() ) );
+    three_d.choose( t.optics(0).depth_info()->config_name() );
     cuboid_config.read_traits( t, three_d() );
 }
 

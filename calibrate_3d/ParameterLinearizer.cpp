@@ -168,16 +168,19 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
         guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
         traits::Optics& o = traits.optics(plane_index);
-        threed_info::Polynomial3D& p = boost::get<threed_info::Polynomial3D>(*o.depth_info());
-        p.focal_planes() = m.get< guf::PSF::ZPosition >().cast< threed_info::ZPosition >();
+        boost::shared_ptr<threed_info::Polynomial3D> p 
+            ( new threed_info::Polynomial3D(
+                dynamic_cast<const threed_info::Polynomial3D&>(*o.depth_info())) );
+        p->focal_planes() = m.get< guf::PSF::ZPosition >().cast< threed_info::ZPosition >();
         o.psf_size(fluorophore)->x() = threed_info::Sigma(*m( guf::PSF::BestSigma<0>() ));
         o.psf_size(fluorophore)->y() = threed_info::Sigma(*m( guf::PSF::BestSigma<1>() ));
 
         for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
             for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
-                p.set_slope( dir, term, threed_info::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );
+                p->set_slope( dir, term, threed_info::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );
             }
         }
+        o.set_depth_info( p );
     }
 }
 

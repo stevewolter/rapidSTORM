@@ -20,6 +20,7 @@
 #include "ProjectionConfig.h"
 #include <dStorm/threed_info/Config.h>
 #include <dStorm/units/permicrolength.h>
+#include <dStorm/polynomial_3d.h>
 #include <dStorm/Localization_decl.h>
 
 namespace dStorm {

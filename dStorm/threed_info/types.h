@@ -2,6 +2,8 @@
 #define DSTORM_THREED_INFO_TYPES_H
 
 #include "fwd.h"
+#include <boost/units/quantity.hpp>
+#include <boost/units/systems/si/length.hpp>
 #include <boost/icl/interval_set.hpp>
 #include <boost/icl/type_traits/unit_element.hpp>
 

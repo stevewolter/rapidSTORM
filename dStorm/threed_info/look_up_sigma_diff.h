@@ -5,13 +5,14 @@
 #include <boost/icl/continuous_interval.hpp>
 #include <dStorm/types/samplepos.h>
 #include <dStorm/Direction.h>
+#include <boost/optional/optional.hpp>
 #include "types.h"
 
 namespace dStorm {
 namespace threed_info {
 
 struct SigmaDiffLookup {
-    const DepthInfo a, b;
+    const DepthInfo &a, &b;
     const Direction a_dim, b_dim;
 public:
     SigmaDiffLookup( 

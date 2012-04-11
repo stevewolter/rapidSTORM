@@ -84,26 +84,19 @@ Spline3D::Spline3D( const SplineFactory& f )
     boost::optional<ZPosition> maybe_equifocal_plane = 
         look_up_sigma_diff( *this, 0.0f * si::meter, 1E-9f * si::meter );
     if ( maybe_equifocal_plane )
-        equifocal_plane_ = *maybe_equifocal_plane;
+        equifocal_plane__ = *maybe_equifocal_plane;
     else
         throw std::runtime_error("Z spline has no point where widths are equal");
 }
 
-ZRange Spline3D::z_range() const { 
+ZRange Spline3D::z_range_() const { 
     ZRange rv;
     rv.insert( boost::icl::continuous_interval<ZPosition>( 
         float(zs[0] + 1E-11) * si::meter, float(zs[N-1] - 1E-11) * si::meter ) ); 
     return rv;
 }
 
-Sigma Spline3D::get_sigma_diff( ZPosition z ) const { 
-    Sigma
-        x = get_sigma( Direction_X, z ),
-        y = get_sigma( Direction_Y, z );
-    return x - y; 
-}
-
-Sigma Spline3D::get_sigma( Direction dir, ZPosition z ) const {
+Sigma Spline3D::get_sigma_( Direction dir, ZPosition z ) const {
     if ( z.value() <= zs[1] ) {
         double x = (z.value() - zs[0]) / (zs[1] - zs[0]);
         double rv = 0;
@@ -130,7 +123,7 @@ Sigma Spline3D::get_sigma( Direction dir, ZPosition z ) const {
 }
 
 SigmaDerivative
-Spline3D::get_sigma_deriv( Direction dir, ZPosition z ) const {
+Spline3D::get_sigma_deriv_( Direction dir, ZPosition z ) const {
     double result;
     int error = gsl_interp_eval_deriv_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
     if ( error == GSL_SUCCESS )

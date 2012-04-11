@@ -18,7 +18,6 @@ namespace guf {
 class LocalizationCreator {
     const int fluorophore;
     const bool output_sigmas, laempi_fit;
-    boost::optional< boost::units::quantity<boost::units::si::length> > z_symmetry;
 
     void write_parameters( Localization& loc, const FittedPlane&, double chi_sq, const DataPlane& data ) const;
     void join_localizations( Localization& into, const std::vector<Localization>&, bool ) const;

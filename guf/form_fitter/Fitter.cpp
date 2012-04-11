@@ -39,6 +39,9 @@
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
 #include <nonlinfit/terminators/All.h>
+#include <dStorm/threed_info/Polynomial3D.h>
+#include <dStorm/threed_info/No3D.h>
+#include <dStorm/threed_info/Spline3D.h>
 
 #include "LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"
@@ -270,28 +273,29 @@ class Fitter
         return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
     }
 
-    dStorm::threed_info::DepthInfo get_3d( const PSF::Polynomial3D& m, int plane ) {
-        threed_info::Polynomial3D three_d( boost::get< threed_info::Polynomial3D >(*traits.optics(plane).depth_info()) );
-        three_d.focal_planes() 
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Polynomial3D& m, int plane ) {
+        boost::shared_ptr<threed_info::Polynomial3D> three_d( 
+            new threed_info::Polynomial3D(dynamic_cast<const threed_info::Polynomial3D&>(*traits.optics(plane).depth_info()) ) );
+        three_d->focal_planes() 
             = m.get< PSF::ZPosition >().cast< threed_info::Polynomial3D::FocalPlanes::Scalar >();
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
-            three_d.set_base_width(dir, threed_info::Sigma(
+            three_d->set_base_width(dir, threed_info::Sigma(
                 m.get< PSF::BestSigma >(dir) * width_correction ) );
             for (int term = threed_info::Polynomial3D::MinTerm; term <= threed_info::Polynomial3D::Order; ++term) {
-                three_d.set_slope( dir, term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
+                three_d->set_slope( dir, term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
             }
         }
         return three_d;
     }
 
-    dStorm::threed_info::DepthInfo get_3d( const PSF::Spline3D& s, int plane ) {
-        return threed_info::Spline3D( s.get_spline() );
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Spline3D& s, int plane ) {
+        return traits.optics(plane).depth_info();
     }
 
-    dStorm::threed_info::DepthInfo get_3d( const PSF::No3D& m, int plane ) {
-        threed_info::No3D rv;
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::No3D& m, int plane ) {
+        boost::shared_ptr<threed_info::No3D> rv( new threed_info::No3D() );
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
-            rv.sigma[dir] = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
+            rv->sigma[dir] = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
         return rv;
     }
 
@@ -429,7 +433,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
 
     for (int j = 0; j < traits.plane_count(); ++j) {
         set_z_position( new_traits.optics(j), result(-1,j), width_correction );
-        new_traits.optics(j).depth_info() = get_3d( result(), j );
+        new_traits.optics(j).set_depth_info( get_3d( result(), j ) );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {
@@ -449,32 +453,27 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     }
 }
 
-/** Helper for FittingVariant::create() that instantiates a Fitter class depending on the 3D model. */
-class create_3d_visitor
-: public boost::static_visitor< std::auto_ptr<FittingVariant> >
-{
-    const Config& config;
-    const input::Traits< engine::ImageStack >& traits;
-    const int images;
-public:
-    create_3d_visitor( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-        : config(config), traits(traits), images(images) {}
-
-    template <typename Model3D>
-    std::auto_ptr<FittingVariant>
-    operator()( const Model3D& ) const {
-        typedef typename guf::select_3d_lambda<Model3D>::type Lambda;
-        if ( config.mle() )
-            return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
-        else
-            return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
-    }
-};
+template <typename Lambda>
+std::auto_ptr<FittingVariant>
+create2( const Config& config, const input::Traits< engine::ImageStack >& traits, int images ) {
+    if ( config.mle() )
+        return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
+    else
+        return std::auto_ptr<FittingVariant>( new Fitter< plane::squared_deviations, Lambda > ( config, traits, images ) );
+}
 
 std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
-    return boost::apply_visitor( create_3d_visitor(config,traits,images), *traits.optics(0).depth_info() );
+    const threed_info::DepthInfo* d = traits.optics(0).depth_info().get();
+    if ( dynamic_cast< const threed_info::Polynomial3D* >(d) )
+        return create2<PSF::Polynomial3D>( config, traits, images );
+    else if ( dynamic_cast< const threed_info::No3D* >(d) )
+        return create2<PSF::No3D>( config, traits, images );
+    else if ( dynamic_cast< const threed_info::Spline3D* >(d) )
+        return create2<PSF::Spline3D>( config, traits, images );
+    else
+        throw std::logic_error("Missing 3D model in form fitter");
 }
 
 }

@@ -4,8 +4,6 @@
 #include <boost/units/Eigen/Core>
 #include <boost/units/Eigen/Array>
 #include <dStorm/units/microlength.h>
-#include <dStorm/threed_info/depth_range.h>
-#include <boost/variant/apply_visitor.hpp>
 
 namespace dStorm {
 namespace input {
@@ -49,7 +47,7 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
         min[1] = std::min( min[1], 0.0f * si::meter );
         max[0] = std::max( max[0], xy[0] );
         max[1] = std::max( max[1], xy[1] );
-        z_range += get_z_range( *optics(pl).depth_info() );
+        z_range += optics(pl).depth_info()->z_range();
     }
     if ( ! is_empty( z_range ) ) {
         min.z() = lower( z_range );
@@ -58,6 +56,7 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
     return std::make_pair( min, max );
 }
 
+#if 0
 class print_threed_info 
 : public boost::static_visitor<void>
 {
@@ -73,20 +72,14 @@ public:
             o << 1.0 / p.get_slope(Direction_Y, j) << " ";
         o << " and focal planes " << p.focal_planes()->transpose();
     }
-    void operator()( const threed_info::No3D& p ) const {
-            o << "no 3D information";
-    }
-    void operator()( const threed_info::Spline3D& p ) const {
-            o << "spline 3D information";
-    }
 };
+#endif
 
 std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) const {
     for ( int j = 0; j < plane_count(); ++j) {
         const traits::Optics& optics = this->optics(j);
         if ( j != 0 ) o << ", ";
-        o << "plane " << j << " has ";
-        boost::apply_visitor( print_threed_info( o ), *optics.depth_info() );
+        o << "plane " << j << " has " << *optics.depth_info();
         for ( size_t i = 0; i < fluorophores.size(); ++i )
         {
             traits::Optics::PSF psf = *optics.psf_size(i);

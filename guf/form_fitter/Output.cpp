@@ -67,7 +67,7 @@ Output::announceStormSize(const Announcement& a)
 {
     engine = a.engine;
     for (int plane = 0; plane < a.input_image_traits->plane_count(); ++plane)
-        if ( ! boost::get<threed_info::No3D>( a.input_image_traits->optics(plane).depth_info().get_ptr() ) 
+        if ( a.input_image_traits->optics(plane).depth_info()->provides_3d_info()
             && ! config.has_z_truth() && config.fit_focus_plane() )
             throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 

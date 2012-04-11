@@ -5,9 +5,6 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/output/Traits.h>
 #include <boost/variant/get.hpp>
-#include <dStorm/threed_info/equifocal_plane.h>
-#include <dStorm/threed_info/depth_range.h>
-#include <dStorm/threed_info/symmetry_axis.h>
 
 namespace dStorm {
 namespace guf {
@@ -34,12 +31,11 @@ Factory::make( const engine::JobInfo& info )
 
 void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 {
+    bool have_z_information = false;
     threed_info::ZRange z_range;
-    threed_info::Symmetry symmetry;
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        z_range += get_z_range( *info.traits.optics(i).depth_info() );
-        symmetry = threed_info::merge_symmetries( symmetry,
-            symmetry_axis( *info.traits.optics(i).depth_info() ) );
+        z_range += info.traits.optics(i).depth_info()->z_range();
+        have_z_information = have_z_information || info.traits.optics(i).depth_info()->provides_3d_info();
     }
     if ( ! is_empty( z_range ) ) {
         traits.position().range().z().first = lower( z_range );
@@ -48,7 +44,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 
     traits.covariance_matrix().is_given.diagonal().fill( output_sigmas() );
     traits.position().is_given.head<2>().fill( true );
-    traits.position().is_given[2] = has_z_information(symmetry);
+    traits.position().is_given[2] = have_z_information;
     traits.amplitude().is_given= true;
     traits.fit_residues().is_given= true;
     traits.local_background().is_given = (info.traits.plane_count() < 1);

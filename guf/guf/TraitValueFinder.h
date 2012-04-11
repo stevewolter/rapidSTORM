@@ -9,6 +9,7 @@
 #include <boost/variant/get.hpp>
 #include "guf/psf/parameters.h"
 #include <limits>
+#include <dStorm/threed_info/Polynomial3D.h>
 
 namespace dStorm {
 namespace guf {
@@ -29,14 +30,14 @@ struct TraitValueFinder {
     template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
         m(p) = quantity< typename PSF::Micrometers >(
-            boost::get<threed_info::Polynomial3D>(*plane.depth_info())
+            dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info())
                 .get_slope( static_cast<dStorm::Direction>(Dim), Term ) );
     }
 
     template <int Dim, typename Structure>
     void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
         m( p ) = quantity< typename PSF::ZPosition<Dim>::Unit >(
-            boost::get<threed_info::Polynomial3D>(*plane.depth_info())
+            dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info())
                 .focal_planes()->coeff(Dim,0) );
     }
 

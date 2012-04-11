@@ -110,7 +110,7 @@ void PlaneConfig::write_traits( traits::Optics& rv, const threed_info::Config& t
     rv.psf_size(0) = psf_size().cast< quantity<si::length,float> >();
     for (int i = 0; i < 2; ++i)
         (*rv.psf_size(0))[i] /= 2.35;
-    rv.depth_info() = t3.make_traits( *this );
+    rv.set_depth_info( t3.make_traits( *this ) );
 }
 
 void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 )

@@ -12,6 +12,7 @@
 
 #include <dStorm/Localization_decl.h>
 #include "types.h"
+#include "DepthInfo.h"
 
 namespace dStorm {
 namespace threed_info {
@@ -21,16 +22,9 @@ namespace si = boost::units::si;
 
 class SplineFactory;
 
-class Spline3D {
+class Spline3D : public DepthInfo {
 public:
     Spline3D( const SplineFactory& );
-
-    Sigma get_sigma( Direction dir, ZPosition z ) const;
-    Sigma get_sigma_diff( ZPosition z ) const;
-    SigmaDerivative get_sigma_deriv( Direction dir, ZPosition z ) const;
-    ZRange z_range() const;
-    quantity<si::length> equifocal_plane() const
-        { return equifocal_plane_; }
 
 private:
     int N;
@@ -43,7 +37,16 @@ private:
     boost::shared_array<const double> zs;
     boost::shared_array<const double> sigmas[Direction_2D];
     boost::shared_ptr< const gsl_interp > splines[Direction_2D];
-    quantity<si::length> equifocal_plane_;
+    ZPosition equifocal_plane__;
+
+    std::string config_name_() const { return "Spline3D"; }
+    Sigma get_sigma_( Direction dir, ZPosition z ) const;
+    SigmaDerivative get_sigma_deriv_( Direction dir, ZPosition z ) const;
+    ZRange z_range_() const;
+    ZPosition equifocal_plane_() const { return equifocal_plane__; }
+    std::ostream& print_( std::ostream& o ) const 
+        { return o << "spline 3D information"; }
+    bool provides_3d_info_() const { return true; }
 };
 
 class SplineFactory {

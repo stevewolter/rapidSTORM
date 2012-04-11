@@ -34,7 +34,7 @@ struct Optics
     std::vector<float> tmc;
     boost::optional< PSF > psf;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
-    boost::optional< threed_info::DepthInfo > depth_info_;
+    boost::shared_ptr< const threed_info::DepthInfo > depth_info_;
 
   public:
     friend class dStorm::traits::PlaneConfig;
@@ -51,8 +51,8 @@ struct Optics
         projection_factory() const
         { return projection_factory_; }
 
-    boost::optional< threed_info::DepthInfo >& depth_info() { return depth_info_; }
-    const boost::optional< threed_info::DepthInfo > depth_info() const { return depth_info_; }
+    const boost::shared_ptr< const threed_info::DepthInfo > depth_info() const { return depth_info_; }
+    void set_depth_info( boost::shared_ptr< const threed_info::DepthInfo > p ) { depth_info_ = p; }
 
     float transmission_coefficient( int fluorophore ) const;
     void set_fluorophore_transmission_coefficient( int fluorophore, float );

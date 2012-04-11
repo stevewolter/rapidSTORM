@@ -11,7 +11,6 @@
 #include "guf/constant_background.hpp"
 #include "guf/psf/Base3D.h"
 #include <boost/units/Eigen/Array>
-#include <dStorm/threed_info/symmetry_axis.h>
 #include <boost/variant/get.hpp>
 
 namespace dStorm {
@@ -20,14 +19,6 @@ namespace guf {
 LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::engine::JobInfo& info )
 : fluorophore(info.fluorophore), output_sigmas( config.output_sigmas() ), laempi_fit( config.laempi_fit() )
 {
-    threed_info::Symmetry symmetry;
-    for (int p = 0; p < info.traits.plane_count(); ++p)
-        if ( info.traits.optics(p).transmission_coefficient(info.fluorophore) > 5E-2 )
-            symmetry = merge_symmetries( symmetry, symmetry_axis( *info.traits.optics(p).depth_info() ) );
-
-    threed_info::AxisSymmetric * axis_symmetry = boost::get<threed_info::AxisSymmetric>(&symmetry);
-    if ( axis_symmetry )
-        z_symmetry = axis_symmetry->axis;
 }
 
 void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos, double chi_sq, const DataCube& data ) const
@@ -114,8 +105,6 @@ void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane&
     const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &m[0] );
     if ( threed )
         pos[2] = quantity<si::length>( (*threed)( PSF::MeanZ() ) );
-    if ( z_symmetry.is_initialized() )
-        pos[2] = abs( pos[2] - *z_symmetry ) + *z_symmetry;
     Localization::Amplitude::Type amp( m[0]( PSF::Amplitude() ) * data.input_plane().photon_response() );
     rv = Localization(pos, amp );
 

@@ -8,7 +8,6 @@
 #include <complex>
 #include <gsl/gsl_errno.h>
 #include <dStorm/traits/Projection.h>
-#include <dStorm/threed_info/equifocal_plane.h>
 
 namespace input_simulation {
 
@@ -169,7 +168,7 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
 {
     gsl_error_handler_t * old_handler=gsl_set_error_handler_off();
     double val = -1, abserr;
-    int_info->delta_z = (equifocal_plane( *trafo.optics.depth_info() ) - fluorophore.z());
+    int_info->delta_z = trafo.optics.depth_info()->equifocal_plane() - fluorophore.z();
 
     int_info->orig_position = pixel_center;
     int_info->function = this;

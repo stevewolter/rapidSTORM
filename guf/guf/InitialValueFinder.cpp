@@ -10,10 +10,7 @@
 #include "TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <dStorm/threed_info/equifocal_plane.h>
 #include <dStorm/threed_info/look_up_sigma_diff.h>
-#include <dStorm/threed_info/depth_range.h>
-#include <dStorm/threed_info/get_sigma.h>
 #include <boost/accumulators/statistics/covariance.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/variates/covariate.hpp>
@@ -139,9 +136,7 @@ void InitialValueFinder::operator()(
         } else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            const threed_info::Spline3D& t = boost::get< threed_info::Spline3D >(
-                        *info.traits.optics(p).depth_info());
-            z->set_spline( t );
+            z->set_spline( info.traits.optics(p).depth_info() );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );
@@ -171,7 +166,7 @@ void InitialValueFinder::estimate_z( const guf::Statistics<3>& s, std::vector<Pl
         - s[ mdm.subtrahend_plane ].sigma[ mdm.subtrahend_dir ] );
 
     boost::optional<threed_info::ZPosition> z = lookup.look_up_sigma_diff( diff, 1E-8f * si::meter );
-    if ( ! z ) z = equifocal_plane( *info.traits.optics(0).depth_info() );
+    if ( ! z ) z = info.traits.optics(0).depth_info()->equifocal_plane();
     DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
 
     for (size_t i = 0; i < v.size(); ++i)

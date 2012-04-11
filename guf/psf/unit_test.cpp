@@ -67,7 +67,7 @@ template Polynomial3D mock_model<Polynomial3D>();
 template No3D mock_model<No3D>();
 template <>
 Spline3D mock_model<Spline3D>() {
-    static threed_info::Spline3D mock_spline( threed_info::SplineFactory::Mock() );
+    boost::shared_ptr< threed_info::Spline3D > mock_spline( new threed_info::Spline3D(threed_info::SplineFactory::Mock()) );
     Spline3D result = RandomParameterSetter<Spline3D>()();
     result.set_spline( mock_spline );
     return result;

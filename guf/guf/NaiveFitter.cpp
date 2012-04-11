@@ -13,27 +13,22 @@
 #include <nonlinfit/Bind.h>
 #include "../select_3d_lambda.hpp"
 
+#include <dStorm/threed_info/Polynomial3D.h>
+#include <dStorm/threed_info/No3D.h>
+#include <dStorm/threed_info/Spline3D.h>
+
 namespace dStorm {
 namespace guf {
 
-template <int Kernels, typename Assignment>
-class creator3
-: public boost::static_visitor< NaiveFitter::Ptr >
-{
-  public:
-    template <typename Traits3D>
-    NaiveFitter::Ptr 
-    operator()( const Config& c, const dStorm::engine::JobInfo& i, 
-                const Traits3D t3d ) const
-    { 
-        typedef typename PSF::StandardFunction< 
-            nonlinfit::Bind< typename select_3d_lambda<Traits3D>::type ,Assignment> ,Kernels>
-            ::type F;
-        DEBUG("Model has " << boost::mpl::size<typename F::Variables>::type::value << " variables from "
-              << "original kernel's " << boost::mpl::size<typename select_3d_lambda<Traits3D>::type::Variables>::type::value);
-        return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
-    }
-};
+template <int Kernels, typename Assignment, typename Lambda>
+NaiveFitter::Ptr 
+create2( const Config& c, const dStorm::engine::JobInfo& i ) 
+{ 
+    typedef typename PSF::StandardFunction< 
+        nonlinfit::Bind< Lambda ,Assignment> ,Kernels>
+        ::type F;
+    return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
+}
 
 template <int Kernels, typename Assignment>
 inline NaiveFitter::Ptr
@@ -41,9 +36,15 @@ create1(
     const Config& c, 
     const dStorm::engine::JobInfo& i )
 {
-    return boost::apply_visitor( 
-        boost::bind( creator3<Kernels,Assignment>(), boost::cref(c), boost::cref(i), _1 ),
-        *i.traits.optics(0).depth_info() );
+    const threed_info::DepthInfo* d = i.traits.optics(0).depth_info().get();
+    if ( dynamic_cast< const threed_info::Polynomial3D* >(d) )
+        return create2<Kernels,Assignment,PSF::Polynomial3D>( c, i );
+    else if ( dynamic_cast< const threed_info::No3D* >(d) )
+        return create2<Kernels,Assignment,PSF::No3D>( c, i );
+    else if ( dynamic_cast< const threed_info::Spline3D* >(d) )
+        return create2<Kernels,Assignment,PSF::Spline3D>( c, i );
+    else
+        throw std::logic_error("Missing 3D model in form fitter");
 }
 
 template <>

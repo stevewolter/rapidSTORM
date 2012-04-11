@@ -1,13 +1,10 @@
 #include <boost/units/Eigen/Core>
 #include "look_up_sigma_diff.h"
-#include "equifocal_plane.h"
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/threed_info/Spline3D.h>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <boost/lexical_cast.hpp>
-#include "depth_range.h"
-#include "get_sigma.h"
 
 namespace dStorm {
 namespace threed_info {
@@ -15,10 +12,10 @@ namespace threed_info {
 using namespace boost::units;
 
 Sigma SigmaDiffLookup::get_sigma_diff( ZPosition z ) const {
-    return get_sigma( a, a_dim, z ) - get_sigma( b, b_dim, z );
+    return a.get_sigma( a_dim, z ) - b.get_sigma( b_dim, z );
 }
 
-ZRange SigmaDiffLookup::get_z_range() const { return threed_info::get_z_range(a) & threed_info::get_z_range(b); }
+ZRange SigmaDiffLookup::get_z_range() const { return a.z_range() & b.z_range(); }
 
 boost::optional<ZPosition> SigmaDiffLookup::look_up_sigma_diff( Sigma sigma_diff, Sigma precision ) const
 {
