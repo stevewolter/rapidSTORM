@@ -275,7 +275,7 @@ class Fitter
         three_d.focal_planes() 
             = m.get< PSF::ZPosition >().cast< threed_info::Polynomial3D::FocalPlanes::Scalar >();
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
-            three_d.set_base_width(dir, threed_info::Polynomial3D::Sigma(
+            three_d.set_base_width(dir, threed_info::Sigma(
                 m.get< PSF::BestSigma >(dir) * width_correction ) );
             for (int term = threed_info::Polynomial3D::MinTerm; term <= threed_info::Polynomial3D::Order; ++term) {
                 three_d.set_slope( dir, term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
@@ -288,8 +288,11 @@ class Fitter
         return threed_info::Spline3D( s.get_spline() );
     }
 
-    dStorm::threed_info::DepthInfo get_3d( const PSF::No3D&, int plane ) {
-        return threed_info::No3D();
+    dStorm::threed_info::DepthInfo get_3d( const PSF::No3D& m, int plane ) {
+        threed_info::No3D rv;
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
+            rv.sigma[dir] = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
+        return rv;
     }
 
     void apply_z_calibration();

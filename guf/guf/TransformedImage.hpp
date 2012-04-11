@@ -118,8 +118,9 @@ TransformedImage<LengthUnit>::set_data(
                     weight = (i->value() - rv.quarter_percentile_pixel.value()) );
             }
         }
-        rv.sigma_diff = quantity<si::length>( quantity<LengthUnit>::from_value
-            (sqrt( weighted_variance(acc[0]) ) - sqrt( weighted_variance(acc[1]) )) );
+        for (int dim = 0; dim < 2; ++dim)
+            rv.sigma[dim] = quantity<si::length>( 
+                quantity<LengthUnit>::from_value(sqrt( weighted_variance(acc[dim]) ) ) );
     }
     return rv;
 }

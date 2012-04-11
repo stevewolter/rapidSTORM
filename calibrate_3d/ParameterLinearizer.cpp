@@ -169,9 +169,9 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
         guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
         traits::Optics& o = traits.optics(plane_index);
         threed_info::Polynomial3D& p = boost::get<threed_info::Polynomial3D>(*o.depth_info());
-        p.focal_planes() = m.get< guf::PSF::ZPosition >().cast< quantity<si::length> >();
-        o.psf_size(fluorophore)->x() = quantity<si::length>(*m( guf::PSF::BestSigma<0>() ));
-        o.psf_size(fluorophore)->y() = quantity<si::length>(*m( guf::PSF::BestSigma<1>() ));
+        p.focal_planes() = m.get< guf::PSF::ZPosition >().cast< threed_info::ZPosition >();
+        o.psf_size(fluorophore)->x() = threed_info::Sigma(*m( guf::PSF::BestSigma<0>() ));
+        o.psf_size(fluorophore)->y() = threed_info::Sigma(*m( guf::PSF::BestSigma<1>() ));
 
         for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
             for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {

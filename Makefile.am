@@ -108,7 +108,9 @@ nobase_include_HEADERS = \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
     dStorm/traits/resolution_config.h \
+    dStorm/threed_info/types.h \
     dStorm/threed_info/DepthInfo.h \
+    dStorm/threed_info/get_sigma.h \
     dStorm/threed_info/Config.h \
     dStorm/threed_info/equifocal_plane.h \
     dStorm/threed_info/config_name.h \
@@ -251,6 +253,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/scalar_check.cpp \
     dStorm/image/morphological_reconstruction.cpp \
     dStorm/threed_info/DepthInfo.cpp \
+    dStorm/threed_info/get_sigma.cpp \
     dStorm/threed_info/config_name.cpp \
     dStorm/threed_info/Config.cpp \
     dStorm/threed_info/Spline3D.cpp \

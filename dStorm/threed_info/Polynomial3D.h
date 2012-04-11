@@ -10,6 +10,7 @@
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/threed_info/fwd.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include "types.h"
 
 namespace dStorm {
 namespace threed_info {
@@ -17,8 +18,7 @@ namespace threed_info {
 class Polynomial3D {
 public:
     static const int Order = polynomial_3d::Order, PrimaryTerm = 2, MinTerm = 1;
-    typedef boost::units::quantity< boost::units::si::length > Sigma;
-    typedef boost::units::quantity< boost::units::si::length > FocalDepth;
+    typedef ZPosition FocalDepth;
     typedef boost::units::quantity< boost::units::si::length > WidthSlope;
     typedef Eigen::Array< Sigma, 2,1, Eigen::DontAlign > Sigmas;
     typedef Eigen::Array< FocalDepth, 2,1, Eigen::DontAlign > FocalPlanes;
@@ -51,7 +51,7 @@ public:
     FocalDepth lowest_z() const { return (*z_position - *z_range_).minCoeff(); }
     FocalDepth highest_z() const { return (*z_position + *z_range_).maxCoeff(); }
 
-    boost::optional< Sigma > get_sigma_diff( FocalDepth z ) const;
+    Sigma get_sigma( Direction dir, ZPosition z ) const;
 };
 
 }

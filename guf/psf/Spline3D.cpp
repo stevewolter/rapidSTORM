@@ -17,28 +17,27 @@ namespace PSF {
 template <typename Number>
 boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute_sigma_() 
 {
-    quantity<si::length> z( (*expr)( MeanZ() ) );
+    threed_info::ZPosition z( (*expr)( MeanZ() ) );
+    if ( ! boost::icl::contains( expr->spline->z_range(), z ) )
+        return boost::optional< Eigen::Array<Number,2,1> >();
+        
     Eigen::Array<Number,2,1> rv;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
-        threed_info::Spline3D::Sigma s = expr->spline->get_sigma(i, z);
-        if ( s ) {
-            rv[i] = quantity< BestSigma<0>::Unit >( *s ).value();
-        } else {
-            return boost::optional< Eigen::Array<Number,2,1> >();
-        }
+        threed_info::Sigma s = expr->spline->get_sigma(i, z);
+        rv[i] = quantity< BestSigma<0>::Unit >( s ).value();
     }
     return rv;
 }
 
 template <typename Number>
 void Parameters<Number,Spline3D>::compute_prefactors_() {
-    quantity<si::length> z( (*expr)( MeanZ() ) );
+    threed_info::ZPosition z( (*expr)( MeanZ() ) );
     this->sigma_deriv = this->sigmaI;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
         z_deriv_prefactor[i] = - this->sigmaI[i] * 
-            *expr->spline->get_sigma_deriv(i, z );
+            expr->spline->get_sigma_deriv(i, z );
     }
 }
 

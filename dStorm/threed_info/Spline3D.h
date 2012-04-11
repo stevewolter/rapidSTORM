@@ -11,6 +11,7 @@
 #include <gsl/gsl_interp.h>
 
 #include <dStorm/Localization_decl.h>
+#include "types.h"
 
 namespace dStorm {
 namespace threed_info {
@@ -24,22 +25,10 @@ class Spline3D {
 public:
     Spline3D( const SplineFactory& );
 
-    typedef boost::optional< quantity<si::length> > Sigma;
-    Sigma get_sigma( Direction dir, quantity<si::length> z ) const;
-    Sigma get_sigma_diff( quantity<si::length> z ) const;
-
-    typedef boost::optional< double > SigmaDerivative;
-    SigmaDerivative get_sigma_deriv( Direction dir, quantity<si::length> z ) const;
-
-    typedef boost::optional< quantity<si::length> > ZPosition;
-    ZPosition look_up_sigma_diff( quantity<si::length> sigma_x, quantity<si::length> sigma_y,
-                                  quantity<si::length> precision ) const;
-    ZPosition look_up_sigma_diff( const Localization&, quantity<si::length> precision ) const;
-    ZPosition look_up_sigma_diff( quantity<si::length> sigma_diff, quantity<si::length> precision ) const;
-
-    quantity<si::length,float> lowest_z() const { return float(zs[0]) * si::meter; }
-    quantity<si::length,float> highest_z() const { return float(zs[N-1]) * si::meter; }
-
+    Sigma get_sigma( Direction dir, ZPosition z ) const;
+    Sigma get_sigma_diff( ZPosition z ) const;
+    SigmaDerivative get_sigma_deriv( Direction dir, ZPosition z ) const;
+    ZRange z_range() const;
     quantity<si::length> equifocal_plane() const
         { return equifocal_plane_; }
 
@@ -50,7 +39,9 @@ private:
         quantity<si::length> z;
         quantity<si::length> sigma[Direction_2D];
     };
-    boost::shared_array<const double> zs, sigmas[Direction_2D];
+    double border_coeffs[2][2][4];
+    boost::shared_array<const double> zs;
+    boost::shared_array<const double> sigmas[Direction_2D];
     boost::shared_ptr< const gsl_interp > splines[Direction_2D];
     quantity<si::length> equifocal_plane_;
 };

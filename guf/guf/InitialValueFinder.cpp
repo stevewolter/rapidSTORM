@@ -12,6 +12,15 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/threed_info/equifocal_plane.h>
 #include <dStorm/threed_info/look_up_sigma_diff.h>
+#include <dStorm/threed_info/depth_range.h>
+#include <dStorm/threed_info/get_sigma.h>
+#include <boost/accumulators/statistics/covariance.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
+#include <boost/accumulators/statistics/variates/covariate.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/framework/accumulator_set.hpp>
+
+using namespace boost::accumulators;
 
 namespace dStorm {
 namespace guf {
@@ -22,10 +31,57 @@ struct InitialValueFinder::PlaneEstimate {
     boost::units::quantity<boost::units::si::length> z_estimate; 
 };
 
+threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const dStorm::engine::JobInfo& info ) const {
+    return threed_info::SigmaDiffLookup(
+        *info.traits.optics( minuend_plane ).depth_info(),
+        minuend_dir,
+        *info.traits.optics( subtrahend_plane ).depth_info(),
+        subtrahend_dir );
+}
+
 InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
 : info(info),
   disjoint_amplitudes( config.disjoint_amplitudes() )
 {
+    float max_corr = -1;
+    const int dim_count = Direction_2D * info.traits.plane_count();
+    for (int dim1 = 0; dim1 < dim_count; ++dim1)
+        for (int dim2 = dim1+1; dim2 < dim_count; ++dim2) {
+            SigmaDiff diff;
+            diff.minuend_plane = dim1 / Direction_2D;
+            diff.minuend_dir = Direction( dim1 % Direction_2D );
+            diff.subtrahend_plane = dim2 / Direction_2D;
+            diff.subtrahend_dir = Direction( dim2 % Direction_2D );
+
+            float corr = std::abs( correlation( diff ) );
+            DEBUG("Correlation of dim " << dim1 << " with " << dim2 << " is " << corr);
+            if ( corr > max_corr ) {
+                max_corr = corr;
+                most_discriminating_diff = diff;
+            }
+        }
+    DEBUG("Most discriminating dimension is " << most_discriminating_diff->minuend_plane << "," << most_discriminating_diff->minuend_dir << " against " << most_discriminating_diff->subtrahend_plane << "," << most_discriminating_diff->subtrahend_dir);
+}
+
+float InitialValueFinder::correlation( const SigmaDiff& sd ) const
+{
+    accumulator_set< double, stats< tag::variance, tag::covariance<double,tag::covariate1> > > diff_acc;
+    accumulator_set< double, stats< tag::variance > > z_acc;
+
+    const threed_info::ZPosition scan_step = 5E-8f * si::meter;
+    const threed_info::SigmaDiffLookup lookup = sd.lookup(info);
+
+    threed_info::ZRange range( lookup.get_z_range() );
+    for ( threed_info::ZPosition z = lower( range ); z < upper( range ); z += scan_step )
+    {
+        diff_acc( lookup.get_sigma_diff(z).value(), covariate1 = z.value() );
+        z_acc( z.value() );
+    }
+
+    double total_variance = variance(diff_acc) * variance( z_acc );
+    if ( total_variance <= 1E-30 )
+        return 0;
+    else return covariance( diff_acc ) / sqrt( total_variance );
 }
 
 class InitialValueFinder::set_parameter {
@@ -48,8 +104,9 @@ class InitialValueFinder::set_parameter {
         { m( p ) = s[Dim]; }
     void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
         { m( p ) = e.z_estimate; }
-    void operator()( PSF::MeanZ p, PSF::Spline3D& m ) 
-        { m( p ) = e.z_estimate; }
+    void operator()( PSF::MeanZ p, PSF::Spline3D& m ) { 
+        m( p ) = e.z_estimate; 
+    }
     template <typename Model>
     void operator()( PSF::Amplitude a, Model& m ) 
         { m( a ) = e.amp; }
@@ -67,16 +124,19 @@ void InitialValueFinder::operator()(
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
 
+    if ( dynamic_cast<PSF::No3D*>(&position[0][0]) == NULL ) {
+        estimate_z( data, e );
+    }
     for (int p = 0; p < info.traits.plane_count(); ++p) {
         assert( ( position[p].kernel_count() ) == 1 );
         set_parameter s( *this, spot, e[p], info.traits.optics(p) );
-        if ( PSF::Polynomial3D* z = dynamic_cast<PSF::Polynomial3D*>(&position[p][0]) )
+        if ( PSF::Polynomial3D* z = dynamic_cast<PSF::Polynomial3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Polynomial3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) )
+        } else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
+        } else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
             const threed_info::Spline3D& t = boost::get< threed_info::Spline3D >(
@@ -102,6 +162,22 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
+void InitialValueFinder::estimate_z( const guf::Statistics<3>& s, std::vector<PlaneEstimate>& v ) const
+{
+    const SigmaDiff& mdm = *most_discriminating_diff;
+    const threed_info::SigmaDiffLookup lookup = mdm.lookup(info);
+    const threed_info::Sigma diff (
+          s[ mdm.minuend_plane ].sigma[ mdm.minuend_dir ] 
+        - s[ mdm.subtrahend_plane ].sigma[ mdm.subtrahend_dir ] );
+
+    boost::optional<threed_info::ZPosition> z = lookup.look_up_sigma_diff( diff, 1E-8f * si::meter );
+    if ( ! z ) z = equifocal_plane( *info.traits.optics(0).depth_info() );
+    DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
+
+    for (size_t i = 0; i < v.size(); ++i)
+        v[i].z_estimate = *z;
+}
+
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const guf::Spot&,
     const guf::Statistics<3> & s
@@ -124,8 +200,6 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             rv[i].amp = 0;
             rv[i].bg = s[i].integral.value() / s[i].pixel_count;
         }
-        rv[i].z_estimate = look_up_sigma_diff( *o.depth_info(), s[i].sigma_diff );
-        DEBUG("Initial Z estimate for plane " << i << " with sigma-diff " << s[i].sigma_diff << " is " << rv[i].z_estimate);
     }
 
     int highest_amp_plane = 0;

@@ -75,7 +75,7 @@ int Fitter::fitSpot(
             }
         } 
             
-        double result = mle_result.get_value_or( simple );
+        double result = (mle && mle_result) ? *mle_result : simple;
         Localization& loc = *target;
         create_localization( loc, one_kernel, result, *data );
         loc.frame_number = im.frame_number();

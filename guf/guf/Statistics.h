@@ -18,7 +18,7 @@ struct Statistics<2> {
     Spot highest_pixel;
     boost::units::quantity<boost::units::camera::intensity> integral, peak_intensity, quarter_percentile_pixel;
     boost::units::quantity<boost::units::si::area> peak_pixel_area;
-    boost::units::quantity<boost::units::si::length> sigma_diff;
+    boost::units::quantity<boost::units::si::length> sigma[2];
     int pixel_count;
 };
 

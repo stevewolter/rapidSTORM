@@ -10,6 +10,8 @@
 #include <boost/units/io.hpp>
 
 #include <dStorm/Localization.h>
+#include "look_up_sigma_diff.h"
+#include <Eigen/LU>
 
 namespace dStorm {
 namespace threed_info {
@@ -59,96 +61,84 @@ Spline3D::Spline3D( const SplineFactory& f )
         gsl_interp* spline = gsl_interp_alloc(gsl_interp_cspline, N );
         gsl_interp_init( spline, this->zs.get(), sigmas[dim].get(), N );
         splines[dim].reset( spline, InterpolationDeleter() );
+
+        for ( int border = 0; border < 2; ++border ) {
+            int interval = (border == 0) ? 0 : N-2;
+            Eigen::Matrix4f coeffs;
+            Eigen::Vector4f values;
+            double step = (zs[interval+1] - zs[interval]) / 4.0;
+            for ( int row = 0; row < 4; ++row ) {
+                for ( int col = 0; col < 4; ++col )
+                    coeffs(row,col) = pow(row/4.0,col);
+                double y;
+                int error = gsl_interp_eval_e( splines[dim].get(), zs, sigmas[dim].get(), step*row + zs[interval], NULL, &y );
+                assert( error == GSL_SUCCESS );
+                values[row] = y * 1E7;
+            }
+            Eigen::Vector4f poly_coeffs = coeffs.inverse() * values;
+            for ( int row = 0; row < 4; ++row )
+                border_coeffs[dim][border][row] = poly_coeffs[ row ];
+        }
     }
 
-    ZPosition maybe_equifocal_plane = look_up_sigma_diff( 0 * si::meter, 1E-9 * si::meter );
+    boost::optional<ZPosition> maybe_equifocal_plane = 
+        look_up_sigma_diff( *this, 0.0f * si::meter, 1E-9f * si::meter );
     if ( maybe_equifocal_plane )
-        equifocal_plane_ = *maybe_equifocal_plane - 1E-6 * si::meter;
+        equifocal_plane_ = *maybe_equifocal_plane;
     else
         throw std::runtime_error("Z spline has no point where widths are equal");
 }
 
-Spline3D::Sigma Spline3D::get_sigma_diff( quantity<si::length> z ) const { 
+ZRange Spline3D::z_range() const { 
+    ZRange rv;
+    rv.insert( boost::icl::continuous_interval<ZPosition>( 
+        float(zs[0] + 1E-11) * si::meter, float(zs[N-1] - 1E-11) * si::meter ) ); 
+    return rv;
+}
+
+Sigma Spline3D::get_sigma_diff( ZPosition z ) const { 
     Sigma
         x = get_sigma( Direction_X, z ),
         y = get_sigma( Direction_Y, z );
-    if ( x && y ) 
-        return *x - *y; 
-    else 
-        return Sigma();
+    return x - y; 
 }
 
-Spline3D::Sigma Spline3D::get_sigma( Direction dir, quantity<si::length> z ) const {
-    double result;
-    int error = gsl_interp_eval_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
-    if ( error == GSL_SUCCESS )
-        return quantity<si::length>::from_value( result );
-    else if ( error == GSL_EDOM )
-        return Sigma();
-    else
-        throw std::logic_error("Unexpected error in Z depth spline range");
+Sigma Spline3D::get_sigma( Direction dir, ZPosition z ) const {
+    if ( z.value() <= zs[1] ) {
+        double x = (z.value() - zs[0]) / (zs[1] - zs[0]);
+        double rv = 0;
+        for (int i = 3; i >= 0; --i) {
+            rv = rv * x + border_coeffs[dir][0][i];
+        }
+        return Sigma::from_value(rv*1E-7);
+    } else if ( z.value() >= zs[N-2] ) {
+        double x = (z.value() - zs[N-2]) / (zs[N-1] - zs[N-2]);
+        double rv = 0;
+        for (int i = 3; i >= 0; --i)
+            rv = rv * x + border_coeffs[dir][1][i];
+        return Sigma::from_value(rv*1E-7);
+    } else {
+        double result;
+        int error = gsl_interp_eval_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
+        if ( error == GSL_SUCCESS )
+            return Sigma::from_value( result );
+        else if ( error == GSL_EDOM )
+            throw std::logic_error("Z interpolation is out of range");
+        else
+            throw std::logic_error("Unexpected error in Z depth spline range");
+    }
 }
 
-Spline3D::SigmaDerivative
-Spline3D::get_sigma_deriv( Direction dir, quantity<si::length> z ) const {
+SigmaDerivative
+Spline3D::get_sigma_deriv( Direction dir, ZPosition z ) const {
     double result;
     int error = gsl_interp_eval_deriv_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
     if ( error == GSL_SUCCESS )
         return result;
     else if ( error == GSL_EDOM )
-        return SigmaDerivative();
+        throw std::logic_error("Z interpolation is out of range");
     else
         throw std::logic_error("Unexpected error in Z depth spline range");
-}
-
-Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
-    const Localization& l, quantity<si::length> precision
-) const
-{
-    return look_up_sigma_diff( 
-        sqrt( l.fit_covariance_matrix()(0,0) ),
-        sqrt( l.fit_covariance_matrix()(1,1) ),
-        precision );
-}
-
-Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
-    quantity<si::length> sigma_x, quantity<si::length> sigma_y ,
-    quantity<si::length> precision
-) const
-{
-    return look_up_sigma_diff( sigma_x - sigma_y, precision );
-}
-
-Spline3D::ZPosition Spline3D::look_up_sigma_diff( 
-    quantity<si::length> searched,
-    quantity<si::length> precision
-) const
-{
-    quantity<si::length> lower_bound = zs[0] * si::meter, upper_bound = zs[N-1] * si::meter;
-
-    /* Switch bounds if the gradient is negative, so we can assume in 
-     * the rest of the search that lower_bound is at the Y-larger-X end
-     * (not necessarily the low-Z end). */
-    if ( *get_sigma_diff( lower_bound ) > *get_sigma_diff( upper_bound ) )
-        std::swap( lower_bound, upper_bound );
-    assert( *get_sigma_diff( lower_bound ) < *get_sigma_diff( upper_bound ) );
-
-    if ( *get_sigma_diff(lower_bound) > searched )
-        return ZPosition();
-    else if ( *get_sigma_diff(upper_bound) < searched)
-        return ZPosition();
-    else {
-        while ( abs( upper_bound - lower_bound ) > precision ) {
-            quantity<si::length> test_x = (lower_bound + upper_bound) / 2.0;
-            quantity<si::length> test_y = *get_sigma_diff( test_x );
-            if ( test_y > searched )
-                upper_bound = test_x;
-            else
-                lower_bound = test_x;
-        }
-
-        return (upper_bound + lower_bound) / 2.0;
-    }
 }
 
 static double spline_test_data[][3] = {
@@ -217,22 +207,23 @@ void unit_tests( TestState& state ) {
     SplineFactory f = SplineFactory::Mock();
 
     Spline3D s( f );
-    Spline3D::Sigma s1 = s.get_sigma(Direction_X, 1.6E-6 * si::meter);
-    state( s1 && abs( *s1 - 0.37E-6 * si::meter ) < 10E-9 * si::meter,
+    Sigma s1 = s.get_sigma(Direction_X, 1.6E-6f * si::meter);
+    state( abs( s1 - 0.37E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good X values" );
-    Spline3D::Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6 * si::meter);
-    state( s1 && abs( *s2 - 0.153E-6 * si::meter ) < 10E-9 * si::meter,
+    Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6f * si::meter);
+    state( abs( s2 - 0.153E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good Y values" );
-    Spline3D::Sigma s3 = s.get_sigma(Direction_X, 5.0E-6 * si::meter);
-    state( ! s3, "Spline reacts gracefully to domain error" );
+    Sigma s3 = s.get_sigma(Direction_X, 4.2E-6f * si::meter);
+    state( abs( s3 - 0.160E-6 * si::meter ) < 1E-9 * si::meter,
+           "Spline can extrapolate X values" );
 
     const int ti = 25;
-    Spline3D::ZPosition z1 = s.look_up_sigma_diff( 
-        spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter,
-        spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter,
-        1E-9 * si::meter );
-    state( z1 && *z1 < spline_test_data[ti][0] * 1E-9 * si::meter 
-              && *z1 > spline_test_data[ti-1][0] * 1E-9 * si::meter,
+    boost::optional<ZPosition> z1 = look_up_sigma_diff( s, 
+        Sigma(spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter
+            - spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter),
+        1E-9f * si::meter );
+    state( z1 && *z1 < float(spline_test_data[ti][0] * 1E-9) * si::meter 
+              && *z1 > float(spline_test_data[ti-1][0] * 1E-9) * si::meter,
            "Z determination through sigmadiff works" );
 }
 

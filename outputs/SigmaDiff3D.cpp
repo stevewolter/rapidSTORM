@@ -7,6 +7,8 @@
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/threed_info/Spline3D.h>
+#include <dStorm/threed_info/look_up_sigma_diff.h>
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace output {
@@ -54,8 +56,8 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
 
     Announcement my_announcement(a);
     my_announcement.position().is_given[2] = true;
-    my_announcement.position().range().z().first = spline.lowest_z();
-    my_announcement.position().range().z().second = spline.highest_z();
+    my_announcement.position().range().z().first = lower( spline.z_range() );
+    my_announcement.position().range().z().second = upper( spline.z_range() );
     return Filter::announceStormSize( my_announcement );
 }
 
@@ -64,8 +66,10 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
 
     EngineResult::iterator i, e = r.end();
     for ( i = r.begin(); i != e; ) {
-        threed_info::Spline3D::ZPosition pos = 
-            spline.look_up_sigma_diff( *i, 1E-9 * si::meter );
+        boost::optional<threed_info::ZPosition> pos = 
+            look_up_sigma_diff( spline, 
+                threed_info::Sigma( sqrt( i->fit_covariance_matrix()(0,0) ) - sqrt( i->fit_covariance_matrix()(1,1) ) ), 
+                1E-9f * si::meter );
         if ( pos ) {
             i->position().z() = *pos;
             ++i;

@@ -39,6 +39,7 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
 {
     samplepos min = samplepos::Constant(std::numeric_limits<float>::max() * si::meter);
     samplepos max = samplepos::Constant(-std::numeric_limits<float>::max() * si::meter);
+    threed_info::ZRange z_range;
     for (int pl = 0; pl < this->plane_count(); ++pl) {
         image::MetaInfo<2>::Size size = plane(pl).image.size;
         size.array() -= 1 * camera::pixel;
@@ -48,11 +49,11 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
         min[1] = std::min( min[1], 0.0f * si::meter );
         max[0] = std::max( max[0], xy[0] );
         max[1] = std::max( max[1], xy[1] );
-        boost::optional< threed_info::ZRange > z_range = get_z_range( *optics(pl).depth_info() );
-        if ( z_range ) {
-            min.z() = std::min( z_range->lower(), min.z() );
-            max.z() = std::max( z_range->upper(), max.z() );
-        }
+        z_range += get_z_range( *optics(pl).depth_info() );
+    }
+    if ( ! is_empty( z_range ) ) {
+        min.z() = lower( z_range );
+        max.z() = upper( z_range );
     }
     return std::make_pair( min, max );
 }

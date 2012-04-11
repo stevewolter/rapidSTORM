@@ -34,17 +34,16 @@ Factory::make( const engine::JobInfo& info )
 
 void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
 {
-    boost::optional<threed_info::ZRange> z_range;
+    threed_info::ZRange z_range;
     threed_info::Symmetry symmetry;
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        z_range = threed_info::merge_z_range( z_range, 
-            get_z_range( *info.traits.optics(i).depth_info() ) );
+        z_range += get_z_range( *info.traits.optics(i).depth_info() );
         symmetry = threed_info::merge_symmetries( symmetry,
             symmetry_axis( *info.traits.optics(i).depth_info() ) );
     }
-    if ( z_range ) {
-        traits.position().range().z().first = z_range->lower();
-        traits.position().range().z().second = z_range->upper();
+    if ( ! is_empty( z_range ) ) {
+        traits.position().range().z().first = lower( z_range );
+        traits.position().range().z().second = upper( z_range );
     }
 
     traits.covariance_matrix().is_given.diagonal().fill( output_sigmas() );

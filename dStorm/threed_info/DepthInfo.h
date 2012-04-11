@@ -3,11 +3,14 @@
 
 #include <dStorm/threed_info/Polynomial3D.h>
 #include <dStorm/threed_info/Spline3D.h>
+#include "types.h"
 
 namespace dStorm {
 namespace threed_info {
 
-struct No3D {};
+struct No3D {
+    Sigma sigma[2];
+};
 
 typedef boost::variant< Polynomial3D, No3D, Spline3D > DepthInfo;
 

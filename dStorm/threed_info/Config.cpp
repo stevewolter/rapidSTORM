@@ -13,7 +13,12 @@ using namespace boost::units;
 using dStorm::traits::PlaneConfig;
 
 class No3DConfig : public simparm::Object, public Config {
-    DepthInfo make_traits( const PlaneConfig& ) const { return No3D(); }
+    DepthInfo make_traits( const PlaneConfig& pc ) const { 
+        No3D rv;
+        for (int i = 0; i < 2; ++i)
+            rv.sigma[i] = Sigma(pc.psf_size()[i] / 2.35);
+        return rv;
+    }
     void read_traits( const DepthInfo& d, PlaneConfig& ) {
         assert( boost::get< No3D >( &d ) );
     }
@@ -63,10 +68,10 @@ void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
 
 DepthInfo Polynomial3DConfig::make_traits(const PlaneConfig& pc) const {
     Polynomial3D p;
-    p.z_range() = pc.z_range().cast< quantity<si::length> >();
-    p.focal_planes() = pc.z_position().cast< quantity<si::length> >();
+    p.z_range() = pc.z_range().cast< ZPosition >();
+    p.focal_planes() = pc.z_position().cast< ZPosition >();
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
-        p.set_base_width( dir, Polynomial3D::Sigma(pc.psf_size()[dir] / 2.35) );
+        p.set_base_width( dir, Sigma(pc.psf_size()[dir] / 2.35) );
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
             quantity< si::permicrolength > s = pc.slopes()( dir, term-Polynomial3D::MinTerm );
             if ( s < 1E-30 / si::micrometer )
