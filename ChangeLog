@@ -1,3 +1,11 @@
+== 14.12.0 ==
+
+* Fixed sigma derivative for Spline3D, added check for derivative and fixed PSF estimation for spline 3D
+* Re-implemented sigma curve output with B splines
+* Implemented extrapolation for spline 3D
+* Refactored 3D info into virtual inheritance
+* Implemented biplane most-discriminating plane lookup
+
 == 14.11.0 ==
 
 * Moved 3D filtering code out of sigma curve since it is already covered by the expression filter.
