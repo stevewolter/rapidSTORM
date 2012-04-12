@@ -11,7 +11,7 @@
 
 #include <dStorm/Localization.h>
 #include "look_up_sigma_diff.h"
-#include <Eigen/LU>
+#include <Eigen/Dense>
 
 namespace dStorm {
 namespace threed_info {
@@ -45,39 +45,42 @@ void SplineFactory::add_point(
 }
 
 Spline3D::Spline3D( const SplineFactory& f )
-: N( f.points.size() )
+: N( f.points.size() ),
+  points( f.points ),
+  h( f.points[1].z - f.points[0].z )
 {
-    double *zs = new double[N];
-    for ( int i = 0; i < N; ++i )
-        zs[i] = f.points[i].z.value();
-    this->zs.reset( zs );
-
+    double h = this->h.value();
+    if ( N < 3 ) throw std::runtime_error("Need at least 4 points for Z-sigma interpolation");
     for ( Direction dim = Direction_First; dim < Direction_2D; ++dim ) {
-        double *v = new double[N];
-        for ( int i = 0; i < N; ++i )
-            v[i] = f.points[i].sigma[dim].value();
-        sigmas[dim].reset( v );
+        /* Construction of spline linear equation system according to
+         * McKinley and Levine, Cubic Spline Interpolation.
+         * Parabolic runout conditions to match theoretical parabolic
+         * curve. */
+        Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N-2,N-2);
+        Eigen::VectorXd B = Eigen::VectorXd::Zero(N-2);
+        for (int j = 0; j < N-2; ++j) {
+            double yi = points[j].y(dim);
+            if ( j < N-2 )          B[j] += yi;
+            if ( j > 0 && j < N-1 ) B[j-1] -= 2*yi;
+            if ( j > 1 )            B[j-2] += yi;
 
-        gsl_interp* spline = gsl_interp_alloc(gsl_interp_cspline, N );
-        gsl_interp_init( spline, this->zs.get(), sigmas[dim].get(), N );
-        splines[dim].reset( spline, InterpolationDeleter() );
-
-        for ( int border = 0; border < 2; ++border ) {
-            int interval = (border == 0) ? 0 : N-2;
-            Eigen::Matrix4f coeffs;
-            Eigen::Vector4f values;
-            double step = (zs[interval+1] - zs[interval]) / 4.0;
-            for ( int row = 0; row < 4; ++row ) {
-                for ( int col = 0; col < 4; ++col )
-                    coeffs(row,col) = pow(row/4.0,col);
-                double y;
-                int error = gsl_interp_eval_e( splines[dim].get(), zs, sigmas[dim].get(), step*row + zs[interval], NULL, &y );
-                assert( error == GSL_SUCCESS );
-                values[row] = y * 1E7;
-            }
-            Eigen::Vector4f poly_coeffs = coeffs.inverse() * values;
-            for ( int row = 0; row < 4; ++row )
-                border_coeffs[dim][border][row] = poly_coeffs[ row ];
+            if ( j < N-2 )          A(j,j) = (j == 0 || j == N-3 ) ? 5 : 4;
+            if ( j > 0 && j < N-2 ) A(j,j-1) = 1;
+            if ( j < N-3 )          A(j,j+1) = 1;
+        }
+        B *= 6 / (h*h);
+        Eigen::VectorXd M = Eigen::VectorXd::Zero(N);
+        M.block( 1, 0, N-2, 1 ) = A.colPivHouseholderQr().solve(B);
+        M[0] = M[1];
+        M[N-1] = M[N-2];
+        coeffs[dim] = Eigen::MatrixXd::Zero( N-1, 4 );
+        for (int i = 0; i < N-1; ++i) {
+            double xi = points[i].z.value(), yi = points[i].y(dim);
+            coeffs[dim](i,3) = points[i].y(dim);
+            coeffs[dim](i,2) = (points[i+1].y(dim) - points[i].y(dim)) / h
+                - ( M[i+1] + 2 * M[i] ) * h / 6;
+            coeffs[dim](i,1) = M[i] / 2;
+            coeffs[dim](i,0) = (M[i+1] - M[i]) / (6 * h);
         }
     }
 
@@ -92,46 +95,25 @@ Spline3D::Spline3D( const SplineFactory& f )
 ZRange Spline3D::z_range_() const { 
     ZRange rv;
     rv.insert( boost::icl::continuous_interval<ZPosition>( 
-        float(zs[0] + 1E-11) * si::meter, float(zs[N-1] - 1E-11) * si::meter ) ); 
+        points[0].z, points[N-1].z ) ); 
     return rv;
 }
 
 Sigma Spline3D::get_sigma_( Direction dir, ZPosition z ) const {
-    if ( z.value() <= zs[1] ) {
-        double x = (z.value() - zs[0]) / (zs[1] - zs[0]);
-        double rv = 0;
-        for (int i = 3; i >= 0; --i) {
-            rv = rv * x + border_coeffs[dir][0][i];
-        }
-        return Sigma::from_value(rv*1E-7);
-    } else if ( z.value() >= zs[N-2] ) {
-        double x = (z.value() - zs[N-2]) / (zs[N-1] - zs[N-2]);
-        double rv = 0;
-        for (int i = 3; i >= 0; --i)
-            rv = rv * x + border_coeffs[dir][1][i];
-        return Sigma::from_value(rv*1E-7);
-    } else {
-        double result;
-        int error = gsl_interp_eval_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
-        if ( error == GSL_SUCCESS )
-            return Sigma::from_value( result );
-        else if ( error == GSL_EDOM )
-            throw std::logic_error("Z interpolation is out of range");
-        else
-            throw std::logic_error("Unexpected error in Z depth spline range");
-    }
+    int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
+    double rv = 0, dx = (z - points[i].z).value();
+    for (int term = 0; term < 4; ++term)
+        rv = rv * dx + coeffs[dir](i,term);
+    return Point::from_y( rv );
 }
 
 SigmaDerivative
 Spline3D::get_sigma_deriv_( Direction dir, ZPosition z ) const {
-    double result;
-    int error = gsl_interp_eval_deriv_e( splines[dir].get(), zs.get(), sigmas[dir].get(), z.value(), NULL, &result );
-    if ( error == GSL_SUCCESS )
-        return result;
-    else if ( error == GSL_EDOM )
-        throw std::logic_error("Z interpolation is out of range");
-    else
-        throw std::logic_error("Unexpected error in Z depth spline range");
+    int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
+    double rv = 0, dx = (z - points[i].z).value();
+    for (int term = 0; term < 3; ++term)
+        rv = rv * dx + (3-term) * coeffs[dir](i,term);
+    return rv;
 }
 
 static double spline_test_data[][3] = {
@@ -206,8 +188,11 @@ void unit_tests( TestState& state ) {
     Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6f * si::meter);
     state( abs( s2 - 0.153E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good Y values" );
-    Sigma s3 = s.get_sigma(Direction_X, 4.2E-6f * si::meter);
-    state( abs( s3 - 0.160E-6 * si::meter ) < 1E-9 * si::meter,
+    Sigma s4 = s.get_sigma(Direction_X, 3.992E-6f * si::meter);
+    state( abs( s4 - 0.15664E-6 * si::meter ) < 1E-9 * si::meter,
+           "Spline catches terminal point" );
+    Sigma s3 = s.get_sigma(Direction_X, 4.0E-6f * si::meter);
+    state( s3 > s4 && (s3 - s4) < 0.3E-6f * si::meter,
            "Spline can extrapolate X values" );
 
     const int ti = 25;

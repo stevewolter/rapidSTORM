@@ -34,8 +34,10 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     bool have_z_information = false;
     threed_info::ZRange z_range;
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        z_range += info.traits.optics(i).depth_info()->z_range();
-        have_z_information = have_z_information || info.traits.optics(i).depth_info()->provides_3d_info();
+        if ( info.traits.optics(i).depth_info().get() ) {
+            z_range += info.traits.optics(i).depth_info()->z_range();
+            have_z_information = have_z_information || info.traits.optics(i).depth_info()->provides_3d_info();
+        }
     }
     if ( ! is_empty( z_range ) ) {
         traits.position().range().z().first = lower( z_range );

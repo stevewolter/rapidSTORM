@@ -37,6 +37,10 @@ private:
     std::ostream& print_( std::ostream& ) const;
     bool provides_3d_info_() const { return true; }
 
+    double sigma_scaling_factor( Direction, ZPosition ) const;
+    FocalDepth lowest_z() const { return (*z_position - *z_limit_).minCoeff(); }
+    FocalDepth highest_z() const { return (*z_position + *z_limit_).maxCoeff(); }
+
 public:
     void set_base_width( Direction d, Sigma s ) { sigmas_[d] = s; }
     Sigma get_base_width( Direction d ) { return sigmas_[d]; }
@@ -57,10 +61,6 @@ public:
     const boost::optional<ZLimit>& z_limit() const { return z_limit_; }
     void set_z_limit( const ZLimit& z ) { z_limit_ = z; }
 
-#if 0
-    FocalDepth lowest_z() const { return (*z_position - *z_range_).minCoeff(); }
-    FocalDepth highest_z() const { return (*z_position + *z_range_).maxCoeff(); }
-#endif
 };
 
 }

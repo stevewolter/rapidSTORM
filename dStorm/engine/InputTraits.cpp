@@ -56,25 +56,6 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
     return std::make_pair( min, max );
 }
 
-#if 0
-class print_threed_info 
-: public boost::static_visitor<void>
-{
-    std::ostream& o;
-public:
-    print_threed_info( std::ostream& target ) : o(target) {}
-    void operator()( const threed_info::Polynomial3D& p ) const {
-        o << "polynomial 3D with X focus depths " ;
-        for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
-            o << 1.0 / p.get_slope(Direction_X, j) << " ";
-        o << " and Y focus depth " ;
-        for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
-            o << 1.0 / p.get_slope(Direction_Y, j) << " ";
-        o << " and focal planes " << p.focal_planes()->transpose();
-    }
-};
-#endif
-
 std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) const {
     for ( int j = 0; j < plane_count(); ++j) {
         const traits::Optics& optics = this->optics(j);

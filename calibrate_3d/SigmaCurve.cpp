@@ -15,6 +15,10 @@
 #include <boost/accumulators/statistics/weighted_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 
+#include <gsl/gsl_bspline.h>
+#include <gsl/gsl_multifit.h>
+#include <Eigen/LU>
+
 using namespace boost::accumulators;
 
 namespace dStorm {
@@ -27,19 +31,18 @@ class Configuration : public simparm::Object {
         push_back( outputFile );
         push_back( object_size );
         push_back( wavelength_correction );
-        push_back( step_size );
-        push_back( sigma );
+        push_back( step_number );
     }
   public:
     output::BasenameAdjustedFileEntry outputFile;
-    simparm::Entry< quantity<si::nanolength> > object_size, step_size, sigma;
+    simparm::Entry< quantity<si::nanolength> > object_size;
+    simparm::Entry< unsigned int > step_number;
     simparm::Entry< double > wavelength_correction;
     Configuration()
         : simparm::Object("SigmaCurve", "3D PSF width calibration table"),
           outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
           object_size("ObjectSize", "FWHM correction for object size", 0 * si::nanometre),
-          step_size("StepSize", "Calibration point distance", 150 * si::nanometre),
-          sigma("SmoothingFactor", "Smoothing Gaussian's sigma", 35 * si::nanometre),
+          step_number("StepNumber", "Number of B spline breakpoints", 10),
           wavelength_correction("WavelengthCorrection", "WavelengthCorrectionFactor", 1)
         {}
 
@@ -50,42 +53,85 @@ class Configuration : public simparm::Object {
 
 class Output : public output::OutputObject {
 private:
-    class SigmaEstimate {
-        accumulator_set<double, stats<tag::weighted_mean(lazy)>, double> sigmas_in_nm[2];
-        quantity<si::length> center_, sigma;
+    class SigmaPair {
+        quantity<si::length> z;
+        quantity<si::length> s[2];
+        quantity<camera::intensity> amp;
     public:
-        SigmaEstimate( quantity<si::length> center, quantity<si::length> sigma )
-            : center_(center), sigma(sigma) {}
-        void add( const Localization& l ) {
-            double distance_weight = exp( -0.5 * pow<2>((l.position().z() - center_) / sigma) );
-            for (int i = 0; i < 2; ++i)
-                sigmas_in_nm[i]( 
-                    sqrt( l.fit_covariance_matrix()(i,i) ) / (1E-9f * si::meter),
-                    weight = distance_weight * l.amplitude().value() );
-        }
-        quantity<si::length> average_sigma(int dim) const
-            { return weighted_mean( sigmas_in_nm[dim] ) * 1E-9 * si::meter; }
-        quantity<si::length> center() const { return center_; }
+        SigmaPair( const Localization& l )
+            : z( l.position().z() ), amp( l.amplitude() ) 
+            { for (int i = 0; i < 2; ++i) s[i] = sqrt( l.fit_covariance_matrix()(i,i) ); }
+        bool smaller_z( const SigmaPair& o ) const { return z < o.z; }
+
+        double scaled_z() const { return z / (1E-6 * si::meter); }
+        double weight() const { return amp / (1E3 * camera::ad_count); }
+        double sigma(int dir) const { return s[dir] / (1E-6 * si::meter); }
+
+        static quantity<si::length> from_z( double z ) { return z * 1E-6 * si::meter; }
+        static quantity<si::length> from_sigma( double s ) { return s * 1E-6 * si::meter; }
     };
-    typedef std::map< int, SigmaEstimate > Slots;
-    Slots checkpoints;
+    std::vector< SigmaPair > points;
     const Configuration config;
 
-    float z_step( const Localization& l, double distance ) const {
-         return (quantity<si::nanolength>(l.position().z()) + distance * config.sigma()) / config.step_size();
+    void store_results_( bool success ) {
+        if ( success ) {
+            static const size_t order = 4;
+            const size_t n = points.size(), nbreak = config.step_number(), ncoeffs = nbreak - 2 + order;
+
+            boost::shared_ptr<gsl_bspline_workspace> bw
+                ( gsl_bspline_alloc(order, nbreak), std::ptr_fun(&gsl_bspline_free) );
+            boost::shared_ptr<gsl_vector> B
+                ( gsl_vector_alloc(ncoeffs), std::ptr_fun(&gsl_vector_free) );
+            double minx = std::min_element( points.begin(), points.end(), 
+                    std::mem_fun_ref( &SigmaPair::smaller_z ) )->scaled_z(),
+                   maxx = std::max_element( points.begin(), points.end(), 
+                    std::mem_fun_ref( &SigmaPair::smaller_z ) )->scaled_z();
+            gsl_bspline_knots_uniform( minx, maxx, bw.get() );
+
+            /* construct the fit matrix X */
+            boost::shared_ptr<gsl_matrix> X
+                ( gsl_matrix_alloc( n, ncoeffs ), std::ptr_fun(&gsl_matrix_free) );
+            boost::shared_ptr<gsl_vector> w
+                ( gsl_vector_alloc( n ), std::ptr_fun(&gsl_vector_free) );
+            boost::shared_ptr<gsl_vector> sigma[2];
+            for (int i = 0; i < 2; ++i)
+                sigma[i] = boost::shared_ptr<gsl_vector>( gsl_vector_alloc(n), std::ptr_fun(&gsl_vector_free) );
+            for ( std::vector< SigmaPair >::const_iterator i = points.begin(); i != points.end(); ++i ) {
+                const int row = i - points.begin();
+                gsl_vector_view view = gsl_matrix_row( X.get(), row );
+                gsl_bspline_eval(i->scaled_z(), &view.vector, bw.get());
+                gsl_vector_set( w.get(), row, i->weight() );
+                for (int dir = 0; dir < 2; ++dir)
+                    gsl_vector_set( sigma[dir].get(), row, i->sigma(dir) );
+            }
+
+            boost::shared_ptr<gsl_multifit_linear_workspace> mw
+                ( gsl_multifit_linear_alloc(n, ncoeffs), std::ptr_fun(&gsl_multifit_linear_free) );
+            boost::shared_ptr<gsl_matrix> cov[2];
+            boost::shared_ptr<gsl_vector> c[2];
+            for (int dir = 0; dir < 2; ++dir) {
+                cov[dir] = boost::shared_ptr<gsl_matrix>( gsl_matrix_alloc(ncoeffs, ncoeffs), std::ptr_fun(&gsl_matrix_free) );
+                c[dir] = boost::shared_ptr<gsl_vector>( gsl_vector_alloc(ncoeffs), std::ptr_fun(&gsl_vector_free) );
+                double chisq;
+                gsl_multifit_wlinear(X.get(), w.get(), sigma[dir].get(), c[dir].get(), cov[dir].get(), &chisq, mw.get());
+            }
+
+            std::ofstream o ( config.outputFile().c_str() );
+            for ( size_t i = 0; i < nbreak; ++i ) {
+                double xi = gsl_vector_get( bw->knots, i+order-1 );
+                double yi[2], yerr[2];
+                gsl_bspline_eval(xi, B.get(), bw.get());
+                for (int dir = 0; dir < 2; ++dir)
+                    gsl_multifit_linear_est(B.get(), c[dir].get(), cov[dir].get(), yi+dir, yerr+dir);
+                o << double(SigmaPair::from_z( xi ) / (1E-9 * si::meter)) << " " 
+                  << double(correct_for_size( SigmaPair::from_sigma( yi[0] ) ) / (1E-6 * si::meter)) << " "
+                  << double(correct_for_size( SigmaPair::from_sigma( yi[1] ) ) / (1E-6 * si::meter)) << "\n";
+            }
+        }
     }
     quantity<si::length> correct_for_size( quantity<si::length> v) const
     {
         return (v - quantity<si::length>(config.object_size() / 2.35)) * config.wavelength_correction();
-    }
-    void store_results_( bool success ) {
-        if ( success ) {
-            std::ofstream o ( config.outputFile().c_str() );
-            for ( Slots::const_iterator i = checkpoints.begin(); i != checkpoints.end(); ++i )
-                o << quantity<si::nanolength>( i->second.center() ).value() << " "
-                  << quantity<si::microlength>( correct_for_size(i->second.average_sigma(0)) ).value() << " "
-                  << quantity<si::microlength>( correct_for_size(i->second.average_sigma(1)) ).value() << "\n";
-        }
     }
 
 public:
@@ -97,7 +143,6 @@ public:
     Output* clone() const { throw std::runtime_error(getDesc() + " cannot be copied"); }
 
     RunRequirements announce_run(const RunAnnouncement&) {
-        checkpoints.clear();
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
@@ -108,23 +153,10 @@ public:
         return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult& er) {
-        for ( EngineResult::const_iterator i = er.begin(); i != er.end(); ++i) {
-            int lower_bound = ceil( z_step( *i, -4 ) );
-            int upper_bound = floor( z_step( *i, +4 ) );
-            for ( int bin = lower_bound; bin <= upper_bound; ++bin ) {
-                Slots::value_type default_content( 
-                    bin, 
-                    SigmaEstimate(
-                        double(bin) * quantity<si::length>(config.step_size()), 
-                        quantity<si::length>(config.sigma())) );
-                SigmaEstimate& e = checkpoints.insert( default_content ).first->second;
-                e.add( *i );
-            }
-        }
+        std::copy( er.begin(), er.end(), std::back_inserter( points ) );
     }
 
 };
-
 std::auto_ptr<output::OutputSource> make_output_source() {
     return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Output>() );
 }

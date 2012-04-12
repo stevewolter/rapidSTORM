@@ -18,8 +18,6 @@ template <typename Number>
 boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute_sigma_() 
 {
     threed_info::ZPosition z( (*expr)( MeanZ() ) );
-    if ( ! boost::icl::contains( expr->spline->z_range(), z ) )
-        return boost::optional< Eigen::Array<Number,2,1> >();
         
     Eigen::Array<Number,2,1> rv;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
@@ -27,7 +25,10 @@ boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute
         threed_info::Sigma s = expr->spline->get_sigma(i, z);
         rv[i] = quantity< BestSigma<0>::Unit >( s ).value();
     }
-    return rv;
+    if ( (rv.array() <= 0).any() )
+        return boost::optional< Eigen::Array<Number,2,1> >();
+    else
+        return rv;
 }
 
 template <typename Number>

@@ -1,4 +1,6 @@
 #include "DepthInfo.h"
+#include <boost/units/Eigen/Core>
+#include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
 #include <dStorm/threed_info/Polynomial3D.h>
@@ -58,21 +60,46 @@ Eigen::Matrix< double, Direction_2D, Polynomial3D::Order > Polynomial3D::get_pre
 
 Sigma Polynomial3D::get_sigma_( Direction dir, ZPosition z ) const 
 {
+    return sigmas_[dir] * float(sqrt(sigma_scaling_factor(dir,z)));
+}
+
+double Polynomial3D::sigma_scaling_factor( Direction dir, ZPosition z ) const {
+    ZPosition z_offset = (z - (*z_position)[dir]);
     double prefactor = 1;
     for (int i = MinTerm; i <= Order; ++i ) {
-        prefactor += 
-                pow( (z - (*z_position)[dir]) / widening( i-1, dir ), i );
+        prefactor += pow( z_offset / widening( i-1, dir ), i );
     }
-    return sigmas_[dir] * float(sqrt(prefactor));
+    return prefactor;
 }
 
 SigmaDerivative Polynomial3D::get_sigma_deriv_( Direction dir, ZPosition z ) const {
-    double prefactor = 1;
+    ZPosition z_offset = (z - (*z_position)[dir]);
+    double prefactor_deriv = 0;
     for (int i = MinTerm; i <= Order; ++i ) {
-        prefactor += 
-                pow( (z - (*z_position)[dir]) / widening( i-1, dir ), i );
+        prefactor_deriv += 
+                pow( z_offset / widening( i-1, dir ), i-1 ) * (sigmas_[dir] / widening( i-1, dir ));
     }
-    return sigmas_[dir] * float(sqrt(prefactor));
+    return (prefactor_deriv / (2 * sqrt( sigma_scaling_factor(dir,z) )));
+}
+
+ZRange Polynomial3D::z_range_() const {
+    ZRange rv;
+    rv += ZInterval( lowest_z(), highest_z() );
+    return rv;
+}
+
+ZPosition Polynomial3D::equifocal_plane_() const {
+    return ( z_position->x() + z_position->y() ) / 2.0f;
+}
+
+std::ostream& Polynomial3D::print_( std::ostream& o ) const {
+    o << "polynomial 3D with X focus depths " ;
+    for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
+        o << 1.0 / get_slope(Direction_X, j) << " ";
+    o << " and Y focus depth " ;
+    for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
+        o << 1.0 / get_slope(Direction_Y, j) << " ";
+    return o << " and focal planes " << focal_planes()->transpose();
 }
 
 }

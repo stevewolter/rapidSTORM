@@ -10,6 +10,8 @@
 #include <dStorm/Direction.h>
 #include <gsl/gsl_interp.h>
 
+#include <Eigen/Core>
+
 #include <dStorm/Localization_decl.h>
 #include "types.h"
 #include "DepthInfo.h"
@@ -27,16 +29,20 @@ public:
     Spline3D( const SplineFactory& );
 
 private:
-    int N;
+    const int N;
     friend class SplineFactory;
     struct Point {
-        quantity<si::length> z;
-        quantity<si::length> sigma[Direction_2D];
+        ZPosition z;
+        Sigma sigma[Direction_2D];
+
+        double x() const { return z / (1E-6f * si::meter); }
+        double y(Direction dir) const { return sigma[dir] / (1E-6f * si::meter); }
+        static ZPosition from_x( double x ) { return float(x * 1E-6) * si::meter; }
+        static Sigma from_y( double y ) { return float(y * 1E-6) * si::meter; }
     };
-    double border_coeffs[2][2][4];
-    boost::shared_array<const double> zs;
-    boost::shared_array<const double> sigmas[Direction_2D];
-    boost::shared_ptr< const gsl_interp > splines[Direction_2D];
+    const std::vector<Point> points;
+    const ZPosition h;
+    Eigen::MatrixXd coeffs[2];
     ZPosition equifocal_plane__;
 
     std::string config_name_() const { return "Spline3D"; }

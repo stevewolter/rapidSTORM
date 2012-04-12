@@ -15,7 +15,6 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
-namespace threed_info{ class Spline3D; }
 namespace guf {
 namespace PSF {
 
