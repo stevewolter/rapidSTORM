@@ -18,6 +18,7 @@ struct LocalizationValueFinder::application {
     const Localization& parent, *child;
     guf::mle_converter mle;
     guf::TraitValueFinder tvf;
+    const dStorm::traits::Optics& plane;
 
     application( 
         const int fluorophore, const dStorm::traits::Optics& plane,
@@ -27,7 +28,8 @@ struct LocalizationValueFinder::application {
                 (parent.children.is_initialized() && parent.children->size() > plane_number )
                 ? &(*parent.children)[plane_number] : NULL ),
           mle( plane ),
-          tvf(fluorophore,plane) {}
+          tvf(fluorophore,plane),
+          plane( plane ) {}
 
     template <int Dim, typename Structure>
     void operator()( nonlinfit::Xs<Dim,PSF::LengthUnit>, Structure& ) const {}
@@ -67,6 +69,12 @@ LocalizationValueFinder::LocalizationValueFinder(
         const Localization& parent, size_t plane_number )
 : appl_( new application(fluorophore,plane,parent,plane_number) ) {}
 
+void LocalizationValueFinder::find_values( guf::PSF::Spline3D& z ) {
+    boost::mpl::for_each< typename guf::PSF::Spline3D::Variables >( 
+        boost::bind( boost::ref(*appl_), _1, boost::ref(z) ) );
+    z.set_spline( appl_->plane.depth_info() );
+}
+
 template <typename Type>
 void LocalizationValueFinder::find_values_( Type& z ) {
     boost::mpl::for_each< typename Type::Variables >( 
@@ -74,7 +82,6 @@ void LocalizationValueFinder::find_values_( Type& z ) {
 }
 
 template void LocalizationValueFinder::find_values_<guf::PSF::Polynomial3D>( guf::PSF::Polynomial3D& );
-template void LocalizationValueFinder::find_values_<guf::PSF::Spline3D>( guf::PSF::Spline3D& );
 template void LocalizationValueFinder::find_values_<guf::PSF::No3D>( guf::PSF::No3D& );
 template void LocalizationValueFinder::find_values_<constant_background::Expression>( constant_background::Expression& );
 }

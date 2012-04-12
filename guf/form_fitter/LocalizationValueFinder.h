@@ -25,7 +25,7 @@ struct LocalizationValueFinder
         const Localization& parent, size_t plane_number );
 
     void find_values( guf::PSF::Polynomial3D& z ) { find_values_(z); }
-    void find_values( guf::PSF::Spline3D& z ) { find_values_(z); }
+    void find_values( guf::PSF::Spline3D& z );
     void find_values( guf::PSF::No3D& z ) { find_values_(z); }
     void find_values( constant_background::Expression& z ) { find_values_(z); }
 };

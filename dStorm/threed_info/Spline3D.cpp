@@ -49,8 +49,8 @@ Spline3D::Spline3D( const SplineFactory& f )
   points( f.points ),
   h( f.points[1].z - f.points[0].z )
 {
-    double h = this->h.value();
-    if ( N < 3 ) throw std::runtime_error("Need at least 4 points for Z-sigma interpolation");
+    double h = Point::to_x( this->h );
+    if ( N <= 3 ) throw std::runtime_error("Need at least 4 points for Z-sigma interpolation");
     for ( Direction dim = Direction_First; dim < Direction_2D; ++dim ) {
         /* Construction of spline linear equation system according to
          * McKinley and Levine, Cubic Spline Interpolation.
@@ -75,7 +75,7 @@ Spline3D::Spline3D( const SplineFactory& f )
         M[N-1] = M[N-2];
         coeffs[dim] = Eigen::MatrixXd::Zero( N-1, 4 );
         for (int i = 0; i < N-1; ++i) {
-            double xi = points[i].z.value(), yi = points[i].y(dim);
+            double xi = points[i].x(), yi = points[i].y(dim);
             coeffs[dim](i,3) = points[i].y(dim);
             coeffs[dim](i,2) = (points[i+1].y(dim) - points[i].y(dim)) / h
                 - ( M[i+1] + 2 * M[i] ) * h / 6;
@@ -101,7 +101,7 @@ ZRange Spline3D::z_range_() const {
 
 Sigma Spline3D::get_sigma_( Direction dir, ZPosition z ) const {
     int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
-    double rv = 0, dx = (z - points[i].z).value();
+    double rv = 0, dx = Point::to_x(z - points[i].z);
     for (int term = 0; term < 4; ++term)
         rv = rv * dx + coeffs[dir](i,term);
     return Point::from_y( rv );
@@ -110,7 +110,7 @@ Sigma Spline3D::get_sigma_( Direction dir, ZPosition z ) const {
 SigmaDerivative
 Spline3D::get_sigma_deriv_( Direction dir, ZPosition z ) const {
     int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
-    double rv = 0, dx = (z - points[i].z).value();
+    double rv = 0, dx = Point::to_x(z - points[i].z);
     for (int term = 0; term < 3; ++term)
         rv = rv * dx + (3-term) * coeffs[dir](i,term);
     return rv;
@@ -203,6 +203,13 @@ void unit_tests( TestState& state ) {
     state( z1 && *z1 < float(spline_test_data[ti][0] * 1E-9) * si::meter 
               && *z1 > float(spline_test_data[ti-1][0] * 1E-9) * si::meter,
            "Z determination through sigmadiff works" );
+
+    ZPosition dx = 1E-10f * si::meter;
+    Sigma slow = s.get_sigma(Direction_X, 2.3E-6f * si::meter - dx);
+    Sigma shigh = s.get_sigma(Direction_X, 2.3E-6f * si::meter + dx);
+    double slope = s.get_sigma_deriv( Direction_X, 2.3E-6f * si::meter );
+    state( std::abs( (shigh - slow) / (2.0f*dx) - slope ) < std::abs(slope) * 0.1,
+           "Sigma derivative is correct on interpolation" );
 }
 
 }

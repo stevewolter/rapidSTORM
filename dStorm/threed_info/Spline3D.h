@@ -35,7 +35,8 @@ private:
         ZPosition z;
         Sigma sigma[Direction_2D];
 
-        double x() const { return z / (1E-6f * si::meter); }
+        static double to_x( ZPosition z ) { return z / (1E-6f * si::meter); }
+        double x() const { return to_x(z); }
         double y(Direction dir) const { return sigma[dir] / (1E-6f * si::meter); }
         static ZPosition from_x( double x ) { return float(x * 1E-6) * si::meter; }
         static Sigma from_y( double y ) { return float(y * 1E-6) * si::meter; }
