@@ -11,11 +11,6 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/InputTraits.h>
 #include <nonlinfit/Bind.h>
-#include "../select_3d_lambda.hpp"
-
-#include <dStorm/threed_info/Polynomial3D.h>
-#include <dStorm/threed_info/No3D.h>
-#include <dStorm/threed_info/Spline3D.h>
 
 namespace dStorm {
 namespace guf {
@@ -37,14 +32,14 @@ create1(
     const dStorm::engine::JobInfo& i )
 {
     const threed_info::DepthInfo* d = i.traits.optics(0).depth_info().get();
-    if ( dynamic_cast< const threed_info::Polynomial3D* >(d) )
-        return create2<Kernels,Assignment,PSF::Polynomial3D>( c, i );
-    else if ( dynamic_cast< const threed_info::No3D* >(d) )
-        return create2<Kernels,Assignment,PSF::No3D>( c, i );
-    else if ( dynamic_cast< const threed_info::Spline3D* >(d) )
-        return create2<Kernels,Assignment,PSF::Spline3D>( c, i );
+    if ( c.free_sigmas() && d->provides_3d_info() )
+        throw std::runtime_error("Free-form fitting 
+    else if ( c.free_sigmas() )
+        return create2<Kernels,PSF::FreeForm,PSF::No3D>(c,i);
+    else if ( d->provides_3d_info() )
+        return create2<Kernels,PSF::FixedForm,PSF::Spline3D>( c, i );
     else
-        throw std::logic_error("Missing 3D model in form fitter");
+        return create2<Kernels,PSF::FixedForm,PSF::No3D>(c,i);
 }
 
 template <>
@@ -63,7 +58,6 @@ NaiveFitter::create(
     const dStorm::engine::JobInfo& i )
 {
     if ( c.free_sigmas() )
-        return create1<Kernels,PSF::FreeForm>(c,i);
     else 
         return create1<Kernels,PSF::FixedForm>(c,i);
 }
