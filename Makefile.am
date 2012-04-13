@@ -571,13 +571,14 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
-INST_MODEL = $(INST_DIR:=zhuang_-_) $(INST_DIR:=no3d_-_) $(INST_DIR:=spline3d_-_)
-INST_KERNEL = \
-    $(INST_MODEL:=free_form_model_-_one_kernel_-_) \
-    $(INST_MODEL:=fixed_form_model_-_one_kernel_-_) \
-    $(INST_MODEL:=fixed_form_model_-_two_kernel_-_)
+INST_MODEL = \
+    $(INST_DIR:=no3d_-_free_form_model_-_one_kernel_-_) \
+    $(INST_DIR:=no3d_-_fixed_form_model_-_one_kernel_-_) \
+    $(INST_DIR:=no3d_-_fixed_form_model_-_two_kernel_-_) \
+    $(INST_DIR:=spline3d_-_fixed_form_model_-_one_kernel_-_) \
+    $(INST_DIR:=spline3d_-_fixed_form_model_-_two_kernel_-_)
 
-INST_NUMTYPE = $(INST_KERNEL:=float_-_) $(INST_KERNEL:=double_-_)
+INST_NUMTYPE = $(INST_MODEL:=float_-_) $(INST_MODEL:=double_-_)
 INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
 if COMPILE_SPECIALIZED_FITTERS
 INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
@@ -588,15 +589,14 @@ endif
 
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
 INSTANTIATIONS_UNCPP = \
-    $(INST_KERNEL:=FunctionRepository) $(INST_KERNEL:=ModelledFitter) \
-    $(INST_KERNEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
+    $(INST_MODEL:=FunctionRepository) $(INST_MODEL:=ModelledFitter) \
+    $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/instantiations/one_kernel.h \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
-    guf/instantiations/zhuang.h \
     guf/instantiations/spline3d.h \
     guf/instantiations/fixed_form_model.h \
     guf/instantiations/free_form_model.h \

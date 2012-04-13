@@ -16,7 +16,7 @@ namespace dStorm {
 namespace guf {
 
 template <int Kernels, typename Assignment, typename Lambda>
-NaiveFitter::Ptr 
+inline NaiveFitter::Ptr 
 create2( const Config& c, const dStorm::engine::JobInfo& i ) 
 { 
     typedef typename PSF::StandardFunction< 
@@ -25,41 +25,29 @@ create2( const Config& c, const dStorm::engine::JobInfo& i )
     return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
 }
 
-template <int Kernels, typename Assignment>
+template <>
 inline NaiveFitter::Ptr
-create1( 
+create2<2,PSF::FreeForm,PSF::No3D>( const Config& c, const dStorm::engine::JobInfo& i )
+{
+    throw std::runtime_error("Two kernels and free-sigma fitting can't be combined, sorry");
+}
+
+
+template <int Kernels>
+NaiveFitter::Ptr
+NaiveFitter::create( 
     const Config& c, 
     const dStorm::engine::JobInfo& i )
 {
     const threed_info::DepthInfo* d = i.traits.optics(0).depth_info().get();
     if ( c.free_sigmas() && d->provides_3d_info() )
-        throw std::runtime_error("Free-form fitting 
+        throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( c.free_sigmas() )
         return create2<Kernels,PSF::FreeForm,PSF::No3D>(c,i);
     else if ( d->provides_3d_info() )
         return create2<Kernels,PSF::FixedForm,PSF::Spline3D>( c, i );
     else
         return create2<Kernels,PSF::FixedForm,PSF::No3D>(c,i);
-}
-
-template <>
-inline NaiveFitter::Ptr
-create1<2,PSF::FreeForm>( const Config& c, const dStorm::engine::JobInfo& i )
-{
-    throw std::logic_error("Two kernels and free form can't be instantiated "
-                           "on 32 bit machines");
-}
-
-
-template <int Kernels>
-NaiveFitter::Ptr
-NaiveFitter::create(
-    const Config& c, 
-    const dStorm::engine::JobInfo& i )
-{
-    if ( c.free_sigmas() )
-    else 
-        return create1<Kernels,PSF::FixedForm>(c,i);
 }
 
 template NaiveFitter::Ptr NaiveFitter::create<1>( const Config& c, const dStorm::engine::JobInfo& i );
