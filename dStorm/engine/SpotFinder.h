@@ -20,12 +20,12 @@ namespace engine {
 namespace spot_finder {
 
 class Job {
-    const double smoothing_mask;
+    const quantity<camera::length,int> smoothing_mask;
     const InputPlane& traits;
     const FluorophoreTraits& fluorophore;
 
   public:
-    Job( double smoothing_mask, const InputPlane& traits, 
+    Job( quantity<camera::length,int> smoothing_mask, const InputPlane& traits, 
          const FluorophoreTraits& fluorophore )
         : smoothing_mask(smoothing_mask), 
           traits(traits), fluorophore(fluorophore) {}

@@ -19,7 +19,7 @@ boost::units::quantity< boost::units::camera::length > Job::sigma(int dim) const
 
 boost::units::quantity< boost::units::camera::length, int > Job::mask_size(int dim) const
 {
-    return boost::units::quantity< boost::units::camera::length, int >( round( smoothing_mask * sigma(dim) ) );
+    return smoothing_mask;
 }
 
 ImageTypes<2>::Size Job::size() const

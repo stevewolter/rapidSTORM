@@ -1,8 +1,10 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
+#include <simparm/Eigen_decl.hh>
 #include <simparm/BoostUnits.hh>
 #include <simparm/BoostOptional.hh>
+#include <simparm/Eigen.hh>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include <dStorm/UnitEntries.h>
@@ -17,11 +19,16 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
+#include <dStorm/units/nanolength.h>
+#include <boost/units/systems/camera/length.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace engine {
    using namespace simparm;
+   using boost::units::quantity;
+   namespace si = boost::units::si;
+   namespace camera = boost::units::camera;
 
    /** Config entry collection class for the dSTORM engine. */
    class _Config : public Set
@@ -32,10 +39,11 @@ namespace engine {
         _Config();
         ~_Config();
 
-        IntPixelEntry nms_x, nms_y;
+        typedef Eigen::Matrix< quantity<camera::length,int>, 2, 1, Eigen::DontAlign > 
+            PixelVector2D;
+        Entry< PixelVector2D > nms;
 
-        /** The proportionality factor for the smoothing & NMS mask size */
-        Entry<double> maskSizeFactor;
+        Entry< quantity<camera::length,int> > smoothing_mask_radius;
 
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;

@@ -18,10 +18,8 @@ namespace engine {
 
 _Config::_Config()
 :   Set("rapidSTORM", "rapidSTORM engine"),
-    nms_x("NonMaximumSuppressionX", "Minimum spot distance in X", 3 * camera::pixel),
-    nms_y("NonMaximumSuppressionY", "Minimum spot distance in Y", 3 * camera::pixel),
-    maskSizeFactor("MaskSizeFactor", "Proportionality factor "
-                    "for smoothing and NMS masks", 1.5),
+    nms("NonMaximumSuppression", "Minimum spot distance", PixelVector2D::Constant(3 * camera::pixel) ),
+    smoothing_mask_radius("SmoothingMaskSize", "Smoothing mask half-width", 2 * camera::pixel),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
@@ -30,10 +28,9 @@ _Config::_Config()
 {
     DEBUG("Building dStorm Config");
 
-    nms_x.setUserLevel(Object::Intermediate);
-    nms_y.setUserLevel(Object::Intermediate);
+    nms.setUserLevel(Object::Intermediate);
     
-    maskSizeFactor.setUserLevel(Object::Expert);
+    smoothing_mask_radius.setUserLevel(Object::Expert);
 
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
@@ -67,11 +64,10 @@ _Config::~_Config() {
 }
 
 void _Config::registerNamedEntries() {
-    push_back(nms_x);
-    push_back(nms_y);
+    push_back(nms);
     push_back(amplitude_threshold);
 
-    push_back(maskSizeFactor);
+    push_back(smoothing_mask_radius);
     push_back(spotFindingMethod);
     push_back( weights );
     std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),

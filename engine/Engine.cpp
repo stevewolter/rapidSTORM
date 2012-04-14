@@ -253,8 +253,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
   meta_info( engine.imProp ),
   maximumLimit(20),
   flattener( *meta_info, engine.make_plane_weight_vector() ),
-  maximums(config.nms_x() / camera::pixel,
-         config.nms_y() / camera::pixel,
+  maximums(config.nms().x() / camera::pixel, config.nms().y() / camera::pixel,
          1, 1),
   origMotivation( config.motivation() )
 {
@@ -266,7 +265,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     if ( meta_info->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( config.maskSizeFactor(), 
+    spot_finder::Job job( config.smoothing_mask_radius(), 
         meta_info->plane(0), meta_info->fluorophores[0]);
     finder = config.spotFindingMethod().make(job);
 
