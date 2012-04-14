@@ -10,6 +10,7 @@ using namespace boost::units;
 
 Config::Config() 
 : simparm::Set("GUF", "Grand unified fitter"),
+  fit_window_size("FitWindowSize", "Fit window radius", 600 * boost::units::si::nanometre),
   theta_dist("ThetaDist", "Two-kernel distance threshold", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 
         "Terminate at axial step length", 1E-2f * boost::units::si::nanometre),
@@ -26,6 +27,7 @@ Config::Config()
   allow_disjoint("DisjointFitting", "Allow disjoint fitting", true),
   double_computation("DoublePrecision", "Compute with 64 bit floats", true)
 {
+    fit_window_size.userLevel = simparm::Object::Intermediate;
     free_sigmas.userLevel = simparm::Object::Intermediate;
     output_sigmas.userLevel = simparm::Object::Intermediate;
     mle_fitting.userLevel = simparm::Object::Intermediate;
@@ -39,6 +41,7 @@ Config::Config()
 
 void Config::registerNamedEntries()
 {
+    push_back( fit_window_size );
     push_back( marquardtStartLambda );
     push_back( negligible_x_step );
     push_back( maximumIterationSteps );

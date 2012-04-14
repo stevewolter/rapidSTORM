@@ -12,19 +12,15 @@ namespace engine {
 
 struct JobInfo {
     typedef boost::units::quantity<boost::units::camera::intensity> Intensity;
-    double mask_size_factor;
     Intensity amplitude_threshold;
     const InputTraits& traits;
     int fluorophore;
 
-    JobInfo( float msf, Intensity amp_thres, const InputTraits& i, int fluorophore )
-        : mask_size_factor(msf), amplitude_threshold(amp_thres), traits(i), fluorophore(fluorophore) {}
+    JobInfo( Intensity amp_thres, const InputTraits& i, int fluorophore )
+        : amplitude_threshold(amp_thres), traits(i), fluorophore(fluorophore) {}
     JobInfo( const JobInfo& o, const InputTraits& t )
-        : mask_size_factor(o.mask_size_factor), amplitude_threshold(o.amplitude_threshold),
+        : amplitude_threshold(o.amplitude_threshold),
           traits(t), fluorophore(o.fluorophore) {}
-
-  public:
-    boost::units::quantity< boost::units::si::length > mask_size_in_si( int dimension, int plane ) const;
 };
 
 

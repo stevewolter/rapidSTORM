@@ -79,7 +79,7 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
         DEBUG("Constructing spot fitting info");
-        JobInfo info(config.fitSizeFactor(), 
+        JobInfo info(
             ( config.amplitude_threshold().is_initialized() ) ? *config.amplitude_threshold() 
                                                       : 0 * boost::units::camera::ad_count,
             imProp, fluorophore);
@@ -272,7 +272,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config.fitSizeFactor(), *config.amplitude_threshold(), *meta_info, fluorophore);
+        JobInfo info(*config.amplitude_threshold(), *meta_info, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 

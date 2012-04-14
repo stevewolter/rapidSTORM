@@ -36,10 +36,6 @@ namespace engine {
 
         /** The proportionality factor for the smoothing & NMS mask size */
         Entry<double> maskSizeFactor;
-        /** The proportionality factor for the fitting mask size (the fitting
-        *  mask determines which pixel are fitted with the exponential PSF
-        *  model). */
-        Entry<double> fitSizeFactor;
 
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;

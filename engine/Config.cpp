@@ -22,8 +22,6 @@ _Config::_Config()
     nms_y("NonMaximumSuppressionY", "Minimum spot distance in Y", 3 * camera::pixel),
     maskSizeFactor("MaskSizeFactor", "Proportionality factor "
                     "for smoothing and NMS masks", 1.5),
-    fitSizeFactor("FitSizeFactor", "Proportionality factor for fit "
-                    "window size", 3),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
@@ -36,7 +34,6 @@ _Config::_Config()
     nms_y.setUserLevel(Object::Intermediate);
     
     maskSizeFactor.setUserLevel(Object::Expert);
-    fitSizeFactor.setUserLevel(Object::Expert);
 
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
@@ -75,7 +72,6 @@ void _Config::registerNamedEntries() {
     push_back(amplitude_threshold);
 
     push_back(maskSizeFactor);
-    push_back(fitSizeFactor);
     push_back(spotFindingMethod);
     push_back( weights );
     std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),

@@ -122,18 +122,10 @@ InputPlane::set_image(
 fit_position_out_of_range::fit_position_out_of_range()
 : std::runtime_error("Selected fit position not in all layers of image") {}
 
-guf::Spot
-InputPlane::make_max_distance( const dStorm::engine::JobInfo& info, int plane_number )
-{
-    Spot rv;
-    for (int i = 0; i < 2; ++i)
-        rv[i] = info.mask_size_in_si(i,plane_number);
-    return rv;
-}
-
 InputPlane::InputPlane( const Config& c, const dStorm::engine::JobInfo& info, int plane_number )
 : im_size( info.traits.image(plane_number).size.array() - 1 * camera::pixel ),
-  transformation(make_max_distance(info,plane_number), info.traits.plane(plane_number)),
+  transformation( guf::Spot::Constant( guf::Spot::Scalar( c.fit_window_size() ) ),
+                  info.traits.plane(plane_number)),
   can_do_disjoint_fitting( c.allow_disjoint() && 
     info.traits.plane(plane_number).projection().supports_guaranteed_row_width() ),
   use_floats( !c.double_computation() )
