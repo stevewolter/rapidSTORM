@@ -385,10 +385,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/ErosionSmoother.cpp \
     spotFinders/GaussSmoothing.cpp \
     spotFinders/GaussSmoothing.h \
-    spotFinders/Median.cpp \
-    spotFinders/MedianSmoother.h \
     spotFinders/MedianSmoother.cpp \
-    spotFinders/Spalttiefpass.h spotFinders/Spalttiefpass.cpp \
+    spotFinders/Spalttiefpass.cpp \
     spotFinders/Fillhole.h spotFinders/Fillhole.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
