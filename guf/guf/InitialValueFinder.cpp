@@ -16,6 +16,7 @@
 #include <boost/accumulators/statistics/variates/covariate.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/framework/accumulator_set.hpp>
+#include <dStorm/threed_info/look_up_sigma_diff.h>
 
 using namespace boost::accumulators;
 
@@ -33,7 +34,8 @@ threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const dStorm
         *info.traits.optics( minuend_plane ).depth_info(),
         minuend_dir,
         *info.traits.optics( subtrahend_plane ).depth_info(),
-        subtrahend_dir );
+        subtrahend_dir,
+        1E-8f * si::meter );
 }
 
 InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
@@ -58,7 +60,10 @@ InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engi
             }
         }
     DEBUG("Most discriminating dimension is " << most_discriminating_diff->minuend_plane << "," << most_discriminating_diff->minuend_dir << " against " << most_discriminating_diff->subtrahend_plane << "," << most_discriminating_diff->subtrahend_dir);
+    lookup_table.reset( new threed_info::SigmaDiffLookup( most_discriminating_diff->lookup( info ) ) );
 }
+
+InitialValueFinder::~InitialValueFinder() {}
 
 float InitialValueFinder::correlation( const SigmaDiff& sd ) const
 {
@@ -160,13 +165,9 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
 void InitialValueFinder::estimate_z( const guf::Statistics<3>& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
-    const threed_info::SigmaDiffLookup lookup = mdm.lookup(info);
-    const threed_info::Sigma diff (
-          s[ mdm.minuend_plane ].sigma[ mdm.minuend_dir ] 
-        - s[ mdm.subtrahend_plane ].sigma[ mdm.subtrahend_dir ] );
-
-    boost::optional<threed_info::ZPosition> z = lookup.look_up_sigma_diff( diff, 1E-8f * si::meter );
-    if ( ! z ) z = info.traits.optics(0).depth_info()->equifocal_plane();
+    boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
+        threed_info::Sigma(s[ mdm.minuend_plane ].sigma[ mdm.minuend_dir ]),
+        threed_info::Sigma(s[ mdm.subtrahend_plane ].sigma[ mdm.subtrahend_dir ]) );
     DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
 
     for (size_t i = 0; i < v.size(); ++i)

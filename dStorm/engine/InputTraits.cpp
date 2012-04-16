@@ -4,6 +4,7 @@
 #include <boost/units/Eigen/Core>
 #include <boost/units/Eigen/Array>
 #include <dStorm/units/microlength.h>
+#include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
 namespace input {

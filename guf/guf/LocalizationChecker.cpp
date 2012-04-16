@@ -5,6 +5,7 @@
 #include "guf/psf/BaseExpression.h"
 #include "guf/psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
+#include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
 namespace guf {

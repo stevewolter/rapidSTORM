@@ -16,6 +16,7 @@
 #include <boost/units/io.hpp>
 #include <dStorm/traits/Projection.h>
 #include <dStorm/engine/InputTraits.h>
+#include <dStorm/threed_info/DepthInfo.h>
 
 using namespace std;
 
@@ -78,14 +79,11 @@ Fluorophore::Fluorophore(const Position& pos, int/* noImages*/,
     for (int i = 0; i < optics.plane_count(); ++i) {
         DEBUG("Generating plane " << i << " with z position " << *optics.optics(i).z_position);
         Plane& p = planes[i];
-        const dStorm::traits::Optics& o = optics.optics(i);
         /* This size of the fluorophore is a safe initial guess - we might need more pixels,
         * and this case is detected by the loop below. */
         p.range[0] = p.range[1] = 4 * camera::pixel;
         p.densities = Eigen::MatrixXd::Constant(p.range[0].value()*2+1, p.range[1].value()*2+1, -1);
-        Position plane_pos = pos;
-        plane_pos[2] = o.depth_info()->equifocal_plane();
-        p.pixel = optics.plane(i).projection().nearest_point_in_image_space(plane_pos.head<2>());
+        p.pixel = optics.plane(i).projection().nearest_point_in_image_space(pos.head<2>());
 
         DEBUG("Position of fluorophore is " << pos.transpose() << " with center in plane " 
             << p.pixel.transpose());

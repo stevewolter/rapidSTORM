@@ -8,9 +8,10 @@
 #include "Statistics.h"
 #include <vector>
 #include <dStorm/Direction.h>
-#include <dStorm/threed_info/look_up_sigma_diff.h>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 
 namespace dStorm {
+namespace threed_info { struct SigmaDiffLookup; }
 namespace guf {
 
 struct InitialValueFinder {
@@ -25,6 +26,7 @@ struct InitialValueFinder {
         threed_info::SigmaDiffLookup lookup( const dStorm::engine::JobInfo& info ) const;
     };
     boost::optional< SigmaDiff > most_discriminating_diff;
+    boost::scoped_ptr< threed_info::SigmaDiffLookup > lookup_table;
     float correlation( const SigmaDiff& ) const;
 
     struct PlaneEstimate;
@@ -38,6 +40,7 @@ struct InitialValueFinder {
 
   public:
     InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info);
+    ~InitialValueFinder();
 
     void operator()( FitPosition& position, const Spot&, const Statistics<3>& ) const;
 };

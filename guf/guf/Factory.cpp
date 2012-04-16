@@ -5,6 +5,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/output/Traits.h>
 #include <boost/variant/get.hpp>
+#include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
 namespace guf {

@@ -21,6 +21,7 @@ public:
 
 private:
     threed_info::Spline3D spline;
+    threed_info::SigmaDiffLookup lookup_table;
 
 public:
     SigmaDiff3D( const Config&, std::auto_ptr< Output > );
@@ -45,7 +46,8 @@ class SigmaDiff3D::_Config : public simparm::Object {
 
 SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 : Filter( sub ),
-  spline( threed_info::SplineFactory(c.calibration_file()) )
+  spline( threed_info::SplineFactory(c.calibration_file()) ),
+  lookup_table( spline, 1E-9f * si::meter )
 {
 }
 
@@ -65,18 +67,11 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
     EngineResult r( upstream );
 
     EngineResult::iterator i, e = r.end();
-    for ( i = r.begin(); i != e; ) {
-        boost::optional<threed_info::ZPosition> pos = 
-            look_up_sigma_diff( spline, 
-                threed_info::Sigma( sqrt( i->fit_covariance_matrix()(0,0) ) - sqrt( i->fit_covariance_matrix()(1,1) ) ), 
-                1E-9f * si::meter );
-        if ( pos ) {
-            i->position().z() = *pos;
-            ++i;
-        } else {
-            --e;
-            *i = *e;
-        }
+    for ( i = r.begin(); i != e; ++i ) {
+        threed_info::Sigma sigmas[2];
+        for (Direction j = Direction_First; j != Direction_2D; ++j)
+            sigmas[j] = sqrt( i->fit_covariance_matrix()(j,j) );
+        i->position().z() = lookup_table( sigmas[0], sigmas[1] );
     }
 
     r.erase( e, r.end() );

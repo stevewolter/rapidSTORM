@@ -57,17 +57,15 @@ Spline3D::Spline3D( const SplineFactory& f )
          * Parabolic runout conditions to match theoretical parabolic
          * curve. */
         Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N-2,N-2);
-        Eigen::VectorXd B = Eigen::VectorXd::Zero(N-2);
+        Eigen::VectorXd B( N - 2 );
         for (int j = 0; j < N-2; ++j) {
-            double yi = points[j].y(dim);
-            if ( j < N-2 )          B[j] += yi;
-            if ( j > 0 && j < N-1 ) B[j-1] -= 2*yi;
-            if ( j > 1 )            B[j-2] += yi;
+            B[j] = points[j].y(dim) - 2 * points[j+1].y(dim) + points[j+2].y(dim);
 
-            if ( j < N-2 )          A(j,j) = (j == 0 || j == N-3 ) ? 5 : 4;
-            if ( j > 0 && j < N-2 ) A(j,j-1) = 1;
-            if ( j < N-3 )          A(j,j+1) = 1;
+            A(j,j) = 4;
+            if ( j > 0 ) A(j,j-1) = 1;
+            if ( j < N - 1 ) A(j,j+1) = 1;
         }
+        A(0,0) = A(N-3,N-3) = 5;
         B *= 6 / (h*h);
         Eigen::VectorXd M = Eigen::VectorXd::Zero(N);
         M.block( 1, 0, N-2, 1 ) = A.colPivHouseholderQr().solve(B);
@@ -75,7 +73,6 @@ Spline3D::Spline3D( const SplineFactory& f )
         M[N-1] = M[N-2];
         coeffs[dim] = Eigen::MatrixXd::Zero( N-1, 4 );
         for (int i = 0; i < N-1; ++i) {
-            double xi = points[i].x(), yi = points[i].y(dim);
             coeffs[dim](i,3) = points[i].y(dim);
             coeffs[dim](i,2) = (points[i+1].y(dim) - points[i].y(dim)) / h
                 - ( M[i+1] + 2 * M[i] ) * h / 6;
@@ -83,13 +80,6 @@ Spline3D::Spline3D( const SplineFactory& f )
             coeffs[dim](i,0) = (M[i+1] - M[i]) / (6 * h);
         }
     }
-
-    boost::optional<ZPosition> maybe_equifocal_plane = 
-        look_up_sigma_diff( *this, 0.0f * si::meter, 1E-9f * si::meter );
-    if ( maybe_equifocal_plane )
-        equifocal_plane__ = *maybe_equifocal_plane;
-    else
-        throw std::runtime_error("Z spline has no point where widths are equal");
 }
 
 ZRange Spline3D::z_range_() const { 
@@ -196,12 +186,12 @@ void unit_tests( TestState& state ) {
            "Spline can extrapolate X values" );
 
     const int ti = 25;
-    boost::optional<ZPosition> z1 = look_up_sigma_diff( s, 
-        Sigma(spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter
-            - spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter),
-        1E-9f * si::meter );
-    state( z1 && *z1 < float(spline_test_data[ti][0] * 1E-9) * si::meter 
-              && *z1 > float(spline_test_data[ti-1][0] * 1E-9) * si::meter,
+    SigmaDiffLookup lu( s, 1e-9f * si::meter );
+    ZPosition z1 = lu( 
+        Sigma(spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter),
+        Sigma(spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter) );
+    state( z1 < float(spline_test_data[ti][0] * 1E-9) * si::meter &&
+           z1 > float(spline_test_data[ti-1][0] * 1E-9) * si::meter,
            "Z determination through sigmadiff works" );
 
     ZPosition dx = 1E-10f * si::meter;

@@ -10,6 +10,7 @@
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/threed_info/fwd.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <dStorm/threed_info/DepthInfo.h>
 #include "types.h"
 
 namespace dStorm {

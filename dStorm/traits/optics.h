@@ -14,9 +14,9 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "../units/camera_response.h"
 #include <dStorm/types/samplepos.h>
-#include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
+namespace threed_info { class DepthInfo; }
 namespace traits {
 
 class ProjectionFactory;
