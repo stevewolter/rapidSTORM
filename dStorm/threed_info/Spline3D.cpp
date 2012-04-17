@@ -63,7 +63,7 @@ Spline3D::Spline3D( const SplineFactory& f )
 
             A(j,j) = 4;
             if ( j > 0 ) A(j,j-1) = 1;
-            if ( j < N - 1 ) A(j,j+1) = 1;
+            if ( j < N - 3 ) A(j,j+1) = 1;
         }
         A(0,0) = A(N-3,N-3) = 5;
         B *= 6 / (h*h);

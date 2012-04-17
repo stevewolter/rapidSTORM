@@ -33,15 +33,15 @@ void SigmaDiffLookup::init() {
         diffs.push_back(diff);
     }
 
-    crop_to_longest_monotonic_sequence();
+    if ( ! diffs.empty() ) {
+        crop_to_longest_monotonic_sequence();
 
-    if ( ! diffs.empty() && diffs.front().diff > diffs.back().diff ) {
-        std::reverse( diffs.begin(), diffs.end() );
-    }
-
-    for ( std::vector<Diff>::const_iterator i = diffs.begin()+1; i != diffs.end(); ++i ) {
-        if ( i->diff < (i-1)->diff )
-            throw std::runtime_error("The sigma difference curve is not monotonic");
+        if ( diffs.front().diff > diffs.back().diff )
+            std::reverse( diffs.begin(), diffs.end() );
+        for ( std::vector<Diff>::const_iterator i = diffs.begin()+1; i != diffs.end(); ++i ) {
+            if ( i->diff < (i-1)->diff )
+                throw std::runtime_error("The sigma difference curve is not monotonic");
+        }
     }
 }
 

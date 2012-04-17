@@ -54,7 +54,7 @@ make_display (dStorm::display::Manager *old)
         return old;
     } else {
         std::cerr << "Test plugin loaded" << std::endl;
-        return new Manager(old);
+        return make_test_plugin_manager( old ).release();
     }
 }
 

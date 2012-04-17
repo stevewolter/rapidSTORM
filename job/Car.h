@@ -16,7 +16,7 @@
 #include <set>
 #include <setjmp.h>
 #include <boost/thread/thread.hpp>
-#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include "Control.h"
@@ -50,7 +50,7 @@ namespace job {
         Engine* upstream_engine;
         std::auto_ptr<output::Output> output;
 
-        boost::recursive_mutex mutex;
+        boost::mutex mutex;
         frame_index first_output;
         const int piston_count;
 
