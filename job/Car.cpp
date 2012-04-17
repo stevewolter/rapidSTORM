@@ -148,7 +148,7 @@ void Car::drive() {
     DEBUG("Sending announcement");
     Output::AdditionalData data;
     {
-        boost::lock_guard<boost::mutex> lock(mutex);
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
         data = output->announceStormSize(announcement);
     }
     DEBUG("Sent announcement");

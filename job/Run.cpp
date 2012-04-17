@@ -7,7 +7,7 @@
 namespace dStorm {
 namespace job {
 
-Run::Run( boost::mutex& mutex, frame_index first_image, 
+Run::Run( boost::recursive_mutex& mutex, frame_index first_image, 
           Input& input, Output& output, int piston_count ) 
 : mutex(mutex), queue(first_image, piston_count),
   restarted(false), blocked(false),
@@ -39,7 +39,7 @@ void Run::stop_computation() {
 }
 
 Run::Result Run::run() {
-    boost::unique_lock<boost::mutex> lock( mutex );
+    boost::unique_lock<boost::recursive_mutex> lock( mutex );
 
     Output::RunRequirements r = 
         output.announce_run(Output::RunAnnouncement());
@@ -77,14 +77,14 @@ Run::Result Run::run() {
 struct Run::Block : public EngineBlock {
     Run& m;
     Block( Run& m ) : m(m) {
-        boost::unique_lock<boost::mutex> lock(m.mutex);
+        boost::unique_lock<boost::recursive_mutex> lock(m.mutex);
         DEBUG( "Block in place" );
         m.blocked = true;
     }
 
     ~Block() {
         DEBUG( "Waiting for lock to put block out of place" );
-        boost::unique_lock<boost::mutex> lock(m.mutex);
+        boost::unique_lock<boost::recursive_mutex> lock(m.mutex);
         m.blocked = false;
         DEBUG( "Block out of place" );
         m.unblocked.notify_all();

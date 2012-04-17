@@ -2,7 +2,7 @@
 #define DSTORM_JOB_RUN_H
 
 #include "Queue.h"
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <dStorm/Engine.h>
@@ -19,7 +19,7 @@ class Run
     typedef output::Output Output;
     enum Result { Succeeded, Failed, Restart };
 
-    Run( boost::mutex& mutex, frame_index first_image,
+    Run( boost::recursive_mutex& mutex, frame_index first_image,
          Input& input, Output& output, int piston_count );
     Result run();
     ~Run();
@@ -29,7 +29,7 @@ class Run
     std::auto_ptr<EngineBlock> block();
 
   private:
-    boost::mutex& mutex;
+    boost::recursive_mutex& mutex;
     Queue queue;
     boost::condition unblocked;
     boost::ptr_vector<boost::thread> threads;
