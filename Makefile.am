@@ -381,10 +381,8 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
-    spotFinders/ErosionSmoother.h \
     spotFinders/ErosionSmoother.cpp \
     spotFinders/GaussSmoothing.cpp \
-    spotFinders/GaussSmoothing.h \
     spotFinders/MedianSmoother.cpp \
     spotFinders/Spalttiefpass.cpp \
     spotFinders/Fillhole.h spotFinders/Fillhole.cpp \

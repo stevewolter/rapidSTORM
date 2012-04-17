@@ -1,11 +1,40 @@
-#define DSTORM_GAUSSSMOOTHING_CPP
-#include "spotFinders/GaussSmoothing.h"
+#include <simparm/Eigen_decl.hh>
+#include <simparm/Object.hh>
+#include <simparm/Structure.hh>
+#include <simparm/Entry_Impl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
+
+#include <dStorm/engine/SpotFinder.h>
+#include <dStorm/Direction.h>
 
 using namespace std;
 using namespace dStorm::engine;
 
 namespace dStorm {
 namespace spotFinders {
+
+class GaussSmoother : public engine::spot_finder::Base {
+    struct _Config : public simparm::Object {
+        typedef Eigen::Matrix< quantity<camera::length>, 2, 1, Eigen::DontAlign > Sigmas;
+        simparm::Entry< Sigmas > sigma;
+        void registerNamedEntries() {}
+        _Config() 
+            : simparm::Object("Gaussian", "Smooth with gaussian kernel"),
+              sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}
+    };
+public:
+    typedef simparm::Structure<_Config> Config;
+    typedef engine::spot_finder::Builder<GaussSmoother> Factory;
+
+    GaussSmoother (const Config&, const engine::spot_finder::Job&);
+    GaussSmoother* clone() const { return new GaussSmoother(*this); }
+
+    void smooth( const engine::Image2D &in );
+
+private:
+    std::vector<int> kernels[Direction_2D];
+};
 
 static void fillWithGauss(std::vector<int>::iterator values, int n, double sigma, int A) {
     const double sig_sq = sigma * sigma, norm = 1 / (2 * M_PI * sigma);
@@ -15,13 +44,14 @@ static void fillWithGauss(std::vector<int>::iterator values, int n, double sigma
 }
 
 GaussSmoother::GaussSmoother (
-    const Config&, const engine::spot_finder::Job &job)
-: Base(job), xkern(msx+1, 0), ykern(msy+1, 0)
+    const Config& config, const engine::spot_finder::Job &job)
+: Base(job)
 {
-    fillWithGauss(xkern.begin(), msx+1, 
-        job.sigma(0) / camera::pixel, 256);
-    fillWithGauss(ykern.begin(), msy+1, 
-        job.sigma(1) / camera::pixel, 256);
+    for (int i = 0; i < 2; ++i) {
+        double sigma = config.sigma()[i] / camera::pixel;
+        const int size = int(ceil(2 * sigma))+1;
+        fillWithGauss(kernels[i].begin(), size, config.sigma()[i] / camera::pixel, 256);
+    }
 }
 
 template <typename InputPixel>
@@ -42,21 +72,18 @@ void gsm_line(const InputPixel *input, int step, int radius, int size,
 void GaussSmoother::smooth( const engine::Image2D &in )
  
 {
-    /* Effective border width */
-    int eby = max(0,by-msy);
-
     for (int x = 0; x < int(in.height().value()); x++)
         gsm_line( 
             in.ptr(x, 0), in.width().value(),
-            msy, in.height().value(),
-            smoothed.ptr(x, 0), ykern.begin() );
+            kernels[1].size()-1, in.height().value(),
+            smoothed.ptr(x, 0), kernels[1].begin() );
 
     SmoothedPixel copy[smoothed.width().value()];
-    for (int y = eby; y < int(smoothed.width_in_pixels() - eby); y++) {
+    for (int y = 0; y < int(smoothed.width_in_pixels()); y++) {
         memcpy(copy, smoothed.ptr(0, y), 
                sizeof(SmoothedPixel) * smoothed.width_in_pixels());
-        gsm_line( copy, 1, msx, smoothed.width_in_pixels(),
-                               smoothed.ptr(0, y), xkern.begin() );
+        gsm_line( copy, 1, kernels[0].size()-1, smoothed.width_in_pixels(),
+                               smoothed.ptr(0, y), kernels[0].begin() );
     }
 }
 

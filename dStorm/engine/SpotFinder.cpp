@@ -28,11 +28,7 @@ ImageTypes<2>::Size Job::size() const
 }
 
 Base::Base(const Job& job)
-   : msx( job.mask_size(0) / camera::pixel ),
-     msy( job.mask_size(1) / camera::pixel ),
-     bx( msx ),
-     by( msy ),
-     smoothed( job.size(), 0 * camera::frame )
+:    smoothed( job.size(), 0 * camera::frame )
      {
         DEBUG("Making SpotFinder with " << msx << " " << msy );
         DEBUG("Image pointer is " << smoothed.ptr() );

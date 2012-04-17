@@ -47,12 +47,6 @@ class Job {
    class Base {
       protected:
         Base( const Job& );
-        const int msx, /**< Smoothing mask radius in X */
-                  msy, /**< Smoothing mask radius in Y */
-                  bx,  /**< Border (non-smoothed at image border)
-                            radius in X */
-                  by;  /**< Border (non-smoothed at image border)
-                            radius in Y */
         /** Buffer that contains the smoothed image. */
         SmoothedImage smoothed; 
 
