@@ -265,8 +265,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     if ( meta_info->fluorophores.size() < 1 )
         throw std::runtime_error("Zero or less fluorophores given for input, cannot compute.");
 
-    spot_finder::Job job( config.smoothing_mask_radius(), 
-        meta_info->plane(0), meta_info->fluorophores[0]);
+    spot_finder::Job job( meta_info->plane(0), meta_info->fluorophores[0]);
     finder = config.spotFindingMethod().make(job);
 
     DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");

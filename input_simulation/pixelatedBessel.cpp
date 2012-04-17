@@ -170,7 +170,11 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
     gsl_error_handler_t * old_handler=gsl_set_error_handler_off();
     double val = -1, abserr;
     dStorm::threed_info::ZRange z_range = trafo.optics.depth_info()->z_range();
-    int_info->delta_z = ( lower( z_range ) + upper( z_range ) ) / 2.0f - fluorophore.z();
+    dStorm::threed_info::ZPosition plane_z = 
+        ( z_range.empty() ) 
+            ? 0.0f * si::meter 
+            : ( lower( z_range ) + upper( z_range ) ) / 2.0f;
+    int_info->delta_z = plane_z - fluorophore.z();
 
     int_info->orig_position = pixel_center;
     int_info->function = this;

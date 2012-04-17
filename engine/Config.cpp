@@ -19,7 +19,6 @@ namespace engine {
 _Config::_Config()
 :   Set("rapidSTORM", "rapidSTORM engine"),
     nms("NonMaximumSuppression", "Minimum spot distance", PixelVector2D::Constant(3 * camera::pixel) ),
-    smoothing_mask_radius("SmoothingMaskSize", "Smoothing mask half-width", 2 * camera::pixel),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
@@ -30,8 +29,6 @@ _Config::_Config()
 
     nms.setUserLevel(Object::Intermediate);
     
-    smoothing_mask_radius.setUserLevel(Object::Expert);
-
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
     motivation.setUserLevel(Object::Intermediate);
@@ -67,7 +64,6 @@ void _Config::registerNamedEntries() {
     push_back(nms);
     push_back(amplitude_threshold);
 
-    push_back(smoothing_mask_radius);
     push_back(spotFindingMethod);
     push_back( weights );
     std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),

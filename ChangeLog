@@ -1,3 +1,11 @@
+== 14.13.0 ==
+
+* Moved mask size configuration into spot finders
+* Removed recursive locks where possible
+* Reduced exposure of DepthInfo header and reformulated sigma-diff lookup to be more robust towards uneven curves and faster
+* Made spot fitting window and smoothing window sizes independent of PSF size to simplify 3D settings
+* Removed unnecessary PSF specializations
+
 == 14.12.0 ==
 
 * Fixed sigma derivative for Spline3D, added check for derivative and fixed PSF estimation for spline 3D

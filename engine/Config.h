@@ -43,8 +43,6 @@ namespace engine {
             PixelVector2D;
         Entry< PixelVector2D > nms;
 
-        Entry< quantity<camera::length,int> > smoothing_mask_radius;
-
         /** The method to use for spot detection. */
         simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;
 

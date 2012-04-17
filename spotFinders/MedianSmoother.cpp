@@ -26,7 +26,7 @@ private:
 
     struct _Config : public simparm::Object {
         simparm::Entry< quantity<camera::length,int> > mask_size;
-        void registerNamedEntries() {}
+        void registerNamedEntries() { push_back( mask_size ); }
         _Config() 
         : simparm::Object("Median", "Smooth by median"),
           mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) {}

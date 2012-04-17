@@ -18,7 +18,7 @@ class GaussSmoother : public engine::spot_finder::Base {
     struct _Config : public simparm::Object {
         typedef Eigen::Matrix< quantity<camera::length>, 2, 1, Eigen::DontAlign > Sigmas;
         simparm::Entry< Sigmas > sigma;
-        void registerNamedEntries() {}
+        void registerNamedEntries() { push_back( sigma ); }
         _Config() 
             : simparm::Object("Gaussian", "Smooth with gaussian kernel"),
               sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}

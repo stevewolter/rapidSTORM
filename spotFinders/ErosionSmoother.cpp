@@ -12,7 +12,7 @@ namespace spotFinders {
 class ErosionSmoother : public engine::spot_finder::Base {
     struct _Config : public simparm::Object {
         simparm::Entry< quantity<camera::length,int> > mask_size;
-        void registerNamedEntries() {}
+        void registerNamedEntries() { push_back( mask_size ); }
         _Config() 
             : simparm::Object("Erosion", "Erode image"),
               mask_size("SmoothingMaskSize", "Smoothing mask width", 3 * camera::pixel) {}
