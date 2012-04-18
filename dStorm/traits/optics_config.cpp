@@ -118,8 +118,6 @@ void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 
 
 void PlaneConfig::write_traits( input::Traits<Localization>& t, const threed_info::Config& t3 ) const
 {
-    for (int i = 0; i < 2; ++i)
-        t.position().resolution()[i] = 1.0f / (pixel_size()[i] / (1E9f * si::nanometre) * si::metre) ;
 }
 
 

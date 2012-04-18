@@ -163,47 +163,6 @@ Field::Ptr LocalizationField<Index>::try_to_parse( const TiXmlElement& n, Traits
 }
 
 template <int Index>
-void LocalizationField<Index>::
-parse_attribute_with_resolution( 
-    boost::optional<typename Scalar::value_type>& v, 
-    boost::optional<typename Scalar::value_type> def, 
-    const char * attrib_value,
-    const typename Scalar::resolution_type& res
-)
-{
-    boost::shared_ptr<Converter> c;
-
-    DEBUG("Trying to parse attribute " << ((!attrib_value) ? "NULL" : attrib_value) );
-    if ( attrib_value ) {
-        std::stringstream s;
-        s.str( std::string(attrib_value) );
-        double value;
-        std::string unit;
-        s >> value;
-        std::getline(s, unit);
-        while ( unit[0] == ' ' ) unit = unit.substr(1);
-        DEBUG("Unit is " << unit);
-
-        if ( TraitsType::has_resolution && res.is_initialized() )
-            c = Converter::create(unit, *res );
-        else
-            c = Converter::create(unit);
-
-        if ( c.get() != NULL ) {
-            v = c->from_value(value);
-            DEBUG("Converter could be constructed and did set " << v->value() << " from " << value);
-        } else  {
-            std::stringstream error;
-            error << "Unrecognized unit in range field " << TraitsType::get_desc() << ": " << unit;
-            throw std::runtime_error(error.str());
-        }
-    } else {
-        v = def;
-    }
-    
-}
-
-template <int Index>
 LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsType& traits, int row, int column, bool for_uncertainty ) 
 : scalar(row, column), for_uncertainty(for_uncertainty)
 {
@@ -219,8 +178,6 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
     } else {
         scalar.is_given(traits) = true;
 
-        if ( TraitsType::has_resolution )
-            cond_parse_attribute( node, "resolution", scalar.resolution(traits) );
         if ( TraitsType::has_range ) {
             /* Backward compatibility: Old versions of the XML syntax didn't require lower boundaries for the
              * spatial coordinates, but implied 0. */
@@ -228,15 +185,8 @@ LocalizationField<Index>::LocalizationField( const TiXmlElement& node, TraitsTyp
                 DEBUG("Setting field minimum to 0");
                 scalar.range(traits).first = Scalar::range_type::first_type::value_type::from_value(0);
             }
-            if ( TraitsType::has_resolution ) {
-                parse_attribute_with_resolution( 
-                    scalar.range(traits).first, Scalar::value_type::from_value(0), node.Attribute("min"), scalar.resolution(traits) );
-                parse_attribute_with_resolution( 
-                    scalar.range(traits).second, boost::optional<typename Scalar::value_type>(), node.Attribute("max"), scalar.resolution(traits) );
-            } else {
-                cond_parse_attribute( node, "min", scalar.range(traits).first );
-                cond_parse_attribute( node, "max", scalar.range(traits).second );
-            }
+            cond_parse_attribute( node, "min", scalar.range(traits).first );
+            cond_parse_attribute( node, "max", scalar.range(traits).second );
         }
     }
 
@@ -277,8 +227,6 @@ std::auto_ptr<TiXmlNode> LocalizationField<Index>::makeNode( const Field::Traits
             condAddAttribute( *rv, scalar.range(traits).first, "min" );
             condAddAttribute( *rv, scalar.range(traits).second, "max" );
         }
-        if ( TraitsType::has_resolution )
-            condAddAttribute( *rv, scalar.resolution(traits), "resolution" );
     }
 
     return std::auto_ptr<TiXmlNode>( rv.release() );
@@ -293,10 +241,7 @@ void LocalizationField<Index>::set_input_unit(const std::string& unit, const Fie
 template <int Index>
 void LocalizationField<Index>::set_input_unit(const std::string& unit, const TraitsType& traits)
 {
-    if ( TraitsType::has_resolution && scalar.resolution(traits).is_initialized() )
-        converter = Converter::create( unit, *scalar.resolution(traits) );
-    else
-        converter = Converter::create( unit );
+    converter = Converter::create( unit );
     if ( converter.get() == NULL )
         throw std::runtime_error("Unrecognized unit in "
             "parsing localization file: " + unit);

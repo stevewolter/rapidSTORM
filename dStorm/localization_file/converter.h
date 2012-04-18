@@ -14,8 +14,6 @@ namespace units {
 template <typename Quantity>
 struct ValueConverter {
     static inline boost::shared_ptr<ValueConverter> create(const std::string& unit_name);
-    template <typename Factor>
-    static inline boost::shared_ptr<ValueConverter> create(const std::string& unit_name, const Factor&);
     virtual ~ValueConverter() {}
     virtual Quantity from_value( const typename Quantity::value_type& v ) = 0;
 };
@@ -91,21 +89,6 @@ template <typename Quantity>
 boost::shared_ptr<ValueConverter<Quantity> > ValueConverter<Quantity>::create(const std::string& unit_name)
 {
     return OperatorConverter<Quantity, NullOperator<Quantity>, -15>::create( unit_name, 0 );
-}
-
-template <typename Quantity>
-template <typename Scale>
-boost::shared_ptr< ValueConverter<Quantity> >
-ValueConverter<Quantity>::create(const std::string& unit_name, const Scale& scale)
-{
-    boost::shared_ptr< ValueConverter<Quantity> > rv = create(unit_name);
-    if ( rv.get() != NULL ) return rv;
-    rv = OperatorConverter<Quantity, MultiplicationOperator<Quantity,Scale>, -15>::create( unit_name, scale );
-    if ( rv.get() != NULL ) return rv;
-    rv = OperatorConverter<Quantity, DivisorOperator<Quantity,Scale>, -15>::create( unit_name, scale );
-    if ( rv.get() != NULL ) return rv;
-    
-    return rv;
 }
 
 }

@@ -104,22 +104,6 @@ struct uncertainty_is_given_tag {
     };
 };
 
-struct resolution_tag {
-    typedef true_tag is_given_tag;
-    template <typename Traits>
-    struct in: public in_base<Traits,typename Traits::ResolutionType> { 
-        typedef typename Traits::ResolutionType type; 
-        typedef in_base<Traits,type> base;
-        static const bool in_traits = Traits::has_resolution;
-
-        static type get(const localization::Field<Traits>& t) { return base::get(t); }
-        static type& set(localization::Field<Traits>& t) { return base::set(t); }
-        static type get(const Traits& t) { return t.resolution(); }
-        static type& set(Traits& t) { return t.resolution(); }
-        static std::string shorthand() { return Traits::get_shorthand() + "res"; }
-    };
-};
-
 struct min_tag {
     typedef true_tag is_given_tag;
     template <typename Traits>
@@ -168,7 +152,7 @@ struct max_tag {
     };
 };
 
-typedef boost::mpl::vector< value_tag, uncertainty_tag, resolution_tag, min_tag, max_tag > tags;
+typedef boost::mpl::vector< value_tag, uncertainty_tag, min_tag, max_tag > tags;
 
 }
 }

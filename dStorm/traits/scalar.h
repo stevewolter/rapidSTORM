@@ -28,7 +28,6 @@ struct Scalar<TraitsType, true>
 
     typedef TraitsType Traits;
     typedef typename TraitsType::ValueType value_type;
-    typedef typename TraitsType::ResolutionType resolution_type;
     typedef typename TraitsType::RangeType range_type;
 
     const value_type& value(const value_type& r) const { return r; }
@@ -38,11 +37,6 @@ struct Scalar<TraitsType, true>
     bool& is_given( TraitsType& t ) const { return t.is_given; }
     bool uncertainty_is_given( const TraitsType& t ) const { return t.uncertainty_is_given; }
     bool& uncertainty_is_given( TraitsType& t ) const { return t.uncertainty_is_given; }
-
-    resolution_type resolution(const resolution_type& r) const { return r; }
-    resolution_type& resolution(resolution_type& r) const { return r; }
-    resolution_type resolution(const TraitsType& r) const { return r.resolution(); }
-    resolution_type& resolution(TraitsType& r) const { return r.resolution(); }
 
     range_type range(const range_type& r) const { return r; }
     range_type& range(range_type& r) const { return r; }
@@ -107,7 +101,6 @@ class Scalar< TraitsType, false >
 
     typedef TraitsType Traits;
     typedef typename TraitsType::ValueType::Scalar value_type;
-    typedef typename TraitsType::ResolutionType::Scalar resolution_type;
     typedef typename TraitsType::RangeType::Scalar range_type;
 
     value_type value(const typename TraitsType::ValueType& t) const { return t(r,c); }
@@ -117,13 +110,6 @@ class Scalar< TraitsType, false >
     bool& is_given( TraitsType& t ) const { return t.is_given(r,c); }
     bool uncertainty_is_given( const TraitsType& t ) const { return t.uncertainty_is_given(r,c); }
     bool& uncertainty_is_given( TraitsType& t ) const { return t.uncertainty_is_given(r,c); }
-
-    resolution_type
-        resolution(const typename TraitsType::ResolutionType& t) const { return t(r,c); }
-    resolution_type&
-        resolution(typename TraitsType::ResolutionType& t) const { return t(r,c); }
-    resolution_type resolution(const TraitsType& t) const { return t.resolution()(r,c); }
-    resolution_type& resolution(TraitsType& t) const { return t.resolution()(r,c); }
 
     range_type range(const typename TraitsType::RangeType& t) const { return t(r,c); }
     range_type& range(typename TraitsType::RangeType& t) const { return t(r,c); }

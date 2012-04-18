@@ -2,7 +2,6 @@
 #define DSTORM_TRAITS_CovarianceMatrix_H
 
 #include "base.h"
-#include "no_resolution.h"
 #include "no_range.h"
 #include <boost/units/systems/si/area.hpp>
 #include <boost/units/systems/si/length.hpp>
@@ -17,7 +16,6 @@ template <> struct value< CovarianceMatrix > :
 
 struct CovarianceMatrix 
 : public value<CovarianceMatrix>,
-  public NoResolution<CovarianceMatrix>,
   public NoRange<CovarianceMatrix>
 {
     typedef quantity< power_typeof_helper< power10< si::length, -6 >::type, static_rational<2> >::type, float > OutputType;

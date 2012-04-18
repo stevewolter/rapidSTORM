@@ -27,8 +27,7 @@ class LocalizationField : public Field {
 
     void parse_attribute_with_resolution( 
         boost::optional<typename Scalar::value_type>&, boost::optional<typename Scalar::value_type>,
-        const char *,
-        const typename Scalar::resolution_type&);
+        const char *);
 
   public:
     static std::string identifier(int r, int c, bool for_uncertainty);

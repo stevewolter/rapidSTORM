@@ -4,7 +4,6 @@
 
 #include "../types/fluorophore.h"
 #include "base.h"
-#include "no_resolution.h"
 #include "range.h"
 
 namespace dStorm {
@@ -16,7 +15,6 @@ template <> struct value< Fluorophore > :
 
 struct Fluorophore 
 : public value<Fluorophore>,
-  public NoResolution< Fluorophore >,
   public Range<Fluorophore>
 {
     typedef dStorm::Fluorophore OutputType;

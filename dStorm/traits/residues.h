@@ -3,7 +3,6 @@
 
 #include "base.h"
 #include <boost/units/systems/si/dimensionless.hpp>
-#include "no_resolution.h"
 #include "no_range.h"
 
 namespace dStorm {
@@ -15,7 +14,6 @@ template <> struct value< FitResidues > :
 
 struct FitResidues 
 : public value<FitResidues>,
-  public NoResolution<FitResidues>,
   public NoRange<FitResidues>
 {
     static std::string get_ident();

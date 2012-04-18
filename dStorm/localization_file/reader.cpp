@@ -161,7 +161,7 @@ File::File(std::string filename, const File::Traits& traits )
     if ( line[0] == '#' )
         read_XML(line.substr(1), this->traits);
     else
-        read_classic(line, this->traits);
+        throw std::runtime_error("Localization file format not recognized");
 
     level = std::max<int>(number_of_newlines() - 1, 0);
 }
@@ -197,48 +197,6 @@ void File::read_XML(const std::string& line, Traits& t) {
             fs.push_back( p );
     }
     t.in_sequence = topNode->Attribute("insequence") && topNode->Attribute("insequence") == std::string("true");
-}
-
-void File::read_classic(const std::string& line, Traits& t) {
-    for (unsigned int i = 0; i < line.size(); i++) {
-        char c = line[i];
-        if ( ! (isdigit(c) || c == 'e' || c == 'E' || c == '+' ||
-               c == '-' || c == ' ' || c == '\r' ) )
-            throw std::runtime_error("Invalid first line, only digits and spaces expected.");
-    }
-
-    std::stringstream values(line);
-    unsigned int fn = 0;
-    do {
-        float value;
-        values >> value;
-        if (!values) break;
-        switch (fn) {
-            case 0: 
-            case 1: 
-                fs.push_back( create_localization_field<Localization::Fields::Position>( fn ) );
-                fs.back().set_input_unit("pixel", traits);
-                if ( ! traits.position().resolution()[fn].is_initialized() )
-                    throw std::runtime_error("Input localization positions are given in pixels, but resolution is not set.");
-                traits.position().range()[fn].first = 0.0f * camera::pixel / *traits.position().resolution()[fn],
-                traits.position().range()[fn].second = value * camera::pixel / *traits.position().resolution()[fn];
-                break;
-            case 2:
-                fs.push_back( create_localization_field<Localization::Fields::ImageNumber>() );
-                fs.back().set_input_unit("frame", traits);
-                traits.image_number().range() = traits::ImageNumber::RangeType( 
-                    0 * camera::frame, int(value) * camera::frame );
-                break;
-            case 3:
-                fs.push_back( create_localization_field<Localization::Fields::Amplitude>() );
-                fs.back().set_input_unit("A/D count", traits);
-                break;
-            default:
-                fs.push_back( new Unknown<double>() );
-                break;
-        }
-        fn++;
-    } while (true);
 }
 
 std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const input::Traits<localization::Record>& my_context )

@@ -3,7 +3,6 @@
 
 #include "base.h"
 #include "range.h"
-#include "resolution.h"
 #include <boost/units/systems/camera/intensity.hpp>
 #include <boost/units/quantity.hpp>
 
@@ -16,8 +15,6 @@ template <> struct value< LocalBackground > :
 
 struct LocalBackground 
 : public value<LocalBackground>,
-  public Resolution< LocalBackground, divide_typeof_helper< float,
-    quantity< camera::intensity, float > >::type >,
   public Range<LocalBackground>
 {
     static std::string get_ident();

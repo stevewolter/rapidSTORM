@@ -2,7 +2,6 @@
 #define DSTORM_TRAITS_AMPLITUDE_H
 
 #include "base.h"
-#include "resolution.h"
 #include "range.h"
 #include <boost/units/systems/camera/intensity.hpp>
 #include <boost/units/quantity.hpp>
@@ -16,8 +15,6 @@ template <> struct value< Amplitude > :
 
 struct Amplitude 
 : public value<Amplitude>,
-  public Resolution< Amplitude, divide_typeof_helper< float,
-    quantity< camera::intensity, float > >::type >,
   public Range<Amplitude>
 {
     static std::string get_ident();

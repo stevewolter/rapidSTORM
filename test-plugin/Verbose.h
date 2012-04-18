@@ -28,17 +28,8 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        if (  a.position().resolution().x().is_initialized() ) {
-            LOG( "Verbose plugin got announcement with "
-                    << a.position().upper_limits().transpose() << " and size "
-                    << (*a.position().resolution().x()) );
-        } else {
-            LOG( "Verbose plugin got announcement with "
-                    << a.position().upper_limits().transpose() );
-        }
-        if ( a.image_number().resolution().is_initialized() ) {
-            LOG("Announced speed is " << *a.image_number().resolution() );
-        }
+        LOG( "Verbose plugin got announcement with "
+                << a.position().upper_limits().transpose() );
         return AdditionalData(); 
     }
     RunRequirements announce_run(const RunAnnouncement&) {

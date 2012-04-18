@@ -6,6 +6,7 @@
 #include <dStorm/traits/image_number.h>
 #include <dStorm/input/Traits.h>
 #include <dStorm/DataSetTraits.h>
+#include <boost/units/systems/camera/frame_rate.hpp>
 
 namespace dStorm {
 namespace input {
@@ -40,6 +41,9 @@ public:
 
     traits::ImageNumber& image_number() { return in; }
     const traits::ImageNumber& image_number() const { return in; }
+
+    boost::units::quantity<boost::units::camera::frame_rate>
+        frame_rate;
 
     std::string desc() const { return "image"; }
     Traits* clone() const { return new Traits(*this); }
