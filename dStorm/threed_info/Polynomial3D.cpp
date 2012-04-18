@@ -93,7 +93,8 @@ ZPosition Polynomial3D::equifocal_plane_() const {
 }
 
 std::ostream& Polynomial3D::print_( std::ostream& o ) const {
-    o << "polynomial 3D with X focus depths " ;
+    o << "polynomial 3D with best-focused FWHMs " << sigmas_[0] << " and " << sigmas_[1]
+      << ", X focus depths " ;
     for (int j = threed_info::Polynomial3D::MinTerm; j <= threed_info::Polynomial3D::Order; ++j)
         o << 1.0 / get_slope(Direction_X, j) << " ";
     o << " and Y focus depth " ;

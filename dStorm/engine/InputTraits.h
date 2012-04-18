@@ -24,6 +24,7 @@ public:
     const image::MetaInfo<2>& image( int i ) const { return planes_[i].image; }
     traits::Optics& optics( int i ) { return planes_[i].optics; }
     const traits::Optics& optics( int i ) const { return planes_[i].optics; }
+    const traits::Projection& projection( int i ) const { return planes_[i].projection(); }
 
     typedef std::vector< engine::InputPlane >::iterator iterator;
     typedef std::vector< engine::InputPlane >::const_iterator const_iterator;

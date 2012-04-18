@@ -12,6 +12,36 @@ namespace traits {
 
 using namespace boost::units;
 
+class ScaledProjection : public Projection {
+    ImagePosition size;
+    Eigen::DiagonalMatrix<float,2> to_sample, to_image;
+
+    SamplePosition point_in_sample_space_
+        ( const SubpixelImagePosition& pos ) const;
+    units::quantity<units::si::area> pixel_size_
+        ( const ImagePosition& at ) const;
+    std::vector< MappedPoint >
+        cut_region_of_interest_( const ROISpecification& ) const;
+    Bounds get_region_of_interest_( const ROISpecification& ) const;
+    ImagePosition nearest_point_in_image_space_
+        ( const SamplePosition& pos ) const;
+    bool supports_guaranteed_row_width_() const { return true; }
+    SubpixelImagePosition point_in_image_space_( const SamplePosition& ) const;
+
+  public:
+    ScaledProjection( 
+        ImagePosition size,
+        units::quantity<units::camera::resolution> x, 
+        units::quantity<units::camera::resolution> y );
+
+    units::quantity<units::camera::length,float>
+        length_in_image_space( int d, units::quantity<units::si::length,float> l ) const
+        { return to_image.diagonal()[d] * l.value() * units::camera::pixel; }
+    units::quantity<units::si::length,float>
+        length_in_sample_space( int d, units::quantity<units::camera::length,float> l ) const
+        { return to_sample.diagonal()[d] * l.value() * units::si::meter; }
+};
+
 class ScaledProjectionFactory
 : public ProjectionFactory
 {
@@ -22,6 +52,11 @@ class ScaledProjectionFactory
             o.resolution(1).in_dpm() );
     }
 };
+
+boost::shared_ptr< const ProjectionFactory > test_scaled_projection()
+{
+    return boost::shared_ptr< const ProjectionFactory >(new ScaledProjectionFactory());
+}
 
 class ScaledProjectionConfig
 : public ProjectionConfig
@@ -130,7 +165,7 @@ ScaledProjection::nearest_point_in_image_space_
 }
 
 Projection::SubpixelImagePosition
-ScaledProjection::point_in_image_space( SamplePosition pos ) const
+ScaledProjection::point_in_image_space_( const SamplePosition& pos ) const
 {
     return from_value< camera::length >(
         to_image * value(pos).cast<float>());

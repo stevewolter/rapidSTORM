@@ -44,7 +44,7 @@ private:
 
 public:
     void set_base_width( Direction d, Sigma s ) { sigmas_[d] = s; }
-    Sigma get_base_width( Direction d ) { return sigmas_[d]; }
+    const Sigma get_base_width( Direction d ) const { return sigmas_[d]; }
 
     void set_prefactor( Direction, int term, FocalDepth focal_depth, double prefactor );
     double get_prefactor( Direction, int term ) const;

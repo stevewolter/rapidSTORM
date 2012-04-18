@@ -15,6 +15,8 @@
 namespace dStorm {
 namespace traits {
 
+static const std::string test_alignment_file = "DSTORM-INTERNAL:test-alignment-file";
+
 using namespace boost::units;
 
 class AffineProjection : public Projection {
@@ -26,6 +28,8 @@ class AffineProjection : public Projection {
         cut_region_of_interest_( const ROISpecification& ) const;
     Bounds get_region_of_interest_( const ROISpecification& ) const;
     ImagePosition nearest_point_in_image_space_
+        ( const SamplePosition& pos ) const;
+    SubpixelImagePosition point_in_image_space_
         ( const SamplePosition& pos ) const;
 
   public:
@@ -47,10 +51,19 @@ class AffineProjectionFactory
                                      "for affine alignment");
         Eigen::Matrix3f elements = Eigen::Matrix3f::Identity();
         DEBUG("Micro alignment is given as " << micro_alignment());
-        std::ifstream is( micro_alignment_file.c_str(), std::ios::in );
-        for (int r = 0; r < 3; ++r)
-            for (int c = 0; c < 3; ++c)
-                is >> elements(r,c);
+        if ( micro_alignment_file != test_alignment_file ) {
+            std::ifstream is( micro_alignment_file.c_str(), std::ios::in );
+            for (int r = 0; r < 3; ++r)
+                for (int c = 0; c < 3; ++c)
+                    is >> elements(r,c);
+        } else {
+            elements(0,0) = 1.2;
+            elements(1,1) = 0.9;
+            elements(0,1) = -0.2;
+            elements(1,0) = 0.3;
+            elements(0,2) = 5E-8;
+            elements(1,2) = 2E-9;
+        }
         return new AffineProjection(
             mi.resolution(0).in_dpm(), 
             mi.resolution(1).in_dpm(), 
@@ -163,6 +176,19 @@ AffineProjection::nearest_point_in_image_space_
 {
     return from_value< camera::length >( round(
         to_image * value(pos).cast<float>()).cast<int>() );
+}
+
+AffineProjection::SubpixelImagePosition
+AffineProjection::point_in_image_space_
+    ( const SamplePosition& pos ) const
+{
+    return from_value< camera::length >( 
+        to_image * value(pos).cast<float>() );
+}
+
+boost::shared_ptr< const ProjectionFactory > test_affine_projection()
+{
+    return boost::shared_ptr< const ProjectionFactory >( new AffineProjectionFactory(test_alignment_file) );
 }
 
 }

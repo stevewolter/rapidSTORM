@@ -23,17 +23,6 @@
 namespace dStorm {
 namespace form_fitter {
 
-traits::Optics::PSF max_psf_size( const input::Traits<engine::ImageStack>& traits )
-{
-   traits::Optics::PSF max_psf = *traits.optics(0).psf_size(0);
-    for (int p = 0; p < traits.plane_count(); ++p) {
-        for (std::map<int,FluorophoreTraits>::const_iterator i = traits.fluorophores.begin();
-              i != traits.fluorophores.end(); ++i)
-            max_psf = max_psf.max( *traits.optics(p).psf_size(i->first) );
-    }
-    return max_psf;
-}
-
 const int GUI::tile_rows;
 const int GUI::tile_cols;
 
@@ -71,19 +60,18 @@ Output::announceStormSize(const Announcement& a)
             && ! config.has_z_truth() && config.fit_focus_plane() )
             throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
-    dStorm::traits::Optics::PSF max_psf = max_psf_size( *a.input_image_traits );
     DEBUG("Maximum PSF size is " << max_psf.transpose());
     for (int i = 0; i < 2; ++i ) {
         bounds[i] = boost::icl::interval< samplepos::Scalar >::closed(
-            *a.position().range()[i].first + 3.0f*max_psf[i],
-            *a.position().range()[i].second - 3.0f*max_psf[i]
+            *a.position().range()[i].first + samplepos::Scalar(config.fit_window_width()[i]),
+            *a.position().range()[i].second - samplepos::Scalar(config.fit_window_width()[i])
         );
     } 
 
     if ( a.input_image_traits.get() == NULL && config.auto_disable() )
         return AdditionalData();
     else
-        input.reset( new Input( config, a, max_psf ) );
+        input.reset( new Input( config, a, config.fit_window_width().cast<guf::Spot::Scalar>() ) );
 
     if ( z_truth.get() )
         z_truth->set_meta_info(a);

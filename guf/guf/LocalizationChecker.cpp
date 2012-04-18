@@ -54,7 +54,7 @@ bool LocalizationChecker::check_kernel_dimension( const PSF::BaseExpression& k, 
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
         abs( quantity<si::length>(k( PSF::Mean<Dim>() ) ) - spot[Dim] ) 
-            < (*info.traits.optics(plane).psf_size( info.fluorophore ))[Dim] * 3.0f;
+            < quantity<si::length>(k.get_sigma()[Dim] * 3.0);
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }

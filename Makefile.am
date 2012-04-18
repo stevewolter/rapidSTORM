@@ -208,7 +208,8 @@ libdStorm_la_SOURCES = \
     dStorm/traits/optics.cpp dStorm/traits/optics_config.cpp \
     dStorm/traits/unit_tests.h dStorm/traits/unit_tests.cpp \
     dStorm/traits/Projection.cpp \
-    dStorm/traits/AffineProjection.cpp dStorm/traits/ScaledProjection.cpp \
+    dStorm/traits/AffineProjection.h dStorm/traits/AffineProjection.cpp \
+    dStorm/traits/ScaledProjection.cpp \
     dStorm/traits/SupportPointProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \

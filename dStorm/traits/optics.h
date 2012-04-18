@@ -28,11 +28,9 @@ struct PlaneConfig;
 struct Optics
 {
     typedef units::quantity< units::camera::resolution, float > Resolution;
-    typedef Eigen::Array< boost::units::quantity< boost::units::si::length, float >, 2,1, Eigen::DontAlign > PSF;
 
   private:
     std::vector<float> tmc;
-    boost::optional< PSF > psf;
     boost::shared_ptr< const ProjectionFactory > projection_factory_;
     boost::shared_ptr< const threed_info::DepthInfo > depth_info_;
 
@@ -45,11 +43,11 @@ struct Optics
     boost::optional<camera_response> photon_response, background_stddev;
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
 
-    boost::optional<PSF>& psf_size( int ) { return psf; }
-    const boost::optional<PSF> psf_size( int ) const { return psf; }
     const boost::shared_ptr< const ProjectionFactory > 
         projection_factory() const
         { return projection_factory_; }
+    void set_projection_factory( boost::shared_ptr< const ProjectionFactory > p )
+        { projection_factory_ = p; }
 
     const boost::shared_ptr< const threed_info::DepthInfo > depth_info() const { return depth_info_; }
     void set_depth_info( boost::shared_ptr< const threed_info::DepthInfo > p ) { depth_info_ = p; }

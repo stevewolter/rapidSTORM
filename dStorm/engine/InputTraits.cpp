@@ -64,12 +64,8 @@ std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) co
         o << "plane " << j << " has " << *optics.depth_info();
         for ( size_t i = 0; i < fluorophores.size(); ++i )
         {
-            traits::Optics::PSF psf = *optics.psf_size(i);
-            for (Direction dir = Direction_X; dir != Direction_2D; ++dir)
-                psf[dir] *= 2.35;
-            o << ", fluorophore " << i << " has PSF FWHM " 
-                    << psf.cast< quantity<si::microlength> >().transpose()
-                    << " and transmission " << optics.transmission_coefficient(i);
+            o << ", fluorophore " << i << " has transmission "
+              << optics.transmission_coefficient(i);
         }
     }
     return o;

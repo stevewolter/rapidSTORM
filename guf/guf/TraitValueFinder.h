@@ -9,6 +9,7 @@
 #include <boost/variant/get.hpp>
 #include "guf/psf/parameters.h"
 #include <limits>
+#include <dStorm/threed_info/No3D.h>
 #include <dStorm/threed_info/Polynomial3D.h>
 
 namespace dStorm {
@@ -17,15 +18,22 @@ namespace guf {
 struct TraitValueFinder {
     const int fluorophore;
     const dStorm::traits::Optics& plane;
-    const boost::optional<traits::Optics::PSF> psf;
 
   public:
     typedef void result_type;
     TraitValueFinder( const int fluorophore, const dStorm::traits::Optics& plane );
 
-    template <int Dim, typename Structure>
-    void operator()( PSF::BestSigma<Dim> p, Structure& m ) const { 
-        m(p) = quantity< typename PSF::Micrometers >((*psf)[Dim]); 
+    template <int Dim>
+    void operator()( PSF::BestSigma<Dim> p, PSF::No3D& m ) const { 
+        m(p) = quantity< typename PSF::Micrometers >(
+            dynamic_cast< const threed_info::No3D&>(*plane.depth_info())
+                .sigma[Dim] );
+    }
+    template <int Dim>
+    void operator()( PSF::BestSigma<Dim> p, PSF::Polynomial3D& m ) const { 
+        m(p) = quantity< typename PSF::Micrometers >(
+            dynamic_cast< const threed_info::Polynomial3D&>(*plane.depth_info())
+                .get_base_width( static_cast<Direction>(Dim) ) );
     }
     template <int Dim, typename Structure, int Term>
     void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {

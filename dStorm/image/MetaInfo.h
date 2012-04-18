@@ -31,6 +31,8 @@ public:
     const Resolutions& image_resolutions() const;
     void set_resolution( int dimension, const traits::ImageResolution& resolution );
     void set_resolution( const Resolutions& f );
+
+    const Size upper_bound() const { return size.array() - 1 * boost::units::camera::pixel; }
 private:
     Resolutions resolutions_;
 };

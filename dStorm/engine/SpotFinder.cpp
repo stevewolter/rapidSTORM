@@ -1,7 +1,6 @@
 #include "debug.h"
 #include "SpotFinder.h"
 #include <dStorm/Config.h>
-#include <dStorm/traits/ScaledProjection.h>
 #include <boost/units/cmath.hpp>
 
 using namespace std;

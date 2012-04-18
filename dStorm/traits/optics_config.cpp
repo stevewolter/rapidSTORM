@@ -26,10 +26,8 @@ PlaneConfig::PlaneConfig(int number)
 {
     slopes.helpID = "Polynomial3D.WideningSlopes";
     alignment.addChoice( make_scaling_projection_config() );
-    if ( ! is_first_layer ) {
-        alignment.addChoice( make_affine_projection_config() );
-        alignment.addChoice( make_support_point_projection_config() );
-    }
+    alignment.addChoice( make_affine_projection_config() );
+    alignment.addChoice( make_support_point_projection_config() );
 
     psf_size.helpID = "PSF.FWHM";
     z_position.setHelp("Z position where this layer is sharpest in this dimension");
@@ -37,8 +35,6 @@ PlaneConfig::PlaneConfig(int number)
 
     counts_per_photon.userLevel = Object::Intermediate;
     dark_current.userLevel = Object::Intermediate;
-
-    alignment.viewable = ! is_first_layer;
 }
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
@@ -107,9 +103,6 @@ void PlaneConfig::write_traits( traits::Optics& rv, const threed_info::Config& t
         DEBUG("Set transmission of " << rv.tmc.size() << " to " << i->value() << " at " << &rv);
         rv.tmc.push_back( i->value() );
     }
-    rv.psf_size(0) = psf_size().cast< quantity<si::length,float> >();
-    for (int i = 0; i < 2; ++i)
-        (*rv.psf_size(0))[i] /= 2.35;
     rv.set_depth_info( t3.make_traits( *this ) );
 }
 
@@ -117,11 +110,6 @@ void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 
 {
     for (int i = 0; i < int(t.tmc.size()); ++i) {
         transmissions[i] = t.tmc[i];
-    }
-    if ( t.psf_size(0).is_initialized() ) {
-        PSFSize s = (*t.psf_size(0) ).cast< PSFSize::Scalar >();
-        for (int i = 0; i < 2; ++i) s[i] *= 2.35;
-        psf_size = s;
     }
     if ( t.photon_response ) counts_per_photon = *t.photon_response;
     if ( t.dark_current ) dark_current = *t.dark_current;

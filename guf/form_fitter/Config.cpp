@@ -12,7 +12,8 @@ Config::Config()
     max_per_image("MaxEstimationSpotsPerImage", "Number of spots used per image", 15.0),
     visual_selection("SelectSpots", "Manually select good spots", true),
     laempi_fit("LaempiPosition", "Laempi fit for positions", false),
-    disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false)
+    disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
+    fit_window_width("FitWindowWidth", "Fit window radius", FitWindowWidth::Constant(600 * si::nanometre) )
 {
     auto_disable.userLevel = simparm::Object::Intermediate;
 }

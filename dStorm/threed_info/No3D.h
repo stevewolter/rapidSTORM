@@ -14,7 +14,7 @@ struct No3D : public DepthInfo {
     ZRange z_range_() const { return ZRange(); }
     ZPosition equifocal_plane_() const { return 0 * si::meter; }
     std::ostream& print_( std::ostream& o ) const {
-            return o << "no 3D information";
+            return o << "no 3D information with base PSF widths " << sigma[0] * 2.35f << " and " << sigma[1] * 2.35f;
     }
     bool provides_3d_info_() const { return false; }
 };

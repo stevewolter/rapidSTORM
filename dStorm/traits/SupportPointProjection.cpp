@@ -61,6 +61,9 @@ class SupportPointProjection : public Projection {
     Bounds get_region_of_interest_( const ROISpecification& ) const;
     ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const;
+    SubpixelImagePosition point_in_image_space_
+        ( const SamplePosition& pos ) const 
+        { throw std::runtime_error("The support point projection does not support reverse projection"); }
 
     void compute_forward_map();
     void approximate_reverse_transformation();

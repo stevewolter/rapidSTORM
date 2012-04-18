@@ -3,6 +3,7 @@
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/image/MetaInfo.h>
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace engine {
@@ -10,8 +11,8 @@ namespace engine {
 class PlaneFlattener {
     const dStorm::engine::InputTraits& traits;
     Image2D buffer;
-    typedef Eigen::Array< float, 2, 1, Eigen::DontAlign > Subpixel;
-    typedef dStorm::Image< Subpixel, 2 > Transformed;
+    typedef traits::Projection::SubpixelImagePosition Subpixel;
+    typedef Image< Subpixel, 2 > Transformed;
     std::vector<Transformed> transformed;
     std::vector<float> weights;
   public:

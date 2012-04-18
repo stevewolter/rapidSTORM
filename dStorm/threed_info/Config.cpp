@@ -21,8 +21,11 @@ class No3DConfig : public simparm::Object, public Config {
             rv->sigma[i] = Sigma(pc.psf_size()[i] / 2.35);
         return rv;
     }
-    void read_traits( const DepthInfo& d, PlaneConfig& ) {
-        assert( dynamic_cast<const No3D*>( &d ) );
+    void read_traits( const DepthInfo& d, PlaneConfig& pc ) {
+        const No3D& t = dynamic_cast<const No3D&>( d );
+        PlaneConfig::PSFSize s;
+        for (int i = 0; i < 2; ++i) s[i] = PlaneConfig::PSFSize::Scalar( t.sigma[i] * 2.35f );
+        pc.psf_size = s;
     }
     void set_context( PlaneConfig& pc ) {
         pc.z_range.viewable = false;
@@ -57,8 +60,13 @@ void Polynomial3DConfig::read_traits( const DepthInfo& d, PlaneConfig& pc )
     const Polynomial3D& p = static_cast< const Polynomial3D& >(d);
     if ( p.z_limit() ) pc.z_range = p.z_limit()->cast< quantity<si::nanolength> >();
     if ( p.focal_planes() ) pc.z_position = p.focal_planes()->cast< quantity<si::nanolength> >();
-    PlaneConfig::SlopeEntry::value_type slopes;
 
+    PlaneConfig::PSFSize s;
+    for (Direction i = Direction_First; i < Direction_2D; ++i) 
+        s[i] = PlaneConfig::PSFSize::Scalar( p.get_base_width(i) * 2.35f );
+    pc.psf_size = s;
+
+    PlaneConfig::SlopeEntry::value_type slopes;
     for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
         for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
             slopes(dir, term-Polynomial3D::MinTerm) = 

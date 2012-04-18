@@ -49,8 +49,6 @@
 namespace dStorm {
 namespace form_fitter {
 
-extern traits::Optics::PSF max_psf_size( const input::Traits<engine::ImageStack>& traits );
-
 namespace PSF = dStorm::guf::PSF;
 
 using namespace nonlinfit;
@@ -320,10 +318,8 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
 : traits(traits), table( config, traits, images * traits.plane_count() ), width_correction( config.width_correction() )
 {
     DEBUG("Creating form fitter");
-    guf::Spot max_distance = max_psf_size( traits );
-    for (int i = 0; i < 2; ++i) max_distance[i] *= 5.0f;
     for ( int i = 0; i < traits.plane_count(); ++i ) {
-        transformations.push_back( new Transformation(max_distance, traits.plane(i)) );
+        transformations.push_back( new Transformation(config.fit_window_width().template cast< guf::Spot::Scalar >(), traits.plane(i)) );
     }
 }
 
@@ -393,20 +389,6 @@ void Fitter<Metric,Lambda>::apply_z_calibration()
     }
 }
 
-void set_z_position( traits::Optics& o, const PSF::No3D& m, double width_correction ) {
-    for (int k = 0; k < 2; ++k) {
-        (*o.psf_size(0))[k] = quantity<si::length>(
-            m.get< PSF::BestSigma >(k) * width_correction);
-    }
-}
-void set_z_position( traits::Optics& o, const PSF::Spline3D&, double ) {}
-void set_z_position( traits::Optics& o, const PSF::Polynomial3D& m, double width_correction ) {
-    for (int k = 0; k < 2; ++k) {
-        (*o.psf_size(0))[k] = quantity<si::length>(
-            m.get< PSF::BestSigma >(k) * width_correction);
-    }
-}
-    
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits, simparm::ProgressEntry& progress ) 
 {
@@ -432,8 +414,7 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     progress.setValue( 1 );
 
     for (int j = 0; j < traits.plane_count(); ++j) {
-        set_z_position( new_traits.optics(j), result(-1,j), width_correction );
-        new_traits.optics(j).set_depth_info( get_3d( result(), j ) );
+        new_traits.optics(j).set_depth_info( get_3d( result(0,j), j ) );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {

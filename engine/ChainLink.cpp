@@ -135,7 +135,11 @@ make_rapidSTORM_engine_link()
     return rv;
 }
 
+void check_plane_flattener( TestState& state );
+
 void unit_test( TestState& state ) {
+    check_plane_flattener( state );
+
     std::auto_ptr<input::Link> rv = make_rapidSTORM_engine_link();
     rv.reset();
     state.pass("Destruction of engine works");
