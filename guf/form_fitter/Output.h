@@ -1,7 +1,7 @@
 #ifndef DSTORM_FORMFITTER_H
 #define DSTORM_FORMFITTER_H
 
-#include <dStorm/traits/resolution_config.h>
+#include <dStorm/traits/optics_config.h>
 #include "decl.h"
 #include <simparm/Structure.hh>
 #include <simparm/ProgressEntry.hh>
@@ -36,7 +36,7 @@ namespace form_fitter {
         Tiles tiles, selected;
         boost::unique_future< Tiles > gui_result;
         std::auto_ptr< FittingVariant > fitter;
-        dStorm::traits::resolution::Config result_config;
+        dStorm::traits::CuboidConfig result_config;
         boost::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
         std::vector<bool> seen_fluorophores;
         boost::scoped_ptr<calibrate_3d::ZTruth> z_truth;

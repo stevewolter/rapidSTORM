@@ -107,7 +107,6 @@ nobase_include_HEADERS = \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
     dStorm/traits/optics.h dStorm/traits/image_resolution.h dStorm/traits/optics_config.h \
     dStorm/traits/fluorophore.h dStorm/traits/local_background.h \
-    dStorm/traits/resolution_config.h \
     dStorm/threed_info/types.h \
     dStorm/threed_info/DepthInfo.h \
     dStorm/threed_info/Config.h \
@@ -243,7 +242,6 @@ libdStorm_la_SOURCES = \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
     dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
-    dStorm/traits/resolution_config.cpp \
     dStorm/display/DummyManager.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \

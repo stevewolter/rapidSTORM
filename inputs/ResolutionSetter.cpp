@@ -15,7 +15,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/signals/ResolutionChange.h>
 #include <dStorm/Localization.h>
-#include <dStorm/traits/resolution_config.h>
+#include <dStorm/traits/optics_config.h>
 #include <dStorm/units/nanolength.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Eigen.hh>
@@ -27,7 +27,7 @@ namespace dStorm {
 namespace input {
 namespace resolution {
 
-class Config : public traits::resolution::Config {};
+class Config : public traits::CuboidConfig {};
 
 template <typename ForwardedType>
 class Source 
@@ -187,7 +187,7 @@ struct Check {
 
         DEBUG("Changing context element");
         std::stringstream cmd("set 136.875,100");
-        l.config["Optics"]["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
+        l.config["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
         l.config.write_traits( correct );
         DEBUG("Checking if config element change updates traits");
         if ( trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l.current_meta_info()) )

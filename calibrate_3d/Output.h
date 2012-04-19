@@ -20,7 +20,7 @@
 #include <simparm/Structure.hh>
 
 #include <dStorm/output/Output.h>
-#include <dStorm/traits/resolution_config.h>
+#include <dStorm/traits/optics_config.h>
 #include <dStorm/units/nanolength.h>
 
 #include "Config.h"
@@ -38,7 +38,7 @@ class Output : public output::OutputObject {
     boost::shared_ptr< engine::InputTraits > initial_traits;
     ParameterLinearizer linearizer;
     Engine* engine;
-    dStorm::traits::resolution::Config result_config;
+    dStorm::traits::CuboidConfig result_config;
 
     boost::thread calibration_thread;
     boost::mutex mutex;
