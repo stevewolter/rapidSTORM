@@ -27,7 +27,9 @@ namespace dStorm {
 namespace input {
 namespace resolution {
 
-class Config : public traits::CuboidConfig {};
+struct Config : public traits::MultiPlaneConfig {
+    Config() : traits::MultiPlaneConfig( traits::PlaneConfig::FitterConfiguration ) {}
+};
 
 template <typename ForwardedType>
 class Source 
