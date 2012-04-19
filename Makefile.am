@@ -253,6 +253,7 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/Polynomial3D.cpp \
     dStorm/threed_info/Config.cpp \
     dStorm/threed_info/Spline3D.cpp \
+    dStorm/threed_info/No3D.cpp \
     dStorm/threed_info/look_up_sigma_diff.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)

@@ -10,12 +10,9 @@ struct No3D : public DepthInfo {
     Sigma sigma;
     std::string config_name_() const { return "No3D"; }
     Sigma get_sigma_( ZPosition z ) const { return sigma; }
-    SigmaDerivative get_sigma_deriv_( ZPosition ) const 
-        { throw std::logic_error("Attempted to get dSigma/dZ for no-3D model"); }
+    SigmaDerivative get_sigma_deriv_( ZPosition ) const ;
     ZRange z_range_() const { return ZRange(); }
-    std::ostream& print_( std::ostream& o ) const {
-            return o << "no 3D information with PSF width " << sigma * 2.35f;
-    }
+    std::ostream& print_( std::ostream& o ) const; 
     bool provides_3d_info_() const { return false; }
 };
 

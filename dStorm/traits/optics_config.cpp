@@ -12,25 +12,22 @@ using namespace boost::units;
 PlaneConfig::PlaneConfig(int number)
 : simparm::Set("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
-  is_first_layer(number==0),
-  z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
-  z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
+  three_d("ThreeD", "3D PSF model"),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
   alignment( "Alignment", "Plane alignment" ),
-  psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   pixel_size("PixelSizeInNM", "Size of one input pixel",
-                   PixelSize::Constant(107.0f * si::nanometre / camera::pixel)),
-  slopes("WideningConstants", "Widening slopes"),
-  z_calibration_file("ZCalibration", "Z calibration file")
+                   PixelSize::Constant(107.0f * si::nanometre / camera::pixel))
 {
-    slopes.helpID = "Polynomial3D.WideningSlopes";
+    three_d.helpID = "3DType";
+    three_d.addChoice( threed_info::make_no_3d_config() );
+    three_d.addChoice( threed_info::make_spline_3d_config() );
+    three_d.addChoice( threed_info::make_polynomial_3d_config() );
+
     alignment.addChoice( make_scaling_projection_config() );
     alignment.addChoice( make_affine_projection_config() );
     alignment.addChoice( make_support_point_projection_config() );
 
-    psf_size.helpID = "PSF.FWHM";
-    z_position.setHelp("Z position where this layer is sharpest in this dimension");
     transmissions.push_back( new simparm::Entry<double>("Transmission0", "Transmission of fluorophore 0", 1) );
 
     counts_per_photon.userLevel = Object::Intermediate;
@@ -38,15 +35,11 @@ PlaneConfig::PlaneConfig(int number)
 }
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
-: simparm::Set(o), is_first_layer(o.is_first_layer), 
-  z_position(o.z_position),
-  z_range(o.z_range),
+: simparm::Set(o), 
+  three_d(o.three_d),
   counts_per_photon(o.counts_per_photon), 
   dark_current(o.dark_current), alignment( o.alignment ),
-  psf_size(o.psf_size),
-  pixel_size(o.pixel_size),
-  slopes(o.slopes),
-  z_calibration_file(o.z_calibration_file)
+  pixel_size(o.pixel_size)
 {
     for (Transmissions::const_iterator i = o.transmissions.begin(), e = o.transmissions.end(); i != e; ++i)
     {
@@ -57,11 +50,7 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
 void PlaneConfig::registerNamedEntries()
 {
     push_back( pixel_size );
-    push_back( psf_size );
-    push_back( z_position );
-    push_back( z_range );
-    push_back( slopes );
-    push_back( z_calibration_file );
+    push_back( three_d );
     push_back( counts_per_photon );
     push_back( dark_current );
     push_back( alignment );
@@ -82,18 +71,18 @@ void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane 
     for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
 	i->viewable = (i - transmissions.begin()) < fluorophore_count && (fluorophore_count > 1 || multiplane);
 }
-void PlaneConfig::set_context( const input::Traits<Localization>& t, int fluorophore_count, threed_info::Config& t3 ) {
+void PlaneConfig::set_context( const input::Traits<Localization>& t, int fluorophore_count ) {
     set_fluorophore_count( fluorophore_count, false );
-    t3.set_context( *this );
+    three_d().set_context();
 }
 
-void PlaneConfig::set_context( const traits::Optics& o, int fluorophore_count, bool multilayer, threed_info::Config& t3)
+void PlaneConfig::set_context( const traits::Optics& o, int fluorophore_count, bool multilayer)
 {
     set_fluorophore_count( fluorophore_count, multilayer );
-    t3.set_context( *this );
+    three_d().set_context();
 }
 
-void PlaneConfig::write_traits( traits::Optics& rv, const threed_info::Config& t3) const
+void PlaneConfig::write_traits( traits::Optics& rv) const
 {
     rv.projection_factory_ = alignment().get_projection_factory();
     rv.photon_response = counts_per_photon();
@@ -104,21 +93,23 @@ void PlaneConfig::write_traits( traits::Optics& rv, const threed_info::Config& t
         rv.tmc.push_back( i->value() );
     }
     for (Direction d = Direction_First; d != Direction_2D; ++d)
-    rv.set_depth_info( d, t3.make_traits( *this, d ) );
+        rv.set_depth_info( d, three_d().make_traits( d ) );
 }
 
-void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 )
+void PlaneConfig::read_traits( const traits::Optics& t )
 {
     for (int i = 0; i < int(t.tmc.size()); ++i) {
         transmissions[i] = t.tmc[i];
     }
     if ( t.photon_response ) counts_per_photon = *t.photon_response;
     if ( t.dark_current ) dark_current = *t.dark_current;
-    if ( t.depth_info(Direction_X) && t.depth_info(Direction_Y) )
-        t3.read_traits( *t.depth_info(Direction_X), *t.depth_info(Direction_Y), *this );
+    if ( t.depth_info(Direction_X) && t.depth_info(Direction_Y) ) {
+        three_d.choose( t.depth_info(Direction_X)->config_name() );
+        three_d().read_traits( *t.depth_info(Direction_X), *t.depth_info(Direction_Y) );
+    }
 }
 
-void PlaneConfig::write_traits( input::Traits<Localization>& t, const threed_info::Config& t3 ) const
+void PlaneConfig::write_traits( input::Traits<Localization>& t ) const
 {
 }
 
@@ -174,40 +165,40 @@ CuboidConfig::get_resolution() const {
     return layers[0].get_resolution();
 }
 
-void CuboidConfig::write_traits( input::Traits<engine::ImageStack>& t, const threed_info::Config& t3 ) const
+void CuboidConfig::write_traits( input::Traits<engine::ImageStack>& t ) const
 {
     for (int i = 0; i < int( layers.size() ) && i < t.plane_count(); ++i) {
-        layers[i].write_traits( t.optics(i), t3 );
+        layers[i].write_traits( t.optics(i) );
         t.image(i).set_resolution( layers[i].get_resolution() );
     }
 }
 
-void CuboidConfig::write_traits( input::Traits<Localization>& t, const threed_info::Config& t3 ) const
+void CuboidConfig::write_traits( input::Traits<Localization>& t ) const
 {
-    layers[0].write_traits( t, t3 );
+    layers[0].write_traits( t );
 }
 
-void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t, threed_info::Config& t3 )
+void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t )
 {
-    set_context(t, t3);
+    set_context(t);
     for (int i = 0; i < t.plane_count(); ++i) {
-        layers[i].read_traits( t.optics(i), t3 );
+        layers[i].read_traits( t.optics(i) );
     }
 }
 
-void CuboidConfig::set_context( const input::Traits<engine::ImageStack>& t, threed_info::Config& t3 ) 
+void CuboidConfig::set_context( const input::Traits<engine::ImageStack>& t ) 
 {
     DEBUG( "Setting context on " << this );
     set_number_of_planes( t.plane_count() );
     for (int i = 0; i < t.plane_count(); ++i) {
-        layers[i].set_context( t.optics(i), t.fluorophores.size(), (t.plane_count() > 1), t3 );
+        layers[i].set_context( t.optics(i), t.fluorophores.size(), (t.plane_count() > 1) );
     }
 }
 
-void CuboidConfig::set_context( const input::Traits<Localization>& t, threed_info::Config& t3 ) 
+void CuboidConfig::set_context( const input::Traits<Localization>& t ) 
 {
     set_number_of_planes( 1 );
-    layers[0].set_context( t, t.fluorophores.size(), t3 );
+    layers[0].set_context( t, t.fluorophores.size() );
 }
 
 

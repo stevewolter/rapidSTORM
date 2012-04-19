@@ -16,12 +16,15 @@ namespace threed_info {
 
 class Polynomial3D : public DepthInfo {
 public:
+    Polynomial3D();
     static const int Order = polynomial_3d::Order, PrimaryTerm = 2, MinTerm = 1;
     typedef boost::units::quantity< boost::units::si::length > WidthSlope;
 private:
+    typedef Eigen::Matrix< WidthSlope, Order+1, 1, Eigen::DontAlign > Widening;
+
     Sigma sigma_;
     ZPosition z_position, z_limit_;
-    Eigen::Matrix< WidthSlope, Order+1, 1, Eigen::DontAlign > widening;
+    Widening widening;
 
     std::string config_name_() const { return "Polynomial3D"; }
     Sigma get_sigma_( ZPosition z ) const;

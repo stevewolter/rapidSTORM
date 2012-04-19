@@ -9,18 +9,14 @@
 #include <simparm/Callback.hh>
 #include <simparm/BoostOptional.hh>
 #include "../UnitEntries/PixelSize.h"
-#include "../units/nanolength.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
-#include <simparm/FileEntry.hh>
 #include <simparm/Entry_Impl.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include "position.h"
 #include "ProjectionConfig.h"
 #include <dStorm/threed_info/Config.h>
-#include <dStorm/units/permicrolength.h>
-#include <dStorm/polynomial_3d.h>
 #include <dStorm/Localization_decl.h>
 #include <dStorm/Direction.h>
 
@@ -28,28 +24,14 @@ namespace dStorm {
 namespace traits {
 
 class PlaneConfig : public simparm::Set {
-    const bool is_first_layer;
-    typedef Eigen::Matrix< boost::units::quantity<boost::units::si::nanolength, double>, 2, 1, Eigen::DontAlign > ZPosition;
-    simparm::Entry< ZPosition > z_position, z_range;
+    simparm::NodeChoiceEntry< threed_info::Config > three_d;
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
     simparm::NodeChoiceEntry< ProjectionConfig > alignment;
     typedef boost::ptr_vector< simparm::Entry<double> > Transmissions;
     Transmissions transmissions;
-    typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
-    simparm::Entry<PSFSize> psf_size;
     typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > PixelSize;
     simparm::Entry<PixelSize> pixel_size;
-
-    typedef simparm::Entry< 
-        Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
-                       polynomial_3d::Order, Eigen::DontAlign > > SlopeEntry;
-    SlopeEntry slopes;
-    simparm::FileEntry z_calibration_file;
-
-    friend class threed_info::No3DConfig;
-    friend class threed_info::Polynomial3DConfig;
-    friend class threed_info::Spline3DConfig;
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
@@ -58,11 +40,11 @@ class PlaneConfig : public simparm::Set {
     PlaneConfig( const PlaneConfig& );
     void registerNamedEntries();
 
-    void set_context( const traits::Optics&, int fluorophore_count, bool multilayer, threed_info::Config& );
-    void set_context( const input::Traits<Localization>&, int fluorophore_count, threed_info::Config& );
-    void write_traits( traits::Optics&, const threed_info::Config& ) const;
-    void write_traits( input::Traits<Localization>&, const threed_info::Config& ) const;
-    void read_traits( const traits::Optics&, threed_info::Config& );
+    void set_context( const traits::Optics&, int fluorophore_count, bool multilayer );
+    void set_context( const input::Traits<Localization>&, int fluorophore_count );
+    void write_traits( traits::Optics& ) const;
+    void write_traits( input::Traits<Localization>& ) const;
+    void read_traits( const traits::Optics& );
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
@@ -79,11 +61,11 @@ class CuboidConfig
     ~CuboidConfig();
     void registerNamedEntries();
 
-    void set_context( const input::Traits<engine::ImageStack>&, threed_info::Config& );
-    void set_context( const input::Traits<Localization>&, threed_info::Config& );
-    void read_traits( const input::Traits<engine::ImageStack>&, threed_info::Config& );
-    void write_traits( input::Traits<engine::ImageStack>&, const threed_info::Config&) const;
-    void write_traits( input::Traits<Localization>&, const threed_info::Config&) const;
+    void set_context( const input::Traits<engine::ImageStack>& );
+    void set_context( const input::Traits<Localization>& );
+    void read_traits( const input::Traits<engine::ImageStack>& );
+    void write_traits( input::Traits<engine::ImageStack>&) const;
+    void write_traits( input::Traits<Localization>&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 

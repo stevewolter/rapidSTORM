@@ -124,9 +124,7 @@ void NoiseConfig::operator()( const simparm::Event& e)
         if ( &e.source == &layer_count.value ) {
             std::auto_ptr< dStorm::input::Traits<Image> > image
                 = make_image_size();
-            std::auto_ptr< dStorm::threed_info::Config > three_d 
-                = dStorm::threed_info::make_no_3d_config();
-            optics.set_context( *image, *three_d );
+            optics.set_context( *image );
         }
         publish_meta_info();
     } else 
@@ -218,9 +216,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
         size.size.y() = config.noiseGeneratorConfig.height() * camera::pixel;
         t->push_back( size, dStorm::traits::Optics() );
     }
-    std::auto_ptr< dStorm::threed_info::Config > three_d 
-        = dStorm::threed_info::make_no_3d_config();
-    config.optics.write_traits( *t, *three_d );
+    config.optics.write_traits( *t );
     for (int p = 0; p < t->plane_count(); ++p) {
         t->plane(p).create_projection();
     }

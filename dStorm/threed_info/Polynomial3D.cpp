@@ -10,6 +10,14 @@ namespace threed_info {
 
 using namespace boost::units;
 
+Polynomial3D::Polynomial3D() 
+: sigma_(0.0 * si::meter),
+  z_position( 0.0 * si::meter ),
+  z_limit_( 0.0 * si::meter ),
+  widening( Widening::Constant( 0.0 * si::meter ) )
+{
+}
+
 Polynomial3D::WidthSlope Polynomial3D::get_slope( int term ) const
 {
     assert( term >= MinTerm && term <= Order );
