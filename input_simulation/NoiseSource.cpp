@@ -88,7 +88,8 @@ NoiseConfig::NoiseConfig()
   sample_depth("SampleDepth", "Depth of virtual sample", 1 * si::micrometer),
   integrationTime("IntegrationTime", "Integration time for one image", 0.1),
   saveActivity( "SaveActivity", "Save fluorophore activity information to file" ),
-  layer_count( "LayerCount", "Number of layers to generate", 1 )
+  layer_count( "LayerCount", "Number of layers to generate", 1 ),
+  optics( dStorm::traits::PlaneConfig::InputSimulation )
 {
     create_fluo_set();
     registerNamedEntries();

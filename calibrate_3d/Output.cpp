@@ -23,6 +23,8 @@ Output::Output(const Config & config )
 : OutputObject("Calibrate3D", "Calibrate 3D"),
   z_truth( config.get_z_truth() ),
   linearizer(config),
+  engine(NULL),
+  result_config( traits::PlaneConfig::PSFDisplay ),
   have_set_traits_myself(false),
   terminate(false),
   fitter_finished(false),

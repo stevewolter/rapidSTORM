@@ -160,7 +160,6 @@ class Spline3DConfig : public simparm::Object, public Config {
     }
 };
 
-
 std::auto_ptr< Config > make_no_3d_config() 
     { return std::auto_ptr< Config >( new No3DConfig() ); }
 std::auto_ptr< Config > make_polynomial_3d_config()

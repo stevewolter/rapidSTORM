@@ -38,7 +38,7 @@ class Output : public output::OutputObject {
     boost::shared_ptr< engine::InputTraits > initial_traits;
     ParameterLinearizer linearizer;
     Engine* engine;
-    dStorm::traits::CuboidConfig result_config;
+    dStorm::traits::MultiPlaneConfig result_config;
 
     boost::thread calibration_thread;
     boost::mutex mutex;

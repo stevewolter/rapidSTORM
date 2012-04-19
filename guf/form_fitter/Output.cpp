@@ -31,6 +31,7 @@ Output::Output(const Config& c)
   config(c),
   engine(NULL),
   visual_select( c.visual_selection() ),
+  result_config( traits::PlaneConfig::PSFDisplay ),
   z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL ),
   current_limit( 0 ),
   collection("CollectionProgress", "Spots for form estimation"),

@@ -24,6 +24,11 @@ namespace dStorm {
 namespace traits {
 
 class PlaneConfig : public simparm::Set {
+public:
+    enum Purpose { InputSimulation, PSFDisplay, FitterConfiguration };
+private:
+    const Purpose purpose;
+
     simparm::NodeChoiceEntry< threed_info::Config > three_d;
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
@@ -35,8 +40,8 @@ class PlaneConfig : public simparm::Set {
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
-  public:
-    PlaneConfig(int number);
+public:
+    PlaneConfig(int number, Purpose );
     PlaneConfig( const PlaneConfig& );
     void registerNamedEntries();
 
@@ -48,7 +53,7 @@ class PlaneConfig : public simparm::Set {
     image::MetaInfo<2>::Resolutions get_resolution() const;
 };
 
-class CuboidConfig
+class MultiPlaneConfig
 : public simparm::Object
 {
     typedef boost::ptr_vector< PlaneConfig > Layers;
@@ -56,9 +61,11 @@ class CuboidConfig
 
     void set_number_of_planes(int);
 
+    PlaneConfig::Purpose purpose;
+
   public:
-    CuboidConfig();
-    ~CuboidConfig();
+    MultiPlaneConfig(PlaneConfig::Purpose purpose);
+    ~MultiPlaneConfig();
     void registerNamedEntries();
 
     void set_context( const input::Traits<engine::ImageStack>& );

@@ -9,9 +9,10 @@ namespace traits {
 
 using namespace boost::units;
 
-PlaneConfig::PlaneConfig(int number)
+PlaneConfig::PlaneConfig(int number, Purpose purpose)
 : simparm::Set("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
+  purpose(purpose),
   three_d("ThreeD", "3D PSF model"),
   counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
   dark_current( "DarkCurrent", "Dark intensity" ),
@@ -20,9 +21,13 @@ PlaneConfig::PlaneConfig(int number)
                    PixelSize::Constant(107.0f * si::nanometre / camera::pixel))
 {
     three_d.helpID = "3DType";
-    three_d.addChoice( threed_info::make_no_3d_config() );
-    three_d.addChoice( threed_info::make_spline_3d_config() );
-    three_d.addChoice( threed_info::make_polynomial_3d_config() );
+    if ( purpose == InputSimulation ) { 
+        three_d.addChoice( threed_info::make_lens_3d_config() );
+    } else {
+        three_d.addChoice( threed_info::make_no_3d_config() );
+        three_d.addChoice( threed_info::make_spline_3d_config() );
+        three_d.addChoice( threed_info::make_polynomial_3d_config() );
+    }
 
     alignment.addChoice( make_scaling_projection_config() );
     alignment.addChoice( make_affine_projection_config() );
@@ -36,6 +41,7 @@ PlaneConfig::PlaneConfig(int number)
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
 : simparm::Set(o), 
+  purpose(o.purpose),
   three_d(o.three_d),
   counts_per_photon(o.counts_per_photon), 
   dark_current(o.dark_current), alignment( o.alignment ),
@@ -49,11 +55,14 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
 
 void PlaneConfig::registerNamedEntries()
 {
-    push_back( pixel_size );
+    if ( purpose != PSFDisplay )
+        push_back( pixel_size );
     push_back( three_d );
-    push_back( counts_per_photon );
-    push_back( dark_current );
-    push_back( alignment );
+    if ( purpose != PSFDisplay ) {
+        push_back( counts_per_photon );
+        push_back( dark_current );
+        push_back( alignment );
+    }
 
     for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i)
         push_back( *i );
@@ -114,20 +123,21 @@ void PlaneConfig::write_traits( input::Traits<Localization>& t ) const
 }
 
 
-CuboidConfig::CuboidConfig() 
-: simparm::Object("Optics", "Optical pathway properties")
+MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose ) 
+: simparm::Object("Optics", "Optical pathway properties"),
+  purpose(purpose)
 {
     DEBUG("Constructing " << this);
-    layers.push_back( new PlaneConfig(0) );
+    layers.push_back( new PlaneConfig(0, purpose) );
     set_number_of_planes( 1 );
 }
 
-CuboidConfig::~CuboidConfig()
+MultiPlaneConfig::~MultiPlaneConfig()
 {
     DEBUG("Destructing " << this);
 }
 
-void CuboidConfig::registerNamedEntries()
+void MultiPlaneConfig::registerNamedEntries()
 {
     for ( Layers::iterator i = layers.begin(); i != layers.end(); ++i) {
         i->registerNamedEntries();
@@ -135,10 +145,10 @@ void CuboidConfig::registerNamedEntries()
     }
 }
 
-void CuboidConfig::set_number_of_planes(int number)
+void MultiPlaneConfig::set_number_of_planes(int number)
 {
     while ( number > int( layers.size() ) ) {
-        layers.push_back( new PlaneConfig( layers.size() ) );
+        layers.push_back( new PlaneConfig( layers.size(), purpose ) );
         layers.back().registerNamedEntries();
         push_back( layers.back() );
     }
@@ -161,11 +171,11 @@ PlaneConfig::get_resolution() const {
 }
 
 image::MetaInfo<2>::Resolutions
-CuboidConfig::get_resolution() const {
+MultiPlaneConfig::get_resolution() const {
     return layers[0].get_resolution();
 }
 
-void CuboidConfig::write_traits( input::Traits<engine::ImageStack>& t ) const
+void MultiPlaneConfig::write_traits( input::Traits<engine::ImageStack>& t ) const
 {
     for (int i = 0; i < int( layers.size() ) && i < t.plane_count(); ++i) {
         layers[i].write_traits( t.optics(i) );
@@ -173,12 +183,12 @@ void CuboidConfig::write_traits( input::Traits<engine::ImageStack>& t ) const
     }
 }
 
-void CuboidConfig::write_traits( input::Traits<Localization>& t ) const
+void MultiPlaneConfig::write_traits( input::Traits<Localization>& t ) const
 {
     layers[0].write_traits( t );
 }
 
-void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t )
+void MultiPlaneConfig::read_traits( const input::Traits<engine::ImageStack>& t )
 {
     set_context(t);
     for (int i = 0; i < t.plane_count(); ++i) {
@@ -186,7 +196,7 @@ void CuboidConfig::read_traits( const input::Traits<engine::ImageStack>& t )
     }
 }
 
-void CuboidConfig::set_context( const input::Traits<engine::ImageStack>& t ) 
+void MultiPlaneConfig::set_context( const input::Traits<engine::ImageStack>& t ) 
 {
     DEBUG( "Setting context on " << this );
     set_number_of_planes( t.plane_count() );
@@ -195,7 +205,7 @@ void CuboidConfig::set_context( const input::Traits<engine::ImageStack>& t )
     }
 }
 
-void CuboidConfig::set_context( const input::Traits<Localization>& t ) 
+void MultiPlaneConfig::set_context( const input::Traits<Localization>& t ) 
 {
     set_number_of_planes( 1 );
     layers[0].set_context( t, t.fluorophores.size() );

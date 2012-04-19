@@ -113,7 +113,7 @@ namespace input_simulation {
         simparm::Entry<double> integrationTime;
         simparm::FileEntry saveActivity;
         simparm::Entry<unsigned long> layer_count;
-        dStorm::traits::CuboidConfig optics;
+        dStorm::traits::MultiPlaneConfig optics;
 
         typedef dStorm::engine::ImageStack Image;
 

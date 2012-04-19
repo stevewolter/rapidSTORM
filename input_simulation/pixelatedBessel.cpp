@@ -9,6 +9,7 @@
 #include <gsl/gsl_errno.h>
 #include <dStorm/traits/Projection.h>
 #include <dStorm/threed_info/DepthInfo.h>
+#include <dStorm/threed_info/Lens3D.h>
 
 namespace input_simulation {
 
@@ -169,12 +170,10 @@ double BesselFunction::integrate( const Subpixel& pixel_center) const
 {
     gsl_error_handler_t * old_handler=gsl_set_error_handler_off();
     double val = -1, abserr;
-    dStorm::threed_info::ZRange z_range = 
-        trafo.optics.depth_info(dStorm::Direction_X)->z_range() & trafo.optics.depth_info(dStorm::Direction_Y)->z_range();
-    dStorm::threed_info::ZPosition plane_z = 
-        ( z_range.empty() ) 
-            ? 0.0f * si::meter 
-            : ( lower( z_range ) + upper( z_range ) ) / 2.0f;
+    dStorm::threed_info::ZPosition plane_z
+        = dynamic_cast<const dStorm::threed_info::Lens3D&>
+                (*trafo.optics.depth_info(dStorm::Direction_X))
+            .z_position();
     int_info->delta_z = plane_z - fluorophore.z();
 
     int_info->orig_position = pixel_center;

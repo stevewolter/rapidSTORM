@@ -194,6 +194,7 @@ nobase_include_HEADERS = \
     dStorm/Direction.h \
     dStorm/threed_info/Polynomial3D.h \
     dStorm/threed_info/No3D.h \
+    dStorm/threed_info/Lens3D.h \
     dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
 
@@ -252,6 +253,7 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/Config.cpp \
     dStorm/threed_info/Spline3D.cpp \
     dStorm/threed_info/No3D.cpp \
+    dStorm/threed_info/Lens3D.cpp \
     dStorm/threed_info/look_up_sigma_diff.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)

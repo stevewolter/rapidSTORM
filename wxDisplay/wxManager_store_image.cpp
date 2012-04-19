@@ -278,6 +278,8 @@ void wxManager::store_image_impl( const StorableImage& i )
     for (int z = 0; z < image.resize_image.size.z().value(); ++z)
         layers.push_back( *create_layer( image, z, i.scale_bar ) );
     try {
+        for ( std::vector<Magick::Image>::iterator im = layers.begin(); im != layers.end(); ++im )
+            im->compressType( Magick::RunlengthEncodedCompression );
         writeImages( layers.begin(), layers.end(), i.filename );
     } catch ( const Magick::Error& e ) {
         throw std::runtime_error(e.what());
