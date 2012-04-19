@@ -103,7 +103,8 @@ void PlaneConfig::write_traits( traits::Optics& rv, const threed_info::Config& t
         DEBUG("Set transmission of " << rv.tmc.size() << " to " << i->value() << " at " << &rv);
         rv.tmc.push_back( i->value() );
     }
-    rv.set_depth_info( t3.make_traits( *this ) );
+    for (Direction d = Direction_First; d != Direction_2D; ++d)
+    rv.set_depth_info( d, t3.make_traits( *this, d ) );
 }
 
 void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 )
@@ -113,7 +114,8 @@ void PlaneConfig::read_traits( const traits::Optics& t, threed_info::Config& t3 
     }
     if ( t.photon_response ) counts_per_photon = *t.photon_response;
     if ( t.dark_current ) dark_current = *t.dark_current;
-    if ( t.depth_info() ) t3.read_traits( *t.depth_info(), *this );
+    if ( t.depth_info(Direction_X) && t.depth_info(Direction_Y) )
+        t3.read_traits( *t.depth_info(Direction_X), *t.depth_info(Direction_Y), *this );
 }
 
 void PlaneConfig::write_traits( input::Traits<Localization>& t, const threed_info::Config& t3 ) const

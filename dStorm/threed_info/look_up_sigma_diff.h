@@ -14,7 +14,6 @@ namespace threed_info {
 
 struct SigmaDiffLookup {
     const DepthInfo &a, &b;
-    const Direction a_dim, b_dim;
     const ZPosition precision;
 
     struct Diff {
@@ -28,15 +27,8 @@ struct SigmaDiffLookup {
     void crop_to_longest_monotonic_sequence();
 
 public:
-    SigmaDiffLookup( 
-        const DepthInfo& minuend,
-        Direction minuend_dimension,
-        const DepthInfo& subtrahend,
-        Direction subtrahend_dimension,
-        ZPosition precision );
-
-    SigmaDiffLookup( const DepthInfo& o, ZPosition precision )
-        : a( o ), b( o ), a_dim( Direction_X ), b_dim( Direction_Y ), precision(precision) { init(); }
+    SigmaDiffLookup( const DepthInfo& minuend, const DepthInfo& subtrahend, ZPosition precision )
+        : a( minuend ), b( subtrahend ), precision(precision) { init(); }
 
     Sigma get_sigma_diff( ZPosition ) const;
     ZPosition operator()( Sigma a, Sigma b ) const;

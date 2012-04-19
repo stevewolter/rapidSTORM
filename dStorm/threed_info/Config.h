@@ -10,8 +10,8 @@ namespace threed_info {
 
 struct Config {
     virtual ~Config() {}
-    virtual boost::shared_ptr<DepthInfo> make_traits( const traits::PlaneConfig& ) const = 0;
-    virtual void read_traits( const DepthInfo&, traits::PlaneConfig& ) = 0;
+    virtual boost::shared_ptr<DepthInfo> make_traits( const traits::PlaneConfig&, Direction ) const = 0;
+    virtual void read_traits( const DepthInfo&, const DepthInfo&, traits::PlaneConfig& ) = 0;
     virtual void set_context( traits::PlaneConfig& ) = 0;
     virtual simparm::Node& getNode() = 0;
     operator simparm::Node&() { return getNode(); }

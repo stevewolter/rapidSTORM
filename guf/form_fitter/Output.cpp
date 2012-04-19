@@ -56,9 +56,10 @@ Output::announceStormSize(const Announcement& a)
 {
     engine = a.engine;
     for (int plane = 0; plane < a.input_image_traits->plane_count(); ++plane)
-        if ( a.input_image_traits->optics(plane).depth_info()->provides_3d_info()
-            && ! config.has_z_truth() && config.fit_focus_plane() )
-            throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
+        for ( Direction dir = Direction_First; dir != Direction_2D; ++dir )
+            if ( a.input_image_traits->optics(plane).depth_info(dir)->provides_3d_info()
+                && ! config.has_z_truth() && config.fit_focus_plane() )
+                throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
     DEBUG("Maximum PSF size is " << max_psf.transpose());
     for (int i = 0; i < 2; ++i ) {

@@ -271,29 +271,24 @@ class Fitter
         return evaluators[i].get_expression().get_part( boost::mpl::int_<0>() );
     }
 
-    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Polynomial3D& m, int plane ) {
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Polynomial3D& m, int plane, Direction dir ) {
         boost::shared_ptr<threed_info::Polynomial3D> three_d( 
-            new threed_info::Polynomial3D(dynamic_cast<const threed_info::Polynomial3D&>(*traits.optics(plane).depth_info()) ) );
-        three_d->focal_planes() 
-            = m.get< PSF::ZPosition >().cast< threed_info::Polynomial3D::FocalPlanes::Scalar >();
-        for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
-            three_d->set_base_width(dir, threed_info::Sigma(
-                m.get< PSF::BestSigma >(dir) * width_correction ) );
-            for (int term = threed_info::Polynomial3D::MinTerm; term <= threed_info::Polynomial3D::Order; ++term) {
-                three_d->set_slope( dir, term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
-            }
+            new threed_info::Polynomial3D(dynamic_cast<const threed_info::Polynomial3D&>(*traits.optics(plane).depth_info(dir)) ) );
+        three_d->set_focal_plane( threed_info::ZPosition( m.get< PSF::ZPosition >(dir) ) );
+        three_d->set_base_width( threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction ) );
+        for (int term = threed_info::Polynomial3D::MinTerm; term <= threed_info::Polynomial3D::Order; ++term) {
+            three_d->set_slope( term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
         }
         return three_d;
     }
 
-    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Spline3D& s, int plane ) {
-        return traits.optics(plane).depth_info();
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Spline3D& s, int plane, Direction dir ) {
+        return traits.optics(plane).depth_info(dir);
     }
 
-    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::No3D& m, int plane ) {
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::No3D& m, int plane, Direction dir ) {
         boost::shared_ptr<threed_info::No3D> rv( new threed_info::No3D() );
-        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
-            rv->sigma[dir] = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
+        rv->sigma = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
         return rv;
     }
 
@@ -414,7 +409,8 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     progress.setValue( 1 );
 
     for (int j = 0; j < traits.plane_count(); ++j) {
-        new_traits.optics(j).set_depth_info( get_3d( result(0,j), j ) );
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
+            new_traits.optics(j).set_depth_info( dir, get_3d( result(0,j), j, dir ) );
     }
     for (size_t i = 0; i < traits.fluorophores.size(); ++i) {
         if ( ! table.has_fluorophore( i ) ) {
@@ -446,7 +442,7 @@ create2( const Config& config, const input::Traits< engine::ImageStack >& traits
 std::auto_ptr<FittingVariant>
 FittingVariant::create( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
 {
-    const threed_info::DepthInfo* d = traits.optics(0).depth_info().get();
+    const threed_info::DepthInfo* d = traits.optics(0).depth_info(Direction_X).get();
     if ( dynamic_cast< const threed_info::Polynomial3D* >(d) )
         return create2<PSF::Polynomial3D>( config, traits, images );
     else if ( dynamic_cast< const threed_info::No3D* >(d) )

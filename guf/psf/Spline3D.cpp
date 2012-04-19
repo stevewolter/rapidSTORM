@@ -22,7 +22,7 @@ boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute
     Eigen::Array<Number,2,1> rv;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
-        threed_info::Sigma s = expr->spline->get_sigma(i, z);
+        threed_info::Sigma s = expr->spline[i]->get_sigma(z);
         rv[i] = quantity< BestSigma<0>::Unit >( s ).value();
     }
     if ( (rv.array() <= 0).any() )
@@ -38,7 +38,7 @@ void Parameters<Number,Spline3D>::compute_prefactors_() {
     for (Direction i = Direction_First; i != Direction_2D; ++i)
     {
         z_deriv_prefactor[i] = - this->sigmaI[i] * 
-            expr->spline->get_sigma_deriv(i, z );
+            expr->spline[i]->get_sigma_deriv( z );
     }
 }
 

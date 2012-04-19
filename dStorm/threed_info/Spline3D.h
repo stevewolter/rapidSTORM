@@ -33,22 +33,24 @@ private:
     friend class SplineFactory;
     struct Point {
         ZPosition z;
-        Sigma sigma[Direction_2D];
+        Sigma sigma;
 
+    public:
+        Point( ZPosition z, Sigma sigma ) : z(z), sigma(sigma) {}
         static double to_x( ZPosition z ) { return z / (1E-6f * si::meter); }
         double x() const { return to_x(z); }
-        double y(Direction dir) const { return sigma[dir] / (1E-6f * si::meter); }
+        double y() const { return sigma / (1E-6f * si::meter); }
         static ZPosition from_x( double x ) { return float(x * 1E-6) * si::meter; }
         static Sigma from_y( double y ) { return float(y * 1E-6) * si::meter; }
     };
     const std::vector<Point> points;
     const ZPosition h;
-    Eigen::MatrixXd coeffs[2];
+    Eigen::MatrixXd coeffs;
     ZPosition equifocal_plane__;
 
     std::string config_name_() const { return "Spline3D"; }
-    Sigma get_sigma_( Direction dir, ZPosition z ) const;
-    SigmaDerivative get_sigma_deriv_( Direction dir, ZPosition z ) const;
+    Sigma get_sigma_( ZPosition z ) const;
+    SigmaDerivative get_sigma_deriv_( ZPosition z ) const;
     ZRange z_range_() const;
     ZPosition equifocal_plane_() const { return equifocal_plane__; }
     std::ostream& print_( std::ostream& o ) const 
@@ -58,17 +60,12 @@ private:
 
 class SplineFactory {
 public:
-    SplineFactory() {}
-    SplineFactory( const std::string& file );
+    SplineFactory( const std::string& file, Direction dir );
 
-    static SplineFactory Mock();
-
-    void add_point( 
-        quantity<si::length> z_position,
-        quantity<si::length> sigma_x,
-        quantity<si::length> sigma_y );
+    static SplineFactory Mock( Direction d );
 
 private:
+    SplineFactory() {}
     friend class Spline3D;
     typedef std::vector< Spline3D::Point > Points;
     Points points;

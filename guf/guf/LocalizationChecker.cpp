@@ -18,7 +18,8 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
   allowed_z_positions()
 {
     for (int i = 0; i < info.traits.plane_count(); ++i) {
-        allowed_z_positions += info.traits.optics(i).depth_info()->z_range();
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
+            allowed_z_positions += info.traits.optics(i).depth_info(dir)->z_range();
     }
 }
 

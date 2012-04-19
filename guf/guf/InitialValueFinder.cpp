@@ -31,10 +31,8 @@ struct InitialValueFinder::PlaneEstimate {
 
 threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const dStorm::engine::JobInfo& info ) const {
     return threed_info::SigmaDiffLookup(
-        *info.traits.optics( minuend_plane ).depth_info(),
-        minuend_dir,
-        *info.traits.optics( subtrahend_plane ).depth_info(),
-        subtrahend_dir,
+        *info.traits.optics( minuend_plane ).depth_info( minuend_dir ),
+        *info.traits.optics( subtrahend_plane ).depth_info( subtrahend_dir ),
         1E-8f * si::meter );
 }
 
@@ -141,7 +139,9 @@ void InitialValueFinder::operator()(
         } else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
             boost::mpl::for_each< PSF::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            z->set_spline( info.traits.optics(p).depth_info() );
+            z->set_spline( 
+                info.traits.optics(p).depth_info(Direction_X),
+                info.traits.optics(p).depth_info(Direction_Y) );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );

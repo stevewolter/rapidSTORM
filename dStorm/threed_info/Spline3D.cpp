@@ -20,28 +20,16 @@ struct InterpolationDeleter {
     void operator()( gsl_interp* p ) { gsl_interp_free(p); }
 };
 
-SplineFactory::SplineFactory( const std::string& file ) {
+SplineFactory::SplineFactory( const std::string& file, Direction dir ) 
+{
     std::ifstream i( file.c_str() );
     while ( i ) {
-        double z_in_nm, sigma_x_in_mum, sigma_y_in_mum;
-        i >> z_in_nm >> sigma_x_in_mum >> sigma_y_in_mum;
+        float z_in_nm, sigma_in_mum[2];
+        i >> z_in_nm >> sigma_in_mum[0] >> sigma_in_mum[1];
         if ( i )
-            add_point( z_in_nm * 1E-9 * si::meter, 
-                       sigma_x_in_mum * 1E-6 * si::meter,
-                       sigma_y_in_mum * 1E-6 * si::meter );
+            points.push_back( Spline3D::Point(z_in_nm * 1E-9f * si::meter, 
+                       sigma_in_mum[dir] * 1E-6f * si::meter ) );
     }
-}
-
-void SplineFactory::add_point( 
-    quantity<si::length> z_position, 
-    quantity<si::length> sigma_x,
-    quantity<si::length> sigma_y )
-{
-    Spline3D::Point p;
-    p.z = z_position;
-    p.sigma[Direction_X] = sigma_x;
-    p.sigma[Direction_Y] = sigma_y;
-    points.push_back( p );
 }
 
 Spline3D::Spline3D( const SplineFactory& f )
@@ -51,34 +39,32 @@ Spline3D::Spline3D( const SplineFactory& f )
 {
     double h = Point::to_x( this->h );
     if ( N <= 3 ) throw std::runtime_error("Need at least 4 points for Z-sigma interpolation");
-    for ( Direction dim = Direction_First; dim < Direction_2D; ++dim ) {
-        /* Construction of spline linear equation system according to
-         * McKinley and Levine, Cubic Spline Interpolation.
-         * Parabolic runout conditions to match theoretical parabolic
-         * curve. */
-        Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N-2,N-2);
-        Eigen::VectorXd B( N - 2 );
-        for (int j = 0; j < N-2; ++j) {
-            B[j] = points[j].y(dim) - 2 * points[j+1].y(dim) + points[j+2].y(dim);
+    /* Construction of spline linear equation system according to
+        * McKinley and Levine, Cubic Spline Interpolation.
+        * Parabolic runout conditions to match theoretical parabolic
+        * curve. */
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(N-2,N-2);
+    Eigen::VectorXd B( N - 2 );
+    for (int j = 0; j < N-2; ++j) {
+        B[j] = points[j].y() - 2 * points[j+1].y() + points[j+2].y();
 
-            A(j,j) = 4;
-            if ( j > 0 ) A(j,j-1) = 1;
-            if ( j < N - 3 ) A(j,j+1) = 1;
-        }
-        A(0,0) = A(N-3,N-3) = 5;
-        B *= 6 / (h*h);
-        Eigen::VectorXd M = Eigen::VectorXd::Zero(N);
-        M.block( 1, 0, N-2, 1 ) = A.colPivHouseholderQr().solve(B);
-        M[0] = M[1];
-        M[N-1] = M[N-2];
-        coeffs[dim] = Eigen::MatrixXd::Zero( N-1, 4 );
-        for (int i = 0; i < N-1; ++i) {
-            coeffs[dim](i,3) = points[i].y(dim);
-            coeffs[dim](i,2) = (points[i+1].y(dim) - points[i].y(dim)) / h
-                - ( M[i+1] + 2 * M[i] ) * h / 6;
-            coeffs[dim](i,1) = M[i] / 2;
-            coeffs[dim](i,0) = (M[i+1] - M[i]) / (6 * h);
-        }
+        A(j,j) = 4;
+        if ( j > 0 ) A(j,j-1) = 1;
+        if ( j < N - 3 ) A(j,j+1) = 1;
+    }
+    A(0,0) = A(N-3,N-3) = 5;
+    B *= 6 / (h*h);
+    Eigen::VectorXd M = Eigen::VectorXd::Zero(N);
+    M.block( 1, 0, N-2, 1 ) = A.colPivHouseholderQr().solve(B);
+    M[0] = M[1];
+    M[N-1] = M[N-2];
+    coeffs = Eigen::MatrixXd::Zero( N-1, 4 );
+    for (int i = 0; i < N-1; ++i) {
+        coeffs(i,3) = points[i].y();
+        coeffs(i,2) = (points[i+1].y() - points[i].y()) / h
+            - ( M[i+1] + 2 * M[i] ) * h / 6;
+        coeffs(i,1) = M[i] / 2;
+        coeffs(i,0) = (M[i+1] - M[i]) / (6 * h);
     }
 }
 
@@ -89,20 +75,20 @@ ZRange Spline3D::z_range_() const {
     return rv;
 }
 
-Sigma Spline3D::get_sigma_( Direction dir, ZPosition z ) const {
+Sigma Spline3D::get_sigma_( ZPosition z ) const {
     int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
     double rv = 0, dx = Point::to_x(z - points[i].z);
     for (int term = 0; term < 4; ++term)
-        rv = rv * dx + coeffs[dir](i,term);
+        rv = rv * dx + coeffs(i,term);
     return Point::from_y( rv );
 }
 
 SigmaDerivative
-Spline3D::get_sigma_deriv_( Direction dir, ZPosition z ) const {
+Spline3D::get_sigma_deriv_( ZPosition z ) const {
     int i = std::max( 0, std::min( int( floor( (z - points[0].z) / h ) ), N-2 ) );
     double rv = 0, dx = Point::to_x(z - points[i].z);
     for (int term = 0; term < 3; ++term)
-        rv = rv * dx + (3-term) * coeffs[dir](i,term);
+        rv = rv * dx + (3-term) * coeffs(i,term);
     return rv;
 }
 
@@ -159,34 +145,34 @@ static double spline_test_data[][3] = {
     { 3992.0, 0.156646332553, 0.413667317271}, 
 };
 
-SplineFactory SplineFactory::Mock() {
+SplineFactory SplineFactory::Mock( Direction d ) {
     SplineFactory rv;
     for (size_t i = 0; i < sizeof(spline_test_data) / sizeof(spline_test_data[0]); ++i)
-        rv.add_point( spline_test_data[i][0] * 1E-9 * si::meter,
-                     spline_test_data[i][1] * 1E-6 * si::meter,
-                     spline_test_data[i][2] * 1E-6 * si::meter );
+        rv.points.push_back( Spline3D::Point( 
+            float(spline_test_data[i][0] * 1E-9) * si::meter,
+            float(spline_test_data[i][1+d-Direction_X] * 1E-6) * si::meter ) );
     return rv;
 }
 
 void unit_tests( TestState& state ) {
-    SplineFactory f = SplineFactory::Mock();
+    Spline3D sx( SplineFactory::Mock(Direction_X) );
+    Spline3D sy( SplineFactory::Mock(Direction_Y) );
 
-    Spline3D s( f );
-    Sigma s1 = s.get_sigma(Direction_X, 1.6E-6f * si::meter);
+    Sigma s1 = sx.get_sigma(1.6E-6f * si::meter);
     state( abs( s1 - 0.37E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good X values" );
-    Sigma s2 = s.get_sigma(Direction_Y, 2.1E-6f * si::meter);
+    Sigma s2 = sy.get_sigma(2.1E-6f * si::meter);
     state( abs( s2 - 0.153E-6 * si::meter ) < 10E-9 * si::meter,
            "Spline gives good Y values" );
-    Sigma s4 = s.get_sigma(Direction_X, 3.992E-6f * si::meter);
+    Sigma s4 = sx.get_sigma(3.992E-6f * si::meter);
     state( abs( s4 - 0.15664E-6 * si::meter ) < 1E-9 * si::meter,
            "Spline catches terminal point" );
-    Sigma s3 = s.get_sigma(Direction_X, 4.0E-6f * si::meter);
+    Sigma s3 = sx.get_sigma(4.0E-6f * si::meter);
     state( s3 > s4 && (s3 - s4) < 0.3E-6f * si::meter,
            "Spline can extrapolate X values" );
 
     const int ti = 25;
-    SigmaDiffLookup lu( s, 1e-9f * si::meter );
+    SigmaDiffLookup lu( sx, sy, 1e-9f * si::meter );
     ZPosition z1 = lu( 
         Sigma(spline_test_data[ti][1] * 1E-6 * si::meter + 3.141E-10 * si::meter),
         Sigma(spline_test_data[ti][2] * 1E-6 * si::meter - 2.718E-10 * si::meter) );
@@ -195,9 +181,9 @@ void unit_tests( TestState& state ) {
            "Z determination through sigmadiff works" );
 
     ZPosition dx = 1E-10f * si::meter;
-    Sigma slow = s.get_sigma(Direction_X, 2.3E-6f * si::meter - dx);
-    Sigma shigh = s.get_sigma(Direction_X, 2.3E-6f * si::meter + dx);
-    double slope = s.get_sigma_deriv( Direction_X, 2.3E-6f * si::meter );
+    Sigma slow = sx.get_sigma(2.3E-6f * si::meter - dx);
+    Sigma shigh = sx.get_sigma(2.3E-6f * si::meter + dx);
+    double slope = sx.get_sigma_deriv( 2.3E-6f * si::meter );
     state( std::abs( (shigh - slow) / (2.0f*dx) - slope ) < std::abs(slope) * 0.1,
            "Sigma derivative is correct on interpolation" );
 }

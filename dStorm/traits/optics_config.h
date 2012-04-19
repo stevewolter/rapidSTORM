@@ -22,6 +22,7 @@
 #include <dStorm/units/permicrolength.h>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Localization_decl.h>
+#include <dStorm/Direction.h>
 
 namespace dStorm {
 namespace traits {

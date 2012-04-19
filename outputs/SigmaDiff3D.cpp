@@ -20,7 +20,7 @@ public:
     typedef simparm::Structure<_Config> Config;
 
 private:
-    threed_info::Spline3D spline;
+    threed_info::Spline3D spline_x, spline_y;
     threed_info::SigmaDiffLookup lookup_table;
 
 public:
@@ -46,8 +46,9 @@ class SigmaDiff3D::_Config : public simparm::Object {
 
 SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 : Filter( sub ),
-  spline( threed_info::SplineFactory(c.calibration_file()) ),
-  lookup_table( spline, 1E-9f * si::meter )
+  spline_x( threed_info::SplineFactory(c.calibration_file(), Direction_X) ),
+  spline_y( threed_info::SplineFactory(c.calibration_file(), Direction_Y) ),
+  lookup_table( spline_x, spline_y, 1E-9f * si::meter )
 {
 }
 
@@ -58,8 +59,9 @@ SigmaDiff3D::announceStormSize(const Announcement& a) {
 
     Announcement my_announcement(a);
     my_announcement.position().is_given[2] = true;
-    my_announcement.position().range().z().first = lower( spline.z_range() );
-    my_announcement.position().range().z().second = upper( spline.z_range() );
+    threed_info::ZRange z_range = spline_x.z_range() & spline_y.z_range();
+    my_announcement.position().range().z().first = lower( z_range );
+    my_announcement.position().range().z().second = upper( z_range );
     return Filter::announceStormSize( my_announcement );
 }
 

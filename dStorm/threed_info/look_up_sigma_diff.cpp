@@ -11,19 +11,6 @@ namespace threed_info {
 
 using namespace boost::units;
 
-SigmaDiffLookup::SigmaDiffLookup( 
-        const DepthInfo& minuend,
-        Direction minuend_dimension,
-        const DepthInfo& subtrahend,
-        Direction subtrahend_dimension,
-        ZPosition precision 
-) : a( minuend ), b(subtrahend),
-    a_dim(minuend_dimension), b_dim( subtrahend_dimension ),
-    precision(precision)
-{
-    init();
-}
-
 void SigmaDiffLookup::init() {
     ZRange z_range = get_z_range();
     for ( ZPosition z = lower(z_range); z <= upper(z_range); z += precision ) {
@@ -74,7 +61,7 @@ void SigmaDiffLookup::crop_to_longest_monotonic_sequence() {
 }
 
 Sigma SigmaDiffLookup::get_sigma_diff( ZPosition z ) const {
-    return a.get_sigma( a_dim, z ) - b.get_sigma( b_dim, z );
+    return a.get_sigma( z ) - b.get_sigma( z );
 }
 
 ZRange SigmaDiffLookup::get_z_range() const { return a.z_range() & b.z_range(); }

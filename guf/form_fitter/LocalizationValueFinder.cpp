@@ -72,7 +72,7 @@ LocalizationValueFinder::LocalizationValueFinder(
 void LocalizationValueFinder::find_values( guf::PSF::Spline3D& z ) {
     boost::mpl::for_each< typename guf::PSF::Spline3D::Variables >( 
         boost::bind( boost::ref(*appl_), _1, boost::ref(z) ) );
-    z.set_spline( appl_->plane.depth_info() );
+    z.set_spline( appl_->plane.depth_info(Direction_X), appl_->plane.depth_info(Direction_Y) );
 }
 
 template <typename Type>

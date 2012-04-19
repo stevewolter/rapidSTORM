@@ -195,8 +195,8 @@ class ReferenceEvaluator <Spline3D, Number, P1, P2>
         A = (*expr)( PSF::Amplitude() ).value();
         pf = (*expr)( PSF::Prefactor() ).value();
         threed_info::ZPosition z( *(*expr)( MeanZ() ) );
-        dsx = expr->get_spline().get_sigma_deriv(Direction_X, z );
-        dsy = expr->get_spline().get_sigma_deriv(Direction_Y, z );
+        dsx = expr->get_spline(Direction_X).get_sigma_deriv(z );
+        dsy = expr->get_spline(Direction_Y).get_sigma_deriv(z );
     }
     void value( Eigen::Array<Number,1,1>& result ) 
         { result.fill(0); add_value(result); }

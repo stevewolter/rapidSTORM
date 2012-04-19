@@ -7,14 +7,14 @@ namespace dStorm {
 namespace threed_info {
 
 struct No3D : public DepthInfo {
-    Sigma sigma[2];
+    Sigma sigma;
     std::string config_name_() const { return "No3D"; }
-    Sigma get_sigma_( Direction dir, ZPosition z ) const { return sigma[dir]; }
-    SigmaDerivative get_sigma_deriv_( Direction, ZPosition ) const { return 0; }
+    Sigma get_sigma_( ZPosition z ) const { return sigma; }
+    SigmaDerivative get_sigma_deriv_( ZPosition ) const 
+        { throw std::logic_error("Attempted to get dSigma/dZ for no-3D model"); }
     ZRange z_range_() const { return ZRange(); }
-    ZPosition equifocal_plane_() const { return 0 * si::meter; }
     std::ostream& print_( std::ostream& o ) const {
-            return o << "no 3D information with base PSF widths " << sigma[0] * 2.35f << " and " << sigma[1] * 2.35f;
+            return o << "no 3D information with PSF width " << sigma * 2.35f;
     }
     bool provides_3d_info_() const { return false; }
 };

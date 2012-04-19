@@ -48,7 +48,8 @@ std::pair<samplepos,samplepos> Traits< engine::ImageStack >
         min[1] = std::min( min[1], 0.0f * si::meter );
         max[0] = std::max( max[0], xy[0] );
         max[1] = std::max( max[1], xy[1] );
-        z_range += optics(pl).depth_info()->z_range();
+        for (Direction d = Direction_First; d != Direction_2D; ++d)
+            z_range += optics(pl).depth_info(d)->z_range();
     }
     if ( ! is_empty( z_range ) ) {
         min.z() = lower( z_range );
@@ -61,7 +62,8 @@ std::ostream& Traits< engine::ImageStack >::print_psf_info( std::ostream& o ) co
     for ( int j = 0; j < plane_count(); ++j) {
         const traits::Optics& optics = this->optics(j);
         if ( j != 0 ) o << ", ";
-        o << "plane " << j << " has " << *optics.depth_info();
+        o << "plane " << j << " has " << *optics.depth_info(Direction_X) << " in X and "
+          << *optics.depth_info(Direction_Y) << " in Y";
         for ( size_t i = 0; i < fluorophores.size(); ++i )
         {
             o << ", fluorophore " << i << " has transmission "

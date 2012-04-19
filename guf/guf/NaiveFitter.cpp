@@ -39,7 +39,7 @@ NaiveFitter::create(
     const Config& c, 
     const dStorm::engine::JobInfo& i )
 {
-    const threed_info::DepthInfo* d = i.traits.optics(0).depth_info().get();
+    const threed_info::DepthInfo* d = i.traits.optics(0).depth_info(Direction_X).get();
     if ( c.free_sigmas() && d->provides_3d_info() )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( c.free_sigmas() )

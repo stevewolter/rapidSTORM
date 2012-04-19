@@ -54,7 +54,7 @@ void Config::set_context( const input::Traits<Localization>& t ) {
 
 void Config::read_traits( const engine::InputTraits& t ) {
     set_context( t );
-    three_d.choose( t.optics(0).depth_info()->config_name() );
+    three_d.choose( t.optics(0).depth_info(Direction_X)->config_name() );
     cuboid_config.read_traits( t, three_d() );
 }
 
