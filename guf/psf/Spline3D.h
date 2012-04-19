@@ -21,14 +21,13 @@ namespace PSF {
 class Spline3D
 : public Base3D
 {
-    boost::shared_ptr<const threed_info::DepthInfo> spline[2];
+    typedef boost::shared_ptr<const threed_info::DepthInfo> DepthInfo;
+    DepthInfo spline[2];
     template <class Num, typename Expression> friend class Parameters;
   public:
     typedef Base3D::Variables Variables;
     Spline3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Spline3D&>(f); }
-    void set_spline( boost::shared_ptr<const threed_info::DepthInfo> sx, 
-                     boost::shared_ptr<const threed_info::DepthInfo> sy ) 
-        { spline[0] = sx; spline[1] = sy; }
+    void set_spline( DepthInfo sx, DepthInfo sy ) ;
 
     Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;
 

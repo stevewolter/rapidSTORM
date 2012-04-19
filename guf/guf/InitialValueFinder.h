@@ -18,12 +18,12 @@ struct InitialValueFinder {
     typedef void result_type;
 
     const dStorm::engine::JobInfo& info;
-    const bool disjoint_amplitudes;
+    const bool disjoint_amplitudes, need_z_estimate;
     struct SigmaDiff {
         int minuend_plane, subtrahend_plane;
         Direction minuend_dir, subtrahend_dir;
 
-        threed_info::SigmaDiffLookup lookup( const dStorm::engine::JobInfo& info ) const;
+        threed_info::SigmaDiffLookup lookup( const engine::InputTraits& info ) const;
     };
     boost::optional< SigmaDiff > most_discriminating_diff;
     boost::scoped_ptr< threed_info::SigmaDiffLookup > lookup_table;
@@ -33,6 +33,8 @@ struct InitialValueFinder {
     std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const Statistics<3> & ) const;
     void join_amp_estimates( std::vector<PlaneEstimate>& v ) const;
     void estimate_z( const Statistics<3>&, std::vector<PlaneEstimate>& ) const;
+    static bool determine_z_estimate_need( const engine::InputTraits& t );
+    void create_z_lookup_table( const engine::InputTraits& t );
 
     class set_parameter;
     template <typename Parameter>

@@ -14,6 +14,14 @@ namespace dStorm {
 namespace guf {
 namespace PSF {
 
+void Spline3D::set_spline( DepthInfo sx, DepthInfo sy )
+{ 
+    assert( sx.get() && sx->provides_3d_info() );
+    assert( sy.get() && sy->provides_3d_info() );
+    spline[0] = sx;
+    spline[1] = sy; 
+}
+
 template <typename Number>
 boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute_sigma_() 
 {

@@ -430,9 +430,14 @@ void Fitter<Metric,Lambda>::fit( input::Traits< engine::ImageStack >& new_traits
     }
 }
 
-template <typename Lambda>
+template <typename Lambda, typename DepthInfo>
 std::auto_ptr<FittingVariant>
 create2( const Config& config, const input::Traits< engine::ImageStack >& traits, int images ) {
+    for ( input::Traits< engine::ImageStack >::const_iterator i = traits.begin(); i != traits.end(); ++i )
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
+            if ( dynamic_cast< const DepthInfo* >( i->optics.depth_info(dir).get() ) == NULL ) {
+                throw std::runtime_error("3D PSF models need to be consistent for form fitting");
+            }
     if ( config.mle() )
         return std::auto_ptr<FittingVariant>( new Fitter< plane::negative_poisson_likelihood, Lambda > ( config, traits, images ) );
     else
@@ -444,11 +449,11 @@ FittingVariant::create( const Config& config, const input::Traits< engine::Image
 {
     const threed_info::DepthInfo* d = traits.optics(0).depth_info(Direction_X).get();
     if ( dynamic_cast< const threed_info::Polynomial3D* >(d) )
-        return create2<PSF::Polynomial3D>( config, traits, images );
+        return create2<PSF::Polynomial3D,threed_info::Polynomial3D>( config, traits, images );
     else if ( dynamic_cast< const threed_info::No3D* >(d) )
-        return create2<PSF::No3D>( config, traits, images );
+        return create2<PSF::No3D,threed_info::No3D>( config, traits, images );
     else if ( dynamic_cast< const threed_info::Spline3D* >(d) )
-        return create2<PSF::Spline3D>( config, traits, images );
+        return create2<PSF::Spline3D,threed_info::Spline3D>( config, traits, images );
     else
         throw std::logic_error("Missing 3D model in form fitter");
 }

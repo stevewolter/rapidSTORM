@@ -11,6 +11,7 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/InputTraits.h>
 #include <nonlinfit/Bind.h>
+#include <dStorm/threed_info/No3D.h>
 
 namespace dStorm {
 namespace guf {
@@ -37,17 +38,23 @@ template <int Kernels>
 NaiveFitter::Ptr
 NaiveFitter::create( 
     const Config& c, 
-    const dStorm::engine::JobInfo& i )
+    const dStorm::engine::JobInfo& info )
 {
-    const threed_info::DepthInfo* d = i.traits.optics(0).depth_info(Direction_X).get();
-    if ( c.free_sigmas() && d->provides_3d_info() )
+    bool consistently_no_3d = true;
+    for ( input::Traits< engine::ImageStack >::const_iterator i = info.traits.begin(); i != info.traits.end(); ++i )
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
+            bool is_no3d = dynamic_cast< const threed_info::No3D* >( i->optics.depth_info(dir).get() );
+            consistently_no_3d = consistently_no_3d && is_no3d;
+        }
+
+    if ( c.free_sigmas() && ! consistently_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( c.free_sigmas() )
-        return create2<Kernels,PSF::FreeForm,PSF::No3D>(c,i);
-    else if ( d->provides_3d_info() )
-        return create2<Kernels,PSF::FixedForm,PSF::Spline3D>( c, i );
+        return create2<Kernels,PSF::FreeForm,PSF::No3D>(c,info);
+    else if ( consistently_no_3d )
+        return create2<Kernels,PSF::FixedForm,PSF::No3D>(c,info);
     else
-        return create2<Kernels,PSF::FixedForm,PSF::No3D>(c,i);
+        return create2<Kernels,PSF::FixedForm,PSF::Spline3D>( c, info );
 }
 
 template NaiveFitter::Ptr NaiveFitter::create<1>( const Config& c, const dStorm::engine::JobInfo& i );

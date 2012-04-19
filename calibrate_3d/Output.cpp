@@ -6,6 +6,7 @@
 #include <dStorm/output/OutputBuilder_impl.h>
 #include <boost/foreach.hpp>
 #include "ZTruth.h"
+#include <dStorm/threed_info/Polynomial3D.h>
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -51,6 +52,11 @@ Output::AdditionalData Output::announceStormSize(const Output::Announcement &a)
     DEBUG("Initial data are announced");
     if ( ! a.input_image_traits.get() )
         throw std::runtime_error("Source images are not given to 3D calibrator");
+    for ( engine::InputTraits::const_iterator i = a.input_image_traits->begin();
+            i != a.input_image_traits->end(); ++i )
+        for (Direction dir = Direction_First; dir != Direction_2D; ++dir)
+            if ( dynamic_cast<const threed_info::Polynomial3D*>( i->optics.depth_info(dir).get() ) == NULL )
+                throw std::runtime_error("3D calibration output works only with polynomial 3D");
     initial_traits.reset( a.input_image_traits->clone() );
     engine = a.engine;
 

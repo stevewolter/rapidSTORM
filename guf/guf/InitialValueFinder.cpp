@@ -29,19 +29,25 @@ struct InitialValueFinder::PlaneEstimate {
     boost::units::quantity<boost::units::si::length> z_estimate; 
 };
 
-threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const dStorm::engine::JobInfo& info ) const {
+threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const engine::InputTraits& info ) const {
     return threed_info::SigmaDiffLookup(
-        *info.traits.optics( minuend_plane ).depth_info( minuend_dir ),
-        *info.traits.optics( subtrahend_plane ).depth_info( subtrahend_dir ),
+        *info.optics( minuend_plane ).depth_info( minuend_dir ),
+        *info.optics( subtrahend_plane ).depth_info( subtrahend_dir ),
         1E-8f * si::meter );
 }
 
-InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
-: info(info),
-  disjoint_amplitudes( config.disjoint_amplitudes() )
+bool InitialValueFinder::determine_z_estimate_need( const engine::InputTraits& t ) {
+    for ( engine::InputTraits::const_iterator i = t.begin(); i != t.end(); ++i )
+        for ( Direction dir = Direction_First; dir != Direction_2D; ++dir )
+            if ( i->optics.depth_info(dir)->provides_3d_info() )
+                return true;
+    return false;
+}
+
+void InitialValueFinder::create_z_lookup_table( const engine::InputTraits& t )
 {
     float max_corr = -1;
-    const int dim_count = Direction_2D * info.traits.plane_count();
+    const int dim_count = Direction_2D * t.plane_count();
     for (int dim1 = 0; dim1 < dim_count; ++dim1)
         for (int dim2 = dim1+1; dim2 < dim_count; ++dim2) {
             SigmaDiff diff;
@@ -58,7 +64,15 @@ InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engi
             }
         }
     DEBUG("Most discriminating dimension is " << most_discriminating_diff->minuend_plane << "," << most_discriminating_diff->minuend_dir << " against " << most_discriminating_diff->subtrahend_plane << "," << most_discriminating_diff->subtrahend_dir);
-    lookup_table.reset( new threed_info::SigmaDiffLookup( most_discriminating_diff->lookup( info ) ) );
+    lookup_table.reset( new threed_info::SigmaDiffLookup( most_discriminating_diff->lookup( t ) ) );
+}
+
+InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
+: info(info),
+  disjoint_amplitudes( config.disjoint_amplitudes() ),
+  need_z_estimate( determine_z_estimate_need(info.traits) )
+{
+    if ( need_z_estimate ) create_z_lookup_table( info.traits );
 }
 
 InitialValueFinder::~InitialValueFinder() {}
@@ -69,7 +83,7 @@ float InitialValueFinder::correlation( const SigmaDiff& sd ) const
     accumulator_set< double, stats< tag::variance > > z_acc;
 
     const threed_info::ZPosition scan_step = 5E-8f * si::meter;
-    const threed_info::SigmaDiffLookup lookup = sd.lookup(info);
+    const threed_info::SigmaDiffLookup lookup = sd.lookup(info.traits);
 
     threed_info::ZRange range( lookup.get_z_range() );
     for ( threed_info::ZPosition z = lower( range ); z < upper( range ); z += scan_step )
@@ -124,7 +138,7 @@ void InitialValueFinder::operator()(
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
 
-    if ( dynamic_cast<PSF::No3D*>(&position[0][0]) == NULL ) {
+    if ( need_z_estimate ) {
         estimate_z( data, e );
     }
     for (int p = 0; p < info.traits.plane_count(); ++p) {
