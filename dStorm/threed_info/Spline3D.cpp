@@ -1,10 +1,13 @@
 #include "dejagnu.h"
 #include "Spline3D.h"
+#include "Config.h"
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
 #include <stdexcept>
 #include <fstream>
+#include <simparm/Object.hh>
+#include <simparm/FileEntry.hh>
 
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
@@ -91,6 +94,35 @@ Spline3D::get_sigma_deriv_( ZPosition z ) const {
         rv = rv * dx + (3-term) * coeffs(i,term);
     return rv;
 }
+
+class Spline3DConfig : public simparm::Object, public Config {
+    simparm::FileEntry z_calibration_file;
+
+    boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const {
+        if ( z_calibration_file )
+            return boost::shared_ptr<DepthInfo>(new Spline3D( SplineFactory( z_calibration_file(), dir) ));
+        else
+            return boost::shared_ptr<DepthInfo>();
+    }
+    void read_traits( const DepthInfo&, const DepthInfo& ) 
+        { z_calibration_file = ""; }
+    void set_context() {}
+    simparm::Node& getNode() { return *this; }
+    void registerNamedEntries() {}
+  public:
+    Spline3DConfig() 
+        : simparm::Object("Spline3D", "Interpolated 3D"),
+          z_calibration_file("ZCalibration", "Z calibration file") { registerNamedEntries(); }
+    Spline3DConfig* clone() const { 
+        Spline3DConfig* p = new Spline3DConfig(*this); 
+        p->registerNamedEntries();
+        return p;
+    }
+};
+
+std::auto_ptr< Config > make_spline_3d_config()
+    { return std::auto_ptr< Config >( new Spline3DConfig() ); }
+
 
 static double spline_test_data[][3] = {
     { 72.0, 0.551030474849, 0.295956171647}, 

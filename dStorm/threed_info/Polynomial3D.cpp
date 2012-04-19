@@ -1,9 +1,21 @@
-#include "DepthInfo.h"
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
+#include <simparm/Entry_Impl.hh>
+#include <simparm/Object.hh>
+
 #include <boost/units/Eigen/Core>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>
-#include <dStorm/threed_info/Polynomial3D.h>
+
+#include <dStorm/units/nanolength.h>
+#include <dStorm/units/microlength.h>
+#include <dStorm/units/permicrolength.h>
+
+#include "Config.h"
+#include "DepthInfo.h"
+#include "Polynomial3D.h"
 
 namespace dStorm {
 namespace threed_info {
@@ -67,6 +79,92 @@ std::ostream& Polynomial3D::print_( std::ostream& o ) const {
         o << 1.0 / get_slope(j) << " ";
     return o << " and focal plane " << z_position;
 }
+
+class Polynomial3DConfig : public simparm::Object, public Config {
+    typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
+    simparm::Entry<PSFSize> psf_size;
+    typedef Eigen::Matrix< boost::units::quantity<boost::units::si::nanolength, double>, 2, 1, Eigen::DontAlign > ZPosition;
+    simparm::Entry< ZPosition > z_position, z_range;
+    typedef simparm::Entry< 
+        Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
+                       polynomial_3d::Order, Eigen::DontAlign > > SlopeEntry;
+    SlopeEntry slopes;
+
+    boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const;
+    void read_traits( const DepthInfo&, const DepthInfo& );
+    void set_context() { }
+    simparm::Node& getNode() { return *this; }
+    void registerNamedEntries() { push_back( psf_size ); push_back( z_position ); push_back( slopes ); push_back( z_range ); }
+  public:
+    Polynomial3DConfig();
+    Polynomial3DConfig* clone() const { 
+        Polynomial3DConfig* p = new Polynomial3DConfig(*this); 
+        p->registerNamedEntries();
+        return p;
+    }
+};
+
+template <typename ToQuantity, typename FromUnit, typename Base>
+Eigen::Matrix< ToQuantity, 2, 1 >
+matrify( quantity<FromUnit,Base> x, quantity<FromUnit,Base> y )
+{
+    Eigen::Matrix< ToQuantity, 2, 1 > rv;
+    rv.x() = ToQuantity(x);
+    rv.y() = ToQuantity(y);
+    return rv;
+}
+
+void Polynomial3DConfig::read_traits( const DepthInfo& dx, const DepthInfo& dy )
+{
+    const Polynomial3D& px = static_cast< const Polynomial3D& >(dx);
+    const Polynomial3D& py = static_cast< const Polynomial3D& >(dy);
+    z_range = matrify<ZPosition::Scalar>(px.z_limit(), py.z_limit());
+    z_position = matrify<ZPosition::Scalar>(px.focal_plane(), py.focal_plane());
+
+    psf_size = matrify< PSFSize::Scalar >( px.get_base_width() * 2.35f, py.get_base_width() * 2.35f );
+
+    SlopeEntry::value_type slopes;
+    for ( Direction dir = Direction_First; dir < Direction_2D; ++dir ) {
+        const Polynomial3D& p = (dir == Direction_X) ? px : py;
+        for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
+            slopes(dir, term-Polynomial3D::MinTerm) = 
+                SlopeEntry::value_type::Scalar(1.0 / p.get_slope(term));
+        }
+    }
+    this->slopes = slopes;
+}
+
+boost::shared_ptr<DepthInfo> Polynomial3DConfig::make_traits(Direction dir) const {
+    boost::shared_ptr<Polynomial3D> p( new Polynomial3D() );
+    p->set_z_limit( threed_info::ZPosition(z_range()[dir]) );
+    p->set_focal_plane( threed_info::ZPosition(z_position()[dir]) );
+    p->set_base_width( Sigma(psf_size()[dir] / 2.35) );
+    for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
+        quantity< si::permicrolength > s = slopes()( dir, term-Polynomial3D::MinTerm );
+        if ( s < 1E-30 / si::micrometer )
+            p->set_slope( term, 1E24 * si::meter );
+        else
+            p->set_slope( term, Polynomial3D::WidthSlope( pow<-1>(s) ) ) ;
+    }
+    return p;
+}
+
+
+Polynomial3DConfig::Polynomial3DConfig()
+: simparm::Object("Polynomial3D", "Polynomial 3D"),
+  psf_size("PSF", "PSF FWHM at sharpest Z", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
+  z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
+  z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
+  slopes("WideningConstants", "Widening slopes")
+{
+    slopes.helpID = "Polynomial3D.WideningSlopes";
+    psf_size.helpID = "PSF.FWHM";
+    z_position.setHelp("Z position where this layer is sharpest in this dimension");
+    registerNamedEntries();
+}
+
+std::auto_ptr< Config > make_polynomial_3d_config()
+    { return std::auto_ptr< Config >( new Polynomial3DConfig() ); }
 
 }
 }
