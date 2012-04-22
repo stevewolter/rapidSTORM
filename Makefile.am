@@ -173,6 +173,8 @@ nobase_include_HEADERS = \
     dStorm/image/corners.h \
     dStorm/image/morphological_reconstruction.h \
     dStorm/image/morphological_reconstruction.hpp \
+    dStorm/image/Box.h dStorm/image/Box.hpp \
+    dStorm/units/icl.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
@@ -213,6 +215,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/SupportPointProjection.cpp \
     dStorm/localization/record.cpp \
     dStorm/helpers/thread.cpp dStorm/display/Manager.cpp dStorm/image/dilation.cpp \
+    dStorm/image/Box.cpp \
     dStorm/helpers/OutOfMemory.cpp \
     dStorm/input/Source.cpp \
     dStorm/input/MetaInfo.cpp \

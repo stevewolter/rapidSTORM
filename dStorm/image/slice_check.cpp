@@ -10,6 +10,7 @@ namespace dStorm
 
 namespace image {
     void reconstruction_by_dilation_test( TestState& state );
+    void check_box( TestState& state );
 }
 
 void image_slice_unit_test( TestState& state ) 
@@ -40,6 +41,7 @@ void image_unit_tests( TestState& state ) {
     image_slice_unit_test(state);
     image_iterator_unit_test(state);
     image::reconstruction_by_dilation_test( state );
+    image::check_box( state );
 }
 
 }

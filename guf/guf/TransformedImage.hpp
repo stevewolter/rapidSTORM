@@ -114,8 +114,10 @@ TransformedImage<LengthUnit>::set_data(
         {
             for (int dim = 0; dim < 2; ++dim) {
                 quantity<LengthUnit> offset = i->position(dim) - quantity< LengthUnit >(rv.highest_pixel[dim]);
+                double intensity_above_background = 
+                    std::max(0.0, (i->value() - rv.quarter_percentile_pixel.value()));
                 acc[dim]( offset.value(),
-                    weight = (i->value() - rv.quarter_percentile_pixel.value()) );
+                    weight = intensity_above_background );
             }
         }
         for (int dim = 0; dim < 2; ++dim)

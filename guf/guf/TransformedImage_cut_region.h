@@ -29,11 +29,10 @@ TransformedImage<LengthUnit>::cut_region(
           << " and range " << max_distance.transpose());
 
     traits::Projection::Bounds bounds = optics.projection().
-        get_region_of_interest( traits::Projection::ROISpecification(center.head<2>(), max_distance.head<2>()) );
+        get_region_of_interest( traits::Projection::ROISpecification(center, max_distance) );
     Bounds r;
-    for (int i = 0; i < 2; ++i) 
-        r.col(i) = bounds[i].array().min( upper_bound.array() ).
-            max( traits::Projection::ImagePosition::Constant(0 * camera::pixel).array() );
+    r.col(0) = bounds.lower_corner();
+    r.col(1) = bounds.upper_corner();
     return r;
 }
 

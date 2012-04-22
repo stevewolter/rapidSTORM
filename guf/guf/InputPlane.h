@@ -6,6 +6,7 @@
 #include "Spot.h"
 #include "Config.h"
 #include <boost/optional/optional.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "guf/psf/LengthUnit.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/traits/Projection.h>
@@ -15,8 +16,51 @@ namespace guf {
 
 template <int Dim> class Statistics;
 class DataPlane;
+
+class InputPlane;
+
+class ScheduleIndexFinder {
+    const bool do_disjoint, use_floats;
+    const engine::InputPlane& plane;
+    const InputPlane& input_plane;
+
+    class set_if_appropriate;
+
+public:
+    ScheduleIndexFinder( const Config& config, const engine::InputPlane& plane, const InputPlane& input_plane );
+    int get_evaluation_tag_index( const guf::Spot& position ) const;
+};
+
+class DataExtractor {
+public:
+    typedef engine::Image2D Image;
+    virtual ~DataExtractor() {}
+    std::auto_ptr<DataPlane> extract_data( const Image& image, const Spot& position ) const
+        { return extract_data_(image,position); }
+private:
+    virtual std::auto_ptr<DataPlane> 
+        extract_data_( const Image& image, const Spot& position ) const = 0;
+};
+
+class DataExtractorTable {
+    const InputPlane& input;
+    boost::ptr_vector<DataExtractor> table_;
+    struct instantiator;
+public:
+    template <typename EvaluationSchedule>
+    DataExtractorTable( EvaluationSchedule, const InputPlane& input );
+    const DataExtractor& get( int index ) const
+        { return table_[index]; }
+};
+
 class InputPlane {
+public:
+    typedef dStorm::engine::Image2D Image;
+private:
     typedef guf::TransformedImage< PSF::LengthUnit > TransformedImage;
+
+    ScheduleIndexFinder index_finder;
+    DataExtractorTable extractor_table;
 
     traits::Projection::ImagePosition im_size;
     TransformedImage transformation;
@@ -24,23 +68,19 @@ class InputPlane {
     quantity< camera::intensity > photon_response_;
     quantity< camera::intensity, int > dark_current;
     boost::optional< float > background_noise_variance_;
-    bool can_do_disjoint_fitting, has_precision,
-         use_floats, poisson_background_;
-
-    static guf::Spot
-        make_max_distance( const dStorm::engine::JobInfo& info, int plane_number );
+    bool has_precision, poisson_background_;
 
     friend class DataPlane;
-    class instantiate_appropriate_data;
+    friend class ScheduleIndexFinder;
+    template <typename Tag> friend class TaggedDataPlane;
 
-  public:
-    typedef dStorm::engine::Image2D Image;
-    InputPlane( const Config&, const dStorm::engine::JobInfo&, int plane_index );
-    std::auto_ptr< DataPlane >
-        set_image( const Image& image, const guf::Spot& position ) const;
     int get_fit_window_width(const guf::Spot& at) const;
     template <typename Data>
     inline const Statistics<2> set_data(Data&, const Image&, const Spot&) const;
+
+public:
+    InputPlane( const Config&, const engine::InputPlane& );
+    std::auto_ptr<DataPlane> set_image( const Image& image, const Spot& position ) const;
     bool can_compute_localization_precision() const { return has_precision; }
     float background_noise_variance() const { return *background_noise_variance_; }
     bool background_is_poisson_distributed() const 

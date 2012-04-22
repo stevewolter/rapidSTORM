@@ -118,15 +118,12 @@ AffineProjection::cut_region_of_interest_( const ROISpecification& r ) const
     Bounds bb = get_region_of_interest_( r );
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
-    rv.reserve( ((bb[1].x() - bb[0].x()).value() + 1) * ((bb[1].y() - bb[0].y()).value() + 1) );
-    for (Pixel x = bb[0].x(); x <= bb[1].x(); x += 1 * camera::pixel) {
-        pos.x() = x;
-        for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
-            pos.y() = y;
-            SamplePosition sample = pixel_in_sample_space( pos );
-            if ( r.contains( sample ) )
-                rv.push_back( MappedPoint( pos, sample ) );
-        }
+    rv.reserve( bb.volume().value() );
+    
+    for ( Bounds::const_iterator i = bb.begin(); i != bb.end(); ++i) {
+        SamplePosition sample = pixel_in_sample_space( *i );
+        if ( r.contains( sample ) )
+            rv.push_back( MappedPoint( *i, sample ) );
     }
     return rv;
 }
@@ -137,10 +134,10 @@ AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
     /* Determine bounds of region of interest */
     DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
           << " and range " << radius.transpose());
-    Bounds r;
+    Bounds::Position lower, upper;
     for (int i = 0; i < 2; ++i) {
-        r[0][i] = std::numeric_limits<int>::max() * camera::pixel;
-        r[1][i] = std::numeric_limits<int>::min() * camera::pixel;
+        lower[i] = std::numeric_limits<int>::max() * camera::pixel;
+        upper[i] = std::numeric_limits<int>::min() * camera::pixel;
     }
     SamplePosition sample_pos;
     int dir[2];
@@ -152,13 +149,13 @@ AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
         SubpixelImagePosition im = from_value< camera::length >(to_image * value(sample_pos));
         for (int d = 0; d < 2; ++d) {
             ImagePosition::Scalar p = ImagePosition::Scalar(im[d]);
-            r[0][d] = std::min( r[0][d], p );
-            r[1][d] = std::max( r[1][d], p );
+            lower[d] = std::min( lower[d], p );
+            upper[d] = std::max( upper[d], p );
         }
     }
 
     DEBUG("Got box " << r.col(0).transpose() << " to " << r.col(1).transpose());
-    return r;
+    return Bounds( lower, upper );
 }
 
 AffineProjection::AffineProjection( 

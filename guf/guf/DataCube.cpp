@@ -13,7 +13,7 @@ namespace guf {
 InputCube::InputCube( const Config& ad, const dStorm::engine::JobInfo& info )
 {
     for (int i = 0; i < info.traits.plane_count(); ++i)
-        planes.push_back( new InputPlane( ad, info, i ) );
+        planes.push_back( new InputPlane( ad, info.traits.plane(i) ) );
 }
 
 std::auto_ptr< DataCube >

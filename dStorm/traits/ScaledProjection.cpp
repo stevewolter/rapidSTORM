@@ -97,36 +97,33 @@ ScaledProjection::cut_region_of_interest_( const ROISpecification& r ) const
     Bounds bb = get_region_of_interest_( r );
 
     if ( r.guaranteed_row_width ) {
-        quantity< camera::length, int > one =1 * camera::pixel, 
-                                        width = bb[1].x() - bb[0].x() + one;
+        quantity< camera::length, int > 
+            one =1 * camera::pixel, width = bb.width(Direction_X),
+            lower = bb.get_lower_edge( Direction_X ), upper = bb.get_upper_edge( Direction_X );
         if ( width < *r.guaranteed_row_width ) { 
-            bb[0].x() -= one; width += one; 
+            lower -= one; width += one; 
             if ( width < *r.guaranteed_row_width ) 
-                { bb[1].x() += one; width += one; }
+                { upper += one; width += one; }
         } else if ( width > *r.guaranteed_row_width ) {
-            bb[1].x() -= one; width -= one;
+            upper -= one; width -= one;
         }
         assert( width == *r.guaranteed_row_width );
-        while ( bb[1].x() >= size.x() )
-            { bb[1].x() -= one; bb[0].x() -= one; }
-        while ( bb[0].x() < 0 * camera::pixel )
-            { bb[0].x() += one; bb[1].x() += one; }
-        if ( bb[1].x() >= size.x() )
+        while ( upper >= size.x() )
+            { upper -= one; lower -= one; }
+        while ( lower < 0 * camera::pixel )
+            { lower += one; upper += one; }
+        if ( upper >= size.x() )
             throw std::runtime_error("Image is too small for desired ROI");
+
+        bb.set_range( lower, upper, Direction_X );
     }
 
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
-    rv.reserve( (value( bb[1] - bb[0] ).array() + 1).prod() );
+    rv.reserve( bb.volume().value() );
     SamplePosition sample;
-    for (Pixel y = bb[0].y(); y <= bb[1].y(); y += 1 * camera::pixel) {
-        pos.y() = y;
-        sample.y() = to_sample.diagonal().y() * y.value() * si::meter;
-        for (Pixel x = bb[0].x(); x <= bb[1].x(); x += 1 * camera::pixel) {
-            pos.x() = x;
-            sample.x() = to_sample.diagonal().x() * x.value() * si::meter;
-            rv.push_back( MappedPoint( pos, sample ) );
-        }
+    for ( Bounds::const_iterator i = bb.begin(); i != bb.end(); ++i ) {
+        rv.push_back( MappedPoint( *i, pixel_in_sample_space(*i) ) );
     }
     return rv;
 }
@@ -137,13 +134,10 @@ ScaledProjection::get_region_of_interest_( const ROISpecification& r ) const
     /* Determine bounds of region of interest */
     DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
           << " and range " << radius.transpose());
-    Bounds rv;
-    rv[0] = from_value< camera::length >( ceil(to_image * value(r.center - r.width)).cast<int>() );
-    rv[1] = from_value< camera::length >( floor(to_image * value(r.center + r.width)).cast<int>() );
-    for (int i = 0; i < 2; ++i)
-        for (int j = 0; j < 2; ++j)
-            rv[i][j] = std::max( 0 * camera::pixel, std::min( rv[i][j], size[j] - 1 * camera::pixel ) );
-    return rv;
+    Bounds native( 
+        from_value< camera::length >( ceil(to_image * value(r.center - r.width)).cast<int>() ),
+        from_value< camera::length >( floor(to_image * value(r.center + r.width)).cast<int>() ) );
+    return native.intersection( Bounds::ZeroOrigin(size) );
 }
 
 ScaledProjection::ScaledProjection( 

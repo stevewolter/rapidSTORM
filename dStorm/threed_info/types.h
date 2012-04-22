@@ -5,20 +5,7 @@
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/icl/interval_set.hpp>
-#include <boost/icl/type_traits/unit_element.hpp>
-
-namespace boost {
-namespace icl {
-template <typename Unit, typename Quantity>
-struct unit_element< units::quantity<Unit,Quantity> > {
-    typedef units::quantity<Unit,Quantity> value_type;
-    inline static value_type value() { 
-        return value_type::from_value( unit_element<Quantity>::value() );
-    }
-};
-
-}
-}
+#include <dStorm/units/icl.h>
 
 namespace dStorm {
 namespace threed_info {

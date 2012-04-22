@@ -1,6 +1,7 @@
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si/length.hpp>
 #include <dStorm/engine/JobInfo_decl.h>
+#include <dStorm/units/icl.h>
 #include <boost/icl/interval.hpp>
 #include <boost/icl/interval_set.hpp>
 #include "Config_decl.h"

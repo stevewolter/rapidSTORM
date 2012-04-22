@@ -9,7 +9,7 @@
 #include <boost/units/systems/si/area.hpp>
 #include <boost/optional/optional.hpp>
 #include <vector>
-#include <boost/array.hpp>
+#include <dStorm/image/Box.h>
 
 namespace dStorm {
 namespace traits {
@@ -39,7 +39,7 @@ struct Projection {
         bool contains( const SamplePosition& ) const;
     };
     typedef std::vector< MappedPoint > ROI;
-    typedef boost::array< ImagePosition, 2 > Bounds;
+    typedef image::Box<2> Bounds;
 
     virtual ~Projection() {}
   private:
@@ -49,7 +49,7 @@ struct Projection {
         ( const ImagePosition& at ) const;
     virtual std::vector< MappedPoint >
         cut_region_of_interest_( const ROISpecification& ) const = 0;
-    virtual boost::array< ImagePosition, 2 >
+    virtual Bounds
         get_region_of_interest_( const ROISpecification& ) const = 0;
     virtual ImagePosition nearest_point_in_image_space_
         ( const SamplePosition& pos ) const = 0;

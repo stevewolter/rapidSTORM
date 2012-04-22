@@ -352,10 +352,8 @@ SupportPointProjection::get_region_of_interest_( const ROISpecification& roi ) c
 {
     ImagePosition lower = nearest_point_in_image_space( roi.center - roi.width ),
                   upper = nearest_point_in_image_space( roi.center + roi.width );
-    SupportPointProjection::Bounds rv;
-    rv[0] = lower;
-    rv[1] = upper;
-    return rv;
+    
+    return SupportPointProjection::Bounds( lower, upper );
 }
 
 SupportPointProjection::ImagePosition
