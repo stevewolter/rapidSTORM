@@ -46,6 +46,7 @@ void FormCalibrationConfig::registerNamedEntries( simparm::Node& at )
     at.push_back( universal_prefactors_ );
     at.push_back( fit_best_sigma_ );
     at.push_back( fit_focus_plane_ );
+    at.push_back( fit_prefactors_ );
     for (int i = 0; i < polynomial_3d::Order; ++i)
         at.push_back( *z_terms[i] );
     at.push_back( new_z_ );
