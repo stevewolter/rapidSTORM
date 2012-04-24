@@ -22,8 +22,7 @@ Optics::Optics( const Spot& max_distance, const engine::InputPlane& image_optics
             : boost::optional<float>()
   ),
   has_precision( image_optics.optics.photon_response.is_initialized() && background_noise_variance_.is_initialized() ),
-  poisson_background_( image_optics.optics.dark_current.is_initialized() && image_optics.optics.photon_response.is_initialized() ),
-  background_part( 0.25f )
+  poisson_background_( image_optics.optics.dark_current.is_initialized() && image_optics.optics.photon_response.is_initialized() )
 {
 }
 
@@ -41,6 +40,17 @@ double Optics::absolute_in_photons( quantity<camera::intensity> amp ) const
     { return ( amp - dark_current ) / photon_response_; }
 double Optics::relative_in_photons( quantity<camera::intensity> amp ) const
     { return amp / photon_response_; }
+
+quantity< si::area > Optics::pixel_size( const Spot& center ) const {
+    return projection.pixel_size( projection.nearest_point_in_image_space( center ) );
+}
+
+traits::Projection::ROI
+Optics::get_region_of_interest( const Spot& center, OptPixel width ) const {
+    traits::Projection::ROISpecification roi_request( center, max_distance );
+    roi_request.guaranteed_row_width = width;
+    return projection.cut_region_of_interest( roi_request );
+}
 
 #if 0
   transformation( guf::Spot::Constant( guf::Spot::Scalar( c.fit_window_size() ) ),

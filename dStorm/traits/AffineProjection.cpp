@@ -21,6 +21,7 @@ using namespace boost::units;
 
 class AffineProjection : public Projection {
     Eigen::Affine2f to_sample, to_image;
+    Bounds size;
 
     SamplePosition point_in_sample_space_
         ( const SubpixelImagePosition& pos ) const;
@@ -36,7 +37,8 @@ class AffineProjection : public Projection {
     AffineProjection( 
         units::quantity<units::camera::resolution> x, 
         units::quantity<units::camera::resolution> y, 
-        Eigen::Affine2f after_transform );
+        Eigen::Affine2f after_transform,
+        ImagePosition size );
 };
 
 class AffineProjectionFactory
@@ -67,7 +69,8 @@ class AffineProjectionFactory
         return new AffineProjection(
             mi.resolution(0).in_dpm(), 
             mi.resolution(1).in_dpm(), 
-            Eigen::Affine2f(elements) );
+            Eigen::Affine2f(elements),
+            mi.size );
     }
 
   public:
@@ -116,6 +119,7 @@ AffineProjection::cut_region_of_interest_( const ROISpecification& r ) const
 {
     std::vector< MappedPoint > rv;
     Bounds bb = get_region_of_interest_( r );
+
     ImagePosition pos;
     typedef ImagePosition::Scalar Pixel;
     rv.reserve( bb.volume().value() );
@@ -155,13 +159,15 @@ AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
     }
 
     DEBUG("Got box " << r.col(0).transpose() << " to " << r.col(1).transpose());
-    return Bounds( lower, upper );
+    return Bounds( lower, upper ).intersection( size );
 }
 
 AffineProjection::AffineProjection( 
         quantity<camera::resolution> x, 
         quantity<camera::resolution> y, 
-        Eigen::Affine2f after_transform )
+        Eigen::Affine2f after_transform,
+        ImagePosition size )
+: size( Bounds::ZeroOrigin(size) )
 {
     to_sample = after_transform * Eigen::DiagonalMatrix<float,2>( 1.0 / x.value(), 1.0 / y.value() );
     to_image = to_sample.inverse();

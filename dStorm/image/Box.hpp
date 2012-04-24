@@ -2,6 +2,7 @@
 #define DSTORM_IMAGE_BOX_HPP
 
 #include "Box.h"
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace image {
@@ -26,8 +27,9 @@ template <int Dimensions>
 Box<Dimensions> Box<Dimensions>::intersection( const Box& o ) const
 {
     Box rv;
-    for (int i = 0; i < Dimensions; ++i)
+    for (int i = 0; i < Dimensions; ++i) {
         rv.sides[i] = sides[i] & o.sides[i];
+    }
     return rv;
 }
 
@@ -57,7 +59,7 @@ typename Box<Dimensions>::Position Box<Dimensions>::upper_corner() const {
 
 template <int Dimensions>
 typename Box<Dimensions>::Span Box<Dimensions>::width( Direction dim ) const {
-    return upper( sides[dim] ) - lower( sides[dim] ) + 1 * camera::pixel;
+    return is_empty( sides[dim] ) ? 0 * camera::pixel : (upper( sides[dim] ) - lower( sides[dim] ) + 1 * camera::pixel);
 }
 
 template <int Dimensions>
@@ -81,7 +83,12 @@ void Box<Dimensions>::const_iterator::advance(int n ) {
 }
 
 template <int Dimensions>
-typename Box<Dimensions>::const_iterator Box<Dimensions>::begin() const { return const_iterator( *this, lower_corner() ); }
+typename Box<Dimensions>::const_iterator Box<Dimensions>::begin() const { 
+    if ( volume().value() == 0 ) 
+        return end();
+    else
+        return const_iterator( *this, lower_corner() ); 
+}
 template <int Dimensions>
 typename Box<Dimensions>::const_iterator Box<Dimensions>::end() const { 
     Position end = lower_corner();
