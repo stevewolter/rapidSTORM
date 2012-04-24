@@ -3,17 +3,15 @@
 
 #include "Config.h"
 #include <dStorm/output/Output.h>
-#include "guf/guf/TransformedImage.h"
+#include "guf/guf/Spot.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace form_fitter {
 
 struct Input {
-    typedef guf::TransformedImage< si::length > Transformed;
-
     boost::shared_ptr< const input::Traits< engine::ImageStack > > traits;
-    boost::ptr_vector<Transformed> transforms;
+    guf::Spot width;
     const int number_of_spots;
     int fluorophore_count;
 

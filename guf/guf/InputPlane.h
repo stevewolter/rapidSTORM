@@ -3,9 +3,11 @@
 
 #include "Spot.h"
 #include "Config.h"
-#include "DataExtractor.h"
-#include "ScheduleIndexFinder.h"
+#include <dStorm/engine/Image_decl.h>
+
 #include "Optics.h"
+#include "ScheduleIndexFinder.h"
+#include "DataExtractor.h"
 
 namespace dStorm {
 namespace guf {
@@ -17,7 +19,7 @@ class InputPlane;
 
 class InputPlane {
 public:
-    typedef dStorm::engine::Image2D Image;
+    typedef engine::Image2D Image;
 private:
     Optics optics;
     ScheduleIndexFinder index_finder;

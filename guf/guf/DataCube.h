@@ -35,7 +35,6 @@ struct DataCube
     typedef typename Planes::iterator iterator;
     iterator begin() { return planes.begin(); }
     iterator end() { return planes.end(); }
-    DataPlane& operator[](int i) { return planes[i]; }
     const DataPlane& operator[](int i) const { return planes[i]; }
 
     guf::Statistics<3> get_statistics() const;

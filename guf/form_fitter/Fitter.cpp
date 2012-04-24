@@ -8,9 +8,9 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/JobInfo.h>
-#include "guf/guf/TransformedImage.hpp"
 #include "guf/guf/Spot.h"
 #include <nonlinfit/plane/Distance.hpp>
+#include <nonlinfit/plane/JointData.hpp>
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/sum/AbstractMap.hpp>
@@ -35,6 +35,9 @@
 #include <dStorm/engine/InputTraits.h>
 #include <fstream>
 #include "guf/select_3d_lambda.hpp"
+
+#include "guf/guf/Optics.h"
+#include "guf/guf/DataPlaneImpl.hpp"
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -245,19 +248,15 @@ class Fitter
     struct less_amplitude;
 
     typedef typename PSF::StandardFunction< Lambda, 1 >::type TheoreticalFunction;
+    typedef plane::xs_joint<double,PSF::LengthUnit,2>::type DataTag;
     typedef BoundFunction< 
-        nonlinfit::plane::Distance<
-            TheoreticalFunction,
-            plane::xs_joint<double,PSF::LengthUnit,2>::type,
-            Metric > > 
+        nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 
         PlaneFunction;
     typedef nonlinfit::VectorPosition< Lambda > VectorPosition;
     typedef sum::AbstractFunction< PlaneFunction, PlaneFunction, nonlinfit::sum::VariableDropPolicy > CombinedFunction;
-    typedef guf::TransformedImage< PSF::LengthUnit > Transformation;
 
-    /** Transformations indexed by input layer. */
-    boost::ptr_vector<Transformation> transformations;
-    /** Transformations indexed by input plane. */
+    /** Optics indexed by input layer. */
+    boost::ptr_vector<guf::Optics> optics;
     typedef boost::ptr_vector< PlaneFunction > Evaluators;
     Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
@@ -314,7 +313,7 @@ Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine
 {
     DEBUG("Creating form fitter");
     for ( int i = 0; i < traits.plane_count(); ++i ) {
-        transformations.push_back( new Transformation(config.fit_window_width().template cast< guf::Spot::Scalar >(), traits.plane(i)) );
+        optics.push_back( new guf::Optics(config.fit_window_width().template cast< guf::Spot::Scalar >(), traits.plane(i)) );
     }
 }
 
@@ -327,17 +326,11 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
+        guf::DataPlaneImpl<DataTag>
+            data_creator( optics[i], image.plane(i), 
+               guf::Spot( position.position().template head<2>() ) );
         std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction() );
-        /* The data are persisted in the evaluator's data store. */
-        guf::Statistics<2> stats = 
-            transformations[ i ].set_data( 
-                new_evaluator->get_data(),
-                image.plane(i),
-                guf::Spot( position.position().template head<2>() ),
-                guf::mle_converter(traits.optics(i))  );
-        /* Check the number pixels used in PSF estimation for this spot & plane. */
-        assert ( stats.pixel_count > 0 );
-        DEBUG("Size is now " << new_evaluator->get_data().min.transpose() << " - " << new_evaluator->get_data().max.transpose() );
+        new_evaluator->get_data() = data_creator.get_the_data();
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );

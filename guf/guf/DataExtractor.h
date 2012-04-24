@@ -27,6 +27,7 @@ private:
 class DataExtractorTable {
     const Optics& optics;
     boost::ptr_vector<DataExtractor> table_;
+    template <typename EvaluationSchedule>
     struct instantiator;
 public:
     template <typename EvaluationSchedule>

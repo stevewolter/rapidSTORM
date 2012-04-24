@@ -13,17 +13,18 @@ template <int Dim> class Statistics;
 class Optics;
 
 class DataPlane {
-  protected:
+protected:
     const Optics& optics_;
-    const int tag_index_;
+public:
+    int tag_index;
 
-    DataPlane( const Optics& optics, int tag_index )
-        : optics_(optics), tag_index_(tag_index) {}
-  private:
+protected:
+    DataPlane( const Optics& optics ) : optics_(optics), tag_index(-1) {}
+private:
     virtual const void* get_data() const = 0;
     virtual std::auto_ptr<Centroid> _residue_centroid() const = 0;
 
-  public:
+public:
     virtual ~DataPlane() {}
     template <typename Tag> 
     const typename Tag::Data& get_data() const {
@@ -36,7 +37,6 @@ class DataPlane {
     std::auto_ptr<Centroid> residue_centroid() const
         { return _residue_centroid(); }
 
-    int tag_index() const { return tag_index_; }
 };
 
 }

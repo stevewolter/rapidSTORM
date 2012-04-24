@@ -20,7 +20,9 @@ namespace guf {
 
 std::auto_ptr<DataPlane> InputPlane::set_image( const Image& image, const Spot& position ) const {
     int index = index_finder.get_evaluation_tag_index( position );
-    return extractor_table.get( index ).extract_data( image, position );
+    std::auto_ptr<DataPlane> rv = extractor_table.get( index ).extract_data( image, position );
+    rv->tag_index = index;
+    return rv;
 }
 
 InputPlane::InputPlane( const Config& c, const engine::InputPlane& plane )
@@ -54,7 +56,7 @@ void test_DataPlane_scaled( TestState& state )
 
     InputPlane scaled( config, traits );
     std::auto_ptr<DataPlane> data1 = scaled.set_image( image , position );
-    state( data1->tag_index() == nonlinfit::index_of< 
+    state( data1->tag_index == nonlinfit::index_of< 
         evaluation_tags, 
         nonlinfit::plane::xs_disjoint<double,PSF::LengthUnit,14>::type >::value,
         "DataPlane selects disjoint fitting when applicable" );

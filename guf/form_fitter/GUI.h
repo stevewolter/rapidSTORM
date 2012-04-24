@@ -18,8 +18,6 @@ class GUI {
     dStorm::engine::Image2D::Size get_maximum_tile_size();
     static const int tile_cols = 7, tile_rows = 6;
 
-    typedef guf::TransformedImage< si::length > Transformed;
-
     boost::ptr_vector<Tile> work;
     const Input& input;
     std::auto_ptr<EngineBlock> engine;

@@ -1,9 +1,9 @@
+#include "debug.h"
 #include "GUI.h"
 #include <dStorm/display/Manager.h>
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/image/crop.h>
 #include <dStorm/image/minmax.h>
-#include "guf/guf/TransformedImage_cut_region.h"
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/convert.h>
 #include <dStorm/image/extend.h>
@@ -72,7 +72,7 @@ struct DisplayHandler
 void DisplayHandler::notice_drawn_rectangle(int xf, int xt, int yf, int yt) {
         DEBUG("Processing notice_drawn_rectangle");
         boost::lock_guard<boost::mutex> lock(mutex);
-        guf::TransformedImage< si::length >::Bounds b;
+        Eigen::Array< boost::units::quantity<boost::units::camera::length, int>, 2, 2 > b;
         b(0,0) = xf * camera::pixel;
         b(1,0) = yf * camera::pixel;
         b(0,1) = xt * camera::pixel;
@@ -156,14 +156,13 @@ dStorm::engine::Image2D::Size GUI::get_maximum_tile_size()
     dStorm::engine::Image2D::Size rv = dStorm::engine::Image2D::Size::Constant( 1 * camera::pixel );
     for ( boost::ptr_vector<Tile>::iterator i = work.begin(); i != work.end(); ++i )
     {
-        assert( int(input.transforms.size()) >= i->image.plane_count() );
         i->bounds.clear();
         for (int p = 0; p < i->image.plane_count(); ++p) {
-            traits::Projection::ImagePosition sz = i->image.plane(p).sizes().array() - 1 * camera::pixel;
-            i->bounds.push_back( input.transforms[p].cut_region( i->spot.position().head<2>(), sz ) );
-            const Transformed::Bounds& b = i->bounds.back();
-            for (int i = 0; i < 2; ++i)
-                rv[i] = std::max( b(i,1) - b (i,0) + 1 * camera::pixel, rv[i] );
+            traits::Projection::ROISpecification roi( i->spot.position().head<2>(), input.width );
+            i->bounds.push_back( input.traits->plane(p).projection().get_region_of_interest(roi) );
+            const traits::Projection::Bounds& b = i->bounds.back();
+            for (Direction i = Direction_First; i != Direction_2D; ++i)
+                rv[i] = std::max( b.width( i ), rv[i] );
         }
     }
     return rv;
@@ -217,12 +216,12 @@ GUI::make_spot_display() {
         for (int p = 0; p < i->image.plane_count(); ++p )
         {
             assert( int(i->bounds.size()) > p );
-            Transformed::Bounds b = i->bounds[p];
+            traits::Projection::Bounds b = i->bounds[p];
             engine::Image2D::Size from_lower, from_upper;
             TargetImage::Size to_lower, to_upper;
             from_lower.fill( p * camera::pixel ); from_upper = from_lower;
-            from_lower.head<2>() = b.col(0);
-            from_upper.head<2>() = b.col(1);
+            from_lower = b.lower_corner();
+            from_upper = b.upper_corner();
             to_lower.x() = current_left_edge + 1 * camera::pixel;
             to_lower.y() = current_plane_top + 1 * camera::pixel;
             to_upper.head<2>() = (from_upper - from_lower).head<2>() + to_lower.head<2>();

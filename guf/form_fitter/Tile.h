@@ -4,7 +4,7 @@
 #include <dStorm/engine/Input.h>
 #include <dStorm/Localization.h>
 #include <dStorm/display/DataSource.h>
-#include "guf/guf/TransformedImage.h"
+#include <dStorm/traits/Projection.h>
 
 namespace dStorm {
 namespace form_fitter {
@@ -14,7 +14,7 @@ struct Tile {
     engine::ImageStack image;
     Localization spot;
     int fluorophore;
-    std::vector< guf::TransformedImage< si::length >::Bounds > bounds;
+    std::vector< traits::Projection::Bounds > bounds;
 };
 
 }

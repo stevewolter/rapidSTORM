@@ -45,7 +45,7 @@ template <class Function>
 typename FunctionRepository<Function>::result_type*
 FunctionRepository<Function>::operator()( const DataPlane& data, bool mle )
 {
-    const int index = data.tag_index(); 
+    const int index = data.tag_index; 
     return &store[index].for_data( data, (mle) ? PoissonLikelihood : LeastSquares );
 }
 
