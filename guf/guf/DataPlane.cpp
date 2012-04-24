@@ -4,13 +4,8 @@
 #include "DataPlane.h"
 #include "InputPlane.h"
 
-#include "TransformedImage.hpp"
 #include <nonlinfit/index_of.h>
-#include <boost/mpl/for_each.hpp>
-#include <boost/bind/bind.hpp>
 #include "EvaluationTags.h"
-#include "mle_converter.h"
-#include <boost/type_traits/is_same.hpp>
 #include "Statistics.h"
 #include <dStorm/engine/InputTraits.h>
 
@@ -22,15 +17,6 @@ using namespace nonlinfit::plane;
 
 namespace dStorm {
 namespace guf {
-
-#if 0
-template <typename Data>
-const Statistics<2> InputPlane::set_data( Data& d, const Image& i, const Spot& s ) const
-{
-    mle_converter t(dark_current, photon_response_);
-    return transformation.set_data( d, i, s, t );
-}
-#endif
 
 std::auto_ptr<DataPlane> InputPlane::set_image( const Image& image, const Spot& position ) const {
     int index = index_finder.get_evaluation_tag_index( position );
