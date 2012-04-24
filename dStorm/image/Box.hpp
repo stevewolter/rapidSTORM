@@ -83,7 +83,11 @@ void Box<Dimensions>::const_iterator::advance(int n ) {
 template <int Dimensions>
 typename Box<Dimensions>::const_iterator Box<Dimensions>::begin() const { return const_iterator( *this, lower_corner() ); }
 template <int Dimensions>
-typename Box<Dimensions>::const_iterator Box<Dimensions>::end() const { return const_iterator( *this, upper_corner() ); }
+typename Box<Dimensions>::const_iterator Box<Dimensions>::end() const { 
+    Position end = lower_corner();
+    end[Dimensions-1] = upper( sides[Dimensions-1] ) + 1 * camera::pixel;
+    return const_iterator( *this, end ); 
+}
 
 }
 }

@@ -37,7 +37,7 @@ void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos,
         for ( int plane = 0; plane < plane_count; ++plane ) {
             by_plane.push_back( Localization() );
             write_parameters( by_plane.back(), pos[plane], chi_sq, data[plane] );
-            if ( ! data[plane].input_plane().can_compute_localization_precision() )
+            if ( ! data[plane].optics().can_compute_localization_precision() )
                 weight_by_uncertainty = false;
         }
         join_localizations( loc, by_plane, weight_by_uncertainty );
@@ -80,9 +80,9 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPla
     double N = m[0]( PSF::Amplitude() ) * m[0]( PSF::Prefactor() );
     double B = m.background_model()( constant_background::Amount() );
     double background_variance = 
-        ( p.input_plane().background_is_poisson_distributed() )
+        ( p.optics().background_is_poisson_distributed() )
         ? B
-        : p.input_plane().background_noise_variance();
+        : p.optics().background_noise_variance();
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
         quantity<si::area> psf_variance 
@@ -105,20 +105,20 @@ void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane&
     const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &m[0] );
     if ( threed )
         pos[2] = quantity<si::length>( (*threed)( PSF::MeanZ() ) );
-    Localization::Amplitude::Type amp( m[0]( PSF::Amplitude() ) * data.input_plane().photon_response() );
+    Localization::Amplitude::Type amp( m[0]( PSF::Amplitude() ) * data.optics().photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() = 
             quantity< camera::intensity, float >
-                ( m.background_model()( constant_background::Amount() ) * data.input_plane().photon_response() );
+                ( m.background_model()( constant_background::Amount() ) * data.optics().photon_response() );
     rv.fit_residues = chi_sq;
-    if ( output_sigmas || data.input_plane().can_compute_localization_precision() )
+    if ( output_sigmas || data.optics().can_compute_localization_precision() )
         for (int i = 0; i < 2; ++i) {
             quantity<si::length,float> sigma(m[0].get_sigma()[i]);
             rv.fit_covariance_matrix()(i,i) = sigma*sigma;
         }
 
-    if ( data.input_plane().can_compute_localization_precision() )
+    if ( data.optics().can_compute_localization_precision() )
         compute_uncertainty( rv, m, data );
 
     rv.fluorophore = fluorophore;

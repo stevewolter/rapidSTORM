@@ -7,6 +7,7 @@
 #include <nonlinfit/plane/fwd.h>
 #include "guf/psf/LengthUnit.h"
 #include "Statistics.h"
+#include <dStorm/engine/JobInfo.h>
 
 namespace dStorm {
 namespace guf {

@@ -545,6 +545,9 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/Spot.h \
     guf/guf/Centroid.h guf/guf/Centroid.cpp \
     guf/guf/TransformedImage.h \
+    guf/guf/Optics.h guf/guf/Optics.cpp \
+    guf/guf/ScheduleIndexFinder.h guf/guf/ScheduleIndexFinder.hpp guf/guf/ScheduleIndexFinder.cpp \
+    guf/guf/DataExtractor.h guf/guf/DataExtractor.cpp \
     guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
