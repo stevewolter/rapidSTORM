@@ -1,23 +1,18 @@
 #include "ScheduleIndexFinder.hpp"
-#include "guf/guf/EvaluationTags.h"
 #include <boost/test/unit_test.hpp>
 #include <dStorm/engine/InputPlane.h>
 #include <dStorm/traits/ScaledProjection.h>
+#include <boost/mpl/vector.hpp>
+#include <nonlinfit/plane/Disjoint.h>
+#include <nonlinfit/plane/Joint.h>
 
 namespace dStorm {
 namespace fit_window {
 
-ScheduleIndexFinder::ScheduleIndexFinder( bool disjoint, bool use_doubles, const Optics& optics )
-: do_disjoint( disjoint && 
-    optics.supports_guaranteed_row_width() ),
-  use_doubles( use_doubles ),
-  optics(optics)
-{
-}
-
 int ScheduleIndexFinder::get_evaluation_tag_index( const Spot& position ) const
 {
-    return get_evaluation_tag_index( guf::evaluation_tags(), position);
+    int width = std::min( int(table.size())-1, optics.get_fit_window_width(position) );
+    return table[width];
 }
 
 typedef boost::units::si::length LengthUnit;
@@ -53,10 +48,14 @@ public:
       optics( max_distance, traits ) {}
 
     void check_indices( Spot position, int disjoint_double, int disjoint_float ) {
-        BOOST_CHECK_EQUAL( ScheduleIndexFinder(true,false,optics).get_evaluation_tag_index( test_tags(), position ), disjoint_float );
-        BOOST_CHECK_EQUAL( ScheduleIndexFinder(false,false,optics).get_evaluation_tag_index( test_tags(), position ), 6 );
-        BOOST_CHECK_EQUAL( ScheduleIndexFinder(true,true,optics).get_evaluation_tag_index( test_tags(), position ), disjoint_double );
-        BOOST_CHECK_EQUAL( ScheduleIndexFinder(false,true,optics).get_evaluation_tag_index( test_tags(), position ), 3 );
+        BOOST_CHECK_EQUAL( ScheduleIndexFinder(test_tags(),true,false,optics,20)
+            .get_evaluation_tag_index( position ), disjoint_float );
+        BOOST_CHECK_EQUAL( ScheduleIndexFinder(test_tags(),false,false,optics,20)
+            .get_evaluation_tag_index( position ), 6 );
+        BOOST_CHECK_EQUAL( ScheduleIndexFinder(test_tags(),true,true,optics,20)
+            .get_evaluation_tag_index( position ), disjoint_double );
+        BOOST_CHECK_EQUAL( ScheduleIndexFinder(test_tags(),false,true,optics,20)
+            .get_evaluation_tag_index( position ), 3 );
     }
 };
 

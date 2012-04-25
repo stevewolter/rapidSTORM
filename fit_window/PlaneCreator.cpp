@@ -1,70 +1,11 @@
-#include <algorithm>
+#include "PlaneCreator.hpp"
 
 #include <boost/test/unit_test.hpp>
-
-#include <nonlinfit/plane/DisjointData.hpp>
-#include <nonlinfit/plane/JointData.hpp>
-
-#include "PlaneCreator.h"
-#include "Plane.h"
-#include "guf/guf/EvaluationTags.h"
-#include "fit_position_out_of_range.h"
-#include "Optics.h"
-#include "PlaneImpl.hpp"
-
-namespace dStorm {
-namespace fit_window {
-
-using namespace boost::units;
-using namespace boost::accumulators;
-
-fit_position_out_of_range::fit_position_out_of_range()
-: std::runtime_error("Selected fit position not in all layers of image") {}
-
-template <typename Tag>
-struct PlaneCreatorImpl : public PlaneCreator {
-    const Optics& input;
-    std::auto_ptr<Plane> extract_data_( const engine::Image2D& image, const Spot& position ) const {
-        return std::auto_ptr<Plane>( new PlaneImpl<Tag>( input, image, position ) );
-    }
-public:
-    PlaneCreatorImpl( const Optics& input ) : input(input) {}
-};
-
-template <typename EvaluationSchedule>
-struct PlaneCreatorTable::instantiator {
-    typedef void result_type;
-    template <typename Tag>
-    void operator()( PlaneCreatorTable& target, Tag ) 
-    {
-        target.table_.push_back( new PlaneCreatorImpl<Tag>(target.optics) );
-    }
-};
-
-
-template <typename EvaluationSchedule>
-PlaneCreatorTable::PlaneCreatorTable( 
-    EvaluationSchedule, 
-    const Optics& input
-) : optics(input) 
-{
-    boost::mpl::for_each< EvaluationSchedule >(
-        boost::bind( instantiator<EvaluationSchedule>(), boost::ref(*this), _1 ) );
-}
-
-PlaneCreatorTable::PlaneCreatorTable( const Optics& input) 
-: optics(input) 
-{
-    boost::mpl::for_each< guf::evaluation_tags >(
-        boost::bind( instantiator<guf::evaluation_tags>(), boost::ref(*this), _1 ) );
-}
-
-}
-}
-
 #include <dStorm/engine/InputPlane.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/traits/ScaledProjection.h>
+#include <nonlinfit/plane/DisjointData.hpp>
+#include <nonlinfit/plane/Disjoint.h>
 
 #define BOOST_CHECK_CLOSE_UNIT(u,x,y,t) BOOST_CHECK_CLOSE( x/u, y/u, t/u )
 

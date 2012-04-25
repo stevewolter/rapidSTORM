@@ -32,7 +32,6 @@ class PlaneCreatorTable {
 public:
     template <typename EvaluationSchedule>
     PlaneCreatorTable( EvaluationSchedule, const Optics& optics );
-    PlaneCreatorTable( const Optics& optics );
     const PlaneCreator& get( int index ) const
         { return table_[index]; }
 };

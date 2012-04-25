@@ -12,6 +12,8 @@
 #include <boost/bind/bind.hpp>
 #include <boost/units/io.hpp>
 
+#include <nonlinfit/plane/fwd.h>
+
 namespace dStorm {
 namespace fit_window {
 

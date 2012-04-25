@@ -15,6 +15,11 @@
 #include "fit_window/Centroid.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/engine/Image.h>
+#include "fit_window/Stack.hpp"
+
+#include "EvaluationTags.h"
+#include <nonlinfit/plane/DisjointData.hpp>
+#include <nonlinfit/plane/JointData.hpp>
 
 namespace dStorm {
 namespace guf {
@@ -27,7 +32,7 @@ Fitter::Fitter(
 )
 : traits(info.traits),
   info(info,traits),
-  data_creator( config.fit_window_config, this->info ),
+  data_creator( config.fit_window_config, this->info, evaluation_tags(), MaxWindowWidth ),
   initial_value_finder( config, this->info ),
   one_kernel_fitter( NaiveFitter::create<1>(config, info) ),
   two_kernels_fitter( ( config.two_kernel_fitting() ) ? NaiveFitter::create<2>(config, info).release() : NULL ),

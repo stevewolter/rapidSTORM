@@ -17,7 +17,8 @@ struct StackCreator {
     boost::ptr_vector< Plane > planes;
 
   public:
-    StackCreator( const Config&, const dStorm::engine::JobInfo& );
+    template <typename Schedule>
+    StackCreator( const Config&, const dStorm::engine::JobInfo&, Schedule, int max_width );
     ~StackCreator();
     std::auto_ptr< Stack >
         set_image( const dStorm::engine::ImageStack& image,

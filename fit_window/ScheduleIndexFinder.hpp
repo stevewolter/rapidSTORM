@@ -8,12 +8,13 @@ namespace dStorm {
 namespace fit_window {
 
 template <typename S>
-struct ScheduleIndexFinder::set_if_appropriate
+struct ScheduleIndexFinder::create_table
 {
+    const bool do_disjoint, use_doubles;
     typedef void result_type;
-    const ScheduleIndexFinder& m;
 
-    set_if_appropriate( const ScheduleIndexFinder& m ) : m(m) {}
+    create_table( bool allow_disjoint_fitting, bool use_doubles ) 
+        : do_disjoint( allow_disjoint_fitting ), use_doubles(use_doubles) {}
 
     template <int ChunkSize, typename Num, typename P1, typename P2>
     bool is_appropriate( 
@@ -21,17 +22,17 @@ struct ScheduleIndexFinder::set_if_appropriate
         int width
     ) const { 
         const int slack = boost::is_same<Num,float>::value ? 1 : 0;
-        return m.do_disjoint && 
+        return do_disjoint && 
             (ChunkSize >= (width-slack))  &&
             (ChunkSize < (width + 2 + slack)) &&
-            (boost::is_same<Num,float>::value || m.use_doubles);
+            (boost::is_same<Num,float>::value || use_doubles);
     }
 
     template <int ChunkSize, typename Num, typename P1, typename P2>
     bool is_appropriate( 
         nonlinfit::plane::Joint<Num,ChunkSize,P1,P2>, int
     ) const { 
-        return (boost::is_same<Num,float>::value || m.use_doubles); 
+        return (boost::is_same<Num,float>::value || use_doubles); 
     }
 
     template <typename Tag>
@@ -44,17 +45,19 @@ struct ScheduleIndexFinder::set_if_appropriate
     }
 };
 
-template <typename S>
-int ScheduleIndexFinder::get_evaluation_tag_index( S, const Spot& position ) const
+template <typename Schedule>
+ScheduleIndexFinder::ScheduleIndexFinder( Schedule, bool disjoint, bool use_doubles, const Optics& optics, int max_width )
+: optics(optics)
 {
-    int rv = boost::mpl::size<S>::value;
-    boost::mpl::for_each< S >( 
-        boost::bind( 
-            set_if_appropriate<S>(*this), boost::ref(rv), optics.get_fit_window_width(position), _1 ) );
-    if ( rv == boost::mpl::size<S>::value )
-        throw std::logic_error("No appropriate-sized fitter found");
-    return rv;
+    bool do_disjoint = disjoint && optics.supports_guaranteed_row_width();
+    for (int window_width = 0; window_width < max_width; ++window_width ) {
+        table.push_back( boost::mpl::size<Schedule>::value - 1 );
+        boost::mpl::for_each< Schedule >( 
+            boost::bind( create_table<Schedule>(do_disjoint,use_doubles), 
+                         boost::ref(table.back()), window_width, _1 ) );
+    }
 }
+
 
 }
 }

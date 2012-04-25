@@ -32,5 +32,7 @@ typedef boost::mpl::vector<
     nonlinfit::plane::xs_joint<float,PSF::LengthUnit,8>::type
 > evaluation_tags;
 
+static const int MaxWindowWidth = 24;
+
 }
 }
