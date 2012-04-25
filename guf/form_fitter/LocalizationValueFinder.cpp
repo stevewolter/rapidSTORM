@@ -2,7 +2,7 @@
 #include "LocalizationValueFinder.h"
 #include "guf/guf/TraitValueFinder.h"
 #include <dStorm/Localization.h>
-#include "guf/guf/mle_converter.h"
+#include "guf/guf/Optics.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 #include "guf/psf/Spline3D.h"
@@ -16,7 +16,7 @@ namespace PSF = guf::PSF;
 struct LocalizationValueFinder::application {
     typedef void result_type;
     const Localization& parent, *child;
-    guf::mle_converter mle;
+    guf::Detector optics;
     guf::TraitValueFinder tvf;
     const dStorm::traits::Optics& plane;
 
@@ -27,7 +27,7 @@ struct LocalizationValueFinder::application {
           child( 
                 (parent.children.is_initialized() && parent.children->size() > plane_number )
                 ? &(*parent.children)[plane_number] : NULL ),
-          mle( plane ),
+          optics( plane ),
           tvf(fluorophore,plane),
           plane( plane ) {}
 
@@ -41,12 +41,12 @@ struct LocalizationValueFinder::application {
         { m(p) = parent.position()[2]; }
     template <typename Structure>
     void operator()( PSF::Amplitude p, Structure& m ) const { 
-        m(p) = mle.convert_amplitude( parent.amplitude() ); 
+        m(p) = optics.relative_in_photons( parent.amplitude() ); 
         DEBUG( "Have set amplitude to " << m(p).value() );
     }
     template <typename Structure>
     void operator()( constant_background::Amount p, Structure& m ) const
-        { m(p) = mle.convert_shift( ( child ) ? child->local_background() : parent.local_background() ); }
+        { m(p) = optics.absolute_in_photons( ( child ) ? child->local_background() : parent.local_background() ); }
 
     /** This overload is responsible to set the transmission 
      *  coefficient to a positive value. This avoids zero

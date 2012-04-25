@@ -519,7 +519,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/guf/EvaluationTags.h \
-    guf/guf/mle_converter.h \
     guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
     guf/guf/FittingRegionStack.cpp guf/guf/FittingRegionStack.h \
     guf/guf/FittingRegion.h \

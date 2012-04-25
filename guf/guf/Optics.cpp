@@ -11,18 +11,22 @@ namespace guf {
 using namespace boost::units;
 using namespace boost::accumulators;
 
-Optics::Optics( const Spot& max_distance, const engine::InputPlane& image_optics )
-: projection( image_optics.projection() ),
-  max_distance(max_distance),
-  photon_response_( image_optics.optics.photon_response.get_value_or( 1 * camera::ad_count ) ),
-  dark_current( image_optics.optics.dark_current.get_value_or(0*camera::ad_count) ),
+Detector::Detector( const traits::Optics& o ) 
+: photon_response_( o.photon_response.get_value_or( 1 * camera::ad_count ) ),
+  dark_current( o.dark_current.get_value_or(0*camera::ad_count) ),
   background_noise_variance_(
-        ( image_optics.optics.background_stddev.is_initialized() && image_optics.optics.photon_response.is_initialized() )
-            ? boost::optional<float>( pow( *image_optics.optics.background_stddev / *image_optics.optics.photon_response, 2 ) )
+        ( o.background_stddev.is_initialized() && o.photon_response.is_initialized() )
+            ? boost::optional<float>( pow( *o.background_stddev / *o.photon_response, 2 ) )
             : boost::optional<float>()
   ),
-  has_precision( image_optics.optics.photon_response.is_initialized() && background_noise_variance_.is_initialized() ),
-  poisson_background_( image_optics.optics.dark_current.is_initialized() && image_optics.optics.photon_response.is_initialized() )
+  has_precision( o.photon_response.is_initialized() && background_noise_variance_.is_initialized() ),
+  poisson_background_( o.dark_current.is_initialized() && o.photon_response.is_initialized() )
+{}
+
+Optics::Optics( const Spot& max_distance, const engine::InputPlane& image_optics )
+: Detector( image_optics.optics ),
+  projection( image_optics.projection() ),
+  max_distance(max_distance)
 {
 }
 
@@ -36,9 +40,9 @@ int Optics::get_fit_window_width( const guf::Spot& at ) const {
     return bounds.width(Direction_X) / camera::pixel;
 }
 
-double Optics::absolute_in_photons( quantity<camera::intensity> amp ) const
+double Detector::absolute_in_photons( quantity<camera::intensity> amp ) const
     { return ( amp - dark_current ) / photon_response_; }
-double Optics::relative_in_photons( quantity<camera::intensity> amp ) const
+double Detector::relative_in_photons( quantity<camera::intensity> amp ) const
     { return amp / photon_response_; }
 
 quantity< si::area > Optics::pixel_size( const Spot& center ) const {
@@ -51,12 +55,6 @@ Optics::get_region_of_interest( const Spot& center, OptPixel width ) const {
     roi_request.guaranteed_row_width = width;
     return projection.cut_region_of_interest( roi_request );
 }
-
-#if 0
-  transformation( guf::Spot::Constant( guf::Spot::Scalar( c.fit_window_size() ) ),
-                  plane )
-
-#endif
 
 }
 }
