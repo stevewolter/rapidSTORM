@@ -447,13 +447,13 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
-    guf/form_fitter/Output.h guf/form_fitter/Output.cpp \
-    guf/form_fitter/Fitter.h guf/form_fitter/Fitter.cpp \
-    guf/form_fitter/Config.h guf/form_fitter/Config.cpp \
-    guf/form_fitter/decl.h guf/form_fitter/Tile.h \
-    guf/form_fitter/GUI.h guf/form_fitter/GUI.cpp \
-    guf/form_fitter/Input.h guf/form_fitter/Input.cpp \
-    guf/form_fitter/LocalizationValueFinder.h guf/form_fitter/LocalizationValueFinder.cpp
+    estimate_psf_form/Output.h estimate_psf_form/Output.cpp \
+    estimate_psf_form/Fitter.h estimate_psf_form/Fitter.cpp \
+    estimate_psf_form/Config.h estimate_psf_form/Config.cpp \
+    estimate_psf_form/decl.h estimate_psf_form/Tile.h \
+    estimate_psf_form/GUI.h estimate_psf_form/GUI.cpp \
+    estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
+    estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/AbstractFunction.h \
@@ -517,16 +517,25 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/sum/Lambda.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    fit_window/Config.h fit_window/Config.cpp \
+    fit_window/FittingRegionStack.cpp fit_window/FittingRegionStack.h \
+    fit_window/FittingRegion.h \
+    fit_window/FittingRegionImpl.h fit_window/FittingRegionImpl.hpp \
+    fit_window/fit_position_out_of_range.h \
+    fit_window/Spot.h \
+    fit_window/Centroid.h fit_window/Centroid.cpp \
+    fit_window/Optics.h fit_window/Optics.cpp \
+    fit_window/ScheduleIndexFinder.h fit_window/ScheduleIndexFinder.hpp fit_window/ScheduleIndexFinder.cpp \
+    fit_window/FittingRegionCreator.h fit_window/FittingRegionCreator.cpp \
+    fit_window/unit_tests.h fit_window/unit_tests.cpp
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/guf/EvaluationTags.h \
     guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
-    guf/guf/FittingRegionStack.cpp guf/guf/FittingRegionStack.h \
-    guf/guf/FittingRegion.h \
-    guf/guf/FittingRegionImpl.h guf/guf/FittingRegionImpl.hpp \
     guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
     guf/guf/Factory.cpp guf/guf/Factory.h \
     guf/guf/MultiKernelModel.h guf/guf/MultiKernelModel.hpp \
-    guf/guf/fit_position_out_of_range.h \
     guf/guf/Fitter.cpp guf/guf/Fitter.h \
     guf/guf/InitialValueFinder.h guf/guf/InitialValueFinder.cpp \
     guf/guf/TraitValueFinder.h guf/guf/TraitValueFinder.cpp \
@@ -539,10 +548,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/PlaneFunction.h guf/guf/PlaneFunction.hpp \
     guf/guf/DistanceMetric.h guf/guf/InputPlane.h \
     guf/guf/Spot.h \
-    guf/guf/Centroid.h guf/guf/Centroid.cpp \
-    guf/guf/Optics.h guf/guf/Optics.cpp \
-    guf/guf/ScheduleIndexFinder.h guf/guf/ScheduleIndexFinder.hpp guf/guf/ScheduleIndexFinder.cpp \
-    guf/guf/FittingRegionCreator.h guf/guf/FittingRegionCreator.cpp \
     guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \

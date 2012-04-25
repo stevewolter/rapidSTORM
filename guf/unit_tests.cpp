@@ -18,13 +18,8 @@ void run_unit_tests( TestState& state ) {
     dStorm::guf::PSF::run_unit_tests( state );
 }
 
-boost::unit_test::test_suite* test_schedule_index_finder();
-boost::unit_test::test_suite* test_FittingRegionCreator();
-
 boost::unit_test::test_suite* test_unit_tests() {
     boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "guf" );
-    rv->add( test_schedule_index_finder() );
-    rv->add( test_FittingRegionCreator() );
     return rv;
 }
 

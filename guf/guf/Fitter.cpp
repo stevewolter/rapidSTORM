@@ -10,9 +10,9 @@
 #include <dStorm/Localization.h>
 #include <boost/units/cmath.hpp>
 #include <boost/bind/bind.hpp>
-#include "Centroid.h"
 #include <nonlinfit/levmar/exceptions.h>
-#include "fit_position_out_of_range.h"
+#include "fit_window/fit_position_out_of_range.h"
+#include "fit_window/Centroid.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/engine/Image.h>
 
@@ -27,7 +27,7 @@ Fitter::Fitter(
 )
 : traits(info.traits),
   info(info,traits),
-  data_creator( config, this->info ),
+  data_creator( config.fit_window_config, this->info ),
   initial_value_finder( config, this->info ),
   one_kernel_fitter( NaiveFitter::create<1>(config, info) ),
   two_kernels_fitter( ( config.two_kernel_fitting() ) ? NaiveFitter::create<2>(config, info).release() : NULL ),
@@ -46,7 +46,8 @@ int Fitter::fitSpot(
     iterator target 
 ) {
     try {
-        boost::scoped_ptr< FittingRegionStack > data( data_creator.set_image( im, spot ) );
+        boost::scoped_ptr< fit_window::FittingRegionStack > 
+            data( data_creator.set_image( im, spot ) );
 
         DEBUG("Fitting at " << spot.transpose() );
         MultiKernelModelStack& one_kernel = one_kernel_fitter->fit_position();
@@ -70,7 +71,7 @@ int Fitter::fitSpot(
             } catch ( const nonlinfit::levmar::InvalidStartPosition& s ) {
                 assert( false );
                 improvement = 0;
-            } catch ( const fit_position_out_of_range& ) {
+            } catch ( const fit_window::fit_position_out_of_range& ) {
                 throw std::logic_error("Fit position out of range for two-kernel fit although it was in range for one-kernel");
             }
         } 
@@ -84,7 +85,7 @@ int Fitter::fitSpot(
             for ( std::vector<Localization>::iterator i = loc.children->begin(); i != loc.children->end(); ++i )
                 i->frame_number = im.frame_number();
         return 1;
-    } catch ( const fit_position_out_of_range& ) {
+    } catch ( const fit_window::fit_position_out_of_range& ) {
         DEBUG("Fit position is out of range");
         return 0;
     } catch (const nonlinfit::levmar::InvalidStartPosition&) {

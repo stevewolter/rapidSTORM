@@ -12,6 +12,7 @@
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
 #include "guf/fitter.h"
+#include "estimate_psf_form/decl.h"
 
 #include <dStorm/display/Manager.h>
 #include "wxDisplay/fwd.h"
@@ -144,6 +145,7 @@ void ModuleLoader::add_modules
     dStorm::tiff::augment_config( car_config );
 
     guf::augment_config( car_config );
+    car_config.add_output( output::make_output_source<estimate_psf_form::Output>() );
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     AndorCamera::augment_config( car_config );

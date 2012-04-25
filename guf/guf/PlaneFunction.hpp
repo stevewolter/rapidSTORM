@@ -5,7 +5,7 @@
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/FunctionConverter.h>
-#include "FittingRegionImpl.h"
+#include "fit_window/FittingRegionImpl.h"
 
 namespace dStorm {
 namespace guf {
@@ -28,9 +28,9 @@ struct PlaneFunction<Function>::Implementation
     typename for_metric< nonlinfit::plane::negative_poisson_likelihood >::type mle;
   public:
     Implementation( Function& expression ) : lsq(expression), mle(expression) {}
-    abstraction& for_data( const FittingRegion& data, DistanceMetric metric ) {
+    abstraction& for_data( const fit_window::FittingRegion& data, DistanceMetric metric ) {
         const typename Tag::Data& typed_data
-            = dynamic_cast< const FittingRegionImpl<Tag>& >( data ).data;
+            = dynamic_cast< const fit_window::FittingRegionImpl<Tag>& >( data ).data;
         switch (metric) {
         case LeastSquares:
             lsq.set_data(typed_data);

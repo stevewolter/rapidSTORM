@@ -42,7 +42,7 @@ class FunctionRepository
      *  nonlinfit::plane::InversePoissonLikelihood, and of 
      *  nonlinfit::plane::SquaredDeviations otherwise.
      **/
-    result_type* operator()( const FittingRegion&, bool mle );
+    result_type* operator()( const fit_window::FittingRegion&, bool mle );
 
     /** Return a reference to the expression shared by all functions in the
      *  repository. */

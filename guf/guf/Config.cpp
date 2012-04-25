@@ -10,7 +10,6 @@ using namespace boost::units;
 
 Config::Config() 
 : simparm::Set("GUF", "Grand unified fitter"),
-  fit_window_size("FitWindowSize", "Fit window radius", 600 * boost::units::si::nanometre),
   theta_dist("ThetaDist", "Two-kernel distance threshold", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 
         "Terminate at axial step length", 1E-2f * boost::units::si::nanometre),
@@ -23,11 +22,8 @@ Config::Config()
   laempi_fit("LaempiPosition", "Laempi fit for positions", false),
   disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
   two_kernel_fitting("TwoKernelFitting", "Compute two kernel improvement", false),
-  mle_fitting("MLEFitting", "Improve fit with ML estimate", false),
-  allow_disjoint("DisjointFitting", "Allow disjoint fitting", true),
-  double_computation("DoublePrecision", "Compute with 64 bit floats", true)
+  mle_fitting("MLEFitting", "Improve fit with ML estimate", false)
 {
-    fit_window_size.userLevel = simparm::Object::Intermediate;
     free_sigmas.userLevel = simparm::Object::Intermediate;
     output_sigmas.userLevel = simparm::Object::Intermediate;
     mle_fitting.userLevel = simparm::Object::Intermediate;
@@ -35,13 +31,11 @@ Config::Config()
     negligible_x_step.userLevel = (simparm::Object::Intermediate);
     maximumIterationSteps.userLevel = (simparm::Object::Intermediate);
     marquardtStartLambda.userLevel = (simparm::Object::Expert);
-    allow_disjoint.userLevel = (simparm::Object::Expert);
-    double_computation.userLevel = (simparm::Object::Intermediate);
 }
 
 void Config::registerNamedEntries()
 {
-    push_back( fit_window_size );
+    fit_window_config.registerNamedEntries( *this );
     push_back( marquardtStartLambda );
     push_back( negligible_x_step );
     push_back( maximumIterationSteps );
@@ -52,8 +46,6 @@ void Config::registerNamedEntries()
     push_back( two_kernel_fitting );
     push_back( theta_dist );
     push_back( mle_fitting );
-    push_back( allow_disjoint );
-    push_back( double_computation );
 }
 
 nonlinfit::levmar::Config Config::make_levmar_config() const

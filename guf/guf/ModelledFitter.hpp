@@ -19,7 +19,7 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/engine/InputTraits.h>
-#include "FittingRegionStack.h"
+#include "fit_window/FittingRegionStack.h"
 #include <nonlinfit/AbstractTerminator.h>
 
 #include "debug.h"
@@ -53,7 +53,7 @@ ModelledFitter<_Function>::ModelledFitter(
 
 template <class _Function>
 double ModelledFitter<_Function>::fit( 
-    FittingRegionStack& data,
+    fit_window::FittingRegionStack& data,
     bool mle
 ) {
     typedef nonlinfit::AbstractTerminatorAdaptor< MyTerminator, typename Function::Position >
@@ -62,7 +62,7 @@ double ModelledFitter<_Function>::fit(
         TerminatorInterface;
     typedef nonlinfit::AbstractFunctionAdapter< Function > AbstractFunction;
     typedef nonlinfit::AbstractMoveableAdapter< Function > AbstractMoveable;
-    for ( typename FittingRegionStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i )
+    for ( typename fit_window::FittingRegionStack::iterator b = data.begin(), i = b, e = data.end(); i != e; ++i )
         fitter.set_fitter( i-b, *evaluators[i-b]( *i, mle ), evaluators[i-b].get_moveable() );
 
     AbstractFunction function( fitter );

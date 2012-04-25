@@ -12,6 +12,7 @@
 #include "viewer/fwd.h"
 #include <dStorm/threed_info/fwd.h>
 #include <boost/test/unit_test.hpp>
+#include "fit_window/unit_tests.h"
 
 void pixel_unit_test(TestState& state);
 
@@ -33,6 +34,8 @@ void unit_test( TestState& );
 bool init_unit_test() {
     boost::unit_test::framework::master_test_suite().
         add( dStorm::guf::test_unit_tests() );
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::fit_window::make_unit_test_suite() );
 
     return true;
 }
