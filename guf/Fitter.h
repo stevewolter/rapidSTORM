@@ -15,6 +15,9 @@ namespace guf {
 
 class Config;
 
+/** This class integrates all components of the GUF to fulfill the dStorm::engine::spot_fitter::Implementation
+ *  contract. It provides the high-level glue code for calling the fit window selection, initialization, 
+ *  fitting and localization creation routines. */
 class Fitter 
 : public engine::spot_fitter::Implementation
 {

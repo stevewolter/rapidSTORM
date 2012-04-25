@@ -9,6 +9,10 @@
 namespace dStorm {
 namespace guf {
 
+/** This class represents dStorm::guf::Fitter at configuration time.
+ *  It is responsible for publishing meta information for the fields
+ *  computed by the Fitter, and for registering appropriate configuration
+ *  items. */
 struct Factory
 : private simparm::Structure< Config >,
   public engine::spot_fitter::Factory
