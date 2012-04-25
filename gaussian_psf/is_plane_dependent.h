@@ -2,7 +2,7 @@
 #define DSTORM_GUF_PSF_IS_PLANE_DEPENDENT_H
 
 #include <nonlinfit/TermParameter.h>
-#include "guf/constant_background.hpp"
+#include "constant_background/model.hpp"
 #include "parameters.h"
 
 namespace dStorm {

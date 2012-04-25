@@ -3,7 +3,7 @@
 
 #include "Config.h"
 #include <dStorm/output/Output.h>
-#include "guf/guf/Spot.h"
+#include "guf/Spot.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {

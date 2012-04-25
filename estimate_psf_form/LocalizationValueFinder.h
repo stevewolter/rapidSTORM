@@ -3,7 +3,7 @@
 
 #include "gaussian_psf/Polynomial3D.h"
 #include "gaussian_psf/No3D.h"
-#include "guf/constant_background.hpp"
+#include "constant_background/model.hpp"
 #include <memory>
 #include <dStorm/engine/JobInfo_decl.h>
 #include <dStorm/traits/optics.h>

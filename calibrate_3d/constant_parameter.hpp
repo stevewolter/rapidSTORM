@@ -3,7 +3,7 @@
 
 #include "FormCalibrationConfig.h"
 #include "gaussian_psf/parameters.h"
-#include "guf/constant_background_fwd.hpp"
+#include "constant_background/fwd.hpp"
 
 namespace dStorm {
 namespace calibrate_3d {

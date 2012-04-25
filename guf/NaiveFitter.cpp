@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "NaiveFitter.h"
 #include "ModelledFitter.h"
-#include "gaussian_psf/StandardFunction.h"
+#include "guf/MultiKernelLambda.h"
 #include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/expressions.h"
@@ -20,7 +20,7 @@ template <int Kernels, typename Assignment, typename Lambda>
 inline NaiveFitter::Ptr 
 create2( const Config& c, const dStorm::engine::JobInfo& i ) 
 { 
-    typedef typename gaussian_psf::StandardFunction< 
+    typedef typename MultiKernelLambda< 
         nonlinfit::Bind< Lambda ,Assignment> ,Kernels>
         ::type F;
     return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );

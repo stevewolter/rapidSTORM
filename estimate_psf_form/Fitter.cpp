@@ -8,7 +8,7 @@
 #include <dStorm/image/slice.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/JobInfo.h>
-#include "guf/guf/Spot.h"
+#include "guf/Spot.h"
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/plane/JointData.hpp>
 #include <nonlinfit/Bind.h>
@@ -23,7 +23,6 @@
 #include "gaussian_psf/Spline3D.h"
 #include "gaussian_psf/No3D.h"
 #include "gaussian_psf/fixed_form.h"
-#include "gaussian_psf/StandardFunction.h"
 #include "gaussian_psf/JointEvaluator.h"
 #include <nonlinfit/levmar/Fitter.hpp>
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
@@ -45,6 +44,8 @@
 
 #include "LocalizationValueFinder.h"
 #include "calibrate_3d/constant_parameter.hpp"
+#include <nonlinfit/sum/Lambda.h>
+#include "constant_background/model.hpp"
 
 namespace dStorm {
 namespace estimate_psf_form {
@@ -244,7 +245,8 @@ class Fitter
 {
     struct less_amplitude;
 
-    typedef typename PSF::StandardFunction< Lambda, 1 >::type TheoreticalFunction;
+    typedef nonlinfit::sum::Lambda< boost::mpl::vector< Lambda, constant_background::Expression > >
+        TheoreticalFunction;
     typedef plane::xs_joint<double,PSF::LengthUnit,2>::type DataTag;
     typedef BoundFunction< 
         nonlinfit::plane::Distance< TheoreticalFunction, DataTag, Metric > > 

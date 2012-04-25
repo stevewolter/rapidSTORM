@@ -8,7 +8,7 @@
 #include <nonlinfit/make_bitset.h>
 #include "Config.h"
 #include "gaussian_psf/is_plane_dependent.h"
-#include "guf/guf/TraitValueFinder.h"
+#include "guf/TraitValueFinder.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/threed_info/DepthInfo.h>
 #include <boost/variant/get.hpp>

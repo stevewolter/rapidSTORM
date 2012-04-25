@@ -531,23 +531,24 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
-    guf/guf/EvaluationTags.h \
-    guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
-    guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
-    guf/guf/Factory.cpp guf/guf/Factory.h \
-    guf/guf/MultiKernelModel.h guf/guf/MultiKernelModel.hpp \
-    guf/guf/Fitter.cpp guf/guf/Fitter.h \
-    guf/guf/InitialValueFinder.h guf/guf/InitialValueFinder.cpp \
-    guf/guf/TraitValueFinder.h guf/guf/TraitValueFinder.cpp \
-    guf/guf/NaiveFitter.h guf/guf/NaiveFitter.cpp \
-    guf/guf/ModelledFitter.h guf/guf/ModelledFitter.hpp \
-    guf/guf/LocalizationChecker.h guf/guf/LocalizationChecker.cpp \
-    guf/guf/LocalizationCreator.h guf/guf/LocalizationCreator.cpp \
-    guf/guf/KernelCreator.h guf/guf/KernelCreator.cpp \
-    guf/guf/FitTerminator.h \
-    guf/guf/PlaneFunction.h guf/guf/PlaneFunction.hpp \
-    guf/guf/DistanceMetric.h guf/guf/InputPlane.h \
-    guf/guf/Spot.h \
+    guf/EvaluationTags.h \
+    guf/Config.cpp guf/Config_decl.h guf/Config.h \
+    guf/FunctionRepository.h guf/FunctionRepository.hpp \
+    guf/Factory.cpp guf/Factory.h \
+    guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
+    guf/Fitter.cpp guf/Fitter.h \
+    guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
+    guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
+    guf/NaiveFitter.h guf/NaiveFitter.cpp \
+    guf/ModelledFitter.h guf/ModelledFitter.hpp \
+    guf/LocalizationChecker.h guf/LocalizationChecker.cpp \
+    guf/LocalizationCreator.h guf/LocalizationCreator.cpp \
+    guf/KernelCreator.h guf/KernelCreator.cpp \
+    guf/FitTerminator.h \
+    guf/PlaneFunction.h guf/PlaneFunction.hpp \
+    guf/DistanceMetric.h guf/InputPlane.h \
+    guf/Spot.h \
+    guf/StandardFunction.h \
     guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
@@ -563,14 +564,15 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     gaussian_psf/Spline3D.h gaussian_psf/Spline3D.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
-    gaussian_psf/StandardFunction.h \
     gaussian_psf/LengthUnit.h gaussian_psf/ostream.h \
     gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \
     gaussian_psf/ReferenceEvaluation.h \
     gaussian_psf/mock_model.h gaussian_psf/mock_model.cpp \
     gaussian_psf/check_evaluator.hpp \
-    guf/constant_background_fwd.hpp guf/constant_background.hpp \
     gaussian_psf/polynomial_psf_generated_by_yacas.h
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    constant_background/fwd.hpp constant_background/model.hpp
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists

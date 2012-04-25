@@ -1,6 +1,6 @@
 #include "debug.h"
 #include "LocalizationValueFinder.h"
-#include "guf/guf/TraitValueFinder.h"
+#include "guf/TraitValueFinder.h"
 #include <dStorm/Localization.h>
 #include "fit_window/Optics.h"
 #include <boost/mpl/for_each.hpp>

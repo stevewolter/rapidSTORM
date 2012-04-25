@@ -6,7 +6,7 @@
 #include <boost/bind/bind.hpp>
 #include "InitialValueFinder.h"
 #include "gaussian_psf/expressions.h"
-#include "guf/constant_background.hpp"
+#include "constant_background/model.hpp"
 #include "TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>

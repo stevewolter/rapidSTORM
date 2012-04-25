@@ -9,7 +9,7 @@
 #include "Config.h"
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"
-#include "guf/constant_background.hpp"
+#include "constant_background/model.hpp"
 #include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
 #include "fit_window/Optics.h"

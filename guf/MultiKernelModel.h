@@ -3,7 +3,7 @@
 
 #include "Spot.h"
 #include "gaussian_psf/fwd.h"
-#include "guf/constant_background_fwd.hpp"
+#include "constant_background/fwd.hpp"
 #include <vector>
 #include <boost/iterator/indirect_iterator.hpp>
 

@@ -2,22 +2,22 @@
 #define DSTORM_STANDARD_MODELS_H
 
 #include <nonlinfit/sum/Lambda.h>
-#include "guf/constant_background.hpp"
+#include "constant_background/model.hpp"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace guf {
 
-template <typename PSF, int Kernels> struct StandardFunction;
+template <typename PSF, int Kernels> struct MultiKernelLambda;
 
 template <typename PSF>
-struct StandardFunction<PSF,1>
+struct MultiKernelLambda<PSF,1>
 {
     typedef nonlinfit::sum::Lambda< 
         boost::mpl::vector< PSF, constant_background::Expression > > type;
 };
 
 template <typename PSF>
-struct StandardFunction<PSF,2>
+struct MultiKernelLambda<PSF,2>
 {
     typedef nonlinfit::sum::Lambda< 
         boost::mpl::vector< PSF, constant_background::Expression, PSF > > type;

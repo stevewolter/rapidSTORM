@@ -1,4 +1,4 @@
-#include "guf/guf/FunctionRepository.hpp"
+#include "guf/FunctionRepository.hpp"
 
 namespace dStorm {
 namespace guf {

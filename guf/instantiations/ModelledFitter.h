@@ -1,4 +1,4 @@
-#include "guf/guf/ModelledFitter.hpp"
+#include "guf/ModelledFitter.hpp"
 
 namespace dStorm {
 namespace guf {

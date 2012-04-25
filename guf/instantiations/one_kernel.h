@@ -1,5 +1,5 @@
-#include "gaussian_psf/StandardFunction.h"
+#include "guf/MultiKernelLambda.h"
 #include <nonlinfit/Bind.h>
 
-typedef dStorm::gaussian_psf::StandardFunction< nonlinfit::Bind<InstantiatedExpression, dStorm::guf::Assignment>, 1>::type
+typedef dStorm::guf::MultiKernelLambda< nonlinfit::Bind<InstantiatedExpression, dStorm::guf::Assignment>, 1>::type
     InstantiatedFunction;

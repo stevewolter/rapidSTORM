@@ -1,7 +1,7 @@
 #ifndef FITTER_CONSTANT_BACKGROUND_HPP
 #define FITTER_CONSTANT_BACKGROUND_HPP
 
-#include "constant_background_fwd.hpp"
+#include "constant_background/fwd.hpp"
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>
 #include <nonlinfit/access_parameters.hpp>
