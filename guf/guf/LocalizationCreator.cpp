@@ -13,6 +13,7 @@
 #include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
 #include "Optics.h"
+#include "MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {
@@ -22,7 +23,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 {
 }
 
-void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos, double chi_sq, const FittingRegionStack& data ) const
+void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const FittingRegionStack& data ) const
 {
     DEBUG("Creating localization for fluorophore " << fluorophore << " from parameters " << parameters.transpose() );
 
@@ -72,7 +73,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
     result.children = by_plane;
 }
 
-void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPlane& m, const FittingRegion& p )  const
+void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKernelModel& m, const FittingRegion& p )  const
 {
     assert( m.kernel_count() == 1 );
     using namespace boost::units;
@@ -95,7 +96,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPla
     }
 }
 
-void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane& m, double chi_sq, const FittingRegion& data ) const
+void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelModel& m, double chi_sq, const FittingRegion& data ) const
 {
     assert( m.kernel_count() == 1 );
 

@@ -49,7 +49,7 @@ int Fitter::fitSpot(
         boost::scoped_ptr< FittingRegionStack > data( data_creator.set_image( im, spot ) );
 
         DEBUG("Fitting at " << spot.transpose() );
-        FitPosition& one_kernel = one_kernel_fitter->fit_position();
+        MultiKernelModelStack& one_kernel = one_kernel_fitter->fit_position();
         boost::optional< double > mle_result;
         double improvement = 0;
         initial_value_finder( one_kernel, spot, *data );
@@ -59,7 +59,7 @@ int Fitter::fitSpot(
             mle_result = one_kernel_fitter->fit( *data, true );
         if ( two_kernel_analysis ) {
             try {
-                FitPosition& two_kernel_model = two_kernels_fitter->fit_position();
+                MultiKernelModelStack& two_kernel_model = two_kernels_fitter->fit_position();
                 add_new_kernel( two_kernel_model, one_kernel, 
                     data->residue_centroid().current_position().cast< Spot::Scalar >() );
                 double two_kernel_result = two_kernels_fitter->fit( *data, false );

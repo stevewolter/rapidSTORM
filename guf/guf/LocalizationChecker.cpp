@@ -6,6 +6,7 @@
 #include "guf/psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/DepthInfo.h>
+#include "MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {
@@ -23,11 +24,11 @@ LocalizationChecker::LocalizationChecker( const Config& config, const dStorm::en
     }
 }
 
-bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot& spot ) const
+bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const guf::Spot& spot ) const
 {
     bool makes_it_in_one_plane = false;
-    for (FitPosition::const_iterator i = result.begin(); i != result.end(); ++i) {
-        for ( FittedPlane::const_iterator j = i->begin(); j != i->end(); ++j ) {
+    for (MultiKernelModelStack::const_iterator i = result.begin(); i != result.end(); ++i) {
+        for ( MultiKernelModel::const_iterator j = i->begin(); j != i->end(); ++j ) {
             int plane = i - result.begin();
             if ( ! check_kernel(*j, spot, plane) ) return false;
             DEBUG("Checking amplitude threshold");
@@ -37,7 +38,7 @@ bool LocalizationChecker::operator()( const FitPosition& result, const guf::Spot
             double local_threshold = info.amplitude_threshold / photon;
             if ( local_threshold < (*j)( PSF::Amplitude() ) * (*j)( PSF::Prefactor() ) )
                 makes_it_in_one_plane = true;
-            for ( FittedPlane::const_iterator k = j+1; k != i->end(); ++k ) {
+            for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
                 quantity<si::length> x_dist( (*j)( PSF::Mean<0>() ) - (*k)( PSF::Mean<0>() ) );
                 quantity<si::length> y_dist( (*j)( PSF::Mean<1>() ) - (*k)( PSF::Mean<1>() ) );
                 if ( pow<2>(x_dist) + pow<2>(y_dist) < pow<2>(theta_dist) )

@@ -5,7 +5,7 @@
 #include <nonlinfit/plane/DisjointData.hpp>
 #include <nonlinfit/plane/JointData.hpp>
 
-#include "DataExtractor.h"
+#include "FittingRegionCreator.h"
 #include "FittingRegion.h"
 #include "EvaluationTags.h"
 #include "fit_position_out_of_range.h"
@@ -22,28 +22,28 @@ fit_position_out_of_range::fit_position_out_of_range()
 : std::runtime_error("Selected fit position not in all layers of image") {}
 
 template <typename Tag>
-struct DataExtractorImpl : public DataExtractor {
+struct FittingRegionCreatorImpl : public FittingRegionCreator {
     const Optics& input;
     std::auto_ptr<FittingRegion> extract_data_( const engine::Image2D& image, const Spot& position ) const {
         return std::auto_ptr<FittingRegion>( new FittingRegionImpl<Tag>( input, image, position ) );
     }
 public:
-    DataExtractorImpl( const Optics& input ) : input(input) {}
+    FittingRegionCreatorImpl( const Optics& input ) : input(input) {}
 };
 
 template <typename EvaluationSchedule>
-struct DataExtractorTable::instantiator {
+struct FittingRegionCreatorTable::instantiator {
     typedef void result_type;
     template <typename Tag>
-    void operator()( DataExtractorTable& target, Tag ) 
+    void operator()( FittingRegionCreatorTable& target, Tag ) 
     {
-        target.table_.push_back( new DataExtractorImpl<Tag>(target.optics) );
+        target.table_.push_back( new FittingRegionCreatorImpl<Tag>(target.optics) );
     }
 };
 
 
 template <typename EvaluationSchedule>
-DataExtractorTable::DataExtractorTable( 
+FittingRegionCreatorTable::FittingRegionCreatorTable( 
     EvaluationSchedule, 
     const Optics& input
 ) : optics(input) 
@@ -52,7 +52,7 @@ DataExtractorTable::DataExtractorTable(
         boost::bind( instantiator<EvaluationSchedule>(), boost::ref(*this), _1 ) );
 }
 
-DataExtractorTable::DataExtractorTable( const Optics& input) 
+FittingRegionCreatorTable::FittingRegionCreatorTable( const Optics& input) 
 : optics(input) 
 {
     boost::mpl::for_each< evaluation_tags >(
@@ -90,7 +90,7 @@ static void test_central_extraction() {
         for (int y = 0; y < traits.image.size.y().value(); ++y)
             image(x,y) = x + y;
 
-    DataExtractorImpl< nonlinfit::plane::xs_disjoint<double,PSF::LengthUnit,14>::type > extractor(optics);
+    FittingRegionCreatorImpl< nonlinfit::plane::xs_disjoint<double,PSF::LengthUnit,14>::type > extractor(optics);
     std::auto_ptr<FittingRegion> data = extractor.extract_data( image, position );
     BOOST_CHECK_CLOSE( data->pixel_size.value(), 230E-9 * 120E-9, 1 );
     BOOST_CHECK_CLOSE( data->highest_pixel.x().value(), 7130E-9, 1 );
@@ -103,8 +103,8 @@ static void test_central_extraction() {
     BOOST_CHECK_EQUAL( data->pixel_count, 378 );
 }
 
-boost::unit_test::test_suite* test_DataExtractor() {
-    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "DataExtractor" );
+boost::unit_test::test_suite* test_FittingRegionCreator() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "FittingRegionCreator" );
     rv->add( BOOST_TEST_CASE( &test_central_extraction ) );
     return rv;
 }

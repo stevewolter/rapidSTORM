@@ -9,7 +9,7 @@
 #include "Centroid.h"
 #include "Optics.h"
 #include "ScheduleIndexFinder.h"
-#include "DataExtractor.h"
+#include "FittingRegionCreator.h"
 
 namespace dStorm {
 namespace guf {
@@ -18,7 +18,7 @@ class FittingRegionStackCreator::Plane {
 private:
     Optics optics;
     ScheduleIndexFinder index_finder;
-    DataExtractorTable extractor_table;
+    FittingRegionCreatorTable extractor_table;
 
 public:
     Plane( const Config& c, const engine::InputPlane& plane )

@@ -4,6 +4,7 @@
 #include "fwd.h"
 #include <Eigen/Core>
 #include <iosfwd>
+#include <boost/mpl/size.hpp>
 
 namespace nonlinfit {
 

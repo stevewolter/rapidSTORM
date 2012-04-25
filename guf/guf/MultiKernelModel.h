@@ -10,9 +10,9 @@
 namespace dStorm {
 namespace guf {
 
-struct FittedPlane {
+struct MultiKernelModel {
     template <typename Expression>
-    FittedPlane( Expression& expression );
+    MultiKernelModel( Expression& expression );
 
     typedef boost::indirect_iterator< 
         std::vector<PSF::BaseExpression*>::const_iterator,
@@ -37,7 +37,7 @@ struct FittedPlane {
     constant_background::Expression* constant;
 };
 
-struct FitPosition : public std::vector<FittedPlane> 
+struct MultiKernelModelStack : public std::vector<MultiKernelModel> 
 {
 };
 

@@ -7,11 +7,12 @@
 #include "Config_decl.h"
 #include "guf/psf/fwd.h"
 #include "Spot.h"
-#include "FitAnalysis.h"
 #include <dStorm/types/samplepos.h>
 
 namespace dStorm {
 namespace guf {
+
+class MultiKernelModelStack;
 
 /** Functor checking whether a fitted position is a valid localization. */
 class LocalizationChecker {
@@ -27,7 +28,7 @@ class LocalizationChecker {
 
   public:
     LocalizationChecker( const Config&, const dStorm::engine::JobInfo& );
-    bool operator()( const FitPosition&, const guf::Spot& ) const;
+    bool operator()( const MultiKernelModelStack&, const guf::Spot& ) const;
 };
 
 }

@@ -9,6 +9,7 @@
 namespace dStorm {
 namespace guf {
 
+/** Prioritized lists of nonlinfit data tags for fitting functions. */
 typedef boost::mpl::vector<
 #if defined(USE_SPECIALIZED_FITTERS)
     nonlinfit::plane::xs_disjoint<double,PSF::LengthUnit,20>::type,

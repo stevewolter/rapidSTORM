@@ -9,15 +9,14 @@
 namespace dStorm {
 namespace guf {
 
-template <int Dim> class Statistics;
 class FittingRegion;
 
 /** Interface for converting the contents of a ROI in an image to
  *  fitable data. */
-class DataExtractor {
+class FittingRegionCreator {
 public:
     typedef engine::Image2D Image;
-    virtual ~DataExtractor() {}
+    virtual ~FittingRegionCreator() {}
     std::auto_ptr<FittingRegion> extract_data( const Image& image, const Spot& position ) const
         { return extract_data_(image,position); }
 private:
@@ -25,16 +24,16 @@ private:
         extract_data_( const Image& image, const Spot& position ) const = 0;
 };
 
-class DataExtractorTable {
+class FittingRegionCreatorTable {
     const Optics& optics;
-    boost::ptr_vector<DataExtractor> table_;
+    boost::ptr_vector<FittingRegionCreator> table_;
     template <typename EvaluationSchedule>
     struct instantiator;
 public:
     template <typename EvaluationSchedule>
-    DataExtractorTable( EvaluationSchedule, const Optics& optics );
-    DataExtractorTable( const Optics& optics );
-    const DataExtractor& get( int index ) const
+    FittingRegionCreatorTable( EvaluationSchedule, const Optics& optics );
+    FittingRegionCreatorTable( const Optics& optics );
+    const FittingRegionCreator& get( int index ) const
         { return table_[index]; }
 };
 

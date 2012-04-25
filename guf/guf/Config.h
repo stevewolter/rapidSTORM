@@ -10,6 +10,7 @@
 namespace dStorm {
 namespace guf {
 
+/** This class collects configuration options for the GUF fitter. */
 struct Config
 : public simparm::Set
 {

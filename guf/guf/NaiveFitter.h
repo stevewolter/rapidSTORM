@@ -3,13 +3,13 @@
 
 #include "Config_decl.h"
 #include <dStorm/engine/JobInfo_decl.h>
-#include "FitAnalysis.h"
 #include <memory>
 
 namespace dStorm {
 namespace guf {
 
 class FittingRegionStack;
+class MultiKernelModelStack;
 
 /** Interface for fitting a single function to a data image. */
 struct NaiveFitter {
@@ -22,7 +22,7 @@ struct NaiveFitter {
     virtual ~NaiveFitter() {}
     /** Get a reference to the function's current state. Any call to fit() will
      *  use the current state as the starting point for iteration. */
-    virtual FitPosition& fit_position() = 0;
+    virtual MultiKernelModelStack& fit_position() = 0;
     /** Optimize the current state set by fit_position() using 
      *  Levenberg-Marquardt minimization. 
      *  \returns The new function value, which is the sum of squared residues

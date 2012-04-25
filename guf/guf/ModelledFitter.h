@@ -14,6 +14,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/levmar/Fitter.h>
 #include <nonlinfit/AbstractFunction.h>
+#include "MultiKernelModel.h"
 
 namespace dStorm {
 namespace guf {
@@ -44,14 +45,14 @@ class ModelledFitter
         MyTerminator;
     const MyTerminator terminator;
 
-    FitPosition _model;
+    MultiKernelModelStack _model;
 
   public:
     ModelledFitter( const Config& config, const dStorm::engine::JobInfo& info );
 
     double fit( FittingRegionStack& image, bool mle );
 
-    FitPosition& fit_position() { return _model; }
+    MultiKernelModelStack& fit_position() { return _model; }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

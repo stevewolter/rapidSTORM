@@ -1,7 +1,6 @@
 #ifndef DSTORM_FITTER_GUF_INITIAL_VALUE_FINDER_H
 #define DSTORM_FITTER_GUF_INITIAL_VALUE_FINDER_H
 
-#include "FitAnalysis.h"
 #include "Config.h"
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/engine/JobInfo_decl.h>
@@ -13,6 +12,9 @@
 namespace dStorm {
 namespace threed_info { struct SigmaDiffLookup; }
 namespace guf {
+
+class MultiKernelModel;
+class MultiKernelModelStack;
 
 struct InitialValueFinder {
     typedef void result_type;
@@ -38,13 +40,13 @@ struct InitialValueFinder {
 
     class set_parameter;
     template <typename Parameter>
-    inline void operator()( Parameter, FittedPlane&, const Spot&, const PlaneEstimate& ) const;
+    inline void operator()( Parameter, MultiKernelModel&, const Spot&, const PlaneEstimate& ) const;
 
   public:
     InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info);
     ~InitialValueFinder();
 
-    void operator()( FitPosition& position, const Spot&, const FittingRegionStack& ) const;
+    void operator()( MultiKernelModelStack& position, const Spot&, const FittingRegionStack& ) const;
 };
 
 }

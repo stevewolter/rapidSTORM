@@ -525,8 +525,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/FittingRegionImpl.h guf/guf/FittingRegionImpl.hpp \
     guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
     guf/guf/Factory.cpp guf/guf/Factory.h \
-    guf/guf/FitAnalysis.h \
-    guf/guf/FitPosition.hpp \
+    guf/guf/MultiKernelModel.h guf/guf/MultiKernelModel.hpp \
     guf/guf/fit_position_out_of_range.h \
     guf/guf/Fitter.cpp guf/guf/Fitter.h \
     guf/guf/InitialValueFinder.h guf/guf/InitialValueFinder.cpp \
@@ -543,7 +542,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/Centroid.h guf/guf/Centroid.cpp \
     guf/guf/Optics.h guf/guf/Optics.cpp \
     guf/guf/ScheduleIndexFinder.h guf/guf/ScheduleIndexFinder.hpp guf/guf/ScheduleIndexFinder.cpp \
-    guf/guf/DataExtractor.h guf/guf/DataExtractor.cpp \
+    guf/guf/FittingRegionCreator.h guf/guf/FittingRegionCreator.cpp \
     guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \

@@ -9,6 +9,8 @@
 namespace dStorm {
 namespace guf {
 
+/** This class computes a weighted centroid position of its input
+ *  values. The weights may be negative. */
 struct Centroid {
     typedef boost::units::quantity<PSF::LengthUnit> Coordinate;
     typedef Eigen::Array< Coordinate, 2, 1, Eigen::DontAlign> Spot;

@@ -10,7 +10,7 @@
 #undef DEBUG
 
 #include "ModelledFitter.h"
-#include "FitPosition.hpp"
+#include "MultiKernelModel.hpp"
 #include "guf/psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/AbstractMap.hpp>
@@ -47,7 +47,7 @@ ModelledFitter<_Function>::ModelledFitter(
 {
     for (int i = 0; i < info.traits.plane_count(); ++i ) {
         evaluators.push_back( new Repository() );
-        _model.push_back( FittedPlane( evaluators[i].get_expression() ) );
+        _model.push_back( MultiKernelModel( evaluators[i].get_expression() ) );
     }
 }
 

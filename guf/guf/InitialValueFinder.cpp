@@ -131,7 +131,7 @@ class InitialValueFinder::set_parameter {
 };
 
 void InitialValueFinder::operator()( 
-    FitPosition& position, 
+    MultiKernelModelStack& position, 
     const Spot& spot,
     const FittingRegionStack& data
 ) const {
