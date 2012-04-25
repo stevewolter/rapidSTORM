@@ -32,15 +32,6 @@ InputCube::set_image(
 
 DataCube::DataCube() {}
 
-guf::Statistics<3> 
-DataCube::get_statistics() const
-{
-    guf::Statistics<3> rv;
-    for (size_t i = 0; i < planes.size(); ++i)
-        rv.push_back( planes[i].get_statistics() );
-    return rv;
-}
-
 Centroid DataCube::residue_centroid() const
 {
     Centroid rv;

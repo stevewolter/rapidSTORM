@@ -133,7 +133,7 @@ class InitialValueFinder::set_parameter {
 void InitialValueFinder::operator()( 
     FitPosition& position, 
     const guf::Spot& spot,
-    const guf::Statistics<3>& data
+    const DataCube& data
 ) const {
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
@@ -176,12 +176,12 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
-void InitialValueFinder::estimate_z( const guf::Statistics<3>& s, std::vector<PlaneEstimate>& v ) const
+void InitialValueFinder::estimate_z( const guf::DataCube& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
-        threed_info::Sigma(s[ mdm.minuend_plane ].sigma[ mdm.minuend_dir ]),
-        threed_info::Sigma(s[ mdm.subtrahend_plane ].sigma[ mdm.subtrahend_dir ]) );
+        threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ]),
+        threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ]) );
     DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
 
     for (size_t i = 0; i < v.size(); ++i)
@@ -190,7 +190,7 @@ void InitialValueFinder::estimate_z( const guf::Statistics<3>& s, std::vector<Pl
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const guf::Spot&,
-    const guf::Statistics<3> & s
+    const guf::DataCube & s
 ) const {
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {
@@ -202,13 +202,13 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
             * peak_intensity == bg_estimate + pif * amp_estimate
             * integral == pixel_count * bg_estimate + amp_estimate */
         if ( pif > 1E-20 ) {
-            rv[i].bg = s[i].quarter_percentile_pixel.value();
+            rv[i].bg = s[i].background_estimate;
             rv[i].amp = std::max( 
-                (s[i].integral.value() - rv[i].bg * double(s[i].pixel_count)) / pif,
+                (s[i].integral - rv[i].bg * double(s[i].pixel_count)) / pif,
                 1.0 );
         } else {
             rv[i].amp = 0;
-            rv[i].bg = s[i].integral.value() / s[i].pixel_count;
+            rv[i].bg = s[i].integral / s[i].pixel_count;
         }
     }
 

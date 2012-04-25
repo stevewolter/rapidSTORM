@@ -6,7 +6,6 @@
 
 #include <nonlinfit/index_of.h>
 #include "EvaluationTags.h"
-#include "Statistics.h"
 #include <dStorm/engine/InputTraits.h>
 
 #include "dejagnu.h"
@@ -60,24 +59,23 @@ void test_DataPlane_scaled( TestState& state )
         evaluation_tags, 
         nonlinfit::plane::xs_disjoint<double,PSF::LengthUnit,14>::type >::value,
         "DataPlane selects disjoint fitting when applicable" );
-    state( abs( data1->pixel_size() - 230E-9 * si::metre * 120E-9 * si::metre ) < pow<2>(1E-9 * si::metre),
+    state( abs( data1->pixel_size - 230E-9 * si::metre * 120E-9 * si::metre ) < pow<2>(1E-9 * si::metre),
         "Disjoint fitting has correct pixel size" ); 
-    Statistics<2> stats = data1->get_statistics();
-    state( abs( stats.highest_pixel.x() - 7130E-9 * si::metre ) < 1E-9 * si::metre,
+    state( abs( data1->highest_pixel.x() - 7130E-9 * si::metre ) < 1E-9 * si::metre,
         "Highest pixel is located correctly (X)" );
-    state( abs( stats.highest_pixel.y() - 4560E-9 * si::metre ) < 1E-9 * si::metre,
+    state( abs( data1->highest_pixel.y() - 4560E-9 * si::metre ) < 1E-9 * si::metre,
         "Highest pixel is located correctly (Y)" );
-    state( abs( stats.integral - 18711 * camera::ad_count ) < 1 * camera::ad_count,
+    state( abs( data1->integral - 18711 ) < 1,
         "Integral is correctly computed" );
-    state( abs( stats.peak_intensity - 69 * camera::ad_count ) < 1 * camera::ad_count,
+    state( abs( data1->peak_intensity - 69 ) < 1,
         "Peak intensity is correctly computed" );
-    state( abs( stats.quarter_percentile_pixel - 43 * camera::ad_count ) < 1 * camera::ad_count,
+    state( abs( data1->background_estimate - 43 ) < 1,
         "Quarter percentile pixel is correctly computed" );
-    state( abs( stats.sigma[0] - 870E-9 * si::meter ) < 1E-9 * si::meter,
+    state( abs( data1->standard_deviation[0] - 870E-9 * si::meter ) < 1E-9 * si::meter,
         "Sigma X is correctly computed" );
-    state( abs( stats.sigma[1] - 636E-9 * si::meter ) < 1E-9 * si::meter,
+    state( abs( data1->standard_deviation[1] - 636E-9 * si::meter ) < 1E-9 * si::meter,
         "Sigma Y is correctly computed" );
-    state( stats.pixel_count == 378, "Pixel count is correct" );
+    state( data1->pixel_count == 378, "Pixel count is correct" );
 }
 
 void test_DataPlane( TestState& state ) {

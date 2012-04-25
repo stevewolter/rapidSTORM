@@ -2,7 +2,6 @@
 #define DSTORM_GUF_OPTICS_H
 
 #include "Spot.h"
-#include "Statistics.h"
 #include <dStorm/traits/Projection.h>
 #include <dStorm/engine/Image_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>

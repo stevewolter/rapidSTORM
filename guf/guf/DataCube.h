@@ -6,7 +6,6 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/plane/fwd.h>
 #include "guf/psf/LengthUnit.h"
-#include "Statistics.h"
 #include <dStorm/engine/JobInfo.h>
 
 namespace dStorm {
@@ -36,8 +35,8 @@ struct DataCube
     iterator begin() { return planes.begin(); }
     iterator end() { return planes.end(); }
     const DataPlane& operator[](int i) const { return planes[i]; }
+    int size() const { return planes.size(); }
 
-    guf::Statistics<3> get_statistics() const;
     Centroid residue_centroid() const;
 };
 

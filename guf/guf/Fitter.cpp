@@ -52,7 +52,7 @@ int Fitter::fitSpot(
         FitPosition& one_kernel = one_kernel_fitter->fit_position();
         boost::optional< double > mle_result;
         double improvement = 0;
-        initial_value_finder( one_kernel, spot, data->get_statistics() );
+        initial_value_finder( one_kernel, spot, *data );
         double simple = one_kernel_fitter->fit( *data, false );
         if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )

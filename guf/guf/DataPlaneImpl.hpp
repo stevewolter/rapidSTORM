@@ -45,13 +45,13 @@ DataPlaneImpl<Tag>::DataPlaneImpl(
 
     const float background_part = 0.25;
 
-    data.pixel_size = quantity<typename Data::AreaUnit>( optics.pixel_size(position) );
+    this->pixel_size = optics.pixel_size(position);
+    data.pixel_size = quantity<typename Data::AreaUnit>( this->pixel_size );
 
     /* Initialize iteratively computed statistics */
     data.min = position.template cast< DoubleLength >();
     data.max = position.template cast< DoubleLength >();
-    image_stats.peak_intensity = image_stats.integral = 0 * camera::ad_count;
-    image_stats.peak_pixel_area = quantity< si::area >( data.pixel_size );
+    this->peak_intensity = this->integral = 0;
 
     traits::Projection::ROI points 
         = optics.get_region_of_interest( position, row_width(data) );
@@ -62,7 +62,7 @@ DataPlaneImpl<Tag>::DataPlaneImpl(
     data.clear();
     data.reserve( points.size() );
     /* Keep a list of the inserted pixel values for later statistical usage */
-    std::vector< engine::Image2D::Pixel > pixels;
+    std::vector<float> pixels;
     pixels.reserve( points.size() );
     std::back_insert_iterator<Data> o = std::back_inserter( data );
     for ( traits::Projection::ROI::const_iterator i = points.begin(); i != points.end(); ++i )
@@ -78,37 +78,37 @@ DataPlaneImpl<Tag>::DataPlaneImpl(
         const typename Data::value_type::Intensity value = 
             std::max( 0.0, optics.absolute_in_photons( image( i->image_position ) * camera::ad_count ) );
         pixels.push_back( value );
-        image_stats.integral += value * camera::ad_count;
-        if ( value * camera::ad_count >= image_stats.peak_intensity ) {
-            image_stats.peak_intensity = value * camera::ad_count;
-            image_stats.highest_pixel = sample;
+        this->integral += value;
+        if ( value >= this->peak_intensity ) {
+            this->peak_intensity = value;
+            this->highest_pixel = sample;
         }
 
         *o++ = typename Data::value_type( sample, value );
     }
 
     data.pad_last_chunk();
-    image_stats.pixel_count = pixels.size();
+    this->pixel_count = pixels.size();
 
     if ( ! pixels.empty() ) {
-        std::vector<engine::Image2D::Pixel>::iterator qp = pixels.begin() + pixels.size() * background_part;
+        std::vector<float>::iterator qp = pixels.begin() + pixels.size() * background_part;
         std::nth_element( pixels.begin(), qp, pixels.end());
-        image_stats.quarter_percentile_pixel = *qp * camera::ad_count;
+        this->background_estimate = *qp;
 
         accumulator_set<double, stats<tag::weighted_variance(lazy)>, double> acc[2];
 
         for ( typename Data::const_iterator i = data.begin(); i != data.end(); ++i )
         {
             for (int dim = 0; dim < 2; ++dim) {
-                Length offset = i->position(dim) - Length(image_stats.highest_pixel[dim]);
+                Length offset = i->position(dim) - Length(this->highest_pixel[dim]);
                 double intensity_above_background = 
-                    std::max(0.0, (i->value() - image_stats.quarter_percentile_pixel.value()));
+                    std::max(0.0, double(i->value() - this->background_estimate));
                 acc[dim]( offset.value(),
                     weight = intensity_above_background );
             }
         }
         for (int dim = 0; dim < 2; ++dim)
-            image_stats.sigma[dim] = quantity<si::length>( 
+            this->standard_deviation[dim] = quantity<si::length>( 
                 Length::from_value(sqrt( weighted_variance(acc[dim]) ) ) );
     }
 }

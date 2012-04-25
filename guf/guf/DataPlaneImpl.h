@@ -2,7 +2,6 @@
 #define DSTORM_GUF_DATAPLANE_IMPL_H
 
 #include "DataPlane.h"
-#include "Statistics.h"
 #include <memory>
 
 namespace dStorm {
@@ -12,12 +11,8 @@ template <typename Tag>
 struct DataPlaneImpl
 : public DataPlane {
     typename Tag::Data data;
-    Statistics<2> image_stats;
     const void* get_data() const { return &data; }
     std::auto_ptr<Centroid> _residue_centroid() const;
-    quantity< si::area > pixel_size() const 
-        { return quantity< si::area >(data.pixel_size); }
-    const Statistics<2>& get_statistics() const { return image_stats; }
 
   public:
     DataPlaneImpl( 
