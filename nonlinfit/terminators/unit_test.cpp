@@ -3,16 +3,21 @@
 #include <nonlinfit/Terminator.h>
 #include "RelativeChange.h"
 #include "StepLimit.h"
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace nonlinfit {
 namespace terminators {
 
-void run_unit_tests(TestState& state) {
-    state( is_terminator<terminators::RelativeChange>(), 
-        "Relative change is a valid terminator" ); 
-    state( is_terminator<terminators::StepLimit>(), 
-        "Relative change is a valid terminator" ); 
+BOOST_TEST_CASE_TEMPLATE_FUNCTION( check_terminatorness, Terminator ) {
+    BOOST_CHECK( is_terminator<Terminator>() );
+}
+
+boost::unit_test::test_suite* register_unit_tests() {
+    typedef boost::mpl::vector< terminators::RelativeChange, terminators::StepLimit > Terminators;
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "terminators" );
+    rv->add( BOOST_TEST_CASE_TEMPLATE( check_terminatorness, Terminators ) );
+    return rv;
 }
 
 }

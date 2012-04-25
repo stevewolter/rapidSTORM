@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "fit_window/unit_tests.h"
 #include "gaussian_psf/unit_test.h"
+#include "nonlinfit/unit_test.h"
 
 void pixel_unit_test(TestState& state);
 
@@ -39,6 +40,10 @@ bool init_unit_test() {
         add( dStorm::fit_window::make_unit_test_suite() );
     boost::unit_test::framework::master_test_suite().
         add( dStorm::gaussian_psf::make_unit_test_suite() );
+    boost::unit_test::framework::master_test_suite().
+        add( nonlinfit::register_unit_tests() );
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::tiff::register_unit_tests() );
 
     return true;
 }
@@ -47,9 +52,7 @@ int run_unit_tests(int argc, char* argv[]) {
     TestState state;
     dStorm::engine::unit_test(state);
     dStorm::input::file_method::unit_test( state );
-    dStorm::tiff::unit_test( state );
     dStorm::input::resolution::unit_test(state);
-    dStorm::guf::run_unit_tests(state);
     dStorm::expression::unit_test( state );
     dStorm::viewer::unit_test( state );
     dStorm::traits::run_unit_tests( state );

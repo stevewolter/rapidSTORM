@@ -1,17 +1,19 @@
 /** \cond */
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
 namespace nonlinfit {
 
-namespace sum { void run_unit_tests(TestState&); }
-namespace levmar { void run_unit_tests(TestState&); }
-namespace terminators { void run_unit_tests(TestState&); }
-namespace plane { void run_unit_tests(TestState&); }
+namespace sum { boost::unit_test::test_suite* register_unit_tests(); }
+namespace levmar { boost::unit_test::test_suite* register_unit_tests(); }
+namespace terminators { boost::unit_test::test_suite* register_unit_tests(); }
+namespace plane { boost::unit_test::test_suite* register_unit_tests(); }
 
-void run_unit_tests(TestState& state) {
-    sum::run_unit_tests(state);
-    levmar::run_unit_tests(state);
-    terminators::run_unit_tests(state);
-    plane::run_unit_tests(state);
+boost::unit_test::test_suite* register_unit_tests() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "nonlinfit" );
+    rv->add( sum::register_unit_tests() );
+    rv->add( levmar::register_unit_tests() );
+    rv->add( terminators::register_unit_tests() );
+    rv->add( plane::register_unit_tests() );
+    return rv;
 }
 
 }

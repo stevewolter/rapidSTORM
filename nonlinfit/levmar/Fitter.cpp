@@ -3,14 +3,14 @@
 #include <nonlinfit/VectorPosition.h>
 #include <nonlinfit/terminators/StepLimit.h>
 #include "Fitter.hpp"
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
 
 /** \cond */
 
 namespace nonlinfit {
 namespace levmar {
 
-void run_unit_tests(TestState& state) {
+static void check_naive_fitter_finds_paraboles_minimum() {
     typedef nonlinfit::Bind< static_power::Expression, static_power::BaseValue > Lambda;
     Lambda a;
     static_power::SimpleFunction<0,1> function(a);
@@ -24,9 +24,13 @@ void run_unit_tests(TestState& state) {
     VectorPosition< Lambda > mover(a);
     terminators::StepLimit terminator(150);
     fitter.fit( function, mover, terminator );
-    state( std::abs( a( static_power::Variable() ).value() ) < 1E-10,
-           "LM fitter finds minimum position of trivial function");
+    BOOST_CHECK_SMALL( a( static_power::Variable() ).value(), 0.01 );
+}
 
+boost::unit_test::test_suite* register_unit_tests() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "levmar" );
+    rv->add( BOOST_TEST_CASE( &check_naive_fitter_finds_paraboles_minimum ) );
+    return rv;
 }
 
 }

@@ -1,5 +1,5 @@
 #include "DisjointData.hpp"
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/io.hpp>
 
@@ -8,7 +8,7 @@ namespace plane {
 
 using namespace boost::units;
 
-void run_unit_tests(TestState& state) {
+static void check_serialization() {
 
     typedef DisjointData< int, si::length, 7 > Data;
     Data data;
@@ -20,12 +20,18 @@ void run_unit_tests(TestState& state) {
     int i = 0;
     bool all_good = true;
     for ( Data::const_iterator j = data.begin(); j != data.end(); ++j ) {
-        all_good = all_good && j->position(0) == (i%7) * si::meter && j->position(1) == - (i/7) * 5 * si::meter 
-                            && j->value() == i * 500;
+        BOOST_CHECK_EQUAL( j->position(0).value(), i%7 );
+        BOOST_CHECK_EQUAL( j->position(1).value(), - (i/7) * 5 );
+        BOOST_CHECK_EQUAL( j->value(), i * 500 );
         ++i;
     }
 
-    state( all_good, "Disjoint data serializes and deserializes correctly" );
+}
+
+boost::unit_test::test_suite* register_unit_tests() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "plane" );
+    rv->add( BOOST_TEST_CASE( &check_serialization ) );
+    return rv;
 }
 
 }

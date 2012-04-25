@@ -8,14 +8,13 @@
 #include <dStorm/input/Source.h>
 #include <memory>
 
-struct TestState;
-
+namespace boost { namespace unit_test { class test_suite; } }
 namespace dStorm {
 namespace tiff {
 
 extern const std::string test_file_name;
 std::auto_ptr< input::Link > make_input();
-void unit_test( TestState& );
+boost::unit_test::test_suite* register_unit_tests();
 
 }
 

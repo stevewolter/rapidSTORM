@@ -627,6 +627,7 @@ $(INSTANTIATIONS) :
 	    | sed -e 's:#include ":&guf/instantiations/:' > $@
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    nonlinfit/unit_test.h \
     nonlinfit/unit_test.cpp \
     nonlinfit/sum/unit_test.cpp \
     nonlinfit/terminators/unit_test.cpp \

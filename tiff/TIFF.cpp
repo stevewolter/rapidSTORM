@@ -38,7 +38,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/signals/InputFileNameChange.h>
 
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
 #include "TIFFOperation.h"
 #include "OpenFile.h"
 
@@ -244,16 +244,20 @@ void ChainLink::operator()(const simparm::Event& e) {
     republish_traits();
 }
 
-void unit_test( TestState& s ) {
+static void unit_test() {
     ChainLink l;
     l.publish_meta_info();
-    s.testrun( l.current_meta_info().get() 
-            && l.current_meta_info()->provides_nothing(),
-        "Traits are right for empty file" );
+    BOOST_REQUIRE( l.current_meta_info().get() );
+    BOOST_CHECK( l.current_meta_info()->provides_nothing() );
+
     l.current_meta_info()->get_signal< signals::InputFileNameChange >()( test_file_name );
-    s.testrun( l.current_meta_info().get() 
-            && ! l.current_meta_info()->provides_nothing(),
-        "Traits are right for test file" );
+    BOOST_REQUIRE( l.current_meta_info().get() );
+    BOOST_CHECK( ! l.current_meta_info()->provides_nothing() );
+}
+boost::unit_test::test_suite* register_unit_tests() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE("tiff");
+    rv->add( BOOST_TEST_CASE(&unit_test) );
+    return rv;
 }
 
 void ChainLink::modify_meta_info( MetaInfo& i ) {
