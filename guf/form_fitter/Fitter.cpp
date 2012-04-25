@@ -26,7 +26,6 @@
 #include "guf/psf/StandardFunction.h"
 #include "guf/psf/JointEvaluator.h"
 #include <nonlinfit/levmar/Fitter.hpp>
-#include "guf/guf/Statistics.h"
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
 #include <boost/lambda/lambda.hpp>
 #include <boost/variant/get.hpp>

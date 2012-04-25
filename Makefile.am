@@ -522,6 +522,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
     guf/guf/DataCube.cpp guf/guf/DataCube.h \
     guf/guf/DataPlane.cpp guf/guf/DataPlane.h \
+    guf/guf/DataPlaneImpl.h guf/guf/DataPlaneImpl.hpp \
     guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
     guf/guf/Factory.cpp guf/guf/Factory.h \
     guf/guf/FitAnalysis.h \
@@ -537,14 +538,10 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/Data_fwd.h \
     guf/guf/KernelCreator.h guf/guf/KernelCreator.cpp \
     guf/guf/FitTerminator.h \
-    guf/guf/TransformedImage.hpp \
-    guf/guf/Statistics.h \
-    guf/guf/TransformedImage_cut_region.h \
     guf/guf/PlaneFunction.h guf/guf/PlaneFunction.hpp \
     guf/guf/DistanceMetric.h guf/guf/InputPlane.h \
     guf/guf/Spot.h \
     guf/guf/Centroid.h guf/guf/Centroid.cpp \
-    guf/guf/TransformedImage.h \
     guf/guf/Optics.h guf/guf/Optics.cpp \
     guf/guf/ScheduleIndexFinder.h guf/guf/ScheduleIndexFinder.hpp guf/guf/ScheduleIndexFinder.cpp \
     guf/guf/DataExtractor.h guf/guf/DataExtractor.cpp \
