@@ -1,10 +1,10 @@
 #include "debug.h"
 #include "NaiveFitter.h"
 #include "ModelledFitter.h"
-#include "guf/psf/StandardFunction.h"
-#include "guf/psf/free_form.h"
-#include "guf/psf/fixed_form.h"
-#include "guf/psf/expressions.h"
+#include "gaussian_psf/StandardFunction.h"
+#include "gaussian_psf/free_form.h"
+#include "gaussian_psf/fixed_form.h"
+#include "gaussian_psf/expressions.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/traits/optics.h>
@@ -20,7 +20,7 @@ template <int Kernels, typename Assignment, typename Lambda>
 inline NaiveFitter::Ptr 
 create2( const Config& c, const dStorm::engine::JobInfo& i ) 
 { 
-    typedef typename PSF::StandardFunction< 
+    typedef typename gaussian_psf::StandardFunction< 
         nonlinfit::Bind< Lambda ,Assignment> ,Kernels>
         ::type F;
     return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
@@ -28,7 +28,7 @@ create2( const Config& c, const dStorm::engine::JobInfo& i )
 
 template <>
 inline NaiveFitter::Ptr
-create2<2,PSF::FreeForm,PSF::No3D>( const Config& c, const dStorm::engine::JobInfo& i )
+create2<2,gaussian_psf::FreeForm,gaussian_psf::No3D>( const Config& c, const dStorm::engine::JobInfo& i )
 {
     throw std::runtime_error("Two kernels and free-sigma fitting can't be combined, sorry");
 }
@@ -50,11 +50,11 @@ NaiveFitter::create(
     if ( c.free_sigmas() && ! consistently_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( c.free_sigmas() )
-        return create2<Kernels,PSF::FreeForm,PSF::No3D>(c,info);
+        return create2<Kernels,gaussian_psf::FreeForm,gaussian_psf::No3D>(c,info);
     else if ( consistently_no_3d )
-        return create2<Kernels,PSF::FixedForm,PSF::No3D>(c,info);
+        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::No3D>(c,info);
     else
-        return create2<Kernels,PSF::FixedForm,PSF::Spline3D>( c, info );
+        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::Spline3D>( c, info );
 }
 
 template NaiveFitter::Ptr NaiveFitter::create<1>( const Config& c, const dStorm::engine::JobInfo& i );

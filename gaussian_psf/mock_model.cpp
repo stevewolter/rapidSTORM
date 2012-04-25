@@ -1,6 +1,6 @@
+#include "mock_model.h"
 #include <boost/mpl/for_each.hpp>
 #include <Eigen/StdVector>
-#include "unit_test.h"
 #include "parameters.h"
 #include "Polynomial3D.h"
 #include "No3D.h"
@@ -9,8 +9,7 @@
 #include <dStorm/threed_info/Spline3D.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 MockDataTag::Data
 mock_data() {
@@ -25,9 +24,9 @@ mock_data() {
                 ? -23*d.output[j] : d.output[j] * log(d.output[j]);
         }
     }
-    disjoint_data.min.fill( boost::units::quantity<dStorm::guf::PSF::LengthUnit>::from_value( -1E50 ) );
-    disjoint_data.max.fill( boost::units::quantity<dStorm::guf::PSF::LengthUnit>::from_value( 1E50 ) );
-    disjoint_data.pixel_size = boost::units::quantity<dStorm::guf::PSF::AreaUnit>(1E-15 * boost::units::si::meter * boost::units::si::meter);
+    disjoint_data.min.fill( boost::units::quantity<LengthUnit>::from_value( -1E50 ) );
+    disjoint_data.max.fill( boost::units::quantity<LengthUnit>::from_value( 1E50 ) );
+    disjoint_data.pixel_size = boost::units::quantity<AreaUnit>(1E-15 * boost::units::si::meter * boost::units::si::meter);
     for (int j = 0; j < 12; ++j)
         disjoint_data.xs[j] = j * exp(1) / 30.0;
     return disjoint_data;
@@ -41,18 +40,18 @@ struct RandomParameterSetter {
     RandomParameterSetter() {}
 
     template <int Dim>
-    void operator()( dStorm::guf::PSF::BestSigma<Dim> p ) { m(p).set_value( 0.400+ 0.1*Dim ); }
+    void operator()( BestSigma<Dim> p ) { m(p).set_value( 0.400+ 0.1*Dim ); }
     template <int Dim>
-    void operator()( nonlinfit::Xs<Dim,dStorm::guf::PSF::LengthUnit> ) {}
+    void operator()( nonlinfit::Xs<Dim,LengthUnit> ) {}
     template <int Dim>
-    void operator()( dStorm::guf::PSF::Mean<Dim> p ) { m(p).set_value( 2.500+ 0.050*Dim ); }
-    void operator()( dStorm::guf::PSF::MeanZ p ) { m(p).set_value( 0.600 ); }
+    void operator()( Mean<Dim> p ) { m(p).set_value( 2.500+ 0.050*Dim ); }
+    void operator()( MeanZ p ) { m(p).set_value( 0.600 ); }
     template <int Dim>
-    void operator()( dStorm::guf::PSF::ZPosition<Dim> p ) { m(p).set_value( 0.200- 0.050*Dim ); }
-    void operator()( dStorm::guf::PSF::Amplitude p ) { m(p).set_value( 1E7 ); }
+    void operator()( ZPosition<Dim> p ) { m(p).set_value( 0.200- 0.050*Dim ); }
+    void operator()( Amplitude p ) { m(p).set_value( 1E7 ); }
     template <int Dim, int Term>
-    void operator()( dStorm::guf::PSF::DeltaSigma<Dim,Term> p ) { m(p).set_value( 1.6 - 0.4 * Dim - 0.1 * Term ); }
-    void operator()( dStorm::guf::PSF::Prefactor p ) { m(p).set_value( 0.3 ); }
+    void operator()( DeltaSigma<Dim,Term> p ) { m(p).set_value( 1.6 - 0.4 * Dim - 0.1 * Term ); }
+    void operator()( Prefactor p ) { m(p).set_value( 0.3 ); }
 
     const Expression& operator()() { 
         boost::mpl::for_each< typename Expression::Variables >( boost::ref(*this) );
@@ -75,12 +74,5 @@ Spline3D mock_model<Spline3D>() {
     return result;
 }
 
-void run_unit_tests( TestState &state ) {
-    check_zhuang_evaluator( state );
-    check_no3d_evaluator( state );
-    check_spline_evaluator( state );
-}
-    
-}
 }
 }

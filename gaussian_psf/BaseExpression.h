@@ -12,8 +12,7 @@
 #include <nonlinfit/access_parameters.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 using namespace nonlinfit;
 using namespace boost::units;
@@ -71,7 +70,6 @@ struct BaseExpression
 
 };
 
-}
 }
 }
 

@@ -18,13 +18,13 @@
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/make_functor.hpp>
-#include "guf/psf/is_plane_dependent.h"
-#include "guf/psf/Polynomial3D.h"
-#include "guf/psf/Spline3D.h"
-#include "guf/psf/No3D.h"
-#include "guf/psf/fixed_form.h"
-#include "guf/psf/StandardFunction.h"
-#include "guf/psf/JointEvaluator.h"
+#include "gaussian_psf/is_plane_dependent.h"
+#include "gaussian_psf/Polynomial3D.h"
+#include "gaussian_psf/Spline3D.h"
+#include "gaussian_psf/No3D.h"
+#include "gaussian_psf/fixed_form.h"
+#include "gaussian_psf/StandardFunction.h"
+#include "gaussian_psf/JointEvaluator.h"
 #include <nonlinfit/levmar/Fitter.hpp>
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
 #include <boost/lambda/lambda.hpp>
@@ -49,7 +49,7 @@
 namespace dStorm {
 namespace estimate_psf_form {
 
-namespace PSF = dStorm::guf::PSF;
+namespace PSF = dStorm::gaussian_psf;
 
 using namespace nonlinfit;
 
@@ -154,7 +154,7 @@ class VariableReduction
 template <typename Lambda>
 template <typename Parameter>
 bool VariableReduction<Lambda>::is_layer_independent( Parameter p ) {
-    return guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma(), config.universal_3d())(p);
+    return PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma(), config.universal_3d())(p);
 }
 
 struct is_positional {
@@ -164,7 +164,7 @@ struct is_positional {
     bool operator()( constant_background::Amount ) { return true; }
     template <typename Parameter>
     bool operator()( Parameter ) {
-        return guf::PSF::FixedForm::apply< Parameter >::type::value;
+        return PSF::FixedForm::apply< Parameter >::type::value;
     }
 };
 
@@ -177,9 +177,9 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
     positional = make_bitset( Variables(), is_positional() );
     assert( positional.any() );
     layer_dependent = make_bitset( Variables(), 
-        guf::PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma()) );
+        PSF::is_plane_independent(config.laempi_fit(),config.disjoint_amplitudes(), config.universal_best_sigma()) );
     layer_dependent.flip();
-    fluorophore_dependent = make_bitset( Variables(), guf::PSF::is_fluorophore_dependent() );
+    fluorophore_dependent = make_bitset( Variables(), PSF::is_fluorophore_dependent() );
     merged = make_bitset( Variables(), vanishes_when_circular(config) );
     constant = make_bitset( Variables(), calibrate_3d::constant_parameter( traits.plane_count() > 1, config ) );
 }

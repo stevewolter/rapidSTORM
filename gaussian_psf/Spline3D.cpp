@@ -1,18 +1,8 @@
-#include <Eigen/StdVector>
-#include "unit_test.h"
 #include "Spline3D.h"
-#include "ReferenceEvaluation.h"
-#include <nonlinfit/plane/DisjointData.hpp>
-#include <nonlinfit/plane/Joint.h>
-#include <nonlinfit/plane/Distance.hpp>
-#include "guf/psf/Derivable.h"
-#include "guf/psf/JointEvaluator.h"
-#include "guf/psf/DisjointEvaluator.h"
-#include <nonlinfit/plane/check_evaluator.hpp>
+#include "gaussian_psf/check_evaluator.hpp"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 void Spline3D::set_spline( DepthInfo sx, DepthInfo sy )
 { 
@@ -57,26 +47,12 @@ Eigen::Matrix< quantity<LengthUnit>, 2, 1 > Spline3D::get_sigma() const
 }
 
 
-template class Parameters< double, PSF::Spline3D >;
-template class Parameters< float, PSF::Spline3D >;
+template class Parameters< double, Spline3D >;
+template class Parameters< float, Spline3D >;
 
 using namespace nonlinfit::plane;
 
-void check_spline_evaluator( TestState& state ) {
-    typedef  xs_joint<double,dStorm::guf::PSF::LengthUnit, 8>::type Joint;
-    typedef  xs_joint<double,dStorm::guf::PSF::LengthUnit, 1>::type RefTag;
-    MockDataTag::Data data = mock_data();
-    Spline3D z = mock_model<Spline3D>();
-    state.testrun( compare_evaluators< squared_deviations, Joint, RefTag >( z, data),
-                   "Spline3D joint LSQ evaluator works" );
-    state.testrun( compare_evaluators< negative_poisson_likelihood, Joint, RefTag >( z, data),
-                   "Spline3D joint ML evaluator works" );
-    state.testrun( compare_evaluators< squared_deviations, MockDataTag, RefTag >( z, data),
-                   "Spline3D disjoint LSQ evaluator works" );
-    state.testrun( compare_evaluators< negative_poisson_likelihood, MockDataTag, RefTag >( z, data),
-                   "Spline3D disjoint ML evaluator works" );
-}
+template boost::unit_test::test_suite* check_evaluator<Spline3D>( const char* name );
 
-}
 }
 }

@@ -1,5 +1,5 @@
 #include <nonlinfit/sum/Evaluator.hpp>
-#include "guf/psf/parameters.h"
+#include "gaussian_psf/parameters.h"
 #include "guf/guf/PlaneFunction.hpp"
 
 namespace dStorm {

@@ -7,9 +7,9 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/Localization.h>
 #include "Config.h"
-#include "guf/psf/BaseExpression.h"
+#include "gaussian_psf/BaseExpression.h"
+#include "gaussian_psf/Base3D.h"
 #include "guf/constant_background.hpp"
-#include "guf/psf/Base3D.h"
 #include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
 #include "fit_window/Optics.h"
@@ -79,7 +79,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     using namespace boost::units;
     /* Mortenson formula */
     /* Number of photons */
-    double N = m[0]( PSF::Amplitude() ) * m[0]( PSF::Prefactor() );
+    double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );
     double B = m.background_model()( constant_background::Amount() );
     double background_variance = 
         ( p.optics.background_is_poisson_distributed() )
@@ -102,12 +102,12 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos[0] = quantity<si::length>( m[0]( PSF::Mean<0>() ) );
-    pos[1] = quantity<si::length>( m[0]( PSF::Mean<1>() ) );
-    const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &m[0] );
+    pos[0] = quantity<si::length>( m[0]( gaussian_psf::Mean<0>() ) );
+    pos[1] = quantity<si::length>( m[0]( gaussian_psf::Mean<1>() ) );
+    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &m[0] );
     if ( threed )
-        pos[2] = quantity<si::length>( (*threed)( PSF::MeanZ() ) );
-    Localization::Amplitude::Type amp( m[0]( PSF::Amplitude() ) * data.optics.photon_response() );
+        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
+    Localization::Amplitude::Type amp( m[0]( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() = 

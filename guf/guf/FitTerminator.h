@@ -3,7 +3,7 @@
 
 #include "debug.h"
 #include "Config.h"
-#include "guf/psf/parameters.h"
+#include "gaussian_psf/parameters.h"
 #include <nonlinfit/index_of.h>
 #include <nonlinfit/TermParameter.h>
 #include <boost/mpl/for_each.hpp>
@@ -23,9 +23,9 @@ class FitTerminator {
         typedef void result_type;
 
         template <class Kernel, int Dim, typename Position>
-        void operator()( nonlinfit::TermParameter<Kernel, PSF::Mean<Dim> > param,
+        void operator()( nonlinfit::TermParameter<Kernel, gaussian_psf::Mean<Dim> > param,
                          FitTerminator& t, const Position& pos, const Position& shift ) {
-            typedef nonlinfit::TermParameter<Kernel, PSF::Mean<Dim> > MyParameter;
+            typedef nonlinfit::TermParameter<Kernel, gaussian_psf::Mean<Dim> > MyParameter;
             const int index = nonlinfit::index_of< 
                 typename Function::Variables, MyParameter >::value;
             quantity<si::length> value( 

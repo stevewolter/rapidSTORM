@@ -6,8 +6,7 @@
 #include <nonlinfit/append.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 class No3D
 : public BaseExpression,
@@ -54,7 +53,6 @@ class Parameters< Num, No3D >
 };
 
 
-}
 }
 }
 

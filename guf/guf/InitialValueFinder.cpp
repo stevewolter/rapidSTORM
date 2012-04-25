@@ -5,7 +5,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 #include "InitialValueFinder.h"
-#include "guf/psf/expressions.h"
+#include "gaussian_psf/expressions.h"
 #include "guf/constant_background.hpp"
 #include "TraitValueFinder.h"
 #include <boost/variant/static_visitor.hpp>
@@ -110,19 +110,19 @@ class InitialValueFinder::set_parameter {
         : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
-    void operator()( nonlinfit::Xs<0,PSF::LengthUnit> p, Model& m ) {}
+    void operator()( nonlinfit::Xs<0,gaussian_psf::LengthUnit> p, Model& m ) {}
     template <typename Model>
-    void operator()( nonlinfit::Xs<1,PSF::LengthUnit> p, Model& m ) {}
+    void operator()( nonlinfit::Xs<1,gaussian_psf::LengthUnit> p, Model& m ) {}
     template <int Dim, typename Model>
-    void operator()( PSF::Mean<Dim> p, Model& m ) 
+    void operator()( gaussian_psf::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
-    void operator()( PSF::MeanZ p, PSF::Polynomial3D& m ) 
+    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m ) 
         { m( p ) = e.z_estimate; }
-    void operator()( PSF::MeanZ p, PSF::Spline3D& m ) { 
+    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Spline3D& m ) { 
         m( p ) = e.z_estimate; 
     }
     template <typename Model>
-    void operator()( PSF::Amplitude a, Model& m ) 
+    void operator()( gaussian_psf::Amplitude a, Model& m ) 
         { m( a ) = e.amp; }
     void operator()( constant_background::Amount a, constant_background::Expression& m ) 
         { m( a ) = e.bg; }
@@ -144,14 +144,14 @@ void InitialValueFinder::operator()(
     for (int p = 0; p < info.traits.plane_count(); ++p) {
         assert( ( position[p].kernel_count() ) == 1 );
         set_parameter s( *this, spot, e[p], info.traits.optics(p) );
-        if ( PSF::Polynomial3D* z = dynamic_cast<PSF::Polynomial3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< PSF::Polynomial3D::Variables >( 
+        if ( gaussian_psf::Polynomial3D* z = dynamic_cast<gaussian_psf::Polynomial3D*>(&position[p][0]) ) {
+            boost::mpl::for_each< gaussian_psf::Polynomial3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        } else if ( PSF::No3D* z = dynamic_cast<PSF::No3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< PSF::No3D::Variables >( 
+        } else if ( gaussian_psf::No3D* z = dynamic_cast<gaussian_psf::No3D*>(&position[p][0]) ) {
+            boost::mpl::for_each< gaussian_psf::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        } else if ( PSF::Spline3D* z = dynamic_cast<PSF::Spline3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< PSF::Spline3D::Variables >( 
+        } else if ( gaussian_psf::Spline3D* z = dynamic_cast<gaussian_psf::Spline3D*>(&position[p][0]) ) {
+            boost::mpl::for_each< gaussian_psf::Spline3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
             z->set_spline( 
                 info.traits.optics(p).depth_info(Direction_X),

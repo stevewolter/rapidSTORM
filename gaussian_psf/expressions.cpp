@@ -4,8 +4,7 @@
 #include "BaseEvaluator.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 BaseExpression::BaseExpression() 
 : may_leave_roi( false ) {}
@@ -31,6 +30,5 @@ bool BaseExpression::mean_within_range( const Bound& lower, const Bound& upper )
     return is_good;
 }
 
-}
 }
 }

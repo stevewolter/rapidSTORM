@@ -8,8 +8,7 @@
 #include <dStorm/polynomial_3d.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <typename Num>
 class BaseParameters {
@@ -35,7 +34,6 @@ class BaseParameters {
 
 };
 
-}
 }
 }
 

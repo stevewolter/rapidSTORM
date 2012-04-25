@@ -11,15 +11,18 @@
 #include "expressions.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 using boost::fusion::at_c;
 using boost::fusion::at;
 using boost::fusion::vector;
 using nonlinfit::DerivationSummand;
 using nonlinfit::Xs;
-using namespace boost::mpl;
+using boost::mpl::true_;
+using boost::mpl::false_;
+using boost::mpl::if_;
+using boost::mpl::contains;
+using boost::mpl::bool_;
 
 template <typename Parameter, typename Dimension>
 struct dimension_mismatch : public true_ {};
@@ -30,7 +33,7 @@ template <template <int Foo, int Bar> class Param, int Dim, int Term>
 struct dimension_mismatch< Param<Dim,Term>, nonlinfit::Xs<Dim,LengthUnit> > 
     : public false_ {};
 template <int Dim>
-struct dimension_mismatch< nonlinfit::Xs<Dim,LengthUnit>, nonlinfit::Xs<Dim,LengthUnit> > 
+struct dimension_mismatch< nonlinfit::Xs<Dim,gaussian_psf::LengthUnit>, nonlinfit::Xs<Dim,gaussian_psf::LengthUnit> > 
     : public false_ {};
 
 template <typename DerivationSummand>
@@ -76,7 +79,7 @@ struct DisjointEvaluator
   public:
     template <typename DerivationSummand>
     struct is_always_zero {
-        typedef typename PSF::is_always_zero<DerivationSummand>::type type;
+        typedef typename gaussian_psf::is_always_zero<DerivationSummand>::type type;
     };
     template <typename Data>
     bool prepare_iteration( const Data& data ) {
@@ -140,7 +143,6 @@ struct DisjointEvaluator
 
 }
 }
-}
 
 namespace nonlinfit {
 
@@ -148,14 +150,14 @@ namespace nonlinfit {
 template <typename Num, int ChunkSize> \
 struct get_evaluator< \
     Expression, \
-    plane::Disjoint<Num,ChunkSize,dStorm::guf::PSF::XPosition,\
-                                  dStorm::guf::PSF::YPosition > \
+    plane::Disjoint<Num,ChunkSize,dStorm::gaussian_psf::XPosition,\
+                                  dStorm::gaussian_psf::YPosition > \
 > {\
-    typedef dStorm::guf::PSF::DisjointEvaluator<Num, Expression, ChunkSize > type; \
+    typedef dStorm::gaussian_psf::DisjointEvaluator<Num, Expression, ChunkSize > type; \
 };
-DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::Polynomial3D)
-DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::No3D)
-DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::guf::PSF::Spline3D)
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::gaussian_psf::Polynomial3D)
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::gaussian_psf::No3D)
+DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION(dStorm::gaussian_psf::Spline3D)
 #undef DSTORM_GUF_PSF_DISJOINT_SPECIALIZATION
 
 }

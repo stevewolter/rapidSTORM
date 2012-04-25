@@ -1,3 +1,3 @@
-#include "guf/psf/Spline3D.h"
+#include "gaussian_psf/Spline3D.h"
 
-typedef dStorm::guf::PSF::Spline3D InstantiatedExpression;
+typedef dStorm::gaussian_psf::Spline3D InstantiatedExpression;

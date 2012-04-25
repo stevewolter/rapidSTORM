@@ -2,7 +2,7 @@
 #define DSTORM_FITTER_GUF_FIT_ANALYSIS_H
 
 #include "Spot.h"
-#include "guf/psf/fwd.h"
+#include "gaussian_psf/fwd.h"
 #include "guf/constant_background_fwd.hpp"
 #include <vector>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -15,11 +15,11 @@ struct MultiKernelModel {
     MultiKernelModel( Expression& expression );
 
     typedef boost::indirect_iterator< 
-        std::vector<PSF::BaseExpression*>::const_iterator,
-        const PSF::BaseExpression&> const_iterator;
+        std::vector<gaussian_psf::BaseExpression*>::const_iterator,
+        const gaussian_psf::BaseExpression&> const_iterator;
     typedef boost::indirect_iterator< 
-        std::vector<PSF::BaseExpression*>::iterator,
-        PSF::BaseExpression&> iterator;
+        std::vector<gaussian_psf::BaseExpression*>::iterator,
+        gaussian_psf::BaseExpression&> iterator;
 
     const_iterator begin() const { return const_iterator(gauss.begin()); }
     const_iterator end() const { return const_iterator(gauss.end()); }
@@ -27,13 +27,13 @@ struct MultiKernelModel {
     iterator end() { return iterator(gauss.end()); }
     int kernel_count() const { return gauss.size(); }
 
-    PSF::BaseExpression& operator[]( int i ) { return *gauss[i]; }
-    const PSF::BaseExpression& operator[]( int i ) const { return *gauss[i]; }
+    gaussian_psf::BaseExpression& operator[]( int i ) { return *gauss[i]; }
+    const gaussian_psf::BaseExpression& operator[]( int i ) const { return *gauss[i]; }
     constant_background::Expression& background_model() { return *constant; }
     const constant_background::Expression& background_model() const { return *constant; }
     
   private:
-    std::vector<PSF::BaseExpression*> gauss;
+    std::vector<gaussian_psf::BaseExpression*> gauss;
     constant_background::Expression* constant;
 };
 

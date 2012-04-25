@@ -7,7 +7,7 @@
 #include <dStorm/traits/optics.h>
 #include <dStorm/engine/InputTraits.h>
 #include <boost/variant/get.hpp>
-#include "guf/psf/parameters.h"
+#include "gaussian_psf/parameters.h"
 #include <limits>
 #include <dStorm/threed_info/No3D.h>
 #include <dStorm/threed_info/Polynomial3D.h>
@@ -24,37 +24,37 @@ struct TraitValueFinder {
     TraitValueFinder( const int fluorophore, const dStorm::traits::Optics& plane );
 
     template <int Dim>
-    void operator()( PSF::BestSigma<Dim> p, PSF::No3D& m ) const { 
+    void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::No3D& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< typename PSF::Micrometers >(
+        m(p) = quantity< typename gaussian_psf::Micrometers >(
             dynamic_cast< const threed_info::No3D&>(*plane.depth_info(d))
                 .sigma );
     }
     template <int Dim>
-    void operator()( PSF::BestSigma<Dim> p, PSF::Polynomial3D& m ) const { 
+    void operator()( gaussian_psf::BestSigma<Dim> p, gaussian_psf::Polynomial3D& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< typename PSF::Micrometers >(
+        m(p) = quantity< typename gaussian_psf::Micrometers >(
             dynamic_cast< const threed_info::Polynomial3D&>(*plane.depth_info(d))
                 .get_base_width() );
     }
     template <int Dim, typename Structure, int Term>
-    void operator()( PSF::DeltaSigma<Dim,Term> p, Structure& m ) const {
+    void operator()( gaussian_psf::DeltaSigma<Dim,Term> p, Structure& m ) const {
         Direction d = static_cast<Direction>(Dim);
-        m(p) = quantity< typename PSF::Micrometers >(
+        m(p) = quantity< typename gaussian_psf::Micrometers >(
             dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
                 .get_slope( Term ) );
     }
 
     template <int Dim, typename Structure>
-    void operator()( PSF::ZPosition<Dim> p, Structure& m ) const { 
+    void operator()( gaussian_psf::ZPosition<Dim> p, Structure& m ) const { 
         Direction d = static_cast<Direction>(Dim);
-        m( p ) = quantity< typename PSF::ZPosition<Dim>::Unit >(
+        m( p ) = quantity< typename gaussian_psf::ZPosition<Dim>::Unit >(
             dynamic_cast<const threed_info::Polynomial3D&>(*plane.depth_info(d))
                 .focal_plane() );
     }
 
     template <typename Structure>
-    void operator()( PSF::Prefactor  p, Structure& m ) const {
+    void operator()( gaussian_psf::Prefactor  p, Structure& m ) const {
         m(p) = plane.transmission_coefficient(fluorophore); 
     }
 };

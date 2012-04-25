@@ -4,8 +4,7 @@
 #include <nonlinfit/plane/GenericData.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <typename Number>
 bool BaseParameters<Number>::prepare_iteration( const Data& data )
@@ -43,6 +42,5 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
 template class BaseParameters< double >;
 template class BaseParameters< float >;
 
-}
 }
 }

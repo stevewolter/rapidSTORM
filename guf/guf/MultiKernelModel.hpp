@@ -10,10 +10,10 @@ namespace guf {
 
 struct add_kernel {
     typedef void result_type;
-    void operator()( std::vector<PSF::BaseExpression*>& v, 
-                     PSF::BaseExpression& model ) const 
+    void operator()( std::vector<gaussian_psf::BaseExpression*>& v, 
+                     gaussian_psf::BaseExpression& model ) const 
         { v.push_back( &model ); }
-    void operator()( std::vector<PSF::BaseExpression*>&, 
+    void operator()( std::vector<gaussian_psf::BaseExpression*>&, 
                      constant_background::Expression& ) const {}
 };
 

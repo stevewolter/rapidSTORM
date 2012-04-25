@@ -5,8 +5,7 @@
 #include <nonlinfit/Xs.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 using namespace boost::units;
 
@@ -38,7 +37,6 @@ struct Prefactor {
     typedef si::dimensionless Unit;
 };
 
-}
 }
 }
 

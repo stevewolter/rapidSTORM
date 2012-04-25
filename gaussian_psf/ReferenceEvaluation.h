@@ -14,8 +14,7 @@
 #include <dStorm/threed_info/DepthInfo.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <typename Model, typename Number, typename P1, typename P2>
 class ReferenceEvaluator ;
@@ -51,12 +50,12 @@ class ReferenceEvaluator <Polynomial3D, Number, P1, P2>
         (*expr)( P2() ).set_value( xs[1] );
         x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
         y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( PSF::Mean<0>() ).value();
-        y0 = (*expr)( PSF::Mean<1>() ).value();
-        s0x = (*expr)( PSF::BestSigma<0>() ).value();
-        s0y = (*expr)( PSF::BestSigma<1>() ).value();
-        A = (*expr)( PSF::Amplitude() ).value();
-        theta = (*expr)( PSF::Prefactor() ).value();
+        x0 = (*expr)( Mean<0>() ).value();
+        y0 = (*expr)( Mean<1>() ).value();
+        s0x = (*expr)( BestSigma<0>() ).value();
+        s0y = (*expr)( BestSigma<1>() ).value();
+        A = (*expr)( Amplitude() ).value();
+        theta = (*expr)( Prefactor() ).value();
         zx = (*expr)( ZPosition<0>() ).value();
         zy = (*expr)( ZPosition<1>() ).value();
         z0 = (*expr)( MeanZ() ).value();
@@ -90,12 +89,12 @@ class ReferenceEvaluator <No3D, Number, P1, P2>
         (*expr)( P2() ).set_value( xs[1] );
         x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
         y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( PSF::Mean<0>() ).value();
-        y0 = (*expr)( PSF::Mean<1>() ).value();
-        s0x = (*expr)( PSF::BestSigma<0>() ).value();
-        s0y = (*expr)( PSF::BestSigma<1>() ).value();
-        A = (*expr)( PSF::Amplitude() ).value();
-        pf = (*expr)( PSF::Prefactor() ).value();
+        x0 = (*expr)( Mean<0>() ).value();
+        y0 = (*expr)( Mean<1>() ).value();
+        s0x = (*expr)( BestSigma<0>() ).value();
+        s0y = (*expr)( BestSigma<1>() ).value();
+        A = (*expr)( Amplitude() ).value();
+        pf = (*expr)( Prefactor() ).value();
     }
     void value( Eigen::Array<Number,1,1>& result ) 
         { result.fill(0); add_value(result); }
@@ -188,12 +187,12 @@ class ReferenceEvaluator <Spline3D, Number, P1, P2>
         (*expr)( P2() ).set_value( xs[1] );
         x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
         y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( PSF::Mean<0>() ).value();
-        y0 = (*expr)( PSF::Mean<1>() ).value();
+        x0 = (*expr)( Mean<0>() ).value();
+        y0 = (*expr)( Mean<1>() ).value();
         s0x = expr->get_sigma().x().value();
         s0y = expr->get_sigma().y().value();
-        A = (*expr)( PSF::Amplitude() ).value();
-        pf = (*expr)( PSF::Prefactor() ).value();
+        A = (*expr)( Amplitude() ).value();
+        pf = (*expr)( Prefactor() ).value();
         threed_info::ZPosition z( *(*expr)( MeanZ() ) );
         dsx = expr->get_spline(Direction_X).get_sigma_deriv(z );
         dsy = expr->get_spline(Direction_Y).get_sigma_deriv(z );
@@ -264,7 +263,6 @@ class ReferenceEvaluator <Spline3D, Number, P1, P2>
     }
 };
 
-}
 }
 }
 

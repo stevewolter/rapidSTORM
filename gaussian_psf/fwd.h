@@ -4,8 +4,7 @@
 #include "LengthUnit.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 struct BaseExpression;
 struct Polynomial3D;
@@ -23,7 +22,6 @@ template <class Num, class Expression, int Size> class DisjointEvaluator;
 template <class Model, class Number, class P1, class P2>
     class ReferenceEvaluator;
 
-}
 }
 }
 

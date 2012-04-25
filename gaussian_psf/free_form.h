@@ -4,8 +4,7 @@
 #include "parameters.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 struct FreeForm
 {
@@ -16,7 +15,6 @@ template <> struct FreeForm::apply< MeanZ > { typedef boost::mpl::true_ type; };
 template <> struct FreeForm::apply< Amplitude > { typedef boost::mpl::true_ type; };
 template <int Dim> struct FreeForm::apply< BestSigma<Dim> > { typedef boost::mpl::true_ type; };
 
-}
 }
 }
 

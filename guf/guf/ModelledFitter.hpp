@@ -11,7 +11,7 @@
 
 #include "ModelledFitter.h"
 #include "MultiKernelModel.hpp"
-#include "guf/psf/is_plane_dependent.h"
+#include "gaussian_psf/is_plane_dependent.h"
 #include <nonlinfit/make_bitset.h>
 #include <nonlinfit/sum/AbstractMap.hpp>
 #include <nonlinfit/AbstractFunctionAdapter.h>
@@ -36,7 +36,7 @@ ModelledFitter<_Function>::ModelledFitter(
         info.traits.plane_count(),
         make_bitset( 
             typename _Function::Variables(), 
-            PSF::is_plane_independent( 
+            gaussian_psf::is_plane_independent( 
                 config.laempi_fit(), 
                 config.disjoint_amplitudes() ) ) ) 
   ),

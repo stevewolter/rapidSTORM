@@ -7,12 +7,10 @@
 #include <boost/mpl/vector.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 typedef boost::mpl::vector<Polynomial3D,Spline3D,No3D> expressions;
 
-}
 }
 }
 

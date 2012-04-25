@@ -1,9 +1,9 @@
-#include "guf/psf/free_form.h"
+#include "gaussian_psf/free_form.h"
 
 namespace dStorm {
 namespace guf {
 
-typedef PSF::FreeForm Assignment;
+typedef gaussian_psf::FreeForm Assignment;
 
 }
 }

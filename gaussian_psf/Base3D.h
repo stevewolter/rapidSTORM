@@ -6,8 +6,7 @@
 #include <nonlinfit/append.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 struct Base3D 
 : public BaseExpression,
@@ -30,7 +29,6 @@ struct Base3D
     using BaseExpression::access;
 };
 
-}
 }
 }
 

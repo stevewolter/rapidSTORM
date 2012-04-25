@@ -15,8 +15,7 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 class Spline3D
 : public Base3D
@@ -51,7 +50,6 @@ class Parameters< Num, Spline3D >
     Parameters( const Spline3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
 };
 
-}
 }
 }
 

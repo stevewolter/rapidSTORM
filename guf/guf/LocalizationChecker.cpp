@@ -2,8 +2,8 @@
 #include "LocalizationChecker.h"
 #include <dStorm/engine/JobInfo.h>
 #include "Config.h"
-#include "guf/psf/BaseExpression.h"
-#include "guf/psf/Base3D.h"
+#include "gaussian_psf/BaseExpression.h"
+#include "gaussian_psf/Base3D.h"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/DepthInfo.h>
 #include "MultiKernelModel.h"
@@ -36,11 +36,11 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
                 info.traits.optics(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
-            if ( local_threshold < (*j)( PSF::Amplitude() ) * (*j)( PSF::Prefactor() ) )
+            if ( local_threshold < (*j)( gaussian_psf::Amplitude() ) * (*j)( gaussian_psf::Prefactor() ) )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
-                quantity<si::length> x_dist( (*j)( PSF::Mean<0>() ) - (*k)( PSF::Mean<0>() ) );
-                quantity<si::length> y_dist( (*j)( PSF::Mean<1>() ) - (*k)( PSF::Mean<1>() ) );
+                quantity<si::length> x_dist( (*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() ) );
+                quantity<si::length> y_dist( (*j)( gaussian_psf::Mean<1>() ) - (*k)( gaussian_psf::Mean<1>() ) );
                 if ( pow<2>(x_dist) + pow<2>(y_dist) < pow<2>(theta_dist) )
                     return false;
             }
@@ -51,26 +51,26 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
 }
 
 template <int Dim>
-bool LocalizationChecker::check_kernel_dimension( const PSF::BaseExpression& k, const guf::Spot& spot, int plane ) const
+bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpression& k, const guf::Spot& spot, int plane ) const
 {
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
-        abs( quantity<si::length>(k( PSF::Mean<Dim>() ) ) - spot[Dim] ) 
+        abs( quantity<si::length>(k( gaussian_psf::Mean<Dim>() ) ) - spot[Dim] ) 
             < quantity<si::length>(k.get_sigma()[Dim] * 3.0);
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }
 
-bool LocalizationChecker::check_kernel( const PSF::BaseExpression& k, const guf::Spot& s, int plane ) const
+bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, const guf::Spot& s, int plane ) const
 {
     bool kernels_ok =
         check_kernel_dimension<0>(k,s, plane) &&
         check_kernel_dimension<1>(k,s, plane);
-    const PSF::Base3D* threed = dynamic_cast<const PSF::Base3D*>( &k );
+    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &k );
     bool z_ok = (!threed || 
         contains(allowed_z_positions, 
-             samplepos::Scalar( (*threed)( PSF::MeanZ() ) ) ) );
-    DEBUG("Z position " << (*threed)( PSF::MeanZ() ) << " OK: " << z_ok);
+             samplepos::Scalar( (*threed)( gaussian_psf::MeanZ() ) ) ) );
+    DEBUG("Z position " << (*threed)( gaussian_psf::MeanZ() ) << " OK: " << z_ok);
     return kernels_ok && z_ok;
 }
 

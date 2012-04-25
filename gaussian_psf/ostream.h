@@ -6,8 +6,7 @@
 #include <boost/units/io.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <int Dim>
 inline std::ostream& operator<<(std::ostream& o, Mean<Dim>)  { return (o << "mean" << Dim); }
@@ -29,7 +28,6 @@ inline std::ostream& operator<<( std::ostream& o, const BaseExpression& m ) {
     return o;
 }
 
-}
 }
 }
 

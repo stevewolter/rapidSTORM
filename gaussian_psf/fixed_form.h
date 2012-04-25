@@ -4,8 +4,7 @@
 #include "parameters.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 struct FixedForm
 {
@@ -15,7 +14,6 @@ template <int Dim> struct FixedForm::apply< Mean<Dim> > {typedef boost::mpl::tru
 template <> struct FixedForm::apply< MeanZ > {typedef boost::mpl::true_ type; };
 template <> struct FixedForm::apply< Amplitude > {typedef boost::mpl::true_ type; };
 
-}
 }
 }
 

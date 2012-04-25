@@ -1,6 +1,6 @@
-#include "guf/psf/JointEvaluator.h"
+#include "gaussian_psf/JointEvaluator.h"
 #include <nonlinfit/plane/Joint.h>
 #include <nonlinfit/plane/JointData.h>
 
 typedef nonlinfit::plane::xs_joint< 
-    InstantiatedNumberType, dStorm::guf::PSF::LengthUnit, 8 >::type InstantiatedTag;
+    InstantiatedNumberType, dStorm::gaussian_psf::LengthUnit, 8 >::type InstantiatedTag;

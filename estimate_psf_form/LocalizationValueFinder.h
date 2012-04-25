@@ -1,8 +1,8 @@
 #ifndef DSTORM_GUF_FORM_FITTER_LOCALIZATIONVALUEFINDER_H
 #define DSTORM_GUF_FORM_FITTER_LOCALIZATIONVALUEFINDER_H
 
-#include "guf/psf/Polynomial3D.h"
-#include "guf/psf/No3D.h"
+#include "gaussian_psf/Polynomial3D.h"
+#include "gaussian_psf/No3D.h"
 #include "guf/constant_background.hpp"
 #include <memory>
 #include <dStorm/engine/JobInfo_decl.h>
@@ -24,9 +24,9 @@ struct LocalizationValueFinder
         const int fluorophore, const dStorm::traits::Optics& plane,
         const Localization& parent, size_t plane_number );
 
-    void find_values( guf::PSF::Polynomial3D& z ) { find_values_(z); }
-    void find_values( guf::PSF::Spline3D& z );
-    void find_values( guf::PSF::No3D& z ) { find_values_(z); }
+    void find_values( gaussian_psf::Polynomial3D& z ) { find_values_(z); }
+    void find_values( gaussian_psf::Spline3D& z );
+    void find_values( gaussian_psf::No3D& z ) { find_values_(z); }
     void find_values( constant_background::Expression& z ) { find_values_(z); }
 };
 

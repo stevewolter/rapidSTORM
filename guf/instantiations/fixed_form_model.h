@@ -1,9 +1,9 @@
-#include "guf/psf/fixed_form.h"
+#include "gaussian_psf/fixed_form.h"
 
 namespace dStorm {
 namespace guf {
 
-typedef PSF::FixedForm Assignment;
+typedef gaussian_psf::FixedForm Assignment;
 
 }
 }

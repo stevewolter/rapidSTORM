@@ -27,7 +27,7 @@ JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
-    guf/psf/make_psf.sh
+    gaussian_psf/make_psf.sh
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
 	java-built-stamp DefaultPath.java
@@ -551,26 +551,26 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/unit_tests.h
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
-    guf/psf/fwd.h guf/psf/parameters.h guf/psf/parameters.hpp \
-    guf/psf/BaseEvaluator.h guf/psf/BaseEvaluator.cpp \
-    guf/psf/DisjointEvaluator.h \
-    guf/psf/Derivable.h \
-    guf/psf/free_form.h \
-    guf/psf/fixed_form.h \
-    guf/psf/BaseExpression.h guf/psf/expressions.cpp \
-    guf/psf/expressions.h guf/psf/Base3D.h \
-    guf/psf/Polynomial3D.h guf/psf/Polynomial3D.cpp \
-    guf/psf/No3D.h guf/psf/No3D.cpp \
-    guf/psf/Spline3D.h guf/psf/Spline3D.cpp \
-    guf/psf/is_plane_dependent.h \
-    guf/psf/JointEvaluator.h \
-    guf/psf/StandardFunction.h \
-    guf/psf/LengthUnit.h guf/psf/ostream.h \
-    guf/psf/unit_test.h guf/psf/unit_test.cpp \
-    guf/psf/ReferenceEvaluation.h \
+    gaussian_psf/fwd.h gaussian_psf/parameters.h gaussian_psf/parameters.hpp \
+    gaussian_psf/BaseEvaluator.h gaussian_psf/BaseEvaluator.cpp \
+    gaussian_psf/DisjointEvaluator.h \
+    gaussian_psf/free_form.h \
+    gaussian_psf/fixed_form.h \
+    gaussian_psf/BaseExpression.h gaussian_psf/expressions.cpp \
+    gaussian_psf/expressions.h gaussian_psf/Base3D.h \
+    gaussian_psf/Polynomial3D.h gaussian_psf/Polynomial3D.cpp \
+    gaussian_psf/No3D.h gaussian_psf/No3D.cpp \
+    gaussian_psf/Spline3D.h gaussian_psf/Spline3D.cpp \
+    gaussian_psf/is_plane_dependent.h \
+    gaussian_psf/JointEvaluator.h \
+    gaussian_psf/StandardFunction.h \
+    gaussian_psf/LengthUnit.h gaussian_psf/ostream.h \
+    gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \
+    gaussian_psf/ReferenceEvaluation.h \
+    gaussian_psf/mock_model.h gaussian_psf/mock_model.cpp \
+    gaussian_psf/check_evaluator.hpp \
     guf/constant_background_fwd.hpp guf/constant_background.hpp \
-    guf/psf/polynomial_psf_generated_by_yacas.h \
-    guf/select_3d_lambda.hpp
+    gaussian_psf/polynomial_psf_generated_by_yacas.h
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
 # empty suffix to generate lists

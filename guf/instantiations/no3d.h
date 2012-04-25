@@ -1,3 +1,3 @@
-#include "guf/psf/No3D.h"
+#include "gaussian_psf/No3D.h"
 
-typedef dStorm::guf::PSF::No3D InstantiatedExpression;
+typedef dStorm::gaussian_psf::No3D InstantiatedExpression;

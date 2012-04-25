@@ -6,8 +6,7 @@
 #include <boost/units/systems/camera/intensity.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 typedef boost::units::power10< boost::units::si::length, -6 >::type
     Micrometers;
@@ -16,7 +15,6 @@ typedef boost::units::multiply_typeof_helper< Micrometers, Micrometers >::type A
 typedef boost::units::camera::intensity
     ADCounts;
 
-}
 }
 }
 

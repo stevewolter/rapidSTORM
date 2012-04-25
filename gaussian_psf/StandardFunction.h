@@ -5,8 +5,7 @@
 #include "guf/constant_background.hpp"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <typename PSF, int Kernels> struct StandardFunction;
 
@@ -25,7 +24,6 @@ struct StandardFunction<PSF,2>
 };
 
 
-}
 }
 }
 

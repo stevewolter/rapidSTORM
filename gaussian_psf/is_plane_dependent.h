@@ -6,8 +6,7 @@
 #include "parameters.h"
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 class is_plane_independent 
 {
@@ -52,7 +51,7 @@ struct is_fluorophore_dependent
     template <typename Parameter> 
     bool operator()( Parameter ) { return false; }
 };
-}
+
 }
 }
 

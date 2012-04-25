@@ -9,8 +9,7 @@
 #include <nonlinfit/Evaluator.h>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 template <typename Num, typename Expression, int ChunkSize>
 struct JointEvaluator
@@ -76,7 +75,6 @@ struct JointEvaluator
 
 }
 }
-}
 
 namespace nonlinfit {
 
@@ -84,16 +82,16 @@ namespace nonlinfit {
 template <typename Num, int ChunkSize> \
 struct get_evaluator< \
     Expression, \
-    plane::Joint<Num,ChunkSize,dStorm::guf::PSF::XPosition,dStorm::guf::PSF::YPosition> > \
+    plane::Joint<Num,ChunkSize,dStorm::gaussian_psf::XPosition,dStorm::gaussian_psf::YPosition> > \
 { \
     typedef typename boost::mpl::if_c< ChunkSize == 1, \
-        dStorm::guf::PSF::ReferenceEvaluator< Expression, Num, dStorm::guf::PSF::XPosition, dStorm::guf::PSF::YPosition >, \
-        dStorm::guf::PSF::JointEvaluator< Num, Expression, ChunkSize > \
+        dStorm::gaussian_psf::ReferenceEvaluator< Expression, Num, dStorm::gaussian_psf::XPosition, dStorm::gaussian_psf::YPosition >, \
+        dStorm::gaussian_psf::JointEvaluator< Num, Expression, ChunkSize > \
     >::type type;  \
 };
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::Polynomial3D)
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::No3D)
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::guf::PSF::Spline3D)
+DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::Polynomial3D)
+DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::No3D)
+DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::Spline3D)
 #undef DSTORM_GUF_PSF_JOINT_SPECIALIZATION
 
 }

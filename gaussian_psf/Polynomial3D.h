@@ -13,8 +13,7 @@
 #include <boost/optional/optional.hpp>
 
 namespace dStorm {
-namespace guf {
-namespace PSF {
+namespace gaussian_psf {
 
 class Polynomial3D
 : public Base3D,
@@ -88,7 +87,6 @@ class Parameters< Num, Polynomial3D >
     Parameters( const Polynomial3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
 };
 
-}
 }
 }
 

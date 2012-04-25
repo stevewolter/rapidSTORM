@@ -1,13 +1,13 @@
 #include <Eigen/StdVector>
 #include "ParameterLinearizer.h"
-#include "guf/psf/Polynomial3D.h"
+#include "gaussian_psf/Polynomial3D.h"
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/sum/AbstractMap.hpp>
 #include <nonlinfit/sum/AbstractFunction.hpp>
 #include <nonlinfit/make_bitset.h>
 #include "Config.h"
-#include "guf/psf/is_plane_dependent.h"
+#include "gaussian_psf/is_plane_dependent.h"
 #include "guf/guf/TraitValueFinder.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/threed_info/DepthInfo.h>
@@ -20,11 +20,11 @@ namespace calibrate_3d {
 struct calibrated_parameter {
     template <typename Type> struct apply { typedef boost::mpl::false_ type; };
 };
-template <int Dim> struct calibrated_parameter::apply< guf::PSF::BestSigma<Dim> > 
+template <int Dim> struct calibrated_parameter::apply< gaussian_psf::BestSigma<Dim> > 
     { typedef boost::mpl::true_ type; };
-template <int Dim> struct calibrated_parameter::apply< guf::PSF::ZPosition<Dim> > 
+template <int Dim> struct calibrated_parameter::apply< gaussian_psf::ZPosition<Dim> > 
     { typedef boost::mpl::true_ type; };
-template <int Dim, int Term> struct calibrated_parameter::apply< guf::PSF::DeltaSigma<Dim,Term> > 
+template <int Dim, int Term> struct calibrated_parameter::apply< gaussian_psf::DeltaSigma<Dim,Term> > 
     { typedef boost::mpl::true_ type; };
 
 class reducible_to_preceding_parameter {
@@ -34,10 +34,10 @@ public:
         : is_symmetric( config.symmetric() ),
           may_be_astigmatic( config.astigmatism() ) {}
 
-    bool operator()( guf::PSF::BestSigma<1> ) { return is_symmetric; }
-    bool operator()( guf::PSF::ZPosition<1> ) { return ! may_be_astigmatic; }
+    bool operator()( gaussian_psf::BestSigma<1> ) { return is_symmetric; }
+    bool operator()( gaussian_psf::ZPosition<1> ) { return ! may_be_astigmatic; }
     template <int Term>
-    bool operator()( guf::PSF::DeltaSigma<1,Term> ) { return is_symmetric; }
+    bool operator()( gaussian_psf::DeltaSigma<1,Term> ) { return is_symmetric; }
     template <typename Parameter>
     bool operator()( Parameter ) { return false; }
 };
@@ -63,7 +63,7 @@ public:
 
 struct ParameterLinearizer::Pimpl 
 {
-    typedef nonlinfit::Bind< guf::PSF::Polynomial3D, calibrated_parameter > PSF;
+    typedef nonlinfit::Bind< gaussian_psf::Polynomial3D, calibrated_parameter > PSF;
     typedef BoundMoveable<PSF> OnePlane;
     static const int VariableCount = boost::mpl::size< PSF::Variables >::value;
 
@@ -87,7 +87,7 @@ ParameterLinearizer::Pimpl::Pimpl( const Config_& config )
     reducible = nonlinfit::make_bitset( PSF::Variables(), 
         reducible_to_preceding_parameter(config) );
     plane_independent = nonlinfit::make_bitset( PSF::Variables(),
-        guf::PSF::is_plane_independent(false, false, config.universal_best_sigma(), config.universal_3d()) );
+        gaussian_psf::is_plane_independent(false, false, config.universal_best_sigma(), config.universal_3d()) );
     constant = nonlinfit::make_bitset( PSF::Variables(),
         constant_parameter(false, config) );
 }
@@ -149,7 +149,7 @@ Eigen::VectorXd ParameterLinearizer::Pimpl::linearize( const engine::InputTraits
     assert( traits.plane_count() == int(planes.size()) );
     const int fluorophore = 0;
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
-        guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
+        gaussian_psf::Polynomial3D& m = planes[plane_index].get_expression();
         /* Set the parameters of the model to the traits' values. */
         guf::TraitValueFinder iv( fluorophore, traits.optics(plane_index) );
         boost::mpl::for_each< PSF::Variables >( 
@@ -166,14 +166,14 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
     const int fluorophore = 0;
     multiplane->set_position( parameters );
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
-        const guf::PSF::Polynomial3D& m = planes[plane_index].get_expression();
+        const gaussian_psf::Polynomial3D& m = planes[plane_index].get_expression();
         traits::Optics& o = traits.optics(plane_index);
         for (Direction dir = Direction_X; dir != Direction_2D; ++dir) {
             boost::shared_ptr<threed_info::Polynomial3D> p 
                 ( new threed_info::Polynomial3D(
                     dynamic_cast<const threed_info::Polynomial3D&>(*o.depth_info(dir))) );
-            p->set_focal_plane( threed_info::ZPosition( m.get< guf::PSF::ZPosition >(dir) ) );
-            p->set_base_width( threed_info::Sigma( m.get< guf::PSF::BestSigma >(dir) ));
+            p->set_focal_plane( threed_info::ZPosition( m.get< gaussian_psf::ZPosition >(dir) ) );
+            p->set_base_width( threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) ));
 
             for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term)
                 p->set_slope( term, threed_info::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );
