@@ -1,8 +1,8 @@
 #include "debug.h"
 #include <Eigen/StdVector>
 #include <dStorm/engine/InputTraits.h>
-#include "fit_window/FittingRegionStack.h"
-#include "fit_window/FittingRegion.h"
+#include "fit_window/Stack.h"
+#include "fit_window/Plane.h"
 #include "LocalizationCreator.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/Localization.h>
@@ -23,7 +23,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 {
 }
 
-void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::FittingRegionStack& data ) const
+void LocalizationCreator::operator()( Localization& loc, const MultiKernelModelStack& pos, double chi_sq, const fit_window::Stack& data ) const
 {
     DEBUG("Creating localization for fluorophore " << fluorophore << " from parameters " << parameters.transpose() );
 
@@ -73,7 +73,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
     result.children = by_plane;
 }
 
-void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKernelModel& m, const fit_window::FittingRegion& p )  const
+void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKernelModel& m, const fit_window::Plane& p )  const
 {
     assert( m.kernel_count() == 1 );
     using namespace boost::units;
@@ -96,7 +96,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     }
 }
 
-void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelModel& m, double chi_sq, const fit_window::FittingRegion& data ) const
+void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelModel& m, double chi_sq, const fit_window::Plane& data ) const
 {
     assert( m.kernel_count() == 1 );
 

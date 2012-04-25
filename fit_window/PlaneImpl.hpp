@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_DATAPLANE_IMPL_HPP
 #define DSTORM_GUF_DATAPLANE_IMPL_HPP
 
-#include "FittingRegionImpl.h"
+#include "PlaneImpl.h"
 #include "Optics.h"
 #include "fit_position_out_of_range.h"
 #include "Centroid.h"
@@ -32,11 +32,11 @@ row_width( const nonlinfit::plane::JointData<Num,LengthUnit,ChunkSize>& )
 }
 
 template <typename Tag>
-FittingRegionImpl<Tag>::FittingRegionImpl( 
+PlaneImpl<Tag>::PlaneImpl( 
     const Optics& optics,
     const dStorm::engine::Image2D& image,
     const Spot& position
-) : FittingRegion(optics )
+) : Plane(optics )
 {
     typedef typename Tag::Data Data;
     typedef typename Data::data_point::Length Length;
@@ -114,7 +114,7 @@ FittingRegionImpl<Tag>::FittingRegionImpl(
 }
 
 template <typename Tag>
-std::auto_ptr<Centroid> FittingRegionImpl<Tag>::_residue_centroid() const
+std::auto_ptr<Centroid> PlaneImpl<Tag>::_residue_centroid() const
 { 
     std::auto_ptr<Centroid> rv( new Centroid( data.min, data.max ) );  
     for ( typename Tag::Data::const_iterator i= data.begin(), e = data.end(); i != e; ++i )

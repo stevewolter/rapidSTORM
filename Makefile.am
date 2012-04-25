@@ -518,15 +518,15 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
-    fit_window/FittingRegionStack.cpp fit_window/FittingRegionStack.h \
-    fit_window/FittingRegion.h \
-    fit_window/FittingRegionImpl.h fit_window/FittingRegionImpl.hpp \
+    fit_window/Stack.cpp fit_window/Stack.h \
+    fit_window/Plane.h \
+    fit_window/PlaneImpl.h fit_window/PlaneImpl.hpp \
     fit_window/fit_position_out_of_range.h \
     fit_window/Spot.h \
     fit_window/Centroid.h fit_window/Centroid.cpp \
     fit_window/Optics.h fit_window/Optics.cpp \
     fit_window/ScheduleIndexFinder.h fit_window/ScheduleIndexFinder.hpp fit_window/ScheduleIndexFinder.cpp \
-    fit_window/FittingRegionCreator.h fit_window/FittingRegionCreator.cpp \
+    fit_window/PlaneCreator.h fit_window/PlaneCreator.cpp \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \

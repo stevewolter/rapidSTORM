@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace dStorm {
-namespace fit_window { class FittingRegionStack; }
+namespace fit_window { class Stack; }
 namespace guf {
 
 class MultiKernelModelStack;
@@ -28,7 +28,7 @@ struct NaiveFitter {
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    virtual double fit( fit_window::FittingRegionStack& data, bool mle ) = 0;
+    virtual double fit( fit_window::Stack& data, bool mle ) = 0;
 };
 
 }

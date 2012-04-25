@@ -133,7 +133,7 @@ class InitialValueFinder::set_parameter {
 void InitialValueFinder::operator()( 
     MultiKernelModelStack& position, 
     const Spot& spot,
-    const fit_window::FittingRegionStack& data
+    const fit_window::Stack& data
 ) const {
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
@@ -176,7 +176,7 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
-void InitialValueFinder::estimate_z( const fit_window::FittingRegionStack& s, std::vector<PlaneEstimate>& v ) const
+void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
@@ -190,7 +190,7 @@ void InitialValueFinder::estimate_z( const fit_window::FittingRegionStack& s, st
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
     const Spot&,
-    const fit_window::FittingRegionStack & s
+    const fit_window::Stack & s
 ) const {
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {

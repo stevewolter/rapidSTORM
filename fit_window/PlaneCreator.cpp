@@ -5,12 +5,12 @@
 #include <nonlinfit/plane/DisjointData.hpp>
 #include <nonlinfit/plane/JointData.hpp>
 
-#include "FittingRegionCreator.h"
-#include "FittingRegion.h"
+#include "PlaneCreator.h"
+#include "Plane.h"
 #include "guf/guf/EvaluationTags.h"
 #include "fit_position_out_of_range.h"
 #include "Optics.h"
-#include "FittingRegionImpl.hpp"
+#include "PlaneImpl.hpp"
 
 namespace dStorm {
 namespace fit_window {
@@ -22,28 +22,28 @@ fit_position_out_of_range::fit_position_out_of_range()
 : std::runtime_error("Selected fit position not in all layers of image") {}
 
 template <typename Tag>
-struct FittingRegionCreatorImpl : public FittingRegionCreator {
+struct PlaneCreatorImpl : public PlaneCreator {
     const Optics& input;
-    std::auto_ptr<FittingRegion> extract_data_( const engine::Image2D& image, const Spot& position ) const {
-        return std::auto_ptr<FittingRegion>( new FittingRegionImpl<Tag>( input, image, position ) );
+    std::auto_ptr<Plane> extract_data_( const engine::Image2D& image, const Spot& position ) const {
+        return std::auto_ptr<Plane>( new PlaneImpl<Tag>( input, image, position ) );
     }
 public:
-    FittingRegionCreatorImpl( const Optics& input ) : input(input) {}
+    PlaneCreatorImpl( const Optics& input ) : input(input) {}
 };
 
 template <typename EvaluationSchedule>
-struct FittingRegionCreatorTable::instantiator {
+struct PlaneCreatorTable::instantiator {
     typedef void result_type;
     template <typename Tag>
-    void operator()( FittingRegionCreatorTable& target, Tag ) 
+    void operator()( PlaneCreatorTable& target, Tag ) 
     {
-        target.table_.push_back( new FittingRegionCreatorImpl<Tag>(target.optics) );
+        target.table_.push_back( new PlaneCreatorImpl<Tag>(target.optics) );
     }
 };
 
 
 template <typename EvaluationSchedule>
-FittingRegionCreatorTable::FittingRegionCreatorTable( 
+PlaneCreatorTable::PlaneCreatorTable( 
     EvaluationSchedule, 
     const Optics& input
 ) : optics(input) 
@@ -52,7 +52,7 @@ FittingRegionCreatorTable::FittingRegionCreatorTable(
         boost::bind( instantiator<EvaluationSchedule>(), boost::ref(*this), _1 ) );
 }
 
-FittingRegionCreatorTable::FittingRegionCreatorTable( const Optics& input) 
+PlaneCreatorTable::PlaneCreatorTable( const Optics& input) 
 : optics(input) 
 {
     boost::mpl::for_each< guf::evaluation_tags >(
@@ -90,8 +90,8 @@ static void test_central_extraction() {
         for (int y = 0; y < traits.image.size.y().value(); ++y)
             image(x,y) = x + y;
 
-    FittingRegionCreatorImpl< nonlinfit::plane::xs_disjoint<double,boost::units::si::microlength,14>::type > extractor(optics);
-    std::auto_ptr<FittingRegion> data = extractor.extract_data( image, position );
+    PlaneCreatorImpl< nonlinfit::plane::xs_disjoint<double,boost::units::si::microlength,14>::type > extractor(optics);
+    std::auto_ptr<Plane> data = extractor.extract_data( image, position );
     BOOST_CHECK_CLOSE( data->pixel_size.value(), 230E-9 * 120E-9, 1 );
     BOOST_CHECK_CLOSE( data->highest_pixel.x().value(), 7130E-9, 1 );
     BOOST_CHECK_CLOSE( data->highest_pixel.y().value(), 4560E-9, 1 );

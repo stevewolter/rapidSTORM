@@ -46,7 +46,7 @@ int Fitter::fitSpot(
     iterator target 
 ) {
     try {
-        boost::scoped_ptr< fit_window::FittingRegionStack > 
+        boost::scoped_ptr< fit_window::Stack > 
             data( data_creator.set_image( im, spot ) );
 
         DEBUG("Fitting at " << spot.transpose() );

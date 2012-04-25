@@ -50,7 +50,7 @@ class ModelledFitter
   public:
     ModelledFitter( const Config& config, const dStorm::engine::JobInfo& info );
 
-    double fit( fit_window::FittingRegionStack& image, bool mle );
+    double fit( fit_window::Stack& image, bool mle );
 
     MultiKernelModelStack& fit_position() { return _model; }
 

@@ -6,7 +6,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
 #include "EvaluationTags.h"
-#include "fit_window/FittingRegion.h"
+#include "fit_window/Plane.h"
 
 #include "debug.h"
 
@@ -43,7 +43,7 @@ FunctionRepository<Function>::~FunctionRepository()
 
 template <class Function>
 typename FunctionRepository<Function>::result_type*
-FunctionRepository<Function>::operator()( const fit_window::FittingRegion& data, bool mle )
+FunctionRepository<Function>::operator()( const fit_window::Plane& data, bool mle )
 {
     const int index = data.tag_index; 
     return &store[index].for_data( data, (mle) ? PoissonLikelihood : LeastSquares );

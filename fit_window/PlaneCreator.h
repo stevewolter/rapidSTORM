@@ -9,31 +9,31 @@
 namespace dStorm {
 namespace fit_window {
 
-class FittingRegion;
+class Plane;
 
 /** Interface for converting the contents of a ROI in an image to
  *  fitable data. */
-class FittingRegionCreator {
+class PlaneCreator {
 public:
     typedef engine::Image2D Image;
-    virtual ~FittingRegionCreator() {}
-    std::auto_ptr<FittingRegion> extract_data( const Image& image, const Spot& position ) const
+    virtual ~PlaneCreator() {}
+    std::auto_ptr<Plane> extract_data( const Image& image, const Spot& position ) const
         { return extract_data_(image,position); }
 private:
-    virtual std::auto_ptr<FittingRegion> 
+    virtual std::auto_ptr<Plane> 
         extract_data_( const Image& image, const Spot& position ) const = 0;
 };
 
-class FittingRegionCreatorTable {
+class PlaneCreatorTable {
     const Optics& optics;
-    boost::ptr_vector<FittingRegionCreator> table_;
+    boost::ptr_vector<PlaneCreator> table_;
     template <typename EvaluationSchedule>
     struct instantiator;
 public:
     template <typename EvaluationSchedule>
-    FittingRegionCreatorTable( EvaluationSchedule, const Optics& optics );
-    FittingRegionCreatorTable( const Optics& optics );
-    const FittingRegionCreator& get( int index ) const
+    PlaneCreatorTable( EvaluationSchedule, const Optics& optics );
+    PlaneCreatorTable( const Optics& optics );
+    const PlaneCreator& get( int index ) const
         { return table_[index]; }
 };
 

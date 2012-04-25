@@ -34,7 +34,7 @@
 #include <fstream>
 
 #include "fit_window/Optics.h"
-#include "fit_window/FittingRegionImpl.hpp"
+#include "fit_window/PlaneImpl.hpp"
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -323,7 +323,7 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
-        fit_window::FittingRegionImpl<DataTag>
+        fit_window::PlaneImpl<DataTag>
             data_creator( optics[i], image.plane(i), 
                guf::Spot( position.position().template head<2>() ) );
         std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction() );

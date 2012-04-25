@@ -6,7 +6,7 @@
 #include "DistanceMetric.h"
 
 namespace dStorm {
-namespace fit_window { class FittingRegion; }
+namespace fit_window { class Plane; }
 namespace guf {
 
 template <class Lambda>
@@ -19,7 +19,7 @@ struct PlaneFunction {
     static std::auto_ptr< PlaneFunction > 
         create( Lambda&, ComputationWay );
     virtual ~PlaneFunction() {}
-    virtual abstraction& for_data( const fit_window::FittingRegion&, DistanceMetric ) = 0;
+    virtual abstraction& for_data( const fit_window::Plane&, DistanceMetric ) = 0;
 };
 
 }

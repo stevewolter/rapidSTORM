@@ -13,7 +13,7 @@ namespace fit_window {
 class Centroid;
 class Optics;
 
-class FittingRegion {
+class Plane {
 public:
     const Optics& optics;
     int tag_index;
@@ -24,12 +24,12 @@ public:
     int pixel_count;
 
 protected:
-    FittingRegion( const Optics& optics ) : optics(optics), tag_index(-1) {}
+    Plane( const Optics& optics ) : optics(optics), tag_index(-1) {}
 private:
     virtual std::auto_ptr<Centroid> _residue_centroid() const = 0;
 
 public:
-    virtual ~FittingRegion() {}
+    virtual ~Plane() {}
 
     std::auto_ptr<Centroid> residue_centroid() const
         { return _residue_centroid(); }

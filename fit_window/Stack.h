@@ -1,7 +1,7 @@
 #ifndef DSTORM_GUF_DATACUBE_H
 #define DSTORM_GUF_DATACUBE_H
 
-#include "FittingRegion.h"
+#include "Plane.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <nonlinfit/plane/fwd.h>
 #include <dStorm/engine/JobInfo.h>
@@ -10,32 +10,32 @@
 namespace dStorm {
 namespace fit_window {
 
-struct FittingRegionStack;
+struct Stack;
 
-struct FittingRegionStackCreator {
+struct StackCreator {
     class Plane;
     boost::ptr_vector< Plane > planes;
 
   public:
-    FittingRegionStackCreator( const Config&, const dStorm::engine::JobInfo& );
-    ~FittingRegionStackCreator();
-    std::auto_ptr< FittingRegionStack >
+    StackCreator( const Config&, const dStorm::engine::JobInfo& );
+    ~StackCreator();
+    std::auto_ptr< Stack >
         set_image( const dStorm::engine::ImageStack& image,
                    const Spot& position ) const;
 };
 
-struct FittingRegionStack 
+struct Stack 
 {
-    typedef boost::ptr_vector< FittingRegion > Planes;
+    typedef boost::ptr_vector< Plane > Planes;
     Planes planes;
-    friend class FittingRegionStackCreator;
-    FittingRegionStack();
+    friend class StackCreator;
+    Stack();
 
   public:
     typedef typename Planes::iterator iterator;
     iterator begin() { return planes.begin(); }
     iterator end() { return planes.end(); }
-    const FittingRegion& operator[](int i) const { return planes[i]; }
+    const Plane& operator[](int i) const { return planes[i]; }
     int size() const { return planes.size(); }
 
     Centroid residue_centroid() const;
