@@ -518,7 +518,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
-    fit_window/Stack.cpp fit_window/Stack.h \
+    fit_window/Stack.cpp fit_window/Stack.h fit_window/Stack.hpp \
     fit_window/Plane.h \
     fit_window/PlaneImpl.h fit_window/PlaneImpl.hpp \
     fit_window/fit_position_out_of_range.h fit_window/fit_position_out_of_range.cpp \
