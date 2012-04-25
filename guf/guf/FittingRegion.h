@@ -13,7 +13,7 @@ namespace guf {
 class Centroid;
 class Optics;
 
-class DataPlane {
+class FittingRegion {
 public:
     const Optics& optics;
     int tag_index;
@@ -24,17 +24,12 @@ public:
     int pixel_count;
 
 protected:
-    DataPlane( const Optics& optics ) : optics(optics), tag_index(-1) {}
+    FittingRegion( const Optics& optics ) : optics(optics), tag_index(-1) {}
 private:
-    virtual const void* get_data() const = 0;
     virtual std::auto_ptr<Centroid> _residue_centroid() const = 0;
 
 public:
-    virtual ~DataPlane() {}
-    template <typename Tag> 
-    const typename Tag::Data& get_data() const {
-        return *static_cast<const typename Tag::Data*>(get_data());
-    }
+    virtual ~FittingRegion() {}
 
     std::auto_ptr<Centroid> residue_centroid() const
         { return _residue_centroid(); }

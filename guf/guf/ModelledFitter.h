@@ -49,7 +49,7 @@ class ModelledFitter
   public:
     ModelledFitter( const Config& config, const dStorm::engine::JobInfo& info );
 
-    double fit( DataCube& image, bool mle );
+    double fit( FittingRegionStack& image, bool mle );
 
     FitPosition& fit_position() { return _model; }
 

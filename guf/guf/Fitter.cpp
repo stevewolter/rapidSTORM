@@ -46,7 +46,7 @@ int Fitter::fitSpot(
     iterator target 
 ) {
     try {
-        boost::scoped_ptr< DataCube > data( data_creator.set_image( im, spot ) );
+        boost::scoped_ptr< FittingRegionStack > data( data_creator.set_image( im, spot ) );
 
         DEBUG("Fitting at " << spot.transpose() );
         FitPosition& one_kernel = one_kernel_fitter->fit_position();

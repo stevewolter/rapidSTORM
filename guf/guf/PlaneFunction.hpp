@@ -5,7 +5,7 @@
 #include <nonlinfit/plane/Distance.hpp>
 #include <nonlinfit/AbstractFunctionAdapter.h>
 #include <nonlinfit/FunctionConverter.h>
-#include "DataPlane.h"
+#include "FittingRegionImpl.h"
 
 namespace dStorm {
 namespace guf {
@@ -28,15 +28,19 @@ struct PlaneFunction<Function>::Implementation
     typename for_metric< nonlinfit::plane::negative_poisson_likelihood >::type mle;
   public:
     Implementation( Function& expression ) : lsq(expression), mle(expression) {}
-    abstraction& for_data( const DataPlane& data, DistanceMetric metric ) {
-        if ( metric == LeastSquares ) {
-            lsq.set_data( data.get_data<Tag>() );
+    abstraction& for_data( const FittingRegion& data, DistanceMetric metric ) {
+        const typename Tag::Data& typed_data
+            = dynamic_cast< const FittingRegionImpl<Tag>& >( data ).data;
+        switch (metric) {
+        case LeastSquares:
+            lsq.set_data(typed_data);
             return lsq;
-        } else if ( metric == PoissonLikelihood ) {
-            mle.set_data( data.get_data<Tag>() );
+        case PoissonLikelihood:
+            mle.set_data(typed_data);
             return mle;
-        } else 
+        default:
             throw std::logic_error("Non-implemented metric");
+        }
     }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

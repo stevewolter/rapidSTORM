@@ -279,6 +279,7 @@ dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFL
 dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
+dstorm_@DSTORM_LIB_VERSION@_LDADD += -lboost_unit_test_framework
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -520,9 +521,9 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/EvaluationTags.h \
     guf/guf/mle_converter.h \
     guf/guf/Config.cpp guf/guf/Config_decl.h guf/guf/Config.h \
-    guf/guf/DataCube.cpp guf/guf/DataCube.h \
-    guf/guf/DataPlane.cpp guf/guf/DataPlane.h \
-    guf/guf/DataPlaneImpl.h guf/guf/DataPlaneImpl.hpp \
+    guf/guf/FittingRegionStack.cpp guf/guf/FittingRegionStack.h \
+    guf/guf/FittingRegion.h \
+    guf/guf/FittingRegionImpl.h guf/guf/FittingRegionImpl.hpp \
     guf/guf/FunctionRepository.h guf/guf/FunctionRepository.hpp \
     guf/guf/Factory.cpp guf/guf/Factory.h \
     guf/guf/FitAnalysis.h \
@@ -535,7 +536,6 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/guf/ModelledFitter.h guf/guf/ModelledFitter.hpp \
     guf/guf/LocalizationChecker.h guf/guf/LocalizationChecker.cpp \
     guf/guf/LocalizationCreator.h guf/guf/LocalizationCreator.cpp \
-    guf/guf/Data_fwd.h \
     guf/guf/KernelCreator.h guf/guf/KernelCreator.cpp \
     guf/guf/FitTerminator.h \
     guf/guf/PlaneFunction.h guf/guf/PlaneFunction.hpp \

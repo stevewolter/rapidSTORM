@@ -3,12 +3,13 @@
 
 #include "Config_decl.h"
 #include <dStorm/engine/JobInfo_decl.h>
-#include "Data_fwd.h"
 #include "FitAnalysis.h"
 #include <memory>
 
 namespace dStorm {
 namespace guf {
+
+class FittingRegionStack;
 
 /** Interface for fitting a single function to a data image. */
 struct NaiveFitter {
@@ -27,7 +28,7 @@ struct NaiveFitter {
      *  \returns The new function value, which is the sum of squared residues
      *           for mle == false and the negative likelihood for mle == true.
      **/
-    virtual double fit( DataCube& data, bool mle ) = 0;
+    virtual double fit( FittingRegionStack& data, bool mle ) = 0;
 };
 
 }

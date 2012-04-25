@@ -8,7 +8,7 @@
 #include "LocalizationCreator.h"
 #include "LocalizationChecker.h"
 #include "KernelCreator.h"
-#include "DataCube.h"
+#include "FittingRegionStack.h"
 
 namespace dStorm {
 namespace guf {
@@ -20,7 +20,7 @@ class Fitter
 {
     const dStorm::engine::InputTraits& traits;
     dStorm::engine::JobInfo info;
-    InputCube data_creator;
+    FittingRegionStackCreator data_creator;
     InitialValueFinder initial_value_finder;
     boost::scoped_ptr<NaiveFitter > one_kernel_fitter, two_kernels_fitter;
     LocalizationCreator create_localization;

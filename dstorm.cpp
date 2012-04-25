@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     if ( argc <= 1 )
-        return run_unit_tests();
+        return run_unit_tests(argc,argv);
     else if ( std::string(argv[1]) == "--version" ) {
         std::cout << PACKAGE_VERSION << std::endl;
         return 0;

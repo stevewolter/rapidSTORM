@@ -101,12 +101,12 @@ float InitialValueFinder::correlation( const SigmaDiff& sd ) const
 class InitialValueFinder::set_parameter {
     TraitValueFinder base;
     const InitialValueFinder& p;
-    const guf::Spot& s;
+    const Spot& s;
     const PlaneEstimate& e;
 
   public:
     typedef void result_type;
-    set_parameter( const InitialValueFinder& p, const guf::Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
+    set_parameter( const InitialValueFinder& p, const Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
         : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
@@ -132,8 +132,8 @@ class InitialValueFinder::set_parameter {
 
 void InitialValueFinder::operator()( 
     FitPosition& position, 
-    const guf::Spot& spot,
-    const DataCube& data
+    const Spot& spot,
+    const FittingRegionStack& data
 ) const {
     std::vector<PlaneEstimate> e = estimate_bg_and_amp(spot,data);
     if ( ! disjoint_amplitudes ) join_amp_estimates( e );
@@ -176,7 +176,7 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
         v[i].amp = mean_amplitude;
 }
 
-void InitialValueFinder::estimate_z( const guf::DataCube& s, std::vector<PlaneEstimate>& v ) const
+void InitialValueFinder::estimate_z( const FittingRegionStack& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
@@ -189,8 +189,8 @@ void InitialValueFinder::estimate_z( const guf::DataCube& s, std::vector<PlaneEs
 }
 
 std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
-    const guf::Spot&,
-    const guf::DataCube & s
+    const Spot&,
+    const FittingRegionStack & s
 ) const {
     std::vector<PlaneEstimate> rv( s.size() );
     for (int i = 0; i < int(s.size()); ++i) {

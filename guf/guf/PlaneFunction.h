@@ -4,11 +4,11 @@
 #include <nonlinfit/AbstractFunction.h>
 #include <memory>
 #include "DistanceMetric.h"
-#include "Data_fwd.h"
-#include "DataPlane.h"
 
 namespace dStorm {
 namespace guf {
+
+class FittingRegion;
 
 template <class Lambda>
 struct PlaneFunction {
@@ -20,7 +20,7 @@ struct PlaneFunction {
     static std::auto_ptr< PlaneFunction > 
         create( Lambda&, ComputationWay );
     virtual ~PlaneFunction() {}
-    virtual abstraction& for_data( const DataPlane&, DistanceMetric ) = 0;
+    virtual abstraction& for_data( const FittingRegion&, DistanceMetric ) = 0;
 };
 
 }

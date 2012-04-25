@@ -36,7 +36,7 @@
 #include "guf/select_3d_lambda.hpp"
 
 #include "guf/guf/Optics.h"
-#include "guf/guf/DataPlaneImpl.hpp"
+#include "guf/guf/FittingRegionImpl.hpp"
 
 #include <nonlinfit/terminators/RelativeChange.h>
 #include <nonlinfit/terminators/StepLimit.h>
@@ -325,11 +325,11 @@ add_image( const engine::ImageStack& image, const Localization& position, int fl
                 << " evaluators");
         if ( ! table.needs_more_planes() ) return true;
 
-        guf::DataPlaneImpl<DataTag>
+        guf::FittingRegionImpl<DataTag>
             data_creator( optics[i], image.plane(i), 
                guf::Spot( position.position().template head<2>() ) );
         std::auto_ptr<PlaneFunction> new_evaluator( new PlaneFunction() );
-        new_evaluator->get_data() = data_creator.get_the_data();
+        new_evaluator->get_data() = data_creator.data;
 
         LocalizationValueFinder iv(fluorophore, traits.optics(i), position, i);
         iv.find_values( new_evaluator->get_expression().get_part( boost::mpl::int_<0>() ) );

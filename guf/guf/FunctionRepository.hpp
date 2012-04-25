@@ -2,7 +2,7 @@
 #define GUF_EVALUATOR_FACTORY_IMPL_H
 
 #include <Eigen/StdVector>
-#include "DataPlane.h"
+#include "FittingRegion.h"
 #include "FunctionRepository.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
@@ -43,7 +43,7 @@ FunctionRepository<Function>::~FunctionRepository()
 
 template <class Function>
 typename FunctionRepository<Function>::result_type*
-FunctionRepository<Function>::operator()( const DataPlane& data, bool mle )
+FunctionRepository<Function>::operator()( const FittingRegion& data, bool mle )
 {
     const int index = data.tag_index; 
     return &store[index].for_data( data, (mle) ? PoissonLikelihood : LeastSquares );

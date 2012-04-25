@@ -10,17 +10,18 @@ namespace dStorm {
 namespace guf {
 
 template <int Dim> class Statistics;
-class DataPlane;
-class InputPlane;
+class FittingRegion;
 
+/** Interface for converting the contents of a ROI in an image to
+ *  fitable data. */
 class DataExtractor {
 public:
     typedef engine::Image2D Image;
     virtual ~DataExtractor() {}
-    std::auto_ptr<DataPlane> extract_data( const Image& image, const Spot& position ) const
+    std::auto_ptr<FittingRegion> extract_data( const Image& image, const Spot& position ) const
         { return extract_data_(image,position); }
 private:
-    virtual std::auto_ptr<DataPlane> 
+    virtual std::auto_ptr<FittingRegion> 
         extract_data_( const Image& image, const Spot& position ) const = 0;
 };
 

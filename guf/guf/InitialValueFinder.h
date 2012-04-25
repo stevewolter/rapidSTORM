@@ -5,7 +5,7 @@
 #include "Config.h"
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/engine/JobInfo_decl.h>
-#include "DataCube.h"
+#include "FittingRegionStack.h"
 #include <vector>
 #include <dStorm/Direction.h>
 #include <boost/smart_ptr/scoped_ptr.hpp>
@@ -30,9 +30,9 @@ struct InitialValueFinder {
     float correlation( const SigmaDiff& ) const;
 
     struct PlaneEstimate;
-    std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const DataCube & ) const;
+    std::vector<PlaneEstimate> estimate_bg_and_amp( const Spot& spot, const FittingRegionStack & ) const;
     void join_amp_estimates( std::vector<PlaneEstimate>& v ) const;
-    void estimate_z( const DataCube&, std::vector<PlaneEstimate>& ) const;
+    void estimate_z( const FittingRegionStack&, std::vector<PlaneEstimate>& ) const;
     static bool determine_z_estimate_need( const engine::InputTraits& t );
     void create_z_lookup_table( const engine::InputTraits& t );
 
@@ -44,7 +44,7 @@ struct InitialValueFinder {
     InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info);
     ~InitialValueFinder();
 
-    void operator()( FitPosition& position, const Spot&, const DataCube& ) const;
+    void operator()( FitPosition& position, const Spot&, const FittingRegionStack& ) const;
 };
 
 }

@@ -1,8 +1,8 @@
 #include "debug.h"
 #include <Eigen/StdVector>
 #include <dStorm/engine/InputTraits.h>
-#include "DataCube.h"
-#include "DataPlane.h"
+#include "FittingRegionStack.h"
+#include "FittingRegion.h"
 #include "LocalizationCreator.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/Localization.h>
@@ -12,6 +12,7 @@
 #include "guf/psf/Base3D.h"
 #include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
+#include "Optics.h"
 
 namespace dStorm {
 namespace guf {
@@ -21,7 +22,7 @@ LocalizationCreator::LocalizationCreator( const Config& config, const dStorm::en
 {
 }
 
-void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos, double chi_sq, const DataCube& data ) const
+void LocalizationCreator::operator()( Localization& loc, const FitPosition& pos, double chi_sq, const FittingRegionStack& data ) const
 {
     DEBUG("Creating localization for fluorophore " << fluorophore << " from parameters " << parameters.transpose() );
 
@@ -71,7 +72,7 @@ void LocalizationCreator::join_localizations( Localization& result, const std::v
     result.children = by_plane;
 }
 
-void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPlane& m, const DataPlane& p )  const
+void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPlane& m, const FittingRegion& p )  const
 {
     assert( m.kernel_count() == 1 );
     using namespace boost::units;
@@ -94,7 +95,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const FittedPla
     }
 }
 
-void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane& m, double chi_sq, const DataPlane& data ) const
+void LocalizationCreator::write_parameters( Localization& rv, const FittedPlane& m, double chi_sq, const FittingRegion& data ) const
 {
     assert( m.kernel_count() == 1 );
 

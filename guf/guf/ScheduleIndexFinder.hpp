@@ -24,21 +24,22 @@ struct ScheduleIndexFinder::set_if_appropriate
         return m.do_disjoint && 
             (ChunkSize >= (width-slack))  &&
             (ChunkSize < (width + 2 + slack)) &&
-            (m.use_floats == boost::is_same<Num,float>::value);
+            (boost::is_same<Num,float>::value || m.use_doubles);
     }
 
     template <int ChunkSize, typename Num, typename P1, typename P2>
     bool is_appropriate( 
         nonlinfit::plane::Joint<Num,ChunkSize,P1,P2>, int
     ) const { 
-        return (m.use_floats == boost::is_same<Num,float>::value); 
+        return (boost::is_same<Num,float>::value || m.use_doubles); 
     }
 
     template <typename Tag>
     void operator()( int& result, int window_width, Tag t ) const
     {
         if ( is_appropriate( t, window_width ) ) {
-            result = std::min( result, nonlinfit::index_of<S,Tag>::value );
+            const int index = nonlinfit::index_of<S,Tag>::value;
+            result = std::min( result, index );
         }
     }
 };

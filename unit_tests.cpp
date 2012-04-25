@@ -1,3 +1,5 @@
+#define BOOST_TEST_ALTERNATIVE_INIT_API
+
 #include "unit_tests.h"
 #include "inputs/FileMethod.h"
 #include "inputs/ResolutionSetter.h"
@@ -9,6 +11,7 @@
 #include <dStorm/traits/unit_tests.h>
 #include "viewer/fwd.h"
 #include <dStorm/threed_info/fwd.h>
+#include <boost/test/unit_test.hpp>
 
 void pixel_unit_test(TestState& state);
 
@@ -27,7 +30,14 @@ void unit_test( TestState& );
 }
 }
 
-int run_unit_tests() {
+bool init_unit_test() {
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::guf::test_unit_tests() );
+
+    return true;
+}
+
+int run_unit_tests(int argc, char* argv[]) {
     TestState state;
     dStorm::engine::unit_test(state);
     dStorm::input::file_method::unit_test( state );
@@ -42,5 +52,7 @@ int run_unit_tests() {
     dStorm::image_unit_tests( state );
     dStorm::threed_info::unit_tests( state );
 
-    return ( state.had_errors() ? EXIT_FAILURE : EXIT_SUCCESS );
+    int success = ::boost::unit_test::unit_test_main( &init_unit_test, argc, argv );
+
+    return ( (state.had_errors() || success != 0) ? EXIT_FAILURE : EXIT_SUCCESS );
 }
