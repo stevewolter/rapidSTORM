@@ -25,7 +25,7 @@ CoordinateConfig::CoordinateConfig(const CoordinateConfig& o)
 
 void CoordinateConfig::add_listener( simparm::Listener& l ) {
     choice.add_listener( l );
-    l.receive_changes_from( range );
+    l.receive_changes_from( range.value );
 }
 
 
