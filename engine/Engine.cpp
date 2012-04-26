@@ -66,8 +66,8 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
 
     DEBUG("Getting other traits dimensionality");
     DEBUG("Getting minimum amplitude");
-    if ( config.amplitude_threshold().is_initialized() )
-        rv.amplitude().range().first = *config.amplitude_threshold();
+    if ( ! config.guess_threshold() )
+        rv.amplitude().range().first = config.amplitude_threshold();
 
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
@@ -80,8 +80,7 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
         DEBUG("Constructing spot fitting info");
         JobInfo info(
-            ( config.amplitude_threshold().is_initialized() ) ? *config.amplitude_threshold() 
-                                                      : 0 * boost::units::camera::ad_count,
+            config.amplitude_threshold() ,
             imProp, fluorophore);
         DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
         config.spotFittingMethod().set_traits( *rvt, info );
@@ -100,30 +99,33 @@ Engine::TraitsPtr Engine::get_traits(Wishes w) {
     if ( &config.spotFittingMethod() == NULL )
         throw std::runtime_error("No spot fitter selected");
     DEBUG("Retrieving input traits");
-    if ( ! config.amplitude_threshold().is_initialized() )
+    if ( config.guess_threshold() )
         w.set( InputStandardDeviation );
 
     if ( imProp.get() == NULL )
         imProp = input->get_traits(w);
     DEBUG("Retrieved input traits");
 
-    if ( ! config.amplitude_threshold().is_initialized() ) {
+    if ( config.guess_threshold() ) {
         DEBUG("Guessing input threshold");
+        bool have_set_threshold = false;
         for ( int i = 0; i < imProp->plane_count(); ++i ) {
             if ( imProp->plane(i).optics.background_stddev.is_initialized() ) {
-                camera_response threshold = 
-                    35.0f * *imProp->optics(i).background_stddev / 
-                        imProp->optics(i).transmission_coefficient(0);
-                if ( ! config.amplitude_threshold().is_initialized() ||
-                       *config.amplitude_threshold() > threshold )
-                    config.amplitude_threshold = threshold;
+                if ( imProp->optics(i).transmission_coefficient(0) > 1E-2 ) {
+                    camera_response threshold = 
+                        config.threshold_height_factor() * *imProp->optics(i).background_stddev / 
+                            imProp->optics(i).transmission_coefficient(0);
+                    if ( ! have_set_threshold || config.amplitude_threshold() > threshold )
+                        config.amplitude_threshold = threshold;
+                    have_set_threshold = true;
+                }
             }
         }
-        if ( ! config.amplitude_threshold().is_initialized() )
+        if ( ! have_set_threshold )
             throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");
-        DEBUG("Guessed amplitude threshold " << *config.amplitude_threshold());
+        DEBUG("Guessed amplitude threshold " << config.amplitude_threshold());
     } else {
-        DEBUG("Using amplitude threshold " << *config.amplitude_threshold());
+        DEBUG("Using amplitude threshold " << config.amplitude_threshold());
     }
 
     input::Traits<output::LocalizedImage>::Ptr prv =
@@ -270,7 +272,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
-        JobInfo info(*config.amplitude_threshold(), *meta_info, fluorophore);
+        JobInfo info(config.amplitude_threshold(), *meta_info, fluorophore);
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 

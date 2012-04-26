@@ -23,7 +23,9 @@ _Config::_Config()
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
     motivation("Motivation", "Spot search eagerness", 3),
-    amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold")
+    guess_threshold("GuessAmplitudeThreshold", "Guess amplitude discarding threshold", true),
+    threshold_height_factor("ThresholdHeightFactor", "Amplitude threshold proportionality", 35.0f),
+    amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold", 1000 * camera::ad_count)
 {
     DEBUG("Building dStorm Config");
 
@@ -33,7 +35,10 @@ _Config::_Config()
                         "bad candidates are found.");
     motivation.setUserLevel(Object::Intermediate);
 
+    guess_threshold.setUserLevel(Object::Beginner);
+    threshold_height_factor.setUserLevel(Object::Expert);
     amplitude_threshold.setUserLevel(Object::Beginner);
+    amplitude_threshold.viewable = false;
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
                                 "localization, and those below the threshold "
@@ -62,6 +67,8 @@ _Config::~_Config() {
 
 void _Config::registerNamedEntries() {
     push_back(nms);
+    push_back(guess_threshold);
+    push_back(threshold_height_factor);
     push_back(amplitude_threshold);
 
     push_back(spotFindingMethod);
@@ -89,10 +96,10 @@ Config::Config(const Config& c)
 void _Config::set_variables( output::Basename& bn ) const
 {
     std::stringstream ss;
-    if ( amplitude_threshold().is_initialized() ) 
-        ss << (*amplitude_threshold()).value();
-    else
+    if ( guess_threshold() ) 
         ss << "auto";
+    else
+        ss << amplitude_threshold().value();
     bn.set_variable("thres", ss.str());
 
     spotFindingMethod().set_variables( bn );

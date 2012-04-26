@@ -15,7 +15,10 @@ class Spalttiefpass : public engine::spot_finder::Base {
         simparm::Entry< quantity<camera::length,int> > mask_size;
         void registerNamedEntries() { push_back( mask_size ); }
         _Config() : simparm::Object("Average", "Smooth by average"),
-            mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) {}
+            mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) 
+        {
+            mask_size.userLevel = simparm::Object::Intermediate;
+        }
     };
     const _Config config;
 public:

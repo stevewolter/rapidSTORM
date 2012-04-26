@@ -30,7 +30,7 @@ public:
     bool operator()( gaussian_psf::ZPosition<Dim> ) { return ! config.fit_focus_plane(); }
     template <int Dim> 
     bool operator()( gaussian_psf::BestSigma<Dim> ) { return ! config.fit_best_sigma(); }
-    bool operator()( gaussian_psf::MeanZ ) { return fit_z_coordinate; }
+    bool operator()( gaussian_psf::MeanZ ) { return ! fit_z_coordinate; }
     template <int Dim, int Term>
     bool operator()( gaussian_psf::DeltaSigma<Dim,Term> ) { return ! config.fit_z_term(static_cast<Direction>(Dim), Term); }
     bool operator()( gaussian_psf::Prefactor ) { return ! multiplane || ! config.fit_transmission(); }

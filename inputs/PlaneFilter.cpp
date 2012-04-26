@@ -145,7 +145,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object("ROIFilter", "Image selection filter"),
+: simparm::Object("PlaneFilter", "Image selection filter"),
   which_plane( "OnlyPlane", "Process only one plane" )
 {
     which_plane.addChoice(-1, "AllPlanes", "All planes");

@@ -45,6 +45,7 @@ class ChainLink
 
         for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)
             config.spot_finder_weights[i].viewable = i < soll;
+        config.weights.viewable = soll > 0;
     }
     boost::shared_ptr< BaseTraits > 
     create_traits( MetaInfo& mi, 
@@ -74,6 +75,8 @@ class ChainLink
   protected:
     void operator()( const simparm::Event& ) {
         input::InputMutexGuard lock( input::global_mutex() );
+        config.amplitude_threshold.viewable = ! config.guess_threshold();
+        config.threshold_height_factor.viewable = config.guess_threshold();
         republish_traits();
     }
 
@@ -96,6 +99,7 @@ class ChainLink
 ChainLink::ChainLink() 
 : simparm::Listener( simparm::Event::ValueChanged )
 {
+    receive_changes_from( config.guess_threshold.value );
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
@@ -106,6 +110,7 @@ ChainLink::ChainLink(const ChainLink& c)
   Method<ChainLink>(c),
   config(c.config)
 {
+    receive_changes_from( config.guess_threshold.value );
     receive_changes_from( config.amplitude_threshold.value );
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
@@ -121,10 +126,10 @@ ChainLink::ChainLink(const ChainLink& c)
 std::string ChainLink::amplitude_threshold_string() const
 {
     std::stringstream ss; 
-    if ( config.amplitude_threshold().is_initialized() )
-        ss << *config.amplitude_threshold();
-    else 
+    if ( config.guess_threshold() )
         ss << "auto";
+    else 
+        ss << config.amplitude_threshold();
     return ss.str();
 }
 

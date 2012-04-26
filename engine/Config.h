@@ -55,8 +55,10 @@ namespace engine {
         /** Continue fitting until this number of bad fits occured. */
         Entry<unsigned long> motivation;
         /** Amplitude threshold to judge localizations by. */
-        simparm::Entry< boost::optional< boost::units::quantity<
-            camera::intensity, float> > > amplitude_threshold;
+        simparm::Entry< bool > guess_threshold;
+        simparm::Entry< float > threshold_height_factor;
+        simparm::Entry< boost::units::quantity<
+            camera::intensity, float> > amplitude_threshold;
 
         void addSpotFinder( std::auto_ptr<spot_finder::Factory> factory );
         void addSpotFinder( spot_finder::Factory* factory ) 
