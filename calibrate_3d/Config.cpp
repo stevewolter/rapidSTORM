@@ -16,7 +16,10 @@ void Config_::registerNamedEntries() {
     push_back( target_volume_ );
     push_back( target_localization_number_ );
     push_back( missing_penalty_ );
-    FormCalibrationConfig::registerNamedEntries( *this );
+    FormCalibrationConfig::register_generic_entries( *this );
+    FormCalibrationConfig::register_multiplane_entries( *this );
+    FormCalibrationConfig::register_polynomial3d_entries( *this );
+    ZTruthConfig::registerNamedEntries( *this );
 }
 
 }

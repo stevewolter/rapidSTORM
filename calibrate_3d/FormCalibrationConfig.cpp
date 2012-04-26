@@ -1,6 +1,5 @@
 #include "FormCalibrationConfig.h"
 #include <boost/static_assert.hpp>
-#include "ZTruth.h"
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -24,9 +23,7 @@ FormCalibrationConfig::FormCalibrationConfig()
   universal_prefactors_("UniversalWidening", "3D widening common to all layers", false ),
   fit_best_sigma_( "FitBestSigma", "Fit PSF FWHM", true ),
   fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", false ),
-  fit_prefactors_( "FitPrefactors", "Fit transmission factors", true ),
-  filter_("3DFilter", "Filter expression for usable spots"),
-  new_z_("CalibratedZ", "Expression for true Z value")
+  fit_prefactors_( "FitPrefactors", "Fit transmission factors", true )
 {
     BOOST_STATIC_ASSERT( int(sizeof(term_names) / sizeof(term_names[0])) >= polynomial_3d::Order );
     for (int i = 0; i < polynomial_3d::Order; ++i)
@@ -38,29 +35,25 @@ FormCalibrationConfig::FormCalibrationConfig()
     (*z_terms[ polynomial_3d::offset(polynomial_3d::Quadratic)]) = true;
 }
 
-void FormCalibrationConfig::registerNamedEntries( simparm::Node& at )
+void FormCalibrationConfig::register_generic_entries( simparm::Node& at )
 {
     at.push_back( circular_psf_ );
-    at.push_back( astigmatism_ );
-    at.push_back( universal_best_sigma_ );
-    at.push_back( universal_prefactors_ );
     at.push_back( fit_best_sigma_ );
-    at.push_back( fit_focus_plane_ );
-    at.push_back( fit_prefactors_ );
-    for (int i = 0; i < polynomial_3d::Order; ++i)
-        at.push_back( *z_terms[i] );
-    at.push_back( new_z_ );
-    at.push_back( filter_ );
 }
 
-bool FormCalibrationConfig::has_z_truth() const {
-    return new_z_() != "";
+void FormCalibrationConfig::register_multiplane_entries( simparm::Node& at )
+{
+    at.push_back( universal_best_sigma_ );
+    at.push_back( fit_prefactors_ );
 }
-std::auto_ptr<ZTruth> FormCalibrationConfig::get_z_truth() const {
-    if ( has_z_truth() )
-        return std::auto_ptr<ZTruth>( new ZTruth( filter_(), new_z_() ) );
-    else
-        throw std::runtime_error("A Z calibration expression is necessary, but not given");
+
+void FormCalibrationConfig::register_polynomial3d_entries( simparm::Node& at )
+{
+    at.push_back( astigmatism_ );
+    at.push_back( fit_focus_plane_ );
+    for (int i = 0; i < polynomial_3d::Order; ++i)
+        at.push_back( *z_terms[i] );
+    at.push_back( universal_prefactors_ );
 }
 
 }

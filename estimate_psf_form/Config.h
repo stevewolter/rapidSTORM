@@ -8,6 +8,7 @@
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
+#include <simparm/Set.hh>
 #include <dStorm/output/Capabilities.h>
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>
@@ -26,11 +27,11 @@ namespace si = boost::units::si;
 
 struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConfig
 {
+    simparm::Set multiplane, polynomial_3d;
     simparm::BoolEntry auto_disable, mle;
     simparm::Entry<unsigned long> number_of_spots; 
-    simparm::Entry<double> width_correction, max_per_image;
-    simparm::BoolEntry visual_selection, 
-                        laempi_fit, disjoint_amplitudes;
+    simparm::Entry<double> max_per_image;
+    simparm::BoolEntry visual_selection, laempi_fit, disjoint_amplitudes, z_is_truth;
     typedef Eigen::Matrix< quantity<si::nanolength>, 2, 1, Eigen::DontAlign > FitWindowWidth;
     simparm::Entry< FitWindowWidth > fit_window_width;
 

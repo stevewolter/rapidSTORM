@@ -32,11 +32,13 @@ Output::Output(const Config& c)
   engine(NULL),
   visual_select( c.visual_selection() ),
   result_config( traits::PlaneConfig::PSFDisplay ),
-  z_truth( (config.has_z_truth()) ? config.get_z_truth().release() : NULL ),
   current_limit( 0 ),
   collection("CollectionProgress", "Spots for form estimation"),
   fit("FitProgress", "Form estimation fit progress")
 {
+    if ( ! config.z_is_truth() && config.fit_focus_plane() )
+        throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
+
     result_config.registerNamedEntries();
     fit.viewable = false;
     collection.userLevel = simparm::Object::Beginner;
@@ -56,11 +58,6 @@ output::Output::AdditionalData
 Output::announceStormSize(const Announcement& a) 
 {
     engine = a.engine;
-    for (int plane = 0; plane < a.input_image_traits->plane_count(); ++plane)
-        for ( Direction dir = Direction_First; dir != Direction_2D; ++dir )
-            if ( a.input_image_traits->optics(plane).depth_info(dir)->provides_3d_info()
-                && ! config.has_z_truth() && config.fit_focus_plane() )
-                throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
     DEBUG("Maximum PSF size is " << max_psf.transpose());
     for (int i = 0; i < 2; ++i ) {
@@ -75,8 +72,6 @@ Output::announceStormSize(const Announcement& a)
     else
         input.reset( new Input( config, a, config.fit_window_width().cast<guf::Spot::Scalar>() ) );
 
-    if ( z_truth.get() )
-        z_truth->set_meta_info(a);
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
 
     DEBUG( "New input traits are announced" );
@@ -105,13 +100,8 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
     if ( ! engine || ! input->traits.get() ) return;
     DEBUG("Started using image with engine " << engine);
 
-    EngineResult copy( engine_result );
-    EngineResult::iterator end = copy.end();
-    if ( z_truth.get() ) {
-        end = z_truth->calibrate( copy );
-        for (EngineResult::iterator i = copy.begin(); i != end; ++i)
-            i->position().z() = z_truth->true_z( *i );
-    }
+    const EngineResult& copy = engine_result;
+    EngineResult::const_iterator end = copy.end();
 
     if ( copy.begin() != end )
         current_limit += config.max_per_image();

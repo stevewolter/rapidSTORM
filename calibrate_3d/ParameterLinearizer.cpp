@@ -89,7 +89,7 @@ ParameterLinearizer::Pimpl::Pimpl( const Config_& config )
     plane_independent = nonlinfit::make_bitset( PSF::Variables(),
         gaussian_psf::is_plane_independent(false, false, config.universal_best_sigma(), config.universal_3d()) );
     constant = nonlinfit::make_bitset( PSF::Variables(),
-        constant_parameter(false, config) );
+        constant_parameter(false, config, ! config.has_z_truth() ) );
 }
 
 void ParameterLinearizer::Pimpl::set_plane_count( int plane_count )

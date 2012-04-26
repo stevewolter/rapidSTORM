@@ -39,7 +39,6 @@ namespace estimate_psf_form {
         dStorm::traits::MultiPlaneConfig result_config;
         boost::array< boost::icl::interval< samplepos::Scalar >::type, 2 > bounds;
         std::vector<bool> seen_fluorophores;
-        boost::scoped_ptr<calibrate_3d::ZTruth> z_truth;
         double current_limit;
         simparm::ProgressEntry collection, fit;
 

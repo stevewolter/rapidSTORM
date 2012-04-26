@@ -10,19 +10,15 @@
 namespace dStorm {
 namespace calibrate_3d {
 
-class ZTruth;
-
 class FormCalibrationConfig {
     boost::array< boost::optional< simparm::BoolEntry >, polynomial_3d::Order > z_terms;
     simparm::Entry< bool > circular_psf_, astigmatism_, universal_best_sigma_, universal_prefactors_;
     simparm::Entry< bool > fit_best_sigma_, fit_focus_plane_, fit_prefactors_;
-    simparm::Entry<std::string> filter_, new_z_;
 public:
     FormCalibrationConfig();
-    void registerNamedEntries( simparm::Node& at );
-
-    bool has_z_truth() const;
-    std::auto_ptr<ZTruth> get_z_truth() const;
+    void register_generic_entries( simparm::Node& at );
+    void register_multiplane_entries( simparm::Node& at );
+    void register_polynomial3d_entries( simparm::Node& at );
 
     bool fit_z_term( Direction, polynomial_3d::Term term ) const
         { return (*z_terms[ polynomial_3d::offset(term) ])(); }

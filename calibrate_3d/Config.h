@@ -10,6 +10,7 @@
 #include <string>
 #include <dStorm/output/Capabilities.h>
 #include "FormCalibrationConfig.h"
+#include "ZTruthConfig.h"
 #include <dStorm/units/microlength.h>
 #include <boost/units/quantity.hpp>
 
@@ -19,7 +20,7 @@ namespace calibrate_3d {
 using boost::units::quantity;
 namespace si = boost::units::si;
 
-class Config_ : public simparm::Object, public FormCalibrationConfig {
+class Config_ : public simparm::Object, public FormCalibrationConfig, public ZTruthConfig {
     simparm::Entry<double> target_volume_;
     simparm::Entry<unsigned int> target_localization_number_;
     simparm::Entry< quantity<si::microlength> > missing_penalty_;

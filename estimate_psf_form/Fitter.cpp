@@ -182,7 +182,7 @@ VariableReduction<Lambda>::VariableReduction( const Config& config, const input:
     layer_dependent.flip();
     fluorophore_dependent = make_bitset( Variables(), PSF::is_fluorophore_dependent() );
     merged = make_bitset( Variables(), vanishes_when_circular(config) );
-    constant = make_bitset( Variables(), calibrate_3d::constant_parameter( traits.plane_count() > 1, config ) );
+    constant = make_bitset( Variables(), calibrate_3d::constant_parameter( traits.plane_count() > 1, config, ! config.z_is_truth() ) );
 }
 
 template <typename Lambda>
@@ -260,7 +260,6 @@ class Fitter
     Evaluators evaluators;
     const dStorm::engine::InputTraits& traits;
     VariableReduction<TheoreticalFunction> table;
-    const double width_correction;
 
     /** Get one of the model instances matching the given fluorophore type and layer. */
     const Lambda& result( int fluorophore = -1, int layer = 0 ) {
@@ -273,7 +272,7 @@ class Fitter
         boost::shared_ptr<threed_info::Polynomial3D> three_d( 
             new threed_info::Polynomial3D(dynamic_cast<const threed_info::Polynomial3D&>(*traits.optics(plane).depth_info(dir)) ) );
         three_d->set_focal_plane( threed_info::ZPosition( m.get< PSF::ZPosition >(dir) ) );
-        three_d->set_base_width( threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction ) );
+        three_d->set_base_width( threed_info::Sigma( m.get< PSF::BestSigma >(dir) ) );
         for (int term = threed_info::Polynomial3D::MinTerm; term <= threed_info::Polynomial3D::Order; ++term) {
             three_d->set_slope( term, threed_info::Polynomial3D::WidthSlope( m.get_delta_sigma(dir,term) ) );
         }
@@ -286,7 +285,7 @@ class Fitter
 
     boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::No3D& m, int plane, Direction dir ) {
         boost::shared_ptr<threed_info::No3D> rv( new threed_info::No3D() );
-        rv->sigma = threed_info::Sigma( m.get< PSF::BestSigma >(dir) * width_correction );
+        rv->sigma = threed_info::Sigma( m.get< PSF::BestSigma >(dir) );
         return rv;
     }
 
@@ -308,7 +307,7 @@ class Fitter
 
 template <class Metric, class Lambda>
 Fitter<Metric,Lambda>::Fitter( const Config& config, const input::Traits< engine::ImageStack >& traits, int images )
-: traits(traits), table( config, traits, images * traits.plane_count() ), width_correction( config.width_correction() )
+: traits(traits), table( config, traits, images * traits.plane_count() )
 {
     DEBUG("Creating form fitter");
     for ( int i = 0; i < traits.plane_count(); ++i ) {
