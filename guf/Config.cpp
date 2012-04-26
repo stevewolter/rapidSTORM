@@ -17,7 +17,7 @@ Config::Config()
   maximumIterationSteps("MaximumIterationSteps",
         "Maximum number of iteration steps for spot fitting", 20),
   free_sigmas("FreeSigmaFitting", "PSF width is free fit parameter", false),
-  output_sigmas("OutputSigmas", "Store PSF covariance matrix", false),
+  output_sigmas("OutputSigmas", "Store PSF width", false),
   laempi_fit("LaempiPosition", "Laempi fit for positions", false),
   disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
   two_kernel_fitting("TwoKernelFitting", "Compute two kernel improvement", false),

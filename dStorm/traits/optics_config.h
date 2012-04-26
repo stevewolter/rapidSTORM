@@ -6,6 +6,7 @@
 #include <simparm/Eigen.hh>
 #include <dStorm/engine/InputTraits.h>
 #include <simparm/Object.hh>
+#include <simparm/Set.hh>
 #include <simparm/Callback.hh>
 #include <simparm/BoostOptional.hh>
 #include "../UnitEntries/PixelSize.h"
@@ -54,7 +55,7 @@ public:
 };
 
 class MultiPlaneConfig
-: public simparm::Object
+: public simparm::Set
 {
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;

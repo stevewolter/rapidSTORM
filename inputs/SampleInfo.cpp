@@ -72,6 +72,13 @@ class ChainLink
     simparm::Structure<Config> config;
     simparm::Structure<Config>& get_config() { return config; }
 
+    void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
+        config.fluorophore_count.viewable = ( t.plane_count() > 1 );
+    }
+    template <typename Type>
+    void notice_traits( const input::MetaInfo&, const input::Traits<Type>& t ) {
+        config.fluorophore_count.viewable = false;
+    }
     template <typename Type>
     void update_traits( input::MetaInfo&, input::Traits<Type>& t ) {
         config.set_traits( t );
@@ -126,6 +133,7 @@ Config::Config()
     fluorophores.push_back( new FluorophoreConfig(0) );
     fluorophore_count.min = 1;
     fluorophore_count.increment = 1;
+    fluorophore_count.viewable = false;
 }
 
 void Config::registerNamedEntries() {

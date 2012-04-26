@@ -34,6 +34,7 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
     alignment.addChoice( make_support_point_projection_config() );
 
     transmissions.push_back( new simparm::Entry<double>("Transmission0", "Transmission of fluorophore 0", 1) );
+    transmissions.back().viewable = false;
 
     counts_per_photon.userLevel = Object::Intermediate;
     dark_current.userLevel = Object::Intermediate;
@@ -124,9 +125,11 @@ void PlaneConfig::write_traits( input::Traits<Localization>& t ) const
 
 
 MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose ) 
-: simparm::Object("Optics", "Optical pathway properties"),
+: simparm::Set("Optics", "Optical pathway properties"),
   purpose(purpose)
 {
+    showTabbed = true;
+
     DEBUG("Constructing " << this);
     layers.push_back( new PlaneConfig(0, purpose) );
     set_number_of_planes( 1 );
