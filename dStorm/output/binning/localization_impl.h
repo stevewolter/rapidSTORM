@@ -170,6 +170,17 @@ void Localization<Index,IsUnscaled>::announce(const output::Output::Announcement
 { 
 }
 
+inline std::string dimen_name(int d) {
+    switch (d) {
+        case 0: return "X";
+        case 1: return "Y";
+        case 2: return "Z";
+        case 3: return "A";
+        default:
+            throw std::logic_error("Ran out of dimension names");
+    }
+}
+
 template <int Index>
 void Localization<Index,Bounded>::announce(const output::Output::Announcement& a) 
 { 
@@ -180,10 +191,9 @@ void Localization<Index,Bounded>::announce(const output::Output::Announcement& a
         if ( ! Base::scalar.range(a).first.is_initialized() && ! Base::scalar.range(a).second.is_initialized() )
             message << " and ";
         if ( ! Base::scalar.range(a).second.is_initialized() ) message << "upper";
-        message << " bound not set for field " << Index;
-        if ( TraitsType::Rows > 1 ) message << " in row " << Base::scalar.row();
-        if ( TraitsType::Cols > 1 ) message << " in column " << Base::scalar.column();
-        throw std::logic_error(message.str());
+        message << " bound not set for field " << TraitsType::get_ident();
+        if ( TraitsType::Rows > 1 ) message << " in " << dimen_name( Base::scalar.row() );
+        throw std::runtime_error(message.str());
     }
     range[0] = *Base::scalar.range(a).first; 
     range[1] = *Base::scalar.range(a).second; 
