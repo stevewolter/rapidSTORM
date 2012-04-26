@@ -319,6 +319,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     inputs/ResolutionSetter.h inputs/ResolutionSetter.cpp \
     inputs/SampleInfo.h inputs/SampleInfo.cpp \
     inputs/ROIFilter.h inputs/ROIFilter.cpp \
+    inputs/PlaneFilter.h inputs/PlaneFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 

@@ -29,13 +29,11 @@ namespace ROIFilter {
 struct Config : public simparm::Object {
     IntFrameEntry first_frame;
     simparm::Entry< boost::optional< frame_index > > last_frame;
-    simparm::ChoiceEntry which_plane;
 
     Config();
     void registerNamedEntries() { 
         push_back( first_frame ); 
         push_back( last_frame ); 
-        push_back( which_plane );
     }
 };
 
@@ -53,28 +51,16 @@ class Source
 {
     const frame_index from;
     const boost::optional<frame_index> to;
-    const boost::optional<int> plane;
     typedef typename input::Source<Ty>::iterator base_iterator;
 
     struct _iterator;
 
     inline bool is_in_range(const Ty& t) const;
 
-    void reduce_planes( input::Traits<engine::ImageStack>& t ) {
-        if ( plane.is_initialized() ) {
-            engine::InputPlane only = t.plane(*plane);
-            t.clear();
-            t.push_back( only );
-        }
-    }
-    template <class Other>
-    void reduce_planes( input::Traits<Other>& ) {}
-
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
-            frame_index from, boost::optional<frame_index> to, boost::optional<int> plane)
-        : input::AdapterSource<Ty>(upstream), from(from), to(to),
-          plane(plane) {}
+            frame_index from, boost::optional<frame_index> to)
+        : input::AdapterSource<Ty>(upstream), from(from), to(to) {}
     Source* clone() const { return new Source(*this); }
 
     base_iterator begin();
@@ -89,7 +75,6 @@ class Source
         }
         p.image_number().range().first = from;
         DEBUG("First frame of traits is " << *p.image_number().range().first << ", last frame set is " << p.image_number().range().second.is_initialized());
-        reduce_planes(p);
     }
 };
 
@@ -110,12 +95,10 @@ class Source<Ty>::_iterator
         if ( this->base() == end )
             return;
         else if ( s.is_in_range(*this->base()) )
-            select_plane();
+            i = *this->base();
         else
             this->base_reference() = end;
     }
-
-    void select_plane();
 
     Ty& dereference() const { return i; }
     
@@ -125,23 +108,9 @@ class Source<Ty>::_iterator
     {
         while ( this->base() != end && ! s.is_in_range(*this->base()) )
             ++this->base_reference();
-        if ( this->base() != end ) select_plane();
+        if ( this->base() != end ) i = *this->base();
     }
 };
-
-template <>
-void Source< dStorm::engine::ImageStack >::_iterator::select_plane()
-{
-    i = *this->base();
-    if ( s.plane.is_initialized() ) {
-        engine::Image2D plane = i.plane( *s.plane );
-        i.clear();
-        i.push_back( plane );
-    }
-}
-
-template <class Ty>
-void Source<Ty>::_iterator::select_plane() { i = *this->base(); }
 
 template <class Ty>
 bool Source<Ty>::is_in_range(const Ty& t) const
@@ -183,37 +152,22 @@ class ChainLink
     }
     void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {
         set_temporal_ROI( traits.image_number() );
-        if ( config.which_plane() != -1 ) {
-            engine::InputPlane only = traits.plane( config.which_plane() );
-            traits.clear();
-            traits.push_back( only );
-        }
     }
     template <typename Type>
     void update_traits( input::MetaInfo&, input::Traits<Type>& traits ) 
         { set_temporal_ROI( traits.image_number() ); }
 
     void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
-        for (int i = config.which_plane.numChoices()-1; i < t.plane_count(); ++i) {
-            std::string id = boost::lexical_cast<std::string>(i);
-            config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
-        }
-        for (int i = t.plane_count(); i < config.which_plane.numChoices()-1; ++i)
-            config.which_plane.removeChoice( i );
     }
     template <typename Type>
     void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {}
 
     template <typename Type>
     input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) {
-        boost::optional<int> plane;
-        if ( config.which_plane() != -1 ) plane = config.which_plane();
         if ( config.first_frame() > 0 * camera::frame 
-            || config.last_frame().is_initialized()
-            || plane.is_initialized() )
+            || config.last_frame().is_initialized() )
         {
-            return new Source<Type>( p, config.first_frame(), config.last_frame(), 
-                               plane );
+            return new Source<Type>( p, config.first_frame(), config.last_frame() );
         } else
             return p.release();
     }
@@ -227,13 +181,10 @@ class ChainLink
 Config::Config() 
 : simparm::Object("ROIFilter", "Image selection filter"),
   first_frame("FirstImage", "First image to load"),
-  last_frame( "LastImage", "Last image to load" ),
-  which_plane( "OnlyPlane", "Process only given plane" )
+  last_frame( "LastImage", "Last image to load" )
 {
-    which_plane.addChoice(-1, "AllPlanes", "All planes");
     first_frame.userLevel = simparm::Object::Intermediate;
     last_frame.userLevel = simparm::Object::Intermediate;
-    which_plane.userLevel = simparm::Object::Expert;
 }
 
 void ChainLink::operator()( const simparm::Event& ) {
@@ -244,14 +195,12 @@ void ChainLink::operator()( const simparm::Event& ) {
 ChainLink::ChainLink()
 : simparm::Listener( simparm::Event::ValueChanged )
 {
-    receive_changes_from( config.which_plane.value );
 }
 
 ChainLink::ChainLink(const ChainLink& o)
 : input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
   config(o.config)
 {
-    receive_changes_from( config.which_plane.value );
 }
 
 std::auto_ptr<input::Link> make_link() {
