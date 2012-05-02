@@ -94,7 +94,6 @@ class DStorm {
         if ( doc_path.exists() ) {
             HelpManager.getSingleton().setManual( new File(doc_path, "rapidstorm.html" ) );
             File doc_data_path = path.getDocDataPath();
-            HelpManager.getSingleton().setCHManual( new File(doc_path, "rapidstorm.chm" ), new File(doc_data_path, "alias.h"), new File(doc_data_path, "context.h") );
             HelpManager.getSingleton().add_URI( "Report a bug", new java.net.URI("https://idefix.biozentrum.uni-wuerzburg.de/bugzilla3/") );
         }
 
