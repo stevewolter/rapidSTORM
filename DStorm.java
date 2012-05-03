@@ -109,7 +109,7 @@ class DStorm {
         String[] environment = build_environment( path );
         java.util.Vector<String> args = new java.util.Vector<String>();
         boolean gui = true, load_config = true, verbose = false;
-        String exec_stem = "dstorm-";
+        String exec_stem = "dstorm";
         for (int i = 0; i < cmdline_args.length; ++i) {
             if ( cmdline_args[i].equals("--StderrPipe") ) args.add("--StderrPipe");
             if ( cmdline_args[i].equals("--StdoutPipe") ) args.add("--StdoutPipe");

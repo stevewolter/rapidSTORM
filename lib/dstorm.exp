@@ -62,11 +62,11 @@ proc dstorm_start {} {
 
     if { $may_use_camera == 1 } {
         set netcat_port 1112
-        program_start andorcamd=2.1.2-3 andorcamd-dummy 
+        program_start andorcamd-dummy 
         set andorcam_spawn_id $spawn_id
     }
     set env(RAPIDSTORM_TESTPLUGIN_ENABLE) "1"
-    program_start rapidstorm=2.1.2-3 dstorm-2 --Twi
+    program_start dstorm --Twi
     set dstorm_spawn_id $spawn_id
 
     set have_process_watcher 0;
@@ -167,7 +167,7 @@ proc rapidstorm_exit {} {
         }
     }
 
-    program_exit dstorm-2
+    program_exit dstorm
 }
 
 proc stage_init { unary_count_of_successes } {
@@ -227,9 +227,9 @@ proc end_test_suite {} {
 }
 
 proc load_default_config {} {
-    global deploy_root_host
+    global srcdir
 
-    set config_file dstorm-config-2.txt
+    set config_file $srcdir/dstorm-config.txt
     set filestream [open "$config_file" r]
     while {[gets $filestream line] >= 0} {
         send "in Car $line\n"

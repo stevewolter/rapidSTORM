@@ -4,7 +4,7 @@ import  java.io.File;
 
 class DefaultPath {
     File root;
-    String conffile = "dstorm-config-@DSTORM_LIB_VERSION@.txt";
+    String conffile = "dstorm-config.txt";
 
     private File reroot( File original )  {
         String orig_prefix = new String("@prefix@").replace("/", File.separator);
@@ -30,7 +30,7 @@ class DefaultPath {
         return reroot(plugin_dir);
     }
     public File getExecutable(String stem) {
-        return new File(root, "bin" + File.separator + stem + "@DSTORM_LIB_VERSION@" );
+        return new File(root, "bin" + File.separator + stem );
     }
     public File getSystemConfigFile() {
         File sysconfdir = new File(new String("@sysconfdir@").replace("/", File.separator));
@@ -46,7 +46,7 @@ class DefaultPath {
         return new File( System.getProperty("user.home"), ".rapidstorm" + File.separator + conffile);
     }
     public File getVersionFile() {
-        return new File( root, "share" + File.separator + "rapidstorm" + File.separator + "version-@DSTORM_LIB_VERSION@.txt" );
+        return new File( root, "share" + File.separator + "rapidstorm" + File.separator + "version.txt" );
     }
     public File getDocPath() {
         return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm-doc"  );

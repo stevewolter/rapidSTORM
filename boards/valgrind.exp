@@ -17,7 +17,7 @@ set testcase_host "$testcase_target"
 set workspace_target "${testcase_target}Sample_Workspace_dSTORM/"
 set workspace_host "$workspace_target"
 
-proc program_start { pkg cmd args } {
+proc program_start { cmd args } {
     global spawn_id
     global bindir
     global srcdir

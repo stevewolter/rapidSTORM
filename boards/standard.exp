@@ -24,11 +24,11 @@ set workspace_host "$workspace_target"
 
 set deploy_root_host "$prefix"
 
-proc program_start { pkg cmd args } {
+proc program_start { cmd args } {
     global spawn_id
-    global bindir
+    global objdir
 
-    spawn $bindir/$cmd $args
+    spawn $objdir/$cmd $args
 }
 
 proc program_exit { cmd } {}

@@ -12,18 +12,19 @@ javabuilddir = classes
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm-@DSTORM_LIB_VERSION@
+C_TESTS = dstorm
+DEJATOOL = dstorm
 
-bin_PROGRAMS = dstorm-@DSTORM_LIB_VERSION@ align-biplane-rapidstorm@DSTORM_LIB_VERSION@
-bin_SCRIPTS = rapidstorm@DSTORM_LIB_VERSION@
+bin_PROGRAMS = dstorm align-biplane-rapidstorm
+bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
 if CAN_BUILD_TWIDDLER
-java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar 
-applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
+java_DATA = rapidSTORM.jar 
+applications_DATA=rapidstorm.desktop
 endif
 doc_DATA = $(srcdir)/README 
-pkgdata_DATA = version-@DSTORM_LIB_VERSION@.txt dstorm-config-@DSTORM_LIB_VERSION@.txt
+pkgdata_DATA = version.txt dstorm-config.txt
 pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
 
 JAVASOURCES = DStorm.java DefaultPath.java
@@ -37,64 +38,64 @@ endif
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
     gaussian_psf/make_psf.sh \
     dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
-    rapidstorm.input/dual-view.exp rapidstorm.input/01-txt-replay.exp \
-    rapidstorm.input/00-input-file-is-recognized.exp \
-    rapidstorm.input/new-stm-format.exp \
-    rapidstorm.input/mirror.exp rapidstorm.input/long-tif-file.exp \
-    rapidstorm.input/03-can-open-same-file-twice.exp \
-    rapidstorm.input/02-errors.exp rapidstorm.volker/fall_e.exp \
-    rapidstorm.volker/fall_c.exp rapidstorm.volker/fall_a.exp \
-    rapidstorm.volker/fall_d.exp rapidstorm.volker/fall_f.exp \
-    rapidstorm.volker/fall_b.exp rapidstorm.guf/negative-alignment.exp \
-    rapidstorm.guf/multi-plane-gui.exp rapidstorm.guf/precision.exp \
-    rapidstorm.guf/error-check.exp rapidstorm.guf/two-plane-form-fitter.exp \
-    rapidstorm.guf/3d.exp rapidstorm.guf/andre-test-1.exp \
-    rapidstorm.guf/performance.exp rapidstorm.guf/fixed-settings.exp \
-    rapidstorm.00-pre/01-plugins-loaded.exp \
-    rapidstorm.00-pre/03-test-plugin-can-close-windows.exp \
-    rapidstorm.00-pre/02-run-can-succeed.exp rapidstorm.00-pre/00-dstorm.exp \
-    rapidstorm.bugs/197.exp rapidstorm.bugs/185.exp rapidstorm.bugs/48.exp \
-    rapidstorm.bugs/165.exp rapidstorm.bugs/139.exp rapidstorm.bugs/95.exp \
-    rapidstorm.bugs/132.exp rapidstorm.bugs/62.exp rapidstorm.bugs/96.exp \
-    rapidstorm.bugs/75.exp rapidstorm.bugs/178.exp rapidstorm.bugs/85.exp \
-    rapidstorm.bugs/110.exp rapidstorm.bugs/74.exp rapidstorm.bugs/179.exp \
-    rapidstorm.bugs/51.exp rapidstorm.bugs/3.exp rapidstorm.bugs/63.exp \
-    rapidstorm.bugs/99.exp rapidstorm.bugs/91.exp rapidstorm.bugs/66.exp \
-    rapidstorm.bugs/43.exp rapidstorm.bugs/84.exp rapidstorm.bugs/81.exp \
-    rapidstorm.bugs/80.exp rapidstorm.bugs/188.exp rapidstorm.bugs/186.exp \
-    rapidstorm.bugs/148.exp rapidstorm.bugs/47.exp rapidstorm.bugs/133.exp \
-    rapidstorm.bugs/177-2.exp rapidstorm.bugs/111.exp rapidstorm.bugs/106.exp \
-    rapidstorm.bugs/75_stm.exp \
-    rapidstorm.outputs/save-image-to-nonexisting-location.exp \
-    rapidstorm.outputs/simple-filter.exp \
-    rapidstorm.outputs/localization-filter-can-remove-output.exp \
-    rapidstorm.outputs/viewer-closed-during-job.exp \
-    rapidstorm.outputs/expression-filter.exp \
-    rapidstorm.outputs/form-fitter.exp \
-    rapidstorm.outputs/table-shows-traces-checkbox.exp \
-    rapidstorm.outputs/localization-filter.exp \
-    rapidstorm.outputs/viewer-supports-key-range-changes.exp \
-    rapidstorm.outputs/repeater.exp rapidstorm.outputs/viewer.exp \
-    rapidstorm.outputs/segmenter.exp  \
-    lib/rapidstorm.exp rapidstorm.andorcam/two-successive-jobs.exp \
-    rapidstorm.andorcam/live-view.exp rapidstorm.andorcam/compute-job.exp \
-    rapidstorm.andorcam/infinite-acquisition.exp \
-    rapidstorm.andorcam/no-installed-cameras.exp \
-    rapidstorm.test/sif-computation.exp \
-    rapidstorm.test/output_exception.exp rapidstorm.test/segfault.exp \
-    rapidstorm.test/sif-shortjob.exp rapidstorm.test/autoname.exp \
-    rapidstorm.test/median.exp rapidstorm.test/load_tif_file.exp \
-    rapidstorm.test/empty_input_file.exp rapidstorm.test/nojob.exp \
-    rapidstorm.test/can-compute-txt-file.exp rapidstorm.test/memory.exp \
-    rapidstorm.test/filenames.exp rapidstorm.test/job-removal.exp \
-    rapidstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
+    dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
+    dstorm.input/00-input-file-is-recognized.exp \
+    dstorm.input/new-stm-format.exp \
+    dstorm.input/mirror.exp dstorm.input/long-tif-file.exp \
+    dstorm.input/03-can-open-same-file-twice.exp \
+    dstorm.input/02-errors.exp dstorm.volker/fall_e.exp \
+    dstorm.volker/fall_c.exp dstorm.volker/fall_a.exp \
+    dstorm.volker/fall_d.exp dstorm.volker/fall_f.exp \
+    dstorm.volker/fall_b.exp dstorm.guf/negative-alignment.exp \
+    dstorm.guf/multi-plane-gui.exp dstorm.guf/precision.exp \
+    dstorm.guf/error-check.exp dstorm.guf/two-plane-form-fitter.exp \
+    dstorm.guf/3d.exp dstorm.guf/andre-test-1.exp \
+    dstorm.guf/performance.exp dstorm.guf/fixed-settings.exp \
+    dstorm.00-pre/01-plugins-loaded.exp \
+    dstorm.00-pre/03-test-plugin-can-close-windows.exp \
+    dstorm.00-pre/02-run-can-succeed.exp dstorm.00-pre/00-dstorm.exp \
+    dstorm.bugs/197.exp dstorm.bugs/185.exp dstorm.bugs/48.exp \
+    dstorm.bugs/165.exp dstorm.bugs/139.exp dstorm.bugs/95.exp \
+    dstorm.bugs/132.exp dstorm.bugs/62.exp dstorm.bugs/96.exp \
+    dstorm.bugs/75.exp dstorm.bugs/178.exp dstorm.bugs/85.exp \
+    dstorm.bugs/110.exp dstorm.bugs/74.exp dstorm.bugs/179.exp \
+    dstorm.bugs/51.exp dstorm.bugs/3.exp dstorm.bugs/63.exp \
+    dstorm.bugs/99.exp dstorm.bugs/91.exp dstorm.bugs/66.exp \
+    dstorm.bugs/43.exp dstorm.bugs/84.exp dstorm.bugs/81.exp \
+    dstorm.bugs/80.exp dstorm.bugs/188.exp dstorm.bugs/186.exp \
+    dstorm.bugs/148.exp dstorm.bugs/47.exp dstorm.bugs/133.exp \
+    dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
+    dstorm.bugs/75_stm.exp \
+    dstorm.outputs/save-image-to-nonexisting-location.exp \
+    dstorm.outputs/simple-filter.exp \
+    dstorm.outputs/localization-filter-can-remove-output.exp \
+    dstorm.outputs/viewer-closed-during-job.exp \
+    dstorm.outputs/expression-filter.exp \
+    dstorm.outputs/form-fitter.exp \
+    dstorm.outputs/table-shows-traces-checkbox.exp \
+    dstorm.outputs/localization-filter.exp \
+    dstorm.outputs/viewer-supports-key-range-changes.exp \
+    dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
+    dstorm.outputs/segmenter.exp  \
+    lib/dstorm.exp dstorm.andorcam/two-successive-jobs.exp \
+    dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
+    dstorm.andorcam/infinite-acquisition.exp \
+    dstorm.andorcam/no-installed-cameras.exp \
+    dstorm.test/sif-computation.exp \
+    dstorm.test/output_exception.exp dstorm.test/segfault.exp \
+    dstorm.test/sif-shortjob.exp dstorm.test/autoname.exp \
+    dstorm.test/median.exp dstorm.test/load_tif_file.exp \
+    dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
+    dstorm.test/can-compute-txt-file.exp dstorm.test/memory.exp \
+    dstorm.test/filenames.exp dstorm.test/job-removal.exp \
+    dstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
     boards/kokolorix.exp boards/chroot.exp boards/valgrind.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
 
-CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
-	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
+CLEANFILES = rapidSTORM.jar \
+	rapidstorm.desktop rapidstorm \
 	java-built-stamp DefaultPath.java \
-	dstorm-config-@DSTORM_LIB_VERSION@.txt version-@DSTORM_LIB_VERSION@.txt
+	dstorm-config.txt version.txt
 
 java-built-stamp : $(JAVASOURCES)
 	$(MKDIR_P) $(javabuilddir)
@@ -108,16 +109,10 @@ DefaultPath.java : $(srcdir)/DefaultPath.java.in
 	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
 	    $< > $@
 
-rapidSTORM@DSTORM_LIB_VERSION@.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
+rapidSTORM.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	cp $(TWIDDLER_JAR) $@
 	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
 	$(JAR) -umf manifest $@
-
-rapidstorm@DSTORM_LIB_VERSION@.desktop : rapidstorm.desktop
-	cp $< $@
-
-rapidstorm@DSTORM_LIB_VERSION@ : rapidstorm
-	cp $< $@
 
 clean-local :
 	-rm -fr $(javabuilddir)
@@ -335,17 +330,17 @@ librapidstormfile_la_SOURCES = \
 librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
 librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
-dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
-dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
-dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
-dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
-dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
-dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
+dstorm_SOURCES = dstorm.cpp
+dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
+dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
+dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
+dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
+dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
     LibraryHandle.h LibraryHandle.cpp \
@@ -353,17 +348,17 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     job/Car.cpp job/Car.h \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
     job/Run.h job/Run.cpp \
     job/Control.h job/Control.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     dStorm/output/Config.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     inputs/inputs.h inputs/inputs.cpp \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputMethods.h inputs/InputMethods.cpp \
@@ -388,11 +383,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
@@ -401,11 +396,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     expression/Config.h  expression/Config_decl.h \
     expression/Source.h  expression/Source_decl.h \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
@@ -427,7 +422,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     expression/Filter.h expression/Filter.cpp \
     expression/unit_test.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -439,7 +434,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     calibrate_3d/fwd.h \
     calibrate_3d/Output.h calibrate_3d/Output.cpp \
     calibrate_3d/Config.h calibrate_3d/Config.cpp \
@@ -450,7 +445,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     calibrate_3d/constant_parameter.hpp \
     calibrate_3d/SigmaCurve.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.cpp \
@@ -460,7 +455,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     spotFinders/Fillhole.h spotFinders/Fillhole.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     viewer/fwd.h \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
@@ -490,7 +485,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp \
     viewer/UnitTest.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
     test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
@@ -504,7 +499,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     wxDisplay/fwd.h \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
@@ -512,7 +507,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
     wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     estimate_psf_form/Output.h estimate_psf_form/Output.cpp \
     estimate_psf_form/Fitter.h estimate_psf_form/Fitter.cpp \
     estimate_psf_form/Config.h estimate_psf_form/Config.cpp \
@@ -521,7 +516,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
     estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
     nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
@@ -582,7 +577,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     nonlinfit/sum/fwd.h \
     nonlinfit/sum/Lambda.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
     fit_window/Stack.cpp fit_window/Stack.h fit_window/Stack.hpp \
     fit_window/Plane.h \
@@ -595,7 +590,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     fit_window/PlaneCreator.h fit_window/PlaneCreator.hpp fit_window/PlaneCreator.cpp \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/EvaluationTags.h \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
@@ -617,7 +612,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/StandardFunction.h \
     guf/unit_tests.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     gaussian_psf/fwd.h gaussian_psf/parameters.h gaussian_psf/parameters.hpp \
     gaussian_psf/BaseEvaluator.h gaussian_psf/BaseEvaluator.cpp \
     gaussian_psf/DisjointEvaluator.h \
@@ -637,7 +632,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     gaussian_psf/check_evaluator.hpp \
     gaussian_psf/polynomial_psf_generated_by_yacas.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     constant_background/fwd.hpp constant_background/model.hpp
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
@@ -665,7 +660,7 @@ INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     guf/instantiations/one_kernel.h \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
@@ -681,7 +676,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/instantiations/ModelledFitter.h \
     guf/instantiations/Moveable.h \
     guf/instantiations/Fitter.cpp
-nodist_dstorm_@DSTORM_LIB_VERSION@_SOURCES = $(INSTANTIATIONS)
+nodist_dstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
 
 $(INSTANTIATIONS) : 
@@ -692,7 +687,7 @@ $(INSTANTIATIONS) :
 	    | sed -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
 	    | sed -e 's:#include ":&guf/instantiations/:' > $@
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     nonlinfit/unit_test.h \
     nonlinfit/unit_test.cpp \
     nonlinfit/sum/unit_test.cpp \
@@ -700,7 +695,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     guf/unit_tests.cpp \
     dejagnu.h unit_tests.h unit_tests.cpp
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     input_simulation/plugin.cpp input_simulation/plugin.h \
     input_simulation/NoiseSource.h input_simulation/NoiseSource.cpp \
     input_simulation/NoiseGenerator.cpp \
@@ -713,7 +708,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     input_simulation/FluorophoreDistributions.h \
     input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h \
     locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
@@ -731,7 +726,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
     locprec/unit_tests.cpp 
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
     AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
@@ -739,7 +734,7 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
@@ -754,15 +749,11 @@ else
     SIFSUPPORT =
 endif
 
-dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+dstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
-align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
-align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
-align_biplane_rapidstorm@DSTORM_LIB_VERSION@_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
+align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
+align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
+align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
 
-version-@DSTORM_LIB_VERSION@.txt : version.txt
-	cp $^ $@
-dstorm-config-@DSTORM_LIB_VERSION@.txt : dstorm-config.txt
-	cp $^ $@
