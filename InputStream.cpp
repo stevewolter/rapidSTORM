@@ -94,7 +94,7 @@ InputStream::Pimpl::Pimpl(
   starter( (original.get()) ? new JobStarter(this) : NULL )
 {
     this->showTabbed = true;
-    setDesc( ModuleLoader::getSingleton().makeProgramDescription() );
+    setDesc( makeProgramDescription() );
     reset_config();
     if ( display::Manager::getSingleton().getConfig() )
         this->push_back( *display::Manager::getSingleton().getConfig() );

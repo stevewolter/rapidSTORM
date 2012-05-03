@@ -192,7 +192,7 @@ CommandLine::Pimpl::Pimpl(int argc, char *argv[])
 : io(NULL, NULL), argc(argc), argv(argv), starter(this)
 {
     starter.setConfig(config);
-    ModuleLoader::getSingleton().add_modules( config );
+    add_modules( config );
     config.all_modules_loaded();
     config.registerNamedEntries(io);
 }

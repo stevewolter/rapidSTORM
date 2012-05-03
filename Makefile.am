@@ -343,7 +343,6 @@ dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
-    LibraryHandle.h LibraryHandle.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)

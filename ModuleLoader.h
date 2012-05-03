@@ -8,20 +8,8 @@
 
 namespace dStorm {
 
-class ModuleLoader : boost::noncopyable {
-    struct Pimpl;
-    friend struct Pimpl;
-    std::auto_ptr<Pimpl> pimpl;
-
-    ModuleLoader();
-  public:
-    static void makeSingleton();
-    static ModuleLoader& getSingleton();
-    static void destroySingleton();
-
-    void add_modules( Config& );
-    std::string makeProgramDescription();
-};
+void add_modules( Config& );
+std::string makeProgramDescription();
 
 }
 

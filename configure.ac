@@ -120,7 +120,6 @@ AC_CHECK_LIB([mswsock], [main], [libb64_LIBS="$libb64_LIBS -lmswsock"])
 AC_SUBST([libb64_LIBS], "$libb64_LIBS")
 
 AC_CHECK_LIB([tiff], [main], [GraphicsMagick_LIBS="$GraphicsMagick_LIBS -ltiff"], [AC_ERROR(tiff library not found)])
-AC_CHECK_LIB([ltdl], [main], [GraphicsMagick_LIBS="$GraphicsMagick_LIBS -lltdl"], [AC_ERROR(libtool ltdl library not found)])
 AC_SUBST([GraphicsMagick_LIBS], "$GraphicsMagick_LIBS")
 
 AC_ARG_WITH([windres],

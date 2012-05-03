@@ -12,6 +12,10 @@
 #include <locale.h>
 #include <stdlib.h>
 
+#include <dStorm/display/Manager.h>
+#include "test-plugin/plugin.h"
+#include "wxDisplay/fwd.h"
+
 #ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
@@ -68,15 +72,15 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        DEBUG("Making module handler");
-        ModuleLoader::makeSingleton();
+        std::auto_ptr< display::Manager > display( display::make_wx_manager() );
+        display.reset( test::make_display( display.release() ) );
+        display::Manager::setSingleton(*display);
 
         std::auto_ptr<CommandLine> cmd_line;
         cmd_line.reset( new CommandLine( argc, argv ) );
         cmd_line->run();
-
         cmd_line.reset();
-        ModuleLoader::destroySingleton();
+
     } catch (const std::bad_alloc &e) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 
                   << std::endl;
