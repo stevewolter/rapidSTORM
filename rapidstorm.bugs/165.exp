@@ -1,0 +1,56 @@
+start_test_suite
+
+set timeout 5
+set test "Test job works"
+send "in Car in Input in MultiChannel in ChannelCount in value set 2\n"
+set_input_file "${testcase_target}bug_165_mirrored.tif" 1
+set_input_file "${testcase_target}X5365_COS7_tetraspecksk6_ex488_256_1.tif" 2
+send "in Car in Input in MultiChannel in JoinOn in value set Spatialz\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Input in SampleInfo set FluorophoreCount value set 2\n"
+send "in Car in Input in Optics in InputLayer0 set Transmission1 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 set Transmission0 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}MATRIX_COS7_tetraspecksk6_ex488_256_1\n"
+
+dstorm_attach
+
+set norm_count 0
+send "in Car in Run in value set 1\n"
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set norm_count $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { pass "$test"; }
+}
+
+end_test_suite
+start_test_suite
+
+set test "One-channel mirror job works"
+send "in Car in Input in MultiChannel in ChannelCount in value set 2\n"
+set_input_file "${testcase_target}X6069_COS7_tetraspecksk6_ex488_256_1.tif" 1
+set_input_file "${testcase_target}X5365_COS7_tetraspecksk6_ex488_256_1.tif" 2
+send "in Car in Input in MultiChannel in Channels in Channel1 in Mirror in MirrorY in value set true\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 in ROIFilter in FirstImage in value set 1\n"
+send "in Car in Input in MultiChannel in JoinOn in value set Spatialz\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Input in SampleInfo set FluorophoreCount value set 2\n"
+send "in Car in Input in Optics in InputLayer0 set Transmission1 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 set Transmission0 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}MATRIX_COS7_tetraspecksk6_ex488_256_1\n"
+
+send "in Car in Run in value set 1\n"
+
+set test_count 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set test_count $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { pass "$test"; }
+}
+
+set test "Feature #165 is implemented correctly"
+verbose "Norm run had $norm_count localizations and test $test_count localizations" 1
+pass_if [ expr $norm_count == $test_count ] "$test"
+
+end_test_suite

@@ -1,0 +1,35 @@
+start_test_suite
+
+set timeout 5
+set test "Join SIF files"
+set_input_file "${testcase_target}TFS_Schief.sif"
+
+send "in Car in Input in MultiChannel in ChannelCount in value set 2\n"
+send "in Car in Input in MultiChannel in JoinOn in value set Temporal\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}75\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+
+dstorm_attach
+
+send "in Car in Run in value set 1\n"
+
+set last_count 0
+expect {
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set last_count $expect_out(1,string); exp_continue; }
+}
+
+set test "Join TIF files"
+set_input_file "${testcase_target}Andor_iQ-short.tif" 1
+set_input_file "${testcase_target}Andor_iQ-short.tif" 2
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}75\n"
+send "in Car in Run in value set 1\n"
+
+set last_count 0
+expect {
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set last_count $expect_out(1,string); exp_continue; }
+}
+
+end_test_suite

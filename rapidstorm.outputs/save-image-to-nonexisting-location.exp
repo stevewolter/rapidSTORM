@@ -1,0 +1,26 @@
+begin_test_suite
+
+set timeout 100
+set_input_file "${testcase_target}3D-von-Thorge-20120202-3.tif"
+set_last_image 5
+send "in Car in Input in OutputBasename in Basename in value set /dev/guf-3D\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM value set 107.0,107.0\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF value set 200.0,200.0\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ShowOutput in value set true\n"
+
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set test "Job has progress"
+expect {
+    -re "in LocCountStat declare" { pass "$test"; }
+}
+
+set test "3D with colouring works"
+expect {
+    -re "Failed to store image: Magick: Unable to open file" { pass "$test"; }
+}
+
+end_test_suite

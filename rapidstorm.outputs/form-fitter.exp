@@ -1,0 +1,38 @@
+start_test_suite
+
+set start 500
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car set Engine in rapidSTORM in SpotFindingMethod in Average in SmoothingMaskSize in value set 5\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set $start,$start\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 85,85\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set FitPSFForm\n"
+send "in Car in Output in EngineOutput in Output0 in FitPSFForm set SelectSpots value set false\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set job [get_job_number]
+
+set test "Circular PSF size estimation works"
+expect {
+    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in LocalizationCount in value" { exp_continue; }
+}
+set optics_path "in $job in FitPSFForm in Optics"
+set test "Circular PSF Estimation gives reasonable results"
+set psf [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","]
+pass_if [expr [lindex $psf 0] < 350 && [lindex $psf 0] > 250 && [lindex $psf 0] == [lindex $psf 1]] "$test"; 
+
+set test "Non-circular PSF Estimation works"
+send "in Car in Output in EngineOutput in Output0 in FitPSFForm in CircularPSF in value set false\n"
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+expect {
+    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in LocalizationCount in value" { exp_continue; }
+}
+set optics_path "in $job in FitPSFForm in Optics"
+set test "Non-Circular PSF Estimation gives reasonable results"
+set psf [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","]
+pass_if [expr [lindex $psf 0] < 400 && [lindex $psf 0] > 200 && [lindex $psf 1] < 400 && [lindex $psf 1] > 200 && [lindex $psf 0] != [lindex $psf 1]] "$test"; 
+
+end_test_suite

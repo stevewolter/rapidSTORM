@@ -1,0 +1,17 @@
+in Input in BackgroundEstimator in userLevel set 20
+in Input in Optics in InputLayer0 in PixelSizeInNM in value set 107,107
+in Engine in rapidSTORM in SpotFittingMethod in GUF in MaximumIterationSteps in value set 25
+in Output in EngineOutput in ChooseTransmission in value set Table
+in Output in EngineOutput in Output0 in Table in FailSilently in value set true
+in Output in EngineOutput in ChooseTransmission in value set Count
+in Output in EngineOutput in ChooseTransmission in value set Progress
+in Output in EngineOutput in ChooseTransmission in value set Cache
+in Output in EngineOutput in Output3 in Cache in ChooseTransmission in value set Expression
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value set Image
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in ShowOutput in value set true
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in CloseOnCompletion in value set true
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in XDimension in userLevel set 20
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in YDimension in userLevel set 20
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in IDimension in userLevel set 20
+in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in IDimension in Amplitude in IResolution in userLevel set 30
+in AutoTerminate in value set false

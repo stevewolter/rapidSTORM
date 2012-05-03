@@ -1,0 +1,32 @@
+start_test_suite
+load_default_config
+
+set timeout 30
+
+set_input_file "${testcase_target}2-20110413_20110407_MT-Al647-700_adjratio_300mM-MEA_Dich710_UV_0.tif"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}132\n"
+send "in Car in Input in BiplaneSplitter set DualView value set Horizontally\n"
+set_last_image 500
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set job [get_job_number]
+
+set test "Bug #132 is fixed"
+expect {
+    -re "in Progress in value set 0.02" { 
+        send "cmd 132 in $job in Crankshaft in Output3 in Expression set LinearDriftCorrection value set 10.0,-10.0,0.0\n"; 
+        exp_continue;
+    }
+    -re "in Progress in value set 0.06" { 
+        send "cmd 132 in $job in Crankshaft in Output3 in Expression set LinearDriftCorrection value unset\n";
+        exp_continue;
+    }
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in Progress in value set \[0-9.\]*\r\n" { exp_continue; }
+}
+
+set diff_rv [catch { exec -- diff "${tmpdir_host}132-raw.txt" "${tmpdir_host}132.txt" } output]
+pass_if { $diff_rv == 0 } "Raw and filtered output files are the same"
+
+end_test_suite

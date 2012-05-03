@@ -1,0 +1,26 @@
+global have_test_plugin
+
+if { $have_test_plugin == 1 } {
+start_test_suite
+dstorm_attach
+
+set_input_file "${testcase_target}dummy-file.dummy"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value set DummyInput\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in DummyInput in Number in value set 100\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Progress\n"
+set_last_image 25
+send "in Car in Input in BackgroundEstimator in Enable in value set false\n"
+send "in Car in Engine in value set Noop\n"
+
+set test "Job finishes quickly"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "Image number 27 is accessed" { fail "$test"; }
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in Progress in value set" { exp_continue; }
+}
+
+end_test_suite
+} else {
+unsupported "Job finishes quickly"
+}

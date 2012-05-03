@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM-bin], [14.13.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM], [2.20.3], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -11,6 +11,12 @@ AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+AC_PROG_INSTALL
+AC_PROG_XSLTPROC
+test "x$XSLTPROC" = "x" && AC_MSG_ERROR([unable to find XSLT processor])
+AC_PROG_LN_S
+AC_CHECK_PROGS([PDFXSLFO], [fop])
+AM_CONDITIONAL([BUILD_PDF_DOCUMENTATION], [test -n "$PDFXSLFO"])
 AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
 
@@ -140,6 +146,30 @@ AS_IF(
 )
 AM_CONDITIONAL([COMPILE_SPECIALIZED_FITTERS], [test "x$enable_specialized_fitters" = xyes])
 
+AC_ARG_ENABLE([performance-tests], [AS_HELP_STRING([--enable-performance-tests],
+    [run performance tests, whose results are host-dependent and normed on automatix])],
+    [],
+    [enable_performance_tests=no])
+AC_ARG_WITH([telnet-host], [AS_HELP_STRING([--with-telnet-host], 
+    [test on a remote host using telnet])],
+    [],
+    [with_telnet_host=])
+AC_ARG_WITH([stage-dir], [AS_HELP_STRING([--with-setup-stage-dir], 
+    [stage dir for remote testing])],
+    [],
+    [with_stage_dir=])
+AC_ARG_ENABLE([camera-testing], [AS_HELP_STRING([--enable-camera-testing], 
+    [run the camera connection test suite])], [],
+    [enable_camera_testing=no])
+AC_ARG_WITH([rapidstorm-test-cases], [AS_HELP_STRING([--with-rapidstorm-test-cases], 
+    [directory with rapidSTORM test cases])],
+    [],
+    [with_rapidstorm_test_cases=])
+AC_ARG_WITH([rapidstorm-version], [AS_HELP_STRING([--with-rapidstorm-version], 
+    [version of the rapidSTORM to install and run in chroot])],
+    [],
+    [with_rapidstorm_version=trunk])
+
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
 AM_PATH_WXCONFIG($reqwx, wxWin=1)
@@ -180,7 +210,15 @@ AC_SUBST([TWIDDLER_JAR], "$twiddler_jar")
 
 AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" -a "x$twiddler_jar" != "x"])
 
+AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
+AC_SUBST([setupstagedir], "$with_stage_dir")
+AC_SUBST([TELNET_HOST], "$with_telnet_host")
+AC_SUBST([test_performance], "$enable_performance_tests")
+AC_SUBST([test_camera], "$enable_camera_testing")
+AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
+
 AC_CONFIG_FILES([Makefile rapidstorm rapidstorm.desktop manifest])
 AC_CONFIG_FILES([librapidstorm.pc librapidstormfile.pc])
+AC_CONFIG_FILES([doc/Makefile version.txt install-dirs.exp doc/foprc])
 
 AC_OUTPUT

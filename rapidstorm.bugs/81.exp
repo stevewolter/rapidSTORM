@@ -1,0 +1,18 @@
+
+begin_test_suite
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}81\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output set EngineOutput in Output0 in Image in ShowOutput in value set true\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+set_last_image 50
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set test "Bug #81 is fixed"
+expect {
+    -re "Created new window number \[0-9\]* named Result image for Job \[0-9\]" { pass "$test"; }
+}
+
+end_test_suite

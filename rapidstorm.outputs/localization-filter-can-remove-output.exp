@@ -1,0 +1,13 @@
+begin_test_suite
+load_default_config
+dstorm_attach
+
+set test "ChooseTransmission is present in Expression filter"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value query\n"
+expect {
+    -re "in ChooseTransmission in value value set" { pass "$test"; }
+}
+
+wait_for_jobs
+
+end_test_suite

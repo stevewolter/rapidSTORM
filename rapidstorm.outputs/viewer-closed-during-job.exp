@@ -1,0 +1,39 @@
+begin_test_suite
+clear_tmp_dir
+
+set_input_file "${workspace_target}Mikrotubuli.tif"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}viewer-closed-during-job\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ShowOutput in value set true\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ColourScheme in value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ColourScheme in ByCoordinate in HueCoordinate in value set Amplitude\n"
+set_last_image 500
+
+dstorm_attach
+send "in Car in Run in value set 1\n"
+set job [get_job_number]
+
+set display -1
+set test "Display is opened"
+expect {
+    -re "Created new window number (\[0-9\]*) named" 
+        { set display $expect_out(1,string); pass "$test" }
+}
+
+send "in DummyDisplayManagerConfig in WhichWindow in value set Window$display\n"
+send "in DummyDisplayManagerConfig in Close in value set 1\n"
+
+set test "Display can be closed"
+expect {
+    -re "Destructing window $display with" { pass "$test"; }
+    -re "in Progress value set 1" { fail "$test" }
+}
+
+set test "Job terminates gracefully"
+expect {
+    -re "remove $job" { pass "$test"; }
+    -re "in LocalizationCount in value set" { exp_continue; }
+}
+
+end_test_suite

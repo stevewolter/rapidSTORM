@@ -1,0 +1,94 @@
+begin_test_suite
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM value set 105.0,105.0\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Image in ShowOutput in value set true\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}177\n"
+
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set job [get_job_number]
+
+set test "Job starts for #177"
+expect {
+    -re "in Progress in value" { pass "$test"; }
+}
+
+proc the_one_pixel_after_10k_locs { } {
+    set test "The One Pixel can be read"
+    set had_restart 0
+    set window_changed 0
+    set winnum 0
+    # The patterns in this rule are declared -notransfer to avoid them interfering
+    expect { 
+        -re "(in Progress in value set 0\r*\n)|(Created new window number (\[0-9\]+) named Result)" { 
+            if { [info exists expect_out(1,string)] && [string compare $expect_out(1,string) $expect_out(0,string)] == 0 } {
+                set had_restart 1;
+            } else {
+                set winnum $expect_out(3,string); 
+            }
+            exp_continue; 
+        }
+        -re "Changing window (\[0-9\]+) with digest" { 
+            if { [expr $expect_out(1,string) == $winnum] } {
+                set window_changed [expr $window_changed + 1]
+            }
+            exp_continue
+        }
+        -re "in LocalizationCount in value set \[0-9\]{5,}" { 
+            if { [expr $had_restart + $window_changed < 3] } { exp_continue; }
+        } 
+    }
+    send "in DummyDisplayManagerConfig in WhichWindow in value set Window$winnum\n"
+    return [get_pixel_value 527 892]
+}
+
+set test "Colour scheme can be changed to B&W"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in value set BlackWhite\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] == [lindex $pixel 2] && [lindex $pixel 0] == [lindex $pixel 1] ] "$test"
+
+set test "Colour scheme can be changed to fixed red hue"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in value set FixedHue\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] != 0 && [lindex $pixel 2] == 0] "$test"
+
+set test "Colour scheme can be changed to fixed green hue"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in FixedHue in Hue in value set 0.3333\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] != 0] "$test"
+
+set test "Colour scheme can be changed to X color"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in value set ByCoordinate\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] != 0 && [lindex $pixel 1] != 0 && [lindex $pixel 2] == 0] "$test"
+
+set test "Colour scheme can be changed to Y color"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in ByCoordinate in HueCoordinate in value set PositionY\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] != 0 && [lindex $pixel 2] != 0] "$test"
+
+set test "Pixel size can be changed"
+send "in $job in Crankshaft in Output0 in Display in DimensionSelector in XDimension in PositionX in XResolution in value set 23\n"
+expect {
+    -re "Sizing display number \[0-9\]+ to 608 px 1260 px" { pass "$test"; }
+}
+
+# Changing the X binning to PositionY should force the key pixel to get black
+# because all localizations are on the diagonal then
+set test "Binning in X can be changed"
+send "in $job in Crankshaft in Output0 in Display in DimensionSelector in XDimension in value set PositionY\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] == 0 && [lindex $pixel 2] == 0] "$test"
+
+set test "Inversion can be changed"
+send "in $job in Crankshaft in Output0 in Display in InvertColours in value set true\n"
+set pixel [the_one_pixel_after_10k_locs]
+pass_if [expr [lindex $pixel 0] == 255 && [lindex $pixel 1] == 255 && [lindex $pixel 2] == 255] "$test"
+
+end_test_suite

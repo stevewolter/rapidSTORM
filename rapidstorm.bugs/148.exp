@@ -1,0 +1,21 @@
+begin_test_suite
+
+set timeout 600
+set test "Bug #148 is fixed"
+set_input_file "${testcase_target}HeLa-H2B.tif"
+send "in Car in Input set MultiChannel in Channels in Channel1 in InputMethod in FileMethod set FileType in TIFF set DetermineFileLength value set true\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Progress\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
+send "in Car in Engine in value set Noop\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+expect {
+    -re "terminate called after throwing an instance of" { fail "$test"; }
+    -re "Read error at scanline 240; got 844 bytes, expected 1688\r*\nseverity set Error" { pass "$test"; }
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in Progress in value set 0" { exp_continue; }
+    -re "in LocalizationCount in value set 0" { exp_continue; }
+}
+
+end_test_suite

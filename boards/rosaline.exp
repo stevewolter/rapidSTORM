@@ -1,0 +1,5 @@
+set board_hostname rosaline
+set board_username Lokalo
+set board_password Zape0que
+
+source "$srcdir/config/windows-telnet-and-netcat.exp"

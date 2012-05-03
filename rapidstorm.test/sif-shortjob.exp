@@ -1,0 +1,8 @@
+begin_test_suite
+
+dstorm_attach
+
+# send "in Car in Method set InputMethod in Auto in InputFile in value set [file join $workspace Mikrotubuli.sif]"
+# expect { -re "Nuffing" {} }
+
+end_test_suite

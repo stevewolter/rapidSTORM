@@ -1,0 +1,5 @@
+set board_hostname kokolorix
+set board_username Administrator
+set board_password Oodaes9G
+
+source "$srcdir/config/windows-telnet-and-netcat.exp"

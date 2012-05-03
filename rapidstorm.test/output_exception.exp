@@ -1,0 +1,47 @@
+start_test_suite
+global have_test_plugin
+
+set test "output exception at start"
+if { $have_test_plugin == 1 } {
+set_input_file "${workspace_target}Mikrotubuli.sif"
+after 100
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Exception\n"
+send "in Car in Output in EngineOutput in Output0 in Exception in OnConstruction in value set true\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "failed. Reason: " { pass "$test" }
+    -re "failed: " { pass "$test" }
+    timeout { fail "$test" }
+    eof { fail "$test" }
+}
+} else {
+    unsupported "$test"
+}
+
+set test "output exception at announcement"
+if { $have_test_plugin == 1 } {
+send "in Car in Output in EngineOutput in Output0 in Exception in OnConstruction in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Exception in OnAnnouncement in value set true\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "failed: Test Exception" { pass "$test" }
+    -re "Error in Job \[0-9\]*: Test Exception" { pass "$test" }
+    timeout { fail "$test" }
+    eof { fail "$test" }
+}
+} else {
+    unsupported "$test"
+}
+
+#set timeout 10
+#set test "output exception at image 3"
+#send "in Car in Output in EngineOutput in Output0 in Exception in OnAnnouncement in value set false\n"
+#send "in Car in Output in EngineOutput in Output0 in Exception in OnImageNumber in value set 3\n"
+#send "in Car in Run in value set 1\n"
+#expect {
+#    -re "Error in computation: Test Exception" { pass "$test" }
+#    timeout { fail "$test" }
+#    eof { fail "$test" }
+#}
+
+end_test_suite

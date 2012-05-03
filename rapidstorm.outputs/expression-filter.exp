@@ -1,0 +1,114 @@
+begin_test_suite
+
+set timeout 1800
+send "in Car in AutoTerminate in value set false\n"
+set_input_file "${workspace_target}Mikrotubuli.txt"
+set_last_image 100
+send "in Car in Output set EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set Expression\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Count\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Progress\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posmaxx\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set 2000 nm\n"
+send "attach\n"
+send "in Car in Run in value set 1\n"
+
+set test "Job starts"
+set job "fail"
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); pass "$test"; }
+}
+
+set test "Upper range correctly limits number of localizations"
+set current 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { xpass_if [ expr $current == 33240 ] "$test"; }
+}
+
+set test "Can change LValue to one with same type"
+send "cmd 148 in $job in Expression in CommandLine0 in LValue in value set posx\n"
+expect { 
+    -re "ack 148" { pass "$test" }
+}
+
+set test "Old maximum range stays in effect when lvalue changes"
+send "in $job in Expression in CommandLine0 in Expression in value set posx\n"
+set current 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { xpass_if [ expr $current == 33240 ] "$test"; }
+}
+
+set test "Value count is reduced when scaling"
+set current 10000000
+send "in $job in Expression in CommandLine0 in Expression in value set posx*5\n"
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { xpass_if [ expr $current == 220 ] "$test"; }
+}
+
+set test "Value count is reduced when shifting by time"
+set current 10000000
+send "in $job in Expression in CommandLine0 in Expression in value set posx*5-frame*nm/fr\n"
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { xpass_if [ expr $current == 6109 ] "$test"; }
+}
+
+set test "Error is raised when units mismatch in subtraction"
+set current 10000000
+send "in $job in Expression in CommandLine0 in Expression in value set posx*5-frame\n"
+expect {
+    -re "Cannot subtract quantities with units m and fr" { pass "$test" }
+}
+set test "Error is raised when units mismatch in assignment"
+set current 10000000
+send "in $job in Expression in CommandLine0 in Expression in value set posx*5/m*fr-frame\n"
+expect {
+    -re "Cannot assign a quantity with dimension fr to a variable with dimension m" { pass "$test" }
+}
+set test "Job can be closed"
+send "in $job in CloseJob in value set 1\n"
+expect {
+    -re "remove $job" { pass "$test" }
+}
+
+set test "Job with Z position is marked as given is started"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ToRemove in value set Output0\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Table\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in Output2 in Table in ToFile in value set ${tmpdir_target}expression-filter-z-position.txt\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posz\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set posx + posy\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 0.1" { pass "$test" }
+}
+
+set test "Job can be closed"
+send "in $job in CloseJob in value set 1\n"
+expect {
+    -re "remove $job" { pass "$test" }
+}
+
+set test "Z position is marked as given when assigned to"
+pass_if { [catch { exec -- grep -q "field identifier=\"Position-2-0\"" "${tmpdir_host}expression-filter-z-position.txt" } output] == 0 } "$test"
+
+set test "X uncertainty test job completes"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in Output2 in Table in ToFile in value set ${tmpdir_target}expression-filter-x-position.txt\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set sigmaposx\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set 5*posx\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 0.1" { pass "$test" }
+}
+send "in $job in CloseJob in value set 1\n"
+
+set test "X uncertainty marked as given when assigned to"
+pass_if { [catch { exec -- grep -q "field identifier=\"Position-0-0-uncertainty\"" "${tmpdir_host}expression-filter-x-position.txt" } output] == 0 } "$test"
+
+end_test_suite

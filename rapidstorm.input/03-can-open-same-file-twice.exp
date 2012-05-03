@@ -1,0 +1,26 @@
+
+start_test_suite
+send "attach\n"
+set file "${testcase_target}complete_loc_file.stm"
+set_input_file "$file"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Run in value set 1\n"
+
+set test "Can open complete loc file for first run"
+set first_run 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set first_run $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { pass "$test"; }
+}
+
+send "in Car in Run in value set 1\n"
+
+set test "Second run on same file gives same result count"
+set second_run 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)" { set second_run $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { pass_if [expr $first_run == $second_run] "$test"; }
+}
+
+end_test_suite

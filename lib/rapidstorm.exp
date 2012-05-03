@@ -1,0 +1,334 @@
+global srcdir
+set board unix
+lappend boards_dir "$srcdir/boards"
+
+proc xpass_if { check test_name } {
+    if { $check != 0 } { xpass "$test_name" } else { xfail "$test_name" }
+}
+proc pass_if { check test_name } {
+    if { $check != 0 } { pass "$test_name" } else { fail "$test_name" }
+}
+proc link_or_copy { from to } {
+    if { [file exists "$to"] != 1 } {
+        if { [catch {file link -hard "$to" "$from"} errmsg] } {
+            # Bad idea because tcl is stupid and runs out of memory in copying: file copy "$from" "$to"
+            exec cp "$from" "$to"
+        }
+    }
+}
+proc initialize {} {
+	dstorm_start
+    expect_after {
+        -re "Could not perform action:" { fail "$test" }
+        -re "\nseverity set Error\r*\n" { fail "$test" }
+        -re "PROCESS TERMINATED WITH" { fail "$test"; exit 1; }
+        -re "RAPIDSTORM EXITED WITH CODE" { fail "$test"; }
+        eof     { fail "$test" }
+        timeout { fail "$test" }
+    }
+}
+# -re "\nseverity set Error\r*\n" { fail "$test" }
+
+proc get_next_output_node_name { test_name } {
+    set test $test_name
+    expect {
+        -re "in EngineOutput declare Object\r*\nname (Output\[A-Za-z0-9\]*)\r*\n"
+            { return $expect_out(1,string); }
+    }
+    return ""
+}
+
+proc clear_tmp_dir {} {
+    global tmpdir_host
+    if { [catch { exec -- find "$tmpdir_host" -mindepth 1 -delete } msg] } {
+        # Just ignore the message
+        puts "Temp dir clearing failed: $msg"
+    }
+}
+
+proc dstorm_start {} {
+    global netcathost
+    global timeout
+    global have_test_plugin
+    global display_control_fifo
+    global have_process_watcher
+    global have_signal_handling
+    global spawn_id
+    global andorcam_spawn_id
+    global dstorm_spawn_id
+    global may_use_camera
+    global executableinterpreter
+    global env
+
+    if { $may_use_camera == 1 } {
+        set netcat_port 1112
+        program_start andorcamd=2.1.2-3 andorcamd-dummy 
+        set andorcam_spawn_id $spawn_id
+    }
+    set env(RAPIDSTORM_TESTPLUGIN_ENABLE) "1"
+    program_start rapidstorm=2.1.2-3 dstorm-2 --Twi
+    set dstorm_spawn_id $spawn_id
+
+    set have_process_watcher 0;
+    set have_signal_handling 0 
+    set test "Initialization"
+
+    set test "rapidSTORM is started"
+    set def_timeout $timeout
+    set timeout 300
+    set have_test_plugin 0
+    expect {
+        -re "PROCESS WATCHER ACTIVE" { 
+            set have_process_watcher 1; 
+            exp_continue 
+        }
+        -re "Test plugin loaded" {
+            set have_test_plugin 1; 
+            exp_continue 
+        }
+        -re "Signal handling disabled by environment variable" {
+            set have_signal_handling 0; 
+            exp_continue 
+        }
+        -re "Unpacking " { exp_continue }
+        -re "\# rapidSTORM waiting for commands" {}
+        -re "No plugins have been found" { puts "No plugins found"; exit 1; }
+        timeout { puts "Failed to react to command"; exit 1 }
+        eof { puts "Failed to load"; exit 1 }
+    }
+    send "cmd 0 nop\n"
+    expect { 
+        -re "ack 0" {} 
+    }
+    set timeout $def_timeout
+    puts "Loaded successfully"
+
+}
+
+proc dstorm_attach {} {
+    global andorcam_spawn_id
+    global may_use_camera
+
+    set test "attachment works"
+    set timeout 100
+    send "cmd 23 attach\n"
+    expect {
+        "ack 23" { pass "$test" }
+        timeout { fail "$test"; exit 2 }
+    }
+    if { $may_use_camera == 1 } {
+        send -i $andorcam_spawn_id "cmd 23 attach\n"
+        expect {
+            -i $andorcam_spawn_id "ack 23" { pass "$test" }
+            timeout { fail "$test"; exit 2 }
+        }
+    }
+}
+
+proc rapidstorm_exit {} {
+    puts "Quitting"
+    global spawn_id
+    global have_process_watcher
+    if { $have_process_watcher == 1 } {
+        send "STOP\n"
+    }
+    if { [ catch { send "quit\n" } ignore ] } {
+        fail "termination"
+    } else {
+        set has_quit 0
+        set test "termination"
+        expect {
+            -re "quit" { set has_quit 1; exp_continue }
+            -re "RAPIDSTORM EXITED WITH CODE (\[0-9\]*)" {
+                if { $expect_out(1,string) == 0 } {
+                    pass "$test"
+                } else {
+                    fail "$test"
+                }
+            }
+            -re "PROCESS TERMINATED WITH EXIT CODE (\[0-9\]*)" {
+                if { $expect_out(1,string) == 0 } {
+                    pass "$test"
+                } else {
+                    fail "$test"
+                }
+            }
+            timeout { fail "$test" }
+            eof {
+                if {$has_quit == 1} { pass "$test"; } else { fail "$test"; } 
+                catch wait reason
+                set test "Process exited normally and with exit code 0"
+                if { [lindex $reason 2] == 0 && [lindex $reason 3] == 0 } { 
+                    pass "$test"
+                } else {
+                    fail "$test";
+                }
+            }
+        }
+    }
+
+    program_exit dstorm-2
+}
+
+proc stage_init { unary_count_of_successes } {
+    global stage_count
+    global necessary_stage_count
+    set stage_count ""
+    set necessary_stage_count $unary_count_of_successes
+}
+
+proc stage_pass { } {
+    global stage_count
+    global necessary_stage_count
+    if { $stage_count == $necessary_stage_count } {
+       return "pass \"\$test\""
+    } else {
+	set stage_count 1$stage_count
+        return "exp_continue"
+    }
+}
+
+proc wait_for_jobs { } {
+    global may_use_camera
+    global dstorm_spawn_id
+    set dcd $dstorm_spawn_id
+    set timeout -1
+    set test "All jobs from previous test terminated"
+    send "cmd 0 wait_for_jobs\n"
+
+    if { $may_use_camera == 1 } {
+        global andorcam_spawn_id
+        set acd $andorcam_spawn_id
+        expect {
+            -i $dcd -re "ack 0" {}
+            -i $acd -re "in ActualTemperature in value set" { exp_continue; }
+        }
+    } else {
+        expect {
+            -i $dcd -re "ack 0" {}
+        }
+    }
+
+    set timeout 10
+}
+
+proc begin_test_suite {} {
+}
+proc start_test_suite {} { begin_test_suite }
+proc end_test_suite {} { 
+    set timeout 25; 
+    set test "Job termination"; 
+    wait_for_jobs; 
+    disconnect_camera;
+
+    set timeout 25; 
+    send "cmd 1 detach\n"; expect "ack 1";
+    send "cmd 0 reset\n"; expect "ack 0"; 
+}
+
+proc load_default_config {} {
+    global deploy_root_host
+
+    set config_file dstorm-config-2.txt
+    set filestream [open "$config_file" r]
+    while {[gets $filestream line] >= 0} {
+        send "in Car $line\n"
+    }
+    close $filestream
+}
+
+proc disconnect_camera {} {
+    global andorcam_spawn_id
+    global dstorm_spawn_id
+    global may_use_camera
+
+    set timeout 10
+    set test "Disconnecting from camera"
+    dstorm_attach
+    if { $may_use_camera == 1 } {
+        set spawn_id $andorcam_spawn_id
+        set caminitpath "in Camera0 in Initialization"
+        send  "$caminitpath in NumericState in value query\n"
+        expect {
+            -re "$caminitpath in NumericState in value value set 0" { pass "$test"; }
+            -re "$caminitpath in NumericState in value value set \[1-9\]" { 
+                send "$caminitpath in Initialization in DisconnectFromCamera in value set 1\n";
+                exp_continue;
+            }
+            -re "$caminitpath in NumericState in value set 0" { pass "$test"; }
+            -re "User overruled automatic camera control" { exp_continue; }
+            -re "$caminitpath" { exp_continue; }
+        }
+        set spawn_id $dstorm_spawn_id
+    }
+}
+
+proc expect_value_xfail { path value } {
+    global test
+    send "$path query\n"
+    expect {
+        -re "$path value set (\[^\r\]*)\r*\n" {
+            if { [string compare $expect_out(1,string) $value] == 0 } { xpass "$test" } else { xfail "$test" } 
+        }
+    }
+}
+
+proc expect_value { path value } {
+    global test
+    send "$path query\n"
+    expect {
+        -re "$path \[a-z\]* set (\[^\r\]*)\r*\n" {
+            if { [string compare $expect_out(1,string) $value] == 0 } { pass "$test" } else { fail "$test" } 
+        }
+    }
+}
+
+proc get_value { path } {
+    global test
+    send "$path query\n"
+    expect {
+        -re "$path \[a-z\]* set (\[^\r\]*)\r*\n" { return $expect_out(1,string); }
+    }
+}
+
+proc get_pixel_value { x y } {
+    set test "Pixel value is set"
+    set rv 0
+    send "in DummyDisplayManagerConfig pixel_value $x $y\n"
+    expect {
+        -re "pixel at . *$x px *$y px *0 px *. has value r (\[0-9\]*) g (\[0-9\]*) b (\[0-9\]*)\r*\n" { 
+            set rv [list $expect_out(1,string) $expect_out(2,string) $expect_out(3,string)]
+        }
+    }
+    return $rv
+}
+
+proc get_job_number {} {
+    set job ""
+    set test "Job is declared"
+    expect {
+        -re "declare \[a-zA-Z0-9\]*\r*\nname (dStormJob\[0-9\]*)" 
+            { set job $expect_out(1,string); pass "$test"; }
+    }
+    return $job
+}
+
+proc set_input_file { filename {channel 1} } {
+send "in Car in Input in MultiChannel in Channels in Channel$channel in InputMethod in FileMethod in InputFile in value set $filename\n"
+}
+
+proc set_last_image { number {channel 1} } {
+send "in Car in Input in MultiChannel in Channels in Channel$channel in ROIFilter in LastImage in value set $number\n"
+}
+
+proc wait_for_file { filename } {
+    global timeout
+    set prev_timeout $timeout
+    for { set i 1 } { $i <= 10 } { incr i } {
+        if { [file exists "$filename"] } {
+            break
+        }
+        sleep 1
+    }
+    set timeout $prev_timeout
+}

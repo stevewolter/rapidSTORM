@@ -1,0 +1,51 @@
+set timeout -1
+start_test_suite
+dstorm_attach
+
+send "cmd 0 "
+set_input_file "${testcase_target}simulated-two-color-3d-movie.tif"
+expect { 
+    -re "ack 0" {} 
+}
+send "in Car in Input in BiplaneSplitter in DualView in value set Vertically\n"
+set_last_image 100
+send "in Car in Input in SampleInfo in FluorophoreCount in value set 2\n"
+send "in Car in Input in SampleInfo in Fluorophore0 in Wavelength in value set 700\n"
+send "in Car in Input in SampleInfo in Fluorophore1 in Wavelength in value set 600\n"
+send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}fixed-settings\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in value set Polynomial3D\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in PSF value set 250,250\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in ZPosition value set 0.0,0.0\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in WideningConstants value set 0 0.2 0 0.2,0 0.2 0 0.2\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in value set Polynomial3D\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in Polynomial3D in PSF value set 250,250\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in Polynomial3D in ZPosition value set 500,500\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in Polynomial3D in WideningConstants value set 0 0.2 0 0.2,0 0.2 0 0.2\n"
+send "in Car in Input in Optics in InputLayer0 in Transmission1 in value set 0.3\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}simulated-two-color-3d-movie-alignment.txt\n"
+send "in Car in Input in Optics in InputLayer1 in Transmission0 in value set 0\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in value set GUF\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output2 in Image in ToFile in value set ${tmpdir_target}two_color_3d.png\n"
+send "in Car in Output in EngineOutput in Output2 in Image in DimensionSelector in YDimension in value set PositionZ\n"
+send "in Car in Output in EngineOutput in Output2 in Image in HistogramPower in value set 0.2\n"
+send "in Car in Output in EngineOutput in Output2 in Image in ColourScheme in value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output2 in Image in ColourScheme in ByCoordinate in HueCoordinate in value set Fluorophore\n"
+send "in Car in AutoTerminate in value set true\n"
+
+send "in Car in Run in value set 1\n"
+set job_number [get_job_number]
+
+set test "Job finishes"
+expect {
+    -re "remove $job_number" { pass "$test"; }
+}
+
+end_test_suite

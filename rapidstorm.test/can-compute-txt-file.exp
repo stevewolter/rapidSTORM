@@ -1,0 +1,76 @@
+begin_test_suite
+load_default_config
+send "in Car in AutoTerminate in value set true\n"
+set timeout 20
+
+set input_file "Mikrotubuli.txt"
+
+set test "Do not overwrite own input file"
+set_input_file "$workspace_target$input_file"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "Warning: Writing localizations to $workspace_target$input_file failed" { fail "$test"; }
+    -re "failed:.*was used by multiple outputs" { pass "$test" }
+}
+
+set test "Do not overwrite own input file when STM is selected as input driver"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value set STM\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "failed:.*was used by multiple outputs"
+        { pass "$test" }
+    # Output of count module
+    -re "\n\[0-9\]\[0-9\]*\r?\n" { fail "$test" }
+    -re "Warning: Writing localizations to $workspace_target$input_file failed" { fail "$test"; }
+}
+wait_for_jobs
+
+set timeout -1
+set test "Write file if output is changed"
+set target "${tmpdir_target}test-txt-output"
+set host_target "${tmpdir_host}test-txt-output"
+send "in Car in Input in OutputBasename in Basename in value set $target\n"
+
+dstorm_attach
+
+send "in Car in Run in value set 1\n"
+expect {
+    -re "failed:.*was used by multiple outputs" { fail "$test" }
+        "\nremove dStormJob" { pass "$test" }
+        "\nin dStormJob" { exp_continue }
+}
+set test "Written output file exists"
+if { [file exists "$host_target.txt"] == 1 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+set test "Output image file exists"
+sleep 1
+if { [file exists "$host_target.png"] == 1 } {
+    pass "$test"
+    file delete -force $host_target.png
+} else {
+    fail "$test"
+}
+
+set test "Written output file has same number of lines as input file"
+
+set linecountdiff 0
+set filestream [open "$host_target.txt" r]
+while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
+close $filestream
+set linecountdiff -$linecountdiff
+set filestream [open "$workspace_host$input_file" r]
+while {[gets $filestream line] >= 0 && [string index $line 0] != "#" } { incr linecountdiff }
+close $filestream
+if { $linecountdiff == 0 } {
+    pass "$test"
+    file delete -force "$host_target.txt"
+} else {
+    fail "$test"
+}
+
+wait_for_jobs
+
+end_test_suite

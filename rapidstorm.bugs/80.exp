@@ -1,0 +1,45 @@
+if { 0 == 1 } {
+begin_test_suite
+load_default_config
+
+set tmpdir "/tmp"
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in ToFile in value set $tmpdir/test-output.png\n"
+
+set test "Job is started"
+dstorm_attach
+send "in Car in Run in value set 1\n"
+set job [get_job_number]
+
+set test "Job gets close to finishing"
+expect {
+    -re "in Progress in value set 0.\[8-9\]" { pass "$test"; }
+    -re "in Progress in value set " {exp_continue;}
+    -re "in LocalizationCount in value set " {exp_continue;}
+}
+set test "Can change parameters at whim"
+set passes 0
+file delete -force "$tmpdir/test-output.png"
+set next_value 5
+while { $passes < 1 } {
+    send "in $job in Crankshaft in Output3 in Expression in Crankshaft in Output0 in Display in HistogramPower in value set 0.$next_value\n"
+    expect {
+        -re "in Progress in value set 1" { pass "$test"; set passes 1; }
+        -re "in HistogramPower in value set " {}
+    }
+    if { [file exists "$tmpdir/test-output.png"] } {
+        set passes [expr $passes + 1]
+        file delete -force "$tmpdir/test-output.png"
+        pass "$test"
+    }
+    set next_value [expr { ($next_value + 1) % 5 + 5 }]
+    set x 0
+    #while { $x < 50000 } { set x [expr $x + 1]; }
+}
+
+end_test_suite
+} else {
+untested "Replicability of #80"
+}

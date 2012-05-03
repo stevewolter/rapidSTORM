@@ -1,0 +1,23 @@
+start_test_suite
+
+set test "Segmenter works for maximum voronoi segmentation"
+set_input_file "${testcase_target}/test_cluster.txt"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Segmenter\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in TraceFilter in MinEmissionCount in value set 50\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in Output1 in Table in ToFile value set ${tmpdir_target}foo.txt\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set found_locs 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set found_locs $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" {}
+    -re "in Progress in value set 0" { exp_continue; }
+}
+
+pass_if [expr $found_locs == 11] "$test" 
+end_test_suite

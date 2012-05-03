@@ -1,0 +1,4 @@
+#!at 0 in Car in Method set InputMethod in Auto set InputFile = C:\Documents and Settings\Steve\My Documents\Installer\Sample_Workspace_dSTORM\Mikrotubuli.tif
+#!at 1406 in Car set Run = 1
+#!at 17469 in dStormJob01 set CloseJob = 1
+#!at 79313 in Car set Run = 1

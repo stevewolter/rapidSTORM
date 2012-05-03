@@ -1,0 +1,46 @@
+begin_test_suite
+clear_tmp_dir
+load_default_config
+
+set test "Bug #96 fixed"
+set_input_file "${workspace_target}Mikrotubuli.txt"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}96\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in CommandLine0 set LValue value set posx\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in CommandLine0 set Expression value set posx + frame * 0.1 nm / s\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in NewExpression in value set 1\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in CommandLine1 set LValue value set posy\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in CommandLine1 set Expression value set posy - 0.05 nm/fr * frame\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+expect {
+    -re "message set.*Cannot add quantities with units m and m fr s\\^-1\r*\nseverity set Error" { pass "$test"; }
+    -re "message set.*Cannot assign a dimensionless quantity to a variable with dimension m(eter)?\r*\nseverity set Error" { pass "$test"; }
+    -re "in LocalizationCount in value set" { fail "$test"; }
+}
+wait_for_jobs
+
+set test "Bug #96 fixed"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in CommandLine0 set Expression value set posx + frame * 0.1 nm / fr\n"
+send "in Car set Run value set 1\n"
+
+expect {
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in LocalizationCount in value set" { exp_continue; }
+}
+
+wait_for_file "${tmpdir_host}96.png"
+sleep 1
+
+set test "Drift-corrected image looks correct"
+spawn compare -metric PSNR "${testcase_host}bug-96-norm.png" "${tmpdir_host}96.png" "${tmpdir_host}96-difference.png"
+expect {
+    -re "(\[0-9.\]+) " { pass_if [expr $expect_out(1,string) > 25] "$test"; }
+}
+wait
+
+global dstorm_spawn_id
+global spawn_id
+set spawn_id $dstorm_spawn_id
+
+end_test_suite

@@ -1,0 +1,190 @@
+global may_use_camera
+set timeout 90
+
+if { $may_use_camera == 1 } {
+start_test_suite
+clear_tmp_dir
+load_default_config
+dstorm_attach
+
+set pixel_size 123
+global andorcam_spawn_id
+global dstorm_spawn_id
+set acd $andorcam_spawn_id
+set dcd $dstorm_spawn_id
+
+set adc "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in AndorDirectConfig"
+set vps "$adc in ViewportSelector"
+
+set test "Fall f Punkt 1"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set $pixel_size,$pixel_size\n"
+send "cmd 1 in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+expect {
+    "ack 1" { pass "$test" }
+}
+set test "Fall f Punkt 2"
+send -i $acd "cmd 2 in Camera0 in Initialization in Initialization in ConnectToCamera in value set 1\n"
+expect {
+    -i $acd -re "ack 2" { pass "$test" }
+}
+set test "Fall f Punkt 3"
+send -i $acd "in Camera0 in Initialization in Temperature in ReferenceTemperature in value set -75\n"
+send -i $acd "cmd 3 in Camera0 in Initialization in Temperature in Cooling in value set true\n"
+expect { 
+    -i $acd -re "ack 3" { pass "$test" }
+}
+
+set test "Fall f Punkt 4 Kuehlung"
+set have_verbose_cam 0
+expect {
+    -i $acd -re "Camera is in danger zone" { set have_verbose_cam 1; }
+    -i $acd -re "in ActualTemperature in value set (-?\[0-9.]*)" { 
+        if { $expect_out(1,string) < -60 } { pass "$test"; } else { exp_continue; } 
+    }
+}
+set test "Fall f Punkt 4 Shutter"
+if { $have_verbose_cam == 1 } {
+expect {
+    -i $acd -re "Simulated camera shutter clicks open" { pass "$test" }
+}
+} else {
+    unsupported "$test"
+}
+
+set window 0
+send "cmd 5 $adc in AimCamera in value set 1\n"
+set test "Fall f Punkt 5 right scale bar"
+if { $have_test_plugin == 1 } {
+    expect {
+        -i $acd -re "in ActualTemperature in value set (-?\[0-9.]*)" { exp_continue; }
+        -i $dcd -re "Sizing display number .*pixel size (\[0-9eE.+-\]*) " { 
+            set norm [expr 1E-9 * $pixel_size];
+            pass_if [expr $expect_out(1,string) >= 0.99*$norm && $expect_out(1,string) <= 1.01 * $norm] "$test"
+        }
+    }
+} else { unsupported "$test" }
+set test "Fall f Punkt 5"
+if { $have_test_plugin == 1 } {
+expect {
+    -i $acd -re "THERE IS NO SUCH LINE BUT WE NEED TO READ THE STREAM ANYWAY" { exp_continue; }
+    -i $dcd -re "Created new window number (\[0-9\]*) named" { set window $expect_out(1,string); pass "$test"; }
+}
+} else { unsupported "$test" }
+
+set test "Fall f Punkt 6"
+if { $have_test_plugin == 1 } {
+send "in DummyDisplayManagerConfig in WhichWindow in value set Window$window\n"
+send "in DummyDisplayManagerConfig in RectangleLeft in value set 20\n"
+send "in DummyDisplayManagerConfig in RectangleRight in value set 130\n"
+send "in DummyDisplayManagerConfig in RectangleTop in value set 40\n"
+send "in DummyDisplayManagerConfig in RectangleBottom in value set 80\n"
+send "in DummyDisplayManagerConfig in DrawRectangle in value set 1\n"
+
+# Wait for next change
+expect {
+    -i $acd -re "THERE IS NO SUCH LINE BUT WE NEED TO READ THE STREAM ANYWAY" { exp_continue; }
+    -i $dcd -re "Changing window $window with.*mean is (\[0-9.\]*) " { if { $expect_out(1,string) == 0 } { exp_continue } }
+}
+} else { unsupported "$test" }
+
+proc pixel_is_red { x y } {
+    set p [get_pixel_value $x $y]
+    return [expr [lindex $p 0] == 255 && [lindex $p 1] != 255];
+}
+
+set test "Fall f Punkt 6 Rectangle is displayed"
+if { $have_test_plugin == 1 } {
+if { [pixel_is_red 19 39] != 1 && 
+     [pixel_is_red 20 40] == 1 && 
+     [pixel_is_red 21 41] != 1 && 
+     [pixel_is_red 129 61] != 1 &&
+     [pixel_is_red 130 61] == 1 &&
+     [pixel_is_red 70 80] == 1 &&
+     [pixel_is_red 70 81] != 1 
+   } { xpass "$test" } else { xfail "$test" }
+} else { unsupported "$test" }
+
+set test "Fall f Punkt 7"
+send "cmd 7 $vps in PauseCamera in value set 1\n"
+expect {
+    -i $acd -re "THERE IS NO SUCH LINE BUT WE NEED TO READ THE STREAM ANYWAY" { exp_continue; }
+    -i $dcd "ack 7" { pass "$test" }
+}
+
+set test "Fall f Punkt 8"
+set outfile "cam_snapshot.png"
+set hof $tmpdir_host$outfile
+if { [file exists $hof] == 1 } { file delete -force $hof }
+send "$vps in SaveAcquiredImageFile in value set $tmpdir_target$outfile\n"
+send "cmd 101 $vps in SaveAcquiredImage in value set 1\n"
+wait_for_file "$hof"
+pass_if [file exists "$hof"] "$test"
+file delete -force "$hof"
+untested "Fall f Punkt 8 ROI was saved with and in the image"
+
+set test "Fall f Punkt 9"
+send "$vps in PauseCamera in value set 1\n"
+if { $have_test_plugin == 1 } {
+expect {
+    -re "Changing window $window with" { pass "$test" }
+}
+} else { unsupported "$test" }
+
+set test "Fall f Punkt 10"
+send "$vps in StopAimCamera in value set 1\n"
+if { $have_test_plugin == 1 } {
+expect {
+    -i $dcd -re "in DummyDisplayManagerConfig in WhichWindow remove Window$window" { pass "$test" }
+    -i $acd -re "in Camera" { exp_continue; }
+}
+} else { unsupported "$test" }
+
+set test "Fall f Punkt 11"
+set outputbase "${tmpdir_target}output"
+set outputhostbase "${tmpdir_host}output"
+send "in Car in Input in OutputBasename in Basename in value set $outputbase\n"
+if { $have_test_plugin == 1 } {
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+}
+send "cmd 11 in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+expect {
+    "ack 11" { pass "$test" }
+}
+
+set test "Fall f Punkt 12"
+send "in Car in Run in value set 1\n"
+set test "Fall f Punkt 12 job is started"
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)\r*\n" {
+        set job $expect_out(1,string)
+    }
+}
+set test "Fall f Punkt 12 job can be terminated"
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" {
+        if { $expect_out(1,string) >= 300 } {
+            send "in $job in StopComputation in value set 1\n"
+        }
+        exp_continue 
+    }
+    -re "in AndorDirect remove CameraStatus" { pass "$test" }
+    -re "in Progress in value set " { exp_continue }
+    -re "Changing window \[0-9\]* with " { exp_continue }
+}
+
+sleep 3
+
+set test "Fall f Punkt 13"
+set test "Fall f Punkt 13 output image"
+# This output image shouldn't exist because we stopped the job
+xpass_if [ file exists "$outputhostbase.png" ] "$test"
+set test "Fall f Punkt 13 output text file"
+pass_if [ file exists "$outputhostbase.txt" ] "$test"
+set test "Fall f Punkt 13 output TIFF file"
+pass_if [ file exists "$outputhostbase.tif" ] "$test"
+
+end_test_suite
+} else {
+    unsupported "Fall f alle"
+}
+

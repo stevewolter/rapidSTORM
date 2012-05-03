@@ -1,4 +1,4 @@
-#define CIMGBUFFER_ANDORCAMERA_VIEWPORTSELECTOR_CPP
+#define VERBOSE
 #include "debug.h"
 
 #include "CameraConnection.h"
@@ -22,8 +22,6 @@ using namespace boost::units;
 
 using dStorm::AndorCamera::CameraPixel;
 using dStorm::Pixel;
-
-#define CHECK(x) checkAndorCode( x, __LINE__ )
 
 namespace dStorm {
 namespace AndorCamera {
@@ -51,6 +49,7 @@ Display::Display(
   lock_normalization( false ),
   redeclare_key(false)
 {
+    DEBUG("Constructed display " << this);
     imageFile.editable = false;
     save.editable = false;
 
@@ -71,10 +70,10 @@ void Display::registerNamedEntries() {
 }
 
 Display::~Display() {
-    DEBUG("Destructing ViewportSelector");
+    DEBUG("Destructing ViewportSelector " << this);
     paused = true;
     image_acquirer.join();
-    DEBUG("Destructed ViewportSelector");
+    DEBUG("Destructed ViewportSelector " << this);
 }
 
 std::auto_ptr<display::Change> 
@@ -329,9 +328,9 @@ void Display::acquire()
     cam->stop_acquisition();
 }
 
-void Display::operator()
-    (const simparm::Event& e) 
+void Display::operator()(const simparm::Event& e) 
 { 
+    DEBUG("Handling events for display " << this);
     if (&e.source == &pause.value && pause.triggered()) {
         pause.untrigger();
         /* No lock  necessary here, since pause is an atomic comparison */
@@ -344,16 +343,20 @@ void Display::operator()
             image_acquirer = boost::thread( &Display::run, this );
     } else if (&e.source == &save.value && save.triggered()) {
         save.untrigger();
-        if ( imageFile ) {
+        if ( ! imageFile ) {
+            simparm::Message m( "Unable to save image",
+                                "No filename for camera snapshot image provided" );
+            send(m);
+        } else if ( ! handle.get() ) {
+            simparm::Message m( "Unable to save image",
+                                "Image display window has already been closed" );
+            send(m);
+        } else {
             DEBUG("Getting current image display status");
             display::SaveRequest request;
             request.filename = imageFile();
             handle->store_current_display( request );
             DEBUG("Saved image");
-        } else {
-            simparm::Message m( "Unable to save image",
-                                "No filename for camera snapshot image provided" );
-            send(m);
         }
     } else if (&e.source == &stopAim.value && stopAim.triggered()) {
         stopAim.untrigger();

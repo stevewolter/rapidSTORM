@@ -1,0 +1,58 @@
+begin_test_suite
+load_default_config
+
+send "in Car in Input in MultiChannel set ChannelCount value set 2\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set InputFile value set ${testcase_target}X5365_COS7_tetraspecksk6_ex488_256_1.tif\n"
+send "in Car in Input in MultiChannel in Channels in Channel2 set InputMethod in FileMethod set InputFile value set ${testcase_target}X6069_COS7_tetraspecksk6_ex488_256_1.tif\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}r2_2channel_2fluo_COS7_tetraspecksk6_ex488_256_1\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D set PSF value set 360.0,360.0\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in No3D set PSF value set 360.0,360.0\n"
+send "in Car in Input in Optics in InputLayer0 set PixelSizeInNM value set 107.0,107.0\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiAmplitudes value set true\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set TwoKernelFitting value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Table set Traces value set true\n"
+send "in Car in Output in EngineOutput in Output0 in Table set Traces value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Table set Traces value set true\n"
+send "in Car in Input in SampleInfo set FluorophoreCount value set 2\n"
+send "in Car in Input in Optics in InputLayer0 set Transmission1 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 set Transmission0 value set 0.0\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}MATRIX_COS7_tetraspecksk6_ex488_256_1\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set Fluorophore\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.5\n"
+
+dstorm_attach
+
+set test "Job fails with appropriate error message"
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+expect {
+    -re "You asked for a disjoint amplitude fit, but some transmission coefficients are zero. This will not work.\r*\nseverity set Error" { pass "$test"; }
+    -re "in $job \[a-zA-Z0-9 \]*in Progress in value set 1" { fail "$test"; }
+}
+
+set test "Lämpi fit also fails"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set true\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiAmplitudes value set false\n"
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+expect {
+    -re "You asked for a L.*mpi fit, but some transmission coefficients are zero. This will not work.\r*\nseverity set Error" { pass "$test"; }
+    -re "in $job \[a-zA-Z0-9 \]*in Progress in value set 1" { fail "$test"; }
+}
+
+set test "Job works with both disabled"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set false\n"
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+expect {
+    -re "in $job \[a-zA-Z0-9 \]*in Progress in value set 1" { pass "$test"; }
+    -re "in $job \[a-zA-Z0-9 \]*in Progress in value set 0" { exp_continue; }
+}
+
+
+end_test_suite

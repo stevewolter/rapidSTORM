@@ -1,0 +1,12 @@
+global bindir
+global generation
+set prefix "@prefix@"
+set exec_prefix "@exec_prefix@"
+set bindir "@bindir@"
+set testcase_dir "@testcasedir@"
+set stage_dir "@setupstagedir@"
+set extra_stage_dir "@extrastagedir@"
+set rapidstorm_plugindir "@rapidstorm_plugindir@"
+set generation "@rapidstorm_generation@"
+set test_performance "@test_performance@"
+set test_camera "@test_camera@"

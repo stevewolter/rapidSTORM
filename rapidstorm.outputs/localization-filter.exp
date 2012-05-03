@@ -1,0 +1,39 @@
+begin_test_suite
+
+set test "Cache works"
+send "attach\n"
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Output set EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set Count\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Image in ToFile in value set \n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Image in ShowOutput in value set true\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Image in CloseOnCompletion in value set true\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}localization-filter\n"
+send "in Car in Run in value set 1\n"
+
+set job [get_job_number]
+
+set test "Progress is announced for cache"
+expect {
+    -re "in LocalizationCount in value" { pass "$test"; }
+}
+
+if { $job != "" } {
+    set stopped 0;
+    set timeout 1
+    send "in $job in StopComputation in value set 1\n"
+    expect {
+        -re "\nremove $job" { set stopped 1; }
+        timeout {}
+    }
+    set timeout 10
+    if { $stopped == 0 } {
+        send "in $job in CloseJob in value set 1\n"
+        expect {
+            -re "\nremove $job" { pass "$test" }
+        }
+    }
+}
+
+end_test_suite

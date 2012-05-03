@@ -1,0 +1,73 @@
+begin_test_suite
+clear_tmp_dir
+load_default_config
+dstorm_attach
+
+set timeout 1000
+
+set input_file Mikrotubuli.txt
+set test "Fall c) Punkt 1"
+link_or_copy "${workspace_host}$input_file" "${tmpdir_host}$input_file"
+file stat "${tmpdir_host}$input_file" old_stat
+set test "Fall c) Punkt 2"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value set STM\n"
+set test "Fall c) Punkt 3"
+set_input_file "$tmpdir_target$input_file"
+set test "Fall c) Punkt 4"
+send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set ${tmpdir_target}Mikrotubuli2.txt\n"
+set test "Fall c) Punkt 5"
+send "in Car in Run in value set 1\n"
+
+set test "Job finishes for Fall c)"
+expect {
+    -re "in Progress in value set 1" { pass "$test" }
+    -re "in Progress in value set 0" { exp_continue }
+    -re "in LocalizationCount in value set" { exp_continue }
+    -re "Changing window \[0-9\]* with digest" { exp_continue }
+}
+
+sleep 1
+
+set test "Input file was not touched in computation"
+file stat "${tmpdir_host}$input_file" new_stat
+if { $old_stat(mtime) == $new_stat(mtime) } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+foreach suffix [list "2.txt"] {
+    set test "Output file $suffix exists"
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        pass "$test"
+    } else {
+        fail "$test"
+    }
+
+    set test "Output file $suffix has over 100 lines"
+
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        set linecount 0
+        set filestream [open "${tmpdir_host}Mikrotubuli$suffix" r]
+        while {[gets $filestream line] >= 0} {
+            if { [string index $line 0] != "#" } { incr linecount }
+        }
+        close $filestream
+        if { $linecount > 100 } {
+            pass "$test"
+        } else {
+            fail "$test"
+        }
+    } else {
+        fail "$test"
+    }
+}
+
+set test "Output JPG image exists"
+if { [ file exists "${tmpdir_host}Mikrotubuli.png" ] } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+end_test_suite

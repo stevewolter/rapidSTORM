@@ -1,5 +1,6 @@
+SUBDIRS = doc
 ACLOCAL_AMFLAGS = -I m4
-AUTOMAKE_OPTIONS = subdir-objects
+AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
 # Doxygen support
 include aminclude.am
@@ -9,6 +10,7 @@ plugin_libdir = $(DSTORM_PLUGIN_DIR)
 javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
+pkgconfigdir = $(libdir)/pkgconfig
 
 C_TESTS = dstorm-@DSTORM_LIB_VERSION@
 
@@ -21,16 +23,78 @@ java_DATA = rapidSTORM@DSTORM_LIB_VERSION@.jar
 applications_DATA=rapidstorm@DSTORM_LIB_VERSION@.desktop
 endif
 doc_DATA = $(srcdir)/README 
-pkgdata_DATA = 
+pkgdata_DATA = version-@DSTORM_LIB_VERSION@.txt dstorm-config-@DSTORM_LIB_VERSION@.txt
+pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
 
 JAVASOURCES = DStorm.java DefaultPath.java
 JARCONTENT = logo.png
 
+AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
+if REMOTE_TESTING
+    AM_RUNTESTFLAGS += --target_board $(TELNET_HOST)
+endif
+
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
-    gaussian_psf/make_psf.sh
+    gaussian_psf/make_psf.sh \
+    dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
+    rapidstorm.input/dual-view.exp rapidstorm.input/01-txt-replay.exp \
+    rapidstorm.input/00-input-file-is-recognized.exp \
+    rapidstorm.input/new-stm-format.exp \
+    rapidstorm.input/mirror.exp rapidstorm.input/long-tif-file.exp \
+    rapidstorm.input/03-can-open-same-file-twice.exp \
+    rapidstorm.input/02-errors.exp rapidstorm.volker/fall_e.exp \
+    rapidstorm.volker/fall_c.exp rapidstorm.volker/fall_a.exp \
+    rapidstorm.volker/fall_d.exp rapidstorm.volker/fall_f.exp \
+    rapidstorm.volker/fall_b.exp rapidstorm.guf/negative-alignment.exp \
+    rapidstorm.guf/multi-plane-gui.exp rapidstorm.guf/precision.exp \
+    rapidstorm.guf/error-check.exp rapidstorm.guf/two-plane-form-fitter.exp \
+    rapidstorm.guf/3d.exp rapidstorm.guf/andre-test-1.exp \
+    rapidstorm.guf/performance.exp rapidstorm.guf/fixed-settings.exp \
+    rapidstorm.00-pre/01-plugins-loaded.exp \
+    rapidstorm.00-pre/03-test-plugin-can-close-windows.exp \
+    rapidstorm.00-pre/02-run-can-succeed.exp rapidstorm.00-pre/00-dstorm.exp \
+    rapidstorm.bugs/197.exp rapidstorm.bugs/185.exp rapidstorm.bugs/48.exp \
+    rapidstorm.bugs/165.exp rapidstorm.bugs/139.exp rapidstorm.bugs/95.exp \
+    rapidstorm.bugs/132.exp rapidstorm.bugs/62.exp rapidstorm.bugs/96.exp \
+    rapidstorm.bugs/75.exp rapidstorm.bugs/178.exp rapidstorm.bugs/85.exp \
+    rapidstorm.bugs/110.exp rapidstorm.bugs/74.exp rapidstorm.bugs/179.exp \
+    rapidstorm.bugs/51.exp rapidstorm.bugs/3.exp rapidstorm.bugs/63.exp \
+    rapidstorm.bugs/99.exp rapidstorm.bugs/91.exp rapidstorm.bugs/66.exp \
+    rapidstorm.bugs/43.exp rapidstorm.bugs/84.exp rapidstorm.bugs/81.exp \
+    rapidstorm.bugs/80.exp rapidstorm.bugs/188.exp rapidstorm.bugs/186.exp \
+    rapidstorm.bugs/148.exp rapidstorm.bugs/47.exp rapidstorm.bugs/133.exp \
+    rapidstorm.bugs/177-2.exp rapidstorm.bugs/111.exp rapidstorm.bugs/106.exp \
+    rapidstorm.bugs/75_stm.exp \
+    rapidstorm.outputs/save-image-to-nonexisting-location.exp \
+    rapidstorm.outputs/simple-filter.exp \
+    rapidstorm.outputs/localization-filter-can-remove-output.exp \
+    rapidstorm.outputs/viewer-closed-during-job.exp \
+    rapidstorm.outputs/expression-filter.exp \
+    rapidstorm.outputs/form-fitter.exp \
+    rapidstorm.outputs/table-shows-traces-checkbox.exp \
+    rapidstorm.outputs/localization-filter.exp \
+    rapidstorm.outputs/viewer-supports-key-range-changes.exp \
+    rapidstorm.outputs/repeater.exp rapidstorm.outputs/viewer.exp \
+    rapidstorm.outputs/segmenter.exp  \
+    lib/rapidstorm.exp rapidstorm.andorcam/two-successive-jobs.exp \
+    rapidstorm.andorcam/live-view.exp rapidstorm.andorcam/compute-job.exp \
+    rapidstorm.andorcam/infinite-acquisition.exp \
+    rapidstorm.andorcam/no-installed-cameras.exp \
+    rapidstorm.test/sif-computation.exp \
+    rapidstorm.test/output_exception.exp rapidstorm.test/segfault.exp \
+    rapidstorm.test/sif-shortjob.exp rapidstorm.test/autoname.exp \
+    rapidstorm.test/median.exp rapidstorm.test/load_tif_file.exp \
+    rapidstorm.test/empty_input_file.exp rapidstorm.test/nojob.exp \
+    rapidstorm.test/can-compute-txt-file.exp rapidstorm.test/memory.exp \
+    rapidstorm.test/filenames.exp rapidstorm.test/job-removal.exp \
+    rapidstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
+    boards/kokolorix.exp boards/chroot.exp boards/valgrind.exp \
+    config/windows-telnet-and-netcat.exp config/unix.exp
+
 CLEANFILES = rapidSTORM@DSTORM_LIB_VERSION@.jar \
 	rapidstorm@DSTORM_LIB_VERSION@.desktop rapidstorm@DSTORM_LIB_VERSION@ \
-	java-built-stamp DefaultPath.java
+	java-built-stamp DefaultPath.java \
+	dstorm-config-@DSTORM_LIB_VERSION@.txt version-@DSTORM_LIB_VERSION@.txt
 
 java-built-stamp : $(JAVASOURCES)
 	$(MKDIR_P) $(javabuilddir)
@@ -698,5 +762,7 @@ align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
+version-@DSTORM_LIB_VERSION@.txt : version.txt
+	cp $^ $@
+dstorm-config-@DSTORM_LIB_VERSION@.txt : dstorm-config.txt
+	cp $^ $@

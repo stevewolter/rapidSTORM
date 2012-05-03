@@ -1,0 +1,80 @@
+begin_test_suite
+
+set method "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod"
+send "$method in value set Generated\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageActivationTime in value set 1E-10\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageDeactivationTime in value set 1E10\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in PhotonEmittanceRate in value set 5000\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in value set Lines\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in Lines in Line0 in StartX in value set 1045\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in Lines in Line0 in StartY in value set 980\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in Lines in Line0 in Repeat in value set 0\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in Lines in Line0 in MaxPerLine in value set 1\n"
+send "$method in Generated in NoiseGenerator in ImageWidth in value set 20\n"
+send "$method in Generated in NoiseGenerator in ImageHeight in value set 20\n"
+send "$method in Generated in NoiseGenerator in NoiseFile in value set ${testcase_target}poisson-noise-counts-8-exp-75.txt\n"
+send "$method in Generated in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "$method in Generated in ImageNumber in value set 10000\n"
+send "$method in Generated in NoiseGenerator in RandomSeed in value set 2345\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 330.0,330.0\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 5000\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "in Car in Input in Optics in InputLayer0 set CountsPerPhoton value set 8\n"
+send "in Car in Input in Optics in InputLayer0 set DarkCurrent value set 0\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set VarianceEstimator\n"
+send "in Car in Output in EngineOutput in Output0 in VarianceEstimator in Tag in value set VarianceMeasurement\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+#send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+#send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+
+dstorm_attach
+
+proc check_fitting { description shorthand } {
+    global tmpdir_target
+    wait_for_jobs
+    send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}$shorthand\n"
+    send "in Car in Run in value set 1\n"
+    set test "Job can be started for $description"
+    set job [get_job_number]
+    set count 0
+    set meanx 0
+    set meany 0
+    set sigmax 0
+    set sigmay 0
+
+    set test "Variance can be measured for $description"
+    expect {
+        -re "VarianceMeasurement (\[0-9\]*) (\[0-9.e-\]*) (\[0-9.e-\]*) \[0-9\]* (\[0-9.e-\]*) (\[0-9.e-\]*) "
+            { set count $expect_out(1,string); 
+              set meanx $expect_out(2,string); set sigmax $expect_out(3,string); 
+              set meany $expect_out(4,string); set sigmay $expect_out(5,string); 
+              pass "$test"
+            }
+        -re "in LocalizationCount in value set" { exp_continue; }
+    }
+
+    set test "$description finds all spots"
+    pass_if [expr $count == 10000] "$test"
+    set test "$description has good spatial accuracy"
+    pass_if [expr abs($meanx - 1045E-9) < 1E-9 && abs($meany - 980E-9) < 1E-9  ] "$test"
+    set test "$description has good spatial precision"
+    pass_if [expr $sigmax < 12E-9 && $sigmay < 12E-9 ] "$test"
+}
+
+check_fitting { "Least squares double-disjoint" } LSQDD 
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DisjointFitting in value set false\n"
+check_fitting { "Least squares double-joint" } LSQDJ 
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DoublePrecision in value set false\n"
+check_fitting { "Least squares float-joint" } LSQFJ 
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DisjointFitting in value set true\n"
+check_fitting { "Least squares float-disjoint" } LSQFD
+
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set MLEFitting in value set true\n"
+check_fitting { "MLE float-disjoint" } MLEFD 
+
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DisjointFitting in value set false\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DoublePrecision in value set true\n"
+check_fitting { "MLE double-joint" } MLEFJ 
+
+end_test_suite

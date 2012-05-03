@@ -1,0 +1,76 @@
+start_test_suite
+
+send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set FileType value set TIFF\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set FileType in TIFF set DetermineFileLength value set true\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set InputFile value set ${testcase_target}HA700_Pic647_4_0.tif\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}185\n"
+send "in Car in Input in BiplaneSplitter set DualView value set Horizontally\n"
+send "in Car in Input in SampleInfo set FluorophoreCount value set 2\n"
+send "in Car in Input in Optics in InputLayer0 set PixelSizeInNM value set 104.0,104.0\n"
+send "in Car in Input in Optics in InputLayer1 set PixelSizeInNM value set 104.0,104.0\n"
+send "in Car set Engine in rapidSTORM set SpotFindingMethod value set Median\n"
+send "in Car set Engine in rapidSTORM in SpotFindingMethod in Median in SmoothingMaskSize in value set 7\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF in FitWindowSize in value set 500\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set true\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car set Engine in rapidSTORM set AmplitudeThreshold value set 200.0\n"
+send "in Car set Engine in rapidSTORM set Motivation value set 4\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Image in SaveWithKey in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Image in SaveScaleBar in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Image set ColourScheme value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set Fluorophore\n"
+send "in Car in Output in EngineOutput in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.36\n"
+send "in Car in Output in EngineOutput in Output0 in Image in DimensionSelector in XDimension in PositionX in XResolution in value set 30\n"
+send "in Car in Output in EngineOutput in Output0 in Image in DimensionSelector in YDimension in PositionY in YResolution in value set 30\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+#send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 435,435\n"
+send "in Car in Input in Optics in InputLayer0 in Transmission0 in value set 3.2\n"
+send "in Car in Input in Optics in InputLayer0 in Transmission1 in value set 1.5\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in No3D in PSF in value set 335,335\n"
+send "in Car in Input in Optics in InputLayer1 in Transmission0 in value set 0.75\n"
+send "in Car in Input in Optics in InputLayer1 in Transmission1 in value set 0.55\n"
+
+set_last_image 1000
+
+dstorm_attach
+
+set test "Job for #185 succeeds"
+send "in Car in Run in value set 1\n"
+set job [get_job_number]
+
+set noimage 0
+
+expect {
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in Progress in value set 0" { exp_continue; }
+    -re "in LocalizationCount in value set " { exp_continue; }
+    -re "in $job in " { exp_continue; }
+    -re "Error fetching data for field \"Tag 50839\"\r*\nseverity set Error" { set noimage 1; unsupported "$test"; }
+}
+
+set test "#185 is fixed"
+if { $noimage == 0 } {
+    wait_for_file "${tmpdir_host}185.png"
+
+    spawn compare -metric RMSE "${tmpdir_host}185.png" "${testcase_host}185-norm.png" "${tmpdir_host}185-difference.png"
+    expect {
+        -re "unable to open image" { fail "$test"; }
+        -re "(\[0-9.\]+) " { pass_if [expr $expect_out(1,string) < 600] "$test"; }
+        eof { fail "$test"; }
+    }
+
+    wait
+} else {
+    unsupported "$test"
+}
+
+global dstorm_spawn_id
+global spawn_id
+set spawn_id $dstorm_spawn_id
+
+
+end_test_suite

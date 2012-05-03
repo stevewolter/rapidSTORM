@@ -1,0 +1,61 @@
+global may_use_camera
+
+if { $may_use_camera == 1 } {
+start_test_suite
+dstorm_attach
+global andorcam_spawn_id
+global dstorm_spawn_id
+set acd $andorcam_spawn_id
+set dcd $dstorm_spawn_id
+
+set orig_timeout $timeout
+set timeout 2
+
+set andordirect "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in AndorDirectConfig"
+
+set test "Camera shows viewport selector"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+send -i $acd "in Camera0 in Initialization in Temperature in ReferenceTemperature in value set -10\n"
+send -i $acd "in Camera0 in Initialization in Temperature in TargetTemperature in value set 10\n"
+send "in Car in Input in OutputBasename in Basename in value set dStorm_acquisition_\$run\$\n"
+set good_basename "dStorm_acquisition_snapshot"
+
+set test "Viewport selector is declared"
+send "$andordirect in AimCamera in value set 1\n"
+expect {
+    -i $dcd -re "declare Set\r*\nname ViewportSelector"
+        { pass "$test" }
+    -i $acd -re "in ActualTemperature in value set" { exp_continue }
+}
+
+set test "Flyspray #48 behaviour (initial)"
+send "$andordirect in ViewportSelector in SaveAcquiredImageFile in value query\n"
+expect {
+    -re "in SaveAcquiredImageFile in value value set $good_basename.tif\r*\n" { pass "$test" }
+    -re "in SaveAcquiredImageFile in value value set $good_basename.jpg\r*\n" { pass "$test" }
+}
+
+set test "Flyspray #48 behaviour (on user change)"
+send "in Car in Input in OutputBasename in Basename in value set dStorm_acqui\n"
+expect {
+    -re "in SaveAcquiredImageFile in value set dStorm_acqui.tif\r*\n" { pass "$test" }
+    -re "in SaveAcquiredImageFile in value set dStorm_acqui.jpg\r*\n" { pass "$test" }
+}
+
+set test "Aiming view is closed"
+send "$andordirect in ViewportSelector in StopAimCamera in value set 1\n"
+expect {
+    -i $dcd -re "$andordirect remove ViewportSelector" { pass "$test" }
+    -i $acd -re "in ActualTemperature in value set" { exp_continue; }
+}
+
+set timeout $orig_timeout 
+
+end_test_suite
+} else {
+unsupported "Camera shows viewport selector"
+unsupported "Viewport selector is declared"
+unsupported "Flyspray #48 behaviour (initial)"
+unsupported "Flyspray #48 behaviour (on user change)"
+unsupported "Aiming view is closed"
+}

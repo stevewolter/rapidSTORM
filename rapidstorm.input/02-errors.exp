@@ -1,0 +1,48 @@
+global have_test_plugin
+start_test_suite
+global test
+
+dstorm_attach
+
+if { 23 == 42 } {
+set file "${testcase_target}nonexisting.stm"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set FileMethod\n"
+set_input_file "$file"
+
+set test "File method stays activated"
+expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value" "FileMethod"
+
+set test "An error is thrown when the job is started"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "message set No choice selected for 'File type'\r*\nseverity set Error" { pass "$test" }
+}
+}
+set timeout -1
+if { $have_test_plugin  == 1 } {
+set test "An error is thrown when the input has strange type"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+set_input_file "${testcase_target}empty.stm"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in DummyInput in GoIntType in value set true\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "message set \[^\r\n\]*No (choice|alternative) selected for 'Choose engine'\r*\nseverity set Error" { pass "$test" }
+}
+
+set test "An error is thrown when the input has strange type and input is selected explicitly"
+send "in Car in Engine in value set rapidSTORM\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "message set .*engine cannot process\[^\r\n\]*\r*\nseverity set Error" { pass "$test" }
+    -re "cannot handle the current input\[^\r\n\]*\r*\nseverity set Error" { pass "$test" }
+    -re "No choice selected for 'Choose engine'\r*\nseverity set Error" { xfail "$test"; }
+    -re "No choice selected for 'File type'\r*\nseverity set Error" { pass "$test"; }
+}
+} else {
+unsupported "An error is thrown when the input has strange type"
+unsupported "An error is thrown when the input has strange type and input is selected explicitly"
+}
+
+dstorm_attach
+
+end_test_suite

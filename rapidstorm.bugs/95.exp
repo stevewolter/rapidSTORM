@@ -1,0 +1,25 @@
+begin_test_suite
+
+set test "Bug #95 is fixed"
+set_input_file "${testcase_target}Svens_rastererzeugende_Datei.sif"
+set_last_image 4
+send "in Car set Engine in rapidSTORM in SpotFindingMethod in Average in SmoothingMaskSize in value set 7\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set ROIFilter\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in LeftROIBorder in value set 0\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in RightROIBorder in value set 2E-6\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in TopROIBorder in value set 12E-6\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in BottomROIBorder in value set 13E-6\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in ChooseTransmission in value set Count\n"
+#send "in Car in Engine set SpotFittingMethod in GaussFitter set AsymmetryThreshold value set 0.1\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set job [get_job_number]
+
+set timeout -1
+expect {
+    -re "in LocalizationCount in value set \[1-9\]" { fail "$test"; }
+    -re "remove $job" { pass "$test"; }
+}
+
+end_test_suite

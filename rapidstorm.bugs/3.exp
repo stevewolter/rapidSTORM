@@ -1,0 +1,30 @@
+start_test_suite
+
+dstorm_attach
+
+set test "raw images output module compatible with localizations input"
+
+set_input_file "${workspace_target}Mikrotubuli.txt"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+send "in Car in Output in EngineOutput in Output0 in RawImage in ToFile in value set ${tmpdir_target}Mikrotubuli.tif\n"
+send "in Car in Run in value set 1\n"
+
+set job_name ""
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)\r*" { set job_name $expect_out(1,string); exp_continue; }
+    -re "One of your output modules needs access.*\r*\nseverity" { pass "$test" }
+    -re "The raw images output needs access.*\r*\nseverity" { pass "$test" }
+    timeout { fail "$test" }
+}
+
+set test "Job terminates gracefully"
+if { [ string compare $job_name "" ] } {
+    pass "$test" 
+} else {
+    expect {
+        -re "remove $job_name" { pass "$test" }
+        -re "The raw images output needs access.*\r*\nseverity" { exp_continue; }
+    }
+}
+
+end_test_suite

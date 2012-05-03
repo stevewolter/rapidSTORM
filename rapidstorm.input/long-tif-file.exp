@@ -1,0 +1,20 @@
+
+start_test_suite
+dstorm_attach
+
+set file "${testcase_target}reallyreallylarge.tif"
+set_input_file "$file"
+send "in Car in Input set MultiChannel in Channels in Channel1 in InputMethod in FileMethod set FileType in TIFF set DetermineFileLength value set true\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Progress\n"
+set_last_image 25
+
+set test "Long TIFF file is read without seek error"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "eek error in accessing" { fail "$test"; }
+    -re "in Progress in value set 1" { pass "$test"; }
+    -re "in Progress in value set" { exp_continue; }
+}
+
+end_test_suite

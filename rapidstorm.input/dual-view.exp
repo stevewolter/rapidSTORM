@@ -1,0 +1,28 @@
+begin_test_suite
+
+set test "Dual view splitter works"
+set_input_file "${workspace_target}Mikrotubuli.sif"
+
+send "in Car in Input in BiplaneSplitter set DualView value set Horizontally\n"
+
+send "in Car in Output in EngineOutput set ChooseTransmission value set Progress\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Verbose\n"
+dstorm_attach
+set_last_image 20
+send "in Car set Run value set 1\n"
+
+expect {
+    -re "Source image is attached with size 67 *px 121 *px" { pass "$test"; }
+    -re "in Progress in value set 0" { exp_continue; }
+}
+
+set test "Planes can be selected for dual view input"
+send "in Car in Input in PlaneFilter in OnlyPlane in value set Plane1\n"
+send "in Car set Run value set 1\n"
+expect {
+    -re "Source image is attached with size 67 *px 121 *px" { pass "$test"; }
+    -re "in Progress in value set 0" { exp_continue; }
+}
+
+
+end_test_suite

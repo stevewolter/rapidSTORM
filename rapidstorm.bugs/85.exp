@@ -1,0 +1,21 @@
+
+begin_test_suite
+clear_tmp_dir
+load_default_config
+
+set timeout 30
+set test "Bug #85 is fixed"
+dstorm_attach
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in CPUNumber in value set 3\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}85\n"
+
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "in Progress in value set 0" { exp_continue }
+    -re "in LocalizationCount in value set" { pass "$test" }
+    -re "in Progress in value set 1" { pass "$test" }
+}
+
+end_test_suite

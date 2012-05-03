@@ -1,0 +1,32 @@
+global tmpdir_host
+global tmpdir_target
+global dirsep_host
+global dirsep_target
+global workspace_target
+global workspace_host
+global testcase_target
+global testcase_host
+global executableinterpreter
+global env
+global srcdir
+
+set tmpdir_host "/tmp/rapidstorm-test/"
+set tmpdir_target "/tmp/rapidstorm-test/"
+set testcase_target "$testcase_dir/"
+set testcase_host "$testcase_target"
+set workspace_target "${testcase_target}Sample_Workspace_dSTORM/"
+set workspace_host "$workspace_target"
+
+proc program_start { pkg cmd args } {
+    global spawn_id
+    global bindir
+    global srcdir
+
+    spawn valgrind --error-exitcode=42 $bindir/$cmd $args
+}
+proc program_exit { cmd } {}
+
+if { [file exists $tmpdir_host] != 1 } {
+    file mkdir $tmpdir_host
+}
+load_generic_config "unix"

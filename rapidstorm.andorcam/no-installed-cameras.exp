@@ -1,0 +1,13 @@
+set env(SIMCAM_CAMCOUNT) "0"
+unsupported "Setting simcam camcount on the fly"
+set env(SIMCAM_CAMCOUNT) "2"
+
+if { 0 == 1 } {
+	set test "can choose andor camera without installed camera"
+	send "cmd 0 in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+	expect {
+	    -re "ack 0" { pass "$test" }
+	    -re "segmentation fault" { fail "$test" }
+	    -re "Could not perform action" { fail "$test" }
+	}
+}

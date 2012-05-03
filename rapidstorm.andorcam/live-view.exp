@@ -1,0 +1,193 @@
+global may_use_camera
+set timeout -1
+
+if { $may_use_camera == 1 } {
+start_test_suite
+
+global have_test_plugin
+global andorcam_spawn_id
+global dstorm_spawn_id
+set acd $andorcam_spawn_id
+set dcd $dstorm_spawn_id
+
+set first_camera "in Camera0"
+set method "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in AndorDirectConfig"
+set vps    "$method in ViewportSelector"
+
+set test "Acquisition for aiming view starts"
+send "attach\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send -i $acd "$first_camera in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send -i $acd "$first_camera in Initialization in Temperature in TargetTemperature in value set -20\n"
+send "$method in AimCamera in value set 1\n"
+
+expect {
+    -i $acd -re "$first_camera in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+    -i $dcd -re "in CameraStatus in value set Acquiring images"
+        { pass "$test" }
+}
+
+set test "Window pixel size is correct"
+if { $have_test_plugin == 1 } {
+    expect { 
+        -i $acd -re "$first_camera in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+        -i $dcd -re "Sizing display.*pixel size (\[0-9.+-eE\]*) " { 
+            set size $expect_out(1,string);
+            pass_if [ expr $size >= 0.9E-7 && $size <= 1.1E-7 ] "$test" 
+        }
+    }
+} else {
+    unsupported "$test"
+}
+
+set timeout -1
+set test "Am actually getting different images"
+set digest_a "nan"
+set window 0
+if { $have_test_plugin == 1 } {
+    expect {
+        -i $acd -re "$first_camera in Initialization in NumericState in value set " { exp_continue }
+        -i $dcd -re "Changing window (\[0-9\]*) .*with digest (\[0-9a-f\]*)" {
+            set window $expect_out(1,string)
+            if { [string compare $digest_a "nan"] == 0 } {
+                set digest_a $expect_out(2,string)
+                exp_continue
+            } elseif { [string compare $digest_a $expect_out(2,string)] != 0 } {
+                pass "$test"
+            } else {
+                exp_continue
+            }
+       }
+    }
+} else {
+    sleep 10
+    unsupported "$test"
+}
+
+set test "Save button is disabled during acquisition"
+send "$vps in SaveAcquiredImage in editable query\n"
+expect {
+    -re "$vps in SaveAcquiredImage in editable editable set true" { fail "$test" }
+    -re "$vps in SaveAcquiredImage in editable editable set false" { pass "$test" }
+}
+
+
+set test "Can pause acquisition"
+send "$vps in PauseCamera in value set 1\n"
+expect {
+    -i $acd -re "$first_camera in Initialization in NumericState in value set 2"
+        { pass "$test" }
+}
+
+set test "Pause makes EMCCDGain editable"
+send -i $acd "$first_camera in AD in Gain in EMCCDGain in editable query\n"
+expect {
+    -i $acd "$first_camera in AD in Gain in EMCCDGain in editable editable set true" { pass "$test" }
+    -i $acd "$first_camera in AD in Gain in EMCCDGain in editable editable set false" { fail "$test" }
+}
+
+set test "Pause makes SaveImage editable"
+send "$vps in SaveAcquiredImage in editable query\n"
+expect {
+    "$vps in SaveAcquiredImage in editable editable set true" { pass "$test" }
+    "$vps in SaveAcquiredImage in editable editable set false" { pass "$test" }
+}
+
+set test "Can save camera snapshot image"
+set outfile "cam_snapshot.png"
+set hof $tmpdir_host$outfile
+if { [file exists $hof] == 1 } { file delete -force $hof }
+
+send "$vps in SaveAcquiredImageFile in value set $tmpdir_target$outfile\n"
+send "cmd 101 $vps in SaveAcquiredImage in value set 1\n"
+set timeout 30
+expect {
+    "ack 101" {
+        sleep 2
+        if { [file exists "$hof"] == 1 } {
+            pass "$test"
+            file delete -force "$hof"
+        } else {
+            fail "$test"
+        }
+    }
+}
+
+set test "Can open ROIed window"
+send "$method in ViewCamera in value set 1\n"
+
+expect {
+    -i $acd -re "$first_camera in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+    -i $dcd -re "in CameraStatus in value set Acquiring images" { pass "$test" }
+}
+set timeout 30
+set test "Am actually getting different images"
+set digest_a "nan"
+if { $have_test_plugin == 1 } {
+    set count 0
+    expect {
+        -i $acd -re "$first_camera in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+        -i $dcd -re "Changing window (\[0-9\]*) with digest (\[0-9a-f\]*)" {
+            set window $expect_out(1,string)
+            if { [string compare $digest_a "nan"] == 0 } {
+                set digest_a $expect_out(2,string)
+            } elseif { [string compare $digest_a $expect_out(2,string)] != 0 } {
+                pass "$test"
+            } else {
+                set count $count+1
+                if { $count > 100 } {
+                    fail "$test"
+                } else {
+                    exp_continue
+                }
+            }
+       }
+    }
+} else {
+    sleep 10
+    unsupported "$test"
+}
+
+
+for { set i 1 } { $i <= 5 } { incr i } {
+    set test "Can pause for the $i-th time"
+    send "$vps in PauseCamera in value set 1\n"
+    expect {
+        -i $acd -re "$first_camera in Initialization in NumericState in value set \[0-4\]"
+            { pass "$test" }
+    }
+    set test "Can unpause for the $i-th time"
+    send "$vps in PauseCamera in value set 1\n"
+    expect {
+        -i $acd -re "$first_camera in Initialization in NumericState in value set 5"
+            { pass "$test" }
+    }
+}
+
+set test "Can close viewport window"
+if { $have_test_plugin == 1 } {
+    send "in DummyDisplayManagerConfig in WhichWindow in value set Window$window\n"
+    send "in DummyDisplayManagerConfig in Close in value set 1\n"
+} else {
+    send "$vps in StopAimCamera in value set 1\n"
+}
+expect {
+    -i $dcd -re "$method in AimCamera in viewable set true" { pass "$test" }
+    -i $acd -re "$first_camera in Initialization in Temperature in ActualTemperature in value set " { exp_continue }
+}
+
+end_test_suite
+} else {
+unsupported "Acquisition for aiming view starts"
+unsupported "Window pixel size is correct"
+unsupported "Am actually getting different images"
+unsupported "Save button is disabled during acquisition"
+unsupported "Can pause acquisition"
+unsupported "Pause makes EMCCDGain editable"
+unsupported "Pause makes SaveImage editable"
+unsupported "Can save camera snapshot image"
+unsupported "Can open ROIed window"
+unsupported "Am actually getting different images"
+unsupported "Can close viewport window"
+}

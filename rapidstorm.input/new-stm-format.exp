@@ -1,0 +1,45 @@
+start_test_suite
+
+set test "New STM file format can be read"
+set_input_file "${testcase_target}new_stm_format-short.txt"
+dstorm_attach
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+send "in Car in Run in value set 1\n"
+set count 0
+set job [get_job_number]
+
+set test "First image is read correctly"
+expect -re "Verbose plugin got 41 localizations for 0 fr" { pass "$test"; }
+set test "Third image is skipped"
+expect -re "Verbose plugin got 0 localizations for 2 fr" { pass "$test"; }
+set test "Seventh image is read correctly"
+expect -re "Verbose plugin got 8 localizations for 7 fr" { pass "$test"; }
+set test "Images are padded to declared length"
+expect -re "Verbose plugin got 0 localizations for 9 fr" { pass "$test"; }
+
+set test "Images are not padded after declared length"
+expect {
+    -re "Verbose plugin got \[0-9\]* localizations for 11 fr" { fail "$test"; }
+    -re "remove $job" { pass "$test"; }
+}
+
+set test "New STM file format can be read with unbounded length"
+set_input_file "${testcase_target}new_stm_format-unbounded.txt"
+send "in Car in Run in value set 1\n"
+set job [get_job_number]
+
+set test "First image is read correctly"
+expect -re "Verbose plugin got 0 localizations for 0 fr" { pass "$test"; }
+set test "Third image is skipped"
+expect -re "Verbose plugin got 0 localizations for 2 fr" { pass "$test"; }
+set test "Fourth image is read correctly"
+expect -re "Verbose plugin got 41 localizations for 3 fr" { pass "$test"; }
+set test "Seventh image is read correctly"
+expect -re "Verbose plugin got 8 localizations for 7 fr" { pass "$test"; }
+
+expect {
+    -re "Verbose plugin got \[0-9\]* localizations for 8 fr" { fail "$test"; }
+    -re "remove $job" { pass "$test"; }
+}
+
+end_test_suite

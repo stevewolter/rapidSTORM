@@ -1,0 +1,15 @@
+begin_test_suite
+load_default_config
+dstorm_attach
+
+set test "Bug #106 is fixed"
+send "in Car in Output in EngineOutput set ChooseTransmission value set FitPSFForm\n"
+send "cmd 125 "
+set_input_file "${testcase_target}bug91.tif"
+
+expect {
+    -re "in Output4 in FitPSFForm in viewable set false" { fail "$test"; }
+    -re "ack 125" { pass "$test"; }
+}
+
+end_test_suite

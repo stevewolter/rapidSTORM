@@ -1,0 +1,57 @@
+global have_test_plugin
+
+begin_test_suite
+
+set test "Can handle windows with test plugin"
+if { $have_test_plugin == 1 } {
+    #set_input_file "${workspace_target}Mikrotubuli.sif"
+    dstorm_attach
+    set_input_file "${workspace_target}Mikrotubuli.tif"
+    send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}03-test-plugin\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+    send "in Car in Output in EngineOutput in Output1 in Image in ShowOutput in value set true\n"
+    #send "in Car set Engine in value set rapidSTORM\n"
+    #send "in Car set Engine in rapidSTORM in SpotFittingMethod in value set DummyFitter\n"
+
+    set test "Selected the right output"
+    send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value query\n"
+    expect {
+        -re "in FileMethod in FileType in value value set TIFF" { pass "$test"; }
+        -re "in FileMethod in FileType in value value set \[a-zA-Z\]*\r*\n" { fail "$test"; }
+    }
+
+    set test "Selected the right engine"
+    send "in Car set Engine in value query\n"
+    expect {
+        -re "in Car in Engine in value value set rapidSTORM" { pass "$test" }
+        -re "in Car in Engine in value value set \[a-zA-Z\]*\r*\n" { fail "$test" }
+    }
+
+    send "in Car in Run in value set 1\n"
+    
+    set test "Display window is opened"
+    set dispnum -1
+    expect {
+        -re "Created new window number (\[0-9\]*) named" { set dispnum $expect_out(1,string); pass "$test" }
+    }
+    if { $dispnum != -1 } {
+        send "in DummyDisplayManagerConfig in WhichWindow in value set Window$dispnum\n"
+        set test "Can read pixel values with test plugin"
+        send "in DummyDisplayManagerConfig pixel_value 20 23\n"
+        expect {
+            -re " pixel at . *20 px *23 px *0 px. has value r \[0-9\]* g \[0-9\]* b" { pass "$test" }
+        }
+
+        set test "Can close windows with test plugin"
+        send "in DummyDisplayManagerConfig in Close in value set 1\n"
+        expect {
+            -re "Destructing window $dispnum " { pass "$test" }
+            -re "Verbose plugin got signal Engine_run_succeeded" { fail "$test" }
+        }
+    }
+} else {
+    unsupported "$test"
+}
+
+end_test_suite

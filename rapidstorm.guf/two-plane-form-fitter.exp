@@ -1,0 +1,59 @@
+start_test_suite
+
+send "in Car in Input in MultiChannel in ChannelCount in value set 2\n"
+set_input_file "${testcase_target}alexa647schnell_1.tif"
+send "in Car in Input in MultiChannel in Channels in Channel2 in InputMethod in FileMethod in InputFile in value set ${testcase_target}alexa700schnell_1.tif\n"
+send "in Car in Input in MultiChannel in Channels in Channel2 in Mirror in MirrorY in value set true\n"
+send "in Car in Input in SampleInfo in FluorophoreCount in value set 2\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 340,340\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 107,107\n"
+send "in Car in Input in Optics in InputLayer0 in Transmission0 in value set 1\n"
+send "in Car in Input in Optics in InputLayer0 in Transmission1 in value set 0\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in No3D in PSF in value set 380,380\n"
+send "in Car in Input in Optics in InputLayer1 in Transmission0 in value set 2.5\n"
+send "in Car in Input in Optics in InputLayer1 in Transmission1 in value set 1\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}alignment_schnell_1.txt\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Output in EngineOutput set ChooseTransmission in value set FitPSFForm\n"
+send "in Car in Output in EngineOutput in Output0 in FitPSFForm in SelectSpots in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in FitPSFForm in MaxEstimationSpotsPerImage in value set 100\n"
+send "in Car in Output in EngineOutput in Output0 in FitPSFForm in EstimationSpots in value set 100\n"
+send "in Car in Output in EngineOutput set ChooseTransmission in value set Progress\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set job [get_job_number]
+
+set test "Job has progress"
+expect {
+    -re "in Progress in value set 0." { pass "$test"; }
+}
+set test "Two plane size estimation works"
+expect {
+    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in LocalizationCount in value" { exp_continue; }
+}
+
+set optics_path "in $job in Crankshaft in Output0 in FitPSFForm in Optics"
+set test "PSF in first plane is guessed sanely"
+set psf_0 [lindex [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","] 0]
+pass_if [expr $psf_0 < 330 && $psf_0 > 250 ] "$test"
+
+set test "PSF in second plane is guessed sanely"
+set psf_1 [lindex [split [get_value "$optics_path in InputLayer1 in ThreeD in No3D in PSF in value"] ","] 0]
+pass_if [expr $psf_1 < 400 && $psf_1 > 300 ] "$test"
+pass_if [expr $psf_0 < $psf_1 ] "Guessed PSFs are independent";
+
+set test "Transmissions can be read"
+foreach i {0 1} { foreach j {0 1} {
+    set theta($i,$j) [get_value "$optics_path in InputLayer$i in Transmission$j in value"]
+} }
+
+pass_if [expr $theta(0,0) != 2.5 && $theta(0,0) > 2.3 && $theta(0,0) < 2.7 ] "Transmission 0,0 is guessed sanely";
+pass_if [expr $theta(0,1) < 0.2 ] "Transmission 0,1 is guessed sanely";
+pass_if [expr $theta(1,0) > 0.8 && $theta(1,0) < 1.2 ] "Transmission 1,0 is guessed sanely";
+pass_if [expr $theta(1,1) > 0.85 ] "Transmission 1,1 is guessed sanely"; 
+
+end_test_suite

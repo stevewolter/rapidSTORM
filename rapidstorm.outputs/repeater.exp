@@ -1,0 +1,88 @@
+global have_test_plugin
+if { $have_test_plugin == 1 } {
+begin_test_suite
+set test "Result repeater can be constructed"
+send "in Car in AutoTerminate in value set false\n"
+set_input_file "${workspace_target}Mikrotubuli.sif"
+set_last_image 200
+send "in Car in Output set EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set Verbose\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set RepeatTrigger\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output2 in Image in ShowOutput in value set true\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output2 in Image in ToFile in value set \n"
+dstorm_attach
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}repeater\n"
+send "in Car in Run in value set 1\n"
+
+set job [get_job_number]
+expect {
+    -re "Verbose plugin got announcement with " { pass "$test" }
+}
+
+set localizations_in_image 0
+set test "Image 1 is processed in the first run"
+expect {
+    -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { 
+        set localizations_in_image $expect_out(1,string); 
+        pass "$test" 
+    }
+    -re "Verbose plugin got store_results signal, success" { fail "$test"; }
+    -re "Verbose plugin got \[0-9\]* localizations for \[0-9\]* fr" { exp_continue; }
+}
+
+set test "New announcement is made"
+send "in $job in Crankshaft in Output1 in Repeater in Repeat in value set 1\n"
+set timeout 10
+expect {
+    -re "Verbose plugin got signal Engine_is_restarted" { pass "$test" }
+}
+
+set test "Image is re-emitted with same localization count"
+expect {
+    -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { 
+        pass_if { $expect_out(1,string) == $localizations_in_image } "$test" }
+}
+
+set test "Image 1 is not re-emitted again"
+expect {
+    -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { fail "$test" }
+    -re "in $job remove EngineStatus" { pass "$test" }
+    -re "Verbose plugin got \[0-9\]* localizations for \[0-9\]* fr" { exp_continue; }
+}
+
+set test "Input can be repeated after job completion"
+send "in $job in Crankshaft in Output1 in Repeater in Repeat in value set 1\n"
+expect {
+    -re "Verbose plugin got signal Engine_is_restarted" { pass "$test" }
+}
+
+set test "Image 1 is repeated at least once"
+expect {
+    -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { pass "$test" }
+}
+
+set test "Image 1 is repeated at most once"
+set pixels -1
+expect {
+    -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { fail "$test" }
+    -re "Verbose plugin got store_results signal, success 1" { pass "$test"; }
+    -re "Changing window \[0-9\]* with digest \[0-9a-f\]*, mean is .* and count of nonzero pixels is (\[0-9\]*)\r*\n"
+        { set pixels $expect_out(1,string); exp_continue; }
+    -re "Verbose plugin got \[0-9\]* localizations for \[0-9\]* fr" { exp_continue; }
+}
+
+send "in $job in CloseJob in value set 1\n"
+expect {
+    -re "Changing window \[0-9\]* with digest \[0-9a-f\]*, mean is .* and count of nonzero pixels is (\[0-9\]*)\r*\n"
+        { set pixels $expect_out(1,string); exp_continue; }
+    -re "in DummyDisplayManagerConfig in WhichWindow remove " {}
+}
+
+pass_if [expr $pixels > 0] "Viewer shows pixels";
+
+end_test_suite
+
+} else {
+    untested "Repeater works"
+}

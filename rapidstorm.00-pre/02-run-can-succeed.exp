@@ -1,0 +1,16 @@
+set test "Empty run succeeds"
+
+set timeout 100
+send "cmd 0 in Car in Run in value set 1\n"
+
+expect {
+    -re "serious unhandled error" { fail "$test"; exit 1; }
+    -re "ack 0" { pass "$test" }
+}
+
+set test "Empty run succeeds a second time"
+send "cmd 1 in Car in Run in value set 1\n"
+expect {
+    -re "serious unhandled error" { fail "$test"; exit 1; }
+    -re "ack 1" { pass "$test" }
+}

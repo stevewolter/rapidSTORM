@@ -1,0 +1,59 @@
+begin_test_suite
+clear_tmp_dir
+load_default_config
+dstorm_attach
+
+set input_file Mikrotubuli.tif
+set test "Fall b) Punkt 1"
+set test "Fall b) Punkt 3"
+set_input_file "${workspace_target}$input_file"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}Mikrotubuli\n"
+set test "Fall b) Punkt 2"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value set TIFF\n"
+set test "Fall b) Punkt 4"
+send "in Car in Run in value set 1\n"
+
+set test "Job finishes for Fall b)"
+expect {
+    -re "in Progress in value set 0" { exp_continue }
+    -re "in LocalizationCount in value set" { exp_continue }
+    -re "in Progress in value set 1" { pass "$test" }
+}
+
+sleep 1
+
+foreach suffix [list ".txt"] {
+    set test "Output file $suffix exists"
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        pass "$test"
+    } else {
+        fail "$test"
+    }
+
+    set test "Output file $suffix has over 100 lines"
+
+    if { [ file exists "${tmpdir_host}Mikrotubuli$suffix" ] } {
+        set linecount 0
+        set filestream [open "${tmpdir_host}Mikrotubuli$suffix" r]
+        while {[gets $filestream line] >= 0} {
+            if { [string index $line 0] != "#" } { incr linecount }
+        }
+        close $filestream
+        if { $linecount > 100 } {
+            pass "$test"
+        } else {
+            fail "$test"
+        }
+    } else {
+        fail "$test"
+    }
+}
+
+set test "Output JPG image exists"
+if { [ file exists "${tmpdir_host}Mikrotubuli.png" ] } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+end_test_suite

@@ -1,0 +1,29 @@
+global may_use_camera
+
+if { $may_use_camera == 1 } {
+begin_test_suite
+global andorcam_spawn_id
+global dstorm_spawn_id
+
+set test "Can run two camera jobs in succession"
+
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
+
+send "in Car in Run in value set 1\n"
+get_job_number
+send "wait_for_jobs\n"
+send "in Car in Run in value set 1\n"
+get_job_number
+send "cmd 25 wait_for_jobs\n"
+
+set timeout 20
+expect { 
+    -i $dstorm_spawn_id -re "ack 25" { pass "$test" } 
+    -i $andorcam_spawn_id -re "in ActualTemperature in value set" { exp_continue; }
+}
+
+end_test_suite
+} else {
+    unsupported "Can run two camera jobs in succession"
+}

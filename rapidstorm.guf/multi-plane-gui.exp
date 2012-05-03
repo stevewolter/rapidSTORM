@@ -1,0 +1,11 @@
+set timeout 10
+start_test_suite
+dstorm_attach
+
+set test "Second channel is added"
+send "in Car in Input in MultiChannel in ChannelCount in value set 2\n"
+expect {
+    -re "in Car in Input in MultiChannel in Channels declare Object\r*\nname Channel2" { pass "$test" }
+}
+
+end_test_suite

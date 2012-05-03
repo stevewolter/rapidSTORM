@@ -1,0 +1,45 @@
+begin_test_suite
+clear_tmp_dir
+load_default_config
+dstorm_attach
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}188\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in ShowOutput in value set false\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in SaveWithKey in value set false\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in SaveScaleBar in value set false\n"
+
+
+send "in Car in Run in value set 1\n"
+set job [get_job_number]
+
+set test "Job finishes ten percent"
+expect {
+    -re "in Progress in value set 0.\[1-9\]" { pass "$test"; }
+}
+
+set test "Job can be stopped early"
+send "in $job in StopComputation in value set 1\n"
+send "cmd 5 in $job in Crankshaft in Output3 in Expression in Display in SaveImage in value set 1\n"
+expect {
+    -re "ack 5" { pass "$test"; }
+}
+
+set test "#188 is fixed"
+wait_for_file "${tmpdir_host}188.png"
+sleep 1
+
+spawn identify -verbose "${tmpdir_host}188.png"
+expect {
+    -re "unable to open image" { fail "$test"; }
+    -re "mean: 0 " { fail "$test"; }
+    eof { pass "$test"; }
+}
+
+wait
+
+global dstorm_spawn_id
+global spawn_id
+set spawn_id $dstorm_spawn_id
+
+end_test_suite

@@ -1,0 +1,45 @@
+global have_test_plugin
+if { $have_test_plugin == 1 } {
+begin_test_suite
+
+set timeout 5
+
+set_input_file "${testcase_target}bug91.tif"
+send "in Car in Input in MultiChannel in Channels in Channel1 in ROIFilter in FirstImage in value set 10\n"
+set_last_image 100
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+dstorm_attach
+send "in Car in AutoTerminate in value set true\n"
+send "in Car set Run value set 1\n"
+
+set job [get_job_number]
+
+#set timeout -1
+#set test "Bug 99 is fixed without FixSigma"
+#expect {
+    #-re "remove $job" { pass "$test"; }
+    #-re "got results for 91 fr" { fail "$test"; }
+#}
+
+set test "Bug 99 is fixed with FixSigma"
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+set have_seen_first_frame 0
+set have_seen_last_frame 0
+expect {
+    -re "for 1 fr" { fail "$test"; }
+    -re "for 10 fr" { set have_seen_first_frame 1; exp_continue; }
+    -re "for 100 fr" { set have_seen_last_frame 1; exp_continue; }
+    -re "for 101 fr" { fail "$test"; }
+    -re "remove $job" { pass "$test"; }
+    -re "Verbose plugin got" { exp_continue; }
+}
+
+set test "First and last frame are shown with ROI filter"
+if { $have_seen_first_frame == 1 && $have_seen_last_frame == 1 } { pass "$test" } else { fail "$test"; }
+
+end_test_suite
+} else {
+    unsupported "Bug 99 is fixed with FixSigma"
+    unsupported "First and last frame are shown with ROI filter"
+}

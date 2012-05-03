@@ -1,0 +1,5 @@
+set test "Get some response"
+send "cmd 0 nop\n"
+expect {
+    -re "ack 0" { pass "$test" }
+}

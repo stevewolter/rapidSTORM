@@ -1,0 +1,11 @@
+untested "Computing SIF files at high parallelity"
+#!at 0 in Car in Method set InputMethod in Auto set InputFile = C:\Documents and Settings\Steve\My Documents\Installer\Sample_Workspace_dSTORM\Mikrotubuli.sif
+#!at 2672 in Car set Run = 1
+#!at 41219 in dStormJob01 in Crankshaft in Output3 in AF in Crankshaft in Output1 in Display set SaveImage = 1
+#!at 43359 in dStormJob01 set CloseJob = 1
+#!at 45313 in Car set Run = 1
+#!at 57375 in Car set Run = 1
+#!at 92453 in dStormJob02 set CloseJob = 1
+#!at 96766 in dStormJob03 in EngineStatus set EngineStopper = 1
+#!at 98828 in dStormJob03 set CloseJob = 1
+#!at 101234 in Car set Run = 1

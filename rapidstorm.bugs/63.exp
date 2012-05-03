@@ -1,0 +1,18 @@
+
+begin_test_suite
+dstorm_attach
+
+set test "Job can start with median spot finder"
+set timeout 1800
+
+set input_file Mikrotubuli.sif
+set_input_file "$workspace_target$input_file"
+send "in Car in Engine in rapidSTORM in SpotFindingMethod in value set Median\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re " in LocalizationCount in value set " { pass "$test" }
+}
+
+end_test_suite

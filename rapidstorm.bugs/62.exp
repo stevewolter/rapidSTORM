@@ -1,0 +1,64 @@
+set input_file "TFS_Schief.sif"
+global have_test_plugin
+
+begin_test_suite
+load_default_config
+
+send "in Car in CPUNumber in value set 1\n"
+send "in Car in AutoTerminate in value set false\n"
+set_input_file "$testcase_target$input_file"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in value set Polynomial3D\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in ZPosition value set 0.0,500.0\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in WideningConstants value set 0 10 0 0, 0 10 0 0\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 95,95\n"
+send "in Car in Input in OutputBasename in Basename in value set $tmpdir_target$input_file\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in XDimension in PositionX in XResolution in value set 100\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in YDimension in PositionY in YResolution in value set 100\n"
+send "in Car in Output in EngineOutput in ToRemove in value set Output4\n"
+
+if { $have_test_plugin } {
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+}
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set test "Run starts"
+set job_name ""
+set timeout -1
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)\r*" 
+        { set job_name $expect_out(1,string); exp_continue; }
+    -re " in LocalizationCount in value set \[1-9\]" { pass "$test" }
+    -re " in Progress in value set 1" { pass "$test" }
+    -re "Changing window" { exp_continue; }
+}
+set timeout -1
+set test "Run terminates"
+send "in $job_name in CloseJob in value set 1\n"
+expect {
+    -re "remove dStormJob" { pass "$test" }
+}
+
+set test "Run starts again"
+set timeout -1
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car set Run value set 1\n"
+expect {
+    -re "declare Set\r*\nname (dStormJob\[0-9\]*)\r*\n" 
+        { set job_name $expect_out(1,string); exp_continue; }
+    -re " in LocalizationCount in value set \[1-9\]" { pass "$test" }
+    -re " in Progress in value set 1" { pass "$test" }
+    -re "Changing window" { exp_continue; }
+}
+set timeout 2
+set test "Run terminates again"
+send "in $job_name in CloseJob in value set 1\n"
+expect {
+    -re "remove dStormJob" { pass "$test" }
+}
+
+end_test_suite

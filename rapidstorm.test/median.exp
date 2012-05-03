@@ -1,0 +1,26 @@
+begin_test_suite
+
+set test "Median filter works on biplane input"
+
+send "in Car in Input in BiplaneSplitter set DualView value set Vertically\n"
+send "in Car in Input set MultiChannel in Channels in Channel1 in InputMethod in FileMethod set FileType in TIFF set IgnoreLibtiffWarnings value set true\n"
+set_input_file "${testcase_target}2-20110413_20110407_MT-Al647-700_adjratio_300mM-MEA_Dich710_UV_0.tif"
+send "in Car in Input in MultiChannel in Channels in Channel1 in ROIFilter in FirstImage in value set 13376\n"
+set_last_image 13377
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 335,335\n"
+send "in Car in Input in Optics in InputLayer1 in ThreeD in No3D in PSF in value set 335,335\n"
+send "in Car set Engine in rapidSTORM set SpotFindingMethod value set Median\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+
+set timeout 60
+expect {
+    -re "in $job in.*in Progress in value set 1" { pass "$test"; }
+    -re "in LocalizationCount in value set" { exp_continue; }
+}
+
+end_test_suite

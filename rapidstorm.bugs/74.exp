@@ -1,0 +1,36 @@
+global tmpdir_host
+global tmpdir_target
+
+begin_test_suite
+dstorm_attach
+set_input_file "${testcase_target}Andor_iQ.tif"
+set_last_image 25
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ToFile in value set ${tmpdir_target}74.png\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ColourScheme in value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output0 in Image in ColourScheme in  ByCoordinate in HueCoordinate in value set ImageNumber\n"
+send "in Car in Output in EngineOutput in Output0 in Image in SaveWithKey in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Image in SaveScaleBar in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Image in InvertColours in value set true\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+
+set timeout 30
+dstorm_attach
+set test "#74 job finishes"
+send "in Car in Run in value set 1\n"
+set job_number [get_job_number]
+expect {
+    -re "remove $job_number" { pass "$test"; }
+    -re "in Progress in value set" { exp_continue; }
+    -re "severity set Warning" { exp_continue; }
+}
+
+set test "Colour is correctly inverted as in #74"
+if { [exec identify -verbose "${tmpdir_host}74.png" | grep "Type: "] == "  Type: Grayscale" } {
+    fail "$test"
+} else {
+    pass "$test"
+}
+
+
+end_test_suite

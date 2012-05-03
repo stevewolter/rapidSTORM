@@ -1,0 +1,60 @@
+start_test_suite
+load_default_config
+
+set timeout 180
+
+send "in Car in Input in SampleInfo in Fluorophore0 set Wavelength value set 720.0\n"
+send "in Car in Input in Optics in InputLayer0 set PixelSizeInNM value set 146.6,146.6\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D set PSF value set 500.0,500.0\n"
+send "in Car in Input in MultiChannel set ChannelCount value set 2\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set InputFile value set ${testcase_target}X5365_Alexa700_8_1sb_256_2.tif\n"
+send "in Car in Input in MultiChannel in Channels in Channel2 set InputMethod in FileMethod set InputFile value set ${testcase_target}X6069_Alexa700_8_1sb_256_2.tif\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
+send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}matrixa_sigma1_Alexa700_8_1sb_256_2_1\n"
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}110\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set TwoKernelFitting value set false\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set true\n"
+send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiAmplitudes value set true\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set FitPSFForm\n"
+send "in Car in Output in EngineOutput in Output4 in FitPSFForm in MultiPlane in FitPrefactors in value set false\n"
+send "in Car in Output in EngineOutput in Output0 in Table set Traces value set true\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car set Engine in rapidSTORM set AmplitudeThreshold value set 500.0\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set test "Selection window is opened"
+set window ""
+expect {
+    -re "Created new window number (\[0-9\]*) named Select spots for PSF form estimation"
+        { set window "Window$expect_out(1,string)"; pass "$test"; }
+    -re "remove EngineStatus" { fail "$test"; }
+}
+
+set test "Selection window is re-opened after closing"
+send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
+send "in DummyDisplayManagerConfig in RectangleTop in value set 0\n"
+send "in DummyDisplayManagerConfig in RectangleBottom in value set 1024\n"
+send "in DummyDisplayManagerConfig in RectangleLeft in value set 0\n"
+send "in DummyDisplayManagerConfig in RectangleRight in value set 1024\n"
+send "in DummyDisplayManagerConfig in DrawRectangle in value set 1\n"
+send "in DummyDisplayManagerConfig in Close in value set 1\n"
+expect {
+    -re "Listening to window Select spots for PSF form estimation" { exp_continue; }
+    -re "Created new window number (\[0-9\]*) named"
+        { set window "Window$expect_out(1,string)"; pass "$test"; }
+}
+
+set test "Computation is done after closing again"
+send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
+send "in DummyDisplayManagerConfig in Close in value set 1\n"
+expect {
+    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "PSF estimation failed: " { fail "$test"; }
+    -re "The parameter covariance matrix in PSF estimation is singular" { fail "$test"; }
+}
+
+end_test_suite

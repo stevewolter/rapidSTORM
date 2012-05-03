@@ -1,0 +1,38 @@
+load_lib install-dirs.exp
+
+global tmpdir_host
+global tmpdir_target
+global dirsep_host
+global dirsep_target
+global workspace_target
+global workspace_host
+global testcase_target
+global testcase_host
+global may_use_camera
+global env
+
+global prefix
+
+set may_use_camera [string compare $test_camera "yes"]
+
+set tmpdir_host "test-temp-dir/"
+set tmpdir_target "test-temp-dir/"
+set testcase_target "$testcase_dir/"
+set testcase_host "$testcase_target"
+set workspace_target "${testcase_target}Sample_Workspace_dSTORM/"
+set workspace_host "$workspace_target"
+
+set deploy_root_host "$prefix"
+
+proc program_start { pkg cmd args } {
+    global spawn_id
+    global bindir
+
+    spawn $bindir/$cmd $args
+}
+
+proc program_exit { cmd } {}
+
+if { [file exists $tmpdir_host] != 1 } {
+    file mkdir $tmpdir_host
+}

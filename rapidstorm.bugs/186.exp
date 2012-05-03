@@ -1,0 +1,40 @@
+begin_test_suite
+
+set method "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod"
+send "$method in value set Generated\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageActivationTime in value set 1E-10\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageDeactivationTime in value set 1E10\n"
+send "$method in Generated in FluorophoreSet1 in Fluorophore in PhotonEmittanceRate in value set 25000\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in value set Lattice\n"
+send "$method in Generated in FluorophoreSet1 in FluorophoreDistribution in Lattice in LatticeSpacing in value set 1000,1000,3000\n"
+send "$method in Generated in NoiseGenerator in ImageWidth in value set 50\n"
+send "$method in Generated in NoiseGenerator in ImageHeight in value set 50\n"
+send "$method in Generated in NoiseGenerator in NoiseFile in value set ${testcase_target}poisson-noise-counts-8-exp-75.txt\n"
+send "$method in Generated in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "$method in Generated in ImageNumber in value set 10\n"
+send "$method in Generated in NoiseGenerator in RandomSeed in value set 2345\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 330.0,330.0\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 10000\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "in Car in Input in Optics in InputLayer0 set CountsPerPhoton value set 8\n"
+send "in Car in Input in Optics in InputLayer0 set DarkCurrent value set 0\n"
+send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}186\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
+
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set test "Job for #186 finishes"
+set count 0
+expect {
+    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { 
+        set count $expect_out(1,string); exp_continue; }
+    -re "in Progress in value set 1" { pass "$test"; }
+}
+
+pass_if [expr $count == 250] "#186 is fixed"
+
+end_test_suite

@@ -1,0 +1,49 @@
+begin_test_suite
+
+set test "#190 is fixed"
+set_input_file "${workspace_target}Mikrotubuli.sif"
+
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}190\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Image in ShowOutput in value set true\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+
+set job [get_job_number]
+
+set test "Job for #190 runs"
+expect {
+    -re "in Progress in value set 0.0*\[1-9\]" { pass "$test"; }
+}
+
+set test "New window appears for change to colour scheme"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme value set ByCoordinate\n"
+expect {
+    -re "Created new window number .* named Result image for Job" { pass "$test"; }
+}
+
+set test "New window appears for hue range change"
+send "in $job in Crankshaft in Output0 in Display in ColourScheme in ByCoordinate in HueRange value set 0.2\n"
+set window ""
+expect {
+    -re "Created new window number (\[0-9\]*) named Result image for Job" { set window "Window$expect_out(1,string)"; pass "$test"; }
+}
+send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
+
+set test "#190 is fixed"
+while { 1 == 1 } {
+    set pixel [get_pixel_value 1320 651]
+    if { [lindex $pixel 0] > 0 && [lindex $pixel 2] == 0 } {
+        pass "$test"
+        break
+    } elseif { [lindex $pixel 2] > 0 } {
+        fail "$test"
+        break
+    } else {
+        sleep 1
+    }
+}
+
+end_test_suite

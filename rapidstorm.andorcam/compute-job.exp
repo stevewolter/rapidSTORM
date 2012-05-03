@@ -1,0 +1,125 @@
+global may_use_camera
+global have_test_plugin
+global andorcam_spawn_id
+global dstorm_spawn_id
+
+if { $may_use_camera == 1 } {
+begin_test_suite
+load_default_config
+send "in Car in AutoTerminate in value set true\n"
+
+set basename can-compute-cam-job-test
+set basepath $tmpdir_host$basename
+
+set first_camera "in Camera0"
+
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 100,100\n"
+send "in Car in Input in OutputBasename in Basename in value set $tmpdir_target$basename\n"
+send -i $andorcam_spawn_id "$first_camera in Initialization in Temperature in ReferenceTemperature in value set -30\n"
+send -i $andorcam_spawn_id "$first_camera in Initialization in Temperature in TargetTemperature in value set -20\n"
+send -i $andorcam_spawn_id "$first_camera in Readout in ImageReadout in BottomCaptureBorder in value set 180\n"
+send -i $andorcam_spawn_id "$first_camera in Readout in ImageReadout in LeftCaptureBorder in value set 6\n"
+send -i $andorcam_spawn_id "$first_camera in Readout in ImageReadout in RightCaptureBorder in value set 113\n"
+send -i $andorcam_spawn_id "$first_camera in Readout in ImageReadout in TopCaptureBorder in value set 4\n"
+
+dstorm_attach
+
+set timeout 20
+send "in Car in Output in EngineOutput set ChooseTransmission value set RawImage\n"
+send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
+#send -i $andorcam_spawn_id "$first_camera_base in AcquisitionSpeed in value set 0.001\n"
+
+foreach imnum [list 20 502] {
+
+# TODO: Re-use send "$first_camera_base in AcquisitionLength value set $imnum\n"
+send -i $andorcam_spawn_id "$first_camera in Timings in AcquisitionMode in KineticLength in value set $imnum\n"
+send "in Car in Run in value set 1\n"
+
+set test "Camera presence is declared before camera is cooled completely for imnum $imnum"
+expect {
+    -i $andorcam_spawn_id -re "in Initialization in NumericState in value set 5" { fail "$test" }
+    -i $dstorm_spawn_id -re "declare Set\r*\nname AndorDirect" { pass "$test" }
+}
+
+set test "Window pixel size is correct"
+if { $have_test_plugin == 1 } {
+    expect { 
+        -i $andorcam_spawn_id -re "in ActualTemperature in value set" { exp_continue; }
+        -i $dstorm_spawn_id -re "Sizing display.*to 10\[0-9\] px.*and pixel size (\[0-9.+-eE\]*) " { 
+            set size $expect_out(1,string);
+            pass_if [ expr $size >= 0.9E-7 && $size <= 1.1E-7 ] "$test" 
+        }
+    }
+} else {
+    unsupported "$test"
+}
+set test "Image window pixel size is correct"
+if { $have_test_plugin == 1 } {
+    expect { 
+        -re "Sizing display.*to 10\[0-9\]\[0-9\] px.*and pixel size (\[0-9.+-eE\]*) " { 
+            set size $expect_out(1,string);
+            pass_if [ expr $size >= 0.9E-8 && $size <= 1.1E-8 ] "$test" 
+        }
+    }
+} else {
+    unsupported "$test"
+}
+
+set test "Job is finished for imnum $imnum"
+set seen_progress 0
+expect {
+    -i $andorcam_spawn_id -re "in ActualTemperature in value set" { exp_continue; }
+    -i $dstorm_spawn_id -re "in Progress in value set 0\.\[0-9\]*" { set seen_progress 1; exp_continue }
+    -re "in LocalizationCount in value set" { exp_continue }
+    -re "remove dStormJob" { pass "$test" }
+    -re "\nChanging window " { exp_continue }
+}
+
+set test "Have seen progress for imnum $imnum"
+if { $seen_progress == 1 } { pass "$test" } else { fail $test }
+
+wait_for_jobs
+
+set have_file 0
+set test "TIFF file exists for imnum $imnum"
+if { [file exists "$basepath.tif"] == 1 } {
+    set have_file 1
+    pass "$test"
+} else {
+    fail "$test"
+}
+set test "TIFF file has all subimages for imnum $imnum"
+if { $have_file == 1 } {
+    if { [exec identify -ping "$basepath.tif" | wc -l] == $imnum } {
+        pass "$test"
+        file delete "$basepath.tif"
+    } else {
+        fail "$test"
+    }
+} else {
+        fail "$test"
+}
+set test "JPEG image exists for imnum $imnum"
+sleep 3
+if { [file exists "$basepath.png"] == 1 } {
+    pass "$test"
+} else {
+    fail "$test"
+}
+
+}
+
+end_test_suite
+} else {
+    foreach imnum [list 20 502] {
+        unsupported "Camera presence is declared before camera is cooled completely for imnum $imnum"
+        unsupported "Window pixel size is correct"
+        unsupported "Image window pixel size is correct"
+        unsupported "Job is finished for imnum $imnum"
+        unsupported "Have seen progress for imnum $imnum"
+        unsupported "TIFF file exists for imnum $imnum"
+        unsupported "TIFF file has all subimages for imnum $imnum"
+        unsupported "JPEG image exists for imnum $imnum"
+    }
+}

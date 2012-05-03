@@ -1,0 +1,32 @@
+begin_test_suite
+dstorm_attach
+
+set test "Bug #66 is fixed"
+set input_file "Mikrotubuli.sif"
+set prefix "slicer"
+set timeout 1800
+
+set_input_file "$workspace_target$input_file"
+send "in Car in Input in OutputBasename in Basename in value set $tmpdir_target$prefix\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Slicer\n"
+send "in Car in Output in EngineOutput in Output0 in Slicer in SliceSize in value set 100\n"
+send "in Car in Output in EngineOutput in Output0 in Slicer in SliceDistance in value set 50\n"
+if { $have_test_plugin == 1 } {
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Verbose\n"
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Table\n"
+} else {
+    send "in Car in Output in EngineOutput in Output0 in Slicer in ChooseTransmission in value set Table\n"
+}
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Run in value set 1\n"
+
+expect {
+    -re "was used by multiple outputs" { fail "$test" }
+    -re "declare Object\r*\nname SlicerNode2" { pass "$test"; }
+    -re "remove dStormJob" { pass "$test" }
+    -re "in Progress" { exp_continue; }
+    -re "in LocalizationCount in" { exp_continue; }
+}
+
+end_test_suite

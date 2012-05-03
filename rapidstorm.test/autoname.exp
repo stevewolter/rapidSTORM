@@ -1,0 +1,190 @@
+begin_test_suite
+global have_test_plugin
+global andorcam_spawn_id
+global dstorm_spawn_id
+global may_use_camera
+set dcd $dstorm_spawn_id
+
+set timeout 5
+
+dstorm_attach
+
+# First of all disable standard deviation estimation so it won't make problems
+send "in Car in Input in BackgroundEstimator in Enable in value set false\n"
+send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
+send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+
+set test "basename printer works"
+if { $may_use_camera == 1 } {
+set acd $andorcam_spawn_id
+send -i $dcd "cmd 0 in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set AndorDirectConfig\n"
+expect {
+    -i $dcd -re "ack 0" { pass "$test" }
+    timeout     { fail "$test" }
+}
+send -i $acd "in Camera0 in Initialization in Temperature in ReferenceTemperature in value set 20\n"
+send -i $acd "in Camera0 in Initialization in Temperature in TargetTemperature in value set 30\n"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in AndorDirectConfig in ShowLiveByDefault in value set false\n"
+send -i $acd "in Camera0 in Timings in AcquisitionMode in KineticLength in value set 1\n"
+} else {
+    set_input_file "${workspace_target}Mikrotubuli.txt"
+    unsupported "$test"
+}
+
+set timeout 10
+
+set test "Can add basename printer"
+set bnp_prefix ""
+if { $have_test_plugin == 1 && $may_use_camera == 1 } {
+send "cmd 1 in Car in Output in EngineOutput in ChooseTransmission in value set BasenamePrinter\n"
+expect {
+    -i $dcd -re "(in Car in Output in EngineOutput )declare Object\r*\nname Output(\[0-9\]*)" 
+        { 
+            pass "$test"
+            set bnp_prefix "$expect_out(1,string)in Output$expect_out(2,string) in BasenamePrinter" 
+        }
+    -i $dcd -re "Could not perform action: There is no choice named BasenamePrinter" {}
+    "ack 1" { fail "$test" }
+    timeout { fail "$test" }
+}
+} else {
+    unsupported "$test"
+}
+
+if { [string compare "$bnp_prefix" ""] != 0 } {
+
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+
+set test "camera job basename display"
+send "in Car in Input in OutputBasename in Basename in value set Job_\$run\$\n"
+expect {
+    -i $dcd -re "Displaying output file name Job_.run..foo"        { pass "$test" }
+    -i $dcd -re "Displaying output file name  "        { fail "$test" }
+    -i $dcd -re "Output file basename is "        { fail "$test" }
+    timeout { fail "$test" }
+}
+
+set test "camera job increment #1"
+set current_job 0
+send "in Car in Run in value set 1\n"
+expect {
+    -i $dcd -re "Output file basename is Job_(\[0-9\]*)"       
+	{ pass "$test"; set current_job $expect_out(1,string) }
+    -i $dcd -re "Output file basename is .*\r*\n"        { fail "$test" }
+    -i $acd -re "in ActualTemperature in value set" { exp_continue; }
+}
+expect {
+    -i $dcd -re "in dStormJob$current_job declare TriggerEntry\r*\nname CloseJob" {}
+    -i $acd -re "in ActualTemperature in value set" { exp_continue; }
+}
+send "in dStormJob$current_job in CloseJob in value set 1\n"
+set current_job [expr $current_job+1]
+wait_for_jobs
+
+foreach {i} {2 3 4} {
+  set test "camera job increment #$i"
+  if { $may_use_camera == 1 } {
+    set timeout 10
+    send "in Car in Run in value set 1\n"
+    expect {
+	-i $dcd -re "Output file basename is Job_[format %02i $current_job].*\r*\n"        { pass "$test" }
+	-i $dcd -re "Output file basename is .*\r*\n"        { fail "$test" }
+        -i $acd -re "in ActualTemperature in value set" { exp_continue; }
+    }
+    wait_for_jobs
+    set current_job [expr $current_job+1]
+  } else {
+    unsupported "$test"
+  }
+}
+
+wait_for_jobs
+
+set test "Basename is switched back to empty"
+
+send "in Car in Input in OutputBasename in Basename in value set \n"
+expect { 
+    -re "Displaying output file name .foo" { pass "$test" } 
+    -re "Displaying output file name .*.foo" { fail "$test" } 
+}
+
+set test "basename switch"
+
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in value set FileMethod\n"
+set_input_file "${testcase_target}empty.dummy"
+send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in DummyInput in Number in value set 1\n"
+expect {
+    -re "Displaying output file name testoutputfile.foo" { pass "$test" }
+    -re "Displaying output file name .*.foo" { fail "$test" }
+}
+
+set test "sif file basename"
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+expect {
+    -re "Displaying output file name (\[^\r\n\]*.foo)\r*\n" { 
+        pass_if [expr [string compare "$expect_out(1,string)" "${workspace_target}Mikrotubuli.foo"] == 0] "$test"
+    }
+    timeout { fail "$test" }
+}
+
+set test "stm file basename"
+
+send "cmd 38 "
+set_input_file "${workspace_target}Mikrotubuli.txt"
+expect {
+    -re "ack 38" { pass "$test" }
+    -re "Displaying output file name .*.foo" { fail "$test" }
+    timeout { fail "$test" }
+}
+
+set test "auto-name in run"
+
+send "in Car in Run in value set 1\n"
+expect {
+    -re "Output file basename is (\[^\r\n\]*)\r*\n"  {
+        pass_if [expr [string compare "$expect_out(1,string)" "${workspace_target}Mikrotubuli.foo"] == 0] "$test"
+    }
+    -re "Job 04 failed" { fail "$test" }
+    timeout { fail "$test" }
+}
+
+wait_for_jobs
+
+set test "user-selected name in run"
+
+send "$bnp_prefix in ToFile in value set my_output\n"
+send "in Car in Run in value set 1\n"
+expect {
+    -re "Output file basename is my_output" { pass "$test" }
+    -re "Output file basename is .*\r*\n"  { fail "$test" }
+    -re "Job \[0-9\]* failed" { fail "$test" }
+}
+
+wait_for_jobs
+
+set test "preservation of user-selected name"
+send "cmd 38 "
+set_input_file "${workspace_target}Mikrotubuli.txt"
+expect {
+    "Displaying output file name ${workspace_target}Mikrotubuli.foo" { fail "$test" }
+    "ack 38" { pass "$test" }
+}
+
+set test "back-switch to automatic name"
+send "$bnp_prefix in ToFile in value set \n"
+expect {
+    -re "Displaying output file name (\[^\r\n\]*)\r*\n" {
+        pass_if [expr [ string compare "$expect_out(1,string)" "${workspace_target}Mikrotubuli.foo" ] == 0] "$test"
+    }
+}
+
+} else {
+    unsupported "basename tests"
+}
+
+# send "detach\n"
+send "cmd 0 wait_for_jobs\n"
+expect -re "ack 0"
+
+end_test_suite

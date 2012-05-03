@@ -1,0 +1,62 @@
+start_test_suite
+global test
+global have_test_plugin
+
+send "attach\n"
+
+set file "${testcase_target}complete_loc_file.stm"
+set_input_file "$file"
+set test "STM method selected for STM file"
+expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value" "STM"
+set test "Replay engine selected for STM file"
+expect_value "in Car in Engine in value" "LocalizationBuncher"
+
+set test "STM file replays localizations parallel to reading full file"
+if { $have_test_plugin == 1 } {
+    send "in Car in Input in VerboseInput in BeVerbose in value set true\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
+    send "in Car in Output in EngineOutput in ChooseTransmission in value set Delayer\n"
+    send "in Car in Run in value set 1\n"
+    
+    expect {
+        -re "Advancing from .* 10 fr" { fail "$test" }
+        -re "Verbose plugin got \[0-9\]* localizations for 0 fr" { pass "$test" }
+    }
+    set test "Replaying replays final empty frame"
+    set have_succession 0
+    expect {
+        -re "Verbose plugin got 0 localizations for 11 fr" { pass "$test" }
+        -re "Verbose plugin got store_results signal, success 0" { fail "$test" }
+        -re "Verbose plugin got store_results signal, success 1" { fail "$test"; set have_succession 1 }
+    }
+    set test "Replaying stops afterwards"
+    if { $have_succession == 0 } {
+        expect {
+            -re "Verbose plugin got \[0-9\]* localizations for 12 fr" { fail "$test" }
+            -re "Verbose plugin got store_results signal, success 1" { pass "$test" }
+        }
+    } else {
+        pass "$test"
+    }
+} else {
+    unsupported "$test"
+}
+
+set file "${testcase_target}missing_image_undeclared.stm"
+set_input_file "$file"
+set test "STM file replay waits till file end for undeclared missing image"
+if { $have_test_plugin == 1 } {
+    send "in Car in Run in value set 1\n"
+    
+    expect {
+        -re "Advancing from .* 10 fr" { pass "$test" }
+    }
+    set test "Missing image is declared after file is finished"
+    expect {
+        -re "Verbose plugin got \[0-9\]* localizations for 5 fr" { pass "$test" }
+    }
+} else {
+    unsupported "$test"
+}
+
+end_test_suite

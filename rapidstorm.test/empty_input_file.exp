@@ -1,0 +1,2 @@
+set test "Can open empty input file"
+untested "$test"
