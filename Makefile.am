@@ -275,11 +275,11 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES = dstorm.cpp
 dstorm_@DSTORM_LIB_VERSION@_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 dstorm_@DSTORM_LIB_VERSION@_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
 dstorm_@DSTORM_LIB_VERSION@_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
-dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
+dstorm_@DSTORM_LIB_VERSION@_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
 dstorm_@DSTORM_LIB_VERSION@_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_@DSTORM_LIB_VERSION@_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_@DSTORM_LIB_VERSION@_LDADD += -lboost_unit_test_framework
+dstorm_@DSTORM_LIB_VERSION@_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 
 dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -681,6 +681,18 @@ dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
     tiff/augment_config.h tiff/augment_config.cpp
+
+if HAVE_LIBREADSIF
+    SIFSUPPORT = \
+	andor-sif/AndorSIF.h andor-sif/AndorSIF.cpp \
+	andor-sif/AndorSIF_OpenFile.h andor-sif/AndorSIF_OpenFile.cpp
+else
+    SIFSUPPORT =
+endif
+
+dstorm_@DSTORM_LIB_VERSION@_SOURCES += \
+    $(SIFSUPPORT) \
+    andor-sif/augment_config.h andor-sif/augment_config.cpp
 
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm@DSTORM_LIB_VERSION@_CPPFLAGS = $(gsl_CFLAGS)

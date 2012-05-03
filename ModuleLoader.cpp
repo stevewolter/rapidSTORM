@@ -23,6 +23,7 @@
 #include "AndorCamera/plugin.h"
 #include "viewer/plugin.h"
 #include "tiff/augment_config.h"
+#include "andor-sif/augment_config.h"
 #include "calibrate_3d/fwd.h"
 
 #include "debug.h"
@@ -143,6 +144,7 @@ void ModuleLoader::add_modules
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
     dStorm::tiff::augment_config( car_config );
+    dStorm::andor_sif::augment_config( car_config );
 
     guf::augment_config( car_config );
     car_config.add_output( output::make_output_source<estimate_psf_form::Output>() );

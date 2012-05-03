@@ -60,7 +60,6 @@ PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator libsimparm])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 
-have_libb64=yes
 PKG_CHECK_MODULES([GraphicsMagick], [GraphicsMagick++])
 PKG_CHECK_MODULES([gsl], [gsl])
 
@@ -74,8 +73,14 @@ fi
 AC_SUBST([tinyxml_LIBS])
 AC_SUBST([tinyxml_CFLAGS])
 
+have_libb64=yes
 PKG_CHECK_MODULES([libb64], [libb64], , [have_libb64=no])
 AS_IF([test "$have_libb64" = yes], AC_DEFINE([HAVE_LIBB64], [1], [LibB64 library is available]))
+
+have_libreadsif=yes
+PKG_CHECK_MODULES([libreadsif], [libreadsif], , [have_libreadsif=no])
+AS_IF([test "$have_libreadsif" = yes], AC_DEFINE([HAVE_LIBREADSIF], [1], [readsif library is available]))
+AM_CONDITIONAL([HAVE_LIBREADSIF], [test "$have_libreadsif" = yes])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -99,8 +104,10 @@ AC_CHECK_LIB([boost_thread], [main], [boost_thread_LIB=-lboost_thread])
 AC_CHECK_LIB([boost_thread_win32], [main], [boost_thread_LIB=-lboost_thread_win32])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
+AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework])
 AC_SUBST([boost_system_LIB])
 AC_SUBST([boost_thread_LIB])
+AC_SUBST([boost_unit_test_LIB])
 
 AC_CHECK_LIB([ws2_32], [main], [libb64_LIBS="$libb64_LIBS -lws2_32"])
 AC_CHECK_LIB([mswsock], [main], [libb64_LIBS="$libb64_LIBS -lmswsock"])

@@ -24,6 +24,9 @@
 /* LibB64 library is available */
 #undef HAVE_LIBB64
 
+/* readsif library is available */
+#undef HAVE_LIBREADSIF
+
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC
 
