@@ -163,7 +163,6 @@ Eigen::VectorXd ParameterLinearizer::Pimpl::linearize( const engine::InputTraits
 
 void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters, engine::InputTraits& traits ) 
 {
-    const int fluorophore = 0;
     multiplane->set_position( parameters );
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
         const gaussian_psf::Polynomial3D& m = planes[plane_index].get_expression();
