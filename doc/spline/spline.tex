@@ -75,13 +75,15 @@ tocloft,textcomp,latexsym,fixltx2e,fix-cm,bibgerm,fancyhdr,setspace,units,makeid
 
 %%your document starts here
 \begin{document}
-\sffamily				%%schrift serifenlos
+%\sffamily				%%schrift serifenlos
 
 \section{Calibration data}
 
 \subsection{record calibration file}
-Things needed for recording calibration data\label{tab:reccal}:
+\par Things needed for recording calibration data\label{tab:reccal}:
 \begin{itemize}
+	\item rapidSTORM
+	\item gnuplot or comparable software
 	\item thinly coated Tetraspeck surface
 	\item objective piezo (e.g. PIfoc, Physik Instrumente)
 	\item appropriate cylindrical lens in detection path
@@ -105,7 +107,7 @@ Exaple procedure:
 
 \subsection{get calibration curve}
 \begin{enumerate}
-	\item start rapidstorm, load calibration data to the input field (don't forget to check "`Ignore libtiff warnings"' if your data is a tif-file) and switch to expert mode
+	\item start rapidSTORM, load calibration data to the input field (don't forget to check "`Ignore libtiff warnings"' if your data is a tif-file) and switch to expert mode
 	\item "`Size of input pixel"': \\
 	enter correct pixelsizes for x and y (to get two fields, click the unjoin button)
 	\item "`PSF FWHM"': \textbf{remember your input!} \\
@@ -136,10 +138,62 @@ Exaple procedure:
 	\item run evaluation
 \end{enumerate}
 
-\par rapidSTORM now created some outputs. You should already know the \textit{filename}.txt and the \textit{filename}-raw.txt (and \textit{filename}.png if you saved the picture. The interesting and new output is \textbf{\textit{filename}-sigma-table.txt}. Plot this file with gnuplot or Origin. As you now tried to get a curve for the whole calibration movie, it is likely that your result will look pretty awful, but that is ok. This is just because the fit routine tried to fit to PSFs which were already too blurred or even showed a first diffraction order. Thus you have to 
+\par rapidSTORM now created some outputs. You should already know the \textit{calibration filename}.txt and the \textit{calibration filename}-raw.txt (and \textit{calibration filename}.png if you saved the picture. The interesting and new output is \textbf{\textit{calibration filename}-sigma-table.txt}. Plot this file with gnuplot or Origin. As you now tried to get an interpolated calibration curve for the whole movie, it is likely that your result will look pretty awful, but that is ok. This is just because the fit routine tried to fit to PSFs which were already too blurred or even showed a first diffraction order. Thus you have to crop the z region that rapidSTORM tries to fit, so first try to estimate, where the fitting is kinda decent. As an exaple, let's assume this is between $z= 2000 nm$ and $z= 6000 nm$.  You now have to do the same as above, but using this extra knowledge. Don't worry, rapidSTORM kept the settings if you didn't close it.
+
+\begin{enumerate}
+	\item close old job
+	\item go to the "`Expression filter"' tab
+		\begin{itemize}
+		\item click "`Add expression"'
+		\item "`Expression to assign from"' (the blank one):\\
+		in this example: posz > 2000 nm \&\& posz < 6000 nm
+		\end{itemize}
+	\item run evaluation again
+	\item have a look at the result
+	\item repeat cropping and reevaluating until your calibration curves look smooth and steady
+\end{enumerate}
+
+\par You are now ready to calibrate your measurement.
 
 \section{Make 3D image of measurement}
 
+\begin{enumerate}
+	\item Load your measurement file in rapidSTORM (make shure, you are still in Expert mode)
+	\item "`3D PSF model"'\\
+	Choose "`Interpolated 3D"'
+	\item Enter the pixelsizes you used for calibration
+	\item "`Z calibration file"':\\
+	select your final \textit{calibration filename}-sigma-table.txt
+	\item adjust "`Amplitude discarding threshold"'
+	\item "`Fit window radius"':\\
+	\textbf{It is crucial to enter the exact value you used for calibration} (1100 nm in the example)
+	\item \textbf{make sure you uncheck "`PSF width is free fit parameter"' and "`Store PSF covariance matrix"'}
+	\item go to "`Expression filter"'
+		\begin{itemize}
+		\item Erase what you entered in the first "`Expression to assign from"'-field (here, 8 nm/fr * frame)
+		\item Change the first "`Value to assign to"' from posz to Expression
+		\item Erase what you entered in the other "`Expression to assign from"'-field (here, posz > 2000 nm \&\& posz < 6000 nm)
+		\item "`Select output to remove"':\\
+		3D PSF width calibration table
+	\end{itemize}
+	\item go to "`Expression filter -> Image Display"'
+		\begin{itemize}
+		\item "`Save image to"':\\
+		Change filetype to .tif. Make sure, the filename differs from the measurements filename. We would suggest to call it 			\textit{filename}\_stack.tif
+		\item adjust "`Resolution in x,y,z direction"' fields:\\
+		Especially z should get a reasonable value - let's say 50 nm. Else you will most likely run out of memory when saving the stack
+		\item Check the "`Make 3D image"' box
+		\item you may want to colour-code z position:\\
+		"`Colour palette for display"':\\
+		Choose "`Vary hue with sample coordinate"'\\
+		"`Coordinate to vary hue with"':\\
+		"`position in sample space z"'
+		\end{itemize}
+	\item run evaluation
+	\item have a look at your result for example using the fiji image viewer
+\end{enumerate}
+
+\par That's it...
 
 %%end is near ;-)
 \end{document}
