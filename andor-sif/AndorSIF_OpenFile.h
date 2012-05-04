@@ -8,11 +8,7 @@
 #include <boost/utility.hpp>
 #include <dStorm/Image.h>
 #include <dStorm/engine/InputTraits.h>
-
-#ifndef CImgBuffer_SIFLOADER_CPP
-typedef void readsif_File;
-typedef void readsif_DataSet;
-#endif
+#include <read_sif.h>
 
 namespace dStorm {
 namespace andor_sif {

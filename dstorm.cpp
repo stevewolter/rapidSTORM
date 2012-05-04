@@ -76,11 +76,9 @@ int main(int argc, char *argv[]) {
         display.reset( test::make_display( display.release() ) );
         display::Manager::setSingleton(*display);
 
-        std::auto_ptr<CommandLine> cmd_line;
-        cmd_line.reset( new CommandLine( argc, argv ) );
-        cmd_line->run();
-        cmd_line.reset();
-
+        MainThread main_thread;
+        CommandLine(main_thread).parse( argc, argv );
+        main_thread.run_all_jobs();
     } catch (const std::bad_alloc &e) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 
                   << std::endl;

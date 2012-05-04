@@ -1,6 +1,4 @@
-#include "config.h"
-
-#define CImgBuffer_SIFLOADER_CPP
+#include "debug.h"
 
 #include <read_sif.h>
 #include <stdexcept>
@@ -77,6 +75,7 @@ class Source::iterator
 
     Image& dereference() const { 
         if ( ! img ) {
+            DEBUG("Loading image " << count << " from " << this << "," << src);
             std::auto_ptr<engine::ImageStack> i = src->load_image(count, *msg);
             if ( i.get() != NULL )
                 img = *i;
@@ -84,6 +83,7 @@ class Source::iterator
                 img = Image( engine::Image2D() );
             img->frame_number() = count * camera::frame;
         }
+        DEBUG("Dereferencing " << this << " to " << img->frame_number());
         return *img; 
     }
     bool equal(const iterator& i) const { 

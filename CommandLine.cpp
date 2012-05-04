@@ -41,109 +41,50 @@ class TwiddlerLauncher
   simparm::Listener
 {
     job::Config &config;
-    std::list<Job*> &jobs;
-    boost::ptr_vector<InputStream> streams;
+    MainThread& main_thread;
     void operator()( const simparm::Event& );
   public:
-    TwiddlerLauncher(job::Config&, std::list<Job*>&);
+    TwiddlerLauncher(job::Config&, MainThread& main_thread);
     ~TwiddlerLauncher();
 };
 
-class CommandLine::Pimpl
-: public JobMaster
-{
-    simparm::IO io;
-    int argc;
-    char **argv;
-    job::Config config;
-    JobStarter starter;
-    boost::mutex mutex;
-    boost::condition jobs_empty;
-    std::list<Job*> jobs;
+void CommandLine::parse( int argc, char *argv[] ) {
+    simparm::IO argument_parser(NULL,NULL);
 
-    bool load_config_file(const std::string& filename);
-    void find_config_file();
-
-    class JobHandle : public dStorm::JobHandle {
-        Pimpl& master;
-        dStorm::Job& job;
-        bool registered;
-        ~JobHandle() { unregister_node(); master.deleted_node(job); }
-        void unregister_node() { if ( registered ) { master.erase_node(job); registered = false; } }
-      public:
-        JobHandle( Pimpl& m, dStorm::Job& j ) : master(m), job(j), registered(true) {}
-    };
-
-  public:
-    Pimpl(int argc, char *argv[]);
-    ~Pimpl();
-
-    void run();
-    std::auto_ptr<dStorm::JobHandle> register_node( dStorm::Job& j ) { 
-        DEBUG("Waiting for mutex to add job");
-        boost::lock_guard<boost::mutex> lock(mutex);
-        io.push_back(j.get_config());
-        DEBUG("Pushed back " << j.get_config().getName());
-        jobs.push_back( &j ); 
-        return std::auto_ptr<dStorm::JobHandle>( new JobHandle( *this, j ) );
-    }
-    void erase_node( dStorm::Job& j ) {
-        DEBUG("Waiting for mutex to delete job for " << j.get_config().getName());
-        boost::lock_guard<boost::mutex> lock(mutex);
-        io.erase(j.get_config());  
-        DEBUG("Erased " << j.get_config().getName());
-    }
-    void deleted_node( dStorm::Job& j ) {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        jobs.remove( &j ); 
-        jobs_empty.notify_all();
-    }
-};
-
-CommandLine::CommandLine(int argc, char *argv[])
-: pimpl(new Pimpl(argc, argv))
-{
-}
-CommandLine::~CommandLine()
-{}
-
-void CommandLine::run() {
-    pimpl->run();
-}
-
-void CommandLine::Pimpl::run() {
     for ( int i = 0; i < argc; i++ ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
     }
 
-    io.push_back(
+    config.registerNamedEntries( argument_parser );
+    argument_parser.push_back(
         std::auto_ptr<simparm::Node>(new
             TransmissionTreePrinter(config)));
-    io.push_back(
+    argument_parser.push_back(
         std::auto_ptr<simparm::Node>(new
-            TwiddlerLauncher(config, jobs)));
-    io.push_back( starter );
+            TwiddlerLauncher(config, main_thread)));
+    argument_parser.push_back( starter );
     if ( display::Manager::getSingleton().getConfig() )
-        io.push_back( *display::Manager::getSingleton().getConfig() );
+        argument_parser.push_back( *display::Manager::getSingleton().getConfig() );
 
-    find_config_file();
+    int shift = find_config_file(argc,argv);
+    argc -= shift;
+    argv += shift;
 
     DEBUG("Reading command line arguments");
     int first_nonoption = 0;
     if (argc > 0) {
-        first_nonoption = readConfig(io, argc, argv);
+        first_nonoption = readConfig(argument_parser, argc, argv);
     }
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
     for (int arg = first_nonoption; arg < argc; arg++) {
         std::cerr << "Warning: Command line argument " << argv[arg] << " was ignored." << std::endl;
-        //config.inputConfig.input_file() = std::string(argv[arg]);
-        //starter.trigger();
     }
     DEBUG("Finished processing commandline arguments");
 }
 
-void CommandLine::Pimpl::find_config_file() {
+int CommandLine::find_config_file( int argc, char* argv[] ) {
+    int shift = 0;
     DEBUG("Checking for relevant environment variables");
     const char *home = getenv("HOME"),
                *homedrive = getenv("HOMEDRIVE"),
@@ -156,6 +97,7 @@ void CommandLine::Pimpl::find_config_file() {
         if ( !successfully_opened )
             DEBUG("Skipped unreadable config file '" << argv[2] << "'");
         argc -= 2;
+        shift += 2;
         argv[2] = argv[0];
         argv = argv + 2;
     }
@@ -165,10 +107,10 @@ void CommandLine::Pimpl::find_config_file() {
     if ( !have_file && homedrive != NULL && homepath != NULL )
         have_file = load_config_file( 
             std::string(homedrive) + std::string(homepath) + "/dstorm.txt");
-
+    return shift;
 }
 
-bool CommandLine::Pimpl::load_config_file(
+bool CommandLine::load_config_file(
     const std::string& name
 ) {
     DEBUG("Opening config file " << name);
@@ -188,22 +130,14 @@ bool CommandLine::Pimpl::load_config_file(
     }
 }
 
-CommandLine::Pimpl::Pimpl(int argc, char *argv[])
-: io(NULL, NULL), argc(argc), argv(argv), starter(this)
+CommandLine::CommandLine( MainThread& main_thread )
+: starter( &main_thread ), main_thread( main_thread )
 {
     starter.setConfig(config);
     add_modules( config );
     config.all_modules_loaded();
-    config.registerNamedEntries(io);
 }
-CommandLine::Pimpl::~Pimpl() {
-    boost::unique_lock<boost::mutex> lock(mutex);
-    while ( ! jobs.empty() ) {
-        if ( ! jobs.empty() ) {
-            DEBUG("Waiting with " << jobs.size() << " jobs");
-            jobs_empty.wait(lock);
-        }
-    }
+CommandLine::~CommandLine() {
 }
 
 TransmissionTreePrinter::TransmissionTreePrinter
@@ -239,31 +173,21 @@ void TransmissionTreePrinter::printNode(
 }
 
 TwiddlerLauncher::TwiddlerLauncher
-    ( job::Config& c, std::list<Job*>& j )
+    ( job::Config& c, MainThread& main_thread )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
   simparm::Listener( simparm::Event::ValueChanged ),
   config(c),
-  jobs(j)
+  main_thread(main_thread)
 {
     receive_changes_from( value );
 }
 
 void TwiddlerLauncher::operator()( const simparm::Event& )
 {
-    DEBUG("Launching command stream");
-    std::auto_ptr<InputStream> is(new InputStream(config, std::cin, std::cout));
-    for ( std::list<Job*>::iterator i = jobs.begin(); i != jobs.end(); i++ ) {
-        DEBUG("Registering additional job " << (*i)->get_config().getName());
-        is->register_node( **i );
-    }
-    is->start();
-    streams.push_back( is );
-    DEBUG("Launched command stream");
+    main_thread.connect_stdio( config );
 }
 
 TwiddlerLauncher::~TwiddlerLauncher() {}
-
-std::auto_ptr<JobHandle> CommandLine::register_node( Job& j ) { return pimpl->register_node( j ); }
 
 }

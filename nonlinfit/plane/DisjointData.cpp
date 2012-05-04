@@ -18,7 +18,6 @@ static void check_serialization() {
     data.pad_last_chunk();
 
     int i = 0;
-    bool all_good = true;
     for ( Data::const_iterator j = data.begin(); j != data.end(); ++j ) {
         BOOST_CHECK_EQUAL( j->position(0).value(), i%7 );
         BOOST_CHECK_EQUAL( j->position(1).value(), - (i/7) * 5 );

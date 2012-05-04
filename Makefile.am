@@ -345,6 +345,7 @@ dstorm_SOURCES += \
     ModuleLoader.h ModuleLoader.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
+    MainThread.h MainThread.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
 
 dstorm_SOURCES += \

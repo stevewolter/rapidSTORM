@@ -21,11 +21,6 @@
 
 #include "AndorSIF_OpenFile.h"
 
-#ifndef CImgBuffer_SIFLOADER_CPP
-typedef void readsif_File;
-typedef void readsif_DataSet;
-#endif
-
 namespace dStorm {
 class BasenameWatcher;
 namespace andor_sif {

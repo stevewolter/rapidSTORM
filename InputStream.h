@@ -1,32 +1,31 @@
 #ifndef DSTORM_INPUTSTREAM_H
 #define DSTORM_INPUTSTREAM_H
 
+#include <memory>
 #include <simparm/Node.hh>
+#include <simparm/IO.hh>
 #include <dStorm/Config_decl.h>
-#include <dStorm/JobMaster.h>
+#include "JobStarter.h"
 
 namespace dStorm {
 
-namespace job { class Config; }
+class MainThread;
 
 class InputStream 
-: public JobMaster
+: public simparm::IO
 {
-    class Pimpl;
-    friend class Pimpl;
-    std::auto_ptr<Pimpl> pimpl;
+    std::auto_ptr< job::Config > orig_config, current_config;
+    JobStarter starter;
+    MainThread& main_thread;
 
+    void reset_config();
+    void processCommand( const std::string& cmd, std::istream& rest);
+    void print(const std::string& what);
   public:
-    InputStream(const job::Config&,
-                std::istream&, std::ostream&);
-    InputStream(std::istream*, std::ostream*);
+    InputStream( MainThread& master );
     ~InputStream();
-    
-    void add_modules( Config& config );
-
-    void start();
-
-    std::auto_ptr<JobHandle> register_node( Job& );
+    void set_config( const job::Config& );
+    void processCommand( std::istream& stream ) { simparm::IO::processCommand(stream); }
 };
 
 }

@@ -81,11 +81,7 @@ Car::Car (JobMaster* input_stream, const Config &config)
     output->check_for_duplicate_filenames( used_output_filenames );
     DEBUG("Checked for duplicate filenames");
 
-    DEBUG("Registering at input_stream config " << input_stream);
-    if ( input_stream )
-        job_handle = input_stream->register_node( *this );
-
-    master_thread = boost::thread( &Car::run, this );
+    master_thread = boost::thread( &Car::run, this, input_stream );
 }
 
 Car::~Car() 
@@ -106,7 +102,11 @@ Car::~Car()
     DEBUG("Commencing destruction");
 }
 
-void Car::run() {
+void Car::run( JobMaster* input_stream ) {
+    DEBUG("Registering at input_stream config " << input_stream);
+    if ( input_stream )
+        job_handle = input_stream->register_node( *this );
+
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {

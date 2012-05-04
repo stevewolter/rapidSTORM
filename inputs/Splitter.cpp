@@ -108,7 +108,6 @@ Source::Source(bool vertical, std::auto_ptr<input::Source<engine::ImageStack> > 
 }
 
 void Source::modify_traits( input::Traits<engine::ImageStack>& s ) {
-    DEBUG("Running background standard deviation estimation");
     const int dim = (vertical) ? 1 : 0;
     ChainLink::split_planes( s, dim );
 }
@@ -130,6 +129,7 @@ struct Source::iterator
 engine::ImageStack& Source::iterator::dereference() const {
     if ( ! i.is_initialized() ) {
         const engine::ImageStack& e = *base();
+        DEBUG("Upstream has frame number " << e.frame_number());
         i = engine::ImageStack( e.frame_number() );
         for (int p = 0; p < e.plane_count(); ++p ) {
             if ( e.plane(p).is_invalid() ) {
@@ -151,6 +151,7 @@ engine::ImageStack& Source::iterator::dereference() const {
             }
         }
     }
+    DEBUG("Result has frame number " << i->frame_number());
     return *i;
 }
 

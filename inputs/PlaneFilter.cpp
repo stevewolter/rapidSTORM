@@ -73,8 +73,9 @@ class Source::_iterator
 
     engine::ImageStack& dereference() const { 
         if ( ! is_initialized ) {
-            i.clear();
-            i.push_back( this->base()->plane( plane ) );
+            const engine::ImageStack& all_planes = *this->base();
+            i = engine::ImageStack( all_planes.frame_number() );
+            i.push_back( all_planes.plane( plane ) );
         }
         return i; 
     }

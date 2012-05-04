@@ -153,6 +153,8 @@ Config::Config(const Config &c)
 
 Config::~Config() {
     dStorm::input::InputMutexGuard lock( input::global_mutex() );
+    car_config.clearParents();
+    car_config.clearChildren();
     outputRoot.reset( NULL );
     input_listener.reset();
     input.reset();

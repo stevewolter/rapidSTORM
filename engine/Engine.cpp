@@ -406,7 +406,6 @@ bool Engine::can_repeat_results() { return false; }
 void Engine::change_input_traits( std::auto_ptr< input::BaseTraits > traits )
 {
     Input::TraitsPtr::element_type* t = dynamic_cast< Input::TraitsPtr::element_type* >(traits.get());
-    DEBUG("Changing input traits to " << t << " with plane count " << t->plane_count() << " and PSF " << t->optics(0).psf_size(0));
     if ( t != NULL ) {
         imProp.reset( t );
         traits.release();

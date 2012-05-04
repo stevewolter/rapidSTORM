@@ -1,22 +1,26 @@
 #ifndef DSTORM_COMMANDLINE_H
 #define DSTORM_COMMANDLINE_H
 
-#include <dStorm/JobMaster.h>
+#include "MainThread.h"
+#include "JobStarter.h"
+#include <dStorm/Config.h>
 
 namespace dStorm {
 
 class CommandLine
-: public JobMaster
 {
-    class Pimpl;
-    std::auto_ptr<Pimpl> pimpl;
+    job::Config config;
+    JobStarter starter;
+    MainThread& main_thread;
+
+    int find_config_file( int argc, char* argv[] );
+    bool load_config_file( const std::string& );
 
   public:
-    CommandLine(int argc, char *argv[]);
+    CommandLine( MainThread& main_thread );
     ~CommandLine();
 
-    void run();
-    std::auto_ptr<JobHandle> register_node( Job& );
+    void parse( int argc, char* argv[] );
 };
 
 }

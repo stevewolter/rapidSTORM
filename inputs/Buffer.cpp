@@ -148,7 +148,7 @@ void Source<Object>::dispatch(BaseSource::Messages m) {
         next_output = buffer.begin();
     }
     this->base().dispatch(m);
-    DEBUG("Dispatched message " << m.to_string() << " to buffer");
+    DEBUG("Dispatched message " << m.to_string() << " to buffer " << this);
 }
 
 template<typename Object>
@@ -158,17 +158,16 @@ Source<Object>::get_free_slot()
     boost::lock_guard<boost::mutex> lock(mutex);
     while ( true ) {
         if ( next_output != buffer.end() ) {
-            DEBUG("Returning stored object " << *next_output);
+            DEBUG("Returning stored object " << next_output->frame_number() << " for " << this);
             return next_output++;
         } else if ( current_input == end_of_input )
         {
-            DEBUG("Returning empty list");
+            DEBUG("Returning empty list" << " for " << this);
             return buffer.end();
         } else {
-            DEBUG("Getting input");
             buffer.push_back( *current_input );
             ++current_input;
-            DEBUG("Got input " << buffer.back());
+            DEBUG("Got input " << buffer.back().frame_number() << " for " << this);
             return --buffer.end();
         }
     }

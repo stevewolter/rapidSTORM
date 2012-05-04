@@ -106,7 +106,6 @@ proc dstorm_start {} {
 }
 
 proc dstorm_attach {} {
-    global andorcam_spawn_id
     global may_use_camera
 
     set test "attachment works"
@@ -117,6 +116,7 @@ proc dstorm_attach {} {
         timeout { fail "$test"; exit 2 }
     }
     if { $may_use_camera == 1 } {
+        global andorcam_spawn_id
         send -i $andorcam_spawn_id "cmd 23 attach\n"
         expect {
             -i $andorcam_spawn_id "ack 23" { pass "$test" }

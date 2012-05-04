@@ -70,7 +70,7 @@ namespace job {
         void drive();
         void stop();
         bool needs_stopping() { return true; }
-        DSTORM_REALIGN_STACK void run() ;
+        DSTORM_REALIGN_STACK void run( JobMaster* ) ;
 
         simparm::Node& get_config() { return runtime_config; }
 
