@@ -110,7 +110,7 @@ AC_CHECK_LIB([boost_thread], [main], [boost_thread_LIB=-lboost_thread])
 AC_CHECK_LIB([boost_thread_win32], [main], [boost_thread_LIB=-lboost_thread_win32])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
-AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework])
+AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework], [AC_ERROR(boost unit test library not found)])
 AC_SUBST([boost_system_LIB])
 AC_SUBST([boost_thread_LIB])
 AC_SUBST([boost_unit_test_LIB])
@@ -190,8 +190,6 @@ fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-AC_SUBST([DSTORM_LIB_VERSION], $AX_MAJOR_VERSION)
-AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugins-v$AX_MAJOR_VERSION")
 # This substitution is not used, but necessary to touch config.h on
 # change of the major version to propagate the name of the plugin directory,
 # which is only defined through the Makefile

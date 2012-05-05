@@ -4,4 +4,4 @@ prefix=@prefix@
 datarootdir=@datarootdir@
 datadir=@datadir@/java
 
-java -jar ${datadir}/rapidSTORM@DSTORM_LIB_VERSION@.jar "$@"
+java -jar ${datadir}/rapidSTORM.jar "$@"

@@ -6,7 +6,6 @@ AUTOMAKE_OPTIONS = subdir-objects dejagnu
 include aminclude.am
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-plugin_libdir = $(DSTORM_PLUGIN_DIR)
 javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
@@ -103,9 +102,7 @@ java-built-stamp : $(JAVASOURCES)
 	touch $@
 
 DefaultPath.java : $(srcdir)/DefaultPath.java.in
-	sed -e 's:[@]DSTORM_LIB_VERSION[@]:$(DSTORM_LIB_VERSION):g' \
-	    -e 's:[@]DSTORM_PLUGIN_DIR[@]:$(DSTORM_PLUGIN_DIR):g' \
-	    -e 's:[@]prefix[@]:$(prefix):g' \
+	sed -e 's:[@]prefix[@]:$(prefix):g' \
 	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
 	    $< > $@
 
@@ -333,7 +330,7 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 dstorm_SOURCES = dstorm.cpp
 dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
 dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 

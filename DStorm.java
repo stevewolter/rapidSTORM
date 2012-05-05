@@ -43,7 +43,6 @@ class DStorm {
         for ( Map.Entry<String,String> entry : env ) {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
-        result_env[i++] = "RAPIDSTORM_PLUGINDIR=" + path.getPluginDir();
         if ( set_magick_path ) {
             result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
                 path.getPrefix() 

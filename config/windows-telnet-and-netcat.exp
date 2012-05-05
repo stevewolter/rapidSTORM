@@ -141,7 +141,6 @@ proc program_start { pkg cmd args } {
         send "set RAPIDSTORM_DIR=$deploy_root_target\r\n"
         send "set RAPIDSTORM_START_DIR=%RAPIDSTORM_DIR%\r\n"
         send "set MAGICK_CONFIGURE_PATH=%RAPIDSTORM_DIR%\\share\\GraphicsMagick-1.3.12\\config;%RAPIDSTORM_DIR%\\lib\\GraphicsMagick-1.3.12\\config\r\n"
-        send "set RAPIDSTORM_PLUGINDIR="
         send [to_remote_host [to_stage_dir "$rapidstorm_plugindir"]]
         send "\r\n"
         if { [info exists env(GDB_PORT)] } {
