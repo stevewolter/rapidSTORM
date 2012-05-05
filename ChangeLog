@@ -1,3 +1,21 @@
+== 2.21.0 ==
+
+* Fixed single-plane selection and access to freed memory on job termination
+* Removed dynamic plugin loading to get rid of libltdl reference
+* Cleaned up unit testing code and converted some tests to Boost.Test
+* Refactored guf code to reduce depth and enhance clarity
+* Integrated all rapidstorm-* packages into single package
+* Made HTML documentation the default, abandoning CHM
+* Improved configuration entry default visibility
+* Organized parameters of PSF form estimator and removed unnecessary Z ground truth field
+* Improved default visibility of functions
+* Fixed #190 and #202
+* Added more documentation
+* Deleted superfluous source file
+* Reduced depth info class to one dimension
+* Removed obsolete resolution measure from localization traits
+* Fixed linear interpolation for plane flattening, removed last parts of obsolete PSF size field in optics
+
 == 14.13.0 ==
 
 * Moved mask size configuration into spot finders

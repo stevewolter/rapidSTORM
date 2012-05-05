@@ -1,5 +1,6 @@
 begin_test_suite
 
+set timeout 30
 set method "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod"
 send "$method in value set Generated\n"
 send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageActivationTime in value set 1E-10\n"
