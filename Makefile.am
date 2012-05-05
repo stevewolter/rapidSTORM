@@ -89,7 +89,7 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
     dstorm.test/can-compute-txt-file.exp dstorm.test/memory.exp \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
     dstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
-    boards/kokolorix.exp boards/chroot.exp boards/valgrind.exp \
+    boards/kokolorix.exp boards/valgrind.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
 
 CLEANFILES = rapidSTORM.jar \
@@ -115,7 +115,7 @@ rapidSTORM.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(JAR) -umf manifest $@
 
 clean-local :
-	-rm -fr $(javabuilddir)
+	-rm -fr $(javabuilddir) test-temp-dir
 
 TESTS = $(C_TESTS)
 
@@ -597,6 +597,7 @@ dstorm_SOURCES += \
     guf/FunctionRepository.h guf/FunctionRepository.hpp \
     guf/Factory.cpp guf/Factory.h \
     guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
+    guf/MultiKernelLambda.h \
     guf/Fitter.cpp guf/Fitter.h \
     guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
     guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
@@ -607,9 +608,8 @@ dstorm_SOURCES += \
     guf/KernelCreator.h guf/KernelCreator.cpp \
     guf/FitTerminator.h \
     guf/PlaneFunction.h guf/PlaneFunction.hpp \
-    guf/DistanceMetric.h guf/InputPlane.h \
+    guf/DistanceMetric.h \
     guf/Spot.h \
-    guf/StandardFunction.h \
     guf/unit_tests.h
 
 dstorm_SOURCES += \

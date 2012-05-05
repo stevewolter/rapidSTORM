@@ -36,7 +36,7 @@ set test "Drift-corrected image looks correct"
 
 spawn compare -metric MAE "${testcase_host}simple-filter-norm.png" "${tmpdir_host}simple-filter.png" "${tmpdir_host}simple-filter-difference.png" 
 expect {
-    -re "(\[0-9.\]+) .*" { pass_if [expr $expect_out(1,string) < 10] "$test"; }
+    -re "(\[0-9.\]+) .*" { pass_if [expr $expect_out(1,string) < 26] "$test"; }
     eof { fail "$test"; }
 }
 wait
