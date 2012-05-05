@@ -48,6 +48,8 @@ struct AbstractedMoveable
     template <typename T>
     AbstractedMoveable( T& t ) : Moveable_(t), 
                                  AbstractMoveableAdapter<Moveable_>( static_cast<Moveable_&>(*this) ) {}
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }
