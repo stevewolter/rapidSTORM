@@ -1,3 +1,11 @@
+== 2.21.2 ==
+
+* Relaxed 3D form fitter success conditions even further
+* Fixed uninitialized variable in PlaneFilter
+* Made previously-default size parameters of performance test explicit
+* Fixed distribution
+* Fixed over-incremented version number
+
 == 2.21.1 ==
 
 * Fixed stack alignment for helgrind valgrind tool
