@@ -1,3 +1,8 @@
+== 2.22.0 ==
+
+* Fixed stack alignment for helgrind valgrind tool
+* Added over-sighted aligned operator new
+
 == 2.21.0 ==
 
 * Fixed single-plane selection and access to freed memory on job termination
