@@ -10,6 +10,7 @@
 #include <simparm/IO.hh>
 #include <dStorm/JobMaster.h>
 #include "InputStream.h"
+#include <dStorm/stack_realign.h>
 
 namespace dStorm {
 
@@ -33,7 +34,7 @@ private:
     boost::thread input_acquirer;
     boost::mutex::scoped_lock input_read_lock;
 
-    void read_input();
+    DSTORM_REALIGN_STACK void read_input();
     void unregister_node( Job& job );
     void erase( Job& job );
 
