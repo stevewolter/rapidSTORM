@@ -35,7 +35,7 @@ if REMOTE_TESTING
 endif
 
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
-    gaussian_psf/make_psf.sh \
+    Doxyfile.in gaussian_psf/make_psf.sh \
     dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
     dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
     dstorm.input/00-input-file-is-recognized.exp \
