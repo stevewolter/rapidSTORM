@@ -1,3 +1,7 @@
+== 2.21.5 ==
+
+* Added missing Doxyfile.in to distribution
+
 == 2.21.4 ==
 
 * Cleaned up unreliable test cases
