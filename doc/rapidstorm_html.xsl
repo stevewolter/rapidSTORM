@@ -2,6 +2,11 @@
  version="1.0">
    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl"/>
 
+   <xsl:param name="section.autolabel" select="1"/>
    <xsl:template match="relatedtopicsinfo"/>
+    <xsl:template match="guilabel">
+        <xsl:call-template name="inline.boldseq"/>
+    </xsl:template>
+
 
 </xsl:stylesheet>
