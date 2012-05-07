@@ -29,7 +29,8 @@
                 <step>set function to <userinput>triangular</userinput></step>
             </substeps>
         </step>
-        <step>Set camera exposure time to 0.02 s</step>
+        <step>Set camera exposure time to <userinput>0.02 s</userinput></step>
+        <step>Compute piezo movement per frame as <inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation></step>
         <step>focus on Tetraspeck</step>
         <step>start piezo</step>
         <step>record data</step>
