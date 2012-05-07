@@ -4,6 +4,7 @@
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>
 #include <simparm/Object.hh>
+#include <simparm/Entry_Impl.hh>
 
 #include <boost/units/io.hpp>
 
