@@ -1,3 +1,9 @@
+== 2.21.7 ==
+
+* Integrated spline howto into documentation
+* Added reference to simparm implementation header because windows build broke
+* Factored out the only-kernel assumption
+
 == 2.21.6 ==
 
 * Fixed unreliable test case
