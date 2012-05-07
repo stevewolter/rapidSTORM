@@ -100,14 +100,16 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 {
     assert( m.kernel_count() == 1 );
 
+    const gaussian_psf::BaseExpression& only_kernel = m[0];
+
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos[0] = quantity<si::length>( m[0]( gaussian_psf::Mean<0>() ) );
-    pos[1] = quantity<si::length>( m[0]( gaussian_psf::Mean<1>() ) );
-    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &m[0] );
+    pos.x() = quantity<si::length>( only_kernel( gaussian_psf::Mean<0>() ) );
+    pos.y() = quantity<si::length>( only_kernel( gaussian_psf::Mean<1>() ) );
+    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
     if ( threed )
         pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
-    Localization::Amplitude::Type amp( m[0]( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
+    Localization::Amplitude::Type amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() = 
@@ -116,7 +118,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     rv.fit_residues = chi_sq;
     if ( output_sigmas || data.optics.can_compute_localization_precision() )
         for (int i = 0; i < 2; ++i) {
-            quantity<si::length,float> sigma(m[0].get_sigma()[i]);
+            quantity<si::length,float> sigma(only_kernel.get_sigma()[i]);
             rv.fit_covariance_matrix()(i,i) = sigma*sigma;
         }
 
