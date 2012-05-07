@@ -1,3 +1,8 @@
+== 2.21.6 ==
+
+* Fixed unreliable test case
+* Fixed uninitialized value when changing display visibility
+
 == 2.21.5 ==
 
 * Added missing Doxyfile.in to distribution
