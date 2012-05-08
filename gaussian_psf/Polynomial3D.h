@@ -38,21 +38,21 @@ class Polynomial3D
 
     template <class Sequence, class Number>
     struct add_delta_sigmas {
-        typedef typename boost::mpl::push_back< 
-            typename boost::mpl::push_back< 
-                Sequence, 
+        typedef typename boost::mpl::push_back<
+            typename boost::mpl::push_back<
+                Sequence,
                 DeltaSigma<Direction_X,Number::value> >::type,
-            DeltaSigma<Direction_Y,Number::value> 
+            DeltaSigma<Direction_Y,Number::value>
         >::type type;
     };
 
-    typedef typename nonlinfit::append< 
+    typedef typename nonlinfit::append<
             typename Base3D::Variables,
             boost::mpl::vector< BestSigma<0>, BestSigma<1>, ZPosition<0>, ZPosition<1> >
         >::type BaseVariables;
 
   public:
-    /* The variables in Polynomial3D are the DeltaSigma in X and Y for each 
+    /* The variables in Polynomial3D are the DeltaSigma in X and Y for each
      * power term. */
     typedef typename boost::mpl::fold<
         boost::mpl::range_c<int,polynomial_3d::FirstTerm,polynomial_3d::LastTerm+1>,
@@ -60,7 +60,7 @@ class Polynomial3D
         boost::mpl::quote2<add_delta_sigmas>
     >::type Variables;
 
-    Polynomial3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
+    Polynomial3D& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
 
     Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;
 

@@ -22,14 +22,14 @@ class No3D
     using BaseExpression::access;
 
     Eigen::Array<double,2,1> best_sigma;
-  
+
   public:
     typedef nonlinfit::append<
             BaseExpression::Variables,
             boost::mpl::vector< BestSigma<0>, BestSigma<1> > >::type
         Variables;
 
-    No3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const No3D&>(f); }
+    No3D& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const No3D&>(f); }
 
     Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const;
 

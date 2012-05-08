@@ -81,17 +81,17 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     /* Number of photons */
     double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );
     double B = m.background_model()( constant_background::Amount() );
-    double background_variance = 
+    double background_variance =
         ( p.optics.background_is_poisson_distributed() )
         ? B
         : p.optics.background_noise_variance();
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
-        quantity<si::area> psf_variance 
+        quantity<si::area> psf_variance
             = rv.fit_covariance_matrix()(i,i) + p.pixel_size / 12.0;
         double background_term
             = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
-        rv.position.uncertainty()[i] 
+        rv.position.uncertainty()[i]
             = sqrt( (psf_variance / N) * ( 16.0 / 9.0 + background_term ) );
     }
 }
@@ -100,19 +100,19 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 {
     assert( m.kernel_count() == 1 );
 
-    const gaussian_psf::BaseExpression& only_kernel = m[0];
+    const gaussian_psf::BaseExpression& only_kernel = m[0]; //needs change
 
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos.x() = quantity<si::length>( only_kernel( gaussian_psf::Mean<0>() ) );
-    pos.y() = quantity<si::length>( only_kernel( gaussian_psf::Mean<1>() ) );
-    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
+    pos.x() = quantity<si::length>( only_kernel( gaussian_psf::Mean<0>() ) ); // lives PSF in namespace gaussian_psf?,  class PSF needs member mean.x
+    pos.y() = quantity<si::length>( only_kernel( gaussian_psf::Mean<1>() ) ); // class PSF needs member mean.y
+    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel ); //downcast BaseExpr-> Base3D
     if ( threed )
-        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
+        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) ); //
     Localization::Amplitude::Type amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
     rv = Localization(pos, amp );
 
-    rv.local_background() = 
+    rv.local_background() =
             quantity< camera::intensity, float >
                 ( m.background_model()( constant_background::Amount() ) * data.optics.photon_response() );
     rv.fit_residues = chi_sq;

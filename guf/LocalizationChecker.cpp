@@ -32,7 +32,7 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
             int plane = i - result.begin();
             if ( ! check_kernel(*j, spot, plane) ) return false;
             DEBUG("Checking amplitude threshold");
-            quantity<camera::intensity> photon = 
+            quantity<camera::intensity> photon =
                 info.traits.optics(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
@@ -51,24 +51,24 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
 }
 
 template <int Dim>
-bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpression& k, const guf::Spot& spot, int plane ) const
+bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpression& k, const guf::Spot& spot, int plane ) const //todo
 {
     /* TODO: Make this 3.0 configurable */
-    bool close_to_original = 
-        abs( quantity<si::length>(k( gaussian_psf::Mean<Dim>() ) ) - spot[Dim] ) 
+    bool close_to_original =
+        abs( quantity<si::length>(k( gaussian_psf::Mean<Dim>() ) ) - spot[Dim] )
             < quantity<si::length>(k.get_sigma()[Dim] * 3.0);
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }
 
-bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, const guf::Spot& s, int plane ) const
+bool LocalizationChecker::check_kernel( const gaussian_psf::BaseExpression& k, const guf::Spot& s, int plane ) const //todo, hier downcast BaseExpression to Base3D
 {
     bool kernels_ok =
         check_kernel_dimension<0>(k,s, plane) &&
         check_kernel_dimension<1>(k,s, plane);
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &k );
-    bool z_ok = (!threed || 
-        contains(allowed_z_positions, 
+    bool z_ok = (!threed ||
+        contains(allowed_z_positions,
              samplepos::Scalar( (*threed)( gaussian_psf::MeanZ() ) ) ) );
     DEBUG("Z position " << (*threed)( gaussian_psf::MeanZ() ) << " OK: " << z_ok);
     return kernels_ok && z_ok;

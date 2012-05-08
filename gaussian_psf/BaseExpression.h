@@ -3,6 +3,7 @@
 
 #include "fwd.h"
 #include "parameters.h"
+#include "SingleKernelModel.h"
 
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>
@@ -11,6 +12,7 @@
 #include <boost/units/Eigen/Core>
 #include <nonlinfit/access_parameters.hpp>
 
+
 namespace dStorm {
 namespace gaussian_psf {
 
@@ -18,7 +20,8 @@ using namespace nonlinfit;
 using namespace boost::units;
 
 struct BaseExpression
-: public nonlinfit::access_parameters< BaseExpression >
+: public nonlinfit::access_parameters< BaseExpression >,
+  public SingleKernelModel
 {
     typedef Micrometers LengthUnit;
 
@@ -27,13 +30,26 @@ struct BaseExpression
 
     BaseExpression();
     virtual ~BaseExpression();
-    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
-    virtual BaseExpression& copy( const BaseExpression& ) = 0;
+//    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
+//    virtual BaseExpression& copy( const BaseExpression& ) = 0;
+////    virtual quantity<si::length> get_fluorophore_position_x() const
+//        {
+//             return quantity<si::length>( (*this)( Mean<0>() ) );
+//        }
 
     using nonlinfit::access_parameters< BaseExpression >::operator();
     using nonlinfit::access_parameters< BaseExpression >::get;
 
     void allow_leaving_ROI( bool do_allow ) { may_leave_roi = do_allow; }
+
+    virtual quantity<si::length> get_fluorophore_position_x() const
+        {
+             return quantity<si::length>( (*this)( Mean<0>() ));
+        }
+     virtual quantity<si::length> get_fluorophore_position_y() const
+        {
+             return quantity<si::length>((*this)( Mean<1>() ) );
+        }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -43,9 +59,9 @@ struct BaseExpression
     bool may_leave_roi;
     typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type
         PixelSizeUnit;
-    typedef boost::mpl::vector< 
+    typedef boost::mpl::vector<
         nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
-        Mean<0>, Mean<1>, 
+        Mean<0>, Mean<1>,
         Amplitude, Prefactor
     > Variables;
 

@@ -25,7 +25,7 @@ class Spline3D
     template <class Num, typename Expression> friend class Parameters;
   public:
     typedef Base3D::Variables Variables;
-    Spline3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Spline3D&>(f); }
+    Spline3D& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Spline3D&>(f); }
     void set_spline( DepthInfo sx, DepthInfo sy ) ;
 
     Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;

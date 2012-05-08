@@ -1,0 +1,33 @@
+#ifndef DSTORM_FITTER_SINGLE_KERNEL_MODEL_H
+#define DSTORM_FITTER_SINGLE_KERNEL_MODEL_H
+
+#include "fwd.h"
+#include "parameters.h"
+
+#include <Eigen/Core>
+#include <boost/mpl/vector.hpp>
+#include <boost/units/quantity.hpp>
+#include <nonlinfit/Lambda.h>
+#include <boost/units/Eigen/Core>
+#include <nonlinfit/access_parameters.hpp>
+
+namespace dStorm {
+namespace gaussian_psf {
+
+using namespace nonlinfit;
+using namespace boost::units;
+
+struct SingleKernelModel
+{
+    virtual ~SingleKernelModel() {}
+    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
+    virtual SingleKernelModel& copy( const SingleKernelModel& ) = 0;
+    virtual quantity<si::length> get_fluorophore_position_x() const =0;
+    virtual quantity<si::length> get_fluorophore_position_y() const =0;
+};
+
+}
+}
+
+#endif
+
