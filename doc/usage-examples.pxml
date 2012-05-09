@@ -22,15 +22,18 @@
     </taskprerequisites>
     <procedure>
         <step>place Tetraspeck surface on microscope</step>
-        <step>set piezo to remote control
-            <substeps>
-                <step>set low position to <userinput>45 &mgr;m</userinput> and high position to <userinput>55 &mgr;m</userinput></step>
-                <step>set frequence to <userinput>0.02 Hz</userinput></step>
-                <step>set function to <userinput>triangular</userinput></step>
-            </substeps>
+        <step>set the piezo to a continuous pattern, e.g.
+            <informalexample>
+                <variablelist>
+                    <varlistentry><term>function</term><listitem><userinput>triangular</userinput></listitem></varlistentry>
+                    <varlistentry><term>low position</term><listitem><userinput>45 &mgr;m</userinput></listitem></varlistentry>
+                    <varlistentry><term>high position</term><listitem><userinput>55 &mgr;m</userinput></listitem></varlistentry>
+                    <varlistentry><term>frequence</term><listitem><userinput>0.02 Hz</userinput></listitem></varlistentry>
+                </variablelist>
+            </informalexample>
         </step>
-        <step>Set camera exposure time to <userinput>0.02 s</userinput></step>
-        <step>Compute piezo movement per frame as <inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation></step>
+        <step>Set camera exposure time (<userinput>0.02 s</userinput>)</step>
+        <step>Compute and remember piezo movement per frame (<inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation>)</step>
         <step>focus on Tetraspeck</step>
         <step>start piezo</step>
         <step>record data</step>
@@ -49,8 +52,8 @@
         <step>Set <guilabel>Input file</guilabel> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
         <step>Check <guilabel>Ignore libtiff warnings</guilabel></step>
         <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (142 and 125 nm in X/Y, respectively)</step>
-	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (2000 -- 5000)</step>
-	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. In this example, use 1100 nm</step>
+	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (5000)</step>
+	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
 	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100</step>
 	<step>Check boxes <guilabel>PSF width is free fit parameter</guilabel> and <guilabel>Store PSF covariance matrix</guilabel></step>
 	<step>Go to the <guilabel>Expression filter</guilabel> output option and set
