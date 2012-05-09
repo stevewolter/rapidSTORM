@@ -4,10 +4,5 @@ or the GNU Lesser Public License (LGPL). You can use and
 modify them freely according to the restrictions of this
 license.
 
-The direct acquisition from Andor cameras needs access to the
-ATMCD32D.DLL file, which could due to license reasons not be 
-distributed with this package. Please talk to Andor directly
-about acquiring this file, which is part of their SDK.
-
 Individual licenses are provided in the installation directory
 in the share/doc subtree.
