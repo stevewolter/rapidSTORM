@@ -68,7 +68,7 @@ struct BaseExpression
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   protected:
-    Eigen::Array2d spatial_position, spatial_mean;
+    Eigen::Array<double,2,1> spatial_position, spatial_mean;
     double amplitude, transmission;
     bool may_leave_roi;
     typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type

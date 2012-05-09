@@ -1,0 +1,9 @@
+width(zo,w0,dz1,dz2,dz3,dz4) := w0 * Sqrt( 1 + ( zo / dz1 ) + (zo/dz2)^2 + (zo/dz3)^3 + (zo/dz4)^4 );
+widthx := width(zx-z0,sigmax0,dzx1,dzx2,dzx3,dzx4);
+widthy := width(zy-z0,sigmay0,dzy1,dzy2,dzy3,dzy4);
+psf :=
+    (theta * A) / ( 2 * Pi * widthx * widthy ) *
+    Exp( ( x - x0 )^2 / (-2 * widthx^2 ) + (y - y0)^2 / (-2 * widthy^2) ) + B;
+
+Echo( "value = ", CForm( psf ) );
+Echo( CForm( Simplify( D(sigmax0) psf ) ) );

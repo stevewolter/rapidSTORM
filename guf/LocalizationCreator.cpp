@@ -7,8 +7,6 @@
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/Localization.h>
 #include "Config.h"
-#include "gaussian_psf/BaseExpression.h"
-#include "gaussian_psf/Base3D.h"
 #include "constant_background/model.hpp"
 #include <boost/units/Eigen/Array>
 #include <boost/variant/get.hpp>
@@ -104,12 +102,12 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     const gaussian_psf::SingleKernelModel& only_kernel = m[0];
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos.x() = quantity<si::length>( only_kernel.get_fluorophore_position(0) );
-    pos.y() = quantity<si::length>( only_kernel.get_fluorophore_position(1) );
-    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel ); //downcast BaseExpr-> Base3D
-    if ( threed )
-        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
-    Localization::Amplitude::Type amp( (*threed)( gaussian_psf::Amplitude() ) * data.optics.photon_response() ); //changed from only_kernel to threed
+    pos.x() = only_kernel.get_fluorophore_position(0);
+    pos.y() = only_kernel.get_fluorophore_position(1);
+    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
+    if ( only_kernel.has_z_position() )
+        pos[2] = only_kernel.get_fluorophore_position(2);
+    Localization::Amplitude::Type amp( only_kernel.get_amplitude() * data.optics.photon_response() );
     rv = Localization(pos, amp );
 
     rv.local_background() =

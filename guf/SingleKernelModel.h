@@ -12,7 +12,7 @@
 #include <nonlinfit/access_parameters.hpp>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace guf {
 
 using namespace nonlinfit;
 using namespace boost::units;
@@ -26,6 +26,7 @@ struct SingleKernelModel
     virtual double intensity() const =0;
     virtual quantity<si::dimensionless> get_amplitude() const =0;
     virtual void set_amplitude(quantity<si::dimensionless>) =0;
+    virtual bool has_z_position() const = 0;
 };
 
 }

@@ -607,6 +607,7 @@ dstorm_SOURCES += \
     guf/PlaneFunction.h guf/PlaneFunction.hpp \
     guf/DistanceMetric.h \
     guf/Spot.h \
+    guf/SingleKernelModel.h \
     guf/unit_tests.h
 
 dstorm_SOURCES += \
@@ -628,6 +629,19 @@ dstorm_SOURCES += \
     gaussian_psf/mock_model.h gaussian_psf/mock_model.cpp \
     gaussian_psf/check_evaluator.hpp \
     gaussian_psf/polynomial_psf_generated_by_yacas.h
+
+dstorm_SOURCES += \
+    measured_psf/fwd.h measured_psf/parameters.h measured_psf/parameters.hpp \
+    measured_psf/BaseEvaluator.h measured_psf/BaseEvaluator.cpp \
+    measured_psf/fixed_form.h \
+    measured_psf/BaseExpression.h measured_psf/expressions.cpp \
+    measured_psf/expressions.h measured_psf/Base3D.h \
+    measured_psf/Model.h measured_psf/Model.cpp \
+    measured_psf/is_plane_dependent.h \
+    measured_psf/JointEvaluator.h \
+    measured_psf/LengthUnit.h measured_psf/ostream.h \
+    measured_psf/unit_test.h measured_psf/unit_test.cpp \
+    measured_psf/mock_model.h measured_psf/mock_model.cpp
 
 dstorm_SOURCES += \
     constant_background/fwd.hpp constant_background/model.hpp

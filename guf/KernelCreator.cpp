@@ -1,5 +1,4 @@
 #include "KernelCreator.h"
-#include "gaussian_psf/BaseExpression.h"
 #include "constant_background/model.hpp"
 
 #include "MultiKernelModel.h"
