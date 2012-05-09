@@ -32,24 +32,40 @@ struct BaseExpression
     virtual ~BaseExpression();
 //    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
 //    virtual BaseExpression& copy( const BaseExpression& ) = 0;
-////    virtual quantity<si::length> get_fluorophore_position_x() const
-//        {
-//             return quantity<si::length>( (*this)( Mean<0>() ) );
-//        }
 
     using nonlinfit::access_parameters< BaseExpression >::operator();
     using nonlinfit::access_parameters< BaseExpression >::get;
 
+
     void allow_leaving_ROI( bool do_allow ) { may_leave_roi = do_allow; }
 
-    virtual quantity<si::length> get_fluorophore_position_x() const
+     quantity<si::length> get_fluorophore_position(int Dim) const
         {
-             return quantity<si::length>( (*this)( Mean<0>() ));
+            if (Dim==0) return quantity<si::length>( (*this)( Mean<0>() ));
+            return quantity<si::length>( (*this)( Mean<1>() ));
         }
-     virtual quantity<si::length> get_fluorophore_position_y() const
+
+
+     double intensity() const
         {
-             return quantity<si::length>((*this)( Mean<1>() ) );
+             return (((quantity<si::dimensionless>)(*this)(gaussian_psf::Amplitude() )) *  ((quantity<si::dimensionless>)(*this)(gaussian_psf::Prefactor() ) ));
         }
+
+     quantity<si::dimensionless> get_amplitude() const
+        {
+            return (quantity<si::dimensionless>)(*this)(gaussian_psf::Amplitude() );
+        }
+
+	void set_amplitude(quantity<si::dimensionless> amp)
+	{
+	  (*this)(gaussian_psf::Amplitude())= amp;
+	}
+
+//     gaussian_psf::MeanZ get_MeanZ()
+//    {
+//        return  (gaussian_psf::MeanZ)(*this)( gaussian_psf::MeanZ() );
+//    }
+
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -65,6 +81,10 @@ struct BaseExpression
         Amplitude, Prefactor
     > Variables;
 
+    template <int Index> quantity<si::length> get_fluorophore_position_x() const
+        {
+             return quantity<si::length>( (*this)( Mean<0>() ));
+        }
     template <class Num> friend class BaseParameters;
     template <class Num, class Expression> friend class Parameters;
     template <class Num, class Expression, int Size> friend class JointEvaluator;

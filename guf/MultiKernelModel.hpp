@@ -10,19 +10,19 @@ namespace guf {
 
 struct add_kernel {
     typedef void result_type;
-    void operator()( std::vector<gaussian_psf::BaseExpression*>& v, 
-                     gaussian_psf::BaseExpression& model ) const 
+    void operator()( std::vector<gaussian_psf::SingleKernelModel*>& v,
+                     gaussian_psf::SingleKernelModel& model ) const
         { v.push_back( &model ); }
-    void operator()( std::vector<gaussian_psf::BaseExpression*>&, 
+    void operator()( std::vector<gaussian_psf::SingleKernelModel*>&,
                      constant_background::Expression& ) const {}
 };
 
 template <typename Expression>
-MultiKernelModel::MultiKernelModel( Expression& e ) 
+MultiKernelModel::MultiKernelModel( Expression& e )
 : constant( &e.get_part( boost::mpl::int_<1>() ) )
 {
     for_each( e.parts, boost::bind( add_kernel(), boost::ref(gauss), _1 ) );
-    
+
 }
 
 }

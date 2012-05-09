@@ -8,6 +8,7 @@
 #include "gaussian_psf/fwd.h"
 #include "Spot.h"
 #include <dStorm/types/samplepos.h>
+#include "gaussian_psf/SingleKernelModel.h"
 
 namespace dStorm {
 namespace guf {
@@ -21,10 +22,10 @@ class LocalizationChecker {
     const dStorm::engine::JobInfo& info;
     const boost::units::quantity<boost::units::si::length> theta_dist;
     AllowedZPositions allowed_z_positions;
+    bool check_kernel_dimension( const gaussian_psf::SingleKernelModel&, const guf::Spot&, int plane, int Dim ) const;
 
-    template <int Dim>
-    bool check_kernel_dimension( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
-    bool check_kernel( const gaussian_psf::BaseExpression&, const guf::Spot&, int plane ) const;
+    //template <int Dim>
+    bool check_kernel( const gaussian_psf::SingleKernelModel&, const guf::Spot&, int plane ) const;
 
   public:
     LocalizationChecker( const Config&, const dStorm::engine::JobInfo& );

@@ -17,12 +17,12 @@ void KernelCreator::operator()( MultiKernelModel& more, const MultiKernelModel& 
     more.background_model() = less.background_model();
 
     fresh->copy( less[0] );
-    (*fresh)( gaussian_psf::Mean<0>() ) = a[0];
-    (*fresh)( gaussian_psf::Mean<1>() ) = a[1];
+    (*fresh).get_fluorophore_position(0) = a[0];
+    (*fresh).get_fluorophore_position(1) = a[1];
 
     gaussian_psf::Amplitude amp;
     for ( MultiKernelModel::iterator i = more.begin(); i != more.end(); ++i )
-        (*fresh)( amp ) = *(*fresh)( amp ) * double( (i == fresh) ? fraction : 1 - fraction );
+        (*fresh).set_amplitude( (*fresh).get_amplitude() * double( (i == fresh) ? fraction : 1 - fraction ));
 }
 
 void KernelCreator::operator()( MultiKernelModelStack& more, const MultiKernelModelStack& less, const Spot& a ) const {

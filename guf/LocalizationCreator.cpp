@@ -79,7 +79,8 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     using namespace boost::units;
     /* Mortenson formula */
     /* Number of photons */
-    double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );
+//    double N = m[0]( gaussian_psf::Amplitude() ) * m[0]( gaussian_psf::Prefactor() );
+     double N = m[0].intensity();
     double B = m.background_model()( constant_background::Amount() );
     double background_variance =
         ( p.optics.background_is_poisson_distributed() )
@@ -100,16 +101,15 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 {
     assert( m.kernel_count() == 1 );
 
-    const gaussian_psf::BaseExpression& only_kernel = m[0]; //needs change
-
+    const gaussian_psf::SingleKernelModel& only_kernel = m[0];
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
-    pos.x() = quantity<si::length>( only_kernel( gaussian_psf::Mean<0>() ) ); // lives PSF in namespace gaussian_psf?,  class PSF needs member mean.x
-    pos.y() = quantity<si::length>( only_kernel( gaussian_psf::Mean<1>() ) ); // class PSF needs member mean.y
+    pos.x() = quantity<si::length>( only_kernel.get_fluorophore_position(0) );
+    pos.y() = quantity<si::length>( only_kernel.get_fluorophore_position(1) );
     const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel ); //downcast BaseExpr-> Base3D
     if ( threed )
-        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) ); //
-    Localization::Amplitude::Type amp( only_kernel( gaussian_psf::Amplitude() ) * data.optics.photon_response() );
+        pos[2] = quantity<si::length>( (*threed)( gaussian_psf::MeanZ() ) );
+    Localization::Amplitude::Type amp( (*threed)( gaussian_psf::Amplitude() ) * data.optics.photon_response() ); //changed from only_kernel to threed
     rv = Localization(pos, amp );
 
     rv.local_background() =
