@@ -34,7 +34,7 @@ Localization::Localization(
 
 Localization::Localization( const Localization& l )
 : position(l.position), frame_number(l.frame_number),
-  amplitude(l.amplitude), fit_covariance_matrix(l.fit_covariance_matrix),
+  amplitude(l.amplitude), psf_width(l.psf_width),
   two_kernel_improvement(l.two_kernel_improvement), 
   fit_residues(l.fit_residues), fluorophore(l.fluorophore),
   local_background(l.local_background),

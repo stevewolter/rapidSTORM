@@ -25,8 +25,8 @@ class Localization  {
         ImageNumber frame_number;
     typedef localization::Field<traits::Amplitude> Amplitude; 
         Amplitude amplitude;
-    typedef localization::Field<traits::CovarianceMatrix> CovarianceMatrix; 
-        CovarianceMatrix fit_covariance_matrix;
+    typedef localization::Field<traits::PSFWidth> PSFWidth; 
+        PSFWidth psf_width;
     typedef localization::Field<traits::TwoKernelImprovement> TwoKernelImprovement; 
         TwoKernelImprovement two_kernel_improvement;
     typedef localization::Field<traits::FitResidues> FitResidues; 
@@ -77,7 +77,7 @@ BOOST_FUSION_ADAPT_STRUCT(
     (dStorm::Localization::Position, position)
     (dStorm::Localization::ImageNumber, frame_number)
     (dStorm::Localization::Amplitude, amplitude)
-    (dStorm::Localization::CovarianceMatrix, fit_covariance_matrix)
+    (dStorm::Localization::PSFWidth, psf_width)
     (dStorm::Localization::TwoKernelImprovement, two_kernel_improvement)
     (dStorm::Localization::FitResidues, fit_residues)
     (dStorm::Localization::Fluorophore, fluorophore)

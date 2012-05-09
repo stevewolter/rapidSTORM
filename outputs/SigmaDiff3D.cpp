@@ -54,7 +54,7 @@ SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 
 SigmaDiff3D::AdditionalData
 SigmaDiff3D::announceStormSize(const Announcement& a) {
-    if ( ! a.covariance_matrix().is_given(0,0) || ! a.covariance_matrix().is_given(1,1) )
+    if ( ! a.psf_width().is_given(0,0) || ! a.psf_width().is_given(1,1) )
         throw std::runtime_error("PSF width must be fitted and stored for sigma diff 3D");
 
     Announcement my_announcement(a);
@@ -72,7 +72,7 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
     for ( i = r.begin(); i != e; ++i ) {
         threed_info::Sigma sigmas[2];
         for (Direction j = Direction_First; j != Direction_2D; ++j)
-            sigmas[j] = sqrt( i->fit_covariance_matrix()(j,j) );
+            sigmas[j] = i->psf_width()[j] / 2.35f;
         i->position().z() = lookup_table( sigmas[0], sigmas[1] );
     }
 

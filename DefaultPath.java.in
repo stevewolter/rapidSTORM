@@ -44,7 +44,7 @@ class DefaultPath {
         return new File( root, "share" + File.separator + "rapidstorm" + File.separator + "version.txt" );
     }
     public File getDocPath() {
-        return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm-doc"  );
+        return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm"  );
     }
     public File getDocDataPath() {
         return new File( root, "share" + File.separator + "rapidstorm-doc"  );

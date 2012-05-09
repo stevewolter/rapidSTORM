@@ -154,7 +154,7 @@ nobase_include_HEADERS = \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
-    dStorm/traits/covariance_matrix.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
+    dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
     dStorm/traits/position.h dStorm/traits/range.h \
     dStorm/traits/range_impl.h dStorm/traits/residues.h \
     dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \

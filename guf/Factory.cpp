@@ -46,7 +46,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
         traits.position().range().z().second = upper( z_range );
     }
 
-    traits.covariance_matrix().is_given.diagonal().fill( output_sigmas() );
+    traits.psf_width().is_given.fill( output_sigmas() );
     traits.position().is_given.head<2>().fill( true );
     traits.position().is_given[2] = have_z_information;
     traits.amplitude().is_given= true;

@@ -88,7 +88,7 @@ void LocalizationCreator::compute_uncertainty( Localization& rv, const MultiKern
     /* Compute/get \sigma */
     for (int i = 0; i < 2; ++i) {
         quantity<si::area> psf_variance 
-            = rv.fit_covariance_matrix()(i,i) + p.pixel_size / 12.0;
+            = pow<2>( rv.psf_width()(i) / 2.35f ) + p.pixel_size / 12.0;
         double background_term
             = psf_variance * 8.0 * M_PI * background_variance / (N * p.pixel_size);
         rv.position.uncertainty()[i] 
@@ -118,8 +118,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     rv.fit_residues = chi_sq;
     if ( output_sigmas || data.optics.can_compute_localization_precision() )
         for (int i = 0; i < 2; ++i) {
-            quantity<si::length,float> sigma(only_kernel.get_sigma()[i]);
-            rv.fit_covariance_matrix()(i,i) = sigma*sigma;
+            rv.psf_width()(i) = quantity<si::length,float>(only_kernel.get_sigma()[i]) * 2.35f;
         }
 
     if ( data.optics.can_compute_localization_precision() )

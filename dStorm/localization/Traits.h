@@ -5,7 +5,7 @@
 #include "../traits/image_number.h"
 #include "../traits/position.h"
 #include "../traits/amplitude.h"
-#include "../traits/covariance_matrix.h"
+#include "../traits/psf_width.h"
 #include "../traits/two_kernel_improvement.h"
 #include "../traits/residues.h"
 #include "../traits/fluorophore.h"
@@ -33,7 +33,7 @@ struct Traits< Localization >
   public DataSetTraits,
   public traits::Position,
   public traits::Amplitude,
-  public traits::CovarianceMatrix,
+  public traits::PSFWidth,
   public traits::TwoKernelImprovement,
   public traits::FitResidues,
   public traits::ImageNumber,
@@ -50,7 +50,7 @@ struct Traits< Localization >
     const x& n() const { return *this; }
     ACCESSORS(traits::Position,position)
     ACCESSORS(traits::Amplitude,amplitude)
-    ACCESSORS(traits::CovarianceMatrix,covariance_matrix)
+    ACCESSORS(traits::PSFWidth,psf_width)
     ACCESSORS(traits::TwoKernelImprovement,two_kernel_improvement)
     ACCESSORS(traits::FitResidues,fit_residues)
     ACCESSORS(traits::ImageNumber,image_number)

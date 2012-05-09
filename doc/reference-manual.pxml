@@ -352,6 +352,68 @@
    <section id="estimate_psf_form" xreflabel="Estimate PSF Form">
          <title>Estimate PSF form</title>
    </section>
+
+    <section id="SigmaCurve" xreflabel="3D PSF width calibration table">
+        <title>3D PSF width calibration table</title>
+        <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
+            Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
+            input localizations, orders the input localizations, smoothes them with cubic B splines and
+            stores the values at the control points in the calibration output file.</para>
+        <elemtable xmlns="">
+            <title>3D PSF width calibration table job options</title>
+            <elem desc="Calibration output file" topic="SigmaCurve_ToFile">
+                Output file name for calibration table. The format is
+                described in <xref linkend="z_calibration_table"/>.</elem>
+            <elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
+                Number of breakpoints to use for cubic B-spline interpolation. The number of
+                breakpoints determines the number of cubic pieces used to approximate the
+                measured PSF width curve. This number can be viewed as the adaptibility of the
+                sigma curve to the measured PSF widths.</elem>
+        </elemtable>
+    </section>
+
+    <section id="ExpressionFilter" xreflabel="Expression filter">
+        <title>Expression filter</title>
+        <para>This output allows filtering on and changing individual localization fields.
+                It is distributed into two parts: The simple input fields for minimum localization
+                strength, linear drift correction and maximum two kernel improvement give easy
+                access to often-needed manipulations, while the more complex test-based expressions
+                give full access to all localization fields.</para>
+        <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
+              output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
+              form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
+        <elemtable xmlns="">
+            <title>Expression filter calibration table job options</title>
+            <elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
+                If this field is enabled, all localizations with a strength lower than its value are
+                discarded and not displayed or stored in the suboutputs. The localization strength denotes
+                the total signal detected in the PSF, i.e. the integral of the point spread function.
+            </elem>
+            <elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
+                If this field is enabled, all localizations are shifted in space by an amount proportional
+                to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
+            </elem>
+            <elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
+                If this field is checked, all localizations with a two-kernel improvement (quotient of residues
+                with two kernels and residues with one kernel) greater than the given value are discarded.
+                This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
+                has been checked.
+            </elem>
+            <elem desc="Value to assign to" topic="ExpressionFilter_LValue">
+                This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
+                in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
+                or one of the variables in <xref linkend="ExpressionFilter:Variables"/>, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+            </elem>
+        </elemtable>
+        <table>
+            <title>Variable names for expressions</title>
+            <thead><row><entry>Variable name</entry><entry>Dimension</entry><entry>Name</entry></row></thead>
+            <tbody>
+                <row><entry>posx</entry><entry>m</entry><entry>Position in sample space in X</entry></row>
+            </tbody>
+        </table>
+    </section>
+
  </section>
 </chapter>
 

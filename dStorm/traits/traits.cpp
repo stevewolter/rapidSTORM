@@ -1,7 +1,7 @@
 #include "image_number.h"
 #include "position.h"
 #include "amplitude.h"
-#include "covariance_matrix.h"
+#include "psf_width.h"
 #include "two_kernel_improvement.h"
 #include "residues.h"
 #include "fluorophore.h"
@@ -31,21 +31,21 @@ const Amplitude::ValueType Amplitude::default_value
     = Amplitude::ValueType::from_value(0);
 std::string Amplitude::get_shorthand() { return "amp"; }
 
-std::string CovarianceMatrix::get_ident() { return "PSFCovarMatrix"; }
-std::string CovarianceMatrix::get_desc() { return "fitted PSF covariance matrix"; }
-const CovarianceMatrix::ValueType CovarianceMatrix::default_value
-    = CovarianceMatrix::ValueType::Constant( CovarianceMatrix::ValueType::Scalar::from_value(0) );
+std::string PSFWidth::get_ident() { return "PSFWidth"; }
+std::string PSFWidth::get_desc() { return "PSF FWHM"; }
+const PSFWidth::ValueType PSFWidth::default_value
+    = PSFWidth::ValueType::Constant( PSFWidth::ValueType::Scalar::from_value(0) );
 template <>
-const NoRange<CovarianceMatrix>::RangeType
-NoRange<CovarianceMatrix>::static_range 
-    = NoRange<CovarianceMatrix>::RangeType::Constant(
-        NoRange<CovarianceMatrix>::BoundPair(
-            boost::optional< NoRange<CovarianceMatrix>::Type >( 
-                NoRange<CovarianceMatrix>::Type(0.0f * si::metre * si::metre) ),
-            boost::optional< NoRange<CovarianceMatrix>::Type >()
+const NoRange<PSFWidth>::RangeType
+NoRange<PSFWidth>::static_range 
+    = NoRange<PSFWidth>::RangeType::Constant(
+        NoRange<PSFWidth>::BoundPair(
+            boost::optional< NoRange<PSFWidth>::Type >( 
+                NoRange<PSFWidth>::Type(0.0f * si::metre) ),
+            boost::optional< NoRange<PSFWidth>::Type >()
         )
     );
-std::string CovarianceMatrix::get_shorthand() { return "covar"; }
+std::string PSFWidth::get_shorthand() { return "psffwhm"; }
 
 std::string TwoKernelImprovement::get_ident() { return "TwoKernelImprovement"; }
 std::string TwoKernelImprovement::get_desc() { return "two kernel improvement"; }

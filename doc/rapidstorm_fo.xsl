@@ -3,6 +3,7 @@
    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
 
    <xsl:param name="section.autolabel" select="1"/>
+   <xsl:param name="paper.type">A4</xsl:param>
    <xsl:template match="relatedtopicsinfo"/>
 
     <xsl:template match="guilabel">

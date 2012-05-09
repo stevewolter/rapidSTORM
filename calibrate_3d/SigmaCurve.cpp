@@ -29,22 +29,19 @@ class Configuration : public simparm::Object {
   protected:
     void registerNamedEntries() {
         push_back( outputFile );
-        push_back( object_size );
-        push_back( wavelength_correction );
         push_back( step_number );
     }
   public:
     output::BasenameAdjustedFileEntry outputFile;
-    simparm::Entry< quantity<si::nanolength> > object_size;
     simparm::Entry< unsigned int > step_number;
-    simparm::Entry< double > wavelength_correction;
     Configuration()
         : simparm::Object("SigmaCurve", "3D PSF width calibration table"),
           outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
-          object_size("ObjectSize", "FWHM correction for object size", 0 * si::nanometre),
-          step_number("StepNumber", "Number of B spline breakpoints", 10),
-          wavelength_correction("WavelengthCorrection", "WavelengthCorrectionFactor", 1)
-        {}
+          step_number("StepNumber", "Number of B spline breakpoints", 10)
+    {
+        outputFile.helpID = "#SigmaCurve_ToFile";
+        step_number.helpID = "#SigmaCurve_StepNumber";
+    }
 
     bool can_work_with(output::Capabilities cap) { 
         return true; 
@@ -60,7 +57,7 @@ private:
     public:
         SigmaPair( const Localization& l )
             : z( l.position().z() ), amp( l.amplitude() ) 
-            { for (int i = 0; i < 2; ++i) s[i] = sqrt( l.fit_covariance_matrix()(i,i) ); }
+            { for (int i = 0; i < 2; ++i) s[i] = l.psf_width()[i] / 2.35f; }
         bool smaller_z( const SigmaPair& o ) const { return z < o.z; }
 
         double scaled_z() const { return z / (1E-6 * si::meter); }
@@ -124,14 +121,10 @@ private:
                 for (int dir = 0; dir < 2; ++dir)
                     gsl_multifit_linear_est(B.get(), c[dir].get(), cov[dir].get(), yi+dir, yerr+dir);
                 o << double(SigmaPair::from_z( xi ) / (1E-9 * si::meter)) << " " 
-                  << double(correct_for_size( SigmaPair::from_sigma( yi[0] ) ) / (1E-6 * si::meter)) << " "
-                  << double(correct_for_size( SigmaPair::from_sigma( yi[1] ) ) / (1E-6 * si::meter)) << "\n";
+                  << double(SigmaPair::from_sigma( yi[0] ) / (1E-6 * si::meter)) << " "
+                  << double(SigmaPair::from_sigma( yi[1] ) / (1E-6 * si::meter)) << "\n";
             }
         }
-    }
-    quantity<si::length> correct_for_size( quantity<si::length> v) const
-    {
-        return (v - quantity<si::length>(config.object_size() / 2.35)) * config.wavelength_correction();
     }
 
 public:
@@ -148,9 +141,9 @@ public:
     AdditionalData announceStormSize(const Announcement &a) {
         if ( ! a.position().is_given.z() )
             throw std::runtime_error("Z ground truth is not given for sigma curve generation");
-        if ( ! a.covariance_matrix().is_given(0,0) )
+        if ( ! a.psf_width().is_given[0] )
             throw std::runtime_error("PSF width in X is not given for sigma curve generation");
-        if ( ! a.covariance_matrix().is_given(1,1) )
+        if ( ! a.psf_width().is_given[1] )
             throw std::runtime_error("PSF width in Y is not given for sigma curve generation");
         return AdditionalData(); 
     }
