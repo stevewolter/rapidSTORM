@@ -402,15 +402,96 @@
             <elem desc="Value to assign to" topic="ExpressionFilter_LValue">
                 This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
                 in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
-                or one of the variables in <xref linkend="ExpressionFilter:Variables"/>, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+                or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+                The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
+                <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
+            </elem>
+            <elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
+                This text field gives an arithmetic expression for the value of the action. An
+                expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
+                linked by the usual arithmetic operators. Constants are given as numbers with units, which
+                can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
+                meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
+                (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
+                Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
             </elem>
         </elemtable>
-        <table>
-            <title>Variable names for expressions</title>
-            <thead><row><entry>Variable name</entry><entry>Dimension</entry><entry>Name</entry></row></thead>
-            <tbody>
-                <row><entry>posx</entry><entry>m</entry><entry>Position in sample space in X</entry></row>
-            </tbody>
+        <table id="ExpressionFilter:VariableBasenames">
+            <title>Variable base names for expressions</title>
+            <tgroup cols='4' align='left' colsep='1' rowsep='1'>
+                <colspec colnum="1" colwidth="6em"/>
+                <colspec colnum="2" colwidth="7em"/>
+                <colspec colnum="3" colwidth="5em"/>
+                <thead><row><entry>Variable base name</entry><entry>Dimension</entry><entry>Type</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry>pos</entry><entry>m</entry><entry>3D vector</entry><entry>Position in sample space</entry></row>
+                    <row><entry>amp</entry><entry>ADC</entry><entry>scalar</entry><entry>Intensity of emission</entry></row>
+                    <row><entry>frame</entry><entry>fr</entry><entry>scalar</entry><entry>Time of emission</entry></row>
+                    <row><entry>psffwhm</entry><entry>m</entry><entry>2D vector</entry><entry>PSF model's full width at half maximum</entry></row>
+                    <row><entry>fishy</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Two-kernel improvement</entry></row>
+                    <row><entry>chisq</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fit residues. For least-squares fitting, this value gives the sum of squared deviations between PSF model and data in photons squared. For MLE fitting, this value gives the total likelihood score. In both cases, the value is not normed in any way and unlikely to be comparable between measurements.</entry></row>
+                    <row><entry>fluo</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fluorophore type (0 for first fluorophore, 1 for second, etc.)</entry></row>
+                    <row><entry>bg</entry><entry>ADC</entry><entry>scalar</entry><entry>Local background intensity</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:VariableModifiers">
+            <title>Variable name modifiers for expressions</title>
+            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+                <thead><row><entry>Modifier</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry><replaceable>&hellip;</replaceable>x</entry><entry>&hellip; in X dimension</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>y</entry><entry>&hellip; in Y dimension</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>z</entry><entry>&hellip; in Z dimension</entry></row>
+                    <row><entry>sigma<replaceable>&hellip;</replaceable></entry><entry>uncertainty of &hellip;</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>min</entry><entry>lower bound of &hellip;</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>max</entry><entry>upper bound of &hellip;</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:VariableExamples">
+            <title>Variable example names for expressions</title>
+            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+                <thead><row><entry>Example variable name</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry>posx</entry><entry>Localization's X coordinate</entry></row>
+                    <row><entry>posminy</entry><entry>Highest possible Y localization coordinate</entry></row>
+                    <row><entry>fluo</entry><entry>Fluorophore type</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:Operators">
+            <title>Operators in expressions</title>
+            <tgroup cols="3">
+                <colspec colnum="2" colwidth="6em"/>
+                <thead><row><entry>Operator</entry><entry>Result type</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry><userinput>(<replaceable>n1</replaceable>)</userinput></entry><entry>numerical</entry><entry>grouping of numerical expressions</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable>^<replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>exponentiation</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> * <replaceable>n2</replaceable>, <replaceable>n1</replaceable> / <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>multiplication, division</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> + <replaceable>n2</replaceable>, <replaceable>n1</replaceable> - <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>addition, subtraction</entry></row>
+                    <row><entry><userinput>(<replaceable>b1</replaceable>) ? <replaceable>n1</replaceable> : <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>choice operator (if <replaceable>b1</replaceable> is true, use <replaceable>n1</replaceable>, else <replaceable>n2</replaceable></entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> == <replaceable>n2</replaceable>, <replaceable>n1</replaceable> != <replaceable>n2</replaceable>, <replaceable>n1</replaceable> = <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt; <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt; <replaceable>n2</replaceable></userinput></entry><entry>boolean</entry><entry>comparison for equality, inequality, equality (same as <userinput>==</userinput>), greater-equality, less-equality, greater, less</entry></row>
+                    <row><entry><userinput>!<replaceable>b1</replaceable></userinput></entry><entry>boolean</entry><entry>negation</entry></row>
+                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>conjunction (and)</entry></row>
+                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:ExampleActions">
+            <title>Example actions</title>
+            <tgroup cols="3">
+                <colspec colnum="1" colwidth="4em"/>
+                <thead><row><entry>Value to assign to</entry><entry>Expression to assign from</entry><entry>Intention</entry></row></thead>
+                <tbody>
+                    <row><entry>Filter</entry><entry><userinput>fluo = 0</userinput></entry><entry>Only show localizations from the first fluorophore</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>posx &gt; 1 um</userinput></entry><entry>Only show localizations right of a line at 1 &mgr;m</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>amp &lt; 5 kADC</userinput></entry><entry>Discard emissions with intensities above 5000 counts</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>posx &gt; 2300 nm &amp;&amp; posx &lt; 2800 nm &amp;&amp; posy &gt; 1800 nm &amp;&amp; posy &lt; 2200 nm &amp;&amp; frame &lt; 500 fr</userinput></entry><entry>Limit region of interest to a single bead early in the acquisition to calibrate 3D</entry></row>
+                    <row><entry>posz</entry><entry><userinput>8 nm/fr * frame</userinput></entry><entry>Set a Z ground truth raising 8 nanometre per frame</entry></row>
+                    <row><entry>amp</entry><entry><userinput>(fluo == 0) ? 1.5 * amp : 1 * amp</userinput></entry><entry>Make all localizations from the first fluorophore type more intense by a half</entry></row>
+                </tbody>
+            </tgroup>
         </table>
     </section>
 

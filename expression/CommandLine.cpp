@@ -18,6 +18,9 @@ CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
     lvalue.userLevel = simparm::Object::Intermediate;
     expression.userLevel = simparm::Object::Intermediate;
 
+    expression.helpID = "#ExpressionFilter_Expression";
+    lvalue.helpID = "#ExpressionFilter_LValue";
+
     lvalue.addChoice( make_filter() );
     const VariableTable& variables = parser->get_variable_table();
     for ( variable_table::const_iterator i = variables.begin(); i != variables.end(); ++i )
