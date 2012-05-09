@@ -7,7 +7,7 @@
 #include <boost/mpl/vector.hpp>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 typedef boost::mpl::vector<Polynomial3D,Spline3D,No3D> expressions;
 

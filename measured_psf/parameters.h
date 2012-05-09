@@ -5,7 +5,7 @@
 #include <nonlinfit/Xs.h>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 using namespace boost::units;
 

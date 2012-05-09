@@ -3,7 +3,7 @@
 #include "LengthUnit.h"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 typedef nonlinfit::plane::xs_disjoint<double,LengthUnit,12>::type MockDataTag;
 MockDataTag::Data mock_data();

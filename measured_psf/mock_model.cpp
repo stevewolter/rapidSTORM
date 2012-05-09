@@ -9,7 +9,7 @@
 #include <dStorm/threed_info/Spline3D.h>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 MockDataTag::Data
 mock_data() {

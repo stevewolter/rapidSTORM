@@ -6,7 +6,7 @@
 #include <boost/units/io.hpp>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 template <int Dim>
 inline std::ostream& operator<<(std::ostream& o, Mean<Dim>)  { return (o << "mean" << Dim); }

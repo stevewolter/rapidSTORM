@@ -1,7 +1,7 @@
 #include "unit_test.h"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 struct No3D;
 struct Polynomial3D;

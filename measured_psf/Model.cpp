@@ -3,7 +3,7 @@
 #include "check_evaluator.hpp"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 template <typename Number>
 boost::optional< Eigen::Array<Number,2,1> >

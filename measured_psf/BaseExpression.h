@@ -14,7 +14,7 @@
 
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 using namespace nonlinfit;
 using namespace boost::units;

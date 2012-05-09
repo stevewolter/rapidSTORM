@@ -6,7 +6,7 @@
 #include <boost/units/systems/camera/intensity.hpp>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 typedef boost::units::power10< boost::units::si::length, -6 >::type
     Micrometers;

@@ -8,7 +8,7 @@
 #include <dStorm/polynomial_3d.h>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 template <typename Num>
 class BaseParameters {

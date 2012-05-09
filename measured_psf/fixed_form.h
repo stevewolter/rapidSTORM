@@ -4,7 +4,7 @@
 #include "parameters.h"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 struct FixedForm
 {

@@ -9,7 +9,7 @@
 #include <nonlinfit/Evaluator.h>
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 template <typename Num, typename Expression, int ChunkSize>
 struct JointEvaluator

@@ -4,7 +4,7 @@
 #include "BaseEvaluator.h"
 
 namespace dStorm {
-namespace gaussian_psf {
+namespace measured_psf {
 
 BaseExpression::BaseExpression() 
 : may_leave_roi( false ) {}
