@@ -37,7 +37,7 @@ class DStorm {
         boolean set_magick_path = new File( path.getPrefix(), 
             "share" + File.separator + "GraphicsMagick-1.3.12" ).exists();
         Set<Map.Entry<String,String> > env = System.getenv().entrySet();
-        String[] result_env = new String[ env.size() + ( (set_magick_path) ? 2 : 1 ) ];
+        String[] result_env = new String[ env.size() + ( (set_magick_path) ? 1 : 0 ) ];
         int i = 0;
 
         for ( Map.Entry<String,String> entry : env ) {
@@ -157,13 +157,10 @@ class DStorm {
             System.out.println("RAPIDSTORM EXITED WITH CODE " + rv);
         }
      } catch (Exception e) {
-        try {
-            JOptionPane.showMessageDialog
-                        (null, e.getMessage(), "Error while starting program",
-                        JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e2) {
-            e.printStackTrace();
-        }
+        e.printStackTrace();
+        JOptionPane.showMessageDialog
+                    (null, e.getMessage(), "Error while starting program",
+                    JOptionPane.ERROR_MESSAGE);
      } finally {
      }
    }
