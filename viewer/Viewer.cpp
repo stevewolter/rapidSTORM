@@ -71,7 +71,8 @@ Viewer::RunRequirements Viewer::announce_run(const RunAnnouncement& a) {
 
 void Viewer::store_results_( bool job_successful ) {
     boost::lock_guard<boost::mutex> lock(mutex);
-    forwardOutput->store_results(job_successful);
+    if ( forwardOutput )
+        forwardOutput->store_results(job_successful);
     if (job_successful && config.outputFile)
         writeToFile(config.outputFile());
     if (job_successful && config.density_matrix && config.density_matrix_given())
