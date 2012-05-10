@@ -1,3 +1,12 @@
+== 2.21.9 ==
+
+* Implemented output filter for linear alignment
+* Fixed SigmaDiff3D broken by recent change to one-dimensional PSF widths
+* Fixed segfault caused by early destruction of viewer
+* Hid Z resolution by default
+* Improved and extended documentation.
+* Reduced covariance matrix to FWHM vector.
+
 == 2.21.8 ==
 
 * Removed Andor camera from license note
