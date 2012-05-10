@@ -108,7 +108,7 @@ class Spline3DConfig : public simparm::Object, public Config {
         { z_calibration_file = ""; }
     void set_context() {}
     simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() {}
+    void registerNamedEntries() { push_back( z_calibration_file ); }
   public:
     Spline3DConfig() 
         : simparm::Object("Spline3D", "Interpolated 3D"),
