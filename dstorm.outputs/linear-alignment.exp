@@ -1,0 +1,33 @@
+start_test_suite
+
+set_input_file "${workspace_target}Mikrotubuli.txt"
+set_last_image 75
+send "in Car in Output in EngineOutput set ChooseTransmission value set LinearAlignment\n"
+send "in Car in Output in EngineOutput in Output0 in LinearAlignment in AlignmentFile in value set ${testcase_target}simulated-two-color-3d-movie-alignment.txt\n"
+send "in Car in Output in EngineOutput in Output0 in LinearAlignment in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in Output0 in LinearAlignment in Output0 in Table in ToFile in value set ${tmpdir_target}linear-alignment.txt\n"
+
+dstorm_attach
+send "in Car in Run in value set 1\n"
+
+set job [get_job_number]
+set test "Job for linear alignment terminates"
+expect {
+    -re "remove $job" { pass "$test"; }
+    -re "in $job " { exp_continue; }
+}
+
+set test "Linear alignment works correctly"
+wait_for_file "${tmpdir_target}linear-alignment.txt"
+
+spawn cat "${tmpdir_target}linear-alignment.txt"
+expect {
+    -re "\n2997.09 8893.96 74 .*" { pass "$test"; }
+    -re " 75 " { fail "$test"; }
+}
+wait
+global dstorm_spawn_id
+global spawn_id
+set spawn_id $dstorm_spawn_id
+
+end_test_suite

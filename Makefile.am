@@ -75,7 +75,7 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
     dstorm.outputs/localization-filter.exp \
     dstorm.outputs/viewer-supports-key-range-changes.exp \
     dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
-    dstorm.outputs/segmenter.exp  \
+    dstorm.outputs/segmenter.exp dstorm.outputs/linear-alignment.exp \
     lib/dstorm.exp dstorm.andorcam/two-successive-jobs.exp \
     dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
     dstorm.andorcam/infinite-acquisition.exp \
@@ -429,7 +429,8 @@ dstorm_SOURCES += \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
-    outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp
+    outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
+    outputs/LinearAlignment.h outputs/LinearAlignment.cpp
 
 dstorm_SOURCES += \
     calibrate_3d/fwd.h \
