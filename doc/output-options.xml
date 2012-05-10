@@ -1,69 +1,17 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" 
+<!DOCTYPE reference 
 [<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
 %isogrk1;
-]
->
+%isopub;
+]>
 
-<chapter id="References">
- <title>Reference manual</title>
- <section id="input_driver">
-   <title>Input drivers</title>
-   <section id="localizations_file_input" xreflabel="Localizations file">
-     <title>Localizations file</title>
-     <para>This input driver can be used to read the files written
-       by the <xref linkend="localizations_file_output"/> output module.
-       The file format is documented with the output module.</para>
-   </section>
-   <section>
-     <title>Andor SIF file</title>
-     <para>This input driver can read the Andor SIF file format produced
-       by Andor Technology software such as SOLIS.</para>
-     <para>SIF files are stored in an uncompressed binary format with a
-       simple text header. Because reading SIF files cannot be implemented
-       in a forward-compatible way (reading new SIF files with old software),
-       this driver might be unable to open the file; in this case, an error
-       message is shown indicating the maximum known and the encountered
-       version of the Andor SIF structure. Please obtain a newer version
-       of this software in this case.</para>
-     <para>If the <xref linkend="expertise_level"/> is
-       sufficient, this module allows to select an inclusive range of
-       image numbers (starting from 0) which are selected from the SIF file.
-       This range is automatically cropped to the range of available images.
-     </para>
-     <elemtable xmlns="">
-       <title>SIF job status</title>
-       <elem desc="Desired CCD temperature" topic="DesiredTemp">
-         Shows the CCD cooler's target temperature at acquisition time.
-       </elem>
-       <elem desc="Output amplifier" topic="OutputAmplifier">
-         Displays the type of the amplifier used for the acquisition.
-       </elem>
-       <elem desc="EM CCD Gain multiplier" topic="EM_Gain_Multiplier">
-         Displays the EM CCD Gain confiured for the acquisition.
-       </elem>
-       <elem desc="Used exposure time" topic="ExposureTime">
-         Displays the acquisition time per image in seconds
-       </elem>
-       <elem desc="Used kinetic cycle time" topic="KineticTime">
-         Displays the time delay between images
-       </elem>
-       <elem desc="Input file location" topic="SIF_Status_InputFile">
-         Displays the path of the used input file for reference
-       </elem>
-     </elemtable>
-   </section>
-   <section>
-     <title>Direct connection to Andor camera</title>
-     <para>SECTION YET TO BE WRITTEN</para>
-   </section>
- </section>
- <section id="output_modules">
-   <title>Output modules</title>
-   <para>
-     <indexterm><primary>output tree</primary></indexterm>
+<reference id="output_modules" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+   <title>Output options</title>
+
+   <partintro><para>
      This chapter is dedicated to the description of the different
      output modules that can be inserted into the output tree. Each of
      these modules will be defined by a general description of its purpose
@@ -71,8 +19,12 @@
      will display in job options window (if any), 
      and a table of the configuration
      options it will display in the job status window (if any).</para>
-   <section id="localizations_file_output" xreflabel="Localizations file">
-     <title>Localizations file</title> 
+   </partintro>
+
+   <refentry id="localizations_file_output">
+      <refnamediv>
+         <refname>Localizations file</refname> 
+      </refnamediv>
      <para>The localizations file module stores received localizations
        in an ASCII text file. This text file is line-based with one line
        per localization and one line header information. Both the header 
@@ -86,17 +38,18 @@
      <para>More fields may be present, but will not be documented.
        Forward compatibility can be achieved by ignoring all but the first
        four fields.</para>
-     <elemtable xmlns="">
-        <title>Job options</title>
-        <elem desc="Write localizations to" topic="Table_ToFile">
+     <et:elemtable>
+        <refname>Job options</refname>
+        <et:elem desc="Write localizations to" topic="Table_ToFile">
           Output localizations file name. Is derived automatically from
           input file name.
-        </elem>
-     </elemtable>
-        
-   </section>
-   <section id="image_display" xreflabel="Image display">
-     <title>Image display</title> 
+        </et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry id="image_display" xreflabel="Image display">
+      <refnamediv>
+         <refname>Image display</refname> 
+      </refnamediv>
      <para>The image display module displays all received localizations in
        an image and optionally saves this image to a file.</para>
      <section>
@@ -178,78 +131,78 @@
          parent module, most image display parameters can be changed even
          after the job is started.</para>
      </section>
-     <elemtable xmlns="">
+     <et:elemtable>
        <title>Job options</title>
-       <elem desc="Save image to" topic="Viewer_ToFile">
+       <et:elem desc="Save image to" topic="Viewer_ToFile">
          If a filename is given here, the final result image will be saved
          to the given file. The file extension determines the file type, and all
          common file formats (GIF, JPG, PNG, TIF) are supported.
-       </elem>
-       <elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
+       </et:elem>
+       <et:elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
          If this checkbox is checked, the result image will be shown online
          in an image window.
          Disable for faster computation.
-       </elem>
-       <elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
+       </et:elem>
+       <et:elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
          Set the aspect ratio of source (camera detector) pixels to target
          pixels. If set to 10, for example, the result image will be have 10
          times more pixels in X direction and 10 times more pixels in Y
-         direction.</elem>
-       <elem desc="Color palette for display" topic="Viewer_ColorScheme">
+         direction.</et:elem>
+       <et:elem desc="Color palette for display" topic="Viewer_ColorScheme">
          Select one of the color schemes given in <xref 
          linkend="color_coding"/>.
-       </elem>
-       <elem desc="Invert colors" topic="Viewer_InvertColors">
+       </et:elem>
+       <et:elem desc="Invert colors" topic="Viewer_InvertColors">
          Invert the color display. Each color is inverted among the three
          primary color axes (red, green, blue), making red to cyan and
          black to white.
-       </elem>
-       <elem desc="Select color hue"  topic="Viewer_Hue">
+       </et:elem>
+       <et:elem desc="Select color hue"  topic="Viewer_Hue">
          Set the hue for constant color coding or the starting hue for
          variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
          (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).
-       </elem>
-       <elem desc="Select saturation" topic="Viewer_Saturation">
+       </et:elem>
+       <et:elem desc="Select saturation" topic="Viewer_Saturation">
          Set the saturation for constant color coding. Ranges from 
          0 (no colors at all, only grey) to 1 (fully saturated colors).
-       </elem>
-     </elemtable>
-     <elemtable xmlns="">
+       </et:elem>
+     </et:elemtable>
+     <et:elemtable>
        <title>Job status</title>
-       <elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
+       <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
          Shows the current resolution enhancement (see job options table
          for a definition) and allows, if a 
          <xref linkend="repeater"/> service is present, to dynamically
-         change it.</elem>
-       <elem desc="Histogram normalization power" 
+         change it.</et:elem>
+       <et:elem desc="Histogram normalization power" 
              topic="Viewer_Status_Power">
          Shows the histogram normalization power and allows dynamic 
-         manipulation.</elem>
-       <elem desc="Zoom level" topic="Viewer_Status_Zoom">
+         manipulation.</et:elem>
+       <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
          Control element for zooming in (positive values) or out (negative
-         values) in the displayed image.</elem>
-       <elem desc="Save image to" topic="Viewer_Status_ToFile">
+         values) in the displayed image.</et:elem>
+       <et:elem desc="Save image to" topic="Viewer_Status_ToFile">
          Shows and changes the file name where the result image should be
          written to. The file extension determines the file type, and all
-         common file formats (GIF, JPG, PNG, TIF) are supported.</elem>
-       <elem desc="Save image" topic="Viewer_Status_Save">
+         common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+       <et:elem desc="Save image" topic="Viewer_Status_Save">
          Save the image at the current state of computation to the file given
-         by "Save image to".</elem>
-     </elemtable>
-   </section>
-   <section id="count_localizations" xreflabel="Count localizations"> 
-     <title>Count localizations</title>
+         by "Save image to".</et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry id="count_localizations" xreflabel="Count localizations"> 
+      <refnamediv><refname>Count localizations</refname></refnamediv>
      <para>This output module outputs a count of all received localizations.
        </para>
-     <elemtable xmlns="">
+     <et:elemtable>
        <title>Job status</title>
-       <elem desc="Number of localizations found" topic="Count_Count">
+       <et:elem desc="Number of localizations found" topic="Count_Count">
          Displays the number of localizations propagated by the parent
-         module.</elem>
-     </elemtable>
-   </section>
-   <section id="filter_localizations" xreflabel="Filter localizations">
-     <title>Filter localizations</title>
+         module.</et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry id="filter_localizations" xreflabel="Filter localizations">
+     <refnamediv><refname>Filter localizations</refname></refnamediv>
      <para>This general-purpose output module can perform three basic, 
        simple tasks: Firstly, it filters received <xref 
        linkend="localization"/>s by
@@ -270,56 +223,61 @@
      <note>The result repeater does not provide the source images
        to its children output modules. Modules such as the image
        averager will not work below it.</note>
-     <elemtable xmlns="">
+     <et:elemtable>
        <title>Job options and status</title>
-       <elem desc="Minimum localization strength" topic="Filter_MinStrength">
+       <et:elem desc="Minimum localization strength" topic="Filter_MinStrength">
          Select the minimum strength a localization must have to be
-         handed to the children output modules</elem>
-       <elem desc="Maximum localization strength" topic="Filter_MaxStrength">
+         handed to the children output modules</et:elem>
+       <et:elem desc="Maximum localization strength" topic="Filter_MaxStrength">
          Select the maximum strength a localization may have to be
-         handed to the children output modules</elem>
-       <elem desc="X drift correction" topic="Filter_XDrift">
+         handed to the children output modules</et:elem>
+       <et:elem desc="X drift correction" topic="Filter_XDrift">
          Amount of linear drift correction to apply in X direction to the
-         localizations handed to children modules</elem>
-       <elem desc="Y drift correction" topic="Filter_YDrift">
+         localizations handed to children modules</et:elem>
+       <et:elem desc="Y drift correction" topic="Filter_YDrift">
          Amount of linear drift correction to apply in Y direction to the
-         localizations handed to children module.</elem>
-     </elemtable>
-   </section>
-   <section> 
-     <title>Slice localization set</title>
-     <para>This output module can automatically slice one input acquisition
-       into a number of output acquisitions, each of which is processed
-       seperately. This process is controlled by its two parameters:</para>
-     <elemtable xmlns="">
-       <title>Job options</title>
-       <elem desc="Size of one slice in images" topic="Slicer_Size">
-         Each slice will have as many images as specified here.
-         Suppose slices in an acquisition 1000 images long start at
-         0, 300, 600 and 900 and this parameter is set to 500, there
-         will be the four slices 0-499, 300-799, 600-999 and 900-999.
-       </elem>
-       <elem desc="Start new slice every n images" topic="Slicer_Dist">
-         One slice will be started at each image number 
-         divisible by this number. Suppose 1000 images are in an
-         acquisition and this parameter is set to 300, slices will
-         be started at images 0, 300, 600 and 900.
-       </elem>
-       <elem desc="File name pattern" topic="Slicer_Pattern">
-         Pattern for output file basenames. The output files (for example
-         for images or localization files) will be generated by this pattern,
-         where %i will be replaced with the slice number.
-       </elem>
-     </elemtable>
-     <para>After determining the number of slices, this module makes one
-      copy of its children output modules for each slice. Each copy will
-      receive only the localizations in its slice. To keep memory usage
-      low, the copies will be made on demand, when the first localization
-      of a slice arrives, and will be closed as soon as the last localization
-      of its slice has been processed.</para>
-   </section>
-   <section> 
-      <title>Average images</title>
+         localizations handed to children module.</et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry> 
+      <refnamediv><refname>Slice localization set</refname>
+                  <refpurpose>Split the input along the time axis to make a movie</refpurpose></refnamediv>
+      <refsection><title>Synopsis</title>
+         <para>This output module can automatically slice one input acquisition
+            into a number of output acquisitions, each of which is processed
+            seperately.</para>
+         <para>After determining the number of slices, this module makes one
+            copy of its children output modules for each slice. Each copy will
+            receive only the localizations in its slice. To keep memory usage
+            low, the copies will be made on demand, when the first localization
+            of a slice arrives, and will be closed as soon as the last localization
+            of its slice has been processed.</para>
+      </refsection>
+     <refsection>
+         <title>Job options</title>
+         <et:elemtable>
+            <et:elem desc="Size of one slice in images" topic="Slicer_Size">
+               Each slice will have as many images as specified here.
+               Suppose slices in an acquisition 1000 images long start at
+               0, 300, 600 and 900 and this parameter is set to 500, there
+               will be the four slices 0-499, 300-799, 600-999 and 900-999.
+            </et:elem>
+            <et:elem desc="Start new slice every n images" topic="Slicer_Dist">
+               One slice will be started at each image number 
+               divisible by this number. Suppose 1000 images are in an
+               acquisition and this parameter is set to 300, slices will
+               be started at images 0, 300, 600 and 900.
+            </et:elem>
+            <et:elem desc="File name pattern" topic="Slicer_Pattern">
+               Pattern for output file basenames. The output files (for example
+               for images or localization files) will be generated by this pattern,
+               where %i will be replaced with the slice number.
+            </et:elem>
+         </et:elemtable>
+      </refsection>
+   </refentry>
+   <refentry> 
+      <refnamediv><refname>Average images</refname></refnamediv>
       <para>This module does not process localizations, but rather averages
         all source images it receives to produce one averaged image. This
         image can be used to see how the specimen would have looked without
@@ -330,50 +288,50 @@
         indirect, of the <xref linkend="filter_localizations"/> module or
         if the input comes from the <xref linkend="localizations_file_input"/>
         driver.</para>
-     <elemtable xmlns="">
+     <et:elemtable>
        <title>Job options</title>
-       <elem desc="Write averaged image to" topic="AverageImage_ToFile">
+       <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
          Target file to write the gained average image to. 
          The file extension determines the file type, and all
-         common file formats (GIF, JPG, PNG, TIF) are supported.</elem>
-     </elemtable>
-   </section>
-   <section> 
-     <title>Display progress</title> 
+         common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry> 
+      <refnamediv><refname>Display progress</refname></refnamediv>
      <para>Show a progress bar to indicate state of computation.</para>
-     <elemtable xmlns="">
+     <et:elemtable>
        <title>Job status</title>
-       <elem desc="Progress on this job" topic="ProgressMeter_Progress">
+       <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
          This progress bar shows the progress on the current job, that is,
          which percentage of the input images has been successfully
-         computed.</elem>
-     </elemtable>
-   </section>
-   <section id="estimate_psf_form" xreflabel="Estimate PSF Form">
-         <title>Estimate PSF form</title>
-   </section>
+         computed.</et:elem>
+     </et:elemtable>
+   </refentry>
+   <refentry id="estimate_psf_form" xreflabel="Estimate PSF Form">
+      <refnamediv><refname>Estimate PSF form</refname></refnamediv>
+   </refentry>
 
-    <section id="SigmaCurve" xreflabel="3D PSF width calibration table">
-        <title>3D PSF width calibration table</title>
+    <refentry id="SigmaCurve" xreflabel="3D PSF width calibration table">
+        <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
         <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
             Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
             input localizations, orders the input localizations, smoothes them with cubic B splines and
             stores the values at the control points in the calibration output file.</para>
-        <elemtable xmlns="">
+        <et:elemtable>
             <title>3D PSF width calibration table job options</title>
-            <elem desc="Calibration output file" topic="SigmaCurve_ToFile">
+            <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
                 Output file name for calibration table. The format is
-                described in <xref linkend="z_calibration_table"/>.</elem>
-            <elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
+                described in <xref linkend="z_calibration_table"/>.</et:elem>
+            <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
                 Number of breakpoints to use for cubic B-spline interpolation. The number of
                 breakpoints determines the number of cubic pieces used to approximate the
                 measured PSF width curve. This number can be viewed as the adaptibility of the
-                sigma curve to the measured PSF widths.</elem>
-        </elemtable>
-    </section>
+                sigma curve to the measured PSF widths.</et:elem>
+        </et:elemtable>
+    </refentry>
 
-    <section id="ExpressionFilter" xreflabel="Expression filter">
-        <title>Expression filter</title>
+    <refentry id="ExpressionFilter" xreflabel="Expression filter">
+        <refnamediv><refname>Expression filter</refname></refnamediv>
         <para>This output allows filtering on and changing individual localization fields.
                 It is distributed into two parts: The simple input fields for minimum localization
                 strength, linear drift correction and maximum two kernel improvement give easy
@@ -382,31 +340,31 @@
         <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
               output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
               form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
-        <elemtable xmlns="">
+        <et:elemtable>
             <title>Expression filter calibration table job options</title>
-            <elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
+            <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
                 If this field is enabled, all localizations with a strength lower than its value are
                 discarded and not displayed or stored in the suboutputs. The localization strength denotes
                 the total signal detected in the PSF, i.e. the integral of the point spread function.
-            </elem>
-            <elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
+            </et:elem>
+            <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
                 If this field is enabled, all localizations are shifted in space by an amount proportional
                 to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
-            </elem>
-            <elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
+            </et:elem>
+            <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
                 If this field is checked, all localizations with a two-kernel improvement (quotient of residues
                 with two kernels and residues with one kernel) greater than the given value are discarded.
                 This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
                 has been checked.
-            </elem>
-            <elem desc="Value to assign to" topic="ExpressionFilter_LValue">
+            </et:elem>
+            <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
                 This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
                 in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
                 or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
                 The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
                 <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
-            </elem>
-            <elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
+            </et:elem>
+            <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
                 This text field gives an arithmetic expression for the value of the action. An
                 expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
                 linked by the usual arithmetic operators. Constants are given as numbers with units, which
@@ -414,8 +372,8 @@
                 meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
                 (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
                 Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
-            </elem>
-        </elemtable>
+            </et:elem>
+        </et:elemtable>
         <table id="ExpressionFilter:VariableBasenames">
             <title>Variable base names for expressions</title>
             <tgroup cols='4' align='left' colsep='1' rowsep='1'>
@@ -493,8 +451,6 @@
                 </tbody>
             </tgroup>
         </table>
-    </section>
+    </refentry>
 
- </section>
-</chapter>
-
+</reference>

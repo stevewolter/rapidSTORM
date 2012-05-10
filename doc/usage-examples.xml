@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" 
+<!DOCTYPE chapter 
 [<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
 %isogrk1;
-]
->
+]>
 
-<chapter>
+<chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en">
 <title>Usage examples</title>
 
 <section>
