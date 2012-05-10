@@ -12,8 +12,10 @@
 <chapter xmlns='http://docbook.org/ns/docbook' id="UI" xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
    <title>User interface</title>
 
+<section>
+    <title>Basic use tutorial</title>
     <task>
-        <title>Basic use tutorial</title>
+        <title>Start an evaluation</title>
         <taskprerequisites>
             This tutorial will exemplify basic rapidSTORM usage by showing
             how to convert an Andor SIF acquisition to a super-resoluted image
@@ -38,8 +40,6 @@
             <step>Optionally change the resolution of the result image by changing the resolution
                 fields (<xref linkend="example-screenshot:resolution-x"/>).</step>
             <step>Start the computation by clicking the <guilabel>Run</guilabel> button (<xref linkend="example-screenshot:run"/>).</step>
-            <step>A new tab will appear in the job tab bar, and a new window will be opened.
-                After some time, your job will have been computed and the result image stored.</step>
         </procedure>
         <taskrelated>
             <informalfigure  id="basic_window_screenshot">
@@ -57,8 +57,14 @@
                     </mediaobjectco>
                 </screenshot>
             </informalfigure>
+            <para>After you finished starting the evaluation, a new tab will appear in the job tab bar,
+                  and a new window will be opened. Continue with the next task: <xref linkend="tutorial_jobwindow"/>.</para>
         </taskrelated>
     </task>
+    <task id="tutorial_jobwindow">
+        <title>Manage an evaluation</title>
+    </task>
+</section>
 
    <para>The graphical user interface for rapidSTORM consists of two
       windows: The <xref linkend="configuration_window"/>
