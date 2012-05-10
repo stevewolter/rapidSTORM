@@ -54,7 +54,7 @@ SigmaDiff3D::SigmaDiff3D( const Config& c, std::auto_ptr< Output > sub )
 
 SigmaDiff3D::AdditionalData
 SigmaDiff3D::announceStormSize(const Announcement& a) {
-    if ( ! a.psf_width().is_given(0,0) || ! a.psf_width().is_given(1,1) )
+    if ( ! a.psf_width().is_given[0] || ! a.psf_width().is_given[1] )
         throw std::runtime_error("PSF width must be fitted and stored for sigma diff 3D");
 
     Announcement my_announcement(a);
