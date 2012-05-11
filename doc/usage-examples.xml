@@ -102,7 +102,7 @@
         <step>Go to the <guilabel>Image Display</guilabel> output and 
             <substeps>
                 <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate (optional)</guilabel></step>
-                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z(optional)</guilabel></step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z (optional)</guilabel></step>
             </substeps>
         </step>
         <step>Run evaluation and wait for job to finish</step>
