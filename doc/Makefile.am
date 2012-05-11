@@ -17,7 +17,7 @@ endif
 doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
 
 manual.xml : $(CHAPTERS:=.xml)
-manual.pdf : $(GRAPHICS) rapidstorm_fo.xsl
+manual.fo : $(GRAPHICS) rapidstorm_fo.xsl
 manual.html : $(GRAPHICS) rapidstorm_html.xsl
 
 XSLT_FLAGS ?= 

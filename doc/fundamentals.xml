@@ -8,8 +8,10 @@
 %isopub;
 ]>
 
-<glossary id="Fundamentals" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">>
+<chapter id="Fundamentals" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">>
     <title>Fundamental concepts</title>
+<glossary>
+    <title/>
     <glossentry id="input_channels">
         <glossterm>Input channels</glossterm>
         <glossdef>
@@ -264,4 +266,4 @@
    </glossentry>
 
 </glossary>
-
+</chapter>

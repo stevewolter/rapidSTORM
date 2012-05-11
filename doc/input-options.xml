@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE reference 
+<!DOCTYPE chapter
 [<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
  <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
@@ -8,9 +8,10 @@
 %isopub;
 ]>
 
-<glossary id="input_options" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+<chapter id="input_options" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
    <title>Input options</title>
-
+<glossary>
+   <title/>
    <glossdiv>
       <title>Input fields</title>
       <et:elem desc="Number of input channels" topic="join.ChannelCount">
@@ -112,4 +113,4 @@
    </glossdiv>
 
 </glossary>
-
+</chapter>

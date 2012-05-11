@@ -8,10 +8,10 @@
 %isopub;
 ]>
 
-<reference id="output_modules" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+<chapter id="output_modules" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
    <title>Output options</title>
 
-   <partintro><para>
+   <para>
      This chapter is dedicated to the description of the different
      output modules that can be inserted into the output tree. Each of
      these modules will be defined by a general description of its purpose
@@ -19,68 +19,70 @@
      will display in job options window (if any), 
      and a table of the configuration
      options it will display in the job status window (if any).</para>
-   </partintro>
 
    <refentry id="localizations_file_output">
       <refnamediv>
          <refname>Localizations file</refname> 
       </refnamediv>
-     <para>The localizations file module stores received localizations
-       in an ASCII text file. This text file is line-based with one line
-       per localization and one line header information. Both the header 
-       line and localization lines consist of at least 4 space-delimited
-       fields. For the localizations, the fields denote X and Y position
-       in pixels, the image number of the localization and the strength
-       of the localization (Gaussian fit amplitude) in camera A/D counts.
-       The header consists of the maximum allowed X/Y coordinates and
-       image number and of a 0 for the amplitude.
-     </para>
-     <para>More fields may be present, but will not be documented.
-       Forward compatibility can be achieved by ignoring all but the first
-       four fields.</para>
-     <et:elemtable>
-        <refname>Job options</refname>
-        <et:elem desc="Write localizations to" topic="Table_ToFile">
-          Output localizations file name. Is derived automatically from
-          input file name.
-        </et:elem>
-     </et:elemtable>
+      <refsection><title>Synopsis</title>
+        <para>The localizations file module stores received localizations
+            in an ASCII text file. This text file is line-based with one line
+            per localization and one line header information. Both the header 
+            line and localization lines consist of at least 4 space-delimited
+            fields. For the localizations, the fields denote X and Y position
+            in pixels, the image number of the localization and the strength
+            of the localization (Gaussian fit amplitude) in camera A/D counts.
+            The header consists of the maximum allowed X/Y coordinates and
+            image number and of a 0 for the amplitude.</para>
+        <para>More fields may be present, but will not be documented.
+            Forward compatibility can be achieved by ignoring all but the first
+            four fields.</para>
+     </refsection>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Write localizations to" topic="Table_ToFile">
+            Output localizations file name. Is derived automatically from
+            input file name.
+            </et:elem>
+        </et:elemtable>
+     </refsection>
    </refentry>
    <refentry id="image_display" xreflabel="Image display">
-      <refnamediv>
-         <refname>Image display</refname> 
-      </refnamediv>
-     <para>The image display module displays all received localizations in
-       an image and optionally saves this image to a file.</para>
-     <section>
-       <title>Image construction algorithm</title>
-       <para>The image construction is performed with the algorithm documented
-         in <xref linkend="WolterDiplomarbeit"/>. Summarizing this algorithm,
-         a localization density map is constructed by linearly interpolating
-         and accumulating the localizations, weighted by their amplitude,
-         on a pixel lattice.
-         This density map is discretized with a very high depth to generate
-         a high dynamic range image; this high-dynamic range image is reduced
-         to a displayable range via weighted histogram equalization.</para>
-       <para>The histogram equalization operation modifies the absolute
-         brightness differences between image areas to optimize contrast.
-         This means that a pixel in the result image with a brightness of
-         200 did not necessarily receive twice as many localizations as a
-         pixel with brightness 100 did. Histogram equalizations guarantees
-         only that a brighter pixel represents at least as many localizations
-         as a weaker pixel.</para>
-       <para>You can change the extent to which histogram equalization is
-         performed by changing the histogram equalization power between
-         0 and 1. 0 means no histogram equalization, and pixel values are
-         linear with localization density. 1 means full equalization: All
-         brightness values appear equally often in the image. While images
-         without histogram equalization aplied often suffer in contrast due
-         to few, very bright pixels suppressing the normal structures, too
-         much histogram equalization overemphasises regions with weak signals
-         and background noise. The default value for the histogram power is
-         usually a good compromise.</para>
-     </section>
-     <section id="color_coding">
+        <refnamediv><refname>Image display</refname></refnamediv>
+        <refsection><title>Synopsis</title>
+            <para>The image display module displays all received localizations in
+            an image and optionally saves this image to a file.</para>
+        </refsection>
+        <refsection>
+            <title>Image construction algorithm</title>
+            <para>The image construction is performed with the algorithm documented
+                in <xref linkend="WolterDiplomarbeit"/>. Summarizing this algorithm,
+                a localization density map is constructed by linearly interpolating
+                and accumulating the localizations, weighted by their amplitude,
+                on a pixel lattice.
+                This density map is discretized with a very high depth to generate
+                a high dynamic range image; this high-dynamic range image is reduced
+                to a displayable range via weighted histogram equalization.</para>
+            <para>The histogram equalization operation modifies the absolute
+                brightness differences between image areas to optimize contrast.
+                This means that a pixel in the result image with a brightness of
+                200 did not necessarily receive twice as many localizations as a
+                pixel with brightness 100 did. Histogram equalizations guarantees
+                only that a brighter pixel represents at least as many localizations
+                as a weaker pixel.</para>
+            <para>You can change the extent to which histogram equalization is
+                performed by changing the histogram equalization power between
+                0 and 1. 0 means no histogram equalization, and pixel values are
+                linear with localization density. 1 means full equalization: All
+                brightness values appear equally often in the image. While images
+                without histogram equalization aplied often suffer in contrast due
+                to few, very bright pixels suppressing the normal structures, too
+                much histogram equalization overemphasises regions with weak signals
+                and background noise. The default value for the histogram power is
+                usually a good compromise.</para>
+        </refsection>
+     <refsection id="color_coding">
        <title>Color coding</title>
        <para>Several different coloring schemes are available for the
          resulting image. All of these operate on the histogram-normalized
@@ -124,83 +126,93 @@
          pale yellow. Observe that a point with localizations equally 
          distributed over a long range of images tends to have a low
          saturation, that is, appear white.</para>
-     </section>
-     <section>
+     </refsection>
+     <refsection>
        <title>Changing parameters after starting a job</title>
        <para>If a <xref linkend="repeater"/> service is available through a
          parent module, most image display parameters can be changed even
          after the job is started.</para>
-     </section>
-     <et:elemtable>
-       <title>Job options</title>
-       <et:elem desc="Save image to" topic="Viewer_ToFile">
-         If a filename is given here, the final result image will be saved
-         to the given file. The file extension determines the file type, and all
-         common file formats (GIF, JPG, PNG, TIF) are supported.
-       </et:elem>
-       <et:elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
-         If this checkbox is checked, the result image will be shown online
-         in an image window.
-         Disable for faster computation.
-       </et:elem>
-       <et:elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
-         Set the aspect ratio of source (camera detector) pixels to target
-         pixels. If set to 10, for example, the result image will be have 10
-         times more pixels in X direction and 10 times more pixels in Y
-         direction.</et:elem>
-       <et:elem desc="Color palette for display" topic="Viewer_ColorScheme">
-         Select one of the color schemes given in <xref 
-         linkend="color_coding"/>.
-       </et:elem>
-       <et:elem desc="Invert colors" topic="Viewer_InvertColors">
-         Invert the color display. Each color is inverted among the three
-         primary color axes (red, green, blue), making red to cyan and
-         black to white.
-       </et:elem>
-       <et:elem desc="Select color hue"  topic="Viewer_Hue">
-         Set the hue for constant color coding or the starting hue for
-         variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
-         (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).
-       </et:elem>
-       <et:elem desc="Select saturation" topic="Viewer_Saturation">
-         Set the saturation for constant color coding. Ranges from 
-         0 (no colors at all, only grey) to 1 (fully saturated colors).
-       </et:elem>
-     </et:elemtable>
-     <et:elemtable>
+     </refsection>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Save image to" topic="Viewer_ToFile">
+                If a filename is given here, the final result image will be saved
+                to the given file. The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.
+            </et:elem>
+            <et:elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
+                If this checkbox is checked, the result image will be shown online
+                in an image window.
+                Disable for faster computation.
+            </et:elem>
+            <et:elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
+                Set the aspect ratio of source (camera detector) pixels to target
+                pixels. If set to 10, for example, the result image will be have 10
+                times more pixels in X direction and 10 times more pixels in Y
+                direction.</et:elem>
+            <et:elem desc="Color palette for display" topic="Viewer_ColorScheme">
+                Select one of the color schemes given in <xref 
+                linkend="color_coding"/>.
+            </et:elem>
+            <et:elem desc="Invert colors" topic="Viewer_InvertColors">
+                Invert the color display. Each color is inverted among the three
+                primary color axes (red, green, blue), making red to cyan and
+                black to white.
+            </et:elem>
+            <et:elem desc="Select color hue"  topic="Viewer_Hue">
+                Set the hue for constant color coding or the starting hue for
+                variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
+                (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).
+            </et:elem>
+            <et:elem desc="Select saturation" topic="Viewer_Saturation">
+                Set the saturation for constant color coding. Ranges from 
+                0 (no colors at all, only grey) to 1 (fully saturated colors).
+            </et:elem>
+        </et:elemtable>
+     </refsection>
+     <refsection>
        <title>Job status</title>
-       <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
-         Shows the current resolution enhancement (see job options table
-         for a definition) and allows, if a 
-         <xref linkend="repeater"/> service is present, to dynamically
-         change it.</et:elem>
-       <et:elem desc="Histogram normalization power" 
-             topic="Viewer_Status_Power">
-         Shows the histogram normalization power and allows dynamic 
-         manipulation.</et:elem>
-       <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
-         Control element for zooming in (positive values) or out (negative
-         values) in the displayed image.</et:elem>
-       <et:elem desc="Save image to" topic="Viewer_Status_ToFile">
-         Shows and changes the file name where the result image should be
-         written to. The file extension determines the file type, and all
-         common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
-       <et:elem desc="Save image" topic="Viewer_Status_Save">
-         Save the image at the current state of computation to the file given
-         by "Save image to".</et:elem>
-     </et:elemtable>
+        <et:elemtable>
+            <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
+                Shows the current resolution enhancement (see job options table
+                for a definition) and allows, if a 
+                <xref linkend="repeater"/> service is present, to dynamically
+                change it.</et:elem>
+            <et:elem desc="Histogram normalization power" 
+                    topic="Viewer_Status_Power">
+                Shows the histogram normalization power and allows dynamic 
+                manipulation.</et:elem>
+            <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
+                Control element for zooming in (positive values) or out (negative
+                values) in the displayed image.</et:elem>
+            <et:elem desc="Save image to" topic="Viewer_Status_ToFile">
+                Shows and changes the file name where the result image should be
+                written to. The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+            <et:elem desc="Save image" topic="Viewer_Status_Save">
+                Save the image at the current state of computation to the file given
+                by "Save image to".</et:elem>
+        </et:elemtable>
+     </refsection>
    </refentry>
+
    <refentry id="count_localizations" xreflabel="Count localizations"> 
       <refnamediv><refname>Count localizations</refname></refnamediv>
-     <para>This output module outputs a count of all received localizations.
-       </para>
-     <et:elemtable>
-       <title>Job status</title>
-       <et:elem desc="Number of localizations found" topic="Count_Count">
-         Displays the number of localizations propagated by the parent
-         module.</et:elem>
-     </et:elemtable>
+        <refsection><title>Synopsis</title>
+            <para>This output module outputs a count of all received localizations.</para>
+        </refsection>
+        <refsection>
+            <title>Job status</title>
+            <et:elemtable>
+                <et:elem desc="Number of localizations found" topic="Count_Count">
+                    Displays the total number of localizations propagated by the parent
+                    module.</et:elem>
+            </et:elemtable>
+        </refsection>
    </refentry>
+
+<!--
    <refentry id="filter_localizations" xreflabel="Filter localizations">
      <refnamediv><refname>Filter localizations</refname></refnamediv>
      <para>This general-purpose output module can perform three basic, 
@@ -239,6 +251,8 @@
          localizations handed to children module.</et:elem>
      </et:elemtable>
    </refentry>
+-->
+
    <refentry> 
       <refnamediv><refname>Slice localization set</refname>
                   <refpurpose>Split the input along the time axis to make a movie</refpurpose></refnamediv>
@@ -288,24 +302,28 @@
         indirect, of the <xref linkend="filter_localizations"/> module or
         if the input comes from the <xref linkend="localizations_file_input"/>
         driver.</para>
-     <et:elemtable>
-       <title>Job options</title>
-       <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
-         Target file to write the gained average image to. 
-         The file extension determines the file type, and all
-         common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
-     </et:elemtable>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
+                Target file to write the gained average image to. 
+                The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+        </et:elemtable>
+     </refsection>
    </refentry>
    <refentry> 
       <refnamediv><refname>Display progress</refname></refnamediv>
      <para>Show a progress bar to indicate state of computation.</para>
-     <et:elemtable>
-       <title>Job status</title>
-       <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
-         This progress bar shows the progress on the current job, that is,
-         which percentage of the input images has been successfully
-         computed.</et:elem>
-     </et:elemtable>
+     <refsection>
+        <title>Job status</title>
+        <et:elemtable>
+            <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
+                This progress bar shows the progress on the current job, that is,
+                which percentage of the input images has been successfully
+                computed.</et:elem>
+        </et:elemtable>
+     </refsection>
    </refentry>
    <refentry id="estimate_psf_form" xreflabel="Estimate PSF Form">
       <refnamediv><refname>Estimate PSF form</refname></refnamediv>
@@ -313,67 +331,75 @@
 
     <refentry id="SigmaCurve" xreflabel="3D PSF width calibration table">
         <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
-        <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
-            Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
-            input localizations, orders the input localizations, smoothes them with cubic B splines and
-            stores the values at the control points in the calibration output file.</para>
-        <et:elemtable>
-            <title>3D PSF width calibration table job options</title>
-            <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
-                Output file name for calibration table. The format is
-                described in <xref linkend="z_calibration_table"/>.</et:elem>
-            <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
-                Number of breakpoints to use for cubic B-spline interpolation. The number of
-                breakpoints determines the number of cubic pieces used to approximate the
-                measured PSF width curve. This number can be viewed as the adaptibility of the
-                sigma curve to the measured PSF widths.</et:elem>
-        </et:elemtable>
+        <refsection><title>Synopsis</title>
+            <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
+                Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
+                input localizations, orders the input localizations, smoothes them with cubic B splines and
+                stores the values at the control points in the calibration output file.</para>
+        </refsection>
+        <refsection>
+            <title>Job options</title>
+            <et:elemtable>
+                <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
+                    Output file name for calibration table. The format is
+                    described in <xref linkend="z_calibration_table"/>.</et:elem>
+                <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
+                    Number of breakpoints to use for cubic B-spline interpolation. The number of
+                    breakpoints determines the number of cubic pieces used to approximate the
+                    measured PSF width curve. This number can be viewed as the adaptibility of the
+                    sigma curve to the measured PSF widths.</et:elem>
+            </et:elemtable>
+        </refsection>
     </refentry>
 
     <refentry id="ExpressionFilter" xreflabel="Expression filter">
         <refnamediv><refname>Expression filter</refname></refnamediv>
-        <para>This output allows filtering on and changing individual localization fields.
-                It is distributed into two parts: The simple input fields for minimum localization
-                strength, linear drift correction and maximum two kernel improvement give easy
-                access to often-needed manipulations, while the more complex test-based expressions
-                give full access to all localization fields.</para>
-        <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
-              output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
-              form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
-        <et:elemtable>
-            <title>Expression filter calibration table job options</title>
-            <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
-                If this field is enabled, all localizations with a strength lower than its value are
-                discarded and not displayed or stored in the suboutputs. The localization strength denotes
-                the total signal detected in the PSF, i.e. the integral of the point spread function.
-            </et:elem>
-            <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
-                If this field is enabled, all localizations are shifted in space by an amount proportional
-                to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
-            </et:elem>
-            <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
-                If this field is checked, all localizations with a two-kernel improvement (quotient of residues
-                with two kernels and residues with one kernel) greater than the given value are discarded.
-                This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
-                has been checked.
-            </et:elem>
-            <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
-                This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
-                in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
-                or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
-                The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
-                <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
-            </et:elem>
-            <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
-                This text field gives an arithmetic expression for the value of the action. An
-                expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
-                linked by the usual arithmetic operators. Constants are given as numbers with units, which
-                can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
-                meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
-                (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
-                Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
-            </et:elem>
-        </et:elemtable>
+        <refsection>
+            <para>This output allows filtering on and changing individual localization fields.
+                    It is distributed into two parts: The simple input fields for minimum localization
+                    strength, linear drift correction and maximum two kernel improvement give easy
+                    access to often-needed manipulations, while the more complex test-based expressions
+                    give full access to all localization fields.</para>
+            <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
+                output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
+                form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
+        </refsection>
+        <refsection>
+            <title>Job options</title>
+            <et:elemtable>
+                <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
+                    If this field is enabled, all localizations with a strength lower than its value are
+                    discarded and not displayed or stored in the suboutputs. The localization strength denotes
+                    the total signal detected in the PSF, i.e. the integral of the point spread function.
+                </et:elem>
+                <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
+                    If this field is enabled, all localizations are shifted in space by an amount proportional
+                    to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
+                </et:elem>
+                <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
+                    If this field is checked, all localizations with a two-kernel improvement (quotient of residues
+                    with two kernels and residues with one kernel) greater than the given value are discarded.
+                    This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
+                    has been checked.
+                </et:elem>
+                <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
+                    This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
+                    in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
+                    or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+                    The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
+                    <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
+                </et:elem>
+                <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
+                    This text field gives an arithmetic expression for the value of the action. An
+                    expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
+                    linked by the usual arithmetic operators. Constants are given as numbers with units, which
+                    can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
+                    meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
+                    (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
+                    Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
+                </et:elem>
+            </et:elemtable>
+        </refsection>
         <table id="ExpressionFilter:VariableBasenames">
             <title>Variable base names for expressions</title>
             <tgroup cols='4' align='left' colsep='1' rowsep='1'>
@@ -453,4 +479,4 @@
         </table>
     </refentry>
 
-</reference>
+</chapter>
