@@ -37,13 +37,12 @@ class DStorm {
         boolean set_magick_path = new File( path.getPrefix(), 
             "share" + File.separator + "GraphicsMagick-1.3.12" ).exists();
         Set<Map.Entry<String,String> > env = System.getenv().entrySet();
-        String[] result_env = new String[ env.size() + ( (set_magick_path) ? 2 : 1 ) ];
+        String[] result_env = new String[ env.size() + ( (set_magick_path) ? 1 : 0 ) ];
         int i = 0;
 
         for ( Map.Entry<String,String> entry : env ) {
             result_env[i++] = entry.getKey() + "=" + entry.getValue();
         }
-        result_env[i++] = "RAPIDSTORM_PLUGINDIR=" + path.getPluginDir();
         if ( set_magick_path ) {
             result_env[i++] = "MAGICK_CONFIGURE_PATH=" +
                 path.getPrefix() 
@@ -92,7 +91,7 @@ class DStorm {
 
         File doc_path = path.getDocPath();
         if ( doc_path.exists() ) {
-            HelpManager.getSingleton().setManual( new File(doc_path, "rapidstorm.html" ) );
+            HelpManager.getSingleton().setManual( new File(doc_path, "manual.html" ) );
             File doc_data_path = path.getDocDataPath();
             HelpManager.getSingleton().add_URI( "Report a bug", new java.net.URI("https://idefix.biozentrum.uni-wuerzburg.de/bugzilla3/") );
         }
@@ -158,13 +157,10 @@ class DStorm {
             System.out.println("RAPIDSTORM EXITED WITH CODE " + rv);
         }
      } catch (Exception e) {
-        try {
-            JOptionPane.showMessageDialog
-                        (null, e.getMessage(), "Error while starting program",
-                        JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e2) {
-            e.printStackTrace();
-        }
+        e.printStackTrace();
+        JOptionPane.showMessageDialog
+                    (null, e.getMessage(), "Error while starting program",
+                    JOptionPane.ERROR_MESSAGE);
      } finally {
      }
    }

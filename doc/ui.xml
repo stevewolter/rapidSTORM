@@ -1,19 +1,80 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" >
+<!DOCTYPE chapter 
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
+%isogrk1;
+%isopub;
+]>
 
-<chapter id="UI">
-    <title>User interface</title>
 
-    <para>The graphical user interface for rapidSTORM consists of two
-       windows: The <xref linkend="configuration_window"/>
-       is used to set the parameters for dSTORM processing
-       and monitor the progress of computation. The 
-       <indexterm><primary>configuration window</primary></indexterm>
-       configuration window
-       is opened when rapidSTORM is started. The second window is the
-       <xref linkend="image_window"/>, which shows the current dSTORM result
-       image and allows the user to scroll and zoom the image.</para>
+<chapter xmlns='http://docbook.org/ns/docbook' id="UI" xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+   <title>User interface</title>
+
+<section>
+    <title>Basic use tutorial</title>
+    <task>
+        <title>Start an evaluation</title>
+        <taskprerequisites>
+            This tutorial will exemplify basic rapidSTORM usage by showing
+            how to convert an Andor SIF acquisition to a super-resoluted image
+            with rapidSTORM. We will load an Andor SIF file, characterize the
+            optics by giving a pixel size and the PSF full width at half maximum,
+            give a target image resolution and compute a super-resolved image.
+        </taskprerequisites>
+        <procedure>
+            <step>Start rapidSTORM via the icon in the Start menu</step>
+            <step>Select the input file by dragging &amp; dropping it from a
+                Windows Explorer window to the <xref linkend="InputFile"/>
+                field (<xref linkend="example-screenshot:input-file"/>.</step>
+            <step>Set the input pixel size by entering the value in the <xref linkend="PixelSize"/>
+            field (<xref linkend="example-screenshot:pixel-size"/>).</step>
+            <step>Enter the full width at half maximum of your point spread function into
+                the <xref linkend="PSF.FWHM"/> field (<xref linkend="example-screenshot:psf-fwhm"/>. You can estimate this value from
+                the numerical aperture of your microscope by the approximation <inlineequation>
+                    <mathphrase>&lgr; / 2 NA</mathphrase></inlineequation>, where &lgr; is
+                    the detection wavelength and NA the numerical aperture of your objective.</step>
+            <step>Show the options of the image display output by clicking on it 
+                  (<xref linkend="example-screenshot:image-display"/>) in the output option tree.</step>
+            <step>Optionally change the resolution of the result image by changing the resolution
+                fields (<xref linkend="example-screenshot:resolution-x"/>).</step>
+            <step>Start the computation by clicking the <guilabel>Run</guilabel> button (<xref linkend="example-screenshot:run"/>).</step>
+        </procedure>
+        <taskrelated>
+            <informalfigure  id="basic_window_screenshot">
+                <screenshot>
+                    <mediaobjectco>
+                        <area id="example-screenshot:input-file" coords="300 400"/>
+                        <area id="example-screenshot:pixel-size" coords="300 400"/>
+                        <area id="example-screenshot:psf-fwhm" coords="300 400"/>
+                        <area id="example-screenshot:image-display" coords="300 400"/>
+                        <area id="example-screenshot:resolution-x" coords="300 400"/>
+                        <area id="example-screenshot:run" coords="300 400"/>
+                        <imageobject>
+                            <imagedata fileref="rapidstorm-step-by-step-2.PNG" width="100%"/>
+                        </imageobject>
+                    </mediaobjectco>
+                </screenshot>
+            </informalfigure>
+            <para>After you finished starting the evaluation, a new tab will appear in the job tab bar,
+                  and a new window will be opened. Continue with the next task: <xref linkend="tutorial_jobwindow"/>.</para>
+        </taskrelated>
+    </task>
+    <task id="tutorial_jobwindow">
+        <title>Manage an evaluation</title>
+    </task>
+</section>
+
+   <para>The graphical user interface for rapidSTORM consists of two
+      windows: The <xref linkend="configuration_window"/>
+      is used to set the parameters for dSTORM processing
+      and monitor the progress of computation. The 
+      <indexterm><primary>configuration window</primary></indexterm>
+      configuration window
+      is opened when rapidSTORM is started. The second window is the
+      <xref linkend="image_window"/>, which shows the current dSTORM result
+      image and allows the user to scroll and zoom the image.</para>
 
    <section id="configuration_window">
       <title>Configuration window</title>
@@ -64,9 +125,8 @@
           consists of four major elements:</para>
           <orderedlist>
             <listitem><para>The <xref linkend="input_options"/> box is used to 
-              configure the input parameters such as input file name, region of
-              interest or camera parameters for direct acquisition.</para>
-              </listitem>
+              select the input files and provide information about the used
+              optics.</para></listitem>
             <listitem><para>The <xref linkend="processing_options"/> box
               used to control the extraction of
               fluorophore <xref linkend="localization"/>s
@@ -81,72 +141,6 @@
               can be changed while the started job is running and have no effect
               on it.</para></listitem>
           </orderedlist>
-        <section id="input_options" xreflabel="Input Options">
-            <elemtable xmlns="">
-                <title>Input options</title>
-                <elem desc="Number of input channels" topic="join.ChannelCount">
-                    This field is used to declare how many <xref 
-                         linkend="input_channels">input channels</xref> should be
-                    made available. New input channel configuration tabs are added
-                    or removed as needed when this field is changed. It might take
-                    rapidSTORM a moment to do this, please have patience.
-                </elem>
-                <elem desc="Input type" topic="InputType" xreflabel="InputType">
-                    This field is used to select the general type of input that should
-                    be used. If input should be read from any kind of file, select
-                    "input from a file" here and the specific type of file in the 
-                    <xref linkend="FileType">file type</xref> field.
-                </elem>
-                <elem desc="Input file" topic="InputFile" xreflabel="InputFile">
-                    The location of the input data is selected in this field. You can put
-                    any existing file here. It's interpretation (file type) and file-specific
-                    input options are set in the <xref linkend="FileType">file type</xref> field.
-                    This field is only available when you have selected "File" as <xref linkend="InputType">input type</xref>.
-                </elem>
-                <elem desc="File type" topic="FileType" xreflabel="FileType">
-                    This field is used to select the type of data that are present in the
-                    input file. Usually, this is auto-detected, and when the 
-                    <xref linkend="InputFile">input file</xref> location is changed, this
-                    field is updated with the auto-determined file type for the selected
-                    input file.
-                </elem>
-                <elem desc="Join inputs on" topic="join.JoinOn">
-                    When multiple channels are selected, this field is used to declare how these
-                    multiple channels are combined into a single image or dataset. The available options are:
-                    <orderedlist>
-                    <listitem>Spatial joining in X/Y dimension, which means that images or datasets are pasted
-                    next to each other. For spatial joining of image data in the X/Y dimension, the not-joined dimension
-                    (e.g. the Y dimension for X joining) must match.</listitem>
-                    <listitem>Spatial joining in Z dimension. When processing images, each input channel is 
-                        considered as a separate layer, with the first channel forming the first layer. For
-                        localization data, this is identical to X/Y joining in Z dimension.</listitem>
-                    <listitem>Joining in time. Channels are processed after each other in the sequence of their
-                        declaration. For images, the dimensions of the images must match.</listitem>
-                    </orderedlist>
-                </elem>
-                <elem desc="Output file basename" topic="OutputBasename">
-                    This is the location and filename prefix for rapidSTORM output files. More precisely,
-                    the filenames for rapidSTORM's output files are produced by adding a file-specific suffix
-                    to the value of this field. 
-                </elem>
-                <elem desc="Fluorophore types" topic="FluorophoreTypeCount">
-                    The number of <xref linkend="fluorophore"/>s present in the input should be given here.
-                    When multiple fluorophores are selected, additional input fields will appear and allow
-                    configuration of the spectral parameters.
-                </elem>
-                <elem desc="PSF FWHM" topic="PSF.FWHM">
-                    The full width at half maximum of the optical point spread function. More
-                    precisely, the typical width of an emitter should be entered here, including fluorophore
-                    size and camera pixelation effects. rapidSTORM will fit spots in the images with a Gaussian 
-                    with the same FWHM as given here. If the PSF is unknown, it can be determined semi-automatically
-                    by using the <xref linkend="estimate_psf_form"/> output.
-                </elem>
-                <elem desc="3D PSF model" topic="3DType">
-                    The 3D PSF model denotes the functional form of the PSF's change with respect to the 
-                    emitter's Z position. See <xref linkend="threedforms"/> for possible values.
-                </elem>
-            </elemtable>
-        </section>
         <section id="processing_options" xreflabel="Processing Options">
           <title>Processing options</title>
           <para>The processing options controls the operation of the
@@ -156,25 +150,25 @@
             Therefore, these options are intricately connected with the
             <xref linkend="Fundamentals"/> and the more involved options
             are documented there. The common options in this part are:</para>
-          <elemtable xmlns=""> 
+          <et:elemtable> 
             <title>Processing configuration items</title>
-            <elem desc="Disable std. dev. estimation" topic="FixSigma">
+            <et:elem desc="Disable std. dev. estimation" topic="FixSigma">
               <para>
               This option disables the code that tries to estimate
               the form of the point spread function. The user must provide
               the standard deviation parameters (i.e., the entries of
               the covariance matrix) in this case.</para>
               <para>See also: <xref linkend="psf_model"/></para>
-            </elem>
-            <elem desc="Fit with free covariance matrix" topic="FreeForm">
+            </et:elem>
+            <et:elem desc="Fit with free covariance matrix" topic="FreeForm">
                 <para>Treat the covariance matrix entries as variables
                 in the fit process rather than as constants. The estimated
                 or fixed standard deviation parameters act as initial values
                 for the estimation when the free covariancce matrix is
                 selected.</para>
                 <para>See also: <xref linkend="psf_model"/></para>
-            </elem>
-            <elem desc="Threshold for relative spot asymmetry" 
+            </et:elem>
+            <et:elem desc="Threshold for relative spot asymmetry" 
                   topic="AsymmetryThreshold">
             <para>Minimum spot asymmetry result of 
               <xref linkend="quadrant_differential_residue_analysis"/> that
@@ -186,8 +180,8 @@
               spots, slowing computation and making false positives in
               double-spot detection likely. Experiments suggest values from
               0.15 to 0.4.</para>
-            </elem>
-            <elem desc="Spot finding methods" topic="Smoother">
+            </et:elem>
+            <et:elem desc="Spot finding methods" topic="Smoother">
               <indexterm><primary>smoothing</primary></indexterm>
               Select a smoothing method to be employed before selecting
               local maximums as spot candidates. The standard method here is
@@ -201,8 +195,8 @@
               large spots. For a complete discussion and quantitative
               comparison, see <xref linkend="WolterDiplomarbeit"/>
               and <xref linkend="Wolter_JoM_09"/>.
-            </elem>
-            <elem desc="Amplitude discarding threshold" 
+            </et:elem>
+            <et:elem desc="Amplitude discarding threshold" 
                   topic="AmplitudeThreshold">
               <indexterm><primary>amplitude threshold</primary></indexterm>
               Minimum amplitude parameter of the fitted 
@@ -210,16 +204,24 @@
               necessary for a spot to be considered a localization.
               If the fitted position has an amplitude lower than this value,
               it is discarded as an artifact.
-            </elem>
-            <elem desc="Number of CPUs to use" topic="CPUNumber">
+            </et:elem>
+            <et:elem desc="Number of CPUs to use" topic="CPUNumber">
               Use this many computation threads. This should be set
               to the number of processors or cores you want to be utilized
               by rapidSTORM.
-            </elem>
-          </elemtable>
+            </et:elem>
+          </et:elemtable>
         </section>
         <section id="output_options" xreflabel="Output Options">
            <title>Output options</title>
+            <figure id="output_box">
+               <title>Output options box</title>
+               <mediaobject>
+                  <imageobject>
+                     <imagedata fileref="rapidstorm-output-box.PNG" width="100%"/>
+                  </imageobject>
+               </mediaobject>
+            </figure>
            <para>The output options box is separated into two components:
              <indexterm><primary>output tree</primary></indexterm>
              To the left hand side, you see a tree element showing the
@@ -229,7 +231,6 @@
              right hand side, you see the
              options for the currently selected node in the output tree. When
              the program is started, this is the root node.</para>
-           <imagedata fileref="rapidstorm-output-box.PNG" contentwidth="15cm"/>
            <para>The output tree defines the way in which localizations are
              processed. Each node of the tree is called an
              <indexterm><primary>output module</primary></indexterm>
@@ -263,34 +264,40 @@
              linkend="output_modules"/> chapter.
              For modules that can have outputs, additionally four control 
              elements are shown:</para>
-          <elemtable xmlns=""> 
+          <et:elemtable> 
             <title>Output configuration items</title>
-            <elem desc="Choose new output" topic="ChooseOutput">
+            <et:elem desc="Choose new output" topic="ChooseOutput">
               In this list you find all available output modules.
               After selecting one of the modules, it is added into the
               output tree as a child of the current tree node.
-            </elem>
-            <elem desc="Select output to remove" topic="ToRemove">
+            </et:elem>
+            <et:elem desc="Select output to remove" topic="ToRemove">
               Select one of the active outputs of the current module in
               this box. The selected module and all of its submodules are
               deleted from the output tree.
-            </elem>
-          </elemtable>
+            </et:elem>
+          </et:elemtable>
         </section>
       </section>
       <section>
         <title>The job status tabs</title>
         <para>For each running job, a job status tab is displayed in the job
               bar.</para>
-        <imagedata fileref="rapidstorm-job-status.PNG" contentwidth="15cm"/>
+        <figure id="job_status">
+            <mediaobject>
+               <imageobject>
+                  <imagedata fileref="rapidstorm-job-status.PNG" width="100%" />
+               </imageobject>
+            </mediaobject>
+        </figure>
         <para>The job status tab is organized along the same lines as the
           job options tab: At the top, you see the status of the input file
           with some descriptive data loaded from the SIF file. In the middle,
           you see the computation elements (in this case, only the stopper),
           and towards the bottom, you see the output control elements.</para>
-        <para>The input elements (thos above the stop computation button)
+        <para>The input elements (those above the stop computation button)
           are specific to the <xref
-          linkend="input_driver"/> used for computation.
+          linkend="input_options"/> used for computation.
           The output elements (those below the button) are specific to the
           used <xref linkend="output_modules"/> and
           organized in the same tree structure as in
@@ -303,25 +310,6 @@
           added multiple of these output modules, some of these elements would
           be shown twice, for example showing the localization counts before
           and after filtering the localizations.</para>
-        <para>There are two generic control elements in this tab:</para>
-        <elemtable xmlns=""> 
-          <title>Output configuration items</title>
-          <elem desc="All elements above the Stop computation button">
-            Elements specific to the <xref linkend="input_driver"/> and 
-            documented by the driver.</elem>
-          <elem desc="Stop computation" topic="StopEngine">
-            Pressing this button aborts computation of localizations
-            and stops acquisition of images, but keeps the job open for
-            result inspection.
-          </elem>
-          <elem desc="All elements below the Stop computation button">
-            Elements specific to the <xref linkend="output_modules"/> and 
-            documented by the module.</elem>
-          <elem desc="Close job" topic="CloseJob">
-            Pressing this button stops the job and closes the
-            job status tab.
-          </elem>
-        </elemtable>
       </section>
       <section>
         <title>The menu bar</title>
@@ -367,18 +355,4 @@
         image window. You can close the window by pressing 'q' or using the
         window close button provided by Windows.</para>
     </section>
-    <section id="errors">
-        <elemtable xmlns=""> 
-          <title>Common error messages</title>
-            <elem desc="No output selected" topic="NoOutputSelected">
-            <para>Before starting a computation job, each filter output module 
-                  must have at least one output assigned. Filter outputs are
-                  those that can have more outputs as children; in other terms,
-                  output modules that have the "Add output" control element.</para>
-            <para>You can fix this error by assigning an output to each filter output.
-                  If you just want to test something and are concerned about file
-                  overwriting, choose a simple output like <xref linkend="count_localizations"/>.</para>
-            </elem>
-        </elemtable>
-   </section>
 </chapter>

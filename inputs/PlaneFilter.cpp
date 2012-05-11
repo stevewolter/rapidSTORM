@@ -67,6 +67,7 @@ class Source::_iterator
     friend class boost::iterator_core_access;
     void increment() { 
         ++this->base_reference(); 
+        is_initialized = false;
     }
 
     void select_plane();
@@ -76,13 +77,14 @@ class Source::_iterator
             const engine::ImageStack& all_planes = *this->base();
             i = engine::ImageStack( all_planes.frame_number() );
             i.push_back( all_planes.plane( plane ) );
+            is_initialized = true;
         }
         return i; 
     }
     
   public:
     explicit _iterator(int plane, const base_iterator base)
-      : _iterator::iterator_adaptor_(base), plane(plane) {}
+      : _iterator::iterator_adaptor_(base), plane(plane), is_initialized(false) {}
 };
 
 Source::base_iterator Source::begin() { 

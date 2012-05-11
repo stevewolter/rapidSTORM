@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE chapter
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
+%isogrk1;
+%isopub;
+]>
+
+<chapter id="input_options" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+   <title>Input options</title>
+<glossary>
+   <title/>
+   <glossdiv>
+      <title>Input fields</title>
+      <et:elem desc="Number of input channels" topic="join.ChannelCount">
+            This field is used to declare how many <xref 
+                  linkend="input_channels">input channels</xref> should be
+            made available. New input channel configuration tabs are added
+            or removed as needed when this field is changed. It might take
+            rapidSTORM a moment to do this, please have patience.
+      </et:elem>
+      <et:elem desc="Input type" topic="InputType">
+            This field is used to select the general type of input that should
+            be used. If input should be read from any kind of file, select
+            "input from a file" here and the specific type of file in the 
+            <xref linkend="FileType"/> field.
+      </et:elem>
+      <et:elem desc="Input file" topic="InputFile">
+            The location of the input data is selected in this field. You can put
+            any existing file here. It's interpretation (file type) and file-specific
+            input options are set in the <xref linkend="FileType"/> field.
+            This field is only available when you have selected "File" as <xref linkend="InputType">input type</xref>.
+      </et:elem>
+      <glossentry id="FileType">
+         <glossterm>File type</glossterm>
+         <glossdef><para>
+               This field is used to select the type of data that are present in the
+               input file. Usually, this is auto-detected, and when the 
+               <xref linkend="InputFile">input file</xref> location is changed, this
+               field is updated with the auto-determined file type for the selected
+               input file.
+         </para></glossdef>
+      </glossentry>
+      <et:elem desc="Join inputs on" topic="join.JoinOn">
+            When multiple channels are selected, this field is used to declare how these
+            multiple channels are combined into a single image or dataset. The available options are:
+            <orderedlist>
+            <listitem>Spatial joining in X/Y dimension, which means that images or datasets are pasted
+            next to each other. For spatial joining of image data in the X/Y dimension, the not-joined dimension
+            (e.g. the Y dimension for X joining) must match.</listitem>
+            <listitem>Spatial joining in Z dimension. When processing images, each input channel is 
+               considered as a separate layer, with the first channel forming the first layer. For
+               localization data, this is identical to X/Y joining in Z dimension.</listitem>
+            <listitem>Joining in time. Channels are processed after each other in the sequence of their
+               declaration. For images, the dimensions of the images must match.</listitem>
+            </orderedlist>
+      </et:elem>
+      <et:elem desc="Output file basename" topic="OutputBasename">
+            This is the location and filename prefix for rapidSTORM output files. More precisely,
+            the filenames for rapidSTORM's output files are produced by adding a file-specific suffix
+            to the value of this field. 
+      </et:elem>
+      <et:elem desc="Fluorophore types" topic="FluorophoreTypeCount">
+            The number of <xref linkend="fluorophore"/>s present in the input should be given here.
+            When multiple fluorophores are selected, additional input fields will appear and allow
+            configuration of the spectral parameters.
+      </et:elem>
+      <et:elem desc="Size of one input pixel" topic="PixelSize">
+      </et:elem>
+      <et:elem desc="PSF FWHM" topic="PSF.FWHM">
+            The full width at half maximum of the optical point spread function. More
+            precisely, the typical width of an emitter should be entered here, including fluorophore
+            size and camera pixelation effects. rapidSTORM will fit spots in the images with a Gaussian 
+            with the same FWHM as given here. If the PSF is unknown, it can be determined semi-automatically
+            by using the <xref linkend="estimate_psf_form"/> output.
+      </et:elem>
+      <et:elem desc="3D PSF model" topic="3DType">
+            The 3D PSF model denotes the functional form of the PSF's change with respect to the 
+            emitter's Z position. See <xref linkend="threedforms"/> for possible values.
+      </et:elem>
+   </glossdiv>
+
+   <glossdiv>
+      <title>Choices for <xref linkend="FileType"/></title>
+
+      <et:elem desc="Localizations file" topic="localizations_file_input">
+      This input driver can be used to read the files written
+         by the <xref linkend="localizations_file_output"/> output module.
+         The file format is documented with the output module.
+      </et:elem>
+
+      <glossentry>
+         <glossterm>Andor SIF file</glossterm>
+         <glossdef>
+            <para>This input driver can read the Andor SIF file format produced
+               by Andor Technology software such as SOLIS.</para>
+            <para>SIF files are stored in an uncompressed binary format with a
+               simple text header. Because reading SIF files cannot be implemented
+               in a forward-compatible way (reading new SIF files with old software),
+               this driver might be unable to open the file; in this case, an error
+               message is shown indicating the maximum known and the encountered
+               version of the Andor SIF structure. Please obtain a newer version
+               of this software in this case.</para>
+            <para>If the <xref linkend="expertise_level"/> is
+               sufficient, this module allows to select an inclusive range of
+               image numbers (starting from 0) which are selected from the SIF file.
+               This range is automatically cropped to the range of available images.
+            </para>
+         </glossdef>
+      </glossentry>
+   </glossdiv>
+
+</glossary>
+</chapter>

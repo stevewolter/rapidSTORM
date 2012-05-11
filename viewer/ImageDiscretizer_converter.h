@@ -25,6 +25,7 @@ Discretizer<ImageListener,Colorizer_>
   out_depth( o.out_depth ),
   pixels_above_used_max_value( o.pixels_above_used_max_value ),
   histogram_power(o.histogram_power),
+  cutoff_factor(o.cutoff_factor),
   binned_image(binned_image)
 {
 }

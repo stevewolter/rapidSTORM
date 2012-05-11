@@ -11,17 +11,12 @@ expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMe
 set test "Replay engine selected for STM file"
 expect_value "in Car in Engine in value" "LocalizationBuncher"
 
-set test "STM file replays localizations parallel to reading full file"
 if { $have_test_plugin == 1 } {
     send "in Car in Input in VerboseInput in BeVerbose in value set true\n"
     send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"
     send "in Car in Output in EngineOutput in ChooseTransmission in value set Delayer\n"
     send "in Car in Run in value set 1\n"
     
-    expect {
-        -re "Advancing from .* 10 fr" { fail "$test" }
-        -re "Verbose plugin got \[0-9\]* localizations for 0 fr" { pass "$test" }
-    }
     set test "Replaying replays final empty frame"
     set have_succession 0
     expect {

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE chapter 
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+%isogrk1;
+]>
+
+<chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en">
+<title>Usage examples</title>
+
+<section>
+<title>Evaluate 3D data with a bead calibration sample</title>
+<task>
+    <title>Record a bead calibration data file</title>
+    <taskprerequisites>
+        <para>We assume that you have an appropriate cylindrical lens in detection path
+        and are using an objective piezo (e.g. PIfoc, Physik Instrumente). The sample should be a thinly coated Tetraspeck bead sample. 
+		Beads should be preferred because of the superior brightness and - in case of tetraspec beads - of the sub-resoulution size. You should know the size of the
+        input pixels.</para>  <para>Make sure you have rapidSTORM 2.20 or later installed.</para>
+    </taskprerequisites>
+    <procedure>
+        <step>place Tetraspeck surface on microscope</step>
+        <step>Set the piezo to a continuous pattern. In this example we use the following settings:
+            <informalexample>
+                <variablelist>
+                    <varlistentry><term>function</term><listitem><userinput>triangular</userinput></listitem></varlistentry>
+                    <varlistentry><term>low position</term><listitem><userinput>45 &mgr;m</userinput></listitem></varlistentry>
+                    <varlistentry><term>high position</term><listitem><userinput>55 &mgr;m</userinput></listitem></varlistentry>
+                    <varlistentry><term>frequence</term><listitem><userinput>0.02 Hz</userinput></listitem></varlistentry>
+                </variablelist>
+            </informalexample>
+        </step>
+        <step>Set camera exposure time (<userinput>0.02 s</userinput>)</step>
+        <step>Compute and remember piezo movement per frame (<inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation>). This will later be needed as an evaluation input.</step>
+        <step>focus on Tetraspeck</step>
+        <step>start piezo</step>
+        <step>record data</step>
+    </procedure>
+</task>
+
+<task>
+    <title>Produce calibration curve</title>
+    <taskprerequisites>
+        We assume that you have recordad a bead calibration data file and have some plotting
+        software, e.g. gnuplot, Origin or Matlab, at your disposal.
+    </taskprerequisites>
+    <procedure>
+	<step>Start rapidSTORM 2</step>
+	<step>Set <guimenu>User level</guimenu> to <guilabel>Medium</guilabel> or higher</step>
+        <step>Set <guilabel>Input file</guilabel> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
+        <step>Check <guilabel>Ignore libtiff warnings</guilabel></step>
+        <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (e.g. 142 and 125 nm in X/Y, respectively)</step>
+	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (5000 ADC) in order to filter noise</step>
+	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
+	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optinal)</step>
+	<step>Check boxes <guilabel>PSF width is free fit parameter</guilabel> and <guilabel>Store PSF covariance matrix</guilabel></step>
+	<step>Go to the <xref linkend="ExpressionFilter"/> output option and set
+            <substeps>
+                <step><guilabel>Value to assign to</guilabel> to <guilabel>posz</guilabel></step>
+                <step><guilabel>Expression to assign from</guilabel> to <userinput>8 nm/fr * frame</userinput></step>
+                <step>Click <guibutton>Add expression</guibutton></step>
+                <step>Set the new <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmx</guilabel> and <userinput>psffwhmx - 25 nm</userinput><footnote><para>This value is a wild guess. It should denote how much wider a fairly large object like a Tetraspec looks than a fluorophore.</para></footnote></step>
+                <step>Click <guibutton>Add expression</guibutton></step>
+                <step>Set the new <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmy</guilabel> and <userinput>psffwhmy - 25 nm</userinput></step>
+                <step>Click <guibutton>Add expression</guibutton></step>
+                <step><guilabel>Choose new output</guilabel> to <xref linkend="SigmaCurve"/></step>
+            </substeps>
+        </step>
+        <step>Go to the <xref linkend="SigmaCurve"/> output and set
+                <guilabel>Number of B spline breakpoints</guilabel> to <userinput>10</userinput>
+        </step>
+	<step>Click <guilabel>Run</guilabel></step>
+        <step id="calibration-curve:check-range">
+            The generated calibration curves are stored in <userinput>foo-sigma-table.txt</userinput>. Plot the PSF standard deviation (columns 2 and 3) against the Z position (column 1) (a description what you find in each column is given in the header of <userinput>foo-sigma-table.txt</userinput>)</step>
+        <step>Check that the calibration curves have no local maxima
+            <stepalternatives>
+                <step>If local maxima exist, narrow the range of usable Z data in the second <guilabel>Expression to assign from</guilabel> field in the <xref linkend="ExpressionFilter"/> output (e.g. to <userinput>posz &gt; 2000 nm &amp;&amp; posz &lt; 6000 nm </userinput>) and go back to <xref linkend="calibration-curve:check-range"/></step>
+                <step>Otherwise continue with <xref linkend="calibration-curve:check-closeness"/></step>
+            </stepalternatives>
+        </step>
+        <step id="calibration-curve:check-closeness">Plot the PSF widths in the localization file <userinput>foo.txt</userinput> (columns 6 and 7) against the Z truth (column 3) and check for outlier points
+            <stepalternatives>
+                <step>If outliers are present, raise <guilabel>Minimum localization strength</guilabel> and go back to <xref linkend="calibration-curve:check-range"/></step>
+                <step>Otherwise continue with <xref linkend="calibration-curve:close-job"/></step>
+            </stepalternatives>
+        </step>
+        <step id="calibration-curve:close-job">You are done with the generation of the calibration file. Close the rapidSTORM2 job.</step>
+    </procedure>
+</task>
+
+<task>
+    <title>Make 3D super-resolved image colour-coded by Z</title>
+    <taskprerequisites>
+        We assume that you have a correct bead calibration data file file for your setup.
+    </taskprerequisites>
+    <procedure>
+        <step>(Re-)Start rapidSTORM</step>
+        <step>Set <guilabel>3D PSF model</guilabel> to <guilabel>Interpolated 3D</guilabel></step>
+        <step>Set <guilabel>Z calibration file</guilabel> to the file name of the calibration curve file.</step>
+        <step>Set <guilabel>Amplitude discarding threshold</guilabel> to a similar value as in 2D (e.g. 1000)</step>
+        <step>Set <guilabel>Fit window radius</guilabel> to the same value you used for producing the calibration curve (1100 nm)</step>
+        <step>Go to the <guilabel>Image Display</guilabel> output and 
+            <substeps>
+                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate (optional)</guilabel></step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z (optional)</guilabel></step>
+            </substeps>
+        </step>
+        <step>Run evaluation and wait for job to finish</step>
+    </procedure>
+</task>
+
+<task>
+    <title>Make 3D super-resolved Z stack</title>
+    <taskprerequisites>
+        We assume that you have a correct calibration curve file for your setup.
+    </taskprerequisites>
+    <procedure>
+        <step>(Re-)Start rapidSTORM</step>
+        <step>Set user level to <guilabel>Medium</guilabel></step>
+        <step>Set <guilabel>3D PSF model</guilabel> to <guilabel>Interpolated 3D</guilabel></step>
+        <step>Set <guilabel>Z calibration file</guilabel> to the file name of the calibration curve file.</step>
+        <step>Set <guilabel>Amplitude discarding threshold</guilabel> to a similar value as in 2D (e.g. 1000)</step>
+        <step>Set <guilabel>Fit window radius</guilabel> to the same value you used for producing the calibration curve (1100 nm)</step>
+        <step>Go to the <guilabel>Image Display</guilabel> output and 
+            <substeps>
+                <step>Set <guilabel>Resolution in X direction</guilabel> to 20 nm</step>
+                <step>Set <guilabel>Resolution in Y direction</guilabel> to 20 nm</step>
+                <step>Set <guilabel>Resolution in Z direction</guilabel> to 50 nm</step>
+                <step>Check <guilabel>Make 3D image</guilabel></step>
+                <step>Change extension of <guilabel>Save image to</guilabel> to <userinput>.tif</userinput></step>
+            </substeps>
+        </step>
+        <step>Run evaluation and wait for job to finish</step>
+    </procedure>
+</task>
+
+</section>
+
+</chapter>
+

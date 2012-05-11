@@ -29,6 +29,42 @@ const std::string str(int i) {
     return ss.str();
 }
 
+class CovarianceMatrixField
+: public Field 
+{
+    Direction dir;
+
+    void write( std::ostream& output, const Localization& source )
+        { throw std::logic_error("Read-only field written"); }
+    void parse(std::istream& input, Localization& target) {
+        float value;
+        input >> value;
+        target.psf_width()[ dir ] = sqrt(value) * 1E-6 * 2.35 * si::meter;
+    }
+    std::auto_ptr<TiXmlNode> makeNode( const Traits& traits ) 
+        { throw std::logic_error("Read-only field written"); }
+    Field* clone() const { return new CovarianceMatrixField(*this); }
+public:
+    CovarianceMatrixField( Direction dir ) : dir(dir) {}
+    static Ptr parse(const TiXmlElement& node, Traits& traits ) {
+        const char* ident_attrib = node.Attribute("identifier"), *unit_attrib = node.Attribute("unit");
+        if ( ! ident_attrib || ! unit_attrib || std::string( unit_attrib ) != "pico(meter^2)" )
+            return Ptr();
+
+        Direction dir;
+        if ( std::string( ident_attrib ) == "PSFCovarMatrix-0-0" )
+            dir = Direction_X;
+        else if ( std::string( ident_attrib ) == "PSFCovarMatrix-1-1" )
+            dir = Direction_Y;
+        else
+            return Ptr();
+
+        traits.psf_width().is_given[dir] = true;
+        return Ptr( new CovarianceMatrixField(dir) );
+    }
+
+};
+
 template <int Index>
 Field* Field::create_interface( const TiXmlElement& node, input::Traits<Localization>& traits )
 {
@@ -41,8 +77,11 @@ Field* Field::create_interface( const TiXmlElement& node, input::Traits<Localiza
 }
 
 template <>
-Field* Field::create_interface<Localization::Fields::Count>( const TiXmlElement& node, input::Traits<Localization>& )
+Field* Field::create_interface<Localization::Fields::Count>( const TiXmlElement& node, input::Traits<Localization>& t )
 {
+    std::auto_ptr<Field> f = CovarianceMatrixField::parse(node,t);
+    if ( f.get() ) return f.release();
+
     const char* syntax_attrib = node.Attribute("syntax");
     if ( syntax_attrib == NULL )
         throw std::runtime_error("Field is missing "

@@ -14,7 +14,7 @@ Traits<dStorm::Localization>::Traits( const Traits<Localization>& i )
   DataSetTraits(i),
   traits::Position(i),
   traits::Amplitude(i),
-  traits::CovarianceMatrix(i),
+  traits::PSFWidth(i),
   traits::TwoKernelImprovement(i),
   traits::FitResidues(i),
   traits::ImageNumber(i),

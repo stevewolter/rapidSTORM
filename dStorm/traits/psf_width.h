@@ -10,15 +10,15 @@
 namespace dStorm {
 namespace traits {
 
-struct CovarianceMatrix;
-template <> struct value< CovarianceMatrix > :
-    public Value< quantity< si::area, float >, 2, 2 > {};
+struct PSFWidth;
+template <> struct value< PSFWidth > :
+    public Value< quantity< si::length, float >, 2, 1 > {};
 
-struct CovarianceMatrix 
-: public value<CovarianceMatrix>,
-  public NoRange<CovarianceMatrix>
+struct PSFWidth 
+: public value<PSFWidth>,
+  public NoRange<PSFWidth>
 {
-    typedef quantity< power_typeof_helper< power10< si::length, -6 >::type, static_rational<2> >::type, float > OutputType;
+    typedef quantity< power10< si::length, -9 >::type, float > OutputType;
     static std::string get_ident();
     static std::string get_desc();
     static std::string get_shorthand();

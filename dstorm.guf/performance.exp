@@ -6,6 +6,8 @@ if { [string compare $test_performance "yes"] == 0 } {
 set_input_file "${workspace_target}Mikrotubuli.sif"
 send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
 send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in GUF in FitWindowSize in value set 485\n"
+send "in Car set Engine in rapidSTORM in SpotFindingMethod in Average in SmoothingMaskSize in value set 7\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 380.0,380.0\n"
 send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 85,85\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
@@ -24,7 +26,7 @@ set count 0
 expect {
     -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" 
         { set count $expect_out(1,string); exp_continue; }
-    -re "remove $job" { pass "$test"; }
+    -re "remove $job" {}
 }
 
 set tock 0 

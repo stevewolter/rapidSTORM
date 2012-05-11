@@ -86,6 +86,7 @@ void MainThread::read_input() {
     }
     boost::mutex::scoped_lock lock( mutex );
     --job_count;
+    if ( job_count == 0 ) main_thread_wakeup.notify_all();
 }
 
 }

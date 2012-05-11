@@ -49,6 +49,9 @@ void InputStream::processCommand(const std::string& cmd, std::istream& rest)
             std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
         reset_config();
+    } else if ( cmd == "quit" ) {
+        main_thread.terminate_running_jobs();
+        IO::processCommand(cmd,rest);
     } else {
         simparm::IO::processCommand(cmd, rest);
     }

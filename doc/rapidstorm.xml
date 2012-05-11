@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" 
->
 
-<book xmlns='http://docbook.org/ns/docbook'>
+<book xmlns='http://docbook.org/ns/docbook' version="5.0" xml:lang="en" status="draft">
 <title>rapidSTORM 2 manual</title>
 <bookinfo>
     <legalnotice>
         <para>
-    Copyright (c)  2012 Steve Wolter
+    Copyright (c)  2012 Steve Wolter, Sven Proppert
     Permission is granted to copy, distribute and/or modify this document
     under the terms of the GNU Free Documentation License, Version 1.3
     or any later version published by the Free Software Foundation;
@@ -18,6 +15,7 @@
         </para>
     </legalnotice>
     <author><firstname>Steve</firstname><surname>Wolter</surname></author>
+    <author><firstname>Sven</firstname><surname>Proppert</surname></author>
 </bookinfo>
 <preface>
     <title>Motivation and scope of rapidSTORM</title>
@@ -46,36 +44,28 @@
 
 <preface>
     <title>Help on Help</title>
-    <para>This manual consists of four parts: The help topics
-        that are grouped in the chapter <xref linkend="UI"/> describe
-        the dialogs and windows of this software. Each page starts with a
-        general overview over the page and then details the control elements
-        for the window. At the
-        end of each chapter documentation, a table follows which shortly
-        explains the control elements of the window.</para>
-    <para>Tutorials are gathered in the chapter
-        <xref linkend="Step_by_Step"/>. The
-        chapters of this part are arranged as series. A series starts
-        with a help page that introduces the method to be explained. The
-        following pages contain a step by step outline on how to apply the
-        method.</para>
-    <para>The various input and output modules are documented in the
-        <xref linkend="References"/> part, grouped by purpose.</para>
-    <para>Acronyms, abbreviations and technical terms are explained in the 
-        <xref linkend="Fundamentals"/> part. If a term is underlined,
-        clicking on this term will bring up a short description or explanation.
-        If you would like to learn about the underlying theory or about the
-        more sophisticated aspects of the rapidSTORM software, please refer
-        to pages from this part, too. In some cases we also refer to some
-        selected publications, which are listed in the <xref 
-        linkend="Bibliography"/> chapter. Some of them are linked as PDF file
-        and will directly open the external PDF reader if installed on your
-        computer.</para>
+    <para>This manual consists of the following parts:</para>
+    <itemizedlist>
+        <listitem><xref linkend="UI"/> gives a broad overview over the dialogs
+            and general usage of this software. An example of basic usage is included.</listitem>
+        <listitem><xref linkend="Step_by_Step"/> consists of concise, step-by-step
+            descriptions of typical nontrivial usage patterns.</listitem>
+        <listitem><xref linkend="input_options"/> documents the various input and output
+            modules and their options in detail.</listitem>
+        <listitem><xref linkend="output_modules"/> documents the various input and output
+            modules and their options in detail.</listitem>
+        <listitem><xref linkend="Fundamentals"/> discusses fundamental concepts and 
+            file formats in depth.</listitem>
+    </itemizedlist>
+    <para>It is recommended to read <xref linkend="UI"/> first to get a broad overview over the user interface.
+      Further information can be found in the relevant reference sections, which can be studied in any order.</para>
 </preface>
   
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ui.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="usage-examples.xml"/>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="reference-manual.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="input-options.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="output-options.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="errors.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="fundamentals.xml"/>
 
 <bibliography id="Bibliography">

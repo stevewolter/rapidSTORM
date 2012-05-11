@@ -63,7 +63,7 @@ class Filter : public LValue {
         this->expression = parser.parse_boolean( expression );
     }
 public:
-    Filter() : LValue("expression", "Expression") {}
+    Filter() : LValue("expression", "Filter") {}
     Filter* clone() const { return new Filter(*this); }
 };
 

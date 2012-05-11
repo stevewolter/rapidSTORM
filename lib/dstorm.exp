@@ -75,7 +75,7 @@ proc dstorm_start {} {
 
     set test "rapidSTORM is started"
     set def_timeout $timeout
-    set timeout 300
+    set timeout 600
     set have_test_plugin 0
     expect {
         -re "PROCESS WATCHER ACTIVE" { 

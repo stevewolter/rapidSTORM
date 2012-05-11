@@ -1,5 +1,59 @@
 == 2.22.0 ==
 
+* Added missing auxiliary scripts to doc
+* Made doc subdirectory configurable on its own
+* Improved 3D usage example
+* Removed local-only testing boards
+* Improved formatting of documentation PDF
+
+== 2.21.9 ==
+
+* Implemented output filter for linear alignment
+* Fixed SigmaDiff3D broken by recent change to one-dimensional PSF widths
+* Fixed segfault caused by early destruction of viewer
+* Hid Z resolution by default
+* Improved and extended documentation.
+* Reduced covariance matrix to FWHM vector.
+
+== 2.21.8 ==
+
+* Removed Andor camera from license note
+* Fixed broken quit command
+* Fixed NULL-initialization error in rapidSTORM GUI
+
+== 2.21.7 ==
+
+* Integrated spline howto into documentation
+* Added reference to simparm implementation header because windows build broke
+* Factored out the only-kernel assumption
+
+== 2.21.6 ==
+
+* Fixed unreliable test case
+* Fixed uninitialized value when changing display visibility
+
+== 2.21.5 ==
+
+* Added missing Doxyfile.in to distribution
+
+== 2.21.4 ==
+
+* Cleaned up unreliable test cases
+
+== 2.21.3 ==
+
+* Removed plugin- and major-version-dependent code
+
+== 2.21.2 ==
+
+* Relaxed 3D form fitter success conditions even further
+* Fixed uninitialized variable in PlaneFilter
+* Made previously-default size parameters of performance test explicit
+* Fixed distribution
+* Fixed over-incremented version number
+
+== 2.21.1 ==
+
 * Fixed stack alignment for helgrind valgrind tool
 * Added over-sighted aligned operator new
 

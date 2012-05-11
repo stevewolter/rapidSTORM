@@ -96,6 +96,10 @@ SimpleFilters::SimpleFilters()
   drift_correction("LinearDriftCorrection", "Linear drift correction"),
   two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1)
 {
+    lower_amplitude.helpID = "ExpressionFilter_LowerAmplitudeThreshold";
+    drift_correction.helpID = "ExpressionFilter_LinearDriftCorrection";
+    two_kernel_improvement.helpID = "ExpressionFilter_TwoKernelImprovement";
+
     two_kernel_improvement.min  = 0;
     two_kernel_improvement.max  = 1;
     two_kernel_improvement.increment  = 0.01;

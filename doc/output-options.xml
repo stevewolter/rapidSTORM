@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE reference 
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
+%isogrk1;
+%isopub;
+]>
+
+<chapter id="output_modules" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+   <title>Output options</title>
+
+   <para>
+     This chapter is dedicated to the description of the different
+     output modules that can be inserted into the output tree. Each of
+     these modules will be defined by a general description of its purpose
+     and its mode of operations, a table of the configuration options it
+     will display in job options window (if any), 
+     and a table of the configuration
+     options it will display in the job status window (if any).</para>
+
+   <refentry id="localizations_file_output">
+      <refnamediv>
+         <refname>Localizations file</refname> 
+      </refnamediv>
+      <refsection><title>Synopsis</title>
+        <para>The localizations file module stores received localizations
+            in an ASCII text file. This text file is line-based with one line
+            per localization and one line header information. Both the header 
+            line and localization lines consist of at least 4 space-delimited
+            fields. For the localizations, the fields denote X and Y position
+            in pixels, the image number of the localization and the strength
+            of the localization (Gaussian fit amplitude) in camera A/D counts.
+            The header consists of the maximum allowed X/Y coordinates and
+            image number and of a 0 for the amplitude.</para>
+        <para>More fields may be present, but will not be documented.
+            Forward compatibility can be achieved by ignoring all but the first
+            four fields.</para>
+     </refsection>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Write localizations to" topic="Table_ToFile">
+            Output localizations file name. Is derived automatically from
+            input file name.
+            </et:elem>
+        </et:elemtable>
+     </refsection>
+   </refentry>
+   <refentry id="image_display" xreflabel="Image display">
+        <refnamediv><refname>Image display</refname></refnamediv>
+        <refsection><title>Synopsis</title>
+            <para>The image display module displays all received localizations in
+            an image and optionally saves this image to a file.</para>
+        </refsection>
+        <refsection>
+            <title>Image construction algorithm</title>
+            <para>The image construction is performed with the algorithm documented
+                in <xref linkend="WolterDiplomarbeit"/>. Summarizing this algorithm,
+                a localization density map is constructed by linearly interpolating
+                and accumulating the localizations, weighted by their amplitude,
+                on a pixel lattice.
+                This density map is discretized with a very high depth to generate
+                a high dynamic range image; this high-dynamic range image is reduced
+                to a displayable range via weighted histogram equalization.</para>
+            <para>The histogram equalization operation modifies the absolute
+                brightness differences between image areas to optimize contrast.
+                This means that a pixel in the result image with a brightness of
+                200 did not necessarily receive twice as many localizations as a
+                pixel with brightness 100 did. Histogram equalizations guarantees
+                only that a brighter pixel represents at least as many localizations
+                as a weaker pixel.</para>
+            <para>You can change the extent to which histogram equalization is
+                performed by changing the histogram equalization power between
+                0 and 1. 0 means no histogram equalization, and pixel values are
+                linear with localization density. 1 means full equalization: All
+                brightness values appear equally often in the image. While images
+                without histogram equalization aplied often suffer in contrast due
+                to few, very bright pixels suppressing the normal structures, too
+                much histogram equalization overemphasises regions with weak signals
+                and background noise. The default value for the histogram power is
+                usually a good compromise.</para>
+        </refsection>
+     <refsection id="color_coding">
+       <title>Color coding</title>
+       <para>Several different coloring schemes are available for the
+         resulting image. All of these operate on the histogram-normalized
+         brightness, but display the brightness in various ways to enhance
+         information
+         depth, produce a pretty-looking image or give information about the
+         time coordinate. All of these color schemes show brighter colors
+         to indicate more localizations; to invert this meaning and show,
+         for example, black localizations on a white background, use the
+         "Invert colours" option.</para>
+       <para>The <emphasis>black and white</emphasis> colour scheme is the
+         fastest colour code. It displays the equalized brightness directly
+         on a scale ranging from black (no localizations) to white (maximum
+         amount).</para>
+       <para>The <emphasis>black, red, yellow and white</emphasis> colour
+         scheme offers a higher dynamic range by displaying the lowest
+         third of the brightness values on a scale ranging from black to
+         red, the middle third on a scale from red to yellow and the highest
+         third on a scale from yellow to white. In total, about 760
+         brightness levels are displayed.</para>
+       <para>The <emphasis>constant colour</emphasis> colour
+         scheme is similar to the black-and-white scheme, but uses an
+         arbitray colour instead of white. You can use the "Select colour
+         hue" and "Select saturation" to choose the colour.</para>
+       <para>The <emphasis>Vary hue by time coordinate</emphasis> colour
+         scheme colour-codes each localization by its time coordinate, that
+         is, by the number  of the image it occured in. The code starts at
+         the
+         hue selected in "Select colour hue" and then follows the colour
+         circle of the HSV colour model, that is, ranges from red over
+         yellow, green, cyan, blue to violet.
+         If multiple localizations contribute to the same pixel, hue and
+         variance are interpreted as angle and radius on a plane, converted
+         to cartesian coordinates, averaged arithmetically and converted
+         back to hue and variance.
+         For example, if red (hue 0, 
+         saturation 1) and yellow-green (hue 0.25, saturation 1) are present
+         with amplitudes 1 and 4 on a pixel, they are
+         converted to the points (1,0) and (0,1), averaged to (0.2,0.8) and
+         transformed back to (hue 0.21, saturation 0.82), which is a slightly
+         pale yellow. Observe that a point with localizations equally 
+         distributed over a long range of images tends to have a low
+         saturation, that is, appear white.</para>
+     </refsection>
+     <refsection>
+       <title>Changing parameters after starting a job</title>
+       <para>If a <xref linkend="repeater"/> service is available through a
+         parent module, most image display parameters can be changed even
+         after the job is started.</para>
+     </refsection>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Save image to" topic="Viewer_ToFile">
+                If a filename is given here, the final result image will be saved
+                to the given file. The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.
+            </et:elem>
+            <et:elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
+                If this checkbox is checked, the result image will be shown online
+                in an image window.
+                Disable for faster computation.
+            </et:elem>
+            <et:elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
+                Set the aspect ratio of source (camera detector) pixels to target
+                pixels. If set to 10, for example, the result image will be have 10
+                times more pixels in X direction and 10 times more pixels in Y
+                direction.</et:elem>
+            <et:elem desc="Color palette for display" topic="Viewer_ColorScheme">
+                Select one of the color schemes given in <xref 
+                linkend="color_coding"/>.
+            </et:elem>
+            <et:elem desc="Invert colors" topic="Viewer_InvertColors">
+                Invert the color display. Each color is inverted among the three
+                primary color axes (red, green, blue), making red to cyan and
+                black to white.
+            </et:elem>
+            <et:elem desc="Select color hue"  topic="Viewer_Hue">
+                Set the hue for constant color coding or the starting hue for
+                variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
+                (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).
+            </et:elem>
+            <et:elem desc="Select saturation" topic="Viewer_Saturation">
+                Set the saturation for constant color coding. Ranges from 
+                0 (no colors at all, only grey) to 1 (fully saturated colors).
+            </et:elem>
+        </et:elemtable>
+     </refsection>
+     <refsection>
+       <title>Job status</title>
+        <et:elemtable>
+            <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
+                Shows the current resolution enhancement (see job options table
+                for a definition) and allows, if a 
+                <xref linkend="repeater"/> service is present, to dynamically
+                change it.</et:elem>
+            <et:elem desc="Histogram normalization power" 
+                    topic="Viewer_Status_Power">
+                Shows the histogram normalization power and allows dynamic 
+                manipulation.</et:elem>
+            <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
+                Control element for zooming in (positive values) or out (negative
+                values) in the displayed image.</et:elem>
+            <et:elem desc="Save image to" topic="Viewer_Status_ToFile">
+                Shows and changes the file name where the result image should be
+                written to. The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+            <et:elem desc="Save image" topic="Viewer_Status_Save">
+                Save the image at the current state of computation to the file given
+                by "Save image to".</et:elem>
+        </et:elemtable>
+     </refsection>
+   </refentry>
+
+   <refentry id="count_localizations" xreflabel="Count localizations"> 
+      <refnamediv><refname>Count localizations</refname></refnamediv>
+        <refsection><title>Synopsis</title>
+            <para>This output module outputs a count of all received localizations.</para>
+        </refsection>
+        <refsection>
+            <title>Job status</title>
+            <et:elemtable>
+                <et:elem desc="Number of localizations found" topic="Count_Count">
+                    Displays the total number of localizations propagated by the parent
+                    module.</et:elem>
+            </et:elemtable>
+        </refsection>
+   </refentry>
+
+<!--
+   <refentry id="filter_localizations" xreflabel="Filter localizations">
+     <refnamediv><refname>Filter localizations</refname></refnamediv>
+     <para>This general-purpose output module can perform three basic, 
+       simple tasks: Firstly, it filters received <xref 
+       linkend="localization"/>s by
+       amplitude and forwards them to its output modules. Secondly, it
+       applies <xref linkend="linear_drift_correction"/> to the localizations
+       passing through it. Thirdly, it provides a
+       <xref linkend="repeater"/> service.
+       all received localizations and can repeat them to its own output
+       modules, if necessary.</para>
+     <para>The first function works similiarly to the amplitude threshold
+       found in the processing options, but does not influence the dynamical
+       threshold. Only localizations larger than the minimum and
+       smaller than the maximum amplitude pass through the filter.</para>
+     <para>The second function, the linear drift correction, works as
+       decribed in the corresponding Fundamentals section. The amount of
+       linear drift correction (in detector pixels) in the last frame is
+       given by the X/Y drift correction parameters.</para>
+     <note>The result repeater does not provide the source images
+       to its children output modules. Modules such as the image
+       averager will not work below it.</note>
+     <et:elemtable>
+       <title>Job options and status</title>
+       <et:elem desc="Minimum localization strength" topic="Filter_MinStrength">
+         Select the minimum strength a localization must have to be
+         handed to the children output modules</et:elem>
+       <et:elem desc="Maximum localization strength" topic="Filter_MaxStrength">
+         Select the maximum strength a localization may have to be
+         handed to the children output modules</et:elem>
+       <et:elem desc="X drift correction" topic="Filter_XDrift">
+         Amount of linear drift correction to apply in X direction to the
+         localizations handed to children modules</et:elem>
+       <et:elem desc="Y drift correction" topic="Filter_YDrift">
+         Amount of linear drift correction to apply in Y direction to the
+         localizations handed to children module.</et:elem>
+     </et:elemtable>
+   </refentry>
+-->
+
+   <refentry> 
+      <refnamediv><refname>Slice localization set</refname>
+                  <refpurpose>Split the input along the time axis to make a movie</refpurpose></refnamediv>
+      <refsection><title>Synopsis</title>
+         <para>This output module can automatically slice one input acquisition
+            into a number of output acquisitions, each of which is processed
+            seperately.</para>
+         <para>After determining the number of slices, this module makes one
+            copy of its children output modules for each slice. Each copy will
+            receive only the localizations in its slice. To keep memory usage
+            low, the copies will be made on demand, when the first localization
+            of a slice arrives, and will be closed as soon as the last localization
+            of its slice has been processed.</para>
+      </refsection>
+     <refsection>
+         <title>Job options</title>
+         <et:elemtable>
+            <et:elem desc="Size of one slice in images" topic="Slicer_Size">
+               Each slice will have as many images as specified here.
+               Suppose slices in an acquisition 1000 images long start at
+               0, 300, 600 and 900 and this parameter is set to 500, there
+               will be the four slices 0-499, 300-799, 600-999 and 900-999.
+            </et:elem>
+            <et:elem desc="Start new slice every n images" topic="Slicer_Dist">
+               One slice will be started at each image number 
+               divisible by this number. Suppose 1000 images are in an
+               acquisition and this parameter is set to 300, slices will
+               be started at images 0, 300, 600 and 900.
+            </et:elem>
+            <et:elem desc="File name pattern" topic="Slicer_Pattern">
+               Pattern for output file basenames. The output files (for example
+               for images or localization files) will be generated by this pattern,
+               where %i will be replaced with the slice number.
+            </et:elem>
+         </et:elemtable>
+      </refsection>
+   </refentry>
+   <refentry> 
+      <refnamediv><refname>Average images</refname></refnamediv>
+      <para>This module does not process localizations, but rather averages
+        all source images it receives to produce one averaged image. This
+        image can be used to see how the specimen would have looked without
+        dSTORM processing.</para>
+      <para><note>This module will only work when source images are 
+        available.</note>
+        Source images are unavailable for children, direct or
+        indirect, of the <xref linkend="filter_localizations"/> module or
+        if the input comes from the <xref linkend="localizations_file_input"/>
+        driver.</para>
+     <refsection>
+        <title>Job options</title>
+        <et:elemtable>
+            <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
+                Target file to write the gained average image to. 
+                The file extension determines the file type, and all
+                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+        </et:elemtable>
+     </refsection>
+   </refentry>
+   <refentry> 
+      <refnamediv><refname>Display progress</refname></refnamediv>
+     <para>Show a progress bar to indicate state of computation.</para>
+     <refsection>
+        <title>Job status</title>
+        <et:elemtable>
+            <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
+                This progress bar shows the progress on the current job, that is,
+                which percentage of the input images has been successfully
+                computed.</et:elem>
+        </et:elemtable>
+     </refsection>
+   </refentry>
+   <refentry id="estimate_psf_form" xreflabel="Estimate PSF Form">
+      <refnamediv><refname>Estimate PSF form</refname></refnamediv>
+   </refentry>
+
+    <refentry id="SigmaCurve" xreflabel="3D PSF width calibration table">
+        <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
+        <refsection><title>Synopsis</title>
+            <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
+                Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
+                input localizations, orders the input localizations, smoothes them with cubic B splines and
+                stores the values at the control points in the calibration output file.</para>
+        </refsection>
+        <refsection>
+            <title>Job options</title>
+            <et:elemtable>
+                <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
+                    Output file name for calibration table. The format is
+                    described in <xref linkend="z_calibration_table"/>.</et:elem>
+                <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
+                    Number of breakpoints to use for cubic B-spline interpolation. The number of
+                    breakpoints determines the number of cubic pieces used to approximate the
+                    measured PSF width curve. This number can be viewed as the adaptibility of the
+                    sigma curve to the measured PSF widths.</et:elem>
+            </et:elemtable>
+        </refsection>
+    </refentry>
+
+    <refentry id="ExpressionFilter" xreflabel="Expression filter">
+        <refnamediv><refname>Expression filter</refname></refnamediv>
+        <refsection>
+            <para>This output allows filtering on and changing individual localization fields.
+                    It is distributed into two parts: The simple input fields for minimum localization
+                    strength, linear drift correction and maximum two kernel improvement give easy
+                    access to often-needed manipulations, while the more complex test-based expressions
+                    give full access to all localization fields.</para>
+            <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
+                output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
+                form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
+        </refsection>
+        <refsection>
+            <title>Job options</title>
+            <et:elemtable>
+                <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
+                    If this field is enabled, all localizations with a strength lower than its value are
+                    discarded and not displayed or stored in the suboutputs. The localization strength denotes
+                    the total signal detected in the PSF, i.e. the integral of the point spread function.
+                </et:elem>
+                <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
+                    If this field is enabled, all localizations are shifted in space by an amount proportional
+                    to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
+                </et:elem>
+                <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
+                    If this field is checked, all localizations with a two-kernel improvement (quotient of residues
+                    with two kernels and residues with one kernel) greater than the given value are discarded.
+                    This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
+                    has been checked.
+                </et:elem>
+                <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
+                    This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
+                    in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
+                    or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+                    The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
+                    <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
+                </et:elem>
+                <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
+                    This text field gives an arithmetic expression for the value of the action. An
+                    expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
+                    linked by the usual arithmetic operators. Constants are given as numbers with units, which
+                    can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
+                    meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
+                    (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
+                    Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
+                </et:elem>
+            </et:elemtable>
+        </refsection>
+        <table id="ExpressionFilter:VariableBasenames">
+            <title>Variable base names for expressions</title>
+            <tgroup cols='4' align='left' colsep='1' rowsep='1'>
+                <colspec colnum="1" colwidth="6em"/>
+                <colspec colnum="2" colwidth="7em"/>
+                <colspec colnum="3" colwidth="5em"/>
+                <thead><row><entry>Variable base name</entry><entry>Dimension</entry><entry>Type</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry>pos</entry><entry>m</entry><entry>3D vector</entry><entry>Position in sample space</entry></row>
+                    <row><entry>amp</entry><entry>ADC</entry><entry>scalar</entry><entry>Intensity of emission</entry></row>
+                    <row><entry>frame</entry><entry>fr</entry><entry>scalar</entry><entry>Time of emission</entry></row>
+                    <row><entry>psffwhm</entry><entry>m</entry><entry>2D vector</entry><entry>PSF model's full width at half maximum</entry></row>
+                    <row><entry>fishy</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Two-kernel improvement</entry></row>
+                    <row><entry>chisq</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fit residues. For least-squares fitting, this value gives the sum of squared deviations between PSF model and data in photons squared. For MLE fitting, this value gives the total likelihood score. In both cases, the value is not normed in any way and unlikely to be comparable between measurements.</entry></row>
+                    <row><entry>fluo</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fluorophore type (0 for first fluorophore, 1 for second, etc.)</entry></row>
+                    <row><entry>bg</entry><entry>ADC</entry><entry>scalar</entry><entry>Local background intensity</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:VariableModifiers">
+            <title>Variable name modifiers for expressions</title>
+            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+                <thead><row><entry>Modifier</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry><replaceable>&hellip;</replaceable>x</entry><entry>&hellip; in X dimension</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>y</entry><entry>&hellip; in Y dimension</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>z</entry><entry>&hellip; in Z dimension</entry></row>
+                    <row><entry>sigma<replaceable>&hellip;</replaceable></entry><entry>uncertainty of &hellip;</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>min</entry><entry>lower bound of &hellip;</entry></row>
+                    <row><entry><replaceable>&hellip;</replaceable>max</entry><entry>upper bound of &hellip;</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:VariableExamples">
+            <title>Variable example names for expressions</title>
+            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+                <thead><row><entry>Example variable name</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry>posx</entry><entry>Localization's X coordinate</entry></row>
+                    <row><entry>posminy</entry><entry>Highest possible Y localization coordinate</entry></row>
+                    <row><entry>fluo</entry><entry>Fluorophore type</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:Operators">
+            <title>Operators in expressions</title>
+            <tgroup cols="3">
+                <colspec colnum="2" colwidth="6em"/>
+                <thead><row><entry>Operator</entry><entry>Result type</entry><entry>Meaning</entry></row></thead>
+                <tbody>
+                    <row><entry><userinput>(<replaceable>n1</replaceable>)</userinput></entry><entry>numerical</entry><entry>grouping of numerical expressions</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable>^<replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>exponentiation</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> * <replaceable>n2</replaceable>, <replaceable>n1</replaceable> / <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>multiplication, division</entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> + <replaceable>n2</replaceable>, <replaceable>n1</replaceable> - <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>addition, subtraction</entry></row>
+                    <row><entry><userinput>(<replaceable>b1</replaceable>) ? <replaceable>n1</replaceable> : <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>choice operator (if <replaceable>b1</replaceable> is true, use <replaceable>n1</replaceable>, else <replaceable>n2</replaceable></entry></row>
+                    <row><entry><userinput><replaceable>n1</replaceable> == <replaceable>n2</replaceable>, <replaceable>n1</replaceable> != <replaceable>n2</replaceable>, <replaceable>n1</replaceable> = <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt; <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt; <replaceable>n2</replaceable></userinput></entry><entry>boolean</entry><entry>comparison for equality, inequality, equality (same as <userinput>==</userinput>), greater-equality, less-equality, greater, less</entry></row>
+                    <row><entry><userinput>!<replaceable>b1</replaceable></userinput></entry><entry>boolean</entry><entry>negation</entry></row>
+                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>conjunction (and)</entry></row>
+                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+        <table id="ExpressionFilter:ExampleActions">
+            <title>Example actions</title>
+            <tgroup cols="3">
+                <colspec colnum="1" colwidth="4em"/>
+                <thead><row><entry>Value to assign to</entry><entry>Expression to assign from</entry><entry>Intention</entry></row></thead>
+                <tbody>
+                    <row><entry>Filter</entry><entry><userinput>fluo = 0</userinput></entry><entry>Only show localizations from the first fluorophore</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>posx &gt; 1 um</userinput></entry><entry>Only show localizations right of a line at 1 &mgr;m</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>amp &lt; 5 kADC</userinput></entry><entry>Discard emissions with intensities above 5000 counts</entry></row>
+                    <row><entry>Filter</entry><entry><userinput>posx &gt; 2300 nm &amp;&amp; posx &lt; 2800 nm &amp;&amp; posy &gt; 1800 nm &amp;&amp; posy &lt; 2200 nm &amp;&amp; frame &lt; 500 fr</userinput></entry><entry>Limit region of interest to a single bead early in the acquisition to calibrate 3D</entry></row>
+                    <row><entry>posz</entry><entry><userinput>8 nm/fr * frame</userinput></entry><entry>Set a Z ground truth raising 8 nanometre per frame</entry></row>
+                    <row><entry>amp</entry><entry><userinput>(fluo == 0) ? 1.5 * amp : 1 * amp</userinput></entry><entry>Make all localizations from the first fluorophore type more intense by a half</entry></row>
+                </tbody>
+            </tgroup>
+        </table>
+    </refentry>
+
+</chapter>

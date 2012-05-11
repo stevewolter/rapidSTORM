@@ -1,6 +1,3 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
 AC_PREREQ(2.61)
 AC_INIT([rapidSTORM], [2.22.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
@@ -12,11 +9,7 @@ AC_CONFIG_SRCDIR([dstorm.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_INSTALL
-AC_PROG_XSLTPROC
-test "x$XSLTPROC" = "x" && AC_MSG_ERROR([unable to find XSLT processor])
 AC_PROG_LN_S
-AC_CHECK_PROGS([PDFXSLFO], [fop])
-AM_CONDITIONAL([BUILD_PDF_DOCUMENTATION], [test -n "$PDFXSLFO"])
 AC_PROG_SED
 test "x$SED" = "x" && AC_MSG_ERROR([unable to find stream editor])
 
@@ -28,9 +21,6 @@ AC_SUBST( [PACKAGE_POINT_VERSION], $AX_POINT_VERSION )
 AC_DEFINE_UNQUOTED([PACKAGE_MAJOR_VERSION], $AX_MAJOR_VERSION, [Major component of package version])
 AC_DEFINE_UNQUOTED([PACKAGE_MINOR_VERSION], $AX_MINOR_VERSION, [Minor component of package version])
 AC_DEFINE_UNQUOTED([PACKAGE_POINT_VERSION], $AX_POINT_VERSION, [Point component of package version])
-AS_VAR_ARITH([current], $AX_MAJOR_VERSION+$AX_MINOR_VERSION)
-AS_VAR_ARITH([revision], $AX_POINT_VERSION)
-AS_VAR_ARITH([age], $AX_MINOR_VERSION)
 AC_SUBST([LIBTOOL_VERSION_INFO], 15:0:0)
 
 AC_LANG([C++])
@@ -110,7 +100,7 @@ AC_CHECK_LIB([boost_thread], [main], [boost_thread_LIB=-lboost_thread])
 AC_CHECK_LIB([boost_thread_win32], [main], [boost_thread_LIB=-lboost_thread_win32])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
-AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework])
+AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework], [AC_ERROR(boost unit test library not found)])
 AC_SUBST([boost_system_LIB])
 AC_SUBST([boost_thread_LIB])
 AC_SUBST([boost_unit_test_LIB])
@@ -164,10 +154,6 @@ AC_ARG_WITH([rapidstorm-test-cases], [AS_HELP_STRING([--with-rapidstorm-test-cas
     [directory with rapidSTORM test cases])],
     [],
     [with_rapidstorm_test_cases=])
-AC_ARG_WITH([rapidstorm-version], [AS_HELP_STRING([--with-rapidstorm-version], 
-    [version of the rapidSTORM to install and run in chroot])],
-    [],
-    [with_rapidstorm_version=trunk])
 
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
@@ -190,13 +176,6 @@ fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-AC_SUBST([DSTORM_LIB_VERSION], $AX_MAJOR_VERSION)
-AC_SUBST([DSTORM_PLUGIN_DIR], "$libdir/librapidstorm/plugins-v$AX_MAJOR_VERSION")
-# This substitution is not used, but necessary to touch config.h on
-# change of the major version to propagate the name of the plugin directory,
-# which is only defined through the Makefile
-AC_DEFINE_UNQUOTED([DSTORM_GENERATION], "$AX_MAJOR_VERSION", "rapidSTORM generation")
-
 if test -z "$twiddler_jar"; then
     f="`pkg-config --variable=prefix libsimparm`/share/java/twiddler.jar"
     test -e "$f" && twiddler_jar="$f"
@@ -209,6 +188,8 @@ AC_SUBST([TWIDDLER_JAR], "$twiddler_jar")
 
 AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" -a "x$twiddler_jar" != "x"])
 
+AC_CONFIG_SUBDIRS([doc])
+
 AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
 AC_SUBST([setupstagedir], "$with_stage_dir")
 AC_SUBST([TELNET_HOST], "$with_telnet_host")
@@ -218,6 +199,6 @@ AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 
 AC_CONFIG_FILES([Makefile rapidstorm rapidstorm.desktop manifest])
 AC_CONFIG_FILES([librapidstorm.pc librapidstormfile.pc])
-AC_CONFIG_FILES([doc/Makefile version.txt install-dirs.exp doc/foprc])
+AC_CONFIG_FILES([version.txt install-dirs.exp])
 
 AC_OUTPUT

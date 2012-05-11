@@ -6,7 +6,6 @@ AUTOMAKE_OPTIONS = subdir-objects dejagnu
 include aminclude.am
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-plugin_libdir = $(DSTORM_PLUGIN_DIR)
 javadir=$(datadir)/java
 javabuilddir = classes
 applicationsdir=$(datadir)/applications
@@ -36,7 +35,7 @@ if REMOTE_TESTING
 endif
 
 EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
-    gaussian_psf/make_psf.sh \
+    Doxyfile.in gaussian_psf/make_psf.sh \
     dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
     dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
     dstorm.input/00-input-file-is-recognized.exp \
@@ -76,7 +75,7 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
     dstorm.outputs/localization-filter.exp \
     dstorm.outputs/viewer-supports-key-range-changes.exp \
     dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
-    dstorm.outputs/segmenter.exp  \
+    dstorm.outputs/segmenter.exp dstorm.outputs/linear-alignment.exp \
     lib/dstorm.exp dstorm.andorcam/two-successive-jobs.exp \
     dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
     dstorm.andorcam/infinite-acquisition.exp \
@@ -88,8 +87,7 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
     dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
     dstorm.test/can-compute-txt-file.exp dstorm.test/memory.exp \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
-    dstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
-    boards/kokolorix.exp boards/chroot.exp boards/valgrind.exp \
+    dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
 
 CLEANFILES = rapidSTORM.jar \
@@ -103,9 +101,7 @@ java-built-stamp : $(JAVASOURCES)
 	touch $@
 
 DefaultPath.java : $(srcdir)/DefaultPath.java.in
-	sed -e 's:[@]DSTORM_LIB_VERSION[@]:$(DSTORM_LIB_VERSION):g' \
-	    -e 's:[@]DSTORM_PLUGIN_DIR[@]:$(DSTORM_PLUGIN_DIR):g' \
-	    -e 's:[@]prefix[@]:$(prefix):g' \
+	$(SED) -e 's:[@]prefix[@]:$(prefix):g' \
 	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
 	    $< > $@
 
@@ -115,7 +111,7 @@ rapidSTORM.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
 	$(JAR) -umf manifest $@
 
 clean-local :
-	-rm -fr $(javabuilddir)
+	-rm -fr $(javabuilddir) test-temp-dir
 
 TESTS = $(C_TESTS)
 
@@ -157,7 +153,7 @@ nobase_include_HEADERS = \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
-    dStorm/traits/covariance_matrix.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
+    dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
     dStorm/traits/position.h dStorm/traits/range.h \
     dStorm/traits/range_impl.h dStorm/traits/residues.h \
     dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \
@@ -333,7 +329,7 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 dstorm_SOURCES = dstorm.cpp
 dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) "-DRAPIDSTORM_PLUGIN_DIR=\"$(DSTORM_PLUGIN_DIR)\""
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
 dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
@@ -432,7 +428,8 @@ dstorm_SOURCES += \
     outputs/MemoryCache.cpp outputs/MemoryCache.h \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
-    outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp
+    outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
+    outputs/LinearAlignment.h outputs/LinearAlignment.cpp
 
 dstorm_SOURCES += \
     calibrate_3d/fwd.h \
@@ -597,6 +594,7 @@ dstorm_SOURCES += \
     guf/FunctionRepository.h guf/FunctionRepository.hpp \
     guf/Factory.cpp guf/Factory.h \
     guf/MultiKernelModel.h guf/MultiKernelModel.hpp \
+    guf/MultiKernelLambda.h \
     guf/Fitter.cpp guf/Fitter.h \
     guf/InitialValueFinder.h guf/InitialValueFinder.cpp \
     guf/TraitValueFinder.h guf/TraitValueFinder.cpp \
@@ -607,9 +605,8 @@ dstorm_SOURCES += \
     guf/KernelCreator.h guf/KernelCreator.cpp \
     guf/FitTerminator.h \
     guf/PlaneFunction.h guf/PlaneFunction.hpp \
-    guf/DistanceMetric.h guf/InputPlane.h \
+    guf/DistanceMetric.h \
     guf/Spot.h \
-    guf/StandardFunction.h \
     guf/unit_tests.h
 
 dstorm_SOURCES += \
@@ -682,10 +679,10 @@ CLEANFILES += $(INSTANTIATIONS)
 $(INSTANTIATIONS) : 
 	echo $@  \
 	    | grep -v '/float_-_.*_-_disjoint_1[048]_-_' \
-	    | sed -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
+	    | $(SED) -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
 	    | awk '{ for (i = 1; i <= NF; ++i) print "#include \"" $$i ".h\""; }' \
-	    | sed -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
-	    | sed -e 's:#include ":&guf/instantiations/:' > $@
+	    | $(SED) -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
+	    | $(SED) -e 's:#include ":&guf/instantiations/:' > $@
 
 dstorm_SOURCES += \
     nonlinfit/unit_test.h \

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE chapter 
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
+%isogrk1;
+%isopub;
+]>
+
+<chapter id="Fundamentals" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">>
+    <title>Fundamental concepts</title>
+<glossary>
+    <title/>
+    <glossentry id="input_channels">
+        <glossterm>Input channels</glossterm>
+        <glossdef>
+            <para>Foobar</para>
+        </glossdef>
+    </glossentry>
+
+   <glossentry id="dSTORM_engine">
+      <glossterm>dSTORM engine</glossterm>
+      <glossdef>
+         <para>The dSTORM engine is the collective term for the core of the
+         rapidSTORM software that is not part of the input or output
+         drivers. The dSTORM engine is responsible for converting a
+         vector of input images into a set of <xref 
+         linkend="localization"/>s, performing
+         the steps of spot detection, spot fitting and spot judging
+         defined in <xref linkend="WolterDiplomarbeit"/>. While the exact
+         algorithms are out of the scope of this manual, a short summary
+         of the engine operation can be given:</para>
+         <para>First, the input images are smoothed to reduce the amount of
+         noise present. The local maximums of these noise-reduced images
+         are located and stored as spot candidates, that is, positions
+         where spot positions are likely to be present. The candidates
+         are sorted with the strongest values first in the list and then
+         nonlinearly fitted with the <xref linkend="psf_model"/> in the
+         order established by that sorting. Once three
+         successive candidates have failed to be fitted as localizations,
+         the fitting process for the image is aborted.</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="localization" xreflabel="localization">
+      <glossterm>Localization</glossterm>
+      <glossdef>
+         <para>A localization denotes the position (space and time) and the
+         strength of a 
+         suspected fluorophore emission. A localization denotes only a 
+         suspected
+         position because the high noise conditions in photoswitching
+         micrsocopy introduce false localizations, either through background
+         noise or multiple close-by emitters.</para>
+         <para>Localization coordinates are not given on a lattice as pixels
+         are, but are rather subpixel-accurate. The accuracy is mostly
+         given by the emission strength and the background noise as 
+         described by <xref linkend="ThompsonPaper"/>.</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="fluorophore" xreflabel="fluorophore type">
+         <glossterm>Fluorophore type</glossterm>
+   </glossentry>
+
+   <glossentry id="threedforms" xreflabel="3D computation models">
+         <glossterm>3D fitting</glossterm>
+      <glossdef>
+         <para>rapidSTORM can fit both astigmatic and biplane 3D data by
+         introducing an explicit Z parameter into the point spread function.
+         It is assumed that the 2D Gaussian model describes the PSF and that
+         the widths of the PSF in X and Y direction are functions of the 
+         emitter's Z coordinate. Two different models are supported for this
+         function, a set of piecewise cubic functions or a single quartic function (polynomial model).</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="interpolated_3d">
+      <glossterm>Piecewise cubic model</glossterm>
+   </glossentry>
+
+   <glossentry id="z_calibration_table">
+         <glossterm>Z calibration file</glossterm>
+   </glossentry>
+
+   <glossentry id="polynomial_3d">
+      <glossterm>Polynomial model</glossterm>
+      <glossdef>
+         <para>rapidSTORM can fit both astigmatic and biplane 3D data by
+            introducing an explicit Z parameter into the point spread function.
+            The Z parameter modifies the width parameters of the PSF according
+            to <xref linkend="eq:polynomial_3d"/>. In other terms, we model the
+            variance of the PSF in the lateral directions 
+            (<inlineequation><mathphrase>&sgr;<subscript>x</subscript></mathphrase></inlineequation>)
+            as a polynom of the
+            axial offset from the best-focused plane. The necessary parameters
+            are the axial positions of the best-focused planes
+            (<inlineequation><mathphrase>z<subscript>x</subscript></mathphrase></inlineequation> and
+            <inlineequation><mathphrase>z<subscript>y</subscript></mathphrase></inlineequation>),
+            the standard deviation of the PSF in the best-focused plane
+            (<inlineequation><mathphrase>&sgr;<subscript>0,x</subscript></mathphrase></inlineequation> and
+            <inlineequation><mathphrase>&sgr;<subscript>0,y</subscript></mathphrase></inlineequation>) and
+            the effective focus depths for the polynomial terms
+            (<inlineequation><mathphrase>&Dgr;&sgr;<subscript>i,x</subscript></mathphrase></inlineequation> and
+            <inlineequation><mathphrase>&Dgr;&sgr;<subscript>i,y</subscript></mathphrase></inlineequation>).
+            The point spread function model has been adapted from <xref linkend="Huang2008"/> and
+            expanded with the natural linear term. However, rapidSTORM improves upon
+            it by fitting the Z coordinate directly instead of using the complicated
+            variance-space distance determination presented in the paper.
+         </para>
+         <equation id="eq:polynomial_3d">
+            <title>Polynomial 3D PSF Width</title>
+            <mediaobject>
+                  <imageobject>
+                     <imagedata fileref="polynomial_3d_psf.png" scale="50"/>
+                  </imageobject>
+            </mediaobject>
+         </equation>
+         <para>
+            These parameters are normally determined externally from
+            calibration samples. For astigmatic imaging, the best-focused planes
+            <inlineequation><mathphrase>z<subscript>x</subscript></mathphrase></inlineequation> and
+            <inlineequation><mathphrase>z<subscript>y</subscript></mathphrase></inlineequation> are 
+            set to different values. While the distance between the planes is crucially important for
+            3D localization, the absolute values and relative sign of the best-focused
+            plane coordinates determine the direction and offset of the Z axis in the
+            results. For biplane imaging, 
+            <inlineequation><mathphrase>z<subscript>x</subscript></mathphrase></inlineequation> and
+            <inlineequation><mathphrase>z<subscript>y</subscript></mathphrase></inlineequation> are 
+            set equal to each other, but take different values for each plane.
+         </para>
+
+         <et:elemtable>
+            <title>Polynomial 3D configuration items</title>
+            <et:elem desc="Widening slopes" topic="Polynomial3D.WideningSlopes">
+                  This 2 by N matrix gives the <inlineequation>
+                  <mathphrase>&Dgr;&sgr;<subscript>i,j</subscript></mathphrase></inlineequation>
+                  elements in X and Y for the linear (1) to quatric (4) terms
+                  of the polynomial PSF model.
+                  The values are given as the inverses
+                  of the <inlineequation><mathphrase>&Dgr;&sgr;<subscript>i,j</subscript></mathphrase></inlineequation>.
+                  This allows any particular term of the polynomial equation to be set to 0,
+                  disabling the term.
+            </et:elem>
+         </et:elemtable>
+
+         <para>
+            Traditionally, rapidSTORM supported two PSF models called "Parabolic 3D" and 
+            "Holtzer 3D". Both of these models are subsets of to the polynomial model,
+            and their parameters can be converted. For the Holtzer model, only the second
+            derivative needs to be given as <inlineequation><mediaobject><imageobject><imagedata
+                  fileref="polynomial_3d_holtzer_conversion.png" scale="50" format="PNG"/></imageobject>
+                  </mediaobject></inlineequation>, where <inlineequation><mathphrase>&ohgr;</mathphrase></inlineequation>
+            denotes the Holtzer widening constant. For the parabolic model, the second and
+            fourth derivatives must be given as 
+            <inlineequation><mediaobject><imageobject><imagedata
+                  fileref="polynomial_3d_parabolic_conversion.png" scale="50" format="PNG"/></imageobject>
+                  </mediaobject></inlineequation>, where <inlineequation><mathphrase>&ohgr;</mathphrase></inlineequation>
+            denotes the parabolic widening constant.
+         </para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="repeater" xreflabel="Repeater">
+      <glossterm>Repeater</glossterm>
+      <glossdef>
+         <para>A repeater is any output module that stores all received
+            <xref linkend="localization"/>s in memory and can repeat them if
+            necessary. While
+            this costs, naturally, roughly 32 bytes of memory per localization,
+            it allows changing many processing parameters even after 
+            computation has started.</para>
+         <para>However, repeaters are not able to store the input images used
+            in computation because doing so would quickly exhaust the available
+            memory. Therefore, output modules that need access to source images
+            may not be used as children of repeater modules.</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="psf_model" xreflabel="PSF model">
+      <glossterm>PSF model</glossterm>
+      <glossdef>
+         <para>The point spread function (PSF) is modeled for rapidSTORM
+            purposes as a two-dimensional Gaussian function added to a
+            background signal. This function has the parameters amplitude,
+            background signal, center position and 
+            covariance matrix. We can assume the covariance matrix to be
+            constant for any acquisition, and so only the amplitude, the
+            background signal and the center position are fitted by the engine,
+            while the covariance matrix is estimated iteratively by a second
+            fitting process or given a-priori.
+         </para>
+         <para>While this Gaussian model does not match the point spread 
+            functions of real systems exactly, it is a good approximation
+            with easily computed derivatives. Studies such as Thomann et al.
+            have shown that the
+            approximation is good enough for practical purposes.
+            </para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="quadrant_differential_residue_analysis"
+            xreflabel="quadrant-differential residue analysis">
+      <glossterm>Quadrant-differential residue analysis</glossterm>
+      <glossdef>
+         <para>When two fluorophores emit close to each other, typically the
+            nonlinear fit will result in a suspected fluorophore position
+            midway between the two fluorophores and with a high amplitude.
+            In this case, the fit results show a characteristic handle
+            structure: The two true fluorophore emissions leave slightly
+            positive resiudes, while there are negative residues on an axis
+            perpendicular to the one connecting the fluorophores.</para>
+         <para>This condition is detected well by quadrant-differential
+            residue analysis: The residue matrix is divided into quadrants,
+            with the pixels above both diagonals forming the upper quadrant,
+            the pixels above the main and below the off diagonal forming the
+            right quadrants and so on. Pixels right on the diagonals are 
+            ignored. Then, the opposing quadrants are summed, and these sums
+            substracted from another, resulting in two quadrant differences:
+            upper and lower minus right and left and right and left minus
+            upper and lower. This process is repeated for the quadrants
+            defined by the central row and the central column.</para>
+         <para>The maximum sum obtained in this way divided by the sum of
+            the absolute quadrant contributions is an observable correlating
+            highly with the true presence of double emitters. Also, the 
+            quadrants containing the positive contribution in the highest sum
+            indicate along which axis the double emission happened.</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="two_kernel_analysis"
+            xreflabel="two-kernel analysis">
+      <glossterm>Two-kernel analysis</glossterm>
+      <glossdef>
+         <para>When <xref linkend="quadrant_differential_residue_analysis"/>
+            indicated a likely double emission, this hypothesis is tested by
+            fitting a model consisting of the sum of two Gaussian functions
+            with a common background to the data. This is called two-kernel
+            analysis. When two-kernel analysis produces a two-kernel fit with
+            two nonnegligible kernels and with significantly smaller residues
+            than the normal one-kernel fit, the hypothesis of a double emission
+            is deemed confirmed.</para>
+      </glossdef>
+   </glossentry>
+
+   <glossentry id="linear_drift_correction"
+            xreflabel="linear drift correction">
+      <glossterm>Linear drift correction</glossterm>
+      <glossdef>
+         <para>Instabilities in the experimental setup can, despite all
+            experimental effort, lead to a slow, creeping shift (called drift)
+            of the 
+            specimen's image on the camera detector. In this case, the quality
+            of the resulting image is greatly degraded because structures
+            appear smeared in the direction of the drift.</para>
+         <para>In most cases, the drift is small and approximately linear
+            over the course of the acquisition. Such a drift can be corrected
+            by substracting the drift velocity times the time elapsed since
+            acquisition start from each image.</para>
+         <para>A convenient way to fine-tune drift correction is to add
+            a time-hued image display as a child of the localization filter and
+            optimize the settings for a mostly white or, at least, largely
+            color-uncorrelated image.</para>
+      </glossdef>
+   </glossentry>
+
+</glossary>
+</chapter>

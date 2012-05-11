@@ -24,11 +24,6 @@ class DefaultPath {
     }
 
     public File getPrefix() { return root; }
-    public File getPluginDir() {
-        String abs_plugin_dir = "@DSTORM_PLUGIN_DIR@";
-        File plugin_dir = new File(abs_plugin_dir.replace( "/", File.separator ));
-        return reroot(plugin_dir);
-    }
     public File getExecutable(String stem) {
         return new File(root, "bin" + File.separator + stem );
     }
@@ -49,7 +44,7 @@ class DefaultPath {
         return new File( root, "share" + File.separator + "rapidstorm" + File.separator + "version.txt" );
     }
     public File getDocPath() {
-        return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm-doc"  );
+        return new File( root, "share" + File.separator + "doc" + File.separator + "rapidstorm"  );
     }
     public File getDocDataPath() {
         return new File( root, "share" + File.separator + "rapidstorm-doc"  );
