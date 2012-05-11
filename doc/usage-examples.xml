@@ -20,7 +20,7 @@
     </taskprerequisites>
     <procedure>
         <step>place Tetraspeck surface on microscope</step>
-        <step>set the piezo to a continuous pattern, e.g.
+        <step>Set the piezo to a continuous pattern. In this example we use the following settings:
             <informalexample>
                 <variablelist>
                     <varlistentry><term>function</term><listitem><userinput>triangular</userinput></listitem></varlistentry>
