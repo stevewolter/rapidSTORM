@@ -1,3 +1,11 @@
+== 2.22.0 ==
+
+* Added missing auxiliary scripts to doc
+* Made doc subdirectory configurable on its own
+* Improved 3D usage example
+* Removed local-only testing boards
+* Improved formatting of documentation PDF
+
 == 2.21.9 ==
 
 * Implemented output filter for linear alignment
