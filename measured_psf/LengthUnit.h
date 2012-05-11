@@ -1,5 +1,5 @@
-#ifndef GUF_PSF_LENGTH_UNIT_H
-#define GUF_PSF_LENGTH_UNIT_H
+#ifndef MSD_PSF_LENGTH_UNIT_H
+#define MSD_PSF_LENGTH_UNIT_H
 
 #include <boost/units/power10.hpp>
 #include <boost/units/systems/si/length.hpp>

@@ -3,7 +3,7 @@
 
 #include "fwd.h"
 #include "parameters.h"
-#include "SingleKernelModel.h"
+#include "guf/SingleKernelModel.h"
 
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>
@@ -21,7 +21,7 @@ using namespace boost::units;
 
 struct BaseExpression
 : public nonlinfit::access_parameters< BaseExpression >,
-  public SingleKernelModel
+  public guf::SingleKernelModel
 {
     typedef Micrometers LengthUnit;
 
@@ -37,7 +37,7 @@ struct BaseExpression
 
     void allow_leaving_ROI( bool do_allow ) { may_leave_roi = do_allow; }
 
-     quantity<si::length> get_fluorophore_position(int Dim) const
+    quantity<si::length> get_fluorophore_position(int Dim) const
         {
             switch (Dim) {
                 case 0: return quantity<si::length>( (*this)( Mean<0>() ));
@@ -47,7 +47,14 @@ struct BaseExpression
             }
         }
 
-
+    void set_fluorophore_position(int Dim, quantity<si::length> length)
+    {
+        switch (Dim) {
+                case 0: (*this)( gaussian_psf::Mean<0>() ) = length ;
+                case 1: (*this)( gaussian_psf::Mean<1>() ) = length ;
+                default:throw std::logic_error("Unconsidered dimension");
+        }
+    }
      double intensity() const
         {
              return (((*this)(gaussian_psf::Amplitude() )) *  ((*this)(gaussian_psf::Prefactor() ) ));
@@ -79,10 +86,6 @@ struct BaseExpression
         Amplitude, Prefactor
     > Variables;
 
-    template <int Index> quantity<si::length> get_fluorophore_position_x() const
-        {
-             return quantity<si::length>( (*this)( Mean<0>() ));
-        }
     template <class Num> friend class BaseParameters;
     template <class Num, class Expression> friend class Parameters;
     template <class Num, class Expression, int Size> friend class JointEvaluator;

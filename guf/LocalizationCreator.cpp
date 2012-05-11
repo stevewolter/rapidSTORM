@@ -99,7 +99,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
 {
     assert( m.kernel_count() == 1 );
 
-    const gaussian_psf::SingleKernelModel& only_kernel = m[0];
+    const guf::SingleKernelModel& only_kernel = m[0];
     Localization::Position::Type pos;
     assert( pos.rows() == 3 && pos.cols() == 1 );
     pos.x() = only_kernel.get_fluorophore_position(0);

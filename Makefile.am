@@ -19,10 +19,10 @@ bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
 if CAN_BUILD_TWIDDLER
-java_DATA = rapidSTORM.jar 
+java_DATA = rapidSTORM.jar
 applications_DATA=rapidstorm.desktop
 endif
-doc_DATA = $(srcdir)/README 
+doc_DATA = $(srcdir)/README
 pkgdata_DATA = version.txt dstorm-config.txt
 pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
 
@@ -126,7 +126,7 @@ else
     RESOURCE_FILE =
 endif
 
-.rc.o : 
+.rc.o :
 	$(WINDRES) -I . '$<' '$@'
 
 headerdir = $(includedir)/dStorm
@@ -317,23 +317,23 @@ libdStorm_la_SOURCES = \
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
 libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS)
-libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
+libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT)
 
 librapidstormfile_la_SOURCES = \
     dStorm/localization_file/fields.cpp dStorm/localization_file/reader.cpp \
     dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
     dStorm/localization_file/localization_field_impl.h dStorm/localization_file/localization_field.h \
-    dStorm/localization_file/unknown_field.h 
-librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
+    dStorm/localization_file/unknown_field.h
+librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@
 librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_SOURCES = dstorm.cpp
-dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program
 dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS)
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
-dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
-dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
+dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS)
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 
@@ -378,7 +378,7 @@ dstorm_SOURCES += \
     inputs/PlaneFilter.h inputs/PlaneFilter.cpp \
     inputs/Basename.h inputs/Basename.cpp \
     inputs/Buffer.h inputs/Buffer.cpp \
-    inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
+    inputs/LocalizationFile.h inputs/LocalizationFile.cpp
 
 dstorm_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
@@ -632,21 +632,16 @@ dstorm_SOURCES += \
 
 dstorm_SOURCES += \
     measured_psf/fwd.h measured_psf/parameters.h measured_psf/parameters.hpp \
-    measured_psf/BaseEvaluator.h measured_psf/BaseEvaluator.cpp \
+    measured_psf/Evaluator.h \
     measured_psf/fixed_form.h \
-    measured_psf/BaseExpression.h measured_psf/expressions.cpp \
-    measured_psf/expressions.h measured_psf/Base3D.h \
     measured_psf/Model.h measured_psf/Model.cpp \
-    measured_psf/is_plane_dependent.h \
     measured_psf/JointEvaluator.h \
-    measured_psf/LengthUnit.h measured_psf/ostream.h \
     measured_psf/unit_test.h measured_psf/unit_test.cpp \
-    measured_psf/mock_model.h measured_psf/mock_model.cpp
 
 dstorm_SOURCES += \
     constant_background/fwd.hpp constant_background/model.hpp
 
-# Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
+# Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
 INST_MODEL = \
@@ -657,18 +652,18 @@ INST_MODEL = \
     $(INST_DIR:=spline3d_-_fixed_form_model_-_two_kernel_-_)
 
 INST_NUMTYPE = $(INST_MODEL:=float_-_) $(INST_MODEL:=double_-_)
-INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
+INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14)
 if COMPILE_SPECIALIZED_FITTERS
 INST_TAGS_UNSEP += $(INST_NUMTYPE:=disjoint_8) \
     $(INST_NUMTYPE:=disjoint_10) $(INST_NUMTYPE:=disjoint_12) \
     $(INST_NUMTYPE:=disjoint_16) $(INST_NUMTYPE:=disjoint_18) \
-    $(INST_NUMTYPE:=disjoint_20) 
+    $(INST_NUMTYPE:=disjoint_20)
 endif
 
 INST_TAGS = $(INST_TAGS_UNSEP:=_-_)
 INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=FunctionRepository) $(INST_MODEL:=ModelledFitter) \
-    $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
+    $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction)
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
 dstorm_SOURCES += \
@@ -690,7 +685,7 @@ dstorm_SOURCES += \
 nodist_dstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
 
-$(INSTANTIATIONS) : 
+$(INSTANTIATIONS) :
 	echo $@  \
 	    | grep -v '/float_-_.*_-_disjoint_1[048]_-_' \
 	    | sed -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
@@ -717,7 +712,7 @@ dstorm_SOURCES += \
     input_simulation/FluorophoreDistributions_Lines.cpp \
     input_simulation/FluorophoreDistribution.h \
     input_simulation/FluorophoreDistributions.h \
-    input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
+    input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h
 
 dstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
@@ -735,7 +730,7 @@ dstorm_SOURCES += \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
-    locprec/unit_tests.cpp 
+    locprec/unit_tests.cpp
 
 dstorm_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
@@ -766,5 +761,5 @@ dstorm_SOURCES += \
 
 align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
-align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
+align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS)
 

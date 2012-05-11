@@ -5,6 +5,8 @@
 #include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/expressions.h"
+#include "measured_psf/expressions.h"
+#include "measured_psf/fixed_form.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/traits/optics.h>
@@ -17,10 +19,10 @@ namespace dStorm {
 namespace guf {
 
 template <int Kernels, typename Assignment, typename Lambda>
-inline NaiveFitter::Ptr 
-create2( const Config& c, const dStorm::engine::JobInfo& i ) 
-{ 
-    typedef typename MultiKernelLambda< 
+inline NaiveFitter::Ptr
+create2( const Config& c, const dStorm::engine::JobInfo& i )
+{
+    typedef typename MultiKernelLambda<
         nonlinfit::Bind< Lambda ,Assignment> ,Kernels>
         ::type F;
     return std::auto_ptr<NaiveFitter>( new ModelledFitter<F>(c,i) );
@@ -36,8 +38,8 @@ create2<2,gaussian_psf::FreeForm,gaussian_psf::No3D>( const Config& c, const dSt
 
 template <int Kernels>
 NaiveFitter::Ptr
-NaiveFitter::create( 
-    const Config& c, 
+NaiveFitter::create(
+    const Config& c,
     const dStorm::engine::JobInfo& info )
 {
     bool consistently_no_3d = true;

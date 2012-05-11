@@ -48,7 +48,7 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
     return makes_it_in_one_plane;
 }
 
-bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::SingleKernelModel& k, const guf::Spot& spot, int plane, int Dim ) const 
+bool LocalizationChecker::check_kernel_dimension( const guf::SingleKernelModel& k, const guf::Spot& spot, int plane, int Dim ) const
 {
     bool close_to_original =
         abs( k.get_fluorophore_position(Dim)- spot[Dim] )
@@ -58,13 +58,13 @@ bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::SingleKern
     return close_to_original;
 }
 
-bool LocalizationChecker::check_kernel( const gaussian_psf::SingleKernelModel& k, const guf::Spot& s, int plane ) const 
+bool LocalizationChecker::check_kernel( const guf::SingleKernelModel& k, const guf::Spot& s, int plane ) const
 {
     bool kernels_ok =
         check_kernel_dimension(k,s, plane, 0) &&
         check_kernel_dimension(k,s, plane, 1);
     bool has_z_position = k.has_z_position();
-    bool z_ok = (has_z_position || 
+    bool z_ok = (has_z_position ||
         contains(allowed_z_positions, k.get_fluorophore_position(2) ) );
     return kernels_ok && z_ok;
 }

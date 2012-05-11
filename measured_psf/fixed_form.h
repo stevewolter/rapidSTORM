@@ -1,5 +1,5 @@
-#ifndef DSTORM_GUF_PSF_FIXED_FORM_H
-#define DSTORM_GUF_PSF_FIXED_FORM_H
+#ifndef DSTORM_MSD_PSF_FIXED_FORM_H
+#define DSTORM_MSD_PSF_FIXED_FORM_H
 
 #include "parameters.h"
 

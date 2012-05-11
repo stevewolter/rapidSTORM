@@ -16,8 +16,8 @@ void KernelCreator::operator()( MultiKernelModel& more, const MultiKernelModel& 
     more.background_model() = less.background_model();
 
     fresh->copy( less[0] );
-    (*fresh).get_fluorophore_position(0) = a[0];
-    (*fresh).get_fluorophore_position(1) = a[1];
+    (*fresh).set_fluorophore_position(0, a[0]);
+    (*fresh).set_fluorophore_position(1, a[1]);
 
     gaussian_psf::Amplitude amp;
     for ( MultiKernelModel::iterator i = more.begin(); i != more.end(); ++i )

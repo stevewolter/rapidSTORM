@@ -60,7 +60,7 @@ class Polynomial3D
         boost::mpl::quote2<add_delta_sigmas>
     >::type Variables;
 
-    Polynomial3D& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
+    Polynomial3D& copy( const guf::SingleKernelModel& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
 
     Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;
 

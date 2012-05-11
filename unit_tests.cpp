@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 #include "fit_window/unit_tests.h"
 #include "gaussian_psf/unit_test.h"
+#include "measured_psf/unit_test.h"
 #include "nonlinfit/unit_test.h"
 
 void pixel_unit_test(TestState& state);
@@ -40,6 +41,8 @@ bool init_unit_test() {
         add( dStorm::fit_window::make_unit_test_suite() );
     boost::unit_test::framework::master_test_suite().
         add( dStorm::gaussian_psf::make_unit_test_suite() );
+    boost::unit_test::framework::master_test_suite().
+        add( dStorm::measured_psf::make_unit_test_suite() );
     boost::unit_test::framework::master_test_suite().
         add( nonlinfit::register_unit_tests() );
     boost::unit_test::framework::master_test_suite().

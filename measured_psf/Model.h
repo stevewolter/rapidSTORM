@@ -1,57 +1,62 @@
-#ifndef DSTORM_PSF_NO3D_H
-#define DSTORM_PSF_NO3D_H
+#ifndef DSTORM_MSD_PSF_Model_H
+#define DSTORM_MSD_PSF_Model_H
 
-#include "BaseExpression.h"
 #include <boost/optional/optional.hpp>
 #include <nonlinfit/append.h>
 
 namespace dStorm {
 namespace measured_psf {
 
-class No3D
-: public BaseExpression,
-  public nonlinfit::access_parameters<No3D>
+class Model
+:   public nonlinfit::access_parameters<Model>,
+    public guf::SingleKernelModel
 {
     template <class Num, typename Expression, int Size> friend class JointEvaluator;
-    template <class Num, typename Expression> friend class Parameters;
-
     template <typename Type> friend class nonlinfit::access_parameters;
-    template <int Index> double& access( BestSigma<Index> ) { return best_sigma[Index]; }
-    using BaseExpression::access;
+    using nonlinfit::access_parameters<Model>::operator();
+    using nonlinfit::access_parameters<Model>::get;
 
-    Eigen::Array<double,2,1> best_sigma;
+     quantity<si::length> get_fluorophore_position(int Dim) const
+        {
+            switch (Dim) {
+                case 0: return quantity<si::length>( (*this)( Mean<0>() ));
+                case 1: return quantity<si::length>( (*this)( Mean<1>() ));
+                case 2: throw std::logic_error("Tried to access Z coordinate on 2D model");
+                default:throw std::logic_error("Unconsidered dimension");
+            }
+        }
 
-    dStorm::Image<double,3>
 
-  public:
+     double intensity() const
+        {
+             return (((*this)(gaussian_psf::Amplitude() )) *  ((*this)(gaussian_psf::Prefactor() ) ));
+        }
+
+     quantity<si::dimensionless> get_amplitude() const
+        {
+            return (quantity<si::dimensionless>)(*this)(gaussian_psf::Amplitude() );
+        }
+
+	void set_amplitude(quantity<si::dimensionless> amp)
+	{
+	  (*this)(gaussian_psf::Amplitude())= amp;
+	}
+
+
+  private:
     typedef boost::mpl::vector<
         nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
-        Mean<0>, Mean<1>, MeanZ,
+        Mean<0>, Mean<1>, MeanZ, Z_Position,
         Amplitude, Prefactor > Variables;
 
-    No3D& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const No3D&>(f); }
+    Model& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Model&>(f); }
 
-    Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const;
+    Eigen::Vector3d x0, image_x0;
+    Eigen::Vector3d pixel_size;
+    double z_pos;
 
-    typedef No3D PSF;
-    using nonlinfit::access_parameters<No3D>::operator();
-    using nonlinfit::access_parameters<No3D>::get;
+    double & access( Mean<0> ) { return x0[0]; }
 };
-
-template <typename Num>
-class Parameters< Num, No3D >
-: public BaseParameters<Num>
-{
-    const No3D* expr;
-
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
-    void compute_prefactors_();
-
-  public:
-    Parameters() {}
-    Parameters( const No3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
-};
-
 
 }
 }

@@ -2,7 +2,7 @@
 #define DSTORM_FITTER_GUF_FIT_ANALYSIS_H
 
 #include "Spot.h"
-#include "gaussian_psf/SingleKernelModel.h"
+#include "guf/SingleKernelModel.h"
 #include "constant_background/fwd.hpp"
 #include <vector>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -11,7 +11,7 @@ namespace dStorm {
 namespace guf {
 
 struct MultiKernelModel {
-    typedef gaussian_psf::SingleKernelModel SingleKernelModel;
+    typedef guf::SingleKernelModel SingleKernelModel;
     template <typename Expression>
     MultiKernelModel( Expression& expression );
 
@@ -34,7 +34,7 @@ struct MultiKernelModel {
     const constant_background::Expression& background_model() const { return *constant; }
 
   private:
-    std::vector<gaussian_psf::SingleKernelModel*> gauss;
+    std::vector<guf::SingleKernelModel*> gauss;
     constant_background::Expression* constant;
 };
 
