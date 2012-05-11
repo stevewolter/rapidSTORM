@@ -101,7 +101,7 @@ java-built-stamp : $(JAVASOURCES)
 	touch $@
 
 DefaultPath.java : $(srcdir)/DefaultPath.java.in
-	sed -e 's:[@]prefix[@]:$(prefix):g' \
+	$(SED) -e 's:[@]prefix[@]:$(prefix):g' \
 	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
 	    $< > $@
 
@@ -679,10 +679,10 @@ CLEANFILES += $(INSTANTIATIONS)
 $(INSTANTIATIONS) : 
 	echo $@  \
 	    | grep -v '/float_-_.*_-_disjoint_1[048]_-_' \
-	    | sed -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
+	    | $(SED) -e 's:^$(INST_DIR)::' -e 's/.cpp$$//' -e 's/_-_/\t/g' \
 	    | awk '{ for (i = 1; i <= NF; ++i) print "#include \"" $$i ".h\""; }' \
-	    | sed -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
-	    | sed -e 's:#include ":&guf/instantiations/:' > $@
+	    | $(SED) -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
+	    | $(SED) -e 's:#include ":&guf/instantiations/:' > $@
 
 dstorm_SOURCES += \
     nonlinfit/unit_test.h \
