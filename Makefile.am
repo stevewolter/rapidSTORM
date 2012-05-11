@@ -87,8 +87,7 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
     dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
     dstorm.test/can-compute-txt-file.exp dstorm.test/memory.exp \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
-    dstorm.test/remove-job.exp boards/rosaline.exp boards/standard.exp \
-    boards/kokolorix.exp boards/valgrind.exp \
+    dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
 
 CLEANFILES = rapidSTORM.jar \
