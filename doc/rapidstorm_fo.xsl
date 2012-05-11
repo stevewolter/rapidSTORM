@@ -2,6 +2,7 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 xmlns:d="http://docbook.org/ns/docbook">
    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/fo/docbook.xsl"/>
+   <xsl:import href="titlepage.xsl"/>
 
    <xsl:param name="section.autolabel" select="1"/>
    <xsl:param name="paper.type">A4</xsl:param>
@@ -80,5 +81,22 @@
     </xsl:call-template>
 
 </xsl:template>
+
+<xsl:template match="d:address" mode="titlepage.mode">
+    <fo:block>
+        <xsl:apply-templates mode="titlepage.mode"/>
+    </fo:block>
+</xsl:template>
+
+<xsl:template match="d:pubdate" mode="titlepage.mode">
+    <fo:block>
+        <xsl:call-template name="gentext">
+            <xsl:with-param name="key" select="'pubdate'"/>
+        </xsl:call-template>
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="$pubdate"/>
+    </fo:block>
+</xsl:template>
+
 
 </xsl:stylesheet>

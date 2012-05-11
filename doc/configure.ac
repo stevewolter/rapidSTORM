@@ -12,6 +12,8 @@ test "x$XSLTPROC" = "x" && AC_MSG_ERROR([unable to find XSLT processor])
 AC_CHECK_PROGS([PDFXSLFO], [fop])
 AM_CONDITIONAL([BUILD_PDF_DOCUMENTATION], [test -n "$PDFXSLFO"])
 
+AC_SUBST([PUBDATE], [2012/05/11])
+
 AC_CONFIG_FILES([Makefile foprc])
 
 AC_OUTPUT

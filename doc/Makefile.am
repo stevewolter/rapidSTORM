@@ -18,23 +18,26 @@ endif
 doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
 
 manual.xml : $(CHAPTERS:=.xml)
-manual.fo : $(GRAPHICS) rapidstorm_fo.xsl
+manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl
 manual.html : $(GRAPHICS) rapidstorm_html.xsl
 
 XSLT_FLAGS ?= 
 XSLT_FLAGS_HTML ?= $(XSLT_FLAGS) 
-XSLT_FLAGS_FO ?= $(XSLT_FLAGS) 
+XSLT_FLAGS_FO ?= $(XSLT_FLAGS) --stringparam pubdate "$(PUBDATE)" 
+
+titlepage.xsl : make_titlepage.xsl titlepage.xml
+	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^
 
 manual.xml : rapidstorm_pre.xsl
 	$(XSLTPROC) $(XSLT_FLAGS) --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml
 
-.xml.html : rapidstorm_html.xsl
+manual.html : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_HTML) -o $@ $(srcdir)/rapidstorm_html.xsl $<
 
-.xml.fo : rapidstorm_fo.xsl
+manual.fo : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_FO) -o $@ $(srcdir)/rapidstorm_fo.xsl $<
 
-.fo.pdf : foprc
+manual.pdf : manual.fo foprc
 	fop -c foprc $< $@
 
 .tex.png :
