@@ -11,12 +11,12 @@
 <section>
 <title>Evaluate 3D data with a bead calibration sample</title>
 <task>
-    <title>Record a calibration data file</title>
+    <title>Record a bead calibration data file</title>
     <taskprerequisites>
-        We assume that you have an appropriate cylindrical lens in detection path
-        and are using an objective piezo (e.g. PIfoc, Physik Instrumente). The sample
-        should be a thinly coated Tetraspeck surface. You should know the size of the
-        input pixels.
+        <para>We assume that you have an appropriate cylindrical lens in detection path
+        and are using an objective piezo (e.g. PIfoc, Physik Instrumente). The sample should be a thinly coated Tetraspeck bead sample. 
+		Beads should be preferred because of the superior brightness and - in case of tetraspec beads - of the sub-resoulution size. You should know the size of the
+        input pixels.</para>  <para>Make sure you have rapidSTORM 2.20 or later installed.</para>
     </taskprerequisites>
     <procedure>
         <step>place Tetraspeck surface on microscope</step>
@@ -31,7 +31,7 @@
             </informalexample>
         </step>
         <step>Set camera exposure time (<userinput>0.02 s</userinput>)</step>
-        <step>Compute and remember piezo movement per frame (<inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation>)</step>
+        <step>Compute and remember piezo movement per frame (<inlineequation><mathphrase>(55 &mgr;m - 45 &mgr;m) * 2 * 0.02 Hz * 0.02 s/fr = 8 nm/fr</mathphrase></inlineequation>). This will later be needed as an evaluation input.</step>
         <step>focus on Tetraspeck</step>
         <step>start piezo</step>
         <step>record data</step>
@@ -41,18 +41,18 @@
 <task>
     <title>Produce calibration curve</title>
     <taskprerequisites>
-        We assume that you have recordad a data calibration file and have some plotting
+        We assume that you have recordad a bead calibration data file and have some plotting
         software, e.g. gnuplot, Origin or Matlab, at your disposal.
     </taskprerequisites>
     <procedure>
-	<step>Start rapidSTORM</step>
+	<step>Start rapidSTORM 2</step>
 	<step>Set <guimenu>User level</guimenu> to <guilabel>Medium</guilabel> or higher</step>
         <step>Set <guilabel>Input file</guilabel> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
         <step>Check <guilabel>Ignore libtiff warnings</guilabel></step>
-        <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (142 and 125 nm in X/Y, respectively)</step>
-	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (5000)</step>
+        <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (e.g. 142 and 125 nm in X/Y, respectively)</step>
+	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (5000 ADC) in order to filter noise</step>
 	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
-	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100</step>
+	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optinal)</step>
 	<step>Check boxes <guilabel>PSF width is free fit parameter</guilabel> and <guilabel>Store PSF covariance matrix</guilabel></step>
 	<step>Go to the <xref linkend="ExpressionFilter"/> output option and set
             <substeps>
@@ -69,9 +69,9 @@
         <step>Go to the <xref linkend="SigmaCurve"/> output and set
                 <guilabel>Number of B spline breakpoints</guilabel> to <userinput>10</userinput>
         </step>
-	<step>Start evaluation</step>
+	<step>Click <guilabel>Run</guilabel></step>
         <step id="calibration-curve:check-range">
-            The generated calibration curves are stored in <userinput>foo-sigma-table.txt</userinput>. Plot the PSF standard deviation (columns 2 and 3) against the Z position (column 1)</step>
+            The generated calibration curves are stored in <userinput>foo-sigma-table.txt</userinput>. Plot the PSF standard deviation (columns 2 and 3) against the Z position (column 1) (a description what you find in each column is given in the header of <userinput>foo-sigma-table.txt</userinput>)</step>
         <step>Check that the calibration curves have no local maxima
             <stepalternatives>
                 <step>If local maxima exist, narrow the range of usable Z data in the second <guilabel>Expression to assign from</guilabel> field in the <xref linkend="ExpressionFilter"/> output (e.g. to <userinput>posz &gt; 2000 nm &amp;&amp; posz &lt; 6000 nm </userinput>) and go back to <xref linkend="calibration-curve:check-range"/></step>
@@ -84,14 +84,14 @@
                 <step>Otherwise continue with <xref linkend="calibration-curve:close-job"/></step>
             </stepalternatives>
         </step>
-        <step id="calibration-curve:close-job">Close job</step>
+        <step id="calibration-curve:close-job">You are done with the generation of the calibration file. Close the rapidSTORM2 job.</step>
     </procedure>
 </task>
 
 <task>
     <title>Make 3D super-resolved image colour-coded by Z</title>
     <taskprerequisites>
-        We assume that you have a correct calibration curve file for your setup.
+        We assume that you have a correct bead calibration data file file for your setup.
     </taskprerequisites>
     <procedure>
         <step>(Re-)Start rapidSTORM</step>
@@ -101,8 +101,8 @@
         <step>Set <guilabel>Fit window radius</guilabel> to the same value you used for producing the calibration curve (1100 nm)</step>
         <step>Go to the <guilabel>Image Display</guilabel> output and 
             <substeps>
-                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate</guilabel></step>
-                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z</guilabel></step>
+                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate (optional)</guilabel></step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z(optional)</guilabel></step>
             </substeps>
         </step>
         <step>Run evaluation and wait for job to finish</step>
