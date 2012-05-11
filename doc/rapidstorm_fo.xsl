@@ -88,15 +88,22 @@
     </fo:block>
 </xsl:template>
 
-<xsl:template match="d:pubdate" mode="titlepage.mode">
-    <fo:block>
-        <xsl:call-template name="gentext">
-            <xsl:with-param name="key" select="'pubdate'"/>
-        </xsl:call-template>
-        <xsl:text> </xsl:text>
-        <xsl:value-of select="$pubdate"/>
-    </fo:block>
+<xsl:template match="d:areaspec">
+    <xsl:apply-templates/>
 </xsl:template>
 
+<xsl:template match="d:areaset">
+    <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="d:area">
+    <fo:block id="{@id}"/>
+</xsl:template>
+
+<xsl:template match="d:imageobjectco">
+    <xsl:apply-templates select="d:imageobject"/>
+    <xsl:apply-templates select="d:calloutlist"/>
+    <xsl:apply-templates select="d:areaspec"/>
+</xsl:template>
 
 </xsl:stylesheet>

@@ -27,34 +27,38 @@
             <step>Start rapidSTORM via the icon in the Start menu</step>
             <step>Select the input file by dragging &amp; dropping it from a
                 Windows Explorer window to the <xref linkend="InputFile"/>
-                field (<xref linkend="example-screenshot:input-file"/>.</step>
+                field (<xref linkend="example-screenshot.input-file"/>.</step>
             <step>Set the input pixel size by entering the value in the <xref linkend="PixelSize"/>
-            field (<xref linkend="example-screenshot:pixel-size"/>).</step>
+            field (<xref linkend="example-screenshot.pixel-size"/>).</step>
             <step>Enter the full width at half maximum of your point spread function into
-                the <xref linkend="PSF.FWHM"/> field (<xref linkend="example-screenshot:psf-fwhm"/>. You can estimate this value from
+                the <xref linkend="PSF.FWHM"/> field (<xref linkend="example-screenshot.psf-fwhm"/>. You can estimate this value from
                 the numerical aperture of your microscope by the approximation <inlineequation>
                     <mathphrase>&lgr; / 2 NA</mathphrase></inlineequation>, where &lgr; is
                     the detection wavelength and NA the numerical aperture of your objective.</step>
             <step>Show the options of the image display output by clicking on it 
-                  (<xref linkend="example-screenshot:image-display"/>) in the output option tree.</step>
+                  (<xref linkend="example-screenshot.image-display"/>) in the output option tree.</step>
             <step>Optionally change the resolution of the result image by changing the resolution
-                fields (<xref linkend="example-screenshot:resolution-x"/>).</step>
-            <step>Start the computation by clicking the <guilabel>Run</guilabel> button (<xref linkend="example-screenshot:run"/>).</step>
+                fields (<xref linkend="example-screenshot.resolution-x"/>).</step>
+            <step>Start the computation by clicking the <guilabel>Run</guilabel> button (<xref linkend="example-screenshot.run"/>).</step>
         </procedure>
         <taskrelated>
             <informalfigure  id="basic_window_screenshot">
                 <screenshot>
-                    <mediaobjectco>
-                        <area id="example-screenshot:input-file" coords="300 400"/>
-                        <area id="example-screenshot:pixel-size" coords="300 400"/>
-                        <area id="example-screenshot:psf-fwhm" coords="300 400"/>
-                        <area id="example-screenshot:image-display" coords="300 400"/>
-                        <area id="example-screenshot:resolution-x" coords="300 400"/>
-                        <area id="example-screenshot:run" coords="300 400"/>
-                        <imageobject>
-                            <imagedata fileref="rapidstorm-step-by-step-2.PNG" width="100%"/>
-                        </imageobject>
-                    </mediaobjectco>
+                    <mediaobject>
+                        <imageobjectco>
+                            <areaspec>
+                                <area id="example-screenshot.input-file" coords="300,300 400,400"/>
+                                <area id="example-screenshot.pixel-size" coords="300 400"/>
+                                <area id="example-screenshot.psf-fwhm" coords="300 400"/>
+                                <area id="example-screenshot.image-display" coords="300 400"/>
+                                <area id="example-screenshot.resolution-x" coords="300 400"/>
+                                <area id="example-screenshot.run" coords="300 400"/>
+                            </areaspec>
+                            <imageobject>
+                                <imagedata fileref="rapidstorm-step-by-step-2.PNG" width="100%"/>
+                            </imageobject>
+                        </imageobjectco>
+                    </mediaobject>
                 </screenshot>
             </informalfigure>
             <para>After you finished starting the evaluation, a new tab will appear in the job tab bar,
@@ -243,7 +247,7 @@
              symbolizes the output of the <xref linkend="dSTORM_engine"/>.
              Each module connected to it receives all localizations found by
              the engine without filtering or processing.</para>
-           <para>Some modules such as <xref linkend="filter_localizations"/>
+           <para>Some modules such as <xref linkend="ExpressionFilter"/>
              not only receive, but also send localizations. For example, the
              localization filter sends all localizations that match its
              criteria. The outputs that receive localizations from such a

@@ -18,12 +18,16 @@ endif
 doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
 
 manual.xml : $(CHAPTERS:=.xml)
-manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl
+manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl 
+manual.pdf : images
 manual.html : $(GRAPHICS) rapidstorm_html.xsl
 
 XSLT_FLAGS ?= 
 XSLT_FLAGS_HTML ?= $(XSLT_FLAGS) 
-XSLT_FLAGS_FO ?= $(XSLT_FLAGS) --stringparam pubdate "$(PUBDATE)" 
+XSLT_FLAGS_FO ?= $(XSLT_FLAGS) 
+
+images :
+	ln -s /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/images/ images
 
 titlepage.xsl : make_titlepage.xsl titlepage.xml
 	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^

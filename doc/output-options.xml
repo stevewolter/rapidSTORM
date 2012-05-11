@@ -48,7 +48,7 @@
         </et:elemtable>
      </refsection>
    </refentry>
-   <refentry id="image_display" xreflabel="Image display">
+   <refentry id="image_display">
         <refnamediv><refname>Image display</refname></refnamediv>
         <refsection><title>Synopsis</title>
             <para>The image display module displays all received localizations in
@@ -197,7 +197,7 @@
      </refsection>
    </refentry>
 
-   <refentry id="count_localizations" xreflabel="Count localizations"> 
+   <refentry id="count_localizations"> 
       <refnamediv><refname>Count localizations</refname></refnamediv>
         <refsection><title>Synopsis</title>
             <para>This output module outputs a count of all received localizations.</para>
@@ -212,9 +212,12 @@
         </refsection>
    </refentry>
 
+   <refentry id="MemoryCache">
+      <refnamediv><refname>Memory Cache</refname></refnamediv>
+   </refentry>
+
 <!--
-   <refentry id="filter_localizations" xreflabel="Filter localizations">
-     <refnamediv><refname>Filter localizations</refname></refnamediv>
+   <refentry id="filter_localizations">
      <para>This general-purpose output module can perform three basic, 
        simple tasks: Firstly, it filters received <xref 
        linkend="localization"/>s by
@@ -299,7 +302,7 @@
       <para><note>This module will only work when source images are 
         available.</note>
         Source images are unavailable for children, direct or
-        indirect, of the <xref linkend="filter_localizations"/> module or
+        indirect, of the <xref linkend="MemoryCache"/> module or
         if the input comes from the <xref linkend="localizations_file_input"/>
         driver.</para>
      <refsection>
@@ -325,11 +328,11 @@
         </et:elemtable>
      </refsection>
    </refentry>
-   <refentry id="estimate_psf_form" xreflabel="Estimate PSF Form">
+   <refentry id="estimate_psf_form">
       <refnamediv><refname>Estimate PSF form</refname></refnamediv>
    </refentry>
 
-    <refentry id="SigmaCurve" xreflabel="3D PSF width calibration table">
+    <refentry id="SigmaCurve">
         <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
         <refsection><title>Synopsis</title>
             <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
@@ -352,7 +355,7 @@
         </refsection>
     </refentry>
 
-    <refentry id="ExpressionFilter" xreflabel="Expression filter">
+    <refentry id="ExpressionFilter">
         <refnamediv><refname>Expression filter</refname></refnamediv>
         <refsection>
             <para>This output allows filtering on and changing individual localization fields.
