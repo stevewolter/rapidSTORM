@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE chapter
+[<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isopub PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-pub.ent">
+%isogrk1;
+%isopub;
+]>
+
+<chapter id="engine_options" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
+   <title>rapidSTORM engine options</title>
+<glossary>
+   <title/>
+<et:elem desc="Disable std. dev. estimation" topic="FixSigma">
+    <para>
+    This option disables the code that tries to estimate
+    the form of the point spread function. The user must provide
+    the standard deviation parameters (i.e., the entries of
+    the covariance matrix) in this case.</para>
+    <para>See also: <xref linkend="psf_model"/></para>
+</et:elem>
+<et:elem desc="Fit with free covariance matrix" topic="FreeForm">
+    <para>Treat the covariance matrix entries as variables
+    in the fit process rather than as constants. The estimated
+    or fixed standard deviation parameters act as initial values
+    for the estimation when the free covariancce matrix is
+    selected.</para>
+    <para>See also: <xref linkend="psf_model"/></para>
+</et:elem>
+<et:elem desc="Threshold for relative spot asymmetry" 
+        topic="AsymmetryThreshold">
+<para>Minimum spot asymmetry result of 
+    <xref linkend="quadrant_differential_residue_analysis"/> that
+    forces <xref linkend="two_kernel_analysis"/>. Since the range
+    of spot asymmetries is [0..1], setting this parameter to
+    1 will disable quadrant-differential and two-kernel analysis
+    completely, greatly speedingup computation, and setting
+    the parameter to 0 will perform two-kernel analysis on all
+    spots, slowing computation and making false positives in
+    double-spot detection likely. Experiments suggest values from
+    0.15 to 0.4.</para>
+</et:elem>
+<et:elem desc="Spot finding methods" topic="Smoother">
+    <indexterm><primary>smoothing</primary></indexterm>
+    Select a smoothing method to be employed before selecting
+    local maximums as spot candidates. The standard method here is
+    smoothing with an average mask (Spalttiefpass), which gives
+    good performance for most images. Median smoothing provides
+    slower, but sometimes more accurate and less blurring 
+    smoothing. Erosion (also known as local minimum filter)
+    is faster than the median filter and gives similar results
+    for small (standard deviation close to 1) spots, while 
+    the fillhole transformation followed by erosion is better for
+    large spots. For a complete discussion and quantitative
+    comparison, see <xref linkend="WolterDiplomarbeit"/>
+    and <xref linkend="Wolter_JoM_09"/>.
+</et:elem>
+<et:elem desc="Amplitude discarding threshold" 
+        topic="AmplitudeThreshold">
+    <indexterm><primary>amplitude threshold</primary></indexterm>
+    Minimum amplitude parameter of the fitted 
+    <xref linkend="psf_model"/>
+    necessary for a spot to be considered a localization.
+    If the fitted position has an amplitude lower than this value,
+    it is discarded as an artifact.
+</et:elem>
+</glossary>
+</chapter>

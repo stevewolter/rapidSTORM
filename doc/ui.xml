@@ -14,14 +14,14 @@
 
 <section>
     <title>Basic use tutorial</title>
-    <task>
+    <task id="tutorial_start">
         <title>Start an evaluation</title>
         <taskprerequisites>
             This tutorial will exemplify basic rapidSTORM usage by showing
             how to convert an Andor SIF acquisition to a super-resoluted image
             with rapidSTORM. We will load an Andor SIF file, characterize the
             optics by giving a pixel size and the PSF full width at half maximum,
-            give a target image resolution and compute a super-resolved image.
+            give a target image resolution and start an evaluation.
         </taskprerequisites>
         <procedure>
             <step>Start rapidSTORM via the icon in the Start menu</step>
@@ -67,6 +67,31 @@
     </task>
     <task id="tutorial_jobwindow">
         <title>Manage an evaluation</title>
+        <taskprerequisites>
+            This tutorial shows how to interpret the job window and to modify the output image.
+            We assume you have started a job, as described in the <xref linkend="tutorial_start"/>
+            tutorial.
+        </taskprerequisites>
+        <procedure>
+            <step>Enhance the image contrast by raising the <xref linkend="Viewer_Status_Power"/> value
+                to 0.5. Note how the intensity key next to
+                the image display window changes.</step>
+            <step>Filter out low-intensity localizations by checking the box next to 
+                <xref linkend="ExpressionFilter_LowerAmplitudeThreshold"/> and entering a value of
+                4500. Filtering out weak localizations reduces background noise and enhances the
+                image resolution slightly, but reduces the number of localizations available for
+                image construction.</step>
+            <step>Change the colour code by changing <xref linkend="Viewer_ColorScheme"/> to 
+                <guilabel>Vary hue with coordinate value</guilabel>. The color of the image now
+                shows the X coordinate, resulting in a rainbow-coloured image.</step>
+            <step>Change the hue-producing coordinate by changing <guilabel>Coordinate to vary hue with</guilabel>
+                to <guilabel>emission strength</guilabel>. The colour code would now display the intensity
+                of each localization, but stays grey because the range is not set.</step>
+            <step>Change the <guilabel>Color range</guilabel> fields at the lower right end of the result
+                image window to 5000 and 30000 by entering each value and pressing enter.</step>
+            <step>Close the job by pressing <guilabel>Close job</guilabel>. The image window will stay active until
+                it is closed.</step>
+        </procedure>
     </task>
 </section>
 
@@ -127,16 +152,17 @@
            configuration and post-processing.</para>
         <para>When the job option tab is selected, the configuration area
           consists of four major elements:</para>
-          <orderedlist>
-            <listitem><para>The <xref linkend="input_options"/> box is used to 
+          <itemizedlist>
+            <listitem><para>The <guilabel>Input options</guilabel> box is used to 
               select the input files and provide information about the used
-              optics.</para></listitem>
-            <listitem><para>The <xref linkend="processing_options"/> box
-              used to control the extraction of
-              fluorophore <xref linkend="localization"/>s
-              from the input. Typical options here are the amplitude threshold
-              used to separate <xref linkend="localization"/>s from noise
-              or the smoothing method used for spot detection.</para></listitem>
+              optics. Its elements are described in <xref linkend="input_options"/>.</para></listitem>
+            <listitem><para>The <guilabel>Choose engine</guilabel> box allows the
+                selection of a processing engine. The <guilabel>rapidSTORM engine</guilabel>
+                option will try to localize fluorophores in the given images, and
+                the <guilabel>Replay stored localizations</guilabel> choice reads
+                pre-computed localizations from a file. The options for the 
+                <guilabel>rapidSTORM engine</guilabel> choice are described in
+                <xref linkend="engine_options"/>.</para></listitem>
             <listitem><para>The <xref linkend="output_options"/> box controls
               how the extracted localizations are filtered, displayed
               and stored.</para></listitem>
@@ -144,78 +170,7 @@
               selected options. The configuration items for the job option tab
               can be changed while the started job is running and have no effect
               on it.</para></listitem>
-          </orderedlist>
-        <section id="processing_options" xreflabel="Processing Options">
-          <title>Processing options</title>
-          <para>The processing options controls the operation of the
-            <xref linkend="dSTORM_engine"/>, that is, the extraction
-            of fluorophore
-            localizations from the images loaded by the input driver.
-            Therefore, these options are intricately connected with the
-            <xref linkend="Fundamentals"/> and the more involved options
-            are documented there. The common options in this part are:</para>
-          <et:elemtable> 
-            <title>Processing configuration items</title>
-            <et:elem desc="Disable std. dev. estimation" topic="FixSigma">
-              <para>
-              This option disables the code that tries to estimate
-              the form of the point spread function. The user must provide
-              the standard deviation parameters (i.e., the entries of
-              the covariance matrix) in this case.</para>
-              <para>See also: <xref linkend="psf_model"/></para>
-            </et:elem>
-            <et:elem desc="Fit with free covariance matrix" topic="FreeForm">
-                <para>Treat the covariance matrix entries as variables
-                in the fit process rather than as constants. The estimated
-                or fixed standard deviation parameters act as initial values
-                for the estimation when the free covariancce matrix is
-                selected.</para>
-                <para>See also: <xref linkend="psf_model"/></para>
-            </et:elem>
-            <et:elem desc="Threshold for relative spot asymmetry" 
-                  topic="AsymmetryThreshold">
-            <para>Minimum spot asymmetry result of 
-              <xref linkend="quadrant_differential_residue_analysis"/> that
-              forces <xref linkend="two_kernel_analysis"/>. Since the range
-              of spot asymmetries is [0..1], setting this parameter to
-              1 will disable quadrant-differential and two-kernel analysis
-              completely, greatly speedingup computation, and setting
-              the parameter to 0 will perform two-kernel analysis on all
-              spots, slowing computation and making false positives in
-              double-spot detection likely. Experiments suggest values from
-              0.15 to 0.4.</para>
-            </et:elem>
-            <et:elem desc="Spot finding methods" topic="Smoother">
-              <indexterm><primary>smoothing</primary></indexterm>
-              Select a smoothing method to be employed before selecting
-              local maximums as spot candidates. The standard method here is
-              smoothing with an average mask (Spalttiefpass), which gives
-              good performance for most images. Median smoothing provides
-              slower, but sometimes more accurate and less blurring 
-              smoothing. Erosion (also known as local minimum filter)
-              is faster than the median filter and gives similar results
-              for small (standard deviation close to 1) spots, while 
-              the fillhole transformation followed by erosion is better for
-              large spots. For a complete discussion and quantitative
-              comparison, see <xref linkend="WolterDiplomarbeit"/>
-              and <xref linkend="Wolter_JoM_09"/>.
-            </et:elem>
-            <et:elem desc="Amplitude discarding threshold" 
-                  topic="AmplitudeThreshold">
-              <indexterm><primary>amplitude threshold</primary></indexterm>
-              Minimum amplitude parameter of the fitted 
-              <xref linkend="psf_model"/>
-              necessary for a spot to be considered a localization.
-              If the fitted position has an amplitude lower than this value,
-              it is discarded as an artifact.
-            </et:elem>
-            <et:elem desc="Number of CPUs to use" topic="CPUNumber">
-              Use this many computation threads. This should be set
-              to the number of processors or cores you want to be utilized
-              by rapidSTORM.
-            </et:elem>
-          </et:elemtable>
-        </section>
+          </itemizedlist>
         <section id="output_options" xreflabel="Output Options">
            <title>Output options</title>
             <figure id="output_box">
@@ -264,10 +219,9 @@
           <para>Clicking on an output module in the tree view shows this
              module's configuration in the right part of the display. Each 
              module has specific configuration options, which are documented
-             together with the module's description in the <xref 
-             linkend="output_modules"/> chapter.
-             For modules that can have outputs, additionally four control 
-             elements are shown:</para>
+             together with the module's description in the <xref linkend="output_modules"/> chapter.
+             For modules that can have outputs, you can manage the suboutputs
+             by the following standard control elements:</para>
           <et:elemtable> 
             <title>Output configuration items</title>
             <et:elem desc="Choose new output" topic="ChooseOutput">
@@ -286,34 +240,9 @@
       <section>
         <title>The job status tabs</title>
         <para>For each running job, a job status tab is displayed in the job
-              bar.</para>
-        <figure id="job_status">
-            <mediaobject>
-               <imageobject>
-                  <imagedata fileref="rapidstorm-job-status.PNG" width="100%" />
-               </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The job status tab is organized along the same lines as the
-          job options tab: At the top, you see the status of the input file
-          with some descriptive data loaded from the SIF file. In the middle,
-          you see the computation elements (in this case, only the stopper),
-          and towards the bottom, you see the output control elements.</para>
-        <para>The input elements (those above the stop computation button)
-          are specific to the <xref
-          linkend="input_options"/> used for computation.
-          The output elements (those below the button) are specific to the
-          used <xref linkend="output_modules"/> and
-          organized in the same tree structure as in
-          the job options view, but shown all at once in the sequence in which
-          they appear in the tree. In this example, this means that the
-          localization counter at the top of the output section is shown by
-          the count output module, the progress meter is shown by the progress
-          output module, the localization strength filtering elements and the
-          drift correction by the localization filter, and so on. If you had
-          added multiple of these output modules, some of these elements would
-          be shown twice, for example showing the localization counts before
-          and after filtering the localizations.</para>
+            bar. Some output modules such as <xref linkend="image_display"/>
+            display control and information elements in the job status tab,
+            in the same order as they appear in the output tree.</para>
       </section>
       <section>
         <title>The menu bar</title>
@@ -336,7 +265,7 @@
           software, select the <guimenuitem>Load</guimenuitem> menu item and the macro
           you want to replay.</para>
         </section>
-        <section id="expertise_level" xreflabel="expertise level">
+        <section id="expertise_level">
           <title>Changing the expertise level</title> 
           <para>Not all controls are shown at the start of the rapidSTORM
           software to avoid confusion for new users. To display more 
@@ -349,14 +278,19 @@
     </section>
     <section id="image_window">
       <title>Image window</title>
-      <para>When a job is started with the <xref linkend="image_display"/>
-        output module active, a window showing an image with the already
-        computed localizations is displayed. If this image is larger than
-        the available screen, only a part of it is displayed.</para>
-      <para>You can select another part of the image for display with the
-        cursor keys. Zooming the image can be done either with the zoom level
-        control in the job status tab or with the 'i'and 'o' keys in the
-        image window. You can close the window by pressing 'q' or using the
-        window close button provided by Windows.</para>
+        <para>When a job is started with the <xref linkend="image_display"/>
+            output module active, a window showing an image with the already
+            computed localizations is displayed.</para>
+        <para>The image display window shows one or two keys on its right side.
+            If there is one key, it shows the mapping of intensity values, i.e.
+            accumulated emission intensities, to colors. The numbers are suffixed
+            with SI unit prefixes, and the unit is displayed at the top of the
+            key.</para>
+        <para>If the image is hued by coordinate, a second key appears. The left
+            key is in black and white and shows the image intensity, while the right key
+            shows a color spectrum and displays the values indicated by the colours.
+            The two text boxes at the bottom of the right key allow setting the range
+            of the hueing. If the right key is completely black, the range is unknown
+            and must be entered.</para>
     </section>
 </chapter>

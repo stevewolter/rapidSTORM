@@ -111,6 +111,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="ui.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="usage-examples.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="input-options.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="engine_options.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="output-options.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="errors.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="fundamentals.xml"/>

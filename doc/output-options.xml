@@ -179,10 +179,10 @@
                 for a definition) and allows, if a 
                 <xref linkend="repeater"/> service is present, to dynamically
                 change it.</et:elem>
-            <et:elem desc="Histogram normalization power" 
+            <et:elem desc="Extent of histogram normalization" 
                     topic="Viewer_Status_Power">
-                Shows the histogram normalization power and allows dynamic 
-                manipulation.</et:elem>
+                Interactively change the intensity scale of the result image from
+                a linear scale (value 0) to a contrast-enhanced image (value 1).</et:elem>
             <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
                 Control element for zooming in (positive values) or out (negative
                 values) in the displayed image.</et:elem>

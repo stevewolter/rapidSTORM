@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-CHAPTERS = rapidstorm ui usage-examples input-options output-options errors fundamentals
+CHAPTERS = rapidstorm ui usage-examples input-options output-options errors fundamentals engine_options
 
 PIXEL_GRAPHICS = rapidstorm-job-status.PNG rapidstorm-output-box.PNG \
     rapidstorm-step-by-step-2.PNG 
@@ -24,7 +24,7 @@ manual.html : $(GRAPHICS) rapidstorm_html.xsl
 
 XSLT_FLAGS ?= 
 XSLT_FLAGS_HTML ?= $(XSLT_FLAGS) 
-XSLT_FLAGS_FO ?= $(XSLT_FLAGS) 
+XSLT_FLAGS_FO ?= $(XSLT_FLAGS) --path "."
 
 images :
 	ln -s /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/images/ images
