@@ -214,6 +214,9 @@
 
    <refentry id="MemoryCache">
       <refnamediv><refname>Memory Cache</refname></refnamediv>
+      <refsection><title>Synopsis</title>
+        <para>This output module stores all its input localizations in the computer's 
+            main memory. On demand by submodules, it can offer a 
    </refentry>
 
 <!--
