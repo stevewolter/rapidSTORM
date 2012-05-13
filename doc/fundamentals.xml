@@ -81,7 +81,16 @@
    </glossentry>
 
    <glossentry id="z_calibration_table">
-         <glossterm>Z calibration file</glossterm>
+      <glossterm>Z calibration file</glossterm>
+      <glossdef>
+         <para>A Z calibration file is a plain text file with three whitespace-separated columns.
+            The first column gives an emitter's Z coordinate in nanometres, and the second and third columns
+            give the standard deviation of a Gaussian describing the PSF for an emitter at the given
+            Z coordinate. They describe the X and Y dimension of the camera, respectively, and are
+            given in micrometers.</para>
+         <para>The range of the Z calibration file (lowest and highest Z coordinate) gives the working
+            depth of the approximation.</para>
+      </glossdef>
    </glossentry>
 
    <glossentry id="polynomial_3d">

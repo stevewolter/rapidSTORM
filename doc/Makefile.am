@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-CHAPTERS = rapidstorm ui usage-examples input-options output-options errors fundamentals engine_options
+CHAPTERS = rapidstorm ui usage-examples input-options output-options errors fundamentals engine_options bibliography
 
 PIXEL_GRAPHICS = rapidstorm-job-status.PNG rapidstorm-output-box.PNG \
     rapidstorm-step-by-step-2.PNG 

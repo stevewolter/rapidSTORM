@@ -112,5 +112,12 @@
       </glossentry>
    </glossdiv>
 
+   <glossdiv>
+      <title>Choices for <xref linkend="3DType"/></title>
+      <glossentry id="Interpolated3D">
+         <glossterm>Interpolated 3D</glossterm>
+      </glossentry>
+   </glossdiv>
+
 </glossary>
 </chapter>

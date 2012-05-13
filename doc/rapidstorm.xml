@@ -115,55 +115,6 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="output-options.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="errors.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="fundamentals.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="bibliography.xml"/>
 
-<bibliography id="Bibliography">
-  <title>Bibliography</title>
-  <biblioentry id="WolterDiplomarbeit">
-    <abbrev>Wolter2009a</abbrev>
-    <title>An accurate and efficient algorithm for real-time localisation
-         of photoswitchable fluorophores</title>
-    <author>
-      <firstname>Steve</firstname>
-      <surname>Wolter</surname>
-    </author>
-    <publisher>
-      <publishername>Bielefeld University</publishername>
-    </publisher>
-    <date>2009</date>
-    <bibliosource class="uri">http://bieson.ub.uni-bielefeld.de/opus/frontdoor.php?source_opus=1494</bibliosource>
-  </biblioentry>
-  <biblioentry id="Wolter_JoM_09">
-    <abbrev>Wolter2009b</abbrev>
-  </biblioentry>
-  <biblioentry id="ThompsonPaper">
-    <abbrev>Thompson2002</abbrev>
-  </biblioentry>
-  <biblioentry id="Huang2008">
-    <abbrev>Huang2008</abbrev>
-    <authorgroup>
-      <author>
-        <surname>Huang</surname>
-        <firstname>Bo</firstname>
-      </author>
-      <author>
-        <surname>Wang</surname>
-        <firstname>Wenqin</firstname>
-      </author>
-      <author>
-        <surname>Bates</surname>
-        <firstname>Mark</firstname>
-      </author>
-      <author>
-        <surname>Zhuang</surname>
-        <firstname>Xiaowei</firstname>
-      </author>
-    </authorgroup>
-    <title>Three-Dimensional Super-Resolution Imaging by Stochastic Optical Reconstruction Microscopy</title>
-    <citetitle pubwork="journal">Science</citetitle>
-    <pagenums>810--813</pagenums>
-    <pubdate>February 2008</pubdate>
-    <volumenum>319</volumenum>
-    <issuenum>5864</issuenum>
-  </biblioentry>
-</bibliography>
 </book>

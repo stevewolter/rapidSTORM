@@ -39,7 +39,7 @@
             four fields.</para>
      </refsection>
      <refsection>
-        <title>Job options</title>
+        <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Write localizations to" topic="Table_ToFile">
             Output localizations file name. Is derived automatically from
@@ -134,7 +134,7 @@
          after the job is started.</para>
      </refsection>
      <refsection>
-        <title>Job options</title>
+        <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Save image to" topic="Viewer_ToFile">
                 If a filename is given here, the final result image will be saved
@@ -172,7 +172,7 @@
         </et:elemtable>
      </refsection>
      <refsection>
-       <title>Job status</title>
+       <title>Job status items</title>
         <et:elemtable>
             <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
                 Shows the current resolution enhancement (see job options table
@@ -203,7 +203,7 @@
             <para>This output module outputs a count of all received localizations.</para>
         </refsection>
         <refsection>
-            <title>Job status</title>
+            <title>Job status items</title>
             <et:elemtable>
                 <et:elem desc="Number of localizations found" topic="Count_Count">
                     Displays the total number of localizations propagated by the parent
@@ -271,7 +271,7 @@
             of its slice has been processed.</para>
       </refsection>
      <refsection>
-         <title>Job options</title>
+         <title>Configuration items</title>
          <et:elemtable>
             <et:elem desc="Size of one slice in images" topic="Slicer_Size">
                Each slice will have as many images as specified here.
@@ -306,7 +306,7 @@
         if the input comes from the <xref linkend="localizations_file_input"/>
         driver.</para>
      <refsection>
-        <title>Job options</title>
+        <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
                 Target file to write the gained average image to. 
@@ -317,169 +317,197 @@
    </refentry>
    <refentry> 
       <refnamediv><refname>Display progress</refname></refnamediv>
-     <para>Show a progress bar to indicate state of computation.</para>
-     <refsection>
-        <title>Job status</title>
-        <et:elemtable>
-            <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
-                This progress bar shows the progress on the current job, that is,
-                which percentage of the input images has been successfully
-                computed.</et:elem>
-        </et:elemtable>
-     </refsection>
+      <para>Show a progress bar to indicate state of computation.</para>
+      <refsection>
+         <title>Job status items</title>
+         <et:elemtable>
+               <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
+                  This progress bar shows the progress on the current job, that is,
+                  which percentage of the input images has been successfully
+                  computed.</et:elem>
+         </et:elemtable>
+      </refsection>
    </refentry>
+
    <refentry id="estimate_psf_form">
       <refnamediv><refname>Estimate PSF form</refname></refnamediv>
+      <refsection>
+         <title>Synopsis</title>
+      </refsection>
    </refentry>
 
-    <refentry id="SigmaCurve">
-        <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
-        <refsection><title>Synopsis</title>
-            <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
-                Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
-                input localizations, orders the input localizations, smoothes them with cubic B splines and
-                stores the values at the control points in the calibration output file.</para>
-        </refsection>
-        <refsection>
-            <title>Job options</title>
-            <et:elemtable>
-                <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
-                    Output file name for calibration table. The format is
-                    described in <xref linkend="z_calibration_table"/>.</et:elem>
-                <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
-                    Number of breakpoints to use for cubic B-spline interpolation. The number of
-                    breakpoints determines the number of cubic pieces used to approximate the
-                    measured PSF width curve. This number can be viewed as the adaptibility of the
-                    sigma curve to the measured PSF widths.</et:elem>
-            </et:elemtable>
-        </refsection>
-    </refentry>
+   <refentry id="SigmaDiff3D">
+      <refnamediv><refname>Look up 3D via sigma difference</refname></refnamediv>
+      <refsection>
+         <title>Synopsis</title>
+         <para>This output sets the Z position on its input localizations by computing the
+               difference between the X and Y PSF widths and looking up the difference in the
+               provided <xref linkend="z_calibration_table"/>. Thereby, a Z coordinate can be
+               estimated on data that have been fitted with free PSF widths. For more information,
+               see <xref linkend="Henriques2010"/>.</para>
+         <para>It is preferable to provide the <xref linkend="z_calibration_table"/> directly
+               to the fitting module by choosing the <xref linkend="Interpolated3D"/> PSF model.
+               Thereby, a degree of fitting freedom is avoided and precision is enhanced.</para>
+      </refsection>
+      <refsection>
+         <title>Configuration items</title>
+         <et:elemtable>
+            <et:elem desc="Calibration file" topic="SigmaDiff3D_CalibrationFile">
+               Input file name for the calibration table in which the difference is looked up.
+               The format is described in <xref linkend="z_calibration_table"/>.
+            </et:elem>
+         </et:elemtable>
+      </refsection>
+   </refentry>
 
-    <refentry id="ExpressionFilter">
-        <refnamediv><refname>Expression filter</refname></refnamediv>
-        <refsection>
-            <para>This output allows filtering on and changing individual localization fields.
-                    It is distributed into two parts: The simple input fields for minimum localization
-                    strength, linear drift correction and maximum two kernel improvement give easy
-                    access to often-needed manipulations, while the more complex test-based expressions
-                    give full access to all localization fields.</para>
-            <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
-                output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
-                form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
-        </refsection>
-        <refsection>
-            <title>Job options</title>
-            <et:elemtable>
-                <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
-                    If this field is enabled, all localizations with a strength lower than its value are
-                    discarded and not displayed or stored in the suboutputs. The localization strength denotes
-                    the total signal detected in the PSF, i.e. the integral of the point spread function.
-                </et:elem>
-                <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
-                    If this field is enabled, all localizations are shifted in space by an amount proportional
-                    to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
-                </et:elem>
-                <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
-                    If this field is checked, all localizations with a two-kernel improvement (quotient of residues
-                    with two kernels and residues with one kernel) greater than the given value are discarded.
-                    This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
-                    has been checked.
-                </et:elem>
-                <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
-                    This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
-                    in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
-                    or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
-                    The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
-                    <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
-                </et:elem>
-                <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
-                    This text field gives an arithmetic expression for the value of the action. An
-                    expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
-                    linked by the usual arithmetic operators. Constants are given as numbers with units, which
-                    can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
-                    meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
-                    (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
-                    Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
-                </et:elem>
-            </et:elemtable>
-        </refsection>
-        <table id="ExpressionFilter:VariableBasenames">
-            <title>Variable base names for expressions</title>
-            <tgroup cols='4' align='left' colsep='1' rowsep='1'>
-                <colspec colnum="1" colwidth="6em"/>
-                <colspec colnum="2" colwidth="7em"/>
-                <colspec colnum="3" colwidth="5em"/>
-                <thead><row><entry>Variable base name</entry><entry>Dimension</entry><entry>Type</entry><entry>Meaning</entry></row></thead>
-                <tbody>
-                    <row><entry>pos</entry><entry>m</entry><entry>3D vector</entry><entry>Position in sample space</entry></row>
-                    <row><entry>amp</entry><entry>ADC</entry><entry>scalar</entry><entry>Intensity of emission</entry></row>
-                    <row><entry>frame</entry><entry>fr</entry><entry>scalar</entry><entry>Time of emission</entry></row>
-                    <row><entry>psffwhm</entry><entry>m</entry><entry>2D vector</entry><entry>PSF model's full width at half maximum</entry></row>
-                    <row><entry>fishy</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Two-kernel improvement</entry></row>
-                    <row><entry>chisq</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fit residues. For least-squares fitting, this value gives the sum of squared deviations between PSF model and data in photons squared. For MLE fitting, this value gives the total likelihood score. In both cases, the value is not normed in any way and unlikely to be comparable between measurements.</entry></row>
-                    <row><entry>fluo</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fluorophore type (0 for first fluorophore, 1 for second, etc.)</entry></row>
-                    <row><entry>bg</entry><entry>ADC</entry><entry>scalar</entry><entry>Local background intensity</entry></row>
-                </tbody>
-            </tgroup>
-        </table>
-        <table id="ExpressionFilter:VariableModifiers">
-            <title>Variable name modifiers for expressions</title>
-            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
-                <thead><row><entry>Modifier</entry><entry>Meaning</entry></row></thead>
-                <tbody>
-                    <row><entry><replaceable>&hellip;</replaceable>x</entry><entry>&hellip; in X dimension</entry></row>
-                    <row><entry><replaceable>&hellip;</replaceable>y</entry><entry>&hellip; in Y dimension</entry></row>
-                    <row><entry><replaceable>&hellip;</replaceable>z</entry><entry>&hellip; in Z dimension</entry></row>
-                    <row><entry>sigma<replaceable>&hellip;</replaceable></entry><entry>uncertainty of &hellip;</entry></row>
-                    <row><entry><replaceable>&hellip;</replaceable>min</entry><entry>lower bound of &hellip;</entry></row>
-                    <row><entry><replaceable>&hellip;</replaceable>max</entry><entry>upper bound of &hellip;</entry></row>
-                </tbody>
-            </tgroup>
-        </table>
-        <table id="ExpressionFilter:VariableExamples">
-            <title>Variable example names for expressions</title>
-            <tgroup cols='2' align='left' colsep='1' rowsep='1'>
-                <thead><row><entry>Example variable name</entry><entry>Meaning</entry></row></thead>
-                <tbody>
-                    <row><entry>posx</entry><entry>Localization's X coordinate</entry></row>
-                    <row><entry>posminy</entry><entry>Highest possible Y localization coordinate</entry></row>
-                    <row><entry>fluo</entry><entry>Fluorophore type</entry></row>
-                </tbody>
-            </tgroup>
-        </table>
-        <table id="ExpressionFilter:Operators">
-            <title>Operators in expressions</title>
-            <tgroup cols="3">
-                <colspec colnum="2" colwidth="6em"/>
-                <thead><row><entry>Operator</entry><entry>Result type</entry><entry>Meaning</entry></row></thead>
-                <tbody>
-                    <row><entry><userinput>(<replaceable>n1</replaceable>)</userinput></entry><entry>numerical</entry><entry>grouping of numerical expressions</entry></row>
-                    <row><entry><userinput><replaceable>n1</replaceable>^<replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>exponentiation</entry></row>
-                    <row><entry><userinput><replaceable>n1</replaceable> * <replaceable>n2</replaceable>, <replaceable>n1</replaceable> / <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>multiplication, division</entry></row>
-                    <row><entry><userinput><replaceable>n1</replaceable> + <replaceable>n2</replaceable>, <replaceable>n1</replaceable> - <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>addition, subtraction</entry></row>
-                    <row><entry><userinput>(<replaceable>b1</replaceable>) ? <replaceable>n1</replaceable> : <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>choice operator (if <replaceable>b1</replaceable> is true, use <replaceable>n1</replaceable>, else <replaceable>n2</replaceable></entry></row>
-                    <row><entry><userinput><replaceable>n1</replaceable> == <replaceable>n2</replaceable>, <replaceable>n1</replaceable> != <replaceable>n2</replaceable>, <replaceable>n1</replaceable> = <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt; <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt; <replaceable>n2</replaceable></userinput></entry><entry>boolean</entry><entry>comparison for equality, inequality, equality (same as <userinput>==</userinput>), greater-equality, less-equality, greater, less</entry></row>
-                    <row><entry><userinput>!<replaceable>b1</replaceable></userinput></entry><entry>boolean</entry><entry>negation</entry></row>
-                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>conjunction (and)</entry></row>
-                    <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
-                </tbody>
-            </tgroup>
-        </table>
-        <table id="ExpressionFilter:ExampleActions">
-            <title>Example actions</title>
-            <tgroup cols="3">
-                <colspec colnum="1" colwidth="4em"/>
-                <thead><row><entry>Value to assign to</entry><entry>Expression to assign from</entry><entry>Intention</entry></row></thead>
-                <tbody>
-                    <row><entry>Filter</entry><entry><userinput>fluo = 0</userinput></entry><entry>Only show localizations from the first fluorophore</entry></row>
-                    <row><entry>Filter</entry><entry><userinput>posx &gt; 1 um</userinput></entry><entry>Only show localizations right of a line at 1 &mgr;m</entry></row>
-                    <row><entry>Filter</entry><entry><userinput>amp &lt; 5 kADC</userinput></entry><entry>Discard emissions with intensities above 5000 counts</entry></row>
-                    <row><entry>Filter</entry><entry><userinput>posx &gt; 2300 nm &amp;&amp; posx &lt; 2800 nm &amp;&amp; posy &gt; 1800 nm &amp;&amp; posy &lt; 2200 nm &amp;&amp; frame &lt; 500 fr</userinput></entry><entry>Limit region of interest to a single bead early in the acquisition to calibrate 3D</entry></row>
-                    <row><entry>posz</entry><entry><userinput>8 nm/fr * frame</userinput></entry><entry>Set a Z ground truth raising 8 nanometre per frame</entry></row>
-                    <row><entry>amp</entry><entry><userinput>(fluo == 0) ? 1.5 * amp : 1 * amp</userinput></entry><entry>Make all localizations from the first fluorophore type more intense by a half</entry></row>
-                </tbody>
-            </tgroup>
-        </table>
-    </refentry>
+   <refentry id="SigmaCurve">
+      <refnamediv><refname>3D PSF width calibration table</refname></refnamediv>
+      <refsection><title>Synopsis</title>
+         <para>This output stores a <xref linkend="z_calibration_table"/> for the relationship between the
+               Z position and the PSF widths. It assumes that the Z position and PSF widths are set on its
+               input localizations, orders the input localizations, smoothes them with cubic B splines and
+               stores the values at the control points in the calibration output file.</para>
+      </refsection>
+      <refsection>
+         <title>Configuration items</title>
+         <et:elemtable>
+               <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
+                  Output file name for calibration table. The format is
+                  described in <xref linkend="z_calibration_table"/>.</et:elem>
+               <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
+                  Number of breakpoints to use for cubic B-spline interpolation. The number of
+                  breakpoints determines the number of cubic pieces used to approximate the
+                  measured PSF width curve. This number can be viewed as the adaptibility of the
+                  sigma curve to the measured PSF widths.</et:elem>
+         </et:elemtable>
+      </refsection>
+   </refentry>
+
+   <refentry id="ExpressionFilter">
+      <refnamediv><refname>Expression filter</refname></refnamediv>
+      <refsection>
+         <para>This output allows filtering on and changing individual localization fields.
+                  It is distributed into two parts: The simple input fields for minimum localization
+                  strength, linear drift correction and maximum two kernel improvement give easy
+                  access to often-needed manipulations, while the more complex test-based expressions
+                  give full access to all localization fields.</para>
+         <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
+               output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
+               form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
+      </refsection>
+      <refsection>
+         <title>Configuration items</title>
+         <et:elemtable>
+               <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
+                  If this field is enabled, all localizations with a strength lower than its value are
+                  discarded and not displayed or stored in the suboutputs. The localization strength denotes
+                  the total signal detected in the PSF, i.e. the integral of the point spread function.
+               </et:elem>
+               <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
+                  If this field is enabled, all localizations are shifted in space by an amount proportional
+                  to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
+               </et:elem>
+               <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
+                  If this field is checked, all localizations with a two-kernel improvement (quotient of residues
+                  with two kernels and residues with one kernel) greater than the given value are discarded.
+                  This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
+                  has been checked.
+               </et:elem>
+               <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
+                  This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
+                  in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
+                  or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
+                  The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
+                  <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
+               </et:elem>
+               <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
+                  This text field gives an arithmetic expression for the value of the action. An
+                  expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
+                  linked by the usual arithmetic operators. Constants are given as numbers with units, which
+                  can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
+                  meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
+                  (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
+                  Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
+               </et:elem>
+         </et:elemtable>
+      </refsection>
+      <table id="ExpressionFilter:VariableBasenames">
+         <title>Variable base names for expressions</title>
+         <tgroup cols='4' align='left' colsep='1' rowsep='1'>
+               <colspec colnum="1" colwidth="6em"/>
+               <colspec colnum="2" colwidth="7em"/>
+               <colspec colnum="3" colwidth="5em"/>
+               <thead><row><entry>Variable base name</entry><entry>Dimension</entry><entry>Type</entry><entry>Meaning</entry></row></thead>
+               <tbody>
+                  <row><entry>pos</entry><entry>m</entry><entry>3D vector</entry><entry>Position in sample space</entry></row>
+                  <row><entry>amp</entry><entry>ADC</entry><entry>scalar</entry><entry>Intensity of emission</entry></row>
+                  <row><entry>frame</entry><entry>fr</entry><entry>scalar</entry><entry>Time of emission</entry></row>
+                  <row><entry>psffwhm</entry><entry>m</entry><entry>2D vector</entry><entry>PSF model's full width at half maximum</entry></row>
+                  <row><entry>fishy</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Two-kernel improvement</entry></row>
+                  <row><entry>chisq</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fit residues. For least-squares fitting, this value gives the sum of squared deviations between PSF model and data in photons squared. For MLE fitting, this value gives the total likelihood score. In both cases, the value is not normed in any way and unlikely to be comparable between measurements.</entry></row>
+                  <row><entry>fluo</entry><entry>dimensionless</entry><entry>scalar</entry><entry>Fluorophore type (0 for first fluorophore, 1 for second, etc.)</entry></row>
+                  <row><entry>bg</entry><entry>ADC</entry><entry>scalar</entry><entry>Local background intensity</entry></row>
+               </tbody>
+         </tgroup>
+      </table>
+      <table id="ExpressionFilter:VariableModifiers">
+         <title>Variable name modifiers for expressions</title>
+         <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+               <thead><row><entry>Modifier</entry><entry>Meaning</entry></row></thead>
+               <tbody>
+                  <row><entry><replaceable>&hellip;</replaceable>x</entry><entry>&hellip; in X dimension</entry></row>
+                  <row><entry><replaceable>&hellip;</replaceable>y</entry><entry>&hellip; in Y dimension</entry></row>
+                  <row><entry><replaceable>&hellip;</replaceable>z</entry><entry>&hellip; in Z dimension</entry></row>
+                  <row><entry>sigma<replaceable>&hellip;</replaceable></entry><entry>uncertainty of &hellip;</entry></row>
+                  <row><entry><replaceable>&hellip;</replaceable>min</entry><entry>lower bound of &hellip;</entry></row>
+                  <row><entry><replaceable>&hellip;</replaceable>max</entry><entry>upper bound of &hellip;</entry></row>
+               </tbody>
+         </tgroup>
+      </table>
+      <table id="ExpressionFilter:VariableExamples">
+         <title>Variable example names for expressions</title>
+         <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+               <thead><row><entry>Example variable name</entry><entry>Meaning</entry></row></thead>
+               <tbody>
+                  <row><entry>posx</entry><entry>Localization's X coordinate</entry></row>
+                  <row><entry>posminy</entry><entry>Highest possible Y localization coordinate</entry></row>
+                  <row><entry>fluo</entry><entry>Fluorophore type</entry></row>
+               </tbody>
+         </tgroup>
+      </table>
+      <table id="ExpressionFilter:Operators">
+         <title>Operators in expressions</title>
+         <tgroup cols="3">
+               <colspec colnum="2" colwidth="6em"/>
+               <thead><row><entry>Operator</entry><entry>Result type</entry><entry>Meaning</entry></row></thead>
+               <tbody>
+                  <row><entry><userinput>(<replaceable>n1</replaceable>)</userinput></entry><entry>numerical</entry><entry>grouping of numerical expressions</entry></row>
+                  <row><entry><userinput><replaceable>n1</replaceable>^<replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>exponentiation</entry></row>
+                  <row><entry><userinput><replaceable>n1</replaceable> * <replaceable>n2</replaceable>, <replaceable>n1</replaceable> / <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>multiplication, division</entry></row>
+                  <row><entry><userinput><replaceable>n1</replaceable> + <replaceable>n2</replaceable>, <replaceable>n1</replaceable> - <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>addition, subtraction</entry></row>
+                  <row><entry><userinput>(<replaceable>b1</replaceable>) ? <replaceable>n1</replaceable> : <replaceable>n2</replaceable></userinput></entry><entry>numerical</entry><entry>choice operator (if <replaceable>b1</replaceable> is true, use <replaceable>n1</replaceable>, else <replaceable>n2</replaceable></entry></row>
+                  <row><entry><userinput><replaceable>n1</replaceable> == <replaceable>n2</replaceable>, <replaceable>n1</replaceable> != <replaceable>n2</replaceable>, <replaceable>n1</replaceable> = <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt; <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt; <replaceable>n2</replaceable></userinput></entry><entry>boolean</entry><entry>comparison for equality, inequality, equality (same as <userinput>==</userinput>), greater-equality, less-equality, greater, less</entry></row>
+                  <row><entry><userinput>!<replaceable>b1</replaceable></userinput></entry><entry>boolean</entry><entry>negation</entry></row>
+                  <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>conjunction (and)</entry></row>
+                  <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
+               </tbody>
+         </tgroup>
+      </table>
+      <table id="ExpressionFilter:ExampleActions">
+         <title>Example actions</title>
+         <tgroup cols="3">
+               <colspec colnum="1" colwidth="4em"/>
+               <thead><row><entry>Value to assign to</entry><entry>Expression to assign from</entry><entry>Intention</entry></row></thead>
+               <tbody>
+                  <row><entry>Filter</entry><entry><userinput>fluo = 0</userinput></entry><entry>Only show localizations from the first fluorophore</entry></row>
+                  <row><entry>Filter</entry><entry><userinput>posx &gt; 1 um</userinput></entry><entry>Only show localizations right of a line at 1 &mgr;m</entry></row>
+                  <row><entry>Filter</entry><entry><userinput>amp &lt; 5 kADC</userinput></entry><entry>Discard emissions with intensities above 5000 counts</entry></row>
+                  <row><entry>Filter</entry><entry><userinput>posx &gt; 2300 nm &amp;&amp; posx &lt; 2800 nm &amp;&amp; posy &gt; 1800 nm &amp;&amp; posy &lt; 2200 nm &amp;&amp; frame &lt; 500 fr</userinput></entry><entry>Limit region of interest to a single bead early in the acquisition to calibrate 3D</entry></row>
+                  <row><entry>posz</entry><entry><userinput>8 nm/fr * frame</userinput></entry><entry>Set a Z ground truth raising 8 nanometre per frame</entry></row>
+                  <row><entry>amp</entry><entry><userinput>(fluo == 0) ? 1.5 * amp : 1 * amp</userinput></entry><entry>Make all localizations from the first fluorophore type more intense by a half</entry></row>
+               </tbody>
+         </tgroup>
+      </table>
+   </refentry>
 
 </chapter>
