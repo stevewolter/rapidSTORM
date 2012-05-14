@@ -48,6 +48,7 @@
         </et:elemtable>
      </refsection>
    </refentry>
+
    <refentry id="image_display">
         <refnamediv><refname>Image display</refname></refnamediv>
         <refsection><title>Synopsis</title>
@@ -216,48 +217,12 @@
       <refnamediv><refname>Memory Cache</refname></refnamediv>
       <refsection><title>Synopsis</title>
         <para>This output module stores all its input localizations in the computer's 
-            main memory. On demand by submodules, it can offer a 
+            main memory. It provides a <xref linkend="repeater"/> service to its submodules,
+            enabling features like interactive range selection in the image viewer, but
+            also does not store the source images, preventing modules like 
+            <xref linkend="estimate_psf_form"/> from working as submodules of this module.</para>
+      </refsection>
    </refentry>
-
-<!--
-   <refentry id="filter_localizations">
-     <para>This general-purpose output module can perform three basic, 
-       simple tasks: Firstly, it filters received <xref 
-       linkend="localization"/>s by
-       amplitude and forwards them to its output modules. Secondly, it
-       applies <xref linkend="linear_drift_correction"/> to the localizations
-       passing through it. Thirdly, it provides a
-       <xref linkend="repeater"/> service.
-       all received localizations and can repeat them to its own output
-       modules, if necessary.</para>
-     <para>The first function works similiarly to the amplitude threshold
-       found in the processing options, but does not influence the dynamical
-       threshold. Only localizations larger than the minimum and
-       smaller than the maximum amplitude pass through the filter.</para>
-     <para>The second function, the linear drift correction, works as
-       decribed in the corresponding Fundamentals section. The amount of
-       linear drift correction (in detector pixels) in the last frame is
-       given by the X/Y drift correction parameters.</para>
-     <note>The result repeater does not provide the source images
-       to its children output modules. Modules such as the image
-       averager will not work below it.</note>
-     <et:elemtable>
-       <title>Job options and status</title>
-       <et:elem desc="Minimum localization strength" topic="Filter_MinStrength">
-         Select the minimum strength a localization must have to be
-         handed to the children output modules</et:elem>
-       <et:elem desc="Maximum localization strength" topic="Filter_MaxStrength">
-         Select the maximum strength a localization may have to be
-         handed to the children output modules</et:elem>
-       <et:elem desc="X drift correction" topic="Filter_XDrift">
-         Amount of linear drift correction to apply in X direction to the
-         localizations handed to children modules</et:elem>
-       <et:elem desc="Y drift correction" topic="Filter_YDrift">
-         Amount of linear drift correction to apply in Y direction to the
-         localizations handed to children module.</et:elem>
-     </et:elemtable>
-   </refentry>
--->
 
    <refentry> 
       <refnamediv><refname>Slice localization set</refname>
@@ -296,6 +261,7 @@
          </et:elemtable>
       </refsection>
    </refentry>
+
    <refentry> 
       <refnamediv><refname>Average images</refname></refnamediv>
       <para>This module does not process localizations, but rather averages
