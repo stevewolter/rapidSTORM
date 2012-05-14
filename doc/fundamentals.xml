@@ -10,18 +10,14 @@
 
 <chapter id="Fundamentals" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">>
     <title>Fundamental concepts</title>
-<glossary>
-    <title/>
-    <glossentry id="input_channels">
-        <glossterm>Input channels</glossterm>
-        <glossdef>
-            <para>Foobar</para>
-        </glossdef>
-    </glossentry>
 
-   <glossentry id="dSTORM_engine">
-      <glossterm>dSTORM engine</glossterm>
-      <glossdef>
+    <section id="input_channels">
+        <title>Input channels</title>
+            <para>Foobar</para>
+    </section>
+
+   <section id="dSTORM_engine">
+      <title>dSTORM engine</title>
          <para>The dSTORM engine is the collective term for the core of the
          rapidSTORM software that is not part of the input or output
          drivers. The dSTORM engine is responsible for converting a
@@ -40,12 +36,10 @@
          order established by that sorting. Once three
          successive candidates have failed to be fitted as localizations,
          the fitting process for the image is aborted.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="localization" xreflabel="localization">
-      <glossterm>Localization</glossterm>
-      <glossdef>
+   <section id="localization" xreflabel="localization">
+      <title>Localization</title>
          <para>A localization denotes the position (space and time) and the
          strength of a 
          suspected fluorophore emission. A localization denotes only a 
@@ -56,33 +50,29 @@
          <para>Localization coordinates are not given on a lattice as pixels
          are, but are rather subpixel-accurate. The accuracy is mostly
          given by the emission strength and the background noise as 
-         described by <xref linkend="ThompsonPaper"/>.</para>
-      </glossdef>
-   </glossentry>
+         described by <xref linkend="Thompson2002"/>.</para>
+   </section>
 
-   <glossentry id="fluorophore" xreflabel="fluorophore type">
-         <glossterm>Fluorophore type</glossterm>
-   </glossentry>
+   <section id="fluorophore" xreflabel="fluorophore type">
+         <title>Fluorophore type</title>
+   </section>
 
-   <glossentry id="threedforms" xreflabel="3D computation models">
-         <glossterm>3D fitting</glossterm>
-      <glossdef>
+   <section id="threedforms" xreflabel="3D computation models">
+         <title>3D fitting</title>
          <para>rapidSTORM can fit both astigmatic and biplane 3D data by
          introducing an explicit Z parameter into the point spread function.
          It is assumed that the 2D Gaussian model describes the PSF and that
          the widths of the PSF in X and Y direction are functions of the 
          emitter's Z coordinate. Two different models are supported for this
          function, a set of piecewise cubic functions or a single quartic function (polynomial model).</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="interpolated_3d">
-      <glossterm>Piecewise cubic model</glossterm>
-   </glossentry>
+   <section id="interpolated_3d">
+      <title>Piecewise cubic model</title>
+   </section>
 
-   <glossentry id="z_calibration_table">
-      <glossterm>Z calibration file</glossterm>
-      <glossdef>
+   <section id="z_calibration_table">
+      <title>Z calibration file</title>
          <para>A Z calibration file is a plain text file with three whitespace-separated columns.
             The first column gives an emitter's Z coordinate in nanometres, and the second and third columns
             give the standard deviation of a Gaussian describing the PSF for an emitter at the given
@@ -90,12 +80,10 @@
             given in micrometers.</para>
          <para>The range of the Z calibration file (lowest and highest Z coordinate) gives the working
             depth of the approximation.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="polynomial_3d">
-      <glossterm>Polynomial model</glossterm>
-      <glossdef>
+   <section id="polynomial_3d">
+      <title>Polynomial model</title>
          <para>rapidSTORM can fit both astigmatic and biplane 3D data by
             introducing an explicit Z parameter into the point spread function.
             The Z parameter modifies the width parameters of the PSF according
@@ -168,12 +156,10 @@
                   </mediaobject></inlineequation>, where <inlineequation><mathphrase>&ohgr;</mathphrase></inlineequation>
             denotes the parabolic widening constant.
          </para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="repeater" xreflabel="Repeater">
-      <glossterm>Repeater</glossterm>
-      <glossdef>
+   <section id="repeater" xreflabel="Repeater">
+      <title>Repeater</title>
          <para>A repeater is any output module that stores all received
             <xref linkend="localization"/>s in memory and can repeat them if
             necessary. While
@@ -184,12 +170,10 @@
             in computation because doing so would quickly exhaust the available
             memory. Therefore, output modules that need access to source images
             may not be used as children of repeater modules.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="psf_model" xreflabel="PSF model">
-      <glossterm>PSF model</glossterm>
-      <glossdef>
+   <section id="psf_model" xreflabel="PSF model">
+      <title>PSF model</title>
          <para>The point spread function (PSF) is modeled for rapidSTORM
             purposes as a two-dimensional Gaussian function added to a
             background signal. This function has the parameters amplitude,
@@ -206,13 +190,11 @@
             have shown that the
             approximation is good enough for practical purposes.
             </para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="quadrant_differential_residue_analysis"
+   <section id="quadrant_differential_residue_analysis"
             xreflabel="quadrant-differential residue analysis">
-      <glossterm>Quadrant-differential residue analysis</glossterm>
-      <glossdef>
+      <title>Quadrant-differential residue analysis</title>
          <para>When two fluorophores emit close to each other, typically the
             nonlinear fit will result in a suspected fluorophore position
             midway between the two fluorophores and with a high amplitude.
@@ -235,13 +217,11 @@
             highly with the true presence of double emitters. Also, the 
             quadrants containing the positive contribution in the highest sum
             indicate along which axis the double emission happened.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="two_kernel_analysis"
+   <section id="two_kernel_analysis"
             xreflabel="two-kernel analysis">
-      <glossterm>Two-kernel analysis</glossterm>
-      <glossdef>
+      <title>Two-kernel analysis</title>
          <para>When <xref linkend="quadrant_differential_residue_analysis"/>
             indicated a likely double emission, this hypothesis is tested by
             fitting a model consisting of the sum of two Gaussian functions
@@ -250,13 +230,11 @@
             two nonnegligible kernels and with significantly smaller residues
             than the normal one-kernel fit, the hypothesis of a double emission
             is deemed confirmed.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-   <glossentry id="linear_drift_correction"
+   <section id="linear_drift_correction"
             xreflabel="linear drift correction">
-      <glossterm>Linear drift correction</glossterm>
-      <glossdef>
+      <title>Linear drift correction</title>
          <para>Instabilities in the experimental setup can, despite all
             experimental effort, lead to a slow, creeping shift (called drift)
             of the 
@@ -271,8 +249,6 @@
             a time-hued image display as a child of the localization filter and
             optimize the settings for a mostly white or, at least, largely
             color-uncorrelated image.</para>
-      </glossdef>
-   </glossentry>
+   </section>
 
-</glossary>
 </chapter>

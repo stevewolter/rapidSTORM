@@ -7,7 +7,8 @@ TEX_GRAPHICS = polynomial_3d_psf.tex polynomial_3d_parabolic_conversion.tex poly
 GENERATED_GRAPHICS = $(TEX_GRAPHICS:.tex=.png)
 GRAPHICS = $(PIXEL_GRAPHICS) $(GENERATED_GRAPHICS)
 EXTRA_DIST = $(TEX_GRAPHICS) $(PIXEL_GRAPHICS) $(CHAPTERS:=.xml) \
-    rapidstorm_pre.xsl rapidstorm_html.xsl rapidstorm_fo.xsl tex2im
+    rapidstorm_pre.xsl rapidstorm_html.xsl rapidstorm_fo.xsl tex2im \
+    bib4wbbt.bib
 
 if BUILD_PDF_DOCUMENTATION
     PDF_TARGET = manual.pdf
@@ -18,16 +19,15 @@ endif
 doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
 
 manual.xml : $(CHAPTERS:=.xml)
-manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl 
-manual.pdf : images
-manual.html : $(GRAPHICS) rapidstorm_html.xsl
+manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl bib4wbbt.xml
+manual.html : $(GRAPHICS) rapidstorm_html.xsl bib4wbbt.xml
 
 XSLT_FLAGS ?= 
 XSLT_FLAGS_HTML ?= $(XSLT_FLAGS) 
 XSLT_FLAGS_FO ?= $(XSLT_FLAGS) --path "."
 
-images :
-	ln -s /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/images/ images
+bib4wbbt.xml : xml2db5.xsl bib4wbbt.bib
+	bib2xml $(filter %.bib,$^) | $(XSLTPROC) $(XSLT_FLAGS) -o $@ $(filter %.xsl,$^) -
 
 titlepage.xsl : make_titlepage.xsl titlepage.xml
 	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^

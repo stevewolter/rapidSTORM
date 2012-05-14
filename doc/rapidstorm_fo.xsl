@@ -5,11 +5,14 @@
    <xsl:import href="titlepage.xsl"/>
 
    <xsl:param name="section.autolabel" select="1"/>
+   <xsl:param name="section.label.includes.component.label" select="1"/>
+   <xsl:param name="callout.graphics.path">/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/images/callouts/</xsl:param>
    <xsl:param name="paper.type">A4</xsl:param>
    <xsl:param name="fop1.extensions">1</xsl:param>
    <xsl:param name="double.sided">1</xsl:param>
    <xsl:param name="appendix.autolabel">0</xsl:param>
    <xsl:param name="glossary.sort" select="1"/>
+   <xsl:param name="bibliography.collection">bib4wbbt.xml</xsl:param>
 
    <xsl:template match="relatedtopicsinfo"/>
 

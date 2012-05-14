@@ -43,6 +43,108 @@
                input file.
          </para></glossdef>
       </glossentry>
+
+      <glossentry id="FirstImage">
+         <glossterm>First image to load</glossterm>
+         <glossdef>
+            <para>This option allows skipping of the initial frames of the input. The
+               frames are indexed sequentially from 0, and the value given here is 
+               inclusive. Consequently, the default value of 0 in this field causes
+               all images to be loaded. A value of 5 would skip the first 5 images.</para>
+            <glossseealso otherterm="LastImage"/>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="LastImage">
+         <glossterm>Last image to load</glossterm>
+         <glossdef>
+            <para>If this option is enabled, it allows limiting the length of the computation.
+               All images past the given frame number, counted from 0 and excluding the given
+               number, are skipped. For example, a value of 3 would case the four images with
+               indices 0, 1, 2 and 3 to be computed.</para>
+            <glossseealso otherterm="FirstImage"/>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="MirrorY">
+         <glossterm>Mirror input data along Y axis</glossterm>
+         <glossdef>
+            <para>If this option is enabled, each input image is flipped such that the topmost row
+               in each image becomes the bottommost row.</para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="DualView">
+         <glossterm>Dual view</glossterm>
+         <glossdef>
+            <para>This option allows splitting an image that contains two logical layers. For example,
+               if the reflected beam of a beam splitter is projected onto the left side of the
+               camera and the transmitted on the right side, this output allows to separate them into
+               two different layers that can be used for 3D estimation.</para>
+            <para>The dual view output always splits images exactly in the middle. Use plane
+               alignment to configure other shifts.</para>
+            <glossseealso otherterm="PlaneAlignment"/>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="OnlyPlane">
+         <glossterm>Process only one plane</glossterm>
+         <glossdef>
+            <para>This option allows selecting a single layer from a multi-layer acquisition.
+               The default option, <guilabel>All planes</guilabel>, has no effect. All other
+               options select a single layer from the available input layers, which will be
+               the only layer that is processed.</para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="EstimateBackgroundVariance">
+         <glossterm>Estimate background variance</glossterm>
+         <glossdef>
+            <para>If this option is checked, the background variance (i.e. the variability of
+               the background noise) is estimated with the variance of the values 
+               below the most common intensity value. If this option is checked, the rapidSTORM
+               engine can automatically guess the amplitude threshold.</para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="CameraResponse">
+         <glossterm>Camera response to photon</glossterm>
+         <glossdef>
+            <para>This option allows to give the mean intensity each photon generates on the camera.
+               In other terms, a value of 5 in this field assumes that the value of a pixel goes up
+               by 5 (on average) every time the pixel is hit by a photon.</para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="DarkCurrent">
+         <glossterm>Dark intensity</glossterm>
+         <glossdef>
+            <para>This option allows to give the dark intensity of the camera, i.e. the mean pixel value
+               for a pixel that is hit by no photons during the integration time.</para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="PlaneAlignment">
+         <glossterm>Plane alignment</glossterm>
+         <glossdef>
+            <para>This option allows to describe the mapping from input pixels to sample space coordinates.
+               For the mass of single-layer applications, the default choice of <guilabel>No alignment</guilabel>
+               is appropriate.</para>
+            <para>For multi-layer applications, it is likely that a more complex alignment must be applied here.</para>
+            <glossseealso otherterm="NoAlignment"/>
+            <glossseealso otherterm="LinearAlignment"/>
+            <glossseealso otherterm="SupportPointAlignment"/>
+         </glossdef>
+      </glossentry>
+
+      <glossentry id="z_calibration_file">
+         <glossterm>Z calibration file</glossterm>
+         <glossdef>
+            <para>The filename of a Z calibration file (<xref linkend="z_calibration_table"/>)
+               should be given in this option.</para>
+         </glossdef>
+      </glossentry>
+
       <et:elem desc="Join inputs on" topic="join.JoinOn">
             When multiple channels are selected, this field is used to declare how these
             multiple channels are combined into a single image or dataset. The available options are:
@@ -68,6 +170,9 @@
             configuration of the spectral parameters.
       </et:elem>
       <et:elem desc="Size of one input pixel" topic="PixelSize">
+         This field gives the size of the sample part that is imaged in a single camera pixel.
+         Typically, this value should be in the order of 100 nm. See <xref linkend="Thompson2002"/>
+         for a discussion about ideal values.
       </et:elem>
       <et:elem desc="PSF FWHM" topic="PSF.FWHM">
             The full width at half maximum of the optical point spread function. More
@@ -76,10 +181,27 @@
             with the same FWHM as given here. If the PSF is unknown, it can be determined semi-automatically
             by using the <xref linkend="estimate_psf_form"/> output.
       </et:elem>
-      <et:elem desc="3D PSF model" topic="3DType">
-            The 3D PSF model denotes the functional form of the PSF's change with respect to the 
-            emitter's Z position. See <xref linkend="threedforms"/> for possible values.
-      </et:elem>
+
+      <glossentry id="3DType">
+         <glossterm>3D PSF model</glossterm>
+         <glossdef>
+            <para>
+               The 3D PSF model denotes the functional form of the PSF's change with respect to the 
+               emitter's Z position. The choices are:
+            </para>
+            <variablelist>
+               <varlistentry><term><guilabel>No 3D</guilabel></term>
+                  <listitem><para>The PSF width is constant, and no Z coordinate exists or is fitted.</para></listitem></varlistentry>
+               <varlistentry><term><guilabel>Polynomial 3D</guilabel></term>
+                  <listitem><para>The polynomial 3D model (see <xref linkend="polynomial_3d"/>) determines
+                     PSF widths from the Z coordinate.</para></listitem></varlistentry>
+               <varlistentry id="Interpolated3D"><term><guilabel>Interpolated 3D</guilabel></term>
+                  <listitem><para>The piecewise cubic 3D model (see <xref linkend="interpolated_3d"/>) determines
+                     PSF widths from the Z coordinate.</para></listitem></varlistentry>
+            </variablelist>
+         </glossdef>
+      </glossentry>
+
    </glossdiv>
 
    <glossdiv>
@@ -103,20 +225,35 @@
                message is shown indicating the maximum known and the encountered
                version of the Andor SIF structure. Please obtain a newer version
                of this software in this case.</para>
-            <para>If the <xref linkend="expertise_level"/> is
-               sufficient, this module allows to select an inclusive range of
-               image numbers (starting from 0) which are selected from the SIF file.
-               This range is automatically cropped to the range of available images.
-            </para>
+         </glossdef>
+      </glossentry>
+
+      <glossentry>
+         <glossterm>TIFF file</glossterm>
+         <glossdef>
+            <para>This input driver reads a multipage TIFF stack. All images in the
+               TIFF stack must have the same size, and be greyscale images of up to
+               64 bit depth. Both integer and floating point data are allowed, even
+               though all data are converted internally to 16 bit unsigned format.</para>
          </glossdef>
       </glossentry>
    </glossdiv>
 
    <glossdiv>
-      <title>Choices for <xref linkend="3DType"/></title>
-      <glossentry id="Interpolated3D">
-         <glossterm>Interpolated 3D</glossterm>
-      </glossentry>
+      <title>Choices for <xref linkend="PlaneAlignment"/></title>
+      <glossentry id="NoAlignment"><glossterm>No alignment</glossterm>
+         <glossdef><para>The upper left pixel is assumed to be at (0,0) nanometers. The 
+            <xref linkend="PixelSize"/> field gives the offset of each pixel to the next. For example, if
+            the pixel sizes are 100 nm in X and 110 nm in Y, the pixel at (10,15) is at (1,1.65) &mgr;m.
+            </para></glossdef></glossentry>
+      <glossentry id="LinearAlignment"><glossterm>Linear alignment</glossterm>
+         <glossdef><para>Naive pixel coordinates are computed identically to <xref linkend="NoAlignment"/>
+            and then transformed by an affine transformation matrix.</para></glossdef></glossentry>
+      <glossentry id="SupportPointAlignment"><glossterm>Support point alignment</glossterm>
+         <glossdef><para>Naive pixel coordinates are computed identically to <xref linkend="NoAlignment"/>.
+            A nonlinear transformation image is read from a file. The naive coordinates are projected
+            into the source image of the nonlinear transformation, and the transformation is applied with linear
+            interpolation.</para></glossdef></glossentry>
    </glossdiv>
 
 </glossary>

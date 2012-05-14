@@ -54,7 +54,7 @@
     the fillhole transformation followed by erosion is better for
     large spots. For a complete discussion and quantitative
     comparison, see <xref linkend="WolterDiplomarbeit"/>
-    and <xref linkend="Wolter_JoM_09"/>.
+    and <xref linkend="Wolter2010"/>.
 </et:elem>
 <et:elem desc="Amplitude discarding threshold" 
         topic="AmplitudeThreshold">

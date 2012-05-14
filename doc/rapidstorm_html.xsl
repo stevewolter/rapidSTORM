@@ -4,6 +4,9 @@
 
    <xsl:param name="ignore.image.scaling" select="1"/>
    <xsl:param name="section.autolabel" select="1"/>
+   <xsl:param name="glossary.sort" select="1"/>
+   <xsl:param name="section.label.includes.component.label" select="1"/>
+   <xsl:param name="bibliography.collection">bib4wbbt.xml</xsl:param>
    <xsl:template match="relatedtopicsinfo"/>
     <xsl:template match="guilabel">
         <xsl:call-template name="inline.boldseq"/>

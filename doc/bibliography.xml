@@ -8,97 +8,10 @@
 <bibliography id="Bibliography" xmlns='http://docbook.org/ns/docbook'>
   <title>Bibliography</title>
 
-  <biblioentry id="WolterDiplomarbeit">
-    <abbrev>Wolter2009a</abbrev>
-    <title>An accurate and efficient algorithm for real-time localisation
-         of photoswitchable fluorophores</title>
-    <author>
-      <firstname>Steve</firstname>
-      <surname>Wolter</surname>
-    </author>
-    <publisher>
-      <publishername>Bielefeld University</publishername>
-    </publisher>
-    <date>2009</date>
-    <bibliosource class="uri">http://bieson.ub.uni-bielefeld.de/opus/frontdoor.php?source_opus=1494</bibliosource>
-  </biblioentry>
-
-  <biblioentry id="Wolter_JoM_09">
-    <abbrev>Wolter2009b</abbrev>
-  </biblioentry>
-
-  <biblioentry id="ThompsonPaper">
-    <abbrev>Thompson2002</abbrev>
-  </biblioentry>
-
-  <biblioentry id="Huang2008">
-    <abbrev>Huang2008</abbrev>
-    <authorgroup>
-      <author>
-        <surname>Huang</surname>
-        <firstname>Bo</firstname>
-      </author>
-      <author>
-        <surname>Wang</surname>
-        <firstname>Wenqin</firstname>
-      </author>
-      <author>
-        <surname>Bates</surname>
-        <firstname>Mark</firstname>
-      </author>
-      <author>
-        <surname>Zhuang</surname>
-        <firstname>Xiaowei</firstname>
-      </author>
-    </authorgroup>
-    <title>Three-Dimensional Super-Resolution Imaging by Stochastic Optical Reconstruction Microscopy</title>
-    <citetitle pubwork="journal">Science</citetitle>
-    <pagenums>810--813</pagenums>
-    <pubdate>February 2008</pubdate>
-    <volumenum>319</volumenum>
-    <issuenum>5864</issuenum>
-  </biblioentry>
-
-  <biblioentry id="Henriques2010">
-    <abbrev>Henriques2010</abbrev>
-    <title>QuickPALM</title>
-    <subtitle>3D real-time photoactivation nanoscopy image processing in ImageJ</subtitle>
-    <author>
-      <firstname>Ricardo</firstname>
-      <surname>Henriques</surname>
-    </author>
-    <author>
-      <firstname>Mickael</firstname>
-      <surname>Lelek</surname>
-    </author>
-    <author>
-      <firstname>Eugenio</firstname>
-      <othername>F</othername>
-      <surname>Fornasiero</surname>
-    </author>
-    <author>
-      <firstname>Flavia</firstname>
-      <surname>Valtorta</surname>
-    </author>
-    <author>
-      <firstname>Christophe</firstname>
-      <surname>Zimmer</surname>
-    </author>
-    <author>
-      <firstname>Musa</firstname>
-      <othername>M</othername>
-      <surname>Mhlanga</surname>
-    </author>
-    <citetitle pubwork="journal">Nature Methods</citetitle>
-    <publisher>Nature Publishing Group</publisher>
-    <biblioid class="issn">1548-7091</biblioid>
-    <abstract>To the Editor: Although conventional microscopes have a reso-lution limited by diffraction to about half the wavelength of light, several recent advances have led to microscopy methods that achieve roughly tenfold improvements in resolution. Among them, photoactivated light microscopy (PALM) and stochastic optical resolution microscopy (STORM) have become particularly popular, as they only require relatively simple and affordable modifications to a standard total internal reflection fluorescence (TIRF) microscope and have been extended to three-dimensional (3D) super-resolution and multicolor imaging.</abstract>
-    <biblioid class="doi">10.1038/nmeth0510-339</biblioid>
-    <biblioid class="uri">http://dx.doi.org/10.1038/nmeth0510-339</biblioid>
-    <pubdate>2010-may-01</pubdate>
-    <volumenum>7</volumenum>
-    <issuenum>5</issuenum>
-    <pagenums>339-340</pagenums>
-  </biblioentry>
+  <biblioentry id="WolterDiplomarbeit"/>
+  <biblioentry id="Wolter2010"/>
+  <bibliomixed id="Thompson2002"/>
+  <biblioentry id="Huang2008"/>
+  <biblioentry id="Henriques2010"/>
 
 </bibliography>

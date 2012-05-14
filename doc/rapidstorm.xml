@@ -91,19 +91,6 @@
 
 <preface>
     <title>Help on Help</title>
-    <para>This manual consists of the following parts:</para>
-    <itemizedlist>
-        <listitem><xref linkend="UI"/> gives a broad overview over the dialogs
-            and general usage of this software. An example of basic usage is included.</listitem>
-        <listitem><xref linkend="Step_by_Step"/> consists of concise, step-by-step
-            descriptions of typical nontrivial usage patterns.</listitem>
-        <listitem><xref linkend="input_options"/> documents the various input and output
-            modules and their options in detail.</listitem>
-        <listitem><xref linkend="output_modules"/> documents the various input and output
-            modules and their options in detail.</listitem>
-        <listitem><xref linkend="Fundamentals"/> discusses fundamental concepts and 
-            file formats in depth.</listitem>
-    </itemizedlist>
     <para>It is recommended to read <xref linkend="UI"/> first to get a broad overview over the user interface.
       Further information can be found in the relevant reference sections, which can be studied in any order.</para>
 </preface>
