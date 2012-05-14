@@ -1,7 +1,10 @@
 #ifndef DSTORM_FITTER_MSD_PSF_PARAMETERS_H
-#define DSTORM_FITTER__MSD_PSF_PARAMETERS_H
+#define DSTORM_FITTER_MSD_PSF_PARAMETERS_H
 
 #include <nonlinfit/Xs.h>
+#include "LengthUnit.h"
+
+
 
 namespace dStorm {
 namespace measured_psf {
@@ -16,7 +19,7 @@ template <int _Dimension> struct Mean {
     static const int Dimension = _Dimension;
     typedef LengthUnit Unit;
 };
-
+struct MeanZ { typedef Micrometers Unit; };
 struct Amplitude {
     typedef si::dimensionless Unit;
 };

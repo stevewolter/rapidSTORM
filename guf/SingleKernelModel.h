@@ -21,10 +21,10 @@ using namespace boost::units;
 struct SingleKernelModel
 {
     virtual ~SingleKernelModel() {}
-    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
+    virtual Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > get_sigma() const = 0;
     virtual SingleKernelModel& copy( const SingleKernelModel& ) = 0;
     virtual quantity<si::length> get_fluorophore_position(int) const =0;
-    virtual void set_fluorophore_position(int, quantity<si::length>) const =0;
+    virtual void set_fluorophore_position(int, quantity<si::length>) =0;
     virtual double intensity() const =0;
     virtual quantity<si::dimensionless> get_amplitude() const =0;
     virtual void set_amplitude(quantity<si::dimensionless>) =0;

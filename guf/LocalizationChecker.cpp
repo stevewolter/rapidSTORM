@@ -65,7 +65,7 @@ bool LocalizationChecker::check_kernel( const guf::SingleKernelModel& k, const g
         check_kernel_dimension(k,s, plane, 1);
     bool has_z_position = k.has_z_position();
     bool z_ok = (has_z_position ||
-        contains(allowed_z_positions, k.get_fluorophore_position(2) ) );
+        contains(allowed_z_positions, samplepos::Scalar(k.get_fluorophore_position(2) ) ));
     return kernels_ok && z_ok;
 }
 

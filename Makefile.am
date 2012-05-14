@@ -636,7 +636,7 @@ dstorm_SOURCES += \
     measured_psf/fixed_form.h \
     measured_psf/Model.h measured_psf/Model.cpp \
     measured_psf/JointEvaluator.h \
-    measured_psf/unit_test.h measured_psf/unit_test.cpp \
+    measured_psf/unit_test.h measured_psf/unit_test.cpp
 
 dstorm_SOURCES += \
     constant_background/fwd.hpp constant_background/model.hpp

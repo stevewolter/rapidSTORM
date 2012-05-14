@@ -5,8 +5,8 @@
 #include "gaussian_psf/free_form.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/expressions.h"
-#include "measured_psf/expressions.h"
 #include "measured_psf/fixed_form.h"
+#include "measured_psf/Model.h"
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <dStorm/traits/optics.h>
@@ -52,7 +52,7 @@ NaiveFitter::create(
     if ( c.free_sigmas() && ! consistently_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( true ) {
-        return create2<Kernels,measured_psf::FreeForm,measured_psf::Model>(c,info);
+        return create2<Kernels,measured_psf::FixedForm,measured_psf::Model>(c,info);
     } else if ( c.free_sigmas() )
         return create2<Kernels,gaussian_psf::FreeForm,gaussian_psf::No3D>(c,info);
     else if ( consistently_no_3d )

@@ -104,7 +104,6 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     assert( pos.rows() == 3 && pos.cols() == 1 );
     pos.x() = only_kernel.get_fluorophore_position(0);
     pos.y() = only_kernel.get_fluorophore_position(1);
-    const gaussian_psf::Base3D* threed = dynamic_cast<const gaussian_psf::Base3D*>( &only_kernel );
     if ( only_kernel.has_z_position() )
         pos[2] = only_kernel.get_fluorophore_position(2);
     Localization::Amplitude::Type amp( only_kernel.get_amplitude() * data.optics.photon_response() );

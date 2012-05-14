@@ -13,7 +13,6 @@ struct FixedForm
 template <int Dim> struct FixedForm::apply< Mean<Dim> > {typedef boost::mpl::true_ type; };
 template <> struct FixedForm::apply< MeanZ > {typedef boost::mpl::true_ type; };
 template <> struct FixedForm::apply< Amplitude > {typedef boost::mpl::true_ type; };
-
 }
 }
 
