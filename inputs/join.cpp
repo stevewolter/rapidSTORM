@@ -2,8 +2,8 @@
 #include "join.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Iterator.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
 #include <boost/lexical_cast.hpp>
@@ -12,6 +12,7 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/input/DefaultFilterTypes.h>
 #include <dStorm/input/MetaInfo.h>
+#include <dStorm/make_clone_allocator.hpp>
 
 #include "join/spatial.hpp"
 #include "join/temporal.hpp"
@@ -38,6 +39,17 @@ struct Strategist
     virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
     virtual ~Strategist() {}
 };
+
+}
+}
+}
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::input::join::Strategist );
+
+namespace dStorm {
+namespace input {
+namespace join {
+
 
 template <typename Type, typename Tag>
 class Source
@@ -181,7 +193,7 @@ class Link
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
     std::vector< TraitsRef > input_traits;
     simparm::Set channels;
-    simparm::NodeChoiceEntry< Strategist > join_type;
+    simparm::ManagedChoiceEntry< Strategist > join_type;
     simparm::Entry<unsigned long> channel_count;
     bool registered_node;
 

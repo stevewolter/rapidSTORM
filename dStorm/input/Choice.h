@@ -2,8 +2,7 @@
 #define DSTORM_INPUT_CHAINCHOICE_H
 
 #include "Link.h"
-#include <simparm/ChoiceEntry.hh>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <simparm/ManagedChoiceEntry.hh>
 
 namespace dStorm {
 namespace input {
@@ -11,7 +10,7 @@ namespace input {
 class Choice
 : public Link, public simparm::Listener
 {
-  protected:
+  public:
     class LinkAdaptor {
         simparm::Object node;
         std::auto_ptr<input::Link> _link;
@@ -41,7 +40,9 @@ class Choice
         }
     };
 
-    simparm::NodeChoiceEntry<LinkAdaptor> choices;
+  protected:
+    typedef simparm::ManagedChoiceEntry<LinkAdaptor>::iterator iterator;
+    simparm::ManagedChoiceEntry<LinkAdaptor> choices;
     boost::shared_ptr<MetaInfo> my_traits;
     bool auto_select;
 

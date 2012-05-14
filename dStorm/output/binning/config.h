@@ -3,7 +3,9 @@
 
 #include <simparm/Node.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <memory>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include "binning_decl.h"
 #include "../../localization/Traits.h"
 
@@ -15,20 +17,18 @@ struct FieldConfig {
     virtual ~FieldConfig() {}
     virtual FieldConfig* clone() const = 0;
     virtual const simparm::Node& getNode() const = 0;
+    simparm::Node& getNode() { return const_cast<simparm::Node&>(getNode()); }
 
     virtual std::auto_ptr<Scaled> make_scaled_binner() const = 0;
     virtual std::auto_ptr<Unscaled> make_unscaled_binner() const = 0;
     virtual std::auto_ptr<UserScaled> make_user_scaled_binner() const = 0;
     virtual void set_visibility(const input::Traits<Localization>&, bool unscaled_suffices) = 0;
 
-    operator simparm::Node&() { return const_cast<simparm::Node&>(const_cast<FieldConfig&>(*this).getNode()); }
-    operator const simparm::Node&() const { return getNode(); }
-
     virtual void add_listener( simparm::Listener& l ) = 0;
 };
 
 struct FieldChoice 
-: public simparm::NodeChoiceEntry<FieldConfig>
+: public simparm::ManagedChoiceEntry<FieldConfig>
 {
   private:
     template <int Field> void fill(BinningType type, std::string axis);

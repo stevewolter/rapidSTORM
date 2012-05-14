@@ -10,6 +10,7 @@
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -44,13 +45,13 @@ namespace engine {
         Entry< PixelVector2D > nms;
 
         /** The method to use for spot detection. */
-        simparm::NodeChoiceEntry<spot_finder::Factory> spotFindingMethod;
+        simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;
 
         simparm::Set weights;
         boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
 
         /** The method to use for spot fitting. */
-        simparm::NodeChoiceEntry< spot_fitter::Factory > spotFittingMethod;
+        simparm::ManagedChoiceEntry< spot_fitter::Factory > spotFittingMethod;
         
         /** Continue fitting until this number of bad fits occured. */
         Entry<unsigned long> motivation;

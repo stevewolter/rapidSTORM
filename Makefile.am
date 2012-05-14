@@ -312,7 +312,8 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/Spline3D.cpp \
     dStorm/threed_info/No3D.cpp \
     dStorm/threed_info/Lens3D.cpp \
-    dStorm/threed_info/look_up_sigma_diff.cpp
+    dStorm/threed_info/look_up_sigma_diff.cpp \
+    dStorm/make_clone_allocator.hpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
 libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS)

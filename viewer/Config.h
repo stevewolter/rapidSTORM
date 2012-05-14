@@ -7,6 +7,7 @@
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <simparm/Entry.hh>
@@ -30,7 +31,7 @@ class _Config : public simparm::Object {
     output::BasenameAdjustedFileEntry outputFile, density_matrix;
     outputs::DimensionSelector<Im::Dim> binned_dimensions;
     simparm::Entry<double> histogramPower, top_cutoff;
-    simparm::NodeChoiceEntry<ColourScheme> colourScheme;
+    simparm::ManagedChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
     simparm::Entry< CropBorder > border;
     simparm::Entry< boost::units::quantity<boost::units::si::microlength> > scale_bar_length;

@@ -5,6 +5,7 @@
 #include "OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
+#include <boost/ptr_container/ptr_map.hpp>
 
 namespace simparm {
     template <typename Type> class NodeChoiceEntry;
@@ -67,7 +68,7 @@ class FilterSource
     struct RemovalObject;
     std::auto_ptr< simparm::NodeChoiceEntry<RemovalObject> >
         removeSelector;
-    std::map< OutputSource*, RemovalObject* > removalObjects;
+    boost::ptr_map< OutputSource*, RemovalObject > removalObjects;
 
     /** \return true after initialize() was called. */
     bool is_initialized() const { return factory.get() != NULL; }

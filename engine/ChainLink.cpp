@@ -115,9 +115,9 @@ ChainLink::ChainLink(const ChainLink& c)
     receive_changes_from( config.spotFittingMethod.value );
     receive_changes_from( config.spotFindingMethod.value );
 
-    for ( simparm::NodeChoiceEntry< spot_fitter::Factory >::iterator 
-            i = config.spotFittingMethod.beginChoices(); 
-            i != config.spotFittingMethod.endChoices(); ++i )
+    for ( simparm::ManagedChoiceEntry< spot_fitter::Factory >::iterator 
+            i = config.spotFittingMethod.begin(); 
+            i != config.spotFittingMethod.end(); ++i )
     {
         i->register_trait_changing_nodes(*this);
     }

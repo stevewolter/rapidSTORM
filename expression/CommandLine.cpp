@@ -53,7 +53,7 @@ void CommandLine::publish() {
     if ( manager ) {
         std::auto_ptr<source::LValue> e;
         if ( expression() != "" )
-            e.reset( lvalue.value().make_lvalue() );
+            e.reset( lvalue().make_lvalue() );
         manager->expression_changed( getName(), e );
     }
 }

@@ -93,7 +93,7 @@ void _Config::add_listener( simparm::Listener& l ) {
     l.receive_changes_from( invert.value );
     l.receive_changes_from( border.value );
 
-    for ( simparm::NodeChoiceEntry<ColourScheme>::iterator i = colourScheme.beginChoices(); i != colourScheme.endChoices(); ++i)
+    for ( simparm::ManagedChoiceEntry<ColourScheme>::iterator i = colourScheme.begin(); i != colourScheme.end(); ++i)
         i->add_listener( l );
 }
 

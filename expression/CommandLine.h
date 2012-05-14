@@ -4,6 +4,7 @@
 #include "Source_decl.h"
 #include <simparm/Object.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include "Parser.h"
 #include "localization_variable_decl.h"
 #include <dStorm/localization/Traits.h>
@@ -47,7 +48,7 @@ struct CommandLine : public simparm::Object, public simparm::Listener {
 
     void registerNamedEntries();
 
-    typedef simparm::NodeChoiceEntry< LValue > LValues;
+    typedef simparm::ManagedChoiceEntry< LValue > LValues;
     LValues lvalue;
     simparm::StringEntry expression;
     boost::shared_ptr<Parser> parser;

@@ -77,11 +77,11 @@ void DimensionSelector<Dim>::set_visibility(const input::Traits<Localization>& t
 
 template <int Dim>
 std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_x() const
-    { return components[0].value().make_scaled_binner(); }
+    { return components[0]().make_scaled_binner(); }
 
 template <int Dim>
 std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_y() const {
-    std::auto_ptr<output::binning::Scaled> y( components[1].value().make_scaled_binner() );
+    std::auto_ptr<output::binning::Scaled> y( components[1]().make_scaled_binner() );
     if ( invert_y_axis() ) {
         boost::shared_ptr<output::binning::Scaled> base_y( y.release() );
         y.reset( new output::binning::Inversion<output::binning::Scaled>(base_y) );
@@ -91,7 +91,7 @@ std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_y() const 
 
 template <int Dim>
 std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_i() const 
-    { return components[Dim].value().make_unscaled_binner(); }
+    { return components[Dim]().make_unscaled_binner(); }
 
 template <int Dim>
 std::auto_ptr<BinningStrategy<Dim> > DimensionSelector<Dim>::make() const
@@ -100,12 +100,12 @@ std::auto_ptr<BinningStrategy<Dim> > DimensionSelector<Dim>::make() const
     for (int i = 0; i < Dim; ++i)
         if ( i == 1 && invert_y_axis() ) {
             boost::shared_ptr<output::binning::Scaled> base_y( 
-                components[i].value().make_scaled_binner().release() );
+                components[i]().make_scaled_binner().release() );
             spatial.replace( i, new output::binning::Inversion<output::binning::Scaled>(base_y) );
         } else if ( i == 2 && ! use_z_axis() ) {
             spatial.replace( i, new output::binning::Zero() );
         } else
-            spatial.replace( i, components[i].value().make_scaled_binner() );
+            spatial.replace( i, components[i]().make_scaled_binner() );
     return std::auto_ptr<BinningStrategy<Dim> >(
         new binning_strategy::ComponentWise<Dim>( spatial, make_i() ) );
 }
@@ -113,7 +113,7 @@ std::auto_ptr<BinningStrategy<Dim> > DimensionSelector<Dim>::make() const
 template <int Dim>
 std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_unscaled(int field) const
 {
-    return components[field].value().make_unscaled_binner();
+    return components[field]().make_unscaled_binner();
 }
 
 template <int Dim>

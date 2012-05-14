@@ -8,6 +8,7 @@
 #include <simparm/TreeEntry.hh>
 #include "SourceFactory_decl.h"
 #include "BasenameAdjustedFileEntry_decl.h"
+#include <boost/ptr_container/clone_allocator.hpp>
 
 namespace simparm { class FileEntry; }
 
@@ -71,6 +72,17 @@ template <typename OutputType>
 std::auto_ptr<OutputSource> make_output_source();
 
 }
+}
+
+namespace boost {
+
+template <>
+inline dStorm::output::OutputSource* new_clone<dStorm::output::OutputSource>( const dStorm::output::OutputSource& l )
+    { return l.clone(); }
+template <>
+inline void delete_clone<dStorm::output::OutputSource>(const dStorm::output::OutputSource* l) 
+    { delete l; }
+
 }
 
 #endif

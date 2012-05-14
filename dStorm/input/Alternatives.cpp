@@ -53,7 +53,7 @@ Alternatives::Alternatives(std::string name, std::string desc, bool auto_select)
 Alternatives::Alternatives(const Alternatives& o)
 : Choice(o), collector( o.collector->clone() )
 {
-    for ( simparm::NodeChoiceEntry<LinkAdaptor>::iterator i = choices.beginChoices(); i != choices.endChoices(); ++i ) {
+    for ( Choice::iterator i = choices.begin(); i != choices.end(); ++i ) {
         i->link().insert_new_node( std::auto_ptr< Link >(new UpstreamLink(*collector) ), Anywhere );
     }
 }

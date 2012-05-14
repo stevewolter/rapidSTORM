@@ -36,7 +36,7 @@ void FilterSource::registerNamedEntries()
         factory->reset_state();
 
         DEBUG("Registering entries");
-        removeSelector->viewable = (removeSelector->numChoices() > 0);
+        removeSelector->viewable = true;
         getNode().push_back( factory->getNode() );
         getNode().push_back( *removeSelector );
         receive_changes_from( factory->getNode() );
@@ -101,8 +101,10 @@ void FilterSource::add
 }
 
 void FilterSource::remove( OutputSource& src ) {
-    assert( removalObjects.find( &src ) != removalObjects.end() );
-    removeSelector->removeChoice( *removalObjects[&src] );
+    boost::ptr_map< OutputSource*, RemovalObject >::iterator i = removalObjects.find( &src );
+    assert( i != removalObjects.end() );
+    removeSelector->removeChoice( *i->second );
+    removalObjects.erase( i );
 }
 
 void FilterSource::operator()
@@ -127,7 +129,7 @@ void FilterSource::operator()
         }
     } else if (&e.source == &removeSelector->value ) {
         if ( removeSelector->isValid() ) {
-            remove( *removeSelector->value().src );
+            remove( *(*removeSelector)().src );
         }
     }
 }
@@ -152,8 +154,8 @@ void FilterSource::link_transmission
 
     std::auto_ptr<RemovalObject> removeNode( 
         new RemovalObject(nodeName.str(), src, outputs) );
-    removalObjects.insert( std::make_pair( src, removeNode.get() ) );
-    removeSelector->addChoice( removeNode );
+    removeSelector->addChoice( *removeNode );
+    removalObjects.insert( src, removeNode );
 
     removeSelector->viewable = true;
 }

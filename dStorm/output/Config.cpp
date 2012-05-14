@@ -54,7 +54,7 @@ ChoiceConfig::~ChoiceConfig()
 }
 
 Config::Config() 
-: simparm::NodeChoiceEntry<ChoiceConfig>
+: simparm::ManagedChoiceEntry<ChoiceConfig>
     ("ChooseTransmission", "Choose new output"),
   SourceFactory( static_cast<simparm::Node&>(*this) ),
   simparm::Node::Callback( simparm::Event::ValueChanged )
@@ -67,12 +67,13 @@ Config::Config()
 }
 
 Config::Config( const Config& other ) 
-: simparm::NodeChoiceEntry<ChoiceConfig>(other, 
-        simparm::NodeChoiceEntry<ChoiceConfig>::DeepCopy ),
+: simparm::ManagedChoiceEntry<ChoiceConfig>(other),
   SourceFactory( static_cast<simparm::Node&>(*this), other),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   my_capabilities( other.my_capabilities )
 {
+    for ( iterator i = begin(); i != end(); ++i )
+        this->simparm::NodeChoiceEntry<ChoiceConfig>::addChoice( *i );
     DEBUG("Copying output config");
     receive_changes_from( value );
 }
@@ -86,7 +87,7 @@ void Config::set_source_capabilities(Capabilities cap) {
     DEBUG("Notifying sources of new capabilities");
     my_capabilities = cap;
 
-    for ( iterator i = beginChoices(); i != endChoices(); i++) {
+    for ( iterator i = begin(); i != end(); i++) {
         i->get()->set_source_capabilities( cap );
     }
     DEBUG("Notified sources of new capabilities");
@@ -100,7 +101,7 @@ std::auto_ptr<OutputSource>
 Config::make_output_source() 
 {
     if ( isValid() ) {
-        std::auto_ptr<OutputSource> rv( value().get()->clone() );
+        std::auto_ptr<OutputSource> rv( active_choice()->clone() );
         rv->set_output_factory( *this );
         rv->set_source_capabilities( my_capabilities );
         return rv;
@@ -111,8 +112,8 @@ Config::make_output_source()
 
 void Config::addChoice(OutputSource *toAdd) {
     toAdd->set_source_capabilities( my_capabilities );
-    simparm::NodeChoiceEntry<ChoiceConfig>::addChoice(
-        new ChoiceConfig( std::auto_ptr<OutputSource>(toAdd) ) );
+    simparm::ManagedChoiceEntry<ChoiceConfig>::addChoice(
+        std::auto_ptr<ChoiceConfig>(new ChoiceConfig( std::auto_ptr<OutputSource>(toAdd) ) ) );
 }
 
 void Config::operator()(const simparm::Event& e)

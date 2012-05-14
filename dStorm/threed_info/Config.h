@@ -5,6 +5,7 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Direction.h>
 #include <simparm/Node.hh>
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace traits { class PlaneConfig; }
@@ -16,8 +17,7 @@ struct Config {
     virtual void read_traits( const DepthInfo&, const DepthInfo& ) = 0;
     virtual void set_context( ) = 0;
     virtual simparm::Node& getNode() = 0;
-    operator simparm::Node&() { return getNode(); }
-    operator const simparm::Node&() const { return const_cast<Config&>(*this).getNode(); }
+    const simparm::Node& getNode() const { return const_cast<Config&>(*this).getNode(); }
     virtual Config* clone() const = 0;
 };
 
@@ -31,5 +31,7 @@ std::auto_ptr< Config > make_lens_3d_config();
 
 }
 }
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::threed_info::Config)
 
 #endif

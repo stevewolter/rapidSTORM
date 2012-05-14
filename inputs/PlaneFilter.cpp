@@ -2,6 +2,8 @@
 #include "PlaneFilter.h"
 
 #include <simparm/BoostUnits.hh>
+#include <simparm/ObjectChoice.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry_Impl.hh>
 #include <simparm/Structure.hh>
@@ -20,12 +22,48 @@
 #include <dStorm/input/Method.hpp>
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <dStorm/units/frame_count.h>
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace plane_filter {
 
+struct PlaneSelection : public simparm::ObjectChoice {
+    PlaneSelection( std::string name, std::string desc ) : simparm::ObjectChoice(name,desc) {}
+    virtual PlaneSelection* clone() const = 0;
+    virtual bool selects_plane() const = 0;
+    virtual int plane_index() const = 0;
+};
+
+}
+}
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::plane_filter::PlaneSelection)
+
+namespace dStorm {
+namespace plane_filter {
+
+
+struct AllPlanes : public PlaneSelection {
+    AllPlanes() : PlaneSelection("AllPlanes", "All planes") {}
+    AllPlanes* clone() const { return new AllPlanes(*this); }
+    bool selects_plane() const { return false; }
+    int plane_index() const { throw std::logic_error("No plane selectable"); }
+};
+
+struct SinglePlane : public PlaneSelection {
+    int index;
+    SinglePlane(int index) 
+        : PlaneSelection("Plane" + boost::lexical_cast<std::string>(index), 
+                         "Plane " + boost::lexical_cast<std::string>(index)),
+          index(index) {}
+    SinglePlane* clone() const { return new SinglePlane(*this); }
+
+    bool selects_plane() const { return true; }
+    int plane_index() const { return index; }
+};
+
 struct Config : public simparm::Object {
-    simparm::ChoiceEntry which_plane;
+    simparm::ManagedChoiceEntry<PlaneSelection> which_plane;
 
     Config();
     void registerNamedEntries() { 
@@ -107,8 +145,8 @@ class ChainLink
     typedef Localization::ImageNumber::Traits TemporalTraits;
 
     void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& traits ) {
-        if ( config.which_plane() != -1 ) {
-            engine::InputPlane only = traits.plane( config.which_plane() );
+        if ( config.which_plane().selects_plane() ) {
+            engine::InputPlane only = traits.plane( config.which_plane().plane_index() );
             traits.clear();
             traits.push_back( only );
         }
@@ -119,11 +157,10 @@ class ChainLink
 
     void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
         config.which_plane.viewable = true;
-        for (int i = config.which_plane.numChoices()-1; i < t.plane_count(); ++i) {
-            std::string id = boost::lexical_cast<std::string>(i);
-            config.which_plane.addChoice( i, "Plane" + id, "Plane " + id );
+        for (int i = config.which_plane.size()-1; i < t.plane_count(); ++i) {
+            config.which_plane.addChoice( new SinglePlane(i) );
         }
-        for (int i = t.plane_count(); i < config.which_plane.numChoices()-1; ++i)
+        for (int i = t.plane_count(); i < config.which_plane.size()-1; ++i)
             config.which_plane.removeChoice( i );
     }
     template <typename Type>
@@ -135,8 +172,8 @@ class ChainLink
     input::Source<Type>* make_source( std::auto_ptr< input::Source<Type> > p ) 
         { return p.release(); }
     input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        if ( config.which_plane() != -1 )
-            return new Source( p, config.which_plane() );
+        if ( config.which_plane().selects_plane() )
+            return new Source( p, config.which_plane().plane_index() );
         else
             return p.release();
     }
@@ -151,7 +188,7 @@ Config::Config()
 : simparm::Object("PlaneFilter", "Image selection filter"),
   which_plane( "OnlyPlane", "Process only one plane" )
 {
-    which_plane.addChoice(-1, "AllPlanes", "All planes");
+    which_plane.addChoice( new AllPlanes() );
     which_plane.userLevel = simparm::Object::Expert;
 }
 

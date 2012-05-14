@@ -11,21 +11,40 @@
 #include <dStorm/input/Source.h>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Message.hh>
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
+#include <dStorm/make_clone_allocator.hpp>
 
 using namespace dStorm::engine;
 
 namespace dStorm {
 namespace Splitter {
 
+struct Split {
+    virtual ~Split() {}
+    virtual Split* clone() const = 0;
+    virtual input::Source<engine::ImageStack>* make_source
+        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) = 0;
+    virtual int split_dimension() const = 0;
+    virtual simparm::Node& getNode() = 0;
+    virtual const simparm::Node& getNode() const = 0;
+};
+
+}
+}
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::Splitter::Split)
+
+namespace dStorm {
+namespace Splitter {
+
+
 struct Config : public simparm::Object
 {
-    enum Splits { Horizontal, Vertical, None };
-
-    simparm::ChoiceEntry biplane_split;
+    simparm::ManagedChoiceEntry<Split> biplane_split;
     Config();
     void registerNamedEntries() { push_back(biplane_split); }
 };
@@ -45,6 +64,44 @@ class Source
     input::Source<engine::ImageStack>::iterator end();
 };
 
+struct NoSplit : public Split {
+    Split* clone() const { return new NoSplit(*this); }
+    input::Source<engine::ImageStack>* make_source
+        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
+        { return p.release(); }
+    int split_dimension() const { return -1; }
+    simparm::Node& getNode() { return node; }
+    const simparm::Node& getNode() const { return node; }
+
+    simparm::Object node;
+    NoSplit() : node("None", "None") {}
+};
+
+struct HorizontalSplit : public Split {
+    Split* clone() const { return new HorizontalSplit(*this); }
+    input::Source<engine::ImageStack>* make_source
+        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
+        { return new Source( false, p ); }
+    int split_dimension() const { return 0; }
+    simparm::Node& getNode() { return node; }
+    const simparm::Node& getNode() const { return node; }
+
+    simparm::Object node;
+    HorizontalSplit() : node("Horizontally", "Left and right") {}
+};
+
+struct VerticalSplit : public Split {
+    Split* clone() const { return new VerticalSplit(*this); }
+    input::Source<engine::ImageStack>* make_source
+        ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
+        { return new Source( true, p ); }
+    int split_dimension() const { return 1; }
+    simparm::Node& getNode() { return node; }
+    const simparm::Node& getNode() const { return node; }
+
+    simparm::Object node;
+    VerticalSplit() : node("Vertically", "Top and bottom") {}
+};
 
 class ChainLink
 : public input::Method<ChainLink>, public simparm::Listener
@@ -55,19 +112,12 @@ class ChainLink
     bool ignore_unknown_type() const { return true; }
 
     input::Source<engine::ImageStack>* make_source( std::auto_ptr< input::Source<engine::ImageStack> > p ) {
-        switch( config.biplane_split() ) {
-            case Config::Vertical: return new Source( true, p );
-            case Config::Horizontal: return new Source( false, p );
-            case Config::None: return p.release();
-            default: throw std::logic_error("Case fall-through");
-        }
+        return config.biplane_split().make_source( p );
     }
 
     void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& t ) {
-        if ( config.biplane_split() != Config::None ) {
-            const int d = (config.biplane_split() == Config::Vertical) ? 1 : 0;
-            split_planes( t, d );
-        }
+        int split_dim = config.biplane_split().split_dimension();
+        if ( split_dim > 0 ) split_planes( t, split_dim );
     }
 
     simparm::Structure<Config>& get_config() { return config; }
@@ -96,9 +146,10 @@ Config::Config()
 : simparm::Object("BiplaneSplitter", "Split dual view image"),
   biplane_split("DualView", "Dual view")
 {
-    biplane_split.addChoice( None, "None", "None" );
-    biplane_split.addChoice( Horizontal, "Horizontally", "Left and right" );
-    biplane_split.addChoice( Vertical, "Vertically", "Top and bottom" );
+    biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );
+    biplane_split.addChoice( std::auto_ptr<Split>( new HorizontalSplit() ) );
+    biplane_split.addChoice( std::auto_ptr<Split>( new VerticalSplit() ) );
+
     biplane_split.userLevel = simparm::Object::Intermediate;
 }
 

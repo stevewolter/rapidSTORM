@@ -4,7 +4,9 @@
 #include "SourceFactory.h"
 #include <simparm/Object.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <memory>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace dStorm {
 namespace output {
@@ -28,7 +30,7 @@ namespace output {
     };
 
     class Config
-    : public simparm::NodeChoiceEntry<ChoiceConfig>,
+    : public simparm::ManagedChoiceEntry<ChoiceConfig>,
       public SourceFactory,
       public simparm::Node::Callback
     {
@@ -44,7 +46,7 @@ namespace output {
 
         void addChoice(OutputSource *toAdd);
 
-        void reset_state() { value = NULL; }
+        void reset_state() { value = ""; }
         void operator()(const simparm::Event&);
     };
 

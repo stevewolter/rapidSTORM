@@ -58,7 +58,7 @@ Viewer::announceStormSize(const Announcement &a) {
     repeater = a.engine;
     this->manager = &a.display_manager();
     this->engine = a.engine;
-    implementation = config.colourScheme.value().make_backend(this->config, *this);
+    implementation = config.colourScheme().make_backend(this->config, *this);
     implementation->set_job_name( a.description );
     forwardOutput = &implementation->getForwardOutput();
     return forwardOutput->announceStormSize(a);
@@ -112,7 +112,7 @@ void Viewer::operator()(const simparm::Event& e) {
                 forwardOutput = &implementation->getForwardOutput();
             }
             behind_the_scenes.reset();
-            behind_the_scenes = config.colourScheme.value().make_backend(this->config, *this);
+            behind_the_scenes = config.colourScheme().make_backend(this->config, *this);
             behind_the_scenes->set_job_name( announcement->description );
             behind_the_scenes->getForwardOutput().announceStormSize(*announcement);
             boost::lock_guard<boost::mutex> lock(mutex);

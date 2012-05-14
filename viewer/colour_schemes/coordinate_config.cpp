@@ -31,7 +31,7 @@ void CoordinateConfig::add_listener( simparm::Listener& l ) {
 
 std::auto_ptr<Backend> CoordinateConfig::make_backend( Config& config, Status& status ) const
 {
-    return Backend::create< Coordinate >(Coordinate(config.invert(), choice.value().make_user_scaled_binner(), range()), status);
+    return Backend::create< Coordinate >(Coordinate(config.invert(), choice().make_user_scaled_binner(), range()), status);
 }
 
 }

@@ -3,6 +3,7 @@
 
 #include <simparm/Node.hh>
 #include <memory>
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace traits {
@@ -30,5 +31,7 @@ std::auto_ptr<ProjectionConfig> make_support_point_projection_config();
 
 }
 }
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::traits::ProjectionConfig)
 
 #endif

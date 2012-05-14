@@ -4,6 +4,7 @@
 #include <simparm/Node.hh>
 #include <memory>
 #include "Backend.h"
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace viewer {
@@ -12,9 +13,7 @@ struct ColourScheme {
     virtual ~ColourScheme() {}
     virtual ColourScheme* clone() const = 0;
     virtual simparm::Node& getNode() = 0;
-    operator simparm::Node&() { return getNode(); }
-    operator const simparm::Node&() const 
-        { return const_cast<ColourScheme&>(*this).getNode(); }
+    const simparm::Node& getNode() const { return const_cast<ColourScheme&>(*this).getNode(); }
 
     template <typename Scheme>
     static std::auto_ptr<ColourScheme> config_for();
@@ -25,5 +24,7 @@ struct ColourScheme {
 
 }
 }
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::viewer::ColourScheme)
 
 #endif

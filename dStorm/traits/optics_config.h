@@ -13,6 +13,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/Set.hh>
 #include <simparm/Entry_Impl.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 
 #include "position.h"
@@ -30,10 +31,10 @@ public:
 private:
     const Purpose purpose;
 
-    simparm::NodeChoiceEntry< threed_info::Config > three_d;
+    simparm::ManagedChoiceEntry< threed_info::Config > three_d;
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
-    simparm::NodeChoiceEntry< ProjectionConfig > alignment;
+    simparm::ManagedChoiceEntry< ProjectionConfig > alignment;
     typedef boost::ptr_vector< simparm::Entry<double> > Transmissions;
     Transmissions transmissions;
     typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > PixelSize;
