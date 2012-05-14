@@ -24,7 +24,7 @@ struct Evaluator
         return true;
     }
 
-    void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs ) // change to   Eigen::Array<Num,ChunkSize,3>& xs  ???
+    void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )
     {
         Eigen::Array<Num, 1, 3> subpixel_in_um;
         for (int row = 0; row < ChunkSize; ++row) {
@@ -37,7 +37,7 @@ struct Evaluator
 
     Num get_psf_value(Eigen::Array<Num, 1, 3>)
     {
-        return Num =0;
+        return static_cast<Num>( 0 );
     }
 
     void value( Eigen::Array<Num,ChunkSize,1>& result ) { // return value_psf

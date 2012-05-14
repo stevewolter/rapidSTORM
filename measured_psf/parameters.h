@@ -19,7 +19,6 @@ template <int _Dimension> struct Mean {
     static const int Dimension = _Dimension;
     typedef LengthUnit Unit;
 };
-struct MeanZ { typedef Micrometers Unit; };
 struct Amplitude {
     typedef si::dimensionless Unit;
 };
