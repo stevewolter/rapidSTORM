@@ -7,7 +7,6 @@ Config::Config()
 :   simparm::Object("FitPSFForm", "Estimate PSF form"),
     multiplane( "MultiPlane", "Multi-layer specific options"),
     polynomial_3d( "Polynomial", "Polynomial 3D specific options"),
-    auto_disable("AutoDisable", "Raise no error for missing source images", false), 
     mle("FormMLE", "Use MLE to fit PSF form", false), 
     number_of_spots("EstimationSpots", "Number of spots used in estimation", 40),
     max_per_image("MaxEstimationSpotsPerImage", "Number of spots used per image", 15.0),
@@ -17,7 +16,6 @@ Config::Config()
     z_is_truth("ZIsTruth", "Z position is ground truth", false),
     fit_window_width("FitWindowWidth", "Fit window radius", FitWindowWidth::Constant(600 * si::nanometre) )
 {
-    auto_disable.userLevel = simparm::Object::Debug;
 }
 
 void Config::registerNamedEntries() {
@@ -28,7 +26,6 @@ void Config::registerNamedEntries() {
     polynomial_3d.push_back( z_is_truth );
     FormCalibrationConfig::register_polynomial3d_entries( polynomial_3d );
 
-    push_back( auto_disable );
     push_back( number_of_spots );
     push_back( max_per_image );
     push_back( visual_selection );

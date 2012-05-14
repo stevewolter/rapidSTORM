@@ -303,6 +303,85 @@
       <refsection>
          <title>Synopsis</title>
       </refsection>
+      <refsection>
+         <title>Configuration items</title>
+         <et:elem topic="EstimatePSF_FormMLE" desc="Use MLE to fit PSF form">
+            Optimize for maximum likelihood (ML) of the data with the optimized model
+            instead of minimizing the squared deviations. You should use the same distance
+            model for fitting the PSF as you configured in the engine.
+         </et:elem>
+         <et:elem topic="EstimatePSF_EstimationSpots" desc="Number of spots used in estimation">
+            This option configures the total number of spots that are used to fit the PSF
+            form. Localizations are scanned and presented until this number of spots is
+            selected.
+         </et:elem>
+         <et:elem topic="EstimatePSF_MaxEstimationSpotsPerImage" desc="Number of spots used per image">
+            This option configures the maximum number of spots that are eligible for estimation
+            in each source image. The spots with the highest amplitude are selected, the rest
+            is discarded and not shown in the selection window. If this number is exceeded, the
+            rest of the spots in an image is not displayed. A fractional number can be entered
+            in this field, translating to one spot being picked in each n-th frame. For example,
+            a value of 0.25 selects one spot every fourth frame.
+         </et:elem>
+         <et:elem topic="EstimatePSF_SelectSpots" desc="Manually select good spots">
+            If this option is checked, the selection window (as described above) is shown. Otherwise,
+            all eligible spots are used in estimation.
+         </et:elem>
+         <et:elem topic="EstimatePSF_LaempiPosition" desc="Laempi fit for positions">
+            When fitting multiple layers, fit fluorophore positions in all layers independently.
+            This can mitigate an imprecise plane alignment at the cost of reduced precision.
+         </et:elem>
+         <et:elem topic="EstimatePSF_LaempiAmplitudes" desc="Disjoint amplitude fit">
+            When fitting multiple layers, fit intensities in all layers independently.
+            This allows fitting a multi-plane data set without knowing the prefactors
+            or making assumptions about fluorophore populations, at the cost of reduced
+            precision and the inability to fit transmission coefficients.
+         </et:elem>
+         <et:elem topic="EstimatePSF_ZIsTruth" desc="Z position is ground truth">
+            Treat the fluorophore's Z position as ground truth, i.e. do not fit it. This
+            option is useful when calibrating polynomial 3D and in conjunction with setting
+            a ground-truth Z position in the <xref linkend="ExpressionFilter"/> output.
+         </et:elem>
+         <et:elem topic="EstimatePSF_FitWindowWidth" desc="Fit window radius">
+            Include all pixels into the fit window that are closer than this radius to the
+            selected spot. This is currently an L1 distance.
+         </et:elem>
+         <et:elem topic="EstimatePSF_CircularPSF" desc="Assume circular PSF">
+            Assume that the PSF has the same parameters in X and Y, and fit these parameters
+            in common. Enhances estimation precision and stability at the cost of flexibility and thruthful
+            replication of the PSF.
+            This option applies to PSF width and 3D widening factors, but not to the
+            focus plane coordinates, which are controlled by <xref linkend="EstimatePSF_Astigmatism"/>
+         </et:elem>
+         <et:elem topic="EstimatePSF_Astigmatism" desc="Allow astigmatism">
+            Allow the X and Y focal planes to differ. If this option is unchecked, both planes
+            are set to the same value and fitted together. Checking this option allows fitting
+            data on an astigmatic 3D setup, e.g. with a cylindrical lens.
+         </et:elem>
+         <et:elem topic="EstimatePSF_UniversalBestSigma" desc="PSF FWHM common to all layers">
+            Assume that the PSF FWHM is the same in all layers, and fit it as a common coordinate.
+            This option is related, but orthogonal to <xref linkend="EstimatePSF_CircularPSF"/>.
+         </et:elem>
+         <et:elem topic="EstimatePSF_UniversalWidening" desc="3D widening common to all layers">
+            Assume that the polynomial 3D widening parameters are the same in all layers, and fit 
+            them as common coordinates.
+         </et:elem>
+         <et:elem topic="EstimatePSF_FitBestSigma" desc="Fit PSF FWHM">
+            When this option is checked, the width of the PSF will be fitted to the data. 
+            Otherwise, it will be treated as ground truth and not changed. If the PSF FWHM has
+            been established reliably on other measurements, disabling this option enhances
+            estimation stability and reliability.
+         </et:elem>
+         <et:elem topic="EstimatePSF_FitFocusPlane" desc="Fit focus plane Z coordinate">
+            When this option is checked, the Z position of the best-focused planes (i.e. the Z
+            positions at which the X and Y PSF FWHMs are smallest, respectively) will be fitted
+            to the data.
+         </et:elem>
+         <et:elem topic="EstimatePSF_FitPrefactors" desc="Fit transmission factors">
+            When this option is checked, the fluorophore transmission factors are fitted to the
+            data. This allows for straightforward multi-color calibration on live data.
+         </et:elem>
+      </refsection>
    </refentry>
 
    <refentry id="SigmaDiff3D">

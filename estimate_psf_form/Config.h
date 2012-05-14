@@ -28,7 +28,7 @@ namespace si = boost::units::si;
 struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConfig
 {
     simparm::Set multiplane, polynomial_3d;
-    simparm::BoolEntry auto_disable, mle;
+    simparm::BoolEntry mle;
     simparm::Entry<unsigned long> number_of_spots; 
     simparm::Entry<double> max_per_image;
     simparm::BoolEntry visual_selection, laempi_fit, disjoint_amplitudes, z_is_truth;

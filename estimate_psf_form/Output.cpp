@@ -67,10 +67,7 @@ Output::announceStormSize(const Announcement& a)
         );
     } 
 
-    if ( a.input_image_traits.get() == NULL && config.auto_disable() )
-        return AdditionalData();
-    else
-        input.reset( new Input( config, a, config.fit_window_width().cast<guf::Spot::Scalar>() ) );
+    input.reset( new Input( config, a, config.fit_window_width().cast<guf::Spot::Scalar>() ) );
 
     seen_fluorophores = std::vector<bool>( input->fluorophore_count, false );
 

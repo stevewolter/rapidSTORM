@@ -25,6 +25,14 @@ FormCalibrationConfig::FormCalibrationConfig()
   fit_focus_plane_( "FitFocusPlane", "Fit focus plane Z coordinate", false ),
   fit_prefactors_( "FitPrefactors", "Fit transmission factors", true )
 {
+    circular_psf_.helpID = "EstimatePSF_CircularPSF";
+    astigmatism_.helpID = "EstimatePSF_Astigmatism";
+    universal_best_sigma_.helpID = "EstimatePSF_UniversalBestSigma";
+    universal_prefactors_.helpID = "EstimatePSF_UniversalWidening";
+    fit_best_sigma_.helpID = "EstimatePSF_FitBestSigma";
+    fit_focus_plane_.helpID = "EstimatePSF_FitFocusPlane";
+    fit_prefactors_.helpID = "EstimatePSF_FitPrefactors";
+
     BOOST_STATIC_ASSERT( int(sizeof(term_names) / sizeof(term_names[0])) >= polynomial_3d::Order );
     for (int i = 0; i < polynomial_3d::Order; ++i)
         z_terms[i] = boost::in_place( term_names[i] + std::string("Term"), 

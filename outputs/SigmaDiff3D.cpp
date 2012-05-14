@@ -38,7 +38,10 @@ class SigmaDiff3D::_Config : public simparm::Object {
 
     _Config() 
         : Object("SigmaDiff3D", "Look up 3D via sigma difference"),
-          calibration_file("SigmaCalibrationFile", "Calibration file") {}
+          calibration_file("SigmaCalibrationFile", "Calibration file") 
+    {
+        calibration_file.helpID = "SigmaDiff3D_CalibrationFile";
+    }
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }
