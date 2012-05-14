@@ -112,7 +112,7 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
     for ( FluoSets::const_iterator i = cp.fluorophore_sets.begin();
                                    i != cp.fluorophore_sets.end(); ++i)
         add_fluo_set( std::auto_ptr<FluorophoreSetConfig>(
-            new FluorophoreSetConfig(**i) ) );
+            new FluorophoreSetConfig(*i) ) );
     registerNamedEntries();
 }
 
@@ -143,8 +143,8 @@ void NoiseConfig::create_fluo_set()
 
 void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
 {
-    fluorophore_sets.push_back( s.get() );
-    this->simparm::Node::push_back( std::auto_ptr<simparm::Node>(s) );
+    this->simparm::Node::push_back( *s );
+    fluorophore_sets.push_back( s );
 }
 
 std::auto_ptr< boost::ptr_list<Fluorophore> >
@@ -236,7 +236,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
             i != config.get_fluorophore_sets().end(); ++i)
     {
         std::auto_ptr<FluorophoreList> l = 
-            (*i)->create_fluorophores( *t, rng, config, progress );
+            i->create_fluorophores( *t, rng, config, progress );
         fluorophores.transfer( fluorophores.end(), *l );
     }
 }

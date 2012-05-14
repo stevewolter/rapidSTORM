@@ -91,7 +91,7 @@ namespace input_simulation {
       public simparm::TreeListener
     {
       public:
-        typedef std::list< FluorophoreSetConfig* > FluoSets;
+        typedef boost::ptr_list< FluorophoreSetConfig > FluoSets;
         const FluoSets& get_fluorophore_sets() const
             { return fluorophore_sets; }
       private:

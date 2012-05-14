@@ -46,6 +46,8 @@ class ChainLink : public input::Method< ChainLink >
 
 class STMEngine : public input::Forwarder
 {
+    simparm::Object node;
+
     void traits_changed( TraitsRef orig, Link* ) {
         if ( orig.get() )
             if ( orig->provides< output::LocalizedImage >() )
@@ -61,10 +63,11 @@ class STMEngine : public input::Forwarder
     STMEngine* clone() const { return new STMEngine(*this); }
     void registerNamedEntries( simparm::Node& at ) {
         input::Forwarder::registerNamedEntries( at );
-        at.push_back( std::auto_ptr<simparm::Node>( new simparm::Object(name(), description()) ) );
+        at.push_back( node );
     }
 
   public:
+    STMEngine() : node(name(), description()) {}
     std::string name() const { return "LocalizationBuncher"; }
     std::string description() const { return "Replay stored localizations"; }
 };

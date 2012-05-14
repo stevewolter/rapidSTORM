@@ -49,6 +49,8 @@ class TwiddlerLauncher
 };
 
 void CommandLine::parse( int argc, char *argv[] ) {
+    TransmissionTreePrinter printer(config);
+    TwiddlerLauncher launcher(config, main_thread);
     simparm::IO argument_parser(NULL,NULL);
 
     for ( int i = 0; i < argc; i++ ) {
@@ -56,12 +58,8 @@ void CommandLine::parse( int argc, char *argv[] ) {
     }
 
     config.registerNamedEntries( argument_parser );
-    argument_parser.push_back(
-        std::auto_ptr<simparm::Node>(new
-            TransmissionTreePrinter(config)));
-    argument_parser.push_back(
-        std::auto_ptr<simparm::Node>(new
-            TwiddlerLauncher(config, main_thread)));
+    argument_parser.push_back( printer );
+    argument_parser.push_back( launcher );
     argument_parser.push_back( starter );
     if ( display::Manager::getSingleton().getConfig() )
         argument_parser.push_back( *display::Manager::getSingleton().getConfig() );
