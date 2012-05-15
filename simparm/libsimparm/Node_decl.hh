@@ -1,0 +1,3 @@
+namespace simparm {
+class Node;
+}

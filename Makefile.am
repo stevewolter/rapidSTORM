@@ -1,4 +1,4 @@
-SUBDIRS = doc
+SUBDIRS = doc simparm
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
@@ -17,7 +17,8 @@ DEJATOOL = dstorm
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
 bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
-lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
+noinst_LTLIBRARIES = libdStorm.la 
+lib_LTLIBRARIES = librapidstormfile.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM.jar 
 applications_DATA=rapidstorm.desktop
@@ -316,7 +317,7 @@ libdStorm_la_SOURCES = \
     dStorm/make_clone_allocator.hpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
-libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS)
+libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) simparm/libsimparm/libsimparm.la
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 
 librapidstormfile_la_SOURCES = \
@@ -336,6 +337,7 @@ dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
+dstorm_LDADD += simparm/libsimparm/libsimparm.la
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \

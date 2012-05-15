@@ -1,0 +1,31 @@
+#include "../config.h"
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION @LIBSIMPARM_CURRENT@,@LIBSIMPARM_AGE@,@LIBSIMPARM_REVISION@,0
+PRODUCTVERSION PACKAGE_MAJOR_VERSION,PACKAGE_MINOR_VERSION,PACKAGE_POINT_VERSION,0
+FILEFLAGS   VS_FFI_FILEFLAGSMASK
+FILEOS   VOS_NT
+FILETYPE VFT_DLL
+FILESUBTYPE 0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      "Simparm"
+            VALUE "License",      "Lesser GNU Public License v2"
+            VALUE "FileDescription",  "Scientific parameter configuration and visualization library"
+            VALUE "FileVersion",      PACKAGE_VERSION
+            VALUE "InternalName",     "libsimparm-@PACKAGE_MAJOR_VERSION@"
+            VALUE "LegalCopyright",   "(C) 2008-2010 Kevin Pulo, Steve Wolter"
+            VALUE "OriginalFilename", "libsimparm-@PACKAGE_MAJOR_VERSION@.dll"
+            VALUE "ProductName",      "@PACKAGE_NAME@"
+            VALUE "ProductVersion",   "@PACKAGE_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

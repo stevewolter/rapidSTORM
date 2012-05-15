@@ -52,7 +52,7 @@ ACX_PTHREAD(
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
 
-PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator libsimparm])
+PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"
 LIBS="$base_LIBS $LIBS"
 
@@ -176,19 +176,11 @@ fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-if test -z "$twiddler_jar"; then
-    f="`pkg-config --variable=prefix libsimparm`/share/java/twiddler.jar"
-    test -e "$f" && twiddler_jar="$f"
-fi
-if test -z "$twiddler_jar"; then
-    f="$prefix/share/java/twiddler.jar"
-    test -e "$f" && twiddler_jar="$f"
-fi
-AC_SUBST([TWIDDLER_JAR], "$twiddler_jar")
+AC_SUBST([TWIDDLER_JAR], "simparm/twiddler/twiddler.jar")
 
 AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" -a "x$twiddler_jar" != "x"])
 
-AC_CONFIG_SUBDIRS([doc])
+AC_CONFIG_SUBDIRS([doc simparm])
 
 AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
 AC_SUBST([setupstagedir], "$with_stage_dir")
