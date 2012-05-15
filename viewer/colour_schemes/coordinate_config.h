@@ -20,6 +20,7 @@ struct CoordinateConfig : public ColourScheme
     CoordinateConfig* clone() const { return new CoordinateConfig(*this); }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
     void add_listener( simparm::Listener& );
+    void attach_ui( simparm::Node& );
 };
 
 }

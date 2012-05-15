@@ -111,6 +111,8 @@ class Node : public Publisher {
     void remove_thread_safety();
 };
 
+typedef Node& NodeRef;
+
 }
 
 #endif

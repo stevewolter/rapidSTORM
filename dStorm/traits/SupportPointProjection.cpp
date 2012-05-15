@@ -131,22 +131,19 @@ class SupportPointProjectionConfig
     SupportPointProjectionConfig* clone_() const 
         { return new SupportPointProjectionConfig(*this); }
 
+    void attach_ui( simparm::Node& at ) {
+        simparm::NodeRef r = attach_parent(at);
+        micro_alignment.attach_ui( r );
+        resolution.attach_ui( r ); 
+    }
+
   public:
     SupportPointProjectionConfig() 
     : ProjectionConfig("SupportPointProjection", "Support point alignment"),
       micro_alignment("AlignmentFile", "bUnwarpJ transformation"),
       resolution( "Resolution", "Transformation resolution", 
                   PixelSize::Constant(10.0f * si::nanometre / camera::pixel) )
-    { 
-        micro_alignment.attach_ui( ObjectChoice::node );
-        resolution.attach_ui( ObjectChoice::node ); 
-    }
-    SupportPointProjectionConfig( const SupportPointProjectionConfig& o )
-    : ProjectionConfig(o), micro_alignment(o.micro_alignment), resolution(o.resolution)
-    {
-        micro_alignment.attach_ui( ObjectChoice::node );
-        resolution.attach_ui( ObjectChoice::node ); 
-    }
+        {}
 };
 
 std::auto_ptr<ProjectionConfig> make_support_point_projection_config() {

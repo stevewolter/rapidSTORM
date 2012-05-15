@@ -89,16 +89,15 @@ class AffineProjectionConfig
     AffineProjectionConfig* clone_() const 
         { return new AffineProjectionConfig(*this); }
 
+    void attach_ui( simparm::Node& at ) {
+        micro_alignment.attach_ui( attach_parent(at) );
+    }
+
   public:
     AffineProjectionConfig() 
     : ProjectionConfig("AffineProjection", "Linear alignment"),
       micro_alignment("AlignmentFile", "Plane Alignment file") 
-      { micro_alignment.attach_ui( this->node ); }
-    AffineProjectionConfig( const AffineProjectionConfig& o )
-    : ProjectionConfig(o), micro_alignment(o.micro_alignment) 
-    {
-        micro_alignment.attach_ui( this->node );
-    }
+      {}
 };
 
 std::auto_ptr<ProjectionConfig> make_affine_projection_config() {

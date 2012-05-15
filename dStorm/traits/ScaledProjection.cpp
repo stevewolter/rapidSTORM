@@ -65,6 +65,7 @@ class ScaledProjectionConfig
         { return new ScaledProjectionFactory(); }
     ProjectionConfig* clone_() const 
         { return new ScaledProjectionConfig(*this); }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 
   public:
     ScaledProjectionConfig() : ProjectionConfig("ScaledProjection", "No alignment") {}

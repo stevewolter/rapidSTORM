@@ -38,8 +38,9 @@ Object::~Object() {
     clearParents(); 
 }
 
-void Object::attach_ui( simparm::Node& node ) {
+NodeRef Object::attach_ui( simparm::Node& node ) {
     node.push_back( *this );
+    return *this;
 }
 
 void Object::detach_ui( simparm::Node& node ) {

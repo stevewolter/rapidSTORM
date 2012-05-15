@@ -60,14 +60,6 @@ LocalizationConfig<Field>::LocalizationConfig(std::string axis, int row, int col
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {
     resolution.helpID = "#Viewer_ResEnh";
-    resolution.attach_ui( this->node );
-}
-
-template <int Field>
-LocalizationConfig<Field>::LocalizationConfig(const LocalizationConfig<Field>& o) 
-: FieldConfig(o), row(o.row), column(o.column), resolution(o.resolution), range(o.range)
-{ 
-    if ( ! range.is_initialized() ) resolution.attach_ui(this->node); 
 }
 
 template <int Field>
@@ -123,7 +115,7 @@ void LocalizationConfig<Field>::set_visibility(
     else 
         v = output::binning::Localization<Field, ScaledByResolution>::can_work_with(t, row, column);
 
-    this->node.viewable = v;
+    set_viewability(v);
 }
 
 template <int Field>

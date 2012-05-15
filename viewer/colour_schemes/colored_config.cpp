@@ -28,17 +28,18 @@ ColoredConfig::ColoredConfig()
                        "in the display. Saturation 0 means no color (pure "
                        "black to pure white) and 1 means fully saturated "
                        "color.");
-
-    hue.attach_ui(this->node);
-    saturation.attach_ui( this->node );
 }
 
 ColoredConfig::ColoredConfig(const ColoredConfig& o)
 : ColourScheme(o),
   hue(o.hue), saturation(o.saturation)
 {
-    hue.attach_ui(this->node);
-    saturation.attach_ui( this->node );
+}
+
+void ColoredConfig::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef r = attach_parent(at);
+    hue.attach_ui(r);
+    saturation.attach_ui(r);
 }
 
 void ColoredConfig::add_listener( simparm::Listener& l ) {

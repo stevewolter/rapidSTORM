@@ -69,6 +69,7 @@ struct NoSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return p.release(); }
     int split_dimension() const { return -1; }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 
     NoSplit() : Split("None", "None") {}
 };
@@ -79,6 +80,7 @@ struct HorizontalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( false, p ); }
     int split_dimension() const { return 0; }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 
     HorizontalSplit() : Split("Horizontally", "Left and right") {}
 };
@@ -89,6 +91,7 @@ struct VerticalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( true, p ); }
     int split_dimension() const { return 1; }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 
     VerticalSplit() : Split("Vertically", "Top and bottom") {}
 };

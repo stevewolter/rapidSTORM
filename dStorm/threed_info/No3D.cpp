@@ -32,8 +32,8 @@ class No3DConfig : public Config {
     }
     void set_context() {}
     void attach_ui( simparm::Node& to ) { 
-        psf_size.attach_ui( this->node );
-        this->node.attach_ui(to); 
+        simparm::NodeRef r = attach_parent(to);
+        psf_size.attach_ui( r );
     }
   public:
     No3DConfig() 

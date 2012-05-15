@@ -33,7 +33,7 @@ class Object : public Node {
         { this->viewable = viewable; }
     void setUserLevel(UserLevel level)
         { this->userLevel = level; }
-    void attach_ui( simparm::Node& node );
+    NodeRef attach_ui( simparm::Node& node );
     void detach_ui( simparm::Node& node );
 
     virtual Object *clone() const { return new Object(*this); }

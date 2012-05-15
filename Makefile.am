@@ -295,7 +295,7 @@ libdStorm_la_SOURCES = \
     dStorm/make_clone_allocator.hpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
-libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) simparm/libsimparm/libsimparm.la
+libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) simparm/libsimparm.la
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
 
 librapidstormfile_la_SOURCES = \
@@ -315,7 +315,7 @@ dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
-dstorm_LDADD += simparm/libsimparm/libsimparm.la
+dstorm_LDADD += simparm/libsimparm.la
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \

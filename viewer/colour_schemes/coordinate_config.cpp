@@ -12,15 +12,11 @@ CoordinateConfig::CoordinateConfig()
   choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval, "Hue"),
   range("HueRange", "Range of hue", 0.666)
 {
-    choice.attach_ui( this->node );
-    range.attach_ui( this->node );
 }
 
 CoordinateConfig::CoordinateConfig(const CoordinateConfig& o) 
 : ColourScheme(o), choice(o.choice), range(o.range)
 {
-    choice.attach_ui( this->node );
-    range.attach_ui( this->node );
 }
 
 void CoordinateConfig::add_listener( simparm::Listener& l ) {
@@ -28,6 +24,11 @@ void CoordinateConfig::add_listener( simparm::Listener& l ) {
     l.receive_changes_from( range.value );
 }
 
+void CoordinateConfig::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef r = attach_parent(at);
+    choice.attach_ui( r );
+    range.attach_ui( r );
+}
 
 std::auto_ptr<Backend> CoordinateConfig::make_backend( Config& config, Status& status ) const
 {

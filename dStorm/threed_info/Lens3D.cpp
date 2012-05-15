@@ -22,19 +22,16 @@ class Lens3DConfig : public Config {
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) 
         { throw std::logic_error("Not implemented"); }
     void set_context() {}
-    void registerNamedEntries() { z_position.attach_ui( this->node ); }
+    void attach_ui( simparm::Node& at ) {
+        simparm::NodeRef r = attach_parent(at);
+        z_position.attach_ui( r ); 
+    }
   public:
     Lens3DConfig() 
         : Config("Lens3D", "Theoretical 3D"),
           z_position("ZPosition", "Z position", 0.0 * boost::units::si::nanometre) 
-    { 
-        registerNamedEntries(); 
-    }
-    Lens3DConfig* clone() const { 
-        Lens3DConfig* p = new Lens3DConfig(*this); 
-        p->registerNamedEntries();
-        return p;
-    }
+    {}
+    Lens3DConfig* clone() const { return new Lens3DConfig(*this); }
 };
 
 std::auto_ptr< Config > make_lens_3d_config() 

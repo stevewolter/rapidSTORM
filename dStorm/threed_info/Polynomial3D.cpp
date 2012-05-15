@@ -94,11 +94,11 @@ class Polynomial3DConfig : public Config {
     void read_traits( const DepthInfo&, const DepthInfo& );
     void set_context() { }
     void attach_ui( simparm::Node& to ) { 
-        psf_size.attach_ui( this->node );
-        z_position.attach_ui( this->node );
-        slopes.attach_ui( this->node ); 
-        z_range.attach_ui( this->node ); 
-        this->node.attach_ui(to); 
+        simparm::NodeRef r = attach_parent(to);
+        psf_size.attach_ui( r );
+        z_position.attach_ui( r );
+        slopes.attach_ui( r ); 
+        z_range.attach_ui( r ); 
     }
   public:
     Polynomial3DConfig();

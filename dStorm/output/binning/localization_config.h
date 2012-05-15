@@ -26,11 +26,16 @@ class LocalizationConfig : public FieldConfig
     simparm::Entry<Resolution> resolution;
     boost::optional<float> range;
 
+    void attach_ui( simparm::Node& at ) {
+        simparm::NodeRef r = attach_parent(at);
+        if ( ! range.is_initialized() ) 
+            resolution.attach_ui(r);
+    }
+
   public:
     LocalizationConfig(std::string axis, int row, int column) ;
     LocalizationConfig(std::string axis, float range, int row, int column) ;
 
-    LocalizationConfig( const LocalizationConfig& o);
     LocalizationConfig* clone() const { return new LocalizationConfig(*this); }
 
     std::auto_ptr<Scaled> make_scaled_binner() const ;

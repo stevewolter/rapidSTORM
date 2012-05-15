@@ -108,8 +108,8 @@ class Spline3DConfig : public Config {
         { z_calibration_file = ""; }
     void set_context() {}
     void attach_ui( simparm::Node& to ) { 
-        z_calibration_file.attach_ui( this->node );
-        this->node.attach_ui(to); 
+        simparm::NodeRef r = attach_parent(to); 
+        z_calibration_file.attach_ui( r );
     }
   public:
     Spline3DConfig() 

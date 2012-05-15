@@ -94,6 +94,7 @@ namespace locprec {
     class SegmentationMethod : public simparm::ObjectChoice {
         Segmenter::SegmentationType method;
     public:
+        void attach_ui( simparm::Node& at ) { attach_parent(at); }
         SegmentationMethod( Segmenter::SegmentationType method, std::string name, std::string desc )
             : simparm::ObjectChoice(name,desc), method(method) {}
         SegmentationMethod* clone() const { return new SegmentationMethod(*this); }
