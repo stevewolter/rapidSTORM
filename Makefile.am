@@ -1,4 +1,4 @@
-SUBDIRS = doc simparm
+SUBDIRS = doc simparm java_gui
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
@@ -6,8 +6,6 @@ AUTOMAKE_OPTIONS = subdir-objects dejagnu
 include aminclude.am
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
-javadir=$(datadir)/java
-javabuilddir = classes
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
@@ -20,22 +18,18 @@ check_PROGRAMS = $(C_TESTS)
 noinst_LTLIBRARIES = libdStorm.la 
 lib_LTLIBRARIES = librapidstormfile.la
 if CAN_BUILD_TWIDDLER
-java_DATA = rapidSTORM.jar 
 applications_DATA=rapidstorm.desktop
 endif
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = version.txt dstorm-config.txt
 pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
 
-JAVASOURCES = DStorm.java DefaultPath.java
-JARCONTENT = logo.png
-
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
     AM_RUNTESTFLAGS += --target_board $(TELNET_HOST)
 endif
 
-EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc dStorm/windows_resources.rc \
+EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     Doxyfile.in gaussian_psf/make_psf.sh \
     dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
     dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
@@ -93,26 +87,10 @@ EXTRA_DIST = DStorm.java DefaultPath.java.in $(JARCONTENT)  windows_resources.rc
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
-	java-built-stamp DefaultPath.java \
 	dstorm-config.txt version.txt
 
-java-built-stamp : $(JAVASOURCES)
-	$(MKDIR_P) $(javabuilddir)
-	$(JAVAC) -classpath $(CLASSPATH):$(TWIDDLER_JAR): -d $(javabuilddir) $^
-	touch $@
-
-DefaultPath.java : $(srcdir)/DefaultPath.java.in
-	$(SED) -e 's:[@]prefix[@]:$(prefix):g' \
-	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
-	    $< > $@
-
-rapidSTORM.jar : java-built-stamp manifest $(TWIDDLER_JAR) $(JARCONTENT)
-	cp $(TWIDDLER_JAR) $@
-	$(JAR) -uMf $@ -C $(srcdir) $(JARCONTENT) -C $(javabuilddir) .
-	$(JAR) -umf manifest $@
-
 clean-local :
-	-rm -fr $(javabuilddir) test-temp-dir
+	-rm -fr test-temp-dir
 
 TESTS = $(C_TESTS)
 

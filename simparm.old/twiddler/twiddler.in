@@ -1,5 +1,0 @@
-#!/bin/bash
-
-prefix=@prefix@
-exec java -jar @datarootdir@/java/twiddler.jar "$@"
-

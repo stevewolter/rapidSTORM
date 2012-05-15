@@ -1,6 +1,6 @@
 javabuilddir = classes
 javadir = $(datadir)/java
-java_DATA = twiddler.jar
+java_DATA = rapidSTORM.jar
 SOURCES = ConfigEntryBool.java ConfigEntryButton.java \
    ConfigEntryCheckbox.java ConfigEntryChoice.java ConfigEntryChooser.java \
    ConfigEntryFile.java ConfigEntryFloat.java ConfigEntryInteger.java \
@@ -14,17 +14,25 @@ SOURCES = ConfigEntryBool.java ConfigEntryButton.java \
    ConfigEntryFloat.java ConfigMessage.java \
    ConfigURI.java ConfigMenu.java \
    NumberField.java NumberFieldListener.java NumberParser.java \
-   SliderNumberField.java
+   SliderNumberField.java DStorm.java 
+JARCONTENT = logo.png
+JAVASOURCES = $(SOURCES) DefaultPath.java
 
-EXTRA_DIST=$(SOURCES) manifest stock-hchain-24.png stock-hchain-broken-24.png
+EXTRA_DIST=$(SOURCES) $(JARCONTENT) stock-hchain-24.png stock-hchain-broken-24.png \
+    DefaultPath.java.in 
 
-dist_bin_SCRIPTS=replay_twiddler_script.sh twiddler
+CLEANFILES = DefaultPath.java
 
-twiddler.jar : $(SOURCES)
+rapidSTORM.jar : $(JAVASOURCES) manifest
 	$(MKDIR_P) $(javabuilddir)
-	$(JAVAC) -d $(javabuilddir) $^
+	$(JAVAC) -d $(javabuilddir) $(filter %.java,$^)
 	ln -f $(srcdir)/*.png $(javabuilddir)
-	$(JAR) -cmf $(srcdir)/manifest $@ -C $(javabuilddir) .
+	$(JAR) -cmf manifest $@ -C $(javabuilddir) .
+
+DefaultPath.java : $(srcdir)/DefaultPath.java.in
+	$(SED) -e 's:[@]prefix[@]:$(prefix):g' \
+	    -e 's:[@]sysconfdir[@]:$(sysconfdir):g' \
+	    $< > $@
 
 clean-local :
-	$(RM) -r $(javabuilddir) twiddler.jar
+	$(RM) -r $(javabuilddir) rapidSTORM.jar

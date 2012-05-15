@@ -2,10 +2,6 @@ UNIT_TESTS = testChoice test_error_handling test_units test_Link test_optional t
 
 AUTOMAKE_OPTIONS = dejagnu
 
-.rc.o : 
-	$(RC) -I . '$<' '$@'
-windows_resources.o : ../config.h
-
 noinst_LTLIBRARIES = libsimparm.la
 libsimparm_la_SOURCES = \
     Callback.cc \
@@ -14,9 +10,7 @@ libsimparm_la_SOURCES = \
     Node.cc Attribute.cc TreeEntry.cc Node_Callback.cc \
     Node_debug.cc FileEntry.cc Message.cpp Uri.cpp \
     ChoiceEntry.cpp TreeCallback.cc \
-    stl_helpers.hh Node_debug.hh Node_Pimpl.hh
-library_includedir = $(includedir)/simparm
-library_include_HEADERS =  \
+    stl_helpers.hh Node_debug.hh Node_Pimpl.hh \
     debug.hh Callback.hh Node.hh Attribute.hh Object.hh \
     Entry_decl.hh Entry.hh Set.hh IO.hh \
     VectorEntry.hh \
