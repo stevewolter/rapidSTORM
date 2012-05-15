@@ -13,7 +13,7 @@
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include <boost/ptr_container/clone_allocator.hpp>
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace engine {
@@ -66,9 +66,7 @@ class Job {
       public:
         Factory(simparm::Node& node) : node(node) {}
         simparm::Node& getNode() { return node; }
-        operator simparm::Node&() { return node; }
         const simparm::Node& getNode() const { return node; }
-        operator const simparm::Node&() const { return node; }
 
         virtual std::auto_ptr<Base> make
             ( const Job& job ) const = 0;
@@ -104,13 +102,8 @@ class Job {
 }
 }
 
-namespace boost {
-template <>
-inline dStorm::engine::spot_finder::Base* 
-new_clone<dStorm::engine::spot_finder::Base>
-    ( const dStorm::engine::spot_finder::Base& o ) 
-    { return o.clone(); }
-}
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_finder::Base)
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_finder::Factory)
 
 
 #endif

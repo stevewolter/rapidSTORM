@@ -39,4 +39,7 @@ struct Factory {
 }
 }
 
+#include <dStorm/make_clone_allocator.hpp>
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::engine::spot_fitter::Factory)
+
 #endif

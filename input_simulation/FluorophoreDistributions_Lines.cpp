@@ -13,7 +13,6 @@ using namespace boost::units;
 _Lines::_Lines()
 : FluorophoreDistribution("Lines", "Fluorophores on lines"),
   simparm::Node::Callback(simparm::Event::ValueChanged),
-  lineRemoval("LineToRemove", "Remove line set"),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
@@ -26,7 +25,6 @@ _Lines::_Lines()
 _Lines::_Lines(const _Lines& c)
 : FluorophoreDistribution(c),
   simparm::Node::Callback(simparm::Event::ValueChanged),
-  lineRemoval("LineToRemove", "Remove line set"),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
@@ -37,8 +35,6 @@ _Lines::_Lines(const _Lines& c)
     for (unsigned int i = 0; i < c.lines.size(); i++)
         if ( c.lines[i] != NULL ) {
             lines[i] = new Line(*c.lines[i]);
-            lineRemoval.addChoice( i, lines[i]->getName(),
-                                      lines[i]->desc() );
             push_back( *lines[i] );
         }
 }
@@ -73,7 +69,6 @@ _Lines::_Line::_Line(const std::string& ident)
 
 void _Lines::registerNamedEntries() {
     push_back( addLine );
-    push_back( lineRemoval );
     push_back( removeLine );
 }
 
@@ -160,15 +155,11 @@ void _Lines::operator()(const simparm::Event& e)
         else
             lines.push_back( line );
 
-        lineRemoval.addChoice( insert, line->getName(), line->desc() );
         push_back( *line );
     } else if ( &e.source == &removeLine.value && removeLine.triggered() ) {
-        if ( lineRemoval.isValid() ) {
-            unsigned int toRemove = lineRemoval();
-            lineRemoval.removeChoice( lineRemoval.value() );
-            delete lines[toRemove];
-            lines[toRemove] = NULL;
-        }
+        removeLine.untrigger();
+        delete lines.back();
+        lines.back() = NULL;
     }
 }
 

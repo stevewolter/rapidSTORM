@@ -36,11 +36,11 @@ Segmenter::_Config::_Config()
     save_segmentation("SaveSegmentation", "Save segmentation"),
     load_segmentation("LoadSegmentation", "Load segmentation")
 {
-    method.addChoice( Segmenter::Maximum,       
-        "Maximum", "Local maximums");
-    method.addChoice( Segmenter::Region, 
-        "Regions", "Coherent regions");
-    method = Segmenter::Maximum;
+    method.addChoice( new SegmentationMethod( Segmenter::Maximum,       
+        "Maximum", "Local maximums" ) );
+    method.addChoice( new SegmentationMethod( Segmenter::Region, 
+        "Regions", "Coherent regions") );
+    method.choose("Maximum");
 
     trace_filter.show_in_tree = false;
 }
@@ -67,7 +67,7 @@ Segmenter::Segmenter(
 )
 : Crankshaft("Segmenter"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
-  howToSegment( config.method() ),
+  howToSegment( config.method().type() ),
   threshold( config.threshold ),
   dilation( config.dilation ),
   output( new TraceCountFilter( config.trace_filter, output ) ),

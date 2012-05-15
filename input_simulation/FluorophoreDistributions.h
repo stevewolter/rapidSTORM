@@ -59,7 +59,6 @@ class _Lines : public FluorophoreDistribution,
     std::vector<Line*> lines;
 
   public:
-    simparm::ChoiceEntry lineRemoval;
     simparm::TriggerEntry addLine, removeLine;
 
     _Lines();

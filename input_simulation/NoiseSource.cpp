@@ -166,7 +166,7 @@ FluorophoreSetConfig::create_fluorophores(
             fluorophores->push_back( new Fluorophore( in,
                 fluorophoreConfig ) );
     } else {
-        const FluorophoreDistribution& distribution = this->distribution.value();
+        const FluorophoreDistribution& distribution = this->distribution();
         dStorm::samplepos size = t.size_in_sample_space().second;
         size.z() = quantity<si::length>(config.sample_depth());
         FluorophoreDistribution::Positions positions = 

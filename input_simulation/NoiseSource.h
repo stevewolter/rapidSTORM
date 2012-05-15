@@ -74,7 +74,7 @@ namespace input_simulation {
         FluorophoreSetConfig(const FluorophoreSetConfig&);
 
         FluorophoreConfig fluorophoreConfig;
-        simparm::NodeChoiceEntry<FluorophoreDistribution>
+        simparm::ManagedChoiceEntry<FluorophoreDistribution>
             distribution;
         simparm::FileEntry store, recall;
         simparm::Entry<unsigned long> fluorophore_index;

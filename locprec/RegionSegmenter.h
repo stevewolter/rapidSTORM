@@ -22,6 +22,8 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/FileEntry.hh>
 #include <cassert>
+#include <simparm/ObjectChoice.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 
 namespace locprec {
     class Segmenter : public dStorm::outputs::Crankshaft,
@@ -89,8 +91,18 @@ namespace locprec {
         void operator()(const simparm::Event&);
     };
 
+    class SegmentationMethod : public simparm::ObjectChoice {
+        Segmenter::SegmentationType method;
+    public:
+        SegmentationMethod( Segmenter::SegmentationType method, std::string name, std::string desc )
+            : simparm::ObjectChoice(name,desc), method(method) {}
+        SegmentationMethod* clone() const { return new SegmentationMethod(*this); }
+        Segmenter::SegmentationType type() const { return method; }
+        void push_back( simparm::Node& node ) { getNode().push_back(node); }
+    };
+
     struct Segmenter::_Config : public simparm::Object {
-        simparm::DataChoiceEntry<Segmenter::SegmentationType> method;
+        simparm::ManagedChoiceEntry<SegmentationMethod> method;
         dStorm::outputs::DimensionSelector<2> selector;
         simparm::Entry<double> threshold;
         simparm::Entry<unsigned long> dilation;

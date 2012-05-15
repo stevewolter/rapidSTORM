@@ -21,6 +21,7 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <dStorm/display/Manager.h>
 #include <dStorm/image/constructors.h>
@@ -79,7 +80,8 @@ class Manager
 
     std::auto_ptr<ControlConfig> control_config;
 
-    struct Source : public boost::static_visitor<void> 
+    struct Source : public boost::static_visitor<void> ,
+        public boost::enable_shared_from_this<Source>
     {
         typedef dStorm::display::Image Image;
         dStorm::display::DataSource& handler;
@@ -87,6 +89,7 @@ class Manager
         dStorm::display::Change state;
         int number;
         bool wants_closing, may_close;
+        simparm::Object removal_choice;
 
         Source( const WindowProperties& properties,
                 dStorm::display::DataSource& source,
@@ -100,6 +103,9 @@ class Manager
         void operator()( const DrawRectangle&, Manager& m );
         void operator()( const dStorm::display::SaveRequest&, Manager& m );
         void operator()( Disassociation&, Manager& m );
+
+        simparm::Node& getNode() { return removal_choice; }
+        const simparm::Node& getNode() const { return removal_choice; }
     };
     typedef std::map<int, boost::shared_ptr<Source> > Sources;
     Sources sources;
@@ -134,7 +140,7 @@ class Manager::ControlConfig
 : public simparm::Object, public simparm::Listener, private boost::noncopyable
 {
     Manager& m;
-    simparm::DataChoiceEntry<int> which_window;
+    simparm::NodeChoiceEntry<Manager::Source> which_window;
     simparm::Entry<unsigned long> which_key;
     simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;
@@ -173,16 +179,6 @@ class Manager::ControlConfig
         receive_changes_from( draw_rectangle.value );
     }
 
-    void added_choice( int n ) {
-        std::stringstream entrynum;
-        entrynum << n;
-        which_window.addChoice( n, "Window" + entrynum.str(), "Window " + entrynum.str());
-    }
-
-    void removed_choice( int n ) {
-        which_window.removeChoice(n);
-    }
-
     void operator()(const simparm::Event& e) {
         if ( e.cause != simparm::Event::ValueChanged ) return;
         if ( ! which_window.isValid() ) {
@@ -192,10 +188,10 @@ class Manager::ControlConfig
         boost::shared_ptr<Source> src;
         {
             boost::lock_guard<boost::mutex> lock(m.mutex);
-            src = m.sources[which_window()];
+            src = which_window().shared_from_this();
         }
         if ( ! src ) { 
-            std::cerr << "Window " << which_window() << " not found" << std::endl; return; 
+            std::cerr << "Window " << which_window.value() << " not found" << std::endl; return; 
         }
 
         if ( &e.source == &close.value && close.triggered() ) {
@@ -214,6 +210,11 @@ class Manager::ControlConfig
     }
 
     void processCommand( std::istream& in ); 
+
+    void added_window( Manager::Source& src ) 
+        { which_window.addChoice(src); }
+    void removed_window( Manager::Source& src ) 
+        { which_window.removeChoice(src); }
 };
 
 void Manager::ControlConfig::processCommand( std::istream& in )
@@ -225,28 +226,26 @@ void Manager::ControlConfig::processCommand( std::istream& in )
             std::string window;
             dStorm::display::Image::Position pos;
             int number;
-            Sources::iterator i = m.sources.end();
+            const Source* i = NULL;
             std::stringstream msg;
 
             if ( which_window.isValid() ) {
                 DEBUG("Finding window");
-                number = which_window();
-                i = m.sources.find(number);
+                i = &( which_window() );
                 pos.fill(0);
                 in >> boost::units::quantity_cast<int&>(pos.x()) 
                    >> boost::units::quantity_cast<int&>(pos.y());
-                msg << "window " << number;
+                msg << "window " << i->number;
             } else {
                 msg << "result for unset WhichWindow field";
             }
-            if ( i != m.sources.end() ) {
+            if ( i ) {
                 DEBUG("Found window");
                 msg << " pixel at (" << pos.transpose() << ")";
-                Source& source = *i->second;
-                if ( source.current_display.contains( pos ) )
-                    msg << " has value r " << int(source.current_display( pos ).red() )
-                                   << " g " << int(source.current_display( pos ).green())
-                                   << " b " << int(source.current_display( pos ).blue());
+                if ( i->current_display.contains( pos ) )
+                    msg << " has value r " << int(i->current_display( pos ).red() )
+                                   << " g " << int(i->current_display( pos ).green())
+                                   << " b " << int(i->current_display( pos ).blue());
                 else
                     msg << " is out of image dimensions";
             } else {
@@ -275,7 +274,7 @@ class Manager::Handle
     {
         my_source.reset( new Source(properties, source, m.number++) );
         m.sources.insert( std::make_pair( my_source->number, my_source ) );
-        m.control_config->added_choice( my_source->number );
+        m.control_config->added_window( *my_source );
         LOG( "Created new window number " << my_source->number << " named " << properties.name );
     }
     ~Handle() {
@@ -294,7 +293,9 @@ Manager::Source::Source(
     dStorm::display::DataSource& source,
     int n)
 : handler(source), state(0), number(n),
-  wants_closing(false), may_close(false)
+  wants_closing(false), may_close(false),
+  removal_choice( "Window" + boost::lexical_cast<std::string>(n),
+                  "Window " + boost::lexical_cast<std::string>(n) )
 {
     LOG( "Listening to window " << properties.name );
     handle_resize( properties.initial_size );
@@ -536,7 +537,7 @@ void Manager::Source::operator()( const DrawRectangle& i, Manager& ) {
 
 void Manager::Source::operator()(Disassociation& d, Manager& m ) {
     m.print_status(*this, "Destructing ", true);
-    m.control_config->removed_choice(number);
+    m.control_config->removed_window(*this);
     m.sources.erase( number );
 
     boost::lock_guard<boost::mutex> l(d.m);
