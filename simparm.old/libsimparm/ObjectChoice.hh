@@ -16,7 +16,7 @@ public:
     std::string getName() const { return node.getName(); }
     simparm::Node& getNode() { return node; }
     const simparm::Node& getNode() const { return node; }
-    void attach_ui( simparm::Node& to ) { node.attach_ui(to); }
+    virtual void attach_ui( simparm::Node& to ) { node.attach_ui(to); }
     void detach_ui( simparm::Node& to ) { node.detach_ui(to); }
 };
 

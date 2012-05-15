@@ -31,20 +31,18 @@ class No3DConfig : public Config {
         psf_size = s;
     }
     void set_context() {}
-    void registerNamedEntries() { psf_size.attach_ui( this->node ); }
+    void attach_ui( simparm::Node& to ) { 
+        psf_size.attach_ui( this->node );
+        this->node.attach_ui(to); 
+    }
   public:
     No3DConfig() 
         : Config("No3D", "No 3D"),
           psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)) 
     { 
         psf_size.helpID = "PSF.FWHM";
-        registerNamedEntries(); 
     }
-    No3DConfig* clone() const { 
-        No3DConfig* p = new No3DConfig(*this); 
-        p->registerNamedEntries();
-        return p;
-    }
+    No3DConfig* clone() const { return new No3DConfig(*this); }
 };
 
 SigmaDerivative No3D::get_sigma_deriv_( ZPosition ) const
