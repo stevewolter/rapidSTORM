@@ -24,8 +24,6 @@ set test "Unit given"
 expect -re "unit_name set meter" { pass "$test"; }
 
 send "in FloatMatrix in value set 1 2,3 4\n"
-set test "Change listener is active"
-expect -re "Float matrix changed to 1 2 and 3 4" { pass "$test"; }
 set test "Can change matrix entry"
 send "in FloatMatrix in value query\n"
 expect -re "in FloatMatrix in value value set 1 2,3 4" { pass "$test"; }

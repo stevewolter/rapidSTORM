@@ -178,7 +178,7 @@ AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
 AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" ])
 
-AC_CONFIG_SUBDIRS([doc simparm])
+AC_CONFIG_SUBDIRS([doc])
 
 AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
 AC_SUBST([setupstagedir], "$with_stage_dir")

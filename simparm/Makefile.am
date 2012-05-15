@@ -1,6 +1,7 @@
 UNIT_TESTS = testChoice test_error_handling test_units test_Link test_optional testSimparm  
 
 AUTOMAKE_OPTIONS = dejagnu
+DEJATOOL = simparm
 
 noinst_LTLIBRARIES = libsimparm.la
 libsimparm_la_SOURCES = \

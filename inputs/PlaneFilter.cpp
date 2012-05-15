@@ -48,6 +48,7 @@ struct AllPlanes : public PlaneSelection {
     AllPlanes* clone() const { return new AllPlanes(*this); }
     bool selects_plane() const { return false; }
     int plane_index() const { throw std::logic_error("No plane selectable"); }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 };
 
 struct SinglePlane : public PlaneSelection {
@@ -60,6 +61,7 @@ struct SinglePlane : public PlaneSelection {
 
     bool selects_plane() const { return true; }
     int plane_index() const { return index; }
+    void attach_ui( simparm::Node& at ) { attach_parent(at); }
 };
 
 struct Config : public simparm::Object {
