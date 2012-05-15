@@ -52,7 +52,8 @@ NaiveFitter::create(
     if ( c.free_sigmas() && ! consistently_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
     else if ( true ) {
-        return create2<Kernels,measured_psf::FixedForm,measured_psf::Model>(c,info);
+        // As of yet, we cannot return the measured_psf model because it is not in the Makefile
+	throw std::logic_error("Not implemented");
     } else if ( c.free_sigmas() )
         return create2<Kernels,gaussian_psf::FreeForm,gaussian_psf::No3D>(c,info);
     else if ( consistently_no_3d )

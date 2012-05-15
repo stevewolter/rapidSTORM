@@ -40,7 +40,7 @@ struct BaseExpression
     quantity<si::length> get_fluorophore_position(int Dim) const
         {
             switch (Dim) {
-                case 0: return quantity<si::length>( (*this)( Mean<0>() ));
+                case 0: return quantity<si::length>( (*this)( Mean<0>() )); 
                 case 1: return quantity<si::length>( (*this)( Mean<1>() ));
                 case 2: throw std::logic_error("Tried to access Z coordinate on 2D model");
                 default:throw std::logic_error("Unconsidered dimension");
@@ -50,8 +50,8 @@ struct BaseExpression
     void set_fluorophore_position(int Dim, quantity<si::length> length)
     {
         switch (Dim) {
-                case 0: (*this)( gaussian_psf::Mean<0>() ) = length ;
-                case 1: (*this)( gaussian_psf::Mean<1>() ) = length ;
+                case 0: (*this)( gaussian_psf::Mean<0>() ) = length ; break;
+                case 1: (*this)( gaussian_psf::Mean<1>() ) = length ; break;
                 default:throw std::logic_error("Unconsidered dimension");
         }
     }

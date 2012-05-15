@@ -6,53 +6,51 @@ namespace dStorm
 namespace measured_psf
 {
 
-    quantity<si::length> get_fluorophore_position(int Dim) const
-    {
-        switch (Dim)
-        {
-        case 0:
-            return quantity<si::length>( (*this)( Mean<0>() ));
-        case 1:
-            return quantity<si::length>( (*this)( Mean<1>() ));
-        case 2:
-            throw std::logic_error("Tried to access Z coordinate on 2D model"); //but needed for LocalizationChecker
-        default:
-            throw std::logic_error("Unconsidered dimension");
-        }
-    }
+quantity<si::length> Model::get_fluorophore_position(int Dim) const
+{
+	return quantity<si::length>( quantity<Mean<0>::Unit>::from_value( x0[Dim] ) );
+}
 
-    void set_fluorophore_position(int Dim, quantity<si::length> length)
-    {
-        switch (Dim)
-        {
-        case 0:
-            (*this)( gaussian_psf::Mean<0>() ) = length ;
-        case 1:
-            (*this)( gaussian_psf::Mean<1>() ) = length ;
-        default:
-            throw std::logic_error("Unconsidered dimension");
-        }
-    }
+void Model::set_fluorophore_position(int Dim, quantity<si::length> length)
+{
+	x0[Dim] = quantity< Mean<0>::Unit >( length ).value();
+}
 
-    double intensity() const
-    {
-        return (((*this)(gaussian_psf::Amplitude() )) *  ((*this)(gaussian_psf::Prefactor() ) ));
-    }
+double Model::intensity() const
+{
+    return (((*this)(Amplitude() )) *  ((*this)(Prefactor() ) ));
+}
 
-    quantity<si::dimensionless> get_amplitude() const
-    {
-        return (quantity<si::dimensionless>)(*this)(gaussian_psf::Amplitude() );
-    }
+quantity<si::dimensionless> Model::get_amplitude() const
+{
+    return (quantity<si::dimensionless>)(*this)(Amplitude() );
+}
 
-    void set_amplitude(quantity<si::dimensionless> amp)
-    {
-        (*this)(gaussian_psf::Amplitude())= amp;
-    }
+void Model::set_amplitude(quantity<si::dimensionless> amp)
+{
+    (*this)(Amplitude())= amp;
+}
 
-    Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > get_sigma() const
-    {
-        Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > m;
-        return m.Zero();
-    }
+Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > Model::get_sigma() const
+{
+    Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > m;
+    return m.Zero();
+}
+
+Model Model::mock() {
+	Model rv;
+	Image<double,3>::Size size;
+	size.fill( 10 * camera::pixel ); //set image dim to 10px
+	rv.psf_data = Image<double,3>( size );
+	rv.psf_data.fill( 5 ); //set image data
+    rv.x0.fill(5);
+	rv.image_x0.fill(5);
+	rv.set_axial_mean(4);
+
+//	Eigen::Array3i pixel_pos = Eigen::Array3i::Constant( 3 );
+//	Image<double,3>::Position pos = from_value< camera::length >( pixel_pos );
+	return rv;
+}
+
 }
 }

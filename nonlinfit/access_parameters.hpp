@@ -2,6 +2,7 @@
 #define NONLINFIT_ACCESS_PARAMETERS_H
 
 #include "Lambda.h"
+#include <Eigen/Core>
 #include <boost/utility/enable_if.hpp>
 #include <boost/mpl/contains.hpp>
 #include <stdexcept>
