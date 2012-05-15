@@ -72,8 +72,6 @@ Config::Config( const Config& other )
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   my_capabilities( other.my_capabilities )
 {
-    for ( iterator i = begin(); i != end(); ++i )
-        this->simparm::NodeChoiceEntry<ChoiceConfig>::addChoice( *i );
     DEBUG("Copying output config");
     receive_changes_from( value );
 }

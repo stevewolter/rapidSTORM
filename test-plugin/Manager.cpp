@@ -225,7 +225,6 @@ void Manager::ControlConfig::processCommand( std::istream& in )
             DEBUG("Reading instructions");
             std::string window;
             dStorm::display::Image::Position pos;
-            int number;
             const Source* i = NULL;
             std::stringstream msg;
 

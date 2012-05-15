@@ -117,7 +117,7 @@ class ChainLink
 
     void update_traits( input::MetaInfo&, input::Traits<engine::ImageStack>& t ) {
         int split_dim = config.biplane_split().split_dimension();
-        if ( split_dim > 0 ) split_planes( t, split_dim );
+        if ( split_dim >= 0 ) split_planes( t, split_dim );
     }
 
     simparm::Structure<Config>& get_config() { return config; }

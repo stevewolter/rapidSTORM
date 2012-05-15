@@ -17,7 +17,7 @@ struct FieldConfig {
     virtual ~FieldConfig() {}
     virtual FieldConfig* clone() const = 0;
     virtual const simparm::Node& getNode() const = 0;
-    simparm::Node& getNode() { return const_cast<simparm::Node&>(getNode()); }
+    simparm::Node& getNode() { return const_cast<simparm::Node&>( const_cast<const FieldConfig&>(*this).getNode()) ; }
 
     virtual std::auto_ptr<Scaled> make_scaled_binner() const = 0;
     virtual std::auto_ptr<Unscaled> make_unscaled_binner() const = 0;

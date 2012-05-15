@@ -20,7 +20,6 @@ class DefaultPath {
             root = new File ("@prefix@");
         else
             root = chroot;
-        System.err.println("Rerooting to " + root );
     }
 
     public File getPrefix() { return root; }
