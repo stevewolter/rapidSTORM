@@ -93,19 +93,16 @@ class Polynomial3DConfig : public Config {
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const;
     void read_traits( const DepthInfo&, const DepthInfo& );
     void set_context() { }
-    void registerNamedEntries() { 
+    void attach_ui( simparm::Node& to ) { 
         psf_size.attach_ui( this->node );
         z_position.attach_ui( this->node );
         slopes.attach_ui( this->node ); 
         z_range.attach_ui( this->node ); 
+        this->node.attach_ui(to); 
     }
   public:
     Polynomial3DConfig();
-    Polynomial3DConfig* clone() const { 
-        Polynomial3DConfig* p = new Polynomial3DConfig(*this); 
-        p->registerNamedEntries();
-        return p;
-    }
+    Polynomial3DConfig* clone() const { return new Polynomial3DConfig(*this); }
 };
 
 template <typename ToQuantity, typename FromUnit, typename Base>
@@ -164,7 +161,6 @@ Polynomial3DConfig::Polynomial3DConfig()
     slopes.helpID = "Polynomial3D.WideningSlopes";
     psf_size.helpID = "PSF.FWHM";
     z_position.setHelp("Z position where this layer is sharpest in this dimension");
-    registerNamedEntries();
 }
 
 std::auto_ptr< Config > make_polynomial_3d_config()

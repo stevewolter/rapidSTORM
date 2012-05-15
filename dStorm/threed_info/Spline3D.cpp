@@ -107,16 +107,15 @@ class Spline3DConfig : public Config {
     void read_traits( const DepthInfo&, const DepthInfo& ) 
         { z_calibration_file = ""; }
     void set_context() {}
-    void registerNamedEntries() { z_calibration_file.attach_ui( this->node ); }
+    void attach_ui( simparm::Node& to ) { 
+        z_calibration_file.attach_ui( this->node );
+        this->node.attach_ui(to); 
+    }
   public:
     Spline3DConfig() 
         : Config("Spline3D", "Interpolated 3D"),
-          z_calibration_file("ZCalibration", "Z calibration file") { registerNamedEntries(); }
-    Spline3DConfig* clone() const { 
-        Spline3DConfig* p = new Spline3DConfig(*this); 
-        p->registerNamedEntries();
-        return p;
-    }
+          z_calibration_file("ZCalibration", "Z calibration file") {}
+    Spline3DConfig* clone() const { return new Spline3DConfig(*this); }
 };
 
 std::auto_ptr< Config > make_spline_3d_config()
