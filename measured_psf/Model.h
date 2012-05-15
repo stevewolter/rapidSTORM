@@ -34,14 +34,15 @@ class Model
      bool has_z_position() const { return true; }
      void set_amplitude(quantity<si::dimensionless> amp);
      Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > get_sigma() const;
-     void set_axial_mean(double ax_m) {axial_mean=ax_m;} //just for mock
   public:
      static Model mock();
 
   private:
     typedef boost::mpl::vector<
-        nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>, nonlinfit::Xs<2,LengthUnit>, //Pixelpos
-        Mean<0>, Mean<1>, Mean<2>,  // Fluorophorpos.
+        /* These parameters are the three dimension of the search image position. */
+        nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>, nonlinfit::Xs<2,LengthUnit>,
+        /* The three dimensions of the fluorophore position in the search image. */
+        Mean<0>, Mean<1>, Mean<2>,
         Amplitude, Prefactor > Variables;
 
     Model& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Model&>(f); }

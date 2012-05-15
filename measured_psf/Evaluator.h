@@ -20,7 +20,9 @@ struct Evaluator
 
     const Model * expr;
     Eigen::Array<double,ChunkSize, 3> calib_image_pos_in_px; //chunk with postiions
-    Eigen::Array<Num, ChunkSize, 1> result;
+    Eigen::Array<int,ChunkSize, 3> base_pos_in_px; //chunk with postiions
+    Eigen::Array<Num, ChunkSize, 3> psf_data_size;
+
     Evaluator() : expr(NULL)  {}
     Evaluator(const Model& e ) :expr(&e) {}
     bool prepare_iteration( const Data& data ) {
@@ -29,75 +31,61 @@ struct Evaluator
 
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )
     {
+        psf_data_size.rowwise() = boost::units::value( expr->psf_data.sizes() ).cast<Num>() - Num(1.0);
         Eigen::Array<Num, 1, 3> subpixel_in_um;
 	Eigen::Array3d calib_image_pos_in_um;
         for (int row = 0; row < ChunkSize; ++row) {
              Eigen::Vector3d x;
              x.head<2>() = xs.row(row);
              x[2]= expr->axial_mean;
-             calib_image_pos_in_um = (x - expr->x0) + expr->image_x0; //returns relative coordinates for x_image in x_psf
-             calib_image_pos_in_px.row(row) = calib_image_pos_in_um.array() / expr->pixel_size.array(); //position in psf, need to get value from here
-             get_psf_value();
+             //returns relative coordinates for x_image in x_psf
+             calib_image_pos_in_um = (x - expr->x0) + expr->image_x0; 
+	     //position in psf, need to get value from here
+             calib_image_pos_in_px.row(row) = calib_image_pos_in_um.array() / expr->pixel_size.array(); 
         }
+        if ( (calib_image_pos_in_px >= psf_data_size).any() )
+            throw std::logic_error ("calib_image_pos out of range of PSF");
+        base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
     }
 
-    void get_psf_value()
-    {
-      double delta =0;
-	  for (int row = 0; row < ChunkSize; ++row)
-	 {
-        if (calib_image_pos_in_px.row(row).maxCoeff() > 10) throw std::logic_error("calib_image_pos out of range of PSF"); //(double) expr->psf_data.size() doesn't work
-        else
-        {
-          Eigen::Array3d tmp= calib_image_pos_in_px.row(row).unaryExpr(std::ptr_fun(floor));
-        Eigen::Array3i pixel_pos = tmp.cast<int>(); //base().cast<double>() unaryExpr(std::ptr_fun(floor))
-        Image<double,3>::Position pos = from_value< camera::length >( pixel_pos );
-        double psf_value_no_interpol = expr->psf_data( pos );
+    void value( Eigen::Array<Num,ChunkSize,1>& ref ) { ref.fill(0); add_value(ref); }
+    void add_value( Eigen::Array<Num,ChunkSize,1>& ref ) {
+        for ( int dx = 0; dx < 2; ++dx )
+            for ( int dy = 0; dy < 2; ++dy )
+                for ( int dz = 0; dz < 2; ++dz )
+                {
+                    for (int row = 0; row < ChunkSize; ++row) {
+                        Eigen::Array3i pos;
+                        pos.x() = base_pos_in_px.row(row).x() + dx;
+                        pos.y() = base_pos_in_px.row(row).y() + dy;
+                        pos.z() = base_pos_in_px.row(row).z() + dz;
 
-        for (int dim=0; dim<2; dim++)
-         {
-             bool is_on_right_border = false;
-             bool is_on_left_border = false;
-             double  remainder = floor((double)calib_image_pos_in_px(dim,row));
-             if (calib_image_pos_in_px(dim,row) <0.5) is_on_left_border=true;
-             if (calib_image_pos_in_px(dim,row) >= 9.5) is_on_right_border=true; //data.size() ok?? -1.5??
-
-             if  ((( (double)calib_image_pos_in_px(dim,row) - remainder)  <0.5 || is_on_right_border ) && !is_on_left_border) //if in left half of pixel or on right border
-             {
-              Eigen::Array3i pixel_pos_next_px = pixel_pos;
-              pixel_pos_next_px[dim]-=1;
-              Image<double,3>::Position pos_next_px = from_value< camera::length >(pixel_pos_next_px);
-                delta+=(expr->psf_data( pos_next_px)-expr->psf_data(pos))*remainder;
-             }
-             else
-             {
-              Eigen::Array3i pixel_pos_next_px = pixel_pos; //if in right half of pixel or on left border
-              pixel_pos_next_px[dim]+=1;
-              Image<double,3>::Position pos_next_px = from_value< camera::length >(pixel_pos_next_px);
-                delta+=(expr->psf_data( pos_next_px)-expr->psf_data(pos)) *remainder ;
-             }
-
-       	 }
-          result[row]= psf_value_no_interpol + delta;
+                        double value = expr->psf_data( from_value<camera::length>( pos ) );
+                        double weight = ( 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs() ).prod();
+                        ref[row] += weight * value;
+                    }
+                }
     }
-    }
-    }
-
-         void value( Eigen::Array<Num,ChunkSize,1>& ref )
-        { ref = this->result; }
-    void add_value( Eigen::Array<Num,ChunkSize,1>& ref )
-        { ref += this->result; }
-
-
-//    void value( Eigen::Array<Num,ChunkSize,1>& result ) { // return value_psf
-//	result.fill(1E-10);
-//    }
-//    void add_value( Eigen::Array<Num,ChunkSize,1>& result )
-//        { result.fill(0); }
 
     template <typename Target, int Dim>
     void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) {
-        target = Eigen::Matrix<double,ChunkSize,1>::Zero().template cast<Num>();
+        target.fill(0);
+        for ( int dx = 0; dx < 2; ++dx )
+            for ( int dy = 0; dy < 2; ++dy )
+                for ( int dz = 0; dz < 2; ++dz )
+                {
+                    for (int row = 0; row < ChunkSize; ++row) {
+                        Eigen::Array3i pos;
+                        pos.x() = base_pos_in_px.row(row).x() + dx;
+                        pos.y() = base_pos_in_px.row(row).y() + dy;
+                        pos.z() = base_pos_in_px.row(row).z() + dz;
+
+                        double value = expr->psf_data( from_value<camera::length>( pos ) );
+                        Eigen::Vector3d weights = 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs();
+                        weights[Dim] = ( pos[Dim] < calib_image_pos_in_px(row,Dim) ) ? -1 : 1;
+                        target[row] += weights.prod() * value;
+                    }
+                }
     }
     template <typename Target, int Dim>
     void derivative( Target target, Mean<Dim> ) {

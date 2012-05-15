@@ -10,10 +10,12 @@ void check_evaluator() {
     Evaluator<double,2> evaluator(model); //chunk_size 2
     Eigen::Array2d value;
     Eigen::Array<double,2,2> m;
-    m.fill(4);
+    m.fill(4.3333333);
     evaluator.prepare_chunk(m);
     evaluator.value(value);
-    BOOST_CHECK_CLOSE( value[0], 3, 1E-2 );
+    BOOST_CHECK_CLOSE( value[0], 17.0, 1E-2 );
+    evaluator.derivative(value.col(0), nonlinfit::Xs<0,LengthUnit>() );
+    BOOST_CHECK_CLOSE( value[0], 2.0, 1E-2 );
 }
 
 boost::unit_test::test_suite* make_unit_test_suite() {

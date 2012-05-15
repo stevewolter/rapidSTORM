@@ -11,13 +11,14 @@ javabuilddir = classes
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm
+C_TESTS = dstorm measured_psf_unit_test
 DEJATOOL = dstorm
 
-bin_PROGRAMS = dstorm align-biplane-rapidstorm
+bin_PROGRAMS = dstorm measured_psf_unit_test align-biplane-rapidstorm
 bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
 lib_LTLIBRARIES = libdStorm.la librapidstormfile.la
+noinst_LTLIBRARIES = libmeasured_psf.la
 if CAN_BUILD_TWIDDLER
 java_DATA = rapidSTORM.jar
 applications_DATA=rapidstorm.desktop
@@ -630,7 +631,7 @@ dstorm_SOURCES += \
     gaussian_psf/check_evaluator.hpp \
     gaussian_psf/polynomial_psf_generated_by_yacas.h
 
-dstorm_SOURCES += \
+libmeasured_psf_la_SOURCES = \
     measured_psf/fwd.h measured_psf/parameters.h measured_psf/parameters.hpp \
     measured_psf/Evaluator.h \
     measured_psf/fixed_form.h \
@@ -758,6 +759,9 @@ endif
 dstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
+
+measured_psf_unit_test_SOURCES = measured_psf/main.cpp 
+measured_psf_unit_test_LDADD = libmeasured_psf.la $(boost_unit_test_LIB)
 
 align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)

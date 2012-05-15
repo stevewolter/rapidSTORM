@@ -42,13 +42,17 @@ Model Model::mock() {
 	Image<double,3>::Size size;
 	size.fill( 10 * camera::pixel ); //set image dim to 10px
 	rv.psf_data = Image<double,3>( size );
-	rv.psf_data.fill( 5 ); //set image data
-    rv.x0.fill(5);
-	rv.image_x0.fill(5);
-	rv.set_axial_mean(4);
 
-//	Eigen::Array3i pixel_pos = Eigen::Array3i::Constant( 3 );
-//	Image<double,3>::Position pos = from_value< camera::length >( pixel_pos );
+        for (int x = 0; x < 10; ++x)
+            for (int y = 0; y < 10; ++y)
+                for (int z = 0; z < 10; ++z)
+                    rv.psf_data(x,y,z) = 2 * x + 3 * y - z;
+
+        rv.x0.fill(5);
+	rv.image_x0.fill(5);
+	rv.axial_mean = 4.66666;
+        rv.pixel_size.fill(1);
+
 	return rv;
 }
 
