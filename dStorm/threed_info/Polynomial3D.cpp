@@ -80,7 +80,7 @@ std::ostream& Polynomial3D::print_( std::ostream& o ) const {
     return o << " and focal plane " << z_position;
 }
 
-class Polynomial3DConfig : public simparm::Object, public Config {
+class Polynomial3DConfig : public Config {
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
     simparm::Entry<PSFSize> psf_size;
     typedef Eigen::Matrix< boost::units::quantity<boost::units::si::nanolength, double>, 2, 1, Eigen::DontAlign > ZPosition;
@@ -93,8 +93,12 @@ class Polynomial3DConfig : public simparm::Object, public Config {
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const;
     void read_traits( const DepthInfo&, const DepthInfo& );
     void set_context() { }
-    simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( psf_size ); push_back( z_position ); push_back( slopes ); push_back( z_range ); }
+    void registerNamedEntries() { 
+        psf_size.attach_ui( this->node );
+        z_position.attach_ui( this->node );
+        slopes.attach_ui( this->node ); 
+        z_range.attach_ui( this->node ); 
+    }
   public:
     Polynomial3DConfig();
     Polynomial3DConfig* clone() const { 
@@ -151,7 +155,7 @@ boost::shared_ptr<DepthInfo> Polynomial3DConfig::make_traits(Direction dir) cons
 
 
 Polynomial3DConfig::Polynomial3DConfig()
-: simparm::Object("Polynomial3D", "Polynomial 3D"),
+: Config("Polynomial3D", "Polynomial 3D"),
   psf_size("PSF", "PSF FWHM at sharpest Z", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),

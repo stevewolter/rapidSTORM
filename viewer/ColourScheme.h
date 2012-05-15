@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_COLOURSCHEME_H
 #define DSTORM_VIEWER_COLOURSCHEME_H
 
-#include <simparm/Node.hh>
+#include <simparm/ObjectChoice.hh>
 #include <memory>
 #include "Backend.h"
 #include <dStorm/make_clone_allocator.hpp>
@@ -9,11 +9,10 @@
 namespace dStorm {
 namespace viewer {
 
-struct ColourScheme {
-    virtual ~ColourScheme() {}
+struct ColourScheme : public simparm::ObjectChoice {
+    ColourScheme( std::string name, std::string desc )
+        : simparm::ObjectChoice(name,desc) {}
     virtual ColourScheme* clone() const = 0;
-    virtual simparm::Node& getNode() = 0;
-    const simparm::Node& getNode() const { return const_cast<ColourScheme&>(*this).getNode(); }
 
     template <typename Scheme>
     static std::auto_ptr<ColourScheme> config_for();

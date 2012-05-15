@@ -8,7 +8,7 @@ namespace viewer {
 namespace colour_schemes {
 
 ColoredConfig::ColoredConfig() 
-: simparm::Object("FixedHue", "Constant colour"),
+: ColourScheme("FixedHue", "Constant colour"),
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1)
 {
@@ -29,16 +29,16 @@ ColoredConfig::ColoredConfig()
                        "black to pure white) and 1 means fully saturated "
                        "color.");
 
-    push_back( hue );
-    push_back( saturation );
+    hue.attach_ui(this->node);
+    saturation.attach_ui( this->node );
 }
 
 ColoredConfig::ColoredConfig(const ColoredConfig& o)
-: simparm::Object(o),
+: ColourScheme(o),
   hue(o.hue), saturation(o.saturation)
 {
-    push_back( hue );
-    push_back( saturation );
+    hue.attach_ui(this->node);
+    saturation.attach_ui( this->node );
 }
 
 void ColoredConfig::add_listener( simparm::Listener& l ) {

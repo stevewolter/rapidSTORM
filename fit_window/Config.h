@@ -13,7 +13,7 @@ struct Config
     static const int maximum_plane_count = 9;
 
     Config();
-    void registerNamedEntries( simparm::Node& at );
+    void attach_ui( simparm::Node& at );
     dStorm::FloatNanometreEntry fit_window_size;
     simparm::BoolEntry allow_disjoint, double_computation;
 };

@@ -61,15 +61,13 @@ boost::shared_ptr< const ProjectionFactory > test_scaled_projection()
 class ScaledProjectionConfig
 : public ProjectionConfig
 {
-    simparm::Object node;
-    simparm::Node& getNode_() { return node; }
     ProjectionFactory* get_projection_factory_() const 
         { return new ScaledProjectionFactory(); }
     ProjectionConfig* clone_() const 
         { return new ScaledProjectionConfig(*this); }
 
   public:
-    ScaledProjectionConfig() : node("ScaledProjection", "No alignment") {}
+    ScaledProjectionConfig() : ProjectionConfig("ScaledProjection", "No alignment") {}
 };
 
 std::auto_ptr<ProjectionConfig> make_scaling_projection_config() {

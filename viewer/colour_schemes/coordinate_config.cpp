@@ -8,19 +8,19 @@ namespace viewer {
 namespace colour_schemes {
 
 CoordinateConfig::CoordinateConfig() 
-: object("ByCoordinate", "Vary hue with coordinate value"),
+: ColourScheme("ByCoordinate", "Vary hue with coordinate value"),
   choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval, "Hue"),
   range("HueRange", "Range of hue", 0.666)
 {
-    object.push_back( choice );
-    object.push_back( range );
+    choice.attach_ui( this->node );
+    range.attach_ui( this->node );
 }
 
 CoordinateConfig::CoordinateConfig(const CoordinateConfig& o) 
-: ColourScheme(o), object(o.object), choice(o.choice), range(o.range)
+: ColourScheme(o), choice(o.choice), range(o.range)
 {
-    object.push_back( choice );
-    object.push_back( range );
+    choice.attach_ui( this->node );
+    range.attach_ui( this->node );
 }
 
 void CoordinateConfig::add_listener( simparm::Listener& l ) {

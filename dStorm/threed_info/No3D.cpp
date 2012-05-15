@@ -15,7 +15,7 @@
 namespace dStorm {
 namespace threed_info {
 
-class No3DConfig : public simparm::Object, public Config {
+class No3DConfig : public Config {
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
     simparm::Entry<PSFSize> psf_size;
 
@@ -31,11 +31,10 @@ class No3DConfig : public simparm::Object, public Config {
         psf_size = s;
     }
     void set_context() {}
-    simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( psf_size ); }
+    void registerNamedEntries() { psf_size.attach_ui( this->node ); }
   public:
     No3DConfig() 
-        : simparm::Object("No3D", "No 3D"),
+        : Config("No3D", "No 3D"),
           psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)) 
     { 
         psf_size.helpID = "PSF.FWHM";

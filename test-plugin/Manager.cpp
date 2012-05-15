@@ -104,8 +104,9 @@ class Manager
         void operator()( const dStorm::display::SaveRequest&, Manager& m );
         void operator()( Disassociation&, Manager& m );
 
-        simparm::Node& getNode() { return removal_choice; }
-        const simparm::Node& getNode() const { return removal_choice; }
+        std::string getName() const { return removal_choice.getName(); }
+        void attach_ui( simparm::Node& at ) { removal_choice.attach_ui(at); }
+        void detach_ui( simparm::Node& at ) { removal_choice.detach_ui(at); }
     };
     typedef std::map<int, boost::shared_ptr<Source> > Sources;
     Sources sources;

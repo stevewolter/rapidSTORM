@@ -60,7 +60,7 @@ void Choice::traits_changed( TraitsRef t, Link* from ) {
         bool found = false;
         for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
             if ( i->link().current_meta_info().get() != NULL && ! i->link().current_meta_info()->provides_nothing() ) {
-                choices.value = i->getNode().getName();
+                choices.value = i->getName();
                 found = true;
             }
         }
@@ -71,7 +71,7 @@ void Choice::traits_changed( TraitsRef t, Link* from ) {
         DEBUG("Auto-selecting " << from->link->getName() );
         for ( iterator i = choices.begin(); i != choices.end(); ++i )
             if ( &i->link() == from )
-                choices.value = i->getNode().getName();
+                choices.value = i->getName();
     }
     publish_traits();
 }
@@ -112,7 +112,7 @@ void Choice::add_choice( std::auto_ptr<Link> fresh )
 }
 
 Choice::LinkAdaptor::LinkAdaptor( std::auto_ptr<input::Link> l ) 
-    : node(l->name(), l->description()), _link(l) 
+    :  _link(l) 
 {
 }
 

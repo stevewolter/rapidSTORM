@@ -11,17 +11,7 @@ template <typename BaseClass>
 class Builder
     : public BaseClass::Config, public Factory
 {
-    public:
-    Builder() 
-        : Factory(
-            static_cast<typename BaseClass::Config&>
-                (*this)) {}
-    Builder(const Builder<BaseClass>& o)
-        : BaseClass::Config(o), 
-            Factory(
-            static_cast<typename BaseClass::Config&>
-                (*this)) {}
-
+public:
     virtual Builder<BaseClass>* clone() const 
         { return new Builder<BaseClass>(*this); }
     virtual std::auto_ptr<Implementation> make (const JobInfo& info) 
@@ -31,6 +21,9 @@ class Builder
     void set_requirements( input::Traits<engine::ImageStack>& t ) 
         { BaseClass::Config::set_requirements(t); }
     void register_trait_changing_nodes( simparm::Listener& ) {}
+    virtual void attach_ui( simparm::Node& to ) { BaseClass::Config::attach_ui(to); }
+    virtual void detach_ui( simparm::Node& to ) { BaseClass::Config::detach_ui(to); }
+    virtual std::string getName() const { return BaseClass::Config::getName(); }
 };
 
 }

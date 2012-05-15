@@ -95,7 +95,7 @@ Spline3D::get_sigma_deriv_( ZPosition z ) const {
     return rv;
 }
 
-class Spline3DConfig : public simparm::Object, public Config {
+class Spline3DConfig : public Config {
     simparm::FileEntry z_calibration_file;
 
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const {
@@ -107,11 +107,10 @@ class Spline3DConfig : public simparm::Object, public Config {
     void read_traits( const DepthInfo&, const DepthInfo& ) 
         { z_calibration_file = ""; }
     void set_context() {}
-    simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( z_calibration_file ); }
+    void registerNamedEntries() { z_calibration_file.attach_ui( this->node ); }
   public:
     Spline3DConfig() 
-        : simparm::Object("Spline3D", "Interpolated 3D"),
+        : Config("Spline3D", "Interpolated 3D"),
           z_calibration_file("ZCalibration", "Z calibration file") { registerNamedEntries(); }
     Spline3DConfig* clone() const { 
         Spline3DConfig* p = new Spline3DConfig(*this); 

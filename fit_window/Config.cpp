@@ -13,10 +13,10 @@ Config::Config()
     double_computation.userLevel = (simparm::Object::Intermediate);
 }
 
-void Config::registerNamedEntries( simparm::Node& at ) {
-    at.push_back( fit_window_size );
-    at.push_back( allow_disjoint );
-    at.push_back( double_computation );
+void Config::attach_ui( simparm::Node& at ) {
+     fit_window_size.attach_ui(at);
+     allow_disjoint.attach_ui(at);
+     double_computation.attach_ui(at);
 }
 
 }

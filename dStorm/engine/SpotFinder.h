@@ -62,12 +62,7 @@ class Job {
      *  a SpotFinder object. */
     class Factory 
     {    
-        simparm::Node& node;
       public:
-        Factory(simparm::Node& node) : node(node) {}
-        simparm::Node& getNode() { return node; }
-        const simparm::Node& getNode() const { return node; }
-
         virtual std::auto_ptr<Base> make
             ( const Job& job ) const = 0;
         virtual Factory* clone() const = 0;
@@ -75,28 +70,24 @@ class Job {
         virtual void set_requirements( InputTraits& ) {}
         virtual void set_traits( output::Traits&, const JobInfo& ) {}
         virtual void set_variables( output::Basename& ) const {}
+        virtual void attach_ui( simparm::Node& to ) = 0;
+        virtual void detach_ui( simparm::Node& to ) = 0;
+        virtual std::string getName() const = 0;
     };
 
     template <typename BaseClass>
     class Builder
         : public BaseClass::Config, public Factory
     {
-      public:
-        Builder() 
-            : Factory(
-                static_cast<typename BaseClass::Config&>
-                    (*this)) {}
-        Builder(const Builder<BaseClass>& o)
-            : BaseClass::Config(o), 
-              Factory(
-                static_cast<typename BaseClass::Config&>
-                    (*this)) {}
-
+    public:
         virtual Builder<BaseClass>* clone() const 
             { return new Builder<BaseClass>(*this); }
         virtual std::auto_ptr<Base> make(const Job& job) const
             { return std::auto_ptr<Base>(
                 new BaseClass( *this, job ) ); }
+        virtual void attach_ui( simparm::Node& to ) { BaseClass::Config::attach_ui(to); }
+        virtual void detach_ui( simparm::Node& to ) { BaseClass::Config::detach_ui(to); }
+        virtual std::string getName() const { return BaseClass::Config::getName(); }
     };
 }
 }

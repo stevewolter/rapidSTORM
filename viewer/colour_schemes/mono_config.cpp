@@ -7,7 +7,7 @@ namespace viewer {
 namespace colour_schemes {
 
 MonoConfig::MonoConfig() 
-    : simparm::Object("BlackWhite", "Greyscale") {}
+    : ColourScheme("BlackWhite", "Greyscale") {}
 
 std::auto_ptr<Backend> MonoConfig::make_backend( Config& config, Status& status ) const
 {

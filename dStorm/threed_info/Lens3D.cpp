@@ -1,7 +1,7 @@
-#include "Lens3D.h"
-#include "Config.h"
 #include <simparm/BoostUnits.hh>
 #include <simparm/Entry_Impl.hh>
+#include "Lens3D.h"
+#include "Config.h"
 #include <dStorm/units/nanolength.h>
 
 namespace dStorm {
@@ -11,7 +11,7 @@ std::ostream& Lens3D::print_( std::ostream& o ) const {
     return o << "lens-determined 3D at " << z_position_;
 }
 
-class Lens3DConfig : public simparm::Object, public Config {
+class Lens3DConfig : public Config {
     simparm::Entry< quantity<si::nanolength> > z_position;
 
     boost::shared_ptr<DepthInfo> make_traits( Direction ) const { 
@@ -22,11 +22,10 @@ class Lens3DConfig : public simparm::Object, public Config {
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) 
         { throw std::logic_error("Not implemented"); }
     void set_context() {}
-    simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() { push_back( z_position ); }
+    void registerNamedEntries() { z_position.attach_ui( this->node ); }
   public:
     Lens3DConfig() 
-        : simparm::Object("Lens3D", "Theoretical 3D"),
+        : Config("Lens3D", "Theoretical 3D"),
           z_position("ZPosition", "Z position", 0.0 * boost::units::si::nanometre) 
     { 
         registerNamedEntries(); 

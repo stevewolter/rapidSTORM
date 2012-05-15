@@ -9,26 +9,23 @@
 #include <memory>
 #include "../output/Traits_decl.h"
 #include "../output/Basename_decl.h"
+#include <simparm/ObjectChoice.hh>
 
 namespace dStorm {
 namespace engine {
 namespace spot_fitter {
 
 struct Factory {
-    simparm::Node& node;
   public:
-    Factory(simparm::Node& node) : node(node) {}
-    simparm::Node& getNode() { return node; }
-    operator simparm::Node&() { return node; }
-    const simparm::Node& getNode() const { return node; }
-    operator const simparm::Node&() const { return node; }
-
     virtual Factory* clone() const = 0;
     virtual ~Factory();
     virtual std::auto_ptr<Implementation> make( const JobInfo& ) = 0;
     virtual void set_requirements( InputTraits& ) = 0;
     virtual void set_traits( output::Traits&, const JobInfo& ) = 0;
     virtual void set_variables( output::Basename& ) const {}
+    virtual void attach_ui( simparm::Node& to ) = 0;
+    virtual void detach_ui( simparm::Node& to ) = 0;
+    virtual std::string getName() const = 0;
 
     virtual void register_trait_changing_nodes( simparm::Listener& ) = 0;
     /** Check whether spot fitter objects could actually be built with the current configuration. */

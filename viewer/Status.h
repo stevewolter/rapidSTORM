@@ -26,7 +26,7 @@ struct Status {
     dStorm::Engine* engine;
 
     virtual void adapt_to_changed_config() = 0;
-    void registerNamedEntries( simparm::Node& name );
+    void attach_ui( simparm::Node& name );
     void add_listener( simparm::Listener& );
 };
 

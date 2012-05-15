@@ -7,7 +7,7 @@ namespace viewer {
 namespace colour_schemes {
 
 HotConfig::HotConfig() 
-    : simparm::Object("BlackRedYellowWhite", "Colour code ranging from red over yellow to white") {}
+    : ColourScheme("BlackRedYellowWhite", "Colour code ranging from red over yellow to white") {}
 
 std::auto_ptr<Backend> HotConfig::make_backend( Config& config, Status& status ) const
 {

@@ -3,6 +3,7 @@
 
 #include <simparm/Node.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ObjectChoice.hh>
 #include <simparm/ManagedChoiceEntry.hh>
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -13,11 +14,9 @@ namespace dStorm {
 namespace output {
 namespace binning {
 
-struct FieldConfig {
-    virtual ~FieldConfig() {}
+struct FieldConfig : public simparm::ObjectChoice {
+    FieldConfig( std::string name, std::string desc ) : simparm::ObjectChoice(name,desc) {}
     virtual FieldConfig* clone() const = 0;
-    virtual const simparm::Node& getNode() const = 0;
-    simparm::Node& getNode() { return const_cast<simparm::Node&>( const_cast<const FieldConfig&>(*this).getNode()) ; }
 
     virtual std::auto_ptr<Scaled> make_scaled_binner() const = 0;
     virtual std::auto_ptr<Unscaled> make_unscaled_binner() const = 0;

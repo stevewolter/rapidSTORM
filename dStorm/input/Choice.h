@@ -12,7 +12,6 @@ class Choice
 {
   public:
     class LinkAdaptor {
-        simparm::Object node;
         std::auto_ptr<input::Link> _link;
         Choice *target;
         Link::Connection connection;
@@ -20,14 +19,9 @@ class Choice
       public:
         LinkAdaptor( std::auto_ptr<input::Link> l );
         ~LinkAdaptor();
-        simparm::Node& getNode() { return node[_link->name()]; }
-        const simparm::Node& getNode() const { return node[_link->name()]; }
-        operator simparm::Node&() { return getNode(); }
-        operator const simparm::Node&() const { return getNode(); }
         Link& link() { return *_link; }
         const Link& link() const { return *_link; }
         void registerNamedEntries() {
-            _link->registerNamedEntries( node );
         }
         LinkAdaptor* clone() const {
             std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
@@ -38,6 +32,10 @@ class Choice
             connection = _link->notify( boost::bind(
                 &Choice::traits_changed, &c, _1, _link.get() ) );
         }
+
+        std::string getName() const { return _link->name(); }
+        void attach_ui( simparm::Node& at ) { _link->registerNamedEntries( at ); }
+        void detach_ui( simparm::Node& at ) { throw std::logic_error("Not implemented"); }
     };
 
   protected:

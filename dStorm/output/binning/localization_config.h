@@ -12,7 +12,7 @@ namespace output {
 namespace binning {
 
 template <int Field>
-class LocalizationConfig : public FieldConfig, public simparm::Object
+class LocalizationConfig : public FieldConfig
 {
     typedef typename Localization<Field,false>::TraitsType Traits;
     int row, column;
@@ -32,7 +32,6 @@ class LocalizationConfig : public FieldConfig, public simparm::Object
 
     LocalizationConfig( const LocalizationConfig& o);
     LocalizationConfig* clone() const { return new LocalizationConfig(*this); }
-    virtual const simparm::Node& getNode() const { return *this; }
 
     std::auto_ptr<Scaled> make_scaled_binner() const ;
     std::auto_ptr<Unscaled> make_unscaled_binner() const;

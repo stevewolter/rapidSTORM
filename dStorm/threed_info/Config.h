@@ -5,19 +5,18 @@
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Direction.h>
 #include <simparm/Node.hh>
+#include <simparm/ObjectChoice.hh>
 #include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace traits { class PlaneConfig; }
 namespace threed_info {
 
-struct Config {
-    virtual ~Config() {}
+struct Config : public simparm::ObjectChoice {
+    Config( std::string name, std::string desc ) : ObjectChoice(name,desc) {}
     virtual boost::shared_ptr<DepthInfo> make_traits( Direction ) const = 0;
     virtual void read_traits( const DepthInfo&, const DepthInfo& ) = 0;
     virtual void set_context( ) = 0;
-    virtual simparm::Node& getNode() = 0;
-    const simparm::Node& getNode() const { return const_cast<Config&>(*this).getNode(); }
     virtual Config* clone() const = 0;
 };
 

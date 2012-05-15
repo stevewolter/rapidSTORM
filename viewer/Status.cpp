@@ -15,10 +15,10 @@ Status::Status(const Config& config)
 
 Status::~Status() {}
 
-void Status::registerNamedEntries( simparm::Node& name )
+void Status::attach_ui( simparm::Node& name )
 {
-    config.registerNamedEntries( name );
-    name.push_back( save );
+    config.attach_ui( name );
+    save.attach_ui( name );
 }
 
 void Status::add_listener( simparm::Listener& l ) {

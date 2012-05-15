@@ -29,11 +29,8 @@ struct ConstantBinner
 };
 
 class ConstantFieldConfig : public FieldConfig {
-    simparm::Object config;
-
     ~ConstantFieldConfig() {}
     ConstantFieldConfig* clone() const { return new ConstantFieldConfig(); }
-    const simparm::Node& getNode() const { return config; }
 
     std::auto_ptr<Scaled> make_scaled_binner() const 
         { throw std::logic_error("Constant binner cannot be scaled"); }
@@ -45,7 +42,7 @@ class ConstantFieldConfig : public FieldConfig {
 
     void add_listener( simparm::Listener& ) {}
 public:
-    ConstantFieldConfig() : config("Constant", "Localization count") {}
+    ConstantFieldConfig() : FieldConfig("Constant", "Localization count") {}
 };
 
 

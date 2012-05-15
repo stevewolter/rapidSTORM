@@ -8,11 +8,10 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-struct MonoConfig : public ColourScheme, public simparm::Object
+struct MonoConfig : public ColourScheme
 {
     MonoConfig();
     MonoConfig* clone() const { return new MonoConfig(*this); }
-    simparm::Node& getNode() { return *this; }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
 };
 

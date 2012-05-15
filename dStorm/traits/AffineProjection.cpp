@@ -81,9 +81,7 @@ class AffineProjectionFactory
 class AffineProjectionConfig
 : public ProjectionConfig
 {
-    simparm::Object node;
     simparm::FileEntry micro_alignment;
-    simparm::Node& getNode_() { return node; }
     ProjectionFactory* get_projection_factory_() const { 
         return new AffineProjectionFactory( micro_alignment() );
     }
@@ -93,13 +91,13 @@ class AffineProjectionConfig
 
   public:
     AffineProjectionConfig() 
-    : node("AffineProjection", "Linear alignment"),
+    : ProjectionConfig("AffineProjection", "Linear alignment"),
       micro_alignment("AlignmentFile", "Plane Alignment file") 
-      { node.push_back( micro_alignment ); }
+      { micro_alignment.attach_ui( this->node ); }
     AffineProjectionConfig( const AffineProjectionConfig& o )
-    : node(o.node), micro_alignment(o.micro_alignment) 
+    : ProjectionConfig(o), micro_alignment(o.micro_alignment) 
     {
-        node.push_back( micro_alignment );
+        micro_alignment.attach_ui( this->node );
     }
 };
 

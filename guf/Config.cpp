@@ -34,17 +34,17 @@ Config::Config()
 
 void Config::registerNamedEntries()
 {
-    fit_window_config.registerNamedEntries( *this );
-    push_back( marquardtStartLambda );
-    push_back( negligible_x_step );
-    push_back( maximumIterationSteps );
-    push_back( free_sigmas );
-    push_back( output_sigmas );
-    push_back( laempi_fit );
-    push_back( disjoint_amplitudes );
-    push_back( two_kernel_fitting );
-    push_back( theta_dist );
-    push_back( mle_fitting );
+    fit_window_config.attach_ui( *this );
+    marquardtStartLambda.attach_ui(*this);
+    negligible_x_step.attach_ui(*this);
+    maximumIterationSteps.attach_ui(*this);
+    free_sigmas.attach_ui(*this);
+    output_sigmas.attach_ui(*this);
+    laempi_fit.attach_ui(*this);
+    disjoint_amplitudes.attach_ui(*this);
+    two_kernel_fitting.attach_ui(*this);
+    theta_dist.attach_ui(*this);
+    mle_fitting.attach_ui(*this);
 }
 
 nonlinfit::levmar::Config Config::make_levmar_config() const

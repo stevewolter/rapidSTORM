@@ -15,6 +15,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/Message.hh>
 #include <simparm/Object.hh>
+#include <simparm/ObjectChoice.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/make_clone_allocator.hpp>
 
@@ -23,14 +24,12 @@ using namespace dStorm::engine;
 namespace dStorm {
 namespace Splitter {
 
-struct Split {
-    virtual ~Split() {}
+struct Split : public simparm::ObjectChoice {
+    Split( std::string name, std::string desc ) : simparm::ObjectChoice(name,desc) {}
     virtual Split* clone() const = 0;
     virtual input::Source<engine::ImageStack>* make_source
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) = 0;
     virtual int split_dimension() const = 0;
-    virtual simparm::Node& getNode() = 0;
-    virtual const simparm::Node& getNode() const = 0;
 };
 
 }
@@ -70,11 +69,8 @@ struct NoSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return p.release(); }
     int split_dimension() const { return -1; }
-    simparm::Node& getNode() { return node; }
-    const simparm::Node& getNode() const { return node; }
 
-    simparm::Object node;
-    NoSplit() : node("None", "None") {}
+    NoSplit() : Split("None", "None") {}
 };
 
 struct HorizontalSplit : public Split {
@@ -83,11 +79,8 @@ struct HorizontalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( false, p ); }
     int split_dimension() const { return 0; }
-    simparm::Node& getNode() { return node; }
-    const simparm::Node& getNode() const { return node; }
 
-    simparm::Object node;
-    HorizontalSplit() : node("Horizontally", "Left and right") {}
+    HorizontalSplit() : Split("Horizontally", "Left and right") {}
 };
 
 struct VerticalSplit : public Split {
@@ -96,11 +89,8 @@ struct VerticalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( true, p ); }
     int split_dimension() const { return 1; }
-    simparm::Node& getNode() { return node; }
-    const simparm::Node& getNode() const { return node; }
 
-    simparm::Object node;
-    VerticalSplit() : node("Vertically", "Top and bottom") {}
+    VerticalSplit() : Split("Vertically", "Top and bottom") {}
 };
 
 class ChainLink

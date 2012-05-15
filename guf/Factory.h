@@ -17,10 +17,6 @@ struct Factory
 : private simparm::Structure< Config >,
   public engine::spot_fitter::Factory
 {
-    Factory();
-    Factory(const Factory&);
-    ~Factory();
-
     std::auto_ptr<engine::spot_fitter::Implementation> make( const engine::JobInfo& );
     Factory* clone() const { return new Factory(*this); }
     void set_traits( output::Traits&, const engine::JobInfo& );
@@ -31,6 +27,10 @@ struct Factory
     bool can_do_3d( const input::Traits<engine::ImageStack>& ) const;
     bool can_compute_uncertainty( const engine::InputPlane& ) const;
     boost::optional<output::Traits> my_traits;
+
+    std::string getName() const { return simparm::Structure< Config >::getName(); }
+    void attach_ui( simparm::Node& to ) { simparm::Structure< Config >::attach_ui(to); }
+    void detach_ui( simparm::Node& to ) { simparm::Structure< Config >::detach_ui(to); }
 };
 
 }

@@ -34,7 +34,7 @@ Viewer::Viewer(const Viewer::Config& config)
 {
     DEBUG("Building viewer");
 
-    this->registerNamedEntries( *this );
+    Status::attach_ui( *this );
     Status::add_listener( *this );
 
     DEBUG("Built viewer");

@@ -12,16 +12,6 @@ namespace guf {
 
 namespace spf = engine::spot_fitter;
 
-Factory::Factory()
-: spf::Factory( static_cast<Config&>(*this) ) {}
-Factory::Factory(const Factory& c)
-: simparm::Structure<Config>(c),
-  spf::Factory( static_cast<Config&>(*this) ) 
-{
-}
-
-Factory::~Factory() {}
-
 std::auto_ptr<engine::spot_fitter::Implementation>
 Factory::make( const engine::JobInfo& info )
 {

@@ -46,7 +46,7 @@ std::string LocalizationConfig<Field>::make_desc(int r, int c) {
 
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range, int row, int column) 
-: simparm::Object( make_ident(row,column), make_desc(row,column) ), 
+: FieldConfig( make_ident(row,column), make_desc(row,column) ), 
   row(row), column(column) ,
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
   range(range)
@@ -55,19 +55,19 @@ LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range, int
 
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(std::string axis, int row, int column) 
-: simparm::Object( make_ident(row,column), make_desc(row,column) ), 
+: FieldConfig( make_ident(row,column), make_desc(row,column) ), 
   row(row), column(column) ,
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {
     resolution.helpID = "#Viewer_ResEnh";
-    push_back(resolution); 
+    resolution.attach_ui( this->node );
 }
 
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(const LocalizationConfig<Field>& o) 
-: simparm::Object(o), row(o.row), column(o.column), resolution(o.resolution), range(o.range)
+: FieldConfig(o), row(o.row), column(o.column), resolution(o.resolution), range(o.range)
 { 
-    if ( ! range.is_initialized() ) push_back(resolution); 
+    if ( ! range.is_initialized() ) resolution.attach_ui(this->node); 
 }
 
 template <int Field>
@@ -123,7 +123,7 @@ void LocalizationConfig<Field>::set_visibility(
     else 
         v = output::binning::Localization<Field, ScaledByResolution>::can_work_with(t, row, column);
 
-    this->viewable = v;
+    this->node.viewable = v;
 }
 
 template <int Field>

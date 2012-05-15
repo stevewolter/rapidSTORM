@@ -115,13 +115,11 @@ class SupportPointProjectionFactory
 class SupportPointProjectionConfig
 : public ProjectionConfig
 {
-    simparm::Object node;
     simparm::FileEntry micro_alignment;
     typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >,
                            2, 1, Eigen::DontAlign > PixelSize;
     simparm::Entry<PixelSize> resolution;
 
-    simparm::Node& getNode_() { return node; }
     ProjectionFactory* get_projection_factory_() const { 
         return new SupportPointProjectionFactory(
             micro_alignment(),
@@ -135,19 +133,19 @@ class SupportPointProjectionConfig
 
   public:
     SupportPointProjectionConfig() 
-    : node("SupportPointProjection", "Support point alignment"),
+    : ProjectionConfig("SupportPointProjection", "Support point alignment"),
       micro_alignment("AlignmentFile", "bUnwarpJ transformation"),
       resolution( "Resolution", "Transformation resolution", 
                   PixelSize::Constant(10.0f * si::nanometre / camera::pixel) )
     { 
-        node.push_back( micro_alignment ); 
-        node.push_back( resolution ); 
+        micro_alignment.attach_ui( ObjectChoice::node );
+        resolution.attach_ui( ObjectChoice::node ); 
     }
     SupportPointProjectionConfig( const SupportPointProjectionConfig& o )
-    : node(o.node), micro_alignment(o.micro_alignment), resolution(o.resolution)
+    : ProjectionConfig(o), micro_alignment(o.micro_alignment), resolution(o.resolution)
     {
-        node.push_back( micro_alignment );
-        node.push_back( resolution ); 
+        micro_alignment.attach_ui( ObjectChoice::node );
+        resolution.attach_ui( ObjectChoice::node ); 
     }
 };
 

@@ -66,22 +66,22 @@ _Config::_Config()
     DEBUG("Built Viewer Config");
 }
 
-void _Config::registerNamedEntries( simparm::Node& n ) {
-   n.push_back(outputFile);
-   n.push_back(save_with_key);
-   n.push_back(save_scale_bar);
-   n.push_back(showOutput);
-   n.push_back(density_matrix_given);
-   n.push_back(density_matrix);
+void _Config::attach_ui( simparm::Node& n ) {
+   outputFile.attach_ui(n);
+   save_with_key.attach_ui(n);
+   save_scale_bar.attach_ui(n);
+   showOutput.attach_ui(n);
+   density_matrix_given.attach_ui(n);
+   density_matrix.attach_ui(n);
 
-   n.push_back(binned_dimensions);
-   n.push_back(histogramPower);
-   n.push_back(top_cutoff);
-   n.push_back(colourScheme);
-   n.push_back(invert);
-   n.push_back(close_on_completion);
-   n.push_back(border);
-   n.push_back(scale_bar_length);
+   binned_dimensions.attach_ui(n);
+   histogramPower.attach_ui(n);
+   top_cutoff.attach_ui(n);
+   colourScheme.attach_ui(n);
+   invert.attach_ui(n);
+   close_on_completion.attach_ui(n);
+   border.attach_ui(n);
+   scale_bar_length.attach_ui(n);
 }
 
 void _Config::add_listener( simparm::Listener& l ) {
