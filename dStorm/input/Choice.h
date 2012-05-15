@@ -52,8 +52,6 @@ class Choice
   protected:
     virtual void operator()(const simparm::Event&);
   public:
-    typedef simparm::NodeChoiceEntry<Link> ChoiceEntry;
-
     Choice(std::string name, std::string desc, bool auto_select);
     Choice(const Choice&);
     ~Choice();

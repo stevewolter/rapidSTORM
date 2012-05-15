@@ -54,7 +54,7 @@ class Slicer : public OutputObject {
     /** Copy constructor undefined. */
     Slicer(const Slicer& c) 
         : OutputObject(c),
-          outputs_choice("OutputChoice", "Select slice to display")
+          suboutputs(c.suboutputs)
         { throw std::logic_error("dStorm::Slicer::Slicer(Copy) undef."); }
 
     void add_output_clone(int index);
@@ -64,8 +64,7 @@ class Slicer : public OutputObject {
     void store_results_( bool success );
 
   public:
-
-    simparm::NodeChoiceEntry<simparm::Object> outputs_choice;
+    simparm::Set suboutputs;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames);

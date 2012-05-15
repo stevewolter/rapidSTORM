@@ -38,7 +38,7 @@ void Slicer::add_output_clone(int i) {
 
     o->push_back( output->getNode() );
     outputs.replace( i, new Child( output, o ) );
-    outputs_choice.push_back( *o );
+    suboutputs.push_back( *o );
 
     if ( announcement.get() != NULL )
         outputs[i]->announceStormSize(*announcement);
@@ -76,11 +76,12 @@ Slicer::Slicer(const SourceBuilder& config)
   filename( config.outputFile.get_basename() ),
   source( static_cast<const FilterSource&>(config).clone() ),
   avoid_filenames(NULL),
-  outputs_choice( "Outputs", "Outputs to slicer" )
+  suboutputs( "Outputs", "Outputs to slicer" )
 {
+    suboutputs.showTabbed = true;
     outputs.resize(1, NULL);
     add_output_clone(0);
-    push_back( outputs_choice );
+    push_back( suboutputs );
 }
 
 void Slicer::check_for_duplicate_filenames

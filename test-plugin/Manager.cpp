@@ -140,7 +140,7 @@ class Manager::ControlConfig
 : public simparm::Object, public simparm::Listener, private boost::noncopyable
 {
     Manager& m;
-    simparm::NodeChoiceEntry<Manager::Source> which_window;
+    simparm::ChoiceEntry<Manager::Source> which_window;
     simparm::Entry<unsigned long> which_key;
     simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;

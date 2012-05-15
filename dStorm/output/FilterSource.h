@@ -8,7 +8,7 @@
 #include <boost/ptr_container/ptr_map.hpp>
 
 namespace simparm {
-    template <typename Type> class NodeChoiceEntry;
+    template <typename Type> class ChoiceEntry;
 };
 
 namespace dStorm {
@@ -66,7 +66,7 @@ class FilterSource
 
     /** Control elements for adding/removing transmissions. */
     struct RemovalObject;
-    std::auto_ptr< simparm::NodeChoiceEntry<RemovalObject> >
+    std::auto_ptr< simparm::ChoiceEntry<RemovalObject> >
         removeSelector;
     boost::ptr_map< OutputSource*, RemovalObject > removalObjects;
 

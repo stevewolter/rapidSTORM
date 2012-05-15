@@ -50,7 +50,7 @@ FilterSource::FilterSource(simparm::Node& node)
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   next_identity(0),
   factory( NULL ),
-  removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
+  removeSelector( new simparm::ChoiceEntry<RemovalObject> (
         "ToRemove", "Select output to remove") )
 {
     removeSelector->set_auto_selection( false );
@@ -64,7 +64,7 @@ FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
     basename(o.basename),
     factory( NULL ),
     outputs(),
-    removeSelector( new simparm::NodeChoiceEntry<RemovalObject> (
+    removeSelector( new simparm::ChoiceEntry<RemovalObject> (
         "ToRemove", "Select output to remove") )
 {
     DEBUG("Copying " << o.getNode().getName());
