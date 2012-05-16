@@ -21,11 +21,13 @@ struct Evaluator
     const Model * expr;
     Eigen::Array<double,ChunkSize, 3> calib_image_pos_in_px; //chunk with postiions
     Eigen::Array<int,ChunkSize, 3> base_pos_in_px; //chunk with postiions
-    Eigen::Array<Num, ChunkSize, 3> psf_data_size;
+    Eigen::Array<double, ChunkSize, 3> psf_data_size;
 
     Evaluator() : expr(NULL)  {}
-    Evaluator(const Model& e ) :expr(&e) {psf_data_size.rowwise() = boost::units::value( expr->psf_data.sizes() ).cast<Num>() - Num(1.0);}
+    Evaluator(const Model& e ) :expr(&e) {
+    }
     bool prepare_iteration( const Data& data ) {
+        psf_data_size.rowwise() = boost::units::value( expr->psf_data.sizes() ).cast<double>() - 1.0;
         return true;
     }
 
@@ -35,7 +37,7 @@ struct Evaluator
         Eigen::Array3d calib_image_pos_in_um;
         for (int row = 0; row < ChunkSize; ++row) {
              Eigen::Vector3d x;
-             x.head<2>() = xs.row(row);
+             x.head<2>() = xs.row(row).template cast<double>();
              x[2]= expr->axial_mean;
              //returns relative coordinates for x_image in x_psf
              calib_image_pos_in_um = (x - expr->x0) + expr->image_x0;
@@ -44,80 +46,61 @@ struct Evaluator
         }
         if ( (calib_image_pos_in_px >= psf_data_size).any() )
             throw std::logic_error ("calib_image_pos out of range of PSF");
-            base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
+        base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
     }
+
+private:
+    template <int Dim, typename Target>
+    void interpolate_value( Target& ref ) const {
+        const double pixel_size_factor = (Dim >= 0) ? 1.0/expr->pixel_size[Dim] : 0;
+        for ( int dx = 0; dx < 2; ++dx )
+            for ( int dy = 0; dy < 2; ++dy )
+                for ( int dz = 0; dz < 2; ++dz )
+                {
+                    for (int row = 0; row < ChunkSize; ++row) {
+                        Eigen::Array3i pos;
+                        pos.x() = base_pos_in_px.row(row).x() + dx;
+                        pos.y() = base_pos_in_px.row(row).y() + dy;
+                        pos.z() = base_pos_in_px.row(row).z() + dz;
+                        double value = expr->psf_data( from_value<camera::length>( pos ) );
+                        Eigen::Vector3d weights = ( 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs() );
+                        if ( Dim >= 0 )
+                            weights[Dim] = ( pos[Dim] <= calib_image_pos_in_px(row,Dim) ) 
+                                             ? - pixel_size_factor :  pixel_size_factor;
+                        ref[row] += weights.prod() * value * expr->amplitude * expr->prefactor;
+                    }
+                }
+    }
+public:
 
     void value( Eigen::Array<Num,ChunkSize,1>& ref ) { ref.fill(0); add_value(ref); }
     void add_value( Eigen::Array<Num,ChunkSize,1>& ref ) {
-        for ( int dx = 0; dx < 2; ++dx )
-            for ( int dy = 0; dy < 2; ++dy )
-                for ( int dz = 0; dz < 2; ++dz )
-                {
-                    for (int row = 0; row < ChunkSize; ++row) {
-                        Eigen::Array3i pos;
-                        pos.x() = base_pos_in_px.row(row).x() + dx;
-                        pos.y() = base_pos_in_px.row(row).y() + dy;
-                        pos.z() = base_pos_in_px.row(row).z() + dz;
-                        double value = expr->psf_data( from_value<camera::length>( pos ) );
-                        double weight = ( 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs() ).prod();
-                        ref[row] += weight * value;
-                        if (row==0) std::cerr << "pos.x()=" <<pos.x() << " pos.y()=" <<pos.y() << " pos.z()=" << pos.z() << " Value at Point=" << value << " Weight at Point=" << weight <<std::endl;
-                    }
-                }
+        interpolate_value<-1>( ref );
     }
 
     template <typename Target, int Dim>
-    void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) {
+    void derivative( Target target, nonlinfit::Xs<Dim,LengthUnit> ) const {
         target.fill(0);
-        for ( int dx = 0; dx < 2; ++dx )
-            for ( int dy = 0; dy < 2; ++dy )
-                for ( int dz = 0; dz < 2; ++dz )
-                {
-                    for (int row = 0; row < ChunkSize; ++row) {
-                        Eigen::Array3i pos;
-                        pos.x() = base_pos_in_px.row(row).x() + dx;
-                        pos.y() = base_pos_in_px.row(row).y() + dy;
-                        pos.z() = base_pos_in_px.row(row).z() + dz;
-
-                        double value = expr->psf_data( from_value<camera::length>( pos ) );
-                        Eigen::Vector3d weights = 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs();
-                        weights[Dim] = ( pos[Dim] < calib_image_pos_in_px(row,Dim) ) ? -1 : 1;
-                        /* if postion on surrounding cube is smaller as position of point*/
-                        target[row] += weights.prod() * value; //minus for derivate, Mean
-                    }
-                }
+        interpolate_value<Dim>( target );
     }
     template <typename Target, int Dim>
     void derivative( Target target, Mean<Dim> ) {
-        target = Eigen::Matrix<double,ChunkSize,1>::Zero().template cast<Num>();
+        derivative( target, nonlinfit::Xs<Dim,LengthUnit>() );
+        target *= -1;
     }
 
     template <typename Target>
     void derivative( Target target, const Amplitude& ) {
-         for (int row = 0; row < ChunkSize; ++row)
-         {
-            for ( int dx = 0; dx < 2; ++dx )
-                for ( int dy = 0; dy < 2; ++dy )
-                    for ( int dz = 0; dz < 2; ++dz )
-                    {
-                        for (int row = 0; row < ChunkSize; ++row)
-                        {
-                            Eigen::Array3i pos;
-                            pos.x() = base_pos_in_px.row(row).x() + dx;
-                            pos.y() = base_pos_in_px.row(row).y() + dy;
-                            pos.z() = base_pos_in_px.row(row).z() + dz;
-                            double value = expr->psf_data( from_value<camera::length>( pos ) );
-                            double weight = ( 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs() ).prod();
-                            target[row] += weight * value/expr->amplitude;
-                        }
-         }
-
-    }
+         target.fill(0);
+         interpolate_value<-1>( target );
+         target /= expr->amplitude;
     }
 
     template <typename Target>
     void derivative( Target target, const Prefactor& ) {
-        target = Eigen::Matrix<double,ChunkSize,1>::Zero().template cast<Num>();
+         target.fill(0);
+         interpolate_value<-1>( target );
+         target /= expr->prefactor;
     }
 };
 

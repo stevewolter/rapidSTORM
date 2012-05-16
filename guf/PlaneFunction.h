@@ -11,7 +11,6 @@ namespace guf {
 
 template <class Lambda>
 struct PlaneFunction {
-    template <class ComputationWay> class Implementation;
   public:
     typedef typename nonlinfit::get_abstract_function<Lambda,double>::type 
         abstraction;

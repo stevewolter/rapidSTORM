@@ -17,6 +17,7 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/framework/accumulator_set.hpp>
 #include <dStorm/threed_info/look_up_sigma_diff.h>
+#include "measured_psf/Model.h"
 
 using namespace boost::accumulators;
 
@@ -156,6 +157,10 @@ void InitialValueFinder::operator()(
             z->set_spline( 
                 info.traits.optics(p).depth_info(Direction_X),
                 info.traits.optics(p).depth_info(Direction_Y) );
+        } else if ( measured_psf::Model* z = dynamic_cast<measured_psf::Model*>(&position[p][0]) ) {
+            boost::mpl::for_each< measured_psf::Model::Variables >( 
+                boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
+            // TODO: Init measured_psf::Model's calibration image here
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );

@@ -22,11 +22,20 @@ class Model
 :   public nonlinfit::access_parameters<Model>,
     public guf::SingleKernelModel
 {
+public:
     template <class Num, int Size> friend class Evaluator;
     template <typename Type> friend class nonlinfit::access_parameters;
     using nonlinfit::access_parameters<Model>::operator();
     using nonlinfit::access_parameters<Model>::get;
 
+    typedef boost::mpl::vector<
+        /* These parameters are the three dimension of the search image position. */
+        nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>, nonlinfit::Xs<2,LengthUnit>,
+        /* The three dimensions of the fluorophore position in the search image. */
+        Mean<0>, Mean<1>, Mean<2>,
+        Amplitude, Prefactor > Variables;
+
+private:
      quantity<si::length> get_fluorophore_position(int Dim) const;
      void set_fluorophore_position(int, quantity<si::length>);
      double intensity() const;
@@ -38,16 +47,10 @@ class Model
      static Model mock();
 
   private:
-    typedef boost::mpl::vector<
-        /* These parameters are the three dimension of the search image position. */
-        nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>, nonlinfit::Xs<2,LengthUnit>,
-        /* The three dimensions of the fluorophore position in the search image. */
-        Mean<0>, Mean<1>, Mean<2>,
-        Amplitude, Prefactor > Variables;
-
     Model& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Model&>(f); }
 
     Eigen::Vector3d x0, image_x0;
+    /** pixel_size of psf_data in um/px */
     Eigen::Vector3d pixel_size;
     double axial_mean, amplitude, prefactor;
     Image<double,3> psf_data;

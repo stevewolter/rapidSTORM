@@ -3,28 +3,19 @@
 
 #include <nonlinfit/Xs.h>
 #include "LengthUnit.h"
-
-
+#include "gaussian_psf/parameters.h"
 
 namespace dStorm {
 namespace measured_psf {
 
 using namespace boost::units;
+using gaussian_psf::Mean;
+using gaussian_psf::Amplitude;
+using gaussian_psf::Prefactor;
 
 typedef nonlinfit::Xs< 0,LengthUnit > XPosition;
 typedef nonlinfit::Xs< 1,LengthUnit > YPosition;
 typedef nonlinfit::Xs< 2,LengthUnit > ZPosition;
-
-template <int _Dimension> struct Mean {
-    static const int Dimension = _Dimension;
-    typedef LengthUnit Unit;
-};
-struct Amplitude {
-    typedef si::dimensionless Unit;
-};
-struct Prefactor {
-    typedef si::dimensionless Unit;
-};
 
 }
 }

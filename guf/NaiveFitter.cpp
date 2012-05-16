@@ -42,7 +42,7 @@ NaiveFitter::create(
     const Config& c,
     const dStorm::engine::JobInfo& info )
 {
-    bool consistently_no_3d = true;
+    bool consistently_no_3d = true, use_measured_psf = true;
     for ( input::Traits< engine::ImageStack >::const_iterator i = info.traits.begin(); i != info.traits.end(); ++i )
         for (Direction dir = Direction_First; dir != Direction_2D; ++dir) {
             bool is_no3d = dynamic_cast< const threed_info::No3D* >( i->optics.depth_info(dir).get() );
@@ -51,9 +51,8 @@ NaiveFitter::create(
 
     if ( c.free_sigmas() && ! consistently_no_3d )
         throw std::runtime_error("Free-sigma fitting is limited to 2D");
-    else if ( true ) {
-        // As of yet, we cannot return the measured_psf model because it is not in the Makefile
-	throw std::logic_error("Not implemented");
+    else if ( use_measured_psf ) {
+        return create2<Kernels,gaussian_psf::FixedForm,measured_psf::Model>(c,info);
     } else if ( c.free_sigmas() )
         return create2<Kernels,gaussian_psf::FreeForm,gaussian_psf::No3D>(c,info);
     else if ( consistently_no_3d )

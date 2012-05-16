@@ -333,10 +333,10 @@ dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program
 dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
 dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS)
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
-dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS)
+dstorm_LDADD = libdStorm.la libmeasured_psf.la $(GraphicsMagick_LIBS) $(WX_LIBS)
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS)
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
+dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS) 
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -645,12 +645,17 @@ dstorm_SOURCES += \
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an
 # empty suffix to generate lists
 INST_DIR = guf/instantiations/
-INST_MODEL = \
+INST_GAUSS_MODEL = \
     $(INST_DIR:=no3d_-_free_form_model_-_one_kernel_-_) \
     $(INST_DIR:=no3d_-_fixed_form_model_-_one_kernel_-_) \
     $(INST_DIR:=no3d_-_fixed_form_model_-_two_kernel_-_) \
     $(INST_DIR:=spline3d_-_fixed_form_model_-_one_kernel_-_) \
     $(INST_DIR:=spline3d_-_fixed_form_model_-_two_kernel_-_)
+INST_MEASURED_MODEL = \
+    $(INST_DIR:=measured_psf_-_fixed_form_model_-_one_kernel_-_) \
+    $(INST_DIR:=measured_psf_-_fixed_form_model_-_two_kernel_-_)
+
+INST_MODEL = $(INST_GAUSS_MODEL) $(INST_MEASURED_MODEL)
 
 INST_NUMTYPE = $(INST_MODEL:=float_-_) $(INST_MODEL:=double_-_)
 INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14)
@@ -672,6 +677,7 @@ dstorm_SOURCES += \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
     guf/instantiations/spline3d.h \
+    guf/instantiations/measured_psf.h \
     guf/instantiations/fixed_form_model.h \
     guf/instantiations/free_form_model.h \
     guf/instantiations/float.h \

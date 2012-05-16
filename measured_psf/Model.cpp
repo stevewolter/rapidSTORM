@@ -38,27 +38,24 @@ Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > Model::get_sigma() con
 }
 
 Model Model::mock() {
-	Model rv;
-	Image<double,3>::Size size;
-	size.fill( 10 * camera::pixel );
-	rv.psf_data = Image<double,3>( size );
+    Model rv;
+    Image<double,3>::Size size;
+    size.fill( 10 * camera::pixel );
+    rv.psf_data = Image<double,3>( size );
 
-        for (int x = 0; x < 10; ++x)
-            for (int y = 0; y < 10; ++y)
-                for (int z = 0; z < 10; ++z)
-                    rv.psf_data(x,y,z) = 2 * x + 3 * y - z;
+    for (int x = 0; x < 10; ++x)
+        for (int y = 0; y < 10; ++y)
+            for (int z = 0; z < 10; ++z)
+                rv.psf_data(x,y,z) = 2 * x + 3 * y - z;
 
-//    rv.x0.fill(5);
-//	rv.image_x0.fill(5);
-//	rv.axial_mean = 4.66666;
-//    rv.pixel_size.fill(1);
     rv.x0.fill(6);
-	rv.image_x0.fill(5);
-	rv.axial_mean = 4;
+    rv.image_x0.fill(5);
+    rv.axial_mean = 4;
     rv.pixel_size.fill(0.5);
-    // pixel_size of calib_image in um
+    rv.amplitude = 2.5;
+    rv.prefactor = 2;
 
-	return rv;
+    return rv;
 }
 
 }
