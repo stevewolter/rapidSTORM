@@ -183,11 +183,12 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
-    simparm::Node& getNode() { return config; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    static std::string getName() { return "PlaneFilter"; }
 };
 
 Config::Config() 
-: simparm::Object("PlaneFilter", "Image selection filter"),
+: simparm::Object(getName(), "Image selection filter"),
   which_plane( "OnlyPlane", "Process only one plane" )
 {
     which_plane.addChoice( new AllPlanes() );

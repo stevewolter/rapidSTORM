@@ -94,7 +94,8 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
-    simparm::Node& getNode() { return config; }
+    static std::string getName() { return "SampleInfo"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
 };
 
 FluorophoreConfig::FluorophoreConfig(int number)
@@ -126,7 +127,7 @@ inline void Config::set_traits( DataSetTraits& t ) const
 }
 
 Config::Config()
-: simparm::Object("SampleInfo", "Sample information"),
+: simparm::Object(getName(), "Sample information"),
   fluorophore_count("FluorophoreCount", "Fluorophore types", 1)
 {
     fluorophore_count.helpID = "FluorophoreTypeCount";

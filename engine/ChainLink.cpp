@@ -85,7 +85,8 @@ class ChainLink
     ChainLink(const ChainLink&);
     ~ChainLink() {}
 
-    simparm::Node& getNode() { return config; }
+    static std::string getName() { return "rapidSTORM"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
 
     void add_spot_finder( const spot_finder::Factory& finder) 
         { config.spotFindingMethod.addChoice(finder.clone()); }

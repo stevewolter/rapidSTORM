@@ -60,6 +60,8 @@ class ChainLink
     friend class input::Method<ChainLink>;
 
     simparm::Structure<Config> config;
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    static std::string getName() { return "Optics"; }
 
     void operator()(const simparm::Event&);
 
@@ -77,7 +79,6 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
-    simparm::Node& getNode() { return config; }
 };
 
 ChainLink::ChainLink() 

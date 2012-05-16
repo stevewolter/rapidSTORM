@@ -120,7 +120,8 @@ class ChainLink
     ChainLink();
     ChainLink(const ChainLink&);
 
-    simparm::Node& getNode() { return config; }
+    static std::string getName() { return "BiplaneSplitter"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
     static void split_planes( input::Traits<engine::ImageStack>& t, int dim )
     {
         input::Traits<engine::ImageStack> old( t );
@@ -136,7 +137,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object("BiplaneSplitter", "Split dual view image"),
+: simparm::Object(getName(), "Split dual view image"),
   biplane_split("DualView", "Dual view")
 {
     biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );

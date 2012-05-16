@@ -126,7 +126,8 @@ class Method
     void modify_meta_info( dStorm::input::MetaInfo& info ) {
         info.suggested_output_basename.unformatted() = "testoutputfile";
     }
-    simparm::Object& getNode() { return config; }
+    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
+    static std::string getName() { return "DummyInput"; }
 
   public:
     Method();

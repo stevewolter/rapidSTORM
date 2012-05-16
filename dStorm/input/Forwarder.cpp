@@ -57,11 +57,6 @@ std::string Forwarder::name() const {
     return more_specialized->name();
 }
 
-std::string Forwarder::description() const {
-    assert( more_specialized.get() );
-    return more_specialized->description();
-}
-
 void Forwarder::insert_here( std::auto_ptr<Link> link ) {
     if ( more_specialized.get() )
         link->insert_new_node( more_specialized, Anywhere );

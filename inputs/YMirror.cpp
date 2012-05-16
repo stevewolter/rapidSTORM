@@ -63,7 +63,8 @@ class ChainLink
   public:
     ChainLink() {}
 
-    simparm::Node& getNode() { return config; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    static std::string getName() { return "Mirror"; }
 };
 
 struct Mirrorer : public boost::static_visitor<void> {
@@ -167,7 +168,7 @@ template <>
 void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageStack>& ) {}
 
 Config::Config() 
-: simparm::Object("Mirror", "Mirror input data along Y axis"),
+: simparm::Object(getName(), "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
     mirror_y.userLevel = simparm::Object::Expert;

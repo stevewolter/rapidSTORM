@@ -44,7 +44,7 @@ Source::get_traits( typename BaseSource::Wishes )
 }
 
 Config::Config() 
-: simparm::Object( "AndorSIF", "Andor SIF file" )
+: simparm::Object( getName(), "Andor SIF file" )
 {
 }
 

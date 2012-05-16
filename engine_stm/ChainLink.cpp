@@ -22,7 +22,8 @@ using namespace input;
 class ChainLink : public input::Method< ChainLink >
 {
     friend class input::Method< ChainLink >;
-    simparm::Node& getNode() { throw std::logic_error("Not implemented"); }
+    void attach_ui( simparm::Node& at ) { Forwarder::registerNamedEntries(at); }
+    static std::string getName() { throw std::logic_error("Not implemented"); }
 
     typedef boost::mpl::vector<localization::Record,dStorm::Localization>
         SupportedTypes;
@@ -39,9 +40,6 @@ class ChainLink : public input::Method< ChainLink >
 
   public:
     std::string name() const { return Forwarder::name(); }
-    std::string description() const { return Forwarder::description(); }
-    void registerNamedEntries( simparm::Node& node ) 
-        { Forwarder::registerNamedEntries(node); }
 };
 
 class STMEngine : public input::Forwarder

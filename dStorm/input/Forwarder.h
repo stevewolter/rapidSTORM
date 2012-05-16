@@ -19,7 +19,6 @@ class Forwarder : public Link {
     void insert_new_node( std::auto_ptr<Link>, Place );
     void registerNamedEntries( simparm::Node& );
     std::string name() const;
-    std::string description() const;
     void publish_meta_info();
 
     virtual void traits_changed( TraitsRef, Link* );

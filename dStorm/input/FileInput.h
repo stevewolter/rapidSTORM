@@ -69,12 +69,9 @@ class FileInput
         current_file(o.current_file), file(o.file), error(o.error) {}
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     void publish_meta_info() { republish_traits(); }
-    std::string name() const 
-        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getName(); }
-    std::string description() const
-        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getDesc(); }
+    std::string name() const { return CRTP::getName(); }
     void registerNamedEntries( simparm::Node& n ) 
-        { n.push_back( static_cast<CRTP&>(*this).getNode() ); }
+        { static_cast<CRTP&>(*this).attach_ui(n); }
 };
 
 }

@@ -71,11 +71,12 @@ class ChainLink
     simparm::Structure<Config>& get_config() { return config; }
     simparm::Structure<Config> config;
   public:
-    simparm::Node& getNode() { return config; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    static std::string getName() { return "BackgroundEstimator"; }
 };
 
 Config::Config() 
-: simparm::Object("BackgroundEstimator", "Estimate background variance"),
+: simparm::Object(getName(), "Estimate background variance"),
   enable("Enable", "Estimate background variance", true)
 {
     enable.userLevel = simparm::Object::Intermediate;

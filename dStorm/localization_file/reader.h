@@ -90,6 +90,8 @@ namespace Reader {
         friend class input::FileInput<ChainLink,File>;
         File* make_file( const std::string& ) const;
         void modify_meta_info( input::MetaInfo& info );
+        void attach_ui( simparm::Node& n ) { std::cerr << "Attaching " << this << " to " << &n << std::endl; *(int*)0x42 = 0; config.attach_ui(n); }
+        static std::string getName() { return "STM"; }
 
       public:
         ChainLink();
@@ -97,7 +99,6 @@ namespace Reader {
 
         virtual input::Source<localization::Record>* makeSource();
         virtual ChainLink* clone() const { return new ChainLink(*this); }
-        virtual simparm::Object& getNode() { return config; }
 
         static std::auto_ptr<Source> read_file( simparm::FileEntry& name, const input::Traits<localization::Record>& context );
 

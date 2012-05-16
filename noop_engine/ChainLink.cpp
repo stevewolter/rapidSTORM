@@ -18,9 +18,10 @@ namespace noop_engine {
 using namespace input;
 
 class ChainLink
-: public simparm::Object,
-  public input::Method< ChainLink >
+: public input::Method< ChainLink >
 {
+    simparm::Object config;
+
     friend class input::Method< ChainLink >;
     typedef boost::mpl::vector<engine::ImageStack> SupportedTypes;
 
@@ -36,9 +37,10 @@ class ChainLink
 
   public:
     ChainLink()
-        : simparm::Object("Noop", "Do not localize") {}
+        : config(getName(), "Do not localize") {}
 
-    simparm::Node& getNode() { return *this; }
+    static std::string getName() { return "Noop"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
 };
 
 std::auto_ptr<input::Link>

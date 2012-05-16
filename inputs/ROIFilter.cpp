@@ -175,11 +175,12 @@ class ChainLink
   public:
     ChainLink();
     ChainLink(const ChainLink&);
-    simparm::Node& getNode() { return config; }
+    static std::string getName() { return "ROIFilter"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
 };
 
 Config::Config() 
-: simparm::Object("ROIFilter", "Image selection filter"),
+: simparm::Object(getName(), "Image selection filter"),
   first_frame("FirstImage", "First image to load"),
   last_frame( "LastImage", "Last image to load" )
 {

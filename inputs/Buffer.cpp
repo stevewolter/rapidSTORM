@@ -242,11 +242,12 @@ class ChainLink
 
   public:
     ChainLink();
-    simparm::Node& getNode() { return config; }
+    static std::string getName() { return "Buffer"; }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
 };
 
 ChainLink::ChainLink() 
-: config("Buffer", "Buffer") 
+: config(getName(), "Buffer") 
 {
 }
 

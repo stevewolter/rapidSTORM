@@ -23,12 +23,10 @@ class Method
     void traits_changed( TraitsRef, Link* );
     void registerNamedEntries( simparm::Node& node ) { 
         Forwarder::registerNamedEntries( node );
-        node.push_back( static_cast<CRTP&>(*this).getNode() ); 
+        static_cast<CRTP&>(*this).attach_ui( node );
     }
     std::string name() const
-        { return const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode().getName(); }
-    std::string description() const 
-        { return static_cast<simparm::Object&>(const_cast<CRTP&>(static_cast<const CRTP&>(*this)).getNode()).getDesc(); }
+        { return CRTP::getName(); }
 
   protected:
     typedef DefaultTypes SupportedTypes;

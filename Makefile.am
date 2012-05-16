@@ -22,7 +22,7 @@ applications_DATA=rapidstorm.desktop
 endif
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = version.txt dstorm-config.txt
-pkgconfig_DATA = librapidstorm.pc librapidstormfile.pc
+pkgconfig_DATA = librapidstormfile.pc
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
@@ -107,8 +107,7 @@ endif
 .rc.o : 
 	$(WINDRES) -I . '$<' '$@'
 
-headerdir = $(includedir)/dStorm
-nobase_include_HEADERS = \
+libdStorm_la_SOURCES = \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
@@ -234,7 +233,7 @@ nobase_include_HEADERS = \
     dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
 
-libdStorm_la_SOURCES = \
+libdStorm_la_SOURCES += \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \

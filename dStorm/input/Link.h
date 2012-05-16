@@ -50,7 +50,6 @@ class Link {
     typedef dStorm::InsertionPlace Place;
     virtual void insert_new_node( std::auto_ptr<Link>, Place ) = 0;
     virtual std::string name() const = 0;
-    virtual std::string description() const = 0;
 
     Connection notify( const TraitsSignal::slot_type& whom );
  

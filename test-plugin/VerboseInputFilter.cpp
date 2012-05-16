@@ -26,7 +26,7 @@ class ChainLink
     template <typename Type>
     void notice_traits( const MetaInfo& ref, const Traits<Type>& ) {
         if ( config.verbose() )
-            DEBUG("Traits " << &ref << " are passing on " << getNode().getName() << " (" << this << ")");
+            DEBUG("Traits " << &ref << " are passing on " << name() << " (" << this << ")");
     }
     template <typename Type>
     BaseSource* make_source( std::auto_ptr< dStorm::input::Source<Type> > p ) {
@@ -40,7 +40,8 @@ class ChainLink
   public:
     simparm::Structure<Config> config;
 
-    simparm::Node& getNode() { return static_cast<Config&>(config); }
+    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    static std::string getName() { return "VerboseInput"; }
 };
 
 }

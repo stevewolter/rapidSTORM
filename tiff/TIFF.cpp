@@ -107,7 +107,8 @@ class ChainLink
     friend class input::FileInput<ChainLink,OpenFile>;
     OpenFile* make_file( const std::string& ) const;
     void modify_meta_info( MetaInfo& info );
-    simparm::Object& getNode() { return config; }
+    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
+    static std::string getName() { return "TIFF"; }
 
     protected:
     void operator()(const simparm::Event&);
