@@ -25,22 +25,22 @@ namespace dStorm {
 namespace calibrate_3d {
 namespace sigma_curve {
 
-class Configuration : public simparm::Object {
-  protected:
-    void registerNamedEntries() {
-        push_back( outputFile );
-        push_back( step_number );
-    }
+class Configuration {
   public:
     output::BasenameAdjustedFileEntry outputFile;
     simparm::Entry< unsigned int > step_number;
+    static std::string get_name() { return "SigmaCurve"; }
+    static std::string get_description() { return "3D PSF width calibration table"; }
     Configuration()
-        : simparm::Object("SigmaCurve", "3D PSF width calibration table"),
-          outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
+        : outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
           step_number("StepNumber", "Number of B spline breakpoints", 10)
     {
         outputFile.helpID = "#SigmaCurve_ToFile";
         step_number.helpID = "#SigmaCurve_StepNumber";
+    }
+    void attach_ui( simparm::Node& at ) {
+        outputFile.attach_ui( at );
+        step_number.attach_ui( at );
     }
 
     bool can_work_with(output::Capabilities cap) { 
@@ -128,10 +128,8 @@ private:
     }
 
 public:
-    typedef simparm::Structure<Configuration> Config;
-
-    Output(const Config &c) 
-        : OutputObject(c.getName(), c.getDesc()),
+    Output(const Configuration &c) 
+        : OutputObject(Configuration::get_name(), Configuration::get_description()),
           config(c) {}
     Output* clone() const { throw std::runtime_error(getDesc() + " cannot be copied"); }
 
@@ -153,7 +151,7 @@ public:
 
 };
 std::auto_ptr<output::OutputSource> make_output_source() {
-    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Output>() );
+    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Configuration,Output>() );
 }
 
 }

@@ -19,9 +19,7 @@ inline std::ostream& operator<<( std::ostream& o, const boost::optional<Type>& v
 struct Verbose
 : public dStorm::output::OutputObject
 {
-    struct _Config;
-    typedef simparm::Structure<_Config> Config;
-    class Source;
+    struct Config;
 
     Verbose(const Config& config) ;
     ~Verbose();
@@ -48,34 +46,15 @@ struct Verbose
 
 };
 
-struct Verbose::_Config
+struct Verbose::Config
  : public simparm::Object 
 {
-    _Config();
+    Config();
     void registerNamedEntries() {}
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
-};
-
-Verbose::_Config::_Config()
- : simparm::Object("Verbose", "Verbose")
-{
-}
-
-class Verbose::Source
-: public dStorm::output::OutputBuilder<Verbose> 
-{
-  public:
-    Source( bool failSilently = false ) 
-        : dStorm::output::OutputBuilder<Verbose>(failSilently) {}
-    Source( const Source& o ) 
-        : dStorm::output::OutputBuilder<Verbose>(o) {}
-
-    Source *clone() const { return new Source(*this); }
-
-    void set_output_file_basename(const dStorm::output::Basename& basename) {
-        //LOG("Verbose plugin got basename " << basename.unformatted()());
-    }
+    static std::string get_name() { return "Verbose"; }
+    static std::string get_description() { return "Verbose"; }
 };
 
 Verbose* Verbose::clone() const { 
@@ -84,7 +63,7 @@ Verbose* Verbose::clone() const {
 }
 
 Verbose::Verbose( const Config& config )
-        : OutputObject("SegFault", "SegFault")
+        : OutputObject(Config::get_name(), Config::get_description())
 {
     LOG( "Constructed verbose plugin" );
 }

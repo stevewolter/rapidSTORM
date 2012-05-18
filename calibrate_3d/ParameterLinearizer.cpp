@@ -30,7 +30,7 @@ template <int Dim, int Term> struct calibrated_parameter::apply< gaussian_psf::D
 class reducible_to_preceding_parameter {
     const bool is_symmetric, may_be_astigmatic;
 public:
-    reducible_to_preceding_parameter( const Config_& config )
+    reducible_to_preceding_parameter( const Config& config )
         : is_symmetric( config.symmetric() ),
           may_be_astigmatic( config.astigmatism() ) {}
 
@@ -75,14 +75,14 @@ struct ParameterLinearizer::Pimpl
     mutable boost::optional< MultiPlane > multiplane;
 
 public:
-    Pimpl( const Config_& c );
+    Pimpl( const Config& c );
     void set_plane_count( int plane_count );
     int variable_count() const { return multiplane->variable_count(); }
     Eigen::VectorXd linearize( const engine::InputTraits& ) const;
     void delinearize( const Eigen::VectorXd&, engine::InputTraits& into );
 };
 
-ParameterLinearizer::Pimpl::Pimpl( const Config_& config )
+ParameterLinearizer::Pimpl::Pimpl( const Config& config )
 {
     reducible = nonlinfit::make_bitset( PSF::Variables(), 
         reducible_to_preceding_parameter(config) );
@@ -120,7 +120,7 @@ ParameterLinearizer::Pimpl::reduce( const int plane, const int parameter ) const
     }
 }
 
-ParameterLinearizer::ParameterLinearizer( const Config_& c ) 
+ParameterLinearizer::ParameterLinearizer( const Config& c ) 
 : pimpl( new Pimpl(c) ) {}
 
 ParameterLinearizer::~ParameterLinearizer() {}

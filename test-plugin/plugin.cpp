@@ -2,9 +2,7 @@
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/ModuleInterface.h>
 #include <dStorm/Config.h>
-#include "SegmentationFault.h"
 #include "Exception.h"
-#include "MuchMemoryAllocator.h"
 #include "Verbose.h"
 #include "Delayer.h"
 #include "BasenamePrinter.h"
@@ -37,14 +35,12 @@ void make_config ( dStorm::Config* config ) {
         new dStorm::debugplugin::DummyFitter::Source() ) );
 #endif
 
-    config->add_output( new SegmentationFault::Source() );
-    config->add_output( new Exception::Source() );
-    config->add_output( new Memalloc::Source() );
-    config->add_output( new Verbose::Source() );
-    config->add_output( new Delayer::Source() );
-    config->add_output( new BasenamePrinter::Source() );
-    config->add_output( new Repeat::Source() );
-    config->add_output( new SmoothedImageSave::Source() );
+    config->add_output( new dStorm::output::OutputBuilder< Exception::Config, Exception >() );
+    config->add_output( new dStorm::output::OutputBuilder< Verbose::Config, Verbose >() );
+    config->add_output( new dStorm::output::OutputBuilder< Delayer::Config, Delayer >() );
+    config->add_output( make_basename_printer_source().release() );
+    config->add_output( new dStorm::output::OutputBuilder< Repeat::Config, Repeat >() );
+    config->add_output( new dStorm::output::OutputBuilder< SmoothedImageSave::Config, SmoothedImageSave >() );
 }
 
 dStorm::display::Manager*

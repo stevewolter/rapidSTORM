@@ -209,7 +209,7 @@ void Output::run_finished_( const RunFinished& ) {
 std::auto_ptr< output::OutputSource >
 make_output_source() {
     return std::auto_ptr< output::OutputSource >
-        ( new output::OutputBuilder<Output>() );
+        ( new output::OutputBuilder<Config,Output>() );
 }
 
 }

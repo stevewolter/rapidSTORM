@@ -24,6 +24,25 @@ namespace dStorm {
 namespace localization_file {
 namespace writer {
 
+class Config {
+  public:
+    output::BasenameAdjustedFileEntry outputFile;
+    simparm::BoolEntry xyztI;
+
+    static std::string get_name() { return "Table"; }
+    static std::string get_description() { return "Localizations file"; }
+
+    void attach_ui( simparm::Node& at ) {
+        outputFile.attach_ui( at );
+        xyztI.attach_ui( at );
+    }
+    Config();
+
+    bool can_work_with(output::Capabilities cap) { 
+        return true; 
+    }
+};
+
 class Output : public output::OutputObject {
   private: 
     std::string filename;
@@ -39,11 +58,7 @@ class Output : public output::OutputObject {
     void output( const Localization& );
     void store_results_( bool success );
 
-    class _Config;
-
   public:
-    typedef simparm::Structure<_Config> Config;
-
     Output(const Config&);
     ~Output();
     Output* clone() const { 
@@ -61,29 +76,8 @@ class Output : public output::OutputObject {
     }
 };
 
-class Output::_Config : public simparm::Object {
-  protected:
-    void registerNamedEntries() {
-        push_back( outputFile );
-        push_back( traces );
-        push_back( xyztI );
-    }
-  public:
-    output::BasenameAdjustedFileEntry outputFile;
-    simparm::BoolEntry traces, xyztI;
-
-    _Config();
-
-    bool can_work_with(output::Capabilities cap) { 
-        traces.viewable = cap.test( output::Capabilities::ClustersWithSources );
-        return true; 
-    }
-};
-
-Output::_Config::_Config() 
-: simparm::Object("Table", "Localizations file"),
-  outputFile("ToFile", "Write localizations to", ".txt"),
-  traces("Traces", "Print localizations seperated by traces"),
+Config::Config() 
+: outputFile("ToFile", "Write localizations to", ".txt"),
   xyztI("XYZTI",   "Output only Malk fields (x,y,z,t,I)")
 {
     outputFile.setHelp(
@@ -173,7 +167,7 @@ Output::Output(const Config &c)
 Output::~Output() {}
 
 std::auto_ptr<output::OutputSource> create() {
-    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Output>() );
+    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Config,Output>() );
 }
 
 }

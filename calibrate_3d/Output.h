@@ -50,7 +50,7 @@ class Output : public output::OutputObject {
     int found_spots;
     quantity<si::area> squared_errors;
 
-    const Config_ config;
+    const Config config;
     simparm::Entry<double> current_volume;
     simparm::Entry< quantity<si::nanolength> > residuals;
 
@@ -63,8 +63,6 @@ class Output : public output::OutputObject {
         { return static_cast<Output*>(params)->evaluate_function(x); }
 
   public:
-    typedef simparm::Structure<Config_> Config;
-
     Output(const Config &config);
     Output *clone() const { throw std::logic_error("Not implemented"); }
     ~Output();

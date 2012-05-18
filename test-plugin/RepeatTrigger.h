@@ -9,16 +9,13 @@
 struct Repeat
 : public dStorm::output::OutputObject, public simparm::Listener
 {
-    struct _Config
-        : public simparm::Object 
-        {
-            _Config() : simparm::Object("RepeatTrigger", "Repeat trigger") {}
-            void registerNamedEntries() {}
-            bool can_work_with(const dStorm::output::Capabilities&)
-                {return true;}
-        };
-    typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::OutputBuilder<Repeat> Source;
+    struct Config {
+        static std::string get_name() { return "RepeatTrigger"; }
+        static std::string get_description() { return "Repeat trigger"; }
+        void attach_ui( simparm::Node& ) {}
+        bool can_work_with(const dStorm::output::Capabilities&)
+            {return true;}
+    };
     dStorm::Engine *r;
     simparm::TriggerEntry repeat;
 

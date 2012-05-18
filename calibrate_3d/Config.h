@@ -20,15 +20,17 @@ namespace calibrate_3d {
 using boost::units::quantity;
 namespace si = boost::units::si;
 
-class Config_ : public simparm::Object, public FormCalibrationConfig, public ZTruthConfig {
+class Config : public FormCalibrationConfig, public ZTruthConfig {
     simparm::Entry<double> target_volume_;
     simparm::Entry<unsigned int> target_localization_number_;
     simparm::Entry< quantity<si::microlength> > missing_penalty_;
 public:
-    Config_();
-    void registerNamedEntries();
+    Config();
+    void attach_ui( simparm::Node& );
     bool can_work_with(output::Capabilities cap) 
         { return cap.test( output::Capabilities::SourceImage ); }
+    static std::string get_name() { return "Calibrate3D"; }
+    static std::string get_description() { return "Calibrate 3D on known data"; }
 
     double target_volume() const { return target_volume_(); }
 

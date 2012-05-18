@@ -24,8 +24,6 @@ class Viewer : public Status,
                public simparm::Node::Callback
 {
   public:
-    typedef viewer::Config Config;
-
     /** Constructor will not display image; this is deferred
         *  until announceStormSize(). */
     Viewer(const Config& config);

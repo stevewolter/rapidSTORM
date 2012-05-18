@@ -45,8 +45,6 @@ namespace estimate_psf_form {
         void do_the_fit();
 
       public:
-        typedef simparm::Structure<estimate_psf_form::Config> Config;
-
         Output(const Config&);
         virtual ~Output();
         Output* clone() const 

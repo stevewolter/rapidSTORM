@@ -2,7 +2,7 @@
 #define SMOOTHED_IMAGE_SAVE_H
 
 #include <simparm/Entry.hh>
-#include <simparm/Entry.hh>
+#include <simparm/FileEntry.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>
@@ -21,17 +21,16 @@ struct SmoothedImageSave
 {
     const std::string basename;
 
-    struct _Config
-        : public simparm::Object
-        {
-            simparm::FileEntry output_file_name;
-            _Config() : Object("SmoothedImageSave", "SmoothedImageSave"), output_file_name("ToFile", "Output file basename") {}
-            void registerNamedEntries() { push_back( output_file_name); }
-            bool can_work_with(const dStorm::output::Capabilities&)
-                {return true;}
-        };
-    typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::OutputBuilder<SmoothedImageSave> Source;
+    struct Config
+    {
+        simparm::FileEntry output_file_name;
+        static std::string get_name() { return "SmoothedImageSave"; }
+        static std::string get_description() { return get_description(); }
+        Config() : output_file_name("ToFile", "Output file basename") {}
+        void attach_ui( simparm::Node& at ) { output_file_name.attach_ui(at); }
+        bool can_work_with(const dStorm::output::Capabilities&)
+            {return true;}
+    };
 
     SmoothedImageSave(const Config& config) 
         : OutputObject("SmoothedImageSave", "SmoothedImageSave"), basename( config.output_file_name() ) {}

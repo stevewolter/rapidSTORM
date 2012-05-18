@@ -12,7 +12,7 @@ class ParameterLinearizer {
     class Pimpl;
     std::auto_ptr<Pimpl> pimpl;
 public:
-    ParameterLinearizer( const Config_& );
+    ParameterLinearizer( const Config& );
     ~ParameterLinearizer();
     void set_traits( const engine::InputTraits& );
 

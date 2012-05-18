@@ -17,9 +17,7 @@
 struct Delayer
 : public dStorm::output::OutputObject
 {
-    struct _Config;
-    typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::OutputBuilder<Delayer> Source;
+    struct Config;
 
     Delayer(const Config& config) ;
     ~Delayer();
@@ -38,26 +36,21 @@ struct Delayer
 
 };
 
-struct Delayer::_Config
- : public simparm::Object 
+struct Delayer::Config
 {
-    _Config();
-    void registerNamedEntries() {}
+    static std::string get_name() { return "Delayer"; }
+    static std::string get_description() { return "Delayer"; }
+    void attach_ui( simparm::Node& ) {}
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
 };
-
-Delayer::_Config::_Config()
- : simparm::Object("Delayer", "Delayer")
-{
-}
 
 Delayer* Delayer::clone() const { 
     return new Delayer(*this); 
 }
 
-Delayer::Delayer( const Config& config )
-        : OutputObject("Delayer", "Delayer")
+Delayer::Delayer( const Config& )
+    : OutputObject("Delayer", "Delayer")
 {
 }
 

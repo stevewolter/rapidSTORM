@@ -11,9 +11,7 @@
 struct Exception
 : public dStorm::output::OutputObject
 {
-    struct _Config;
-    typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::OutputBuilder<Exception> Source;
+    struct Config;
     bool onAnnouncement;
     int onImageNumber;
 
@@ -35,25 +33,25 @@ struct Exception
 
 };
 
-struct Exception::_Config
- : public simparm::Object 
+struct Exception::Config
 {
     simparm::BoolEntry onConstruction, onAnnouncement;
     simparm::Entry<long> onImageNumber;
 
-    _Config();
-    void registerNamedEntries() {
-        push_back( onConstruction );
-        push_back( onAnnouncement );
-        push_back( onImageNumber );
+    Config();
+    void attach_ui( simparm::Node& at ) {
+        onConstruction.attach_ui( at );
+        onAnnouncement.attach_ui( at );
+        onImageNumber.attach_ui( at );
     }
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
+    static std::string get_name() { return "Exception"; }
+    static std::string get_description() { return "Exception"; }
 };
 
-Exception::_Config::_Config()
- : simparm::Object("Exception", "Exception"),
-   onConstruction("OnConstruction", "Throw Exception on output construction", false), 
+Exception::Config::Config()
+ : onConstruction("OnConstruction", "Throw Exception on output construction", false), 
    onAnnouncement("OnAnnouncement", "Throw Exception on announcement", false), 
    onImageNumber("OnImageNumber", "Throw Exception on given image number", -1)
 {

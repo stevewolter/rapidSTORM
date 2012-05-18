@@ -26,7 +26,7 @@ using namespace dStorm::output;
 namespace dStorm {
 namespace viewer {
 
-Viewer::Viewer(const Viewer::Config& config)
+Viewer::Viewer(const Config& config)
 : Status(config),
   OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
@@ -167,11 +167,11 @@ void Viewer::save_density_map() {
     implementation->save_density_map( file );
 }
 
-struct OutputSource : public output::OutputBuilder< Viewer > {
-    OutputSource() : output::OutputBuilder< Viewer >(false)
-        { adjust_to_basename( Config::outputFile ); adjust_to_basename( Config::density_matrix ); }
-    OutputSource( const OutputSource& o ) : output::OutputBuilder< Viewer >(o)
-        { adjust_to_basename( Config::outputFile ); adjust_to_basename( Config::density_matrix ); }
+struct OutputSource : public output::OutputBuilder< Config, Viewer > {
+    OutputSource() : output::OutputBuilder< Config, Viewer >(false)
+        { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }
+    OutputSource( const OutputSource& o ) : output::OutputBuilder< Config, Viewer >(o)
+        { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }
     OutputSource* clone() const { return new OutputSource(*this); }
 };
 

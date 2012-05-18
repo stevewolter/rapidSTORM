@@ -8,9 +8,8 @@
 namespace dStorm {
 namespace viewer {
 
-_Config::_Config()
-: simparm::Object("Image", "Image display"),
-  showOutput("ShowOutput", "Display dSTORM result image"),
+Config::Config()
+: showOutput("ShowOutput", "Display dSTORM result image"),
   density_matrix_given("SaveDensityMatrix", "Save density matrix", false ),
   outputFile("ToFile", "Save image to", ".png"),
   density_matrix("DensityMatrixFile", "Save density matrix to", "-density.txt"),
@@ -66,7 +65,7 @@ _Config::_Config()
     DEBUG("Built Viewer Config");
 }
 
-void _Config::attach_ui_elements( simparm::Node& n ) {
+void Config::attach_ui( simparm::Node& n ) {
    outputFile.attach_ui(n);
    save_with_key.attach_ui(n);
    save_scale_bar.attach_ui(n);
@@ -84,7 +83,7 @@ void _Config::attach_ui_elements( simparm::Node& n ) {
    scale_bar_length.attach_ui(n);
 }
 
-void _Config::add_listener( simparm::Listener& l ) {
+void Config::add_listener( simparm::Listener& l ) {
     l.receive_changes_from( showOutput.value );
     binned_dimensions.add_listener(l);
     l.receive_changes_from( histogramPower.value );
@@ -97,10 +96,10 @@ void _Config::add_listener( simparm::Listener& l ) {
         i->add_listener( l );
 }
 
-_Config::~_Config() {}
+Config::~Config() {}
 
-_Config::CropBorder
-_Config::crop_border() const
+Config::CropBorder
+Config::crop_border() const
 {
     CropBorder rv = border();
     if ( ! binned_dimensions.is_3d() )

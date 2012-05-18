@@ -22,7 +22,7 @@
 namespace dStorm {
 namespace viewer {
 
-class _Config : public simparm::Object {
+class Config {
   public:
     typedef Eigen::Matrix< boost::units::quantity<boost::units::camera::length,int>, 3, 1 >
         CropBorder;
@@ -36,13 +36,15 @@ class _Config : public simparm::Object {
     simparm::Entry< CropBorder > border;
     simparm::Entry< boost::units::quantity<boost::units::si::microlength> > scale_bar_length;
 
-    _Config();
-    ~_Config();
+    Config();
+    ~Config();
 
-    void registerNamedEntries() { attach_ui_elements(*this); }
-    void attach_ui_elements( simparm::Node& at );
+    void attach_ui( simparm::Node& at );
     void add_listener( simparm::Listener& );
     static bool can_work_with(output::Capabilities) { return true; }
+
+    static std::string get_name() { return "Image"; }
+    static std::string get_description() { return "Image display"; }
     
     CropBorder crop_border() const;
 };

@@ -74,7 +74,7 @@ EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     dstorm.andorcam/infinite-acquisition.exp \
     dstorm.andorcam/no-installed-cameras.exp \
     dstorm.test/sif-computation.exp \
-    dstorm.test/output_exception.exp dstorm.test/segfault.exp \
+    dstorm.test/output_exception.exp \
     dstorm.test/sif-shortjob.exp dstorm.test/autoname.exp \
     dstorm.test/median.exp dstorm.test/load_tif_file.exp \
     dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
@@ -461,8 +461,8 @@ dstorm_SOURCES += \
     viewer/UnitTest.cpp
 
 dstorm_SOURCES += \
-    test-plugin/plugin.cpp test-plugin/plugin.h test-plugin/SegmentationFault.h \
-    test-plugin/MuchMemoryAllocator.h test-plugin/Exception.h test-plugin/Delayer.h \
+    test-plugin/plugin.cpp test-plugin/plugin.h \
+    test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/Manager.h test-plugin/Manager.cpp \
     test-plugin/md5.h test-plugin/md5.c \
