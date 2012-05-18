@@ -1,4 +1,3 @@
-
 #include "debug.h"
 
 #include "FilterSource.h"
@@ -7,77 +6,78 @@
 #include <dStorm/outputs/Crankshaft.h>
 #include "OutputSource.h"
 #include "SourceFactory.h"
+#include <dStorm/helpers/clone_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace dStorm {
 namespace output {
 
-struct FilterSource::RemovalObject : public simparm::Object {
-    std::auto_ptr<OutputSource> src;
-    std::list<OutputSource*>& sources;
+class FilterSource::Suboutput {
+    boost::clone_ptr<OutputSource> unadorned;
+    simparm::Object config_node, removal_node;
 
-    RemovalObject(std::string name, OutputSource* src, 
-                  std::list<OutputSource*>& sources)
-        : simparm::Object(name, src->getDesc()),
-          src(src), sources(sources) {}
-    RemovalObject* clone() const { throw std::logic_error("Unclonable.");}
+public:
+    Suboutput(std::auto_ptr< OutputSource > unadorned, std::string ident, simparm::Node* ui )
+        : unadorned( unadorned ), config_node( ident, ""),
+          removal_node(ident, this->unadorned->getDesc()) 
+        { if ( ui ) attach_suboutput_ui(*ui); }
+    Suboutput* clone() const { return new Suboutput(*this); }
 
-    ~RemovalObject() {
-        sources.erase(std::find(sources.begin(), sources.end(), src.get()));
+    std::string getName() const { return removal_node.getName(); }
+    void attach_ui( simparm::Node& removal_choice_node )
+        { removal_node.attach_ui( removal_choice_node ); }
+    void detach_ui( simparm::Node& removal_choice_node )
+        { removal_node.detach_ui( removal_choice_node ); }
+    void attach_suboutput_ui( simparm::Node& at ) {
+        unadorned->attach_full_ui( config_node );
+        config_node.attach_ui( at );
     }
 
-  private:
-    RemovalObject( const RemovalObject& o );
+    OutputSource& output() const { return *unadorned; }
 };
 
-void FilterSource::registerNamedEntries()
+void FilterSource::attach_source_ui( simparm::Node& at )
 {
-    if ( factory.get() != NULL ) {
-        DEBUG("Resetting state of source factory in filter source for element " << getNode().getName());
-        factory->reset_state();
+    OutputSource::attach_source_ui(at);
+    assert( ! my_node );
 
+    my_node = &at;
+
+    for ( SuboutputChoice::iterator i = suboutputs.begin(); i != suboutputs.end(); ++i )
+        i->attach_suboutput_ui( at );
+
+    if ( factory.get() != NULL ) {
         DEBUG("Registering entries");
-        removeSelector->viewable = true;
-        getNode().push_back( factory->getNode() );
-        getNode().push_back( *removeSelector );
-        receive_changes_from( factory->getNode() );
-        receive_changes_from( removeSelector->value );
+        factory->notify_when_output_source_is_available( 
+            boost::bind( &FilterSource::add_new_element, boost::ref(*this) ) );
+        factory->attach_ui( at );
+        suboutputs.attach_ui( at );
+        receive_changes_from( suboutputs.value );
         DEBUG("Registered entries");
     }
 }
 
-FilterSource::FilterSource(simparm::Node& node)
-: OutputSource( node ),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+FilterSource::FilterSource()
+: simparm::Node::Callback( simparm::Event::ValueChanged ),
   next_identity(0),
   factory( NULL ),
-  removeSelector( new simparm::ChoiceEntry<RemovalObject> (
-        "ToRemove", "Select output to remove") )
+  my_node( NULL ),
+  suboutputs( "ToRemove", "Select output to remove" )
 {
-    removeSelector->set_auto_selection( false );
-    removeSelector->helpID = "#ToRemove";
+    suboutputs.set_auto_selection( false );
+    suboutputs.helpID = "#ToRemove";
 }
 
-FilterSource::FilterSource ( simparm::Node& node, const FilterSource& o)
-: OutputSource(node, o),
-    simparm::Node::Callback(simparm::Event::ValueChanged),
-    next_identity(0),
-    basename(o.basename),
-    factory( NULL ),
-    outputs(),
-    removeSelector( new simparm::ChoiceEntry<RemovalObject> (
-        "ToRemove", "Select output to remove") )
+FilterSource::FilterSource( const FilterSource& o ) 
+: OutputSource(o), simparm::Node::Callback(o),
+  next_identity(o.next_identity), basename(o.basename),
+  factory( NULL ),
+  my_node( NULL ),
+  suboutputs(o.suboutputs)
 {
-    DEBUG("Copying " << o.getNode().getName());
-    removeSelector->set_auto_selection( false );
-    //if ( o.is_initialized() ) initialize(*o.factory);
-    for ( const_iterator i = o.begin(); i != o.end(); i++ ) {
-        add( std::auto_ptr<OutputSource>( (*i)->clone() ) );
-    }
 }
 
-FilterSource::~FilterSource() {
-        DEBUG("Destroying filter source " << getNode().getName());
-}
+FilterSource::~FilterSource() {}
 
 void
 FilterSource::set_output_file_basename
@@ -86,88 +86,46 @@ FilterSource::set_output_file_basename
     OutputSource::set_output_file_basename( basename );
     this->basename = basename;
 
-    for (Outputs::iterator i = 
-                    outputs.begin(); i != outputs.end(); i++)
-        (*i)->set_output_file_basename(basename);
+    for (SuboutputChoice::iterator i = 
+                    suboutputs.begin(); i != suboutputs.end(); i++)
+        i->output().set_output_file_basename(basename);
 
 }
 
 void FilterSource::add
     ( std::auto_ptr<OutputSource> src )
 {
-    if ( src.get() == NULL ) return;
-    link_transmission( src.get() );
-    outputs.push_back( src.release() );
+    assert( src.get() );
+    std::string name = "Output" + boost::lexical_cast<std::string>( next_identity++ );
+    src->set_output_file_basename(basename);
+    suboutputs.addChoice( new Suboutput( src, name, my_node ) );
 }
 
-void FilterSource::remove( OutputSource& src ) {
-    boost::ptr_map< OutputSource*, RemovalObject >::iterator i = removalObjects.find( &src );
-    assert( i != removalObjects.end() );
-    removeSelector->removeChoice( *i->second );
-    removalObjects.erase( i );
+void FilterSource::add_new_element() {
+    try {
+        std::auto_ptr<OutputSource> fresh = factory->make_output_source();
+        if ( fresh.get() != NULL ) add( fresh );
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Unable to set basename: " << e.what() << "\n";
+    }
 }
 
 void FilterSource::operator()
     ( const simparm::Event& e)
 {
-    if (&e.source == &factory->getNode() )
-    {
-        try {
-            std::auto_ptr<OutputSource> fresh
-                                    = factory->make_output_source();
-            if ( fresh.get() != NULL ) {
-                fresh->set_output_file_basename(basename);
-                DEBUG( "Set fresh basename to " << basename.unformatted()() );
-                add( fresh );
-                /* To give some kind of visual feedback that the action was
-                * performed, we reset the factory ( which means, normally,
-                * that no item is selected in the chooser ). */
-                factory->reset_state();
-            }
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Unable to set basename: " << e.what() << "\n";
-        }
-    } else if (&e.source == &removeSelector->value ) {
-        if ( removeSelector->isValid() ) {
-            remove( *(*removeSelector)().src );
+    if (&e.source == &suboutputs.value ) {
+        if ( suboutputs.isValid() ) {
+            suboutputs.removeChoice( suboutputs() );
         }
     }
 }
 
-void FilterSource::link_transmission
-    ( OutputSource* src ) 
-{
-    std::stringstream nodeName;
-    DEBUG("Making node name Output" << next_identity);
-    nodeName << "Output" << next_identity++;
-
-    std::auto_ptr<simparm::Object> addNode( 
-        new simparm::Object(nodeName.str(), "") );
-
-    simparm::Node::iterator linkit 
-        = addNode->insert( addNode->end(), src->getNode() );
-
-    /* Manage the add node with the link. */
-    linkit.get_link().delete_up_end_on_link_break();
-    simparm::Object& addNodeRef = *addNode.release();
-    getNode().push_back( addNodeRef );
-
-    std::auto_ptr<RemovalObject> removeNode( 
-        new RemovalObject(nodeName.str(), src, outputs) );
-    removeSelector->addChoice( *removeNode );
-    removalObjects.insert( src, removeNode );
-
-    removeSelector->viewable = true;
-}
-
 void FilterSource::set_output_factory (const SourceFactory& o) 
 {
-    DEBUG("Trying to set output factory");
+    DEBUG("Trying to set output factory on " << this << " (" << getName() << ")");
     if ( factory.get() == NULL ) { 
         DEBUG("No output factory present, setting new factory");
         factory.reset( o.clone() ); 
-        DEBUG("Registering entries in factory");
-        registerNamedEntries();
         DEBUG("Finished setting output factory");
     }
 }
@@ -175,9 +133,9 @@ void FilterSource::set_output_factory (const SourceFactory& o)
 void FilterSource::set_source_capabilities( Capabilities cap ) {
     if ( is_initialized() ) {
         factory->set_source_capabilities( cap );
-        Outputs::iterator i;
-        for( i = outputs.begin(); i != outputs.end(); i++ ) {
-            (*i)->set_source_capabilities( cap );
+        SuboutputChoice::iterator i;
+        for( i = suboutputs.begin(); i != suboutputs.end(); i++ ) {
+            i->output().set_source_capabilities( cap );
         }
     }
 }
@@ -186,14 +144,14 @@ void FilterSource::set_source_capabilities( Capabilities cap ) {
 std::auto_ptr<Output> 
 FilterSource::make_output()
 {
-    if ( outputs.size() == 0 )
+    if ( suboutputs.size() == 0 )
         // TODO: Re-add help info "#NoOutputSelected"
         throw std::runtime_error(
             "No output selected for module '" + getDesc() + "'");
-    else if ( outputs.size() == 1 ) {
+    else if ( suboutputs.size() == 1 ) {
         DEBUG(this << ": Have only a single output, calling its make_output()");
         std::auto_ptr<Output> o = 
-            outputs.front()->make_output();
+            suboutputs.begin()->output().make_output();
         DEBUG(this << " made output " << o.get());
         if ( o.get() == NULL )
             throw std::invalid_argument(
@@ -205,10 +163,10 @@ FilterSource::make_output()
         std::auto_ptr<outputs::Crankshaft> crankshaft
             ( new outputs::Crankshaft() );
 
-        Outputs::iterator i;
-        for( i = outputs.begin(); i != outputs.end(); i++ ) {
+        SuboutputChoice::iterator i;
+        for( i = suboutputs.begin(); i != suboutputs.end(); i++ ) {
             DEBUG(this << ": Calling subordinate make_output()");
-            crankshaft->add( (*i)->make_output() );
+            crankshaft->add( i->output().make_output() );
             DEBUG(this << ": Called subordinate make_output()");
         }
 
@@ -220,6 +178,11 @@ FilterSource::make_output()
                 "Outputs for module '" + getDesc() + "' are invalid");
             
     }
+}
+
+void FilterSource::for_each_suboutput( boost::function1<void,const OutputSource&> f ) const {
+    for( SuboutputChoice::const_iterator i = suboutputs.begin(); i != suboutputs.end(); i++ )
+        f( i->output() );
 }
 
 }

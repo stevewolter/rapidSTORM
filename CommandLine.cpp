@@ -57,7 +57,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
     }
 
-    config.registerNamedEntries( argument_parser );
+    config.attach_ui( argument_parser );
     argument_parser.push_back( printer );
     argument_parser.push_back( launcher );
     argument_parser.push_back( starter );
@@ -156,7 +156,7 @@ void TransmissionTreePrinter::operator()( const simparm::Event& )
 void TransmissionTreePrinter::printNode( 
     const output::OutputSource& src, int indent 
 ) {
-    const std::string& name = src.getNode().getName();
+    const std::string& name = src.getName();
     if ( indent < 2 )
         std::cout << ((indent)?" ": name ) << "\n";
     else {
@@ -164,9 +164,7 @@ void TransmissionTreePrinter::printNode(
     }
     const FilterSource* fwd = dynamic_cast<const FilterSource*>(&src);
     if (fwd != NULL) {
-        for (FilterSource::const_iterator
-                            i = fwd->begin(); i != fwd->end(); i++)
-            printNode(**i, indent+2);
+        fwd->for_each_suboutput( boost::bind( &TransmissionTreePrinter::printNode, boost::ref(*this), _1, indent+2) );
     }
 }
 

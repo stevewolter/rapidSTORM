@@ -127,7 +127,7 @@ inline void Config::set_traits( DataSetTraits& t ) const
 }
 
 Config::Config()
-: simparm::Object(getName(), "Sample information"),
+: simparm::Object( ChainLink::getName(), "Sample information"),
   fluorophore_count("FluorophoreCount", "Fluorophore types", 1)
 {
     fluorophore_count.helpID = "FluorophoreTypeCount";

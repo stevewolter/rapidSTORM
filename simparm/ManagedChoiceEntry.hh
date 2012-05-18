@@ -12,6 +12,12 @@ class ManagedChoiceEntry
 {
     typedef boost::ptr_vector<BaseClass> Choices;
     Choices choices;
+
+    struct equal_address {
+        BaseClass* a;
+        equal_address( BaseClass* a ) : a(a) {}
+        bool operator()( const BaseClass& o ) const { return &o == a; }
+    };
 public:
     ManagedChoiceEntry( std::string name, std::string desc )
         : ChoiceEntry<BaseClass>(name,desc) {}
@@ -32,6 +38,11 @@ public:
     void removeChoice( int index ) {
         ChoiceEntry<BaseClass>::removeChoice( choices[index] );
         choices.erase( choices.begin() + index );
+    }
+
+    void removeChoice( BaseClass& choice ) {
+        ChoiceEntry<BaseClass>::removeChoice( choice );
+        choices.erase_if( equal_address(&choice) );
     }
 
     int size() const { return choices.size(); }

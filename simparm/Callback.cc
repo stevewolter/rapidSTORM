@@ -97,11 +97,8 @@ Listener::Listener(const Listener& o)
     : data(new Listener::Data(*this))
 {
     data->limit_to = o.data->limit_to;
-    for (Publisher::Pimpl::ListenerList::const_iterator 
-            i = o.data->attached_to.begin();
-            i != o.data->attached_to.end(); i++)
-        (*i)->up_end().node.addChangeCallback(*this);
 }
+
 Listener::~Listener() {
     delete data;
 }

@@ -68,7 +68,7 @@ namespace andor_sif {
         friend class FileInput< Config, OpenFile >;
         OpenFile* make_file( const std::string& ) const;
         void modify_meta_info( dStorm::input::MetaInfo& );
-        void attach_ui( simparm::Node& n ) { this->attach_ui(n); }
+        void attach_ui( simparm::Node& n ) { simparm::Object::attach_ui(n); }
         static std::string getName() { return "AndorSIF"; }
       public:
         Config();

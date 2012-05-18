@@ -42,7 +42,7 @@ Segmenter::_Config::_Config()
         "Regions", "Coherent regions") );
     method.choose("Maximum");
 
-    trace_filter.show_in_tree = false;
+    trace_filter.hide_in_tree();
 }
 
 void Segmenter::_Config::registerNamedEntries()

@@ -17,6 +17,7 @@ namespace output {
       public FilterSource
     {
         bool failSilently;
+        simparm::Object name_object;
       public:
         typedef typename Type::Config Config;
         typedef Type BaseType;
@@ -29,8 +30,13 @@ namespace output {
 
         virtual std::auto_ptr<Output> make_output();
 
-        std::string getDesc() const 
-            { return Type::Config::getDesc(); }
+        std::string getName() const { return Type::Config::getName(); }
+        std::string getDesc() const { return Type::Config::getDesc(); }
+        void attach_full_ui( simparm::Node& at ) { 
+            simparm::NodeRef r = Type::Config::attach_ui( at ); 
+            FilterSource::attach_source_ui(r); 
+        }
+        void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }
     };
 }
 }

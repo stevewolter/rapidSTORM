@@ -43,11 +43,15 @@ class Config::TreeRoot : public simparm::Object, public output::FilterSource
     output::Config* my_config;
     output::Capabilities cap;
 
+    std::string getName() const { return simparm::Object::getName(); }
+    std::string getDesc() const { return simparm::Object::desc(); }
+    void attach_ui( simparm::Node& ) { throw std::logic_error("Not implemented on tree base"); }
+
   public:
     TreeRoot();
     TreeRoot( const TreeRoot& other )
     : simparm::Object(other),
-      output::FilterSource( static_cast<simparm::Object&>(*this), other)
+      output::FilterSource( other)
     {
         DEBUG("Copying output tree root");
         this->set_output_factory( *other.my_config );
@@ -58,7 +62,6 @@ class Config::TreeRoot : public simparm::Object, public output::FilterSource
     }
 
     TreeRoot* clone() const { return new TreeRoot(*this); }
-    std::string getDesc() const { return desc(); }
     output::Config &root_factory() { return *my_config; }
 
     void set_trace_capability( const input::Traits<output::LocalizedImage>& t ) {
@@ -67,13 +70,17 @@ class Config::TreeRoot : public simparm::Object, public output::FilterSource
         cap.set_candidate_tree( t.candidate_tree_is_set );
         cap.set_cluster_sources( ! t.source_traits.empty() );
         this->set_source_capabilities( cap );
-        
+    }
+
+    void attach_full_ui( simparm::Node& at ) { 
+        simparm::NodeRef r = simparm::Object::attach_ui(at);
+        attach_source_ui( r ); 
     }
 };
 
 Config::TreeRoot::TreeRoot()
 : simparm::Object("EngineOutput", "dSTORM engine output"),
-  output::FilterSource( static_cast<simparm::Object&>(*this) ),
+  output::FilterSource(),
   cap( output::Capabilities()
             .set_source_image()
             .set_smoothed_image()
@@ -165,9 +172,9 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
     input = p;
 }
 
-void Config::registerNamedEntries( simparm::Node& at ) {
+void Config::attach_ui( simparm::Node& at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
-   outputBox.push_back( *outputRoot );
+   outputRoot->attach_full_ui(outputBox);
    input->registerNamedEntries(car_config);
    car_config.push_back( pistonCount );
    car_config.push_back( outputBox );

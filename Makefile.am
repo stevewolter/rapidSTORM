@@ -15,14 +15,12 @@ DEJATOOL = dstorm
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
 bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
-noinst_LTLIBRARIES = libdStorm.la 
-lib_LTLIBRARIES = librapidstormfile.la
+noinst_LTLIBRARIES = libdStorm.la librapidstormfile.la
 if CAN_BUILD_TWIDDLER
 applications_DATA=rapidstorm.desktop
 endif
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = version.txt dstorm-config.txt
-pkgconfig_DATA = librapidstormfile.pc
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING

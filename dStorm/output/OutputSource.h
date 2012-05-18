@@ -22,29 +22,26 @@ namespace output {
  *  make_output() method and can override the
  *  set_output_file_basename method. */
 class OutputSource 
-: public simparm::TreeAttributes
 {
   private:
-    simparm::Node& node;
+    simparm::TreeAttributes tree_attributes;
     OutputSource& operator=(const OutputSource&);
-    OutputSource(const OutputSource&);
   protected:
     class AdjustedList;
     std::auto_ptr<AdjustedList> adjustedList;
 
-    OutputSource(simparm::Node& node);
-    OutputSource(simparm::Node& node, const OutputSource&);
+    OutputSource();
+    OutputSource(const OutputSource&);
 
     /** FileEntry's given to this method will automatically be
      *  updated to the new file basename if it is changed. */
     void adjust_to_basename(BasenameAdjustedFileEntry&);
 
-  public:
-    simparm::Node& getNode() { return node; }
-    operator simparm::Node&() { return node; }
-    const simparm::Node& getNode() const { return node; }
-    operator const simparm::Node&() const { return node; }
+    void attach_source_ui( simparm::Node& at )
+        { tree_attributes.registerNamedEntries( at ); }
 
+  public:
+    void hide_in_tree() { tree_attributes.show_in_tree = false; }
     virtual ~OutputSource();
     virtual OutputSource* clone() const = 0;
 
@@ -65,7 +62,10 @@ class OutputSource
     virtual void set_output_file_basename
         (const Basename& new_basename);
 
+    virtual std::string getName() const = 0;
     virtual std::string getDesc() const = 0;
+    virtual void attach_full_ui( simparm::Node& ) = 0;
+    virtual void attach_ui( simparm::Node& ) = 0;
 };
 
 template <typename OutputType>

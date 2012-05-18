@@ -30,7 +30,7 @@ void InputStream::set_config( const job::Config& config ) {
 void InputStream::reset_config() {
     if ( orig_config.get() ) {
         current_config.reset( new job::Config(*orig_config) );
-        current_config->registerNamedEntries( *this );
+        current_config->attach_ui( *this );
         current_config->push_back( starter );
         starter.setConfig( *current_config );
     }

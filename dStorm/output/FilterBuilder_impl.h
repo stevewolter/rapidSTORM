@@ -8,9 +8,8 @@ namespace output {
 
 template <class Type>
 FilterBuilder<Type>::FilterBuilder(bool failSilently)
-: FilterSource( 
-        static_cast<typename Type::Config&>(*this) ),
-  failSilently(failSilently) 
+: failSilently(failSilently) ,
+  name_object( Type::Config::getName(), Type::Config::getDesc() )
 { 
 }
 
@@ -18,9 +17,9 @@ template <class Type>
 FilterBuilder<Type>::
 FilterBuilder(const FilterBuilder<Type>& o)
 : Type::Config(o),
-  FilterSource(
-        static_cast<typename Type::Config&>(*this), o ),
-  failSilently(failSilently) 
+  FilterSource(o),
+  failSilently(failSilently) ,
+  name_object(o)
 {
     if ( o.getFactory() != NULL )
         this->set_output_factory( *o.getFactory() );

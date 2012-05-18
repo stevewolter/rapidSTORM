@@ -180,7 +180,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object(getName(), "Image selection filter"),
+: simparm::Object(ChainLink::getName(), "Image selection filter"),
   first_frame("FirstImage", "First image to load"),
   last_frame( "LastImage", "Last image to load" )
 {

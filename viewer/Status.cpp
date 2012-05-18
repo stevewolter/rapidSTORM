@@ -17,7 +17,7 @@ Status::~Status() {}
 
 void Status::attach_ui( simparm::Node& name )
 {
-    config.attach_ui( name );
+    config.attach_ui_elements( name );
     save.attach_ui( name );
 }
 

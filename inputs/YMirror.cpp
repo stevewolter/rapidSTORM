@@ -168,7 +168,7 @@ template <>
 void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageStack>& ) {}
 
 Config::Config() 
-: simparm::Object(getName(), "Mirror input data along Y axis"),
+: simparm::Object( ChainLink::getName(), "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
     mirror_y.userLevel = simparm::Object::Expert;

@@ -19,7 +19,7 @@ proc link_or_copy { from to } {
 proc initialize {} {
 	dstorm_start
     expect_after {
-        -re "Could not perform action:" { fail "$test" }
+        -re "Could not perform action: .*\n" { fail "$test" }
         -re "\nseverity set Error\r*\n" { fail "$test" }
         -re "PROCESS TERMINATED WITH" { fail "$test"; exit 1; }
         -re "RAPIDSTORM EXITED WITH CODE" { fail "$test"; }

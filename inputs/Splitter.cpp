@@ -137,7 +137,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object(getName(), "Split dual view image"),
+: simparm::Object( ChainLink::getName(), "Split dual view image"),
   biplane_split("DualView", "Dual view")
 {
     biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );

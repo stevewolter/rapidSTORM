@@ -1,4 +1,5 @@
 #include "ChoiceEntry_Impl.hh"
+#include "ManagedChoiceEntry.hh"
 #include "Object.hh"
 
 namespace simparm {
@@ -11,5 +12,6 @@ struct DummyChoice {
 };
 
 template class ChoiceEntry<DummyChoice>;
+template class ManagedChoiceEntry<DummyChoice>;
 
 }

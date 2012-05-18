@@ -22,7 +22,7 @@ using namespace input;
 class ChainLink : public input::Method< ChainLink >
 {
     friend class input::Method< ChainLink >;
-    void attach_ui( simparm::Node& at ) { Forwarder::registerNamedEntries(at); }
+    void attach_ui( simparm::Node& at ) {}
     static std::string getName() { throw std::logic_error("Not implemented"); }
 
     typedef boost::mpl::vector<localization::Record,dStorm::Localization>

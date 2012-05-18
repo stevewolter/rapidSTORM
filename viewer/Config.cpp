@@ -66,7 +66,7 @@ _Config::_Config()
     DEBUG("Built Viewer Config");
 }
 
-void _Config::attach_ui( simparm::Node& n ) {
+void _Config::attach_ui_elements( simparm::Node& n ) {
    outputFile.attach_ui(n);
    save_with_key.attach_ui(n);
    save_scale_bar.attach_ui(n);

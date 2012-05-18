@@ -76,7 +76,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object(getName(), "Estimate background variance"),
+: simparm::Object( ChainLink::getName(), "Estimate background variance"),
   enable("Enable", "Estimate background variance", true)
 {
     enable.userLevel = simparm::Object::Intermediate;

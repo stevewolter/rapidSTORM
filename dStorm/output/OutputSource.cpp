@@ -12,21 +12,15 @@ namespace output {
 class OutputSource::AdjustedList 
 : public std::list< BasenameAdjustedFileEntry* > {};
 
-OutputSource::OutputSource(simparm::Node& node) 
-: node(node),
-  adjustedList( new AdjustedList() )
+OutputSource::OutputSource() 
+: adjustedList( new AdjustedList() )
 {
-    assert( &node != NULL );
-    simparm::TreeAttributes::registerNamedEntries( node );
 }
 
-OutputSource::OutputSource(simparm::Node& node, const OutputSource& o) 
-: simparm::TreeAttributes(o),
-  node(node),
+OutputSource::OutputSource(const OutputSource& o) 
+: tree_attributes(o.tree_attributes),
   adjustedList( new AdjustedList() )
 {
-    assert( &node != NULL );
-    simparm::TreeAttributes::registerNamedEntries( node );
 }
 
 OutputSource::~OutputSource() {

@@ -2,14 +2,12 @@
 #define DSTORM_BASETRANSMISSIONCONFIGS
 
 #include <simparm/TriggerEntry.hh>
+#include <simparm/ManagedChoiceEntry.hh>
 #include "OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
-
-namespace simparm {
-    template <typename Type> class ChoiceEntry;
-};
+#include <boost/function/function1.hpp>
 
 namespace dStorm {
 namespace output {
@@ -39,8 +37,7 @@ class SourceFactory;
  **/
 class FilterSource
 : public OutputSource,
-  public simparm::Node::Callback,
-  boost::noncopyable
+  public simparm::Node::Callback
 {
   private:
     /** The unique integer X for the next disambiguation node. */
@@ -48,8 +45,6 @@ class FilterSource
 
     /** The basename is saved for freshly constructed entries. */
     Basename basename;
-
-    void registerNamedEntries();
 
     /** The factory is the source object for a new transmission source.
      *  This new transmission source is fetched via 
@@ -59,16 +54,11 @@ class FilterSource
      *  will not be set until initialize() is called. This avoids init
      *  loops. */
     std::auto_ptr<SourceFactory> factory;
+    simparm::Node* my_node;
 
-    /** The target transmissions for this forwarding source. */
-    typedef std::list<OutputSource*> Outputs;
-    Outputs outputs;
-
-    /** Control elements for adding/removing transmissions. */
-    struct RemovalObject;
-    std::auto_ptr< simparm::ChoiceEntry<RemovalObject> >
-        removeSelector;
-    boost::ptr_map< OutputSource*, RemovalObject > removalObjects;
+    struct Suboutput;
+    typedef simparm::ManagedChoiceEntry<Suboutput> SuboutputChoice;
+    SuboutputChoice suboutputs;
 
     /** \return true after initialize() was called. */
     bool is_initialized() const { return factory.get() != NULL; }
@@ -78,12 +68,16 @@ class FilterSource
      *  add the remover entry and insert it into our config node. */
     void link_transmission( OutputSource* src );
 
+    void add_new_element();
+
   protected:
-    FilterSource(simparm::Node&);
-    FilterSource(simparm::Node&, const FilterSource& o);
+    FilterSource();
+    FilterSource( const FilterSource& );
 
     SourceFactory* getFactory() { return factory.get(); }
     const SourceFactory* getFactory() const { return factory.get(); }
+
+    void attach_source_ui( simparm::Node& );
 
   public:
     ~FilterSource();
@@ -101,21 +95,11 @@ class FilterSource
     /** Convenience wrapper for the auto_ptr-add */
     void add(OutputSource *src)
         { add( std::auto_ptr<OutputSource>(src) ); }
-    /** Will remove the given OutputSource from this config and
-     *  deletes it. Removes the source from the selector as well and
-     *  deletes the disambiguation node. */
-    void remove( OutputSource& src );
 
     /** \see dStorm::OutputSource */
     void set_output_file_basename(const Basename& basename);
 
-    typedef Outputs::iterator iterator;
-    typedef Outputs::const_iterator const_iterator;
-
-    iterator begin() { return outputs.begin(); }
-    iterator end() { return outputs.end(); }
-    const_iterator begin() const { return outputs.begin(); }
-    const_iterator end() const { return outputs.end(); }
+    void for_each_suboutput( boost::function1<void,const OutputSource&> f ) const;
 
     std::auto_ptr<Output> make_output(); 
 };

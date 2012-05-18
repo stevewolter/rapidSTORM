@@ -5,6 +5,8 @@
 #include <set>
 #include "Capabilities.h"
 #include <boost/utility.hpp>
+#include <boost/signals2/signal.hpp>
+#include <boost/signals2/slot.hpp>
 
 namespace dStorm {
 namespace output {
@@ -15,23 +17,17 @@ class OutputSource;
  *  produce OutputSource objects. It is used by sources for
  *  filter sources to produce their outputs.
  *  */
-class SourceFactory : boost::noncopyable
+class SourceFactory 
 {
-    simparm::Node& node;
   public:
-    SourceFactory(simparm::Node&);
-    SourceFactory(simparm::Node&, const SourceFactory&);
-    virtual ~SourceFactory();
-
-    simparm::Node& getNode() { return node; }
-    operator simparm::Node&() { return node; }
-    const simparm::Node& getNode() const { return node; }
-    operator const simparm::Node&() const { return node; }
+    typedef boost::signals2::signal<void (void)>::slot_type Callback;
+    virtual ~SourceFactory() {}
 
     virtual SourceFactory* clone() const = 0;
+    virtual void attach_ui( simparm::Node& at ) = 0;
     virtual void set_source_capabilities(Capabilities) = 0;
     virtual std::auto_ptr<OutputSource> make_output_source() = 0;
-    virtual void reset_state() = 0;
+    virtual void notify_when_output_source_is_available( const Callback& ) = 0;
 };
 
 typedef SourceFactory TransmissionSourceFactory;

@@ -42,7 +42,7 @@ class Config : public dStorm::Config
     ~Config();
     Config *clone() const { return new Config(*this); }
 
-    void registerNamedEntries( simparm::Node& at );
+    void attach_ui( simparm::Node& at );
     void processCommand( std::istream& i ) { car_config.processCommand(i); }
     void send( simparm::Message& m ) { car_config.send(m); }
     void push_back( simparm::Node& run ) { car_config.push_back(run); }
