@@ -3,10 +3,11 @@ start_test_suite
 set test "Segmenter works for maximum voronoi segmentation"
 set_input_file "${testcase_target}/test_cluster.txt"
 send "in Car in Output in EngineOutput set ChooseTransmission value set Segmenter\n"
-send "in Car in Output in EngineOutput in Output0 in Segmenter in ChooseTransmission in value set Count\n"
-send "in Car in Output in EngineOutput in Output0 in Segmenter in TraceFilter in MinEmissionCount in value set 50\n"
-send "in Car in Output in EngineOutput in Output0 in Segmenter in ChooseTransmission in value set Table\n"
-send "in Car in Output in EngineOutput in Output0 in Segmenter in Output1 in Table in ToFile value set ${tmpdir_target}foo.txt\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in ChooseTransmission in value set TraceFilter\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in Output0 in TraceFilter in MinEmissionCount in value set 50\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in Output0 in TraceFilter in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in Output0 in TraceFilter in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in Output0 in Segmenter in Output0 in TraceFilter in Output1 in Table in ToFile value set ${tmpdir_target}foo.txt\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
 
 dstorm_attach

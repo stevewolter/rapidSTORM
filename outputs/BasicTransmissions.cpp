@@ -24,9 +24,9 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( new LocalizationCounter::Source() );
     o->add_output( new AverageImage::Source() );
     o->add_output( memory_cache::make_output_source().release() );
-    o->add_output( new TraceCountFilter::Source() );
+    o->add_output( make_trace_count_source().release() );
     o->add_output( new Slicer::Source() );
-    o->add_output( make_output_source<expression::Source>().release() );
+    o->add_output( expression::make_output_source().release() );
     o->add_output( make_sigma_diff_3d().release() );
     o->add_output( make_linear_alignment().release() );
 }

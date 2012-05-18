@@ -20,8 +20,6 @@ class Source
   public config::ExpressionManager,
   private boost::noncopyable
 {
-  public:
-    typedef expression::Config Config;
   private:
     boost::mutex mutex;
     boost::ptr_vector< config::CommandLine > command_lines;

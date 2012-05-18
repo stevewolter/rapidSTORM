@@ -16,8 +16,7 @@ namespace output {
 class SigmaDiff3D : public Filter
 {
 public:
-    class _Config;
-    typedef simparm::Structure<_Config> Config;
+    class Config;
 
 private:
     threed_info::Spline3D spline_x, spline_y;
@@ -30,18 +29,20 @@ public:
     SigmaDiff3D* clone() const { return new SigmaDiff3D( *this ); }
 };
 
-class SigmaDiff3D::_Config : public simparm::Object {
-  protected:
-    void registerNamedEntries() { push_back( calibration_file ); }
+class SigmaDiff3D::Config {
   public:
     simparm::FileEntry calibration_file;
 
-    _Config() 
-        : Object("SigmaDiff3D", "Look up 3D via sigma difference"),
-          calibration_file("SigmaCalibrationFile", "Calibration file") 
+    static std::string get_name() { return "SigmaDiff3D"; }
+    static std::string get_description() { return "Look up 3D via sigma difference"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+
+    Config() 
+    : calibration_file("SigmaCalibrationFile", "Calibration file") 
     {
         calibration_file.helpID = "SigmaDiff3D_CalibrationFile";
     }
+    void attach_ui( simparm::Node& at ) { calibration_file.attach_ui( at ); }
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }
@@ -86,7 +87,7 @@ void SigmaDiff3D::receiveLocalizations(const EngineResult& upstream) {
 std::auto_ptr< OutputSource > make_sigma_diff_3d()
 {
     return std::auto_ptr< OutputSource >( 
-        new dStorm::output::FilterBuilder<SigmaDiff3D>() );
+        new dStorm::output::FilterBuilder<SigmaDiff3D::Config,SigmaDiff3D>() );
 }
 
 }

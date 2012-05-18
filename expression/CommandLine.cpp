@@ -59,7 +59,9 @@ void CommandLine::publish() {
 }
 void CommandLine::set_manager( ExpressionManager* manager ) {
     this->manager = manager;
-    if ( manager ) manager->getNode().push_back( *this );
+    if ( manager ) {
+        attach_ui( manager->getNode() );
+    }
     publish();
 }
 

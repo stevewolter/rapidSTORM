@@ -16,25 +16,15 @@ namespace dStorm {
 namespace expression {
 
 Config::Config() 
-: simparm::Object("Expression", "Expression filter"),
-  simparm::Listener( simparm::Event::ValueChanged ),
+: simparm::Listener( simparm::Event::ValueChanged ),
   parser( new Parser() ),
   new_line("NewExpression", "Add expression"),
-  next_ident(0)
+  next_ident(0),
+  current_ui( NULL )
 { 
     new_line.userLevel = simparm::Object::Intermediate;
-    registerNamedEntries(); 
-    new_line.trigger();
-}
-
-Config::Config(const Config& o) 
-: simparm::Object(o),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  parser(o.parser), 
-  simple(o.simple),
-  lines(o.lines), new_line(o.new_line), next_ident(o.next_ident)
-{ 
-    registerNamedEntries(); 
+    lines.push_back( new config::CommandLine( "0", parser ) );
+    ++next_ident;
 }
 
 Config::~Config() {
@@ -43,11 +33,16 @@ Config::~Config() {
         i->set_manager( NULL );
 }
 
-void Config::registerNamedEntries() {
+void Config::attach_ui( simparm::Node& at ) {
+    current_ui = &at;
+
     simple.set_manager( this );
     for ( boost::ptr_vector< config::CommandLine >::iterator i = lines.begin(); i != lines.end(); ++i )
+    {
         i->set_manager( this );
-    push_back( new_line );
+    }
+
+    new_line.attach_ui( at );
     receive_changes_from( new_line.value );
 }
 
@@ -58,7 +53,8 @@ void Config::operator()(const simparm::Event& e)
         ident << next_ident++;
         new_line.untrigger();
         lines.push_back( new config::CommandLine(ident.str(), parser) );
-        push_back( lines.back() );
+        if ( current_ui != NULL )
+            lines.back().set_manager( this );
     }
 }
 
@@ -66,16 +62,10 @@ bool Config::can_work_with(output::Capabilities)
  { return true; }
 
 
-}
-
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<expression::Source>()
+std::auto_ptr<output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<OutputSource>( new FilterBuilder<expression::Source>() );
+    return std::auto_ptr<output::OutputSource>( new output::FilterBuilder<Config,Source>() );
 }
 
 }
-
 }

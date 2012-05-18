@@ -8,8 +8,50 @@ namespace dStorm {
 using namespace output;
 namespace outputs {
 
+class TraceCountFilter : public output::OutputObject,
+                         public simparm::Node::Callback
+{
+  private:
+    EngineResult localizations;
+    int minCount;
+    bool disassemble;
+    std::auto_ptr< output::Output > output;
+
+    simparm::BoolEntry selectSpecific;
+    simparm::Entry<unsigned long> whichSpecific;
+    dStorm::Engine *engine;
+    int processed_locs;
+
+    int count_localizations_in( const Localization &l );
+    void processLocalization( const Localization& l);
+    void operator()(const simparm::Event&);
+
+    /** As of yet, the copy constructor is not implemented. */
+    TraceCountFilter(const TraceCountFilter&);
+    TraceCountFilter& operator=(const TraceCountFilter&);
+
+    void store_results_( bool success );
+
+  public:
+    TraceCountFilter(const TraceCountConfig& config,
+                     std::auto_ptr<output::Output> output);
+    ~TraceCountFilter() {}
+    TraceCountFilter* clone() const 
+        { throw std::runtime_error("No TraceCountFilter::clone"); }
+
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames) 
+        { output->check_for_duplicate_filenames(present_filenames); }
+
+    AdditionalData announceStormSize(const Announcement &a) ;
+    RunRequirements announce_run(const RunAnnouncement& a) 
+        { processed_locs = 0; return output->announce_run(a); }
+
+    void receiveLocalizations(const EngineResult& e);
+};
+
 TraceCountFilter::TraceCountFilter(
-    const Config& c,
+    const TraceCountConfig& c,
     std::auto_ptr<output::Output> output
 ) 
 : output::OutputObject("TraceFilter", "Trace filter"),
@@ -94,20 +136,28 @@ void TraceCountFilter::receiveLocalizations(const EngineResult& e)
     output->receiveLocalizations(eo);
 }
 
-TraceCountFilter::_Config::_Config()
-: simparm::Object("TraceFilter", "Trace filter"),
-  min_count("MinEmissionCount", 
+TraceCountConfig::TraceCountConfig()
+: min_count("MinEmissionCount", 
             "Minimum number of emissions in trace"),
   disassemble("Disassemble", "Output source localizations instead of"
             " average position", false),
   selectSpecific("SelectSpecific", "Select trace by number", false),
-  whichSpecific("WhichTrace", "Trace to select", 1)
+  whichSpecific("WhichTrace", "Trace to select", 1),
+  shower(selectSpecific, whichSpecific)
 {
     whichSpecific.min = 1;
     whichSpecific.viewable = false;
-
-    userLevel = Intermediate;
 }
+
+std::auto_ptr< output::Output > make_trace_count_filter( const TraceCountConfig& c, std::auto_ptr< output::Output > s )
+{
+    return std::auto_ptr< output::Output >( new TraceCountFilter( c, s ) );
+}
+
+std::auto_ptr< output::OutputSource > make_trace_count_source() {
+    return std::auto_ptr< output::OutputSource >( new FilterBuilder< TraceCountConfig, TraceCountFilter >() );
+}
+
 
 }
 }

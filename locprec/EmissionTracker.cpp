@@ -40,12 +40,10 @@ struct address_is_less : public std::binary_function<Type,Type,bool> {
 class Output 
 : public dStorm::output::OutputObject 
 {
-    class _Config;
-    public:
-    typedef simparm::Structure<_Config> Config;
-    typedef dStorm::output::FilterBuilder<Output> Source;
+public:
+    class Config;
 
-    private:
+private:
     class lowest_mahalanobis_distance;
     class TracedObject : public KalmanTrace<2> {
         int hope;
@@ -105,12 +103,14 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class Output::_Config : public simparm::Object {
-    protected:
-    _Config();
-    void registerNamedEntries();
+class Output::Config  {
+public:
+    Config();
+    void attach_ui( simparm::Node& at );
+    static std::string get_name() { return "EmissionTracker"; }
+    static std::string get_description() { return "Track emissions"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
 
-    public:
     simparm::Entry<unsigned long> allowBlinking;
     dStorm::FloatNanometreEntry expectedDeviation;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
@@ -172,9 +172,8 @@ Output::TracedObject::TracedObject(const Output& papa)
 Output::TracedObject::~TracedObject() {
 }
 
-Output::_Config::_Config() 
-: simparm::Object("EmissionTracker", "Track emissions"),
-  allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
+Output::Config::Config() 
+: allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
   expectedDeviation("ExpectedDeviation", "SD of expected distance between tracked localizations", 
     20 * boost::units::si::nanometre),
   diffusion("DiffusionConstant", "Diffusion constant"),
@@ -187,15 +186,14 @@ Output::_Config::_Config()
     mobility.helpID = "EmissionTracker.Mobility_Constant";
 }
 
-void Output::_Config::registerNamedEntries()
-
+void Output::Config::attach_ui( simparm::Node& at )
 {
-    push_back( distance_threshold );
-    push_back( allowBlinking );
-    push_back( expectedDeviation );
-    push_back( diffusion );
-    push_back( mobility );
-    push_back( reducer );
+    distance_threshold.attach_ui( at );
+    allowBlinking.attach_ui( at );
+    expectedDeviation.attach_ui( at );
+    diffusion.attach_ui( at );
+    mobility.attach_ui( at );
+    reducer.attach_ui( at );
 }
 
 Output::Output( 
@@ -396,7 +394,8 @@ void Output::store_results_( bool success ) {
 
 std::auto_ptr<dStorm::output::OutputSource> create()
 {
-    return std::auto_ptr<dStorm::output::OutputSource>( new Output::Source() );
+    return std::auto_ptr<dStorm::output::OutputSource>( 
+        new dStorm::output::FilterBuilder<Output::Config,Output>() );
 }
 
 }

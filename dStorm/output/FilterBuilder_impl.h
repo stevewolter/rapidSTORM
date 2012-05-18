@@ -6,46 +6,45 @@
 namespace dStorm {
 namespace output {
 
-template <class Type>
-FilterBuilder<Type>::FilterBuilder(bool failSilently)
+template <class Type, class OutputType>
+FilterBuilder<Type,OutputType>::FilterBuilder(bool failSilently)
 : failSilently(failSilently) ,
-  name_object( Type::Config::getName(), Type::Config::getDesc() )
+  name_object( Type::get_name(), Type::get_description() )
 { 
+    name_object.userLevel = Type::get_user_level();
 }
 
-template <class Type>
-FilterBuilder<Type>::
-FilterBuilder(const FilterBuilder<Type>& o)
-: Type::Config(o),
-  FilterSource(o),
-  failSilently(failSilently) ,
-  name_object(o)
+template <class Type, class OutputType>
+FilterBuilder<Type,OutputType>::
+FilterBuilder(const FilterBuilder<Type,OutputType>& o)
+: FilterSource(o),
+  config(o.config),
+  failSilently(o.failSilently) ,
+  name_object(o.name_object)
 {
     if ( o.getFactory() != NULL )
         this->set_output_factory( *o.getFactory() );
 }
 
-template <class Type>
-FilterBuilder<Type>* FilterBuilder<Type>::clone() const
+template <class Type, class OutputType>
+FilterBuilder<Type,OutputType>* FilterBuilder<Type,OutputType>::clone() const
 { return new FilterBuilder(*this); }
 
-template <class Type>
+template <class Type, class OutputType>
 void 
-FilterBuilder<Type>::set_source_capabilities
+FilterBuilder<Type,OutputType>::set_source_capabilities
     ( Capabilities cap ) 
 {
-    this->viewable = 
-        this->Type::Config::determine_output_capabilities( cap );
-    this->FilterSource::set_source_capabilities( cap );
+    name_object.viewable = 
+        config.determine_output_capabilities( cap );
+    FilterSource::set_source_capabilities( cap );
 }
 
-template <class Type>
-std::auto_ptr<Output> FilterBuilder<Type>::make_output() 
+template <class Type, class OutputType>
+std::auto_ptr<Output> FilterBuilder<Type,OutputType>::make_output() 
 {
-    typename Type::Config& config =
-        static_cast<typename Type::Config&>(*this);
     try {
-        return std::auto_ptr<Output>( new Type( 
+        return std::auto_ptr<Output>( new OutputType( 
             config, FilterSource::make_output() ) );
     } catch ( Source_Is_Transparent& transparent ) {
         return transparent.output;

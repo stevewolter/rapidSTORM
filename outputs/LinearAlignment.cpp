@@ -17,8 +17,7 @@ namespace output {
 class LinearAlignment : public Filter
 {
 public:
-    class _Config;
-    typedef simparm::Structure<_Config> Config;
+    class Config;
 
 private:
     Eigen::Affine2f transformation;
@@ -32,18 +31,20 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class LinearAlignment::_Config : public simparm::Object {
-  protected:
-    void registerNamedEntries() { push_back( calibration_file ); }
+class LinearAlignment::Config {
   public:
     simparm::FileEntry calibration_file;
 
-    _Config() 
-        : Object("LinearAlignment", "Apply linear alignment"),
-          calibration_file("AlignmentFile", "Plane alignment file") {}
+    static std::string get_name() { return "LinearAlignment"; }
+    static std::string get_description() { return "Apply linear alignment"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+
+    Config() 
+        : calibration_file("AlignmentFile", "Plane alignment file") {}
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }
+    void attach_ui( simparm::Node& at ) { calibration_file.attach_ui( at ); }
 };
 
 LinearAlignment::LinearAlignment( const Config& c, std::auto_ptr< Output > sub )
@@ -79,7 +80,7 @@ void LinearAlignment::receiveLocalizations(const EngineResult& upstream) {
 std::auto_ptr< OutputSource > make_linear_alignment()
 {
     return std::auto_ptr< OutputSource >( 
-        new dStorm::output::FilterBuilder<LinearAlignment>() );
+        new dStorm::output::FilterBuilder<LinearAlignment::Config,LinearAlignment>() );
 }
 
 }

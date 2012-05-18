@@ -1,3 +1,28 @@
+#include <simparm/Eigen_decl.hh>
+#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen.hh>
+
+#include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
+#include <boost/ptr_container/ptr_array.hpp>
+#include <dStorm/output/binning/config.h>
+#include <dStorm/output/OutputSource.h>
+#include <dStorm/output/Localizations.h>
+#include <dStorm/outputs/BinnedLocalizations.h>
+#include <dStorm/outputs/LocalizationList.h>
+#include <dStorm/engine/Image.h>
+#include <dStorm/outputs/Crankshaft.h>
+#include <dStorm/outputs/TraceFilter.h>
+#include <dStorm/output/TraceReducer.h>
+#include <dStorm/display/Manager.h>
+#include <boost/thread/mutex.hpp>
+#include <simparm/Entry.hh>
+#include <simparm/ChoiceEntry.hh>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/FileEntry.hh>
+#include <cassert>
+#include <simparm/ObjectChoice.hh>
+#include <simparm/ManagedChoiceEntry.hh>
+
 #include "RegionSegmenter.h"
 #include "foreach.h"
 #include <limits>
@@ -14,6 +39,7 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/foreach.hpp>
+#include <dStorm/output/FilterBuilder.h>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/dilation_impl.h>
@@ -21,15 +47,111 @@
 
 namespace locprec {
 
+    class Segmenter : public dStorm::outputs::Crankshaft,
+        public simparm::Node::Callback,
+        private dStorm::display::DataSource
+    {
+      public:
+        class Config;
+        enum SegmentationType { Maximum, Region };
+
+      private:
+        typedef dStorm::Image<dStorm::Pixel,2> ColorImage;
+        typedef dStorm::Image<int,2> RegionImage;
+
+        boost::mutex mutex;
+
+        std::auto_ptr<Announcement> announcement;
+        SegmentationType howToSegment;
+        boost::ptr_array< dStorm::output::binning::Unscaled, 2 > binners;
+        simparm::Entry<double> threshold;
+        simparm::Entry<unsigned long> dilation;
+        dStorm::output::Localizations points;
+
+        dStorm::outputs::BinnedLocalizations<>* bins;
+
+        std::auto_ptr< dStorm::display::Change > next_change;
+        std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
+
+        std::auto_ptr< dStorm::output::Output > output;
+        std::auto_ptr< dStorm::output::TraceReducer > reducer;
+
+        std::string load_segmentation, save_segmentation;
+
+        static ColorImage color_regions( const RegionImage& );
+        void display_image( const ColorImage& );
+        std::auto_ptr<dStorm::display::Change> get_changes();
+
+        void store_results_( bool success ) {
+            dStorm::outputs::Crankshaft::store_results_( success );
+            boost::lock_guard<boost::mutex> lock(mutex);
+            if ( howToSegment == Maximum )
+                maximums();
+            else
+                segment();
+        }
+
+      protected:
+        RegionImage segment_image();
+        void segment();
+        void maximums();
+
+      public:
+        Segmenter( const Config& config,
+                   std::auto_ptr<dStorm::output::Output> output);
+        Segmenter( const Segmenter & );
+        ~Segmenter();
+        Segmenter* clone() const 
+            { throw std::runtime_error("Object unclonable."); }
+
+        AdditionalData announceStormSize(const Announcement &a) ;
+
+        void operator()(const simparm::Event&);
+    };
+
+    class SegmentationMethod : public simparm::ObjectChoice {
+        Segmenter::SegmentationType method;
+    public:
+        void attach_ui( simparm::Node& at ) { attach_parent(at); }
+        SegmentationMethod( Segmenter::SegmentationType method, std::string name, std::string desc )
+            : simparm::ObjectChoice(name,desc), method(method) {}
+        SegmentationMethod* clone() const { return new SegmentationMethod(*this); }
+        Segmenter::SegmentationType type() const { return method; }
+        void push_back( simparm::Node& node ) { getNode().push_back(node); }
+    };
+
+    struct Segmenter::Config {
+        simparm::ManagedChoiceEntry<SegmentationMethod> method;
+        dStorm::outputs::DimensionSelector<2> selector;
+        simparm::Entry<double> threshold;
+        simparm::Entry<unsigned long> dilation;
+        simparm::FileEntry save_segmentation, load_segmentation;
+        dStorm::output::TraceReducer::Config reducer;
+
+        static std::string get_name() { return "Segmenter"; }
+        static std::string get_description() { return "Segment target image"; }
+        static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+
+        Config();
+        void attach_ui( simparm::Node& at );
+        bool determine_output_capabilities
+            ( dStorm::output::Capabilities& cap ) 
+        { 
+            cap.set_intransparency_for_source_data();
+            cap.set_cluster_sources( true );
+            return true;
+        }
+    };
+
+
 using namespace std;
 using namespace dStorm;
 using namespace dStorm::output;
 using namespace dStorm::engine;
 using namespace dStorm::outputs;
 
-Segmenter::_Config::_Config()
-:   simparm::Object("Segmenter", "Segment target image"),
-    method("SegmentationMethod", "Method for segmentation"),
+Segmenter::Config::Config()
+:   method("SegmentationMethod", "Method for segmentation"),
     threshold("SegmentationThreshold","Threshold for regionness", 0.001),
     dilation("SegmentationDilation", 
             "Region dilation in binned pixels", 0),
@@ -41,11 +163,9 @@ Segmenter::_Config::_Config()
     method.addChoice( new SegmentationMethod( Segmenter::Region, 
         "Regions", "Coherent regions") );
     method.choose("Maximum");
-
-    trace_filter.hide_in_tree();
 }
 
-void Segmenter::_Config::registerNamedEntries()
+void Segmenter::Config::attach_ui( simparm::Node& at )
 {
     method["Maximum"].push_back( selector );
 
@@ -55,9 +175,8 @@ void Segmenter::_Config::registerNamedEntries()
     method["Regions"].push_back( load_segmentation );
     method["Regions"].push_back( save_segmentation );
 
-    push_back( method );
-    push_back( reducer );
-    push_back( trace_filter );
+    method.attach_ui( at );
+    reducer.attach_ui( at );
 }
 
 
@@ -70,7 +189,7 @@ Segmenter::Segmenter(
   howToSegment( config.method().type() ),
   threshold( config.threshold ),
   dilation( config.dilation ),
-  output( new TraceCountFilter( config.trace_filter, output ) ),
+  output( output ),
   reducer( config.reducer.make_trace_reducer() ),
   load_segmentation( config.load_segmentation() ),
   save_segmentation( config.save_segmentation() ) 
@@ -410,6 +529,12 @@ std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
     boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( fresh, next_change );
     return fresh;
+}
+
+std::auto_ptr< dStorm::output::OutputSource > make_segmenter_source() {
+    return std::auto_ptr< dStorm::output::OutputSource >(
+        new dStorm::output::FilterBuilder<Segmenter::Config,Segmenter>()
+    );
 }
 
 }

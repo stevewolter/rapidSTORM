@@ -2,7 +2,6 @@
 #define DSTORM_EXPRESSION_CONFIG_H
 
 #include "SimpleFilters.h"
-#include <simparm/Object.hh>
 #include <simparm/TriggerEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/systems/camera/intensity.hpp>
@@ -16,19 +15,23 @@ namespace expression {
 
 class Parser;
 
-struct Config : public simparm::Object, public simparm::Listener, public config::ExpressionManager
+struct Config : public simparm::Listener, public config::ExpressionManager
 {
+    typedef Source Output;
+
     Config();
-    Config(const Config&);
     ~Config();
+
+    void attach_ui( simparm::Node& );
+    static std::string get_name() { return "Expression"; }
+    static std::string get_description() { return "Expression filter"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
 
     void operator()(const simparm::Event&);
     bool can_work_with(output::Capabilities);
     bool determine_output_capabilities( output::Capabilities& cap ) { return true; }
 
   private:
-    void registerNamedEntries();
-
     friend class Source;
 
     boost::shared_ptr<Parser> parser;
@@ -38,9 +41,10 @@ struct Config : public simparm::Object, public simparm::Listener, public config:
     simparm::TriggerEntry new_line;
     int next_ident;
 
-    void expression_changed( std::string, std::auto_ptr<source::LValue> ) {}
-    simparm::Node& getNode()  { return *this; }
+    simparm::Node* current_ui;
+    simparm::Node& getNode() { assert( current_ui ); return *current_ui; }
 
+    void expression_changed( std::string, std::auto_ptr<source::LValue> ) {}
 };
 
 }
