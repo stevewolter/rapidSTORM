@@ -1,3 +1,16 @@
+#include <simparm/BoostUnits.hh>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/FilterSource.h>
+#include <dStorm/output/FileOutputBuilder.h>
+#include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include <dStorm/UnitEntries/FrameEntry.h>
+#include <simparm/Entry.hh>
+#include <simparm/ChoiceEntry.hh>
+#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Structure.hh>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <stdexcept>
+
 #include "Slicer.h"
 #include <sstream>
 #include <stdio.h>
@@ -5,7 +18,76 @@
 #include <dStorm/outputs/NullOutput.h>
 
 namespace dStorm {
-namespace output {
+namespace slicer {
+
+using namespace output;
+
+class Slicer : public OutputObject {
+  public:
+    class Config;
+  private:
+    frame_count slice_size, slice_distance;
+    Basename filename;
+
+    Basename fn_for_slice( int i ) const;
+
+    std::auto_ptr<dStorm::output::FilterSource> source;
+
+    class Child {
+        boost::shared_ptr<simparm::Object> node;
+        boost::shared_ptr<Output> output;
+      public:
+        frame_count images_in_output;
+
+        Child(boost::shared_ptr<Output> output, 
+             boost::shared_ptr<simparm::Object> node) 
+            : node(node), output(output), images_in_output(0) {}
+        ~Child() {}
+
+        operator bool() const { return output != NULL; }
+        Output* operator->() { return output.get(); }
+        const Output* operator->() const { return output.get(); }
+        Output& operator*() { return *output; }
+        const Output& operator*() const { return *output; }
+    };
+    boost::ptr_vector< boost::nullable<Child> > outputs;
+    std::set<std::string>* avoid_filenames;
+
+    /** Copy constructor undefined. */
+    Slicer(const Slicer& c) 
+        : OutputObject(c),
+          suboutputs(c.suboutputs)
+        { throw std::logic_error("dStorm::Slicer::Slicer(Copy) undef."); }
+
+    void add_output_clone(int index);
+
+    std::auto_ptr<Announcement> announcement;
+    std::auto_ptr<RunAnnouncement> run_announcement;
+    void store_results_( bool success );
+
+  public:
+    simparm::Set suboutputs;
+
+    void check_for_duplicate_filenames
+            (std::set<std::string>& present_filenames);
+
+    Slicer( const Config&, std::auto_ptr< output::FilterSource > );
+    Slicer* clone() const;
+    ~Slicer();
+
+    AdditionalData announceStormSize(const Announcement&);
+    RunRequirements announce_run(const RunAnnouncement& a);
+    void receiveLocalizations(const EngineResult&);
+};
+
+class Slicer::Config {
+  public:
+    dStorm::IntFrameEntry slice_size, slice_distance;
+    dStorm::output::BasenameAdjustedFileEntry outputFile;
+
+    Config();
+    void attach_ui( simparm::Node& at );
+};
 
 Basename Slicer::fn_for_slice( int i ) const
 {
@@ -46,9 +128,8 @@ void Slicer::add_output_clone(int i) {
         outputs[i]->announce_run(*run_announcement);
 }
 
-Slicer::_Config::_Config() 
-: simparm::Object("Slicer", "Slice localization set"),
-  slice_size("SliceSize", "Size of one slice in images", 500 * camera::frame),
+Slicer::Config::Config() 
+: slice_size("SliceSize", "Size of one slice in images", 500 * camera::frame),
   slice_distance("SliceDistance", "Start new slice every n images", 100 * camera::frame),
   outputFile("BaseFileName", "File name pattern", "_$slice$")
 {
@@ -62,19 +143,19 @@ Slicer::_Config::_Config()
     outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 
-void Slicer::_Config::registerNamedEntries()
+void Slicer::Config::attach_ui( simparm::Node& at )
 {
-    push_back( slice_size ); 
-    push_back( slice_distance );
-    push_back( outputFile); 
+    slice_size.attach_ui( at ); 
+    slice_distance.attach_ui( at );
+    outputFile.attach_ui( at); 
 }
 
-Slicer::Slicer(const SourceBuilder& config)
+Slicer::Slicer(const Config& config, std::auto_ptr<output::FilterSource> generator )
 : OutputObject("Slicer", "Object Slicer"),
   slice_size( config.slice_size()  ),
   slice_distance( config.slice_distance() ),
   filename( config.outputFile.get_basename() ),
-  source( static_cast<const FilterSource&>(config).clone() ),
+  source( generator ),
   avoid_filenames(NULL),
   suboutputs( "Outputs", "Outputs to slicer" )
 {
@@ -149,6 +230,47 @@ Slicer::~Slicer()
 }
 
 Slicer* Slicer::clone() const { return new Slicer(*this); }
+
+class Source
+: public output::FilterSource
+{
+    Slicer::Config config;
+    simparm::Object name_object;
+public:
+    Source() : name_object("Slicer", "Slice localization set") {
+        name_object.userLevel = simparm::Object::Intermediate;
+        adjust_to_basename( config.outputFile );
+    }
+
+    Source( const Source& o )
+    : output::FilterSource(o), config(o.config), name_object(o.name_object)
+    {
+        adjust_to_basename( config.outputFile );
+        if ( o.getFactory() != NULL )
+            this->set_output_factory( *o.getFactory() );
+    }
+
+    Source* clone() const { return new Source(*this); }
+
+    std::auto_ptr<Output> make_output() {
+        std::auto_ptr<output::FilterSource> my_clone( clone() );
+        return std::auto_ptr<Output>( 
+            new Slicer( config, my_clone ) );
+    }
+
+    std::string getName() const { return name_object.getName(); }
+    std::string getDesc() const { return name_object.getDesc(); }
+    void attach_full_ui( simparm::Node& at ) { 
+        config.attach_ui( name_object );
+        FilterSource::attach_source_ui( name_object ); 
+        name_object.attach_ui( at ); 
+    }
+    void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }
+};
+
+std::auto_ptr< output::OutputSource > make_output_source() {
+    return std::auto_ptr< output::OutputSource >( new Source() );
+}
 
 }
 }

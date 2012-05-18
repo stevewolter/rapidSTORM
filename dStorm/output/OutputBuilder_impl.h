@@ -6,24 +6,15 @@
 namespace dStorm {
 namespace output {
 
-template <typename Type, typename BaseSource>
-OutputBuilder<Type,BaseSource>::OutputBuilder(
+template <typename Config, typename Output>
+OutputBuilder<Config, Output>::OutputBuilder(
     bool failSilently)
 : failSilently("FailSilently", 
         "Allow transmission to fail silently",
         failSilently),
-  name_object( Type::Config::getName(), Type::Config::getDesc() )
+  name_object( Config::get_name(), Config::get_description() )
 { 
     this->failSilently.userLevel = simparm::Object::Debug;
-}
-
-template <typename Type, typename BaseSource>
-OutputBuilder<Type,BaseSource>::OutputBuilder(const OutputBuilder& o)
-: Type::Config(o),
-  BaseSource(o),
-  failSilently(o.failSilently),
-  name_object( o.name_object )
-{ 
 }
 
 }

@@ -1,14 +1,54 @@
 #include "debug.h"
+#include <dStorm/output/Output.h>
+#include <dStorm/output/OutputBuilder.h>
+#include <simparm/ProgressEntry.hh>
+
 #include "ProgressMeter.h"
 
 namespace dStorm {
 namespace output {
 
-ProgressMeter::Config::Config() 
-: simparm::Object( "Progress", "Display progress" ) 
+/** This class updates a ProgressEntry with the progress status for the
+ *  crankshaft it is added to. */
+class ProgressMeter : public OutputObject
 {
-    userLevel = Intermediate;
-}
+  private:
+    simparm::ProgressEntry progress;
+    frame_count max;
+    frame_count first;
+    boost::optional<frame_count> length;
+
+  protected:
+    AdditionalData announceStormSize(const Announcement &a);
+    void receiveLocalizations(const EngineResult& er);
+    void store_results_( bool success );
+
+  public:
+    class Config;
+
+    ProgressMeter(const Config &);
+    ProgressMeter(const ProgressMeter& c)
+        : OutputObject(c),
+          progress(c.progress), max(c.max), length(c.length)
+        { push_back(progress); }
+    virtual ~ProgressMeter() {}
+    RunRequirements announce_run(const RunAnnouncement&) {
+        progress.setValue(0); 
+        max = 0;
+        return RunRequirements();
+    }
+
+    ProgressMeter *clone() const { return new ProgressMeter(*this); }
+};
+
+class ProgressMeter::Config 
+{ 
+  public:
+    bool can_work_with(Capabilities) { return true; }
+    void attach_ui( simparm::Node& ) {}
+    static std::string get_name() { return "Progress"; }
+    static std::string get_description() { return "Display progress"; }
+};
 
 ProgressMeter::ProgressMeter(const Config &)
     : OutputObject("ProgressMeter", "Progress status"),
@@ -60,6 +100,11 @@ void ProgressMeter::store_results_( bool success )
     progress.setValue(1); 
     progress.increment = save_increment;
 }
+
+std::auto_ptr< output::OutputSource > make_average_image_source() {
+    return std::auto_ptr< output::OutputSource >( new OutputBuilder< ProgressMeter::Config, ProgressMeter >() );
+}
+
 
 }
 }

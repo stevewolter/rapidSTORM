@@ -12,19 +12,19 @@ struct OutputFileAdjuster : public BaseType {
     OutputFileAdjuster(
             bool failSilently = false)
         : BaseType(failSilently)
-        { adjust_to_basename( BaseType::Config::outputFile ); }
+        { adjust_to_basename( BaseType::config.outputFile ); }
     OutputFileAdjuster(const OutputFileAdjuster<BaseType>& o)
         : BaseType(o)
-        { adjust_to_basename( BaseType::Config::outputFile ); }
+        { adjust_to_basename( BaseType::config.outputFile ); }
 
     OutputFileAdjuster* clone() const 
         { return new OutputFileAdjuster(*this); }
 };
 
-template <typename BaseType>
-class FileOutputBuilder : public OutputFileAdjuster< OutputBuilder<BaseType> > {
+template <typename Config, typename Output>
+class FileOutputBuilder : public OutputFileAdjuster< OutputBuilder<Config,Output> > {
   public:       
-    typedef OutputFileAdjuster< OutputBuilder<BaseType> > Base;
+    typedef OutputFileAdjuster< OutputBuilder<Config,Output> > Base;
     FileOutputBuilder( bool failSilently = false) 
         : Base( failSilently ) {}
     FileOutputBuilder(const FileOutputBuilder& o)

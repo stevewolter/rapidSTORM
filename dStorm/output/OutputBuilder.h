@@ -7,55 +7,49 @@
 namespace dStorm {
 namespace output {
 
-template < typename Type, typename BaseSource = dStorm::output::OutputSource >
-class OutputBuilder;
+template <typename Config, typename Output>
+class OutputBuilder
+: public OutputSource
+{
+protected:
+    Config config;
+    simparm::BoolEntry failSilently;
+    simparm::Object name_object;
+public:
+    OutputBuilder(bool failSilently = false);
+    OutputBuilder* clone() const
+        { return new OutputBuilder(*this); }
+    ~OutputBuilder() {}
 
-    template < typename Type, typename BaseSource>
-    class OutputBuilder
-    : public Type::Config,
-      public BaseSource
+    void set_source_capabilities( Capabilities cap ) 
     {
-        simparm::BoolEntry failSilently;
-        simparm::Object name_object;
-      public:
-        typedef typename Type::Config Config;
-        typedef Type BaseType;
+        name_object.viewable = config.can_work_with( cap );
+    }
 
-        OutputBuilder(bool failSilently = false);
-        OutputBuilder(const OutputBuilder&);
-        OutputBuilder<Type,BaseSource>* clone() const
-            { return new OutputBuilder<Type,BaseSource>(*this); }
-        virtual ~OutputBuilder() {}
+    std::auto_ptr<output::Output> make_output() 
+    {
+        try {
+            return std::auto_ptr<output::Output>( new Output(config) );
+        } catch (...) {
+            if ( !failSilently() ) 
+                throw;
+            else
+                return std::auto_ptr<output::Output>( NULL );
+        }
+    }
 
-        virtual void set_source_capabilities( Capabilities cap ) 
-        {
-            this->viewable = this->Type::Config::can_work_with( cap );
-        }
-
-        virtual std::auto_ptr<Output> make_output() 
- 
-        {
-            try {
-                return std::auto_ptr<Output>( new Type(*this) );
-            } catch (...) {
-                if ( !failSilently() ) 
-                    throw;
-                else
-                    return std::auto_ptr<Output>( NULL );
-            }
-        }
-
-        std::string getName() const { return Type::Config::getName(); }
-        std::string getDesc() const { return Type::Config::getDesc(); }
-        void attach_full_ui( simparm::Node& at ) { 
-            simparm::NodeRef r = Type::Config::attach_ui( at ); 
-            BaseSource::attach_source_ui( r );
-            failSilently.attach_ui( r );
-        }
-        void attach_ui( simparm::Node& at ) { 
-            name_object.attach_ui( at ); 
-        }
-    };
+    std::string getName() const { return Config::get_name(); }
+    std::string getDesc() const { return Config::get_description(); }
+    void attach_full_ui( simparm::Node& at ) { 
+        config.attach_ui( name_object ); 
+        OutputSource::attach_source_ui( name_object );
+        failSilently.attach_ui( name_object );
+        name_object.attach_ui( at ); 
+    }
+    void attach_ui( simparm::Node& at ) { 
+        name_object.attach_ui( at ); 
+    }
+};
 
 }
 }

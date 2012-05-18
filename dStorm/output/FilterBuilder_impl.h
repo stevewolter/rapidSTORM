@@ -46,8 +46,6 @@ std::auto_ptr<Output> FilterBuilder<Type,OutputType>::make_output()
     try {
         return std::auto_ptr<Output>( new OutputType( 
             config, FilterSource::make_output() ) );
-    } catch ( Source_Is_Transparent& transparent ) {
-        return transparent.output;
     } catch (...) {
         if ( !failSilently ) 
             throw;

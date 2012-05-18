@@ -7,10 +7,6 @@
 namespace dStorm {
 namespace output {
 
-    struct Source_Is_Transparent {
-        std::auto_ptr<Output> output;
-    };
-
     template <typename Type, typename OutputType>
     class FilterBuilder 
     : public FilterSource
