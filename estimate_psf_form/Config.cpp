@@ -4,8 +4,7 @@ namespace dStorm {
 namespace estimate_psf_form {
 
 Config::Config()
-:   simparm::Object("FitPSFForm", "Estimate PSF form"),
-    multiplane( "MultiPlane", "Multi-layer specific options"),
+:   multiplane( "MultiPlane", "Multi-layer specific options"),
     polynomial_3d( "Polynomial", "Polynomial 3D specific options"),
     mle("FormMLE", "Use MLE to fit PSF form", false), 
     number_of_spots("EstimationSpots", "Number of spots used in estimation", 40),
@@ -18,7 +17,7 @@ Config::Config()
 {
 }
 
-void Config::registerNamedEntries() {
+void Config::attach_ui( simparm::Node& at ) {
     multiplane.push_back( laempi_fit );
     multiplane.push_back( disjoint_amplitudes );
     FormCalibrationConfig::register_multiplane_entries( multiplane );
@@ -26,14 +25,14 @@ void Config::registerNamedEntries() {
     polynomial_3d.push_back( z_is_truth );
     FormCalibrationConfig::register_polynomial3d_entries( polynomial_3d );
 
-    push_back( number_of_spots );
-    push_back( max_per_image );
-    push_back( visual_selection );
-    push_back( mle );
-    FormCalibrationConfig::register_generic_entries( *this );
+    number_of_spots.attach_ui( at );
+    max_per_image.attach_ui( at );
+    visual_selection.attach_ui( at );
+    mle.attach_ui( at );
+    FormCalibrationConfig::register_generic_entries( at );
 
-    push_back( multiplane );
-    push_back( polynomial_3d );
+    multiplane.attach_ui( at );
+    polynomial_3d.attach_ui( at );
 
 }
 

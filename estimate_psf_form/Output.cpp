@@ -202,14 +202,9 @@ void Output::do_the_fit() {
     input.reset();
 }
 
-}
-
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<estimate_psf_form::Output>()
+std::auto_ptr<output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<OutputSource>( new OutputBuilder<estimate_psf_form::Output>() );
+    return std::auto_ptr<output::OutputSource>( new OutputBuilder< Config, Output >() );
 }
 
 

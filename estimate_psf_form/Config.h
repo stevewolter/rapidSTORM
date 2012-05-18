@@ -25,7 +25,7 @@ namespace estimate_psf_form {
 using boost::units::quantity;
 namespace si = boost::units::si;
 
-struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConfig
+struct Config : public calibrate_3d::FormCalibrationConfig
 {
     simparm::Set multiplane, polynomial_3d;
     simparm::BoolEntry mle;
@@ -36,7 +36,10 @@ struct Config : public simparm::Object, public calibrate_3d::FormCalibrationConf
     simparm::Entry< FitWindowWidth > fit_window_width;
 
     Config();
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at );
+
+    static std::string get_name() { return "FitPSFForm"; }
+    static std::string get_description() { return "Estimate PSF form"; }
 
     bool can_work_with(output::Capabilities cap)  {
             return cap.test( output::Capabilities::SourceImage );
