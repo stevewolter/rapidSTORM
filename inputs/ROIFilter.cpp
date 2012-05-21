@@ -56,6 +56,7 @@ class Source
     struct _iterator;
 
     inline bool is_in_range(const Ty& t) const;
+    void attach_local_ui_( simparm::Node& ) {}
 
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,

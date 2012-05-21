@@ -24,19 +24,21 @@ namespace AndorCamera {
 
 Source::Source
     (std::auto_ptr<CameraConnection> connection, bool show_live, LiveView::Resolution res )
-: Set("AndorDirect", "Direct acquisition"),
-  connection(connection),
+: connection(connection),
   has_ended(false), show_live(show_live), resolution(res),
   status("CameraStatus", "Camera status")
 {
     status.editable = false;
 
-    push_back( status );
     DEBUG("Built AndorDirect source " << this);
 }
 
 Source::~Source() {
     DEBUG( "Destructing source " << this );
+}
+
+void Source::attach_ui_( simparm::Node& n ) {
+    status.attach_ui( n );
 }
 
 Source::TraitsPtr Source::get_traits( Wishes ) 

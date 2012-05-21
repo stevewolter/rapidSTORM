@@ -61,13 +61,10 @@ namespace Reader {
         std::auto_ptr<output::TraceReducer> reducer;
 
         void dispatch(Messages m) { assert( ! m.any() ); }
-        simparm::Node& node() { return *this; }
+        void attach_ui_(simparm::Node& n ) { simparm::Object::attach_ui(n); }
 
       public:
         Source(const File& file, std::auto_ptr<output::TraceReducer>);
-
-        simparm::Node& getNode() { return *this; }
-        const simparm::Node& getNode() const { return *this; }
 
         input::Source<localization::Record>::iterator begin();
         input::Source<localization::Record>::iterator end();

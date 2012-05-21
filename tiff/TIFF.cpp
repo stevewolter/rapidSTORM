@@ -29,6 +29,7 @@
 #include <simparm/Set.hh>
 #include <simparm/Structure.hh>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/NodeHandle.hh>
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/Image.h>
@@ -56,8 +57,7 @@ using namespace dStorm::input;
     *  unsigned int and float. The loaded TIFF file must match
     *  this data type exactly; no up- or downsampling is per-
     *  formed. */
-class Source : public simparm::Set,
-                public input::Source< engine::ImageStack >
+class Source : public input::Source< engine::ImageStack >
 {
     typedef engine::StormPixel Pixel;
     typedef engine::ImageStack Image;
@@ -66,9 +66,10 @@ class Source : public simparm::Set,
     typedef typename BaseSource::iterator base_iterator;
     typedef typename BaseSource::TraitsPtr TraitsPtr;
 
-    simparm::Node& node() { return *this; }
+    simparm::NodeHandle current_ui;
+    void attach_ui_( simparm::Node& n ) { current_ui = n; std::cerr << "TIFF source is attached" << std::endl; }
 
-    public:
+public:
     class iterator;
     Source(boost::shared_ptr<OpenFile> file);
     virtual ~Source();
@@ -77,12 +78,11 @@ class Source : public simparm::Set,
     base_iterator end();
     TraitsPtr get_traits(typename BaseSource::Wishes);
 
-    Object& getConfig() { return *this; }
     void dispatch(typename BaseSource::Messages m) { assert( ! m.any() ); }
     typename BaseSource::Capabilities capabilities() const 
         { return typename BaseSource::Capabilities(); }
 
-    private:
+private:
     boost::shared_ptr<OpenFile> file;
 
     static void TIFF_error_handler(const char*, 
@@ -118,8 +118,7 @@ class ChainLink
 const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
 Source::Source( boost::shared_ptr<OpenFile> file )
-: simparm::Set("TIFF", "TIFF image reader"),
-  file(file)
+: file(file)
 {
 }
 
@@ -135,7 +134,7 @@ class Source::iterator
 
   public:
     iterator() : src(NULL), msg(NULL) {}
-    iterator(Source &s) : src(s.file.get()), msg(&s), directory(0) {}
+    iterator(Source &s) : src(s.file.get()), msg(s.current_ui.get_ptr()), directory(0) {}
 
     Image& dereference() const; 
     bool equal(const iterator& i) const {
@@ -231,7 +230,7 @@ Source::TraitsPtr
 Source::get_traits(typename BaseSource::Wishes) {
     simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
     count.editable = false;
-    push_back(count);
+    count.attach_ui( *current_ui );
     DEBUG("Creating traits from file object");
     TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
     DEBUG("Returning traits " << rv.get());

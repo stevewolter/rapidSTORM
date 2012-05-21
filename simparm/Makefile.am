@@ -25,7 +25,7 @@ libsimparm_la_SOURCES = \
     TreeCallback.hh \
     Eigen_decl.hh default_value.hh IncrementWatcher.hh BoostUnits.hh \
     MinMaxWatcher.hh MinMaxWatcher_decl.hh BoostOptional.hh Attributes.hh \
-    ObjectChoice.hh command_line.hh BoostSignal.hh
+    ObjectChoice.hh command_line.hh BoostSignal.hh NodeHandle.hh
 libsimparm_la_LDFLAGS = -lpthread 
 
 check_PROGRAMS = $(UNIT_TESTS) test_eigen testSimparm

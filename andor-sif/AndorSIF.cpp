@@ -27,8 +27,7 @@ namespace dStorm {
 namespace andor_sif {
 
 Source::Source(boost::shared_ptr<OpenFile> file)
-: Object("AndorSIF", "SIF file"),
-  file(file),
+: file(file),
   has_been_iterated(false)
 {
 }
@@ -93,7 +92,7 @@ class Source::iterator
     void increment() { ++count; img.reset(); }
   public:
     iterator() : src(NULL), count(0) {}
-    iterator(Source& s, int c = 0) : src(s.file.get()), msg(&s), count(c)
+    iterator(Source& s, int c = 0) : src(s.file.get()), msg( s.current_ui.get_ptr() ), count(c)
     {}
 };
 

@@ -56,6 +56,7 @@ class Source
     const bool vertical;
 
     void modify_traits( input::Traits<engine::ImageStack>& );
+    void attach_local_ui_( simparm::Node& ) {}
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
 

@@ -127,7 +127,7 @@ void Car::run( JobMaster* input_stream ) {
 void Car::drive() {
   bool run_successful = false;
   try {
-    runtime_config.push_back( *input );
+    input->attach_ui( runtime_config );
     output->attach_ui( runtime_config );
     control.registerNamedEntries( runtime_config );
 

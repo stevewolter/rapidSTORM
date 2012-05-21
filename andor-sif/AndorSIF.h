@@ -16,7 +16,7 @@
 #include <dStorm/Image.h>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
-#include <simparm/Set.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/signals2/connection.hpp>
 
 #include "AndorSIF_OpenFile.h"
@@ -31,8 +31,7 @@ namespace andor_sif {
      *  type, which can be one of unsigned short, unsigned int and
      *  float. This is not necessarily the internal type used by
      *  the SIF file. */
-    class Source : public simparm::Object,
-                   public input::Source< engine::ImageStack >
+    class Source : public input::Source< engine::ImageStack >
     {
       public:
         typedef dStorm::engine::ImageStack Image;
@@ -52,11 +51,12 @@ namespace andor_sif {
             { return typename BaseSource::Capabilities(); }
 
       private:
-         simparm::Node& node() { return *this; }
-         boost::shared_ptr<OpenFile> file;
-         bool has_been_iterated;
+        simparm::NodeHandle current_ui;
+        void attach_ui_( simparm::Node& n ) { current_ui = n; }
+        boost::shared_ptr<OpenFile> file;
+        bool has_been_iterated;
 
-         class iterator;
+        class iterator;
     };
 
     /** Config class for Source. Simple config that adds

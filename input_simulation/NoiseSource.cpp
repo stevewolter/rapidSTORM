@@ -26,34 +26,40 @@ using namespace boost::units;
 
 namespace input_simulation {
 
-void FluorophoreSetConfig::registerNamedEntries() {
-    this->push_back( fluorophoreConfig );
-    this->push_back( distribution );
-    this->push_back( store );
-    this->push_back( recall );
-    this->push_back( fluorophore_index );
+void FluorophoreSetConfig::attach_ui( simparm::Node& at ) {
+    simparm::NodeHandle h = name_object.attach_ui( at );
+    fluorophoreConfig.attach_ui( *h );
+    distribution.attach_ui( *h );
+    store.attach_ui( *h );
+    recall.attach_ui( *h );
+    fluorophore_index.attach_ui( *h );
 }
 
-void NoiseConfig::registerNamedEntries() {
+void NoiseConfig::registerNamedEntries( simparm::Node& n ) {
     this->receive_changes_from( newSet.value );
     this->receive_changes_from( layer_count.value );
     optics.notify_on_any_change( boost::bind( &NoiseConfig::optics_changed, this ) );
 
-    this->push_back( noiseGeneratorConfig );
-    this->push_back( layer_count );
-    optics.attach_ui( *this );
-    this->push_back( newSet );
-    this->push_back( imageNumber );
-    this->push_back( sample_depth );
-    this->push_back( integrationTime );
-    this->push_back( saveActivity );
+    simparm::NodeRef r = name_object.attach_ui( n );
+    noiseGeneratorConfig.attach_ui( r );
+    layer_count.attach_ui( r );
+    optics.attach_ui( r );
+    newSet.attach_ui( r );
+    imageNumber.attach_ui( r );
+    sample_depth.attach_ui( r );
+    integrationTime.attach_ui( r );
+    saveActivity.attach_ui( r );
+
+    current_ui = r;
+    for ( FluoSets::iterator i = fluorophore_sets.begin(); i != fluorophore_sets.end(); ++i )
+        i->attach_ui( *current_ui );
 }
 
 #define NAME "Generated"
 #define DESC "Randomly generated values"
 
 FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
-: simparm::Set(name, desc),
+: name_object(name, desc),
   distribution( "FluorophoreDistribution", "Pattern to "
                            "distribute simulated fluorophores with" ),
   store("StoreFluorophores", "Store fluorophore positions and PSFs" ),
@@ -63,24 +69,11 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
     distribution.addChoice( new FluorophoreDistributions::Random());
     distribution.addChoice( FluorophoreDistributions::make_lattice());
     distribution.addChoice( new FluorophoreDistributions::Lines());
-
-    registerNamedEntries();
-}
-
-FluorophoreSetConfig::FluorophoreSetConfig(const FluorophoreSetConfig& o)
-: simparm::Set(o),
-  fluorophoreConfig(o.fluorophoreConfig),
-  distribution(o.distribution),
-  store(o.store),
-  recall(o.recall),
-  fluorophore_index(o.fluorophore_index)
-{
-    registerNamedEntries();
 }
 
 NoiseConfig::NoiseConfig()
-: simparm::Object(NAME, DESC),
-  simparm::TreeListener(),
+: simparm::Listener( simparm::Event::ValueChanged ),
+  name_object(NAME, DESC),
   next_fluo_id(1),
   newSet("NewFluorophoreSet", "Add fluorophore set"),
   imageNumber("ImageNumber", "Number of source images to generate", 10000),
@@ -91,13 +84,12 @@ NoiseConfig::NoiseConfig()
   optics( dStorm::traits::PlaneConfig::InputSimulation )
 {
     create_fluo_set();
-    registerNamedEntries();
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
-: simparm::Object(cp),
-  dStorm::input::Terminus(cp),
-  simparm::TreeListener(),
+: dStorm::input::Terminus(cp),
+  simparm::Listener( cp ),
+  name_object(cp.name_object),
   next_fluo_id(cp.next_fluo_id),
   noiseGeneratorConfig(cp.noiseGeneratorConfig),
   newSet(cp.newSet),
@@ -112,7 +104,6 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
                                    i != cp.fluorophore_sets.end(); ++i)
         add_fluo_set( std::auto_ptr<FluorophoreSetConfig>(
             new FluorophoreSetConfig(*i) ) );
-    registerNamedEntries();
 }
 
 void NoiseConfig::optics_changed() {
@@ -131,8 +122,7 @@ void NoiseConfig::operator()( const simparm::Event& e)
             optics.set_context( *image );
         }
         optics_changed();
-    } else 
-	TreeListener::add_new_children(e);
+    }
 }
 
 void NoiseConfig::create_fluo_set()
@@ -146,7 +136,8 @@ void NoiseConfig::create_fluo_set()
 
 void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
 {
-    this->simparm::Node::push_back( *s );
+    if ( current_ui )
+        s->attach_ui( *current_ui );
     fluorophore_sets.push_back( s );
 }
 
@@ -232,7 +223,7 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
             ( config.saveActivity().c_str() ));
 
     simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
-    push_back( progress );
+    progress.attach_ui( *this );
     if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
     for ( NoiseConfig::FluoSets::const_iterator
             i = config.get_fluorophore_sets().begin();

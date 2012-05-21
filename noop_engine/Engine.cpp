@@ -15,10 +15,8 @@ namespace dStorm {
 namespace noop_engine {
 
 Engine::Engine( std::auto_ptr<Input> input )
-: Object("EngineStatus", "Computation status"),
-  input(input)
+: input(input)
 {
-    push_back( *this->input );
 }
 
 Engine::TraitsPtr Engine::get_traits(Wishes w) {

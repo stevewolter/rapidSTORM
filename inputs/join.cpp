@@ -60,8 +60,17 @@ class Source
     Sources sources;
     std::vector< boost::shared_ptr< const input::Traits<Type> > > base_traits;
     typename Base::TraitsPtr traits;
+    boost::ptr_vector< simparm::Object > connection_nodes;
 
-    simparm::Node& node() { return *sources[0]; }
+    void attach_ui_( simparm::Node& n ) { 
+        for (size_t i = 0; i < sources.size(); ++i) {
+            std::auto_ptr< simparm::Object > object( 
+                new simparm::Object("Channel" + boost::lexical_cast<std::string>(i), "") );
+            sources[i]->attach_ui( *object ); 
+            object->attach_ui( n );
+            connection_nodes.push_back( object );
+        }
+    }
 
   public:
     Source( const Sources& s ) : sources(s) {}

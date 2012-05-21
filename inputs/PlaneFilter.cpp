@@ -78,6 +78,7 @@ class Source
 {
     const int plane;
     typedef input::Source< engine::ImageStack >::iterator base_iterator;
+    void attach_local_ui_( simparm::Node& ) {}
 
     struct _iterator;
 

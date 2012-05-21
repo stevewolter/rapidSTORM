@@ -47,7 +47,7 @@ expect {
 set test "Image 1 is not re-emitted again"
 expect {
     -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { fail "$test" }
-    -re "in $job remove EngineStatus" { pass "$test" }
+    -re "Verbose plugin got store_results signal" { pass "$test" }
     -re "Verbose plugin got \[0-9\]* localizations for \[0-9\]* fr" { exp_continue; }
 }
 

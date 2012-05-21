@@ -36,8 +36,7 @@ Engine::Engine(
     const Config &config, 
     std::auto_ptr<Input> input
 )
-: Object("EngineStatus", "Computation status"),
-  input(input), 
+: input(input), 
   config(config),
   errors("ErrorCount", "Number of dropped images", 0)
 {
@@ -46,8 +45,11 @@ Engine::Engine(
     errors.editable = false;
     errors.viewable = false;
 
-    push_back( *this->input );
-    push_back( errors );
+}
+
+void Engine::attach_ui_( simparm::Node& n ) {
+    input->attach_ui( n );
+    errors.attach_ui( n );
 }
 
 Engine::~Engine() {

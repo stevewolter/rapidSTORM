@@ -21,7 +21,7 @@ struct CameraConnection;
         *  from Andor cameras present on the system. It needs the
         *  AndorCamera library to compile. */
     class Source 
-    : public simparm::Set, public CamSource
+    : public CamSource
     {
       private:
         std::auto_ptr<CameraConnection> connection;
@@ -32,16 +32,13 @@ struct CameraConnection;
         class iterator;
 
         simparm::StringEntry status;
+        void attach_ui_( simparm::Node& );
 
         void dispatch(Messages m) { assert( ! m.any() ); }
-        simparm::Node& node() { return *this; }
 
       public:
         Source( std::auto_ptr<CameraConnection> connection, bool live_view, LiveView::Resolution );
-        Source(const Source &);
         virtual ~Source();
-        Source *clone() const { 
-            throw std::logic_error("Unclonable."); }
 
         virtual CamSource::iterator begin();
         virtual CamSource::iterator end();

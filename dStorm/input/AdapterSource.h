@@ -12,7 +12,11 @@ class AdapterSource
 {
     std::auto_ptr< Source<Type> > _base;
     virtual void modify_traits( Traits<Type>& ) {}
-    simparm::Node& node() { return _base->getNode(); }
+    virtual void attach_local_ui_( simparm::Node& n ) = 0;
+    void attach_ui_( simparm::Node& n ) {
+        attach_local_ui_(n);
+        _base->attach_ui( n );
+    }
   protected:
     Source<Type>& base() { return *_base; }
     const Source<Type>& base() const { return *_base; }

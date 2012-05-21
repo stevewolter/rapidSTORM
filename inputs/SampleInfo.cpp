@@ -54,6 +54,7 @@ class Input
 {
     Config config;
     void modify_traits( input::Traits<ForwardedType>& t ) { config.set_traits(t); }
+    void attach_local_ui_( simparm::Node& ) {}
 
   public:
     Input(

@@ -15,7 +15,7 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/ProgressEntry.hh>
-#include <simparm/TreeCallback.hh>
+#include <simparm/NodeHandle.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
@@ -45,7 +45,7 @@ namespace input_simulation {
         void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
 
         class iterator;
-        simparm::Node& node() { return *this; }
+        void attach_ui_( simparm::Node& n ) { simparm::Set::attach_ui(n); }
 
       protected:
         gsl_rng *rng;
@@ -67,11 +67,10 @@ namespace input_simulation {
             { return typename Source::Capabilities(); }
     };
 
-    struct FluorophoreSetConfig : public simparm::Set {
-        void registerNamedEntries();
+    struct FluorophoreSetConfig {
+        simparm::Set name_object;
       public:
         FluorophoreSetConfig(std::string name, std::string desc);
-        FluorophoreSetConfig(const FluorophoreSetConfig&);
 
         FluorophoreConfig fluorophoreConfig;
         simparm::ManagedChoiceEntry<FluorophoreDistribution>
@@ -83,18 +82,21 @@ namespace input_simulation {
             const dStorm::engine::InputTraits& t,
             gsl_rng*, const NoiseConfig&,
             simparm::ProgressEntry& ) const;
+
+        void attach_ui( simparm::Node& );
     };
 
     class NoiseConfig
-    : public simparm::Object,
-      public dStorm::input::Terminus,
-      public simparm::TreeListener
+    : public dStorm::input::Terminus,
+      public simparm::Listener
     {
       public:
         typedef boost::ptr_list< FluorophoreSetConfig > FluoSets;
         const FluoSets& get_fluorophore_sets() const
             { return fluorophore_sets; }
       private:
+        simparm::Object name_object;
+        simparm::NodeHandle current_ui;
         int next_fluo_id;
         FluoSets fluorophore_sets;
         void create_fluo_set();
@@ -119,15 +121,12 @@ namespace input_simulation {
 
         typedef dStorm::engine::ImageStack Image;
 
-        simparm::Node& getNode() { return *this; }
-
         NoiseConfig();
         NoiseConfig( const NoiseConfig &copy );
         ~NoiseConfig() {}
-        void registerNamedEntries();
-        void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
-        std::string name() const { return getName(); }
-        std::string description() const { return getDesc(); }
+        void registerNamedEntries( simparm::Node& n );
+        std::string name() const { return name_object.getName(); }
+        std::string description() const { return name_object.getDesc(); }
         void publish_meta_info();
 
         virtual dStorm::input::Source<Image>* makeSource()

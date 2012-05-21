@@ -23,7 +23,6 @@ namespace engine {
     *  SpotFitter and output the results to the Output. */
    class Engine
    : public input::Source<output::LocalizedImage>,
-     public simparm::Object,
      public dStorm::Engine
    {
       public:
@@ -40,7 +39,7 @@ namespace engine {
         simparm::Entry<unsigned long> errors;
 
         class _iterator;
-        simparm::Node& node() { return *this; }
+        void attach_ui_( simparm::Node& );
         std::vector<float> make_plane_weight_vector() const;
 
       public:

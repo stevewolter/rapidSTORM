@@ -11,7 +11,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/Message.hh>
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
+#include <simparm/NodeHandle.hh>
 
 using namespace dStorm::engine;
 
@@ -22,7 +22,9 @@ struct Config : public simparm::Object
 {
     simparm::BoolEntry enable;
     Config();
-    void registerNamedEntries() { push_back(enable); }
+    void attach_ui( simparm::Node& at ) {
+        enable.attach_ui( simparm::Object::attach_ui( at ) );
+    }
 };
 
 struct lowest_histogram_mode_is_strongest : public std::runtime_error {
@@ -45,7 +47,9 @@ class Source
 : public input::AdapterSource<engine::ImageStack>,
   boost::noncopyable
 {
+    simparm::NodeHandle current_ui;
     int confidence_limit, binning;
+    void attach_local_ui_( simparm::Node& n ) { current_ui = n; }
 
   public:
     Source(std::auto_ptr< input::Source<engine::ImageStack> > base);
@@ -68,8 +72,7 @@ class ChainLink
             return p.release();
     }
 
-    simparm::Structure<Config>& get_config() { return config; }
-    simparm::Structure<Config> config;
+    Config config;
   public:
     void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
     static std::string getName() { return "BackgroundEstimator"; }
@@ -167,7 +170,7 @@ Source::get_traits( Wishes w )
                 "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "
                 "Some things, like determining precision of localization, will not work.",
                 simparm::Message::Warning);
-            base().getNode().send(m);
+            current_ui->send(m);
         }
 
     DEBUG("Dispatching restart message");

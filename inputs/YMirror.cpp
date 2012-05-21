@@ -34,6 +34,7 @@ class Source
     Range range;
     struct iterator;
     void modify_traits( input::Traits<Type>& );
+    void attach_local_ui_( simparm::Node& ) {}
 
   public:
     Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}

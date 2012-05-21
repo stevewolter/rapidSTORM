@@ -34,6 +34,7 @@ class Source : public Config, public dStorm::input::AdapterSource<Type> {
                 ++this->base_reference();
             }
     };
+    void attach_local_ui_( simparm::Node& ) {}
   public:
     Source(const Config& c, std::auto_ptr< dStorm::input::Source<Type> > base) 
         : Config(c), dStorm::input::AdapterSource<Type>(base) {}

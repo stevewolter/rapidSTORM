@@ -25,6 +25,7 @@ using namespace input;
 template <typename Ty> 
 class Source : public AdapterSource<Ty>
 {
+    void attach_local_ui_( simparm::Node& ) {}
   public:
     Source(std::auto_ptr< input::Source<Ty> >);
     ~Source();

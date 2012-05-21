@@ -33,16 +33,12 @@ namespace input {
         typedef std::bitset<2> Messages;
 
       private:
-        virtual simparm::Node& node() = 0;
+        virtual void attach_ui_( simparm::Node& ) = 0;
 
       public:
         virtual ~BaseSource();
 
-        simparm::Node& getNode() { return node(); }
-        operator simparm::Node&() { return node(); }
-        const simparm::Node& getNode() const { return const_cast<BaseSource&>(*this).node(); }
-        operator const simparm::Node&() const { return const_cast<BaseSource&>(*this).node(); }
-
+        void attach_ui( simparm::Node& n ) { attach_ui_(n); }
         void dispatch(Message m) {
             dispatch(Messages().set(m));
         }

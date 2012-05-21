@@ -10,8 +10,7 @@ namespace dStorm {
 namespace noop_engine {
 
    class Engine
-   : public input::Source<output::LocalizedImage>,
-     public simparm::Object
+   : public input::Source<output::LocalizedImage>
    {
       public:
         typedef input::Source< engine::ImageStack > Input;
@@ -22,7 +21,7 @@ namespace noop_engine {
         std::auto_ptr<Input> input;
 
         class _iterator;
-        simparm::Node& node() { return *this; }
+        void attach_ui_( simparm::Node& n ) { input->attach_ui( n ); }
 
       public:
         Engine(std::auto_ptr<Input> input);

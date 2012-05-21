@@ -47,6 +47,7 @@ class Source
     void modify_traits( input::Traits<OtherTypes>& t ) { 
         config.write_traits(t); 
     }
+    void attach_local_ui_( simparm::Node& ) {}
 
   public:
     Source(
@@ -118,9 +119,8 @@ bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::I
 
 struct DummyImageSource : public input::Source<engine::ImageStack>
 {
-    simparm::Object foo;
-    DummyImageSource() : foo("Foo", "Foo") {}
-    simparm::Node& node() { return foo; }
+    DummyImageSource() {}
+    void attach_ui_( simparm::Node& ) {}
     typedef Source<engine::ImageStack>::iterator iterator;
     void dispatch(Messages m) {}
     iterator begin() { return iterator(); }
