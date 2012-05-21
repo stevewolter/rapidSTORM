@@ -9,9 +9,7 @@ namespace output {
 
 template <typename BaseType>
 struct OutputFileAdjuster : public BaseType {
-    OutputFileAdjuster(
-            bool failSilently = false)
-        : BaseType(failSilently)
+    OutputFileAdjuster()
         { adjust_to_basename( BaseType::config.outputFile ); }
     OutputFileAdjuster(const OutputFileAdjuster<BaseType>& o)
         : BaseType(o)
@@ -25,8 +23,7 @@ template <typename Config, typename Output>
 class FileOutputBuilder : public OutputFileAdjuster< OutputBuilder<Config,Output> > {
   public:       
     typedef OutputFileAdjuster< OutputBuilder<Config,Output> > Base;
-    FileOutputBuilder( bool failSilently = false) 
-        : Base( failSilently ) {}
+    FileOutputBuilder() {}
     FileOutputBuilder(const FileOutputBuilder& o)
         : Base(o) {}
 

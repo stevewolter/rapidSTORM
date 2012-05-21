@@ -21,6 +21,7 @@
 #include <simparm/Eigen.hh>
 #include <simparm/Structure.hh>
 #include <simparm/TreeCallback.hh>
+#include <simparm/IO.hh>
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -46,6 +47,7 @@ class Source
     void modify_traits( input::Traits<OtherTypes>& t ) { 
         config.write_traits(t); 
     }
+
   public:
     Source(
         std::auto_ptr< input::Source<ForwardedType> > backend,
@@ -54,16 +56,14 @@ class Source
 };
 
 class ChainLink 
-: public input::Method<ChainLink>, public simparm::TreeListener 
+: public input::Method<ChainLink>
 {
     friend class Check;
     friend class input::Method<ChainLink>;
 
-    simparm::Structure<Config> config;
+    Config config;
     void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
     static std::string getName() { return "Optics"; }
-
-    void operator()(const simparm::Event&);
 
     template <typename Type>
     Source<Type>* make_source( std::auto_ptr< input::Source<Type> > upstream ) { 
@@ -75,6 +75,7 @@ class ChainLink
         config.set_context( traits );
         config.write_traits(traits); 
     }
+    void republish_traits();
 
   public:
     ChainLink();
@@ -83,24 +84,20 @@ class ChainLink
 
 ChainLink::ChainLink() 
 {
-    DEBUG("Making ResolutionSetter chain link");
-    receive_changes_from_subtree( config );
+    config.notify_on_any_change( boost::bind( &ChainLink::republish_traits, this ) );
 }
 
 ChainLink::ChainLink(const ChainLink& o) 
 : input::Method<ChainLink>(o),
   config(o.config)
 {
-    receive_changes_from_subtree( config );
+    config.notify_on_any_change( boost::bind( &ChainLink::republish_traits, this ) );
 }
 
-void ChainLink::operator()(const simparm::Event& e)
+void ChainLink::republish_traits()
 {
-    if ( e.cause == simparm::Event::ValueChanged) {
-	InputMutexGuard lock( global_mutex() );
-        republish_traits();
-    } else 
-	TreeListener::add_new_children(e);
+    InputMutexGuard lock( global_mutex() );
+    input::Method<ChainLink>::republish_traits();
 }
 
 std::auto_ptr<Link> makeLink() {
@@ -158,9 +155,9 @@ struct Check {
     bool resolution_close_to( Resolutions r, const Resolutions& t ) {
         if ( ! r[0].is_initialized() || ! r[1].is_initialized() )
             throw std::logic_error("Resolution is not set at all");
-        if ( ! similar( *t[0], *r[0] ) || ! similar( *t[1], *r[1] ) )
+        if ( ! similar( *t[0], *r[0] ) || ! similar( *t[1], *r[1] ) ) {
             throw std::logic_error("Resolution is not set correctly");
-        else 
+        } else 
             return true;
     }
 
@@ -189,8 +186,10 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        std::stringstream cmd("set 136.875,100");
-        l.config["InputLayer0"]["PixelSizeInNM"]["value"].processCommand(cmd);
+        simparm::IO master(NULL,NULL);
+        l.config.attach_ui( master );
+        std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
+        master.processCommand(cmd);
         l.config.write_traits( correct );
         DEBUG("Checking if config element change updates traits");
         if ( trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l.current_meta_info()) )

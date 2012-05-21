@@ -101,8 +101,6 @@ namespace locprec {
                    std::auto_ptr<dStorm::output::Output> output);
         Segmenter( const Segmenter & );
         ~Segmenter();
-        Segmenter* clone() const 
-            { throw std::runtime_error("Object unclonable."); }
 
         AdditionalData announceStormSize(const Announcement &a) ;
         void receiveLocalizations(const EngineResult& er) {

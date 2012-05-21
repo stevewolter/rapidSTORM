@@ -61,9 +61,6 @@ class Output : public output::Output {
   public:
     Output(const Config&);
     ~Output();
-    Output* clone() const { 
-        throw std::runtime_error(
-            "LocalizationFile::clone not implemented"); }
 
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement&);

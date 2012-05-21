@@ -29,8 +29,6 @@ class Source
     Engine* repeater;
     boost::optional<Announcement> my_announcement;
 
-    Source( const Source& );
-    Source* clone() const { return new Source(*this); }
     ~Source();
     AdditionalData announceStormSize(const Announcement&);
     void receiveLocalizations(const EngineResult&);

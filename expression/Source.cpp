@@ -24,16 +24,6 @@ Source::Source( const Config& config, std::auto_ptr<output::Output> downstream )
 {
 }
 
-Source::Source( const Source& o )
-: Filter(o), 
-  command_lines( o.command_lines ),
-  simple_filters( o.simple_filters ),
-  expressions(),
-  parser( o.parser ),
-  repeater(o.repeater)
-{
-}
-
 Source::~Source() {
     simple_filters.set_manager( NULL );
     std::for_each( command_lines.begin(), command_lines.end(),

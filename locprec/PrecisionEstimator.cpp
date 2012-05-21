@@ -113,7 +113,6 @@ class PrecisionEstimator
         void store_results_( bool success );
       public:
 	PrecisionEstimator ( const Config& config );
-	PrecisionEstimator *clone() const;
 
         EstimationResult estimate_deviation_from_initial_estimate(
             const PointSet& all_data, const SubSet& estimate );
@@ -284,9 +283,6 @@ PrecisionEstimator::PrecisionEstimator
     distance_threshold_sq = config.confidence_interval() * config.confidence_interval();
     variance_correction = 2.5 / gsl_sf_erf( config.confidence_interval() / sqrt(2) );
 }
-
-PrecisionEstimator* PrecisionEstimator::clone() const
-    { return new PrecisionEstimator(*this); }
 
 //using namespace Precision;
 

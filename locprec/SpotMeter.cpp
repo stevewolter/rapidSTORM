@@ -41,7 +41,6 @@ public:
     SpotMeter (Config& config) 
         : binSize(config.modulus()), 
             to(config.outputFile.get_output_stream()) {}
-    SpotMeter *clone() const { return new SpotMeter(*this); }
 
     AdditionalData announceStormSize(const Announcement&)
         { return AdditionalData(); }

@@ -10,7 +10,7 @@ namespace traits {
 using namespace boost::units;
 
 PlaneConfig::PlaneConfig(int number, Purpose purpose)
-: simparm::Set("InputLayer" + boost::lexical_cast<std::string>(number), 
+: name_object("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
   purpose(purpose),
   three_d("ThreeD", "3D PSF model"),
@@ -38,12 +38,12 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
     transmissions.push_back( new simparm::Entry<double>("Transmission0", "Transmission of fluorophore 0", 1) );
     transmissions.back().viewable = false;
 
-    counts_per_photon.userLevel = Object::Intermediate;
-    dark_current.userLevel = Object::Intermediate;
+    counts_per_photon.userLevel = simparm::Object::Intermediate;
+    dark_current.userLevel = simparm::Object::Intermediate;
 }
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
-: simparm::Set(o), 
+: name_object( o.name_object ),
   purpose(o.purpose),
   three_d(o.three_d),
   counts_per_photon(o.counts_per_photon), 
@@ -56,19 +56,28 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
     }
 }
 
-void PlaneConfig::registerNamedEntries()
+void PlaneConfig::attach_ui( simparm::Node& at )
 {
-    if ( purpose != PSFDisplay )
-        push_back( pixel_size );
-    push_back( three_d );
+    simparm::NodeRef r = name_object.attach_ui( at );
+    current_ui = r;
     if ( purpose != PSFDisplay ) {
-        push_back( counts_per_photon );
-        push_back( dark_current );
-        push_back( alignment );
+        ui_element_listener.receive_changes_from( pixel_size.value );
+        pixel_size.attach_ui( r );
+    }
+    three_d.attach_ui( r );
+    if ( purpose != PSFDisplay ) {
+        ui_element_listener.receive_changes_from( counts_per_photon.value );
+        ui_element_listener.receive_changes_from( dark_current.value );
+        ui_element_listener.receive_changes_from( alignment.value );
+        counts_per_photon.attach_ui( r );
+        dark_current.attach_ui( r );
+        alignment.attach_ui( r );
     }
 
-    for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i)
-        push_back( *i );
+    for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i) {
+        i->attach_ui( r );
+        ui_element_listener.receive_changes_from( i->value );
+    }
 }
 
 void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane )
@@ -77,7 +86,8 @@ void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane 
        std::string i = boost::lexical_cast<std::string>(transmissions.size());
        transmissions.push_back( new simparm::Entry<double>("Transmission" + i,
          	"Transmission of fluorophore " + i, 1) );
-        push_back( transmissions.back() );
+        if ( current_ui )
+            transmissions.back().attach_ui( *current_ui );
     }
 
     for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
@@ -127,10 +137,10 @@ void PlaneConfig::write_traits( input::Traits<Localization>& t ) const
 
 
 MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose ) 
-: simparm::Set("Optics", "Optical pathway properties"),
+: name_object("Optics", "Optical pathway properties"),
   purpose(purpose)
 {
-    showTabbed = true;
+    name_object.showTabbed = true;
 
     DEBUG("Constructing " << this);
     layers.push_back( new PlaneConfig(0, purpose) );
@@ -142,11 +152,13 @@ MultiPlaneConfig::~MultiPlaneConfig()
     DEBUG("Destructing " << this);
 }
 
-void MultiPlaneConfig::registerNamedEntries()
+void MultiPlaneConfig::attach_ui( simparm::Node& at )
 {
+    simparm::NodeRef r = name_object.attach_ui( at );
+    current_ui = r;
     for ( Layers::iterator i = layers.begin(); i != layers.end(); ++i) {
-        i->registerNamedEntries();
-        push_back( *i );
+        i->notify_on_any_change( boost::ref(ui_element_listener) );
+        i->attach_ui( r );
     }
 }
 
@@ -154,8 +166,10 @@ void MultiPlaneConfig::set_number_of_planes(int number)
 {
     while ( number > int( layers.size() ) ) {
         layers.push_back( new PlaneConfig( layers.size(), purpose ) );
-        layers.back().registerNamedEntries();
-        push_back( layers.back() );
+        if ( current_ui ) {
+            layers.back().notify_on_any_change( boost::ref(ui_element_listener) );
+            layers.back().attach_ui( *current_ui );
+        }
     }
     while ( number < int( layers.size() ) )
         layers.pop_back();

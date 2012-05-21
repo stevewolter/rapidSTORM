@@ -7,9 +7,8 @@ namespace dStorm {
 namespace output {
 
 template <class Type, class OutputType>
-FilterBuilder<Type,OutputType>::FilterBuilder(bool failSilently)
-: failSilently(failSilently) ,
-  name_object( Type::get_name(), Type::get_description() )
+FilterBuilder<Type,OutputType>::FilterBuilder()
+: name_object( Type::get_name(), Type::get_description() )
 { 
     name_object.userLevel = Type::get_user_level();
 }
@@ -19,7 +18,6 @@ FilterBuilder<Type,OutputType>::
 FilterBuilder(const FilterBuilder<Type,OutputType>& o)
 : FilterSource(o),
   config(o.config),
-  failSilently(o.failSilently) ,
   name_object(o.name_object)
 {
     if ( o.getFactory() != NULL )
@@ -43,15 +41,8 @@ FilterBuilder<Type,OutputType>::set_source_capabilities
 template <class Type, class OutputType>
 std::auto_ptr<Output> FilterBuilder<Type,OutputType>::make_output() 
 {
-    try {
-        return std::auto_ptr<Output>( new OutputType( 
-            config, FilterSource::make_output() ) );
-    } catch (...) {
-        if ( !failSilently ) 
-            throw;
-        else
-            return std::auto_ptr<Output>( NULL );
-    }
+    return std::auto_ptr<Output>( new OutputType( 
+        config, FilterSource::make_output() ) );
 }
 
 }

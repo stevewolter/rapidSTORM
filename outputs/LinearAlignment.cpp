@@ -26,7 +26,6 @@ public:
     LinearAlignment( const Config&, std::auto_ptr< Output > );
     AdditionalData announceStormSize(const Announcement&);
     void receiveLocalizations(const EngineResult&);
-    LinearAlignment* clone() const { return new LinearAlignment( *this ); }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

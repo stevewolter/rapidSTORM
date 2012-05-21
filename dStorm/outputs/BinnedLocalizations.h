@@ -144,8 +144,6 @@ namespace outputs {
         BinnedLocalizations(const BinnedLocalizations<OtherListener,Dim>&);
 
         virtual ~BinnedLocalizations() {}
-        BinnedLocalizations* clone() const 
-            { return new BinnedLocalizations(*this); }
         
         AdditionalData announceStormSize(const Announcement&);
         RunRequirements announce_run(const RunAnnouncement&) 

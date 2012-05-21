@@ -10,12 +10,6 @@ namespace outputs {
 LocalizationList::LocalizationList( output::Localizations* target )
     : target(target) {}
 
-LocalizationList::LocalizationList( const LocalizationList& o )
-    : allocTarget( (o.allocTarget.get()) ? 
-        new output::Localizations(*o.allocTarget) : NULL ),
-        target( (o.allocTarget.get()) ? allocTarget.get() : o.target )
-    {}
-
 output::Output::AdditionalData
 LocalizationList::announceStormSize(const Announcement &a)
 { 

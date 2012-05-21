@@ -9,7 +9,6 @@ namespace outputs {
 struct NullOutput : public output::Output
 {
     NullOutput() {}
-    NullOutput* clone() const { return new NullOutput(); }
     AdditionalData announceStormSize(const Announcement&) 
         { return AdditionalData(); }
     void receiveLocalizations(const EngineResult&) {}

@@ -44,8 +44,6 @@ public:
     };
 
     LocalizationCounter(const Config &);
-    LocalizationCounter* clone() const 
-        { throw std::runtime_error("LC::clone Not implemented."); }
 
     RunRequirements announce_run(const RunAnnouncement&) {
         count = 0; 

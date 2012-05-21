@@ -2,7 +2,6 @@ in Input in BackgroundEstimator in userLevel set 20
 in Input in Optics in InputLayer0 in PixelSizeInNM in value set 107,107
 in Engine in rapidSTORM in SpotFittingMethod in GUF in MaximumIterationSteps in value set 25
 in Output in EngineOutput in ChooseTransmission in value set Table
-in Output in EngineOutput in Output0 in Table in FailSilently in value set true
 in Output in EngineOutput in ChooseTransmission in value set Count
 in Output in EngineOutput in ChooseTransmission in value set Progress
 in Output in EngineOutput in ChooseTransmission in value set Cache

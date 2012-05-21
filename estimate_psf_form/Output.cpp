@@ -46,7 +46,6 @@ Output::Output(const Config& c)
 void Output::attach_ui_( simparm::Node& at ) {
     current_ui = at;
 
-    result_config.registerNamedEntries();
     collection.attach_ui( at );
     fit.attach_ui( at );
 }

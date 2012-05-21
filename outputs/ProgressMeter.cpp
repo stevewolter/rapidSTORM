@@ -37,7 +37,6 @@ class ProgressMeter : public Output
         return RunRequirements();
     }
 
-    ProgressMeter *clone() const { return new ProgressMeter(*this); }
 };
 
 class ProgressMeter::Config 

@@ -33,7 +33,6 @@ class Output : public dStorm::output::Output {
 
   public:
     Output( const Config& );
-    Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement&) { 
         for (int j = 0; j < 3; ++j) acc[j] = Accumulator();
@@ -44,8 +43,6 @@ class Output : public dStorm::output::Output {
     void check_for_duplicate_filenames
             (std::set<std::string>&) { }
 };
-
-Output* Output::clone() const { return new Output(*this); }
 
 Output::Output( const Config& config ) 
 : tag(config.tag())

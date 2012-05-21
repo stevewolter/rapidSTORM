@@ -37,8 +37,6 @@ class TraceCountFilter : public output::Filter,
     TraceCountFilter(const TraceCountConfig& config,
                      std::auto_ptr<output::Output> output);
     ~TraceCountFilter() {}
-    TraceCountFilter* clone() const 
-        { throw std::runtime_error("No TraceCountFilter::clone"); }
 
     AdditionalData announceStormSize(const Announcement &a) ;
     RunRequirements announce_run(const RunAnnouncement& a) 

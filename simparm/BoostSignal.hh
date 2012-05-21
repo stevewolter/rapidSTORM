@@ -14,6 +14,7 @@ public:
     BoostSignalAdapter( const BoostSignalAdapter& o ) 
         : simparm::Listener(o), signal() {}
     void operator()( const Event& ) { signal(); }
+    void operator()() { signal(); }
     void connect( const boost::signals2::signal<void (void)>::slot_type& slot ) { signal.connect(slot); }
 };
 

@@ -130,7 +130,6 @@ private:
 public:
     Output(const Configuration &c) 
         : config(c) {}
-    Output* clone() const { throw std::runtime_error("SigmaCurve cannot be copied"); }
 
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();

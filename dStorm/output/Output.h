@@ -62,7 +62,6 @@ protected:
 
 public:
     virtual ~Output() {}
-    virtual Output* clone() const = 0;
 
     virtual void check_for_duplicate_filenames
         (std::set<std::string>& present_filenames) {}

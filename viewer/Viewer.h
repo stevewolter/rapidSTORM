@@ -29,8 +29,6 @@ class Viewer : public Status,
     Viewer(const Config& config);
     Viewer(const Viewer&);
     virtual ~Viewer();
-    Viewer* clone() const 
-        { throw std::runtime_error("No Viewer::clone()"); }
 
     AdditionalData announceStormSize(const Announcement &a);
     RunRequirements announce_run(const RunAnnouncement&) ;

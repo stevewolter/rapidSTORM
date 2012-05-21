@@ -45,7 +45,6 @@ class Output : public dStorm::output::Output {
 
   public:
     Output( const Config& );
-    Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
     void receiveLocalizations(const EngineResult&);
     RunRequirements announce_run(const RunAnnouncement&) { 
@@ -60,8 +59,6 @@ class Output : public dStorm::output::Output {
         insert_filename_with_check( filename(), present_filenames ); 
     }
 };
-
-Output* Output::clone() const { return new Output(*this); }
 
 Output::Output( const Config& config ) 
 : filename( config.outputFile ),

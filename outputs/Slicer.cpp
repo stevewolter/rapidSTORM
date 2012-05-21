@@ -72,7 +72,6 @@ class Slicer : public Output {
             (std::set<std::string>& present_filenames);
 
     Slicer( const Config&, std::auto_ptr< output::FilterSource > );
-    Slicer* clone() const;
     ~Slicer();
 
     AdditionalData announceStormSize(const Announcement&);
@@ -226,8 +225,6 @@ void Slicer::receiveLocalizations(const EngineResult& er)
 Slicer::~Slicer() 
 {
 }
-
-Slicer* Slicer::clone() const { return new Slicer(*this); }
 
 void Slicer::attach_ui_( simparm::Node& at ) {
     suboutputs.attach_ui( at );

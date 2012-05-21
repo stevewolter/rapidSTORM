@@ -19,8 +19,6 @@ class Filter : public Output
     void store_children_results( bool success ) { fwd->store_results(success); }
   public:
     Filter( std::auto_ptr<Output> downstream ) : fwd(downstream) {}
-    Filter( const Filter& o ) : fwd( (o.fwd.get() ? o.fwd->clone() : NULL) ) {}
-    Filter* clone() const = 0;
 
     AdditionalData announceStormSize(const Announcement& a) 
         { return fwd->announceStormSize(a); }

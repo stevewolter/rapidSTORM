@@ -13,10 +13,9 @@ class OutputBuilder
 {
 protected:
     Config config;
-    simparm::BoolEntry failSilently;
     simparm::Object name_object;
 public:
-    OutputBuilder(bool failSilently = false);
+    OutputBuilder();
     OutputBuilder* clone() const
         { return new OutputBuilder(*this); }
     ~OutputBuilder() {}
@@ -28,14 +27,7 @@ public:
 
     std::auto_ptr<output::Output> make_output() 
     {
-        try {
-            return std::auto_ptr<output::Output>( new Output(config) );
-        } catch (...) {
-            if ( !failSilently() ) 
-                throw;
-            else
-                return std::auto_ptr<output::Output>( NULL );
-        }
+        return std::auto_ptr<output::Output>( new Output(config) );
     }
 
     std::string getName() const { return Config::get_name(); }
@@ -43,7 +35,6 @@ public:
     void attach_full_ui( simparm::Node& at ) { 
         config.attach_ui( name_object ); 
         OutputSource::attach_source_ui( name_object );
-        failSilently.attach_ui( name_object );
         name_object.attach_ui( at ); 
     }
     void attach_ui( simparm::Node& at ) { 

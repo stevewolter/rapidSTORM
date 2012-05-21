@@ -35,7 +35,6 @@ class AverageImage : public Output {
     class Config;
 
     AverageImage(const Config &config);
-    AverageImage *clone() const;
     ~AverageImage();
 
     AdditionalData announceStormSize(const Announcement &a);
@@ -73,9 +72,6 @@ AverageImage::Config::Config()
 
 AverageImage::AverageImage( const Config &config )
 : filename(config.outputFile()) {}
-
-AverageImage* AverageImage::clone() const 
-    { return new AverageImage(*this); }
 
 AverageImage::~AverageImage() {}
 

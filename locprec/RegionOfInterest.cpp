@@ -31,8 +31,6 @@ class ROIFilter : public dStorm::output::Filter
     ROIFilter(const Config& config,
                      std::auto_ptr<dStorm::output::Output> output);
     ~ROIFilter() {}
-    ROIFilter* clone() const 
-        { throw std::runtime_error("No ROIFilter::clone"); }
 
     AdditionalData announceStormSize(const Announcement &a);
 

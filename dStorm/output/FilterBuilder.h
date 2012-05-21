@@ -12,12 +12,11 @@ namespace output {
     : public FilterSource
     {
         Type config;
-        bool failSilently;
         simparm::Object name_object;
       public:
         typedef Type BaseType;
 
-        FilterBuilder(bool failSilently = false) ;
+        FilterBuilder() ;
         FilterBuilder(const FilterBuilder&);
         FilterBuilder* clone() const; 
 

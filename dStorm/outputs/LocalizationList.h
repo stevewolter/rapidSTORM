@@ -20,11 +20,7 @@ namespace outputs {
          *                When NULL, the LocalizationList will allocate
          *                an internal list to store the results. */
         LocalizationList( output::Localizations* target = NULL );
-        LocalizationList(const LocalizationList&);
-        LocalizationList& operator=(const LocalizationList&);
         virtual ~LocalizationList() {}
-        LocalizationList* clone() const
-            { throw std::runtime_error("Not implemented."); }
 
         AdditionalData announceStormSize(const Announcement &a);
         void receiveLocalizations(const EngineResult&);

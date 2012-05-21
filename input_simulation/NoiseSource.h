@@ -102,6 +102,8 @@ namespace input_simulation {
         std::auto_ptr< dStorm::input::Traits<dStorm::engine::ImageStack> > 
             make_image_size() const;
 
+        void optics_changed();
+
       protected:
         void operator()( const simparm::Event& );
       public:

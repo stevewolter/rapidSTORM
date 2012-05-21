@@ -31,13 +31,12 @@ Output::Output(const Config & config )
   current_volume("CurrentVolume", "Current estimation volume", 0),
   residuals("Accuracy", "Residual error", 0)
 {
-    result_config.viewable = false;
+    result_config.hide();
     current_volume.viewable = false;
     residuals.viewable = false;
 }
 
 void Output::attach_ui_( simparm::Node& at ) {
-    result_config.registerNamedEntries();
     current_volume.attach_ui( at );
     residuals.attach_ui( at );
     result_config.attach_ui( at );
@@ -194,12 +193,12 @@ void Output::run_finished_( const RunFinished& ) {
         DEBUG("Restarting engine");
         if ( fitter_finished ) {
             DEBUG("Putting final position into config");
-            result_config.viewable = true;
             result_config.read_traits( **trial_position );
-            if ( ! result_config.isActive() ) {
+            if ( ! result_config.ui_is_attached() ) {
                 (*trial_position)->print_psf_info( std::cerr << "Calibrated PSF has " ) 
                     << "; the residuals are " << residuals() << std::endl;
             }
+            result_config.show();
         }
         engine->change_input_traits( std::auto_ptr< input::BaseTraits >(trial_position->release()) );
         engine->restart();

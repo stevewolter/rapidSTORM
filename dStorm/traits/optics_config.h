@@ -22,13 +22,18 @@
 #include <dStorm/Localization_decl.h>
 #include <dStorm/Direction.h>
 
+#include <boost/signals2/signal.hpp>
+#include <simparm/BoostSignal.hh>
+
 namespace dStorm {
 namespace traits {
 
-class PlaneConfig : public simparm::Set {
+class PlaneConfig {
 public:
     enum Purpose { InputSimulation, PSFDisplay, FitterConfiguration };
 private:
+    simparm::Set name_object;
+    boost::optional< simparm::NodeRef > current_ui;
     const Purpose purpose;
 
     simparm::ManagedChoiceEntry< threed_info::Config > three_d;
@@ -42,10 +47,15 @@ private:
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
+    simparm::BoostSignalAdapter ui_element_listener;
+
 public:
     PlaneConfig(int number, Purpose );
     PlaneConfig( const PlaneConfig& );
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at );
+
+    void notify_on_any_change( boost::signals2::slot<void()> listener ) 
+        { ui_element_listener.connect(listener); }
 
     void set_context( const traits::Optics&, int fluorophore_count, bool multilayer );
     void set_context( const input::Traits<Localization>&, int fluorophore_count );
@@ -56,10 +66,13 @@ public:
 };
 
 class MultiPlaneConfig
-: public simparm::Set
 {
+    simparm::Set name_object;
+    boost::optional< simparm::NodeRef > current_ui;
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;
+
+    simparm::BoostSignalAdapter ui_element_listener;
 
     void set_number_of_planes(int);
 
@@ -68,7 +81,10 @@ class MultiPlaneConfig
   public:
     MultiPlaneConfig(PlaneConfig::Purpose purpose);
     ~MultiPlaneConfig();
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at );
+
+    void notify_on_any_change( boost::signals2::slot<void()> listener )
+        { ui_element_listener.connect(listener); }
 
     void set_context( const input::Traits<engine::ImageStack>& );
     void set_context( const input::Traits<Localization>& );
@@ -76,6 +92,10 @@ class MultiPlaneConfig
     void write_traits( input::Traits<engine::ImageStack>&) const;
     void write_traits( input::Traits<Localization>&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
+
+    void show() { name_object.viewable = true; }
+    void hide() { name_object.viewable = false; }
+    bool ui_is_attached() { return current_ui && name_object.isActive(); }
 };
 
 }

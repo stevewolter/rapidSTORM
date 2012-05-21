@@ -171,7 +171,7 @@ void Viewer::save_density_map() {
 }
 
 struct OutputSource : public output::OutputBuilder< Config, Viewer > {
-    OutputSource() : output::OutputBuilder< Config, Viewer >(false)
+    OutputSource() : output::OutputBuilder< Config, Viewer >()
         { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }
     OutputSource( const OutputSource& o ) : output::OutputBuilder< Config, Viewer >(o)
         { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }

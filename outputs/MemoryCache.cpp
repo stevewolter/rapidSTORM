@@ -128,9 +128,7 @@ class Output
 
   public:
     Output(std::auto_ptr<output::Output> output);
-    Output( const Output& );
     ~Output();
-    Output* clone() const { return new Output(*this); }
 
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement& r) ;
@@ -212,12 +210,6 @@ Output::Output(
 )
 : Filter(output)
 { 
-}
-
-Output::Output( const Output& o )
-: Filter(o)
-{ 
-    throw std::logic_error("Not implemented");
 }
 
 void Output::prepare_destruction_() {

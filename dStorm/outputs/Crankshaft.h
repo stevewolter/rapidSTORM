@@ -32,9 +32,6 @@ class Crankshaft
 
     Crankshaft ();
     virtual ~Crankshaft ();
-    Crankshaft *clone() const 
-        { throw std::runtime_error(
-                    "Crankshaft::clone not implemented."); }
 
     void add( Output& transmission, Type type = Yield )
         { _add( &transmission, (type == Yield), false ); }

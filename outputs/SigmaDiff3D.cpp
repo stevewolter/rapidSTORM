@@ -26,7 +26,6 @@ public:
     SigmaDiff3D( const Config&, std::auto_ptr< Output > );
     AdditionalData announceStormSize(const Announcement&);
     void receiveLocalizations(const EngineResult&);
-    SigmaDiff3D* clone() const { return new SigmaDiff3D( *this ); }
 };
 
 class SigmaDiff3D::Config {

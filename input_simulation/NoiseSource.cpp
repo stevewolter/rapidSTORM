@@ -37,12 +37,11 @@ void FluorophoreSetConfig::registerNamedEntries() {
 void NoiseConfig::registerNamedEntries() {
     this->receive_changes_from( newSet.value );
     this->receive_changes_from( layer_count.value );
-    receive_changes_from_subtree( optics ); 
+    optics.notify_on_any_change( boost::bind( &NoiseConfig::optics_changed, this ) );
 
     this->push_back( noiseGeneratorConfig );
     this->push_back( layer_count );
-    optics.registerNamedEntries();
-    this->push_back( optics );
+    optics.attach_ui( *this );
     this->push_back( newSet );
     this->push_back( imageNumber );
     this->push_back( sample_depth );
@@ -116,6 +115,10 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
     registerNamedEntries();
 }
 
+void NoiseConfig::optics_changed() {
+    publish_meta_info();
+}
+
 void NoiseConfig::operator()( const simparm::Event& e)
 {
     if ( newSet.triggered() ) {
@@ -127,7 +130,7 @@ void NoiseConfig::operator()( const simparm::Event& e)
                 = make_image_size();
             optics.set_context( *image );
         }
-        publish_meta_info();
+        optics_changed();
     } else 
 	TreeListener::add_new_children(e);
 }

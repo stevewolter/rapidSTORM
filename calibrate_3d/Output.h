@@ -66,7 +66,6 @@ class Output : public output::Output {
 
   public:
     Output(const Config &config);
-    Output *clone() const { throw std::logic_error("Not implemented"); }
     ~Output();
 
     AdditionalData announceStormSize(const Announcement &);
