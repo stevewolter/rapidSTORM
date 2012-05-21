@@ -51,7 +51,7 @@ using namespace boost::units;
 namespace locprec {
 
 class PrecisionEstimator 
-    : public dStorm::output::OutputObject 
+    : public dStorm::output::Output
 {
    public:
 	static const int Dimensions = 3;
@@ -278,8 +278,7 @@ PrecisionEstimator::Config::Config()
 
 PrecisionEstimator::PrecisionEstimator
     ( const PrecisionEstimator::Config& config )
-: OutputObject("SVDPrecisionEstimator", "Per-spot precision estimator"),
-  h_value( config.h_value() ),
+: h_value( config.h_value() ),
   printTo( "TargetFile", "Used target file", config.outputFile() )
 {
     distance_threshold_sq = config.confidence_interval() * config.confidence_interval();

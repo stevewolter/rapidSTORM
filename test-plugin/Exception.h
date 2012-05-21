@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 struct Exception
-: public dStorm::output::OutputObject
+: public dStorm::output::Output
 {
     struct Config;
     bool onAnnouncement;
@@ -61,8 +61,7 @@ Exception* Exception::clone() const
         { return new Exception(*this); }
 
 Exception::Exception( const Config& config )
-        : OutputObject("SegFault", "SegFault") ,
-          onAnnouncement( config.onAnnouncement() ),
+        : onAnnouncement( config.onAnnouncement() ),
           onImageNumber( config.onImageNumber() )
         { if ( config.onConstruction() ) segfault(); }
 

@@ -19,13 +19,13 @@ expect {
 }
 
 set test "New window appears for change to colour scheme"
-send "in $job in Crankshaft in Output0 in Display in ColourScheme value set ByCoordinate\n"
+send "in $job in Output0 in ColourScheme value set ByCoordinate\n"
 expect {
     -re "Created new window number .* named Result image for Job" { pass "$test"; }
 }
 
 set test "New window appears for hue range change"
-send "in $job in Crankshaft in Output0 in Display in ColourScheme in ByCoordinate in HueRange value set 0.2\n"
+send "in $job in Output0 in ColourScheme in ByCoordinate in HueRange value set 0.2\n"
 set window ""
 expect {
     -re "Created new window number (\[0-9\]*) named Result image for Job" { set window "Window$expect_out(1,string)"; pass "$test"; }

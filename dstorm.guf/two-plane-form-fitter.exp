@@ -32,11 +32,11 @@ expect {
 }
 set test "Two plane size estimation works"
 expect {
-    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in Output0 declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
 }
 
-set optics_path "in $job in Crankshaft in Output0 in FitPSFForm in Optics"
+set optics_path "in $job in Output0 in Optics"
 set test "PSF in first plane is guessed sanely"
 set psf_0 [lindex [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","] 0]
 pass_if [expr $psf_0 < 330 && $psf_0 > 250 ] "$test"

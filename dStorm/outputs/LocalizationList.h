@@ -7,7 +7,7 @@
 
 namespace dStorm {
 namespace outputs {
-    class LocalizationList : public output::OutputObject
+    class LocalizationList : public output::Output
     {
       private:
         std::auto_ptr<output::Localizations> allocTarget;
@@ -38,6 +38,7 @@ namespace outputs {
             { return allocTarget.get() != NULL; }
         std::auto_ptr<output::Localizations> releaseResults()
             { return allocTarget; }
+        void attach_ui( simparm::Node& ) {}
     };
 
 }

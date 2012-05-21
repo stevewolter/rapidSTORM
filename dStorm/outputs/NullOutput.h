@@ -6,13 +6,14 @@
 namespace dStorm {
 namespace outputs {
 
-struct NullOutput : public output::OutputObject 
+struct NullOutput : public output::Output
 {
-    NullOutput();
+    NullOutput() {}
     NullOutput* clone() const { return new NullOutput(); }
     AdditionalData announceStormSize(const Announcement&) 
         { return AdditionalData(); }
     void receiveLocalizations(const EngineResult&) {}
+    void attach_ui( simparm::Node& ) {}
 };
 
 }

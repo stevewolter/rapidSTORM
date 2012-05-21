@@ -172,6 +172,7 @@ libdStorm_la_SOURCES = \
     dStorm/engine/Input_decl.h dStorm/engine/Input.h \
     dStorm/engine/Spot_decl.h dStorm/engine/Spot.h \
     dStorm/engine/SpotFinder_decl.h dStorm/engine/SpotFinder.h \
+    dStorm/engine/SpotFinderBuilder.h \
     dStorm/engine/JobInfo_decl.h dStorm/engine/JobInfo.h \
     dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
     dStorm/engine/FitPosition.h \
@@ -275,7 +276,7 @@ libdStorm_la_SOURCES += \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
-    dStorm/outputs/NullOutput.cpp dStorm/outputs/BinnedLocalizations_strategies.cpp \
+    dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/display/DummyManager.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
@@ -466,10 +467,9 @@ dstorm_SOURCES += \
     test-plugin/Manager.h test-plugin/Manager.cpp \
     test-plugin/md5.h test-plugin/md5.c \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
-    test-plugin/DummyFitter.h test-plugin/DummyFitter.cpp \
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
-    test-plugin/FixedPositionSpotFinder.h test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
+    test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 

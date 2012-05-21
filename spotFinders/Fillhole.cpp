@@ -1,6 +1,7 @@
 #include <simparm/Object.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/SpotFinderBuilder.h>
 #include <simparm/FileEntry.hh>
 #include <simparm/Structure.hh>
 #include <dStorm/output/Output.h>
@@ -18,34 +19,37 @@
 #include <dStorm/image/constructors.h>
 
 namespace dStorm {
-namespace spotFinders {
+namespace fillhole_smoother {
+
+class Config 
+{
+    public:
+    /** Mask sizes */
+    simparm::Entry<unsigned long> spots, background;
+
+    Config() 
+    : spots("SpotReconstructionMaskSize", "Erosion mask size", 3),
+      background("BackgroundDilationMaskSize", "Background dilation mask size", 25) {}
+    void attach_ui( simparm::Node& at ) {
+        spots.attach_ui(at);
+        background.attach_ui(at);
+    }
+    static std::string get_name() { return "Reconstruction"; }
+    static std::string get_description() { return "Morphologically reconstruct image"; }
+};
 
 class FillholeSmoother : public engine::spot_finder::Base {
-    private:
+private:
     engine::SmoothedImage buffer[3];
     int rms1, rms2;
 
-    class _Config;
-    public:
-    typedef simparm::Structure<_Config> Config;
-
+public:
     FillholeSmoother (const Config& myconf,
                         const dStorm::engine::spot_finder::Job &conf);
     ~FillholeSmoother() {}
     FillholeSmoother* clone() const { return new FillholeSmoother(*this); }
 
     void smooth( const dStorm::engine::Image2D &in );
-};
-
-class FillholeSmoother::_Config : public simparm::Object
-{
-    protected:
-    void registerNamedEntries();
-    public:
-    /** Mask sizes */
-    simparm::Entry<unsigned long> spots, background;
-
-    _Config();
 };
 
 /** Produce an image that is unchanged throughout but for the border of
@@ -117,26 +121,11 @@ FillholeSmoother::FillholeSmoother(
         buffer[i] = engine::SmoothedImage( job.size().head<2>() );
 }
 
-FillholeSmoother::_Config::_Config()
-: simparm::Object("Reconstruction", "Morphologically reconstruct image"),
-  spots("SpotReconstructionMaskSize", 
-       "Erosion mask size", 3),
-  background("BackgroundDilationMaskSize", 
-       "Background dilation mask size", 25)
-{
-}
-
-void FillholeSmoother::_Config::registerNamedEntries()
-{
-    push_back( spots );
-    push_back( background );
-}
-
 std::auto_ptr< engine::spot_finder::Factory >
     make_fillhole_smoother()
 {
     return std::auto_ptr< engine::spot_finder::Factory >(
-        new engine::spot_finder::Builder<FillholeSmoother>() );
+        new engine::spot_finder::Builder<Config,FillholeSmoother>() );
 }
 
 }

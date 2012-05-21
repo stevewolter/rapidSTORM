@@ -8,10 +8,20 @@
 #include <simparm/Entry.hh>
 
 #include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/SpotFinderBuilder.h>
 #include <dStorm/engine/Image.h>
 
 namespace dStorm {
-namespace spotFinders {
+namespace median_smoother {
+
+struct Config {
+    simparm::Entry< quantity<camera::length,int> > mask_size;
+    void attach_ui( simparm::Node& at ) { mask_size.attach_ui( at ); }
+    Config() 
+      : mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) {}
+    static std::string get_name() { return "Median"; }
+    static std::string get_description() { return "Smooth by median"; }
+};
 
 class MedianSmoother : public engine::spot_finder::Base {
 private:
@@ -24,18 +34,8 @@ private:
     void (*ahmad)(const Image &in, SmoothedImage& out, int mw, int mh);
     void chooseAhmad(int msx, int msy);
 
-    struct _Config : public simparm::Object {
-        simparm::Entry< quantity<camera::length,int> > mask_size;
-        void registerNamedEntries() { push_back( mask_size ); }
-        _Config() 
-        : simparm::Object("Median", "Smooth by median"),
-          mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) {}
-    };
-    const _Config config;
+    const Config config;
 public:
-    typedef simparm::Structure<_Config> Config;
-    typedef engine::spot_finder::Builder<MedianSmoother> Factory;
-
     MedianSmoother (const Config& c, 
         const engine::spot_finder::Job &job)
         : Base(job), config(c)
@@ -445,8 +445,8 @@ void MedianSmoother::chooseAhmad(int msx, int msy) {
     }
 }
 
-std::auto_ptr<engine::spot_finder::Factory> make_Median() { 
-    return std::auto_ptr<engine::spot_finder::Factory>(new MedianSmoother::Factory()); 
+std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
+    return std::auto_ptr<engine::spot_finder::Factory>(new engine::spot_finder::Builder<Config,MedianSmoother>()); 
 }
 
 }

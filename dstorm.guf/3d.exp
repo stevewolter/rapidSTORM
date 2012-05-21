@@ -31,15 +31,15 @@ set job [get_job_number]
 
 set test "Job has progress"
 expect {
-    -re "in LocCountStat declare" { pass "$test"; }
+    -re "in CollectionProgress in value" { pass "$test"; }
 }
 set test "3D PSF size estimation works"
 expect {
-    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in Output0 declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
 }
 
-set optics_path "in $job in Crankshaft in Output0 in FitPSFForm in Optics in InputLayer0 in ThreeD in Polynomial3D"
+set optics_path "in $job in Output0 in Optics in InputLayer0 in ThreeD in Polynomial3D"
 set test "PSF is guessed sanely"
 set psf [split [get_value "$optics_path in PSF in value"] ","]
 pass_if [expr [lindex $psf 0] < 360 && [lindex $psf 0] > 100 && [lindex $psf 1] < 360 && [lindex $psf 1] > 100 ] "$test"

@@ -6,14 +6,10 @@
 #include "Fillhole.h"
 
 namespace dStorm {
-namespace spotFinders {
-
-std::auto_ptr<engine::spot_finder::Factory> make_Spalttiefpass();
-std::auto_ptr<engine::spot_finder::Factory> make_Median();
-std::auto_ptr<engine::spot_finder::Factory> make_Erosion();
-std::auto_ptr<engine::spot_finder::Factory> make_Gaussian();
-
-}
+namespace erosion_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
+namespace gauss_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
+namespace median_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
+namespace spalttiefpass_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
 }
 
 #endif

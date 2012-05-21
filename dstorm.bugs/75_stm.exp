@@ -38,7 +38,7 @@ set test "Join different STM files"
 set_input_file "${testcase_target}new_stm_format-short.txt" 2
 send "in Car in Run in value set 1\n"
 expect { 
-     -ex "in ProgressMeter in Progress in value set 1" { pass "$test"; }
+     -ex "in Progress in value set 1" { pass "$test"; }
      -re "in LocalizationCount in value set" { exp_continue; }
 }
 

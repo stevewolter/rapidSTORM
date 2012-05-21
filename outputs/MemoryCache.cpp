@@ -293,7 +293,7 @@ void Output::reemit_localizations(const int my_count) {
         }
     if ( engine_run_has_succeeded ) {
         boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-        Filter::store_results_( *engine_run_has_succeeded );
+        Filter::store_children_results( *engine_run_has_succeeded );
     }
 }
 
@@ -330,7 +330,7 @@ void Output::store_results_( bool success )
 {
     engine_run_has_succeeded = success;
     boost::lock_guard<boost::recursive_mutex> suboutput_lock( suboutputs );
-    Filter::store_results_( *engine_run_has_succeeded ); 
+    Filter::store_children_results( *engine_run_has_succeeded ); 
 }
 
 void Output::receiveLocalizations(const EngineResult& e) 

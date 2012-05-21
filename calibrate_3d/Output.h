@@ -32,7 +32,7 @@
 namespace dStorm {
 namespace calibrate_3d {
 
-class Output : public output::OutputObject {
+class Output : public output::Output {
   private:
     boost::scoped_ptr<ZTruth> z_truth;
     boost::shared_ptr< engine::InputTraits > initial_traits;
@@ -61,6 +61,8 @@ class Output : public output::OutputObject {
     double evaluate_function( const gsl_vector *x );
     static double gsl_callback( const gsl_vector * x, void * params )
         { return static_cast<Output*>(params)->evaluate_function(x); }
+
+    void attach_ui_( simparm::Node& );
 
   public:
     Output(const Config &config);

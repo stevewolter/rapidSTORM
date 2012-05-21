@@ -106,7 +106,7 @@ namespace outputs {
      **/
     template <typename KeepUpdated, int Dim>
     class BinnedLocalizations 
-        : public output::OutputObject, public BinningPublisher<Dim,KeepUpdated>
+        : public output::Output, public BinningPublisher<Dim,KeepUpdated>
     {
       public:
         typedef dStorm::Image<float,Dim> BinnedImage;
@@ -132,6 +132,7 @@ namespace outputs {
         template<typename Listener, int ODim> friend class BinnedLocalizations;
 
         void store_results_( bool success ); 
+        void attach_ui_( simparm::Node& ) {}
 
       public:
         /** @param crop Gives the amount of space to be cut from all

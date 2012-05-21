@@ -38,10 +38,10 @@ void add_modules( dStorm::Config& car_config )
     car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
     car_config.add_input( noop_engine::makeLink(), AsEngine );
     DEBUG("Adding basic spot finders");
-    car_config.add_spot_finder( spotFinders::make_Spalttiefpass() );
-    car_config.add_spot_finder( spotFinders::make_Median() );
-    car_config.add_spot_finder( spotFinders::make_Erosion() );
-    car_config.add_spot_finder( spotFinders::make_Gaussian() );
+    car_config.add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
+    car_config.add_spot_finder( median_smoother::make_spot_finder_factory() );
+    car_config.add_spot_finder( erosion_smoother::make_spot_finder_factory() );
+    car_config.add_spot_finder( gauss_smoother::make_spot_finder_factory() );
     DEBUG("Adding basic output modules");
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );

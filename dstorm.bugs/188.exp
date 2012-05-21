@@ -23,7 +23,7 @@ expect {
 
 set test "Job can be stopped early"
 send "in $job in StopComputation in value set 1\n"
-send "cmd 5 in $job in Crankshaft in Output3 in Expression in Display in SaveImage in value set 1\n"
+send "cmd 5 in $job in Output3 in SaveImage in value set 1\n"
 expect {
     -re "ack 5" { pass "$test"; }
 }

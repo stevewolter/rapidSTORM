@@ -22,7 +22,7 @@ namespace slicer {
 
 using namespace output;
 
-class Slicer : public OutputObject {
+class Slicer : public Output {
   public:
     class Config;
   private:
@@ -55,8 +55,7 @@ class Slicer : public OutputObject {
 
     /** Copy constructor undefined. */
     Slicer(const Slicer& c) 
-        : OutputObject(c),
-          suboutputs(c.suboutputs)
+        : suboutputs(c.suboutputs)
         { throw std::logic_error("dStorm::Slicer::Slicer(Copy) undef."); }
 
     void add_output_clone(int index);
@@ -64,6 +63,7 @@ class Slicer : public OutputObject {
     std::auto_ptr<Announcement> announcement;
     std::auto_ptr<RunAnnouncement> run_announcement;
     void store_results_( bool success );
+    void attach_ui_( simparm::Node& at );
 
   public:
     simparm::Set suboutputs;
@@ -118,9 +118,9 @@ void Slicer::add_output_clone(int i) {
     boost::shared_ptr<simparm::Object> o 
         ( new simparm::Object(name.str(), desc.str()) );
 
-    o->push_back( output->getNode() );
+    output->attach_ui( *o );
     outputs.replace( i, new Child( output, o ) );
-    suboutputs.push_back( *o );
+    o->attach_ui( suboutputs );
 
     if ( announcement.get() != NULL )
         outputs[i]->announceStormSize(*announcement);
@@ -151,8 +151,7 @@ void Slicer::Config::attach_ui( simparm::Node& at )
 }
 
 Slicer::Slicer(const Config& config, std::auto_ptr<output::FilterSource> generator )
-: OutputObject("Slicer", "Object Slicer"),
-  slice_size( config.slice_size()  ),
+: slice_size( config.slice_size()  ),
   slice_distance( config.slice_distance() ),
   filename( config.outputFile.get_basename() ),
   source( generator ),
@@ -162,7 +161,6 @@ Slicer::Slicer(const Config& config, std::auto_ptr<output::FilterSource> generat
     suboutputs.showTabbed = true;
     outputs.resize(1, NULL);
     add_output_clone(0);
-    push_back( suboutputs );
 }
 
 void Slicer::check_for_duplicate_filenames
@@ -230,6 +228,10 @@ Slicer::~Slicer()
 }
 
 Slicer* Slicer::clone() const { return new Slicer(*this); }
+
+void Slicer::attach_ui_( simparm::Node& at ) {
+    suboutputs.attach_ui( at );
+}
 
 class Source
 : public output::FilterSource

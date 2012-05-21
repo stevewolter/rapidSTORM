@@ -23,7 +23,7 @@ struct Config
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 
-class Output : public dStorm::output::OutputObject {
+class Output : public dStorm::output::Output {
     typedef boost::accumulators::accumulator_set< double,
         stats< tag::count, tag::immediate_mean, tag::variance(immediate) > > Accumulator;
     Accumulator acc[3];
@@ -48,8 +48,7 @@ class Output : public dStorm::output::OutputObject {
 Output* Output::clone() const { return new Output(*this); }
 
 Output::Output( const Config& config ) 
-: OutputObject("VarianceEstimator", "Estimate variance"),
-  tag(config.tag())
+: tag(config.tag())
 {
 }
 

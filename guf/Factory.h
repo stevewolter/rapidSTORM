@@ -14,9 +14,10 @@ namespace guf {
  *  computed by the Fitter, and for registering appropriate configuration
  *  items. */
 struct Factory
-: private simparm::Structure< Config >,
-  public engine::spot_fitter::Factory
+: public engine::spot_fitter::Factory
 {
+    Config config;
+
     std::auto_ptr<engine::spot_fitter::Implementation> make( const engine::JobInfo& );
     Factory* clone() const { return new Factory(*this); }
     void set_traits( output::Traits&, const engine::JobInfo& );
@@ -28,9 +29,9 @@ struct Factory
     bool can_compute_uncertainty( const engine::InputPlane& ) const;
     boost::optional<output::Traits> my_traits;
 
-    std::string getName() const { return simparm::Structure< Config >::getName(); }
-    void attach_ui( simparm::Node& to ) { simparm::Structure< Config >::attach_ui(to); }
-    void detach_ui( simparm::Node& to ) { simparm::Structure< Config >::detach_ui(to); }
+    std::string getName() const { return Config::getName(); }
+    void attach_ui( simparm::Node& to ) { config.attach_ui(to); }
+    void detach_ui( simparm::Node& to ) { throw std::logic_error("Removing spot fitter choices is not supported"); }
 };
 
 }

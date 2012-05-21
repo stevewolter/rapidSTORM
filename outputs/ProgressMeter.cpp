@@ -10,13 +10,16 @@ namespace output {
 
 /** This class updates a ProgressEntry with the progress status for the
  *  crankshaft it is added to. */
-class ProgressMeter : public OutputObject
+class ProgressMeter : public Output
 {
   private:
     simparm::ProgressEntry progress;
     frame_count max;
     frame_count first;
     boost::optional<frame_count> length;
+    void attach_ui_( simparm::Node& at ) {
+        progress.attach_ui(at);
+    }
 
   protected:
     AdditionalData announceStormSize(const Announcement &a);
@@ -27,10 +30,6 @@ class ProgressMeter : public OutputObject
     class Config;
 
     ProgressMeter(const Config &);
-    ProgressMeter(const ProgressMeter& c)
-        : OutputObject(c),
-          progress(c.progress), max(c.max), length(c.length)
-        { push_back(progress); }
     virtual ~ProgressMeter() {}
     RunRequirements announce_run(const RunAnnouncement&) {
         progress.setValue(0); 
@@ -51,15 +50,13 @@ class ProgressMeter::Config
 };
 
 ProgressMeter::ProgressMeter(const Config &)
-    : OutputObject("ProgressMeter", "Progress status"),
-      progress("Progress", "Progress on this job") 
+    : progress("Progress", "Progress on this job") 
     {
         progress.helpID = "#ProgressMeter_Progress";
         progress.setEditable(false);
         progress.setViewable(true);
         progress.setUserLevel(simparm::Object::Beginner);
         progress.increment = (0.02);
-        push_back(progress);
     }
 
 Output::AdditionalData

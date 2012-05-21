@@ -12,8 +12,8 @@
 namespace dStorm {
 namespace output {
 
-class LocalizationCounter : public OutputObject {
-    private:
+class LocalizationCounter : public Output {
+private:
     int count;
     frame_count last_config_update, config_increment;
     simparm::Entry<unsigned long> update;
@@ -26,10 +26,13 @@ class LocalizationCounter : public OutputObject {
 
     void store_results_( bool success ) {
         update = count;
-        if ( success && !this->isActive()) std::cout << count << "\n"; 
+        if ( success && !update.isActive()) std::cout << count << "\n"; 
+    }
+    void attach_ui_( simparm::Node& at ) {
+        update.attach_ui( at );
     }
 
-    public:
+public:
     struct Config { 
         simparm::FileEntry output_file;
 
@@ -53,7 +56,6 @@ class LocalizationCounter : public OutputObject {
     }
     AdditionalData announceStormSize(const Announcement &a) {
         update.setUserLevel(simparm::Object::Beginner);
-        push_back(update);
         config_increment = 10 * camera::frame;
 
         count = 0; 
@@ -76,12 +78,11 @@ class LocalizationCounter : public OutputObject {
 LocalizationCounter::Config::Config()
 : output_file("ToFile", "Write localization count to file")
 {
-    output_file.userLevel = Object::Intermediate;
+    output_file.userLevel = simparm::Object::Intermediate;
 }
 
 LocalizationCounter::LocalizationCounter(const Config &c)
-: OutputObject("LocCountStat", "Localization counting status"),
-  count(0),
+: count(0),
   last_config_update(0),
   update("LocalizationCount", 
          "Number of localizations found", 0)

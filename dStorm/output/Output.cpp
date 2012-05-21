@@ -19,6 +19,10 @@ void delete_clone<dStorm::output::Output>(const dStorm::output::Output* o)
 namespace dStorm {
 namespace output {
 
+void Output::attach_ui( simparm::Node& at ) {
+    attach_ui_(at);
+}
+
 Output::Announcement::Announcement( 
     const input::Traits<LocalizedImage>& traits,
     display::Manager& manager )

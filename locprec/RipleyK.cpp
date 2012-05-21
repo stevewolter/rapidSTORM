@@ -33,7 +33,7 @@ struct Config
 };
 
 
-class Output : public dStorm::output::OutputObject {
+class Output : public dStorm::output::Output {
     simparm::FileEntry filename;
     typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
     boost::optional<distance_histogram::Histogram> histogram;
@@ -64,8 +64,7 @@ class Output : public dStorm::output::OutputObject {
 Output* Output::clone() const { return new Output(*this); }
 
 Output::Output( const Config& config ) 
-: OutputObject("RipleyK", "Ripley K function computation"),
-  filename( config.outputFile ),
+: filename( config.outputFile ),
   bin_size( config.bin_size() ),
   localization_count( 0 )
 {

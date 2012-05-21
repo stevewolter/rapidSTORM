@@ -8,7 +8,7 @@
 namespace locprec {
     using namespace boost::units;
 
-class SpotMeter : public dStorm::output::OutputObject
+class SpotMeter : public dStorm::output::Output
 {
 private:
     typedef std::map<dStorm::engine::StormPixel,int> CountMap;
@@ -39,7 +39,7 @@ public:
         static std::string get_description() { return "Histogram localization amplitudes"; }
     };
     SpotMeter (Config& config) 
-        : OutputObject("SpotMeter", ""), binSize(config.modulus()), 
+        : binSize(config.modulus()), 
             to(config.outputFile.get_output_stream()) {}
     SpotMeter *clone() const { return new SpotMeter(*this); }
 

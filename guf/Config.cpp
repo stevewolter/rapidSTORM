@@ -8,7 +8,7 @@ namespace guf {
 using namespace boost::units;
 
 Config::Config() 
-: simparm::Set("GUF", "Grand unified fitter"),
+: name_object(getName(), "Grand unified fitter"),
   theta_dist("ThetaDist", "Two-kernel distance threshold", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 
         "Terminate at axial step length", 1E-2f * boost::units::si::nanometre),
@@ -32,19 +32,20 @@ Config::Config()
     marquardtStartLambda.userLevel = (simparm::Object::Expert);
 }
 
-void Config::registerNamedEntries()
+void Config::attach_ui( simparm::Node & at )
 {
-    fit_window_config.attach_ui( *this );
-    marquardtStartLambda.attach_ui(*this);
-    negligible_x_step.attach_ui(*this);
-    maximumIterationSteps.attach_ui(*this);
-    free_sigmas.attach_ui(*this);
-    output_sigmas.attach_ui(*this);
-    laempi_fit.attach_ui(*this);
-    disjoint_amplitudes.attach_ui(*this);
-    two_kernel_fitting.attach_ui(*this);
-    theta_dist.attach_ui(*this);
-    mle_fitting.attach_ui(*this);
+    fit_window_config.attach_ui( name_object );
+    marquardtStartLambda.attach_ui(name_object);
+    negligible_x_step.attach_ui(name_object);
+    maximumIterationSteps.attach_ui(name_object);
+    free_sigmas.attach_ui(name_object);
+    output_sigmas.attach_ui(name_object);
+    laempi_fit.attach_ui(name_object);
+    disjoint_amplitudes.attach_ui(name_object);
+    two_kernel_fitting.attach_ui(name_object);
+    theta_dist.attach_ui(name_object);
+    mle_fitting.attach_ui(name_object);
+    name_object.attach_ui( at );
 }
 
 nonlinfit::levmar::Config Config::make_levmar_config() const

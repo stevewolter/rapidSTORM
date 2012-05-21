@@ -6,27 +6,27 @@
 #include <simparm/Eigen.hh>
 
 #include <dStorm/engine/SpotFinder.h>
+#include <dStorm/engine/SpotFinderBuilder.h>
 #include <dStorm/Direction.h>
 
 using namespace std;
 using namespace dStorm::engine;
 
 namespace dStorm {
-namespace spotFinders {
+namespace gauss_smoother {
+
+struct Config {
+    typedef Eigen::Matrix< quantity<camera::length>, 2, 1, Eigen::DontAlign > Sigmas;
+    simparm::Entry< Sigmas > sigma;
+    void attach_ui( simparm::Node& at ) { sigma.attach_ui( at ); }
+    Config() 
+        : sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}
+    static std::string get_name() { return "Gaussian"; }
+    static std::string get_description() { return "Smooth with gaussian kernel"; }
+};
 
 class GaussSmoother : public engine::spot_finder::Base {
-    struct _Config : public simparm::Object {
-        typedef Eigen::Matrix< quantity<camera::length>, 2, 1, Eigen::DontAlign > Sigmas;
-        simparm::Entry< Sigmas > sigma;
-        void registerNamedEntries() { push_back( sigma ); }
-        _Config() 
-            : simparm::Object("Gaussian", "Smooth with gaussian kernel"),
-              sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}
-    };
 public:
-    typedef simparm::Structure<_Config> Config;
-    typedef engine::spot_finder::Builder<GaussSmoother> Factory;
-
     GaussSmoother (const Config&, const engine::spot_finder::Job&);
     GaussSmoother* clone() const { return new GaussSmoother(*this); }
 
@@ -87,8 +87,9 @@ void GaussSmoother::smooth( const engine::Image2D &in )
     }
 }
 
-std::auto_ptr<engine::spot_finder::Factory> make_Gaussian() { 
-    return std::auto_ptr<engine::spot_finder::Factory>(new GaussSmoother::Factory()); 
+std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory() { 
+    return std::auto_ptr<engine::spot_finder::Factory>(
+        new engine::spot_finder::Builder<Config,GaussSmoother>()); 
 }
 
 }

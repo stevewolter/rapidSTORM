@@ -13,11 +13,6 @@ send "in Car in Output in EngineOutput in Output0 in Image in ShowOutput in valu
 dstorm_attach
 send "in Car in Run in value set 1\n"
 
-set test "Job has progress"
-expect {
-    -re "in LocCountStat declare" { pass "$test"; }
-}
-
 set test "3D with colouring works"
 expect {
     -re "Failed to store image: Magick: Unable to open file" { pass "$test"; }

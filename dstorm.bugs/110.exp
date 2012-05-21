@@ -25,6 +25,8 @@ send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Express
 dstorm_attach
 send "in Car set Run value set 1\n"
 
+set job [get_job_number]
+
 set test "Selection window is opened"
 set window ""
 expect {
@@ -51,7 +53,7 @@ set test "Computation is done after closing again"
 send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
 send "in DummyDisplayManagerConfig in Close in value set 1\n"
 expect {
-    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in $job in Output4 declare Set\r*\nname Optics" { pass "$test"; }
     -re "PSF estimation failed: " { fail "$test"; }
     -re "The parameter covariance matrix in PSF estimation is singular" { fail "$test"; }
 }

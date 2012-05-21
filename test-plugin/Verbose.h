@@ -17,7 +17,7 @@ inline std::ostream& operator<<( std::ostream& o, const boost::optional<Type>& v
 }
 
 struct Verbose
-: public dStorm::output::OutputObject
+: public dStorm::output::Output
 {
     struct Config;
 
@@ -62,7 +62,6 @@ Verbose* Verbose::clone() const {
 }
 
 Verbose::Verbose( const Config& config )
-        : OutputObject(Config::get_name(), Config::get_description())
 {
     LOG( "Constructed verbose plugin" );
 }

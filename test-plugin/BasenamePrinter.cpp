@@ -8,7 +8,7 @@
 #include <boost/units/io.hpp>
 
 struct BasenamePrinter
-: public dStorm::output::OutputObject
+: public dStorm::output::Output
 {
     struct Config;
 
@@ -55,7 +55,6 @@ BasenamePrinter* BasenamePrinter::clone() const {
 }
 
 BasenamePrinter::BasenamePrinter( const Config& config )
-        : OutputObject("SegFault", "SegFault")
 {
     std::cerr << "Output file basename is " << config.outputFile() << "\n";
 }

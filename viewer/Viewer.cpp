@@ -28,13 +28,11 @@ namespace viewer {
 
 Viewer::Viewer(const Config& config)
 : Status(config),
-  OutputObject("Display", "Display status"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   repeater( NULL )
 {
     DEBUG("Building viewer");
 
-    Status::attach_ui( *this );
     Status::add_listener( *this );
 
     DEBUG("Built viewer");
@@ -44,6 +42,10 @@ Viewer::~Viewer() {
     DEBUG("Destructing Viewer " << this);
 }
 
+void Viewer::attach_ui_( simparm::Node& at ) {
+    ui = at;
+    Status::attach_ui( at );
+}
 
 void Viewer::receiveLocalizations(const EngineResult& er)
 {
@@ -150,7 +152,8 @@ void Viewer::writeToFile(const string &name) {
         implementation->save_image(name, config);
     } catch ( const std::runtime_error& e ) {
         simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );
-        send( m );
+        if ( ui.is_initialized() )
+            ui->send( m );
     }
 }
 

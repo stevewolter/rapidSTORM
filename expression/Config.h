@@ -42,7 +42,6 @@ struct Config : public simparm::Listener, public config::ExpressionManager
     int next_ident;
 
     simparm::Node* current_ui;
-    simparm::Node& getNode() { assert( current_ui ); return *current_ui; }
 
     void expression_changed( std::string, std::auto_ptr<source::LValue> ) {}
 };

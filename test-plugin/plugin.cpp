@@ -8,10 +8,8 @@
 #include "BasenamePrinter.h"
 #include "Manager.h"
 #include "DummyFileInput.h"
-#include "DummyFitter.h"
 #include "RepeatTrigger.h"
 #include "VerboseInputFilter_decl.h"
-#include "FixedPositionSpotFinder.h"
 #include <dStorm/traits/range_impl.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include "SmoothedImageSave.h"
@@ -26,14 +24,6 @@ void make_config ( dStorm::Config* config ) {
 
     config->add_input( dummy_file_input::make(), dStorm::FileReader );
     config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
-    config->add_spot_finder( std::auto_ptr<dStorm::engine::spot_finder::Factory>(
-        new FixedPositionSpotFinder::Finder::Factory() ) );
-#if 0
-    /* The dummy fitter is currently positioned first in the fitter selection
-     * and breaks the program. */
-    config->add_spot_fitter( std::auto_ptr<dStorm::engine::spot_fitter::Factory>(
-        new dStorm::debugplugin::DummyFitter::Source() ) );
-#endif
 
     config->add_output( new dStorm::output::OutputBuilder< Exception::Config, Exception >() );
     config->add_output( new dStorm::output::OutputBuilder< Verbose::Config, Verbose >() );

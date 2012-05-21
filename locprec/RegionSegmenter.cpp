@@ -10,7 +10,6 @@
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/outputs/LocalizationList.h>
 #include <dStorm/engine/Image.h>
-#include <dStorm/outputs/Crankshaft.h>
 #include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/display/Manager.h>
@@ -40,6 +39,7 @@
 #include <dStorm/output/Localizations_iterator.h>
 #include <boost/foreach.hpp>
 #include <dStorm/output/FilterBuilder.h>
+#include <dStorm/output/Filter.h>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/dilation_impl.h>
@@ -47,7 +47,7 @@
 
 namespace locprec {
 
-    class Segmenter : public dStorm::outputs::Crankshaft,
+    class Segmenter : public dStorm::output::Filter,
         public simparm::Node::Callback,
         private dStorm::display::DataSource
     {
@@ -68,7 +68,7 @@ namespace locprec {
         simparm::Entry<unsigned long> dilation;
         dStorm::output::Localizations points;
 
-        dStorm::outputs::BinnedLocalizations<>* bins;
+        dStorm::outputs::BinnedLocalizations<> bins;
 
         std::auto_ptr< dStorm::display::Change > next_change;
         std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
@@ -83,13 +83,13 @@ namespace locprec {
         std::auto_ptr<dStorm::display::Change> get_changes();
 
         void store_results_( bool success ) {
-            dStorm::outputs::Crankshaft::store_results_( success );
             boost::lock_guard<boost::mutex> lock(mutex);
             if ( howToSegment == Maximum )
                 maximums();
             else
                 segment();
         }
+        void attach_ui_( simparm::Node& );
 
       protected:
         RegionImage segment_image();
@@ -105,6 +105,10 @@ namespace locprec {
             { throw std::runtime_error("Object unclonable."); }
 
         AdditionalData announceStormSize(const Announcement &a) ;
+        void receiveLocalizations(const EngineResult& er) {
+            points.insert(er);
+            bins.receiveLocalizations(er);
+        }
 
         void operator()(const simparm::Event&);
     };
@@ -184,33 +188,18 @@ Segmenter::Segmenter(
     const Config& config,
     std::auto_ptr<Output> output
 )
-: Crankshaft("Segmenter"),
+: Filter(output),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   howToSegment( config.method().type() ),
   threshold( config.threshold ),
   dilation( config.dilation ),
-  output( output ),
+  bins( config.selector.make() ),
   reducer( config.reducer.make_trace_reducer() ),
   load_segmentation( config.load_segmentation() ),
   save_segmentation( config.save_segmentation() ) 
 {
-    desc = "Region segmenter";
-
-    bins = new dStorm::outputs::BinnedLocalizations<>(config.selector.make());
     binners.replace(0, config.selector.make_x());
     binners.replace(1, config.selector.make_y());
-
-    add( new dStorm::outputs::LocalizationList(&points) );
-    add( bins );
-
-    if ( howToSegment == Region ) {
-        receive_changes_from( this->threshold.value );
-        push_back( this->threshold );
-        receive_changes_from( this->dilation.value );
-        push_back( this->dilation );
-    }
-
-    push_back( this->output->getNode() );
 }
 
 Segmenter::~Segmenter() {
@@ -226,9 +215,8 @@ Output::AdditionalData Segmenter::announceStormSize
     typedef dStorm::input::Traits<dStorm::Localization> InputTraits;
     announcement->source_traits.push_back( 
         boost::shared_ptr<InputTraits>( new InputTraits(a) ) );
-    /* TODO: Evaluate return */
-    output->announceStormSize(*announcement);
-    return Crankshaft::announceStormSize(a);
+    bins.announceStormSize( a );
+    return Filter::announceStormSize( *announcement ).remove_cluster_sources();
 }
 
 void Segmenter::operator()(const simparm::Event&)
@@ -283,7 +271,7 @@ static void merge(std::vector<int>& labArray, int a, int b) {
 
 Segmenter::RegionImage Segmenter::segment_image()
 {
-    const dStorm::Image<float,2>& src = (*bins)();
+    const dStorm::Image<float,2>& src = bins();
     dStorm::Image<bool,2> thres = src.threshold( threshold() ),
                dilated( src.sizes() );
     if ( dilation() > 0 )
@@ -353,7 +341,7 @@ void Segmenter::segment()
     RegionImage segmentation;
     if ( load_segmentation != "" ) {
         FILE *file = fopen( load_segmentation.c_str(), "r" );
-        segmentation = RegionImage( (*bins)().sizes() );
+        segmentation = RegionImage( bins().sizes() );
         int read = fread( segmentation.ptr(), sizeof(int),
                segmentation.size_in_pixels(), file );
         if ( read != int(segmentation.size_in_pixels()) )
@@ -406,9 +394,9 @@ void Segmenter::segment()
             dStorm::samplepos::Constant( 0 * si::meter ) );
     }
 
-    output->announce_run(RunAnnouncement());
-    output->receiveLocalizations(engineResult);
-    output->store_results( true );
+    Filter::announce_run(RunAnnouncement());
+    Filter::receiveLocalizations(engineResult);
+    Filter::store_children_results( true );
 }
 
 template <typename To> To sq(To a) { return a*a; }
@@ -463,7 +451,7 @@ LocalizationMapper<Localization, Spot> Mapper;
 void Segmenter::maximums() {
     dStorm::engine::CandidateTree<float> candidates(3,3,0,0);
     candidates.setLimit(100000);
-    const dStorm::Image<float,2>& image = (*bins)();
+    const dStorm::Image<float,2>& image = bins();
     candidates.fillMax(image);
     std::list<Spot> foundSpots;
     for (dStorm::engine::CandidateTree<float>::const_iterator
@@ -491,9 +479,9 @@ void Segmenter::maximums() {
         );
     }
 
-    output->announce_run(RunAnnouncement());
-    output->receiveLocalizations(engineResult);
-    output->store_results( true );
+    Filter::announce_run(RunAnnouncement());
+    Filter::receiveLocalizations(engineResult);
+    Filter::store_children_results( true );
 }
 
 void Segmenter::display_image( const ColorImage& img ) {
@@ -529,6 +517,17 @@ std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
     boost::lock_guard<boost::mutex> lock(mutex);
     std::swap( fresh, next_change );
     return fresh;
+}
+
+void Segmenter::attach_ui_( simparm::Node& at ) {
+    if ( howToSegment == Region ) {
+        receive_changes_from( this->threshold.value );
+        threshold.attach_ui(at);
+        receive_changes_from( this->dilation.value );
+        dilation.attach_ui( at );
+    }
+
+    Filter::attach_children_ui( at );
 }
 
 std::auto_ptr< dStorm::output::OutputSource > make_segmenter_source() {

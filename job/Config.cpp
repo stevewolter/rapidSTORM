@@ -176,11 +176,11 @@ void Config::attach_ui( simparm::Node& at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    outputRoot->attach_full_ui(outputBox);
    input->registerNamedEntries(car_config);
-   car_config.push_back( pistonCount );
-   car_config.push_back( outputBox );
-   car_config.push_back( configTarget );
-   car_config.push_back( auto_terminate );
-   at.push_back( car_config );
+   pistonCount.attach_ui( car_config );
+   outputBox.attach_ui( car_config );
+   configTarget.attach_ui( car_config );
+   auto_terminate.attach_ui( car_config );
+   car_config.attach_ui ( at );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 

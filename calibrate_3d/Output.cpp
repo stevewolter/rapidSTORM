@@ -20,8 +20,7 @@ std::ostream& operator<<( std::ostream& o, const gsl_vector& v ) {
 }
 
 Output::Output(const Config & config )
-: OutputObject("Calibrate3D", "Calibrate 3D"),
-  z_truth( config.get_z_truth() ),
+: z_truth( config.get_z_truth() ),
   linearizer(config),
   engine(NULL),
   result_config( traits::PlaneConfig::PSFDisplay ),
@@ -35,10 +34,13 @@ Output::Output(const Config & config )
     result_config.viewable = false;
     current_volume.viewable = false;
     residuals.viewable = false;
+}
+
+void Output::attach_ui_( simparm::Node& at ) {
     result_config.registerNamedEntries();
-    push_back( current_volume );
-    push_back( residuals );
-    push_back( result_config );
+    current_volume.attach_ui( at );
+    residuals.attach_ui( at );
+    result_config.attach_ui( at );
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement&)

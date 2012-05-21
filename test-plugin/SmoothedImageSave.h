@@ -17,7 +17,7 @@
 #include <dStorm/image/extend.h>
 
 struct SmoothedImageSave
-: public dStorm::output::OutputObject
+: public dStorm::output::Output
 {
     const std::string basename;
 
@@ -33,7 +33,7 @@ struct SmoothedImageSave
     };
 
     SmoothedImageSave(const Config& config) 
-        : OutputObject("SmoothedImageSave", "SmoothedImageSave"), basename( config.output_file_name() ) {}
+        : basename( config.output_file_name() ) {}
     ~SmoothedImageSave() {}
     SmoothedImageSave* clone() const { return new SmoothedImageSave(*this); }
     AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }

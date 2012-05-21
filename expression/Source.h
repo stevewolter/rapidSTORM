@@ -16,7 +16,6 @@ namespace expression {
 
 class Source 
 : public output::Filter, 
-  public simparm::Object,
   public config::ExpressionManager,
   private boost::noncopyable
 {
@@ -30,9 +29,6 @@ class Source
     Engine* repeater;
     boost::optional<Announcement> my_announcement;
 
-    simparm::Node& getNode() { return *this; }
-    const simparm::Node& getNode() const { return *this; }
-
     Source( const Source& );
     Source* clone() const { return new Source(*this); }
     ~Source();
@@ -42,7 +38,7 @@ class Source
 
     bool localization_is_filtered_out( const Localization& ) const;
 
-    void registerNamedEntries();
+    void attach_ui_( simparm::Node& );
 
   public:
     Source( const Config&, std::auto_ptr<output::Output> );

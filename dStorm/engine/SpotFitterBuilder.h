@@ -7,23 +7,26 @@ namespace dStorm {
 namespace engine {
 namespace spot_fitter {
 
-template <typename BaseClass>
-class Builder
-    : public BaseClass::Config, public Factory
+template <typename Config, typename Fitter>
+class Builder : public Factory
 {
+    simparm::Object name_object;
+    Config config;
 public:
-    virtual Builder<BaseClass>* clone() const 
-        { return new Builder<BaseClass>(*this); }
+    virtual Builder* clone() const { return new Builder(*this); }
     virtual std::auto_ptr<Implementation> make (const JobInfo& info) 
-        { return std::auto_ptr<Implementation>(new BaseClass( *this, info )); }
+        { return std::auto_ptr<Implementation>(new Fitter( *this, info )); }
     void set_traits( output::Traits& t, const JobInfo& e )
-        { BaseClass::Config::set_traits(t, e); }
+        { config.set_traits(t, e); }
     void set_requirements( input::Traits<engine::ImageStack>& t ) 
-        { BaseClass::Config::set_requirements(t); }
+        { config.set_requirements(t); }
     void register_trait_changing_nodes( simparm::Listener& ) {}
-    virtual void attach_ui( simparm::Node& to ) { BaseClass::Config::attach_ui(to); }
-    virtual void detach_ui( simparm::Node& to ) { BaseClass::Config::detach_ui(to); }
-    virtual std::string getName() const { return BaseClass::Config::getName(); }
+    void attach_ui( simparm::Node& to ) { 
+        config.attach_ui(name_object); 
+        name_object.attach_ui( to );
+    }
+    void detach_ui( simparm::Node& to ) { config.detach_ui(to); }
+    std::string getName() const { return config.getName(); }
 };
 
 }

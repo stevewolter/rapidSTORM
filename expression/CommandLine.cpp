@@ -8,8 +8,8 @@ namespace expression {
 namespace config {
 
 CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
-: simparm::Object("CommandLine" + ident, "Command line") ,
-  simparm::Listener( simparm::Event::ValueChanged ),
+:   simparm::Listener( simparm::Event::ValueChanged ),
+    disambiguator("CommandLine" + ident, "Command line") ,
     lvalue("LValue", "Value to assign to"),
     expression("Expression", "Expression to assign from"),
     parser(parser),
@@ -25,7 +25,6 @@ CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
     const VariableTable& variables = parser->get_variable_table();
     for ( variable_table::const_iterator i = variables.begin(); i != variables.end(); ++i )
         lvalue.addChoice( make_variable_lvalue(*i) );
-    registerNamedEntries();
 
 }
 
@@ -41,12 +40,13 @@ void CommandLine::operator()( const simparm::Event& )
     publish();
 }
 
-void CommandLine::registerNamedEntries()
+void CommandLine::attach_ui( simparm::Node& at )
 {
-    push_back( lvalue );
-    push_back( expression );
     receive_changes_from( lvalue.value );
     receive_changes_from( expression.value );
+    simparm::NodeRef r = disambiguator.attach_ui( at );
+    lvalue.attach_ui( r );
+    expression.attach_ui( r );
 }
 
 void CommandLine::publish() {
@@ -54,24 +54,12 @@ void CommandLine::publish() {
         std::auto_ptr<source::LValue> e;
         if ( expression() != "" )
             e.reset( lvalue().make_lvalue() );
-        manager->expression_changed( getName(), e );
+        manager->expression_changed( disambiguator.getName(), e );
     }
 }
 void CommandLine::set_manager( ExpressionManager* manager ) {
     this->manager = manager;
-    if ( manager ) {
-        attach_ui( manager->getNode() );
-    }
     publish();
-}
-
-CommandLine::CommandLine(const CommandLine& o)
-: simparm::Object(o),
-    simparm::Listener( simparm::Event::ValueChanged ),
-    lvalue(o.lvalue), expression(o.expression),
-    parser(o.parser), manager(o.manager)
-{
-    registerNamedEntries();
 }
 
 }

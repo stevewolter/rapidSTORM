@@ -7,6 +7,7 @@
 #include <Eigen/Core>
 
 #include <dStorm/output/FilterBuilder.h>
+#include <dStorm/output/Filter.h>
 #include <simparm/Entry.hh>
 #include <dStorm/Engine.h>
 #include <simparm/Structure.hh>
@@ -19,11 +20,9 @@ template class Entry< dStorm::samplepos::Scalar>;
 
 namespace locprec {
 
-class ROIFilter : public dStorm::output::OutputObject
+class ROIFilter : public dStorm::output::Filter
 {
   private:
-    std::auto_ptr< dStorm::output::Output > output;
-
     dStorm::samplepos offset, from, to;
 
   public:
@@ -35,14 +34,7 @@ class ROIFilter : public dStorm::output::OutputObject
     ROIFilter* clone() const 
         { throw std::runtime_error("No ROIFilter::clone"); }
 
-    void check_for_duplicate_filenames
-            (std::set<std::string>& present_filenames) 
-        { output->check_for_duplicate_filenames(present_filenames); }
-
     AdditionalData announceStormSize(const Announcement &a);
-    RunRequirements announce_run(const RunAnnouncement& a) 
-        { return output->announce_run(a); }
-    void store_results_( bool success ) { output->store_results( success ); }
 
     void receiveLocalizations(const EngineResult& e);
 };
@@ -74,7 +66,7 @@ ROIFilter::ROIFilter(
     const Config& config,
     std::auto_ptr<dStorm::output::Output> output
 ) 
-: OutputObject("ROIFilter", "ROI Filter"), output(output)
+: Filter(output)
 {
     from.x() = config.left();
     from.y() = config.top();
@@ -84,8 +76,6 @@ ROIFilter::ROIFilter(
     for ( int i = 0; i < from.rows(); ++i )  {
         offset[i] = floor(from[i]);
     }
-
-    push_back(this->output->getNode());
 }
 
 dStorm::output::Output::AdditionalData
@@ -96,7 +86,7 @@ ROIFilter::announceStormSize(const Announcement &a)
         my_announcement.position().range()[i].first = from[i];
         my_announcement.position().range()[i].second = to[i];
     }
-    return output->announceStormSize(my_announcement);
+    return Filter::announceStormSize(my_announcement);
 }
 
 void ROIFilter::receiveLocalizations(const EngineResult& e) {
@@ -107,7 +97,7 @@ void ROIFilter::receiveLocalizations(const EngineResult& e) {
             oe[++back] = *i;
 
     oe.resize(back);
-    output->receiveLocalizations(oe);
+    Filter::receiveLocalizations(oe);
 }
 
 ROIFilter::Config::Config() 

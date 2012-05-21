@@ -75,20 +75,6 @@ class Job {
         virtual std::string getName() const = 0;
     };
 
-    template <typename BaseClass>
-    class Builder
-        : public BaseClass::Config, public Factory
-    {
-    public:
-        virtual Builder<BaseClass>* clone() const 
-            { return new Builder<BaseClass>(*this); }
-        virtual std::auto_ptr<Base> make(const Job& job) const
-            { return std::auto_ptr<Base>(
-                new BaseClass( *this, job ) ); }
-        virtual void attach_ui( simparm::Node& to ) { BaseClass::Config::attach_ui(to); }
-        virtual void detach_ui( simparm::Node& to ) { BaseClass::Config::detach_ui(to); }
-        virtual std::string getName() const { return BaseClass::Config::getName(); }
-    };
 }
 }
 }

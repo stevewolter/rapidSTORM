@@ -7,7 +7,7 @@
 #include <dStorm/Engine.h>
 
 struct Repeat
-: public dStorm::output::OutputObject, public simparm::Listener
+: public dStorm::output::Output, public simparm::Listener
 {
     struct Config {
         static std::string get_name() { return "RepeatTrigger"; }
@@ -19,16 +19,11 @@ struct Repeat
     dStorm::Engine *r;
     simparm::TriggerEntry repeat;
 
+    void attach_ui_( simparm::Node& at ) { receive_changes_from( repeat.value ); repeat.attach_ui( at ); }
     Repeat(const Config&) 
-        : OutputObject("Repeater", "Result repeater"), 
-          simparm::Listener( simparm::Event::ValueChanged ),
+        : simparm::Listener( simparm::Event::ValueChanged ),
             r(NULL), repeat("Repeat", "Repeat results")
-        { repeat.viewable = false; push_back( repeat ); receive_changes_from( repeat.value ); }
-    Repeat(const Repeat& a) : OutputObject(a),
-          simparm::Listener( simparm::Event::ValueChanged ),
-          r(a.r), repeat(a.repeat)
-        { push_back( repeat ); receive_changes_from( repeat.value );  }
-    ~Repeat() {}
+        { repeat.viewable = false;  }
     Repeat* clone() const { return new Repeat(*this); }
 
     AdditionalData announceStormSize(const Announcement& a) { 

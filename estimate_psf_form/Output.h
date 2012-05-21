@@ -24,8 +24,9 @@ namespace estimate_psf_form {
     /** This class estimates the standard deviation by averaging
      *  the standard deviations, with a confidence interval for
      *  the mean. */
-    class Output : public OutputObject {
+    class Output : public output::Output {
       protected:
+        boost::optional< simparm::Node& > current_ui;
         boost::mutex mutex;
         
         const estimate_psf_form::Config config;
@@ -43,6 +44,7 @@ namespace estimate_psf_form {
         simparm::ProgressEntry collection, fit;
 
         void do_the_fit();
+        void attach_ui_( simparm::Node& );
 
       public:
         Output(const Config&);

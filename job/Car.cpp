@@ -128,7 +128,7 @@ void Car::drive() {
   bool run_successful = false;
   try {
     runtime_config.push_back( *input );
-    runtime_config.push_back( output->getNode() );
+    output->attach_ui( runtime_config );
     control.registerNamedEntries( runtime_config );
 
     input::BaseSource::Wishes requirements;
@@ -155,7 +155,7 @@ void Car::drive() {
 
     if ( data.test( output::Capabilities::ClustersWithSources ) ) {
         simparm::Message m("Unable to provide data",
-                "The selected input module cannot provide localization traces."
+                "The selected input module cannot provide localization traces. "
                 "Please select an appropriate output.");
         runtime_config.send(m);
         return;

@@ -123,12 +123,15 @@ SimpleFilters::SimpleFilters( const SimpleFilters& o )
 
 void SimpleFilters::set_manager(config::ExpressionManager* m) {
     manager = m;
-    if ( m ) m->getNode().push_back( lower_amplitude );
-    if ( m ) m->getNode().push_back( drift_correction );
-    if ( m ) m->getNode().push_back( two_kernel_improvement );
     publish_amp();
     publish_drift_correction();
     publish_tki();
+}
+
+void SimpleFilters::attach_ui(simparm::Node& at) {
+    lower_amplitude.attach_ui(at);
+    drift_correction.attach_ui(at);
+    two_kernel_improvement.attach_ui(at);
 }
 
 void SimpleFilters::operator()(const simparm::Event& e)

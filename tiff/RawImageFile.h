@@ -12,8 +12,9 @@
 
 namespace dStorm {
 namespace output {
-class RawImageFile : public OutputObject {
+class RawImageFile : public Output {
   private:
+    boost::optional< simparm::Node& > current_ui;
     static void error_handler( const char* module,
                                const char* fmt, va_list ap );
 
@@ -29,6 +30,7 @@ class RawImageFile : public OutputObject {
     std::vector< image::MetaInfo<2> > size;
     boost::optional<frame_count> last_frame;
     void store_results_( bool );
+    void attach_ui_( simparm::Node& n ) { current_ui = n; }
 
   public:
     class Config;

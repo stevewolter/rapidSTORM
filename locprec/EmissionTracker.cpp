@@ -21,6 +21,7 @@
 #include <boost/units/Eigen/Array>
 #include <dStorm/helpers/back_inserter.h>
 #include <dStorm/output/binning/localization.h>
+#include <dStorm/output/Filter.h>
 #include <dStorm/image/iterator.h>
 #include <boost/units/Eigen/Array>
 #include <boost/utility/in_place_factory.hpp>
@@ -38,7 +39,7 @@ struct address_is_less : public std::binary_function<Type,Type,bool> {
 };
 
 class Output 
-: public dStorm::output::OutputObject 
+: public dStorm::output::Filter
 {
 public:
     class Config;
@@ -82,7 +83,6 @@ private:
     void finalizeImage(int i);
 
     std::auto_ptr<dStorm::output::TraceReducer> reducer;
-    std::auto_ptr<dStorm::output::Output> target;
 
     const double maxDist;
     void store_results_( bool success ); 
@@ -199,11 +199,10 @@ void Output::Config::attach_ui( simparm::Node& at )
 Output::Output( 
     const Config &config,
     std::auto_ptr<dStorm::output::Output> output )
-: OutputObject("EmissionTracker", "Emission tracking status"),
+: Filter(output),
   track_modulo( config.allowBlinking()+2 ), 
   last_seen_frame( 0 * camera::frame ),
   reducer( config.reducer.make_trace_reducer() ), 
-  target(output),
   maxDist( config.distance_threshold() )
 {
     for (int i = 0; i < 2; ++i) {
@@ -212,7 +211,6 @@ Output::Output(
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());
     }
-    push_back(target->getNode());
 }
 
 Output::~Output() {
@@ -241,15 +239,15 @@ Output::announceStormSize(const Announcement &a)
     positional = Positional(sizes);
     while ( int(tracking.size()) < track_modulo )
         tracking.push_back( new TrackingInformation() );
-    AdditionalData childData = target->announceStormSize(my_announcement);
+    AdditionalData childData = Filter::announceStormSize(my_announcement);
     Output::check_additional_data_with_provided
-        ( simparm::Object::name, AdditionalData().set_cluster_sources(),
+        ( Config::get_name(), AdditionalData().set_cluster_sources(),
             childData );
     return AdditionalData();
 }
 
 Output::RunRequirements Output::announce_run(const RunAnnouncement & a) {
-    return target->announce_run(a);
+    return Filter::announce_run(a);
 }
 
 struct Output::lowest_mahalanobis_distance
@@ -381,15 +379,14 @@ void Output::finalizeImage(int imNum) {
     }
 
     data.emissions.clear();
-    target->receiveLocalizations(er);
+    Filter::receiveLocalizations(er);
 }
 
 void Output::store_results_( bool success ) {
     for (int i = track_modulo+2; i >= 0; --i)
         if ( last_seen_frame >= i * frame )
             finalizeImage( last_seen_frame.value() - i );
-    if ( target.get() != NULL )
-        target->store_results( success );
+    Filter::store_children_results( success );
 }
 
 std::auto_ptr<dStorm::output::OutputSource> create()

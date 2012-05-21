@@ -20,7 +20,7 @@ namespace viewer {
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
 class Viewer : public Status,
-               public output::OutputObject,
+               public output::Output,
                public simparm::Node::Callback
 {
   public:
@@ -49,6 +49,7 @@ class Viewer : public Status,
     void writeToFile(const std::string& name);
 
   private:
+    boost::optional< simparm::NodeRef > ui;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;
     Engine* repeater;
@@ -57,6 +58,7 @@ class Viewer : public Status,
     void store_results_( bool job_successful );
     void adapt_to_changed_config();
     void save_density_map();
+    void attach_ui_( simparm::Node& );
 };
 
 }

@@ -31,7 +31,7 @@ send "in $normaljob in CloseJob in value set 1\n"
 expect -re "remove $normaljob" { pass "$test"; }
 
 set test "Mirrored job finishes"
-send "in $mirrorjob in Crankshaft in Output2 in ProgressMeter in Progress in value query\n"
+send "in $mirrorjob in Output2 in Progress in value query\n"
 expect {
     -re "in $mirrorjob \[^\n\]* in Progress in value value set 1" { pass "$test"; }
     -re "in $mirrorjob \[^\n\]* in Progress in value set 1" { pass "$test"; }

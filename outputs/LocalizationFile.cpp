@@ -43,7 +43,7 @@ class Config {
     }
 };
 
-class Output : public output::OutputObject {
+class Output : public output::Output {
   private: 
     std::string filename;
     std::auto_ptr<std::ofstream> fileKeeper;
@@ -154,8 +154,7 @@ void Output::store_results_( bool ) {
 }
 
 Output::Output(const Config &c) 
-: OutputObject("LocalizationFile", "File output status"),
-  filename(c.outputFile()),
+: filename(c.outputFile()),
   file(NULL),
   xyztI_format( c.xyztI() )
 {

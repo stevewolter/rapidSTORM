@@ -23,7 +23,7 @@ namespace output {
 
 /** The AverageImage class averages all incoming images into a
   *  single image to show the usefulness of dSTORM. */
-class AverageImage : public OutputObject {
+class AverageImage : public Output {
   private:
     std::string filename;
     typedef dStorm::Image<unsigned long,2> Image;
@@ -72,8 +72,7 @@ AverageImage::Config::Config()
 }
 
 AverageImage::AverageImage( const Config &config )
-: OutputObject("AverageImage", "Image averaging status"),
-  filename(config.outputFile()) {}
+: filename(config.outputFile()) {}
 
 AverageImage* AverageImage::clone() const 
     { return new AverageImage(*this); }

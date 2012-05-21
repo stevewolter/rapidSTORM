@@ -17,24 +17,21 @@ namespace expression {
 
 Source::Source( const Config& config, std::auto_ptr<output::Output> downstream ) 
 : output::Filter(downstream),
-  Object("Expression", "Expression") ,
   command_lines( config.lines ),
   simple_filters( config.simple ),
   parser( config.parser ),
   repeater( NULL )
 {
-    registerNamedEntries();
 }
 
 Source::Source( const Source& o )
-: Filter(o), Object(o), 
+: Filter(o), 
   command_lines( o.command_lines ),
   simple_filters( o.simple_filters ),
   expressions(),
   parser( o.parser ),
   repeater(o.repeater)
 {
-    registerNamedEntries();
 }
 
 Source::~Source() {
@@ -43,12 +40,16 @@ Source::~Source() {
         boost::bind( &config::CommandLine::set_manager, _1, static_cast<config::ExpressionManager*>(NULL) ) );
 }
 
-void Source::registerNamedEntries() {
+void Source::attach_ui_( simparm::Node& at ) {
     simple_filters.set_manager( this );
     std::for_each( command_lines.begin(), command_lines.end(),
         boost::bind( &config::CommandLine::set_manager, _1, this ) );
 
-    push_back( Filter::getNode() );
+    simple_filters.attach_ui( at );
+    std::for_each( command_lines.begin(), command_lines.end(),
+        boost::bind( &config::CommandLine::attach_ui, _1, boost::ref(at) ) );
+
+    Filter::attach_children_ui( at );
 }
 
 Source::AdditionalData Source::announceStormSize(const Announcement& a)

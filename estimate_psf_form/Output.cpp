@@ -27,8 +27,7 @@ const int GUI::tile_rows;
 const int GUI::tile_cols;
 
 Output::Output(const Config& c)
-: OutputObject("FitPSFForm", "PSF Form estimation"),
-  config(c),
+: config(c),
   engine(NULL),
   visual_select( c.visual_selection() ),
   result_config( traits::PlaneConfig::PSFDisplay ),
@@ -39,13 +38,17 @@ Output::Output(const Config& c)
     if ( ! config.z_is_truth() && config.fit_focus_plane() )
         throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
-    result_config.registerNamedEntries();
     fit.viewable = false;
     collection.userLevel = simparm::Object::Beginner;
     fit.userLevel = simparm::Object::Beginner;
+}
 
-    push_back( collection );
-    push_back( fit );
+void Output::attach_ui_( simparm::Node& at ) {
+    current_ui = at;
+
+    result_config.registerNamedEntries();
+    collection.attach_ui( at );
+    fit.attach_ui( at );
 }
 
 Output::~Output() {
@@ -190,10 +193,11 @@ void Output::do_the_fit() {
         ( new input::Traits< engine::ImageStack >(*input->traits) );
     fitter->fit(*new_traits, fit);
 
+    assert( current_ui );
     result_config.read_traits( *new_traits );
-    if ( ! this->isActive() )
+    if ( ! current_ui->isActive() )
         new_traits->print_psf_info( std::cerr << "Auto-guessed PSF has " ) << std::endl;
-    push_back( result_config );
+    result_config.attach_ui( *current_ui );
 
     DEBUG("Signalling restart");
     engine->change_input_traits( std::auto_ptr< input::BaseTraits >(new_traits.release()) );

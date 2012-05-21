@@ -17,7 +17,7 @@ Factory::make( const engine::JobInfo& info )
 {
     check_configuration( info );
     return std::auto_ptr<engine::spot_fitter::Implementation>(
-        new Fitter( info, *this) );
+        new Fitter( info, config) );
 }
 
 void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
@@ -36,25 +36,25 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
         traits.position().range().z().second = upper( z_range );
     }
 
-    traits.psf_width().is_given.fill( output_sigmas() );
+    traits.psf_width().is_given.fill( config.output_sigmas() );
     traits.position().is_given.head<2>().fill( true );
     traits.position().is_given[2] = have_z_information;
     traits.amplitude().is_given= true;
     traits.fit_residues().is_given= true;
     traits.local_background().is_given = (info.traits.plane_count() < 1);
     traits.fluorophore().is_given = true;
-    traits.two_kernel_improvement().is_given= two_kernel_fitting();
+    traits.two_kernel_improvement().is_given= config.two_kernel_fitting();
 
-    laempi_fit.viewable = info.traits.plane_count() > 1;
-    disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
+    config.laempi_fit.viewable = info.traits.plane_count() > 1;
+    config.disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
 
     bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
     traits.source_traits.clear();
     if ( info.traits.plane_count() > 1 ) {
         boost::shared_ptr< input::Traits<Localization> > p( new input::Traits<Localization>() );
         p->local_background().is_given = true;
-        p->amplitude().is_given = disjoint_amplitudes();
-        p->position().is_given.head<2>().fill( laempi_fit() );
+        p->amplitude().is_given = config.disjoint_amplitudes();
+        p->position().is_given.head<2>().fill( config.laempi_fit() );
         p->repetitions = info.traits.plane_count();
         for (int i = 0; i < info.traits.plane_count(); ++i ) {
             bool have_uncertainty = can_compute_uncertainty( info.traits.plane(i) );
@@ -78,10 +78,10 @@ void Factory::set_requirements( input::Traits<engine::ImageStack>& ) {}
 
 void Factory::register_trait_changing_nodes( simparm::Listener& l )
 {
-    l.receive_changes_from( free_sigmas.value );
-    l.receive_changes_from( output_sigmas.value );
-    l.receive_changes_from( laempi_fit.value );
-    l.receive_changes_from( disjoint_amplitudes.value );
+    l.receive_changes_from( config.free_sigmas.value );
+    l.receive_changes_from( config.output_sigmas.value );
+    l.receive_changes_from( config.laempi_fit.value );
+    l.receive_changes_from( config.disjoint_amplitudes.value );
 }
 
 void Factory::check_configuration( 
@@ -91,14 +91,14 @@ void Factory::check_configuration(
     for (int i = 0; i < info.traits.plane_count(); ++i)
         spectral_unmixing = spectral_unmixing && std::abs( info.traits.optics(i)
             .transmission_coefficient(info.fluorophore) ) > 0.01;
-    if ( laempi_fit() && ! spectral_unmixing )
+    if ( config.laempi_fit() && ! spectral_unmixing )
         throw std::runtime_error("You asked for a Lämpi fit, but some "
             "transmission coefficients are zero. This will not work.");
-    if ( disjoint_amplitudes() && ! spectral_unmixing )
+    if ( config.disjoint_amplitudes() && ! spectral_unmixing )
         throw std::runtime_error("You asked for a disjoint amplitude fit, but "
             "some transmission coefficients are zero. This will not work.");
 
-    if ( free_sigmas() && two_kernel_fitting() ) {
+    if ( config.free_sigmas() && config.two_kernel_fitting() ) {
         throw std::runtime_error(
             "You have requested both free sigma fitting and two kernel fitting. "
             "This is madness. This is not Sparta. Please disable one of these "
@@ -109,17 +109,17 @@ void Factory::check_configuration(
             "You have requested more input layers than hell has circles. "
             "Sorry, this is not implemented. Please send a bug report, "
             "a photo of your setup and of the poor lad who had to calibrate it.");
-    if ( laempi_fit() && two_kernel_fitting() ) {
+    if ( config.laempi_fit() && config.two_kernel_fitting() ) {
         /* Note: If for some dirty reason this needs to be implemented, be sure to
         * also fix the bitfield construction in NaiveFitter::NaiveFitter */
-        throw std::runtime_error("Enabling " + laempi_fit.getDesc() + " and " +
-            two_kernel_fitting.getDesc() + " at the same time doesn't work, sorry");
+        throw std::runtime_error("Enabling " + config.laempi_fit.getDesc() + " and " +
+            config.two_kernel_fitting.getDesc() + " at the same time doesn't work, sorry");
     }
-    if ( disjoint_amplitudes() && two_kernel_fitting() ) {
+    if ( config.disjoint_amplitudes() && config.two_kernel_fitting() ) {
         /* Note: If for some dirty reason this needs to be implemented, be sure to
         * also fix the bitfield construction in NaiveFitter::NaiveFitter */
-        throw std::runtime_error("Enabling " + disjoint_amplitudes.getDesc() + " and " +
-            two_kernel_fitting.getDesc() + " at the same time doesn't work, sorry");
+        throw std::runtime_error("Enabling " + config.disjoint_amplitudes.getDesc() + " and " +
+            config.two_kernel_fitting.getDesc() + " at the same time doesn't work, sorry");
     }
 
     bool can_do_mle = true;
@@ -128,8 +128,8 @@ void Factory::check_configuration(
             && info.traits.optics(i).dark_current.is_initialized() 
             && info.traits.optics(i).photon_response.is_initialized() ;
     }
-    if ( ! can_do_mle && mle_fitting() ) {
-        throw std::runtime_error("Enabling " + mle_fitting.getDesc() + " requires "
+    if ( ! can_do_mle && config.mle_fitting() ) {
+        throw std::runtime_error("Enabling " + config.mle_fitting.getDesc() + " requires "
             "that you have set the dark intensity and the photon response for all "
             "layers");
     }

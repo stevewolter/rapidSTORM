@@ -1,4 +1,5 @@
 #include "TraceFilter.h"
+#include <dStorm/output/Filter.h>
 #include <dStorm/Engine.h>
 #include <numeric>
 #include <boost/bind/bind.hpp>
@@ -8,14 +9,13 @@ namespace dStorm {
 using namespace output;
 namespace outputs {
 
-class TraceCountFilter : public output::OutputObject,
+class TraceCountFilter : public output::Filter,
                          public simparm::Node::Callback
 {
   private:
     EngineResult localizations;
     int minCount;
     bool disassemble;
-    std::auto_ptr< output::Output > output;
 
     simparm::BoolEntry selectSpecific;
     simparm::Entry<unsigned long> whichSpecific;
@@ -31,6 +31,7 @@ class TraceCountFilter : public output::OutputObject,
     TraceCountFilter& operator=(const TraceCountFilter&);
 
     void store_results_( bool success );
+    void attach_ui_( simparm::Node& );
 
   public:
     TraceCountFilter(const TraceCountConfig& config,
@@ -39,13 +40,9 @@ class TraceCountFilter : public output::OutputObject,
     TraceCountFilter* clone() const 
         { throw std::runtime_error("No TraceCountFilter::clone"); }
 
-    void check_for_duplicate_filenames
-            (std::set<std::string>& present_filenames) 
-        { output->check_for_duplicate_filenames(present_filenames); }
-
     AdditionalData announceStormSize(const Announcement &a) ;
     RunRequirements announce_run(const RunAnnouncement& a) 
-        { processed_locs = 0; return output->announce_run(a); }
+        { processed_locs = 0; return Filter::announce_run(a); }
 
     void receiveLocalizations(const EngineResult& e);
 };
@@ -54,19 +51,22 @@ TraceCountFilter::TraceCountFilter(
     const TraceCountConfig& c,
     std::auto_ptr<output::Output> output
 ) 
-: output::OutputObject("TraceFilter", "Trace filter"),
+: Filter(output),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   minCount(c.min_count()), 
-    disassemble(c.disassemble()), output(output),
+    disassemble(c.disassemble()), 
     selectSpecific(c.selectSpecific),
     whichSpecific(c.whichSpecific),
     engine(NULL)
 {  
+}
+
+void TraceCountFilter::attach_ui_( simparm::Node& at ) {
     receive_changes_from( this->selectSpecific.value );
     receive_changes_from( this->whichSpecific.value );
-    push_back(this->selectSpecific);
-    push_back(this->whichSpecific);
-    push_back(this->output->getNode()); 
+    this->selectSpecific.attach_ui( at );
+    this->whichSpecific.attach_ui( at );
+    Filter::attach_children_ui( at ); 
 }
 
 int TraceCountFilter::count_localizations_in
@@ -110,13 +110,14 @@ TraceCountFilter::announceStormSize(const Announcement &a)
         receive_changes_from( whichSpecific.value );
     }
     processed_locs = 0;
-    return output->announceStormSize(a).set_cluster_sources();
+    AdditionalData rv = Filter::announceStormSize(a);
+    return rv.set_cluster_sources();
 }
 
 void TraceCountFilter::store_results_( bool success ) { 
     if ( selectSpecific() )
         whichSpecific.max = processed_locs;
-    output->store_results( success ); 
+    Filter::store_children_results( success ); 
 }
 
 void TraceCountFilter::receiveLocalizations(const EngineResult& e)
@@ -133,7 +134,7 @@ void TraceCountFilter::receiveLocalizations(const EngineResult& e)
             
     EngineResult eo(e);
     std::swap( eo, localizations );
-    output->receiveLocalizations(eo);
+    Filter::receiveLocalizations(eo);
 }
 
 TraceCountConfig::TraceCountConfig()

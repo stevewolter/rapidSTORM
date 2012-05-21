@@ -14,10 +14,10 @@ set job [get_job_number]
 
 set test "Circular PSF size estimation works"
 expect {
-    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in $job declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
 }
-set optics_path "in $job in FitPSFForm in Optics"
+set optics_path "in $job in Optics"
 set test "Circular PSF Estimation gives reasonable results"
 set psf [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","]
 pass_if [expr [lindex $psf 0] < 350 && [lindex $psf 0] > 250 && [lindex $psf 0] == [lindex $psf 1]] "$test"; 
@@ -27,10 +27,10 @@ send "in Car in Output in EngineOutput in Output0 in FitPSFForm in CircularPSF i
 send "in Car set Run value set 1\n"
 set job [get_job_number]
 expect {
-    -re "in FitPSFForm declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in $job declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
 }
-set optics_path "in $job in FitPSFForm in Optics"
+set optics_path "in $job in Optics"
 set test "Non-Circular PSF Estimation gives reasonable results"
 set psf [split [get_value "$optics_path in InputLayer0 in ThreeD in No3D in PSF in value"] ","]
 pass_if [expr [lindex $psf 0] < 400 && [lindex $psf 0] > 200 && [lindex $psf 1] < 400 && [lindex $psf 1] > 200 && [lindex $psf 0] != [lindex $psf 1]] "$test"; 

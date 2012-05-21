@@ -19,14 +19,13 @@ namespace outputs {
 template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
     (std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop)
-    : OutputObject("BinnedLocalizations", ""),
-        crop(crop), strategy(strategy)
+    : crop(crop), strategy(strategy)
     {}
 
 template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
     (const BinnedLocalizations& o)
-: OutputObject(o), crop(o.crop), base_image(o.base_image),
+: crop(o.crop), base_image(o.base_image),
   announcement( 
     (o.announcement.get() == NULL )
         ? NULL : new Announcement(*o.announcement) ),

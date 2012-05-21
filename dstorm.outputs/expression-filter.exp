@@ -27,13 +27,13 @@ expect {
 }
 
 set test "Can change LValue to one with same type"
-send "cmd 148 in $job in Expression in CommandLine0 in LValue in value set posx\n"
+send "cmd 148 in $job in CommandLine0 in LValue in value set posx\n"
 expect { 
     -re "ack 148" { pass "$test" }
 }
 
 set test "Old maximum range stays in effect when lvalue changes"
-send "in $job in Expression in CommandLine0 in Expression in value set posx\n"
+send "in $job in CommandLine0 in Expression in value set posx\n"
 set current 0
 expect {
     -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
@@ -42,7 +42,7 @@ expect {
 
 set test "Value count is reduced when scaling"
 set current 10000000
-send "in $job in Expression in CommandLine0 in Expression in value set posx*5\n"
+send "in $job in CommandLine0 in Expression in value set posx*5\n"
 expect {
     -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
     -re "in Progress in value set 1" { xpass_if [ expr $current == 220 ] "$test"; }
@@ -50,7 +50,7 @@ expect {
 
 set test "Value count is reduced when shifting by time"
 set current 10000000
-send "in $job in Expression in CommandLine0 in Expression in value set posx*5-frame*nm/fr\n"
+send "in $job in CommandLine0 in Expression in value set posx*5-frame*nm/fr\n"
 expect {
     -re "in LocalizationCount in value set (\[0-9\]*)" { set current $expect_out(1,string); exp_continue; }
     -re "in Progress in value set 1" { xpass_if [ expr $current == 6109 ] "$test"; }
@@ -58,13 +58,13 @@ expect {
 
 set test "Error is raised when units mismatch in subtraction"
 set current 10000000
-send "in $job in Expression in CommandLine0 in Expression in value set posx*5-frame\n"
+send "in $job in CommandLine0 in Expression in value set posx*5-frame\n"
 expect {
     -re "Cannot subtract quantities with units m and fr" { pass "$test" }
 }
 set test "Error is raised when units mismatch in assignment"
 set current 10000000
-send "in $job in Expression in CommandLine0 in Expression in value set posx*5/m*fr-frame\n"
+send "in $job in CommandLine0 in Expression in value set posx*5/m*fr-frame\n"
 expect {
     -re "Cannot assign a quantity with dimension fr to a variable with dimension m" { pass "$test" }
 }

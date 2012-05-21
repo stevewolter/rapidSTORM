@@ -48,7 +48,7 @@ class Configuration {
     }
 };
 
-class Output : public output::OutputObject {
+class Output : public output::Output {
 private:
     class SigmaPair {
         quantity<si::length> z;
@@ -129,9 +129,8 @@ private:
 
 public:
     Output(const Configuration &c) 
-        : OutputObject(Configuration::get_name(), Configuration::get_description()),
-          config(c) {}
-    Output* clone() const { throw std::runtime_error(getDesc() + " cannot be copied"); }
+        : config(c) {}
+    Output* clone() const { throw std::runtime_error("SigmaCurve cannot be copied"); }
 
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();

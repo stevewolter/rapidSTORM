@@ -22,51 +22,44 @@ static std::string disambiguation(int id) {
     return ss.str();
 }
 
-class Crankshaft::Clutch : public simparm::Object {
+class Crankshaft::Clutch {
+    simparm::Object name_object;
     Output& output;
     boost::shared_ptr<Output> content;
     bool important;
   public:
     Clutch(Output& content, bool important, int id, bool man)
-        : simparm::Object(disambiguation(id), ""),
+        : name_object(disambiguation(id), ""),
           output( content ),
           content( (man) ? &content : NULL), important(important) 
         { 
             assert( &output != NULL ); 
-            this->simparm::Node::push_back( output.getNode() );
-        }
-    Clutch( const Clutch& o ) 
-        : simparm::Object(o), output(o.output),
-          content(o.content), important(o.important)
-        {
-            this->simparm::Node::push_back( output.getNode() );
         }
     ~Clutch() {}
     
     Output* operator->() { return &output; }
     Output& operator*() { return output; }
     bool isImportant() const { return important; }
+    void attach_ui( simparm::Node& at ) {
+        output.attach_ui( name_object.attach_ui( at ) );
+    }
 };
 
-Crankshaft::Crankshaft (const std::string& name) 
-: OutputObject(name, "Crankshaft"),
-  id(0)
+Crankshaft::Crankshaft () 
+: id(0)
 {
 }
 
 Crankshaft::~Crankshaft () {}
 
-void Crankshaft::_add( Output *tm, bool imp, bool man, bool front ) 
+void Crankshaft::_add( Output *tm, bool imp, bool man ) 
 {
     assert( tm != NULL );
 
     DEBUG("Crankshaft accepted transmission " << tm->getNode().getName());
     clutches.push_back( Clutch( *tm, imp, id++, man ) );
-    if ( front ) {
-        this->Node::push_front( clutches.back() );
-    }  else {
-        this->Node::push_back( clutches.back() );
-    }
+    if ( current_ui )
+        clutches.back().attach_ui( *current_ui );
 }
 
 Output::AdditionalData
@@ -117,6 +110,12 @@ void Crankshaft::prepare_destruction_() {
 void Crankshaft::run_finished_( const RunFinished& info ) {
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end();i++)
         (*i)->run_finished( info );
+}
+
+void Crankshaft::attach_ui_( simparm::Node& at ) {
+    current_ui = at;
+    for (Clutches::iterator i = clutches.begin(); i!=clutches.end(); ++i)
+        i->attach_ui( *current_ui );
 }
 
 }

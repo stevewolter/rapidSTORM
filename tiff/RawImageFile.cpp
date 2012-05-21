@@ -29,8 +29,7 @@ RawImageFile::Config::Config()
 }
 
 RawImageFile::RawImageFile(const Config& config)
-: OutputObject(Config::get_name(), Config::get_description()),
-  filename( config.outputFile() ),
+: filename( config.outputFile() ),
   tif( NULL ),
   next_image(0)
 {
@@ -54,7 +53,7 @@ RawImageFile::announceStormSize(const Announcement &a)
     } else
         throw std::runtime_error("The raw images output needs access to the raw image data, but these are not provided by the preceding modules");
 
-    TIFFOperation op("in writing TIFF file", *this, false);
+    TIFFOperation op("in writing TIFF file", *current_ui, false);
     if ( tif == NULL ) {
         DEBUG("Opening TIFF output file");
         tif = TIFFOpen( filename.c_str(), "w" );
@@ -95,12 +94,12 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
     simparm::Message m( "Out of memory while writing TIFF image",
         "The memory was exhausted while writing to the TIFF output file. The current image is dropped and not stored.",
         simparm::Message::Warning);
-    this->send( m );
+    current_ui->send( m );
     return;
   } catch ( const std::exception& e ) {
     simparm::Message m("Error in writing TIFF file",
         std::string(e.what()) + ". Disabling TIFF output for this job.");
-    this->send( m );
+    current_ui->send( m );
   }
 
     /* When errors occured, TIFFClose tends to kill the whole program
@@ -116,7 +115,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     for (int p = 0; p < img.plane_count(); ++p)
         lines += img.plane(p).height_in_pixels();
 
-    TIFFOperation op("in writing TIFF file", *this, false);
+    TIFFOperation op("in writing TIFF file", *current_ui, false);
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size[0].size.x() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(lines) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
@@ -159,7 +158,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
 void RawImageFile::store_results_( bool ) {
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
-        TIFFOperation op("in closing TIFF file", *this, false);
+        TIFFOperation op("in closing TIFF file", *current_ui, false);
         TIFFClose( tif );
         tif = NULL;
     }
@@ -168,7 +167,7 @@ void RawImageFile::store_results_( bool ) {
 RawImageFile::~RawImageFile() {
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
-        TIFFOperation op("in closing TIFF file", *this, false);
+        TIFFOperation op("in closing TIFF file", *current_ui, false);
         TIFFClose( tif );
         tif = NULL;
     }

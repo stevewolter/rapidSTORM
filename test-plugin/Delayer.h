@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 struct Delayer
-: public dStorm::output::OutputObject
+: public dStorm::output::Output
 {
     struct Config;
 
@@ -50,7 +50,6 @@ Delayer* Delayer::clone() const {
 }
 
 Delayer::Delayer( const Config& )
-    : OutputObject("Delayer", "Delayer")
 {
 }
 
