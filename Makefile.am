@@ -64,7 +64,6 @@ EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     dstorm.outputs/viewer-closed-during-job.exp \
     dstorm.outputs/expression-filter.exp \
     dstorm.outputs/form-fitter.exp \
-    dstorm.outputs/table-shows-traces-checkbox.exp \
     dstorm.outputs/localization-filter.exp \
     dstorm.outputs/viewer-supports-key-range-changes.exp \
     dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
@@ -694,8 +693,7 @@ dstorm_SOURCES += \
     locprec/relate.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
-    locprec/SourceValuePrinter.cpp locprec/SourceValuePrinter.h \
-    locprec/KalmanTrace.h locprec/DensityProfile.h \
+    locprec/KalmanTrace.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \

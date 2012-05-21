@@ -26,15 +26,12 @@ class RawImageFile : public OutputObject {
     frame_count next_image;
     void write_image(const engine::ImageStack& img);
 
-    class _Config;
-
     std::vector< image::MetaInfo<2> > size;
     boost::optional<frame_count> last_frame;
     void store_results_( bool );
 
   public:
-    typedef simparm::Structure<_Config> Config;
-    typedef FileOutputBuilder<RawImageFile> Source;
+    class Config;
 
     RawImageFile(const Config&);
     ~RawImageFile();
@@ -50,17 +47,18 @@ class RawImageFile : public OutputObject {
         { insert_filename_with_check( filename, present_filenames ); }
 };
 
-class RawImageFile::_Config : public simparm::Object {
-  protected:
-    void registerNamedEntries() {
-        push_back( outputFile );
-    }
+class RawImageFile::Config {
   public:
     BasenameAdjustedFileEntry outputFile;
 
-    _Config();
+    Config();
+    static std::string get_name() { return "RawImage"; }
+    static std::string get_description() { return "Save raw images"; }
     bool can_work_with(Capabilities cap) { 
         return cap.test( Capabilities::SourceImage ); 
+    }
+    void attach_ui( simparm::Node& at ) {
+        outputFile.attach_ui( at );
     }
 };
 

@@ -49,7 +49,7 @@ void add_modules( dStorm::Config& car_config )
     dStorm::andor_sif::augment_config( car_config );
 
     guf::augment_config( car_config );
-    car_config.add_output( output::make_output_source<estimate_psf_form::Output>() );
+    car_config.add_output( estimate_psf_form::make_output_source() );
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     AndorCamera::augment_config( car_config );

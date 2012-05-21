@@ -47,10 +47,9 @@ struct Verbose
 };
 
 struct Verbose::Config
- : public simparm::Object 
 {
-    Config();
-    void registerNamedEntries() {}
+    Config() {}
+    void attach_ui( simparm::Node& at ) {}
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
     static std::string get_name() { return "Verbose"; }

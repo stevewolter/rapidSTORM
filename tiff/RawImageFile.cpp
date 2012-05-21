@@ -23,15 +23,13 @@ void RawImageFile::error_handler( const char* module,
     tiff_error = buffer;
 }
 
-RawImageFile::_Config::_Config() 
-: simparm::Object("RawImage", "Save raw images"),
-  outputFile("ToFile", "TIF output file name",
-   ".tif")
+RawImageFile::Config::Config() 
+: outputFile("ToFile", "TIF output file name", ".tif")
 {
 }
 
 RawImageFile::RawImageFile(const Config& config)
-: OutputObject("RawImage", "Saving raw images"),
+: OutputObject(Config::get_name(), Config::get_description()),
   filename( config.outputFile() ),
   tif( NULL ),
   next_image(0)

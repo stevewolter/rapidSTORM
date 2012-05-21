@@ -11,8 +11,8 @@ namespace dStorm {
 namespace tiff { 
 
 void augment_config ( dStorm::Config& config ) {
-    config.add_output( new output::RawImageFile::Source() );
 #ifdef HAVE_TIFFIO_H
+    config.add_output( new output::FileOutputBuilder<output::RawImageFile::Config,output::RawImageFile>() );
     config.add_input( make_input(), dStorm::FileReader );
 #endif
 

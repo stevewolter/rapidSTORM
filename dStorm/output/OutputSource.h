@@ -68,9 +68,6 @@ class OutputSource
     virtual void attach_ui( simparm::Node& ) = 0;
 };
 
-template <typename OutputType>
-std::auto_ptr<OutputSource> make_output_source();
-
 }
 }
 

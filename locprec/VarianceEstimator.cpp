@@ -11,18 +11,27 @@ using namespace boost::accumulators;
 using boost::units::quantity;
 namespace si = boost::units::si;
 
+struct Config 
+{
+    simparm::Entry<std::string> tag;
+  public:
+    static std::string get_name() { return "VarianceEstimator"; }
+    static std::string get_description() { return "Estimate localization precision naively"; }
+    Config() 
+        : tag("Tag", "Tag at start of line", "Precision") {}
+    void attach_ui( simparm::Node& at ) { tag.attach_ui(at); }
+    bool can_work_with( dStorm::output::Capabilities ) { return true; }
+};
+
 class Output : public dStorm::output::OutputObject {
     typedef boost::accumulators::accumulator_set< double,
         stats< tag::count, tag::immediate_mean, tag::variance(immediate) > > Accumulator;
     Accumulator acc[3];
-    class _Config;
     const std::string tag;
 
     void store_results_( bool success );
 
   public:
-    typedef simparm::Structure<_Config> Config;
-
     Output( const Config& );
     Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
@@ -34,18 +43,6 @@ class Output : public dStorm::output::OutputObject {
 
     void check_for_duplicate_filenames
             (std::set<std::string>&) { }
-};
-
-struct Output::_Config 
-: public simparm::Object
-{
-    simparm::Entry<std::string> tag;
-  public:
-    _Config() 
-        : simparm::Object("VarianceEstimator", "Estimate variance"),
-          tag("Tag", "Tag at start of line", "Precision") {}
-    void registerNamedEntries() { userLevel = simparm::Object::Expert; push_back(tag); }
-    bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 
 Output* Output::clone() const { return new Output(*this); }
@@ -77,16 +74,9 @@ void Output::store_results_( bool success ) {
     }
 }
 
-}
-
-namespace dStorm {
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<variance_estimator::Output>()
+std::auto_ptr<dStorm::output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<OutputSource>( new dStorm::output::OutputBuilder<variance_estimator::Output>() );
+    return std::auto_ptr<dStorm::output::OutputSource>( new dStorm::output::OutputBuilder<Config,Output>() );
 }
 
-}
 }

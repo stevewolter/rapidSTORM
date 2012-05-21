@@ -101,7 +101,7 @@ void ProgressMeter::store_results_( bool success )
     progress.increment = save_increment;
 }
 
-std::auto_ptr< output::OutputSource > make_average_image_source() {
+std::auto_ptr< output::OutputSource > make_progress_meter_source() {
     return std::auto_ptr< output::OutputSource >( new OutputBuilder< ProgressMeter::Config, ProgressMeter >() );
 }
 

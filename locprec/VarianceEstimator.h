@@ -2,20 +2,12 @@
 #define LOCPREC_VARIANCEESTIMATOR_H
 
 #include <dStorm/output/OutputSource.h>
+#include <memory>
 
 namespace variance_estimator {
 
-class Output;
+std::auto_ptr<dStorm::output::OutputSource> make_output_source();
 
-}
-
-namespace dStorm {
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<variance_estimator::Output>();
-
-}
 }
 
 #endif

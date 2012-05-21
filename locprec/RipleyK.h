@@ -5,17 +5,8 @@
 
 namespace ripley_k {
 
-class Output;
+std::auto_ptr<dStorm::output::OutputSource> make_output_source();
 
-}
-
-namespace dStorm {
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<ripley_k::Output>();
-
-}
 }
 
 #endif

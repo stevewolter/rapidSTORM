@@ -17,20 +17,33 @@ using namespace dStorm::output::binning;
 using boost::units::quantity;
 namespace si = boost::units::si;
 
+struct Config 
+{
+    simparm::Entry< quantity<si::nanolength> > bin_size;
+    dStorm::output::BasenameAdjustedFileEntry outputFile;
+
+  public:
+    Config() 
+        : bin_size("BinSize", "Bin size", 5 * si::nanometre),
+          outputFile("ToFile", "Output file", "-ripley-k.txt") {}
+    void attach_ui( simparm::Node& at ) { bin_size.attach_ui(at); outputFile.attach_ui( at ); }
+    bool can_work_with( dStorm::output::Capabilities ) { return true; }
+    static std::string get_name() { return "RipleyK"; }
+    static std::string get_description() { return "Compute Ripley's K function"; }
+};
+
+
 class Output : public dStorm::output::OutputObject {
     simparm::FileEntry filename;
     typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
     boost::optional<distance_histogram::Histogram> histogram;
     boost::ptr_array< Scaler, 2 > scalers;
-    class _Config;
     const quantity<si::length> bin_size;
     quantity<si::area> measured_area;
     long int localization_count;
     void store_results_( bool success );
 
   public:
-    typedef simparm::Structure<_Config> Config;
-
     Output( const Config& );
     Output* clone() const;
     AdditionalData announceStormSize(const Announcement&);
@@ -46,21 +59,6 @@ class Output : public dStorm::output::OutputObject {
     { 
         insert_filename_with_check( filename(), present_filenames ); 
     }
-};
-
-struct Output::_Config 
-: public simparm::Object
-{
-    simparm::Entry< quantity<si::nanolength> > bin_size;
-    dStorm::output::BasenameAdjustedFileEntry outputFile;
-
-  public:
-    _Config() 
-        : simparm::Object("RipleyK", "Compute Ripley's K function"),
-          bin_size("BinSize", "Bin size", 5 * si::nanometre),
-          outputFile("ToFile", "Output file", "-ripley-k.txt") {}
-    void registerNamedEntries() { push_back( bin_size ); push_back( outputFile ); }
-    bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 
 Output* Output::clone() const { return new Output(*this); }
@@ -146,16 +144,9 @@ void Output::store_results_( bool success ) {
     }
 }
 
-}
-
-namespace dStorm {
-namespace output {
-
-template <>
-std::auto_ptr<OutputSource> make_output_source<ripley_k::Output>()
+std::auto_ptr<dStorm::output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<OutputSource>( new dStorm::output::FileOutputBuilder<ripley_k::Output>() );
+    return std::auto_ptr<dStorm::output::OutputSource>( new dStorm::output::FileOutputBuilder<Config,Output>() );
 }
 
-}
 }
