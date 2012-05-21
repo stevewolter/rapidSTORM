@@ -24,7 +24,7 @@ set passes 0
 file delete -force "$tmpdir/test-output.png"
 set next_value 5
 while { $passes < 1 } {
-    send "in $job in Output3 in Output0 in HistogramPower in value set 0.$next_value\n"
+    send "in $job in Output3 in Output0 in Output0 in HistogramPower in value set 0.$next_value\n"
     expect {
         -re "in Progress in value set 1" { pass "$test"; set passes 1; }
         -re "in HistogramPower in value set " {}

@@ -144,20 +144,10 @@ void FilterSource::set_source_capabilities( Capabilities cap ) {
 std::auto_ptr<Output> 
 FilterSource::make_output()
 {
-    if ( suboutputs.size() == 0 )
+    if ( suboutputs.size() == 0 ) {
         // TODO: Re-add help info "#NoOutputSelected"
         throw std::runtime_error(
             "No output selected for module '" + getDesc() + "'");
-    else if ( suboutputs.size() == 1 ) {
-        DEBUG(this << ": Have only a single output, calling its make_output()");
-        std::auto_ptr<Output> o = 
-            suboutputs.begin()->output().make_output();
-        DEBUG(this << " made output " << o.get());
-        if ( o.get() == NULL )
-            throw std::invalid_argument(
-                "Output for module '" + getDesc() + "' is invalid");
-        else
-            return o;
     } else {
         DEBUG(this << ": Have multiple outputs, making crankshaft");
         std::auto_ptr<outputs::Crankshaft> crankshaft

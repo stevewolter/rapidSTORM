@@ -18,8 +18,8 @@ set job [get_job_number]
 set test "Job for bug #179 can be computed"
 expect {
     -re "in Progress in value set 0.1" { 
-        send "in $job in Output2 set LowerAmplitudeThreshold value set 5000.0\n"; 
-        send "in $job in Output2 set LinearDriftCorrection value set $drift_in_pm,$drift_in_pm,0.0\n"; 
+        send "in $job in Output2 in Output0 set LowerAmplitudeThreshold value set 5000.0\n"; 
+        send "in $job in Output2 in Output0 set LinearDriftCorrection value set $drift_in_pm,$drift_in_pm,0.0\n"; 
         exp_continue;
     }
     -re "in Progress in value set 1" { pass "$test"; }

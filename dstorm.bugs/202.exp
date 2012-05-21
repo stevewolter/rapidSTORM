@@ -18,7 +18,7 @@ expect {
 }
 
 set test "#202 is fixed"
-send "in $job in Output0 in DimensionSelector in ThreeDImage in value set true\n"
+send "in $job in Output0 in Output0 in DimensionSelector in ThreeDImage in value set true\n"
 
 expect {
     -re "Could not perform action: lower and upper bound" { pass "$test"; }

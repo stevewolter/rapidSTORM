@@ -17,6 +17,6 @@ expect {
 }
 
 set test "Segfault occurs when setting drift correction"
-send "in $job in Output2 set LinearDriftCorrection value set 10.0,10.0,10.0\n"
+send "in $job in Output2 in Output0 set LinearDriftCorrection value set 10.0,10.0,10.0\n"
 
 end_test_suite

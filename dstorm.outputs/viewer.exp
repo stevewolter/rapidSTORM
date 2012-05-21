@@ -58,7 +58,7 @@ if { $display != -1 } {
 }
 
 set test "Display is marked as closed"
-send "in $job in Output3 in Output0 in ShowOutput in value query\n"
+send "in $job in Output3 in Output0 in Output0 in ShowOutput in value query\n"
 expect { 
     -re "in ShowOutput in value value set false" { pass "$test"; } 
     -re "in ShowOutput in value value set true" { fail "$test"; } 
@@ -66,7 +66,7 @@ expect {
 
 set test "Can re-open display"
 if { $display != -1 } {
-    send "in $job in Output3 in Output0 in ShowOutput in value set true\n"
+    send "in $job in Output3 in Output0 in Output0 in ShowOutput in value set true\n"
     expect {
         -re "Sizing display number (\[0-9\]*) to" { pass "$test"; set display $expect_out(1,string); }
     }

@@ -32,7 +32,7 @@ expect {
 }
 
 set test "New announcement is made"
-send "in $job in Output1 in Repeat in value set 1\n"
+send "in $job in Output0 in Output1 in Repeat in value set 1\n"
 set timeout 10
 expect {
     -re "Verbose plugin got signal Engine_is_restarted" { pass "$test" }
@@ -52,7 +52,7 @@ expect {
 }
 
 set test "Input can be repeated after job completion"
-send "in $job in Output1 in Repeat in value set 1\n"
+send "in $job in Output0 in Output1 in Repeat in value set 1\n"
 expect {
     -re "Verbose plugin got signal Engine_is_restarted" { pass "$test" }
 }

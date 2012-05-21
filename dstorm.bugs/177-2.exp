@@ -49,32 +49,32 @@ proc the_one_pixel_after_10k_locs { } {
 }
 
 set test "Colour scheme can be changed to B&W"
-send "in $job in Output0 in ColourScheme in value set BlackWhite\n"
+send "in $job in Output0 in Output0 in ColourScheme in value set BlackWhite\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] == [lindex $pixel 2] && [lindex $pixel 0] == [lindex $pixel 1] ] "$test"
 
 set test "Colour scheme can be changed to fixed red hue"
-send "in $job in Output0 in ColourScheme in value set FixedHue\n"
+send "in $job in Output0 in Output0 in ColourScheme in value set FixedHue\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] != 0 && [lindex $pixel 2] == 0] "$test"
 
 set test "Colour scheme can be changed to fixed green hue"
-send "in $job in Output0 in ColourScheme in FixedHue in Hue in value set 0.3333\n"
+send "in $job in Output0 in Output0 in ColourScheme in FixedHue in Hue in value set 0.3333\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] != 0] "$test"
 
 set test "Colour scheme can be changed to X color"
-send "in $job in Output0 in ColourScheme in value set ByCoordinate\n"
+send "in $job in Output0 in Output0 in ColourScheme in value set ByCoordinate\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] != 0 && [lindex $pixel 1] != 0 && [lindex $pixel 2] == 0] "$test"
 
 set test "Colour scheme can be changed to Y color"
-send "in $job in Output0 in ColourScheme in ByCoordinate in HueCoordinate in value set PositionY\n"
+send "in $job in Output0 in Output0 in ColourScheme in ByCoordinate in HueCoordinate in value set PositionY\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] != 0 && [lindex $pixel 2] != 0] "$test"
 
 set test "Pixel size can be changed"
-send "in $job in Output0 in DimensionSelector in XDimension in PositionX in XResolution in value set 23\n"
+send "in $job in Output0 in Output0 in DimensionSelector in XDimension in PositionX in XResolution in value set 23\n"
 expect {
     -re "Sizing display number \[0-9\]+ to 608 px 1260 px" { pass "$test"; }
 }
@@ -82,12 +82,12 @@ expect {
 # Changing the X binning to PositionY should force the key pixel to get black
 # because all localizations are on the diagonal then
 set test "Binning in X can be changed"
-send "in $job in Output0 in DimensionSelector in XDimension in value set PositionY\n"
+send "in $job in Output0 in Output0 in DimensionSelector in XDimension in value set PositionY\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] == 0 && [lindex $pixel 2] == 0] "$test"
 
 set test "Inversion can be changed"
-send "in $job in Output0 in InvertColours in value set true\n"
+send "in $job in Output0 in Output0 in InvertColours in value set true\n"
 set pixel [the_one_pixel_after_10k_locs]
 pass_if [expr [lindex $pixel 0] == 255 && [lindex $pixel 1] == 255 && [lindex $pixel 2] == 255] "$test"
 
