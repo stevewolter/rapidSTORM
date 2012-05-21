@@ -20,7 +20,7 @@ static const char *axis_names[] = { "X axis", "Y axis", "Z axis" };
 
 template <int Dim>
 DimensionSelector<Dim>::DimensionSelector()
-: simparm::Object("DimensionSelector", "Select dimensions to bin"),
+: name_object("DimensionSelector", "Select dimensions to bin"),
   invert_y_axis("InvertYAxis", "Y zero at bottom"),
   use_z_axis("ThreeDImage", "Make 3D image")
 {
@@ -28,16 +28,12 @@ DimensionSelector<Dim>::DimensionSelector()
     for (int i = 0; i < Dim; ++i) {
         components.replace( i, new output::binning::FieldChoice(std::string(axis_idents[i]) + "Dimension", axis_names[i], 
             output::binning::ScaledByResolution, std::string(axis_idents[i])) );
-        push_back( components[i] );
     }
     components.replace( Dim, new output::binning::FieldChoice("IDimension", "Intensity", output::binning::IsUnscaled, "I") );
     components[Dim].addChoice( dStorm::output::binning::make_constant_binner_config() );
-    push_back( components[Dim] );
-    push_back( invert_y_axis );
     if ( Dim > 2 ) {
         components[2].choose( "PositionZ" );
         components[2].userLevel = simparm::Object::Intermediate;
-        push_back( use_z_axis );
     }
 
     components[0].choose( "PositionX" );
@@ -51,19 +47,18 @@ DimensionSelector<Dim>::DimensionSelector()
 }
 
 template <int Dim>
-DimensionSelector<Dim>::DimensionSelector(const DimensionSelector& o) 
-: simparm::Object(o), invert_y_axis(o.invert_y_axis), use_z_axis(o.use_z_axis)
-{
-    for (int i = 0; i < Dim+1; ++i) {
-        components.replace(i,  o.components[i].clone() );
-        push_back( components[i] );
-    }
-    push_back( invert_y_axis );
-    push_back( use_z_axis );
-}
+DimensionSelector<Dim>::~DimensionSelector() {}
 
 template <int Dim>
-DimensionSelector<Dim>::~DimensionSelector() {}
+void DimensionSelector<Dim>::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef r = name_object.attach_ui( at );
+    for (int i = 0; i < Dim+1; ++i) {
+        components[i].attach_ui( r );
+    }
+    invert_y_axis.attach_ui( r );
+    if ( Dim > 2 ) 
+        use_z_axis.attach_ui( r );
+}
 
 template <int Dim>
 void DimensionSelector<Dim>::init() {

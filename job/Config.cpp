@@ -38,20 +38,21 @@ using namespace std;
 namespace dStorm {
 namespace job {
 
-class Config::TreeRoot : public simparm::Object, public output::FilterSource
+class Config::TreeRoot : public output::FilterSource
 {
+    simparm::Object name_object;
     output::Config* my_config;
     output::Capabilities cap;
 
-    std::string getName() const { return simparm::Object::getName(); }
-    std::string getDesc() const { return simparm::Object::desc(); }
+    std::string getName() const { return name_object.getName(); }
+    std::string getDesc() const { return name_object.desc(); }
     void attach_ui( simparm::Node& ) { throw std::logic_error("Not implemented on tree base"); }
 
   public:
     TreeRoot();
     TreeRoot( const TreeRoot& other )
-    : simparm::Object(other),
-      output::FilterSource( other)
+    : output::FilterSource( other),
+      name_object(other.name_object)
     {
         DEBUG("Copying output tree root");
         this->set_output_factory( *other.my_config );
@@ -73,14 +74,14 @@ class Config::TreeRoot : public simparm::Object, public output::FilterSource
     }
 
     void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = simparm::Object::attach_ui(at);
+        simparm::NodeRef r = name_object.attach_ui(at);
         attach_source_ui( r ); 
     }
 };
 
 Config::TreeRoot::TreeRoot()
-: simparm::Object("EngineOutput", "dSTORM engine output"),
-  output::FilterSource(),
+: output::FilterSource(),
+  name_object("EngineOutput", "dSTORM engine output"),
   cap( output::Capabilities()
             .set_source_image()
             .set_smoothed_image()

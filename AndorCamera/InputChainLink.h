@@ -13,6 +13,7 @@
 #include <dStorm/output/Basename.h>
 #include <dStorm/image/MetaInfo.h>
 #include <boost/signals2/connection.hpp>
+#include <simparm/NodeHandle.hh>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -25,9 +26,11 @@ struct Display;
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::Terminus, public simparm::Object, public simparm::Node::Callback
+: public dStorm::input::Terminus, public simparm::Node::Callback
 {
   private:
+    simparm::Object name_object;
+    simparm::NodeHandle current_ui;
     boost::mutex active_selector_mutex;
     boost::condition_variable active_selector_changed;
     std::auto_ptr<Display> active_selector;
@@ -40,8 +43,6 @@ class Method
     std::auto_ptr< boost::signals2::scoped_connection > resolution_listener, 
                                                           basename_listener;
 
-    void registerNamedEntries();
-
     void operator()( const simparm::Event& );
     void resolution_changed( const image::MetaInfo<2>::Resolutions& );
     void basename_changed( const dStorm::output::Basename& );
@@ -52,11 +53,10 @@ class Method
     virtual ~Method();
     Method* clone() const { return new Method(*this); }
 
-    simparm::Node& getNode() { return *this; }
     dStorm::input::BaseSource* makeSource() ;
-    void registerNamedEntries( simparm::Node& n ) { n.push_back( *this ); }
-    std::string name() const { return getName(); }
-    std::string description() const { return getDesc(); }
+    void registerNamedEntries( simparm::Node& n );
+    std::string name() const { return name_object.getName(); }
+    std::string description() const { return name_object.getDesc(); }
     void publish_meta_info();
 
     bool uses_input_file() const { return false; }

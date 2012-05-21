@@ -38,7 +38,7 @@ class ChainLink
     }
 
   public:
-    simparm::Structure<Config> config;
+    Config config;
 
     void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
     static std::string getName() { return "VerboseInput"; }

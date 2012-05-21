@@ -30,6 +30,7 @@
 #include <simparm/Structure.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/NodeHandle.hh>
+#include <simparm/IO.hh>
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/Image.h>
@@ -101,13 +102,13 @@ class ChainLink
 
     ChainLink* clone() const { return new ChainLink(*this); }
     BaseSource* makeSource();
+    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
 
     private:
-    simparm::Structure<Config> config;
+    Config config;
     friend class input::FileInput<ChainLink,OpenFile>;
     OpenFile* make_file( const std::string& ) const;
     void modify_meta_info( MetaInfo& info );
-    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
     static std::string getName() { return "TIFF"; }
 
     protected:
@@ -205,7 +206,7 @@ Source::end() {
 }
 
 Config::Config()
-: simparm::Object("TIFF", "TIFF file"),
+: name_object("TIFF", "TIFF file"),
   ignore_warnings("IgnoreLibtiffWarnings",
     "Ignore libtiff warnings", true),
   determine_length("DetermineFileLength",
@@ -245,7 +246,9 @@ void ChainLink::operator()(const simparm::Event& e) {
 }
 
 static void unit_test() {
+    simparm::IO dummy_ui(NULL,NULL);
     ChainLink l;
+    l.attach_ui( dummy_ui );
     l.publish_meta_info();
     BOOST_REQUIRE( l.current_meta_info().get() );
     BOOST_CHECK( l.current_meta_info()->provides_nothing() );
@@ -267,7 +270,7 @@ void ChainLink::modify_meta_info( MetaInfo& i ) {
 OpenFile* ChainLink::make_file( const std::string& n ) const
 {
     DEBUG( "Creating file structure for " << n );
-    return new OpenFile( n, config, const_cast<simparm::Node&>(static_cast<const simparm::Node&>(config)) );
+    return new OpenFile( n, config, config.current_user_interface() );
 }
 
 std::auto_ptr< input::Link > make_input()

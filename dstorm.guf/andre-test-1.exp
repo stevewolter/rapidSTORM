@@ -10,8 +10,6 @@ send "in Car in Input set MultiChannel in Channels in Channel1 in InputMethod in
 send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}2-20110413_20110407_MT-Al647-700_adjratio_300mM-MEA_Dich710_UV_0\n"
 set_last_image 100
 send "in Car in Input in SampleInfo set FluorophoreCount value set 2\n"
-send "in Car in Input in SampleInfo in Fluorophore0 in Description value set Alexa 647\n"
-send "in Car in Input in SampleInfo in Fluorophore1 in Description value set Alexa 700\n"
 send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
 send "in Car set Engine in rapidSTORM set AmplitudeThreshold in value set 3000\n"
 send "in Car set Engine in rapidSTORM set SpotFindingMethod value set Median\n"

@@ -4,7 +4,6 @@
 #include <simparm/BoostUnits.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry_Impl.hh>
-#include <simparm/Structure.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>
@@ -26,14 +25,16 @@
 namespace dStorm {
 namespace ROIFilter {
 
-struct Config : public simparm::Object {
+struct Config {
+    simparm::Object name_object;
     IntFrameEntry first_frame;
     simparm::Entry< boost::optional< frame_index > > last_frame;
 
     Config();
-    void registerNamedEntries() { 
-        push_back( first_frame ); 
-        push_back( last_frame ); 
+    void attach_ui( simparm::Node& at ) {
+        simparm::NodeRef r = name_object.attach_ui(at);
+        first_frame.attach_ui( r ); 
+        last_frame.attach_ui( r ); 
     }
 };
 
@@ -140,8 +141,7 @@ class ChainLink
 {
     friend class input::Method<ChainLink>;
 
-    simparm::Structure<Config> config;
-    simparm::Structure<Config>& get_config() { return config; }
+    Config config;
     void operator()( const simparm::Event& );
 
     typedef Localization::ImageNumber::Traits TemporalTraits;
@@ -181,7 +181,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object(ChainLink::getName(), "Image selection filter"),
+: name_object(ChainLink::getName(), "Image selection filter"),
   first_frame("FirstImage", "First image to load"),
   last_frame( "LastImage", "Last image to load" )
 {

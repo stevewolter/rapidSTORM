@@ -25,8 +25,8 @@ using namespace boost::units;
 
 Method::Method()  
 : Terminus(),
-  simparm::Object("AndorDirectConfig", "Direct camera control"),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
+  name_object("AndorDirectConfig", "Direct camera control"),
   select_ROI("AimCamera","Select ROI"),
   view_ROI("ViewCamera","View ROI only"),
   show_live_by_default("ShowLiveByDefault",
@@ -35,35 +35,33 @@ Method::Method()
 {
     DEBUG("Making AndorDirect config " << this);
 
-    show_live_by_default.userLevel = Object::Expert;
-    
-    DEBUG("Receiving attach event");
-    registerNamedEntries();
+    show_live_by_default.userLevel = simparm::Object::Expert;
 }
 
 Method::Method(const Method &c) 
-: Terminus(c), simparm::Object(c),
+: Terminus(c), 
   simparm::Node::Callback( simparm::Event::ValueChanged ),
+  name_object(c.name_object),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),
   resolution(c.resolution), basename(c.basename),
   show_live_by_default( c.show_live_by_default )
 {
     DEBUG( this << " copied resolution " << resolution[0].is_initialized() << " from " << &c );
-    registerNamedEntries();
     DEBUG("Copied AndorDirect Config");
 }
 
 Method::~Method() {
 }
 
-void Method::registerNamedEntries() {
+void Method::registerNamedEntries( simparm::Node& at ) {
     receive_changes_from(select_ROI.value);
     receive_changes_from(view_ROI.value);
 
-    push_back(select_ROI);
-    push_back(view_ROI);
-    push_back( show_live_by_default );
+    current_ui = name_object.attach_ui( at );
+    select_ROI.attach_ui( *current_ui );
+    view_ROI.attach_ui( *current_ui );
+    show_live_by_default.attach_ui( *current_ui );
 }
 
 void Method::basename_changed( const dStorm::output::Basename& bn ) {
@@ -116,7 +114,8 @@ void Method::set_display( std::auto_ptr< Display > d )
     if ( active_selector.get() ) {
         active_selector->resolution_changed( resolution );
         active_selector->basename_changed( basename );
-        this->simparm::Node::push_back( *active_selector );
+        if ( current_ui )
+            active_selector->attach_ui( *current_ui );
     }
 
     select_ROI.viewable = (active_selector.get() == NULL);

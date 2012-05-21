@@ -3,22 +3,25 @@
 
 #include <dStorm/log.h>
 #include <dStorm/input/AdapterSource.h>
-#include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
 #include <boost/iterator/iterator_adaptor.hpp>
 
 namespace VerboseInputFilter {
 
-struct Config : public simparm::Object {
+struct Config {
+    simparm::Object name_object;
     simparm::BoolEntry verbose;
-    Config() : Object("VerboseInput", "Verbose input filter"), 
+    Config() : name_object("VerboseInput", "Verbose input filter"), 
                verbose("BeVerbose", "Be verbose") {}
-    void registerNamedEntries() { push_back(verbose); }
+    void attach_ui( simparm::Node& at ) {
+        verbose.attach_ui( name_object.attach_ui( at ) );
+    }
 };
 
 template <typename Type>
-class Source : public Config, public dStorm::input::AdapterSource<Type> {
+class Source : public dStorm::input::AdapterSource<Type> {
+    Config config;
     typedef typename dStorm::input::Source<Type>::iterator iterator;
     class _iterator 
       : public boost::iterator_adaptor<_iterator, iterator>
@@ -37,7 +40,7 @@ class Source : public Config, public dStorm::input::AdapterSource<Type> {
     void attach_local_ui_( simparm::Node& ) {}
   public:
     Source(const Config& c, std::auto_ptr< dStorm::input::Source<Type> > base) 
-        : Config(c), dStorm::input::AdapterSource<Type>(base) {}
+        : dStorm::input::AdapterSource<Type>(base), config(c) {}
     iterator begin() { return iterator(_iterator(this->base().begin())); }
     iterator end() { return iterator(_iterator(this->base().end())); }
 };

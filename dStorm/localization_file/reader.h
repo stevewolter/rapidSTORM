@@ -50,7 +50,7 @@ namespace Reader {
     };
 
     class Source 
-    : public simparm::Object, public input::Source<localization::Record>
+    : public input::Source<localization::Record>
     {
       public:
         class iterator;
@@ -61,7 +61,7 @@ namespace Reader {
         std::auto_ptr<output::TraceReducer> reducer;
 
         void dispatch(Messages m) { assert( ! m.any() ); }
-        void attach_ui_(simparm::Node& n ) { simparm::Object::attach_ui(n); }
+        void attach_ui_(simparm::Node& ) {}
 
       public:
         Source(const File& file, std::auto_ptr<output::TraceReducer>);
@@ -72,18 +72,23 @@ namespace Reader {
         Capabilities capabilities() const { return Capabilities().set( Repeatable ); }
     };
 
-    struct Config 
-    : public simparm::Object
+    class Config 
     {
+        simparm::Object name_object;
         output::TraceReducer::Config trace_reducer;
+    public:
         Config();
-        void registerNamedEntries() { push_back( trace_reducer ); }
+        void attach_ui( simparm::Node& at ) { 
+            trace_reducer.attach_ui( name_object.attach_ui( at ) );
+        }
+        std::auto_ptr<output::TraceReducer> make_trace_reducer()
+            { return trace_reducer.make_trace_reducer(); }
     };
 
     class ChainLink
     : public input::FileInput< ChainLink, File >
     {
-        simparm::Structure<Config> config;
+        Config config;
         friend class input::FileInput<ChainLink,File>;
         File* make_file( const std::string& ) const;
         void modify_meta_info( input::MetaInfo& info );

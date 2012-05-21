@@ -10,7 +10,22 @@ namespace FluorophoreDistributions {
 
 using namespace boost::units;
 
-_Lines::_Lines()
+void Lines::Line::attach_ui( simparm::Node& t ) {
+    simparm::NodeRef r = name_object.attach_ui(t);
+    xoffset.attach_ui( r );
+    yoffset.attach_ui( r );
+    zoffset.attach_ui( r );
+    angle.attach_ui( r );
+    z_angle.attach_ui( r );
+    density.attach_ui( r );
+    x_spacing.attach_ui( r );
+    y_spacing.attach_ui( r );
+    z_spacing.attach_ui( r );
+    max_count.attach_ui( r );
+    repeat.attach_ui( r );
+}
+
+Lines::Lines()
 : FluorophoreDistribution("Lines", "Fluorophores on lines"),
   simparm::Node::Callback(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
@@ -22,7 +37,7 @@ _Lines::_Lines()
     addLine.trigger();
 }
 
-_Lines::_Lines(const _Lines& c)
+Lines::Lines(const Lines& c)
 : FluorophoreDistribution(c),
   simparm::Node::Callback(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
@@ -35,11 +50,12 @@ _Lines::_Lines(const _Lines& c)
     for (unsigned int i = 0; i < c.lines.size(); i++)
         if ( c.lines[i] != NULL ) {
             lines[i] = new Line(*c.lines[i]);
-            push_back( *lines[i] );
+            if ( current_ui )
+                lines[i]->attach_ui( *current_ui );
         }
 }
 
-_Lines::~_Lines()
+Lines::~Lines()
 {
     for (unsigned int i = 0; i < lines.size(); i++) {
         delete lines[i];
@@ -47,8 +63,8 @@ _Lines::~_Lines()
     }
 }
 
-_Lines::_Line::_Line(const std::string& ident) 
-: simparm::Object("Line" + ident, "Line object " + ident),
+Lines::Line::Line(const std::string& ident) 
+: name_object("Line" + ident, "Line object " + ident),
   xoffset("StartX", "X start position of line", 1E2 * si::nanometer),
   yoffset("StartY", "Y start position of line", 1E2 * si::nanometer),
   zoffset("StartZ", "Z start position of line", 0 * si::nanometer),
@@ -67,26 +83,15 @@ _Lines::_Line::_Line(const std::string& ident)
     z_angle.max = (90);
 }
 
-void _Lines::registerNamedEntries() {
-    push_back( addLine );
-    push_back( removeLine );
+void Lines::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef r = attach_parent( at );
+    addLine.attach_ui( r );
+    removeLine.attach_ui( r );
+    for (std::vector<Line*>::const_iterator i = lines.begin(); i != lines.end(); i++)
+        (*i)->attach_ui( r );
 }
 
-void _Lines::_Line::registerNamedEntries() {
-    push_back( xoffset );
-    push_back( yoffset );
-    push_back( zoffset );
-    push_back( angle );
-    push_back( z_angle );
-    push_back( density );
-    push_back( x_spacing );
-    push_back( y_spacing );
-    push_back( z_spacing );
-    push_back( max_count );
-    push_back( repeat );
-}
-
-FluorophoreDistribution::Positions _Lines::fluorophore_positions(
+FluorophoreDistribution::Positions Lines::fluorophore_positions(
     const Size& size,
     gsl_rng* rng
 ) const {
@@ -103,7 +108,7 @@ FluorophoreDistribution::Positions _Lines::fluorophore_positions(
     return rv;
 }
 
-FluorophoreDistribution::Positions _Lines::_Line::
+FluorophoreDistribution::Positions Lines::Line::
     fluorophore_positions( const Size& size, gsl_rng*) const
 {
     Positions rv;
@@ -137,7 +142,7 @@ FluorophoreDistribution::Positions _Lines::_Line::
     return rv;
 }
 
-void _Lines::operator()(const simparm::Event& e) 
+void Lines::operator()(const simparm::Event& e) 
 {
     if ( &e.source == &addLine.value && addLine.triggered() ) {
         addLine.untrigger();
@@ -155,7 +160,8 @@ void _Lines::operator()(const simparm::Event& e)
         else
             lines.push_back( line );
 
-        push_back( *line );
+        if ( current_ui )
+            line->attach_ui( *current_ui );
     } else if ( &e.source == &removeLine.value && removeLine.triggered() ) {
         removeLine.untrigger();
         delete lines.back();

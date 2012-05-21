@@ -15,20 +15,25 @@
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/Image.h>
 #include <dStorm/engine/InputTraits.h>
+#include <simparm/NodeHandle.hh>
 
 namespace dStorm {
 class TIFFOperation;
 namespace tiff {
 
 
-struct Config : public simparm::Object {
+struct Config {
+    simparm::NodeHandle current_ui;
+    simparm::Object name_object;
     simparm::BoolEntry ignore_warnings, determine_length;
 
     Config();
-    void registerNamedEntries() {
-        push_back( ignore_warnings ); 
-        push_back( determine_length ); 
+    void attach_ui( simparm::Node& at ) {
+        current_ui = name_object.attach_ui( at );
+        ignore_warnings.attach_ui( *current_ui ); 
+        determine_length.attach_ui( *current_ui ); 
     }
+    simparm::NodeRef current_user_interface() const { return *current_ui; }
 };
 
 class OpenFile : boost::noncopyable {

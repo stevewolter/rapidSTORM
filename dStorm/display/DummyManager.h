@@ -19,7 +19,7 @@ class DummyManager : public Manager
         DataSource& handler);
 
     void store_image_impl( const StorableImage& );
-    simparm::Node* getConfig() { return NULL; }
+    void attach_ui( simparm::Node& ) {}
   public:
     ~DummyManager();
     Change& get_stored_image() { return *image; }

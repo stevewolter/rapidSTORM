@@ -18,17 +18,15 @@ LiveView::LiveView(
     bool on_by_default,
     Resolution resolution
     )
-: Object("LiveView", "Live view options"),
-  resolution( resolution ),
+: resolution( resolution ),
   show_live("ShowLive", "Show camera image", on_by_default),
   change( new display::Change(1) )
 {
     DEBUG("LiveView constructed");
-    registerNamedEntries();
 }
 
-void LiveView::registerNamedEntries() {
-    push_back( show_live );
+void LiveView::attach_ui( simparm::Node& at ) {
+    show_live.attach_ui( at );
 }
 
 LiveView::~LiveView() {

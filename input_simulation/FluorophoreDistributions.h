@@ -9,7 +9,7 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/Structure.hh>
+#include <simparm/NodeHandle.hh>
 #include <dStorm/UnitEntries.h>
 
 namespace input_simulation {
@@ -17,59 +17,56 @@ namespace FluorophoreDistributions {
 
 using namespace boost::units;
 
-class _Random : public FluorophoreDistribution {
+class Random : public FluorophoreDistribution {
   protected:
-    void registerNamedEntries() 
-        { push_back( fluorophoreNumber ); }
+    void attach_ui( simparm::Node& at ) 
+        { fluorophoreNumber.attach_ui( attach_parent( at ) ); }
   public:
     simparm::Entry<unsigned long> fluorophoreNumber;
 
-    _Random();
-    _Random* clone() const { return new _Random(*this); }
+    Random();
+    Random* clone() const { return new Random(*this); }
     virtual Positions fluorophore_positions(
         const Size& size, gsl_rng* rng) const;
 };
-typedef simparm::Structure<_Random> Random;
 
 std::auto_ptr< FluorophoreDistribution > make_lattice();
 
-class _Lines : public FluorophoreDistribution, 
+class Lines : public FluorophoreDistribution, 
                public simparm::Node::Callback 
 {
   protected:
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at ) ;
     void operator()(const simparm::Event&);
   public:
-    class _Line : public simparm::Object {
-      protected:
-        void registerNamedEntries();
+    class Line {
+        simparm::Object name_object;
       public:
         dStorm::NanometreEntry xoffset, yoffset, zoffset,
             density, x_spacing, y_spacing, z_spacing;
         simparm::Entry<double> angle, z_angle, max_count;
         simparm::Entry<unsigned long> repeat;
 
-        _Line(const std::string& ident);
-        Positions fluorophore_positions(const Size& size, gsl_rng* rng) const
-;
+        Line(const std::string& ident);
+        Positions fluorophore_positions(const Size& size, gsl_rng* rng) const;
+        void attach_ui( simparm::Node& );
     };
-    typedef simparm::Structure<_Line> Line;
 
   private:
     std::vector<Line*> lines;
+    simparm::NodeHandle current_ui;
 
   public:
     simparm::TriggerEntry addLine, removeLine;
 
-    _Lines();
-    _Lines(const _Lines&);
-    ~_Lines();
-    _Lines& operator=(const _Lines&) { throw std::logic_error("No assignment operator."); }
-    _Lines* clone() const { return new _Lines(*this); }
+    Lines();
+    Lines(const Lines&);
+    ~Lines();
+    Lines& operator=(const Lines&) { throw std::logic_error("No assignment operator."); }
+    Lines* clone() const { return new Lines(*this); }
     virtual Positions fluorophore_positions(
         const Size& size, gsl_rng* rng) const;
 };
-typedef simparm::Structure<_Lines> Lines;
 
 }
 }

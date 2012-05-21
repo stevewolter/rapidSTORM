@@ -15,7 +15,7 @@ namespace dStorm {
 namespace AndorCamera {
 
 class LiveView :
-    boost::noncopyable, public simparm::Object,
+    boost::noncopyable, 
     public dStorm::display::DataSource
 {
   public:
@@ -32,8 +32,6 @@ class LiveView :
 
     std::auto_ptr<dStorm::display::Change> change;
     std::auto_ptr<dStorm::display::Manager::WindowHandle> window;
-
-    void registerNamedEntries();
 
     void show_window(CamImage::Size size);
     void hide_window();
@@ -52,6 +50,7 @@ class LiveView :
         Resolution resolution );
     ~LiveView();
     void show( const CamImage& image );
+    void attach_ui( simparm::Node& );
 };
 
 }

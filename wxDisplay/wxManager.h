@@ -60,7 +60,7 @@ class wxManager : public Manager {
      *  Manager. Warning: The manager should only be shut
      *  down once during the whole program execution. */
     ~wxManager();
-    simparm::Node* getConfig() { return NULL; }
+    void attach_ui( simparm::Node& ) {}
 
     std::auto_ptr<Manager::WindowHandle>
     register_data_source_impl(

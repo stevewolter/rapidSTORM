@@ -36,18 +36,10 @@ class TraceReducer {
 
 /** A config object capable of configuring and making
  *  trace reducer objects. */
-class TraceReducer::Config : public simparm::Object {
-  protected:
-    class Implementation;
-    std::auto_ptr<Implementation> implementation;
+class TraceReducer::Config {
   public:
-    Config();
-    Config(const Config&);
-    ~Config();
-    Config& operator=(const Config&);
-
-    virtual Config* clone() const { return new Config(*this); }
     std::auto_ptr<TraceReducer> make_trace_reducer() const;
+    void attach_ui( simparm::Node& ) {}
 };
 
 }

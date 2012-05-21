@@ -4,14 +4,14 @@
 namespace input_simulation {
 namespace FluorophoreDistributions {
 
-_Random::_Random()
+Random::Random()
 : FluorophoreDistribution("Random", "Randomly distributed fluorophores"),
   fluorophoreNumber("FluorophoreNumber", "Number of "
                     "fluorophore in virtual sample", 100)
 {
 }
 
-FluorophoreDistribution::Positions _Random::fluorophore_positions(
+FluorophoreDistribution::Positions Random::fluorophore_positions(
     const Size& size,
     gsl_rng* rng
 ) const {

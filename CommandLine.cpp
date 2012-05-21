@@ -61,8 +61,6 @@ void CommandLine::parse( int argc, char *argv[] ) {
     argument_parser.push_back( printer );
     argument_parser.push_back( launcher );
     argument_parser.push_back( starter );
-    if ( display::Manager::getSingleton().getConfig() )
-        argument_parser.push_back( *display::Manager::getSingleton().getConfig() );
 
     int shift = find_config_file(argc,argv);
     argc -= shift;

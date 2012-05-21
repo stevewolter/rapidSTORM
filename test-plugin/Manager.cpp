@@ -131,14 +131,14 @@ class Manager
     Manager(const Manager&);
     ~Manager();
 
-    simparm::Node* getConfig();
+    void attach_ui( simparm::Node& );
 
     void stop() {}
     void request_action( boost::shared_ptr<Source>& on, const Request& request );
 };
 
 class Manager::ControlConfig
-: public simparm::Object, public simparm::Listener, private boost::noncopyable
+: private simparm::Object, public simparm::Listener, private boost::noncopyable
 {
     Manager& m;
     simparm::ChoiceEntry<Manager::Source> which_window;
@@ -163,17 +163,21 @@ class Manager::ControlConfig
           draw_rectangle("DrawRectangle", "Draw rectangle")
     {
         which_window.set_auto_selection( false );
-        push_back( which_window );
-        push_back( close );
-        push_back( which_key );
-        push_back( new_limit );
-        push_back( set_lower_limit );
-        push_back( set_upper_limit );
-        push_back(top);
-        push_back(bottom);
-        push_back(left);
-        push_back(right);
-        push_back(draw_rectangle);
+    }
+
+    void attach_ui( simparm::Node& at ) {
+        simparm::NodeRef r = simparm::Object::attach_ui( at );
+        which_window.attach_ui( r );
+        close.attach_ui( r );
+        which_key.attach_ui( r );
+        new_limit.attach_ui( r );
+        set_lower_limit.attach_ui( r );
+        set_upper_limit.attach_ui( r );
+        top.attach_ui( r);
+        bottom.attach_ui( r);
+        left.attach_ui( r);
+        right.attach_ui( r);
+        draw_rectangle.attach_ui( r);
         receive_changes_from( close.value );
         receive_changes_from( set_lower_limit.value );
         receive_changes_from( set_upper_limit.value );
@@ -487,9 +491,9 @@ void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
     DEBUG("Saved store request");
 }
 
-simparm::Node* Manager::getConfig()
+void Manager::attach_ui( simparm::Node& at )
 {
-    return control_config.get();
+    control_config->attach_ui( at );
 }
 
 void Manager::heed_requests() {

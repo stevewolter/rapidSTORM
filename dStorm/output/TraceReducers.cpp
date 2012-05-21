@@ -43,29 +43,6 @@ class AveragingReducer : public TraceReducer {
     }
 };
 
-class TraceReducer::Config::Implementation {
-  public:
-    Implementation() 
-    {}
-    Implementation* clone() const { return new Implementation(*this); }
-
-    virtual std::auto_ptr<TraceReducer> make_trace_reducer()
-        { return std::auto_ptr<TraceReducer>( new AveragingReducer() ); }
-};
-
-TraceReducer::Config::Config() 
-: simparm::Object("TraceReducerMaker", ""),
-  implementation( new Implementation() )
-{}
-
-TraceReducer::Config::Config(const Config& c) 
-: simparm::Object(c),
-  implementation( c.implementation->clone() )
-{}
-
-TraceReducer::Config::~Config()
-{}
-
 std::auto_ptr<TraceReducer> 
 TraceReducer::Config::make_trace_reducer() const 
 {

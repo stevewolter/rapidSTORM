@@ -119,7 +119,6 @@ namespace locprec {
             : simparm::ObjectChoice(name,desc), method(method) {}
         SegmentationMethod* clone() const { return new SegmentationMethod(*this); }
         Segmenter::SegmentationType type() const { return method; }
-        void push_back( simparm::Node& node ) { getNode().push_back(node); }
     };
 
     struct Segmenter::Config {
@@ -169,13 +168,12 @@ Segmenter::Config::Config()
 
 void Segmenter::Config::attach_ui( simparm::Node& at )
 {
-    method["Maximum"].push_back( selector );
+    selector.attach_ui( at );
 
-    method["Regions"].push_back( threshold );
-    method["Regions"].push_back( dilation );
-    method["Regions"].push_back( selector );
-    method["Regions"].push_back( load_segmentation );
-    method["Regions"].push_back( save_segmentation );
+    threshold.attach_ui( method["Regions"].getNode() );
+    dilation.attach_ui( method["Regions"].getNode() );
+    load_segmentation.attach_ui( method["Regions"].getNode() );
+    save_segmentation.attach_ui( method["Regions"].getNode() );
 
     method.attach_ui( at );
     reducer.attach_ui( at );

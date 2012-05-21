@@ -59,7 +59,7 @@ class Manager : boost::noncopyable {
   public:
     virtual ~Manager() {}
     /** Method should return pointer to config element for the display handler, or NULL if none are necessary. */
-    virtual simparm::Node* getConfig() = 0;
+    virtual void attach_ui( simparm::Node& ) = 0;
 
     /** Open a window that displays the data in \c handler
      *  with the provided \c properties. The provided

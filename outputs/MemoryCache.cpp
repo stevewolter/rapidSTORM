@@ -136,17 +136,18 @@ class Output
 
 };
 
-struct Source : public simparm::Object, public output::FilterSource
+struct Source : public output::FilterSource
 {
+    simparm::Object name_object;
     Source();
     Source* clone() const { return new Source(*this); }
-    std::string getDesc() const { return Object::desc(); }
-    std::string getName() const { return Object::getName(); }
+    std::string getDesc() const { return name_object.desc(); }
+    std::string getName() const { return name_object.getName(); }
     void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = simparm::Object::attach_ui(at);
+        simparm::NodeRef r = name_object.attach_ui(at);
         attach_source_ui( r );
     }
-    void attach_ui( simparm::Node& at ) { simparm::Object::attach_ui(at); }
+    void attach_ui( simparm::Node& at ) { name_object.attach_ui(at); }
     std::auto_ptr<output::Output> make_output(); 
 };
 
@@ -337,8 +338,7 @@ void Output::receiveLocalizations(const EngineResult& e)
 }
 
 Source::Source()
-: simparm::Object("Cache", "Cache localizations"),
-  FilterSource() {}
+: name_object("Cache", "Cache localizations") {}
 
 std::auto_ptr<output::Output> Source::make_output()
 {

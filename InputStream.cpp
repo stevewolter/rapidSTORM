@@ -16,8 +16,7 @@ InputStream::InputStream( MainThread& master )
 {
     this->showTabbed = true;
     setDesc( makeProgramDescription() );
-    if ( display::Manager::getSingleton().getConfig() )
-        this->push_back( *display::Manager::getSingleton().getConfig() );
+    display::Manager::getSingleton().attach_ui( *this );
 }
 
 InputStream::~InputStream() {}

@@ -62,19 +62,18 @@ namespace andor_sif {
     /** Config class for Source. Simple config that adds
      *  the sif extension to the input file element. */
     class Config 
-    : public input::FileInput< Config, OpenFile >,
-      public simparm::Object
+    : public input::FileInput< Config, OpenFile >
     {
+        simparm::Object name_object;
         friend class FileInput< Config, OpenFile >;
         OpenFile* make_file( const std::string& ) const;
         void modify_meta_info( dStorm::input::MetaInfo& );
-        void attach_ui( simparm::Node& n ) { simparm::Object::attach_ui(n); }
+        void attach_ui( simparm::Node& n ) { name_object.attach_ui(n); }
         static std::string getName() { return "AndorSIF"; }
       public:
         Config();
 
         Source* makeSource();
-        simparm::Object& getNode() { return *this; }
 
         Config* clone() const { return new Config(*this); }
     };

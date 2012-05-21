@@ -52,8 +52,7 @@ class Source::iterator
 
 Source::Source( const File& file, 
                 std::auto_ptr<output::TraceReducer> red )
-: simparm::Object("STM_Show", "Input options"),
-    file(file.filename, file.traits),
+: file(file.filename, file.traits),
     reducer(red)
 {
 }
@@ -125,7 +124,7 @@ input::Source<localization::Record>::iterator Source::end() {
 }
 
 Config::Config() 
-: simparm::Object("STM", "Localizations file")
+: name_object("STM", "Localizations file")
 {
 }
 
@@ -141,7 +140,7 @@ File* ChainLink::make_file( const std::string& name ) const
 
 
 input::Source<localization::Record>* ChainLink::makeSource() {
-    return new Source(*get_file(), config.trace_reducer.make_trace_reducer());
+    return new Source(*get_file(), config.make_trace_reducer());
 }
 
 File::File(std::string filename, const File::Traits& traits ) 
@@ -202,9 +201,9 @@ void File::read_XML(const std::string& line, Traits& t) {
 std::auto_ptr<Source> ChainLink::read_file( simparm::FileEntry& name, const input::Traits<localization::Record>& my_context )
 {
     try {
+        Config config;
         File header = File( name(), my_context );
-        output::TraceReducer::Config trc;
-        Source *src = new Source(header, trc.make_trace_reducer() );
+        Source *src = new Source(header, config.make_trace_reducer() );
         return std::auto_ptr<Source>(src);
     } catch (const std::runtime_error& e) {
         throw std::runtime_error( 

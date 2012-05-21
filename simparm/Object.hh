@@ -17,7 +17,6 @@ class Object : public Node {
 
   public:
     Object(string name, string desc);
-    Object(const Object& o);
     virtual ~Object();
 
     Attribute<std::string> desc;

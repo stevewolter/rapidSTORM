@@ -64,12 +64,14 @@ struct SinglePlane : public PlaneSelection {
     void attach_ui( simparm::Node& at ) { attach_parent(at); }
 };
 
-struct Config : public simparm::Object {
+class Config {
+    simparm::Object name_object;
+public:
     simparm::ManagedChoiceEntry<PlaneSelection> which_plane;
 
     Config();
-    void registerNamedEntries() { 
-        push_back( which_plane );
+    void attach_ui( simparm::Node& at ) { 
+        which_plane.attach_ui( name_object.attach_ui(at) );
     }
 };
 
@@ -141,8 +143,7 @@ class ChainLink
 {
     friend class input::Method<ChainLink>;
 
-    simparm::Structure<Config> config;
-    simparm::Structure<Config>& get_config() { return config; }
+    Config config;
     void operator()( const simparm::Event& );
 
     typedef Localization::ImageNumber::Traits TemporalTraits;
@@ -189,7 +190,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object( ChainLink::getName(), "Image selection filter"),
+: name_object( ChainLink::getName(), "Image selection filter"),
   which_plane( "OnlyPlane", "Process only one plane" )
 {
     which_plane.addChoice( new AllPlanes() );

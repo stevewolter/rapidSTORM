@@ -5,10 +5,13 @@
 namespace input_simulation {
 namespace FluorophoreDistributions {
 
-class _Lattice : public FluorophoreDistribution {
+class Lattice : public FluorophoreDistribution {
   protected:
-    void registerNamedEntries() 
-        { push_back( latticeDistance ); push_back(border); }
+    void attach_ui( simparm::Node& at )  {
+        simparm::NodeRef r = attach_parent(at);
+        latticeDistance.attach_ui(r);
+        border.attach_ui( r );
+    }
     typedef Eigen::Matrix< 
         boost::units::quantity< boost::units::si::nanolength >,
         dStorm::samplepos::RowsAtCompileTime,
@@ -18,14 +21,13 @@ class _Lattice : public FluorophoreDistribution {
   public:
     simparm::Entry< NanoSamplePos > latticeDistance, border;
 
-    _Lattice();
-    _Lattice* clone() const { return new _Lattice(*this); }
+    Lattice();
+    Lattice* clone() const { return new Lattice(*this); }
     virtual Positions fluorophore_positions(
         const Size& size, gsl_rng* rng) const;
 };
-typedef simparm::Structure<_Lattice> Lattice;
 
-_Lattice::_Lattice()
+Lattice::Lattice()
 : FluorophoreDistribution("Lattice", "Fluorophores on square lattice"),
   latticeDistance("LatticeSpacing", "Distance between lattice points", 
     NanoSamplePos::Constant(40.0f * si::nanometre) ),
@@ -57,7 +59,7 @@ void iterate_dimension(
     }
 }
 
-FluorophoreDistribution::Positions _Lattice::fluorophore_positions(
+FluorophoreDistribution::Positions Lattice::fluorophore_positions(
     const FluorophoreDistribution::Size& size,
     gsl_rng*
 ) const {

@@ -2,7 +2,7 @@
 #define LOCPREC_FLUOROPHORE_DISTRIBUTION_H
 
 #include "Fluorophore.h"
-#include <simparm/Object.hh>
+#include <simparm/ObjectChoice.hh>
 #include <gsl/gsl_rng.h>
 #include <Eigen/Core>
 #include <queue>
@@ -10,7 +10,7 @@
 
 namespace input_simulation {
 
-class FluorophoreDistribution : public simparm::Object {
+class FluorophoreDistribution : public simparm::ObjectChoice {
   public:
     typedef dStorm::samplepos Size;
     typedef std::queue< Fluorophore::Position,
@@ -23,8 +23,8 @@ class FluorophoreDistribution : public simparm::Object {
 
     FluorophoreDistribution(
         const std::string& name, const std::string& desc)
-        : simparm::Object(name,desc) {}
-    FluorophoreDistribution* clone() const = 0;
+        : simparm::ObjectChoice(name,desc) {}
+    virtual FluorophoreDistribution* clone() const = 0;
 };
 
 }

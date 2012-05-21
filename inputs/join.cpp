@@ -6,6 +6,7 @@
 #include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
+#include <simparm/ObjectChoice.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
@@ -30,14 +31,14 @@ struct fluorophore_tag {
 };
 
 struct Strategist
-: public simparm::Object
+: public simparm::ObjectChoice
 {
-    Strategist(std::string name, std::string desc) : Object(name, desc) {}
+    Strategist(std::string name, std::string desc) : ObjectChoice(name, desc) {}
     virtual Strategist* clone() const = 0;
     virtual boost::shared_ptr< const MetaInfo > make_traits(
         const std::vector< boost::shared_ptr< const MetaInfo > >& v ) = 0;
     virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
-    virtual ~Strategist() {}
+    void attach_ui( simparm::Node& to ) { attach_parent(to); }
 };
 
 }
@@ -195,12 +196,13 @@ class StrategistImplementation
 };
 
 class Link 
-: public input::Link, public simparm::Object, public simparm::Listener
+: public input::Link, public simparm::Listener
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
     boost::ptr_vector< input::Link > children;
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
     std::vector< TraitsRef > input_traits;
+    simparm::Object name_object;
     simparm::Set channels;
     simparm::ManagedChoiceEntry< Strategist > join_type;
     simparm::Entry<unsigned long> channel_count;
@@ -233,19 +235,21 @@ class Link
     }
 
     BaseSource* makeSource();
-    std::string name() const { return getName(); }
-    std::string description() const { return getDesc(); }
+    std::string name() const { return name_object.getName(); }
+    std::string description() const { return name_object.getDesc(); }
     void registerNamedEntries( simparm::Node& n ) { 
         receive_changes_from( join_type.value );
         receive_changes_from( channel_count.value );
+
+        simparm::NodeRef r = name_object.attach_ui( n );
+        channel_count.attach_ui( r );
+        simparm::NodeRef c = channels.attach_ui( r );
+        join_type.attach_ui( r );
+
         for (unsigned i = 0; i < children.size(); ++i) {
             children[i].registerNamedEntries( connection_nodes[i] );
-            channels.push_back( connection_nodes[i] );
+            connection_nodes[i].attach_ui( c );
         }
-        push_back( channel_count );
-        push_back( channels );
-        push_back( join_type );
-        n.push_back(*this); 
         registered_node = true;
     }
     void publish_meta_info() {
@@ -255,13 +259,11 @@ class Link
     }
 
     void insert_new_node( std::auto_ptr<input::Link>, Place );
-    operator const simparm::Node&() const { return *this; }
-    operator simparm::Node&() { return *this; }
 };
 
 Link::Link()
-: simparm::Object("MultiChannel", "Multi-channel input"),
-  simparm::Listener( simparm::Event::ValueChanged ),
+: simparm::Listener( simparm::Event::ValueChanged ),
+  name_object("MultiChannel", "Multi-channel input"),
   channels("Channels", "Channels"),
   join_type("JoinOn", "Join inputs on"),
   channel_count("ChannelCount", "Number of input channels", 1),
@@ -280,11 +282,12 @@ Link::Link()
 }
 
 Link::Link( const Link& o )
-: input::Link(o), simparm::Object(o), 
+: input::Link(o), 
   simparm::Listener( simparm::Event::ValueChanged ),
   connection_nodes(o.connection_nodes),
   children( o.children ), 
   input_traits( o.input_traits ),
+  name_object( o.name_object ),
   channels(o.channels), join_type( o.join_type ), channel_count(o.channel_count),
   registered_node(false)
 {

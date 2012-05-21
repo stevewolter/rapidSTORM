@@ -20,25 +20,15 @@ Object::Object(string name, string desc)
   viewable("viewable", true),
   userLevel("userLevel", Beginner)
 {
-    push_back(this->desc);
-    push_back(this->viewable);
-    push_back(this->userLevel);
-
-}
-Object::Object(const Object& o)
-: Node(o), desc(o.desc),
-    viewable(o.viewable),
-    userLevel(o.userLevel)
-{
-    push_back(desc);
-    push_back(viewable);
-    push_back(userLevel);
 }
 Object::~Object() { 
     clearParents(); 
 }
 
 NodeRef Object::attach_ui( simparm::Node& node ) {
+    push_back(desc);
+    push_back(viewable);
+    push_back(userLevel);
     node.push_back( *this );
     return *this;
 }

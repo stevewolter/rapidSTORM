@@ -8,7 +8,8 @@
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "binning_decl.h"
-#include "../../localization/Traits.h"
+#include <dStorm/localization/Traits.h>
+#include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {
 namespace output {
@@ -46,5 +47,9 @@ struct FieldChoice
 }
 }
 }
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::output::binning::FieldConfig)
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::output::binning::FieldChoice)
+
 
 #endif

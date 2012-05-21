@@ -2,20 +2,6 @@
 #include "localization_config.h"
 #include <simparm/ChoiceEntry_Impl.hh>
 
-namespace boost {
-
-using dStorm::output::binning::FieldConfig;
-
-template <>
-inline FieldConfig* new_clone<FieldConfig>( const FieldConfig& l )
-    { return l.clone(); }
-template <>
-inline void delete_clone<FieldConfig>(const FieldConfig* l) 
-    { delete l; }
-
-}
-
-
 namespace dStorm {
 namespace output {
 namespace binning {

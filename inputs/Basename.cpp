@@ -4,7 +4,6 @@
 #include <dStorm/signals/BasenameChange.h>
 #include <dStorm/input/Forwarder.h>
 #include <simparm/Entry.hh>
-#include <simparm/Structure.hh>
 #include <dStorm/input/MetaInfo.h>
 
 namespace dStorm {
@@ -12,17 +11,19 @@ namespace basename_input_field {
 
 using namespace input;
 
-class Config : public simparm::Object {
+class Config {
   public:
     simparm::StringEntry output;
 
     Config();
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at ) { output.attach_ui( at ); }
 };
 
 class ChainLink 
-: public Forwarder, public simparm::Listener , simparm::Structure<Config>
+: public Forwarder, public simparm::Listener
 {
+    simparm::Object name_object;
+    Config config;
     MetaInfo::Ptr traits;
     std::string default_output_basename;
     bool user_changed_output;
@@ -33,14 +34,13 @@ class ChainLink
   public:
     ChainLink();
     ChainLink* clone() const { return new ChainLink(*this); }
-    simparm::Node& getNode() { return static_cast<Config&>(*this); }
     void registerNamedEntries( simparm::Node& n ) {
-        receive_changes_from( output.value );
+        receive_changes_from( config.output.value );
         Forwarder::registerNamedEntries(n);
-        n.push_back( *this );
+        config.attach_ui( name_object.attach_ui( n ) );
     }
-    std::string name() const { return getName(); }
-    std::string description() const { return getDesc(); }
+    std::string name() const { return name_object.getName(); }
+    std::string description() const { return name_object.getDesc(); }
 
     void traits_changed( TraitsRef r, Link* l);
 
@@ -48,19 +48,15 @@ class ChainLink
 };
 
 Config::Config()
-: simparm::Object("OutputBasename", "Set output basename"),
-  output("Basename", "Output file basename", "")
+: output("Basename", "Output file basename", "")
 {
     output.helpID = "OutputBasename";
-}
-
-void Config::registerNamedEntries() {
-    push_back( output );
 }
 
 ChainLink::ChainLink() 
 : input::Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
+  name_object( "OutputBasename", "Set output basename" ),
   default_output_basename(""),
   user_changed_output(false)
 {
@@ -79,11 +75,11 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
 
     if ( user_changed_output ) {
         if ( this->traits.get() )
-            this->traits->suggested_output_basename.unformatted() = output();
+            this->traits->suggested_output_basename.unformatted() = config.output();
         if ( traits.get() )
             traits->get_signal< signals::BasenameChange >()( this->traits->suggested_output_basename );
     } else {
-        output = default_output_basename;
+        config.output = default_output_basename;
     }
     /* Check that no recursive call triggered by a signal happened */
     if ( upstream_traits() == traits ) 
@@ -93,10 +89,10 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
 void ChainLink::operator()(const simparm::Event&)
 {
     input::InputMutexGuard lock( global_mutex() );
-    if ( output() == "" ) output = default_output_basename;
-    user_changed_output = ( output() != "" && output() != default_output_basename );
+    if ( config.output() == "" ) config.output = default_output_basename;
+    user_changed_output = ( config.output() != "" && config.output() != default_output_basename );
     if ( traits.get() ) {
-        traits->suggested_output_basename.unformatted() = output();
+        traits->suggested_output_basename.unformatted() = config.output();
         traits->get_signal< signals::BasenameChange >()( traits->suggested_output_basename );
         update_current_meta_info( this->traits );
     }
