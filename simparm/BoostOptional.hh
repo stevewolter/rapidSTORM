@@ -1,6 +1,7 @@
 #ifndef SIMPARM_ATTRIBUTE_OPTIONAL_HH
 #define SIMPARM_ATTRIBUTE_OPTIONAL_HH
 
+#include "AttributeCommandInterpreter.hh"
 #include "Attribute.hh"
 #include <boost/optional/optional.hpp>
 
@@ -78,6 +79,8 @@ inline bool falls_below( const Inner& a, const boost::optional<Inner>& b ) {
 }
 
 #include "Attributes.hh"
+#include "Attribute.hh"
+#include "Node.hh"
 
 namespace simparm {
 

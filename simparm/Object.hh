@@ -40,11 +40,9 @@ class Object {
 
     NodeHandle get_user_interface_handle() { return *node_; }
 
-    void clearParents();
-    void clearChildren();
-
 protected:
     virtual NodeRef create_hidden_node( simparm::Node& );
+    virtual std::auto_ptr<Node> make_naked_node( simparm::Node& );
 private:
     std::auto_ptr< Node > node_;
     std::string name;

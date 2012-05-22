@@ -24,49 +24,6 @@
 namespace input_simulation {
     class NoiseConfig;
 
-    class NoiseSource 
-    : public simparm::Set,
-      public dStorm::input::Source< dStorm::engine::ImageStack >
-    {
-      private:
-        unsigned long randomSeed;
-        std::auto_ptr< NoiseGenerator<unsigned short> > noiseGenerator;
-
-        typedef dStorm::engine::ImageStack Image;
-        typedef dStorm::input::Source<Image> Source;
-        boost::shared_ptr< dStorm::input::Traits< Image > > t;
-        int imN;
-        boost::units::quantity<boost::units::si::time> integration_time;
-        typedef boost::ptr_list<Fluorophore> FluorophoreList;
-        FluorophoreList fluorophores;
-        boost::mutex mutex;
-
-        std::auto_ptr<std::ostream> output;
-        void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
-
-        class iterator;
-        void attach_ui_( simparm::Node& n ) { simparm::Set::attach_ui(n); }
-
-      protected:
-        gsl_rng *rng;
-
-      public:
-        NoiseSource(const NoiseConfig &config);
-        ~NoiseSource();
-
-        dStorm::engine::ImageStack* fetch(int index);
-
-        const boost::ptr_list<Fluorophore>& getFluorophores() const
-            { return fluorophores; }
-
-        typedef typename Source::iterator base_iterator;
-        base_iterator begin();
-        base_iterator end();
-        typename Source::TraitsPtr get_traits( typename Source::Wishes );
-        typename Source::Capabilities capabilities() const 
-            { return typename Source::Capabilities(); }
-    };
-
     struct FluorophoreSetConfig {
         simparm::Set name_object;
       public:
@@ -129,11 +86,57 @@ namespace input_simulation {
         std::string description() const { return name_object.getDesc(); }
         void publish_meta_info();
 
-        virtual dStorm::input::Source<Image>* makeSource()
-            { return new NoiseSource(*this); }
-        virtual NoiseConfig* clone() const 
+        dStorm::input::Source<Image>* makeSource();
+        NoiseConfig* clone() const 
             { return ( new NoiseConfig(*this) ); }
     };
+    class NoiseSource 
+    : public dStorm::input::Source< dStorm::engine::ImageStack >
+    {
+      private:
+        unsigned long randomSeed;
+        std::auto_ptr< NoiseGenerator<unsigned short> > noiseGenerator;
+        boost::ptr_list< FluorophoreSetConfig > fluorophore_configs;
+        const NoiseConfig noise_config;
+
+        typedef dStorm::engine::ImageStack Image;
+        typedef dStorm::input::Source<Image> Source;
+        boost::shared_ptr< dStorm::input::Traits< Image > > t;
+        int imN;
+        boost::units::quantity<boost::units::si::time> integration_time;
+        typedef boost::ptr_list<Fluorophore> FluorophoreList;
+        FluorophoreList fluorophores;
+        boost::mutex mutex;
+
+        simparm::Set name_object;
+        simparm::NodeHandle current_ui;
+
+        std::auto_ptr<std::ostream> output;
+        void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
+
+        class iterator;
+        void attach_ui_( simparm::Node& n ) { current_ui = name_object.attach_ui(n); }
+
+      protected:
+        gsl_rng *rng;
+
+      public:
+        NoiseSource(const NoiseConfig &config);
+        ~NoiseSource();
+
+        dStorm::engine::ImageStack* fetch(int index);
+
+        const boost::ptr_list<Fluorophore>& getFluorophores() const
+            { return fluorophores; }
+
+        typedef typename Source::iterator base_iterator;
+        base_iterator begin();
+        base_iterator end();
+        typename Source::TraitsPtr get_traits( typename Source::Wishes );
+        typename Source::Capabilities capabilities() const 
+            { return typename Source::Capabilities(); }
+    };
+
 }
 
 #endif

@@ -25,7 +25,7 @@ using namespace boost::units;
 
 Method::Method()  
 : Terminus(),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  simparm::Listener( simparm::Event::ValueChanged ),
   name_object("AndorDirectConfig", "Direct camera control"),
   select_ROI("AimCamera","Select ROI"),
   view_ROI("ViewCamera","View ROI only"),
@@ -40,7 +40,7 @@ Method::Method()
 
 Method::Method(const Method &c) 
 : Terminus(c), 
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  simparm::Listener( simparm::Event::ValueChanged ),
   name_object(c.name_object),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),

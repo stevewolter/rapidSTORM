@@ -235,15 +235,21 @@ class Source
 : public output::FilterSource
 {
     Slicer::Config config;
-    simparm::Object name_object;
+    simparm::TreeObject name_object;
+    simparm::Object choice_object;
 public:
-    Source() : name_object("Slicer", "Slice localization set") {
-        name_object.userLevel = simparm::Object::Intermediate;
+    Source() 
+    : name_object("Slicer", "Slice localization set"),
+      choice_object(name_object) 
+    {
+        choice_object.userLevel = simparm::Object::Intermediate;
         adjust_to_basename( config.outputFile );
     }
 
     Source( const Source& o )
-    : output::FilterSource(o), config(o.config), name_object(o.name_object)
+    : output::FilterSource(o), config(o.config), 
+      name_object(o.name_object),
+      choice_object(o.choice_object)
     {
         adjust_to_basename( config.outputFile );
         if ( o.getFactory() != NULL )
@@ -261,12 +267,12 @@ public:
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }
     void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = name_object.invisible_node(at);
+        simparm::NodeRef r = name_object.attach_ui(at);
         config.attach_ui( r );
-        FilterSource::attach_source_ui( name_object.invisible_node( r ) ); 
-        name_object.attach_ui( at ); 
+        FilterSource::attach_children_ui( r ); 
     }
-    void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }
+    void attach_ui( simparm::Node& at ) { choice_object.attach_ui( at ); }
+    void hide_in_tree() { name_object.show_in_tree = false; }
 };
 
 std::auto_ptr< output::OutputSource > make_output_source() {

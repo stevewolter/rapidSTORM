@@ -18,8 +18,7 @@ OutputSource::OutputSource()
 }
 
 OutputSource::OutputSource(const OutputSource& o) 
-: tree_attributes(o.tree_attributes),
-  adjustedList( new AdjustedList() )
+: adjustedList( new AdjustedList() )
 {
 }
 

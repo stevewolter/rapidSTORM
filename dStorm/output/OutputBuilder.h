@@ -13,7 +13,8 @@ class OutputBuilder
 {
 protected:
     Config config;
-    simparm::Object name_object;
+    simparm::TreeObject name_object;
+    simparm::Object choice_object;
 public:
     OutputBuilder();
     OutputBuilder* clone() const
@@ -23,6 +24,7 @@ public:
     void set_source_capabilities( Capabilities cap ) 
     {
         name_object.viewable = config.can_work_with( cap );
+        choice_object.viewable = config.can_work_with( cap );
     }
 
     std::auto_ptr<output::Output> make_output() 
@@ -33,14 +35,13 @@ public:
     std::string getName() const { return Config::get_name(); }
     std::string getDesc() const { return Config::get_description(); }
     void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = name_object.invisible_node( at );
+        simparm::NodeRef r = name_object.attach_ui( at );
         config.attach_ui( r ); 
-        OutputSource::attach_source_ui( r );
-        name_object.attach_ui( at ); 
     }
     void attach_ui( simparm::Node& at ) { 
-        name_object.attach_ui( at ); 
+        choice_object.attach_ui( at ); 
     }
+    void hide_in_tree() { name_object.show_in_tree = false; }
 };
 
 }

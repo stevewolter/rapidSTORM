@@ -24,7 +24,7 @@ namespace AndorCamera {
 /** The Display provides a window in which Entry 
     *  elements defining the acquisition rectangle can be displayed
     *  and configured interactively. */
-class Display : private simparm::Node::Callback, 
+class Display : private simparm::Listener, 
                 public display::DataSource
 {
   private:

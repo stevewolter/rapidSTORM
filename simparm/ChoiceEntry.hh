@@ -55,6 +55,8 @@ class ChoiceEntry
             return *i->second;
     }
 
+    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+
   public:
     Attribute< std::string > value;
 
@@ -66,8 +68,6 @@ class ChoiceEntry
 
     virtual ChoiceEntry<ChoiceType>* clone() const 
         { return new ChoiceEntry(*this); }
-    std::string getTypeDescriptor() const  
-        { return "ChoiceEntry"; }
 
     inline void addChoice(ChoiceType& choice) ;
     inline void removeChoice(ChoiceType &choice);

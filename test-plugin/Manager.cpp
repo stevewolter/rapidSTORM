@@ -222,48 +222,50 @@ class Manager::ControlConfig
         { which_window.removeChoice(src); }
 };
 
+#if 0 /* TODO: Re-enable */
 void Manager::ControlConfig::processCommand( std::istream& in )
 {
-        std::string command;
-        in >> command;
-        if ( command == "pixel_value" ) {
-            DEBUG("Reading instructions");
-            std::string window;
-            dStorm::display::Image::Position pos;
-            const Source* i = NULL;
-            std::stringstream msg;
+    std::string command;
+    in >> command;
+    if ( command == "pixel_value" ) {
+        DEBUG("Reading instructions");
+        std::string window;
+        dStorm::display::Image::Position pos;
+        const Source* i = NULL;
+        std::stringstream msg;
 
-            if ( which_window.isValid() ) {
-                DEBUG("Finding window");
-                i = &( which_window() );
-                pos.fill(0);
-                in >> boost::units::quantity_cast<int&>(pos.x()) 
-                   >> boost::units::quantity_cast<int&>(pos.y());
-                msg << "window " << i->number;
-            } else {
-                msg << "result for unset WhichWindow field";
-            }
-            if ( i ) {
-                DEBUG("Found window");
-                msg << " pixel at (" << pos.transpose() << ")";
-                if ( i->current_display.contains( pos ) )
-                    msg << " has value r " << int(i->current_display( pos ).red() )
-                                   << " g " << int(i->current_display( pos ).green())
-                                   << " b " << int(i->current_display( pos ).blue());
-                else
-                    msg << " is out of image dimensions";
-            } else {
-                msg << " is undefined";
-            }
-            DEBUG("Printing results");
-            print( msg.str() );
-            DEBUG("Printed results");
-        } else if ( command == "in" ) {
-            std::string name;
-            in >> name;
-            (*this)[name].processCommand(in);
+        if ( which_window.isValid() ) {
+            DEBUG("Finding window");
+            i = &( which_window() );
+            pos.fill(0);
+            in >> boost::units::quantity_cast<int&>(pos.x()) 
+                >> boost::units::quantity_cast<int&>(pos.y());
+            msg << "window " << i->number;
+        } else {
+            msg << "result for unset WhichWindow field";
         }
+        if ( i ) {
+            DEBUG("Found window");
+            msg << " pixel at (" << pos.transpose() << ")";
+            if ( i->current_display.contains( pos ) )
+                msg << " has value r " << int(i->current_display( pos ).red() )
+                                << " g " << int(i->current_display( pos ).green())
+                                << " b " << int(i->current_display( pos ).blue());
+            else
+                msg << " is out of image dimensions";
+        } else {
+            msg << " is undefined";
+        }
+        DEBUG("Printing results");
+        print( msg.str() );
+        DEBUG("Printed results");
+    } else if ( command == "in" ) {
+        std::string name;
+        in >> name;
+        (*this)[name].processCommand(in);
     }
+}
+#endif
 
 class Manager::Handle 
 : public dStorm::display::Manager::WindowHandle {

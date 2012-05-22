@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     twiddler.userLevel = simparm::Object::Debug;
     cur_step.editable = cur_step.viewable = false;
     cur_volume.editable = cur_volume.viewable = false;
-    readConfig(r, argc, argv);
+    // TODO: readConfig(r, argc, argv);
 
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
 

@@ -51,6 +51,7 @@ class TwiddlerLauncher
 void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
+#if 0
     simparm::IO argument_parser(NULL,NULL);
 
     for ( int i = 0; i < argc; i++ ) {
@@ -65,11 +66,13 @@ void CommandLine::parse( int argc, char *argv[] ) {
     int shift = find_config_file(argc,argv);
     argc -= shift;
     argv += shift;
+#endif
 
     DEBUG("Reading command line arguments");
     int first_nonoption = 0;
     if (argc > 0) {
-        first_nonoption = readConfig(argument_parser, argc, argv);
+        // TODO: first_nonoption = readConfig(argument_parser, argc, argv);
+        launcher.trigger();
     }
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
@@ -117,7 +120,8 @@ bool CommandLine::load_config_file(
         while ( config_file ) {
             DEBUG("Processing command from " << name);
             try {
-                config.processCommand( config_file );
+                throw std::logic_error("processCommand not implemented");
+                //config.processCommand( config_file );
             } catch (const std::runtime_error& e) {
                 std::cerr << "Unable to read initialization file: " + std::string(e.what())  << std::endl;
             }

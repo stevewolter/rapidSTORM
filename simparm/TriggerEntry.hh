@@ -7,8 +7,7 @@ namespace simparm {
 
 class TriggerEntry : public Entry<unsigned long> {
   protected:
-    virtual string getTypeDescriptor() const
-        { return string("TriggerEntry"); }
+    std::auto_ptr<Node> make_naked_node( simparm::Node& );
 
   public:
     TriggerEntry(const TriggerEntry &entry);

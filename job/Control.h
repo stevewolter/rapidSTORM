@@ -13,7 +13,7 @@ namespace job {
 class Run;
 
 class Control 
-: private simparm::Node::Callback ,
+: private simparm::Listener ,
   public dStorm::Engine
 {
     mutable boost::mutex mutex;

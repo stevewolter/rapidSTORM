@@ -99,3 +99,9 @@ void Config::set_variables( output::Basename& bn ) const
 
 }
 }
+
+namespace simparm {
+
+template class Entry< dStorm::engine::Config::PixelVector2D >;
+
+}

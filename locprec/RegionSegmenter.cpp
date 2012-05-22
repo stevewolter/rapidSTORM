@@ -50,7 +50,7 @@
 namespace locprec {
 
 class Segmenter : public dStorm::output::Filter,
-    public simparm::Node::Callback,
+    public simparm::Listener,
     private dStorm::display::DataSource
 {
     public:
@@ -208,7 +208,7 @@ Segmenter::Segmenter(
     std::auto_ptr<Output> output
 )
 : Filter(output),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  simparm::Listener( simparm::Event::ValueChanged ),
   howToSegment( config.method().type() ),
   threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
   dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),

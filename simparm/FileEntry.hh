@@ -14,6 +14,7 @@ class FileEntry : public StringEntry {
     std::istream* in_stream;
 
     NodeRef create_hidden_node( Node& );
+    std::auto_ptr<Node> make_naked_node( simparm::Node& );
 
   public:
    FileEntry(const FileEntry &entry);

@@ -82,14 +82,12 @@ static std::string mkname(void *v) {
     return ss.str();
 }
 
-#if 0
 Message::Message(
     std::string t,
     std::string m,
     Severity s,
     Options o )
-: //Node("simparmMessage" + mkname(this)),
-  help_file("help_file", ""),
+: help_file("help_file", ""),
   helpID("helpID", ""),
   title("title", t),
   message("message", m),
@@ -97,19 +95,10 @@ Message::Message(
   options("options", o),
   response("response", None)
 {
-    push_back( title );
-    push_back( message );
-    push_back( severity );
-    push_back( options );
-    push_back( help_file );
-    push_back( helpID );
-    if ( o != JustOK )
-        push_back( response );
 }
 
 Message::Message( const Message& e ) 
-: Node(e),
-  help_file(e.help_file),
+: help_file(e.help_file),
   helpID(e.helpID),
   title(e.title),
   message(e.message),
@@ -117,19 +106,12 @@ Message::Message( const Message& e )
   options(e.options),
   response(e.response)
 {
-    push_back( title );
-    push_back( message );
-    push_back( severity );
-    push_back( options );
-    push_back( help_file );
-    push_back( helpID );
-    if ( options() != JustOK )
-        push_back( response );
 }
 
 Message::~Message() {
 }
 
+#if 0
 struct ErrorListener : public Node::Callback {
     pthread_mutex_t mutex;
     pthread_cond_t condition;
@@ -175,6 +157,7 @@ Message::getTypeDescriptor() const
 {
     return "Message";
 }
+#endif
 
 std::ostream& operator<<( std::ostream& o, const Message& m)
 {
@@ -183,6 +166,5 @@ std::ostream& operator<<( std::ostream& o, const Message& m)
 }
 
 void Message::set_response(Response s) { response = s; }
-#endif
 
 }

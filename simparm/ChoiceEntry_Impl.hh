@@ -112,9 +112,16 @@ NodeRef ChoiceEntry<ChoiceType>::create_hidden_node( simparm::Node& n ) {
     NodeRef r = BasicEntry::create_hidden_node( n );
     r.add_attribute( value );
     current_ui = r;
-    for ( typename Entries::iterator i = entries.begin(); i != entries.end(); ++i )
+    for ( typename Entries::iterator i = entries.begin(); i != entries.end(); ++i ) {
         i->second->attach_ui( *current_ui );
+    }
     return r;
+}
+
+template <typename ChoiceType>
+std::auto_ptr<Node> 
+ChoiceEntry<ChoiceType>::make_naked_node( simparm::Node& n ) {
+    return n.create_choice( getName(), getDesc() );
 }
 
 }

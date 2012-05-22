@@ -14,6 +14,11 @@ NodeRef FileEntry::create_hidden_node( Node& n ) {
     return r;
 }
 
+std::auto_ptr<Node> FileEntry::make_naked_node( simparm::Node& node ) {
+    return node.create_file_entry( getName(), getDesc() );
+}
+
+
 FileEntry::FileEntry(const FileEntry &entry)
 : StringEntry(entry), out_stream(NULL), in_stream(NULL),
   default_extension(entry.default_extension)

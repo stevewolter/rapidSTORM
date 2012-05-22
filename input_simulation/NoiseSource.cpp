@@ -193,9 +193,11 @@ FluorophoreSetConfig::create_fluorophores(
 }
 
 NoiseSource::NoiseSource( const NoiseConfig &config )
-: simparm::Set("NoiseSource", "Noise source status"),
-  randomSeed(config.noiseGeneratorConfig.random_seed()),
-  t( new dStorm::engine::InputTraits() )
+: randomSeed(config.noiseGeneratorConfig.random_seed()),
+  fluorophore_configs( config.get_fluorophore_sets() ),
+  noise_config( config ),
+  t( new dStorm::engine::InputTraits() ),
+  name_object("NoiseSource", "Noise source status")
 {
 
     DEBUG("Just made traits for noise source");
@@ -221,18 +223,6 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
     if ( config.saveActivity )
         output.reset( new std::ofstream
             ( config.saveActivity().c_str() ));
-
-    simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
-    simparm::NodeRef ui = progress.attach_ui( *this );
-    if ( ! ui.isActive() ) progress.makeASCIIBar( std::cerr );
-    for ( NoiseConfig::FluoSets::const_iterator
-            i = config.get_fluorophore_sets().begin();
-            i != config.get_fluorophore_sets().end(); ++i)
-    {
-        std::auto_ptr<FluorophoreList> l = 
-            i->create_fluorophores( *t, rng, config, progress );
-        fluorophores.transfer( fluorophores.end(), *l );
-    }
 }
 
 NoiseSource::~NoiseSource()
@@ -302,6 +292,17 @@ NoiseSource::end() {
 
 NoiseSource::Source::TraitsPtr
 NoiseSource::get_traits( typename Source::Wishes ) {
+    simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
+    simparm::NodeRef ui = progress.attach_ui( *current_ui );
+    if ( ! ui.isActive() ) progress.makeASCIIBar( std::cerr );
+    for ( boost::ptr_list< FluorophoreSetConfig >::const_iterator
+            i = fluorophore_configs.begin(); i != fluorophore_configs.end(); ++i)
+    {
+        std::auto_ptr<FluorophoreList> l = 
+            i->create_fluorophores( *t, rng, noise_config, progress );
+        fluorophores.transfer( fluorophores.end(), *l );
+    }
+
     return t;
 }
 
@@ -328,5 +329,7 @@ void NoiseConfig::publish_meta_info() {
     t->set_traits( make_image_size().release() );
     update_current_meta_info( t );
 }
+
+dStorm::input::Source<NoiseConfig::Image>* NoiseConfig::makeSource() { return new NoiseSource(*this); }
 
 }

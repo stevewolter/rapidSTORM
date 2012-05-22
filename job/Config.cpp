@@ -40,7 +40,7 @@ namespace job {
 
 class Config::TreeRoot : public output::FilterSource
 {
-    simparm::Object name_object;
+    simparm::TreeObject name_object;
     output::Config* my_config;
     output::Capabilities cap;
 
@@ -75,8 +75,9 @@ class Config::TreeRoot : public output::FilterSource
 
     void attach_full_ui( simparm::Node& at ) { 
         simparm::NodeRef r = name_object.attach_ui(at);
-        attach_source_ui( r ); 
+        attach_children_ui( r ); 
     }
+    void hide_in_tree() { name_object.show_in_tree = false; }
 };
 
 Config::TreeRoot::TreeRoot()
@@ -161,8 +162,6 @@ Config::Config(const Config &c)
 
 Config::~Config() {
     dStorm::input::InputMutexGuard lock( input::global_mutex() );
-    car_config.clearParents();
-    car_config.clearChildren();
     outputRoot.reset( NULL );
     input_listener.reset();
     input.reset();
@@ -178,8 +177,7 @@ void Config::attach_ui( simparm::Node& at ) {
    current_ui = car_config.attach_ui ( at );
    input->registerNamedEntries( *current_ui );
    pistonCount.attach_ui(  *current_ui  );
-   outputRoot->attach_full_ui(outputBox.invisible_node( *current_ui ));
-   outputBox.attach_ui(  *current_ui  );
+   outputRoot->attach_full_ui(outputBox.attach_ui( *current_ui ));
    configTarget.attach_ui(  *current_ui  );
    auto_terminate.attach_ui(  *current_ui  );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");

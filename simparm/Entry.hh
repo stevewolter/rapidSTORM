@@ -26,12 +26,12 @@
 #define CONFIGENTRY_HH
 
 #include "Entry_decl.hh"
+#include "BoostOptional.hh"
 #include "Object.hh"
 #include <list>
 #include <iostream>
 #include <boost/utility.hpp>
 #include <boost/utility/base_from_member.hpp>
-#include "BoostOptional.hh"
 #include "default_value.hh"
 #include "MinMaxWatcher.hh"
 #include "Attributes.hh"
@@ -122,6 +122,8 @@ class Entry
 {
   protected:
     NodeRef create_hidden_node( simparm::Node& );
+    std::auto_ptr<Node> make_naked_node( simparm::Node& node ) 
+        { return node.create_entry( getName(), getDesc(), typeName( TypeOfEntry() ) ); }
 
   public:
     typedef TypeOfEntry value_type;

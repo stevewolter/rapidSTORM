@@ -8,9 +8,10 @@ namespace output {
 
 template <class Type, class OutputType>
 FilterBuilder<Type,OutputType>::FilterBuilder()
-: name_object( Type::get_name(), Type::get_description() )
+: name_object( Type::get_name(), Type::get_description() ),
+  choice_object( Type::get_name(), Type::get_description() )
 { 
-    name_object.userLevel = Type::get_user_level();
+    choice_object.userLevel = Type::get_user_level();
 }
 
 template <class Type, class OutputType>
@@ -18,7 +19,8 @@ FilterBuilder<Type,OutputType>::
 FilterBuilder(const FilterBuilder<Type,OutputType>& o)
 : FilterSource(o),
   config(o.config),
-  name_object(o.name_object)
+  name_object(o.name_object),
+  choice_object(o.choice_object)
 {
     if ( o.getFactory() != NULL )
         this->set_output_factory( *o.getFactory() );

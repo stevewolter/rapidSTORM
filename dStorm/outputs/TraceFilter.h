@@ -19,7 +19,7 @@ class TraceCountConfig
     simparm::Entry<unsigned long> whichSpecific;
 
   private:
-    class WhichSpecificShower : public simparm::Node::Callback {
+    class WhichSpecificShower : public simparm::Listener {
         simparm::BoolEntry &condition;
         simparm::Object &toShow;
         void operator()(const simparm::Event&) {
@@ -28,7 +28,7 @@ class TraceCountConfig
       public:
         WhichSpecificShower(simparm::BoolEntry& condition, 
                             simparm::Object& toShow)
-            : simparm::Node::Callback( simparm::Event::ValueChanged ),
+            : simparm::Listener( simparm::Event::ValueChanged ),
             condition(condition), toShow(toShow)
             { receive_changes_from(condition.value); }
     };

@@ -23,8 +23,12 @@ Object::Object(string name, string desc)
 {
 }
 
+Object::Object(const Object& o)
+: desc(o.desc), viewable(o.viewable),
+  userLevel(o.userLevel), name(o.name)
+{}
+
 Object::~Object() { 
-    clearParents(); 
 }
 
 NodeRef Object::attach_ui( simparm::Node& node ) {
@@ -38,11 +42,18 @@ void Object::detach_ui( simparm::Node& node ) {
 }
 
 NodeRef Object::create_hidden_node( simparm::Node& node ) { 
-    node_ = node.create_object( name, desc() );
+    node_ = make_naked_node( node );
     node_->add_attribute(desc);
     node_->add_attribute(viewable);
     node_->add_attribute(userLevel);
     return *node_;
 }
+
+std::auto_ptr<Node> Object::make_naked_node( simparm::Node& node ) {
+    return node.create_object( name );
+}
+
+std::string Object::getName() const { return name; }
+std::string Object::getDesc() const { return desc(); }
 
 };

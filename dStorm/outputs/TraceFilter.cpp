@@ -10,7 +10,7 @@ using namespace output;
 namespace outputs {
 
 class TraceCountFilter : public output::Filter,
-                         public simparm::Node::Callback
+                         public simparm::Listener
 {
   private:
     EngineResult localizations;
@@ -50,7 +50,7 @@ TraceCountFilter::TraceCountFilter(
     std::auto_ptr<output::Output> output
 ) 
 : Filter(output),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  simparm::Listener( simparm::Event::ValueChanged ),
   minCount(c.min_count()), 
     disassemble(c.disassemble()), 
     selectSpecific(c.selectSpecific),

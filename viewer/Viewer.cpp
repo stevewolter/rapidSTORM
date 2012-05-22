@@ -28,7 +28,7 @@ namespace viewer {
 
 Viewer::Viewer(const Config& config)
 : Status(config),
-  simparm::Node::Callback( simparm::Event::ValueChanged ),
+  simparm::Listener( simparm::Event::ValueChanged ),
   repeater( NULL )
 {
     DEBUG("Building viewer");

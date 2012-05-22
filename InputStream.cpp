@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "debug.h"
 #include "InputStream.h"
 #include "ModuleLoader.h"
@@ -11,9 +15,15 @@ namespace dStorm {
 
 InputStream::InputStream( MainThread& master )
 : IO(NULL,NULL),
-  main_thread(master)
+  main_thread(master),
+  desc( "desc", PACKAGE_STRING ),
+  viewable( "viewable", true ),
+  userLevel( "userLevel", 10 )
 {
     this->showTabbed = true;
+    this->add_attribute(desc);
+    this->add_attribute(viewable);
+    this->add_attribute(userLevel);
     display::Manager::getSingleton().attach_ui( *this );
 }
 
@@ -55,10 +65,11 @@ void InputStream::processCommand(const std::string& cmd, std::istream& rest)
     }
 }
 
-void InputStream::print(const std::string& what) {
+bool InputStream::print(const std::string& what) {
     ost::DebugStream::get()->ost::LockedStream::begin();
-    simparm::IO::print(what);
+    bool b = simparm::IO::print(what);
     ost::DebugStream::get()->ost::LockedStream::end();
+    return b;
 }
 
 

@@ -3,6 +3,7 @@
 
 #include <simparm/TriggerEntry.hh>
 #include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/NodeHandle.hh>
 #include "OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
@@ -37,7 +38,7 @@ class SourceFactory;
  **/
 class FilterSource
 : public OutputSource,
-  public simparm::Node::Callback
+  public simparm::Listener
 {
   private:
     /** The unique integer X for the next disambiguation node. */
@@ -54,7 +55,7 @@ class FilterSource
      *  will not be set until initialize() is called. This avoids init
      *  loops. */
     std::auto_ptr<SourceFactory> factory;
-    simparm::Node* my_node;
+    simparm::NodeHandle my_node;
 
     struct Suboutput;
     typedef simparm::ManagedChoiceEntry<Suboutput> SuboutputChoice;
@@ -62,7 +63,7 @@ class FilterSource
 
     /** \return true after initialize() was called. */
     bool is_initialized() const { return factory.get() != NULL; }
-    /** \see simparm::Node::Callback::operator() */
+    /** \see simparm::Listener::operator() */
     void operator()(const simparm::Event&);
     /** Construct the disambiguation node for the given transmission,
      *  add the remover entry and insert it into our config node. */
@@ -77,7 +78,7 @@ class FilterSource
     SourceFactory* getFactory() { return factory.get(); }
     const SourceFactory* getFactory() const { return factory.get(); }
 
-    void attach_source_ui( simparm::Node& );
+    void attach_children_ui( simparm::Node& );
 
   public:
     ~FilterSource();

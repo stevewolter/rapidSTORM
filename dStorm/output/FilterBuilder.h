@@ -12,7 +12,8 @@ namespace output {
     : public FilterSource
     {
         Type config;
-        simparm::Object name_object;
+        simparm::TreeObject name_object;
+        simparm::Object choice_object;
       public:
         typedef Type BaseType;
 
@@ -27,12 +28,12 @@ namespace output {
         std::string getName() const { return Type::get_name(); }
         std::string getDesc() const { return Type::get_description(); }
         void attach_full_ui( simparm::Node& at ) { 
-            simparm::NodeRef r = name_object.invisible_node(at);
+            simparm::NodeRef r = name_object.attach_ui(at);
             config.attach_ui( r );
-            FilterSource::attach_source_ui( r ); 
-            name_object.attach_ui( at ); 
+            FilterSource::attach_children_ui( r ); 
         }
-        void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }
+        void attach_ui( simparm::Node& at ) { choice_object.attach_ui( at ); }
+        void hide_in_tree() { name_object.show_in_tree = false; }
     };
 }
 }

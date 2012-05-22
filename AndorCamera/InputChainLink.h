@@ -26,7 +26,7 @@ struct Display;
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::Terminus, public simparm::Node::Callback
+: public dStorm::input::Terminus, public simparm::Listener
 {
   private:
     simparm::Object name_object;

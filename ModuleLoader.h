@@ -9,7 +9,6 @@
 namespace dStorm {
 
 void add_modules( Config& );
-std::string makeProgramDescription();
 
 }
 

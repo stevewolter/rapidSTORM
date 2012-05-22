@@ -50,6 +50,10 @@ NodeRef ProgressEntry::create_hidden_node( Node& at ) {
     return r;
 }
 
+std::auto_ptr<Node> ProgressEntry::make_naked_node( simparm::Node& node ) {
+    return node.create_progress_bar( getName(), getDesc() );
+}
+
 ProgressEntry::ProgressEntry(const ProgressEntry &entry)
 : Entry<double>(entry), indeterminate(entry.indeterminate)
 {

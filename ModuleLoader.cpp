@@ -59,10 +59,4 @@ void add_modules( dStorm::Config& car_config )
 
 }
 
-std::string makeProgramDescription() {
-    std::stringstream ss;
-    ss << PACKAGE_STRING;
-    return ss.str();
-}
-
 }

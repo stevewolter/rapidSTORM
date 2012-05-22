@@ -125,10 +125,18 @@ class Node : public Publisher {
 
 struct Node {
     virtual ~Node() {}
-    virtual std::auto_ptr<Node> create_object( std::string name, std::string desc ) = 0;
+    virtual std::auto_ptr<Node> create_object( std::string name ) = 0;
+    virtual std::auto_ptr<Node> create_entry( std::string name, std::string desc, std::string type ) = 0;
+    virtual std::auto_ptr<Node> create_set( std::string name ) = 0;
+    virtual std::auto_ptr<Node> create_choice( std::string name, std::string desc ) = 0;
+    virtual std::auto_ptr<Node> create_file_entry( std::string name, std::string desc ) = 0;
+    virtual std::auto_ptr<Node> create_progress_bar( std::string name, std::string desc ) = 0;
+    virtual std::auto_ptr<Node> create_trigger( std::string name, std::string desc ) = 0;
     virtual void add_attribute( simparm::BaseAttribute& ) = 0;
     virtual void send( Message& m ) = 0;
     virtual void show() = 0;
+    /** TODO: Method is deprecated and should be removed on successful migration. */
+    virtual bool isActive() const = 0;
 };
 
 typedef Node& NodeRef;

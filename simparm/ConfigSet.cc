@@ -58,6 +58,10 @@ NodeRef Set::create_hidden_node( simparm::Node& node ) {
     return r;
 }
 
+std::auto_ptr<Node> Set::make_naked_node( simparm::Node& node ) {
+    return node.create_set( getName() );
+}
+
 #if 0
 static bool isEntryBool(const BasicEntry &entry) {
    return dynamic_cast<const BoolEntry*>(&entry) != NULL;

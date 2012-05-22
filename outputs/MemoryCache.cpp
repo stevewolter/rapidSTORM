@@ -6,6 +6,7 @@
 
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterSource.h>
+#include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/localization/Traits.h>
 #include <dStorm/Engine.h>
@@ -88,6 +89,18 @@ class Bunch
     void recall( int index, output::LocalizedImage& into ) const; 
 };
 
+struct Config 
+{
+    static std::string get_name() { return "Cache"; }
+    static std::string get_description() { return "Cache localizations"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    void attach_ui( simparm::Node& ) {}
+    bool determine_output_capabilities( dStorm::output::Capabilities& cap ) { 
+        cap.set_source_image( false );
+        return true;
+    }
+};
+
 class Output 
     : public output::Filter, private dStorm::Engine
 {
@@ -127,28 +140,13 @@ class Output
     void store_results_( bool success );
 
   public:
-    Output(std::auto_ptr<output::Output> output);
+    Output(const Config&, std::auto_ptr<output::Output> output);
     ~Output();
 
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement& r) ;
     void receiveLocalizations(const EngineResult& e);
 
-};
-
-struct Source : public output::FilterSource
-{
-    simparm::Object name_object;
-    Source();
-    Source* clone() const { return new Source(*this); }
-    std::string getDesc() const { return name_object.desc(); }
-    std::string getName() const { return name_object.getName(); }
-    void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = name_object.attach_ui(at);
-        attach_source_ui( r );
-    }
-    void attach_ui( simparm::Node& at ) { name_object.attach_ui(at); }
-    std::auto_ptr<output::Output> make_output(); 
 };
 
 
@@ -207,7 +205,7 @@ void Bunch::insert( const output::LocalizedImage& o ) {
 }
 
 Output::Output(
-    std::auto_ptr<output::Output> output
+    const Config&, std::auto_ptr<output::Output> output
 )
 : Filter(output)
 { 
@@ -337,17 +335,9 @@ void Output::receiveLocalizations(const EngineResult& e)
     Filter::receiveLocalizations( e );
 }
 
-Source::Source()
-: name_object("Cache", "Cache localizations") {}
-
-std::auto_ptr<output::Output> Source::make_output()
-{
-    return std::auto_ptr<output::Output>( new Output( FilterSource::make_output() ) );
-}
-
 std::auto_ptr<output::OutputSource> make_output_source()
 {
-    return std::auto_ptr<output::OutputSource>( new memory_cache::Source() );
+    return std::auto_ptr<output::OutputSource>( new output::FilterBuilder<Config,Output>() );
 }
 
 

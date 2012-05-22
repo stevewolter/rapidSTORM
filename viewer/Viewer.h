@@ -21,7 +21,7 @@ namespace viewer {
 *  of that image in a window. */
 class Viewer : public Status,
                public output::Output,
-               public simparm::Node::Callback
+               public simparm::Listener
 {
   public:
     /** Constructor will not display image; this is deferred

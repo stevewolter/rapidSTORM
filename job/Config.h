@@ -45,9 +45,9 @@ class Config : public dStorm::Config
     Config *clone() const { return new Config(*this); }
 
     void attach_ui( simparm::Node& at );
-    void processCommand( std::istream& i ) { current_ui->processCommand(i); }
+    //void processCommand( std::istream& i ) { current_ui->processCommand(i); }
     void send( simparm::Message& m ) { current_ui->send(m); }
-    std::list<std::string> printValues() { return current_ui->printValues(); }
+    //std::list<std::string> printValues() { return current_ui->printValues(); }
 
     simparm::Node& user_interface_handle() { return *current_ui; }
 

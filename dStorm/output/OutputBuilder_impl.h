@@ -8,7 +8,8 @@ namespace output {
 
 template <typename Config, typename Output>
 OutputBuilder<Config, Output>::OutputBuilder()
-: name_object( Config::get_name(), Config::get_description() )
+: name_object( Config::get_name(), Config::get_description() ),
+  choice_object( Config::get_name(), Config::get_description() )
 { 
 }
 

@@ -61,8 +61,8 @@ class Attributes< Eigen::Matrix<Scalar,Rows,Cols,Flags,MaxRows,MaxCols>,ValueFie
     Attributes( Attribute<ValueField>& a ) : Base(a), rows("rows", Rows), columns("columns", Cols) {}
     Attributes( const Attributes& a, Attribute<ValueField>& b ) : Base(a,b), rows(a.rows), columns(a.columns) {}
     void registerNamedEntries( simparm::Node& n ) { 
-        n.push_back(rows);
-        n.push_back(columns);
+        n.add_attribute(rows);
+        n.add_attribute(columns);
         Base::registerNamedEntries(n);
     }
 };

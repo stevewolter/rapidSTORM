@@ -33,7 +33,7 @@ class Random : public FluorophoreDistribution {
 std::auto_ptr< FluorophoreDistribution > make_lattice();
 
 class Lines : public FluorophoreDistribution, 
-               public simparm::Node::Callback 
+               public simparm::Listener 
 {
   protected:
     void attach_ui( simparm::Node& at ) ;

@@ -17,10 +17,13 @@ class InputStream
     std::auto_ptr< job::Config > orig_config, current_config;
     std::auto_ptr< JobStarter > starter;
     MainThread& main_thread;
+    simparm::Attribute<std::string> desc;
+    simparm::Attribute<bool> viewable;
+    simparm::Attribute<int> userLevel;
 
     void reset_config();
     void processCommand( const std::string& cmd, std::istream& rest);
-    void print(const std::string& what);
+    bool print(const std::string& what);
   public:
     InputStream( MainThread& master );
     ~InputStream();

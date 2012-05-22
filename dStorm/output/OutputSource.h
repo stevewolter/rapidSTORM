@@ -24,7 +24,6 @@ namespace output {
 class OutputSource 
 {
   private:
-    simparm::TreeAttributes tree_attributes;
     OutputSource& operator=(const OutputSource&);
   protected:
     class AdjustedList;
@@ -37,11 +36,8 @@ class OutputSource
      *  updated to the new file basename if it is changed. */
     void adjust_to_basename(BasenameAdjustedFileEntry&);
 
-    void attach_source_ui( simparm::Node& at )
-        { tree_attributes.registerNamedEntries( at ); }
-
   public:
-    void hide_in_tree() { tree_attributes.show_in_tree = false; }
+    virtual void hide_in_tree() = 0; 
     virtual ~OutputSource();
     virtual OutputSource* clone() const = 0;
 

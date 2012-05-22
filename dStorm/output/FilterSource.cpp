@@ -29,19 +29,17 @@ public:
     void detach_ui( simparm::Node& removal_choice_node )
         { removal_node.detach_ui( removal_choice_node ); }
     void attach_suboutput_ui( simparm::Node& at ) {
-        unadorned->attach_full_ui( config_node.invisible_node( at ) );
-        config_node.attach_ui( at );
+        unadorned->attach_full_ui( config_node.attach_ui( at ) );
     }
 
     OutputSource& output() const { return *unadorned; }
 };
 
-void FilterSource::attach_source_ui( simparm::Node& at )
+void FilterSource::attach_children_ui( simparm::Node& at )
 {
-    OutputSource::attach_source_ui(at);
     assert( ! my_node );
 
-    my_node = &at;
+    my_node = at;
 
     for ( SuboutputChoice::iterator i = suboutputs.begin(); i != suboutputs.end(); ++i )
         i->attach_suboutput_ui( at );
@@ -58,10 +56,9 @@ void FilterSource::attach_source_ui( simparm::Node& at )
 }
 
 FilterSource::FilterSource()
-: simparm::Node::Callback( simparm::Event::ValueChanged ),
+: simparm::Listener( simparm::Event::ValueChanged ),
   next_identity(0),
   factory( NULL ),
-  my_node( NULL ),
   suboutputs( "ToRemove", "Select output to remove" )
 {
     suboutputs.set_auto_selection( false );
@@ -69,10 +66,9 @@ FilterSource::FilterSource()
 }
 
 FilterSource::FilterSource( const FilterSource& o ) 
-: OutputSource(o), simparm::Node::Callback(o),
+: OutputSource(o), simparm::Listener(o),
   next_identity(o.next_identity), basename(o.basename),
   factory( NULL ),
-  my_node( NULL ),
   suboutputs(o.suboutputs)
 {
 }
@@ -98,7 +94,7 @@ void FilterSource::add
     assert( src.get() );
     std::string name = "Output" + boost::lexical_cast<std::string>( next_identity++ );
     src->set_output_file_basename(basename);
-    suboutputs.addChoice( new Suboutput( src, name, my_node ) );
+    suboutputs.addChoice( new Suboutput( src, name, my_node.get_ptr() ) );
 }
 
 void FilterSource::add_new_element() {

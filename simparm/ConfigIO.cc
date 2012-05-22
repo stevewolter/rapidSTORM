@@ -15,20 +15,22 @@ using namespace std;
 
 namespace simparm {
 
-#if 0
 IO::IO(istream* in, ostream* out) 
-: in(in), out(out), subthread_if_any(NULL), mutex(new pthread_mutex_t),
-  detached(false),
+: Node("IO","IO"),
+  in(in), out(out), subthread_if_any(NULL), mutex(new pthread_mutex_t),
   should_quit(false),
   remoteAttached("remote_attached", false),
   showTabbed("showTabbed", false)
 {
     //push_back( remoteAttached );
-    node->add_attribute(showTabbed);
+    add_attribute(showTabbed);
 
     pthread_mutex_init((pthread_mutex_t*)mutex, NULL);
+
+    Node::print_.connect( boost::bind( &IO::print, this, _1 ) );
 }
 
+#if 0
 void IO::forkInput() {
     subthread_if_any = new pthread_t;
     int result = pthread_create( (pthread_t*)subthread_if_any,
@@ -52,6 +54,7 @@ void *IO::processInputCallback(void *configIO) {
     }
     return NULL;
 }
+#endif
 
 IO::~IO() {
     if (subthread_if_any) {
@@ -59,8 +62,6 @@ IO::~IO() {
         delete (pthread_t*)subthread_if_any;
     }
 
-    clearChildren();
-    
     if ( remoteAttached() && out != NULL )
         (*out) << "quit" << std::endl;
 
@@ -74,45 +75,26 @@ void IO::processInput() {
     }
 }
 
-void IO::processCommand(istream& in) {
-    string cmd;
-    in >> cmd;
-
-    processCommand( cmd, in );
-}
-
 void IO::processCommand(const std::string& cmd, istream& in) {
-    if ( cmd == "set" || cmd == "forSet" || cmd == "in" ) {
-        string setn;
-        in >> setn;
-        (*this)[setn].processCommand(in);
-    } else if (cmd == "attach") {
+    if (cmd == "attach") {
         remoteAttached = true;
-        setActivity( true );
-        for ( iterator i = begin(); i != end(); i++ )
-            define( *i );
+        if ( out ) show_attributes(*out);
+        show_children();
         print("attach");
     } else if (cmd == "detach") {
         if (remoteAttached) {
             remoteAttached = false;
-            setActivity( false );
+            hide();
             print("detach");
         }
+#if 0
     } else if (cmd == "help") {
         if ( out )
             for ( iterator i = begin(); i != end(); i++ )
                 i->printHelp( *out );
+#endif
     } else if (cmd == "quit") {
         should_quit = true;
-#if 0
-        if (remoteAttached) {
-            remoteAttached = false;
-            setActivity( false );
-            std::for_each( begin(), end(), 
-                            bind1st(mem_fun(&IO::undefine),this) );
-        }
-        this->in = NULL;
-#endif
     } else if (cmd == "cmd") {
         int number;
         in >> number;
@@ -126,15 +108,22 @@ void IO::processCommand(const std::string& cmd, istream& in) {
         std::string s;
         std::getline(in, s);
         print(s);
+    } else {
+        Node::processCommand( cmd, in );
     }
 }
 
-void IO::print(const std::string& what) {
-    if (!out) return;
+bool IO::print(const std::string& what) {
+    if (!out || !remoteAttached()) return false;
     pthread_mutex_lock( (pthread_mutex_t*)mutex );
     (*out) << what << endl;
     out->flush();
     pthread_mutex_unlock( (pthread_mutex_t*)mutex );
+    return true;
+}
+
+bool IO::print_on_top_level(const std::string& what) {
+    return print( what );
 }
 
 void IO::set_input_stream( istream *in ) { this->in = in; }
@@ -142,6 +131,7 @@ void IO::set_output_stream( ostream *out ) { this->out = out; }
 
 void IO::send( Message& m ) {
     if ( in != NULL && remoteAttached() ) {
+#if 0
         /* Write the help_file */
         if ( m.help_file() == "" && has_child_named("help_file") ) {
             const Node& hf = (*this)["help_file"];
@@ -151,11 +141,11 @@ void IO::send( Message& m ) {
         std::string definition = m.define();
         print( m.define() );
         print( m.undefine() );
+#endif
     } else {
         std::cerr << m;
         m.set_response( Message::OKYes );
     }
 }
-#endif
 
 }

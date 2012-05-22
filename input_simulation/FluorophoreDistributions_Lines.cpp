@@ -27,7 +27,7 @@ void Lines::Line::attach_ui( simparm::Node& t ) {
 
 Lines::Lines()
 : FluorophoreDistribution("Lines", "Fluorophores on lines"),
-  simparm::Node::Callback(simparm::Event::ValueChanged),
+  simparm::Listener(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
@@ -39,7 +39,7 @@ Lines::Lines()
 
 Lines::Lines(const Lines& c)
 : FluorophoreDistribution(c),
-  simparm::Node::Callback(simparm::Event::ValueChanged),
+  simparm::Listener(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {

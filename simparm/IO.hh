@@ -26,20 +26,19 @@
 #define CONFIGIO_HH
 
 #include <iostream>
-#include "Node.hh"
+#include "text_stream/Node.h"
 #include "Attribute.hh"
 
 namespace simparm {
 
 using std::istream;
 using std::ostream;
-class IO {
+class IO : public simparm::text_stream::Node {
   private:
-    std::auto_ptr<simparm::Node> node;
     istream *in;
     ostream *out;
     void *subthread_if_any, *mutex;
-    bool detached, should_quit;
+    bool should_quit;
 
     static void *processInputCallback(void *configIO);
     virtual std::string getTypeDescriptor() const { return "IO"; }
@@ -66,15 +65,14 @@ class IO {
     void forkInput();
     void detachInput();
 
-    void processCommand(istream& in);
-    void print(const std::string& what);
+    bool print(const std::string& what);
+    bool print_on_top_level(const std::string& what);
     void send( Message &m );
     void printHelp(std::ostream &) const {}
 
     bool received_quit_command() const 
         { return should_quit; }
-
-    simparm::Node& root_node() { return *node; }
+    void processCommand( std::istream& i ) { Node::processCommand(i); }
 };
 }
 

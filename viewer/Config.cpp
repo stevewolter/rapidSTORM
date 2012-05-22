@@ -109,3 +109,5 @@ Config::crop_border() const
 
 }
 }
+
+namespace simparm { template class Entry< dStorm::viewer::Config::CropBorder >; }

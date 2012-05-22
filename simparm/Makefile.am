@@ -1,6 +1,6 @@
 UNIT_TESTS = testChoice test_units test_Link test_optional testSimparm  
 
-# AUTOMAKE_OPTIONS = dejagnu
+AUTOMAKE_OPTIONS = subdir-objects
 # DEJATOOL = simparm
 
 noinst_LTLIBRARIES = libsimparm.la
@@ -24,7 +24,8 @@ libsimparm_la_SOURCES = \
     Message_decl.hh Message.hh Menu.hh \
     Eigen_decl.hh default_value.hh IncrementWatcher.hh BoostUnits.hh \
     MinMaxWatcher.hh MinMaxWatcher_decl.hh BoostOptional.hh Attributes.hh \
-    ObjectChoice.hh command_line.hh BoostSignal.hh NodeHandle.hh
+    ObjectChoice.hh command_line.hh BoostSignal.hh NodeHandle.hh \
+    text_stream/Node.h text_stream/Node.cpp
 libsimparm_la_LDFLAGS = -lpthread 
 
 check_PROGRAMS = $(UNIT_TESTS) test_eigen testSimparm
