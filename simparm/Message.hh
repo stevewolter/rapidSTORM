@@ -7,7 +7,7 @@
 
 namespace simparm {
 
-class Message : public Node {
+class Message {
   public:
     enum Severity { Question,
                     Debug, Info, Warning, Error, Critical};

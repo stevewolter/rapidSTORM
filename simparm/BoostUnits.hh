@@ -86,8 +86,8 @@ struct Attributes< boost::units::quantity<Unit,Value>, Field, void >
     Attributes( const Attributes& a, Attribute<Field>& e ) 
         : Base(a, e), long_unit(a.long_unit), short_unit(a.short_unit) {}
     void registerNamedEntries( simparm::Node& n ) {
-        n.push_back( long_unit );
-        n.push_back( short_unit );
+        n.add_attribute( long_unit );
+        n.add_attribute( short_unit );
         Base::registerNamedEntries(n);
     }
   private:

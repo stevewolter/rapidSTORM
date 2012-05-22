@@ -9,20 +9,19 @@ libsimparm_la_SOURCES = \
     ConfigSet.cc ConfigEntry.cc ConfigIO.cc ConfigObject.cc \
     ConfigEntryTrigger.cc ConfigEntryProgress.cc \
     Node.cc Attribute.cc TreeEntry.cc Node_Callback.cc \
-    Node_debug.cc FileEntry.cc Message.cpp Uri.cpp \
-    ChoiceEntry.cpp TreeCallback.cc \
+    Node_debug.cc FileEntry.cc Message.cpp \
+    ChoiceEntry.cpp \
     stl_helpers.hh Node_debug.hh Node_Pimpl.hh \
     debug.hh Callback.hh Node.hh Attribute.hh Object.hh \
     Entry_decl.hh Entry.hh Set.hh IO.hh \
     VectorEntry.hh \
     Entry_Impl.hh ChoiceEntry_Impl.hh ManagedChoiceEntry.hh \
-    ChoiceEntry.hh FileEntry.hh Structure.hh TreeEntry.hh \
+    ChoiceEntry.hh FileEntry.hh TreeEntry.hh \
     TriggerEntry.hh ProgressEntry.hh iostream.hh \
     Link.hh Link_impl.hh Link_iterator.hh \
     AttributeChange.hh EntryManipulators.hh \
     Node_decl.hh Eigen.hh \
-    Structure_decl.hh Message_decl.hh Message.hh Menu.hh URI.hh \
-    TreeCallback.hh \
+    Message_decl.hh Message.hh Menu.hh \
     Eigen_decl.hh default_value.hh IncrementWatcher.hh BoostUnits.hh \
     MinMaxWatcher.hh MinMaxWatcher_decl.hh BoostOptional.hh Attributes.hh \
     ObjectChoice.hh command_line.hh BoostSignal.hh NodeHandle.hh

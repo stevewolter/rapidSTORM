@@ -91,7 +91,7 @@ struct Attributes< boost::optional<Inner>, Field, void >
     Attributes( const Attributes& a, Attribute<Field>& e ) 
         : Base(a, e), is_optional(a.is_optional) {}
     void registerNamedEntries( simparm::Node& n ) {
-        n.push_back( is_optional );
+        n.add_attribute( is_optional );
         Base::registerNamedEntries(n);
     }
   private:

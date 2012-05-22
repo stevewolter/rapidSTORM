@@ -50,10 +50,12 @@ class BasicEntry : public Object {
     Attribute<bool> invalid, editable, outputOnChange;
     Attribute<string> helpID;
 
-  public:
+protected:
+    NodeRef create_hidden_node( simparm::Node& );
+public:
     BasicEntry(string name, string desc = "");
     BasicEntry(const BasicEntry&);
-    virtual ~BasicEntry() ;
+    ~BasicEntry() ;
 
     void setHelp(const string &help)
         { this->help = help; }
@@ -65,11 +67,10 @@ class BasicEntry : public Object {
         { this->outputOnChange = outputOnChange; }
 
     void printHelp(ostream &) const;
-    void processCommand( std::istream& i ) { Object::processCommand( i ); }
-    bool has_child_named(const std::string& name) const
-        { return Object::has_child_named(name); }
+    void processCommand( std::istream& i );
+    bool has_child_named(const std::string& name) const;
     bool is_entry() const { return true; }
-    virtual BasicEntry& get_entry() { return *this; }
+    BasicEntry& get_entry() { return *this; }
 };
 
 template<typename ValueField>
@@ -120,8 +121,7 @@ class Entry
   public Attributes<TypeOfEntry>
 {
   protected:
-    virtual string getTypeDescriptor() const
-        { return typeName( TypeOfEntry() ) + string("Entry"); }
+    NodeRef create_hidden_node( simparm::Node& );
 
   public:
     typedef TypeOfEntry value_type;
@@ -132,36 +132,23 @@ class Entry
     Entry(string name, string desc = "",
                 const TypeOfEntry& value = TypeOfEntry());
     Entry(const Entry<TypeOfEntry> &entry);
-    virtual ~Entry() ;
-    virtual Entry<TypeOfEntry>* clone() const
+    ~Entry() ;
+    Entry<TypeOfEntry>* clone() const
         { return new Entry<TypeOfEntry>(*this); }
 
     inline const TypeOfEntry &operator()() const { return value(); }
-    virtual void setValue(const TypeOfEntry &value)
+    void setValue(const TypeOfEntry &value)
         { this->value = value; }
-
-    std::list<std::string> printValues() const {
-        std::list<std::string> children = Object::printValues();
-        // TODO: Remove entirely. Unnecessary complexity. children.push_front( getName() + " = " + value.getValueString() );
-        return children;
-    }
 
     Entry<TypeOfEntry> &
         operator=(const Entry<TypeOfEntry> &entry);
     Entry<TypeOfEntry> &operator=(const TypeOfEntry &entry) 
  { this->value = entry; return *this; }
 
-    inline bool operator==(const Entry<TypeOfEntry> &o)
-        const
-        { return (name == o.name) && 
-                    (value() == o.value()); }
-    inline bool operator!=(const Entry<TypeOfEntry>
-        &entry) const
-        { return ! ( (*this) == entry ); }
-    inline bool operator==(const TypeOfEntry &value) const
-        { return this->value() == value; }
-    inline bool operator!=(const TypeOfEntry &value) const
-        { return this->value() != value; }
+    bool operator==(const Entry<TypeOfEntry> &o) const;
+    inline bool operator!=(const Entry<TypeOfEntry> &entry) const;
+    inline bool operator==(const TypeOfEntry &value) const;
+    inline bool operator!=(const TypeOfEntry &value) const;
 };
 
 typedef Entry<bool> BoolEntry;

@@ -50,16 +50,15 @@ Set::Set(std::string name, std::string desc)
 : Object(name, desc),
   showTabbed("showTabbed", false) 
 {
-    push_back(showTabbed);
 }
 
-Set::Set(const Set &o) 
-: Object(o), showTabbed(o.showTabbed) {
-    push_back(showTabbed);
-}
-Set::~Set() {
+NodeRef Set::create_hidden_node( simparm::Node& node ) {
+    NodeRef r = Object::create_hidden_node( node );
+    r.add_attribute( showTabbed );
+    return r;
 }
 
+#if 0
 static bool isEntryBool(const BasicEntry &entry) {
    return dynamic_cast<const BoolEntry*>(&entry) != NULL;
 }
@@ -321,5 +320,6 @@ void printHelp(const Node& n, ostream &o) {
          i->get_entry().printHelp(o);
     }
 }
+#endif
 
 }

@@ -9,6 +9,7 @@
 
 namespace simparm {
 
+#if 0
 struct Node::Pimpl {
     Node& node;
 
@@ -44,6 +45,7 @@ struct Node::Pimpl {
 
     void link_removed( TreeLink::WhichEnd end, Pimpl& other_end ); 
 };
+#endif
 
 
 }

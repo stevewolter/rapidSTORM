@@ -13,6 +13,8 @@ class FileEntry : public StringEntry {
     std::ostream* out_stream;
     std::istream* in_stream;
 
+    NodeRef create_hidden_node( Node& );
+
   public:
    FileEntry(const FileEntry &entry);
    FileEntry(string name, string desc, string value = "");
@@ -26,13 +28,10 @@ class FileEntry : public StringEntry {
 
    operator bool() const;
 
-   std::ostream& get_output_stream(bool append = false) 
-;
+   std::ostream& get_output_stream(bool append = false);
    void close_output_stream();
    std::istream& get_input_stream();
    void close_input_stream();
-
-   std::string without_extension() const;
 };
 
 }

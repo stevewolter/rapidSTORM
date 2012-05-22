@@ -82,12 +82,13 @@ static std::string mkname(void *v) {
     return ss.str();
 }
 
+#if 0
 Message::Message(
     std::string t,
     std::string m,
     Severity s,
     Options o )
-: Node("simparmMessage" + mkname(this)),
+: //Node("simparmMessage" + mkname(this)),
   help_file("help_file", ""),
   helpID("helpID", ""),
   title("title", t),
@@ -182,5 +183,6 @@ std::ostream& operator<<( std::ostream& o, const Message& m)
 }
 
 void Message::set_response(Response s) { response = s; }
+#endif
 
 }

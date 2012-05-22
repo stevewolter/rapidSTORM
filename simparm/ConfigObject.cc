@@ -16,27 +16,33 @@ extern void announce_dead_node( Node *node, std::string );
 #endif
 
 Object::Object(string name, string desc)
-: Node(name), desc("desc", desc),
+: desc("desc", desc),
   viewable("viewable", true),
-  userLevel("userLevel", Beginner)
+  userLevel("userLevel", Beginner),
+  name(name)
 {
 }
+
 Object::~Object() { 
     clearParents(); 
 }
 
 NodeRef Object::attach_ui( simparm::Node& node ) {
-    push_back(desc);
-    push_back(viewable);
-    push_back(userLevel);
-    node.push_back( *this );
-    return *this;
+    NodeRef r = create_hidden_node( node );
+    r.show();
+    return r;
 }
 
 void Object::detach_ui( simparm::Node& node ) {
-    node.erase( *this );
+    node_.reset();
 }
 
-NodeRef Object::invisible_node( simparm::Node& ) { return *this; }
+NodeRef Object::create_hidden_node( simparm::Node& node ) { 
+    node_ = node.create_object( name, desc() );
+    node_->add_attribute(desc);
+    node_->add_attribute(viewable);
+    node_->add_attribute(userLevel);
+    return *node_;
+}
 
 };

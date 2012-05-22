@@ -1,7 +1,7 @@
 #ifndef SIMPARM_NODE
 #define SIMPARM_NODE
 
-#include <string>
+#if 0
 #include <list>
 #include <stdexcept>
 #include <memory>
@@ -10,12 +10,18 @@
 #include "Link_iterator.hh"
 
 #include "Callback.hh"
-#include "Message_decl.hh"
 
 #include <iostream>
+#endif
+
+#include <string>
+#include <memory>
+#include "Message_decl.hh"
+#include "BaseAttribute.hh"
 
 namespace simparm {
 
+#if 0
 class BasicEntry;
 
 class Node : public Publisher {
@@ -114,6 +120,15 @@ class Node : public Publisher {
 
     virtual bool is_entry() const { return false; }
     virtual BasicEntry& get_entry() { throw std::logic_error("Not implemented"); }
+};
+#endif
+
+struct Node {
+    virtual ~Node() {}
+    virtual std::auto_ptr<Node> create_object( std::string name, std::string desc ) = 0;
+    virtual void add_attribute( simparm::BaseAttribute& ) = 0;
+    virtual void send( Message& m ) = 0;
+    virtual void show() = 0;
 };
 
 typedef Node& NodeRef;

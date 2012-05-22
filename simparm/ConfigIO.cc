@@ -15,16 +15,16 @@ using namespace std;
 
 namespace simparm {
 
+#if 0
 IO::IO(istream* in, ostream* out) 
-: simparm::Node("IO"),
-  in(in), out(out), subthread_if_any(NULL), mutex(new pthread_mutex_t),
+: in(in), out(out), subthread_if_any(NULL), mutex(new pthread_mutex_t),
   detached(false),
   should_quit(false),
   remoteAttached("remote_attached", false),
   showTabbed("showTabbed", false)
 {
     //push_back( remoteAttached );
-    push_back(showTabbed);
+    node->add_attribute(showTabbed);
 
     pthread_mutex_init((pthread_mutex_t*)mutex, NULL);
 }
@@ -156,5 +156,6 @@ void IO::send( Message& m ) {
         m.set_response( Message::OKYes );
     }
 }
+#endif
 
 }

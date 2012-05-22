@@ -8,6 +8,7 @@
 #include <iostream>
 #include <list>
 
+#if 0
 #ifndef NDEBUG
 namespace simparm {
 
@@ -155,4 +156,5 @@ void my_tree (const Node *node) {
 }
 
 }
+#endif
 #endif

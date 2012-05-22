@@ -33,8 +33,9 @@ namespace simparm {
 
 using std::istream;
 using std::ostream;
-class IO : public Node {
+class IO {
   private:
+    std::auto_ptr<simparm::Node> node;
     istream *in;
     ostream *out;
     void *subthread_if_any, *mutex;
@@ -42,9 +43,6 @@ class IO : public Node {
 
     static void *processInputCallback(void *configIO);
     virtual std::string getTypeDescriptor() const { return "IO"; }
-
-    void define(Node &node) { print( node.define() ); }
-    void undefine(Node &node) { print( node.undefine() ); }
 
   protected:
     virtual void processCommand( 
@@ -75,6 +73,8 @@ class IO : public Node {
 
     bool received_quit_command() const 
         { return should_quit; }
+
+    simparm::Node& root_node() { return *node; }
 };
 }
 

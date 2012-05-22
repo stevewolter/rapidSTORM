@@ -1,10 +1,11 @@
 #include "ProgressEntry.hh"
+#include "Callback.hh"
 #include <math.h>
 
 namespace simparm {
 
 class ProgressEntry::ASCII_Progress_Shower
-  : public Node::Callback
+  : public Listener
 {
   private:
     const Attribute<double>& value;
@@ -15,7 +16,7 @@ class ProgressEntry::ASCII_Progress_Shower
     ASCII_Progress_Shower( 
         Attribute<double>& val, 
         std::ostream& out ) 
-    : Node::Callback( Event::ValueChanged ),
+    : Listener( Event::ValueChanged ),
       value(val),
       asciiProgress(out), asciiProgressLevel(0)
     { val.addChangeCallback(*this); }
@@ -43,6 +44,12 @@ class ProgressEntry::ASCII_Progress_Shower
     std::ostream& getStream() { return asciiProgress; }
 };
 
+NodeRef ProgressEntry::create_hidden_node( Node& at ) {
+    NodeRef r = Entry<double>::create_hidden_node( at );
+    r.add_attribute( indeterminate );
+    return r;
+}
+
 ProgressEntry::ProgressEntry(const ProgressEntry &entry)
 : Entry<double>(entry), indeterminate(entry.indeterminate)
 {
@@ -50,7 +57,6 @@ ProgressEntry::ProgressEntry(const ProgressEntry &entry)
     if ( entry.display.get() != NULL )
         display.reset( 
             new ASCII_Progress_Shower( value, entry.display->getStream()));
-    push_back( indeterminate );
 }
 
 ProgressEntry::ProgressEntry(string name, string desc, double value)
@@ -59,7 +65,6 @@ ProgressEntry::ProgressEntry(string name, string desc, double value)
    min = (0);
    max = (1+1E-10);
    increment = 0.01;
-    push_back( indeterminate );
 }
 
 ProgressEntry::~ProgressEntry() {}

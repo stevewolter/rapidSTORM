@@ -13,8 +13,6 @@ Entry<TypeOfEntry>::Entry(
   Attributes<TypeOfEntry>(boost::base_from_member< Attribute<TypeOfEntry> >::member),
   value( boost::base_from_member< Attribute<TypeOfEntry> >::member )
 {
-    Attributes<TypeOfEntry>::registerNamedEntries(*this);
-    push_back(value);
 }
 
 template <typename TypeOfEntry>
@@ -25,8 +23,15 @@ Entry<TypeOfEntry>::Entry(
   Attributes<TypeOfEntry>(from, boost::base_from_member< Attribute<TypeOfEntry> >::member),
   value( boost::base_from_member< Attribute<TypeOfEntry> >::member )
 {
-    Attributes<TypeOfEntry>::registerNamedEntries(*this);
-    push_back(value);
+}
+
+template <typename TypeOfEntry>
+NodeRef
+Entry<TypeOfEntry>::create_hidden_node(simparm::Node& to) {
+    NodeRef r = BasicEntry::create_hidden_node(to);
+    Attributes<TypeOfEntry>::registerNamedEntries(r);
+    r.add_attribute(value);
+    return r;
 }
 
 template <typename TypeOfEntry>
@@ -62,9 +67,9 @@ template <typename TypeOfEntry, typename ValueField>
 void Attributes<TypeOfEntry, ValueField, 
     typename boost::enable_if< boost::is_fundamental<TypeOfEntry> >::type 
 >::registerNamedEntries( simparm::Node& n ) {
-    n.push_back(increment);
-    n.push_back(min);
-    n.push_back(max);
+    n.add_attribute(increment);
+    n.add_attribute(min);
+    n.add_attribute(max);
 }
 
 template <typename TypeOfEntry, typename ValueField>

@@ -17,7 +17,6 @@ ChoiceEntry(string name, string desc)
   value( "value", no_selection )
 {
     SIMPARM_DEBUG(this << " constructed from scratch");
-    push_back( value );
 }
 
 
@@ -27,7 +26,6 @@ ChoiceEntry(const ChoiceEntry& o)
 : BasicEntry(o), auto_select(o.auto_select), value(o.value)
 {
     SIMPARM_DEBUG(this << "is constructed by copy");
-    push_back( value );
 }
 
 template <typename ChoiceType>
@@ -38,7 +36,8 @@ template <typename ChoiceType>
 void ChoiceEntry<ChoiceType>::
 addChoice(ChoiceType& choice)
 { 
-    choice.attach_ui( static_cast<simparm::Node&>(*this) );
+    if ( current_ui )
+        choice.attach_ui( *current_ui );
     entries.insert( std::make_pair( choice.getName(), &choice ) );
     if (auto_select && value() == no_selection ) {
         SIMPARM_DEBUG("Auto-selecting value");
@@ -59,7 +58,8 @@ removeChoice(ChoiceType &choice)
     entries.erase( choice.getName() );
     if ( auto_select_new_value && !entries.empty() )
         value = this->entries.begin()->first;
-    choice.detach_ui( static_cast<simparm::Node&>(*this) );
+    if ( current_ui )
+        choice.detach_ui( *current_ui );
 }
 
 template <typename ChoiceType>
@@ -67,13 +67,15 @@ void ChoiceEntry<ChoiceType>::removeAllChoices()
 { 
     SIMPARM_DEBUG("Removing all choices");
     value = no_selection;
-    for ( typename Entries::iterator i = entries.begin(); i != entries.end(); i++)
-    {
-        i->second->detach_ui( static_cast<simparm::Node&>(*this) );
-    }
+    if ( current_ui )
+        for ( typename Entries::iterator i = entries.begin(); i != entries.end(); i++)
+        {
+            i->second->detach_ui( *current_ui );
+        }
     entries.clear();
 }
 
+#if 0
 template <typename ChoiceType>
 std::list<std::string> 
 ChoiceEntry<ChoiceType>::printValues() const
@@ -102,6 +104,17 @@ void ChoiceEntry<ChoiceType>::
     }
     formatParagraph(o, 23, 79, s);
     o << "\n";
+}
+#endif
+
+template <typename ChoiceType>
+NodeRef ChoiceEntry<ChoiceType>::create_hidden_node( simparm::Node& n ) {
+    NodeRef r = BasicEntry::create_hidden_node( n );
+    r.add_attribute( value );
+    current_ui = r;
+    for ( typename Entries::iterator i = entries.begin(); i != entries.end(); ++i )
+        i->second->attach_ui( *current_ui );
+    return r;
 }
 
 }

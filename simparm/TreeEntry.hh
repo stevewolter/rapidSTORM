@@ -1,25 +1,19 @@
 #ifndef SIMPARM_TREEENTRY_HH
 #define SIMPARM_TREEENTRY_HH
 
-#include "Node.hh"
+#include "Object.hh"
 #include "Attribute.hh"
-#include "Structure.hh"
 
 namespace simparm {
 
-class TreeAttributes {
+class TreeObject : public Object {
   protected:
+    NodeRef create_hidden_node( simparm::Node& );
   public:
     Attribute<bool> show_in_tree, force_new_root,
                     focus_immediately;
 
-    TreeAttributes();
-
-    void registerNamedEntries(Node& node) {
-      node.push_back( show_in_tree );
-      node.push_back( force_new_root); 
-      node.push_back( focus_immediately );
-    }
+    TreeObject( std::string name, std::string desc );
 };
 
 }

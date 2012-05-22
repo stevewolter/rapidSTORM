@@ -14,6 +14,7 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/tag.hpp>
+#include "NodeHandle.hh"
 
 namespace simparm {
 
@@ -25,11 +26,14 @@ class ChoiceEntry
 : public BasicEntry
 {
   protected:
+    NodeRef create_hidden_node( simparm::Node& );
     static const std::string no_selection;
 
     typedef std::map<std::string,ChoiceType*> Entries;
     Entries entries;
     bool auto_select;
+
+    NodeHandle current_ui;
 
     ChoiceType* getElement( const std::string& key ) 
         { return &get_entry(key); }
@@ -97,7 +101,6 @@ class ChoiceEntry
         return i;
     }
 
-    std::list<std::string> printValues() const;
     void printHelp(ostream &o) const;
 
     /** Decide whether the first list entry should be automatically selected.
@@ -110,9 +113,6 @@ class ChoiceEntry
         if ( do_auto_select && !isValid() && ! entries.empty() )
             value = entries.begin()->second->getName();
     }
-
-    bool has_active_choice() const { return value() != no_selection; }
-    const Node& get_active_choice() const { return static_cast<const simparm::Node&>(*this)[ value() ]; }
 };
 
 }

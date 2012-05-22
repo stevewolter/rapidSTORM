@@ -29,13 +29,10 @@
 
 namespace simparm {
 class Set : public Object {
-  private:
-    virtual std::string getTypeDescriptor() const 
-        { return "Set"; }
+  protected:
+    NodeRef create_hidden_node( simparm::Node& node );
   public:
     Set(std::string name, std::string desc);
-    Set(const Set &set);
-    virtual ~Set();
     Set* clone() const { return new Set(*this); }
 
     Attribute<bool> showTabbed;

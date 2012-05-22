@@ -5,11 +5,11 @@
 #include "Node.hh"
 #include "Attribute.hh"
 #include "NodeHandle.hh"
+#include <memory>
 
 namespace simparm {
-using std::string;
 
-class Object : protected Node {
+class Object {
   public:
     enum UserLevel { Beginner = 10, Intermediate = 20, 
                      Expert = 30, Debug = 40 };
@@ -17,8 +17,9 @@ class Object : protected Node {
         { int v; i >> v; ul = (UserLevel)v; return i; }
 
   public:
-    Object(string name, string desc);
-    virtual ~Object();
+    Object(std::string name, std::string desc);
+    Object( const Object& );
+    ~Object();
 
     Attribute<std::string> desc;
     Attribute<bool> viewable;
@@ -26,10 +27,10 @@ class Object : protected Node {
 
     std::string getTypeDescriptor() const  
         { return "Object"; }
-    std::string getName() const { return Node::getName(); }
-    std::string getDesc() const { return desc(); }
+    std::string getName() const;
+    std::string getDesc() const;
 
-    void setDesc(const std::string& new_desc) { desc = new_desc; }
+    void setDesc(const std::string& new_desc);
     void setViewable(const bool &viewable)
         { this->viewable = viewable; }
     void setUserLevel(UserLevel level)
@@ -37,12 +38,16 @@ class Object : protected Node {
     NodeRef attach_ui( simparm::Node& node );
     void detach_ui( simparm::Node& node );
 
-    NodeRef invisible_node( simparm::Node& );
-    NodeHandle get_user_interface_handle() { return *this; }
+    NodeHandle get_user_interface_handle() { return *node_; }
 
-    virtual Object *clone() const { return new Object(*this); }
-    void clearParents() { Node::clearParents(); }
-    void clearChildren() { Node::clearChildren(); }
+    void clearParents();
+    void clearChildren();
+
+protected:
+    virtual NodeRef create_hidden_node( simparm::Node& );
+private:
+    std::auto_ptr< Node > node_;
+    std::string name;
 };
 
 }

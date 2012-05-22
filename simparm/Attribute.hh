@@ -7,9 +7,11 @@
 #include <typeinfo>
 
 #include <boost/mpl/not.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "iostream.hh"
-#include "Node.hh"
+#include "BaseAttribute.hh"
+#include "Callback.hh"
 
 namespace boost { template <typename Type> class optional; }
 
@@ -35,12 +37,14 @@ template <typename Type>
 struct AttributeCommandInterpreter< boost::optional<Type> >;
 
 template <typename Type>
-class Attribute : public Node {
+class Attribute : public BaseAttribute, public Publisher {
   public:
     static Type read_value(std::istream& i) 
         { Type t; from_config_stream(i, t); return t; }
     static std::string stringify(const Type& t) 
         { std::stringstream ss; to_config_stream(ss, t); return ss.str(); }
+  private:
+    boost::signals2::signal< void (const std::string&) > print;
   protected:
     Type value;
 
@@ -65,7 +69,8 @@ class Attribute : public Node {
 
   public:
     Attribute(std::string ident, const Type& def_val)
-        : Node(ident), value(def_val), change_is_OK(NULL) {}
+        : value(def_val), change_is_OK(NULL) {}
+    Attribute( const Attribute& );
     ~Attribute() {}
     virtual Attribute *clone() const 
         { return new Attribute(*this); }

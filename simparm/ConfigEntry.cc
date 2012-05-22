@@ -37,11 +37,6 @@ BasicEntry::BasicEntry(string name, string desc)
   outputOnChange("outputOnChange", true),
   helpID("helpID", "")
 {
-    push_back(help);
-    push_back(invalid);
-    push_back(editable);
-    push_back(outputOnChange);
-    push_back(helpID);
 }
 
 BasicEntry::BasicEntry(const BasicEntry& from)
@@ -52,11 +47,16 @@ BasicEntry::BasicEntry(const BasicEntry& from)
     outputOnChange(from.outputOnChange),
     helpID(from.helpID)
 {
-    push_back(help);
-    push_back(invalid);
-    push_back(editable);
-    push_back(outputOnChange);
-    push_back(helpID);
+}
+
+NodeRef BasicEntry::create_hidden_node( simparm::Node& node ) {
+    NodeRef r = Object::create_hidden_node( node );
+    r.add_attribute(help);
+    r.add_attribute(invalid);
+    r.add_attribute(editable);
+    r.add_attribute(outputOnChange);
+    r.add_attribute(helpID);
+    return r;
 }
 
 BasicEntry::~BasicEntry() 
@@ -89,6 +89,7 @@ void formatParagraph(ostream &o, unsigned int left_col,
    while (cur_col++ <= right_col) o << " ";
 }
 
+#if 0
 void BasicEntry::printHelp(ostream &o) const {
    string n = "--" + name.substr(0, std::min<int>(name.length(), 19));
    formatParagraph(o, 0, 20, n);
@@ -101,6 +102,7 @@ void BasicEntry::printHelp(ostream &o) const {
       o << "\n";
    }
 }
+#endif
 
 }
 

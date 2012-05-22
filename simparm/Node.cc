@@ -14,6 +14,7 @@
 
 #include "Message.hh"
 
+#if 0
 using namespace std;
 
 struct Lock {
@@ -376,3 +377,4 @@ bool Node::is_thread_safe()
 template class Link<Node,Node>;
 
 }
+#endif
