@@ -4,7 +4,6 @@
 #include <functional>
 #include <algorithm>
 #include <cassert>
-#include <stl_helpers.hh>
 #include "Object.hh"
 #include <set>
 

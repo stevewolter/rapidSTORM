@@ -187,7 +187,7 @@ AC_SUBST([test_performance], "$enable_performance_tests")
 AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 
-AC_CONFIG_FILES([Makefile simparm/Makefile java_gui/Makefile rapidstorm rapidstorm.desktop java_gui/manifest ])
+AC_CONFIG_FILES([Makefile java_gui/Makefile rapidstorm rapidstorm.desktop java_gui/manifest ])
 AC_CONFIG_FILES([librapidstormfile.pc])
 AC_CONFIG_FILES([version.txt install-dirs.exp])
 
