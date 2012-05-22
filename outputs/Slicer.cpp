@@ -261,8 +261,9 @@ public:
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }
     void attach_full_ui( simparm::Node& at ) { 
-        config.attach_ui( name_object.invisible_node() );
-        FilterSource::attach_source_ui( name_object.invisible_node() ); 
+        simparm::NodeRef r = name_object.invisible_node(at);
+        config.attach_ui( r );
+        FilterSource::attach_source_ui( name_object.invisible_node( r ) ); 
         name_object.attach_ui( at ); 
     }
     void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }

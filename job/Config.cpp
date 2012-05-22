@@ -178,7 +178,7 @@ void Config::attach_ui( simparm::Node& at ) {
    current_ui = car_config.attach_ui ( at );
    input->registerNamedEntries( *current_ui );
    pistonCount.attach_ui(  *current_ui  );
-   outputRoot->attach_full_ui(outputBox.invisible_node());
+   outputRoot->attach_full_ui(outputBox.invisible_node( *current_ui ));
    outputBox.attach_ui(  *current_ui  );
    configTarget.attach_ui(  *current_ui  );
    auto_terminate.attach_ui(  *current_ui  );

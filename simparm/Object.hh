@@ -4,6 +4,7 @@
 #include <string>
 #include "Node.hh"
 #include "Attribute.hh"
+#include "NodeHandle.hh"
 
 namespace simparm {
 using std::string;
@@ -36,7 +37,8 @@ class Object : protected Node {
     NodeRef attach_ui( simparm::Node& node );
     void detach_ui( simparm::Node& node );
 
-    NodeRef invisible_node();
+    NodeRef invisible_node( simparm::Node& );
+    NodeHandle get_user_interface_handle() { return *this; }
 
     virtual Object *clone() const { return new Object(*this); }
     void clearParents() { Node::clearParents(); }
