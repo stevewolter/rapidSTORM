@@ -22,8 +22,8 @@ Control::Control( bool auto_terminate )
 
 void Control::registerNamedEntries( simparm::Node& runtime_config )
 {
-    runtime_config.push_back( abortJob );
-    runtime_config.push_back( closeJob );
+    abortJob.attach_ui( runtime_config );
+    closeJob.attach_ui( runtime_config );
 }
 
 void Control::wait_until_termination_is_allowed()

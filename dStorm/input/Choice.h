@@ -21,11 +21,8 @@ class Choice
         ~LinkAdaptor();
         Link& link() { return *_link; }
         const Link& link() const { return *_link; }
-        void registerNamedEntries() {
-        }
         LinkAdaptor* clone() const {
             std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
-            rv->registerNamedEntries();
             return rv.release();
         }
         void connect( Choice& c ) {
@@ -66,9 +63,6 @@ class Choice
     void insert_new_node( std::auto_ptr<Link>, Place );
 
     void set_help_id( std::string id ) { choices.helpID = id; }
-
-    operator const simparm::Node&() const { return choices; }
-    operator simparm::Node&() { return choices; }
 };
 
 }

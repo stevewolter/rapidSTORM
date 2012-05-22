@@ -20,8 +20,8 @@ std::auto_ptr<ZTruth> ZTruthConfig::get_z_truth() const {
 }
 
 void ZTruthConfig::registerNamedEntries( simparm::Node& at ) {
-    at.push_back( new_z_ );
-    at.push_back( filter_ );
+    new_z_.attach_ui( at );
+    filter_.attach_ui( at );
 }
 
 }

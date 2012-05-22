@@ -13,12 +13,6 @@ class Choice {
     ~Choice() { --count; }
     Choice* clone() const { return new Choice(*this); }
 
-    operator simparm::Node&() { return o; }
-    operator const simparm::Node&() const { return o; }
-
-    simparm::Node& getNode() { return o; }
-    const simparm::Node& getNode() const { return o; }
-
     static bool all_destroyed() { return !count; }
 };
 

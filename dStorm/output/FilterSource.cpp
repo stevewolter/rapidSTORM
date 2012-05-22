@@ -29,7 +29,7 @@ public:
     void detach_ui( simparm::Node& removal_choice_node )
         { removal_node.detach_ui( removal_choice_node ); }
     void attach_suboutput_ui( simparm::Node& at ) {
-        unadorned->attach_full_ui( config_node );
+        unadorned->attach_full_ui( config_node.invisible_node() );
         config_node.attach_ui( at );
     }
 

@@ -45,105 +45,140 @@
 #include <dStorm/image/dilation_impl.h>
 #include <dStorm/output/binning/binning.h>
 
+#include <dStorm/make_clone_allocator.hpp>
+
 namespace locprec {
 
-    class Segmenter : public dStorm::output::Filter,
-        public simparm::Node::Callback,
-        private dStorm::display::DataSource
-    {
-      public:
-        class Config;
-        enum SegmentationType { Maximum, Region };
-
-      private:
-        typedef dStorm::Image<dStorm::Pixel,2> ColorImage;
-        typedef dStorm::Image<int,2> RegionImage;
-
-        boost::mutex mutex;
-
-        std::auto_ptr<Announcement> announcement;
-        SegmentationType howToSegment;
-        boost::ptr_array< dStorm::output::binning::Unscaled, 2 > binners;
-        simparm::Entry<double> threshold;
-        simparm::Entry<unsigned long> dilation;
-        dStorm::output::Localizations points;
-
-        dStorm::outputs::BinnedLocalizations<> bins;
-
-        std::auto_ptr< dStorm::display::Change > next_change;
-        std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
-
-        std::auto_ptr< dStorm::output::Output > output;
-        std::auto_ptr< dStorm::output::TraceReducer > reducer;
-
-        std::string load_segmentation, save_segmentation;
-
-        static ColorImage color_regions( const RegionImage& );
-        void display_image( const ColorImage& );
-        std::auto_ptr<dStorm::display::Change> get_changes();
-
-        void store_results_( bool success ) {
-            boost::lock_guard<boost::mutex> lock(mutex);
-            if ( howToSegment == Maximum )
-                maximums();
-            else
-                segment();
-        }
-        void attach_ui_( simparm::Node& );
-
-      protected:
-        RegionImage segment_image();
-        void segment();
-        void maximums();
-
-      public:
-        Segmenter( const Config& config,
-                   std::auto_ptr<dStorm::output::Output> output);
-        Segmenter( const Segmenter & );
-        ~Segmenter();
-
-        AdditionalData announceStormSize(const Announcement &a) ;
-        void receiveLocalizations(const EngineResult& er) {
-            points.insert(er);
-            bins.receiveLocalizations(er);
-        }
-
-        void operator()(const simparm::Event&);
-    };
-
-    class SegmentationMethod : public simparm::ObjectChoice {
-        Segmenter::SegmentationType method;
+class Segmenter : public dStorm::output::Filter,
+    public simparm::Node::Callback,
+    private dStorm::display::DataSource
+{
     public:
-        void attach_ui( simparm::Node& at ) { attach_parent(at); }
-        SegmentationMethod( Segmenter::SegmentationType method, std::string name, std::string desc )
-            : simparm::ObjectChoice(name,desc), method(method) {}
-        SegmentationMethod* clone() const { return new SegmentationMethod(*this); }
-        Segmenter::SegmentationType type() const { return method; }
-    };
+    class Config;
+    enum SegmentationType { Maximum, Region };
 
-    struct Segmenter::Config {
-        simparm::ManagedChoiceEntry<SegmentationMethod> method;
-        dStorm::outputs::DimensionSelector<2> selector;
-        simparm::Entry<double> threshold;
-        simparm::Entry<unsigned long> dilation;
-        simparm::FileEntry save_segmentation, load_segmentation;
-        dStorm::output::TraceReducer::Config reducer;
+    private:
+    typedef dStorm::Image<dStorm::Pixel,2> ColorImage;
+    typedef dStorm::Image<int,2> RegionImage;
 
-        static std::string get_name() { return "Segmenter"; }
-        static std::string get_description() { return "Segment target image"; }
-        static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+    boost::mutex mutex;
 
-        Config();
-        void attach_ui( simparm::Node& at );
-        bool determine_output_capabilities
-            ( dStorm::output::Capabilities& cap ) 
-        { 
-            cap.set_intransparency_for_source_data();
-            cap.set_cluster_sources( true );
-            return true;
-        }
-    };
+    std::auto_ptr<Announcement> announcement;
+    SegmentationType howToSegment;
+    boost::ptr_array< dStorm::output::binning::Unscaled, 2 > binners;
+    simparm::Entry<double> threshold;
+    simparm::Entry<unsigned long> dilation;
+    dStorm::output::Localizations points;
 
+    dStorm::outputs::BinnedLocalizations<> bins;
+
+    std::auto_ptr< dStorm::display::Change > next_change;
+    std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
+
+    std::auto_ptr< dStorm::output::Output > output;
+    std::auto_ptr< dStorm::output::TraceReducer > reducer;
+
+    std::string load_segmentation, save_segmentation;
+
+    static ColorImage color_regions( const RegionImage& );
+    void display_image( const ColorImage& );
+    std::auto_ptr<dStorm::display::Change> get_changes();
+
+    void store_results_( bool success ) {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        if ( howToSegment == Maximum )
+            maximums();
+        else
+            segment();
+    }
+    void attach_ui_( simparm::Node& );
+
+    protected:
+    RegionImage segment_image();
+    void segment();
+    void maximums();
+
+    public:
+    Segmenter( const Config& config,
+                std::auto_ptr<dStorm::output::Output> output);
+    Segmenter( const Segmenter & );
+    ~Segmenter();
+
+    AdditionalData announceStormSize(const Announcement &a) ;
+    void receiveLocalizations(const EngineResult& er) {
+        points.insert(er);
+        bins.receiveLocalizations(er);
+    }
+
+    void operator()(const simparm::Event&);
+};
+
+struct SegmentationMethod : public simparm::ObjectChoice {
+    SegmentationMethod( std::string name, std::string desc )
+        : simparm::ObjectChoice(name,desc) {}
+
+    virtual ~SegmentationMethod() {}
+    virtual void attach_ui( simparm::Node& ) = 0;
+    virtual SegmentationMethod* clone() const = 0;
+    virtual Segmenter::SegmentationType type() const = 0;
+};
+
+struct MaximumSegmentationMethod : public SegmentationMethod {
+    MaximumSegmentationMethod() : SegmentationMethod("Maximum", "Local maximums") {}
+    virtual void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    virtual SegmentationMethod* clone() const { return new MaximumSegmentationMethod(*this); }
+    virtual Segmenter::SegmentationType type() const { return Segmenter::Maximum; }
+};
+
+struct RegionSegmentationMethod : public SegmentationMethod {
+    simparm::Entry<double> threshold;
+    simparm::Entry<unsigned long> dilation;
+    simparm::FileEntry save_segmentation, load_segmentation;
+
+    RegionSegmentationMethod() 
+    :   SegmentationMethod("Regions", "Coherent regions"),
+        threshold("SegmentationThreshold","Threshold for regionness", 0.001),
+        dilation("SegmentationDilation", 
+                "Region dilation in binned pixels", 0),
+        save_segmentation("SaveSegmentation", "Save segmentation"),
+        load_segmentation("LoadSegmentation", "Load segmentation") {}
+    void attach_ui( simparm::Node& at ) { 
+        simparm::NodeRef r = attach_parent(at);
+        threshold.attach_ui( r );
+        dilation.attach_ui( r );
+        load_segmentation.attach_ui( r );
+        save_segmentation.attach_ui( r );
+    }
+
+    SegmentationMethod* clone() const { return new RegionSegmentationMethod(*this); }
+    Segmenter::SegmentationType type() const { return Segmenter::Region; }
+};
+
+}
+
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( locprec::SegmentationMethod )
+
+namespace locprec {
+
+struct Segmenter::Config {
+    simparm::ManagedChoiceEntry<SegmentationMethod> method;
+    dStorm::outputs::DimensionSelector<2> selector;
+    dStorm::output::TraceReducer::Config reducer;
+
+    static std::string get_name() { return "Segmenter"; }
+    static std::string get_description() { return "Segment target image"; }
+    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+
+    Config();
+    void attach_ui( simparm::Node& at );
+    bool determine_output_capabilities
+        ( dStorm::output::Capabilities& cap ) 
+    { 
+        cap.set_intransparency_for_source_data();
+        cap.set_cluster_sources( true );
+        return true;
+    }
+};
 
 using namespace std;
 using namespace dStorm;
@@ -152,28 +187,16 @@ using namespace dStorm::engine;
 using namespace dStorm::outputs;
 
 Segmenter::Config::Config()
-:   method("SegmentationMethod", "Method for segmentation"),
-    threshold("SegmentationThreshold","Threshold for regionness", 0.001),
-    dilation("SegmentationDilation", 
-            "Region dilation in binned pixels", 0),
-    save_segmentation("SaveSegmentation", "Save segmentation"),
-    load_segmentation("LoadSegmentation", "Load segmentation")
+:   method("SegmentationMethod", "Method for segmentation")
 {
-    method.addChoice( new SegmentationMethod( Segmenter::Maximum,       
-        "Maximum", "Local maximums" ) );
-    method.addChoice( new SegmentationMethod( Segmenter::Region, 
-        "Regions", "Coherent regions") );
+    method.addChoice( new MaximumSegmentationMethod() );
+    method.addChoice( new RegionSegmentationMethod() );
     method.choose("Maximum");
 }
 
 void Segmenter::Config::attach_ui( simparm::Node& at )
 {
     selector.attach_ui( at );
-
-    threshold.attach_ui( method["Regions"].getNode() );
-    dilation.attach_ui( method["Regions"].getNode() );
-    load_segmentation.attach_ui( method["Regions"].getNode() );
-    save_segmentation.attach_ui( method["Regions"].getNode() );
 
     method.attach_ui( at );
     reducer.attach_ui( at );
@@ -187,12 +210,12 @@ Segmenter::Segmenter(
 : Filter(output),
   simparm::Node::Callback( simparm::Event::ValueChanged ),
   howToSegment( config.method().type() ),
-  threshold( config.threshold ),
-  dilation( config.dilation ),
+  threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
+  dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),
   bins( config.selector.make() ),
   reducer( config.reducer.make_trace_reducer() ),
-  load_segmentation( config.load_segmentation() ),
-  save_segmentation( config.save_segmentation() ) 
+  load_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).load_segmentation() ),
+  save_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).save_segmentation() ) 
 {
     binners.replace(0, config.selector.make_x());
     binners.replace(1, config.selector.make_y());

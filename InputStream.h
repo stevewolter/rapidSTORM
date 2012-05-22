@@ -15,7 +15,7 @@ class InputStream
 : public simparm::IO
 {
     std::auto_ptr< job::Config > orig_config, current_config;
-    JobStarter starter;
+    std::auto_ptr< JobStarter > starter;
     MainThread& main_thread;
 
     void reset_config();

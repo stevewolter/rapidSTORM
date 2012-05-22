@@ -7,9 +7,11 @@
 #include <simparm/Eigen.hh>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
+#include <simparm/NodeHandle.hh>
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
+#include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/ManagedChoiceEntry.hh>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
@@ -32,13 +34,12 @@ namespace engine {
    namespace camera = boost::units::camera;
 
    /** Config entry collection class for the dSTORM engine. */
-   class _Config : public Set
+   class Config
    {
-      protected:
-        void registerNamedEntries();
+        simparm::Set name_object;
       public:
-        _Config();
-        ~_Config();
+        Config();
+        ~Config();
 
         typedef Eigen::Matrix< quantity<camera::length,int>, 2, 1, Eigen::DontAlign > 
             PixelVector2D;
@@ -69,13 +70,9 @@ namespace engine {
             { addSpotFitter(std::auto_ptr<spot_fitter::Factory>(factory)); }
 
         void set_variables( output::Basename& ) const;
-   };
+        void attach_ui( simparm::Node& );
 
-   class Config : public _Config {
-     public:
-        Config();
-        Config(const Config& c);
-        Config* clone() const { return new Config(*this); }
+        simparm::NodeHandle weights_insertion_point;
    };
 
 }

@@ -19,12 +19,13 @@ int main(int, char *[]) {
     doubleEnt.max = 4;
     doubleEnt.min = 0;
 
-    set.push_back( stringent );
-    set.push_back( doubleEnt );
+    IO io(&cin, &cout);
+    simparm::NodeRef r = set.attach_ui(io);
+    stringent.attach_ui( r );
+    doubleEnt.attach_ui( r );
     choiceEnt.addChoice(set);
 
-    IO io(&cin, &cout);
-    io.push_back(choiceEnt);
+    choiceEnt.attach_ui( io );
     io.processInput();
     return EXIT_SUCCESS;
 }

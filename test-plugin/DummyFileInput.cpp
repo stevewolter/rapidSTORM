@@ -4,7 +4,6 @@
 #include "DummyFileInput.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
-#include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
 #include <dStorm/input/FileInput.h>
@@ -44,14 +43,14 @@ namespace dummy_file_input {
 class Method;
 
 class Config
-: public simparm::Object
 {
+    simparm::Object name_object;
   public:
     simparm::Entry<unsigned long> width, height, number;
     simparm::BoolEntry goIntType;
 
     Config();
-    void registerNamedEntries();
+    void attach_ui( simparm::Node& at );
 };
 
 class OpenFile 
@@ -115,7 +114,7 @@ class Method
 : public dStorm::input::FileInput<Method,OpenFile>,
   simparm::Listener
 {
-    simparm::Structure<Config> config;
+    Config config;
 
     void operator()(const simparm::Event&);
     friend class dStorm::input::FileInput<Method,OpenFile>;
@@ -187,18 +186,19 @@ Source::iterator Source::end() {
 }
 
 Config::Config()
-: simparm::Object("DummyInput", "Dummy file input driver"),
+: name_object("DummyInput", "Dummy file input driver"),
   width("Width", "Image width", 25),
   height("Height", "Image height", 50),
   number("Number", "Number of generated images", 10),
   goIntType("GoIntType", "Make input source of type int", false)
 {}
 
-void Config::registerNamedEntries() {
-    push_back( width );
-    push_back( height );
-    push_back( number );
-    push_back( goIntType );
+void Config::attach_ui( simparm::Node& n) {
+    simparm::NodeRef at = name_object.attach_ui(n);
+    width.attach_ui( at );
+    height.attach_ui( at );
+    number.attach_ui( at );
+    goIntType.attach_ui( at );
 }
 
 Method::Method() 

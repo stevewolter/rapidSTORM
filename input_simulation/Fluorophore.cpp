@@ -25,8 +25,8 @@ namespace input_simulation {
 #define NAME "Fluorophore"
 #define DESC "Fluorophore characteristics"
 
-_FluorophoreConfig::_FluorophoreConfig() 
-: simparm::Set(NAME, DESC),
+FluorophoreConfig::FluorophoreConfig() 
+: name_object(NAME, DESC),
   countsPerPhoton("ADCountsPerPhoton", "Camera A/D counts per photon", 16),
   averageActivationTime("AverageActivationTime", "Average time a deactivated "
                         "fluorophore stays deactivated", 2),
@@ -40,14 +40,15 @@ _FluorophoreConfig::_FluorophoreConfig()
 {
 }
 
-void _FluorophoreConfig::registerNamedEntries() {
-    push_back(countsPerPhoton );
-    push_back(averageActivationTime);
-    push_back(averageDeactivationTime);
-    push_back(photonEmittanceRate);
-    push_back(numerical_aperture);
-    push_back(refractive_index);
-    push_back( wavelength );
+void FluorophoreConfig::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef r = name_object.attach_ui( at );
+    countsPerPhoton.attach_ui( r );
+    averageActivationTime.attach_ui( r);
+    averageDeactivationTime.attach_ui( r);
+    photonEmittanceRate.attach_ui( r);
+    numerical_aperture.attach_ui( r);
+    refractive_index.attach_ui( r);
+    wavelength.attach_ui( r );
 }
 
 void Fluorophore::initTimes( const FluorophoreConfig& config ) {

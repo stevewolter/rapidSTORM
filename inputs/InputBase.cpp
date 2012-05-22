@@ -15,8 +15,7 @@ struct InputChainBase
     std::string name() const { return input_config.getName(); }
     std::string description() const { return input_config.getDesc(); }
     void registerNamedEntries( simparm::Node& node ) {
-        Forwarder::registerNamedEntries( input_config );
-        node.push_back( input_config );
+        Forwarder::registerNamedEntries( input_config.attach_ui(node) );
     }
     void insert_new_node( std::auto_ptr<Link> l, Place p ) {
         if ( p == BeforeEngine ) 

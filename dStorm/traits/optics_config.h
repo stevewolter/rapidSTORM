@@ -95,7 +95,7 @@ class MultiPlaneConfig
 
     void show() { name_object.viewable = true; }
     void hide() { name_object.viewable = false; }
-    bool ui_is_attached() { return current_ui && name_object.isActive(); }
+    bool ui_is_attached() { return current_ui && current_ui->isActive(); }
 };
 
 }

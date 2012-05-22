@@ -58,9 +58,9 @@ void CommandLine::parse( int argc, char *argv[] ) {
     }
 
     config.attach_ui( argument_parser );
-    argument_parser.push_back( printer );
-    argument_parser.push_back( launcher );
-    argument_parser.push_back( starter );
+    printer.attach_ui( argument_parser );
+    launcher.attach_ui( argument_parser );
+    starter.attach_ui( argument_parser );
 
     int shift = find_config_file(argc,argv);
     argc -= shift;

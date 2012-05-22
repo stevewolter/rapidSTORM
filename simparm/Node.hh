@@ -16,6 +16,8 @@
 
 namespace simparm {
 
+class BasicEntry;
+
 class Node : public Publisher {
   private:
     typedef Link<Node,Node> TreeLink;
@@ -109,6 +111,9 @@ class Node : public Publisher {
     void make_thread_safe();
     bool is_thread_safe();
     void remove_thread_safety();
+
+    virtual bool is_entry() const { return false; }
+    virtual BasicEntry& get_entry() { throw std::logic_error("Not implemented"); }
 };
 
 typedef Node& NodeRef;

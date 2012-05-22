@@ -34,9 +34,9 @@ Display::Display(
     Mode mode,
     Method& config
 )
-: simparm::Set("ViewportSelector", "Viewport settings"),
-  cam(cam),
+: cam(cam),
   config(config),
+  name_object("ViewportSelector", "Viewport settings"),
   status("CameraStatus", "Camera status"),
   stopAim("StopAimCamera","Leave aiming mode"),
   pause("PauseCamera", "Pause"),
@@ -53,20 +53,21 @@ Display::Display(
     imageFile.editable = false;
     save.editable = false;
 
-    registerNamedEntries();
     image_acquirer = boost::thread( &Display::run, this );
 }
 
-void Display::registerNamedEntries() {
+void Display::attach_ui(simparm::Node& at) {
     receive_changes_from(stopAim.value);
     receive_changes_from(pause.value);
     receive_changes_from(save.value);
 
-    push_back(status);
-    push_back(stopAim);
-    push_back(pause);
-    push_back(imageFile);
-    push_back(save);
+    current_ui = name_object.attach_ui(at);
+    simparm::NodeRef r = *current_ui;
+    status.attach_ui(r);
+    stopAim.attach_ui(r);
+    pause.attach_ui(r);
+    imageFile.attach_ui(r);
+    save.attach_ui(r);
 }
 
 Display::~Display() {
@@ -260,11 +261,11 @@ void Display::run() throw() {
         return;
     } catch (const std::exception& e) {
         simparm::Message m( "Could not acquire images for aiming view", e.what() );
-        send(m);
+        current_ui->send(m);
     } catch (...) {
         simparm::Message m( "Could not acquire images for aiming view", 
                             "Unknown error occured while acquiring images for aiming view." );
-        send(m);
+        current_ui->send(m);
     }
     handle.reset( NULL );
     DEBUG("Display acquisition thread finished\n");
@@ -346,11 +347,11 @@ void Display::operator()(const simparm::Event& e)
         if ( ! imageFile ) {
             simparm::Message m( "Unable to save image",
                                 "No filename for camera snapshot image provided" );
-            send(m);
+            current_ui->send(m);
         } else if ( ! handle.get() ) {
             simparm::Message m( "Unable to save image",
                                 "Image display window has already been closed" );
-            send(m);
+            current_ui->send(m);
         } else {
             DEBUG("Getting current image display status");
             display::SaveRequest request;

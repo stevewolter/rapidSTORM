@@ -223,8 +223,8 @@ NoiseSource::NoiseSource( const NoiseConfig &config )
             ( config.saveActivity().c_str() ));
 
     simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
-    progress.attach_ui( *this );
-    if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
+    simparm::NodeRef ui = progress.attach_ui( *this );
+    if ( ! ui.isActive() ) progress.makeASCIIBar( std::cerr );
     for ( NoiseConfig::FluoSets::const_iterator
             i = config.get_fluorophore_sets().begin();
             i != config.get_fluorophore_sets().end(); ++i)

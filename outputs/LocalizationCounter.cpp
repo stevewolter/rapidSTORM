@@ -1,6 +1,7 @@
 #include <dStorm/output/Output.h>
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
+#include <simparm/NodeHandle.hh>
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -17,6 +18,7 @@ private:
     int count;
     frame_count last_config_update, config_increment;
     simparm::Entry<unsigned long> update;
+    simparm::NodeHandle current_ui;
     std::auto_ptr< std::ofstream > print_count;
 
     /** Copy constructor not implemented. */
@@ -26,10 +28,10 @@ private:
 
     void store_results_( bool success ) {
         update = count;
-        if ( success && !update.isActive()) std::cout << count << "\n"; 
+        if ( success && ! (current_ui && current_ui->isActive()) ) std::cout << count << "\n"; 
     }
     void attach_ui_( simparm::Node& at ) {
-        update.attach_ui( at );
+        current_ui = update.attach_ui( at );
     }
 
 public:

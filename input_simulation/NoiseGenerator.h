@@ -10,9 +10,8 @@
 #include <gsl/gsl_rng.h>
 
 namespace input_simulation {
-    class _NoiseGeneratorConfig : public simparm::Set {
-      protected:
-        void registerNamedEntries();
+    class NoiseGeneratorConfig {
+        simparm::Set name_object;
       public:
         simparm::Entry<double> ups_G, ups_mu, ups_sigma, ups_x0, ups_theta;
         simparm::FileEntry noiseFile;
@@ -20,12 +19,10 @@ namespace input_simulation {
         simparm::Entry<unsigned long> width, height;
         simparm::Entry<unsigned long> random_seed;
 
-        _NoiseGeneratorConfig();
+        NoiseGeneratorConfig();
+        void attach_ui( simparm::Node& );
     };
     
-    typedef simparm::Structure<_NoiseGeneratorConfig>
-        NoiseGeneratorConfig;
-
     template <typename T>
     class NoiseGenerator {
       private:

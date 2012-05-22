@@ -5,10 +5,10 @@
 #include <boost/thread/mutex.hpp>
 #include <dStorm/display/Manager.h>
 #include <simparm/Entry.hh>
-#include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/optional.hpp>
 #include <map>
 #include "AndorDirect.h"
@@ -24,8 +24,7 @@ namespace AndorCamera {
 /** The Display provides a window in which Entry 
     *  elements defining the acquisition rectangle can be displayed
     *  and configured interactively. */
-class Display : public simparm::Set,
-                private simparm::Node::Callback, 
+class Display : private simparm::Node::Callback, 
                 public display::DataSource
 {
   private:
@@ -34,11 +33,14 @@ class Display : public simparm::Set,
     boost::scoped_ptr<CameraConnection> cam;
     Method& config;
 
+    simparm::Set               name_object;
     simparm::StringEntry       status;
     simparm::TriggerEntry      stopAim;
     simparm::TriggerEntry      pause;
     simparm::FileEntry         imageFile;
     simparm::TriggerEntry      save;
+
+    simparm::NodeHandle current_ui;
 
     void operator()(const simparm::Event&);
 
@@ -82,7 +84,6 @@ class Display : public simparm::Set,
     /** Method implementing data source interface. */
     void notice_user_key_limits(int, bool, std::string);
 
-    void registerNamedEntries();
     void acquire();
     void configure_camera();
     void initialize_display();
@@ -110,6 +111,7 @@ class Display : public simparm::Set,
     void terminate();
     void resolution_changed( image::MetaInfo<2>::Resolutions );
     void basename_changed( const std::string& basename );
+    void attach_ui( simparm::Node& at );
 };
 
 }

@@ -23,7 +23,7 @@ void MainThread::run_all_jobs()
 
 std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    io.push_back( job.get_config() );
+    job.attach_ui( io );
     ++job_count;
     active_jobs.insert( &job );
     return std::auto_ptr<JobHandle>( new Handle( *this, job ) );
@@ -31,7 +31,7 @@ std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
 
 void MainThread::unregister_node( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    io.erase( job.get_config() );
+    job.detach_ui( io );
     active_jobs.erase( &job );
     if ( active_jobs.empty() )
         terminated_all_threads.notify_all();

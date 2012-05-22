@@ -19,11 +19,11 @@ namespace input {
 namespace file_method {
 
 class FileMethod
-: public simparm::Set,
-  public Forwarder,
+: public Forwarder,
   private simparm::Listener
 {
     friend void unit_test(TestState&);
+    simparm::Set name_object;
     simparm::FileEntry input_file;
 
     void operator()( const simparm::Event& );
@@ -31,12 +31,13 @@ class FileMethod
 
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 
-        this->push_back( input_file );
-        Forwarder::registerNamedEntries(*this);
-        node.push_back( *this );
+        receive_changes_from( input_file.value );
+        simparm::NodeRef r = name_object.attach_ui( node );
+        input_file.attach_ui(r);
+        Forwarder::registerNamedEntries(r);
     }
-    std::string name() const { return getName(); }
-    std::string description() const { return getDesc(); }
+    std::string name() const { return name_object.getName(); }
+    std::string description() const { return name_object.getDesc(); }
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 
@@ -65,26 +66,24 @@ class FileTypeChoice
 };
 
 FileMethod::FileMethod()
-: simparm::Set("FileMethod", "File"),
-  Forwarder(),
+: Forwarder(),
   simparm::Listener( simparm::Event::ValueChanged ),
+  name_object("FileMethod", "File"),
   input_file("InputFile", "Input file")
 {
     input_file.helpID = "InputFile";
     /* TODO: children.set_help_id( "FileType" ); */
     DEBUG("Created file method");
-    receive_changes_from( input_file.value );
     Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
 }
 
 FileMethod::FileMethod(const FileMethod& o)
-: simparm::Set(o),
-  Forwarder(o),
+: Forwarder(o),
   simparm::Listener( simparm::Event::ValueChanged ),
+  name_object(o.name_object),
   input_file(o.input_file)
 {
     DEBUG("Copied file method " << this << " from " << &o);
-    receive_changes_from( input_file.value );
 }
 
 FileMethod::~FileMethod() {}

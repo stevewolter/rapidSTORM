@@ -16,8 +16,6 @@ public:
     virtual ~ObjectChoice() {}
     virtual ObjectChoice* clone() const = 0;
     std::string getName() const { return node.getName(); }
-    simparm::Node& getNode() { return node; }
-    const simparm::Node& getNode() const { return node; }
     virtual void attach_ui( simparm::Node& to ) = 0;
     void detach_ui( simparm::Node& to ) { node.detach_ui(to); }
 };

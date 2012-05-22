@@ -11,6 +11,7 @@
 #include <simparm/Callback.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Entry.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/JobMaster.h>
 
@@ -28,6 +29,7 @@ class Config : public dStorm::Config
     class InputListener;
 
     simparm::Set car_config;
+    simparm::NodeHandle current_ui;
 
     std::auto_ptr<TreeRoot> outputRoot;
     std::auto_ptr<input::Link> input;
@@ -43,10 +45,11 @@ class Config : public dStorm::Config
     Config *clone() const { return new Config(*this); }
 
     void attach_ui( simparm::Node& at );
-    void processCommand( std::istream& i ) { car_config.processCommand(i); }
-    void send( simparm::Message& m ) { car_config.send(m); }
-    void push_back( simparm::Node& run ) { car_config.push_back(run); }
-    std::list<std::string> printValues() { return car_config.printValues(); }
+    void processCommand( std::istream& i ) { current_ui->processCommand(i); }
+    void send( simparm::Message& m ) { current_ui->send(m); }
+    std::list<std::string> printValues() { return current_ui->printValues(); }
+
+    simparm::Node& user_interface_handle() { return *current_ui; }
 
     output::OutputSource& outputSource;
     output::Config& outputConfig;

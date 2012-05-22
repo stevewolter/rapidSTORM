@@ -111,12 +111,12 @@ void Car::run( JobMaster* input_stream ) {
         drive();
     } catch ( const std::bad_alloc& e ) {
         OutOfMemoryMessage m("Job " + ident);
-        runtime_config.send(m);
+        current_ui->send(m);
     } catch ( const std::runtime_error& e ) {
         DEBUG("Sending message in run loop " << e.what());
         simparm::Message m("Error in Job " + ident, 
                                "Job " + ident + " failed: " + e.what() );
-        runtime_config.send(m);
+        current_ui->send(m);
         DEBUG("Sent message in run loop " << e.what());
     }
 
@@ -127,9 +127,9 @@ void Car::run( JobMaster* input_stream ) {
 void Car::drive() {
   bool run_successful = false;
   try {
-    input->attach_ui( runtime_config );
-    output->attach_ui( runtime_config );
-    control.registerNamedEntries( runtime_config );
+    input->attach_ui( *current_ui );
+    output->attach_ui( *current_ui );
+    control.registerNamedEntries( *current_ui );
 
     input::BaseSource::Wishes requirements;
     if ( piston_count > 1 )
@@ -157,7 +157,7 @@ void Car::drive() {
         simparm::Message m("Unable to provide data",
                 "The selected input module cannot provide localization traces. "
                 "Please select an appropriate output.");
-        runtime_config.send(m);
+        current_ui->send(m);
         return;
     } else if ( data.test( output::Capabilities::SourceImage ) &&
                 ! announcement.source_image_is_set )
@@ -167,7 +167,7 @@ void Car::drive() {
                    std::string("images of the acquisition. These are not present in ") +
                    "the input. Either remove the output or " +
                    "choose a different input file or method.");
-        runtime_config.send(m);
+        current_ui->send(m);
         return;
     } else if (
         ( data.test( output::Capabilities::SmoothedImage ) && 
@@ -184,7 +184,7 @@ void Car::drive() {
             << data << ") that are not "
             "present in the current input.";
         simparm::Message m("Unable to provide data", ss.str());
-        runtime_config.send(m);
+        current_ui->send(m);
         return;
     }
 
@@ -230,20 +230,20 @@ void Car::drive() {
   } catch ( boost::thread_interrupted ) {
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
-    runtime_config.send(m);
+    current_ui->send(m);
   } catch (const std::runtime_error& e) {
     simparm::Message m( "Error in Job " + ident, e.what() );
-    runtime_config.send(m);
+    current_ui->send(m);
   }
 
     try {
         output->store_results( run_successful );
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + ident);
-        runtime_config.send(m);
+        current_ui->send(m);
     } catch (const std::runtime_error& e) {
         simparm::Message m( "Error while saving results of Job " + ident, e.what() );
-        runtime_config.send(m);
+        current_ui->send(m);
     }
 
     current_run.reset();
@@ -255,6 +255,16 @@ void Car::drive() {
 void Car::stop() {
     control.stop();
 }
+
+void Car::attach_ui( simparm::Node& at ) {
+    current_ui = runtime_config.attach_ui( at );
+}
+
+void Car::detach_ui( simparm::Node& from ) {
+    current_ui.reset();
+    runtime_config.detach_ui( from );
+}
+
 
 }
 }

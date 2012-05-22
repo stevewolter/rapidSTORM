@@ -16,7 +16,6 @@
 #include <simparm/Message.hh>
 #include <simparm/Object.hh>
 #include <simparm/ObjectChoice.hh>
-#include <simparm/Structure.hh>
 #include <dStorm/make_clone_allocator.hpp>
 
 using namespace dStorm::engine;
@@ -41,11 +40,12 @@ namespace dStorm {
 namespace Splitter {
 
 
-struct Config : public simparm::Object
+struct Config 
 {
+    simparm::Object name_object;
     simparm::ManagedChoiceEntry<Split> biplane_split;
     Config();
-    void registerNamedEntries() { push_back(biplane_split); }
+    void attach_ui(simparm::Node& at ) { biplane_split.attach_ui( name_object.attach_ui(at) ); }
 };
 
 class Source 
@@ -114,8 +114,7 @@ class ChainLink
         if ( split_dim >= 0 ) split_planes( t, split_dim );
     }
 
-    simparm::Structure<Config>& get_config() { return config; }
-    simparm::Structure<Config> config;
+    Config config;
     void operator()( const simparm::Event& );
   public:
     ChainLink();
@@ -138,7 +137,7 @@ class ChainLink
 };
 
 Config::Config() 
-: simparm::Object( ChainLink::getName(), "Split dual view image"),
+: name_object( ChainLink::getName(), "Split dual view image"),
   biplane_split("DualView", "Dual view")
 {
     biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );

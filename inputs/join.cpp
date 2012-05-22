@@ -7,6 +7,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
 #include <simparm/ObjectChoice.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
@@ -67,8 +68,7 @@ class Source
         for (size_t i = 0; i < sources.size(); ++i) {
             std::auto_ptr< simparm::Object > object( 
                 new simparm::Object("Channel" + boost::lexical_cast<std::string>(i), "") );
-            sources[i]->attach_ui( *object ); 
-            object->attach_ui( n );
+            sources[i]->attach_ui( object->attach_ui( n ) ); 
             connection_nodes.push_back( object );
         }
     }
@@ -208,6 +208,8 @@ class Link
     simparm::Entry<unsigned long> channel_count;
     bool registered_node;
 
+    simparm::NodeHandle channels_node;
+
   protected:
     virtual void operator()(const simparm::Event&);
 
@@ -243,12 +245,11 @@ class Link
 
         simparm::NodeRef r = name_object.attach_ui( n );
         channel_count.attach_ui( r );
-        simparm::NodeRef c = channels.attach_ui( r );
+        channels_node = channels.attach_ui( r );
         join_type.attach_ui( r );
 
         for (unsigned i = 0; i < children.size(); ++i) {
-            children[i].registerNamedEntries( connection_nodes[i] );
-            connection_nodes[i].attach_ui( c );
+            children[i].registerNamedEntries( connection_nodes[i].attach_ui(*channels_node) );
         }
         registered_node = true;
     }
@@ -347,9 +348,9 @@ void Link::operator()(const simparm::Event& e) {
             std::string i = boost::lexical_cast<std::string>(children.size());
             connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
             input_traits.push_back( children.back().current_meta_info() );
-            if ( registered_node ) {
-                children.back().registerNamedEntries( connection_nodes.back() );
-                channels.push_back( connection_nodes.back() );
+            if ( registered_node && channels_node ) {
+                children.back().registerNamedEntries( 
+                    connection_nodes.back().attach_ui( *channels_node ) );
             }
             connections.push_back( children.back().notify(
                 boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );

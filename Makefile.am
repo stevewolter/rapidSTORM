@@ -293,7 +293,7 @@ libdStorm_la_SOURCES += \
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
 libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) simparm/libsimparm.la
-libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) 
+libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) simparm/libsimparm.la
 
 librapidstormfile_la_SOURCES = \
     dStorm/localization_file/fields.cpp dStorm/localization_file/reader.cpp \
@@ -305,7 +305,7 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_SOURCES = dstorm.cpp
 dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
-dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
+dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la simparm/libsimparm.la
 dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
 dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 

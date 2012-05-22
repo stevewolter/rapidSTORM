@@ -19,8 +19,7 @@ namespace spot_finder {
         std::auto_ptr<Base> make(const Job& job) const
             { return std::auto_ptr<Base>( new SpotFinder( config, job ) ); }
         void attach_ui( simparm::Node& to ) { 
-            config.attach_ui(name_object); 
-            name_object.attach_ui(to);
+            config.attach_ui( name_object.attach_ui(to) );
         }
         void detach_ui( simparm::Node& to ) { name_object.detach_ui(to); }
         std::string getName() const { return Config::get_name(); }

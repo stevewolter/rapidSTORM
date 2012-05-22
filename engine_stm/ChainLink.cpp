@@ -61,7 +61,7 @@ class STMEngine : public input::Forwarder
     STMEngine* clone() const { return new STMEngine(*this); }
     void registerNamedEntries( simparm::Node& at ) {
         input::Forwarder::registerNamedEntries( at );
-        at.push_back( node );
+        node.attach_ui( at );
     }
 
   public:

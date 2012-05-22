@@ -175,13 +175,13 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
 
 void Config::attach_ui( simparm::Node& at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
-   outputRoot->attach_full_ui(outputBox);
-   input->registerNamedEntries(car_config);
-   pistonCount.attach_ui( car_config );
-   outputBox.attach_ui( car_config );
-   configTarget.attach_ui( car_config );
-   auto_terminate.attach_ui( car_config );
-   car_config.attach_ui ( at );
+   current_ui = car_config.attach_ui ( at );
+   input->registerNamedEntries( *current_ui );
+   pistonCount.attach_ui(  *current_ui  );
+   outputRoot->attach_full_ui(outputBox.invisible_node());
+   outputBox.attach_ui(  *current_ui  );
+   configTarget.attach_ui(  *current_ui  );
+   auto_terminate.attach_ui(  *current_ui  );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 

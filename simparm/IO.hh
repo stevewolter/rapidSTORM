@@ -26,13 +26,14 @@
 #define CONFIGIO_HH
 
 #include <iostream>
-#include "Object.hh"
+#include "Node.hh"
+#include "Attribute.hh"
 
 namespace simparm {
 
 using std::istream;
 using std::ostream;
-class IO : public Object {
+class IO : public Node {
   private:
     istream *in;
     ostream *out;

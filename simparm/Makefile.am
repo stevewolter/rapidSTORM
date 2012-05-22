@@ -1,4 +1,4 @@
-UNIT_TESTS = testChoice test_error_handling test_units test_Link test_optional testSimparm  
+UNIT_TESTS = testChoice test_units test_Link test_optional testSimparm  
 
 # AUTOMAKE_OPTIONS = dejagnu
 # DEJATOOL = simparm
@@ -42,7 +42,5 @@ test_optional_LDADD = libsimparm.la
 test_Link_SOURCES = test_Link.cpp
 test_units_SOURCES = test_units.cpp
 test_units_LDADD = libsimparm.la
-test_error_handling_SOURCES = test_error_handling.cpp
-test_error_handling_LDADD = libsimparm.la
 test_eigen_SOURCES = test_eigen.cpp
 test_eigen_LDADD = libsimparm.la

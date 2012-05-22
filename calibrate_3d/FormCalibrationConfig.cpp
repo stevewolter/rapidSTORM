@@ -45,23 +45,23 @@ FormCalibrationConfig::FormCalibrationConfig()
 
 void FormCalibrationConfig::register_generic_entries( simparm::Node& at )
 {
-    at.push_back( circular_psf_ );
-    at.push_back( fit_best_sigma_ );
+    circular_psf_.attach_ui(at);
+    fit_best_sigma_.attach_ui( at );
 }
 
 void FormCalibrationConfig::register_multiplane_entries( simparm::Node& at )
 {
-    at.push_back( universal_best_sigma_ );
-    at.push_back( fit_prefactors_ );
+    universal_best_sigma_.attach_ui(at);
+    fit_prefactors_.attach_ui( at );
 }
 
 void FormCalibrationConfig::register_polynomial3d_entries( simparm::Node& at )
 {
-    at.push_back( astigmatism_ );
-    at.push_back( fit_focus_plane_ );
+    astigmatism_.attach_ui( at );
+    fit_focus_plane_.attach_ui( at );
     for (int i = 0; i < polynomial_3d::Order; ++i)
-        at.push_back( *z_terms[i] );
-    at.push_back( universal_prefactors_ );
+        z_terms[i]->attach_ui( at );
+    universal_prefactors_.attach_ui( at );
 }
 
 }

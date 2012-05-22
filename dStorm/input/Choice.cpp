@@ -100,14 +100,13 @@ BaseSource* Choice::makeSource() {
 Choice* Choice::clone() const 
     { return new Choice(*this); }
 void Choice::registerNamedEntries( simparm::Node& node ) {
-    node.push_back( *this );
+    choices.attach_ui( node );
 }
 
 void Choice::add_choice( std::auto_ptr<Link> fresh ) 
 {
     std::auto_ptr< LinkAdaptor > adaptor( new LinkAdaptor(fresh) );
     adaptor->connect( *this );
-    adaptor->registerNamedEntries();
     choices.addChoice( adaptor );
 }
 

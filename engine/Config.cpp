@@ -16,8 +16,8 @@
 namespace dStorm {
 namespace engine {
 
-_Config::_Config()
-:   Set("rapidSTORM", "rapidSTORM engine"),
+Config::Config()
+:   name_object("rapidSTORM", "rapidSTORM engine"),
     nms("NonMaximumSuppression", "Minimum spot distance", PixelVector2D::Constant(3 * camera::pixel) ),
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     weights("SpotFindingWeights", "Spot finding weights"),
@@ -59,41 +59,32 @@ _Config::_Config()
     spotFittingMethod.set_auto_selection( true );
 }
 
-_Config::~_Config() {
+Config::~Config() {
     /* No special stuff here. Declared in this file to avoid necessity
      * of including simparm::ChoiceEntry implementation when using
      * Config. */
 }
 
-void _Config::registerNamedEntries() {
-    push_back(nms);
-    push_back(guess_threshold);
-    push_back(threshold_height_factor);
-    push_back(amplitude_threshold);
+void Config::attach_ui( simparm::Node& n ) {
+    simparm::NodeRef at = name_object.attach_ui( n );
+    nms.attach_ui(at);
+    guess_threshold.attach_ui(at);
+    threshold_height_factor.attach_ui(at);
+    amplitude_threshold.attach_ui(at);
 
-    push_back(spotFindingMethod);
-    push_back( weights );
+    spotFindingMethod.attach_ui(at);
+    simparm::NodeRef w = weights.attach_ui(at );
+    weights_insertion_point = w;
     std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),
-        boost::bind( &simparm::Node::push_back, boost::ref(weights), _1 ) );
-    push_back(spotFittingMethod);
+        boost::bind( &simparm::Entry<float>::attach_ui, _1, boost::ref(w) ) );
+    spotFittingMethod.attach_ui(at);
 
-    push_back(motivation);
+    motivation.attach_ui(at);
 
 }
 
 
-Config::Config() 
-{ 
-    registerNamedEntries();
-}
-
-Config::Config(const Config& c) 
-: _Config(c)
-{ 
-    registerNamedEntries();
-}
-
-void _Config::set_variables( output::Basename& bn ) const
+void Config::set_variables( output::Basename& bn ) const
 {
     std::stringstream ss;
     if ( guess_threshold() ) 

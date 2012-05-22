@@ -7,7 +7,8 @@ namespace dStorm {
 
 struct Job {
     virtual ~Job() {}
-    virtual simparm::Node& get_config() = 0;
+    virtual void attach_ui( simparm::Node& ) = 0;
+    virtual void detach_ui( simparm::Node& ) = 0;
     virtual void stop() = 0;
     virtual bool needs_stopping() { return false; }
 };

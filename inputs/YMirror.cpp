@@ -9,18 +9,18 @@
 #include <dStorm/input/Method.hpp>
 #include <simparm/Entry.hh>
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
 
 namespace dStorm {
 namespace YMirror {
 
-struct Config : public simparm::Object
+struct Config
 {
     typedef input::DefaultTypes SupportedTypes;
 
+    simparm::Object name_object;
     simparm::BoolEntry mirror_y;
     Config();
-    void registerNamedEntries() { push_back(mirror_y); }
+    void attach_ui( simparm::Node& at ) { mirror_y.attach_ui( name_object.attach_ui(at) ); }
 };
 
 template <typename Type>
@@ -59,8 +59,7 @@ class ChainLink
     bool changes_traits( const input::MetaInfo&, const input::Traits<Type>& ) 
         { return false; }
 
-    simparm::Structure<Config>& get_config() { return config; }
-    simparm::Structure<Config> config;
+    Config config;
   public:
     ChainLink() {}
 
@@ -169,7 +168,7 @@ template <>
 void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageStack>& ) {}
 
 Config::Config() 
-: simparm::Object( ChainLink::getName(), "Mirror input data along Y axis"),
+: name_object( ChainLink::getName(), "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
     mirror_y.userLevel = simparm::Object::Expert;

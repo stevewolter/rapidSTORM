@@ -33,8 +33,8 @@ public:
     std::string getName() const { return Config::get_name(); }
     std::string getDesc() const { return Config::get_description(); }
     void attach_full_ui( simparm::Node& at ) { 
-        config.attach_ui( name_object ); 
-        OutputSource::attach_source_ui( name_object );
+        config.attach_ui( name_object.invisible_node() ); 
+        OutputSource::attach_source_ui( name_object.invisible_node() );
         name_object.attach_ui( at ); 
     }
     void attach_ui( simparm::Node& at ) { 

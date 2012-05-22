@@ -7,7 +7,7 @@
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Structure.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 
@@ -28,6 +28,7 @@ class Slicer : public Output {
   private:
     frame_count slice_size, slice_distance;
     Basename filename;
+    simparm::NodeHandle attached_suboutputs;
 
     Basename fn_for_slice( int i ) const;
 
@@ -117,9 +118,9 @@ void Slicer::add_output_clone(int i) {
     boost::shared_ptr<simparm::Object> o 
         ( new simparm::Object(name.str(), desc.str()) );
 
-    output->attach_ui( *o );
+    if ( attached_suboutputs )
+        output->attach_ui( o->attach_ui( *attached_suboutputs ) );
     outputs.replace( i, new Child( output, o ) );
-    o->attach_ui( suboutputs );
 
     if ( announcement.get() != NULL )
         outputs[i]->announceStormSize(*announcement);
@@ -260,8 +261,8 @@ public:
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }
     void attach_full_ui( simparm::Node& at ) { 
-        config.attach_ui( name_object );
-        FilterSource::attach_source_ui( name_object ); 
+        config.attach_ui( name_object.invisible_node() );
+        FilterSource::attach_source_ui( name_object.invisible_node() ); 
         name_object.attach_ui( at ); 
     }
     void attach_ui( simparm::Node& at ) { name_object.attach_ui( at ); }

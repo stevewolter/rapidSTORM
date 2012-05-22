@@ -37,4 +37,6 @@ void Object::detach_ui( simparm::Node& node ) {
     node.erase( *this );
 }
 
+NodeRef Object::invisible_node() { return *this; }
+
 };

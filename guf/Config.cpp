@@ -34,18 +34,18 @@ Config::Config()
 
 void Config::attach_ui( simparm::Node & at )
 {
-    fit_window_config.attach_ui( name_object );
-    marquardtStartLambda.attach_ui(name_object);
-    negligible_x_step.attach_ui(name_object);
-    maximumIterationSteps.attach_ui(name_object);
-    free_sigmas.attach_ui(name_object);
-    output_sigmas.attach_ui(name_object);
-    laempi_fit.attach_ui(name_object);
-    disjoint_amplitudes.attach_ui(name_object);
-    two_kernel_fitting.attach_ui(name_object);
-    theta_dist.attach_ui(name_object);
-    mle_fitting.attach_ui(name_object);
-    name_object.attach_ui( at );
+    simparm::NodeRef m = name_object.attach_ui( at );
+    fit_window_config.attach_ui( m );
+    marquardtStartLambda.attach_ui(m);
+    negligible_x_step.attach_ui(m);
+    maximumIterationSteps.attach_ui(m);
+    free_sigmas.attach_ui(m);
+    output_sigmas.attach_ui(m);
+    laempi_fit.attach_ui(m);
+    disjoint_amplitudes.attach_ui(m);
+    two_kernel_fitting.attach_ui(m);
+    theta_dist.attach_ui(m);
+    mle_fitting.attach_ui(m);
 }
 
 nonlinfit::levmar::Config Config::make_levmar_config() const

@@ -44,10 +44,10 @@ int main() {
     bounded_entry.min = 5 * boost::units::si::meter;
 
     IO io(&cin, &cout);
-    io.push_back(float_matrix);
-    io.push_back(meter_vector);
-    io.push_back(normal_entry);
-    io.push_back(bounded_entry);
+    float_matrix.attach_ui(io);
+    meter_vector.attach_ui(io);
+    normal_entry.attach_ui(io);
+    bounded_entry.attach_ui(io);
     while (true) {
         try {
             io.processInput();

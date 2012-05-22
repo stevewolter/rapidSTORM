@@ -40,7 +40,8 @@ class ChainLink
                     1.0f
                 )
             );
-            config.weights.push_back( config.spot_finder_weights.back() );
+            if ( config.weights_insertion_point )
+                config.spot_finder_weights.back().attach_ui( *config.weights_insertion_point );
         }
 
         for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)

@@ -51,8 +51,8 @@ template <typename PixelType> class MeasuredNoiseSource
 {
 };*/
 
-_NoiseGeneratorConfig::_NoiseGeneratorConfig() 
-: simparm::Set("NoiseGenerator", "Generate with random noise"),
+NoiseGeneratorConfig::NoiseGeneratorConfig() 
+: name_object("NoiseGenerator", "Generate with random noise"),
   ups_G("UpsilonG", "Value of G in combined PDF", 0.96),
   ups_mu("UpsilonMu", "Value of mu in combined PDF", 2734.6),
   ups_sigma("UpsilonSigma", "Value of sigma in combined PDF", 104.6),
@@ -67,17 +67,18 @@ _NoiseGeneratorConfig::_NoiseGeneratorConfig()
 {
 }
 
-void _NoiseGeneratorConfig::registerNamedEntries() {
-    push_back(ups_G);
-    push_back(ups_mu);
-    push_back(ups_sigma);
-    push_back(ups_x0);
-    push_back(ups_theta);
-    push_back(width);
-    push_back(height);
-    push_back(random_seed);
-    push_back(noiseFile);
-    push_back(varianceScale);
+void NoiseGeneratorConfig::attach_ui( simparm::Node& at ) {
+    simparm::NodeRef m = name_object.attach_ui(at);
+    ups_G.attach_ui(m);
+    ups_mu.attach_ui(m);
+    ups_sigma.attach_ui(m);
+    ups_x0.attach_ui(m);
+    ups_theta.attach_ui(m);
+    width.attach_ui(m);
+    height.attach_ui(m);
+    random_seed.attach_ui(m);
+    noiseFile.attach_ui(m);
+    varianceScale.attach_ui(m);
 }
 
 template<>

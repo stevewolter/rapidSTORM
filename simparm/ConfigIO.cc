@@ -16,7 +16,7 @@ using namespace std;
 namespace simparm {
 
 IO::IO(istream* in, ostream* out) 
-: Object("IO", "I/O processor"),
+: simparm::Node("IO"),
   in(in), out(out), subthread_if_any(NULL), mutex(new pthread_mutex_t),
   detached(false),
   should_quit(false),

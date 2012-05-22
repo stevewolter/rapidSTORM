@@ -65,6 +65,11 @@ class BasicEntry : public Object {
         { this->outputOnChange = outputOnChange; }
 
     void printHelp(ostream &) const;
+    void processCommand( std::istream& i ) { Object::processCommand( i ); }
+    bool has_child_named(const std::string& name) const
+        { return Object::has_child_named(name); }
+    bool is_entry() const { return true; }
+    virtual BasicEntry& get_entry() { return *this; }
 };
 
 template<typename ValueField>

@@ -67,7 +67,7 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
 {
     if ( determine_length && final ) {
         TIFFOperation op( "in reading image count from TIFF file",
-                        n, ignore_warnings );
+                        n.invisible_node(), ignore_warnings );
         DEBUG("Counting images in file");
         _no_images = 1;
         int last_output[2] = { 1, 1 };

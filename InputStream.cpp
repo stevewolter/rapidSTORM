@@ -11,11 +11,9 @@ namespace dStorm {
 
 InputStream::InputStream( MainThread& master )
 : IO(NULL,NULL),
-  starter( &master ),
   main_thread(master)
 {
     this->showTabbed = true;
-    setDesc( makeProgramDescription() );
     display::Manager::getSingleton().attach_ui( *this );
 }
 
@@ -30,8 +28,9 @@ void InputStream::reset_config() {
     if ( orig_config.get() ) {
         current_config.reset( new job::Config(*orig_config) );
         current_config->attach_ui( *this );
-        current_config->push_back( starter );
-        starter.setConfig( *current_config );
+        starter.reset( new JobStarter( &main_thread ) );
+        starter->setConfig( *current_config );
+        starter->attach_ui( current_config->user_interface_handle() );
     }
 }
 

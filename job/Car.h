@@ -9,6 +9,7 @@
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/NodeHandle.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/fwd.h>
 #include <dStorm/JobMaster.h>
@@ -43,6 +44,7 @@ namespace job {
         /** Runtime configuration. This is the storage locations for all
          *  configuration items which show job progress and status. */
         simparm::Set runtime_config;
+        simparm::NodeHandle current_ui;
 
         typedef input::Source< output::LocalizedImage > Input;
 
@@ -72,7 +74,8 @@ namespace job {
         bool needs_stopping() { return true; }
         DSTORM_REALIGN_STACK void run( JobMaster* ) ;
 
-        simparm::Node& get_config() { return runtime_config; }
+        void attach_ui( simparm::Node& ) ;
+        void detach_ui( simparm::Node& ) ;
 
     };
 }

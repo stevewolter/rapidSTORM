@@ -60,10 +60,10 @@ Set::Set(const Set &o)
 Set::~Set() {
 }
 
-static bool isEntryBool(const Node &entry) {
+static bool isEntryBool(const BasicEntry &entry) {
    return dynamic_cast<const BoolEntry*>(&entry) != NULL;
 }
-static bool isTriggerEntry(const Node &entry) {
+static bool isTriggerEntry(const BasicEntry &entry) {
    return dynamic_cast<const TriggerEntry*>(&entry) != NULL;
 }
 
@@ -91,7 +91,7 @@ class NodeSerializer : public unary_function<void,Node*> {
 
   public:
     void operator()(const Node& o) {
-        if ( dynamic_cast<const BasicEntry*>(&o) != NULL ) {
+        if ( o.is_entry() ) {
             string name = o.getName();
             if (byName->find( name ) == byName->end() ) {
                 byName->insert( make_pair( name, make_pair((Node*)NULL,0) ) );
@@ -222,9 +222,8 @@ void collect_args(const Node &c, vector<Option>& options)
    for (NodeSerializer::const_iterator i = serializer.begin(); 
                                              i != serializer.end(); i++)
    {
-        BasicEntry *configNode = dynamic_cast<BasicEntry*>( &*i );
-        if (configNode == NULL) continue;
-        BasicEntry &ce = *configNode;
+        if ( ! i->is_entry() ) continue;
+        BasicEntry &ce = i->get_entry();
         if (ce.editable())
         {
          if ( isEntryBool(ce) ) {
@@ -318,9 +317,8 @@ void printHelp(const Node& n, ostream &o) {
                     i != serializer.end(); i++)
     {
       if ( ! i.printHelp() ) continue;
-      BasicEntry *entry = dynamic_cast<BasicEntry*>( &*i );
-      if ( entry && entry->viewable() )
-         entry->printHelp(o);
+      if ( i->is_entry() && i->get_entry().viewable() )
+         i->get_entry().printHelp(o);
     }
 }
 

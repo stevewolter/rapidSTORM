@@ -2,6 +2,7 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <simparm/ProgressEntry.hh>
+#include <simparm/NodeHandle.hh>
 
 #include "ProgressMeter.h"
 
@@ -14,11 +15,12 @@ class ProgressMeter : public Output
 {
   private:
     simparm::ProgressEntry progress;
+    simparm::NodeHandle current_ui;
     frame_count max;
     frame_count first;
     boost::optional<frame_count> length;
     void attach_ui_( simparm::Node& at ) {
-        progress.attach_ui(at);
+        current_ui = progress.attach_ui(at);
     }
 
   protected:
@@ -67,7 +69,7 @@ ProgressMeter::announceStormSize(const Announcement &a) {
         else
             progress.indeterminate = true;
         max = frame_count::from_value(0);
-        if ( ! progress.isActive() ) progress.makeASCIIBar( std::cerr );
+        if ( ! current_ui || ! current_ui->isActive() ) progress.makeASCIIBar( std::cerr );
         return AdditionalData(); 
     }
 

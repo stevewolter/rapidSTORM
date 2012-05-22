@@ -11,7 +11,6 @@
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
 #include <simparm/Entry_Impl.hh>
-#include <simparm/Structure.hh>
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -27,21 +26,20 @@ namespace input_simulation {
 
 using namespace boost::units;
 
-class _FluorophoreConfig : public simparm::Set {
+class FluorophoreConfig {
+    simparm::Set name_object;
   protected:
-    void registerNamedEntries();
   public:
-    _FluorophoreConfig();
-    ~_FluorophoreConfig() {}
+    FluorophoreConfig();
+    ~FluorophoreConfig() {}
 
     simparm::Entry<unsigned long> countsPerPhoton;
     simparm::Entry<double> averageActivationTime, averageDeactivationTime;
     simparm::Entry<double> photonEmittanceRate;
     simparm::Entry<double> numerical_aperture, refractive_index;
     dStorm::FloatNanometreEntry wavelength;
+    void attach_ui( simparm::Node& );
 };
-
-typedef simparm::Structure<_FluorophoreConfig> FluorophoreConfig;
 
 class Fluorophore {
   public:
