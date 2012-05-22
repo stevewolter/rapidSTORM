@@ -336,7 +336,7 @@ dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFL
 dstorm_LDADD = libdStorm.la libmeasured_psf.la $(GraphicsMagick_LIBS) $(WX_LIBS)
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS)
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS) 
+dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -609,6 +609,7 @@ dstorm_SOURCES += \
     guf/DistanceMetric.h \
     guf/Spot.h \
     guf/SingleKernelModel.h \
+    guf/GaussImage.h \
     guf/unit_tests.h
 
 dstorm_SOURCES += \
@@ -766,7 +767,7 @@ dstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
-measured_psf_unit_test_SOURCES = measured_psf/main.cpp 
+measured_psf_unit_test_SOURCES = measured_psf/main.cpp
 measured_psf_unit_test_LDADD = libmeasured_psf.la $(boost_unit_test_LIB)
 
 align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp

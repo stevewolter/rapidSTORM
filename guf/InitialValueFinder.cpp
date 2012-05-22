@@ -18,16 +18,17 @@
 #include <boost/accumulators/framework/accumulator_set.hpp>
 #include <dStorm/threed_info/look_up_sigma_diff.h>
 #include "measured_psf/Model.h"
+//#include "GaussImage.h"
 
 using namespace boost::accumulators;
 
 namespace dStorm {
 namespace guf {
 
-struct InitialValueFinder::PlaneEstimate { 
-    double bg; 
-    double amp; 
-    boost::units::quantity<boost::units::si::length> z_estimate; 
+struct InitialValueFinder::PlaneEstimate {
+    double bg;
+    double amp;
+    boost::units::quantity<boost::units::si::length> z_estimate;
 };
 
 threed_info::SigmaDiffLookup InitialValueFinder::SigmaDiff::lookup( const engine::InputTraits& info ) const {
@@ -68,7 +69,7 @@ void InitialValueFinder::create_z_lookup_table( const engine::InputTraits& t )
     lookup_table.reset( new threed_info::SigmaDiffLookup( most_discriminating_diff->lookup( t ) ) );
 }
 
-InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info) 
+InitialValueFinder::InitialValueFinder( const Config& config, const dStorm::engine::JobInfo& info)
 : info(info),
   disjoint_amplitudes( config.disjoint_amplitudes() ),
   need_z_estimate( determine_z_estimate_need(info.traits) )
@@ -107,7 +108,7 @@ class InitialValueFinder::set_parameter {
 
   public:
     typedef void result_type;
-    set_parameter( const InitialValueFinder& p, const Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o ) 
+    set_parameter( const InitialValueFinder& p, const Spot& s, const PlaneEstimate& e, const dStorm::traits::Optics& o )
         : base( p.info.fluorophore, o ), p(p), s(s), e(e) {}
 
     template <typename Model>
@@ -115,24 +116,24 @@ class InitialValueFinder::set_parameter {
     template <typename Model>
     void operator()( nonlinfit::Xs<1,gaussian_psf::LengthUnit> p, Model& m ) {}
     template <int Dim, typename Model>
-    void operator()( gaussian_psf::Mean<Dim> p, Model& m ) 
+    void operator()( gaussian_psf::Mean<Dim> p, Model& m )
         { m( p ) = s[Dim]; }
-    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m ) 
+    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m )
         { m( p ) = e.z_estimate; }
-    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Spline3D& m ) { 
-        m( p ) = e.z_estimate; 
+    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Spline3D& m ) {
+        m( p ) = e.z_estimate;
     }
     template <typename Model>
-    void operator()( gaussian_psf::Amplitude a, Model& m ) 
+    void operator()( gaussian_psf::Amplitude a, Model& m )
         { m( a ) = e.amp; }
-    void operator()( constant_background::Amount a, constant_background::Expression& m ) 
+    void operator()( constant_background::Amount a, constant_background::Expression& m )
         { m( a ) = e.bg; }
     template <typename Parameter, typename Model>
     void operator()( Parameter p, Model& m ) { base( p, m ); }
 };
 
-void InitialValueFinder::operator()( 
-    MultiKernelModelStack& position, 
+void InitialValueFinder::operator()(
+    MultiKernelModelStack& position,
     const Spot& spot,
     const fit_window::Stack& data
 ) const {
@@ -146,21 +147,21 @@ void InitialValueFinder::operator()(
         assert( ( position[p].kernel_count() ) == 1 );
         set_parameter s( *this, spot, e[p], info.traits.optics(p) );
         if ( gaussian_psf::Polynomial3D* z = dynamic_cast<gaussian_psf::Polynomial3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< gaussian_psf::Polynomial3D::Variables >( 
+            boost::mpl::for_each< gaussian_psf::Polynomial3D::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         } else if ( gaussian_psf::No3D* z = dynamic_cast<gaussian_psf::No3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< gaussian_psf::No3D::Variables >( 
+            boost::mpl::for_each< gaussian_psf::No3D::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         } else if ( gaussian_psf::Spline3D* z = dynamic_cast<gaussian_psf::Spline3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< gaussian_psf::Spline3D::Variables >( 
+            boost::mpl::for_each< gaussian_psf::Spline3D::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            z->set_spline( 
+            z->set_spline(
                 info.traits.optics(p).depth_info(Direction_X),
                 info.traits.optics(p).depth_info(Direction_Y) );
         } else if ( measured_psf::Model* z = dynamic_cast<measured_psf::Model*>(&position[p][0]) ) {
-            boost::mpl::for_each< measured_psf::Model::Variables >( 
+            boost::mpl::for_each< measured_psf::Model::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            // TODO: Init measured_psf::Model's calibration image here
+            z->set_fixed_calibration_data();
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );
@@ -184,7 +185,7 @@ void InitialValueFinder::join_amp_estimates( std::vector<PlaneEstimate>& v ) con
 void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<PlaneEstimate>& v ) const
 {
     const SigmaDiff& mdm = *most_discriminating_diff;
-    boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
+    boost::optional<threed_info::ZPosition> z = (*lookup_table)(
         threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ]),
         threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ]) );
     DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
@@ -193,7 +194,7 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
         v[i].z_estimate = *z;
 }
 
-std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp( 
+std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_and_amp(
     const Spot&,
     const fit_window::Stack & s
 ) const {
@@ -202,13 +203,13 @@ std::vector<InitialValueFinder::PlaneEstimate> InitialValueFinder::estimate_bg_a
         const traits::Optics& o = info.traits.optics(i);
         /* Value of perfectly sharp PSF at Z = 0 */
         double pif = o.transmission_coefficient(info.fluorophore);
-            
+
         /* Solution of equation system:
             * peak_intensity == bg_estimate + pif * amp_estimate
             * integral == pixel_count * bg_estimate + amp_estimate */
         if ( pif > 1E-20 ) {
             rv[i].bg = s[i].background_estimate;
-            rv[i].amp = std::max( 
+            rv[i].amp = std::max(
                 (s[i].integral - rv[i].bg * double(s[i].pixel_count)) / pif,
                 1.0 );
         } else {

@@ -24,6 +24,12 @@ void check_evaluator( double point, double expected_value ) {
     BOOST_CHECK_CLOSE( value[0], expected_value, 1E-2 );
     evaluator.derivative(value.col(0), nonlinfit::Xs<0,LengthUnit>() );
     BOOST_CHECK_CLOSE( value[0], 20.0, 1E-2 );
+    evaluator.derivative(value.col(0), Mean<0>() );
+    BOOST_CHECK_CLOSE( value[0], -20.0, 1E-2 );
+    evaluator.derivative(value.col(0), Amplitude() );
+    BOOST_CHECK_CLOSE( value[0], expected_value / 2.5, 1E-2 );
+    evaluator.derivative(value.col(0), Prefactor() );
+    BOOST_CHECK_CLOSE( value[0], expected_value / 2, 1E-2 );
 }
 
 void check_evaluator_even_point() {

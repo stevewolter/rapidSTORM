@@ -35,6 +35,11 @@ public:
         Mean<0>, Mean<1>, Mean<2>,
         Amplitude, Prefactor > Variables;
 
+     static Model mock();
+     void set_calibration_data(Eigen::Vector3d& image_x, Image<double,3>& psf_data, Eigen::Vector3d pixel_size);
+     void set_fixed_calibration_data();
+
+
 private:
      quantity<si::length> get_fluorophore_position(int Dim) const;
      void set_fluorophore_position(int, quantity<si::length>);
@@ -43,22 +48,17 @@ private:
      bool has_z_position() const { return true; }
      void set_amplitude(quantity<si::dimensionless> amp);
      Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > get_sigma() const;
-  public:
-     static Model mock();
+     Model& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Model&>(f); }
 
-  private:
-    Model& copy( const SingleKernelModel& f ) { return *this = dynamic_cast<const Model&>(f); }
-
-    Eigen::Vector3d x0, image_x0;
+     Eigen::Vector3d x0, image_x0;
     /** pixel_size of psf_data in um/px */
-    Eigen::Vector3d pixel_size;
-    double axial_mean, amplitude, prefactor;
-    Image<double,3> psf_data;
-
-    double& access( nonlinfit::Xs<2,LengthUnit> ) { return axial_mean; }
-    template <int Index> double& access( Mean<Index> ) { return x0[Index]; }
-    double& access( Amplitude ) { return amplitude; }
-    double& access( Prefactor ) { return prefactor; }
+     Eigen::Vector3d pixel_size;
+     double axial_mean, amplitude, prefactor;
+     Image<double,3> psf_data;
+     double& access( nonlinfit::Xs<2,LengthUnit> ) { return axial_mean; }
+     template <int Index> double& access( Mean<Index> ) { return x0[Index]; }
+     double& access( Amplitude ) { return amplitude; }
+     double& access( Prefactor ) { return prefactor; }
 };
 
 }
