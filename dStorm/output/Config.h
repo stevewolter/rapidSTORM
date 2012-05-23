@@ -8,7 +8,7 @@
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "OutputSource.h"
-#include <simparm/BoostSignal.hh>
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace output {
@@ -18,7 +18,8 @@ namespace output {
     {
         simparm::ManagedChoiceEntry<OutputSource> choice;
         Capabilities my_capabilities;
-        simparm::BoostSignalAdapter source_available;
+        default_on_copy< boost::signals2::signal<void()> > source_available;
+        simparm::BaseAttribute::ConnectionStore listening;
       protected:
         void set_source_capabilities(Capabilities src_cap);
       public:

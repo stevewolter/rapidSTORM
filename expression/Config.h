@@ -3,6 +3,7 @@
 
 #include "SimpleFilters.h"
 #include <simparm/TriggerEntry.hh>
+#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/systems/camera/intensity.hpp>
 #include "Config_decl.h"
@@ -15,7 +16,7 @@ namespace expression {
 
 class Parser;
 
-struct Config : public simparm::Listener, public config::ExpressionManager
+struct Config : public config::ExpressionManager
 {
     typedef Source Output;
 
@@ -27,7 +28,7 @@ struct Config : public simparm::Listener, public config::ExpressionManager
     static std::string get_description() { return "Expression filter"; }
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
 
-    void operator()(const simparm::Event&);
+    void make_new_line();
     bool can_work_with(output::Capabilities);
     bool determine_output_capabilities( output::Capabilities& cap ) { return true; }
 
@@ -41,7 +42,8 @@ struct Config : public simparm::Listener, public config::ExpressionManager
     simparm::TriggerEntry new_line;
     int next_ident;
 
-    simparm::Node* current_ui;
+    simparm::NodeHandle current_ui;
+    simparm::BaseAttribute::ConnectionStore listening;
 
     void expression_changed( std::string, std::auto_ptr<source::LValue> ) {}
 };

@@ -1,9 +1,9 @@
 #include "ProgressEntry.hh"
-#include "Callback.hh"
 #include <math.h>
 
 namespace simparm {
 
+#if 0
 class ProgressEntry::ASCII_Progress_Shower
   : public Listener
 {
@@ -43,6 +43,7 @@ class ProgressEntry::ASCII_Progress_Shower
     }
     std::ostream& getStream() { return asciiProgress; }
 };
+#endif
 
 NodeRef ProgressEntry::create_hidden_node( Node& at ) {
     NodeRef r = Entry<double>::create_hidden_node( at );
@@ -58,9 +59,11 @@ ProgressEntry::ProgressEntry(const ProgressEntry &entry)
 : Entry<double>(entry), indeterminate(entry.indeterminate)
 {
     this->increment = 0.01;
+#if 0
     if ( entry.display.get() != NULL )
         display.reset( 
             new ASCII_Progress_Shower( value, entry.display->getStream()));
+#endif
 }
 
 ProgressEntry::ProgressEntry(string name, string desc, double value)
@@ -73,9 +76,7 @@ ProgressEntry::ProgressEntry(string name, string desc, double value)
 
 ProgressEntry::~ProgressEntry() {}
 
-void ProgressEntry::makeASCIIBar(ostream &o) 
-   { display.reset( new ASCII_Progress_Shower( value, o ) ); }
-void ProgressEntry::stopASCIIBar() 
-   { display.reset( NULL); }
+void ProgressEntry::makeASCIIBar(ostream &o) {}
+void ProgressEntry::stopASCIIBar() {}
 
 }

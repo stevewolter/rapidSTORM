@@ -138,7 +138,7 @@ class Manager
 };
 
 class Manager::ControlConfig
-: private simparm::Object, public simparm::Listener, private boost::noncopyable
+: private simparm::Object, private boost::noncopyable
 {
     Manager& m;
     simparm::ChoiceEntry<Manager::Source> which_window;
@@ -146,6 +146,7 @@ class Manager::ControlConfig
     simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;
     simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
+    simparm::BaseAttribute::ConnectionStore listening[4];
 
   public:
     ControlConfig(Manager& m) 
@@ -166,6 +167,15 @@ class Manager::ControlConfig
     }
 
     void attach_ui( simparm::Node& at ) {
+        listening[0] = close.value.notify_on_value_change( 
+            boost::bind( &Manager::ControlConfig::close_window, this ) );
+        listening[1] = set_lower_limit.value.notify_on_value_change( 
+            boost::bind( &Manager::ControlConfig::notice_lower_limit, this ) );
+        listening[2] = set_upper_limit.value.notify_on_value_change(
+            boost::bind( &Manager::ControlConfig::notice_upper_limit, this ) );
+        listening[3] = draw_rectangle.value.notify_on_value_change(
+            boost::bind( &Manager::ControlConfig::notice_drawn_rectangle, this ) );
+
         simparm::NodeRef r = simparm::Object::attach_ui( at );
         which_window.attach_ui( r );
         close.attach_ui( r );
@@ -178,37 +188,51 @@ class Manager::ControlConfig
         left.attach_ui( r);
         right.attach_ui( r);
         draw_rectangle.attach_ui( r);
-        receive_changes_from( close.value );
-        receive_changes_from( set_lower_limit.value );
-        receive_changes_from( set_upper_limit.value );
-        receive_changes_from( draw_rectangle.value );
     }
 
-    void operator()(const simparm::Event& e) {
-        if ( e.cause != simparm::Event::ValueChanged ) return;
+    boost::shared_ptr<Source> look_up_window() {
+        boost::shared_ptr<Source> src;
         if ( ! which_window.isValid() ) {
             std::cerr << "No valid window selected" << std::endl;
-            return;
+            return src;
         }
-        boost::shared_ptr<Source> src;
         {
             boost::lock_guard<boost::mutex> lock(m.mutex);
             src = which_window().shared_from_this();
         }
         if ( ! src ) { 
-            std::cerr << "Window " << which_window.value() << " not found" << std::endl; return; 
+            std::cerr << "Window " << which_window.value() << " not found" << std::endl; 
         }
+        return src;
+    }
 
-        if ( &e.source == &close.value && close.triggered() ) {
+    void close_window() {
+        boost::shared_ptr<Source> src = look_up_window();
+        if ( src && close.triggered() ) {
             close.untrigger();
             m.request_action( src, Close() );
-        } else if ( &e.source == &set_lower_limit.value && set_lower_limit.triggered() ) {
+        }
+    }
+    
+    void notice_lower_limit() {
+        boost::shared_ptr<Source> src = look_up_window();
+        if ( src && set_lower_limit.triggered() ) {
             set_lower_limit.untrigger();
             m.request_action( src, SetLimit(true, which_key(), new_limit()) );
-        } else if ( &e.source == &set_upper_limit.value && set_upper_limit.triggered() ) {
+        }
+    }
+
+    void notice_upper_limit() {
+        boost::shared_ptr<Source> src = look_up_window();
+        if (  src && set_upper_limit.triggered() ) {
             set_upper_limit.untrigger();
             m.request_action( src, SetLimit(false, which_key(), new_limit()) );
-        } else if ( &e.source == &draw_rectangle.value && draw_rectangle.triggered() ) {
+        }
+    }
+    
+    void notice_drawn_rectangle() {
+        boost::shared_ptr<Source> src = look_up_window();
+        if ( src && draw_rectangle.triggered() ) {
             draw_rectangle.untrigger();
             m.request_action( src, DrawRectangle(left(), right(), top(), bottom()) );
         }

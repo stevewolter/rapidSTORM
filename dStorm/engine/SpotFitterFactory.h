@@ -5,7 +5,6 @@
 #include "SpotFitter_decl.h"
 #include "Image.h"
 #include <simparm/Node_decl.hh>
-#include <simparm/Callback.hh>
 #include <memory>
 #include "../output/Traits_decl.h"
 #include "../output/Basename_decl.h"
@@ -27,7 +26,7 @@ struct Factory {
     virtual void detach_ui( simparm::Node& to ) = 0;
     virtual std::string getName() const = 0;
 
-    virtual void register_trait_changing_nodes( simparm::Listener& ) = 0;
+    virtual void register_trait_changing_nodes( simparm::BaseAttribute::Listener ) = 0;
     /** Check whether spot fitter objects could actually be built with the current configuration. */
     virtual void check_configuration( const InputTraits&, const output::Traits& ) {}
 };

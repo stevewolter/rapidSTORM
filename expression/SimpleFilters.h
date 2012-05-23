@@ -15,7 +15,6 @@ namespace dStorm {
 namespace expression {
 
 struct SimpleFilters 
-: public simparm::Listener
 {
     SimpleFilters();
     SimpleFilters(const SimpleFilters&);
@@ -34,7 +33,8 @@ struct SimpleFilters
     simparm::Entry< boost::optional< Eigen::Matrix< boost::units::quantity<ShiftSpeed,float>, 3, 1, Eigen::DontAlign> > >
         drift_correction;
     simparm::Entry< float > two_kernel_improvement;
-    void operator()(const simparm::Event&);
+    simparm::BaseAttribute::ConnectionStore listening[3];
+
     void publish_amp();
     void publish_drift_correction();
     void publish_tki();

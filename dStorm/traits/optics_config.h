@@ -7,7 +7,6 @@
 #include <dStorm/engine/InputTraits.h>
 #include <simparm/Object.hh>
 #include <simparm/Set.hh>
-#include <simparm/Callback.hh>
 #include <simparm/BoostOptional.hh>
 #include "../UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -23,7 +22,7 @@
 #include <dStorm/Direction.h>
 
 #include <boost/signals2/signal.hpp>
-#include <simparm/BoostSignal.hh>
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace traits {
@@ -47,7 +46,7 @@ private:
 
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
-    simparm::BoostSignalAdapter ui_element_listener;
+    dStorm::default_on_copy< boost::signals2::signal<void()> > ui_element_changed;
 
 public:
     PlaneConfig(int number, Purpose );
@@ -55,7 +54,7 @@ public:
     void attach_ui( simparm::Node& at );
 
     void notify_on_any_change( boost::signals2::slot<void()> listener ) 
-        { ui_element_listener.connect(listener); }
+        { ui_element_changed.connect(listener); }
 
     void set_context( const traits::Optics&, int fluorophore_count, bool multilayer );
     void set_context( const input::Traits<Localization>&, int fluorophore_count );
@@ -72,7 +71,7 @@ class MultiPlaneConfig
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;
 
-    simparm::BoostSignalAdapter ui_element_listener;
+    dStorm::default_on_copy< boost::signals2::signal<void()> > ui_element_listener;
 
     void set_number_of_planes(int);
 

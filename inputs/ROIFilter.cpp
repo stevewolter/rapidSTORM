@@ -137,12 +137,12 @@ Source<Ty>::end()
         _iterator( *this, this->base().end(), this->base().end() ) ); }
 
 class ChainLink 
-: public input::Method<ChainLink>, public simparm::Listener
+: public input::Method<ChainLink>
 {
     friend class input::Method<ChainLink>;
 
     Config config;
-    void operator()( const simparm::Event& );
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
     typedef Localization::ImageNumber::Traits TemporalTraits;
 
@@ -174,10 +174,14 @@ class ChainLink
     }
 
   public:
-    ChainLink();
-    ChainLink(const ChainLink&);
     static std::string getName() { return "ROIFilter"; }
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::Node& at ) { 
+        listening[0] = config.first_frame.value.notify_on_value_change( 
+            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
+        listening[1] = config.last_frame.value.notify_on_value_change( 
+            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
+        config.attach_ui( at ); 
+    }
 };
 
 Config::Config() 
@@ -187,22 +191,6 @@ Config::Config()
 {
     first_frame.userLevel = simparm::Object::Intermediate;
     last_frame.userLevel = simparm::Object::Intermediate;
-}
-
-void ChainLink::operator()( const simparm::Event& ) {
-    input::InputMutexGuard lock( input::global_mutex() );
-    republish_traits();
-}
-
-ChainLink::ChainLink()
-: simparm::Listener( simparm::Event::ValueChanged )
-{
-}
-
-ChainLink::ChainLink(const ChainLink& o)
-: input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
-  config(o.config)
-{
 }
 
 std::auto_ptr<input::Link> make_link() {

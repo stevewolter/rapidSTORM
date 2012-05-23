@@ -9,7 +9,7 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm testChoice test_units test_Link test_optional testSimparm  
+C_TESTS = dstorm testChoice test_units test_optional testSimparm  
 DEJATOOL = dstorm
 
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
@@ -191,6 +191,8 @@ libdStorm_la_SOURCES = \
     dStorm/input/InputMutex.h \
     dStorm/input/FileInput.h \
     dStorm/helpers/thread.h \
+    dStorm/helpers/default_on_copy.h \
+    dStorm/helpers/nocopy_ptr.hpp \
     dStorm/helpers/OutOfMemory.h \
     dStorm/helpers/clone_ptr.hpp dStorm/helpers/make_boost_clone.h \
     dStorm/helpers/back_inserter.h \
@@ -715,26 +717,22 @@ dstorm_SOURCES += \
     tiff/augment_config.h tiff/augment_config.cpp
 
 libsimparm_la_SOURCES = \
-    simparm/Callback.cc \
     simparm/ConfigSet.cc simparm/ConfigEntry.cc simparm/ConfigIO.cc simparm/ConfigObject.cc \
     simparm/ConfigEntryTrigger.cc simparm/ConfigEntryProgress.cc \
-    simparm/Node.cc simparm/Attribute.cc simparm/TreeEntry.cc simparm/Node_Callback.cc \
-    simparm/Node_debug.cc simparm/FileEntry.cc simparm/Message.cpp \
+    simparm/Node.cc simparm/Attribute.cc simparm/TreeEntry.cc \
+    simparm/FileEntry.cc simparm/Message.cpp \
     simparm/ChoiceEntry.cpp \
-    simparm/stl_helpers.hh simparm/Node_debug.hh simparm/Node_Pimpl.hh \
-    simparm/debug.hh simparm/Callback.hh simparm/Node.hh simparm/Attribute.hh simparm/Object.hh \
+    simparm/debug.hh simparm/Node.hh simparm/Attribute.hh simparm/Object.hh \
     simparm/Entry_decl.hh simparm/Entry.hh simparm/Set.hh simparm/IO.hh \
     simparm/VectorEntry.hh \
     simparm/Entry_Impl.hh simparm/ChoiceEntry_Impl.hh simparm/ManagedChoiceEntry.hh \
     simparm/ChoiceEntry.hh simparm/FileEntry.hh simparm/TreeEntry.hh \
     simparm/TriggerEntry.hh simparm/ProgressEntry.hh simparm/iostream.hh \
-    simparm/Link.hh simparm/Link_impl.hh simparm/Link_iterator.hh \
-    simparm/AttributeChange.hh simparm/EntryManipulators.hh \
     simparm/Node_decl.hh simparm/Eigen.hh \
     simparm/Message_decl.hh simparm/Message.hh simparm/Menu.hh \
     simparm/Eigen_decl.hh simparm/default_value.hh simparm/IncrementWatcher.hh simparm/BoostUnits.hh \
     simparm/MinMaxWatcher.hh simparm/MinMaxWatcher_decl.hh simparm/BoostOptional.hh simparm/Attributes.hh \
-    simparm/ObjectChoice.hh simparm/command_line.hh simparm/BoostSignal.hh simparm/NodeHandle.hh \
+    simparm/ObjectChoice.hh simparm/command_line.hh simparm/NodeHandle.hh \
     simparm/text_stream/Node.h simparm/text_stream/Node.cpp
 libsimparm_la_LDFLAGS = -lpthread 
 
@@ -754,14 +752,13 @@ align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
 align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
 
-testChoice_SOURCES = testChoice.cpp
+testChoice_SOURCES = simparm/testChoice.cpp
 testChoice_LDADD = libsimparm.la
-testSimparm_SOURCES = testSimparm.cpp
+testSimparm_SOURCES = simparm/testSimparm.cpp
 testSimparm_LDADD = libsimparm.la
-test_optional_SOURCES = test_optional.cpp
+test_optional_SOURCES = simparm/test_optional.cpp
 test_optional_LDADD = libsimparm.la
-test_Link_SOURCES = test_Link.cpp
-test_units_SOURCES = test_units.cpp
+test_units_SOURCES = simparm/test_units.cpp
 test_units_LDADD = libsimparm.la
-test_eigen_SOURCES = test_eigen.cpp
+test_eigen_SOURCES = simparm/test_eigen.cpp
 test_eigen_LDADD = libsimparm.la

@@ -10,7 +10,6 @@
 #include <dStorm/output/Filter.h>
 #include <simparm/Entry.hh>
 #include <dStorm/Engine.h>
-#include <simparm/Structure.hh>
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry_Impl.hh>
 

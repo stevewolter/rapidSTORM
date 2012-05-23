@@ -44,8 +44,7 @@ namespace input_simulation {
     };
 
     class NoiseConfig
-    : public dStorm::input::Terminus,
-      public simparm::Listener
+    : public dStorm::input::Terminus
     {
       public:
         typedef boost::ptr_list< FluorophoreSetConfig > FluoSets;
@@ -56,15 +55,17 @@ namespace input_simulation {
         simparm::NodeHandle current_ui;
         int next_fluo_id;
         FluoSets fluorophore_sets;
+        simparm::BaseAttribute::ConnectionStore listening[2];
+
         void create_fluo_set();
         void add_fluo_set( std::auto_ptr<FluorophoreSetConfig> );
         std::auto_ptr< dStorm::input::Traits<dStorm::engine::ImageStack> > 
             make_image_size() const;
 
         void optics_changed();
+        void create_fluorophore_set();
+        void notice_layer_count();
 
-      protected:
-        void operator()( const simparm::Event& );
       public:
         NoiseGeneratorConfig noiseGeneratorConfig;
 

@@ -1,9 +1,7 @@
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
 #include <simparm/FileEntry.hh>
-#include <simparm/Structure.hh>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>

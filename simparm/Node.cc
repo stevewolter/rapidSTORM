@@ -7,10 +7,6 @@
 #include "Object.hh"
 #include <set>
 
-#include "Node_debug.hh"
-#include "Node_Pimpl.hh"
-#include "Link_impl.hh"
-
 #include "Message.hh"
 
 #if 0

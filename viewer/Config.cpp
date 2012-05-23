@@ -66,6 +66,10 @@ Config::Config()
 }
 
 void Config::attach_ui( simparm::Node& n ) {
+    listening[3] = colourScheme.value.notify_on_value_change( boost::ref(some_value_changed) );
+    listening[4] = invert.value.notify_on_value_change( boost::ref(some_value_changed) );
+    listening[5] = border.value.notify_on_value_change( boost::ref(some_value_changed) );
+
    outputFile.attach_ui(n);
    save_with_key.attach_ui(n);
    save_scale_bar.attach_ui(n);
@@ -83,14 +87,9 @@ void Config::attach_ui( simparm::Node& n ) {
    scale_bar_length.attach_ui(n);
 }
 
-void Config::add_listener( simparm::Listener& l ) {
-    l.receive_changes_from( showOutput.value );
+void Config::backend_needs_changing( simparm::BaseAttribute::Listener l ) {
+    some_value_changed.connect( l );
     binned_dimensions.add_listener(l);
-    l.receive_changes_from( histogramPower.value );
-    l.receive_changes_from( top_cutoff.value );
-    l.receive_changes_from( colourScheme.value );
-    l.receive_changes_from( invert.value );
-    l.receive_changes_from( border.value );
 
     for ( simparm::ManagedChoiceEntry<ColourScheme>::iterator i = colourScheme.begin(); i != colourScheme.end(); ++i)
         i->add_listener( l );

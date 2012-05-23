@@ -7,6 +7,7 @@
 #include <boost/exception_ptr.hpp>
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/signals/InputFileNameChange.h>
+#include <dStorm/input/InputMutex.h>
 
 namespace dStorm {
 namespace input {
@@ -72,6 +73,11 @@ class FileInput
     std::string name() const { return CRTP::getName(); }
     void registerNamedEntries( simparm::Node& n ) 
         { static_cast<CRTP&>(*this).attach_ui(n); }
+
+    void republish_traits_locked() {
+        InputMutexGuard lock( global_mutex() );
+        republish_traits();
+    }
 };
 
 }

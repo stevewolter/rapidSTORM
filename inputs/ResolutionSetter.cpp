@@ -19,8 +19,6 @@
 #include <dStorm/units/nanolength.h>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Eigen.hh>
-#include <simparm/Structure.hh>
-#include <simparm/TreeCallback.hh>
 #include <simparm/IO.hh>
 #include "dejagnu.h"
 

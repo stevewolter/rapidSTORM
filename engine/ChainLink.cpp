@@ -19,14 +19,14 @@ using namespace input;
 using boost::signals2::scoped_connection;
 
 class ChainLink
-: protected simparm::Listener,
-  public input::Method< ChainLink >
+: public input::Method< ChainLink >
 {
     friend class input::Method< ChainLink >;
     typedef boost::mpl::vector< engine::ImageStack > SupportedTypes;
 
     std::auto_ptr< scoped_connection > finder_con, fitter_con;
     Config config;
+    simparm::BaseAttribute::ConnectionStore listening[4];
 
     void notice_traits( const MetaInfo&, const Traits< ImageStack >& traits ) {
         int soll = traits.plane_count() - 1;
@@ -73,8 +73,7 @@ class ChainLink
 
     std::string amplitude_threshold_string() const;
 
-  protected:
-    void operator()( const simparm::Event& ) {
+    void republish_traits_locked() {
         input::InputMutexGuard lock( input::global_mutex() );
         config.amplitude_threshold.viewable = ! config.guess_threshold();
         config.threshold_height_factor.viewable = config.guess_threshold();
@@ -87,41 +86,43 @@ class ChainLink
     ~ChainLink() {}
 
     static std::string getName() { return "rapidSTORM"; }
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::Node& at ) { 
+        listening[0] = config.guess_threshold.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        listening[1] = config.amplitude_threshold.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        listening[2] = config.spotFittingMethod.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        listening[3] = config.spotFindingMethod.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
+        config.attach_ui( at ); 
+    }
 
     void add_spot_finder( const spot_finder::Factory& finder) 
         { config.spotFindingMethod.addChoice(finder.clone()); }
     void add_spot_fitter( const spot_fitter::Factory& fitter) { 
         std::auto_ptr< spot_fitter::Factory > my_fitter(fitter.clone());
-        my_fitter->register_trait_changing_nodes(*this);
+        my_fitter->register_trait_changing_nodes(
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
         config.spotFittingMethod.addChoice(my_fitter); 
     }
 };
 
 ChainLink::ChainLink() 
-: simparm::Listener( simparm::Event::ValueChanged )
 {
-    receive_changes_from( config.guess_threshold.value );
-    receive_changes_from( config.amplitude_threshold.value );
-    receive_changes_from( config.spotFittingMethod.value );
-    receive_changes_from( config.spotFindingMethod.value );
 }
 
 ChainLink::ChainLink(const ChainLink& c)
-: simparm::Listener( simparm::Event::ValueChanged ),
-  Method<ChainLink>(c),
+: Method<ChainLink>(c),
   config(c.config)
 {
-    receive_changes_from( config.guess_threshold.value );
-    receive_changes_from( config.amplitude_threshold.value );
-    receive_changes_from( config.spotFittingMethod.value );
-    receive_changes_from( config.spotFindingMethod.value );
-
     for ( simparm::ManagedChoiceEntry< spot_fitter::Factory >::iterator 
             i = config.spotFittingMethod.begin(); 
             i != config.spotFittingMethod.end(); ++i )
     {
-        i->register_trait_changing_nodes(*this);
+        i->register_trait_changing_nodes( 
+            boost::bind( &ChainLink::republish_traits_locked, this )
+        );
     }
 }
 

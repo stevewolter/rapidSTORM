@@ -7,6 +7,7 @@
 #include <dStorm/input/DefaultFilterTypes.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
+#include <dStorm/input/InputMutex.h>
 
 namespace dStorm {
 namespace input {
@@ -27,6 +28,10 @@ class Method
     }
     std::string name() const
         { return CRTP::getName(); }
+    void republish_traits_locked() { 
+        input::InputMutexGuard lock( input::global_mutex() );
+        republish_traits();
+    }
 
   protected:
     typedef DefaultTypes SupportedTypes;

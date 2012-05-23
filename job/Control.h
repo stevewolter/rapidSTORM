@@ -5,7 +5,6 @@
 #include <boost/thread/condition.hpp>
 #include <dStorm/Engine.h>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/Callback.hh>
 
 namespace dStorm {
 namespace job {
@@ -13,8 +12,7 @@ namespace job {
 class Run;
 
 class Control 
-: private simparm::Listener ,
-  public dStorm::Engine
+: public dStorm::Engine
 {
     mutable boost::mutex mutex;
     bool close_job, abort_job;
@@ -26,9 +24,10 @@ class Control
     boost::shared_ptr<Run> current_run;
     std::auto_ptr< input::BaseTraits > next_run_traits;
 
-    /** Receive the signal from closeJob. */
-    void operator()(const simparm::Event&);
+    void do_close_job();
+    void do_abort_job();
 
+    simparm::BaseAttribute::ConnectionStore listening[2];
     class TerminationBlock;
 
     std::auto_ptr<EngineBlock> block_termination();

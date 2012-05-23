@@ -7,7 +7,6 @@
 #include <string>
 #include <dStorm/input/FileInput.h>
 #include <simparm/FileEntry.hh>
-#include <simparm/Structure.hh>
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/output/TraceReducer.h>

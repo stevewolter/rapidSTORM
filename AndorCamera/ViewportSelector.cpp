@@ -57,9 +57,12 @@ Display::Display(
 }
 
 void Display::attach_ui(simparm::Node& at) {
-    receive_changes_from(stopAim.value);
-    receive_changes_from(pause.value);
-    receive_changes_from(save.value);
+    listening[0] = stopAim.value.notify_on_value_change( 
+        boost::bind( &Display::do_stop, this ) );
+    listening[1] = stopAim.value.notify_on_value_change( 
+        boost::bind( &Display::do_pause, this ) );
+    listening[2] = stopAim.value.notify_on_value_change( 
+        boost::bind( &Display::do_save, this ) );
 
     current_ui = name_object.attach_ui(at);
     simparm::NodeRef r = *current_ui;
@@ -329,10 +332,9 @@ void Display::acquire()
     cam->stop_acquisition();
 }
 
-void Display::operator()(const simparm::Event& e) 
+void Display::do_pause()
 { 
-    DEBUG("Handling events for display " << this);
-    if (&e.source == &pause.value && pause.triggered()) {
+    if (pause.triggered()) {
         pause.untrigger();
         /* No lock  necessary here, since pause is an atomic comparison */
         paused = !paused;
@@ -342,7 +344,11 @@ void Display::operator()(const simparm::Event& e)
             image_acquirer.join();
         else
             image_acquirer = boost::thread( &Display::run, this );
-    } else if (&e.source == &save.value && save.triggered()) {
+    }
+}
+
+void Display::do_save() {
+    if (save.triggered()) {
         save.untrigger();
         if ( ! imageFile ) {
             simparm::Message m( "Unable to save image",
@@ -359,7 +365,11 @@ void Display::operator()(const simparm::Event& e)
             handle->store_current_display( request );
             DEBUG("Saved image");
         }
-    } else if (&e.source == &stopAim.value && stopAim.triggered()) {
+    }
+}
+
+void Display::do_stop() {
+    if (stopAim.triggered()) {
         stopAim.untrigger();
         config.set_display( std::auto_ptr<Display>() );
     }

@@ -32,12 +32,12 @@ class Random : public FluorophoreDistribution {
 
 std::auto_ptr< FluorophoreDistribution > make_lattice();
 
-class Lines : public FluorophoreDistribution, 
-               public simparm::Listener 
+class Lines : public FluorophoreDistribution
 {
   protected:
     void attach_ui( simparm::Node& at ) ;
-    void operator()(const simparm::Event&);
+    void add_line();
+    void remove_line();
   public:
     class Line {
         simparm::Object name_object;
@@ -55,6 +55,7 @@ class Lines : public FluorophoreDistribution,
   private:
     std::vector<Line*> lines;
     simparm::NodeHandle current_ui;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
   public:
     simparm::TriggerEntry addLine, removeLine;

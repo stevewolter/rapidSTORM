@@ -19,35 +19,33 @@ namespace input {
 namespace file_method {
 
 class FileMethod
-: public Forwarder,
-  private simparm::Listener
+: public Forwarder
 {
     friend void unit_test(TestState&);
     simparm::Set name_object;
     simparm::FileEntry input_file;
+    simparm::BaseAttribute::ConnectionStore listening;
 
-    void operator()( const simparm::Event& );
     virtual void traits_changed( TraitsRef, Link* );
 
     FileMethod* clone() const { return new FileMethod(*this); }
     void registerNamedEntries( simparm::Node& node ) { 
-        receive_changes_from( input_file.value );
         simparm::NodeRef r = name_object.attach_ui( node );
         input_file.attach_ui(r);
         Forwarder::registerNamedEntries(r);
+
+        listening = input_file.value.notify_on_value_change( 
+            boost::bind( &FileMethod::republish_traits, this ) );
     }
     std::string name() const { return name_object.getName(); }
     std::string description() const { return name_object.getDesc(); }
 
     BaseSource* makeSource() { return Forwarder::makeSource(); }
 
+    void republish_traits();
 
   public:
     FileMethod();
-    FileMethod(const FileMethod&);
-    ~FileMethod();
-
-    static void unit_test( TestState& ); 
 };
 
 class FileTypeChoice 
@@ -67,7 +65,6 @@ class FileTypeChoice
 
 FileMethod::FileMethod()
 : Forwarder(),
-  simparm::Listener( simparm::Event::ValueChanged ),
   name_object("FileMethod", "File"),
   input_file("InputFile", "Input file")
 {
@@ -77,18 +74,7 @@ FileMethod::FileMethod()
     Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
 }
 
-FileMethod::FileMethod(const FileMethod& o)
-: Forwarder(o),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  name_object(o.name_object),
-  input_file(o.input_file)
-{
-    DEBUG("Copied file method " << this << " from " << &o);
-}
-
-FileMethod::~FileMethod() {}
-
-void FileMethod::operator()( const simparm::Event& )
+void FileMethod::republish_traits()
 {
     InputMutexGuard lock( global_mutex() );
     DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_meta_info().get() );

@@ -24,28 +24,27 @@ namespace dStorm {
 using namespace output;
 
 class TransmissionTreePrinter 
-: public simparm::TriggerEntry,
-  simparm::Listener
+: public simparm::TriggerEntry
 {
     const job::Config &config;
-    void operator()( const simparm::Event& );
-    void printNode( 
-        const output::OutputSource& src,
-        int indent );
+    void printNode( const output::OutputSource&, int indent );
+    void printTree();
+    simparm::BaseAttribute::ConnectionStore listening;
   public:
     TransmissionTreePrinter(const job::Config&);
+    void attach_ui( simparm::Node& );
 };
 
 class TwiddlerLauncher
-: public simparm::TriggerEntry,
-  simparm::Listener
+: public simparm::TriggerEntry
 {
     job::Config &config;
     MainThread& main_thread;
-    void operator()( const simparm::Event& );
+    simparm::BaseAttribute::ConnectionStore listening;
   public:
     TwiddlerLauncher(job::Config&, MainThread& main_thread);
     ~TwiddlerLauncher();
+    void attach_ui( simparm::Node& );
 };
 
 void CommandLine::parse( int argc, char *argv[] ) {
@@ -144,13 +143,17 @@ TransmissionTreePrinter::TransmissionTreePrinter
     ( const job::Config& c )
 : simparm::TriggerEntry("ShowTransmissionTree", 
                         "Print tree view of outputs"),
-  simparm::Listener( simparm::Event::ValueChanged ),
   config(c)
 {
-    receive_changes_from( value );
 }
 
-void TransmissionTreePrinter::operator()( const simparm::Event& )
+void TransmissionTreePrinter::attach_ui( simparm::Node& n ) {
+    simparm::TriggerEntry::attach_ui(n);
+    listening = value.notify_on_value_change( 
+        boost::bind( &TransmissionTreePrinter::printTree, this ) );
+}
+
+void TransmissionTreePrinter::printTree()
 {
     printNode( config.outputSource, 0 );
 }
@@ -174,16 +177,17 @@ TwiddlerLauncher::TwiddlerLauncher
     ( job::Config& c, MainThread& main_thread )
 : simparm::TriggerEntry("TwiddlerControl", 
                 "Read stdin/out for simparm control commands"),
-  simparm::Listener( simparm::Event::ValueChanged ),
   config(c),
   main_thread(main_thread)
 {
-    receive_changes_from( value );
 }
 
-void TwiddlerLauncher::operator()( const simparm::Event& )
+void TwiddlerLauncher::attach_ui( simparm::Node& n )
 {
-    main_thread.connect_stdio( config );
+    simparm::TriggerEntry::attach_ui( n );
+    listening = value.notify_on_value_change( 
+        boost::bind( &MainThread::connect_stdio, &main_thread, boost::ref(config) )
+    );
 }
 
 TwiddlerLauncher::~TwiddlerLauncher() {}

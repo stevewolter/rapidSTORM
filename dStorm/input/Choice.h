@@ -8,7 +8,7 @@ namespace dStorm {
 namespace input {
 
 class Choice
-: public Link, public simparm::Listener
+: public Link
 {
   public:
     class LinkAdaptor {
@@ -41,11 +41,12 @@ class Choice
     boost::shared_ptr<MetaInfo> my_traits;
     bool auto_select;
 
+    void publish_traits_locked();
     void publish_traits();
     void traits_changed( TraitsRef, Link* );
 
-  protected:
-    virtual void operator()(const simparm::Event&);
+    simparm::BaseAttribute::Connection value_change_listen;
+
   public:
     Choice(std::string name, std::string desc, bool auto_select);
     Choice(const Choice&);

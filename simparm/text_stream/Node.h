@@ -4,6 +4,7 @@
 #include "../Node.hh"
 #include "../BaseAttribute.hh"
 #include <boost/signals2/signal.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace simparm {
 namespace text_stream {
@@ -34,6 +35,7 @@ struct Node : public simparm::Node {
     std::map< std::string, Node* > node_lookup;
     std::vector< BaseAttribute* > attributes;
     std::map< std::string, BaseAttribute* > attribute_lookup;
+    boost::ptr_vector< boost::signals2::scoped_connection > connections;
     bool declared;
 
     void print_attribute_value( const simparm::BaseAttribute& );

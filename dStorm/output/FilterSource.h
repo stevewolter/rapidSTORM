@@ -9,6 +9,7 @@
 #include <boost/utility.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function/function1.hpp>
+#include <dStorm/helpers/nocopy_ptr.hpp>
 
 namespace dStorm {
 namespace output {
@@ -37,8 +38,7 @@ class SourceFactory;
  *  which can be used to explicitly set the output member. 
  **/
 class FilterSource
-: public OutputSource,
-  public simparm::Listener
+: public OutputSource
 {
   private:
     /** The unique integer X for the next disambiguation node. */
@@ -54,22 +54,23 @@ class FilterSource
      *  If the initialization is delayed via OnCopy, the factory member
      *  will not be set until initialize() is called. This avoids init
      *  loops. */
-    std::auto_ptr<SourceFactory> factory;
+    dStorm::nocopy_ptr<SourceFactory> factory;
     simparm::NodeHandle my_node;
 
     struct Suboutput;
     typedef simparm::ManagedChoiceEntry<Suboutput> SuboutputChoice;
     SuboutputChoice suboutputs;
 
+    simparm::BaseAttribute::ConnectionStore listening;
+
     /** \return true after initialize() was called. */
     bool is_initialized() const { return factory.get() != NULL; }
-    /** \see simparm::Listener::operator() */
-    void operator()(const simparm::Event&);
     /** Construct the disambiguation node for the given transmission,
      *  add the remover entry and insert it into our config node. */
     void link_transmission( OutputSource* src );
 
     void add_new_element();
+    void remove_selected_suboutput();
 
   protected:
     FilterSource();

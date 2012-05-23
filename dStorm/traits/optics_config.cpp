@@ -61,14 +61,14 @@ void PlaneConfig::attach_ui( simparm::Node& at )
     simparm::NodeRef r = name_object.attach_ui( at );
     current_ui = r;
     if ( purpose != PSFDisplay ) {
-        ui_element_listener.receive_changes_from( pixel_size.value );
+        pixel_size.value.notify_on_value_change( ui_element_changed );
         pixel_size.attach_ui( r );
     }
     three_d.attach_ui( r );
     if ( purpose != PSFDisplay ) {
-        ui_element_listener.receive_changes_from( counts_per_photon.value );
-        ui_element_listener.receive_changes_from( dark_current.value );
-        ui_element_listener.receive_changes_from( alignment.value );
+        counts_per_photon.value.notify_on_value_change( ui_element_changed );
+        dark_current.value.notify_on_value_change( ui_element_changed );
+        alignment.value.notify_on_value_change( ui_element_changed );
         counts_per_photon.attach_ui( r );
         dark_current.attach_ui( r );
         alignment.attach_ui( r );
@@ -76,7 +76,7 @@ void PlaneConfig::attach_ui( simparm::Node& at )
 
     for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i) {
         i->attach_ui( r );
-        ui_element_listener.receive_changes_from( i->value );
+        i->value.notify_on_value_change( ui_element_changed );
     }
 }
 

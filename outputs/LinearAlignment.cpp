@@ -1,6 +1,5 @@
 #include "LinearAlignment.h"
 
-#include <simparm/Structure.hh>
 #include <simparm/Object.hh>
 #include <simparm/FileEntry.hh>
 

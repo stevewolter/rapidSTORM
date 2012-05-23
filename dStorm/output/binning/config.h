@@ -24,7 +24,7 @@ struct FieldConfig : public simparm::ObjectChoice {
     virtual std::auto_ptr<UserScaled> make_user_scaled_binner() const = 0;
     virtual void set_visibility(const input::Traits<Localization>&, bool unscaled_suffices) = 0;
 
-    virtual void add_listener( simparm::Listener& l ) = 0;
+    virtual void add_listener( simparm::BaseAttribute::Listener& l ) = 0;
 };
 
 struct FieldChoice 
@@ -41,7 +41,7 @@ struct FieldChoice
 
     FieldChoice* clone() const { return new FieldChoice(*this); }
     ~FieldChoice();
-    void add_listener( simparm::Listener& l );
+    void add_listener( simparm::BaseAttribute::Listener& l );
 };
 
 }

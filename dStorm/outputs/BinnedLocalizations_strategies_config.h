@@ -8,6 +8,7 @@
 #include <boost/ptr_container/ptr_array.hpp>
 #include "BinnedLocalizations_decl.h"
 #include "../Localization.h"
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace outputs {
@@ -17,6 +18,9 @@ class DimensionSelector
 {
     simparm::Object name_object;
     simparm::BoolEntry invert_y_axis, use_z_axis;
+
+    dStorm::default_on_copy< boost::signals2::signal<void()> > value_change;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
     boost::ptr_array< output::binning::FieldChoice, Dim+1 > components;
     void init();
@@ -34,7 +38,7 @@ class DimensionSelector
     void set_visibility(const input::Traits<Localization>&);
 
     bool is_3d() const { return use_z_axis(); }
-    void add_listener( simparm::Listener& );
+    void add_listener( simparm::BaseAttribute::Listener& );
 
     void attach_ui( simparm::Node& at );
 };

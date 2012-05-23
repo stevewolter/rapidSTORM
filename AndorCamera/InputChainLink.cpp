@@ -25,7 +25,6 @@ using namespace boost::units;
 
 Method::Method()  
 : Terminus(),
-  simparm::Listener( simparm::Event::ValueChanged ),
   name_object("AndorDirectConfig", "Direct camera control"),
   select_ROI("AimCamera","Select ROI"),
   view_ROI("ViewCamera","View ROI only"),
@@ -40,7 +39,6 @@ Method::Method()
 
 Method::Method(const Method &c) 
 : Terminus(c), 
-  simparm::Listener( simparm::Event::ValueChanged ),
   name_object(c.name_object),
   select_ROI(c.select_ROI),
   view_ROI(c.view_ROI),
@@ -55,8 +53,10 @@ Method::~Method() {
 }
 
 void Method::registerNamedEntries( simparm::Node& at ) {
-    receive_changes_from(select_ROI.value);
-    receive_changes_from(view_ROI.value);
+    listening[0] = select_ROI.value.notify_on_value_change( 
+        boost::bind( &Method::select_roi_triggered, this ) );
+    listening[1] = view_ROI.value.notify_on_value_change( 
+        boost::bind( &Method::view_roi_triggered, this ) );
 
     current_ui = name_object.attach_ui( at );
     select_ROI.attach_ui( *current_ui );
@@ -123,20 +123,18 @@ void Method::set_display( std::auto_ptr< Display > d )
     active_selector_changed.notify_all();
 }
 
-void Method::operator()(const simparm::Event& e)
-{
-    boost::optional<Display::Mode> mode;
-    if ( &e.source == &select_ROI.value && select_ROI.triggered() ) {
+void Method::select_roi_triggered() {
+    if ( select_ROI.triggered() ) {
         select_ROI.untrigger();
-        mode = Display::SelectROI;
-    } else if ( &e.source == &view_ROI.value && view_ROI.triggered() ) {
-        view_ROI.untrigger();
-        mode = Display::ViewROI;
-    }
-
-    if ( mode.is_initialized() ) {
         std::auto_ptr<CameraConnection> con( new CameraConnection("localhost", 0, "52377") );
-        set_display( std::auto_ptr<Display>(new Display( con, *mode, *this ) ) );
+        set_display( std::auto_ptr<Display>(new Display( con, Display::SelectROI, *this ) ) );
+    }
+}
+void Method::view_roi_triggered() {
+    if ( view_ROI.triggered() ) {
+        view_ROI.untrigger();
+        std::auto_ptr<CameraConnection> con( new CameraConnection("localhost", 0, "52377") );
+        set_display( std::auto_ptr<Display>(new Display( con, Display::ViewROI, *this ) ) );
     }
 }
 

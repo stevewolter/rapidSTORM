@@ -111,12 +111,12 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
 };
 
 class Method
-: public dStorm::input::FileInput<Method,OpenFile>,
-  simparm::Listener
+: public dStorm::input::FileInput<Method,OpenFile>
 {
     Config config;
+    simparm::BaseAttribute::ConnectionStore listening[4];
 
-    void operator()(const simparm::Event&);
+    void reread_file_locked();
     friend class dStorm::input::FileInput<Method,OpenFile>;
     OpenFile* make_file( const std::string& name ) const {
         return new OpenFile( name, config );
@@ -124,12 +124,20 @@ class Method
     void modify_meta_info( dStorm::input::MetaInfo& info ) {
         info.suggested_output_basename.unformatted() = "testoutputfile";
     }
-    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
+    void attach_ui( simparm::Node& n ) { 
+        listening[0] = config.width.value.notify_on_value_change( 
+            boost::bind( &Method::reread_file_locked, this ) );
+        listening[1] = config.height.value.notify_on_value_change( 
+            boost::bind( &Method::reread_file_locked, this ) );
+        listening[2] = config.number.value.notify_on_value_change( 
+            boost::bind( &Method::reread_file_locked, this ) );
+        listening[3] = config.goIntType.value.notify_on_value_change( 
+            boost::bind( &Method::reread_file_locked, this ) );
+        config.attach_ui(n); 
+    }
     static std::string getName() { return "DummyInput"; }
 
   public:
-    Method();
-
     Source* makeSource();
 
     Method* clone() const { return new Method(*this); }
@@ -201,27 +209,13 @@ void Config::attach_ui( simparm::Node& n) {
     goIntType.attach_ui( at );
 }
 
-Method::Method() 
-    //"extension_dum", ".dum")
-: simparm::Listener( simparm::Event::ValueChanged )
-{
-    registerNamedEntries();
-}
-
 Source* Method::makeSource() {
     return new Source(config, get_file());
 }
 
-void Method::operator()(const simparm::Event& e) {
+void Method::reread_file_locked() {
     dStorm::input::InputMutexGuard lock( global_mutex() );
     reread_file();
-}
-
-void Method::registerNamedEntries() {
-    receive_changes_from( config.width.value );
-    receive_changes_from( config.height.value );
-    receive_changes_from( config.number.value );
-    receive_changes_from( config.goIntType.value );
 }
 
 std::auto_ptr< dStorm::input::Link >

@@ -50,14 +50,14 @@ void FilterSource::attach_children_ui( simparm::Node& at )
             boost::bind( &FilterSource::add_new_element, boost::ref(*this) ) );
         factory->attach_ui( at );
         suboutputs.attach_ui( at );
-        receive_changes_from( suboutputs.value );
+        listening = suboutputs.value.notify_on_value_change( boost::bind( 
+            &FilterSource::remove_selected_suboutput, this ) );
         DEBUG("Registered entries");
     }
 }
 
 FilterSource::FilterSource()
-: simparm::Listener( simparm::Event::ValueChanged ),
-  next_identity(0),
+: next_identity(0),
   factory( NULL ),
   suboutputs( "ToRemove", "Select output to remove" )
 {
@@ -66,7 +66,7 @@ FilterSource::FilterSource()
 }
 
 FilterSource::FilterSource( const FilterSource& o ) 
-: OutputSource(o), simparm::Listener(o),
+: OutputSource(o), 
   next_identity(o.next_identity), basename(o.basename),
   factory( NULL ),
   suboutputs(o.suboutputs)
@@ -106,13 +106,10 @@ void FilterSource::add_new_element() {
     }
 }
 
-void FilterSource::operator()
-    ( const simparm::Event& e)
+void FilterSource::remove_selected_suboutput()
 {
-    if (&e.source == &suboutputs.value ) {
-        if ( suboutputs.isValid() ) {
-            suboutputs.removeChoice( suboutputs() );
-        }
+    if ( suboutputs.isValid() ) {
+        suboutputs.removeChoice( suboutputs() );
     }
 }
 

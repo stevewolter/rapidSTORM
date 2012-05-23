@@ -196,7 +196,7 @@ class StrategistImplementation
 };
 
 class Link 
-: public input::Link, public simparm::Listener
+: public input::Link
 {
     boost::ptr_vector< simparm::Object > connection_nodes;
     boost::ptr_vector< input::Link > children;
@@ -209,9 +209,9 @@ class Link
     bool registered_node;
 
     simparm::NodeHandle channels_node;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
-  protected:
-    virtual void operator()(const simparm::Event&);
+    void change_channel_count();
 
   public:
     Link();
@@ -240,8 +240,10 @@ class Link
     std::string name() const { return name_object.getName(); }
     std::string description() const { return name_object.getDesc(); }
     void registerNamedEntries( simparm::Node& n ) { 
-        receive_changes_from( join_type.value );
-        receive_changes_from( channel_count.value );
+        listening[0] = join_type.value.notify_on_value_change( 
+            boost::bind( &Link::recompute_meta_info, this ) );
+        listening[1] = channel_count.value.notify_on_value_change( 
+            boost::bind( &Link::change_channel_count, this ) );
 
         simparm::NodeRef r = name_object.attach_ui( n );
         channel_count.attach_ui( r );
@@ -263,8 +265,7 @@ class Link
 };
 
 Link::Link()
-: simparm::Listener( simparm::Event::ValueChanged ),
-  name_object("MultiChannel", "Multi-channel input"),
+: name_object("MultiChannel", "Multi-channel input"),
   channels("Channels", "Channels"),
   join_type("JoinOn", "Join inputs on"),
   channel_count("ChannelCount", "Number of input channels", 1),
@@ -284,7 +285,6 @@ Link::Link()
 
 Link::Link( const Link& o )
 : input::Link(o), 
-  simparm::Listener( simparm::Event::ValueChanged ),
   connection_nodes(o.connection_nodes),
   children( o.children ), 
   input_traits( o.input_traits ),
@@ -336,32 +336,28 @@ void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
     }
 }
 
-void Link::operator()(const simparm::Event& e) {
-    if ( &e.source == &join_type.value ) {
-        recompute_meta_info();
-    } else if ( &e.source == &channel_count.value ) {
-        DEBUG("Channel count changed to " << channel_count());
-        join_type.viewable = channel_count() > 1;
-        while ( children.size() < channel_count() ) {
-            children.push_back( children[0].clone() );
-            children.back().publish_meta_info();
-            std::string i = boost::lexical_cast<std::string>(children.size());
-            connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
-            input_traits.push_back( children.back().current_meta_info() );
-            if ( registered_node && channels_node ) {
-                children.back().registerNamedEntries( 
-                    connection_nodes.back().attach_ui( *channels_node ) );
-            }
-            connections.push_back( children.back().notify(
-                boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );
+void Link::change_channel_count() {
+    DEBUG("Channel count changed to " << channel_count());
+    join_type.viewable = channel_count() > 1;
+    while ( children.size() < channel_count() ) {
+        children.push_back( children[0].clone() );
+        children.back().publish_meta_info();
+        std::string i = boost::lexical_cast<std::string>(children.size());
+        connection_nodes.push_back( new simparm::Object("Channel" + i, "Channel " + i) );
+        input_traits.push_back( children.back().current_meta_info() );
+        if ( registered_node && channels_node ) {
+            children.back().registerNamedEntries( 
+                connection_nodes.back().attach_ui( *channels_node ) );
         }
-        while ( children.size() > channel_count() ) {
-            children.pop_back();
-            connection_nodes.pop_back();
-            input_traits.pop_back();
-        }
-        recompute_meta_info();
+        connections.push_back( children.back().notify(
+            boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );
     }
+    while ( children.size() > channel_count() ) {
+        children.pop_back();
+        connection_nodes.pop_back();
+        input_traits.pop_back();
+    }
+    recompute_meta_info();
 }
 
 std::auto_ptr<input::Link> create_link()

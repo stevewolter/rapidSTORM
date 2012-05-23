@@ -76,12 +76,18 @@ bool Factory::can_compute_uncertainty( const engine::InputPlane& t ) const
 
 void Factory::set_requirements( input::Traits<engine::ImageStack>& ) {}
 
-void Factory::register_trait_changing_nodes( simparm::Listener& l )
+void Factory::attach_ui( simparm::Node& to ) {
+    config.attach_ui( to );
+
+    listening[0] = config.free_sigmas.value.notify_on_value_change( traits_changed );
+    listening[1] = config.output_sigmas.value.notify_on_value_change( traits_changed );
+    listening[2] = config.laempi_fit.value.notify_on_value_change( traits_changed );
+    listening[3] = config.disjoint_amplitudes.value.notify_on_value_change( traits_changed );
+}
+
+void Factory::register_trait_changing_nodes( simparm::BaseAttribute::Listener l )
 {
-    l.receive_changes_from( config.free_sigmas.value );
-    l.receive_changes_from( config.output_sigmas.value );
-    l.receive_changes_from( config.laempi_fit.value );
-    l.receive_changes_from( config.disjoint_amplitudes.value );
+    traits_changed.connect(l);
 }
 
 void Factory::check_configuration( 

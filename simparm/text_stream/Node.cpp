@@ -62,7 +62,7 @@ std::auto_ptr<simparm::Node> Node::create_trigger( std::string name, std::string
 void Node::add_attribute( simparm::BaseAttribute& a ) {
     attributes.push_back( &a );
     attribute_lookup.insert( std::make_pair( a.get_name(), &a ) );
-    a.notify_on_value_change( boost::bind( &Node::print_attribute_value, this, boost::cref(a) ) );
+    connections.push_back( a.notify_on_value_change( boost::bind( &Node::print_attribute_value, this, boost::cref(a) ) ) );
 }
 
 void Node::send( Message& ) {

@@ -8,8 +8,7 @@ namespace dStorm {
 namespace output {
 
 Config::Config() 
-: choice("ChooseTransmission", "Choose new output"),
-  source_available( simparm::Event::ValueChanged )
+: choice("ChooseTransmission", "Choose new output")
 {
     DEBUG("Constructing output config from scratch");
     choice.set_auto_selection( false );
@@ -36,7 +35,7 @@ Config::~Config() {
 }
 
 void Config::attach_ui( simparm::Node& at ) {
-    source_available.receive_changes_from( choice.value );
+    listening = choice.value.notify_on_value_change( source_available );
     choice.attach_ui( at );
 }
 

@@ -4,7 +4,6 @@
 #include "../output/FilterBuilder.h"
 #include <simparm/Entry.hh>
 #include "../Engine_decl.h"
-#include <simparm/Structure.hh>
 #include <vector>
 
 namespace dStorm {
@@ -19,30 +18,13 @@ class TraceCountConfig
     simparm::Entry<unsigned long> whichSpecific;
 
   private:
-    class WhichSpecificShower : public simparm::Listener {
-        simparm::BoolEntry &condition;
-        simparm::Object &toShow;
-        void operator()(const simparm::Event&) {
-            toShow.viewable = condition();
-        }
-      public:
-        WhichSpecificShower(simparm::BoolEntry& condition, 
-                            simparm::Object& toShow)
-            : simparm::Listener( simparm::Event::ValueChanged ),
-            condition(condition), toShow(toShow)
-            { receive_changes_from(condition.value); }
-    };
-    WhichSpecificShower shower;
+    void set_which_viewability() { whichSpecific.viewable = selectSpecific(); }
+    simparm::BaseAttribute::ConnectionStore listening;
 
   public:
     TraceCountConfig();
 
-    void attach_ui( simparm::Node& at ) {
-        min_count.attach_ui(at);
-        disassemble.attach_ui(at);
-        selectSpecific.attach_ui(at);
-        whichSpecific.attach_ui(at);
-    }
+    void attach_ui( simparm::Node& at );
     static std::string get_name() { return "TraceFilter"; }
     static std::string get_description() { return "Trace filter"; }
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }

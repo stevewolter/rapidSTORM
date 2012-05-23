@@ -26,7 +26,7 @@ struct Display;
     *  acquisition area borders. All camera specific parameters are in
     *  AndorCamera::Config. */
 class Method 
-: public dStorm::input::Terminus, public simparm::Listener
+: public dStorm::input::Terminus
 {
   private:
     simparm::Object name_object;
@@ -38,14 +38,17 @@ class Method
 
     image::MetaInfo<2>::Resolutions resolution;
     std::string basename;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
     simparm::BoolEntry show_live_by_default;
     std::auto_ptr< boost::signals2::scoped_connection > resolution_listener, 
                                                           basename_listener;
 
-    void operator()( const simparm::Event& );
     void resolution_changed( const image::MetaInfo<2>::Resolutions& );
     void basename_changed( const dStorm::output::Basename& );
+
+    void select_roi_triggered();
+    void view_roi_triggered();
 
   public:
     Method();

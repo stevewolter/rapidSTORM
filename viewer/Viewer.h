@@ -5,6 +5,8 @@
 #include "Config.h"
 #include "Status.h"
 
+#include <simparm/NodeHandle.hh>
+
 #include <dStorm/Localization.h>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/outputs/LocalizationList.h>
@@ -20,8 +22,7 @@ namespace viewer {
 *  image, normalizes the resulting image and shows a part
 *  of that image in a window. */
 class Viewer : public Status,
-               public output::Output,
-               public simparm::Listener
+               public output::Output
 {
   public:
     /** Constructor will not display image; this is deferred
@@ -38,8 +39,10 @@ class Viewer : public Status,
             (std::set<std::string>& present_filenames);
 
   protected:
-    /** Configuration event received. */
-    void operator()(const simparm::Event&);
+    void make_new_backend();
+    void save_image();
+    void change_histogram_normalization_power();
+    void change_top_cutoff();
 
     /** Write the current image into a file. The whole
         *  image is written, regardless of the settings
@@ -47,11 +50,12 @@ class Viewer : public Status,
     void writeToFile(const std::string& name);
 
   private:
-    boost::optional< simparm::NodeRef > ui;
+    simparm::NodeHandle ui;
     std::auto_ptr< Backend > implementation;
     Output* forwardOutput;
     Engine* repeater;
     boost::optional< Announcement > announcement;
+    simparm::BaseAttribute::ConnectionStore listening[4];
 
     void store_results_( bool job_successful );
     void adapt_to_changed_config();

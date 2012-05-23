@@ -9,8 +9,7 @@ namespace dStorm {
 using namespace output;
 namespace outputs {
 
-class TraceCountFilter : public output::Filter,
-                         public simparm::Listener
+class TraceCountFilter : public output::Filter
 {
   private:
     EngineResult localizations;
@@ -21,10 +20,10 @@ class TraceCountFilter : public output::Filter,
     simparm::Entry<unsigned long> whichSpecific;
     dStorm::Engine *engine;
     int processed_locs;
+    simparm::BaseAttribute::ConnectionStore listening[3];
 
     int count_localizations_in( const Localization &l );
     void processLocalization( const Localization& l);
-    void operator()(const simparm::Event&);
 
     /** As of yet, the copy constructor is not implemented. */
     TraceCountFilter(const TraceCountFilter&);
@@ -32,6 +31,9 @@ class TraceCountFilter : public output::Filter,
 
     void store_results_( bool success );
     void attach_ui_( simparm::Node& );
+
+    void set_which_viewability() { whichSpecific.viewable = selectSpecific(); }
+    void repeat_results() { engine->repeat_results(); }
 
   public:
     TraceCountFilter(const TraceCountConfig& config,
@@ -50,7 +52,6 @@ TraceCountFilter::TraceCountFilter(
     std::auto_ptr<output::Output> output
 ) 
 : Filter(output),
-  simparm::Listener( simparm::Event::ValueChanged ),
   minCount(c.min_count()), 
     disassemble(c.disassemble()), 
     selectSpecific(c.selectSpecific),
@@ -60,8 +61,13 @@ TraceCountFilter::TraceCountFilter(
 }
 
 void TraceCountFilter::attach_ui_( simparm::Node& at ) {
-    receive_changes_from( this->selectSpecific.value );
-    receive_changes_from( this->whichSpecific.value );
+    listening[0] = selectSpecific.value.notify_on_value_change(
+        boost::bind( &TraceCountFilter::set_which_viewability, this ) );
+    listening[1] = selectSpecific.value.notify_on_value_change(
+        boost::bind( &TraceCountFilter::repeat_results, this ) );
+    listening[2] = whichSpecific.value.notify_on_value_change(
+        boost::bind( &TraceCountFilter::repeat_results, this ) );
+
     this->selectSpecific.attach_ui( at );
     this->whichSpecific.attach_ui( at );
     Filter::attach_children_ui( at ); 
@@ -88,14 +94,6 @@ void TraceCountFilter::processLocalization( const Localization& l)
     }
 }
 
-void TraceCountFilter::operator()(const simparm::Event& e) {
-    if ( &e.source == &selectSpecific.value ) {
-        whichSpecific.viewable = selectSpecific();
-    } else if ( &e.source == &whichSpecific.value ) {
-        engine->repeat_results();
-    }
-}
-
 Output::AdditionalData 
 TraceCountFilter::announceStormSize(const Announcement &a) 
  
@@ -104,8 +102,6 @@ TraceCountFilter::announceStormSize(const Announcement &a)
         engine = a.engine;
         selectSpecific.viewable = true;
         selectSpecific.editable = true;
-        receive_changes_from( selectSpecific.value );
-        receive_changes_from( whichSpecific.value );
     }
     processed_locs = 0;
     AdditionalData rv = Filter::announceStormSize(a);
@@ -141,8 +137,7 @@ TraceCountConfig::TraceCountConfig()
   disassemble("Disassemble", "Output source localizations instead of"
             " average position", false),
   selectSpecific("SelectSpecific", "Select trace by number", false),
-  whichSpecific("WhichTrace", "Trace to select", 1),
-  shower(selectSpecific, whichSpecific)
+  whichSpecific("WhichTrace", "Trace to select", 1)
 {
     whichSpecific.min = 1;
     whichSpecific.viewable = false;
@@ -157,6 +152,17 @@ std::auto_ptr< output::OutputSource > make_trace_count_source() {
     return std::auto_ptr< output::OutputSource >( new FilterBuilder< TraceCountConfig, TraceCountFilter >() );
 }
 
+void TraceCountConfig::attach_ui( simparm::Node& at )
+{
+    min_count.attach_ui(at);
+    disassemble.attach_ui(at);
+    selectSpecific.attach_ui(at);
+    whichSpecific.attach_ui(at);
+
+    listening = selectSpecific.value.notify_on_value_change(
+        boost::bind( &TraceCountConfig::set_which_viewability, this )
+    );
+}
 
 }
 }

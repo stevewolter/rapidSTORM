@@ -24,8 +24,7 @@ namespace AndorCamera {
 /** The Display provides a window in which Entry 
     *  elements defining the acquisition rectangle can be displayed
     *  and configured interactively. */
-class Display : private simparm::Listener, 
-                public display::DataSource
+class Display : public display::DataSource
 {
   private:
     struct FetchHandler;
@@ -41,8 +40,11 @@ class Display : private simparm::Listener,
     simparm::TriggerEntry      save;
 
     simparm::NodeHandle current_ui;
+    simparm::BaseAttribute::ConnectionStore listening[3];
 
-    void operator()(const simparm::Event&);
+    void do_pause();
+    void do_save();
+    void do_stop();
 
     /** Reference to the config element to be configured. */
     bool aimed;

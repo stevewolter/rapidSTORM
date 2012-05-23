@@ -6,7 +6,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/Structure.hh>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/Engine.h>
 
@@ -27,7 +26,6 @@ struct Status {
 
     virtual void adapt_to_changed_config() = 0;
     void attach_ui( simparm::Node& name );
-    void add_listener( simparm::Listener& );
 };
 
 }

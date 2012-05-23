@@ -3,7 +3,6 @@
 
 #include <dStorm/traits/optics_config.h>
 #include "decl.h"
-#include <simparm/Structure.hh>
 #include <simparm/ProgressEntry.hh>
 #include "Config.h"
 #include <dStorm/engine/Input.h>

@@ -41,8 +41,8 @@ void FieldChoice::fill< dStorm::Localization::Fields::Count >(BinningType type, 
 
 FieldChoice::~FieldChoice() {}
 
-void FieldChoice::add_listener( simparm::Listener& l ) {
-    l.receive_changes_from(value);
+void FieldChoice::add_listener( simparm::BaseAttribute::Listener& l ) {
+    value.notify_on_value_change( l );
     for ( iterator i = begin(); i != end(); ++i )
         i->add_listener( l );
 }

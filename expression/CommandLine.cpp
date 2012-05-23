@@ -8,8 +8,7 @@ namespace expression {
 namespace config {
 
 CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
-:   simparm::Listener( simparm::Event::ValueChanged ),
-    disambiguator("CommandLine" + ident, "Command line") ,
+:   disambiguator("CommandLine" + ident, "Command line") ,
     lvalue("LValue", "Value to assign to"),
     expression("Expression", "Expression to assign from"),
     parser(parser),
@@ -29,11 +28,10 @@ CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
 }
 
 CommandLine::~CommandLine() {
-    stop_receiving_changes_from( lvalue.value );
     manager = NULL;
 }
 
-void CommandLine::operator()( const simparm::Event& )
+void CommandLine::set_expression_string()
 {
     if ( expression() != "" )
         lvalue().set_expression_string( expression(), *parser );
@@ -42,8 +40,10 @@ void CommandLine::operator()( const simparm::Event& )
 
 void CommandLine::attach_ui( simparm::Node& at )
 {
-    receive_changes_from( lvalue.value );
-    receive_changes_from( expression.value );
+    listening[0] = lvalue.value.notify_on_value_change( 
+        boost::bind( &CommandLine::set_expression_string, this ) );
+    listening[1] = expression.value.notify_on_value_change( 
+        boost::bind( &CommandLine::set_expression_string, this ) );
     simparm::NodeRef r = disambiguator.attach_ui( at );
     lvalue.attach_ui( r );
     expression.attach_ui( r );

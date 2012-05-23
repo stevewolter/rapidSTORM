@@ -26,7 +26,6 @@
 #endif
 
 #include <simparm/Menu.hh>
-#include <simparm/URI.hh>
 
 #include <dStorm/signals/UseSpotFinder.h>
 #include <dStorm/signals/UseSpotFitter.h>

@@ -6,6 +6,7 @@
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
 #include <simparm/BoostUnits.hh>
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace output {
@@ -26,10 +27,14 @@ class LocalizationConfig : public FieldConfig
     simparm::Entry<Resolution> resolution;
     boost::optional<float> range;
 
+    dStorm::default_on_copy< boost::signals2::signal<void()> > change;
+    simparm::BaseAttribute::ConnectionStore listening;
+
     void attach_ui( simparm::Node& at ) {
         simparm::NodeRef r = attach_parent(at);
         if ( ! range.is_initialized() ) 
             resolution.attach_ui(r);
+        listening = resolution.value.notify_on_value_change( change );
     }
 
   public:
@@ -43,7 +48,7 @@ class LocalizationConfig : public FieldConfig
     virtual std::auto_ptr<UserScaled> make_user_scaled_binner() const;
 
     void set_visibility(const input::Traits<dStorm::Localization>& t, bool unscaled_suffices); 
-    void add_listener( simparm::Listener& l );
+    void add_listener( simparm::BaseAttribute::Listener& l );
 };
 
 }

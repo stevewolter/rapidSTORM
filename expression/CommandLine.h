@@ -33,7 +33,7 @@ struct ExpressionManager {
     virtual void expression_changed( std::string ident, std::auto_ptr<source::LValue> expression ) = 0;
 };
 
-struct CommandLine : public simparm::Listener {
+struct CommandLine {
     CommandLine( std::string node_ident, boost::shared_ptr<Parser> );
     CommandLine* clone() const { return new CommandLine(*this); }
     ~CommandLine();
@@ -53,9 +53,10 @@ struct CommandLine : public simparm::Listener {
     simparm::StringEntry expression;
     boost::shared_ptr<Parser> parser;
     ExpressionManager* manager;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
-    void operator()( const simparm::Event& );
     void publish();
+    void set_expression_string();
 };
 
 }

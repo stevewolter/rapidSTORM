@@ -17,7 +17,6 @@
 #include <simparm/Eigen.hh>
 #include <simparm/Object.hh>
 #include <simparm/Entry.hh>
-#include <simparm/Structure.hh>
 
 #include <dStorm/output/Output.h>
 #include <dStorm/traits/optics_config.h>

@@ -119,9 +119,9 @@ void LocalizationConfig<Field>::set_visibility(
 }
 
 template <int Field>
-void LocalizationConfig<Field>::add_listener( simparm::Listener& l )
+void LocalizationConfig<Field>::add_listener( simparm::BaseAttribute::Listener& l )
 {
-    l.receive_changes_from(resolution.value);
+    change.connect( l );
 }
 
 

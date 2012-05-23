@@ -6,7 +6,6 @@
 #include <simparm/ManagedChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry_Impl.hh>
-#include <simparm/Structure.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>
@@ -139,12 +138,12 @@ Source::base_iterator Source::end() {
 }
 
 class ChainLink 
-: public input::Method<ChainLink>, public simparm::Listener
+: public input::Method<ChainLink>
 {
     friend class input::Method<ChainLink>;
 
     Config config;
-    void operator()( const simparm::Event& );
+    simparm::BaseAttribute::ConnectionStore listening;
 
     typedef Localization::ImageNumber::Traits TemporalTraits;
 
@@ -183,9 +182,11 @@ class ChainLink
     }
 
   public:
-    ChainLink();
-    ChainLink(const ChainLink&);
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::Node& at ) { 
+        listening = config.which_plane.value.notify_on_value_change( 
+            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
+        config.attach_ui( at ); 
+    }
     static std::string getName() { return "PlaneFilter"; }
 };
 
@@ -195,24 +196,6 @@ Config::Config()
 {
     which_plane.addChoice( new AllPlanes() );
     which_plane.userLevel = simparm::Object::Expert;
-}
-
-void ChainLink::operator()( const simparm::Event& ) {
-    input::InputMutexGuard lock( input::global_mutex() );
-    republish_traits();
-}
-
-ChainLink::ChainLink()
-: simparm::Listener( simparm::Event::ValueChanged )
-{
-    receive_changes_from( config.which_plane.value );
-}
-
-ChainLink::ChainLink(const ChainLink& o)
-: input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
-  config(o.config)
-{
-    receive_changes_from( config.which_plane.value );
 }
 
 std::auto_ptr<input::Link> make_link() {

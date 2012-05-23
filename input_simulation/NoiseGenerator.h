@@ -5,7 +5,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
-#include <simparm/Structure.hh>
 #include <memory>
 #include <gsl/gsl_rng.h>
 

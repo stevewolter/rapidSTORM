@@ -7,7 +7,6 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Input.h>
 #include <simparm/FileEntry.hh>
-#include <simparm/Structure.hh>
 #include <memory>
 
 #include <iostream>

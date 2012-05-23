@@ -7,18 +7,20 @@ namespace dStorm {
 
 JobStarter::JobStarter(JobMaster* m )
 : simparm::TriggerEntry("Run", "Run"),
-  simparm::Listener(simparm::Event::ValueChanged),
   master(m), config(NULL)
 {
     setHelp("Whenever this trigger is triggered or the button "
                 "clicked, the dStorm engine will be run with the "
                 "current parameters.");
     setUserLevel(simparm::Object::Beginner);
-
-    receive_changes_from( value );
 }
 
-void JobStarter::operator()( const simparm::Event& ) {
+void JobStarter::attach_ui( simparm::Node& n ) {
+    simparm::TriggerEntry::attach_ui(n);
+    listening = value.notify_on_value_change( boost::bind( &JobStarter::start_job, this ) );
+}
+
+void JobStarter::start_job() {
     if ( triggered() ) {
       untrigger();
       if ( config != NULL ) {

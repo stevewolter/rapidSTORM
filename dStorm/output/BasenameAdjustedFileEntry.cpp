@@ -13,34 +13,17 @@ BasenameAdjustedFileEntry:: BasenameAdjustedFileEntry
 : simparm::FileEntry(name,desc),
   has_been_user_modified(false)
 {
-    registerNamedEntries();
     default_extension = suffix;
 }
 
-BasenameAdjustedFileEntry::BasenameAdjustedFileEntry
-    (const BasenameAdjustedFileEntry& o)
-: simparm::FileEntry(o),
-  simparm::Listener( simparm::Event::ValueChanged ),
-  last_basename(o.last_basename),
-  has_been_user_modified(o.has_been_user_modified),
-  expect_change(o.expect_change)
+void BasenameAdjustedFileEntry::attach_ui( simparm::Node& to )
 {
-    DEBUG("Copying " << last_basename.unformatted()() << " -- " << default_extension() << " -- " << has_been_user_modified << " -- " << value() );
-    registerNamedEntries();
+    simparm::FileEntry::attach_ui( to );
+    listening = value.notify_on_value_change
+        ( boost::bind( &BasenameAdjustedFileEntry::file_name_changed, this ) );
 }
 
-BasenameAdjustedFileEntry::~BasenameAdjustedFileEntry() 
-{
-}
-
-void BasenameAdjustedFileEntry::
-    registerNamedEntries()
-{
-    receive_changes_from( value );
-}
-
-void BasenameAdjustedFileEntry::
-    operator()( const simparm::Event& e )
+void BasenameAdjustedFileEntry::file_name_changed()
 {
     if ( expect_change ) {
         DEBUG("Doing nothing because change was expected");

@@ -22,9 +22,9 @@ struct BasenamePrinter
 };
 
 struct BasenamePrinter::Config
- : simparm::Listener
 {
     dStorm::output::BasenameAdjustedFileEntry outputFile;
+    simparm::BaseAttribute::ConnectionStore listening;
 
     static std::string get_name() { return "BasenamePrinter"; }
     static std::string get_description() { return get_name(); }
@@ -33,21 +33,20 @@ struct BasenamePrinter::Config
     void attach_ui(simparm::Node&);
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
-    void operator()( const simparm::Event& ) {
+    void print() {
         std::cerr << this << ": Displaying output file name "
                   << outputFile.unformatted_name() << "\n";
     }
 };
 BasenamePrinter::Config::Config()
- : 
-   simparm::Listener( simparm::Event::ValueChanged ),
-   outputFile("ToFile", "", ".foo")
+ : outputFile("ToFile", "", ".foo")
 {
 }
 
 void BasenamePrinter::Config::attach_ui(simparm::Node& at) {
+    listening = outputFile.value.notify_on_value_change( 
+        boost::bind( &BasenamePrinter::Config::print, this ) );
     outputFile.attach_ui( at );
-    receive_changes_from(outputFile.value); 
 }
 
 BasenamePrinter* BasenamePrinter::clone() const { 

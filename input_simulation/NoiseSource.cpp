@@ -36,9 +36,10 @@ void FluorophoreSetConfig::attach_ui( simparm::Node& at ) {
 }
 
 void NoiseConfig::registerNamedEntries( simparm::Node& n ) {
-    this->receive_changes_from( newSet.value );
-    this->receive_changes_from( layer_count.value );
-    optics.notify_on_any_change( boost::bind( &NoiseConfig::optics_changed, this ) );
+    listening[0] = newSet.value.notify_on_value_change( 
+        boost::bind( &NoiseConfig::create_fluorophore_set, this ) );
+    listening[1] = newSet.value.notify_on_value_change( 
+        boost::bind( &NoiseConfig::notice_layer_count, this ) );
 
     simparm::NodeRef r = name_object.attach_ui( n );
     noiseGeneratorConfig.attach_ui( r );
@@ -72,8 +73,7 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
 }
 
 NoiseConfig::NoiseConfig()
-: simparm::Listener( simparm::Event::ValueChanged ),
-  name_object(NAME, DESC),
+: name_object(NAME, DESC),
   next_fluo_id(1),
   newSet("NewFluorophoreSet", "Add fluorophore set"),
   imageNumber("ImageNumber", "Number of source images to generate", 10000),
@@ -84,11 +84,11 @@ NoiseConfig::NoiseConfig()
   optics( dStorm::traits::PlaneConfig::InputSimulation )
 {
     create_fluo_set();
+    optics.notify_on_any_change( boost::bind( &NoiseConfig::publish_meta_info, this ) );
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
 : dStorm::input::Terminus(cp),
-  simparm::Listener( cp ),
   name_object(cp.name_object),
   next_fluo_id(cp.next_fluo_id),
   noiseGeneratorConfig(cp.noiseGeneratorConfig),
@@ -100,29 +100,25 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
   layer_count(cp.layer_count),
   optics(cp.optics)
 {
+    optics.notify_on_any_change( boost::bind( &NoiseConfig::publish_meta_info, this ) );
     for ( FluoSets::const_iterator i = cp.fluorophore_sets.begin();
                                    i != cp.fluorophore_sets.end(); ++i)
         add_fluo_set( std::auto_ptr<FluorophoreSetConfig>(
             new FluorophoreSetConfig(*i) ) );
 }
 
-void NoiseConfig::optics_changed() {
-    publish_meta_info();
-}
-
-void NoiseConfig::operator()( const simparm::Event& e)
-{
+void NoiseConfig::create_fluorophore_set() {
     if ( newSet.triggered() ) {
         create_fluo_set();
         newSet.untrigger();
-    } else if ( e.cause == simparm::Event::ValueChanged ) {
-        if ( &e.source == &layer_count.value ) {
-            std::auto_ptr< dStorm::input::Traits<Image> > image
-                = make_image_size();
-            optics.set_context( *image );
-        }
-        optics_changed();
     }
+}
+
+void NoiseConfig::notice_layer_count() {
+    std::auto_ptr< dStorm::input::Traits<Image> > image
+        = make_image_size();
+    optics.set_context( *image );
+    publish_meta_info();
 }
 
 void NoiseConfig::create_fluo_set()

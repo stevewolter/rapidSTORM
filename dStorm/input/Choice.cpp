@@ -23,14 +23,12 @@ namespace dStorm {
 namespace input {
 
 Choice::Choice(std::string name, std::string desc, bool auto_select)
-: simparm::Listener( simparm::Event::ValueChanged ),
-  choices(name, desc), auto_select(auto_select)
+: choices(name, desc), auto_select(auto_select)
 {
-    receive_changes_from( choices.value );
 }
 
 Choice::Choice(const Choice& o)
-: Link(o), simparm::Listener( simparm::Event::ValueChanged ),
+: Link(o), 
   choices(o.choices),
   my_traits(o.my_traits),
   auto_select(o.auto_select)
@@ -39,14 +37,12 @@ Choice::Choice(const Choice& o)
     for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
         i->connect(*this);
     }
-    receive_changes_from( choices.value );
 }
 
 Choice::~Choice() {
-    stop_receiving_changes_from(choices.value);
 }
     
-void Choice::operator()(const simparm::Event&)
+void Choice::publish_traits_locked()
 {
     InputMutexGuard lock( global_mutex() );
     publish_traits();
@@ -100,6 +96,7 @@ BaseSource* Choice::makeSource() {
 Choice* Choice::clone() const 
     { return new Choice(*this); }
 void Choice::registerNamedEntries( simparm::Node& node ) {
+    value_change_listen = choices.value.notify_on_value_change( boost::bind( &Choice::publish_traits_locked, this ) );
     choices.attach_ui( node );
 }
 

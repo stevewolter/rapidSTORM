@@ -9,8 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "stl_helpers.hh"
-
 using namespace std;
 
 namespace simparm {

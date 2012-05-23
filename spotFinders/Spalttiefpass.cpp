@@ -5,7 +5,6 @@
 #include "averageSmooth.h"
 
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 
 namespace dStorm {

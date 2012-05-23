@@ -51,6 +51,9 @@ DimensionSelector<Dim>::~DimensionSelector() {}
 
 template <int Dim>
 void DimensionSelector<Dim>::attach_ui( simparm::Node& at ) {
+    listening[0] = invert_y_axis.value.notify_on_value_change( value_change );
+    listening[1] = use_z_axis.value.notify_on_value_change( value_change );
+
     simparm::NodeRef r = name_object.attach_ui( at );
     for (int i = 0; i < Dim+1; ++i) {
         components[i].attach_ui( r );
@@ -112,11 +115,10 @@ std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_unscaled
 }
 
 template <int Dim>
-void DimensionSelector<Dim>::add_listener( simparm::Listener& l ) {
+void DimensionSelector<Dim>::add_listener( simparm::BaseAttribute::Listener& l ) {
     for (int i = 0; i < Dim+1; ++i)
         components[i].add_listener(l);
-    l.receive_changes_from( invert_y_axis.value );
-    l.receive_changes_from( use_z_axis.value );
+    value_change.connect(l);
 }
 
 template class DimensionSelector<2>;

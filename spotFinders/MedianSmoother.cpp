@@ -4,7 +4,6 @@
 
 #include <simparm/BoostUnits.hh>
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 
 #include <dStorm/engine/SpotFinder.h>

@@ -5,7 +5,6 @@
 #include <cassert>
 
 #include <map>
-#include "stl_helpers.hh"
 
 using namespace std;
 

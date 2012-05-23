@@ -21,10 +21,5 @@ void Status::attach_ui( simparm::Node& name )
     save.attach_ui( name );
 }
 
-void Status::add_listener( simparm::Listener& l ) {
-    config.add_listener(l);
-    l.receive_changes_from( save.value );
-}
-
 }
 }

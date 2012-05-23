@@ -1,4 +1,3 @@
-#include <simparm/Structure.hh>
 
 namespace dStorm {
 namespace output {

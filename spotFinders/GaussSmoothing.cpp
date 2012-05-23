@@ -1,6 +1,5 @@
 #include <simparm/Eigen_decl.hh>
 #include <simparm/Object.hh>
-#include <simparm/Structure.hh>
 #include <simparm/Entry_Impl.hh>
 #include <simparm/BoostUnits.hh>
 #include <simparm/Eigen.hh>

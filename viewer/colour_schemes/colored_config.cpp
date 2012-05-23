@@ -1,11 +1,27 @@
 #include "colored.h"
-#include "colored_config.h"
 #include "../Config.h"
 #include "base_impl.h"
+#include <simparm/Object.hh>
+#include <simparm/Entry.hh>
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
+
+struct ColoredConfig : public ColourScheme
+{
+    simparm::Entry<double> hue, saturation;
+    simparm::BaseAttribute::ConnectionStore listening[2];
+    default_on_copy< boost::signals2::signal<void()> > change;
+
+    ColoredConfig();
+    ColoredConfig(const ColoredConfig&);
+    ColoredConfig* clone() const { return new ColoredConfig(*this); }
+    std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
+    void add_listener( simparm::BaseAttribute::Listener );
+    void attach_ui( simparm::Node& );
+};
 
 ColoredConfig::ColoredConfig() 
 : ColourScheme("FixedHue", "Constant colour"),
@@ -37,14 +53,16 @@ ColoredConfig::ColoredConfig(const ColoredConfig& o)
 }
 
 void ColoredConfig::attach_ui( simparm::Node& at ) {
+    listening[0] = hue.value.notify_on_value_change( boost::ref(change) );
+    listening[1] = saturation.value.notify_on_value_change( boost::ref(change) );
+
     simparm::NodeRef r = attach_parent(at);
     hue.attach_ui(r);
     saturation.attach_ui(r);
 }
 
-void ColoredConfig::add_listener( simparm::Listener& l ) {
-    l.receive_changes_from( hue.value );
-    l.receive_changes_from( saturation.value );
+void ColoredConfig::add_listener( simparm::BaseAttribute::Listener l ) {
+    change.connect(l);
 }
 
 std::auto_ptr<Backend> ColoredConfig::make_backend( Config& config, Status& status ) const

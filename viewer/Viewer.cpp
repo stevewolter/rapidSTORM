@@ -28,12 +28,11 @@ namespace viewer {
 
 Viewer::Viewer(const Config& config)
 : Status(config),
-  simparm::Listener( simparm::Event::ValueChanged ),
   repeater( NULL )
 {
     DEBUG("Building viewer");
 
-    Status::add_listener( *this );
+    this->config.backend_needs_changing( boost::bind( &Viewer::make_new_backend, this ) );
 
     DEBUG("Built viewer");
 }
@@ -43,6 +42,15 @@ Viewer::~Viewer() {
 }
 
 void Viewer::attach_ui_( simparm::Node& at ) {
+    listening[0] = config.showOutput.value.notify_on_value_change( 
+        boost::bind( &Viewer::adapt_to_changed_config, this ) );
+    listening[1] = save.value.notify_on_value_change( 
+        boost::bind( &Viewer::save_image, this ) );
+    listening[2] = config.histogramPower.value.notify_on_value_change( 
+        boost::bind( &Viewer::change_histogram_normalization_power, this ) );
+    listening[3] = config.top_cutoff.value.notify_on_value_change( 
+        boost::bind( &Viewer::change_top_cutoff, this ) );
+
     ui = at;
     Status::attach_ui( at );
 }
@@ -81,52 +89,56 @@ void Viewer::store_results_( bool job_successful ) {
         save_density_map();
 }
 
-void Viewer::operator()(const simparm::Event& e) {
-    if ( &e.source == &config.showOutput.value ) {
-        adapt_to_changed_config();
-    } else if (&e.source == &save.value) {
-        if ( save.triggered() ) {
-            boost::lock_guard<boost::mutex> lock(mutex);
-            /* Save image */
-            save.untrigger();
-            if ( config.outputFile ) {
-                writeToFile( config.outputFile() );
-            }
-            if ( config.density_matrix_given() && config.density_matrix )
-                save_density_map();
-        }
-    } else if (&e.source == &config.histogramPower.value) {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        implementation->set_histogram_power(config.histogramPower());
-    } else if (&e.source == &config.top_cutoff.value) {
-        boost::lock_guard<boost::mutex> lock(mutex);
-        implementation->set_top_cutoff(config.top_cutoff());
-    } else if ( announcement ) {
-        if ( repeater && repeater->can_repeat_results() ) {
-            /* Store the old implementation past the mutex lock to allow mutex 
-            * locking in the course of the destructor. This is needed when the
-            * live backend is destructed because a last update is fetched by
-            * the display thread. */
-            std::auto_ptr<Backend> behind_the_scenes( new NoOpBackend() );
-            {
+void Viewer::make_new_backend() {
+    if ( announcement ) {
+            if ( repeater && repeater->can_repeat_results() ) {
+                /* Store the old implementation past the mutex lock to allow mutex 
+                * locking in the course of the destructor. This is needed when the
+                * live backend is destructed because a last update is fetched by
+                * the display thread. */
+                std::auto_ptr<Backend> behind_the_scenes( new NoOpBackend() );
+                {
+                    boost::lock_guard<boost::mutex> lock(mutex);
+                    std::swap( behind_the_scenes, implementation );
+                    forwardOutput = &implementation->getForwardOutput();
+                }
+                behind_the_scenes.reset();
+                behind_the_scenes = config.colourScheme().make_backend(this->config, *this);
+                behind_the_scenes->set_job_name( announcement->description );
+                behind_the_scenes->getForwardOutput().announceStormSize(*announcement);
                 boost::lock_guard<boost::mutex> lock(mutex);
                 std::swap( behind_the_scenes, implementation );
                 forwardOutput = &implementation->getForwardOutput();
+                repeater->repeat_results();
+            } else {
+                simparm::Message m("Cannot change display parameters without cache",
+                    "Changing the display parameters has no effect without a Cache output.",
+                    simparm::Message::Warning);
             }
-            behind_the_scenes.reset();
-            behind_the_scenes = config.colourScheme().make_backend(this->config, *this);
-            behind_the_scenes->set_job_name( announcement->description );
-            behind_the_scenes->getForwardOutput().announceStormSize(*announcement);
-            boost::lock_guard<boost::mutex> lock(mutex);
-            std::swap( behind_the_scenes, implementation );
-            forwardOutput = &implementation->getForwardOutput();
-            repeater->repeat_results();
-        } else {
-            simparm::Message m("Cannot change display parameters without cache",
-                "Changing the display parameters has no effect without a Cache output.",
-                simparm::Message::Warning);
         }
+}
+
+void Viewer::save_image() {
+    if ( save.triggered() ) {
+        boost::lock_guard<boost::mutex> lock(mutex);
+        /* Save image */
+        save.untrigger();
+        if ( config.outputFile ) {
+            writeToFile( config.outputFile() );
+        }
+        if ( config.density_matrix_given() && config.density_matrix )
+            save_density_map();
     }
+}
+
+void Viewer::change_histogram_normalization_power() {
+    boost::lock_guard<boost::mutex> lock(mutex);
+    implementation->set_histogram_power(config.histogramPower());
+}
+
+void Viewer::change_top_cutoff() {
+    boost::lock_guard<boost::mutex> lock(mutex);
+    implementation->set_top_cutoff(config.top_cutoff());
 }
 
 void Viewer::adapt_to_changed_config() {

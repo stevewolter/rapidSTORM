@@ -4,13 +4,12 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include <simparm/Callback.hh>
 #include <simparm/Attribute.hh>
 
 namespace dStorm {
 namespace output {
 
-struct Basename : public simparm::Publisher {
+struct Basename {
     typedef std::map< std::string, std::string > ReplaceMap;
   private:
     simparm::Attribute<std::string> basename;

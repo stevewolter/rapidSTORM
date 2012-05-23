@@ -6,7 +6,6 @@
 #include <dStorm/image/constructors.h>
 #include <dStorm/image/iterator.h>
 #include <dStorm/input/AdapterSource.h>
-#include <dStorm/input/InputMutex.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
 #include <simparm/ChoiceEntry.hh>
@@ -98,7 +97,7 @@ struct VerticalSplit : public Split {
 };
 
 class ChainLink
-: public input::Method<ChainLink>, public simparm::Listener
+: public input::Method<ChainLink>
 {
     friend class input::Method<ChainLink>;
     typedef boost::mpl::vector< dStorm::engine::ImageStack > SupportedTypes;
@@ -115,13 +114,15 @@ class ChainLink
     }
 
     Config config;
-    void operator()( const simparm::Event& );
+    simparm::BaseAttribute::ConnectionStore listening;
   public:
-    ChainLink();
-    ChainLink(const ChainLink&);
 
     static std::string getName() { return "BiplaneSplitter"; }
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::Node& at ) { 
+        listening = config.biplane_split.value.notify_on_value_change( 
+            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
+        config.attach_ui( at ); 
+    }
     static void split_planes( input::Traits<engine::ImageStack>& t, int dim )
     {
         input::Traits<engine::ImageStack> old( t );
@@ -208,24 +209,6 @@ Source::begin() {
 input::Source<engine::ImageStack>::iterator
 Source::end() {
     return input::Source<engine::ImageStack>::iterator( iterator(vertical, base().end()) );
-}
-
-void ChainLink::operator()( const simparm::Event& ) {
-    input::InputMutexGuard lock( input::global_mutex() );
-    republish_traits();
-}
-
-ChainLink::ChainLink()
-: simparm::Listener( simparm::Event::ValueChanged )
-{
-    receive_changes_from( config.biplane_split.value );
-}
-
-ChainLink::ChainLink(const ChainLink& o)
-: input::Method<ChainLink>(o), simparm::Listener( simparm::Event::ValueChanged ),
-  config(o.config)
-{
-    receive_changes_from( config.biplane_split.value );
 }
 
 std::auto_ptr<input::Link> makeLink() {

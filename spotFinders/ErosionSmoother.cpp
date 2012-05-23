@@ -2,7 +2,6 @@
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
-#include <simparm/Structure.hh>
 #include <simparm/Entry.hh>
 #include <dStorm/image/dilation.h>
 #include <simparm/Object.hh>

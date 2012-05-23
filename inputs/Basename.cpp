@@ -20,24 +20,26 @@ class Config {
 };
 
 class ChainLink 
-: public Forwarder, public simparm::Listener
+: public Forwarder
 {
     simparm::Object name_object;
     Config config;
     MetaInfo::Ptr traits;
     std::string default_output_basename;
     bool user_changed_output;
+    simparm::BaseAttribute::ConnectionStore listening;
 
-  protected:
-    void operator()(const simparm::Event&);
+    void republish_traits_locked();
 
   public:
     ChainLink();
     ChainLink* clone() const { return new ChainLink(*this); }
     void registerNamedEntries( simparm::Node& n ) {
-        receive_changes_from( config.output.value );
         Forwarder::registerNamedEntries(n);
         config.attach_ui( name_object.attach_ui( n ) );
+
+        listening = config.output.value.notify_on_value_change( 
+            boost::bind( &ChainLink::republish_traits_locked, this ) );
     }
     std::string name() const { return name_object.getName(); }
     std::string description() const { return name_object.getDesc(); }
@@ -55,7 +57,6 @@ Config::Config()
 
 ChainLink::ChainLink() 
 : input::Forwarder(),
-  simparm::Listener( simparm::Event::ValueChanged ),
   name_object( "OutputBasename", "Set output basename" ),
   default_output_basename(""),
   user_changed_output(false)
@@ -86,7 +87,7 @@ void ChainLink::traits_changed( TraitsRef traits, Link *l )
         update_current_meta_info(this->traits);
 }
 
-void ChainLink::operator()(const simparm::Event&)
+void ChainLink::republish_traits_locked()
 {
     input::InputMutexGuard lock( global_mutex() );
     if ( config.output() == "" ) config.output = default_output_basename;

@@ -7,7 +7,7 @@
 #include <dStorm/Engine.h>
 
 struct Repeat
-: public dStorm::output::Output, public simparm::Listener
+: public dStorm::output::Output
 {
     struct Config {
         static std::string get_name() { return "RepeatTrigger"; }
@@ -18,11 +18,15 @@ struct Repeat
     };
     dStorm::Engine *r;
     simparm::TriggerEntry repeat;
+    simparm::BaseAttribute::ConnectionStore listening;
 
-    void attach_ui_( simparm::Node& at ) { receive_changes_from( repeat.value ); repeat.attach_ui( at ); }
+    void attach_ui_( simparm::Node& at ) { 
+        listening = repeat.value.notify_on_value_change( 
+            boost::bind( &Repeat::repeat_results, this ) );
+        repeat.attach_ui( at ); 
+    }
     Repeat(const Config&) 
-        : simparm::Listener( simparm::Event::ValueChanged ),
-            r(NULL), repeat("Repeat", "Repeat results")
+        : r(NULL), repeat("Repeat", "Repeat results")
         { repeat.viewable = false;  }
     Repeat* clone() const { return new Repeat(*this); }
 
@@ -33,7 +37,8 @@ struct Repeat
     }
     void receiveLocalizations(const EngineResult&) {}
 
-    void operator()( const simparm::Event& ) {
+private:
+    void repeat_results() {
         if ( r && repeat.triggered() ) { 
             repeat.untrigger();
             r->repeat_results(); 

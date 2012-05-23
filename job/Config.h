@@ -8,7 +8,6 @@
 #include <list>
 #include <simparm/Set.hh>
 #include <simparm/Menu.hh>
-#include <simparm/Callback.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Entry.hh>
 #include <simparm/NodeHandle.hh>

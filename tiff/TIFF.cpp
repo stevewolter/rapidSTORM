@@ -27,7 +27,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Set.hh>
-#include <simparm/Structure.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/NodeHandle.hh>
 #include <simparm/IO.hh>
@@ -95,24 +94,29 @@ private:
 /** Config class for Source. Simple config that adds
     *  the sif extension to the input file element. */
 class ChainLink
-: public input::FileInput<ChainLink,OpenFile>, protected simparm::Listener
+: public input::FileInput<ChainLink,OpenFile>
 {
-    public:
+public:
     ChainLink();
 
     ChainLink* clone() const { return new ChainLink(*this); }
     BaseSource* makeSource();
-    void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
+    void attach_ui( simparm::Node& n ) { 
+        listening[0] = config.ignore_warnings.value.notify_on_value_change( 
+            boost::bind(&input::FileInput<ChainLink,OpenFile>::republish_traits_locked, this) );
+        listening[1] = config.determine_length.value.notify_on_value_change( 
+            boost::bind(&input::FileInput<ChainLink,OpenFile>::republish_traits_locked, this) );
+        config.attach_ui(n); 
+    }
 
-    private:
+private:
     Config config;
+    simparm::BaseAttribute::ConnectionStore listening[2];
+
     friend class input::FileInput<ChainLink,OpenFile>;
     OpenFile* make_file( const std::string& ) const;
     void modify_meta_info( MetaInfo& info );
     static std::string getName() { return "TIFF"; }
-
-    protected:
-    void operator()(const simparm::Event&);
 };
 
 
@@ -215,10 +219,7 @@ Config::Config()
 }
 
 ChainLink::ChainLink() 
-: simparm::Listener( simparm::Event::ValueChanged )
 {
-    receive_changes_from( config.ignore_warnings.value );
-    receive_changes_from( config.determine_length.value );
 }
 
 BaseSource*
@@ -239,11 +240,6 @@ Source::get_traits(typename BaseSource::Wishes) {
 }
 
 Source::~Source() {}
-
-void ChainLink::operator()(const simparm::Event& e) {
-    InputMutexGuard lock( global_mutex() );
-    republish_traits();
-}
 
 static void unit_test() {
     simparm::IO dummy_ui(NULL,NULL);

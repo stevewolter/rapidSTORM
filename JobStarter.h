@@ -9,17 +9,19 @@
 namespace dStorm {
 
 class JobStarter
-: public simparm::TriggerEntry,
-  simparm::Listener
+: public simparm::TriggerEntry
 {
     JobMaster* master;
     job::Config* config;
 
-    void operator()( const simparm::Event& );
+    simparm::BaseAttribute::ConnectionStore listening;
+
+    void start_job();
   public:
     JobStarter( JobMaster* );
     void setConfig( job::Config& config ) 
         { this->config= &config; }
+    void attach_ui( simparm::Node& );
 };
 
 }

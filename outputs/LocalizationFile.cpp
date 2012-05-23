@@ -8,7 +8,6 @@
 #include <iostream>
 #include <fstream>
 #include <simparm/FileEntry.hh>
-#include <simparm/Structure.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string.h>
 #include <stdlib.h>

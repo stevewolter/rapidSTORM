@@ -6,8 +6,7 @@ namespace dStorm {
 namespace job {
 
 Control::Control( bool auto_terminate )
-: simparm::Listener( simparm::Event::ValueChanged ),
-  close_job( auto_terminate ),
+: close_job( auto_terminate ),
   abort_job( false ),
   abortJob("StopComputation", "Stop computation"),
   closeJob("CloseJob", "Close job"),
@@ -15,15 +14,17 @@ Control::Control( bool auto_terminate )
 {
     closeJob.helpID = "#CloseJob";
     abortJob.helpID = "#StopEngine";
-
-    receive_changes_from( abortJob.value );
-    receive_changes_from( closeJob.value );
 }
 
 void Control::registerNamedEntries( simparm::Node& runtime_config )
 {
     abortJob.attach_ui( runtime_config );
     closeJob.attach_ui( runtime_config );
+
+    listening[0] = abortJob.value.notify_on_value_change( 
+        boost::bind( &Control::do_abort_job, this ) );
+    listening[1] = closeJob.value.notify_on_value_change( 
+        boost::bind( &Control::do_close_job, this ) );
 }
 
 void Control::wait_until_termination_is_allowed()
@@ -71,9 +72,8 @@ void Control::set_current_run( boost::shared_ptr<Run> r ) {
         r->interrupt();
 }
 
-void Control::operator()(const simparm::Event& e) {
-    if ( &e.source == &closeJob.value && e.cause == simparm::Event::ValueChanged && closeJob.triggered() )
-    {
+void Control::do_close_job() {
+    if ( closeJob.triggered() ) {
         closeJob.untrigger();
         DEBUG("Job close button allows termination" );
         boost::lock_guard<boost::mutex> lock( mutex );
@@ -82,7 +82,11 @@ void Control::operator()(const simparm::Event& e) {
         abort_job = true;
         if ( current_run ) current_run->interrupt();
         allow_termination.notify_all();
-    } else if ( &e.source == &abortJob.value && e.cause == simparm::Event::ValueChanged && abortJob.triggered() )
+    }
+}
+
+void Control::do_abort_job() {
+    if ( abortJob.triggered() )
     {
         abortJob.untrigger();
         DEBUG("Abort job button pressed");

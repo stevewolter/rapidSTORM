@@ -50,7 +50,6 @@
 namespace locprec {
 
 class Segmenter : public dStorm::output::Filter,
-    public simparm::Listener,
     private dStorm::display::DataSource
 {
     public:
@@ -79,6 +78,7 @@ class Segmenter : public dStorm::output::Filter,
     std::auto_ptr< dStorm::output::TraceReducer > reducer;
 
     std::string load_segmentation, save_segmentation;
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
     static ColorImage color_regions( const RegionImage& );
     void display_image( const ColorImage& );
@@ -110,7 +110,7 @@ class Segmenter : public dStorm::output::Filter,
         bins.receiveLocalizations(er);
     }
 
-    void operator()(const simparm::Event&);
+    void segment_locked();
 };
 
 struct SegmentationMethod : public simparm::ObjectChoice {
@@ -208,7 +208,6 @@ Segmenter::Segmenter(
     std::auto_ptr<Output> output
 )
 : Filter(output),
-  simparm::Listener( simparm::Event::ValueChanged ),
   howToSegment( config.method().type() ),
   threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
   dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),
@@ -238,7 +237,7 @@ Output::AdditionalData Segmenter::announceStormSize
     return Filter::announceStormSize( *announcement ).remove_cluster_sources();
 }
 
-void Segmenter::operator()(const simparm::Event&)
+void Segmenter::segment_locked()
 {
     boost::lock_guard<boost::mutex> lock(mutex);
     segment();
@@ -539,10 +538,12 @@ std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
 }
 
 void Segmenter::attach_ui_( simparm::Node& at ) {
+    listening[0].reset();
+    listening[1].reset();
     if ( howToSegment == Region ) {
-        receive_changes_from( this->threshold.value );
+        listening[0] = threshold.value.notify_on_value_change( boost::bind( &Segmenter::segment_locked, this ) );
+        listening[1] = dilation.value.notify_on_value_change( boost::bind( &Segmenter::segment_locked, this ) );
         threshold.attach_ui(at);
-        receive_changes_from( this->dilation.value );
         dilation.attach_ui( at );
     }
 

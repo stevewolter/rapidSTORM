@@ -17,11 +17,9 @@ namespace dStorm {
 namespace expression {
 
 Config::Config() 
-: simparm::Listener( simparm::Event::ValueChanged ),
-  parser( new Parser() ),
+: parser( new Parser() ),
   new_line("NewExpression", "Add expression"),
-  next_ident(0),
-  current_ui( NULL )
+  next_ident(0)
 { 
     new_line.userLevel = simparm::Object::Intermediate;
     lines.push_back( new config::CommandLine( "0", parser ) );
@@ -35,7 +33,10 @@ Config::~Config() {
 }
 
 void Config::attach_ui( simparm::Node& at ) {
-    current_ui = &at;
+    listening = new_line.value.notify_on_value_change( 
+        boost::bind( &Config::make_new_line, this ) );
+
+    current_ui = at;
 
     simple.set_manager( this );
     simple.attach_ui( *current_ui );
@@ -46,10 +47,9 @@ void Config::attach_ui( simparm::Node& at ) {
     }
 
     new_line.attach_ui( at );
-    receive_changes_from( new_line.value );
 }
 
-void Config::operator()(const simparm::Event& e)
+void Config::make_new_line()
 {
     if ( new_line.triggered() ) {
         std::stringstream ident;
@@ -57,7 +57,7 @@ void Config::operator()(const simparm::Event& e)
         new_line.untrigger();
         lines.push_back( new config::CommandLine(ident.str(), parser) );
         lines.back().set_manager( this );
-        if ( current_ui != NULL ) {
+        if ( current_ui ) {
             lines.back().attach_ui( *current_ui );
         }
     }

@@ -90,8 +90,7 @@ class TwoKernelImprovement : public source::LValue {
 };
 
 SimpleFilters::SimpleFilters()
-: simparm::Listener(simparm::Event::ValueChanged),
-  manager(NULL), 
+: manager(NULL), 
   lower_amplitude("LowerAmplitudeThreshold", "Minimum localization strength") ,
   drift_correction("LinearDriftCorrection", "Linear drift correction"),
   two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1)
@@ -103,22 +102,14 @@ SimpleFilters::SimpleFilters()
     two_kernel_improvement.min  = 0;
     two_kernel_improvement.max  = 1;
     two_kernel_improvement.increment  = 0.01;
-
-    receive_changes_from( lower_amplitude.value );
-    receive_changes_from( drift_correction.value );
-    receive_changes_from( two_kernel_improvement.value );
 }
 
 SimpleFilters::SimpleFilters( const SimpleFilters& o )
-: simparm::Listener(simparm::Event::ValueChanged),
-  manager(NULL), 
+: manager(NULL), 
   lower_amplitude(o.lower_amplitude) ,
   drift_correction(o.drift_correction),
   two_kernel_improvement(o.two_kernel_improvement)
 {
-    receive_changes_from( lower_amplitude.value );
-    receive_changes_from( drift_correction.value );
-    receive_changes_from( two_kernel_improvement.value );
 }
 
 void SimpleFilters::set_manager(config::ExpressionManager* m) {
@@ -129,19 +120,16 @@ void SimpleFilters::set_manager(config::ExpressionManager* m) {
 }
 
 void SimpleFilters::attach_ui(simparm::Node& at) {
+    listening[0] = lower_amplitude.value.notify_on_value_change( 
+        boost::bind( &SimpleFilters::publish_amp, this ) );
+    listening[1] = drift_correction.value.notify_on_value_change( 
+        boost::bind( &SimpleFilters::publish_drift_correction, this ) );
+    listening[2] = two_kernel_improvement.value.notify_on_value_change( 
+        boost::bind( &SimpleFilters::publish_tki, this ) );
+
     lower_amplitude.attach_ui(at);
     drift_correction.attach_ui(at);
     two_kernel_improvement.attach_ui(at);
-}
-
-void SimpleFilters::operator()(const simparm::Event& e)
-{
-    if ( &e.source == &lower_amplitude.value )
-        publish_amp();
-    if ( &e.source == &drift_correction.value )
-        publish_drift_correction();
-    if ( &e.source == &two_kernel_improvement.value )
-        publish_tki();
 }
 
 void SimpleFilters::publish_amp() 

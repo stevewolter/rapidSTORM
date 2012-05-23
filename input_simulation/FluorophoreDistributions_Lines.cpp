@@ -27,25 +27,17 @@ void Lines::Line::attach_ui( simparm::Node& t ) {
 
 Lines::Lines()
 : FluorophoreDistribution("Lines", "Fluorophores on lines"),
-  simparm::Listener(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
-    receive_changes_from( addLine.value );
-    receive_changes_from( removeLine.value );
-
     addLine.trigger();
 }
 
 Lines::Lines(const Lines& c)
 : FluorophoreDistribution(c),
-  simparm::Listener(simparm::Event::ValueChanged),
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
-    receive_changes_from( addLine.value );
-    receive_changes_from( removeLine.value );
-
     lines.resize( c.lines.size(), NULL );
     for (unsigned int i = 0; i < c.lines.size(); i++)
         if ( c.lines[i] != NULL ) {
@@ -84,6 +76,11 @@ Lines::Line::Line(const std::string& ident)
 }
 
 void Lines::attach_ui( simparm::Node& at ) {
+    listening[0] = addLine.value.notify_on_value_change( 
+        boost::bind( &Lines::add_line, this ) );
+    listening[1] = addLine.value.notify_on_value_change( 
+        boost::bind( &Lines::remove_line, this ) );
+
     simparm::NodeRef r = attach_parent( at );
     addLine.attach_ui( r );
     removeLine.attach_ui( r );
@@ -142,9 +139,9 @@ FluorophoreDistribution::Positions Lines::Line::
     return rv;
 }
 
-void Lines::operator()(const simparm::Event& e) 
+void Lines::add_line()
 {
-    if ( &e.source == &addLine.value && addLine.triggered() ) {
+    if ( addLine.triggered() ) {
         addLine.untrigger();
 
         unsigned int insert = lines.size();
@@ -162,7 +159,11 @@ void Lines::operator()(const simparm::Event& e)
 
         if ( current_ui )
             line->attach_ui( *current_ui );
-    } else if ( &e.source == &removeLine.value && removeLine.triggered() ) {
+    }
+}
+
+void Lines::remove_line() {
+    if ( removeLine.triggered() ) {
         removeLine.untrigger();
         delete lines.back();
         lines.back() = NULL;

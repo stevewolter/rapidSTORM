@@ -12,14 +12,13 @@
 #include "iostream.hh"
 #include "BaseAttribute.hh"
 #include "AttributeCommandInterpreter.hh"
-#include "Callback.hh"
 
 namespace boost { template <typename Type> class optional; }
 
 namespace simparm {
 
 template <typename Type>
-class Attribute : public BaseAttribute, public Publisher {
+class Attribute : public BaseAttribute {
     boost::signals2::signal< void () > value_changed;
     std::string ident;
 
@@ -46,7 +45,6 @@ class Attribute : public BaseAttribute, public Publisher {
             } else {
                 value = to;
                 value_changed();
-                this->notifyChangeCallbacks(Event::ValueChanged, NULL);
             }
         } else {
             /* Change is NOT ok. Print the correct value to underline this. */
@@ -87,8 +85,8 @@ class Attribute : public BaseAttribute, public Publisher {
      * attribute happens. If it returns false, no change occurs. */
     ChangeWatchFunction *change_is_OK;
 
-    void notify_on_value_change( boost::signals2::slot<void()> listener )
-        { value_changed.connect( listener ); }
+    Connection notify_on_value_change( Listener listener )
+        { return Connection( new boost::signals2::scoped_connection( value_changed.connect( listener ) ) ); }
 };
 
 }

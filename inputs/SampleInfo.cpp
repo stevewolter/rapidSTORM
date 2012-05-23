@@ -3,7 +3,6 @@
 #include "SampleInfo.h"
 
 #include "debug.h"
-#include <simparm/TreeCallback.hh>
 #include <simparm/FileEntry.hh>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/UnitEntries/PixelSize.h>
@@ -19,7 +18,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/NodeHandle.hh>
-#include <simparm/BoostSignal.hh>
 
 namespace dStorm {
 namespace input {
@@ -56,7 +54,7 @@ class Input
 
 
 class ChainLink 
-: public input::Method<ChainLink>, public simparm::Listener 
+: public input::Method<ChainLink>
 {
     friend class input::Method<ChainLink>;
     friend class Check;
@@ -78,14 +76,13 @@ class ChainLink
     Input<Type>* make_source( std::auto_ptr< input::Source<Type> > s ) {
         return new Input<Type>(s, config);
     }
-
-  protected:
-    void operator()(const simparm::Event&);
+    simparm::BaseAttribute::ConnectionStore listening;
 
   public:
     static std::string getName() { return "SampleInfo"; }
     void attach_ui( simparm::Node& at ) { 
-        receive_changes_from( config.fluorophore_count.value );
+        listening = config.fluorophore_count.value.notify_on_value_change( 
+            boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
         config.attach_ui( at ); 
     }
 };
@@ -110,14 +107,6 @@ Config::Config()
 void Config::attach_ui( simparm::Node& at ) {
     simparm::NodeRef r = name_object.attach_ui( at );
     fluorophore_count.attach_ui( r );
-}
-
-void ChainLink::operator()(const simparm::Event& e)
-{
-    if ( e.cause == simparm::Event::ValueChanged) {
-        input::InputMutexGuard lock( global_mutex() );
-        republish_traits();
-    } 
 }
 
 std::auto_ptr<Link> makeLink() {
