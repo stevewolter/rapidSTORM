@@ -14,7 +14,6 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/tag.hpp>
-#include "NodeHandle.hh"
 
 namespace simparm {
 
@@ -26,7 +25,7 @@ class ChoiceEntry
 : public BasicEntry
 {
   protected:
-    NodeRef create_hidden_node( simparm::Node& );
+    NodeHandle create_hidden_node( simparm::NodeHandle );
     static const std::string no_selection;
 
     typedef std::map<std::string,ChoiceType*> Entries;
@@ -55,7 +54,7 @@ class ChoiceEntry
             return *i->second;
     }
 
-    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    NodeHandle make_naked_node( simparm::NodeHandle );
 
   public:
     Attribute< std::string > value;

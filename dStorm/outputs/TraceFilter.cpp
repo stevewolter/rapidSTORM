@@ -30,7 +30,7 @@ class TraceCountFilter : public output::Filter
     TraceCountFilter& operator=(const TraceCountFilter&);
 
     void store_results_( bool success );
-    void attach_ui_( simparm::Node& );
+    void attach_ui_( simparm::NodeHandle );
 
     void set_which_viewability() { whichSpecific.viewable = selectSpecific(); }
     void repeat_results() { engine->repeat_results(); }
@@ -60,7 +60,7 @@ TraceCountFilter::TraceCountFilter(
 {  
 }
 
-void TraceCountFilter::attach_ui_( simparm::Node& at ) {
+void TraceCountFilter::attach_ui_( simparm::NodeHandle at ) {
     listening[0] = selectSpecific.value.notify_on_value_change(
         boost::bind( &TraceCountFilter::set_which_viewability, this ) );
     listening[1] = selectSpecific.value.notify_on_value_change(
@@ -152,7 +152,7 @@ std::auto_ptr< output::OutputSource > make_trace_count_source() {
     return std::auto_ptr< output::OutputSource >( new FilterBuilder< TraceCountConfig, TraceCountFilter >() );
 }
 
-void TraceCountConfig::attach_ui( simparm::Node& at )
+void TraceCountConfig::attach_ui( simparm::NodeHandle at )
 {
     min_count.attach_ui(at);
     disassemble.attach_ui(at);

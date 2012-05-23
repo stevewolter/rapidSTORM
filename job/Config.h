@@ -10,7 +10,6 @@
 #include <simparm/Menu.hh>
 #include <simparm/FileEntry.hh>
 #include <simparm/Entry.hh>
-#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/JobMaster.h>
 
@@ -43,12 +42,12 @@ class Config : public dStorm::Config
     ~Config();
     Config *clone() const { return new Config(*this); }
 
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     //void processCommand( std::istream& i ) { current_ui->processCommand(i); }
     void send( simparm::Message& m ) { current_ui->send(m); }
     //std::list<std::string> printValues() { return current_ui->printValues(); }
 
-    simparm::Node& user_interface_handle() { return *current_ui; }
+    simparm::NodeHandle user_interface_handle() { return current_ui; }
 
     output::OutputSource& outputSource;
     output::Config& outputConfig;

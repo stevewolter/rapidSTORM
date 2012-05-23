@@ -31,7 +31,7 @@ public:
 
         Config();
         bool can_work_with( dStorm::output::Capabilities ) {return true;}
-        void attach_ui( simparm::Node& at ) {
+        void attach_ui( simparm::NodeHandle at ) {
             outputFile.attach_ui(at);
             modulus.attach_ui(at);
         }

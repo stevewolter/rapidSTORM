@@ -59,7 +59,7 @@ class AverageImage::Config {
     static std::string get_name() { return "AverageImage"; }
     static std::string get_description() { return "Average images"; }
 
-    void attach_ui( simparm::Node& at ) { outputFile.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { outputFile.attach_ui( at ); }
 
 };
 

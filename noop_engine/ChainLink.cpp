@@ -40,7 +40,7 @@ class ChainLink
         : config(getName(), "Do not localize") {}
 
     static std::string getName() { return "Noop"; }
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
 };
 
 std::auto_ptr<input::Link>

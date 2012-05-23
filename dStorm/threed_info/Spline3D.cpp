@@ -107,8 +107,8 @@ class Spline3DConfig : public Config {
     void read_traits( const DepthInfo&, const DepthInfo& ) 
         { z_calibration_file = ""; }
     void set_context() {}
-    void attach_ui( simparm::Node& to ) { 
-        simparm::NodeRef r = attach_parent(to); 
+    void attach_ui( simparm::NodeHandle to ) { 
+        simparm::NodeHandle r = attach_parent(to); 
         z_calibration_file.attach_ui( r );
     }
   public:

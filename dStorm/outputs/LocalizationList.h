@@ -34,7 +34,7 @@ namespace outputs {
             { return allocTarget.get() != NULL; }
         std::auto_ptr<output::Localizations> releaseResults()
             { return allocTarget; }
-        void attach_ui( simparm::Node& ) {}
+        void attach_ui( simparm::NodeHandle ) {}
     };
 
 }

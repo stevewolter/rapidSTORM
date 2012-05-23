@@ -19,7 +19,7 @@ struct Config
     static std::string get_description() { return "Estimate localization precision naively"; }
     Config() 
         : tag("Tag", "Tag at start of line", "Precision") {}
-    void attach_ui( simparm::Node& at ) { tag.attach_ui(at); }
+    void attach_ui( simparm::NodeHandle at ) { tag.attach_ui(at); }
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
 };
 

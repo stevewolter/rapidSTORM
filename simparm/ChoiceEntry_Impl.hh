@@ -37,7 +37,7 @@ void ChoiceEntry<ChoiceType>::
 addChoice(ChoiceType& choice)
 { 
     if ( current_ui )
-        choice.attach_ui( *current_ui );
+        choice.attach_ui( current_ui );
     entries.insert( std::make_pair( choice.getName(), &choice ) );
     if (auto_select && value() == no_selection ) {
         SIMPARM_DEBUG("Auto-selecting value");
@@ -59,7 +59,7 @@ removeChoice(ChoiceType &choice)
     if ( auto_select_new_value && !entries.empty() )
         value = this->entries.begin()->first;
     if ( current_ui )
-        choice.detach_ui( *current_ui );
+        choice.detach_ui( current_ui );
 }
 
 template <typename ChoiceType>
@@ -70,7 +70,7 @@ void ChoiceEntry<ChoiceType>::removeAllChoices()
     if ( current_ui )
         for ( typename Entries::iterator i = entries.begin(); i != entries.end(); i++)
         {
-            i->second->detach_ui( *current_ui );
+            i->second->detach_ui( current_ui );
         }
     entries.clear();
 }
@@ -108,20 +108,20 @@ void ChoiceEntry<ChoiceType>::
 #endif
 
 template <typename ChoiceType>
-NodeRef ChoiceEntry<ChoiceType>::create_hidden_node( simparm::Node& n ) {
-    NodeRef r = BasicEntry::create_hidden_node( n );
-    r.add_attribute( value );
+NodeHandle ChoiceEntry<ChoiceType>::create_hidden_node( simparm::NodeHandle n ) {
+    NodeHandle r = BasicEntry::create_hidden_node( n );
+    r->add_attribute( value );
     current_ui = r;
     for ( typename Entries::iterator i = entries.begin(); i != entries.end(); ++i ) {
-        i->second->attach_ui( *current_ui );
+        i->second->attach_ui( current_ui );
     }
     return r;
 }
 
 template <typename ChoiceType>
-std::auto_ptr<Node> 
-ChoiceEntry<ChoiceType>::make_naked_node( simparm::Node& n ) {
-    return n.create_choice( getName(), getDesc() );
+NodeHandle 
+ChoiceEntry<ChoiceType>::make_naked_node( simparm::NodeHandle n ) {
+    return n->create_choice( getName(), getDesc() );
 }
 
 }

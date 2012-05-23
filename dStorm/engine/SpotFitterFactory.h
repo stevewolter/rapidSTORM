@@ -22,8 +22,8 @@ struct Factory {
     virtual void set_requirements( InputTraits& ) = 0;
     virtual void set_traits( output::Traits&, const JobInfo& ) = 0;
     virtual void set_variables( output::Basename& ) const {}
-    virtual void attach_ui( simparm::Node& to ) = 0;
-    virtual void detach_ui( simparm::Node& to ) = 0;
+    virtual void attach_ui( simparm::NodeHandle to ) = 0;
+    virtual void detach_ui( simparm::NodeHandle to ) = 0;
     virtual std::string getName() const = 0;
 
     virtual void register_trait_changing_nodes( simparm::BaseAttribute::Listener ) = 0;

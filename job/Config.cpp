@@ -45,7 +45,7 @@ class Config::TreeRoot : public output::FilterSource
 
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.desc(); }
-    void attach_ui( simparm::Node& ) { throw std::logic_error("Not implemented on tree base"); }
+    void attach_ui( simparm::NodeHandle ) { throw std::logic_error("Not implemented on tree base"); }
 
   public:
     TreeRoot();
@@ -72,8 +72,8 @@ class Config::TreeRoot : public output::FilterSource
         this->set_source_capabilities( cap );
     }
 
-    void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = name_object.attach_ui(at);
+    void attach_full_ui( simparm::NodeHandle at ) { 
+        simparm::NodeHandle r = name_object.attach_ui(at);
         attach_children_ui( r ); 
     }
     void hide_in_tree() { name_object.show_in_tree = false; }
@@ -171,14 +171,14 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
     input = p;
 }
 
-void Config::attach_ui( simparm::Node& at ) {
+void Config::attach_ui( simparm::NodeHandle at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    current_ui = car_config.attach_ui ( at );
-   input->registerNamedEntries( *current_ui );
-   pistonCount.attach_ui(  *current_ui  );
-   outputRoot->attach_full_ui(outputBox.attach_ui( *current_ui ));
-   configTarget.attach_ui(  *current_ui  );
-   auto_terminate.attach_ui(  *current_ui  );
+   input->registerNamedEntries( current_ui );
+   pistonCount.attach_ui(  current_ui  );
+   outputRoot->attach_full_ui(outputBox.attach_ui( current_ui ));
+   configTarget.attach_ui(  current_ui  );
+   auto_terminate.attach_ui(  current_ui  );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 

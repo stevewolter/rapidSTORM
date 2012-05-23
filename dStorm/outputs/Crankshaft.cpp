@@ -40,7 +40,7 @@ class Crankshaft::Clutch {
     Output* operator->() { return &output; }
     Output& operator*() { return output; }
     bool isImportant() const { return important; }
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         output.attach_ui( name_object.attach_ui( at ) );
     }
 };
@@ -112,7 +112,7 @@ void Crankshaft::run_finished_( const RunFinished& info ) {
         (*i)->run_finished( info );
 }
 
-void Crankshaft::attach_ui_( simparm::Node& at ) {
+void Crankshaft::attach_ui_( simparm::NodeHandle at ) {
     current_ui = at;
     for (Clutches::iterator i = clutches.begin(); i!=clutches.end(); ++i)
         i->attach_ui( *current_ui );

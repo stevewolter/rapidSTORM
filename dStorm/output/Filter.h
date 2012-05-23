@@ -11,11 +11,11 @@ class Filter : public Output
     std::auto_ptr<Output> fwd;
   private:
     void store_results_(bool success) { fwd->store_results(success); }
-    void attach_ui_( simparm::Node& at ) { attach_children_ui(at); }
+    void attach_ui_( simparm::NodeHandle at ) { attach_children_ui(at); }
   protected:
     void destroy_suboutput();
     void prepare_destruction_() { fwd->prepare_destruction(); }
-    void attach_children_ui( simparm::Node& at ) { fwd->attach_ui( at ); }
+    void attach_children_ui( simparm::NodeHandle at ) { fwd->attach_ui( at ); }
     void store_children_results( bool success ) { fwd->store_results(success); }
   public:
     Filter( std::auto_ptr<Output> downstream ) : fwd(downstream) {}

@@ -13,7 +13,7 @@ Config::Config()
     double_computation.userLevel = (simparm::Object::Intermediate);
 }
 
-void Config::attach_ui( simparm::Node& at ) {
+void Config::attach_ui( simparm::NodeHandle at ) {
      fit_window_size.attach_ui(at);
      allow_disjoint.attach_ui(at);
      double_computation.attach_ui(at);

@@ -32,9 +32,9 @@ Config::Config()
     marquardtStartLambda.userLevel = (simparm::Object::Expert);
 }
 
-void Config::attach_ui( simparm::Node & at )
+void Config::attach_ui( simparm::NodeHandle at )
 {
-    simparm::NodeRef m = name_object.attach_ui( at );
+    simparm::NodeHandle m = name_object.attach_ui( at );
     fit_window_config.attach_ui( m );
     marquardtStartLambda.attach_ui(m);
     negligible_x_step.attach_ui(m);

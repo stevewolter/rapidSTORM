@@ -40,8 +40,7 @@ class ChainLink
                     1.0f
                 )
             );
-            if ( config.weights_insertion_point )
-                config.spot_finder_weights.back().attach_ui( *config.weights_insertion_point );
+            config.spot_finder_weights.back().attach_ui( config.weights_insertion_point );
         }
 
         for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)
@@ -86,7 +85,7 @@ class ChainLink
     ~ChainLink() {}
 
     static std::string getName() { return "rapidSTORM"; }
-    void attach_ui( simparm::Node& at ) { 
+    void attach_ui( simparm::NodeHandle at ) { 
         listening[0] = config.guess_threshold.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
         listening[1] = config.amplitude_threshold.value.notify_on_value_change( 

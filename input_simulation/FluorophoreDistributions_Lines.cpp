@@ -13,7 +13,7 @@ using namespace boost::units;
 class Lines : public FluorophoreDistribution
 {
   protected:
-    void attach_ui( simparm::Node& at ) ;
+    void attach_ui( simparm::NodeHandle at ) ;
     void add_line();
     void add_line_trigger();
     void remove_line();
@@ -28,7 +28,7 @@ class Lines : public FluorophoreDistribution
 
         Line(const std::string& ident);
         Positions fluorophore_positions(const Size& size, gsl_rng* rng) const;
-        void attach_ui( simparm::Node& );
+        void attach_ui( simparm::NodeHandle );
     };
 
   private:
@@ -48,8 +48,8 @@ class Lines : public FluorophoreDistribution
         const Size& size, gsl_rng* rng) const;
 };
 
-void Lines::Line::attach_ui( simparm::Node& t ) {
-    simparm::NodeRef r = name_object.attach_ui(t);
+void Lines::Line::attach_ui( simparm::NodeHandle t ) {
+    simparm::NodeHandle r = name_object.attach_ui(t);
     xoffset.attach_ui( r );
     yoffset.attach_ui( r );
     zoffset.attach_ui( r );
@@ -80,8 +80,7 @@ Lines::Lines(const Lines& c)
     for (unsigned int i = 0; i < c.lines.size(); i++)
         if ( c.lines[i] != NULL ) {
             lines[i] = new Line(*c.lines[i]);
-            if ( current_ui )
-                lines[i]->attach_ui( *current_ui );
+            lines[i]->attach_ui( current_ui );
         }
 }
 
@@ -113,17 +112,17 @@ Lines::Line::Line(const std::string& ident)
     z_angle.max = (90);
 }
 
-void Lines::attach_ui( simparm::Node& at ) {
+void Lines::attach_ui( simparm::NodeHandle at ) {
     listening[0] = addLine.value.notify_on_value_change( 
         boost::bind( &Lines::add_line_trigger, this ) );
     listening[1] = addLine.value.notify_on_value_change( 
         boost::bind( &Lines::remove_line, this ) );
 
     current_ui = attach_parent( at );
-    addLine.attach_ui( *current_ui );
-    removeLine.attach_ui( *current_ui );
+    addLine.attach_ui( current_ui );
+    removeLine.attach_ui( current_ui );
     for (std::vector<Line*>::const_iterator i = lines.begin(); i != lines.end(); i++)
-        (*i)->attach_ui( *current_ui );
+        (*i)->attach_ui( current_ui );
 }
 
 FluorophoreDistribution::Positions Lines::fluorophore_positions(
@@ -200,8 +199,7 @@ void Lines::add_line()
     else
         lines.push_back( line );
 
-    if ( current_ui )
-        line->attach_ui( *current_ui );
+    line->attach_ui( current_ui );
 }
 
 void Lines::remove_line() {

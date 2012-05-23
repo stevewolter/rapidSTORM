@@ -3,7 +3,6 @@
 
 #include <simparm/TriggerEntry.hh>
 #include <simparm/ManagedChoiceEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include "OutputSource.h"
 #include <map>
 #include <boost/utility.hpp>
@@ -79,7 +78,7 @@ class FilterSource
     SourceFactory* getFactory() { return factory.get(); }
     const SourceFactory* getFactory() const { return factory.get(); }
 
-    void attach_children_ui( simparm::Node& );
+    void attach_children_ui( simparm::NodeHandle );
 
   public:
     ~FilterSource();

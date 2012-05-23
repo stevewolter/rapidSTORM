@@ -16,7 +16,7 @@ Control::Control( bool auto_terminate )
     abortJob.helpID = "#StopEngine";
 }
 
-void Control::registerNamedEntries( simparm::Node& runtime_config )
+void Control::registerNamedEntries( simparm::NodeHandle runtime_config )
 {
     abortJob.attach_ui( runtime_config );
     closeJob.attach_ui( runtime_config );

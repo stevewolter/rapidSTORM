@@ -22,8 +22,8 @@ class Lens3DConfig : public Config {
     void read_traits( const DepthInfo& dx, const DepthInfo& dy ) 
         { throw std::logic_error("Not implemented"); }
     void set_context() {}
-    void attach_ui( simparm::Node& at ) {
-        simparm::NodeRef r = attach_parent(at);
+    void attach_ui( simparm::NodeHandle at ) {
+        simparm::NodeHandle r = attach_parent(at);
         z_position.attach_ui( r ); 
     }
   public:

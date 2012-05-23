@@ -26,11 +26,11 @@ Entry<TypeOfEntry>::Entry(
 }
 
 template <typename TypeOfEntry>
-NodeRef
-Entry<TypeOfEntry>::create_hidden_node(simparm::Node& to) {
-    NodeRef r = BasicEntry::create_hidden_node(to);
+NodeHandle
+Entry<TypeOfEntry>::create_hidden_node(simparm::NodeHandle to) {
+    NodeHandle r = BasicEntry::create_hidden_node(to);
     Attributes<TypeOfEntry>::registerNamedEntries(r);
-    r.add_attribute(value);
+    r->add_attribute(value);
     return r;
 }
 
@@ -66,10 +66,10 @@ Attributes<TypeOfEntry, ValueField,
 template <typename TypeOfEntry, typename ValueField>
 void Attributes<TypeOfEntry, ValueField, 
     typename boost::enable_if< boost::is_fundamental<TypeOfEntry> >::type 
->::registerNamedEntries( simparm::Node& n ) {
-    n.add_attribute(increment);
-    n.add_attribute(min);
-    n.add_attribute(max);
+>::registerNamedEntries( simparm::NodeHandle n ) {
+    n->add_attribute(increment);
+    n->add_attribute(min);
+    n->add_attribute(max);
 }
 
 template <typename TypeOfEntry, typename ValueField>

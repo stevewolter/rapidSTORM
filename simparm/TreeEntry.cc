@@ -11,11 +11,11 @@ TreeObject::TreeObject( std::string name, std::string desc )
 {
 }
 
-NodeRef TreeObject::create_hidden_node( simparm::Node& n ) {
-    NodeRef r = Object::create_hidden_node( n );
-    r.add_attribute( show_in_tree );
-    r.add_attribute( force_new_root );
-    r.add_attribute( focus_immediately );
+NodeHandle TreeObject::create_hidden_node( simparm::NodeHandle n ) {
+    NodeHandle r = Object::create_hidden_node( n );
+    r->add_attribute( show_in_tree );
+    r->add_attribute( force_new_root );
+    r->add_attribute( focus_immediately );
     return r;
 }
 

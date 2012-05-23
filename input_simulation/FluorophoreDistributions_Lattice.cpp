@@ -7,8 +7,8 @@ namespace FluorophoreDistributions {
 
 class Lattice : public FluorophoreDistribution {
   protected:
-    void attach_ui( simparm::Node& at )  {
-        simparm::NodeRef r = attach_parent(at);
+    void attach_ui( simparm::NodeHandle at )  {
+        simparm::NodeHandle r = attach_parent(at);
         latticeDistance.attach_ui(r);
         border.attach_ui( r );
     }

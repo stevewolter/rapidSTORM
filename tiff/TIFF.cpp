@@ -28,7 +28,6 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/Set.hh>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <simparm/IO.hh>
 
 #include <dStorm/engine/Image.h>
@@ -67,7 +66,7 @@ class Source : public input::Source< engine::ImageStack >
     typedef typename BaseSource::TraitsPtr TraitsPtr;
 
     simparm::NodeHandle current_ui;
-    void attach_ui_( simparm::Node& n ) { current_ui = n; }
+    void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
 
 public:
     class iterator;
@@ -101,7 +100,7 @@ public:
 
     ChainLink* clone() const { return new ChainLink(*this); }
     BaseSource* makeSource();
-    void attach_ui( simparm::Node& n ) { 
+    void attach_ui( simparm::NodeHandle n ) { 
         listening[0] = config.ignore_warnings.value.notify_on_value_change( 
             boost::bind(&input::FileInput<ChainLink,OpenFile>::republish_traits_locked, this) );
         listening[1] = config.determine_length.value.notify_on_value_change( 
@@ -131,15 +130,15 @@ class Source::iterator
 : public boost::iterator_facade<iterator,Image,std::random_access_iterator_tag>
 {
     mutable OpenFile* src;
-    mutable simparm::Node* msg;
+    mutable boost::shared_ptr<simparm::Node> msg;
     int directory;
     mutable boost::optional<Image> img;
 
     void check_params() const;
 
   public:
-    iterator() : src(NULL), msg(NULL) {}
-    iterator(Source &s) : src(s.file.get()), msg(s.current_ui.get_ptr()), directory(0) {}
+    iterator() : src(NULL) {}
+    iterator(Source &s) : src(s.file.get()), msg(s.current_ui), directory(0) {}
 
     Image& dereference() const; 
     bool equal(const iterator& i) const {
@@ -148,9 +147,9 @@ class Source::iterator
     }
     void increment() { 
         DEBUG("Incrementing TIFF iterator " << this);
-        src->seek_to_image( *msg, directory);
+        src->seek_to_image( msg, directory);
         img.reset(); 
-        bool success = src->next_image( *msg );
+        bool success = src->next_image( msg );
         if ( ! success ) 
             src = NULL;
         else {
@@ -164,7 +163,7 @@ class Source::iterator
             src = NULL; 
         else {
             --directory;
-            src->seek_to_image( *msg, directory );
+            src->seek_to_image( msg, directory );
         }
     }
     void advance(int n) { 
@@ -172,7 +171,7 @@ class Source::iterator
         if (n) {
             img.reset(); 
             directory += n;
-            src->seek_to_image(*msg, directory);
+            src->seek_to_image(msg, directory);
         }
     }
     int distance_to(const iterator& i) {
@@ -189,8 +188,8 @@ Source::iterator::dereference() const
 { 
     DEBUG("Dereferencing TIFF iterator " << this);
     if ( ! img.is_initialized() ) {
-        src->seek_to_image(*msg, directory);
-        OpenFile::Image three_d = src->read_image( *msg );
+        src->seek_to_image(msg, directory);
+        OpenFile::Image three_d = src->read_image( msg );
         img = engine::ImageStack( directory * camera::frame );
         for (int z = 0; z < three_d.depth_in_pixels(); ++z)
             img->push_back( three_d.slice( 2, z * camera::pixel ) );
@@ -232,7 +231,7 @@ Source::TraitsPtr
 Source::get_traits(typename BaseSource::Wishes) {
     simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
     count.editable = false;
-    count.attach_ui( *current_ui );
+    count.attach_ui( current_ui );
     DEBUG("Creating traits from file object");
     TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
     DEBUG("Returning traits " << rv.get());
@@ -242,7 +241,7 @@ Source::get_traits(typename BaseSource::Wishes) {
 Source::~Source() {}
 
 static void unit_test() {
-    simparm::IO dummy_ui(NULL,NULL);
+    boost::shared_ptr<simparm::IO> dummy_ui( new simparm::IO(NULL,NULL) );
     ChainLink l;
     l.attach_ui( dummy_ui );
     l.publish_meta_info();

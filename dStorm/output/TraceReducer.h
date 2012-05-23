@@ -39,7 +39,7 @@ class TraceReducer {
 class TraceReducer::Config {
   public:
     std::auto_ptr<TraceReducer> make_trace_reducer() const;
-    void attach_ui( simparm::Node& ) {}
+    void attach_ui( simparm::NodeHandle ) {}
 };
 
 }

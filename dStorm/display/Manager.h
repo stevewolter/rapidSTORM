@@ -6,7 +6,7 @@
 #include "DataSource.h"
 #include <boost/utility.hpp>
 #include <boost/function.hpp>
-#include <simparm/Node_decl.hh>
+#include <simparm/Node.hh>
 
 namespace dStorm {
 namespace display {
@@ -59,7 +59,7 @@ class Manager : boost::noncopyable {
   public:
     virtual ~Manager() {}
     /** Method should return pointer to config element for the display handler, or NULL if none are necessary. */
-    virtual void attach_ui( simparm::Node& ) = 0;
+    virtual void attach_ui( simparm::NodeHandle ) = 0;
 
     /** Open a window that displays the data in \c handler
      *  with the provided \c properties. The provided

@@ -9,7 +9,6 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <dStorm/UnitEntries.h>
 
 namespace input_simulation {
@@ -19,7 +18,7 @@ using namespace boost::units;
 
 class Random : public FluorophoreDistribution {
   protected:
-    void attach_ui( simparm::Node& at ) 
+    void attach_ui( simparm::NodeHandle at ) 
         { fluorophoreNumber.attach_ui( attach_parent( at ) ); }
   public:
     simparm::Entry<unsigned long> fluorophoreNumber;

@@ -37,7 +37,7 @@ Source::~Source() {
     DEBUG( "Destructing source " << this );
 }
 
-void Source::attach_ui_( simparm::Node& n ) {
+void Source::attach_ui_( simparm::NodeHandle n ) {
     status.attach_ui( n );
 }
 

@@ -7,7 +7,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 
@@ -64,7 +63,7 @@ class Slicer : public Output {
     std::auto_ptr<Announcement> announcement;
     std::auto_ptr<RunAnnouncement> run_announcement;
     void store_results_( bool success );
-    void attach_ui_( simparm::Node& at );
+    void attach_ui_( simparm::NodeHandle at );
 
   public:
     simparm::Set suboutputs;
@@ -86,7 +85,7 @@ class Slicer::Config {
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 };
 
 Basename Slicer::fn_for_slice( int i ) const
@@ -118,8 +117,7 @@ void Slicer::add_output_clone(int i) {
     boost::shared_ptr<simparm::Object> o 
         ( new simparm::Object(name.str(), desc.str()) );
 
-    if ( attached_suboutputs )
-        output->attach_ui( o->attach_ui( *attached_suboutputs ) );
+    output->attach_ui( o->attach_ui( attached_suboutputs ) );
     outputs.replace( i, new Child( output, o ) );
 
     if ( announcement.get() != NULL )
@@ -143,7 +141,7 @@ Slicer::Config::Config()
     outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 
-void Slicer::Config::attach_ui( simparm::Node& at )
+void Slicer::Config::attach_ui( simparm::NodeHandle at )
 {
     slice_size.attach_ui( at ); 
     slice_distance.attach_ui( at );
@@ -227,7 +225,7 @@ Slicer::~Slicer()
 {
 }
 
-void Slicer::attach_ui_( simparm::Node& at ) {
+void Slicer::attach_ui_( simparm::NodeHandle at ) {
     suboutputs.attach_ui( at );
 }
 
@@ -266,12 +264,12 @@ public:
 
     std::string getName() const { return name_object.getName(); }
     std::string getDesc() const { return name_object.getDesc(); }
-    void attach_full_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = name_object.attach_ui(at);
+    void attach_full_ui( simparm::NodeHandle at ) { 
+        simparm::NodeHandle r = name_object.attach_ui(at);
         config.attach_ui( r );
         FilterSource::attach_children_ui( r ); 
     }
-    void attach_ui( simparm::Node& at ) { choice_object.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { choice_object.attach_ui( at ); }
     void hide_in_tree() { name_object.show_in_tree = false; }
 };
 

@@ -89,7 +89,7 @@ class AffineProjectionConfig
     AffineProjectionConfig* clone_() const 
         { return new AffineProjectionConfig(*this); }
 
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         micro_alignment.attach_ui( attach_parent(at) );
     }
 

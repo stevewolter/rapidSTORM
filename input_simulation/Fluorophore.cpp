@@ -40,8 +40,8 @@ FluorophoreConfig::FluorophoreConfig()
 {
 }
 
-void FluorophoreConfig::attach_ui( simparm::Node& at ) {
-    simparm::NodeRef r = name_object.attach_ui( at );
+void FluorophoreConfig::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle r = name_object.attach_ui( at );
     countsPerPhoton.attach_ui( r );
     averageActivationTime.attach_ui( r);
     averageDeactivationTime.attach_ui( r);

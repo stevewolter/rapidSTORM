@@ -24,7 +24,7 @@ class TraceCountConfig
   public:
     TraceCountConfig();
 
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     static std::string get_name() { return "TraceFilter"; }
     static std::string get_description() { return "Trace filter"; }
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }

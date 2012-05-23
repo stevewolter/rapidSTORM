@@ -7,7 +7,7 @@ namespace simparm {
 
 class TriggerEntry : public Entry<unsigned long> {
   protected:
-    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    NodeHandle make_naked_node( simparm::NodeHandle );
 
   public:
     TriggerEntry(const TriggerEntry &entry);

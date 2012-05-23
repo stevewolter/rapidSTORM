@@ -32,18 +32,18 @@ Config::~Config() {
         i->set_manager( NULL );
 }
 
-void Config::attach_ui( simparm::Node& at ) {
+void Config::attach_ui( simparm::NodeHandle at ) {
     listening = new_line.value.notify_on_value_change( 
         boost::bind( &Config::make_new_line, this ) );
 
     current_ui = at;
 
     simple.set_manager( this );
-    simple.attach_ui( *current_ui );
+    simple.attach_ui( current_ui );
     for ( boost::ptr_vector< config::CommandLine >::iterator i = lines.begin(); i != lines.end(); ++i )
     {
         i->set_manager( this );
-        i->attach_ui( *current_ui );
+        i->attach_ui( current_ui );
     }
 
     new_line.attach_ui( at );
@@ -57,9 +57,7 @@ void Config::make_new_line()
         new_line.untrigger();
         lines.push_back( new config::CommandLine(ident.str(), parser) );
         lines.back().set_manager( this );
-        if ( current_ui ) {
-            lines.back().attach_ui( *current_ui );
-        }
+        lines.back().attach_ui( current_ui );
     }
 }
 

@@ -11,7 +11,7 @@ Config::Config()
 {
 }
 
-void Config::attach_ui( simparm::Node& at ) {
+void Config::attach_ui( simparm::NodeHandle at ) {
     target_volume_.attach_ui( at );
     target_localization_number_.attach_ui( at );
     missing_penalty_.attach_ui( at );

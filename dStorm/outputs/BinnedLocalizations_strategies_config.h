@@ -40,7 +40,7 @@ class DimensionSelector
     bool is_3d() const { return use_z_axis(); }
     void add_listener( simparm::BaseAttribute::Listener& );
 
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 };
 
 }

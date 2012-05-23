@@ -22,7 +22,7 @@ class Method
   public:
     Forwarder* clone() const { return new CRTP( static_cast<const CRTP&>(*this) ); }
     void traits_changed( TraitsRef, Link* );
-    void registerNamedEntries( simparm::Node& node ) { 
+    void registerNamedEntries( simparm::NodeHandle node ) { 
         Forwarder::registerNamedEntries( node );
         static_cast<CRTP&>(*this).attach_ui( node );
     }

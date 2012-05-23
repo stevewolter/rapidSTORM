@@ -37,7 +37,7 @@ class Alternatives::UpstreamLink
     /** This clone() implementation returns no object. The new upstream links
      *  are inserted by the Alternatives class. */
     UpstreamLink* clone() const { return NULL; }
-    void registerNamedEntries( simparm::Node& ) {}
+    void registerNamedEntries( simparm::NodeHandle ) {}
     std::string name() const { return "AlternativesUpstreamLink"; }
     std::string description() const { throw std::logic_error("Not implemented"); }
     BaseSource* makeSource() { return collector.makeSource(); }
@@ -72,7 +72,7 @@ void Alternatives::insert_new_node( std::auto_ptr<Link> link, Place p )
     collector->insert_new_node(link,p);
 }
 
-void Alternatives::registerNamedEntries( simparm::Node& node ) {
+void Alternatives::registerNamedEntries( simparm::NodeHandle node ) {
     collector->registerNamedEntries(node);
     Choice::registerNamedEntries(node);
 }

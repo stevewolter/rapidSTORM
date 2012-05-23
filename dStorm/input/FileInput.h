@@ -71,7 +71,7 @@ class FileInput
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     void publish_meta_info() { republish_traits(); }
     std::string name() const { return CRTP::getName(); }
-    void registerNamedEntries( simparm::Node& n ) 
+    void registerNamedEntries( simparm::NodeHandle n ) 
         { static_cast<CRTP&>(*this).attach_ui(n); }
 
     void republish_traits_locked() {

@@ -8,7 +8,7 @@ namespace simparm {
 
 class TreeObject : public Object {
   protected:
-    NodeRef create_hidden_node( simparm::Node& );
+    NodeHandle create_hidden_node( simparm::NodeHandle );
   public:
     Attribute<bool> show_in_tree, force_new_root,
                     focus_immediately;

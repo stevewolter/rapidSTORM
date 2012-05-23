@@ -31,7 +31,7 @@ class BasenameAdjustedFileEntry
     std::string unformatted_name() const { return value(); }
 
     Basename get_basename() const;
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 }

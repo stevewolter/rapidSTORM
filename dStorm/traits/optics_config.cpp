@@ -69,9 +69,9 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
 
 PlaneConfig::~PlaneConfig() {}
 
-void PlaneConfig::attach_ui( simparm::Node& at )
+void PlaneConfig::attach_ui( simparm::NodeHandle at )
 {
-    simparm::NodeRef r = name_object.attach_ui( at );
+    simparm::NodeHandle r = name_object.attach_ui( at );
     current_ui = r;
     if ( purpose != PSFDisplay ) {
         listening[0] = pixel_size.value.notify_on_value_change( ui_element_changed );
@@ -97,9 +97,8 @@ void PlaneConfig::attach_ui( simparm::Node& at )
 void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane )
 {
     while ( int(transmissions.size()) < fluorophore_count ) {
-       transmissions.push_back( new TransmissionEntry(transmissions.size()) );
-        if ( current_ui )
-            transmissions.back().attach_ui( *current_ui );
+        transmissions.push_back( new TransmissionEntry(transmissions.size()) );
+        transmissions.back().attach_ui( current_ui );
     }
 
     for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
@@ -164,9 +163,9 @@ MultiPlaneConfig::~MultiPlaneConfig()
     DEBUG("Destructing " << this);
 }
 
-void MultiPlaneConfig::attach_ui( simparm::Node& at )
+void MultiPlaneConfig::attach_ui( simparm::NodeHandle at )
 {
-    simparm::NodeRef r = name_object.attach_ui( at );
+    simparm::NodeHandle r = name_object.attach_ui( at );
     current_ui = r;
     for ( Layers::iterator i = layers.begin(); i != layers.end(); ++i) {
         i->notify_on_any_change( boost::ref(ui_element_listener) );
@@ -180,7 +179,7 @@ void MultiPlaneConfig::set_number_of_planes(int number)
         layers.push_back( new PlaneConfig( layers.size(), purpose ) );
         if ( current_ui ) {
             layers.back().notify_on_any_change( boost::ref(ui_element_listener) );
-            layers.back().attach_ui( *current_ui );
+            layers.back().attach_ui( current_ui );
         }
     }
     while ( number < int( layers.size() ) )

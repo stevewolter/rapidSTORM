@@ -65,7 +65,7 @@ Config::Config()
     DEBUG("Built Viewer Config");
 }
 
-void Config::attach_ui( simparm::Node& n ) {
+void Config::attach_ui( simparm::NodeHandle n ) {
     listening[3] = colourScheme.value.notify_on_value_change( boost::ref(some_value_changed) );
     listening[4] = invert.value.notify_on_value_change( boost::ref(some_value_changed) );
     listening[5] = border.value.notify_on_value_change( boost::ref(some_value_changed) );

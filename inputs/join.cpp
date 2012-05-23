@@ -7,7 +7,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/Set.hh>
 #include <simparm/ObjectChoice.hh>
-#include <simparm/NodeHandle.hh>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <vector>
@@ -39,7 +38,7 @@ struct Strategist
     virtual boost::shared_ptr< const MetaInfo > make_traits(
         const std::vector< boost::shared_ptr< const MetaInfo > >& v ) = 0;
     virtual std::auto_ptr<BaseSource> make_source( const Sources& sources ) = 0;
-    void attach_ui( simparm::Node& to ) { attach_parent(to); }
+    void attach_ui( simparm::NodeHandle to ) { attach_parent(to); }
 };
 
 }
@@ -64,7 +63,7 @@ class Source
     typename Base::TraitsPtr traits;
     boost::ptr_vector< simparm::Object > connection_nodes;
 
-    void attach_ui_( simparm::Node& n ) { 
+    void attach_ui_( simparm::NodeHandle n ) { 
         for (size_t i = 0; i < sources.size(); ++i) {
             std::auto_ptr< simparm::Object > object( 
                 new simparm::Object("Channel" + boost::lexical_cast<std::string>(i), "") );
@@ -239,19 +238,19 @@ class Link
     BaseSource* makeSource();
     std::string name() const { return name_object.getName(); }
     std::string description() const { return name_object.getDesc(); }
-    void registerNamedEntries( simparm::Node& n ) { 
+    void registerNamedEntries( simparm::NodeHandle n ) { 
         listening[0] = join_type.value.notify_on_value_change( 
             boost::bind( &Link::recompute_meta_info, this ) );
         listening[1] = channel_count.value.notify_on_value_change( 
             boost::bind( &Link::change_channel_count, this ) );
 
-        simparm::NodeRef r = name_object.attach_ui( n );
+        simparm::NodeHandle r = name_object.attach_ui( n );
         channel_count.attach_ui( r );
         channels_node = channels.attach_ui( r );
         join_type.attach_ui( r );
 
         for (unsigned i = 0; i < children.size(); ++i) {
-            children[i].registerNamedEntries( connection_nodes[i].attach_ui(*channels_node) );
+            children[i].registerNamedEntries( connection_nodes[i].attach_ui(channels_node) );
         }
         registered_node = true;
     }
@@ -347,7 +346,7 @@ void Link::change_channel_count() {
         input_traits.push_back( children.back().current_meta_info() );
         if ( registered_node && channels_node ) {
             children.back().registerNamedEntries( 
-                connection_nodes.back().attach_ui( *channels_node ) );
+                connection_nodes.back().attach_ui( channels_node ) );
         }
         connections.push_back( children.back().notify(
             boost::bind( &Link::traits_changed, this, _1, &children.back() ) ) );

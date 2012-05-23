@@ -47,7 +47,7 @@ void FieldChoice::add_listener( simparm::BaseAttribute::Listener l ) {
         i->add_listener( l );
 }
 
-void FieldChoice::attach_ui( simparm::NodeRef a ) {
+void FieldChoice::attach_ui( simparm::NodeHandle a ) {
     simparm::ManagedChoiceEntry<FieldConfig>::attach_ui(a);
     listening = value.notify_on_value_change( change );
 }

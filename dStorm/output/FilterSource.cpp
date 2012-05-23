@@ -17,25 +17,25 @@ class FilterSource::Suboutput {
     simparm::Object config_node, removal_node;
 
 public:
-    Suboutput(std::auto_ptr< OutputSource > unadorned, std::string ident, simparm::Node* ui )
+    Suboutput(std::auto_ptr< OutputSource > unadorned, std::string ident, simparm::NodeHandle ui )
         : unadorned( unadorned ), config_node( ident, ""),
           removal_node(ident, this->unadorned->getDesc()) 
-        { if ( ui ) attach_suboutput_ui(*ui); }
+        { if ( ui ) attach_suboutput_ui(ui); }
     Suboutput* clone() const { return new Suboutput(*this); }
 
     std::string getName() const { return removal_node.getName(); }
-    void attach_ui( simparm::Node& removal_choice_node )
+    void attach_ui( simparm::NodeHandle removal_choice_node )
         { removal_node.attach_ui( removal_choice_node ); }
-    void detach_ui( simparm::Node& removal_choice_node )
+    void detach_ui( simparm::NodeHandle removal_choice_node )
         { removal_node.detach_ui( removal_choice_node ); }
-    void attach_suboutput_ui( simparm::Node& at ) {
+    void attach_suboutput_ui( simparm::NodeHandle at ) {
         unadorned->attach_full_ui( config_node.attach_ui( at ) );
     }
 
     OutputSource& output() const { return *unadorned; }
 };
 
-void FilterSource::attach_children_ui( simparm::Node& at )
+void FilterSource::attach_children_ui( simparm::NodeHandle at )
 {
     assert( ! my_node );
 
@@ -94,7 +94,7 @@ void FilterSource::add
     assert( src.get() );
     std::string name = "Output" + boost::lexical_cast<std::string>( next_identity++ );
     src->set_output_file_basename(basename);
-    suboutputs.addChoice( new Suboutput( src, name, my_node.get_ptr() ) );
+    suboutputs.addChoice( new Suboutput( src, name, my_node ) );
 }
 
 void FilterSource::add_new_element() {

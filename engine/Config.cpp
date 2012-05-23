@@ -65,18 +65,18 @@ Config::~Config() {
      * Config. */
 }
 
-void Config::attach_ui( simparm::Node& n ) {
-    simparm::NodeRef at = name_object.attach_ui( n );
+void Config::attach_ui( simparm::NodeHandle n ) {
+    simparm::NodeHandle at = name_object.attach_ui( n );
     nms.attach_ui(at);
     guess_threshold.attach_ui(at);
     threshold_height_factor.attach_ui(at);
     amplitude_threshold.attach_ui(at);
 
     spotFindingMethod.attach_ui(at);
-    simparm::NodeRef w = weights.attach_ui(at );
+    simparm::NodeHandle w = weights.attach_ui(at );
     weights_insertion_point = w;
     std::for_each( spot_finder_weights.begin(), spot_finder_weights.end(),
-        boost::bind( &simparm::Entry<float>::attach_ui, _1, boost::ref(w) ) );
+        boost::bind( &simparm::Entry<float>::attach_ui, _1, w ) );
     spotFittingMethod.attach_ui(at);
 
     motivation.attach_ui(at);

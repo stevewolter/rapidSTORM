@@ -45,7 +45,7 @@ struct FieldChoice
     FieldChoice* clone() const { return new FieldChoice(*this); }
     ~FieldChoice();
     void add_listener( simparm::BaseAttribute::Listener l );
-    void attach_ui( simparm::NodeRef );
+    void attach_ui( simparm::NodeHandle );
 };
 
 }

@@ -21,7 +21,7 @@ class JobStarter
     JobStarter( JobMaster* );
     void setConfig( job::Config& config ) 
         { this->config= &config; }
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 }

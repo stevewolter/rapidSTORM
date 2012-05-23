@@ -34,7 +34,7 @@ class OpenFile : boost::noncopyable {
     std::auto_ptr< input::Traits< engine::ImageStack > > getTraits();
 
     std::auto_ptr< engine::ImageStack >
-        load_image( int index, simparm::Node& );
+        load_image( int index, simparm::NodeHandle );
 
     int number_of_images() const { return im_count; }
     bool did_have_errors() const { return had_errors; }

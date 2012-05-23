@@ -39,7 +39,7 @@ struct Exception::Config
     simparm::Entry<long> onImageNumber;
 
     Config();
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         onConstruction.attach_ui( at );
         onAnnouncement.attach_ui( at );
         onImageNumber.attach_ui( at );

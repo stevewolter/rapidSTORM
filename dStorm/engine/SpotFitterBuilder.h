@@ -21,11 +21,11 @@ public:
     void set_requirements( input::Traits<engine::ImageStack>& t ) 
         { config.set_requirements(t); }
     void register_trait_changing_nodes( simparm::Listener& ) {}
-    void attach_ui( simparm::Node& to ) { 
+    void attach_ui( simparm::NodeHandle to ) { 
         config.attach_ui(name_object); 
         name_object.attach_ui( to );
     }
-    void detach_ui( simparm::Node& to ) { config.detach_ui(to); }
+    void detach_ui( simparm::NodeHandle to ) { config.detach_ui(to); }
     std::string getName() const { return config.getName(); }
 };
 

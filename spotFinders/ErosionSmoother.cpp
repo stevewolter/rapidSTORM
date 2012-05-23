@@ -11,7 +11,7 @@ namespace erosion_smoother {
 
 struct Config {
     simparm::Entry< quantity<camera::length,int> > mask_size;
-    void attach_ui( simparm::Node& at ) { mask_size.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { mask_size.attach_ui( at ); }
     static std::string get_name() { return "Erosion"; }
     static std::string get_description() { return "Erode image"; }
     Config() 

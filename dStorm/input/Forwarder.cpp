@@ -21,7 +21,7 @@ Forwarder::~Forwarder() {
 }
 
 
-void Forwarder::registerNamedEntries(simparm::Node& n) {
+void Forwarder::registerNamedEntries(simparm::NodeHandle n) {
     if ( more_specialized.get() ) 
         more_specialized->registerNamedEntries(n);
 }

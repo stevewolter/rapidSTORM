@@ -11,7 +11,6 @@
 #include <simparm/Entry.hh>
 #include <simparm/Message.hh>
 #include <simparm/Object.hh>
-#include <simparm/NodeHandle.hh>
 
 using namespace dStorm::engine;
 
@@ -22,7 +21,7 @@ struct Config : public simparm::Object
 {
     simparm::BoolEntry enable;
     Config();
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         enable.attach_ui( simparm::Object::attach_ui( at ) );
     }
 };
@@ -49,7 +48,7 @@ class Source
 {
     simparm::NodeHandle current_ui;
     int confidence_limit, binning;
-    void attach_local_ui_( simparm::Node& n ) { current_ui = n; }
+    void attach_local_ui_( simparm::NodeHandle n ) { current_ui = n; }
 
   public:
     Source(std::auto_ptr< input::Source<engine::ImageStack> > base);
@@ -74,7 +73,7 @@ class ChainLink
 
     Config config;
   public:
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
     static std::string getName() { return "BackgroundEstimator"; }
 };
 

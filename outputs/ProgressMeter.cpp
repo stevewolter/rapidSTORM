@@ -2,7 +2,6 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <simparm/ProgressEntry.hh>
-#include <simparm/NodeHandle.hh>
 
 #include "ProgressMeter.h"
 
@@ -19,7 +18,7 @@ class ProgressMeter : public Output
     frame_count max;
     frame_count first;
     boost::optional<frame_count> length;
-    void attach_ui_( simparm::Node& at ) {
+    void attach_ui_( simparm::NodeHandle at ) {
         current_ui = progress.attach_ui(at);
     }
 
@@ -45,7 +44,7 @@ class ProgressMeter::Config
 { 
   public:
     bool can_work_with(Capabilities) { return true; }
-    void attach_ui( simparm::Node& ) {}
+    void attach_ui( simparm::NodeHandle ) {}
     static std::string get_name() { return "Progress"; }
     static std::string get_description() { return "Display progress"; }
 };

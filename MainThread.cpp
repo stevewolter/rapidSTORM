@@ -7,7 +7,7 @@ namespace dStorm {
 
 MainThread::MainThread() 
 : job_count(0),
-  io(*this),
+  io( new InputStream(*this) ),
   input_read_lock(mutex)
 {
     input_read_lock.unlock();
@@ -31,7 +31,7 @@ std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
 
 void MainThread::unregister_node( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    job.detach_ui( io );
+    job.detach_ui( io->get_handle() );
     active_jobs.erase( &job );
     if ( active_jobs.empty() )
         terminated_all_threads.notify_all();
@@ -46,9 +46,9 @@ void MainThread::erase( Job& job ) {
 
 void MainThread::connect_stdio( const job::Config& config ) {
     boost::mutex::scoped_lock lock( mutex );
-    io.set_input_stream( &std::cin );
-    io.set_output_stream( &std::cout );
-    io.set_config( config );
+    io->set_input_stream( &std::cin );
+    io->set_output_stream( &std::cout );
+    io->set_config( config );
     ++job_count;
     input_acquirer = boost::thread( &MainThread::read_input, this );
 }
@@ -64,7 +64,7 @@ void MainThread::terminate_running_jobs() {
 
 void MainThread::read_input() {
     std::cout << "# rapidSTORM waiting for commands" << std::endl;
-    while ( ! io.received_quit_command() ) {
+    while ( ! io->received_quit_command() ) {
         int peek = std::cin.peek();
         if ( isspace( peek ) ) {
             std::cin.get();
@@ -74,7 +74,7 @@ void MainThread::read_input() {
         }
         input_read_lock.lock();
         try {
-            io.processCommand( std::cin );
+            io->processCommand( std::cin );
         } catch (const std::bad_alloc& e) {
             std::cerr << "Could not perform action: "
                       << "Out of memory" << std::endl;

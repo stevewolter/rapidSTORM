@@ -38,7 +38,7 @@ class Configuration {
         outputFile.helpID = "#SigmaCurve_ToFile";
         step_number.helpID = "#SigmaCurve_StepNumber";
     }
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
         step_number.attach_ui( at );
     }

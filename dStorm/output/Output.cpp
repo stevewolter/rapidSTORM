@@ -3,7 +3,7 @@
 namespace dStorm {
 namespace output {
 
-void Output::attach_ui( simparm::Node& at ) {
+void Output::attach_ui( simparm::NodeHandle at ) {
     attach_ui_(at);
 }
 

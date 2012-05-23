@@ -40,7 +40,7 @@ class SigmaDiff3D::Config {
     {
         calibration_file.helpID = "SigmaDiff3D_CalibrationFile";
     }
-    void attach_ui( simparm::Node& at ) { calibration_file.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }

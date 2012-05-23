@@ -30,26 +30,30 @@ Object::Object(const Object& o)
 Object::~Object() { 
 }
 
-NodeRef Object::attach_ui( simparm::Node& node ) {
-    NodeRef r = create_hidden_node( node );
-    r.show();
-    return r;
+NodeHandle Object::attach_ui( simparm::NodeHandle node ) {
+    if ( node ) {
+        NodeHandle r = create_hidden_node( node );
+        r->show();
+        return r;
+    } else {
+        return node;
+    }
 }
 
-void Object::detach_ui( simparm::Node& node ) {
+void Object::detach_ui( simparm::NodeHandle node ) {
     node_.reset();
 }
 
-NodeRef Object::create_hidden_node( simparm::Node& node ) { 
+NodeHandle Object::create_hidden_node( simparm::NodeHandle node ) { 
     node_ = make_naked_node( node );
     node_->add_attribute(desc);
     node_->add_attribute(viewable);
     node_->add_attribute(userLevel);
-    return *node_;
+    return node_;
 }
 
-std::auto_ptr<Node> Object::make_naked_node( simparm::Node& node ) {
-    return node.create_object( name );
+NodeHandle Object::make_naked_node( simparm::NodeHandle node ) {
+    return node->create_object( name );
 }
 
 std::string Object::getName() const { return name; }

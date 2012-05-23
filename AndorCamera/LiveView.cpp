@@ -25,7 +25,7 @@ LiveView::LiveView(
     DEBUG("LiveView constructed");
 }
 
-void LiveView::attach_ui( simparm::Node& at ) {
+void LiveView::attach_ui( simparm::NodeHandle at ) {
     show_live.attach_ui( at );
 }
 

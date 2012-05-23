@@ -85,9 +85,9 @@ struct Attributes< boost::units::quantity<Unit,Value>, Field, void >
           short_unit( "unit_symbol", symbol_string(Unit()) ) {}
     Attributes( const Attributes& a, Attribute<Field>& e ) 
         : Base(a, e), long_unit(a.long_unit), short_unit(a.short_unit) {}
-    void registerNamedEntries( simparm::Node& n ) {
-        n.add_attribute( long_unit );
-        n.add_attribute( short_unit );
+    void registerNamedEntries( simparm::NodeHandle n ) {
+        n->add_attribute( long_unit );
+        n->add_attribute( short_unit );
         Base::registerNamedEntries(n);
     }
   private:

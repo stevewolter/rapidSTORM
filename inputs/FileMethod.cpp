@@ -9,6 +9,7 @@
 #include <dStorm/input/Forwarder.h>
 #include <simparm/FileEntry.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
 #include <simparm/Set.hh>
 
 #include "FileMethod.h"
@@ -29,8 +30,8 @@ class FileMethod
     virtual void traits_changed( TraitsRef, Link* );
 
     FileMethod* clone() const { return new FileMethod(*this); }
-    void registerNamedEntries( simparm::Node& node ) { 
-        simparm::NodeRef r = name_object.attach_ui( node );
+    void registerNamedEntries( simparm::NodeHandle node ) { 
+        simparm::NodeHandle r = name_object.attach_ui( node );
         input_file.attach_ui(r);
         Forwarder::registerNamedEntries(r);
 
@@ -143,7 +144,7 @@ namespace input {
 namespace file_method {
 
 void unit_test( TestState& t ) {
-    simparm::IO io(NULL,NULL);
+    boost::shared_ptr<simparm::IO> io( new simparm::IO(NULL,NULL) );
     FileMethod file_method;
     file_method.registerNamedEntries(io);
 

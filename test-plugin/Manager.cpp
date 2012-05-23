@@ -106,8 +106,8 @@ class Manager
         void operator()( Disassociation&, Manager& m );
 
         std::string getName() const { return removal_choice.getName(); }
-        void attach_ui( simparm::Node& at ) { removal_choice.attach_ui(at); }
-        void detach_ui( simparm::Node& at ) { removal_choice.detach_ui(at); }
+        void attach_ui( simparm::NodeHandle at ) { removal_choice.attach_ui(at); }
+        void detach_ui( simparm::NodeHandle at ) { removal_choice.detach_ui(at); }
     };
     typedef std::map<int, boost::shared_ptr<Source> > Sources;
     Sources sources;
@@ -132,7 +132,7 @@ class Manager
     Manager(const Manager&);
     ~Manager();
 
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 
     void stop() {}
     void request_action( boost::shared_ptr<Source>& on, const Request& request );
@@ -170,7 +170,7 @@ class Manager::ControlConfig
         which_window.set_auto_selection( false );
     }
 
-    void attach_ui( simparm::Node& at ); 
+    void attach_ui( simparm::NodeHandle at ); 
 
     boost::shared_ptr<Source> look_up_window() {
         boost::shared_ptr<Source> src;
@@ -232,14 +232,14 @@ class Manager::ControlConfig::GUINode : public simparm::text_stream::Node {
     ControlConfig& c;
     void processCommand( const std::string&, std::istream& );
 public:
-    GUINode( ControlConfig& c, simparm::NodeRef parent ) 
+    GUINode( ControlConfig& c, simparm::NodeHandle parent ) 
     : simparm::text_stream::Node("PixelQuery", "Object"), c(c) {
-        simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(&parent);
+        simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(parent.get());
         if ( p ) set_parent( *p );
     }
 };
 
-void Manager::ControlConfig::attach_ui( simparm::Node& at ) {
+void Manager::ControlConfig::attach_ui( simparm::NodeHandle at ) {
     listening[0] = close.value.notify_on_value_change( 
         boost::bind( &Manager::ControlConfig::close_window, this ) );
     listening[1] = set_lower_limit.value.notify_on_value_change( 
@@ -249,7 +249,7 @@ void Manager::ControlConfig::attach_ui( simparm::Node& at ) {
     listening[3] = draw_rectangle.value.notify_on_value_change(
         boost::bind( &Manager::ControlConfig::notice_drawn_rectangle, this ) );
 
-    simparm::NodeRef r = simparm::Object::attach_ui( at );
+    simparm::NodeHandle r = simparm::Object::attach_ui( at );
     which_window.attach_ui( r );
     close.attach_ui( r );
     which_key.attach_ui( r );
@@ -530,7 +530,7 @@ void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
     DEBUG("Saved store request");
 }
 
-void Manager::attach_ui( simparm::Node& at )
+void Manager::attach_ui( simparm::NodeHandle at )
 {
     control_config->attach_ui( at );
 }

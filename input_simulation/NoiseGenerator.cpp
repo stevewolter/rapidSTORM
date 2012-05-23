@@ -67,8 +67,8 @@ NoiseGeneratorConfig::NoiseGeneratorConfig()
 {
 }
 
-void NoiseGeneratorConfig::attach_ui( simparm::Node& at ) {
-    simparm::NodeRef m = name_object.attach_ui(at);
+void NoiseGeneratorConfig::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle m = name_object.attach_ui(at);
     ups_G.attach_ui(m);
     ups_mu.attach_ui(m);
     ups_sigma.attach_ui(m);

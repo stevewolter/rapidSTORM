@@ -13,8 +13,8 @@ class FileEntry : public StringEntry {
     std::ostream* out_stream;
     std::istream* in_stream;
 
-    NodeRef create_hidden_node( Node& );
-    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    NodeHandle create_hidden_node( NodeHandle );
+    NodeHandle make_naked_node( NodeHandle );
 
   public:
    FileEntry(const FileEntry &entry);

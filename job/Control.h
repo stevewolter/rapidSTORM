@@ -34,7 +34,7 @@ class Control
 
 public:
     Control( bool auto_terminate );
-    void registerNamedEntries( simparm::Node& );
+    void registerNamedEntries( simparm::NodeHandle );
     void set_current_run( boost::shared_ptr<Run> );
     void wait_until_termination_is_allowed();
     void stop();

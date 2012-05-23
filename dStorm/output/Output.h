@@ -58,7 +58,7 @@ protected:
     virtual void store_results_(bool) {}
     virtual void prepare_destruction_() {}
     virtual void run_finished_(const RunFinished&) {}
-    virtual void attach_ui_( simparm::Node& ) {}
+    virtual void attach_ui_( simparm::NodeHandle ) {}
 
 public:
     virtual ~Output() {}
@@ -66,7 +66,7 @@ public:
     virtual void check_for_duplicate_filenames
         (std::set<std::string>& present_filenames) {}
 
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 
     /** This method is called before the rapidSTORM engine is run. It's
         *  parameters are the width and the height of a source image and the

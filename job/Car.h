@@ -9,7 +9,6 @@
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
 #include <simparm/TriggerEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/fwd.h>
 #include <dStorm/JobMaster.h>
@@ -74,8 +73,8 @@ namespace job {
         bool needs_stopping() { return true; }
         DSTORM_REALIGN_STACK void run( JobMaster* ) ;
 
-        void attach_ui( simparm::Node& ) ;
-        void detach_ui( simparm::Node& ) ;
+        void attach_ui( simparm::NodeHandle ) ;
+        void detach_ui( simparm::NodeHandle ) ;
 
     };
 }

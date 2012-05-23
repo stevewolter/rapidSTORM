@@ -119,7 +119,7 @@ void SimpleFilters::set_manager(config::ExpressionManager* m) {
     publish_tki();
 }
 
-void SimpleFilters::attach_ui(simparm::Node& at) {
+void SimpleFilters::attach_ui(simparm::NodeHandle at) {
     listening[0] = lower_amplitude.value.notify_on_value_change( 
         boost::bind( &SimpleFilters::publish_amp, this ) );
     listening[1] = drift_correction.value.notify_on_value_change( 

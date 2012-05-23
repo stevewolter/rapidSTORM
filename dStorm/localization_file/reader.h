@@ -60,7 +60,7 @@ namespace Reader {
         std::auto_ptr<output::TraceReducer> reducer;
 
         void dispatch(Messages m) { assert( ! m.any() ); }
-        void attach_ui_(simparm::Node& ) {}
+        void attach_ui_(simparm::NodeHandle ) {}
 
       public:
         Source(const File& file, std::auto_ptr<output::TraceReducer>);
@@ -77,7 +77,7 @@ namespace Reader {
         output::TraceReducer::Config trace_reducer;
     public:
         Config();
-        void attach_ui( simparm::Node& at ) { 
+        void attach_ui( simparm::NodeHandle at ) { 
             trace_reducer.attach_ui( name_object.attach_ui( at ) );
         }
         std::auto_ptr<output::TraceReducer> make_trace_reducer()
@@ -91,7 +91,7 @@ namespace Reader {
         friend class input::FileInput<ChainLink,File>;
         File* make_file( const std::string& ) const;
         void modify_meta_info( input::MetaInfo& info );
-        void attach_ui( simparm::Node& n ) { config.attach_ui(n); }
+        void attach_ui( simparm::NodeHandle n ) { config.attach_ui(n); }
         static std::string getName() { return "STM"; }
 
       public:

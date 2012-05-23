@@ -20,7 +20,7 @@ struct SimpleFilters
     SimpleFilters(const SimpleFilters&);
     void set_manager( config::ExpressionManager * manager );
     void set_visibility( const input::Traits<Localization>& );
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 
     typedef boost::units::divide_typeof_helper< 
         boost::units::power10< boost::units::si::length, -12 >::type,

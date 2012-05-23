@@ -1,7 +1,6 @@
 #include <dStorm/output/Output.h>
 #include <simparm/Entry.hh>
 #include <simparm/FileEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -30,7 +29,7 @@ private:
         update = count;
         if ( success && ! (current_ui && current_ui->isActive()) ) std::cout << count << "\n"; 
     }
-    void attach_ui_( simparm::Node& at ) {
+    void attach_ui_( simparm::NodeHandle at ) {
         current_ui = update.attach_ui( at );
     }
 
@@ -40,7 +39,7 @@ public:
 
         Config(); 
         bool can_work_with(Capabilities) { return true; }
-        void attach_ui( simparm::Node& at ) { output_file.attach_ui( at ); }
+        void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); }
         static std::string get_name() { return "Count"; }
         static std::string get_description() { return "Count localizations"; }
     };

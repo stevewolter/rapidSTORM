@@ -43,7 +43,7 @@ public:
     Config();
     ~Config();
 
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     void backend_needs_changing( simparm::BaseAttribute::Listener );
     static bool can_work_with(output::Capabilities) { return true; }
 

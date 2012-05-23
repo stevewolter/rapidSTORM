@@ -26,22 +26,22 @@ using namespace boost::units;
 
 namespace input_simulation {
 
-void FluorophoreSetConfig::attach_ui( simparm::Node& at ) {
+void FluorophoreSetConfig::attach_ui( simparm::NodeHandle at ) {
     simparm::NodeHandle h = name_object.attach_ui( at );
-    fluorophoreConfig.attach_ui( *h );
-    distribution.attach_ui( *h );
-    store.attach_ui( *h );
-    recall.attach_ui( *h );
-    fluorophore_index.attach_ui( *h );
+    fluorophoreConfig.attach_ui( h );
+    distribution.attach_ui( h );
+    store.attach_ui( h );
+    recall.attach_ui( h );
+    fluorophore_index.attach_ui( h );
 }
 
-void NoiseConfig::registerNamedEntries( simparm::Node& n ) {
+void NoiseConfig::registerNamedEntries( simparm::NodeHandle n ) {
     listening[0] = newSet.value.notify_on_value_change( 
         boost::bind( &NoiseConfig::create_fluorophore_set, this ) );
     listening[1] = newSet.value.notify_on_value_change( 
         boost::bind( &NoiseConfig::notice_layer_count, this ) );
 
-    simparm::NodeRef r = name_object.attach_ui( n );
+    simparm::NodeHandle r = name_object.attach_ui( n );
     noiseGeneratorConfig.attach_ui( r );
     layer_count.attach_ui( r );
     optics.attach_ui( r );
@@ -53,7 +53,7 @@ void NoiseConfig::registerNamedEntries( simparm::Node& n ) {
 
     current_ui = r;
     for ( FluoSets::iterator i = fluorophore_sets.begin(); i != fluorophore_sets.end(); ++i )
-        i->attach_ui( *current_ui );
+        i->attach_ui( current_ui );
 }
 
 #define NAME "Generated"
@@ -133,7 +133,7 @@ void NoiseConfig::create_fluo_set()
 void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
 {
     if ( current_ui )
-        s->attach_ui( *current_ui );
+        s->attach_ui( current_ui );
     fluorophore_sets.push_back( s );
 }
 
@@ -289,8 +289,8 @@ NoiseSource::end() {
 NoiseSource::Source::TraitsPtr
 NoiseSource::get_traits( typename Source::Wishes ) {
     simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
-    simparm::NodeRef ui = progress.attach_ui( *current_ui );
-    if ( ! ui.isActive() ) progress.makeASCIIBar( std::cerr );
+    simparm::NodeHandle ui = progress.attach_ui( current_ui );
+    if ( ! (ui && ui->isActive()) ) progress.makeASCIIBar( std::cerr );
     for ( boost::ptr_list< FluorophoreSetConfig >::const_iterator
             i = fluorophore_configs.begin(); i != fluorophore_configs.end(); ++i)
     {

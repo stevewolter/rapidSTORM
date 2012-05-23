@@ -26,7 +26,7 @@ class Config : public FormCalibrationConfig, public ZTruthConfig {
     simparm::Entry< quantity<si::microlength> > missing_penalty_;
 public:
     Config();
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
     bool can_work_with(output::Capabilities cap) 
         { return cap.test( output::Capabilities::SourceImage ); }
     static std::string get_name() { return "Calibrate3D"; }

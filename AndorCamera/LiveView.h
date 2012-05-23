@@ -50,7 +50,7 @@ class LiveView :
         Resolution resolution );
     ~LiveView();
     void show( const CamImage& image );
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 }

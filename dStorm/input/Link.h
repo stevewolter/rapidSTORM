@@ -8,7 +8,7 @@
 #include <list>
 #include <utility>
 #include <memory>
-#include <simparm/Node_decl.hh>
+#include <simparm/Node.hh>
 #include <dStorm/InsertionPlace.h>
 #include <boost/ptr_container/clone_allocator.hpp>
 #include <boost/signals2/slot.hpp>
@@ -42,7 +42,7 @@ class Link {
 
     std::auto_ptr<BaseSource> make_source();
     virtual Link* clone() const = 0;
-    virtual void registerNamedEntries( simparm::Node& ) = 0;
+    virtual void registerNamedEntries( simparm::NodeHandle ) = 0;
 
     virtual void publish_meta_info() = 0;
     TraitsRef current_meta_info() const { return meta_info; }

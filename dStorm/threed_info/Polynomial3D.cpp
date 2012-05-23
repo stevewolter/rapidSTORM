@@ -93,8 +93,8 @@ class Polynomial3DConfig : public Config {
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const;
     void read_traits( const DepthInfo&, const DepthInfo& );
     void set_context() { }
-    void attach_ui( simparm::Node& to ) { 
-        simparm::NodeRef r = attach_parent(to);
+    void attach_ui( simparm::NodeHandle to ) { 
+        simparm::NodeHandle r = attach_parent(to);
         psf_size.attach_ui( r );
         z_position.attach_ui( r );
         slopes.attach_ui( r ); 

@@ -106,7 +106,7 @@ public:
 class Output::Config  {
 public:
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     static std::string get_name() { return "EmissionTracker"; }
     static std::string get_description() { return "Track emissions"; }
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
@@ -186,7 +186,7 @@ Output::Config::Config()
     mobility.helpID = "EmissionTracker.Mobility_Constant";
 }
 
-void Output::Config::attach_ui( simparm::Node& at )
+void Output::Config::attach_ui( simparm::NodeHandle at )
 {
     distance_threshold.attach_ui( at );
     allowBlinking.attach_ui( at );

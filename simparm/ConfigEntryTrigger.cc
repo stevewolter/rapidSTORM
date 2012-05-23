@@ -13,8 +13,8 @@ TriggerEntry::TriggerEntry(string name, string desc)
 {
 }
 
-std::auto_ptr<Node> TriggerEntry::make_naked_node( simparm::Node& node ) {
-    return node.create_trigger( getName(), getDesc() );
+NodeHandle TriggerEntry::make_naked_node( simparm::NodeHandle node ) {
+    return node->create_trigger( getName(), getDesc() );
 }
 
 

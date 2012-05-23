@@ -42,7 +42,7 @@ class LinearAlignment::Config {
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }
-    void attach_ui( simparm::Node& at ) { calibration_file.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
 };
 
 LinearAlignment::LinearAlignment( const Config& c, std::auto_ptr< Output > sub )

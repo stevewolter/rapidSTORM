@@ -17,7 +17,6 @@
 #include <dStorm/input/Method.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/NodeHandle.hh>
 
 namespace dStorm {
 namespace input {
@@ -33,7 +32,7 @@ class Config
 
   public:
     Config();
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
     void set_traits( DataSetTraits& ) const;
 };
 
@@ -43,7 +42,7 @@ class Input
 {
     Config config;
     void modify_traits( input::Traits<ForwardedType>& t ) { config.set_traits(t); }
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Input(
@@ -80,7 +79,7 @@ class ChainLink
 
   public:
     static std::string getName() { return "SampleInfo"; }
-    void attach_ui( simparm::Node& at ) { 
+    void attach_ui( simparm::NodeHandle at ) { 
         listening = config.fluorophore_count.value.notify_on_value_change( 
             boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
         config.attach_ui( at ); 
@@ -104,8 +103,8 @@ Config::Config()
     fluorophore_count.viewable = false;
 }
 
-void Config::attach_ui( simparm::Node& at ) {
-    simparm::NodeRef r = name_object.attach_ui( at );
+void Config::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle r = name_object.attach_ui( at );
     fluorophore_count.attach_ui( r );
 }
 

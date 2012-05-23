@@ -18,7 +18,7 @@ int main() {
     meters = 5 * boost::units::si::metre;
     TestState().testrun( meters() == 5 * boost::units::si::metre, "Assignment of constant to unit entry works" );
 
-    simparm::IO io(&std::cin, &std::cout);
+    boost::shared_ptr<simparm::IO> io( new simparm::IO(&std::cin, &std::cout) );
     meters.attach_ui( io );
     return 0;
 }

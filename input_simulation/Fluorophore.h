@@ -38,7 +38,7 @@ class FluorophoreConfig {
     simparm::Entry<double> photonEmittanceRate;
     simparm::Entry<double> numerical_aperture, refractive_index;
     dStorm::FloatNanometreEntry wavelength;
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 class Fluorophore {

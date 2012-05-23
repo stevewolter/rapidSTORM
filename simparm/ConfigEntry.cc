@@ -49,13 +49,13 @@ BasicEntry::BasicEntry(const BasicEntry& from)
 {
 }
 
-NodeRef BasicEntry::create_hidden_node( simparm::Node& node ) {
-    NodeRef r = Object::create_hidden_node( node );
-    r.add_attribute(help);
-    r.add_attribute(invalid);
-    r.add_attribute(editable);
-    r.add_attribute(outputOnChange);
-    r.add_attribute(helpID);
+NodeHandle BasicEntry::create_hidden_node( simparm::NodeHandle node ) {
+    NodeHandle r = Object::create_hidden_node( node );
+    r->add_attribute(help);
+    r->add_attribute(invalid);
+    r->add_attribute(editable);
+    r->add_attribute(outputOnChange);
+    r->add_attribute(helpID);
     return r;
 }
 

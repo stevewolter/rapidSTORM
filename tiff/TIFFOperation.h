@@ -13,7 +13,7 @@ class TIFFOperation {
     static TIFFOperation* current;
 
     boost::lock_guard<boost::mutex> lock;
-    simparm::Node& message_handler;
+    simparm::NodeHandle message_handler;
     std::list<simparm::Message> errors;
     const std::string error_title;
 
@@ -27,7 +27,7 @@ class TIFFOperation {
   public:
     TIFFOperation( 
         std::string error_title,
-        simparm::Node& message_handler,
+        simparm::NodeHandle message_handler,
         bool suppress_warnings );
     void throw_exception_for_errors();
     ~TIFFOperation();

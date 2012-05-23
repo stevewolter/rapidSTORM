@@ -60,8 +60,8 @@ class OutputSource
 
     virtual std::string getName() const = 0;
     virtual std::string getDesc() const = 0;
-    virtual void attach_full_ui( simparm::Node& ) = 0;
-    virtual void attach_ui( simparm::Node& ) = 0;
+    virtual void attach_full_ui( simparm::NodeHandle ) = 0;
+    virtual void attach_ui( simparm::NodeHandle ) = 0;
 };
 
 }

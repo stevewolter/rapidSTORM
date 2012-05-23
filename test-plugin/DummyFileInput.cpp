@@ -50,7 +50,7 @@ class Config
     simparm::BoolEntry goIntType;
 
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 };
 
 class OpenFile 
@@ -99,7 +99,7 @@ class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::ImageStack>::iterator iterator;
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
-    void attach_ui_( simparm::Node& ) {}
+    void attach_ui_( simparm::NodeHandle ) {}
   public:
     Source(const Config&, boost::shared_ptr<OpenFile> of);
     ~Source();
@@ -124,7 +124,7 @@ class Method
     void modify_meta_info( dStorm::input::MetaInfo& info ) {
         info.suggested_output_basename.unformatted() = "testoutputfile";
     }
-    void attach_ui( simparm::Node& n ) { 
+    void attach_ui( simparm::NodeHandle n ) { 
         listening[0] = config.width.value.notify_on_value_change( 
             boost::bind( &Method::reread_file_locked, this ) );
         listening[1] = config.height.value.notify_on_value_change( 
@@ -201,8 +201,8 @@ Config::Config()
   goIntType("GoIntType", "Make input source of type int", false)
 {}
 
-void Config::attach_ui( simparm::Node& n) {
-    simparm::NodeRef at = name_object.attach_ui(n);
+void Config::attach_ui( simparm::NodeHandle n) {
+    simparm::NodeHandle at = name_object.attach_ui(n);
     width.attach_ui( at );
     height.attach_ui( at );
     number.attach_ui( at );

@@ -13,7 +13,7 @@ struct UnitDeclarator;
 template <typename Type>
 struct UnitDeclarator<Type, typename boost::enable_if< boost::is_fundamental<Type> >::type >
 {
-   void registerNamedEntries( simparm::Node& ) {}
+   void registerNamedEntries( simparm::NodeHandle ) {}
 };
 
 }

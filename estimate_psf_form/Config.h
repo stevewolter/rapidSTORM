@@ -36,7 +36,7 @@ struct Config : public calibrate_3d::FormCalibrationConfig
     simparm::Entry< FitWindowWidth > fit_window_width;
 
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 
     static std::string get_name() { return "FitPSFForm"; }
     static std::string get_description() { return "Estimate PSF form"; }

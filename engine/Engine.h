@@ -39,7 +39,7 @@ namespace engine {
         simparm::Entry<unsigned long> errors;
 
         class _iterator;
-        void attach_ui_( simparm::Node& );
+        void attach_ui_( simparm::NodeHandle );
         std::vector<float> make_plane_weight_vector() const;
 
       public:

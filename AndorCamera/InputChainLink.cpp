@@ -52,16 +52,16 @@ Method::Method(const Method &c)
 Method::~Method() {
 }
 
-void Method::registerNamedEntries( simparm::Node& at ) {
+void Method::registerNamedEntries( simparm::NodeHandle at ) {
     listening[0] = select_ROI.value.notify_on_value_change( 
         boost::bind( &Method::select_roi_triggered, this ) );
     listening[1] = view_ROI.value.notify_on_value_change( 
         boost::bind( &Method::view_roi_triggered, this ) );
 
     current_ui = name_object.attach_ui( at );
-    select_ROI.attach_ui( *current_ui );
-    view_ROI.attach_ui( *current_ui );
-    show_live_by_default.attach_ui( *current_ui );
+    select_ROI.attach_ui( current_ui );
+    view_ROI.attach_ui( current_ui );
+    show_live_by_default.attach_ui( current_ui );
 }
 
 void Method::basename_changed( const dStorm::output::Basename& bn ) {
@@ -114,8 +114,7 @@ void Method::set_display( std::auto_ptr< Display > d )
     if ( active_selector.get() ) {
         active_selector->resolution_changed( resolution );
         active_selector->basename_changed( basename );
-        if ( current_ui )
-            active_selector->attach_ui( *current_ui );
+        active_selector->attach_ui( current_ui );
     }
 
     select_ROI.viewable = (active_selector.get() == NULL);

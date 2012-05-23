@@ -19,7 +19,7 @@ std::auto_ptr<ZTruth> ZTruthConfig::get_z_truth() const {
         throw std::runtime_error("A Z calibration expression is necessary, but not given");
 }
 
-void ZTruthConfig::registerNamedEntries( simparm::Node& at ) {
+void ZTruthConfig::registerNamedEntries( simparm::NodeHandle at ) {
     new_z_.attach_ui( at );
     filter_.attach_ui( at );
 }

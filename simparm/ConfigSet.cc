@@ -52,14 +52,14 @@ Set::Set(std::string name, std::string desc)
 {
 }
 
-NodeRef Set::create_hidden_node( simparm::Node& node ) {
-    NodeRef r = Object::create_hidden_node( node );
-    r.add_attribute( showTabbed );
+NodeHandle Set::create_hidden_node( simparm::NodeHandle node ) {
+    NodeHandle r = Object::create_hidden_node( node );
+    r->add_attribute( showTabbed );
     return r;
 }
 
-std::auto_ptr<Node> Set::make_naked_node( simparm::Node& node ) {
-    return node.create_set( getName() );
+NodeHandle Set::make_naked_node( simparm::NodeHandle node ) {
+    return node->create_set( getName() );
 }
 
 #if 0
@@ -254,7 +254,7 @@ void collect_args(const Node &c, vector<Option>& options)
    }
 }
 
-int readConfig(simparm::Node& node, int argc, char *argv[]) {
+int readConfig(simparm::NodeHandle node, int argc, char *argv[]) {
     do {
         vector<Option> options;
         int flag = 0;

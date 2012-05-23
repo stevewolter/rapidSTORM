@@ -19,7 +19,7 @@ struct Config
     static const int maximum_plane_count = 9;
 
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     dStorm::FloatNanometreEntry theta_dist, negligible_x_step;
     simparm::Entry<double> marquardtStartLambda, maximumIterationSteps;
     simparm::BoolEntry free_sigmas, output_sigmas, laempi_fit, disjoint_amplitudes, two_kernel_fitting,

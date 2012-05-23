@@ -51,7 +51,7 @@ class BasicEntry : public Object {
     Attribute<string> helpID;
 
 protected:
-    NodeRef create_hidden_node( simparm::Node& );
+    NodeHandle create_hidden_node( simparm::NodeHandle );
 public:
     BasicEntry(string name, string desc = "");
     BasicEntry(const BasicEntry&);
@@ -78,7 +78,7 @@ struct Attributes<bool,ValueField,void> : private boost::noncopyable {
     Attributes( Attribute<ValueField>& ) {}
     Attributes( const Attributes&, Attribute<ValueField>& ) {}
     Attributes& operator=( const Attributes& ) { return *this; }
-    void registerNamedEntries( simparm::Node& ) {}
+    void registerNamedEntries( simparm::NodeHandle ) {}
 };
 
 template<typename ValueField>
@@ -86,7 +86,7 @@ struct Attributes<std::string,ValueField,void> : private boost::noncopyable {
     Attributes( Attribute<ValueField>& ) {}
     Attributes( const Attributes&, Attribute<ValueField>& ) {}
     Attributes& operator=( const Attributes& ) { return *this; }
-    void registerNamedEntries( simparm::Node& ) {}
+    void registerNamedEntries( simparm::NodeHandle ) {}
 };
 
 template <typename Type, typename ValueField>
@@ -106,7 +106,7 @@ struct Attributes<Type, ValueField, typename boost::enable_if< boost::is_fundame
         max = o.max();
         return *this;
     }
-    void registerNamedEntries( simparm::Node& );
+    void registerNamedEntries( simparm::NodeHandle );
 
  private:
     BoundWatcher< bound_type,ValueField,true> value_above_min;
@@ -121,9 +121,9 @@ class Entry
   public Attributes<TypeOfEntry>
 {
   protected:
-    NodeRef create_hidden_node( simparm::Node& );
-    std::auto_ptr<Node> make_naked_node( simparm::Node& node ) 
-        { return node.create_entry( getName(), getDesc(), typeName( TypeOfEntry() ) ); }
+    NodeHandle create_hidden_node( simparm::NodeHandle );
+    NodeHandle make_naked_node( simparm::NodeHandle node ) 
+        { return node->create_entry( getName(), getDesc(), typeName( TypeOfEntry() ) ); }
 
   public:
     typedef TypeOfEntry value_type;

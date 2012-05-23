@@ -30,7 +30,7 @@ namespace output {
 
         void addChoice(OutputSource *toAdd);
 
-        void attach_ui( simparm::Node& at );
+        void attach_ui( simparm::NodeHandle at );
         void notify_when_output_source_is_available( const Callback& );
     };
 

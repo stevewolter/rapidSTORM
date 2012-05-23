@@ -25,7 +25,7 @@ using namespace input;
 template <typename Ty> 
 class Source : public AdapterSource<Ty>
 {
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
   public:
     Source(std::auto_ptr< input::Source<Ty> >);
     ~Source();
@@ -244,7 +244,7 @@ class ChainLink
   public:
     ChainLink();
     static std::string getName() { return "Buffer"; }
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
 };
 
 ChainLink::ChainLink() 

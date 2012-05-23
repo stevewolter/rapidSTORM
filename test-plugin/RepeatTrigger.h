@@ -12,7 +12,7 @@ struct Repeat
     struct Config {
         static std::string get_name() { return "RepeatTrigger"; }
         static std::string get_description() { return "Repeat trigger"; }
-        void attach_ui( simparm::Node& ) {}
+        void attach_ui( simparm::NodeHandle ) {}
         bool can_work_with(const dStorm::output::Capabilities&)
             {return true;}
     };
@@ -20,7 +20,7 @@ struct Repeat
     simparm::TriggerEntry repeat;
     simparm::BaseAttribute::ConnectionStore listening;
 
-    void attach_ui_( simparm::Node& at ) { 
+    void attach_ui_( simparm::NodeHandle at ) { 
         listening = repeat.value.notify_on_value_change( 
             boost::bind( &Repeat::repeat_results, this ) );
         repeat.attach_ui( at ); 

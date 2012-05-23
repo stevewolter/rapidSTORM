@@ -5,11 +5,12 @@
 #include "../BaseAttribute.hh"
 #include <map>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace simparm {
 namespace text_stream {
 
-struct Node : public simparm::Node {
+struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> {
     std::string name, type;
 
     Node* parent;
@@ -36,18 +37,18 @@ protected:
     void undeclare();
 
     Node( std::string name, std::string type ) : name(name), type(type), parent(NULL), declared(false) {}
-    std::auto_ptr<simparm::Node> create_node( std::string name, std::string type );
+    simparm::NodeHandle create_node( std::string name, std::string type );
 
 public:
     ~Node();
 
-    std::auto_ptr<simparm::Node> create_object( std::string name );
-    std::auto_ptr<simparm::Node> create_entry( std::string name, std::string desc, std::string type );
-    std::auto_ptr<simparm::Node> create_set( std::string name );
-    std::auto_ptr<simparm::Node> create_choice( std::string name, std::string desc );
-    std::auto_ptr<simparm::Node> create_file_entry( std::string name, std::string desc );
-    std::auto_ptr<simparm::Node> create_progress_bar( std::string name, std::string desc );
-    std::auto_ptr<simparm::Node> create_trigger( std::string name, std::string desc );
+    simparm::NodeHandle create_object( std::string name );
+    simparm::NodeHandle create_entry( std::string name, std::string desc, std::string type );
+    simparm::NodeHandle create_set( std::string name );
+    simparm::NodeHandle create_choice( std::string name, std::string desc );
+    simparm::NodeHandle create_file_entry( std::string name, std::string desc );
+    simparm::NodeHandle create_progress_bar( std::string name, std::string desc );
+    simparm::NodeHandle create_trigger( std::string name, std::string desc );
     void add_attribute( simparm::BaseAttribute& );
     Message::Response send( Message& m );
     void show();
@@ -57,6 +58,7 @@ public:
 
     void processCommand( std::istream& );
     virtual void processCommand( const std::string&, std::istream& );
+    NodeHandle get_handle() { return shared_from_this(); }
 };
 
 }

@@ -16,7 +16,7 @@ class Config {
     simparm::StringEntry output;
 
     Config();
-    void attach_ui( simparm::Node& at ) { output.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { output.attach_ui( at ); }
 };
 
 class ChainLink 
@@ -34,7 +34,7 @@ class ChainLink
   public:
     ChainLink();
     ChainLink* clone() const { return new ChainLink(*this); }
-    void registerNamedEntries( simparm::Node& n ) {
+    void registerNamedEntries( simparm::NodeHandle n ) {
         Forwarder::registerNamedEntries(n);
         config.attach_ui( name_object.attach_ui( n ) );
 

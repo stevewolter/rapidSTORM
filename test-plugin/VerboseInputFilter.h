@@ -14,7 +14,7 @@ struct Config {
     simparm::BoolEntry verbose;
     Config() : name_object("VerboseInput", "Verbose input filter"), 
                verbose("BeVerbose", "Be verbose") {}
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         verbose.attach_ui( name_object.attach_ui( at ) );
     }
 };
@@ -37,7 +37,7 @@ class Source : public dStorm::input::AdapterSource<Type> {
                 ++this->base_reference();
             }
     };
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
   public:
     Source(const Config& c, std::auto_ptr< dStorm::input::Source<Type> > base) 
         : dStorm::input::AdapterSource<Type>(base), config(c) {}

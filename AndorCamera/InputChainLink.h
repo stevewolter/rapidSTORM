@@ -13,7 +13,6 @@
 #include <dStorm/output/Basename.h>
 #include <dStorm/image/MetaInfo.h>
 #include <boost/signals2/connection.hpp>
-#include <simparm/NodeHandle.hh>
 
 namespace dStorm {
 namespace AndorCamera {
@@ -57,7 +56,7 @@ class Method
     Method* clone() const { return new Method(*this); }
 
     dStorm::input::BaseSource* makeSource() ;
-    void registerNamedEntries( simparm::Node& n );
+    void registerNamedEntries( simparm::NodeHandle n );
     std::string name() const { return name_object.getName(); }
     std::string description() const { return name_object.getDesc(); }
     void publish_meta_info();

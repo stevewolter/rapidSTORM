@@ -8,7 +8,6 @@
 #include <simparm/FileEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/Set.hh>
-#include <simparm/NodeHandle.hh>
 #include <boost/optional.hpp>
 #include <map>
 #include "AndorDirect.h"
@@ -113,7 +112,7 @@ class Display : public display::DataSource
     void terminate();
     void resolution_changed( image::MetaInfo<2>::Resolutions );
     void basename_changed( const std::string& basename );
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 };
 
 }

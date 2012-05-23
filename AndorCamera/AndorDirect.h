@@ -32,7 +32,7 @@ struct CameraConnection;
         class iterator;
 
         simparm::StringEntry status;
-        void attach_ui_( simparm::Node& );
+        void attach_ui_( simparm::NodeHandle );
 
         void dispatch(Messages m) { assert( ! m.any() ); }
 

@@ -20,7 +20,7 @@ struct Config
     simparm::Object name_object;
     simparm::BoolEntry mirror_y;
     Config();
-    void attach_ui( simparm::Node& at ) { mirror_y.attach_ui( name_object.attach_ui(at) ); }
+    void attach_ui( simparm::NodeHandle at ) { mirror_y.attach_ui( name_object.attach_ui(at) ); }
 };
 
 template <typename Type>
@@ -34,7 +34,7 @@ class Source
     Range range;
     struct iterator;
     void modify_traits( input::Traits<Type>& );
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Source( std::auto_ptr< Base > base ) : input::AdapterSource<Type>(base) {}
@@ -63,7 +63,7 @@ class ChainLink
   public:
     ChainLink() {}
 
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
     static std::string getName() { return "Mirror"; }
 };
 

@@ -44,7 +44,7 @@ struct Config
     simparm::Object name_object;
     simparm::ManagedChoiceEntry<Split> biplane_split;
     Config();
-    void attach_ui(simparm::Node& at ) { biplane_split.attach_ui( name_object.attach_ui(at) ); }
+    void attach_ui(simparm::NodeHandle at ) { biplane_split.attach_ui( name_object.attach_ui(at) ); }
 };
 
 class Source 
@@ -55,7 +55,7 @@ class Source
     const bool vertical;
 
     void modify_traits( input::Traits<engine::ImageStack>& );
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
   public:
     Source(bool vertical, std::auto_ptr< input::Source<engine::ImageStack> > base);
 
@@ -69,7 +69,7 @@ struct NoSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return p.release(); }
     int split_dimension() const { return -1; }
-    void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
     NoSplit() : Split("None", "None") {}
 };
@@ -80,7 +80,7 @@ struct HorizontalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( false, p ); }
     int split_dimension() const { return 0; }
-    void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
     HorizontalSplit() : Split("Horizontally", "Left and right") {}
 };
@@ -91,7 +91,7 @@ struct VerticalSplit : public Split {
         ( std::auto_ptr< input::Source<engine::ImageStack> > p ) 
         { return new Source( true, p ); }
     int split_dimension() const { return 1; }
-    void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
     VerticalSplit() : Split("Vertically", "Top and bottom") {}
 };
@@ -118,7 +118,7 @@ class ChainLink
   public:
 
     static std::string getName() { return "BiplaneSplitter"; }
-    void attach_ui( simparm::Node& at ) { 
+    void attach_ui( simparm::NodeHandle at ) { 
         listening = config.biplane_split.value.notify_on_value_change( 
             boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
         config.attach_ui( at ); 

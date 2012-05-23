@@ -15,7 +15,7 @@ JobStarter::JobStarter(JobMaster* m )
     setUserLevel(simparm::Object::Beginner);
 }
 
-void JobStarter::attach_ui( simparm::Node& n ) {
+void JobStarter::attach_ui( simparm::NodeHandle n ) {
     simparm::TriggerEntry::attach_ui(n);
     listening = value.notify_on_value_change( boost::bind( &JobStarter::start_job, this ) );
 }

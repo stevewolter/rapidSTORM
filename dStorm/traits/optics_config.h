@@ -32,7 +32,7 @@ public:
     enum Purpose { InputSimulation, PSFDisplay, FitterConfiguration };
 private:
     simparm::Set name_object;
-    boost::optional< simparm::NodeRef > current_ui;
+    simparm::NodeHandle current_ui;
     const Purpose purpose;
 
     simparm::ManagedChoiceEntry< threed_info::Config > three_d;
@@ -55,7 +55,7 @@ public:
     PlaneConfig(int number, Purpose );
     PlaneConfig( const PlaneConfig& );
     ~PlaneConfig();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 
     void notify_on_any_change( boost::signals2::slot<void()> listener ) 
         { ui_element_changed.connect(listener); }
@@ -71,7 +71,7 @@ public:
 class MultiPlaneConfig
 {
     simparm::Set name_object;
-    boost::optional< simparm::NodeRef > current_ui;
+    simparm::NodeHandle current_ui;
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;
 
@@ -84,7 +84,7 @@ class MultiPlaneConfig
   public:
     MultiPlaneConfig(PlaneConfig::Purpose purpose);
     ~MultiPlaneConfig();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 
     void notify_on_any_change( boost::signals2::slot<void()> listener )
         { ui_element_listener.connect(listener); }

@@ -12,7 +12,7 @@ class Crankshaft
 : public output::Output,
   private boost::noncopyable 
 {
-    boost::optional< simparm::NodeRef > current_ui;
+    boost::optional< simparm::NodeHandle > current_ui;
     class Source;
 
     class Clutch;
@@ -25,7 +25,7 @@ class Crankshaft
     void prepare_destruction_();
     void store_results_( bool success );
     void run_finished_( const RunFinished& );
-    void attach_ui_( simparm::Node& at );
+    void attach_ui_( simparm::NodeHandle at );
 
   public:
     enum Type { Yield, State };

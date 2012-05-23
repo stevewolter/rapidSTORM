@@ -25,7 +25,7 @@ namespace estimate_psf_form {
      *  the mean. */
     class Output : public output::Output {
       protected:
-        boost::optional< simparm::Node& > current_ui;
+        simparm::NodeHandle current_ui;
         boost::mutex mutex;
         
         const estimate_psf_form::Config config;
@@ -43,7 +43,7 @@ namespace estimate_psf_form {
         simparm::ProgressEntry collection, fit;
 
         void do_the_fit();
-        void attach_ui_( simparm::Node& );
+        void attach_ui_( simparm::NodeHandle );
 
       public:
         Output(const Config&);

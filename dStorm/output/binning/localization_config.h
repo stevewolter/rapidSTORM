@@ -30,8 +30,8 @@ class LocalizationConfig : public FieldConfig
     dStorm::default_on_copy< boost::signals2::signal<void()> > change;
     simparm::BaseAttribute::ConnectionStore listening;
 
-    void attach_ui( simparm::Node& at ) {
-        simparm::NodeRef r = attach_parent(at);
+    void attach_ui( simparm::NodeHandle at ) {
+        simparm::NodeHandle r = attach_parent(at);
         if ( ! range.is_initialized() ) 
             resolution.attach_ui(r);
         listening = resolution.value.notify_on_value_change( change );

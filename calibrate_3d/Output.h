@@ -61,7 +61,7 @@ class Output : public output::Output {
     static double gsl_callback( const gsl_vector * x, void * params )
         { return static_cast<Output*>(params)->evaluate_function(x); }
 
-    void attach_ui_( simparm::Node& );
+    void attach_ui_( simparm::NodeHandle );
 
   public:
     Output(const Config &config);

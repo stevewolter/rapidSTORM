@@ -17,7 +17,7 @@ namespace gauss_smoother {
 struct Config {
     typedef Eigen::Matrix< quantity<camera::length>, 2, 1, Eigen::DontAlign > Sigmas;
     simparm::Entry< Sigmas > sigma;
-    void attach_ui( simparm::Node& at ) { sigma.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { sigma.attach_ui( at ); }
     Config() 
         : sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}
     static std::string get_name() { return "Gaussian"; }

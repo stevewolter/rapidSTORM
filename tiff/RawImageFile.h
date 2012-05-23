@@ -14,7 +14,7 @@ namespace dStorm {
 namespace output {
 class RawImageFile : public Output {
   private:
-    boost::optional< simparm::Node& > current_ui;
+    simparm::NodeHandle current_ui;
     static void error_handler( const char* module,
                                const char* fmt, va_list ap );
 
@@ -30,7 +30,7 @@ class RawImageFile : public Output {
     std::vector< image::MetaInfo<2> > size;
     boost::optional<frame_count> last_frame;
     void store_results_( bool );
-    void attach_ui_( simparm::Node& n ) { current_ui = n; }
+    void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
 
   public:
     class Config;
@@ -59,7 +59,7 @@ class RawImageFile::Config {
     bool can_work_with(Capabilities cap) { 
         return cap.test( Capabilities::SourceImage ); 
     }
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
     }
 };

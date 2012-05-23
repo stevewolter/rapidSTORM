@@ -16,7 +16,7 @@ BasenameAdjustedFileEntry:: BasenameAdjustedFileEntry
     default_extension = suffix;
 }
 
-void BasenameAdjustedFileEntry::attach_ui( simparm::Node& to )
+void BasenameAdjustedFileEntry::attach_ui( simparm::NodeHandle to )
 {
     simparm::FileEntry::attach_ui( to );
     listening = value.notify_on_value_change

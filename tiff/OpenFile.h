@@ -15,7 +15,6 @@
 #include <dStorm/image/MetaInfo.h>
 #include <dStorm/image/Image.h>
 #include <dStorm/engine/InputTraits.h>
-#include <simparm/NodeHandle.hh>
 
 namespace dStorm {
 class TIFFOperation;
@@ -28,12 +27,12 @@ struct Config {
     simparm::BoolEntry ignore_warnings, determine_length;
 
     Config();
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         current_ui = name_object.attach_ui( at );
-        ignore_warnings.attach_ui( *current_ui ); 
-        determine_length.attach_ui( *current_ui ); 
+        ignore_warnings.attach_ui( current_ui ); 
+        determine_length.attach_ui( current_ui ); 
     }
-    simparm::NodeRef current_user_interface() const { return *current_ui; }
+    simparm::NodeHandle current_user_interface() const { return current_ui; }
 };
 
 class OpenFile : boost::noncopyable {
@@ -58,7 +57,7 @@ private:
     void read_data_( Image&, TIFFOperation& ) const;
 
 public:
-    OpenFile(const std::string& filename, const Config&, simparm::Node&);
+    OpenFile(const std::string& filename, const Config&, simparm::NodeHandle);
     ~OpenFile();
 
     std::auto_ptr< input::Traits<engine::ImageStack> > 
@@ -68,9 +67,9 @@ public:
     std::auto_ptr< engine::ImageStack >
         load_image( int index );
 
-    void seek_to_image( simparm::Node& msg, int image );
-    bool next_image( simparm::Node& msg );
-    Image read_image( simparm::Node& msg ) const;
+    void seek_to_image( simparm::NodeHandle msg, int image );
+    bool next_image( simparm::NodeHandle msg );
+    Image read_image( simparm::NodeHandle msg ) const;
 };
 
 }

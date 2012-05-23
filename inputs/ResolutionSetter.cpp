@@ -45,7 +45,7 @@ class Source
     void modify_traits( input::Traits<OtherTypes>& t ) { 
         config.write_traits(t); 
     }
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Source(
@@ -61,7 +61,7 @@ class ChainLink
     friend class input::Method<ChainLink>;
 
     Config config;
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
     static std::string getName() { return "Optics"; }
 
     template <typename Type>
@@ -118,7 +118,7 @@ bool similar( const dStorm::traits::ImageResolution & a, const dStorm::traits::I
 struct DummyImageSource : public input::Source<engine::ImageStack>
 {
     DummyImageSource() {}
-    void attach_ui_( simparm::Node& ) {}
+    void attach_ui_( simparm::NodeHandle ) {}
     typedef Source<engine::ImageStack>::iterator iterator;
     void dispatch(Messages m) {}
     iterator begin() { return iterator(); }
@@ -142,7 +142,7 @@ struct MoreSpecialized : public dStorm::input::Link {
     virtual input::BaseSource* makeSource() { return new DummyImageSource(); }
     virtual Link* clone() const { return new MoreSpecialized(*this); }
     void insert_new_node( std::auto_ptr<dStorm::input::Link>, Place ) {}
-    void registerNamedEntries( simparm::Node& ) { }
+    void registerNamedEntries( simparm::NodeHandle ) { }
     std::string name() const { return node.getName(); }
     std::string description() const { return node.getDesc(); }
     void publish_meta_info() {}
@@ -184,10 +184,10 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        simparm::IO master(NULL,NULL);
+        boost::shared_ptr<simparm::IO> master( new simparm::IO(NULL,NULL) );
         l.config.attach_ui( master );
         std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
-        master.processCommand(cmd);
+        master->processCommand(cmd);
         l.config.write_traits( correct );
         DEBUG("Checking if config element change updates traits");
         if ( trait_resolution_close_to(correct.plane(0).image.image_resolutions(), l.current_meta_info()) )

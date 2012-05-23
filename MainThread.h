@@ -30,7 +30,7 @@ private:
     boost::condition main_thread_wakeup, terminated_all_threads;
     std::set<Job*> active_jobs;
     int job_count;
-    InputStream io;
+    boost::shared_ptr<InputStream> io;
     boost::thread input_acquirer;
     boost::mutex::scoped_lock input_read_lock;
 

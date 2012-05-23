@@ -24,7 +24,7 @@ class SourceFactory
     virtual ~SourceFactory() {}
 
     virtual SourceFactory* clone() const = 0;
-    virtual void attach_ui( simparm::Node& at ) = 0;
+    virtual void attach_ui( simparm::NodeHandle at ) = 0;
     virtual void set_source_capabilities(Capabilities) = 0;
     virtual std::auto_ptr<OutputSource> make_output_source() = 0;
     virtual void notify_when_output_source_is_available( const Callback& ) = 0;

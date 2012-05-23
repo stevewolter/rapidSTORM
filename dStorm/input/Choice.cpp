@@ -95,7 +95,7 @@ BaseSource* Choice::makeSource() {
 
 Choice* Choice::clone() const 
     { return new Choice(*this); }
-void Choice::registerNamedEntries( simparm::Node& node ) {
+void Choice::registerNamedEntries( simparm::NodeHandle node ) {
     value_change_listen = choices.value.notify_on_value_change( boost::bind( &Choice::publish_traits_locked, this ) );
     choices.attach_ui( node );
 }

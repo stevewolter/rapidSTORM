@@ -15,7 +15,7 @@ Status::Status(const Config& config)
 
 Status::~Status() {}
 
-void Status::attach_ui( simparm::Node& name )
+void Status::attach_ui( simparm::NodeHandle name )
 {
     config.attach_ui( name );
     save.attach_ui( name );

@@ -43,7 +43,7 @@ Output::Output(const Config& c)
     fit.userLevel = simparm::Object::Beginner;
 }
 
-void Output::attach_ui_( simparm::Node& at ) {
+void Output::attach_ui_( simparm::NodeHandle at ) {
     current_ui = at;
 
     collection.attach_ui( at );
@@ -192,11 +192,10 @@ void Output::do_the_fit() {
         ( new input::Traits< engine::ImageStack >(*input->traits) );
     fitter->fit(*new_traits, fit);
 
-    assert( current_ui );
     result_config.read_traits( *new_traits );
-    if ( ! current_ui->isActive() )
+    if ( ! (current_ui && current_ui->isActive()) )
         new_traits->print_psf_info( std::cerr << "Auto-guessed PSF has " ) << std::endl;
-    result_config.attach_ui( *current_ui );
+    result_config.attach_ui( current_ui );
 
     DEBUG("Signalling restart");
     engine->change_input_traits( std::auto_ptr< input::BaseTraits >(new_traits.release()) );

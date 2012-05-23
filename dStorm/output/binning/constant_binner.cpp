@@ -41,7 +41,7 @@ class ConstantFieldConfig : public FieldConfig {
     void set_visibility(const input::Traits<Localization>&, bool unscaled_suffices) {}
 
     void add_listener( simparm::BaseAttribute::Listener& ) {}
-    void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 public:
     ConstantFieldConfig() : FieldConfig("Constant", "Localization count") {}
 };

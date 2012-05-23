@@ -31,7 +31,7 @@ class Config {
     static std::string get_name() { return "Table"; }
     static std::string get_description() { return "Localizations file"; }
 
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );
         xyztI.attach_ui( at );
     }

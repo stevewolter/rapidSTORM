@@ -21,7 +21,7 @@ namespace noop_engine {
         std::auto_ptr<Input> input;
 
         class _iterator;
-        void attach_ui_( simparm::Node& n ) { input->attach_ui( n ); }
+        void attach_ui_( simparm::NodeHandle n ) { input->attach_ui( n ); }
 
       public:
         Engine(std::auto_ptr<Input> input);

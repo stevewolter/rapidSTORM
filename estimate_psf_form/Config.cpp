@@ -17,13 +17,13 @@ Config::Config()
 {
 }
 
-void Config::attach_ui( simparm::Node& at ) {
-    simparm::NodeRef m = multiplane.attach_ui( at );
+void Config::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle m = multiplane.attach_ui( at );
     laempi_fit.attach_ui( m );
     disjoint_amplitudes.attach_ui( m );
     FormCalibrationConfig::register_multiplane_entries( m );
 
-    simparm::NodeRef p = polynomial_3d.attach_ui( at );
+    simparm::NodeHandle p = polynomial_3d.attach_ui( at );
     z_is_truth.attach_ui( p );
     FormCalibrationConfig::register_polynomial3d_entries( p );
 

@@ -47,37 +47,37 @@ void Node::remove_child( Node& o ) {
     print("remove " + o.name);
 }
 
-std::auto_ptr<simparm::Node> Node::create_object( std::string name ) {
+simparm::NodeHandle Node::create_object( std::string name ) {
     return create_node( name, "Object" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_set( std::string name ) {
+simparm::NodeHandle Node::create_set( std::string name ) {
     return create_node( name, "Set" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_entry( std::string name, std::string desc, std::string type ) {
+simparm::NodeHandle Node::create_entry( std::string name, std::string desc, std::string type ) {
     return create_node( name, type + "Entry" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_choice( std::string name, std::string desc ) {
+simparm::NodeHandle Node::create_choice( std::string name, std::string desc ) {
     return create_node( name, "ChoiceEntry" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_node( std::string name, std::string type ) {
+simparm::NodeHandle Node::create_node( std::string name, std::string type ) {
     std::auto_ptr<Node> rv( new Node(name,type) );
     add_child( *rv );
-    return std::auto_ptr<simparm::Node>(rv.release());
+    return simparm::NodeHandle(rv.release());
 }
 
-std::auto_ptr<simparm::Node> Node::create_file_entry( std::string name, std::string ) {
+simparm::NodeHandle Node::create_file_entry( std::string name, std::string ) {
     return create_node( name, "FileEntry" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_progress_bar( std::string name, std::string ) {
+simparm::NodeHandle Node::create_progress_bar( std::string name, std::string ) {
     return create_node( name, "ProgressEntry" );
 }
 
-std::auto_ptr<simparm::Node> Node::create_trigger( std::string name, std::string ) {
+simparm::NodeHandle Node::create_trigger( std::string name, std::string ) {
     return create_node( name, "TriggerEntry" );
 }
 
@@ -88,7 +88,7 @@ void Node::add_attribute( simparm::BaseAttribute& a ) {
 }
 
 Message::Response Node::send( Message& m ) {
-    if ( parent ) return parent->send( m );
+    if ( parent ) return parent->send( m ); else return Message::OKYes;
 }
 
 void Node::print_attribute_value( const simparm::BaseAttribute& a ) {

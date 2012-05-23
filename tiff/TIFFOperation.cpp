@@ -10,7 +10,7 @@ TIFFOperation* TIFFOperation::current = NULL;
 
 TIFFOperation::TIFFOperation( 
     std::string error_title,
-    simparm::Node& message_handler, 
+    simparm::NodeHandle message_handler, 
     bool suppress_warnings
 ) : lock(mutex),
     message_handler(message_handler) ,
@@ -27,7 +27,7 @@ TIFFOperation::~TIFFOperation() {
     TIFFSetErrorHandler( old_error_handler );
     current = NULL;
     while ( ! errors.empty() ) {
-        message_handler.send( errors.front() );
+        message_handler->send( errors.front() );
         errors.pop_front();
     }
 }
@@ -40,7 +40,7 @@ void TIFFOperation::make_warning(
     vsnprintf( buffer, 4095, fmt, ap );
     simparm::Message m("Warning " + current->error_title,
         buffer, simparm::Message::Warning );
-    current->message_handler.send( m );
+    current->message_handler->send( m );
 }
 
 void TIFFOperation::make_error(

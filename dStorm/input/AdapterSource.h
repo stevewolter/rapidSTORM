@@ -12,8 +12,8 @@ class AdapterSource
 {
     std::auto_ptr< Source<Type> > _base;
     virtual void modify_traits( Traits<Type>& ) {}
-    virtual void attach_local_ui_( simparm::Node& n ) = 0;
-    void attach_ui_( simparm::Node& n ) {
+    virtual void attach_local_ui_( simparm::NodeHandle n ) = 0;
+    void attach_ui_( simparm::NodeHandle n ) {
         attach_local_ui_(n);
         _base->attach_ui( n );
     }

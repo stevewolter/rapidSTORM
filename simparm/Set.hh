@@ -30,8 +30,8 @@
 namespace simparm {
 class Set : public Object {
   protected:
-    NodeRef create_hidden_node( simparm::Node& node );
-    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    NodeHandle create_hidden_node( simparm::NodeHandle node );
+    NodeHandle make_naked_node( simparm::NodeHandle );
   public:
     Set(std::string name, std::string desc);
     Set* clone() const { return new Set(*this); }

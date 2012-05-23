@@ -47,7 +47,7 @@ Engine::Engine(
 
 }
 
-void Engine::attach_ui_( simparm::Node& n ) {
+void Engine::attach_ui_( simparm::NodeHandle n ) {
     input->attach_ui( n );
     errors.attach_ui( n );
 }

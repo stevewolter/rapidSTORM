@@ -56,7 +56,7 @@ Display::Display(
     image_acquirer = boost::thread( &Display::run, this );
 }
 
-void Display::attach_ui(simparm::Node& at) {
+void Display::attach_ui(simparm::NodeHandle at) {
     listening[0] = stopAim.value.notify_on_value_change( 
         boost::bind( &Display::do_stop, this ) );
     listening[1] = stopAim.value.notify_on_value_change( 
@@ -65,7 +65,7 @@ void Display::attach_ui(simparm::Node& at) {
         boost::bind( &Display::do_save, this ) );
 
     current_ui = name_object.attach_ui(at);
-    simparm::NodeRef r = *current_ui;
+    simparm::NodeHandle r = current_ui;
     status.attach_ui(r);
     stopAim.attach_ui(r);
     pause.attach_ui(r);

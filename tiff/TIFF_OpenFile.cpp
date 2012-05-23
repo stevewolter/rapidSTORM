@@ -19,7 +19,7 @@ namespace tiff {
 static ttag_t resolution_tags[2] = { TIFFTAG_XRESOLUTION, TIFFTAG_YRESOLUTION };
 static ttag_t size_tags[3] = { TIFFTAG_IMAGEWIDTH, TIFFTAG_IMAGELENGTH, TIFFTAG_IMAGEDEPTH };
 
-OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::Node& n)
+OpenFile::OpenFile(const std::string& filename, const Config& config, simparm::NodeHandle n)
 : ignore_warnings(config.ignore_warnings()), determine_length(config.determine_length()),
   file_ident(filename),
   current_directory(0),
@@ -67,7 +67,7 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
 {
     if ( determine_length && final ) {
         TIFFOperation op( "in reading image count from TIFF file",
-                        *n.get_user_interface_handle(), ignore_warnings );
+                        n.get_user_interface_handle(), ignore_warnings );
         DEBUG("Counting images in file");
         _no_images = 1;
         int last_output[2] = { 1, 1 };
@@ -124,7 +124,7 @@ std::auto_ptr<input::BaseTraits> OpenFile::getTraits()
     return std::auto_ptr<input::BaseTraits>( getTraits(false, unused).release() );
 }
 
-void OpenFile::seek_to_image( simparm::Node& msg, int directory) {
+void OpenFile::seek_to_image( simparm::NodeHandle msg, int directory) {
     TIFFOperation op( "in reading TIFF file",
                         msg, ignore_warnings );
     if ( current_directory != directory ) {
@@ -137,7 +137,7 @@ void OpenFile::seek_to_image( simparm::Node& msg, int directory) {
     }
 }
 
-bool OpenFile::next_image( simparm::Node& msg ) {
+bool OpenFile::next_image( simparm::NodeHandle msg ) {
     TIFFOperation op( "in reading TIFF file",
                         msg, ignore_warnings );
     if ( TIFFReadDirectory(tiff) != 1 ) {
@@ -179,7 +179,7 @@ void OpenFile::read_data_(Image& i, TIFFOperation& op ) const
     }
 }
 
-OpenFile::Image OpenFile::read_image( simparm::Node& msg ) const
+OpenFile::Image OpenFile::read_image( simparm::NodeHandle msg ) const
 {
     TIFFOperation op( "in reading TIFF file",
                         msg, ignore_warnings );

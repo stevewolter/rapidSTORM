@@ -20,7 +20,7 @@ struct ColoredConfig : public ColourScheme
     ColoredConfig* clone() const { return new ColoredConfig(*this); }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
     void add_listener( simparm::BaseAttribute::Listener );
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 ColoredConfig::ColoredConfig() 
@@ -52,11 +52,11 @@ ColoredConfig::ColoredConfig(const ColoredConfig& o)
 {
 }
 
-void ColoredConfig::attach_ui( simparm::Node& at ) {
+void ColoredConfig::attach_ui( simparm::NodeHandle at ) {
     listening[0] = hue.value.notify_on_value_change( change );
     listening[1] = saturation.value.notify_on_value_change( change );
 
-    simparm::NodeRef r = attach_parent(at);
+    simparm::NodeHandle r = attach_parent(at);
     hue.attach_ui(r);
     saturation.attach_ui(r);
 }

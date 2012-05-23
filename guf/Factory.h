@@ -31,8 +31,8 @@ struct Factory
     default_on_copy< boost::signals2::signal<void()> > traits_changed;
 
     std::string getName() const { return Config::getName(); }
-    void attach_ui( simparm::Node& to );
-    void detach_ui( simparm::Node& to ) { throw std::logic_error("Removing spot fitter choices is not supported"); }
+    void attach_ui( simparm::NodeHandle to );
+    void detach_ui( simparm::NodeHandle to ) { throw std::logic_error("Removing spot fitter choices is not supported"); }
 
     simparm::BaseAttribute::ConnectionStore listening[4];
 

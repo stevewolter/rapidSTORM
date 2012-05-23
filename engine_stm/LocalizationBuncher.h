@@ -61,7 +61,7 @@ class Source
     Canned canned;
     bool in_sequence;
 
-    void attach_ui_( simparm::Node& n ) { base->attach_ui(n); }
+    void attach_ui_( simparm::NodeHandle n ) { base->attach_ui(n); }
 
   public:
     std::auto_ptr<output::LocalizedImage> read( frame_index );

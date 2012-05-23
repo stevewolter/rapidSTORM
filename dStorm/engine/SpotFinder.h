@@ -70,8 +70,8 @@ class Job {
         virtual void set_requirements( InputTraits& ) {}
         virtual void set_traits( output::Traits&, const JobInfo& ) {}
         virtual void set_variables( output::Basename& ) const {}
-        virtual void attach_ui( simparm::Node& to ) = 0;
-        virtual void detach_ui( simparm::Node& to ) = 0;
+        virtual void attach_ui( simparm::NodeHandle to ) = 0;
+        virtual void detach_ui( simparm::NodeHandle to ) = 0;
         virtual std::string getName() const = 0;
     };
 

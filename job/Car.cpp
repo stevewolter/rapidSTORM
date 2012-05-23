@@ -127,9 +127,9 @@ void Car::run( JobMaster* input_stream ) {
 void Car::drive() {
   bool run_successful = false;
   try {
-    input->attach_ui( *current_ui );
-    output->attach_ui( *current_ui );
-    control.registerNamedEntries( *current_ui );
+    input->attach_ui( current_ui );
+    output->attach_ui( current_ui );
+    control.registerNamedEntries( current_ui );
 
     input::BaseSource::Wishes requirements;
     if ( piston_count > 1 )
@@ -256,11 +256,11 @@ void Car::stop() {
     control.stop();
 }
 
-void Car::attach_ui( simparm::Node& at ) {
+void Car::attach_ui( simparm::NodeHandle at ) {
     current_ui = runtime_config.attach_ui( at );
 }
 
-void Car::detach_ui( simparm::Node& from ) {
+void Car::detach_ui( simparm::NodeHandle from ) {
     current_ui.reset();
     runtime_config.detach_ui( from );
 }

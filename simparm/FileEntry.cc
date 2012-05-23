@@ -8,14 +8,14 @@
 
 namespace simparm {
 
-NodeRef FileEntry::create_hidden_node( Node& n ) {
-    NodeRef r = StringEntry::create_hidden_node(n);
-    r.add_attribute( default_extension );
+NodeHandle FileEntry::create_hidden_node( NodeHandle n ) {
+    NodeHandle r = StringEntry::create_hidden_node(n);
+    r->add_attribute( default_extension );
     return r;
 }
 
-std::auto_ptr<Node> FileEntry::make_naked_node( simparm::Node& node ) {
-    return node.create_file_entry( getName(), getDesc() );
+NodeHandle FileEntry::make_naked_node( simparm::NodeHandle node ) {
+    return node->create_file_entry( getName(), getDesc() );
 }
 
 

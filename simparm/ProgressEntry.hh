@@ -12,8 +12,8 @@ class ProgressEntry : public Entry<double> {
     class ASCII_Progress_Shower;
     std::auto_ptr<ASCII_Progress_Shower> display;
 
-    NodeRef create_hidden_node( Node& );
-    std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    NodeHandle create_hidden_node( NodeHandle );
+    NodeHandle make_naked_node( NodeHandle );
 
   public:
     virtual ~ProgressEntry();

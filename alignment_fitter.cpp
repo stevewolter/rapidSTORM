@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
     simparm::Entry<long> image_count("ImageCount", "Number of images to use", 100);
     simparm::TriggerEntry compute("Compute", "Compute"), twiddler("Twiddler", "Twiddler");
 
-    simparm::IO io(NULL, &std::cout);
+    boost::shared_ptr<simparm::IO> io( new simparm::IO(NULL, &std::cout) );
     simparm::Set config("Config", "Matrix generator");
-    simparm::NodeRef r = config.attach_ui( io );
+    simparm::NodeHandle r = config.attach_ui( io );
     file1.attach_ui( r );
     file2.attach_ui( r );
     output.attach_ui( r );
@@ -85,8 +85,8 @@ int main(int argc, char *argv[]) {
 
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
 
-    while (twiddler.triggered() && std::cin && !io.received_quit_command()) {
-      io.processCommand(std::cin);
+    while (twiddler.triggered() && std::cin && !io->received_quit_command()) {
+      io->processCommand(std::cin);
       if ( ! compute.triggered() ) continue;
       compute.untrigger();
       try {

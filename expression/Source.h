@@ -36,7 +36,7 @@ class Source
 
     bool localization_is_filtered_out( const Localization& ) const;
 
-    void attach_ui_( simparm::Node& );
+    void attach_ui_( simparm::NodeHandle );
 
   public:
     Source( const Config&, std::auto_ptr<output::Output> );

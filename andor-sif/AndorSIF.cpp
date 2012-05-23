@@ -66,7 +66,7 @@ class Source::iterator
 {
     mutable boost::optional<Image> img;
     OpenFile* src;
-    mutable simparm::Node* msg;
+    mutable simparm::NodeHandle msg;
     int count;
     mutable bool did_load;
 
@@ -75,7 +75,7 @@ class Source::iterator
     Image& dereference() const { 
         if ( ! img ) {
             DEBUG("Loading image " << count << " from " << this << "," << src);
-            std::auto_ptr<engine::ImageStack> i = src->load_image(count, *msg);
+            std::auto_ptr<engine::ImageStack> i = src->load_image(count, msg);
             if ( i.get() != NULL )
                 img = *i;
             else
@@ -92,7 +92,7 @@ class Source::iterator
     void increment() { ++count; img.reset(); }
   public:
     iterator() : src(NULL), count(0) {}
-    iterator(Source& s, int c = 0) : src(s.file.get()), msg( s.current_ui.get_ptr() ), count(c)
+    iterator(Source& s, int c = 0) : src(s.file.get()), msg( s.current_ui ), count(c)
     {}
 };
 

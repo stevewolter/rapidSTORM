@@ -15,7 +15,6 @@
 #include <simparm/ChoiceEntry.hh>
 #include <simparm/TriggerEntry.hh>
 #include <simparm/ProgressEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
@@ -40,7 +39,7 @@ namespace input_simulation {
             gsl_rng*, const NoiseConfig&,
             simparm::ProgressEntry& ) const;
 
-        void attach_ui( simparm::Node& );
+        void attach_ui( simparm::NodeHandle );
     };
 
     class NoiseConfig
@@ -82,7 +81,7 @@ namespace input_simulation {
         NoiseConfig();
         NoiseConfig( const NoiseConfig &copy );
         ~NoiseConfig() {}
-        void registerNamedEntries( simparm::Node& n );
+        void registerNamedEntries( simparm::NodeHandle n );
         std::string name() const { return name_object.getName(); }
         std::string description() const { return name_object.getDesc(); }
         void publish_meta_info();
@@ -116,7 +115,7 @@ namespace input_simulation {
         void dispatch(dStorm::input::BaseSource::Messages m) { assert( !m.any() ); }
 
         class iterator;
-        void attach_ui_( simparm::Node& n ) { current_ui = name_object.attach_ui(n); }
+        void attach_ui_( simparm::NodeHandle n ) { current_ui = name_object.attach_ui(n); }
 
       protected:
         gsl_rng *rng;

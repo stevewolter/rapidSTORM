@@ -19,7 +19,7 @@ namespace input_simulation {
         simparm::Entry<unsigned long> random_seed;
 
         NoiseGeneratorConfig();
-        void attach_ui( simparm::Node& );
+        void attach_ui( simparm::NodeHandle );
     };
     
     template <typename T>

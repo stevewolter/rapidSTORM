@@ -26,7 +26,7 @@ struct Config
     Config() 
         : bin_size("BinSize", "Bin size", 5 * si::nanometre),
           outputFile("ToFile", "Output file", "-ripley-k.txt") {}
-    void attach_ui( simparm::Node& at ) { bin_size.attach_ui(at); outputFile.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { bin_size.attach_ui(at); outputFile.attach_ui( at ); }
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
     static std::string get_name() { return "RipleyK"; }
     static std::string get_description() { return "Compute Ripley's K function"; }

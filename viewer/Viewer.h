@@ -5,7 +5,6 @@
 #include "Config.h"
 #include "Status.h"
 
-#include <simparm/NodeHandle.hh>
 
 #include <dStorm/Localization.h>
 #include <boost/thread/mutex.hpp>
@@ -60,7 +59,7 @@ class Viewer : public Status,
     void store_results_( bool job_successful );
     void adapt_to_changed_config();
     void save_density_map();
-    void attach_ui_( simparm::Node& );
+    void attach_ui_( simparm::NodeHandle );
 };
 
 }

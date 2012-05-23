@@ -91,7 +91,7 @@ class Segmenter : public dStorm::output::Filter,
         else
             segment();
     }
-    void attach_ui_( simparm::Node& );
+    void attach_ui_( simparm::NodeHandle );
 
     protected:
     RegionImage segment_image();
@@ -118,14 +118,14 @@ struct SegmentationMethod : public simparm::ObjectChoice {
         : simparm::ObjectChoice(name,desc) {}
 
     virtual ~SegmentationMethod() {}
-    virtual void attach_ui( simparm::Node& ) = 0;
+    virtual void attach_ui( simparm::NodeHandle ) = 0;
     virtual SegmentationMethod* clone() const = 0;
     virtual Segmenter::SegmentationType type() const = 0;
 };
 
 struct MaximumSegmentationMethod : public SegmentationMethod {
     MaximumSegmentationMethod() : SegmentationMethod("Maximum", "Local maximums") {}
-    virtual void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    virtual void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
     virtual SegmentationMethod* clone() const { return new MaximumSegmentationMethod(*this); }
     virtual Segmenter::SegmentationType type() const { return Segmenter::Maximum; }
 };
@@ -142,8 +142,8 @@ struct RegionSegmentationMethod : public SegmentationMethod {
                 "Region dilation in binned pixels", 0),
         save_segmentation("SaveSegmentation", "Save segmentation"),
         load_segmentation("LoadSegmentation", "Load segmentation") {}
-    void attach_ui( simparm::Node& at ) { 
-        simparm::NodeRef r = attach_parent(at);
+    void attach_ui( simparm::NodeHandle at ) { 
+        simparm::NodeHandle r = attach_parent(at);
         threshold.attach_ui( r );
         dilation.attach_ui( r );
         load_segmentation.attach_ui( r );
@@ -170,7 +170,7 @@ struct Segmenter::Config {
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
 
     Config();
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
     bool determine_output_capabilities
         ( dStorm::output::Capabilities& cap ) 
     { 
@@ -194,7 +194,7 @@ Segmenter::Config::Config()
     method.choose("Maximum");
 }
 
-void Segmenter::Config::attach_ui( simparm::Node& at )
+void Segmenter::Config::attach_ui( simparm::NodeHandle at )
 {
     selector.attach_ui( at );
 
@@ -537,7 +537,7 @@ std::auto_ptr<dStorm::display::Change> Segmenter::get_changes() {
     return fresh;
 }
 
-void Segmenter::attach_ui_( simparm::Node& at ) {
+void Segmenter::attach_ui_( simparm::NodeHandle at ) {
     listening[0].reset();
     listening[1].reset();
     if ( howToSegment == Region ) {

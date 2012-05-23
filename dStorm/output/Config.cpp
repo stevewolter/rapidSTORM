@@ -34,7 +34,7 @@ Config::~Config() {
     DEBUG("Destructor");
 }
 
-void Config::attach_ui( simparm::Node& at ) {
+void Config::attach_ui( simparm::NodeHandle at ) {
     listening = choice.value.notify_on_value_change( source_available );
     choice.attach_ui( at );
 }

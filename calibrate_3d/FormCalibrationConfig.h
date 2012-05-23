@@ -16,9 +16,9 @@ class FormCalibrationConfig {
     simparm::Entry< bool > fit_best_sigma_, fit_focus_plane_, fit_prefactors_;
 public:
     FormCalibrationConfig();
-    void register_generic_entries( simparm::Node& at );
-    void register_multiplane_entries( simparm::Node& at );
-    void register_polynomial3d_entries( simparm::Node& at );
+    void register_generic_entries( simparm::NodeHandle at );
+    void register_multiplane_entries( simparm::NodeHandle at );
+    void register_polynomial3d_entries( simparm::NodeHandle at );
 
     bool fit_z_term( Direction, polynomial_3d::Term term ) const
         { return (*z_terms[ polynomial_3d::offset(term) ])(); }

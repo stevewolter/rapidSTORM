@@ -32,7 +32,7 @@ class TransmissionTreePrinter
     simparm::BaseAttribute::ConnectionStore listening;
   public:
     TransmissionTreePrinter(const job::Config&);
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 class TwiddlerLauncher
@@ -44,13 +44,13 @@ class TwiddlerLauncher
   public:
     TwiddlerLauncher(job::Config&, MainThread& main_thread);
     ~TwiddlerLauncher();
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
 };
 
 void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
-    simparm::IO argument_parser(NULL,NULL);
+    boost::shared_ptr< simparm::IO > argument_parser( new simparm::IO(NULL,NULL) );
 
     for ( int i = 0; i < argc; i++ ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
@@ -148,7 +148,7 @@ TransmissionTreePrinter::TransmissionTreePrinter
 {
 }
 
-void TransmissionTreePrinter::attach_ui( simparm::Node& n ) {
+void TransmissionTreePrinter::attach_ui( simparm::NodeHandle n ) {
     simparm::TriggerEntry::attach_ui(n);
     listening = value.notify_on_value_change( 
         boost::bind( &TransmissionTreePrinter::printTree, this ) );
@@ -183,7 +183,7 @@ TwiddlerLauncher::TwiddlerLauncher
 {
 }
 
-void TwiddlerLauncher::attach_ui( simparm::Node& n )
+void TwiddlerLauncher::attach_ui( simparm::NodeHandle n )
 {
     simparm::TriggerEntry::attach_ui( n );
     listening = value.notify_on_value_change( 

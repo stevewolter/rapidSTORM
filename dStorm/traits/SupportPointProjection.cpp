@@ -131,8 +131,8 @@ class SupportPointProjectionConfig
     SupportPointProjectionConfig* clone_() const 
         { return new SupportPointProjectionConfig(*this); }
 
-    void attach_ui( simparm::Node& at ) {
-        simparm::NodeRef r = attach_parent(at);
+    void attach_ui( simparm::NodeHandle at ) {
+        simparm::NodeHandle r = attach_parent(at);
         micro_alignment.attach_ui( r );
         resolution.attach_ui( r ); 
     }

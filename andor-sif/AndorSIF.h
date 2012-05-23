@@ -16,7 +16,6 @@
 #include <dStorm/Image.h>
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
-#include <simparm/NodeHandle.hh>
 #include <boost/signals2/connection.hpp>
 
 #include "AndorSIF_OpenFile.h"
@@ -52,7 +51,7 @@ namespace andor_sif {
 
       private:
         simparm::NodeHandle current_ui;
-        void attach_ui_( simparm::Node& n ) { current_ui = n; }
+        void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
         boost::shared_ptr<OpenFile> file;
         bool has_been_iterated;
 
@@ -68,7 +67,7 @@ namespace andor_sif {
         friend class FileInput< Config, OpenFile >;
         OpenFile* make_file( const std::string& ) const;
         void modify_meta_info( dStorm::input::MetaInfo& );
-        void attach_ui( simparm::Node& n ) { name_object.attach_ui(n); }
+        void attach_ui( simparm::NodeHandle n ) { name_object.attach_ui(n); }
         static std::string getName() { return "AndorSIF"; }
       public:
         Config();

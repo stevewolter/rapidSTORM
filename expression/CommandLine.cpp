@@ -38,13 +38,13 @@ void CommandLine::set_expression_string()
     publish();
 }
 
-void CommandLine::attach_ui( simparm::Node& at )
+void CommandLine::attach_ui( simparm::NodeHandle at )
 {
     listening[0] = lvalue.value.notify_on_value_change( 
         boost::bind( &CommandLine::set_expression_string, this ) );
     listening[1] = expression.value.notify_on_value_change( 
         boost::bind( &CommandLine::set_expression_string, this ) );
-    simparm::NodeRef r = disambiguator.attach_ui( at );
+    simparm::NodeHandle r = disambiguator.attach_ui( at );
     lvalue.attach_ui( r );
     expression.attach_ui( r );
 }

@@ -53,7 +53,7 @@ RawImageFile::announceStormSize(const Announcement &a)
     } else
         throw std::runtime_error("The raw images output needs access to the raw image data, but these are not provided by the preceding modules");
 
-    TIFFOperation op("in writing TIFF file", *current_ui, false);
+    TIFFOperation op("in writing TIFF file", current_ui, false);
     if ( tif == NULL ) {
         DEBUG("Opening TIFF output file");
         tif = TIFFOpen( filename.c_str(), "w" );
@@ -115,7 +115,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
     for (int p = 0; p < img.plane_count(); ++p)
         lines += img.plane(p).height_in_pixels();
 
-    TIFFOperation op("in writing TIFF file", *current_ui, false);
+    TIFFOperation op("in writing TIFF file", current_ui, false);
     TIFFSetField( tif, TIFFTAG_IMAGEWIDTH, uint32_t(size[0].size.x() / camera::pixel) );
     TIFFSetField( tif, TIFFTAG_IMAGELENGTH, uint32_t(lines) );
     TIFFSetField( tif, TIFFTAG_SAMPLESPERPIXEL, 1 );
@@ -158,7 +158,7 @@ void RawImageFile::write_image(const engine::ImageStack& img) {
 void RawImageFile::store_results_( bool ) {
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
-        TIFFOperation op("in closing TIFF file", *current_ui, false);
+        TIFFOperation op("in closing TIFF file", current_ui, false);
         TIFFClose( tif );
         tif = NULL;
     }
@@ -167,7 +167,7 @@ void RawImageFile::store_results_( bool ) {
 RawImageFile::~RawImageFile() {
     if ( tif != NULL ) {
         DEBUG("Closing TIFF output file");
-        TIFFOperation op("in closing TIFF file", *current_ui, false);
+        TIFFOperation op("in closing TIFF file", current_ui, false);
         TIFFClose( tif );
         tif = NULL;
     }

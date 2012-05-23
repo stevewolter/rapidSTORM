@@ -45,14 +45,14 @@ class ProgressEntry::ASCII_Progress_Shower
 };
 #endif
 
-NodeRef ProgressEntry::create_hidden_node( Node& at ) {
-    NodeRef r = Entry<double>::create_hidden_node( at );
-    r.add_attribute( indeterminate );
+NodeHandle ProgressEntry::create_hidden_node( NodeHandle at ) {
+    NodeHandle r = Entry<double>::create_hidden_node( at );
+    r->add_attribute( indeterminate );
     return r;
 }
 
-std::auto_ptr<Node> ProgressEntry::make_naked_node( simparm::Node& node ) {
-    return node.create_progress_bar( getName(), getDesc() );
+NodeHandle ProgressEntry::make_naked_node( NodeHandle node ) {
+    return node->create_progress_bar( getName(), getDesc() );
 }
 
 ProgressEntry::ProgressEntry(const ProgressEntry &entry)

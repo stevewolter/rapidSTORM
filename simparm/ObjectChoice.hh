@@ -8,7 +8,7 @@ namespace simparm {
 class ObjectChoice {
     simparm::Object node;
 protected:
-    NodeRef attach_parent( simparm::Node& to ) { return node.attach_ui(to); }
+    NodeHandle attach_parent( simparm::NodeHandle to ) { return node.attach_ui(to); }
     void set_viewability( bool v ) { this->node.viewable = v; }
 public:
     ObjectChoice( std::string name, std::string desc )
@@ -16,8 +16,8 @@ public:
     virtual ~ObjectChoice() {}
     virtual ObjectChoice* clone() const = 0;
     std::string getName() const { return node.getName(); }
-    virtual void attach_ui( simparm::Node& to ) = 0;
-    void detach_ui( simparm::Node& to ) { node.detach_ui(to); }
+    virtual void attach_ui( simparm::NodeHandle to ) = 0;
+    void detach_ui( simparm::NodeHandle to ) { node.detach_ui(to); }
 };
 
 }

@@ -3,7 +3,6 @@
 
 #include "SimpleFilters.h"
 #include <simparm/TriggerEntry.hh>
-#include <simparm/NodeHandle.hh>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/units/systems/camera/intensity.hpp>
 #include "Config_decl.h"
@@ -23,7 +22,7 @@ struct Config : public config::ExpressionManager
     Config();
     ~Config();
 
-    void attach_ui( simparm::Node& );
+    void attach_ui( simparm::NodeHandle );
     static std::string get_name() { return "Expression"; }
     static std::string get_description() { return "Expression filter"; }
     static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }

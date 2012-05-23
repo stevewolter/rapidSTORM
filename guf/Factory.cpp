@@ -76,7 +76,7 @@ bool Factory::can_compute_uncertainty( const engine::InputPlane& t ) const
 
 void Factory::set_requirements( input::Traits<engine::ImageStack>& ) {}
 
-void Factory::attach_ui( simparm::Node& to ) {
+void Factory::attach_ui( simparm::NodeHandle to ) {
     config.attach_ui( to );
 
     listening[0] = config.free_sigmas.value.notify_on_value_change( traits_changed );

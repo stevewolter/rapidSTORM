@@ -43,19 +43,19 @@ FormCalibrationConfig::FormCalibrationConfig()
     (*z_terms[ polynomial_3d::offset(polynomial_3d::Quadratic)]) = true;
 }
 
-void FormCalibrationConfig::register_generic_entries( simparm::Node& at )
+void FormCalibrationConfig::register_generic_entries( simparm::NodeHandle at )
 {
     circular_psf_.attach_ui(at);
     fit_best_sigma_.attach_ui( at );
 }
 
-void FormCalibrationConfig::register_multiplane_entries( simparm::Node& at )
+void FormCalibrationConfig::register_multiplane_entries( simparm::NodeHandle at )
 {
     universal_best_sigma_.attach_ui(at);
     fit_prefactors_.attach_ui( at );
 }
 
-void FormCalibrationConfig::register_polynomial3d_entries( simparm::Node& at )
+void FormCalibrationConfig::register_polynomial3d_entries( simparm::NodeHandle at )
 {
     astigmatism_.attach_ui( at );
     fit_focus_plane_.attach_ui( at );

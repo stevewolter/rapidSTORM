@@ -23,7 +23,7 @@ struct LValue : public simparm::ObjectChoice {
     LValue* clone() const = 0;
     virtual source::LValue* make_lvalue() const = 0;
     virtual void set_expression_string( const std::string&, Parser& ) = 0;
-    void attach_ui( simparm::Node& to ) { attach_parent( to ); }
+    void attach_ui( simparm::NodeHandle to ) { attach_parent( to ); }
 };
 
 inline LValue* new_clone( const LValue& v ) { return v.clone(); }
@@ -39,7 +39,7 @@ struct CommandLine {
     ~CommandLine();
 
     void set_manager( ExpressionManager* manager );
-    void attach_ui( simparm::Node& at );
+    void attach_ui( simparm::NodeHandle at );
 
   private:
     template <int Field>

@@ -132,7 +132,7 @@ namespace outputs {
         template<typename Listener, int ODim> friend class BinnedLocalizations;
 
         void store_results_( bool success ); 
-        void attach_ui_( simparm::Node& ) {}
+        void attach_ui_( simparm::NodeHandle ) {}
 
       public:
         /** @param crop Gives the amount of space to be cut from all

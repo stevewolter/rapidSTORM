@@ -41,7 +41,7 @@ Viewer::~Viewer() {
     DEBUG("Destructing Viewer " << this);
 }
 
-void Viewer::attach_ui_( simparm::Node& at ) {
+void Viewer::attach_ui_( simparm::NodeHandle at ) {
     listening[0] = config.showOutput.value.notify_on_value_change( 
         boost::bind( &Viewer::adapt_to_changed_config, this ) );
     listening[1] = save.value.notify_on_value_change( 
@@ -164,8 +164,7 @@ void Viewer::writeToFile(const string &name) {
         implementation->save_image(name, config);
     } catch ( const std::runtime_error& e ) {
         simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );
-        if ( ui.is_initialized() )
-            ui->send( m );
+        if ( ui ) ui->send( m );
     }
 }
 

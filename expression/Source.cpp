@@ -30,7 +30,7 @@ Source::~Source() {
         boost::bind( &config::CommandLine::set_manager, _1, static_cast<config::ExpressionManager*>(NULL) ) );
 }
 
-void Source::attach_ui_( simparm::Node& at ) {
+void Source::attach_ui_( simparm::NodeHandle at ) {
     simple_filters.set_manager( this );
     std::for_each( command_lines.begin(), command_lines.end(),
         boost::bind( &config::CommandLine::set_manager, _1, this ) );

@@ -31,8 +31,8 @@ class Choice
         }
 
         std::string getName() const { return _link->name(); }
-        void attach_ui( simparm::Node& at ) { _link->registerNamedEntries( at ); }
-        void detach_ui( simparm::Node& at ) { throw std::logic_error("Not implemented"); }
+        void attach_ui( simparm::NodeHandle at ) { _link->registerNamedEntries( at ); }
+        void detach_ui( simparm::NodeHandle at ) { throw std::logic_error("Not implemented"); }
     };
 
   protected:
@@ -54,7 +54,7 @@ class Choice
     
     BaseSource* makeSource();
     Choice* clone() const;
-    void registerNamedEntries( simparm::Node& );
+    void registerNamedEntries( simparm::NodeHandle );
     std::string name() const { return choices.getName(); }
     std::string description() const { return choices.getDesc(); }
     void publish_meta_info();

@@ -32,8 +32,8 @@ struct NoOpBackend : public Backend
 {
     struct Output : public output::Output {
         Output* clone() const { return new Output(*this); }
-        const simparm::Node& getNode() const { throw std::logic_error("Not implemented"); }
-        simparm::Node& getNode() { throw std::logic_error("Not implemented"); }
+        const simparm::NodeHandle getNode() const { throw std::logic_error("Not implemented"); }
+        simparm::NodeHandle getNode() { throw std::logic_error("Not implemented"); }
         AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
         RunRequirements announce_run(const RunAnnouncement&) { return RunRequirements(); }
         void receiveLocalizations(const EngineResult&) {}

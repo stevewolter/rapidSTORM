@@ -40,7 +40,7 @@ class ChainLink
   public:
     Config config;
 
-    void attach_ui( simparm::Node& at ) { config.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { config.attach_ui( at ); }
     static std::string getName() { return "VerboseInput"; }
 };
 

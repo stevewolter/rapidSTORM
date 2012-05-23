@@ -4,7 +4,6 @@
 #include <string>
 #include "Node.hh"
 #include "Attribute.hh"
-#include "NodeHandle.hh"
 #include <memory>
 
 namespace simparm {
@@ -35,16 +34,16 @@ class Object {
         { this->viewable = viewable; }
     void setUserLevel(UserLevel level)
         { this->userLevel = level; }
-    NodeRef attach_ui( simparm::Node& node );
-    void detach_ui( simparm::Node& node );
+    NodeHandle attach_ui( simparm::NodeHandle node );
+    void detach_ui( simparm::NodeHandle node );
 
-    NodeHandle get_user_interface_handle() { return *node_; }
+    NodeHandle get_user_interface_handle() { return node_; }
 
 protected:
-    virtual NodeRef create_hidden_node( simparm::Node& );
-    virtual std::auto_ptr<Node> make_naked_node( simparm::Node& );
+    virtual NodeHandle create_hidden_node( simparm::NodeHandle );
+    virtual NodeHandle make_naked_node( simparm::NodeHandle );
 private:
-    std::auto_ptr< Node > node_;
+    NodeHandle node_;
     std::string name;
 };
 

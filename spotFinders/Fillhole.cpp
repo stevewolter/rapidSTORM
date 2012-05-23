@@ -28,7 +28,7 @@ class Config
     Config() 
     : spots("SpotReconstructionMaskSize", "Erosion mask size", 3),
       background("BackgroundDilationMaskSize", "Background dilation mask size", 25) {}
-    void attach_ui( simparm::Node& at ) {
+    void attach_ui( simparm::NodeHandle at ) {
         spots.attach_ui(at);
         background.attach_ui(at);
     }

@@ -30,7 +30,7 @@ struct BasenamePrinter::Config
     static std::string get_description() { return get_name(); }
 
     Config();
-    void attach_ui(simparm::Node&);
+    void attach_ui(simparm::NodeHandle);
     bool can_work_with(const dStorm::output::Capabilities&)
         {return true;}
     void print() {
@@ -43,7 +43,7 @@ BasenamePrinter::Config::Config()
 {
 }
 
-void BasenamePrinter::Config::attach_ui(simparm::Node& at) {
+void BasenamePrinter::Config::attach_ui(simparm::NodeHandle at) {
     listening = outputFile.value.notify_on_value_change( 
         boost::bind( &BasenamePrinter::Config::print, this ) );
     outputFile.attach_ui( at );

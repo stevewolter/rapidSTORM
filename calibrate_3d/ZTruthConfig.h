@@ -14,7 +14,7 @@ class ZTruthConfig {
     simparm::Entry<std::string> filter_, new_z_;
 public:
     ZTruthConfig();
-    void registerNamedEntries( simparm::Node& at );
+    void registerNamedEntries( simparm::NodeHandle at );
     bool has_z_truth() const;
     std::auto_ptr<ZTruth> get_z_truth() const;
 };

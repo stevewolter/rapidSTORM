@@ -36,7 +36,7 @@ Output::Output(const Config & config )
     residuals.viewable = false;
 }
 
-void Output::attach_ui_( simparm::Node& at ) {
+void Output::attach_ui_( simparm::NodeHandle at ) {
     current_volume.attach_ui( at );
     residuals.attach_ui( at );
     result_config.attach_ui( at );

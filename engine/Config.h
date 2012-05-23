@@ -7,7 +7,6 @@
 #include <simparm/Eigen.hh>
 #include <simparm/Set.hh>
 #include <simparm/Entry.hh>
-#include <simparm/NodeHandle.hh>
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry.hh>
 #include <simparm/ChoiceEntry.hh>
@@ -70,7 +69,7 @@ namespace engine {
             { addSpotFitter(std::auto_ptr<spot_fitter::Factory>(factory)); }
 
         void set_variables( output::Basename& ) const;
-        void attach_ui( simparm::Node& );
+        void attach_ui( simparm::NodeHandle );
 
         simparm::NodeHandle weights_insertion_point;
    };

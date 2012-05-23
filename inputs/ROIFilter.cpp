@@ -31,8 +31,8 @@ struct Config {
     simparm::Entry< boost::optional< frame_index > > last_frame;
 
     Config();
-    void attach_ui( simparm::Node& at ) {
-        simparm::NodeRef r = name_object.attach_ui(at);
+    void attach_ui( simparm::NodeHandle at ) {
+        simparm::NodeHandle r = name_object.attach_ui(at);
         first_frame.attach_ui( r ); 
         last_frame.attach_ui( r ); 
     }
@@ -57,7 +57,7 @@ class Source
     struct _iterator;
 
     inline bool is_in_range(const Ty& t) const;
-    void attach_local_ui_( simparm::Node& ) {}
+    void attach_local_ui_( simparm::NodeHandle ) {}
 
   public:
     Source( std::auto_ptr< input::Source<Ty> > upstream,
@@ -175,7 +175,7 @@ class ChainLink
 
   public:
     static std::string getName() { return "ROIFilter"; }
-    void attach_ui( simparm::Node& at ) { 
+    void attach_ui( simparm::NodeHandle at ) { 
         listening[0] = config.first_frame.value.notify_on_value_change( 
             boost::bind( &input::Method<ChainLink>::republish_traits_locked, this ) );
         listening[1] = config.last_frame.value.notify_on_value_change( 

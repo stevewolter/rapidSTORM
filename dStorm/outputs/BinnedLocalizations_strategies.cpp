@@ -50,11 +50,11 @@ template <int Dim>
 DimensionSelector<Dim>::~DimensionSelector() {}
 
 template <int Dim>
-void DimensionSelector<Dim>::attach_ui( simparm::Node& at ) {
+void DimensionSelector<Dim>::attach_ui( simparm::NodeHandle at ) {
     listening[0] = invert_y_axis.value.notify_on_value_change( value_change );
     listening[1] = use_z_axis.value.notify_on_value_change( value_change );
 
-    simparm::NodeRef r = name_object.attach_ui( at );
+    simparm::NodeHandle r = name_object.attach_ui( at );
     for (int i = 0; i < Dim+1; ++i) {
         components[i].attach_ui( r );
     }

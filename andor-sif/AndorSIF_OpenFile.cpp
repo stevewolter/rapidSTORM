@@ -108,7 +108,7 @@ OpenFile::getTraits()
 }
 
 std::auto_ptr<engine::ImageStack>
-OpenFile::load_image(int count, simparm::Node& node)
+OpenFile::load_image(int count, simparm::NodeHandle node)
 {
     char readsif_error[4096];
     dataSet->error_buffer = readsif_error;
@@ -132,7 +132,7 @@ OpenFile::load_image(int count, simparm::Node& node)
             "Error while reading SIF file: " + std::string(readsif_error)
                + ". Will skip remaining images.", 
                simparm::Message::Warning);
-        node.send(m);
+        node->send(m);
         had_errors = true;
         return std::auto_ptr< engine::ImageStack >();
     } else if ( rv_of_readsif_getImage == -2 ) {
@@ -140,7 +140,7 @@ OpenFile::load_image(int count, simparm::Node& node)
             "Error while reading SIF file: " + std::string(readsif_error)
                + ". Will skip one image.", 
                simparm::Message::Warning);
-        node.send(m);
+        node->send(m);
         return std::auto_ptr< engine::ImageStack >();
     } else if ( rv_of_readsif_getImage == 1 ) {
         throw std::logic_error("Too many images read from SIF source");
