@@ -1,5 +1,7 @@
 #include "Message.hh"
 #include <pthread.h>
+#include <stdexcept>
+#include <sstream>
 
 namespace simparm {
 
@@ -13,7 +15,7 @@ std::istream& operator>>( std::istream& i, Message::Severity& t)
     else if ( r == "Error" ) t = Message::Error;
     else if ( r == "Critical" ) t = Message::Critical;
     else
-        throw std::runtime_error("Unknown message severity " + r + " read");
+        throw std::logic_error("Unknown message severity " + r + " read");
     return i;
 }
 
@@ -38,7 +40,7 @@ std::istream& operator>>( std::istream& i, Message::Options& t)
     else if ( r == "YesNo" ) t = Message::YesNo;
     else if ( r == "YesNoCancel" ) t = Message::YesNoCancel;
     else
-        throw std::runtime_error("Unknown message option " + r + " read");
+        throw std::logic_error("Unknown message option " + r + " read");
     return i;
 }
 
@@ -61,7 +63,7 @@ std::istream& operator>>( std::istream& i, Message::Response& t)
     else if ( r == "Cancel" ) t = Message::Cancel;
     else if ( r == "None" ) t = Message::None;
     else
-        throw std::runtime_error("Unknown message severity " + r + " read");
+        throw std::logic_error("Unknown message severity " + r + " read");
     return i;
 }
 
@@ -76,95 +78,26 @@ std::ostream& operator<<( std::ostream& o, Message::Response t ) {
     }
 }
 
-static std::string mkname(void *v) {
-    std::stringstream ss;
-    ss << size_t(v);
-    return ss.str();
-}
-
 Message::Message(
     std::string t,
     std::string m,
     Severity s,
     Options o )
-: help_file("help_file", ""),
-  helpID("helpID", ""),
-  title("title", t),
-  message("message", m),
-  severity("severity", s),
-  options("options", o),
-  response("response", None)
-{
-}
-
-Message::Message( const Message& e ) 
-: help_file(e.help_file),
-  helpID(e.helpID),
-  title(e.title),
-  message(e.message),
-  severity(e.severity),
-  options(e.options),
-  response(e.response)
+: helpID(""),
+  title(t),
+  message(m),
+  severity(s),
+  options(o)
 {
 }
 
 Message::~Message() {
 }
 
-#if 0
-struct ErrorListener : public Node::Callback {
-    pthread_mutex_t mutex;
-    pthread_cond_t condition;
-
-    Attribute<Message::Response>& response;
-
-    ErrorListener(Attribute<Message::Response>& r) : response(r) {
-        pthread_mutex_init(&mutex, NULL);
-        pthread_cond_init(&condition, NULL);
-
-        receive_changes_from( response );
-    }
-
-    ~ErrorListener() {
-        pthread_mutex_destroy(&mutex);
-        pthread_cond_destroy(&condition);
-    }
-
-    void operator()( const Event& ) {
-        pthread_mutex_lock(&mutex);
-        pthread_cond_broadcast( &condition );
-        pthread_mutex_unlock(&mutex);
-    }
-
-    void wait() { 
-        pthread_mutex_lock(&mutex);
-        while ( response() == Message::None ) 
-            pthread_cond_wait( &condition, &mutex );
-        pthread_mutex_unlock(&mutex);
-    }
-};
-
-Message::Response Message::wait_for_answer() 
-{
-    if ( response() == None ) {
-        ErrorListener(response).wait();
-    }
-    return response();
-}
-
-std::string 
-Message::getTypeDescriptor() const
-{
-    return "Message";
-}
-#endif
-
 std::ostream& operator<<( std::ostream& o, const Message& m)
 {
-    o << m.title() << ": " << m.message() << std::endl;
+    o << m.title << ": " << m.message << std::endl;
     return o;
 }
-
-void Message::set_response(Response s) { response = s; }
 
 }

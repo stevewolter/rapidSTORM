@@ -16,7 +16,7 @@
 
 #include <string>
 #include <memory>
-#include "Message_decl.hh"
+#include "Message.hh"
 #include "BaseAttribute.hh"
 
 namespace simparm {
@@ -31,7 +31,7 @@ struct Node {
     virtual std::auto_ptr<Node> create_progress_bar( std::string name, std::string desc ) = 0;
     virtual std::auto_ptr<Node> create_trigger( std::string name, std::string desc ) = 0;
     virtual void add_attribute( simparm::BaseAttribute& ) = 0;
-    virtual void send( Message& m ) = 0;
+    virtual Message::Response send( Message& m ) = 0;
     virtual void show() = 0;
     /** TODO: Method is deprecated and should be removed on successful migration. */
     virtual bool isActive() const = 0;

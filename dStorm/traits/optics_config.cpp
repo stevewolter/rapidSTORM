@@ -9,6 +9,17 @@ namespace traits {
 
 using namespace boost::units;
 
+struct PlaneConfig::TransmissionEntry
+: public simparm::Entry<double> {
+    TransmissionEntry( int index ) 
+        : simparm::Entry<double>(
+            "Transmission" + boost::lexical_cast<std::string>(index),
+            "Transmission of fluorophore " + boost::lexical_cast<std::string>(index),
+            1 ) {}
+    TransmissionEntry* clone() const { return new TransmissionEntry(*this); }
+    simparm::BaseAttribute::ConnectionStore listener;
+};
+
 PlaneConfig::PlaneConfig(int number, Purpose purpose)
 : name_object("InputLayer" + boost::lexical_cast<std::string>(number), 
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
@@ -35,7 +46,7 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
     alignment.addChoice( make_affine_projection_config() );
     alignment.addChoice( make_support_point_projection_config() );
 
-    transmissions.push_back( new simparm::Entry<double>("Transmission0", "Transmission of fluorophore 0", 1) );
+    transmissions.push_back( new TransmissionEntry(0) );
     transmissions.back().viewable = false;
 
     counts_per_photon.userLevel = simparm::Object::Intermediate;
@@ -56,19 +67,22 @@ PlaneConfig::PlaneConfig( const PlaneConfig& o )
     }
 }
 
+PlaneConfig::~PlaneConfig() {}
+
 void PlaneConfig::attach_ui( simparm::Node& at )
 {
     simparm::NodeRef r = name_object.attach_ui( at );
     current_ui = r;
     if ( purpose != PSFDisplay ) {
-        pixel_size.value.notify_on_value_change( ui_element_changed );
+        listening[0] = pixel_size.value.notify_on_value_change( ui_element_changed );
         pixel_size.attach_ui( r );
     }
     three_d.attach_ui( r );
+    listening[4] = three_d.value.notify_on_value_change( ui_element_changed );
     if ( purpose != PSFDisplay ) {
-        counts_per_photon.value.notify_on_value_change( ui_element_changed );
-        dark_current.value.notify_on_value_change( ui_element_changed );
-        alignment.value.notify_on_value_change( ui_element_changed );
+        listening[1] = counts_per_photon.value.notify_on_value_change( ui_element_changed );
+        listening[2] = dark_current.value.notify_on_value_change( ui_element_changed );
+        listening[3] = alignment.value.notify_on_value_change( ui_element_changed );
         counts_per_photon.attach_ui( r );
         dark_current.attach_ui( r );
         alignment.attach_ui( r );
@@ -76,16 +90,14 @@ void PlaneConfig::attach_ui( simparm::Node& at )
 
     for (Transmissions::iterator i = transmissions.begin(), e = transmissions.end(); i != e; ++i) {
         i->attach_ui( r );
-        i->value.notify_on_value_change( ui_element_changed );
+        i->listener = i->value.notify_on_value_change( ui_element_changed );
     }
 }
 
 void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane )
 {
     while ( int(transmissions.size()) < fluorophore_count ) {
-       std::string i = boost::lexical_cast<std::string>(transmissions.size());
-       transmissions.push_back( new simparm::Entry<double>("Transmission" + i,
-         	"Transmission of fluorophore " + i, 1) );
+       transmissions.push_back( new TransmissionEntry(transmissions.size()) );
         if ( current_ui )
             transmissions.back().attach_ui( *current_ui );
     }
@@ -121,7 +133,7 @@ void PlaneConfig::write_traits( traits::Optics& rv) const
 void PlaneConfig::read_traits( const traits::Optics& t )
 {
     for (int i = 0; i < int(t.tmc.size()); ++i) {
-        transmissions[i] = t.tmc[i];
+        transmissions[i].value = t.tmc[i];
     }
     if ( t.photon_response ) counts_per_photon = *t.photon_response;
     if ( t.dark_current ) dark_current = *t.dark_current;

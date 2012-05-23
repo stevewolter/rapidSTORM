@@ -67,7 +67,7 @@ class Source : public input::Source< engine::ImageStack >
     typedef typename BaseSource::TraitsPtr TraitsPtr;
 
     simparm::NodeHandle current_ui;
-    void attach_ui_( simparm::Node& n ) { current_ui = n; std::cerr << "TIFF source is attached" << std::endl; }
+    void attach_ui_( simparm::Node& n ) { current_ui = n; }
 
 public:
     class iterator;

@@ -43,6 +43,8 @@ class IO : public simparm::text_stream::Node {
     static void *processInputCallback(void *configIO);
     virtual std::string getTypeDescriptor() const { return "IO"; }
 
+    void print_unconditionally( const std::string& what );
+
   protected:
     virtual void processCommand( 
         const std::string& cmd, std::istream& rest );
@@ -67,7 +69,7 @@ class IO : public simparm::text_stream::Node {
 
     bool print(const std::string& what);
     bool print_on_top_level(const std::string& what);
-    void send( Message &m );
+    Message::Response send( Message &m );
     void printHelp(std::ostream &) const {}
 
     bool received_quit_command() const 

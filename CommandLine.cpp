@@ -50,7 +50,6 @@ class TwiddlerLauncher
 void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
-#if 0
     simparm::IO argument_parser(NULL,NULL);
 
     for ( int i = 0; i < argc; i++ ) {
@@ -62,6 +61,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     launcher.attach_ui( argument_parser );
     starter.attach_ui( argument_parser );
 
+#if 0
     int shift = find_config_file(argc,argv);
     argc -= shift;
     argv += shift;
@@ -72,6 +72,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     if (argc > 0) {
         // TODO: first_nonoption = readConfig(argument_parser, argc, argv);
         launcher.trigger();
+        first_nonoption = argc;
     }
 
     DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );

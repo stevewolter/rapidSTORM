@@ -136,13 +136,16 @@ std::auto_ptr<Link> makeLink() {
 #include "tiff/TIFF.h"
 #include "test-plugin/DummyFileInput.h"
 #include "dejagnu.h"
+#include <simparm/IO.hh>
 
 namespace dStorm {
 namespace input {
 namespace file_method {
 
 void unit_test( TestState& t ) {
+    simparm::IO io(NULL,NULL);
     FileMethod file_method;
+    file_method.registerNamedEntries(io);
 
     file_method.insert_new_node( tiff::make_input(), FileReader );
     file_method.publish_meta_info();
@@ -174,6 +177,7 @@ void unit_test( TestState& t ) {
         "Test method can change file type" );
 
     FileMethod copy(file_method);
+    copy.registerNamedEntries(io);
     copy.publish_meta_info();
     copy.input_file = tiff::test_file_name;
     t.testrun( copy.current_meta_info().get() && 

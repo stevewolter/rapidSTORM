@@ -294,7 +294,7 @@ proc get_value { path } {
 proc get_pixel_value { x y } {
     set test "Pixel value is set"
     set rv 0
-    send "in DummyDisplayManagerConfig pixel_value $x $y\n"
+    send "in DummyDisplayManagerConfig in PixelQuery pixel_value $x $y\n"
     expect {
         -re "pixel at . *$x px *$y px *0 px *. has value r (\[0-9\]*) g (\[0-9\]*) b (\[0-9\]*)\r*\n" { 
             set rv [list $expect_out(1,string) $expect_out(2,string) $expect_out(3,string)]

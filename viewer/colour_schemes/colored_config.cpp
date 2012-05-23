@@ -53,8 +53,8 @@ ColoredConfig::ColoredConfig(const ColoredConfig& o)
 }
 
 void ColoredConfig::attach_ui( simparm::Node& at ) {
-    listening[0] = hue.value.notify_on_value_change( boost::ref(change) );
-    listening[1] = saturation.value.notify_on_value_change( boost::ref(change) );
+    listening[0] = hue.value.notify_on_value_change( change );
+    listening[1] = saturation.value.notify_on_value_change( change );
 
     simparm::NodeRef r = attach_parent(at);
     hue.attach_ui(r);

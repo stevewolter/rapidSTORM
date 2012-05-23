@@ -69,7 +69,7 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
 { 
     distribution.addChoice( new FluorophoreDistributions::Random());
     distribution.addChoice( FluorophoreDistributions::make_lattice());
-    distribution.addChoice( new FluorophoreDistributions::Lines());
+    distribution.addChoice( FluorophoreDistributions::make_lines());
 }
 
 NoiseConfig::NoiseConfig()

@@ -35,6 +35,7 @@ expect {
     -re "in Output0 declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
 }
+sleep 1
 
 set optics_path "in $job in Output0 in Optics"
 set test "PSF in first plane is guessed sanely"

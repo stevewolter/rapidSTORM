@@ -10,6 +10,7 @@
 #include "binning_decl.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/make_clone_allocator.hpp>
+#include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
 namespace output {
@@ -32,6 +33,8 @@ struct FieldChoice
 {
   private:
     template <int Field> void fill(BinningType type, std::string axis);
+    default_on_copy< boost::signals2::signal<void()> > change;
+    simparm::BaseAttribute::ConnectionStore listening;
     
   public:
     FieldChoice( const std::string& name, const std::string& desc, BinningType type, std::string axis_spec );
@@ -41,7 +44,8 @@ struct FieldChoice
 
     FieldChoice* clone() const { return new FieldChoice(*this); }
     ~FieldChoice();
-    void add_listener( simparm::BaseAttribute::Listener& l );
+    void add_listener( simparm::BaseAttribute::Listener l );
+    void attach_ui( simparm::NodeRef );
 };
 
 }

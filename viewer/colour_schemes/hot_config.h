@@ -14,6 +14,7 @@ struct HotConfig : public ColourScheme
     HotConfig* clone() const { return new HotConfig(*this); }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
     void attach_ui( simparm::Node& at ) { attach_parent(at); }
+    void add_listener( simparm::BaseAttribute::Listener ) {}
 };
 
 }

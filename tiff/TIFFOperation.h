@@ -4,6 +4,7 @@
 #include <tiffio.h>
 #include <stdarg.h>
 #include <simparm/Message.hh>
+#include <simparm/Node.hh>
 
 namespace dStorm {
 

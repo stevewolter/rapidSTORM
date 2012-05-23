@@ -1,5 +1,6 @@
 #define CImgBuffer_SIFLOADER_CPP
 #include <simparm/Message.hh>
+#include <simparm/Node.hh>
 #include <read_sif.h>
 #include "AndorSIF_OpenFile.h"
 #include <stdexcept>

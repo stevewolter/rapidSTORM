@@ -9,7 +9,7 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm testChoice test_units test_optional testSimparm  
+C_TESTS = dstorm testChoice test_units test_optional 
 DEJATOOL = dstorm
 
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
@@ -754,11 +754,7 @@ align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS)
 
 testChoice_SOURCES = simparm/testChoice.cpp
 testChoice_LDADD = libsimparm.la
-testSimparm_SOURCES = simparm/testSimparm.cpp
-testSimparm_LDADD = libsimparm.la
 test_optional_SOURCES = simparm/test_optional.cpp
 test_optional_LDADD = libsimparm.la
 test_units_SOURCES = simparm/test_units.cpp
 test_units_LDADD = libsimparm.la
-test_eigen_SOURCES = simparm/test_eigen.cpp
-test_eigen_LDADD = libsimparm.la

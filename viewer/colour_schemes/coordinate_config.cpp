@@ -22,7 +22,7 @@ struct CoordinateConfig : public ColourScheme
     CoordinateConfig(const CoordinateConfig&);
     CoordinateConfig* clone() const { return new CoordinateConfig(*this); }
     std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
-    void add_listener( simparm::BaseAttribute::Listener& );
+    void add_listener( simparm::BaseAttribute::Listener );
     void attach_ui( simparm::Node& );
 };
 
@@ -38,8 +38,9 @@ CoordinateConfig::CoordinateConfig(const CoordinateConfig& o)
 {
 }
 
-void CoordinateConfig::add_listener( simparm::BaseAttribute::Listener& l ) {
+void CoordinateConfig::add_listener( simparm::BaseAttribute::Listener l ) {
     choice.add_listener( l );
+    change.connect( l );
 }
 
 void CoordinateConfig::attach_ui( simparm::Node& at ) {

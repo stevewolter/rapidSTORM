@@ -31,43 +31,7 @@ class Random : public FluorophoreDistribution {
 };
 
 std::auto_ptr< FluorophoreDistribution > make_lattice();
-
-class Lines : public FluorophoreDistribution
-{
-  protected:
-    void attach_ui( simparm::Node& at ) ;
-    void add_line();
-    void remove_line();
-  public:
-    class Line {
-        simparm::Object name_object;
-      public:
-        dStorm::NanometreEntry xoffset, yoffset, zoffset,
-            density, x_spacing, y_spacing, z_spacing;
-        simparm::Entry<double> angle, z_angle, max_count;
-        simparm::Entry<unsigned long> repeat;
-
-        Line(const std::string& ident);
-        Positions fluorophore_positions(const Size& size, gsl_rng* rng) const;
-        void attach_ui( simparm::Node& );
-    };
-
-  private:
-    std::vector<Line*> lines;
-    simparm::NodeHandle current_ui;
-    simparm::BaseAttribute::ConnectionStore listening[2];
-
-  public:
-    simparm::TriggerEntry addLine, removeLine;
-
-    Lines();
-    Lines(const Lines&);
-    ~Lines();
-    Lines& operator=(const Lines&) { throw std::logic_error("No assignment operator."); }
-    Lines* clone() const { return new Lines(*this); }
-    virtual Positions fluorophore_positions(
-        const Size& size, gsl_rng* rng) const;
-};
+std::auto_ptr< FluorophoreDistribution > make_lines();
 
 }
 }

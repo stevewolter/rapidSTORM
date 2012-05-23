@@ -10,6 +10,44 @@ namespace FluorophoreDistributions {
 
 using namespace boost::units;
 
+class Lines : public FluorophoreDistribution
+{
+  protected:
+    void attach_ui( simparm::Node& at ) ;
+    void add_line();
+    void add_line_trigger();
+    void remove_line();
+  public:
+    class Line {
+        simparm::Object name_object;
+      public:
+        dStorm::NanometreEntry xoffset, yoffset, zoffset,
+            density, x_spacing, y_spacing, z_spacing;
+        simparm::Entry<double> angle, z_angle, max_count;
+        simparm::Entry<unsigned long> repeat;
+
+        Line(const std::string& ident);
+        Positions fluorophore_positions(const Size& size, gsl_rng* rng) const;
+        void attach_ui( simparm::Node& );
+    };
+
+  private:
+    std::vector<Line*> lines;
+    simparm::NodeHandle current_ui;
+    simparm::BaseAttribute::ConnectionStore listening[2];
+
+  public:
+    simparm::TriggerEntry addLine, removeLine;
+
+    Lines();
+    Lines(const Lines&);
+    ~Lines();
+    Lines& operator=(const Lines&) { throw std::logic_error("No assignment operator."); }
+    Lines* clone() const { return new Lines(*this); }
+    virtual Positions fluorophore_positions(
+        const Size& size, gsl_rng* rng) const;
+};
+
 void Lines::Line::attach_ui( simparm::Node& t ) {
     simparm::NodeRef r = name_object.attach_ui(t);
     xoffset.attach_ui( r );
@@ -30,7 +68,7 @@ Lines::Lines()
   addLine("AddLine", "Add new line set"),
   removeLine("RemoveLine", "Remove selected line")
 {
-    addLine.trigger();
+    add_line();
 }
 
 Lines::Lines(const Lines& c)
@@ -77,15 +115,15 @@ Lines::Line::Line(const std::string& ident)
 
 void Lines::attach_ui( simparm::Node& at ) {
     listening[0] = addLine.value.notify_on_value_change( 
-        boost::bind( &Lines::add_line, this ) );
+        boost::bind( &Lines::add_line_trigger, this ) );
     listening[1] = addLine.value.notify_on_value_change( 
         boost::bind( &Lines::remove_line, this ) );
 
-    simparm::NodeRef r = attach_parent( at );
-    addLine.attach_ui( r );
-    removeLine.attach_ui( r );
+    current_ui = attach_parent( at );
+    addLine.attach_ui( *current_ui );
+    removeLine.attach_ui( *current_ui );
     for (std::vector<Line*>::const_iterator i = lines.begin(); i != lines.end(); i++)
-        (*i)->attach_ui( r );
+        (*i)->attach_ui( *current_ui );
 }
 
 FluorophoreDistribution::Positions Lines::fluorophore_positions(
@@ -139,27 +177,31 @@ FluorophoreDistribution::Positions Lines::Line::
     return rv;
 }
 
-void Lines::add_line()
+void Lines::add_line_trigger()
 {
     if ( addLine.triggered() ) {
         addLine.untrigger();
-
-        unsigned int insert = lines.size();
-        for (unsigned int i = 0; i < lines.size(); i++)
-            if ( lines[i] == NULL ) 
-                { insert = i; break; }
-
-        std::stringstream ident;
-        ident << insert;
-        Line *line = new Line(ident.str());
-        if ( insert < lines.size() )
-            lines[insert] = line;
-        else
-            lines.push_back( line );
-
-        if ( current_ui )
-            line->attach_ui( *current_ui );
+        add_line();
     }
+}
+
+void Lines::add_line()
+{
+    unsigned int insert = lines.size();
+    for (unsigned int i = 0; i < lines.size(); i++)
+        if ( lines[i] == NULL ) 
+            { insert = i; break; }
+
+    std::stringstream ident;
+    ident << insert;
+    Line *line = new Line(ident.str());
+    if ( insert < lines.size() )
+        lines[insert] = line;
+    else
+        lines.push_back( line );
+
+    if ( current_ui )
+        line->attach_ui( *current_ui );
 }
 
 void Lines::remove_line() {
@@ -168,6 +210,10 @@ void Lines::remove_line() {
         delete lines.back();
         lines.back() = NULL;
     }
+}
+
+std::auto_ptr< FluorophoreDistribution > make_lines() {
+    return std::auto_ptr< FluorophoreDistribution >( new Lines() );
 }
 
 }

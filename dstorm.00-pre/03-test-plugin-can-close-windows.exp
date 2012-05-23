@@ -38,7 +38,7 @@ if { $have_test_plugin == 1 } {
     if { $dispnum != -1 } {
         send "in DummyDisplayManagerConfig in WhichWindow in value set Window$dispnum\n"
         set test "Can read pixel values with test plugin"
-        send "in DummyDisplayManagerConfig pixel_value 20 23\n"
+        send "in DummyDisplayManagerConfig in PixelQuery pixel_value 20 23\n"
         expect {
             -re " pixel at . *20 px *23 px *0 px. has value r \[0-9\]* g \[0-9\]* b" { pass "$test" }
         }

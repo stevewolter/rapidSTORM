@@ -5,22 +5,46 @@ namespace simparm {
 namespace text_stream {
 
 bool Node::print( const std::string& s ) { 
-    if ( declared )
-        return print_("in " + name + " " + s); 
+    if ( declared && parent )
+        return parent->print("in " + name + " " + s); 
     else
         return false;
 }
 
 bool Node::print_on_top_level( const std::string& s ) { 
-    if ( declared )
-        return print_top_level_(s); 
+    if ( declared && parent )
+        return parent->print_on_top_level(s); 
     else
         return false;
 }
 
-void Node::listen_to( Node& o ) {
-    o.print_.connect( boost::bind( &Node::print, this, _1 ) );
-    o.print_top_level_.connect( boost::bind( &Node::print_on_top_level, this, _1 ) );
+Node::~Node() { 
+    if ( parent ) parent->remove_child(*this); 
+    while ( ! nodes.empty() )
+        remove_child( *nodes.back() );
+}
+
+void Node::add_child( Node& o ) {
+    nodes.push_back( &o );
+    node_lookup.insert( std::make_pair( o.name, &o ) );
+    o.parent = this;
+}
+
+template <typename Type>
+struct equal_address {
+    Type* a;
+    equal_address( Type* a ) : a(a) {}
+    typedef bool result_type;
+    bool operator()( Type& o ) const { return &o == a; }
+    bool operator()( Type* o ) const { return o == a; }
+};
+
+void Node::remove_child( Node& o ) {
+    nodes.erase( std::remove_if( nodes.begin(), nodes.end(), equal_address<Node>(&o) ) );
+    node_lookup.erase( o.name );
+    o.parent = NULL;
+
+    print("remove " + o.name);
 }
 
 std::auto_ptr<simparm::Node> Node::create_object( std::string name ) {
@@ -41,9 +65,7 @@ std::auto_ptr<simparm::Node> Node::create_choice( std::string name, std::string 
 
 std::auto_ptr<simparm::Node> Node::create_node( std::string name, std::string type ) {
     std::auto_ptr<Node> rv( new Node(name,type) );
-    listen_to( *rv );
-    nodes.push_back( rv.get() );
-    node_lookup.insert( std::make_pair( name, rv.get() ) );
+    add_child( *rv );
     return std::auto_ptr<simparm::Node>(rv.release());
 }
 
@@ -65,7 +87,8 @@ void Node::add_attribute( simparm::BaseAttribute& a ) {
     connections.push_back( a.notify_on_value_change( boost::bind( &Node::print_attribute_value, this, boost::cref(a) ) ) );
 }
 
-void Node::send( Message& ) {
+Message::Response Node::send( Message& m ) {
+    if ( parent ) return parent->send( m );
 }
 
 void Node::print_attribute_value( const simparm::BaseAttribute& a ) {
@@ -103,11 +126,17 @@ void Node::undeclare() {
 }
 
 void Node::show() {
+    if ( ! parent ) return;
     std::stringstream declaration;
     declare( declaration );
-    bool did_print = print_( declaration.str() );
-    if ( ! did_print )
-        undeclare();
+    std::string d = declaration.str();
+    /* Delete terminal newline that will be re-attached upon printing the command */
+    if ( d != "" ) {
+        d.erase( d.length() - 1 );
+        bool did_print = parent->print( d );
+        if ( ! did_print )
+            undeclare();
+    }
 }
 
 void Node::hide() {
@@ -129,21 +158,6 @@ void Node::processCommand( std::istream& is ) {
     if ( is )
         processCommand( command, is );
 }
-
-#if 0
-    void processCommand(std::istream& from) {
-        std::string command;
-        from >> command;
-        
-        Type value;
-        if ( AttributeCommandInterpreter<Type>::from_stream(command, from, value) ) {
-            valueChange( value, false );
-        } else if ( command == "query" )
-            print( define() );
-        else
-            throw std::runtime_error("Unrecognized command " + command);
-    }
-#endif
 
 void Node::process_attribute( BaseAttribute& a, std::istream& rest ) {
     std::string command;

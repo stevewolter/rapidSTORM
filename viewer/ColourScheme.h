@@ -18,7 +18,7 @@ struct ColourScheme : public simparm::ObjectChoice {
     static std::auto_ptr<ColourScheme> config_for();
 
     virtual std::auto_ptr<Backend> make_backend( Config&, Status& ) const = 0; 
-    virtual void add_listener( simparm::BaseAttribute::Listener& ) {}
+    virtual void add_listener( simparm::BaseAttribute::Listener ) = 0;
 };
 
 }

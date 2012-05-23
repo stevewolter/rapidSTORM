@@ -41,12 +41,16 @@ void FieldChoice::fill< dStorm::Localization::Fields::Count >(BinningType type, 
 
 FieldChoice::~FieldChoice() {}
 
-void FieldChoice::add_listener( simparm::BaseAttribute::Listener& l ) {
-    value.notify_on_value_change( l );
+void FieldChoice::add_listener( simparm::BaseAttribute::Listener l ) {
+    change.connect( l );
     for ( iterator i = begin(); i != end(); ++i )
         i->add_listener( l );
 }
 
+void FieldChoice::attach_ui( simparm::NodeRef a ) {
+    simparm::ManagedChoiceEntry<FieldConfig>::attach_ui(a);
+    listening = value.notify_on_value_change( change );
+}
 
 }
 }

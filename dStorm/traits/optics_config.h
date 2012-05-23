@@ -39,7 +39,9 @@ private:
     simparm::Entry< boost::optional<camera_response> > counts_per_photon;
     simparm::Entry< boost::optional< boost::units::quantity<boost::units::camera::intensity, int > > > dark_current;
     simparm::ManagedChoiceEntry< ProjectionConfig > alignment;
-    typedef boost::ptr_vector< simparm::Entry<double> > Transmissions;
+
+    struct TransmissionEntry;
+    typedef boost::ptr_vector< TransmissionEntry > Transmissions;
     Transmissions transmissions;
     typedef Eigen::Matrix< boost::units::quantity< nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > PixelSize;
     simparm::Entry<PixelSize> pixel_size;
@@ -47,10 +49,12 @@ private:
     void set_fluorophore_count( int fluorophore_count, bool multiplane );
 
     dStorm::default_on_copy< boost::signals2::signal<void()> > ui_element_changed;
+    simparm::BaseAttribute::ConnectionStore listening[5];
 
 public:
     PlaneConfig(int number, Purpose );
     PlaneConfig( const PlaneConfig& );
+    ~PlaneConfig();
     void attach_ui( simparm::Node& at );
 
     void notify_on_any_change( boost::signals2::slot<void()> listener ) 

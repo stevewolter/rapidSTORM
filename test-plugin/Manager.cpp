@@ -36,6 +36,7 @@
 #include <simparm/ChoiceEntry_Impl.hh>
 #include <simparm/Entry.hh>
 #include <simparm/TriggerEntry.hh>
+#include <simparm/text_stream/Node.h>
 #include <sstream>
 
 #include "Manager.h"
@@ -147,6 +148,9 @@ class Manager::ControlConfig
     simparm::StringEntry new_limit;
     simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
     simparm::BaseAttribute::ConnectionStore listening[4];
+    
+    class GUINode;
+    std::auto_ptr< GUINode > gui_node;
 
   public:
     ControlConfig(Manager& m) 
@@ -166,29 +170,7 @@ class Manager::ControlConfig
         which_window.set_auto_selection( false );
     }
 
-    void attach_ui( simparm::Node& at ) {
-        listening[0] = close.value.notify_on_value_change( 
-            boost::bind( &Manager::ControlConfig::close_window, this ) );
-        listening[1] = set_lower_limit.value.notify_on_value_change( 
-            boost::bind( &Manager::ControlConfig::notice_lower_limit, this ) );
-        listening[2] = set_upper_limit.value.notify_on_value_change(
-            boost::bind( &Manager::ControlConfig::notice_upper_limit, this ) );
-        listening[3] = draw_rectangle.value.notify_on_value_change(
-            boost::bind( &Manager::ControlConfig::notice_drawn_rectangle, this ) );
-
-        simparm::NodeRef r = simparm::Object::attach_ui( at );
-        which_window.attach_ui( r );
-        close.attach_ui( r );
-        which_key.attach_ui( r );
-        new_limit.attach_ui( r );
-        set_lower_limit.attach_ui( r );
-        set_upper_limit.attach_ui( r );
-        top.attach_ui( r);
-        bottom.attach_ui( r);
-        left.attach_ui( r);
-        right.attach_ui( r);
-        draw_rectangle.attach_ui( r);
-    }
+    void attach_ui( simparm::Node& at ); 
 
     boost::shared_ptr<Source> look_up_window() {
         boost::shared_ptr<Source> src;
@@ -246,11 +228,45 @@ class Manager::ControlConfig
         { which_window.removeChoice(src); }
 };
 
-#if 0 /* TODO: Re-enable */
-void Manager::ControlConfig::processCommand( std::istream& in )
+class Manager::ControlConfig::GUINode : public simparm::text_stream::Node {
+    ControlConfig& c;
+    void processCommand( const std::string&, std::istream& );
+public:
+    GUINode( ControlConfig& c, simparm::NodeRef parent ) 
+    : simparm::text_stream::Node("PixelQuery", "Object"), c(c) {
+        simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(&parent);
+        if ( p ) set_parent( *p );
+    }
+};
+
+void Manager::ControlConfig::attach_ui( simparm::Node& at ) {
+    listening[0] = close.value.notify_on_value_change( 
+        boost::bind( &Manager::ControlConfig::close_window, this ) );
+    listening[1] = set_lower_limit.value.notify_on_value_change( 
+        boost::bind( &Manager::ControlConfig::notice_lower_limit, this ) );
+    listening[2] = set_upper_limit.value.notify_on_value_change(
+        boost::bind( &Manager::ControlConfig::notice_upper_limit, this ) );
+    listening[3] = draw_rectangle.value.notify_on_value_change(
+        boost::bind( &Manager::ControlConfig::notice_drawn_rectangle, this ) );
+
+    simparm::NodeRef r = simparm::Object::attach_ui( at );
+    which_window.attach_ui( r );
+    close.attach_ui( r );
+    which_key.attach_ui( r );
+    new_limit.attach_ui( r );
+    set_lower_limit.attach_ui( r );
+    set_upper_limit.attach_ui( r );
+    top.attach_ui( r);
+    bottom.attach_ui( r);
+    left.attach_ui( r);
+    right.attach_ui( r);
+    draw_rectangle.attach_ui( r);
+
+    gui_node.reset( new GUINode( *this, r ) );
+}
+
+void Manager::ControlConfig::GUINode::processCommand( const std::string& command, std::istream& in )
 {
-    std::string command;
-    in >> command;
     if ( command == "pixel_value" ) {
         DEBUG("Reading instructions");
         std::string window;
@@ -258,9 +274,9 @@ void Manager::ControlConfig::processCommand( std::istream& in )
         const Source* i = NULL;
         std::stringstream msg;
 
-        if ( which_window.isValid() ) {
+        if ( c.which_window.isValid() ) {
             DEBUG("Finding window");
-            i = &( which_window() );
+            i = &( c.which_window() );
             pos.fill(0);
             in >> boost::units::quantity_cast<int&>(pos.x()) 
                 >> boost::units::quantity_cast<int&>(pos.y());
@@ -283,13 +299,10 @@ void Manager::ControlConfig::processCommand( std::istream& in )
         DEBUG("Printing results");
         print( msg.str() );
         DEBUG("Printed results");
-    } else if ( command == "in" ) {
-        std::string name;
-        in >> name;
-        (*this)[name].processCommand(in);
+    } else {
+        simparm::text_stream::Node::processCommand( command, in );
     }
 }
-#endif
 
 class Manager::Handle 
 : public dStorm::display::Manager::WindowHandle {

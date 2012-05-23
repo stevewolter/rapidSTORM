@@ -24,8 +24,6 @@ IO::IO(istream* in, ostream* out)
     add_attribute(showTabbed);
 
     pthread_mutex_init((pthread_mutex_t*)mutex, NULL);
-
-    Node::print_.connect( boost::bind( &IO::print, this, _1 ) );
 }
 
 #if 0
@@ -83,14 +81,8 @@ void IO::processCommand(const std::string& cmd, istream& in) {
         if (remoteAttached) {
             remoteAttached = false;
             hide();
-            print("detach");
+            print_unconditionally("detach");
         }
-#if 0
-    } else if (cmd == "help") {
-        if ( out )
-            for ( iterator i = begin(); i != end(); i++ )
-                i->printHelp( *out );
-#endif
     } else if (cmd == "quit") {
         should_quit = true;
     } else if (cmd == "cmd") {
@@ -99,24 +91,28 @@ void IO::processCommand(const std::string& cmd, istream& in) {
         processCommand(in);
         std::stringstream response;
         response << "ack " << number;
-        print( response.str() );
+        print_unconditionally( response.str() );
     } else if (cmd == "nop") {
         /* Do nothing. */
     } else if (cmd == "echo") {
         std::string s;
         std::getline(in, s);
-        print(s);
+        print_unconditionally(s);
     } else {
         Node::processCommand( cmd, in );
     }
 }
 
-bool IO::print(const std::string& what) {
-    if (!out || !remoteAttached()) return false;
+void IO::print_unconditionally( const std::string& what ) {
     pthread_mutex_lock( (pthread_mutex_t*)mutex );
     (*out) << what << endl;
     out->flush();
     pthread_mutex_unlock( (pthread_mutex_t*)mutex );
+}
+
+bool IO::print(const std::string& what) {
+    if (!out || !remoteAttached()) return false;
+    print_unconditionally(what);
     return true;
 }
 
@@ -127,22 +123,22 @@ bool IO::print_on_top_level(const std::string& what) {
 void IO::set_input_stream( istream *in ) { this->in = in; }
 void IO::set_output_stream( ostream *out ) { this->out = out; }
 
-void IO::send( Message& m ) {
-    if ( in != NULL && remoteAttached() ) {
-#if 0
-        /* Write the help_file */
-        if ( m.help_file() == "" && has_child_named("help_file") ) {
-            const Node& hf = (*this)["help_file"];
-            const Attribute<std::string>* shf = dynamic_cast< const Attribute<std::string>* >( &hf );
-            if ( shf != NULL ) m.help_file = *shf;
-        }
-        std::string definition = m.define();
-        print( m.define() );
-        print( m.undefine() );
-#endif
+Message::Response IO::send( Message& m ) {
+    if ( out != NULL && remoteAttached() ) {
+        pthread_mutex_lock( (pthread_mutex_t*)mutex );
+        (*out) << "declare simparmMessage\n"
+              << "title set " << m.title << "\n"
+              << "message set " << m.message << "\n"
+              << "severity set " << m.severity << "\n"
+              << "options set " << m.options << "\n"
+              << "helpID set " << m.helpID << "\n"
+              << "end\n";
+        out->flush();
+        pthread_mutex_unlock( (pthread_mutex_t*)mutex );
+        return Message::OKYes;
     } else {
         std::cerr << m;
-        m.set_response( Message::OKYes );
+        return Message::OKYes;
     }
 }
 

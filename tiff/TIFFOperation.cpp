@@ -64,7 +64,7 @@ void TIFFOperation::ignore(
 void TIFFOperation::throw_exception_for_errors()
 {
     if ( ! errors.empty() ) {
-        std::runtime_error error( errors.front().get_message() );
+        std::runtime_error error( errors.front().message );
         errors.clear();
         throw error;
     }
