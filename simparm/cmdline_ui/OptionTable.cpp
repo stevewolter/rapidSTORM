@@ -41,7 +41,7 @@ int OptionTable::parse( int argc, char** args ) {
     /* Check whether matched name is unique. */
     if ( i->name != name_stem ) {
         std::vector<Option>::const_iterator j = i;
-        while ( j != options.end() && j->name.substr( name_stem.length() ) == name_stem )
+        while ( j != options.end() && j->name.substr( 0, name_stem.length() ) == name_stem )
             ++j;
         if ( j == i ) {
             return 0;
@@ -55,11 +55,12 @@ int OptionTable::parse( int argc, char** args ) {
     BaseAttribute* attribute = NULL;
     if ( index_specification == -1 ) 
         attribute = i->attributes.back();
-    else if ( index_specification < i->attributes.size() )
+    else if ( index_specification < int(i->attributes.size()) )
         attribute = i->attributes[ index_specification-1 ];
     else
         throw std::runtime_error("Index specification " + boost::lexical_cast<std::string>(index_specification) + " is out of bounds");
 
+    int parsed_args = 1;
     std::string value;
     switch ( i->type ) {
         case Boolean: value = ( has_no ) ? "false" : "true"; break;
@@ -69,6 +70,7 @@ int OptionTable::parse( int argc, char** args ) {
                 return 0;
             } else {
                 value = args[1];
+                parsed_args = 2;
             }
             break;
         case Trigger:
@@ -77,7 +79,7 @@ int OptionTable::parse( int argc, char** args ) {
     }
     std::stringstream stream(value);
     attribute->set_value("set", stream);
-    return 0;
+    return parsed_args;
 }
 
 void OptionTable::add_option( std::string name, BaseAttribute& a, Type t ) { 

@@ -1,6 +1,5 @@
 #include "BoostUnits.h"
 #include "Entry_Impl.h"
-#include "IO.h"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/io.hpp>
 #include <dejagnu.h>
@@ -18,7 +17,5 @@ int main() {
     meters = 5 * boost::units::si::metre;
     TestState().testrun( meters() == 5 * boost::units::si::metre, "Assignment of constant to unit entry works" );
 
-    boost::shared_ptr<simparm::IO> io( new simparm::IO(&std::cin, &std::cout) );
-    meters.attach_ui( io );
     return 0;
 }
