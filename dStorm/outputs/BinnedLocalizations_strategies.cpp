@@ -2,9 +2,9 @@
 #include "BinnedLocalizations_strategies_config.h"
 #include "BinnedLocalizations_strategies_impl.h"
 #include "BinnedLocalizations.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 #include <dStorm/image/MetaInfo.h>
 
 #include <dStorm/output/binning/config.h>

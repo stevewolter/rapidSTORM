@@ -1,6 +1,6 @@
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
 
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include <boost/ptr_container/ptr_array.hpp>
@@ -14,13 +14,13 @@
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/display/Manager.h>
 #include <boost/thread/mutex.hpp>
-#include <simparm/Entry.hh>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/FileEntry.h>
 #include <cassert>
-#include <simparm/ObjectChoice.hh>
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/ObjectChoice.h>
+#include <simparm/ManagedChoiceEntry.h>
 
 #include "RegionSegmenter.h"
 #include "foreach.h"

@@ -7,11 +7,11 @@
 #include <limits>
 #include <boost/units/io.hpp>
 #include <boost/variant/apply_visitor.hpp>
-#include <simparm/Message.hh>
+#include <simparm/Message.h>
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/extend.h>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
 
@@ -262,13 +262,9 @@ void Display::run() throw() {
     try {
         acquire(); 
         return;
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
         simparm::Message m( "Could not acquire images for aiming view", e.what() );
-        current_ui->send(m);
-    } catch (...) {
-        simparm::Message m( "Could not acquire images for aiming view", 
-                            "Unknown error occured while acquiring images for aiming view." );
-        current_ui->send(m);
+        m.send( current_ui );
     }
     handle.reset( NULL );
     DEBUG("Display acquisition thread finished\n");
@@ -353,11 +349,11 @@ void Display::do_save() {
         if ( ! imageFile ) {
             simparm::Message m( "Unable to save image",
                                 "No filename for camera snapshot image provided" );
-            current_ui->send(m);
+            m.send( current_ui );
         } else if ( ! handle.get() ) {
             simparm::Message m( "Unable to save image",
                                 "Image display window has already been closed" );
-            current_ui->send(m);
+            m.send( current_ui );
         } else {
             DEBUG("Getting current image display status");
             display::SaveRequest request;

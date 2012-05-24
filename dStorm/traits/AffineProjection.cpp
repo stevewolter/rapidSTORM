@@ -6,8 +6,8 @@
 #include <boost/units/systems/camera/resolution.hpp>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
-#include <simparm/Object.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/FileEntry.h>
 #include <dStorm/image/MetaInfo.h>
 #include "debug.h"
 #include <fstream>

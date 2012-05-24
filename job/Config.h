@@ -6,10 +6,11 @@
 #include <dStorm/input/Link.h>
 #include <memory>
 #include <list>
-#include <simparm/Set.hh>
-#include <simparm/Menu.hh>
-#include <simparm/FileEntry.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Set.h>
+#include <simparm/Menu.h>
+#include <simparm/FileEntry.h>
+#include <simparm/Entry.h>
+#include <simparm/Message.h>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/JobMaster.h>
 
@@ -43,9 +44,7 @@ class Config : public dStorm::Config
     Config *clone() const { return new Config(*this); }
 
     void attach_ui( simparm::NodeHandle at );
-    //void processCommand( std::istream& i ) { current_ui->processCommand(i); }
-    void send( simparm::Message& m ) { current_ui->send(m); }
-    //std::list<std::string> printValues() { return current_ui->printValues(); }
+    void send( simparm::Message& m ) { m.send( current_ui ); }
 
     simparm::NodeHandle user_interface_handle() { return current_ui; }
 

@@ -1,7 +1,6 @@
 #ifndef DSTORM_JOB_MASTER_H
 #define DSTORM_JOB_MASTER_H
 
-#include <simparm/Node.hh>
 #include "Job.h"
 
 namespace dStorm {

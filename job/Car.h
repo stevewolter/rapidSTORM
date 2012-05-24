@@ -8,7 +8,7 @@
 #include "Config.h"
 #include <dStorm/output/OutputSource.h>
 #include <cassert>
-#include <simparm/TriggerEntry.hh>
+#include <simparm/TriggerEntry.h>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/fwd.h>
 #include <dStorm/JobMaster.h>

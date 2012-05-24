@@ -1,5 +1,5 @@
-#include <simparm/BoostUnits.hh>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/Entry_Impl.h>
 #include "Lens3D.h"
 #include "Config.h"
 #include <dStorm/units/nanolength.h>

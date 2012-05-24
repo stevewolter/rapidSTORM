@@ -2,14 +2,14 @@
 #define DSTORM_EXPRESSION_COMMANDLINE_H
 
 #include "Source_decl.h"
-#include <simparm/Object.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/ManagedChoiceEntry.h>
 #include "Parser.h"
 #include "localization_variable_decl.h"
 #include <dStorm/localization/Traits.h>
 #include <dStorm/Localization.h>
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ObjectChoice.h>
 
 namespace dStorm {
 namespace expression {

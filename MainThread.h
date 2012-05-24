@@ -7,7 +7,6 @@
 #include <queue>
 #include <boost/function/function0.hpp>
 #include <boost/noncopyable.hpp>
-#include <simparm/IO.hh>
 #include <dStorm/JobMaster.h>
 #include "InputStream.h"
 #include <dStorm/stack_realign.h>

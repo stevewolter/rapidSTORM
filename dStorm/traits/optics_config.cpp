@@ -1,3 +1,4 @@
+#include <simparm/Node.h>
 #include "debug.h"
 #include "optics_config.h"
 #include <boost/lexical_cast.hpp>
@@ -241,6 +242,8 @@ void MultiPlaneConfig::set_context( const input::Traits<Localization>& t )
     layers[0].set_context( t, t.fluorophores.size() );
 }
 
+
+bool MultiPlaneConfig::ui_is_attached() { return current_ui && current_ui->isActive(); }
 
 }
 }

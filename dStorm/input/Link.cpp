@@ -1,6 +1,5 @@
 #include "debug.h"
 #include "Link.h"
-#include <simparm/Node.hh>
 
 #ifdef VERBOSE
 #include "dStorm/engine/Image.h"

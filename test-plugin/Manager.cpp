@@ -33,9 +33,9 @@
 
 #include <Eigen/Core>
 
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Entry.hh>
-#include <simparm/TriggerEntry.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Entry.h>
+#include <simparm/TriggerEntry.h>
 #include <simparm/text_stream/Node.h>
 #include <sstream>
 

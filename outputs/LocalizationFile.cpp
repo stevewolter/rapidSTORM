@@ -7,7 +7,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string.h>
 #include <stdlib.h>

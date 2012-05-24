@@ -2,8 +2,7 @@
 #define DSTORM_INPUTSTREAM_H
 
 #include <memory>
-#include <simparm/Node.hh>
-#include <simparm/IO.hh>
+#include <simparm/text_stream/RootNode.h>
 #include <dStorm/Config_decl.h>
 #include "JobStarter.h"
 
@@ -12,14 +11,11 @@ namespace dStorm {
 class MainThread;
 
 class InputStream 
-: public simparm::IO
+: public simparm::text_stream::RootNode
 {
     std::auto_ptr< job::Config > orig_config, current_config;
     std::auto_ptr< JobStarter > starter;
     MainThread& main_thread;
-    simparm::Attribute<std::string> desc;
-    simparm::Attribute<bool> viewable;
-    simparm::Attribute<int> userLevel;
 
     void reset_config();
     void processCommand( const std::string& cmd, std::istream& rest);
@@ -28,7 +24,7 @@ class InputStream
     InputStream( MainThread& master );
     ~InputStream();
     void set_config( const job::Config& );
-    void processCommand( std::istream& stream ) { simparm::IO::processCommand(stream); }
+    using simparm::text_stream::RootNode::processCommand;
 };
 
 }

@@ -1,7 +1,7 @@
 #include "debug.h"
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
-#include <simparm/ProgressEntry.hh>
+#include <simparm/ProgressEntry.h>
 
 #include "ProgressMeter.h"
 
@@ -68,7 +68,6 @@ ProgressMeter::announceStormSize(const Announcement &a) {
         else
             progress.indeterminate = true;
         max = frame_count::from_value(0);
-        if ( ! current_ui || ! current_ui->isActive() ) progress.makeASCIIBar( std::cerr );
         return AdditionalData(); 
     }
 

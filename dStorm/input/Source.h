@@ -8,7 +8,7 @@
 #include <memory>
 #include <limits>
 #include <bitset>
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 
 #include "Traits.h"
 

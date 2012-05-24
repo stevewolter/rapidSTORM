@@ -1,7 +1,7 @@
 #include "debug.h"
 
 #include "JobStarter.h"
-#include <simparm/Message.hh>
+#include <simparm/Message.h>
 
 namespace dStorm {
 

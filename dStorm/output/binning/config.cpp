@@ -1,6 +1,6 @@
 #include "config.h"
 #include "localization_config.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace output {

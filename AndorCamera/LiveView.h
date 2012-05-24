@@ -4,12 +4,12 @@
 #include "AndorDirect_decl.h"
 #include <boost/utility.hpp>
 #include <boost/units/quantity.hpp>
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 #include <boost/optional/optional.hpp>
 #include <dStorm/display/Manager.h>
 #include <boost/units/systems/camera/frame_rate.hpp>
 #include <boost/thread/mutex.hpp>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 namespace AndorCamera {

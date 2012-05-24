@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-#include <simparm/Menu.hh>
+#include <simparm/Menu.h>
 
 #include <dStorm/signals/UseSpotFinder.h>
 #include <dStorm/signals/UseSpotFitter.h>

@@ -1,6 +1,6 @@
 #define CImgBuffer_SIFLOADER_CPP
-#include <simparm/Message.hh>
-#include <simparm/Node.hh>
+#include <simparm/Message.h>
+#include <simparm/NodeHandle.h>
 #include <read_sif.h>
 #include "AndorSIF_OpenFile.h"
 #include <stdexcept>
@@ -132,7 +132,7 @@ OpenFile::load_image(int count, simparm::NodeHandle node)
             "Error while reading SIF file: " + std::string(readsif_error)
                + ". Will skip remaining images.", 
                simparm::Message::Warning);
-        node->send(m);
+        m.send( node );
         had_errors = true;
         return std::auto_ptr< engine::ImageStack >();
     } else if ( rv_of_readsif_getImage == -2 ) {
@@ -140,7 +140,7 @@ OpenFile::load_image(int count, simparm::NodeHandle node)
             "Error while reading SIF file: " + std::string(readsif_error)
                + ". Will skip one image.", 
                simparm::Message::Warning);
-        node->send(m);
+        m.send( node );
         return std::auto_ptr< engine::ImageStack >();
     } else if ( rv_of_readsif_getImage == 1 ) {
         throw std::logic_error("Too many images read from SIF source");

@@ -1,12 +1,12 @@
 #ifndef DSTORM_EXPRESSION_SIMPLEFILTERS_H
 #define DSTORM_EXPRESSION_SIMPLEFILTERS_H
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
 #include <boost/units/Eigen/Core>
-#include <simparm/Eigen.hh>
-#include <simparm/BoostOptional.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Eigen.h>
+#include <simparm/BoostOptional.h>
+#include <simparm/Entry.h>
 #include "CommandLine.h"
 #include <dStorm/units/nanolength.h>
 #include <dStorm/localization/Traits.h>

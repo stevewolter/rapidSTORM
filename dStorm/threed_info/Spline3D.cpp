@@ -6,8 +6,8 @@
 #include <gsl/gsl_errno.h>
 #include <stdexcept>
 #include <fstream>
-#include <simparm/Object.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/FileEntry.h>
 
 #include <boost/units/cmath.hpp>
 #include <boost/units/io.hpp>

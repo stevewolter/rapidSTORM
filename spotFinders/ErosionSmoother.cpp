@@ -1,10 +1,10 @@
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <dStorm/image/dilation.h>
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 
 namespace dStorm {
 namespace erosion_smoother {

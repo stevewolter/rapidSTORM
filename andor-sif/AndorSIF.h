@@ -10,8 +10,8 @@
 #include <string>
 #include <stdexcept>
 #include <stdio.h>
-#include <simparm/FileEntry.hh>
-#include <simparm/TriggerEntry.hh>
+#include <simparm/FileEntry.h>
+#include <simparm/TriggerEntry.h>
 #include <dStorm/helpers/thread.h>
 #include <dStorm/Image.h>
 #include <boost/utility.hpp>

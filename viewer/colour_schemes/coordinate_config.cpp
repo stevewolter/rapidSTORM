@@ -1,11 +1,11 @@
 #include "coordinate.h"
 #include <viewer/ColourScheme.h>
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 #include <dStorm/output/binning/config.h>
 
 #include "../Config.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace viewer {

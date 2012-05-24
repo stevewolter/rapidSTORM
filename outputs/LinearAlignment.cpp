@@ -1,7 +1,7 @@
 #include "LinearAlignment.h"
 
-#include <simparm/Object.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/FileEntry.h>
 
 #include <dStorm/output/Filter.h>
 #include <dStorm/output/FilterBuilder.h>

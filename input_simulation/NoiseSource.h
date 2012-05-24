@@ -12,10 +12,10 @@
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/units/microlength.h>
 
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/TriggerEntry.hh>
-#include <simparm/ProgressEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/TriggerEntry.h>
+#include <simparm/ProgressEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/engine/InputTraits.h>

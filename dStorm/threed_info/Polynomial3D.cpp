@@ -1,8 +1,8 @@
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
-#include <simparm/Entry_Impl.hh>
-#include <simparm/Object.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
+#include <simparm/Entry_Impl.h>
+#include <simparm/Object.h>
 
 #include <boost/units/Eigen/Core>
 #include <boost/units/Eigen/Array>

@@ -94,12 +94,12 @@ void RawImageFile::receiveLocalizations(const EngineResult& er)
     simparm::Message m( "Out of memory while writing TIFF image",
         "The memory was exhausted while writing to the TIFF output file. The current image is dropped and not stored.",
         simparm::Message::Warning);
-    current_ui->send( m );
+    m.send( current_ui );
     return;
-  } catch ( const std::exception& e ) {
+  } catch ( const std::runtime_error& e ) {
     simparm::Message m("Error in writing TIFF file",
         std::string(e.what()) + ". Disabling TIFF output for this job.");
-    current_ui->send( m );
+    m.send( current_ui );
   }
 
     /* When errors occured, TIFFClose tends to kill the whole program

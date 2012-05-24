@@ -4,6 +4,8 @@
 #include "Config.h"
 #include "Fitter.h"
 
+#include <simparm/Node.h>
+
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/Engine.h>

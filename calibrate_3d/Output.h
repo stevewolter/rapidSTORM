@@ -12,11 +12,11 @@
 #include <boost/units/systems/si/area.hpp>
 #include <boost/units/quantity.hpp>
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 
 #include <dStorm/output/Output.h>
 #include <dStorm/traits/optics_config.h>

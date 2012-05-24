@@ -3,7 +3,7 @@
 
 #include <string>
 #include <boost/array.hpp>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Direction.h>
 

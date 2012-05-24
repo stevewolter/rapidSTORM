@@ -1,7 +1,7 @@
 #include "SpotMeter.h"
 #include <dStorm/output/FileOutputBuilder.h>
-#include <simparm/FileEntry.hh>
-#include <simparm/Entry.hh>
+#include <simparm/FileEntry.h>
+#include <simparm/Entry.h>
 #include <map>
 #include <iostream>
 

@@ -3,8 +3,8 @@
 
 #include <dStorm/log.h>
 #include <dStorm/input/AdapterSource.h>
-#include <simparm/Entry.hh>
-#include <simparm/Object.hh>
+#include <simparm/Entry.h>
+#include <simparm/Object.h>
 #include <boost/iterator/iterator_adaptor.hpp>
 
 namespace VerboseInputFilter {

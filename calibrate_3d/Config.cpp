@@ -1,5 +1,5 @@
 #include "Config.h"
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace calibrate_3d {

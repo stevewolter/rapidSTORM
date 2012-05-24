@@ -2,9 +2,9 @@
 #define DSTORM_OUTPUT_CONFIG_H
 
 #include "SourceFactory.h"
-#include <simparm/Object.hh>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ManagedChoiceEntry.h>
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "OutputSource.h"

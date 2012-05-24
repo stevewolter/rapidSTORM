@@ -1,4 +1,4 @@
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 
 #include "RegionOfInterest.h"
 #include <boost/multi_array.hpp>
@@ -8,10 +8,10 @@
 
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Filter.h>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <dStorm/Engine.h>
 #include <dStorm/UnitEntries.h>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 
 namespace simparm {
 template class Entry< dStorm::samplepos::Scalar>;

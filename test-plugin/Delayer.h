@@ -5,8 +5,8 @@
 #include "config.h"
 #endif
 
-#include <simparm/Entry.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
+#include <simparm/Entry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>

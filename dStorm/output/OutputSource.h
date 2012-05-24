@@ -4,8 +4,8 @@
 #include "Output.h"
 #include "Basename.h"
 #include <memory>
-#include <simparm/Object.hh>
-#include <simparm/TreeEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/TreeEntry.h>
 #include "SourceFactory_decl.h"
 #include "BasenameAdjustedFileEntry_decl.h"
 #include <dStorm/make_clone_allocator.hpp>

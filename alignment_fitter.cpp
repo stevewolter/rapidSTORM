@@ -3,11 +3,10 @@
 #include <gsl/gsl_multimin.h>
 #include <boost/units/Eigen/Array>
 #include <iomanip>
-#include <simparm/Entry_Impl.hh>
-#include <simparm/IO.hh>
-#include <simparm/Set.hh>
-#include <simparm/TriggerEntry.hh>
-#include <simparm/command_line.hh>
+#include <simparm/Entry_Impl.h>
+#include <simparm/text_stream/RootNode.h>
+#include <simparm/Set.h>
+#include <simparm/TriggerEntry.h>
 
 typedef std::list<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> > PositionList;
 typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
@@ -58,7 +57,7 @@ int main(int argc, char *argv[]) {
     simparm::Entry<long> image_count("ImageCount", "Number of images to use", 100);
     simparm::TriggerEntry compute("Compute", "Compute"), twiddler("Twiddler", "Twiddler");
 
-    boost::shared_ptr<simparm::IO> io( new simparm::IO(NULL, &std::cout) );
+    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(NULL, &std::cout) );
     simparm::Set config("Config", "Matrix generator");
     simparm::NodeHandle r = config.attach_ui( io );
     file1.attach_ui( r );

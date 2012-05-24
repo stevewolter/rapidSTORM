@@ -23,12 +23,12 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
-#include <simparm/Set.hh>
-#include <simparm/TriggerEntry.hh>
-#include <simparm/IO.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
+#include <simparm/Set.h>
+#include <simparm/TriggerEntry.h>
+#include <simparm/text_stream/RootNode.h>
 
 #include <dStorm/engine/Image.h>
 #include <dStorm/Image.h>
@@ -241,7 +241,7 @@ Source::get_traits(typename BaseSource::Wishes) {
 Source::~Source() {}
 
 static void unit_test() {
-    boost::shared_ptr<simparm::IO> dummy_ui( new simparm::IO(NULL,NULL) );
+    boost::shared_ptr<simparm::text_stream::RootNode> dummy_ui( new simparm::text_stream::RootNode(NULL,NULL) );
     ChainLink l;
     l.attach_ui( dummy_ui );
     l.publish_meta_info();

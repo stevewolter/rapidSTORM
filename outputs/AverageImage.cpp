@@ -6,7 +6,7 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/engine/Input.h>
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 #include <memory>
 
 #include <iostream>

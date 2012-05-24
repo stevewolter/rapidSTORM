@@ -1,8 +1,8 @@
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 #include "fwd.h"
 #include <dStorm/output/Output.h>
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
 #include <iostream>
 #include <fstream>
 #include <memory>

@@ -7,7 +7,7 @@
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <dStorm/UnitEntries/TimeEntry.h>
 #include "ViewportSelector.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
 #include <dStorm/input/Choice.h>
 #include <dStorm/input/Link.h>

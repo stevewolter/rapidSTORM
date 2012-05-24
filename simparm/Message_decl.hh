@@ -1,3 +1,0 @@
-namespace simparm {
-    class Message;
-}

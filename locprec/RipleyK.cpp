@@ -1,9 +1,9 @@
 #include <Eigen/StdVector>
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 #include "DistanceHistogram.h"
 #include "RipleyK.h"
-#include <simparm/Entry_Impl.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry_Impl.h>
+#include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/output/binning/localization.h>
 #include <dStorm/output/OutputBuilder.h>

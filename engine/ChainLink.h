@@ -7,7 +7,7 @@
 #include <dStorm/input/MetaInfo.h>
 #include "Config.h"
 #include <dStorm/output/LocalizedImage.h>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 

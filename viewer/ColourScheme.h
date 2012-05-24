@@ -1,7 +1,7 @@
 #ifndef DSTORM_VIEWER_COLOURSCHEME_H
 #define DSTORM_VIEWER_COLOURSCHEME_H
 
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ObjectChoice.h>
 #include <memory>
 #include "Backend.h"
 #include <dStorm/make_clone_allocator.hpp>

@@ -6,8 +6,8 @@
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>
 
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
 
 #include <Eigen/Core>
 
@@ -23,8 +23,8 @@
 
 #include <memory>
 
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>

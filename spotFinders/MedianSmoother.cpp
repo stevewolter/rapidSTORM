@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include <simparm/BoostUnits.hh>
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>

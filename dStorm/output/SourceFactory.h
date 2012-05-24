@@ -1,7 +1,7 @@
 #ifndef DSTORM_TRANSMISSIONSOURCEFACTORY_H
 #define DSTORM_TRANSMISSIONSOURCEFACTORY_H
 
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 #include <set>
 #include "Capabilities.h"
 #include <boost/utility.hpp>

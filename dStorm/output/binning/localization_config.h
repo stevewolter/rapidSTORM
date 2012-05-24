@@ -3,9 +3,9 @@
 
 #include "config.h"
 #include "localization.h"
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
-#include <simparm/BoostUnits.hh>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
+#include <simparm/BoostUnits.h>
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {

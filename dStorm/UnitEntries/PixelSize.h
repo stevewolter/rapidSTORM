@@ -2,7 +2,7 @@
 #define DSTORM_UNITENTRY_NANORES_H
 
 #include "../units/nanoresolution.h"
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 

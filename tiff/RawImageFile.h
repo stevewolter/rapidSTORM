@@ -6,7 +6,7 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <tiffio.h>
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 
 #include <queue>
 

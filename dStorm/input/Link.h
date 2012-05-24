@@ -8,7 +8,7 @@
 #include <list>
 #include <utility>
 #include <memory>
-#include <simparm/Node.hh>
+#include <simparm/NodeHandle.h>
 #include <dStorm/InsertionPlace.h>
 #include <boost/ptr_container/clone_allocator.hpp>
 #include <boost/signals2/slot.hpp>

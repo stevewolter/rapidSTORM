@@ -4,7 +4,7 @@
 #include "Config_decl.h"
 
 #include <dStorm/UnitEntries/Nanometre.h>
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 #include <nonlinfit/levmar/Config.h>
 #include "fit_window/Config.h"
 

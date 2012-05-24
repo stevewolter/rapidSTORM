@@ -3,8 +3,8 @@
 #include <list>
 #include <tiffio.h>
 #include <stdarg.h>
-#include <simparm/Message.hh>
-#include <simparm/Node.hh>
+#include <simparm/Message.h>
+#include <simparm/NodeHandle.h>
 
 namespace dStorm {
 

@@ -111,12 +111,12 @@ void Car::run( JobMaster* input_stream ) {
         drive();
     } catch ( const std::bad_alloc& e ) {
         OutOfMemoryMessage m("Job " + ident);
-        current_ui->send(m);
+        m.send( current_ui );
     } catch ( const std::runtime_error& e ) {
         DEBUG("Sending message in run loop " << e.what());
         simparm::Message m("Error in Job " + ident, 
                                "Job " + ident + " failed: " + e.what() );
-        current_ui->send(m);
+        m.send( current_ui );
         DEBUG("Sent message in run loop " << e.what());
     }
 
@@ -157,7 +157,7 @@ void Car::drive() {
         simparm::Message m("Unable to provide data",
                 "The selected input module cannot provide localization traces. "
                 "Please select an appropriate output.");
-        current_ui->send(m);
+        m.send( current_ui );
         return;
     } else if ( data.test( output::Capabilities::SourceImage ) &&
                 ! announcement.source_image_is_set )
@@ -167,7 +167,7 @@ void Car::drive() {
                    std::string("images of the acquisition. These are not present in ") +
                    "the input. Either remove the output or " +
                    "choose a different input file or method.");
-        current_ui->send(m);
+        m.send( current_ui );
         return;
     } else if (
         ( data.test( output::Capabilities::SmoothedImage ) && 
@@ -184,7 +184,7 @@ void Car::drive() {
             << data << ") that are not "
             "present in the current input.";
         simparm::Message m("Unable to provide data", ss.str());
-        current_ui->send(m);
+        m.send( current_ui );
         return;
     }
 
@@ -230,20 +230,20 @@ void Car::drive() {
   } catch ( boost::thread_interrupted ) {
   } catch (const std::bad_alloc& e) {
     OutOfMemoryMessage m("Job " + ident);
-    current_ui->send(m);
+    m.send( current_ui );
   } catch (const std::runtime_error& e) {
     simparm::Message m( "Error in Job " + ident, e.what() );
-    current_ui->send(m);
+    m.send( current_ui );
   }
 
     try {
         output->store_results( run_successful );
     } catch (const std::bad_alloc& e) {
         OutOfMemoryMessage m("Job " + ident);
-        current_ui->send(m);
+        m.send( current_ui );
     } catch (const std::runtime_error& e) {
         simparm::Message m( "Error while saving results of Job " + ident, e.what() );
-        current_ui->send(m);
+        m.send( current_ui );
     }
 
     current_run.reset();

@@ -717,23 +717,32 @@ dstorm_SOURCES += \
     tiff/augment_config.h tiff/augment_config.cpp
 
 libsimparm_la_SOURCES = \
-    simparm/ConfigSet.cc simparm/ConfigEntry.cc simparm/ConfigIO.cc simparm/ConfigObject.cc \
-    simparm/ConfigEntryTrigger.cc simparm/ConfigEntryProgress.cc \
-    simparm/Node.cc simparm/Attribute.cc simparm/TreeEntry.cc \
-    simparm/FileEntry.cc simparm/Message.cpp \
-    simparm/ChoiceEntry.cpp \
-    simparm/debug.hh simparm/Node.hh simparm/Attribute.hh simparm/Object.hh \
-    simparm/Entry_decl.hh simparm/Entry.hh simparm/Set.hh simparm/IO.hh \
-    simparm/VectorEntry.hh \
-    simparm/Entry_Impl.hh simparm/ChoiceEntry_Impl.hh simparm/ManagedChoiceEntry.hh \
-    simparm/ChoiceEntry.hh simparm/FileEntry.hh simparm/TreeEntry.hh \
-    simparm/TriggerEntry.hh simparm/ProgressEntry.hh simparm/iostream.hh \
-    simparm/Node_decl.hh simparm/Eigen.hh \
-    simparm/Message_decl.hh simparm/Message.hh simparm/Menu.hh \
-    simparm/Eigen_decl.hh simparm/default_value.hh simparm/IncrementWatcher.hh simparm/BoostUnits.hh \
-    simparm/MinMaxWatcher.hh simparm/MinMaxWatcher_decl.hh simparm/BoostOptional.hh simparm/Attributes.hh \
-    simparm/ObjectChoice.hh simparm/command_line.hh simparm/NodeHandle.hh \
-    simparm/text_stream/Node.h simparm/text_stream/Node.cpp
+    simparm/Node.h simparm/Node.cpp \
+    simparm/NodeHandle.h \
+    simparm/Attribute.h simparm/Attribute.cpp \
+    simparm/BasicEntry.h simparm/BasicEntry.cpp \
+    simparm/Set.h simparm/Set.cpp \
+    simparm/Entry.h simparm/Entry_Impl.h simparm/Entry.cpp \
+    simparm/Object.h simparm/Object.cpp \
+    simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
+    simparm/ProgressEntry.h simparm/ProgressEntry.cpp \
+    simparm/TreeEntry.h simparm/TreeEntry.cpp \
+    simparm/FileEntry.h simparm/FileEntry.cpp \
+    simparm/Message.h simparm/Message.cpp \
+    simparm/ChoiceEntry.h simparm/ChoiceEntry_Impl.h simparm/ChoiceEntry.cpp \
+    simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
+    simparm/Menu.h \
+    simparm/debug.h \
+    simparm/iostream.h \
+    simparm/Eigen_decl.h simparm/Eigen.h \
+    simparm/BoostUnits.h \
+    simparm/default_value.h simparm/IncrementWatcher.h \
+    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h \
+    simparm/text_stream/Node.h simparm/text_stream/Node.cpp \
+    simparm/text_stream/RootNode.h simparm/text_stream/RootNode.cpp \
+    simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
+    simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
+    simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp
 libsimparm_la_LDFLAGS = -lpthread 
 
 if HAVE_LIBREADSIF

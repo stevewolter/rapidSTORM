@@ -1,4 +1,5 @@
-#include "Message.hh"
+#include "Message.h"
+#include "Node.h"
 #include <pthread.h>
 #include <stdexcept>
 #include <sstream>
@@ -98,6 +99,10 @@ std::ostream& operator<<( std::ostream& o, const Message& m)
 {
     o << m.title << ": " << m.message << std::endl;
     return o;
+}
+
+Message::Response Message::send( NodeHandle n ) {
+    return n->send( *this );
 }
 
 }

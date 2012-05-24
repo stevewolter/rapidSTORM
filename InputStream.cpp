@@ -14,16 +14,9 @@
 namespace dStorm {
 
 InputStream::InputStream( MainThread& master )
-: IO(NULL,NULL),
-  main_thread(master),
-  desc( "desc", PACKAGE_STRING ),
-  viewable( "viewable", true ),
-  userLevel( "userLevel", 10 )
+: simparm::text_stream::RootNode(NULL,NULL),
+  main_thread(master)
 {
-    this->showTabbed = true;
-    this->add_attribute(desc);
-    this->add_attribute(viewable);
-    this->add_attribute(userLevel);
 }
 
 InputStream::~InputStream() {}
@@ -59,15 +52,15 @@ void InputStream::processCommand(const std::string& cmd, std::istream& rest)
         reset_config();
     } else if ( cmd == "quit" ) {
         main_thread.terminate_running_jobs();
-        IO::processCommand(cmd,rest);
+        RootNode::processCommand(cmd,rest);
     } else {
-        simparm::IO::processCommand(cmd, rest);
+        RootNode::processCommand(cmd, rest);
     }
 }
 
 bool InputStream::print(const std::string& what) {
     ost::DebugStream::get()->ost::LockedStream::begin();
-    bool b = simparm::IO::print(what);
+    bool b = simparm::text_stream::RootNode::print(what);
     ost::DebugStream::get()->ost::LockedStream::end();
     return b;
 }

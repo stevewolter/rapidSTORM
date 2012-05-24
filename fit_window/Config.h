@@ -2,7 +2,7 @@
 #define DSTORM_FIT_WINDOW_CONFIG_H
 
 #include <dStorm/UnitEntries/Nanometre.h>
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 
 namespace dStorm {
 namespace fit_window {

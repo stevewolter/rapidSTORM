@@ -1,5 +1,5 @@
 #include "TIFFOperation.h"
-#include <simparm/Message.hh>
+#include <simparm/Message.h>
 #include <cassert>
 #include <stdexcept>
 
@@ -27,7 +27,7 @@ TIFFOperation::~TIFFOperation() {
     TIFFSetErrorHandler( old_error_handler );
     current = NULL;
     while ( ! errors.empty() ) {
-        message_handler->send( errors.front() );
+        errors.front().send( message_handler );
         errors.pop_front();
     }
 }
@@ -40,7 +40,7 @@ void TIFFOperation::make_warning(
     vsnprintf( buffer, 4095, fmt, ap );
     simparm::Message m("Warning " + current->error_title,
         buffer, simparm::Message::Warning );
-    current->message_handler->send( m );
+    m.send( current->message_handler );
 }
 
 void TIFFOperation::make_error(

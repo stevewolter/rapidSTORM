@@ -1,8 +1,8 @@
 #include "colored.h"
 #include "../Config.h"
 #include "base_impl.h"
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {

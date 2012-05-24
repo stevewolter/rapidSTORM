@@ -4,8 +4,7 @@
 #include <dStorm/threed_info/DepthInfo.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Direction.h>
-#include <simparm/Node.hh>
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ObjectChoice.h>
 #include <dStorm/make_clone_allocator.hpp>
 
 namespace dStorm {

@@ -4,10 +4,10 @@
 #include <dStorm/stack_realign.h>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/display/Manager.h>
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
-#include <simparm/TriggerEntry.hh>
-#include <simparm/Set.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
+#include <simparm/TriggerEntry.h>
+#include <simparm/Set.h>
 #include <boost/optional.hpp>
 #include <map>
 #include "AndorDirect.h"

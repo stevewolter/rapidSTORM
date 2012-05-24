@@ -1,8 +1,8 @@
 #ifndef SIMPARM_TEXT_STREAM_NODE_H
 #define SIMPARM_TEXT_STREAM_NODE_H
 
-#include "../Node.hh"
-#include "../BaseAttribute.hh"
+#include "../Node.h"
+#include "../BaseAttribute.h"
 #include <map>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -50,7 +50,7 @@ public:
     simparm::NodeHandle create_progress_bar( std::string name, std::string desc );
     simparm::NodeHandle create_trigger( std::string name, std::string desc );
     void add_attribute( simparm::BaseAttribute& );
-    Message::Response send( Message& m );
+    Message::Response send( Message& m ) const;
     void show();
     void hide();
     /** TODO: Method is deprecated and should be removed on successful migration. */

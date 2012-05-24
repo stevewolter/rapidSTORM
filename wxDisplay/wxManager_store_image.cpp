@@ -9,7 +9,7 @@
 #include <cmath>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/image/slice.h>
-#include <simparm/Message.hh>
+#include <simparm/Message.h>
 #include <stdio.h>
 
 static const char *SI_prefixes[]

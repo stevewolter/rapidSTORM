@@ -1,8 +1,8 @@
 #ifndef SMOOTHED_IMAGE_SAVE_H
 #define SMOOTHED_IMAGE_SAVE_H
 
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>

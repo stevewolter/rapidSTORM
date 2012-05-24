@@ -1,11 +1,11 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_CONFIG_IMPL_H
 
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 #include "localization_config.h"
 #include "binning.hpp"
 #include <sstream>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace output {

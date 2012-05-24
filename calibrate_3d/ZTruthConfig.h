@@ -2,7 +2,7 @@
 #define DSTORM_CALIBRATE3D_ZTRUTHCONFIG_H
 
 #include <string>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <memory>
 
 namespace dStorm {

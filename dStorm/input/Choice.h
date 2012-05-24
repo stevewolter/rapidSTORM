@@ -2,7 +2,7 @@
 #define DSTORM_INPUT_CHAINCHOICE_H
 
 #include "Link.h"
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/ManagedChoiceEntry.h>
 
 namespace dStorm {
 namespace input {

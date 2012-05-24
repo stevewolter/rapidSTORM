@@ -2,8 +2,8 @@
 
 #include "Alternatives.h"
 #include "Forwarder.h"
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Message.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Message.h>
 #include <map>
 #include "Forwarder.h"
 #include "InputMutex.h"

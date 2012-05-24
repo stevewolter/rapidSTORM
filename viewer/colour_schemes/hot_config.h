@@ -2,7 +2,7 @@
 #define DSTORM_COLOUR_SCHEMES_HOT_CONFIG_H
 
 #include <viewer/ColourScheme.h>
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 
 namespace dStorm {
 namespace viewer {

@@ -1,6 +1,6 @@
 #include <dejagnu.h>
-#include "ChoiceEntry_Impl.hh"
-#include "Object.hh"
+#include "ChoiceEntry_Impl.h"
+#include "Object.h"
 
 using namespace simparm;
 

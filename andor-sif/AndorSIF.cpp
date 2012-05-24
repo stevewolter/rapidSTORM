@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <functional>
 
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Message.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Message.h>
 
 #include "AndorSIF.h"
 #include <dStorm/input/Source.h>

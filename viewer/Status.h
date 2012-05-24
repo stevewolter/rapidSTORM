@@ -3,9 +3,9 @@
 
 #include "Status_decl.h"
 #include "Config.h"
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
-#include <simparm/TriggerEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
+#include <simparm/TriggerEntry.h>
 #include <boost/thread/mutex.hpp>
 #include <dStorm/Engine.h>
 

@@ -1,6 +1,6 @@
 #include "BasenamePrinter.h"
 
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <iostream>

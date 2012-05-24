@@ -1,8 +1,8 @@
 #include "debug.h"
 
 #include "FilterSource.h"
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
 #include <dStorm/outputs/Crankshaft.h>
 #include "OutputSource.h"
 #include "SourceFactory.h"

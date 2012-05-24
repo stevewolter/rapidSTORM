@@ -1,7 +1,7 @@
 #ifndef DSTORM_UNITENTRIES_TEMPERATUREENTRY_H
 #define DSTORM_UNITENTRIES_TEMPERATUREENTRY_H
 
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <boost/units/systems/temperature/celsius.hpp>
 
 namespace dStorm {

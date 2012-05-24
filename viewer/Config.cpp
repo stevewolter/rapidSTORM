@@ -1,9 +1,9 @@
 #include "Config.h"
 #include "ColourScheme.h"
 #include "debug.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 #include "colour_schemes/decl.h"
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace viewer {

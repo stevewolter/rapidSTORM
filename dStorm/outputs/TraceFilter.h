@@ -2,7 +2,7 @@
 #define DSTORM_TRACE_FILTER
 
 #include "../output/FilterBuilder.h"
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include "../Engine_decl.h"
 #include <vector>
 

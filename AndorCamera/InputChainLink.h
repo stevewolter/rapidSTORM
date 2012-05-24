@@ -2,9 +2,9 @@
 #define DSTORM_ANDORCAMERA_INPUTCHAINLINK_H
 
 #include <dStorm/input/Link.h>
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
-#include <simparm/TriggerEntry.hh>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
+#include <simparm/TriggerEntry.h>
 #include <dStorm/input/MetaInfo.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>

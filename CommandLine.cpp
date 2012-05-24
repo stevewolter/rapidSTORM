@@ -1,6 +1,6 @@
 #include "debug.h"
 
-#include <simparm/Message.hh>
+#include <simparm/Message.h>
 #include "CommandLine.h"
 #include <vector>
 #include <string>
@@ -12,8 +12,7 @@
 #include "InputStream.h"
 #include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
-#include <simparm/IO.hh>
-#include <simparm/command_line.hh>
+#include <simparm/cmdline_ui/RootNode.h>
 #include <dStorm/display/Manager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/condition.hpp>
@@ -50,7 +49,7 @@ class TwiddlerLauncher
 void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
-    boost::shared_ptr< simparm::IO > argument_parser( new simparm::IO(NULL,NULL) );
+    boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
 
     for ( int i = 0; i < argc; i++ ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
@@ -67,19 +66,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     argv += shift;
 #endif
 
-    DEBUG("Reading command line arguments");
-    int first_nonoption = 0;
-    if (argc > 0) {
-        // TODO: first_nonoption = readConfig(argument_parser, argc, argv);
-        launcher.trigger();
-        first_nonoption = argc;
-    }
-
-    DEBUG("Processing nonoption arguments from " <<first_nonoption << " to " <<  argc );
-    for (int arg = first_nonoption; arg < argc; arg++) {
-        std::cerr << "Warning: Command line argument " << argv[arg] << " was ignored." << std::endl;
-    }
-    DEBUG("Finished processing commandline arguments");
+    argument_parser->parse_command_line( argc, argv );
 }
 
 int CommandLine::find_config_file( int argc, char* argv[] ) {

@@ -2,7 +2,7 @@
 #define DSTORM_UNITENTRIES_HERTZ_H
 
 #include <boost/units/make_scaled_unit.hpp>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include "../units/megafrequency.h"
 
 namespace dStorm {

@@ -1,6 +1,6 @@
-#include "ChoiceEntry_Impl.hh"
-#include "ManagedChoiceEntry.hh"
-#include "Object.hh"
+#include "ChoiceEntry_Impl.h"
+#include "ManagedChoiceEntry.h"
+#include "Object.h"
 
 namespace simparm {
 

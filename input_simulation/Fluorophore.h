@@ -2,15 +2,15 @@
 #define LOCPREC_FLUOROPHORE_H
 
 #include <Eigen/StdVector>
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
 #include <dStorm/Localization.h>
 #include <dStorm/engine/Image.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_matrix.h>
-#include <simparm/Set.hh>
-#include <simparm/Entry.hh>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Set.h>
+#include <simparm/Entry.h>
+#include <simparm/Entry_Impl.h>
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>

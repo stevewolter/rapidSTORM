@@ -4,7 +4,7 @@
 
 #include "inputs/inputs.h"
 #include "spotFinders/spotFinders.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 #include "outputs/BasicTransmissions.h"
 #include <dStorm/Config.h>
 #include "engine/ChainLink_decl.h"

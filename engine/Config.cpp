@@ -6,8 +6,8 @@
 #include <dStorm/engine/SpotFitter.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Entry_Impl.h>
 #include <dStorm/output/Basename.h>
 #include <boost/bind/bind.hpp>
 

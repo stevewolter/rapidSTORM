@@ -290,7 +290,6 @@ NoiseSource::Source::TraitsPtr
 NoiseSource::get_traits( typename Source::Wishes ) {
     simparm::ProgressEntry progress("FluorophoreProgress", "Fluorophore generation progress");
     simparm::NodeHandle ui = progress.attach_ui( current_ui );
-    if ( ! (ui && ui->isActive()) ) progress.makeASCIIBar( std::cerr );
     for ( boost::ptr_list< FluorophoreSetConfig >::const_iterator
             i = fluorophore_configs.begin(); i != fluorophore_configs.end(); ++i)
     {

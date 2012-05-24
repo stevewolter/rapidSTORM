@@ -8,7 +8,7 @@
 #include "../engine/Input_decl.h"
 #include "../engine/CandidateTree_decl.h"
 #include <stdexcept>
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 #include <iostream>
 #include <set>
 #include <bitset>

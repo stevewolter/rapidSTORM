@@ -1,7 +1,7 @@
 #ifndef DSTORM_JOB_H
 #define DSTORM_JOB_H
 
-#include <simparm/Node.hh>
+#include <simparm/NodeHandle.h>
 
 namespace dStorm {
 

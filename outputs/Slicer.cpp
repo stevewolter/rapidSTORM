@@ -1,12 +1,12 @@
-#include <simparm/BoostUnits.hh>
+#include <simparm/BoostUnits.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
 #include <dStorm/UnitEntries/FrameEntry.h>
-#include <simparm/Entry.hh>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Entry.h>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 

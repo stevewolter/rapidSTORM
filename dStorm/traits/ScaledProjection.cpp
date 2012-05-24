@@ -1,7 +1,7 @@
 #include "ScaledProjection.h"
 #include "ProjectionConfig.h"
 #include "ProjectionFactory.h"
-#include <simparm/Object.hh>
+#include <simparm/Object.h>
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <dStorm/image/MetaInfo.h>

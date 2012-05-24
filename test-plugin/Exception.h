@@ -1,8 +1,8 @@
 #ifndef TESTPLUGIN_EXCEPTION_H
 #define TESTPLUGIN_EXCEPTION_H
 
-#include <simparm/Entry.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
+#include <simparm/Entry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <iostream>

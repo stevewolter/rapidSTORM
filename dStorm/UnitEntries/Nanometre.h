@@ -1,8 +1,8 @@
 #ifndef DSTORM_UNITENTRIES_NANOMETRE_H
 #define DSTORM_UNITENTRIES_NANOMETRE_H
 
-#include <simparm/BoostUnits.hh>
-#include <simparm/Entry.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/Entry.h>
 #include <boost/units/systems/si/length.hpp>
 #include "../units/nanolength.h"
 

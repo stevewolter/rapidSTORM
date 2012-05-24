@@ -1,5 +1,5 @@
 #include "InputBase.h"
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 #include <dStorm/input/Forwarder.h>
 
 namespace dStorm {

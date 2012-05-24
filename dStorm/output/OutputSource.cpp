@@ -4,7 +4,7 @@
 #include <cassert>
 #include <sstream>
 #include <list>
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 
 namespace dStorm {
 namespace output {

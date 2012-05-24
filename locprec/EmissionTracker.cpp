@@ -1,7 +1,7 @@
-#include <simparm/BoostUnits.hh>
-#include <simparm/Entry.hh>
-#include <simparm/Entry.hh>
-#include <simparm/FileEntry.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/Entry.h>
+#include <simparm/Entry.h>
+#include <simparm/FileEntry.h>
 #include <dStorm/output/TraceReducer.h>
 #include <cassert>
 #include <Eigen/Core>
@@ -15,7 +15,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional/optional.hpp>
 #include "EmissionTracker.h"
-#include <simparm/Entry_Impl.hh>
+#include <simparm/Entry_Impl.h>
 #include <algorithm>
 #include <numeric>
 #include <boost/units/Eigen/Array>

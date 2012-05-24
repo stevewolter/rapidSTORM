@@ -1,9 +1,9 @@
 #include "debug.h"
 #include "ROIFilter.h"
 
-#include <simparm/BoostUnits.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Entry_Impl.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Entry_Impl.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>

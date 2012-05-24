@@ -8,13 +8,13 @@
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/ManagedChoiceEntry.hh>
-#include <simparm/Entry.hh>
-#include <simparm/Message.hh>
-#include <simparm/Object.hh>
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/ManagedChoiceEntry.h>
+#include <simparm/Entry.h>
+#include <simparm/Message.h>
+#include <simparm/Object.h>
+#include <simparm/ObjectChoice.h>
 #include <dStorm/make_clone_allocator.hpp>
 
 using namespace dStorm::engine;

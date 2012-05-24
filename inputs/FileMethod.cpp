@@ -7,10 +7,10 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/Choice.h>
 #include <dStorm/input/Forwarder.h>
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 
 #include "FileMethod.h"
 #include <dStorm/signals/InputFileNameChange.h>
@@ -137,14 +137,14 @@ std::auto_ptr<Link> makeLink() {
 #include "tiff/TIFF.h"
 #include "test-plugin/DummyFileInput.h"
 #include "dejagnu.h"
-#include <simparm/IO.hh>
+#include <simparm/text_stream/RootNode.h>
 
 namespace dStorm {
 namespace input {
 namespace file_method {
 
 void unit_test( TestState& t ) {
-    boost::shared_ptr<simparm::IO> io( new simparm::IO(NULL,NULL) );
+    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(NULL,NULL) );
     FileMethod file_method;
     file_method.registerNamedEntries(io);
 

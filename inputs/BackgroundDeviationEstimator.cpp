@@ -8,9 +8,9 @@
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
-#include <simparm/Entry.hh>
-#include <simparm/Message.hh>
-#include <simparm/Object.hh>
+#include <simparm/Entry.h>
+#include <simparm/Message.h>
+#include <simparm/Object.h>
 
 using namespace dStorm::engine;
 
@@ -169,7 +169,7 @@ Source::get_traits( Wishes w )
                 "The most common pixel in this image is also the lowest. I cannot compute a background standard deviation, sorry. "
                 "Some things, like determining precision of localization, will not work.",
                 simparm::Message::Warning);
-            current_ui->send(m);
+            m.send( current_ui );
         }
 
     DEBUG("Dispatching restart message");

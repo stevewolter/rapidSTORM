@@ -6,8 +6,8 @@
 #include <cassert>
 #include <dStorm/engine/Image.h>
 
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Message.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Message.h>
 #include <dStorm/display/Manager.h>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
@@ -164,7 +164,7 @@ void Viewer::writeToFile(const string &name) {
         implementation->save_image(name, config);
     } catch ( const std::runtime_error& e ) {
         simparm::Message m( "Writing result image failed", "Writing result image failed: " + std::string(e.what()) );
-        if ( ui ) ui->send( m );
+        m.send( ui );
     }
 }
 

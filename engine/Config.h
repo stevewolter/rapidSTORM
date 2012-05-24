@@ -1,17 +1,17 @@
 #ifndef DSTORM_CONFIG_H
 #define DSTORM_CONFIG_H
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/BoostOptional.hh>
-#include <simparm/Eigen.hh>
-#include <simparm/Set.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/BoostOptional.h>
+#include <simparm/Eigen.h>
+#include <simparm/Set.h>
+#include <simparm/Entry.h>
 #include <dStorm/UnitEntries.h>
-#include <simparm/Entry.hh>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/Entry.h>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/ManagedChoiceEntry.h>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>

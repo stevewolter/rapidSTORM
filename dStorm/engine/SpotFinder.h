@@ -1,7 +1,7 @@
 #ifndef DSTORM_SPOTFINDER_H
 #define DSTORM_SPOTFINDER_H
 
-#include <simparm/Node.hh>
+#include <simparm/NodeHandle.h>
 #include <memory>
 
 #include "Image.h"

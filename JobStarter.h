@@ -1,7 +1,7 @@
 #ifndef DSTORM_JOBSTARTER_H
 #define DSTORM_JOBSTARTER_H
 
-#include <simparm/TriggerEntry.hh>
+#include <simparm/TriggerEntry.h>
 #include <dStorm/Config.h>
 #include "job/Config.h"
 #include <dStorm/JobMaster.h>

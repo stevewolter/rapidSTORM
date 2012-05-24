@@ -1,9 +1,9 @@
-#include <simparm/BoostUnits.hh>
-#include <simparm/BoostOptional.hh>
+#include <simparm/BoostUnits.h>
+#include <simparm/BoostOptional.h>
 #include "SampleInfo.h"
 
 #include "debug.h"
-#include <simparm/FileEntry.hh>
+#include <simparm/FileEntry.h>
 #include <dStorm/input/AdapterSource.h>
 #include <dStorm/UnitEntries/PixelSize.h>
 #include <dStorm/units/nanolength.h>

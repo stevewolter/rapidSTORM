@@ -3,13 +3,13 @@
 
 #include "Config_decl.h"
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
-#include <simparm/ChoiceEntry.hh>
-#include <simparm/ManagedChoiceEntry.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
+#include <simparm/ChoiceEntry.h>
+#include <simparm/ManagedChoiceEntry.h>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/units/microlength.h>
 

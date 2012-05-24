@@ -1,12 +1,12 @@
 #ifndef DSTORM_CALIBRATE_3D_CONFIG_H
 #define DSTORM_CALIBRATE_3D_CONFIG_H
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
 
-#include <simparm/Object.hh>
-#include <simparm/Entry.hh>
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 #include <string>
 #include <dStorm/output/Capabilities.h>
 #include "FormCalibrationConfig.h"

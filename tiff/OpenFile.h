@@ -2,8 +2,8 @@
 #define DSTORM_TIFF_OPEN_FILE_H
 
 #include <dStorm/input/Traits.h>
-#include <simparm/Node.hh>
-#include <simparm/Entry.hh>
+#include <simparm/NodeHandle.h>
+#include <simparm/Entry.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

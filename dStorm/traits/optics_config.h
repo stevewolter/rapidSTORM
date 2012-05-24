@@ -1,19 +1,19 @@
 #ifndef DSTORM_TRAITS_OPTICS_CONFIG_H
 #define DSTORM_TRAITS_OPTICS_CONFIG_H
 
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
 #include <dStorm/engine/InputTraits.h>
-#include <simparm/Object.hh>
-#include <simparm/Set.hh>
-#include <simparm/BoostOptional.hh>
+#include <simparm/Object.h>
+#include <simparm/Set.h>
+#include <simparm/BoostOptional.h>
 #include "../UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/Set.hh>
-#include <simparm/Entry_Impl.hh>
-#include <simparm/ManagedChoiceEntry.hh>
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/Set.h>
+#include <simparm/Entry_Impl.h>
+#include <simparm/ManagedChoiceEntry.h>
+#include <simparm/ChoiceEntry_Impl.h>
 
 #include "position.h"
 #include "ProjectionConfig.h"
@@ -98,7 +98,7 @@ class MultiPlaneConfig
 
     void show() { name_object.viewable = true; }
     void hide() { name_object.viewable = false; }
-    bool ui_is_attached() { return current_ui && current_ui->isActive(); }
+    bool ui_is_attached();
 };
 
 }

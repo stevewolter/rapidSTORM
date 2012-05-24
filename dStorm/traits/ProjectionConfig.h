@@ -1,8 +1,7 @@
 #ifndef DSTORM_TRAITS_PROJECTION_CONFIG_H
 #define DSTORM_TRAITS_PROJECTION_CONFIG_H
 
-#include <simparm/Node.hh>
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ObjectChoice.h>
 #include <memory>
 #include <dStorm/make_clone_allocator.hpp>
 

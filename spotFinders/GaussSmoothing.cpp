@@ -1,8 +1,8 @@
-#include <simparm/Eigen_decl.hh>
-#include <simparm/Object.hh>
-#include <simparm/Entry_Impl.hh>
-#include <simparm/BoostUnits.hh>
-#include <simparm/Eigen.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/Object.h>
+#include <simparm/Entry_Impl.h>
+#include <simparm/BoostUnits.h>
+#include <simparm/Eigen.h>
 
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>

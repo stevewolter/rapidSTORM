@@ -1,7 +1,7 @@
 #include "CommandLine.h"
 #include "Filter.h"
 #include "VariableLValue.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace expression {

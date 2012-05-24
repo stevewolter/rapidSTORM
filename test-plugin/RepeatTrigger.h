@@ -1,7 +1,7 @@
 #ifndef TESTPLUGIN_REPEATTRIGGER_H
 #define TESTPLUGIN_REPEATTRIGGER_H
 
-#include <simparm/TriggerEntry.hh>
+#include <simparm/TriggerEntry.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/Engine.h>

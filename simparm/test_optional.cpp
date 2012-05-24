@@ -1,7 +1,7 @@
 #define SIMPARM_OPTIONAL_ENABLE_CHECK
 #include <dejagnu.h>
-#include "Entry.hh"
-#include "Entry_Impl.hh"
+#include "Entry.h"
+#include "Entry_Impl.h"
 #include <stdexcept>
 #include <iostream>
 #include <cassert>

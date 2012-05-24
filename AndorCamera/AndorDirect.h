@@ -6,7 +6,7 @@
 #include <dStorm/input/Source.h>
 #include <memory>
 #include <string>
-#include <simparm/Set.hh>
+#include <simparm/Set.h>
 
 #include <boost/shared_ptr.hpp>
 

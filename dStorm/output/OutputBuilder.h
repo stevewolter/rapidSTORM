@@ -2,7 +2,7 @@
 #define DSTORM_ENGINE_OUTPUTBUILDER_H
 
 #include "OutputSource.h"
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 namespace output {

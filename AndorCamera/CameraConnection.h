@@ -11,7 +11,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <dStorm/engine/Image.h>
 #include <boost/variant/variant.hpp>
-#include <simparm/Entry.hh>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 namespace AndorCamera {

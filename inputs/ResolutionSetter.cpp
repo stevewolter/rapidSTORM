@@ -1,5 +1,5 @@
-#include <simparm/Eigen_decl.hh>
-#include <simparm/BoostUnits.hh>
+#include <simparm/Eigen_decl.h>
+#include <simparm/BoostUnits.h>
 
 #include "ResolutionSetter.h"
 #include "debug.h"
@@ -17,9 +17,9 @@
 #include <dStorm/Localization.h>
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/units/nanolength.h>
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Eigen.hh>
-#include <simparm/IO.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Eigen.h>
+#include <simparm/text_stream/RootNode.h>
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -184,7 +184,7 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        boost::shared_ptr<simparm::IO> master( new simparm::IO(NULL,NULL) );
+        boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode(NULL,NULL) );
         l.config.attach_ui( master );
         std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
         master->processCommand(cmd);

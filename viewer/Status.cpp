@@ -1,6 +1,6 @@
 #include "Status.h"
 #include "Config.h"
-#include <simparm/ChoiceEntry_Impl.hh>
+#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace viewer {

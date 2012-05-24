@@ -87,7 +87,7 @@ void Node::add_attribute( simparm::BaseAttribute& a ) {
     connections.push_back( a.notify_on_value_change( boost::bind( &Node::print_attribute_value, this, boost::cref(a) ) ) );
 }
 
-Message::Response Node::send( Message& m ) {
+Message::Response Node::send( Message& m ) const {
     if ( parent ) return parent->send( m ); else return Message::OKYes;
 }
 

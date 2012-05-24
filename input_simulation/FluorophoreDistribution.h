@@ -2,7 +2,7 @@
 #define LOCPREC_FLUOROPHORE_DISTRIBUTION_H
 
 #include "Fluorophore.h"
-#include <simparm/ObjectChoice.hh>
+#include <simparm/ObjectChoice.h>
 #include <gsl/gsl_rng.h>
 #include <Eigen/Core>
 #include <queue>

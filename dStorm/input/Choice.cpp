@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "Choice.h"
-#include <simparm/ChoiceEntry_Impl.hh>
-#include <simparm/Message.hh>
+#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Message.h>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/input/MetaInfo.h>
 #include <boost/foreach.hpp>
