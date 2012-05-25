@@ -252,6 +252,7 @@ nobase_include_HEADERS = \
     dStorm/display/DummyManager.h  \
     dStorm/Direction.h \
     dStorm/threed_info/Polynomial3D.h \
+    dStorm/threed_info/Measured3D.h \
     dStorm/threed_info/No3D.h \
     dStorm/threed_info/Lens3D.h \
     dStorm/threed_info/Spline3D.h \
@@ -310,6 +311,7 @@ libdStorm_la_SOURCES = \
     dStorm/image/morphological_reconstruction.cpp \
     dStorm/threed_info/DepthInfo.cpp \
     dStorm/threed_info/Polynomial3D.cpp \
+    dStorm/threed_info/Measured3D.cpp \
     dStorm/threed_info/Config.cpp \
     dStorm/threed_info/Spline3D.cpp \
     dStorm/threed_info/No3D.cpp \

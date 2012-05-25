@@ -166,7 +166,9 @@ void InitialValueFinder::operator()(
         } else if ( measured_psf::Model* z = dynamic_cast<measured_psf::Model*>(&position[p][0]) ) {
             boost::mpl::for_each< measured_psf::Model::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            z->set_fixed_calibration_data();
+            const threed_info::Measured3D& m = dynamic_cast<threed_info::Measured3D&>(
+                info.traits.optics(p).depth_info(Direction_X) );
+            z->set_calibration_data( m );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );

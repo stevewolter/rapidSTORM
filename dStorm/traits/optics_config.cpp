@@ -27,6 +27,7 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
         three_d.addChoice( threed_info::make_no_3d_config() );
         three_d.addChoice( threed_info::make_spline_3d_config() );
         three_d.addChoice( threed_info::make_polynomial_3d_config() );
+        three_d.addChoice( threed_info::make_measured_3d_config() );
     }
 
     alignment.addChoice( make_scaling_projection_config() );

@@ -21,24 +21,23 @@ struct Evaluator
     const Model * expr;
     Eigen::Array<double,ChunkSize, 3> calib_image_pos_in_px; //chunk with positions
     Eigen::Array<int,ChunkSize, 3> base_pos_in_px; //chunk with postiions
-    Eigen::Array<double, ChunkSize, 3> psf_data_size;
+    Eigen::Array<double, 1, 3> psf_data_size;
 
     Evaluator() : expr(NULL)  {}
     Evaluator(const Model& e ) :expr(&e) {
     }
     bool prepare_iteration( const Data& data ) {
-        psf_data_size.rowwise() = boost::units::value( expr->psf_data.sizes() ).cast<double>() - 1.0;
+        psf_data_size = boost::units::value( expr->psf_data.sizes() ).cast<double>() - 1.0;
         Eigen::Vector3d x_min, x_max;
-        x_min[0] = data.min(0).value();
-        x_min[1] = data.min(1).value();
+        x_min.head<2>() = value( data.min );
         x_min[2] = expr->axial_mean;
-        x_max[0] = data.max(0).value();
-        x_max[1] = data.max(1).value();
-        x_max[2] = 0;
+        x_max = value( data.max );
+        x_max[2] = expr->axial_mean;
         Eigen::Array3d min_calib = get_calib_image_pos_in_px (x_min);
         Eigen::Array3d max_calib = get_calib_image_pos_in_px (x_max);
-        if (min_calib(0)>=0 && min_calib(1)>=0 && max_calib(0) < psf_data_size(0,0) && max_calib(1) < psf_data_size(0,1) && min_calib(2)>=0 && min_calib(2) < psf_data_size(0,2)) return true;
-        return false;
+        return (
+            (min_calib >= 0).all() &&
+            (max_calib < psf_data_size).all() );
     }
 
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )
@@ -50,9 +49,8 @@ struct Evaluator
              x.head<2>() = xs.row(row).template cast<double>();
              x[2]= expr->axial_mean;
              calib_image_pos_in_px.row(row) = get_calib_image_pos_in_px(x);
+             assert( (calib_image_pos_in_px.row(row) < psf_data_size).all() && (calib_image_pos_in_px.row(row) >= 0).all() )
         }
-        if ( (calib_image_pos_in_px >= psf_data_size).any() || (calib_image_pos_in_px < 0).any() )
-            throw std::logic_error ("calib_image_pos out of range of PSF");
         base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
     }
 
