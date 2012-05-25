@@ -27,6 +27,7 @@ class Spline3DConfig;
 std::auto_ptr< Config > make_no_3d_config();
 std::auto_ptr< Config > make_polynomial_3d_config();
 std::auto_ptr< Config > make_spline_3d_config();
+std::auto_ptr< Config > make_measured_3d_config();
 std::auto_ptr< Config > make_lens_3d_config();
 
 }

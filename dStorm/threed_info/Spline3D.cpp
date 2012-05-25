@@ -108,16 +108,11 @@ class Spline3DConfig : public simparm::Object, public Config {
         { z_calibration_file = ""; }
     void set_context() {}
     simparm::Node& getNode() { return *this; }
-    void registerNamedEntries() {}
   public:
     Spline3DConfig() 
         : simparm::Object("Spline3D", "Interpolated 3D"),
-          z_calibration_file("ZCalibration", "Z calibration file") { registerNamedEntries(); }
-    Spline3DConfig* clone() const { 
-        Spline3DConfig* p = new Spline3DConfig(*this); 
-        p->registerNamedEntries();
-        return p;
-    }
+          z_calibration_file("ZCalibration", "Z calibration file") {}
+    Spline3DConfig* clone() const { return Spline3DConfig(*this); }
 };
 
 std::auto_ptr< Config > make_spline_3d_config()
