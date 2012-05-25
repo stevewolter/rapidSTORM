@@ -158,8 +158,8 @@ Polynomial3DConfig::Polynomial3DConfig()
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
   slopes("WideningConstants", "Widening slopes")
 {
-    slopes.helpID = "Polynomial3D.WideningSlopes";
-    psf_size.helpID = "PSF.FWHM";
+    slopes.setHelpID( "Polynomial3D.WideningSlopes" );
+    psf_size.setHelpID( "PSF.FWHM" );
     z_position.setHelp("Z position where this layer is sharpest in this dimension");
 }
 

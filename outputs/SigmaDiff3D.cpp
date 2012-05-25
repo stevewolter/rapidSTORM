@@ -38,7 +38,7 @@ class SigmaDiff3D::Config {
     Config() 
     : calibration_file("SigmaCalibrationFile", "Calibration file") 
     {
-        calibration_file.helpID = "SigmaDiff3D_CalibrationFile";
+        calibration_file.setHelpID( "SigmaDiff3D_CalibrationFile" );
     }
     void attach_ui( simparm::NodeHandle at ) { calibration_file.attach_ui( at ); }
 

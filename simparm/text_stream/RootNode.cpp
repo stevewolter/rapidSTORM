@@ -16,9 +16,9 @@ using namespace std;
 namespace simparm {
 namespace text_stream {
 
-RootNode::RootNode(istream* in, ostream* out) 
+RootNode::RootNode() 
 : Node("IO","IO"),
-  in(in), out(out), mutex(new pthread_mutex_t),
+  out(NULL), mutex(new pthread_mutex_t),
   is_attached(false), should_quit(false)
 {
     pthread_mutex_init((pthread_mutex_t*)mutex, NULL);
@@ -86,7 +86,6 @@ bool RootNode::print_on_top_level(const std::string& what) {
     return print( what );
 }
 
-void RootNode::set_input_stream( istream *in ) { this->in = in; }
 void RootNode::set_output_stream( ostream *out ) { this->out = out; }
 
 Message::Response RootNode::send( Message& m ) const {

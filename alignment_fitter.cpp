@@ -57,7 +57,8 @@ int main(int argc, char *argv[]) {
     simparm::Entry<long> image_count("ImageCount", "Number of images to use", 100);
     simparm::TriggerEntry compute("Compute", "Compute"), twiddler("Twiddler", "Twiddler");
 
-    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(NULL, &std::cout) );
+    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode() );
+    io->set_output_stream( &std::cout );
     simparm::NodeHandle r = io;
     file1.attach_ui( r );
     file2.attach_ui( r );
@@ -77,9 +78,9 @@ int main(int argc, char *argv[]) {
     cur_volume.attach_ui( r );
     twiddler.attach_ui( r );
     twiddler.set_user_level( simparm::Debug );
-    cur_step.editable = false;
+    cur_step.freeze();
     cur_step.hide();
-    cur_volume.editable = false;
+    cur_volume.freeze();
     cur_volume.hide();
     // TODO: readConfig(r, argc, argv);
 

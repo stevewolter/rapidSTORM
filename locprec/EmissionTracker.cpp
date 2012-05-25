@@ -180,10 +180,10 @@ Output::Config::Config()
   mobility("Mobility", "Mobility constant"),
   distance_threshold("DistanceThreshold", "Distance threshold", 2)
 {
-    allowBlinking.helpID = "EmissionTracker.Allow_Blinking";
-    expectedDeviation.helpID = "EmissionTracker.Expected_Deviation";
-    diffusion.helpID = "EmissionTracker.Diffusion_Constant";
-    mobility.helpID = "EmissionTracker.Mobility_Constant";
+    allowBlinking.setHelpID( "EmissionTracker.Allow_Blinking" );
+    expectedDeviation.setHelpID( "EmissionTracker.Expected_Deviation" );
+    diffusion.setHelpID( "EmissionTracker.Diffusion_Constant" );
+    mobility.setHelpID( "EmissionTracker.Mobility_Constant" );
 }
 
 void Output::Config::attach_ui( simparm::NodeHandle at )

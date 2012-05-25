@@ -12,6 +12,7 @@ class CommandLine
     job::Config config;
     JobStarter starter;
     MainThread& main_thread;
+    simparm::NodeHandle cmdline_ui;
 
     int find_config_file( int argc, char* argv[] );
     bool load_config_file( const std::string& );

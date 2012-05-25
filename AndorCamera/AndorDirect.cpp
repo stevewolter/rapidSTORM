@@ -28,7 +28,7 @@ Source::Source
   has_ended(false), show_live(show_live), resolution(res),
   status("CameraStatus", "Camera status")
 {
-    status.editable = false;
+    status.freeze();
 
     DEBUG("Built AndorDirect source " << this);
 }

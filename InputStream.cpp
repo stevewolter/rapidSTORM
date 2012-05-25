@@ -13,7 +13,7 @@
 namespace dStorm {
 
 InputStream::InputStream( MainThread& master )
-: simparm::text_stream::RootNode(NULL,NULL),
+: simparm::text_stream::RootNode(),
   main_thread(master)
 {
 }

@@ -122,7 +122,7 @@ Config::Config()
     auto_terminate.set_user_level(simparm::Expert);
 
     pistonCount.set_user_level(simparm::Expert);
-    pistonCount.helpID = "#CPUNumber";
+    pistonCount.setHelpID( "#CPUNumber" );
     pistonCount.setHelp("Use this many parallel threads to compute the "
                         "STORM result. If you notice a low CPU usage, "
                         "raise this value to the number of cores you "
@@ -174,11 +174,15 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
 void Config::attach_ui( simparm::NodeHandle at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    current_ui = car_config.attach_ui ( at );
-   input->registerNamedEntries( current_ui );
-   pistonCount.attach_ui(  current_ui  );
-   outputRoot->attach_full_ui(outputBox.attach_ui( current_ui ));
-   configTarget.attach_ui(  current_ui  );
-   auto_terminate.attach_ui(  current_ui  );
+   attach_children( current_ui );
+}
+
+void Config::attach_children( simparm::NodeHandle at ) {
+   input->registerNamedEntries( at );
+   pistonCount.attach_ui(  at  );
+   outputRoot->attach_full_ui(outputBox.attach_ui( at ));
+   configTarget.attach_ui(  at  );
+   auto_terminate.attach_ui(  at  );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
 

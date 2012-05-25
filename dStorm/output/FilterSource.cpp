@@ -37,8 +37,6 @@ public:
 
 void FilterSource::attach_children_ui( simparm::NodeHandle at )
 {
-    assert( ! my_node );
-
     my_node = at;
 
     for ( SuboutputChoice::iterator i = suboutputs.begin(); i != suboutputs.end(); ++i )
@@ -62,7 +60,7 @@ FilterSource::FilterSource()
   suboutputs( "ToRemove", "Select output to remove" )
 {
     suboutputs.set_auto_selection( false );
-    suboutputs.helpID = "#ToRemove";
+    suboutputs.setHelpID( "#ToRemove" );
 }
 
 FilterSource::FilterSource( const FilterSource& o ) 

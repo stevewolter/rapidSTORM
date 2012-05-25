@@ -32,9 +32,9 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
   pixel_size("PixelSizeInNM", "Size of one input pixel",
                    PixelSize::Constant(107.0f * si::nanometre / camera::pixel))
 {
-    three_d.helpID = "3DType";
-    counts_per_photon.helpID = "CameraResponse";
-    dark_current.helpID = "DarkCurrent";
+    three_d.setHelpID( "3DType" );
+    counts_per_photon.setHelpID( "CameraResponse" );
+    dark_current.setHelpID( "DarkCurrent" );
     if ( purpose == InputSimulation ) { 
         three_d.addChoice( threed_info::make_lens_3d_config() );
     } else {

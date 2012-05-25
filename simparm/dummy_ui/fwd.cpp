@@ -22,6 +22,9 @@ struct Node : public simparm::Node {
     virtual void set_description( std::string ) {}
     virtual void set_visibility( bool ) {}
     virtual void set_user_level( UserLevel arg ) {}
+    virtual void set_help_id( std::string ) {}
+    virtual void set_help( std::string ) {}
+    virtual void set_editability( bool ) {}
 };
 
 NodeHandle make_node() { return NodeHandle( new Node() ); }

@@ -48,7 +48,6 @@ void MainThread::erase( Job& job ) {
 
 void MainThread::connect_stdio( const job::Config& config ) {
     boost::mutex::scoped_lock lock( mutex );
-    io->set_input_stream( &std::cin );
     io->set_output_stream( &std::cout );
     io->set_config( config );
     ++job_count;

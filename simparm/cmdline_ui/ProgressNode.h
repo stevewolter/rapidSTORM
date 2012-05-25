@@ -7,17 +7,15 @@ namespace simparm {
 namespace cmdline_ui {
 
 class ProgressNode : public Node {
-#if 0
-    boost::ptr_vector< boost::signals2::scoped_connection > connections;
-    virtual void add_attribute( simparm::BaseAttribute& );
-    std::string desc;
-    double last_value;
+    simparm::BaseAttribute* value;
+    std::auto_ptr<boost::signals2::scoped_connection> connections;
+    void add_attribute( simparm::BaseAttribute& );
 
-    void set_description();
+    int last_percentage;
+
     void set_value();
-#endif
 public:
-    ProgressNode( std::string name ) : Node(name) {}
+    ProgressNode( std::string name ) : Node(name), value(NULL), last_percentage(0) {}
 };
 
 }

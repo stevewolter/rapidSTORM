@@ -50,8 +50,8 @@ Display::Display(
   redeclare_key(false)
 {
     DEBUG("Constructed display " << this);
-    imageFile.editable = false;
-    save.editable = false;
+    imageFile.freeze();
+    save.freeze();
 
     image_acquirer = boost::thread( &Display::run, this );
 }
@@ -334,8 +334,8 @@ void Display::do_pause()
         pause.untrigger();
         /* No lock  necessary here, since pause is an atomic comparison */
         paused = !paused;
-        imageFile.editable = paused;
-        save.editable = paused;
+        imageFile.setEditable( paused );
+        save.setEditable( paused );
         if ( paused )
             image_acquirer.join();
         else

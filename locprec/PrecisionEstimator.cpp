@@ -271,7 +271,7 @@ PrecisionEstimator::Config::Config()
   confidence_interval("ConfidenceInterval", "Confidence interval in sigmas", 2),
   outputFile("ToFile", "Save precision info to", "_prec.txt")
 {
-    h_value.help = "Used by the robust SVD precision estimation as a rough apporoximation to the probability of a single localization to be an outlier.The recommended default value is set to 0.75 and the final result may have more or less localizations marked as a clustering error";
+    h_value.setHelp( "Used by the robust SVD precision estimation as a rough apporoximation to the probability of a single localization to be an outlier.The recommended default value is set to 0.75 and the final result may have more or less localizations marked as a clustering error" );
 }
 
 

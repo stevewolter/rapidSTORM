@@ -746,6 +746,7 @@ libsimparm_la_SOURCES = \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
+    simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 libsimparm_la_LDFLAGS = -lpthread 
 

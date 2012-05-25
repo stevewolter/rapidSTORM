@@ -51,6 +51,9 @@ public:
     void set_description( std::string d ) { description = d; }
     void set_visibility( bool v ) { visible = v; }
     void set_user_level( UserLevel ) {}
+    void set_help_id( std::string ) {}
+    void set_help( std::string ) {}
+    void set_editability( bool ) {}
 
     NodeHandle get_handle() { return shared_from_this(); }
 

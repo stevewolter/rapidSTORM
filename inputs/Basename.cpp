@@ -52,7 +52,7 @@ class ChainLink
 Config::Config()
 : output("Basename", "Output file basename", "")
 {
-    output.helpID = "OutputBasename";
+    output.setHelpID( "OutputBasename" );
 }
 
 ChainLink::ChainLink() 

@@ -11,14 +11,6 @@
 namespace simparm {
 
 class BasicEntry : public Object {
-  public:
-    Attribute<std::string> help;
-    Attribute<bool> invalid, editable;
-private:
-    Attribute<bool> outputOnChange;
-public:
-    Attribute<std::string> helpID;
-
 protected:
     NodeHandle create_hidden_node( NodeHandle );
     NodeHandle create_textfield( NodeHandle parent, std::string name, std::string type );
@@ -29,12 +21,11 @@ public:
     BasicEntry(const BasicEntry&);
     ~BasicEntry() ;
 
-    void setHelp(const std::string &help)
-        { this->help = help; }
-    void setInvalid(const bool &invalid)
-        { this->invalid = invalid; }
-    void setEditable(const bool &editable)
-        { this->editable = editable; }
+    void setHelp(const std::string &help);
+    void setEditable(bool editable);
+    void thaw() { setEditable(true); }
+    void freeze() { setEditable(false); }
+    void setHelpID( const std::string &helpID) ;
 };
 
 

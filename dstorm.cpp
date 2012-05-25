@@ -77,7 +77,8 @@ int main(int argc, char *argv[]) {
         display::Manager::setSingleton(*display);
 
         MainThread main_thread;
-        CommandLine(main_thread).parse( argc, argv );
+        CommandLine cmd_line(main_thread);
+        cmd_line.parse( argc, argv );
         main_thread.run_all_jobs();
     } catch (const std::bad_alloc &e) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 

@@ -52,7 +52,7 @@ class ProgressMeter::Config
 ProgressMeter::ProgressMeter(const Config &)
     : progress("Progress", "Progress on this job") 
     {
-        progress.helpID = "#ProgressMeter_Progress";
+        progress.setHelpID( "#ProgressMeter_Progress" );
         progress.setEditable(false);
         progress.hide();
         progress.increment = (0.02);

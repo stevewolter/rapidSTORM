@@ -35,8 +35,8 @@ class Configuration {
         : outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
           step_number("StepNumber", "Number of B spline breakpoints", 10)
     {
-        outputFile.helpID = "#SigmaCurve_ToFile";
-        step_number.helpID = "#SigmaCurve_StepNumber";
+        outputFile.setHelpID( "#SigmaCurve_ToFile" );
+        step_number.setHelpID( "#SigmaCurve_StepNumber" );
     }
     void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );

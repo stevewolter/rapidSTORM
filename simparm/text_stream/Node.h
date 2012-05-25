@@ -29,6 +29,9 @@ struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> 
     void set_visibility( bool is ) { viewable = is; }
     void set_user_level( UserLevel arg ) { userLevel = arg; }
     void set_description( std::string d ) { desc = d; }
+    virtual void set_help_id( std::string ) {}
+    virtual void set_help( std::string ) {}
+    virtual void set_editability( bool ) {}
 
 protected:
     virtual bool print( const std::string& );

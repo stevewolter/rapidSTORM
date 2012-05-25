@@ -12,8 +12,8 @@ Control::Control( bool auto_terminate )
   closeJob("CloseJob", "Close job"),
   active_termination_blocks(0)
 {
-    closeJob.helpID = "#CloseJob";
-    abortJob.helpID = "#StopEngine";
+    closeJob.setHelpID( "#CloseJob" );
+    abortJob.setHelpID( "#StopEngine" );
 }
 
 void Control::registerNamedEntries( simparm::NodeHandle runtime_config )
@@ -36,8 +36,8 @@ void Control::wait_until_termination_is_allowed()
 
 void Control::stop() {
     boost::lock_guard<boost::mutex> lock( mutex );
-    closeJob.editable = false;
-    abortJob.editable = false;
+    closeJob.freeze();
+    abortJob.freeze();
     close_job = true;
     abort_job = true;
     if ( current_run ) current_run->interrupt();
@@ -77,7 +77,7 @@ void Control::do_close_job() {
         closeJob.untrigger();
         DEBUG("Job close button allows termination" );
         boost::lock_guard<boost::mutex> lock( mutex );
-        closeJob.editable = false;
+        closeJob.freeze();
         close_job = true;
         abort_job = true;
         if ( current_run ) current_run->interrupt();
@@ -91,7 +91,7 @@ void Control::do_abort_job() {
         abortJob.untrigger();
         DEBUG("Abort job button pressed");
         boost::lock_guard<boost::mutex> lock( mutex );
-        abortJob.editable = false;
+        abortJob.freeze();
         abort_job = true;
         if ( current_run ) current_run->interrupt();
     }

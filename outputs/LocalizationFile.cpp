@@ -82,7 +82,7 @@ Config::Config()
         "line per fit, with X- and Y-coordinate, image number "
         "and fit amplitude, fields separated by spaces.");
     outputFile.set_user_level(simparm::Beginner);
-    outputFile.helpID = "Table_ToFile";
+    outputFile.setHelpID( "Table_ToFile" );
 
     xyztI.setHelp( 
         "Output only the most common subset of the possible information. "

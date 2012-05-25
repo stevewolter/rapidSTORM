@@ -40,7 +40,7 @@ class No3DConfig : public Config {
         : Config("No3D", "No 3D"),
           psf_size("PSF", "PSF FWHM", PSFSize::Constant(500.0 * boost::units::si::nanometre)) 
     { 
-        psf_size.helpID = "PSF.FWHM";
+        psf_size.setHelpID( "PSF.FWHM" );
     }
     No3DConfig* clone() const { return new No3DConfig(*this); }
 };

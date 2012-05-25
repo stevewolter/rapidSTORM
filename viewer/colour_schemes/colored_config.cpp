@@ -35,8 +35,8 @@ ColoredConfig::ColoredConfig()
                 "the natural spectrum from 0 (red) over 1/6 (yellow), "
                 "1/3 (green), 1/2 (cyan), 2/3 (blue) to 5/6 (violet) and "
                 "1 (red again)");
-    hue.helpID = "#Viewer_Hue";
-    saturation.helpID = "#Viewer_Saturation";
+    hue.setHelpID( "#Viewer_Hue" );
+    saturation.setHelpID( "#Viewer_Saturation" );
 
     saturation.min = (0);
     saturation.max = (1);

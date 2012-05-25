@@ -44,6 +44,7 @@ class Config : public dStorm::Config
     Config *clone() const { return new Config(*this); }
 
     void attach_ui( simparm::NodeHandle at );
+    void attach_children( simparm::NodeHandle at );
     void send( simparm::Message& m ) { m.send( current_ui ); }
 
     simparm::NodeHandle user_interface_handle() { return current_ui; }

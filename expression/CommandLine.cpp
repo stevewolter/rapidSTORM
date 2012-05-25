@@ -17,8 +17,8 @@ CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
     lvalue.set_user_level( simparm::Intermediate );
     expression.set_user_level( simparm::Intermediate );
 
-    expression.helpID = "#ExpressionFilter_Expression";
-    lvalue.helpID = "#ExpressionFilter_LValue";
+    expression.setHelpID( "#ExpressionFilter_Expression" );
+    lvalue.setHelpID( "#ExpressionFilter_LValue" );
 
     lvalue.addChoice( make_filter() );
     const VariableTable& variables = parser->get_variable_table();

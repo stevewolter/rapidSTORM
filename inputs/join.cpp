@@ -271,8 +271,8 @@ Link::Link()
   registered_node(false)
 {
     channel_count.min = 1;
-    channel_count.helpID = "#join.ChannelCount";
-    join_type.helpID = "#join.JoinOn";
+    channel_count.setHelpID( "#join.ChannelCount" );
+    join_type.setHelpID( "#join.JoinOn" );
 
     join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
     join_type.addChoice( new StrategistImplementation< temporal_tag >() );

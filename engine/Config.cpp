@@ -49,8 +49,8 @@ Config::Config()
                                 "positives; however, contrary to the other threshold, "
                                 "it's application is not reversible.");
 
-    amplitude_threshold.helpID = "#AmplitudeThreshold";
-    spotFindingMethod.helpID = "#Smoother";
+    amplitude_threshold.setHelpID( "#AmplitudeThreshold" );
+    spotFindingMethod.setHelpID( "#Smoother" );
     spotFindingMethod.set_user_level( simparm::Intermediate );
     spotFittingMethod.set_user_level( simparm::Intermediate );
 

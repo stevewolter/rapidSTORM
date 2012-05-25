@@ -30,7 +30,7 @@ Config::Config()
 
     density_matrix_given.set_user_level(simparm::Expert);
     density_matrix.set_user_level(simparm::Expert);
-    density_matrix.help = "Save a text file with the unnormalized intensities of the result image";
+    density_matrix.setHelp( "Save a text file with the unnormalized intensities of the result image" );
 
     scale_bar_length.set_user_level( simparm::Intermediate );
 
@@ -43,8 +43,8 @@ Config::Config()
     top_cutoff.min = 0;
     top_cutoff.max = 1.0;
     top_cutoff.set_user_level( simparm::Expert );
-    top_cutoff.help = "Maximum displayed intensity as a fraction of the "
-       "maximum found intensity";
+    top_cutoff.setHelp( "Maximum displayed intensity as a fraction of the "
+       "maximum found intensity" );
 
 #define DISC_INSTANCE(Scheme) \
     colourScheme.addChoice( ColourScheme::config_for<Scheme>() );
@@ -56,11 +56,11 @@ Config::Config()
     border.set_user_level(simparm::Intermediate);
     invert.set_user_level( simparm::Intermediate );
 
-    outputFile.helpID = "#Viewer_ToFile";
-    showOutput.helpID = "#Viewer_ShowOutput";
-    colourScheme.helpID = "#Viewer_ColorScheme";
-    invert.helpID = "#Viewer_InvertColors";
-    top_cutoff.helpID = "#Viewer_TopCutoff";
+    outputFile.setHelpID( "#Viewer_ToFile" );
+    showOutput.setHelpID( "#Viewer_ShowOutput" );
+    colourScheme.setHelpID( "#Viewer_ColorScheme" );
+    invert.setHelpID( "#Viewer_InvertColors" );
+    top_cutoff.setHelpID( "#Viewer_TopCutoff" );
 
     DEBUG("Built Viewer Config");
 }

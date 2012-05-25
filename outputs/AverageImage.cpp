@@ -66,7 +66,7 @@ class AverageImage::Config {
 AverageImage::Config::Config()
 : outputFile("ToFile", "Write averaged image to", ".jpg")
 { 
-    outputFile.helpID = "#AverageImage_ToFile";
+    outputFile.setHelpID( "#AverageImage_ToFile" );
 }
 
 AverageImage::AverageImage( const Config &config )

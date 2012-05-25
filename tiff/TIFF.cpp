@@ -229,7 +229,7 @@ ChainLink::makeSource()
 Source::TraitsPtr 
 Source::get_traits(typename BaseSource::Wishes) {
     simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
-    count.editable = false;
+    count.freeze();
     count.attach_ui( current_ui );
     DEBUG("Creating traits from file object");
     TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
@@ -240,7 +240,7 @@ Source::get_traits(typename BaseSource::Wishes) {
 Source::~Source() {}
 
 static void unit_test() {
-    boost::shared_ptr<simparm::text_stream::RootNode> dummy_ui( new simparm::text_stream::RootNode(NULL,NULL) );
+    boost::shared_ptr<simparm::text_stream::RootNode> dummy_ui( new simparm::text_stream::RootNode() );
     ChainLink l;
     l.attach_ui( dummy_ui );
     l.publish_meta_info();

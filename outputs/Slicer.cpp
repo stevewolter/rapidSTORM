@@ -136,9 +136,9 @@ Slicer::Config::Config()
 
     slice_distance.min = 1 * camera::frame;
 
-    slice_size.helpID = "#Slicer_Size";
-    slice_distance.helpID = "#Slicer_Dist";
-    outputFile.helpID = "#Slicer_Pattern";
+    slice_size.setHelpID( "#Slicer_Size" );
+    slice_distance.setHelpID( "#Slicer_Dist" );
+    outputFile.setHelpID( "#Slicer_Pattern" );
     outputFile.setHelp("$slice$ is replaced with the block name.");
 }
 

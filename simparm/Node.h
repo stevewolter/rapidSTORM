@@ -27,6 +27,9 @@ struct Node {
     virtual void set_description( std::string ) = 0;
     virtual void set_visibility( bool ) = 0;
     virtual void set_user_level( UserLevel arg ) = 0;
+    virtual void set_help_id( std::string ) = 0;
+    virtual void set_help( std::string ) = 0;
+    virtual void set_editability( bool ) = 0;
 };
 
 }

@@ -40,10 +40,10 @@ DimensionSelector<Dim>::DimensionSelector()
     components[1].choose( "PositionY" );
     components[Dim].choose( "Amplitude" );
 
-    invert_y_axis.help = "Invert the Y axis so that the point with "
+    invert_y_axis.setHelp( "Invert the Y axis so that the point with "
         "coordinates (0,0) is in the lower left corner of the image. Naturally, "
         "you will be burned at the stake for activating this option since it is "
-        "unnatural in image processing.";
+        "unnatural in image processing." );
 }
 
 template <int Dim>

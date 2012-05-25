@@ -87,7 +87,7 @@ LocalizationCounter::LocalizationCounter(const Config &c)
   update("LocalizationCount", 
          "Number of localizations found", 0)
 {
-    update.helpID = "#Count_Count";
+    update.setHelpID( "#Count_Count" );
     print_count.reset( new std::ofstream( c.output_file().c_str(), std::ios::out ) );
 }
 

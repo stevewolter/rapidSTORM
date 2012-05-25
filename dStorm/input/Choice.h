@@ -63,7 +63,7 @@ class Choice
 
     void insert_new_node( std::auto_ptr<Link>, Place );
 
-    void set_help_id( std::string id ) { choices.helpID = id; }
+    void set_help_id( std::string id ) { choices.setHelpID( id ); }
 };
 
 }

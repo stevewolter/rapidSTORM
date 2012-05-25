@@ -1,5 +1,6 @@
 #include "Node.h"
 #include "TabNode.h"
+#include "EntryNode.h"
 #include <sstream>
 
 namespace simparm {
@@ -12,6 +13,9 @@ Node::Node( std::string name, std::string type )
   userLevel("userLevel", Beginner),
   parent(NULL), declared(false)
 {
+    add_attribute( desc );
+    add_attribute( viewable );
+    add_attribute( userLevel );
 }
 
 bool Node::print( const std::string& s ) { 
@@ -70,11 +74,11 @@ simparm::NodeHandle Node::create_tab_group( std::string name ) {
 }
 
 simparm::NodeHandle Node::create_entry( std::string name, std::string type ) {
-    return adorn_node( new Node( name, type + "Entry" ) );
+    return adorn_node( new EntryNode( name, type + "Entry" ) );
 }
 
 simparm::NodeHandle Node::create_choice( std::string name ) {
-    return adorn_node( new Node( name, "ChoiceEntry" ) );
+    return adorn_node( new EntryNode( name, "ChoiceEntry" ) );
 }
 
 simparm::NodeHandle Node::adorn_node( Node* n ) {
@@ -84,15 +88,15 @@ simparm::NodeHandle Node::adorn_node( Node* n ) {
 }
 
 simparm::NodeHandle Node::create_file_entry( std::string name ) {
-    return adorn_node( new Node( name, "FileEntry" ) );
+    return adorn_node( new EntryNode( name, "FileEntry" ) );
 }
 
 simparm::NodeHandle Node::create_progress_bar( std::string name ) {
-    return adorn_node( new Node( name, "ProgressEntry" ) );
+    return adorn_node( new EntryNode( name, "ProgressEntry" ) );
 }
 
 simparm::NodeHandle Node::create_trigger( std::string name ) {
-    return adorn_node( new Node( name, "TriggerEntry" ) );
+    return adorn_node( new EntryNode( name, "TriggerEntry" ) );
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {

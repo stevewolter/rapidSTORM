@@ -9,7 +9,6 @@ namespace text_stream {
 
 class RootNode : public Node {
   private:
-    std::istream *in;
     std::ostream *out;
     void *mutex;
     bool is_attached, should_quit;
@@ -21,13 +20,9 @@ class RootNode : public Node {
         const std::string& cmd, std::istream& rest );
 
   public:
-    /** Constructor setting used input and output streams. Either stream
-     *  may be set to NULL, in which case the respective stream will not
-     *  be used. */
-    RootNode(std::istream* in, std::ostream* out);
+    RootNode();
     ~RootNode();
 
-    void set_input_stream( std::istream *in );
     void set_output_stream( std::ostream *out );
 
     bool print(const std::string& what);

@@ -59,7 +59,7 @@ LocalizationConfig<Field>::LocalizationConfig(std::string axis, int row, int col
   row(row), column(column) ,
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {
-    resolution.helpID = "#Viewer_ResEnh";
+    resolution.setHelpID( "#Viewer_ResEnh" );
 }
 
 template <int Field>

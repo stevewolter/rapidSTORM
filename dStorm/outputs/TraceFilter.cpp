@@ -101,7 +101,7 @@ TraceCountFilter::announceStormSize(const Announcement &a)
     if ( a.engine != NULL && a.engine->can_repeat_results() ) {
         engine = a.engine;
         selectSpecific.show();
-        selectSpecific.editable = true;
+        selectSpecific.thaw();
     }
     processed_locs = 0;
     AdditionalData rv = Filter::announceStormSize(a);

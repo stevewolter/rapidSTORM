@@ -42,7 +42,7 @@ Engine::Engine(
 {
     DEBUG("Constructing engine");
 
-    errors.editable = false;
+    errors.freeze();
     errors.hide();
 
 }

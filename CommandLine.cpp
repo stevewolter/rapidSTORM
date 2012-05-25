@@ -15,6 +15,7 @@
 #include <simparm/cmdline_ui/RootNode.h>
 #include <dStorm/display/Manager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
 #include <boost/thread/condition.hpp>
 #include "job/Config.h"
 
@@ -47,29 +48,24 @@ class TwiddlerLauncher
 };
 
 void CommandLine::parse( int argc, char *argv[] ) {
+    int shift = find_config_file(argc,argv);
+    argc -= shift;
+    argv += shift;
+
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     simparm::TriggerEntry help("Help", "Help");
 
-    for ( int i = 0; i < argc; i++ ) {
-        DEBUG("Argument " << i << " is '" << argv[i] << "'");
-    }
+    cmdline_ui = argument_parser;
 
-    config.attach_ui( argument_parser );
-    printer.attach_ui( argument_parser );
-    launcher.attach_ui( argument_parser );
-    starter.attach_ui( argument_parser );
-    help.attach_ui( argument_parser );
-
+    config.attach_ui( cmdline_ui );
+    printer.attach_ui( cmdline_ui );
+    launcher.attach_ui( cmdline_ui );
+    starter.attach_ui( cmdline_ui );
+    help.attach_ui( cmdline_ui );
 
     help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
-
-#if 0
-    int shift = find_config_file(argc,argv);
-    argc -= shift;
-    argv += shift;
-#endif
 
     argument_parser->parse_command_line( argc, argv );
 }
@@ -106,14 +102,16 @@ bool CommandLine::load_config_file(
 ) {
     DEBUG("Opening config file " << name);
     std::ifstream config_file( name.c_str() );
+    boost::shared_ptr< simparm::text_stream::Node > ui 
+        = boost::make_shared< simparm::text_stream::RootNode >();
+    config.attach_children( ui );
     if ( !config_file )
         return false;
     else {
         while ( config_file ) {
             DEBUG("Processing command from " << name);
             try {
-                throw std::logic_error("processCommand not implemented");
-                //config.processCommand( config_file );
+                ui->processCommand( config_file );
             } catch (const std::runtime_error& e) {
                 std::cerr << "Unable to read initialization file: " + std::string(e.what())  << std::endl;
             }

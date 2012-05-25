@@ -12,7 +12,7 @@ Config::Config()
 {
     DEBUG("Constructing output config from scratch");
     choice.set_auto_selection( false );
-    choice.helpID = "#ChooseOutput";
+    choice.setHelpID( "#ChooseOutput" );
 }
 
 Config* Config::clone() const {

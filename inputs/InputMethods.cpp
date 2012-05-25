@@ -17,7 +17,7 @@ struct Link
 Link::Link()
 : Choice("InputMethod", "Input type", false)
 {
-    choices.helpID = "InputType";
+    choices.setHelpID( "InputType" );
     choices.set_user_level( simparm::Intermediate );
 }
 

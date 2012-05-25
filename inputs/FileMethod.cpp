@@ -69,7 +69,7 @@ FileMethod::FileMethod()
   name_object("FileMethod", "File"),
   input_file("InputFile", "Input file")
 {
-    input_file.helpID = "InputFile";
+    input_file.setHelpID( "InputFile" );
     /* TODO: children.set_help_id( "FileType" ); */
     DEBUG("Created file method");
     Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
@@ -144,7 +144,7 @@ namespace input {
 namespace file_method {
 
 void unit_test( TestState& t ) {
-    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(NULL,NULL) );
+    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode() );
     FileMethod file_method;
     file_method.registerNamedEntries(io);
 
