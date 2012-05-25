@@ -1,8 +1,9 @@
 #include <simparm/BoostUnits.h>
-#include <simparm/Entry_Impl.h>
+#include <simparm/Entry.h>
 #include "Lens3D.h"
 #include "Config.h"
 #include <dStorm/units/nanolength.h>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace threed_info {

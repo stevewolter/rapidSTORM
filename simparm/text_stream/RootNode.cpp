@@ -6,7 +6,7 @@
 #include "../Message.h"
 
 #include <algorithm>
-#include <fstream>
+#include <sstream>
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>

@@ -82,8 +82,7 @@ int OptionTable::parse( int argc, char** args ) {
             value = "1";
             break;
     }
-    std::stringstream stream(value);
-    attribute->set_value("set", stream);
+    attribute->set_value(value);
     return parsed_args;
 }
 

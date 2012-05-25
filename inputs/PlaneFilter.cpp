@@ -5,7 +5,6 @@
 #include <simparm/ObjectChoice.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/ChoiceEntry_Impl.h>
-#include <simparm/Entry_Impl.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/io.hpp>

@@ -2,7 +2,7 @@
 #define SIMPARM_TEXT_STREAM_NODE_H
 
 #include "../Node.h"
-#include "../Attribute.h"
+#include "../Attribute.hpp"
 #include <map>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -23,6 +23,8 @@ struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> 
     std::map< std::string, BaseAttribute* > attribute_lookup;
     bool declared;
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
+
+    std::string attribute_value_specification( const BaseAttribute& a );
 
     void print_attribute_value( const simparm::BaseAttribute& );
     void process_attribute( BaseAttribute&, std::istream& );

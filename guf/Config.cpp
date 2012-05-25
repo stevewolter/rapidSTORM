@@ -1,6 +1,5 @@
 #include <simparm/BoostUnits.h>
 #include "Config.h"
-#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace guf {

@@ -19,10 +19,7 @@ struct ChoiceNode : public EntryNode
     }
 
     virtual void program_options( OptionTable& t ) {
-        std::string choice = value->get_value();
-        if ( choice.length() >= 4 && choice.substr(0,4) == "set " ) {
-            choice = choice.substr(4);
-        }
+        std::string choice = * value->get_value();
         std::string choices;
         for ( std::vector< std::string >::const_iterator i = names.begin(); i != names.end(); ++i )
         {

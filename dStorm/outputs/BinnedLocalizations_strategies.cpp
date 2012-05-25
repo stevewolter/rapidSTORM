@@ -4,7 +4,6 @@
 #include "BinnedLocalizations.h"
 #include <simparm/ChoiceEntry_Impl.h>
 
-#include <simparm/Entry_Impl.h>
 #include <dStorm/image/MetaInfo.h>
 
 #include <dStorm/output/binning/config.h>

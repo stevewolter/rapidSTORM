@@ -15,7 +15,6 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional/optional.hpp>
 #include "EmissionTracker.h"
-#include <simparm/Entry_Impl.h>
 #include <algorithm>
 #include <numeric>
 #include <boost/units/Eigen/Array>

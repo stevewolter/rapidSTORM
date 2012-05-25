@@ -719,11 +719,11 @@ dstorm_SOURCES += \
 libsimparm_la_SOURCES = \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
-    simparm/Attribute.h simparm/Attribute.cpp \
+    simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
     simparm/BasicEntry.h simparm/BasicEntry.cpp \
     simparm/Group.h simparm/Group.cpp \
     simparm/TabGroup.h simparm/TabGroup.cpp \
-    simparm/Entry.h simparm/Entry_Impl.h simparm/Entry.cpp \
+    simparm/Entry.h simparm/Entry.hpp simparm/Entry.cpp \
     simparm/Object.h simparm/Object.cpp \
     simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
     simparm/ProgressEntry.h simparm/ProgressEntry.cpp \
@@ -734,7 +734,7 @@ libsimparm_la_SOURCES = \
     simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
     simparm/Menu.h \
     simparm/debug.h \
-    simparm/iostream.h \
+    simparm/iostream.h simparm/typeName.h \
     simparm/Eigen_decl.h simparm/Eigen.h \
     simparm/BoostUnits.h \
     simparm/UserLevel.h \

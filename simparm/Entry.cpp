@@ -27,62 +27,12 @@
 #include <sstream>
 #include "iostream.h"
 #include "Node.h"
+#include "Attribute.hpp"
+#include "Entry.hpp"
 
-namespace simparm {
-
-#if 0
-void formatParagraph(ostream &o, unsigned int left_col, 
-                   unsigned int right_col, const string &s) 
-{
-   unsigned int pos, lookahead = 0;
-   unsigned int cur_col = left_col;
-   while (lookahead < s.length()) {
-      pos = lookahead;
-      if (isalpha(s[lookahead]))
-         while (lookahead < s.length() && 
-                isalpha(s[lookahead])) lookahead++;
-      else
-         lookahead++;
-
-      if ((lookahead-pos) > 1+(right_col - cur_col)) {
-         o << "\n";
-         cur_col = 0;
-         while (cur_col < left_col) { cur_col++; o << " "; }
-      }
-      if (cur_col == left_col && isspace(s[pos]))
-         /* skip */;
-      else
-         o << s.substr(pos, lookahead-pos);
-      cur_col += lookahead - pos;
-   }
-   while (cur_col++ <= right_col) o << " ";
-}
-
-void BasicEntry::printHelp(ostream &o) const {
-   string n = "--" + name.substr(0, std::min<int>(name.length(), 19));
-   formatParagraph(o, 0, 20, n);
-   o << "  ";
-   formatParagraph(o, 23, 79, desc());
-   o << "\n";
-   if (help() != "") {
-      for (int i = 0; i < 23; i++) o << " ";
-      formatParagraph(o, 23, 79, help());
-      o << "\n";
-   }
-}
-#endif
-
-}
-
-#include "Entry_Impl.h"
 namespace simparm {
     template class Entry<string>;
     template class Entry<bool>;
-};
-
-#include "Entry_Impl.h"
-
-namespace simparm {
     template class Entry<short int>;
     template class Entry<int>;
     template class Entry<long int>;

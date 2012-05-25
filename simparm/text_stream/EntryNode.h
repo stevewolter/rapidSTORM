@@ -21,8 +21,8 @@ public:
           editable("editable", true),
           helpID("helpID", "")
     {
-        add_attribute( editable );
         add_attribute( help );
+        add_attribute( editable );
         add_attribute( helpID );
     }
 };

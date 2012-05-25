@@ -3,7 +3,6 @@
 #include <gsl/gsl_multimin.h>
 #include <boost/units/Eigen/Array>
 #include <iomanip>
-#include <simparm/Entry_Impl.h>
 #include <simparm/text_stream/RootNode.h>
 #include <simparm/Group.h>
 #include <simparm/TriggerEntry.h>

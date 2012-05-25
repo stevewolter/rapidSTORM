@@ -6,17 +6,20 @@ namespace simparm {
 using std::string;
 
 BasicEntry::BasicEntry(string name, string desc)
-: Object(name, desc)
+: Object(name, desc), editable(true)
 {
 }
 
 BasicEntry::BasicEntry(const BasicEntry& from)
-:   Object(from)
+:   Object(from), help(from.help), helpID(from.helpID), editable(from.editable)
 {
 }
 
 NodeHandle BasicEntry::create_hidden_node( simparm::NodeHandle node ) {
     NodeHandle r = Object::create_hidden_node( node );
+    r->set_help( help ); 
+    r->set_editability(editable); 
+    r->set_help_id( helpID ); 
     return r;
 }
 
@@ -33,8 +36,17 @@ NodeHandle BasicEntry::create_choice( NodeHandle parent, std::string name ) {
     return parent->create_choice( name );
 }
 
-void BasicEntry::setHelp(const std::string &help) { get_user_interface_handle()->set_help( help ); }
-void BasicEntry::setEditable(bool editable) { get_user_interface_handle()->set_editability(editable); }
-void BasicEntry::setHelpID( const std::string &helpID) { get_user_interface_handle()->set_help_id( helpID ); }
+void BasicEntry::setHelp(const std::string &help) { 
+    this->help = help;
+    get_user_interface_handle()->set_help( help ); 
+}
+void BasicEntry::setEditable(bool editable) { 
+    this->editable = editable;
+    get_user_interface_handle()->set_editability(editable); 
+}
+void BasicEntry::setHelpID( const std::string &helpID) { 
+    this->helpID = helpID;
+    get_user_interface_handle()->set_help_id( helpID ); 
+}
 
 }

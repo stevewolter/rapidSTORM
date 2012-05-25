@@ -99,6 +99,15 @@ simparm::NodeHandle Node::create_trigger( std::string name ) {
     return adorn_node( new EntryNode( name, "TriggerEntry" ) );
 }
 
+std::string Node::attribute_value_specification( const BaseAttribute& a )
+{
+    boost::optional<std::string> v = a.get_value();
+    if ( v )
+        return "set " + *v;
+    else
+        return "unset";
+}
+
 void Node::add_attribute( simparm::BaseAttribute& a ) {
     attributes.push_back( &a );
     attribute_lookup.insert( std::make_pair( a.get_name(), &a ) );
@@ -110,7 +119,7 @@ Message::Response Node::send( Message& m ) const {
 }
 
 void Node::print_attribute_value( const simparm::BaseAttribute& a ) {
-    print( "in " + a.get_name() + " " + a.get_value() );
+    print( "in " + a.get_name() + " " + attribute_value_specification(a) );
 }
 
 void Node::declare_children() {
@@ -120,7 +129,7 @@ void Node::declare_children() {
 
 void Node::show_attributes( std::ostream& declaration ) {
     for ( std::vector< BaseAttribute* >::const_iterator i = attributes.begin(); i != attributes.end(); ++i )
-        declaration << (*i)->get_name() << " " << (*i)->get_value() << "\n";
+        declaration << (*i)->get_name() << " " << attribute_value_specification(**i) << "\n";
 }
 
 void Node::declare( std::ostream& o ) {
@@ -179,9 +188,15 @@ void Node::process_attribute( BaseAttribute& a, std::istream& rest ) {
     std::string command;
     rest >> command;
     if ( command == "query" )
-        print( "in " + a.get_name() + " " + a.get_name() + " " + a.get_value() );
-    else 
-        a.set_value( command, rest );
+        print( "in " + a.get_name() + " " + a.get_name() + " " + attribute_value_specification(a) );
+    else if ( command == "set" ) {
+        std::string line;
+        std::getline( rest, line );
+        a.set_value( line );
+    } else if ( command == "unset" ) {
+        a.unset_value();
+    } else
+        throw std::runtime_error("Unknown attribute command: " + command );
 }
 
 void Node::processCommand( const std::string& cmd, std::istream& rest ) {

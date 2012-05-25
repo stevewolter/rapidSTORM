@@ -3,7 +3,6 @@
 #include "debug.h"
 #include <simparm/ChoiceEntry_Impl.h>
 #include "colour_schemes/decl.h"
-#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace viewer {

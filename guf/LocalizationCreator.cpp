@@ -14,6 +14,7 @@
 #include <boost/variant/get.hpp>
 #include "fit_window/Optics.h"
 #include "MultiKernelModel.h"
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace guf {

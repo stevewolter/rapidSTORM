@@ -2,20 +2,31 @@
 #define SIMPARM_ATTRIBUTE_HH
 
 #include <string>
-#include <sstream>
 #include <stdexcept>
-#include <typeinfo>
-
-#include <boost/mpl/not.hpp>
 #include <boost/signals2/signal.hpp>
-
-#include "iostream.h"
 #include "BaseAttribute.h"
-#include "AttributeCommandInterpreter.h"
 
-namespace boost { template <typename Type> class optional; }
+namespace boost { template <typename Inner> class optional; }
 
 namespace simparm {
+
+namespace detail {
+
+template <typename Type>
+inline bool value_is_optional( const Type& ) 
+    { return false; }
+template <typename Inner>
+inline bool value_is_optional( const boost::optional<Inner>& ) 
+    { return true; }
+
+template <typename Type>
+inline void unset_value( Type ) 
+    { throw std::runtime_error("Non-optional type cannot be unset."); }
+template <typename Inner>
+inline void unset_value( boost::optional<Inner>& b ) 
+    { b.reset(); }
+
+}
 
 template <typename Type>
 class Attribute : public BaseAttribute {
@@ -26,31 +37,12 @@ class Attribute : public BaseAttribute {
     Type value;
 
     std::string get_name() const { return ident; }
-    std::string get_value() const { return AttributeCommandInterpreter<Type>::to_string(value); }
-    void set_value(std::string command, std::istream& i ) { 
-        Type temp_value;
-        AttributeCommandInterpreter<Type>::from_stream( command, i, temp_value );
-        valueChange( temp_value ); 
-    }
-    void reset_value() { valueChange( Type() ); }
+    boost::optional< std::string > get_value() const;
+    void set_value(const std::string& i );
+    void unset_value() { detail::unset_value( value ); }
+    bool value_is_optional() const { return detail::value_is_optional( value ); }
 
-    virtual std::string getTypeDescriptor() const 
-        { return "Attribute"; }
-
-    inline void valueChange(const Type &to) {
-        if ( change_is_OK == NULL || (*change_is_OK)( value, to ) ) {
-            if ( to == value ) {
-                /* Do nothing. This is worded with == to avoid NaN
-                 * trouble. */
-            } else {
-                value = to;
-                value_changed();
-            }
-        } else {
-            /* Change is NOT ok. Print the correct value to underline this. */
-            value_changed();
-        }
-    }
+    void valueChange(const Type &to);
 
   public:
     Attribute(std::string ident, const Type& def_val)
@@ -58,8 +50,6 @@ class Attribute : public BaseAttribute {
     Attribute( const Attribute& o ) 
         : ident(o.ident), value(o.value), change_is_OK(NULL) {}
     ~Attribute() {}
-    virtual Attribute *clone() const 
-        { return new Attribute(*this); }
 
     operator const Type&() const { return value; }
     const Type& operator()() const { return value; }

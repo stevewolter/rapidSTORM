@@ -7,6 +7,7 @@
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/DepthInfo.h>
 #include "MultiKernelModel.h"
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace guf {

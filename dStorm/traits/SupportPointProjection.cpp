@@ -5,7 +5,6 @@
 #include <simparm/Eigen_decl.h>
 #include <simparm/BoostUnits.h>
 #include <simparm/Eigen.h>
-#include <simparm/Entry_Impl.h>
 #include <simparm/FileEntry.h>
 #include <simparm/Object.h>
 

@@ -1,7 +1,6 @@
 #ifndef SIMPARM_BASIC_ENTRY_HH
 #define SIMPARM_BASIC_ENTRY_HH
 
-#include "iostream.h"
 #include "BoostOptional.h"
 #include "Object.h"
 #include "Attribute.h"
@@ -11,6 +10,8 @@
 namespace simparm {
 
 class BasicEntry : public Object {
+    std::string help, helpID;
+    bool editable;
 protected:
     NodeHandle create_hidden_node( NodeHandle );
     NodeHandle create_textfield( NodeHandle parent, std::string name, std::string type );

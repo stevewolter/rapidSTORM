@@ -2,7 +2,6 @@
 #include <simparm/BoostUnits.h>
 #include "DistanceHistogram.h"
 #include "RipleyK.h"
-#include <simparm/Entry_Impl.h>
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/output/binning/localization.h>
@@ -10,6 +9,7 @@
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/units/microlength.h>
+#include <boost/units/cmath.hpp>
 
 namespace ripley_k {
 

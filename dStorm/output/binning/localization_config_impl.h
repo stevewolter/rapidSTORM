@@ -5,7 +5,6 @@
 #include "localization_config.h"
 #include "binning.hpp"
 #include <sstream>
-#include <simparm/Entry_Impl.h>
 
 namespace dStorm {
 namespace output {

@@ -38,6 +38,7 @@ addChoice(ChoiceType& choice)
 { 
     if ( current_ui )
         choice.attach_ui( current_ui );
+    choices.push_back( &choice );
     entries.insert( std::make_pair( choice.getName(), &choice ) );
     if (auto_select && value() == no_selection ) {
         SIMPARM_DEBUG("Auto-selecting value");
@@ -55,9 +56,10 @@ removeChoice(ChoiceType &choice)
         auto_select_new_value = this->auto_select;
     }
 
+    choices.erase( std::remove( choices.begin(), choices.end(), &choice ) );
     entries.erase( choice.getName() );
-    if ( auto_select_new_value && !entries.empty() )
-        value = this->entries.begin()->first;
+    if ( auto_select_new_value && !choices.empty() )
+        value = this->choices.front()->getName();
     if ( current_ui )
         choice.detach_ui( current_ui );
 }
@@ -68,52 +70,21 @@ void ChoiceEntry<ChoiceType>::removeAllChoices()
     SIMPARM_DEBUG("Removing all choices");
     value = no_selection;
     if ( current_ui )
-        for ( typename Entries::iterator i = entries.begin(); i != entries.end(); i++)
+        for ( typename std::vector< ChoiceType* >::iterator i = choices.begin(); i != choices.end(); i++)
         {
-            i->second->detach_ui( current_ui );
+            (*i)->detach_ui( current_ui );
         }
     entries.clear();
+    choices.clear();
 }
-
-#if 0
-template <typename ChoiceType>
-std::list<std::string> 
-ChoiceEntry<ChoiceType>::printValues() const
-{
-    SIMPARM_DEBUG("Printing values");
-    std::list<std::string> children = Object::printValues();
-    children.push_front( getName() + " = " + value() );
-    return children;
-}
-
-template <typename ChoiceType>
-void ChoiceEntry<ChoiceType>::
-    printHelp(ostream &o) const 
-{
-    SIMPARM_DEBUG("Printing help");
-    BasicEntry::printHelp(o);
-    formatParagraph(o, 0, 22, "");
-    string s = "Choices are: ";
-    for (typename Entries::const_iterator i= entries.begin();
-            i !=  entries.end(); i++)
-    {
-        if (value() == i->first) s += "_";
-        s += i->first;
-        if (value() == i->first) s += "_";
-        s += " ";
-    }
-    formatParagraph(o, 23, 79, s);
-    o << "\n";
-}
-#endif
 
 template <typename ChoiceType>
 NodeHandle ChoiceEntry<ChoiceType>::create_hidden_node( simparm::NodeHandle n ) {
     NodeHandle r = BasicEntry::create_hidden_node( n );
     value.add_to ( r );
     current_ui = r;
-    for ( typename Entries::iterator i = entries.begin(); i != entries.end(); ++i ) {
-        i->second->attach_ui( current_ui );
+    for ( typename std::vector< ChoiceType* >::iterator i = choices.begin(); i != choices.end(); ++i ) {
+        (*i)->attach_ui( current_ui );
     }
     return r;
 }

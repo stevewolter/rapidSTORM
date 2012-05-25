@@ -11,7 +11,6 @@
 #include <simparm/Entry.h>
 #include <dStorm/Engine.h>
 #include <dStorm/UnitEntries.h>
-#include <simparm/Entry_Impl.h>
 
 namespace simparm {
 template class Entry< dStorm::samplepos::Scalar>;

@@ -2,6 +2,7 @@
 #define DSTORM_SPOTFINDER_BUILDER_H
 
 #include "SpotFinder.h"
+#include <simparm/Object.h>
 
 namespace dStorm {
 namespace engine {

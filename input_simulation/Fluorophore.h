@@ -10,7 +10,6 @@
 #include <gsl/gsl_matrix.h>
 #include <simparm/Group.h>
 #include <simparm/Entry.h>
-#include <simparm/Entry_Impl.h>
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>

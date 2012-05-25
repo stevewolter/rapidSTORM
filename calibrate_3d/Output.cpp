@@ -7,6 +7,7 @@
 #include <boost/foreach.hpp>
 #include "ZTruth.h"
 #include <dStorm/threed_info/Polynomial3D.h>
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace calibrate_3d {
@@ -178,9 +179,10 @@ void Output::run_finished_( const RunFinished& ) {
     if ( have_set_traits_myself ) {
         double missing_spots = std::max( 0.0, double(config.target_localization_number() - found_spots) );
         DEBUG("Localized " << found_spots << " spots with SD " << sqrt(squared_errors/double(found_spots)) << " and have " << missing_spots << " missing spots");
+        quantity<si::length> missing_penalty( config.missing_penalty() );
         quantity<si::length> rmse = sqrt( 
             ( squared_errors + 
-              pow<2>( quantity<si::length>(config.missing_penalty()) ) * missing_spots
+              pow<2>( missing_penalty ) * missing_spots
             ) / (found_spots + missing_spots) );
         position_value = quantity<si::nanolength>(rmse).value();
         DEBUG("Position's value is " << *position_value );

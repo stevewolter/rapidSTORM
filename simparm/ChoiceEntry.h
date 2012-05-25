@@ -18,9 +18,6 @@
 
 namespace simparm {
 
-extern void formatParagraph(ostream &o, unsigned int left_col, 
-                unsigned int right_col, const string &s);
-
 template <typename ChoiceType>
 class ChoiceEntry 
 : public BasicEntry
@@ -29,6 +26,7 @@ class ChoiceEntry
     NodeHandle create_hidden_node( simparm::NodeHandle );
     static const std::string no_selection;
 
+    std::vector< ChoiceType* > choices;
     typedef std::map<std::string,ChoiceType*> Entries;
     Entries entries;
     bool auto_select;
@@ -91,7 +89,7 @@ class ChoiceEntry
         { value = choice.getName(); }
     void choose(const std::string &name)
         { value = name; }
-    istream& readValue(istream& i) {
+    std::istream& readValue(std::istream& i) {
         std::string new_value;
         std::getline( i, new_value );
         if ( new_value == no_selection || hasChoice( new_value ) )
@@ -100,8 +98,6 @@ class ChoiceEntry
             throw std::runtime_error("Invalid choice " + new_value + " for " + getName());
         return i;
     }
-
-    void printHelp(ostream &o) const;
 
     /** Decide whether the first list entry should be automatically selected.
      *  If this behaviour is set to true (the default), the first entry in this

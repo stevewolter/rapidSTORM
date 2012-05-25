@@ -4,6 +4,7 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/Entry.h>
 #include <boost/units/systems/si/length.hpp>
+#include <boost/units/quantity.hpp>
 #include "../units/nanolength.h"
 
 namespace dStorm {

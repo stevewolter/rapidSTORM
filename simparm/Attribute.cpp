@@ -3,6 +3,12 @@
 #include <math.h>
 #include <limits>
 
+#include "BoostUnits.h"
+#include "BoostOptional.h"
+#include "Eigen.h"
+#include "iostream.h"
+#include "Attribute.hpp"
+
 namespace simparm {
 
 void BaseAttribute::add_to( NodeHandle n ) {
@@ -28,7 +34,7 @@ std::istream& from_config_stream( std::istream& i, bool& b )
 template <typename Type> 
 inline std::ostream& output( std::ostream& o, Type v ) {
     typedef std::numeric_limits<long double> Lim;
-    switch (fpclassify(v)) {
+    switch (std::fpclassify(v)) {
         case FP_NAN: return (o << "NaN");
         case FP_INFINITE: return (o << ((v > 0) ? "inf" : "-inf"));
         default:

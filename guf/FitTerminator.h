@@ -8,6 +8,7 @@
 #include <nonlinfit/TermParameter.h>
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
+#include <boost/units/cmath.hpp>
 
 namespace dStorm {
 namespace guf {

@@ -2,12 +2,13 @@
 #define SIMPARM_CMDLINE_UI_PROGRESS_NODE_H
 
 #include "Node.h"
+#include "../Attribute.h"
 
 namespace simparm {
 namespace cmdline_ui {
 
 class ProgressNode : public Node {
-    simparm::BaseAttribute* value;
+    simparm::Attribute<double>* value;
     std::auto_ptr<boost::signals2::scoped_connection> connections;
     void add_attribute( simparm::BaseAttribute& );
 

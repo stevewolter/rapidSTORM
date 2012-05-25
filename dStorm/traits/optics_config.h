@@ -11,7 +11,6 @@
 #include <simparm/BoostOptional.h>
 #include "../UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/Entry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/ChoiceEntry_Impl.h>
 
