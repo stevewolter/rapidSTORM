@@ -50,24 +50,23 @@ void Model::set_fixed_calibration_data()
 {
     Eigen::Vector3d image_x0;
     Eigen::Vector3d pixel_size;
-    image_x0 << 15, 15, 25;
-    pixel_size << 0.02, 0.02, 0.02;
-        dStorm::Image<double,3>::Size size;
-//    size={ 30, 30, 50};
+    image_x0 << 0.9, 0.9, 1.5;
+    pixel_size << 0.06, 0.06, 0.06;
+    dStorm::Image<double,3>::Size size;
     size[0]= 30 * camera::pixel;
     size[1]= 30 * camera::pixel;
     size[2]= 50 * camera::pixel;
     Image <double,3> psf_calib_image = Image<double,3>( size );
+    double correction_factor = 12.76615297;
 
     for (int x = 0; x < 30; ++x)
         for (int y = 0; y < 30; ++y)
             for (int z = 0; z < 50; ++z)
-                psf_calib_image(x,y,z) = dStorm::guf::psf_calib_image_test[x][y][z];
+                psf_calib_image(x,y,z) = correction_factor * dStorm::guf::psf_calib_image_test[x][y][z];
 
     (*this).image_x0 = image_x0;
     (*this).psf_data = psf_calib_image;
     (*this).pixel_size = pixel_size;
-    quantity<si::dimensionless> correction_factor = 12.76615297;
     (*this).set_amplitude(correction_factor);
 }
 

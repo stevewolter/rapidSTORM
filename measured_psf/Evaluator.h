@@ -19,7 +19,7 @@ struct Evaluator
     typedef nonlinfit::plane::GenericData< LengthUnit > Data;
 
     const Model * expr;
-    Eigen::Array<double,ChunkSize, 3> calib_image_pos_in_px; //chunk with postiions
+    Eigen::Array<double,ChunkSize, 3> calib_image_pos_in_px; //chunk with positions
     Eigen::Array<int,ChunkSize, 3> base_pos_in_px; //chunk with postiions
     Eigen::Array<double, ChunkSize, 3> psf_data_size;
 
@@ -28,7 +28,17 @@ struct Evaluator
     }
     bool prepare_iteration( const Data& data ) {
         psf_data_size.rowwise() = boost::units::value( expr->psf_data.sizes() ).cast<double>() - 1.0;
-        return true;
+        Eigen::Vector3d x_min, x_max;
+        x_min[0] = data.min(0).value();
+        x_min[1] = data.min(1).value();
+        x_min[2] = expr->axial_mean;
+        x_max[0] = data.max(0).value();
+        x_max[1] = data.max(1).value();
+        x_max[2] = 0;
+        Eigen::Array3d min_calib = get_calib_image_pos_in_px (x_min);
+        Eigen::Array3d max_calib = get_calib_image_pos_in_px (x_max);
+        if (min_calib(0)>=0 && min_calib(1)>=0 && max_calib(0) < psf_data_size(0,0) && max_calib(1) < psf_data_size(0,1) && min_calib(2)>=0 && min_calib(2) < psf_data_size(0,2)) return true;
+        return false;
     }
 
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )
@@ -39,17 +49,23 @@ struct Evaluator
              Eigen::Vector3d x;
              x.head<2>() = xs.row(row).template cast<double>();
              x[2]= expr->axial_mean;
-             //returns relative coordinates for x_image in x_psf
-             calib_image_pos_in_um = (x - expr->x0) + expr->image_x0;
-             //position in psf, need to get value from here
-             calib_image_pos_in_px.row(row) = calib_image_pos_in_um.array() / expr->pixel_size.array();
+             calib_image_pos_in_px.row(row) = get_calib_image_pos_in_px(x);
         }
-        if ( (calib_image_pos_in_px >= psf_data_size).any() )
+        if ( (calib_image_pos_in_px >= psf_data_size).any() || (calib_image_pos_in_px < 0).any() )
             throw std::logic_error ("calib_image_pos out of range of PSF");
         base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
     }
 
 private:
+
+    Eigen::Array3d get_calib_image_pos_in_px (Eigen::Vector3d x)
+    {
+        Eigen::Array3d calib_image_pos_in_um;
+        calib_image_pos_in_um = (x - expr->x0) + expr->image_x0;
+             //position in psf, need to get value from here
+        return calib_image_pos_in_um.array() / expr->pixel_size.array();
+    }
+
     template <int Dim, typename Target>
     void interpolate_value( Target& ref ) const {
         const double pixel_size_factor = (Dim >= 0) ? 1.0/expr->pixel_size[Dim] : 0;
@@ -65,7 +81,7 @@ private:
                         double value = expr->psf_data( from_value<camera::length>( pos ) );
                         Eigen::Vector3d weights = ( 1 - ( pos.cast<double>() - calib_image_pos_in_px.row(row).transpose() ).abs() );
                         if ( Dim >= 0 )
-                            weights[Dim] = ( pos[Dim] <= calib_image_pos_in_px(row,Dim) ) 
+                            weights[Dim] = ( pos[Dim] <= calib_image_pos_in_px(row,Dim) )
                                              ? - pixel_size_factor :  pixel_size_factor;
                         ref[row] += weights.prod() * value * expr->amplitude * expr->prefactor;
                     }

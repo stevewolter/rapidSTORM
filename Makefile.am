@@ -330,7 +330,7 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_SOURCES = dstorm.cpp
 dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program
-dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la
+dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la libmeasured_psf.la
 dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS)
 dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
 dstorm_LDADD = libdStorm.la libmeasured_psf.la $(GraphicsMagick_LIBS) $(WX_LIBS)

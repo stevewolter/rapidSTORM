@@ -120,6 +120,8 @@ class InitialValueFinder::set_parameter {
         { m( p ) = s[Dim]; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m )
         { m( p ) = e.z_estimate; }
+    void operator()( gaussian_psf::Mean<2> p, measured_psf::Model& m )
+        { m( p ) = e.z_estimate; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::Spline3D& m ) {
         m( p ) = e.z_estimate;
     }
@@ -142,6 +144,9 @@ void InitialValueFinder::operator()(
 
     if ( need_z_estimate ) {
         estimate_z( data, e );
+    } else {
+        /* TODO: This is test code for measured_psf. Remove when fully integrated. */
+        e[0].z_estimate = 4E-6 * si::metre;
     }
     for (int p = 0; p < info.traits.plane_count(); ++p) {
         assert( ( position[p].kernel_count() ) == 1 );
