@@ -54,8 +54,7 @@ ProgressMeter::ProgressMeter(const Config &)
     {
         progress.helpID = "#ProgressMeter_Progress";
         progress.setEditable(false);
-        progress.setViewable(true);
-        progress.setUserLevel(simparm::Object::Beginner);
+        progress.hide();
         progress.increment = (0.02);
     }
 

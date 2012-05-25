@@ -163,7 +163,7 @@ void SimpleFilters::publish_tki()
 }
 
 void SimpleFilters::set_visibility( const input::Traits<Localization>& a ) {
-    two_kernel_improvement.viewable = ( a.two_kernel_improvement().is_given );
+    two_kernel_improvement.set_visibility ( a.two_kernel_improvement().is_given );
 }
 
 }

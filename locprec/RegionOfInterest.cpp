@@ -46,7 +46,7 @@ class ROIFilter::Config
 
     static std::string get_name() { return "ROIFilter"; }
     static std::string get_description() { return "Select region of interest"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     void attach_ui( simparm::NodeHandle at ) {
         left.attach_ui(at); 

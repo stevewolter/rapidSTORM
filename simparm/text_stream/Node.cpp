@@ -1,8 +1,18 @@
 #include "Node.h"
+#include "TabNode.h"
 #include <sstream>
 
 namespace simparm {
 namespace text_stream {
+
+Node::Node( std::string name, std::string type ) 
+: name(name), type(type), 
+  desc("desc", ""),
+  viewable("viewable", true),
+  userLevel("userLevel", Beginner),
+  parent(NULL), declared(false)
+{
+}
 
 bool Node::print( const std::string& s ) { 
     if ( declared && parent )
@@ -48,37 +58,41 @@ void Node::remove_child( Node& o ) {
 }
 
 simparm::NodeHandle Node::create_object( std::string name ) {
-    return create_node( name, "Object" );
+    return adorn_node( new Node( name, "Object" ) );
 }
 
-simparm::NodeHandle Node::create_set( std::string name ) {
-    return create_node( name, "Set" );
+simparm::NodeHandle Node::create_group( std::string name ) {
+    return adorn_node( new TabNode( name, false ) );
 }
 
-simparm::NodeHandle Node::create_entry( std::string name, std::string desc, std::string type ) {
-    return create_node( name, type + "Entry" );
+simparm::NodeHandle Node::create_tab_group( std::string name ) {
+    return adorn_node( new TabNode( name, true ) );
 }
 
-simparm::NodeHandle Node::create_choice( std::string name, std::string desc ) {
-    return create_node( name, "ChoiceEntry" );
+simparm::NodeHandle Node::create_entry( std::string name, std::string type ) {
+    return adorn_node( new Node( name, type + "Entry" ) );
 }
 
-simparm::NodeHandle Node::create_node( std::string name, std::string type ) {
-    std::auto_ptr<Node> rv( new Node(name,type) );
+simparm::NodeHandle Node::create_choice( std::string name ) {
+    return adorn_node( new Node( name, "ChoiceEntry" ) );
+}
+
+simparm::NodeHandle Node::adorn_node( Node* n ) {
+    std::auto_ptr<Node> rv( n );
     add_child( *rv );
     return simparm::NodeHandle(rv.release());
 }
 
-simparm::NodeHandle Node::create_file_entry( std::string name, std::string ) {
-    return create_node( name, "FileEntry" );
+simparm::NodeHandle Node::create_file_entry( std::string name ) {
+    return adorn_node( new Node( name, "FileEntry" ) );
 }
 
-simparm::NodeHandle Node::create_progress_bar( std::string name, std::string ) {
-    return create_node( name, "ProgressEntry" );
+simparm::NodeHandle Node::create_progress_bar( std::string name ) {
+    return adorn_node( new Node( name, "ProgressEntry" ) );
 }
 
-simparm::NodeHandle Node::create_trigger( std::string name, std::string ) {
-    return create_node( name, "TriggerEntry" );
+simparm::NodeHandle Node::create_trigger( std::string name ) {
+    return adorn_node( new Node( name, "TriggerEntry" ) );
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {
@@ -95,15 +109,14 @@ void Node::print_attribute_value( const simparm::BaseAttribute& a ) {
     print( "in " + a.get_name() + " " + a.get_value() );
 }
 
+void Node::declare_children() {
+    std::for_each( nodes.begin(), nodes.end(),
+        boost::bind( &Node::initialization_finished, _1 ) );
+}
+
 void Node::show_attributes( std::ostream& declaration ) {
     for ( std::vector< BaseAttribute* >::const_iterator i = attributes.begin(); i != attributes.end(); ++i )
         declaration << (*i)->get_name() << " " << (*i)->get_value() << "\n";
-}
-
-void Node::show_children() {
-    for ( std::vector< Node* >::const_iterator i = nodes.begin(); i != nodes.end(); ++i ) {
-        (*i)->show();
-    }
 }
 
 void Node::declare( std::ostream& o ) {
@@ -112,20 +125,19 @@ void Node::declare( std::ostream& o ) {
         o << "declare " << type << "\n";
         o << "name " << name << "\n";
         show_attributes( o );
-        for ( std::vector< Node* >::const_iterator i = nodes.begin(); i != nodes.end(); ++i ) {
-            (*i)->declare(o);
-        }
+        std::for_each( nodes.begin(), nodes.end(),
+            boost::bind( &Node::declare, _1, boost::ref(o) ) );
         o << "end\n";
     }
 }
 
 void Node::undeclare() {
     declared = false;
-    for ( std::vector< Node* >::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-        (*i)->undeclare();
+    std::for_each( nodes.begin(), nodes.end(),
+        boost::bind( &Node::undeclare, _1 ) );
 }
 
-void Node::show() {
+void Node::initialization_finished() {
     if ( ! parent ) return;
     std::stringstream declaration;
     declare( declaration );

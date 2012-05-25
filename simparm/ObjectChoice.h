@@ -9,7 +9,7 @@ class ObjectChoice {
     simparm::Object node;
 protected:
     NodeHandle attach_parent( simparm::NodeHandle to ) { return node.attach_ui(to); }
-    void set_viewability( bool v ) { this->node.viewable = v; }
+    void set_viewability( bool v ) { this->node.set_visibility(v); }
 public:
     ObjectChoice( std::string name, std::string desc )
         : node(name,desc) {}

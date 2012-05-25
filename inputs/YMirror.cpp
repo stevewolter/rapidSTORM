@@ -171,7 +171,7 @@ Config::Config()
 : name_object( ChainLink::getName(), "Mirror input data along Y axis"),
   mirror_y("MirrorY", "Mirror input data along Y axis")
 {
-    mirror_y.userLevel = simparm::Object::Expert;
+    mirror_y.set_user_level( simparm::Expert );
 }
 
 std::auto_ptr<input::Link> makeLink() {

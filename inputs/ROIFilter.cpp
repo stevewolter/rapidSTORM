@@ -189,8 +189,8 @@ Config::Config()
   first_frame("FirstImage", "First image to load"),
   last_frame( "LastImage", "Last image to load" )
 {
-    first_frame.userLevel = simparm::Object::Intermediate;
-    last_frame.userLevel = simparm::Object::Intermediate;
+    first_frame.set_user_level( simparm::Intermediate );
+    last_frame.set_user_level( simparm::Intermediate );
 }
 
 std::auto_ptr<input::Link> make_link() {

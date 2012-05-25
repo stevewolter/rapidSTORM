@@ -16,7 +16,7 @@ NodeHandle FileEntry::create_hidden_node( NodeHandle n ) {
 }
 
 NodeHandle FileEntry::make_naked_node( simparm::NodeHandle node ) {
-    return node->create_file_entry( getName(), getDesc() );
+    return node->create_file_entry( getName() );
 }
 
 

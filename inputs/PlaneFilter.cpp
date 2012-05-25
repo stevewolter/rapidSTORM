@@ -159,7 +159,7 @@ class ChainLink
     }
 
     void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
-        config.which_plane.viewable = true;
+        config.which_plane.show();
         for (int i = config.which_plane.size()-1; i < t.plane_count(); ++i) {
             config.which_plane.addChoice( new SinglePlane(i) );
         }
@@ -168,7 +168,7 @@ class ChainLink
     }
     template <typename Type>
     void notice_traits( const input::MetaInfo&, const input::Traits<Type>& ) {
-        config.which_plane.viewable = false;
+        config.which_plane.hide();
     }
 
     template <typename Type>
@@ -195,7 +195,7 @@ Config::Config()
   which_plane( "OnlyPlane", "Process only one plane" )
 {
     which_plane.addChoice( new AllPlanes() );
-    which_plane.userLevel = simparm::Object::Expert;
+    which_plane.set_user_level( simparm::Expert );
 }
 
 std::auto_ptr<input::Link> make_link() {

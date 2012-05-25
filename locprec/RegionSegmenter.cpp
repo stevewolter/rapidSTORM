@@ -167,7 +167,7 @@ struct Segmenter::Config {
 
     static std::string get_name() { return "Segmenter"; }
     static std::string get_description() { return "Segment target image"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     Config();
     void attach_ui( simparm::NodeHandle at );

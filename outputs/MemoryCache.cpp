@@ -93,7 +93,7 @@ struct Config
 {
     static std::string get_name() { return "Cache"; }
     static std::string get_description() { return "Cache localizations"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
     void attach_ui( simparm::NodeHandle ) {}
     bool determine_output_capabilities( dStorm::output::Capabilities& cap ) { 
         cap.set_source_image( false );

@@ -61,11 +61,11 @@ class ChainLink
     Config config;
 
     void notice_traits( const input::MetaInfo&, const input::Traits<engine::ImageStack>& t ) {
-        config.fluorophore_count.viewable = ( t.plane_count() > 1 );
+        config.fluorophore_count.set_visibility( t.plane_count() > 1 );
     }
     template <typename Type>
     void notice_traits( const input::MetaInfo&, const input::Traits<Type>& t ) {
-        config.fluorophore_count.viewable = false;
+        config.fluorophore_count.hide();
     }
     template <typename Type>
     void update_traits( input::MetaInfo&, input::Traits<Type>& t ) {
@@ -100,7 +100,7 @@ Config::Config()
     fluorophore_count.helpID = "FluorophoreTypeCount";
     fluorophore_count.min = 1;
     fluorophore_count.increment = 1;
-    fluorophore_count.viewable = false;
+    fluorophore_count.hide();
 }
 
 void Config::attach_ui( simparm::NodeHandle at ) {

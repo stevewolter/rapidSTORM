@@ -32,7 +32,7 @@ class TraceCountFilter : public output::Filter
     void store_results_( bool success );
     void attach_ui_( simparm::NodeHandle );
 
-    void set_which_viewability() { whichSpecific.viewable = selectSpecific(); }
+    void set_which_viewability() { whichSpecific.set_visibility( selectSpecific() ); }
     void repeat_results() { engine->repeat_results(); }
 
   public:
@@ -100,7 +100,7 @@ TraceCountFilter::announceStormSize(const Announcement &a)
 { 
     if ( a.engine != NULL && a.engine->can_repeat_results() ) {
         engine = a.engine;
-        selectSpecific.viewable = true;
+        selectSpecific.show();
         selectSpecific.editable = true;
     }
     processed_locs = 0;
@@ -140,7 +140,7 @@ TraceCountConfig::TraceCountConfig()
   whichSpecific("WhichTrace", "Trace to select", 1)
 {
     whichSpecific.min = 1;
-    whichSpecific.viewable = false;
+    whichSpecific.hide();
 }
 
 std::auto_ptr< output::Output > make_trace_count_filter( const TraceCountConfig& c, std::auto_ptr< output::Output > s )

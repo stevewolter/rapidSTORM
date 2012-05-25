@@ -53,18 +53,13 @@ NodeHandle ProgressEntry::create_hidden_node( NodeHandle at ) {
 }
 
 NodeHandle ProgressEntry::make_naked_node( NodeHandle node ) {
-    return node->create_progress_bar( getName(), getDesc() );
+    return node->create_progress_bar( getName() );
 }
 
 ProgressEntry::ProgressEntry(const ProgressEntry &entry)
 : Entry<double>(entry), indeterminate(entry.indeterminate)
 {
     this->increment = 0.01;
-#if 0
-    if ( entry.display.get() != NULL )
-        display.reset( 
-            new ASCII_Progress_Shower( value, entry.display->getStream()));
-#endif
 }
 
 ProgressEntry::ProgressEntry(string name, string desc, double value)

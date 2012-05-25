@@ -11,7 +11,7 @@ FilterBuilder<Type,OutputType>::FilterBuilder()
 : name_object( Type::get_name(), Type::get_description() ),
   choice_object( Type::get_name(), Type::get_description() )
 { 
-    choice_object.userLevel = Type::get_user_level();
+    choice_object.set_user_level( Type::get_user_level() );
 }
 
 template <class Type, class OutputType>
@@ -35,8 +35,8 @@ void
 FilterBuilder<Type,OutputType>::set_source_capabilities
     ( Capabilities cap ) 
 {
-    name_object.viewable = 
-        config.determine_output_capabilities( cap );
+    name_object.set_visibility(
+        config.determine_output_capabilities( cap ) );
     FilterSource::set_source_capabilities( cap );
 }
 

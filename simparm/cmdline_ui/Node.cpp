@@ -1,19 +1,23 @@
 #include "Node.h"
 #include <sstream>
-#include "TriggerNode.h"
+#include "ChoiceNode.h"
+#include "EntryNode.h"
+#include "ProgressNode.h"
+#include "OptionTable.h"
 
 namespace simparm {
 namespace cmdline_ui {
 
 Node::~Node() { 
     if ( parent ) parent->remove_child(*this); 
-    while ( ! nodes.empty() )
-        remove_child( *nodes.back() );
+    while ( ! nodes.empty() ) {
+        nodes.back()->parent = NULL;
+        nodes.pop_back();
+    }
 }
 
 void Node::add_child( Node& o ) {
     nodes.push_back( &o );
-    node_lookup.insert( std::make_pair( o.name, &o ) );
     o.parent = this;
 }
 
@@ -28,49 +32,43 @@ struct equal_address {
 
 void Node::remove_child( Node& o ) {
     nodes.erase( std::remove_if( nodes.begin(), nodes.end(), equal_address<Node>(&o) ) );
-    node_lookup.erase( o.name );
     o.parent = NULL;
 }
 
 simparm::NodeHandle Node::create_object( std::string name ) {
-    return create_node( name );
+    return adorn_node( new Node(name) );
 }
 
-simparm::NodeHandle Node::create_set( std::string name ) {
-    return create_node( name );
+simparm::NodeHandle Node::create_group( std::string name ) { return adorn_node( new Node(name) ); }
+simparm::NodeHandle Node::create_tab_group( std::string name ) { return adorn_node( new Node(name) ); }
+
+simparm::NodeHandle Node::create_entry( std::string name, std::string ) {
+    return adorn_node( new EntryNode( name, OptionTable::Value ) );
 }
 
-simparm::NodeHandle Node::create_entry( std::string name, std::string, std::string ) {
-    return create_node( name );
+simparm::NodeHandle Node::create_choice( std::string name ) {
+    return adorn_node( new ChoiceNode( name ) );
 }
 
-simparm::NodeHandle Node::create_choice( std::string name, std::string ) {
-    return create_node( name );
-}
-
-simparm::NodeHandle Node::create_node( std::string name ) {
-    std::auto_ptr<Node> rv( new Node(name) );
+simparm::NodeHandle Node::adorn_node( Node* n ) {
+    std::auto_ptr<Node> rv( n );
     add_child( *rv );
     return simparm::NodeHandle(rv.release());
 }
 
-simparm::NodeHandle Node::create_file_entry( std::string name, std::string ) {
-    return create_node( name );
+simparm::NodeHandle Node::create_file_entry( std::string name ) {
+    return adorn_node( new EntryNode( name, OptionTable::Value ) );
 }
 
-simparm::NodeHandle Node::create_progress_bar( std::string name, std::string ) {
-    return create_node( name );
+simparm::NodeHandle Node::create_progress_bar( std::string name ) {
+    return adorn_node( new ProgressNode( name ) );
 }
 
-simparm::NodeHandle Node::create_trigger( std::string name, std::string ) {
-    std::auto_ptr<Node> rv( new TriggerNode(name) );
-    add_child( *rv );
-    return simparm::NodeHandle(rv.release());
+simparm::NodeHandle Node::create_trigger( std::string name ) {
+    return adorn_node( new EntryNode( name, OptionTable::Trigger ) );
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {
-    attributes.push_back( &a );
-    attribute_lookup.insert( std::make_pair( a.get_name(), &a ) );
 }
 
 Message::Response Node::send( Message& m ) const {

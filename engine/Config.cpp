@@ -29,16 +29,16 @@ Config::Config()
 {
     DEBUG("Building dStorm Config");
 
-    nms.setUserLevel(Object::Intermediate);
+    nms.set_user_level(simparm::Intermediate);
     
     motivation.setHelp("Abort spot search when this many successive "
                         "bad candidates are found.");
-    motivation.setUserLevel(Object::Intermediate);
+    motivation.set_user_level(simparm::Intermediate);
 
-    guess_threshold.setUserLevel(Object::Beginner);
-    threshold_height_factor.setUserLevel(Object::Expert);
-    amplitude_threshold.setUserLevel(Object::Beginner);
-    amplitude_threshold.viewable = false;
+    guess_threshold.set_user_level(simparm::Beginner);
+    threshold_height_factor.set_user_level(simparm::Expert);
+    amplitude_threshold.set_user_level(simparm::Beginner);
+    amplitude_threshold.hide();
     amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
                                 "than this threshold will be considered a "
                                 "localization, and those below the threshold "
@@ -51,8 +51,8 @@ Config::Config()
 
     amplitude_threshold.helpID = "#AmplitudeThreshold";
     spotFindingMethod.helpID = "#Smoother";
-    spotFindingMethod.userLevel = simparm::Object::Intermediate;
-    spotFittingMethod.userLevel = simparm::Object::Intermediate;
+    spotFindingMethod.set_user_level( simparm::Intermediate );
+    spotFittingMethod.set_user_level( simparm::Intermediate );
 
     spotFindingMethod.set_auto_selection( true );
 

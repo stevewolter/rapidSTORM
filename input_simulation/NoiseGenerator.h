@@ -1,7 +1,7 @@
 #ifndef LOCPREC_NOISEGENERATOR_H
 #define LOCPREC_NOISEGENERATOR_H
 
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <simparm/Entry.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
@@ -10,7 +10,7 @@
 
 namespace input_simulation {
     class NoiseGeneratorConfig {
-        simparm::Set name_object;
+        simparm::Group name_object;
       public:
         simparm::Entry<double> ups_G, ups_mu, ups_sigma, ups_x0, ups_theta;
         simparm::FileEntry noiseFile;

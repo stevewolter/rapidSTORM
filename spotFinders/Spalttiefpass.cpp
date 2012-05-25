@@ -16,7 +16,7 @@ struct Config {
     Config() 
       : mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) 
     {
-        mask_size.userLevel = simparm::Object::Intermediate;
+        mask_size.set_user_level( simparm::Intermediate );
     }
     static std::string get_name() { return "Average"; }
     static std::string get_description() { return "Smooth by average"; }

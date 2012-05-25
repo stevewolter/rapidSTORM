@@ -24,7 +24,7 @@ namespace input_simulation {
     class NoiseConfig;
 
     struct FluorophoreSetConfig {
-        simparm::Set name_object;
+        simparm::Group name_object;
       public:
         FluorophoreSetConfig(std::string name, std::string desc);
 
@@ -108,7 +108,7 @@ namespace input_simulation {
         FluorophoreList fluorophores;
         boost::mutex mutex;
 
-        simparm::Set name_object;
+        simparm::Group name_object;
         simparm::NodeHandle current_ui;
 
         std::auto_ptr<std::ostream> output;

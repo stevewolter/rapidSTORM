@@ -109,7 +109,7 @@ public:
     void attach_ui( simparm::NodeHandle at );
     static std::string get_name() { return "EmissionTracker"; }
     static std::string get_description() { return "Track emissions"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     simparm::Entry<unsigned long> allowBlinking;
     dStorm::FloatNanometreEntry expectedDeviation;

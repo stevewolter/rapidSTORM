@@ -10,7 +10,7 @@
 #include <simparm/FileEntry.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 
 #include "FileMethod.h"
 #include <dStorm/signals/InputFileNameChange.h>
@@ -23,7 +23,7 @@ class FileMethod
 : public Forwarder
 {
     friend void unit_test(TestState&);
-    simparm::Set name_object;
+    simparm::Group name_object;
     simparm::FileEntry input_file;
     simparm::BaseAttribute::ConnectionStore listening;
 

@@ -55,7 +55,7 @@ public:
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
-        update.setUserLevel(simparm::Object::Beginner);
+        update.set_user_level(simparm::Beginner);
         config_increment = 10 * camera::frame;
 
         count = 0; 
@@ -78,7 +78,7 @@ public:
 LocalizationCounter::Config::Config()
 : output_file("ToFile", "Write localization count to file")
 {
-    output_file.userLevel = simparm::Object::Intermediate;
+    output_file.set_user_level( simparm::Intermediate );
 }
 
 LocalizationCounter::LocalizationCounter(const Config &c)

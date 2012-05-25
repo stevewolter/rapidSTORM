@@ -23,13 +23,13 @@ Config::Config()
   two_kernel_fitting("TwoKernelFitting", "Compute two kernel improvement", false),
   mle_fitting("MLEFitting", "Improve fit with ML estimate", false)
 {
-    free_sigmas.userLevel = simparm::Object::Intermediate;
-    output_sigmas.userLevel = simparm::Object::Intermediate;
-    mle_fitting.userLevel = simparm::Object::Intermediate;
-    theta_dist.userLevel = simparm::Object::Intermediate;
-    negligible_x_step.userLevel = (simparm::Object::Intermediate);
-    maximumIterationSteps.userLevel = (simparm::Object::Intermediate);
-    marquardtStartLambda.userLevel = (simparm::Object::Expert);
+    free_sigmas.set_user_level( simparm::Intermediate );
+    output_sigmas.set_user_level( simparm::Intermediate );
+    mle_fitting.set_user_level( simparm::Intermediate );
+    theta_dist.set_user_level( simparm::Intermediate );
+    negligible_x_step.set_user_level( (simparm::Intermediate) );
+    maximumIterationSteps.set_user_level( (simparm::Intermediate) );
+    marquardtStartLambda.set_user_level( (simparm::Expert) );
 }
 
 void Config::attach_ui( simparm::NodeHandle at )

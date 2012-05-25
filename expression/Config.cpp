@@ -21,7 +21,7 @@ Config::Config()
   new_line("NewExpression", "Add expression"),
   next_ident(0)
 { 
-    new_line.userLevel = simparm::Object::Intermediate;
+    new_line.set_user_level( simparm::Intermediate );
     lines.push_back( new config::CommandLine( "0", parser ) );
     ++next_ident;
 }

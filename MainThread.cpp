@@ -2,6 +2,7 @@
 #include "MainThread.h"
 #include <iostream>
 #include <ios>
+#include <dStorm/display/Manager.h>
 
 namespace dStorm {
 
@@ -11,6 +12,7 @@ MainThread::MainThread()
   input_read_lock(mutex)
 {
     input_read_lock.unlock();
+    display::Manager::getSingleton().attach_ui( io );
 }
 
 void MainThread::run_all_jobs() 

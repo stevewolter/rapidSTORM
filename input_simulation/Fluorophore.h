@@ -8,7 +8,7 @@
 #include <dStorm/engine/Image.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_matrix.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <simparm/Entry.h>
 #include <simparm/Entry_Impl.h>
 #include <vector>
@@ -27,7 +27,7 @@ namespace input_simulation {
 using namespace boost::units;
 
 class FluorophoreConfig {
-    simparm::Set name_object;
+    simparm::Group name_object;
   protected:
   public:
     FluorophoreConfig();

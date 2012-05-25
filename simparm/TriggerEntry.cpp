@@ -14,7 +14,7 @@ TriggerEntry::TriggerEntry(string name, string desc)
 }
 
 NodeHandle TriggerEntry::make_naked_node( simparm::NodeHandle node ) {
-    return node->create_trigger( getName(), getDesc() );
+    return node->create_trigger( getName() );
 }
 
 

@@ -1,6 +1,7 @@
 #ifndef SIMPARM_BASIC_ENTRY_HH
 #define SIMPARM_BASIC_ENTRY_HH
 
+#include "iostream.h"
 #include "BoostOptional.h"
 #include "Object.h"
 #include "Attribute.h"
@@ -20,9 +21,9 @@ public:
 
 protected:
     NodeHandle create_hidden_node( NodeHandle );
-    NodeHandle create_textfield( NodeHandle parent, std::string name, std::string description, std::string type );
-    NodeHandle create_checkbox( NodeHandle parent, std::string name, std::string description );
-    NodeHandle create_choice( NodeHandle parent, std::string name, std::string description );
+    NodeHandle create_textfield( NodeHandle parent, std::string name, std::string type );
+    NodeHandle create_checkbox( NodeHandle parent, std::string name );
+    NodeHandle create_choice( NodeHandle parent, std::string name );
 public:
     BasicEntry(std::string name, std::string desc = "");
     BasicEntry(const BasicEntry&);

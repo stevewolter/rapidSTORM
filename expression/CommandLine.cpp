@@ -14,8 +14,8 @@ CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
     parser(parser),
     manager(NULL)
 {
-    lvalue.userLevel = simparm::Object::Intermediate;
-    expression.userLevel = simparm::Object::Intermediate;
+    lvalue.set_user_level( simparm::Intermediate );
+    expression.set_user_level( simparm::Intermediate );
 
     expression.helpID = "#ExpressionFilter_Expression";
     lvalue.helpID = "#ExpressionFilter_LValue";

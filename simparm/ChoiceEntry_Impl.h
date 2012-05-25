@@ -121,7 +121,7 @@ NodeHandle ChoiceEntry<ChoiceType>::create_hidden_node( simparm::NodeHandle n ) 
 template <typename ChoiceType>
 NodeHandle 
 ChoiceEntry<ChoiceType>::make_naked_node( simparm::NodeHandle n ) {
-    return create_choice( n, getName(), getDesc() );
+    return create_choice( n, getName() );
 }
 
 }

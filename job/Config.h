@@ -6,7 +6,7 @@
 #include <dStorm/input/Link.h>
 #include <memory>
 #include <list>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <simparm/Menu.h>
 #include <simparm/FileEntry.h>
 #include <simparm/Entry.h>
@@ -27,7 +27,7 @@ class Config : public dStorm::Config
     class TreeRoot;
     class InputListener;
 
-    simparm::Set car_config;
+    simparm::Group car_config;
     simparm::NodeHandle current_ui;
 
     std::auto_ptr<TreeRoot> outputRoot;
@@ -52,7 +52,7 @@ class Config : public dStorm::Config
     output::Config& outputConfig;
 
     simparm::Menu helpMenu;
-    simparm::Set outputBox;
+    simparm::Group outputBox;
     simparm::FileEntry configTarget;
     simparm::BoolEntry auto_terminate;
     /** Number of parallel computation threads to run. */

@@ -38,14 +38,14 @@ NodeHandle BasicEntry::create_hidden_node( simparm::NodeHandle node ) {
 BasicEntry::~BasicEntry() 
 {}
 
-NodeHandle BasicEntry::create_textfield( NodeHandle parent, std::string name, std::string description, std::string type ) {
-    return parent->create_entry( name, description, type );
+NodeHandle BasicEntry::create_textfield( NodeHandle parent, std::string name, std::string type ) {
+    return parent->create_entry( name, type );
 }
-NodeHandle BasicEntry::create_checkbox( NodeHandle parent, std::string name, std::string description ) {
-    return parent->create_entry( name, description, "Bool" );
+NodeHandle BasicEntry::create_checkbox( NodeHandle parent, std::string name ) {
+    return parent->create_entry( name, "Bool" );
 }
-NodeHandle BasicEntry::create_choice( NodeHandle parent, std::string name, std::string description ) {
-    return parent->create_choice( name, description );
+NodeHandle BasicEntry::create_choice( NodeHandle parent, std::string name ) {
+    return parent->create_choice( name );
 }
 
 }

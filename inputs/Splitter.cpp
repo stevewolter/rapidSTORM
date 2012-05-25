@@ -145,7 +145,7 @@ Config::Config()
     biplane_split.addChoice( std::auto_ptr<Split>( new HorizontalSplit() ) );
     biplane_split.addChoice( std::auto_ptr<Split>( new VerticalSplit() ) );
 
-    biplane_split.userLevel = simparm::Object::Intermediate;
+    biplane_split.set_user_level( simparm::Intermediate );
 }
 
 Source::Source(bool vertical, std::auto_ptr<input::Source<engine::ImageStack> > base)

@@ -50,6 +50,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
+    simparm::TriggerEntry help("Help", "Help");
 
     for ( int i = 0; i < argc; i++ ) {
         DEBUG("Argument " << i << " is '" << argv[i] << "'");
@@ -59,6 +60,10 @@ void CommandLine::parse( int argc, char *argv[] ) {
     printer.attach_ui( argument_parser );
     launcher.attach_ui( argument_parser );
     starter.attach_ui( argument_parser );
+    help.attach_ui( argument_parser );
+
+
+    help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
 
 #if 0
     int shift = find_config_file(argc,argv);

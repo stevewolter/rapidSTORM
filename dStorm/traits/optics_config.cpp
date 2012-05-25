@@ -48,10 +48,10 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
     alignment.addChoice( make_support_point_projection_config() );
 
     transmissions.push_back( new TransmissionEntry(0) );
-    transmissions.back().viewable = false;
+    transmissions.back().hide();
 
-    counts_per_photon.userLevel = simparm::Object::Intermediate;
-    dark_current.userLevel = simparm::Object::Intermediate;
+    counts_per_photon.set_user_level( simparm::Intermediate );
+    dark_current.set_user_level( simparm::Intermediate );
 }
 
 PlaneConfig::PlaneConfig( const PlaneConfig& o )
@@ -102,9 +102,14 @@ void PlaneConfig::set_fluorophore_count( int fluorophore_count, bool multiplane 
         transmissions.back().attach_ui( current_ui );
     }
 
-    for (Transmissions::iterator i = transmissions.begin(); i != transmissions.end(); ++i)
-	i->viewable = (i - transmissions.begin()) < fluorophore_count && (fluorophore_count > 1 || multiplane);
+    Transmissions::iterator mark = transmissions.begin() + fluorophore_count;
+
+    std::for_each( transmissions.begin(), mark,
+        boost::bind( &simparm::Object::set_visibility, _1, fluorophore_count > 1 || multiplane ) );
+    std::for_each( mark, transmissions.end(),
+        boost::bind( &simparm::Object::set_visibility, _1, false ) );
 }
+
 void PlaneConfig::set_context( const input::Traits<Localization>& t, int fluorophore_count ) {
     set_fluorophore_count( fluorophore_count, false );
     three_d().set_context();
@@ -152,8 +157,6 @@ MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose )
 : name_object("Optics", "Optical pathway properties"),
   purpose(purpose)
 {
-    name_object.showTabbed = true;
-
     DEBUG("Constructing " << this);
     layers.push_back( new PlaneConfig(0, purpose) );
     set_number_of_planes( 1 );

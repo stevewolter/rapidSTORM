@@ -11,6 +11,7 @@
 #include "default_value.h"
 #include "MinMaxWatcher.h"
 #include "Attributes.h"
+#include "Attribute.h"
 
 namespace simparm {
 using std::string;
@@ -71,9 +72,9 @@ class Entry
     NodeHandle create_hidden_node( simparm::NodeHandle );
     NodeHandle make_naked_node( simparm::NodeHandle node ) { 
         if ( boost::is_same< TypeOfEntry, bool >() )
-            return create_checkbox( node, getName(), getDesc() );
+            return create_checkbox( node, getName() );
         else
-            return create_textfield( node, getName(), getDesc(), typeName( TypeOfEntry() ) ); 
+            return create_textfield( node, getName(), typeName( TypeOfEntry() ) ); 
     }
 
   public:

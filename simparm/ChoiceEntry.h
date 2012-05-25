@@ -2,6 +2,7 @@
 #define SIMPARM_CONFIG_ENTRY_CHOICE
 
 #include "Entry.h"
+#include "Attribute.h"
 #include <vector>
 #include <map>
 #include <set>

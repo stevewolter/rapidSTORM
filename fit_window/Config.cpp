@@ -8,9 +8,9 @@ Config::Config()
   allow_disjoint("DisjointFitting", "Allow disjoint fitting", true),
   double_computation("DoublePrecision", "Compute with 64 bit floats", true)
 {
-    fit_window_size.userLevel = simparm::Object::Intermediate;
-    allow_disjoint.userLevel = (simparm::Object::Expert);
-    double_computation.userLevel = (simparm::Object::Intermediate);
+    fit_window_size.set_user_level( simparm::Intermediate );
+    allow_disjoint.set_user_level( (simparm::Expert) );
+    double_computation.set_user_level( (simparm::Intermediate) );
 }
 
 void Config::attach_ui( simparm::NodeHandle at ) {

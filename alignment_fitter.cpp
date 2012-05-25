@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <simparm/Entry_Impl.h>
 #include <simparm/text_stream/RootNode.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <simparm/TriggerEntry.h>
 
 typedef std::list<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> > PositionList;
@@ -58,8 +58,7 @@ int main(int argc, char *argv[]) {
     simparm::TriggerEntry compute("Compute", "Compute"), twiddler("Twiddler", "Twiddler");
 
     boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(NULL, &std::cout) );
-    simparm::Set config("Config", "Matrix generator");
-    simparm::NodeHandle r = config.attach_ui( io );
+    simparm::NodeHandle r = io;
     file1.attach_ui( r );
     file2.attach_ui( r );
     output.attach_ui( r );
@@ -77,9 +76,11 @@ int main(int argc, char *argv[]) {
     cur_step.attach_ui( r );
     cur_volume.attach_ui( r );
     twiddler.attach_ui( r );
-    twiddler.userLevel = simparm::Object::Debug;
-    cur_step.editable = cur_step.viewable = false;
-    cur_volume.editable = cur_volume.viewable = false;
+    twiddler.set_user_level( simparm::Debug );
+    cur_step.editable = false;
+    cur_step.hide();
+    cur_volume.editable = false;
+    cur_volume.hide();
     // TODO: readConfig(r, argc, argv);
 
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
@@ -109,8 +110,8 @@ int main(int argc, char *argv[]) {
 
         cur_step = 0;
         cur_volume = 1;
-        cur_step.viewable = true;
-        cur_volume.viewable = true;
+        cur_step.show();
+        cur_volume.show();
         for (int pc = (pre_fit()) ? 2 : 6; pc <= 6; pc += 2) {
             cur_step = pc/2;
             gsl_vector* x = gsl_vector_alloc(pc), *first_step = gsl_vector_alloc(pc);
@@ -132,8 +133,8 @@ int main(int argc, char *argv[]) {
             }
             for (int i = 0; i < pc; ++i) *entries[i] = gsl_vector_get(gsl_multimin_fminimizer_x(m), i);
         }
-        cur_step.viewable = false;
-        cur_volume.viewable = false;
+        cur_step.hide();
+        cur_volume.hide();
 
         if ( output ) {
             output.get_output_stream() << scale_x() << " " << shear_x() << " " << shift_x() * 1E-6 << "\n" 

@@ -7,6 +7,7 @@ namespace simparm {
 namespace cmdline_ui {
 
 class ProgressNode : public Node {
+#if 0
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
     virtual void add_attribute( simparm::BaseAttribute& );
     std::string desc;
@@ -14,6 +15,7 @@ class ProgressNode : public Node {
 
     void set_description();
     void set_value();
+#endif
 public:
     ProgressNode( std::string name ) : Node(name) {}
 };

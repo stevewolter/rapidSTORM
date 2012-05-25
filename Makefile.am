@@ -721,7 +721,8 @@ libsimparm_la_SOURCES = \
     simparm/NodeHandle.h \
     simparm/Attribute.h simparm/Attribute.cpp \
     simparm/BasicEntry.h simparm/BasicEntry.cpp \
-    simparm/Set.h simparm/Set.cpp \
+    simparm/Group.h simparm/Group.cpp \
+    simparm/TabGroup.h simparm/TabGroup.cpp \
     simparm/Entry.h simparm/Entry_Impl.h simparm/Entry.cpp \
     simparm/Object.h simparm/Object.cpp \
     simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
@@ -736,13 +737,16 @@ libsimparm_la_SOURCES = \
     simparm/iostream.h \
     simparm/Eigen_decl.h simparm/Eigen.h \
     simparm/BoostUnits.h \
+    simparm/UserLevel.h \
     simparm/default_value.h simparm/IncrementWatcher.h \
     simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h \
     simparm/text_stream/Node.h simparm/text_stream/Node.cpp \
     simparm/text_stream/RootNode.h simparm/text_stream/RootNode.cpp \
+    simparm/text_stream/TabNode.h \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
-    simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp
+    simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
+    simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 libsimparm_la_LDFLAGS = -lpthread 
 
 if HAVE_LIBREADSIF

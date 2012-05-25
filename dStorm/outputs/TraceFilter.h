@@ -18,7 +18,7 @@ class TraceCountConfig
     simparm::Entry<unsigned long> whichSpecific;
 
   private:
-    void set_which_viewability() { whichSpecific.viewable = selectSpecific(); }
+    void set_which_viewability() { whichSpecific.set_visibility( selectSpecific() ); }
     simparm::BaseAttribute::ConnectionStore listening;
 
   public:
@@ -27,7 +27,7 @@ class TraceCountConfig
     void attach_ui( simparm::NodeHandle at );
     static std::string get_name() { return "TraceFilter"; }
     static std::string get_description() { return "Trace filter"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     bool determine_output_capabilities( output::Capabilities& cap ) {
         if ( ! cap.test( output::Capabilities::ClustersWithSources ) )

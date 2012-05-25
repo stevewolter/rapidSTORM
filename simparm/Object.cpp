@@ -1,21 +1,18 @@
 #include "Object.h"
 #include "Node.h"
+#include "dummy_ui/fwd.h"
 
 using namespace std;
 
 namespace simparm {
 
 Object::Object(string name, string desc)
-: desc("desc", desc),
-  viewable("viewable", true),
-  userLevel("userLevel", Beginner),
-  name(name)
+: node_( dummy_ui::make_node() ), name(name), desc(desc), is_visible(true), user_level( Beginner )
 {
 }
 
 Object::Object(const Object& o)
-: desc(o.desc), viewable(o.viewable),
-  userLevel(o.userLevel), name(o.name)
+: node_( o.node_ ), name(o.name), desc(o.desc), is_visible(o.is_visible), user_level( o.user_level )
 {}
 
 Object::~Object() { 
@@ -24,7 +21,7 @@ Object::~Object() {
 NodeHandle Object::attach_ui( simparm::NodeHandle node ) {
     if ( node ) {
         NodeHandle r = create_hidden_node( node );
-        r->show();
+        r->initialization_finished();
         return r;
     } else {
         return node;
@@ -37,9 +34,9 @@ void Object::detach_ui( simparm::NodeHandle node ) {
 
 NodeHandle Object::create_hidden_node( simparm::NodeHandle node ) { 
     node_ = make_naked_node( node );
-    node_->add_attribute(desc);
-    node_->add_attribute(viewable);
-    node_->add_attribute(userLevel);
+    node_->set_description( desc );
+    node_->set_visibility( is_visible );
+    node_->set_user_level( user_level );
     return node_;
 }
 
@@ -48,6 +45,12 @@ NodeHandle Object::make_naked_node( simparm::NodeHandle node ) {
 }
 
 std::string Object::getName() const { return name; }
-std::string Object::getDesc() const { return desc(); }
+std::string Object::getDesc() const { return desc; }
+
+void Object::show() { set_visibility(true); }
+void Object::hide() { set_visibility(false); }
+void Object::set_visibility( bool arg ) { is_visible = arg; node_->set_visibility( arg ); }
+void Object::set_user_level( UserLevel arg ) { user_level = arg; node_->set_user_level( arg ); }
+
 
 };

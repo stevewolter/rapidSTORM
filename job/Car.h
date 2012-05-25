@@ -42,7 +42,7 @@ namespace job {
         std::string ident;
         /** Runtime configuration. This is the storage locations for all
          *  configuration items which show job progress and status. */
-        simparm::Set runtime_config;
+        simparm::Group runtime_config;
         simparm::NodeHandle current_ui;
 
         typedef input::Source< output::LocalizedImage > Input;

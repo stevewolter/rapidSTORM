@@ -45,8 +45,8 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.fluorophore().is_given = true;
     traits.two_kernel_improvement().is_given= config.two_kernel_fitting();
 
-    config.laempi_fit.viewable = info.traits.plane_count() > 1;
-    config.disjoint_amplitudes.viewable = info.traits.plane_count() > 1;
+    config.laempi_fit.set_visibility( info.traits.plane_count() > 1 );
+    config.disjoint_amplitudes.set_visibility( info.traits.plane_count() > 1 );
 
     bool all_uncertainties_given = can_compute_uncertainty( info.traits.plane(0) );
     traits.source_traits.clear();

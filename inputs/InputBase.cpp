@@ -1,5 +1,5 @@
 #include "InputBase.h"
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <dStorm/input/Forwarder.h>
 
 namespace dStorm {
@@ -7,7 +7,7 @@ namespace dStorm {
 struct InputChainBase 
 : public input::Forwarder
 {
-    simparm::Set input_config;
+    simparm::Group input_config;
     InputChainBase() : input_config("Input", "Input options") {}
     ~InputChainBase() {}
 

@@ -33,7 +33,7 @@ class SigmaDiff3D::Config {
 
     static std::string get_name() { return "SigmaDiff3D"; }
     static std::string get_description() { return "Look up 3D via sigma difference"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Intermediate; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     Config() 
     : calibration_file("SigmaCalibrationFile", "Calibration file") 

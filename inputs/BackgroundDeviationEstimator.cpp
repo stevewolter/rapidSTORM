@@ -81,7 +81,7 @@ Config::Config()
 : simparm::Object( ChainLink::getName(), "Estimate background variance"),
   enable("Enable", "Estimate background variance", true)
 {
-    enable.userLevel = simparm::Object::Intermediate;
+    enable.set_user_level( simparm::Intermediate );
 }
 
 ImagePlane::ImagePlane( int binning ) 

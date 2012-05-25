@@ -5,7 +5,6 @@
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
 #include <simparm/Entry.h>
-#include <simparm/Set.h>
 #include <dStorm/input/FileInput.h>
 #include <boost/signals2/connection.hpp>
 #include <fstream>

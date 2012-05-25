@@ -32,8 +32,8 @@ Output::Output(const Config & config )
   residuals("Accuracy", "Residual error", 0)
 {
     result_config.hide();
-    current_volume.viewable = false;
-    residuals.viewable = false;
+    current_volume.hide();
+    residuals.hide();
 }
 
 void Output::attach_ui_( simparm::NodeHandle at ) {
@@ -113,8 +113,8 @@ void Output::run_fitter()
             double size = gsl_multimin_fminimizer_size(solver);
             current_volume = size;
             residuals = gsl_multimin_fminimizer_minimum(solver) * si::nanometre;
-            current_volume.viewable = true;
-            residuals.viewable = true;
+            current_volume.show();
+            residuals.show();
             if ( size < config.target_volume() ) {
                 fitting_was_successful = true;
                 break;

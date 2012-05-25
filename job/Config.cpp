@@ -44,7 +44,7 @@ class Config::TreeRoot : public output::FilterSource
     output::Capabilities cap;
 
     std::string getName() const { return name_object.getName(); }
-    std::string getDesc() const { return name_object.desc(); }
+    std::string getDesc() const { return name_object.getDesc(); }
     void attach_ui( simparm::NodeHandle ) { throw std::logic_error("Not implemented on tree base"); }
 
   public:
@@ -118,10 +118,10 @@ Config::Config()
                  true),
   pistonCount("CPUNumber", "Number of CPUs to use")
 {
-   configTarget.setUserLevel(simparm::Object::Intermediate);
-   auto_terminate.setUserLevel(simparm::Object::Expert);
+    configTarget.set_user_level(simparm::Intermediate);
+    auto_terminate.set_user_level(simparm::Expert);
 
-    pistonCount.setUserLevel(simparm::Object::Expert);
+    pistonCount.set_user_level(simparm::Expert);
     pistonCount.helpID = "#CPUNumber";
     pistonCount.setHelp("Use this many parallel threads to compute the "
                         "STORM result. If you notice a low CPU usage, "
@@ -135,7 +135,7 @@ Config::Config()
     GetSystemInfo(&info);
     pistonCount = info.dwNumberOfProcessors;
 #else
-    pistonCount.setUserLevel(Object::Beginner);
+    pistonCount.set_user_level(simparm::Beginner);
     pistonCount = 8;
 #endif
 

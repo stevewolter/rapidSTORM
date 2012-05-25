@@ -23,8 +23,8 @@ public:
 
     void set_source_capabilities( Capabilities cap ) 
     {
-        name_object.viewable = config.can_work_with( cap );
-        choice_object.viewable = config.can_work_with( cap );
+        name_object.set_visibility( config.can_work_with( cap ) );
+        choice_object.set_visibility( config.can_work_with( cap ) );
     }
 
     std::auto_ptr<output::Output> make_output() 

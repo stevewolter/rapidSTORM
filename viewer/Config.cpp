@@ -26,23 +26,23 @@ Config::Config()
 {
     DEBUG("Building Viewer Config");
 
-    outputFile.setUserLevel(simparm::Object::Beginner);
+    outputFile.set_user_level(simparm::Beginner);
 
-    density_matrix_given.setUserLevel(simparm::Object::Expert);
-    density_matrix.setUserLevel(simparm::Object::Expert);
+    density_matrix_given.set_user_level(simparm::Expert);
+    density_matrix.set_user_level(simparm::Expert);
     density_matrix.help = "Save a text file with the unnormalized intensities of the result image";
 
-    scale_bar_length.setUserLevel( simparm::Object::Intermediate );
+    scale_bar_length.set_user_level( simparm::Intermediate );
 
-    showOutput.setUserLevel(simparm::Object::Beginner);
+    showOutput.set_user_level(simparm::Beginner);
 
     histogramPower.min = (0);
     histogramPower.max = (1);
     /* This level is reset in carStarted() */
-    histogramPower.setUserLevel(simparm::Object::Expert);
+    histogramPower.set_user_level(simparm::Expert);
     top_cutoff.min = 0;
     top_cutoff.max = 1.0;
-    top_cutoff.userLevel = simparm::Object::Expert;
+    top_cutoff.set_user_level( simparm::Expert );
     top_cutoff.help = "Maximum displayed intensity as a fraction of the "
        "maximum found intensity";
 
@@ -50,11 +50,11 @@ Config::Config()
     colourScheme.addChoice( ColourScheme::config_for<Scheme>() );
 #include "colour_schemes/instantiate.h"
 
-    close_on_completion.setUserLevel(simparm::Object::Debug);
-    save_with_key.setUserLevel(simparm::Object::Intermediate);
-    save_scale_bar.setUserLevel(simparm::Object::Intermediate);
-    border.setUserLevel(simparm::Object::Intermediate);
-    invert.userLevel = simparm::Object::Intermediate;
+    close_on_completion.set_user_level(simparm::Debug);
+    save_with_key.set_user_level(simparm::Intermediate);
+    save_scale_bar.set_user_level(simparm::Intermediate);
+    border.set_user_level(simparm::Intermediate);
+    invert.set_user_level( simparm::Intermediate );
 
     outputFile.helpID = "#Viewer_ToFile";
     showOutput.helpID = "#Viewer_ShowOutput";

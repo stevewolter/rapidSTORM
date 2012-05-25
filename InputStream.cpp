@@ -8,7 +8,6 @@
 #include "test-plugin/cpu_time.h"
 #include "MainThread.h"
 
-#include <dStorm/display/Manager.h>
 #include <dStorm/helpers/thread.h>
 
 namespace dStorm {
@@ -30,7 +29,6 @@ void InputStream::reset_config() {
     if ( orig_config.get() ) {
         current_config.reset( new job::Config(*orig_config) );
         current_config->attach_ui( get_handle() );
-        display::Manager::getSingleton().attach_ui( get_handle() );
         starter.reset( new JobStarter( &main_thread ) );
         starter->setConfig( *current_config );
         starter->attach_ui( current_config->user_interface_handle() );

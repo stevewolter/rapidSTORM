@@ -2,7 +2,7 @@
 #define SIMPARM_TEXT_STREAM_NODE_H
 
 #include "../Node.h"
-#include "../BaseAttribute.h"
+#include "../Attribute.h"
 #include <map>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -12,6 +12,9 @@ namespace text_stream {
 
 struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> {
     std::string name, type;
+    Attribute<std::string> desc;
+    Attribute<bool> viewable;
+    Attribute<UserLevel> userLevel;
 
     Node* parent;
     std::vector< Node* > nodes;
@@ -23,6 +26,9 @@ struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> 
 
     void print_attribute_value( const simparm::BaseAttribute& );
     void process_attribute( BaseAttribute&, std::istream& );
+    void set_visibility( bool is ) { viewable = is; }
+    void set_user_level( UserLevel arg ) { userLevel = arg; }
+    void set_description( std::string d ) { desc = d; }
 
 protected:
     virtual bool print( const std::string& );
@@ -31,27 +37,29 @@ protected:
     void add_child( Node& o );
     void remove_child( Node& o );
     void set_parent( Node& o ) { o.add_child(*this); }
-    void show_children();
     void show_attributes( std::ostream& );
     void declare(std::ostream&);
     void undeclare();
 
-    Node( std::string name, std::string type ) : name(name), type(type), parent(NULL), declared(false) {}
-    simparm::NodeHandle create_node( std::string name, std::string type );
+    void declare_children();
+
+    Node( std::string name, std::string type );
+    simparm::NodeHandle adorn_node( Node* );
 
 public:
     ~Node();
 
     simparm::NodeHandle create_object( std::string name );
-    simparm::NodeHandle create_entry( std::string name, std::string desc, std::string type );
-    simparm::NodeHandle create_set( std::string name );
-    simparm::NodeHandle create_choice( std::string name, std::string desc );
-    simparm::NodeHandle create_file_entry( std::string name, std::string desc );
-    simparm::NodeHandle create_progress_bar( std::string name, std::string desc );
-    simparm::NodeHandle create_trigger( std::string name, std::string desc );
+    simparm::NodeHandle create_entry( std::string name, std::string type );
+    simparm::NodeHandle create_group( std::string name );
+    simparm::NodeHandle create_tab_group( std::string name );
+    simparm::NodeHandle create_choice( std::string name );
+    simparm::NodeHandle create_file_entry( std::string name );
+    simparm::NodeHandle create_progress_bar( std::string name );
+    simparm::NodeHandle create_trigger( std::string name );
     void add_attribute( simparm::BaseAttribute& );
     Message::Response send( Message& m ) const;
-    void show();
+    void initialization_finished();
     void hide();
     /** TODO: Method is deprecated and should be removed on successful migration. */
     bool isActive() const;

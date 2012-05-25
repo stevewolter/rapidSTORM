@@ -24,7 +24,7 @@ DimensionSelector<Dim>::DimensionSelector()
   invert_y_axis("InvertYAxis", "Y zero at bottom"),
   use_z_axis("ThreeDImage", "Make 3D image")
 {
-    use_z_axis.userLevel = simparm::Object::Intermediate;
+    use_z_axis.set_user_level( simparm::Intermediate );
     for (int i = 0; i < Dim; ++i) {
         components.replace( i, new output::binning::FieldChoice(std::string(axis_idents[i]) + "Dimension", axis_names[i], 
             output::binning::ScaledByResolution, std::string(axis_idents[i])) );
@@ -33,7 +33,7 @@ DimensionSelector<Dim>::DimensionSelector()
     components[Dim].addChoice( dStorm::output::binning::make_constant_binner_config() );
     if ( Dim > 2 ) {
         components[2].choose( "PositionZ" );
-        components[2].userLevel = simparm::Object::Intermediate;
+        components[2].set_user_level( simparm::Intermediate );
     }
 
     components[0].choose( "PositionX" );

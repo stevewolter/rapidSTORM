@@ -5,7 +5,7 @@
 #include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/Entry.h>
-#include <simparm/Set.h>
+#include <simparm/TabGroup.h>
 #include <simparm/ObjectChoice.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -202,7 +202,7 @@ class Link
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
     std::vector< TraitsRef > input_traits;
     simparm::Object name_object;
-    simparm::Set channels;
+    simparm::TabGroup channels;
     simparm::ManagedChoiceEntry< Strategist > join_type;
     simparm::Entry<unsigned long> channel_count;
     bool registered_node;
@@ -278,8 +278,7 @@ Link::Link()
     join_type.addChoice( new StrategistImplementation< temporal_tag >() );
     // TODO: Implement join_type.addChoice( new StrategistImplementation< fluorophore_tag >() );
     join_type.choose( spatial_tag<2>::get_name() );
-    join_type.viewable = false;
-    channels.showTabbed = true;
+    join_type.set_visibility( false );
 }
 
 Link::Link( const Link& o )
@@ -337,7 +336,7 @@ void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) {
 
 void Link::change_channel_count() {
     DEBUG("Channel count changed to " << channel_count());
-    join_type.viewable = channel_count() > 1;
+    join_type.set_visibility( channel_count() > 1 );
     while ( children.size() < channel_count() ) {
         children.push_back( children[0].clone() );
         children.back().publish_meta_info();

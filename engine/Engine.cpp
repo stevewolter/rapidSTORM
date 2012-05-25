@@ -43,7 +43,7 @@ Engine::Engine(
     DEBUG("Constructing engine");
 
     errors.editable = false;
-    errors.viewable = false;
+    errors.hide();
 
 }
 
@@ -307,7 +307,7 @@ void Engine::_iterator::WorkHorse::compute( Input::iterator base )
 
         boost::lock_guard<boost::mutex> lock( engine.mutex );
         engine.errors = engine.errors() + 1;
-        engine.errors.viewable = true;
+        engine.errors.show();
         return;
     } else {
         DEBUG("Image " << base->frame_number() << " is valid");

@@ -7,7 +7,7 @@
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
 #include <simparm/TriggerEntry.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <boost/optional.hpp>
 #include <map>
 #include "AndorDirect.h"
@@ -31,7 +31,7 @@ class Display : public display::DataSource
     boost::scoped_ptr<CameraConnection> cam;
     Method& config;
 
-    simparm::Set               name_object;
+    simparm::Group               name_object;
     simparm::StringEntry       status;
     simparm::TriggerEntry      stopAim;
     simparm::TriggerEntry      pause;

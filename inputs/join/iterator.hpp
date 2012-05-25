@@ -3,6 +3,7 @@
 
 #include "iterator_decl.hpp"
 #include <dStorm/input/Source.h>
+#include <boost/optional/optional.hpp>
 
 namespace dStorm {
 namespace input {

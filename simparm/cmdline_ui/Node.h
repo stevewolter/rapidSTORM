@@ -12,39 +12,45 @@ namespace cmdline_ui {
 class OptionTable;
 
 struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> {
-    std::string name;
+    std::string name, description;
+    bool visible;
 
     Node* parent;
     std::vector< Node* > nodes;
-    std::map< std::string, Node* > node_lookup;
-    std::vector< BaseAttribute* > attributes;
-    std::map< std::string, BaseAttribute* > attribute_lookup;
 
 protected:
-    void add_child( Node& o );
-    void remove_child( Node& o );
+    virtual void add_child( Node& o );
+    virtual void remove_child( Node& o );
     void set_parent( Node& o ) { o.add_child(*this); }
 
-    virtual void program_options( OptionTable& );
+    Node( std::string name ) : name(name), visible(true), parent(NULL) {}
+    simparm::NodeHandle adorn_node( Node* );
 
-    Node( std::string name ) : name(name), parent(NULL) {}
-    simparm::NodeHandle create_node( std::string name );
+    std::string get_description() const { return description; }
+
+    bool is_visible() { return visible; }
 
 public:
     ~Node();
 
+    virtual void program_options( OptionTable& );
+
     simparm::NodeHandle create_object( std::string name );
-    simparm::NodeHandle create_entry( std::string name, std::string desc, std::string type );
-    simparm::NodeHandle create_set( std::string name );
-    simparm::NodeHandle create_choice( std::string name, std::string desc );
-    simparm::NodeHandle create_file_entry( std::string name, std::string desc );
-    simparm::NodeHandle create_progress_bar( std::string name, std::string desc );
-    simparm::NodeHandle create_trigger( std::string name, std::string desc );
+    simparm::NodeHandle create_entry( std::string name, std::string type );
+    simparm::NodeHandle create_group( std::string name );
+    simparm::NodeHandle create_tab_group( std::string name );
+    simparm::NodeHandle create_choice( std::string name );
+    simparm::NodeHandle create_file_entry( std::string name );
+    simparm::NodeHandle create_progress_bar( std::string name );
+    simparm::NodeHandle create_trigger( std::string name );
     virtual void add_attribute( simparm::BaseAttribute& );
     Message::Response send( Message& m ) const;
-    void show() {}
+    void initialization_finished() {}
     /** TODO: Method is deprecated and should be removed on successful migration. */
     bool isActive() const { return true; }
+    void set_description( std::string d ) { description = d; }
+    void set_visibility( bool v ) { visible = v; }
+    void set_user_level( UserLevel ) {}
 
     NodeHandle get_handle() { return shared_from_this(); }
 

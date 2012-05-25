@@ -44,8 +44,8 @@ class ChainLink
         }
 
         for (int i = 0; i < int(config.spot_finder_weights.size()); ++i)
-            config.spot_finder_weights[i].viewable = i < soll;
-        config.weights.viewable = soll > 0;
+            config.spot_finder_weights[i].set_visibility( i < soll );
+        config.weights.set_visibility( soll > 0 );
     }
     boost::shared_ptr< BaseTraits > 
     create_traits( MetaInfo& mi, 
@@ -74,8 +74,8 @@ class ChainLink
 
     void republish_traits_locked() {
         input::InputMutexGuard lock( input::global_mutex() );
-        config.amplitude_threshold.viewable = ! config.guess_threshold();
-        config.threshold_height_factor.viewable = config.guess_threshold();
+        config.amplitude_threshold.set_visibility( ! config.guess_threshold() );
+        config.threshold_height_factor.set_visibility( config.guess_threshold() );
         republish_traits();
     }
 

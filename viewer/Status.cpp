@@ -10,7 +10,6 @@ Status::Status(const Config& config)
   save("SaveImage", "Save current image"),
   manager(NULL)
 {
-    this->config.histogramPower.setUserLevel(simparm::Object::Beginner);
 }
 
 Status::~Status() {}

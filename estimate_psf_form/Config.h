@@ -8,7 +8,7 @@
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <dStorm/output/Capabilities.h>
 #include <boost/array.hpp>
 #include <boost/optional/optional.hpp>
@@ -27,7 +27,7 @@ namespace si = boost::units::si;
 
 struct Config : public calibrate_3d::FormCalibrationConfig
 {
-    simparm::Set multiplane, polynomial_3d;
+    simparm::Group multiplane, polynomial_3d;
     simparm::BoolEntry mle;
     simparm::Entry<unsigned long> number_of_spots; 
     simparm::Entry<double> max_per_image;

@@ -40,9 +40,9 @@ Output::Output(const Config& c)
     if ( ! config.z_is_truth() && config.fit_focus_plane() )
         throw std::runtime_error("Focus planes cannot be fitted without Z ground truth");
 
-    fit.viewable = false;
-    collection.userLevel = simparm::Object::Beginner;
-    fit.userLevel = simparm::Object::Beginner;
+    fit.hide();
+    collection.set_user_level( simparm::Beginner );
+    fit.set_user_level( simparm::Beginner );
 }
 
 void Output::attach_ui_( simparm::NodeHandle at ) {
@@ -188,7 +188,7 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
 void Output::do_the_fit() {
     collection.setValue(1);
     fit.setValue( 0 );
-    fit.viewable = true;
+    fit.show();
     DEBUG("Finally doing the fit");
     std::auto_ptr< input::Traits< engine::ImageStack > > new_traits
         ( new input::Traits< engine::ImageStack >(*input->traits) );

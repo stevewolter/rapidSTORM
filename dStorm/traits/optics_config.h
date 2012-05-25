@@ -6,11 +6,11 @@
 #include <simparm/Eigen.h>
 #include <dStorm/engine/InputTraits.h>
 #include <simparm/Object.h>
-#include <simparm/Set.h>
+#include <simparm/TabGroup.h>
+#include <simparm/Group.h>
 #include <simparm/BoostOptional.h>
 #include "../UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <simparm/Set.h>
 #include <simparm/Entry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/ChoiceEntry_Impl.h>
@@ -31,7 +31,7 @@ class PlaneConfig {
 public:
     enum Purpose { InputSimulation, PSFDisplay, FitterConfiguration };
 private:
-    simparm::Set name_object;
+    simparm::Object name_object;
     simparm::NodeHandle current_ui;
     const Purpose purpose;
 
@@ -70,7 +70,7 @@ public:
 
 class MultiPlaneConfig
 {
-    simparm::Set name_object;
+    simparm::TabGroup name_object;
     simparm::NodeHandle current_ui;
     typedef boost::ptr_vector< PlaneConfig > Layers;
     Layers layers;
@@ -96,8 +96,8 @@ class MultiPlaneConfig
     void write_traits( input::Traits<Localization>&) const;
     image::MetaInfo<2>::Resolutions get_resolution() const;
 
-    void show() { name_object.viewable = true; }
-    void hide() { name_object.viewable = false; }
+    void show() { name_object.show(); }
+    void hide() { name_object.hide(); }
     bool ui_is_attached();
 };
 

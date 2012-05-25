@@ -5,7 +5,7 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/BoostOptional.h>
 #include <simparm/Eigen.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <simparm/Entry.h>
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry.h>
@@ -35,7 +35,7 @@ namespace engine {
    /** Config entry collection class for the dSTORM engine. */
    class Config
    {
-        simparm::Set name_object;
+        simparm::Group name_object;
       public:
         Config();
         ~Config();
@@ -47,7 +47,7 @@ namespace engine {
         /** The method to use for spot detection. */
         simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;
 
-        simparm::Set weights;
+        simparm::Group weights;
         boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
 
         /** The method to use for spot fitting. */

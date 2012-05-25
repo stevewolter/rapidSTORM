@@ -4,7 +4,7 @@
 #include "Config_decl.h"
 
 #include <dStorm/UnitEntries/Nanometre.h>
-#include <simparm/Set.h>
+#include <simparm/Group.h>
 #include <nonlinfit/levmar/Config.h>
 #include "fit_window/Config.h"
 
@@ -14,7 +14,7 @@ namespace guf {
 /** This class collects configuration options for the GUF fitter. */
 struct Config
 {
-    simparm::Set name_object;
+    simparm::Group name_object;
     fit_window::Config fit_window_config;
     static const int maximum_plane_count = 9;
 

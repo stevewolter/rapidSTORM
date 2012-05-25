@@ -35,7 +35,7 @@ class LinearAlignment::Config {
 
     static std::string get_name() { return "LinearAlignment"; }
     static std::string get_description() { return "Apply linear alignment"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     Config() 
         : calibration_file("AlignmentFile", "Plane alignment file") {}

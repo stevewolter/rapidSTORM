@@ -16,7 +16,7 @@ public:
     enum Type { Boolean, Value, Trigger };
 private:
     struct Option {
-        std::string name;
+        std::string name, desc, help, choices;
         int usage_count;
         std::vector<BaseAttribute*> attributes;
         Type type;
@@ -31,13 +31,15 @@ private:
                 ++usage_count;
             }
         }
-        bool operator<( const Option& o ) const { return name < o.name; }
+        bool operator<( const Option& o ) const;
+        void print_help( std::ostream& ) const;
     };
     std::vector< Option > options;
     
 public:
-    void add_option( std::string name, BaseAttribute& a, Type t );
+    void add_option( std::string name, std::string desc, std::string help, std::string choices, BaseAttribute& a, Type t );
     int parse( int argc, char** args );
+    void printHelp( std::ostream& );
 };
 
 }

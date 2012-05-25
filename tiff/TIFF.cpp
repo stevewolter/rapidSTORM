@@ -26,7 +26,6 @@
 #include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
-#include <simparm/Set.h>
 #include <simparm/TriggerEntry.h>
 #include <simparm/text_stream/RootNode.h>
 

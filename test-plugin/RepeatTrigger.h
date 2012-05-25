@@ -27,12 +27,12 @@ struct Repeat
     }
     Repeat(const Config&) 
         : r(NULL), repeat("Repeat", "Repeat results")
-        { repeat.viewable = false;  }
+        { repeat.hide();  }
     Repeat* clone() const { return new Repeat(*this); }
 
     AdditionalData announceStormSize(const Announcement& a) { 
         r = a.engine;
-        repeat.viewable = r;
+        repeat.set_visibility( r );
         return AdditionalData(); 
     }
     void receiveLocalizations(const EngineResult&) {}

@@ -1,4 +1,5 @@
 #include <simparm/BoostUnits.h>
+#include <simparm/TabGroup.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FilterSource.h>
 #include <dStorm/output/FileOutputBuilder.h>
@@ -66,7 +67,7 @@ class Slicer : public Output {
     void attach_ui_( simparm::NodeHandle at );
 
   public:
-    simparm::Set suboutputs;
+    simparm::TabGroup suboutputs;
 
     void check_for_duplicate_filenames
             (std::set<std::string>& present_filenames);
@@ -156,7 +157,6 @@ Slicer::Slicer(const Config& config, std::auto_ptr<output::FilterSource> generat
   avoid_filenames(NULL),
   suboutputs( "Outputs", "Outputs to slicer" )
 {
-    suboutputs.showTabbed = true;
     outputs.resize(1, NULL);
     add_output_clone(0);
 }
@@ -240,7 +240,7 @@ public:
     : name_object("Slicer", "Slice localization set"),
       choice_object(name_object) 
     {
-        choice_object.userLevel = simparm::Object::Intermediate;
+        choice_object.set_user_level( simparm::Intermediate );
         adjust_to_basename( config.outputFile );
     }
 

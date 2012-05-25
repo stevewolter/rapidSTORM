@@ -3,7 +3,6 @@
 #endif
 
 #include "RootNode.h"
-#include "../Set.h"
 #include "../Message.h"
 
 #include <algorithm>
@@ -41,7 +40,7 @@ void RootNode::processCommand(const std::string& cmd, istream& in) {
         print("userLevel set 10");
         print("showTabbed set true");
 
-        show_children();
+        declare_children();
 
         print("attach");
     } else if (cmd == "detach") {

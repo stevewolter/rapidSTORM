@@ -25,7 +25,7 @@ struct Config : public config::ExpressionManager
     void attach_ui( simparm::NodeHandle );
     static std::string get_name() { return "Expression"; }
     static std::string get_description() { return "Expression filter"; }
-    static simparm::Object::UserLevel get_user_level() { return simparm::Object::Beginner; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     void make_new_line();
     bool can_work_with(output::Capabilities);

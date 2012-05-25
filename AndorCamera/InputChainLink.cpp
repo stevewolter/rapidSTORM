@@ -34,7 +34,7 @@ Method::Method()
 {
     DEBUG("Making AndorDirect config " << this);
 
-    show_live_by_default.userLevel = simparm::Object::Expert;
+    show_live_by_default.set_user_level( simparm::Expert );
 }
 
 Method::Method(const Method &c) 
@@ -117,8 +117,8 @@ void Method::set_display( std::auto_ptr< Display > d )
         active_selector->attach_ui( current_ui );
     }
 
-    select_ROI.viewable = (active_selector.get() == NULL);
-    view_ROI.viewable = (active_selector.get() == NULL);
+    select_ROI.set_visibility (active_selector.get() == NULL);
+    view_ROI.set_visibility (active_selector.get() == NULL);
     active_selector_changed.notify_all();
 }
 
