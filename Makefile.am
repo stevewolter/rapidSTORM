@@ -739,10 +739,20 @@ libsimparm_la_SOURCES = \
     simparm/BoostUnits.h \
     simparm/UserLevel.h \
     simparm/default_value.h simparm/IncrementWatcher.h \
-    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h \
-    simparm/text_stream/Node.h simparm/text_stream/Node.cpp \
-    simparm/text_stream/RootNode.h simparm/text_stream/RootNode.cpp \
+    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h 
+
+libsimparm_la_SOURCES += \
+    simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
+    simparm/text_stream/ChildrenList.h \
+    simparm/text_stream/EntryNode.h simparm/text_stream/FrontendNode.h \
+    simparm/text_stream/InnerBackendNode.h simparm/text_stream/InnerBackendNode.cpp \
+    simparm/text_stream/NodeBackend.cpp simparm/text_stream/NodeBackend.h \
+    simparm/text_stream/Node.cpp simparm/text_stream/Node.h \
+    simparm/text_stream/RootNode.cpp simparm/text_stream/RootNode.h \
     simparm/text_stream/TabNode.h \
+    simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp
+
+libsimparm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \

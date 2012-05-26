@@ -1,5 +1,6 @@
 #include "BoostUnits.h"
-#include "Entry_Impl.h"
+#include "Entry.hpp"
+#include "Attribute.hpp"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/io.hpp>
 #include <dejagnu.h>

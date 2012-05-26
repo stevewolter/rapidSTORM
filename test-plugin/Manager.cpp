@@ -37,6 +37,7 @@
 #include <simparm/Entry.h>
 #include <simparm/TriggerEntry.h>
 #include <simparm/text_stream/Node.h>
+#include <simparm/text_stream/InnerBackendNode.h>
 #include <sstream>
 
 #include "Manager.h"
@@ -230,12 +231,19 @@ class Manager::ControlConfig
 
 class Manager::ControlConfig::GUINode : public simparm::text_stream::Node {
     ControlConfig& c;
-    void processCommand( const std::string&, std::istream& );
+    struct Backend : public simparm::text_stream::InnerBackendNode {
+        ControlConfig& c;
+        void process_command_( const std::string&, std::istream& );
+        Backend( GUINode& g, boost::shared_ptr<BackendNode> parent )
+            : InnerBackendNode("PixelQuery", g, parent ), c(g.c) {}
+    };
 public:
     GUINode( ControlConfig& c, simparm::NodeHandle parent ) 
     : simparm::text_stream::Node("PixelQuery", "Object"), c(c) {
         simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(parent.get());
-        if ( p ) set_parent( *p );
+        if ( p )
+            set_backend_node( std::auto_ptr<simparm::text_stream::BackendNode>(
+                new Backend( *this, p->get_backend() ) ) );
     }
 };
 
@@ -265,7 +273,7 @@ void Manager::ControlConfig::attach_ui( simparm::NodeHandle at ) {
     gui_node.reset( new GUINode( *this, r ) );
 }
 
-void Manager::ControlConfig::GUINode::processCommand( const std::string& command, std::istream& in )
+void Manager::ControlConfig::GUINode::Backend::process_command_( const std::string& command, std::istream& in )
 {
     if ( command == "pixel_value" ) {
         DEBUG("Reading instructions");
@@ -300,7 +308,7 @@ void Manager::ControlConfig::GUINode::processCommand( const std::string& command
         print( msg.str() );
         DEBUG("Printed results");
     } else {
-        simparm::text_stream::Node::processCommand( command, in );
+        InnerBackendNode::process_command_( command, in );
     }
 }
 

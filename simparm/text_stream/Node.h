@@ -4,28 +4,38 @@
 #include "../Node.h"
 #include "../Attribute.hpp"
 #include <map>
+#include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/noncopyable.hpp>
+#include "ChildrenList.h"
+#include "NodeBackend.h"
 
 namespace simparm {
 namespace text_stream {
 
-struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> {
+class BackendNode;
+
+struct Node 
+: public simparm::Node, 
+  public boost::enable_shared_from_this<Node>, 
+  private boost::noncopyable,
+  public FrontendNode
+{
+    Node* parent;
     std::string name, type;
     Attribute<std::string> desc;
     Attribute<bool> viewable;
     Attribute<UserLevel> userLevel;
 
-    Node* parent;
-    std::vector< Node* > nodes;
-    std::map< std::string, Node* > node_lookup;
-    std::vector< BaseAttribute* > attributes;
-    std::map< std::string, BaseAttribute* > attribute_lookup;
-    bool declared;
+    ChildrenList< BaseAttribute > attributes;
     boost::ptr_vector< boost::signals2::scoped_connection > connections;
+
+    boost::shared_ptr<BackendNode> backend_node;
 
     std::string attribute_value_specification( const BaseAttribute& a );
 
+    void declare_attribute( const BaseAttribute* a, std::ostream& );
     void print_attribute_value( const simparm::BaseAttribute& );
     void process_attribute( BaseAttribute&, std::istream& );
     void set_visibility( bool is ) { viewable = is; }
@@ -35,18 +45,11 @@ struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> 
     virtual void set_help( std::string ) {}
     virtual void set_editability( bool ) {}
 
+    void process_attribute_command_( std::string name, std::istream& );
+    void declare_( std::ostream& );
+
 protected:
-    virtual bool print( const std::string& );
-    virtual bool print_on_top_level( const std::string& );
-
-    void add_child( Node& o );
-    void remove_child( Node& o );
-    void set_parent( Node& o ) { o.add_child(*this); }
-    void show_attributes( std::ostream& );
-    void declare(std::ostream&);
-    void undeclare();
-
-    void declare_children();
+    void set_backend_node( std::auto_ptr<BackendNode> b ) { backend_node = b; }
 
     Node( std::string name, std::string type );
     simparm::NodeHandle adorn_node( Node* );
@@ -69,9 +72,8 @@ public:
     /** TODO: Method is deprecated and should be removed on successful migration. */
     bool isActive() const;
 
-    void processCommand( std::istream& );
-    virtual void processCommand( const std::string&, std::istream& );
     NodeHandle get_handle() { return shared_from_this(); }
+    boost::shared_ptr<BackendNode> get_backend() { return backend_node; }
 };
 
 }

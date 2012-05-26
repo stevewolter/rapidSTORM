@@ -8,11 +8,9 @@ namespace dStorm {
 
 MainThread::MainThread() 
 : job_count(0),
-  io( new InputStream(*this) ),
   input_read_lock(mutex)
 {
     input_read_lock.unlock();
-    display::Manager::getSingleton().attach_ui( io );
 }
 
 void MainThread::run_all_jobs() 
@@ -25,7 +23,8 @@ void MainThread::run_all_jobs()
 
 std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    job.attach_ui( io );
+    if ( io )
+        job.attach_ui( io );
     ++job_count;
     active_jobs.insert( &job );
     return std::auto_ptr<JobHandle>( new Handle( *this, job ) );
@@ -33,10 +32,9 @@ std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
 
 void MainThread::unregister_node( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    job.detach_ui( io->get_handle() );
+    if ( io )
+        job.detach_ui( io->get_handle() );
     active_jobs.erase( &job );
-    if ( active_jobs.empty() )
-        terminated_all_threads.notify_all();
 }
 
 void MainThread::erase( Job& job ) {
@@ -48,7 +46,8 @@ void MainThread::erase( Job& job ) {
 
 void MainThread::connect_stdio( const job::Config& config ) {
     boost::mutex::scoped_lock lock( mutex );
-    io->set_output_stream( &std::cout );
+    io.reset( new InputStream(*this) );
+    display::Manager::getSingleton().attach_ui( io );
     io->set_config( config );
     ++job_count;
     input_acquirer = boost::thread( &MainThread::read_input, this );
@@ -59,8 +58,11 @@ void MainThread::terminate_running_jobs() {
     DEBUG("Terminate remaining cars");
     std::for_each( active_jobs.begin(), active_jobs.end(),
                    std::mem_fun(&Job::stop) );
-    while ( ! active_jobs.empty() )
-        terminated_all_threads.wait( input_read_lock );
+}
+
+int MainThread::count_jobs() {
+    assert( input_read_lock.owns_lock() );
+    return job_count;
 }
 
 void MainThread::read_input() {

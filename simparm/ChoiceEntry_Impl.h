@@ -82,10 +82,6 @@ template <typename ChoiceType>
 NodeHandle ChoiceEntry<ChoiceType>::create_hidden_node( simparm::NodeHandle n ) {
     NodeHandle r = BasicEntry::create_hidden_node( n );
     value.add_to ( r );
-    current_ui = r;
-    for ( typename std::vector< ChoiceType* >::iterator i = choices.begin(); i != choices.end(); ++i ) {
-        (*i)->attach_ui( current_ui );
-    }
     return r;
 }
 
@@ -93,6 +89,16 @@ template <typename ChoiceType>
 NodeHandle 
 ChoiceEntry<ChoiceType>::make_naked_node( simparm::NodeHandle n ) {
     return create_choice( n, getName() );
+}
+
+template <typename ChoiceType>
+NodeHandle ChoiceEntry<ChoiceType>::attach_ui( NodeHandle node ) {
+    NodeHandle h = Object::attach_ui( node );
+    current_ui = h;
+    for ( typename std::vector< ChoiceType* >::iterator i = choices.begin(); i != choices.end(); ++i ) {
+        (*i)->attach_ui( current_ui );
+    }
+    return h;
 }
 
 }

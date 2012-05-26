@@ -1,0 +1,33 @@
+#include "InnerBackendNode.h"
+
+namespace simparm {
+namespace text_stream {
+
+InnerBackendNode::InnerBackendNode( std::string name, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent )
+: name(name), parent(parent), declared(false), frontend( frontend ), tree_mutex( parent->get_mutex() )
+{
+    parent->add_child( *this );
+    std::ostream* o = get_print_stream();
+    if ( o ) declare( *o );
+}
+
+void InnerBackendNode::add_child( BackendNode& t ) { 
+    assert( &t );
+    children.add( t ); 
+}
+
+void InnerBackendNode::remove_child( BackendNode& t ) { 
+    assert( children.look_up( t.get_name() ) == &t );
+    children.remove(t); 
+    std::ostream* o = get_print_stream();
+    if ( o ) *o << "remove " << t.get_name() << "\n";
+    assert( children.look_up( t.get_name() ) == NULL );
+}
+
+InnerBackendNode::~InnerBackendNode() {
+    boost::lock_guard<Mutex> m( *get_mutex() );
+    parent->remove_child( *this );
+} 
+
+}
+}

@@ -1,0 +1,100 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "BackendRoot.h"
+#include <boost/bind/bind.hpp>
+
+namespace simparm {
+namespace text_stream {
+
+BackendRoot::BackendRoot( std::ostream* o )
+: attached(false), should_quit(false), out(o)
+{
+
+}
+
+BackendRoot::~BackendRoot() {
+    if ( attached && out )
+        (*out) << "quit" << std::endl;
+}
+
+const std::string& BackendRoot::get_name() const { throw std::logic_error("Method was thought unneeded"); }
+std::ostream* BackendRoot::get_print_stream() { return out; }
+BackendRoot::Mutex* BackendRoot::get_mutex() { return &mutex; }
+void BackendRoot::add_child( BackendNode& b ) { children.add(b); }
+void BackendRoot::remove_child( BackendNode& b ) { children.remove(b); }
+void BackendRoot::declare( std::ostream& ) { throw std::logic_error("Method was thought unneeded"); }
+
+void BackendRoot::processCommand( std::istream& i ) {
+    boost::lock_guard< Mutex > m( *get_mutex() );
+    BackendNode::processCommand_( i );
+}
+
+void BackendRoot::process_command_(const std::string& cmd, std::istream& in) {
+    if (cmd == "attach") {
+        attached = true;
+        if ( out ) {
+            *out << "desc set " PACKAGE_STRING "\n";
+            *out << "viewable set true\n";
+            *out << "userLevel set 10\n";
+            *out << "showTabbed set true\n";
+            children.for_each( boost::bind( &BackendNode::declare, _1, boost::ref(*out) ) );
+            *out << ("attach") << std::endl;
+        }
+    } else if (cmd == "detach") {
+        if (attached) {
+            attached = false;
+            if (out) *out << "detach";
+        }
+    } else if (cmd == "quit") {
+        should_quit = true;
+    } else if (cmd == "cmd") {
+        int number;
+        in >> number;
+        processCommand(in);
+        if ( out ) *out  << "ack " << number;
+    } else if (cmd == "nop") {
+        /* Do nothing. */
+    } else if (cmd == "echo") {
+        std::string s;
+        std::getline(in, s);
+        if ( out ) *out << s;
+    } else {
+        BackendNode::process_command_( cmd, in );
+    }
+}
+
+Message::Response BackendRoot::send_( const Message& m ) {
+    if ( out != NULL && attached ) {
+        (*out) << "declare simparmMessage\n"
+              << "title set " << m.title << "\n"
+              << "message set " << m.message << "\n"
+              << "severity set " << m.severity << "\n"
+              << "options set " << m.options << "\n"
+              << "helpID set " << m.helpID << "\n"
+              << "end\n";
+        out->flush();
+        return Message::OKYes;
+    } else {
+        std::cerr << m;
+        return Message::OKYes;
+    }
+}
+
+bool BackendRoot::received_quit_command() const {
+    return should_quit;
+}
+
+void BackendRoot::process_child_command_( const std::string& child, std::istream& rest ) {
+    BackendNode* my_child = children.look_up( child );
+    if ( my_child ) {
+        my_child->processCommand_( rest );
+    } else {
+        throw std::runtime_error("Unknown node " + child);
+    }
+}
+
+
+}
+}

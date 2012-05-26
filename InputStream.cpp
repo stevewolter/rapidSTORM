@@ -9,13 +9,29 @@
 #include "MainThread.h"
 
 #include <dStorm/helpers/thread.h>
+#include <simparm/text_stream/BackendRoot.h>
 
 namespace dStorm {
 
+class InputStream::Backend : public simparm::text_stream::BackendRoot {
+    virtual void process_command_( const std::string& command, std::istream& rest );
+    InputStream& frontend;
+    MainThread& main_thread;
+public:
+    Backend(  InputStream& frontend ) 
+        : BackendRoot(&std::cout), frontend(frontend), main_thread(frontend.main_thread) {}
+};
+
 InputStream::InputStream( MainThread& master )
-: simparm::text_stream::RootNode(),
-  main_thread(master)
+: simparm::text_stream::Node("IO", "IO"),
+  main_thread(master),
+  root_backend( new Backend(*this) )
 {
+    set_backend_node( std::auto_ptr<simparm::text_stream::BackendNode>(root_backend) );
+}
+
+void InputStream::processCommand( std::istream& i ) {
+    return root_backend->processCommand( i );
 }
 
 InputStream::~InputStream() {}
@@ -35,11 +51,14 @@ void InputStream::reset_config() {
     }
 }
 
-void InputStream::processCommand(const std::string& cmd, std::istream& rest)
+void InputStream::Backend::process_command_(const std::string& cmd, std::istream& rest)
 {
     DEBUG("Processing command " << cmd);
-    if ( cmd == "wait_for_jobs" ) {
+    if ( cmd == "terminate_jobs" ) {
         main_thread.terminate_running_jobs();
+        std::cout << "Current job count is " << main_thread.count_jobs() << std::endl;
+    } else if ( cmd == "job_count" ) {
+        std::cout << "Current job count is " << main_thread.count_jobs() << std::endl;
     } else if ( cmd == "resource_usage" ) {
         boost::optional<double> cpu_time = get_cpu_time();
         if ( cpu_time )
@@ -47,21 +66,17 @@ void InputStream::processCommand(const std::string& cmd, std::istream& rest)
         else
             std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
-        reset_config();
+        frontend.reset_config();
     } else if ( cmd == "quit" ) {
         main_thread.terminate_running_jobs();
-        RootNode::processCommand(cmd,rest);
+        BackendRoot::process_command_(cmd,rest);
     } else {
-        RootNode::processCommand(cmd, rest);
+        BackendRoot::process_command_(cmd, rest);
     }
 }
 
-bool InputStream::print(const std::string& what) {
-    ost::DebugStream::get()->ost::LockedStream::begin();
-    bool b = simparm::text_stream::RootNode::print(what);
-    ost::DebugStream::get()->ost::LockedStream::end();
-    return b;
+bool InputStream::received_quit_command() {
+    return root_backend->received_quit_command();
 }
-
 
 }

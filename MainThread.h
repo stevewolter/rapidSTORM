@@ -24,9 +24,10 @@ public:
 
     void connect_stdio( const job::Config& );
     void terminate_running_jobs();
+    int count_jobs();
 private:
     boost::mutex mutex;
-    boost::condition main_thread_wakeup, terminated_all_threads;
+    boost::condition main_thread_wakeup;
     std::set<Job*> active_jobs;
     int job_count;
     boost::shared_ptr<InputStream> io;

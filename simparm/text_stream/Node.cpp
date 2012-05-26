@@ -10,39 +10,14 @@ Node::Node( std::string name, std::string type )
 : name(name), type(type), 
   desc("desc", ""),
   viewable("viewable", true),
-  userLevel("userLevel", Beginner),
-  parent(NULL), declared(false)
+  userLevel("userLevel", Beginner)
 {
     add_attribute( desc );
     add_attribute( viewable );
     add_attribute( userLevel );
 }
 
-bool Node::print( const std::string& s ) { 
-    if ( declared && parent )
-        return parent->print("in " + name + " " + s); 
-    else
-        return false;
-}
-
-bool Node::print_on_top_level( const std::string& s ) { 
-    if ( declared && parent )
-        return parent->print_on_top_level(s); 
-    else
-        return false;
-}
-
-Node::~Node() { 
-    if ( parent ) parent->remove_child(*this); 
-    while ( ! nodes.empty() )
-        remove_child( *nodes.back() );
-}
-
-void Node::add_child( Node& o ) {
-    nodes.push_back( &o );
-    node_lookup.insert( std::make_pair( o.name, &o ) );
-    o.parent = this;
-}
+Node::~Node() {}
 
 template <typename Type>
 struct equal_address {
@@ -52,14 +27,6 @@ struct equal_address {
     bool operator()( Type& o ) const { return &o == a; }
     bool operator()( Type* o ) const { return o == a; }
 };
-
-void Node::remove_child( Node& o ) {
-    nodes.erase( std::remove_if( nodes.begin(), nodes.end(), equal_address<Node>(&o) ) );
-    node_lookup.erase( o.name );
-    o.parent = NULL;
-
-    print("remove " + o.name);
-}
 
 simparm::NodeHandle Node::create_object( std::string name ) {
     return adorn_node( new Node( name, "Object" ) );
@@ -83,7 +50,7 @@ simparm::NodeHandle Node::create_choice( std::string name ) {
 
 simparm::NodeHandle Node::adorn_node( Node* n ) {
     std::auto_ptr<Node> rv( n );
-    add_child( *rv );
+    rv->parent = this;
     return simparm::NodeHandle(rv.release());
 }
 
@@ -109,117 +76,56 @@ std::string Node::attribute_value_specification( const BaseAttribute& a )
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {
-    attributes.push_back( &a );
-    attribute_lookup.insert( std::make_pair( a.get_name(), &a ) );
+    attributes.add( a );
     connections.push_back( a.notify_on_value_change( boost::bind( &Node::print_attribute_value, this, boost::cref(a) ) ) );
 }
 
 Message::Response Node::send( Message& m ) const {
-    if ( parent ) return parent->send( m ); else return Message::OKYes;
+    return backend_node->send( m );
 }
 
 void Node::print_attribute_value( const simparm::BaseAttribute& a ) {
-    print( "in " + a.get_name() + " " + attribute_value_specification(a) );
+    if ( backend_node.get() )
+        backend_node->print( "in " + a.get_name() + " " + attribute_value_specification(a) );
 }
 
-void Node::declare_children() {
-    std::for_each( nodes.begin(), nodes.end(),
-        boost::bind( &Node::initialization_finished, _1 ) );
+void Node::declare_attribute( const BaseAttribute* a, std::ostream& d ) {
+    if ( a )
+        d << a->get_name() << " " << attribute_value_specification(*a) << "\n";
 }
-
-void Node::show_attributes( std::ostream& declaration ) {
-    for ( std::vector< BaseAttribute* >::const_iterator i = attributes.begin(); i != attributes.end(); ++i )
-        declaration << (*i)->get_name() << " " << attribute_value_specification(**i) << "\n";
-}
-
-void Node::declare( std::ostream& o ) {
-    if ( ! declared ) {
-        declared = true;
-        o << "declare " << type << "\n";
-        o << "name " << name << "\n";
-        show_attributes( o );
-        std::for_each( nodes.begin(), nodes.end(),
-            boost::bind( &Node::declare, _1, boost::ref(o) ) );
-        o << "end\n";
-    }
-}
-
-void Node::undeclare() {
-    declared = false;
-    std::for_each( nodes.begin(), nodes.end(),
-        boost::bind( &Node::undeclare, _1 ) );
+void Node::declare_( std::ostream& declaration ) {
+    attributes.for_each( boost::bind( &Node::declare_attribute, this, _1, boost::ref(declaration) ) );
 }
 
 void Node::initialization_finished() {
-    if ( ! parent ) return;
-    std::stringstream declaration;
-    declare( declaration );
-    std::string d = declaration.str();
-    /* Delete terminal newline that will be re-attached upon printing the command */
-    if ( d != "" ) {
-        d.erase( d.length() - 1 );
-        bool did_print = parent->print( d );
-        if ( ! did_print )
-            undeclare();
-    }
-}
-
-void Node::hide() {
-    if ( declared ) {
-        print( "remove " + name );
-        declared = false;
-        undeclare();
-    }
+    assert( parent );
+    assert( parent->backend_node.get() );
+    backend_node = BackendNode::make_child( name, *this, parent->backend_node );
 }
 
 /** TODO: Method is deprecated and should be removed on successful migration. */
-bool Node::isActive() const {
-    return declared;
-}
+bool Node::isActive() const { return true; }
 
-void Node::processCommand( std::istream& is ) {
-    std::string command;
-    is >> command;
-    if ( is )
-        processCommand( command, is );
-}
+void Node::process_attribute_command_( std::string name, std::istream& rest ) {
+    BaseAttribute* a = attributes.look_up( name );
+    if ( ! a ) 
+        throw std::runtime_error("Unknown node '" + name + "'");
 
-void Node::process_attribute( BaseAttribute& a, std::istream& rest ) {
     std::string command;
     rest >> command;
-    if ( command == "query" )
-        print( "in " + a.get_name() + " " + a.get_name() + " " + attribute_value_specification(a) );
-    else if ( command == "set" ) {
+    if ( command == "query" ) {
+        std::stringstream s;
+        s << "in " << a->get_name() << " ";
+        declare_attribute( a, s );
+        backend_node->print( s.str() );
+    } else if ( command == "set" ) {
         std::string line;
         std::getline( rest, line );
-        a.set_value( line );
+        a->set_value( line );
     } else if ( command == "unset" ) {
-        a.unset_value();
+        a->unset_value();
     } else
         throw std::runtime_error("Unknown attribute command: " + command );
-}
-
-void Node::processCommand( const std::string& cmd, std::istream& rest ) {
-    if ( cmd == "forSet" || cmd == "in" || cmd == "set" ) {
-        std::string name;
-        rest >> name;
-        std::map< std::string, Node* >::const_iterator i = node_lookup.find(name);
-        if ( i != node_lookup.end() )
-            i->second->processCommand( rest );
-        else {
-            std::map< std::string, BaseAttribute* >::const_iterator j = attribute_lookup.find(name);
-            if ( j != attribute_lookup.end() ) {
-                process_attribute( *j->second, rest );
-            } else
-                throw std::runtime_error("Unknown node '" + name + "'");
-        }
-    } else if ( cmd == "value" ) {
-        process_attribute( *attribute_lookup[cmd], rest );
-    } else {
-        std::string discard;
-        std::getline( rest, discard );
-        throw std::runtime_error("Unrecognized command " + cmd);
-    }
 }
 
 }

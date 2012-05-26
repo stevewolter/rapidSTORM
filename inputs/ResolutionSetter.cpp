@@ -169,6 +169,7 @@ struct Check {
     }
 
     int do_check() {
+        boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode() );
         std::auto_ptr<MoreSpecialized> ms( new MoreSpecialized() );
         MoreSpecialized& m(*ms);
         input::resolution::ChainLink l;
@@ -184,7 +185,6 @@ struct Check {
         m.traits_changed( tp, NULL );
 
         DEBUG("Changing context element");
-        boost::shared_ptr<simparm::text_stream::RootNode> master( new simparm::text_stream::RootNode() );
         l.config.attach_ui( master );
         std::stringstream cmd("in Optics in InputLayer0 in PixelSizeInNM in value set 136.875,100");
         master->processCommand(cmd);

@@ -109,6 +109,8 @@ class ChoiceEntry
         if ( do_auto_select && !isValid() && ! entries.empty() )
             value = entries.begin()->second->getName();
     }
+
+    NodeHandle attach_ui( simparm::NodeHandle node );
 };
 
 }

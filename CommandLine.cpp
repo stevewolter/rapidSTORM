@@ -13,6 +13,7 @@
 #include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
 #include <simparm/cmdline_ui/RootNode.h>
+#include <simparm/text_stream/RootNode.h>
 #include <dStorm/display/Manager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
@@ -102,7 +103,7 @@ bool CommandLine::load_config_file(
 ) {
     DEBUG("Opening config file " << name);
     std::ifstream config_file( name.c_str() );
-    boost::shared_ptr< simparm::text_stream::Node > ui 
+    boost::shared_ptr< simparm::text_stream::RootNode > ui 
         = boost::make_shared< simparm::text_stream::RootNode >();
     config.attach_children( ui );
     if ( !config_file )

@@ -1,5 +1,6 @@
 #include "ProgressNode.h"
 #include <boost/lexical_cast.hpp>
+#include <cmath>
 
 namespace simparm {
 namespace cmdline_ui {
