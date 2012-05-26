@@ -100,7 +100,7 @@ void Node::declare_( std::ostream& declaration ) {
 void Node::initialization_finished() {
     assert( parent );
     assert( parent->backend_node.get() );
-    backend_node = BackendNode::make_child( name, *this, parent->backend_node );
+    backend_node = BackendNode::make_child( name, type, *this, parent->backend_node );
 }
 
 /** TODO: Method is deprecated and should be removed on successful migration. */

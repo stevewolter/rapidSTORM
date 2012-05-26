@@ -10,7 +10,7 @@ namespace simparm {
 namespace text_stream {
 
 struct InnerBackendNode : public BackendNode {
-    std::string name;
+    std::string name, type;
     ChildrenList< BackendNode > children;
     boost::shared_ptr<BackendNode> parent;
     bool declared;
@@ -42,7 +42,8 @@ struct InnerBackendNode : public BackendNode {
     virtual void remove_child( BackendNode& t ); 
     virtual void declare( std::ostream& o ) { 
         if ( ! declared ) {
-            o << "declare\n";
+            o << "declare " << type << "\n";
+            o << "name " << name << "\n";
             frontend.declare( o );
             children.for_each( boost::bind( &BackendNode::declare, _1, boost::ref(o) ) );
             o << "end\n";
@@ -51,7 +52,7 @@ struct InnerBackendNode : public BackendNode {
     }
 
 public:
-    InnerBackendNode( std::string name, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );
+    InnerBackendNode( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );
     ~InnerBackendNode(); 
 };
 

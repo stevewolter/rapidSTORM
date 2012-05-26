@@ -107,10 +107,10 @@ endif
 libdStorm_la_SOURCES = \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
-    dStorm/ModuleInterface.h dStorm/Localization_decl.h dStorm/Localization.h \
+    dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel_decl.h dStorm/Pixel.h \
     dStorm/DataSetTraits.h \
-    dStorm/Job.h dStorm/JobMaster.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
+    dStorm/Job.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
     dStorm/Config_decl.h dStorm/Config.h \
     dStorm/Engine.h dStorm/Engine_decl.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
@@ -235,7 +235,7 @@ libdStorm_la_SOURCES = \
 
 libdStorm_la_SOURCES += \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
-    dStorm/JobMaster.cpp dStorm/UnitEntries.cpp \
+    dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
     dStorm/localization/Field.cpp \
     dStorm/localization/Traits.cpp \

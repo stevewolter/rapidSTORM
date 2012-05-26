@@ -10,7 +10,6 @@
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/FilterSource.h>
 #include "InputStream.h"
-#include <dStorm/JobMaster.h>
 #include "ModuleLoader.h"
 #include <simparm/cmdline_ui/RootNode.h>
 #include <simparm/text_stream/RootNode.h>
@@ -18,7 +17,9 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/thread/thread.hpp>
 #include "job/Config.h"
+#include "JobStarter.h"
 
 namespace dStorm {
 
@@ -42,6 +43,7 @@ class TwiddlerLauncher
     job::Config &config;
     MainThread& main_thread;
     simparm::BaseAttribute::ConnectionStore listening;
+    void run_twiddler();
   public:
     TwiddlerLauncher(job::Config&, MainThread& main_thread);
     ~TwiddlerLauncher();
@@ -56,6 +58,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
+    JobStarter starter( &main_thread, argument_parser, config );
     simparm::TriggerEntry help("Help", "Help");
 
     cmdline_ui = argument_parser;
@@ -122,9 +125,8 @@ bool CommandLine::load_config_file(
 }
 
 CommandLine::CommandLine( MainThread& main_thread )
-: starter( &main_thread ), main_thread( main_thread )
+: main_thread( main_thread )
 {
-    starter.setConfig(config);
     add_modules( config );
     config.all_modules_loaded();
 }
@@ -178,10 +180,15 @@ void TwiddlerLauncher::attach_ui( simparm::NodeHandle n )
 {
     simparm::TriggerEntry::attach_ui( n );
     listening = value.notify_on_value_change( 
-        boost::bind( &MainThread::connect_stdio, &main_thread, boost::ref(config) )
-    );
+        boost::bind( &TwiddlerLauncher::run_twiddler, this ) );
 }
 
 TwiddlerLauncher::~TwiddlerLauncher() {}
+
+void TwiddlerLauncher::run_twiddler() {
+    boost::shared_ptr< InputStream > input_stream = InputStream::create( main_thread, config );
+    boost::thread thread( &InputStream::processCommands, input_stream );
+    thread.detach();
+}
 
 }

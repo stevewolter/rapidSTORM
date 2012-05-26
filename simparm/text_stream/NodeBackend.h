@@ -28,7 +28,7 @@ public:
     void print( const std::string& );
     Message::Response send( const Message& );
 
-    static std::auto_ptr<BackendNode> make_child( std::string name, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );
+    static std::auto_ptr<BackendNode> make_child( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );
 };
 
 }

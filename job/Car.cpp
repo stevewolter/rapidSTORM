@@ -46,7 +46,7 @@ static std::string getRunNumber() {
     return std::string(number+index);
 }
 
-Car::Car (JobMaster* input_stream, const Config &config) 
+Car::Car (const Config &config) 
 : ident( getRunNumber() ),
   runtime_config("dStormJob" + ident, "dStorm Job " + ident),
   input(NULL),
@@ -80,20 +80,11 @@ Car::Car (JobMaster* input_stream, const Config &config)
     DEBUG("Checking for duplicate filenames");
     output->check_for_duplicate_filenames( used_output_filenames );
     DEBUG("Checked for duplicate filenames");
-
-    master_thread = boost::thread( &Car::run, this, input_stream );
 }
 
 Car::~Car() 
 {
-    DEBUG("Destructing Car");
-    DEBUG("Joining car subthread");
-    master_thread.join();
-
     output->prepare_destruction();
-
-    if ( job_handle.get() != NULL )
-        job_handle->unregister_node();
 
     DEBUG("Deleting outputs");
     output.reset();
@@ -102,11 +93,7 @@ Car::~Car()
     DEBUG("Commencing destruction");
 }
 
-void Car::run( JobMaster* input_stream ) {
-    DEBUG("Registering at input_stream config " << input_stream);
-    if ( input_stream )
-        job_handle = input_stream->register_node( *this );
-
+void Car::drive_exception_safe() {
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {
@@ -119,18 +106,11 @@ void Car::run( JobMaster* input_stream ) {
         m.send( current_ui );
         DEBUG("Sent message in run loop " << e.what());
     }
-
-    master_thread.detach();
-    delete this;
 }
 
 void Car::drive() {
   bool run_successful = false;
   try {
-    input->attach_ui( current_ui );
-    output->attach_ui( current_ui );
-    control.registerNamedEntries( current_ui );
-
     input::BaseSource::Wishes requirements;
     if ( piston_count > 1 )
         requirements.set( input::BaseSource::ConcurrentIterators );
@@ -258,6 +238,9 @@ void Car::stop() {
 
 void Car::attach_ui( simparm::NodeHandle at ) {
     current_ui = runtime_config.attach_ui( at );
+    input->attach_ui( current_ui );
+    output->attach_ui( current_ui );
+    control.registerNamedEntries( current_ui );
 }
 
 void Car::detach_ui( simparm::NodeHandle from ) {

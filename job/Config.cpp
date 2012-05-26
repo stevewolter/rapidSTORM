@@ -227,10 +227,5 @@ void Config::all_modules_loaded() {
     input->publish_meta_info();
 }
 
-void Config::create_and_run( JobMaster& master ) 
-{
-    new Car( &master, *this );
-}
-
 }
 }

@@ -22,8 +22,16 @@ BackendRoot::~BackendRoot() {
 const std::string& BackendRoot::get_name() const { throw std::logic_error("Method was thought unneeded"); }
 std::ostream* BackendRoot::get_print_stream() { return out; }
 BackendRoot::Mutex* BackendRoot::get_mutex() { return &mutex; }
-void BackendRoot::add_child( BackendNode& b ) { children.add(b); }
-void BackendRoot::remove_child( BackendNode& b ) { children.remove(b); }
+void BackendRoot::add_child( BackendNode& b ) { 
+    children.add(b); 
+    if ( attached && out )
+        b.declare( *out );
+}
+void BackendRoot::remove_child( BackendNode& b ) { 
+    children.remove(b); 
+    if ( attached && out )
+        *out << "remove " << b.get_name() << std::endl;
+}
 void BackendRoot::declare( std::ostream& ) { throw std::logic_error("Method was thought unneeded"); }
 
 void BackendRoot::processCommand( std::istream& i ) {
@@ -45,7 +53,7 @@ void BackendRoot::process_command_(const std::string& cmd, std::istream& in) {
     } else if (cmd == "detach") {
         if (attached) {
             attached = false;
-            if (out) *out << "detach";
+            if (out) *out << "detach" << std::endl;
         }
     } else if (cmd == "quit") {
         should_quit = true;
@@ -53,13 +61,13 @@ void BackendRoot::process_command_(const std::string& cmd, std::istream& in) {
         int number;
         in >> number;
         processCommand(in);
-        if ( out ) *out  << "ack " << number;
+        if ( out ) *out  << "ack " << number << std::endl;
     } else if (cmd == "nop") {
         /* Do nothing. */
     } else if (cmd == "echo") {
         std::string s;
         std::getline(in, s);
-        if ( out ) *out << s;
+        if ( out ) *out << s << std::endl;
     } else {
         BackendNode::process_command_( cmd, in );
     }

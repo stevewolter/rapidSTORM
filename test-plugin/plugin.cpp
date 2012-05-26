@@ -1,6 +1,5 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
-#include <dStorm/ModuleInterface.h>
 #include <dStorm/Config.h>
 #include "Exception.h"
 #include "Verbose.h"

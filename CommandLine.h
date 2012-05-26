@@ -2,15 +2,14 @@
 #define DSTORM_COMMANDLINE_H
 
 #include "MainThread.h"
-#include "JobStarter.h"
 #include <dStorm/Config.h>
+#include "job/Config.h"
 
 namespace dStorm {
 
 class CommandLine
 {
     job::Config config;
-    JobStarter starter;
     MainThread& main_thread;
     simparm::NodeHandle cmdline_ui;
 

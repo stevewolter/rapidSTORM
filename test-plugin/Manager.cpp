@@ -235,7 +235,7 @@ class Manager::ControlConfig::GUINode : public simparm::text_stream::Node {
         ControlConfig& c;
         void process_command_( const std::string&, std::istream& );
         Backend( GUINode& g, boost::shared_ptr<BackendNode> parent )
-            : InnerBackendNode("PixelQuery", g, parent ), c(g.c) {}
+            : InnerBackendNode("PixelQuery", "Object", g, parent ), c(g.c) {}
     };
 public:
     GUINode( ControlConfig& c, simparm::NodeHandle parent ) 

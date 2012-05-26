@@ -3,8 +3,8 @@
 namespace simparm {
 namespace text_stream {
 
-InnerBackendNode::InnerBackendNode( std::string name, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent )
-: name(name), parent(parent), declared(false), frontend( frontend ), tree_mutex( parent->get_mutex() )
+InnerBackendNode::InnerBackendNode( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent )
+: name(name), type(type), parent(parent), declared(false), frontend( frontend ), tree_mutex( parent->get_mutex() )
 {
     parent->add_child( *this );
     std::ostream* o = get_print_stream();
@@ -14,6 +14,8 @@ InnerBackendNode::InnerBackendNode( std::string name, FrontendNode& frontend, bo
 void InnerBackendNode::add_child( BackendNode& t ) { 
     assert( &t );
     children.add( t ); 
+    std::ostream* o = get_print_stream();
+    if (o) t.declare( *o );
 }
 
 void InnerBackendNode::remove_child( BackendNode& t ) { 

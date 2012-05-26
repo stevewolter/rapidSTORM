@@ -11,7 +11,6 @@
 #include <simparm/TriggerEntry.h>
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/input/fwd.h>
-#include <dStorm/JobMaster.h>
 #include <boost/utility.hpp>
 #include <set>
 #include <setjmp.h>
@@ -37,7 +36,6 @@ namespace job {
       private:
         std::set<std::string> used_output_filenames;
 
-        std::auto_ptr<JobHandle> job_handle;
         /** Unique job identifier. */
         std::string ident;
         /** Runtime configuration. This is the storage locations for all
@@ -61,17 +59,14 @@ namespace job {
         void output_or_store( const output::LocalizedImage& output );
         bool have_output_threads() const;
 
-        boost::thread master_thread, computation_thread;
-        DSTORM_REALIGN_STACK void compute() ;
-
       public:
-        Car (JobMaster*, const job::Config &config) ;
+        Car (const job::Config &config) ;
         virtual ~Car();
 
+        void drive_exception_safe();
         void drive();
         void stop();
         bool needs_stopping() { return true; }
-        DSTORM_REALIGN_STACK void run( JobMaster* ) ;
 
         void attach_ui( simparm::NodeHandle ) ;
         void detach_ui( simparm::NodeHandle ) ;

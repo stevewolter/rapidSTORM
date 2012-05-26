@@ -40,9 +40,9 @@ Message::Response BackendNode::send( const Message& m ) {
     return send_( m );
 }
 
-std::auto_ptr<BackendNode> BackendNode::make_child( std::string name, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent ) {
+std::auto_ptr<BackendNode> BackendNode::make_child( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent ) {
     boost::lock_guard< Mutex > m( *parent->get_mutex() );
-    return std::auto_ptr<BackendNode>( new InnerBackendNode( name, frontend, parent ) );
+    return std::auto_ptr<BackendNode>( new InnerBackendNode( name, type, frontend, parent ) );
 }
 
 }

@@ -12,7 +12,6 @@
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
 #include <boost/ptr_container/ptr_list.hpp>
-#include <dStorm/JobMaster.h>
 
 namespace dStorm {
 namespace output { class OutputSource; }
@@ -68,7 +67,6 @@ class Config : public dStorm::Config
     std::auto_ptr<input::BaseSource> makeSource() const;
 
     void all_modules_loaded();
-    void create_and_run( JobMaster& );
 };
 }
 }

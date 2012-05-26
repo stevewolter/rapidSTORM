@@ -2,92 +2,55 @@
 #include "MainThread.h"
 #include <iostream>
 #include <ios>
-#include <dStorm/display/Manager.h>
 
 namespace dStorm {
 
 MainThread::MainThread() 
-: job_count(0),
-  input_read_lock(mutex)
+: job_count(0)
 {
-    input_read_lock.unlock();
 }
 
 void MainThread::run_all_jobs() 
 {
     boost::mutex::scoped_lock lock( mutex );
     while ( job_count > 0 ) {
-        main_thread_wakeup.wait(mutex);
+        main_thread_wakeup.wait(lock);
     }
 }
 
-std::auto_ptr<JobHandle> MainThread::register_node( Job& job ) {
+void MainThread::register_job( Job& job ) {
     boost::mutex::scoped_lock lock( mutex );
-    if ( io )
-        job.attach_ui( io );
     ++job_count;
     active_jobs.insert( &job );
-    return std::auto_ptr<JobHandle>( new Handle( *this, job ) );
 }
 
-void MainThread::unregister_node( Job& job ) {
-    boost::mutex::scoped_lock lock( mutex );
-    if ( io )
-        job.detach_ui( io->get_handle() );
+void MainThread::unregister_job( Job& job ) {
+    boost::lock_guard< boost::mutex > lock( mutex );
     active_jobs.erase( &job );
-}
-
-void MainThread::erase( Job& job ) {
-    boost::mutex::scoped_lock lock( mutex );
     --job_count;
     if ( job_count == 0 )
         main_thread_wakeup.notify_all();
 }
 
-void MainThread::connect_stdio( const job::Config& config ) {
-    boost::mutex::scoped_lock lock( mutex );
-    io.reset( new InputStream(*this) );
-    display::Manager::getSingleton().attach_ui( io );
-    io->set_config( config );
-    ++job_count;
-    input_acquirer = boost::thread( &MainThread::read_input, this );
-}
-
 void MainThread::terminate_running_jobs() {
-    assert( input_read_lock.owns_lock() );
+    boost::lock_guard< boost::mutex > lock( mutex );
     DEBUG("Terminate remaining cars");
     std::for_each( active_jobs.begin(), active_jobs.end(),
                    std::mem_fun(&Job::stop) );
 }
 
 int MainThread::count_jobs() {
-    assert( input_read_lock.owns_lock() );
+    boost::lock_guard< boost::mutex > lock( mutex );
     return job_count;
 }
 
-void MainThread::read_input() {
-    std::cout << "# rapidSTORM waiting for commands" << std::endl;
-    while ( ! io->received_quit_command() ) {
-        int peek = std::cin.peek();
-        if ( isspace( peek ) ) {
-            std::cin.get();
-            continue;
-        } else if ( peek == std::char_traits<char>::eof() ) {
-            break;
-        }
-        input_read_lock.lock();
-        try {
-            io->processCommand( std::cin );
-        } catch (const std::bad_alloc& e) {
-            std::cerr << "Could not perform action: "
-                      << "Out of memory" << std::endl;
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Could not perform action: "
-                      << e.what() << std::endl;
-        }
-        input_read_lock.unlock();
-    }
-    boost::mutex::scoped_lock lock( mutex );
+void MainThread::register_unstopable_job() {
+    boost::lock_guard< boost::mutex > lock( mutex );
+    ++job_count;
+}
+
+void MainThread::unregister_unstopable_job() {
+    boost::lock_guard< boost::mutex > lock( mutex );
     --job_count;
     if ( job_count == 0 ) main_thread_wakeup.notify_all();
 }
