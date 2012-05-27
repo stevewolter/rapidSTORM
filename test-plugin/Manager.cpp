@@ -53,7 +53,7 @@ class Manager
 : public dStorm::display::Manager
 {
     class Handle;
-    class ControlConfig;
+    class Source;
 
     std::auto_ptr<WindowHandle>
         register_data_source_impl
@@ -61,10 +61,7 @@ class Manager
          dStorm::display::DataSource& handler);
 
     struct Disassociation {
-        bool commenced;
-        boost::mutex m;
-        boost::condition c;
-        Disassociation() : commenced(false) {}
+        Disassociation() {}
     };
     struct Close { };
     struct SetLimit { 
@@ -72,46 +69,18 @@ class Manager
         SetLimit(bool b, int key, std::string limit) : lower_limit(b), key(key), limit(limit) {} };
     struct DrawRectangle { int l, r, t, b; DrawRectangle(int l, int r, int t, int b) : l(l), r(r), t(t), b(b) {} };
 
-    typedef boost::variant< Close, SetLimit, DrawRectangle, dStorm::display::SaveRequest, boost::reference_wrapper<Disassociation> > Request;
+    typedef boost::variant< Close, SetLimit, DrawRectangle, dStorm::display::SaveRequest, Disassociation > Request;
 
-    boost::mutex mutex;
+    boost::mutex source_list_mutex;
     boost::mutex request_mutex;
     boost::condition gui_run;
     bool running;
     int number;
 
-    std::auto_ptr<ControlConfig> control_config;
+    simparm::Object master_object;
+    simparm::NodeHandle current_ui;
 
-    struct Source : public boost::static_visitor<void> ,
-        public boost::enable_shared_from_this<Source>
-    {
-        typedef dStorm::display::Image Image;
-        dStorm::display::DataSource& handler;
-        Image current_display;
-        dStorm::display::Change state;
-        int number;
-        bool wants_closing, may_close;
-        simparm::Object removal_choice;
-
-        Source( const WindowProperties& properties,
-                dStorm::display::DataSource& source,
-                int number);
-        void handle_resize( 
-            const dStorm::display::ResizeChange& );
-        bool get_and_handle_change();
-
-        void operator()( const Close&, Manager& m );
-        void operator()( const SetLimit&, Manager& m );
-        void operator()( const DrawRectangle&, Manager& m );
-        void operator()( const dStorm::display::SaveRequest&, Manager& m );
-        void operator()( Disassociation&, Manager& m );
-
-        std::string getName() const { return removal_choice.getName(); }
-        void attach_ui( simparm::NodeHandle at ) { removal_choice.attach_ui(at); }
-        void detach_ui( simparm::NodeHandle at ) { removal_choice.detach_ui(at); }
-    };
-    typedef std::map<int, boost::shared_ptr<Source> > Sources;
-    Sources sources;
+    std::vector< boost::shared_ptr<Source> > sources_queue;
     typedef std::vector< std::pair<boost::shared_ptr<Source>, Request> >
         Requests;
     Requests requests;
@@ -120,10 +89,10 @@ class Manager
         previous;
     boost::thread ui_thread;
 
+    boost::shared_ptr<Source> next_source();
     void dispatch_events();
     DSTORM_REALIGN_STACK void run();
 
-    void print_status(Source& source, std::string prefix, bool force_print = false);
     void heed_requests();
 
     void store_image_impl( const dStorm::display::StorableImage& );
@@ -136,109 +105,101 @@ class Manager
     void attach_ui( simparm::NodeHandle );
 
     void stop() {}
-    void request_action( boost::shared_ptr<Source>& on, const Request& request );
+    void request_action( boost::shared_ptr<Source> on, const Request& request );
 };
 
-class Manager::ControlConfig
-: private simparm::Object, private boost::noncopyable
+class Manager::Source : public boost::static_visitor<void> ,
+    public boost::enable_shared_from_this<Source>
 {
     Manager& m;
-    simparm::ChoiceEntry<Manager::Source> which_window;
+    boost::mutex handler_mutex;
+    dStorm::display::DataSource* handler;
+public:
+    typedef dStorm::display::Image Image;
+    Image current_display;
+    dStorm::display::Change state;
+    int number;
+
+private:
+    simparm::Object window_object;
+    simparm::Entry<std::string> digest;
+    simparm::Entry<float> mean;
+    simparm::Entry<int> nonzero_count;
+    simparm::Entry<int> frame_number;
+    simparm::Entry<float> key_31;
+    simparm::Entry<int> window_width;
     simparm::Entry<unsigned long> which_key;
     simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;
     simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
     simparm::BaseAttribute::ConnectionStore listening[4];
-    
+
     class GUINode;
     std::auto_ptr< GUINode > gui_node;
 
-  public:
-    ControlConfig(Manager& m) 
-        : Object("DummyDisplayManagerConfig", "Dummy display manager"), m(m),
-          which_window("WhichWindow", "Select window"),
-          which_key("WhichKey", "Select key", 1),
-          top("RectangleTop", "Top border of drawn rectangle", 0),
-          bottom("RectangleBottom", "Bottom border of drawn rectangle", 511),
-          left("RectangleLeft", "Left border of drawn rectangle", 0),
-          right("RectangleRight", "Right border of drawn rectangle", 511),
-          new_limit("NewLimit", "New limit for selected key"),
-          close("Close", "Close Window"),
-          set_lower_limit("SetLowerLimit", "Set lower key limit"),
-          set_upper_limit("SetUpperLimit", "Set upper key limit"),
-          draw_rectangle("DrawRectangle", "Draw rectangle")
-    {
-        which_window.set_auto_selection( false );
+public:
+    Source( Manager& m,
+            const WindowProperties& properties,
+            dStorm::display::DataSource& source,
+            int number);
+    void handle_resize( 
+        const dStorm::display::ResizeChange& );
+    bool get_and_handle_change();
+
+    void operator()( const Close&, Manager& m );
+    void operator()( const SetLimit&, Manager& m );
+    void operator()( const DrawRectangle&, Manager& m );
+    void operator()( const dStorm::display::SaveRequest&, Manager& m );
+    void operator()( const Disassociation&, Manager& m );
+
+    void attach_ui( simparm::NodeHandle at );
+    void print_status(std::string prefix, bool force_print = false);
+
+    void drop_window() {
+        boost::lock_guard< boost::mutex > lock( handler_mutex );
+        handler = NULL;
     }
 
-    void attach_ui( simparm::NodeHandle at ); 
-
-    boost::shared_ptr<Source> look_up_window() {
-        boost::shared_ptr<Source> src;
-        if ( ! which_window.isValid() ) {
-            std::cerr << "No valid window selected" << std::endl;
-            return src;
-        }
-        {
-            boost::lock_guard<boost::mutex> lock(m.mutex);
-            src = which_window().shared_from_this();
-        }
-        if ( ! src ) { 
-            std::cerr << "Window " << which_window.value() << " not found" << std::endl; 
-        }
-        return src;
-    }
-
+private:
     void close_window() {
-        boost::shared_ptr<Source> src = look_up_window();
-        if ( src && close.triggered() ) {
+        if ( close.triggered() ) {
             close.untrigger();
-            m.request_action( src, Close() );
+            m.request_action( shared_from_this(), Close() );
         }
     }
     
     void notice_lower_limit() {
-        boost::shared_ptr<Source> src = look_up_window();
-        if ( src && set_lower_limit.triggered() ) {
+        if ( set_lower_limit.triggered() ) {
             set_lower_limit.untrigger();
-            m.request_action( src, SetLimit(true, which_key(), new_limit()) );
+            m.request_action( shared_from_this(), SetLimit(true, which_key(), new_limit()) );
         }
     }
 
     void notice_upper_limit() {
-        boost::shared_ptr<Source> src = look_up_window();
-        if (  src && set_upper_limit.triggered() ) {
+        if ( set_upper_limit.triggered() ) {
             set_upper_limit.untrigger();
-            m.request_action( src, SetLimit(false, which_key(), new_limit()) );
+            m.request_action( shared_from_this(), SetLimit(false, which_key(), new_limit()) );
         }
     }
     
     void notice_drawn_rectangle() {
-        boost::shared_ptr<Source> src = look_up_window();
-        if ( src && draw_rectangle.triggered() ) {
+        if ( draw_rectangle.triggered() ) {
             draw_rectangle.untrigger();
-            m.request_action( src, DrawRectangle(left(), right(), top(), bottom()) );
+            m.request_action( shared_from_this(), DrawRectangle(left(), right(), top(), bottom()) );
         }
     }
 
-    void processCommand( std::istream& in ); 
-
-    void added_window( Manager::Source& src ) 
-        { which_window.addChoice(src); }
-    void removed_window( Manager::Source& src ) 
-        { which_window.removeChoice(src); }
 };
-
-class Manager::ControlConfig::GUINode : public simparm::text_stream::Node {
-    ControlConfig& c;
+class Manager::Source::GUINode : public simparm::text_stream::Node {
+    Source& c;
     struct Backend : public simparm::text_stream::InnerBackendNode {
-        ControlConfig& c;
+        Source& c;
         void process_command_( const std::string&, std::istream& );
         Backend( GUINode& g, boost::shared_ptr<BackendNode> parent )
             : InnerBackendNode("PixelQuery", "Object", g, parent ), c(g.c) {}
     };
 public:
-    GUINode( ControlConfig& c, simparm::NodeHandle parent ) 
+    GUINode( Source& c, simparm::NodeHandle parent ) 
     : simparm::text_stream::Node("PixelQuery", "Object"), c(c) {
         simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(parent.get());
         if ( p )
@@ -247,66 +208,27 @@ public:
     }
 };
 
-void Manager::ControlConfig::attach_ui( simparm::NodeHandle at ) {
-    listening[0] = close.value.notify_on_value_change( 
-        boost::bind( &Manager::ControlConfig::close_window, this ) );
-    listening[1] = set_lower_limit.value.notify_on_value_change( 
-        boost::bind( &Manager::ControlConfig::notice_lower_limit, this ) );
-    listening[2] = set_upper_limit.value.notify_on_value_change(
-        boost::bind( &Manager::ControlConfig::notice_upper_limit, this ) );
-    listening[3] = draw_rectangle.value.notify_on_value_change(
-        boost::bind( &Manager::ControlConfig::notice_drawn_rectangle, this ) );
-
-    simparm::NodeHandle r = simparm::Object::attach_ui( at );
-    which_window.attach_ui( r );
-    close.attach_ui( r );
-    which_key.attach_ui( r );
-    new_limit.attach_ui( r );
-    set_lower_limit.attach_ui( r );
-    set_upper_limit.attach_ui( r );
-    top.attach_ui( r);
-    bottom.attach_ui( r);
-    left.attach_ui( r);
-    right.attach_ui( r);
-    draw_rectangle.attach_ui( r);
-
-    gui_node.reset( new GUINode( *this, r ) );
-}
-
-void Manager::ControlConfig::GUINode::Backend::process_command_( const std::string& command, std::istream& in )
+void Manager::Source::GUINode::Backend::process_command_( const std::string& command, std::istream& in )
 {
     if ( command == "pixel_value" ) {
-        DEBUG("Reading instructions");
         std::string window;
         dStorm::display::Image::Position pos;
-        const Source* i = NULL;
+        boost::shared_ptr<Source> i = c.shared_from_this();
         std::stringstream msg;
 
-        if ( c.which_window.isValid() ) {
-            DEBUG("Finding window");
-            i = &( c.which_window() );
-            pos.fill(0);
-            in >> boost::units::quantity_cast<int&>(pos.x()) 
-                >> boost::units::quantity_cast<int&>(pos.y());
-            msg << "window " << i->number;
-        } else {
-            msg << "result for unset WhichWindow field";
-        }
-        if ( i ) {
-            DEBUG("Found window");
-            msg << " pixel at (" << pos.transpose() << ")";
-            if ( i->current_display.contains( pos ) )
-                msg << " has value r " << int(i->current_display( pos ).red() )
-                                << " g " << int(i->current_display( pos ).green())
-                                << " b " << int(i->current_display( pos ).blue());
-            else
-                msg << " is out of image dimensions";
-        } else {
-            msg << " is undefined";
-        }
-        DEBUG("Printing results");
+        int x, y;
+        in >> x >> y;
+        pos.x() = x * boost::units::camera::pixel;
+        pos.y() = y * boost::units::camera::pixel;
+
+        msg << " pixel at (" << pos.transpose() << ")";
+        if ( i->current_display.contains( pos ) )
+            msg << " has value r " << int(i->current_display( pos ).red() )
+                            << " g " << int(i->current_display( pos ).green())
+                            << " b " << int(i->current_display( pos ).blue());
+        else
+            msg << " is out of image dimensions";
         print( msg.str() );
-        DEBUG("Printed results");
     } else {
         InnerBackendNode::process_command_( command, in );
     }
@@ -323,38 +245,85 @@ class Manager::Handle
         dStorm::display::DataSource& source,
         Manager& m ) : m(m) 
     {
-        my_source.reset( new Source(properties, source, m.number++) );
-        m.sources.insert( std::make_pair( my_source->number, my_source ) );
-        m.control_config->added_window( *my_source );
-        LOG( "Created new window number " << my_source->number << " named " << properties.name );
+        my_source.reset( new Source(m, properties, source, m.number++) );
+        my_source->attach_ui( m.current_ui );
+        boost::lock_guard< boost::mutex > lock( m.source_list_mutex );
+        m.sources_queue.push_back( my_source );
     }
     ~Handle() {
         Disassociation destruction;
-        m.request_action( my_source, boost::ref(destruction) );
-        boost::unique_lock<boost::mutex> l( destruction.m );
-        while ( ! destruction.commenced )
-            destruction.c.wait( l );
+        my_source->drop_window();
+        m.request_action( my_source, destruction );
     }
 
     void store_current_display( dStorm::display::SaveRequest );
 };
 
 Manager::Source::Source(
+    Manager& m,
     const WindowProperties& properties,
     dStorm::display::DataSource& source,
     int n)
-: handler(source), state(0), number(n),
-  wants_closing(false), may_close(false),
-  removal_choice( "Window" + boost::lexical_cast<std::string>(n),
-                  "Window " + boost::lexical_cast<std::string>(n) )
+: m(m), handler(&source), state(0), number(n),
+  window_object( "Window" + boost::lexical_cast<std::string>(n),
+                  properties.name ),
+  digest("Digest", "Digest of window contents", ""),
+  mean("Mean", "Mean intensity", 0),
+  nonzero_count("NonzeroCount", "Count of nonzero pixels", 0),
+  frame_number("FrameNumber", "Current frame number", 0),
+  key_31("KeyThirtyOne", "Value for intensity 31", 0),
+  window_width("WindowWidth", "Window width", 0),
+  which_key("WhichKey", "Select key", 1),
+  top("RectangleTop", "Top border of drawn rectangle", 0),
+  bottom("RectangleBottom", "Bottom border of drawn rectangle", 511),
+  left("RectangleLeft", "Left border of drawn rectangle", 0),
+  right("RectangleRight", "Right border of drawn rectangle", 511),
+  new_limit("NewLimit", "New limit for selected key"),
+  close("Close", "Close Window"),
+  set_lower_limit("SetLowerLimit", "Set lower key limit"),
+  set_upper_limit("SetUpperLimit", "Set upper key limit"),
+  draw_rectangle("DrawRectangle", "Draw rectangle")
 {
-    LOG( "Listening to window " << properties.name );
     handle_resize( properties.initial_size );
 }
+
+void Manager::Source::attach_ui( simparm::NodeHandle at ) {
+    listening[0] = close.value.notify_on_value_change( 
+        boost::bind( &Source::close_window, this ) );
+    listening[1] = set_lower_limit.value.notify_on_value_change( 
+        boost::bind( &Source::notice_lower_limit, this ) );
+    listening[2] = set_upper_limit.value.notify_on_value_change(
+        boost::bind( &Source::notice_upper_limit, this ) );
+    listening[3] = draw_rectangle.value.notify_on_value_change(
+        boost::bind( &Source::notice_drawn_rectangle, this ) );
+
+    simparm::NodeHandle r = window_object.attach_ui( at );
+    close.attach_ui( r );
+    which_key.attach_ui( r );
+    new_limit.attach_ui( r );
+    set_lower_limit.attach_ui( r );
+    set_upper_limit.attach_ui( r );
+    top.attach_ui( r);
+    bottom.attach_ui( r);
+    left.attach_ui( r);
+    right.attach_ui( r);
+    draw_rectangle.attach_ui( r);
+    digest.attach_ui( r );
+    mean.attach_ui( r );
+    nonzero_count.attach_ui( r );
+    frame_number.attach_ui( r );
+    key_31.attach_ui( r );
+    window_width.attach_ui( r );
+
+    gui_node.reset( new GUINode( *this, r ) );
+}
+
 
 void Manager::Source::handle_resize( 
     const dStorm::display::ResizeChange& r)
 {
+    window_width = r.size.x().value();
+#if 0
     LOG( "Sizing display number " << number << " to " 
               << r.size.x() << " " << r.size.y() << " with "
               << ((r.keys.empty()) ? 0 : r.keys.front().size) << " grey levels and pixel "
@@ -364,6 +333,7 @@ void Manager::Source::handle_resize(
         LOG( "Window " << number << " key " << i << " is measured in " << r.keys[i].unit << " and has " << r.keys[i].size << " levels and the user "
              "can " << ((r.keys[i].can_set_lower_limit) ? "" : "not ") << "set the lower limit" );
     }
+#endif
     current_display = Image( r.size );
     current_display.fill(0);
     state.do_resize = true;
@@ -374,13 +344,13 @@ void Manager::Source::handle_resize(
 }
 
 bool Manager::Source::get_and_handle_change() {
-    std::auto_ptr<dStorm::display::Change> c
-        = handler.get_changes();
-
-    if ( c.get() == NULL ) {
-        LOG( "Error in display handling: NULL change pointer" );
-        return false;
+    std::auto_ptr<dStorm::display::Change> c;
+    {
+        boost::lock_guard<boost::mutex> lock( handler_mutex );
+        if ( handler )
+            c = handler->get_changes();
     }
+    if ( !c.get() ) return false;
 
     bool has_changed = c->do_resize || c->do_clear ||
                        c->do_change_image || 
@@ -399,7 +369,7 @@ bool Manager::Source::get_and_handle_change() {
             state.clear_image.background );
     } 
     if ( c->do_change_image ) {
-        LOG( "Replacing image with " << c->image_change.new_image.frame_number().value() );
+        frame_number = c->image_change.new_image.frame_number().value();
         current_display = c->image_change.new_image;
     }
     
@@ -415,7 +385,7 @@ bool Manager::Source::get_and_handle_change() {
         {
             dStorm::display::KeyChange kc = c->changed_keys[j][i];
             if ( i == 31 )
-                LOG("Window " << number << " key " << j << " value 31 has value " << kc.value);
+                key_31 = kc.value;
             state.changed_keys[j][kc.index] = kc;
         }
 
@@ -423,7 +393,6 @@ bool Manager::Source::get_and_handle_change() {
 }
 
 void Manager::run() { 
-    DEBUG("Running window manager subthread");
     dispatch_events(); 
 }
 
@@ -433,9 +402,7 @@ std::auto_ptr<dStorm::display::Manager::WindowHandle>
     const WindowProperties& props,
     dStorm::display::DataSource& handler
 ) {
-    boost::lock_guard< boost::mutex > lock(mutex);
     if ( !running ) {
-        DEBUG("Forking window manager subthread");
         running = true;
         ui_thread = boost::thread( &Manager::run, this );
     }
@@ -448,17 +415,17 @@ std::ostream& operator<<(std::ostream& o, dStorm::display::Color c)
     return ( o << int(c.red()) << " " << int(c.green()) << " " << int(c.blue()) );
 }
 
-void Manager::print_status(Source& s, std::string prefix, bool p)
+void Manager::Source::print_status(std::string prefix, bool p)
 {
-    bool has_changed = s.get_and_handle_change();
+    bool has_changed = get_and_handle_change();
     if (!has_changed && !p) return;
     
     md5_state_t pms;
     md5_byte_t digest[16];
     md5_init( &pms );
     md5_append( &pms, 
-        (md5_byte_t*)s.current_display.ptr(),
-        s.current_display.size_in_pixels()*
+        (md5_byte_t*)current_display.ptr(),
+        current_display.size_in_pixels()*
             sizeof(dStorm::Pixel) / sizeof(md5_byte_t));
     md5_finish( &pms, digest );
 
@@ -468,40 +435,30 @@ void Manager::print_status(Source& s, std::string prefix, bool p)
 
     float sum = 0;
     int count = 0;
-    for ( Source::Image::const_iterator j = s.current_display.begin(); 
-                j != s.current_display.end(); ++j )
+    for ( Image::const_iterator j = current_display.begin(); 
+                j != current_display.end(); ++j )
     {
         sum += int(j->red()) + j->blue() + j->green();
         if ( j->red() != 0 || j->blue() != 0 || j->green() != 0 )
             count++;
     }
-    LOG( prefix << "window " << s.number << " with digest " << sdigest.str() << ", mean is " 
-                << sum / s.current_display.size_in_pixels() << " and count of nonzero pixels is " << count
-                );
+    this->digest = sdigest.str();
+    this->mean = sum / current_display.size_in_pixels();
+    this->nonzero_count = count;
 }
 
 void Manager::dispatch_events() {
-    DEBUG("Event loop");
-    boost::unique_lock< boost::mutex > lock(mutex);
-    DEBUG("Got mutex for event loop");
     while ( running ) {
-        DEBUG("Running GUI loop");
-        for ( Sources::iterator i = sources.begin(); i != sources.end(); i++ )
-        {
-            if ( i->second->wants_closing ) { i->second->may_close = true; }
-            print_status(*i->second, "Changing ");
-        }
+        boost::shared_ptr<Source> s = next_source();
+        if ( s ) s->print_status("Changing ");
         heed_requests();
-        DEBUG("Ran GUI loop");
         gui_run.notify_all(); 
-        lock.unlock();
 #ifdef HAVE_USLEEP
         usleep(100000);
 #elif HAVE_WINDOWS_H
         Sleep(100);
 #endif
         DEBUG("Getting mutex for event loop");
-        lock.lock();
         DEBUG("Got mutex for event loop");
     }
     DEBUG("Event loop ended, heeding last save requests");
@@ -512,9 +469,9 @@ void Manager::dispatch_events() {
 Manager::Manager(dStorm::display::Manager *p)
 : running(false),
   number(0),
+  master_object("DummyDisplayManagerConfig", "Dummy display manager"),
   previous(p)
 {
-    control_config.reset( new ControlConfig(*this) );
 }
 
 Manager::~Manager()
@@ -540,7 +497,7 @@ void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 
 void Manager::attach_ui( simparm::NodeHandle at )
 {
-    control_config->attach_ui( at );
+    current_ui = master_object.attach_ui( at );
 }
 
 void Manager::heed_requests() {
@@ -550,8 +507,7 @@ void Manager::heed_requests() {
         std::swap( requests, my_requests );
     }
     BOOST_FOREACH( Requests::value_type& i, my_requests )
-        if ( sources.find( i.first->number ) != sources.end() )
-            boost::apply_visitor( boost::bind( boost::ref(*i.first), _1, boost::ref(*this) ), i.second );
+        boost::apply_visitor( boost::bind( boost::ref(*i.first), _1, boost::ref(*this) ), i.second );
 }
 
 void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager& m ) {
@@ -574,32 +530,33 @@ void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager
 }
 
 void Manager::Source::operator()( const Close&, Manager& ) {
-    handler.notice_closed_data_window();
+    boost::lock_guard<boost::mutex> lock( handler_mutex );
+    if ( handler )
+        handler->notice_closed_data_window();
 }
 
 void Manager::Source::operator()( const SetLimit& i, Manager& ) {
     std::cerr << "Noticing key limits for key " << i.key << " " << i.lower_limit << " " << i.limit << std::endl;
-    handler.notice_user_key_limits( i.key, i.lower_limit, i.limit );
+    boost::lock_guard<boost::mutex> lock( handler_mutex );
+    if ( handler )
+        handler->notice_user_key_limits( i.key, i.lower_limit, i.limit );
 }
 
 void Manager::Source::operator()( const DrawRectangle& i, Manager& ) {
-    handler.notice_drawn_rectangle( i.l, i.r, i.t, i.b );
+    boost::lock_guard<boost::mutex> lock( handler_mutex );
+    if ( handler )
+        handler->notice_drawn_rectangle( i.l, i.r, i.t, i.b );
 }
 
-void Manager::Source::operator()(Disassociation& d, Manager& m ) {
-    m.print_status(*this, "Destructing ", true);
-    m.control_config->removed_window(*this);
-    m.sources.erase( number );
-
-    boost::lock_guard<boost::mutex> l(d.m);
-    d.commenced = true;
-    d.c.notify_all();
+void Manager::Source::operator()(const Disassociation& d, Manager& m ) {
+    print_status("Destructing ", true);
+    boost::lock_guard< boost::mutex > lock( m.source_list_mutex );
+    m.sources_queue.erase( std::remove( m.sources_queue.begin(), m.sources_queue.end(), shared_from_this() ) );
 }
 
-void Manager::request_action( boost::shared_ptr<Source>& on, const Request& request ) {
+void Manager::request_action( boost::shared_ptr<Source> on, const Request& request ) {
     if ( boost::this_thread::get_id() == ui_thread.get_id() ) {
-        if ( sources.find( on->number ) != sources.end() )
-            boost::apply_visitor( boost::bind( boost::ref(*on), _1, boost::ref(*this) ), request );
+        boost::apply_visitor( boost::bind( boost::ref(*on), _1, boost::ref(*this) ), request );
     } else {
         boost::lock_guard<boost::mutex> lock(request_mutex);
         requests.push_back( std::make_pair( on, request ) );
@@ -609,5 +566,14 @@ void Manager::request_action( boost::shared_ptr<Source>& on, const Request& requ
 std::auto_ptr< dStorm::display::Manager > make_test_plugin_manager( dStorm::display::Manager* old )
 {
     return std::auto_ptr< dStorm::display::Manager >( new Manager(old) );
+}
+
+boost::shared_ptr<Manager::Source> Manager::next_source() {
+    boost::lock_guard< boost::mutex > lock( source_list_mutex );
+    if ( sources_queue.empty() ) return boost::shared_ptr<Source>();
+    boost::shared_ptr<Source> s = sources_queue.front();
+    sources_queue.erase( sources_queue.begin() );
+    sources_queue.push_back( s );
+    return s;
 }
 

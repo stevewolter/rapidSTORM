@@ -7,8 +7,6 @@ InnerBackendNode::InnerBackendNode( std::string name, std::string type, Frontend
 : name(name), type(type), parent(parent), declared(false), frontend( frontend ), tree_mutex( parent->get_mutex() )
 {
     parent->add_child( *this );
-    std::ostream* o = get_print_stream();
-    if ( o ) declare( *o );
 }
 
 void InnerBackendNode::add_child( BackendNode& t ) { 

@@ -9,7 +9,7 @@ BackendNode::~BackendNode() {}
 void BackendNode::print( const std::string& s ) {
     boost::lock_guard< Mutex > m( *get_mutex() );
     std::ostream* o = get_print_stream();
-    if ( o ) *o << s << "\n";
+    if ( o ) *o << s << std::endl;
 }
 
 void BackendNode::process_command_( const std::string& cmd, std::istream& rest ) {

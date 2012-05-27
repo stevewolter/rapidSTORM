@@ -23,29 +23,26 @@ proc the_one_pixel_after_10k_locs { } {
     set test "The One Pixel can be read"
     set had_restart 0
     set window_changed 0
-    set winnum 0
+    set window ""
     # The patterns in this rule are declared -notransfer to avoid them interfering
     expect { 
-        -re "(in Progress in value set 0\r*\n)|(Created new window number (\[0-9\]+) named Result)" { 
+        -re "(in Progress in value set 0\r*\n)|(in DummyDisplayManagerConfig declare Object\r*\nname (Window\[0-9\]+)\r*\ndesc set Result)" { 
             if { [info exists expect_out(1,string)] && [string compare $expect_out(1,string) $expect_out(0,string)] == 0 } {
                 set had_restart 1;
             } else {
-                set winnum $expect_out(3,string); 
+                set window $expect_out(3,string); 
             }
             exp_continue; 
         }
-        -re "Changing window (\[0-9\]+) with digest" { 
-            if { [expr $expect_out(1,string) == $winnum] } {
-                set window_changed [expr $window_changed + 1]
-            }
+        -re "in (Window\[0-9\]+) in Digest in value set " { 
+            set window_changed [expr $window_changed + 1]
             exp_continue
         }
         -re "in LocalizationCount in value set \[0-9\]{5,}" { 
             if { [expr $had_restart + $window_changed < 3] } { exp_continue; }
         } 
     }
-    send "in DummyDisplayManagerConfig in WhichWindow in value set Window$winnum\n"
-    return [get_pixel_value 527 892]
+    return [get_pixel_value $window 527 892]
 }
 
 set test "Colour scheme can be changed to B&W"
@@ -76,7 +73,11 @@ pass_if [expr [lindex $pixel 0] == 0 && [lindex $pixel 1] != 0 && [lindex $pixel
 set test "Pixel size can be changed"
 send "in $job in Output0 in Output0 in DimensionSelector in XDimension in PositionX in XResolution in value set 23\n"
 expect {
-    -re "Sizing display number \[0-9\]+ to 608 px 1260 px" { pass "$test"; }
+    -re "in WindowWidth in value value set 608\r*\n" { pass "$test"; }
+    -re "(in DummyDisplayManagerConfig in Window\[0-9\]+) declare IntegerEntry\r*\nname WindowWidth\r*\n" { 
+        send "$expect_out(1,string) in WindowWidth in value query\n"
+        exp_continue
+    }
 }
 
 # Changing the X binning to PositionY should force the key pixel to get black

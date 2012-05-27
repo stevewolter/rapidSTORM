@@ -31,22 +31,18 @@ if { $have_test_plugin == 1 } {
     send "in Car in Run in value set 1\n"
     
     set test "Display window is opened"
-    set dispnum -1
-    expect {
-        -re "Created new window number (\[0-9\]*) named" { set dispnum $expect_out(1,string); pass "$test" }
-    }
-    if { $dispnum != -1 } {
-        send "in DummyDisplayManagerConfig in WhichWindow in value set Window$dispnum\n"
+    set display [get_window ""]
+    if { $display != -1 } {
         set test "Can read pixel values with test plugin"
-        send "in DummyDisplayManagerConfig in PixelQuery pixel_value 20 23\n"
+        send "in DummyDisplayManagerConfig in $display in PixelQuery pixel_value 20 23\n"
         expect {
             -re " pixel at . *20 px *23 px *0 px. has value r \[0-9\]* g \[0-9\]* b" { pass "$test" }
         }
 
         set test "Can close windows with test plugin"
-        send "in DummyDisplayManagerConfig in Close in value set 1\n"
+        send "in DummyDisplayManagerConfig in $display in Close in value set 1\n"
         expect {
-            -re "Destructing window $dispnum " { pass "$test" }
+            -re "remove $display" { pass "$test" }
             -re "Verbose plugin got signal Engine_run_succeeded" { fail "$test" }
         }
     }

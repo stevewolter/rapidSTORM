@@ -81,8 +81,7 @@ Message::Response BackendRoot::send_( const Message& m ) {
               << "severity set " << m.severity << "\n"
               << "options set " << m.options << "\n"
               << "helpID set " << m.helpID << "\n"
-              << "end\n";
-        out->flush();
+              << "end" << std::endl;
         return Message::OKYes;
     } else {
         std::cerr << m;

@@ -286,10 +286,10 @@ proc get_value { path } {
     }
 }
 
-proc get_pixel_value { x y } {
+proc get_pixel_value { window x y } {
     set test "Pixel value is set"
     set rv 0
-    send "in DummyDisplayManagerConfig in PixelQuery pixel_value $x $y\n"
+    send "in DummyDisplayManagerConfig in $window in PixelQuery pixel_value $x $y\n"
     expect {
         -re "pixel at . *$x px *$y px *0 px *. has value r (\[0-9\]*) g (\[0-9\]*) b (\[0-9\]*)\r*\n" { 
             set rv [list $expect_out(1,string) $expect_out(2,string) $expect_out(3,string)]
@@ -326,4 +326,14 @@ proc wait_for_file { filename } {
         sleep 1
     }
     set timeout $prev_timeout
+}
+
+proc get_window { name } {
+    expect {
+        -re "in DummyDisplayManagerConfig declare Object\r*\nname (Window\[0-9\]+)\r*\ndesc set $name" {
+            return $expect_out(1,string); 
+        }
+        timeout { return -1; }
+    }
+    return -1;
 }

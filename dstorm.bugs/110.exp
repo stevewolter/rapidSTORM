@@ -27,30 +27,20 @@ send "in Car set Run value set 1\n"
 set job [get_job_number]
 
 set test "Selection window is opened"
-set window ""
-expect {
-    -re "Created new window number (\[0-9\]*) named Select spots for PSF form estimation"
-        { set window "Window$expect_out(1,string)"; pass "$test"; }
-    -re "remove EngineStatus" { fail "$test"; }
-}
+set window [get_window "Select spots for PSF form estimation"]
 
 set test "Selection window is re-opened after closing"
-send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
-send "in DummyDisplayManagerConfig in RectangleTop in value set 0\n"
-send "in DummyDisplayManagerConfig in RectangleBottom in value set 1024\n"
-send "in DummyDisplayManagerConfig in RectangleLeft in value set 0\n"
-send "in DummyDisplayManagerConfig in RectangleRight in value set 1024\n"
-send "in DummyDisplayManagerConfig in DrawRectangle in value set 1\n"
-send "in DummyDisplayManagerConfig in Close in value set 1\n"
-expect {
-    -re "Listening to window Select spots for PSF form estimation" { exp_continue; }
-    -re "Created new window number (\[0-9\]*) named"
-        { set window "Window$expect_out(1,string)"; pass "$test"; }
-}
+send "in DummyDisplayManagerConfig in $window in RectangleTop in value set 0\n"
+send "in DummyDisplayManagerConfig in $window in RectangleBottom in value set 1024\n"
+send "in DummyDisplayManagerConfig in $window in RectangleLeft in value set 0\n"
+send "in DummyDisplayManagerConfig in $window in RectangleRight in value set 1024\n"
+send "in DummyDisplayManagerConfig in $window in DrawRectangle in value set 1\n"
+send "in DummyDisplayManagerConfig in $window in Close in value set 1\n"
+set new_window [get_window "Select spots for PSF form estimation"]
+pass_if [string compare $new_window -1] "$test"
 
 set test "Computation is done after closing again"
-send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
-send "in DummyDisplayManagerConfig in Close in value set 1\n"
+send "in DummyDisplayManagerConfig in $new_window in Close in value set 1\n"
 expect {
     -re "in $job in Output4 declare Set\r*\nname Optics" { pass "$test"; }
     -re "PSF estimation failed: " { fail "$test"; }
