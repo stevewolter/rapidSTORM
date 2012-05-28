@@ -44,24 +44,28 @@ void Source::attach_ui_( simparm::NodeHandle at ) {
 
 Source::AdditionalData Source::announceStormSize(const Announcement& a)
 {
-    boost::lock_guard<boost::mutex> guard(mutex);
-    repeater = a.engine;
-    my_announcement = a;
-    simple_filters.set_visibility(a);
-    for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i ) 
-        if ( &*i != NULL )
-            i->announce(parser->get_variable_table(), *my_announcement);
+    {
+        boost::lock_guard<boost::mutex> guard(mutex);
+        repeater = a.engine;
+        my_announcement = a;
+        simple_filters.set_visibility(a);
+        for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i ) 
+            if ( &*i != NULL )
+                i->announce(parser->get_variable_table(), *my_announcement);
+    }
     return Filter::announceStormSize(*my_announcement);
 }
 
 void Source::receiveLocalizations(const EngineResult& er)
 {
-    boost::lock_guard<boost::mutex> guard(mutex);
     EngineResult rv(er);
     EngineResult::iterator end = rv.end();
-    for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i )  {
-        if ( &*i ) {
-            end = i->evaluate( parser->get_variable_table(), *my_announcement, rv.begin(), end );
+    {
+        boost::lock_guard<boost::mutex> guard(mutex);
+        for ( boost::ptr_vector< source::LValue >::iterator i = expressions.begin(); i != expressions.end(); ++i )  {
+            if ( &*i ) {
+                end = i->evaluate( parser->get_variable_table(), *my_announcement, rv.begin(), end );
+            }
         }
     }
     rv.erase( end, rv.end() );

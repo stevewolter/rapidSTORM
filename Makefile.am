@@ -9,7 +9,7 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm testChoice test_units test_optional 
+C_TESTS = dstorm 
 DEJATOOL = dstorm
 
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
@@ -463,6 +463,7 @@ dstorm_SOURCES += \
     viewer/UnitTest.cpp
 
 dstorm_SOURCES += \
+    test-plugin/Window.h test-plugin/Window.cpp \
     test-plugin/plugin.cpp test-plugin/plugin.h \
     test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
@@ -739,7 +740,8 @@ libsimparm_la_SOURCES = \
     simparm/BoostUnits.h \
     simparm/UserLevel.h \
     simparm/default_value.h simparm/IncrementWatcher.h \
-    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h 
+    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h  \
+    simparm/unit_tests.h simparm/unit_tests.cpp
 
 libsimparm_la_SOURCES += \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
@@ -775,10 +777,3 @@ dstorm_SOURCES += \
 align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
 align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
-
-testChoice_SOURCES = simparm/testChoice.cpp
-testChoice_LDADD = libsimparm.la
-test_optional_SOURCES = simparm/test_optional.cpp
-test_optional_LDADD = libsimparm.la
-test_units_SOURCES = simparm/test_units.cpp
-test_units_LDADD = libsimparm.la

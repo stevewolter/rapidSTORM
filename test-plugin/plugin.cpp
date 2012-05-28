@@ -5,7 +5,6 @@
 #include "Verbose.h"
 #include "Delayer.h"
 #include "BasenamePrinter.h"
-#include "Manager.h"
 #include "DummyFileInput.h"
 #include "RepeatTrigger.h"
 #include "VerboseInputFilter_decl.h"
@@ -30,17 +29,6 @@ void make_config ( dStorm::Config* config ) {
     config->add_output( make_basename_printer_source().release() );
     config->add_output( new dStorm::output::OutputBuilder< Repeat::Config, Repeat >() );
     config->add_output( new dStorm::output::OutputBuilder< SmoothedImageSave::Config, SmoothedImageSave >() );
-}
-
-dStorm::display::Manager*
-make_display (dStorm::display::Manager *old)
-{
-    if ( getenv("DEBUGPLUGIN_LEAVE_DISPLAY") || !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) {
-        return old;
-    } else {
-        std::cerr << "Test plugin loaded" << std::endl;
-        return make_test_plugin_manager( old ).release();
-    }
 }
 
 }

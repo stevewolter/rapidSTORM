@@ -16,6 +16,7 @@ set test "Circular PSF size estimation works"
 expect {
     -re "in $job in Output0 declare Set\r*\nname Optics" { pass "$test"; }
     -re "in LocalizationCount in value" { exp_continue; }
+    -re "in CollectionProgress in value" { exp_continue; }
 }
 sleep 1
 set optics_path "in $job in Output0 in Optics"

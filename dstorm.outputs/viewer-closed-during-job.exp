@@ -14,19 +14,15 @@ dstorm_attach
 send "in Car in Run in value set 1\n"
 set job [get_job_number]
 
-set display -1
 set test "Display is opened"
-expect {
-    -re "Created new window number (\[0-9\]*) named" 
-        { set display $expect_out(1,string); pass "$test" }
-}
+set display [get_window "Result image"]
+pass_if [string compare $display -1] "$test"
 
-send "in DummyDisplayManagerConfig in WhichWindow in value set Window$display\n"
-send "in DummyDisplayManagerConfig in Close in value set 1\n"
+send "in DummyDisplayManagerConfig in $display in Close in value set 1\n"
 
 set test "Display can be closed"
 expect {
-    -re "Destructing window $display with" { pass "$test"; }
+    -re "remove $display" { pass "$test"; }
     -re "in Progress value set 1" { fail "$test" }
 }
 

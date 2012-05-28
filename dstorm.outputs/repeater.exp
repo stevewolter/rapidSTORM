@@ -67,16 +67,17 @@ set pixels -1
 expect {
     -re "Verbose plugin got (\[0-9\]*) localizations for 1 fr" { fail "$test" }
     -re "Verbose plugin got store_results signal, success 1" { pass "$test"; }
-    -re "Changing window \[0-9\]* with digest \[0-9a-f\]*, mean is .* and count of nonzero pixels is (\[0-9\]*)\r*\n"
+    -re "in NonzeroCount in value set (\[0-9\]*)\r*\n"
         { set pixels $expect_out(1,string); exp_continue; }
     -re "Verbose plugin got \[0-9\]* localizations for \[0-9\]* fr" { exp_continue; }
 }
 
+set test "Job can be closed"
 send "in $job in CloseJob in value set 1\n"
 expect {
-    -re "Changing window \[0-9\]* with digest \[0-9a-f\]*, mean is .* and count of nonzero pixels is (\[0-9\]*)\r*\n"
+    -re "in NonzeroCount in value set (\[0-9\]*)\r*\n"
         { set pixels $expect_out(1,string); exp_continue; }
-    -re "in DummyDisplayManagerConfig in WhichWindow remove " {}
+    -re "in DummyDisplayManagerConfig remove " {}
 }
 
 pass_if [expr $pixels > 0] "Viewer shows pixels";

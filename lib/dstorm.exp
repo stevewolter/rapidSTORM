@@ -329,9 +329,17 @@ proc wait_for_file { filename } {
 }
 
 proc get_window { name } {
+    set window -1
     expect {
         -re "in DummyDisplayManagerConfig declare Object\r*\nname (Window\[0-9\]+)\r*\ndesc set $name" {
-            return $expect_out(1,string); 
+            set window $expect_out(1,string); exp_continue;
+        }
+        -re "in DummyDisplayManagerConfig in (Window\[0-9\]+) declare Object\r*\nname PixelQuery" {
+            if { [string equal $window $expect_out(1,string)] == 1 } {
+                return $window
+            } else {
+                exp_continue
+            }
         }
         timeout { return -1; }
     }
