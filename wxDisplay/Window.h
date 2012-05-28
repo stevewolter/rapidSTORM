@@ -5,7 +5,7 @@
 #include "dStorm/display/DataSource.h"
 #include "wxManager.h"
 #include "Canvas.h"
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 namespace dStorm {
 namespace display {
@@ -24,7 +24,7 @@ class Window : public wxFrame, public Canvas::Listener
     ScaleBar *scale_bar;
     wxStaticText *position_label;
 
-    boost::mutex source_mutex;
+    boost::recursive_mutex source_mutex;
     DataSource* source;
     wxManager::WindowHandle *handle;
 

@@ -94,9 +94,10 @@ void Window::UserClosedWindow(wxCloseEvent& e) {
         std::abort();
     }
 
-    boost::lock_guard<boost::mutex> lock( source_mutex );
+    boost::recursive_mutex::scoped_lock lock( source_mutex );
     if ( source != NULL ) {
         e.Veto();
+        close_on_completion = true;
         source->notice_closed_data_window();
     } else {
         this->Destroy();
@@ -111,9 +112,9 @@ Window::~Window()
 void Window::update_image() {
     std::auto_ptr<Change> changes;
     {
-        boost::lock_guard<boost::mutex> lock( source_mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
         if ( source )
-            std::auto_ptr<Change> changes = source->get_changes();
+            changes = source->get_changes();
     }
     if ( changes.get() )
         commit_changes(*changes);
@@ -183,7 +184,7 @@ void Window::commit_changes(const Change& changes)
 /** Stop using the DataSource object. This method is callable from all threads, not only the GUI thread,
  *  and returns immediately. */
 boost::shared_ptr<const Change> Window::detach_from_source() {
-    boost::lock_guard<boost::mutex> lock( source_mutex );
+    boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
     for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
         (*i)->set_data_source(NULL);
     boost::shared_ptr<const Change> rv;
@@ -207,7 +208,7 @@ void Window::drawn_rectangle( wxRect rect ) {
     if ( notify_for_zoom ) {
         DEBUG("Checking source");
         {
-            boost::lock_guard<boost::mutex> lock( source_mutex );
+            boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
             if ( source ) {
                 DEBUG("Calling notice_drawn_rectangle");
                 source->notice_drawn_rectangle( 
@@ -232,7 +233,7 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     dStorm::display::DataSource::PixelInfo info( pos, color );
     std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
     {
-        boost::lock_guard<boost::mutex> lock( source_mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
         if ( source )
             source->look_up_key_values( info, key_values );
     }
