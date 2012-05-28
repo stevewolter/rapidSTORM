@@ -7,7 +7,8 @@ namespace dummy_ui {
 struct Node : public simparm::Node {
     virtual ~Node() {}
     virtual NodeHandle create_object( std::string ) { return make_node(); }
-    virtual NodeHandle create_entry( std::string, std::string ) { return make_node(); }
+    virtual NodeHandle create_textfield( std::string, std::string ) { return make_node(); }
+    virtual NodeHandle create_checkbox( std::string ) { return make_node(); }
     virtual NodeHandle create_group( std::string ) { return make_node(); }
     virtual NodeHandle create_tab_group( std::string ) { return make_node(); }
     virtual NodeHandle create_choice( std::string ) { return make_node(); }

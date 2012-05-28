@@ -12,7 +12,8 @@ namespace simparm {
 struct Node {
     virtual ~Node() {}
     virtual NodeHandle create_object( std::string name ) = 0;
-    virtual NodeHandle create_entry( std::string name, std::string type ) = 0;
+    virtual NodeHandle create_textfield( std::string name, std::string type ) = 0;
+    virtual NodeHandle create_checkbox( std::string name ) = 0;
     virtual NodeHandle create_group( std::string name ) = 0;
     virtual NodeHandle create_tab_group( std::string name ) = 0;
     virtual NodeHandle create_choice( std::string name ) = 0;

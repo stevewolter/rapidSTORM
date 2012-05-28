@@ -26,7 +26,7 @@ std::istream& from_config_stream( std::istream& i, bool& b )
     if ( !i ) {
         std::string s;
         std::getline(i, s);
-        throw std::runtime_error( "Invalid boolean value " + s );
+        throw std::runtime_error( "Invalid boolean value '" + s + "'" );
     } else
         return i;
 }

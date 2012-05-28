@@ -40,8 +40,12 @@ simparm::NodeHandle Node::create_tab_group( std::string name ) {
     return adorn_node( new TabNode( name, true ) );
 }
 
-simparm::NodeHandle Node::create_entry( std::string name, std::string type ) {
+simparm::NodeHandle Node::create_textfield( std::string name, std::string type ) {
     return adorn_node( new EntryNode( name, type + "Entry" ) );
+}
+
+simparm::NodeHandle Node::create_checkbox( std::string name ) {
+    return adorn_node( new EntryNode( name, "BoolEntry" ) );
 }
 
 simparm::NodeHandle Node::create_choice( std::string name ) {

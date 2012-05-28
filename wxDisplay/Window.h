@@ -5,6 +5,7 @@
 #include "dStorm/display/DataSource.h"
 #include "wxManager.h"
 #include "Canvas.h"
+#include <boost/thread/mutex.hpp>
 
 namespace dStorm {
 namespace display {
@@ -23,6 +24,7 @@ class Window : public wxFrame, public Canvas::Listener
     ScaleBar *scale_bar;
     wxStaticText *position_label;
 
+    boost::mutex source_mutex;
     DataSource* source;
     wxManager::WindowHandle *handle;
 
@@ -34,6 +36,7 @@ class Window : public wxFrame, public Canvas::Listener
 
     void OnLowerLimitChange(wxCommandEvent&);
     void OnUpperLimitChange(wxCommandEvent&);
+    void UserClosedWindow(wxCloseEvent&);
 
     template <typename Drawer>
     void draw_image_window( const Change& changes );
@@ -50,7 +53,8 @@ class Window : public wxFrame, public Canvas::Listener
     ~Window(); 
 
     void update_image();
-    void remove_data_source();
+    boost::shared_ptr<const Change> detach_from_source();
+    void notice_that_source_has_disappeared(boost::shared_ptr<const Change> last_changes);
 
     std::auto_ptr<Change> getState();
 };

@@ -58,7 +58,8 @@ public:
     ~Node();
 
     simparm::NodeHandle create_object( std::string name );
-    simparm::NodeHandle create_entry( std::string name, std::string type );
+    simparm::NodeHandle create_textfield( std::string name, std::string type );
+    simparm::NodeHandle create_checkbox( std::string name );
     simparm::NodeHandle create_group( std::string name );
     simparm::NodeHandle create_tab_group( std::string name );
     simparm::NodeHandle create_choice( std::string name );

@@ -88,28 +88,35 @@ Window::Window(
     this->Raise();
 }
 
+void Window::UserClosedWindow(wxCloseEvent& e) {
+    if ( ! e.CanVeto() ) {
+        std::cerr << "wxWidgets sent an unvetoable window close request, rapidSTORM can't handle this gracefully" << std::endl;
+        std::abort();
+    }
+
+    boost::lock_guard<boost::mutex> lock( source_mutex );
+    if ( source != NULL ) {
+        e.Veto();
+        source->notice_closed_data_window();
+    } else {
+        this->Destroy();
+    }
+}
+
 Window::~Window()
 {
     wxGetApp().remove_window(this);
-    DEBUG("Destructing window");
-    if ( source != NULL ) 
-        source->notice_closed_data_window();
-    DEBUG("Noticed closed data window");
-    if ( handle != NULL ) {
-        wxManager::disassociate_window( this, handle );
-        handle = NULL;
-    }
-    DEBUG("Disassociated window");
 }
 
 void Window::update_image() {
-    if ( !source ) return;
-
-    DEBUG("Getting changes");
-    std::auto_ptr<Change> changes = source->get_changes();
-    DEBUG("Got changes");
-    commit_changes(*changes);
-    DEBUG("Applied changes");
+    std::auto_ptr<Change> changes;
+    {
+        boost::lock_guard<boost::mutex> lock( source_mutex );
+        if ( source )
+            std::auto_ptr<Change> changes = source->get_changes();
+    }
+    if ( changes.get() )
+        commit_changes(*changes);
 }
 
 template <typename Drawer>
@@ -173,17 +180,22 @@ void Window::commit_changes(const Change& changes)
         keys[i]->draw_keys( changes.changed_keys[i] );
 }
 
-void Window::remove_data_source() {
-    if ( source ) {
-        DEBUG("Getting last change set");
-        std::auto_ptr<Change> changes = source->get_changes();
-        DEBUG("Committing last change set");
-        commit_changes(*changes);
-    }
+/** Stop using the DataSource object. This method is callable from all threads, not only the GUI thread,
+ *  and returns immediately. */
+boost::shared_ptr<const Change> Window::detach_from_source() {
+    boost::lock_guard<boost::mutex> lock( source_mutex );
     for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
         (*i)->set_data_source(NULL);
+    boost::shared_ptr<const Change> rv;
+    if ( source ) rv.reset( source->get_changes().release() );
     source = NULL;
+    return rv;
+}
 
+/** Clean up after the DataSource object has been removed. This method is only callable from the GUI thread. */
+void Window::notice_that_source_has_disappeared( boost::shared_ptr<const Change> last_changes ) {
+    detach_from_source();
+    commit_changes( *last_changes );
     if ( close_on_completion ) {
         DEBUG("Destroying window");
         this->Destroy();
@@ -194,14 +206,16 @@ void Window::drawn_rectangle( wxRect rect ) {
     DEBUG("Drawn rectangle");
     if ( notify_for_zoom ) {
         DEBUG("Checking source");
-        if ( source ) {
-            DEBUG("Calling notice_drawn_rectangle");
-            source->notice_drawn_rectangle( 
-                rect.GetLeft(), rect.GetRight(), 
-                rect.GetTop(), rect.GetBottom() );
-            std::auto_ptr<Change> changes = source->get_changes();
-            commit_changes(*changes);
+        {
+            boost::lock_guard<boost::mutex> lock( source_mutex );
+            if ( source ) {
+                DEBUG("Calling notice_drawn_rectangle");
+                source->notice_drawn_rectangle( 
+                    rect.GetLeft(), rect.GetRight(), 
+                    rect.GetTop(), rect.GetBottom() );
+            }
         }
+        update_image();
     } else {
         canvas->zoom_to( rect );
     }
@@ -217,8 +231,11 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     pos.y() = point.y * camera::pixel;
     dStorm::display::DataSource::PixelInfo info( pos, color );
     std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
-    if ( source )
-        source->look_up_key_values( info, key_values );
+    {
+        boost::lock_guard<boost::mutex> lock( source_mutex );
+        if ( source )
+            source->look_up_key_values( info, key_values );
+    }
 
     for (size_t i = 0; i < keys.size(); ++i) 
         keys[i]->cursor_value( info, key_values[i] );
@@ -232,13 +249,13 @@ void Window::zoom_changed( int to ) {
 BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TEXT_ENTER(Key::LowerLimitID, Window::OnLowerLimitChange)
     EVT_TEXT_ENTER(Key::UpperLimitID, Window::OnUpperLimitChange)
+    EVT_CLOSE(Window::UserClosedWindow)
 END_EVENT_TABLE()
 
 std::auto_ptr<Change> Window::getState() 
 {
     if ( has_3d ) std::cerr << "Warning: Only the lowest Z layer is saved when images are shown live. (Bug #170)" << std::endl;
-    std::auto_ptr<Change> changes = source->get_changes();
-    commit_changes(*changes);
+    update_image();
 
     std::auto_ptr<Change> rv( new Change(keys.size()) );
     rv->do_resize = true;

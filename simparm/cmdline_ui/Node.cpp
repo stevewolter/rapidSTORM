@@ -42,8 +42,12 @@ simparm::NodeHandle Node::create_object( std::string name ) {
 simparm::NodeHandle Node::create_group( std::string name ) { return adorn_node( new Node(name) ); }
 simparm::NodeHandle Node::create_tab_group( std::string name ) { return adorn_node( new Node(name) ); }
 
-simparm::NodeHandle Node::create_entry( std::string name, std::string ) {
+simparm::NodeHandle Node::create_textfield( std::string name, std::string ) {
     return adorn_node( new EntryNode( name, OptionTable::Value ) );
+}
+
+simparm::NodeHandle Node::create_checkbox( std::string name ) {
+    return adorn_node( new EntryNode( name, OptionTable::Boolean ) );
 }
 
 simparm::NodeHandle Node::create_choice( std::string name ) {

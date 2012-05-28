@@ -27,10 +27,10 @@ BasicEntry::~BasicEntry()
 {}
 
 NodeHandle BasicEntry::create_textfield( NodeHandle parent, std::string name, std::string type ) {
-    return parent->create_entry( name, type );
+    return parent->create_textfield( name, type );
 }
 NodeHandle BasicEntry::create_checkbox( NodeHandle parent, std::string name ) {
-    return parent->create_entry( name, "Bool" );
+    return parent->create_checkbox( name );
 }
 NodeHandle BasicEntry::create_choice( NodeHandle parent, std::string name ) {
     return parent->create_choice( name );

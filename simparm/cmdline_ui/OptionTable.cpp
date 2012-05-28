@@ -81,6 +81,8 @@ int OptionTable::parse( int argc, char** args ) {
         case Trigger:
             value = "1";
             break;
+        default:
+            throw std::logic_error("Fall-through for command line option type");
     }
     attribute->set_value(value);
     return parsed_args;
