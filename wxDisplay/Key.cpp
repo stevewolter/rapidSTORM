@@ -10,7 +10,7 @@ namespace dStorm {
 namespace display {
 
 Key::Key( int number, wxWindow* parent, wxSize size, 
-          const Declaration& decl )
+          const Declaration& decl, boost::shared_ptr<DataSource> source )
     : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),
         parent(parent),
         lowerBoundary(NULL), upperBoundary(NULL),
@@ -28,7 +28,7 @@ Key::Key( int number, wxWindow* parent, wxSize size,
         background_pen( this->GetBackgroundColour() ),
         background_brush( this->GetBackgroundColour() ),
         current_declaration( decl ),
-        source(NULL),
+        source(source),
         key_index( number )
 {
     compute_key_size();
@@ -258,13 +258,13 @@ wxBoxSizer *Key::getBox()
 }
 
 void Key::OnLowerLimitChange( wxCommandEvent& ) {
-    if ( source && lowerBoundary ) {
+    if ( lowerBoundary ) {
         source->notice_user_key_limits( key_index, true,
             std::string(lowerBoundary->GetValue().mb_str()) );
     }
 }
 void Key::OnUpperLimitChange( wxCommandEvent& ) {
-    if ( source && upperBoundary )
+    if ( upperBoundary )
         source->notice_user_key_limits( key_index, false,
             std::string(upperBoundary->GetValue().mb_str()) );
 }
@@ -281,11 +281,10 @@ void make_editable( wxTextCtrl *o, bool e ) {
     }
 }
 
-void Key::set_data_source( DataSource* src )
+void Key::freeze_limit_changers()
 {
-    source = src;
-    make_editable( lowerBoundary, src != NULL );
-    make_editable( upperBoundary, src != NULL );
+    make_editable( lowerBoundary, false );
+    make_editable( upperBoundary, false );
 }
 
 }

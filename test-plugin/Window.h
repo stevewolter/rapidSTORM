@@ -16,8 +16,7 @@ class Manager;
 class Window : public boost::enable_shared_from_this<Window>
 {
     Manager& m;
-    boost::recursive_mutex handler_mutex;
-    display::DataSource* handler;
+    boost::shared_ptr<display::DataSource> handler;
 public:
     typedef display::Image Image;
     Image current_display;
@@ -44,26 +43,21 @@ private:
 public:
     Window( Manager& m,
             const display::Manager::WindowProperties& properties,
-            display::DataSource& source,
+            boost::shared_ptr<display::DataSource> source,
             int number);
     ~Window();
     void handle_resize( 
         const display::ResizeChange& );
     bool get_and_handle_change();
 
+    void update_window();
     void attach_ui( simparm::NodeHandle at );
-    void print_status(bool force_print = false);
-
-    void drop_handler() {
-        get_and_handle_change();
-        boost::lock_guard< boost::recursive_mutex > lock( handler_mutex );
-        handler = NULL;
-    }
 
     void handle_disassociation();
     void save_window( const display::SaveRequest& );
 
 private:
+    void print_status();
     void close_window();
     void notice_lower_limit();
     void notice_upper_limit();

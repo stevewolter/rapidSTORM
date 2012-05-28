@@ -14,6 +14,7 @@
 #include <simparm/Message.h>
 #include "Manager.h"
 #include "Window.h"
+#include <dStorm/display/SharedDataSource.h>
 
 namespace Eigen {
 
@@ -27,23 +28,24 @@ namespace text_stream_ui {
 
 class Manager::Handle 
 : public dStorm::display::Manager::WindowHandle {
-    boost::shared_ptr<Window> my_source;
     Manager& m;
+    boost::shared_ptr<display::SharedDataSource> data_source;
+    boost::shared_ptr<Window> window;
 
   public:
     Handle( 
         const WindowProperties& properties,
         dStorm::display::DataSource& source,
-        Manager& m ) : m(m) 
+        Manager& m ) 
+    : m(m), data_source( new display::SharedDataSource(source) ),
+      window( new Window(m, properties, data_source, m.number++) )
     {
-        my_source.reset( new Window(m, properties, source, m.number++) );
-        my_source->attach_ui( m.current_ui );
+        window->attach_ui( m.current_ui );
         boost::lock_guard< boost::mutex > lock( m.source_list_mutex );
-        m.sources_queue.push_back( my_source );
+        m.sources_queue.push_back( window );
     }
     ~Handle() {
-        my_source->drop_handler();
-        m.request_action( boost::bind( &Window::handle_disassociation, my_source ) );
+        data_source->disconnect();
     }
 
     void store_current_display( dStorm::display::SaveRequest );
@@ -75,7 +77,7 @@ std::ostream& operator<<(std::ostream& o, dStorm::display::Color c)
 void Manager::dispatch_events() {
     while ( running ) {
         boost::shared_ptr<Window> s = next_source();
-        if ( s ) s->print_status();
+        if ( s ) s->update_window();
         heed_requests();
         gui_run.notify_all(); 
 #ifdef HAVE_USLEEP
@@ -118,7 +120,7 @@ void Manager::store_image_impl( const dStorm::display::StorableImage& i )
 void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 {
     DEBUG("Got store request to " << s.filename);
-    m.request_action( boost::bind( &Window::save_window, my_source, s ) );
+    m.request_action( boost::bind( &Window::save_window, window, s ) );
     DEBUG("Saved store request");
 }
 

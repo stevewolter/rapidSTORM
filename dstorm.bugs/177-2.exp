@@ -35,7 +35,9 @@ proc the_one_pixel_after_10k_locs { } {
             exp_continue; 
         }
         -re "in (Window\[0-9\]+) in Digest in value set " { 
-            set window_changed [expr $window_changed + 1]
+            if { [string equal $expect_out(1,string) $window] == 1 } {
+                set window_changed [expr $window_changed + 1]
+            }
             exp_continue
         }
         -re "in LocalizationCount in value set \[0-9\]{5,}" { 

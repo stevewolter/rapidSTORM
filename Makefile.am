@@ -226,6 +226,7 @@ libdStorm_la_SOURCES = \
     dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
     dStorm/display/Manager.h \
     dStorm/display/DummyManager.h  \
+    dStorm/display/SharedDataSource.h dStorm/display/SharedDataSource.cpp \
     dStorm/Direction.h \
     dStorm/threed_info/Polynomial3D.h \
     dStorm/threed_info/No3D.h \

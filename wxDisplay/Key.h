@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "dStorm/display/DataSource.h"
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
 namespace display {
@@ -37,7 +38,7 @@ class Key : public wxWindow {
     wxBrush background_brush;
 
     Declaration current_declaration;
-    DataSource *source;
+    boost::shared_ptr<DataSource> source;
     const int key_index;
 
     void compute_key_size();
@@ -49,7 +50,7 @@ class Key : public wxWindow {
     void draw_key( int index, wxDC &dc );
 
   public:
-    Key( int number, wxWindow* parent, wxSize size, const Declaration& );
+    Key( int number, wxWindow* parent, wxSize size, const Declaration&, boost::shared_ptr<DataSource> source );
     ~Key();
 
     void draw_keys( const std::vector<KeyChange>& kcs );
@@ -72,7 +73,7 @@ class Key : public wxWindow {
     wxBoxSizer *getBox();
 
     void cursor_value( const DataSource::PixelInfo&, float value );
-    void set_data_source( DataSource* src );
+    void freeze_limit_changers();
 
     DECLARE_EVENT_TABLE();
 };

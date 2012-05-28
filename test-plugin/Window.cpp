@@ -57,9 +57,9 @@ void Window::GUINode::Backend::process_command_( const std::string& command, std
 Window::Window(
     Manager& m,
     const display::Manager::WindowProperties& properties,
-    dStorm::display::DataSource& source,
+    boost::shared_ptr<display::DataSource> source,
     int n)
-: m(m), handler(&source), state(0), number(n),
+: m(m), handler(source), state(0), number(n),
   window_object( "Window" + boost::lexical_cast<std::string>(n),
                   properties.name ),
   digest("Digest", "Digest of window contents", ""),
@@ -141,13 +141,8 @@ void Window::handle_resize(
 }
 
 bool Window::get_and_handle_change() {
-    std::auto_ptr<dStorm::display::Change> c;
-    {
-        boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
-        if ( handler )
-            c = handler->get_changes();
-    }
-    if ( !c.get() ) return false;
+    std::auto_ptr<dStorm::display::Change> c = handler->get_changes();
+    if ( !c.get() ) { handle_disassociation(); return false; }
 
     bool has_changed = c->do_resize || c->do_clear ||
                        c->do_change_image || 
@@ -189,11 +184,8 @@ bool Window::get_and_handle_change() {
     return has_changed;
 }
 
-void Window::print_status(bool p)
+void Window::print_status()
 {
-    bool has_changed = get_and_handle_change();
-    if (!has_changed && !p) return;
-    
     md5_state_t pms;
     md5_byte_t digest[16];
     md5_init( &pms );
@@ -246,29 +238,20 @@ void Window::save_window( const dStorm::display::SaveRequest& i ) {
 
 void Window::close() 
 {
-    {
-        boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
-        if ( handler ) {
-            handler->notice_closed_data_window();
-        }
-    }
+    handler->notice_closed_data_window();
     handle_disassociation();
 }
 
 void Window::set_key_limit( int key, bool lower, std::string limit ) {
-    boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
-    if ( handler )
-        handler->notice_user_key_limits( key, lower, limit );
+    handler->notice_user_key_limits( key, lower, limit );
 }
 
 void Window::draw_rectangle( int l, int r, int t, int b ) {
-    boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
-    if ( handler )
-        handler->notice_drawn_rectangle( l, r, t, b );
+    handler->notice_drawn_rectangle( l, r, t, b );
 }
 
 void Window::handle_disassociation() {
-    print_status(true);
+    print_status();
     m.remove_window_from_event_queue( shared_from_this() );
 }
 
@@ -298,6 +281,11 @@ void Window::notice_drawn_rectangle() {
         draw_rectangle_.untrigger();
         m.request_action( boost::bind( &Window::draw_rectangle, shared_from_this(), left(), right(), top(), bottom() ) );
     }
+}
+
+void Window::update_window() {
+    bool updated = get_and_handle_change();
+    if ( updated ) print_status();
 }
 
 }

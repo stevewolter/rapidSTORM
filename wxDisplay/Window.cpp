@@ -18,13 +18,11 @@ wxString std_to_wx_string( const std::string& a ) {
 
 Window::Window(
     const Manager::WindowProperties& props,
-    DataSource* data_source,
-    wxManager::WindowHandle *my_handle
+    boost::shared_ptr< SharedDataSource > data_source
 )
 : wxFrame(NULL, wxID_ANY, std_to_wx_string( props.name ),
           wxDefaultPosition, wxSize(780, 780)),
-    source(data_source),
-    handle( my_handle ),
+    data_source(data_source),
     close_on_completion( props.flags.get_close_window_on_unregister() ),
     notify_for_zoom( props.flags.get_notice_drawn_rectangle() ),
     has_3d( false )
@@ -50,8 +48,7 @@ Window::Window(
     wxSize size = dc.GetTextExtent( wxT("0123456789.") );
     for (unsigned int i = 0; i < init_size.keys.size(); i++) {
         keys.push_back( new Key( i, this, wxSize( 100+size.GetWidth()*2 / 11, 0 ),
-                                init_size.keys[i] ) );
-        keys.back()->set_data_source( data_source );
+                                init_size.keys[i], data_source ) );
     }
 
     scale_bar = new ScaleBar(this, wxSize(150, 30));
@@ -89,18 +86,15 @@ Window::Window(
 }
 
 void Window::UserClosedWindow(wxCloseEvent& e) {
-    if ( ! e.CanVeto() ) {
+    data_source->notice_closed_data_window();
+
+    if ( ! data_source->notify_of_closed_window_before_disconnect() ) {
+        this->Destroy();
+    } else if ( e.CanVeto() ) {
+        e.Veto();
+    } else {
         std::cerr << "wxWidgets sent an unvetoable window close request, rapidSTORM can't handle this gracefully" << std::endl;
         std::abort();
-    }
-
-    boost::recursive_mutex::scoped_lock lock( source_mutex );
-    if ( source != NULL ) {
-        e.Veto();
-        close_on_completion = true;
-        source->notice_closed_data_window();
-    } else {
-        this->Destroy();
     }
 }
 
@@ -110,14 +104,11 @@ Window::~Window()
 }
 
 void Window::update_image() {
-    std::auto_ptr<Change> changes;
-    {
-        boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
-        if ( source )
-            changes = source->get_changes();
-    }
+    std::auto_ptr<Change> changes = data_source->get_changes();
     if ( changes.get() )
         commit_changes(*changes);
+    else
+        notice_that_source_has_disappeared();
 }
 
 template <typename Drawer>
@@ -181,23 +172,14 @@ void Window::commit_changes(const Change& changes)
         keys[i]->draw_keys( changes.changed_keys[i] );
 }
 
-/** Stop using the DataSource object. This method is callable from all threads, not only the GUI thread,
- *  and returns immediately. */
-boost::shared_ptr<const Change> Window::detach_from_source() {
-    boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
-    for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
-        (*i)->set_data_source(NULL);
-    boost::shared_ptr<const Change> rv;
-    if ( source ) rv.reset( source->get_changes().release() );
-    source = NULL;
-    return rv;
-}
-
 /** Clean up after the DataSource object has been removed. This method is only callable from the GUI thread. */
-void Window::notice_that_source_has_disappeared( boost::shared_ptr<const Change> last_changes ) {
-    detach_from_source();
-    commit_changes( *last_changes );
-    if ( close_on_completion ) {
+void Window::notice_that_source_has_disappeared() {
+    data_source->disconnect();
+
+    for (Keys::iterator i = keys.begin(); i != keys.end(); ++i) 
+        (*i)->freeze_limit_changers();
+        
+    if ( close_on_completion || data_source->notify_of_closed_window_before_disconnect() ) {
         DEBUG("Destroying window");
         this->Destroy();
     }
@@ -207,15 +189,9 @@ void Window::drawn_rectangle( wxRect rect ) {
     DEBUG("Drawn rectangle");
     if ( notify_for_zoom ) {
         DEBUG("Checking source");
-        {
-            boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
-            if ( source ) {
-                DEBUG("Calling notice_drawn_rectangle");
-                source->notice_drawn_rectangle( 
-                    rect.GetLeft(), rect.GetRight(), 
-                    rect.GetTop(), rect.GetBottom() );
-            }
-        }
+        data_source->notice_drawn_rectangle( 
+            rect.GetLeft(), rect.GetRight(), 
+            rect.GetTop(), rect.GetBottom() );
         update_image();
     } else {
         canvas->zoom_to( rect );
@@ -232,12 +208,7 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     pos.y() = point.y * camera::pixel;
     dStorm::display::DataSource::PixelInfo info( pos, color );
     std::vector<float> key_values( keys.size(), std::numeric_limits<float>::quiet_NaN() );
-    {
-        boost::lock_guard<boost::recursive_mutex> lock( source_mutex );
-        if ( source )
-            source->look_up_key_values( info, key_values );
-    }
-
+    data_source->look_up_key_values( info, key_values );
     for (size_t i = 0; i < keys.size(); ++i) 
         keys[i]->cursor_value( info, key_values[i] );
 }

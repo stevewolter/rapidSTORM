@@ -6,6 +6,7 @@
 #include "wxManager.h"
 #include "Canvas.h"
 #include <boost/thread/recursive_mutex.hpp>
+#include <dStorm/display/SharedDataSource.h>
 
 namespace dStorm {
 namespace display {
@@ -24,9 +25,7 @@ class Window : public wxFrame, public Canvas::Listener
     ScaleBar *scale_bar;
     wxStaticText *position_label;
 
-    boost::recursive_mutex source_mutex;
-    DataSource* source;
-    wxManager::WindowHandle *handle;
+    boost::shared_ptr< SharedDataSource > data_source;
 
     Color background;
 
@@ -48,13 +47,12 @@ class Window : public wxFrame, public Canvas::Listener
 
   public:
     Window( const Manager::WindowProperties& props,
-            DataSource* data_source,
-            wxManager::WindowHandle *my_handle );
+            boost::shared_ptr< SharedDataSource > );
     ~Window(); 
 
     void update_image();
     boost::shared_ptr<const Change> detach_from_source();
-    void notice_that_source_has_disappeared(boost::shared_ptr<const Change> last_changes);
+    void notice_that_source_has_disappeared();
 
     std::auto_ptr<Change> getState();
 };

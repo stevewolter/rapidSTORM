@@ -7,8 +7,6 @@
 
 #include "debug.h"
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
 #include <boost/utility.hpp>
 
 namespace dStorm {
@@ -19,7 +17,8 @@ struct wxManager::WindowHandle
 : public Manager::WindowHandle
 {
     wxManager& m;
-    Window *associated_window;
+    boost::shared_ptr< SharedDataSource > data_source;
+    boost::shared_ptr< Window* > associated_window;
 
     WindowHandle(wxManager& m);
     ~WindowHandle();
@@ -107,31 +106,15 @@ void wxManager::decrease_handle_count() {
     }
 }
 
-struct wxManager::Creator {
-    wxManager& m;
-
-    Creator(wxManager& m) : m(m), did_run(false) {}
-
-    WindowProperties properties;
-    DataSource* handler;
-    WindowHandle *handle;
-
-    bool did_run;
-    boost::mutex did_run_mutex;
-    boost::condition did_run_condition;
-
-    void operator()();
-};
-
-void wxManager::Creator::operator()() {
-    if ( m.toolkit_available ) {
-        Window * w = new Window( properties, handler, handle );
-        handle->associated_window = w;
+static void create_window( 
+    const bool& toolkit_available, 
+    boost::shared_ptr<Window*> window_handle_store,
+    Manager::WindowProperties properties,
+    boost::shared_ptr<SharedDataSource> data_source ) 
+{
+    if ( toolkit_available ) {
+        *window_handle_store = new Window( properties, data_source );
     }
-    boost::mutex::scoped_lock lock( did_run_mutex );
-    did_run = true;
-    did_run_condition.notify_all();
-
 }
 
 std::auto_ptr<Manager::WindowHandle>
@@ -147,71 +130,56 @@ wxManager::register_data_source_impl(
             gui_thread = boost::thread( &wxManager::run, this );
         }
     }
-    Creator creator(*this);
-    creator.properties = properties;
-    creator.handler = &handler;
 
     std::auto_ptr<WindowHandle> 
         handle(new WindowHandle(*this));
     increase_handle_count();
-    creator.handle = handle.get();
+    handle->data_source.reset( new SharedDataSource(handler) );
 
-    run_in_GUI_thread( boost::ref(creator) );
-
-    boost::mutex::scoped_lock lock( creator.did_run_mutex );
-    while ( ! creator.did_run )
-        creator.did_run_condition.wait(lock);
+    run_in_GUI_thread( 
+        boost::bind(
+            &create_window, 
+            boost::cref( toolkit_available ),
+            handle->associated_window,
+            properties,
+            handle->data_source ) );
 
     return std::auto_ptr<Manager::WindowHandle>(
         handle.release() );
 }
 
 wxManager::WindowHandle::WindowHandle(wxManager& m)
-: m(m), associated_window(NULL)
+: m(m), associated_window( new Window*(NULL) )
 {
 }
 
 wxManager::WindowHandle::~WindowHandle()
 {
-    if ( associated_window ) {
-        boost::shared_ptr<const Change> last_changes = 
-            associated_window->detach_from_source();
-        m.run_in_GUI_thread( boost::bind( &Window::notice_that_source_has_disappeared, associated_window, last_changes ) );
-    }
+    data_source->disconnect();
     m.decrease_handle_count();
 }
 
-class StateFetcher
-{
-    wxManager::WindowHandle& handle;
-    SaveRequest request;
-  public:
-    StateFetcher(wxManager::WindowHandle& handle, const SaveRequest& r )
-        : handle(handle), request(r) {}
-
-    void operator()() {
-        try {
-            if ( ! handle.associated_window ) throw std::runtime_error("Window already destructed");
-            Window& window = *handle.associated_window;
-            std::auto_ptr<Change> c = window.getState();
-            if ( request.manipulator ) request.manipulator(*c);
-            wxManager::getSingleton().store_image( request.filename, *c );
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Unable to save image: " << e.what() << std::endl;
-        } 
-    }
-};
+static void fetch_state( boost::shared_ptr<Window*> handle, const SaveRequest& r ) {
+    try {
+        Window& window = **handle;
+        std::auto_ptr<Change> c = window.getState();
+        if ( r.manipulator ) r.manipulator(*c);
+        wxManager::getSingleton().store_image( r.filename, *c );
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Unable to save image: " << e.what() << std::endl;
+    } 
+}
 
 void wxManager::WindowHandle::store_current_display( SaveRequest s )
 {
-    m.run_in_GUI_thread( StateFetcher(*this, s) );
+    m.run_in_GUI_thread( boost::bind( &fetch_state, associated_window, s ) );
 }
 
 void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 
 {
     DEBUG("Running code in GUI thread");
     if ( boost::this_thread::get_id() == gui_thread.get_id() )
-        exec( *code );
+        (*code)();
     else {
         {
             boost::lock_guard<boost::recursive_mutex> lock(mutex);
@@ -228,15 +196,11 @@ void wxManager::exec_waiting_runnables() {
     boost::lock_guard<boost::recursive_mutex> lock(mutex);
     while ( ! run_queue.empty() ) {
         DEBUG("Running runnable");
-        exec( run_queue.front() );
+        run_queue.front()();
         DEBUG("Ran runnable");
         run_queue.pop_front();
     }
     DEBUG("Finished executing waiting runnables");
-}
-
-void wxManager::exec(Runnable& runnable) {
-    runnable();
 }
 
 std::auto_ptr< Manager > make_wx_manager() {
