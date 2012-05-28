@@ -21,20 +21,15 @@ expect {
 set test "New window appears for change to colour scheme"
 send "in $job in Output0 in Output0 in ColourScheme value set ByCoordinate\n"
 expect {
-    -re "Created new window number .* named Result image for Job" { pass "$test"; }
+    -re "in DummyDisplayManagerConfig declare Object\r*\nname Window" { pass "$test"; }
 }
-
-set test "New window appears for hue range change"
-send "in $job in Output0 in Output0 in ColourScheme in ByCoordinate in HueRange value set 0.2\n"
-set window ""
-expect {
-    -re "Created new window number (\[0-9\]*) named Result image for Job" { set window "Window$expect_out(1,string)"; pass "$test"; }
-}
-send "in DummyDisplayManagerConfig in WhichWindow in value set $window\n"
 
 set test "#190 is fixed"
+send "in $job in Output0 in Output0 in ColourScheme in ByCoordinate in HueRange value set 0.2\n"
+set window [get_window "Result image"]
+
 while { 1 == 1 } {
-    set pixel [get_pixel_value 1320 651]
+    set pixel [get_pixel_value "$window" 1320 651]
     if { [lindex $pixel 0] > 0 && [lindex $pixel 2] == 0 } {
         pass "$test"
         break

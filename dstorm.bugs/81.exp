@@ -11,8 +11,7 @@ dstorm_attach
 send "in Car in Run in value set 1\n"
 
 set test "Bug #81 is fixed"
-expect {
-    -re "Created new window number \[0-9\]* named Result image for Job \[0-9\]" { pass "$test"; }
-}
+set window [get_window "Result image"]
+pass_if [string compare "$window" -1] "$test"
 
 end_test_suite

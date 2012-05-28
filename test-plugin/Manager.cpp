@@ -49,70 +49,14 @@ template <> class NumTraits<dStorm::Pixel>
 
 }
 
-class Manager 
-: public dStorm::display::Manager
-{
-    class Handle;
-    class Source;
+class Manager;
+typedef dStorm::display::Manager::WindowProperties WindowProperties;
 
-    std::auto_ptr<WindowHandle>
-        register_data_source_impl
-        (const WindowProperties& properties,
-         dStorm::display::DataSource& handler);
-
-    struct Disassociation {
-        Disassociation() {}
-    };
-    struct Close { };
-    struct SetLimit { 
-        bool lower_limit; int key; std::string limit;
-        SetLimit(bool b, int key, std::string limit) : lower_limit(b), key(key), limit(limit) {} };
-    struct DrawRectangle { int l, r, t, b; DrawRectangle(int l, int r, int t, int b) : l(l), r(r), t(t), b(b) {} };
-
-    typedef boost::variant< Close, SetLimit, DrawRectangle, dStorm::display::SaveRequest, Disassociation > Request;
-
-    boost::mutex source_list_mutex;
-    boost::mutex request_mutex;
-    boost::condition gui_run;
-    bool running;
-    int number;
-
-    simparm::Object master_object;
-    simparm::NodeHandle current_ui;
-
-    std::vector< boost::shared_ptr<Source> > sources_queue;
-    typedef std::vector< std::pair<boost::shared_ptr<Source>, Request> >
-        Requests;
-    Requests requests;
-    
-    std::auto_ptr<dStorm::display::Manager>
-        previous;
-    boost::thread ui_thread;
-
-    boost::shared_ptr<Source> next_source();
-    void dispatch_events();
-    DSTORM_REALIGN_STACK void run();
-
-    void heed_requests();
-
-    void store_image_impl( const dStorm::display::StorableImage& );
-
-  public:
-    Manager(dStorm::display::Manager *p);
-    Manager(const Manager&);
-    ~Manager();
-
-    void attach_ui( simparm::NodeHandle );
-
-    void stop() {}
-    void request_action( boost::shared_ptr<Source> on, const Request& request );
-};
-
-class Manager::Source : public boost::static_visitor<void> ,
-    public boost::enable_shared_from_this<Source>
+class Window : public boost::static_visitor<void> ,
+    public boost::enable_shared_from_this<Window>
 {
     Manager& m;
-    boost::mutex handler_mutex;
+    boost::recursive_mutex handler_mutex;
     dStorm::display::DataSource* handler;
 public:
     typedef dStorm::display::Image Image;
@@ -131,14 +75,14 @@ private:
     simparm::Entry<unsigned long> which_key;
     simparm::Entry<unsigned long> top, bottom, left, right;
     simparm::StringEntry new_limit;
-    simparm::TriggerEntry close, set_lower_limit, set_upper_limit, draw_rectangle;
+    simparm::TriggerEntry close_, set_lower_limit, set_upper_limit, draw_rectangle_;
     simparm::BaseAttribute::ConnectionStore listening[4];
 
     class GUINode;
     std::auto_ptr< GUINode > gui_node;
 
 public:
-    Source( Manager& m,
+    Window( Manager& m,
             const WindowProperties& properties,
             dStorm::display::DataSource& source,
             int number);
@@ -146,60 +90,87 @@ public:
         const dStorm::display::ResizeChange& );
     bool get_and_handle_change();
 
-    void operator()( const Close&, Manager& m );
-    void operator()( const SetLimit&, Manager& m );
-    void operator()( const DrawRectangle&, Manager& m );
-    void operator()( const dStorm::display::SaveRequest&, Manager& m );
-    void operator()( const Disassociation&, Manager& m );
-
     void attach_ui( simparm::NodeHandle at );
-    void print_status(std::string prefix, bool force_print = false);
+    void print_status(bool force_print = false);
 
-    void drop_window() {
-        boost::lock_guard< boost::mutex > lock( handler_mutex );
+    void drop_handler() {
+        get_and_handle_change();
+        boost::lock_guard< boost::recursive_mutex > lock( handler_mutex );
         handler = NULL;
     }
 
+    void handle_disassociation();
+    void save_window( const dStorm::display::SaveRequest& );
+
 private:
-    void close_window() {
-        if ( close.triggered() ) {
-            close.untrigger();
-            m.request_action( shared_from_this(), Close() );
-        }
-    }
-    
-    void notice_lower_limit() {
-        if ( set_lower_limit.triggered() ) {
-            set_lower_limit.untrigger();
-            m.request_action( shared_from_this(), SetLimit(true, which_key(), new_limit()) );
-        }
-    }
+    void close_window();
+    void notice_lower_limit();
+    void notice_upper_limit();
+    void notice_drawn_rectangle();
 
-    void notice_upper_limit() {
-        if ( set_upper_limit.triggered() ) {
-            set_upper_limit.untrigger();
-            m.request_action( shared_from_this(), SetLimit(false, which_key(), new_limit()) );
-        }
-    }
-    
-    void notice_drawn_rectangle() {
-        if ( draw_rectangle.triggered() ) {
-            draw_rectangle.untrigger();
-            m.request_action( shared_from_this(), DrawRectangle(left(), right(), top(), bottom()) );
-        }
-    }
-
+    void draw_rectangle( int l, int r, int t, int b );
+    void set_key_limit( int key, bool lower_limit, std::string new_limit );
+    void close();
 };
-class Manager::Source::GUINode : public simparm::text_stream::Node {
-    Source& c;
+
+class Manager 
+: public dStorm::display::Manager
+{
+    class Handle;
+
+    std::auto_ptr<WindowHandle>
+        register_data_source_impl
+        (const WindowProperties& properties,
+         dStorm::display::DataSource& handler);
+
+    boost::mutex source_list_mutex;
+    boost::mutex request_mutex;
+    boost::condition gui_run;
+    bool running;
+    int number;
+
+    simparm::Object master_object;
+    simparm::NodeHandle current_ui;
+
+    std::vector< boost::shared_ptr<Window> > sources_queue;
+    typedef std::vector< boost::function0<void> > Requests;
+    Requests requests;
+    
+    std::auto_ptr<dStorm::display::Manager>
+        previous;
+    boost::thread ui_thread;
+
+    boost::shared_ptr<Window> next_source();
+    void dispatch_events();
+    DSTORM_REALIGN_STACK void run();
+
+    void heed_requests();
+
+    void store_image_impl( const dStorm::display::StorableImage& );
+
+  public:
+    Manager(dStorm::display::Manager *p);
+    Manager(const Manager&);
+    ~Manager();
+
+    void attach_ui( simparm::NodeHandle );
+
+    void stop() {}
+    void request_action( boost::function0<void> );
+
+    void remove_window_from_event_queue( boost::shared_ptr<Window> );
+};
+
+class Window::GUINode : public simparm::text_stream::Node {
+    Window& c;
     struct Backend : public simparm::text_stream::InnerBackendNode {
-        Source& c;
+        Window& c;
         void process_command_( const std::string&, std::istream& );
         Backend( GUINode& g, boost::shared_ptr<BackendNode> parent )
             : InnerBackendNode("PixelQuery", "Object", g, parent ), c(g.c) {}
     };
 public:
-    GUINode( Source& c, simparm::NodeHandle parent ) 
+    GUINode( Window& c, simparm::NodeHandle parent ) 
     : simparm::text_stream::Node("PixelQuery", "Object"), c(c) {
         simparm::text_stream::Node* p = dynamic_cast< simparm::text_stream::Node* >(parent.get());
         if ( p )
@@ -208,12 +179,12 @@ public:
     }
 };
 
-void Manager::Source::GUINode::Backend::process_command_( const std::string& command, std::istream& in )
+void Window::GUINode::Backend::process_command_( const std::string& command, std::istream& in )
 {
     if ( command == "pixel_value" ) {
         std::string window;
         dStorm::display::Image::Position pos;
-        boost::shared_ptr<Source> i = c.shared_from_this();
+        boost::shared_ptr<Window> i = c.shared_from_this();
         std::stringstream msg;
 
         int x, y;
@@ -236,7 +207,7 @@ void Manager::Source::GUINode::Backend::process_command_( const std::string& com
 
 class Manager::Handle 
 : public dStorm::display::Manager::WindowHandle {
-    boost::shared_ptr<Source> my_source;
+    boost::shared_ptr<Window> my_source;
     Manager& m;
 
   public:
@@ -245,21 +216,20 @@ class Manager::Handle
         dStorm::display::DataSource& source,
         Manager& m ) : m(m) 
     {
-        my_source.reset( new Source(m, properties, source, m.number++) );
+        my_source.reset( new Window(m, properties, source, m.number++) );
         my_source->attach_ui( m.current_ui );
         boost::lock_guard< boost::mutex > lock( m.source_list_mutex );
         m.sources_queue.push_back( my_source );
     }
     ~Handle() {
-        Disassociation destruction;
-        my_source->drop_window();
-        m.request_action( my_source, destruction );
+        my_source->drop_handler();
+        m.request_action( boost::bind( &Window::handle_disassociation, my_source ) );
     }
 
     void store_current_display( dStorm::display::SaveRequest );
 };
 
-Manager::Source::Source(
+Window::Window(
     Manager& m,
     const WindowProperties& properties,
     dStorm::display::DataSource& source,
@@ -279,26 +249,26 @@ Manager::Source::Source(
   left("RectangleLeft", "Left border of drawn rectangle", 0),
   right("RectangleRight", "Right border of drawn rectangle", 511),
   new_limit("NewLimit", "New limit for selected key"),
-  close("Close", "Close Window"),
+  close_("Close", "Close Window"),
   set_lower_limit("SetLowerLimit", "Set lower key limit"),
   set_upper_limit("SetUpperLimit", "Set upper key limit"),
-  draw_rectangle("DrawRectangle", "Draw rectangle")
+  draw_rectangle_("DrawRectangle", "Draw rectangle")
 {
     handle_resize( properties.initial_size );
 }
 
-void Manager::Source::attach_ui( simparm::NodeHandle at ) {
-    listening[0] = close.value.notify_on_value_change( 
-        boost::bind( &Source::close_window, this ) );
+void Window::attach_ui( simparm::NodeHandle at ) {
+    listening[0] = close_.value.notify_on_value_change( 
+        boost::bind( &Window::close_window, this ) );
     listening[1] = set_lower_limit.value.notify_on_value_change( 
-        boost::bind( &Source::notice_lower_limit, this ) );
+        boost::bind( &Window::notice_lower_limit, this ) );
     listening[2] = set_upper_limit.value.notify_on_value_change(
-        boost::bind( &Source::notice_upper_limit, this ) );
-    listening[3] = draw_rectangle.value.notify_on_value_change(
-        boost::bind( &Source::notice_drawn_rectangle, this ) );
+        boost::bind( &Window::notice_upper_limit, this ) );
+    listening[3] = draw_rectangle_.value.notify_on_value_change(
+        boost::bind( &Window::notice_drawn_rectangle, this ) );
 
     simparm::NodeHandle r = window_object.attach_ui( at );
-    close.attach_ui( r );
+    close_.attach_ui( r );
     which_key.attach_ui( r );
     new_limit.attach_ui( r );
     set_lower_limit.attach_ui( r );
@@ -307,7 +277,7 @@ void Manager::Source::attach_ui( simparm::NodeHandle at ) {
     bottom.attach_ui( r);
     left.attach_ui( r);
     right.attach_ui( r);
-    draw_rectangle.attach_ui( r);
+    draw_rectangle_.attach_ui( r);
     digest.attach_ui( r );
     mean.attach_ui( r );
     nonzero_count.attach_ui( r );
@@ -319,7 +289,7 @@ void Manager::Source::attach_ui( simparm::NodeHandle at ) {
 }
 
 
-void Manager::Source::handle_resize( 
+void Window::handle_resize( 
     const dStorm::display::ResizeChange& r)
 {
     window_width = r.size.x().value();
@@ -343,10 +313,10 @@ void Manager::Source::handle_resize(
         state.changed_keys[i].resize( r.keys[i].size );
 }
 
-bool Manager::Source::get_and_handle_change() {
+bool Window::get_and_handle_change() {
     std::auto_ptr<dStorm::display::Change> c;
     {
-        boost::lock_guard<boost::mutex> lock( handler_mutex );
+        boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
         if ( handler )
             c = handler->get_changes();
     }
@@ -415,7 +385,7 @@ std::ostream& operator<<(std::ostream& o, dStorm::display::Color c)
     return ( o << int(c.red()) << " " << int(c.green()) << " " << int(c.blue()) );
 }
 
-void Manager::Source::print_status(std::string prefix, bool p)
+void Window::print_status(bool p)
 {
     bool has_changed = get_and_handle_change();
     if (!has_changed && !p) return;
@@ -449,8 +419,8 @@ void Manager::Source::print_status(std::string prefix, bool p)
 
 void Manager::dispatch_events() {
     while ( running ) {
-        boost::shared_ptr<Source> s = next_source();
-        if ( s ) s->print_status("Changing ");
+        boost::shared_ptr<Window> s = next_source();
+        if ( s ) s->print_status();
         heed_requests();
         gui_run.notify_all(); 
 #ifdef HAVE_USLEEP
@@ -484,6 +454,7 @@ Manager::~Manager()
 
 void Manager::store_image_impl( const dStorm::display::StorableImage& i )
 {
+    assert( i.image.do_clear );
     std::cerr << "Storing result image under " << i.filename << std::endl;
     previous->store_image(i);
 }
@@ -491,7 +462,7 @@ void Manager::store_image_impl( const dStorm::display::StorableImage& i )
 void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 {
     DEBUG("Got store request to " << s.filename);
-    m.request_action( my_source, s );
+    m.request_action( boost::bind( &Window::save_window, my_source, s ) );
     DEBUG("Saved store request");
 }
 
@@ -507,10 +478,14 @@ void Manager::heed_requests() {
         std::swap( requests, my_requests );
     }
     BOOST_FOREACH( Requests::value_type& i, my_requests )
-        boost::apply_visitor( boost::bind( boost::ref(*i.first), _1, boost::ref(*this) ), i.second );
+        i();
 }
 
-void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager& m ) {
+void Window::save_window( const dStorm::display::SaveRequest& i ) {
+    get_and_handle_change();
+
+    assert( state.do_clear );
+
     std::auto_ptr<dStorm::display::Change>
         rv( new dStorm::display::Change(state) );
     if ( ! rv->do_resize )
@@ -529,37 +504,40 @@ void Manager::Source::operator()( const dStorm::display::SaveRequest& i, Manager
     }
 }
 
-void Manager::Source::operator()( const Close&, Manager& ) {
-    boost::lock_guard<boost::mutex> lock( handler_mutex );
+void Window::close() 
+{
+    {
+        boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
+        if ( handler ) {
+            handler->notice_closed_data_window();
+        }
+    }
+    handle_disassociation();
+}
+
+void Window::set_key_limit( int key, bool lower, std::string limit ) {
+    boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
     if ( handler )
-        handler->notice_closed_data_window();
+        handler->notice_user_key_limits( key, lower, limit );
 }
 
-void Manager::Source::operator()( const SetLimit& i, Manager& ) {
-    std::cerr << "Noticing key limits for key " << i.key << " " << i.lower_limit << " " << i.limit << std::endl;
-    boost::lock_guard<boost::mutex> lock( handler_mutex );
+void Window::draw_rectangle( int l, int r, int t, int b ) {
+    boost::lock_guard<boost::recursive_mutex> lock( handler_mutex );
     if ( handler )
-        handler->notice_user_key_limits( i.key, i.lower_limit, i.limit );
+        handler->notice_drawn_rectangle( l, r, t, b );
 }
 
-void Manager::Source::operator()( const DrawRectangle& i, Manager& ) {
-    boost::lock_guard<boost::mutex> lock( handler_mutex );
-    if ( handler )
-        handler->notice_drawn_rectangle( i.l, i.r, i.t, i.b );
+void Window::handle_disassociation() {
+    print_status(true);
+    m.remove_window_from_event_queue( shared_from_this() );
 }
 
-void Manager::Source::operator()(const Disassociation& d, Manager& m ) {
-    print_status("Destructing ", true);
-    boost::lock_guard< boost::mutex > lock( m.source_list_mutex );
-    m.sources_queue.erase( std::remove( m.sources_queue.begin(), m.sources_queue.end(), shared_from_this() ) );
-}
-
-void Manager::request_action( boost::shared_ptr<Source> on, const Request& request ) {
+void Manager::request_action( boost::function0<void> request ) {
     if ( boost::this_thread::get_id() == ui_thread.get_id() ) {
-        boost::apply_visitor( boost::bind( boost::ref(*on), _1, boost::ref(*this) ), request );
+        request();
     } else {
         boost::lock_guard<boost::mutex> lock(request_mutex);
-        requests.push_back( std::make_pair( on, request ) );
+        requests.push_back( request );
     }
 }
 
@@ -568,12 +546,45 @@ std::auto_ptr< dStorm::display::Manager > make_test_plugin_manager( dStorm::disp
     return std::auto_ptr< dStorm::display::Manager >( new Manager(old) );
 }
 
-boost::shared_ptr<Manager::Source> Manager::next_source() {
+boost::shared_ptr<Window> Manager::next_source() {
     boost::lock_guard< boost::mutex > lock( source_list_mutex );
-    if ( sources_queue.empty() ) return boost::shared_ptr<Source>();
-    boost::shared_ptr<Source> s = sources_queue.front();
+    if ( sources_queue.empty() ) return boost::shared_ptr<Window>();
+    boost::shared_ptr<Window> s = sources_queue.front();
     sources_queue.erase( sources_queue.begin() );
     sources_queue.push_back( s );
     return s;
+}
+
+void Manager::remove_window_from_event_queue( boost::shared_ptr<Window> w ) {
+    boost::lock_guard< boost::mutex > lock( source_list_mutex );
+    sources_queue.erase( std::remove( sources_queue.begin(), sources_queue.end(), w ), sources_queue.end() );
+}
+
+void Window::close_window() {
+    if ( close_.triggered() ) {
+        close_.untrigger();
+        m.request_action( boost::bind( &Window::close, shared_from_this() ) );
+    }
+}
+
+void Window::notice_lower_limit() {
+    if ( set_lower_limit.triggered() ) {
+        set_lower_limit.untrigger();
+        m.request_action( boost::bind( &Window::set_key_limit, shared_from_this(), which_key(), true, new_limit() ) );
+    }
+}
+
+void Window::notice_upper_limit() {
+    if ( set_upper_limit.triggered() ) {
+        set_upper_limit.untrigger();
+        m.request_action( boost::bind( &Window::set_key_limit, shared_from_this(), which_key(), false, new_limit() ) );
+    }
+}
+
+void Window::notice_drawn_rectangle() {
+    if ( draw_rectangle_.triggered() ) {
+        draw_rectangle_.untrigger();
+        m.request_action( boost::bind( &Window::draw_rectangle, shared_from_this(), left(), right(), top(), bottom() ) );
+    }
 }
 

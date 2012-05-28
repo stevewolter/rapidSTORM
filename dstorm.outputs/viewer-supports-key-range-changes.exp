@@ -15,18 +15,8 @@ send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Express
 send "in Car in Run in value set 1\n"
 
 set job [get_job_number]
+set window [get_window "Result image"]
 
-set timeout 20
-set display -1
-set key -1
-set test "Changeable key is declared"
-expect {
-    -re "Window (\[0-9\]*) key (\[0-9\]*) is measured in\[^\r\n\]*and the user can set the lower limit"
-        { set display $expect_out(1,string); set key $expect_out(2,string); pass "$test" }
-}
-
-set lastmean 0
-if { $display != -1 } {
 set test "Waiting for a few frames to fill display"
 set timeout -1
 set highest_image 0
@@ -36,43 +26,17 @@ expect {
         if { $highest_image < 30 } { exp_continue }
     }
 }
-}
 
 set test "Can change display"
-if { $display != -1 } {
-    set timeout 20
-    send "in DummyDisplayManagerConfig in WhichWindow in value set Window$display\n"
-    send "in DummyDisplayManagerConfig in WhichKey in value set $key\n"
-    send "in DummyDisplayManagerConfig in NewLimit in value set 20\n"
-    send "in DummyDisplayManagerConfig in SetUpperLimit in value set 1\n"
+set timeout 20
+send "in DummyDisplayManagerConfig in $window in WhichKey in value set 1\n"
+send "in DummyDisplayManagerConfig in $window in NewLimit in value set 20\n"
+send "in DummyDisplayManagerConfig in $window in SetUpperLimit in value set 1\n"
 
-    expect {
-        -re "Window $display key $key value 31 has value 6\.\[0-9\]*\r*\n"
-            { pass "$test"; }
-        -re "in Progress value set 1" { fail "$test" }
-    }
-} else {
-    untested "$test"
-}
-
-set test "Can close display"
-if { $display != -1 } {
-    send "in DummyDisplayManagerConfig in WhichWindow in value set Window$display\n"
-    send "in DummyDisplayManagerConfig in Close in value set 1\n"
-
-    expect {
-        -re "Destructing window $display with.*count of nonzero pixels is (\[0-9\]*)" 
-            { pass "$test"; set lastmean $expect_out(1,string); }
-        -re "in Progress value set 1" { fail "$test" }
-    }
-
-    set test "Waiting for more images to accumulate"
-    expect {
-        -re "Verbose plugin got \[0-9\]* localizations for (\[0-9\]*) fr"
-            { if { $expect_out(1,string) < $highest_image * 2 } { exp_continue } }
-    }
-} else {
-    untested "$test"
+expect {
+    -re "in KeyThirtyOne in value set 6\.\[0-9\]*\r*\n"
+        { pass "$test"; }
+    -re "in Progress value set 1" { fail "$test" }
 }
 
 end_test_suite
