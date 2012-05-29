@@ -67,7 +67,6 @@ void Model::set_fixed_calibration_data()
     (*this).image_x0 = image_x0;
     (*this).psf_data = psf_calib_image;
     (*this).pixel_size = pixel_size;
-    (*this).set_amplitude(correction_factor);
 }
 
 Model Model::mock() {
