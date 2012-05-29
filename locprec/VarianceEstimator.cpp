@@ -17,6 +17,7 @@ struct Config
   public:
     static std::string get_name() { return "VarianceEstimator"; }
     static std::string get_description() { return "Estimate localization precision naively"; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
     Config() 
         : tag("Tag", "Tag at start of line", "Precision") {}
     void attach_ui( simparm::NodeHandle at ) { tag.attach_ui(at); }

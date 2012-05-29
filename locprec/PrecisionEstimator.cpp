@@ -134,6 +134,7 @@ public:
         { return cap.test_cluster_sources() ; }
     static std::string get_name() { return "SVDPrecision"; }
     static std::string get_description() { return "Robust SVD estimate of localization precision"; }
+    static simparm::UserLevel get_user_level() { return simparm::Expert; }
     void attach_ui( simparm::NodeHandle at )
     {
         h_value.attach_ui( at );

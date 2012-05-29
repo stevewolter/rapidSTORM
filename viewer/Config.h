@@ -49,6 +49,7 @@ public:
 
     static std::string get_name() { return "Image"; }
     static std::string get_description() { return "Image display"; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
     
     CropBorder crop_border() const;
 };

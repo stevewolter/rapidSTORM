@@ -30,6 +30,7 @@ struct Config
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
     static std::string get_name() { return "RipleyK"; }
     static std::string get_description() { return "Compute Ripley's K function"; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 };
 
 

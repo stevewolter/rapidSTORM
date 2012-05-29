@@ -47,6 +47,7 @@ class ProgressMeter::Config
     void attach_ui( simparm::NodeHandle ) {}
     static std::string get_name() { return "Progress"; }
     static std::string get_description() { return "Display progress"; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 };
 
 ProgressMeter::ProgressMeter(const Config &)

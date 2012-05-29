@@ -37,6 +37,7 @@ public:
         }
         static std::string get_name() { return "SpotMeter"; }
         static std::string get_description() { return "Histogram localization amplitudes"; }
+        static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
     };
     SpotMeter (Config& config) 
         : binSize(config.modulus()), 

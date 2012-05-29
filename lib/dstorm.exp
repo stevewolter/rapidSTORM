@@ -65,7 +65,6 @@ proc dstorm_start {} {
         program_start andorcamd-dummy 
         set andorcam_spawn_id $spawn_id
     }
-    set env(RAPIDSTORM_TESTPLUGIN_ENABLE) "1"
     program_start dstorm --Twi
     set dstorm_spawn_id $spawn_id
 

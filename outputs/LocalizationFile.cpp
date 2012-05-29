@@ -30,6 +30,7 @@ class Config {
 
     static std::string get_name() { return "Table"; }
     static std::string get_description() { return "Localizations file"; }
+    static simparm::UserLevel get_user_level() { return simparm::Debug; }
 
     void attach_ui( simparm::NodeHandle at ) {
         outputFile.attach_ui( at );

@@ -26,6 +26,7 @@ struct SmoothedImageSave
         simparm::FileEntry output_file_name;
         static std::string get_name() { return "SmoothedImageSave"; }
         static std::string get_description() { return get_name(); }
+        static simparm::UserLevel get_user_level() { return simparm::Debug; }
         Config() : output_file_name("ToFile", "Output file basename") {}
         void attach_ui( simparm::NodeHandle at ) { output_file_name.attach_ui(at); }
         bool can_work_with(const dStorm::output::Capabilities&)

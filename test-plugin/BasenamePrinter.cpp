@@ -28,6 +28,7 @@ struct BasenamePrinter::Config
 
     static std::string get_name() { return "BasenamePrinter"; }
     static std::string get_description() { return get_name(); }
+    static simparm::UserLevel get_user_level() { return simparm::Debug; }
 
     Config();
     void attach_ui(simparm::NodeHandle);

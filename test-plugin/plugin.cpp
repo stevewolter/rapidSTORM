@@ -18,8 +18,6 @@ namespace dStorm {
 namespace test {
 
 void make_config ( dStorm::Config* config ) {
-    if ( !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) return;
-
     config->add_input( dummy_file_input::make(), dStorm::FileReader );
     config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
 

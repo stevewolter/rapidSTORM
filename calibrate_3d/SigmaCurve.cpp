@@ -31,6 +31,7 @@ class Configuration {
     simparm::Entry< unsigned int > step_number;
     static std::string get_name() { return "SigmaCurve"; }
     static std::string get_description() { return "3D PSF width calibration table"; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
     Configuration()
         : outputFile("ToFile", "Calibration output file", "-sigma-table.txt"),
           step_number("StepNumber", "Number of B spline breakpoints", 10)

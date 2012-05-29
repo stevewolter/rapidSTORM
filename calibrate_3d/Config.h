@@ -31,6 +31,7 @@ public:
         { return cap.test( output::Capabilities::SourceImage ); }
     static std::string get_name() { return "Calibrate3D"; }
     static std::string get_description() { return "Calibrate 3D on known data"; }
+    static simparm::UserLevel get_user_level() { return simparm::Expert; }
 
     double target_volume() const { return target_volume_(); }
 

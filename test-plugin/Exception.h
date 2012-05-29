@@ -48,6 +48,7 @@ struct Exception::Config
         {return true;}
     static std::string get_name() { return "Exception"; }
     static std::string get_description() { return "Exception"; }
+    static simparm::UserLevel get_user_level() { return simparm::Debug; }
 };
 
 Exception::Config::Config()

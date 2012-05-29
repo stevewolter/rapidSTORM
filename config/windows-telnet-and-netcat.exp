@@ -106,7 +106,6 @@ proc program_start { pkg cmd args } {
     expect ">"
     send "@echo off\r\n"
     send "net use Z: \\\\vboxsvr\\test-tree\r\n"
-    send "set RAPIDSTORM_TESTPLUGIN_ENABLE=1\r\n"
     if { [info exists env(SETUP_COMMAND)] } {
         set last 10
         file copy -force "$env(SETUP_COMMAND)" "${tmpdir_host}setup.exe"

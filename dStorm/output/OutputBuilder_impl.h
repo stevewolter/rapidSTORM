@@ -11,6 +11,7 @@ OutputBuilder<Config, Output>::OutputBuilder()
 : name_object( Config::get_name(), Config::get_description() ),
   choice_object( Config::get_name(), Config::get_description() )
 { 
+    choice_object.set_user_level( Config::get_user_level() );
 }
 
 }

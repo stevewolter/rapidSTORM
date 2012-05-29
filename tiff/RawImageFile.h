@@ -56,6 +56,7 @@ class RawImageFile::Config {
     Config();
     static std::string get_name() { return "RawImage"; }
     static std::string get_description() { return "Save raw images"; }
+    static simparm::UserLevel get_user_level() { return simparm::Beginner; }
     bool can_work_with(Capabilities cap) { 
         return cap.test( Capabilities::SourceImage ); 
     }

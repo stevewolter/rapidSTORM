@@ -54,6 +54,7 @@ struct Verbose::Config
         {return true;}
     static std::string get_name() { return "Verbose"; }
     static std::string get_description() { return "Verbose"; }
+    static simparm::UserLevel get_user_level() { return simparm::Debug; }
 };
 
 Verbose* Verbose::clone() const { 

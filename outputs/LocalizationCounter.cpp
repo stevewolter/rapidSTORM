@@ -43,6 +43,7 @@ public:
         void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); }
         static std::string get_name() { return "Count"; }
         static std::string get_description() { return "Count localizations"; }
+        static simparm::UserLevel get_user_level() { return simparm::Beginner; }
     };
 
     LocalizationCounter(const Config &);
