@@ -5,8 +5,66 @@
 #include "iostream.h"
 #include "typeName.h"
 #include "is_numerical.hpp"
+#include "falls_below.hpp"
+#include "exceeds.hpp"
 
 namespace simparm {
+
+template <typename Bounder, typename Boundee, bool LowerBound>
+class OneBoundWatcher
+: public Attribute< Boundee >::ChangeWatchFunction,
+  private boost::noncopyable
+{
+  private:
+    const Attribute< Bounder > &bound;
+
+  public:
+    OneBoundWatcher( const Attribute<Bounder>& value )
+        : bound(value) { }
+
+    /* The parameters are not used since we don't know whether we get 
+     * the callback from value, min or max */
+    bool operator()(const Boundee& from, const Boundee& to) {
+        return ! ( (LowerBound) ? exceeds(bound(), to) : falls_below(bound(), to) );
+    }
+};
+
+template <typename Bounder, typename Boundee>
+class BothBoundsWatcher 
+: public Attribute< Boundee >::ChangeWatchFunction, private boost::noncopyable
+{
+private:
+    OneBoundWatcher<Bounder,Boundee,true> lower;
+    OneBoundWatcher<Bounder,Boundee,false> upper;
+public:
+    BothBoundsWatcher( const Attribute<Bounder>& lower_bound, const Attribute<Bounder>& upper_bound )
+        : lower( lower_bound ), upper( upper_bound ) {}
+    bool operator()(const Boundee& from, const Boundee& to) {
+        return lower( from, to ) && upper( from, to );
+    }
+};
+
+template <typename BoundType, typename ValueType>
+inline std::auto_ptr< typename Attribute<ValueType>::ChangeWatchFunction >
+create_bounds_watcher( 
+    const Attribute<BoundType>& min, 
+    Attribute<ValueType>& value, 
+    const Attribute<BoundType>& max 
+) {
+    std::auto_ptr< typename Attribute<ValueType>::ChangeWatchFunction > rv(
+        new BothBoundsWatcher<BoundType,ValueType>( min, max ) );
+    value.change_is_OK = rv.get();
+    return rv;
+}
+
+inline std::auto_ptr< Attribute<std::string>::ChangeWatchFunction >
+create_bounds_watcher( 
+    const Attribute< boost::optional<std::string> >& min, 
+    Attribute<std::string>& value, 
+    const Attribute< boost::optional<std::string> >& max 
+) {
+    return std::auto_ptr< Attribute<std::string>::ChangeWatchFunction >();
+}
 
 template <typename Type>
 typename boost::enable_if< boost::is_integral<Type>, void >::type
@@ -54,6 +112,7 @@ Entry<TypeOfEntry>::Entry(
   max("max", bound_type() )
 {
     add_attributes( TypeOfEntry(), additional_attributes );
+    range_checker = create_bounds_watcher( min, value, max );
 }
 
 template <typename TypeOfEntry>
@@ -66,6 +125,7 @@ Entry<TypeOfEntry>::Entry(
   max(from.max)
 {
     add_attributes( TypeOfEntry(), additional_attributes );
+    range_checker = create_bounds_watcher( min, value, max );
 }
 
 template <typename TypeOfEntry>

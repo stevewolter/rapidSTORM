@@ -68,8 +68,10 @@ class Attribute : public BaseAttribute {
     Attribute& operator/=(const Type &o) 
         { valueChange(value / o); return *this; }
 
-    struct ChangeWatchFunction
-        { virtual bool operator()(const Type&,const Type&) = 0; };
+    struct ChangeWatchFunction { 
+        virtual ~ChangeWatchFunction() {}
+        virtual bool operator()(const Type&,const Type&) = 0; 
+    };
         
     /* This function will be called before any change to the value of this
      * attribute happens. If it returns false, no change occurs. */

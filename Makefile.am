@@ -741,7 +741,8 @@ libsimparm_la_SOURCES = \
     simparm/BoostUnits.h \
     simparm/UserLevel.h \
     simparm/default_value.h simparm/IncrementWatcher.h \
-    simparm/MinMaxWatcher.h simparm/MinMaxWatcher_decl.h simparm/BoostOptional.h simparm/Attributes.h  \
+    simparm/BoostOptional.h simparm/Attributes.h  \
+    simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
 libsimparm_la_SOURCES += \

@@ -21,6 +21,9 @@ class Entry
   protected:
     NodeHandle create_hidden_node( simparm::NodeHandle );
     NodeHandle make_naked_node( simparm::NodeHandle node );
+private:
+    std::auto_ptr< typename Attribute<TypeOfEntry>::ChangeWatchFunction > 
+        range_checker;
 
   public:
     typedef TypeOfEntry value_type;
