@@ -45,6 +45,9 @@ if { $have_test_plugin == 1 } {
             -re "remove $display" { pass "$test" }
             -re "Verbose plugin got signal Engine_run_succeeded" { fail "$test" }
         }
+    } else {
+        fail "Can read pixel values with test plugin"
+        fail "Can close windows with test plugin"
     }
 } else {
     unsupported "$test"

@@ -8,31 +8,6 @@ namespace display {
 
 void DataSource::notice_user_key_limits(int, bool, std::string) {}
 
-static Manager* m;
-
-void Manager::setSingleton(Manager& manager) {
-    m = &manager;
-}
-
-Manager& Manager::getSingleton() {
-    return *m;
-}
-
-std::auto_ptr<Manager::WindowHandle> Manager::register_data_source
-    (const WindowProperties& properties,
-        DataSource& handler)
-{
-    return register_data_source_impl( properties, handler );
-}
-
-void Manager::store_image( std::string filename, const Change& image )
-{
-    store_image_impl( StorableImage( filename, image ) );
-}
-void Manager::store_image( const StorableImage& i ) {
-    store_image_impl(i);
-}
-
 std::vector<KeyChange> 
 KeyChange::make_linear_key( std::pair<float,float> range )
 {
@@ -61,11 +36,6 @@ void DataSource::look_up_key_values( const PixelInfo& info, std::vector<float>& 
 
 SaveRequest::SaveRequest() 
 : scale_bar( 1E-6 * boost::units::si::meter ) {}
-
-StorableImage::StorableImage( const std::string& filename, const Change& image )
-: image(image), filename(filename), scale_bar( 1E-6 * boost::units::si::meter )
-{
-}
 
 }
 

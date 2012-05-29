@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "wxManager.h"
+#include "store_image.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -11,6 +11,10 @@
 #include <dStorm/image/slice.h>
 #include <simparm/Message.h>
 #include <stdio.h>
+#include <string>
+#include <dStorm/Pixel.h>
+#include <vector>
+#include <dStorm/display/DataSource.h>
 
 static const char *SI_prefixes[]
 = { "f", "p", "n", "µ", "m", "", "k", "M", "G", "T",
@@ -262,7 +266,7 @@ std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer, quant
     return img;
 }
 
-void wxManager::store_image_impl( const StorableImage& i )
+void store_image_impl( const StorableImage& i )
 {
     const Change& image = i.image;
     DEBUG("Storing image");
@@ -286,6 +290,19 @@ void wxManager::store_image_impl( const StorableImage& i )
     }
 
 #endif
+}
+
+void store_image( std::string filename, const Change& image )
+{
+    store_image_impl( StorableImage( filename, image ) );
+}
+void store_image( const StorableImage& i ) {
+    store_image_impl(i);
+}
+
+StorableImage::StorableImage( const std::string& filename, const Change& image )
+: image(image), filename(filename), scale_bar( 1E-6 * boost::units::si::meter )
+{
 }
 
 }

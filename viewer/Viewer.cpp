@@ -66,7 +66,6 @@ Viewer::announceStormSize(const Announcement &a) {
     boost::lock_guard<boost::mutex> lock(mutex);
     announcement = a;
     repeater = a.engine;
-    this->manager = &a.display_manager();
     this->engine = a.engine;
     implementation = config.colourScheme().make_backend(this->config, *this);
     implementation->set_job_name( a.description );

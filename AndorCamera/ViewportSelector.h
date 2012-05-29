@@ -57,7 +57,7 @@ class Display : public display::DataSource
     /** Buffer image for acquisition. Made class member to allow 
         *  saving to file. */
     std::auto_ptr<display::Change> change;
-    std::auto_ptr<display::Manager::WindowHandle> handle;
+    std::auto_ptr<display::WindowHandle> handle;
 
     CamTraits traits;
     /** Currently used normalization boundaries. Will be set for each new

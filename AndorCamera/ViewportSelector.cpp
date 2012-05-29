@@ -12,6 +12,7 @@
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/extend.h>
 #include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/Node.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
 
@@ -138,7 +139,7 @@ void Display::initialize_display()
 {
 
     if ( handle.get() == NULL ) {
-        display::Manager::WindowProperties props;
+        display::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
         if ( aimed )
@@ -150,8 +151,8 @@ void Display::initialize_display()
         DEBUG("Initializing display handle");
         boost::lock_guard<boost::mutex> lock(mutex);
         DEBUG("Got lock for display handle");
-        handle = display::Manager::getSingleton()
-            .register_data_source( props, *this );
+        handle = name_object.get_user_interface_handle()->
+            get_image_window( props, *this );
         change->do_resize = false;
         change->do_clear = true;
         change->clear_image.background = 0;

@@ -10,7 +10,7 @@
 #include <boost/units/io.hpp>
 
 #include <boost/lexical_cast.hpp>
-#include <dStorm/display/Manager.h>
+#include <dStorm/display/store_image.h>
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/image/minmax.h>
 #include <dStorm/image/convert.h>
@@ -43,7 +43,7 @@ struct SmoothedImageSave
             c.do_clear = true;
             c.clear_image.background = dStorm::Pixel::Black();
             display_normalized( c, extend( *er.smoothed, dStorm::Image<dStorm::engine::SmoothedPixel,3>() ) );
-            dStorm::display::Manager::getSingleton().store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
+            dStorm::display::store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
     }
 };

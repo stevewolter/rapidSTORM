@@ -27,6 +27,8 @@ struct InnerBackendNode : public BackendNode {
     void add_child( BackendNode& t );
     void remove_child( BackendNode& t ); 
     void declare( std::ostream& o );
+    std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
 
 public:
     InnerBackendNode( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );

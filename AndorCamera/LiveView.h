@@ -31,7 +31,7 @@ class LiveView :
     CamImage current_image_content;
 
     std::auto_ptr<dStorm::display::Change> change;
-    std::auto_ptr<dStorm::display::Manager::WindowHandle> window;
+    std::auto_ptr<dStorm::display::WindowHandle> window;
 
     void show_window(CamImage::Size size);
     void hide_window();

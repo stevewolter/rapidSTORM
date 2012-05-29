@@ -44,6 +44,9 @@ public:
     simparm::NodeHandle create_file_entry( std::string name );
     simparm::NodeHandle create_progress_bar( std::string name );
     simparm::NodeHandle create_trigger( std::string name );
+    std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
+
     virtual void add_attribute( simparm::BaseAttribute& );
     Message::Response send( Message& m ) const;
     void initialization_finished() {}

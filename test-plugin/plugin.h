@@ -8,7 +8,6 @@ namespace dStorm {
 namespace test {
 
 void make_config ( dStorm::Config* config );
-dStorm::display::Manager* make_display (dStorm::display::Manager *old);
 
 }
 }

@@ -86,13 +86,9 @@ public:
 class Output::Announcement
 : public input::Traits<LocalizedImage>
 {
-    display::Manager* manager;
-
   public:
     Announcement( 
-        const input::Traits<LocalizedImage>& traits,
-        display::Manager& manager );
-    display::Manager& display_manager() const { return *manager; }
+        const input::Traits<LocalizedImage>& traits );
 };
 
 }

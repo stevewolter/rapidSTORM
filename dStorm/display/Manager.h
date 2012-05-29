@@ -23,62 +23,9 @@ struct SaveRequest {
     SaveRequest();
 };
 
-struct StorableImage {
-    const Change& image;
-    std::string filename;
-    boost::units::quantity< boost::units::si::length > scale_bar;
-
-    StorableImage( const std::string& filename, const Change& image );
-};
-
-/** The Manager class provides is the primary public
- *  interface to the dStorm::Display module. Modules
- *  wishing to show data in image windows should acquire
- *  an WindowHandle using the register_data_source call,
- *  providing a callback through the DataSource interface.
- */
-class Manager : boost::noncopyable {
-  public:
-    static void setSingleton(Manager&);
-    static Manager& getSingleton();
-
-    struct WindowFlags;
-    struct WindowProperties;
-    struct WindowHandle;
-
-  private:
-    /** \copydoc register_data_source */
-    virtual std::auto_ptr<WindowHandle>
-        register_data_source_impl
-        (const WindowProperties& properties,
-         DataSource& handler) = 0;
-
-    /** \copydoc store_image_impl */
-    virtual void store_image_impl( const StorableImage& ) = 0;
-
-  public:
-    virtual ~Manager() {}
-    /** Method should return pointer to config element for the display handler, or NULL if none are necessary. */
-    virtual void attach_ui( simparm::NodeHandle ) = 0;
-
-    /** Open a window that displays the data in \c handler
-     *  with the provided \c properties. The provided
-     *  DataSource must be valid until the WindowHandle
-     *  object returned by the function is deleted.
-     **/
-    std::auto_ptr<WindowHandle>
-        register_data_source
-        (const WindowProperties& properties,
-         DataSource& handler);
-
-    /** Store the given image on the hard disk. The Change structure given should have the resize and clear flags set. */
-    void store_image( std::string filename, const Change& image );
-    void store_image( const StorableImage& );
-};
-
 /** WindowFlags summarize boolean flags for window
     *  behaviour. */
-struct Manager::WindowFlags : public std::bitset<3> {
+struct WindowFlags : public std::bitset<3> {
     /** If this flag is set, the window created by
         *  register_data_source is closed as soon as
         *  the WindowHandle is destroyed. Unset with
@@ -126,7 +73,7 @@ struct Manager::WindowFlags : public std::bitset<3> {
     *  for the DataSource that was provided in the
     *  register_data_source call, the DataSource object
     *  is considered valid and callable. */
-class Manager::WindowHandle {
+class WindowHandle {
   protected:
     WindowHandle() {}
     WindowHandle(const WindowHandle&);
@@ -141,7 +88,7 @@ class Manager::WindowHandle {
 /** The WindowProperties class provides the data
     *  necessary for creation of a data window by the
     *  register_data_source method. */
-struct Manager::WindowProperties {
+struct WindowProperties {
     /** Displayed name of the window. */
     std::string name;
     /** Flags used to modify window behaviour. Will
@@ -150,8 +97,6 @@ struct Manager::WindowProperties {
     /** Initial size of the image data area. */
     ResizeChange initial_size;
 };
-
-std::auto_ptr< Manager > make_dummy_manager();
 
 }
 }

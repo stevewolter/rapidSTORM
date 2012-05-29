@@ -21,6 +21,7 @@
 #include <cassert>
 #include <simparm/ObjectChoice.h>
 #include <simparm/ManagedChoiceEntry.h>
+#include <simparm/Node.h>
 
 #include "RegionSegmenter.h"
 #include "foreach.h"
@@ -72,13 +73,14 @@ class Segmenter : public dStorm::output::Filter,
     dStorm::outputs::BinnedLocalizations<> bins;
 
     std::auto_ptr< dStorm::display::Change > next_change;
-    std::auto_ptr< dStorm::display::Manager::WindowHandle > display;
+    std::auto_ptr< dStorm::display::WindowHandle > display;
 
     std::auto_ptr< dStorm::output::Output > output;
     std::auto_ptr< dStorm::output::TraceReducer > reducer;
 
     std::string load_segmentation, save_segmentation;
     simparm::BaseAttribute::ConnectionStore listening[2];
+    simparm::NodeHandle user_interface;
 
     static ColorImage color_regions( const RegionImage& );
     void display_image( const ColorImage& );
@@ -93,12 +95,12 @@ class Segmenter : public dStorm::output::Filter,
     }
     void attach_ui_( simparm::NodeHandle );
 
-    protected:
+protected:
     RegionImage segment_image();
     void segment();
     void maximums();
 
-    public:
+public:
     Segmenter( const Config& config,
                 std::auto_ptr<dStorm::output::Output> output);
     Segmenter( const Segmenter & );
@@ -511,11 +513,10 @@ void Segmenter::display_image( const ColorImage& img ) {
         new_size.pixel_sizes[i] = binners[i].resolution();
 
     if ( display.get() == NULL ) {
-        dStorm::display::Manager::WindowProperties props;
+        dStorm::display::WindowProperties props;
         props.initial_size = new_size;
 
-        display = dStorm::display::Manager::getSingleton()
-            .register_data_source( props, *this );
+        display = user_interface->get_image_window( props, *this );
         next_change.reset( new dStorm::display::Change(1) );
         next_change->changed_keys.front().reserve( new_size.keys.front().size );
         for (int i = 0; i < new_size.keys.front().size; i++)
@@ -547,6 +548,7 @@ void Segmenter::attach_ui_( simparm::NodeHandle at ) {
         dilation.attach_ui( at );
     }
 
+    user_interface = at;
     Filter::attach_children_ui( at );
 }
 

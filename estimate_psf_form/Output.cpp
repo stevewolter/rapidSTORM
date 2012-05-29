@@ -132,7 +132,7 @@ void Output::receiveLocalizations(const EngineResult& engine_result)
             if ( state == boost::future_state::uninitialized &&
                  tiles.size() >= GUI::tiles_per_view() ) 
             {
-                boost::shared_ptr<GUI> gui( new GUI(tiles,*input,*engine) );
+                boost::shared_ptr<GUI> gui( new GUI(tiles,*input,*engine, collection.get_user_interface_handle()) );
                 DummyBind bind( gui );
                 boost::packaged_task< Tiles > gui_selection( bind );
 

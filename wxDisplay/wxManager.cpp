@@ -8,13 +8,14 @@
 #include "debug.h"
 
 #include <boost/utility.hpp>
+#include <dStorm/display/store_image.h>
 
 namespace dStorm {
 
 namespace display {
 
 struct wxManager::WindowHandle
-: public Manager::WindowHandle
+: public display::WindowHandle
 {
     wxManager& m;
     boost::shared_ptr< SharedDataSource > data_source;
@@ -109,7 +110,7 @@ void wxManager::decrease_handle_count() {
 static void create_window( 
     const bool& toolkit_available, 
     boost::shared_ptr<Window*> window_handle_store,
-    Manager::WindowProperties properties,
+    display::WindowProperties properties,
     boost::shared_ptr<SharedDataSource> data_source ) 
 {
     if ( toolkit_available ) {
@@ -117,8 +118,8 @@ static void create_window(
     }
 }
 
-std::auto_ptr<Manager::WindowHandle>
-wxManager::register_data_source_impl(
+std::auto_ptr<display::WindowHandle>
+wxManager::register_data_source(
     const WindowProperties& properties,
     DataSource& handler
 )
@@ -144,7 +145,7 @@ wxManager::register_data_source_impl(
             properties,
             handle->data_source ) );
 
-    return std::auto_ptr<Manager::WindowHandle>(
+    return std::auto_ptr<display::WindowHandle>(
         handle.release() );
 }
 
@@ -164,7 +165,7 @@ static void fetch_state( boost::shared_ptr<Window*> handle, const SaveRequest& r
         Window& window = **handle;
         std::auto_ptr<Change> c = window.getState();
         if ( r.manipulator ) r.manipulator(*c);
-        wxManager::getSingleton().store_image( r.filename, *c );
+        store_image( r.filename, *c );
     } catch (const std::runtime_error& e) {
         std::cerr << "Unable to save image: " << e.what() << std::endl;
     } 
@@ -203,8 +204,9 @@ void wxManager::exec_waiting_runnables() {
     DEBUG("Finished executing waiting runnables");
 }
 
-std::auto_ptr< Manager > make_wx_manager() {
-    return std::auto_ptr< Manager >( new wxManager() );
+wxManager& wxManager::get_singleton_instance() {
+    static wxManager* singleton = new wxManager();
+    return *singleton;
 }
 
 }

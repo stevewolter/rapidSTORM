@@ -7,6 +7,8 @@
 #include "NodeHandle.h"
 #include "UserLevel.h"
 
+namespace dStorm { namespace display { class WindowProperties; class DataSource; class WindowHandle; } }
+
 namespace simparm {
 
 struct Node {
@@ -20,6 +22,9 @@ struct Node {
     virtual NodeHandle create_file_entry( std::string name ) = 0;
     virtual NodeHandle create_progress_bar( std::string name ) = 0;
     virtual NodeHandle create_trigger( std::string name ) = 0;
+    virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& ) = 0;
+
     virtual void add_attribute( simparm::BaseAttribute& ) = 0;
     virtual Message::Response send( Message& m ) const = 0;
     virtual void initialization_finished() = 0;

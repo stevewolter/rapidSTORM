@@ -12,6 +12,7 @@
 #include <iostream>
 #include <dStorm/Image_iterator.h>
 #include <dStorm/display/Manager.h>
+#include <dStorm/display/store_image.h>
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/extend.h>
@@ -93,7 +94,7 @@ void AverageImage::store_results_( bool )
         for (int i = 0; i < 2; ++i)
             if ( resolution[i].is_initialized() )
                 c.resize_image.pixel_sizes[i] = *resolution[i];
-        display::Manager::getSingleton().store_image(filename, c);
+        display::store_image(filename, c);
     }
 }
 

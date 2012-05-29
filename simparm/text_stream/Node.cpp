@@ -101,6 +101,12 @@ void Node::declare_( std::ostream& declaration ) {
     attributes.for_each( boost::bind( &Node::declare_attribute, this, _1, boost::ref(declaration) ) );
 }
 
+std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
+    const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
+{
+    return backend_node->get_image_window( wp, ds );
+}
+
 void Node::initialization_finished() {
     assert( parent );
     assert( parent->backend_node.get() );

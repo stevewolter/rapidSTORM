@@ -42,7 +42,7 @@ private:
 
 public:
     Window( Manager& m,
-            const display::Manager::WindowProperties& properties,
+            const display::WindowProperties& properties,
             boost::shared_ptr<display::DataSource> source,
             int number);
     ~Window();

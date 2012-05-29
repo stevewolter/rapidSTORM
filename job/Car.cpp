@@ -120,7 +120,7 @@ void Car::drive() {
     first_output = *traits->image_number().range().first;
     DEBUG("Job length declared as " << traits->image_number().range().second.get_value_or( -1 * camera::frame ) );
     DEBUG("Creating announcement from traits " << traits.get());
-    Output::Announcement announcement( *traits, display::Manager::getSingleton() );
+    Output::Announcement announcement( *traits );
     upstream_engine = announcement.engine;
     announcement.engine = &control;
     announcement.name = "Job" + ident;

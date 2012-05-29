@@ -113,6 +113,9 @@ bool CommandLine::load_config_file(
         return false;
     else {
         while ( config_file ) {
+            while ( config_file && std::isspace( config_file.peek() ) )
+                config_file.get();
+            if ( ! config_file || config_file.peek() == EOF ) break;
             DEBUG("Processing command from " << name);
             try {
                 ui->processCommand( config_file );

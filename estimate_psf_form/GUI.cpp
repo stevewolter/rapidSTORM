@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "GUI.h"
+#include <simparm/Node.h>
 #include <dStorm/display/Manager.h>
 #include <dStorm/display/display_normalized.hpp>
 #include <dStorm/image/crop.h>
@@ -23,7 +24,7 @@ struct DisplayHandler
     dStorm::display::Image image;
     boost::ptr_vector<Tile>& tiles;
     int fluorophore_count;
-    std::auto_ptr< display::Manager::WindowHandle > handle;
+    std::auto_ptr< display::WindowHandle > handle;
 
     std::auto_ptr<display::Change> get_changes() { 
         std::auto_ptr< dStorm::display::Change > fresh( new dStorm::display::Change(1) );
@@ -44,7 +45,7 @@ struct DisplayHandler
     void colour_fluorophore( const Tile& );
 
   public:
-    DisplayHandler( std::auto_ptr< dStorm::display::Change > change, boost::ptr_vector<Tile>& tiles, int fluorophore_count )
+    DisplayHandler( std::auto_ptr< dStorm::display::Change > change, boost::ptr_vector<Tile>& tiles, int fluorophore_count, simparm::NodeHandle ui )
         : is_closed(false), next_change(change), 
           image( next_change->image_change.new_image), tiles(tiles),
           fluorophore_count( fluorophore_count ) 
@@ -53,11 +54,11 @@ struct DisplayHandler
         for ( boost::ptr_vector<Tile>::const_iterator i = this->tiles.begin(); i != this->tiles.end(); ++i ) {
             colour_fluorophore( *i );
         }
-        dStorm::display::Manager::WindowProperties props;
+        dStorm::display::WindowProperties props;
         props.name = "Select spots for PSF form estimation";
         props.flags.notice_drawn_rectangle();
         props.initial_size = next_change->resize_image;
-        handle = dStorm::display::Manager::getSingleton().register_data_source( props, *this );
+        handle = ui->get_image_window( props, *this );
     }
 
     ~DisplayHandler() { DEBUG( "Destructing " << this ); }
@@ -116,8 +117,8 @@ void DisplayHandler::colour_fluorophore( const Tile& i )
     }
 }
 
-GUI::GUI( boost::ptr_vector<Tile>& w, const Input& input, Engine& engine ) 
-: input(input), engine(engine.block())
+GUI::GUI( boost::ptr_vector<Tile>& w, const Input& input, Engine& engine, simparm::NodeHandle ui ) 
+: input(input), engine(engine.block()), ui(ui)
 {
     DEBUG("Constructed GUI " << this);
     if ( w.size() > tiles_per_view() )
@@ -143,7 +144,7 @@ boost::ptr_vector<Tile> GUI::let_user_select()
 {
     DEBUG("Running GUI " << this);
     assert( input.fluorophore_count > 0 );
-    DisplayHandler handler( make_spot_display(), work, input.fluorophore_count );
+    DisplayHandler handler( make_spot_display(), work, input.fluorophore_count, ui );
     handler.wait_for_destruction();
 
     work.erase_if( deselected(input.fluorophore_count) );

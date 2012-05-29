@@ -5,6 +5,8 @@
 #include "ProgressNode.h"
 #include "OptionTable.h"
 
+#include "wxDisplay/wxManager.h"
+
 namespace simparm {
 namespace cmdline_ui {
 
@@ -70,6 +72,12 @@ simparm::NodeHandle Node::create_progress_bar( std::string name ) {
 
 simparm::NodeHandle Node::create_trigger( std::string name ) {
     return adorn_node( new EntryNode( name, OptionTable::Trigger ) );
+}
+
+std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
+    const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
+{
+    return dStorm::display::wxManager::get_singleton_instance().register_data_source( wp, ds );
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {

@@ -87,7 +87,7 @@ class ConfigSet extends ConfigObject {
     {
         if ( ! isTabbed) {
             super.addToField(label, checkbox, field, shouldExpand, pos);
-        } else if (field != null ) {
+        } else if (field != null && field.isVisible() ) {
             JComponent c = null;
             if ( ! declarationInfo.is_in_scrolled_area ) {
                 JScrollPane sp = new JScrollPane( field, 

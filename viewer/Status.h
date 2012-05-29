@@ -21,7 +21,6 @@ struct Status {
     simparm::TriggerEntry save;
 
     boost::mutex mutex;
-    display::Manager *manager;
     dStorm::Engine* engine;
 
     virtual void adapt_to_changed_config() = 0;

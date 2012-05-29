@@ -8,9 +8,8 @@ void Output::attach_ui( simparm::NodeHandle at ) {
 }
 
 Output::Announcement::Announcement( 
-    const input::Traits<LocalizedImage>& traits,
-    display::Manager& manager )
-    : input::Traits<LocalizedImage>(traits), manager(&manager) {}
+    const input::Traits<LocalizedImage>& traits )
+    : input::Traits<LocalizedImage>(traits) {}
 
 }
 }

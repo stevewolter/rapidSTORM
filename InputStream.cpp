@@ -97,8 +97,8 @@ bool InputStream::received_quit_command() {
 
 boost::shared_ptr<InputStream> InputStream::create( MainThread& m, const job::Config& c ) {
     boost::shared_ptr<InputStream> rv( new InputStream( m, c ) );
-    display::Manager::getSingleton().attach_ui( rv );
     rv->reset_config();
+    rv->root_backend->attach_ui( rv );
     return rv;
 }
 

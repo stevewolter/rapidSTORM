@@ -6,6 +6,7 @@
 #include <dStorm/Image.h>
 #include <dStorm/image/extend.h>
 #include <dStorm/Image_impl.h>
+#include <simparm/Node.h>
 
 using namespace boost::units;
 using namespace camera;
@@ -37,7 +38,7 @@ void LiveView::show_window(CamImage::Size size) {
     if ( window.get() == NULL ) {
         DEBUG("Showing live view window");
         assert( size.x() < 10240 * camera::pixel && size.y() < 10240 * camera::pixel);
-        display::Manager::WindowProperties props;
+        display::WindowProperties props;
         props.name = "Live camera view";
         props.flags.close_window_on_unregister();
         props.initial_size.set_size( size );
@@ -51,8 +52,7 @@ void LiveView::show_window(CamImage::Size size) {
             if ( resolution[i].is_initialized() )
                 props.initial_size.pixel_sizes[i] = *resolution[i];
 
-        window = display::Manager::getSingleton()
-            .register_data_source( props, *this );
+        window = show_live.get_user_interface_handle()->get_image_window( props, *this );
         DEBUG("Success in showing live view window");
     }
 }

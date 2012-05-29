@@ -34,16 +34,16 @@ class Display
     MyDiscretizer& discretizer;
     const Colorizer& colorizer;
 
-    dStorm::display::Manager::WindowProperties props;
-    dStorm::display::DataSource& vph;
+    display::WindowProperties props;
+    display::DataSource& vph;
 
-    std::auto_ptr<dStorm::display::Change> next_change;
-    std::auto_ptr<dStorm::display::Manager::WindowHandle> window_id;
+    std::auto_ptr<display::Change> next_change;
+    std::auto_ptr<display::WindowHandle> window_id;
     std::auto_ptr<dStorm::EngineBlock> termination_block;
 
-    boost::optional<dStorm::display::ResizeChange> my_size;
-    display::Manager& manager;
+    boost::optional<display::ResizeChange> my_size;
     const Status& status;
+    simparm::NodeHandle current_ui;
 
     void setSize( const dStorm::display::ResizeChange& size );
 

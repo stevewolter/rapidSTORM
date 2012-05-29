@@ -72,10 +72,6 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        std::auto_ptr< display::Manager > display( display::make_wx_manager() );
-        display.reset( test::make_display( display.release() ) );
-        display::Manager::setSingleton(*display);
-
         MainThread main_thread;
         CommandLine cmd_line(main_thread);
         cmd_line.parse( argc, argv );

@@ -20,7 +20,7 @@ class Window;
  *  toolkit. This class forks a thread that runs the
  *  wxWidgets main loop and continues to run until
  *  close() is called. */
-class wxManager : public Manager {
+class wxManager {
   public:
     class WindowHandle;
   private:
@@ -54,16 +54,18 @@ class wxManager : public Manager {
 
     DSTORM_REALIGN_STACK void run() throw();
 
-  public:
     wxManager();
+
+  public:
+    static wxManager& get_singleton_instance();
+
     /** Close all remaining windows and shut down the
      *  Manager. Warning: The manager should only be shut
      *  down once during the whole program execution. */
     ~wxManager();
-    void attach_ui( simparm::NodeHandle ) {}
 
-    std::auto_ptr<Manager::WindowHandle>
-    register_data_source_impl(
+    std::auto_ptr<display::WindowHandle>
+    register_data_source(
         const WindowProperties& properties,
         DataSource& handler
     );
@@ -72,8 +74,6 @@ class wxManager : public Manager {
         ( Window *window, WindowHandle* handle );
 
     void exec_waiting_runnables();
-
-    void store_image_impl( const StorableImage& );
 };
 
 }

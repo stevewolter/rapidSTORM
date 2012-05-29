@@ -4,6 +4,7 @@
 #include "FrontendNode.h"
 #include "../Message.h"
 #include <boost/thread/recursive_mutex.hpp>
+#include <dStorm/display/Manager.h>
 
 namespace simparm {
 namespace text_stream {
@@ -20,6 +21,8 @@ struct BackendNode {
     virtual void add_child( BackendNode& ) = 0;
     virtual void remove_child( BackendNode& ) = 0;
     virtual void declare( std::ostream& ) = 0;
+    virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& ) = 0;
 
     void processCommand_( std::istream& );
 

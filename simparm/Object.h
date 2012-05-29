@@ -20,7 +20,7 @@ class Object {
     NodeHandle attach_ui( simparm::NodeHandle node );
     void detach_ui( simparm::NodeHandle node );
 
-    NodeHandle get_user_interface_handle() { return node_; }
+    NodeHandle get_user_interface_handle() const { return node_; }
 
     void show();
     void hide();

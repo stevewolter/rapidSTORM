@@ -1,6 +1,5 @@
 #include "Message.h"
 #include "Node.h"
-#include <pthread.h>
 #include <stdexcept>
 #include <sstream>
 

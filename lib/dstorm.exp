@@ -69,6 +69,8 @@ proc dstorm_start {} {
     program_start dstorm --Twi
     set dstorm_spawn_id $spawn_id
 
+    send "in DummyDisplayManagerConfig in wxWidgetsUI in value set false\n"
+
     set have_process_watcher 0;
     set have_signal_handling 0 
     set test "Initialization"
@@ -317,15 +319,12 @@ send "in Car in Input in MultiChannel in Channels in Channel$channel in ROIFilte
 }
 
 proc wait_for_file { filename } {
-    global timeout
-    set prev_timeout $timeout
     for { set i 1 } { $i <= 10 } { incr i } {
         if { [file exists "$filename"] } {
             break
         }
         sleep 1
     }
-    set timeout $prev_timeout
 }
 
 proc get_window { name } {

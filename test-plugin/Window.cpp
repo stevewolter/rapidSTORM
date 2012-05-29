@@ -4,6 +4,7 @@
 #include <simparm/text_stream/Node.h>
 #include <simparm/text_stream/InnerBackendNode.h>
 #include <boost/lexical_cast.hpp>
+#include <dStorm/display/store_image.h>
 #include "md5.h"
 
 namespace dStorm {
@@ -56,7 +57,7 @@ void Window::GUINode::Backend::process_command_( const std::string& command, std
 
 Window::Window(
     Manager& m,
-    const display::Manager::WindowProperties& properties,
+    const display::WindowProperties& properties,
     boost::shared_ptr<display::DataSource> source,
     int n)
 : m(m), handler(source), state(0), number(n),
@@ -230,7 +231,7 @@ void Window::save_window( const dStorm::display::SaveRequest& i ) {
     dStorm::display::StorableImage result( i.filename, *rv );
     result.scale_bar = i.scale_bar;
     try {
-        m.store_image( result );
+        store_image( result );
     } catch ( const std::runtime_error& e ) {
         std::cerr << "Failed to store image: " << e.what() << std::endl;
     }

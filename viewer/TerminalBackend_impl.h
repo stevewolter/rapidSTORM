@@ -8,7 +8,7 @@
 #include "ImageDiscretizer_inline.h"
 #include "Display_inline.h"
 
-#include <dStorm/display/Manager.h>
+#include <dStorm/display/store_image.h>
 #include <dStorm/image/iterator.h>
 
 #include "Config.h"
@@ -78,7 +78,7 @@ void TerminalBackend<Hueing>::save_image(
 
     display::StorableImage i( filename, *rv );
     i.scale_bar = quantity<si::length>(config.scale_bar_length());
-    status.manager->store_image(i);
+    store_image(i);
     DEBUG("Finished");
 }
 

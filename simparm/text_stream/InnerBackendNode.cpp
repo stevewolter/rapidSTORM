@@ -56,5 +56,11 @@ void InnerBackendNode::declare( std::ostream& o ) {
     }
 }
 
+std::auto_ptr<dStorm::display::WindowHandle> InnerBackendNode::get_image_window( 
+    const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds ) 
+{
+    return parent->get_image_window( wp, ds );
+}
+
 }
 }

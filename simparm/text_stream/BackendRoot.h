@@ -3,6 +3,7 @@
 
 #include "NodeBackend.h"
 #include "ChildrenList.h"
+#include "test-plugin/Manager.h"
 
 namespace simparm {
 namespace text_stream {
@@ -16,11 +17,15 @@ class BackendRoot : public BackendNode {
     virtual void add_child( BackendNode& );
     virtual void remove_child( BackendNode& );
     virtual void declare( std::ostream& );
+    virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
 
     bool attached;
     bool should_quit;
     std::ostream* out;
     Mutex mutex;
+
+    dStorm::text_stream_ui::Manager display_manager;
 
     ChildrenList< BackendNode > children;
 protected:
@@ -29,6 +34,7 @@ public:
     BackendRoot( std::ostream* );
     ~BackendRoot();
     void processCommand( std::istream& );
+    void attach_ui( simparm::NodeHandle h ) { display_manager.attach_ui(h); }
     bool received_quit_command() const;
 };
 

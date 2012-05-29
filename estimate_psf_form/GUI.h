@@ -21,10 +21,11 @@ class GUI {
     boost::ptr_vector<Tile> work;
     const Input& input;
     std::auto_ptr<EngineBlock> engine;
+    simparm::NodeHandle ui;
 
   public:
     /** Constructor that eats a list of tiles and asks the user which of them should be used. */
-    GUI( boost::ptr_vector<Tile>& work, const Input& input, dStorm::Engine& engine );
+    GUI( boost::ptr_vector<Tile>& work, const Input& input, dStorm::Engine& engine, simparm::NodeHandle ui );
     ~GUI();
     static unsigned int tiles_per_view() { return tile_cols * tile_rows; }
     boost::ptr_vector<Tile> let_user_select();

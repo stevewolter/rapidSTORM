@@ -4,6 +4,7 @@
 #include <boost/units/io.hpp>
 #include <dStorm/output/Traits.h>
 #include <dStorm/image/MetaInfo.h>
+#include <simparm/Node.h>
 #include "Status.h"
 
 namespace dStorm {
@@ -21,10 +22,9 @@ Display<Colorizer>::Display(
   colorizer(colorizer),
   vph(vph), 
   next_change( initial_state ),
-  manager( *config.manager ),
-  status( config )
+  status( config ),
+  current_ui( config.config.outputFile.get_user_interface_handle() )
 {
-    assert( config.manager );
     assert( config.engine );
     if ( config.config.close_on_completion() )
         props.flags.close_window_on_unregister();
@@ -40,8 +40,7 @@ void Display<Colorizer>::show_window()
 {
     if ( window_id.get() == NULL && my_size.is_initialized() ) {
         props.initial_size = *my_size;
-        window_id = manager.register_data_source( props, vph );
-        //termination_block = status.engine->block_termination();
+        window_id = current_ui->get_image_window( props, vph );
     }
 }
 

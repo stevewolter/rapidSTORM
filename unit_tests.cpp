@@ -9,7 +9,6 @@
 #include "engine/ChainLink_decl.h"
 #include "guf/unit_tests.h"
 #include <dStorm/traits/unit_tests.h>
-#include "viewer/fwd.h"
 #include <dStorm/threed_info/fwd.h>
 #include <boost/test/unit_test.hpp>
 #include "fit_window/unit_tests.h"
@@ -60,7 +59,6 @@ int run_unit_tests(int argc, char* argv[]) {
     dStorm::input::file_method::unit_test( state );
     dStorm::input::resolution::unit_test(state);
     dStorm::expression::unit_test( state );
-    dStorm::viewer::unit_test( state );
     dStorm::traits::run_unit_tests( state );
     pixel_unit_test( state );
     locprec::run_unit_tests( state );

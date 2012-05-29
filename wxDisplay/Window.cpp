@@ -17,7 +17,7 @@ wxString std_to_wx_string( const std::string& a ) {
 }
 
 Window::Window(
-    const Manager::WindowProperties& props,
+    const display::WindowProperties& props,
     boost::shared_ptr< SharedDataSource > data_source
 )
 : wxFrame(NULL, wxID_ANY, std_to_wx_string( props.name ),

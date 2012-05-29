@@ -7,8 +7,7 @@ namespace viewer {
 
 Status::Status(const Config& config)
 : config(config),
-  save("SaveImage", "Save current image"),
-  manager(NULL)
+  save("SaveImage", "Save current image")
 {
 }
 

@@ -7,6 +7,7 @@
 #include <boost/thread/thread.hpp>
 #include <dStorm/stack_realign.h>
 #include <simparm/Object.h>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 namespace text_stream_ui {
@@ -14,14 +15,8 @@ namespace text_stream_ui {
 class Window;
 
 class Manager 
-: public display::Manager
 {
     class Handle;
-
-    std::auto_ptr<WindowHandle>
-        register_data_source_impl
-        (const WindowProperties& properties,
-         display::DataSource& handler);
 
     boost::mutex source_list_mutex;
     boost::mutex request_mutex;
@@ -30,14 +25,13 @@ class Manager
     int number;
 
     simparm::Object master_object;
+    simparm::Entry<bool> ui_is_handled_by_wxWidgets;
     simparm::NodeHandle current_ui;
 
     std::vector< boost::shared_ptr<Window> > sources_queue;
     typedef std::vector< boost::function0<void> > Requests;
     Requests requests;
     
-    std::auto_ptr<display::Manager>
-        previous;
     boost::thread ui_thread;
 
     boost::shared_ptr<Window> next_source();
@@ -46,10 +40,8 @@ class Manager
 
     void heed_requests();
 
-    void store_image_impl( const display::StorableImage& );
-
   public:
-    Manager(display::Manager *p);
+    Manager();
     Manager(const Manager&);
     ~Manager();
 
@@ -59,6 +51,16 @@ class Manager
     void request_action( boost::function0<void> );
 
     void remove_window_from_event_queue( boost::shared_ptr<Window> );
+
+    bool forward_events_to_wxwidgets() {
+        return ui_is_handled_by_wxWidgets();
+    }
+
+    std::auto_ptr<display::WindowHandle>
+        register_data_source
+        (const display::WindowProperties& properties,
+         display::DataSource& handler);
+
 };
 
 }

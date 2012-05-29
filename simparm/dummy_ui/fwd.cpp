@@ -15,6 +15,12 @@ struct Node : public simparm::Node {
     virtual NodeHandle create_file_entry( std::string ) { return make_node(); }
     virtual NodeHandle create_progress_bar( std::string ) { return make_node(); }
     virtual NodeHandle create_trigger( std::string ) { return make_node(); }
+    virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
+        const dStorm::display::WindowProperties&, dStorm::display::DataSource& )
+    {
+        throw std::runtime_error("Dummy user interface was asked to produce a display window");
+    }
+
     virtual void add_attribute( simparm::BaseAttribute& ) {}
     virtual Message::Response send( Message& m ) const { return Message::OKYes; }
     virtual void initialization_finished() {}

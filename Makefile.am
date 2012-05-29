@@ -15,7 +15,7 @@ DEJATOOL = dstorm
 bin_PROGRAMS = dstorm align-biplane-rapidstorm
 bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
-noinst_LTLIBRARIES = libdStorm.la librapidstormfile.la libsimparm.la
+noinst_LTLIBRARIES = libdStorm.la librapidstormfile.la 
 if CAN_BUILD_TWIDDLER
 applications_DATA=rapidstorm.desktop
 endif
@@ -225,8 +225,8 @@ libdStorm_la_SOURCES = \
     dStorm/display/fwd.h \
     dStorm/display/DataSource.h dStorm/display/display_normalized.hpp \
     dStorm/display/Manager.h \
-    dStorm/display/DummyManager.h  \
     dStorm/display/SharedDataSource.h dStorm/display/SharedDataSource.cpp \
+    dStorm/display/store_image.h dStorm/display/store_image.cpp \
     dStorm/Direction.h \
     dStorm/threed_info/Polynomial3D.h \
     dStorm/threed_info/No3D.h \
@@ -280,7 +280,6 @@ libdStorm_la_SOURCES += \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
     dStorm/outputs/BinnedLocalizations_strategies.cpp \
-    dStorm/display/DummyManager.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
@@ -294,9 +293,10 @@ libdStorm_la_SOURCES += \
     dStorm/threed_info/look_up_sigma_diff.cpp \
     dStorm/make_clone_allocator.hpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
-libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
-libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) libsimparm.la
-libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT) libsimparm.la
+libdStorm_la_CPPFLAGS = $(WX_CPPFLAGS) 
+libdStorm_la_CXXFLAGS = $(WX_CXXFLAGS) $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(GraphicsMagick_CFLAGS) 
+libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) $(GraphicsMagick_LIBS) $(WX_LIBS) 
+libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT)
 
 librapidstormfile_la_SOURCES = \
     dStorm/localization_file/fields.cpp dStorm/localization_file/reader.cpp \
@@ -308,14 +308,14 @@ librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
 
 dstorm_SOURCES = dstorm.cpp
 dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
-dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la libsimparm.la
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
-dstorm_CXXFLAGS = $(WX_CXXFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
-dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) $(WX_LIBS) 
+dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la 
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) 
+dstorm_CXXFLAGS = $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
+dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) 
 dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
 dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
-dstorm_LDADD += libsimparm.la
+dstorm_LDADD += 
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -460,30 +460,17 @@ dstorm_SOURCES += \
     viewer/colour_schemes/mono_config.cpp viewer/colour_schemes/mono_config.h viewer/colour_schemes/mono.h \
     viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored_config.h viewer/colour_schemes/colored.h \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
-    viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp \
-    viewer/UnitTest.cpp
+    viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
 dstorm_SOURCES += \
-    test-plugin/Window.h test-plugin/Window.cpp \
-    test-plugin/plugin.cpp test-plugin/plugin.h \
     test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
-    test-plugin/Manager.h test-plugin/Manager.cpp \
-    test-plugin/md5.h test-plugin/md5.c \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
     test-plugin/Verbose.h \
     test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
-
-dstorm_SOURCES += \
-    wxDisplay/fwd.h \
-    wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
-    wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
-    wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
-    wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
-    wxDisplay/wxManager_store_image.cpp wxDisplay/SizeConvert.h
 
 dstorm_SOURCES += \
     estimate_psf_form/Output.h estimate_psf_form/Output.cpp \
@@ -718,7 +705,7 @@ dstorm_SOURCES += \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
     tiff/augment_config.h tiff/augment_config.cpp
 
-libsimparm_la_SOURCES = \
+libdStorm_la_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
     simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
@@ -745,7 +732,7 @@ libsimparm_la_SOURCES = \
     simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
-libsimparm_la_SOURCES += \
+libdStorm_la_SOURCES += \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
     simparm/text_stream/ChildrenList.h \
     simparm/text_stream/EntryNode.h simparm/text_stream/FrontendNode.h \
@@ -754,15 +741,26 @@ libsimparm_la_SOURCES += \
     simparm/text_stream/Node.cpp simparm/text_stream/Node.h \
     simparm/text_stream/RootNode.cpp simparm/text_stream/RootNode.h \
     simparm/text_stream/TabNode.h \
-    simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp
+    simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp \
+    test-plugin/Window.h test-plugin/Window.cpp \
+    test-plugin/Manager.h test-plugin/Manager.cpp \
+    test-plugin/md5.h test-plugin/md5.c \
+    test-plugin/plugin.cpp test-plugin/plugin.h
 
-libsimparm_la_SOURCES += \
+libdStorm_la_SOURCES += \
+    wxDisplay/fwd.h \
+    wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
+    wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
+    wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
+    wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
+    wxDisplay/SizeConvert.h
+
+libdStorm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
     simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
-libsimparm_la_LDFLAGS = -lpthread 
 
 if HAVE_LIBREADSIF
     SIFSUPPORT = \

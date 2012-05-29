@@ -4,14 +4,15 @@
 
 #include "BackendRoot.h"
 #include <boost/bind/bind.hpp>
+#include "wxDisplay/wxManager.h"
 
 namespace simparm {
 namespace text_stream {
 
 BackendRoot::BackendRoot( std::ostream* o )
-: attached(false), should_quit(false), out(o)
+: attached(false), should_quit(false), out(o),
+  display_manager()
 {
-
 }
 
 BackendRoot::~BackendRoot() {
@@ -102,6 +103,14 @@ void BackendRoot::process_child_command_( const std::string& child, std::istream
     }
 }
 
+std::auto_ptr<dStorm::display::WindowHandle> BackendRoot::get_image_window( 
+    const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds ) 
+{
+    if ( display_manager.forward_events_to_wxwidgets() )
+        return dStorm::display::wxManager::get_singleton_instance().register_data_source( wp, ds );
+    else
+        return display_manager.register_data_source( wp, ds );
+}
 
 }
 }

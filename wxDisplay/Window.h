@@ -46,7 +46,7 @@ class Window : public wxFrame, public Canvas::Listener
     void mouse_over_pixel( wxPoint, Color );
 
   public:
-    Window( const Manager::WindowProperties& props,
+    Window( const display::WindowProperties& props,
             boost::shared_ptr< SharedDataSource > );
     ~Window(); 
 

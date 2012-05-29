@@ -27,15 +27,15 @@ namespace dStorm {
 namespace text_stream_ui {
 
 class Manager::Handle 
-: public dStorm::display::Manager::WindowHandle {
+: public dStorm::display::WindowHandle {
     Manager& m;
     boost::shared_ptr<display::SharedDataSource> data_source;
     boost::shared_ptr<Window> window;
 
   public:
     Handle( 
-        const WindowProperties& properties,
-        dStorm::display::DataSource& source,
+        const display::WindowProperties& properties,
+        display::DataSource& source,
         Manager& m ) 
     : m(m), data_source( new display::SharedDataSource(source) ),
       window( new Window(m, properties, data_source, m.number++) )
@@ -55,10 +55,10 @@ void Manager::run() {
     dispatch_events(); 
 }
 
-std::auto_ptr<dStorm::display::Manager::WindowHandle>
-    Manager::register_data_source_impl
+std::auto_ptr<dStorm::display::WindowHandle>
+    Manager::register_data_source
 (
-    const WindowProperties& props,
+    const display::WindowProperties& props,
     dStorm::display::DataSource& handler
 ) {
     if ( !running ) {
@@ -66,7 +66,7 @@ std::auto_ptr<dStorm::display::Manager::WindowHandle>
         ui_thread = boost::thread( &Manager::run, this );
     }
     return 
-        std::auto_ptr<dStorm::display::Manager::WindowHandle>( new Handle(props, handler, *this) );
+        std::auto_ptr<dStorm::display::WindowHandle>( new Handle(props, handler, *this) );
 }
 
 std::ostream& operator<<(std::ostream& o, dStorm::display::Color c)
@@ -93,12 +93,14 @@ void Manager::dispatch_events() {
     DEBUG("Finished event loop");
 }
 
-Manager::Manager(dStorm::display::Manager *p)
+Manager::Manager()
 : running(false),
   number(0),
   master_object("DummyDisplayManagerConfig", "Dummy display manager"),
-  previous(p)
+  ui_is_handled_by_wxWidgets("wxWidgetsUI", "Let wxWidgets handle the UI", true)
 {
+    master_object.set_user_level( simparm::Debug );
+    ui_is_handled_by_wxWidgets.set_user_level( simparm::Debug );
 }
 
 Manager::~Manager()
@@ -107,14 +109,6 @@ Manager::~Manager()
         running = false;
         ui_thread.join();
     }
-}
-
-void Manager::store_image_impl( const dStorm::display::StorableImage& i )
-{
-    assert( i.image.do_clear );
-    previous->store_image(i);
-    simparm::Message m("Stored image", "Storing result image under " + i.filename, simparm::Message::Info);
-    m.send( current_ui );
 }
 
 void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
@@ -127,6 +121,7 @@ void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 void Manager::attach_ui( simparm::NodeHandle at )
 {
     current_ui = master_object.attach_ui( at );
+    ui_is_handled_by_wxWidgets.attach_ui( current_ui );
 }
 
 void Manager::heed_requests() {
@@ -148,11 +143,6 @@ void Manager::request_action( boost::function0<void> request ) {
     }
 }
 
-std::auto_ptr< dStorm::display::Manager > make_test_plugin_manager( dStorm::display::Manager* old )
-{
-    return std::auto_ptr< dStorm::display::Manager >( new Manager(old) );
-}
-
 boost::shared_ptr<Window> Manager::next_source() {
     boost::lock_guard< boost::mutex > lock( source_list_mutex );
     if ( sources_queue.empty() ) return boost::shared_ptr<Window>();
@@ -169,18 +159,4 @@ void Manager::remove_window_from_event_queue( boost::shared_ptr<Window> w ) {
 
 }
 
-namespace test {
-
-dStorm::display::Manager*
-make_display (dStorm::display::Manager *old)
-{
-    if ( getenv("DEBUGPLUGIN_LEAVE_DISPLAY") || !getenv("RAPIDSTORM_TESTPLUGIN_ENABLE") ) {
-        return old;
-    } else {
-        std::cerr << "Test plugin loaded" << std::endl;
-        return new text_stream_ui::Manager( old );
-    }
-}
-
-}
 }

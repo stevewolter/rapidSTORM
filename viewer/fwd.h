@@ -3,14 +3,11 @@
 
 #include <memory>
 
-class TestState;
-
 namespace dStorm {
 namespace output { class OutputSource; }
 namespace viewer {
 
 std::auto_ptr<output::OutputSource> make_output_source();
-void unit_test( TestState& );
 
 }
 }
