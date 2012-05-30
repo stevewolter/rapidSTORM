@@ -1,5 +1,5 @@
-#ifndef DSTORM_THREED_INFO_SPLINE_H
-#define DSTORM_THREED_INFO_SPLINE_H
+#ifndef DSTORM_THREED_INFO_MEASURED_3D_H
+#define DSTORM_THREED_INFO_MEASURED_3D_H
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
