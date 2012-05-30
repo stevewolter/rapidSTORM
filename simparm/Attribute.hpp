@@ -15,15 +15,15 @@ boost::optional< std::string > Attribute<Type>::get_value() const {
 }
 
 template <typename Type>
-void Attribute<Type>::set_value(const std::string& i ) { 
+bool Attribute<Type>::set_value(const std::string& i ) { 
     std::stringstream stream(i);
     Type temp;
     from_config_stream( stream, temp );
-    valueChange( temp ); 
+    return valueChange( temp ); 
 }
 
 template <typename Type>
-void Attribute<Type>::valueChange(const Type &to)
+bool Attribute<Type>::valueChange(const Type &to)
 {
     if ( change_is_OK == NULL || (*change_is_OK)( value, to ) ) {
         if ( to == value ) {
@@ -33,9 +33,9 @@ void Attribute<Type>::valueChange(const Type &to)
             value = to;
             value_changed();
         }
+        return true;
     } else {
-        /* Change is NOT ok. Print the correct value to underline this. */
-        value_changed();
+        return false;
     }
 }
 

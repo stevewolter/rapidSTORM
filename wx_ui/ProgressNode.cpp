@@ -1,0 +1,40 @@
+#include "ProgressNode.h"
+#include <wx/wx.h>
+#include "wxDisplay/wxManager.h"
+#include <boost/lexical_cast.hpp>
+
+namespace simparm {
+namespace wx_ui {
+
+static void make_label( boost::shared_ptr<wxStaticText*> label, boost::shared_ptr< wxWindow* > parent_window, std::string text ) {
+    *label = new wxStaticText( *parent_window, wxID_ANY, wxString( text.c_str(), wxConvUTF8 ) );
+}
+static void make_progress_bar( 
+    boost::shared_ptr<wxWindow*> text_object, 
+    boost::shared_ptr<wxGauge*> my_gauge, 
+    boost::shared_ptr< wxWindow* > parent_window
+) {
+    *my_gauge = new wxGauge( *parent_window, wxID_ANY, 100.0 );
+    *text_object = *my_gauge;
+}
+
+static void display_progress( boost::shared_ptr<wxGauge*> gauge, double value ) {
+    (*gauge)->SetValue( round(value*100.0) );
+}
+
+void ProgressNode::display_value() {
+    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+        boost::bind( &display_progress, my_gauge, boost::lexical_cast<double>( *value->get_value() ) ) );
+}
+
+void ProgressNode::initialization_finished() {
+    LineSpecification my_line;
+    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+        boost::bind( &make_label, my_line.label, get_parent_window(), description ) );
+    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+        boost::bind( &make_progress_bar, my_line.contents, my_gauge, get_parent_window() ) );
+    add_entry_line( my_line );
+}
+
+}
+}

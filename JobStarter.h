@@ -25,6 +25,7 @@ class JobStarter
   public:
     JobStarter( MainThread*, simparm::NodeHandle attachment_point, job::Config& config );
     void attach_ui( simparm::NodeHandle );
+    void set_attachment_point( simparm::NodeHandle a ) { attachment_point = a; }
 };
 
 }

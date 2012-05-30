@@ -753,7 +753,18 @@ libdStorm_la_SOURCES += \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
     wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
     wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
-    wxDisplay/SizeConvert.h
+    wxDisplay/SizeConvert.h \
+    wx_ui/Node.h wx_ui/Node.cpp \
+    wx_ui/RootNode.h wx_ui/RootNode.cpp \
+    wx_ui/Launcher.h wx_ui/Launcher.cpp \
+    wx_ui/TextfieldNode.h wx_ui/TextfieldNode.cpp \
+    wx_ui/TabNode.h wx_ui/TabNode.cpp \
+    wx_ui/WindowNode.h wx_ui/WindowNode.cpp \
+    wx_ui/ScrolledWindowNode.h wx_ui/ScrolledWindowNode.cpp \
+    wx_ui/ChoiceNode.h wx_ui/ChoiceNode.cpp \
+    wx_ui/TriggerNode.h wx_ui/TriggerNode.cpp \
+    wx_ui/ProgressNode.h wx_ui/ProgressNode.cpp \
+    wx_ui/detach_window.h wx_ui/detach_window.cpp
 
 libdStorm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \

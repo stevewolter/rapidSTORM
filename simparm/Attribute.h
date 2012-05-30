@@ -33,16 +33,16 @@ class Attribute : public BaseAttribute {
     boost::signals2::signal< void () > value_changed;
     std::string ident;
 
-  protected:
+private:
     Type value;
 
     std::string get_name() const { return ident; }
     boost::optional< std::string > get_value() const;
-    void set_value(const std::string& i );
+    bool set_value(const std::string& i );
     void unset_value() { detail::unset_value( value ); }
     bool value_is_optional() const { return detail::value_is_optional( value ); }
 
-    void valueChange(const Type &to);
+    bool valueChange(const Type &to);
 
   public:
     Attribute(std::string ident, const Type& def_val)

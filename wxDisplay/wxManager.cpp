@@ -118,12 +118,7 @@ static void create_window(
     }
 }
 
-std::auto_ptr<display::WindowHandle>
-wxManager::register_data_source(
-    const WindowProperties& properties,
-    DataSource& handler
-)
-{
+void wxManager::start_GUI_thread() {
     if ( ! was_started ) {
         boost::lock_guard<boost::recursive_mutex> lock( mutex );
         if ( ! was_started ) {
@@ -131,6 +126,15 @@ wxManager::register_data_source(
             gui_thread = boost::thread( &wxManager::run, this );
         }
     }
+}
+
+std::auto_ptr<display::WindowHandle>
+wxManager::register_data_source(
+    const WindowProperties& properties,
+    DataSource& handler
+)
+{
+    start_GUI_thread();
 
     std::auto_ptr<WindowHandle> 
         handle(new WindowHandle(*this));
@@ -178,6 +182,8 @@ void wxManager::WindowHandle::store_current_display( SaveRequest s )
 
 void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 
 {
+    start_GUI_thread();
+
     DEBUG("Running code in GUI thread");
     if ( boost::this_thread::get_id() == gui_thread.get_id() )
         (*code)();

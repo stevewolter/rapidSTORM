@@ -47,10 +47,8 @@ class wxManager {
 
     void exec(Runnable& runnable);
     void run_in_GUI_thread( std::auto_ptr<Runnable> code );
-    template <typename Functor>
-    void run_in_GUI_thread( const Functor& f ) {
-        run_in_GUI_thread( std::auto_ptr<Runnable>( new Runnable(f) ) );
-    }
+
+    void start_GUI_thread();
 
     DSTORM_REALIGN_STACK void run() throw();
 
@@ -74,6 +72,9 @@ class wxManager {
         ( Window *window, WindowHandle* handle );
 
     void exec_waiting_runnables();
+    void run_in_GUI_thread( boost::function0<void> f ) {
+        run_in_GUI_thread( std::auto_ptr<Runnable>( new Runnable(f) ) );
+    }
 };
 
 }

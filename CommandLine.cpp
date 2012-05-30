@@ -20,6 +20,7 @@
 #include <boost/thread/thread.hpp>
 #include "job/Config.h"
 #include "JobStarter.h"
+#include "wx_ui/Launcher.h"
 
 namespace dStorm {
 
@@ -57,6 +58,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
 
     TransmissionTreePrinter printer(config);
     TwiddlerLauncher launcher(config, main_thread);
+    simparm::wx_ui::Launcher wx_launcher(config, main_thread);
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     JobStarter starter( &main_thread, argument_parser, config );
     simparm::TriggerEntry help("Help", "Help");
@@ -66,6 +68,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
     config.attach_ui( cmdline_ui );
     printer.attach_ui( cmdline_ui );
     launcher.attach_ui( cmdline_ui );
+    wx_launcher.attach_ui( cmdline_ui );
     starter.attach_ui( cmdline_ui );
     help.attach_ui( cmdline_ui );
 

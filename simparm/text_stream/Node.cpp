@@ -131,7 +131,9 @@ void Node::process_attribute_command_( std::string name, std::istream& rest ) {
     } else if ( command == "set" ) {
         std::string line;
         std::getline( rest, line );
-        a->set_value( line );
+        bool successful = a->set_value( line );
+        if ( ! successful )
+            print_attribute_value( *a );
     } else if ( command == "unset" ) {
         a->unset_value();
     } else

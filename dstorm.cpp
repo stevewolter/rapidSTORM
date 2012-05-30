@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     ost::DebugStream::set(cerr);
 #ifdef USE_GRAPHICSMAGICK
-    char english_env[] = { "LC_ALL=en_US" };
+    char english_env[] = { "LC_ALL=C" };
     /* Magick cannot save images in the de_DE locale. */
     putenv(english_env);
     Magick::InitializeMagick(argv[0]);
