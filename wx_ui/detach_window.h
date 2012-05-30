@@ -8,7 +8,7 @@ class wxWindow;
 namespace simparm {
 namespace wx_ui {
 
-void wait_for_window_detachment( boost::shared_ptr<wxWindow*> );
+void detach_window( boost::shared_ptr<wxWindow*> );
 
 }
 }
