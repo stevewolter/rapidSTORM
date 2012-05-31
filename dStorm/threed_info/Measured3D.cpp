@@ -58,7 +58,7 @@ Sigma Measured3D::get_sigma_( ZPosition z ) const {
 double sum_quad = 0;
 double sum = 0;
 
-if (dir ==0)
+if (dir ==Direction_X)
    for (int dx =0; dx < psf_data.width_in_pixels(); dx++)
 {
    sum +=  psf_data(dx ,floor(mu_y) ,z.value());
@@ -66,14 +66,14 @@ if (dir ==0)
    return static_cast<float>(pixel_size[0]*1E-6 * sqrt( (sum_quad - (sum* sum / psf_data.width_in_pixels())) /(psf_data.width_in_pixels()-1)))*si::meter;
 
 }
-else
+if (dir ==Direction_Y)
    for (int dy =0; dy < psf_data.height_in_pixels(); dy++)
 {
    sum +=  psf_data(floor(mu_x), dy , z.value());
    sum_quad+=  pow(psf_data(floor(mu_x), dy , z.value()), 2);
    return static_cast<float>(pixel_size[0]*1E-6*sqrt( (sum_quad - (sum* sum / psf_data.height_in_pixels())) /(psf_data.height_in_pixels()-1))) *si::meter;
 }
-
+    throw std::logic_error("This direction is not implented");
 
 }
 

@@ -24,7 +24,7 @@ struct Config {
 class No3DConfig;
 class Polynomial3DConfig;
 class Spline3DConfig;
-class Measured3DConfig; //??added
+class Measured3DConfig;
 std::auto_ptr< Config > make_no_3d_config();
 std::auto_ptr< Config > make_polynomial_3d_config();
 std::auto_ptr< Config > make_spline_3d_config();
