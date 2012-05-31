@@ -55,7 +55,7 @@ struct TraitValueFinder {
 
     template <typename Structure>
     void operator()( nonlinfit::Xs<2,gaussian_psf::LengthUnit> p, Structure& m ) const { 
-        m( p ) = quantity<gaussian_psf::LengthUnit>(4E-6 * si::metre);
+        m( p ) = quantity<gaussian_psf::LengthUnit>(0E-6 * si::metre);
     }
 
     template <typename Structure>

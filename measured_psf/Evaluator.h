@@ -9,6 +9,7 @@
 #include <cmath>
 #include <Eigen/Eigen>
 #include <functional>
+#include <boost/units/io.hpp>
 
 namespace dStorm {
 namespace measured_psf {
@@ -37,7 +38,8 @@ struct Evaluator
         Eigen::Array3d max_calib = get_calib_image_pos_in_px (x_max);
         return (
             (min_calib >= 0).all() &&
-            (max_calib.transpose() < psf_data_size).all() );
+            (max_calib.transpose() < psf_data_size).all() &&
+            expr->amplitude > 0 && expr->prefactor > 0);
     }
 
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )

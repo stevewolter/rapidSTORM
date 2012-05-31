@@ -770,7 +770,7 @@ dstorm_SOURCES += \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
 measured_psf_unit_test_SOURCES = measured_psf/main.cpp
-measured_psf_unit_test_LDADD = libmeasured_psf.la $(boost_unit_test_LIB)
+measured_psf_unit_test_LDADD = libmeasured_psf.la $(boost_unit_test_LIB) libdStorm.la
 
 align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
 align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)

@@ -29,12 +29,13 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
         for ( MultiKernelModel::const_iterator j = i->begin(); j != i->end(); ++j ) {
             int plane = i - result.begin();
             if ( ! check_kernel(*j, spot, plane) ) return false;
-            DEBUG("Checking amplitude threshold");
             quantity<camera::intensity> photon =
                 info.traits.optics(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
-            if ( local_threshold < (*j).intensity());
+            double intensity = (*j).intensity();
+            DEBUG("Checking amplitude threshold " << local_threshold << " against value " << intensity);
+            if ( local_threshold < intensity )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
                 quantity<si::length> x_dist( (*j).get_fluorophore_position(0) - (*k).get_fluorophore_position(0));
@@ -54,7 +55,9 @@ bool LocalizationChecker::check_kernel_dimension( const guf::SingleKernelModel& 
         abs( k.get_fluorophore_position(Dim)- spot[Dim] )
             < quantity<si::length>(k.get_sigma()[Dim] * 3.0);
 
-    DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
+    DEBUG( "Result kernel " <<  k.get_fluorophore_position(Dim) << " is close to original " 
+           << spot[Dim] << " in Dim " << Dim << " with respect to std.dev. "
+           << quantity<si::length>(k.get_sigma()[Dim]) << ": " << close_to_original);
     return close_to_original;
 }
 
@@ -64,8 +67,9 @@ bool LocalizationChecker::check_kernel( const guf::SingleKernelModel& k, const g
         check_kernel_dimension(k,s, plane, 0) &&
         check_kernel_dimension(k,s, plane, 1);
     bool has_z_position = k.has_z_position();
-    bool z_ok = (has_z_position ||
+    bool z_ok = ( ! has_z_position ||
         contains(allowed_z_positions, samplepos::Scalar(k.get_fluorophore_position(2) ) ));
+    DEBUG( "Z is OK: " << z_ok << " " << has_z_position );
     return kernels_ok && z_ok;
 }
 

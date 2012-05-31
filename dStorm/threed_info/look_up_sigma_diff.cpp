@@ -1,3 +1,4 @@
+#include "debug.h"
 #include <boost/units/Eigen/Core>
 #include "look_up_sigma_diff.h"
 #include <boost/variant/apply_visitor.hpp>
@@ -17,6 +18,7 @@ void SigmaDiffLookup::init() {
         Diff diff;
         diff.z = z;
         diff.diff = get_sigma_diff( z );
+        DEBUG("Sigma at " << diff.z << " is " << diff.diff);
         diffs.push_back(diff);
     }
 
@@ -25,6 +27,7 @@ void SigmaDiffLookup::init() {
 
         if ( diffs.front().diff > diffs.back().diff )
             std::reverse( diffs.begin(), diffs.end() );
+        DEBUG("Longest monotonic sequence is from " << diffs.front().z << " to " << diffs.back().z );
         for ( std::vector<Diff>::const_iterator i = diffs.begin()+1; i != diffs.end(); ++i ) {
             if ( i->diff < (i-1)->diff )
                 throw std::runtime_error("The sigma difference curve is not monotonic");
@@ -68,6 +71,9 @@ ZRange SigmaDiffLookup::get_z_range() const { return a.z_range() & b.z_range(); 
 
 ZPosition SigmaDiffLookup::operator()( Sigma x, Sigma y ) const
 {
+    if ( diffs.empty() )
+        throw std::runtime_error("Unable to look up sigma difference due to insufficient Z range");
+
     struct sigma_compare : public std::binary_function<bool,Diff,Diff> {
         bool operator()( const Diff& a, const Diff& b ) const
             { return a.diff < b.diff; }

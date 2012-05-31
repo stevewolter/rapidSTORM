@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/smart_ptr/shared_array.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/quantity.hpp>
@@ -31,14 +32,14 @@ public:
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 3, 1, Eigen::DontAlign > FluorophorePosition;
     typedef  Eigen::Matrix< quantity< nanometer_pixel_size, float >, 3, 1, Eigen::DontAlign > PixelSize;
 
-    Measured3D( std::string file, Direction dir, simparm::Node& gui_node, FluorophorePosition, PixelSize );
+    Measured3D( std::string file, Direction dir, FluorophorePosition, PixelSize, quantity<camera::intensity>, quantity<si::length> sigma_smoothing_sigma );
 
     const Eigen::Vector3d& get_pixel_size_in_mum_per_px() const
         { return pixel_size; }
     const Eigen::Vector3d& get_calibration_image_offset_in_mu() const
         { return image_x0; }
     const Image<double,3>& get_calibration_image() const
-        { return psf_data; }
+        { const_cast< Measured3D& >(*this).read_calibration_image(); return psf_data; }
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -51,9 +52,18 @@ private:
         { return o << "measured 3D information"; }
     bool provides_3d_info_() const { return true; }
 
+    void read_calibration_image();
+
+    std::string filename;
+    quantity<camera::intensity> threshold;
+    bool psf_data_has_been_read;
+    boost::mutex psf_data_flag_mutex;
+
     Eigen::Vector3d pixel_size, image_x0;
     Image<double,3> psf_data;
     Direction dir;
+    std::vector< double > standard_deviations;
+    double sigma;
 };
 
 }

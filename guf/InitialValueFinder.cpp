@@ -166,9 +166,11 @@ void InitialValueFinder::operator()(
         } else if ( measured_psf::Model* z = dynamic_cast<measured_psf::Model*>(&position[p][0]) ) {
             boost::mpl::for_each< measured_psf::Model::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            const threed_info::Measured3D& m = dynamic_cast<const threed_info::Measured3D&>(
+            const threed_info::Measured3D& mx = dynamic_cast<const threed_info::Measured3D&>(
                 * info.traits.optics(p).depth_info(Direction_X) );
-            z->set_calibration_data( m );
+            const threed_info::Measured3D& my = dynamic_cast<const threed_info::Measured3D&>(
+                * info.traits.optics(p).depth_info(Direction_Y) );
+            z->set_calibration_data( mx, my );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );
         s( constant_background::Amount(), position[p].background_model() );
@@ -195,7 +197,7 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
     boost::optional<threed_info::ZPosition> z = (*lookup_table)(
         threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ]),
         threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ]) );
-    DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
+    DEBUG("Initial Z estimate is " << *z);
 
     for (size_t i = 0; i < v.size(); ++i)
         v[i].z_estimate = *z;

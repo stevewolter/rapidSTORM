@@ -36,15 +36,21 @@ void Model::set_amplitude(quantity<si::dimensionless> amp)
 Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > Model::get_sigma() const
 {
     Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > m;
-    return m.Zero();
+    quantity<si::length,float> z( (*this)( Mean<2>() ) );
+    for (int i = 0; i < 2; ++i)
+        m[i] = quantity<gaussian_psf::LengthUnit>( sigmas[i]->get_sigma( z ) );
+    return m;
 }
 
 void Model::set_calibration_data(
-    const threed_info::Measured3D& m
+    const threed_info::Measured3D& x,
+    const threed_info::Measured3D& y
 ) {
-    image_x0 = m.get_calibration_image_offset_in_mu();
-    psf_data = m.get_calibration_image();
-    pixel_size = m.get_pixel_size_in_mum_per_px();
+    image_x0 = x.get_calibration_image_offset_in_mu();
+    psf_data = x.get_calibration_image();
+    pixel_size = x.get_pixel_size_in_mum_per_px();
+    sigmas[0] = &x;
+    sigmas[1] = &y;
 }
 
 void Model::set_fixed_calibration_data()

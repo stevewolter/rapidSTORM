@@ -37,7 +37,7 @@ public:
         Amplitude, Prefactor > Variables;
 
      static Model mock();
-     void set_calibration_data( const threed_info::Measured3D& );
+     void set_calibration_data( const threed_info::Measured3D& x, const threed_info::Measured3D& y );
      void set_fixed_calibration_data();
 
 
@@ -60,6 +60,8 @@ private:
      template <int Index> double& access( Mean<Index> ) { return x0[Index]; }
      double& access( Amplitude ) { return amplitude; }
      double& access( Prefactor ) { return prefactor; }
+
+     const threed_info::Measured3D* sigmas[2];
 };
 
 }
