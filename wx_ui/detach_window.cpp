@@ -30,7 +30,7 @@ static void detach(
     did_it.flag();
 }
 
-void wait_for_window_detachment( boost::shared_ptr<wxWindow*> my_window ) 
+void detach_window( boost::shared_ptr<wxWindow*> my_window ) 
 {
     WaitableFlag flag;
     dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(

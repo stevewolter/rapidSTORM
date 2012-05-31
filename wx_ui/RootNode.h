@@ -15,9 +15,10 @@ namespace wx_ui {
 class RootFrame;
 
 class RootNode 
-: public WindowNode
+: public Node
 {
     boost::shared_ptr<RootFrame*> my_frame;
+    boost::shared_ptr<wxWindow*> window_view;
     dStorm::MainThread& main_thread;
     dStorm::job::Config config;
     dStorm::JobStarter starter;
@@ -29,6 +30,11 @@ class RootNode
 public:
     static boost::shared_ptr<RootNode> create( dStorm::MainThread&, const dStorm::job::Config& );
     void initialization_finished();
+    void add_entry_line( const LineSpecification& );
+    void add_full_width_line( WindowSpecification w );
+    boost::shared_ptr< wxWindow* > get_parent_window() { return window_view; }
+    NodeHandle create_object( std::string );
+    NodeHandle create_group( std::string );
     ~RootNode();
 };
 

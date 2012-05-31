@@ -30,7 +30,7 @@ inline void unset_value( boost::optional<Inner>& b )
 
 template <typename Type>
 class Attribute : public BaseAttribute {
-    boost::signals2::signal< void () > value_changed;
+    boost::signals2::signal< void () > value_changed, value_changed_non_GUI;
     std::string ident;
 
 private:
@@ -42,7 +42,7 @@ private:
     void unset_value() { detail::unset_value( value ); }
     bool value_is_optional() const { return detail::value_is_optional( value ); }
 
-    bool valueChange(const Type &to);
+    bool valueChange(const Type &to, bool from_gui = false);
 
   public:
     Attribute(std::string ident, const Type& def_val)
@@ -68,6 +68,8 @@ private:
     Attribute& operator/=(const Type &o) 
         { valueChange(value / o); return *this; }
 
+    void set_value_from_GUI( const Type& t ) { valueChange(t, true); }
+
     struct ChangeWatchFunction { 
         virtual ~ChangeWatchFunction() {}
         virtual bool operator()(const Type&,const Type&) = 0; 
@@ -79,6 +81,8 @@ private:
 
     Connection notify_on_value_change( Listener listener )
         { return Connection( new boost::signals2::scoped_connection( value_changed.connect( listener ) ) ); }
+    Connection notify_on_non_GUI_value_change( Listener listener )
+        { return Connection( new boost::signals2::scoped_connection( value_changed_non_GUI.connect( listener ) ) ); }
 };
 
 }

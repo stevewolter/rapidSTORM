@@ -22,7 +22,10 @@ void Launcher::attach_ui( simparm::NodeHandle n )
 Launcher::~Launcher() {}
 
 void Launcher::launch() {
-    RootNode::create( main_thread, config );
+    if ( triggered() ) {
+        untrigger();
+        RootNode::create( main_thread, config );
+    }
 }
 
 }

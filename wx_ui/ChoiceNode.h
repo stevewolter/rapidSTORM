@@ -2,6 +2,7 @@
 #define SIMPARM_WX_UI_CHOICENODE_H
 
 #include "Node.h"
+#include "AttributeHandle.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -10,12 +11,12 @@ class ChoiceWidget;
 
 class ChoiceNode : public Node {
     class SubNode;
-    LineSpecification choice_line;
     boost::shared_ptr<ChoiceWidget*> choice;
     std::string description;
     simparm::BaseAttribute::ConnectionStore connection;
 
-    simparm::BaseAttribute* value;
+    boost::shared_ptr< BaseAttributeHandle > value_handle;
+    void user_changed_choice();
 
 public:
     ChoiceNode( boost::shared_ptr<Node> n )
@@ -24,9 +25,7 @@ public:
     void initialization_finished();
     NodeHandle create_object( std::string name );
     NodeHandle create_group( std::string name );
-    void add_attribute( simparm::BaseAttribute& a ) {
-        if ( a.get_name() == "value" ) value = &a;
-    }
+    void add_attribute( simparm::BaseAttribute& a );
 };
 
 }

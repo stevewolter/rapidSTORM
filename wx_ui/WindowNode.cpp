@@ -63,7 +63,6 @@ static void add_full_width_line(
     const WindowSpecification& w
 ) {
     (*sizer)->Add( *w.window, wxGBPosition(*row,0), wxGBSpan(1,3), wxGROW | wxEXPAND );
-    (*sizer)->AddGrowableRow( *row );
     (*sizer)->Layout();
     ++ *row;
 }

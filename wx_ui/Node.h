@@ -52,17 +52,21 @@ protected:
         { parent->add_full_width_line( w ); }
     virtual boost::shared_ptr< wxWindow* > get_parent_window() 
         { return parent->get_parent_window(); }
+
+    void create_static_text( boost::shared_ptr<wxStaticText*> into, std::string text );
+    void create_static_text( boost::shared_ptr<wxWindow*> into, std::string text );
+
 public:
     Node( boost::shared_ptr<Node> parent ) : parent(parent) {}
     ~Node() {}
 
     NodeHandle create_object( std::string name ) { return NodeHandle( new Node(shared_from_this()) ); }
     NodeHandle create_textfield( std::string name, std::string type );
-    NodeHandle create_checkbox( std::string name ) { return NodeHandle( new Node(shared_from_this()) ); }
+    NodeHandle create_checkbox( std::string name );
     NodeHandle create_group( std::string name ) { return NodeHandle( new Node(shared_from_this()) ); }
     NodeHandle create_tab_group( std::string name );
     NodeHandle create_choice( std::string name );
-    NodeHandle create_file_entry( std::string name ) { return NodeHandle( new Node(shared_from_this()) ); }
+    NodeHandle create_file_entry( std::string name );
     NodeHandle create_progress_bar( std::string name );
     NodeHandle create_trigger( std::string name );
     std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
@@ -76,6 +80,7 @@ public:
     bool isActive() const { return true; }
 
     NodeHandle get_handle() { return shared_from_this(); }
+    void run_in_GUI_thread( boost::function0<void> );
 };
 
 }

@@ -10,7 +10,7 @@ static void make_scrolled_window(
     boost::shared_ptr< wxWindow* > window_view,
     boost::shared_ptr< wxWindow* > parent_window
 ) {
-    wxScrolledWindow *w = new wxScrolledWindow( *parent_window, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL );
+    wxScrolledWindow *w = new wxScrolledWindow( *parent_window, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL );
     w->SetScrollRate( 0, 5 );
     *window_view = w;
 }

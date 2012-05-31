@@ -19,11 +19,11 @@ bool Attribute<Type>::set_value(const std::string& i ) {
     std::stringstream stream(i);
     Type temp;
     from_config_stream( stream, temp );
-    return valueChange( temp ); 
+    return valueChange( temp, true ); 
 }
 
 template <typename Type>
-bool Attribute<Type>::valueChange(const Type &to)
+bool Attribute<Type>::valueChange(const Type &to, bool from_gui)
 {
     if ( change_is_OK == NULL || (*change_is_OK)( value, to ) ) {
         if ( to == value ) {
@@ -32,6 +32,8 @@ bool Attribute<Type>::valueChange(const Type &to)
         } else {
             value = to;
             value_changed();
+            if ( ! from_gui )
+                value_changed_non_GUI();
         }
         return true;
     } else {

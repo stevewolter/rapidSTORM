@@ -22,7 +22,7 @@ struct ProgressNode : public Node {
     void add_attribute( simparm::BaseAttribute& a ) {
         if ( a.get_name() == "value" )  {
             value = &a;
-            connection = a.notify_on_value_change( boost::bind( &ProgressNode::display_value, this ) );
+            connection = a.notify_on_non_GUI_value_change( boost::bind( &ProgressNode::display_value, this ) );
         }
     }
 };

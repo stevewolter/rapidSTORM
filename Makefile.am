@@ -765,7 +765,8 @@ libdStorm_la_SOURCES += \
     wx_ui/TriggerNode.h wx_ui/TriggerNode.cpp \
     wx_ui/ProgressNode.h wx_ui/ProgressNode.cpp \
     wx_ui/detach_window.h wx_ui/detach_window.cpp \
-    wx_ui/AttributeHandle.h
+    wx_ui/AttributeHandle.h \
+    wx_ui/CheckboxNode.h wx_ui/CheckboxNode.cpp
 
 libdStorm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \

@@ -22,6 +22,7 @@ struct BaseAttribute {
     virtual void unset_value() = 0;
     virtual bool value_is_optional() const = 0;
     virtual Connection notify_on_value_change( boost::signals2::slot<void()> ) = 0;
+    virtual Connection notify_on_non_GUI_value_change( boost::signals2::slot<void()> ) = 0;
 
     void add_to( NodeHandle );
 };
