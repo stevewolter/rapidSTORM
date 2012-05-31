@@ -60,9 +60,6 @@ public:
         getTraits( bool final, simparm::Entry<long>& );
     std::auto_ptr< input::BaseTraits > getTraits();
 
-    std::auto_ptr< engine::ImageStack >
-        load_image( int index );
-
     void seek_to_image( simparm::Node& msg, int image );
     bool next_image( simparm::Node& msg );
     Image read_image( simparm::Node& msg ) const;

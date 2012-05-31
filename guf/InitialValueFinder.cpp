@@ -17,8 +17,8 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/framework/accumulator_set.hpp>
 #include <dStorm/threed_info/look_up_sigma_diff.h>
+#include <dStorm/threed_info/Measured3D.h>
 #include "measured_psf/Model.h"
-//#include "GaussImage.h"
 
 using namespace boost::accumulators;
 
@@ -166,8 +166,8 @@ void InitialValueFinder::operator()(
         } else if ( measured_psf::Model* z = dynamic_cast<measured_psf::Model*>(&position[p][0]) ) {
             boost::mpl::for_each< measured_psf::Model::Variables >(
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-            const threed_info::Measured3D& m = dynamic_cast<threed_info::Measured3D&>(
-                info.traits.optics(p).depth_info(Direction_X) );
+            const threed_info::Measured3D& m = dynamic_cast<const threed_info::Measured3D&>(
+                * info.traits.optics(p).depth_info(Direction_X) );
             z->set_calibration_data( m );
         } else
             throw std::logic_error("Somebody forgot a 3D model in " + std::string(__FILE__) );

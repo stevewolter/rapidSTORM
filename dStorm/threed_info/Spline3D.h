@@ -46,13 +46,11 @@ private:
     const std::vector<Point> points;
     const ZPosition h;
     Eigen::MatrixXd coeffs;
-    ZPosition equifocal_plane__;
 
     std::string config_name_() const { return "Spline3D"; }
     Sigma get_sigma_( ZPosition z ) const;
     SigmaDerivative get_sigma_deriv_( ZPosition z ) const;
     ZRange z_range_() const;
-    ZPosition equifocal_plane_() const { return equifocal_plane__; }
     std::ostream& print_( std::ostream& o ) const 
         { return o << "spline 3D information"; }
     bool provides_3d_info_() const { return true; }

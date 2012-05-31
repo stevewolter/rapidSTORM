@@ -29,15 +29,15 @@ struct Evaluator
     bool prepare_iteration( const Data& data ) {
         psf_data_size = boost::units::value( expr->psf_data.sizes() ).cast<double>() - 1.0;
         Eigen::Vector3d x_min, x_max;
-        x_min.head<2>() = value( data.min );
+        x_min.head<2>() = boost::units::value( data.min );
         x_min[2] = expr->axial_mean;
-        x_max = value( data.max );
+        x_max.head<2>() = boost::units::value( data.max );
         x_max[2] = expr->axial_mean;
         Eigen::Array3d min_calib = get_calib_image_pos_in_px (x_min);
         Eigen::Array3d max_calib = get_calib_image_pos_in_px (x_max);
         return (
             (min_calib >= 0).all() &&
-            (max_calib < psf_data_size).all() );
+            (max_calib.transpose() < psf_data_size).all() );
     }
 
     void prepare_chunk( const Eigen::Array<Num,ChunkSize,2>& xs )
@@ -49,7 +49,8 @@ struct Evaluator
              x.head<2>() = xs.row(row).template cast<double>();
              x[2]= expr->axial_mean;
              calib_image_pos_in_px.row(row) = get_calib_image_pos_in_px(x);
-             assert( (calib_image_pos_in_px.row(row) < psf_data_size).all() && (calib_image_pos_in_px.row(row) >= 0).all() )
+             assert( (calib_image_pos_in_px.row(row) < psf_data_size).all() );
+             assert( (calib_image_pos_in_px.row(row) >= 0).all() );
         }
         base_pos_in_px = calib_image_pos_in_px.unaryExpr (std::ptr_fun (floor)).template cast<int>();
     }

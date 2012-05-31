@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include "Model.h"
 #include "guf/GaussImage.h"
-
+#include <dStorm/threed_info/Measured3D.h>
 
 namespace dStorm
 {
@@ -39,11 +39,12 @@ Eigen::Matrix< quantity<gaussian_psf::LengthUnit>, 2, 1 > Model::get_sigma() con
     return m.Zero();
 }
 
-void Model::set_calibration_data(Eigen::Vector3d& image_x, Image<double,3>& psf_data_image, Eigen::Vector3d pixel_size)
-{
-    (*this).image_x0 = image_x;
-    (*this).psf_data = psf_data_image;
-    (*this).pixel_size = pixel_size;
+void Model::set_calibration_data(
+    const threed_info::Measured3D& m
+) {
+    image_x0 = m.get_calibration_image_offset_in_mu();
+    psf_data = m.get_calibration_image();
+    pixel_size = m.get_pixel_size_in_mum_per_px();
 }
 
 void Model::set_fixed_calibration_data()

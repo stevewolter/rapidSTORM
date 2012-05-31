@@ -11,6 +11,7 @@
 #include <dStorm/image/constructors.h>
 
 namespace dStorm {
+namespace threed_info { class Measured3D; }
 namespace measured_psf {
 
 template <class Num, int Size> class Evaluator;
@@ -36,7 +37,7 @@ public:
         Amplitude, Prefactor > Variables;
 
      static Model mock();
-     void set_calibration_data(Eigen::Vector3d& image_x, Image<double,3>& psf_data, Eigen::Vector3d pixel_size);
+     void set_calibration_data( const threed_info::Measured3D& );
      void set_fixed_calibration_data();
 
 

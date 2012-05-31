@@ -112,7 +112,7 @@ class Spline3DConfig : public simparm::Object, public Config {
     Spline3DConfig() 
         : simparm::Object("Spline3D", "Interpolated 3D"),
           z_calibration_file("ZCalibration", "Z calibration file") {}
-    Spline3DConfig* clone() const { return Spline3DConfig(*this); }
+    Spline3DConfig* clone() const { return new Spline3DConfig(*this); }
 };
 
 std::auto_ptr< Config > make_spline_3d_config()

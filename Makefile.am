@@ -319,7 +319,7 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/look_up_sigma_diff.cpp
 libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
 libdStorm_la_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS)
-libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS)
+libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) $(GraphicsMagick_LIBS) $(boost_unit_test_LIB)
 libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT)
 
 librapidstormfile_la_SOURCES = \
@@ -750,7 +750,7 @@ dstorm_SOURCES += \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
-dstorm_SOURCES += \
+libdStorm_la_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
