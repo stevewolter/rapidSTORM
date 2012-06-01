@@ -120,7 +120,9 @@ static void create_window(
 
 void wxManager::start_GUI_thread() {
     if ( ! was_started ) {
+        DEBUG("Acquiring lock for checking if GUI thread is started");
         boost::lock_guard<boost::recursive_mutex> lock( mutex );
+        DEBUG("Acquired lock for checking if GUI thread is started");
         if ( ! was_started ) {
             was_started = true;
             gui_thread = boost::thread( &wxManager::run, this );
@@ -182,6 +184,7 @@ void wxManager::WindowHandle::store_current_display( SaveRequest s )
 
 void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 
 {
+    DEBUG("Entering run_in_GUI_thread");
     start_GUI_thread();
 
     DEBUG("Running code in GUI thread");

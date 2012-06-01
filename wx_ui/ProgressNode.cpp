@@ -29,8 +29,7 @@ void ProgressNode::display_value() {
 
 void ProgressNode::initialization_finished() {
     LineSpecification my_line;
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
-        boost::bind( &make_label, my_line.label, get_parent_window(), description ) );
+    create_static_text( my_line.label, description );
     dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
         boost::bind( &make_progress_bar, my_line.contents, my_gauge, get_parent_window() ) );
     add_entry_line( my_line );

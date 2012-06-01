@@ -70,6 +70,11 @@ simparm::NodeHandle Node::create_trigger( std::string name ) {
     return adorn_node( new EntryNode( name, "TriggerEntry" ) );
 }
 
+simparm::NodeHandle Node::create_tree_root() { return shared_from_this(); }
+simparm::NodeHandle Node::create_tree_object( std::string name ) {
+    return adorn_node( new Node( name, "Object" ) );
+}
+
 std::string Node::attribute_value_specification( const BaseAttribute& a )
 {
     boost::optional<std::string> v = a.get_value();

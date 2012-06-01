@@ -5,6 +5,7 @@
 #include "ScrolledTabNode.h"
 #include "wxDisplay/wxManager.h"
 #include "wxDisplay/App.h"
+#include "VisibilityControl.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -12,14 +13,31 @@ namespace wx_ui {
 class RootFrame
 : public wxFrame {
     boost::shared_ptr< Node > root_node;
+    boost::shared_ptr< VisibilityControl > ul_control;
     wxBoxSizer *column;
+
+    enum EventID {
+        UL_BEGINNER, UL_INTERMEDIATE, UL_EXPERT 
+    };
+
+    void user_level_beginner(wxCommandEvent&) { ul_control->set_user_level(10); FitInside(); }
+    void user_level_intermediate(wxCommandEvent&) { ul_control->set_user_level(20); FitInside(); }
+    void user_level_expert(wxCommandEvent&) { ul_control->set_user_level(30); FitInside(); }
 
 public:
     RootFrame( boost::shared_ptr<Node> root_node )
         : wxFrame( NULL, wxID_ANY, wxT( PACKAGE_STRING ) ),
           root_node( root_node ), 
-          column( new wxBoxSizer(wxVERTICAL) ) 
+          column( new wxBoxSizer(wxVERTICAL) )
     {
+        wxMenuBar* menu = new wxMenuBar();
+        wxMenu* user_level = new wxMenu();
+        user_level->AppendRadioItem( UL_BEGINNER, _("Beginner") );
+        user_level->AppendRadioItem( UL_INTERMEDIATE, _("Intermediate") );
+        user_level->AppendRadioItem( UL_EXPERT, _("Expert") );
+        menu->Append( user_level, _("User level") );
+        SetMenuBar( menu );
+
         SetSizer(column);
     }
 
@@ -27,7 +45,15 @@ public:
         column->Add( window, 1, wxEXPAND );
         Layout();
     }
+
+    DECLARE_EVENT_TABLE();
 };
+
+BEGIN_EVENT_TABLE(RootFrame, wxFrame)
+    EVT_CHOICE(UL_BEGINNER, RootFrame::user_level_beginner)
+    EVT_CHOICE(UL_INTERMEDIATE, RootFrame::user_level_intermediate)
+    EVT_CHOICE(UL_EXPERT, RootFrame::user_level_expert)
+END_EVENT_TABLE()
 
 static void create_root_frame( 
     boost::shared_ptr<Node> root_node, 
@@ -49,6 +75,7 @@ RootNode::RootNode( dStorm::MainThread& main_thread, const dStorm::job::Config& 
 : Node( boost::shared_ptr<Node>() ),
   my_frame( new RootFrame*(NULL) ),
   window_view( new wxWindow*(NULL) ),
+  vc( new VisibilityControl() ),
   main_thread( main_thread ),
   config(c),
   starter( &main_thread, boost::shared_ptr<simparm::Node>(), config )
@@ -100,6 +127,9 @@ NodeHandle RootNode::create_group( std::string ) {
     return NodeHandle( new WindowNode( shared_from_this() ) );
 }
 
+Node::Relayout RootNode::get_relayout_function() {
+    throw std::logic_error("Root node reached in relayout, not implemented here, expected scrolled window child");
+}
 
 }
 }

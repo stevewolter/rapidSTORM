@@ -19,6 +19,7 @@ class RootNode
 {
     boost::shared_ptr<RootFrame*> my_frame;
     boost::shared_ptr<wxWindow*> window_view;
+    boost::shared_ptr<VisibilityControl> vc;
     dStorm::MainThread& main_thread;
     dStorm::job::Config config;
     dStorm::JobStarter starter;
@@ -26,6 +27,7 @@ class RootNode
     boost::shared_ptr< Node > main_part;
 
     RootNode( dStorm::MainThread&, const dStorm::job::Config& );
+    Relayout get_relayout_function();
 
 public:
     static boost::shared_ptr<RootNode> create( dStorm::MainThread&, const dStorm::job::Config& );
@@ -33,6 +35,7 @@ public:
     void add_entry_line( const LineSpecification& );
     void add_full_width_line( WindowSpecification w );
     boost::shared_ptr< wxWindow* > get_parent_window() { return window_view; }
+    boost::shared_ptr< VisibilityControl > get_visibility_control() { return vc; }
     NodeHandle create_object( std::string );
     NodeHandle create_group( std::string );
     ~RootNode();

@@ -20,6 +20,7 @@ public:
     void add_full_width_line( WindowSpecification w );
     NodeHandle create_object( std::string name );
     NodeHandle create_group( std::string name );
+    boost::function0<void> get_relayout_function();
 };
 
 }

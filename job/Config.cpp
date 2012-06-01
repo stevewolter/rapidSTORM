@@ -31,6 +31,7 @@
 #include <dStorm/signals/UseSpotFitter.h>
 
 #include "Car.h"
+#include <simparm/TreeRoot.h>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ namespace job {
 
 class Config::TreeRoot : public output::FilterSource
 {
+    simparm::TreeRoot tree_root;
     simparm::TreeObject name_object;
     output::Config* my_config;
     output::Capabilities cap;
@@ -51,6 +53,7 @@ class Config::TreeRoot : public output::FilterSource
     TreeRoot();
     TreeRoot( const TreeRoot& other )
     : output::FilterSource( other),
+      tree_root(other.tree_root),
       name_object(other.name_object)
     {
         DEBUG("Copying output tree root");
@@ -73,7 +76,8 @@ class Config::TreeRoot : public output::FilterSource
     }
 
     void attach_full_ui( simparm::NodeHandle at ) { 
-        simparm::NodeHandle r = name_object.attach_ui(at);
+        simparm::NodeHandle n = tree_root.attach_ui(at);
+        simparm::NodeHandle r = name_object.attach_ui(n);
         attach_children_ui( r ); 
     }
     void hide_in_tree() { name_object.show_in_tree = false; }

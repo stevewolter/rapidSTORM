@@ -74,6 +74,11 @@ simparm::NodeHandle Node::create_trigger( std::string name ) {
     return adorn_node( new EntryNode( name, OptionTable::Trigger ) );
 }
 
+NodeHandle Node::create_tree_root() { return shared_from_this(); }
+NodeHandle Node::create_tree_object( std::string name ) {
+    return create_object( name );
+}
+
 std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
 {

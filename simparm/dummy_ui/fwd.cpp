@@ -15,6 +15,8 @@ struct Node : public simparm::Node {
     virtual NodeHandle create_file_entry( std::string ) { return make_node(); }
     virtual NodeHandle create_progress_bar( std::string ) { return make_node(); }
     virtual NodeHandle create_trigger( std::string ) { return make_node(); }
+    virtual NodeHandle create_tree_root() { return make_node(); }
+    virtual NodeHandle create_tree_object( std::string ) { return make_node(); }
     virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& )
     {

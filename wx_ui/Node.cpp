@@ -5,6 +5,9 @@
 #include "TriggerNode.h"
 #include "ProgressNode.h"
 #include "CheckboxNode.h"
+#include "GroupNode.h"
+#include "TreeRoot.h"
+#include "TreePage.h"
 #include "wxDisplay/wxManager.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -12,6 +15,7 @@
 #include <wx/defs.h>
 #include <wx/string.h>
 #include <wx/stattext.h>
+#include "VisibilityControl.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -52,8 +56,25 @@ NodeHandle Node::create_file_entry( std::string name ) {
     return NodeHandle( new TextfieldNode(shared_from_this()) ); 
 }
 
+NodeHandle Node::create_group( std::string name ) { 
+    return NodeHandle( new GroupNode(shared_from_this()) ); 
+}
+
+NodeHandle Node::create_object( std::string name ) { 
+    return NodeHandle( new Node(shared_from_this()) ); 
+}
+
+NodeHandle Node::create_tree_root() {
+    return NodeHandle( new TreeRoot(shared_from_this()) ); 
+}
+NodeHandle Node::create_tree_object( std::string ) {
+    boost::shared_ptr< Node > tree_page( new TreePage(shared_from_this()) );
+    return NodeHandle( new WindowNode( tree_page ) );
+}
+
 void Node::run_in_GUI_thread( boost::function0<void> f ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( f );
+    dStorm::display::wxManager& m = dStorm::display::wxManager::get_singleton_instance();
+    m.run_in_GUI_thread( f );
 }
 
 void Node::create_static_text( boost::shared_ptr<wxWindow*> into, std::string text ) {
@@ -62,10 +83,9 @@ void Node::create_static_text( boost::shared_ptr<wxWindow*> into, std::string te
                                                      wxString( text.c_str(), wxConvUTF8 ) ) );
 }
 
-void Node::create_static_text( boost::shared_ptr<wxStaticText*> into, std::string text ) {
-    run_in_GUI_thread( *bl::constant( into ) = 
-            bl::bind( bl::new_ptr< wxStaticText >(), *bl::constant(get_parent_window()), int(wxID_ANY), 
-                                                     wxString( text.c_str(), wxConvUTF8 ) ) );
+void Node::add_to_visibility_control( boost::shared_ptr<wxWindow*> w ) {
+    run_in_GUI_thread( boost::bind( &VisibilityControl::register_window, 
+        get_visibility_control(), w, user_level, is_visible ) );
 }
 
 }

@@ -1,14 +1,11 @@
 #include "ChoiceNode.h"
 #include "WindowNode.h"
 #include <wx/wx.h>
-#include <boost/lambda/construct.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+#include "lambda.h"
+#include "VisibilityControl.h"
 
 namespace simparm {
 namespace wx_ui {
-
-namespace bl = boost::lambda;
 
 class ChoiceWidget : public wxChoice {
     void *shown_children;
@@ -17,6 +14,8 @@ class ChoiceWidget : public wxChoice {
     std::map< void*, std::string > names;
     std::string current_selection;
     boost::shared_ptr< BaseAttributeHandle > value;
+    boost::function0<void> relayout;
+    boost::shared_ptr< VisibilityControl > vc;
 
     void GUI_changed_choice( wxCommandEvent& ) { 
         ShowChildren(); 
@@ -30,27 +29,25 @@ class ChoiceWidget : public wxChoice {
         int index = GetSelection();
         shown_children = ( index == wxNOT_FOUND ) ? NULL : GetClientData(index);
         for ( std::multimap< void*, wxWindow* >::const_iterator i = children.begin(); i != children.end(); ++i ) {
-            i->second->Show( i->first == shown_children );
+            vc->set_frontend_visibility( i->second, i->first == shown_children );
         }
-        fit_all_parents();
-    }
-
-    void fit_all_parents() {
-        GetContainingSizer()->Layout();
-#if 0
-        for (wxWindow* w = GetParent(); w != NULL; w = w->GetParent() ) {
-            w->Fit();
-            w->Layout();
-        }
-#endif
+        relayout();
     }
 
 public:
-    ChoiceWidget( wxWindow *parent, boost::shared_ptr< BaseAttributeHandle > value ) 
+    ChoiceWidget( 
+        wxWindow *parent, 
+        boost::shared_ptr< BaseAttributeHandle > value, 
+        boost::function0<void> relayout ,
+        boost::shared_ptr< VisibilityControl > vc
+    ) 
         : wxChoice( parent, wxID_ANY ),
           shown_children(NULL),
           current_selection(*value->get_value()),
-          value(value) {}
+          value(value),
+          relayout( relayout ),
+          vc( vc )
+        {}
 
     void add_choice( void* ident, const std::string& name, std::string description ) {
         int index = Append( wxString( description.c_str(), wxConvUTF8 ), ident );
@@ -64,12 +61,13 @@ public:
     void connect( void *ident, wxWindow* window ) {
         children.insert( std::make_pair(ident, window) );
         if ( ident != shown_children )
-            window->Hide();
-        fit_all_parents();
+            vc->set_frontend_visibility( window, false );
+        relayout();
     }
 
     void select_choice( std::string name ) {
         SetSelection( name_positions[name] );
+        ShowChildren();
     }
 
     DECLARE_EVENT_TABLE();
@@ -85,7 +83,11 @@ void ChoiceNode::initialization_finished() {
     run_in_GUI_thread(
         *bl::constant(choice_line.contents) =
         *bl::constant(choice) =
-        bl::bind( bl::new_ptr< ChoiceWidget >(), *bl::constant( Node::get_parent_window() ), value_handle ) );
+        bl::bind( bl::new_ptr< ChoiceWidget >(), 
+                  *bl::constant( Node::get_parent_window() ),
+                  value_handle, 
+                  Node::get_relayout_function(),
+                  get_visibility_control() ) );
     Node::add_entry_line( choice_line );
 }
 

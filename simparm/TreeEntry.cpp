@@ -20,4 +20,8 @@ NodeHandle TreeObject::create_hidden_node( simparm::NodeHandle n ) {
     return r;
 }
 
+NodeHandle TreeObject::make_naked_node( simparm::NodeHandle n ) {
+    return NodeHandle( n->create_tree_object( getName() ) );
+}
+
 }

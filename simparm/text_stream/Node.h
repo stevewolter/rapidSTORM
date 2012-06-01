@@ -66,6 +66,8 @@ public:
     simparm::NodeHandle create_file_entry( std::string name );
     simparm::NodeHandle create_progress_bar( std::string name );
     simparm::NodeHandle create_trigger( std::string name );
+    NodeHandle create_tree_root();
+    NodeHandle create_tree_object( std::string name );
     std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
 

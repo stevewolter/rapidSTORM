@@ -22,6 +22,8 @@ struct Node {
     virtual NodeHandle create_file_entry( std::string name ) = 0;
     virtual NodeHandle create_progress_bar( std::string name ) = 0;
     virtual NodeHandle create_trigger( std::string name ) = 0;
+    virtual NodeHandle create_tree_root() = 0;
+    virtual NodeHandle create_tree_object( std::string name ) = 0;
     virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& ) = 0;
 

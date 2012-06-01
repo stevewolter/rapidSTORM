@@ -716,6 +716,7 @@ libdStorm_la_SOURCES += \
     simparm/Object.h simparm/Object.cpp \
     simparm/TriggerEntry.h simparm/TriggerEntry.cpp \
     simparm/ProgressEntry.h simparm/ProgressEntry.cpp \
+    simparm/TreeRoot.h simparm/TreeRoot.cpp \
     simparm/TreeEntry.h simparm/TreeEntry.cpp \
     simparm/FileEntry.h simparm/FileEntry.cpp \
     simparm/Message.h simparm/Message.cpp \
@@ -766,7 +767,12 @@ libdStorm_la_SOURCES += \
     wx_ui/ProgressNode.h wx_ui/ProgressNode.cpp \
     wx_ui/detach_window.h wx_ui/detach_window.cpp \
     wx_ui/AttributeHandle.h \
-    wx_ui/CheckboxNode.h wx_ui/CheckboxNode.cpp
+    wx_ui/CheckboxNode.h wx_ui/CheckboxNode.cpp \
+    wx_ui/GroupNode.h wx_ui/GroupNode.cpp \
+    wx_ui/TreeRoot.h wx_ui/TreeRoot.cpp \
+    wx_ui/TreePage.h wx_ui/TreePage.cpp \
+    wx_ui/TreeRepresentation.h wx_ui/TreeRepresentation.cpp \
+    wx_ui/lambda.h
 
 libdStorm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
