@@ -10,7 +10,7 @@ namespace wx_ui {
 class ChoiceWidget;
 
 class ChoiceNode : public InnerNode {
-    class SubNode;
+    template <typename T> class SubNode;
     boost::shared_ptr<ChoiceWidget*> choice;
     std::string description;
     simparm::BaseAttribute::ConnectionStore connection;

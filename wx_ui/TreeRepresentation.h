@@ -25,6 +25,7 @@ public:
     TreeRepresentation();
 
     void add_as_child( boost::shared_ptr< TreeRepresentation > parent, boost::shared_ptr<Window> window, wxString name, boost::function0<void> redraw );
+    void remove_child( boost::shared_ptr<Window> window );
     void create_widget(boost::shared_ptr<Window> window_announcement, boost::shared_ptr<Window> parent );
 };
 

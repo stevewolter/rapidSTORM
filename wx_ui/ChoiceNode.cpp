@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #include "lambda.h"
 #include "VisibilityControl.h"
+#include "GroupNode.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -141,33 +142,39 @@ static void connect_to_choice(
     (*choice)->connect( ident, s.window );
 }
 
-class ChoiceNode::SubNode : public InnerNode {
+template <typename RealNode>
+class ChoiceNode::SubNode : public RealNode {
     boost::shared_ptr<ChoiceNode> parent;
     std::string name, description;
     bool showed_choice;
 
 public:
     SubNode( boost::shared_ptr<ChoiceNode> parent, std::string name )
-        : InnerNode(parent), parent(parent), name(name), showed_choice(false) {}
+        : RealNode(parent), parent(parent), name(name), showed_choice(false) {}
+    ~SubNode() {
+        if ( showed_choice )
+            run_in_GUI_thread(
+                boost::bind( &remove_choice, parent->choice, this, name, description ) );
+    }
 
-    virtual void set_description( std::string d ) { description = d; }
-    virtual void set_visibility( bool b ) { InnerNode::set_visibility(b); show_or_hide_choice();  }
-    virtual void set_user_level( UserLevel u ) { InnerNode::set_user_level(u); show_or_hide_choice(); }
+    virtual void set_description( std::string d ) { RealNode::set_description(d); description = d; }
+    virtual void set_visibility( bool b ) { RealNode::set_visibility(b); show_or_hide_choice();  }
+    virtual void set_user_level( UserLevel u ) { RealNode::set_user_level(u); show_or_hide_choice(); }
     void initialization_finished() {
-        notify_on_visibility_change( boost::bind( &SubNode::visibility_changed, this, _1 ) );
-        InnerNode::initialization_finished();
+        RealNode::notify_on_visibility_change( boost::bind( &SubNode::visibility_changed, this, _1 ) );
+        RealNode::initialization_finished();
         show_or_hide_choice();
     }
 
     void visibility_changed( bool ) { show_or_hide_choice(); }
     void show_or_hide_choice() {
-        if ( is_visible() && ! showed_choice ) 
+        if ( RealNode::is_visible() && ! showed_choice ) 
             run_in_GUI_thread(
                 boost::bind( &add_choice, parent->choice, this, name, description ) );
-        if ( ! is_visible() && showed_choice )
+        if ( ! RealNode::is_visible() && showed_choice )
             run_in_GUI_thread(
                 boost::bind( &remove_choice, parent->choice, this, name, description ) );
-        showed_choice = is_visible();
+        showed_choice = RealNode::is_visible();
     }
     void add_entry_line( LineSpecification& s ) { 
         run_in_GUI_thread(
@@ -176,17 +183,17 @@ public:
             bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, s.contents ) );
         run_in_GUI_thread(
             bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, s.adornment ) );
-        InnerNode::add_entry_line(s);
+        RealNode::add_entry_line(s);
     }
     void add_full_width_line( WindowSpecification& w ) {
         run_in_GUI_thread(
             bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, w.window ) );
-        InnerNode::add_full_width_line(w);
+        RealNode::add_full_width_line(w);
     }
     void bind_visibility_group( boost::shared_ptr<Window> window ) {
         run_in_GUI_thread(
             bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, window ) );
-        InnerNode::bind_visibility_group(window);
+        RealNode::bind_visibility_group(window);
     }
 };
 
@@ -204,11 +211,11 @@ void ChoiceNode::user_changed_choice() {
 }
 
 NodeHandle ChoiceNode::create_object( std::string name ) {
-    return NodeHandle( new SubNode( boost::static_pointer_cast<ChoiceNode>( shared_from_this() ), name ) );
+    return NodeHandle( new SubNode<InnerNode>( boost::static_pointer_cast<ChoiceNode>( shared_from_this() ), name ) );
 }
 
 NodeHandle ChoiceNode::create_group( std::string name ) {
-    return NodeHandle( new SubNode( boost::static_pointer_cast<ChoiceNode>( shared_from_this() ), name ) );
+    return NodeHandle( new SubNode<GroupNode>( boost::static_pointer_cast<ChoiceNode>( shared_from_this() ), name ) );
 }
 
 }

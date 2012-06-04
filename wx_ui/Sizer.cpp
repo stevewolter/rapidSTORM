@@ -6,6 +6,8 @@
 namespace simparm {
 namespace wx_ui {
 
+static const int Border = 2;
+
 Sizer::Sizer() : row( new int(0) ) {}
 
 GUIHandle<wxSizer> Sizer::create_sizer() {
@@ -28,12 +30,12 @@ static void add_entry_line(
     boost::shared_ptr<int> row
 ) {
     if ( *label )
-        (*sizer)->Add( *label, wxGBPosition(*row,0) );
+        (*sizer)->Add( *label, wxGBPosition(*row,0), wxGBSpan(), wxALL | wxALIGN_CENTER_VERTICAL, Border );
     if ( *adornment ) {
-        (*sizer)->Add( *contents, wxGBPosition(*row,1), wxGBSpan(), wxGROW );
-        (*sizer)->Add( *adornment, wxGBPosition(*row,2), wxGBSpan(), wxALIGN_CENTER );
+        (*sizer)->Add( *contents, wxGBPosition(*row,1), wxGBSpan(), wxGROW | wxALL, Border );
+        (*sizer)->Add( *adornment, wxGBPosition(*row,2), wxGBSpan(), wxALIGN_CENTER | wxALL, Border );
     } else {
-        (*sizer)->Add( *contents, wxGBPosition(*row,1), wxGBSpan(), wxGROW );
+        (*sizer)->Add( *contents, wxGBPosition(*row,1), wxGBSpan(1,2), wxGROW | wxALL, Border );
     }
     (*sizer)->Layout();
     ++ *row;

@@ -1,6 +1,7 @@
 #include "TreeRepresentation.h"
 #include <wx/treebook.h>
 #include <boost/range/algorithm/find.hpp>
+#include <boost/range/algorithm_ext/erase.hpp>
 
 namespace simparm {
 namespace wx_ui {
@@ -50,6 +51,12 @@ int TreeRepresentation::node_count() const {
     for ( std::vector< TreeRepresentation* >::const_iterator i = children.begin(); i != children.end(); ++i )
         rv += (*i)->node_count();
     return rv;
+}
+
+void TreeRepresentation::remove_child( boost::shared_ptr<Window> ) {
+    int index = get_preceding_and_self_count() - 1;
+    widget->DeletePage( index );
+    boost::range::remove_erase( parent->children, this );
 }
 
 }
