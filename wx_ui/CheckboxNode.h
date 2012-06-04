@@ -9,7 +9,7 @@ namespace wx_ui {
 
 class CheckBox;
 
-class CheckboxNode : public Node {
+class CheckboxNode : public InnerNode {
     std::string description;
     std::string unit;
     boost::shared_ptr< CheckBox* > my_window;
@@ -18,7 +18,7 @@ class CheckboxNode : public Node {
     void display_value();
 
 public:
-    CheckboxNode( boost::shared_ptr<Node> n ) : Node(n), my_window( new CheckBox*() ) {}
+    CheckboxNode( boost::shared_ptr<Node> n ) : InnerNode(n), my_window( new CheckBox*() ) {}
     ~CheckboxNode();
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();

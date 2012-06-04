@@ -10,10 +10,10 @@ namespace wx_ui {
 
 class ScrolledWindowNode : public WindowNode {
     boost::shared_ptr< wxScrolledWindow* > scrolled_window;
+    virtual boost::shared_ptr<Window> create_window();
 public:
     ScrolledWindowNode( boost::shared_ptr<Node> n ) 
         : WindowNode(n), scrolled_window( new wxScrolledWindow*() ) {}
-    void initialization_finished();
     boost::function0<void> get_relayout_function() ;
 };
 

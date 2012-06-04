@@ -198,7 +198,9 @@ Config::Config()
   height("Height", "Image height", 50),
   number("Number", "Number of generated images", 10),
   goIntType("GoIntType", "Make input source of type int", false)
-{}
+{
+    name_object.set_user_level( simparm::Debug );
+}
 
 void Config::attach_ui( simparm::NodeHandle n) {
     simparm::NodeHandle at = name_object.attach_ui(n);

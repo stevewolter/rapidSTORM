@@ -10,9 +10,9 @@ static void make_label( boost::shared_ptr<wxStaticText*> label, boost::shared_pt
     *label = new wxStaticText( *parent_window, wxID_ANY, wxString( text.c_str(), wxConvUTF8 ) );
 }
 static void make_progress_bar( 
-    boost::shared_ptr<wxWindow*> text_object, 
+    boost::shared_ptr<Window> text_object, 
     boost::shared_ptr<wxGauge*> my_gauge, 
-    boost::shared_ptr< wxWindow* > parent_window
+    boost::shared_ptr< Window > parent_window
 ) {
     *my_gauge = new wxGauge( *parent_window, wxID_ANY, 100.0 );
     *text_object = *my_gauge;
@@ -28,9 +28,9 @@ void ProgressNode::display_value() {
 }
 
 void ProgressNode::initialization_finished() {
-    LineSpecification my_line;
+    LineSpecification my_line( get_relayout_function() );
     create_static_text( my_line.label, description );
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         boost::bind( &make_progress_bar, my_line.contents, my_gauge, get_parent_window() ) );
     add_entry_line( my_line );
 }

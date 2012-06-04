@@ -8,14 +8,14 @@ class wxGauge;
 namespace simparm {
 namespace wx_ui {
 
-struct ProgressNode : public Node {
+struct ProgressNode : public InnerNode {
     std::string description;
     boost::shared_ptr< wxGauge* > my_gauge;
     simparm::BaseAttribute* value;
     BaseAttribute::ConnectionStore connection;
 
     ProgressNode( boost::shared_ptr<Node> n ) 
-        : Node(n), my_gauge( new wxGauge*() ), value(NULL) {}
+        : InnerNode(n), my_gauge( new wxGauge*() ), value(NULL) {}
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();
     void display_value();

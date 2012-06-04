@@ -17,9 +17,19 @@ public:
         return (a) ? a->get_value() : boost::optional< std::string >();
     }
 
-    void set_value( std::string value ) {
+    bool value_is_optional() const {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
-        if (a) a->set_value(value);
+        return (a) ? a->value_is_optional() : true;
+    }
+
+    bool set_value( std::string value ) {
+        boost::lock_guard< boost::recursive_mutex > lock( mutex );
+        if (a) return a->set_value(value); else return true;
+    }
+
+    void unset_value() {
+        boost::lock_guard< boost::recursive_mutex > lock( mutex );
+        if (a) a->unset_value();
     }
 
     void detach() {

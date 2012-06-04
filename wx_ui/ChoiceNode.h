@@ -9,7 +9,7 @@ namespace wx_ui {
 
 class ChoiceWidget;
 
-class ChoiceNode : public Node {
+class ChoiceNode : public InnerNode {
     class SubNode;
     boost::shared_ptr<ChoiceWidget*> choice;
     std::string description;
@@ -20,7 +20,7 @@ class ChoiceNode : public Node {
 
 public:
     ChoiceNode( boost::shared_ptr<Node> n )
-        : Node(n), choice( new ChoiceWidget*() ) {}
+        : InnerNode(n), choice( new ChoiceWidget*() ) {}
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();
     NodeHandle create_object( std::string name );

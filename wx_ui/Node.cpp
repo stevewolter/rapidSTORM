@@ -22,6 +22,25 @@ namespace wx_ui {
 
 namespace bl = boost::lambda;
 
+WindowSpecification::WindowSpecification()
+: window( new Window() ), proportion(0)
+{}
+
+WindowSpecification::~WindowSpecification() {
+    std::for_each( removal_instructions.begin(), removal_instructions.end(),
+        &InnerNode::run_in_GUI_thread );
+}
+
+LineSpecification::LineSpecification( boost::function0<void> redraw_function )
+: label( new Window() ),
+  contents( new Window() ),
+  adornment( new Window() )
+{
+    label->set_redraw_function( redraw_function );
+    contents->set_redraw_function( redraw_function );
+    adornment->set_redraw_function( redraw_function );
+}
+
 std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
 {
@@ -61,31 +80,26 @@ NodeHandle Node::create_group( std::string name ) {
 }
 
 NodeHandle Node::create_object( std::string name ) { 
-    return NodeHandle( new Node(shared_from_this()) ); 
+    return NodeHandle( new InnerNode(shared_from_this()) ); 
 }
 
 NodeHandle Node::create_tree_root() {
     return NodeHandle( new TreeRoot(shared_from_this()) ); 
 }
 NodeHandle Node::create_tree_object( std::string ) {
-    boost::shared_ptr< Node > tree_page( new TreePage(shared_from_this()) );
+    boost::shared_ptr< InnerNode > tree_page( new TreePage(shared_from_this()) );
     return NodeHandle( new WindowNode( tree_page ) );
 }
 
-void Node::run_in_GUI_thread( boost::function0<void> f ) {
+void InnerNode::run_in_GUI_thread( boost::function0<void> f ) {
     dStorm::display::wxManager& m = dStorm::display::wxManager::get_singleton_instance();
     m.run_in_GUI_thread( f );
 }
 
-void Node::create_static_text( boost::shared_ptr<wxWindow*> into, std::string text ) {
+void InnerNode::create_static_text( boost::shared_ptr<Window> into, std::string text ) {
     run_in_GUI_thread( *bl::constant( into ) = 
             bl::bind( bl::new_ptr< wxStaticText >(), *bl::constant(get_parent_window()), int(wxID_ANY), 
                                                      wxString( text.c_str(), wxConvUTF8 ) ) );
-}
-
-void Node::add_to_visibility_control( boost::shared_ptr<wxWindow*> w ) {
-    run_in_GUI_thread( boost::bind( &VisibilityControl::register_window, 
-        get_visibility_control(), w, user_level, is_visible ) );
 }
 
 }

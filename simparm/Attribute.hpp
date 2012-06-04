@@ -3,6 +3,7 @@
 
 #include "Attribute.h"
 #include "iostream.h"
+#include <cstdio>
 
 namespace simparm {
 
@@ -19,6 +20,7 @@ bool Attribute<Type>::set_value(const std::string& i ) {
     std::stringstream stream(i);
     Type temp;
     from_config_stream( stream, temp );
+    if ( stream.peek() != EOF ) return false;
     return valueChange( temp, true ); 
 }
 

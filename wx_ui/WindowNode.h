@@ -2,30 +2,25 @@
 #define SIMPARM_WX_UI_WINDOWNODE_H
 
 #include "Node.h"
-
-class wxGridBagSizer;
+#include "GUIHandle.h"
+#include "Sizer.h"
 
 namespace simparm {
 namespace wx_ui {
 
-class WindowNode : public Node {
-protected:
+class WindowNode : public InnerNode {
+    Sizer sizer;
     WindowSpecification window;
-    boost::shared_ptr<wxGridBagSizer*> sizer;
-    boost::shared_ptr<int> row;
-
-    void create_unattached_gridbag_sizer();
-    void create_sizer();
-
+    virtual boost::shared_ptr<Window> create_window();
 public:
     WindowNode( boost::shared_ptr<Node> n ) ;
     virtual void set_description( std::string d ) { window.name = d; }
     void initialization_finished();
 
-    void add_entry_line( const LineSpecification& );
-    void add_full_width_line( WindowSpecification w );
-    void add_full_width_sizer( SizerSpecification w );
-    boost::shared_ptr< wxWindow* > get_parent_window() { return window.window; }
+    void add_entry_line( LineSpecification& l ) { sizer.add_entry_line(l); }
+    void add_full_width_line( WindowSpecification& w ) { sizer.add_full_width_line(w); }
+    void add_full_width_sizer( SizerSpecification& w ) { sizer.add_full_width_sizer(w); }
+    boost::shared_ptr< Window > get_parent_window() { return window.window; }
 };
 
 }

@@ -1,5 +1,8 @@
 #include "TextfieldNode.h"
 #include <wx/textctrl.h>
+#include <wx/panel.h>
+#include <wx/checkbox.h>
+#include <wx/sizer.h>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -9,26 +12,64 @@ namespace wx_ui {
 
 namespace bl = boost::lambda;
 
-class TextCtrl : public wxTextCtrl {
+class TextCtrl : public wxPanel {
+    wxTextCtrl* text;
+    wxCheckBox* optional;
     boost::shared_ptr< BaseAttributeHandle > value;
+    wxColour normal_bg, uncommitted_bg;
+
 public:
     TextCtrl( wxWindow* parent, boost::shared_ptr< BaseAttributeHandle > value ) 
-    : wxTextCtrl( 
-        parent, wxID_ANY, 
-        wxString( value->get_value().get_value_or("unset").c_str(), wxConvUTF8 ),
+    : wxPanel( parent, wxID_ANY ),
+      text( new wxTextCtrl(
+        this, wxID_ANY, 
+        wxT(""),
         wxDefaultPosition, wxDefaultSize,
-        wxTE_PROCESS_ENTER
-    ), value(value) {}
+        wxTE_PROCESS_ENTER)),
+      optional( new wxCheckBox( this, wxID_ANY, wxT("") ) ),
+      value(value),
+      uncommitted_bg( 255, 200, 200 )
+    {
+        normal_bg = text->GetBackgroundColour();
+        optional->Show( value->value_is_optional() );
+        boost::optional< std::string > v = value->get_value();
+        if ( ! v ) {
+            text->Hide();
+        } else {
+            text->ChangeValue( wxString( v->c_str(), wxConvUTF8 ) );
+        }
+
+        wxBoxSizer* outer_sizer = new wxBoxSizer( wxHORIZONTAL );
+        outer_sizer->Add( optional );
+        outer_sizer->Add( text, 1, wxEXPAND | wxRESERVE_SPACE_EVEN_IF_HIDDEN );
+        SetSizer( outer_sizer );
+    }
 
     void enter_pressed(wxCommandEvent&) { 
-        value->set_value( std::string( GetValue().mb_str() ) );
+        bool success = value->set_value( std::string( text->GetValue().mb_str() ) );
+        text->SetBackgroundColour( (success) ? normal_bg : uncommitted_bg );
+        text->ClearBackground();
     }
+
+    void checkbox_marked( wxCommandEvent& ) {
+        if ( optional->GetValue() ) {
+            text->Show();
+            text->SetBackgroundColour( uncommitted_bg );
+            text->ClearBackground();
+        } else {
+            text->Hide();
+            value->unset_value();
+        }
+    }
+
+    void ChangeValue( const wxString& s ) { text->ChangeValue(s); }
 
     DECLARE_EVENT_TABLE();
 };
 
-BEGIN_EVENT_TABLE(TextCtrl, wxTextCtrl)
+BEGIN_EVENT_TABLE(TextCtrl, wxPanel)
 EVT_TEXT_ENTER  (wxID_ANY, TextCtrl::enter_pressed )
+EVT_CHECKBOX    (wxID_ANY, TextCtrl::checkbox_marked )
 END_EVENT_TABLE()
 
 void TextfieldNode::display_value() {
@@ -38,7 +79,7 @@ void TextfieldNode::display_value() {
 }
 
 void TextfieldNode::initialization_finished() {
-    LineSpecification my_line;
+    LineSpecification my_line( get_relayout_function() );
     create_static_text( my_line.label, description );
     run_in_GUI_thread( 
         *bl::constant( my_line.contents ) = 

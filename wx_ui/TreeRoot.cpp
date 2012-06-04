@@ -10,8 +10,9 @@ void TreeRoot::initialization_finished() {
     treebook_widget = window.window;
     tr_root.reset( new TreeRepresentation() );
     window.name = "UNDEFINED";
+    window.proportion = 1;
     run_in_GUI_thread( boost::bind( &TreeRepresentation::create_widget, tr_root, window.window, get_parent_window() ) );
-    Node::add_full_width_line( window );
+    InnerNode::add_full_width_line( window );
 }
 
 }

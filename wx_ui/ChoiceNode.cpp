@@ -9,7 +9,7 @@ namespace wx_ui {
 
 class ChoiceWidget : public wxChoice {
     void *shown_children;
-    std::multimap< void*, wxWindow* > children;
+    std::multimap< void*, boost::shared_ptr<Window> > children;
     std::map< std::string, int > name_positions;
     std::map< void*, std::string > names;
     std::string current_selection;
@@ -27,10 +27,16 @@ class ChoiceWidget : public wxChoice {
     }
     void ShowChildren() {
         int index = GetSelection();
-        shown_children = ( index == wxNOT_FOUND ) ? NULL : GetClientData(index);
-        for ( std::multimap< void*, wxWindow* >::const_iterator i = children.begin(); i != children.end(); ++i ) {
-            vc->set_frontend_visibility( i->second, i->first == shown_children );
+        void *new_shown_children = ( index == wxNOT_FOUND ) ? NULL : GetClientData(index);
+        if ( shown_children == new_shown_children ) return;
+
+        for ( std::multimap< void*, boost::shared_ptr<Window> >::const_iterator i = children.begin(); i != children.end(); ++i ) {
+            if ( i->first == new_shown_children )
+                i->second->change_frontend_visibility( true );
+            else if ( i->first == shown_children )
+                i->second->change_frontend_visibility( false );
         }
+        shown_children = new_shown_children;
         relayout();
     }
 
@@ -58,10 +64,19 @@ public:
             SetSelection( index );
     }
     
-    void connect( void *ident, wxWindow* window ) {
+    void remove_choice( void* ident, const std::string& name, std::string description ) {
+        int index = FindString( wxString( description.c_str(), wxConvUTF8 ) );
+        assert( index != wxNOT_FOUND );
+        Delete( index );
+        //name_positions.insert( std::make_pair( name, index ) );
+        names.erase( ident );
+        ShowChildren();
+    }
+    
+    void connect( void *ident, boost::shared_ptr<Window> window ) {
         children.insert( std::make_pair(ident, window) );
         if ( ident != shown_children )
-            vc->set_frontend_visibility( window, false );
+            window->change_frontend_visibility( false );
         relayout();
     }
 
@@ -78,17 +93,17 @@ BEGIN_EVENT_TABLE(ChoiceWidget, wxChoice)
 END_EVENT_TABLE()
 
 void ChoiceNode::initialization_finished() {
-    LineSpecification choice_line;
+    LineSpecification choice_line( get_relayout_function() );
     create_static_text( choice_line.label, description );
     run_in_GUI_thread(
         *bl::constant(choice_line.contents) =
         *bl::constant(choice) =
         bl::bind( bl::new_ptr< ChoiceWidget >(), 
-                  *bl::constant( Node::get_parent_window() ),
+                  *bl::constant( InnerNode::get_parent_window() ),
                   value_handle, 
-                  Node::get_relayout_function(),
+                  InnerNode::get_relayout_function(),
                   get_visibility_control() ) );
-    Node::add_entry_line( choice_line );
+    InnerNode::add_entry_line( choice_line );
 }
 
 static void add_choice(
@@ -100,50 +115,79 @@ static void add_choice(
     (*choice)->add_choice( subchoice_ident, name, description );
 }
 
-static void connect_to_choice_line(
+static void remove_choice(
     boost::shared_ptr<ChoiceWidget*> choice,
-    void* ident,
-    const LineSpecification& s )
-{
-    if ( *s.label )
-        (*choice)->connect( ident, *s.label );
-    (*choice)->connect( ident, *s.contents );
-    if ( *s.adornment )
-        (*choice)->connect( ident, *s.adornment );
+    void* subchoice_ident,
+    std::string name,
+    std::string description
+) {
+    (*choice)->remove_choice( subchoice_ident, name, description );
 }
 
-static void connect_to_choice_full(
+
+static void connect_to_choice(
+    boost::shared_ptr<ChoiceWidget*> choice,
+    void* ident,
+    boost::shared_ptr<Window> s )
+{
+    (*choice)->connect( ident, s );
+}
+
+static void connect_to_choice(
     boost::shared_ptr<ChoiceWidget*> choice,
     void* ident,
     const WindowSpecification& s )
 {
-    (*choice)->connect( ident, *s.window );
+    (*choice)->connect( ident, s.window );
 }
 
-class ChoiceNode::SubNode : public Node {
+class ChoiceNode::SubNode : public InnerNode {
     boost::shared_ptr<ChoiceNode> parent;
     std::string name, description;
+    bool showed_choice;
+
 public:
     SubNode( boost::shared_ptr<ChoiceNode> parent, std::string name )
-        : Node(parent), parent(parent), name(name) {}
+        : InnerNode(parent), parent(parent), name(name), showed_choice(false) {}
 
     virtual void set_description( std::string d ) { description = d; }
+    virtual void set_visibility( bool b ) { InnerNode::set_visibility(b); show_or_hide_choice();  }
+    virtual void set_user_level( UserLevel u ) { InnerNode::set_user_level(u); show_or_hide_choice(); }
     void initialization_finished() {
-        Node::initialization_finished();
-        run_in_GUI_thread(
-            boost::bind( &add_choice, parent->choice, this, name, description ) );
-    }
-    void add_entry_line( const LineSpecification& s ) { 
-        run_in_GUI_thread(
-            boost::bind( &connect_to_choice_line, parent->choice, this, s ) );
-        Node::add_entry_line(s);
-    }
-    void add_full_width_line( WindowSpecification w ) {
-        run_in_GUI_thread(
-            boost::bind( &connect_to_choice_full, parent->choice, this, w ) );
-        Node::add_full_width_line(w);
+        notify_on_visibility_change( boost::bind( &SubNode::visibility_changed, this, _1 ) );
+        InnerNode::initialization_finished();
+        show_or_hide_choice();
     }
 
+    void visibility_changed( bool ) { show_or_hide_choice(); }
+    void show_or_hide_choice() {
+        if ( is_visible() && ! showed_choice ) 
+            run_in_GUI_thread(
+                boost::bind( &add_choice, parent->choice, this, name, description ) );
+        if ( ! is_visible() && showed_choice )
+            run_in_GUI_thread(
+                boost::bind( &remove_choice, parent->choice, this, name, description ) );
+        showed_choice = is_visible();
+    }
+    void add_entry_line( LineSpecification& s ) { 
+        run_in_GUI_thread(
+            bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, s.label ) );
+        run_in_GUI_thread(
+            bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, s.contents ) );
+        run_in_GUI_thread(
+            bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, s.adornment ) );
+        InnerNode::add_entry_line(s);
+    }
+    void add_full_width_line( WindowSpecification& w ) {
+        run_in_GUI_thread(
+            bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, w.window ) );
+        InnerNode::add_full_width_line(w);
+    }
+    void bind_visibility_group( boost::shared_ptr<Window> window ) {
+        run_in_GUI_thread(
+            bl::bind( &ChoiceWidget::connect, *bl::constant( parent->choice ), this, window ) );
+        InnerNode::bind_visibility_group(window);
+    }
 };
 
 void ChoiceNode::add_attribute( simparm::BaseAttribute& a ) {

@@ -6,14 +6,14 @@
 namespace simparm {
 namespace wx_ui {
 
-class TreeRoot : public Node {
-    boost::shared_ptr< wxWindow* > treebook_widget;
+class TreeRoot : public InnerNode {
+    boost::shared_ptr< Window > treebook_widget;
     boost::shared_ptr< TreeRepresentation > tr_root;
 
 public:
-    TreeRoot( boost::shared_ptr<Node> n ) : Node(n) {}
+    TreeRoot( boost::shared_ptr<Node> n ) : InnerNode(n) {}
     boost::shared_ptr< TreeRepresentation > get_treebook_parent() { return tr_root; }
-    boost::shared_ptr< wxWindow* > get_treebook_widget() { return treebook_widget; }
+    boost::shared_ptr< Window > get_treebook_widget() { return treebook_widget; }
     void initialization_finished();
 };
 

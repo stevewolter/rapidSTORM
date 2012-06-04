@@ -31,7 +31,7 @@ END_EVENT_TABLE()
 void TriggerNode::initialization_finished() {
     assert( value );
 
-    LineSpecification w;
+    LineSpecification w( get_relayout_function() );
     run_in_GUI_thread( 
         *bl::constant( w.contents ) = 
             bl::bind( bl::new_ptr< Button >(), *bl::constant( get_parent_window() ), description, value ) );

@@ -7,13 +7,12 @@
 namespace simparm {
 namespace wx_ui {
 
-class TriggerNode : public Node {
+class TriggerNode : public InnerNode {
     std::string description;
     boost::shared_ptr< AttributeHandle<unsigned long> > value;
 
 public:
-    TriggerNode( boost::shared_ptr<Node> n )
-        : Node(n) {}
+    TriggerNode( boost::shared_ptr<Node> n ) : InnerNode(n) {}
     ~TriggerNode();
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();

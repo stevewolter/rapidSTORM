@@ -39,7 +39,7 @@ EVT_CHECKBOX  (wxID_ANY, CheckBox::value_changed )
 END_EVENT_TABLE()
 
 void CheckboxNode::initialization_finished() {
-    LineSpecification my_line;
+    LineSpecification my_line( get_relayout_function() );
 
     create_static_text( my_line.label, description );
     run_in_GUI_thread( 
@@ -59,7 +59,7 @@ void CheckboxNode::add_attribute( simparm::BaseAttribute& a )
         value_handle.reset( new AttributeHandle<bool>(a) );
         boost::function0<void> value_change = bl::bind( &CheckBox::show_program_value, *bl::constant( my_window ) );
         connection = a.notify_on_non_GUI_value_change(       
-            boost::bind( &Node::run_in_GUI_thread, this, value_change ) );
+            boost::bind( &InnerNode::run_in_GUI_thread, value_change ) );
     }
 }
 

@@ -9,7 +9,7 @@ namespace wx_ui {
 
 class TextCtrl;
 
-class TextfieldNode : public Node {
+class TextfieldNode : public InnerNode {
     std::string description;
     std::string unit;
     boost::shared_ptr< TextCtrl* > my_window;
@@ -19,7 +19,7 @@ class TextfieldNode : public Node {
     void display_value();
 
 public:
-    TextfieldNode( boost::shared_ptr<Node> n ) : Node(n), my_window( new TextCtrl*() ) {}
+    TextfieldNode( boost::shared_ptr<Node> n ) : InnerNode(n), my_window( new TextCtrl*() ) {}
     ~TextfieldNode();
     virtual void set_description( std::string d ) { description = d; }
     void initialization_finished();

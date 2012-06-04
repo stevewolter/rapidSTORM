@@ -772,7 +772,10 @@ libdStorm_la_SOURCES += \
     wx_ui/TreeRoot.h wx_ui/TreeRoot.cpp \
     wx_ui/TreePage.h wx_ui/TreePage.cpp \
     wx_ui/TreeRepresentation.h wx_ui/TreeRepresentation.cpp \
-    wx_ui/lambda.h
+    wx_ui/VisibilityNode.h wx_ui/VisibilityNode.cpp \
+    wx_ui/Sizer.h wx_ui/Sizer.cpp \
+    wx_ui/Window.h wx_ui/Window.cpp \
+    wx_ui/lambda.h wx_ui/GUIHandle.h
 
 libdStorm_la_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \

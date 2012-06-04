@@ -18,7 +18,7 @@ Link::Link()
 : Choice("InputMethod", "Input type", false)
 {
     choices.setHelpID( "InputType" );
-    choices.set_user_level( simparm::Intermediate );
+    choices.set_user_level( simparm::Beginner );
 }
 
 void Link::insert_new_node( std::auto_ptr<input::Link> l, Place p ) 

@@ -5,6 +5,7 @@
 #include <boost/smart_ptr/weak_ptr.hpp>
 #include <vector>
 #include "Node.h"
+#include <wx/string.h>
 
 class wxTreebook;
 class wxWindow;
@@ -23,8 +24,8 @@ class TreeRepresentation {
 public:
     TreeRepresentation();
 
-    void add_as_child( boost::shared_ptr< TreeRepresentation > parent, const WindowSpecification& page, boost::function0<void> redraw );
-    void create_widget(boost::shared_ptr<wxWindow*> window_announcement, boost::shared_ptr<wxWindow*> parent );
+    void add_as_child( boost::shared_ptr< TreeRepresentation > parent, boost::shared_ptr<Window> window, wxString name, boost::function0<void> redraw );
+    void create_widget(boost::shared_ptr<Window> window_announcement, boost::shared_ptr<Window> parent );
 };
 
 }

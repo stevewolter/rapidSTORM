@@ -33,9 +33,7 @@ from_config_stream( std::istream& i, Type& t ) {
     /* Work around mis-specification in C++ that allows reading -1 with an integer overflow */
     if ( boost::is_unsigned<Type>::value ) {
         while ( isspace( i.peek() ) ) i.get();
-        if ( i.peek() == '-' ) {
-            throw std::runtime_error("Only positive numbers allowed here");
-        }
+        if ( i.peek() == '-' ) { return i; }
     }
     std::istream& rv = (i >> t); 
     return rv;

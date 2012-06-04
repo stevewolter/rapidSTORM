@@ -11,7 +11,8 @@ TreeRepresentation::TreeRepresentation() : widget(NULL) {}
 
 void TreeRepresentation::add_as_child( 
     boost::shared_ptr< TreeRepresentation > parent, 
-    const WindowSpecification& page ,
+    boost::shared_ptr<Window> window,
+    wxString name,
     boost::function0<void> redraw
 )
 {
@@ -19,19 +20,18 @@ void TreeRepresentation::add_as_child(
     this->parent = parent;
     parent->children.push_back( this );
     widget = parent->widget;
-    wxString name( page.name.c_str(), wxConvUTF8 );
     if ( parent->parent ) {
         int index = parent->get_preceding_and_self_count() - 1;
-        widget->InsertSubPage( index, *page.window, name );
+        widget->InsertSubPage( index, *window, name );
         widget->ExpandNode( index );
     } else {
-        widget->AddPage( *page.window, name );
+        widget->AddPage( *window, name );
     }
     widget->InvalidateBestSize();
     redraw();
 }
 
-void TreeRepresentation::create_widget(boost::shared_ptr<wxWindow*> window_announcement, boost::shared_ptr<wxWindow*> parent ) {
+void TreeRepresentation::create_widget(boost::shared_ptr<Window> window_announcement, boost::shared_ptr<Window> parent ) {
     assert( ! this->parent );
     *window_announcement = widget = new wxTreebook( *parent, wxID_ANY );
 }
