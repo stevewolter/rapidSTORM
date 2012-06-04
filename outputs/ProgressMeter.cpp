@@ -55,7 +55,6 @@ ProgressMeter::ProgressMeter(const Config &)
     {
         progress.setHelpID( "#ProgressMeter_Progress" );
         progress.setEditable(false);
-        progress.hide();
         progress.increment = (0.02);
     }
 

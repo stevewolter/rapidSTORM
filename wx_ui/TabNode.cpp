@@ -37,7 +37,7 @@ static void add_tab(
     boost::shared_ptr<Window> window,
     wxString name
 ) {
-    bool success = (*notebook)->AddPage( *window, name );
+    bool success = (*notebook)->AddPage( *window, name, true );
     assert( success );
 }
 

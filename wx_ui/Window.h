@@ -3,6 +3,7 @@
 
 #include "GUIHandle.h"
 #include <boost/function/function0.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 class wxWindow;
 
@@ -11,7 +12,7 @@ namespace wx_ui {
 
 class VisibilityNode;
 
-class Window {
+class Window : public boost::enable_shared_from_this<Window> {
     int frontend_non_visibles, backend_non_visibles;
     friend class VisibilityNode;
     wxWindow* window;

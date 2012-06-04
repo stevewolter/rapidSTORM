@@ -11,6 +11,7 @@ namespace wx_ui {
 struct ProgressNode : public InnerNode {
     std::string description;
     boost::shared_ptr< wxGauge* > my_gauge;
+    boost::optional<LineSpecification> my_line;
     simparm::BaseAttribute* value;
     BaseAttribute::ConnectionStore connection;
 

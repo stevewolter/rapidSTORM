@@ -51,6 +51,10 @@ public:
         text->ClearBackground();
     }
 
+    void text_changed(wxCommandEvent&) {
+        text->SetBackgroundColour( uncommitted_bg );
+    }
+
     void checkbox_marked( wxCommandEvent& ) {
         if ( optional->GetValue() ) {
             text->Show();
@@ -68,6 +72,7 @@ public:
 };
 
 BEGIN_EVENT_TABLE(TextCtrl, wxPanel)
+EVT_TEXT        (wxID_ANY, TextCtrl::text_changed )
 EVT_TEXT_ENTER  (wxID_ANY, TextCtrl::enter_pressed )
 EVT_CHECKBOX    (wxID_ANY, TextCtrl::checkbox_marked )
 END_EVENT_TABLE()
