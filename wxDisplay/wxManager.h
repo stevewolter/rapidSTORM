@@ -36,7 +36,7 @@ class wxManager {
      
     boost::ptr_list<Runnable> run_queue;
 
-    bool was_started, may_close, toolkit_available;
+    bool was_started, may_close, toolkit_available, recursive;
     boost::thread gui_thread;
 
     class Creator;

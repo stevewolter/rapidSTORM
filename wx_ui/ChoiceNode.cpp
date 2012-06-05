@@ -54,7 +54,9 @@ public:
           value(value),
           relayout( relayout ),
           vc( vc )
-        {}
+    {
+        name_positions[""] = wxNOT_FOUND;
+    }
 
     void add_choice( void* ident, const std::string& name, std::string description ) {
         int index = Append( wxString( description.c_str(), wxConvUTF8 ), ident );
@@ -94,17 +96,21 @@ BEGIN_EVENT_TABLE(ChoiceWidget, wxChoice)
 END_EVENT_TABLE()
 
 void ChoiceNode::initialization_finished() {
-    LineSpecification choice_line( get_relayout_function() );
-    create_static_text( choice_line.label, description );
+    my_line = boost::in_place( get_relayout_function() );
+    create_static_text( my_line->label, description );
     run_in_GUI_thread(
-        *bl::constant(choice_line.contents) =
+        *bl::constant(my_line->contents) =
         *bl::constant(choice) =
         bl::bind( bl::new_ptr< ChoiceWidget >(), 
                   *bl::constant( InnerNode::get_parent_window() ),
                   value_handle, 
                   InnerNode::get_relayout_function(),
                   get_visibility_control() ) );
-    InnerNode::add_entry_line( choice_line );
+    attach_help( my_line->label );
+    attach_help( my_line->contents );
+    is_chosen = (*value_handle->get_value() == "");
+    update_visibility();
+    InnerNode::add_entry_line( *my_line );
 }
 
 static void add_choice(
@@ -168,12 +174,18 @@ public:
 
     void visibility_changed( bool ) { show_or_hide_choice(); }
     void show_or_hide_choice() {
-        if ( RealNode::is_visible() && ! showed_choice ) 
+        if ( RealNode::is_visible() && ! showed_choice ) {
+            ++parent->choices_count;
+            parent->update_visibility();
             run_in_GUI_thread(
                 boost::bind( &add_choice, parent->choice, this, name, description ) );
-        if ( ! RealNode::is_visible() && showed_choice )
+        }
+        if ( ! RealNode::is_visible() && showed_choice ) {
+            --parent->choices_count;
+            parent->update_visibility();
             run_in_GUI_thread(
                 boost::bind( &remove_choice, parent->choice, this, name, description ) );
+        }
         showed_choice = RealNode::is_visible();
     }
     void add_entry_line( LineSpecification& s ) { 
@@ -206,6 +218,8 @@ void ChoiceNode::add_attribute( simparm::BaseAttribute& a ) {
 }
 
 void ChoiceNode::user_changed_choice() {
+    is_chosen = (*value_handle->get_value() == "");
+    update_visibility();
     run_in_GUI_thread( 
         bl::bind( &ChoiceWidget::select_choice, *bl::constant(choice), *value_handle->get_value() ) );
 }
@@ -216,6 +230,15 @@ NodeHandle ChoiceNode::create_object( std::string name ) {
 
 NodeHandle ChoiceNode::create_group( std::string name ) {
     return NodeHandle( new SubNode<GroupNode>( boost::static_pointer_cast<ChoiceNode>( shared_from_this() ), name ) );
+}
+
+void ChoiceNode::update_visibility() {
+    bool should_be_visible = choices_count >= 2 || ( choices_count >= 1 && ! is_chosen );
+    if ( should_be_visible != visible && my_line ) {
+        my_line->label->change_frontend_visibility( should_be_visible );
+        my_line->contents->change_frontend_visibility( should_be_visible );
+        visible = should_be_visible;
+    }
 }
 
 }

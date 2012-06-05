@@ -60,6 +60,7 @@ struct Node
     /* Create a function object that causes a relayout of the surrounding windows.
      * The function object must be called in the GUI thread. */
     virtual Relayout get_relayout_function() = 0;
+    virtual void attach_context_help( boost::shared_ptr<Window> window, std::string context_help_id ) = 0;
 
     NodeHandle create_object( std::string name );
     NodeHandle create_textfield( std::string name, std::string type );
@@ -82,13 +83,14 @@ class InnerNode
 {
     boost::shared_ptr<Node> parent;
     VisibilityNode visibility;
+    std::string help_id, help_message;
 
 public:
     virtual void set_visibility( bool b ) { visibility.set_visibility( b ); }
     virtual void set_user_level( UserLevel u ) { visibility.set_user_level( u ); }
     virtual void set_description( std::string d ) {}
-    virtual void set_help_id( std::string ) {}
-    virtual void set_help( std::string ) {}
+    virtual void set_help_id( std::string i ) { help_id = i; }
+    virtual void set_help( std::string m ) { help_message = m; }
     virtual void set_editability( bool ) {}
 
 protected:
@@ -124,8 +126,11 @@ protected:
     typedef boost::function0<void> Relayout;
     virtual Relayout get_relayout_function() 
         { return parent->get_relayout_function(); }
+    virtual void attach_context_help( boost::shared_ptr<Window> window, std::string context_help_id )
+        { parent->attach_context_help( window, context_help_id ); }
 
     void create_static_text( boost::shared_ptr<Window> into, std::string text );
+    void attach_help( boost::shared_ptr<Window> to );
 
 public:
     InnerNode( boost::shared_ptr<Node> parent ) 
@@ -133,7 +138,7 @@ public:
     ~InnerNode() {}
 
     void add_attribute( simparm::BaseAttribute& ) {}
-    Message::Response send( Message& m ) const { return Message::OKYes; }
+    Message::Response send( Message& m ) const { return parent->send( m ); }
     void initialization_finished() {}
     void hide() {}
     /** TODO: Method is deprecated and should be removed on successful migration. */

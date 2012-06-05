@@ -16,7 +16,16 @@
   </xsl:template>
   <xsl:template match="elemtable:elem">
     <glossentry id="{@topic}">
-        <glossterm><xsl:value-of select="@desc"/></glossterm>
+            <xsl:processing-instruction name="dbhh">
+              <xsl:text>topicname="HELP_</xsl:text>
+              <xsl:value-of select="@topic"/>
+              <xsl:text>" </xsl:text>
+              <xsl:text>topicid="</xsl:text>
+              <xsl:value-of select="count(preceding::elemtable:elem[@topic])+1000"/>
+              <xsl:text>"</xsl:text>
+            </xsl:processing-instruction>
+        <glossterm><xsl:value-of select="@desc"/>
+            </glossterm>
         <glossdef><para>
             <xsl:apply-templates select="node()"/>
         </para></glossdef>

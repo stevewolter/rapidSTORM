@@ -35,6 +35,7 @@ void TriggerNode::initialization_finished() {
     run_in_GUI_thread( 
         *bl::constant( w.contents ) = 
             bl::bind( bl::new_ptr< Button >(), *bl::constant( get_parent_window() ), description, value ) );
+    attach_help( w.contents );
     add_entry_line( w );
 }
 

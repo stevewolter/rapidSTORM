@@ -72,7 +72,7 @@ NodeHandle Node::create_checkbox( std::string name ) {
 }
 
 NodeHandle Node::create_file_entry( std::string name ) { 
-    return NodeHandle( new TextfieldNode(shared_from_this()) ); 
+    return NodeHandle( new TextfieldNode(shared_from_this(), TextfieldNode::File) ); 
 }
 
 NodeHandle Node::create_group( std::string name ) { 
@@ -100,6 +100,14 @@ void InnerNode::create_static_text( boost::shared_ptr<Window> into, std::string 
     run_in_GUI_thread( *bl::constant( into ) = 
             bl::bind( bl::new_ptr< wxStaticText >(), *bl::constant(get_parent_window()), int(wxID_ANY), 
                                                      wxString( text.c_str(), wxConvUTF8 ) ) );
+}
+
+void InnerNode::attach_help( boost::shared_ptr<Window> to ) {
+    attach_context_help( to, help_id );
+    void (wxWindow::* set_tool_tip)(const wxString&) = &wxWindow::SetToolTip;
+    if ( help_message != "" )
+        run_in_GUI_thread( 
+            bl::bind( set_tool_tip, * bl::constant(to), wxString( help_message.c_str(), wxConvUTF8 ) ) );
 }
 
 }

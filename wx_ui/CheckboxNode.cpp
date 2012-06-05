@@ -46,6 +46,8 @@ void CheckboxNode::initialization_finished() {
         *bl::constant( my_line.contents ) = *bl::constant(my_window) = 
             bl::bind( bl::new_ptr< CheckBox >(), *bl::constant( get_parent_window() ), value_handle ) );
 
+    attach_help( my_line.label );
+    attach_help( my_line.contents );
     add_entry_line( my_line );
 }
 

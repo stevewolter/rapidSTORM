@@ -10,6 +10,16 @@ namespace wx_ui {
 class TextCtrl;
 
 class TextfieldNode : public InnerNode {
+public:
+    enum Mode { Value, File };
+
+    TextfieldNode( boost::shared_ptr<Node> n, Mode mode = Value ) 
+        : InnerNode(n), my_window( new TextCtrl*() ), rows(1), columns(1), mode(mode) {}
+    ~TextfieldNode();
+    virtual void set_description( std::string d ) { description = d; }
+    void initialization_finished();
+    void add_attribute( simparm::BaseAttribute& a );
+private:
     std::string description;
     std::string unit;
     boost::shared_ptr< TextCtrl* > my_window;
@@ -17,15 +27,9 @@ class TextfieldNode : public InnerNode {
     BaseAttribute::ConnectionStore connection;
 
     int rows, columns;
+    Mode mode;
 
     void display_value();
-
-public:
-    TextfieldNode( boost::shared_ptr<Node> n ) : InnerNode(n), my_window( new TextCtrl*() ), rows(1), columns(1) {}
-    ~TextfieldNode();
-    virtual void set_description( std::string d ) { description = d; }
-    void initialization_finished();
-    void add_attribute( simparm::BaseAttribute& a );
 };
 
 }

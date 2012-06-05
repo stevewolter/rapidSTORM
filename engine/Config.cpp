@@ -51,7 +51,7 @@ Config::Config()
     amplitude_threshold.setHelpID( "#AmplitudeThreshold" );
     spotFindingMethod.setHelpID( "#Smoother" );
     spotFindingMethod.set_user_level( simparm::Intermediate );
-    spotFittingMethod.set_user_level( simparm::Intermediate );
+    spotFittingMethod.set_user_level( simparm::Beginner );
 
     spotFindingMethod.set_auto_selection( true );
 

@@ -43,6 +43,7 @@ wxManager::wxManager()
   was_started( false ),
   may_close( false ),
   toolkit_available( true ),
+  recursive( false ),
   idle_call( new IdleCall(*this) )
 {
 }
@@ -204,12 +205,19 @@ void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code )
 void wxManager::exec_waiting_runnables() {
     DEBUG("Acquiring runnables lock");
     boost::lock_guard<boost::recursive_mutex> lock(mutex);
+    if ( recursive ) return;
+    recursive = true;
     while ( ! run_queue.empty() ) {
+        std::auto_ptr< boost::function0<void> > f ( run_queue.pop_front().release() );
         DEBUG("Running runnable");
-        run_queue.front()();
-        DEBUG("Ran runnable");
-        run_queue.pop_front();
+        try {
+            (*f)();
+        } catch (...) {
+            recursive = false;
+            throw;
+        }
     }
+    recursive = false;
     DEBUG("Finished executing waiting runnables");
 }
 

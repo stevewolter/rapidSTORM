@@ -83,7 +83,7 @@ void ProgressMeter::receiveLocalizations(const EngineResult& er)
             DEBUG("Ratio is " << ratio << " at progress " << progress());
             progress.setValue( std::min( round(ratio / 0.01), 99.0 ) * 0.01 );
         } else {
-            progress.setValue(0.5);
+            progress.setValue( (er.forImage / (10*camera::frame)) % 100 / 100.0 );
         }
     }
 }

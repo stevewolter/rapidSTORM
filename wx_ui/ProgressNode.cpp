@@ -1,7 +1,7 @@
 #include "ProgressNode.h"
 #include <wx/wx.h>
-#include "wxDisplay/wxManager.h"
 #include <boost/lexical_cast.hpp>
+#include "lambda.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -15,13 +15,19 @@ static void make_progress_bar(
     *text_object = *my_gauge;
 }
 
-static void display_progress( boost::shared_ptr<wxGauge*> gauge, double value ) {
-    (*gauge)->SetValue( round(value*100.0) );
+void ProgressNode::display_value() {
+    if ( determinate ) {
+        int percentage = round(boost::lexical_cast<double>( *value->get_value() ));
+        run_in_GUI_thread(
+            bl::bind( &wxGauge::SetValue, *bl::constant(my_gauge), percentage ) );
+    } else {
+        run_in_GUI_thread( bl::bind( &wxGauge::Pulse, *bl::constant(my_gauge) ) );
+    }
 }
 
-void ProgressNode::display_value() {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
-        boost::bind( &display_progress, my_gauge, boost::lexical_cast<double>( *value->get_value() ) ) );
+void ProgressNode::set_determinate_mode() {
+    determinate = indeterminate->get_value().get_value_or("false") == "false";
+    display_value();
 }
 
 void ProgressNode::initialization_finished() {

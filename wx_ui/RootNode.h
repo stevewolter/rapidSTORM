@@ -34,7 +34,7 @@ class RootNode
     Relayout get_relayout_function();
 
     void add_attribute( simparm::BaseAttribute& ) {}
-    virtual Message::Response send( Message& m ) const { return Message::OKYes; }
+    virtual Message::Response send( Message& m ) const;
     virtual bool isActive() const { return true; }
     virtual void set_description( std::string ) {}
     virtual void set_visibility( bool ) {}
@@ -42,6 +42,7 @@ class RootNode
     virtual void set_help_id( std::string ) {}
     virtual void set_help( std::string ) {}
     virtual void set_editability( bool ) {}
+    virtual void attach_context_help( boost::shared_ptr<Window> window, std::string context_help_id );
 
     virtual boost::shared_ptr< Window > get_treebook_widget() { throw std::logic_error("Tree root missing"); }
     virtual boost::shared_ptr< TreeRepresentation > get_treebook_parent() { throw std::logic_error("Tree root missing"); }

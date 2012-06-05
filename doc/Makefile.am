@@ -16,11 +16,12 @@ else
     PDF_TARGET = 
 endif
 
-doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
+doc_DATA = $(GRAPHICS) manual.html manual.hhp $(PDF_TARGET)
 
 manual.xml : $(CHAPTERS:=.xml)
 manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl bib4wbbt.xml
 manual.html : $(GRAPHICS) rapidstorm_html.xsl bib4wbbt.xml
+manual.hhp : rapidstorm_htmlhelp.xsl bib4wbbt.xml
 
 XSLT_FLAGS ?= 
 XSLT_FLAGS_HTML ?= $(XSLT_FLAGS) 
@@ -31,6 +32,14 @@ bib4wbbt.xml : xml2db5.xsl bib4wbbt.bib
 
 titlepage.xsl : make_titlepage.xsl titlepage.xml
 	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^
+
+manual.hhp : manual.xml
+	$(XSLTPROC) $(XSLT_FLAGS_HTML) \
+	    --stringparam htmlhelp.hhp $@ \
+	    --stringparam htmlhelp.hhc ${@:.hhp=.hhc} \
+	    --stringparam htmlhelp.hhk ${@:.hhp=.hhk} \
+	    --stringparam htmlhelp.chm ${@:.hhp=.chm} \
+	    -o $@ $(srcdir)/rapidstorm_htmlhelp.xsl $<
 
 manual.xml : rapidstorm_pre.xsl
 	$(XSLTPROC) $(XSLT_FLAGS) --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml
@@ -47,4 +56,7 @@ manual.pdf : manual.fo foprc
 .tex.png :
 	bash $(srcdir)/tex2im -r 150x150 -o $@ $^
 
-CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo
+CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml manual.hhp titlepage.xsl
+
+clean-local :
+	-rm -f *.html
