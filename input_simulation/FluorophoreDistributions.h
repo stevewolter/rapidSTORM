@@ -8,7 +8,6 @@
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ChoiceEntry_Impl.h>
-#include <simparm/TriggerEntry.h>
 #include <dStorm/UnitEntries.h>
 
 namespace input_simulation {

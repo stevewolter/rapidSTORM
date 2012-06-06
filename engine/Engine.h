@@ -4,7 +4,6 @@
 #include <simparm/BoostUnits.h>
 #include <memory>
 #include <boost/thread/mutex.hpp>
-#include <simparm/TriggerEntry.h>
 #include "Config_decl.h"
 #include <dStorm/engine/Input_decl.h>
 #include <dStorm/output/Traits_decl.h>
