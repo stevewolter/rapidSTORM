@@ -1,6 +1,7 @@
 #include "Node.h"
 #include "TabNode.h"
 #include "EntryNode.h"
+#include "NoOpNode.h"
 #include <sstream>
 
 namespace simparm {
@@ -70,7 +71,7 @@ simparm::NodeHandle Node::create_trigger( std::string name ) {
     return adorn_node( new EntryNode( name, "TriggerEntry" ) );
 }
 
-simparm::NodeHandle Node::create_tree_root() { return shared_from_this(); }
+simparm::NodeHandle Node::create_tree_root() { return NodeHandle( new NoOpNode( backend_node ) ); }
 simparm::NodeHandle Node::create_tree_object( std::string name ) {
     return adorn_node( new Node( name, "Object" ) );
 }

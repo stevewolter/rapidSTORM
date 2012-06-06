@@ -1,6 +1,8 @@
 #include "FluorophoreDistributions.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Array>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace Eigen;
 using namespace boost::units;
@@ -14,9 +16,7 @@ class Lines : public FluorophoreDistribution
 {
   protected:
     void attach_ui( simparm::NodeHandle at ) ;
-    void add_line();
-    void add_line_trigger();
-    void remove_line();
+    void commit_line_count();
   public:
     class Line {
         simparm::Object name_object;
@@ -32,12 +32,12 @@ class Lines : public FluorophoreDistribution
     };
 
   private:
-    std::vector<Line*> lines;
+    boost::ptr_vector<Line> lines;
     simparm::NodeHandle current_ui;
-    simparm::BaseAttribute::ConnectionStore listening[2];
+    simparm::BaseAttribute::ConnectionStore listening;
 
   public:
-    simparm::TriggerEntry addLine, removeLine;
+    simparm::Entry<unsigned int> line_count;
 
     Lines();
     Lines(const Lines&);
@@ -65,32 +65,19 @@ void Lines::Line::attach_ui( simparm::NodeHandle t ) {
 
 Lines::Lines()
 : FluorophoreDistribution("Lines", "Fluorophores on lines"),
-  addLine("AddLine", "Add new line set"),
-  removeLine("RemoveLine", "Remove selected line")
+  line_count("LineCount", "Number of line sets", 1)
 {
-    add_line();
+    commit_line_count();
 }
 
 Lines::Lines(const Lines& c)
 : FluorophoreDistribution(c),
-  addLine("AddLine", "Add new line set"),
-  removeLine("RemoveLine", "Remove selected line")
+  lines( c.lines ),
+  line_count( c.line_count )
 {
-    lines.resize( c.lines.size(), NULL );
-    for (unsigned int i = 0; i < c.lines.size(); i++)
-        if ( c.lines[i] != NULL ) {
-            lines[i] = new Line(*c.lines[i]);
-            lines[i]->attach_ui( current_ui );
-        }
 }
 
-Lines::~Lines()
-{
-    for (unsigned int i = 0; i < lines.size(); i++) {
-        delete lines[i];
-        lines[i] = NULL;
-    }
-}
+Lines::~Lines() { }
 
 Lines::Line::Line(const std::string& ident) 
 : name_object("Line" + ident, "Line object " + ident),
@@ -113,16 +100,13 @@ Lines::Line::Line(const std::string& ident)
 }
 
 void Lines::attach_ui( simparm::NodeHandle at ) {
-    listening[0] = addLine.value.notify_on_value_change( 
-        boost::bind( &Lines::add_line_trigger, this ) );
-    listening[1] = addLine.value.notify_on_value_change( 
-        boost::bind( &Lines::remove_line, this ) );
+    listening = line_count.value.notify_on_value_change( 
+        boost::bind( &Lines::commit_line_count, this ) );
 
     current_ui = attach_parent( at );
-    addLine.attach_ui( current_ui );
-    removeLine.attach_ui( current_ui );
-    for (std::vector<Line*>::const_iterator i = lines.begin(); i != lines.end(); i++)
-        (*i)->attach_ui( current_ui );
+    line_count.attach_ui( current_ui );
+    for (boost::ptr_vector<Line>::iterator i = lines.begin(); i != lines.end(); i++)
+        i->attach_ui( current_ui );
 }
 
 FluorophoreDistribution::Positions Lines::fluorophore_positions(
@@ -130,10 +114,10 @@ FluorophoreDistribution::Positions Lines::fluorophore_positions(
     gsl_rng* rng
 ) const {
     Positions rv;
-    for (std::vector<Line*>::const_iterator
+    for (boost::ptr_vector<Line>::const_iterator
          i = lines.begin(); i != lines.end(); i++)
     {
-        Positions sub = (*i)->fluorophore_positions(size, rng);
+        Positions sub = i->fluorophore_positions(size, rng);
         while ( !sub.empty() ) {
             rv.push( sub.front() );
             sub.pop();
@@ -176,38 +160,16 @@ FluorophoreDistribution::Positions Lines::Line::
     return rv;
 }
 
-void Lines::add_line_trigger()
+void Lines::commit_line_count()
 {
-    if ( addLine.triggered() ) {
-        addLine.untrigger();
-        add_line();
+    size_t count = line_count();
+    while ( count > lines.size() ) {
+        lines.push_back( new Line( boost::lexical_cast<std::string>( lines.size() ) ) );
+        if ( current_ui )
+            lines.back().attach_ui( current_ui );
     }
-}
-
-void Lines::add_line()
-{
-    unsigned int insert = lines.size();
-    for (unsigned int i = 0; i < lines.size(); i++)
-        if ( lines[i] == NULL ) 
-            { insert = i; break; }
-
-    std::stringstream ident;
-    ident << insert;
-    Line *line = new Line(ident.str());
-    if ( insert < lines.size() )
-        lines[insert] = line;
-    else
-        lines.push_back( line );
-
-    line->attach_ui( current_ui );
-}
-
-void Lines::remove_line() {
-    if ( removeLine.triggered() ) {
-        removeLine.untrigger();
-        delete lines.back();
-        lines.back() = NULL;
-    }
+    while ( count < lines.size() )
+        lines.pop_back();
 }
 
 std::auto_ptr< FluorophoreDistribution > make_lines() {

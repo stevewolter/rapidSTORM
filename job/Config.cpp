@@ -10,6 +10,7 @@
 #include <dStorm/Engine.h>
 
 #include <sstream>
+#include <fstream>
 
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/input/InputMutex.h>
@@ -32,6 +33,7 @@
 
 #include "Car.h"
 #include <simparm/TreeRoot.h>
+#include <ui/serialization/Node.h>
 
 using namespace std;
 
@@ -229,6 +231,13 @@ void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
 
 void Config::all_modules_loaded() {
     input->publish_meta_info();
+}
+
+void serialize( Config config, std::string filename ) {
+    std::ofstream target( filename.c_str() );
+    boost::shared_ptr<simparm::serialization_ui::Node> n = simparm::serialization_ui::Node::create_root_node();
+    config.attach_ui( n );
+    n->serialize( target );
 }
 
 }

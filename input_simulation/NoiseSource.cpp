@@ -17,6 +17,7 @@
 #include <dStorm/engine/InputTraits.h>
 #include <boost/units/Eigen/Array>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <dStorm/threed_info/Config.h>
 
@@ -36,16 +37,16 @@ void FluorophoreSetConfig::attach_ui( simparm::NodeHandle at ) {
 }
 
 void NoiseConfig::registerNamedEntries( simparm::NodeHandle n ) {
-    listening[0] = newSet.value.notify_on_value_change( 
-        boost::bind( &NoiseConfig::create_fluorophore_set, this ) );
-    listening[1] = newSet.value.notify_on_value_change( 
+    listening[0] = fluo_set_count.value.notify_on_value_change( 
+        boost::bind( &NoiseConfig::commit_fluo_set_count, this ) );
+    listening[1] = layer_count.value.notify_on_value_change( 
         boost::bind( &NoiseConfig::notice_layer_count, this ) );
 
     simparm::NodeHandle r = name_object.attach_ui( n );
     noiseGeneratorConfig.attach_ui( r );
     layer_count.attach_ui( r );
     optics.attach_ui( r );
-    newSet.attach_ui( r );
+    fluo_set_count.attach_ui( r );
     imageNumber.attach_ui( r );
     sample_depth.attach_ui( r );
     integrationTime.attach_ui( r );
@@ -74,8 +75,7 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
 
 NoiseConfig::NoiseConfig()
 : name_object(NAME, DESC),
-  next_fluo_id(1),
-  newSet("NewFluorophoreSet", "Add fluorophore set"),
+  fluo_set_count("FluoSetCount", "Number of fluorophore sets", 1),
   imageNumber("ImageNumber", "Number of source images to generate", 10000),
   sample_depth("SampleDepth", "Depth of virtual sample", 1 * si::micrometer),
   integrationTime("IntegrationTime", "Integration time for one image", 0.1),
@@ -83,16 +83,16 @@ NoiseConfig::NoiseConfig()
   layer_count( "LayerCount", "Number of layers to generate", 1 ),
   optics( dStorm::traits::PlaneConfig::InputSimulation )
 {
-    create_fluo_set();
+    commit_fluo_set_count();
     optics.notify_on_any_change( boost::bind( &NoiseConfig::publish_meta_info, this ) );
 }
 
 NoiseConfig::NoiseConfig( const NoiseConfig & cp )
 : dStorm::input::Terminus(cp),
   name_object(cp.name_object),
-  next_fluo_id(cp.next_fluo_id),
+  fluorophore_sets(cp.fluorophore_sets),
   noiseGeneratorConfig(cp.noiseGeneratorConfig),
-  newSet(cp.newSet),
+  fluo_set_count(cp.fluo_set_count),
   imageNumber(cp.imageNumber),
   sample_depth(cp.sample_depth),
   integrationTime(cp.integrationTime),
@@ -101,17 +101,6 @@ NoiseConfig::NoiseConfig( const NoiseConfig & cp )
   optics(cp.optics)
 {
     optics.notify_on_any_change( boost::bind( &NoiseConfig::publish_meta_info, this ) );
-    for ( FluoSets::const_iterator i = cp.fluorophore_sets.begin();
-                                   i != cp.fluorophore_sets.end(); ++i)
-        add_fluo_set( std::auto_ptr<FluorophoreSetConfig>(
-            new FluorophoreSetConfig(*i) ) );
-}
-
-void NoiseConfig::create_fluorophore_set() {
-    if ( newSet.triggered() ) {
-        create_fluo_set();
-        newSet.untrigger();
-    }
 }
 
 void NoiseConfig::notice_layer_count() {
@@ -121,20 +110,19 @@ void NoiseConfig::notice_layer_count() {
     publish_meta_info();
 }
 
-void NoiseConfig::create_fluo_set()
+void NoiseConfig::commit_fluo_set_count()
 {
-    std::stringstream id;
-    id << next_fluo_id++;
-    add_fluo_set( std::auto_ptr<FluorophoreSetConfig>
-        ( new FluorophoreSetConfig("FluorophoreSet" + id.str(),
-                                   "Fluorpohore set " + id.str()) ));
-}
-
-void NoiseConfig::add_fluo_set( std::auto_ptr<FluorophoreSetConfig> s )
-{
-    if ( current_ui )
-        s->attach_ui( current_ui );
-    fluorophore_sets.push_back( s );
+    size_t count = fluo_set_count();
+    while ( count > fluorophore_sets.size() ) {
+        std::string id = boost::lexical_cast<std::string>( fluorophore_sets.size() );
+        fluorophore_sets.push_back
+            ( new FluorophoreSetConfig("FluorophoreSet" + id,
+                                    "Fluorpohore set " + id) );
+        if ( current_ui ) fluorophore_sets.back().attach_ui( current_ui );
+    }
+    while ( count < fluorophore_sets.size() ) {
+        fluorophore_sets.pop_back();
+    }
 }
 
 std::auto_ptr< boost::ptr_list<Fluorophore> >

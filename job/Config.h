@@ -68,6 +68,9 @@ class Config : public dStorm::Config
 
     void all_modules_loaded();
 };
+
+void serialize( Config, std::string filename );
+
 }
 }
 

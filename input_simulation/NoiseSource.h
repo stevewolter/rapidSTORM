@@ -13,7 +13,6 @@
 #include <dStorm/units/microlength.h>
 
 #include <simparm/ChoiceEntry.h>
-#include <simparm/TriggerEntry.h>
 #include <simparm/ProgressEntry.h>
 #include <simparm/ChoiceEntry_Impl.h>
 #include <boost/ptr_container/ptr_list.hpp>
@@ -52,23 +51,20 @@ namespace input_simulation {
       private:
         simparm::Object name_object;
         simparm::NodeHandle current_ui;
-        int next_fluo_id;
         FluoSets fluorophore_sets;
         simparm::BaseAttribute::ConnectionStore listening[2];
 
-        void create_fluo_set();
-        void add_fluo_set( std::auto_ptr<FluorophoreSetConfig> );
+        void commit_fluo_set_count();
         std::auto_ptr< dStorm::input::Traits<dStorm::engine::ImageStack> > 
             make_image_size() const;
 
         void optics_changed();
-        void create_fluorophore_set();
         void notice_layer_count();
 
       public:
         NoiseGeneratorConfig noiseGeneratorConfig;
 
-        simparm::TriggerEntry newSet;
+        simparm::Entry<unsigned long> fluo_set_count;
         simparm::Entry<unsigned long> imageNumber;
         simparm::Entry< quantity<si::microlength> > sample_depth;
         simparm::Entry<double> integrationTime;

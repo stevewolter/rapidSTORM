@@ -741,7 +741,7 @@ libdStorm_la_SOURCES += \
     simparm/text_stream/NodeBackend.cpp simparm/text_stream/NodeBackend.h \
     simparm/text_stream/Node.cpp simparm/text_stream/Node.h \
     simparm/text_stream/RootNode.cpp simparm/text_stream/RootNode.h \
-    simparm/text_stream/TabNode.h \
+    simparm/text_stream/TabNode.h simparm/text_stream/NoOpNode.h \
     simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp \
     test-plugin/Window.h test-plugin/Window.cpp \
     test-plugin/Manager.h test-plugin/Manager.cpp \
@@ -783,6 +783,9 @@ libdStorm_la_SOURCES += \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
     simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
+
+libdStorm_la_SOURCES += \
+    ui/serialization/Node.h ui/serialization/Node.cpp
 
 if HAVE_LIBREADSIF
     SIFSUPPORT = \

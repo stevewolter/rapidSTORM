@@ -50,6 +50,7 @@ struct Node
 
 protected:
     void set_backend_node( std::auto_ptr<BackendNode> b ) { backend_node = b; }
+    void set_backend_node( boost::shared_ptr<BackendNode> b ) { backend_node = b; }
 
     Node( std::string name, std::string type );
     simparm::NodeHandle adorn_node( Node* );

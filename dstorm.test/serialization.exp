@@ -1,0 +1,23 @@
+begin_test_suite
+
+dstorm_attach
+
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in Output in EngineOutput in ToRemove in value set Output1\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+
+set test "Serialization throws no errors"
+send "cmd 0 serialize ${tmpdir_target}serialization.txt\n"
+expect {
+    -re "ack 0" { pass "$test"; }
+}
+
+set test "Serialization is completed"
+wait_for_file "${tmpdir_host}serialization.txt"
+pass_if [file exists "${tmpdir_host}serialization.txt"] "$test"
+
+end_test_suite

@@ -86,6 +86,11 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
     } else if ( cmd == "quit" ) {
         main_thread.terminate_running_jobs();
         BackendRoot::process_command_(cmd,rest);
+    } else if ( cmd == "serialize" ) {
+        std::string target_file;
+        while (rest.peek() == ' ' || rest.peek() == '\t') rest.get();
+        std::getline( rest, target_file );
+        job::serialize( *frontend.current_config, target_file );
     } else {
         BackendRoot::process_command_(cmd, rest);
     }
