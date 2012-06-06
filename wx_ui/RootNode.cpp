@@ -13,6 +13,7 @@
 #include <wx/cshelp.h>
 #include <wx/wxhtml.h>
 #include <wx/msgdlg.h>
+#include <wx/filedlg.h>
 #include <fstream>
 
 namespace simparm {
@@ -64,12 +65,13 @@ class RootFrame
     boost::shared_ptr< Node > root_node;
     boost::shared_ptr< VisibilityControl > ul_control;
     wxBoxSizer *column;
-    std::vector< boost::shared_ptr< void > > to_delete;
+    boost::shared_ptr< MainConfig > main_config;
     HelpResolver help;
 
     enum EventID {
         UL_BEGINNER, UL_INTERMEDIATE, UL_EXPERT,
-        CONTEXT_HELP, MANUAL
+        CONTEXT_HELP, MANUAL,
+        LOAD_CONFIG, SAVE_CONFIG, SAVE_AS_DEFAULT_CONFIG
     };
 
     void invalidate_best_sizes( wxWindow* window ) {
@@ -114,6 +116,28 @@ class RootFrame
         if ( w ) help.show_help( w );
     }
 
+    void save_config(wxCommandEvent&) {
+        wxFileDialog dialog(this, _("Set config file name"), wxT(""), wxT(""), wxT("*.txt"), wxFD_SAVE);
+        int response = dialog.ShowModal();
+        if ( response == wxID_OK ) {
+            wxString file = dialog.GetPath();
+            main_config->serialize( std::string(file.mb_str()) );
+        }
+    }
+
+    void load_config(wxCommandEvent&) {
+        wxFileDialog dialog(this, _("Choose config file"), wxT(""), wxT(""), wxT("*.txt"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+        int response = dialog.ShowModal();
+        if ( response == wxID_OK ) {
+            wxString file = dialog.GetPath();
+            main_config->deserialize( std::string(file.mb_str()) );
+        }
+    }
+
+    void save_as_default_config(wxCommandEvent&) {
+        main_config->serialize("/home/stw78ye/.dstorm" );
+    }
+
 public:
     RootFrame( boost::shared_ptr<Node> root_node, boost::shared_ptr< VisibilityControl > vc )
         : wxFrame( NULL, wxID_ANY, wxT( PACKAGE_STRING ) ),
@@ -122,30 +146,38 @@ public:
           column( new wxBoxSizer(wxVERTICAL) )
     {
         wxMenuBar* menu = new wxMenuBar();
+
+        wxMenu* file = new wxMenu();
+        file->Append( LOAD_CONFIG, _("&Load job options ...") );
+        file->Append( SAVE_CONFIG, _("&Save job options ...") );
+        file->Append( SAVE_AS_DEFAULT_CONFIG, _("&Save as default job options") );
+        menu->Append( file, _("&File") );
+
         wxMenu* user_level = new wxMenu();
         user_level->AppendRadioItem( UL_BEGINNER, _("Beginner") );
         user_level->AppendRadioItem( UL_INTERMEDIATE, _("Intermediate") );
         user_level->AppendRadioItem( UL_EXPERT, _("Expert") );
         menu->Append( user_level, _("User level") );
+
         wxMenu* help = new wxMenu();
         help->Append( MANUAL, _("Manual") );
         help->Append( CONTEXT_HELP, _("What's this?") );
         menu->Append( help, _("Help") );
+
         SetMenuBar( menu );
 
         SetSizer(column);
     }
 
-    ~RootFrame() {
-    }
+    ~RootFrame() {}
 
     void add_window( wxWindow* window ) {
         column->Add( window, 1, wxEXPAND );
         Layout();
     }
 
-    void delete_on_death( boost::shared_ptr<void> object ) {
-        to_delete.push_back( object );
+    void set_main_config( boost::shared_ptr<MainConfig> main_config ) {
+        this->main_config = main_config;
     }
 
     void attach_context_help( wxWindow* window, std::string context_help_id ) 
@@ -160,7 +192,9 @@ BEGIN_EVENT_TABLE(RootFrame, wxFrame)
     EVT_MENU(UL_EXPERT, RootFrame::user_level_expert)
     EVT_MENU(CONTEXT_HELP, RootFrame::context_help)
     EVT_MENU(MANUAL, RootFrame::show_manual)
-    EVT_HELP(wxID_ANY, RootFrame::show_help)
+    EVT_MENU(LOAD_CONFIG, RootFrame::load_config)
+    EVT_MENU(SAVE_CONFIG, RootFrame::save_config)
+    EVT_MENU(SAVE_AS_DEFAULT_CONFIG, RootFrame::save_as_default_config)
 END_EVENT_TABLE()
 
 static void create_root_frame( 
@@ -175,15 +209,10 @@ static void create_root_frame(
 
 MainConfig::MainConfig( dStorm::MainThread& main_thread, const dStorm::job::Config& c, boost::shared_ptr<Node> n )
 : main_thread( main_thread ),
-  config(c),
-  starter( &main_thread, boost::shared_ptr<simparm::Node>(), config )
+  original_config(c),
+  user_interface( n )
 {
-    boost::shared_ptr< Node > main_part( new ScrolledTabNode( n ) );
-    main_part->initialization_finished();
-
-    starter.set_attachment_point( main_part );
-    config.attach_ui( main_part );
-    starter.attach_ui( config.user_interface_handle() );
+    create_config( boost::optional<std::string>() );
 }
 
 RootNode::RootNode( dStorm::MainThread& main_thread ) 
@@ -207,11 +236,15 @@ void RootNode::initialization_finished() {
 boost::shared_ptr<RootNode> RootNode::create( dStorm::MainThread& m, const dStorm::job::Config& c ) {
     boost::shared_ptr<RootNode> rv( new RootNode(m) );
     rv->initialization_finished();
-    boost::shared_ptr< MainConfig > main_config( new MainConfig(m, c, rv) );
+    boost::shared_ptr< Node > main_part( new ScrolledTabNode( rv ) );
+    main_part->initialization_finished();
+
+    boost::shared_ptr< MainConfig > main_config( new MainConfig(m, c, main_part) );
     dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
-        bl::bind( &RootFrame::delete_on_death, *bl::constant(rv->my_frame), main_config ) );
+        bl::bind( &RootFrame::set_main_config, *bl::constant(rv->my_frame), main_config ) );
     dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
         bl::bind( &wxFrame::Show, *bl::constant(rv->my_frame), true ) );
+    std::cerr << "Initialization of root node" << std::endl;
     return rv;
 }
 
@@ -267,6 +300,24 @@ void show_message( const Message& m, boost::shared_ptr<RootFrame*> parent ) {
 Message::Response RootNode::send( Message& m ) const {
     dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( boost::bind(&show_message, m, my_frame) );
     return Message::OKYes;
+}
+
+void MainConfig::serialize( std::string filename ) {
+    assert( config );
+    dStorm::job::serialize( *config, filename );
+}
+
+void MainConfig::deserialize( std::string filename ) {
+    assert( config );
+    create_config( filename );
+}
+
+void MainConfig::create_config( boost::optional<std::string> config_file ) {
+    config = boost::in_place( boost::cref( original_config ) );
+    if ( config_file ) dStorm::job::deserialize( *config, *config_file, user_interface );
+    config->attach_ui( user_interface );
+    starter = boost::in_place( &main_thread, user_interface, boost::ref(*config) ),
+    starter->attach_ui( config->user_interface_handle() );
 }
 
 }

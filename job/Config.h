@@ -11,7 +11,7 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
-#include <boost/ptr_container/ptr_list.hpp>
+#include <dStorm/output/BasenameAdjustedFileEntry.h>
 
 namespace dStorm {
 namespace output { class OutputSource; }
@@ -53,7 +53,7 @@ class Config : public dStorm::Config
 
     simparm::Menu helpMenu;
     simparm::Group outputBox;
-    simparm::FileEntry configTarget;
+    output::BasenameAdjustedFileEntry configTarget;
     simparm::BoolEntry auto_terminate;
     /** Number of parallel computation threads to run. */
     simparm::Entry<unsigned long> pistonCount;
@@ -70,6 +70,7 @@ class Config : public dStorm::Config
 };
 
 void serialize( Config, std::string filename );
+bool deserialize( Config&, std::string filename, simparm::NodeHandle current_ui );
 
 }
 }

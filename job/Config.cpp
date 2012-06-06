@@ -1,24 +1,3 @@
-#define DSTORM_CARCONFIG_CPP
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include "debug.h"
-#include "Config.h"
-#include <dStorm/output/FilterSource.h>
-#include <dStorm/output/SourceFactory.h>
-#include <dStorm/output/Basename.h>
-#include <dStorm/Engine.h>
-
-#include <sstream>
-#include <fstream>
-
-#include <dStorm/input/MetaInfo.h>
-#include <dStorm/input/InputMutex.h>
-
-#include <dStorm/input/Forwarder.h>
-
-#include <cassert>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -26,14 +5,28 @@
 #include <windows.h>
 #endif
 
-#include <simparm/Menu.h>
+#include <fstream>
+#include <cassert>
+#include <sstream>
 
+#include <boost/smart_ptr/make_shared.hpp>
+#include <dStorm/Engine.h>
+#include <dStorm/input/Forwarder.h>
+#include <dStorm/input/InputMutex.h>
+#include <dStorm/input/MetaInfo.h>
+#include <dStorm/output/Basename.h>
+#include <dStorm/output/FilterSource.h>
+#include <dStorm/output/SourceFactory.h>
 #include <dStorm/signals/UseSpotFinder.h>
 #include <dStorm/signals/UseSpotFitter.h>
-
-#include "Car.h"
+#include <simparm/Menu.h>
+#include <simparm/text_stream/RootNode.h>
 #include <simparm/TreeRoot.h>
 #include <ui/serialization/Node.h>
+
+#include "Car.h"
+#include "Config.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -119,12 +112,12 @@ Config::Config()
   outputConfig(outputRoot->root_factory()),
   helpMenu( "HelpMenu", "Help" ),
   outputBox("Output", "Output options"),
-  configTarget("SaveConfigFile", "Store config used in computation in"),
+  configTarget("SaveConfigFile", "Store config used in computation in", "-settings.txt"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
                  true),
   pistonCount("CPUNumber", "Number of CPUs to use")
 {
-    configTarget.set_user_level(simparm::Intermediate);
+    configTarget.set_user_level(simparm::Beginner);
     auto_terminate.set_user_level(simparm::Expert);
 
     pistonCount.set_user_level(simparm::Expert);
@@ -186,8 +179,9 @@ void Config::attach_ui( simparm::NodeHandle at ) {
 void Config::attach_children( simparm::NodeHandle at ) {
    input->registerNamedEntries( at );
    pistonCount.attach_ui(  at  );
-   outputRoot->attach_full_ui(outputBox.attach_ui( at ));
-   configTarget.attach_ui(  at  );
+   simparm::NodeHandle b = outputBox.attach_ui( at );
+   outputRoot->attach_full_ui( b );
+   configTarget.attach_ui( b );
    auto_terminate.attach_ui(  at  );
    DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
 }
@@ -224,6 +218,7 @@ Config::get_meta_info() const {
 
 void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
+    configTarget.set_output_file_basename( traits->suggested_output_basename );
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
     if ( traits->provides<output::LocalizedImage>() ) 
         outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
@@ -238,6 +233,31 @@ void serialize( Config config, std::string filename ) {
     boost::shared_ptr<simparm::serialization_ui::Node> n = simparm::serialization_ui::Node::create_root_node();
     config.attach_ui( n );
     n->serialize( target );
+}
+
+
+bool deserialize( Config& config, std::string name, simparm::NodeHandle current_ui ) {
+    std::ifstream config_file( name.c_str() );
+    boost::shared_ptr< simparm::text_stream::RootNode > ui 
+        = boost::make_shared< simparm::text_stream::RootNode >();
+    config.attach_ui( ui );
+    if ( !config_file )
+        return false;
+    else {
+        try {
+            while ( config_file ) {
+                while ( config_file && std::isspace( config_file.peek() ) )
+                    config_file.get();
+                if ( ! config_file || config_file.peek() == EOF ) break;
+                DEBUG("Processing command from " << name);
+                    ui->processCommand( config_file );
+            }
+        } catch (const std::runtime_error& e) {
+            simparm::Message m( "Unable to read initialization file " + name, e.what() );
+            m.send( current_ui );
+        }
+        return true;
+    }
 }
 
 }

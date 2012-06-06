@@ -12,10 +12,9 @@ pkgconfigdir = $(libdir)/pkgconfig
 C_TESTS = dstorm 
 DEJATOOL = dstorm
 
-bin_PROGRAMS = dstorm align-biplane-rapidstorm
+bin_PROGRAMS = dstorm 
 bin_SCRIPTS = rapidstorm
 check_PROGRAMS = $(C_TESTS)
-noinst_LTLIBRARIES = libdStorm.la librapidstormfile.la 
 if CAN_BUILD_TWIDDLER
 applications_DATA=rapidstorm.desktop
 endif
@@ -104,7 +103,7 @@ endif
 .rc.o : 
 	$(WINDRES) -I . '$<' '$@'
 
-libdStorm_la_SOURCES = \
+dstorm_SOURCES = \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/Localization_decl.h dStorm/Localization.h \
@@ -131,7 +130,7 @@ libdStorm_la_SOURCES = \
     dStorm/traits/psf_width.h dStorm/traits/image_number.h dStorm/traits/no_range.h \
     dStorm/traits/position.h dStorm/traits/range.h \
     dStorm/traits/range_impl.h dStorm/traits/residues.h \
-    dStorm/traits/scalar_check.cpp dStorm/traits/scalar.h \
+    dStorm/traits/scalar.h \
     dStorm/traits/two_kernel_improvement.h dStorm/traits/tags.h dStorm/traits/scalar_iterator.h \
     dStorm/traits/Projection.h dStorm/traits/ProjectionConfig.h \
     dStorm/traits/ProjectionFactory.h dStorm/traits/ScaledProjection.h \
@@ -234,7 +233,7 @@ libdStorm_la_SOURCES = \
     dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
     dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
@@ -292,30 +291,8 @@ libdStorm_la_SOURCES += \
     dStorm/threed_info/Lens3D.cpp \
     dStorm/threed_info/look_up_sigma_diff.cpp \
     dStorm/make_clone_allocator.hpp
-libdStorm_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ $(LINKER_RESOURCE) $(LIBDSTORM_RESOURCE_OBJECT)
-libdStorm_la_CPPFLAGS = $(WX_CPPFLAGS) 
-libdStorm_la_CXXFLAGS = $(WX_CXXFLAGS) $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(GraphicsMagick_CFLAGS) 
-libdStorm_la_LIBADD = $(boost_thread_LIB) $(gsl_LIBS) $(GraphicsMagick_LIBS) $(WX_LIBS) 
-libdStorm_la_DEPENDENCIES = $(LIBDSTORM_RESOURCE_OBJECT)
 
-librapidstormfile_la_SOURCES = \
-    dStorm/localization_file/fields.cpp dStorm/localization_file/reader.cpp \
-    dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
-    dStorm/localization_file/localization_field_impl.h dStorm/localization_file/localization_field.h \
-    dStorm/localization_file/unknown_field.h 
-librapidstormfile_la_LDFLAGS = -no-undefined -version-info @LIBTOOL_VERSION_INFO@ 
-librapidstormfile_la_LIBADD = libdStorm.la $(tinyxml_LIBS)
-
-dstorm_SOURCES = dstorm.cpp
-dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
-dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) libdStorm.la librapidstormfile.la 
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) 
-dstorm_CXXFLAGS = $(gsl_CFLAGS) $(libb64_CFLAGS) $(libreadsif_CFLAGS)
-dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) 
-dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
-dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
-dstorm_LDADD += 
+dstorm_SOURCES += dstorm.cpp
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -705,7 +682,7 @@ dstorm_SOURCES += \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
     tiff/augment_config.h tiff/augment_config.cpp
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
     simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
@@ -733,7 +710,7 @@ libdStorm_la_SOURCES += \
     simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
     simparm/text_stream/ChildrenList.h \
     simparm/text_stream/EntryNode.h simparm/text_stream/FrontendNode.h \
@@ -742,13 +719,14 @@ libdStorm_la_SOURCES += \
     simparm/text_stream/Node.cpp simparm/text_stream/Node.h \
     simparm/text_stream/RootNode.cpp simparm/text_stream/RootNode.h \
     simparm/text_stream/TabNode.h simparm/text_stream/NoOpNode.h \
+    simparm/text_stream/Launcher.h simparm/text_stream/Launcher.cpp \
     simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp \
     test-plugin/Window.h test-plugin/Window.cpp \
     test-plugin/Manager.h test-plugin/Manager.cpp \
     test-plugin/md5.h test-plugin/md5.c \
     test-plugin/plugin.cpp test-plugin/plugin.h
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     wxDisplay/fwd.h \
     wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
     wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
@@ -777,14 +755,14 @@ libdStorm_la_SOURCES += \
     wx_ui/Window.h wx_ui/Window.cpp \
     wx_ui/lambda.h wx_ui/GUIHandle.h
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \
     simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 
-libdStorm_la_SOURCES += \
+dstorm_SOURCES += \
     ui/serialization/Node.h ui/serialization/Node.cpp
 
 if HAVE_LIBREADSIF
@@ -799,6 +777,17 @@ dstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
-align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
-align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
-align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 
+dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
+dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
+dstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) \
+    $(libreadsif_CFLAGS) $(WX_CXXFLAGS)
+dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) 
+dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
+dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
+dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
+dstorm_LDADD += $(WX_LIBS) 
+
+#align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
+#align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
+#align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 

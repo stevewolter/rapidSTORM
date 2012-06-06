@@ -80,6 +80,10 @@ Car::Car (const Config &config)
     DEBUG("Checking for duplicate filenames");
     output->check_for_duplicate_filenames( used_output_filenames );
     DEBUG("Checked for duplicate filenames");
+
+    if ( config.configTarget ) {
+        serialize( config, config.configTarget() );
+    }
 }
 
 Car::~Car() 
@@ -196,16 +200,6 @@ void Car::drive() {
     }
 
     run_successful = ! control.aborted_by_user();
-
-#if 0
-    if ( config.configTarget ) {
-        std::ostream& stream = config.configTarget.get_output_stream();
-        std::list<std::string> lns = config.printValues();
-        for (std::list<std::string>::const_iterator i = lns.begin(); i != lns.end(); i++)
-            stream << *i << "\n";
-        config.configTarget.close_output_stream();
-    }
-#endif
 
   } catch ( boost::thread_interrupted ) {
   } catch (const std::bad_alloc& e) {

@@ -34,7 +34,8 @@ Link::~Link() {
 
 void Link::update_current_meta_info( TraitsRef new_traits ) 
 {
-    if ( new_traits.get() && new_traits->provides< dStorm::engine::ImageStack >() )
+    assert( new_traits.get() );
+    if ( new_traits->provides< dStorm::engine::ImageStack >() )
         assert( new_traits->traits< dStorm::engine::ImageStack >()->plane_count() > 0 );
     meta_info = new_traits;
     DEBUG("Publishing traits for " << this);

@@ -5,6 +5,7 @@
 #include <memory>
 #include <set>
 #include <boost/function/function0.hpp>
+#include "MainThread.h"
 
 namespace dStorm {
 namespace display {
@@ -13,9 +14,13 @@ struct Window;
 
 /** All App methods must be called from the event
  *  dispatcher thread. */
-class App : public wxApp {
+class App : public wxApp, public dStorm::MainThread {
   private:
-    std::auto_ptr<wxFrame> nevershow;
+    boost::mutex mutex;
+    boost::condition main_thread_wakeup;
+    std::set<Job*> active_jobs;
+    int job_count;
+
     std::set<Window*> windows;
     wxTimer timer;
 
@@ -27,14 +32,22 @@ class App : public wxApp {
 
     static boost::function0<void> idle_call;
 
-    bool OnInit(); 
+    void run( bool gui );
     /** Command events sent to the App are interpreted as
      *  ost::Runnable objects to be run in the event queue. */
     void OnIdle( wxIdleEvent& );
     void OnTimer( wxTimerEvent& );
-    void close();
+    void close() {}
     void add_window(Window* w) { windows.insert(w); }
     void remove_window(Window* w) { windows.erase(w); }
+
+    void run_all_jobs();
+    void register_job( Job& );
+    void unregister_job( Job& );
+    void register_unstopable_job();
+    void unregister_unstopable_job();
+    void terminate_running_jobs();
+    int count_jobs();
 };
 
 }

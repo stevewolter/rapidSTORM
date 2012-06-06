@@ -23,7 +23,7 @@ namespace dStorm {
 namespace input {
 
 Choice::Choice(std::string name, std::string desc, bool auto_select)
-: choices(name, desc), auto_select(auto_select)
+: choices(name, desc), auto_select(auto_select), will_publish_traits(false)
 {
 }
 
@@ -31,7 +31,8 @@ Choice::Choice(const Choice& o)
 : Link(o), 
   choices(o.choices),
   my_traits(o.my_traits),
-  auto_select(o.auto_select)
+  auto_select(o.auto_select), 
+  will_publish_traits(false)
 {
     DEBUG("Copied " << &o << " to " << this);
     for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
@@ -69,7 +70,8 @@ void Choice::traits_changed( TraitsRef t, Link* from ) {
             if ( &i->link() == from )
                 choices.value = i->getName();
     }
-    publish_traits();
+    if ( ! will_publish_traits )
+        publish_traits();
 }
 
 void Choice::publish_traits() {
@@ -121,12 +123,13 @@ void Choice::insert_new_node( std::auto_ptr<Link> l, Place p ) {
 }
 
 void Choice::publish_meta_info() {
+    will_publish_traits = true;
     for ( iterator i = choices.begin(); i != choices.end(); ++i ) {
         i->link().publish_meta_info();
     }
+    will_publish_traits = false;
     publish_traits();
-    if ( ! current_meta_info().get() )
-        throw std::logic_error(name() + " did not publish meta info on request");
+    assert( current_meta_info().get() );
 }
 
 }

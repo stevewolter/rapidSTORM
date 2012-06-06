@@ -65,7 +65,7 @@ proc dstorm_start {} {
         program_start andorcamd-dummy 
         set andorcam_spawn_id $spawn_id
     }
-    program_start dstorm --Twi
+    program_start dstorm --no-config --Twi
     set dstorm_spawn_id $spawn_id
 
     send "in DummyDisplayManagerConfig in wxWidgetsUI in value set false\n"
@@ -222,15 +222,17 @@ proc end_test_suite {} {
     send "cmd 0 reset\n"; expect "ack 0"; 
 }
 
-proc load_default_config {} {
-    global srcdir
-
-    set config_file $srcdir/dstorm-config.txt
+proc load_config_file { config_file } {
     set filestream [open "$config_file" r]
     while {[gets $filestream line] >= 0} {
-        send "in Car $line\n"
+        send "$line\n"
     }
     close $filestream
+}
+
+proc load_default_config {} {
+    global srcdir
+    load_config_file $srcdir/dstorm-config.txt
 }
 
 proc disconnect_camera {} {

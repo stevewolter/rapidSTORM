@@ -184,6 +184,7 @@ class StrategistImplementation
         boost::shared_ptr<const MetaInfo> result;
         boost::mpl::for_each< DefaultTypes >(
             boost::bind( boost::ref(*this), boost::ref(v), _1, boost::ref(result) ) );
+        if ( ! result ) result.reset( new MetaInfo() );
         return result;
     }
     std::auto_ptr<BaseSource> make_source( const Sources& sources ) { 
@@ -228,8 +229,12 @@ class Link
         } else {
             DEBUG("Making traits for size " << children.size());
             try {
+                assert( join_type.isValid() );
                 t = join_type().make_traits( input_traits ) ;
-            } catch (const std::runtime_error&) {}
+                assert( t.get() );
+            } catch (const std::runtime_error&) {
+                t.reset( new MetaInfo() );
+            }
             DEBUG("Made traits providing nothing: " << ((t.get()) ? t->provides_nothing() : true));
         }
         update_current_meta_info(t);

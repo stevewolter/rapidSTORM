@@ -16,10 +16,17 @@ class RootFrame;
 
 class MainConfig {
     dStorm::MainThread& main_thread;
-    dStorm::job::Config config;
-    dStorm::JobStarter starter;
+    dStorm::job::Config original_config;
+    boost::optional< dStorm::job::Config > config;
+    boost::optional< dStorm::JobStarter > starter;
+    boost::shared_ptr<Node> user_interface;
+
+    void create_config( boost::optional<std::string> config_file );
+
 public:
     MainConfig( dStorm::MainThread&, const dStorm::job::Config&, boost::shared_ptr<Node> );
+    void serialize( std::string filename );
+    void deserialize( std::string filename );
 };
 
 class RootNode 

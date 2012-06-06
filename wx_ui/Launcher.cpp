@@ -6,7 +6,7 @@ namespace wx_ui {
 
 Launcher::Launcher
     ( dStorm::job::Config& c, dStorm::MainThread& main_thread )
-: simparm::TriggerEntry("wxControl", "Show wxWidgets user interface"),
+: trigger("wxControl", "Show wxWidgets user interface"),
   config(c),
   main_thread(main_thread)
 {
@@ -14,18 +14,22 @@ Launcher::Launcher
 
 void Launcher::attach_ui( simparm::NodeHandle n )
 {
-    simparm::TriggerEntry::attach_ui( n );
-    listening = value.notify_on_value_change( 
-        boost::bind( &Launcher::launch, this ) );
+    trigger.attach_ui( n );
+    listening = trigger.value.notify_on_value_change( 
+        boost::bind( &Launcher::was_triggered, this ) );
 }
 
 Launcher::~Launcher() {}
 
-void Launcher::launch() {
-    if ( triggered() ) {
-        untrigger();
-        RootNode::create( main_thread, config );
+void Launcher::was_triggered() {
+    if ( trigger.triggered() ) {
+        trigger.untrigger();
+        launch();
     }
+}
+
+void Launcher::launch() {
+    RootNode::create( main_thread, config );
 }
 
 }

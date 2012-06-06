@@ -1,3 +1,4 @@
+#define VERBOSE
 #include <wx/wx.h>
 #include "wxManager.h"
 #include "App.h"
@@ -46,6 +47,7 @@ wxManager::wxManager()
   recursive( false ),
   idle_call( new IdleCall(*this) )
 {
+    App::idle_call = *idle_call;
 }
 
 struct wxManager::Closer {
@@ -70,27 +72,6 @@ wxManager::~wxManager() {
         closed_all_handles.notify_all();
     }
     DEBUG("Stopped display thread");
-}
-
-void wxManager::run() throw()
-{
-    DEBUG("Running display thread");
-    int argc = 0;
-    App::idle_call = *idle_call;
-    assert( App::idle_call );
-    if ( !may_close )
-        wxEntry(argc, (wxChar**)NULL);
-    DEBUG("Ran display thread");
-    toolkit_available = false;
-
-    DEBUG("Locking job queue mutex");
-    boost::unique_lock<boost::recursive_mutex> lock( mutex );
-    DEBUG("Executing waiting runnables");
-    exec_waiting_runnables();
-    while ( !may_close || open_handles > 0 ) {
-        closed_all_handles.wait(mutex);
-        exec_waiting_runnables();
-    }
 }
 
 void wxManager::increase_handle_count() {
@@ -119,26 +100,12 @@ static void create_window(
     }
 }
 
-void wxManager::start_GUI_thread() {
-    if ( ! was_started ) {
-        DEBUG("Acquiring lock for checking if GUI thread is started");
-        boost::lock_guard<boost::recursive_mutex> lock( mutex );
-        DEBUG("Acquired lock for checking if GUI thread is started");
-        if ( ! was_started ) {
-            was_started = true;
-            gui_thread = boost::thread( &wxManager::run, this );
-        }
-    }
-}
-
 std::auto_ptr<display::WindowHandle>
 wxManager::register_data_source(
     const WindowProperties& properties,
     DataSource& handler
 )
 {
-    start_GUI_thread();
-
     std::auto_ptr<WindowHandle> 
         handle(new WindowHandle(*this));
     increase_handle_count();
@@ -185,20 +152,12 @@ void wxManager::WindowHandle::store_current_display( SaveRequest s )
 
 void wxManager::run_in_GUI_thread( std::auto_ptr<Runnable> code ) 
 {
-    DEBUG("Entering run_in_GUI_thread");
-    start_GUI_thread();
-
-    DEBUG("Running code in GUI thread");
-    if ( boost::this_thread::get_id() == gui_thread.get_id() )
-        (*code)();
-    else {
-        {
-            boost::lock_guard<boost::recursive_mutex> lock(mutex);
-            run_queue.push_back( code );
-        }
-        wxWakeUpIdle();
-        closed_all_handles.notify_all();
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(mutex);
+        run_queue.push_back( code );
     }
+    wxWakeUpIdle();
+    closed_all_handles.notify_all();
     DEBUG("Ran code in GUI thread");
 }
 

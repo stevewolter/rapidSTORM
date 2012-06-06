@@ -11,23 +11,14 @@ namespace dStorm {
 class MainThread 
 {
 public:
-    MainThread();
-    void run_all_jobs();
-
-    void register_job( Job& );
-    void unregister_job( Job& );
-
-    void register_unstopable_job();
-    void unregister_unstopable_job();
-
-    void terminate_running_jobs();
-
-    int count_jobs();
-private:
-    boost::mutex mutex;
-    boost::condition main_thread_wakeup;
-    std::set<Job*> active_jobs;
-    int job_count;
+    virtual ~MainThread() {}
+    virtual void run_all_jobs() = 0;
+    virtual void register_job( Job& ) = 0;
+    virtual void unregister_job( Job& ) = 0;
+    virtual void register_unstopable_job() = 0;
+    virtual void unregister_unstopable_job() = 0;
+    virtual void terminate_running_jobs() = 0;
+    virtual int count_jobs() = 0;
 };
 
 }

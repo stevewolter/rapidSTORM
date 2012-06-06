@@ -27,8 +27,8 @@ set deploy_root_host "$prefix"
 proc program_start { cmd args } {
     global spawn_id
     global objdir
-
-    spawn $objdir/$cmd $args
+    
+    spawn $objdir/$cmd {*}$args
 }
 
 proc program_exit { cmd } {}

@@ -52,6 +52,8 @@ void InputStream::processCommands() {
                       << e.what() << std::endl;
         }
     }
+    current_config.reset();
+    starter.reset();
 }
 
 InputStream::~InputStream() {
@@ -103,7 +105,7 @@ bool InputStream::received_quit_command() {
 boost::shared_ptr<InputStream> InputStream::create( MainThread& m, const job::Config& c ) {
     boost::shared_ptr<InputStream> rv( new InputStream( m, c ) );
     rv->reset_config();
-    rv->root_backend->attach_ui( rv );
+    //rv->root_backend->attach_ui( rv );
     return rv;
 }
 

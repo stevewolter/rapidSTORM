@@ -12,15 +12,14 @@
 #include "InputStream.h"
 #include "ModuleLoader.h"
 #include <simparm/cmdline_ui/RootNode.h>
-#include <simparm/text_stream/RootNode.h>
 #include <dStorm/display/Manager.h>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
 #include <boost/thread/condition.hpp>
 #include <boost/thread/thread.hpp>
 #include "job/Config.h"
 #include "JobStarter.h"
 #include "wx_ui/Launcher.h"
+#include "simparm/text_stream/Launcher.h"
 
 namespace dStorm {
 
@@ -38,32 +37,19 @@ class TransmissionTreePrinter
     void attach_ui( simparm::NodeHandle );
 };
 
-class TwiddlerLauncher
-: public simparm::TriggerEntry
-{
-    job::Config &config;
-    MainThread& main_thread;
-    simparm::BaseAttribute::ConnectionStore listening;
-    void run_twiddler();
-  public:
-    TwiddlerLauncher(job::Config&, MainThread& main_thread);
-    ~TwiddlerLauncher();
-    void attach_ui( simparm::NodeHandle );
-};
-
 void CommandLine::parse( int argc, char *argv[] ) {
+    boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
+    cmdline_ui = argument_parser;
+
     int shift = find_config_file(argc,argv);
     argc -= shift;
     argv += shift;
 
     TransmissionTreePrinter printer(config);
-    TwiddlerLauncher launcher(config, main_thread);
+    simparm::text_stream::Launcher launcher(config, main_thread);
     simparm::wx_ui::Launcher wx_launcher(config, main_thread);
-    boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     JobStarter starter( &main_thread, argument_parser, config );
     simparm::TriggerEntry help("Help", "Help");
-
-    cmdline_ui = argument_parser;
 
     config.attach_ui( cmdline_ui );
     printer.attach_ui( cmdline_ui );
@@ -78,6 +64,7 @@ void CommandLine::parse( int argc, char *argv[] ) {
 }
 
 int CommandLine::find_config_file( int argc, char* argv[] ) {
+    if ( argc > 1 && std::string(argv[1]) == "--no-config" ) return 1;
     int shift = 0;
     DEBUG("Checking for relevant environment variables");
     const char *home = getenv("HOME"),
@@ -86,7 +73,7 @@ int CommandLine::find_config_file( int argc, char* argv[] ) {
     bool have_file = false;
     DEBUG("Checking for command line config file");
     while ( argc > 2 && std::string(argv[1]) == "--config" ) {
-        bool successfully_opened = load_config_file(std::string(argv[2]));
+        bool successfully_opened = deserialize(config, std::string(argv[2]), cmdline_ui);
         have_file = have_file || successfully_opened;
         if ( !successfully_opened )
             DEBUG("Skipped unreadable config file '" << argv[2] << "'");
@@ -97,37 +84,11 @@ int CommandLine::find_config_file( int argc, char* argv[] ) {
     }
     DEBUG("Checking for home directory config file");
     if ( !have_file && home != NULL )
-        have_file = load_config_file( std::string(home) + "/.dstorm");
+        have_file = deserialize( config, std::string(home) + "/.dstorm", cmdline_ui);
     if ( !have_file && homedrive != NULL && homepath != NULL )
-        have_file = load_config_file( 
-            std::string(homedrive) + std::string(homepath) + "/dstorm.txt");
+        have_file = deserialize( config, 
+            std::string(homedrive) + std::string(homepath) + "/dstorm.txt", cmdline_ui);
     return shift;
-}
-
-bool CommandLine::load_config_file(
-    const std::string& name
-) {
-    DEBUG("Opening config file " << name);
-    std::ifstream config_file( name.c_str() );
-    boost::shared_ptr< simparm::text_stream::RootNode > ui 
-        = boost::make_shared< simparm::text_stream::RootNode >();
-    config.attach_children( ui );
-    if ( !config_file )
-        return false;
-    else {
-        while ( config_file ) {
-            while ( config_file && std::isspace( config_file.peek() ) )
-                config_file.get();
-            if ( ! config_file || config_file.peek() == EOF ) break;
-            DEBUG("Processing command from " << name);
-            try {
-                ui->processCommand( config_file );
-            } catch (const std::runtime_error& e) {
-                std::cerr << "Unable to read initialization file: " + std::string(e.what())  << std::endl;
-            }
-        }
-        return true;
-    }
 }
 
 CommandLine::CommandLine( MainThread& main_thread )
@@ -171,30 +132,6 @@ void TransmissionTreePrinter::printNode(
     if (fwd != NULL) {
         fwd->for_each_suboutput( boost::bind( &TransmissionTreePrinter::printNode, boost::ref(*this), _1, indent+2) );
     }
-}
-
-TwiddlerLauncher::TwiddlerLauncher
-    ( job::Config& c, MainThread& main_thread )
-: simparm::TriggerEntry("TwiddlerControl", 
-                "Read stdin/out for simparm control commands"),
-  config(c),
-  main_thread(main_thread)
-{
-}
-
-void TwiddlerLauncher::attach_ui( simparm::NodeHandle n )
-{
-    simparm::TriggerEntry::attach_ui( n );
-    listening = value.notify_on_value_change( 
-        boost::bind( &TwiddlerLauncher::run_twiddler, this ) );
-}
-
-TwiddlerLauncher::~TwiddlerLauncher() {}
-
-void TwiddlerLauncher::run_twiddler() {
-    boost::shared_ptr< InputStream > input_stream = InputStream::create( main_thread, config );
-    boost::thread thread( &InputStream::processCommands, input_stream );
-    thread.detach();
 }
 
 }

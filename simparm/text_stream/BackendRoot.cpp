@@ -5,6 +5,7 @@
 #include "BackendRoot.h"
 #include <boost/bind/bind.hpp>
 #include "wxDisplay/wxManager.h"
+#include <simparm/dummy_ui/fwd.h>
 
 namespace simparm {
 namespace text_stream {
@@ -58,6 +59,8 @@ void BackendRoot::process_command_(const std::string& cmd, std::istream& in) {
         }
     } else if (cmd == "quit") {
         should_quit = true;
+        display_manager.attach_ui( dummy_ui::make_node() );
+        if (out) *out << "quit" << std::endl;
     } else if (cmd == "cmd") {
         int number;
         in >> number;

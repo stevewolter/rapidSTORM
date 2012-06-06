@@ -39,7 +39,7 @@ class Choice
     typedef simparm::ManagedChoiceEntry<LinkAdaptor>::iterator iterator;
     simparm::ManagedChoiceEntry<LinkAdaptor> choices;
     boost::shared_ptr<MetaInfo> my_traits;
-    bool auto_select;
+    bool auto_select, will_publish_traits;
 
     void publish_traits_locked();
     void publish_traits();

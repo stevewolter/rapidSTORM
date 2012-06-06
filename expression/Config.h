@@ -27,7 +27,7 @@ struct Config : public config::ExpressionManager
     static std::string get_description() { return "Expression filter"; }
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
-    void make_new_line();
+    void commit_line_count();
     bool can_work_with(output::Capabilities);
     bool determine_output_capabilities( output::Capabilities& cap ) { return true; }
 
@@ -38,8 +38,7 @@ struct Config : public config::ExpressionManager
     SimpleFilters simple;
     typedef boost::ptr_vector< config::CommandLine > Lines;
     Lines lines;
-    simparm::TriggerEntry new_line;
-    int next_ident;
+    simparm::Entry<unsigned long> line_count;
 
     simparm::NodeHandle current_ui;
     simparm::BaseAttribute::ConnectionStore listening;
