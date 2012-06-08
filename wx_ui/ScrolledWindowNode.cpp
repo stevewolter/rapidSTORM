@@ -5,6 +5,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/bind/bind.hpp>
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -3,13 +3,18 @@
 
 #include <wx/wx.h>
 #include "dStorm/display/DataSource.h"
-#include "wxManager.h"
+#include "dStorm/display/Manager.h"
 #include "Canvas.h"
 #include <boost/thread/recursive_mutex.hpp>
 #include <dStorm/display/SharedDataSource.h>
+#include <wx/timer.h>
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+using dStorm::display::SharedDataSource;
+using dStorm::display::Change;
 
 class ZoomSlider;
 class Key;
@@ -24,6 +29,7 @@ class Window : public wxFrame, public Canvas::Listener
     ZoomSlider *zoom;
     ScaleBar *scale_bar;
     wxStaticText *position_label;
+    wxTimer timer;
 
     boost::shared_ptr< SharedDataSource > data_source;
 
@@ -45,18 +51,21 @@ class Window : public wxFrame, public Canvas::Listener
     void zoom_changed( int to );
     void mouse_over_pixel( wxPoint, Color );
 
+    void update_image();
+    void timer_expired( wxTimerEvent& ev ) { update_image(); ev.Skip(); }
+
   public:
-    Window( const display::WindowProperties& props,
+    Window( const dStorm::display::WindowProperties& props,
             boost::shared_ptr< SharedDataSource > );
     ~Window(); 
 
-    void update_image();
     boost::shared_ptr<const Change> detach_from_source();
     void notice_that_source_has_disappeared();
 
     std::auto_ptr<Change> getState();
 };
 
+}
 }
 }
 

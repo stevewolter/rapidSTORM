@@ -3,7 +3,6 @@
 
 #include <wx/wx.h>
 #include "Node.h"
-#include "MainThread.h"
 #include "job/Config.h"
 #include "WindowNode.h"
 #include "TabNode.h"
@@ -15,7 +14,6 @@ namespace wx_ui {
 class RootFrame;
 
 class MainConfig {
-    dStorm::MainThread& main_thread;
     dStorm::job::Config original_config;
     boost::optional< dStorm::job::Config > config;
     boost::optional< dStorm::JobStarter > starter;
@@ -24,7 +22,7 @@ class MainConfig {
     void create_config( boost::optional<std::string> config_file );
 
 public:
-    MainConfig( dStorm::MainThread&, const dStorm::job::Config&, boost::shared_ptr<Node> );
+    MainConfig( const dStorm::job::Config&, boost::shared_ptr<Node> );
     void serialize( std::string filename );
     void deserialize( std::string filename );
 };
@@ -35,9 +33,8 @@ class RootNode
     boost::shared_ptr<RootFrame*> my_frame;
     boost::shared_ptr<Window> window_view;
     boost::shared_ptr<VisibilityControl> vc;
-    dStorm::MainThread& main_thread;
 
-    RootNode( dStorm::MainThread& );
+    RootNode();
     Relayout get_relayout_function();
 
     void add_attribute( simparm::BaseAttribute& ) {}
@@ -56,7 +53,7 @@ class RootNode
     virtual void bind_visibility_group( boost::shared_ptr<Window> vg ) {}
 
 public:
-    static boost::shared_ptr<RootNode> create( dStorm::MainThread&, const dStorm::job::Config& );
+    static boost::shared_ptr<RootNode> create( const dStorm::job::Config& );
     void initialization_finished();
     void add_entry_line( LineSpecification& );
     void add_full_width_line( WindowSpecification& w );

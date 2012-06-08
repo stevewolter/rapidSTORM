@@ -18,6 +18,7 @@
 
 #include "wx_ui/stock-hchain-24-broken.xpm"
 #include "wx_ui/stock-hchain-24.xpm"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

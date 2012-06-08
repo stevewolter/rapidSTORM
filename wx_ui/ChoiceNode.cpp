@@ -4,6 +4,7 @@
 #include "lambda.h"
 #include "VisibilityControl.h"
 #include "GroupNode.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

@@ -4,8 +4,12 @@
 #include <wx/wx.h>
 #include "dStorm/display/DataSource.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+using dStorm::display::Color;
+using dStorm::display::ImageChange;
 
 class Canvas : public wxScrolledWindow {
   public:
@@ -122,6 +126,7 @@ void Canvas::BufferedDrawer::draw( int x, int y, const Color& co ) {
     c.contents->SetRGB( x, y, co.red(), co.green(), co.blue() );
 }
 
+}
 }
 }
 

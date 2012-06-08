@@ -1,11 +1,10 @@
 #include "TriggerNode.h"
 #include <wx/wx.h>
-#include "wxDisplay/wxManager.h"
 #include <boost/lexical_cast.hpp>
-#include "detach_window.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

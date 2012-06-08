@@ -25,7 +25,6 @@ class Manager
     int number;
 
     simparm::Object master_object;
-    simparm::Entry<bool> ui_is_handled_by_wxWidgets;
     simparm::NodeHandle current_ui;
 
     std::vector< boost::shared_ptr<Window> > sources_queue;
@@ -51,10 +50,6 @@ class Manager
     void request_action( boost::function0<void> );
 
     void remove_window_from_event_queue( boost::shared_ptr<Window> );
-
-    bool forward_events_to_wxwidgets() {
-        return ui_is_handled_by_wxWidgets();
-    }
 
     std::auto_ptr<display::WindowHandle>
         register_data_source

@@ -9,8 +9,6 @@
 
 namespace dStorm {
 
-class MainThread;
-
 class InputStream 
 : public simparm::text_stream::Node
 {
@@ -18,18 +16,17 @@ class InputStream
 
     std::auto_ptr< job::Config > orig_config, current_config;
     std::auto_ptr< JobStarter > starter;
-    MainThread& main_thread;
     Backend* const root_backend;
 
     void reset_config();
     void processCommand( const std::string& cmd, std::istream& rest);
-    InputStream( MainThread& master, const job::Config& );
+    InputStream( const job::Config&, bool wxWidgets );
     bool received_quit_command();
 
   public:
     ~InputStream();
     DSTORM_REALIGN_STACK void processCommands( );
-    static boost::shared_ptr<InputStream> create( MainThread&, const job::Config& );
+    static boost::shared_ptr<InputStream> create( const job::Config&, bool wxWidgets );
 };
 
 }

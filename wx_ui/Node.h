@@ -145,7 +145,6 @@ public:
     bool isActive() const { return true; }
 
     NodeHandle get_handle() { return shared_from_this(); }
-    static void run_in_GUI_thread( boost::function0<void> );
 };
 
 }

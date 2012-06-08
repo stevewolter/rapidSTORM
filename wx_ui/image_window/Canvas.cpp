@@ -6,8 +6,9 @@
 
 #include "debug.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
 
 std::ostream& operator<<(std::ostream& o, const wxRect& r) {
     return o << r.GetLeft() << "-" << r.GetRight() << " " << r.GetTop() << "-" << r.GetRight();
@@ -423,6 +424,6 @@ std::auto_ptr<ImageChange>
     return rv;
 }
 
-
+}
 }
 }

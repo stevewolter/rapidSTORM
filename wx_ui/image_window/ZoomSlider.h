@@ -4,8 +4,9 @@
 #include <wx/wx.h>
 #include "Canvas.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
 
 class ZoomSlider 
     : public wxSlider,
@@ -26,6 +27,7 @@ class ZoomSlider
     DECLARE_EVENT_TABLE();
 };
 
+}
 }
 }
 

@@ -4,16 +4,19 @@
 
 #include "BackendRoot.h"
 #include <boost/bind/bind.hpp>
-#include "wxDisplay/wxManager.h"
+#include <wx_ui/no_main_window.h>
 #include <simparm/dummy_ui/fwd.h>
+#include <simparm/Node.h>
 
 namespace simparm {
 namespace text_stream {
 
-BackendRoot::BackendRoot( std::ostream* o )
+BackendRoot::BackendRoot( std::ostream* o, bool wxWidgets )
 : attached(false), should_quit(false), out(o),
   display_manager()
 {
+    if ( wxWidgets )    
+        wx_ui_handler = wx_ui::no_main_window();
 }
 
 BackendRoot::~BackendRoot() {
@@ -109,8 +112,8 @@ void BackendRoot::process_child_command_( const std::string& child, std::istream
 std::auto_ptr<dStorm::display::WindowHandle> BackendRoot::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds ) 
 {
-    if ( display_manager.forward_events_to_wxwidgets() )
-        return dStorm::display::wxManager::get_singleton_instance().register_data_source( wp, ds );
+    if ( wx_ui_handler )
+        return wx_ui_handler->get_image_window( wp, ds );
     else
         return display_manager.register_data_source( wp, ds );
 }

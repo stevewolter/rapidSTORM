@@ -3,8 +3,9 @@
 
 #include "debug.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
 
 ScaleBar::ScaleBar( wxWindow* parent, const wxSize& size )
 : wxWindow( parent, wxID_ANY, wxDefaultPosition, size ),
@@ -72,5 +73,6 @@ BEGIN_EVENT_TABLE(ScaleBar, wxWindow)
     EVT_SIZE(ScaleBar::OnResize)
 END_EVENT_TABLE()
 
+}
 }
 }

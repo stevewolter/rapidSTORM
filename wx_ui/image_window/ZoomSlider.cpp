@@ -2,8 +2,9 @@
 #include <stdexcept>
 #include "debug.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
 
 ZoomSlider::ZoomSlider( wxWindow *parent, Canvas &canvas )
 : wxSlider( parent, wxID_ANY, 0, -16, 16, 
@@ -56,5 +57,6 @@ BEGIN_EVENT_TABLE(ZoomSlider, wxSlider)
     EVT_SCROLL_THUMBTRACK( ZoomSlider::OnZoomChange ) 
 END_EVENT_TABLE()
 
+}
 }
 }

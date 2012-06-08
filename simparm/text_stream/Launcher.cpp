@@ -5,12 +5,11 @@
 namespace simparm {
 namespace text_stream {
 
-Launcher::Launcher
-    ( dStorm::job::Config& c, dStorm::MainThread& main_thread )
-: trigger("TwiddlerControl", 
-                "Read stdin/out for simparm control commands"),
+Launcher::Launcher ( dStorm::job::Config& c, bool wxWidgets )
+: trigger( (wxWidgets) ? "TwiddlerControl" : "SimparmControl", 
+                "Read stdin/out for simparm control commands" + std::string( (wxWidgets) ? " and show image windows in wxWidgets GUI" : "") ),
   config(c),
-  main_thread(main_thread)
+  wxWidgets( wxWidgets )
 {
 }
 
@@ -24,7 +23,7 @@ void Launcher::attach_ui( simparm::NodeHandle n )
 Launcher::~Launcher() {}
 
 void Launcher::run_twiddler() {
-    boost::shared_ptr< dStorm::InputStream > input_stream = dStorm::InputStream::create( main_thread, config );
+    boost::shared_ptr< dStorm::InputStream > input_stream = dStorm::InputStream::create( config, wxWidgets );
     boost::thread thread( &dStorm::InputStream::processCommands, input_stream );
     thread.detach();
 }

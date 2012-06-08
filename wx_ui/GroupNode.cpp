@@ -3,6 +3,7 @@
 #include <wx/sizer.h>
 #include <wx/gbsizer.h>
 #include "lambda.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

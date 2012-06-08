@@ -3,29 +3,19 @@
 #endif
 
 #include "CommandLine.h"
-#include "ModuleLoader.h"
 #include <stdexcept>
 #include <dStorm/helpers/thread.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <locale.h>
-#include <stdlib.h>
 #include <wx/app.h>
-#include "wxDisplay/App.h"
-
-#include <dStorm/display/Manager.h>
-#include "test-plugin/plugin.h"
-#include "wxDisplay/fwd.h"
-#include "wxDisplay/App.h"
+#include "wx_ui/App.h"
+#include <dStorm/GUIThread.h>
 
 #ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
 #endif
-
-#include "debug.h"
-
-#include "unit_tests.h"
 
 using namespace dStorm;
 using namespace std;
@@ -64,23 +54,21 @@ void start_imagemagick( const char* name ) {
 }
 
 int main(int argc, char *argv[]) {
-    DEBUG("entry: main");
-
     ios_base::sync_with_stdio(false);
     ost::DebugStream::set(cerr);
     start_imagemagick( argv[0] );
 
     try {
-#if 0
-        MainThread main_thread;
-        CommandLine cmd_line(main_thread);
+        CommandLine cmd_line;
         cmd_line.parse( argc, argv );
+
+        GUIThread& main_thread = GUIThread::get_singleton();
+        if ( main_thread.need_wx_widgets() ) {
+            int wx_argc = 1;
+            char* wx_argv[1] = { argv[0] };
+            wxEntry( wx_argc, wx_argv );
+        }
         main_thread.run_all_jobs();
-#endif
-        int success = wxEntryStart( argc, argv );
-        display::App app;
-        app.run( success );
-        if ( success ) wxEntryCleanup();
     } catch (const std::bad_alloc &e) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 
                   << std::endl;

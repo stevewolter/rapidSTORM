@@ -26,12 +26,13 @@ class BackendRoot : public BackendNode {
     Mutex mutex;
 
     dStorm::text_stream_ui::Manager display_manager;
+    NodeHandle wx_ui_handler;
 
     ChildrenList< BackendNode > children;
 protected:
     virtual void process_command_( const std::string& command, std::istream& rest );
 public:
-    BackendRoot( std::ostream* );
+    BackendRoot( std::ostream*, bool wxWidgets );
     ~BackendRoot();
     void processCommand( std::istream& );
     void attach_ui( simparm::NodeHandle h ) { display_manager.attach_ui(h); }

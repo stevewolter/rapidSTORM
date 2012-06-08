@@ -1,7 +1,7 @@
 #include "Sizer.h"
 #include <wx/gbsizer.h>
 #include "lambda.h"
-#include "wxDisplay/wxManager.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -12,7 +12,7 @@ Sizer::Sizer() : row( new int(0) ) {}
 
 GUIHandle<wxSizer> Sizer::create_sizer() {
     GUIHandle<wxSizer> rv;
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( (
+    run_in_GUI_thread( (
         *bl::constant( rv ) =
         *bl::constant( sizer ) =
             bl::bind( bl::new_ptr<wxGridBagSizer>() ),
@@ -66,17 +66,17 @@ static void add_full_width_sizer(
 }
 
 void Sizer::add_entry_line( LineSpecification& line ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         boost::bind( &wx_ui::add_entry_line, sizer, line.label, line.contents, line.adornment, row ) );
 }
 
 void Sizer::add_full_width_line( WindowSpecification& w ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         boost::bind( &wx_ui::add_full_width_line, sizer, w.window, row, w.proportion ) );
 }
 
 void Sizer::add_full_width_sizer( SizerSpecification& w ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         boost::bind( &wx_ui::add_full_width_sizer, sizer, w.sizer, row, w.proportion ) );
 }
 

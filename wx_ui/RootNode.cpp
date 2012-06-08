@@ -3,8 +3,7 @@
 #endif
 #include "RootNode.h"
 #include "ScrolledTabNode.h"
-#include "wxDisplay/wxManager.h"
-#include "wxDisplay/App.h"
+#include "App.h"
 #include "VisibilityControl.h"
 #include "lambda.h"
 #include <wx/notebook.h>
@@ -15,6 +14,7 @@
 #include <wx/msgdlg.h>
 #include <wx/filedlg.h>
 #include <fstream>
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -207,44 +207,39 @@ static void create_root_frame(
     *root_window_view = *frame_storage;
 }
 
-MainConfig::MainConfig( dStorm::MainThread& main_thread, const dStorm::job::Config& c, boost::shared_ptr<Node> n )
-: main_thread( main_thread ),
-  original_config(c),
+MainConfig::MainConfig( const dStorm::job::Config& c, boost::shared_ptr<Node> n )
+: original_config(c),
   user_interface( n )
 {
     create_config( boost::optional<std::string>() );
 }
 
-RootNode::RootNode( dStorm::MainThread& main_thread ) 
+RootNode::RootNode( ) 
 : my_frame( new RootFrame*(NULL) ),
   window_view( new Window() ),
-  vc( new VisibilityControl() ),
-  main_thread( main_thread )
+  vc( new VisibilityControl() )
 {
-    main_thread.register_unstopable_job();
 }
 
 RootNode::~RootNode() {
-    main_thread.unregister_unstopable_job();
 }
 
 void RootNode::initialization_finished() {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         boost::bind( &create_root_frame, shared_from_this(), my_frame, vc, window_view ) );
 }
 
-boost::shared_ptr<RootNode> RootNode::create( dStorm::MainThread& m, const dStorm::job::Config& c ) {
-    boost::shared_ptr<RootNode> rv( new RootNode(m) );
+boost::shared_ptr<RootNode> RootNode::create( const dStorm::job::Config& c ) {
+    boost::shared_ptr<RootNode> rv( new RootNode() );
     rv->initialization_finished();
     boost::shared_ptr< Node > main_part( new ScrolledTabNode( rv ) );
     main_part->initialization_finished();
 
-    boost::shared_ptr< MainConfig > main_config( new MainConfig(m, c, main_part) );
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    boost::shared_ptr< MainConfig > main_config( new MainConfig(c, main_part) );
+    run_in_GUI_thread(
         bl::bind( &RootFrame::set_main_config, *bl::constant(rv->my_frame), main_config ) );
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         bl::bind( &wxFrame::Show, *bl::constant(rv->my_frame), true ) );
-    std::cerr << "Initialization of root node" << std::endl;
     return rv;
 }
 
@@ -258,7 +253,7 @@ static void register_main_window(
 }
 
 void RootNode::add_full_width_line( WindowSpecification& w ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
          boost::bind( &register_main_window, my_frame, w.window ) );
 }
 
@@ -275,7 +270,7 @@ Node::Relayout RootNode::get_relayout_function() {
 }
 
 void RootNode::attach_context_help( boost::shared_ptr<Window> window, std::string context_help_id ) {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread(
+    run_in_GUI_thread(
         bl::bind( &RootFrame::attach_context_help, *bl::constant(my_frame), *bl::constant(window), context_help_id )
     );
 }
@@ -298,7 +293,7 @@ void show_message( const Message& m, boost::shared_ptr<RootFrame*> parent ) {
 }
 
 Message::Response RootNode::send( Message& m ) const {
-    dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( boost::bind(&show_message, m, my_frame) );
+    run_in_GUI_thread( boost::bind(&show_message, m, my_frame) );
     return Message::OKYes;
 }
 
@@ -316,7 +311,7 @@ void MainConfig::create_config( boost::optional<std::string> config_file ) {
     config = boost::in_place( boost::cref( original_config ) );
     if ( config_file ) dStorm::job::deserialize( *config, *config_file, user_interface );
     config->attach_ui( user_interface );
-    starter = boost::in_place( &main_thread, user_interface, boost::ref(*config) ),
+    starter = boost::in_place( user_interface, boost::ref(*config) ),
     starter->attach_ui( config->user_interface_handle() );
 }
 

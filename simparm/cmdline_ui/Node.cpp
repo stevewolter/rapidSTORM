@@ -5,22 +5,17 @@
 #include "ProgressNode.h"
 #include "OptionTable.h"
 
-#include "wxDisplay/wxManager.h"
-
 namespace simparm {
 namespace cmdline_ui {
 
 Node::~Node() { 
+    assert( nodes.empty() );
     if ( parent ) parent->remove_child(*this); 
-    while ( ! nodes.empty() ) {
-        nodes.back()->parent = NULL;
-        nodes.pop_back();
-    }
 }
 
 void Node::add_child( Node& o ) {
     nodes.push_back( &o );
-    o.parent = this;
+    o.parent = shared_from_this();
 }
 
 template <typename Type>
@@ -34,7 +29,6 @@ struct equal_address {
 
 void Node::remove_child( Node& o ) {
     nodes.erase( std::remove_if( nodes.begin(), nodes.end(), equal_address<Node>(&o) ) );
-    o.parent = NULL;
 }
 
 simparm::NodeHandle Node::create_object( std::string name ) {
@@ -82,7 +76,7 @@ NodeHandle Node::create_tree_object( std::string name ) {
 std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
 {
-    return dStorm::display::wxManager::get_singleton_instance().register_data_source( wp, ds );
+    return parent->get_image_window( wp, ds );
 }
 
 void Node::add_attribute( simparm::BaseAttribute& a ) {

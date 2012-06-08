@@ -65,10 +65,8 @@ proc dstorm_start {} {
         program_start andorcamd-dummy 
         set andorcam_spawn_id $spawn_id
     }
-    program_start dstorm --no-config --Twi
+    program_start dstorm --no-config --SimparmControl
     set dstorm_spawn_id $spawn_id
-
-    send "in DummyDisplayManagerConfig in wxWidgetsUI in value set false\n"
 
     set have_process_watcher 0;
     set have_signal_handling 0 

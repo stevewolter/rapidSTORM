@@ -4,8 +4,11 @@
 #include <dStorm/display/DataSource.h>
 #include <wx/font.h>
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+namespace camera = boost::units::camera;
 
 inline wxSize mkWxSize( const dStorm::display::Image::Size& s ) 
 {
@@ -21,6 +24,7 @@ inline dStorm::display::Image::Size mkImgSize( const wxSize& s )
     return rv;
 }
 
+}
 }
 }
 

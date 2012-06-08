@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "App.h"
+#include <stdlib.h>
+#include "ImageWindow.h"
 #include "Canvas.h"
 #include "ZoomSlider.h"
 #include "Key.h"
@@ -9,24 +9,36 @@
 
 #include "debug.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+using dStorm::display::PixelChange;
 
 wxString std_to_wx_string( const std::string& a ) {
     return wxString( a.c_str(), wxMBConvLibc() );
 }
 
 Window::Window(
-    const display::WindowProperties& props,
+    const dStorm::display::WindowProperties& props,
     boost::shared_ptr< SharedDataSource > data_source
 )
 : wxFrame(NULL, wxID_ANY, std_to_wx_string( props.name ),
           wxDefaultPosition, wxSize(780, 780)),
+    timer( this, wxID_ANY ),
     data_source(data_source),
     close_on_completion( props.flags.get_close_window_on_unregister() ),
     notify_for_zoom( props.flags.get_notice_drawn_rectangle() ),
     has_3d( false )
 {
+    int display_timer = 100;
+    if ( getenv("RAPIDSTORM_DISPLAY_FREQUENCY") ) {
+        float f = atof(getenv("RAPIDSTORM_DISPLAY_FREQUENCY"));
+        if ( f > 0 )
+            display_timer = 1000 / f;
+    }
+    timer.Start( display_timer );
+
     const ResizeChange& init_size = props.initial_size;
     SetBackgroundColour(
         wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
@@ -81,7 +93,6 @@ Window::Window(
         : 1 + int( floor(ratio) );
     canvas->set_zoom(new_zoom);
 
-    wxGetApp().add_window(this);
     this->Raise();
 }
 
@@ -100,7 +111,6 @@ void Window::UserClosedWindow(wxCloseEvent& e) {
 
 Window::~Window()
 {
-    wxGetApp().remove_window(this);
 }
 
 void Window::update_image() {
@@ -123,7 +133,7 @@ void Window::draw_image_window( const Change& changes ) {
     int width = canvas->getWidth();
     int height = canvas->getHeight();
     if ( changes.do_change_image ) {
-        display::Image::Position pos;
+        dStorm::display::Image::Position pos;
         pos.fill(0);
         for ( int y = 0; y < height; y++ ) {
             pos.y() = y * camera::pixel;
@@ -203,7 +213,7 @@ void Window::mouse_over_pixel( wxPoint point, Color color ) {
     label_text << "(" << point.x << ", " << point.y << ")";
     position_label->SetLabel( std_to_wx_string( label_text.str() ) );
 
-    Image::Position pos = Image::Position::Zero();
+    dStorm::display::Image::Position pos = dStorm::display::Image::Position::Zero();
     pos.x() = point.x * camera::pixel;
     pos.y() = point.y * camera::pixel;
     dStorm::display::DataSource::PixelInfo info( pos, color );
@@ -222,6 +232,7 @@ BEGIN_EVENT_TABLE(Window, wxFrame)
     EVT_TEXT_ENTER(Key::LowerLimitID, Window::OnLowerLimitChange)
     EVT_TEXT_ENTER(Key::UpperLimitID, Window::OnUpperLimitChange)
     EVT_CLOSE(Window::UserClosedWindow)
+    EVT_TIMER(wxID_ANY, Window::timer_expired)
 END_EVENT_TABLE()
 
 std::auto_ptr<Change> Window::getState() 
@@ -265,5 +276,6 @@ void Window::OnUpperLimitChange(wxCommandEvent& e)
     }
 }
 
+}
 }
 }

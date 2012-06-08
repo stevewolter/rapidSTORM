@@ -15,15 +15,14 @@ struct Node : public simparm::Node, public boost::enable_shared_from_this<Node> 
     std::string name, description;
     bool visible;
 
-    Node* parent;
+    boost::shared_ptr<Node> parent;
     std::vector< Node* > nodes;
 
 protected:
     virtual void add_child( Node& o );
     virtual void remove_child( Node& o );
-    void set_parent( Node& o ) { o.add_child(*this); }
 
-    Node( std::string name ) : name(name), visible(true), parent(NULL) {}
+    Node( std::string name ) : name(name), visible(true) {}
     simparm::NodeHandle adorn_node( Node* );
 
     std::string get_description() const { return description; }

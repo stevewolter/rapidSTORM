@@ -46,14 +46,15 @@ void CommandLine::parse( int argc, char *argv[] ) {
     argv += shift;
 
     TransmissionTreePrinter printer(config);
-    simparm::text_stream::Launcher launcher(config, main_thread);
-    simparm::wx_ui::Launcher wx_launcher(config, main_thread);
-    JobStarter starter( &main_thread, argument_parser, config );
+    simparm::text_stream::Launcher tw_launcher(config, true), sp_launcher(config, false);
+    simparm::wx_ui::Launcher wx_launcher(config);
+    JobStarter starter( argument_parser, config );
     simparm::TriggerEntry help("Help", "Help");
 
     config.attach_ui( cmdline_ui );
     printer.attach_ui( cmdline_ui );
-    launcher.attach_ui( cmdline_ui );
+    tw_launcher.attach_ui( cmdline_ui );
+    sp_launcher.attach_ui( cmdline_ui );
     wx_launcher.attach_ui( cmdline_ui );
     starter.attach_ui( cmdline_ui );
     help.attach_ui( cmdline_ui );
@@ -91,8 +92,7 @@ int CommandLine::find_config_file( int argc, char* argv[] ) {
     return shift;
 }
 
-CommandLine::CommandLine( MainThread& main_thread )
-: main_thread( main_thread )
+CommandLine::CommandLine()
 {
     add_modules( config );
     config.all_modules_loaded();

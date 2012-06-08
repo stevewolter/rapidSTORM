@@ -8,7 +8,7 @@ namespace text_stream {
 
 RootNode::RootNode( std::ostream* o ) 
 : Node("IO","IO"),
-  root_backend( new BackendRoot(o) )
+  root_backend( new BackendRoot(o, false) )
 {
     set_backend_node( std::auto_ptr<BackendNode>(root_backend) );
 }

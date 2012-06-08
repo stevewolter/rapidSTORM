@@ -5,10 +5,9 @@ namespace simparm {
 namespace wx_ui {
 
 Launcher::Launcher
-    ( dStorm::job::Config& c, dStorm::MainThread& main_thread )
+    ( dStorm::job::Config& c )
 : trigger("wxControl", "Show wxWidgets user interface"),
-  config(c),
-  main_thread(main_thread)
+  config(c)
 {
 }
 
@@ -29,7 +28,7 @@ void Launcher::was_triggered() {
 }
 
 void Launcher::launch() {
-    RootNode::create( main_thread, config );
+    RootNode::create( config );
 }
 
 }

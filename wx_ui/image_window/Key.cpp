@@ -6,8 +6,9 @@
 
 #include "debug.h"
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
 
 Key::Key( int number, wxWindow* parent, wxSize size, 
           const Declaration& decl, boost::shared_ptr<DataSource> source )
@@ -287,5 +288,6 @@ void Key::freeze_limit_changers()
     make_editable( upperBoundary, false );
 }
 
+}
 }
 }

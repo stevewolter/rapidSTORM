@@ -1,7 +1,7 @@
 #include "WindowNode.h"
 #include <wx/wx.h>
-#include "wxDisplay/wxManager.h"
 #include "lambda.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

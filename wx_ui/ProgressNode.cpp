@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 #include <boost/lexical_cast.hpp>
 #include "lambda.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {

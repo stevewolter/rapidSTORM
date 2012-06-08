@@ -5,8 +5,11 @@
 #include <boost/units/quantity.hpp>
 #include <dStorm/display/DataSource.h>
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+using dStorm::display::ResizeChange;
 
 class ScaleBar
 : public wxWindow
@@ -31,6 +34,7 @@ class ScaleBar
     void OnResize(wxSizeEvent&);
 };
 
+}
 }
 }
 

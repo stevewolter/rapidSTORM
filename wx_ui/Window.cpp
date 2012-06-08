@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "wxDisplay/wxManager.h"
+#include "gui_thread.h"
 #include <wx/window.h>
 #include "lambda.h"
 
@@ -21,10 +21,10 @@ void Window::update_window_show() {
     assert( backend_non_visibles >= 0 );
     if ( window ) {
         bool do_show = frontend_non_visibles == 0 && backend_non_visibles == 0;
-        dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( 
+        run_in_GUI_thread( 
             bl::bind( &wxWindow::Show, bl::bind( &Window::window, * bl::constant(shared_from_this()) ), do_show ) );
         if ( redraw ) 
-            dStorm::display::wxManager::get_singleton_instance().run_in_GUI_thread( redraw);
+            run_in_GUI_thread( redraw);
     }
 }
 

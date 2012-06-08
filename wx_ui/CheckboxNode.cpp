@@ -1,9 +1,9 @@
 #include "CheckboxNode.h"
 #include <wx/wx.h>
-#include "wxDisplay/wxManager.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -61,7 +61,7 @@ void CheckboxNode::add_attribute( simparm::BaseAttribute& a )
         value_handle.reset( new AttributeHandle<bool>(a) );
         boost::function0<void> value_change = bl::bind( &CheckBox::show_program_value, *bl::constant( my_window ) );
         connection = a.notify_on_non_GUI_value_change(       
-            boost::bind( &InnerNode::run_in_GUI_thread, value_change ) );
+            boost::bind( &run_in_GUI_thread, value_change ) );
     }
 }
 

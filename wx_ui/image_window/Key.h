@@ -7,8 +7,13 @@
 #include "dStorm/display/DataSource.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 
-namespace dStorm {
-namespace display {
+namespace simparm {
+namespace wx_ui {
+namespace image_window {
+
+using dStorm::display::Color;
+using dStorm::display::DataSource;
+using dStorm::display::KeyChange;
 
 class Key : public wxWindow {
   public:
@@ -78,6 +83,7 @@ class Key : public wxWindow {
     DECLARE_EVENT_TABLE();
 };
 
+}
 }
 }
 

@@ -299,7 +299,7 @@ dstorm_SOURCES += \
     ModuleLoader.h ModuleLoader.cpp \
     JobStarter.h JobStarter.cpp \
     InputStream.h InputStream.cpp \
-    MainThread.h MainThread.cpp \
+    dStorm/GUIThread.h dStorm/GUIThread.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
 
 dstorm_SOURCES += \
@@ -727,12 +727,15 @@ dstorm_SOURCES += \
     test-plugin/plugin.cpp test-plugin/plugin.h
 
 dstorm_SOURCES += \
-    wxDisplay/fwd.h \
-    wxDisplay/wxManager.h wxDisplay/wxManager.cpp wxDisplay/App.h wxDisplay/App.cpp \
-    wxDisplay/Window.h wxDisplay/Window.cpp wxDisplay/Canvas.h wxDisplay/Canvas.cpp \
-    wxDisplay/ZoomSlider.h wxDisplay/ZoomSlider.cpp wxDisplay/Key.h wxDisplay/Key.cpp \
-    wxDisplay/helpers.h wxDisplay/ScaleBar.h wxDisplay/ScaleBar.cpp wxDisplay/helpers.cpp \
-    wxDisplay/SizeConvert.h \
+    wx_ui/App.h wx_ui/App.cpp \
+    wx_ui/image_window/ImageWindow.h wx_ui/image_window/ImageWindow.cpp \
+    wx_ui/image_window/Handle.h wx_ui/image_window/Handle.cpp \
+    wx_ui/image_window/Canvas.h wx_ui/image_window/Canvas.cpp \
+    wx_ui/image_window/ZoomSlider.h wx_ui/image_window/ZoomSlider.cpp \
+    wx_ui/image_window/Key.h wx_ui/image_window/Key.cpp \
+    wx_ui/image_window/helpers.h wx_ui/image_window/helpers.cpp \
+    wx_ui/image_window/ScaleBar.h wx_ui/image_window/ScaleBar.cpp \
+    wx_ui/image_window/SizeConvert.h \
     wx_ui/Node.h wx_ui/Node.cpp \
     wx_ui/RootNode.h wx_ui/RootNode.cpp \
     wx_ui/Launcher.h wx_ui/Launcher.cpp \
@@ -743,7 +746,6 @@ dstorm_SOURCES += \
     wx_ui/ChoiceNode.h wx_ui/ChoiceNode.cpp \
     wx_ui/TriggerNode.h wx_ui/TriggerNode.cpp \
     wx_ui/ProgressNode.h wx_ui/ProgressNode.cpp \
-    wx_ui/detach_window.h wx_ui/detach_window.cpp \
     wx_ui/AttributeHandle.h \
     wx_ui/CheckboxNode.h wx_ui/CheckboxNode.cpp \
     wx_ui/GroupNode.h wx_ui/GroupNode.cpp \
@@ -753,7 +755,9 @@ dstorm_SOURCES += \
     wx_ui/VisibilityNode.h wx_ui/VisibilityNode.cpp \
     wx_ui/Sizer.h wx_ui/Sizer.cpp \
     wx_ui/Window.h wx_ui/Window.cpp \
-    wx_ui/lambda.h wx_ui/GUIHandle.h
+    wx_ui/lambda.h wx_ui/GUIHandle.h \
+    wx_ui/gui_thread.h wx_ui/gui_thread.cpp \
+    wx_ui/no_main_window.h wx_ui/no_main_window.cpp
 
 dstorm_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \

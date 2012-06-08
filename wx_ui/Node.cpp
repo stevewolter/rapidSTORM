@@ -8,7 +8,6 @@
 #include "GroupNode.h"
 #include "TreeRoot.h"
 #include "TreePage.h"
-#include "wxDisplay/wxManager.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
@@ -16,6 +15,8 @@
 #include <wx/string.h>
 #include <wx/stattext.h>
 #include "VisibilityControl.h"
+#include "image_window/create.h"
+#include "gui_thread.h"
 
 namespace simparm {
 namespace wx_ui {
@@ -28,7 +29,7 @@ WindowSpecification::WindowSpecification()
 
 WindowSpecification::~WindowSpecification() {
     std::for_each( removal_instructions.begin(), removal_instructions.end(),
-        &InnerNode::run_in_GUI_thread );
+        &run_in_GUI_thread );
 }
 
 LineSpecification::LineSpecification( boost::function0<void> redraw_function )
@@ -44,7 +45,7 @@ LineSpecification::LineSpecification( boost::function0<void> redraw_function )
 std::auto_ptr<dStorm::display::WindowHandle> Node::get_image_window( 
     const dStorm::display::WindowProperties& wp, dStorm::display::DataSource& ds )
 {
-    return dStorm::display::wxManager::get_singleton_instance().register_data_source( wp, ds );
+    return image_window::create( wp, ds );
 }
 
 simparm::NodeHandle Node::create_textfield( std::string, std::string ) {
@@ -89,11 +90,6 @@ NodeHandle Node::create_tree_root() {
 NodeHandle Node::create_tree_object( std::string ) {
     boost::shared_ptr< InnerNode > tree_page( new TreePage(shared_from_this()) );
     return NodeHandle( new WindowNode( tree_page ) );
-}
-
-void InnerNode::run_in_GUI_thread( boost::function0<void> f ) {
-    dStorm::display::wxManager& m = dStorm::display::wxManager::get_singleton_instance();
-    m.run_in_GUI_thread( f );
 }
 
 void InnerNode::create_static_text( boost::shared_ptr<Window> into, std::string text ) {

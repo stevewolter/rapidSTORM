@@ -96,11 +96,9 @@ void Manager::dispatch_events() {
 Manager::Manager()
 : running(false),
   number(0),
-  master_object("DummyDisplayManagerConfig", "Dummy display manager"),
-  ui_is_handled_by_wxWidgets("wxWidgetsUI", "Let wxWidgets handle the UI", true)
+  master_object("DummyDisplayManagerConfig", "Dummy display manager")
 {
     master_object.set_user_level( simparm::Debug );
-    ui_is_handled_by_wxWidgets.set_user_level( simparm::Debug );
 }
 
 Manager::~Manager()
@@ -121,7 +119,6 @@ void Manager::Handle::store_current_display( dStorm::display::SaveRequest s )
 void Manager::attach_ui( simparm::NodeHandle at )
 {
     current_ui = master_object.attach_ui( at );
-    ui_is_handled_by_wxWidgets.attach_ui( current_ui );
 }
 
 void Manager::heed_requests() {
