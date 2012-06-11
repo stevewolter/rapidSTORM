@@ -29,6 +29,7 @@ set job [get_job_number]
 set test "Job has progress"
 expect {
     -re "in Progress in value set 0." { pass "$test"; }
+    -re "in FitProgress in value set" { pass "$test"; }
 }
 set test "Two plane size estimation works"
 expect {

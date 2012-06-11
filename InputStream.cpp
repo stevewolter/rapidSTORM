@@ -103,7 +103,8 @@ bool InputStream::received_quit_command() {
 boost::shared_ptr<InputStream> InputStream::create( const job::Config& c, bool wxWidgets ) {
     boost::shared_ptr<InputStream> rv( new InputStream( c, wxWidgets ) );
     rv->reset_config();
-    //rv->root_backend->attach_ui( rv );
+    if ( ! wxWidgets )
+        rv->root_backend->attach_ui( rv );
     return rv;
 }
 

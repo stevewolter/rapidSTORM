@@ -114,7 +114,7 @@ void NoiseConfig::commit_fluo_set_count()
 {
     size_t count = fluo_set_count();
     while ( count > fluorophore_sets.size() ) {
-        std::string id = boost::lexical_cast<std::string>( fluorophore_sets.size() );
+        std::string id = boost::lexical_cast<std::string>( fluorophore_sets.size() + 1 );
         fluorophore_sets.push_back
             ( new FluorophoreSetConfig("FluorophoreSet" + id,
                                     "Fluorpohore set " + id) );

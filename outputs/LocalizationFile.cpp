@@ -1,20 +1,23 @@
-#define DSTORM_LOCALIZATIONFILE_CPP
 #include "debug.h"
 #include "LocalizationFile.h"
-#include <dStorm/localization/Traits.h>
-#include <dStorm/output/Output.h>
-#include <dStorm/output/FileOutputBuilder.h>
+
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <simparm/FileEntry.h>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <string.h>
 #include <stdlib.h>
-#include <boost/units/Eigen/Array>
 #include <iomanip>
+
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/units/Eigen/Array>
 #include <boost/bind/bind.hpp>
 
+#include <simparm/FileEntry.h>
+#include <simparm/Message.h>
+
+#include <dStorm/localization/Traits.h>
+#include <dStorm/output/Output.h>
+#include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/localization_file/field.h>
 
 using namespace std;
@@ -52,11 +55,13 @@ class Output : public output::Output {
 
     std::auto_ptr< Field > field;
     bool xyztI_format;
+    simparm::NodeHandle current_ui;
 
     void open();
     template <int Field> void make_fields();
     void output( const Localization& );
     void store_results_( bool success );
+    void attach_ui_( simparm::NodeHandle at ) { current_ui = at; }
 
   public:
     Output(const Config&);
@@ -130,8 +135,10 @@ void Output::receiveLocalizations(const EngineResult &er)
         std::for_each( er.begin(), er.end(), 
             boost::bind(&Output::output, this, _1) ); 
     if ( ! (*file) ) {
-        std::cerr << "Warning: Writing localizations to "
-                  << filename << " failed.\n";
+        simparm::Message m("Unable to write localizations file",
+            "Writing localizations to " + filename + " failed.",
+            simparm::Message::Warning );
+        m.send( current_ui );
         file = NULL;
         fileKeeper.reset();
     }
