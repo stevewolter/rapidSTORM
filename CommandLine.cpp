@@ -18,8 +18,11 @@
 #include <boost/thread/thread.hpp>
 #include "job/Config.h"
 #include "JobStarter.h"
-#include "wx_ui/Launcher.h"
+#include "simparm/wx_ui/Launcher.h"
 #include "simparm/text_stream/Launcher.h"
+#include "ui/serialization/deserialize.h"
+#include "config_file.h"
+#include "unit_tests.h"
 
 namespace dStorm {
 
@@ -37,45 +40,54 @@ class TransmissionTreePrinter
     void attach_ui( simparm::NodeHandle );
 };
 
-void CommandLine::parse( int argc, char *argv[] ) {
+int CommandLine::parse( int argc, char *argv[] ) {
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     cmdline_ui = argument_parser;
 
-    int shift = find_config_file(argc,argv);
-    argc -= shift;
-    argv += shift;
+    int exit_status = EXIT_SUCCESS;
+    if ( argc <= 1 ) {
+        simparm::wx_ui::Launcher wx_launcher( config );
+        wx_launcher.launch();
+    } else {
+        int shift = find_config_file(argc,argv);
+        argc -= shift;
+        argv += shift;
 
-    TransmissionTreePrinter printer(config);
-    simparm::text_stream::Launcher tw_launcher(config, true), sp_launcher(config, false);
-    simparm::wx_ui::Launcher wx_launcher(config);
-    JobStarter starter( argument_parser, config );
-    simparm::TriggerEntry help("Help", "Help");
+        TransmissionTreePrinter printer(config);
+        simparm::text_stream::Launcher tw_launcher(config, true), sp_launcher(config, false);
+        simparm::wx_ui::Launcher wx_launcher(config);
+        JobStarter starter( argument_parser, config );
+        simparm::TriggerEntry help("Help", "Help"), unit_tests("UnitTests", "Run unit tests");
 
-    config.attach_ui( cmdline_ui );
-    printer.attach_ui( cmdline_ui );
-    tw_launcher.attach_ui( cmdline_ui );
-    sp_launcher.attach_ui( cmdline_ui );
-    wx_launcher.attach_ui( cmdline_ui );
-    starter.attach_ui( cmdline_ui );
-    help.attach_ui( cmdline_ui );
+        config.attach_ui( cmdline_ui );
+        printer.attach_ui( cmdline_ui );
+        tw_launcher.attach_ui( cmdline_ui );
+        sp_launcher.attach_ui( cmdline_ui );
+        wx_launcher.attach_ui( cmdline_ui );
+        starter.attach_ui( cmdline_ui );
+        help.attach_ui( cmdline_ui );
+        unit_tests.attach_ui( cmdline_ui );
 
-    help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
+        help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
+        unit_tests.value.notify_on_value_change( boost::bind( &CommandLine::run_unit_tests, this, argv[0], boost::ref(exit_status) ) )->release();
 
-    argument_parser->parse_command_line( argc, argv );
+        argument_parser->parse_command_line( argc, argv );
+    }
+    return exit_status;
+}
+
+void CommandLine::run_unit_tests( char* arg0, int& exit_status ) {
+    char *argv[] = { arg0 };
+    if ( ::run_unit_tests( 1, argv ) != EXIT_SUCCESS )
+        exit_status = EXIT_FAILURE;
 }
 
 int CommandLine::find_config_file( int argc, char* argv[] ) {
     if ( argc > 1 && std::string(argv[1]) == "--no-config" ) return 1;
     int shift = 0;
-    DEBUG("Checking for relevant environment variables");
-    const char *home = getenv("HOME"),
-               *homedrive = getenv("HOMEDRIVE"),
-               *homepath = getenv("HOMEPATH");
-    bool have_file = false;
     DEBUG("Checking for command line config file");
     while ( argc > 2 && std::string(argv[1]) == "--config" ) {
-        bool successfully_opened = deserialize(config, std::string(argv[2]), cmdline_ui);
-        have_file = have_file || successfully_opened;
+        bool successfully_opened = simparm::serialization_ui::deserialize(config, std::string(argv[2]), cmdline_ui);
         if ( !successfully_opened )
             DEBUG("Skipped unreadable config file '" << argv[2] << "'");
         argc -= 2;
@@ -83,12 +95,6 @@ int CommandLine::find_config_file( int argc, char* argv[] ) {
         argv[2] = argv[0];
         argv = argv + 2;
     }
-    DEBUG("Checking for home directory config file");
-    if ( !have_file && home != NULL )
-        have_file = deserialize( config, std::string(home) + "/.dstorm", cmdline_ui);
-    if ( !have_file && homedrive != NULL && homepath != NULL )
-        have_file = deserialize( config, 
-            std::string(homedrive) + std::string(homepath) + "/dstorm.txt", cmdline_ui);
     return shift;
 }
 

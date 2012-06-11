@@ -14,6 +14,7 @@
 #include <dStorm/input/MetaInfo.h>
 #include <dStorm/display/Manager.h>
 #include <boost/smart_ptr/make_shared.hpp>
+#include <ui/serialization/serialize.h>
 
 using dStorm::output::Output;
 
@@ -82,7 +83,7 @@ Car::Car (const Config &config)
     DEBUG("Checked for duplicate filenames");
 
     if ( config.configTarget ) {
-        serialize( config, config.configTarget() );
+        simparm::serialization_ui::serialize( config, config.configTarget() );
     }
 }
 
@@ -97,7 +98,7 @@ Car::~Car()
     DEBUG("Commencing destruction");
 }
 
-void Car::drive_exception_safe() {
+void Car::run() {
     try {
         drive();
     } catch ( const std::bad_alloc& e ) {
@@ -230,16 +231,12 @@ void Car::stop() {
     control.stop();
 }
 
-void Car::attach_ui( simparm::NodeHandle at ) {
+simparm::NodeHandle Car::attach_ui( simparm::NodeHandle at ) {
     current_ui = runtime_config.attach_ui( at );
     input->attach_ui( current_ui );
     output->attach_ui( current_ui );
     control.registerNamedEntries( current_ui );
-}
-
-void Car::detach_ui( simparm::NodeHandle from ) {
-    current_ui.reset();
-    runtime_config.detach_ui( from );
+    return current_ui;
 }
 
 

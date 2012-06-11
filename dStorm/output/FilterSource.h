@@ -57,7 +57,7 @@ class FilterSource
     simparm::NodeHandle my_node;
 
     struct Suboutput;
-    typedef simparm::ManagedChoiceEntry<Suboutput> SuboutputChoice;
+    typedef boost::ptr_vector<Suboutput> SuboutputChoice;
     SuboutputChoice suboutputs;
 
     simparm::BaseAttribute::ConnectionStore listening;
@@ -69,7 +69,7 @@ class FilterSource
     void link_transmission( OutputSource* src );
 
     void add_new_element();
-    void remove_selected_suboutput();
+    void remove_suboutput( Suboutput* );
 
   protected:
     FilterSource();

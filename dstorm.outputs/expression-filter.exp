@@ -75,7 +75,7 @@ expect {
 }
 
 set test "Job with Z position is marked as given is started"
-send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ToRemove in value set Output0\n"
+send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in Output0 in Count in RemoveOutput value set 1\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Table\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in Output2 in Table in ToFile in value set ${tmpdir_target}expression-filter-z-position.txt\n"
 send "in Car in Output set EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posz\n"

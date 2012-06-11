@@ -3,7 +3,7 @@
 
 #include "NodeBackend.h"
 #include "ChildrenList.h"
-#include "test-plugin/Manager.h"
+#include "image_window/MainThread.h"
 
 namespace simparm {
 namespace text_stream {
@@ -25,7 +25,7 @@ class BackendRoot : public BackendNode {
     std::ostream* out;
     Mutex mutex;
 
-    dStorm::text_stream_ui::Manager display_manager;
+    image_window::MainThread display_manager;
     NodeHandle wx_ui_handler;
 
     ChildrenList< BackendNode > children;

@@ -2,6 +2,10 @@
 
 namespace dStorm {
 
+bool GUIThread::Task::operator<( const Task& o ) const {
+    return ! ( (priority != o.priority) ? priority < o.priority : sequence < o.sequence );
+}
+
 GUIThread& GUIThread::get_singleton() {
     static GUIThread* g = new GUIThread();
     return *g;
@@ -56,27 +60,33 @@ void GUIThread::run_all_jobs()
 }
 
 void GUIThread::run_wx_function( Task t ) {
+    boost::recursive_mutex::scoped_lock lock( mutex );
+    t.sequence = sequence_number++;
     tasks.push(t);
 }
 
 void GUIThread::perform_wx_tasks() {
     if ( recursive ) return;
     while (true) {
-        Task t;
-        {
-            boost::recursive_mutex::scoped_lock lock( mutex );
-            if ( tasks.empty() ) return;
-            t = tasks.front();
-            tasks.pop();
-        }
+        boost::recursive_mutex::scoped_lock lock( mutex );
+        if ( tasks.empty() ) { sequence_number = 0; return; }
+        Task t = tasks.top();
+        tasks.pop();
+        lock.unlock();
         recursive = true;
-        t();
+        try {
+            t.f();
+        } catch ( const std::exception& e ) {
+            std::cerr << e.what() << std::endl;
+        } catch (...) {
+            std::cerr << "Unknown error in perform_wx_tasks" << std::endl;
+        }
         recursive = false;
     }
 }
 
 GUIThread::GUIThread() 
-: job_count(0), recursive(false)
+: job_count(0), recursive(false), sequence_number(0)
 {
 }
 

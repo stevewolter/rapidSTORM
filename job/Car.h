@@ -63,13 +63,12 @@ namespace job {
         Car (const job::Config &config) ;
         virtual ~Car();
 
-        void drive_exception_safe();
+        void run();
         void drive();
         void stop();
         bool needs_stopping() { return true; }
 
-        void attach_ui( simparm::NodeHandle ) ;
-        void detach_ui( simparm::NodeHandle ) ;
+        simparm::NodeHandle attach_ui( simparm::NodeHandle ) ;
 
     };
 }

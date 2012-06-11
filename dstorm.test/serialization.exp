@@ -8,7 +8,7 @@ send "in Car in Output in EngineOutput in ChooseTransmission in value set Progre
 send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Image\n"
 send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Table\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
-send "in Car in Output in EngineOutput in ToRemove in value set Output1\n"
+send "in Car in Output in EngineOutput in Output1 in Progress in RemoveOutput in value set 1\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 send "in Car in Output in EngineOutput in Output3 in Table in ToFile in value set foobar\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Expression\n"

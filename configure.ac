@@ -95,12 +95,14 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([malloc floor sqrt strerror usleep getrusage])
 
 # Checks for libraries.
+AC_CHECK_LIB([boost_filesystem], [main], [boost_filesystem_LIB=-lboost_filesystem], [AC_ERROR(boost filesystem library not found)])
 AC_CHECK_LIB([boost_system], [main], [boost_system_LIB=-lboost_system], [AC_ERROR(boost system library not found)])
 AC_CHECK_LIB([boost_thread], [main], [boost_thread_LIB=-lboost_thread])
 AC_CHECK_LIB([boost_thread_win32], [main], [boost_thread_LIB=-lboost_thread_win32])
 AS_IF([test "x$ac_cv_lib_boost_thread_main" = "xno" -a "x$ac_cv_lib_boost_thread_win32_main" = "xno"],
     [AC_ERROR([No boost thread library found])], [])
 AC_CHECK_LIB([boost_unit_test_framework], [main], [boost_unit_test_LIB=-lboost_unit_test_framework], [AC_ERROR(boost unit test library not found)])
+AC_SUBST([boost_filesystem_LIB])
 AC_SUBST([boost_system_LIB])
 AC_SUBST([boost_thread_LIB])
 AC_SUBST([boost_unit_test_LIB])
@@ -188,7 +190,6 @@ AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 
 AC_CONFIG_FILES([Makefile java_gui/Makefile rapidstorm rapidstorm.desktop java_gui/manifest ])
-AC_CONFIG_FILES([librapidstormfile.pc])
 AC_CONFIG_FILES([version.txt install-dirs.exp])
 
 AC_OUTPUT

@@ -35,6 +35,7 @@ class Config : public dStorm::Config
 
     void traits_changed( boost::shared_ptr<const input::MetaInfo> );
     void create_input( std::auto_ptr<input::Link> );
+    void attach_children_ui( simparm::NodeHandle at );
 
   public:
     Config();
@@ -42,11 +43,8 @@ class Config : public dStorm::Config
     ~Config();
     Config *clone() const { return new Config(*this); }
 
-    void attach_ui( simparm::NodeHandle at );
-    void attach_children( simparm::NodeHandle at );
+    simparm::NodeHandle attach_ui( simparm::NodeHandle at );
     void send( simparm::Message& m ) { m.send( current_ui ); }
-
-    simparm::NodeHandle user_interface_handle() { return current_ui; }
 
     output::OutputSource& outputSource;
     output::Config& outputConfig;
@@ -67,10 +65,8 @@ class Config : public dStorm::Config
     std::auto_ptr<input::BaseSource> makeSource() const;
 
     void all_modules_loaded();
+    std::auto_ptr< Job > make_job();
 };
-
-void serialize( Config, std::string filename );
-bool deserialize( Config&, std::string filename, simparm::NodeHandle current_ui );
 
 }
 }

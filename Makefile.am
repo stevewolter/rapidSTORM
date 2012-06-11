@@ -9,12 +9,11 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-C_TESTS = dstorm 
 DEJATOOL = dstorm
 
 bin_PROGRAMS = dstorm 
 bin_SCRIPTS = rapidstorm
-check_PROGRAMS = $(C_TESTS)
+check_PROGRAMS = dstorm
 if CAN_BUILD_TWIDDLER
 applications_DATA=rapidstorm.desktop
 endif
@@ -83,12 +82,21 @@ EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
-	dstorm-config.txt version.txt
+	dstorm-config.txt version.txt installation-directory.h
+
+always-force-remake :
+
+installation-directory.h : always-force-remake
+	echo '#define CONFIG_FILE_DIR "$(pkgdatadir)"' > $@.tmp
+	diff --brief $@ $@.tmp || mv $@.tmp $@
+
+BUILT_SOURCES = installation-directory.h
 
 clean-local :
 	-rm -fr test-temp-dir
 
-TESTS = $(C_TESTS)
+TESTS = dstorm-unit-tests.sh
+EXTRA_DIST += dstorm-unit-tests.sh
 
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
@@ -104,6 +112,7 @@ endif
 	$(WINDRES) -I . '$<' '$@'
 
 dstorm_SOURCES = \
+    installation-directory.h \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/Localization_decl.h dStorm/Localization.h \
@@ -217,8 +226,6 @@ dstorm_SOURCES = \
     dStorm/UnitEntries/Nanometre.h dStorm/UnitEntries/PixelEntry.h \
     dStorm/UnitEntries/PixelSize.h dStorm/UnitEntries/TemperatureEntry.h \
     dStorm/UnitEntries/TimeEntry.h dStorm/UnitEntries/ADC.h \
-    dStorm/localization_file/field_decl.h dStorm/localization_file/field.h \
-    dStorm/localization_file/reader.h dStorm/localization_file/converter.h \
     dStorm/signals/UseSpotFinder.h dStorm/signals/UseSpotFitter.h \
     dStorm/signals/InputFileNameChange.h dStorm/signals/ResolutionChange.h dStorm/signals/BasenameChange.h \
     dStorm/display/fwd.h \
@@ -232,6 +239,17 @@ dstorm_SOURCES = \
     dStorm/threed_info/Lens3D.h \
     dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
+
+dstorm_SOURCES += \
+    dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
+    dStorm/localization_file/converter.h \
+    dStorm/localization_file/field.h dStorm/localization_file/field_decl.h \
+    dStorm/localization_file/fields.cpp \
+    dStorm/localization_file/localization_field.h \
+    dStorm/localization_file/localization_field_impl.h \
+    dStorm/localization_file/reader.cpp \
+    dStorm/localization_file/reader.h \
+    dStorm/localization_file/unknown_field.h 
 
 dstorm_SOURCES += \
     dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
@@ -292,7 +310,9 @@ dstorm_SOURCES += \
     dStorm/threed_info/look_up_sigma_diff.cpp \
     dStorm/make_clone_allocator.hpp
 
-dstorm_SOURCES += dstorm.cpp
+dstorm_SOURCES += dstorm.cpp installation-directory.h \
+    config_file.h config_file.cpp \
+    alignment_fitter.h alignment_fitter.cpp
 
 dstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
@@ -440,6 +460,7 @@ dstorm_SOURCES += \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
 dstorm_SOURCES += \
+    test-plugin/plugin.cpp test-plugin/plugin.h \
     test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
@@ -721,43 +742,45 @@ dstorm_SOURCES += \
     simparm/text_stream/TabNode.h simparm/text_stream/NoOpNode.h \
     simparm/text_stream/Launcher.h simparm/text_stream/Launcher.cpp \
     simparm/text_stream/unit_tests.h simparm/text_stream/unit_tests.cpp \
-    test-plugin/Window.h test-plugin/Window.cpp \
-    test-plugin/Manager.h test-plugin/Manager.cpp \
-    test-plugin/md5.h test-plugin/md5.c \
-    test-plugin/plugin.cpp test-plugin/plugin.h
+    simparm/text_stream/image_window/Window.h simparm/text_stream/image_window/Window.cpp \
+    simparm/text_stream/image_window/MainThread.h simparm/text_stream/image_window/MainThread.cpp \
+    simparm/text_stream/image_window/md5.h simparm/text_stream/image_window/md5.c
 
 dstorm_SOURCES += \
-    wx_ui/App.h wx_ui/App.cpp \
-    wx_ui/image_window/ImageWindow.h wx_ui/image_window/ImageWindow.cpp \
-    wx_ui/image_window/Handle.h wx_ui/image_window/Handle.cpp \
-    wx_ui/image_window/Canvas.h wx_ui/image_window/Canvas.cpp \
-    wx_ui/image_window/ZoomSlider.h wx_ui/image_window/ZoomSlider.cpp \
-    wx_ui/image_window/Key.h wx_ui/image_window/Key.cpp \
-    wx_ui/image_window/helpers.h wx_ui/image_window/helpers.cpp \
-    wx_ui/image_window/ScaleBar.h wx_ui/image_window/ScaleBar.cpp \
-    wx_ui/image_window/SizeConvert.h \
-    wx_ui/Node.h wx_ui/Node.cpp \
-    wx_ui/RootNode.h wx_ui/RootNode.cpp \
-    wx_ui/Launcher.h wx_ui/Launcher.cpp \
-    wx_ui/TextfieldNode.h wx_ui/TextfieldNode.cpp \
-    wx_ui/TabNode.h wx_ui/TabNode.cpp \
-    wx_ui/WindowNode.h wx_ui/WindowNode.cpp \
-    wx_ui/ScrolledWindowNode.h wx_ui/ScrolledWindowNode.cpp \
-    wx_ui/ChoiceNode.h wx_ui/ChoiceNode.cpp \
-    wx_ui/TriggerNode.h wx_ui/TriggerNode.cpp \
-    wx_ui/ProgressNode.h wx_ui/ProgressNode.cpp \
-    wx_ui/AttributeHandle.h \
-    wx_ui/CheckboxNode.h wx_ui/CheckboxNode.cpp \
-    wx_ui/GroupNode.h wx_ui/GroupNode.cpp \
-    wx_ui/TreeRoot.h wx_ui/TreeRoot.cpp \
-    wx_ui/TreePage.h wx_ui/TreePage.cpp \
-    wx_ui/TreeRepresentation.h wx_ui/TreeRepresentation.cpp \
-    wx_ui/VisibilityNode.h wx_ui/VisibilityNode.cpp \
-    wx_ui/Sizer.h wx_ui/Sizer.cpp \
-    wx_ui/Window.h wx_ui/Window.cpp \
-    wx_ui/lambda.h wx_ui/GUIHandle.h \
-    wx_ui/gui_thread.h wx_ui/gui_thread.cpp \
-    wx_ui/no_main_window.h wx_ui/no_main_window.cpp
+    simparm/wx_ui/App.h simparm/wx_ui/App.cpp \
+    simparm/wx_ui/image_window/ImageWindow.h simparm/wx_ui/image_window/ImageWindow.cpp \
+    simparm/wx_ui/image_window/Handle.h simparm/wx_ui/image_window/Handle.cpp \
+    simparm/wx_ui/image_window/Canvas.h simparm/wx_ui/image_window/Canvas.cpp \
+    simparm/wx_ui/image_window/ZoomSlider.h simparm/wx_ui/image_window/ZoomSlider.cpp \
+    simparm/wx_ui/image_window/Key.h simparm/wx_ui/image_window/Key.cpp \
+    simparm/wx_ui/image_window/helpers.h simparm/wx_ui/image_window/helpers.cpp \
+    simparm/wx_ui/image_window/ScaleBar.h simparm/wx_ui/image_window/ScaleBar.cpp \
+    simparm/wx_ui/image_window/SizeConvert.h \
+    simparm/wx_ui/Node.h simparm/wx_ui/Node.cpp \
+    simparm/wx_ui/RootNode.h simparm/wx_ui/RootNode.cpp \
+    simparm/wx_ui/Launcher.h simparm/wx_ui/Launcher.cpp \
+    simparm/wx_ui/TextfieldNode.h simparm/wx_ui/TextfieldNode.cpp \
+    simparm/wx_ui/TabNode.h simparm/wx_ui/TabNode.cpp \
+    simparm/wx_ui/WindowNode.h simparm/wx_ui/WindowNode.cpp \
+    simparm/wx_ui/ScrolledWindowNode.h simparm/wx_ui/ScrolledWindowNode.cpp \
+    simparm/wx_ui/ScrolledTabNode.h simparm/wx_ui/ScrolledTabNode.cpp \
+    simparm/wx_ui/ChoiceNode.h simparm/wx_ui/ChoiceNode.cpp \
+    simparm/wx_ui/TriggerNode.h simparm/wx_ui/TriggerNode.cpp \
+    simparm/wx_ui/ProgressNode.h simparm/wx_ui/ProgressNode.cpp \
+    simparm/wx_ui/AttributeHandle.h \
+    simparm/wx_ui/CheckboxNode.h simparm/wx_ui/CheckboxNode.cpp \
+    simparm/wx_ui/GroupNode.h simparm/wx_ui/GroupNode.cpp \
+    simparm/wx_ui/TreeRoot.h simparm/wx_ui/TreeRoot.cpp \
+    simparm/wx_ui/TreePage.h simparm/wx_ui/TreePage.cpp \
+    simparm/wx_ui/TreeRepresentation.h simparm/wx_ui/TreeRepresentation.cpp \
+    simparm/wx_ui/VisibilityNode.h simparm/wx_ui/VisibilityNode.cpp \
+    simparm/wx_ui/Sizer.h simparm/wx_ui/Sizer.cpp \
+    simparm/wx_ui/Window.h simparm/wx_ui/Window.cpp \
+    simparm/wx_ui/lambda.h simparm/wx_ui/GUIHandle.h \
+    simparm/wx_ui/gui_thread.h simparm/wx_ui/gui_thread.cpp \
+    simparm/wx_ui/no_main_window.h simparm/wx_ui/no_main_window.cpp \
+    simparm/wx_ui/ProtocolNode.h simparm/wx_ui/ProtocolNode.cpp \
+    simparm/wx_ui/MainConfig.h simparm/wx_ui/MainConfig.cpp
 
 dstorm_SOURCES += \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
@@ -767,7 +790,9 @@ dstorm_SOURCES += \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 
 dstorm_SOURCES += \
-    ui/serialization/Node.h ui/serialization/Node.cpp
+    ui/serialization/Node.h ui/serialization/Node.cpp \
+    ui/serialization/serialize.h ui/serialization/serialize.cpp \
+    ui/serialization/deserialize.h ui/serialization/deserialize.cpp
 
 if HAVE_LIBREADSIF
     SIFSUPPORT = \
@@ -786,12 +811,9 @@ dstorm_DEPENDENCIES = $(RESOURCE_OBJECT)
 dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
 dstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) \
     $(libreadsif_CFLAGS) $(WX_CXXFLAGS)
-dstorm_LDADD = libdStorm.la $(GraphicsMagick_LIBS) 
-dstorm_LDADD += $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
-dstorm_LDADD += librapidstormfile.la $(tinyxml_LIBS) $(gsl_LIBS)
+dstorm_LDADD = $(GraphicsMagick_LIBS) 
+dstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
+dstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
 dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
 dstorm_LDADD += $(WX_LIBS) 
 
-#align_biplane_rapidstorm_SOURCES = alignment_fitter.cpp
-#align_biplane_rapidstorm_CPPFLAGS = $(gsl_CFLAGS)
-#align_biplane_rapidstorm_LDADD = librapidstormfile.la libdStorm.la $(gsl_LIBS) 

@@ -4,7 +4,7 @@
 
 #include "BackendRoot.h"
 #include <boost/bind/bind.hpp>
-#include <wx_ui/no_main_window.h>
+#include <simparm/wx_ui/no_main_window.h>
 #include <simparm/dummy_ui/fwd.h>
 #include <simparm/Node.h>
 

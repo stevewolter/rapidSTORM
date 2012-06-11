@@ -13,7 +13,6 @@ send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}v
 send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in ToFile in value set \n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value set Verbose\n"
-# send "in Car in Output in EngineOutput in ToRemove in value set Output4\n"
 
 send "in Car in Run in value set 1\n"
 set job [get_job_number]

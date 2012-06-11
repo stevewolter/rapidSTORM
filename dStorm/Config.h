@@ -6,11 +6,22 @@
 #include <dStorm/engine/SpotFitterFactory_decl.h>
 #include "InsertionPlace.h"
 #include <memory>
+#include <simparm/NodeHandle.h>
 
 namespace dStorm {
 namespace output { class OutputSource; }
 
-struct Config 
+class Job;
+
+struct JobConfig {
+    virtual ~JobConfig() {}
+    virtual simparm::NodeHandle attach_ui( simparm::NodeHandle ) = 0;
+    virtual void attach_children_ui( simparm::NodeHandle ) = 0;
+    virtual std::auto_ptr< Job > make_job() = 0;
+    virtual JobConfig* clone() const = 0;
+};
+
+struct Config : public JobConfig
 {
     virtual ~Config() {}
     virtual void add_input( std::auto_ptr<input::Link>, InsertionPlace ) = 0;

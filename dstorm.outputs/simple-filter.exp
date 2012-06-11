@@ -9,7 +9,7 @@ send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Express
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in LinearDriftCorrection in value set 100,-50,0\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value set Table\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
-send "in Car in Output in EngineOutput in ToRemove in value set Output0\n"
+send "in Car in Output in EngineOutput in Output0 in Table in RemoveOutput in value set 1\n"
 dstorm_attach
 send "in Car in AutoTerminate in value set true\n"
 send "in Car set Run value set 1\n"

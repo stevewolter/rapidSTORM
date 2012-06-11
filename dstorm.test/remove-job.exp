@@ -23,7 +23,7 @@ expect {
 
 set test "can remove table output"
 if { [info exists first_table] } {
-send "in Car in Output in EngineOutput in ToRemove in value set $first_table\n"
+send "in Car in Output in EngineOutput in $first_table in Table in RemoveOutput in value set 1\n"
 expect {
     -re "in Car in Output in EngineOutput remove $first_table\r*\n"
         { pass "$test" }
@@ -34,7 +34,7 @@ expect {
 
 set test "can remove image output"
 if { [info exists image] } {
-send "in Car in Output in EngineOutput in ToRemove in value set $image\n"
+send "in Car in Output in EngineOutput in $image in Image in RemoveOutput in value set 1\n"
 expect {
     -re "in Car in Output in EngineOutput remove $image\r*\n"
         { pass "$test" }

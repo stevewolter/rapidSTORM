@@ -6,6 +6,7 @@
 #include <string>
 #include <dStorm/display/DataSource.h>
 #include <boost/thread/recursive_mutex.hpp>
+#include <simparm/wx_ui/ProtocolNode.h>
 
 namespace dStorm {
 namespace display {
@@ -18,8 +19,9 @@ class SharedDataSource : public DataSource {
     DataSource* source;
     std::auto_ptr< Change > final_change;
     bool notify_of_closed_window_before_disconnect_;
+    simparm::wx_ui::ProtocolNode protocol_node;
 public:
-    SharedDataSource( DataSource& source );
+    SharedDataSource( DataSource& source, simparm::wx_ui::ProtocolNode );
     void disconnect();
     bool notify_of_closed_window_before_disconnect();
 

@@ -8,6 +8,7 @@
 #include "SourceFactory.h"
 #include <dStorm/helpers/clone_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/lambda/lambda.hpp>
 
 namespace dStorm {
 namespace output {
@@ -47,20 +48,14 @@ void FilterSource::attach_children_ui( simparm::NodeHandle at )
         factory->notify_when_output_source_is_available( 
             boost::bind( &FilterSource::add_new_element, boost::ref(*this) ) );
         factory->attach_ui( at );
-        suboutputs.attach_ui( at );
-        listening = suboutputs.value.notify_on_value_change( boost::bind( 
-            &FilterSource::remove_selected_suboutput, this ) );
         DEBUG("Registered entries");
     }
 }
 
 FilterSource::FilterSource()
 : next_identity(0),
-  factory( NULL ),
-  suboutputs( "ToRemove", "Select output to remove" )
+  factory( NULL )
 {
-    suboutputs.set_auto_selection( false );
-    suboutputs.setHelpID( "#ToRemove" );
 }
 
 FilterSource::FilterSource( const FilterSource& o ) 
@@ -92,7 +87,13 @@ void FilterSource::add
     assert( src.get() );
     std::string name = "Output" + boost::lexical_cast<std::string>( next_identity++ );
     src->set_output_file_basename(basename);
-    suboutputs.addChoice( new Suboutput( src, name, my_node ) );
+    std::auto_ptr<Suboutput> so( new Suboutput( src, name, my_node ) );
+    so->output().notify_when_destruction_is_desired( boost::bind( &FilterSource::remove_suboutput, this, so.get() ) );
+    suboutputs.push_back( so );
+}
+
+void FilterSource::remove_suboutput( Suboutput* p ) {
+    suboutputs.erase_if( p == &boost::lambda::_1 );
 }
 
 void FilterSource::add_new_element() {
@@ -101,13 +102,6 @@ void FilterSource::add_new_element() {
         if ( fresh.get() != NULL ) add( fresh );
     } catch (const std::runtime_error& e) {
         std::cerr << "Unable to set basename: " << e.what() << "\n";
-    }
-}
-
-void FilterSource::remove_selected_suboutput()
-{
-    if ( suboutputs.isValid() ) {
-        suboutputs.removeChoice( suboutputs() );
     }
 }
 

@@ -17,7 +17,7 @@ expect {
 dstorm_attach
 
 set test "filename clash between two different outputs"
-send "in Car in Output in EngineOutput set ToRemove in value set Output0\n"
+send "in Car in Output in EngineOutput set Output0 in Table in RemoveOutput in value set 1\n"
 send "in Car in Output in EngineOutput set ChooseTransmission in value set Image\n"
 set test "Image output is created"
 expect {
@@ -33,7 +33,7 @@ if { [info exists imageOutput] } {
         -re "Starting job failed(:|(\r*\nmessage set ))The output file name '.*' was used by multiple\[^\r\n\]*\r*\nseverity" 
             { pass "$test" }
     }
-    send "in Car in Output in EngineOutput set ToRemove in value set $imageOutput\n"
+    send "in Car in Output in EngineOutput in $imageOutput in Image in RemoveOutput in value set 1\n"
 } else {
     unsupported "$test"
 }

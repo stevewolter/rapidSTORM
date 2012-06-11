@@ -14,19 +14,19 @@ class InputStream
 {
     class Backend;
 
-    std::auto_ptr< job::Config > orig_config, current_config;
+    std::auto_ptr< JobConfig > orig_config, current_config;
     std::auto_ptr< JobStarter > starter;
     Backend* const root_backend;
 
     void reset_config();
     void processCommand( const std::string& cmd, std::istream& rest);
-    InputStream( const job::Config&, bool wxWidgets );
+    InputStream( const JobConfig&, bool wxWidgets );
     bool received_quit_command();
 
   public:
     ~InputStream();
     DSTORM_REALIGN_STACK void processCommands( );
-    static boost::shared_ptr<InputStream> create( const job::Config&, bool wxWidgets );
+    static boost::shared_ptr<InputStream> create( const JobConfig&, bool wxWidgets );
 };
 
 }

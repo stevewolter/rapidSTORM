@@ -13,12 +13,14 @@ class OutputSource::AdjustedList
 : public std::list< BasenameAdjustedFileEntry* > {};
 
 OutputSource::OutputSource() 
-: adjustedList( new AdjustedList() )
+: destruction("RemoveOutput", "Remove output"),
+  adjustedList( new AdjustedList() )
 {
 }
 
 OutputSource::OutputSource(const OutputSource& o) 
-: adjustedList( new AdjustedList() )
+: destruction(o.destruction),
+  adjustedList( new AdjustedList() )
 {
 }
 
@@ -84,6 +86,23 @@ void Output::insert_filename_with_check(
             "outputs. Refusing to start job to avoid conflict.");
 }
 
+void OutputSource::destruction_clicked() {
+    if ( destruction.triggered() ) {
+        destruction.untrigger();
+        destruction_desired();
+    }
+}
+
+void OutputSource::attach_destruction_trigger( simparm::NodeHandle at ) {
+    listen = destruction.value.notify_on_value_change( boost::bind( &OutputSource::destruction_clicked, this ) );
+    destruction.attach_ui(at);
+}
+
+boost::signals2::connection OutputSource::notify_when_destruction_is_desired(
+    boost::signals2::slot<void()> callback )
+{
+    return destruction_desired.connect( callback );
+}
 
 }
 }

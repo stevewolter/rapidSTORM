@@ -170,13 +170,14 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
     input = p;
 }
 
-void Config::attach_ui( simparm::NodeHandle at ) {
+simparm::NodeHandle Config::attach_ui( simparm::NodeHandle at ) {
    DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    current_ui = car_config.attach_ui ( at );
-   attach_children( current_ui );
+   attach_children_ui( current_ui );
+   return current_ui;
 }
 
-void Config::attach_children( simparm::NodeHandle at ) {
+void Config::attach_children_ui( simparm::NodeHandle at ) {
    input->registerNamedEntries( at );
    pistonCount.attach_ui(  at  );
    simparm::NodeHandle b = outputBox.attach_ui( at );
@@ -228,36 +229,8 @@ void Config::all_modules_loaded() {
     input->publish_meta_info();
 }
 
-void serialize( Config config, std::string filename ) {
-    std::ofstream target( filename.c_str() );
-    boost::shared_ptr<simparm::serialization_ui::Node> n = simparm::serialization_ui::Node::create_root_node();
-    config.attach_ui( n );
-    n->serialize( target );
-}
-
-
-bool deserialize( Config& config, std::string name, simparm::NodeHandle current_ui ) {
-    std::ifstream config_file( name.c_str() );
-    boost::shared_ptr< simparm::text_stream::RootNode > ui 
-        = boost::make_shared< simparm::text_stream::RootNode >();
-    config.attach_ui( ui );
-    if ( !config_file )
-        return false;
-    else {
-        try {
-            while ( config_file ) {
-                while ( config_file && std::isspace( config_file.peek() ) )
-                    config_file.get();
-                if ( ! config_file || config_file.peek() == EOF ) break;
-                DEBUG("Processing command from " << name);
-                    ui->processCommand( config_file );
-            }
-        } catch (const std::runtime_error& e) {
-            simparm::Message m( "Unable to read initialization file " + name, e.what() );
-            m.send( current_ui );
-        }
-        return true;
-    }
+std::auto_ptr< Job > Config::make_job() {
+    return std::auto_ptr< Job >( new Car(*this) );
 }
 
 }

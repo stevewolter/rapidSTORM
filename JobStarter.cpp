@@ -7,7 +7,7 @@
 
 namespace dStorm {
 
-JobStarter::JobStarter(simparm::NodeHandle attachment_point, job::Config& config )
+JobStarter::JobStarter(simparm::NodeHandle attachment_point, JobConfig& config )
 : simparm::TriggerEntry("Run", "Run"),
   config(config),
   attachment_point( attachment_point )
@@ -23,9 +23,9 @@ void JobStarter::attach_ui( simparm::NodeHandle n ) {
     listening = value.notify_on_value_change( boost::bind( &JobStarter::start_job, this ) );
 }
 
-void JobStarter::run_job( boost::shared_ptr<job::Car> car ) {
+void JobStarter::run_job( boost::shared_ptr<Job> car ) {
     DEBUG("Running job");
-    car->drive_exception_safe();
+    car->run();
     GUIThread::get_singleton().unregister_job( *car );
     DEBUG("Finished job");
 }
@@ -35,7 +35,7 @@ void JobStarter::start_job() {
       untrigger();
         try {
             DEBUG("Creating job");
-            boost::shared_ptr< job::Car > car( new job::Car(config) );
+            boost::shared_ptr< Job > car( config.make_job() );
             car->attach_ui( attachment_point );
             GUIThread::get_singleton().register_job( *car );
             boost::thread job_thread( &JobStarter::run_job, car );

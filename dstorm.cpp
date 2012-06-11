@@ -10,7 +10,8 @@
 #include <signal.h>
 #include <locale.h>
 #include <wx/app.h>
-#include "wx_ui/App.h"
+#include "simparm/wx_ui/App.h"
+#include "installation-directory.h"
 #include <dStorm/GUIThread.h>
 
 #ifdef USE_GRAPHICSMAGICK
@@ -60,7 +61,8 @@ int main(int argc, char *argv[]) {
 
     try {
         CommandLine cmd_line;
-        cmd_line.parse( argc, argv );
+        int success = cmd_line.parse( argc, argv );
+        if ( success != EXIT_SUCCESS ) return success;
 
         GUIThread& main_thread = GUIThread::get_singleton();
         if ( main_thread.need_wx_widgets() ) {

@@ -27,15 +27,21 @@ public:
     void terminate_running_jobs();
     int count_jobs();
 
-    typedef boost::function0<void> Task;
+    struct Task {
+        boost::function0<void> f;
+        int sequence, priority;
+        bool operator<( const Task& o ) const;
+        Task( boost::function0<void> f, int priority ) : f(f), priority(priority) {}
+    };
     void run_wx_function( Task );
 private:
     boost::recursive_mutex mutex;
     boost::condition have_task;
-    std::queue< Task > tasks;
+    std::priority_queue< Task > tasks;
     std::set<Job*> active_jobs;
     int job_count;
     bool recursive;
+    int sequence_number;
 
     GUIThread();
     ~GUIThread() {}

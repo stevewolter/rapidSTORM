@@ -223,7 +223,7 @@ proc end_test_suite {} {
 proc load_config_file { config_file } {
     set filestream [open "$config_file" r]
     while {[gets $filestream line] >= 0} {
-        send "$line\n"
+        send "in Car $line\n"
     }
     close $filestream
 }

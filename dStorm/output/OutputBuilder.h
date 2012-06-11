@@ -23,7 +23,6 @@ public:
 
     void set_source_capabilities( Capabilities cap ) 
     {
-        name_object.set_visibility( config.can_work_with( cap ) );
         choice_object.set_visibility( config.can_work_with( cap ) );
     }
 
@@ -37,6 +36,7 @@ public:
     void attach_full_ui( simparm::NodeHandle at ) { 
         simparm::NodeHandle r = name_object.attach_ui( at );
         config.attach_ui( r ); 
+        OutputSource::attach_destruction_trigger( r );
     }
     void attach_ui( simparm::NodeHandle at ) { 
         choice_object.attach_ui( at ); 

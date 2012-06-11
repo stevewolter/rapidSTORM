@@ -3,25 +3,22 @@
 
 #include <simparm/TriggerEntry.h>
 #include <dStorm/Config.h>
-#include "job/Config.h"
 #include <dStorm/stack_realign.h>
 
 namespace dStorm {
 
-namespace job { struct Car; }
-
 class JobStarter
 : public simparm::TriggerEntry
 {
-    job::Config& config;
+    JobConfig& config;
     simparm::NodeHandle attachment_point;
 
     simparm::BaseAttribute::ConnectionStore listening;
 
     void start_job();
-    DSTORM_REALIGN_STACK static void run_job( boost::shared_ptr<job::Car> );
+    DSTORM_REALIGN_STACK static void run_job( boost::shared_ptr<Job> );
   public:
-    JobStarter( simparm::NodeHandle attachment_point, job::Config& config );
+    JobStarter( simparm::NodeHandle attachment_point, JobConfig& config );
     void attach_ui( simparm::NodeHandle );
     void set_attachment_point( simparm::NodeHandle a ) { attachment_point = a; }
 };

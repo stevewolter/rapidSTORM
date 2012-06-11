@@ -1,12 +1,23 @@
-#include <string>
-#include <wx/stdpaths.h>
+#include "config_file.h"
+#include "installation-directory.h"
+#include <boost/filesystem/operations.hpp>
+#include <stdlib.h>
+
+#include <wx/config.h>
+#include "config.h"
 
 namespace dStorm {
 
-std::string user_config_file() {
-    wxStandardPaths::Get().GetUserDataDir()
-}
+boost::filesystem::path initialization_file() {
+    boost::filesystem::path result(CONFIG_FILE_DIR);
+    result /= "dstorm-config.txt";
 
-std::string system_config_file();
+    std::auto_ptr<wxConfig> config( new wxConfig(wxT(PACKAGE_TARNAME)) );
+    wxString prefix;
+    if ( config->Read(wxT("InstallationPrefix"), &prefix) ) {
+        result = boost::filesystem::path( std::string(prefix.mb_str()) ) / result;
+    }
+    return result;
+}
 
 }

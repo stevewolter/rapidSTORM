@@ -30,6 +30,7 @@ namespace output {
         void attach_full_ui( simparm::NodeHandle at ) { 
             simparm::NodeHandle r = name_object.attach_ui(at);
             config.attach_ui( r );
+            OutputSource::attach_destruction_trigger( r );
             FilterSource::attach_children_ui( r ); 
         }
         void attach_ui( simparm::NodeHandle at ) { choice_object.attach_ui( at ); }

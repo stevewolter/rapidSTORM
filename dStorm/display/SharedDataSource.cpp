@@ -3,8 +3,8 @@
 namespace dStorm {
 namespace display {
 
-SharedDataSource::SharedDataSource( DataSource& source )
-: source(&source), notify_of_closed_window_before_disconnect_(false) {}
+SharedDataSource::SharedDataSource( DataSource& source, simparm::wx_ui::ProtocolNode protocol )
+: source(&source), notify_of_closed_window_before_disconnect_(false), protocol_node(protocol) {}
 
 void SharedDataSource::disconnect() {
     boost::lock_guard< boost::recursive_mutex > lock(source_mutex);
@@ -29,6 +29,7 @@ bool SharedDataSource::notify_of_closed_window_before_disconnect() {
 void SharedDataSource::notice_closed_data_window() {
     boost::lock_guard< boost::recursive_mutex > lock(source_mutex);
     if ( source ) {
+        protocol_node.protocol("is closed");
         source->notice_closed_data_window();
         notify_of_closed_window_before_disconnect_ = true;
     }
@@ -45,14 +46,20 @@ void SharedDataSource::look_up_key_values( const DataSource::PixelInfo& info, st
 
 void SharedDataSource::notice_user_key_limits( int index, bool lower, std::string value ) {
     boost::lock_guard< boost::recursive_mutex > lock(source_mutex);
-    if ( source )
+    if ( source ) {
+        protocol_node.protocol("sets " + std::string((lower) ? "lower" : "upper") + " key limit " + value);
         source->notice_user_key_limits( index, lower, value );
+    }
 }
 
-void SharedDataSource::notice_drawn_rectangle( int left, int right, int to, int bottom ) {
+void SharedDataSource::notice_drawn_rectangle( int left, int right, int top, int bottom ) {
     boost::lock_guard< boost::recursive_mutex > lock(source_mutex);
-    if ( source )
-        source->notice_drawn_rectangle( left, right, to, bottom );
+    if ( source ) {
+        std::stringstream p;
+        p << "notices drawn rectangle " << left << " " << right << " " << top << " " << bottom;
+        protocol_node.protocol(p.str());
+        source->notice_drawn_rectangle( left, right, top, bottom );
+    }
 }
 
 }

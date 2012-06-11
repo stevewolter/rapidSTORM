@@ -6,6 +6,7 @@
 #include <memory>
 #include <simparm/Object.h>
 #include <simparm/TreeEntry.h>
+#include <simparm/TriggerEntry.h>
 #include "SourceFactory_decl.h"
 #include "BasenameAdjustedFileEntry_decl.h"
 #include <dStorm/make_clone_allocator.hpp>
@@ -25,12 +26,19 @@ class OutputSource
 {
   private:
     OutputSource& operator=(const OutputSource&);
+    simparm::TriggerEntry destruction;
+    simparm::BaseAttribute::ConnectionStore listen;
+    void destruction_clicked();
+    boost::signals2::signal<void()> destruction_desired;
+
   protected:
     class AdjustedList;
     std::auto_ptr<AdjustedList> adjustedList;
 
     OutputSource();
     OutputSource(const OutputSource&);
+
+    void attach_destruction_trigger( simparm::NodeHandle );
 
     /** FileEntry's given to this method will automatically be
      *  updated to the new file basename if it is changed. */
@@ -62,6 +70,8 @@ class OutputSource
     virtual std::string getDesc() const = 0;
     virtual void attach_full_ui( simparm::NodeHandle ) = 0;
     virtual void attach_ui( simparm::NodeHandle ) = 0;
+    virtual boost::signals2::connection notify_when_destruction_is_desired(
+        boost::signals2::slot<void()> callback );
 };
 
 }

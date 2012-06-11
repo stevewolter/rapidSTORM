@@ -1,3 +1,6 @@
+#include "alignment_fitter.h"
+#include <dStorm/Job.h>
+
 #include <dStorm/localization_file/reader.h>
 #include <boost/variant/get.hpp>
 #include <gsl/gsl_multimin.h>
@@ -40,24 +43,60 @@ double badness (const gsl_vector * x, void * params) {
     return score;
 }
 
-int main(int argc, char *argv[]) {
-    simparm::FileEntry file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file");
-    simparm::Entry<double> sigma("Sigma", "Sigma", 1), 
-                         shift_x("ShiftX", "Shift X in mum"),
-                         shift_y("ShiftY", "Shift Y in mum"),
-                         scale_x("ScaleX", "Scale factor X", 1),
-                         scale_y("ScaleY", "Scale factor Y", 1),
-                         shear_x("ShearX", "Shear factor in X", 0),
-                         shear_y("ShearY", "Shear factor Y", 0),
-                         target_volume("TargetVolume", "Target estimation volume", 1E-3),
-                         cur_step("CurrentStep", "Estimation step"),
-                         cur_volume("CurrentVolume", "Current estimation volume");
-    simparm::Entry<bool> pre_fit("PreFit", "Pre-fit with simpler models", true);
-    simparm::Entry<long> image_count("ImageCount", "Number of images to use", 100);
-    simparm::TriggerEntry compute("Compute", "Compute"), twiddler("Twiddler", "Twiddler");
+class AlignmentFitter
+: public dStorm::JobConfig, public dStorm::Job 
+{
+    simparm::Object name_object;
+    simparm::FileEntry file1, file2, output;
+    simparm::Entry<double> sigma, shift_x,
+                         shift_y,
+                         scale_x,
+                         scale_y,
+                         shear_x,
+                         shear_y,
+                         target_volume,
+                         cur_step,
+                         cur_volume;
+    simparm::Entry<bool> pre_fit;
+    simparm::Entry<long> image_count;
 
-    boost::shared_ptr<simparm::text_stream::RootNode> io( new simparm::text_stream::RootNode(&std::cout) );
-    simparm::NodeHandle r = io;
+    bool continue_running;
+public:
+    AlignmentFitter();
+    AlignmentFitter* clone() const { return new AlignmentFitter(*this); }
+    simparm::NodeHandle attach_ui( simparm::NodeHandle );
+    void attach_children_ui( simparm::NodeHandle );
+
+    void run();
+    void stop() { continue_running = true; }
+    std::auto_ptr<dStorm::Job> make_job() { return std::auto_ptr<dStorm::Job>( new AlignmentFitter(*this) ); }
+};
+
+AlignmentFitter::AlignmentFitter()
+: name_object("AlignmentFitter", "Fit alignment"),
+  file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file"),
+  sigma("Sigma", "Sigma", 1), 
+  shift_x("ShiftX", "Shift X in mum"),
+  shift_y("ShiftY", "Shift Y in mum"),
+  scale_x("ScaleX", "Scale factor X", 1),
+  scale_y("ScaleY", "Scale factor Y", 1),
+  shear_x("ShearX", "Shear factor in X", 0),
+  shear_y("ShearY", "Shear factor Y", 0),
+  target_volume("TargetVolume", "Target estimation volume", 1E-3),
+  cur_step("CurrentStep", "Estimation step"),
+  cur_volume("CurrentVolume", "Current estimation volume"),
+  pre_fit("PreFit", "Pre-fit with simpler models", true),
+  image_count("ImageCount", "Number of images to use", 100),
+  continue_running(true)
+{}
+
+simparm::NodeHandle AlignmentFitter::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle r = name_object.attach_ui(at);
+    attach_children_ui( r );
+    return r;
+}
+
+void AlignmentFitter::attach_children_ui( simparm::NodeHandle r ) {
     file1.attach_ui( r );
     file2.attach_ui( r );
     output.attach_ui( r );
@@ -71,24 +110,18 @@ int main(int argc, char *argv[]) {
     pre_fit.attach_ui( r );
     target_volume.attach_ui( r );
     image_count.attach_ui( r );
-    compute.attach_ui( r );
     cur_step.attach_ui( r );
     cur_volume.attach_ui( r );
-    twiddler.attach_ui( r );
-    twiddler.set_user_level( simparm::Debug );
     cur_step.freeze();
     cur_step.hide();
     cur_volume.freeze();
     cur_volume.hide();
-    // TODO: readConfig(r, argc, argv);
+}
 
+void AlignmentFitter::run() {
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
 
-    while (twiddler.triggered() && std::cin && !io->received_quit_command()) {
-      io->processCommand(std::cin);
-      if ( ! compute.triggered() ) continue;
-      compute.untrigger();
-      try {
+    try {
         dStorm::input::Traits<dStorm::localization::Record> context;
         typedef dStorm::localization_file::Reader::Source Source;
         std::auto_ptr<Source> file_source[2];
@@ -128,6 +161,7 @@ int main(int argc, char *argv[]) {
 
             while ( gsl_multimin_fminimizer_iterate(m) == GSL_SUCCESS )  {
                 if ( gsl_multimin_fminimizer_size(m) < target_volume() ) break;
+                if ( continue_running ) return;
                 cur_volume = gsl_multimin_fminimizer_size(m);
             }
             for (int i = 0; i < pc; ++i) *entries[i] = gsl_vector_get(gsl_multimin_fminimizer_x(m), i);
@@ -141,11 +175,11 @@ int main(int argc, char *argv[]) {
                                             << "0 0 1\n";
             output.close_output_stream();
         }
-      } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
-      }
     }
+}
 
-    std::cout << "quit\n";
-    return 0;
+std::auto_ptr< dStorm::JobConfig > make_alignment_fitter_config() {
+    return std::auto_ptr< dStorm::JobConfig >( new AlignmentFitter() );
 }

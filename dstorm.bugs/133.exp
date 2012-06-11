@@ -3,8 +3,8 @@ load_default_config
 
 send "in Car in Input in MultiChannel in Channels in Channel1 set InputMethod in FileMethod set InputFile value set ${workspace_target}Mikrotubuli.txt\n"
 send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}133\n"
-send "in Car in Output in EngineOutput set ToRemove value set Output0\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression set ToRemove value set Output0\n"
+send "in Car in Output in EngineOutput in Output0 in Table in RemoveOutput in value set 1\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in RemoveOutput in value set 1\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value set Count\n"
 dstorm_attach
 send "in Car set Run value set 1\n"

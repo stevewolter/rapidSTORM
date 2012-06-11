@@ -13,12 +13,13 @@ class CommandLine
 
     int find_config_file( int argc, char* argv[] );
     bool load_config_file( const std::string& );
+    void run_unit_tests( char* arg0, int& exit_status );
 
   public:
     CommandLine();
     ~CommandLine();
 
-    void parse( int argc, char* argv[] );
+    int parse( int argc, char* argv[] );
 };
 
 }

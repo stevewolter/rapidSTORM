@@ -19,7 +19,7 @@ send "in Car in Output in EngineOutput in ChooseTransmission in value set Image\
 send "in Car in Output in EngineOutput in Output5 in Image in ToFile in value set ${tmpdir_target}yetanother.jpg\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ChooseTransmission in value set Table\n"
 set test "Fall e) Punkt 7"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in ToRemove in value set Output1\n"
+send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output1 in Table in RemoveOutput in value set 1\n"
 set test "Fall e) Punkt 8"
 send "in Car in Run in value set 1\n"
 

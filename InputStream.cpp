@@ -9,7 +9,7 @@
 #include "dStorm/GUIThread.h"
 
 #include <simparm/text_stream/BackendRoot.h>
-#include <dStorm/display/Manager.h>
+#include <ui/serialization/serialize.h>
 
 namespace dStorm {
 
@@ -21,9 +21,9 @@ public:
         : BackendRoot(&std::cout, wxWidgets), frontend(frontend) {}
 };
 
-InputStream::InputStream( const job::Config& config, bool wxWidgets )
+InputStream::InputStream( const JobConfig& config, bool wxWidgets )
 : simparm::text_stream::Node("IO", "IO"),
-  orig_config( new job::Config(config) ),
+  orig_config( config.clone() ),
   root_backend( new Backend(*this, wxWidgets) )
 {
     GUIThread::get_singleton().register_unstopable_job();
@@ -60,10 +60,10 @@ InputStream::~InputStream() {
 
 void InputStream::reset_config() {
     if ( orig_config.get() ) {
-        current_config.reset( new job::Config(*orig_config) );
-        current_config->attach_ui( get_handle() );
+        current_config.reset( orig_config->clone() );
+        simparm::NodeHandle job_ui = current_config->attach_ui( get_handle() );
         starter.reset( new JobStarter( get_handle(), *current_config ) );
-        starter->attach_ui( current_config->user_interface_handle() );
+        starter->attach_ui( job_ui );
     }
 }
 
@@ -90,7 +90,7 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
         std::string target_file;
         while (rest.peek() == ' ' || rest.peek() == '\t') rest.get();
         std::getline( rest, target_file );
-        job::serialize( *frontend.current_config, target_file );
+        simparm::serialization_ui::serialize( *frontend.current_config, target_file );
     } else {
         BackendRoot::process_command_(cmd, rest);
     }
@@ -100,7 +100,7 @@ bool InputStream::received_quit_command() {
     return root_backend->received_quit_command();
 }
 
-boost::shared_ptr<InputStream> InputStream::create( const job::Config& c, bool wxWidgets ) {
+boost::shared_ptr<InputStream> InputStream::create( const JobConfig& c, bool wxWidgets ) {
     boost::shared_ptr<InputStream> rv( new InputStream( c, wxWidgets ) );
     rv->reset_config();
     if ( ! wxWidgets )
