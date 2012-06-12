@@ -26,7 +26,7 @@ void Queue::producer_finished()
 
 void Queue::notice_error( boost::exception_ptr e ) {
     boost::lock_guard<boost::mutex> lock2( ring_buffer_mutex );
-    error = boost::current_exception();
+    error = e;
 }
 
 void Queue::rethrow_exception() {

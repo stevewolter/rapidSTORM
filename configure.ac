@@ -39,16 +39,6 @@ test "x$CC" = "x" && AC_MSG_ERROR([unable to find C compiler])
 
 AM_PROG_CC_C_O
 
-AC_PROG_JAVAC
-AC_CHECK_PROGS([JAR], [jar])
-
-ACX_PTHREAD(
-    [ LIBS="$PTHREAD_LIBS $LIBS"
-      CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-      CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
-      CC="$PTHREAD_CC" ],
-    [ AC_ERROR([No usable pthread library found]) ])
-
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
 
@@ -178,8 +168,6 @@ fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-AM_CONDITIONAL([CAN_BUILD_TWIDDLER], [test "x$JAVAC" != "x" -a "x$JAR" != "x" ])
-
 AC_CONFIG_SUBDIRS([doc])
 
 AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
@@ -189,7 +177,6 @@ AC_SUBST([test_performance], "$enable_performance_tests")
 AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
 
-AC_CONFIG_FILES([Makefile java_gui/Makefile rapidstorm rapidstorm.desktop java_gui/manifest ])
-AC_CONFIG_FILES([version.txt install-dirs.exp])
+AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp])
 
 AC_OUTPUT

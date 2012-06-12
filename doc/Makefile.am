@@ -7,8 +7,8 @@ TEX_GRAPHICS = polynomial_3d_psf.tex polynomial_3d_parabolic_conversion.tex poly
 GENERATED_GRAPHICS = $(TEX_GRAPHICS:.tex=.png)
 GRAPHICS = $(PIXEL_GRAPHICS) $(GENERATED_GRAPHICS)
 EXTRA_DIST = $(TEX_GRAPHICS) $(PIXEL_GRAPHICS) $(CHAPTERS:=.xml) \
-    rapidstorm_pre.xsl rapidstorm_html.xsl rapidstorm_fo.xsl tex2im \
-    bib4wbbt.bib
+    rapidstorm_pre.xsl rapidstorm_html.xsl rapidstorm_htmlhelp.xsl rapidstorm_fo.xsl tex2im \
+    bib4wbbt.bib xml2db5.xsl make_titlepage.xsl titlepage.xml
 
 if BUILD_PDF_DOCUMENTATION
     PDF_TARGET = manual.pdf
@@ -16,7 +16,8 @@ else
     PDF_TARGET = 
 endif
 
-doc_DATA = $(GRAPHICS) manual.html manual.hhp $(PDF_TARGET)
+doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
+pkgdata_DATA = manual.zip alias.h
 
 manual.xml : $(CHAPTERS:=.xml)
 manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl bib4wbbt.xml
@@ -28,12 +29,18 @@ XSLT_FLAGS_HTML ?= $(XSLT_FLAGS)
 XSLT_FLAGS_FO ?= $(XSLT_FLAGS) --path "."
 
 bib4wbbt.xml : xml2db5.xsl bib4wbbt.bib
-	bib2xml $(filter %.bib,$^) | $(XSLTPROC) $(XSLT_FLAGS) -o $@ $(filter %.xsl,$^) -
+	$(BIB2XML) $(filter %.bib,$^) | $(XSLTPROC) $(XSLT_FLAGS) -o $@ $(filter %.xsl,$^) -
 
 titlepage.xsl : make_titlepage.xsl titlepage.xml
 	$(XSLTPROC) $(XSLT_FLAGS) -o $@ $^
 
-manual.hhp : manual.xml
+manual.zip : manual.hhp manual.hhc manual.hhk alias.h $(GRAPHICS)
+	rm -f $@
+	$(SED) -e '1,/\[FILES\]/d' -e '/^$$/,$$d' $< | \
+	$(ZIP) $@ -@ --junk-paths $^
+	cd /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/ && $(ZIP) $(abs_builddir)/$@ --recurse-paths images
+
+manual.hhp manual.hhc manual.hhk alias.h : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_HTML) \
 	    --stringparam htmlhelp.hhp $@ \
 	    --stringparam htmlhelp.hhc ${@:.hhp=.hhc} \
@@ -51,12 +58,13 @@ manual.fo : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_FO) -o $@ $(srcdir)/rapidstorm_fo.xsl $<
 
 manual.pdf : manual.fo foprc
-	fop -c foprc $< $@
+	$(PDFXSLFO) -c foprc $< $@
 
 .tex.png :
 	bash $(srcdir)/tex2im -r 150x150 -o $@ $^
 
-CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml manual.hhp titlepage.xsl
+CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
+    manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip
 
 clean-local :
 	-rm -f *.html

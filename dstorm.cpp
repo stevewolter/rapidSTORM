@@ -10,6 +10,9 @@
 #include <signal.h>
 #include <locale.h>
 #include <wx/app.h>
+#include <wx/filesys.h>
+#include <wx/fs_arc.h>
+#include <wx/imagpng.h>
 #include "simparm/wx_ui/App.h"
 #include "installation-directory.h"
 #include <dStorm/GUIThread.h>
@@ -58,6 +61,8 @@ int main(int argc, char *argv[]) {
     ios_base::sync_with_stdio(false);
     ost::DebugStream::set(cerr);
     start_imagemagick( argv[0] );
+    wxFileSystem::AddHandler(new wxArchiveFSHandler);
+    wxImage::AddHandler(new wxPNGHandler);
 
     try {
         CommandLine cmd_line;

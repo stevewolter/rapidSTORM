@@ -1,7 +1,0 @@
-#!/bin/sh
-
-prefix=@prefix@
-datarootdir=@datarootdir@
-datadir=@datadir@/java
-
-java -jar ${datadir}/rapidSTORM.jar "$@"

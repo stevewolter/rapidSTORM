@@ -1,4 +1,4 @@
-SUBDIRS = doc java_gui
+SUBDIRS = doc 
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
@@ -12,13 +12,10 @@ pkgconfigdir = $(libdir)/pkgconfig
 DEJATOOL = dstorm
 
 bin_PROGRAMS = dstorm 
-bin_SCRIPTS = rapidstorm
 check_PROGRAMS = dstorm
-if CAN_BUILD_TWIDDLER
 applications_DATA=rapidstorm.desktop
-endif
 doc_DATA = $(srcdir)/README 
-pkgdata_DATA = version.txt dstorm-config.txt
+pkgdata_DATA = dstorm-config.txt
 
 AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
@@ -75,20 +72,26 @@ EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     dstorm.test/sif-shortjob.exp dstorm.test/autoname.exp \
     dstorm.test/median.exp dstorm.test/load_tif_file.exp \
     dstorm.test/empty_input_file.exp dstorm.test/nojob.exp \
-    dstorm.test/can-compute-txt-file.exp dstorm.test/memory.exp \
+    dstorm.test/can-compute-txt-file.exp \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
     dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
-	dstorm-config.txt version.txt installation-directory.h
+	dstorm-config.txt installation-directory.h
+
+install-exec-hook:
+	ln -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT) || \
+	$(LN_S) -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT)
 
 always-force-remake :
 
 installation-directory.h : always-force-remake
 	echo '#define CONFIG_FILE_DIR "$(pkgdatadir)"' > $@.tmp
+	echo '#define PREFIX "$(prefix)"' >> $@.tmp
 	diff --brief $@ $@.tmp || mv $@.tmp $@
+	rm -f $@.tmp
 
 BUILT_SOURCES = installation-directory.h
 
@@ -455,8 +458,8 @@ dstorm_SOURCES += \
     viewer/colour_schemes/decl.h viewer/colour_schemes/impl.h viewer/colour_schemes/instantiate.h \
     viewer/colour_schemes/hot_config.cpp viewer/colour_schemes/hot_config.h viewer/colour_schemes/hot.h \
     viewer/colour_schemes/mono_config.cpp viewer/colour_schemes/mono_config.h viewer/colour_schemes/mono.h \
-    viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored_config.h viewer/colour_schemes/colored.h \
-    viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate_config.h viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
+    viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored.h \
+    viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
 dstorm_SOURCES += \
@@ -674,7 +677,7 @@ dstorm_SOURCES += \
 dstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h \
-    locprec/Counter.h locprec/Noise.h locprec/SpotMeter.h \
+    locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
     locprec/SpotMeter.cpp \
@@ -706,6 +709,7 @@ dstorm_SOURCES += \
 dstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
+    simparm/BaseAttribute.h \
     simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
     simparm/BasicEntry.h simparm/BasicEntry.cpp \
     simparm/Group.h simparm/Group.cpp \
@@ -725,10 +729,11 @@ dstorm_SOURCES += \
     simparm/iostream.h simparm/typeName.h \
     simparm/Eigen_decl.h simparm/Eigen.h \
     simparm/BoostUnits.h \
-    simparm/UserLevel.h \
-    simparm/default_value.h simparm/IncrementWatcher.h \
-    simparm/BoostOptional.h simparm/Attributes.h  \
+    simparm/UserLevel.h simparm/UserLevel.cpp \
+    simparm/IncrementWatcher.h \
+    simparm/BoostOptional.h \
     simparm/falls_below.hpp simparm/exceeds.hpp \
+    simparm/is_numerical.hpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
 dstorm_SOURCES += \
@@ -756,6 +761,7 @@ dstorm_SOURCES += \
     simparm/wx_ui/image_window/helpers.h simparm/wx_ui/image_window/helpers.cpp \
     simparm/wx_ui/image_window/ScaleBar.h simparm/wx_ui/image_window/ScaleBar.cpp \
     simparm/wx_ui/image_window/SizeConvert.h \
+    simparm/wx_ui/image_window/create.h \
     simparm/wx_ui/Node.h simparm/wx_ui/Node.cpp \
     simparm/wx_ui/RootNode.h simparm/wx_ui/RootNode.cpp \
     simparm/wx_ui/Launcher.h simparm/wx_ui/Launcher.cpp \
@@ -774,15 +780,19 @@ dstorm_SOURCES += \
     simparm/wx_ui/TreePage.h simparm/wx_ui/TreePage.cpp \
     simparm/wx_ui/TreeRepresentation.h simparm/wx_ui/TreeRepresentation.cpp \
     simparm/wx_ui/VisibilityNode.h simparm/wx_ui/VisibilityNode.cpp \
+    simparm/wx_ui/VisibilityControl.h \
     simparm/wx_ui/Sizer.h simparm/wx_ui/Sizer.cpp \
     simparm/wx_ui/Window.h simparm/wx_ui/Window.cpp \
     simparm/wx_ui/lambda.h simparm/wx_ui/GUIHandle.h \
     simparm/wx_ui/gui_thread.h simparm/wx_ui/gui_thread.cpp \
     simparm/wx_ui/no_main_window.h simparm/wx_ui/no_main_window.cpp \
     simparm/wx_ui/ProtocolNode.h simparm/wx_ui/ProtocolNode.cpp \
-    simparm/wx_ui/MainConfig.h simparm/wx_ui/MainConfig.cpp
+    simparm/wx_ui/MainConfig.h simparm/wx_ui/MainConfig.cpp \
+    simparm/wx_ui/stock-hchain-24-broken.xpm \
+    simparm/wx_ui/stock-hchain-24.xpm
 
 dstorm_SOURCES += \
+    simparm/cmdline_ui/ChoiceNode.h simparm/cmdline_ui/EntryNode.h \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
     simparm/cmdline_ui/OptionTable.h simparm/cmdline_ui/OptionTable.cpp \

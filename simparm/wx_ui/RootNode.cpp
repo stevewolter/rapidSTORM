@@ -17,6 +17,8 @@
 #include "gui_thread.h"
 #include "config_file.h"
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/lexical_cast.hpp>
 #include "alignment_fitter.h"
 
 namespace simparm {
@@ -27,9 +29,13 @@ class HelpResolver {
     std::map< wxWindow*, std::string > context_help_ids;
     std::map< std::string, std::string > help_alias;
 
+    boost::filesystem::path help_file() const {
+        return dStorm::program_data_path() / "manual.zip";
+    }
+
     void read_alias_table() {
         help_alias.clear();
-        std::ifstream i("doc/alias.h");
+        boost::filesystem::ifstream i(dStorm::program_data_path() / "alias.h");
         while ( i ) {
             std::string line;
             std::getline( i, line );
@@ -47,7 +53,8 @@ class HelpResolver {
     {
         if ( help_controller.get() ) return;
         help_controller.reset( new wxHtmlHelpController() );
-        help_controller->AddBook( wxFileName( wxT("doc"), wxT("manual.hhp") ) );
+        wxString book_name( (help_file().string()).c_str(), wxConvUTF8 );
+        help_controller->AddBook( wxFileName( book_name ) );
         read_alias_table();
     }
 
@@ -162,7 +169,7 @@ class RootFrame
 
 public:
     RootFrame( boost::shared_ptr<Node> root_node, boost::shared_ptr< VisibilityControl > vc )
-        : wxFrame( NULL, wxID_ANY, wxT( PACKAGE_STRING ) ),
+        : wxFrame( NULL, wxID_ANY, wxString( (std::string(PACKAGE_NAME " ") + boost::lexical_cast<std::string>(PACKAGE_MAJOR_VERSION) + "." + boost::lexical_cast<std::string>(PACKAGE_MINOR_VERSION)).c_str(), wxConvUTF8 ) ),
           root_node( root_node ), 
           ul_control( vc ),
           column( new wxBoxSizer(wxVERTICAL) )

@@ -1,4 +1,5 @@
 #include "GUIThread.h"
+#include <iostream>
 
 namespace dStorm {
 

@@ -22,13 +22,7 @@
 using namespace std;
 
 namespace ost {
-#if 0
-    static pthread_key_t *debug_stream_key = NULL;
-    static void destructDebugStream(void *str) throw()
-        { delete (DebugStream*)str; }
-#else
     DebugStream *DebugStream::globalDebugStream = NULL;
-#endif
 
     DebugStream::DebugStream(std::ostream &target) throw() : LockedStream(target) {}
 
@@ -48,22 +42,7 @@ namespace ost {
     void DebugStream::end() throw() { LockedStream::end(); }
 
     DebugStream* DebugStream::get() throw() {
-#if 0
-        if (debug_stream_key == NULL) {
-            debug_stream_key = new pthread_key_t;
-            pthread_key_create(debug_stream_key, destructDebugStream);
-        }
-        void *specific = pthread_getspecific(*debug_stream_key);
-        if (specific == NULL) {
-            string name = "debug_" + string(Thread::description());
-            specific = new DebugStream(*new fstream(name.c_str()
-                , ios_base::out | ios_base::trunc));
-            pthread_setspecific(*debug_stream_key, specific);
-        }
-        return (DebugStream*)specific;
-#else
         return globalDebugStream;
-#endif
     }
     void DebugStream::set(std::ostream &o) throw() { 
         if (globalDebugStream) delete globalDebugStream;

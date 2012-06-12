@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE book 
 [
-    <!ENTITY % isolat1 PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN"
+    <!ENTITY % isolat1 PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-lat1.ent"> %isolat1;
 ]>
 
