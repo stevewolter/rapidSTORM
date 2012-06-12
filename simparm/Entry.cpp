@@ -30,16 +30,21 @@
 #include "Attribute.hpp"
 #include "Entry.hpp"
 
+#define INSTANTIATE(x) \
+    template class Entry<x>; \
+    template bool Attribute< boost::optional<x> >::valueChange(const boost::optional<x>&, bool); \
+    template bool Attribute<x>::valueChange(const x&, bool);
+
 namespace simparm {
-    template class Entry<string>;
-    template class Entry<bool>;
-    template class Entry<short int>;
-    template class Entry<int>;
-    template class Entry<long int>;
-    template class Entry<unsigned short int>;
-    template class Entry<unsigned int>;
-    template class Entry<unsigned long int>;
-    template class Entry<float>;
-    template class Entry<double>;
-    template class Entry<long double>;
+    INSTANTIATE(string);
+    INSTANTIATE(bool);
+    INSTANTIATE(short int);
+    INSTANTIATE(int);
+    INSTANTIATE(long int);
+    INSTANTIATE(unsigned short int);
+    INSTANTIATE(unsigned int);
+    INSTANTIATE(unsigned long int);
+    INSTANTIATE(float);
+    INSTANTIATE(double);
+    INSTANTIATE(long double);
 };

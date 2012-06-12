@@ -2,6 +2,7 @@
 #include <simparm/BaseAttribute.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <iostream>
 
 namespace simparm {
 namespace cmdline_ui {

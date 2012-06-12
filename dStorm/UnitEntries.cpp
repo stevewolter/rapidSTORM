@@ -20,52 +20,62 @@ using namespace boost::units;
 using boost::optional;
 using Eigen::Matrix;
 
-template class Entry< quantity< si::nanolength, double > >;
-template class Entry< quantity< si::microlength, double > >;
-template class Entry< quantity< si::nanolength, float > >;
-template class Entry< quantity< si::length, float > >;
-template class Entry< quantity< si::microtime, float > >;
-template class Entry< quantity< si::time, float > >;
-template class Entry< quantity< si::time, int > >;
-template class Entry< quantity< si::frequency, float > >;
-template class Entry< quantity< si::megafrequency, float > >;
-template class Entry< quantity< celsius::temperature, float > >;
-template class Entry< quantity< celsius::temperature, int > >;
-template class Entry< quantity< camera::length, int > >;
-template class Entry< quantity< camera::length, float > >;
-template class Entry< quantity< camera::area, int > >;
-template class Entry< quantity< camera::intensity, float > >;
-template class Entry< quantity< camera::intensity, int > >;
-template class Entry< quantity< camera::time, float > >;
-template class Entry< quantity< camera::time, int > >;
-template class Entry< quantity< camera::resolution, float > >;
-template class Entry< quantity< dStorm::nanometer_pixel_size, float > >;
-template class Entry< quantity< dStorm::nanoresolution, float > >;
-template class Entry< optional< quantity< camera::intensity, float > > >;
-template class Entry< optional< quantity< camera::intensity, double > > >;
-template class Entry< optional< quantity< camera::intensity, int > > >;
-template class Entry< optional< quantity< camera::time, int > > >;
+#define INSTANTIATE(...) \
+    template class Entry< __VA_ARGS__ >; \
+    template bool Attribute< boost::optional<__VA_ARGS__> >::valueChange(const boost::optional<__VA_ARGS__>&, bool); \
+    template bool Attribute< __VA_ARGS__ >::valueChange(const __VA_ARGS__&, bool);
+#define INSTANTIATE_NO_OPTIONAL(...) \
+    template class Entry< __VA_ARGS__ >; \
+    template bool Attribute< __VA_ARGS__ >::valueChange(const __VA_ARGS__&, bool);
 
-template class Entry< quantity< boost::units::divide_typeof_helper< camera::time, camera::length >::type, int > >;
-template class Entry< quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, float > >;
-template class Entry< quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, double > >;
-template class Entry< quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, int > >;
-template class Entry< quantity< boost::units::divide_typeof_helper< camera::intensity, camera::length >::type, float > >;
 
-template class Entry< quantity< boost::units::divide_typeof_helper< 
+INSTANTIATE( quantity< si::nanolength, double > )
+INSTANTIATE( quantity< si::microlength, double > )
+INSTANTIATE( quantity< si::nanolength, float > )
+INSTANTIATE( quantity< si::length, float > )
+INSTANTIATE( quantity< si::microtime, float > )
+INSTANTIATE( quantity< si::time, float > )
+INSTANTIATE( quantity< si::time, int > )
+INSTANTIATE( quantity< si::frequency, float > )
+INSTANTIATE( quantity< si::megafrequency, float > )
+INSTANTIATE( quantity< celsius::temperature, float > )
+INSTANTIATE( quantity< celsius::temperature, int > )
+INSTANTIATE( quantity< camera::length, int > )
+INSTANTIATE( quantity< camera::length, float > )
+INSTANTIATE( quantity< camera::area, int > )
+INSTANTIATE( quantity< camera::time, float > )
+INSTANTIATE( quantity< camera::resolution, float > )
+INSTANTIATE( quantity< dStorm::nanometer_pixel_size, float > )
+INSTANTIATE( quantity< dStorm::nanoresolution, float > )
+
+INSTANTIATE_NO_OPTIONAL( quantity< camera::intensity, float > )
+INSTANTIATE_NO_OPTIONAL( quantity< camera::intensity, int > )
+INSTANTIATE_NO_OPTIONAL( quantity< camera::time, int > )
+INSTANTIATE_NO_OPTIONAL( optional< quantity< camera::intensity, float > > )
+INSTANTIATE_NO_OPTIONAL( optional< quantity< camera::intensity, double > > )
+INSTANTIATE_NO_OPTIONAL( optional< quantity< camera::intensity, int > > )
+INSTANTIATE_NO_OPTIONAL( optional< quantity< camera::time, int > > )
+
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< camera::time, camera::length >::type, int > )
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, float > )
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, double > )
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< si::dimensionless, camera::length >::type, int > )
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< camera::intensity, camera::length >::type, float > )
+
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< 
     boost::units::power_typeof_helper< si::length, boost::units::static_rational<2> >::type,
-    camera::time >::type > >;
-template class Entry< quantity< boost::units::divide_typeof_helper< 
+    camera::time >::type > );
+INSTANTIATE( quantity< boost::units::divide_typeof_helper< 
     boost::units::power_typeof_helper< si::length, boost::units::static_rational<2> >::type,
     boost::units::power_typeof_helper< camera::time, boost::units::static_rational<3> >::type
->::type > >;
+>::type > );
 
-template class Entry< Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > >;
-template class Entry< Matrix< quantity< si::nanolength, double >, 3, 1, Eigen::DontAlign > >;
-template class Entry< Matrix< quantity< camera::length, double >, 2, 1, Eigen::DontAlign > >;
-template class Entry< Matrix< quantity< camera::length, int >, 2, 1, Eigen::DontAlign > >;
-template class Entry< Matrix< quantity< camera::length, int >, 3, 1 > >;
-template class Entry< optional< Matrix< quantity< divide_typeof_helper< power10<si::length, -12>::type, camera::time >::type, float >, 3, 1, Eigen::DontAlign > > >;
-template class Entry< Matrix< quantity< dStorm::nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > >;
-template class Entry< Matrix< quantity< si::permicrolength, double >, 2, 4, Eigen::DontAlign > >;
+INSTANTIATE( Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< si::nanolength, double >, 3, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< camera::length, double >, 2, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< camera::length, int >, 2, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< camera::length, int >, 3, 1 > )
+INSTANTIATE_NO_OPTIONAL( optional< Matrix< quantity< divide_typeof_helper< power10<si::length, -12>::type, camera::time >::type, float >, 3, 1, Eigen::DontAlign > > )
+INSTANTIATE( Matrix< quantity< dStorm::nanometer_pixel_size, float >, 2, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< si::permicrolength, double >, 2, 4, Eigen::DontAlign > )
 }

@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cassert>
 #include <time.h>
+#include <iostream>
 
 using namespace std;
 
@@ -113,8 +114,8 @@ MeasuredNoiseSource<Pixel>::MeasuredNoiseSource
             if (total + count > total)
                 total += count;
             else
-                cerr << "Warning: Integer overflow in MeasuredNoiseSource constructor."
-                     << endl;
+                std::cerr << "Warning: Integer overflow in MeasuredNoiseSource constructor."
+                     << std::endl;
         }
     }
     if ( total == 0 ) throw std::runtime_error("The noise file has no entries");
