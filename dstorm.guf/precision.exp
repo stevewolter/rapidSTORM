@@ -1,5 +1,7 @@
 begin_test_suite
 
+dstorm_attach
+
 set method "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod"
 send "$method in value set Generated\n"
 send "$method in Generated in FluorophoreSet1 in Fluorophore in AverageActivationTime in value set 1E-10\n"
@@ -27,8 +29,6 @@ send "in Car in Output in EngineOutput in Output0 in VarianceEstimator in Tag in
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 #send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
-
-dstorm_attach
 
 proc check_fitting { description shorthand } {
     global tmpdir_target

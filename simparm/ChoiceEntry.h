@@ -3,40 +3,30 @@
 
 #include "Entry.h"
 #include "Attribute.h"
+#include "Choice.h"
 #include <vector>
 #include <map>
-#include <set>
 #include <stdexcept>
-#include <algorithm>
-#include <cassert>
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/mem_fun.hpp>
-#include <boost/multi_index/identity.hpp>
-#include <boost/multi_index/tag.hpp>
 
 namespace simparm {
 
-template <typename ChoiceType>
-class ChoiceEntry 
-: public BasicEntry
-{
+class ChoiceEntryBase
+: public BasicEntry {
   protected:
     NodeHandle create_hidden_node( simparm::NodeHandle );
     static const std::string no_selection;
 
-    std::vector< ChoiceType* > choices;
-    typedef std::map<std::string,ChoiceType*> Entries;
+    std::vector< Choice* > choices;
+    typedef std::map<std::string,Choice*> Entries;
     Entries entries;
     bool auto_select;
 
     NodeHandle current_ui;
 
-    ChoiceType* getElement( const std::string& key ) 
+    Choice* getElement( const std::string& key ) 
         { return &get_entry(key); }
 
-    ChoiceType& get_entry( const std::string &name )
+    Choice& get_entry( const std::string &name )
     {
         typename Entries::iterator i = entries.find( name );
         if ( i == entries.end() )
@@ -44,7 +34,7 @@ class ChoiceEntry
         else
             return *i->second;
     }
-    const ChoiceType& get_entry( const std::string &name ) const
+    const Choice& get_entry( const std::string &name ) const
     {
         typename Entries::const_iterator i = entries.find( name );
         if ( i == entries.end() )
@@ -54,39 +44,28 @@ class ChoiceEntry
     }
 
     NodeHandle make_naked_node( simparm::NodeHandle );
+    void addChoice(Choice& choice);
+    void removeChoice(Choice &choice);
 
   public:
     Attribute< std::string > value;
 
-    inline ChoiceEntry(string name, string desc);
-    inline ChoiceEntry(const ChoiceEntry& o);
-    inline ~ChoiceEntry();
-    inline ChoiceEntry& operator=
-        (const ChoiceEntry<ChoiceType>& o);
+    ChoiceEntryBase(string name, string desc);
+    ChoiceEntryBase(const ChoiceEntryBase& o);
+    ~ChoiceEntryBase();
+    ChoiceEntryBase& operator=
+        (const ChoiceEntryBase& o);
 
-    virtual ChoiceEntry<ChoiceType>* clone() const 
-        { return new ChoiceEntry(*this); }
+    virtual ChoiceEntryBase* clone() const 
+        { return new ChoiceEntryBase(*this); }
 
-    inline void addChoice(ChoiceType& choice) ;
-    inline void removeChoice(ChoiceType &choice);
-    inline void removeAllChoices(); 
+    void removeAllChoices(); 
     
     bool isValid() const { return value() != no_selection; }
 
-    const ChoiceType& operator ()() const { return get_entry(value()); }
-    ChoiceType& operator ()() { return get_entry(value()); }
-    const ChoiceType& active_choice() const { return get_entry(value()); }
-    ChoiceType& active_choice() { return get_entry(value()); }
-
-    const ChoiceType& operator[](const std::string& name) const
-        { return get_entry(name); }
-    ChoiceType& operator[](const std::string& name)
-        { return get_entry(name); }
     bool hasChoice( const std::string& name ) const 
         { return entries.find(name) != entries.end(); }
 
-    inline void setValue(const ChoiceType &choice) 
-        { value = choice.getName(); }
     void choose(const std::string &name)
         { value = name; }
     std::istream& readValue(std::istream& i) {
@@ -111,6 +90,35 @@ class ChoiceEntry
     }
 
     NodeHandle attach_ui( simparm::NodeHandle node );
+};
+
+template <typename ChoiceType>
+struct ChoiceEntry 
+: public ChoiceEntryBase
+{
+    ChoiceEntry(string name, string desc) : ChoiceEntryBase(name,desc) {}
+
+    const ChoiceType& operator ()() const 
+        { return static_cast<const ChoiceType&>( get_entry(value()) ); }
+    ChoiceType& operator ()() 
+        { return static_cast<ChoiceType&>( get_entry(value()) ); }
+    const ChoiceType& active_choice() const { return (*this)(); }
+    ChoiceType& active_choice() { return (*this)(); }
+
+    /** Obsolete method accessing a choice by name. 
+     *  \todo Remove this method when RegionSegmenter is cleaned up. */
+    const ChoiceType& operator[](const std::string& name) const
+        { return static_cast<const ChoiceType&>( get_entry(name) ); }
+    /** Obsolete method accessing a choice by name. 
+     *  \todo Remove this method when RegionSegmenter is cleaned up. */
+    ChoiceType& operator[](const std::string& name)
+        { return static_cast<ChoiceType&>( get_entry(name) ); }
+
+    void setValue(const ChoiceType &choice) 
+        { value = choice.getName(); }
+
+    void addChoice(ChoiceType& choice) { ChoiceEntryBase::addChoice(choice); }
+    void removeChoice(ChoiceType& choice) { ChoiceEntryBase::removeChoice(choice); }
 };
 
 }

@@ -17,7 +17,6 @@
 #include <dStorm/Localization.h>
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/units/nanolength.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/Eigen.h>
 #include <simparm/text_stream/RootNode.h>
 #include "dejagnu.h"

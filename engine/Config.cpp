@@ -6,7 +6,6 @@
 #include <dStorm/engine/SpotFitter.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 
-#include <simparm/ChoiceEntry_Impl.h>
 #include <dStorm/output/Basename.h>
 #include <boost/bind/bind.hpp>
 
@@ -21,10 +20,8 @@ Config::Config()
     spotFindingMethod("SpotFindingMethod", "Spot finding method"),
     weights("SpotFindingWeights", "Spot finding weights"),
     spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
-    motivation("Motivation", "Spot search eagerness", 3),
-    guess_threshold("GuessAmplitudeThreshold", "Guess amplitude discarding threshold", true),
-    threshold_height_factor("ThresholdHeightFactor", "Amplitude threshold proportionality", 35.0f),
-    amplitude_threshold("AmplitudeThreshold", "Amplitude discarding threshold", 1000 * camera::ad_count)
+    fit_judging_method("FitJudgingMethod", "Fit judging method"),
+    motivation("Motivation", "Spot search eagerness", 3)
 {
     DEBUG("Building dStorm Config");
 
@@ -34,28 +31,16 @@ Config::Config()
                         "bad candidates are found.");
     motivation.set_user_level(simparm::Intermediate);
 
-    guess_threshold.set_user_level(simparm::Beginner);
-    threshold_height_factor.set_user_level(simparm::Expert);
-    amplitude_threshold.set_user_level(simparm::Beginner);
-    amplitude_threshold.hide();
-    amplitude_threshold.setHelp("Every fit attempt with an amplitude higher "
-                                "than this threshold will be considered a "
-                                "localization, and those below the threshold "
-                                "are discarded immediately. Compared with the "
-                                "other amplitude threshold in the Viewer, this "
-                                "threshold is already enforced during computation,"
-                                "thus saving computation time and avoiding false "
-                                "positives; however, contrary to the other threshold, "
-                                "it's application is not reversible.");
-
-    amplitude_threshold.setHelpID( "#AmplitudeThreshold" );
     spotFindingMethod.setHelpID( "#Smoother" );
     spotFindingMethod.set_user_level( simparm::Intermediate );
     spotFittingMethod.set_user_level( simparm::Beginner );
 
-    spotFindingMethod.set_auto_selection( true );
+    fit_judging_method.addChoice( make_fixed_threshold_judger() );
+    fit_judging_method.addChoice( make_square_root_ratio_judger() );
 
+    spotFindingMethod.set_auto_selection( true );
     spotFittingMethod.set_auto_selection( true );
+    fit_judging_method.set_auto_selection( true );
 }
 
 Config::~Config() {
@@ -67,9 +52,7 @@ Config::~Config() {
 void Config::attach_ui( simparm::NodeHandle n ) {
     simparm::NodeHandle at = name_object.attach_ui( n );
     nms.attach_ui(at);
-    guess_threshold.attach_ui(at);
-    threshold_height_factor.attach_ui(at);
-    amplitude_threshold.attach_ui(at);
+    fit_judging_method.attach_ui(at);
 
     spotFindingMethod.attach_ui(at);
     simparm::NodeHandle w = weights.attach_ui(at );
@@ -85,13 +68,7 @@ void Config::attach_ui( simparm::NodeHandle n ) {
 
 void Config::set_variables( output::Basename& bn ) const
 {
-    std::stringstream ss;
-    if ( guess_threshold() ) 
-        ss << "auto";
-    else
-        ss << amplitude_threshold().value();
-    bn.set_variable("thres", ss.str());
-
+    fit_judging_method().set_variables( bn );
     spotFindingMethod().set_variables( bn );
     spotFittingMethod().set_variables( bn );
 }

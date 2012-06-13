@@ -11,7 +11,6 @@
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/extend.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/Node.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>

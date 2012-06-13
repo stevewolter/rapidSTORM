@@ -5,7 +5,6 @@
 #include <dStorm/output/binning/config.h>
 
 #include "../Config.h"
-#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace viewer {

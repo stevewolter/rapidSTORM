@@ -1,5 +1,4 @@
 #include "InputMethods.h"
-#include <simparm/ChoiceEntry_Impl.h>
 #include <dStorm/input/Choice.h>
 
 namespace dStorm {

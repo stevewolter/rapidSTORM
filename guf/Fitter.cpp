@@ -31,7 +31,7 @@ Fitter::Fitter(
     const Config& config
 )
 : traits(info.traits),
-  info(info,traits),
+  info(info),
   data_creator( config.fit_window_config, this->info, evaluation_tags(), MaxWindowWidth ),
   initial_value_finder( config, this->info ),
   one_kernel_fitter( NaiveFitter::create<1>(config, info) ),

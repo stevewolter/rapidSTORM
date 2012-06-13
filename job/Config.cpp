@@ -22,6 +22,7 @@
 #include <simparm/Menu.h>
 #include <simparm/text_stream/RootNode.h>
 #include <simparm/TreeRoot.h>
+#include <simparm/TreeEntry.h>
 #include <ui/serialization/Node.h>
 
 #include "Car.h"

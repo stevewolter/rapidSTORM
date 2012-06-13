@@ -9,7 +9,7 @@
 namespace simparm {
 namespace wx_ui {
 
-struct ScrolledWindow : public wxScrolledWindow {
+class ScrolledWindow : public wxScrolledWindow {
     bool needs_fit_inside;
     std::auto_ptr< MainConfig > config;
 public:
@@ -18,7 +18,7 @@ public:
           needs_fit_inside(false) {}
     bool Destroy() { config.reset(); return true; }
     void mark_fit_inside();
-    void do_fit_inside() { if ( needs_fit_inside ) FitInside(); }
+    void do_fit_inside();
     void set_main_config( MainConfig* m ) { config.reset(m); }
     void serialize( std::string filename ) { config->serialize( filename ); }
 };

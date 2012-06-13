@@ -14,6 +14,7 @@ public:
     TreeRoot( boost::shared_ptr<Node> n, std::string name ) : InnerNode(n, name) {}
     boost::shared_ptr< TreeRepresentation > get_treebook_parent() { return tr_root; }
     boost::shared_ptr< Window > get_treebook_widget() { return treebook_widget; }
+    boost::function0<void> get_relayout_function();
     void initialization_finished();
 };
 

@@ -1,13 +1,13 @@
 #include "config.h"
 #include "localization_config.h"
-#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace output {
 namespace binning {
 
 FieldChoice::FieldChoice( const std::string& name, const std::string& desc, BinningType type, std::string axis )
-: simparm::ManagedChoiceEntry<FieldConfig>(name, desc) {
+: simparm::ManagedChoiceEntry<FieldConfig>(name, desc) 
+{
     fill<0>(type, axis);
 }
 
@@ -29,9 +29,11 @@ void FieldChoice::fill(BinningType type, std::string axis)
     for (int i = 0; i < Traits::Rows; ++i)
         for (int j = 0; j < Traits::Cols; ++j)
             if ( type == ScaledToInterval || type == InteractivelyScaledToInterval )
-                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis,1.0, i, j)) );
-            else if ( (Traits::has_range && type == ScaledByResolution) || type == IsUnscaled )
-                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis,i, j)) );
+                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, 1.0f , i, j)) );
+            else if ( (Traits::has_range && type == ScaledByResolution) )
+                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, true, i, j)) );
+            else if ( type == IsUnscaled )
+                addChoice( std::auto_ptr<FieldConfig>(new LocalizationConfig<Field>(axis, false, i, j)) );
     fill<Field+1>(type, axis);
 }
 

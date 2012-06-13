@@ -1,7 +1,6 @@
 #include "Config.h"
 #include "ColourScheme.h"
 #include "debug.h"
-#include <simparm/ChoiceEntry_Impl.h>
 #include "colour_schemes/decl.h"
 
 namespace dStorm {

@@ -9,7 +9,6 @@
 #include <dStorm/input/Method.hpp>
 #include <dStorm/input/Source.h>
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/Message.h>

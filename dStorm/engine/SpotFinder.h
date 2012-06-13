@@ -2,6 +2,7 @@
 #define DSTORM_SPOTFINDER_H
 
 #include <simparm/NodeHandle.h>
+#include <simparm/Choice.h>
 #include <memory>
 
 #include "Image.h"
@@ -60,7 +61,7 @@ class Job {
     /** The SpotFinderFactory is a generalization of a simparm 
      *  configuration node which is capable of configuring and producing
      *  a SpotFinder object. */
-    class Factory 
+    class Factory : public simparm::Choice
     {    
       public:
         virtual std::auto_ptr<Base> make
@@ -70,9 +71,6 @@ class Job {
         virtual void set_requirements( InputTraits& ) {}
         virtual void set_traits( output::Traits&, const JobInfo& ) {}
         virtual void set_variables( output::Basename& ) const {}
-        virtual void attach_ui( simparm::NodeHandle to ) = 0;
-        virtual void detach_ui( simparm::NodeHandle to ) = 0;
-        virtual std::string getName() const = 0;
     };
 
 }

@@ -18,7 +18,7 @@ static void make_progress_bar(
 
 void ProgressNode::display_value() {
     if ( determinate ) {
-        int percentage = round(boost::lexical_cast<double>( *value->get_value() ));
+        int percentage = round(boost::lexical_cast<double>( *value->get_value() ) * 100.0);
         run_in_GUI_thread(
             bl::bind( &wxGauge::SetValue, *bl::constant(my_gauge), percentage ) );
     } else {

@@ -1,11 +1,12 @@
 #ifndef SIMPARM_OBJECTCHOICE_HH
 #define SIMPARM_OBJECTCHOICE_HH
 
-#include <simparm/Object.h>
+#include "Object.h"
+#include "Choice.h"
 
 namespace simparm {
 
-class ObjectChoice {
+class ObjectChoice : public Choice {
     simparm::Object node;
 protected:
     NodeHandle attach_parent( simparm::NodeHandle to ) { return node.attach_ui(to); }
@@ -17,7 +18,6 @@ public:
     virtual ObjectChoice* clone() const = 0;
     std::string getName() const { return node.getName(); }
     virtual void attach_ui( simparm::NodeHandle to ) = 0;
-    void detach_ui( simparm::NodeHandle to ) { node.detach_ui(to); }
 };
 
 }

@@ -14,7 +14,6 @@
 
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ProgressEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/engine/InputTraits.h>

@@ -16,5 +16,12 @@ void TreeRoot::initialization_finished() {
     InnerNode::add_full_width_line( window );
 }
 
+boost::function0<void> TreeRoot::get_relayout_function() {
+    return boost::function0<void>( ( 
+        boost::bind( &TreeRepresentation::InvalidateBestSize, tr_root ),
+        bl::bind( InnerNode::get_relayout_function() )
+    ) );
+}
+
 }
 }

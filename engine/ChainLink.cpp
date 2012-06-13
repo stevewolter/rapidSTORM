@@ -57,8 +57,6 @@ class ChainLink
         return rt;
     }
     void update_meta_info( MetaInfo& mi ) {
-        mi.suggested_output_basename.set_variable
-            ( "thres", amplitude_threshold_string() );
         finder_con.reset( new scoped_connection( 
             mi.get_signal< signals::UseSpotFinder >().connect( 
                 boost::bind( &ChainLink::add_spot_finder, this, _1 ) ) ) );
@@ -70,12 +68,8 @@ class ChainLink
     BaseSource* make_source( std::auto_ptr< Source<ImageStack> > base ) 
         { return new Engine( config, base ); }
 
-    std::string amplitude_threshold_string() const;
-
     void republish_traits_locked() {
         input::InputMutexGuard lock( input::global_mutex() );
-        config.amplitude_threshold.set_visibility( ! config.guess_threshold() );
-        config.threshold_height_factor.set_visibility( config.guess_threshold() );
         republish_traits();
     }
 
@@ -86,9 +80,7 @@ class ChainLink
 
     static std::string getName() { return "rapidSTORM"; }
     void attach_ui( simparm::NodeHandle at ) { 
-        listening[0] = config.guess_threshold.value.notify_on_value_change( 
-            boost::bind( &ChainLink::republish_traits_locked, this ) );
-        listening[1] = config.amplitude_threshold.value.notify_on_value_change( 
+        listening[2] = config.fit_judging_method.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
         listening[2] = config.spotFittingMethod.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
@@ -123,16 +115,6 @@ ChainLink::ChainLink(const ChainLink& c)
             boost::bind( &ChainLink::republish_traits_locked, this )
         );
     }
-}
-
-std::string ChainLink::amplitude_threshold_string() const
-{
-    std::stringstream ss; 
-    if ( config.guess_threshold() )
-        ss << "auto";
-    else 
-        ss << config.amplitude_threshold();
-    return ss.str();
 }
 
 std::auto_ptr<input::Link>

@@ -23,7 +23,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/units/base_units/us/inch.hpp>
 
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
 #include <simparm/TriggerEntry.h>

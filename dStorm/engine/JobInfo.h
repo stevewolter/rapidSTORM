@@ -1,26 +1,30 @@
 #ifndef DSTORM_ENGINE_JOBINFO_H
 #define DSTORM_ENGINE_JOBINFO_H
 
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/length.hpp>
-#include <boost/units/systems/camera/length.hpp>
-#include <boost/units/systems/camera/intensity.hpp>
 #include "Image_decl.h"
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
 namespace engine {
 
+class FitJudgerFactory;
+class FitJudger;
+
 struct JobInfo {
-    typedef boost::units::quantity<boost::units::camera::intensity> Intensity;
-    Intensity amplitude_threshold;
+private:
+    boost::ptr_vector< FitJudger > judgers;
+    boost::shared_ptr<const InputTraits> traits_store;
+
+public:
     const InputTraits& traits;
     int fluorophore;
+public:
+    JobInfo( boost::shared_ptr<const InputTraits>, int fluorophore, const FitJudgerFactory& );
+    JobInfo( const JobInfo& );
+    ~JobInfo();
 
-    JobInfo( Intensity amp_thres, const InputTraits& i, int fluorophore )
-        : amplitude_threshold(amp_thres), traits(i), fluorophore(fluorophore) {}
-    JobInfo( const JobInfo& o, const InputTraits& t )
-        : amplitude_threshold(o.amplitude_threshold),
-          traits(t), fluorophore(o.fluorophore) {}
+    const FitJudger& get_judger( int plane ) const;
 };
 
 

@@ -4,8 +4,7 @@
 #include "Output.h"
 #include "Basename.h"
 #include <memory>
-#include <simparm/Object.h>
-#include <simparm/TreeEntry.h>
+#include <simparm/Choice.h>
 #include <simparm/TriggerEntry.h>
 #include "SourceFactory_decl.h"
 #include "BasenameAdjustedFileEntry_decl.h"
@@ -22,7 +21,7 @@ namespace output {
  *  the basename setting. Implementors must override the
  *  make_output() method and can override the
  *  set_output_file_basename method. */
-class OutputSource 
+class OutputSource : public simparm::Choice
 {
   private:
     OutputSource& operator=(const OutputSource&);

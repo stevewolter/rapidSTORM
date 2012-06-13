@@ -10,17 +10,20 @@
 #include <dStorm/UnitEntries.h>
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <boost/units/cmath.hpp>
 #include <dStorm/output/Basename_decl.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <dStorm/Engine.h>
-#include <dStorm/engine/Image_decl.h>
 #include <dStorm/output/LocalizedImage_decl.h>
 #include <dStorm/input/Source.h>
+
+#include <dStorm/engine/Image_decl.h>
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFitterFactory.h>
+#include <dStorm/engine/FitJudger.h>
+#include <dStorm/engine/FitJudgerFactory.h>
+
 #include <dStorm/units/nanolength.h>
 #include <boost/units/systems/camera/length.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -52,14 +55,10 @@ namespace engine {
 
         /** The method to use for spot fitting. */
         simparm::ManagedChoiceEntry< spot_fitter::Factory > spotFittingMethod;
+        simparm::ManagedChoiceEntry< FitJudgerFactory > fit_judging_method;
         
         /** Continue fitting until this number of bad fits occured. */
         Entry<unsigned long> motivation;
-        /** Amplitude threshold to judge localizations by. */
-        simparm::Entry< bool > guess_threshold;
-        simparm::Entry< float > threshold_height_factor;
-        simparm::Entry< boost::units::quantity<
-            camera::intensity, float> > amplitude_threshold;
 
         void addSpotFinder( std::auto_ptr<spot_finder::Factory> factory );
         void addSpotFinder( spot_finder::Factory* factory ) 

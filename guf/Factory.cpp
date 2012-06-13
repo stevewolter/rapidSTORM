@@ -41,7 +41,7 @@ void Factory::set_traits( output::Traits& traits, const engine::JobInfo& info )
     traits.position().is_given[2] = have_z_information;
     traits.amplitude().is_given= true;
     traits.fit_residues().is_given= true;
-    traits.local_background().is_given = (info.traits.plane_count() < 1);
+    traits.local_background().is_given = (info.traits.plane_count() <= 1);
     traits.fluorophore().is_given = true;
     traits.two_kernel_improvement().is_given= config.two_kernel_fitting();
 

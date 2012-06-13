@@ -5,7 +5,6 @@
 #include <dStorm/engine/SpotFitterFactory.h>
 #include <dStorm/Config.h>
 #include <dStorm/output/OutputSource.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include "guf/Factory.h"
 
 namespace dStorm {

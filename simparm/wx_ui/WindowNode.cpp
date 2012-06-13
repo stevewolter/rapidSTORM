@@ -23,13 +23,5 @@ void WindowNode::initialization_finished() {
     InnerNode::add_full_width_line( window );
 }
 
-Relayout WindowNode::get_relayout_function() {
-    return boost::function0<void>( ( 
-        bl::bind( sizer.get_relayout_function() ),
-        std::cerr << bl::constant("Resizing window ") << *bl::constant(box_sizer) << "\n",
-        bl::bind( InnerNode::get_relayout_function() )
-    ) );
-}
-
 }
 }

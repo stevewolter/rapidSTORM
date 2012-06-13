@@ -3,6 +3,7 @@
 
 #include "OutputSource.h"
 #include <simparm/Entry.h>
+#include <simparm/TreeEntry.h>
 
 namespace dStorm {
 namespace output {

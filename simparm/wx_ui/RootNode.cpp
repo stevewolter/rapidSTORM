@@ -95,35 +95,8 @@ class RootFrame
         ALIGNMENT_MINIMAL,
     };
 
-    void invalidate_best_sizes( wxWindow* window ) {
-        wxNotebook* nb = dynamic_cast<wxNotebook*>(window);
-        if ( nb )
-            nb->InvalidateBestSize();
-        wxWindowList& children = window->GetChildren();
-        for ( wxWindowList::iterator i = children.begin(); i != children.end(); ++i )
-            invalidate_best_sizes( *i );
-    }
-
-    void relayout( wxWindow* window ) {
-        window->Layout();
-        wxWindowList& children = window->GetChildren();
-        for ( wxWindowList::iterator i = children.begin(); i != children.end(); ++i )
-            relayout( *i );
-    }
-
-    void fit_inside( wxWindow* window ) {
-        wxScrolledWindow* sw = dynamic_cast<wxScrolledWindow*>(window);
-        if ( sw ) sw->FitInside();
-        wxWindowList& children = window->GetChildren();
-        for ( wxWindowList::iterator i = children.begin(); i != children.end(); ++i )
-            fit_inside( *i );
-    }
-
     void change_user_level( UserLevel l ) {
         ul_control->set_user_level( l );
-        invalidate_best_sizes( this );
-        relayout( this );
-        fit_inside( this );
     }
     void user_level_beginner(wxCommandEvent&) { change_user_level( Beginner ); }
     void user_level_intermediate(wxCommandEvent&) { change_user_level( Intermediate ); }

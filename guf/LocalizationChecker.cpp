@@ -4,10 +4,12 @@
 #include "Config.h"
 #include "gaussian_psf/BaseExpression.h"
 #include "gaussian_psf/Base3D.h"
+#include "constant_background/model.hpp"
 #include <dStorm/engine/InputTraits.h>
 #include <dStorm/threed_info/DepthInfo.h>
 #include "MultiKernelModel.h"
 #include <boost/units/cmath.hpp>
+#include <dStorm/engine/FitJudger.h>
 
 namespace dStorm {
 namespace guf {
@@ -32,13 +34,10 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
         for ( MultiKernelModel::const_iterator j = i->begin(); j != i->end(); ++j ) {
             int plane = i - result.begin();
             if ( ! check_kernel(*j, spot, plane) ) return false;
-            quantity<camera::intensity> photon = 
-                info.traits.optics(plane)
-                    .photon_response.get_value_or( 1 * camera::ad_count );
-            double local_threshold = info.amplitude_threshold / photon;
             double intensity = (*j)( gaussian_psf::Amplitude() ) * (*j)( gaussian_psf::Prefactor() );
+            double background = i->background_model()( constant_background::Amount() );
             DEBUG("Checking amplitude threshold of " << local_threshold << " against " << intensity);
-            if ( local_threshold < intensity )
+            if ( info.get_judger( plane ).is_above_background( intensity, background ) )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
                 quantity<si::length> x_dist( (*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() ) );

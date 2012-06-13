@@ -12,7 +12,6 @@
 #include "../UnitEntries/PixelSize.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ManagedChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 
 #include "position.h"
 #include "ProjectionConfig.h"

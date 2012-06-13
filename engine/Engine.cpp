@@ -66,11 +66,6 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     rv.in_sequence = true;
     rv.image_number() = imProp.image_number();
 
-    DEBUG("Getting other traits dimensionality");
-    DEBUG("Getting minimum amplitude");
-    if ( ! config.guess_threshold() )
-        rv.amplitude().range().first = config.amplitude_threshold();
-
     boost::shared_ptr< input::Traits<output::LocalizedImage> > rvt( 
         new TraitsPtr::element_type( rv, "Engine", "Localizations" ) );
     rvt->source_image_is_set = true;
@@ -78,17 +73,10 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
     rvt->candidate_tree_is_set = true;
     rvt->input_image_traits.reset( imProp.clone() );
 
-    DEBUG("Setting traits from spot fitter");
     for (unsigned int fluorophore = 0; fluorophore < imProp.fluorophores.size(); ++fluorophore) {
-        DEBUG("Constructing spot fitting info");
-        JobInfo info(
-            config.amplitude_threshold() ,
-            imProp, fluorophore);
-        DEBUG("Constructed spot fitting info at " << &info << ", setting traits with " << &config.spotFittingMethod() );
+        JobInfo info( rvt->input_image_traits, fluorophore, config.fit_judging_method() );
         config.spotFittingMethod().set_traits( *rvt, info );
-        DEBUG("Finished setting traits, info now at " << &info);
     }
-    DEBUG("Returning traits");
 
     rvt->fluorophore().is_given = imProp.fluorophores.size() > 1;
     rvt->fluorophore().range().first = 0;
@@ -100,35 +88,10 @@ Engine::convert_traits( Config& config, const input::Traits<engine::ImageStack>&
 Engine::TraitsPtr Engine::get_traits(Wishes w) {
     if ( &config.spotFittingMethod() == NULL )
         throw std::runtime_error("No spot fitter selected");
-    DEBUG("Retrieving input traits");
-    if ( config.guess_threshold() )
-        w.set( InputStandardDeviation );
 
     if ( imProp.get() == NULL )
         imProp = input->get_traits(w);
     DEBUG("Retrieved input traits");
-
-    if ( config.guess_threshold() ) {
-        DEBUG("Guessing input threshold");
-        bool have_set_threshold = false;
-        for ( int i = 0; i < imProp->plane_count(); ++i ) {
-            if ( imProp->plane(i).optics.background_stddev.is_initialized() ) {
-                if ( imProp->optics(i).transmission_coefficient(0) > 1E-2 ) {
-                    camera_response threshold = 
-                        config.threshold_height_factor() * *imProp->optics(i).background_stddev / 
-                            imProp->optics(i).transmission_coefficient(0);
-                    if ( ! have_set_threshold || config.amplitude_threshold() > threshold )
-                        config.amplitude_threshold = threshold;
-                    have_set_threshold = true;
-                }
-            }
-        }
-        if ( ! have_set_threshold )
-            throw std::runtime_error("Amplitude threshold is not set and could not be determined from background noise strength");
-        DEBUG("Guessed amplitude threshold " << config.amplitude_threshold());
-    } else {
-        DEBUG("Using amplitude threshold " << config.amplitude_threshold());
-    }
 
     input::Traits<output::LocalizedImage>::Ptr prv =
         convert_traits(config, *imProp);
@@ -274,7 +237,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
 
     DEBUG("Building spot fitter with " << meta_info->fluorophores.size() << " fluorophores");
     for (unsigned int fluorophore = 0; fluorophore < meta_info->fluorophores.size(); ++fluorophore) {
-        JobInfo info(config.amplitude_threshold(), *meta_info, fluorophore);
+        JobInfo info(meta_info, fluorophore, config.fit_judging_method() );
         fitter.push_back( config.spotFittingMethod().make(info) );
     }
 

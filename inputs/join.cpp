@@ -2,7 +2,6 @@
 #include "join.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/TabGroup.h>

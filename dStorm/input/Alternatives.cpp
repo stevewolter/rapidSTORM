@@ -2,7 +2,7 @@
 
 #include "Alternatives.h"
 #include "Forwarder.h"
-#include <simparm/ChoiceEntry_Impl.h>
+#include <simparm/ChoiceEntry.h>
 #include <simparm/Message.h>
 #include <map>
 #include "Forwarder.h"

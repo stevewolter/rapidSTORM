@@ -16,6 +16,10 @@ void ScrolledWindow::mark_fit_inside() {
     run_in_GUI_thread( bl::bind( &ScrolledWindow::do_fit_inside, this ), 1 );
 }
 
+void ScrolledWindow::do_fit_inside() { 
+    if ( needs_fit_inside ) { FitInside(); needs_fit_inside = false; }
+}
+
 static void make_scrolled_window( 
     boost::shared_ptr< ScrolledWindow* > sw,
     boost::shared_ptr< Window > window_view,
@@ -35,7 +39,7 @@ boost::shared_ptr<Window> ScrolledWindowNode::create_window() {
 
 boost::function0<void> ScrolledWindowNode::get_relayout_function() {
     return boost::function0<void>((
-        bl::bind( &ScrolledWindow::needs_fit_inside, *bl::constant(scrolled_window) )
+        bl::bind( &ScrolledWindow::mark_fit_inside, *bl::constant(scrolled_window) )
     ));
 }
 

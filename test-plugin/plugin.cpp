@@ -9,7 +9,6 @@
 #include "RepeatTrigger.h"
 #include "VerboseInputFilter_decl.h"
 #include <dStorm/traits/range_impl.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include "SmoothedImageSave.h"
 
 using namespace dStorm::output;

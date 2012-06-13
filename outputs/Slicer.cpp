@@ -7,7 +7,6 @@
 #include <dStorm/UnitEntries/FrameEntry.h>
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdexcept>
 

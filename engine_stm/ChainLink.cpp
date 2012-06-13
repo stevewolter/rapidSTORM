@@ -12,7 +12,6 @@
 #include <dStorm/Localization_decl.h>
 #include <dStorm/input/Source.h>
 #include <dStorm/output/LocalizedImage.h>
-#include <simparm/ChoiceEntry_Impl.h>
 
 namespace dStorm {
 namespace engine_stm {

@@ -190,6 +190,7 @@ dstorm_SOURCES = \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
     dStorm/engine/SpotFitterBuilder.h \
     dStorm/engine/InputTraits.h dStorm/engine/InputPlane.h \
+    dStorm/engine/FitJudger.h dStorm/engine/FitJudgerFactory.h dStorm/engine/FitJudger.cpp \
     dStorm/input/AdapterSource.h \
     dStorm/input/Choice.h \
     dStorm/input/fwd.h dStorm/input/Link.h \
@@ -711,6 +712,7 @@ dstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
     simparm/BaseAttribute.h \
+    simparm/Choice.h \
     simparm/Attribute.h simparm/Attribute.hpp simparm/Attribute.cpp \
     simparm/BasicEntry.h simparm/BasicEntry.cpp \
     simparm/Group.h simparm/Group.cpp \
@@ -723,7 +725,7 @@ dstorm_SOURCES += \
     simparm/TreeEntry.h simparm/TreeEntry.cpp \
     simparm/FileEntry.h simparm/FileEntry.cpp \
     simparm/Message.h simparm/Message.cpp \
-    simparm/ChoiceEntry.h simparm/ChoiceEntry_Impl.h simparm/ChoiceEntry.cpp \
+    simparm/ChoiceEntry.h simparm/ChoiceEntry.cpp \
     simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
     simparm/Menu.h \
     simparm/debug.h \

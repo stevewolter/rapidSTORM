@@ -2,7 +2,6 @@
 
 #include "FilterSource.h"
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <dStorm/outputs/Crankshaft.h>
 #include "OutputSource.h"
 #include "SourceFactory.h"

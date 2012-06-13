@@ -46,6 +46,7 @@ std::string LocalizationConfig<Field>::make_desc(int r, int c) {
 template <int Field>
 LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range, int row, int column) 
 : FieldConfig( make_ident(row,column), make_desc(row,column) ), 
+  use_resolution( false ),
   row(row), column(column) ,
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10)),
   range(range)
@@ -53,8 +54,9 @@ LocalizationConfig<Field>::LocalizationConfig(std::string axis, float range, int
 }
 
 template <int Field>
-LocalizationConfig<Field>::LocalizationConfig(std::string axis, int row, int column) 
+LocalizationConfig<Field>::LocalizationConfig(std::string axis, bool use_resolution, int row, int column) 
 : FieldConfig( make_ident(row,column), make_desc(row,column) ), 
+  use_resolution( use_resolution ),
   row(row), column(column) ,
     resolution(axis + "Resolution", "Resolution in " + axis + " direction", Resolution::from_value(10))
 {

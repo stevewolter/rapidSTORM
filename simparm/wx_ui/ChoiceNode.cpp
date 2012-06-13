@@ -11,24 +11,30 @@ namespace wx_ui {
 
 class ChoiceWidget : public wxChoice {
     void *shown_children;
+
+    std::vector< std::string > available_names;
     std::multimap< void*, boost::shared_ptr<Window> > children;
-    std::map< std::string, int > name_positions;
+    std::map< std::string, std::string > labels;
     std::map< void*, std::string > names;
+    std::map< std::string, void* > idents;
+
     std::string current_selection;
     boost::shared_ptr< BaseAttributeHandle > value;
     boost::shared_ptr< VisibilityControl > vc;
 
     void GUI_changed_choice( wxCommandEvent& ) { 
-        ShowChildren(); 
         int index = GetSelection();
         if ( GetSelection() != wxNOT_FOUND )
-            value->set_value( names[ GetClientData(index) ] );
+            current_selection = names[ GetClientData(index) ];
         else
-            value->set_value( "" );
+            current_selection = "";
+        ShowChildren(); 
+        value->set_value( current_selection );
     }
     void ShowChildren() {
-        int index = GetSelection();
-        void *new_shown_children = ( index == wxNOT_FOUND ) ? NULL : GetClientData(index);
+        std::map< std::string, void* >::const_iterator ident = idents.find( current_selection );
+        if ( ident == idents.end() ) return;
+        void *new_shown_children = ident->second;
         if ( shown_children == new_shown_children ) return;
 
         for ( std::multimap< void*, boost::shared_ptr<Window> >::const_iterator i = children.begin(); i != children.end(); ++i ) {
@@ -52,27 +58,31 @@ public:
           value(value),
           vc( vc )
     {
-        name_positions[""] = wxNOT_FOUND;
+        idents[""] = NULL;
     }
 
     ~ChoiceWidget() {}
 
     void add_choice( void* ident, const std::string& name, std::string description ) {
         int index = Append( wxString( description.c_str(), wxConvUTF8 ), ident );
-        name_positions.insert( std::make_pair( name, index ) );
+        labels.insert( std::make_pair( name, description ) );
+        available_names.push_back( name );
         names.insert( std::make_pair( ident, name ) );
+        idents.insert( std::make_pair( name, ident ) );
+        update_ui_element();
         ShowChildren();
-        if ( current_selection == name )
-            SetSelection( index );
     }
     
     void remove_choice( void* ident, const std::string& name, std::string description ) {
         int index = FindString( wxString( description.c_str(), wxConvUTF8 ) );
         assert( index != wxNOT_FOUND );
         Delete( index );
-        name_positions.erase( name );
+        labels.erase( name );
+        available_names.erase( std::remove( available_names.begin(), available_names.end(), name ), available_names.end() );
         names.erase( ident );
+        idents.erase( name );
         children.erase( ident );
+        update_ui_element();
         ShowChildren();
     }
     
@@ -83,7 +93,26 @@ public:
     }
 
     void select_choice( std::string name ) {
-        SetSelection( name_positions[name] );
+        current_selection = name;
+        update_ui_element();
+    }
+
+    void update_ui_element() {
+        /* Since current_selection is set before all choices are registered, the
+         * selected choice might not yet be available. */
+        if ( idents.find( current_selection ) == idents.end() )
+            return;
+        if ( current_selection == "" ) {
+            if ( GetSelection() != wxNOT_FOUND ) {
+                SetSelection( wxNOT_FOUND );
+                Clear();
+                for ( std::vector< std::string >::iterator i = available_names.begin(); i != available_names.end(); ++i ) {
+                    Append( wxString( labels[*i].c_str(), wxConvUTF8 ), idents[*i] );
+                }
+            }
+        } else {
+            SetStringSelection( wxString( labels[current_selection].c_str(), wxConvUTF8 ) );
+        }
         ShowChildren();
     }
 

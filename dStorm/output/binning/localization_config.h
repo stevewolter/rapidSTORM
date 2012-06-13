@@ -16,6 +16,7 @@ template <int Field>
 class LocalizationConfig : public FieldConfig
 {
     typedef typename Localization<Field,false>::TraitsType Traits;
+    bool use_resolution;
     int row, column;
     static std::string make_ident(int r, int c);
     static std::string make_desc(int r, int c);
@@ -32,13 +33,12 @@ class LocalizationConfig : public FieldConfig
 
     void attach_ui( simparm::NodeHandle at ) {
         simparm::NodeHandle r = attach_parent(at);
-        if ( ! range.is_initialized() ) 
-            resolution.attach_ui(r);
+        if ( use_resolution ) resolution.attach_ui(r);
         listening = resolution.value.notify_on_value_change( change );
     }
 
   public:
-    LocalizationConfig(std::string axis, int row, int column) ;
+    LocalizationConfig(std::string axis, bool use_resolution, int row, int column) ;
     LocalizationConfig(std::string axis, float range, int row, int column) ;
 
     LocalizationConfig* clone() const { return new LocalizationConfig(*this); }

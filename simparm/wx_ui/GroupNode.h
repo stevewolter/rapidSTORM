@@ -22,7 +22,6 @@ public:
     void add_full_width_line( WindowSpecification& w );
     void add_full_width_sizer( SizerSpecification& w ) { sizer.add_full_width_sizer(w); }
     void initialization_finished();
-    Relayout get_relayout_function();
 };
 
 }

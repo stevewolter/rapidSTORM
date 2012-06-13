@@ -16,7 +16,6 @@
 #include <boost/thread/mutex.hpp>
 #include <simparm/Entry.h>
 #include <simparm/ChoiceEntry.h>
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/FileEntry.h>
 #include <cassert>
 #include <simparm/ObjectChoice.h>

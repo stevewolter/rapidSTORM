@@ -19,13 +19,6 @@ template <typename Inner>
 inline bool value_is_optional( const boost::optional<Inner>& ) 
     { return true; }
 
-template <typename Type>
-inline void unset_value( Type ) 
-    { throw std::runtime_error("Non-optional type cannot be unset."); }
-template <typename Inner>
-inline void unset_value( boost::optional<Inner>& b ) 
-    { b.reset(); }
-
 }
 
 template <typename Type>
@@ -39,7 +32,7 @@ private:
     std::string get_name() const { return ident; }
     boost::optional< std::string > get_value() const;
     bool set_value(const std::string& i );
-    void unset_value() { detail::unset_value( value ); }
+    void unset_value() { valueChange( Type(), true ); }
     bool value_is_optional() const { return detail::value_is_optional( value ); }
 
     bool valueChange(const Type &to, bool from_gui = false);

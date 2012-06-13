@@ -11,9 +11,9 @@ class Choice
 : public Link
 {
   public:
-    class LinkAdaptor {
+    class LinkAdaptor : public simparm::Choice {
         std::auto_ptr<input::Link> _link;
-        Choice *target;
+        input::Choice *target;
         Link::Connection connection;
 
       public:
@@ -25,9 +25,9 @@ class Choice
             std::auto_ptr<LinkAdaptor> rv( new LinkAdaptor( std::auto_ptr<Link>(_link->clone()) ) );
             return rv.release();
         }
-        void connect( Choice& c ) {
+        void connect( input::Choice& c ) {
             connection = _link->notify( boost::bind(
-                &Choice::traits_changed, &c, _1, _link.get() ) );
+                &input::Choice::traits_changed, &c, _1, _link.get() ) );
         }
 
         std::string getName() const { return _link->name(); }

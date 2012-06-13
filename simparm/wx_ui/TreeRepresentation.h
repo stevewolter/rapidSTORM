@@ -6,8 +6,8 @@
 #include <vector>
 #include "Node.h"
 #include <wx/string.h>
+#include <wx/treebook.h>
 
-class wxTreebook;
 class wxWindow;
 
 namespace simparm {
@@ -27,6 +27,7 @@ public:
     void add_as_child( boost::shared_ptr< TreeRepresentation > parent, boost::shared_ptr<Window> window, wxString name, boost::function0<void> redraw );
     void remove_child( boost::shared_ptr<Window> window );
     void create_widget(boost::shared_ptr<Window> window_announcement, boost::shared_ptr<Window> parent );
+    void InvalidateBestSize() { widget->InvalidateBestSize(); }
 };
 
 }

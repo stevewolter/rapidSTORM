@@ -6,7 +6,6 @@
 #include <cassert>
 #include <dStorm/engine/Image.h>
 
-#include <simparm/ChoiceEntry_Impl.h>
 #include <simparm/Message.h>
 #include <dStorm/display/Manager.h>
 #include <boost/thread/locks.hpp>
