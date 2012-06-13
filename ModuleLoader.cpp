@@ -42,6 +42,7 @@ void add_modules( dStorm::Config& car_config )
     car_config.add_spot_finder( median_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( erosion_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( gauss_smoother::make_spot_finder_factory() );
+    car_config.add_spot_finder( spaltbandpass_smoother::make_spot_finder_factory() );
     DEBUG("Adding basic output modules");
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );

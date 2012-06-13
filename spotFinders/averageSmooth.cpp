@@ -32,8 +32,10 @@ void averageLine( const InPix *array, int step, int radius,
         size--;
     }
     removal_index = 0;
-    *target = accum;
-    target += step;
+    for (int i = 0; i < width; i++) {
+        *target = accum;
+        target += step;
+    }
 
     while (size > 0) {
         accum += *scan;
@@ -108,21 +110,22 @@ void smoothByAverage<StormPixel,SmoothedPixel>(
             input.get_offsets().x(),
             xr,
             input.width_in_pixels(),
-            output.ptr(xr, y) 
+            output.ptr(0, y) 
         );
-    for (int x = xr; x < int(output.width_in_pixels()-xr); x++)
+    for (int x = 0; x < int(output.width_in_pixels()); x++)
         averageLine<SmoothedPixel,SmoothedPixel>(
             output.ptr(x, 0),
             output.get_offsets().y(),
             yr, 
             output.height_in_pixels(), 
-            output.ptr(x, yr) 
+            output.ptr(x, 0) 
         );
 
+#define NORMALIZE
 #ifdef NORMALIZE
-    const unsigned int norm = (2*xr+1)*(2*yr+1), sz = output.size();
+    const unsigned int norm = (2*xr+1)*(2*yr+1), sz = output.size_in_pixels();
     for (unsigned int i = 0; i < sz; i++)
-        output.data[i] /= norm;
+        output[i] /= norm;
 #endif
 #endif
 }

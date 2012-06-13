@@ -10,6 +10,7 @@ namespace erosion_smoother { std::auto_ptr<engine::spot_finder::Factory> make_sp
 namespace gauss_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
 namespace median_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
 namespace spalttiefpass_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
+namespace spaltbandpass_smoother { std::auto_ptr<engine::spot_finder::Factory> make_spot_finder_factory(); }
 }
 
 #endif
