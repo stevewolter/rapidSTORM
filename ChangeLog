@@ -1,3 +1,36 @@
+== 3.0.0 ==
+
+Features:
+* Made fit judging strategy configurable
+* Implemented differential-smoothed spot finder
+* Wrote more documentation and integrated common BiBTeX database
+* Documented SigmaDiff3D and EstimatePSF
+* Documenting memory cache
+* Improved the User Interface chapter of the documentation 
+* Moved engine options documentation into its own reference
+
+Refactoring:
+* Made simparm::ChoiceEntry code virtual instead of templated
+* Implemented configuration serialization interface
+* Added attribute handle class to simplify detachment process
+* Wrote up wxWidgets user interface
+* Made test plugin outputs non-conditional with simparm::Debug user level
+* Removed underdefined dStorm::display::Manager class and moved functionality into simparm::Node
+* Moved concurrency-related code for DataSource access into own class
+* Made text stream interface thread-safe
+* Reduced physical exposure of simparm details
+* Moved simparm files to more common names
+* Implemented command line simparm interface
+* Unified simparm interface to shared pointers
+* Replaced simparm callback with boost::signal implementation
+* Moved simparm makefile into main makefile
+* Separated simparm::Node and simparm::Object to make multiple implementations of simparm::Node feasible
+* Moved input filters to delayed registration
+* Converted all input and output modules to delayed simparm initialization
+* Moved simparm library into this package since changes are too major for independent release
+* Simplified simparm ChoiceEntry class by splitting entry deletion and cloning into own class
+* Removed usage of simparms managed nodes
+
 == 2.22.0 ==
 
 * Added missing auxiliary scripts to doc
