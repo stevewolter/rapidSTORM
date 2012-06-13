@@ -50,7 +50,7 @@ EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     dstorm.bugs/99.exp dstorm.bugs/91.exp dstorm.bugs/66.exp \
     dstorm.bugs/43.exp dstorm.bugs/84.exp dstorm.bugs/81.exp \
     dstorm.bugs/80.exp dstorm.bugs/188.exp dstorm.bugs/186.exp \
-    dstorm.bugs/148.exp dstorm.bugs/47.exp dstorm.bugs/133.exp \
+    dstorm.bugs/148.exp dstorm.bugs/133.exp \
     dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
     dstorm.bugs/75_stm.exp \
     dstorm.outputs/save-image-to-nonexisting-location.exp \

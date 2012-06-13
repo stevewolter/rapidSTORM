@@ -16,8 +16,7 @@ send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPos
 send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiAmplitudes value set true\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set FitPSFForm\n"
 send "in Car in Output in EngineOutput in Output4 in FitPSFForm in MultiPlane in FitPrefactors in value set false\n"
-send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
-send "in Car set Engine in rapidSTORM set AmplitudeThreshold value set 500.0\n"
+send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 500.0\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
 send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
 

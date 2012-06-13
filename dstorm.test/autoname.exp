@@ -11,8 +11,7 @@ dstorm_attach
 
 # First of all disable standard deviation estimation so it won't make problems
 send "in Car in Input in BackgroundEstimator in Enable in value set false\n"
-send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
-send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 3000\n"
 
 set test "basename printer works"
 if { $may_use_camera == 1 } {

@@ -7,8 +7,7 @@ load_default_config
 send "in Car in CPUNumber in value set 1\n"
 send "in Car in AutoTerminate in value set false\n"
 set_input_file "$testcase_target$input_file"
-send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
-send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 3000\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in value set Polynomial3D\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in ZPosition value set 0.0,500.0\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in WideningConstants value set 0 10 0 0, 0 10 0 0\n"
@@ -45,7 +44,7 @@ expect {
 
 set test "Run starts again"
 set timeout -1
-send "in Car in Engine in rapidSTORM in AmplitudeThreshold in value set 3000\n"
+send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 3000\n"
 send "in Car set Run value set 1\n"
 expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)\r*\n" 
