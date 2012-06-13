@@ -60,14 +60,16 @@ void start_imagemagick( const char* name ) {
 int main(int argc, char *argv[]) {
     ios_base::sync_with_stdio(false);
     ost::DebugStream::set(cerr);
-    start_imagemagick( argv[0] );
     wxFileSystem::AddHandler(new wxArchiveFSHandler);
     wxImage::AddHandler(new wxPNGHandler);
+    start_imagemagick( argv[0] );
 
     try {
-        CommandLine cmd_line;
-        int success = cmd_line.parse( argc, argv );
-        if ( success != EXIT_SUCCESS ) return success;
+        {
+            CommandLine cmd_line;
+            int success = cmd_line.parse( argc, argv );
+            if ( success != EXIT_SUCCESS ) return success;
+        }
 
         GUIThread& main_thread = GUIThread::get_singleton();
         if ( main_thread.need_wx_widgets() ) {

@@ -281,8 +281,7 @@ Engine::_iterator::WorkHorse::WorkHorse( Engine& engine )
     DEBUG("Building maximums");
     maximums.setLimit(maximumLimit);
 
-    DEBUG("Initialized motivation");
-    resultStructure.smoothed = &finder->getSmoothedImage();
+    resultStructure.smoothed = finder->getSmoothedImage();
     resultStructure.candidates = &maximums;
 };
 

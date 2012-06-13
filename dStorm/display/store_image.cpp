@@ -140,8 +140,7 @@ make_key_image(
                 Magick::Geometry( lh, text_area_height-5,
                                     i-lh/6, midline+5),
                 Magick::NorthWestGravity, 90 );
-            rv->draw( Magick::DrawableLine( i, midline,
-                                            i, midline+3 ) );
+            rv->draw( Magick::DrawableLine( i, midline, i, midline+3 ) );
         }
 
         DEBUG("Writing key annotation");
@@ -193,8 +192,7 @@ static void write_scale_bar(
 
     DEBUG("Writing scale bar at " << x_offset << " " << image.rows()-12-lh << " down to " 
         << x_offset+width << " and " << y_offset+5 << " with unit symbol " << ppm.unit_symbol);
-    image.draw( Magick::DrawableRectangle( 
-            x_offset, y_offset, x_offset+width, y_offset+5 ) );
+    image.draw( Magick::DrawableRectangle( x_offset, y_offset, x_offset+width, y_offset+5 ) );
 
     DEBUG("Writing scale bar annotation");
     image.annotate(
@@ -221,11 +219,14 @@ std::auto_ptr<Magick::Image> create_layer( const Change& image, int layer, quant
           1.0 - background.blue() );
 
     boost::ptr_list< Magick::Image > key_imgs;
-    for ( unsigned int i = 0; i < image.changed_keys.size(); ++i ) {
-        key_imgs.push_back( make_key_image( 
-            width, foreground, background, 
-            image.resize_image.keys[i], image.changed_keys[i] ) );
-        total_height += border_after_image + key_imgs.back().rows();
+    if ( image.resize_image.size[0] > 256 * camera::pixel &&
+         image.resize_image.size[1] > 256 * camera::pixel ) {
+        for ( unsigned int i = 0; i < image.changed_keys.size(); ++i ) {
+            key_imgs.push_back( make_key_image( 
+                width, foreground, background, 
+                image.resize_image.keys[i], image.changed_keys[i] ) );
+            total_height += border_after_image + key_imgs.back().rows();
+        }
     }
 
     DEBUG("Creating image sized " << width << " by " << total_height);

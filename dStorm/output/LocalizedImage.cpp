@@ -5,12 +5,12 @@ namespace dStorm {
 namespace output {
 
 LocalizedImage::LocalizedImage() 
-: forImage(0 * camera::frame), smoothed(NULL), candidates(NULL)
+: forImage(0 * camera::frame), candidates(NULL)
 {
 }
 
 LocalizedImage::LocalizedImage(frame_index i) 
-: forImage(i), smoothed(NULL), candidates(NULL)
+: forImage(i), candidates(NULL)
 {
 }
 

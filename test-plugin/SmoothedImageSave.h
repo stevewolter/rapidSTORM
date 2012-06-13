@@ -39,11 +39,11 @@ struct SmoothedImageSave
     SmoothedImageSave* clone() const { return new SmoothedImageSave(*this); }
     AdditionalData announceStormSize(const Announcement&) { return AdditionalData(); }
     void receiveLocalizations(const EngineResult& er) {
-        if ( er.smoothed && er.smoothed->is_valid() ) {
+        if ( er.smoothed.is_valid() ) {
             dStorm::display::Change c(1);
             c.do_clear = true;
             c.clear_image.background = dStorm::Pixel::Black();
-            display_normalized( c, extend( *er.smoothed, dStorm::Image<dStorm::engine::SmoothedPixel,3>() ) );
+            display_normalized( c, extend( er.smoothed, dStorm::Image<dStorm::engine::SmoothedPixel,3>() ) );
             dStorm::display::store_image( basename + boost::lexical_cast<std::string>(er.forImage.value()) + ".png", c );
         }
     }

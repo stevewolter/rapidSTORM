@@ -277,6 +277,7 @@ TextCtrl::TextCtrl( wxWindow* parent, boost::shared_ptr< BaseAttributeHandle > v
 }
 
 void TextCtrl::make_file_drop_target() {
+    this->SetDropTarget( new DragAndDrop(this, texts.front()) );
     for (Texts::iterator i = texts.begin(); i != texts.end(); ++i)
         (*i)->SetDropTarget( new DragAndDrop(this, *i) );
 }

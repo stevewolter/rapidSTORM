@@ -19,10 +19,7 @@ struct LocalizedImage
         *  this pointer points to the image the localizations
         *  were computed in. */
     boost::optional<dStorm::engine::ImageStack> source;
-    /** If the SmoothedImage AdditionalData field was set,
-        *  this pointer points to the image where candidates
-        *  were found in. */
-    const dStorm::engine::SmoothedImage *smoothed;
+    dStorm::engine::SmoothedImage smoothed;
     /** If the CandidateTree AdditionalData field was set,
         *  this pointer points to the candidate merging tree. */
     const dStorm::engine::CandidateTree<dStorm::engine::SmoothedPixel>

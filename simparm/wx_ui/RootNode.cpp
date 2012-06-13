@@ -168,8 +168,13 @@ class RootFrame
     }
 
 public:
+    static wxString get_title() {
+        std::stringstream s;
+        s << PACKAGE_NAME << " " << PACKAGE_MAJOR_VERSION << "." << PACKAGE_MINOR_VERSION;
+        return wxString( s.str().c_str(), wxConvUTF8 );
+    }
     RootFrame( boost::shared_ptr<Node> root_node, boost::shared_ptr< VisibilityControl > vc )
-        : wxFrame( NULL, wxID_ANY, wxString( (std::string(PACKAGE_NAME " ") + boost::lexical_cast<std::string>(PACKAGE_MAJOR_VERSION) + "." + boost::lexical_cast<std::string>(PACKAGE_MINOR_VERSION)).c_str(), wxConvUTF8 ) ),
+        : wxFrame( NULL, wxID_ANY, get_title(), wxDefaultPosition, wxSize(800,1000) ),
           root_node( root_node ), 
           ul_control( vc ),
           column( new wxBoxSizer(wxVERTICAL) )

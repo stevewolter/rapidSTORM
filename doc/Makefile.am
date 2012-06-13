@@ -40,13 +40,15 @@ manual.zip : manual.hhp manual.hhc manual.hhk alias.h $(GRAPHICS)
 	$(ZIP) $@ -@ --junk-paths $^
 	cd /usr/share/xml/docbook/stylesheet/docbook-xsl-ns/ && $(ZIP) $(abs_builddir)/$@ --recurse-paths images
 
-manual.hhp manual.hhc manual.hhk alias.h : manual.xml
+manual.hhp manual.hhc manual.hhk alias.h : htmlhelp-generated-stamp
+
+htmlhelp-generated-stamp : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_HTML) \
-	    --stringparam htmlhelp.hhp $@ \
-	    --stringparam htmlhelp.hhc ${@:.hhp=.hhc} \
-	    --stringparam htmlhelp.hhk ${@:.hhp=.hhk} \
-	    --stringparam htmlhelp.chm ${@:.hhp=.chm} \
-	    -o $@ $(srcdir)/rapidstorm_htmlhelp.xsl $<
+	    --stringparam htmlhelp.hhp ${<:.xml=.hhp} \
+	    --stringparam htmlhelp.hhc ${<:.xml=.hhc} \
+	    --stringparam htmlhelp.hhk ${<:.xml=.hhk} \
+	    -o ${<:.xml=.hhp} $(srcdir)/rapidstorm_htmlhelp.xsl $<
+	touch $@
 
 manual.xml : rapidstorm_pre.xsl
 	$(XSLTPROC) $(XSLT_FLAGS) --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml

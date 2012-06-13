@@ -52,7 +52,7 @@ public:
     Message::Response send( Message& m ) const;
     void initialization_finished() {}
     /** TODO: Method is deprecated and should be removed on successful migration. */
-    bool isActive() const { return true; }
+    bool isActive() const { return false; }
     void set_description( std::string d ) { description = d; }
     void set_visibility( bool v ) { visible = v; }
     void set_user_level( UserLevel ) {}

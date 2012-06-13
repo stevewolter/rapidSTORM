@@ -2,8 +2,7 @@
 #define SIMPARM_WX_UI_PROGRESSNODE_H
 
 #include "Node.h"
-
-class wxGauge;
+#include <wx/gauge.h>
 
 namespace simparm {
 namespace wx_ui {

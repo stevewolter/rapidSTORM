@@ -32,12 +32,13 @@ bool LocalizationChecker::operator()( const MultiKernelModelStack& result, const
         for ( MultiKernelModel::const_iterator j = i->begin(); j != i->end(); ++j ) {
             int plane = i - result.begin();
             if ( ! check_kernel(*j, spot, plane) ) return false;
-            DEBUG("Checking amplitude threshold");
             quantity<camera::intensity> photon = 
                 info.traits.optics(plane)
                     .photon_response.get_value_or( 1 * camera::ad_count );
             double local_threshold = info.amplitude_threshold / photon;
-            if ( local_threshold < (*j)( gaussian_psf::Amplitude() ) * (*j)( gaussian_psf::Prefactor() ) )
+            double intensity = (*j)( gaussian_psf::Amplitude() ) * (*j)( gaussian_psf::Prefactor() );
+            DEBUG("Checking amplitude threshold of " << local_threshold << " against " << intensity);
+            if ( local_threshold < intensity )
                 makes_it_in_one_plane = true;
             for ( MultiKernelModel::const_iterator k = j+1; k != i->end(); ++k ) {
                 quantity<si::length> x_dist( (*j)( gaussian_psf::Mean<0>() ) - (*k)( gaussian_psf::Mean<0>() ) );

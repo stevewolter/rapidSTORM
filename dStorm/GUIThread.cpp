@@ -1,5 +1,6 @@
 #include "GUIThread.h"
 #include <iostream>
+#include <wx/app.h>
 
 namespace dStorm {
 
@@ -62,6 +63,7 @@ void GUIThread::run_all_jobs()
 
 void GUIThread::run_wx_function( Task t ) {
     boost::recursive_mutex::scoped_lock lock( mutex );
+    if ( sequence_number == 0 ) wxWakeUpIdle();
     t.sequence = sequence_number++;
     tasks.push(t);
 }

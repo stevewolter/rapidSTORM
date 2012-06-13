@@ -52,7 +52,6 @@ class Engine::_iterator
         resultStructure.forImage = base->frame_number();
         resultStructure.clear();
         resultStructure.source = *base; 
-        resultStructure.smoothed = NULL;
         resultStructure.candidates = NULL;
     }
 

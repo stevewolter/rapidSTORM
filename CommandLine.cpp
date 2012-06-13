@@ -47,7 +47,7 @@ int CommandLine::parse( int argc, char *argv[] ) {
 
     int exit_status = EXIT_SUCCESS;
     std::string basename = boost::filesystem::path( argv[0] ).filename().string();
-    if ( argc <= 1 && basename != "dstorm" ) {
+    if ( argc <= 1 && basename != "dstorm" && basename != "dstorm.exe" ) {
         simparm::wx_ui::Launcher wx_launcher( config );
         wx_launcher.launch();
     } else {

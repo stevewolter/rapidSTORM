@@ -24,7 +24,7 @@ endif
 
 EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
     Doxyfile.in gaussian_psf/make_psf.sh \
-    dstorm-config.txt license_note_for_user versions_of_prerequisite_packages \
+    dstorm-config.txt license_note_for_user \
     dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
     dstorm.input/00-input-file-is-recognized.exp \
     dstorm.input/new-stm-format.exp \
@@ -430,6 +430,7 @@ dstorm_SOURCES += \
     spotFinders/GaussSmoothing.cpp \
     spotFinders/MedianSmoother.cpp \
     spotFinders/Spalttiefpass.cpp \
+    spotFinders/Spaltbandpass.cpp \
     spotFinders/Fillhole.h spotFinders/Fillhole.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
