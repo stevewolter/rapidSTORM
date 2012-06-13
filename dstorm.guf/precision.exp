@@ -25,7 +25,7 @@ send "in Car in Input in Optics in InputLayer0 set DarkCurrent value set 0\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set VarianceEstimator\n"
 send "in Car in Output in EngineOutput in Output0 in VarianceEstimator in Tag in value set VarianceMeasurement\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
-#send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Table\n"
 #send "in Car in Output in EngineOutput in ChooseTransmission in value set RawImage\n"
 
 dstorm_attach
@@ -55,7 +55,7 @@ proc check_fitting { description shorthand } {
     }
 
     set test "$description finds all spots"
-    pass_if [expr $count == 10000] "$test"
+    pass_if [expr $count >= 10000 && $count <= 10005] "$test"
     set test "$description has good spatial accuracy"
     pass_if [expr abs($meanx - 1045E-9) < 1E-9 && abs($meany - 980E-9) < 1E-9  ] "$test"
     set test "$description has good spatial precision"

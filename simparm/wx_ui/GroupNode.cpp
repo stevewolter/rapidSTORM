@@ -45,5 +45,15 @@ void GroupNode::add_full_width_line( WindowSpecification& w ) {
     sizer.add_full_width_line( w );
 }
 
+Relayout GroupNode::get_relayout_function() {
+    return boost::function0<void>( ( 
+        bl::bind( sizer.get_relayout_function() ),
+        std::cerr << bl::constant("Resizing group ") << *bl::constant(box_sizer) << "\n",
+        bl::bind( &wxSizer::Layout, *bl::constant(box_sizer) ),
+        bl::bind( InnerNode::get_relayout_function() )
+    ) );
+}
+
+
 }
 }

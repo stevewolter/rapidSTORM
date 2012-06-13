@@ -1,7 +1,5 @@
 begin_test_suite
 
-# Perform the tests in this file only on request
-if { [string compare $test_performance "yes"] == 0 } {
 
 set_input_file "${workspace_target}Mikrotubuli.sif"
 send "in Car in Engine in rapidSTORM in GuessAmplitudeThreshold in value set false\n"
@@ -13,85 +11,47 @@ send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 85,
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
 
 dstorm_attach
-set tick 0 
-send "resource_usage\n"
-expect -re "Current CPU time: (.*)\r*\n" { set tick $expect_out(1,string); }
 
-set test "GUF fitting performance is satisfactory"
-send "in Car in Run in value set 1\n"
+proc measure_performance { name expected_time } {
+    global test_performance
+    # Perform the tests in this file only on request
+    if { [string compare $test_performance "yes"] == 0 } {
+        set tick 0 
+        send "resource_usage\n"
+        expect -re "Current CPU time: (.*)\r*\n" { set tick $expect_out(1,string); }
 
-set job [get_job_number]
-set count 0
+        set test "$name speed is satisfactory"
+        send "in Car in Run in value set 1\n"
 
-expect {
-    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" 
-        { set count $expect_out(1,string); exp_continue; }
-    -re "remove $job" {}
+        set job [get_job_number]
+        set count 0
+
+        expect {
+            -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" 
+                { set count $expect_out(1,string); exp_continue; }
+            -re "remove $job" {}
+        }
+
+        set tock 0 
+        send "resource_usage\n"
+        expect -re "Current CPU time: (.*)\r*\n" { set tock $expect_out(1,string); }
+
+        pass_if [expr [expr $tock - $tick] < $expected_time] "$test"
+        pass_if [expr $count > 434000 && $count < 435000] "$name finds correct number of localizations"
+    } else {
+        untested "$name speed is satisfactory"
+        untested "$name finds correct number of localizations"
+    }
 }
 
-set tock 0 
-send "resource_usage\n"
-expect -re "Current CPU time: (.*)\r*\n" { set tock $expect_out(1,string); }
+measure_performance "Double-precision LSQ" 43.0
 
-pass_if [expr [expr $tock - $tick] < 43.0] "$test"
-
-set test "Number of found spots is predictable"
-
-pass_if [expr $count > 420000 && $count < 421000] "$test"
-
-set test "Double-precision MLE fitting works"
 send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set MLEFitting in value set true\n"
 send "in Car in Input in Optics in InputLayer0 set CountsPerPhoton value set 8\n"
 send "in Car in Input in Optics in InputLayer0 set DarkCurrent value set 1000\n"
-send "in Car in Run in value set 1\n"
-set job [get_job_number]
-set count 0
+measure_performance "Double-precision MLE" 136.5
 
-expect {
-    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" 
-        { set count $expect_out(1,string); exp_continue; }
-    -re "remove $job" { pass "$test"; }
-}
-
-send "resource_usage\n"
-expect -re "Current CPU time: (.*)\r*\n" { set tick $expect_out(1,string); }
-
-set test "Double-precision MLE performance is satisfactory"
-pass_if [expr [expr $tick - $tock] < 136.5] "$test"
-
-set test "Double-precision MLE Number of found spots is predictable"
-pass_if [expr $count > 420000 && $count < 421000] "$test"
-
-set test "Single-precision MLE fitting works"
 send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set DoublePrecision in value set false\n"
-send "in Car in Run in value set 1\n"
-set job [get_job_number]
-set count 0
-
-expect {
-    -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" 
-        { set count $expect_out(1,string); exp_continue; }
-    -re "remove $job" { pass "$test"; }
-}
-
-send "resource_usage\n"
-expect -re "Current CPU time: (.*)\r*\n" { set tock $expect_out(1,string); }
-
-set test "Single-precision MLE performance is satisfactory"
-pass_if [expr [expr $tock - $tick] < 85] "$test"
-
-set test "Single-precision MLE Number of found spots is predictable"
-pass_if [expr $count > 421000 && $count < 422000] "$test"
-
-} else {
-    untested "GUF fitting performance is satisfactory"
-    untested "Number of found spots is predictable"
-    untested "Double-precision MLE fitting works"
-    untested "Double-precision MLE performance is satisfactory"
-    untested "Double-precision MLE Number of found spots is predictable"
-    untested "Single-precision MLE fitting works"
-    untested "Single-precision MLE performance is satisfactory"
-    untested "Single-precision MLE Number of found spots is predictable"
-}
+measure_performance "Single-precision MLE" 85.0
 
 end_test_suite

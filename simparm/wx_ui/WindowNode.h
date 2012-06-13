@@ -21,6 +21,7 @@ public:
     void add_full_width_line( WindowSpecification& w ) { sizer.add_full_width_line(w); }
     void add_full_width_sizer( SizerSpecification& w ) { sizer.add_full_width_sizer(w); }
     boost::shared_ptr< Window > get_parent_window() { return window.window; }
+    Relayout get_relayout_function();
 };
 
 }

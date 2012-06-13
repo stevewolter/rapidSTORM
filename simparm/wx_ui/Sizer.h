@@ -21,6 +21,7 @@ public:
     void add_entry_line( LineSpecification& );
     void add_full_width_line( WindowSpecification& w );
     void add_full_width_sizer( SizerSpecification& w );
+    boost::function0<void> relayout_function();
 };
 
 }

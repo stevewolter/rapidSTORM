@@ -21,13 +21,14 @@ void Window::update_window_show( bool called_in_gui_thread ) {
     assert( backend_non_visibles >= 0 );
     bool do_show = frontend_non_visibles == 0 && backend_non_visibles == 0;
     if ( window && do_show != is_shown ) {
+        std::cerr << "Foobar" << std::endl;
         if ( called_in_gui_thread ) {
             window->Show( do_show );
-            if ( redraw ) redraw();
+            if ( redraw ) { std::cerr << "Calling redraw function" << std::endl; redraw(); }
         } else {
             run_in_GUI_thread( 
                 bl::bind( &wxWindow::Show, bl::bind( &Window::window, * bl::constant(shared_from_this()) ), do_show ) );
-            if ( redraw ) run_in_GUI_thread( redraw);
+            if ( redraw ) { std::cerr << "Calling redraw function" << std::endl; run_in_GUI_thread( redraw); }
         }
         is_shown = do_show;
     }

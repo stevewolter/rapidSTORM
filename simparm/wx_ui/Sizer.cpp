@@ -80,6 +80,9 @@ void Sizer::add_full_width_sizer( SizerSpecification& w ) {
         boost::bind( &wx_ui::add_full_width_sizer, sizer, w.sizer, row, w.proportion ) );
 }
 
+boost::function0<void> Sizer::relayout_function() {
+    return bl::bind( &wxSizer::Layout, *bl::constant(sizer) );
+}
 
 }
 }
