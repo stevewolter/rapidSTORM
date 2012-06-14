@@ -110,7 +110,7 @@ else
 endif
 
 .rc.o : 
-	$(WINDRES) -I . '$<' '$@'
+	$(WX_RESCOMP) -I . '$<' '$@'
 
 rapidstorm_SOURCES = \
     installation-directory.h \

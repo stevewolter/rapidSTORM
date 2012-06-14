@@ -13,6 +13,7 @@
 #include <wx/wxhtml.h>
 #include <wx/msgdlg.h>
 #include <wx/filedlg.h>
+#include <wx/icon.h>
 #include <fstream>
 #include "gui_thread.h"
 #include "config_file.h"
@@ -20,6 +21,11 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include "alignment_fitter.h"
+#include "Microscope_16.xpm"
+#include "Microscope_24.xpm"
+#include "Microscope_32.xpm"
+#include "Microscope_48.xpm"
+#include "Microscope_64.xpm"
 
 namespace simparm {
 namespace wx_ui {
@@ -182,7 +188,14 @@ public:
         menu->Append( help, _("Help") );
 
         SetMenuBar( menu );
-        SetIcon(wxICON(microscope));
+
+        wxIconBundle icons;
+        icons.AddIcon( wxIcon(Microscope_16_xpm) );
+        icons.AddIcon( wxIcon(Microscope_24_xpm) );
+        icons.AddIcon( wxIcon(Microscope_32_xpm) );
+        icons.AddIcon( wxIcon(Microscope_48_xpm) );
+        icons.AddIcon( wxIcon(Microscope_64_xpm) );
+        SetIcons( icons );
 
         SetSizer(column);
     }

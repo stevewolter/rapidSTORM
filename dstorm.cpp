@@ -59,6 +59,7 @@ void start_imagemagick( const char* name ) {
 }
 
 int main(int argc, char *argv[]) {
+    std::cerr << "Foo" << std::endl;
     ios_base::sync_with_stdio(false);
     ost::DebugStream::set(cerr);
     wxFileSystem::AddHandler(new wxArchiveFSHandler);

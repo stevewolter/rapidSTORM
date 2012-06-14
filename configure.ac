@@ -168,10 +168,6 @@ if test "$wxWin" != 1; then
     ])
 fi
 
-if echo "$WX_LIBS" | grep "subsystem,windows"; then
-    WX_LIBS="$WX_LIBS -Wl,--subsystem,console"
-fi
-
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
 if test "$enable_documentation" = 'yes'; then
