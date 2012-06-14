@@ -47,7 +47,7 @@ int CommandLine::parse( int argc, char *argv[] ) {
 
     int exit_status = EXIT_SUCCESS;
     std::string basename = boost::filesystem::path( argv[0] ).filename().string();
-    if ( argc <= 1 && basename != "dstorm" && basename != "dstorm.exe" ) {
+    if ( argc <= 1 ) {
         simparm::wx_ui::Launcher wx_launcher( config );
         wx_launcher.launch();
     } else {
@@ -70,14 +70,10 @@ int CommandLine::parse( int argc, char *argv[] ) {
         help.attach_ui( cmdline_ui );
         unit_tests.attach_ui( cmdline_ui );
 
-        if ( argc > 1 ) {
-            help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
-            unit_tests.value.notify_on_value_change( boost::bind( &CommandLine::run_unit_tests, this, argv[0], boost::ref(exit_status) ) )->release();
+        help.value.notify_on_value_change( boost::bind( &simparm::cmdline_ui::RootNode::print_help, argument_parser.get() ) )->release();
+        unit_tests.value.notify_on_value_change( boost::bind( &CommandLine::run_unit_tests, this, argv[0], boost::ref(exit_status) ) )->release();
 
-            argument_parser->parse_command_line( argc, argv );
-        } else {
-            argument_parser->print_help();
-        }
+        argument_parser->parse_command_line( argc, argv );
     }
     return exit_status;
 }

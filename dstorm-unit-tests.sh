@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./dstorm --UnitTests
+./rapidstorm --UnitTests

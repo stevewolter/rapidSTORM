@@ -15,8 +15,8 @@ pkgconfigdir = $(libdir)/pkgconfig
 
 DEJATOOL = dstorm
 
-bin_PROGRAMS = dstorm 
-check_PROGRAMS = dstorm
+bin_PROGRAMS = rapidstorm 
+check_PROGRAMS = rapidstorm
 applications_DATA=rapidstorm.desktop
 doc_DATA = $(srcdir)/README 
 pkgdata_DATA = dstorm-config.txt
@@ -85,13 +85,6 @@ CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
 	dstorm-config.txt installation-directory.h
 
-install-exec-hook:
-	ln -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT) || \
-	$(LN_S) -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT)
-
-uninstall-hook : 
-	rm -f $(DESTRDIR)$(bindir)/rapidstorm$(EXEEXT)
-
 always-force-remake :
 
 installation-directory.h : always-force-remake
@@ -111,8 +104,6 @@ EXTRA_DIST += dstorm-unit-tests.sh
 if HAVE_WINDRES
     RESOURCE_FILE = windows_resources.rc
     RESOURCE_OBJECT = windows_resources.o
-    LIBDSTORM_RESOURCE_FILE = dStorm/windows_resources.rc
-    LIBDSTORM_RESOURCE_OBJECT = dStorm/windows_resources.o
     LINKER_RESOURCE = -Xlinker
 else
     RESOURCE_FILE =
@@ -121,7 +112,7 @@ endif
 .rc.o : 
 	$(WINDRES) -I . '$<' '$@'
 
-dstorm_SOURCES = \
+rapidstorm_SOURCES = \
     installation-directory.h \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
@@ -251,7 +242,7 @@ dstorm_SOURCES = \
     dStorm/threed_info/Spline3D.h \
     dStorm/threed_info/fwd.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     dStorm/localization_file/children_field.h dStorm/localization_file/children_field.cpp \
     dStorm/localization_file/converter.h \
     dStorm/localization_file/field.h dStorm/localization_file/field_decl.h \
@@ -262,8 +253,8 @@ dstorm_SOURCES += \
     dStorm/localization_file/reader.h \
     dStorm/localization_file/unknown_field.h 
 
-dstorm_SOURCES += \
-    dStorm/Localization.cpp $(LIBDSTORM_RESOURCE_FILE) \
+rapidstorm_SOURCES += \
+    dStorm/Localization.cpp \
     dStorm/UnitEntries.cpp \
     dStorm/DataSetTraits.cpp dStorm/units/units.cpp dStorm/image/MetaInfo.cpp \
     dStorm/localization/Field.cpp \
@@ -321,11 +312,11 @@ dstorm_SOURCES += \
     dStorm/threed_info/look_up_sigma_diff.cpp \
     dStorm/make_clone_allocator.hpp
 
-dstorm_SOURCES += dstorm.cpp installation-directory.h \
+rapidstorm_SOURCES += dstorm.cpp installation-directory.h \
     config_file.h config_file.cpp \
     alignment_fitter.h alignment_fitter.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
     JobStarter.h JobStarter.cpp \
@@ -333,17 +324,17 @@ dstorm_SOURCES += \
     dStorm/GUIThread.h dStorm/GUIThread.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     job/Car.cpp job/Car.h \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
     job/Run.h job/Run.cpp \
     job/Control.h job/Control.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     dStorm/output/Config.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     inputs/inputs.h inputs/inputs.cpp \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputMethods.h inputs/InputMethods.cpp \
@@ -368,11 +359,11 @@ dstorm_SOURCES += \
     inputs/Buffer.h inputs/Buffer.cpp \
     inputs/LocalizationFile.h inputs/LocalizationFile.cpp 
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
 	noop_engine/ChainLink.cpp noop_engine/ChainLink_decl.h \
 	noop_engine/ChainLink.h noop_engine/Engine.cpp noop_engine/Engine.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
@@ -381,11 +372,11 @@ dstorm_SOURCES += \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
 	    engine_stm/LocalizationBuncher.cpp engine_stm/LocalizationBuncher.h \
 	    engine_stm/ChainLink.h engine_stm/ChainLink.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     expression/Config.h  expression/Config_decl.h \
     expression/Source.h  expression/Source_decl.h \
     expression/Evaluator.h expression/Simplifier.h expression/UnitChecker.h \
@@ -407,7 +398,7 @@ dstorm_SOURCES += \
     expression/Filter.h expression/Filter.cpp \
     expression/unit_test.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -420,7 +411,7 @@ dstorm_SOURCES += \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     calibrate_3d/fwd.h \
     calibrate_3d/Output.h calibrate_3d/Output.cpp \
     calibrate_3d/Config.h calibrate_3d/Config.cpp \
@@ -431,7 +422,7 @@ dstorm_SOURCES += \
     calibrate_3d/constant_parameter.hpp \
     calibrate_3d/SigmaCurve.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     spotFinders/averageSmooth.cpp \
     spotFinders/averageSmooth.h \
     spotFinders/ErosionSmoother.cpp \
@@ -442,7 +433,7 @@ dstorm_SOURCES += \
     spotFinders/Fillhole.h spotFinders/Fillhole.cpp \
     spotFinders/spotFinders.cpp spotFinders/spotFinders.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     viewer/fwd.h \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
@@ -471,7 +462,7 @@ dstorm_SOURCES += \
     viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     test-plugin/plugin.cpp test-plugin/plugin.h \
     test-plugin/Exception.h test-plugin/Delayer.h \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
@@ -482,7 +473,7 @@ dstorm_SOURCES += \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     estimate_psf_form/Output.h estimate_psf_form/Output.cpp \
     estimate_psf_form/Fitter.h estimate_psf_form/Fitter.cpp \
     estimate_psf_form/Config.h estimate_psf_form/Config.cpp \
@@ -491,7 +482,7 @@ dstorm_SOURCES += \
     estimate_psf_form/Input.h estimate_psf_form/Input.cpp \
     estimate_psf_form/LocalizationValueFinder.h estimate_psf_form/LocalizationValueFinder.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     nonlinfit/AbstractFunction.h \
     nonlinfit/AbstractMoveable.h \
     nonlinfit/AbstractTerminator.h \
@@ -552,7 +543,7 @@ dstorm_SOURCES += \
     nonlinfit/sum/fwd.h \
     nonlinfit/sum/Lambda.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     fit_window/Config.h fit_window/Config.cpp \
     fit_window/Stack.cpp fit_window/Stack.h fit_window/Stack.hpp \
     fit_window/Plane.h \
@@ -565,7 +556,7 @@ dstorm_SOURCES += \
     fit_window/PlaneCreator.h fit_window/PlaneCreator.hpp fit_window/PlaneCreator.cpp \
     fit_window/unit_tests.h fit_window/unit_tests.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     guf/fitter.h guf/fitter.cpp \
     guf/EvaluationTags.h \
     guf/Config.cpp guf/Config_decl.h guf/Config.h \
@@ -587,7 +578,7 @@ dstorm_SOURCES += \
     guf/Spot.h \
     guf/unit_tests.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     gaussian_psf/fwd.h gaussian_psf/parameters.h gaussian_psf/parameters.hpp \
     gaussian_psf/BaseEvaluator.h gaussian_psf/BaseEvaluator.cpp \
     gaussian_psf/DisjointEvaluator.h \
@@ -607,7 +598,7 @@ dstorm_SOURCES += \
     gaussian_psf/check_evaluator.hpp \
     gaussian_psf/polynomial_psf_generated_by_yacas.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     constant_background/fwd.hpp constant_background/model.hpp
 
 # Makefile magic: The $(a:pat=rep) does suffix replacement and is used with an 
@@ -635,7 +626,7 @@ INSTANTIATIONS_UNCPP = \
     $(INST_MODEL:=Moveable) $(INST_TAGS:=PlaneFunction) 
 INSTANTIATIONS=$(INSTANTIATIONS_UNCPP:=.cpp)
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     guf/instantiations/one_kernel.h \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
@@ -651,7 +642,7 @@ dstorm_SOURCES += \
     guf/instantiations/ModelledFitter.h \
     guf/instantiations/Moveable.h \
     guf/instantiations/Fitter.cpp
-nodist_dstorm_SOURCES = $(INSTANTIATIONS)
+nodist_rapidstorm_SOURCES = $(INSTANTIATIONS)
 CLEANFILES += $(INSTANTIATIONS)
 
 $(INSTANTIATIONS) : 
@@ -662,7 +653,7 @@ $(INSTANTIATIONS) :
 	    | $(SED) -e 's:#include "disjoint_\([0-9]*\).h":static const int DisjointWidth = \1;\n#include "disjoint.h":' \
 	    | $(SED) -e 's:#include ":&guf/instantiations/:' > $@
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     nonlinfit/unit_test.h \
     nonlinfit/unit_test.cpp \
     nonlinfit/sum/unit_test.cpp \
@@ -670,7 +661,7 @@ dstorm_SOURCES += \
     guf/unit_tests.cpp \
     dejagnu.h unit_tests.h unit_tests.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     input_simulation/plugin.cpp input_simulation/plugin.h \
     input_simulation/NoiseSource.h input_simulation/NoiseSource.cpp \
     input_simulation/NoiseGenerator.cpp \
@@ -683,7 +674,7 @@ dstorm_SOURCES += \
     input_simulation/FluorophoreDistributions.h \
     input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h \
     locprec/Noise.h locprec/SpotMeter.h \
@@ -700,7 +691,7 @@ dstorm_SOURCES += \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
     locprec/unit_tests.cpp 
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
     AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
@@ -708,14 +699,14 @@ dstorm_SOURCES += \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
     AndorCamera/plugin.h AndorCamera/plugin.cpp AndorCamera/AndorDirect_decl.h
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     tiff/TIFF.h tiff/TIFF.cpp \
     tiff/OpenFile.h tiff/TIFF_OpenFile.cpp \
     tiff/RawImageFile.cpp tiff/RawImageFile.h \
     tiff/TIFFOperation.h tiff/TIFFOperation.cpp \
     tiff/augment_config.h tiff/augment_config.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     simparm/Node.h simparm/Node.cpp \
     simparm/NodeHandle.h \
     simparm/BaseAttribute.h \
@@ -746,7 +737,7 @@ dstorm_SOURCES += \
     simparm/is_numerical.hpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     simparm/text_stream/BackendRoot.h simparm/text_stream/BackendRoot.cpp \
     simparm/text_stream/ChildrenList.h \
     simparm/text_stream/EntryNode.h simparm/text_stream/FrontendNode.h \
@@ -761,7 +752,7 @@ dstorm_SOURCES += \
     simparm/text_stream/image_window/MainThread.h simparm/text_stream/image_window/MainThread.cpp \
     simparm/text_stream/image_window/md5.h simparm/text_stream/image_window/md5.c
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     simparm/wx_ui/App.h simparm/wx_ui/App.cpp \
     simparm/wx_ui/image_window/ImageWindow.h simparm/wx_ui/image_window/ImageWindow.cpp \
     simparm/wx_ui/image_window/Handle.h simparm/wx_ui/image_window/Handle.cpp \
@@ -801,7 +792,7 @@ dstorm_SOURCES += \
     simparm/wx_ui/stock-hchain-24-broken.xpm \
     simparm/wx_ui/stock-hchain-24.xpm
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     simparm/cmdline_ui/ChoiceNode.h simparm/cmdline_ui/EntryNode.h \
     simparm/cmdline_ui/Node.h simparm/cmdline_ui/Node.cpp \
     simparm/cmdline_ui/RootNode.h simparm/cmdline_ui/RootNode.cpp \
@@ -809,7 +800,7 @@ dstorm_SOURCES += \
     simparm/cmdline_ui/ProgressNode.h simparm/cmdline_ui/ProgressNode.cpp \
     simparm/dummy_ui/fwd.h simparm/dummy_ui/fwd.cpp
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     ui/serialization/Node.h ui/serialization/Node.cpp \
     ui/serialization/serialize.h ui/serialization/serialize.cpp \
     ui/serialization/deserialize.h ui/serialization/deserialize.cpp
@@ -822,18 +813,18 @@ else
     SIFSUPPORT =
 endif
 
-dstorm_SOURCES += \
+rapidstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
-dstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
-dstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
-dstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
-dstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) \
+rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
+rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
+rapidstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
+rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) \
     $(libreadsif_CFLAGS) $(WX_CXXFLAGS)
-dstorm_LDADD = $(GraphicsMagick_LIBS) 
-dstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
-dstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
-dstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
-dstorm_LDADD += $(WX_LIBS) 
+rapidstorm_LDADD = $(GraphicsMagick_LIBS) 
+rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
+rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)
+rapidstorm_LDADD += $(boost_unit_test_LIB) $(libreadsif_LIBS)
+rapidstorm_LDADD += $(WX_LIBS) 
 

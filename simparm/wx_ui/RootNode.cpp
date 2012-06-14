@@ -182,6 +182,7 @@ public:
         menu->Append( help, _("Help") );
 
         SetMenuBar( menu );
+        SetIcon(wxICON(microscope));
 
         SetSizer(column);
     }
