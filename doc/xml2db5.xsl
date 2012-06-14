@@ -14,15 +14,21 @@
 
 <xsl:template match="mods:mods">
     <biblioentry id="{mods:identifier[@type='citekey']/text()}">
-        <abbrev><xsl:value-of select="@ID"/></abbrev>
         <xsl:apply-templates/>
     </biblioentry>
 </xsl:template>
 
 <xsl:template match="mods:name">
-    <author>
-        <xsl:apply-templates/>
-    </author>
+    <xsl:choose>
+        <xsl:when test="mods:role/mods:roleTerm = 'author'">
+            <author>
+                <xsl:apply-templates/>
+            </author>
+        </xsl:when>
+        <xsl:when test="mods:role/mods:roleTerm = 'degree grantor'">
+            <corpname><xsl:value-of select="mods:namePart"/></corpname>
+        </xsl:when>
+    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="mods:namePart">
@@ -69,7 +75,9 @@
     <xsl:apply-templates/>
 </xsl:template>
 
-<xsl:template match="mods:dateIssued"/>
+<xsl:template match="mods:dateIssued">
+    <date><xsl:value-of select="text()"/></date>
+</xsl:template>
 
 <xsl:template match="mods:note"/>
 

@@ -2,7 +2,10 @@
 <!DOCTYPE chapter 
 [<!ENTITY % isogrk1 PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
+ <!ENTITY % isolat1 PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN//XML"
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-lat1.ent">
 %isogrk1;
+%isolat1;
 ]>
 
 <chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en">
@@ -46,13 +49,13 @@
     </taskprerequisites>
     <procedure>
 	<step>Start rapidSTORM 2</step>
-	<step>Set <guimenu>User level</guimenu> to <guilabel>Medium</guilabel> or higher</step>
+	<step>Set <guimenu>User level</guimenu> to <guilabel>Normal operator</guilabel> or higher</step>
         <step>Set <guilabel>Input file</guilabel> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
         <step>Check <guilabel>Ignore libtiff warnings</guilabel></step>
         <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (e.g. 142 and 125 nm in X/Y, respectively)</step>
 	<step>Set <guilabel>Amplitude discarding threshold</guilabel> to a high value (5000 ADC) in order to filter noise</step>
 	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
-	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optinal)</step>
+	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optional)</step>
 	<step>Check boxes <guilabel>PSF width is free fit parameter</guilabel> and <guilabel>Store PSF covariance matrix</guilabel></step>
 	<step>Go to the <xref linkend="ExpressionFilter"/> output option and set
             <substeps>
@@ -121,7 +124,7 @@
     </taskprerequisites>
     <procedure>
         <step>(Re-)Start rapidSTORM</step>
-        <step>Set user level to <guilabel>Medium</guilabel></step>
+        <step>Set user level to <guilabel>Intermediate</guilabel></step>
         <step>Set <guilabel>3D PSF model</guilabel> to <guilabel>Interpolated 3D</guilabel></step>
         <step>Set <guilabel>Z calibration file</guilabel> to the file name of the calibration curve file.</step>
         <step>Set <guilabel>Amplitude discarding threshold</guilabel> to a similar value as in 2D (e.g. 1000)</step>
@@ -136,6 +139,159 @@
             </substeps>
         </step>
         <step>Run evaluation and wait for job to finish</step>
+    </procedure>
+</task>
+
+</section>
+
+<section>
+<title>Evaluate spectral demixing measurement</title>
+<para>This usage example shows how to produce two-color images from spectrally unmixed data sets.
+    It was written for an Alexa647/Alexa700 measurement on the W&uuml;rzburg 1 biplane setup as
+    documented in <xref linkend="Aufmkolk2012"/>.
+    The first two tasks in this example produce prerequisite knowledge for the image generation,
+    the alignment information (<xref linkend="Produce_linear_alignment_matrix"/>) and the
+    F2 ratios, i.e. the relative intensity of fluorophores between the channels.
+</para>
+<task id="Produce_linear_alignment_matrix">
+    <title>Produce linear alignment matrix</title>
+    <taskprerequisites>
+        <para>
+            We assume you have two input data files X1.tif and X2.tif showing 2 spectrally overlapping fluorophores. The
+                images in both files are assumed to be synchronous, spectrally different views of the same sample
+                area.
+        </para>
+    </taskprerequisites>
+    <procedure>
+        <step>Start rapidSTORM</step>
+        <step>Set <guilabel>Input file</guilabel> to <userinput>X1.tif</userinput></step>
+        <step><para>Check <guilabel>Ignore libtiff warnings</guilabel></para>
+              <para role="comment">We use Andor SOLIS for recording, which records broken TIFF files.</para></step>
+        <step><para>Set <guilabel>Size of input pixel</guilabel> to precalibrated value (107 nm)</para></step>
+        <step>Go to the <xref linkend="ExpressionFilter"/> output option and set 
+                <guilabel>Choose new output</guilabel> to <xref linkend="count_localizations"/>
+        </step>
+        <step id="make-linear-alignment:start">Start evaluation</step>
+        <step><para>Enable the <guilabel>Minimum localization strength</guilabel> field and set its value very high, adjusting
+            it until the second counter shows approximately as many localizations as the acquisition has frames.</para>
+            <para role="comment">This ensures a sparse population of multi-fluorophore localizations in the output, which can easily
+                be paired through the time coordinate. This is the "bead of opportunity" technique.</para></step>
+        <step id="make-linear-alignment:close">Close the job</step>
+        <step>Set <guilabel>Input file</guilabel> to <userinput>X2.tif</userinput></step>
+        <step>Repeat <xref linkend="make-linear-alignment:start"/> to <xref linkend="make-linear-alignment:close"/></step>
+        <step>Open an alignment fitter job with <guimenu>Job</guimenu>-><guisubmenu>Alignment fitter</guisubmenu>-><guimenuitem>Minimal</guimenuitem></step>
+        <step>Set <guilabel>File 1</guilabel> to <userinput>X1.tif</userinput></step>
+        <step>Set <guilabel>File 2</guilabel> to <userinput>X2.tif</userinput></step>
+        <step>Set <guilabel>Output file</guilabel> to <userinput>linMatrix_X1toX2.txt</userinput></step>
+        <step>Set <guilabel>Sigma</guilabel> to <userinput>1</userinput></step>
+        <step><para>Set <guilabel>Number of images to use</guilabel> to <userinput>1000</userinput></para>
+            <para role="comment">This increases the method's precision by using more localizations.</para></step>
+        <step id="make-linear-alignment:compute">Click <guilabel>Compute</guilabel></step>
+        <step>Wait until the <guilabel>Current estimation volume</guilabel> display box is hidden</step>
+        <step>The final alignment matrix is displayed in the text fields. Check that it is sane,
+            i.e. scale factors are close to 1, shear close to 0 and translation smaller than 2 micrometers
+            <stepalternatives>
+                <step>If the parameters are sane, this task is finished and the alignment matrix is stored in
+                <userinput>linMatrix_X1toX2.txt</userinput>.</step>
+                <step>If the parameters are not sane, try a different setting of <guilabel>Sigma</guilabel>
+                    or different values in the <guilabel>Shift</guilabel>, <guilabel>Scale</guilabel> or 
+                        <guilabel>Shear</guilabel> fields and repeat from step <xref linkend="make-linear-alignment:compute"/>.
+                </step>
+            </stepalternatives>
+        </step>
+    </procedure>
+</task>
+
+<task>
+    <title>Analyze two-colour acquisition</title>
+    <taskprerequisites><para>
+        We assume you have the same two input data files as in <xref linkend="Produce_linear_alignment_matrix"/>
+        and have a linear alignment matrix <userinput>linMatrix_X1toX2.txt</userinput>.
+    </para></taskprerequisites>
+    <procedure>
+        <step>Set user level to <guilabel>Intermediate</guilabel></step>
+        <step>Set <guilabel>Number of input channels</guilabel> to <userinput>2</userinput></step>
+        <step>Select tab <guilabel>Channel 1</guilabel> and set <guilabel>Input file</guilabel> to <userinput>X1.tif</userinput></step>
+        <step><para>Select tab <guilabel>Channel 2</guilabel> and set <guilabel>Input file</guilabel> to <userinput>X2.tif</userinput></para>
+            <para role="comment">It is crucial to keep the channel naming</para></step>
+        <step>Set <guilabel>Join inputs on</guilabel> to <guilabel>Spatially in z dimension</guilabel></step>
+        <step>Set <guilabel>Number of fluorophore types</guilabel> to <userinput>2</userinput></step>
+        <step>In <guilabel>Input layer 2</guilabel>, set <guilabel>Plane alignment</guilabel> to <guilabel>Linear alignment</guilabel></step>
+        <step>In <guilabel>Input layer 2</guilabel>, set <guilabel>Plane Alignment file</guilabel> to <userinput>linMatrix_X1toX2.txt</userinput></step>
+        <step><para>Set <guilabel>Size of input pixel</guilabel> (<userinput>107 nm</userinput>) and
+            <guilabel>PSF FWHM</guilabel> (370 and 390 nm, respectively) in both <guilabel>Input layer</guilabel> tabs</para></step>
+        <step>
+            <para>Are the F2 ratios of the fluorophores already known?</para>
+            <stepalternatives>
+                <step>No: Continue with <xref linkend="analyze-two-colour-acquisition:approximate-f2"/></step>
+                <step>Yes: Run the evaluation and skip to <xref linkend="analyze-two-colour-acquisition:known-f2"/></step>
+            </stepalternatives>
+        </step>
+        <step id="analyze-two-colour-acquisition:approximate-f2">
+            Set the <guilabel>Transmission coefficient</guilabel> fields in both layers to the approximate relative
+            brightnesses of the fluorophores. In this example, we estimated values of 2.5 and 0 for the first channel
+            and 1 and 1 for the second channel.</step>
+        <step>Go to the <guilabel>dSTORM engine output</guilabel> output and set <guilabel>Choose new output</guilabel> to <xref linkend="estimate_psf_form"/></step>
+        <step>Go to the <guilabel>Estimate PSF Form</guilabel> output and uncheck <guilabel>Fit PSF FWHM</guilabel></step>
+        <step>Run the evaluation</step>
+        <step>A PSF selection window appears, showing the two channels in alternating rows. In each row pair, each column
+            shows a pair of ROIs with a localization. The localizations are pre-classified as belonging to fluorophore 0
+            (red taint), 1 (green taint) or being ignored (grey taint). You can switch the classification by drawing a 
+            box around the image pair. When you are satisfied with the classification, close the window. The window 
+            reappears with new localizations until you have classified sufficiently many localizations. Make sure
+            that both fluorophores are represented; if a particular fluorophore is overrepresented, switch it to ignored
+            (grey taint).</step>
+        <step>In the job tab, a tab box with the input layers shows the result of the PSF estimation once the form
+            estimation is finished. Write down the new <guilabel>Transmission coefficient</guilabel> values 
+            for all tabs, these can be re-used in later evaluations.</step>
+        <step id="analyze-two-colour-acquisition:known-f2">
+            Wait for the evaluation to finish. The generated localizations file contains color-assigned localizations
+            with the correct F2 values.</step>
+    </procedure>
+</task>
+
+<task>
+    <title>Produce a single two-colour image from two-colour localizations file</title>
+    <taskprerequisites><para>
+        We assume that you have a localizations file with assigned colors <userinput>X1.txt</userinput>.
+    </para></taskprerequisites>
+    <procedure>
+        <step>Set <guilabel>Input File</guilabel> to <userinput>X1.txt</userinput>.</step>
+        <step>Go to the <guilabel>Image display</guilabel> output and
+            <substeps>
+                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with coordinate value</guilabel></step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>frame number</guilabel></step>
+                <step>Set <guilabel>Range of hue</guilabel> to <guilabel>0.5</guilabel> (cyan)</step>
+            </substeps>
+        </step>
+        <step>Run the evaluation. The result image will be color-coded by fluorophore intensity.</step>
+        <step>You can adjust the relative intensity by setting <guilabel>Value to assign to</guilabel> to
+            <guilabel>amp</guilabel> and <guilabel>Expression to assign from</guilabel> to 
+            <userinput>(fluo == 0) ? amp * 1.5 : amp</userinput>, varying the <userinput>1.5</userinput> as 
+            necessary.</step>
+    </procedure>
+</task>
+
+<task>
+    <title>Produce two spectrally separated images from two-colour localizations file</title>
+    <taskprerequisites><para>
+        We assume that you have a localizations file with assigned colors <userinput>X1.txt</userinput>.
+    </para></taskprerequisites>
+    <procedure>
+        <step>Set user level to <guilabel>Intermediate</guilabel> or higher</step>
+        <step>Set <guilabel>Input File</guilabel> to <userinput>X1.txt</userinput>.</step>
+        <step>Set <guilabel>Output file basename</guilabel> to <userinput>X1-fluo1</userinput>.</step>
+        <step>Go to the <guilabel>Expression filter</guilabel> output and
+            <substeps>
+                <step>Set <guilabel>Value to assign to</guilabel> to <guilabel>Filter</guilabel></step>
+                <step>Set <guilabel>Expression to assign from</guilabel> to <userinput>fluo == 0</userinput></step>
+            </substeps>
+        </step>
+        <step id="spectrally-separated-images:run">Run the evaluation, wait until it is finished and close the job</step>
+        <step>Set <guilabel>Output file basename</guilabel> to <userinput>X1-fluo2</userinput>.</step>
+        <step>Go to the <guilabel>Expression filter</guilabel> output and set 
+            <guilabel>Expression to assign from</guilabel> to <userinput>fluo == 1</userinput></step>
+        <step>Repeat <xref linkend="spectrally-separated-images:run"/></step>
     </procedure>
 </task>
 
