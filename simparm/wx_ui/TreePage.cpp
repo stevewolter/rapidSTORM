@@ -1,5 +1,5 @@
-#include "TreePage.h"
 #include "TreeRepresentation.h"
+#include "TreePage.h"
 #include "gui_thread.h"
 
 namespace simparm {

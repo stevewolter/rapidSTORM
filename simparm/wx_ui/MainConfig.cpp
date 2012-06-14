@@ -1,8 +1,8 @@
+#include "ScrolledWindowNode.h"
 #include <ui/serialization/serialize.h>
 #include <ui/serialization/deserialize.h>
 #include "MainConfig.h"
 #include "Node.h"
-#include "ScrolledWindowNode.h"
 
 namespace simparm {
 namespace wx_ui {

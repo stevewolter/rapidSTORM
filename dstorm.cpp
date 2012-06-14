@@ -2,6 +2,11 @@
 #include "config.h"
 #endif
 
+#include <wx/app.h>
+#include <wx/filesys.h>
+#include <wx/fs_arc.h>
+#include <wx/imagpng.h>
+
 #include "CommandLine.h"
 #include <stdexcept>
 #include <dStorm/helpers/thread.h>
@@ -9,10 +14,6 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <locale.h>
-#include <wx/app.h>
-#include <wx/filesys.h>
-#include <wx/fs_arc.h>
-#include <wx/imagpng.h>
 #include "simparm/wx_ui/App.h"
 #include "installation-directory.h"
 #include <dStorm/GUIThread.h>

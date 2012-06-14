@@ -1,8 +1,11 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/frame.h>
+
 #include "no_main_window.h"
 #include "Node.h"
 #include "lambda.h"
 #include "GUIHandle.h"
-#include <wx/frame.h>
 #include "gui_thread.h"
 
 namespace simparm {

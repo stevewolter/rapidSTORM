@@ -8,6 +8,7 @@ Features:
 * Documenting memory cache
 * Improved the User Interface chapter of the documentation 
 * Moved engine options documentation into its own reference
+* Made documentation building optional, depending on autoconf switch
 
 Refactoring:
 * Made simparm::ChoiceEntry code virtual instead of templated

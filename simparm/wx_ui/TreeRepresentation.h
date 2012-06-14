@@ -1,12 +1,12 @@
 #ifndef SIMPARM_WX_UI_TREEREPRESENTATION_H
 #define SIMPARM_WX_UI_TREEREPRESENTATION_H
 
+#include <wx/string.h>
+#include <wx/treebook.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/weak_ptr.hpp>
 #include <vector>
 #include "Node.h"
-#include <wx/string.h>
-#include <wx/treebook.h>
 
 class wxWindow;
 

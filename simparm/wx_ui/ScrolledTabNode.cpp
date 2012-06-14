@@ -1,6 +1,9 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/aui/auibook.h>
+
 #include "ScrolledTabNode.h"
 #include "WindowNode.h"
-#include <wx/aui/auibook.h>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>

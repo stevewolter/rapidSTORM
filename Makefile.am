@@ -1,4 +1,8 @@
-SUBDIRS = doc 
+if BUILD_DOCUMENTATION
+    MAYBE_DOC = doc
+endif
+SUBDIRS = $(MAYBE_DOC)
+
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = subdir-objects dejagnu
 
@@ -84,6 +88,9 @@ CLEANFILES = rapidSTORM.jar \
 install-exec-hook:
 	ln -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT) || \
 	$(LN_S) -f $(DESTDIR)$(bindir)/dstorm$(EXEEXT) $(DESTDIR)$(bindir)/rapidstorm$(EXEEXT)
+
+uninstall-hook : 
+	rm -f $(DESTRDIR)$(bindir)/rapidstorm$(EXEEXT)
 
 always-force-remake :
 

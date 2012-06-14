@@ -1,5 +1,5 @@
-#include "TreeRoot.h"
 #include "TreeRepresentation.h"
+#include "TreeRoot.h"
 #include "lambda.h"
 #include "gui_thread.h"
 

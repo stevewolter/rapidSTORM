@@ -1,5 +1,8 @@
-#include "TreeRepresentation.h"
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
 #include <wx/treebook.h>
+
+#include "TreeRepresentation.h"
 #include <boost/range/algorithm/find.hpp>
 #include <boost/range/algorithm_ext/erase.hpp>
 

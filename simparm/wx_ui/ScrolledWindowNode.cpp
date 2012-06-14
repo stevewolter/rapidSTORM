@@ -1,5 +1,8 @@
-#include "ScrolledWindowNode.h"
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
 #include <wx/sizer.h>
+
+#include "ScrolledWindowNode.h"
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>

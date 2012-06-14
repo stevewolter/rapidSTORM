@@ -1,6 +1,6 @@
+#include <wx/app.h>
 #include "GUIThread.h"
 #include <iostream>
-#include <wx/app.h>
 
 namespace dStorm {
 

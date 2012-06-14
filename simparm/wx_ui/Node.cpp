@@ -1,3 +1,9 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/defs.h>
+#include <wx/string.h>
+#include <wx/stattext.h>
+
 #include "Node.h"
 #include "TextfieldNode.h"
 #include "TabNode.h"
@@ -11,9 +17,6 @@
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-#include <wx/defs.h>
-#include <wx/string.h>
-#include <wx/stattext.h>
 #include "VisibilityControl.h"
 #include "image_window/create.h"
 #include "gui_thread.h"

@@ -147,6 +147,12 @@ AC_ARG_WITH([rapidstorm-test-cases], [AS_HELP_STRING([--with-rapidstorm-test-cas
     [],
     [with_rapidstorm_test_cases=])
 
+AC_ARG_ENABLE([documentation], [AS_HELP_STRING([--enable-documentation],
+    [build manual and doxygen documentation (default: yes)])],
+    [],
+    [enable_documentation=yes])
+AM_CONDITIONAL([BUILD_DOCUMENTATION], [test "$enable_documentation" = 'yes'])
+
 AM_OPTIONS_WXCONFIG
 reqwx=2.4.0
 AM_PATH_WXCONFIG($reqwx, wxWin=1)
@@ -168,7 +174,9 @@ fi
 
 AC_DEFINE([USE_GRAPHICSMAGICK], 1, [Use the GraphicsMagick library])
 
-AC_CONFIG_SUBDIRS([doc])
+if test "$enable_documentation" = 'yes'; then
+    AC_CONFIG_SUBDIRS([doc])
+fi
 
 AC_SUBST([testcasedir], "$with_rapidstorm_test_cases")
 AC_SUBST([setupstagedir], "$with_stage_dir")

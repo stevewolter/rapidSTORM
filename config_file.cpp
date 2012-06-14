@@ -1,10 +1,11 @@
+#include <wx/config.h>
+
 #include "config_file.h"
 #include "installation-directory.h"
 #include <boost/filesystem/operations.hpp>
 #include <stdlib.h>
 #include <iostream>
 
-#include <wx/config.h>
 #include "config.h"
 
 namespace dStorm {

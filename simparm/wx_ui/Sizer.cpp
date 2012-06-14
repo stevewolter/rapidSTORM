@@ -1,5 +1,8 @@
-#include "Sizer.h"
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
 #include <wx/gbsizer.h>
+
+#include "Sizer.h"
 #include "lambda.h"
 #include "gui_thread.h"
 

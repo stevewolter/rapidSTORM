@@ -1,4 +1,5 @@
-#include "TextfieldNode.h"
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
 #include <wx/textctrl.h>
 #include <wx/panel.h>
 #include <wx/checkbox.h>
@@ -9,6 +10,8 @@
 #include <wx/bitmap.h>
 #include <wx/dcmemory.h>
 #include <wx/dnd.h>
+
+#include "TextfieldNode.h"
 
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>

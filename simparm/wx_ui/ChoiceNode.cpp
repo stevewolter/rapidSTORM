@@ -1,6 +1,9 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/choice.h>
+
 #include "ChoiceNode.h"
 #include "WindowNode.h"
-#include <wx/wx.h>
 #include "lambda.h"
 #include "VisibilityControl.h"
 #include "GroupNode.h"
@@ -64,7 +67,7 @@ public:
     ~ChoiceWidget() {}
 
     void add_choice( void* ident, const std::string& name, std::string description ) {
-        int index = Append( wxString( description.c_str(), wxConvUTF8 ), ident );
+        Append( wxString( description.c_str(), wxConvUTF8 ), ident );
         labels.insert( std::make_pair( name, description ) );
         available_names.push_back( name );
         names.insert( std::make_pair( ident, name ) );

@@ -1,5 +1,8 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/gauge.h>
+
 #include "ProgressNode.h"
-#include <wx/wx.h>
 #include <boost/lexical_cast.hpp>
 #include "lambda.h"
 #include "gui_thread.h"

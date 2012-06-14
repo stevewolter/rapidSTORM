@@ -1,10 +1,10 @@
 #ifndef SIMPARM_WX_UI_SCROLLEDWINDOWNODE_H
 #define SIMPARM_WX_UI_SCROLLEDWINDOWNODE_H
 
+#include <wx/scrolwin.h>
 #include "WindowNode.h"
 #include "GUIHandle.h"
 #include "MainConfig.h"
-#include <wx/scrolwin.h>
 
 namespace simparm {
 namespace wx_ui {

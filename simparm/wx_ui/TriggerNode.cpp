@@ -1,5 +1,8 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/button.h>
+
 #include "TriggerNode.h"
-#include <wx/wx.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>

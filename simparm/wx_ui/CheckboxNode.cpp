@@ -1,5 +1,8 @@
+/* wxWidgets must be included first in Windows due to conflicts with Boost's
+ * handling of windows.h. */
+#include <wx/checkbox.h>
+
 #include "CheckboxNode.h"
-#include <wx/wx.h>
 #include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
