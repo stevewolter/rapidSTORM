@@ -1,0 +1,4 @@
+<!ENTITY marketingversion	"@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@">
+<!ENTITY publicationdate	"@BUILD_DATE@">
+<!ENTITY publicationyear	"@BUILD_YEAR@">
+

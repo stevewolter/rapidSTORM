@@ -51,7 +51,7 @@ htmlhelp-generated-stamp : manual.xml
 	touch $@
 
 manual.xml : rapidstorm_pre.xsl
-	$(XSLTPROC) $(XSLT_FLAGS) --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml
+	$(XSLTPROC) $(XSLT_FLAGS) --path .: --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml
 
 manual.html : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_HTML) -o $@ $(srcdir)/rapidstorm_html.xsl $<
@@ -66,7 +66,8 @@ manual.pdf : manual.fo foprc
 	bash $(srcdir)/tex2im -r 150x150 -o $@ $^
 
 CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
-    manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip
+    manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip \
+    htmlhelp-generated-stamp
 
 clean-local :
 	-rm -f *.html

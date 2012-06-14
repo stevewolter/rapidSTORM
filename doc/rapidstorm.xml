@@ -3,14 +3,17 @@
 [
     <!ENTITY % isolat1 PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-lat1.ent"> %isolat1;
+    <!ENTITY % version SYSTEM "version.ent">
+%isolat1;
+%version;
 ]>
 
 <book xmlns='http://docbook.org/ns/docbook' version="5.0" xml:lang="en" status="draft">
 <info>
     <title>rapidSTORM manual</title>
-    <subtitle>Version 2.21</subtitle>
+    <subtitle>Version &marketingversion;</subtitle>
     <copyright>
-        <year>2012</year>
+        <year>&publicationyear;</year>
         <holder>Steve Wolter</holder>
         <holder>Sven Proppert</holder>
     </copyright>
@@ -60,7 +63,7 @@
         <address>Biozentrum, Am Hubland, 97070 W&uuml;rzburg, Germany</address>
     </publisher>
 
-    <pubdate>2012/05/11</pubdate>
+    <pubdate>&publicationdate;</pubdate>
     <releaseinfo>This document is the official manual of the rapidSTORM software. It is generated deterministically during the build process
         and can be identified and cited using the version number on the front cover as the edition. Dieses Dokument wurde automatisch erstellt und ist ohne Unterschrift g&uuml;ltig.</releaseinfo>
 </info>
