@@ -1,3 +1,11 @@
+== 3.0.2 ==
+
+* Introduced frame icons for main frame
+* Added program icon
+* Dropped dstorm executable in favour of rapidstorm, which now fulfills all tasks
+* Added Sarah as author
+* Included Sarahs description of two-colour microscopy
+
 == 3.0.1 ==
 
 * Pulled version number from configuration and date from current system date for manual
