@@ -260,8 +260,8 @@
         <step>Go to the <guilabel>Image display</guilabel> output and
             <substeps>
                 <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with coordinate value</guilabel></step>
-                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>frame number</guilabel></step>
-                <step>Set <guilabel>Range of hue</guilabel> to <guilabel>0.5</guilabel> (cyan)</step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>fluorophore type</guilabel></step>
+                <step>Set <guilabel>Range of hue</guilabel> to <userinput>0.5</userinput> (cyan)</step>
             </substeps>
         </step>
         <step>Run the evaluation. The result image will be color-coded by fluorophore intensity.</step>
