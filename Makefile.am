@@ -108,6 +108,7 @@ if HAVE_WINDRES
 else
     RESOURCE_FILE =
 endif
+EXTRA_DIST += Microscope.ico
 
 .rc.o : 
 	$(WX_RESCOMP) -I . '$<' '$@'
