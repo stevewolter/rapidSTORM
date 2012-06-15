@@ -26,7 +26,7 @@ if REMOTE_TESTING
     AM_RUNTESTFLAGS += --target_board $(TELNET_HOST)
 endif
 
-EXTRA_DIST = windows_resources.rc dStorm/windows_resources.rc \
+EXTRA_DIST = windows_resources.rc \
     Doxyfile.in gaussian_psf/make_psf.sh \
     dstorm-config.txt license_note_for_user \
     dstorm.input/dual-view.exp dstorm.input/01-txt-replay.exp \
