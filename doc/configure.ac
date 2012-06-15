@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM], [3.0.3], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM], [3.0.4], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([ac-aux])
 
