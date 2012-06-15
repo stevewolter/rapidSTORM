@@ -789,8 +789,10 @@ rapidstorm_SOURCES += \
     simparm/wx_ui/no_main_window.h simparm/wx_ui/no_main_window.cpp \
     simparm/wx_ui/ProtocolNode.h simparm/wx_ui/ProtocolNode.cpp \
     simparm/wx_ui/MainConfig.h simparm/wx_ui/MainConfig.cpp \
-    simparm/wx_ui/stock-hchain-24-broken.xpm \
-    simparm/wx_ui/stock-hchain-24.xpm
+    simparm/wx_ui/stock-hchain-24-broken.xpm simparm/wx_ui/stock-hchain-24.xpm \
+    simparm/wx_ui/Microscope_16.xpm simparm/wx_ui/Microscope_24.xpm \
+    simparm/wx_ui/Microscope_32.xpm simparm/wx_ui/Microscope_48.xpm \
+    simparm/wx_ui/Microscope_64.xpm
 
 rapidstorm_SOURCES += \
     simparm/cmdline_ui/ChoiceNode.h simparm/cmdline_ui/EntryNode.h \

@@ -15,9 +15,9 @@ if { [info exists env(RUN_PERFORMANCE_TESTS)] == 1 } {
     send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set OutputSigmas value set false\n"
     send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set TwoKernelFitting value set false\n"
     send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set true\n"
-    send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme value set ByCoordinate\n"
-    send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set ImageNumber\n"
-    send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.666\n"
+    send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme value set ByCoordinate\n"
+    send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set ImageNumber\n"
+    send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.666\n"
     set_last_image 1000
     dstorm_attach
     send "in Car set Run value set 1\n"

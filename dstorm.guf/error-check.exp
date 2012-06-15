@@ -15,12 +15,12 @@ send "in Car in Input in Optics in InputLayer0 set Transmission1 value set 0.0\n
 send "in Car in Input in Optics in InputLayer1 set Transmission0 value set 0.0\n"
 send "in Car in Input in Optics in InputLayer1 in Alignment in value set AffineProjection\n"
 send "in Car in Input in Optics in InputLayer1 in Alignment in AffineProjection in AlignmentFile value set ${testcase_target}MATRIX_COS7_tetraspecksk6_ex488_256_1\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme value set ByCoordinate\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set Fluorophore\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.5\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme value set ByCoordinate\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueCoordinate value set Fluorophore\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set ColourScheme in ByCoordinate set HueRange value set 0.5\n"
 
 dstorm_attach
 

@@ -15,10 +15,10 @@ send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set TwoKernel
 send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiPosition value set true\n"
 send "in Car set Engine in rapidSTORM set SpotFittingMethod in GUF set LaempiAmplitudes value set true\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set FitPSFForm\n"
-send "in Car in Output in EngineOutput in Output4 in FitPSFForm in MultiPlane in FitPrefactors in value set false\n"
+send "in Car in Output in EngineOutput in Output3 in FitPSFForm in MultiPlane in FitPrefactors in value set false\n"
 send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 500.0\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set HistogramPower value set 0.8\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image set SaveWithKey value set false\n"
 
 dstorm_attach
 send "in Car set Run value set 1\n"
@@ -41,7 +41,7 @@ pass_if [string compare $new_window -1] "$test"
 set test "Computation is done after closing again"
 send "in DummyDisplayManagerConfig in $new_window in Close in value set 1\n"
 expect {
-    -re "in $job in Output4 declare Set\r*\nname Optics" { pass "$test"; }
+    -re "in $job in Output3 declare Set\r*\nname Optics" { pass "$test"; }
     -re "PSF estimation failed: " { fail "$test"; }
     -re "The parameter covariance matrix in PSF estimation is singular" { fail "$test"; }
 }

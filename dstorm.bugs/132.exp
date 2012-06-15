@@ -15,11 +15,11 @@ set job [get_job_number]
 set test "Bug #132 is fixed"
 expect {
     -re "in Progress in value set 0.02" { 
-        send "cmd 132 in $job in Output3 in Output0 set LinearDriftCorrection value set 10.0,-10.0,0.0\n"; 
+        send "cmd 132 in $job in Output2 in Output0 set LinearDriftCorrection value set 10.0,-10.0,0.0\n"; 
         exp_continue;
     }
     -re "in Progress in value set 0.06" { 
-        send "cmd 132 in $job in Output3 in Output0 set LinearDriftCorrection value unset\n";
+        send "cmd 132 in $job in Output2 in Output0 set LinearDriftCorrection value unset\n";
         exp_continue;
     }
     -re "in Progress in value set 1" { pass "$test"; }

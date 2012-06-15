@@ -14,9 +14,9 @@ send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in Wide
 send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 95,95\n"
 send "in Car in Input in OutputBasename in Basename in value set $tmpdir_target$input_file\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in XDimension in PositionX in XResolution in value set 100\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in YDimension in PositionY in YResolution in value set 100\n"
-send "in Car in Output in EngineOutput in Output4 in Count in RemoveOutput in value set 1\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in XDimension in PositionX in XResolution in value set 100\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in DimensionSelector in YDimension in PositionY in YResolution in value set 100\n"
+send "in Car in Output in EngineOutput in Output3 in Count in RemoveOutput in value set 1\n"
 
 if { $have_test_plugin } {
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Verbose\n"

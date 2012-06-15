@@ -7,9 +7,9 @@ set timeout 10
 
 set_input_file "${workspace_target}Mikrotubuli.sif"
 send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}188\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in ShowOutput in value set false\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in SaveWithKey in value set false\n"
-send "in Car in Output in EngineOutput in Output3 in Cache in Output0 in Expression in Output0 in Image in SaveScaleBar in value set false\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in ShowOutput in value set false\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in SaveWithKey in value set false\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in SaveScaleBar in value set false\n"
 
 
 send "in Car in Run in value set 1\n"
@@ -23,7 +23,7 @@ expect {
 
 set test "Job can be stopped early"
 send "in $job in StopComputation in value set 1\n"
-send "cmd 5 in $job in Output3 in Output0 in Output0 in SaveImage in value set 1\n"
+send "cmd 5 in $job in Output2 in Output0 in Output0 in SaveImage in value set 1\n"
 expect {
     -re "ack 5" { pass "$test"; }
 }

@@ -14,7 +14,7 @@ send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in 
 set test "Fall c) Punkt 3"
 set_input_file "$tmpdir_target$input_file"
 set test "Fall c) Punkt 4"
-send "in Car in Output in EngineOutput in Output0 in Table in ToFile in value set ${tmpdir_target}Mikrotubuli2.txt\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output1 in Table in ToFile in value set ${tmpdir_target}Mikrotubuli2.txt\n"
 set test "Fall c) Punkt 5"
 send "in Car in Run in value set 1\n"
 
