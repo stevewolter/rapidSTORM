@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT([rapidSTORM], [3.0.4], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
+AC_INIT([rapidSTORM], [3.1.0], [Steve Wolter <rapidstorm@swolter.sdf1.org>])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([.])
 
@@ -41,6 +41,8 @@ AM_PROG_CC_C_O
 
 # Check libtool with modified compiler
 AC_PROG_LIBTOOL
+
+AM_CONDITIONAL([IS_AMD64_BUILD], [test "$host_cpu" = "x86_64"])
 
 PKG_CHECK_MODULES([base], [cs_units eigen3 any_iterator])
 CPPFLAGS="$CPPFLAGS $base_CFLAGS"

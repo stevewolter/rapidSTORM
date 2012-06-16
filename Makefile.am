@@ -110,7 +110,7 @@ else
 endif
 EXTRA_DIST += Microscope.ico
 
-ifeq ($(host_cpu),x86_64)
+if IS_AMD64_BUILD
     # The wxWidgets CPU definition for 64 bit is buggy, breaking the manifest
     # file selection code and subsequently producing unstartable executables.
     # We fix it by defining the symbol that *should* have been defined in the

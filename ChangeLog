@@ -1,3 +1,9 @@
+== 3.1.0 ==
+
+* Fixed wxWidgets manifest selection for Win64 that broke Win64 builds
+* Removed forgotten debug output
+* Deleted obsolete windows resource for libdstorm
+
 == 3.0.4 ==
 
 == 3.0.3 ==
