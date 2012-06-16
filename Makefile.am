@@ -110,8 +110,18 @@ else
 endif
 EXTRA_DIST += Microscope.ico
 
+ifeq ($(host_cpu),x86_64)
+    # The wxWidgets CPU definition for 64 bit is buggy, breaking the manifest
+    # file selection code and subsequently producing unstartable executables.
+    # We fix it by defining the symbol that *should* have been defined in the
+    # selection code.
+    CPU_DEF = -DWX_CPU_AMD64=1
+else
+    CPU_DEF =
+endif
+
 .rc.o : 
-	$(WX_RESCOMP) -I . '$<' '$@'
+	$(WX_RESCOMP) $(CPU_DEF) -I . '$<' '$@'
 
 rapidstorm_SOURCES = \
     installation-directory.h \
