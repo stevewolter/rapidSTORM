@@ -25,9 +25,10 @@
 using namespace dStorm;
 using namespace std;
 
+static char english_env[] = "LC_ALL=C";
+
 void start_imagemagick( const char* name ) {
 #ifdef USE_GRAPHICSMAGICK
-    char english_env[] = { "LC_ALL=C" };
     /* Magick cannot save images in the de_DE locale. */
     putenv(english_env);
     Magick::InitializeMagick(name);
