@@ -12,15 +12,17 @@ namespace wx_ui {
 class ScrolledWindow : public wxScrolledWindow {
     bool needs_fit_inside;
     boost::shared_ptr< dStorm::shell::JobFactory > config;
+    boost::shared_ptr< dStorm::Job > job;
 public:
     ScrolledWindow( wxWindow* parent )
         : wxScrolledWindow( parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL ),
           needs_fit_inside(false) {}
-    bool Destroy() { config.reset(); return true; }
+    bool Destroy() { config.reset(); if ( job ) { job->stop(); job.reset(); } return true; }
     void mark_fit_inside();
     void do_fit_inside();
-    void set_main_config( boost::shared_ptr< dStorm::shell::JobFactory > m ) { config = m; }
-    void serialize( std::string filename ) { config->serialize( filename ); }
+    void set_main_config( boost::shared_ptr< dStorm::shell::JobFactory > m ) { config = m; job.reset(); }
+    void set_job( boost::shared_ptr< dStorm::Job > m ) { config.reset(); job = m; }
+    void serialize( std::string filename ) { if ( config ) config->serialize( filename ); }
 };
 
 class ScrolledWindowNode : public WindowNode {
@@ -31,6 +33,7 @@ public:
         : WindowNode(n, name) {}
     boost::function0<void> get_relayout_function() ;
     void set_config( boost::shared_ptr< dStorm::shell::JobFactory > );
+    void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> );
 };
 
 }

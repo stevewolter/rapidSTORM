@@ -3,6 +3,7 @@
 #include "JobStarter.h"
 #include "job/Car.h"
 #include <simparm/Message.h>
+#include <simparm/Node.h>
 #include <dStorm/GUIThread.h>
 
 namespace dStorm {
@@ -36,8 +37,9 @@ void JobStarter::start_job() {
         try {
             DEBUG("Creating job");
             boost::shared_ptr< Job > car( config.make_job() );
-            car->attach_ui( attachment_point );
+            simparm::NodeHandle ui = car->attach_ui( attachment_point );
             GUIThread::get_singleton().register_job( *car );
+            ui->stop_job_on_ui_detachment( car );
             boost::thread job_thread( &JobStarter::run_job, car );
             job_thread.detach();
             DEBUG("Job moved to background");

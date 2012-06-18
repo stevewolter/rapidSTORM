@@ -8,6 +8,7 @@
 #include "UserLevel.h"
 
 namespace dStorm { namespace display { class WindowProperties; class DataSource; class WindowHandle; } }
+namespace dStorm { class Job; }
 
 namespace simparm {
 
@@ -24,6 +25,7 @@ struct Node {
     virtual NodeHandle create_trigger( std::string name ) = 0;
     virtual NodeHandle create_tree_root() = 0;
     virtual NodeHandle create_tree_object( std::string name ) = 0;
+    virtual NodeHandle create_job_node( std::string name ) { return create_group( name ); }
     virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& ) = 0;
 
@@ -38,6 +40,8 @@ struct Node {
     virtual void set_help_id( std::string ) = 0;
     virtual void set_help( std::string ) = 0;
     virtual void set_editability( bool ) = 0;
+
+    virtual void stop_job_on_ui_detachment( boost::shared_ptr<dStorm::Job> ) {}
 };
 
 }

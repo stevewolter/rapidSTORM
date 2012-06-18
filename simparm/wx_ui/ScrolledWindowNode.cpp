@@ -51,5 +51,10 @@ void ScrolledWindowNode::set_config( boost::shared_ptr< dStorm::shell::JobFactor
         bl::bind( &ScrolledWindow::set_main_config, *bl::constant(scrolled_window), m ) );
 }
 
+void ScrolledWindowNode::stop_job_on_ui_detachment( boost::shared_ptr< dStorm::Job > m ) {
+    run_in_GUI_thread(
+        bl::bind( &ScrolledWindow::set_job, *bl::constant(scrolled_window), m ) );
+}
+
 }
 }
