@@ -1,0 +1,34 @@
+begin_test_suite
+load_default_config
+
+set_input_file "${testcase_target}3D-von-Thorge-20120202-3.tif"
+set_last_image 100
+
+send "in Car in Input in OutputBasename set Basename value set ${tmpdir_target}206\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in GUF in FitWindowSize value set 1100.0\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in GUF in MaximumIterationSteps value set 100.0\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in GUF in FreeSigmaFitting value set true\n"
+send "in Car in Engine in rapidSTORM in SpotFittingMethod in GUF in OutputSigmas value set true\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in ExpressionCount in value set 4\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine0 in LValue value set posz\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine0 in Expression value set 10 nm/fr * frame\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine1 in LValue value set psffwhmx\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine1 in Expression value set -25nm\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine2 in LValue value set psffwhmy\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in CommandLine2 in Expression value set -25nm\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in ChooseTransmission value set SigmaCurve\n"
+send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output2 in SigmaCurve in StepNumber value set 10\n"
+
+dstorm_attach
+
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+
+set test "#206 implementation throws correct error"
+expect {
+    -re "message set No valid points for sigma curve generation\r*\nseverity set Error" { pass "$test"; }
+    -re "remove $job" { fail "$test"; }
+    -re "in $job in " { exp_continue; }
+}
+
+end_test_suite
