@@ -1,3 +1,5 @@
+#define VERBOSE
+#include "debug.h"
 #include "alignment_fitter.h"
 #include <dStorm/Job.h>
 
@@ -15,38 +17,69 @@
 #include <simparm/Group.h>
 #include <simparm/TriggerEntry.h>
 
+#include <nonlinfit/Evaluation.h>
+#include <nonlinfit/levmar/Fitter.hpp>
+#include <nonlinfit/terminators/StepLimit.h>
+
 typedef std::list<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> > PositionList;
 typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
-ImageMap images;
 
 struct parameters {
     double sigma;
 };
 
-double badness (const gsl_vector * x, void * params) {
-    Eigen::Matrix2f rotation = Eigen::Matrix2f::Identity();
-    Eigen::Vector2f translation = Eigen::Vector2f::Zero();
-    if ( x->size >= 2 ) 
-        for (int r = 0; r < 2; ++r)
-            translation[r] = gsl_vector_get(x, r);
-    if ( x->size >= 4 )
-        for (int r = 0; r < 2; ++r)
-            rotation(r,r) = gsl_vector_get(x, 2+r);
-    if ( x->size >= 6 )
-        for (int r = 0; r < 2; ++r)
-            rotation(r,1-r) = gsl_vector_get(x, 4+r);
+class FitBadness 
+{
+    Eigen::Matrix2f rotation;
+    Eigen::Vector2f translation;
+    const ImageMap& images;
+    double sigma;
 
-    double score = 0;
-    for ( ImageMap::const_iterator i = images.begin(); i != images.end(); ++i ) {
-        for ( PositionList::const_iterator b = i->second[1].begin(); b != i->second[1].end(); ++b ) {
-            Eigen::Vector2f t = rotation * *b + translation;
-            for ( PositionList::const_iterator a = i->second[0].begin(); a != i->second[0].end(); ++a ) {
-                score += - exp( - (*a-t).squaredNorm() / static_cast<parameters*>(params)->sigma );
+public:
+    FitBadness( const ImageMap& images, double sigma )
+        : rotation( Eigen::Matrix2f::Identity() ), translation( Eigen::Vector2f::Zero() ), images(images), sigma(sigma) {}
+
+    typedef nonlinfit::Evaluation< float, 6 > Result;
+    typedef Result::Vector Position;
+    typedef Result Derivatives;
+
+    int variable_count() const { return 6; }
+
+    bool evaluate( Result& r ) {
+        r.set_zero();
+
+        for ( ImageMap::const_iterator i = images.begin(); i != images.end(); ++i ) {
+            for ( PositionList::const_iterator b = i->second[1].begin(); b != i->second[1].end(); ++b ) {
+                Eigen::Vector2f t = rotation * *b + translation;
+                for ( PositionList::const_iterator a = i->second[0].begin(); a != i->second[0].end(); ++a ) {
+                    Eigen::Vector2f diff = *a-t;
+                    Eigen::Matrix<float,1,6> jacobi_row;
+                    jacobi_row.head<2>() = *b * diff.x(); 
+                    jacobi_row.segment<2>(2) = *b * diff.y(); 
+                    jacobi_row.tail<2>() = diff;
+                    float v = - exp( - diff.squaredNorm() / sigma );
+                    jacobi_row *= v / sigma * 2;
+                    r.value += v;
+                    r.gradient += jacobi_row;
+                    r.hessian += jacobi_row.transpose() * jacobi_row;
+                }
             }
         }
+        
+        return true;
     }
-    return score;
-}
+
+    void get_position( Result::Vector& v ) const {
+        v.head<2>() = rotation.row(0);
+        v.segment<2>(2) = rotation.row(1);
+        v.tail<2>() = translation;
+    }
+    void set_position( const Result::Vector& v ) {
+        rotation.row(0) = v.head<2>();
+        rotation.row(1) = v.segment<2>(2);
+        translation = v.tail<2>();
+    }
+};
 
 class AlignmentFitter
 {
@@ -173,7 +206,11 @@ simparm::NodeHandle AlignmentFitterJob::attach_ui( simparm::NodeHandle at ) {
 }
 
 void AlignmentFitterJob::run() {
+    FitBadness::Result::Vector start_position;
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
+    for (int i = 0; i < 6; ++i)
+        start_position[i] = entries[i]->value();
+    ImageMap images;
 
     try {
         dStorm::input::Traits<dStorm::localization::Record> context;
@@ -191,37 +228,16 @@ void AlignmentFitterJob::run() {
                             boost::units::value( l->position() ).head<2>() * 1E6 ); }
             }
 
-        parameters params;
-        params.sigma = sigma();
+        FitBadness badness( images, sigma() );
+        badness.set_position( start_position );
+        nonlinfit::levmar::Config config;
+        nonlinfit::levmar::Fitter fitter(config);
+        fitter.fit( badness, badness, nonlinfit::terminators::StepLimit(100) );
 
-        cur_step = 0;
-        cur_volume = 1;
-        cur_step.show();
-        cur_volume.show();
-        for (int pc = (pre_fit()) ? 2 : 6; pc <= 6; pc += 2) {
-            cur_step = pc/2;
-            gsl_vector* x = gsl_vector_alloc(pc), *first_step = gsl_vector_alloc(pc);
-            gsl_multimin_fminimizer* m = gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, pc);
-            gsl_multimin_function function;
-            function.f = &badness;
-            function.n = pc;
-            function.params = &params;
-
-            for (int i = 0; i < pc; ++i) {
-                gsl_vector_set(x, i, (*entries[i])());
-                gsl_vector_set(first_step, i, (i < 2) ? 1 : 1E-3 );
-            }
-            gsl_multimin_fminimizer_set(m, &function, x, first_step);
-
-            while ( gsl_multimin_fminimizer_iterate(m) == GSL_SUCCESS )  {
-                if ( gsl_multimin_fminimizer_size(m) < target_volume() ) break;
-                if ( ! continue_running ) return;
-                cur_volume = gsl_multimin_fminimizer_size(m);
-            }
-            for (int i = 0; i < pc; ++i) *entries[i] = gsl_vector_get(gsl_multimin_fminimizer_x(m), i);
-        }
-        cur_step.hide();
-        cur_volume.hide();
+        FitBadness::Result::Vector final_position;
+        badness.get_position( final_position );
+        for (int i = 0; i < 6; ++i)
+            entries[i]->value = final_position[i];
 
         if ( output ) {
             output.get_output_stream() << scale_x() << " " << shear_x() << " " << shift_x() * 1E-6 << "\n" 
@@ -238,6 +254,40 @@ void AlignmentFitterJob::run() {
     while ( continue_running )
         can_stop_running.wait(l);
 }
+
+void check_fit_badness_derivatives() {
+    ImageMap images;
+    images[ 0 ][ 0 ].push_back( Eigen::Vector2f::Constant( 2 ) + Eigen::Vector2f::UnitX() );
+    images[ 0 ][ 1 ].push_back( Eigen::Vector2f::Constant( 4 ) + Eigen::Vector2f::UnitY() );
+    FitBadness badness( images, 25 );
+    FitBadness::Result::Vector orig;
+    FitBadness::Result exact;
+    const double delta = 1E-4;
+
+    for (int i = 0; i < 6; ++i)
+        orig[i] = 1.0 + (i-3) * 0.05;
+
+    badness.set_position( orig );
+    badness.evaluate( exact );
+
+    for (int i = 0; i < 6; ++i) {
+        FitBadness::Result::Vector shifted = orig;
+        FitBadness::Result shifted_result;
+        shifted[i] += delta;
+        badness.set_position( shifted );
+        badness.evaluate( shifted_result );
+
+        double epsilon = shifted_result.value - exact.value;
+        BOOST_CHECK_CLOSE( epsilon / delta, exact.gradient[i], 1 );
+    }
+}
+
+boost::unit_test::test_suite* register_alignment_fitter_unit_tests() {
+    boost::unit_test::test_suite* rv = BOOST_TEST_SUITE( "alignment_fitter" );
+    rv->add( BOOST_TEST_CASE( &check_fit_badness_derivatives ) );
+    return rv;
+}
+
 
 std::auto_ptr< dStorm::JobConfig > make_alignment_fitter_config() {
     return std::auto_ptr< dStorm::JobConfig >( new AlignmentFitterConfig() );

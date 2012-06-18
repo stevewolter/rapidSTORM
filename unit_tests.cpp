@@ -16,6 +16,7 @@
 #include "nonlinfit/unit_test.h"
 #include "simparm/text_stream/unit_tests.h"
 #include "simparm/unit_tests.h"
+#include "alignment_fitter.h"
 
 void pixel_unit_test(TestState& state);
 
@@ -49,6 +50,8 @@ bool init_unit_test() {
         add( simparm::text_stream::make_unit_tests() );
     boost::unit_test::framework::master_test_suite().
         add( simparm::test_unit_tests() );
+    boost::unit_test::framework::master_test_suite().
+        add( register_alignment_fitter_unit_tests() );
 
     return true;
 }
