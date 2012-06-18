@@ -10,12 +10,12 @@ namespace text_stream {
 class Launcher
 {
     simparm::TriggerEntry trigger;
-    dStorm::job::Config &config;
+    const dStorm::JobConfig &config;
     simparm::BaseAttribute::ConnectionStore listening;
     void run_twiddler();
     bool wxWidgets;
   public:
-    Launcher(dStorm::job::Config&, bool wxWidgets);
+    Launcher(const dStorm::JobConfig&, bool wxWidgets);
     ~Launcher();
     void attach_ui( simparm::NodeHandle );
     void launch() { run_twiddler(); }

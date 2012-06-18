@@ -37,7 +37,7 @@ class Config : public dStorm::Config
     void create_input( std::auto_ptr<input::Link> );
     void attach_children_ui( simparm::NodeHandle at );
 
-  public:
+public:
     Config();
     Config(const Config &c);
     ~Config();
@@ -64,7 +64,6 @@ class Config : public dStorm::Config
     const input::MetaInfo& get_meta_info() const;
     std::auto_ptr<input::BaseSource> makeSource() const;
 
-    void all_modules_loaded();
     std::auto_ptr< Job > make_job();
 };
 

@@ -1,0 +1,36 @@
+begin_test_suite
+
+send "alignment_fitter\n"
+send "in AlignmentFitter in File1 in value set ${testcase_target}X5365_Alexa700_8_1sb_256_2.txt\n"
+send "in AlignmentFitter in File2 in value set ${testcase_target}X6069_Alexa700_8_1sb_256_2.txt\n"
+send "in AlignmentFitter in OutputFile in value set ${tmpdir_target}alignment.txt\n"
+
+dstorm_attach
+
+send "in AlignmentFitter in Run in value set 1\n"
+
+set job ""
+set test "Job is declared"
+expect {
+    -re "declare \[a-zA-Z0-9\]*\r*\nname (AlignmentFitter\[0-9\]*)\r*\n" 
+        { set job $expect_out(1,string); pass "$test"; }
+}
+
+set test "Reduction of volume is displayed"
+expect {
+    -re "in $job in CurrentVolume in value set 0.00" { pass "$test"; }
+}
+
+set test "Job finishes"
+expect {
+    -re "in $job in CurrentVolume in viewable set false" { pass "$test"; }
+}
+
+sleep 1
+set test "Job can be closed"
+send "in $job in CloseJob in value set 1\n"
+expect {
+    -re "remove $job" { pass "$test"; }
+}
+
+end_test_suite

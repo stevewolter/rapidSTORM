@@ -3,8 +3,13 @@
 
 #include <dStorm/localization_file/reader.h>
 #include <boost/variant/get.hpp>
+
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition.hpp>
+
 #include <gsl/gsl_multimin.h>
 #include <boost/units/Eigen/Array>
+#include <boost/lexical_cast.hpp>
 #include <iomanip>
 #include <simparm/text_stream/RootNode.h>
 #include <simparm/Group.h>
@@ -44,37 +49,62 @@ double badness (const gsl_vector * x, void * params) {
 }
 
 class AlignmentFitter
-: public dStorm::JobConfig, public dStorm::Job 
 {
-    simparm::Object name_object;
+protected:
     simparm::FileEntry file1, file2, output;
-    simparm::Entry<double> sigma, shift_x,
-                         shift_y,
-                         scale_x,
-                         scale_y,
-                         shear_x,
-                         shear_y,
-                         target_volume,
-                         cur_step,
-                         cur_volume;
+    simparm::Entry<double> sigma, shift_x, shift_y,
+         scale_x, scale_y, shear_x, shear_y, target_volume;
     simparm::Entry<bool> pre_fit;
     simparm::Entry<long> image_count;
 
-    bool continue_running;
 public:
     AlignmentFitter();
     AlignmentFitter* clone() const { return new AlignmentFitter(*this); }
     simparm::NodeHandle attach_ui( simparm::NodeHandle );
-    void attach_children_ui( simparm::NodeHandle );
-
-    void run();
-    void stop() { continue_running = true; }
-    std::auto_ptr<dStorm::Job> make_job() { return std::auto_ptr<dStorm::Job>( new AlignmentFitter(*this) ); }
 };
 
+class AlignmentFitterConfig
+: public dStorm::JobConfig, private AlignmentFitter
+{
+    simparm::Object name_object;
+public:
+    AlignmentFitterConfig();
+    AlignmentFitterConfig* clone() const { return new AlignmentFitterConfig(*this); }
+    simparm::NodeHandle attach_ui( simparm::NodeHandle );
+    void attach_children_ui( simparm::NodeHandle );
+
+    std::auto_ptr<dStorm::Job> make_job();
+};
+
+class AlignmentFitterJob 
+: public dStorm::Job, private AlignmentFitter {
+    static int ident;
+    simparm::Object name_object;
+    simparm::Entry<double> cur_step, cur_volume;
+    simparm::TriggerEntry close;
+    simparm::BaseAttribute::ConnectionStore listening;
+
+    boost::mutex running_mutex;
+    boost::condition can_stop_running;
+    bool continue_running;
+
+    void close_trigger() {
+        if ( close.triggered() ) { close.untrigger(); stop(); }
+    }
+
+public:
+    AlignmentFitterJob( const AlignmentFitter& );
+    void run();
+    void stop() { continue_running = false; can_stop_running.notify_all(); }
+    simparm::NodeHandle attach_ui( simparm::NodeHandle );
+};
+
+int AlignmentFitterJob::ident = 1;
+
+std::auto_ptr<dStorm::Job> AlignmentFitterConfig::make_job() { return std::auto_ptr<dStorm::Job>( new AlignmentFitterJob(*this) ); }
+
 AlignmentFitter::AlignmentFitter()
-: name_object("AlignmentFitter", "Fit alignment"),
-  file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file"),
+: file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file"),
   sigma("Sigma", "Sigma", 1), 
   shift_x("ShiftX", "Shift X in mum"),
   shift_y("ShiftY", "Shift Y in mum"),
@@ -83,20 +113,36 @@ AlignmentFitter::AlignmentFitter()
   shear_x("ShearX", "Shear factor in X", 0),
   shear_y("ShearY", "Shear factor Y", 0),
   target_volume("TargetVolume", "Target estimation volume", 1E-3),
-  cur_step("CurrentStep", "Estimation step"),
-  cur_volume("CurrentVolume", "Current estimation volume"),
   pre_fit("PreFit", "Pre-fit with simpler models", true),
-  image_count("ImageCount", "Number of images to use", 100),
-  continue_running(true)
+  image_count("ImageCount", "Number of images to use", 100)
 {}
 
-simparm::NodeHandle AlignmentFitter::attach_ui( simparm::NodeHandle at ) {
+AlignmentFitterConfig::AlignmentFitterConfig()
+: name_object("AlignmentFitter", "Fit alignment") {}
+
+AlignmentFitterJob::AlignmentFitterJob( const AlignmentFitter& a )
+: AlignmentFitter(a),
+  name_object("AlignmentFitter" + boost::lexical_cast<std::string>(ident),
+              "Alignment fitting " + boost::lexical_cast<std::string>(ident)),
+  cur_step("CurrentStep", "Estimation step"),
+  cur_volume("CurrentVolume", "Current estimation volume"),
+  close("CloseJob", "Close job"),
+  continue_running(true)
+{
+    ++ident;
+}
+
+simparm::NodeHandle AlignmentFitterConfig::attach_ui( simparm::NodeHandle at ) {
     simparm::NodeHandle r = name_object.attach_ui(at);
     attach_children_ui( r );
     return r;
 }
 
-void AlignmentFitter::attach_children_ui( simparm::NodeHandle r ) {
+void AlignmentFitterConfig::attach_children_ui( simparm::NodeHandle at ) {
+    AlignmentFitter::attach_ui(at);
+}
+
+simparm::NodeHandle AlignmentFitter::attach_ui( simparm::NodeHandle r ) {
     file1.attach_ui( r );
     file2.attach_ui( r );
     output.attach_ui( r );
@@ -110,15 +156,23 @@ void AlignmentFitter::attach_children_ui( simparm::NodeHandle r ) {
     pre_fit.attach_ui( r );
     target_volume.attach_ui( r );
     image_count.attach_ui( r );
-    cur_step.attach_ui( r );
-    cur_volume.attach_ui( r );
-    cur_step.freeze();
-    cur_step.hide();
-    cur_volume.freeze();
-    cur_volume.hide();
+    return r;
 }
 
-void AlignmentFitter::run() {
+simparm::NodeHandle AlignmentFitterJob::attach_ui( simparm::NodeHandle at ) {
+    simparm::NodeHandle r = name_object.attach_ui(at);
+    AlignmentFitter::attach_ui(r);
+    cur_step.attach_ui( r );
+    cur_volume.attach_ui( r );
+    close.attach_ui( r );
+
+    listening = close.value.notify_on_value_change(
+        boost::bind( &AlignmentFitterJob::close_trigger, this ) );
+
+    return r;
+}
+
+void AlignmentFitterJob::run() {
     simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
 
     try {
@@ -161,7 +215,7 @@ void AlignmentFitter::run() {
 
             while ( gsl_multimin_fminimizer_iterate(m) == GSL_SUCCESS )  {
                 if ( gsl_multimin_fminimizer_size(m) < target_volume() ) break;
-                if ( continue_running ) return;
+                if ( ! continue_running ) return;
                 cur_volume = gsl_multimin_fminimizer_size(m);
             }
             for (int i = 0; i < pc; ++i) *entries[i] = gsl_vector_get(gsl_multimin_fminimizer_x(m), i);
@@ -175,11 +229,16 @@ void AlignmentFitter::run() {
                                             << "0 0 1\n";
             output.close_output_stream();
         }
+
     } catch (const std::runtime_error& e) {
         std::cerr << e.what() << std::endl;
     }
+
+    boost::mutex::scoped_lock l( running_mutex );
+    while ( continue_running )
+        can_stop_running.wait(l);
 }
 
 std::auto_ptr< dStorm::JobConfig > make_alignment_fitter_config() {
-    return std::auto_ptr< dStorm::JobConfig >( new AlignmentFitter() );
+    return std::auto_ptr< dStorm::JobConfig >( new AlignmentFitterConfig() );
 }

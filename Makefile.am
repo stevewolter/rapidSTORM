@@ -71,6 +71,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
     dstorm.andorcam/infinite-acquisition.exp \
     dstorm.andorcam/no-installed-cameras.exp \
+    dstorm.test/alignment-fitter.exp \
     dstorm.test/sif-computation.exp \
     dstorm.test/output_exception.exp \
     dstorm.test/sif-shortjob.exp dstorm.test/autoname.exp \
@@ -330,7 +331,8 @@ rapidstorm_SOURCES += dstorm.cpp installation-directory.h \
 rapidstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
-    JobStarter.h JobStarter.cpp \
+    shell/JobStarter.h shell/JobStarter.cpp \
+    shell/Shell.h shell/Shell.cpp \
     InputStream.h InputStream.cpp \
     dStorm/GUIThread.h dStorm/GUIThread.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
@@ -799,7 +801,6 @@ rapidstorm_SOURCES += \
     simparm/wx_ui/gui_thread.h simparm/wx_ui/gui_thread.cpp \
     simparm/wx_ui/no_main_window.h simparm/wx_ui/no_main_window.cpp \
     simparm/wx_ui/ProtocolNode.h simparm/wx_ui/ProtocolNode.cpp \
-    simparm/wx_ui/MainConfig.h simparm/wx_ui/MainConfig.cpp \
     simparm/wx_ui/stock-hchain-24-broken.xpm simparm/wx_ui/stock-hchain-24.xpm \
     simparm/wx_ui/Microscope_16.xpm simparm/wx_ui/Microscope_24.xpm \
     simparm/wx_ui/Microscope_32.xpm simparm/wx_ui/Microscope_48.xpm \

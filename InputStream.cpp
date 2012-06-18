@@ -7,6 +7,7 @@
 #include "ModuleLoader.h"
 #include "test-plugin/cpu_time.h"
 #include "dStorm/GUIThread.h"
+#include "alignment_fitter.h"
 
 #include <simparm/text_stream/BackendRoot.h>
 #include <ui/serialization/serialize.h>
@@ -23,7 +24,8 @@ public:
 
 InputStream::InputStream( const JobConfig& config, bool wxWidgets )
 : simparm::text_stream::Node("IO", "IO"),
-  orig_config( config.clone() ),
+  rapidstorm( std::auto_ptr<JobConfig>(config.clone()) ),
+  alignment_fitter( make_alignment_fitter_config() ),
   root_backend( new Backend(*this, wxWidgets) )
 {
     GUIThread::get_singleton().register_unstopable_job();
@@ -50,8 +52,7 @@ void InputStream::processCommands() {
                       << e.what() << std::endl;
         }
     }
-    current_config.reset();
-    starter.reset();
+    configs.clear();
 }
 
 InputStream::~InputStream() {
@@ -59,12 +60,12 @@ InputStream::~InputStream() {
 }
 
 void InputStream::reset_config() {
-    if ( orig_config.get() ) {
-        current_config.reset( orig_config->clone() );
-        simparm::NodeHandle job_ui = current_config->attach_ui( get_handle() );
-        starter.reset( new JobStarter( get_handle(), *current_config ) );
-        starter->attach_ui( job_ui );
-    }
+    configs.clear();
+    configs.push_back( rapidstorm.create_config( get_handle() ) );
+}
+
+void InputStream::create_alignment_fitter() {
+    configs.push_back( alignment_fitter.create_config( get_handle() ) );
 }
 
 void InputStream::Backend::process_command_(const std::string& cmd, std::istream& rest)
@@ -83,6 +84,8 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
             std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
         frontend.reset_config();
+    } else if ( cmd == "alignment_fitter" ) {
+        frontend.create_alignment_fitter();
     } else if ( cmd == "quit" ) {
         GUIThread::get_singleton().terminate_running_jobs();
         BackendRoot::process_command_(cmd,rest);
@@ -90,7 +93,7 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
         std::string target_file;
         while (rest.peek() == ' ' || rest.peek() == '\t') rest.get();
         std::getline( rest, target_file );
-        simparm::serialization_ui::serialize( *frontend.current_config, target_file );
+        frontend.configs.front().serialize( target_file );
     } else {
         BackendRoot::process_command_(cmd, rest);
     }

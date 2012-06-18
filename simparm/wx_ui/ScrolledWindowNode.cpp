@@ -46,9 +46,9 @@ boost::function0<void> ScrolledWindowNode::get_relayout_function() {
     ));
 }
 
-void ScrolledWindowNode::set_config( std::auto_ptr< MainConfig > m ) {
+void ScrolledWindowNode::set_config( boost::shared_ptr< dStorm::shell::JobFactory > m ) {
     run_in_GUI_thread(
-        bl::bind( &ScrolledWindow::set_main_config, *bl::constant(scrolled_window), m.release() ) );
+        bl::bind( &ScrolledWindow::set_main_config, *bl::constant(scrolled_window), m ) );
 }
 
 }

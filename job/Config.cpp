@@ -28,6 +28,7 @@
 #include "Car.h"
 #include "Config.h"
 #include "debug.h"
+#include "ModuleLoader.h"
 
 using namespace std;
 
@@ -139,7 +140,8 @@ Config::Config()
     pistonCount = 8;
 #endif
 
-   DEBUG("Made menu items");
+    add_modules( *this );
+    input->publish_meta_info();
 }
 
 Config::Config(const Config &c) 
@@ -224,10 +226,6 @@ void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
     if ( traits->provides<output::LocalizedImage>() ) 
         outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );
-}
-
-void Config::all_modules_loaded() {
-    input->publish_meta_info();
 }
 
 std::auto_ptr< Job > Config::make_job() {

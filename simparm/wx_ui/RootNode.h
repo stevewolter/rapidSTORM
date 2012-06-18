@@ -6,10 +6,10 @@
 #include <dStorm/Config.h>
 #include "WindowNode.h"
 #include "TabNode.h"
-#include "JobStarter.h"
 #include <fstream>
 #include <boost/filesystem/path.hpp>
-#include "MainConfig.h"
+#include "shell/JobFactory.h"
+#include "shell/JobMetaFactory.h"
 
 namespace simparm {
 namespace wx_ui {

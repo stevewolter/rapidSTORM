@@ -4,14 +4,14 @@
 #include <wx/scrolwin.h>
 #include "WindowNode.h"
 #include "GUIHandle.h"
-#include "MainConfig.h"
+#include "shell/JobFactory.h"
 
 namespace simparm {
 namespace wx_ui {
 
 class ScrolledWindow : public wxScrolledWindow {
     bool needs_fit_inside;
-    std::auto_ptr< MainConfig > config;
+    boost::shared_ptr< dStorm::shell::JobFactory > config;
 public:
     ScrolledWindow( wxWindow* parent )
         : wxScrolledWindow( parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL ),
@@ -19,7 +19,7 @@ public:
     bool Destroy() { config.reset(); return true; }
     void mark_fit_inside();
     void do_fit_inside();
-    void set_main_config( MainConfig* m ) { config.reset(m); }
+    void set_main_config( boost::shared_ptr< dStorm::shell::JobFactory > m ) { config = m; }
     void serialize( std::string filename ) { config->serialize( filename ); }
 };
 
@@ -30,7 +30,7 @@ public:
     ScrolledWindowNode( boost::shared_ptr<Node> n, std::string name ) 
         : WindowNode(n, name) {}
     boost::function0<void> get_relayout_function() ;
-    void set_config( std::auto_ptr< MainConfig > );
+    void set_config( boost::shared_ptr< dStorm::shell::JobFactory > );
 };
 
 }

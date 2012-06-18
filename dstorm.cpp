@@ -66,11 +66,8 @@ int main(int argc, char *argv[]) {
     start_imagemagick( argv[0] );
 
     try {
-        {
-            CommandLine cmd_line;
-            int success = cmd_line.parse( argc, argv );
-            if ( success != EXIT_SUCCESS ) return success;
-        }
+        int success = parse_command_line( argc, argv );
+        if ( success != EXIT_SUCCESS ) return success;
 
         GUIThread& main_thread = GUIThread::get_singleton();
         if ( main_thread.need_wx_widgets() ) {

@@ -5,7 +5,7 @@
 namespace simparm {
 namespace text_stream {
 
-Launcher::Launcher ( dStorm::job::Config& c, bool wxWidgets )
+Launcher::Launcher ( const dStorm::JobConfig& c, bool wxWidgets )
 : trigger( (wxWidgets) ? "TwiddlerControl" : "SimparmControl", 
                 "Read stdin/out for simparm control commands" + std::string( (wxWidgets) ? " and show image windows in wxWidgets GUI" : "") ),
   config(c),

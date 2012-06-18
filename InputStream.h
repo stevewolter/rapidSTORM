@@ -3,7 +3,8 @@
 
 #include <memory>
 #include <dStorm/Config_decl.h>
-#include "JobStarter.h"
+#include "shell/JobFactory.h"
+#include "shell/JobMetaFactory.h"
 #include <simparm/text_stream/Node.h>
 #include <dStorm/stack_realign.h>
 
@@ -14,11 +15,12 @@ class InputStream
 {
     class Backend;
 
-    std::auto_ptr< JobConfig > orig_config, current_config;
-    std::auto_ptr< JobStarter > starter;
+    shell::JobMetaFactory rapidstorm, alignment_fitter;
+    boost::ptr_vector< shell::JobFactory > configs;
     Backend* const root_backend;
 
     void reset_config();
+    void create_alignment_fitter();
     void processCommand( const std::string& cmd, std::istream& rest);
     InputStream( const JobConfig&, bool wxWidgets );
     bool received_quit_command();

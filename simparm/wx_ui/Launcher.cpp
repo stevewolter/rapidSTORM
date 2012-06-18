@@ -8,9 +8,9 @@ namespace simparm {
 namespace wx_ui {
 
 Launcher::Launcher
-    ( dStorm::job::Config& c )
+    ( const dStorm::JobConfig& c )
 : trigger("wxControl", "Show wxWidgets user interface"),
-  config(c)
+  rapidstorm_job(c)
 {
 }
 
@@ -32,7 +32,7 @@ void Launcher::was_triggered() {
 
 void Launcher::launch() {
     wxString tempFile = wxFileName::CreateTempFileName( wxT("rapidstorm-log") );
-    RootNode::create( config, std::string( tempFile.mb_str() ) );
+    RootNode::create( rapidstorm_job, std::string( tempFile.mb_str() ) );
 }
 
 }

@@ -89,7 +89,7 @@ class RootFrame
     boost::shared_ptr< Node > root_node;
     boost::shared_ptr< VisibilityControl > ul_control;
     wxBoxSizer *column;
-    std::auto_ptr< ConfigTemplate > make_dstorm, make_alignment_fitter;
+    std::auto_ptr< dStorm::shell::JobMetaFactory > make_dstorm, make_alignment_fitter;
     HelpResolver help;
     boost::shared_ptr< ScrolledTabNode > main_window;
 
@@ -130,20 +130,26 @@ class RootFrame
         int response = dialog.ShowModal();
         if ( response == wxID_OK ) {
             wxString file = dialog.GetPath();
-            make_dstorm->create_config( std::string(file.mb_str()) ).release();
+            manage_in_window( make_dstorm->create_config( std::string(file.mb_str()), main_window ) );
         }
     }
 
     void make_rapidstorm_minimal(wxCommandEvent&) { 
-        MainConfig::ui_managed( make_dstorm->create_config() );
+        manage_in_window( make_dstorm->create_config(main_window) );
     }
 
     void make_alignment_minimal(wxCommandEvent&) { 
-        MainConfig::ui_managed( make_alignment_fitter->create_config() );
+        manage_in_window( make_alignment_fitter->create_config(main_window) );
     }
 
     void make_rapidstorm_default(wxCommandEvent&) { 
-        MainConfig::ui_managed( make_dstorm->create_config( dStorm::initialization_file().string() ) );
+        manage_in_window( make_dstorm->create_config( dStorm::initialization_file().string(), main_window ) );
+    }
+
+    void manage_in_window( std::auto_ptr< dStorm::shell::JobFactory > p ) {
+        ScrolledWindowNode* sw = dynamic_cast< ScrolledWindowNode* >( p->config_user_interface_handle().get() );
+        assert( sw );
+        sw->set_config( boost::shared_ptr< dStorm::shell::JobFactory >(p) );
     }
 
 public:
@@ -209,9 +215,9 @@ public:
 
     void set_main_config( dStorm::JobConfig* config, boost::shared_ptr<ScrolledTabNode> main_window ) {
         this->main_window = main_window;
-        this->make_dstorm.reset( new ConfigTemplate( std::auto_ptr<dStorm::JobConfig>(config), main_window ) );
-        this->make_alignment_fitter.reset( new ConfigTemplate( make_alignment_fitter_config(), main_window ) );
-        MainConfig::ui_managed( make_dstorm->create_config( dStorm::initialization_file().string() ) );
+        this->make_dstorm.reset( new dStorm::shell::JobMetaFactory( std::auto_ptr<dStorm::JobConfig>(config) ) );
+        this->make_alignment_fitter.reset( new dStorm::shell::JobMetaFactory( make_alignment_fitter_config() ) );
+        manage_in_window( make_dstorm->create_config( dStorm::initialization_file().string(), main_window ) );
     }
 
     void attach_context_help( wxWindow* window, std::string context_help_id ) 
