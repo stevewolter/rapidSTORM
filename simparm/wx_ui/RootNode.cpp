@@ -182,11 +182,20 @@ public:
         menu_new->Append( SAVE_CONFIG, _("&Save ...") );
         menu->Append( menu_new, _("&Job") );
 
+        typedef std::map< UserLevel, wxMenuItem* > MenuItemMap;
+        MenuItemMap ul_menu_items;
         wxMenu* user_level = new wxMenu();
-        user_level->AppendRadioItem( UL_BEGINNER, _("Beginner") );
-        user_level->AppendRadioItem( UL_INTERMEDIATE, _("Intermediate") );
-        user_level->AppendRadioItem( UL_EXPERT, _("Expert") );
+        ul_menu_items[Beginner] = user_level->AppendRadioItem( UL_BEGINNER, _("Beginner") );
+        ul_menu_items[Intermediate] = user_level->AppendRadioItem( UL_INTERMEDIATE, _("Intermediate") );
+        ul_menu_items[Expert] = user_level->AppendRadioItem( UL_EXPERT, _("Expert") );
         menu->Append( user_level, _("User level") );
+        wxMenuItem* current_ul = ul_menu_items[ ul_control->current_user_level() ];
+        if ( current_ul ) 
+            current_ul->Check(); 
+        else {
+            for (MenuItemMap::const_iterator i = ul_menu_items.begin(); i != ul_menu_items.end(); ++i)
+                if ( i->second ) i->second->Check(false);
+        }
 
         wxMenu* help = new wxMenu();
         help->Append( MANUAL, _("Manual") );

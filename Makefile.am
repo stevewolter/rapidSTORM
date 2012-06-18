@@ -57,7 +57,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.bugs/80.exp dstorm.bugs/188.exp dstorm.bugs/186.exp \
     dstorm.bugs/148.exp dstorm.bugs/133.exp \
     dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
-    dstorm.bugs/75_stm.exp \
+    dstorm.bugs/75_stm.exp dstorm.bugs/206.exp \
     dstorm.outputs/save-image-to-nonexisting-location.exp \
     dstorm.outputs/simple-filter.exp \
     dstorm.outputs/localization-filter-can-remove-output.exp \
@@ -795,7 +795,7 @@ rapidstorm_SOURCES += \
     simparm/wx_ui/TreePage.h simparm/wx_ui/TreePage.cpp \
     simparm/wx_ui/TreeRepresentation.h simparm/wx_ui/TreeRepresentation.cpp \
     simparm/wx_ui/VisibilityNode.h simparm/wx_ui/VisibilityNode.cpp \
-    simparm/wx_ui/VisibilityControl.h \
+    simparm/wx_ui/VisibilityControl.h simparm/wx_ui/VisibilityControl.cpp \
     simparm/wx_ui/Sizer.h simparm/wx_ui/Sizer.cpp \
     simparm/wx_ui/Window.h simparm/wx_ui/Window.cpp \
     simparm/wx_ui/lambda.h simparm/wx_ui/GUIHandle.h \

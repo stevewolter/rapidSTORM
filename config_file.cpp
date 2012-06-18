@@ -8,12 +8,19 @@
 
 #include "config.h"
 
+#define QUOTE(str) #str
+#define EXPAND_AND_QUOTE(str) QUOTE(str)
+
 namespace dStorm {
+
+std::auto_ptr<wxConfig> get_wxConfig() {
+    return std::auto_ptr<wxConfig>(  new wxConfig(wxT(PACKAGE_TARNAME EXPAND_AND_QUOTE(PACKAGE_MAJOR_VERSION) ))  );
+}
 
 boost::filesystem::path program_data_path() {
     boost::filesystem::path result(CONFIG_FILE_DIR);
 
-    std::auto_ptr<wxConfig> config( new wxConfig(wxT(PACKAGE_TARNAME)) );
+    std::auto_ptr<wxConfig> config( get_wxConfig() );
     wxString new_prefix;
     if ( config->Read(wxT("InstallationPrefix"), &new_prefix) ) {
         boost::filesystem::path old_prefix(PREFIX);
