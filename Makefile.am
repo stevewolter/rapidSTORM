@@ -33,6 +33,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.input/00-input-file-is-recognized.exp \
     dstorm.input/new-stm-format.exp \
     dstorm.input/mirror.exp dstorm.input/long-tif-file.exp \
+    dstorm.input/parallel-sif.exp \
     dstorm.input/03-can-open-same-file-twice.exp \
     dstorm.input/02-errors.exp dstorm.volker/fall_e.exp \
     dstorm.volker/fall_c.exp dstorm.volker/fall_a.exp \

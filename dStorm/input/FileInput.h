@@ -17,7 +17,7 @@ class FileInput
 : public Terminus
 {
     boost::optional<std::string> current_file;
-    boost::shared_ptr<FileRepresentation> file;
+    std::auto_ptr<FileRepresentation> file;
     boost::optional< boost::exception_ptr > error;
     std::auto_ptr< boost::signals2::scoped_connection > filename_change;
 
@@ -31,13 +31,18 @@ class FileInput
 
 
   protected:
-    boost::shared_ptr<FileRepresentation> get_file() const {
+    std::auto_ptr<FileRepresentation> get_file() {
         if ( file.get() )
             return file; 
         else 
-            return boost::shared_ptr<FileRepresentation>( 
+            return std::auto_ptr<FileRepresentation>( 
                 static_cast<const CRTP&>(*this).make_file(*current_file) );
     }
+    std::auto_ptr<FileRepresentation> get_file() const {
+        return std::auto_ptr<FileRepresentation>( 
+            static_cast<const CRTP&>(*this).make_file(*current_file) );
+    }
+
     void reread_file() {
         file.reset();
         try {
@@ -67,7 +72,7 @@ class FileInput
   public:
     FileInput() {}
     FileInput( const FileInput& o ) : Terminus(o), 
-        current_file(o.current_file), file(o.file), error(o.error) {}
+        current_file(o.current_file), error(o.error) {}
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     void publish_meta_info() { republish_traits(); }
     std::string name() const { return CRTP::getName(); }

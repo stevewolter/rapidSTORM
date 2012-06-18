@@ -68,7 +68,7 @@ class Source : public input::Source< engine::ImageStack >
 
 public:
     class iterator;
-    Source(boost::shared_ptr<OpenFile> file);
+    Source(std::auto_ptr<OpenFile> file);
     virtual ~Source();
 
     base_iterator begin();
@@ -80,7 +80,7 @@ public:
         { return typename BaseSource::Capabilities(); }
 
 private:
-    boost::shared_ptr<OpenFile> file;
+    std::auto_ptr<OpenFile> file;
 
     static void TIFF_error_handler(const char*, 
         const char *fmt, va_list ap);
@@ -119,7 +119,7 @@ private:
 
 const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
-Source::Source( boost::shared_ptr<OpenFile> file )
+Source::Source( std::auto_ptr<OpenFile> file )
 : file(file)
 {
 }

@@ -37,7 +37,7 @@ namespace andor_sif {
         typedef typename BaseSource::iterator base_iterator;
         typedef typename BaseSource::TraitsPtr TraitsPtr;
 
-        Source(boost::shared_ptr<OpenFile> file);
+        Source(std::auto_ptr<OpenFile> file);
         virtual ~Source();
 
         base_iterator begin();
@@ -51,7 +51,7 @@ namespace andor_sif {
       private:
         simparm::NodeHandle current_ui;
         void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
-        boost::shared_ptr<OpenFile> file;
+        std::auto_ptr<OpenFile> file;
         bool has_been_iterated;
 
         class iterator;

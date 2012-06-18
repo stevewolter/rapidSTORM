@@ -25,7 +25,7 @@ using namespace std;
 namespace dStorm {
 namespace andor_sif {
 
-Source::Source(boost::shared_ptr<OpenFile> file)
+Source::Source(std::auto_ptr<OpenFile> file)
 : file(file),
   has_been_iterated(false)
 {

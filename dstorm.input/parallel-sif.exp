@@ -1,0 +1,19 @@
+begin_test_suite
+
+set_input_file "${testcase_target}Svens_rastererzeugende_Datei.sif"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+
+dstorm_attach
+
+send "in Car in Run in value set 1\n"
+send "in Car in Run in value set 1\n"
+
+set test "SIF files can be read in parallel"
+send "job_count\n"
+expect {
+    -re "Unexpected end of file" { fail "$test"; }
+    -re "Current job count is 1\r*\n" { pass "$test"; }
+    -re "Current job count is " { sleep 1; send "job_count\n"; exp_continue; }
+}
+
+end_test_suite

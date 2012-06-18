@@ -93,14 +93,14 @@ class OpenFile
 
 class Source : public dStorm::input::Source<dStorm::engine::ImageStack>
 {
-    boost::shared_ptr<OpenFile> of;
+    std::auto_ptr<OpenFile> of;
     dStorm::engine::ImageStack* load();
     class _iterator;
     typedef dStorm::input::Source<dStorm::engine::ImageStack>::iterator iterator;
     void dispatch(BaseSource::Messages m) { assert( !m.any() ); }
     void attach_ui_( simparm::NodeHandle ) {}
   public:
-    Source(const Config&, boost::shared_ptr<OpenFile> of);
+    Source(const Config&, std::auto_ptr<OpenFile> of);
     ~Source();
 
     iterator begin();
@@ -144,7 +144,7 @@ class Method
     void registerNamedEntries();
 };
 
-Source::Source(const Config& config, boost::shared_ptr<OpenFile> of) 
+Source::Source(const Config& config, std::auto_ptr<OpenFile> of) 
 : of( of )
 {
     assert( of.get() );
