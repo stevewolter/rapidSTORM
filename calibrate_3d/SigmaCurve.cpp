@@ -73,6 +73,9 @@ private:
 
     void store_results_( bool success ) {
         if ( success ) {
+            if ( points.empty() )
+                throw std::runtime_error("No valid points for sigma curve generation");
+
             static const size_t order = 4;
             const size_t n = points.size(), nbreak = config.step_number(), ncoeffs = nbreak - 2 + order;
 
