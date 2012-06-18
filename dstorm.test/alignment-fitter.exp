@@ -26,6 +26,22 @@ expect {
     -re "in $job in CurrentVolume in viewable set false" { pass "$test"; }
 }
 
+proc check_value { name norm tol } {
+    upvar job job
+    set test "$name is correct"
+    send "in $job in $name in value query\n"
+    expect {
+        -re "value value set (\[^\n\r\]*)\r*\n" { pass_if [expr abs( $expect_out(1,string) - $norm ) < $tol ] "$test"; }
+    }
+}
+
+check_value "ShiftX" 0.192 0.005
+check_value "ShiftY" 0.015 0.005
+check_value "ScaleX" 1.004 0.005
+check_value "ScaleY" 1.005 0.005
+check_value "ShearX" -0.006 0.005
+check_value "ShearY" 0.006 0.005
+
 sleep 1
 set test "Job can be closed"
 send "in $job in CloseJob in value set 1\n"
