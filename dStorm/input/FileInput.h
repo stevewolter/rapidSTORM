@@ -72,7 +72,10 @@ class FileInput
   public:
     FileInput() {}
     FileInput( const FileInput& o ) : Terminus(o), 
-        current_file(o.current_file), error(o.error) {}
+        current_file(o.current_file), error(o.error) 
+    { 
+        if ( o.file.get() ) file = o.get_file();
+    }
     ~FileInput() { DEBUG("Unregistering " << filename_change.get()); }
     void publish_meta_info() { republish_traits(); }
     std::string name() const { return CRTP::getName(); }
