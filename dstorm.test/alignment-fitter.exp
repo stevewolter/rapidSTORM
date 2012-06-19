@@ -1,3 +1,16 @@
+proc check_value { name norm tol } {
+    upvar job job
+    set test "$name is correct"
+    send "in $job in $name in value query\n"
+    expect {
+        -re "value value set (\[^\n\r\]*)\r*\n" { pass_if [expr abs( $expect_out(1,string) - $norm ) < $tol ] "$test"; }
+    }
+}
+
+proc set_value { name norm } {
+    send "in AlignmentFitter in $name in value set $norm\n"
+}
+
 begin_test_suite
 
 send "alignment_fitter\n"
@@ -5,6 +18,13 @@ send "in AlignmentFitter in File1 in value set ${testcase_target}X5365_Alexa700_
 send "in AlignmentFitter in File2 in value set ${testcase_target}X6069_Alexa700_8_1sb_256_2.txt\n"
 send "in AlignmentFitter in OutputFile in value set ${tmpdir_target}alignment.txt\n"
 send "in AlignmentFitter in ImageCount in value set 10000\n"
+
+set_value "ShiftX"  [expr rand() - 0.5]
+set_value "ShiftY"  [expr rand() - 0.5]
+set_value "ScaleX"  [expr 1.0 + 0.25 * rand() - 0.125]
+set_value "ScaleY"  [expr 1.0 + 0.25 * rand() - 0.125]
+set_value "ShearX"  [expr 0.25 * rand() - 0.125]
+set_value "ShearY"  [expr 0.25 * rand() - 0.125]
 
 dstorm_attach
 
@@ -20,30 +40,22 @@ expect {
 set test "Reduction of volume is displayed"
 expect {
     -re "in $job in CurrentVolume in value set 0.00" { pass "$test"; }
+    -re "in $job in FitProgress in value set 0.1" { pass "$test"; }
 }
 
 set test "Job finishes"
 expect {
     -re "in $job in CurrentVolume in viewable set false" { pass "$test"; }
+    -re "in FitProgress in value set 1\r*\n" { pass "$test"; }
 }
 
-proc check_value { name norm tol } {
-    upvar job job
-    set test "$name is correct"
-    send "in $job in $name in value query\n"
-    expect {
-        -re "value value set (\[^\n\r\]*)\r*\n" { pass_if [expr abs( $expect_out(1,string) - $norm ) < $tol ] "$test"; }
-    }
-}
+check_value "ShiftX"  0.1865 0.005
+check_value "ShiftY"  0.0144 0.005
+check_value "ScaleX"  1.0047 0.001
+check_value "ScaleY"  1.0048 0.001
+check_value "ShearX" -0.0056 0.001
+check_value "ShearY"  0.0063 0.001
 
-check_value "ShiftX" 0.192 0.005
-check_value "ShiftY" 0.015 0.005
-check_value "ScaleX" 1.004 0.005
-check_value "ScaleY" 1.005 0.005
-check_value "ShearX" -0.006 0.005
-check_value "ShearY" 0.006 0.005
-
-sleep 1
 set test "Job can be closed"
 send "in $job in CloseJob in value set 1\n"
 expect {

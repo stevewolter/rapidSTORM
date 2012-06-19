@@ -19,12 +19,18 @@
 namespace nonlinfit {
 namespace steepest_descent {
 
+struct Config {
+    double initial_step_size;
+    Config() : initial_step_size(1) {}
+    Config( double is ) : initial_step_size( is ) {}
+};
+
 /** Levenberg-Marquardt nonlinear function minimizer. */
 class Fitter {
     const double initial_step_size, wrong_position_adjustment, unsolvable_adjustment;
     enum Step { BetterPosition, WorsePosition, InvalidPosition };
   public:
-    inline Fitter();
+    inline Fitter( const Config& );
     /** Find the minimum of the provided function with Levenberg-Marquardt.
      *  This method will repeatedly call Function::evaluate() and use the
      *  calculated parameters according to the LM method to find the minimum
@@ -45,8 +51,8 @@ class Fitter {
     double fit( Function_& function, Moveable_& moveable, _Terminator terminator );
 };
 
-Fitter::Fitter() 
-: initial_step_size( 1 ),
+Fitter::Fitter( const Config& config ) 
+: initial_step_size( config.initial_step_size ),
   wrong_position_adjustment( 2 ),
   unsolvable_adjustment( 1.1 )
 {}
@@ -62,7 +68,6 @@ double Fitter::fit( Function_& function, Moveable_& moveable, _Terminator termin
     if ( ! initial_position_is_good )
         throw std::runtime_error("Invalid initial fit position");
 
-    DEBUG("Initial function value is " << best_evaluation.value);
     double step_size = initial_step_size;
     do {
         typename Moveable_::Position step = - step_size * best_evaluation.gradient.array();
