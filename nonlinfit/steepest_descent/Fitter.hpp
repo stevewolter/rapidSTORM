@@ -17,15 +17,14 @@
 #endif
 
 namespace nonlinfit {
-namespace levmar {
+namespace steepest_descent {
 
 /** Levenberg-Marquardt nonlinear function minimizer. */
 class Fitter {
-    const double initial_lambda, wrong_position_adjustment, unsolvable_adjustment,
-                 pure_gradient_lambda;
+    const double initial_step_size, wrong_position_adjustment, unsolvable_adjustment;
     enum Step { BetterPosition, WorsePosition, InvalidPosition };
   public:
-    inline Fitter( const Config& );
+    inline Fitter();
     /** Find the minimum of the provided function with Levenberg-Marquardt.
      *  This method will repeatedly call Function::evaluate() and use the
      *  calculated parameters according to the LM method to find the minimum
@@ -46,149 +45,51 @@ class Fitter {
     double fit( Function_& function, Moveable_& moveable, _Terminator terminator );
 };
 
-Fitter::Fitter( const Config& config ) 
-: initial_lambda( config.initial_lambda ),
-  wrong_position_adjustment( 10 ),
-  unsolvable_adjustment( 1.1 ),
-  pure_gradient_lambda( 1E20 )
+Fitter::Fitter() 
+: initial_step_size( 1 ),
+  wrong_position_adjustment( 2 ),
+  unsolvable_adjustment( 1.1 )
 {}
 
 template <typename Function_, typename Moveable_, typename _Terminator>
 double Fitter::fit( Function_& function, Moveable_& moveable, _Terminator terminator )
 {
-}
+    typename Moveable_::Position best_position, trial_position;
+    typename Function_::Derivatives best_evaluation, trial_evaluation;
 
-template <typename _Function, typename _Moveable>
-Fitter::State<_Function,_Moveable>::State( _Function& f, const _Moveable& m, int n )
-: max(n), moritz(n) , work( &max ), trial( &moritz ),
-  original_hessians_diagonal( n ), scratch(n,n), shift(n),
-  use_ldlt( n > 4 )
-{
-    BOOST_STATIC_ASSERT(( _Function::Derivatives::VariableCount == Eigen::Dynamic 
-                       || _Function::Derivatives::VariableCount > 0 ));
-    m.get_position( work->parameters );
-    bool initial_position_valid = f.evaluate( work->derivatives );
-    if ( ! initial_position_valid )
-        throw InvalidStartPosition(work->parameters.template cast<double>());
-    original_hessians_diagonal = work->derivatives.hessian.diagonal();
-    DEBUG("Started fitting at " << work->parameters.transpose() << " with value " << work->derivatives.value);
-}
+    moveable.get_position( best_position );
+    bool initial_position_is_good = function.evaluate( best_evaluation );
+    if ( ! initial_position_is_good )
+        throw std::runtime_error("Invalid initial fit position");
 
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_equations( double lambda )
-{
-    assert( ! work->derivatives.contains_NaN() );
-    assert( original_hessians_diagonal == original_hessians_diagonal );
-
-    work->derivatives.hessian.diagonal() = 
-        original_hessians_diagonal * ( 1 + lambda);
-    DEBUG("Solving equations for " << work->derivatives.gradient.transpose() << " and " << work->derivatives.hessian.diagonal().transpose() );
-    return solve_with_ldlt( work->derivatives )
-        || solve_with_llt( work->derivatives );
-}
-
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_by_inversion( const Derivatives& d )
-{
-    double determinant;
-    bool invertible;
-    d.hessian.computeInverseAndDetWithCheck(
-        scratch, determinant, invertible, 1E-30 );
-    if ( invertible ) {
-        shift = scratch * d.gradient;
-        DEBUG("Solved system by inversion");
-        return true;
-    } else {
-        DEBUG("Failed to solve system by inversion");
-        return false;
-    }
-}
-
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_with_ldlt( const Derivatives& d )
-{
-    if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
-    {
-        shift = ( d.hessian.template cast<double>().ldlt()
-                .solve(d.gradient.template cast<double>()) )
-                .template cast<typename Derivatives::Vector::Scalar>();
-    } else {
-        shift = d.hessian.ldlt().solve(d.gradient);
-    }
-    const bool solved_well = (d.hessian * shift).isApprox(d.gradient, 1E-2);
-    DEBUG("Solved system by LDLT: " << solved_well);
-    return solved_well;
-}
-
-template <typename _Function, typename _Moveable>
-bool Fitter::State<_Function,_Moveable>::solve_with_llt( const Derivatives& d )
-{
-    if ( boost::is_same< float, typename Derivatives::Vector::Scalar >::value )
-    {
-        shift = ( d.hessian.template cast<double>().llt()
-                .solve(d.gradient.template cast<double>()) )
-                .template cast<typename Derivatives::Vector::Scalar>();
-    } else {
-        shift = d.hessian.llt().solve(d.gradient);
-    }
-    bool solved_well = (d.hessian * shift).isApprox(d.gradient, 1E-2);
-    DEBUG("Solved system by LLT: " << solved_well);
-    return solved_well;
-}
-
-template <typename _Function, typename _Moveable>
-Fitter::Step
-Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveable& m )
-{
-    trial->parameters = work->parameters + shift;
-    DEBUG("Evaluating function at " << trial->parameters.transpose() << " after step of " << shift.transpose() );
-    m.set_position( trial->parameters );
-    /* Compute the function at this place. */
-    const bool new_position_valid = f.evaluate( trial->derivatives);
-
-    if ( ! new_position_valid ) return InvalidPosition;
-
-    assert( ! trial->derivatives.contains_NaN() );
-
-    DEBUG("Position is valid, value changed from " << work->derivatives.value << " to " << trial->derivatives.value);
-    const bool new_position_better = 
-        trial->derivatives.value <= work->derivatives.value;
-    if ( ! new_position_better ) return WorsePosition;
-
-    std::swap( work, trial );
-    original_hessians_diagonal = work->derivatives.hessian.diagonal();
-    return BetterPosition;
-}
-
-template <typename _Function, typename _Moveable, typename _Terminator>
-double Fitter::fit( _Function& f, _Moveable& m, _Terminator t )
-{
-    State<_Function,_Moveable> state(f, m, f.variable_count());
-    double lambda = initial_lambda;
+    DEBUG("Initial function value is " << best_evaluation.value);
+    double step_size = initial_step_size;
     do {
-        const bool solvable_equations = state.solve_equations( lambda );
-        if ( ! solvable_equations ) {
-            if ( lambda > pure_gradient_lambda ) state.throw_singular_matrix();
-            t.matrix_is_unsolvable();
-            lambda *= unsolvable_adjustment;
-            continue;
+        typename Moveable_::Position step = - step_size * best_evaluation.gradient.array();
+        trial_position = best_position + step;
+        moveable.set_position( trial_position );
+        DEBUG("Evaluating at trial position " << trial_position.transpose());
+        bool valid_position = function.evaluate( trial_evaluation );
+        if ( valid_position && trial_evaluation.value < best_evaluation.value ) {
+            best_position = trial_position;
+            best_evaluation = trial_evaluation;
+            terminator.improved( trial_position, step );
+            step_size *= wrong_position_adjustment;
+            DEBUG("The shift of " << step.transpose() << " improved the function to " << best_evaluation.value << ", step size is " << step_size );
+        } else if ( valid_position ) {
+            step_size /= wrong_position_adjustment;
+            terminator.failed_to_improve( true );
+            DEBUG("The new position is worse at value " << trial_evaluation.value << " and step size is " << step_size);
         } else {
-            Step result = state.try_to_move_position( f, m );
-            if ( result == BetterPosition ) {
-                t.improved( state.current_position(), state.last_shift() );
-                lambda /= wrong_position_adjustment;
-                DEBUG("The shift of " << state.last_shift().transpose() << " improved the function, lambda is " << lambda );
-            } else if ( result == WorsePosition || result == InvalidPosition ) {
-                lambda *= wrong_position_adjustment;
-                t.failed_to_improve( result == WorsePosition );
-                DEBUG("The new position is " << ((result == WorsePosition) ? "worse" : "invalid") << " and lambda is " << lambda);
-            } else { assert( false ); }
+            step_size /= wrong_position_adjustment;
+            terminator.failed_to_improve( false );
+            DEBUG("The new position is invalid and step size is " << step_size);
         }
-    } while ( t.should_continue_fitting() );
-    DEBUG("Finished fitting at " << state.current_position().transpose());
+    } while ( terminator.should_continue_fitting() );
+    DEBUG("Finished fitting at " << best_position.transpose());
 
-    m.set_position( state.current_position() );
-    return state.current_function_value();
+    moveable.set_position( best_position );
+    return best_evaluation.value;
 }
 
 }

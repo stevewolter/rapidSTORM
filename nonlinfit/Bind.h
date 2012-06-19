@@ -31,6 +31,8 @@ struct Bind
         Assignment_ >::type
         Variables;
 
+    Bind() {}
+    Bind( const Lambda_& lambda ) : Lambda_(lambda) {}
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 

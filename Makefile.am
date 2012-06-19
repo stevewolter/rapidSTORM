@@ -524,6 +524,7 @@ rapidstorm_SOURCES += \
     nonlinfit/functions/Constant.h \
     nonlinfit/functions/Polynom.h \
     nonlinfit/functions/Zero.h \
+    nonlinfit/steepest_descent/Fitter.hpp \
     nonlinfit/levmar/Config.h \
     nonlinfit/levmar/Fitter.hpp \
     nonlinfit/levmar/Fitter.h \

@@ -18,50 +18,49 @@
 #include <simparm/TriggerEntry.h>
 
 #include <nonlinfit/Evaluation.h>
-#include <nonlinfit/levmar/Fitter.hpp>
+#include <nonlinfit/steepest_descent/Fitter.hpp>
 #include <nonlinfit/terminators/StepLimit.h>
 
-typedef std::list<Eigen::Vector2f, Eigen::aligned_allocator<Eigen::Vector2f> > PositionList;
+typedef std::list<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > PositionList;
 typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
 
-struct parameters {
-    double sigma;
-};
-
+template <bool TranslationOnly>
 class FitBadness 
 {
-    Eigen::Matrix2f rotation;
-    Eigen::Vector2f translation;
+    static const int Count = (TranslationOnly) ? 2 : 6;
+    Eigen::Matrix2d rotation;
+    Eigen::Vector2d translation;
     const ImageMap& images;
     double sigma;
 
 public:
     FitBadness( const ImageMap& images, double sigma )
-        : rotation( Eigen::Matrix2f::Identity() ), translation( Eigen::Vector2f::Zero() ), images(images), sigma(sigma) {}
+        : rotation( Eigen::Matrix2d::Identity() ), translation( Eigen::Vector2d::Zero() ), images(images), sigma(sigma) {}
 
-    typedef nonlinfit::Evaluation< float, 6 > Result;
-    typedef Result::Vector Position;
+    typedef nonlinfit::Evaluation< double, Count > Result;
+    typedef typename Result::Vector Position;
     typedef Result Derivatives;
 
-    int variable_count() const { return 6; }
+    int variable_count() const { return Count; }
 
     bool evaluate( Result& r ) {
         r.set_zero();
 
         for ( ImageMap::const_iterator i = images.begin(); i != images.end(); ++i ) {
             for ( PositionList::const_iterator b = i->second[1].begin(); b != i->second[1].end(); ++b ) {
-                Eigen::Vector2f t = rotation * *b + translation;
+                Eigen::Vector2d t = rotation * *b + translation;
                 for ( PositionList::const_iterator a = i->second[0].begin(); a != i->second[0].end(); ++a ) {
-                    Eigen::Vector2f diff = *a-t;
-                    Eigen::Matrix<float,1,6> jacobi_row;
-                    jacobi_row.head<2>() = *b * diff.x(); 
-                    jacobi_row.segment<2>(2) = *b * diff.y(); 
-                    jacobi_row.tail<2>() = diff;
-                    float v = - exp( - diff.squaredNorm() / sigma );
+                    Eigen::Vector2d diff = *a-t;
+                    Eigen::Matrix<double,1,Count> jacobi_row;
+                    if ( ! TranslationOnly ) {
+                        jacobi_row.template head<2>() = *b * diff.x(); 
+                        jacobi_row.template segment<2>(2) = *b * diff.y(); 
+                    }
+                    jacobi_row.template tail<2>() = diff;
+                    double v = - exp( - diff.squaredNorm() / sigma );
                     jacobi_row *= v / sigma * 2;
                     r.value += v;
                     r.gradient += jacobi_row;
-                    r.hessian += jacobi_row.transpose() * jacobi_row;
                 }
             }
         }
@@ -69,15 +68,26 @@ public:
         return true;
     }
 
-    void get_position( Result::Vector& v ) const {
-        v.head<2>() = rotation.row(0);
-        v.segment<2>(2) = rotation.row(1);
-        v.tail<2>() = translation;
+    void get_position( Position& v ) const {
+        if ( ! TranslationOnly ) {
+            v.template head<2>() = rotation.row(0);
+            v.template segment<2>(2) = rotation.row(1);
+        }
+        v.template tail<2>() = translation;
     }
-    void set_position( const Result::Vector& v ) {
-        rotation.row(0) = v.head<2>();
-        rotation.row(1) = v.segment<2>(2);
-        translation = v.tail<2>();
+    void set_position( const Position& v ) {
+        if ( ! TranslationOnly ) {
+            rotation.row(0) = v.template head<2>();
+            rotation.row(1) = v.template segment<2>(2);
+        }
+        translation = v.template tail<2>();
+        std::cerr << "New rotation matrix is \n" << rotation << "\n and translation " << translation.transpose() << std::endl;
+    }
+
+    Position get_position() const {
+        Position f;
+        get_position(f);
+        return f;
     }
 };
 
@@ -147,7 +157,7 @@ AlignmentFitter::AlignmentFitter()
   shear_y("ShearY", "Shear factor Y", 0),
   target_volume("TargetVolume", "Target estimation volume", 1E-3),
   pre_fit("PreFit", "Pre-fit with simpler models", true),
-  image_count("ImageCount", "Number of images to use", 100)
+  image_count("ImageCount", "Number of images to use", 500)
 {}
 
 AlignmentFitterConfig::AlignmentFitterConfig()
@@ -206,8 +216,8 @@ simparm::NodeHandle AlignmentFitterJob::attach_ui( simparm::NodeHandle at ) {
 }
 
 void AlignmentFitterJob::run() {
-    FitBadness::Result::Vector start_position;
-    simparm::Entry<double>* entries[6] = { &shift_x, &shift_y, &scale_x, &scale_y, &shear_x, &shear_y };
+    FitBadness<false>::Result::Vector start_position;
+    simparm::Entry<double>* entries[6] = { &scale_x, &shear_x, &shear_y, &scale_y, &shift_x, &shift_y };
     for (int i = 0; i < 6; ++i)
         start_position[i] = entries[i]->value();
     ImageMap images;
@@ -225,17 +235,22 @@ void AlignmentFitterJob::run() {
                 const dStorm::Localization* l = boost::get<dStorm::Localization>(&*i);
                 if ( l && l->frame_number().value() >= image_count.value() ) continue;
                 if ( l ) { images[ l->frame_number().value() ][m].push_back( 
-                            boost::units::value( l->position() ).head<2>() * 1E6 ); }
+                            boost::units::value( l->position() ).head<2>().cast<double>() * 1E6 ); }
             }
 
-        FitBadness badness( images, sigma() );
-        badness.set_position( start_position );
-        nonlinfit::levmar::Config config;
-        nonlinfit::levmar::Fitter fitter(config);
-        fitter.fit( badness, badness, nonlinfit::terminators::StepLimit(100) );
+        FitBadness<true> translation_badness( images, sigma() );
+        translation_badness.set_position( start_position.tail<2>() );
+        nonlinfit::steepest_descent::Fitter()
+            .fit( translation_badness, translation_badness, nonlinfit::terminators::StepLimit(100) );
+        start_position.tail<2>() = translation_badness.get_position();
 
-        FitBadness::Result::Vector final_position;
-        badness.get_position( final_position );
+        FitBadness<false> badness( images, sigma() );
+        badness.set_position( start_position );
+
+        nonlinfit::steepest_descent::Fitter()
+            .fit( badness, badness, nonlinfit::terminators::StepLimit(100) );
+
+        FitBadness<false>::Result::Vector final_position = badness.get_position();
         for (int i = 0; i < 6; ++i)
             entries[i]->value = final_position[i];
 
@@ -257,11 +272,11 @@ void AlignmentFitterJob::run() {
 
 void check_fit_badness_derivatives() {
     ImageMap images;
-    images[ 0 ][ 0 ].push_back( Eigen::Vector2f::Constant( 2 ) + Eigen::Vector2f::UnitX() );
-    images[ 0 ][ 1 ].push_back( Eigen::Vector2f::Constant( 4 ) + Eigen::Vector2f::UnitY() );
-    FitBadness badness( images, 25 );
-    FitBadness::Result::Vector orig;
-    FitBadness::Result exact;
+    images[ 0 ][ 0 ].push_back( Eigen::Vector2d::Constant( 2 ) + Eigen::Vector2d::UnitX() );
+    images[ 0 ][ 1 ].push_back( Eigen::Vector2d::Constant( 4 ) + Eigen::Vector2d::UnitY() );
+    FitBadness<false> badness( images, 25 );
+    FitBadness<false>::Result::Vector orig;
+    FitBadness<false>::Result exact;
     const double delta = 1E-4;
 
     for (int i = 0; i < 6; ++i)
@@ -271,8 +286,8 @@ void check_fit_badness_derivatives() {
     badness.evaluate( exact );
 
     for (int i = 0; i < 6; ++i) {
-        FitBadness::Result::Vector shifted = orig;
-        FitBadness::Result shifted_result;
+        FitBadness<false>::Result::Vector shifted = orig;
+        FitBadness<false>::Result shifted_result;
         shifted[i] += delta;
         badness.set_position( shifted );
         badness.evaluate( shifted_result );
