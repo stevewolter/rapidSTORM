@@ -24,7 +24,7 @@ class ROIFilter : public dStorm::output::Filter
 {
   private:
     dStorm::samplepos offset, from, to;
-    bool within_ROI( const dStorm::Localization& ) const;
+    bool not_within_ROI( const dStorm::Localization& ) const;
 
   public:
     class Config;
@@ -88,13 +88,13 @@ ROIFilter::announceStormSize(const Announcement &a)
     return Filter::announceStormSize(my_announcement);
 }
 
-bool ROIFilter::within_ROI( const dStorm::Localization& l ) const {
-    return (l.position().array() >= from.array()).all() && (l.position().array() <= to.array()).all();
+bool ROIFilter::not_within_ROI( const dStorm::Localization& l ) const {
+    return !( (l.position().array() >= from.array()).all() && (l.position().array() <= to.array()).all() );
 }
 
 void ROIFilter::receiveLocalizations(const EngineResult& e) {
     EngineResult oe = e;
-    boost::range::remove_erase_if( oe, boost::bind( &ROIFilter::within_ROI, this, _1 ) );
+    boost::range::remove_erase_if( oe, boost::bind( &ROIFilter::not_within_ROI, this, _1 ) );
     Filter::receiveLocalizations(oe);
 }
 
