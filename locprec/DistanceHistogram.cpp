@@ -39,6 +39,7 @@ Histogram::~Histogram() {}
 template <>
 inline void Histogram::insert_point<Histogram::Dim>( const Point& input ) {
     Eigen::Vector2i bin = floor(input / bin_size).cast<int>();
+    assert( bin.x() >= -1 && bin.y() >= -1 && bin.x() <= bins.width_in_pixels() - 2 && bin.y() <= bins.height_in_pixels() - 2 );
     bins( bin.x() + 1, bin.y() + 1 ).push_back( input );
 }
 
