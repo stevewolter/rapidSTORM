@@ -19,15 +19,17 @@ namespace si = boost::units::si;
 
 struct Config 
 {
+    simparm::Entry< bool > periodic_boundary;
     simparm::Entry< quantity<si::nanolength> > bin_size, max_distance;
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
   public:
-    Config() 
-        : bin_size("BinSize", "Bin size", 5 * si::nanometre),
+    Config() :
+          periodic_boundary("PeriodicBoundary", "Periodic boundary", true),
+          bin_size("BinSize", "Bin size", 5 * si::nanometre),
           max_distance("MaximumDistance", "Maximum considered distance", 1E3 * si::nanometre),
           outputFile("ToFile", "Output file", "-ripley-k.txt") {}
-    void attach_ui( simparm::NodeHandle at ) { bin_size.attach_ui(at); max_distance.attach_ui(at); outputFile.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { periodic_boundary.attach_ui(at); bin_size.attach_ui(at); max_distance.attach_ui(at); outputFile.attach_ui( at ); }
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
     static std::string get_name() { return "RipleyK"; }
     static std::string get_description() { return "Compute Ripley's K function"; }
@@ -43,6 +45,7 @@ class Output : public dStorm::output::Output {
     const quantity<si::length> bin_size, max_distance;
     quantity<si::area> measured_area;
     long int localization_count;
+    bool periodic;
     void store_results_( bool success );
 
   public:
@@ -66,7 +69,8 @@ Output::Output( const Config& config )
 : filename( config.outputFile ),
   bin_size( config.bin_size() ),
   max_distance( config.max_distance() ),
-  localization_count( 0 )
+  localization_count( 0 ),
+  periodic( config.periodic_boundary() )
 {
     Scaler::value v( config.bin_size() );
     for (int i = 0; i < 2; ++i )
@@ -79,7 +83,7 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     boost::array< float, 2 > range;
     for (int i = 0; i < 2; ++i) 
         range[i] = scalers[i].get_size();
-    histogram = distance_histogram::Histogram( range, max_distance / bin_size );
+    histogram = distance_histogram::Histogram( range, max_distance / bin_size, periodic );
     measured_area = 
         ( *a.position().range().x().second - *a.position().range().x().first ) *
         ( *a.position().range().y().second - *a.position().range().y().first );
@@ -124,8 +128,8 @@ void Output::store_results_( bool success ) {
         unsigned long accum = 0;
         for (unsigned int i = 0; i < h.counts.size(); ++i) {
             quantity<si::length> 
-                bin_center = (i+0.5) * bin_size,
-                bin_outer_edge = (i+1.0) * bin_size;
+                bin_center = double(i) * bin_size,
+                bin_outer_edge = (i+0.5) * bin_size;
             quantity<si::area> ring_area = area_of_ring( bin_center, bin_size );
             accum += h.counts[i] * 2;
 

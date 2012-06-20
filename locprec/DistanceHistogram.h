@@ -27,8 +27,12 @@ struct Histogram {
     typedef boost::array< Bins::Position, Dim_power_3_half > ForwardScan;
     ForwardScan forward_scan;
     Bins bins;
+    Eigen::Matrix<Length,Dim,1> area_size;
     Length bin_size, max_distance_sq;
+    bool periodic_boundary;
 
+    template <int ReplicationDim> inline void insert_point( const Point& );
+    void copy_bin( Bins::Position from, Bins::Position to );
     inline void count_distance( const Point& a, const Point& b );
     void autocorrelate( const Points& a );
     void crosscorrelate( const Points& a, const Points& b );
@@ -36,7 +40,7 @@ struct Histogram {
   public:
     std::vector<int> counts;
 
-    Histogram( boost::array< Length, Dim > max_value, Length max_dist );
+    Histogram( boost::array< Length, Dim > max_value, Length max_dist, bool periodic_boundary );
     ~Histogram();
 
     void push_back( const Point& input );
