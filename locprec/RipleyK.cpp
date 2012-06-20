@@ -19,14 +19,15 @@ namespace si = boost::units::si;
 
 struct Config 
 {
-    simparm::Entry< quantity<si::nanolength> > bin_size;
+    simparm::Entry< quantity<si::nanolength> > bin_size, max_distance;
     dStorm::output::BasenameAdjustedFileEntry outputFile;
 
   public:
     Config() 
         : bin_size("BinSize", "Bin size", 5 * si::nanometre),
+          max_distance("MaximumDistance", "Maximum considered distance", 1E3 * si::nanometre),
           outputFile("ToFile", "Output file", "-ripley-k.txt") {}
-    void attach_ui( simparm::NodeHandle at ) { bin_size.attach_ui(at); outputFile.attach_ui( at ); }
+    void attach_ui( simparm::NodeHandle at ) { bin_size.attach_ui(at); max_distance.attach_ui(at); outputFile.attach_ui( at ); }
     bool can_work_with( dStorm::output::Capabilities ) { return true; }
     static std::string get_name() { return "RipleyK"; }
     static std::string get_description() { return "Compute Ripley's K function"; }
@@ -39,7 +40,7 @@ class Output : public dStorm::output::Output {
     typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
     boost::optional<distance_histogram::Histogram> histogram;
     boost::ptr_array< Scaler, 2 > scalers;
-    const quantity<si::length> bin_size;
+    const quantity<si::length> bin_size, max_distance;
     quantity<si::area> measured_area;
     long int localization_count;
     void store_results_( bool success );
@@ -64,6 +65,7 @@ class Output : public dStorm::output::Output {
 Output::Output( const Config& config ) 
 : filename( config.outputFile ),
   bin_size( config.bin_size() ),
+  max_distance( config.max_distance() ),
   localization_count( 0 )
 {
     Scaler::value v( config.bin_size() );
@@ -77,7 +79,7 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     boost::array< float, 2 > range;
     for (int i = 0; i < 2; ++i) 
         range[i] = scalers[i].get_size();
-    histogram = distance_histogram::Histogram( range );
+    histogram = distance_histogram::Histogram( range, max_distance / bin_size );
     measured_area = 
         ( *a.position().range().x().second - *a.position().range().x().first ) *
         ( *a.position().range().y().second - *a.position().range().y().first );
@@ -86,7 +88,7 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
 
 void Output::receiveLocalizations(const EngineResult& e) {
     for ( EngineResult::const_iterator i = e.begin(); i != e.end(); ++i ) {
-        boost::array< float, 2 > line;
+        Eigen::Vector2f line;
         bool is_good = true;
         for (int j = 0; j < 2; ++j) {
             boost::optional<float> v = scalers[j].bin_point( *i );
@@ -122,8 +124,8 @@ void Output::store_results_( bool success ) {
         unsigned long accum = 0;
         for (unsigned int i = 0; i < h.counts.size(); ++i) {
             quantity<si::length> 
-                bin_center = quantity<si::length>::from_value( scalers[0].reverse_mapping( i ) ),
-                bin_outer_edge = quantity<si::length>::from_value( scalers[0].reverse_mapping( i+0.5 ) );
+                bin_center = (i+0.5) * bin_size,
+                bin_outer_edge = (i+1.0) * bin_size;
             quantity<si::area> ring_area = area_of_ring( bin_center, bin_size );
             accum += h.counts[i] * 2;
 
