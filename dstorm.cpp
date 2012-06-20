@@ -86,4 +86,6 @@ int main(int argc, char *argv[]) {
                   << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

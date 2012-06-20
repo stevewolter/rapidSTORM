@@ -10,6 +10,7 @@
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/units/microlength.h>
 #include <boost/units/cmath.hpp>
+#include <fstream>
 
 namespace ripley_k {
 
@@ -117,7 +118,7 @@ static quantity<si::area> area_of_ring(
 
 void Output::store_results_( bool success ) {
     if ( histogram.is_initialized() ) {
-        std::ostream& output = filename.get_output_stream();
+        std::ofstream output( filename().c_str() );
 
         typedef  boost::units::power_typeof_helper< si::area, boost::units::static_rational<-1> >::type per_area;
         typedef  boost::units::power_typeof_helper< si::microlength, boost::units::static_rational<2> >::type microarea;
