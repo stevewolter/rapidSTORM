@@ -27,7 +27,9 @@ void JobStarter::attach_ui( simparm::NodeHandle n ) {
 void JobStarter::run_job( boost::shared_ptr<Job> car ) {
     DEBUG("Running job");
     car->run();
-    GUIThread::get_singleton().unregister_job( *car );
+    Job* handle = car.get();
+    car.reset();
+    GUIThread::get_singleton().unregister_job( *handle );
     DEBUG("Finished job");
 }
 
