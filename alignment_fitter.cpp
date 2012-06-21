@@ -16,6 +16,7 @@
 #include <simparm/Group.h>
 #include <simparm/TriggerEntry.h>
 #include <simparm/ProgressEntry.h>
+#include <fstream>
 
 typedef std::list<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d> > PositionList;
 typedef std::map< int, boost::array< PositionList, 2 > > ImageMap;
@@ -304,10 +305,10 @@ void AlignmentFitterJob::run() {
         improve_position( position, 6 );
 
         if ( output ) {
-            output.get_output_stream() << scale_x() << " " << shear_x() << " " << shift_x() * 1E-6 << "\n" 
+            std::ofstream output_stream( output().c_str() );
+            output_stream << scale_x() << " " << shear_x() << " " << shift_x() * 1E-6 << "\n" 
                                             << shear_y() << " " << scale_y() << " " << shift_y() * 1E-6 << "\n" 
                                             << "0 0 1\n";
-            output.close_output_stream();
         }
 
     } catch (const std::runtime_error& e) {

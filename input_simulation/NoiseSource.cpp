@@ -20,6 +20,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <dStorm/threed_info/Config.h>
+#include <fstream>
 
 #include "FluorophoreDistributions.h"
 
@@ -135,8 +136,7 @@ FluorophoreSetConfig::create_fluorophores(
     std::auto_ptr< boost::ptr_list<Fluorophore> > fluorophores
         ( new boost::ptr_list<Fluorophore>() );
     if ( recall ) {
-        simparm::FileEntry opener( recall );
-        std::istream& in = opener.get_input_stream();
+        std::ifstream in( recall().c_str() );
         int number;
         in >> number;
 
@@ -165,8 +165,7 @@ FluorophoreSetConfig::create_fluorophores(
     }
 
     if ( store ) {
-        simparm::FileEntry opener( store );
-        std::ostream& out = opener.get_output_stream();
+        std::ofstream out( store().c_str() );
         out << fluorophores->size() << "\n";
         boost::ptr_list<Fluorophore>::const_iterator i;
         for ( i = fluorophores->begin(); i != fluorophores->end(); ++i )

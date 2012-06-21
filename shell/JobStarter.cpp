@@ -27,9 +27,9 @@ void JobStarter::attach_ui( simparm::NodeHandle n ) {
 void JobStarter::run_job( boost::shared_ptr<Job> car ) {
     DEBUG("Running job");
     car->run();
-    Job* handle = car.get();
+    GUIThread::get_singleton().unregister_job( *car );
     car.reset();
-    GUIThread::get_singleton().unregister_job( *handle );
+    GUIThread::get_singleton().unregister_unstopable_job();
     DEBUG("Finished job");
 }
 
@@ -40,8 +40,9 @@ void JobStarter::start_job() {
             DEBUG("Creating job");
             boost::shared_ptr< Job > car( config.make_job() );
             simparm::NodeHandle ui = car->attach_ui( attachment_point );
-            GUIThread::get_singleton().register_job( *car );
             ui->stop_job_on_ui_detachment( car );
+            GUIThread::get_singleton().register_unstopable_job();
+            GUIThread::get_singleton().register_job( *car );
             boost::thread job_thread( &JobStarter::run_job, car );
             job_thread.detach();
             DEBUG("Job moved to background");

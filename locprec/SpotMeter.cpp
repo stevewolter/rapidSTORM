@@ -3,7 +3,7 @@
 #include <simparm/FileEntry.h>
 #include <simparm/Entry.h>
 #include <map>
-#include <iostream>
+#include <fstream>
 
 namespace locprec {
     using namespace boost::units;
@@ -14,10 +14,11 @@ private:
     typedef std::map<dStorm::engine::StormPixel,int> CountMap;
     CountMap countMap;
     int binSize;
-    std::ostream &to;
+    std::string output_file;
 
     void store_results_( bool success ) {
         if ( success ) {
+            std::ofstream to( output_file.c_str() );
             for (CountMap::iterator i = countMap.begin(); 
                                     i != countMap.end(); i++)
                 to << i->first << " " << i->second << "\n";
@@ -41,7 +42,7 @@ public:
     };
     SpotMeter (Config& config) 
         : binSize(config.modulus()), 
-            to(config.outputFile.get_output_stream()) {}
+            output_file(config.outputFile()) {}
 
     AdditionalData announceStormSize(const Announcement&)
         { return AdditionalData(); }

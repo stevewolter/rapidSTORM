@@ -8,10 +8,6 @@ namespace simparm {
 class FileEntry : public StringEntry {
   private:
     std::string getTypeDescriptor() const { return "FileEntry"; }
-    std::auto_ptr<std::ofstream> openedOStream;
-    std::auto_ptr<std::ifstream> openedIStream;
-    std::ostream* out_stream;
-    std::istream* in_stream;
 
     NodeHandle create_hidden_node( NodeHandle );
     NodeHandle make_naked_node( NodeHandle );
@@ -28,11 +24,6 @@ class FileEntry : public StringEntry {
    Attribute<std::string> default_extension;
 
    operator bool() const;
-
-   std::ostream& get_output_stream(bool append = false);
-   void close_output_stream();
-   std::istream& get_input_stream();
-   void close_input_stream();
 };
 
 }

@@ -72,7 +72,7 @@ class PrecisionEstimator
 	float chiSquare_500_Value;
 	float distance_threshold_sq, variance_correction;
 
-        simparm::FileEntry printTo;
+        std::ofstream printTo;
 
 	/** Calculates a concentration step which results in a PointSet,
 	* contining all data points ordered by their mahalanobis distances
@@ -279,7 +279,7 @@ PrecisionEstimator::Config::Config()
 PrecisionEstimator::PrecisionEstimator
     ( const PrecisionEstimator::Config& config )
 : h_value( config.h_value() ),
-  printTo( "TargetFile", "Used target file", config.outputFile() )
+  printTo( config.outputFile().c_str() )
 {
     distance_threshold_sq = config.confidence_interval() * config.confidence_interval();
     variance_correction = 2.5 / gsl_sf_erf( config.confidence_interval() / sqrt(2) );
@@ -319,8 +319,7 @@ void PrecisionEstimator::receiveLocalizations( const EngineResult &er )
 	// remove clusters to small for the fmcd calculation
 	if(i >= Dimensions + 2){
 		// run the FMCD and the SVD
-		printTo.get_output_stream() 
-                  << estimate_deviation(m, compute_robust_subset(m)) << "\n";
+		printTo << estimate_deviation(m, compute_robust_subset(m)) << "\n";
 	}
      }
 }
@@ -580,7 +579,7 @@ PrecisionEstimator::EstimationResult PrecisionEstimator
 
 
 void PrecisionEstimator::store_results_( bool ) {
-    printTo.close_output_stream();
+    printTo.flush();
 }
 
 std::auto_ptr< dStorm::output::OutputSource > make_precision_estimator_source() {
