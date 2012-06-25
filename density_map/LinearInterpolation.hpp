@@ -58,7 +58,7 @@ class LinearInterpolatorFactory : public InterpolatorFactory<Dim> {
     Interpolator<Dim>* make_interpolator_() const { return new LinearInterpolator<Dim>(); }
 
 public:
-    LinearInterpolatorFactory() : name_object("LinearInterpolation", "Linear interpolation") {}
+    LinearInterpolatorFactory() : name_object("Linear", "Linear") {}
 };
 
 template <int Dim>
