@@ -1,6 +1,7 @@
 #include "InterpolatorChoice.h"
 #include "LinearInterpolation.h"
 #include "NearestNeighbourInterpolation.h"
+#include "GaussianSmoothing.h"
 
 namespace dStorm {
 namespace density_map {
@@ -11,6 +12,7 @@ InterpolatorChoice<Dim>::InterpolatorChoice()
 {
     choice.addChoice( make_linear_interpolator_factory<Dim>() );
     choice.addChoice( make_nearest_neighbour_interpolator_factory<Dim>() );
+    choice.addChoice( make_gaussian_smoothed_interpolator_factory<Dim>() );
     choice.set_user_level( simparm::Expert );
 }
 

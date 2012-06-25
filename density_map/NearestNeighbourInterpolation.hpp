@@ -17,8 +17,8 @@ class NearestNeighbourInterpolator : public Interpolator<Dim>
     typedef typename Interpolator<Dim>::Position Position;
     NearestNeighbourInterpolator* clone_() const { return new NearestNeighbourInterpolator(*this); }
     void interpolate_( 
-        const dStorm::Localization&, const Eigen::Array<float,Dim,1>& values,
-        std::vector<ResultPoint>& target ) const 
+        const Eigen::Array<float,Dim,1>& values,
+        const Eigen::Array<float,Dim,1>&, std::vector<ResultPoint>& target ) const 
     {
         target.clear();
         const Position p

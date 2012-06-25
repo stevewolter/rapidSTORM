@@ -24,13 +24,15 @@ struct Interpolator {
 
     virtual ~Interpolator() {}
     void interpolate( 
-        const dStorm::Localization& l, const Eigen::Array<float,Dim,1>& f,
+        const Eigen::Array<float,Dim,1>& f,
+        const Eigen::Array<float,Dim,1>& uncertainty,
         std::vector<ResultPoint>& target ) const 
-        { interpolate_( l, f, target ); }
+        { interpolate_( f, uncertainty, target ); }
     Ptr clone() const { return Ptr( clone_() ); }
 private:
     virtual void interpolate_( 
-        const dStorm::Localization&, const Eigen::Array<float,Dim,1>&,
+        const Eigen::Array<float,Dim,1>&,
+        const Eigen::Array<float,Dim,1>&,
         std::vector<ResultPoint>& target ) const = 0;
     virtual Interpolator* clone_() const = 0;
 };

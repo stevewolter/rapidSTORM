@@ -23,6 +23,8 @@ struct ConstantBinner
     }
     boost::optional<float> bin_point( const Localization& ) const 
         { return 1.0f; }
+    boost::optional<float> get_uncertainty( const Localization& ) const 
+        { return 0.0f; }
 
     int field_number() const { throw std::logic_error("No associated "
         "localization field for constant binner"); }

@@ -1,6 +1,7 @@
 #ifndef DSTORM_BINNEDLOCALIZATIONS_H
 #define DSTORM_BINNEDLOCALIZATIONS_H
 
+#include <Eigen/StdVector>
 #include "BinnedLocalizations_decl.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
@@ -85,7 +86,11 @@ namespace outputs {
 
     template <int Dim>
     struct BinningStrategy {
-        typedef Eigen::Matrix<float, Eigen::Dynamic, Dim+1> Result;
+        struct ResultRow {
+            Eigen::Matrix<float, Dim, 1> position, position_uncertainty;
+            float intensity, intensity_uncertainty;
+        };
+        typedef std::vector<ResultRow> Result;
 
         virtual BinningStrategy* clone() const = 0;
         virtual ~BinningStrategy() {}

@@ -33,6 +33,7 @@ class Localization<Index, IsUnscaled> {
     int field_number() const { return Index; }
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
     boost::optional<float> bin_point( const dStorm::Localization& ) const;
+    boost::optional<float> get_uncertainty( const dStorm::Localization& ) const;
 
   protected:
     value bin_naively( const dStorm::Localization& ) const;
@@ -85,6 +86,7 @@ class Localization<Index, ScaledByResolution>
     traits::ImageResolution resolution() const;
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
     boost::optional<float> bin_point( const dStorm::Localization& ) const;
+    boost::optional<float> get_uncertainty( const dStorm::Localization& ) const;
     double reverse_mapping( float ) const;
     float get_size() const;
     std::pair< float, float > get_minmax() const;
@@ -129,6 +131,7 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
     traits::ImageResolution resolution() const { return Base::resolution(); }
     int bin_points( const output::LocalizedImage& l, float *target, int stride ) const;
     boost::optional<float> bin_point( const dStorm::Localization& ) const;
+    boost::optional<float> get_uncertainty( const dStorm::Localization& ) const;
     float get_size() const { return Base::get_size(); }
 
     static bool can_work_with( const input::Traits<dStorm::Localization>& t, int row, int column );

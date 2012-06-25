@@ -54,18 +54,18 @@ struct ComponentWise
         for ( output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i ) {
             bool is_good = true;
             for (int d = 0; d < Dim; ++d)
-                is_good = is_good && bin( *i, xy[d], r( rv, d ) );
-            bin( *i, *intensity, r(rv,Dim) );
+                is_good = is_good && bin( *i, xy[d], r[rv].position[ d ], r[rv].position_uncertainty[ d ] );
+            is_good = is_good && bin( *i, *intensity, r[rv].intensity, r[rv].intensity_uncertainty );
             if ( is_good ) ++rv;
         }
         return rv;
     }
 
   private:
-    bool bin( const Localization& l, const UnscaledBin& b, float& target ) {
-        boost::optional<float> f = b.bin_point(l);
-        if ( f.is_initialized() )
-            target = *f;
+    bool bin( const Localization& l, const UnscaledBin& b, float& target, float& uncertainty ) {
+        boost::optional<float> f = b.bin_point(l), u = b.get_uncertainty( l );
+        if ( f.is_initialized() ) target = *f;
+        if ( u.is_initialized() ) uncertainty = *u; else uncertainty = 0;
         return f.is_initialized();
     }
 };

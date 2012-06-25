@@ -17,8 +17,8 @@ class LinearInterpolator : public Interpolator<Dim>
     typedef typename Interpolator<Dim>::Position Position;
     LinearInterpolator* clone_() const { return new LinearInterpolator(*this); }
     void interpolate_( 
-        const dStorm::Localization&, const Eigen::Array<float,Dim,1>& values,
-        std::vector<ResultPoint>& target ) const 
+        const Eigen::Array<float,Dim,1>& values,
+        const Eigen::Array<float,Dim,1>&, std::vector<ResultPoint>& target ) const 
     {
         target.clear();
         Eigen::Array<float,Dim,1> lower, terms;

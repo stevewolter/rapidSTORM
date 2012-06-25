@@ -65,7 +65,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 
     typedef Eigen::Matrix< pixel_count, Dim, 1> Position;
 
-    typename BinningStrategy<Dim>::Result r( er.size(), Dim+1 );
+    typename BinningStrategy<Dim>::Result r( er.size() );
     int point_count = strategy->bin_points(er, r);
 
     typedef std::vector< typename density_map::Interpolator<Dim>::ResultPoint > Points;
@@ -73,11 +73,10 @@ BinnedLocalizations<KeepUpdated,Dim>
     for (int i = 0; i < point_count; i++) {
         const Localization& l = er[i];
 
-        Eigen::Array<float,Dim,1> values = r.row(i).template head<Dim>();
-        float strength = r(i,Dim);
+        float strength = r[i].intensity;
 
         this->binningListener().announce( l );
-        this->binningInterpolator->interpolate( l, values, points );
+        this->binningInterpolator->interpolate( r[i].position, r[i].position_uncertainty, points );
 
         for ( typename Points::const_iterator point = points.begin(); point != points.end(); ++point ) {
             const typename BinnedImage::Position p = point->position - crop;

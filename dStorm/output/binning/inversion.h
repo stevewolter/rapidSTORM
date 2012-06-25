@@ -35,6 +35,13 @@ struct Inversion
         else    
             return v;
     }
+    boost::optional<float> get_uncertainty( const Localization& l ) const {
+        boost::optional<float> v = base->bin_point(l);
+        if ( v.is_initialized() )
+            return invert( *v );
+        else    
+            return v;
+    }
 
     int field_number() const { return base->field_number(); }
     float get_size() const { return base->get_size(); }

@@ -20,6 +20,8 @@ struct BinningAdapter
         { return i_.bin_points( l, target, stride ); }
     boost::optional<float> bin_point( const dStorm::Localization& l ) const 
         { return i_.bin_point(l); }
+    boost::optional<float> get_uncertainty( const dStorm::Localization& l ) const 
+        { return i_.get_uncertainty(l); }
     int field_number() const { return i_.field_number(); }
 
     float get_size() const { return i_.get_size(); }

@@ -21,6 +21,7 @@ struct Unscaled {
     virtual traits::ImageResolution resolution() const = 0;
     virtual int bin_points( const output::LocalizedImage&, float* target, int stride ) const = 0;
     virtual boost::optional<float> bin_point( const Localization& ) const = 0;
+    virtual boost::optional<float> get_uncertainty( const Localization& ) const = 0;
 
     virtual int field_number() const = 0;
 };

@@ -840,7 +840,8 @@ rapidstorm_SOURCES += \
     density_map/Interpolator.h density_map/InterpolatorFactory.h \
     density_map/InterpolatorChoice.h density_map/InterpolatorChoice.hpp density_map/InterpolatorChoice.cpp \
     density_map/LinearInterpolation.h density_map/LinearInterpolation.hpp density_map/LinearInterpolation.cpp \
-    density_map/NearestNeighbourInterpolation.h density_map/NearestNeighbourInterpolation.hpp density_map/NearestNeighbourInterpolation.cpp
+    density_map/NearestNeighbourInterpolation.h density_map/NearestNeighbourInterpolation.hpp density_map/NearestNeighbourInterpolation.cpp \
+    density_map/GaussianSmoothing.h density_map/GaussianSmoothing.hpp density_map/GaussianSmoothing.cpp
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 

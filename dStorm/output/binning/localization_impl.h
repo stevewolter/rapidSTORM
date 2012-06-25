@@ -81,6 +81,13 @@ Localization<Index,IsUnscaled>::bin_point( const dStorm::Localization& l ) const
 
 template <int Index>
 boost::optional<float>
+Localization<Index,IsUnscaled>::get_uncertainty( const dStorm::Localization& l ) const
+{
+    return scalar.value(boost::fusion::at_c<Index>(l).uncertainty()).value();
+}
+
+template <int Index>
+boost::optional<float>
 Localization<Index,Bounded>::bin_point( const dStorm::Localization& l ) const
 {
     value v = this->bin_naively(l);
@@ -107,13 +114,30 @@ Localization<Index,ScaledByResolution>::bin_point( const dStorm::Localization& l
 
 template <int Index>
 boost::optional<float>
+Localization<Index,ScaledByResolution>::get_uncertainty( const dStorm::Localization& l ) const
+{
+    boost::optional<float> f = Base::get_uncertainty( l );
+    if ( f.is_initialized() ) return *f * scale.value(); else return f;
+}
+
+template <int Index>
+boost::optional<float>
 Localization<Index,InteractivelyScaledToInterval>::bin_point( const dStorm::Localization& l ) const
 {
     if ( not_given.none() ) {
-        DEBUG("Range given interactively, binning");
         return Base::bin_point(l);
     } else {
-        DEBUG("Range not given, not binning");
+        return boost::optional<float>();
+    }
+}
+
+template <int Index>
+boost::optional<float>
+Localization<Index,InteractivelyScaledToInterval>::get_uncertainty( const dStorm::Localization& l ) const
+{
+    if ( not_given.none() ) {
+        return Base::get_uncertainty(l);
+    } else {
         return boost::optional<float>();
     }
 }
