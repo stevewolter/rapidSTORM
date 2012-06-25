@@ -56,10 +56,10 @@ int Fitter::fitSpot(
 
         DEBUG("Fitting at " << spot.transpose() );
         MultiKernelModelStack& one_kernel = one_kernel_fitter->fit_position();
-        boost::optional< double > mle_result;
+        double mle_result = 0;
         double improvement = 0;
         initial_value_finder( one_kernel, spot, *data );
-        double simple = one_kernel_fitter->fit( *data, false );
+        double lsq_result = one_kernel_fitter->fit( *data, false );
         if ( ! is_good_localization( one_kernel, spot ) ) { DEBUG("No good spot"); return -1; }
         if ( mle )
             mle_result = one_kernel_fitter->fit( *data, true );
@@ -70,7 +70,7 @@ int Fitter::fitSpot(
                     data->residue_centroid().current_position().cast< Spot::Scalar >() );
                 double two_kernel_result = two_kernels_fitter->fit( *data, false );
                 if ( is_good_localization( two_kernel_model, spot ) )
-                    improvement = 1.0 - two_kernel_result / simple;
+                    improvement = 1.0 - two_kernel_result / lsq_result;
             } catch ( const nonlinfit::levmar::SingularMatrix&) {
                 improvement = 0;
             } catch ( const nonlinfit::levmar::InvalidStartPosition& s ) {
@@ -81,7 +81,7 @@ int Fitter::fitSpot(
             }
         } 
             
-        double result = (mle && mle_result) ? *mle_result : simple;
+        double result = (mle) ? mle_result : lsq_result;
         Localization& loc = *target;
         create_localization( loc, one_kernel, result, *data );
         loc.frame_number = im.frame_number();

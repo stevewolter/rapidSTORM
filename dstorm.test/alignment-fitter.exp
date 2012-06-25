@@ -49,8 +49,8 @@ expect {
     -re "in FitProgress in value set 1\r*\n" { pass "$test"; }
 }
 
-check_value "ShiftX"  0.1865 0.005
-check_value "ShiftY"  0.0144 0.005
+check_value "ShiftX"  0.1865 0.010
+check_value "ShiftY"  0.0144 0.010
 check_value "ScaleX"  1.0047 0.001
 check_value "ScaleY"  1.0048 0.001
 check_value "ShearX" -0.0056 0.001

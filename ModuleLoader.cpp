@@ -55,6 +55,7 @@ void add_modules( dStorm::Config& car_config )
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     AndorCamera::augment_config( car_config );
     car_config.add_output( kalman_filter::create() );
+    car_config.add_output( kalman_filter::create_drift_correction() );
     locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );
     test::make_config( &car_config );

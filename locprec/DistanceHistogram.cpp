@@ -63,10 +63,8 @@ void Histogram::compute() {
     counts.resize( ceil( bin_size ) + 1 );
     std::fill( counts.begin(), counts.end(), 0 );
 
-    Bins::Position::Scalar px = 1 * camera::pixel;
     Bins::Position low_border = Bins::Position::Constant( 0 * camera::pixel ),
                    high_border = bins.sizes().array() - 1 * camera::pixel;
-    int xh = bins.width_in_pixels()-1, yh = bins.height_in_pixels();
 
     for ( Bins::iterator i = bins.begin(); i != bins.end(); ++i ) {
         if ( (i.position() == low_border).any() ||

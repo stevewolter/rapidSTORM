@@ -334,7 +334,8 @@ rapidstorm_SOURCES += \
     CommandLine.h CommandLine.cpp \
     ModuleLoader.h ModuleLoader.cpp \
     shell/JobStarter.h shell/JobStarter.cpp \
-    shell/Shell.h shell/Shell.cpp \
+    shell/JobFactory.h shell/JobMetaFactory.h \
+    shell/Shell.cpp \
     InputStream.h InputStream.cpp \
     dStorm/GUIThread.h dStorm/GUIThread.cpp \
     debug.h debug_print.h $(RESOURCE_FILE)
@@ -692,7 +693,8 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     kalman_filter/fwd.h kalman_filter/EmissionTracker.cpp \
-    kalman_filter/KalmanTrace.h
+    kalman_filter/KalmanTrace.h \
+    kalman_filter/DriftCorrection.cpp
 
 rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \

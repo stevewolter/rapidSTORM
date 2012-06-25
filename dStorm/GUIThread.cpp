@@ -19,6 +19,7 @@ bool GUIThread::need_wx_widgets() {
 
 void GUIThread::register_job( Job& job ) {
     boost::recursive_mutex::scoped_lock lock( mutex );
+    active_jobs.insert( &job );
 }
 
 void GUIThread::unregister_job( Job& job ) {

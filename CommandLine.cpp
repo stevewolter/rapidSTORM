@@ -1,5 +1,8 @@
 #include "debug.h"
 
+/* wxWidgets includes must come first, lest they conflict with -DBOOST_USE_WINDOWS_H */
+#include "config_file.h"
+
 #include <simparm/Message.h>
 #include "CommandLine.h"
 #include <vector>
@@ -18,7 +21,6 @@
 #include "simparm/wx_ui/Launcher.h"
 #include "simparm/text_stream/Launcher.h"
 #include "ui/serialization/deserialize.h"
-#include "config_file.h"
 #include "unit_tests.h"
 #include <boost/filesystem/path.hpp>
 

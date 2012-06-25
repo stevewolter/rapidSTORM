@@ -1,5 +1,5 @@
-#include "VisibilityControl.h"
 #include "config_file.h"
+#include "VisibilityControl.h"
 
 namespace simparm {
 namespace wx_ui {
