@@ -8,7 +8,8 @@
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/camera/time.hpp>
 
-namespace locprec {
+namespace dStorm {
+namespace kalman_filter {
 
 using namespace boost::units;
 
@@ -26,11 +27,8 @@ struct KalmanMetaInfo {
         time_unit >::type mobility_unit;
 
     KalmanMetaInfo()
-        : measurement_covar( Eigen::Matrix<double,Dimensions,Dimensions>::Zero() ),
-          random_system_dynamics_covar( Eigen::Matrix<double,2*Dimensions,2*Dimensions>::Zero() ) {}
+        : random_system_dynamics_covar( Eigen::Matrix<double,2*Dimensions,2*Dimensions>::Zero() ) {}
 
-    void set_measurement_covariance(int dim, quantity<obs_variance_unit> value)
-        { measurement_covar(dim,dim) = value.value(); }
     void set_diffusion(int dim, quantity<diffusion_unit> value)
         { random_system_dynamics_covar(dim,dim) = value.value(); }
     void set_mobility(int dim, quantity<mobility_unit> value)
@@ -38,7 +36,6 @@ struct KalmanMetaInfo {
 
   private:
     friend class KalmanTrace<Dimensions>;
-    Eigen::Matrix<double,Dimensions,Dimensions> measurement_covar;
     Eigen::Matrix<double,2*Dimensions,2*Dimensions> random_system_dynamics_covar;
 };
 
@@ -47,10 +44,15 @@ class KalmanTrace : public std::vector<dStorm::Localization> {
     static const int State = 2*Dimensions;
     static const int Obs = Dimensions;
 
-    struct Observation : public Eigen::Matrix<double,Obs,1> {
+    struct Observation {
+        Eigen::Matrix<double,Obs,1> position;
+        Eigen::Matrix<double,Obs,Obs> uncertainty;
         Observation(const dStorm::Localization& l) {
-            for (int i = 0; i < Dimensions; ++i)
-                (*this)(i,0) = l.position()[i] / si::metre;
+            uncertainty.fill(0);
+            for (int i = 0; i < Dimensions; ++i) {
+                position[i] = l.position()[i] / si::metre;
+                uncertainty(i,i) = pow<2>(l.position.uncertainty()[i] / si::metre);
+            }
         }
     };
 
@@ -143,7 +145,7 @@ void KalmanTrace<Dimensions>::update_prediction( const int to_prediction )
 
 template <int Dimensions>
 void KalmanTrace<Dimensions>::update_position( 
-    const Observation& measurement_vector,
+    const Observation& measurement,
     const int time)
 {
     if ( !have_prediction || time != prediction ) update_prediction(time);
@@ -151,7 +153,7 @@ void KalmanTrace<Dimensions>::update_position(
     /* Weight equation */
     Eigen::Matrix<double,State,Obs> weight_vector
         = prediction_precision * observation_matrix.transpose()
-          * ( meta.measurement_covar +
+          * ( measurement.uncertainty +
                   observation_matrix * prediction_precision
                       * observation_matrix.transpose() )
             .inverse();
@@ -159,7 +161,7 @@ void KalmanTrace<Dimensions>::update_position(
     /* Filtering equation */
     position_estimate = position_prediction + 
         weight_vector * (
-            measurement_vector - observation_matrix * position_prediction);
+            measurement.position - observation_matrix * position_prediction);
 
     /* Corrector equation */
     estimation_precision = 
@@ -183,13 +185,13 @@ float KalmanTrace<Dimensions>::sq_distance_in_sigmas (
         = observation_matrix * prediction_precision 
             * observation_matrix.transpose();
 
-    Eigen::Matrix<double,Obs,Obs> covar_of_next_measurement =
-            covar_of_observations + meta.measurement_covar;
+    Observation observation(position);
 
-    Observation real_observation(position);
+    Eigen::Matrix<double,Obs,Obs> covar_of_next_measurement =
+            covar_of_observations + observation.uncertainty;
 
     Eigen::Matrix<double,Obs,1> difference 
-        = expected_observation - real_observation;
+        = expected_observation - observation.position;
 
     double sq_dist = difference.dot( 
         covar_of_next_measurement.inverse() * difference );
@@ -204,8 +206,13 @@ void KalmanTrace<Dimensions>::add( const dStorm::Localization& l )
     if ( previous_observations_available )
         update_position( obs, l.frame_number() / camera::frame );
     else {
-        position_estimate = observation_matrix.transpose() * obs;
+        position_estimate = observation_matrix.transpose() * obs.position;
         position = l.frame_number() / camera::frame;
+        estimation_precision = 
+            observation_matrix.transpose() * obs.uncertainty
+                                        * observation_matrix;
+        for (int i = Dimensions; i < 2*Dimensions; i++)
+            estimation_precision(i,i) = 0;
     }
     this->push_back( l );
 }
@@ -213,15 +220,11 @@ void KalmanTrace<Dimensions>::add( const dStorm::Localization& l )
 template <int Dimensions>
 void KalmanTrace<Dimensions>::clear() 
 {
-    estimation_precision = 
-        observation_matrix.transpose() * meta.measurement_covar
-                                       * observation_matrix;
-    for (int i = Dimensions; i < 2*Dimensions; i++)
-        estimation_precision(i,i) = 0;
     have_prediction = false;
     std::vector<dStorm::Localization>::clear();
 }
 
+}
 }
 
 #endif

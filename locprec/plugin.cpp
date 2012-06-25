@@ -5,7 +5,6 @@
 #include <dStorm/Config.h>
 #include <dStorm/engine/SpotFitterFactory.h>
 #include "SpotMeter.h"
-#include "EmissionTracker.h"
 #include "PrecisionEstimator.h"
 #include "RegionOfInterest.h"
 #include "RipleyK.h"
@@ -16,7 +15,6 @@ using namespace dStorm::output;
 namespace locprec {
 
 void augment_config ( dStorm::Config& config ) {
-    config.add_output( locprec::emission_tracker::create() );
     config.add_output( make_segmenter_source().release() );
     config.add_output( make_spot_meter_source().release() );
     config.add_output( make_precision_estimator_source().release() );

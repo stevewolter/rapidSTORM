@@ -14,6 +14,7 @@
 
 #include "test-plugin/plugin.h"
 #include "locprec/plugin.h"
+#include "kalman_filter/fwd.h"
 #include "input_simulation/plugin.h"
 #include "AndorCamera/plugin.h"
 #include "viewer/plugin.h"
@@ -53,6 +54,7 @@ void add_modules( dStorm::Config& car_config )
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     AndorCamera::augment_config( car_config );
+    car_config.add_output( kalman_filter::create() );
     locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );
     test::make_config( &car_config );

@@ -59,6 +59,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
     dstorm.bugs/75_stm.exp dstorm.bugs/206.exp \
     dstorm.outputs/save-image-to-nonexisting-location.exp \
+    dstorm.outputs/emission-tracker.exp \
     dstorm.outputs/simple-filter.exp \
     dstorm.outputs/localization-filter-can-remove-output.exp \
     dstorm.outputs/viewer-closed-during-job.exp \
@@ -690,17 +691,19 @@ rapidstorm_SOURCES += \
     input_simulation/NoiseGenerator.h input_simulation/Fluorophore.h 
 
 rapidstorm_SOURCES += \
+    kalman_filter/fwd.h kalman_filter/EmissionTracker.cpp \
+    kalman_filter/KalmanTrace.h
+
+rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h \
     locprec/Noise.h locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
-    locprec/EmissionTracker.h locprec/EmissionTracker.cpp \
     locprec/SpotMeter.cpp \
     locprec/RegionSegmenter.h \
     locprec/relate.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
-    locprec/KalmanTrace.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \

@@ -1,3 +1,5 @@
+#include "fwd.h"
+
 #include <simparm/BoostUnits.h>
 #include <simparm/Entry.h>
 #include <simparm/Entry.h>
@@ -14,7 +16,6 @@
 #include <boost/ptr_container/ptr_array.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional/optional.hpp>
-#include "EmissionTracker.h"
 #include <algorithm>
 #include <numeric>
 #include <boost/units/Eigen/Array>
@@ -25,12 +26,11 @@
 #include <boost/units/Eigen/Array>
 #include <boost/utility/in_place_factory.hpp>
 
-using namespace dStorm;
 using namespace std;
 using namespace boost::units::camera;
 
-namespace locprec {
-namespace emission_tracker {
+namespace dStorm {
+namespace kalman_filter {
 
 template <typename Type>
 struct address_is_less : public std::binary_function<Type,Type,bool> {
@@ -111,7 +111,6 @@ public:
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     simparm::Entry<unsigned long> allowBlinking;
-    dStorm::FloatNanometreEntry expectedDeviation;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
     dStorm::output::TraceReducer::Config reducer;
@@ -127,19 +126,6 @@ public:
 };
 
 
-int traceNumber = 0;
-static int number_of_emission_nodes = 0;
-
-template <typename T>
-T sq(const T& a) { return a*a; }
-
-#if 0
-double distSq(const Localization& e, const Localization &loc) {
-    return ( sq(e.x()/pixel - loc.x()/pixel)
-           + sq(e.y()/pixel - loc.y()/pixel) );
-}
-#endif
-
 struct Output::TrackingInformation {
     int imageNumber;
     std::set< TracedObject* > emissions;
@@ -152,15 +138,6 @@ struct Output::TrackingInformation {
         assert( emissions.empty() );
     }
 
-    static bool all_nodes_accounted_for(
-        const std::vector<TrackingInformation*>& v,
-        int garbage_bin_size
-    ) {
-        int acc = garbage_bin_size;
-        for (unsigned int i = 0; i < v.size(); i++)
-            acc += v[i]->emissions.size();
-        return ( acc == number_of_emission_nodes );
-    }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
@@ -173,14 +150,11 @@ Output::TracedObject::~TracedObject() {
 
 Output::Config::Config() 
 : allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
-  expectedDeviation("ExpectedDeviation", "SD of expected distance between tracked localizations", 
-    20 * boost::units::si::nanometre),
   diffusion("DiffusionConstant", "Diffusion constant"),
   mobility("Mobility", "Mobility constant"),
   distance_threshold("DistanceThreshold", "Distance threshold", 2)
 {
     allowBlinking.setHelpID( "EmissionTracker.Allow_Blinking" );
-    expectedDeviation.setHelpID( "EmissionTracker.Expected_Deviation" );
     diffusion.setHelpID( "EmissionTracker.Diffusion_Constant" );
     mobility.setHelpID( "EmissionTracker.Mobility_Constant" );
 }
@@ -189,7 +163,6 @@ void Output::Config::attach_ui( simparm::NodeHandle at )
 {
     distance_threshold.attach_ui( at );
     allowBlinking.attach_ui( at );
-    expectedDeviation.attach_ui( at );
     diffusion.attach_ui( at );
     mobility.attach_ui( at );
     reducer.attach_ui( at );
@@ -206,7 +179,6 @@ Output::Output(
 {
     for (int i = 0; i < 2; ++i) {
         binners[i] = boost::in_place( 50,i,0 );
-        kalman_info.set_measurement_covariance(i, pow<2>( quantity<si::length>(config.expectedDeviation()) ));
         kalman_info.set_diffusion(i, config.diffusion() * 2.0);
         kalman_info.set_mobility(i, config.mobility());
     }
@@ -218,6 +190,10 @@ Output::~Output() {
 output::Output::AdditionalData
 Output::announceStormSize(const Announcement &a) 
 {
+    if ( ! a.position().uncertainty_is_given.head<2>().all() )
+        throw std::runtime_error("Localization precision is not known to Track Emissions. Either explicitly set the "
+                                 "sigmaposx and sigmaposy variables in a Expression Filter or set the optics parameters "
+                                 "for counts per photons and dark current.");
     Announcement my_announcement(a);
     static_cast< dStorm::input::Traits<Localization>& >(my_announcement) 
         = dStorm::input::Traits<Localization>();
@@ -382,9 +358,10 @@ void Output::finalizeImage(int imNum) {
 }
 
 void Output::store_results_( bool success ) {
-    for (int i = track_modulo+2; i >= 0; --i)
-        if ( last_seen_frame >= i * frame )
-            finalizeImage( last_seen_frame.value() - i );
+    if ( success )
+        for (int i = track_modulo+2; i >= 0; --i)
+            if ( last_seen_frame >= i * frame )
+                finalizeImage( last_seen_frame.value() - i );
     Filter::store_children_results( success );
 }
 

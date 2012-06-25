@@ -343,3 +343,12 @@ proc get_window { name } {
     }
     return -1;
 }
+
+proc get_localization_count { job } {
+    set count 0
+    expect {
+        -re "in LocalizationCount in value set (\[0-9\]*)\r*\n" { set count $expect_out(1,string); exp_continue; }
+        -re "remove $job" {}
+    }
+    return $count
+}
