@@ -18,8 +18,8 @@ namespace outputs {
 
 template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
-    (std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop)
-    : crop(crop), strategy(strategy)
+    (std::auto_ptr<BinningStrategy<Dim> > strategy, Interpolator interpolator, Crop crop)
+    : crop(crop), strategy(strategy), binningInterpolator(interpolator)
     {}
 
 template <typename KeepUpdated, int Dim>
@@ -29,7 +29,8 @@ BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
   announcement( 
     (o.announcement.get() == NULL )
         ? NULL : new Announcement(*o.announcement) ),
-  strategy( o.strategy->clone() )
+  strategy( o.strategy->clone() ),
+  binningInterpolator(o.binningInterpolator->clone())
 {}
 
 template <typename KeepUpdated, int Dim>
@@ -67,31 +68,21 @@ BinnedLocalizations<KeepUpdated,Dim>
     typename BinningStrategy<Dim>::Result r( er.size(), Dim+1 );
     int point_count = strategy->bin_points(er, r);
 
+    typedef std::vector< typename density_map::Interpolator<Dim>::ResultPoint > Points;
+    Points points;
     for (int i = 0; i < point_count; i++) {
         const Localization& l = er[i];
 
-        Eigen::Array<float,Dim,1> values, lower, terms;
-        values = r.row(i).template head<Dim>();
-        lower = floor( values );
+        Eigen::Array<float,Dim,1> values = r.row(i).template head<Dim>();
         float strength = r(i,Dim);
 
         this->binningListener().announce( l );
+        this->binningInterpolator->interpolate( l, values, points );
 
-        const typename BinnedImage::Position base_pos 
-            = from_value<camera::length>(lower.template cast<int>()) - crop;
-
-        /* This loops iterates over the linear interpolation terms,
-         * i.e. the corners of the hypercube. */
-        for (unsigned int corner_ = 0; corner_ < (1u << Dim); ++corner_) {
-            typename BinnedImage::Position p = base_pos;
-            std::bitset<Dim> high_corner( corner_ );
-            for (int j = 0; j < Dim; ++j)
-                if ( high_corner[j] ) p[j] += 1 * camera::pixel;
+        for ( typename Points::const_iterator point = points.begin(); point != points.end(); ++point ) {
+            const typename BinnedImage::Position p = point->position - crop;
             if ( ! base_image.contains( p ) ) continue;
-            for (int j = 0; j < Dim; ++j)
-                    terms[j] = (high_corner[j]) ? (values[j] - lower[j]) : 1.0f - (values[j] - lower[j]);
-
-            float val = strength * std::abs( terms.prod() );
+            float val = strength * point->relative_value;
             float old_val = base_image(p);
             float new_val = (base_image(p) += val);
             this->binningListener().updatePixel( p, old_val, new_val );

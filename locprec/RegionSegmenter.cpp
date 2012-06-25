@@ -40,6 +40,7 @@
 #include <boost/foreach.hpp>
 #include <dStorm/output/FilterBuilder.h>
 #include <dStorm/output/Filter.h>
+#include "density_map/LinearInterpolation.h"
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/dilation_impl.h>
@@ -212,7 +213,7 @@ Segmenter::Segmenter(
   howToSegment( config.method().type() ),
   threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
   dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),
-  bins( config.selector.make() ),
+  bins( config.selector.make(), density_map::make_linear_interpolator<2>() ),
   reducer( config.reducer.make_trace_reducer() ),
   load_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).load_segmentation() ),
   save_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).save_segmentation() ) 

@@ -8,6 +8,7 @@
 #include <dStorm/image/MetaInfo.h>
 #include "../output/Output.h"
 #include <cassert>
+#include "density_map/Interpolator.h"
 
 namespace dStorm {
 namespace outputs {
@@ -113,6 +114,7 @@ namespace outputs {
         typedef Eigen::Array< boost::units::quantity<camera::length,int>, 
                               Dim, 1, Eigen::DontAlign > 
                 Crop;
+        typedef typename density_map::Interpolator<Dim>::Ptr Interpolator;
 
         static const Crop no_crop;
       protected:
@@ -126,6 +128,7 @@ namespace outputs {
         std::auto_ptr<Announcement> announcement;
 
         std::auto_ptr<BinningStrategy<Dim> > strategy;
+        Interpolator binningInterpolator;
 
         void set_base_image_size();
         
@@ -137,7 +140,10 @@ namespace outputs {
       public:
         /** @param crop Gives the amount of space to be cut from all
          *              image borders. */
-        BinnedLocalizations(std::auto_ptr<BinningStrategy<Dim> > strategy, Crop crop = no_crop);
+        BinnedLocalizations(
+            std::auto_ptr<BinningStrategy<Dim> > strategy, 
+            Interpolator interpolator,
+            Crop crop = no_crop);
         BinnedLocalizations(const BinnedLocalizations&);
 
         template <typename OtherListener>

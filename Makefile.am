@@ -836,6 +836,11 @@ rapidstorm_SOURCES += \
     $(SIFSUPPORT) \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
+rapidstorm_SOURCES += \
+    density_map/Interpolator.h density_map/InterpolatorFactory.h \
+    density_map/LinearInterpolation.h density_map/LinearInterpolation.hpp \
+    density_map/LinearInterpolation.cpp
+
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
 rapidstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
