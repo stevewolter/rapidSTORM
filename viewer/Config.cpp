@@ -76,6 +76,7 @@ void Config::attach_ui( simparm::NodeHandle n ) {
    density_matrix.attach_ui(n);
 
    binned_dimensions.attach_ui(n);
+   interpolator.attach_ui(n);
    histogramPower.attach_ui(n);
    top_cutoff.attach_ui(n);
    colourScheme.attach_ui(n);

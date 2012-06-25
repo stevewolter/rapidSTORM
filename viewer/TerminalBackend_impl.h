@@ -20,7 +20,7 @@ namespace viewer {
 
 template <typename Hueing>
 TerminalBackend<Hueing>::TerminalBackend(const Colorizer& col, Status& status)
-: image( status.config.binned_dimensions.make(), density_map::make_linear_interpolator<3>(), status.config.crop_border() ),
+: image( status.config.binned_dimensions.make(), status.config.interpolator.make(), status.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         status.config.histogramPower(), image(),

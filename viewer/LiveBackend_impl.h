@@ -9,7 +9,6 @@
 #include "Display.h"
 #include "Status.h"
 #include "Config.h"
-#include "density_map/LinearInterpolation.h"
 
 namespace dStorm {
 namespace viewer {
@@ -17,7 +16,7 @@ namespace viewer {
 template <typename Hueing>
 LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
 : status(s), 
-  image( s.config.binned_dimensions.make(), density_map::make_linear_interpolator<3>(), s.config.crop_border() ),
+  image( s.config.binned_dimensions.make(), s.config.interpolator.make(), s.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         s.config.histogramPower(), image(),

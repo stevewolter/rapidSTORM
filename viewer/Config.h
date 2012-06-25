@@ -17,6 +17,7 @@
 #include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include "ColourScheme.h"
 #include "Image.h"
+#include "density_map/InterpolatorChoice.h"
 
 namespace dStorm {
 namespace viewer {
@@ -29,6 +30,7 @@ class Config {
     simparm::BoolEntry showOutput, density_matrix_given;
     output::BasenameAdjustedFileEntry outputFile, density_matrix;
     outputs::DimensionSelector<Im::Dim> binned_dimensions;
+    density_map::InterpolatorChoice<3> interpolator;
     simparm::Entry<double> histogramPower, top_cutoff;
     simparm::ManagedChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
