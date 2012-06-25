@@ -415,6 +415,7 @@ rapidstorm_SOURCES += \
     expression/unit_test.cpp
 
 rapidstorm_SOURCES += \
+    outputs/DriftRemover.cpp outputs/DriftRemover.h \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \
     outputs/ProgressMeter.cpp \
@@ -694,7 +695,7 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     kalman_filter/fwd.h kalman_filter/EmissionTracker.cpp \
     kalman_filter/KalmanTrace.h \
-    kalman_filter/DriftCorrection.cpp
+    kalman_filter/NonlinearDriftEstimator.cpp
 
 rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \

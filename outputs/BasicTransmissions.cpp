@@ -11,6 +11,7 @@
 #include "LocalizationFile.h"
 #include "SigmaDiff3D.h"
 #include "LinearAlignment.h"
+#include "DriftRemover.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -29,6 +30,7 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( expression::make_output_source().release() );
     o->add_output( make_sigma_diff_3d().release() );
     o->add_output( make_linear_alignment().release() );
+    o->add_output( drift_remover::make().release() );
 }
 
 }
