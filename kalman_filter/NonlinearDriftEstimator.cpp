@@ -88,7 +88,7 @@ private:
         std::ofstream output( output_file.c_str() );
         typedef std::pair< frame_index, int > TimePair;
         std::vector< frame_index >::const_iterator i = times.begin();
-        output << i->value() << " 0 0\n";
+        output << i->value() << " 0 0 0\n";
         for ( ++i; i != times.end(); ++i ) {
             int time_index = time_offset + (i - times.begin()) - 1;
             output << i->value() << " " << result[0][ time_index ] 
