@@ -794,6 +794,7 @@ rapidstorm_SOURCES += \
     simparm/wx_ui/ScrolledWindowNode.h simparm/wx_ui/ScrolledWindowNode.cpp \
     simparm/wx_ui/ScrolledTabNode.h simparm/wx_ui/ScrolledTabNode.cpp \
     simparm/wx_ui/ChoiceNode.h simparm/wx_ui/ChoiceNode.cpp \
+    simparm/wx_ui/OutputChoiceNode.h simparm/wx_ui/OutputChoiceNode.cpp \
     simparm/wx_ui/TriggerNode.h simparm/wx_ui/TriggerNode.cpp \
     simparm/wx_ui/ProgressNode.h simparm/wx_ui/ProgressNode.cpp \
     simparm/wx_ui/AttributeHandle.h \

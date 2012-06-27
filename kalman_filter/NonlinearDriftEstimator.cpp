@@ -10,7 +10,8 @@
 
 #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
 #include <Eigen/Sparse>
-#include <unsupported/Eigen/SparseExtra>
+//#include <unsupported/Eigen/SparseExtra>
+#include <Eigen/SparseCholesky>
 #include <boost/lexical_cast.hpp>
 #include <boost/range/algorithm/find.hpp>
 #include <boost/range/algorithm/lower_bound.hpp>
@@ -44,12 +45,12 @@ class DriftSection {
     static const samplepos::Scalar position_unity, uncertainty_unity;
 
     static const int Dimensions = samplepos::RowsAtCompileTime;
-    typedef Eigen::SparseMatrix<double, Eigen::RowMajor> EquationSystem;
+    typedef Eigen::SparseMatrix<double> EquationSystem;
     typedef Eigen::VectorXd Vector;
     typedef std::vector<frame_index>::const_iterator TimeRef;
 
     TimeRef time_begin, time_end;
-    EquationSystem equations;
+    EquationSystem equations_transposed;
     Vector measurements[Dimensions], weights[Dimensions], solutions[Dimensions], covariances[Dimensions];
     int measurement_index, time_offset;
     bool equation_systems_solved;
@@ -83,7 +84,7 @@ DriftSection::DriftSection(
     TimeRef begin_time, TimeRef end_time,
     const input::Traits<Localization>& traits )
 : time_begin( begin_time ), time_end( end_time ),
-  equations( number_of_measurements, (end_time-begin_time) - 1 + number_of_beads ),
+  equations_transposed( (end_time-begin_time) - 1 + number_of_beads, number_of_measurements ),
   measurement_index(0),
   time_offset(number_of_beads),
   equation_systems_solved(false),
@@ -98,10 +99,10 @@ DriftSection::DriftSection(
 
 void DriftSection::add_measurement( BeadPosition measurement ) {
     int bead_column = bead_index( measurement.bead_id );
-    equations.startVec( measurement_index );
-    equations.insertBack( measurement_index, bead_column ) = 1;
+    equations_transposed.startVec( measurement_index );
+    equations_transposed.insertBack( bead_column, measurement_index ) = 1;
     if ( measurement.time != *time_begin )
-        equations.insertBack( measurement_index, time_offset + time_index(measurement.time) - 1 ) = 1;
+        equations_transposed.insertBack( time_offset + time_index(measurement.time) - 1, measurement_index ) = 1;
     for (int i = 0; i < Dimensions; ++i) 
         measurements[i][ measurement_index ] = measurement.position[i] / position_unity;
     for (int i = 0; i < Dimensions; ++i) 
@@ -110,26 +111,32 @@ void DriftSection::add_measurement( BeadPosition measurement ) {
 }
 
 void DriftSection::solve_equation_systems() {
-    assert( measurement_index == equations.rows() );
+    assert( measurement_index == equations_transposed.cols() );
     assert( int(bead_ids.size()) == time_offset );
-    equations.finalize();
+    equations_transposed.finalize();
 
     for (int i = 0; i < Dimensions; ++i) {
         EquationSystem squaring_matrix;
-        squaring_matrix = equations.transpose() * weights[i].asDiagonal();
-        EquationSystem square = squaring_matrix * equations;
+        squaring_matrix = equations_transposed * weights[i].asDiagonal();
+        EquationSystem square = squaring_matrix * equations_transposed.transpose();
 
-        Eigen::SparseLDLT< EquationSystem > decomposed( square );
-        if ( ! decomposed.succeeded() )
+        Eigen::SimplicialLDLT< EquationSystem > decomposed;
+        decomposed.compute( square );
+        if ( decomposed.info() != Eigen::Success )
             throw std::runtime_error("Unable to invert least squares variable matrix");
 
         Eigen::VectorXd t = squaring_matrix * measurements[i];
-        solutions[i] = decomposed.solve( t );
+        //solutions[i] = decomposed.solve( t );
+        if ( decomposed.info() != Eigen::Success )
+            throw std::runtime_error("Unable to solve equation system for positions");
 
         covariances[i] = Eigen::VectorXd( time_offset );
         for (int bead = 0; bead < time_offset; ++bead) {
             Eigen::VectorXd identity_column = Eigen::VectorXd::Unit( t.rows(), bead );
-            Eigen::VectorXd inverse_column = decomposed.solve( identity_column );
+            Eigen::VectorXd inverse_column;
+            inverse_column = decomposed.solve( identity_column );
+            if ( decomposed.info() != Eigen::Success )
+                throw std::runtime_error("Unable to solve equation system for covariances");
             covariances[i][bead] = inverse_column[bead];
         }
     }

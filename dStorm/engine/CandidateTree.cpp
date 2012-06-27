@@ -15,7 +15,7 @@ template <typename PixelType>
 CandidateTree<PixelType>::~CandidateTree() {}
 
 template <typename PixelType>
-void CandidateTree<PixelType>::insert( const Element& e, PixelType& largestReject ) {
+void CandidateTree<PixelType>::insert( const Element e, PixelType& largestReject ) {
     typedef typename std::vector< Candidate<PixelType> >::iterator Iter;
     std::pair<Iter,Iter> places = 
         std::equal_range( elements.begin(), elements.end(), e, 

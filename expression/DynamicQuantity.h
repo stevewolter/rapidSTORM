@@ -31,7 +31,7 @@ struct DynamicUnit : public Eigen::Matrix<double, BaseUnits::Number, 1, Eigen::D
 struct DynamicQuantity {
     double value;
     DynamicUnit unit;
-    DynamicQuantity() {}
+    DynamicQuantity() : value(0) {}
     DynamicQuantity(double v, DynamicUnit u) : value(v), unit(u) {}
 };
 

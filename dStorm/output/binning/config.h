@@ -52,7 +52,6 @@ struct FieldChoice
 }
 
 DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::output::binning::FieldConfig)
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::output::binning::FieldChoice)
 
 
 #endif

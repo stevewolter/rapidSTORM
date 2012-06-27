@@ -10,10 +10,10 @@ namespace output {
 template <typename BaseType>
 struct OutputFileAdjuster : public BaseType {
     OutputFileAdjuster()
-        { adjust_to_basename( BaseType::config.outputFile ); }
+        { this->adjust_to_basename( BaseType::config.outputFile ); }
     OutputFileAdjuster(const OutputFileAdjuster<BaseType>& o)
         : BaseType(o)
-        { adjust_to_basename( BaseType::config.outputFile ); }
+        { this->adjust_to_basename( BaseType::config.outputFile ); }
 
     OutputFileAdjuster* clone() const 
         { return new OutputFileAdjuster(*this); }

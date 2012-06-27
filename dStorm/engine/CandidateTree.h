@@ -22,7 +22,7 @@ namespace engine {
         std::vector< Candidate<PixelType> > elements;
         const int msx, msy, bx, by;
         unsigned limit_;
-        inline void insert( const Candidate<PixelType>&, PixelType& );
+        inline void insert( const Candidate<PixelType>, PixelType& );
       public:
         typedef Candidate<PixelType> Element;
         typedef dStorm::Image<PixelType,2> Input;

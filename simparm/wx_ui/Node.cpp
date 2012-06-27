@@ -8,6 +8,7 @@
 #include "TextfieldNode.h"
 #include "TabNode.h"
 #include "ChoiceNode.h"
+#include "OutputChoiceNode.h"
 #include "TriggerNode.h"
 #include "ProgressNode.h"
 #include "CheckboxNode.h"
@@ -61,7 +62,11 @@ simparm::NodeHandle Node::create_tab_group( std::string name ) {
 }
 
 simparm::NodeHandle Node::create_choice( std::string name ) {
-    return NodeHandle( new ChoiceNode( shared_from_this() , name ) );
+    /* TODO: Dirty hack, should explicitly provide a create_output_choice class */ 
+    if ( name == "ChooseTransmission" )
+        return create_output_choice_node( shared_from_this() , name );
+    else
+        return NodeHandle( new ChoiceNode( shared_from_this() , name ) );
 }
 
 NodeHandle Node::create_trigger( std::string name ) { 
