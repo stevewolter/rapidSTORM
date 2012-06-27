@@ -46,6 +46,7 @@ struct BadnessFunction
         : rotation( Eigen::Matrix2d::Identity() ), translation( Eigen::Vector2d::Zero() ), images(images), sigma(sigma) {}
 
     double evaluate( gsl_vector * nabla_f ) const {
+        int count = 0;
         double value = 0;
         if ( nabla_f ) gsl_vector_set_zero( nabla_f );
         for ( ImageMap::const_iterator i = images.begin(); i != images.end(); ++i ) {
@@ -69,6 +70,7 @@ struct BadnessFunction
                         }
                     }
 
+                    ++count;
                     value += v;
                 }
             }
@@ -170,8 +172,8 @@ std::auto_ptr<dStorm::Job> AlignmentFitterConfig::make_job() { return std::auto_
 AlignmentFitter::AlignmentFitter()
 : file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file"),
   sigma("Sigma", "Sigma", 1), 
-  shift_x("ShiftX", "Shift X in mum"),
-  shift_y("ShiftY", "Shift Y in mum"),
+  shift_x("ShiftX", "Shift X in mum", 0),
+  shift_y("ShiftY", "Shift Y in mum", 0),
   scale_x("ScaleX", "Scale factor X", 1),
   scale_y("ScaleY", "Scale factor Y", 1),
   shear_x("ShearX", "Shear factor in X", 0),

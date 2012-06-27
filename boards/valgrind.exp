@@ -22,7 +22,7 @@ proc program_start { cmd args } {
     global objdir
     global srcdir
 
-    spawn libtool --mode=execute valgrind --error-exitcode=42 $objdir/$cmd $args
+    spawn libtool --mode=execute valgrind --error-exitcode=42 $objdir/$cmd {*}$args
 }
 proc program_exit { cmd } {}
 
