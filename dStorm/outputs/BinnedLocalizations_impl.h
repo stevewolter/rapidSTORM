@@ -20,7 +20,10 @@ template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
     (std::auto_ptr<BinningStrategy<Dim> > strategy, Interpolator interpolator, Crop crop)
     : crop(crop), strategy(strategy), binningInterpolator(interpolator)
-    {}
+{
+    assert( this->strategy.get() );
+    assert( this->binningInterpolator.get() );
+}
 
 template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations

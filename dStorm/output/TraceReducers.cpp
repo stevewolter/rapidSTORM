@@ -31,7 +31,7 @@ class AveragingReducer : public TraceReducer {
 
         if ( n == 0 ) n = 1;
 
-        Localization r( *start );
+        Localization r;
         for (int i = 0; i < r.position().rows(); ++i)
             r.position()[i] = position[i] / (1.0f*n) - shift[i];
         r.amplitude = total_amplitude;

@@ -12,7 +12,8 @@ BinnedLocalizations<Listener,Dim>::
 : crop(o.crop),
   base_image(o.base_image),
   announcement( (o.announcement.get()) ? new Announcement(*o.announcement) : NULL ),
-  strategy( o.strategy->clone() )
+  strategy( o.strategy->clone() ),
+  binningInterpolator( o.binningInterpolator->clone() )
 {
 }
 
