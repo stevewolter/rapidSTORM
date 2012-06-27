@@ -349,7 +349,8 @@ void Output::finalizeImage(int imNum) {
             o.begin(), o.end(),
             boost::back_inserter(er), 
             dStorm::samplepos::Constant(0*si::meter) );
-        positional( o.cache_position->x(), o.cache_position->y() ).erase( &o );
+        if ( o.cache_position.is_initialized() )
+            positional( o.cache_position->x(), o.cache_position->y() ).erase( &o );
         traced_objects.erase( o );
     }
 

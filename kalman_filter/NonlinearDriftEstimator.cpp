@@ -12,27 +12,170 @@
 #include <Eigen/Sparse>
 #include <unsupported/Eigen/SparseExtra>
 #include <boost/lexical_cast.hpp>
+#include <boost/range/algorithm/find.hpp>
 #include <boost/range/algorithm/lower_bound.hpp>
 #include <boost/range/algorithm/binary_search.hpp>
+#include <boost/units/io.hpp>
+
+namespace br = boost::range;
 
 namespace dStorm {
 namespace kalman_filter {
 
+struct BeadPosition {
+    samplepos position, uncertainty;
+    frame_index time;
+    int bead_id;
+
+    BeadPosition() {}
+    BeadPosition( const Localization& l, const input::Traits<Localization>& t, int bead_id ) 
+    : position( l.position() ), uncertainty( l.position.uncertainty() ), time( l.frame_number() ), bead_id( bead_id )
+    {
+        for (int i = 0; i < position.rows(); ++i) {
+            if ( ! t.position().is_given[i] )
+                position[i] = 0 * si::meter;
+            if ( ! t.position().uncertainty_is_given[i] )
+                uncertainty[i] = 1E-8 * si::meter;
+        }
+    }
+};
+
+class DriftSection {
+    static const samplepos::Scalar position_unity, uncertainty_unity;
+
+    static const int Dimensions = samplepos::RowsAtCompileTime;
+    typedef Eigen::SparseMatrix<double, Eigen::RowMajor> EquationSystem;
+    typedef Eigen::VectorXd Vector;
+    typedef std::vector<frame_index>::const_iterator TimeRef;
+
+    TimeRef time_begin, time_end;
+    EquationSystem equations;
+    Vector measurements[Dimensions], weights[Dimensions], solutions[Dimensions], covariances[Dimensions];
+    int measurement_index, time_offset;
+    bool equation_systems_solved;
+    const input::Traits<Localization>& traits;
+    std::vector<int> bead_ids;
+
+    int time_index( frame_index f ) {
+        TimeRef i = std::lower_bound( time_begin, time_end, f );
+        assert( i != time_end && *i == f );
+        return i - time_begin;
+    }
+    int bead_index( int bead_id ) {
+        std::vector<int>::iterator i = br::find( bead_ids, bead_id );
+        if ( i == bead_ids.end() )
+            i = bead_ids.insert( i, bead_id );
+        return i - bead_ids.begin();
+    }
+    void solve_equation_systems();
+    
+public:
+    DriftSection( int number_of_beads, int number_of_measurements,
+                    TimeRef begin_time, TimeRef end_time,
+                    const input::Traits<Localization>& traits );
+    void add_measurement( BeadPosition position );
+    std::vector<BeadPosition> bead_positions();
+    std::vector<BeadPosition> get_drift();
+};
+
+DriftSection::DriftSection( 
+    int number_of_beads, int number_of_measurements,
+    TimeRef begin_time, TimeRef end_time,
+    const input::Traits<Localization>& traits )
+: time_begin( begin_time ), time_end( end_time ),
+  equations( number_of_measurements, (end_time-begin_time) - 1 + number_of_beads ),
+  measurement_index(0),
+  time_offset(number_of_beads),
+  equation_systems_solved(false),
+  traits(traits)
+{
+    bead_ids.reserve( number_of_beads );
+    for (int i = 0; i < Dimensions; ++i) {
+        measurements[i].resize( number_of_measurements );
+        weights[i].resize( number_of_measurements );
+    }
+}
+
+void DriftSection::add_measurement( BeadPosition measurement ) {
+    int bead_column = bead_index( measurement.bead_id );
+    equations.startVec( measurement_index );
+    equations.insertBack( measurement_index, bead_column ) = 1;
+    if ( measurement.time != *time_begin )
+        equations.insertBack( measurement_index, time_offset + time_index(measurement.time) - 1 ) = 1;
+    for (int i = 0; i < Dimensions; ++i) 
+        measurements[i][ measurement_index ] = measurement.position[i] / position_unity;
+    for (int i = 0; i < Dimensions; ++i) 
+        weights[i][ measurement_index ] = 1.0 / pow<2>( measurement.uncertainty[i] / uncertainty_unity );
+    ++measurement_index;
+}
+
+void DriftSection::solve_equation_systems() {
+    assert( measurement_index == equations.rows() );
+    assert( int(bead_ids.size()) == time_offset );
+    equations.finalize();
+
+    for (int i = 0; i < Dimensions; ++i) {
+        EquationSystem squaring_matrix;
+        squaring_matrix = equations.transpose() * weights[i].asDiagonal();
+        EquationSystem square = squaring_matrix * equations;
+
+        Eigen::SparseLDLT< EquationSystem > decomposed( square );
+        if ( ! decomposed.succeeded() )
+            throw std::runtime_error("Unable to invert least squares variable matrix");
+
+        Eigen::VectorXd t = squaring_matrix * measurements[i];
+        solutions[i] = decomposed.solve( t );
+
+        covariances[i] = Eigen::VectorXd( time_offset );
+        for (int bead = 0; bead < time_offset; ++bead) {
+            Eigen::VectorXd identity_column = Eigen::VectorXd::Unit( t.rows(), bead );
+            Eigen::VectorXd inverse_column = decomposed.solve( identity_column );
+            covariances[i][bead] = inverse_column[bead];
+        }
+    }
+
+    equation_systems_solved = true;
+}
+
+std::vector<BeadPosition> DriftSection::bead_positions() {
+    if ( ! equation_systems_solved ) solve_equation_systems();
+
+    std::vector<BeadPosition> rv( time_offset, BeadPosition() );
+    for (int i = 0; i < time_offset; ++i) {
+        for (int d = 0; d < Dimensions; ++d) {
+            rv[i].position[d] = float(solutions[d][i]) * position_unity;
+            rv[i].uncertainty[d] = float(sqrt(covariances[d][i])) * uncertainty_unity;
+        }
+        rv[i].bead_id = bead_ids[i];
+        rv[i].time = *time_begin;
+    }
+    return rv;
+}
+
+std::vector<BeadPosition> DriftSection::get_drift() {
+    if ( ! equation_systems_solved ) solve_equation_systems();
+
+    std::vector<BeadPosition> rv( (time_end - time_begin), BeadPosition() );
+    for ( TimeRef t = time_begin; t != time_end; ++t )
+        rv[t - time_begin].time = *t;
+    rv[0].position.fill( 0 * si::meter );
+    for (int i = 0; i < int(rv.size()-1); ++i) {
+        for (int d = 0; d < Dimensions; ++d) {
+            rv[i+1].position[d] = float(solutions[d][i + time_offset]) * position_unity;
+        }
+    }
+    return rv;
+}
+
 class NonlinearDriftEstimator : public output::Output {
 private:
-    struct BeadPosition {
-        samplepos position, uncertainty;
-        frame_index time;
-
-        BeadPosition( const Localization& l ) 
-        : position( l.position() ), uncertainty( l.position.uncertainty() ), time( l.frame_number() ) {}
-    };
-    struct Bead {
-        std::vector< BeadPosition > positions;
-    };
-    std::vector< Bead > beads;
+    static const int Dimensions = samplepos::RowsAtCompileTime;
     std::vector< frame_index > times;
+    std::vector< BeadPosition > measurements;
     std::string output_file;
+    frame_count slice_size;
+
+    boost::optional< input::Traits<Localization> > traits;
 
     int time_index( frame_index t ) {
         assert( t != times.front() );
@@ -40,59 +183,60 @@ private:
     }
 
     void store_results_( bool success ) {
-        if ( ! success ) return;
-        int bead_count = beads.size();
-        int distinct_times = times.size() - 1;
-        int variable_count = bead_count + distinct_times;
-        int time_offset = bead_count;
+        if ( ! success || times.empty() ) return;
 
-        int measurement_count = 0;
-        BOOST_FOREACH( const Bead& b, beads ) {
-            measurement_count += b.positions.size();
+        std::vector< BeadPosition > meta_positions;
+        std::vector< frame_index > meta_times;
+
+        int slice_count = times.size() / slice_size.value() + 1;
+
+        std::vector< std::vector<BeadPosition> > intra_slice_positions;
+        intra_slice_positions.reserve( slice_count );
+
+        std::vector< frame_index >::const_iterator last_end = times.begin();
+        for (int slice = 0; slice < slice_count; ++slice) {
+            std::vector< frame_index >::const_iterator slice_start = last_end, 
+                slice_end = (slice+1 == slice_count) ? times.end() : (slice_start + times.size() / slice_count);
+
+            meta_times.push_back( *slice_start );
+
+            int number_of_measurements = 0; std::set<int> active_beads;
+            BOOST_FOREACH( const BeadPosition& position, measurements )
+                if ( position.time >= *slice_start && (slice_end == times.end() || position.time < *slice_end ) ) {
+                    ++number_of_measurements;
+                    active_beads.insert( position.bead_id );
+                }
+
+            DriftSection section( active_beads.size(), number_of_measurements, slice_start, slice_end, *traits );
+            BOOST_FOREACH( const BeadPosition& position, measurements )
+                if ( position.time >= *slice_start && (slice_end == times.end() || position.time < *slice_end ) )
+                    section.add_measurement( position );
+                    
+            intra_slice_positions.push_back( section.get_drift() );
+            std::vector< BeadPosition > origins = section.bead_positions();
+            std::copy( origins.begin(), origins.end(), std::back_inserter( meta_positions ) );
+
+            last_end = slice_end;
         }
 
-        /* Build a linear equation system for the equations D_t + B_i = M,
-         * where D_t is the drift at time t, B_i is the i-th bead, and M is
-         * the measured position of the bead. The first i variables are the
-         * B_i, and the rest are the T-1 time points. t = 0 is 0 by convention
-         * to eliminate the superfluous degree of freedom. */
-        typedef Eigen::SparseMatrix<double, Eigen::RowMajor> VariableMatrix;
-        VariableMatrix variables( measurement_count, variable_count );
-        Eigen::VectorXd measurements[2];
-        for (int i = 0; i < 2; ++i) 
-            measurements[i].resize( measurement_count );
-        variables.reserve( measurement_count * 2 );
-        int measurement_index = 0;
-        for ( int bead_index = 0; bead_index < bead_count; ++bead_index ) {
-            BOOST_FOREACH( const BeadPosition& measurement, beads[bead_index].positions ) {
-                variables.startVec( measurement_index );
-                variables.insertBack( measurement_index, bead_index ) = 1;
-                if ( measurement.time != times.front() )
-                    variables.insertBack( measurement_index, time_offset + time_index(measurement.time) - 1 ) = 1;
-                for (int i = 0; i < 2; ++i) 
-                    measurements[i][ measurement_index ] = measurement.position[i].value() * 1E9;
-                ++measurement_index;
-            }
-        }
-        variables.finalize();
+        std::set<int> active_beads;
+        BOOST_FOREACH( const BeadPosition& position, meta_positions )
+            active_beads.insert( position.bead_id );
 
-        Eigen::SparseLDLT< VariableMatrix > decomposed( variables.transpose() * variables );
-        if ( ! decomposed.succeeded() )
-            throw std::runtime_error("Unable to invert least squares variable matrix");
-        Eigen::VectorXd result[2];
-        for (int i = 0; i < 2; ++i) {
-            Eigen::VectorXd t = variables.transpose() * measurements[i];
-            result[i] = decomposed.solve( t );
-        }
+        DriftSection meta_section( active_beads.size(), meta_positions.size(), meta_times.begin(), meta_times.end(), *traits );
+        BOOST_FOREACH( const BeadPosition& position, meta_positions )
+            meta_section.add_measurement( position );
+
+        std::vector< BeadPosition > meta_trace = meta_section.get_drift();
 
         std::ofstream output( output_file.c_str() );
-        typedef std::pair< frame_index, int > TimePair;
-        std::vector< frame_index >::const_iterator i = times.begin();
-        output << i->value() << " 0 0 0\n";
-        for ( ++i; i != times.end(); ++i ) {
-            int time_index = time_offset + (i - times.begin()) - 1;
-            output << i->value() << " " << result[0][ time_index ] 
-                                 << " " << result[1][ time_index ] << " 0\n";
+        for (int slice = 0; slice < slice_count; ++slice) {
+            BOOST_FOREACH( const BeadPosition& p, intra_slice_positions[slice] ) {
+                output << p.time.value();
+                for (int dim = 0; dim < Dimensions; ++dim)
+                    output << " " << quantity<si::nanolength>( meta_trace[slice].position[dim] + p.position[dim] ).value() ;
+                output << "\n";
+            }
         }
     }
     void attach_ui_( simparm::NodeHandle at ) {}
@@ -100,37 +244,42 @@ private:
 public:
     struct Config { 
         simparm::FileEntry output_file;
+        simparm::Entry< frame_index > slice_size;
 
-        Config() : output_file("ToFile", "Write localization count to file", "-drift.txt") {}
+        Config() : output_file("ToFile", "Write localization count to file", "-drift.txt"),
+                   slice_size("SectionSize", "Section size", 200 * camera::frame) {}
         bool can_work_with(output::Capabilities) { return true; }
-        void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); }
+        void attach_ui( simparm::NodeHandle at ) { output_file.attach_ui( at ); slice_size.attach_ui( at ); }
         static std::string get_name() { return "NonlinearDrift"; }
         static std::string get_description() { return "Nonlinear drift estimator"; }
         static simparm::UserLevel get_user_level() { return simparm::Expert; }
     };
 
-    NonlinearDriftEstimator(const Config & c) : output_file( c.output_file() ) {}
+    NonlinearDriftEstimator(const Config & c) : output_file( c.output_file() ), slice_size( c.slice_size() ) {}
 
     RunRequirements announce_run(const RunAnnouncement&) {
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
+        traits = a;
         return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
         for ( EngineResult::const_iterator bead = er.begin(); bead != er.end(); ++bead ) {
-            beads.push_back( Bead() );
-            Bead& b = beads.back();
-            for ( std::vector<Localization>::const_iterator l = bead->children->begin(); l != bead->children->end(); ++l ) {
-                b.positions.push_back( BeadPosition( *l ) );
-                std::vector< frame_index >::iterator insert_place = boost::range::lower_bound( times, l->frame_number() );
-                if ( insert_place == times.end() || *insert_place != l->frame_number() )
-                    times.insert( insert_place, l->frame_number() );
+            int bead_id = bead - er.begin();
+            BOOST_FOREACH( const Localization& l, *bead->children ) {
+                measurements.push_back( BeadPosition( l, *traits, bead_id ) );
+                std::vector< frame_index >::iterator insert_place = boost::range::lower_bound( times, l.frame_number() );
+                if ( insert_place == times.end() || *insert_place != l.frame_number() )
+                    times.insert( insert_place, l.frame_number() );
             }
         }
     }
 
 };
+
+const samplepos::Scalar DriftSection::position_unity = 1E-6f * si::meter;
+const samplepos::Scalar DriftSection::uncertainty_unity = 1E-8f * si::meter;
 
 std::auto_ptr< output::OutputSource > create_drift_correction() {
     return std::auto_ptr< output::OutputSource >( new output::OutputBuilder< NonlinearDriftEstimator::Config, NonlinearDriftEstimator >() );

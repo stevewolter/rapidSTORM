@@ -1,18 +1,17 @@
+# The generating script for the test data is on obelix.biozentrum.uni-wuerzburg.de:/projects/drifters/20120627-random-blinking-drift/tracked-pruned.txt
+# This python script gives 25 beads with the X uncertainties 3.0 .. 5.4, which gives a uncertainty
+# of the mean for the unpruned file of sqrt( dot(uncertainty,uncertainty) ) / 25 = 0.85. The pruning
+# removed 0.9 of the localizations, so the resulting efficiency is a statistical ensemble.
+# For Y, the target efficiency is sqrt( 10 + 9.8 + ... + 5.2 ) / 25 = 1.55
+# For Z, the target efficiency is 50 / sqrt(25) = 10.
+
 begin_test_suite
+set timeout 100
 
 set_input_file "${testcase_target}random-drift.txt"
 
-send "in Car in Output in EngineOutput in ChooseTransmission in value set Expression\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in ExpressionCount in value set 2\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in LValue in value set sigmaposx\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set 5 nm\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine1 in LValue in value set sigmaposy\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine1 in Expression in value set 5 nm\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in ChooseTransmission in value set EmissionTracker\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in ChooseTransmission in value set TraceFilter\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output0 in TraceFilter in MinEmissionCount in value set 50\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output0 in TraceFilter in ChooseTransmission in value set NonlinearDrift\n"
-send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in EmissionTracker in Output0 in TraceFilter in Output0 in NonlinearDrift in ToFile in value set ${tmpdir_target}drift.txt\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set NonlinearDrift\n"
+send "in Car in Output in EngineOutput in Output0 in NonlinearDrift in ToFile in value set ${tmpdir_target}drift.txt\n"
 
 dstorm_attach
 set test "Drift estimation runs without errors"
@@ -22,41 +21,48 @@ expect {
     -re "remove $job" { pass "$test"; }
 }
 
-set test "Drift estimation gives sane results"
+set test "Drift estimation gives correct residual variance"
 spawn cat "${tmpdir_host}drift.txt"
 
+set n 0
+set mean_x 0
+set M2_x 0
+set mean_y 0
+set M2_y 0
+set mean_z 0
+set M2_z 0
 expect {
-    -re "400 (\[0-9.\]*) (\[0-9.\]*)" { 
-        pass_if [expr $expect_out(1,string) > 1 && $expect_out(1,string) < 2] "$test";
+    -re "(\[0-9\]*) (\[0-9.-\]*) (\[0-9.-\]*) (\[0-9.-\]*)\r*\n" { 
+        set n [expr $n + 1]
+        set drift [expr 5 * sin( $expect_out(1,string) / 50.0 ) + 400.0 * (sin( $expect_out(1,string) / 1000.0 )) ]
+
+        set x_x [expr $expect_out(2,string) - $drift]
+        set delta_x [expr $x_x - $mean_x]
+        set mean_x [expr $mean_x + $delta_x / $n]
+        set M2_x [expr $M2_x + $delta_x * ($x_x - $mean_x)]
+
+        set x_y [expr $expect_out(3,string) - $drift]
+        set delta_y [expr $x_y - $mean_y]
+        set mean_y [expr $mean_y + $delta_y / $n]
+        set M2_y [expr $M2_y + $delta_y * ($x_y - $mean_y)]
+
+        set x_z [expr $expect_out(4,string) - $drift]
+        set delta_z [expr $x_z - $mean_z]
+        set mean_z [expr $mean_z + $delta_z / $n]
+        set M2_z [expr $M2_z + $delta_z * ($x_z - $mean_z)]
+
+        exp_continue
+    }
+    eof {
+        set stddev_x [expr sqrt( $M2_x / ($n-1) )]
+        set stddev_y [expr sqrt( $M2_y / ($n-1) )]
+        set stddev_z [expr sqrt( $M2_z / ($n-1) )]
+        pass_if [expr abs($stddev_x - 1.9) < 0.1 && (abs($mean_x) < 3*$stddev_x)] "$test in x"
+        pass_if [expr abs($stddev_y - 3.9) < 0.1 && (abs($mean_y) < 3*$stddev_y)] "$test in y"
+        pass_if [expr abs($stddev_z - 110 ) < 1 && (abs($mean_z) < 3*$stddev_z)] "$test in z"
     }
 }
 
-exec kill [exp_pid]
-wait
-global dstorm_spawn_id
-global spawn_id
-set spawn_id $dstorm_spawn_id
-
-send "in Car in Output in EngineOutput in Output0 in Expression in RemoveOutput in value set 1\n"
-send "in Car in Output in EngineOutput in ChooseTransmission in value set DriftRemover\n"
-send "in Car in Output in EngineOutput in Output1 in DriftRemover in DriftFile in value set ${tmpdir_target}drift.txt\n"
-send "in Car in Output in EngineOutput in Output1 in DriftRemover in ChooseTransmission in value set Table\n"
-send "in Car in Output in EngineOutput in Output1 in DriftRemover in Output0 in Table in ToFile in value set ${tmpdir_target}corrected.txt\n"
-
-set test "Drift correction runs without errors"
-send "in Car in Run in value set 1\n"
-set job [get_job_number]
-expect {
-    -re "remove $job" { pass "$test"; }
-}
-
-set test "Drift correction clears drifted-into zone"
-spawn cat "${tmpdir_host}corrected.txt"
-expect {
-    -re "21\\.\[0-9\]* *3\[0-9\]\\." { fail "$test"; }
-    eof { pass "$test"; }
-}
-exec kill [exp_pid]
 wait
 global dstorm_spawn_id
 global spawn_id

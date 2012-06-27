@@ -106,6 +106,7 @@ int ChildrenField::read_repetition_count(std::istream& input)
     else {
         int rv;
         input >> rv;
+        if ( ! input ) return 0;
         return rv;
     }
 }
