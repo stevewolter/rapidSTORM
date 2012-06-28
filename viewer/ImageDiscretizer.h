@@ -8,6 +8,7 @@
 #include "HighDepth.h"
 #include <vector>
 #include "Image.h"
+#include "ColourScheme.h"
 #include "density_map/VirtualListener.h"
 
 namespace dStorm {
@@ -52,20 +53,19 @@ struct DummyDiscretizationListener {
     void notice_key_change( int, Pixel, float ) {}
 };
 
-template <typename ImageListener, typename Colorizer_>
+template <typename ImageListener>
 class Discretizer 
 : public density_map::VirtualListener<Im::Dim>,
   public Publisher<ImageListener>
 {
-    typedef Colorizer_ Colorizer;
-    typedef typename Colorizer::BrightnessType LowDepth;
+    typedef ColourScheme::BrightnessType LowDepth;
 
     typedef Image<float,Im::Dim> InputImage;
 
     typedef std::vector<LowDepth> TransitionTable;
 
     unsigned int total_pixel_count;
-    Colorizer& colorizer;
+    ColourScheme& colorizer;
 
     float max_value, max_value_used_for_disc_factor,
           disc_factor;
@@ -92,23 +92,23 @@ class Discretizer
         TransitionTable* old_table, TransitionTable& new_table );
     inline unsigned long int non_background_pixels();
 
-    template <class,class> friend class Discretizer;
+    template <class> friend class Discretizer;
 
   public:
     Discretizer(
         int intermediate_depth, 
         float histogram_power, 
         const InputImage& binned_image,
-        Colorizer& colorizer);
+        ColourScheme& colorizer);
     template <typename OtherListener>
     Discretizer( 
-        const Discretizer<OtherListener,Colorizer>&, 
+        const Discretizer<OtherListener>&, 
         const InputImage& binned_image,
-        Colorizer& colorizer);
+        ColourScheme& colorizer);
     ~Discretizer();
 
     void setSize( const MetaInfo& );
-    inline void updatePixel(const Im::Position&, float, float);
+    void updatePixel(const Im::Position&, float, float);
     void clean(bool final);
     void clear();
 
@@ -134,6 +134,29 @@ class Discretizer
     void setHistogramPower(float power);
     void set_top_cutoff(float value);
 };
+
+template < typename ImageListener>
+const HighDepth
+Discretizer< ImageListener>::background_threshold = 1;
+
+template < typename ImageListener>
+float 
+Discretizer< ImageListener>::key_value( LowDepth key ) const
+{
+    unsigned int n = -1; 
+    while ( n+1 < in_depth && transition[n+1] <= key ) n++;
+    return (n+0.5f) / disc_factor;
+}
+
+template < typename ImageListener>
+inline unsigned long int Discretizer< ImageListener>::non_background_pixels()
+{
+    long int accum = 0;
+    assert( histogram.size() >= background_threshold );
+    for (unsigned int i = 0; i < background_threshold; i++)
+        accum += histogram[i];
+    return binned_image.size_in_pixels() - accum;
+}
 
 }
 }

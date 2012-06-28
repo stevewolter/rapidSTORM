@@ -6,7 +6,6 @@
 #include "Backend.h"
 #include "TerminalCache.h"
 #include "ColourScheme.h"
-#include "LiveBackend_decl.h"
 #include "Status_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
@@ -15,6 +14,8 @@
 namespace dStorm {
 namespace viewer {
 
+class LiveBackend;
+
 class TerminalBackend 
 : 
   public Backend
@@ -22,7 +23,7 @@ class TerminalBackend
   private:
     typedef ColourScheme Colorizer;
     typedef TerminalCache Cache;
-    typedef Discretizer<Cache,Colorizer> MyDiscretizer;
+    typedef Discretizer<Cache> MyDiscretizer;
     typedef outputs::BinnedLocalizations< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
 
     /** Binned image with all localizations in localizationsStore.*/
@@ -35,11 +36,11 @@ class TerminalBackend
     Status& status;
     std::auto_ptr< display::Change > get_state() const;
 
-    friend class LiveBackend<ColourScheme>;
+    friend class LiveBackend;
 
   public:
     TerminalBackend(std::auto_ptr<Colorizer>, Status& status );
-    TerminalBackend(const LiveBackend<ColourScheme>& other, Status& );
+    TerminalBackend(const LiveBackend& other, Status& );
     ~TerminalBackend() ;
 
     output::Output& getForwardOutput() { return image; }

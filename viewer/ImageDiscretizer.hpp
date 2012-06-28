@@ -7,16 +7,16 @@
 #include <dStorm/Image_impl.h>
 #include <algorithm>
 
-#include "ImageDiscretizer_inline.h"
+#include "ImageDiscretizer.h"
 
 namespace dStorm {
 namespace viewer {
 
-template <typename ImageListener, typename Colorizer_>
-Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+Discretizer<ImageListener>
 ::Discretizer(int d, float hp,
     const Image<float,Im::Dim>& binned_image,
-    Colorizer& colorizer) 
+    ColourScheme& colorizer) 
 : colorizer(colorizer),
   max_value(10), 
   max_value_used_for_disc_factor(0.1),
@@ -32,12 +32,12 @@ Discretizer<ImageListener,Colorizer_>
 {
 }
 
-template <typename ImageListener, typename Colorizer_>
-Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+Discretizer<ImageListener>
 ::~Discretizer() {}
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::setSize( const MetaInfo& traits )
 {
     colorizer.setSize( traits );
@@ -52,8 +52,8 @@ void Discretizer<ImageListener,Colorizer_>
     }
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
   ::clean(bool final)
 {
     if ( final || pixels_above_used_max_value >
@@ -67,8 +67,8 @@ void Discretizer<ImageListener,Colorizer_>
     this->publish().clean(final);
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>::rediscretize()
+template <typename ImageListener>
+void Discretizer<ImageListener>::rediscretize()
 {
     for (size_t i = 0; i < histogram.size(); i++)
         histogram[i] = 0;
@@ -91,8 +91,8 @@ void Discretizer<ImageListener,Colorizer_>::rediscretize()
     pixels_above_used_max_value = 0;
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
   ::publish_differences_in_transitions
   ( TransitionTable* old_table, TransitionTable& new_table )
 {
@@ -110,8 +110,8 @@ void Discretizer<ImageListener,Colorizer_>
     }
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
     ::normalize_histogram()
 {
     const unsigned long used_histogram_pixels = 
@@ -164,8 +164,8 @@ void Discretizer<ImageListener,Colorizer_>
     }
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::clear()
 {
     this->publish().clear();
@@ -178,8 +178,8 @@ void Discretizer<ImageListener,Colorizer_>
     max_value = max_value_used_for_disc_factor;
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::setHistogramPower(float power) 
 {
     this->histogram_power = power;
@@ -187,8 +187,8 @@ void Discretizer<ImageListener,Colorizer_>
     publish_differences_in_transitions( NULL, transition );
 }
 
-template <typename ImageListener, typename Colorizer_>
-void Discretizer<ImageListener,Colorizer_>
+template <typename ImageListener>
+void Discretizer<ImageListener>
 ::set_top_cutoff(float cutoff) 
 {
     this->cutoff_factor = cutoff;
@@ -196,6 +196,34 @@ void Discretizer<ImageListener,Colorizer_>
     normalize_histogram();
     publish_differences_in_transitions( NULL, transition );
 }
+
+template < typename ImageListener>
+void Discretizer< ImageListener>
+::updatePixel(const Im::Position& p, float from, float to) 
+{
+    colorizer.updatePixel( p, from, to );
+
+    if ( ImageListener::NeedLiveHistogram ) {
+        if ( to > max_value_used_for_disc_factor ) {
+            if ( from <= max_value_used_for_disc_factor )
+                ++pixels_above_used_max_value;
+            max_value = std::max( to, max_value );
+        }
+
+        HighDepth o = discretize( from ),
+                n = discretize( to );
+        
+        if ( o != n ) {
+            ++histogram[ n ];
+            if ( histogram[o] > 0U )
+                --histogram[o];
+            this->publish().pixelChanged( p, n );
+        }
+    } else {
+        max_value = std::max( max_value, to );
+    }
+}
+
 
 }
 }

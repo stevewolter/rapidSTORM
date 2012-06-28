@@ -5,8 +5,9 @@
 #include "TerminalBackend.h"
 
 #include <dStorm/outputs/BinnedLocalizations_impl.h>
-#include "ImageDiscretizer_inline.h"
-#include "Display_inline.h"
+#include "ImageDiscretizer.h"
+#include "ImageDiscretizer_converter.h"
+#include "Display.h"
 #include "density_map/LinearInterpolation.h"
 
 #include <dStorm/display/store_image.h>
@@ -14,8 +15,7 @@
 
 #include "Config.h"
 #include "Status.h"
-
-#include "LiveBackend_converter.h"
+#include "LiveBackend.h"
 
 namespace dStorm {
 namespace viewer {
@@ -33,13 +33,28 @@ TerminalBackend::TerminalBackend(std::auto_ptr<Colorizer> col, Status& status)
     discretization.setListener(&cache);
 }
 
+TerminalBackend::TerminalBackend(
+    const LiveBackend& other, Status& s )
+: image( NULL, other.image ),
+  colorizer( other.colorizer->clone() ),
+  discretization( other.discretization, image(), *colorizer ),
+  cache(),
+  status( s )
+{
+    if ( other.cia.getSize().is_initialized() )
+        cache.setSize( *other.cia.getSize() );
+    image.set_listener(&discretization);
+    discretization.setListener(&cache);
+}
+
+
 TerminalBackend::~TerminalBackend() {
 }
 
 std::auto_ptr< display::Change > TerminalBackend::get_state() const
 {
     std::auto_ptr<display::Change> rv
-        ( new display::Change(ColourScheme::KeyCount) );
+        ( new display::Change(colorizer->key_count()) );
 
     display::ResizeChange size = cache.getSize();
     size.keys.clear();
@@ -49,8 +64,9 @@ std::auto_ptr< display::Change > TerminalBackend::get_state() const
     rv->do_change_image = true;
     rv->image_change.new_image = display::Image(size.size);
 
-    if ( int(size.keys.size()) < ColourScheme::KeyCount ) {
-        for (int j = 1; j < ColourScheme::KeyCount; ++j ) {
+    if ( int(size.keys.size()) < colorizer->key_count() ) {
+        const int key_count = colorizer->key_count();
+        for (int j = 1; j < key_count; ++j ) {
             rv->resize_image.keys.push_back( colorizer->create_key_declaration( j ) );
         }
     }
@@ -89,8 +105,8 @@ TerminalBackend::get_result(bool with_key) const {
     for ( display::Image::iterator i = im.begin(); i != im.end(); i++ ) {
         *i = discretization.get_pixel( i.position().head<Im::Dim>() );
     }
-    if ( with_key && Colorizer::KeyCount > 0 ) {
-        assert( int(c->changed_keys.size()) >= Colorizer::KeyCount );
+    if ( with_key && colorizer->key_count() > 0 ) {
+        assert( int(c->changed_keys.size()) >= colorizer->key_count() );
         display::Change::Keys::iterator key = c->changed_keys.begin();
         int key_count = colorizer->brightness_depth();
         key->reserve( key_count + key->size() );
@@ -114,7 +130,7 @@ TerminalBackend::get_result(bool with_key) const {
 std::auto_ptr<Backend>
 TerminalBackend::change_liveness( Status& s ) {
     if ( s.config.showOutput() ) {
-        return std::auto_ptr<Backend>( new LiveBackend<ColourScheme>(*this, s) );
+        return std::auto_ptr<Backend>( new LiveBackend(*this, s) );
     } else {
         return std::auto_ptr<Backend>();
     }

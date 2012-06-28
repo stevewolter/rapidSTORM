@@ -11,10 +11,6 @@ namespace viewer {
 namespace colour_schemes {
 
 class Coordinate : public Base { 
-  public:
-    static const int KeyCount = 2;
-
-  private:
     HueSaturationMixer mixer;
     std::auto_ptr< output::binning::UserScaled > variable;
     static const int key_resolution = 100;
@@ -29,6 +25,7 @@ class Coordinate : public Base {
   public:
     Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
+    int key_count() const { return 2; }
 
     void setSize( const MetaInfo& traits ) {
         Base::setSize(traits);

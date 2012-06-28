@@ -1,7 +1,6 @@
 #ifndef DSTORM_VIEWER_DISPLAY_H
 #define DSTORM_VIEWER_DISPLAY_H
 
-#include "LiveCache.h"
 #include "ImageDiscretizer.h"
 #include "Config_decl.h"
 #include "Status_decl.h"
@@ -12,27 +11,19 @@
 namespace dStorm {
 namespace viewer {
 
-class BaseDisplay {
+class ColourScheme;
+class LiveCache;
+
+class Display 
+: public DiscretizationListener
+{
+private:
+    typedef Discretizer< LiveCache > MyDiscretizer;
+    MyDiscretizer& discretizer;
+    const ColourScheme& colorizer;
+
     std::vector< bool > ps;
     int ps_step[ Im::Dim - 1 ];
-  public:
-    void setSize( const Im::Size& size );
-    inline std::vector<bool>::reference
-        is_on( const Im::Position& );
-    void clear();
-};
-
-template <typename UsedColorizer>
-class Display 
-    : public DiscretizationListener,
-      private BaseDisplay
-{
-  public:
-    typedef UsedColorizer Colorizer;
-  private:
-    typedef Discretizer< LiveCache<Display>, Colorizer > MyDiscretizer;
-    MyDiscretizer& discretizer;
-    const Colorizer& colorizer;
 
     display::WindowProperties props;
     display::DataSource& vph;
@@ -46,13 +37,14 @@ class Display
     simparm::NodeHandle current_ui;
 
     void setSize( const dStorm::display::ResizeChange& size );
+    inline std::vector<bool>::reference is_on( const Im::Position& );
 
-  public:
+public:
     Display( 
         MyDiscretizer& disc, 
         const Status& config,
         dStorm::display::DataSource& vph,
-        const Colorizer& colorizer,
+        const ColourScheme& colorizer,
         std::auto_ptr<dStorm::display::Change> initial_state
             = std::auto_ptr<dStorm::display::Change>()
     );
@@ -74,6 +66,30 @@ class Display
     void set_job_name( const std::string& name ) { props.name = name; }
 };
 
+std::vector<bool>::reference Display::is_on( const Im::Position& i )
+{
+    int offset = i[0].value();
+    for (int j = 1; j < Im::Dim; ++j)
+        offset += ps_step[j-1] * i[j].value();
+    return ps[ offset ];
+}
+
+void Display::pixelChanged( const Im::Position& p ) {
+    std::vector<bool>::reference is_on = this->is_on( p );
+    if ( ! is_on ) {
+        next_change->change_pixels.push_back( dStorm::display::PixelChange(p) );
+        /* The color field will be set when the clean handler
+            * runs. */
+        is_on = true;
+    }
+}
+
+void Display::notice_key_change( int index, 
+        Pixel pixel, float value )
+{
+    next_change->changed_keys.front().push_back( dStorm::display::KeyChange(
+        index, pixel, value ) );
+}
 
 }
 }

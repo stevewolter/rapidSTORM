@@ -15,15 +15,11 @@ namespace viewer {
 
 class TerminalBackend;
 
-template <typename Hueing>
 class LiveBackend 
 : public Backend,
   public dStorm::display::DataSource
 {
-    typedef Hueing MyColorizer;
-    typedef Display< MyColorizer > MyDisplay;
-    typedef LiveCache< MyDisplay > MyCache;
-    typedef Discretizer< MyCache, MyColorizer > MyDiscretizer;
+    typedef Discretizer< LiveCache > MyDiscretizer;
     typedef outputs::BinnedLocalizations< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
 
     Status& status;
@@ -31,10 +27,10 @@ class LiveBackend
     std::auto_ptr<dStorm::display::Change> get_changes();
 
     Accumulator image;
-    std::auto_ptr<MyColorizer> colorizer;
+    std::auto_ptr<ColourScheme> colorizer;
     MyDiscretizer discretization;
-    MyCache cache;
-    MyDisplay cia;
+    LiveCache cache;
+    Display cia;
 
     friend class TerminalBackend;
 
@@ -44,7 +40,7 @@ class LiveBackend
     void notice_user_key_limits(int key_index, bool lower, std::string input);
 
   public:
-    LiveBackend(std::auto_ptr< MyColorizer >, Status&);
+    LiveBackend(std::auto_ptr< ColourScheme >, Status&);
     LiveBackend(const TerminalBackend& other, Status&);
     ~LiveBackend() ;
 

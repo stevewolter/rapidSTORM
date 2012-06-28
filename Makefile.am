@@ -451,7 +451,7 @@ rapidstorm_SOURCES += \
     viewer/fwd.h \
     viewer/DensityMap.cpp \
     viewer/Image.h viewer/Image.cpp \
-    viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
+    viewer/Display.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
     viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \
@@ -459,17 +459,15 @@ rapidstorm_SOURCES += \
     viewer/Backend_decl.h viewer/Backend.h viewer/Backend.cpp \
     viewer/Viewer.cpp viewer/Viewer.h \
     viewer/Publisher.h viewer/HighDepth.h \
-    viewer/LiveBackend_decl.h viewer/LiveBackend.h viewer/LiveBackend_impl.h viewer/LiveBackend.cpp \
-    viewer/LiveCache.h viewer/LiveCache_inline.h viewer/LiveCache_impl.h viewer/LiveCache.cpp \
+    viewer/LiveBackend.h viewer/LiveBackend.cpp \
+    viewer/LiveCache.h viewer/LiveCache.cpp \
     viewer/TerminalBackend.h viewer/TerminalBackend.cpp \
-    viewer/TerminalCache.h viewer/TerminalCache_inline.h viewer/TerminalCache.cpp \
+    viewer/TerminalCache.h viewer/TerminalCache.cpp \
     viewer/BinnedLocalizations.cpp \
     viewer/Status_decl.h viewer/Status.h viewer/Status.cpp \
-    viewer/LiveBackend_converter.h \
-    viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
     viewer/ImageDiscretizer_converter.h \
     viewer/plugin.h viewer/plugin.cpp \
-    viewer/ColourScheme_decl.h viewer/ColourScheme.h  \
+    viewer/ColourScheme.h viewer/ColourSchemeFactory.h  \
     viewer/colour_schemes/base.cpp viewer/colour_schemes/base_impl.h viewer/colour_schemes/base.h \
     viewer/colour_schemes/decl.h viewer/colour_schemes/impl.h viewer/colour_schemes/instantiate.h \
     viewer/colour_schemes/hot_config.cpp viewer/colour_schemes/hot_config.h viewer/colour_schemes/hot.h \

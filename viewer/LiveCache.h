@@ -6,10 +6,13 @@
 #include "HighDepth.h"
 #include <dStorm/Pixel.h>
 #include "Image.h"
+#include "Display.h"
 #include <dStorm/image/find_by_offset.hpp>
 
 namespace dStorm {
 namespace viewer {
+
+class Display;
 
 struct HistogramPixel { 
     /** Linked list with pixels of same value. */
@@ -23,11 +26,9 @@ struct HistogramPixel {
     bool empty() { return ( next == this ); }
 };
 
-template <typename Listener>
 class LiveCache :
-    public Publisher<Listener>
+    public Publisher< Display >
 {
-    typedef typename Listener::Colorizer Colorizer;
     std::vector<HistogramPixel> pixels_by_value;
     typedef Image<HistogramPixel,Im::Dim> HistogramImage;
     HistogramImage pixels_by_position;
@@ -62,24 +63,21 @@ void HistogramPixel::unlink() {
     clear();
 }
 
-template < typename Listener>
-void LiveCache<Listener>::pixelChanged( const Im::Position& p, HighDepth to ) {
+void LiveCache::pixelChanged( const Im::Position& p, HighDepth to ) {
     pixels_by_value[to]
         .push_back( pixels_by_position(p) );
 
     this->publish().pixelChanged( p );
 }
 
-template < typename Listener>
-void LiveCache<Listener>::changeBrightness( HighDepth i ) {
+void LiveCache::changeBrightness( HighDepth i ) {
     for ( HistogramPixel* j = pixels_by_value[i].next; 
                     j != &pixels_by_value[i]; j = j->next)
         this->publish().pixelChanged( find_by_offset( pixels_by_position,
             j - pixels_by_position.ptr() ) );
 }
 
-template <typename Listener>
-void LiveCache<Listener>::notice_key_change(
+void LiveCache::notice_key_change(
     int index, Pixel pixel, float value )
 {
     this->publish().notice_key_change( index, pixel, value );

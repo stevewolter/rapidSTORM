@@ -2,6 +2,7 @@
 #define DSTORM_DENSITY_MAP_LISTENER_H
 
 #include <dStorm/image/fwd.h>
+#include <dStorm/output/Output.h>
 
 namespace dStorm {
 namespace density_map {

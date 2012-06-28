@@ -1,15 +1,12 @@
-#include "ImageDiscretizer_impl.h"
-#include "Display_inline.h"
-#include "ColourScheme.h"
-#include "LiveCache_inline.h"
-#include "TerminalBackend.h"
-#include <dStorm/image/MetaInfo.h>
+#include "ImageDiscretizer.hpp"
+#include "LiveCache.h"
+#include "TerminalCache.h"
 
 namespace dStorm {
 namespace viewer {
 
-template class Discretizer< LiveCache< Display< ColourScheme > >, ColourScheme >;
-template class Discretizer< TerminalCache, ColourScheme >;
+template class Discretizer< LiveCache >;
+template class Discretizer< TerminalCache >;
 
 }
 }
