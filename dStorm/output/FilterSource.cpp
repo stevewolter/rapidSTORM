@@ -2,7 +2,7 @@
 
 #include "FilterSource.h"
 #include <simparm/ChoiceEntry.h>
-#include <dStorm/outputs/Crankshaft.h>
+#include "outputs/Crankshaft.h"
 #include "OutputSource.h"
 #include "SourceFactory.h"
 #include <dStorm/helpers/clone_ptr.hpp>

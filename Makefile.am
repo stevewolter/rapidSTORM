@@ -169,8 +169,7 @@ rapidstorm_SOURCES = \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
     dStorm/outputs/BinnedLocalizations.h dStorm/outputs/BinnedLocalizations_decl.h \
-    dStorm/outputs/LocalizationList.h dStorm/outputs/TraceFilter.h \
-    dStorm/outputs/Crankshaft.h dStorm/outputs/NullOutput.h \
+    dStorm/outputs/TraceFilter.h \
     dStorm/outputs/BinnedLocalizations_converter.h \
     dStorm/outputs/BinnedLocalizations_strategies_impl.h \
     dStorm/outputs/BinnedLocalizations_strategies_config.h \
@@ -312,7 +311,7 @@ rapidstorm_SOURCES += \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
-    dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/LocalizationList.cpp dStorm/outputs/TraceFilter.cpp dStorm/outputs/Crankshaft.cpp \
+    dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/TraceFilter.cpp \
     dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
@@ -427,7 +426,10 @@ rapidstorm_SOURCES += \
     outputs/MemoryCache_Cache.h outputs/MemoryCache_Cache.cpp \
     outputs/LocalizationFile.h outputs/LocalizationFile.cpp \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
-    outputs/LinearAlignment.h outputs/LinearAlignment.cpp
+    outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
+    outputs/Crankshaft.h outputs/Crankshaft.cpp \
+    outputs/LocalizationList.h outputs/LocalizationList.cpp \
+    outputs/NullOutput.h 
 
 rapidstorm_SOURCES += \
     calibrate_3d/fwd.h \

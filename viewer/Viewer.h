@@ -8,7 +8,6 @@
 
 #include <dStorm/Localization.h>
 #include <boost/thread/mutex.hpp>
-#include <dStorm/outputs/LocalizationList.h>
 #include <dStorm/output/Output.h>
 #include <dStorm/output/OutputBuilder.h>
 #include <dStorm/output/FileOutputBuilder.h>

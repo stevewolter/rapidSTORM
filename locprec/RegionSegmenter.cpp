@@ -8,7 +8,6 @@
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/outputs/BinnedLocalizations.h>
-#include <dStorm/outputs/LocalizationList.h>
 #include <dStorm/engine/Image.h>
 #include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>

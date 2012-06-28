@@ -1,8 +1,8 @@
 #ifndef DSTORM_LOCALIZATIONLIST_H
 #define DSTORM_LOCALIZATIONLIST_H
 
-#include "../output/Output.h"
-#include "../output/Localizations.h"
+#include <dStorm/output/Output.h>
+#include <dStorm/output/Localizations.h>
 #include <memory>
 
 namespace dStorm {

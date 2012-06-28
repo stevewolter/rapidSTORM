@@ -14,7 +14,7 @@
 #include <sstream>
 #include <stdio.h>
 
-#include <dStorm/outputs/NullOutput.h>
+#include "NullOutput.h"
 
 namespace dStorm {
 namespace slicer {
