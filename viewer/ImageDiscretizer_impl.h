@@ -24,7 +24,7 @@ Discretizer<ImageListener,Colorizer_>
   histogram( d, 0 ),
   transition( d, 0 ),
   in_depth( d ),
-  out_depth( Colorizer::BrightnessDepth - 1 ),
+  out_depth( colorizer.brightness_depth() - 1 ),
   pixels_above_used_max_value(0),
   histogram_power( hp ),
   cutoff_factor( 1 ),

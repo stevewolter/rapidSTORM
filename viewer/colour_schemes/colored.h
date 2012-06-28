@@ -8,14 +8,14 @@ namespace viewer {
 namespace colour_schemes {
 
 class Colored
-: public Base<unsigned char>
+: public Base
 {
     RGBWeight weights;
+    virtual Colored* clone_() const { return new Colored(*this); }
 
   public:
-    typedef Base<unsigned char>::BrightnessType BrightnessType;
     Colored(bool invert, double hue, double saturation)
-    : Base<unsigned char>(invert) {
+    : Base(invert) {
         rgb_weights_from_hue_saturation
             ( hue, saturation, weights );
     }

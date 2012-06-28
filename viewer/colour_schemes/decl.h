@@ -3,12 +3,15 @@
 
 namespace dStorm {
 namespace viewer {
+
+class ColourSchemeFactory;
+
 namespace colour_schemes {
 
-class Hot;
-class Mono;
-class Colored;
-class Coordinate;
+std::auto_ptr<ColourSchemeFactory> make_hot_factory();
+std::auto_ptr<ColourSchemeFactory> make_mono_factory();
+std::auto_ptr<ColourSchemeFactory> make_colored_factory();
+std::auto_ptr<ColourSchemeFactory> make_coordinate_factory();
 
 }
 }

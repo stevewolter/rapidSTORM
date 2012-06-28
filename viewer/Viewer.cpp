@@ -19,7 +19,6 @@
 using namespace std;
 
 using namespace dStorm::display;
-using namespace dStorm::outputs;
 using namespace dStorm::output;
 
 namespace dStorm {
@@ -66,7 +65,7 @@ Viewer::announceStormSize(const Announcement &a) {
     announcement = a;
     repeater = a.engine;
     this->engine = a.engine;
-    implementation = config.colourScheme().make_backend(this->config, *this);
+    implementation = Backend::create( this->config.colourScheme().make_backend( this->config.invert() ), *this);
     implementation->set_job_name( a.description );
     forwardOutput = &implementation->getForwardOutput();
     return forwardOutput->announceStormSize(a);
@@ -99,7 +98,7 @@ void Viewer::make_new_backend() {
                     forwardOutput = &implementation->getForwardOutput();
                 }
                 behind_the_scenes.reset();
-                behind_the_scenes = config.colourScheme().make_backend(this->config, *this);
+                behind_the_scenes = Backend::create( this->config.colourScheme().make_backend(this->config.invert()), *this);
                 behind_the_scenes->set_job_name( announcement->description );
                 behind_the_scenes->getForwardOutput().announceStormSize(*announcement);
                 boost::lock_guard<boost::mutex> lock(mutex);

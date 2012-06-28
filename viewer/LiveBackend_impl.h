@@ -14,15 +14,15 @@ namespace dStorm {
 namespace viewer {
 
 template <typename Hueing>
-LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
+LiveBackend<Hueing>::LiveBackend(std::auto_ptr< MyColorizer > col, Status& s)
 : status(s), 
   image( NULL, s.config.binned_dimensions.make(), s.config.interpolator.make(), s.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         s.config.histogramPower(), image(),
-        colorizer),
+        *colorizer),
   cache( 4096 ),
-  cia( discretization, s, *this, colorizer )
+  cia( discretization, s, *this, *colorizer )
 {
     image.set_listener(&discretization);
     discretization.setListener(&cache);
@@ -92,7 +92,7 @@ void LiveBackend<Hueing>::notice_user_key_limits(int key_index, bool lower, std:
         throw std::runtime_error("Intensity key cannot be limited");
     else {
         boost::lock_guard<boost::mutex> lock( status.mutex );
-        colorizer.notice_user_key_limits(key_index, lower, input);
+        colorizer->notice_user_key_limits(key_index, lower, input);
     }
 }
 

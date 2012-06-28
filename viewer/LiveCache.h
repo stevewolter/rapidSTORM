@@ -6,6 +6,7 @@
 #include "HighDepth.h"
 #include <dStorm/Pixel.h>
 #include "Image.h"
+#include <dStorm/image/find_by_offset.hpp>
 
 namespace dStorm {
 namespace viewer {
@@ -44,6 +45,45 @@ class LiveCache :
     inline void notice_key_change( int index, Pixel pixel, float value );
     void clear();
 };
+
+void HistogramPixel::push_back(HistogramPixel& node)
+{
+    node.prev->next = node.next;
+    node.next->prev = node.prev;
+    node.prev = prev;
+    node.next = this;
+    prev->next = &node;
+    prev = &node;
+}
+
+void HistogramPixel::unlink() {
+    prev->next = next;
+    next->prev = prev;
+    clear();
+}
+
+template < typename Listener>
+void LiveCache<Listener>::pixelChanged( const Im::Position& p, HighDepth to ) {
+    pixels_by_value[to]
+        .push_back( pixels_by_position(p) );
+
+    this->publish().pixelChanged( p );
+}
+
+template < typename Listener>
+void LiveCache<Listener>::changeBrightness( HighDepth i ) {
+    for ( HistogramPixel* j = pixels_by_value[i].next; 
+                    j != &pixels_by_value[i]; j = j->next)
+        this->publish().pixelChanged( find_by_offset( pixels_by_position,
+            j - pixels_by_position.ptr() ) );
+}
+
+template <typename Listener>
+void LiveCache<Listener>::notice_key_change(
+    int index, Pixel pixel, float value )
+{
+    this->publish().notice_key_change( index, pixel, value );
+}
 
 }
 }

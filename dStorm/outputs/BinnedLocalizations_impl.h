@@ -1,6 +1,3 @@
-#ifndef DEBUG
-#include "debug.h"
-#endif
 #include "BinnedLocalizations.h"
 #include "../Engine.h"
 #include <dStorm/image/MetaInfo.h>
@@ -12,6 +9,7 @@
 #include <boost/units/Eigen/Array>
 #include "../units/amplitude.h"
 #include <boost/units/io.hpp>
+#include "density_map/Coordinates.h"
 
 namespace dStorm {
 namespace outputs {
@@ -19,7 +17,7 @@ namespace outputs {
 template <typename KeepUpdated, int Dim>
 BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations(
     KeepUpdated* listener,
-    std::auto_ptr<BinningStrategy<Dim> > strategy, Interpolator interpolator, Crop crop
+    std::auto_ptr< density_map::Coordinates<Dim> > strategy, Interpolator interpolator, Crop crop
 ) : crop(crop), listener(listener), strategy(strategy), binningInterpolator(interpolator)
 {
     assert( this->strategy.get() );
@@ -37,6 +35,9 @@ BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
   strategy( o.strategy->clone() ),
   binningInterpolator(o.binningInterpolator->clone())
 {}
+
+template <typename KeepUpdated, int Dim>
+BinnedLocalizations<KeepUpdated,Dim>::~BinnedLocalizations() {}
 
 template <typename KeepUpdated, int Dim>
 output::Output::AdditionalData
@@ -70,7 +71,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 
     typedef Eigen::Matrix< pixel_count, Dim, 1> Position;
 
-    typename BinningStrategy<Dim>::Result r( er.size() );
+    typename density_map::Coordinates<Dim>::Result r( er.size() );
     int point_count = strategy->bin_points(er, r);
 
     typedef std::vector< typename density_map::Interpolator<Dim>::ResultPoint > Points;
@@ -120,7 +121,6 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
         PreciseSize dp_size = strategy->get_size()[i] - 2*crop[i];
         traits.size[i] = std::max( ceil( dp_size), one_pixel );
     }
-    DEBUG("Size of binned image is " << traits.size.transpose());
 
     traits.set_resolution( strategy->get_resolution() );
 

@@ -8,14 +8,12 @@ namespace viewer {
 namespace colour_schemes {
 
 class Hot
-: public Base<unsigned short>
+: public Base
 {
+    virtual Hot* clone_() const { return new Hot(*this); }
   public:
-    typedef unsigned short BrightnessType;
-    static const int BrightnessDepth = 0x300;
-
     Hot(bool invert)
-        : Base<unsigned short>(invert) {} 
+        : Base(invert) {} 
     Pixel getPixel( Im::Position, BrightnessType br ) const {
         unsigned char part = br & 0xFF;
         return inv(
@@ -25,6 +23,7 @@ class Hot
     }
     inline Pixel getKeyPixel( BrightnessType br )  const
         { return getPixel(Im::Position::Zero(), br ); }
+    const int brightness_depth() const { return 0x300; }
 };
 
 }

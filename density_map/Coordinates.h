@@ -3,33 +3,35 @@
 
 #include "debug.h"
 
-#include "BinnedLocalizations.h"
-#include "../output/binning/binning.h"
-#include "../traits/scalar.h"
+#include <dStorm/output/binning/binning.h>
+#include <dStorm/traits/scalar.h>
 #include <boost/ptr_container/ptr_array.hpp>
-#include "../helpers/clone_ptr.hpp"
+#include <dStorm/helpers/clone_ptr.hpp>
 
 namespace dStorm {
-namespace outputs {
-
-namespace binning_strategy {
+namespace density_map {
 
 template <int Dim>
-struct ComponentWise
-: public BinningStrategy<Dim>
+class Coordinates
 {
-  private:
-    typedef output::binning::Scaled ScaledBin;
-    typedef output::binning::Unscaled UnscaledBin;
+public:
+    struct ResultRow {
+        Eigen::Matrix<float, Dim, 1> position, position_uncertainty;
+        float intensity, intensity_uncertainty;
+    };
+    typedef std::vector<ResultRow> Result;
+private:
+    typedef output::binning::Scaled ScaledAxis;
+    typedef output::binning::Unscaled UnscaledAxis;
 
-    boost::ptr_array<ScaledBin, Dim> xy;
-    boost::clone_ptr<UnscaledBin> intensity;
+    boost::ptr_array<ScaledAxis, Dim> xy;
+    boost::clone_ptr<UnscaledAxis> intensity;
 
-  public:
-    ComponentWise( boost::ptr_array<ScaledBin, Dim> dims, std::auto_ptr<UnscaledBin> intensity)
+public:
+    Coordinates( boost::ptr_array<ScaledAxis, Dim> dims, std::auto_ptr<UnscaledAxis> intensity)
         : xy(dims), intensity(intensity) {}
-    ComponentWise* clone() const { return new ComponentWise(*this); }
-    ~ComponentWise() {}
+    Coordinates* clone() const { return new Coordinates(*this); }
+    ~Coordinates() {}
 
     void announce(const output::Output::Announcement& a) { 
         for (int i = 0; i < Dim; ++i) xy[i].announce(a);
@@ -49,7 +51,7 @@ struct ComponentWise
         }
         return rv;
     }
-    int bin_points( const output::LocalizedImage& l, typename BinningStrategy<Dim>::Result& r ) {
+    int bin_points( const output::LocalizedImage& l, Result& r ) {
         int rv = 0;
         for ( output::LocalizedImage::const_iterator i = l.begin(); i != l.end(); ++i ) {
             bool is_good = true;
@@ -62,15 +64,13 @@ struct ComponentWise
     }
 
   private:
-    bool bin( const Localization& l, const UnscaledBin& b, float& target, float& uncertainty ) {
+    bool bin( const Localization& l, const UnscaledAxis& b, float& target, float& uncertainty ) {
         boost::optional<float> f = b.bin_point(l), u = b.get_uncertainty( l );
         if ( f.is_initialized() ) target = *f;
         if ( u.is_initialized() ) uncertainty = *u; else uncertainty = 0;
         return f.is_initialized();
     }
 };
-
-}
 
 }
 }

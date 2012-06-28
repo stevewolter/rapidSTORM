@@ -1,6 +1,7 @@
 #include "Projection.h"
 #include "ProjectionFactory.h"
 #include "ProjectionConfig.h"
+#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <boost/array.hpp>
 #include <boost/units/systems/camera/resolution.hpp>

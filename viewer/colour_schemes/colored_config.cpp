@@ -9,7 +9,7 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-struct ColoredConfig : public ColourScheme
+struct ColoredConfig : public ColourSchemeFactory
 {
     simparm::Entry<double> hue, saturation;
     simparm::BaseAttribute::ConnectionStore listening[2];
@@ -18,13 +18,13 @@ struct ColoredConfig : public ColourScheme
     ColoredConfig();
     ColoredConfig(const ColoredConfig&);
     ColoredConfig* clone() const { return new ColoredConfig(*this); }
-    std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
+    std::auto_ptr<Base> make_backend( bool invert ) const;
     void add_listener( simparm::BaseAttribute::Listener );
     void attach_ui( simparm::NodeHandle );
 };
 
 ColoredConfig::ColoredConfig() 
-: ColourScheme("FixedHue", "Constant colour"),
+: ColourSchemeFactory("FixedHue", "Constant colour"),
   hue("Hue", "Select color hue", 0),
   saturation("Saturation", "Select saturation", 1)
 {
@@ -47,7 +47,7 @@ ColoredConfig::ColoredConfig()
 }
 
 ColoredConfig::ColoredConfig(const ColoredConfig& o)
-: ColourScheme(o),
+: ColourSchemeFactory(o),
   hue(o.hue), saturation(o.saturation)
 {
 }
@@ -65,18 +65,16 @@ void ColoredConfig::add_listener( simparm::BaseAttribute::Listener l ) {
     change.connect(l);
 }
 
-std::auto_ptr<Backend> ColoredConfig::make_backend( Config& config, Status& status ) const
+std::auto_ptr<Base> ColoredConfig::make_backend( bool invert ) const
 {
-    return Backend::create< Colored >(Colored(config.invert(), hue(), saturation()), status);
+    return std::auto_ptr<Base>(new Colored(invert, hue(), saturation()));
 }
 
-}
-
-template <>
-std::auto_ptr<ColourScheme> ColourScheme::config_for<colour_schemes::Colored>()
+std::auto_ptr<ColourSchemeFactory> make_colored_factory()
 {
-    return std::auto_ptr<ColourScheme>(new colour_schemes::ColoredConfig());
+    return std::auto_ptr<ColourSchemeFactory>(new colour_schemes::ColoredConfig());
 }
 
+}
 }
 }

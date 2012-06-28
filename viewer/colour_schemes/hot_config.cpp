@@ -7,20 +7,18 @@ namespace viewer {
 namespace colour_schemes {
 
 HotConfig::HotConfig() 
-    : ColourScheme("BlackRedYellowWhite", "Colour code ranging from red over yellow to white") {}
+    : ColourSchemeFactory("BlackRedYellowWhite", "Colour code ranging from red over yellow to white") {}
 
-std::auto_ptr<Backend> HotConfig::make_backend( Config& config, Status& status ) const
+std::auto_ptr<Base> HotConfig::make_backend( bool invert ) const
 {
-    return Backend::create< Hot >(Hot(config.invert()), status);
+    return std::auto_ptr<Base>(new Hot(invert));
 }
 
-}
-
-template <>
-std::auto_ptr<ColourScheme> ColourScheme::config_for<colour_schemes::Hot>()
+std::auto_ptr<ColourSchemeFactory> make_hot_factory()
 {
-    return std::auto_ptr<ColourScheme>(new colour_schemes::HotConfig());
+    return std::auto_ptr<ColourSchemeFactory>(new colour_schemes::HotConfig());
 }
 
+}
 }
 }

@@ -15,7 +15,7 @@
 #include <dStorm/units/microlength.h>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
-#include "ColourScheme.h"
+#include "ColourSchemeFactory.h"
 #include "Image.h"
 
 namespace dStorm {
@@ -26,7 +26,7 @@ public:
     simparm::BoolEntry showOutput;
     output::BasenameAdjustedFileEntry outputFile;
     simparm::Entry<double> histogramPower, top_cutoff;
-    simparm::ManagedChoiceEntry<ColourScheme> colourScheme;
+    simparm::ManagedChoiceEntry<ColourSchemeFactory> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
     simparm::Entry< boost::units::quantity<boost::units::si::microlength> > scale_bar_length;
 

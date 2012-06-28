@@ -1,7 +1,5 @@
-#include "BinnedLocalizations_strategies.h"
-#include "BinnedLocalizations_strategies_config.h"
-#include "BinnedLocalizations_strategies_impl.h"
-#include "BinnedLocalizations.h"
+#include "CoordinatesFactory.h"
+#include "Coordinates.h"
 
 #include <dStorm/image/MetaInfo.h>
 
@@ -11,13 +9,13 @@
 #include <dStorm/output/binning/constant_binner.h>
 
 namespace dStorm {
-namespace outputs {
+namespace density_map {
 
 static const char *axis_idents[] = { "X", "Y", "Z" };
 static const char *axis_names[] = { "X axis", "Y axis", "Z axis" };
 
 template <int Dim>
-DimensionSelector<Dim>::DimensionSelector()
+CoordinatesFactory<Dim>::CoordinatesFactory()
 : name_object("DimensionSelector", "Select dimensions to bin"),
   invert_y_axis("InvertYAxis", "Y zero at bottom"),
   use_z_axis("ThreeDImage", "Make 3D image")
@@ -45,10 +43,10 @@ DimensionSelector<Dim>::DimensionSelector()
 }
 
 template <int Dim>
-DimensionSelector<Dim>::~DimensionSelector() {}
+CoordinatesFactory<Dim>::~CoordinatesFactory() {}
 
 template <int Dim>
-void DimensionSelector<Dim>::attach_ui( simparm::NodeHandle at ) {
+void CoordinatesFactory<Dim>::attach_ui( simparm::NodeHandle at ) {
     listening[0] = invert_y_axis.value.notify_on_value_change( value_change );
     listening[1] = use_z_axis.value.notify_on_value_change( value_change );
 
@@ -62,21 +60,21 @@ void DimensionSelector<Dim>::attach_ui( simparm::NodeHandle at ) {
 }
 
 template <int Dim>
-void DimensionSelector<Dim>::init() {
+void CoordinatesFactory<Dim>::init() {
 }
 
 template <int Dim>
-void DimensionSelector<Dim>::set_visibility(const input::Traits<Localization>& t) {
+void CoordinatesFactory<Dim>::set_visibility(const input::Traits<Localization>& t) {
     for (int i = 0; i < Dim+1; ++i)
         components[i].set_visibility(t, (i == Dim));
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_x() const
+std::auto_ptr< output::binning::Scaled > CoordinatesFactory<Dim>::make_x() const
     { return components[0]().make_scaled_binner(); }
 
 template <int Dim>
-std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_y() const {
+std::auto_ptr< output::binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
     std::auto_ptr<output::binning::Scaled> y( components[1]().make_scaled_binner() );
     if ( invert_y_axis() ) {
         boost::shared_ptr<output::binning::Scaled> base_y( y.release() );
@@ -86,11 +84,11 @@ std::auto_ptr< output::binning::Scaled > DimensionSelector<Dim>::make_y() const 
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_i() const 
+std::auto_ptr< output::binning::Unscaled > CoordinatesFactory<Dim>::make_i() const 
     { return components[Dim]().make_unscaled_binner(); }
 
 template <int Dim>
-std::auto_ptr<BinningStrategy<Dim> > DimensionSelector<Dim>::make() const
+std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
 {
     boost::ptr_array< output::binning::Scaled, Dim> spatial;
     for (int i = 0; i < Dim; ++i)
@@ -102,25 +100,25 @@ std::auto_ptr<BinningStrategy<Dim> > DimensionSelector<Dim>::make() const
             spatial.replace( i, new output::binning::Zero() );
         } else
             spatial.replace( i, components[i]().make_scaled_binner() );
-    return std::auto_ptr<BinningStrategy<Dim> >(
-        new binning_strategy::ComponentWise<Dim>( spatial, make_i() ) );
+    return std::auto_ptr< Coordinates<Dim> >(
+        new Coordinates<Dim>( spatial, make_i() ) );
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Unscaled > DimensionSelector<Dim>::make_unscaled(int field) const
+std::auto_ptr< output::binning::Unscaled > CoordinatesFactory<Dim>::make_unscaled(int field) const
 {
     return components[field]().make_unscaled_binner();
 }
 
 template <int Dim>
-void DimensionSelector<Dim>::add_listener( simparm::BaseAttribute::Listener& l ) {
+void CoordinatesFactory<Dim>::add_listener( simparm::BaseAttribute::Listener& l ) {
     for (int i = 0; i < Dim+1; ++i)
         components[i].add_listener(l);
     value_change.connect(l);
 }
 
-template class DimensionSelector<2>;
-template class DimensionSelector<3>;
+template class CoordinatesFactory<2>;
+template class CoordinatesFactory<3>;
 
 }
 }

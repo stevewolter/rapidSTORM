@@ -2,7 +2,7 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_CONVERTER_H
 
 #include "ImageDiscretizer.h"
-#include <dStorm/outputs/BinnedLocalizations_converter.h>
+#include "density_map/Coordinates.h"
 
 namespace dStorm {
 namespace viewer {

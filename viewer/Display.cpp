@@ -1,12 +1,10 @@
 #include "Display_impl.h"
-#include "colour_schemes/impl.h"
+#include "ColourScheme.h"
 
 namespace dStorm {
 namespace viewer {
 
-#define DISC_INSTANCE(Hueing) template class Display< Hueing >
-
-#include "colour_schemes/instantiate.h"
+template class Display< ColourScheme >;
 
 void BaseDisplay::setSize(
     const Im::Size& size

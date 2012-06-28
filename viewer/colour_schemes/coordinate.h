@@ -10,11 +10,8 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-class Coordinate : public Base<unsigned char> { 
+class Coordinate : public Base { 
   public:
-    typedef Base<unsigned char> BaseType;
-    typedef BaseType::BrightnessType BrightnessType;
-
     static const int KeyCount = 2;
 
   private:
@@ -27,18 +24,19 @@ class Coordinate : public Base<unsigned char> {
     const float range;
 
     void set_tone( const Localization& l );
+    virtual Coordinate* clone_() const { return new Coordinate(*this); }
 
   public:
     Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
 
     void setSize( const MetaInfo& traits ) {
-        BaseType::setSize(traits);
+        Base::setSize(traits);
         mixer.setSize(traits.size);
     }
-    Pixel getPixel(const Im::Position& p, BrightnessType val)
+    Pixel getPixel(Im::Position p, BrightnessType val) const
         { if ( ! currently_mapping ) return inv( val ); else return inv( mixer.getPixel(p,val) ); }
-    Pixel getKeyPixel( unsigned char val ) const 
+    Pixel getKeyPixel( BrightnessType val ) const 
         { return inv( mixer.getKeyPixel(val) ); }
     void updatePixel(const Im::Position& p, float oldVal, float newVal) 
         { if ( currently_mapping) mixer.updatePixel(p, oldVal, newVal); }

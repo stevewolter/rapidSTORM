@@ -60,7 +60,7 @@ void Display<Colorizer>::setSize( const MetaInfo& traits)
     size.set_size( Im::Size(traits.size) );
 
     size.keys.push_back(
-        dStorm::display::KeyDeclaration("ADC", "total A/D counts", Colorizer::BrightnessDepth) );
+        dStorm::display::KeyDeclaration("ADC", "total A/D counts", colorizer.brightness_depth()) );
     for (int j = 1; j < Colorizer::KeyCount; ++j) {
         size.keys.push_back( colorizer.create_key_declaration(j) );
         colorizer.create_full_key( next_change->changed_keys[j] , j );

@@ -5,7 +5,6 @@
 #include "Display.h"
 #include "Backend.h"
 #include "LiveCache.h"
-#include "TerminalBackend_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/display/Manager.h>
@@ -13,6 +12,8 @@
 
 namespace dStorm {
 namespace viewer {
+
+class TerminalBackend;
 
 template <typename Hueing>
 class LiveBackend 
@@ -23,19 +24,19 @@ class LiveBackend
     typedef Display< MyColorizer > MyDisplay;
     typedef LiveCache< MyDisplay > MyCache;
     typedef Discretizer< MyCache, MyColorizer > MyDiscretizer;
-    typedef outputs::BinnedLocalizations<MyDiscretizer, Im::Dim> Accumulator;
+    typedef outputs::BinnedLocalizations< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
 
     Status& status;
 
     std::auto_ptr<dStorm::display::Change> get_changes();
 
     Accumulator image;
-    MyColorizer colorizer;
+    std::auto_ptr<MyColorizer> colorizer;
     MyDiscretizer discretization;
     MyCache cache;
     MyDisplay cia;
 
-    friend class TerminalBackend<Hueing>;
+    friend class TerminalBackend;
 
     void notice_closed_data_window();
     void look_up_key_values( const PixelInfo& info,
@@ -43,8 +44,8 @@ class LiveBackend
     void notice_user_key_limits(int key_index, bool lower, std::string input);
 
   public:
-    LiveBackend(const MyColorizer&, Status&);
-    LiveBackend(const TerminalBackend<Hueing>& other, Status&);
+    LiveBackend(std::auto_ptr< MyColorizer >, Status&);
+    LiveBackend(const TerminalBackend& other, Status&);
     ~LiveBackend() ;
 
     output::Output& getForwardOutput() { return image; }

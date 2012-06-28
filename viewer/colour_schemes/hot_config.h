@@ -1,18 +1,18 @@
 #ifndef DSTORM_COLOUR_SCHEMES_HOT_CONFIG_H
 #define DSTORM_COLOUR_SCHEMES_HOT_CONFIG_H
 
-#include <viewer/ColourScheme.h>
+#include <viewer/ColourSchemeFactory.h>
 #include <simparm/Object.h>
 
 namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
-struct HotConfig : public ColourScheme
+struct HotConfig : public ColourSchemeFactory
 {
     HotConfig();
     HotConfig* clone() const { return new HotConfig(*this); }
-    std::auto_ptr<Backend> make_backend( Config&, Status& ) const;
+    std::auto_ptr<Base> make_backend( bool invert ) const;
     void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
     void add_listener( simparm::BaseAttribute::Listener ) {}
 };

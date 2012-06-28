@@ -8,15 +8,15 @@ namespace viewer {
 namespace colour_schemes {
 
 class Mono
-: public Base<unsigned char>
+: public Base
 {
+    virtual Mono* clone_() const { return new Mono(*this); }
   public:
-    typedef Base<unsigned char>::BrightnessType BrightnessType;
     Mono(bool invert)
-        : Base<unsigned char>(invert) {} 
-    inline Pixel getPixel( Im::Position, BrightnessType br ) const
+        : Base(invert) {} 
+    Pixel getPixel( Im::Position, BrightnessType br ) const
             { return inv( Pixel(br) ); }
-    inline Pixel getKeyPixel( BrightnessType br ) const
+    Pixel getKeyPixel( BrightnessType br ) const
         { return getPixel(Im::Position::Zero(), br ); }
 };
 

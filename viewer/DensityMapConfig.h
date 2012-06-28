@@ -3,7 +3,7 @@
 
 #include "Config_decl.h"
 #include <simparm/Entry.h>
-#include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
+#include "density_map/CoordinatesFactory.h"
 #include "density_map/InterpolatorChoice.h"
 #include "Image.h"
 
@@ -12,11 +12,11 @@ namespace viewer {
 
 class DensityMapConfig {
 public:
-    typedef Eigen::Matrix< boost::units::quantity<boost::units::camera::length,int>, 3, 1 >
+    typedef Eigen::Matrix< boost::units::quantity<boost::units::camera::length,int>, Im::Dim, 1 >
         CropBorder;
 
-    outputs::DimensionSelector<Im::Dim> binned_dimensions;
-    density_map::InterpolatorChoice<3> interpolator;
+    density_map::CoordinatesFactory<Im::Dim> binned_dimensions;
+    density_map::InterpolatorChoice<Im::Dim> interpolator;
     simparm::Entry< CropBorder > border;
 
     DensityMapConfig();

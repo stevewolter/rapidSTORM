@@ -3,6 +3,7 @@
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include "ImageDiscretizer_converter.h"
+#include "ImageDiscretizer_inline.h"
 #include "Display.h"
 #include "LiveBackend.h"
 #include "TerminalBackend.h"
@@ -12,12 +13,11 @@
 namespace dStorm {
 namespace viewer {
 
-template <typename Hueing>
-TerminalBackend<Hueing>::TerminalBackend(
-    const LiveBackend<Hueing>& other, Status& s )
+TerminalBackend::TerminalBackend(
+    const LiveBackend<ColourScheme>& other, Status& s )
 : image( NULL, other.image ),
-  colorizer( other.colorizer ),
-  discretization( other.discretization, image(), colorizer ),
+  colorizer( other.colorizer->clone() ),
+  discretization( other.discretization, image(), *colorizer ),
   cache(),
   status( s )
 {
@@ -31,7 +31,7 @@ template <typename Hueing>
 std::auto_ptr<Backend>
 LiveBackend<Hueing>::change_liveness( Status& s ) {
     if ( ! s.config.showOutput() ) {
-        return std::auto_ptr<Backend>( new TerminalBackend<Hueing>(*this, s) );
+        return std::auto_ptr<Backend>( new TerminalBackend(*this, s) );
     } else {
         return std::auto_ptr<Backend>();
     }

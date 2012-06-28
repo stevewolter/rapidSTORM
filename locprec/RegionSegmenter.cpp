@@ -2,12 +2,12 @@
 #include <simparm/BoostUnits.h>
 #include <simparm/Eigen.h>
 
-#include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/binning/config.h>
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/outputs/TraceFilter.h>
@@ -165,7 +165,7 @@ namespace locprec {
 
 struct Segmenter::Config {
     simparm::ManagedChoiceEntry<SegmentationMethod> method;
-    dStorm::outputs::DimensionSelector<2> selector;
+    dStorm::density_map::CoordinatesFactory<2> selector;
     dStorm::output::TraceReducer::Config reducer;
 
     static std::string get_name() { return "Segmenter"; }

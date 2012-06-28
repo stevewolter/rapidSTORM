@@ -7,20 +7,18 @@ namespace viewer {
 namespace colour_schemes {
 
 MonoConfig::MonoConfig() 
-    : ColourScheme("BlackWhite", "Greyscale") {}
+    : ColourSchemeFactory("BlackWhite", "Greyscale") {}
 
-std::auto_ptr<Backend> MonoConfig::make_backend( Config& config, Status& status ) const
+std::auto_ptr<Base> MonoConfig::make_backend( bool invert) const
 {
-    return Backend::create< Mono >(Mono(config.invert()), status);
+    return std::auto_ptr<Base>(new Mono(invert));
 }
 
-}
-
-template <>
-std::auto_ptr<ColourScheme> ColourScheme::config_for<colour_schemes::Mono>()
+std::auto_ptr<ColourSchemeFactory> make_mono_factory()
 {
-    return std::auto_ptr<ColourScheme>(new colour_schemes::MonoConfig());
+    return std::auto_ptr<ColourSchemeFactory>(new colour_schemes::MonoConfig());
 }
 
+}
 }
 }

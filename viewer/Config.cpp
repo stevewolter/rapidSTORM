@@ -1,5 +1,5 @@
 #include "Config.h"
-#include "ColourScheme.h"
+#include "ColourSchemeFactory.h"
 #include "debug.h"
 #include "colour_schemes/decl.h"
 
@@ -35,9 +35,10 @@ Config::Config()
     top_cutoff.setHelp( "Maximum displayed intensity as a fraction of the "
        "maximum found intensity" );
 
-#define DISC_INSTANCE(Scheme) \
-    colourScheme.addChoice( ColourScheme::config_for<Scheme>() );
-#include "colour_schemes/instantiate.h"
+    colourScheme.addChoice( colour_schemes::make_hot_factory() );
+    colourScheme.addChoice( colour_schemes::make_mono_factory() );
+    colourScheme.addChoice( colour_schemes::make_colored_factory() );
+    colourScheme.addChoice( colour_schemes::make_coordinate_factory() );
 
     close_on_completion.set_user_level(simparm::Debug);
     save_with_key.set_user_level(simparm::Intermediate);
@@ -75,7 +76,7 @@ void Config::backend_needs_changing( simparm::BaseAttribute::Listener l ) {
     DensityMapConfig::backend_needs_changing( l );
     some_value_changed.connect( l );
 
-    for ( simparm::ManagedChoiceEntry<ColourScheme>::iterator i = colourScheme.begin(); i != colourScheme.end(); ++i)
+    for ( simparm::ManagedChoiceEntry<ColourSchemeFactory>::iterator i = colourScheme.begin(); i != colourScheme.end(); ++i)
         i->add_listener( l );
 }
 

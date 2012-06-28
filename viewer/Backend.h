@@ -5,6 +5,7 @@
 #include <memory>
 #include "Status_decl.h"
 #include "Config_decl.h"
+#include "ColourScheme.h"
 
 namespace boost { struct mutex; }
 namespace dStorm {
@@ -23,8 +24,7 @@ struct Backend
     virtual void set_top_cutoff(float fraction) = 0;
     virtual void set_job_name( const std::string& name ) = 0;
 
-    template <typename Colorizer>
-    static std::auto_ptr<Backend> create( const Colorizer&, Status& );
+    static std::auto_ptr<Backend> create( std::auto_ptr< ColourScheme >, Status& );
 };
 
 struct NoOpBackend : public Backend

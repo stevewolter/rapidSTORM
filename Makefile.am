@@ -170,10 +170,6 @@ rapidstorm_SOURCES = \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
     dStorm/outputs/BinnedLocalizations.h dStorm/outputs/BinnedLocalizations_decl.h \
     dStorm/outputs/TraceFilter.h \
-    dStorm/outputs/BinnedLocalizations_converter.h \
-    dStorm/outputs/BinnedLocalizations_strategies_impl.h \
-    dStorm/outputs/BinnedLocalizations_strategies_config.h \
-    dStorm/outputs/BinnedLocalizations_strategies.h \
     dStorm/outputs/BinnedLocalizations_impl.h \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
@@ -312,7 +308,6 @@ rapidstorm_SOURCES += \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
     dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/TraceFilter.cpp \
-    dStorm/outputs/BinnedLocalizations_strategies.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
@@ -466,11 +461,11 @@ rapidstorm_SOURCES += \
     viewer/Publisher.h viewer/HighDepth.h \
     viewer/LiveBackend_decl.h viewer/LiveBackend.h viewer/LiveBackend_impl.h viewer/LiveBackend.cpp \
     viewer/LiveCache.h viewer/LiveCache_inline.h viewer/LiveCache_impl.h viewer/LiveCache.cpp \
-    viewer/TerminalBackend_decl.h viewer/TerminalBackend.h viewer/TerminalBackend_inline.h viewer/TerminalBackend_impl.h viewer/TerminalBackend.cpp \
+    viewer/TerminalBackend.h viewer/TerminalBackend.cpp \
     viewer/TerminalCache.h viewer/TerminalCache_inline.h viewer/TerminalCache.cpp \
     viewer/BinnedLocalizations.cpp \
     viewer/Status_decl.h viewer/Status.h viewer/Status.cpp \
-    viewer/LiveBackend_converter.h viewer/LiveBackend_converter.cpp \
+    viewer/LiveBackend_converter.h \
     viewer/TerminalBackend_converter.h viewer/TerminalBackend_converter.cpp \
     viewer/ImageDiscretizer_converter.h \
     viewer/plugin.h viewer/plugin.cpp \
@@ -850,13 +845,16 @@ rapidstorm_SOURCES += \
     density_map/InterpolatorChoice.h density_map/InterpolatorChoice.hpp density_map/InterpolatorChoice.cpp \
     density_map/LinearInterpolation.h density_map/LinearInterpolation.hpp density_map/LinearInterpolation.cpp \
     density_map/NearestNeighbourInterpolation.h density_map/NearestNeighbourInterpolation.hpp density_map/NearestNeighbourInterpolation.cpp \
-    density_map/GaussianSmoothing.h density_map/GaussianSmoothing.hpp density_map/GaussianSmoothing.cpp
+    density_map/GaussianSmoothing.h density_map/GaussianSmoothing.hpp density_map/GaussianSmoothing.cpp \
+    density_map/Coordinates.h \
+    density_map/CoordinatesFactory.h density_map/CoordinatesFactory.cpp
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 
 rapidstorm_CPPFLAGS = $(GraphicsMagick_CFLAGS) $(WX_CPPFLAGS) 
-rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS) \
-    $(libreadsif_CFLAGS) $(WX_CXXFLAGS)
+rapidstorm_CXXFLAGS = $(boost_thread_CFLAGS) $(gsl_CFLAGS) $(libb64_CFLAGS)
+# TODO: This flag is only needed for old Eigen3 versions up to the fix of Eigen bug 477
+rapidstorm_CXXFLAGS += -Wno-enum-compare
 rapidstorm_LDADD = $(GraphicsMagick_LIBS) 
 rapidstorm_LDADD += $(boost_filesystem_LIB) $(boost_system_LIB) $(boost_thread_LIB) $(libb64_LIBS) 
 rapidstorm_LDADD += $(tinyxml_LIBS) $(gsl_LIBS)

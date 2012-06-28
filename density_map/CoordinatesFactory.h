@@ -3,18 +3,19 @@
 
 #include <simparm/Object.h>
 #include <simparm/ChoiceEntry.h>
-#include "../output/binning/config.h"
-#include "../output/binning/binning_decl.h"
+#include <dStorm/output/binning/config.h>
+#include <dStorm/output/binning/binning_decl.h>
 #include <boost/ptr_container/ptr_array.hpp>
-#include "BinnedLocalizations_decl.h"
-#include "../Localization.h"
+#include <dStorm/Localization.h>
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
-namespace outputs {
+namespace density_map {
+
+template <int Dim> class Coordinates;
 
 template <int Dim>
-class DimensionSelector
+class CoordinatesFactory
 {
     simparm::Object name_object;
     simparm::BoolEntry invert_y_axis, use_z_axis;
@@ -26,11 +27,11 @@ class DimensionSelector
     void init();
 
   public:
-    DimensionSelector();
-    ~DimensionSelector();
-    DimensionSelector* clone() const { return new DimensionSelector(); }
+    CoordinatesFactory();
+    ~CoordinatesFactory();
+    CoordinatesFactory* clone() const { return new CoordinatesFactory(); }
 
-    std::auto_ptr< BinningStrategy<Dim> > make() const;
+    std::auto_ptr< Coordinates<Dim> > make() const;
     std::auto_ptr< output::binning::Unscaled > make_unscaled(int field) const;
     std::auto_ptr< output::binning::Scaled > make_x() const;
     std::auto_ptr< output::binning::Scaled > make_y() const;

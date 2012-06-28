@@ -7,7 +7,7 @@ namespace viewer {
 namespace colour_schemes {
 
 Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range )
-: BaseType(invert), mixer(0,0), variable( scaled ), repeater(NULL),
+: Base(invert), mixer(0,0), variable( scaled ), repeater(NULL),
   is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
   range(range)
 {
@@ -17,7 +17,7 @@ Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled 
 }
 
 Coordinate::Coordinate( const Coordinate& o )
-: BaseType(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
+: Base(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
   is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping),
   range(o.range)
 {
@@ -37,7 +37,7 @@ display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
 void Coordinate::create_full_key( display::Change::Keys::value_type& into, int index ) const
 {
     if ( index != 1 ) {
-        BaseType::create_full_key( into, index );
+        Base::create_full_key( into, index );
         return;
     }
 
@@ -105,7 +105,7 @@ void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string
         mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
         repeater->repeat_results();
     } else
-        BaseType::notice_user_key_limits( index, lower_limit, s );
+        Base::notice_user_key_limits( index, lower_limit, s );
 }
 
 
