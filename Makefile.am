@@ -454,9 +454,9 @@ rapidstorm_SOURCES += \
     viewer/Display.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
-    viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \
+    viewer/Config.h viewer/Config.cpp \
     viewer/DensityMapConfig.h viewer/DensityMapConfig.cpp \
-    viewer/Backend_decl.h viewer/Backend.h viewer/Backend.cpp \
+    viewer/Backend.h viewer/Backend.cpp \
     viewer/Viewer.cpp viewer/Viewer.h \
     viewer/Publisher.h viewer/HighDepth.h \
     viewer/LiveBackend.h viewer/LiveBackend.cpp \
@@ -464,7 +464,7 @@ rapidstorm_SOURCES += \
     viewer/TerminalBackend.h viewer/TerminalBackend.cpp \
     viewer/TerminalCache.h viewer/TerminalCache.cpp \
     viewer/BinnedLocalizations.cpp \
-    viewer/Status_decl.h viewer/Status.h viewer/Status.cpp \
+    viewer/Status.h viewer/Status.cpp \
     viewer/ImageDiscretizer_converter.h \
     viewer/plugin.h viewer/plugin.cpp \
     viewer/ColourScheme.h viewer/ColourSchemeFactory.h  \

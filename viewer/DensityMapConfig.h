@@ -1,7 +1,6 @@
 #ifndef DSTORM_VIEWER_DENSITYMAPCONFIG_H
 #define DSTORM_VIEWER_DENSITYMAPCONFIG_H
 
-#include "Config_decl.h"
 #include <simparm/Entry.h>
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/InterpolatorChoice.h"

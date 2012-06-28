@@ -2,8 +2,6 @@
 #define DSTORM_VIEWER_DISPLAY_H
 
 #include "ImageDiscretizer.h"
-#include "Config_decl.h"
-#include "Status_decl.h"
 #include <vector>
 #include <dStorm/display/Manager.h>
 #include <dStorm/Engine.h>
@@ -13,6 +11,8 @@ namespace viewer {
 
 class ColourScheme;
 class LiveCache;
+class Config;
+class Status;
 
 class Display 
 : public DiscretizationListener

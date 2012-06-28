@@ -3,13 +3,13 @@
 
 #include <dStorm/output/Output.h>
 #include <memory>
-#include "Status_decl.h"
-#include "Config_decl.h"
 #include "ColourScheme.h"
 
-namespace boost { struct mutex; }
 namespace dStorm {
 namespace viewer {
+
+class Config;
+class Status;
 
 struct Backend
 {

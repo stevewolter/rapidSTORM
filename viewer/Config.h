@@ -1,12 +1,8 @@
 #ifndef DSTORM_VIEWER_CONFIG_H
 #define DSTORM_VIEWER_CONFIG_H
 
-#include "Config_decl.h"
 #include "DensityMapConfig.h"
 
-#include <simparm/Eigen_decl.h>
-#include <simparm/BoostUnits.h>
-#include <simparm/Eigen.h>
 #include <simparm/ChoiceEntry.h>
 #include <simparm/ManagedChoiceEntry.h>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>

@@ -6,7 +6,6 @@
 #include "Backend.h"
 #include "TerminalCache.h"
 #include "ColourScheme.h"
-#include "Status_decl.h"
 
 #include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/display/Manager.h>
@@ -15,6 +14,7 @@ namespace dStorm {
 namespace viewer {
 
 class LiveBackend;
+class Status;
 
 class TerminalBackend 
 : 
