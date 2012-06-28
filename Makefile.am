@@ -428,7 +428,6 @@ rapidstorm_SOURCES += \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
     outputs/Crankshaft.h outputs/Crankshaft.cpp \
-    outputs/LocalizationList.h outputs/LocalizationList.cpp \
     outputs/NullOutput.h 
 
 rapidstorm_SOURCES += \
