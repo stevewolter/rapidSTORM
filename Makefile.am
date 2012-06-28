@@ -453,11 +453,13 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     viewer/fwd.h \
+    viewer/DensityMap.cpp \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display_inline.h viewer/Display_impl.h viewer/Display.cpp \
     viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
 	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
     viewer/Config_decl.h viewer/Config.h viewer/Config.cpp \
+    viewer/DensityMapConfig.h viewer/DensityMapConfig.cpp \
     viewer/Backend_decl.h viewer/Backend.h viewer/Backend.cpp \
     viewer/Viewer.cpp viewer/Viewer.h \
     viewer/Publisher.h viewer/HighDepth.h \

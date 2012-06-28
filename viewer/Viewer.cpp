@@ -83,8 +83,6 @@ void Viewer::store_results_( bool job_successful ) {
         forwardOutput->store_results(job_successful);
     if (job_successful && config.outputFile)
         writeToFile(config.outputFile());
-    if (job_successful && config.density_matrix && config.density_matrix_given())
-        save_density_map();
 }
 
 void Viewer::make_new_backend() {
@@ -124,8 +122,6 @@ void Viewer::save_image() {
         if ( config.outputFile ) {
             writeToFile( config.outputFile() );
         }
-        if ( config.density_matrix_given() && config.density_matrix )
-            save_density_map();
     }
 }
 
@@ -170,25 +166,10 @@ void Viewer::check_for_duplicate_filenames
         (std::set<std::string>& present_filenames)
 {
     insert_filename_with_check( config.outputFile(), present_filenames );
-    if ( config.density_matrix_given() )
-        insert_filename_with_check( config.density_matrix(), present_filenames );
 }
-
-void Viewer::save_density_map() {
-    std::ofstream file( config.density_matrix().c_str() );
-    implementation->save_density_map( file );
-}
-
-struct OutputSource : public output::OutputBuilder< Config, Viewer > {
-    OutputSource() : output::OutputBuilder< Config, Viewer >()
-        { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }
-    OutputSource( const OutputSource& o ) : output::OutputBuilder< Config, Viewer >(o)
-        { adjust_to_basename( config.outputFile ); adjust_to_basename( config.density_matrix ); }
-    OutputSource* clone() const { return new OutputSource(*this); }
-};
 
 std::auto_ptr<output::OutputSource> make_output_source() {
-    return std::auto_ptr<output::OutputSource>( new OutputSource() );
+    return std::auto_ptr<output::OutputSource>( new output::FileOutputBuilder<Config,Viewer>() );
 }
 
 }

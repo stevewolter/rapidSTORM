@@ -2,6 +2,7 @@
 #define DSTORM_VIEWER_CONFIG_H
 
 #include "Config_decl.h"
+#include "DensityMapConfig.h"
 
 #include <simparm/Eigen_decl.h>
 #include <simparm/BoostUnits.h>
@@ -14,32 +15,24 @@
 #include <dStorm/units/microlength.h>
 
 #include <dStorm/UnitEntries/PixelEntry.h>
-#include <dStorm/outputs/BinnedLocalizations_strategies_config.h>
 #include "ColourScheme.h"
 #include "Image.h"
-#include "density_map/InterpolatorChoice.h"
 
 namespace dStorm {
 namespace viewer {
 
-class Config {
-  public:
-    typedef Eigen::Matrix< boost::units::quantity<boost::units::camera::length,int>, 3, 1 >
-        CropBorder;
-
-    simparm::BoolEntry showOutput, density_matrix_given;
-    output::BasenameAdjustedFileEntry outputFile, density_matrix;
-    outputs::DimensionSelector<Im::Dim> binned_dimensions;
-    density_map::InterpolatorChoice<3> interpolator;
+class Config : public DensityMapConfig {
+public:
+    simparm::BoolEntry showOutput;
+    output::BasenameAdjustedFileEntry outputFile;
     simparm::Entry<double> histogramPower, top_cutoff;
     simparm::ManagedChoiceEntry<ColourScheme> colourScheme;
     simparm::BoolEntry invert, save_with_key, save_scale_bar, close_on_completion;
-    simparm::Entry< CropBorder > border;
     simparm::Entry< boost::units::quantity<boost::units::si::microlength> > scale_bar_length;
 
 private:
     dStorm::default_on_copy< boost::signals2::signal<void()> > some_value_changed;
-    simparm::BaseAttribute::ConnectionStore listening[6];
+    simparm::BaseAttribute::ConnectionStore listening[2];
 
 public:
     Config();
@@ -52,8 +45,6 @@ public:
     static std::string get_name() { return "Image"; }
     static std::string get_description() { return "Image display"; }
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
-    
-    CropBorder crop_border() const;
 };
 
 }
