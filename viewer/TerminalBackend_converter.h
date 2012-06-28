@@ -15,7 +15,7 @@ namespace viewer {
 template <typename Hueing>
 TerminalBackend<Hueing>::TerminalBackend(
     const LiveBackend<Hueing>& other, Status& s )
-: image( other.image ),
+: image( NULL, other.image ),
   colorizer( other.colorizer ),
   discretization( other.discretization, image(), colorizer ),
   cache(),
@@ -23,7 +23,7 @@ TerminalBackend<Hueing>::TerminalBackend(
 {
     if ( other.cia.getSize().is_initialized() )
         cache.setSize( *other.cia.getSize() );
-    image.setListener(&discretization);
+    image.set_listener(&discretization);
     discretization.setListener(&cache);
 }
 

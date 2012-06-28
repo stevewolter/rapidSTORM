@@ -8,6 +8,7 @@
 #include <boost/array.hpp>
 #include <stdint.h>
 #include "../Image.h"
+#include "density_map/DummyListener.h"
 
 namespace dStorm {
 namespace viewer {
@@ -25,7 +26,7 @@ void convert_xy_tone_to_hue_sat(
 
 template <typename _BrightnessType>
 class Base 
-    : public outputs::DummyBinningListener<Im::Dim>
+    : public density_map::DummyListener<Im::Dim>
 {
   public:
     typedef _BrightnessType BrightnessType;

@@ -17,9 +17,10 @@ namespace dStorm {
 namespace outputs {
 
 template <typename KeepUpdated, int Dim>
-BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
-    (std::auto_ptr<BinningStrategy<Dim> > strategy, Interpolator interpolator, Crop crop)
-    : crop(crop), strategy(strategy), binningInterpolator(interpolator)
+BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations(
+    KeepUpdated* listener,
+    std::auto_ptr<BinningStrategy<Dim> > strategy, Interpolator interpolator, Crop crop
+) : crop(crop), listener(listener), strategy(strategy), binningInterpolator(interpolator)
 {
     assert( this->strategy.get() );
     assert( this->binningInterpolator.get() );
@@ -32,6 +33,7 @@ BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
   announcement( 
     (o.announcement.get() == NULL )
         ? NULL : new Announcement(*o.announcement) ),
+  listener( o.listener ),
   strategy( o.strategy->clone() ),
   binningInterpolator(o.binningInterpolator->clone())
 {}
@@ -43,7 +45,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 {
     announcement.reset( new Announcement(a) );
     this->strategy->announce( a );
-    this->binningListener().announce( a );
+    this->listener->announce( a );
     set_base_image_size();
     return AdditionalData();
 }
@@ -52,7 +54,7 @@ template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>
 ::store_results_( bool )
 {
-    this->binningListener().clean( true );
+    this->listener->clean( true );
 }
 
 template <typename KeepUpdated, int Dim>
@@ -61,7 +63,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 ::receiveLocalizations(const EngineResult& er)
 {
     if ( er.size() == 0 ) return;
-    this->binningListener().announce(er);
+    this->listener->announce(er);
 
     typedef boost::units::quantity<camera::length,int> 
         pixel_count;
@@ -78,7 +80,7 @@ BinnedLocalizations<KeepUpdated,Dim>
 
         float strength = r[i].intensity;
 
-        this->binningListener().announce( l );
+        this->listener->announce( l );
         this->binningInterpolator->interpolate( r[i].position, r[i].position_uncertainty, points );
 
         for ( typename Points::const_iterator point = points.begin(); point != points.end(); ++point ) {
@@ -87,20 +89,20 @@ BinnedLocalizations<KeepUpdated,Dim>
             float val = strength * point->relative_value;
             float old_val = base_image(p);
             float new_val = (base_image(p) += val);
-            this->binningListener().updatePixel( p, old_val, new_val );
+            this->listener->updatePixel( p, old_val, new_val );
         }
     }
 }
 
 template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>::clean() {
-    this->binningListener().clean(false);
+    this->listener->clean(false);
 }
 
 template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>::clear() {
     base_image.fill(0);
-    this->binningListener().clear();
+    this->listener->clear();
 }
 
 template <typename KeepUpdated, int Dim>
@@ -124,7 +126,7 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
 
     base_image = BinnedImage(traits.size, base_image.frame_number());
     base_image.fill(0); 
-    this->binningListener().setSize(traits);
+    this->listener->setSize(traits);
 }
 
 template <typename KeepUpdated, int Dim>

@@ -15,7 +15,7 @@ namespace viewer {
 template <typename Hueing>
 LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Status& s)
 : status(s), 
-  image( other.image ),
+  image( NULL, other.image ),
   colorizer( other.colorizer ),
   discretization( other.discretization,
                   image(), colorizer ),
@@ -23,7 +23,7 @@ LiveBackend<Hueing>::LiveBackend(const TerminalBackend<Hueing>& other, Status& s
   cia( discretization, s, *this, colorizer, other.get_result() )
 {
     cia.set_job_name( other.get_job_name() );
-    image.setListener(&discretization);
+    image.set_listener(&discretization);
     discretization.setListener(&cache);
     cache.setListener(&cia);
     cia.show_window();

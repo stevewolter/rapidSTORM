@@ -4,6 +4,7 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/output/FileOutputBuilder.h>
 #include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/DummyListener.h"
 #include <fstream>
 
 namespace dStorm {
@@ -23,11 +24,12 @@ public:
 };
 
 class DensityMap : public output::Output {
-    outputs::BinnedLocalizations< outputs::DummyBinningListener<3>, 3 > density;
+    density_map::DummyListener<3> dummy_listener;
+    outputs::BinnedLocalizations< density_map::DummyListener<3>, 3 > density;
     std::string filename;
 public:
     DensityMap( const DensityMapOutputConfig& config ) 
-        : density( config.binned_dimensions.make(), config.interpolator.make(), config.crop_border() ),
+        : density( &dummy_listener, config.binned_dimensions.make(), config.interpolator.make(), config.crop_border() ),
           filename( config.outputFile() ) {}
     AdditionalData announceStormSize(const Announcement &a) {
         return density.announceStormSize( a );

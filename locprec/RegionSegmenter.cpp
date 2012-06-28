@@ -8,6 +8,7 @@
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/Localizations.h>
 #include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/DummyListener.h"
 #include <dStorm/engine/Image.h>
 #include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>
@@ -69,7 +70,8 @@ class Segmenter : public dStorm::output::Filter,
     simparm::Entry<unsigned long> dilation;
     dStorm::output::Localizations points;
 
-    dStorm::outputs::BinnedLocalizations<> bins;
+    dStorm::density_map::DummyListener<2> dummy_binning_listener;
+    dStorm::outputs::BinnedLocalizations< dStorm::density_map::DummyListener<2>, 2 > bins;
 
     std::auto_ptr< dStorm::display::Change > next_change;
     std::auto_ptr< dStorm::display::WindowHandle > display;
@@ -212,7 +214,7 @@ Segmenter::Segmenter(
   howToSegment( config.method().type() ),
   threshold( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).threshold ),
   dilation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).dilation ),
-  bins( config.selector.make(), density_map::make_linear_interpolator<2>() ),
+  bins( &dummy_binning_listener, config.selector.make(), density_map::make_linear_interpolator<2>() ),
   reducer( config.reducer.make_trace_reducer() ),
   load_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).load_segmentation() ),
   save_segmentation( static_cast<const RegionSegmentationMethod&>( config.method["Regions"] ).save_segmentation() ) 

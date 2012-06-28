@@ -845,6 +845,7 @@ rapidstorm_SOURCES += \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
 rapidstorm_SOURCES += \
+    density_map/Listener.h density_map/DummyListener.h \
     density_map/Interpolator.h density_map/InterpolatorFactory.h \
     density_map/InterpolatorChoice.h density_map/InterpolatorChoice.hpp density_map/InterpolatorChoice.cpp \
     density_map/LinearInterpolation.h density_map/LinearInterpolation.hpp density_map/LinearInterpolation.cpp \

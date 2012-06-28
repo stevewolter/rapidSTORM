@@ -8,6 +8,7 @@
 #include "HighDepth.h"
 #include <vector>
 #include "Image.h"
+#include "density_map/Listener.h"
 
 namespace dStorm {
 namespace viewer {
@@ -53,7 +54,7 @@ struct DummyDiscretizationListener {
 
 template <typename ImageListener, typename Colorizer_>
 class Discretizer 
-: public outputs::BinningListener<Im::Dim>,
+: public density_map::Listener<Im::Dim>,
   public Publisher<ImageListener>
 {
     typedef Colorizer_ Colorizer;

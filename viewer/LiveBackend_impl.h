@@ -16,7 +16,7 @@ namespace viewer {
 template <typename Hueing>
 LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
 : status(s), 
-  image( s.config.binned_dimensions.make(), s.config.interpolator.make(), s.config.crop_border() ),
+  image( NULL, s.config.binned_dimensions.make(), s.config.interpolator.make(), s.config.crop_border() ),
   colorizer(col),
   discretization( 4096, 
         s.config.histogramPower(), image(),
@@ -24,7 +24,7 @@ LiveBackend<Hueing>::LiveBackend(const MyColorizer& col, Status& s)
   cache( 4096 ),
   cia( discretization, s, *this, colorizer )
 {
-    image.setListener(&discretization);
+    image.set_listener(&discretization);
     discretization.setListener(&cache);
     cache.setListener(&cia);
     DEBUG("Constructed " << this);
