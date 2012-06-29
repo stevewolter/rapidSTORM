@@ -1,3 +1,0 @@
-namespace dStorm {
-class Engine;
-}

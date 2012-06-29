@@ -136,20 +136,18 @@ rapidstorm_SOURCES = \
     dStorm/polynomial_3d.h \
     dStorm/InsertionPlace.h \
     dStorm/Localization_decl.h dStorm/Localization.h \
-    dStorm/Pixel_decl.h dStorm/Pixel.h \
+    dStorm/Pixel.h \
     dStorm/DataSetTraits.h \
-    dStorm/Job.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h dStorm/check_plugin.h \
+    dStorm/Job.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h \
     dStorm/Config_decl.h dStorm/Config.h \
-    dStorm/Engine.h dStorm/Engine_decl.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
+    dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
     dStorm/output/binning/binning.h dStorm/output/binning/binning.hpp dStorm/output/binning/binning_decl.h \
     dStorm/output/binning/inversion.h \
     dStorm/output/binning/localization.h \
     dStorm/output/binning/localization_impl.h \
-    dStorm/output/binning/localization_config_decl.h \
     dStorm/output/binning/localization_config.h \
     dStorm/output/binning/localization_config_impl.h \
-    dStorm/output/binning/config_decl.h \
     dStorm/output/binning/config.h \
     dStorm/output/binning/dummy_binner.h \
     dStorm/output/binning/constant_binner.h \
@@ -174,7 +172,7 @@ rapidstorm_SOURCES = \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
-    dStorm/output/Capabilities.h dStorm/output/Capabilities_decl.h \
+    dStorm/output/Capabilities.h \
     dStorm/output/FileOutputBuilder.h \
     dStorm/output/FilterBuilder.h dStorm/output/FilterBuilder_impl.h \
     dStorm/output/FilterSource.h \
@@ -190,14 +188,13 @@ rapidstorm_SOURCES = \
     dStorm/engine/CandidateTree_decl.h dStorm/engine/CandidateTree.h \
     dStorm/engine/Image_decl.h dStorm/engine/Image.h \
     dStorm/engine/Input_decl.h dStorm/engine/Input.h \
-    dStorm/engine/Spot_decl.h dStorm/engine/Spot.h \
+    dStorm/engine/Spot.h \
     dStorm/engine/SpotFinder_decl.h dStorm/engine/SpotFinder.h \
     dStorm/engine/SpotFinderBuilder.h \
     dStorm/engine/JobInfo_decl.h dStorm/engine/JobInfo.h \
     dStorm/engine/SpotFitter_decl.h dStorm/engine/SpotFitter.h \
     dStorm/engine/FitPosition.h \
     dStorm/engine/SpotFitterFactory_decl.h dStorm/engine/SpotFitterFactory.h \
-    dStorm/engine/SpotFitterBuilder.h \
     dStorm/engine/InputTraits.h dStorm/engine/InputPlane.h \
     dStorm/engine/FitJudger.h dStorm/engine/FitJudgerFactory.h dStorm/engine/FitJudger.cpp \
     dStorm/input/AdapterSource.h \
@@ -230,10 +227,10 @@ rapidstorm_SOURCES = \
     dStorm/image/Box.h dStorm/image/Box.hpp \
     dStorm/units/icl.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
-    dStorm/units/frame_rate.h dStorm/units/megafrequency.h \
+    dStorm/units/megafrequency.h \
     dStorm/units/microtime.h dStorm/units/nanolength.h \
     dStorm/units/microlength.h dStorm/units/permicrolength.h \
-    dStorm/units/nanoresolution.h dStorm/units/prefixes.h \
+    dStorm/units/nanoresolution.h \
     dStorm/units/camera_response.h \
     dStorm/UnitEntries/FrameEntry.h dStorm/UnitEntries/Hertz.h \
     dStorm/UnitEntries/Nanometre.h dStorm/UnitEntries/PixelEntry.h \
@@ -378,7 +375,6 @@ rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
-    engine/ImageFitter.h \
     engine/SpotFinder.cpp engine/debug.h  \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
@@ -399,7 +395,7 @@ rapidstorm_SOURCES += \
     expression/Parser.h expression/Parser.cpp expression/Parser_test.cpp \
     expression/QuantityDynamizer.h expression/QuantityDynamizer.hpp \
     expression/tokens.cpp expression/tokens_decl.h expression/tokens.h \
-    expression/types.cpp expression/types.h expression/types_decl.h \
+    expression/types.cpp expression/types.h \
     expression/UnitTable.cpp expression/UnitTable.h expression/UnitTable_impl.h \
     expression/Config.cpp expression/Source.cpp \
     expression/CommandLine.h expression/CommandLine.cpp \
@@ -506,7 +502,7 @@ rapidstorm_SOURCES += \
     nonlinfit/Evaluation.h \
     nonlinfit/Evaluator.h \
     nonlinfit/derive_by.hpp \
-    nonlinfit/Bind.h nonlinfit/Bind.hpp \
+    nonlinfit/Bind.h \
     nonlinfit/FunctionConverter.h \
     nonlinfit/VectorPosition.h nonlinfit/VectorPosition.hpp \
     nonlinfit/fwd.h \
@@ -518,11 +514,9 @@ rapidstorm_SOURCES += \
     nonlinfit/TermParameter.h \
     nonlinfit/Evaluation.hpp \
     nonlinfit/Xs.h \
-    nonlinfit/Xs.hpp \
     nonlinfit/functions/Constant.h \
     nonlinfit/functions/Polynom.h \
     nonlinfit/functions/Zero.h \
-    nonlinfit/steepest_descent/Fitter.hpp \
     nonlinfit/levmar/Config.h \
     nonlinfit/levmar/Fitter.hpp \
     nonlinfit/levmar/Fitter.h \
@@ -531,7 +525,6 @@ rapidstorm_SOURCES += \
     nonlinfit/levmar/Fitter.cpp \
     nonlinfit/plane/fwd.h \
     nonlinfit/plane/check_evaluator.hpp \
-    nonlinfit/plane/ComputationWay.h \
     nonlinfit/plane/Distance.h nonlinfit/plane/Distance.hpp \
     nonlinfit/plane/Joint.h \
     nonlinfit/plane/Disjoint.h nonlinfit/plane/Disjoint.hpp \
@@ -592,7 +585,7 @@ rapidstorm_SOURCES += \
     guf/unit_tests.h
 
 rapidstorm_SOURCES += \
-    gaussian_psf/fwd.h gaussian_psf/parameters.h gaussian_psf/parameters.hpp \
+    gaussian_psf/fwd.h gaussian_psf/parameters.h \
     gaussian_psf/BaseEvaluator.h gaussian_psf/BaseEvaluator.cpp \
     gaussian_psf/DisjointEvaluator.h \
     gaussian_psf/free_form.h \
@@ -604,7 +597,7 @@ rapidstorm_SOURCES += \
     gaussian_psf/Spline3D.h gaussian_psf/Spline3D.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
-    gaussian_psf/LengthUnit.h gaussian_psf/ostream.h \
+    gaussian_psf/LengthUnit.h \
     gaussian_psf/unit_test.h gaussian_psf/unit_test.cpp \
     gaussian_psf/ReferenceEvaluation.h \
     gaussian_psf/mock_model.h gaussian_psf/mock_model.cpp \
@@ -695,11 +688,10 @@ rapidstorm_SOURCES += \
 rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
     locprec/foreach.h \
-    locprec/Noise.h locprec/SpotMeter.h \
+    locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/SpotMeter.cpp \
     locprec/RegionSegmenter.h \
-    locprec/relate.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
     locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
@@ -709,7 +701,7 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
-    AndorCamera/InputChainLink_decl.h AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
+    AndorCamera/InputChainLink.h AndorCamera/InputChainLink.cpp \
     AndorCamera/LiveView.h AndorCamera/LiveView.cpp \
     AndorCamera/AndorDirect.h AndorCamera/AndorDirect.cpp AndorCamera/AndorDirect_iterator.cpp \
     AndorCamera/ViewportSelector.h AndorCamera/ViewportSelector.cpp \
@@ -742,12 +734,10 @@ rapidstorm_SOURCES += \
     simparm/ChoiceEntry.h simparm/ChoiceEntry.cpp \
     simparm/ObjectChoice.h simparm/ManagedChoiceEntry.h \
     simparm/Menu.h \
-    simparm/debug.h \
     simparm/iostream.h simparm/typeName.h \
     simparm/Eigen_decl.h simparm/Eigen.h \
     simparm/BoostUnits.h \
     simparm/UserLevel.h simparm/UserLevel.cpp \
-    simparm/IncrementWatcher.h \
     simparm/BoostOptional.h \
     simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/is_numerical.hpp \
