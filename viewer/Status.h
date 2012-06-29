@@ -1,7 +1,6 @@
 #ifndef DSTORM_STATUS_H
 #define DSTORM_STATUS_H
 
-#include "Status_decl.h"
 #include "Config.h"
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>

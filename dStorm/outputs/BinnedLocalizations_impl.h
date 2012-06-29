@@ -3,6 +3,7 @@
 #include <dStorm/image/MetaInfo.h>
 #include "../image/iterator.h"
 #include <dStorm/image/contains.h>
+#include <dStorm/image/constructors.h>
 #include <Eigen/Core>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>
@@ -37,7 +38,27 @@ BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
 {}
 
 template <typename KeepUpdated, int Dim>
-BinnedLocalizations<KeepUpdated,Dim>::~BinnedLocalizations() {}
+void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size() 
+{
+    image::MetaInfo<Dim> traits;
+
+    typedef quantity<camera::length>
+        PreciseSize;
+        
+    const PreciseSize one_pixel( 1 * camera::pixel );
+
+    traits.size.fill( 1 * camera::pixel );
+    for (int i = 0; i < Dim; i++) {
+        PreciseSize dp_size = strategy->get_size()[i] - 2*crop[i];
+        traits.size[i] = std::max( ceil( dp_size), one_pixel );
+    }
+
+    traits.set_resolution( strategy->get_resolution() );
+
+    base_image = BinnedImage(traits.size, base_image.frame_number());
+    base_image.fill(0); 
+    this->listener->setSize(traits);
+}
 
 template <typename KeepUpdated, int Dim>
 output::Output::AdditionalData
@@ -107,29 +128,6 @@ void BinnedLocalizations<KeepUpdated,Dim>::clear() {
 }
 
 template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size() 
-{
-    image::MetaInfo<Dim> traits;
-
-    typedef quantity<camera::length>
-        PreciseSize;
-        
-    const PreciseSize one_pixel( 1 * camera::pixel );
-
-    traits.size.fill( 1 * camera::pixel );
-    for (int i = 0; i < Dim; i++) {
-        PreciseSize dp_size = strategy->get_size()[i] - 2*crop[i];
-        traits.size[i] = std::max( ceil( dp_size), one_pixel );
-    }
-
-    traits.set_resolution( strategy->get_resolution() );
-
-    base_image = BinnedImage(traits.size, base_image.frame_number());
-    base_image.fill(0); 
-    this->listener->setSize(traits);
-}
-
-template <typename KeepUpdated, int Dim>
 void BinnedLocalizations<KeepUpdated,Dim>::write_density_matrix( std::ostream& o ) 
 {
     for ( typename BinnedImage::iterator i = base_image.begin(); i != base_image.end(); ++i )
@@ -140,6 +138,10 @@ template <typename KeepUpdated, int Dim>
 const typename BinnedLocalizations<KeepUpdated,Dim>::Crop
 BinnedLocalizations<KeepUpdated,Dim>::no_crop
     = BinnedLocalizations<KeepUpdated,Dim>::Crop::Constant( 0 * boost::units::camera::pixel );
+
+template <typename KeepUpdated, int Dim>
+BinnedLocalizations<KeepUpdated,Dim>::~BinnedLocalizations() {}
+
 
 }
 }

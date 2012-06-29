@@ -1,10 +1,12 @@
 #ifndef DSTORM_VIEWER_HIGHDEPTH_H
 #define DSTORM_VIEWER_HIGHDEPTH_H
 
+#include <stdint.h>
+
 namespace dStorm {
 namespace viewer {
 
-typedef unsigned short HighDepth;
+typedef uint_fast16_t HighDepth;
 
 }
 }

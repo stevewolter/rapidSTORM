@@ -3,7 +3,7 @@
 
 #include "TerminalBackend.h"
 
-#include <dStorm/outputs/BinnedLocalizations_impl.h>
+#include <dStorm/outputs/BinnedLocalizations.h>
 #include "ImageDiscretizer.h"
 #include "ImageDiscretizer_converter.h"
 #include "Display.h"
