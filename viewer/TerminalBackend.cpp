@@ -3,7 +3,6 @@
 
 #include "TerminalBackend.h"
 
-#include <dStorm/outputs/BinnedLocalizations.h>
 #include "ImageDiscretizer.h"
 #include "ImageDiscretizer_converter.h"
 #include "Display.h"
@@ -34,7 +33,7 @@ TerminalBackend::TerminalBackend(std::auto_ptr<Colorizer> col, Status& status)
 
 TerminalBackend::TerminalBackend(
     const LiveBackend& other, Status& s )
-: image( NULL, other.image ),
+: image( other.image ),
   colorizer( other.colorizer->clone() ),
   discretization( other.discretization, image(), *colorizer ),
   cache(),

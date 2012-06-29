@@ -6,7 +6,7 @@
 #include <dStorm/output/binning/config.h>
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/Localizations.h>
-#include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/DensityMap.h"
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
 #include <dStorm/engine/Image.h>
@@ -71,7 +71,7 @@ class Segmenter : public dStorm::output::Filter,
     dStorm::output::Localizations points;
 
     dStorm::density_map::DummyListener<2> dummy_binning_listener;
-    dStorm::outputs::BinnedLocalizations< dStorm::density_map::DummyListener<2>, 2 > bins;
+    dStorm::density_map::DensityMap< dStorm::density_map::DummyListener<2>, 2 > bins;
 
     std::auto_ptr< dStorm::display::Change > next_change;
     std::auto_ptr< dStorm::display::WindowHandle > display;

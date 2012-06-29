@@ -1,8 +1,8 @@
 #ifndef DSTORM_VIEWER_HUESATURATIONMIXER_H
 #define DSTORM_VIEWER_HUESATURATIONMIXER_H
 
-#include <dStorm/Image.h>
 #include <dStorm/Pixel.h>
+#include "viewer/Image.h"
 #include "base.h"
 
 namespace dStorm {

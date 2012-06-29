@@ -7,7 +7,7 @@
 #include "TerminalCache.h"
 #include "ColourScheme.h"
 
-#include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/DensityMap.h"
 #include <dStorm/display/Manager.h>
 
 namespace dStorm {
@@ -24,7 +24,7 @@ class TerminalBackend
     typedef ColourScheme Colorizer;
     typedef TerminalCache Cache;
     typedef Discretizer<Cache> MyDiscretizer;
-    typedef outputs::BinnedLocalizations< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
+    typedef density_map::DensityMap< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
 
     /** Binned image with all localizations in localizationsStore.*/
     Accumulator image;

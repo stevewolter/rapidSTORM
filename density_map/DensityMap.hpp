@@ -1,33 +1,33 @@
-#include "BinnedLocalizations.h"
-#include "../Engine.h"
-#include <dStorm/image/MetaInfo.h>
-#include "../image/iterator.h"
-#include <dStorm/image/contains.h>
-#include <dStorm/image/constructors.h>
-#include <Eigen/Core>
 #include <boost/units/systems/si/dimensionless.hpp>
 #include <boost/units/cmath.hpp>
 #include <boost/units/Eigen/Array>
-#include "../units/amplitude.h"
 #include <boost/units/io.hpp>
-#include "density_map/Coordinates.h"
+
+#include <dStorm/Engine.h>
+#include <dStorm/image/iterator.h>
+#include <dStorm/image/contains.h>
+#include <dStorm/image/constructors.h>
+#include <dStorm/units/amplitude.h>
+
+#include "DensityMap.h"
+#include "Coordinates.h"
 
 namespace dStorm {
-namespace outputs {
+namespace density_map {
 
-template <typename KeepUpdated, int Dim>
-BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations(
-    KeepUpdated* listener,
-    std::auto_ptr< density_map::Coordinates<Dim> > strategy, Interpolator interpolator, Crop crop
+template <typename Listener, int Dim>
+DensityMap<Listener,Dim>::DensityMap(
+    Listener* listener,
+    std::auto_ptr< Coordinates<Dim> > strategy, InterpolatorPtr interpolator, Crop crop
 ) : crop(crop), listener(listener), strategy(strategy), binningInterpolator(interpolator)
 {
     assert( this->strategy.get() );
     assert( this->binningInterpolator.get() );
 }
 
-template <typename KeepUpdated, int Dim>
-BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
-    (const BinnedLocalizations& o)
+template <typename Listener, int Dim>
+DensityMap<Listener,Dim>::DensityMap
+    (const DensityMap& o)
 : crop(o.crop), base_image(o.base_image),
   announcement( 
     (o.announcement.get() == NULL )
@@ -37,8 +37,8 @@ BinnedLocalizations<KeepUpdated,Dim>::BinnedLocalizations
   binningInterpolator(o.binningInterpolator->clone())
 {}
 
-template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size() 
+template <typename Listener, int Dim>
+void DensityMap<Listener,Dim>::set_base_image_size() 
 {
     image::MetaInfo<Dim> traits;
 
@@ -60,9 +60,9 @@ void BinnedLocalizations<KeepUpdated,Dim>::set_base_image_size()
     this->listener->setSize(traits);
 }
 
-template <typename KeepUpdated, int Dim>
+template <typename Listener, int Dim>
 output::Output::AdditionalData
-BinnedLocalizations<KeepUpdated,Dim>
+DensityMap<Listener,Dim>
 ::announceStormSize(const Announcement& a)
 {
     announcement.reset( new Announcement(a) );
@@ -72,16 +72,16 @@ BinnedLocalizations<KeepUpdated,Dim>
     return AdditionalData();
 }
 
-template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>
+template <typename Listener, int Dim>
+void DensityMap<Listener,Dim>
 ::store_results_( bool )
 {
     this->listener->clean( true );
 }
 
-template <typename KeepUpdated, int Dim>
+template <typename Listener, int Dim>
 void
-BinnedLocalizations<KeepUpdated,Dim>
+DensityMap<Listener,Dim>
 ::receiveLocalizations(const EngineResult& er)
 {
     if ( er.size() == 0 ) return;
@@ -92,10 +92,10 @@ BinnedLocalizations<KeepUpdated,Dim>
 
     typedef Eigen::Matrix< pixel_count, Dim, 1> Position;
 
-    typename density_map::Coordinates<Dim>::Result r( er.size() );
+    typename Coordinates<Dim>::Result r( er.size() );
     int point_count = strategy->bin_points(er, r);
 
-    typedef std::vector< typename density_map::Interpolator<Dim>::ResultPoint > Points;
+    typedef std::vector< typename Interpolator<Dim>::ResultPoint > Points;
     Points points;
     for (int i = 0; i < point_count; i++) {
         const Localization& l = er[i];
@@ -116,31 +116,31 @@ BinnedLocalizations<KeepUpdated,Dim>
     }
 }
 
-template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>::clean() {
+template <typename Listener, int Dim>
+void DensityMap<Listener,Dim>::clean() {
     this->listener->clean(false);
 }
 
-template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>::clear() {
+template <typename Listener, int Dim>
+void DensityMap<Listener,Dim>::clear() {
     base_image.fill(0);
     this->listener->clear();
 }
 
-template <typename KeepUpdated, int Dim>
-void BinnedLocalizations<KeepUpdated,Dim>::write_density_matrix( std::ostream& o ) 
+template <typename Listener, int Dim>
+void DensityMap<Listener,Dim>::write_density_matrix( std::ostream& o ) 
 {
     for ( typename BinnedImage::iterator i = base_image.begin(); i != base_image.end(); ++i )
         o << value( i.position() ).transpose() << " " << *i << "\n";
 }
 
-template <typename KeepUpdated, int Dim>
-const typename BinnedLocalizations<KeepUpdated,Dim>::Crop
-BinnedLocalizations<KeepUpdated,Dim>::no_crop
-    = BinnedLocalizations<KeepUpdated,Dim>::Crop::Constant( 0 * boost::units::camera::pixel );
+template <typename Listener, int Dim>
+const typename DensityMap<Listener,Dim>::Crop
+DensityMap<Listener,Dim>::no_crop
+    = DensityMap<Listener,Dim>::Crop::Constant( 0 * boost::units::camera::pixel );
 
-template <typename KeepUpdated, int Dim>
-BinnedLocalizations<KeepUpdated,Dim>::~BinnedLocalizations() {}
+template <typename Listener, int Dim>
+DensityMap<Listener,Dim>::~DensityMap() {}
 
 
 }

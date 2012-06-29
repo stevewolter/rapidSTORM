@@ -168,9 +168,7 @@ rapidstorm_SOURCES = \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
-    dStorm/outputs/BinnedLocalizations.h dStorm/outputs/BinnedLocalizations_decl.h \
     dStorm/outputs/TraceFilter.h \
-    dStorm/outputs/BinnedLocalizations_impl.h \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
     dStorm/output/Capabilities.h dStorm/output/Capabilities_decl.h \
@@ -307,7 +305,7 @@ rapidstorm_SOURCES += \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
-    dStorm/outputs/BinnedLocalizations.cpp dStorm/outputs/TraceFilter.cpp \
+    dStorm/outputs/TraceFilter.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
@@ -463,7 +461,6 @@ rapidstorm_SOURCES += \
     viewer/LiveCache.h viewer/LiveCache.cpp \
     viewer/TerminalBackend.h viewer/TerminalBackend.cpp \
     viewer/TerminalCache.h viewer/TerminalCache.cpp \
-    viewer/BinnedLocalizations.cpp \
     viewer/Status.h viewer/Status.cpp \
     viewer/ImageDiscretizer_converter.h \
     viewer/plugin.h viewer/plugin.cpp \
@@ -836,7 +833,10 @@ rapidstorm_SOURCES += \
     andor-sif/augment_config.h andor-sif/augment_config.cpp
 
 rapidstorm_SOURCES += \
-    density_map/Listener.h density_map/DummyListener.h \
+    density_map/DensityMap.h density_map/DensityMap.hpp \
+    density_map/Listener.h \
+    density_map/DummyListener.h density_map/DummyListener.cpp \
+    density_map/VirtualListener.h density_map/VirtualListener.cpp \
     density_map/Interpolator.h density_map/InterpolatorFactory.h \
     density_map/InterpolatorChoice.h density_map/InterpolatorChoice.hpp density_map/InterpolatorChoice.cpp \
     density_map/LinearInterpolation.h density_map/LinearInterpolation.hpp density_map/LinearInterpolation.cpp \

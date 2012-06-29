@@ -2,7 +2,6 @@
 #define DSTORM_TRANSMISSIONS_IMAGEDISCRETIZER_H
 
 #include <dStorm/input/Traits.h>
-#include <dStorm/outputs/BinnedLocalizations.h>
 #include <dStorm/Pixel.h>
 #include "Publisher.h"
 #include "HighDepth.h"

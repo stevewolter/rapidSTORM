@@ -6,7 +6,8 @@
 #include "Backend.h"
 #include "LiveCache.h"
 
-#include <dStorm/outputs/BinnedLocalizations.h>
+#include "density_map/DensityMap.h"
+#include "density_map/VirtualListener.h"
 #include <dStorm/display/Manager.h>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -20,7 +21,7 @@ class LiveBackend
   public dStorm::display::DataSource
 {
     typedef Discretizer< LiveCache > MyDiscretizer;
-    typedef outputs::BinnedLocalizations< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
+    typedef density_map::DensityMap< density_map::VirtualListener<Im::Dim>, Im::Dim> Accumulator;
 
     Status& status;
 

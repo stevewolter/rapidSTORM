@@ -1,15 +1,10 @@
 #ifndef DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 #define DSTORM_TRANSMISSIONS_COLOURDISPLAY_BASE_H
 
-#include <dStorm/outputs/BinnedLocalizations.h>
 #include <limits>
 #include <dStorm/Pixel.h>
-#include <dStorm/display/DataSource.h>
-#include <boost/array.hpp>
 #include <stdint.h>
-#include "../Image.h"
-#include "density_map/DummyListener.h"
-#include "../ColourScheme.h"
+#include <boost/array.hpp>
 
 namespace dStorm {
 namespace viewer {

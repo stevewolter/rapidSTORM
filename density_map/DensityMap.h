@@ -1,19 +1,17 @@
-#ifndef DSTORM_BINNEDLOCALIZATIONS_H
-#define DSTORM_BINNEDLOCALIZATIONS_H
+#ifndef DSTORM_DENSITY_MAP_DENSITY_MAP_H
+#define DSTORM_DENSITY_MAP_DENSITY_MAP_H
 
-#include <Eigen/StdVector>
-#include "BinnedLocalizations_decl.h"
+#include "Interpolator.h"
 #include <Eigen/Core>
 #include <boost/units/Eigen/Core>
-#include "../Image.h"
+#include <dStorm/Image.h>
 #include <dStorm/image/MetaInfo.h>
-#include "../output/Output.h"
-#include <cassert>
-#include "density_map/Interpolator.h"
+#include <dStorm/output/Output.h>
 
 namespace dStorm {
-namespace density_map { template< int Dimensions> class Coordinates; }
-namespace outputs {
+namespace density_map {
+
+template <int Dim> struct Coordinates;
 
 /** This class accumulates the Localization results of an Engine
     *  into a single image. This image is not normalized
@@ -25,7 +23,7 @@ namespace outputs {
     *  \sa dStorm::Viewer
     **/
 template <typename KeepUpdated, int Dim>
-class BinnedLocalizations 
+class DensityMap 
     : public output::Output
 {
 public:
@@ -33,7 +31,7 @@ public:
     typedef Eigen::Array< boost::units::quantity<camera::length,int>, 
                             Dim, 1, Eigen::DontAlign > 
             Crop;
-    typedef typename density_map::Interpolator<Dim>::Ptr Interpolator;
+    typedef typename density_map::Interpolator<Dim>::Ptr InterpolatorPtr;
 
     static const Crop no_crop;
 private:
@@ -48,29 +46,24 @@ private:
 
     KeepUpdated* listener;
     std::auto_ptr< density_map::Coordinates<Dim> > strategy;
-    Interpolator binningInterpolator;
+    InterpolatorPtr binningInterpolator;
 
     void set_base_image_size();
     
-    template<typename Listener, int ODim> friend class BinnedLocalizations;
-
     void store_results_( bool success ); 
     void attach_ui_( simparm::NodeHandle ) {}
 
 public:
     /** @param crop Gives the amount of space to be cut from all
         *              image borders. */
-    BinnedLocalizations(
+    DensityMap(
         KeepUpdated* listener,
         std::auto_ptr< density_map::Coordinates<Dim> > strategy, 
-        Interpolator interpolator,
+        InterpolatorPtr interpolator,
         Crop crop = no_crop);
-    BinnedLocalizations(const BinnedLocalizations&);
+    DensityMap(const DensityMap&);
 
-    template <typename OtherListener>
-    inline BinnedLocalizations(KeepUpdated* listener, const BinnedLocalizations<OtherListener,Dim>&);
-
-    ~BinnedLocalizations();
+    ~DensityMap();
     
     AdditionalData announceStormSize(const Announcement&);
     RunRequirements announce_run(const RunAnnouncement&) 
@@ -88,20 +81,7 @@ public:
     void write_density_matrix( std::ostream& );
 };
 
-
-template <typename Listener, int Dim>
-template <typename OtherListener>
-BinnedLocalizations<Listener,Dim>::
-    BinnedLocalizations( Listener* listener, const BinnedLocalizations<OtherListener,Dim>& o)
-: crop(o.crop),
-  base_image(o.base_image),
-  announcement( (o.announcement.get()) ? new Announcement(*o.announcement) : NULL ),
-  listener( listener ),
-  strategy( o.strategy->clone() ),
-  binningInterpolator( o.binningInterpolator->clone() )
-{
+}
 }
 
-}
-}
 #endif

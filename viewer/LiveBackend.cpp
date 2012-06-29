@@ -1,5 +1,4 @@
 #include "LiveBackend.h"
-#include <dStorm/outputs/BinnedLocalizations.h>
 #include "ImageDiscretizer.h"
 #include "ImageDiscretizer_converter.h"
 #include "Display.h"
@@ -29,7 +28,7 @@ LiveBackend::LiveBackend(std::auto_ptr< ColourScheme > col, Status& s)
 
 LiveBackend::LiveBackend(const TerminalBackend& other, Status& s)
 : status(s), 
-  image( NULL, other.image ),
+  image( other.image ),
   colorizer( other.colorizer->clone() ),
   discretization( other.discretization,
                   image(), *colorizer ),
