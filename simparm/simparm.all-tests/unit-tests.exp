@@ -1,5 +1,0 @@
-load_lib "dejagnu.exp"
-
-foreach program {testChoice test_error_handling test_units test_Link test_optional } {
-    host_execute "$program"
-}

@@ -1,6 +1,9 @@
 #include "TraceFilter.h"
 #include <dStorm/output/Filter.h>
+#include <dStorm/output/FilterBuilder.h>
 #include <dStorm/Engine.h>
+#include <simparm/Entry.h>
+#include <vector>
 #include <numeric>
 #include <boost/bind/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
@@ -9,6 +12,34 @@ namespace dStorm {
 using namespace output;
 namespace outputs {
 
+class TraceCountConfig 
+{
+  public:
+    simparm::Entry<unsigned long> min_count;
+    simparm::Entry<bool> disassemble;
+    simparm::Entry<bool> selectSpecific;
+    simparm::Entry<unsigned long> whichSpecific;
+
+  private:
+    void set_which_viewability() { whichSpecific.set_visibility( selectSpecific() ); }
+    simparm::BaseAttribute::ConnectionStore listening;
+
+  public:
+    TraceCountConfig();
+
+    void attach_ui( simparm::NodeHandle at );
+    static std::string get_name() { return "TraceFilter"; }
+    static std::string get_description() { return "Trace filter"; }
+    static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
+
+    bool determine_output_capabilities( output::Capabilities& cap ) {
+        if ( ! cap.test( output::Capabilities::ClustersWithSources ) )
+            return false;
+        return true;
+    }
+};
+
+std::auto_ptr< output::Output > make_trace_count_filter( const TraceCountConfig&, std::auto_ptr< output::Output > );
 class TraceCountFilter : public output::Filter
 {
   private:

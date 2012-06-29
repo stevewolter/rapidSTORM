@@ -46,6 +46,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.00-pre/01-plugins-loaded.exp \
     dstorm.00-pre/03-test-plugin-can-close-windows.exp \
     dstorm.00-pre/02-run-can-succeed.exp dstorm.00-pre/00-dstorm.exp \
+    dstorm.00-pre/04-field-bounds-work.exp \
     dstorm.bugs/197.exp dstorm.bugs/185.exp dstorm.bugs/48.exp \
     dstorm.bugs/165.exp dstorm.bugs/139.exp dstorm.bugs/95.exp \
     dstorm.bugs/132.exp dstorm.bugs/62.exp dstorm.bugs/96.exp \
@@ -58,6 +59,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.bugs/148.exp dstorm.bugs/133.exp \
     dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
     dstorm.bugs/75_stm.exp dstorm.bugs/206.exp \
+    dstorm.bugs/190.exp dstorm.bugs/202.exp dstorm.bugs/212.exp \
     dstorm.outputs/save-image-to-nonexisting-location.exp \
     dstorm.outputs/drift-estimator.exp \
     dstorm.outputs/emission-tracker.exp \
@@ -83,7 +85,9 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.test/can-compute-txt-file.exp \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
     dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
+    dstorm.test/serialization.exp \
     config/windows-telnet-and-netcat.exp config/unix.exp
+
 
 CLEANFILES = rapidSTORM.jar \
 	rapidstorm.desktop rapidstorm \
@@ -168,7 +172,6 @@ rapidstorm_SOURCES = \
     dStorm/localization/Field.h dStorm/localization/Traits_decl.h dStorm/localization/Traits.h \
     dStorm/localization/expand.h dStorm/localization/field_index_enumeration.h \
     dStorm/localization/record_decl.h dStorm/localization/record.h\
-    dStorm/outputs/TraceFilter.h \
     dStorm/output/Basename_decl.h dStorm/output/Basename.h \
     dStorm/output/BasenameAdjustedFileEntry_decl.h dStorm/output/BasenameAdjustedFileEntry.h \
     dStorm/output/Capabilities.h dStorm/output/Capabilities_decl.h \
@@ -305,7 +308,6 @@ rapidstorm_SOURCES += \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
-    dStorm/outputs/TraceFilter.cpp \
     dStorm/Pixel_test.cpp \
     dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
     dStorm/traits/scalar_check.cpp \
@@ -408,6 +410,7 @@ rapidstorm_SOURCES += \
     expression/unit_test.cpp
 
 rapidstorm_SOURCES += \
+    outputs/TraceFilter.h outputs/TraceFilter.cpp \
     outputs/DriftRemover.cpp outputs/DriftRemover.h \
     outputs/AverageImage.cpp outputs/AverageImage.h outputs/BasicTransmissions.cpp \
     outputs/LocalizationCounter.cpp outputs/LocalizationCounter.h \

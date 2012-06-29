@@ -49,20 +49,22 @@ GaussSmoother::GaussSmoother (
     for (int i = 0; i < 2; ++i) {
         double sigma = config.sigma()[i] / camera::pixel;
         const int size = int(ceil(2 * sigma))+1;
+        kernels[i].resize( size, 0 );
         fillWithGauss(kernels[i].begin(), size, config.sigma()[i] / camera::pixel, 256);
     }
 }
 
 template <typename InputPixel>
-void gsm_line(const InputPixel *input, int step, int radius, int size,
-          SmoothedPixel *target, std::vector<int>::iterator weights)
+static void gsm_line(const InputPixel *input, int step, int size,
+          SmoothedPixel *target, const std::vector<int>& weights)
 {
-    for (int c = radius; c < size - radius; c++) {
-        int accum = input[c*step] * *weights;
-        for (int d = 1; d <= radius; d++) {
-            accum += input[(c+d) * step] * *weights;
-            accum += input[(c-d) * step] * *weights;
-            ++weights;
+    const int radius = weights.size();
+    for (int c = 0; c < size; ++c) {
+        int accum = 0;
+        for (int d = 0; d < radius; d++) {
+            accum += input[std::min(c+d, size-1) * step] * weights[d];
+            if ( d > 0 )
+                accum += input[std::max(c-d, 0) * step] * weights[d];
         }
         target[c*step] = accum;
     }
@@ -73,16 +75,15 @@ void GaussSmoother::smooth( const engine::Image2D &in )
 {
     for (int x = 0; x < int(in.height().value()); x++)
         gsm_line( 
-            in.ptr(x, 0), in.width().value(),
-            kernels[1].size()-1, in.height().value(),
-            smoothed.ptr(x, 0), kernels[1].begin() );
+            in.ptr(x, 0), in.width_in_pixels(),
+            in.height_in_pixels(), smoothed.ptr(x, 0), kernels[1] );
 
-    SmoothedPixel copy[smoothed.width().value()];
-    for (int y = 0; y < int(smoothed.width_in_pixels()); y++) {
+    SmoothedPixel copy[smoothed.width_in_pixels()];
+    for (int y = 0; y < int(smoothed.height_in_pixels()); y++) {
         memcpy(copy, smoothed.ptr(0, y), 
                sizeof(SmoothedPixel) * smoothed.width_in_pixels());
-        gsm_line( copy, 1, kernels[0].size()-1, smoothed.width_in_pixels(),
-                               smoothed.ptr(0, y), kernels[0].begin() );
+        gsm_line( copy, 1, smoothed.width_in_pixels(),
+                           smoothed.ptr(0, y), kernels[0] );
     }
 }
 

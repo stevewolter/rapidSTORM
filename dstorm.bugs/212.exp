@@ -1,0 +1,22 @@
+begin_test_suite
+
+set test "Bug #212 is fixed"
+
+set_input_file "${workspace_target}Mikrotubuli.sif"
+send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target}212"
+set_last_image 50
+send "in Car set Engine in rapidSTORM set SpotFindingMethod value set Gaussian\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+
+set timeout 60
+expect {
+    -re "in $job in.*in Progress in value set 1" { pass "$test"; }
+    -re "in LocalizationCount in value set" { exp_continue; }
+}
+
+end_test_suite

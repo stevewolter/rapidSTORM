@@ -10,7 +10,6 @@
 #include "density_map/CoordinatesFactory.h"
 #include "density_map/DummyListener.h"
 #include <dStorm/engine/Image.h>
-#include <dStorm/outputs/TraceFilter.h>
 #include <dStorm/output/TraceReducer.h>
 #include <dStorm/display/Manager.h>
 #include <boost/thread/mutex.hpp>
@@ -187,7 +186,6 @@ using namespace std;
 using namespace dStorm;
 using namespace dStorm::output;
 using namespace dStorm::engine;
-using namespace dStorm::outputs;
 
 Segmenter::Config::Config()
 :   method("SegmentationMethod", "Method for segmentation")

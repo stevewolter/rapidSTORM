@@ -4,7 +4,7 @@
 #include "LocalizationCounter.h"
 #include "ProgressMeter.h"
 #include "AverageImage.h"
-#include <dStorm/outputs/TraceFilter.h>
+#include "TraceFilter.h"
 #include "expression/Source_decl.h"
 #include "Slicer.h"
 #include "MemoryCache.h"
