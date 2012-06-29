@@ -36,7 +36,7 @@ Config::Config()
        "maximum found intensity" );
 
     colourScheme.addChoice( colour_schemes::make_hot_factory() );
-    colourScheme.addChoice( colour_schemes::make_mono_factory() );
+    colourScheme.addChoice( colour_schemes::make_greyscale_factory() );
     colourScheme.addChoice( colour_schemes::make_colored_factory() );
     colourScheme.addChoice( colour_schemes::make_coordinate_factory() );
 

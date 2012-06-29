@@ -9,7 +9,7 @@ class ColourSchemeFactory;
 namespace colour_schemes {
 
 std::auto_ptr<ColourSchemeFactory> make_hot_factory();
-std::auto_ptr<ColourSchemeFactory> make_mono_factory();
+std::auto_ptr<ColourSchemeFactory> make_greyscale_factory();
 std::auto_ptr<ColourSchemeFactory> make_colored_factory();
 std::auto_ptr<ColourSchemeFactory> make_coordinate_factory();
 

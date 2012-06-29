@@ -1,13 +1,58 @@
-#include "coordinate.h"
+#include "base.h"
+#include "HueSaturationMixer.h"
+#include <dStorm/helpers/clone_ptr.hpp>
+#include <dStorm/output/binning/config.h>
 #include <dStorm/output/binning/binning.h>
 #include <dStorm/Engine.h>
+#include "viewer/ColourScheme.h"
+#include "viewer/ColourSchemeFactory.h"
+#include <simparm/Object.h>
+#include <simparm/Entry.h>
 
 namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
+class Coordinate : public ColourScheme { 
+    HueSaturationMixer mixer;
+    std::auto_ptr< output::binning::UserScaled > variable;
+    static const int key_resolution = 100;
+
+    Engine *repeater;
+    bool is_for_image_number, currently_mapping;
+    const float range;
+
+    void set_tone( const Localization& l );
+    virtual Coordinate* clone_() const { return new Coordinate(*this); }
+
+  public:
+    Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
+    Coordinate( const Coordinate& o );
+    int key_count() const { return 2; }
+
+    void setSize( const MetaInfo& traits ) {
+        ColourScheme::setSize(traits);
+        mixer.setSize(traits.size);
+    }
+    Pixel getPixel(Im::Position p, BrightnessType val) const
+        { if ( ! currently_mapping ) return inv( val ); else return inv( mixer.getPixel(p,val) ); }
+    Pixel getKeyPixel( BrightnessType val ) const 
+        { return inv( mixer.getKeyPixel(val) ); }
+    void updatePixel(const Im::Position& p, float oldVal, float newVal) 
+        { if ( currently_mapping) mixer.updatePixel(p, oldVal, newVal); }
+
+    void announce(const output::Output::Announcement& a); 
+    void announce(const output::Output::EngineResult& er);
+    void announce(const Localization&);
+
+    dStorm::display::KeyDeclaration create_key_declaration( int index ) const;
+    void create_full_key( dStorm::display::Change::Keys::value_type& into, int index ) const;
+    void notice_user_key_limits(int, bool, std::string);
+};
+
+
 Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range )
-: Base(invert), mixer(0,0), variable( scaled ), repeater(NULL),
+: ColourScheme(invert), mixer(0,0), variable( scaled ), repeater(NULL),
   is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
   range(range)
 {
@@ -17,7 +62,7 @@ Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled 
 }
 
 Coordinate::Coordinate( const Coordinate& o )
-: Base(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
+: ColourScheme(o), mixer(o.mixer), variable( o.variable->clone() ), repeater(o.repeater),
   is_for_image_number(o.is_for_image_number), currently_mapping(o.currently_mapping),
   range(o.range)
 {
@@ -37,7 +82,7 @@ display::KeyDeclaration Coordinate::create_key_declaration( int index ) const {
 void Coordinate::create_full_key( display::Change::Keys::value_type& into, int index ) const
 {
     if ( index != 1 ) {
-        Base::create_full_key( into, index );
+        ColourScheme::create_full_key( into, index );
         return;
     }
 
@@ -105,7 +150,56 @@ void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string
         mixer.set_base_tone( 0, (currently_mapping) ? 1 : 0 );
         repeater->repeat_results();
     } else
-        Base::notice_user_key_limits( index, lower_limit, s );
+        ColourScheme::notice_user_key_limits( index, lower_limit, s );
+}
+
+struct CoordinateConfig : public ColourSchemeFactory
+{
+    output::binning::FieldChoice choice;
+    simparm::Entry<double> range;
+    simparm::BaseAttribute::ConnectionStore listening;
+    default_on_copy< boost::signals2::signal<void()> > change;
+
+    CoordinateConfig();
+    CoordinateConfig(const CoordinateConfig&);
+    CoordinateConfig* clone() const { return new CoordinateConfig(*this); }
+    std::auto_ptr<ColourScheme> make_backend( bool invert ) const;
+    void add_listener( simparm::BaseAttribute::Listener );
+    void attach_ui( simparm::NodeHandle );
+};
+
+CoordinateConfig::CoordinateConfig() 
+: ColourSchemeFactory("ByCoordinate", "Vary hue with coordinate value"),
+  choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval, "Hue"),
+  range("HueRange", "Range of hue", 0.666)
+{
+}
+
+CoordinateConfig::CoordinateConfig(const CoordinateConfig& o) 
+: ColourSchemeFactory(o), choice(o.choice), range(o.range)
+{
+}
+
+void CoordinateConfig::add_listener( simparm::BaseAttribute::Listener l ) {
+    choice.add_listener( l );
+    change.connect( l );
+}
+
+void CoordinateConfig::attach_ui( simparm::NodeHandle at ) {
+    listening = range.value.notify_on_value_change( change );
+    simparm::NodeHandle r = attach_parent(at);
+    choice.attach_ui( r );
+    range.attach_ui( r );
+}
+
+std::auto_ptr<ColourScheme> CoordinateConfig::make_backend(bool invert) const
+{
+    return std::auto_ptr<ColourScheme>( new Coordinate(invert, choice().make_user_scaled_binner(), range()) );
+}
+
+std::auto_ptr<ColourSchemeFactory> make_coordinate_factory()
+{
+    return std::auto_ptr<ColourSchemeFactory>(new colour_schemes::CoordinateConfig());
 }
 
 

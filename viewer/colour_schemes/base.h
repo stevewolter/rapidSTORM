@@ -25,7 +25,20 @@ void rgb_weights_from_hue_saturation
 void convert_xy_tone_to_hue_sat( 
     float x, float y, float& hue, float& sat );
 
-typedef ColourScheme Base;
+inline dStorm::Pixel operator*( const RGBWeight& r, uint8_t b ) {
+    for (int i = 0; i < 2; ++i) {
+        assert ( int(round(r[i] * b )) >= std::numeric_limits<uint8_t>::min() );
+        assert ( int(round(r[i] * b )) <= std::numeric_limits<uint8_t>::max() );
+    }
+    return dStorm::Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
+}
+inline dStorm::Pixel operator*( uint8_t b, const RGBWeight& r ) {
+    for (int i = 0; i < 2; ++i) {
+        assert ( int(round(r[i] * b )) >= std::numeric_limits<uint8_t>::min() );
+        assert ( int(round(r[i] * b )) <= std::numeric_limits<uint8_t>::max() );
+    }
+    return dStorm::Pixel( round(r[0] * b), round(r[1] * b), round(r[2] * b) );
+}
 
 }
 }

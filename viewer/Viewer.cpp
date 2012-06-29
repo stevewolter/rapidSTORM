@@ -12,7 +12,6 @@
 #include <boost/thread/recursive_mutex.hpp>
 
 #include "ColourScheme.h"
-#include "colour_schemes/hot_config.h"
 
 #include <fstream>
 

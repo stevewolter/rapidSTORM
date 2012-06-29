@@ -452,8 +452,8 @@ rapidstorm_SOURCES += \
     viewer/DensityMap.cpp \
     viewer/Image.h viewer/Image.cpp \
     viewer/Display.h viewer/Display.cpp \
-    viewer/ImageDiscretizer.h viewer/ImageDiscretizer_inline.h \
-	viewer/ImageDiscretizer_impl.h viewer/ImageDiscretizer.cpp \
+    viewer/ImageDiscretizer.h \
+	viewer/ImageDiscretizer.hpp viewer/ImageDiscretizer.cpp \
     viewer/Config.h viewer/Config.cpp \
     viewer/DensityMapConfig.h viewer/DensityMapConfig.cpp \
     viewer/Backend.h viewer/Backend.cpp \
@@ -468,12 +468,10 @@ rapidstorm_SOURCES += \
     viewer/ImageDiscretizer_converter.h \
     viewer/plugin.h viewer/plugin.cpp \
     viewer/ColourScheme.h viewer/ColourSchemeFactory.h  \
-    viewer/colour_schemes/base.cpp viewer/colour_schemes/base_impl.h viewer/colour_schemes/base.h \
-    viewer/colour_schemes/decl.h viewer/colour_schemes/impl.h viewer/colour_schemes/instantiate.h \
-    viewer/colour_schemes/hot_config.cpp viewer/colour_schemes/hot_config.h viewer/colour_schemes/hot.h \
-    viewer/colour_schemes/mono_config.cpp viewer/colour_schemes/mono_config.h viewer/colour_schemes/mono.h \
-    viewer/colour_schemes/colored_config.cpp viewer/colour_schemes/colored.h \
-    viewer/colour_schemes/coordinate_config.cpp viewer/colour_schemes/coordinate.h viewer/colour_schemes/coordinate.cpp \
+    viewer/colour_schemes/decl.h \
+    viewer/colour_schemes/base.cpp viewer/colour_schemes/base.h \
+    viewer/colour_schemes/hot.cpp viewer/colour_schemes/greyscale.cpp \
+    viewer/colour_schemes/colored.cpp viewer/colour_schemes/coordinate.cpp \
     viewer/colour_schemes/HueSaturationMixer.h viewer/colour_schemes/HueSaturationMixer.cpp
 
 rapidstorm_SOURCES += \

@@ -1,6 +1,6 @@
-#include "colored.h"
-#include "../Config.h"
-#include "base_impl.h"
+#include "viewer/ColourScheme.h"
+#include "viewer/ColourSchemeFactory.h"
+#include "base.h"
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
 #include <dStorm/helpers/default_on_copy.h>
@@ -9,6 +9,26 @@ namespace dStorm {
 namespace viewer {
 namespace colour_schemes {
 
+class Colored
+: public ColourScheme
+{
+    RGBWeight weights;
+    virtual Colored* clone_() const { return new Colored(*this); }
+
+  public:
+    Colored(bool invert, double hue, double saturation)
+    : ColourScheme(invert) {
+        rgb_weights_from_hue_saturation
+            ( hue, saturation, weights );
+    }
+    Pixel getPixel( Im::Position, BrightnessType val )  const
+    {
+        return inv( weights * val );
+    }
+    inline Pixel getKeyPixel( BrightnessType br )  const
+        { return getPixel(Im::Position::Zero(), br ); }
+};
+
 struct ColoredConfig : public ColourSchemeFactory
 {
     simparm::Entry<double> hue, saturation;
@@ -16,9 +36,8 @@ struct ColoredConfig : public ColourSchemeFactory
     default_on_copy< boost::signals2::signal<void()> > change;
 
     ColoredConfig();
-    ColoredConfig(const ColoredConfig&);
     ColoredConfig* clone() const { return new ColoredConfig(*this); }
-    std::auto_ptr<Base> make_backend( bool invert ) const;
+    std::auto_ptr<ColourScheme> make_backend( bool invert ) const;
     void add_listener( simparm::BaseAttribute::Listener );
     void attach_ui( simparm::NodeHandle );
 };
@@ -46,12 +65,6 @@ ColoredConfig::ColoredConfig()
                        "color.");
 }
 
-ColoredConfig::ColoredConfig(const ColoredConfig& o)
-: ColourSchemeFactory(o),
-  hue(o.hue), saturation(o.saturation)
-{
-}
-
 void ColoredConfig::attach_ui( simparm::NodeHandle at ) {
     listening[0] = hue.value.notify_on_value_change( change );
     listening[1] = saturation.value.notify_on_value_change( change );
@@ -65,9 +78,9 @@ void ColoredConfig::add_listener( simparm::BaseAttribute::Listener l ) {
     change.connect(l);
 }
 
-std::auto_ptr<Base> ColoredConfig::make_backend( bool invert ) const
+std::auto_ptr<ColourScheme> ColoredConfig::make_backend( bool invert ) const
 {
-    return std::auto_ptr<Base>(new Colored(invert, hue(), saturation()));
+    return std::auto_ptr<ColourScheme>(new Colored(invert, hue(), saturation()));
 }
 
 std::auto_ptr<ColourSchemeFactory> make_colored_factory()
