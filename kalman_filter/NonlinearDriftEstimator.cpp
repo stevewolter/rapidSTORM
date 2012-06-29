@@ -126,7 +126,7 @@ void DriftSection::solve_equation_systems() {
             throw std::runtime_error("Unable to invert least squares variable matrix");
 
         Eigen::VectorXd t = squaring_matrix * measurements[i];
-        //solutions[i] = decomposed.solve( t );
+        solutions[i] = decomposed.solve( t );
         if ( decomposed.info() != Eigen::Success )
             throw std::runtime_error("Unable to solve equation system for positions");
 
