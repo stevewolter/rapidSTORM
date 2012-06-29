@@ -1,8 +1,8 @@
+#include <boost/test/unit_test.hpp>
 #include <dStorm/image/iterator.h>
 #include <dStorm/image/constructors.h>
 #include <boost/units/io.hpp>
 #include "morphological_reconstruction.hpp"
-#include "dejagnu.h"
 
 #include <iostream>
 #include <iomanip>
@@ -48,7 +48,7 @@ static int normResult[][n] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-void reconstruction_by_dilation_test( TestState& state ) {
+void reconstruction_by_dilation_unit_test() {
     Image<int,2>::Size size;
     size.x() = n * camera::pixel;
     size.y() = n * camera::pixel;
@@ -71,7 +71,7 @@ void reconstruction_by_dilation_test( TestState& state ) {
             isEqual = false;
         }
     }
-    state( isEqual, "Reconstruction by dilation works" );
+    BOOST_CHECK( isEqual );
 }
 
 }

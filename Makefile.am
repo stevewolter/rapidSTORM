@@ -225,6 +225,7 @@ rapidstorm_SOURCES = \
     dStorm/image/morphological_reconstruction.h \
     dStorm/image/morphological_reconstruction.hpp \
     dStorm/image/Box.h dStorm/image/Box.hpp \
+    dStorm/image/unit_tests.cpp \
     dStorm/units/icl.h \
     dStorm/units/amplitude.h dStorm/units/frame_count.h \
     dStorm/units/megafrequency.h \
@@ -305,8 +306,8 @@ rapidstorm_SOURCES += \
     dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
     dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
-    dStorm/Pixel_test.cpp \
-    dStorm/image/slice_check.cpp dStorm/image/iterator_check.cpp \
+    dStorm/Pixel.cpp \
+    dStorm/image/slice.cpp dStorm/image/iterator.cpp \
     dStorm/traits/scalar_check.cpp \
     dStorm/image/morphological_reconstruction.cpp \
     dStorm/threed_info/DepthInfo.cpp \

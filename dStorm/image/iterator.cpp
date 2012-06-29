@@ -1,3 +1,4 @@
+#include <boost/test/unit_test.hpp>
 #include "dejagnu.h"
 #include "iterator.h"
 #include "constructors.h"
@@ -5,8 +6,9 @@
 using boost::units::camera::pixel;
 
 namespace dStorm {
+namespace image {
 
-void image_iterator_unit_test( TestState& state )
+void iterator_unit_test()
 {
     typedef dStorm::Image<int,3> Image;
     Image::Size sz;
@@ -24,7 +26,7 @@ void image_iterator_unit_test( TestState& state )
         assert( *i == i.position().x().value() + 100 * i.position().y().value() + 10000 * i.position().z().value() );
         ++count;
     }
-    state( count == (sz.x() * sz.y() * sz.z()).value() );
+    BOOST_CHECK_EQUAL( count, (sz.x() * sz.y() * sz.z()).value() );
 
     count = 0;
     bool position_right = true, value_right = true;
@@ -35,9 +37,10 @@ void image_iterator_unit_test( TestState& state )
             ( *i == i.position().x().value() + (100 * i.position().y()).value() + (10000 * i.position().z()).value() );
         ++count;
     }
-    state( position_right, "Image iterator gets all positions right" );
-    state( value_right, "Image iterator gets all values right" );
-    state( count == (sz.x() * sz.y() * sz.z()).value(), "Image iterator iterates completely" );
+    BOOST_CHECK( position_right );
+    BOOST_CHECK( value_right );
+    BOOST_CHECK_EQUAL( count, (sz.x() * sz.y() * sz.z()).value() );
 }
 
+}
 }

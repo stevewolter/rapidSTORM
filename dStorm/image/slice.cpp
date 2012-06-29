@@ -1,19 +1,14 @@
-#include "dejagnu.h"
+#include <boost/test/unit_test.hpp>
 #include "slice.h"
 #include "constructors.h"
 #include "iterator.h"
 
 using namespace boost::units;
 
-namespace dStorm 
-{
-
+namespace dStorm {
 namespace image {
-    void reconstruction_by_dilation_test( TestState& state );
-    void check_box( TestState& state );
-}
 
-void image_slice_unit_test( TestState& state ) 
+void slice_unit_test() 
 {
     Image<int,4> a( Image<int,4>::Size::Constant(25*camera::pixel) );
     for ( Image<int,4>::iterator i = a.begin(); i != a.end(); ++i ) {
@@ -31,17 +26,9 @@ void image_slice_unit_test( TestState& state )
         pixels_are_the_same = pixels_are_the_same && ( s == *i );
         ++count;
     }
-    state( pixels_are_the_same, "All pixels match in image slices" );
-    state( count == 25*25 );
+    BOOST_CHECK( pixels_are_the_same );
+    BOOST_CHECK_EQUAL( count, 25*25 );
 }
 
-void image_iterator_unit_test( TestState& );
-
-void image_unit_tests( TestState& state ) {
-    image_slice_unit_test(state);
-    image_iterator_unit_test(state);
-    image::reconstruction_by_dilation_test( state );
-    image::check_box( state );
 }
-
 }
