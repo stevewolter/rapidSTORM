@@ -12,10 +12,10 @@ struct OutputFileAdjuster : public BaseType {
     OutputFileAdjuster(
             bool failSilently = false)
         : BaseType(failSilently)
-        { adjust_to_basename( BaseType::Config::outputFile ); }
+        { this->adjust_to_basename( BaseType::Config::outputFile ); }
     OutputFileAdjuster(const OutputFileAdjuster<BaseType>& o)
         : BaseType(o)
-        { adjust_to_basename( BaseType::Config::outputFile ); }
+        { this->adjust_to_basename( BaseType::Config::outputFile ); }
 
     OutputFileAdjuster* clone() const 
         { return new OutputFileAdjuster(*this); }

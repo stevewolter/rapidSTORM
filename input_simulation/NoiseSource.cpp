@@ -321,10 +321,10 @@ NoiseConfig::make_image_size() const
     rv->image_number().range().second = dStorm::traits::ImageNumber::ValueType
         ::from_value( (imageNumber() - 1) );
     for (size_t p = 0; p < layer_count(); ++p) {
-        dStorm::image::MetaInfo<2> p;
-        p.size.x() = noiseGeneratorConfig.width() * camera::pixel;
-        p.size.y() = noiseGeneratorConfig.height() * camera::pixel;
-        rv->push_back( p, dStorm::traits::Optics() );
+        dStorm::image::MetaInfo<2> meta_info;
+        meta_info.size.x() = noiseGeneratorConfig.width() * camera::pixel;
+        meta_info.size.y() = noiseGeneratorConfig.height() * camera::pixel;
+        rv->push_back( meta_info, dStorm::traits::Optics() );
     }
     return rv;
 }

@@ -15,7 +15,7 @@ OutputBuilder<Type,BaseSource>::OutputBuilder(
         failSilently)
 { 
     this->failSilently.userLevel = simparm::Object::Debug;
-    push_back( this->failSilently );
+    this->push_back( this->failSilently );
 }
 
 template <typename Type, typename BaseSource>
