@@ -571,8 +571,13 @@ PrecisionEstimator::EstimationResult PrecisionEstimator
 	Eigen::Matrix<float, Dimensions, 2> pc_dir;
 	pc_dir << svd.matrixU();
 
-	EstimationResult result = {robustCenter, sd, pc_dir, robustCovariance, 
-	data.rows(), good_points.points()};
+	EstimationResult result;
+        result.center = robustCenter;
+        result.sd = sd;
+        result.pcs = pc_dir;
+        result.covariance = robustCovariance, 
+	result.size = data.rows();
+        result.good_points = good_points.points();
 
 	return result;
 }
