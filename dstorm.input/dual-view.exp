@@ -12,7 +12,7 @@ set_last_image 20
 send "in Car set Run value set 1\n"
 
 expect {
-    -re "Source image is attached with size 67 *px 121 *px" { pass "$test"; }
+    -re "Source image is attached with size *67 *px *121 *px" { pass "$test"; }
     -re "in Progress in value set 0" { exp_continue; }
 }
 
@@ -20,7 +20,7 @@ set test "Planes can be selected for dual view input"
 send "in Car in Input in PlaneFilter in OnlyPlane in value set Plane1\n"
 send "in Car set Run value set 1\n"
 expect {
-    -re "Source image is attached with size 67 *px 121 *px" { pass "$test"; }
+    -re "Source image is attached with size *67 *px *121 *px" { pass "$test"; }
     -re "in Progress in value set 0" { exp_continue; }
 }
 

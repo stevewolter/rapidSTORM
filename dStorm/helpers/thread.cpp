@@ -17,8 +17,6 @@
 #include <sys/time.h>
 #include <semaphore.h>
 
-#include "../debug.h"
-
 using namespace std;
 
 namespace ost {

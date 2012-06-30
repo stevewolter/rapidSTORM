@@ -138,7 +138,7 @@ rapidstorm_SOURCES = \
     dStorm/Localization_decl.h dStorm/Localization.h \
     dStorm/Pixel.h \
     dStorm/DataSetTraits.h \
-    dStorm/Job.h dStorm/UnitEntries.h dStorm/debug.h dStorm/debug_print.h dStorm/log.h \
+    dStorm/Job.h dStorm/UnitEntries.h \
     dStorm/Config_decl.h dStorm/Config.h \
     dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
@@ -289,7 +289,6 @@ rapidstorm_SOURCES += \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
     dStorm/engine/JobInfo.cpp dStorm/engine/InputTraits.cpp \
     dStorm/engine/InputPlane.cpp \
-    dStorm/output/debug.h \
     dStorm/output/Output.cpp dStorm/output/LocalizedImage.cpp \
     dStorm/output/Basename.cpp \
     dStorm/output/BasenameAdjustedFileEntry.cpp \
@@ -331,7 +330,7 @@ rapidstorm_SOURCES += \
     shell/Shell.cpp \
     InputStream.h InputStream.cpp \
     dStorm/GUIThread.h dStorm/GUIThread.cpp \
-    debug.h debug_print.h $(RESOURCE_FILE)
+    debug.h $(RESOURCE_FILE)
 
 rapidstorm_SOURCES += \
     job/Car.cpp job/Car.h \
@@ -376,7 +375,7 @@ rapidstorm_SOURCES += \
     engine/Config.cpp engine/Config_decl.h engine/Config.h \
     engine/Engine.cpp \
     engine/EngineDebug.h engine/Engine.h \
-    engine/SpotFinder.cpp engine/debug.h  \
+    engine/SpotFinder.cpp \
     engine/ChainLink_decl.h engine/ChainLink.h engine/ChainLink.cpp \
     engine/PlaneFlattener.h engine/PlaneFlattener.cpp
 
@@ -477,7 +476,6 @@ rapidstorm_SOURCES += \
     test-plugin/BasenamePrinter.h test-plugin/BasenamePrinter.cpp \
     test-plugin/DummyFileInput.h test-plugin/DummyFileInput.cpp \
     test-plugin/Verbose.h \
-    test-plugin/VerboseInputFilter_decl.h test-plugin/VerboseInputFilter.h test-plugin/VerboseInputFilter.cpp \
     test-plugin/RepeatTrigger.h test-plugin/SmoothedImageSave.h \
     test-plugin/xenophon.h test-plugin/xenophon.cpp \
     test-plugin/cpu_time.h test-plugin/cpu_time.cpp

@@ -1,5 +1,5 @@
 #define LOCPREC_FLUOROPHORE_CPP
-#include <dStorm/debug.h>
+#include "debug.h"
 #include "Fluorophore.h"
 
 #include "pixelatedBessel.h"

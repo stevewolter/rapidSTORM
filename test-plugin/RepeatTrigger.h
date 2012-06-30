@@ -43,7 +43,6 @@ private:
         if ( r && repeat.triggered() ) { 
             repeat.untrigger();
             r->repeat_results(); 
-            LOG("Repeating results"); 
         } 
     }
 };

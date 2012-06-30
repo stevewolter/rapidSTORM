@@ -1,7 +1,7 @@
 #define BOOST_DISABLE_ASSERTS
 #define LOCPREC_NOISESOURCE_CPP
 
-#include <dStorm/debug.h>
+#include "debug.h"
 #include "NoiseSource.h"
 #include <time.h>
 #include <gsl/gsl_randist.h>

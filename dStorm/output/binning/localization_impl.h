@@ -1,7 +1,7 @@
 #ifndef DSTORM_OUTPUT_BINNING_LOCALIZATION_IMPL_H
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_IMPL_H
 
-#include "../../debug.h"
+#include "debug.h"
 #include "localization.h"
 #include "../../display/DataSource.h"
 #include <boost/units/cmath.hpp>

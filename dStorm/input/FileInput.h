@@ -1,7 +1,7 @@
 #ifndef DSTORM_INPUT_FILEINPUT_H
 #define DSTORM_INPUT_FILEINPUT_H
 
-#include <dStorm/debug.h>
+#include "debug.h"
 #include "Link.h"
 #include <boost/signals2/connection.hpp>
 #include <boost/exception_ptr.hpp>

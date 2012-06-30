@@ -1,6 +1,5 @@
 #define BOOST_DISABLE_ASSERTS
 #include <dStorm/namespaces.h>
-#include <dStorm/log.h>
 #include "DummyFileInput.h"
 #include <dStorm/input/Source.h>
 #include <dStorm/engine/Image.h>
@@ -16,10 +15,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/InputTraits.h>
-
-#undef DEBUG
-#define VERBOSE
-#include <dStorm/log.h>
 
 using namespace dStorm::input;
 using namespace boost::units;

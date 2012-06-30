@@ -8,7 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <boost/units/io.hpp>
-#include <dStorm/log.h>
+#include <boost/lexical_cast.hpp>
 
 template <typename Type>
 inline std::ostream& operator<<( std::ostream& o, const boost::optional<Type>& v )
@@ -26,24 +26,28 @@ struct Verbose
     Verbose* clone() const;
 
     AdditionalData announceStormSize(const Announcement& a) { 
-        LOG( "Verbose plugin got announcement with "
-                << a.position().upper_limits().transpose() );
+        log = "Verbose plugin got announcement with " + boost::lexical_cast<std::string>(a.position().upper_limits().transpose());
         return AdditionalData(); 
     }
     RunRequirements announce_run(const RunAnnouncement&) {
-        LOG("Verbose plugin got signal Engine_is_restarted");
+        log = "Verbose plugin got signal Engine_is_restarted";
         return RunRequirements();
     }
     void receiveLocalizations(const EngineResult& er) {
-        LOG( "Verbose plugin got " << er.size() << " localizations for " << er.forImage);
+        log = "Verbose plugin got " + boost::lexical_cast<std::string>( er.size() ) 
+            + " localizations for " + boost::lexical_cast<std::string>( er.forImage );
         if ( er.source.is_initialized() && er.source->plane(0).is_valid() ) {
-            LOG( "Source image is attached with size " << er.source->plane(0).sizes().transpose() );
+            log = "Source image is attached with size " +
+                boost::lexical_cast<std::string>( er.source->plane(0).sizes().transpose() );
         }
     }
     void store_results_(bool succeeded) {
-        LOG("Verbose plugin got store_results signal, success " << succeeded);
+        log = "Verbose plugin got store_results signal, success " + boost::lexical_cast<std::string>( succeeded );
     }
 
+private:
+    simparm::Entry<std::string> log;
+    virtual void attach_ui_( simparm::NodeHandle at ) { log.attach_ui(at); }
 };
 
 struct Verbose::Config
@@ -58,18 +62,16 @@ struct Verbose::Config
 };
 
 Verbose* Verbose::clone() const { 
-    LOG( "Cloning verbose plugin" );
     return new Verbose(*this); 
 }
 
-Verbose::Verbose( const Config& config )
+Verbose::Verbose( const Config& )
+: log("VerboseLog", "Verbose plugin log")
 {
-    LOG( "Constructed verbose plugin" );
 }
 
 Verbose::~Verbose()
 {
-    LOG( "Destroyed verbose plugin" );
 }
 
 #endif

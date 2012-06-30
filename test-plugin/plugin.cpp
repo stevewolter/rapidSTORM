@@ -7,7 +7,6 @@
 #include "BasenamePrinter.h"
 #include "DummyFileInput.h"
 #include "RepeatTrigger.h"
-#include "VerboseInputFilter_decl.h"
 #include <dStorm/traits/range_impl.h>
 #include "SmoothedImageSave.h"
 
@@ -18,7 +17,6 @@ namespace test {
 
 void make_config ( dStorm::Config* config ) {
     config->add_input( dummy_file_input::make(), dStorm::FileReader );
-    config->add_input( make_verbose_input_filter(), dStorm::BeforeEngine );
 
     config->add_output( new dStorm::output::OutputBuilder< Exception::Config, Exception >() );
     config->add_output( new dStorm::output::OutputBuilder< Verbose::Config, Verbose >() );

@@ -43,9 +43,6 @@ set test "STM file replay waits till file end for undeclared missing image"
 if { $have_test_plugin == 1 } {
     send "in Car in Run in value set 1\n"
     
-    expect {
-        -re "Advancing from .* 10 fr" { pass "$test" }
-    }
     set test "Missing image is declared after file is finished"
     expect {
         -re "Verbose plugin got \[0-9\]* localizations for 5 fr" { pass "$test" }
