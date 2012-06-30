@@ -57,23 +57,18 @@
 	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
 	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optional)</step>
 	<step>Check boxes <guilabel>PSF width is free fit parameter</guilabel> and <guilabel>Store PSF covariance matrix</guilabel></step>
-	<step>Go to the <xref linkend="ExpressionFilter"/> output option and set
+	<step>Go to the <xref linkend="ExpressionFilter"/> output and set
             <substeps>
-                <step><guilabel>Value to assign to</guilabel> to <guilabel>posz</guilabel></step>
-                <step><guilabel>Expression to assign from</guilabel> to <userinput>8 nm/fr * frame</userinput></step>
-                <step>Click <guibutton>Add expression</guibutton></step>
-                <step>Set the new <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmx</guilabel> and
-                  <guilabel>Expression to assign from</guilabel> to <userinput>psffwhmx - 25 nm</userinput><footnote><para>This value is a wild guess. It should denote how much wider a fairly large object like a Tetraspec looks than a fluorophore.</para></footnote></step>
-                <step>Click <guibutton>Add expression</guibutton></step>
-                <step>Set the new <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmy</guilabel> and
-                  <guilabel>Expression to assign from</guilabel> to <userinput>psffwhmy - 25 nm</userinput></step>
-                <step>Click <guibutton>Add expression</guibutton></step>
+                <step>Set <guibutton>Number of expressions</guibutton> to <userinput>3</userinput></step>
+                <step>First <guilabel>Value to assign to</guilabel> to <guilabel>posz</guilabel></step>
+                <step>First <guilabel>Expression to assign from</guilabel> to <userinput>8 nm/fr * frame</userinput></step>
+                <step>Second <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmx</guilabel></step>
+                <step>Second <guilabel>Expression to assign from</guilabel> to <userinput>psffwhmx - 25 nm</userinput><footnote><para>This value is a wild guess. It should denote how much wider a fairly large object like a Tetraspec looks than a fluorophore.</para></footnote></step>
+                <step>Third <guilabel>Value to assign to</guilabel> to <guilabel>psffwhmy</guilabel></step>
+                <step>Third <guilabel>Expression to assign from</guilabel> to <userinput>psffwhmy - 25 nm</userinput></step>
                 <step><guilabel>Choose new output</guilabel> to <xref linkend="SigmaCurve"/></step>
-                <step><guilabel>Choose new output</guilabel> to <xref linkend="localizations_file_output"/></step>
             </substeps>
         </step>
-        <step>Go to the newly created <xref linkend="localizations_file_output"/> output and change the
-            output file name to <userinput>foo-filter-control.txt</userinput>.</step>
         <step>Go to the <xref linkend="SigmaCurve"/> output and set
                 <guilabel>Number of B spline breakpoints</guilabel> to <userinput>10</userinput>
         </step>
@@ -86,7 +81,7 @@
                 <step>Otherwise continue with <xref linkend="calibration-curve:check-closeness"/></step>
             </stepalternatives>
         </step>
-        <step id="calibration-curve:check-closeness">Plot the PSF widths in the localization file <userinput>foo-filter-control.txt</userinput> (columns 6 and 7) against the Z truth (column 3) and check for outlier points
+        <step id="calibration-curve:check-closeness">Plot the PSF widths in the localization file <userinput>foo.txt</userinput> (columns 6 and 7) against the Z truth (column 3) and check for outlier points
             <stepalternatives>
                 <step>If outliers are present, raise <guilabel>Minimum localization strength</guilabel> and go back to <xref linkend="calibration-curve:check-range"/></step>
                 <step>Otherwise continue with <xref linkend="calibration-curve:close-job"/></step>

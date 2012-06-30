@@ -109,4 +109,8 @@
     <xsl:apply-templates select="d:areaspec"/>
 </xsl:template>
 
+<xsl:template match="d:guilabel">
+    <xsl:call-template name="inline.boldseq"/>
+</xsl:template>
+
 </xsl:stylesheet>
