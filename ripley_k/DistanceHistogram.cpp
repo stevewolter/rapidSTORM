@@ -10,7 +10,8 @@
 #include <dStorm/image/constructors.h>
 #include <boost/bind/bind.hpp>
 
-namespace distance_histogram {
+namespace dStorm {
+namespace ripley_k {
 
 static const int forward_scan_elements[][2] = { {1,0}, {-1,1}, {0,1}, {1,1} };
 
@@ -103,4 +104,5 @@ void Histogram::clear() {
         i->clear();
 }
 
+}
 }

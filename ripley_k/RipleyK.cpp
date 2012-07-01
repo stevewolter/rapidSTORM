@@ -1,7 +1,6 @@
 #include <Eigen/StdVector>
 #include <simparm/BoostUnits.h>
 #include "DistanceHistogram.h"
-#include "RipleyK.h"
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
 #include <dStorm/output/binning/localization.h>
@@ -12,6 +11,7 @@
 #include <boost/units/cmath.hpp>
 #include <fstream>
 
+namespace dStorm {
 namespace ripley_k {
 
 using namespace dStorm::output::binning;
@@ -40,8 +40,8 @@ struct Config
 
 class Output : public dStorm::output::Output {
     simparm::FileEntry filename;
-    typedef Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
-    boost::optional<distance_histogram::Histogram> histogram;
+    typedef output::binning::Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
+    boost::optional<Histogram> histogram;
     boost::ptr_array< Scaler, 2 > scalers;
     const quantity<si::length> bin_size, max_distance;
     quantity<si::area> measured_area;
@@ -84,7 +84,7 @@ Output::AdditionalData Output::announceStormSize(const Announcement& a) {
     boost::array< float, 2 > range;
     for (int i = 0; i < 2; ++i) 
         range[i] = scalers[i].get_size();
-    histogram = distance_histogram::Histogram( range, max_distance / bin_size, periodic );
+    histogram = Histogram( range, max_distance / bin_size, periodic );
     measured_area = 
         ( *a.position().range().x().second - *a.position().range().x().first ) *
         ( *a.position().range().y().second - *a.position().range().y().first );
@@ -124,7 +124,7 @@ void Output::store_results_( bool success ) {
         typedef  boost::units::power_typeof_helper< si::microlength, boost::units::static_rational<2> >::type microarea;
         quantity<per_area>
             average_count_density = (localization_count * 1.0) / measured_area;
-        distance_histogram::Histogram& h = *histogram;
+        Histogram& h = *histogram;
         h.compute();
         unsigned long accum = 0;
         for (unsigned int i = 0; i < h.counts.size(); ++i) {
@@ -153,4 +153,5 @@ std::auto_ptr<dStorm::output::OutputSource> make_output_source()
     return std::auto_ptr<dStorm::output::OutputSource>( new dStorm::output::FileOutputBuilder<Config,Output>() );
 }
 
+}
 }

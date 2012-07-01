@@ -3,10 +3,12 @@
 
 #include <dStorm/output/OutputSource.h>
 
+namespace dStorm {
 namespace ripley_k {
 
 std::auto_ptr<dStorm::output::OutputSource> make_output_source();
 
+}
 }
 
 #endif

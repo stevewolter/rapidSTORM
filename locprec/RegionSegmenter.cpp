@@ -22,7 +22,6 @@
 #include <simparm/Node.h>
 
 #include "RegionSegmenter.h"
-#include "foreach.h"
 #include <limits>
 #include <stdio.h>
 #include <dStorm/Image_iterator.h>

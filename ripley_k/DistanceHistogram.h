@@ -9,7 +9,8 @@
 #include <boost/icl/continuous_interval.hpp>
 #include <dStorm/Image.h>
 
-namespace distance_histogram {
+namespace dStorm {
+namespace ripley_k {
 
 using namespace boost::units;
 using namespace boost::icl;
@@ -48,6 +49,7 @@ struct Histogram {
     void clear();
 };
 
+}
 }
 
 #endif

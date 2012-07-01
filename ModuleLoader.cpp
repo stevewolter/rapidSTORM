@@ -21,6 +21,7 @@
 #include "tiff/augment_config.h"
 #include "andor-sif/augment_config.h"
 #include "calibrate_3d/fwd.h"
+#include "ripley_k/fwd.h"
 
 #include "debug.h"
 #ifdef HAVE_CONFIG_H
@@ -56,6 +57,7 @@ void add_modules( dStorm::Config& car_config )
     AndorCamera::augment_config( car_config );
     car_config.add_output( kalman_filter::create() );
     car_config.add_output( kalman_filter::create_drift_correction() );
+    car_config.add_output( ripley_k::make_output_source().release() );
     locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );
     test::make_config( &car_config );

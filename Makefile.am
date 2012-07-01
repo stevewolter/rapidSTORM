@@ -687,16 +687,17 @@ rapidstorm_SOURCES += \
 
 rapidstorm_SOURCES += \
     locprec/plugin.cpp locprec/plugin.h \
-    locprec/foreach.h \
     locprec/SpotMeter.h \
     locprec/RegionSegmenter.cpp \
     locprec/SpotMeter.cpp \
     locprec/RegionSegmenter.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
-    locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
-    locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
     locprec/unit_tests.cpp 
+
+rapidstorm_SOURCES += \
+    ripley_k/DistanceHistogram.h ripley_k/DistanceHistogram.cpp \
+    ripley_k/fwd.h ripley_k/RipleyK.cpp
 
 rapidstorm_SOURCES += \
     AndorCamera/CameraConnection.h AndorCamera/CameraConnection.cpp \
