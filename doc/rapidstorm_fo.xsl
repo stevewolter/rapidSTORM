@@ -113,4 +113,8 @@
     <xsl:call-template name="inline.boldseq"/>
 </xsl:template>
 
+<xsl:template match="processing-instruction('hard-pagebreak')">
+   <fo:block break-after='page'/>
+</xsl:template>
+
 </xsl:stylesheet>

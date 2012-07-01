@@ -20,7 +20,7 @@
     the covariance matrix) in this case.</para>
     <para>See also: <xref linkend="psf_model"/></para>
 </et:elem>
-<et:elem desc="Fit with free covariance matrix" topic="FreeForm">
+<et:elem desc="PSF width is free fit parameter" topic="FreeForm">
     <para>Treat the covariance matrix entries as variables
     in the fit process rather than as constants. The estimated
     or fixed standard deviation parameters act as initial values
