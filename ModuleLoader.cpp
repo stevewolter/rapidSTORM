@@ -13,7 +13,6 @@
 #include "estimate_psf_form/decl.h"
 
 #include "test-plugin/plugin.h"
-#include "locprec/plugin.h"
 #include "kalman_filter/fwd.h"
 #include "input_simulation/plugin.h"
 #include "AndorCamera/plugin.h"
@@ -58,7 +57,6 @@ void add_modules( dStorm::Config& car_config )
     car_config.add_output( kalman_filter::create() );
     car_config.add_output( kalman_filter::create_drift_correction() );
     car_config.add_output( ripley_k::make_output_source().release() );
-    locprec::augment_config( car_config );
     input_simulation::input_simulation( car_config );
     test::make_config( &car_config );
 

@@ -4,8 +4,10 @@
 #include <memory>
 #include <dStorm/output/OutputSource.h>
 
-namespace locprec {
+namespace dStorm { 
+namespace outputs {
     std::auto_ptr< dStorm::output::OutputSource > make_segmenter_source();
+}
 }
 
 #endif

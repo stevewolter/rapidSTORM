@@ -46,7 +46,8 @@
 
 #include <dStorm/make_clone_allocator.hpp>
 
-namespace locprec {
+namespace dStorm { 
+namespace outputs {
 
 class Segmenter : public dStorm::output::Filter,
     private dStorm::display::DataSource
@@ -156,10 +157,12 @@ struct RegionSegmentationMethod : public SegmentationMethod {
 };
 
 }
+}
 
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( locprec::SegmentationMethod )
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR( dStorm::outputs::SegmentationMethod )
 
-namespace locprec {
+namespace dStorm {
+namespace outputs {
 
 struct Segmenter::Config {
     simparm::ManagedChoiceEntry<SegmentationMethod> method;
@@ -557,10 +560,9 @@ std::auto_ptr< dStorm::output::OutputSource > make_segmenter_source() {
 }
 
 }
+}
 
 namespace dStorm {
-//template class Image<int,2>;
-//template class Image<bool,2>;
 template void rectangular_erosion<unsigned int, unsigned int>(dStorm::Image<unsigned int, 2> const&, dStorm::Image<unsigned int, 2>&, int, int, int, int);
 template void rectangular_dilation<unsigned int, unsigned int>(dStorm::Image<unsigned int, 2> const&, dStorm::Image<unsigned int, 2>&, int, int, int, int);
 }

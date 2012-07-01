@@ -421,7 +421,12 @@ rapidstorm_SOURCES += \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
     outputs/Crankshaft.h outputs/Crankshaft.cpp \
     outputs/RegionOfInterest.h outputs/RegionOfInterest.cpp \
+    outputs/SpotMeter.h outputs/SpotMeter.cpp \
+    outputs/RegionSegmenter.h outputs/RegionSegmenter.cpp \
+    outputs/PrecisionEstimator.cpp outputs/PrecisionEstimator.h \
+    outputs/VarianceEstimator.h outputs/VarianceEstimator.cpp \
     outputs/NullOutput.h 
+
 
 rapidstorm_SOURCES += \
     calibrate_3d/fwd.h \
@@ -684,16 +689,6 @@ rapidstorm_SOURCES += \
     kalman_filter/fwd.h kalman_filter/EmissionTracker.cpp \
     kalman_filter/KalmanTrace.h \
     kalman_filter/NonlinearDriftEstimator.cpp
-
-rapidstorm_SOURCES += \
-    locprec/plugin.cpp locprec/plugin.h \
-    locprec/SpotMeter.h \
-    locprec/RegionSegmenter.cpp \
-    locprec/SpotMeter.cpp \
-    locprec/RegionSegmenter.h \
-    locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
-    locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \
-    locprec/unit_tests.cpp 
 
 rapidstorm_SOURCES += \
     ripley_k/DistanceHistogram.h ripley_k/DistanceHistogram.cpp \

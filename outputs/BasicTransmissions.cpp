@@ -13,6 +13,10 @@
 #include "LinearAlignment.h"
 #include "DriftRemover.h"
 #include "RegionOfInterest.h"
+#include "RegionSegmenter.h"
+#include "SpotMeter.h"
+#include "PrecisionEstimator.h"
+#include "VarianceEstimator.h"
 
 using namespace std;
 using namespace dStorm::outputs;
@@ -33,6 +37,10 @@ void basic_outputs( dStorm::Config* o ) {
     o->add_output( make_linear_alignment().release() );
     o->add_output( drift_remover::make().release() );
     o->add_output( make_roi_filter_source().release() );
+    o->add_output( make_segmenter_source().release() );
+    o->add_output( make_spot_meter_source().release() );
+    o->add_output( make_precision_estimator_source().release() );
+    o->add_output( make_variance_estimator_source().release() );
 }
 
 }

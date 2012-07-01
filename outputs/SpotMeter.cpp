@@ -5,8 +5,10 @@
 #include <map>
 #include <fstream>
 
-namespace locprec {
-    using namespace boost::units;
+namespace dStorm { 
+namespace outputs {
+
+using namespace boost::units;
 
 class SpotMeter : public dStorm::output::Output
 {
@@ -74,4 +76,5 @@ std::auto_ptr< dStorm::output::OutputSource > make_spot_meter_source() {
         new dStorm::output::OutputBuilder< SpotMeter::Config, SpotMeter >() );
 }
 
+}
 }

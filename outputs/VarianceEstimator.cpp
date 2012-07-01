@@ -5,6 +5,8 @@
 #include <boost/accumulators/statistics/mean.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 
+namespace dStorm { 
+namespace outputs {
 namespace variance_estimator {
 
 using namespace boost::accumulators;
@@ -70,10 +72,12 @@ void Output::store_results_( bool success ) {
         std::cout << "\n";
     }
 }
-
-std::auto_ptr<dStorm::output::OutputSource> make_output_source()
-{
-    return std::auto_ptr<dStorm::output::OutputSource>( new dStorm::output::OutputBuilder<Config,Output>() );
 }
 
+std::auto_ptr<dStorm::output::OutputSource> make_variance_estimator_source()
+{
+    return std::auto_ptr<dStorm::output::OutputSource>( new dStorm::output::OutputBuilder<variance_estimator::Config,variance_estimator::Output>() );
+}
+
+}
 }

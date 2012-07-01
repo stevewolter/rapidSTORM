@@ -19,10 +19,6 @@
 #include "simparm/unit_tests.h"
 #include "alignment_fitter.h"
 
-namespace locprec {
-void run_unit_tests( TestState& );
-}
-
 namespace dStorm {
 
 void pixel_unit_test();
@@ -67,7 +63,6 @@ int run_unit_tests(int argc, char* argv[]) {
     dStorm::input::resolution::unit_test(state);
     dStorm::expression::unit_test( state );
     dStorm::traits::run_unit_tests( state );
-    locprec::run_unit_tests( state );
     dStorm::threed_info::unit_tests( state );
 
     int success = ::boost::unit_test::unit_test_main( &init_unit_test, argc, argv );

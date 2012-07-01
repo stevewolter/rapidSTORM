@@ -48,7 +48,8 @@ using namespace dStorm::output;
 using namespace boost::units;
 
 
-namespace locprec {
+namespace dStorm { 
+namespace outputs {
 
 class PrecisionEstimator 
     : public dStorm::output::Output
@@ -593,4 +594,4 @@ std::auto_ptr< dStorm::output::OutputSource > make_precision_estimator_source() 
 }
 
 }
-
+}
