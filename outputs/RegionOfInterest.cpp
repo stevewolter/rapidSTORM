@@ -12,19 +12,17 @@
 #include <dStorm/output/Filter.h>
 #include <simparm/Entry.h>
 #include <dStorm/Engine.h>
-#include <dStorm/UnitEntries.h>
+#include <dStorm/units/microlength.h>
 
-namespace simparm {
-template class Entry< dStorm::samplepos::Scalar>;
-}
-
-namespace locprec {
+namespace dStorm {
+namespace outputs {
 
 class ROIFilter : public dStorm::output::Filter
 {
   private:
     dStorm::samplepos offset, from, to;
     bool not_within_ROI( const dStorm::Localization& ) const;
+    bool is_3d;
 
   public:
     class Config;
@@ -41,8 +39,8 @@ class ROIFilter : public dStorm::output::Filter
 class ROIFilter::Config 
 {
   public:
-    simparm::Entry< dStorm::samplepos::Scalar >
-        left, right, top, bottom;
+    simparm::Entry< Eigen::Matrix< boost::units::quantity< boost::units::si::microlength, float >, 3, 1, Eigen::DontAlign > >
+        lower, upper;
 
     Config();
 
@@ -51,10 +49,8 @@ class ROIFilter::Config
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     void attach_ui( simparm::NodeHandle at ) {
-        left.attach_ui(at); 
-        right.attach_ui(at);
-        top.attach_ui(at);
-        bottom.attach_ui(at);
+        lower.attach_ui(at); 
+        upper.attach_ui(at);
     }
 
     bool determine_output_capabilities( dStorm::output::Capabilities& )
@@ -67,10 +63,8 @@ ROIFilter::ROIFilter(
 ) 
 : Filter(output)
 {
-    from.x() = config.left();
-    from.y() = config.top();
-    to.x() = config.right();
-    to.y() = config.bottom();
+    from = config.lower().cast< samplepos::Scalar >();
+    to = config.upper().cast< samplepos::Scalar >();
 
     for ( int i = 0; i < from.rows(); ++i )  {
         offset[i] = floor(from[i]);
@@ -80,6 +74,7 @@ ROIFilter::ROIFilter(
 dStorm::output::Output::AdditionalData
 ROIFilter::announceStormSize(const Announcement &a)
 {
+    is_3d = a.position().is_given[2];
     Announcement my_announcement = a;
     for ( int i = 0; i < to.rows(); ++i ) {
         my_announcement.position().range()[i].first = from[i];
@@ -89,7 +84,8 @@ ROIFilter::announceStormSize(const Announcement &a)
 }
 
 bool ROIFilter::not_within_ROI( const dStorm::Localization& l ) const {
-    return !( (l.position().array() >= from.array()).all() && (l.position().array() <= to.array()).all() );
+    int n = (is_3d) ? 3 : 2;
+    return !( (l.position().array() >= from.array()).head(n).all() && (l.position().array() <= to.array()).head(n).all() );
 }
 
 void ROIFilter::receiveLocalizations(const EngineResult& e) {
@@ -99,10 +95,8 @@ void ROIFilter::receiveLocalizations(const EngineResult& e) {
 }
 
 ROIFilter::Config::Config() 
-: left("LeftROIBorder", "Left border"),
-  right("RightROIBorder", "Right border"),
-  top("TopROIBorder", "Top border"),
-  bottom("BottomROIBorder", "Bottom border")
+: lower("LowerROIBorder", "Lower ROI border"),
+  upper("UpperROIBorder", "Upper ROI border")
 {
 }
 
@@ -112,4 +106,5 @@ std::auto_ptr< dStorm::output::OutputSource > make_roi_filter_source() {
     );
 }
 
+}
 }

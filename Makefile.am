@@ -420,6 +420,7 @@ rapidstorm_SOURCES += \
     outputs/SigmaDiff3D.h outputs/SigmaDiff3D.cpp \
     outputs/LinearAlignment.h outputs/LinearAlignment.cpp \
     outputs/Crankshaft.h outputs/Crankshaft.cpp \
+    outputs/RegionOfInterest.h outputs/RegionOfInterest.cpp \
     outputs/NullOutput.h 
 
 rapidstorm_SOURCES += \
@@ -692,7 +693,6 @@ rapidstorm_SOURCES += \
     locprec/SpotMeter.cpp \
     locprec/RegionSegmenter.h \
     locprec/PrecisionEstimator.cpp locprec/PrecisionEstimator.h \
-    locprec/RegionOfInterest.cpp locprec/RegionOfInterest.h \
     locprec/DistanceHistogram.h locprec/DistanceHistogram.cpp \
     locprec/RipleyK.h locprec/RipleyK.cpp \
     locprec/VarianceEstimator.h locprec/VarianceEstimator.cpp \

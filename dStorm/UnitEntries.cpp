@@ -72,6 +72,7 @@ INSTANTIATE( quantity< boost::units::divide_typeof_helper<
 
 INSTANTIATE( Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > )
 INSTANTIATE( Matrix< quantity< si::nanolength, double >, 3, 1, Eigen::DontAlign > )
+INSTANTIATE( Matrix< quantity< si::microlength, float >, 3, 1, Eigen::DontAlign > )
 INSTANTIATE( Matrix< quantity< camera::length, double >, 2, 1, Eigen::DontAlign > )
 INSTANTIATE( Matrix< quantity< camera::length, int >, 2, 1, Eigen::DontAlign > )
 INSTANTIATE( Matrix< quantity< camera::length, int >, 3, 1 > )

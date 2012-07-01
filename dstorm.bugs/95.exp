@@ -5,10 +5,8 @@ set_input_file "${testcase_target}Svens_rastererzeugende_Datei.sif"
 set_last_image 4
 send "in Car set Engine in rapidSTORM in SpotFindingMethod in Average in SmoothingMaskSize in value set 7\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set ROIFilter\n"
-send "in Car in Output in EngineOutput in Output0 in ROIFilter in LeftROIBorder in value set 0\n"
-send "in Car in Output in EngineOutput in Output0 in ROIFilter in RightROIBorder in value set 2E-6\n"
-send "in Car in Output in EngineOutput in Output0 in ROIFilter in TopROIBorder in value set 12E-6\n"
-send "in Car in Output in EngineOutput in Output0 in ROIFilter in BottomROIBorder in value set 13E-6\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in LowerROIBorder in value set 0,12,0\n"
+send "in Car in Output in EngineOutput in Output0 in ROIFilter in UpperROIBorder in value set 2,12,0\n"
 send "in Car in Output in EngineOutput in Output0 in ROIFilter in ChooseTransmission in value set Count\n"
 #send "in Car in Engine set SpotFittingMethod in GaussFitter set AsymmetryThreshold value set 0.1\n"
 dstorm_attach
