@@ -2,7 +2,6 @@
 #include "localization_config.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 FieldChoice::FieldChoice( const std::string& name, const std::string& desc, BinningType type, std::string axis )
@@ -54,6 +53,5 @@ void FieldChoice::attach_ui( simparm::NodeHandle a ) {
     listening = value.notify_on_value_change( change );
 }
 
-}
 }
 }

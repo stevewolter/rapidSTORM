@@ -10,7 +10,7 @@
 #include <vector>
 #include "KalmanTrace.h"
 #include <dStorm/output/FilterBuilder.h>
-#include <dStorm/output/binning/binning.h>
+#include "binning/binning.h"
 #include <dStorm/UnitEntries/Nanometre.h>
 #include <boost/ptr_container/ptr_set.hpp>
 #include <boost/ptr_container/ptr_array.hpp>
@@ -20,7 +20,7 @@
 #include <numeric>
 #include <boost/units/Eigen/Array>
 #include <dStorm/helpers/back_inserter.h>
-#include <dStorm/output/binning/localization.h>
+#include "binning/localization.h"
 #include <dStorm/output/Filter.h>
 #include <dStorm/image/iterator.h>
 #include <boost/units/Eigen/Array>
@@ -59,7 +59,7 @@ private:
         void make_hope() { hope++; }
     };
 
-    boost::optional< dStorm::output::binning::Localization<0,dStorm::output::binning::ScaledToInterval> >
+    boost::optional< binning::Localization<0,binning::ScaledToInterval> >
         binners[2];
     float binner_starts[2];
     typedef dStorm::Image< std::set<TracedObject*>, 2 > Positional;

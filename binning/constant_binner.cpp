@@ -2,7 +2,6 @@
 #include "binning.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 struct ConstantBinner 
@@ -10,7 +9,7 @@ struct ConstantBinner
 {
     ~ConstantBinner() {}
     ConstantBinner* clone() const { return new ConstantBinner(); }
-    void announce(const Output::Announcement&) {}
+    void announce(const output::Output::Announcement&) {}
     traits::ImageResolution resolution() const 
         { throw std::logic_error("Constant binners have no resolution"); }
     int bin_points( const output::LocalizedImage& er, float* target, int stride ) const {
@@ -59,7 +58,6 @@ std::auto_ptr<FieldConfig> make_constant_binner_config()
     return std::auto_ptr<FieldConfig>( new ConstantFieldConfig() );
 }
 
-}
 }
 }
 

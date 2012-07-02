@@ -7,7 +7,6 @@
 #include <sstream>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 inline std::string dimen_name(int d) {
@@ -86,8 +85,8 @@ std::auto_ptr<UserScaled>
 LocalizationConfig<Field>::make_user_scaled_binner() const 
 {
     if ( range.is_initialized() ) {
-        std::auto_ptr< output::binning::Localization<Field,InteractivelyScaledToInterval> >
-            o ( new output::binning::Localization<Field,InteractivelyScaledToInterval>(*range, row, column) );
+        std::auto_ptr< binning::Localization<Field,InteractivelyScaledToInterval> >
+            o ( new binning::Localization<Field,InteractivelyScaledToInterval>(*range, row, column) );
         typedef binning::Localization<Field,InteractivelyScaledToInterval> T;
         std::auto_ptr<UserScaled> rv( new BinningAdapter< T, UserScaled >( 
             T(*range,row,column) ) );
@@ -110,11 +109,11 @@ void LocalizationConfig<Field>::set_visibility(
 ) {
     bool v;
     if ( unscaled_suffices )
-        v = output::binning::Localization<Field, IsUnscaled>::can_work_with(t, row, column);
+        v = binning::Localization<Field, IsUnscaled>::can_work_with(t, row, column);
     else if ( range.is_initialized() )
-        v = output::binning::Localization<Field, ScaledToInterval>::can_work_with(t, row, column);
+        v = binning::Localization<Field, ScaledToInterval>::can_work_with(t, row, column);
     else 
-        v = output::binning::Localization<Field, ScaledByResolution>::can_work_with(t, row, column);
+        v = binning::Localization<Field, ScaledByResolution>::can_work_with(t, row, column);
 
     set_viewability(v);
 }
@@ -126,7 +125,6 @@ void LocalizationConfig<Field>::add_listener( simparm::BaseAttribute::Listener& 
 }
 
 
-}
 }
 }
 

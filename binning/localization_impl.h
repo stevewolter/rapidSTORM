@@ -3,11 +3,10 @@
 
 #include "debug.h"
 #include "localization.h"
-#include "../../display/DataSource.h"
+#include <dStorm/display/DataSource.h>
 #include <boost/units/cmath.hpp>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 template <int Index>
@@ -383,7 +382,6 @@ display::KeyDeclaration Localization<Index,InteractivelyScaledToInterval>::key_d
     return rv;
 }
 
-}
 }
 }
 

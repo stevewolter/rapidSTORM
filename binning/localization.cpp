@@ -2,7 +2,6 @@
 #include <dStorm/image/MetaInfo.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 #define INSTANTIATE_WITH_LOCALIZATION_FIELD_INDEX(x) \
@@ -13,6 +12,5 @@ namespace binning {
     template class Localization<x, InteractivelyScaledToInterval>;
 #include <dStorm/localization/expand.h>
 
-}
 }
 }

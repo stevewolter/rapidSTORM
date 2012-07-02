@@ -2,15 +2,14 @@
 #define DSTORM_OUTPUT_BINNING_LOCALIZATION_H
 
 #include "binning.h"
-#include "../../traits/scalar.h"
+#include <dStorm/traits/scalar.h>
 #include <boost/fusion/include/sequence.hpp>
 
 #include <boost/units/io.hpp>
 #include <bitset>
-#include "../../display/DataSource.h"
+#include <dStorm/display/DataSource.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 template <int Index, int Mode>
@@ -148,7 +147,6 @@ class Localization<Index, InteractivelyScaledToInterval> : public Localization<I
     typename traits::Scalar< TraitsType >::range_type orig_range;
 };
 
-}
 }
 }
 

@@ -1,7 +1,6 @@
 #include "binning.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 Unscaled::~Unscaled() {}
@@ -16,6 +15,5 @@ UserScaled* new_clone( const UserScaled& o ) {
     return u;
 }
 
-}
 }
 }

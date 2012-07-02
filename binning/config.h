@@ -12,7 +12,6 @@
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 struct FieldConfig : public simparm::ObjectChoice {
@@ -49,9 +48,8 @@ struct FieldChoice
 
 }
 }
-}
 
-DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::output::binning::FieldConfig)
+DSTORM_MAKE_BOOST_CLONE_ALLOCATOR(dStorm::binning::FieldConfig)
 
 
 #endif

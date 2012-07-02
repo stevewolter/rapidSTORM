@@ -4,7 +4,6 @@
 #include <dStorm/display/DataSource.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 template <typename BaseType>
@@ -20,7 +19,7 @@ struct Inversion
     Inversion( boost::shared_ptr<BaseType> base ) : base(base) {}
     Inversion* clone() const { return new Inversion(*this); }
 
-    void announce(const Output::Announcement& a) { base->announce(a); range = base->get_minmax(); }
+    void announce(const output::Output::Announcement& a) { base->announce(a); range = base->get_minmax(); }
     traits::ImageResolution resolution() const { return base->resolution(); }
     int bin_points( const output::LocalizedImage& l, float* target, int stride ) const {
         int c = base->bin_points(l, target, stride);
@@ -55,7 +54,6 @@ struct Inversion
     void set_clipping( bool b ) { base->set_clipping(b); }
 };
 
-}
 }
 }
 

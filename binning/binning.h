@@ -3,21 +3,20 @@
 
 #include "binning_decl.h"
 
-#include "../Output.h"
-#include "../../traits/image_resolution.h"
+#include <dStorm/output/Output.h>
+#include <dStorm/traits/image_resolution.h>
 #include <boost/units/quantity.hpp>
 #include <boost/optional/optional.hpp>
 #include <boost/units/systems/camera/length.hpp>
-#include "../../display/fwd.h"
+#include <dStorm/display/fwd.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 struct Unscaled {
     virtual ~Unscaled();
     virtual Unscaled* clone() const = 0;
-    virtual void announce(const Output::Announcement& a) = 0;
+    virtual void announce(const output::Output::Announcement& a) = 0;
     virtual traits::ImageResolution resolution() const = 0;
     virtual int bin_points( const output::LocalizedImage&, float* target, int stride ) const = 0;
     virtual boost::optional<float> bin_point( const Localization& ) const = 0;
@@ -47,7 +46,6 @@ struct UserScaled
     virtual display::KeyDeclaration key_declaration() const = 0;
 };
 
-}
 }
 }
 

@@ -6,13 +6,11 @@
 #include <memory>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 std::auto_ptr<Unscaled> make_constant_binner();
 std::auto_ptr<FieldConfig> make_constant_binner_config();
 
-}
 }
 }
 

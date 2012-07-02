@@ -3,10 +3,10 @@
 
 #include <dStorm/image/MetaInfo.h>
 
-#include <dStorm/output/binning/config.h>
-#include <dStorm/output/binning/inversion.h>
-#include <dStorm/output/binning/dummy_binner.h>
-#include <dStorm/output/binning/constant_binner.h>
+#include "binning/config.h"
+#include "binning/inversion.h"
+#include "binning/dummy_binner.h"
+#include "binning/constant_binner.h"
 
 namespace dStorm {
 namespace density_map {
@@ -22,11 +22,11 @@ CoordinatesFactory<Dim>::CoordinatesFactory()
 {
     use_z_axis.set_user_level( simparm::Intermediate );
     for (int i = 0; i < Dim; ++i) {
-        components.replace( i, new output::binning::FieldChoice(std::string(axis_idents[i]) + "Dimension", axis_names[i], 
-            output::binning::ScaledByResolution, std::string(axis_idents[i])) );
+        components.replace( i, new binning::FieldChoice(std::string(axis_idents[i]) + "Dimension", axis_names[i], 
+            binning::ScaledByResolution, std::string(axis_idents[i])) );
     }
-    components.replace( Dim, new output::binning::FieldChoice("IDimension", "Intensity", output::binning::IsUnscaled, "I") );
-    components[Dim].addChoice( dStorm::output::binning::make_constant_binner_config() );
+    components.replace( Dim, new binning::FieldChoice("IDimension", "Intensity", binning::IsUnscaled, "I") );
+    components[Dim].addChoice( binning::make_constant_binner_config() );
     if ( Dim > 2 ) {
         components[2].choose( "PositionZ" );
         components[2].set_user_level( simparm::Intermediate );
@@ -70,34 +70,34 @@ void CoordinatesFactory<Dim>::set_visibility(const input::Traits<Localization>& 
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Scaled > CoordinatesFactory<Dim>::make_x() const
+std::auto_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_x() const
     { return components[0]().make_scaled_binner(); }
 
 template <int Dim>
-std::auto_ptr< output::binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
-    std::auto_ptr<output::binning::Scaled> y( components[1]().make_scaled_binner() );
+std::auto_ptr< binning::Scaled > CoordinatesFactory<Dim>::make_y() const {
+    std::auto_ptr<binning::Scaled> y( components[1]().make_scaled_binner() );
     if ( invert_y_axis() ) {
-        boost::shared_ptr<output::binning::Scaled> base_y( y.release() );
-        y.reset( new output::binning::Inversion<output::binning::Scaled>(base_y) );
+        boost::shared_ptr<binning::Scaled> base_y( y.release() );
+        y.reset( new binning::Inversion<binning::Scaled>(base_y) );
     }
     return y;
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Unscaled > CoordinatesFactory<Dim>::make_i() const 
+std::auto_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_i() const 
     { return components[Dim]().make_unscaled_binner(); }
 
 template <int Dim>
 std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
 {
-    boost::ptr_array< output::binning::Scaled, Dim> spatial;
+    boost::ptr_array< binning::Scaled, Dim> spatial;
     for (int i = 0; i < Dim; ++i)
         if ( i == 1 && invert_y_axis() ) {
-            boost::shared_ptr<output::binning::Scaled> base_y( 
+            boost::shared_ptr<binning::Scaled> base_y( 
                 components[i]().make_scaled_binner().release() );
-            spatial.replace( i, new output::binning::Inversion<output::binning::Scaled>(base_y) );
+            spatial.replace( i, new binning::Inversion<binning::Scaled>(base_y) );
         } else if ( i == 2 && ! use_z_axis() ) {
-            spatial.replace( i, new output::binning::Zero() );
+            spatial.replace( i, new binning::Zero() );
         } else
             spatial.replace( i, components[i]().make_scaled_binner() );
     return std::auto_ptr< Coordinates<Dim> >(
@@ -105,7 +105,7 @@ std::auto_ptr< Coordinates<Dim> > CoordinatesFactory<Dim>::make() const
 }
 
 template <int Dim>
-std::auto_ptr< output::binning::Unscaled > CoordinatesFactory<Dim>::make_unscaled(int field) const
+std::auto_ptr< binning::Unscaled > CoordinatesFactory<Dim>::make_unscaled(int field) const
 {
     return components[field]().make_unscaled_binner();
 }

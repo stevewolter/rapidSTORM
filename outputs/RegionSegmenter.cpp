@@ -3,7 +3,7 @@
 #include <simparm/Eigen.h>
 
 #include <boost/ptr_container/ptr_array.hpp>
-#include <dStorm/output/binning/config.h>
+#include "binning/config.h"
 #include <dStorm/output/OutputSource.h>
 #include <dStorm/output/Localizations.h>
 #include "density_map/DensityMap.h"
@@ -42,7 +42,7 @@
 
 #include <dStorm/Image_impl.h>
 #include <dStorm/image/dilation_impl.h>
-#include <dStorm/output/binning/binning.h>
+#include "binning/binning.h"
 
 #include <dStorm/make_clone_allocator.hpp>
 
@@ -64,7 +64,7 @@ class Segmenter : public dStorm::output::Filter,
 
     std::auto_ptr<Announcement> announcement;
     SegmentationType howToSegment;
-    boost::ptr_array< dStorm::output::binning::Unscaled, 2 > binners;
+    boost::ptr_array< binning::Unscaled, 2 > binners;
     simparm::Entry<double> threshold;
     simparm::Entry<unsigned long> dilation;
     dStorm::output::Localizations points;
@@ -427,12 +427,12 @@ class LocalizationMapper
     : public unary_function<void, From>
 {
     const std::list<To>& spots;
-    const boost::ptr_array< dStorm::output::binning::Unscaled, 2 >& binners;
+    const boost::ptr_array< binning::Unscaled, 2 >& binners;
     typedef std::vector<From> Store;
   public:
     typedef boost::ptr_map<const To*, Store > Map;
 
-    LocalizationMapper(const std::list<To>& spots, const boost::ptr_array< dStorm::output::binning::Unscaled, 2 >& binners)
+    LocalizationMapper(const std::list<To>& spots, const boost::ptr_array< binning::Unscaled, 2 >& binners)
         : spots(spots), binners(binners)
     {
     }

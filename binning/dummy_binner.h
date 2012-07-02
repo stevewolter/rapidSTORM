@@ -4,12 +4,11 @@
 #include "binning.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 struct Zero : public Scaled {
     Zero* clone() const { return new Zero(); }
-    void announce(const Output::Announcement& ) {}
+    void announce(const output::Output::Announcement& ) {}
     traits::ImageResolution resolution() const { throw std::logic_error("Not implemented"); }
     int bin_points( const output::LocalizedImage& er, float* target, int stride ) const
         { for (unsigned i = 0; i < er.size(); ++i) { *target = 1E-15f; target += stride; } return er.size(); }
@@ -22,7 +21,6 @@ struct Zero : public Scaled {
     void set_clipping( bool ) {}
 };
 
-}
 }
 }
 

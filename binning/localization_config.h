@@ -9,7 +9,6 @@
 #include <dStorm/helpers/default_on_copy.h>
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 template <int Field>
@@ -51,7 +50,6 @@ class LocalizationConfig : public FieldConfig
     void add_listener( simparm::BaseAttribute::Listener& l );
 };
 
-}
 }
 }
 

@@ -4,7 +4,6 @@
 #include "binning.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 template <typename Implementation, typename Interface>
@@ -14,7 +13,7 @@ struct BinningAdapter
     BinningAdapter( const Implementation& i ) : i_(i) {}
 
     Interface* clone() const { return new BinningAdapter(*this); }
-    void announce(const Output::Announcement& a) { i_.announce(a); }
+    void announce(const output::Output::Announcement& a) { i_.announce(a); }
     traits::ImageResolution resolution() const { return i_.resolution(); }
     int bin_points( const output::LocalizedImage& l, float* target, int stride ) const
         { return i_.bin_points( l, target, stride ); }
@@ -46,7 +45,6 @@ make_BinningAdapter( const Implementation& o ) {
         new BinningAdapter< Implementation, Interface >(o) );
 }
 
-}
 }
 }
 

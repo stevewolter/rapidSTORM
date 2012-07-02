@@ -142,15 +142,6 @@ rapidstorm_SOURCES = \
     dStorm/Config_decl.h dStorm/Config.h \
     dStorm/Engine.h dStorm/types/samplepos.h dStorm/types/fluorophore.h \
     dStorm/namespaces.h dStorm/pair_Eigen_traits.h \
-    dStorm/output/binning/binning.h dStorm/output/binning/binning.hpp dStorm/output/binning/binning_decl.h \
-    dStorm/output/binning/inversion.h \
-    dStorm/output/binning/localization.h \
-    dStorm/output/binning/localization_impl.h \
-    dStorm/output/binning/localization_config.h \
-    dStorm/output/binning/localization_config_impl.h \
-    dStorm/output/binning/config.h \
-    dStorm/output/binning/dummy_binner.h \
-    dStorm/output/binning/constant_binner.h \
     dStorm/unit_interval.h \
     dStorm/stack_realign.h dStorm/dimension_names.h \
     dStorm/traits/amplitude.h dStorm/traits/base_apply.h dStorm/traits/base.h \
@@ -300,10 +291,6 @@ rapidstorm_SOURCES += \
     dStorm/output/TraceReducers.cpp \
     dStorm/output/SourceFactory.cpp  \
     dStorm/output/LocalizedImage_traits.cpp \
-    dStorm/output/binning/localization.cpp \
-    dStorm/output/binning/localization_config.cpp \
-    dStorm/output/binning/config.cpp dStorm/output/binning/binning.cpp \
-    dStorm/output/binning/constant_binner.cpp \
     dStorm/output/Filter.cpp \
     dStorm/Pixel.cpp \
     dStorm/image/slice.cpp dStorm/image/iterator.cpp \
@@ -832,6 +819,19 @@ rapidstorm_SOURCES += \
     density_map/GaussianSmoothing.h density_map/GaussianSmoothing.hpp density_map/GaussianSmoothing.cpp \
     density_map/Coordinates.h \
     density_map/CoordinatesFactory.h density_map/CoordinatesFactory.cpp
+
+rapidstorm_SOURCES += \
+    binning/binning.h binning/binning.hpp binning/binning_decl.h binning/binning.cpp \
+    binning/inversion.h \
+    binning/localization.h \
+    binning/localization_impl.h \
+    binning/localization.cpp \
+    binning/localization_config.h \
+    binning/localization_config_impl.h \
+    binning/localization_config.cpp \
+    binning/config.h binning/config.cpp \
+    binning/dummy_binner.h \
+    binning/constant_binner.h binning/constant_binner.cpp 
 
 rapidstorm_LDFLAGS = $(LINKER_RESOURCE) $(RESOURCE_OBJECT) -fwhole-program 
 rapidstorm_DEPENDENCIES = $(RESOURCE_OBJECT) 

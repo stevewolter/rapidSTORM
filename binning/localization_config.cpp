@@ -1,7 +1,6 @@
 #include "localization_config_impl.h"
 
 namespace dStorm {
-namespace output {
 namespace binning {
 
 
@@ -9,6 +8,5 @@ namespace binning {
     template class LocalizationConfig<x>;
 #include <dStorm/localization/expand.h>
 
-}
 }
 }

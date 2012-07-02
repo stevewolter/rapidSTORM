@@ -3,7 +3,7 @@
 #include "DistanceHistogram.h"
 #include <simparm/FileEntry.h>
 #include <dStorm/units/nanolength.h>
-#include <dStorm/output/binning/localization.h>
+#include "binning/localization.h"
 #include <dStorm/output/OutputBuilder.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/output/FileOutputBuilder.h>
@@ -14,7 +14,6 @@
 namespace dStorm {
 namespace ripley_k {
 
-using namespace dStorm::output::binning;
 using boost::units::quantity;
 namespace si = boost::units::si;
 
@@ -40,7 +39,7 @@ struct Config
 
 class Output : public dStorm::output::Output {
     simparm::FileEntry filename;
-    typedef output::binning::Localization< dStorm::Localization::Fields::Position, ScaledByResolution > Scaler;
+    typedef binning::Localization< Localization::Fields::Position, binning::ScaledByResolution > Scaler;
     boost::optional<Histogram> histogram;
     boost::ptr_array< Scaler, 2 > scalers;
     const quantity<si::length> bin_size, max_distance;

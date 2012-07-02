@@ -1,8 +1,8 @@
 #include "base.h"
 #include "HueSaturationMixer.h"
 #include <dStorm/helpers/clone_ptr.hpp>
-#include <dStorm/output/binning/config.h>
-#include <dStorm/output/binning/binning.h>
+#include "binning/config.h"
+#include "binning/binning.h"
 #include <dStorm/Engine.h>
 #include "viewer/ColourScheme.h"
 #include "viewer/ColourSchemeFactory.h"
@@ -15,7 +15,7 @@ namespace colour_schemes {
 
 class Coordinate : public ColourScheme { 
     HueSaturationMixer mixer;
-    std::auto_ptr< output::binning::UserScaled > variable;
+    std::auto_ptr< binning::UserScaled > variable;
     static const int key_resolution = 100;
 
     Engine *repeater;
@@ -26,7 +26,7 @@ class Coordinate : public ColourScheme {
     virtual Coordinate* clone_() const { return new Coordinate(*this); }
 
   public:
-    Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range );
+    Coordinate( bool invert, std::auto_ptr< binning::UserScaled > scaled, float range );
     Coordinate( const Coordinate& o );
     int key_count() const { return 2; }
 
@@ -51,7 +51,7 @@ class Coordinate : public ColourScheme {
 };
 
 
-Coordinate::Coordinate( bool invert, std::auto_ptr< output::binning::UserScaled > scaled, float range )
+Coordinate::Coordinate( bool invert, std::auto_ptr< binning::UserScaled > scaled, float range )
 : ColourScheme(invert), mixer(0,0), variable( scaled ), repeater(NULL),
   is_for_image_number( variable->field_number() == dStorm::Localization::Fields::ImageNumber ),
   range(range)
@@ -155,7 +155,7 @@ void Coordinate::notice_user_key_limits(int index, bool lower_limit, std::string
 
 struct CoordinateConfig : public ColourSchemeFactory
 {
-    output::binning::FieldChoice choice;
+    binning::FieldChoice choice;
     simparm::Entry<double> range;
     simparm::BaseAttribute::ConnectionStore listening;
     default_on_copy< boost::signals2::signal<void()> > change;
@@ -170,7 +170,7 @@ struct CoordinateConfig : public ColourSchemeFactory
 
 CoordinateConfig::CoordinateConfig() 
 : ColourSchemeFactory("ByCoordinate", "Vary hue with coordinate value"),
-  choice("HueCoordinate", "Coordinate to vary hue with", output::binning::InteractivelyScaledToInterval, "Hue"),
+  choice("HueCoordinate", "Coordinate to vary hue with", binning::InteractivelyScaledToInterval, "Hue"),
   range("HueRange", "Range of hue", 0.666)
 {
 }

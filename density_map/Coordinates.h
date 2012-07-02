@@ -3,7 +3,7 @@
 
 #include "debug.h"
 
-#include <dStorm/output/binning/binning.h>
+#include "binning/binning.h"
 #include <dStorm/traits/scalar.h>
 #include <boost/ptr_container/ptr_array.hpp>
 #include <dStorm/helpers/clone_ptr.hpp>
@@ -21,8 +21,8 @@ public:
     };
     typedef std::vector<ResultRow> Result;
 private:
-    typedef output::binning::Scaled ScaledAxis;
-    typedef output::binning::Unscaled UnscaledAxis;
+    typedef binning::Scaled ScaledAxis;
+    typedef binning::Unscaled UnscaledAxis;
 
     boost::ptr_array<ScaledAxis, Dim> xy;
     boost::clone_ptr<UnscaledAxis> intensity;
