@@ -4,9 +4,9 @@ namespace dStorm {
 namespace fit_window {
 
 Config::Config()
-: fit_window_size("FitWindowSize", "Fit window radius", 600 * boost::units::si::nanometre),
-  allow_disjoint("DisjointFitting", "Allow disjoint fitting", true),
-  double_computation("DoublePrecision", "Compute with 64 bit floats", true)
+: fit_window_size("FitWindowSize", 600 * boost::units::si::nanometre),
+  allow_disjoint("DisjointFitting", true),
+  double_computation("DoublePrecision", true)
 {
     fit_window_size.set_user_level( simparm::Intermediate );
     allow_disjoint.set_user_level( (simparm::Expert) );

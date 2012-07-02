@@ -1,5 +1,6 @@
 #include "BasicEntry.h"
 #include "Node.h"
+#include "GUILabelTable.h"
 
 namespace simparm {
 
@@ -9,6 +10,15 @@ BasicEntry::BasicEntry(string name, string desc)
 : Object(name, desc), editable(true)
 {
 }
+
+BasicEntry::BasicEntry(string name)
+: Object(name), editable(true)
+{
+    const GUILabelTable::Entry& e = GUILabelTable::get_singleton().get_entry( name );
+    help = e.help;
+    helpID = e.helpID;
+}
+
 
 BasicEntry::BasicEntry(const BasicEntry& from)
 :   Object(from), help(from.help), helpID(from.helpID), editable(from.editable)

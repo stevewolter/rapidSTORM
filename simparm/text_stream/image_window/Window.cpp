@@ -75,7 +75,7 @@ Window::Window(
   bottom("RectangleBottom", "Bottom border of drawn rectangle", 511),
   left("RectangleLeft", "Left border of drawn rectangle", 0),
   right("RectangleRight", "Right border of drawn rectangle", 511),
-  new_limit("NewLimit", "New limit for selected key"),
+  new_limit("NewLimit", "New limit for selected key", ""),
   close_("Close", "Close Window"),
   set_lower_limit("SetLowerLimit", "Set lower key limit"),
   set_upper_limit("SetUpperLimit", "Set upper key limit"),

@@ -110,7 +110,7 @@ public:
     static std::string get_description() { return "Track emissions"; }
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
-    simparm::Entry<unsigned long> allowBlinking;
+    simparm::Entry< quantity<camera::time,int> > allowBlinking;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit> > diffusion;
     simparm::Entry< boost::units::quantity<KalmanMetaInfo<2>::mobility_unit> > mobility;
     dStorm::output::TraceReducer::Config reducer;
@@ -149,9 +149,9 @@ Output::TracedObject::~TracedObject() {
 }
 
 Output::Config::Config() 
-: allowBlinking("AllowBlinking", "Allow fluorophores to skip n frames"),
-  diffusion("DiffusionConstant", "Diffusion constant"),
-  mobility("Mobility", "Mobility constant"),
+: allowBlinking("AllowBlinking", "Allowed blinking interval", 0 * camera::frame),
+  diffusion("DiffusionConstant", "Diffusion constant", boost::units::quantity<KalmanMetaInfo<2>::diffusion_unit>::from_value(0) ),
+  mobility("Mobility", "Mobility constant", boost::units::quantity<KalmanMetaInfo<2>::mobility_unit>::from_value(0) ),
   distance_threshold("DistanceThreshold", "Distance threshold", 2)
 {
     allowBlinking.setHelpID( "EmissionTracker.Allow_Blinking" );
@@ -172,7 +172,7 @@ Output::Output(
     const Config &config,
     std::auto_ptr<dStorm::output::Output> output )
 : Filter(output),
-  track_modulo( config.allowBlinking()+2 ), 
+  track_modulo( config.allowBlinking().value()+2 ), 
   last_seen_frame( 0 * camera::frame ),
   reducer( config.reducer.make_trace_reducer() ), 
   maxDist( config.distance_threshold() )

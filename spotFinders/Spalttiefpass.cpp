@@ -14,7 +14,7 @@ struct Config {
     simparm::Entry< quantity<camera::length,int> > mask_size;
     void attach_ui( simparm::NodeHandle at ) { mask_size.attach_ui( at ); }
     Config() 
-      : mask_size("SmoothingMaskSize", "Smoothing mask width", 5 * camera::pixel) 
+      : mask_size("SmoothingMaskSize", 5 * camera::pixel) 
     {
         mask_size.set_user_level( simparm::Intermediate );
     }

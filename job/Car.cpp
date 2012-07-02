@@ -72,7 +72,7 @@ Car::Car (const Config &config)
     bn.set_variable("run", ident);
     DEBUG("Setting output basename to " << bn.unformatted()() << " (expanded " << bn.new_basename() << ")");
     std::auto_ptr< output::OutputSource > 
-        basename_adjusted_output( config.outputSource.clone() );
+        basename_adjusted_output( config.output_tree().clone() );
     basename_adjusted_output->set_output_file_basename( bn );
     DEBUG("Building output");
     output = basename_adjusted_output->make_output();

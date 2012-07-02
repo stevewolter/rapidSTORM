@@ -7,6 +7,7 @@
 namespace dStorm {
 namespace expression {
 
+/** \cond */
 template <int Field>
 struct FieldAdder : public FieldAdder<Field+1> {
     boost::ptr_vector<Variable>& target;
@@ -32,6 +33,7 @@ struct FieldAdder<Localization::Fields::Count> {
     FieldAdder( boost::ptr_vector<Variable>& ) {}
     void add_variables_for_field() const {}
 };
+/** \endcond */
 
 std::auto_ptr< boost::ptr_vector<Variable> >
 variables_for_localization_fields() {

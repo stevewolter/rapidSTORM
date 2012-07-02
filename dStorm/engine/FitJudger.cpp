@@ -22,12 +22,11 @@ class FixedThresholdJudgerFactory : public FitJudgerFactory {
             boost::units::camera::intensity, float> > amplitude_threshold;
 public:
     FixedThresholdJudgerFactory() 
-    :   name_object("FixedThreshold", "Fixed global threshold"),
-        amplitude_threshold("AmplitudeThreshold", "Intensity threshold", 1000 * boost::units::camera::ad_count) 
+    :   name_object("FixedThreshold"),
+        amplitude_threshold("AmplitudeThreshold", 1000 * boost::units::camera::ad_count) 
     {
         name_object.set_user_level( simparm::Beginner );
         amplitude_threshold.set_user_level( simparm::Beginner );
-        amplitude_threshold.setHelpID( "#AmplitudeThreshold" );
     }
     FixedThresholdJudgerFactory* clone() const { return new FixedThresholdJudgerFactory(*this); }
     std::auto_ptr< FitJudger > make_fit_judger( const InputPlane& p ) const {
@@ -61,8 +60,8 @@ class SquareRootRatioJudgerFactory : public FitJudgerFactory {
     simparm::Entry< double > snr;
 public:
     SquareRootRatioJudgerFactory() 
-    :   name_object("SquareRootRatio", "Local relative threshold"),
-        snr("SNR", "Signal-to-noise ratio", 30) 
+    :   name_object("SquareRootRatio"),
+        snr("SNR", 30) 
     {
         name_object.set_user_level( simparm::Intermediate );
     }

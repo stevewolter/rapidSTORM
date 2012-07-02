@@ -18,7 +18,8 @@ protected:
     NodeHandle create_checkbox( NodeHandle parent, std::string name );
     NodeHandle create_choice( NodeHandle parent, std::string name );
 public:
-    BasicEntry(std::string name, std::string desc = "");
+    BasicEntry(std::string name, std::string desc);
+    BasicEntry(std::string name);
     BasicEntry(const BasicEntry&);
     ~BasicEntry() ;
 

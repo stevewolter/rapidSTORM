@@ -21,6 +21,8 @@ class ManagedChoiceEntry
 public:
     ManagedChoiceEntry( std::string name, std::string desc )
         : ChoiceEntry<BaseClass>(name,desc) {}
+    ManagedChoiceEntry( std::string name )
+        : ChoiceEntry<BaseClass>(name) {}
     ManagedChoiceEntry( const ManagedChoiceEntry& o )
         : ChoiceEntry<BaseClass>(o), choices(o.choices) 
     {

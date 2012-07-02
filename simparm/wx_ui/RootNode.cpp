@@ -21,6 +21,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include "alignment_fitter.h"
+#include "shell/ReplayJob.h"
 #include "Microscope_16.xpm"
 #include "Microscope_24.xpm"
 #include "Microscope_32.xpm"
@@ -66,12 +67,13 @@ class HelpResolver {
 
 public:
     HelpResolver() {}
-    void associate_window_with_help( wxWindow* window, std::string help_id )
-        { context_help_ids[window] = help_id; }
+    void associate_window_with_help( wxWindow* window, std::string help_id ) { 
+        context_help_ids[window] = help_id; 
+    }
     void show_help( wxWindow* window ) {
-        init_help_controller();
         std::string help_id = context_help_ids[window];
         if ( help_id != "" ) {
+            init_help_controller();
             if ( help_id[0] == '#' ) help_id = help_id.substr(1);
             std::string help_location = help_alias[ help_id ];
             help_controller->Display( wxString(help_location.c_str(), wxConvUTF8) );
@@ -89,7 +91,7 @@ class RootFrame
     boost::shared_ptr< Node > root_node;
     boost::shared_ptr< VisibilityControl > ul_control;
     wxBoxSizer *column;
-    std::auto_ptr< dStorm::shell::JobMetaFactory > make_dstorm, make_alignment_fitter;
+    std::auto_ptr< dStorm::shell::JobMetaFactory > make_dstorm, make_alignment_fitter, make_replay_job;
     HelpResolver help;
     boost::shared_ptr< ScrolledTabNode > main_window;
 
@@ -99,6 +101,7 @@ class RootFrame
         SAVE_CONFIG, 
         RAPIDSTORM_LOAD_CONFIG, RAPIDSTORM_MINIMAL, RAPIDSTORM_DEFAULT,
         ALIGNMENT_MINIMAL,
+        REPLAY_MINIMAL
     };
 
     void change_user_level( UserLevel l ) {
@@ -142,6 +145,10 @@ class RootFrame
         manage_in_window( make_alignment_fitter->create_config(main_window) );
     }
 
+    void make_replay_minimal(wxCommandEvent&) { 
+        manage_in_window( make_replay_job->create_config(main_window) );
+    }
+
     void make_rapidstorm_default(wxCommandEvent&) { 
         manage_in_window( make_dstorm->create_config( dStorm::initialization_file().string(), main_window ) );
     }
@@ -172,7 +179,11 @@ public:
         rapidSTORM->Append( RAPIDSTORM_MINIMAL, _("Minimal") );
         rapidSTORM->Append( RAPIDSTORM_DEFAULT, _("Default") );
         rapidSTORM->Append( RAPIDSTORM_LOAD_CONFIG, _("From &file ...") );
-        menu_new->AppendSubMenu( rapidSTORM, _("&rapidSTORM") );
+        menu_new->AppendSubMenu( rapidSTORM, _("&Localization") );
+
+        wxMenu* replay_job = new wxMenu();
+        replay_job->Append( REPLAY_MINIMAL, _("Minimal") );
+        menu_new->AppendSubMenu( replay_job, _("&Replay") );
 
         wxMenu* alignment_fitter = new wxMenu();
         alignment_fitter->Append( ALIGNMENT_MINIMAL, _("Minimal") );
@@ -226,6 +237,7 @@ public:
         this->main_window = main_window;
         this->make_dstorm.reset( new dStorm::shell::JobMetaFactory( std::auto_ptr<dStorm::JobConfig>(config) ) );
         this->make_alignment_fitter.reset( new dStorm::shell::JobMetaFactory( make_alignment_fitter_config() ) );
+        this->make_replay_job.reset( new dStorm::shell::JobMetaFactory( dStorm::shell::make_replay_job() ) );
         manage_in_window( make_dstorm->create_config( dStorm::initialization_file().string(), main_window ) );
     }
 
@@ -246,6 +258,8 @@ BEGIN_EVENT_TABLE(RootFrame, wxFrame)
     EVT_MENU(RAPIDSTORM_MINIMAL, RootFrame::make_rapidstorm_minimal)
     EVT_MENU(RAPIDSTORM_DEFAULT, RootFrame::make_rapidstorm_default)
     EVT_MENU(ALIGNMENT_MINIMAL, RootFrame::make_alignment_minimal)
+    EVT_MENU(REPLAY_MINIMAL, RootFrame::make_replay_minimal)
+    EVT_HELP(wxID_ANY, RootFrame::show_help)
 END_EVENT_TABLE()
 
 static void create_root_frame( 

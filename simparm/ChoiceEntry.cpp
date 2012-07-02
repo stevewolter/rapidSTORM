@@ -13,6 +13,13 @@ ChoiceEntryBase::ChoiceEntryBase(string name, string desc)
 {
 }
 
+ChoiceEntryBase::ChoiceEntryBase(string name)
+: BasicEntry(name),
+  auto_select(true),
+  value( "value", no_selection )
+{
+}
+
 
 ChoiceEntryBase::ChoiceEntryBase(const ChoiceEntryBase& o)
 : BasicEntry(o), auto_select(o.auto_select), value(o.value)

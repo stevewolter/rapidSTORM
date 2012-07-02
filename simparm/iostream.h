@@ -1,4 +1,5 @@
-/** @file Input/output operators different from standard template 
+/** @file simparm/iostream.h 
+ *        Input/output operators different from standard template 
  *        library where necessary. Implemented in Attribute.cc. */
 #ifndef SIMPARM_IOSTREAM_HH
 #define SIMPARM_IOSTREAM_HH

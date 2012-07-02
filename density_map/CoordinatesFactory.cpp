@@ -17,8 +17,8 @@ static const char *axis_names[] = { "X axis", "Y axis", "Z axis" };
 template <int Dim>
 CoordinatesFactory<Dim>::CoordinatesFactory()
 : name_object("DimensionSelector", "Select dimensions to bin"),
-  invert_y_axis("InvertYAxis", "Y zero at bottom"),
-  use_z_axis("ThreeDImage", "Make 3D image")
+  invert_y_axis("InvertYAxis", "Y zero at bottom", false),
+  use_z_axis("ThreeDImage", "Make 3D image", false)
 {
     use_z_axis.set_user_level( simparm::Intermediate );
     for (int i = 0; i < Dim; ++i) {

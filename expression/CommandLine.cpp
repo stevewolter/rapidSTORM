@@ -9,7 +9,7 @@ namespace config {
 CommandLine::CommandLine( std::string ident, boost::shared_ptr<Parser> parser )
 :   disambiguator("CommandLine" + ident, "Command line") ,
     lvalue("LValue", "Value to assign to"),
-    expression("Expression", "Expression to assign from"),
+    expression("Expression", "Expression to assign from", ""),
     parser(parser),
     manager(NULL)
 {

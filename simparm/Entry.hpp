@@ -117,6 +117,19 @@ Entry<TypeOfEntry>::Entry(
 
 template <typename TypeOfEntry>
 Entry<TypeOfEntry>::Entry(
+    string name, const TypeOfEntry& startVal)
+: BasicEntry(name), 
+  value( "value", startVal ),
+  increment("increment", startVal ),
+  min("min", bound_type() ),
+  max("max", bound_type() )
+{
+    add_attributes( TypeOfEntry(), additional_attributes );
+    range_checker = create_bounds_watcher( min, value, max );
+}
+
+template <typename TypeOfEntry>
+Entry<TypeOfEntry>::Entry(
     const Entry<TypeOfEntry>& from)
 : BasicEntry(from), 
   value( from.value ),

@@ -10,12 +10,16 @@ namespace dStorm {
 
 namespace tiff { 
 
-void augment_config ( dStorm::Config& config ) {
+void input_driver ( dStorm::Config& config ) {
 #ifdef HAVE_TIFFIO_H
-    config.add_output( new output::FileOutputBuilder<output::RawImageFile::Config,output::RawImageFile>() );
     config.add_input( make_input(), dStorm::FileReader );
 #endif
+}
 
+void output_driver ( dStorm::Config& config ) {
+#ifdef HAVE_TIFFIO_H
+    config.add_output( new output::FileOutputBuilder<output::RawImageFile::Config,output::RawImageFile>() );
+#endif
 }
 
 }

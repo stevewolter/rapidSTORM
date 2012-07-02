@@ -35,89 +35,15 @@ using namespace std;
 namespace dStorm {
 namespace job {
 
-class Config::TreeRoot : public output::FilterSource
-{
-    simparm::TreeRoot tree_root;
-    simparm::TreeObject name_object;
-    output::Config* my_config;
-    output::Capabilities cap;
-
-    std::string getName() const { return name_object.getName(); }
-    std::string getDesc() const { return name_object.getDesc(); }
-    void attach_ui( simparm::NodeHandle ) { throw std::logic_error("Not implemented on tree base"); }
-
-  public:
-    TreeRoot();
-    TreeRoot( const TreeRoot& other )
-    : output::FilterSource( other),
-      tree_root(other.tree_root),
-      name_object(other.name_object)
-    {
-        DEBUG("Copying output tree root");
-        this->set_output_factory( *other.my_config );
-        my_config = dynamic_cast<output::Config*>(getFactory());
-    }
-    ~TreeRoot() {
-        DEBUG("Destroying output tree root");
-    }
-
-    TreeRoot* clone() const { return new TreeRoot(*this); }
-    output::Config &root_factory() { return *my_config; }
-
-    void set_trace_capability( const input::Traits<output::LocalizedImage>& t ) {
-        cap.set_source_image( t.source_image_is_set );
-        cap.set_smoothed_image( t.smoothed_image_is_set );
-        cap.set_candidate_tree( t.candidate_tree_is_set );
-        cap.set_cluster_sources( ! t.source_traits.empty() );
-        this->set_source_capabilities( cap );
-    }
-
-    void attach_full_ui( simparm::NodeHandle at ) { 
-        simparm::NodeHandle n = tree_root.attach_ui(at);
-        simparm::NodeHandle r = name_object.attach_ui(n);
-        attach_children_ui( r ); 
-    }
-    void hide_in_tree() { name_object.show_in_tree = false; }
-};
-
-Config::TreeRoot::TreeRoot()
-: output::FilterSource(),
-  name_object("EngineOutput", "dSTORM engine output"),
-  cap( output::Capabilities()
-            .set_source_image()
-            .set_smoothed_image()
-            .set_candidate_tree()
-            .set_input_buffer() )
-{
-    DEBUG("Building output tree root node at " << 
-            &static_cast<Node&>(*this) );
-    {
-        output::Config exemplar;
-        DEBUG("Setting output factory from exemplar t  " << static_cast<output::SourceFactory*>(&exemplar) << " in config at " << &exemplar);
-        this->set_output_factory( exemplar );
-        DEBUG("Destructing exemplar config");
-    }
-    DEBUG("Setting source capabilities");
-    this->set_source_capabilities( cap );
-
-    DEBUG("Downcasting own config handle");
-    assert( getFactory() != NULL );
-    my_config = dynamic_cast<output::Config*>(getFactory());
-    assert( my_config != NULL );
-    DEBUG("Finished building output tree node");
-}
-
-Config::Config() 
+Config::Config( bool localization_replay_mode ) 
 : car_config("Car", "Job options"),
-  outputRoot( new TreeRoot() ),
-  outputSource(*outputRoot),
-  outputConfig(outputRoot->root_factory()),
-  helpMenu( "HelpMenu", "Help" ),
+  outputRoot( new OutputTreeRoot() ),
+  localization_replay_mode( localization_replay_mode ),
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Store config used in computation in", "-settings.txt"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
                  true),
-  pistonCount("CPUNumber", "Number of CPUs to use")
+  pistonCount("CPUNumber", "Number of CPUs to use", 1)
 {
     configTarget.set_user_level(simparm::Beginner);
     auto_terminate.set_user_level(simparm::Expert);
@@ -140,16 +66,17 @@ Config::Config()
     pistonCount = 8;
 #endif
 
-    add_modules( *this );
+    if ( localization_replay_mode )
+        add_stm_input_modules( *this );
+    else
+        add_image_input_modules( *this );
+    add_output_modules( *this );
     input->publish_meta_info();
 }
 
 Config::Config(const Config &c) 
 : car_config(c.car_config),
   outputRoot(c.outputRoot->clone()),
-  outputSource(*outputRoot),
-  outputConfig(outputRoot->root_factory()),
-  helpMenu( c.helpMenu ),
   outputBox(c.outputBox),
   configTarget(c.configTarget),
   auto_terminate(c.auto_terminate),
@@ -158,7 +85,6 @@ Config::Config(const Config &c)
     if ( c.input.get() )
         create_input( std::auto_ptr<input::Link>(c.input->clone()) );
     input->publish_meta_info();
-    DEBUG("Copied Car config");
 }
 
 Config::~Config() {
@@ -174,20 +100,19 @@ void Config::create_input( std::auto_ptr<input::Link> p ) {
 }
 
 simparm::NodeHandle Config::attach_ui( simparm::NodeHandle at ) {
-   DEBUG("Registering named entries of CarConfig with " << size() << " elements before registering");
    current_ui = car_config.attach_ui ( at );
    attach_children_ui( current_ui );
    return current_ui;
 }
 
 void Config::attach_children_ui( simparm::NodeHandle at ) {
-   input->registerNamedEntries( at );
-   pistonCount.attach_ui(  at  );
-   simparm::NodeHandle b = outputBox.attach_ui( at );
-   outputRoot->attach_full_ui( b );
-   configTarget.attach_ui( b );
-   auto_terminate.attach_ui(  at  );
-   DEBUG("Registered named entries of CarConfig with " << size() << " elements after registering");
+    input->registerNamedEntries( at );
+    if ( ! localization_replay_mode )
+        pistonCount.attach_ui(  at  );
+    simparm::NodeHandle b = outputBox.attach_ui( at );
+    outputRoot->attach_full_ui( b );
+    configTarget.attach_ui( b );
+    auto_terminate.attach_ui(  at  );
 }
 
 void Config::add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> finder) {
@@ -208,7 +133,7 @@ void Config::add_input( std::auto_ptr<input::Link> l, InsertionPlace p) {
 }
 
 void Config::add_output( std::auto_ptr<output::OutputSource> o ) {
-    outputConfig.addChoice( o.release() );
+    outputRoot->root_factory().addChoice( o.release() );
 }
 
 std::auto_ptr<input::BaseSource> Config::makeSource() const {
@@ -221,8 +146,8 @@ Config::get_meta_info() const {
 }
 
 void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
-    DEBUG("Basename declared in traits is " << traits->suggested_output_basename );
-    configTarget.set_output_file_basename( traits->suggested_output_basename );
+    if ( ! localization_replay_mode )
+        configTarget.set_output_file_basename( traits->suggested_output_basename );
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
     if ( traits->provides<output::LocalizedImage>() ) 
         outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );

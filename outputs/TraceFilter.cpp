@@ -164,7 +164,7 @@ void TraceCountFilter::receiveLocalizations(const EngineResult& e)
 
 TraceCountConfig::TraceCountConfig()
 : min_count("MinEmissionCount", 
-            "Minimum number of emissions per trace"),
+            "Minimum number of emissions per trace", 0),
   disassemble("Disassemble", "Delete trace information", false),
   selectSpecific("SelectSpecific", "Select trace by number", false),
   whichSpecific("WhichTrace", "Trace to select", 1)

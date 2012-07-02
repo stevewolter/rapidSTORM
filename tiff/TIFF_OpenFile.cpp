@@ -120,7 +120,7 @@ OpenFile::~OpenFile() {
 
 std::auto_ptr<input::BaseTraits> OpenFile::getTraits()
 {
-    simparm::Entry<long> unused("Foo", "Foo");
+    simparm::Entry<long> unused("Foo", "Foo", 0);
     return std::auto_ptr<input::BaseTraits>( getTraits(false, unused).release() );
 }
 

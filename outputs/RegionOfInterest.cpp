@@ -39,8 +39,8 @@ class ROIFilter : public dStorm::output::Filter
 class ROIFilter::Config 
 {
   public:
-    simparm::Entry< Eigen::Matrix< boost::units::quantity< boost::units::si::microlength, float >, 3, 1, Eigen::DontAlign > >
-        lower, upper;
+    typedef Eigen::Matrix< boost::units::quantity< boost::units::si::microlength, float >, 3, 1, Eigen::DontAlign > Border;
+    simparm::Entry< Border > lower, upper;
 
     Config();
 
@@ -95,8 +95,8 @@ void ROIFilter::receiveLocalizations(const EngineResult& e) {
 }
 
 ROIFilter::Config::Config() 
-: lower("LowerROIBorder", "Lower ROI border"),
-  upper("UpperROIBorder", "Upper ROI border")
+: lower("LowerROIBorder", "Lower ROI border", Border::Constant( 0 * si::micrometre )),
+  upper("UpperROIBorder", "Upper ROI border", Border::Constant( 0 * si::micrometre ))
 {
 }
 

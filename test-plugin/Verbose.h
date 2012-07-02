@@ -66,7 +66,7 @@ Verbose* Verbose::clone() const {
 }
 
 Verbose::Verbose( const Config& )
-: log("VerboseLog", "Verbose plugin log")
+: log("VerboseLog", "Verbose plugin log", "")
 {
 }
 

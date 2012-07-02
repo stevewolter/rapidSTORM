@@ -8,19 +8,16 @@ using namespace boost::units;
 
 Config::Config() 
 : name_object(getName(), "Grand unified fitter"),
-  theta_dist("ThetaDist", "Two-kernel distance threshold", 500 * boost::units::si::nanometre),
-  negligible_x_step("NegligibleStepLength", 
-        "Terminate at axial step length", 1E-2f * boost::units::si::nanometre),
-  marquardtStartLambda("MarquardtStartLambda",
-        "Start value for Marquardt lambda factor", 1E2),
-  maximumIterationSteps("MaximumIterationSteps",
-        "Maximum number of iteration steps for spot fitting", 20),
-  free_sigmas("FreeSigmaFitting", "PSF width is free fit parameter", false),
-  output_sigmas("OutputSigmas", "Store PSF width", false),
-  laempi_fit("LaempiPosition", "Laempi fit for positions", false),
-  disjoint_amplitudes("LaempiAmplitudes", "Disjoint amplitude fit", false),
-  two_kernel_fitting("TwoKernelFitting", "Compute two kernel improvement", false),
-  mle_fitting("MLEFitting", "Improve fit with ML estimate", false)
+  theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
+  negligible_x_step("NegligibleStepLength", 1E-2f * boost::units::si::nanometre),
+  marquardtStartLambda("MarquardtStartLambda", 1E2),
+  maximumIterationSteps("MaximumIterationSteps", 20),
+  free_sigmas("FreeSigmaFitting", false),
+  output_sigmas("OutputSigmas", false),
+  laempi_fit("LaempiPosition", false),
+  disjoint_amplitudes("LaempiAmplitudes", false),
+  two_kernel_fitting("TwoKernelFitting", false),
+  mle_fitting("MLEFitting", false)
 {
     free_sigmas.set_user_level( simparm::Intermediate );
     output_sigmas.set_user_level( simparm::Intermediate );

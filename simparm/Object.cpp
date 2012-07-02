@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "Node.h"
 #include "dummy_ui/fwd.h"
+#include "GUILabelTable.h"
 
 using namespace std;
 
@@ -9,6 +10,13 @@ namespace simparm {
 Object::Object(string name, string desc)
 : node_( dummy_ui::make_node() ), name(name), desc(desc), is_visible(true), user_level( Beginner )
 {
+}
+
+Object::Object(string name)
+: node_( dummy_ui::make_node() ), name(name), is_visible(true), user_level( Beginner )
+{
+    const GUILabelTable::Entry& e = GUILabelTable::get_singleton().get_entry( name );
+    desc = e.description;
 }
 
 Object::Object(const Object& o)

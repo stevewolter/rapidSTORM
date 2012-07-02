@@ -16,12 +16,12 @@ namespace engine {
 
 Config::Config()
 :   name_object("rapidSTORM", "rapidSTORM engine"),
-    nms("NonMaximumSuppression", "Minimum spot distance", PixelVector2D::Constant(3 * camera::pixel) ),
-    spotFindingMethod("SpotFindingMethod", "Spot finding method"),
+    nms("NonMaximumSuppression", PixelVector2D::Constant(3 * camera::pixel) ),
+    spotFindingMethod("SpotFindingMethod"),
     weights("SpotFindingWeights", "Spot finding weights"),
-    spotFittingMethod("SpotFittingMethod", "Spot fitting method"),
-    fit_judging_method("FitJudgingMethod", "Fit judging method"),
-    motivation("Motivation", "Spot search eagerness", 3)
+    spotFittingMethod("SpotFittingMethod"),
+    fit_judging_method("FitJudgingMethod"),
+    motivation("Motivation", 3)
 {
     DEBUG("Building dStorm Config");
 
@@ -31,7 +31,6 @@ Config::Config()
                         "bad candidates are found.");
     motivation.set_user_level(simparm::Intermediate);
 
-    spotFindingMethod.setHelpID( "#Smoother" );
     spotFindingMethod.set_user_level( simparm::Intermediate );
     spotFittingMethod.set_user_level( simparm::Beginner );
 

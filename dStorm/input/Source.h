@@ -1,4 +1,4 @@
-/** \file Source.h
+/** \file dStorm/input/Source.h
  *  This file contains the definition for the Source class. */
 #ifndef DSTORM_INPUT_SOURCE_H
 #define DSTORM_INPUT_SOURCE_H

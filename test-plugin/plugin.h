@@ -7,7 +7,8 @@
 namespace dStorm {
 namespace test {
 
-void make_config ( dStorm::Config* config );
+void input_modules ( dStorm::Config* config );
+void output_modules ( dStorm::Config* config );
 
 }
 }

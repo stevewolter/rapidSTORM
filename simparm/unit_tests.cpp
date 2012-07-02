@@ -14,7 +14,7 @@ namespace simparm {
 template class Entry< boost::optional<float> >;
 
 void test_opt_node() {
-    simparm::Entry< boost::optional<int> > optional_double("OptName", "OptDesc");
+    simparm::Entry< boost::optional<int> > optional_double("OptName", "OptDesc", boost::optional<int>() );
     
     BOOST_CHECK( ! optional_double().is_initialized() );
 
@@ -25,7 +25,7 @@ void test_opt_node() {
 
 void test_units() {
     simparm::Entry< boost::units::quantity<boost::units::si::length,float> >
-      meters("Name", "Desc");
+      meters("Name", "Desc", 0.0f * boost::units::si::meter);
 
     boost::units::quantity<boost::units::si::length,float> some_meters
       ( 1.0f * boost::units::si::metre );

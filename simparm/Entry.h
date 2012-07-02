@@ -33,8 +33,9 @@ private:
     Attribute< TypeOfEntry > increment;
     Attribute< bound_type > min, max;
 
-    Entry(string name, string desc = "",
-                const TypeOfEntry& value = TypeOfEntry());
+    Entry(string name, string desc,
+                const TypeOfEntry& value);
+    Entry(string name, const TypeOfEntry& value);
     Entry(const Entry<TypeOfEntry> &entry);
     ~Entry() ;
     Entry<TypeOfEntry>* clone() const

@@ -26,8 +26,8 @@ class Config
     simparm::Entry<unsigned long> spots, background;
 
     Config() 
-    : spots("SpotReconstructionMaskSize", "Erosion mask size", 3),
-      background("BackgroundDilationMaskSize", "Background dilation mask size", 25) {}
+    : spots("SpotReconstructionMaskSize", 3),
+      background("BackgroundDilationMaskSize", 25) {}
     void attach_ui( simparm::NodeHandle at ) {
         spots.attach_ui(at);
         background.attach_ui(at);

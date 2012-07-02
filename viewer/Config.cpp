@@ -7,7 +7,7 @@ namespace dStorm {
 namespace viewer {
 
 Config::Config()
-: showOutput("ShowOutput", "Display dSTORM result image"),
+: showOutput("ShowOutput", "Display dSTORM result image", false),
   outputFile("ToFile", "Save image to", ".png"),
   histogramPower("HistogramPower", "Extent of histogram normalization", 0.3),
   top_cutoff("IntensityCutoff", "Intensity cutoff", 1.0),
@@ -16,7 +16,7 @@ Config::Config()
   save_with_key("SaveWithKey", "Save output image with key", true),
   save_scale_bar("SaveScaleBar", "Save output image with scale bar", true),
   close_on_completion("CloseOnCompletion", 
-                      "Close display on job completion"),
+                      "Close display on job completion", false),
   scale_bar_length("ScaleBarLength", "Length of scale bar", 5 * boost::units::si::micrometer)
 {
     DEBUG("Building Viewer Config");

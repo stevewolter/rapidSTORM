@@ -17,9 +17,9 @@ else
 endif
 
 doc_DATA = $(GRAPHICS) manual.html $(PDF_TARGET)
-pkgdata_DATA = manual.zip alias.h
+pkgdata_DATA = manual.zip alias.h guilabels.csv
 
-manual.xml : $(CHAPTERS:=.xml)
+guilabels.csv manual.xml : $(CHAPTERS:=.xml)
 manual.fo : $(GRAPHICS) rapidstorm_fo.xsl titlepage.xsl bib4wbbt.xml
 manual.html : $(GRAPHICS) rapidstorm_html.xsl bib4wbbt.xml
 manual.hhp : rapidstorm_htmlhelp.xsl bib4wbbt.xml
@@ -52,6 +52,9 @@ htmlhelp-generated-stamp : manual.xml
 
 manual.xml : rapidstorm_pre.xsl
 	$(XSLTPROC) $(XSLT_FLAGS) --path .: --xinclude -o $@ $(srcdir)/rapidstorm_pre.xsl $(srcdir)/rapidstorm.xml
+
+guilabels.csv : rapidstorm_guilabels.xsl
+	$(XSLTPROC) $(XSLT_FLAGS) --path .: --xinclude -o $@ $< $(srcdir)/rapidstorm.xml
 
 manual.html : manual.xml
 	$(XSLTPROC) $(XSLT_FLAGS_HTML) -o $@ $(srcdir)/rapidstorm_html.xsl $<

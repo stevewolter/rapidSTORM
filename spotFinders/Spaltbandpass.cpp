@@ -15,8 +15,8 @@ struct Config {
     simparm::Entry< quantity<camera::length,int> > fg_mask, bg_mask;
     void attach_ui( simparm::NodeHandle at ) { fg_mask.attach_ui( at ); bg_mask.attach_ui( at ); }
     Config() 
-      : fg_mask("ForegroundMaskSize", "Foreground mask width", 5 * camera::pixel),
-        bg_mask("BackgroundMaskSize", "Background mask width", 15 * camera::pixel)
+      : fg_mask("ForegroundMaskSize", 5 * camera::pixel),
+        bg_mask("BackgroundMaskSize", 15 * camera::pixel)
     {
         fg_mask.set_user_level( simparm::Intermediate );
         bg_mask.set_user_level( simparm::Intermediate );

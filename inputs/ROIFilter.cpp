@@ -184,8 +184,8 @@ class ChainLink
 
 Config::Config() 
 : name_object(ChainLink::getName(), "Image selection filter"),
-  first_frame("FirstImage", "First image to load"),
-  last_frame( "LastImage", "Last image to load" )
+  first_frame("FirstImage", "First image to load", 0 * camera::frame),
+  last_frame( "LastImage", "Last image to load", boost::optional< frame_index >() )
 {
     first_frame.set_user_level( simparm::Intermediate );
     last_frame.set_user_level( simparm::Intermediate );

@@ -19,7 +19,7 @@ struct Config {
     simparm::Entry< Sigmas > sigma;
     void attach_ui( simparm::NodeHandle at ) { sigma.attach_ui( at ); }
     Config() 
-        : sigma("SmoothingSigma", "Smoothing kernel std.dev.", Sigmas::Constant(1.0 * camera::pixel)) {}
+        : sigma("SmoothingSigma", Sigmas::Constant(1.0 * camera::pixel)) {}
     static std::string get_name() { return "Gaussian"; }
     static std::string get_description() { return "Smooth with gaussian kernel"; }
 };

@@ -51,6 +51,7 @@ class ChoiceEntryBase
     Attribute< std::string > value;
 
     ChoiceEntryBase(string name, string desc);
+    ChoiceEntryBase(string name);
     ChoiceEntryBase(const ChoiceEntryBase& o);
     ~ChoiceEntryBase();
     ChoiceEntryBase& operator=
@@ -97,6 +98,7 @@ struct ChoiceEntry
 : public ChoiceEntryBase
 {
     ChoiceEntry(string name, string desc) : ChoiceEntryBase(name,desc) {}
+    ChoiceEntry(string name) : ChoiceEntryBase(name) {}
 
     const ChoiceType& operator ()() const 
         { return static_cast<const ChoiceType&>( get_entry(value()) ); }

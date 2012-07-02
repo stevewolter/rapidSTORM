@@ -12,6 +12,9 @@
 #include <simparm/Entry.h>
 #include <simparm/Message.h>
 #include <dStorm/output/BasenameAdjustedFileEntry.h>
+#include <boost/function/function1.hpp>
+
+#include "OutputTreeRoot.h"
 
 namespace dStorm {
 namespace output { class OutputSource; }
@@ -23,22 +26,22 @@ class Config : public dStorm::Config
 {
   private:
     friend class EngineChoice;
-    class TreeRoot;
-    class InputListener;
 
     simparm::Group car_config;
     simparm::NodeHandle current_ui;
 
-    std::auto_ptr<TreeRoot> outputRoot;
+    std::auto_ptr<OutputTreeRoot> outputRoot;
     std::auto_ptr<input::Link> input;
     input::Link::Connection input_listener;
+    bool localization_replay_mode;
+    simparm::Group outputBox;
 
     void traits_changed( boost::shared_ptr<const input::MetaInfo> );
     void create_input( std::auto_ptr<input::Link> );
     void attach_children_ui( simparm::NodeHandle at );
 
 public:
-    Config();
+    Config( bool localization_replay_mode );
     Config(const Config &c);
     ~Config();
     Config *clone() const { return new Config(*this); }
@@ -46,15 +49,12 @@ public:
     simparm::NodeHandle attach_ui( simparm::NodeHandle at );
     void send( simparm::Message& m ) { m.send( current_ui ); }
 
-    output::OutputSource& outputSource;
-    output::Config& outputConfig;
-
-    simparm::Menu helpMenu;
-    simparm::Group outputBox;
     output::BasenameAdjustedFileEntry configTarget;
     simparm::BoolEntry auto_terminate;
     /** Number of parallel computation threads to run. */
     simparm::Entry<unsigned long> pistonCount;
+
+    const output::OutputSource& output_tree() const { return *outputRoot; }
 
     void add_input( std::auto_ptr<input::Link>, InsertionPlace );
     void add_spot_finder( std::auto_ptr<engine::spot_finder::Factory> );

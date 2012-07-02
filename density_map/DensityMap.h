@@ -22,7 +22,7 @@ template <int Dim> struct Coordinates;
     *  \date   October 2008
     *  \sa dStorm::Viewer
     **/
-template <typename KeepUpdated, int Dim>
+template <typename Listener_, int Dim>
 class DensityMap 
     : public output::Output
 {
@@ -31,7 +31,7 @@ public:
     typedef Eigen::Array< boost::units::quantity<camera::length,int>, 
                             Dim, 1, Eigen::DontAlign > 
             Crop;
-    typedef typename density_map::Interpolator<Dim>::Ptr InterpolatorPtr;
+    typedef typename Interpolator<Dim>::Ptr InterpolatorPtr;
 
     static const Crop no_crop;
 private:
@@ -44,8 +44,8 @@ private:
         *  Used in set_resolution_enhancement. */
     std::auto_ptr<Announcement> announcement;
 
-    KeepUpdated* listener;
-    std::auto_ptr< density_map::Coordinates<Dim> > strategy;
+    Listener_* listener;
+    std::auto_ptr< Coordinates<Dim> > strategy;
     InterpolatorPtr binningInterpolator;
 
     void set_base_image_size();
@@ -57,8 +57,8 @@ public:
     /** @param crop Gives the amount of space to be cut from all
         *              image borders. */
     DensityMap(
-        KeepUpdated* listener,
-        std::auto_ptr< density_map::Coordinates<Dim> > strategy, 
+        Listener_* listener,
+        std::auto_ptr< Coordinates<Dim> > strategy, 
         InterpolatorPtr interpolator,
         Crop crop = no_crop);
     DensityMap(const DensityMap&);
@@ -77,7 +77,7 @@ public:
     /** Delete all localizations in this image and its listener. */
     void clear();
     
-    void set_listener( KeepUpdated* listener ) { this->listener = listener; }
+    void set_listener( Listener_* listener ) { this->listener = listener; }
     void write_density_matrix( std::ostream& );
 };
 

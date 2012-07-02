@@ -85,9 +85,9 @@ class Polynomial3DConfig : public Config {
     simparm::Entry<PSFSize> psf_size;
     typedef Eigen::Matrix< boost::units::quantity<boost::units::si::nanolength, double>, 2, 1, Eigen::DontAlign > ZPosition;
     simparm::Entry< ZPosition > z_position, z_range;
-    typedef simparm::Entry< 
-        Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
-                       polynomial_3d::Order, Eigen::DontAlign > > SlopeEntry;
+    typedef Eigen::Matrix< quantity<si::permicrolength>, Direction_2D, 
+                       polynomial_3d::Order, Eigen::DontAlign > Slopes;
+    typedef simparm::Entry< Slopes > SlopeEntry;
     SlopeEntry slopes;
 
     boost::shared_ptr<DepthInfo> make_traits( Direction dir ) const;
@@ -156,7 +156,7 @@ Polynomial3DConfig::Polynomial3DConfig()
   psf_size("PSF", "PSF FWHM at sharpest Z", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
   z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
   z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
-  slopes("WideningConstants", "Widening slopes")
+  slopes("WideningConstants", "Widening slopes", Slopes::Constant( quantity<si::permicrolength>(0.0 / si::metre) ) )
 {
     slopes.setHelpID( "Polynomial3D.WideningSlopes" );
     psf_size.setHelpID( "PSF.FWHM" );

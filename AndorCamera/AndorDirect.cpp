@@ -26,7 +26,7 @@ Source::Source
     (std::auto_ptr<CameraConnection> connection, bool show_live, LiveView::Resolution res )
 : connection(connection),
   has_ended(false), show_live(show_live), resolution(res),
-  status("CameraStatus", "Camera status")
+  status("CameraStatus", "Camera status", "")
 {
     status.freeze();
 

@@ -17,6 +17,10 @@
 #include "simparm/wx_ui/App.h"
 #include "installation-directory.h"
 #include <dStorm/GUIThread.h>
+#include <fstream>
+#include <simparm/GUILabelTable.h>
+#include <boost/filesystem/fstream.hpp>
+#include "config_file.h"
 
 #ifdef USE_GRAPHICSMAGICK
 #include <Magick++.h>
@@ -65,6 +69,11 @@ int main(int argc, char *argv[]) {
     wxFileSystem::AddHandler(new wxArchiveFSHandler);
     wxImage::AddHandler(new wxPNGHandler);
     start_imagemagick( argv[0] );
+
+    {
+        boost::filesystem::ifstream i( gui_label_file() );
+        simparm::GUILabelTable::get_singleton().read_csv_file( i );
+    }
 
     try {
         int success = parse_command_line( argc, argv );

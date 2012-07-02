@@ -11,6 +11,7 @@ namespace simparm {
 class Object {
   public:
     Object(std::string name, std::string desc);
+    Object(std::string name);
     Object( const Object& );
     ~Object();
 

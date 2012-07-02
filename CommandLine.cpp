@@ -23,6 +23,7 @@
 #include "ui/serialization/deserialize.h"
 #include "unit_tests.h"
 #include <boost/filesystem/path.hpp>
+#include "ModuleLoader.h"
 
 namespace dStorm {
 
@@ -50,7 +51,7 @@ int parse_command_line( int argc, char *argv[] ) {
     boost::shared_ptr< simparm::cmdline_ui::RootNode > argument_parser( new simparm::cmdline_ui::RootNode() );
     simparm::NodeHandle cmdline_ui = argument_parser;
 
-    std::auto_ptr< JobConfig > config_ptr( new job::Config() );
+    std::auto_ptr< JobConfig > config_ptr( new job::Config( false ) );
     JobConfig& config = *config_ptr;
     shell::JobFactory with_job_starter( config_ptr, cmdline_ui );
 
@@ -104,7 +105,7 @@ void TransmissionTreePrinter::attach_ui( simparm::NodeHandle n ) {
 
 void TransmissionTreePrinter::printTree()
 {
-    printNode( config.outputSource, 0 );
+    printNode( config.output_tree(), 0 );
 }
 
 void TransmissionTreePrinter::printNode( 

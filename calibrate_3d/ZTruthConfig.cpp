@@ -5,8 +5,8 @@ namespace dStorm {
 namespace calibrate_3d {
 
 ZTruthConfig::ZTruthConfig()
-: filter_("3DFilter", "Filter expression for usable spots"),
-  new_z_("CalibratedZ", "Expression for true Z value")
+: filter_("3DFilter", "Filter expression for usable spots", ""),
+  new_z_("CalibratedZ", "Expression for true Z value", "")
 {}
 
 bool ZTruthConfig::has_z_truth() const {

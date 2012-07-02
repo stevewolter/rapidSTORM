@@ -29,36 +29,68 @@
 
 namespace dStorm {
 
-void add_modules( dStorm::Config& car_config )
+void add_image_input_modules( dStorm::Config& car_config )
 {
-    DEBUG("Adding basic input modules");
-    dStorm::basic_inputs( &car_config );
-    DEBUG("Adding rapidSTORM engine");
+    car_config.add_input( make_engine_choice(), AsEngine );
+    car_config.add_input( make_input_base(), BeforeEngine );
+    car_config.add_input( make_insertion_place_link(AfterChannels), AfterChannels );
+    car_config.add_input( input::join::create_link(), AfterChannels );
+    car_config.add_input( make_insertion_place_link(BeforeChannels), BeforeChannels );
+    car_config.add_input( inputs::InputMethods::create(), BeforeChannels );
+    car_config.add_input( input::file_method::makeLink(), InputMethod );
+
+    car_config.add_input( ROIFilter::make_link(), BeforeChannels );
+    car_config.add_input( YMirror::makeLink(), BeforeChannels );
+
+    car_config.add_input( Splitter::makeLink(), BeforeEngine );
+    car_config.add_input( plane_filter::make_link(), BeforeEngine );
+    car_config.add_input( input_buffer::makeLink(), BeforeEngine );
+    car_config.add_input( basename_input_field::makeLink(), BeforeEngine );
+
+    car_config.add_input( BackgroundStddevEstimator::makeLink(), BeforeEngine );
+    car_config.add_input( input::sample_info::makeLink(), BeforeEngine );
+    car_config.add_input( input::resolution::makeLink(), BeforeEngine );
     car_config.add_input( engine::make_rapidSTORM_engine_link(), AsEngine );
-    car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
-    car_config.add_input( noop_engine::makeLink(), AsEngine );
-    DEBUG("Adding basic spot finders");
+    input_simulation::input_simulation( car_config );
+    dStorm::tiff::input_driver( car_config );
+    dStorm::andor_sif::augment_config( car_config );
+    AndorCamera::augment_config( car_config );
+
     car_config.add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( median_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( erosion_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( gauss_smoother::make_spot_finder_factory() );
     car_config.add_spot_finder( spaltbandpass_smoother::make_spot_finder_factory() );
-    DEBUG("Adding basic output modules");
+    guf::augment_config( car_config );
+    test::input_modules( &car_config );
+}
+
+void add_stm_input_modules( dStorm::Config& car_config )
+{
+    car_config.add_input( engine_stm::make_STM_engine_link(), AsEngine );
+    car_config.add_input( make_insertion_place_link(BeforeEngine), BeforeEngine );
+    car_config.add_input( input::file_method::makeLink(), BeforeEngine );
+
+    std::auto_ptr< input::Link > p = engine_stm::make_localization_buncher();
+    p->insert_new_node( inputs::LocalizationFile::create(), Anywhere );
+    car_config.add_input( p, dStorm::FileReader );
+
+    car_config.add_input( basename_input_field::makeLink(), BeforeEngine );
+}
+
+void add_output_modules( dStorm::Config& car_config )
+{
     dStorm::viewer::augment_config( car_config );
     dStorm::output::basic_outputs( &car_config );
-    dStorm::tiff::augment_config( car_config );
-    dStorm::andor_sif::augment_config( car_config );
+    dStorm::tiff::output_driver( car_config );
 
-    guf::augment_config( car_config );
     car_config.add_output( estimate_psf_form::make_output_source() );
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
-    AndorCamera::augment_config( car_config );
     car_config.add_output( kalman_filter::create() );
     car_config.add_output( kalman_filter::create_drift_correction() );
     car_config.add_output( ripley_k::make_output_source().release() );
-    input_simulation::input_simulation( car_config );
-    test::make_config( &car_config );
+    test::output_modules( &car_config );
 
 }
 

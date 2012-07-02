@@ -15,7 +15,7 @@ struct Config {
     static std::string get_name() { return "Erosion"; }
     static std::string get_description() { return "Erode image"; }
     Config() 
-        : mask_size("SmoothingMaskSize", "Smoothing mask width", 3 * camera::pixel) {}
+        : mask_size("SmoothingMaskSize", 3 * camera::pixel) {}
 
 };
 class SpotFinder : public engine::spot_finder::Base {

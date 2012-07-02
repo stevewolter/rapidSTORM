@@ -45,7 +45,7 @@ template <> struct BaseValue::apply< Power > { typedef boost::mpl::false_ type; 
 
 template <int Dimension, int Dimensions>
 struct SimpleFunction 
-: public nonlinfit::Bind< Expression, BaseValue >
+: public nonlinfit::Bind< static_power::Expression, BaseValue >
 {
     typedef nonlinfit::Evaluation<double,Dimensions> Derivatives;
     static_power::Expression* expression;

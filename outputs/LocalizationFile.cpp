@@ -80,7 +80,7 @@ class Output : public output::Output {
 
 Config::Config() 
 : outputFile("ToFile", "Write localizations to", ".txt"),
-  xyztI("XYZTI",   "Output only Malk fields (x,y,z,t,I)")
+  xyztI("XYZTI",   "Output only Malk fields (x,y,z,t,I)", false)
 {
     outputFile.setHelp(
         "If given, this parameters determines a file to which "

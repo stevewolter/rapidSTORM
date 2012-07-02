@@ -314,6 +314,7 @@ rapidstorm_SOURCES += \
     ModuleLoader.h ModuleLoader.cpp \
     shell/JobStarter.h shell/JobStarter.cpp \
     shell/JobFactory.h shell/JobMetaFactory.h \
+    shell/ReplayJob.h shell/ReplayJob.cpp \
     shell/Shell.cpp \
     InputStream.h InputStream.cpp \
     dStorm/GUIThread.h dStorm/GUIThread.cpp \
@@ -324,7 +325,8 @@ rapidstorm_SOURCES += \
     job/Config.h job/Config.cpp \
     job/Queue.h job/Queue.cpp \
     job/Run.h job/Run.cpp \
-    job/Control.h job/Control.cpp
+    job/Control.h job/Control.cpp \
+    job/OutputTreeRoot.h job/OutputTreeRoot.cpp
 
 rapidstorm_SOURCES += \
     dStorm/output/Config.h
@@ -723,6 +725,7 @@ rapidstorm_SOURCES += \
     simparm/BoostOptional.h \
     simparm/falls_below.hpp simparm/exceeds.hpp \
     simparm/is_numerical.hpp \
+    simparm/GUILabelTable.h simparm/GUILabelTable.cpp \
     simparm/unit_tests.h simparm/unit_tests.cpp
 
 rapidstorm_SOURCES += \

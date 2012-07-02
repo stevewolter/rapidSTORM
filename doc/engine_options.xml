@@ -12,36 +12,13 @@
    <title>rapidSTORM engine options</title>
 <glossary>
    <title/>
-<et:elem desc="Disable std. dev. estimation" topic="FixSigma">
-    <para>
-    This option disables the code that tries to estimate
-    the form of the point spread function. The user must provide
-    the standard deviation parameters (i.e., the entries of
-    the covariance matrix) in this case.</para>
-    <para>See also: <xref linkend="psf_model"/></para>
+<et:elem desc="Minimum spot distance" topic="NonMaximumSuppression">
 </et:elem>
-<et:elem desc="PSF width is free fit parameter" topic="FreeForm">
-    <para>Treat the covariance matrix entries as variables
-    in the fit process rather than as constants. The estimated
-    or fixed standard deviation parameters act as initial values
-    for the estimation when the free covariancce matrix is
-    selected.</para>
-    <para>See also: <xref linkend="psf_model"/></para>
+<et:elem desc="Fit judging method" topic="FitJudgingMethod">
 </et:elem>
-<et:elem desc="Threshold for relative spot asymmetry" 
-        topic="AsymmetryThreshold">
-<para>Minimum spot asymmetry result of 
-    <xref linkend="quadrant_differential_residue_analysis"/> that
-    forces <xref linkend="two_kernel_analysis"/>. Since the range
-    of spot asymmetries is [0..1], setting this parameter to
-    1 will disable quadrant-differential and two-kernel analysis
-    completely, greatly speedingup computation, and setting
-    the parameter to 0 will perform two-kernel analysis on all
-    spots, slowing computation and making false positives in
-    double-spot detection likely. Experiments suggest values from
-    0.15 to 0.4.</para>
+<et:elem desc="Spot fitting method" topic="SpotFittingMethod">
 </et:elem>
-<et:elem desc="Spot finding methods" topic="Smoother">
+<et:elem desc="Spot finding method" topic="SpotFindingMethod">
     <indexterm><primary>smoothing</primary></indexterm>
     Select a smoothing method to be employed before selecting
     local maximums as spot candidates. The standard method here is
@@ -56,14 +33,67 @@
     comparison, see <xref linkend="WolterDiplomarbeit"/>
     and <xref linkend="Wolter2010"/>.
 </et:elem>
-<et:elem desc="Amplitude discarding threshold" 
-        topic="AmplitudeThreshold">
-    <indexterm><primary>amplitude threshold</primary></indexterm>
+<et:elem desc="Spot search eagerness" topic="Motivation">
+</et:elem>
+<et:elem desc="PSF width is free fit parameter" topic="FreeForm">
+    <para>Treat the covariance matrix entries as variables
+    in the fit process rather than as constants. The estimated
+    or fixed standard deviation parameters act as initial values
+    for the estimation when the free covariancce matrix is
+    selected.</para>
+    <para>See also: <xref linkend="psf_model"/></para>
+</et:elem>
+<et:elem desc="Two-kernel distance threshold" topic="ThetaDist">
+</et:elem>
+<et:elem desc="Lateral epsilon" topic="NegligibleStepLength">
+</et:elem>
+<et:elem desc="Initial lambda factor" topic="MarquardtStartLambda">
+</et:elem>
+<et:elem desc="Fit iteration limit" topic="MaximumIterationSteps">
+</et:elem>
+<et:elem desc="PSF width is free fit parameter" topic="FreeSigmaFitting">
+</et:elem>
+<et:elem desc="Store PSF width" topic="OutputSigmas">
+</et:elem>
+<et:elem desc="Laempi fit for positions" topic="LaempiPosition">
+</et:elem>
+<et:elem desc="Disjoint amplitude fit" topic="LaempiAmplitudes">
+</et:elem>
+<et:elem desc="Compute two kernel improvement" topic="TwoKernelFitting">
+</et:elem>
+<et:elem desc="Improve fit with ML estimate" topic="MLEFitting">
+</et:elem>
+<et:elem desc="Fixed global threshold" topic="FixedThreshold">
+</et:elem>
+<et:elem desc="Intensity threshold" topic="AmplitudeThreshold">
     Minimum amplitude parameter of the fitted 
     <xref linkend="psf_model"/>
     necessary for a spot to be considered a localization.
     If the fitted position has an amplitude lower than this value,
     it is discarded as an artifact.
+</et:elem>
+<et:elem desc="Local relative threshold" topic="SquareRootRatio">
+</et:elem>
+<et:elem desc="Signal-to-noise ratio" topic="SNR">
+</et:elem>
+
+<et:elem desc="Fit window radius" topic="FitWindowSize">
+</et:elem>
+<et:elem desc="Allow disjoint fitting" topic="DisjointFitting">
+</et:elem>
+<et:elem desc="Use 64 bit floats" topic="DoublePrecision">
+</et:elem>
+<et:elem desc="Smoothing mask width" topic="SmoothingMaskSize">
+</et:elem>
+<et:elem desc="Smoothing kernel std.dev." topic="SmoothingSigma">
+</et:elem>
+<et:elem desc="Erosion mask size" topic="SpotReconstructionMaskSize">
+</et:elem>
+<et:elem desc="Background dilation mask size" topic="BackgroundDilationMaskSize">
+</et:elem>
+<et:elem desc="Background mask width" topic="BackgroundMaskSize">
+</et:elem>
+<et:elem desc="Foreground mask width" topic="ForegroundMaskSize">
 </et:elem>
 </glossary>
 </chapter>

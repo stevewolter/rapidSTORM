@@ -90,8 +90,8 @@ class TwoKernelImprovement : public source::LValue {
 
 SimpleFilters::SimpleFilters()
 : manager(NULL), 
-  lower_amplitude("LowerAmplitudeThreshold", "Minimum localization strength") ,
-  drift_correction("LinearDriftCorrection", "Linear drift correction"),
+  lower_amplitude("LowerAmplitudeThreshold", "Minimum localization strength", boost::optional< boost::units::quantity< boost::units::camera::intensity > >() ) ,
+  drift_correction("LinearDriftCorrection", "Linear drift correction", boost::optional< Eigen::Matrix< boost::units::quantity<ShiftSpeed,float>, 3, 1, Eigen::DontAlign> >() ),
   two_kernel_improvement("TwoKernelImprovement", "Maximum two kernel improvement", 1)
 {
     lower_amplitude.setHelpID( "ExpressionFilter_LowerAmplitudeThreshold" );

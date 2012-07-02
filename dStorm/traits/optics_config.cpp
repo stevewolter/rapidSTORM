@@ -26,8 +26,8 @@ PlaneConfig::PlaneConfig(int number, Purpose purpose)
                   "Input layer " + boost::lexical_cast<std::string>(number+1)),
   purpose(purpose),
   three_d("ThreeD", "3D PSF model"),
-  counts_per_photon( "CountsPerPhoton", "Camera response to photon" ),
-  dark_current( "DarkCurrent", "Dark intensity" ),
+  counts_per_photon( "CountsPerPhoton", "Camera response to photon", boost::optional< camera_response >() ),
+  dark_current( "DarkCurrent", "Dark intensity", boost::optional< boost::units::quantity<boost::units::camera::intensity, int > >() ),
   alignment( "Alignment", "Plane alignment" ),
   pixel_size("PixelSizeInNM", "Size of one input pixel",
                    PixelSize::Constant(107.0f * si::nanometre / camera::pixel))

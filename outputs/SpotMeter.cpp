@@ -66,7 +66,7 @@ public:
 
 SpotMeter::Config::Config()
 : outputFile("OutputFile", "Histogram target file"),
-  modulus("BinSize", "Size for histogram bins") 
+  modulus("BinSize", "Size for histogram bins", 1) 
 { 
     modulus.min = (1); 
 }

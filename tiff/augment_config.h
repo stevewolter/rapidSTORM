@@ -1,6 +1,7 @@
 namespace dStorm { 
     class Config;
     namespace tiff { 
-        void augment_config ( dStorm::Config& config ); 
+        void input_driver ( dStorm::Config& config ); 
+        void output_driver ( dStorm::Config& config ); 
     }
 }

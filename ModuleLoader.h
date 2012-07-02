@@ -5,7 +5,9 @@
 
 namespace dStorm {
 
-void add_modules( Config& );
+void add_output_modules( Config& );
+void add_image_input_modules( Config& );
+void add_stm_input_modules( Config& );
 
 }
 
