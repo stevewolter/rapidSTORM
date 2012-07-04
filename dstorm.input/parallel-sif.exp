@@ -12,8 +12,8 @@ set test "SIF files can be read in parallel"
 send "job_count\n"
 expect {
     -re "Unexpected end of file" { fail "$test"; }
-    -re "Current job count is 1\r*\n" { pass "$test"; }
-    -re "Current job count is " { sleep 1; send "job_count\n"; exp_continue; }
+    -re "Current job count is 0\r*\n" { pass "$test"; }
+    -re "Current job count is \[1-9\]" { sleep 1; send "job_count\n"; exp_continue; }
 }
 
 end_test_suite

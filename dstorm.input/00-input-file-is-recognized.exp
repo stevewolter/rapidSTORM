@@ -6,14 +6,10 @@ send "attach\n"
 set_input_file "foobar"
 set test "No method selected for non-existing file"
 expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value" ""
-set test "No engine selected for non-existing file"
-expect_value "in Car in Engine in value" ""
 
 set file "${workspace_target}Mikrotubuli.sif"
 set_input_file "$file"
 set test "SIF method selected for SIF file"
 expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value" "AndorSIF"
-set test "rapidSTORM engine selected for SIF file"
-expect_value "in Car in Engine in value" "rapidSTORM"
 
 end_test_suite

@@ -54,7 +54,6 @@ void InputStream::processCommands() {
         }
     }
     configs.clear();
-    GUIThread::get_singleton().join_this_thread();
 }
 
 InputStream::~InputStream() {

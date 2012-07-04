@@ -54,13 +54,20 @@ void GUIThread::join_this_thread() {
 
 void GUIThread::join_joinable_threads( boost::recursive_mutex::scoped_lock& lock ) {
     while ( ! joinable_threads.empty() ) {
-        boost::thread::id next_join = joinable_threads.front();
-        joinable_threads.pop();
-        boost::thread* thread = active_threads[ next_join ];
-        lock.unlock();
-        thread->join();
-        lock.lock();
-        active_threads.erase( next_join );
+        {
+            /* Careful handling of this ID is necessary. At least for 
+             * POSIX threads implementation, the ID keeps a handle on the
+             * thread open. */
+            boost::optional<boost::thread::id> next_join = joinable_threads.front();
+            joinable_threads.pop();
+            boost::thread* thread = active_threads[ *next_join ];
+            active_threads.erase( *next_join );
+            lock.unlock();
+            next_join.reset();
+            thread->join();
+            delete thread;
+            lock.lock();
+        }
     }
 }
 

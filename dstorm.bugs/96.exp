@@ -1,7 +1,7 @@
 begin_test_suite
+set_job_replay_mode
 clear_tmp_dir
 load_default_config
-set_job_replay_mode
 
 set test "Bug #96 fixed"
 set_input_file "${workspace_target}Mikrotubuli.txt"

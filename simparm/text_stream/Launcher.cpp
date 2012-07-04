@@ -2,6 +2,7 @@
 #include "InputStream.h"
 #include <dStorm/GUIThread.h>
 #include <boost/thread/thread.hpp>
+#include <dStorm/stack_realign.h>
 
 namespace simparm {
 namespace text_stream {
@@ -23,10 +24,17 @@ void Launcher::attach_ui( simparm::NodeHandle n )
 
 Launcher::~Launcher() {}
 
+DSTORM_REALIGN_STACK static void run_input_stream( boost::shared_ptr<dStorm::InputStream> is )
+{
+    is->processCommands();
+    is.reset();
+    dStorm::GUIThread::get_singleton().join_this_thread();
+}
+
 void Launcher::run_twiddler() {
     boost::shared_ptr< dStorm::InputStream > input_stream = dStorm::InputStream::create( config, wxWidgets );
     std::auto_ptr<boost::thread> simparm_thread(
-        new boost::thread(&dStorm::InputStream::processCommands, input_stream) );
+        new boost::thread(&run_input_stream, input_stream) );
     dStorm::GUIThread::get_singleton().wait_for_thread( simparm_thread );
 }
 

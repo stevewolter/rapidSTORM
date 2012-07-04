@@ -1,4 +1,5 @@
 start_test_suite
+set_job_replay_mode
 global test
 global have_test_plugin
 
@@ -8,8 +9,6 @@ set file "${testcase_target}complete_loc_file.stm"
 set_input_file "$file"
 set test "STM method selected for STM file"
 expect_value "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value" "STM"
-set test "Replay engine selected for STM file"
-expect_value "in Car in Engine in value" "LocalizationBuncher"
 
 if { $have_test_plugin == 1 } {
     send "in Car in Input in VerboseInput in BeVerbose in value set true\n"

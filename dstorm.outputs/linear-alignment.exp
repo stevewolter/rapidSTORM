@@ -2,11 +2,12 @@ start_test_suite
 set_job_replay_mode
 
 set_input_file "${workspace_target}Mikrotubuli.txt"
-set_last_image 75
-send "in Car in Output in EngineOutput set ChooseTransmission value set LinearAlignment\n"
-send "in Car in Output in EngineOutput in Output0 in LinearAlignment in AlignmentFile in value set ${testcase_target}simulated-two-color-3d-movie-alignment.txt\n"
-send "in Car in Output in EngineOutput in Output0 in LinearAlignment in ChooseTransmission in value set Table\n"
-send "in Car in Output in EngineOutput in Output0 in LinearAlignment in Output0 in Table in ToFile in value set ${tmpdir_target}linear-alignment.txt\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Expression\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in CommandLine0 in Expression in value set frame < 75 * fr\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in ChooseTransmission in value set LinearAlignment\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in LinearAlignment in AlignmentFile in value set ${testcase_target}simulated-two-color-3d-movie-alignment.txt\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in LinearAlignment in ChooseTransmission in value set Table\n"
+send "in Car in Output in EngineOutput in Output0 in Expression in Output0 in LinearAlignment in Output0 in Table in ToFile in value set ${tmpdir_target}linear-alignment.txt\n"
 
 dstorm_attach
 send "in Car in Run in value set 1\n"

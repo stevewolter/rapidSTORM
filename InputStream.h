@@ -6,7 +6,6 @@
 #include "shell/JobFactory.h"
 #include "shell/JobMetaFactory.h"
 #include <simparm/text_stream/Node.h>
-#include <dStorm/stack_realign.h>
 
 namespace dStorm {
 

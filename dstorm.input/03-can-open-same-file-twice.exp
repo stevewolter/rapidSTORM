@@ -1,5 +1,6 @@
-
 start_test_suite
+set_job_replay_mode
+
 send "attach\n"
 set file "${testcase_target}complete_loc_file.stm"
 set_input_file "$file"
