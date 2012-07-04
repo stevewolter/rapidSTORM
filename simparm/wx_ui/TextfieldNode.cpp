@@ -105,7 +105,7 @@ public:
         
         for (Texts::iterator i = texts.begin(); i != texts.end(); ++i) {
             (*i)->wxWindow::SetBackgroundColour( success ? normal_bg : uncommitted_bg );
-            (*i)->ClearBackground();
+            (*i)->Refresh();
         }
     }
 
