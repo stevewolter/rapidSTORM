@@ -1,6 +1,5 @@
 #include "Config.h"
 #include "ColourSchemeFactory.h"
-#include "debug.h"
 #include "colour_schemes/decl.h"
 
 namespace dStorm {
@@ -19,16 +18,14 @@ Config::Config()
                       "Close display on job completion", false),
   scale_bar_length("ScaleBarLength", "Length of scale bar", 5 * boost::units::si::micrometer)
 {
-    DEBUG("Building Viewer Config");
-
     outputFile.set_user_level(simparm::Beginner);
     scale_bar_length.set_user_level( simparm::Intermediate );
     showOutput.set_user_level(simparm::Beginner);
 
     histogramPower.min = (0);
     histogramPower.max = (1);
-    /* This level is reset in carStarted() */
-    histogramPower.set_user_level(simparm::Expert);
+    histogramPower.set_user_level(simparm::Beginner);
+
     top_cutoff.min = 0;
     top_cutoff.max = 1.0;
     top_cutoff.set_user_level( simparm::Expert );
@@ -50,8 +47,6 @@ Config::Config()
     colourScheme.setHelpID( "#Viewer_ColorScheme" );
     invert.setHelpID( "#Viewer_InvertColors" );
     top_cutoff.setHelpID( "#Viewer_TopCutoff" );
-
-    DEBUG("Built Viewer Config");
 }
 
 void Config::attach_ui( simparm::NodeHandle n ) {
