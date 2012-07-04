@@ -41,10 +41,10 @@ bool Attribute<Type>::set_value(const std::string& i ) {
     try {
         from_config_stream( stream, temp );
         if ( stream.peek() != EOF ) return false;
-        return valueChange( temp, true ); 
     } catch ( std::runtime_error ) {
         return false;
     }
+    return valueChange( temp, true ); 
 }
 
 }

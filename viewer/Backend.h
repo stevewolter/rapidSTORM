@@ -42,18 +42,11 @@ struct NoOpBackend : public Backend
     ~NoOpBackend() {}
     output::Output& getForwardOutput() { return o; }
 
-    std::auto_ptr<Backend> change_liveness( Status& ) 
-        { throw std::logic_error("Not implemented"); }
-
-    void save_image(std::string , const Config&) 
-        { throw std::logic_error("Not implemented"); }
-
-    void set_histogram_power(float) 
-        { throw std::logic_error("Not implemented"); }
-    void set_top_cutoff(float) 
-        { throw std::logic_error("Not implemented"); }
-    void set_job_name( const std::string& ) 
-        { throw std::logic_error("Not implemented"); }
+    std::auto_ptr<Backend> change_liveness( Status& ) { throw std::runtime_error("There is an error in your configuration, the display's liveness cannot be changed"); }
+    void save_image(std::string , const Config&) {}
+    void set_histogram_power(float) {}
+    void set_top_cutoff(float) {}
+    void set_job_name( const std::string& ) {}
 };
 
 }
