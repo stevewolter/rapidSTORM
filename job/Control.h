@@ -17,7 +17,6 @@ class Control
     mutable boost::mutex mutex;
     bool close_job, abort_job;
     simparm::TriggerEntry abortJob;
-    simparm::TriggerEntry closeJob;
     boost::condition allow_termination;
     int active_termination_blocks;
 

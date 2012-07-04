@@ -14,6 +14,14 @@ namespace wx_ui {
 
 namespace bl = boost::lambda;
 
+bool ScrolledWindow::Destroy() {
+    config.reset();
+    boost::shared_ptr< dStorm::Job > my_job = job.lock();
+    if ( my_job ) my_job->stop();
+    job.reset();
+    return true;
+}
+
 void ScrolledWindow::mark_fit_inside() { 
     needs_fit_inside = true; 
     run_in_GUI_thread( bl::bind( &ScrolledWindow::do_fit_inside, this ), 1 );

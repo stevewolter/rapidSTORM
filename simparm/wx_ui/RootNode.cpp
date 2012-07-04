@@ -100,8 +100,8 @@ class RootFrame
         CONTEXT_HELP, MANUAL,
         SAVE_CONFIG, 
         RAPIDSTORM_LOAD_CONFIG, RAPIDSTORM_MINIMAL, RAPIDSTORM_DEFAULT,
-        ALIGNMENT_MINIMAL,
-        REPLAY_MINIMAL
+        ALIGNMENT_MINIMAL, ALIGNMENT_LOAD_CONFIG,
+        REPLAY_MINIMAL, REPLAY_LOAD_CONFIG
     };
 
     void change_user_level( UserLevel l ) {
@@ -128,12 +128,16 @@ class RootFrame
         }
     }
 
-    void load_config(wxCommandEvent&) {
+    void load_config_rapidstorm(wxCommandEvent&) { load_config( *make_dstorm ); }
+    void load_config_alignment(wxCommandEvent&) { load_config( *make_alignment_fitter ); }
+    void load_config_replay(wxCommandEvent&) { load_config( *make_replay_job ); }
+
+    void load_config( const dStorm::shell::JobMetaFactory& f ) {
         wxFileDialog dialog(this, _("Choose config file"), wxT(""), wxT(""), wxT("*.txt"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
         int response = dialog.ShowModal();
         if ( response == wxID_OK ) {
             wxString file = dialog.GetPath();
-            manage_in_window( make_dstorm->create_config( std::string(file.mb_str()), main_window ) );
+            manage_in_window( f.create_config( std::string(file.mb_str()), main_window ) );
         }
     }
 
@@ -183,10 +187,12 @@ public:
 
         wxMenu* replay_job = new wxMenu();
         replay_job->Append( REPLAY_MINIMAL, _("Minimal") );
+        replay_job->Append( REPLAY_LOAD_CONFIG, _("From &file ...") );
         menu_new->AppendSubMenu( replay_job, _("&Replay") );
 
         wxMenu* alignment_fitter = new wxMenu();
         alignment_fitter->Append( ALIGNMENT_MINIMAL, _("Minimal") );
+        alignment_fitter->Append( ALIGNMENT_LOAD_CONFIG, _("From &file ...") );
         menu_new->AppendSubMenu( alignment_fitter, _("&Alignment fitter") );
 
         menu_new->AppendSeparator();
@@ -253,7 +259,9 @@ BEGIN_EVENT_TABLE(RootFrame, wxFrame)
     EVT_MENU(UL_EXPERT, RootFrame::user_level_expert)
     EVT_MENU(CONTEXT_HELP, RootFrame::context_help)
     EVT_MENU(MANUAL, RootFrame::show_manual)
-    EVT_MENU(RAPIDSTORM_LOAD_CONFIG, RootFrame::load_config)
+    EVT_MENU(RAPIDSTORM_LOAD_CONFIG, RootFrame::load_config_rapidstorm)
+    EVT_MENU(REPLAY_LOAD_CONFIG, RootFrame::load_config_replay)
+    EVT_MENU(ALIGNMENT_LOAD_CONFIG, RootFrame::load_config_alignment)
     EVT_MENU(SAVE_CONFIG, RootFrame::save_config)
     EVT_MENU(RAPIDSTORM_MINIMAL, RootFrame::make_rapidstorm_minimal)
     EVT_MENU(RAPIDSTORM_DEFAULT, RootFrame::make_rapidstorm_default)

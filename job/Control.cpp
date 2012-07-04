@@ -9,22 +9,17 @@ Control::Control( bool auto_terminate )
 : close_job( auto_terminate ),
   abort_job( false ),
   abortJob("StopComputation", "Stop computation"),
-  closeJob("CloseJob", "Close job"),
   active_termination_blocks(0)
 {
-    closeJob.setHelpID( "#CloseJob" );
     abortJob.setHelpID( "#StopEngine" );
 }
 
 void Control::registerNamedEntries( simparm::NodeHandle runtime_config )
 {
     abortJob.attach_ui( runtime_config );
-    closeJob.attach_ui( runtime_config );
 
     listening[0] = abortJob.value.notify_on_value_change( 
         boost::bind( &Control::do_abort_job, this ) );
-    listening[1] = closeJob.value.notify_on_value_change( 
-        boost::bind( &Control::do_close_job, this ) );
 }
 
 void Control::wait_until_termination_is_allowed()
@@ -36,7 +31,6 @@ void Control::wait_until_termination_is_allowed()
 
 void Control::stop() {
     boost::lock_guard<boost::mutex> lock( mutex );
-    closeJob.freeze();
     abortJob.freeze();
     close_job = true;
     abort_job = true;
@@ -70,19 +64,6 @@ void Control::set_current_run( boost::shared_ptr<Run> r ) {
     current_run = r;
     if ( r.get() && abort_job )
         r->interrupt();
-}
-
-void Control::do_close_job() {
-    if ( closeJob.triggered() ) {
-        closeJob.untrigger();
-        DEBUG("Job close button allows termination" );
-        boost::lock_guard<boost::mutex> lock( mutex );
-        closeJob.freeze();
-        close_job = true;
-        abort_job = true;
-        if ( current_run ) current_run->interrupt();
-        allow_termination.notify_all();
-    }
 }
 
 void Control::do_abort_job() {

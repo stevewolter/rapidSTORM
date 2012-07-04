@@ -40,7 +40,7 @@ Config::Config( bool localization_replay_mode )
   outputRoot( new OutputTreeRoot() ),
   localization_replay_mode( localization_replay_mode ),
   outputBox("Output", "Output options"),
-  configTarget("SaveConfigFile", "Store config used in computation in", "-settings.txt"),
+  configTarget("SaveConfigFile", "Job options file", "-settings.txt"),
   auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
                  true),
   pistonCount("CPUNumber", "Number of CPUs to use", 1)
@@ -77,6 +77,7 @@ Config::Config( bool localization_replay_mode )
 Config::Config(const Config &c) 
 : car_config(c.car_config),
   outputRoot(c.outputRoot->clone()),
+  localization_replay_mode(c.localization_replay_mode),
   outputBox(c.outputBox),
   configTarget(c.configTarget),
   auto_terminate(c.auto_terminate),
@@ -111,7 +112,8 @@ void Config::attach_children_ui( simparm::NodeHandle at ) {
         pistonCount.attach_ui(  at  );
     simparm::NodeHandle b = outputBox.attach_ui( at );
     outputRoot->attach_full_ui( b );
-    configTarget.attach_ui( b );
+    if ( ! localization_replay_mode )
+        configTarget.attach_ui( b );
     auto_terminate.attach_ui(  at  );
 }
 
@@ -148,6 +150,8 @@ Config::get_meta_info() const {
 void Config::traits_changed( boost::shared_ptr<const input::MetaInfo> traits ) {
     if ( ! localization_replay_mode )
         configTarget.set_output_file_basename( traits->suggested_output_basename );
+    else
+        configTarget.value = "";
     outputRoot->set_output_file_basename( traits->suggested_output_basename );
     if ( traits->provides<output::LocalizedImage>() ) 
         outputRoot->set_trace_capability( *traits->traits<output::LocalizedImage>() );

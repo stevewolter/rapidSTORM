@@ -12,12 +12,12 @@ namespace wx_ui {
 class ScrolledWindow : public wxScrolledWindow {
     bool needs_fit_inside;
     boost::shared_ptr< dStorm::shell::JobFactory > config;
-    boost::shared_ptr< dStorm::Job > job;
+    boost::weak_ptr< dStorm::Job > job;
 public:
     ScrolledWindow( wxWindow* parent )
         : wxScrolledWindow( parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL ),
           needs_fit_inside(false) {}
-    bool Destroy() { config.reset(); if ( job ) { job->stop(); job.reset(); } return true; }
+    bool Destroy();
     void mark_fit_inside();
     void do_fit_inside();
     void set_main_config( boost::shared_ptr< dStorm::shell::JobFactory > m ) { config = m; job.reset(); }
