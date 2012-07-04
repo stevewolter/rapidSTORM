@@ -135,7 +135,15 @@ TraceCountFilter::announceStormSize(const Announcement &a)
         selectSpecific.thaw();
     }
     processed_locs = 0;
-    AdditionalData rv = Filter::announceStormSize(a);
+    AdditionalData rv;
+    if ( disassemble ) {
+        Announcement announcement( a );
+        boost::shared_ptr< input::Traits<Localization> > children = a.source_traits[0];
+        static_cast< input::Traits<Localization>& >( announcement ) = *children;
+        rv = Filter::announceStormSize(announcement);
+    } else {
+        rv = Filter::announceStormSize(a);
+    }
     return rv.set_cluster_sources();
 }
 
