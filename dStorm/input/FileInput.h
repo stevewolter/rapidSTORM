@@ -82,9 +82,9 @@ class FileInput
     void registerNamedEntries( simparm::NodeHandle n ) 
         { static_cast<CRTP&>(*this).attach_ui(n); }
 
-    void republish_traits_locked() {
+    void reread_file_locked() {
         InputMutexGuard lock( global_mutex() );
-        republish_traits();
+        reread_file();
     }
 };
 

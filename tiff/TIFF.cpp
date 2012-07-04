@@ -99,10 +99,8 @@ public:
     ChainLink* clone() const { return new ChainLink(*this); }
     BaseSource* makeSource();
     void attach_ui( simparm::NodeHandle n ) { 
-        listening[0] = config.ignore_warnings.value.notify_on_value_change( 
-            boost::bind(&input::FileInput<ChainLink,OpenFile>::republish_traits_locked, this) );
         listening[1] = config.determine_length.value.notify_on_value_change( 
-            boost::bind(&input::FileInput<ChainLink,OpenFile>::republish_traits_locked, this) );
+            boost::bind(&input::FileInput<ChainLink,OpenFile>::reread_file_locked, this) );
         config.attach_ui(n); 
     }
 
