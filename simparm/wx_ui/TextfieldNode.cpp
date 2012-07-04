@@ -31,6 +31,19 @@ namespace bl = boost::lambda;
 
 class TextCtrl;
 
+class SingleTextField : public wxTextCtrl {
+    TextCtrl* parent;
+    void lost_focus( wxFocusEvent& ev ); 
+
+public:
+    SingleTextField( TextCtrl* parent, int id );
+    DECLARE_EVENT_TABLE();
+};
+
+BEGIN_EVENT_TABLE(SingleTextField, wxTextCtrl)
+EVT_KILL_FOCUS  (SingleTextField::lost_focus )
+END_EVENT_TABLE()
+
 class TextCtrl : public wxPanel {
     static const int ID_BASE = 500, ID_CHAIN = 499, ID_UNCHAIN = 498;
     typedef std::vector< wxTextCtrl* > Texts;
@@ -91,7 +104,7 @@ public:
         bool success = value->set_value( o.str() );
         
         for (Texts::iterator i = texts.begin(); i != texts.end(); ++i) {
-            (*i)->SetBackgroundColour( (success) ? normal_bg : uncommitted_bg );
+            (*i)->wxWindow::SetBackgroundColour( success ? normal_bg : uncommitted_bg );
             (*i)->ClearBackground();
         }
     }
@@ -148,6 +161,10 @@ public:
     }
 
     void make_file_drop_target();
+
+    void text_field_lost_focus( wxWindow* loser ) {
+        if ( chained || texts.size() == 1 ) commit_text();
+    }
 
     DECLARE_EVENT_TABLE();
 };
@@ -244,12 +261,12 @@ TextCtrl::TextCtrl( wxWindow* parent, boost::shared_ptr< BaseAttributeHandle > v
     uncommitted_bg( 255, 200, 200 ),
     rows(rows),
     columns( columns ),
-    chained( false )
+    chained( true )
 {
     texts.resize( rows * columns );
     for (Texts::iterator i = texts.begin(); i != texts.end(); ++i) {
-        *i = new wxTextCtrl( this, ID_BASE + (i - texts.begin()), wxT(""), 
-            wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        *i = new SingleTextField( this, ID_BASE + (i - texts.begin()));
+        (*i)->SetBackgroundStyle( wxBG_STYLE_COLOUR );
     }
 
     normal_bg = texts.front()->GetBackgroundColour();
@@ -268,7 +285,7 @@ TextCtrl::TextCtrl( wxWindow* parent, boost::shared_ptr< BaseAttributeHandle > v
     if ( rows > 1 || columns > 1 ) {
         chain = new wxBitmapButton( this, ID_CHAIN, set_background( wxBitmap(stock_hchain_24_broken) ) );
         unchain = new wxBitmapButton( this, ID_UNCHAIN, set_background( wxBitmap(stock_hchain_24) ) );
-        unchain->Hide();
+        chain->Hide();
     }
 
     wxBoxSizer* outer_sizer = new wxBoxSizer( wxHORIZONTAL );
@@ -284,6 +301,14 @@ void TextCtrl::make_file_drop_target() {
     for (Texts::iterator i = texts.begin(); i != texts.end(); ++i)
         (*i)->SetDropTarget( new DragAndDrop(this, *i) );
 }
+
+void SingleTextField::lost_focus( wxFocusEvent& ev ) {
+    SetSelection(0,0);
+    parent->text_field_lost_focus( this );
+}
+
+SingleTextField::SingleTextField( TextCtrl* parent, int id )
+: wxTextCtrl(parent, id, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER), parent(parent) {}
 
 }
 }
