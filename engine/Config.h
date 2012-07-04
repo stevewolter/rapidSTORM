@@ -50,7 +50,7 @@ namespace engine {
         /** The method to use for spot detection. */
         simparm::ManagedChoiceEntry<spot_finder::Factory> spotFindingMethod;
 
-        simparm::Group weights;
+        simparm::Object weights;
         boost::ptr_vector< simparm::Entry<float> > spot_finder_weights;
 
         /** The method to use for spot fitting. */
