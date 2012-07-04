@@ -38,9 +38,13 @@ template <typename Type>
 bool Attribute<Type>::set_value(const std::string& i ) { 
     std::stringstream stream(i);
     Type temp;
-    from_config_stream( stream, temp );
-    if ( stream.peek() != EOF ) return false;
-    return valueChange( temp, true ); 
+    try {
+        from_config_stream( stream, temp );
+        if ( stream.peek() != EOF ) return false;
+        return valueChange( temp, true ); 
+    } catch ( std::runtime_error ) {
+        return false;
+    }
 }
 
 }
