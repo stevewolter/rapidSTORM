@@ -16,6 +16,7 @@ public:
     WindowNode( boost::shared_ptr<Node> n, std::string name ) ;
     virtual void set_description( std::string d ) { window.name = d; }
     void initialization_finished();
+    boost::function0<void> get_relayout_function();
 
     void add_entry_line( LineSpecification& l ) { sizer.add_entry_line(l); }
     void add_full_width_line( WindowSpecification& w ) { sizer.add_full_width_line(w); }

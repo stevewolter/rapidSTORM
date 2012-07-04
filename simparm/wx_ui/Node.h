@@ -131,6 +131,8 @@ protected:
      * The function object must be called in the GUI thread. */
     typedef boost::function0<void> Relayout;
     virtual Relayout get_relayout_function() 
+        { return get_parent_relayout_function(); }
+    virtual Relayout get_parent_relayout_function() 
         { return parent->get_relayout_function(); }
     virtual void attach_context_help( boost::shared_ptr<Window> window, std::string context_help_id )
         { parent->attach_context_help( window, context_help_id ); }

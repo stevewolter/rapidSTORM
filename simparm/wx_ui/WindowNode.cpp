@@ -26,5 +26,12 @@ void WindowNode::initialization_finished() {
     InnerNode::add_full_width_line( window );
 }
 
+boost::function0<void> WindowNode::get_relayout_function() {
+    return boost::function0<void>((
+        bl::bind( sizer.relayout_function() ),
+        bl::bind( get_parent_relayout_function() )
+    ));
+}
+
 }
 }

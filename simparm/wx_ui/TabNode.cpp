@@ -66,7 +66,7 @@ NodeHandle TabNode::create_group( std::string name ) {
 boost::function0<void> TabNode::get_relayout_function() {
     return boost::function0<void>( ( 
         bl::bind( &wxNotebook::InvalidateBestSize, *bl::constant( notebook ) ),
-        bl::bind( InnerNode::get_relayout_function() )
+        bl::bind( get_parent_relayout_function() )
     ) );
 }
 
