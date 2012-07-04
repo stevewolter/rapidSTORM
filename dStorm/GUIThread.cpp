@@ -35,24 +35,40 @@ void GUIThread::terminate_running_jobs() {
 
 int GUIThread::count_jobs() {
     boost::lock_guard< boost::recursive_mutex > lock( mutex );
-    return job_count;
+    return active_jobs.size();
 }
 
-void GUIThread::register_unstopable_job() {
+void GUIThread::wait_for_thread( std::auto_ptr<boost::thread> t ) {
     boost::lock_guard< boost::recursive_mutex > lock( mutex );
-    ++job_count;
+    active_threads.insert( std::make_pair( t->get_id(), t.get() ) );
+    /* The thread is now implicitly managed by this class and will
+     * be deleted once unregister_thread() is called. */
+    t.release();
 }
 
-void GUIThread::unregister_unstopable_job() {
+void GUIThread::join_this_thread() {
     boost::lock_guard< boost::recursive_mutex > lock( mutex );
-    --job_count;
-    if ( job_count == 0 ) have_task.notify_all();
+    joinable_threads.push( boost::this_thread::get_id() );
+    have_task.notify_all();
+}
+
+void GUIThread::join_joinable_threads( boost::recursive_mutex::scoped_lock& lock ) {
+    while ( ! joinable_threads.empty() ) {
+        boost::thread::id next_join = joinable_threads.front();
+        joinable_threads.pop();
+        boost::thread* thread = active_threads[ next_join ];
+        lock.unlock();
+        thread->join();
+        lock.lock();
+        active_threads.erase( next_join );
+    }
 }
 
 void GUIThread::run_all_jobs() 
 {
     boost::recursive_mutex::scoped_lock lock( mutex );
-    while ( job_count > 0 ) {
+    while ( ! active_threads.empty() ) {
+        join_joinable_threads( lock );
         have_task.wait( lock );
     }
 }
@@ -68,7 +84,7 @@ void GUIThread::perform_wx_tasks() {
     if ( recursive ) return;
     while (true) {
         boost::recursive_mutex::scoped_lock lock( mutex );
-        if ( tasks.empty() ) { sequence_number = 0; return; }
+        if ( tasks.empty() ) { sequence_number = 0; break; }
         Task t = tasks.top();
         tasks.pop();
         lock.unlock();
@@ -82,10 +98,13 @@ void GUIThread::perform_wx_tasks() {
         }
         recursive = false;
     }
+
+    boost::recursive_mutex::scoped_lock lock( mutex );
+    join_joinable_threads( lock );
 }
 
 GUIThread::GUIThread() 
-: job_count(0), recursive(false), sequence_number(0)
+: recursive(false), sequence_number(0)
 {
 }
 

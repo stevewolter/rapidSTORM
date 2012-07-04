@@ -1,4 +1,5 @@
 begin_test_suite
+set_job_replay_mode
 global have_test_plugin
 global andorcam_spawn_id
 global dstorm_spawn_id

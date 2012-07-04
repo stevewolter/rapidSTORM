@@ -6,7 +6,7 @@ set_input_file "${testcase_target}HeLa-H2B.tif"
 send "in Car in Input set MultiChannel in Channels in Channel1 in InputMethod in FileMethod set FileType in TIFF set DetermineFileLength value set true\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set Progress\n"
 send "in Car in Output in EngineOutput set ChooseTransmission value set Count\n"
-send "in Car in Engine in value set Noop\n"
+send "in Car in Engine in rapidSTORM in Motivation in value set 0\n"
 dstorm_attach
 send "in Car set Run value set 1\n"
 

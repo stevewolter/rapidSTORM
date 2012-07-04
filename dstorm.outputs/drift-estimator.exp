@@ -6,6 +6,7 @@
 # For Z, the target efficiency is 50 / sqrt(25) = 10.
 
 begin_test_suite
+set_job_replay_mode
 set timeout 100
 
 set_input_file "${testcase_target}random-drift.txt"

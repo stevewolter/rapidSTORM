@@ -1,4 +1,5 @@
 start_test_suite
+set_job_replay_mode
 
 set test "New STM file format can be read"
 set_input_file "${testcase_target}new_stm_format-short.txt"

@@ -3,8 +3,10 @@
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition.hpp>
+#include <boost/thread/thread.hpp>
 #include <dStorm/Job.h>
 #include <queue>
+#include <map>
 #include <set>
 #include <boost/function/function0.hpp>
 
@@ -22,8 +24,8 @@ public:
 
     void register_job( Job& );
     void unregister_job( Job& );
-    void register_unstopable_job();
-    void unregister_unstopable_job();
+    void wait_for_thread( std::auto_ptr<boost::thread> );
+    void join_this_thread();
     void terminate_running_jobs();
     int count_jobs();
 
@@ -39,9 +41,13 @@ private:
     boost::condition have_task;
     std::priority_queue< Task > tasks;
     std::set<Job*> active_jobs;
-    int job_count;
+    std::map< boost::thread::id, boost::thread* > active_threads;
+    std::queue< boost::thread::id > joinable_threads;
+
     bool recursive;
     int sequence_number;
+
+    void join_joinable_threads( boost::recursive_mutex::scoped_lock& );
 
     GUIThread();
     ~GUIThread() {}

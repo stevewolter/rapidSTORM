@@ -1,4 +1,5 @@
 begin_test_suite
+set_job_replay_mode
 
 set test "#197 implementation throws no errors"
 set_input_file "${testcase_target}Cos7_WF_mit_Astigmatismus_Small_Alexa647phal_8.txt"

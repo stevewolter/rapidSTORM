@@ -15,12 +15,13 @@ class InputStream
 {
     class Backend;
 
-    shell::JobMetaFactory rapidstorm, alignment_fitter;
+    shell::JobMetaFactory rapidstorm, alignment_fitter, replay_job;
     boost::ptr_vector< shell::JobFactory > configs;
     Backend* const root_backend;
 
     void reset_config();
     void create_alignment_fitter();
+    void create_replay_job();
     void processCommand( const std::string& cmd, std::istream& rest);
     InputStream( const JobConfig&, bool wxWidgets );
     bool received_quit_command();

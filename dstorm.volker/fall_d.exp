@@ -1,4 +1,5 @@
 begin_test_suite
+set_job_replay_mode
 clear_tmp_dir
 load_default_config
 dstorm_attach

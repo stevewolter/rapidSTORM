@@ -1,5 +1,3 @@
-#include "debug.h"
-
 #include "JobStarter.h"
 #include "job/Car.h"
 #include <simparm/Message.h>
@@ -25,34 +23,27 @@ void JobStarter::attach_ui( simparm::NodeHandle n ) {
 }
 
 void JobStarter::run_job( boost::shared_ptr<Job> car ) {
-    DEBUG("Running job " << car.get());
     car->run();
-    DEBUG("Cleaning up job " << car.get());
     GUIThread::get_singleton().unregister_job( *car );
     car.reset();
-    GUIThread::get_singleton().unregister_unstopable_job();
-    DEBUG("Finished job");
+    GUIThread::get_singleton().join_this_thread();
 }
 
 void JobStarter::start_job() {
     if ( triggered() ) {
       untrigger();
         try {
-            DEBUG("Creating job");
             boost::shared_ptr< Job > car( config.make_job() );
             simparm::NodeHandle ui = car->attach_ui( attachment_point );
             ui->stop_job_on_ui_detachment( car );
-            GUIThread::get_singleton().register_unstopable_job();
             GUIThread::get_singleton().register_job( *car );
-            boost::thread job_thread( &JobStarter::run_job, car );
-            job_thread.detach();
-            DEBUG("Job moved to background");
+            std::auto_ptr< boost::thread > job_thread
+                ( new boost::thread( &JobStarter::run_job, car ) );
+            GUIThread::get_singleton().wait_for_thread( job_thread );
         } catch ( const std::runtime_error& e ) {
             simparm::Message m("Starting job failed", e.what() );
-            DEBUG("Got normal exception");
             m.send( attachment_point );
         }
-        DEBUG("Finished handling job start");
     }
 }
 

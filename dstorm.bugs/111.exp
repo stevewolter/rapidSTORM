@@ -1,4 +1,5 @@
 start_test_suite
+set_job_replay_mode
 
 set_input_file "${testcase_target}tracking-test.txt"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"

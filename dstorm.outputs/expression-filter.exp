@@ -1,4 +1,5 @@
 begin_test_suite
+set_job_replay_mode
 
 set timeout 1800
 send "in Car in AutoTerminate in value set false\n"

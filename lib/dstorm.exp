@@ -197,8 +197,7 @@ proc wait_for_jobs { } {
 
     set timeout 5
     expect {
-        -i $dcd -re "Current job count is 1\r*\n" { }
-        -i $dcd -re "Current job count is 0" { fail "$test"; }
+        -i $dcd -re "Current job count is 0\r*\n" { }
         -i $dcd -re "remove dStormJob" { send "job_count\n"; exp_continue; }
         timeout { send "job_count\n"; exp_continue; }
     }
@@ -207,6 +206,8 @@ proc wait_for_jobs { } {
 }
 
 proc begin_test_suite {} {
+    global replay_mode
+    set replay_mode 0
 }
 proc start_test_suite {} { begin_test_suite }
 proc end_test_suite {} { 
@@ -221,9 +222,14 @@ proc end_test_suite {} {
 }
 
 proc load_config_file { config_file } {
+    global replay_mode
     set filestream [open "$config_file" r]
     while {[gets $filestream line] >= 0} {
-        send "in Car $line\n"
+        if { [expr $replay_mode == 1] && [expr ( [string first "in Optics in" "$line"] + [string first "in Engine in" "$line"] ) > -2] } {
+            # Do nothing, this line does not apply in replay mode
+        } else {
+            send "in Car $line\n"
+        }
     }
     close $filestream
 }
@@ -351,4 +357,10 @@ proc get_localization_count { job } {
         -re "remove $job" {}
     }
     return $count
+}
+
+proc set_job_replay_mode {} {
+    global replay_mode
+    set replay_mode 1
+    send "replay_job\n"
 }

@@ -8,6 +8,7 @@
 #include "test-plugin/cpu_time.h"
 #include "dStorm/GUIThread.h"
 #include "alignment_fitter.h"
+#include "shell/ReplayJob.h"
 
 #include <simparm/text_stream/BackendRoot.h>
 #include <ui/serialization/serialize.h>
@@ -26,9 +27,9 @@ InputStream::InputStream( const JobConfig& config, bool wxWidgets )
 : simparm::text_stream::Node("IO", "IO"),
   rapidstorm( std::auto_ptr<JobConfig>(config.clone()) ),
   alignment_fitter( make_alignment_fitter_config() ),
+  replay_job( shell::make_replay_job() ),
   root_backend( new Backend(*this, wxWidgets) )
 {
-    GUIThread::get_singleton().register_unstopable_job();
     set_backend_node( std::auto_ptr<simparm::text_stream::BackendNode>(root_backend) );
 }
 
@@ -53,10 +54,10 @@ void InputStream::processCommands() {
         }
     }
     configs.clear();
+    GUIThread::get_singleton().join_this_thread();
 }
 
 InputStream::~InputStream() {
-    GUIThread::get_singleton().unregister_unstopable_job();
 }
 
 void InputStream::reset_config() {
@@ -66,6 +67,11 @@ void InputStream::reset_config() {
 
 void InputStream::create_alignment_fitter() {
     configs.push_back( alignment_fitter.create_config( get_handle() ) );
+}
+
+void InputStream::create_replay_job() {
+    configs.clear();
+    configs.push_back( replay_job.create_config( get_handle() ) );
 }
 
 void InputStream::Backend::process_command_(const std::string& cmd, std::istream& rest)
@@ -86,6 +92,8 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
         frontend.reset_config();
     } else if ( cmd == "alignment_fitter" ) {
         frontend.create_alignment_fitter();
+    } else if ( cmd == "replay_job" ) {
+        frontend.create_replay_job();
     } else if ( cmd == "quit" ) {
         GUIThread::get_singleton().terminate_running_jobs();
         BackendRoot::process_command_(cmd,rest);

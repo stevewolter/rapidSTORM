@@ -1,5 +1,6 @@
 #include "Launcher.h"
 #include "InputStream.h"
+#include <dStorm/GUIThread.h>
 #include <boost/thread/thread.hpp>
 
 namespace simparm {
@@ -24,8 +25,9 @@ Launcher::~Launcher() {}
 
 void Launcher::run_twiddler() {
     boost::shared_ptr< dStorm::InputStream > input_stream = dStorm::InputStream::create( config, wxWidgets );
-    boost::thread thread( &dStorm::InputStream::processCommands, input_stream );
-    thread.detach();
+    std::auto_ptr<boost::thread> simparm_thread(
+        new boost::thread(&dStorm::InputStream::processCommands, input_stream) );
+    dStorm::GUIThread::get_singleton().wait_for_thread( simparm_thread );
 }
 
 }

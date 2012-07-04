@@ -8,8 +8,6 @@
 #include <unistd.h>
 #endif
 
-#include "debug.h"
-
 #include <boost/foreach.hpp>
 #include <simparm/Message.h>
 #include "Window.h"
@@ -85,12 +83,8 @@ void MainThread::dispatch_events() {
 #elif HAVE_WINDOWS_H
         Sleep(100);
 #endif
-        DEBUG("Getting mutex for event loop");
-        DEBUG("Got mutex for event loop");
     }
-    DEBUG("Event loop ended, heeding last save requests");
     heed_requests();
-    DEBUG("Finished event loop");
 }
 
 MainThread::MainThread()
@@ -111,9 +105,7 @@ MainThread::~MainThread()
 
 void MainThread::Handle::store_current_display( dStorm::display::SaveRequest s )
 {
-    DEBUG("Got store request to " << s.filename);
     m.request_action( boost::bind( &Window::save_window, window, s ) );
-    DEBUG("Saved store request");
 }
 
 void MainThread::attach_ui( simparm::NodeHandle at )

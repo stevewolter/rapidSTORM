@@ -23,6 +23,7 @@ send "in $job in Output0 in Output0 in DimensionSelector in ThreeDImage in value
 expect {
     -re "Could not perform action: lower and upper bound" { pass "$test"; }
     -re "logic_error" { fail "$test"; }
+    -re "in Progress in value" { exp_continue; }
 }
 
 end_test_suite
