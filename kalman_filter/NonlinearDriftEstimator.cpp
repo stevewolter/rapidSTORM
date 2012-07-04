@@ -268,7 +268,8 @@ public:
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
-        traits = a;
+        if ( a.source_traits.size() < 1 || a.source_traits[0].get() )
+            traits = *a.source_traits[0];
         return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {
