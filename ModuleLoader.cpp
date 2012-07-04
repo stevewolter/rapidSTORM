@@ -31,7 +31,8 @@ namespace dStorm {
 
 void add_image_input_modules( dStorm::Config& car_config )
 {
-    car_config.add_input( make_engine_choice(), AsEngine );
+    car_config.add_input( engine::make_rapidSTORM_engine_link(), AsEngine );
+
     car_config.add_input( make_input_base(), BeforeEngine );
     car_config.add_input( make_insertion_place_link(AfterChannels), AfterChannels );
     car_config.add_input( input::join::create_link(), AfterChannels );
@@ -47,10 +48,8 @@ void add_image_input_modules( dStorm::Config& car_config )
     car_config.add_input( input_buffer::makeLink(), BeforeEngine );
     car_config.add_input( basename_input_field::makeLink(), BeforeEngine );
 
-    car_config.add_input( BackgroundStddevEstimator::makeLink(), BeforeEngine );
     car_config.add_input( input::sample_info::makeLink(), BeforeEngine );
     car_config.add_input( input::resolution::makeLink(), BeforeEngine );
-    car_config.add_input( engine::make_rapidSTORM_engine_link(), AsEngine );
     input_simulation::input_simulation( car_config );
     dStorm::tiff::input_driver( car_config );
     dStorm::andor_sif::augment_config( car_config );
