@@ -73,7 +73,7 @@ expect {
 }
 
 set test "Job can be closed"
-send "in $job in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
     -re "in NonzeroCount in value set (\[0-9\]*)\r*\n"
         { set pixels $expect_out(1,string); exp_continue; }

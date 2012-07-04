@@ -26,9 +26,6 @@ expect {
     -re "in $normaljob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
 sleep 1
-set test "Normal job can be closed"
-send "in $normaljob in CloseJob in value set 1\n"
-expect -re "remove $normaljob" { pass "$test"; }
 
 set test "Mirrored job finishes"
 send "in $mirrorjob in Output1 in Progress in value query\n"
@@ -39,9 +36,7 @@ expect {
     -re "in $mirrorjob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
 sleep 1
-set test "Mirrored job can be closed"
-send "in $mirrorjob in CloseJob in value set 1\n"
-expect -re "remove $mirrorjob" { pass "$test"; }
+send "terminate_jobs\n"
 
 set test "Mirrored job produced expected output file"
 set tries 0

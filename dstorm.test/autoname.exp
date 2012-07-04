@@ -73,10 +73,9 @@ expect {
     -i $acd -re "in ActualTemperature in value set" { exp_continue; }
 }
 expect {
-    -i $dcd -re "in dStormJob$current_job declare TriggerEntry\r*\nname CloseJob" {}
+    -i $dcd -re "in dStormJob$current_job declare TriggerEntry\r*\nname StopComputation" {}
     -i $acd -re "in ActualTemperature in value set" { exp_continue; }
 }
-send "in dStormJob$current_job in CloseJob in value set 1\n"
 set current_job [expr $current_job+1]
 wait_for_jobs
 

@@ -17,6 +17,5 @@ set timeout -1
 expect {
     -re "in LocalizationCount in value set \[1-9\]\[0-9\]\[0-9\]\[0-9\]" { pass "$test"; }
 }
-send "in $job in CloseJob in value set 1\n"
 
 end_test_suite

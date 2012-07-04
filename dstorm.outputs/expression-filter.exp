@@ -69,7 +69,7 @@ expect {
     -re "Cannot assign a quantity with dimension fr to a variable with dimension m" { pass "$test" }
 }
 set test "Job can be closed"
-send "in $job in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
     -re "remove $job" { pass "$test" }
 }
@@ -88,7 +88,7 @@ expect {
 }
 
 set test "Job can be closed"
-send "in $job in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
     -re "remove $job" { pass "$test" }
 }
@@ -106,7 +106,7 @@ expect {
     -re "declare Set\r*\nname (dStormJob\[0-9\]*)" { set job $expect_out(1,string); exp_continue; }
     -re "in Progress in value set 0.1" { pass "$test" }
 }
-send "in $job in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 
 set test "X uncertainty marked as given when assigned to"
 pass_if { [catch { exec -- grep -q "field identifier=\"Position-0-0-uncertainty\"" "${tmpdir_host}expression-filter-x-position.txt" } output] == 0 } "$test"

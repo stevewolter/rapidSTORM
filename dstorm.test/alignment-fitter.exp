@@ -56,10 +56,4 @@ check_value "ScaleY"  1.0048 0.001
 check_value "ShearX" -0.0056 0.001
 check_value "ShearY"  0.0063 0.001
 
-set test "Job can be closed"
-send "in $job in CloseJob in value set 1\n"
-expect {
-    -re "remove $job" { pass "$test"; }
-}
-
 end_test_suite

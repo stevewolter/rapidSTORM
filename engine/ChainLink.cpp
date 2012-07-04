@@ -26,6 +26,7 @@ class ChainLink
 
     std::auto_ptr< scoped_connection > finder_con, fitter_con;
     Config config;
+    simparm::Object engine_node;
     simparm::BaseAttribute::ConnectionStore listening[4];
 
     void notice_traits( const MetaInfo&, const Traits< ImageStack >& traits ) {
@@ -78,7 +79,7 @@ class ChainLink
     ChainLink(const ChainLink&);
     ~ChainLink() {}
 
-    static std::string getName() { return "rapidSTORM"; }
+    static std::string getName() { return "Engine"; }
     void attach_ui( simparm::NodeHandle at ) { 
         listening[2] = config.fit_judging_method.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
@@ -86,7 +87,8 @@ class ChainLink
             boost::bind( &ChainLink::republish_traits_locked, this ) );
         listening[3] = config.spotFindingMethod.value.notify_on_value_change( 
             boost::bind( &ChainLink::republish_traits_locked, this ) );
-        config.attach_ui( at ); 
+        simparm::NodeHandle a = engine_node.attach_ui(at);
+        config.attach_ui( a ); 
     }
 
     void add_spot_finder( const spot_finder::Factory& finder) 
@@ -100,12 +102,14 @@ class ChainLink
 };
 
 ChainLink::ChainLink() 
+: engine_node("Engine", "")
 {
 }
 
 ChainLink::ChainLink(const ChainLink& c)
 : Method<ChainLink>(c),
-  config(c.config)
+  config(c.config),
+  engine_node("Engine", "")
 {
     for ( simparm::ManagedChoiceEntry< spot_fitter::Factory >::iterator 
             i = config.spotFittingMethod.begin(); 

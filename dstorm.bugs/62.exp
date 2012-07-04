@@ -37,9 +37,9 @@ expect {
 }
 set timeout -1
 set test "Run terminates"
-send "in $job_name in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
-    -re "remove dStormJob" { pass "$test" }
+    -re "remove $job_name" { pass "$test" }
 }
 
 set test "Run starts again"
@@ -55,9 +55,9 @@ expect {
 }
 set timeout 2
 set test "Run terminates again"
-send "in $job_name in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
-    -re "remove dStormJob" { pass "$test" }
+    -re "remove $job_name" { pass "$test" }
 }
 
 end_test_suite

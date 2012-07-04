@@ -34,7 +34,7 @@ expect {
     -re "in Progress in value set 0" { exp_continue; }
 }
 set test "Andre job 1 can be closed"
-send "in $job in CloseJob in value set 1\n"
+send "terminate_jobs\n"
 expect {
     -re "in $job in.*in Progress in value set 1" { fail "$test"; }
     -re "remove $job" { pass "$test"; }

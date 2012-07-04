@@ -29,7 +29,7 @@ if { $job != "" } {
     }
     set timeout 10
     if { $stopped == 0 } {
-        send "in $job in CloseJob in value set 1\n"
+        send "terminate_jobs\n"
         expect {
             -re "\nremove $job" { pass "$test" }
         }
