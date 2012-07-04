@@ -163,7 +163,7 @@ public:
     void make_file_drop_target();
 
     void text_field_lost_focus( wxWindow* loser ) {
-        if ( chained || texts.size() == 1 ) commit_text();
+        if ( chained || loser == texts.back() ) commit_text();
     }
 
     DECLARE_EVENT_TABLE();
