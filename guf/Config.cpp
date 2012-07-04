@@ -7,7 +7,7 @@ namespace guf {
 using namespace boost::units;
 
 Config::Config() 
-: name_object(getName(), "Grand unified fitter"),
+: name_object(getName(), "Levenberg-Marquardt Fitter"),
   theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 1E-2f * boost::units::si::nanometre),
   marquardtStartLambda("MarquardtStartLambda", 1E2),
