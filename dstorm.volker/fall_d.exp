@@ -62,10 +62,7 @@ foreach suffix [list "2.txt"] {
 }
 
 set test "Output JPG image exists"
-if { [ file exists "${tmpdir_host}Mikrotubuli.png" ] } {
-    xpass "$test"
-} else {
-    xfail "$test"
-}
+wait_for_file "${tmpdir_host}Mikrotubuli.png"
+xpass_if [ file exists "${tmpdir_host}Mikrotubuli.png" ] "$test"
 
 end_test_suite

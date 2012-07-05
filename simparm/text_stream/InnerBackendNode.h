@@ -15,7 +15,7 @@ struct InnerBackendNode : public BackendNode {
     boost::shared_ptr<BackendNode> parent;
     bool declared;
 
-    FrontendNode& frontend;
+    FrontendNode* frontend;
     boost::recursive_mutex* tree_mutex;
 
     std::ostream* get_print_stream();
@@ -29,6 +29,7 @@ struct InnerBackendNode : public BackendNode {
     void declare( std::ostream& o );
     std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
+    void detach_frontend_();
 
 public:
     InnerBackendNode( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );

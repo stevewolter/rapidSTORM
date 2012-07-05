@@ -25,6 +25,8 @@ expect {
     -re "severity set Warning" { exp_continue; }
 }
 
+wait_for_file "${tmpdir_host}74.png"
+
 set test "Colour is correctly inverted as in #74"
 if { [exec identify -verbose "${tmpdir_host}74.png" | grep "Type: "] == "  Type: Grayscale" } {
     fail "$test"

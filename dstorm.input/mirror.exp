@@ -25,7 +25,6 @@ expect {
     -re "in $normaljob \[^\n\]* in Progress in value set " { exp_continue; }
     -re "in $normaljob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
-sleep 1
 
 set test "Mirrored job finishes"
 send "in $mirrorjob in Output1 in Progress in value query\n"
@@ -35,22 +34,11 @@ expect {
     -re "in $mirrorjob \[^\n\]* in Progress in value set " { exp_continue; }
     -re "in $mirrorjob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
-sleep 1
+wait_for_file "$tmpdir_host$mirror_prefix.png"
 send "terminate_jobs\n"
 
 set test "Mirrored job produced expected output file"
-set tries 0
-set pass 0
-while { $tries < 5 } {
-    if { [ file exists "$tmpdir_host$mirror_prefix.png" ] } {
-        pass "$test"
-        set pass 1
-        break
-    } else {
-        set tries [expr $tries + 1]
-    }
-}
-if { $pass == 0 } { fail "$test" }
+pass_if [file exists "$tmpdir_host$mirror_prefix.png"] "$test"
 
 set unmirror_prefix "remirrored"
 exec convert "$tmpdir_host$mirror_prefix.png" "-flip" "$tmpdir_host$unmirror_prefix.png"

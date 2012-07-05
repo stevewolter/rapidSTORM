@@ -19,22 +19,29 @@ expect {
     -re "in Progress in value set 0" { exp_continue; }
 }
 
-spawn identify -verbose "${tmpdir_host}178.png"
+wait_for_file "${tmpdir_host}178.png"
 
-set test "Geometry is right"
-expect {
-    -re "Geometry: 2203x2571" { pass "$test"; }
-    -re "Geometry: \[0-9\]*x\[0-9\]*\\+" { fail "$test"; }
-}
-set test "Bug #178 is fixed"
-expect {
-    -re "mean: 0 " { fail "$test"; }
-    eof { pass "$test"; }
-}
-wait
+if { [file exists "${tmpdir_host}178.png"] } {
+    spawn identify -verbose "${tmpdir_host}178.png"
 
-global dstorm_spawn_id
-global spawn_id
-set spawn_id $dstorm_spawn_id
+    set test "Geometry is right"
+    expect {
+        -re "Geometry: 2203x2571" { pass "$test"; }
+        -re "Geometry: \[0-9\]*x\[0-9\]*\\+" { fail "$test"; }
+    }
+    set test "Bug #178 is fixed"
+    expect {
+        -re "mean: 0 " { fail "$test"; }
+        eof { pass "$test"; }
+    }
+    wait
+
+    global dstorm_spawn_id
+    global spawn_id
+    set spawn_id $dstorm_spawn_id
+} else {
+    fail "Geometry is right"
+    fail "Bug #178 is fixed"
+}
 
 end_test_suite

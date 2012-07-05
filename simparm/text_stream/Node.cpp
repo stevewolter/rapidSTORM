@@ -18,7 +18,9 @@ Node::Node( std::string name, std::string type )
     add_attribute( userLevel );
 }
 
-Node::~Node() {}
+Node::~Node() {
+    backend_node->detach_frontend();
+}
 
 template <typename Type>
 struct equal_address {

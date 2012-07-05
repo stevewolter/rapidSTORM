@@ -13,12 +13,12 @@ class BackendRoot : public BackendNode {
     virtual std::ostream* get_print_stream();
     virtual Message::Response send_( const Message& );
     virtual void process_child_command_( const std::string& child, std::istream& rest );
-    virtual Mutex* get_mutex();
     virtual void add_child( BackendNode& );
     virtual void remove_child( BackendNode& );
     virtual void declare( std::ostream& );
     virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& );
+    void detach_frontend_() {}
 
     bool attached;
     bool should_quit;
@@ -31,6 +31,7 @@ class BackendRoot : public BackendNode {
     ChildrenList< BackendNode > children;
 protected:
     virtual void process_command_( const std::string& command, std::istream& rest );
+    virtual Mutex* get_mutex();
 public:
     BackendRoot( std::ostream*, bool wxWidgets );
     ~BackendRoot();

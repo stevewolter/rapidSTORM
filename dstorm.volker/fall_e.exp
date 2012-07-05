@@ -62,28 +62,16 @@ foreach file [list "other.txt"] {
 }
 
 set test "Output JPG image exists"
-if { [ file exists "${tmpdir_host}other.png" ] } {
-    pass "$test"
-} else {
-    fail "$test"
-}
-set test "Second output JPG image exists"
-if { [ file exists "${tmpdir_host}yetanother.jpg" ] } {
-    pass "$test"
-} else {
-    fail "$test"
-}
+wait_for_file "${tmpdir_host}other.png"
+pass_if [ file exists "${tmpdir_host}other.png" ] "$test"
+wait_for_file "${tmpdir_host}yetanother.jpg"
+pass_if [file exists "${tmpdir_host}yetanother.jpg" ] "Second output JPG image exists"
 set test "Output JPG image 2 does not exist"
 if { [ file exists "${tmpdir_host}Mikrotubuli.png" ] } {
     fail "$test"
 } else {
     pass "$test"
 }
-set test "Output TIF image exists"
-if { [ file exists "${tmpdir_host}Mikrotubuli.tif" ] } {
-    pass "$test"
-} else {
-    fail "$test"
-}
+pass_if [ file exists "${tmpdir_host}Mikrotubuli.tif" ] "Output TIF image exists"
 
 end_test_suite

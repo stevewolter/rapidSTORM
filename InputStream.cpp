@@ -21,6 +21,7 @@ class InputStream::Backend : public simparm::text_stream::BackendRoot {
 public:
     Backend(  InputStream& frontend, bool wxWidgets ) 
         : BackendRoot(&std::cout, wxWidgets), frontend(frontend) {}
+    Mutex* get_mutex() { return simparm::text_stream::BackendRoot::get_mutex(); }
 };
 
 InputStream::InputStream( const JobConfig& config, bool wxWidgets )
@@ -46,10 +47,12 @@ void InputStream::processCommands() {
         try {
             root_backend->processCommand( std::cin );
         } catch (const std::bad_alloc& e) {
-            std::cerr << "Could not perform action: "
+            boost::lock_guard< boost::recursive_mutex > m( *root_backend->get_mutex() );
+            std::cout << "Could not perform action: "
                       << "Out of memory" << std::endl;
         } catch (const std::runtime_error& e) {
-            std::cerr << "Could not perform action: "
+            boost::lock_guard< boost::recursive_mutex > m( *root_backend->get_mutex() );
+            std::cout << "Could not perform action: "
                       << e.what() << std::endl;
         }
     }

@@ -4,9 +4,14 @@ namespace simparm {
 namespace text_stream {
 
 InnerBackendNode::InnerBackendNode( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent )
-: name(name), type(type), parent(parent), declared(false), frontend( frontend ), tree_mutex( parent->get_mutex() )
+: name(name), type(type), parent(parent), declared(false), frontend( &frontend ), tree_mutex( parent->get_mutex() )
 {
     parent->add_child( *this );
+}
+
+void InnerBackendNode::detach_frontend_() {
+    boost::lock_guard<Mutex> m( *get_mutex() );
+    frontend = NULL;
 }
 
 void InnerBackendNode::add_child( BackendNode& t ) { 
@@ -40,8 +45,8 @@ void InnerBackendNode::process_child_command_( const std::string& child, std::is
     BackendNode* my_child = children.look_up( child );
     if ( my_child ) {
         my_child->processCommand_( rest );
-    } else {
-        frontend.process_attribute_command( child, rest );
+    } else if ( frontend ) {
+        frontend->process_attribute_command( child, rest );
     }
 }
 
@@ -49,7 +54,7 @@ void InnerBackendNode::declare( std::ostream& o ) {
     if ( ! declared ) {
         o << "declare " << type << "\n";
         o << "name " << name << "\n";
-        frontend.declare( o );
+        if ( frontend ) frontend->declare( o );
         children.for_each( boost::bind( &BackendNode::declare, _1, boost::ref(o) ) );
         o << "end" << std::endl;
         declared = true;

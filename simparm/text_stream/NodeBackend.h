@@ -23,6 +23,7 @@ struct BackendNode {
     virtual void declare( std::ostream& ) = 0;
     virtual std::auto_ptr<dStorm::display::WindowHandle> get_image_window( 
         const dStorm::display::WindowProperties&, dStorm::display::DataSource& ) = 0;
+    virtual void detach_frontend_() = 0;
 
     void processCommand_( std::istream& );
 
@@ -30,6 +31,7 @@ public:
     virtual ~BackendNode();
     void print( const std::string& );
     Message::Response send( const Message& );
+    void detach_frontend() { detach_frontend_(); }
 
     static std::auto_ptr<BackendNode> make_child( std::string name, std::string type, FrontendNode& frontend, boost::shared_ptr<BackendNode> parent );
 };
