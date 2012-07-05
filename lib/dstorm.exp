@@ -332,6 +332,7 @@ proc wait_for_file { filename } {
         }
         sleep 1
     }
+    sleep 1
 }
 
 proc get_window { name } {

@@ -3,7 +3,7 @@ clear_tmp_dir
 load_default_config
 dstorm_attach
 
-set input_file Mikrotubuli.sif
+set input_file "Mikrotubuli.sif"
 set test "Fall a) Punkt 1"
 set test "Fall a) Punkt 2"
 send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in FileMethod in FileType in value set AndorSIF\n"

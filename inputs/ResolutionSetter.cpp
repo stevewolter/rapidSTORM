@@ -19,6 +19,7 @@
 #include <dStorm/units/nanolength.h>
 #include <simparm/Eigen.h>
 #include <simparm/text_stream/RootNode.h>
+#include <simparm/dummy_ui/fwd.h>
 #include "dejagnu.h"
 
 namespace dStorm {
@@ -50,7 +51,10 @@ class Source
     Source(
         std::auto_ptr< input::Source<ForwardedType> > backend,
         const Config& config ) 
-        : input::AdapterSource<ForwardedType>( backend ), config(config) {}
+        : input::AdapterSource<ForwardedType>( backend ), config(config) { 
+            simparm::NodeHandle n = simparm::dummy_ui::make_node();
+            this->config.attach_ui( n ); 
+        }
 };
 
 class ChainLink 

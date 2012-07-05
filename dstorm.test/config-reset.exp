@@ -1,0 +1,15 @@
+begin_test_suite
+set_input_file "${workspace_target}Mikrotubuli.tif"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in AutoTerminate in value set false\n"
+dstorm_attach
+send "in Car in Run in value set 1\n"
+sleep 3
+send "reset\n"
+
+set test "Config is independent of job"
+expect {
+    -re "remove Car" { pass "$test" }
+}
+
+end_test_suite

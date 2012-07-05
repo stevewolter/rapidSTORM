@@ -34,8 +34,8 @@ expect {
     -re "in $mirrorjob \[^\n\]* in Progress in value set " { exp_continue; }
     -re "in $mirrorjob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
-send "terminate_jobs\n"
-expect -re "remove $mirrorjob" {}
+
+wait_for_jobs
 wait_for_file "$tmpdir_host$mirror_prefix.png"
 
 set test "Mirrored job produced expected output file"

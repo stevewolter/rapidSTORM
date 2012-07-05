@@ -23,6 +23,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include "PlaneFlattener.h"
 #include "Config.h"
+#include <simparm/dummy_ui/fwd.h>
 
 #ifdef DSTORM_MEASURE_TIMES
 #include <time.h>
@@ -42,6 +43,7 @@ Engine::Engine(
 {
     DEBUG("Constructing engine");
 
+    this->config.attach_ui( simparm::dummy_ui::make_node() );
     errors.freeze();
     errors.hide();
 

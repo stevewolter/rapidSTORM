@@ -81,6 +81,7 @@ class MultiPlaneConfig
 
   public:
     MultiPlaneConfig(PlaneConfig::Purpose purpose);
+    MultiPlaneConfig(const MultiPlaneConfig&);
     ~MultiPlaneConfig();
     void attach_ui( simparm::NodeHandle at );
 

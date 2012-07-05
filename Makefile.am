@@ -86,7 +86,8 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.test/filenames.exp dstorm.test/job-removal.exp \
     dstorm.test/remove-job.exp boards/standard.exp boards/valgrind.exp \
     dstorm.test/serialization.exp \
-    config/windows-telnet-and-netcat.exp config/unix.exp
+    config/windows-telnet-and-netcat.exp config/unix.exp \
+    dstorm.test/config-reset.exp
 
 
 CLEANFILES = rapidSTORM.jar \

@@ -162,6 +162,12 @@ MultiPlaneConfig::MultiPlaneConfig( PlaneConfig::Purpose purpose )
     set_number_of_planes( 1 );
 }
 
+MultiPlaneConfig::MultiPlaneConfig(const MultiPlaneConfig& o) 
+: name_object(o.name_object), layers(o.layers),
+  purpose(o.purpose)
+{
+}
+
 MultiPlaneConfig::~MultiPlaneConfig()
 {
     DEBUG("Destructing " << this);
