@@ -21,7 +21,7 @@ send "in Car in Run in value set 1\n"
 
 set test "Job finishes for Fall c)"
 expect {
-    -re "in Progress in value set 1" { pass "$test" }
+    -re "remove dStormJob" { pass "$test" }
     -re "in Progress in value set 0" { exp_continue }
     -re "in LocalizationCount in value set" { exp_continue }
     -re "Changing window \[0-9\]* with digest" { exp_continue }

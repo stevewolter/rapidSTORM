@@ -64,6 +64,9 @@ InputStream::~InputStream() {
 
 void InputStream::reset_config() {
     configs.clear();
+}
+
+void InputStream::create_localization_job() {
     configs.push_back( rapidstorm.create_config( get_handle() ) );
 }
 
@@ -72,7 +75,6 @@ void InputStream::create_alignment_fitter() {
 }
 
 void InputStream::create_replay_job() {
-    configs.clear();
     configs.push_back( replay_job.create_config( get_handle() ) );
 }
 
@@ -92,6 +94,8 @@ void InputStream::Backend::process_command_(const std::string& cmd, std::istream
             std::cout << "Resource usage not supported" << std::endl;
     } else if ( cmd == "reset" ) {
         frontend.reset_config();
+    } else if ( cmd == "localization" ) {
+        frontend.create_localization_job();
     } else if ( cmd == "alignment_fitter" ) {
         frontend.create_alignment_fitter();
     } else if ( cmd == "replay_job" ) {
@@ -115,7 +119,7 @@ bool InputStream::received_quit_command() {
 
 boost::shared_ptr<InputStream> InputStream::create( const JobConfig& c, bool wxWidgets ) {
     boost::shared_ptr<InputStream> rv( new InputStream( c, wxWidgets ) );
-    rv->reset_config();
+    rv->create_localization_job();
     if ( ! wxWidgets )
         rv->root_backend->attach_ui( rv );
     return rv;

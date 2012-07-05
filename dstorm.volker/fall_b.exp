@@ -17,7 +17,7 @@ set test "Job finishes for Fall b)"
 expect {
     -re "in Progress in value set 0" { exp_continue }
     -re "in LocalizationCount in value set" { exp_continue }
-    -re "in Progress in value set 1" { pass "$test" }
+    -re "remove dStormJob" { pass "$test" }
 }
 
 sleep 1
@@ -49,11 +49,7 @@ foreach suffix [list ".txt"] {
     }
 }
 
-set test "Output JPG image exists"
-if { [ file exists "${tmpdir_host}Mikrotubuli.png" ] } {
-    pass "$test"
-} else {
-    fail "$test"
-}
+wait_for_file "${tmpdir_host}Mikrotubuli.png"
+pass_if [ file exists "${tmpdir_host}Mikrotubuli.png" ] "Output JPG image exists"
 
 end_test_suite

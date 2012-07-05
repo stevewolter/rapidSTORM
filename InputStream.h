@@ -19,6 +19,7 @@ class InputStream
     Backend* const root_backend;
 
     void reset_config();
+    void create_localization_job();
     void create_alignment_fitter();
     void create_replay_job();
     void processCommand( const std::string& cmd, std::istream& rest);

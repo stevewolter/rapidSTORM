@@ -29,7 +29,7 @@ expect {
     -re "in Progress in value set 0" { exp_continue }
     -re "in LocalizationCount in value set" { exp_continue }
     -re "Changing window" { exp_continue }
-    -re "in Progress in value set 1" { pass "$test" }
+    -re "remove dStormJob" { pass "$test" }
 }
 
 sleep 1

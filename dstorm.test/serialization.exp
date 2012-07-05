@@ -25,7 +25,7 @@ set test "Serialization is completed"
 wait_for_file "${tmpdir_host}serialization.txt"
 pass_if [file exists "${tmpdir_host}serialization.txt"] "$test"
 
-send "cmd 0 reset\n"; expect "ack 0"; 
+send "reset\ncmd 0 localization\n"; expect "ack 0"; 
 
 load_config_file "${tmpdir_host}serialization.txt"
 

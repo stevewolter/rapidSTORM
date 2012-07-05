@@ -34,12 +34,14 @@ expect {
     -re "in $mirrorjob \[^\n\]* in Progress in value set " { exp_continue; }
     -re "in $mirrorjob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
 }
-wait_for_file "$tmpdir_host$mirror_prefix.png"
 send "terminate_jobs\n"
+expect -re "remove $mirrorjob" {}
+wait_for_file "$tmpdir_host$mirror_prefix.png"
 
 set test "Mirrored job produced expected output file"
 pass_if [file exists "$tmpdir_host$mirror_prefix.png"] "$test"
 
+sleep 1
 set unmirror_prefix "remirrored"
 exec convert "$tmpdir_host$mirror_prefix.png" "-flip" "$tmpdir_host$unmirror_prefix.png"
 if { [catch {exec compare "-metric" "RMSE" "$tmpdir_host$normal_prefix.png" "$tmpdir_host$unmirror_prefix.png" "/dev/null"} msg] } {
