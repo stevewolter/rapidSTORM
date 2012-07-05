@@ -41,8 +41,7 @@ Config::Config( bool localization_replay_mode )
   localization_replay_mode( localization_replay_mode ),
   outputBox("Output", "Output options"),
   configTarget("SaveConfigFile", "Job options file", "-settings.txt"),
-  auto_terminate("AutoTerminate", "Automatically terminate finished jobs",
-                 true),
+  auto_terminate("AutoTerminate", "Automatically terminate finished jobs", false),
   pistonCount("CPUNumber", "Number of CPUs to use", 1)
 {
     configTarget.set_user_level(simparm::Beginner);

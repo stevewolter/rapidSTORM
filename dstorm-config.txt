@@ -5,7 +5,4 @@ in Output in EngineOutput in ChooseTransmission in value set Progress
 in Output in EngineOutput in ChooseTransmission in value set Cache
 in Output in EngineOutput in Output2 in Cache in ChooseTransmission in value set Expression
 in Output in EngineOutput in Output2 in Cache in Output0 in Expression in ChooseTransmission in value set Image
-in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in ShowOutput in value set true
-in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in CloseOnCompletion in value set true
 in Output in EngineOutput in Output2 in Cache in Output0 in Expression in ChooseTransmission in value set Table
-in AutoTerminate in value set false
