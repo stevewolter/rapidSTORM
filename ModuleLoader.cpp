@@ -3,6 +3,7 @@
 #include "ModuleLoader.h"
 
 #include "inputs/inputs.h"
+#include "inputs/WarnAboutLocalizationFile.h"
 #include "spotFinders/spotFinders.h"
 #include "outputs/BasicTransmissions.h"
 #include <dStorm/Config.h>
@@ -53,6 +54,7 @@ void add_image_input_modules( dStorm::Config& car_config )
     input_simulation::input_simulation( car_config );
     dStorm::tiff::input_driver( car_config );
     dStorm::andor_sif::augment_config( car_config );
+    car_config.add_input( inputs::make_warn_about_localization_file(), FileReader );
     AndorCamera::augment_config( car_config );
 
     car_config.add_spot_finder( spalttiefpass_smoother::make_spot_finder_factory() );
