@@ -10,8 +10,6 @@ set timeout 5
 
 dstorm_attach
 
-send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 3000\n"
-
 set test "basename printer works"
 if { $may_use_camera == 1 } {
 set acd $andorcam_spawn_id
@@ -113,16 +111,6 @@ send "in Car in Input in MultiChannel in Channels in Channel1 in InputMethod in 
 expect {
     -re "Displaying output file name testoutputfile.foo" { pass "$test" }
     -re "Displaying output file name .*.foo" { fail "$test" }
-}
-
-set test "sif file basename"
-
-set_input_file "${workspace_target}Mikrotubuli.sif"
-expect {
-    -re "Displaying output file name (\[^\r\n\]*.foo)\r*\n" { 
-        pass_if [expr [string compare "$expect_out(1,string)" "${workspace_target}Mikrotubuli.foo"] == 0] "$test"
-    }
-    timeout { fail "$test" }
 }
 
 set test "stm file basename"
