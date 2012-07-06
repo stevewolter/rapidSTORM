@@ -129,7 +129,10 @@ bool Fitter::State<_Function,_Moveable>::solve_with_ldlt( const Derivatives& d )
     } else {
         shift = d.hessian.ldlt().solve(d.gradient);
     }
-    const bool solved_well = (d.hessian * shift).isApprox(d.gradient, 1E-2);
+    Position gradient_check = (d.hessian * shift) - d.gradient;
+    /* This code is very similar to Eigen's isApprox; however, with gcc 4.7 and Eigen 3.1,
+     * isApprox generates segmentation faults. */
+    const bool solved_well = gradient_check.squaredNorm() <= 0.1 * d.gradient.squaredNorm();
     DEBUG("Solved system by LDLT: " << solved_well);
     return solved_well;
 }

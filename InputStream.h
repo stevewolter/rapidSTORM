@@ -28,7 +28,7 @@ class InputStream
 
   public:
     ~InputStream();
-    DSTORM_REALIGN_STACK void processCommands( );
+    void processCommands( );
     static boost::shared_ptr<InputStream> create( const JobConfig&, bool wxWidgets );
 };
 

@@ -100,8 +100,6 @@ proc dstorm_start {} {
         -re "ack 0" {} 
     }
     set timeout $def_timeout
-    puts "Loaded successfully"
-
 }
 
 proc dstorm_attach {} {
@@ -208,6 +206,16 @@ proc wait_for_jobs { } {
 proc begin_test_suite {} {
     global replay_mode
     set replay_mode 0
+    global spawn_id
+    global dstorm_spawn_id
+
+    set timeout 1
+    set spawn_id $dstorm_spawn_id
+    set alive 0
+    if { [catch { send "nop\n" } err] } {
+        dstorm_start
+    }
+    set timeout 10
 }
 proc start_test_suite {} { begin_test_suite }
 proc end_test_suite {} { 
@@ -216,9 +224,14 @@ proc end_test_suite {} {
     wait_for_jobs; 
     disconnect_camera;
 
-    set timeout 25; 
+    set timeout 1
+    send "cmd 0 attach\n"; expect "ack 0";
+    send "reset\n"; 
+    expect { 
+        "remove Car" {} 
+        -re "in Car\[^\n\]* remove " { exp_continue; }
+    };
     send "cmd 1 detach\n"; expect "ack 1";
-    send "cmd 0 reset\n"; expect "ack 0"; 
     send "cmd 2 localization\n"; expect "ack 2";
     send "in Car in AutoTerminate in value set true\n";
 }
@@ -337,6 +350,7 @@ proc wait_for_file { filename } {
 
 proc get_window { name } {
     set window -1
+    set test "Opening window"
     expect {
         -re "in DummyDisplayManagerConfig declare Object\r*\nname (Window\[0-9\]+)\r*\ndesc set $name" {
             set window $expect_out(1,string); exp_continue;

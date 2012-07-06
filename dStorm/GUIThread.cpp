@@ -1,6 +1,7 @@
 #include <wx/app.h>
 #include "GUIThread.h"
 #include <iostream>
+#include <boost/optional/optional.hpp>
 
 namespace dStorm {
 

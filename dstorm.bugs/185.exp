@@ -54,6 +54,7 @@ expect {
 set test "#185 is fixed"
 if { $noimage == 0 } {
     wait_for_file "${tmpdir_host}185.png"
+    sleep 1
 
     spawn compare -metric RMSE "${tmpdir_host}185.png" "${testcase_host}185-norm.png" "${tmpdir_host}185-difference.png"
     expect {

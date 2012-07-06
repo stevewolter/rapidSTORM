@@ -21,6 +21,7 @@
 #include <dStorm/output/Output.h>
 #include <dStorm/traits/optics_config.h>
 #include <dStorm/units/nanolength.h>
+#include <dStorm/stack_realign.h>
 
 #include "Config.h"
 #include "ParameterLinearizer.h"
@@ -56,7 +57,7 @@ class Output : public output::Output {
     std::vector<int> variable_map;
 
     void run_finished_(const RunFinished&);
-    void run_fitter();
+    DSTORM_REALIGN_STACK void run_fitter();
     double evaluate_function( const gsl_vector *x );
     static double gsl_callback( const gsl_vector * x, void * params )
         { return static_cast<Output*>(params)->evaluate_function(x); }

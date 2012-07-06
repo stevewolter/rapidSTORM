@@ -20,7 +20,7 @@ Object::Object(string name)
 }
 
 Object::Object(const Object& o)
-: node_( o.node_ ), name(o.name), desc(o.desc), is_visible(o.is_visible), user_level( o.user_level )
+: node_( dummy_ui::make_node() ), name(o.name), desc(o.desc), is_visible(o.is_visible), user_level( o.user_level )
 {}
 
 Object::~Object() { 

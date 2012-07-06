@@ -14,6 +14,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/weighted_mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
+#include <simparm/dummy_ui/fwd.h>
 
 #include <gsl/gsl_bspline.h>
 #include <gsl/gsl_multifit.h>
