@@ -26,6 +26,11 @@ public:
                 return;
             }
     }
+    void delete_all_pages() {
+        while ( GetPageCount() > 0u ) {
+            DeletePage( GetPageCount() - 1 );
+        }
+    }
 };
 
 void ScrolledTabNode::initialization_finished() {
@@ -66,6 +71,10 @@ NodeHandle ScrolledTabNode::create_group( std::string name ) {
 void ScrolledTabNode::serialize_current_tab( std::string filename ) {
     wxWindow* w = (*notebook)->GetPage( (*notebook)->GetSelection() );
     dynamic_cast<ScrolledWindow&>(*w).serialize( filename );
+}
+
+void ScrolledTabNode::close_all_tabs() {
+    run_in_GUI_thread( bl::bind( &AUINotebook::delete_all_pages, *bl::constant( notebook ) ) );
 }
 
 }

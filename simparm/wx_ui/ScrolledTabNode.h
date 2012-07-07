@@ -29,6 +29,7 @@ public:
 
     /** Store the current tab in a file. This method must be called by the GUI thread. */
     void serialize_current_tab( std::string filename );
+    void close_all_tabs();
 };
 
 

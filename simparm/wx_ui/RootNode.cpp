@@ -250,6 +250,17 @@ public:
     void attach_context_help( wxWindow* window, std::string context_help_id ) 
         { help.associate_window_with_help( window, context_help_id ); }
 
+    void is_closed( wxCloseEvent& ev ) {
+        if ( ! ev.CanVeto() ) {
+            Destroy();
+        } else {
+            ev.Veto();
+            if ( main_window ) main_window->close_all_tabs();
+            main_window.reset();
+            root_node.reset();
+        }
+    }
+
     DECLARE_EVENT_TABLE();
 };
 
@@ -268,6 +279,7 @@ BEGIN_EVENT_TABLE(RootFrame, wxFrame)
     EVT_MENU(ALIGNMENT_MINIMAL, RootFrame::make_alignment_minimal)
     EVT_MENU(REPLAY_MINIMAL, RootFrame::make_replay_minimal)
     EVT_HELP(wxID_ANY, RootFrame::show_help)
+    EVT_CLOSE(RootFrame::is_closed)
 END_EVENT_TABLE()
 
 static void create_root_frame( 
@@ -289,6 +301,7 @@ RootNode::RootNode( )
 }
 
 RootNode::~RootNode() {
+    run_in_GUI_thread( bl::bind( &RootFrame::Destroy, *bl::constant(my_frame) ) );
     logfile.reset();
     if ( logfile_name ) {
         remove( *logfile_name );
