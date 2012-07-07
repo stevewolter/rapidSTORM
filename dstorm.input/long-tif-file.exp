@@ -10,11 +10,13 @@ set_last_image 25
 
 set test "Long TIFF file is read without seek error"
 send "in Car in Run in value set 1\n"
+set job [get_job_number]
 
 expect {
     -re "eek error in accessing" { fail "$test"; }
     -re "in Progress in value set 1" { pass "$test"; }
     -re "in Progress in value set" { exp_continue; }
+    -re "in $job" { exp_continue; }
 }
 
 end_test_suite

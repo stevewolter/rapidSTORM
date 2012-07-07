@@ -113,6 +113,11 @@ void MainThread::attach_ui( simparm::NodeHandle at )
     current_ui = master_object.attach_ui( at );
 }
 
+void MainThread::print( std::string message ) const {
+    simparm::Message m("Image window message", message, simparm::Message::Info);
+    m.send( current_ui );
+}
+
 void MainThread::heed_requests() {
     Requests my_requests;
     {

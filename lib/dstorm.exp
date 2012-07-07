@@ -185,14 +185,13 @@ proc stage_pass { } {
     }
 }
 
-proc wait_for_jobs { } {
+proc wait_until_jobs_finished { } {
     global may_use_camera
     global dstorm_spawn_id
     set dcd $dstorm_spawn_id
-    set timeout -1
-    set test "All jobs from previous test terminated"
-    send "terminate_jobs\n"
 
+    set test "All jobs from previous test terminated"
+    send "job_count\n"
     set timeout 5
     expect {
         -i $dcd -re "Current job count is 0\r*\n" { }
@@ -201,6 +200,11 @@ proc wait_for_jobs { } {
     }
 
     set timeout 10
+}
+
+proc wait_for_jobs { } {
+    send "terminate_jobs\n"
+    wait_until_jobs_finished
 }
 
 proc begin_test_suite {} {
@@ -346,6 +350,13 @@ proc wait_for_file { filename } {
         sleep 1
     }
     sleep 1
+}
+
+proc wait_for_image { filename test } {
+    expect {
+        -re "message set Stored image $filename\r*\n" { pass "$test" }
+        -re "in DummyDisplayManagerConfig" { exp_continue; }
+    }
 }
 
 proc get_window { name } {

@@ -222,8 +222,9 @@ void Window::save_window( const dStorm::display::SaveRequest& i ) {
     result.scale_bar = i.scale_bar;
     try {
         store_image( result );
+        m.print( "Stored image " + i.filename );
     } catch ( const std::runtime_error& e ) {
-        std::cerr << "Failed to store image: " << e.what() << std::endl;
+        m.print( "Failed to store image " + i.filename + ": " + e.what() );
     }
 }
 

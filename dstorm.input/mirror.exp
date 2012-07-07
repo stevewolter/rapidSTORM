@@ -1,6 +1,9 @@
 begin_test_suite
+clear_tmp_dir
 load_default_config
 dstorm_attach
+
+send "in Car in AutoTerminate in value set true\n"
 
 set test "Can compute file normally"
 set input_file "Mikrotubuli.sif"
@@ -12,36 +15,17 @@ set_last_image 300
 send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in SaveWithKey in value set false\n"
 send "in Car in Output in EngineOutput in Output2 in Cache in Output0 in Expression in Output0 in Image in SaveScaleBar in value set false\n"
 send "in Car in Run in value set 1\n"
-set normaljob [get_job_number]
+
 set test "Can compute file mirrored"
 send "in Car in Input in OutputBasename in Basename in value set $tmpdir_target$mirror_prefix\n"
 send "in Car in Input in MultiChannel in Channels in Channel1 in Mirror in MirrorY in value set true\n"
 send "in Car in Run in value set 1\n"
-set mirrorjob [get_job_number]
 
-set test "Normal job finishes"
-expect {
-    -re "in $normaljob \[^\n\]* in Progress in value set 1" { pass "$test"; }
-    -re "in $normaljob \[^\n\]* in Progress in value set " { exp_continue; }
-    -re "in $normaljob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
-}
-
-set test "Mirrored job finishes"
-send "in $mirrorjob in Output1 in Progress in value query\n"
-expect {
-    -re "in $mirrorjob \[^\n\]* in Progress in value value set 1" { pass "$test"; }
-    -re "in $mirrorjob \[^\n\]* in Progress in value set 1" { pass "$test"; }
-    -re "in $mirrorjob \[^\n\]* in Progress in value set " { exp_continue; }
-    -re "in $mirrorjob \[^\n\]* in LocalizationCount in value set " { exp_continue; }
-}
-
-wait_for_jobs
-wait_for_file "$tmpdir_host$mirror_prefix.png"
+wait_for_image "$tmpdir_target$mirror_prefix.png" "$test"
 
 set test "Mirrored job produced expected output file"
 pass_if [file exists "$tmpdir_host$mirror_prefix.png"] "$test"
 
-sleep 1
 set unmirror_prefix "remirrored"
 exec convert "$tmpdir_host$mirror_prefix.png" "-flip" "$tmpdir_host$unmirror_prefix.png"
 if { [catch {exec compare "-metric" "RMSE" "$tmpdir_host$normal_prefix.png" "$tmpdir_host$unmirror_prefix.png" "/dev/null"} msg] } {

@@ -8,6 +8,7 @@ send "in Car set Engine in rapidSTORM in SpotFindingMethod in Average in Smoothi
 send "in Car in Input in Optics in InputLayer0 in ThreeD in No3D in PSF in value set 380.0,380.0\n"
 send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM in value set 85,85\n"
 send "in Car in Output in EngineOutput in ChooseTransmission in value set Count\n"
+send "in Car in AutoTerminate in value set true\n"
 
 dstorm_attach
 
@@ -17,7 +18,7 @@ proc measure_performance { name expected_time } {
     if { [string compare $test_performance "yes"] == 0 } {
         set tick 0 
         send "resource_usage\n"
-        expect -re "Current CPU time: (.*)\r*\n" { set tick $expect_out(1,string); }
+        expect -re "Current CPU time: (\[^\r\n\]*)\r*\n" { set tick $expect_out(1,string); }
 
         set test "$name speed is satisfactory"
         send "in Car in Run in value set 1\n"
@@ -33,7 +34,7 @@ proc measure_performance { name expected_time } {
 
         set tock 0 
         send "resource_usage\n"
-        expect -re "Current CPU time: (.*)\r*\n" { set tock $expect_out(1,string); }
+        expect -re "Current CPU time: (\[^\r\n\]*)\r*\n" { set tock $expect_out(1,string); }
 
         pass_if [expr [expr $tock - $tick] < $expected_time] "$test"
         pass_if [expr $count > 434000 && $count < 435000] "$name finds correct number of localizations"

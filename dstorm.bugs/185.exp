@@ -32,6 +32,7 @@ send "in Car in Input in Optics in InputLayer0 in Transmission1 in value set 1.5
 send "in Car in Input in Optics in InputLayer1 in ThreeD in No3D in PSF in value set 335,335\n"
 send "in Car in Input in Optics in InputLayer1 in Transmission0 in value set 0.75\n"
 send "in Car in Input in Optics in InputLayer1 in Transmission1 in value set 0.55\n"
+send "in Car in AutoTerminate in value set true\n"
 
 set_last_image 1000
 
@@ -51,10 +52,12 @@ expect {
     -re "Error fetching data for field \"Tag 50839\"\r*\nseverity set Error" { set noimage 1; unsupported "$test"; }
 }
 
+wait_until_jobs_finished
+
 set test "#185 is fixed"
 if { $noimage == 0 } {
     wait_for_file "${tmpdir_host}185.png"
-    sleep 1
+    sleep 5
 
     spawn compare -metric RMSE "${tmpdir_host}185.png" "${testcase_host}185-norm.png" "${tmpdir_host}185-difference.png"
     expect {

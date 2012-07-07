@@ -49,6 +49,7 @@ class MainThread
 
     void stop() {}
     void request_action( boost::function0<void> );
+    void print( std::string ) const;
 
     void remove_window_from_event_queue( boost::shared_ptr<Window> );
 

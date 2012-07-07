@@ -13,9 +13,9 @@ send "in Car in Output in EngineOutput in Output0 in Image in ShowOutput in valu
 dstorm_attach
 send "in Car in Run in value set 1\n"
 
-set test "3D with colouring works"
+set test "Image saving to nonexistent directory gives correct error"
 expect {
-    -re "Failed to store image: Magick: Unable to open file" { pass "$test"; }
+    -re "Failed to store image\[^\r\n\]*: Magick: Unable to open file" { pass "$test"; }
 }
 
 end_test_suite

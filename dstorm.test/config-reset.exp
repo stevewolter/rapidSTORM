@@ -12,4 +12,6 @@ expect {
     -re "remove Car" { pass "$test" }
 }
 
+send "localization\n"
+
 end_test_suite

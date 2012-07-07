@@ -8,7 +8,8 @@ GENERATED_GRAPHICS = $(TEX_GRAPHICS:.tex=.png)
 GRAPHICS = $(PIXEL_GRAPHICS) $(GENERATED_GRAPHICS)
 EXTRA_DIST = $(TEX_GRAPHICS) $(PIXEL_GRAPHICS) $(CHAPTERS:=.xml) \
     rapidstorm_pre.xsl rapidstorm_html.xsl rapidstorm_htmlhelp.xsl rapidstorm_fo.xsl tex2im \
-    bib4wbbt.bib xml2db5.xsl make_titlepage.xsl titlepage.xml
+    bib4wbbt.bib xml2db5.xsl make_titlepage.xsl titlepage.xml \
+    rapidstorm_guilabels.xsl
 
 if BUILD_PDF_DOCUMENTATION
     PDF_TARGET = manual.pdf
@@ -70,7 +71,7 @@ manual.pdf : manual.fo foprc
 
 CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
     manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip \
-    htmlhelp-generated-stamp
+    htmlhelp-generated-stamp guilabels.csv
 
 clean-local :
 	-rm -f *.html
