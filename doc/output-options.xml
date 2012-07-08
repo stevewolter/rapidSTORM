@@ -193,7 +193,7 @@
                 common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
             <et:elem desc="Save image" topic="Viewer_Status_Save">
                 Save the image at the current state of computation to the file given
-                by "Save image to".</et:elem>
+                by <guilabel><xref linkend="Viewer_Status_ToFile"/></guilabel>.</et:elem>
         </et:elemtable>
      </refsection>
    </refentry>
@@ -460,7 +460,7 @@
                <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
                   If this field is checked, all localizations with a two-kernel improvement (quotient of residues
                   with two kernels and residues with one kernel) greater than the given value are discarded.
-                  This value is used for artifact suppression and is only available when "Compute two-kernel improvement"
+                  This value is used for artifact suppression and is only available when <guilabel>Compute two kernel improvement</guilabel>
                   has been checked.
                </et:elem>
                <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">

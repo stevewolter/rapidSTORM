@@ -5,7 +5,6 @@ namespace dStorm {
 
 std::auto_ptr<wxConfig> get_wxConfig();
 boost::filesystem::path initialization_file();
-boost::filesystem::path gui_label_file();
 boost::filesystem::path program_data_path();
 
 }

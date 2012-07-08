@@ -41,8 +41,4 @@ boost::filesystem::path initialization_file() {
     return program_data_path() / "dstorm-config.txt";
 }
 
-boost::filesystem::path gui_label_file() {
-    return program_data_path() / "guilabels.csv";
-}
-
 }

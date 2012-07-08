@@ -23,15 +23,15 @@
       </et:elem>
       <et:elem desc="Input type" topic="InputType">
             This field is used to select the general type of input that should
-            be used. If input should be read from any kind of file, select
-            "input from a file" here and the specific type of file in the 
+            be used. If input should be read from some kind of file, select
+            <guilabel>File input</guilabel> here and the specific type of file in the 
             <xref linkend="FileType"/> field.
       </et:elem>
       <et:elem desc="Input file" topic="InputFile">
             The location of the input data is selected in this field. You can put
             any existing file here. It's interpretation (file type) and file-specific
             input options are set in the <xref linkend="FileType"/> field.
-            This field is only available when you have selected "File" as <xref linkend="InputType">input type</xref>.
+            This field is only available when you have selected <guilabel>File</guilabel> as <xref linkend="InputType">input type</xref>.
       </et:elem>
       <glossentry id="FileType">
          <glossterm>File type</glossterm>

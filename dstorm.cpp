@@ -70,11 +70,6 @@ int main(int argc, char *argv[]) {
     wxImage::AddHandler(new wxPNGHandler);
     start_imagemagick( argv[0] );
 
-    {
-        boost::filesystem::ifstream i( gui_label_file() );
-        simparm::GUILabelTable::get_singleton().read_csv_file( i );
-    }
-
     try {
         int success = parse_command_line( argc, argv );
         if ( success != EXIT_SUCCESS ) return success;
