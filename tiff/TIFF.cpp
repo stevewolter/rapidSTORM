@@ -63,8 +63,9 @@ class Source : public input::Source< engine::ImageStack >
     typedef typename BaseSource::iterator base_iterator;
     typedef typename BaseSource::TraitsPtr TraitsPtr;
 
+    simparm::Entry<long> count;
     simparm::NodeHandle current_ui;
-    void attach_ui_( simparm::NodeHandle n ) { current_ui = n; }
+    void attach_ui_( simparm::NodeHandle n ) { current_ui = count.attach_ui( n ); }
 
 public:
     class iterator;
@@ -118,7 +119,8 @@ private:
 const std::string test_file_name = "special-debug-value-rapidstorm:file.tif";
 
 Source::Source( std::auto_ptr<OpenFile> file )
-: file(file)
+: count( "EntryCount", "Number of images in TIFF file", 0 ),
+  file(file)
 {
 }
 
@@ -225,12 +227,7 @@ ChainLink::makeSource()
 
 Source::TraitsPtr 
 Source::get_traits(typename BaseSource::Wishes) {
-    simparm::Entry<long> count( "EntryCount", "Number of images in TIFF file", 0 );
-    count.freeze();
-    count.attach_ui( current_ui );
-    DEBUG("Creating traits from file object");
     TraitsPtr rv = TraitsPtr( file->getTraits(true, count).release() );
-    DEBUG("Returning traits " << rv.get());
     return rv;
 }
 

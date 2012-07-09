@@ -71,6 +71,7 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
         DEBUG("Counting images in file");
         _no_images = 1;
         int last_output[2] = { 1, 1 };
+        n.show();
         while ( TIFFReadDirectory(tiff) != 0 ) {
             _no_images += 1;
             if ( _no_images == last_output[0] + last_output[1] ) {
@@ -92,6 +93,8 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
             op.throw_exception_for_errors(); throw std::logic_error("Undefined error in TIFF reading"); 
         }
 #endif
+    } else {
+        n.hide();
     }
 
     static const int Dim = engine::ImageStack::Plane::Dim;
