@@ -152,15 +152,12 @@ boost::shared_ptr<DepthInfo> Polynomial3DConfig::make_traits(Direction dir) cons
 
 
 Polynomial3DConfig::Polynomial3DConfig()
-: Config("Polynomial3D", "Polynomial 3D"),
-  psf_size("PSF", "PSF FWHM at sharpest Z", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
-  z_position("ZPosition", "Point of sharpest Z", ZPosition::Constant(0 * si::nanometre)),
-  z_range("ZRange", "Maximum sensible Z distance from equifocused plane", ZPosition::Constant(1000 * boost::units::si::nanometre)),
-  slopes("WideningConstants", "Widening slopes", Slopes::Constant( quantity<si::permicrolength>(0.0 / si::metre) ) )
+: Config("Polynomial3D"),
+  psf_size("SharpestPSF", PSFSize::Constant(500.0 * boost::units::si::nanometre)),
+  z_position("ZPosition", ZPosition::Constant(0 * si::nanometre)),
+  z_range("ZRange", ZPosition::Constant(1000 * boost::units::si::nanometre)),
+  slopes("WideningConstants", Slopes::Constant( quantity<si::permicrolength>(0.0 / si::metre) ) )
 {
-    slopes.setHelpID( "Polynomial3D.WideningSlopes" );
-    psf_size.setHelpID( "PSF.FWHM" );
-    z_position.setHelp("Z position where this layer is sharpest in this dimension");
 }
 
 std::auto_ptr< Config > make_polynomial_3d_config()

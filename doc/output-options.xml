@@ -272,8 +272,7 @@
         available.</note>
         Source images are unavailable for children, direct or
         indirect, of the <xref linkend="MemoryCache"/> module or
-        if the input comes from the <xref linkend="localizations_file_input"/>
-        driver.</para>
+        if the input comes from the <xref linkend="STM"/> file type.</para>
      <refsection>
         <title>Configuration items</title>
         <et:elemtable>
@@ -396,7 +395,7 @@
                estimated on data that have been fitted with free PSF widths. For more information,
                see <xref linkend="Henriques2010"/>.</para>
          <para>It is preferable to provide the <xref linkend="z_calibration_table"/> directly
-               to the fitting module by choosing the <xref linkend="Interpolated3D"/> PSF model.
+               to the fitting module by choosing the <et:elemref linkend="Spline3D"/> as <et:elemref linkend="ThreeD"/>.
                Thereby, a degree of fitting freedom is avoided and precision is enhanced.</para>
       </refsection>
       <refsection>

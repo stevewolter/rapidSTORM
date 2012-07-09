@@ -1,4 +1,3 @@
-#include "debug.h"
 #include "ROIFilter.h"
 
 #include <simparm/BoostUnits.h>
@@ -74,7 +73,6 @@ class Source
             p.image_number().range().second = *to;
         }
         p.image_number().range().first = from;
-        DEBUG("First frame of traits is " << *p.image_number().range().first << ", last frame set is " << p.image_number().range().second.is_initialized());
     }
 };
 
@@ -117,7 +115,6 @@ bool Source<Ty>::is_in_range(const Ty& t) const
 {
     frame_index f = ImageNumber()(t);
     bool rv = f >= from && (!to.is_initialized() || f <= *to);
-    DEBUG("ROI filter returns " << rv << " for " << f);
     return rv;
 }
 
@@ -184,8 +181,8 @@ class ChainLink
 
 Config::Config() 
 : name_object(ChainLink::getName(), "Image selection filter"),
-  first_frame("FirstImage", "First image to load", 0 * camera::frame),
-  last_frame( "LastImage", "Last image to load", boost::optional< frame_index >() )
+  first_frame("FirstImage", 0 * camera::frame),
+  last_frame( "LastImage", boost::optional< frame_index >() )
 {
     first_frame.set_user_level( simparm::Intermediate );
     last_frame.set_user_level( simparm::Intermediate );

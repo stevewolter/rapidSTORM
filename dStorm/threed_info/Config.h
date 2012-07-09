@@ -13,6 +13,7 @@ namespace threed_info {
 
 struct Config : public simparm::ObjectChoice {
     Config( std::string name, std::string desc ) : ObjectChoice(name,desc) {}
+    Config( std::string name ) : ObjectChoice(name) {}
     virtual boost::shared_ptr<DepthInfo> make_traits( Direction ) const = 0;
     virtual void read_traits( const DepthInfo&, const DepthInfo& ) = 0;
     virtual void set_context( ) = 0;

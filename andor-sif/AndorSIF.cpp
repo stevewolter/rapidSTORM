@@ -1,5 +1,3 @@
-#include "debug.h"
-
 #include <read_sif.h>
 #include <stdexcept>
 #include <cassert>
@@ -42,7 +40,7 @@ Source::get_traits( typename BaseSource::Wishes )
 }
 
 Config::Config() 
-: name_object( getName(), "Andor SIF file" )
+: name_object( getName() )
 {
 }
 
@@ -73,7 +71,6 @@ class Source::iterator
 
     Image& dereference() const { 
         if ( ! img ) {
-            DEBUG("Loading image " << count << " from " << this << "," << src);
             std::auto_ptr<engine::ImageStack> i = src->load_image(count, msg);
             if ( i.get() != NULL )
                 img = *i;
@@ -81,7 +78,6 @@ class Source::iterator
                 img = Image( engine::Image2D() );
             img->frame_number() = count * camera::frame;
         }
-        DEBUG("Dereferencing " << this << " to " << img->frame_number());
         return *img; 
     }
     bool equal(const iterator& i) const { 

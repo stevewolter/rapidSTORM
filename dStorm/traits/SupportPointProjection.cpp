@@ -138,10 +138,9 @@ class SupportPointProjectionConfig
 
   public:
     SupportPointProjectionConfig() 
-    : ProjectionConfig("SupportPointProjection", "Support point alignment"),
-      micro_alignment("AlignmentFile", "bUnwarpJ transformation"),
-      resolution( "Resolution", "Transformation resolution", 
-                  PixelSize::Constant(10.0f * si::nanometre / camera::pixel) )
+    : ProjectionConfig("SupportPointProjection"),
+      micro_alignment("SupportPointAlignmentFile", ""),
+      resolution( "SupportPointResolution", PixelSize::Constant(10.0f * si::nanometre / camera::pixel) )
         {}
 };
 

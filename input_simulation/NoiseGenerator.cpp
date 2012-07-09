@@ -59,7 +59,7 @@ NoiseGeneratorConfig::NoiseGeneratorConfig()
   ups_sigma("UpsilonSigma", "Value of sigma in combined PDF", 104.6),
   ups_x0("UpsilonX0", "Value of x0 in combined PDF", 2582.6),
   ups_theta("UpsilonTheta", "Value of theta in combined PDF", 119.7),
-  noiseFile("NoiseFile", "File to load noise data from"),
+  noiseFile("NoiseFile", "File to load noise data from", ""),
   varianceScale("ScaleVariance", "Scale variance on measured "
                 "noise by factor", 1),
   width("ImageWidth", "Width of generated source image", 256),

@@ -14,6 +14,7 @@ protected:
 public:
     ObjectChoice( std::string name, std::string desc )
         : node(name,desc) {}
+    ObjectChoice( std::string name ) : node(name) {}
     virtual ~ObjectChoice() {}
     virtual ObjectChoice* clone() const = 0;
     std::string getName() const { return node.getName(); }

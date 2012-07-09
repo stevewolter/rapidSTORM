@@ -195,7 +195,6 @@ rapidstorm_SOURCES = \
     dStorm/input/Forwarder.h \
     dStorm/input/DefaultFilterTypes.h \
     dStorm/input/MetaInfo.h \
-    dStorm/input/Alternatives.h \
     dStorm/input/Source.h \
     dStorm/input/Traits.h  \
     dStorm/input/InputMutex.h \
@@ -275,7 +274,6 @@ rapidstorm_SOURCES += \
     dStorm/input/MetaInfo.cpp \
     dStorm/input/InputMutex.cpp \
     dStorm/input/Link.cpp dStorm/input/Choice.cpp \
-    dStorm/input/Alternatives.cpp \
     dStorm/input/Forwarder.cpp \
     dStorm/input/Method.hpp \
     dStorm/engine/CandidateTree.cpp dStorm/engine/SpotFinder.cpp dStorm/engine/SpotFitterFactory.cpp dStorm/engine/Image.cpp \
@@ -333,10 +331,9 @@ rapidstorm_SOURCES += \
     dStorm/output/Config.h
 
 rapidstorm_SOURCES += \
-    inputs/inputs.h inputs/inputs.cpp \
+    inputs/inputs.h \
     inputs/FileMethod.h inputs/FileMethod.cpp \
     inputs/InputMethods.h inputs/InputMethods.cpp \
-    inputs/EngineChoice.cpp inputs/EngineChoice.h \
     inputs/InputBase.cpp inputs/InputBase.h \
     inputs/InsertionPoint.cpp inputs/InsertionPoint.h \
     inputs/join.h inputs/join.cpp \

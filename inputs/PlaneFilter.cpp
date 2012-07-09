@@ -190,7 +190,7 @@ class ChainLink
 
 Config::Config() 
 : name_object( ChainLink::getName(), "Image selection filter"),
-  which_plane( "OnlyPlane", "Process only one plane" )
+  which_plane( "OnlyPlane" )
 {
     which_plane.addChoice( new AllPlanes() );
     which_plane.set_user_level( simparm::Expert );

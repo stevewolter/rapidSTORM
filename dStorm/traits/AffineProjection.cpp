@@ -10,7 +10,6 @@
 #include <simparm/Object.h>
 #include <simparm/FileEntry.h>
 #include <dStorm/image/MetaInfo.h>
-#include "debug.h"
 #include <fstream>
 
 namespace dStorm {
@@ -53,7 +52,6 @@ class AffineProjectionFactory
             throw std::runtime_error("An alignment matrix file must be given "
                                      "for affine alignment");
         Eigen::Matrix3f elements = Eigen::Matrix3f::Identity();
-        DEBUG("Micro alignment is given as " << micro_alignment());
         if ( micro_alignment_file != test_alignment_file ) {
             std::ifstream is( micro_alignment_file.c_str(), std::ios::in );
             for (int r = 0; r < 3; ++r)
@@ -96,9 +94,7 @@ class AffineProjectionConfig
 
   public:
     AffineProjectionConfig() 
-    : ProjectionConfig("AffineProjection", "Linear alignment"),
-      micro_alignment("AlignmentFile", "Plane Alignment file") 
-      {}
+    : ProjectionConfig("AffineProjection"), micro_alignment("AlignmentFile", "") {}
 };
 
 std::auto_ptr<ProjectionConfig> make_affine_projection_config() {
@@ -134,8 +130,6 @@ AffineProjection::Bounds
 AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
 {
     /* Determine bounds of region of interest */
-    DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
-          << " and range " << radius.transpose());
     Bounds::Position lower, upper;
     for (int i = 0; i < 2; ++i) {
         lower[i] = std::numeric_limits<int>::max() * camera::pixel;
@@ -156,7 +150,6 @@ AffineProjection::get_region_of_interest_( const ROISpecification& roi ) const
         }
     }
 
-    DEBUG("Got box " << r.col(0).transpose() << " to " << r.col(1).transpose());
     return Bounds( lower, upper ).intersection( size );
 }
 

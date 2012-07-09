@@ -14,7 +14,8 @@ class FileEntry : public StringEntry {
 
   public:
    FileEntry(const FileEntry &entry);
-   FileEntry(string name, string desc, string value = "");
+   FileEntry(string name, string desc, string value);
+   FileEntry(string name, string value);
    ~FileEntry();
     virtual FileEntry* clone() const
         { return new FileEntry(*this); }

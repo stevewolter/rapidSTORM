@@ -14,7 +14,7 @@
    <title/>
    <glossdiv>
       <title>Input fields</title>
-      <et:elem desc="Number of input channels" topic="join.ChannelCount">
+      <et:elem desc="Number of input channels" topic="ChannelCount">
             This field is used to declare how many <xref 
                   linkend="input_channels">input channels</xref> should be
             made available. New input channel configuration tabs are added
@@ -25,127 +25,89 @@
             This field is used to select the general type of input that should
             be used. If input should be read from some kind of file, select
             <guilabel>File input</guilabel> here and the specific type of file in the 
-            <xref linkend="FileType"/> field.
+            <et:elemref linkend="FileType"/> field.
       </et:elem>
       <et:elem desc="Input file" topic="InputFile">
             The location of the input data is selected in this field. You can put
             any existing file here. It's interpretation (file type) and file-specific
-            input options are set in the <xref linkend="FileType"/> field.
-            This field is only available when you have selected <guilabel>File</guilabel> as <xref linkend="InputType">input type</xref>.
+            input options are set in the <et:elemref linkend="FileType"/> field.
+            This field is only available when you have selected <guilabel>File</guilabel> as <et:elemref linkend="InputType"/>.
       </et:elem>
-      <glossentry id="FileType">
-         <glossterm>File type</glossterm>
-         <glossdef><para>
-               This field is used to select the type of data that are present in the
-               input file. Usually, this is auto-detected, and when the 
-               <xref linkend="InputFile">input file</xref> location is changed, this
-               field is updated with the auto-determined file type for the selected
-               input file.
-         </para></glossdef>
-      </glossentry>
+      <et:elem desc="File type" topic="FileType">
+            This field is used to select the type of data that are present in the
+            input file. Usually, this is auto-detected, and when the 
+            <et:elemref linkend="InputFile"/> location is changed, this
+            field is updated with the auto-determined file type for the selected
+            input file.
+      </et:elem>
 
-      <glossentry id="FirstImage">
-         <glossterm>First image to load</glossterm>
-         <glossdef>
+      <et:elem desc="First image" topic="FirstImage">
             <para>This option allows skipping of the initial frames of the input. The
                frames are indexed sequentially from 0, and the value given here is 
                inclusive. Consequently, the default value of 0 in this field causes
                all images to be loaded. A value of 5 would skip the first 5 images.</para>
             <glossseealso otherterm="LastImage"/>
-         </glossdef>
-      </glossentry>
+      </et:elem>
 
-      <glossentry id="LastImage">
-         <glossterm>Last image to load</glossterm>
-         <glossdef>
-            <para>If this option is enabled, it allows limiting the length of the computation.
-               All images past the given frame number, counted from 0 and excluding the given
-               number, are skipped. For example, a value of 3 would case the four images with
-               indices 0, 1, 2 and 3 to be computed.</para>
-            <glossseealso otherterm="FirstImage"/>
-         </glossdef>
-      </glossentry>
+      <et:elem desc="Last image" topic="LastImage">
+        <para>If this option is enabled, it allows limiting the length of the computation.
+            All images past the given frame number, counted from 0 and excluding the given
+            number, are skipped. For example, a value of 3 would case the four images with
+            indices 0, 1, 2 and 3 to be computed.</para>
+        <glossseealso otherterm="FirstImage"/>
+      </et:elem>
 
-      <glossentry id="MirrorY">
-         <glossterm>Mirror input data along Y axis</glossterm>
-         <glossdef>
-            <para>If this option is enabled, each input image is flipped such that the topmost row
-               in each image becomes the bottommost row.</para>
-         </glossdef>
-      </glossentry>
+      <et:elem desc="Mirror input data along Y axis" topic="MirrorY">
+        <para>If this option is enabled, each input image is flipped such that the topmost row
+            in each image becomes the bottommost row.</para>
+      </et:elem>
 
-      <glossentry id="DualView">
-         <glossterm>Dual view</glossterm>
-         <glossdef>
-            <para>This option allows splitting an image that contains two logical layers. For example,
-               if the reflected beam of a beam splitter is projected onto the left side of the
-               camera and the transmitted on the right side, this output allows to separate them into
-               two different layers that can be used for 3D estimation.</para>
-            <para>The dual view output always splits images exactly in the middle. Use plane
-               alignment to configure other shifts.</para>
-            <glossseealso otherterm="PlaneAlignment"/>
-         </glossdef>
-      </glossentry>
+      <et:elem desc="Dual view" topic="DualView">
+        <para>This option allows splitting an image that contains two logical layers. For example,
+            if the reflected beam of a beam splitter is projected onto the left side of the
+            camera and the transmitted on the right side, this output allows to separate them into
+            two different layers that can be used for 3D estimation.</para>
+        <para>The options are <guilabel>None</guilabel>, which indicates no splitting at all,
+            <guilabel>Left and right</guilabel>, which splits the image at X = Width/2, and
+            <guilabel>Top and bottom</guilabel>, which splits the image at Y = Height/2.</para>
+        <para>The dual view output always splits images exactly in the middle. Use plane
+            alignment to configure other shifts.</para>
+      </et:elem>
 
-      <glossentry id="OnlyPlane">
-         <glossterm>Process only one plane</glossterm>
-         <glossdef>
-            <para>This option allows selecting a single layer from a multi-layer acquisition.
-               The default option, <guilabel>All planes</guilabel>, has no effect. All other
-               options select a single layer from the available input layers, which will be
-               the only layer that is processed.</para>
-         </glossdef>
-      </glossentry>
+      <et:elem topic="OnlyPlane" desc="Processed planes">
+        <para>This option allows selecting a single layer from a multi-layer acquisition.
+            The default option, <guilabel>All planes</guilabel>, has no effect. All other
+            options select a single layer from the available input layers, which will be
+            the only layer that is processed.</para>
+      </et:elem>
 
-      <glossentry id="EstimateBackgroundVariance">
-         <glossterm>Estimate background variance</glossterm>
-         <glossdef>
-            <para>If this option is checked, the background variance (i.e. the variability of
-               the background noise) is estimated with the variance of the values 
-               below the most common intensity value. If this option is checked, the rapidSTORM
-               engine can automatically guess the amplitude threshold.</para>
-         </glossdef>
-      </glossentry>
+      <et:elem topic="CountsPerPhoton" desc="Camera response to photon">
+        <para>This option allows to give the mean intensity each photon generates on the camera.
+            In other terms, a value of 5 in this field assumes that the value of a pixel goes up
+            by 5 (on average) every time the pixel is hit by a photon.</para>
+      </et:elem>
 
-      <glossentry id="CameraResponse">
-         <glossterm>Camera response to photon</glossterm>
-         <glossdef>
-            <para>This option allows to give the mean intensity each photon generates on the camera.
-               In other terms, a value of 5 in this field assumes that the value of a pixel goes up
-               by 5 (on average) every time the pixel is hit by a photon.</para>
-         </glossdef>
-      </glossentry>
-
-      <glossentry id="DarkCurrent">
-         <glossterm>Dark intensity</glossterm>
-         <glossdef>
+      <et:elem topic="DarkCurrent" desc="Dark intensity">
             <para>This option allows to give the dark intensity of the camera, i.e. the mean pixel value
                for a pixel that is hit by no photons during the integration time.</para>
-         </glossdef>
-      </glossentry>
+      </et:elem>
 
-      <glossentry id="PlaneAlignment">
-         <glossterm>Plane alignment</glossterm>
-         <glossdef>
+      <et:elem topic="Alignment" desc="Plane alignment">
             <para>This option allows to describe the mapping from input pixels to sample space coordinates.
                For the mass of single-layer applications, the default choice of <guilabel>No alignment</guilabel>
                is appropriate.</para>
             <para>For multi-layer applications, it is likely that a more complex alignment must be applied here.</para>
-            <glossseealso otherterm="NoAlignment"/>
-            <glossseealso otherterm="LinearAlignment"/>
+            <glossseealso otherterm="ScaledProjection"/>
+            <glossseealso otherterm="AffineProjection"/>
             <glossseealso otherterm="SupportPointAlignment"/>
-         </glossdef>
-      </glossentry>
+      </et:elem>
 
-      <glossentry id="z_calibration_file">
-         <glossterm>Z calibration file</glossterm>
-         <glossdef>
-            <para>The filename of a Z calibration file (<xref linkend="z_calibration_table"/>)
-               should be given in this option.</para>
-         </glossdef>
-      </glossentry>
+      <et:elem topic="ZCalibration" desc="Z calibration file">
+        <para>The filename of a Z calibration file (<xref linkend="z_calibration_table"/>)
+            should be given in this option.</para>
+      </et:elem>
 
-      <et:elem desc="Join inputs on" topic="join.JoinOn">
+      <et:elem desc="Join inputs on" topic="JoinOn">
             When multiple channels are selected, this field is used to declare how these
             multiple channels are combined into a single image or dataset. The available options are:
             <orderedlist>
@@ -159,22 +121,22 @@
                declaration. For images, the dimensions of the images must match.</listitem>
             </orderedlist>
       </et:elem>
-      <et:elem desc="Output file basename" topic="OutputBasename">
+      <et:elem desc="Output file basename" topic="Basename">
             This is the location and filename prefix for rapidSTORM output files. More precisely,
             the filenames for rapidSTORM's output files are produced by adding a file-specific suffix
             to the value of this field. 
       </et:elem>
-      <et:elem desc="Fluorophore types" topic="FluorophoreTypeCount">
+      <et:elem desc="Fluorophore types" topic="FluorophoreCount">
             The number of <xref linkend="fluorophore"/>s present in the input should be given here.
             When multiple fluorophores are selected, additional input fields will appear and allow
             configuration of the spectral parameters.
       </et:elem>
-      <et:elem desc="Size of one input pixel" topic="PixelSize">
+      <et:elem desc="Size of one input pixel" topic="PixelSizeInNM">
          This field gives the size of the sample part that is imaged in a single camera pixel.
          Typically, this value should be in the order of 100 nm. See <xref linkend="Thompson2002"/>
          for a discussion about ideal values.
       </et:elem>
-      <et:elem desc="PSF FWHM" topic="PSF.FWHM">
+      <et:elem desc="PSF FWHM" topic="PSF">
             The full width at half maximum of the optical point spread function. More
             precisely, the typical width of an emitter should be entered here, including fluorophore
             size and camera pixelation effects. rapidSTORM will fit spots in the images with a Gaussian 
@@ -182,79 +144,79 @@
             by using the <xref linkend="estimate_psf_form"/> output.
       </et:elem>
 
-      <glossentry id="3DType">
-         <glossterm>3D PSF model</glossterm>
-         <glossdef>
-            <para>
-               The 3D PSF model denotes the functional form of the PSF's change with respect to the 
-               emitter's Z position. The choices are:
-            </para>
-            <variablelist>
-               <varlistentry><term><guilabel>No 3D</guilabel></term>
-                  <listitem><para>The PSF width is constant, and no Z coordinate exists or is fitted.</para></listitem></varlistentry>
-               <varlistentry><term><guilabel>Polynomial 3D</guilabel></term>
-                  <listitem><para>The polynomial 3D model (see <xref linkend="polynomial_3d"/>) determines
-                     PSF widths from the Z coordinate.</para></listitem></varlistentry>
-               <varlistentry id="Interpolated3D"><term><guilabel>Interpolated 3D</guilabel></term>
-                  <listitem><para>The piecewise cubic 3D model (see <xref linkend="interpolated_3d"/>) determines
-                     PSF widths from the Z coordinate.</para></listitem></varlistentry>
-            </variablelist>
-         </glossdef>
-      </glossentry>
+    <et:elem topic="ThreeD" desc="3D PSF model">
+        <para>
+            The 3D PSF model denotes the functional form of the PSF's change with respect to the 
+            emitter's Z position.
+        </para>
+        <glossseealso otherterm="No3D"/>
+        <glossseealso otherterm="Polynomial3D"/>
+        <glossseealso otherterm="Spline3D"/>
+    </et:elem>
+    <et:elem topic="No3D" desc="No 3D">
+        The PSF width is constant, and no Z coordinate exists or is fitted.
+    </et:elem>
+    <et:elem topic="Polynomial3D" desc="Polynomial 3D">
+        The polynomial 3D model (see <xref linkend="polynomial_3d"/>) determines PSF widths from the Z coordinate.
+    </et:elem>
+    <et:elem topic="Spline3D" desc="Interpolated 3D">
+        The piecewise cubic 3D model (see <xref linkend="interpolated_3d"/>) determines
+        PSF widths from the Z coordinate.
+    </et:elem>
 
-   </glossdiv>
+    <et:elem topic="SharpestPSF" desc="PSF FWHM at sharpest Z"/>
+    <et:elem topic="ZPosition" desc="Point of sharpest Z">
+        The Z coordinate of the focal plane (the plane where the PSF has the lowest width).
+        You can indicate astigmatism by giving different positions for the two dimensions
+        of one layer, or biplane by giving different positions for two layers.
+    </et:elem>
+    <et:elem topic="ZRange" desc="Maximum Z range"/>
+    <et:elem topic="WideningConstants" desc="Widening slopes"/>
 
-   <glossdiv>
-      <title>Choices for <xref linkend="FileType"/></title>
-
-      <et:elem desc="Localizations file" topic="localizations_file_input">
+    <et:elem desc="Localizations file" topic="STM">
       This input driver can be used to read the files written
          by the <xref linkend="localizations_file_output"/> output module.
          The file format is documented with the output module.
+    </et:elem>
+
+      <et:elem topic="AndorSIF" desc="Andor SIF file">
+        <para>This input driver can read the Andor SIF file format produced
+            by Andor Technology software such as SOLIS.</para>
+        <para>SIF files are stored in an uncompressed binary format with a
+            simple text header. Because reading SIF files cannot be implemented
+            in a forward-compatible way (reading new SIF files with old software),
+            this driver might be unable to open the file; in this case, an error
+            message is shown indicating the maximum known and the encountered
+            version of the Andor SIF structure. Please obtain a newer version
+            of this software in this case.</para>
       </et:elem>
 
-      <glossentry>
-         <glossterm>Andor SIF file</glossterm>
-         <glossdef>
-            <para>This input driver can read the Andor SIF file format produced
-               by Andor Technology software such as SOLIS.</para>
-            <para>SIF files are stored in an uncompressed binary format with a
-               simple text header. Because reading SIF files cannot be implemented
-               in a forward-compatible way (reading new SIF files with old software),
-               this driver might be unable to open the file; in this case, an error
-               message is shown indicating the maximum known and the encountered
-               version of the Andor SIF structure. Please obtain a newer version
-               of this software in this case.</para>
-         </glossdef>
-      </glossentry>
+      <et:elem topic="TIFF" desc="TIFF file">
+        <para>This input driver reads a multipage TIFF stack. All images in the
+            TIFF stack must have the same size, and be greyscale images of up to
+            64 bit depth. Both integer and floating point data are allowed, even
+            though all data are converted internally to 16 bit unsigned format.</para>
+      </et:elem>
 
-      <glossentry>
-         <glossterm>TIFF file</glossterm>
-         <glossdef>
-            <para>This input driver reads a multipage TIFF stack. All images in the
-               TIFF stack must have the same size, and be greyscale images of up to
-               64 bit depth. Both integer and floating point data are allowed, even
-               though all data are converted internally to 16 bit unsigned format.</para>
-         </glossdef>
-      </glossentry>
-   </glossdiv>
-
-   <glossdiv>
-      <title>Choices for <xref linkend="PlaneAlignment"/></title>
-      <glossentry id="NoAlignment"><glossterm>No alignment</glossterm>
-         <glossdef><para>The upper left pixel is assumed to be at (0,0) nanometers. The 
-            <xref linkend="PixelSize"/> field gives the offset of each pixel to the next. For example, if
-            the pixel sizes are 100 nm in X and 110 nm in Y, the pixel at (10,15) is at (1,1.65) &mgr;m.
-            </para></glossdef></glossentry>
-      <glossentry id="LinearAlignment"><glossterm>Linear alignment</glossterm>
-         <glossdef><para>Naive pixel coordinates are computed identically to <xref linkend="NoAlignment"/>
-            and then transformed by an affine transformation matrix.</para></glossdef></glossentry>
-      <glossentry id="SupportPointAlignment"><glossterm>Support point alignment</glossterm>
-         <glossdef><para>Naive pixel coordinates are computed identically to <xref linkend="NoAlignment"/>.
+    <et:elem topic="ScaledProjection" desc="No alignment">
+        <para>The upper left pixel is assumed to be at (0,0) nanometers. The 
+        <et:elemref linkend="PixelSizeInNM"/> field gives the offset of each pixel to the next. For example, if
+        the pixel sizes are 100 nm in X and 110 nm in Y, the pixel at (10,15) is at (1,1.65) &mgr;m.
+        </para>
+    </et:elem>
+    <et:elem topic="AffineProjection" desc="Linear alignment">
+         <para>Naive pixel coordinates are computed identically to <et:elemref linkend="ScaledProjection"/>
+            and then transformed by an affine transformation matrix.</para>
+    </et:elem>
+    <et:elem topic="SupportPointAlignment" desc="Support point alignment">
+         <para>Naive pixel coordinates are computed identically to <et:elemref linkend="ScaledProjection"/>.
             A nonlinear transformation image is read from a file. The naive coordinates are projected
             into the source image of the nonlinear transformation, and the transformation is applied with linear
-            interpolation.</para></glossdef></glossentry>
-   </glossdiv>
-
+            interpolation.</para>
+    </et:elem>
+    <et:elem topic="SupportPointAlignmentFile" desc="bUnwarpJ transformation"/>
+    <et:elem topic="SupportPointResolution" desc="Transformation resolution"/>
+    <et:elem topic="AlignmentFile" desc="Plane alignment file"/>
+</glossdiv>
 </glossary>
 </chapter>

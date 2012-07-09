@@ -77,7 +77,7 @@ public:
 };
 
 LocalizationCounter::Config::Config()
-: output_file("ToFile", "Write localization count to file")
+: output_file("ToFile", "Write localization count to file", "")
 {
     output_file.set_user_level( simparm::Intermediate );
 }

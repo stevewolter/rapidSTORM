@@ -10,7 +10,7 @@ BasenameAdjustedFileEntry:: BasenameAdjustedFileEntry
     std::string desc,
     std::string suffix
 ) 
-: simparm::FileEntry(name,desc),
+: simparm::FileEntry(name,desc, ""),
   has_been_user_modified(false)
 {
     default_extension = suffix;

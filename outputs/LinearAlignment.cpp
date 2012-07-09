@@ -38,7 +38,7 @@ class LinearAlignment::Config {
     static simparm::UserLevel get_user_level() { return simparm::Beginner; }
 
     Config() 
-        : calibration_file("AlignmentFile", "Plane alignment file") {}
+        : calibration_file("AlignmentFile", "Plane alignment file", "") {}
 
     bool determine_output_capabilities( Capabilities& cap ) 
         { return true; }

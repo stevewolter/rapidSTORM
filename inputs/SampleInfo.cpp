@@ -96,9 +96,8 @@ inline void Config::set_traits( DataSetTraits& t ) const
 
 Config::Config()
 : name_object( ChainLink::getName(), "Sample information"),
-  fluorophore_count("FluorophoreCount", "Fluorophore types", 1)
+  fluorophore_count("FluorophoreCount", 1)
 {
-    fluorophore_count.setHelpID( "FluorophoreTypeCount" );
     fluorophore_count.min = 1;
     fluorophore_count.increment = 1;
     fluorophore_count.hide();

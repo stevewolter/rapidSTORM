@@ -169,7 +169,7 @@ void Source< engine::ImageStack >::modify_traits( input::Traits<engine::ImageSta
 
 Config::Config() 
 : name_object( ChainLink::getName(), "Mirror input data along Y axis"),
-  mirror_y("MirrorY", "Mirror input data along Y axis", false)
+  mirror_y("MirrorY", false)
 {
     mirror_y.set_user_level( simparm::Expert );
 }

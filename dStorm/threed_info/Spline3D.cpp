@@ -113,8 +113,8 @@ class Spline3DConfig : public Config {
     }
   public:
     Spline3DConfig() 
-        : Config("Spline3D", "Interpolated 3D"),
-          z_calibration_file("ZCalibration", "Z calibration file") {}
+        : Config("Spline3D"),
+          z_calibration_file("ZCalibration", "") {}
     Spline3DConfig* clone() const { return new Spline3DConfig(*this); }
 };
 

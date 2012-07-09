@@ -22,8 +22,8 @@ inline void delete_clone<Choice::LinkAdaptor>(const Choice::LinkAdaptor* l)
 namespace dStorm {
 namespace input {
 
-Choice::Choice(std::string name, std::string desc, bool auto_select)
-: choices(name, desc), auto_select(auto_select), will_publish_traits(false)
+Choice::Choice(std::string name, bool auto_select)
+: choices(name), auto_select(auto_select), will_publish_traits(false)
 {
 }
 

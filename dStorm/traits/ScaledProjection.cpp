@@ -5,7 +5,6 @@
 #include <boost/units/Eigen/Array>
 #include <boost/units/cmath.hpp>
 #include <dStorm/image/MetaInfo.h>
-#include "debug.h"
 
 namespace dStorm {
 namespace traits {
@@ -68,7 +67,7 @@ class ScaledProjectionConfig
     void attach_ui( simparm::NodeHandle at ) { attach_parent(at); }
 
   public:
-    ScaledProjectionConfig() : ProjectionConfig("ScaledProjection", "No alignment") {}
+    ScaledProjectionConfig() : ProjectionConfig("ScaledProjection") {}
 };
 
 std::auto_ptr<ProjectionConfig> make_scaling_projection_config() {
@@ -131,8 +130,6 @@ ScaledProjection::Bounds
 ScaledProjection::get_region_of_interest_( const ROISpecification& r ) const
 {
     /* Determine bounds of region of interest */
-    DEBUG("Cutting region around center " << center.transpose() << " with upper bound " << upper_bound.transpose()
-          << " and range " << radius.transpose());
     Bounds native( 
         from_value< camera::length >( ceil(to_image * value(r.center - r.width)).cast<int>() ),
         from_value< camera::length >( floor(to_image * value(r.center + r.width)).cast<int>() ) );

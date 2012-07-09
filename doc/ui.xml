@@ -26,12 +26,12 @@
         <procedure>
             <step>Start rapidSTORM via the icon in the Start menu</step>
             <step>Select the input file by dragging &amp; dropping it from a
-                Windows Explorer window to the <xref linkend="InputFile"/>
+                Windows Explorer window to the <et:elemref linkend="InputFile"/>
                 field (<xref linkend="example-screenshot.input-file"/>.</step>
-            <step>Set the input pixel size by entering the value in the <xref linkend="PixelSize"/>
+            <step>Set the input pixel size by entering the value in the <xref linkend="PixelSizeInNM"/>
             field (<xref linkend="example-screenshot.pixel-size"/>).</step>
             <step>Enter the full width at half maximum of your point spread function into
-                the <xref linkend="PSF.FWHM"/> field (<xref linkend="example-screenshot.psf-fwhm"/>. You can estimate this value from
+                the <et:elemref linkend="PSF"/> field (<xref linkend="example-screenshot.psf-fwhm"/>. You can estimate this value from
                 the numerical aperture of your microscope by the approximation <inlineequation>
                     <mathphrase>&lgr; / 2 NA</mathphrase></inlineequation>, where &lgr; is
                     the detection wavelength and NA the numerical aperture of your objective.</step>

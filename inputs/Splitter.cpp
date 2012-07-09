@@ -138,7 +138,7 @@ class ChainLink
 
 Config::Config() 
 : name_object( ChainLink::getName(), "Split dual view image"),
-  biplane_split("DualView", "Dual view")
+  biplane_split("DualView")
 {
     biplane_split.addChoice( std::auto_ptr<Split>( new NoSplit() ) );
     biplane_split.addChoice( std::auto_ptr<Split>( new HorizontalSplit() ) );
@@ -174,7 +174,6 @@ struct Source::iterator
 engine::ImageStack& Source::iterator::dereference() const {
     if ( ! i.is_initialized() ) {
         const engine::ImageStack& e = *base();
-        DEBUG("Upstream has frame number " << e.frame_number());
         i = engine::ImageStack( e.frame_number() );
         for (int p = 0; p < e.plane_count(); ++p ) {
             if ( e.plane(p).is_invalid() ) {
@@ -196,7 +195,6 @@ engine::ImageStack& Source::iterator::dereference() const {
             }
         }
     }
-    DEBUG("Result has frame number " << i->frame_number());
     return *i;
 }
 

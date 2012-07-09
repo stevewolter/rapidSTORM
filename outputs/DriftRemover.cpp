@@ -76,7 +76,7 @@ class Config {
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     Config() 
-        : drift_file("DriftFile", "Drift correction file"),
+        : drift_file("DriftFile", "Drift correction file", ""),
           smoothing("Smoothing", "Smoothing width", 5.0f * bu::camera::frame) {}
 
     bool determine_output_capabilities( output::Capabilities& cap ) 

@@ -25,11 +25,19 @@ FileEntry::FileEntry(const FileEntry &entry)
   default_extension(entry.default_extension)
 {
 }
+
 FileEntry::FileEntry(string name, string desc, string value)
 : StringEntry(name, desc, value), 
   default_extension("extension", "")
 {
 }
+
+FileEntry::FileEntry(string name, string value)
+: StringEntry(name, value), 
+  default_extension("extension", "")
+{
+}
+
 FileEntry::~FileEntry() 
 {
 }

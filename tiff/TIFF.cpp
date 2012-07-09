@@ -207,7 +207,7 @@ Source::end() {
 }
 
 Config::Config()
-: name_object("TIFF", "TIFF file"),
+: name_object("TIFF"),
   ignore_warnings("IgnoreLibtiffWarnings",
     "Ignore libtiff warnings", true),
   determine_length("DetermineFileLength",

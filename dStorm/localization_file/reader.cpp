@@ -1,5 +1,3 @@
-#include "debug.h"
-
 #include <dStorm/unit_interval.h>
 #include "reader.h"
 #include "field.h"
@@ -29,10 +27,8 @@ class Source::iterator
 
     void increment() { 
         trace_buffer.clear(); 
-        DEBUG("Reading localization");
         current = read_localization( file->level );
         if ( ! file->input ) { file = NULL; }
-        DEBUG("Read localization, file is now " << file);
     }
 
     localization::Record& dereference() const { return current; }
@@ -75,7 +71,6 @@ localization::Record Source::iterator::read_localization( int level )
     static std::string missing_image_line("# No localizations in image ");
 
     if ( level == 0 ) {
-        DEBUG("Reading at level 0");
         while (true ) {
             char peek;
             while ( true ) {
@@ -94,7 +89,6 @@ localization::Record Source::iterator::read_localization( int level )
             } else
                 break;
         }
-        DEBUG("Reading next localization");
         return file->read_next();
     } else {
         TraceBuffer::iterator my_buffer = 
@@ -124,7 +118,7 @@ input::Source<localization::Record>::iterator Source::end() {
 }
 
 Config::Config() 
-: name_object("STM", "Localizations file")
+: name_object("STM")
 {
 }
 

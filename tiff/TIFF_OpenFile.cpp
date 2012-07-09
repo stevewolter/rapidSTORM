@@ -81,15 +81,11 @@ OpenFile::getTraits( bool final, simparm::Entry<long>& n )
             }
         }
 #if 0 /* For some reason, this call just blocks under windows. Avoid it. */
-        DEBUG("Resetting position");
         TIFFSetDirectory(tiff, 0);
 #else
-        DEBUG("Closing file");
         TIFFClose(tiff);
-        DEBUG("Re-opening file " << file_ident.c_str());
         tiff = TIFFOpen( file_ident.c_str(), "rCm" );
         if ( tiff == NULL ) {
-            DEBUG("Failed to re-open TIFF file");
             op.throw_exception_for_errors(); throw std::logic_error("Undefined error in TIFF reading"); 
         }
 #endif

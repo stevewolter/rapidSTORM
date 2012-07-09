@@ -170,7 +170,7 @@ int AlignmentFitterJob::ident = 1;
 std::auto_ptr<dStorm::Job> AlignmentFitterConfig::make_job() { return std::auto_ptr<dStorm::Job>( new AlignmentFitterJob(*this) ); }
 
 AlignmentFitter::AlignmentFitter()
-: file1("File1", "File 1"), file2("File2", "File 2"), output("OutputFile", "Output file"),
+: file1("File1", "File 1", ""), file2("File2", "File 2", ""), output("OutputFile", "Output file", ""),
   sigma("Sigma", "Sigma", 1), 
   shift_x("ShiftX", "Shift X in mum", 0),
   shift_y("ShiftY", "Shift Y in mum", 0),

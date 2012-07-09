@@ -16,6 +16,8 @@ class ProjectionConfig : public simparm::ObjectChoice {
   public:
     ProjectionConfig( std::string name, std::string desc ) 
         : simparm::ObjectChoice(name,desc) {}
+    ProjectionConfig( std::string name ) 
+        : simparm::ObjectChoice(name) {}
     virtual ~ProjectionConfig() {}
     ProjectionConfig* clone() const { return clone_(); }
     std::auto_ptr<ProjectionFactory> get_projection_factory() const 

@@ -48,7 +48,7 @@ class Choice
     simparm::BaseAttribute::Connection value_change_listen;
 
   public:
-    Choice(std::string name, std::string desc, bool auto_select);
+    Choice(std::string name, bool auto_select);
     Choice(const Choice&);
     ~Choice();
     

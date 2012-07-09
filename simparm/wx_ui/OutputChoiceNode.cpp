@@ -39,6 +39,7 @@ class OutputChoiceButton : public wxButton {
     boost::shared_ptr< BaseAttributeHandle > value;
 
     void clicked( wxCommandEvent& ) {
+        std::sort( available.begin(), available.end() );
         wxArrayString choices;
         BOOST_FOREACH( const std::string& s, available )
             choices.Add( wxString( s.c_str(), wxConvUTF8 ) );

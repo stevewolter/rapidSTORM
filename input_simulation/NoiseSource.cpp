@@ -65,8 +65,8 @@ FluorophoreSetConfig::FluorophoreSetConfig(std::string name, std::string desc)
 : name_object(name, desc),
   distribution( "FluorophoreDistribution", "Pattern to "
                            "distribute simulated fluorophores with" ),
-  store("StoreFluorophores", "Store fluorophore positions and PSFs" ),
-  recall("RecallFluorophores", "Recall fluorophore positions and PSFs" ),
+  store("StoreFluorophores", "Store fluorophore positions and PSFs", "" ),
+  recall("RecallFluorophores", "Recall fluorophore positions and PSFs", "" ),
   fluorophore_index("FluorophoreIndex", "Fluorophore ident for transmission", 0)
 { 
     distribution.addChoice( new FluorophoreDistributions::Random());
@@ -80,7 +80,7 @@ NoiseConfig::NoiseConfig()
   imageNumber("ImageNumber", "Number of source images to generate", 10000),
   sample_depth("SampleDepth", "Depth of virtual sample", 1 * si::micrometer),
   integrationTime("IntegrationTime", "Integration time for one image", 0.1),
-  saveActivity( "SaveActivity", "Save fluorophore activity information to file" ),
+  saveActivity( "SaveActivity", "Save fluorophore activity information to file", "" ),
   layer_count( "LayerCount", "Number of layers to generate", 1 ),
   optics( dStorm::traits::PlaneConfig::InputSimulation )
 {

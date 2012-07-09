@@ -270,13 +270,11 @@ class Link
 Link::Link()
 : name_object("MultiChannel", "Multi-channel input"),
   channels("Channels", "Channels"),
-  join_type("JoinOn", "Join inputs on"),
-  channel_count("ChannelCount", "Number of input channels", 1),
+  join_type("JoinOn"),
+  channel_count("ChannelCount", 1),
   registered_node(false)
 {
     channel_count.min = 1;
-    channel_count.setHelpID( "#join.ChannelCount" );
-    join_type.setHelpID( "#join.JoinOn" );
 
     join_type.addChoice( new StrategistImplementation< spatial_tag<2> >() );
     join_type.addChoice( new StrategistImplementation< temporal_tag >() );

@@ -36,7 +36,7 @@ class SigmaDiff3D::Config {
     static simparm::UserLevel get_user_level() { return simparm::Intermediate; }
 
     Config() 
-    : calibration_file("SigmaCalibrationFile", "Calibration file") 
+    : calibration_file("SigmaCalibrationFile", "Calibration file", "") 
     {
         calibration_file.setHelpID( "SigmaDiff3D_CalibrationFile" );
     }

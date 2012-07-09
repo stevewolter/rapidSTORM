@@ -26,9 +26,12 @@
             </xsl:processing-instruction>
         <glossterm><xsl:value-of select="@desc"/>
             </glossterm>
-        <glossdef><para>
+        <glossdef>
             <xsl:apply-templates select="node()"/>
-        </para></glossdef>
+        </glossdef>
     </glossentry>
+  </xsl:template>
+  <xsl:template match="elemtable:elemref">
+    <guilabel><xref linkend="{@linkend}"/></guilabel>
   </xsl:template>
 </xsl:stylesheet>

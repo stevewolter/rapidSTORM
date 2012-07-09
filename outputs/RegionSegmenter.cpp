@@ -142,8 +142,8 @@ struct RegionSegmentationMethod : public SegmentationMethod {
         threshold("SegmentationThreshold","Threshold for regionness", 0.001),
         dilation("SegmentationDilation", 
                 "Region dilation in binned pixels", 0),
-        save_segmentation("SaveSegmentation", "Save segmentation"),
-        load_segmentation("LoadSegmentation", "Load segmentation") {}
+        save_segmentation("SaveSegmentation", "Save segmentation", ""),
+        load_segmentation("LoadSegmentation", "Load segmentation", "") {}
     void attach_ui( simparm::NodeHandle at ) { 
         simparm::NodeHandle r = attach_parent(at);
         threshold.attach_ui( r );

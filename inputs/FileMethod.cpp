@@ -1,5 +1,3 @@
-#include "debug.h"
-
 #include <boost/algorithm/string.hpp>
 #include <dStorm/input/InputMutex.h>
 #include <dStorm/engine/Image.h>
@@ -61,24 +59,20 @@ class FileTypeChoice
 
   public:
     FileTypeChoice() 
-        : Choice("FileType", "File type", true) {}
+        : Choice("FileType", true) {}
 };
 
 FileMethod::FileMethod()
 : Forwarder(),
   name_object("FileMethod", "File"),
-  input_file("InputFile", "Input file")
+  input_file("InputFile", "")
 {
-    input_file.setHelpID( "InputFile" );
-    /* TODO: children.set_help_id( "FileType" ); */
-    DEBUG("Created file method");
     Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );
 }
 
 void FileMethod::republish_traits()
 {
     InputMutexGuard lock( global_mutex() );
-    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << current_meta_info().get() );
     if ( current_meta_info().get() != NULL ) {
         current_meta_info()->get_signal< signals::InputFileNameChange >()( input_file() );
     }
@@ -105,9 +99,7 @@ class BasenameApplier {
 
 void FileMethod::traits_changed( TraitsRef traits, Link* from )
 {
-    DEBUG( "Sending callback for filename " << input_file() << " from " << this << " to " << traits.get() );
     if ( traits.get() == NULL ) return update_current_meta_info( traits );
-    DEBUG( "FileMethod " << this << " got traits " << traits->provides_nothing() );
     traits->get_signal< signals::InputFileNameChange >()( input_file() );
     /* The signal might have forced a traits update that already did our
      * work for us. */
