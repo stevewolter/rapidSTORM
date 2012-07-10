@@ -441,7 +441,7 @@
                   access to often-needed manipulations, while the more complex test-based expressions
                   give full access to all localization fields.</para>
          <para>The number of <guilabel>Value to assign to</guilabel> and <guilabel>Expression to assign from</guilabel> fields in this
-               output is variable and can be changed with the <guilabel>Add expression</guilabel> button. These fields
+               output is variable and can be changed with the <guilabel>Number of expressions</guilabel> field. These fields
                form pairs called "actions", and all of the actions take effect. The order of application is top-to-bottom.</para>
       </refsection>
       <refsection>
@@ -538,7 +538,7 @@
                   <row><entry><userinput><replaceable>n1</replaceable> == <replaceable>n2</replaceable>, <replaceable>n1</replaceable> != <replaceable>n2</replaceable>, <replaceable>n1</replaceable> = <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt;= <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &gt; <replaceable>n2</replaceable>, <replaceable>n1</replaceable> &lt; <replaceable>n2</replaceable></userinput></entry><entry>boolean</entry><entry>comparison for equality, inequality, equality (same as <userinput>==</userinput>), greater-equality, less-equality, greater, less</entry></row>
                   <row><entry><userinput>!<replaceable>b1</replaceable></userinput></entry><entry>boolean</entry><entry>negation</entry></row>
                   <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>conjunction (and)</entry></row>
-                  <row><entry><userinput><replaceable>b1</replaceable> &amp;&amp; <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
+                  <row><entry><userinput><replaceable>b1</replaceable> || <replaceable>b2</replaceable></userinput></entry><entry>boolean</entry><entry>disjunction (or)</entry></row>
                </tbody>
          </tgroup>
       </table>

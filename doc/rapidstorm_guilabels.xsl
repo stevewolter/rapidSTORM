@@ -17,6 +17,14 @@
   <xsl:template match="elemtable:elemtable">
       <xsl:apply-templates select="elemtable:elem"/>
   </xsl:template>
+  <xsl:template match="elemtable:title">
+    <xsl:text>{ "</xsl:text>
+    <xsl:value-of select="@topic"/>
+    <xsl:text>", "</xsl:text>
+    <xsl:value-of select="@desc"/>
+    <xsl:text>", "" },
+</xsl:text>
+  </xsl:template>
   <xsl:template match="elemtable:elem">
     <xsl:text>{ "</xsl:text>
     <xsl:value-of select="@topic"/>

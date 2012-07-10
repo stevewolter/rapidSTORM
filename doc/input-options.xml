@@ -9,36 +9,50 @@
 ]>
 
 <chapter id="input_options" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
-   <title>Input options</title>
+   <et:title desc="Input options" topic="Input"/>
 <glossary>
    <title/>
    <glossdiv>
       <title>Input fields</title>
       <et:elem desc="Number of input channels" topic="ChannelCount">
-            This field is used to declare how many <xref 
+            <para>This field is used to declare how many <xref 
                   linkend="input_channels">input channels</xref> should be
             made available. New input channel configuration tabs are added
-            or removed as needed when this field is changed. It might take
-            rapidSTORM a moment to do this, please have patience.
+            or removed as needed when this field is changed. </para>
       </et:elem>
       <et:elem desc="Input type" topic="InputType">
-            This field is used to select the general type of input that should
+            <para>This field is used to select the general type of input that should
             be used. If input should be read from some kind of file, select
-            <guilabel>File input</guilabel> here and the specific type of file in the 
-            <et:elemref linkend="FileType"/> field.
+            <et:elemref linkend="FileMethod"/> here and the specific type of file in the 
+            <et:elemref linkend="FileType"/> field.</para>
+            <glossseealso otherterm="FileMethod"/>
       </et:elem>
       <et:elem desc="Input file" topic="InputFile">
-            The location of the input data is selected in this field. You can put
-            any existing file here. It's interpretation (file type) and file-specific
+            <para>The location of the input data is selected in this field. You can put
+            any existing file here. It's interpretation (file type) and file-type-specific
             input options are set in the <et:elemref linkend="FileType"/> field.
-            This field is only available when you have selected <guilabel>File</guilabel> as <et:elemref linkend="InputType"/>.
+            This field is only available when you have selected <et:elemref linkend="FileMethod"/>
+            as <et:elemref linkend="InputType"/>.</para>
+            <glossseealso otherterm="FileMethod"/>
+            <glossseealso otherterm="FileType"/>
       </et:elem>
       <et:elem desc="File type" topic="FileType">
-            This field is used to select the type of data that are present in the
+            <para>This field is used to select the type of data that are present in the
             input file. Usually, this is auto-detected, and when the 
             <et:elemref linkend="InputFile"/> location is changed, this
             field is updated with the auto-determined file type for the selected
-            input file.
+            input file.</para>
+            <glossseealso otherterm="FileMethod"/>
+            <glossseealso otherterm="InputFile"/>
+      </et:elem>
+      <et:elem desc="Input method" topic="InputMethod">
+            <para>This field is used to select the type of data that are present in the
+            input file. Usually, this is auto-detected, and when the 
+            <et:elemref linkend="InputFile"/> location is changed, this
+            field is updated with the auto-determined file type for the selected
+            input file.</para>
+            <para>You can enforce the file type instead of auto-detection by explicitly selecting
+                a choice in this field after entering a file name.</para>
       </et:elem>
 
       <et:elem desc="First image" topic="FirstImage">
@@ -94,22 +108,22 @@
 
       <et:elem topic="Alignment" desc="Plane alignment">
             <para>This option allows to describe the mapping from input pixels to sample space coordinates.
-               For the mass of single-layer applications, the default choice of <guilabel>No alignment</guilabel>
+               For the majority of single-layer applications, the default choice of <et:elemref linkend="ScaledProjection"/>
                is appropriate.</para>
-            <para>For multi-layer applications, it is likely that a more complex alignment must be applied here.</para>
             <glossseealso otherterm="ScaledProjection"/>
             <glossseealso otherterm="AffineProjection"/>
-            <glossseealso otherterm="SupportPointAlignment"/>
+            <glossseealso otherterm="SupportPointProjection"/>
       </et:elem>
 
       <et:elem topic="ZCalibration" desc="Z calibration file">
         <para>The filename of a Z calibration file (<xref linkend="z_calibration_table"/>)
-            should be given in this option.</para>
+            should be given in this option. The calibration file will be used to determine 
+            PSF widths as a function of the Z coordinate during fitting.</para>
       </et:elem>
 
       <et:elem desc="Join inputs on" topic="JoinOn">
-            When multiple channels are selected, this field is used to declare how these
-            multiple channels are combined into a single image or dataset. The available options are:
+            <para>When multiple channels are selected, this field is used to declare how these
+            multiple channels are combined into a single image or dataset. The available options are:</para>
             <orderedlist>
             <listitem>Spatial joining in X/Y dimension, which means that images or datasets are pasted
             next to each other. For spatial joining of image data in the X/Y dimension, the not-joined dimension
@@ -122,26 +136,27 @@
             </orderedlist>
       </et:elem>
       <et:elem desc="Output file basename" topic="Basename">
-            This is the location and filename prefix for rapidSTORM output files. More precisely,
-            the filenames for rapidSTORM's output files are produced by adding a file-specific suffix
-            to the value of this field. 
+            <para>This is the location and filename prefix for rapidSTORM output files. More precisely,
+                the filenames for rapidSTORM's output files are produced by adding a file-specific suffix
+                to the value of this field.</para>
+            <para>This field is automatically set when a new input file is selected.</para>
       </et:elem>
       <et:elem desc="Fluorophore types" topic="FluorophoreCount">
-            The number of <xref linkend="fluorophore"/>s present in the input should be given here.
-            When multiple fluorophores are selected, additional input fields will appear and allow
-            configuration of the spectral parameters.
+            <para>The number of <xref linkend="fluorophore"/>s present in the input should be given here.
+            When multiple fluorophores are selected, <et:elemref linkend="TransmissionCoefficient"/>
+            fields can be used to characterize the spectra.</para>
       </et:elem>
       <et:elem desc="Size of one input pixel" topic="PixelSizeInNM">
-         This field gives the size of the sample part that is imaged in a single camera pixel.
+         <para>This field gives the size of the sample part that is imaged in a single camera pixel.
          Typically, this value should be in the order of 100 nm. See <xref linkend="Thompson2002"/>
-         for a discussion about ideal values.
+         for a discussion about ideal values.</para>
       </et:elem>
       <et:elem desc="PSF FWHM" topic="PSF">
-            The full width at half maximum of the optical point spread function. More
-            precisely, the typical width of an emitter should be entered here, including fluorophore
+            <para>The full width at half maximum of the optical point spread function. More
+            precisely, the typical width of an emitter's image should be entered here, including fluorophore
             size and camera pixelation effects. rapidSTORM will fit spots in the images with a Gaussian 
             with the same FWHM as given here. If the PSF is unknown, it can be determined semi-automatically
-            by using the <xref linkend="estimate_psf_form"/> output.
+            by using the <xref linkend="estimate_psf_form"/> output.</para>
       </et:elem>
 
     <et:elem topic="ThreeD" desc="3D PSF model">
@@ -154,29 +169,38 @@
         <glossseealso otherterm="Spline3D"/>
     </et:elem>
     <et:elem topic="No3D" desc="No 3D">
-        The PSF width is constant, and no Z coordinate exists or is fitted.
+        <para>The PSF width is constant, and no Z coordinate is considered.</para>
     </et:elem>
     <et:elem topic="Polynomial3D" desc="Polynomial 3D">
-        The polynomial 3D model (see <xref linkend="polynomial_3d"/>) determines PSF widths from the Z coordinate.
+        <para>The polynomial 3D model (see <xref linkend="polynomial_3d"/>) determines PSF widths from the Z coordinate.</para>
     </et:elem>
     <et:elem topic="Spline3D" desc="Interpolated 3D">
-        The piecewise cubic 3D model (see <xref linkend="interpolated_3d"/>) determines
-        PSF widths from the Z coordinate.
+        <para>The piecewise cubic 3D model (see <xref linkend="interpolated_3d"/>) determines
+        PSF widths from the Z coordinate.</para>
     </et:elem>
 
-    <et:elem topic="SharpestPSF" desc="PSF FWHM at sharpest Z"/>
-    <et:elem topic="ZPosition" desc="Point of sharpest Z">
-        The Z coordinate of the focal plane (the plane where the PSF has the lowest width).
-        You can indicate astigmatism by giving different positions for the two dimensions
-        of one layer, or biplane by giving different positions for two layers.
+    <et:elem topic="SharpestPSF" desc="PSF FWHM at sharpest Z">
+        <para>The width of the PSF at the Z position indicated by <et:elemref linkend="ZPosition"/>. This is typically
+        the same value as <et:elemref linkend="PSF"/>.</para>
     </et:elem>
-    <et:elem topic="ZRange" desc="Maximum Z range"/>
-    <et:elem topic="WideningConstants" desc="Widening slopes"/>
+    <et:elem topic="ZPosition" desc="Point of sharpest Z">
+        <para>The Z coordinate of the focal plane (the plane where the PSF has the lowest width).
+        You can indicate astigmatism by giving different positions for the two dimensions
+        of one layer, or biplane by giving different positions for two layers.</para>
+    </et:elem>
+    <et:elem topic="ZRange" desc="Maximum Z range">
+        <para>The PSF model will be considered valid up to this distance from the point of sharpest Z.
+        Any considered Z coordinate further away than this value will be immediately discarded.</para>
+    </et:elem>
+    <et:elem topic="WideningConstants" desc="Widening slopes">
+        <para>These entries give the speed of PSF growth. They have to be determined experimentally, and 
+        we know of no reliable method to do so. For more information, see <xref linkend="polynomial_3d"/>.</para>
+    </et:elem>
 
     <et:elem desc="Localizations file" topic="STM">
-      This input driver can be used to read the files written
+      <para>This input driver can be used to read the files written
          by the <xref linkend="localizations_file_output"/> output module.
-         The file format is documented with the output module.
+         The file format is documented with the output module.</para>
     </et:elem>
 
       <et:elem topic="AndorSIF" desc="Andor SIF file">
@@ -208,15 +232,46 @@
          <para>Naive pixel coordinates are computed identically to <et:elemref linkend="ScaledProjection"/>
             and then transformed by an affine transformation matrix.</para>
     </et:elem>
-    <et:elem topic="SupportPointAlignment" desc="Support point alignment">
+    <et:elem topic="SupportPointProjection" desc="Support point alignment">
          <para>Naive pixel coordinates are computed identically to <et:elemref linkend="ScaledProjection"/>.
             A nonlinear transformation image is read from a file. The naive coordinates are projected
             into the source image of the nonlinear transformation, and the transformation is applied with linear
             interpolation.</para>
     </et:elem>
-    <et:elem topic="SupportPointAlignmentFile" desc="bUnwarpJ transformation"/>
-    <et:elem topic="SupportPointResolution" desc="Transformation resolution"/>
-    <et:elem topic="AlignmentFile" desc="Plane alignment file"/>
+    <et:elem topic="SupportPointAlignmentFile" desc="bUnwarpJ transformation">
+        <para>A bUnwarpJ <emphasis>raw</emphasis> transformation file is given in this field to characterize
+            the channel alignment.</para>
+    </et:elem>
+    <et:elem topic="SupportPointResolution" desc="Transformation resolution">
+        <para>The resolution (pixel size) of the file given in <et:elemref linkend="SupportPointAlignmentFile"/>.
+            This resolution is not necessarily the same as the value of <et:elemref linkend="PixelSizeInNM"/>.
+            For example, you can super-resolve two images with an easily aligned structure such as the nuclear pore
+            complex (<xref linkend="Loeschberger2012"/>), which will result in a raw transformation with a 10 nm
+            resolution.</para>
+    </et:elem>
+    <et:elem topic="AlignmentFile" desc="Plane alignment file">
+        <para>A plain text file containing a 3x3 affine matrix for linear alignment, with the translation
+            given in meters. The matrix
+            is assumed to yield the aligned coordinate positions if multiplied with a vector (x, y, 1),
+            where x and y are the unaligned coordinates. The upper left
+            2x2 part of the matrix is a classic rotation/scaling matrix, the elements (0,2) and (1,2)
+            give a translation. For now, the bottom row must be (0,0,1), i.e. not a projective transform.</para>
+    </et:elem>
+
+    <et:elem topic="FileMethod" desc="File">
+        <para>This choice for <et:elemref linkend="InputMethod"/> indicates that a file is used for input instead
+            of generating the input stochastically or reading directly from a camera.</para>
+    </et:elem>
+
+    <et:elem topic="TransmissionCoefficient" desc="Transmission of fluorophore N">
+        <para>There is one transmission coefficient field for each layer and fluorophore.
+            The fields give the relative intensities of each fluorophore in each layer,
+            and will be used as scaling factors for the intensity for multi-colour inference
+            or for biplane imaging.</para>
+        <para>As an example, values of 0.1 in layer 1, fluorophore 0 and 0.9 in layer 2, fluorophore 0 
+            would indicate that 90\% of the photons arrive on the second camera and 10\% on the
+            first.</para>
+    </et:elem>
 </glossdiv>
 </glossary>
 </chapter>

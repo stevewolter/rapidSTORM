@@ -14,7 +14,6 @@
 #include "PlaneFilter.h"
 #include "Buffer.h"
 #include "Basename.h"
-#include "EngineChoice.h"
 #include "InsertionPoint.h"
 #include "InputBase.h"
 #include "InputMethods.h"

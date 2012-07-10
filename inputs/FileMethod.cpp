@@ -64,7 +64,7 @@ class FileTypeChoice
 
 FileMethod::FileMethod()
 : Forwarder(),
-  name_object("FileMethod", "File"),
+  name_object("FileMethod"),
   input_file("InputFile", "")
 {
     Forwarder::insert_here( std::auto_ptr<Link>( new FileTypeChoice() ) );

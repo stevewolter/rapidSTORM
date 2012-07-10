@@ -16,7 +16,10 @@ struct PlaneConfig::TransmissionEntry
         : simparm::Entry<double>(
             "Transmission" + boost::lexical_cast<std::string>(index),
             "Transmission of fluorophore " + boost::lexical_cast<std::string>(index),
-            1 ) {}
+            1 ) 
+    {
+        this->setHelpID( "TransmissionCoefficient" );
+    }
     TransmissionEntry* clone() const { return new TransmissionEntry(*this); }
     simparm::BaseAttribute::ConnectionStore listener;
 };

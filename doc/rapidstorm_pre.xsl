@@ -27,9 +27,12 @@
         <glossterm><xsl:value-of select="@desc"/>
             </glossterm>
         <glossdef>
-            <xsl:apply-templates select="node()"/>
+            <xsl:apply-templates select="node()|text()"/>
         </glossdef>
     </glossentry>
+  </xsl:template>
+  <xsl:template match="elemtable:title">
+    <title id="{@topic}"><xsl:value-of select="@desc"/></title>
   </xsl:template>
   <xsl:template match="elemtable:elemref">
     <guilabel><xref linkend="{@linkend}"/></guilabel>

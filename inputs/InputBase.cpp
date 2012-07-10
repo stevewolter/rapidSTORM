@@ -8,7 +8,7 @@ struct InputChainBase
 : public input::Forwarder
 {
     simparm::Group input_config;
-    InputChainBase() : input_config("Input", "Input options") {}
+    InputChainBase() : input_config("Input") {}
     ~InputChainBase() {}
 
     InputChainBase* clone() const { return new InputChainBase(*this); }
