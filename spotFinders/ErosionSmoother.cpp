@@ -5,6 +5,7 @@
 #include <simparm/Entry.h>
 #include <dStorm/image/dilation.h>
 #include <simparm/Object.h>
+#include <simparm/GUILabelTable.h>
 
 namespace dStorm {
 namespace erosion_smoother {
@@ -13,7 +14,7 @@ struct Config {
     simparm::Entry< quantity<camera::length,int> > mask_size;
     void attach_ui( simparm::NodeHandle at ) { mask_size.attach_ui( at ); }
     static std::string get_name() { return "Erosion"; }
-    static std::string get_description() { return "Erode image"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
     Config() 
         : mask_size("SmoothingMaskSize", 3 * camera::pixel) {}
 

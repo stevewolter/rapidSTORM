@@ -7,6 +7,7 @@
 
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
+#include <simparm/GUILabelTable.h>
 
 namespace dStorm {
 namespace spaltbandpass_smoother {
@@ -22,7 +23,7 @@ struct Config {
         bg_mask.set_user_level( simparm::Intermediate );
     }
     static std::string get_name() { return "DifferenceOfAverage"; }
-    static std::string get_description() { return "Smooth by difference of averages"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
 };
 
 class Spaltbandpass : public engine::spot_finder::Base {

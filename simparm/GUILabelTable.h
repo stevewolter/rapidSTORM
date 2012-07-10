@@ -15,7 +15,9 @@ public:
         std::string description, help, helpID;
     };
 
-    const Entry& get_entry( const std::string& name );
+    const Entry& get_entry( const std::string& name ) const;
+    const std::string& get_description( const std::string& name ) const
+        { return get_entry(name).description; }
     void read_csv_file( std::istream& );
 private:
     GUILabelTable();

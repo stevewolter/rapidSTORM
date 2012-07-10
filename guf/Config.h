@@ -21,7 +21,7 @@ struct Config
     Config();
     void attach_ui( simparm::NodeHandle at );
     dStorm::FloatNanometreEntry theta_dist, negligible_x_step;
-    simparm::Entry<double> marquardtStartLambda, maximumIterationSteps;
+    simparm::Entry<double> marquardtStartLambda, maximumIterationSteps, relative_epsilon;
     simparm::BoolEntry free_sigmas, output_sigmas, laempi_fit, disjoint_amplitudes, two_kernel_fitting,
        mle_fitting;
 

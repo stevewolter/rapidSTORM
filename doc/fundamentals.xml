@@ -192,37 +192,9 @@
             </para>
    </section>
 
-   <section id="quadrant_differential_residue_analysis"
-            xreflabel="quadrant-differential residue analysis">
-      <title>Quadrant-differential residue analysis</title>
-         <para>When two fluorophores emit close to each other, typically the
-            nonlinear fit will result in a suspected fluorophore position
-            midway between the two fluorophores and with a high amplitude.
-            In this case, the fit results show a characteristic handle
-            structure: The two true fluorophore emissions leave slightly
-            positive resiudes, while there are negative residues on an axis
-            perpendicular to the one connecting the fluorophores.</para>
-         <para>This condition is detected well by quadrant-differential
-            residue analysis: The residue matrix is divided into quadrants,
-            with the pixels above both diagonals forming the upper quadrant,
-            the pixels above the main and below the off diagonal forming the
-            right quadrants and so on. Pixels right on the diagonals are 
-            ignored. Then, the opposing quadrants are summed, and these sums
-            substracted from another, resulting in two quadrant differences:
-            upper and lower minus right and left and right and left minus
-            upper and lower. This process is repeated for the quadrants
-            defined by the central row and the central column.</para>
-         <para>The maximum sum obtained in this way divided by the sum of
-            the absolute quadrant contributions is an observable correlating
-            highly with the true presence of double emitters. Also, the 
-            quadrants containing the positive contribution in the highest sum
-            indicate along which axis the double emission happened.</para>
-   </section>
-
-   <section id="two_kernel_analysis"
-            xreflabel="two-kernel analysis">
+   <section id="two_kernel_analysis">
       <title>Two-kernel analysis</title>
-         <para>When <xref linkend="quadrant_differential_residue_analysis"/>
+         <para>When (FOO)
             indicated a likely double emission, this hypothesis is tested by
             fitting a model consisting of the sum of two Gaussian functions
             with a common background to the data. This is called two-kernel

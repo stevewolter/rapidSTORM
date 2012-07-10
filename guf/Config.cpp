@@ -7,11 +7,12 @@ namespace guf {
 using namespace boost::units;
 
 Config::Config() 
-: name_object(getName(), "Levenberg-Marquardt Fitter"),
+: name_object(getName()),
   theta_dist("ThetaDist", 500 * boost::units::si::nanometre),
   negligible_x_step("NegligibleStepLength", 1E-2f * boost::units::si::nanometre),
   marquardtStartLambda("MarquardtStartLambda", 1E2),
   maximumIterationSteps("MaximumIterationSteps", 20),
+  relative_epsilon("RelativeFitEpsilon", 1E-3),
   free_sigmas("FreeSigmaFitting", false),
   output_sigmas("OutputSigmas", false),
   laempi_fit("LaempiPosition", false),
@@ -24,6 +25,7 @@ Config::Config()
     mle_fitting.set_user_level( simparm::Intermediate );
     theta_dist.set_user_level( simparm::Intermediate );
     negligible_x_step.set_user_level( (simparm::Intermediate) );
+    relative_epsilon.set_user_level( (simparm::Intermediate) );
     maximumIterationSteps.set_user_level( (simparm::Intermediate) );
     marquardtStartLambda.set_user_level( (simparm::Expert) );
 }
@@ -34,6 +36,7 @@ void Config::attach_ui( simparm::NodeHandle at )
     fit_window_config.attach_ui( m );
     marquardtStartLambda.attach_ui(m);
     negligible_x_step.attach_ui(m);
+    relative_epsilon.attach_ui(m);
     maximumIterationSteps.attach_ui(m);
     free_sigmas.attach_ui(m);
     output_sigmas.attach_ui(m);

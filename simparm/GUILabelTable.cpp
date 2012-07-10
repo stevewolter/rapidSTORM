@@ -18,8 +18,12 @@ GUILabelTable& GUILabelTable::get_singleton() {
     return label_table;
 }
 
-const GUILabelTable::Entry& GUILabelTable::get_entry( const std::string& name ) {
-    return entries[name];
+const GUILabelTable::Entry& GUILabelTable::get_entry( const std::string& name ) const {
+    std::map< std::string, Entry >::const_iterator i = entries.find(name);
+    if ( i == entries.end() )
+        throw std::logic_error("Unable to find " + name + " in manual");
+    else
+        return i->second;
 }
 
 }

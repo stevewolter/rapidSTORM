@@ -18,6 +18,7 @@ using namespace boost::units;
 template <typename Function>
 class FitTerminator {
     quantity<si::length> minimum_change;
+    double relative_change;
     bool converged;
 
     struct BoundChecker {
@@ -43,13 +44,15 @@ class FitTerminator {
             DEBUG( "Checking convergence of parameter at index " << index << 
                    " with relative change " << fabs(shift[index] / pos[index]) << 
                    " against threshold " << 1E-3 );
-            t.converged = t.converged && ( fabs(shift[index] / pos[index]) < 1E-3 );
+            t.converged = t.converged && ( fabs(shift[index] / pos[index]) < t.relative_change );
         }
     };
 
   public:
     FitTerminator( const Config& config ) 
-        : minimum_change(config.negligible_x_step()), converged(false) {}
+        : minimum_change(config.negligible_x_step()), 
+          relative_change( config.relative_epsilon() ), 
+          converged(false) {}
 
     void matrix_is_unsolvable() {}
     template <typename Position>

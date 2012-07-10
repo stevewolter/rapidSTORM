@@ -9,6 +9,7 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
 #include <dStorm/engine/Image.h>
+#include <simparm/GUILabelTable.h>
 
 namespace dStorm {
 namespace median_smoother {
@@ -19,7 +20,7 @@ struct Config {
     Config() 
       : mask_size("SmoothingMaskSize", 5 * camera::pixel) {}
     static std::string get_name() { return "Median"; }
-    static std::string get_description() { return "Smooth by median"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
 };
 
 class MedianSmoother : public engine::spot_finder::Base {

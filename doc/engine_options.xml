@@ -13,14 +13,28 @@
 <glossary>
    <title/>
 <et:elem desc="Minimum spot distance" topic="NonMaximumSuppression">
+    <para>The minimum distance between local maxima of the smoothed image
+        that will be used as fit start locations. In other terms, this
+        entry gives the size of a local maximum suppression window that
+        selects the spots.</para>
+    <para>High values will ensure a higher noise tolerance at the cost
+        of some missed localizations.</para>
 </et:elem>
 <et:elem desc="Fit judging method" topic="FitJudgingMethod">
+    <para>The fit judging method controls the decision whether a set of
+        fitted PSF parameters is a localization or just background noise.</para>
+    <glossseealso otherterm="FixedThreshold"/>
 </et:elem>
+
 <et:elem desc="Spot fitting method" topic="SpotFittingMethod">
+    <para>The spot fitting method is the method for converting suspected
+        fluorophore positions (spots) into localizations. There is currently
+        only one useful choice, <et:elemref linkend="GUF"/>.</para>
 </et:elem>
+
 <et:elem desc="Spot finding method" topic="SpotFindingMethod">
     <indexterm><primary>smoothing</primary></indexterm>
-    Select a smoothing method to be employed before selecting
+    <para>Select a smoothing method to be employed before selecting
     local maximums as spot candidates. The standard method here is
     smoothing with an average mask (Spalttiefpass), which gives
     good performance for most images. Median smoothing provides
@@ -31,60 +45,154 @@
     the fillhole transformation followed by erosion is better for
     large spots. For a complete discussion and quantitative
     comparison, see <xref linkend="WolterDiplomarbeit"/>
-    and <xref linkend="Wolter2010"/>.
+    and <xref linkend="Wolter2010"/>.</para>
 </et:elem>
 <et:elem desc="Spot search eagerness" topic="Motivation">
+    <para>The rapidSTORM engine uses dynamical thresholding, i.e.
+        fits the spots with at the most intense positions in the
+        smoothed image first and continues in order of decreasing intensity.
+        Fitting is aborted when a number of spots equal to the motivation
+        is rejected by the <et:elemref linkend="FitJudgingMethod"/>.
+        This parameter controls the motivation.</para>
+    <para>Higher values in this field will cause more localizations to be found,
+        albeit at the cost of more false positives.</para>
 </et:elem>
-<et:elem desc="PSF width is free fit parameter" topic="FreeForm">
-    <para>Treat the covariance matrix entries as variables
-    in the fit process rather than as constants. The estimated
-    or fixed standard deviation parameters act as initial values
-    for the estimation when the free covariancce matrix is
-    selected.</para>
+<et:elem desc="PSF width is free fit parameter" topic="FreeSigmaFitting">
+    <para>Treat the PSF width as variables in the fit process rather
+        than as constants. The estimated or fixed standard deviation
+        parameters act as initial values for the estimation when the
+        free covariancce matrix is selected.</para>
+    <para>This checkbox will drastically reduce the localization precision
+        and increase noise localizations, but is useful when the PSF width
+        is variable between spots (e.g. in 3D estimation). If it is merely
+        unknown, you should prefer using the <guilabel>Estimate PSF form</guilabel>
+        output.</para>
     <para>See also: <xref linkend="psf_model"/></para>
 </et:elem>
 <et:elem desc="Two-kernel distance threshold" topic="ThetaDist">
+    <para>When performing two-kernel analysis (see <xref linkend="two_kernel_analysis"/>),
+        any double-kernel fit with the two kernels further apart than this
+        number is immediately discarded, resulting in a two-kernel
+        improvement of 0.</para>
+    <para>This parameter ensures that large fitting windows and two-kernel
+        analysis can cooperate.</para>
+    <glossseealso otherterm="TwoKernelFitting"/>
 </et:elem>
+
 <et:elem desc="Lateral epsilon" topic="NegligibleStepLength">
+    <para>The nonlinear fit process for a localization attempt is continued
+        while the lateral mean position (x,y) changes absolutely by more than 
+        this parameter.</para>
+    <glossseealso otherterm="MaximumIterationSteps"/>
+    <glossseealso otherterm="RelativeFitEpsilon"/>
 </et:elem>
+
+<et:elem desc="Relative epsilon" topic="RelativeFitEpsilon">
+    <para>The nonlinear fit process for a localization attempt is continued
+        while any parameter (except the lateral means x and y) changes 
+        relatively by more than this parameter.</para>
+    <glossseealso otherterm="MaximumIterationSteps"/>
+    <glossseealso otherterm="NegligibleStepLength"/>
+</et:elem>
+
 <et:elem desc="Initial lambda factor" topic="MarquardtStartLambda">
+    <para>The usual lambda factor of Levenberg-Marquardt fitting controls
+        the size of the trust region for Gauss-Newton steps. Refer to
+        a good textbook for its meaning, e.g. <xref linkend="Recipes"/>.</para>
 </et:elem>
+
 <et:elem desc="Fit iteration limit" topic="MaximumIterationSteps">
+    <para>The nonlinear fit process for a localization attempt is stopped
+        after this number of iterations.</para>
+    <glossseealso otherterm="RelativeFitEpsilon"/>
+    <glossseealso otherterm="NegligibleStepLength"/>
 </et:elem>
-<et:elem desc="PSF width is free fit parameter" topic="FreeSigmaFitting">
-</et:elem>
+
 <et:elem desc="Store PSF width" topic="OutputSigmas">
+    <para>Set the psffwhmx and psffwhmy fields of localizations to the
+        widths used in computation. If this field is checked, the localization
+        output files will contain PSF width information, and all outputs working
+        with localization widths depend on this checkbox.</para>
 </et:elem>
 <et:elem desc="Laempi fit for positions" topic="LaempiPosition">
+    <para>Fit the lateral emitter position (x,y) in each plane independently.
+        This option can mitigate small errors in alignment at the cost of reduced
+        precision.</para>
 </et:elem>
 <et:elem desc="Disjoint amplitude fit" topic="LaempiAmplitudes">
+    <para>Fit the emission intensity in each plane independently.
+        This option can be useful if the number and nature of fluorophore 
+        populations in the sample is unknown. However, it will break multi-colour
+        inference, and all <et:elemref linkend="TransmissionCoefficient"/> fields
+        should be set to 1.</para>
 </et:elem>
 <et:elem desc="Compute two kernel improvement" topic="TwoKernelFitting">
+    <para>Perform the <xref linkend="two_kernel_analysis"/> computation, which
+        sets the two kernel improvement field.</para>
 </et:elem>
 <et:elem desc="Improve fit with ML estimate" topic="MLEFitting">
+    <para>After successfully fitting a spot with a least squares error model,
+        improve the fitted position using a maximum likelihood error model.
+        This improves precision, especially for low photon counts, in exchange
+        for a considerable increase in computation time. The
+        <et:elemref linkend="CountsPerPhoton"/> and <et:elemref linkend="DarkCurrent"/> fields
+        must be set if this option is used.</para>
 </et:elem>
 <et:elem desc="Fixed global threshold" topic="FixedThreshold">
+    <para>This fit judging method judges parameter sets by their intensity.
+        If the intensity surpasses the threshold, the parameter set is counted
+        as a localization, and discarded otherwise.</para>
+    <glossseealso otherterm="AmplitudeThreshold"/>
 </et:elem>
 <et:elem desc="Intensity threshold" topic="AmplitudeThreshold">
-    Minimum amplitude parameter of the fitted 
-    <xref linkend="psf_model"/>
+    <para>Minimum fitted emission intensity
     necessary for a spot to be considered a localization.
-    If the fitted position has an amplitude lower than this value,
-    it is discarded as an artifact.
+    If the fitted position has an intensity lower than this value,
+    it is discarded as an artifact.</para>
+    <glossseealso otherterm="FixedThreshold"/>
 </et:elem>
 <et:elem desc="Local relative threshold" topic="SquareRootRatio">
+    <para>This fit judging method judges parameter sets by their intensity
+        and the local background. Both values are the estimations from fitting
+        the PSF model to the data.
+        If the ratio of intensity to square root of local background surpasses
+        a threshold, the parameter set is counted as a localization, and discarded otherwise.
+        The square root of the background is used because it estimates the standard deviation
+        of a Poisson-distributed background. The <et:elemref linkend="DarkCurrent"/> and
+        the <et:elemref linkend="CountsPerPhoton"/> should be set to use this option.</para>
+    <glossseealso otherterm="SNR"/>
 </et:elem>
 <et:elem desc="Signal-to-noise ratio" topic="SNR">
+    <para>Minimum ratio of emission intensity to square root of background signal intensity
+        necessary for a spot to be considered a localization.</para>
+    <glossseealso otherterm="SquareRootRatio"/>
 </et:elem>
 
 <et:elem desc="Fit window radius" topic="FitWindowSize">
+    <para>All pixels within this radius of a spot are used for fitting.
+        The selected pixels form the data points for the nonlinear fitting
+        routine, and the PSF is fitted to their intensities.</para>
+    <para>A larger value here allows more precise fitting at the cost of
+        slower computation.</para>
 </et:elem>
+
 <et:elem desc="Allow disjoint fitting" topic="DisjointFitting">
+    <para>Employ the computational optimization of separating the
+        X and Y dimensions of the Gaussian for computing the function's
+        derivatives. This optimization is only performed if
+        the alignment is set to <et:elemref linkend="ScaledProjection"/>,
+        but can drastically improve computation time for large
+        fit windows.</para>
 </et:elem>
+
 <et:elem desc="Use 64 bit floats" topic="DoublePrecision">
+    <para>Compute values and derivatives of the PSF with 64 bit wide
+        floating point numbers instead of 32 bit. Ensures higher reliability
+        and precision, but with a small speed cost.</para>
 </et:elem>
-<et:elem desc="Smoothing mask width" topic="SmoothingMaskSize">
-</et:elem>
+
+<et:elem desc="Smoothing mask width" topic="SmoothingMaskSize"/>
+
 <et:elem desc="Smoothing kernel std.dev." topic="SmoothingSigma">
 </et:elem>
 <et:elem desc="Erosion mask size" topic="SpotReconstructionMaskSize">
@@ -95,5 +203,15 @@
 </et:elem>
 <et:elem desc="Foreground mask width" topic="ForegroundMaskSize">
 </et:elem>
+<et:elem desc="Levenberg-Marquardt fitter" topic="GUF">
+</et:elem>
+
+<et:elem desc="Smooth with gaussian kernel" topic="Gaussian"/>
+<et:elem topic="Reconstruction" desc="Morphologically reconstruct image"/>
+<et:elem topic="Median" desc="Smooth by median"/>
+<et:elem topic="Erosion" desc="Erode image"/>
+<et:elem topic="DifferenceOfAverage" desc="Smooth by difference of averages"/>
+<et:elem topic="Average" desc="Smooth by average"/>
+
 </glossary>
 </chapter>

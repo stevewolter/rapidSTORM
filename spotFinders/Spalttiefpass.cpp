@@ -6,6 +6,7 @@
 
 #include <simparm/Object.h>
 #include <simparm/Entry.h>
+#include <simparm/GUILabelTable.h>
 
 namespace dStorm {
 namespace spalttiefpass_smoother {
@@ -19,7 +20,7 @@ struct Config {
         mask_size.set_user_level( simparm::Intermediate );
     }
     static std::string get_name() { return "Average"; }
-    static std::string get_description() { return "Smooth by average"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
 };
 
 class Spalttiefpass : public engine::spot_finder::Base {

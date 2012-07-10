@@ -7,6 +7,7 @@
 #include <dStorm/engine/SpotFinder.h>
 #include <dStorm/engine/SpotFinderBuilder.h>
 #include <dStorm/Direction.h>
+#include <simparm/GUILabelTable.h>
 
 using namespace std;
 using namespace dStorm::engine;
@@ -21,7 +22,7 @@ struct Config {
     Config() 
         : sigma("SmoothingSigma", Sigmas::Constant(1.0 * camera::pixel)) {}
     static std::string get_name() { return "Gaussian"; }
-    static std::string get_description() { return "Smooth with gaussian kernel"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
 };
 
 class GaussSmoother : public engine::spot_finder::Base {

@@ -15,6 +15,7 @@
 
 #include <dStorm/image/convert.h>
 #include <dStorm/image/constructors.h>
+#include <simparm/GUILabelTable.h>
 
 namespace dStorm {
 namespace fillhole_smoother {
@@ -33,7 +34,7 @@ class Config
         background.attach_ui(at);
     }
     static std::string get_name() { return "Reconstruction"; }
-    static std::string get_description() { return "Morphologically reconstruct image"; }
+    static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
 };
 
 class FillholeSmoother : public engine::spot_finder::Base {
