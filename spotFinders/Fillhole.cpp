@@ -24,14 +24,12 @@ class Config
 {
     public:
     /** Mask sizes */
-    simparm::Entry<unsigned long> spots, background;
+    simparm::Entry<unsigned long> spots;
 
     Config() 
-    : spots("SpotReconstructionMaskSize", 3),
-      background("BackgroundDilationMaskSize", 25) {}
+    : spots("SpotReconstructionMaskSize", 3) {}
     void attach_ui( simparm::NodeHandle at ) {
         spots.attach_ui(at);
-        background.attach_ui(at);
     }
     static std::string get_name() { return "Reconstruction"; }
     static std::string get_description() { return simparm::GUILabelTable::get_singleton().get_description( get_name() ); }
@@ -40,7 +38,7 @@ class Config
 class FillholeSmoother : public engine::spot_finder::Base {
 private:
     engine::SmoothedImage buffer[3];
-    int rms1, rms2;
+    int rms1;
 
 public:
     FillholeSmoother (const Config& myconf,
@@ -113,8 +111,7 @@ FillholeSmoother::smooth( const dStorm::engine::Image2D &image ) {
 FillholeSmoother::FillholeSmoother(
     const Config& myConf, const dStorm::engine::spot_finder::Job& job)
 : Base(job),
-    rms1(myConf.spots()),
-    rms2(myConf.background())
+    rms1(myConf.spots())
 {
     for (int i = 0; i < 3; i++)
         buffer[i] = engine::SmoothedImage( job.size().head<2>() );
