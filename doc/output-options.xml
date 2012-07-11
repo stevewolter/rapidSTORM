@@ -42,8 +42,8 @@
         <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Write localizations to" topic="Table_ToFile">
-            Output localizations file name. Is derived automatically from
-            input file name.
+            <para>Output localizations file name. Is derived automatically from
+                input file name.</para>
             </et:elem>
         </et:elemtable>
      </refsection>
@@ -138,37 +138,36 @@
         <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Save image to" topic="Viewer_ToFile">
-                If a filename is given here, the final result image will be saved
-                to the given file. The file extension determines the file type, and all
-                common file formats (GIF, JPG, PNG, TIF) are supported.
+                <para>If a filename is given here, the final result image will be saved
+                    to the given file. The file extension determines the file type, and all
+                    common file formats (GIF, JPG, PNG, TIF) are supported.</para>
             </et:elem>
             <et:elem desc="Display dSTORM result image" topic="Viewer_ShowOutput">
-                If this checkbox is checked, the result image will be shown online
-                in an image window.
-                Disable for faster computation.
+                <para>If this checkbox is checked, the result image will be shown online
+                    in an image window. Disable for faster computation.</para>
             </et:elem>
             <et:elem desc="Resolution Enhancement" topic="Viewer_ResEnh">
-                Set the aspect ratio of source (camera detector) pixels to target
-                pixels. If set to 10, for example, the result image will be have 10
-                times more pixels in X direction and 10 times more pixels in Y
-                direction.</et:elem>
+                <para>Set the aspect ratio of source (camera detector) pixels to target
+                    pixels. If set to 10, for example, the result image will be have 10
+                    times more pixels in X direction and 10 times more pixels in Y
+                    direction.</para></et:elem>
             <et:elem desc="Color palette for display" topic="Viewer_ColorScheme">
-                Select one of the color schemes given in <xref 
-                linkend="color_coding"/>.
+                <para>Select one of the color schemes given in <xref 
+                    linkend="color_coding"/>.</para>
             </et:elem>
             <et:elem desc="Invert colors" topic="Viewer_InvertColors">
-                Invert the color display. Each color is inverted among the three
-                primary color axes (red, green, blue), making red to cyan and
-                black to white.
+                <para>Invert the color display. Each color is inverted among the three
+                    primary color axes (red, green, blue), making red to cyan and
+                    black to white.</para>
             </et:elem>
             <et:elem desc="Select color hue"  topic="Viewer_Hue">
-                Set the hue for constant color coding or the starting hue for
-                variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
-                (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).
+                <para>Set the hue for constant color coding or the starting hue for
+                    variable hueing. Ranges from 0 (red) over 1/6 (yellow), 1/3
+                    (green), 1/2 (cyan), 2/3 (blue) and 5/6 (violet) to 1 (red again).</para>
             </et:elem>
             <et:elem desc="Select saturation" topic="Viewer_Saturation">
-                Set the saturation for constant color coding. Ranges from 
-                0 (no colors at all, only grey) to 1 (fully saturated colors).
+                <para>Set the saturation for constant color coding. Ranges from 
+                    0 (no colors at all, only grey) to 1 (fully saturated colors).</para>
             </et:elem>
         </et:elemtable>
      </refsection>
@@ -176,24 +175,33 @@
        <title>Job status items</title>
         <et:elemtable>
             <et:elem desc="Resolution enhancement" topic="Viewer_Status_ResEnh" >
-                Shows the current resolution enhancement (see job options table
+                <para>Shows the current resolution enhancement (see job options table
                 for a definition) and allows, if a 
                 <xref linkend="repeater"/> service is present, to dynamically
-                change it.</et:elem>
-            <et:elem desc="Extent of histogram normalization" 
-                    topic="Viewer_Status_Power">
-                Interactively change the intensity scale of the result image from
-                a linear scale (value 0) to a contrast-enhanced image (value 1).</et:elem>
+                change it.</para>
+            </et:elem>
+
+            <et:elem desc="Extent of histogram normalization" topic="Viewer_Status_Power">
+                <para>Interactively change the intensity scale of the result image from
+                    a linear scale (value 0) to a contrast-enhanced image (value 1).</para>
+            </et:elem>
+
             <et:elem desc="Zoom level" topic="Viewer_Status_Zoom">
-                Control element for zooming in (positive values) or out (negative
-                values) in the displayed image.</et:elem>
+                <para>Control element for zooming in (positive values) or out (negative
+                    values) in the displayed image.</para>
+            </et:elem>
+
             <et:elem desc="Save image to" topic="Viewer_Status_ToFile">
-                Shows and changes the file name where the result image should be
-                written to. The file extension determines the file type, and all
-                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+                <para>Shows and changes the file name where the result image should be
+                    written to. The file extension determines the file type, and all
+                    common file formats (GIF, JPG, PNG, TIF) are supported.</para>
+            </et:elem>
+
             <et:elem desc="Save image" topic="Viewer_Status_Save">
-                Save the image at the current state of computation to the file given
-                by <guilabel><xref linkend="Viewer_Status_ToFile"/></guilabel>.</et:elem>
+                <para>Save the image at the current state of computation to the file given
+                    by <guilabel><xref linkend="Viewer_Status_ToFile"/></guilabel>.</para>
+            </et:elem>
+
         </et:elemtable>
      </refsection>
    </refentry>
@@ -207,8 +215,8 @@
             <title>Job status items</title>
             <et:elemtable>
                 <et:elem desc="Number of localizations found" topic="Count_Count">
-                    Displays the total number of localizations propagated by the parent
-                    module.</et:elem>
+                    <para>Displays the total number of localizations propagated by the parent
+                        module.</para></et:elem>
             </et:elemtable>
         </refsection>
    </refentry>
@@ -242,21 +250,21 @@
          <title>Configuration items</title>
          <et:elemtable>
             <et:elem desc="Size of one slice in images" topic="Slicer_Size">
-               Each slice will have as many images as specified here.
-               Suppose slices in an acquisition 1000 images long start at
-               0, 300, 600 and 900 and this parameter is set to 500, there
-               will be the four slices 0-499, 300-799, 600-999 and 900-999.
+               <para>Each slice will have as many images as specified here.
+                Suppose slices in an acquisition 1000 images long start at
+                0, 300, 600 and 900 and this parameter is set to 500, there
+                will be the four slices 0-499, 300-799, 600-999 and 900-999.</para>
             </et:elem>
             <et:elem desc="Start new slice every n images" topic="Slicer_Dist">
-               One slice will be started at each image number 
-               divisible by this number. Suppose 1000 images are in an
-               acquisition and this parameter is set to 300, slices will
-               be started at images 0, 300, 600 and 900.
+               <para>One slice will be started at each image number 
+                divisible by this number. Suppose 1000 images are in an
+                acquisition and this parameter is set to 300, slices will
+                be started at images 0, 300, 600 and 900.</para>
             </et:elem>
             <et:elem desc="File name pattern" topic="Slicer_Pattern">
-               Pattern for output file basenames. The output files (for example
-               for images or localization files) will be generated by this pattern,
-               where %i will be replaced with the slice number.
+               <para>Pattern for output file basenames. The output files (for example
+                for images or localization files) will be generated by this pattern,
+                where %i will be replaced with the slice number.</para>
             </et:elem>
          </et:elemtable>
       </refsection>
@@ -277,9 +285,9 @@
         <title>Configuration items</title>
         <et:elemtable>
             <et:elem desc="Write averaged image to" topic="AverageImage_ToFile">
-                Target file to write the gained average image to. 
+                <para>Target file to write the gained average image to. 
                 The file extension determines the file type, and all
-                common file formats (GIF, JPG, PNG, TIF) are supported.</et:elem>
+                common file formats (GIF, JPG, PNG, TIF) are supported.</para></et:elem>
         </et:elemtable>
      </refsection>
    </refentry>
@@ -290,9 +298,9 @@
          <title>Job status items</title>
          <et:elemtable>
                <et:elem desc="Progress on this job" topic="ProgressMeter_Progress">
-                  This progress bar shows the progress on the current job, that is,
+                  <para>This progress bar shows the progress on the current job, that is,
                   which percentage of the input images has been successfully
-                  computed.</et:elem>
+                  computed.</para></et:elem>
          </et:elemtable>
       </refsection>
    </refentry>
@@ -306,80 +314,80 @@
          <title>Configuration items</title>
          <et:elemtable>
             <et:elem topic="EstimatePSF_FormMLE" desc="Use MLE to fit PSF form">
-                Optimize for maximum likelihood (ML) of the data with the optimized model
+                <para>Optimize for maximum likelihood (ML) of the data with the optimized model
                 instead of minimizing the squared deviations. You should use the same distance
-                model for fitting the PSF as you configured in the engine.
+                model for fitting the PSF as you configured in the engine.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_EstimationSpots" desc="Number of spots used in estimation">
-                This option configures the total number of spots that are used to fit the PSF
+                <para>This option configures the total number of spots that are used to fit the PSF
                 form. Localizations are scanned and presented until this number of spots is
-                selected.
+                selected.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_MaxEstimationSpotsPerImage" desc="Number of spots used per image">
-                This option configures the maximum number of spots that are eligible for estimation
+                <para>This option configures the maximum number of spots that are eligible for estimation
                 in each source image. The spots with the highest amplitude are selected, the rest
                 is discarded and not shown in the selection window. If this number is exceeded, the
                 rest of the spots in an image is not displayed. A fractional number can be entered
                 in this field, translating to one spot being picked in each n-th frame. For example,
-                a value of 0.25 selects one spot every fourth frame.
+                a value of 0.25 selects one spot every fourth frame.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_SelectSpots" desc="Manually select good spots">
-                If this option is checked, the selection window (as described above) is shown. Otherwise,
-                all eligible spots are used in estimation.
+                <para>If this option is checked, the selection window (as described above) is shown. Otherwise,
+                all eligible spots are used in estimation.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_LaempiPosition" desc="Laempi fit for positions">
-                When fitting multiple layers, fit fluorophore positions in all layers independently.
-                This can mitigate an imprecise plane alignment at the cost of reduced precision.
+                <para>When fitting multiple layers, fit fluorophore positions in all layers independently.
+                This can mitigate an imprecise plane alignment at the cost of reduced precision.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_LaempiAmplitudes" desc="Disjoint amplitude fit">
-                When fitting multiple layers, fit intensities in all layers independently.
+                <para>When fitting multiple layers, fit intensities in all layers independently.
                 This allows fitting a multi-plane data set without knowing the prefactors
                 or making assumptions about fluorophore populations, at the cost of reduced
-                precision and the inability to fit transmission coefficients.
+                precision and the inability to fit transmission coefficients.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_ZIsTruth" desc="Z position is ground truth">
-                Treat the fluorophore's Z position as ground truth, i.e. do not fit it. This
+                <para>Treat the fluorophore's Z position as ground truth, i.e. do not fit it. This
                 option is useful when calibrating polynomial 3D and in conjunction with setting
-                a ground-truth Z position in the <xref linkend="ExpressionFilter"/> output.
+                a ground-truth Z position in the <xref linkend="ExpressionFilter"/> output.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_FitWindowWidth" desc="Fit window radius">
-                Include all pixels into the fit window that are closer than this radius to the
-                selected spot. This is currently an L1 distance.
+                <para>Include all pixels into the fit window that are closer than this radius to the
+                selected spot. This is currently an L1 distance.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_CircularPSF" desc="Assume circular PSF">
-                Assume that the PSF has the same parameters in X and Y, and fit these parameters
+                <para>Assume that the PSF has the same parameters in X and Y, and fit these parameters
                 in common. Enhances estimation precision and stability at the cost of flexibility and thruthful
                 replication of the PSF.
                 This option applies to PSF width and 3D widening factors, but not to the
-                focus plane coordinates, which are controlled by <xref linkend="EstimatePSF_Astigmatism"/>
+                focus plane coordinates, which are controlled by <xref linkend="EstimatePSF_Astigmatism"/></para>
             </et:elem>
             <et:elem topic="EstimatePSF_Astigmatism" desc="Allow astigmatism">
-                Allow the X and Y focal planes to differ. If this option is unchecked, both planes
+                <para>Allow the X and Y focal planes to differ. If this option is unchecked, both planes
                 are set to the same value and fitted together. Checking this option allows fitting
-                data on an astigmatic 3D setup, e.g. with a cylindrical lens.
+                data on an astigmatic 3D setup, e.g. with a cylindrical lens.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_UniversalBestSigma" desc="PSF FWHM common to all layers">
-                Assume that the PSF FWHM is the same in all layers, and fit it as a common coordinate.
-                This option is related, but orthogonal to <xref linkend="EstimatePSF_CircularPSF"/>.
+                <para>Assume that the PSF FWHM is the same in all layers, and fit it as a common coordinate.
+                This option is related, but orthogonal to <xref linkend="EstimatePSF_CircularPSF"/>.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_UniversalWidening" desc="3D widening common to all layers">
-                Assume that the polynomial 3D widening parameters are the same in all layers, and fit 
-                them as common coordinates.
+                <para>Assume that the polynomial 3D widening parameters are the same in all layers, and fit 
+                them as common coordinates.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_FitBestSigma" desc="Fit PSF FWHM">
-                When this option is checked, the width of the PSF will be fitted to the data. 
+                <para>When this option is checked, the width of the PSF will be fitted to the data. 
                 Otherwise, it will be treated as ground truth and not changed. If the PSF FWHM has
                 been established reliably on other measurements, disabling this option enhances
-                estimation stability and reliability.
+                estimation stability and reliability.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_FitFocusPlane" desc="Fit focus plane Z coordinate">
-                When this option is checked, the Z position of the best-focused planes (i.e. the Z
+                <para>When this option is checked, the Z position of the best-focused planes (i.e. the Z
                 positions at which the X and Y PSF FWHMs are smallest, respectively) will be fitted
-                to the data.
+                to the data.</para>
             </et:elem>
             <et:elem topic="EstimatePSF_FitPrefactors" desc="Fit transmission factors">
-                When this option is checked, the fluorophore transmission factors are fitted to the
-                data. This allows for straightforward multi-color calibration on live data.
+                <para>When this option is checked, the fluorophore transmission factors are fitted to the
+                data. This allows for straightforward multi-color calibration on live data.</para>
             </et:elem>
         </et:elemtable>
       </refsection>
@@ -402,8 +410,8 @@
          <title>Configuration items</title>
          <et:elemtable>
             <et:elem desc="Calibration file" topic="SigmaDiff3D_CalibrationFile">
-               Input file name for the calibration table in which the difference is looked up.
-               The format is described in <xref linkend="z_calibration_table"/>.
+               <para>Input file name for the calibration table in which the difference is looked up.
+               The format is described in <xref linkend="z_calibration_table"/>.</para>
             </et:elem>
          </et:elemtable>
       </refsection>
@@ -421,13 +429,13 @@
          <title>Configuration items</title>
          <et:elemtable>
                <et:elem desc="Calibration output file" topic="SigmaCurve_ToFile">
-                  Output file name for calibration table. The format is
-                  described in <xref linkend="z_calibration_table"/>.</et:elem>
+                  <para>Output file name for calibration table. The format is
+                  described in <xref linkend="z_calibration_table"/>.</para></et:elem>
                <et:elem desc="Number of B spline breakpoints" topic="SigmaCurve_StepNumber">
-                  Number of breakpoints to use for cubic B-spline interpolation. The number of
+                  <para>Number of breakpoints to use for cubic B-spline interpolation. The number of
                   breakpoints determines the number of cubic pieces used to approximate the
                   measured PSF width curve. This number can be viewed as the adaptibility of the
-                  sigma curve to the measured PSF widths.</et:elem>
+                  sigma curve to the measured PSF widths.</para></et:elem>
          </et:elemtable>
       </refsection>
    </refentry>
@@ -448,35 +456,35 @@
          <title>Configuration items</title>
          <et:elemtable>
                <et:elem desc="Minimum localization strength" topic="ExpressionFilter_LowerAmplitudeThreshold">
-                  If this field is enabled, all localizations with a strength lower than its value are
+                  <para>If this field is enabled, all localizations with a strength lower than its value are
                   discarded and not displayed or stored in the suboutputs. The localization strength denotes
-                  the total signal detected in the PSF, i.e. the integral of the point spread function.
+                  the total signal detected in the PSF, i.e. the integral of the point spread function.</para>
                </et:elem>
                <et:elem desc="Linear drift correction" topic="ExpressionFilter_LinearDriftCorrection">
-                  If this field is enabled, all localizations are shifted in space by an amount proportional
-                  to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.
+                  <para>If this field is enabled, all localizations are shifted in space by an amount proportional
+                  to the time coordinate of their detection. This is used to implement <xref linkend="linear_drift_correction"/>.</para>
                </et:elem>
                <et:elem desc="Maximum two kernel improvement" topic="ExpressionFilter_TwoKernelImprovement">
-                  If this field is checked, all localizations with a two-kernel improvement (quotient of residues
+                  <para>If this field is checked, all localizations with a two-kernel improvement (quotient of residues
                   with two kernels and residues with one kernel) greater than the given value are discarded.
                   This value is used for artifact suppression and is only available when <guilabel>Compute two kernel improvement</guilabel>
-                  has been checked.
+                  has been checked.</para>
                </et:elem>
                <et:elem desc="Value to assign to" topic="ExpressionFilter_LValue">
-                  This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
+                  <para>This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
                   in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
                   or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
                   The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
-                  <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.
+                  <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.</para>
                </et:elem>
                <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
-                  This text field gives an arithmetic expression for the value of the action. An
+                  <para>This text field gives an arithmetic expression for the value of the action. An
                   expression consists of variables explained in <guilabel>Value to assign to</guilabel> and constants,
                   linked by the usual arithmetic operators. Constants are given as numbers with units, which
                   can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
                   meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
                   (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
-                  Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/>
+                  Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/></para>
                </et:elem>
          </et:elemtable>
       </refsection>

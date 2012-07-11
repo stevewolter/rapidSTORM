@@ -10,7 +10,7 @@
 %w3centities-f;
 ]>
 
-<chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en">
+<chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
 <title>Usage examples</title>
 
 <section>
@@ -53,12 +53,12 @@
     </taskprerequisites>
     <procedure>
 	<step>Start rapidSTORM 2 and set <guimenu>User level</guimenu> to <guilabel>Intermediate</guilabel> or higher</step>
-        <step>Set <guilabel>Input file</guilabel> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
-        <step>Set <guilabel>Size of input pixel</guilabel> to pre-calibrated values (e.g. 142 and 125 nm in X/Y, respectively)</step>
-	<step>Set <guilabel>Intensity threshold</guilabel> to a high value (5000 ADC) in order to filter noise</step>
-	<step>Set <guilabel>Fit window radius</guilabel> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
-	<step>Set <guilabel>maximum number of iteration steps for spot fitting</guilabel> to 100 (optional)</step>
-	<step>Check boxes <guilabel><xref linkend="FreeForm"/></guilabel> and <guilabel>Store PSF width</guilabel></step>
+        <step>Set <et:elemref linkend="InputFile"/> to calibration data file (in this example: <userinput>foo.tif</userinput>)</step>
+        <step>Set <et:elemref linkend="PixelSizeInNM"/> to pre-calibrated values (e.g. 142 and 125 nm in X/Y, respectively)</step>
+	<step>Set <et:elemref linkend="AmplitudeThreshold"/> to a high value (5000 ADC) in order to filter noise</step>
+	<step>Set <et:elemref linkend="FitWindowSize"/> to a value considerably higher than the best-focused PSF FWHM in order to include the PSF tails, and remember the input. (1100 nm)</step>
+	<step>Set <et:elemref linkend="MaximumIterationSteps"/> to 100 (optional)</step>
+	<step>Check boxes <et:elemref linkend="FreeSigmaFitting"/> and <et:elemref linkend="OutputSigmas"/></step>
 	<step>Go to the <xref linkend="ExpressionFilter"/> output and set
             <substeps>
                 <step>Set <guibutton>Number of expressions</guibutton> to <userinput>4</userinput></step>
@@ -79,7 +79,7 @@
             <stepalternatives>
                 <step>If local maxima exist, narrow the range of usable Z data by setting an appropriate filter expression in the fourth <guilabel>Expression to assign from</guilabel> field in the <xref linkend="ExpressionFilter"/> output.
                     In our example, we used <userinput>posz &gt; 2000 nm &amp;&amp; posz &lt; 6000 nm </userinput>. Go back to <xref linkend="calibration-curve:check-closeness"/>.</step>
-                <step>If outliers are present, raise <guilabel>Intensity threshold</guilabel> and go back to <xref linkend="calibration-curve:check-closeness"/></step>
+                <step>If outliers are present, raise <et:elemref linkend="AmplitudeThreshold"/> and go back to <xref linkend="calibration-curve:check-closeness"/></step>
                 <step>Otherwise continue with <xref linkend="calibration-curve:close-job"/></step>
             </stepalternatives>
         </step>
@@ -87,17 +87,17 @@
     </procedure>
 </task>
 
-<task>
+<task id="make-3d-image-common">
     <title>Make 3D super-resolved image colour-coded by Z</title>
     <taskprerequisites>
         We assume that you have a correct bead calibration data file file for your setup.
     </taskprerequisites>
     <procedure>
         <step>(Re-)Start rapidSTORM</step>
-        <step>Set <guilabel>3D PSF model</guilabel> to <guilabel>Interpolated 3D</guilabel></step>
-        <step>Set <guilabel>Z calibration file</guilabel> to the file name of the calibration curve file.</step>
-        <step>Set <guilabel>Intensity threshold</guilabel> to a similar value as in 2D (e.g. 1000)</step>
-        <step>Set <guilabel>Fit window radius</guilabel> to the same value you used for producing the calibration curve (1100 nm)</step>
+        <step id="make-3d-image-common:start">Set <et:elemref linkend="ThreeD"/> to <et:elemref linkend="Spline3D"/></step>
+        <step>Set <et:elemref linkend="ZCalibration"/> to the file name of the calibration curve file.</step>
+        <step>Set <et:elemref linkend="AmplitudeThreshold"/> to a similar value as in 2D (e.g. 1000)</step>
+        <step id="make-3d-image-common:stop">Set <et:elemref linkend="FitWindowSize"/> to the same value you used for producing the calibration curve (1100 nm)</step>
         <step>Go to the <guilabel>Image Display</guilabel> output and 
             <substeps>
                 <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate (optional)</guilabel></step>
@@ -115,11 +115,9 @@
     </taskprerequisites>
     <procedure>
         <step>(Re-)Start rapidSTORM</step>
+        <step>Follow <xref linkend="make-3d-image-common:start"/> to <xref linkend="make-3d-image-common:stop"/> of
+            <xref linkend="make-3d-image-common"/>.</step>
         <step>Set user level to <guilabel>Intermediate</guilabel></step>
-        <step>Set <guilabel>3D PSF model</guilabel> to <guilabel>Interpolated 3D</guilabel></step>
-        <step>Set <guilabel>Z calibration file</guilabel> to the file name of the calibration curve file.</step>
-        <step>Set <guilabel>Intensity threshold</guilabel> to a similar value as in 2D (e.g. 1000)</step>
-        <step>Set <guilabel>Fit window radius</guilabel> to the same value you used for producing the calibration curve (1100 nm)</step>
         <step>Go to the <guilabel>Image Display</guilabel> output and 
             <substeps>
                 <step>Set <guilabel>Resolution in X direction</guilabel> to 20 nm</step>

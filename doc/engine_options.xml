@@ -191,27 +191,62 @@
         and precision, but with a small speed cost.</para>
 </et:elem>
 
-<et:elem desc="Smoothing mask width" topic="SmoothingMaskSize"/>
+<et:elem desc="Smoothing mask width" topic="SmoothingMaskSize">
+    <para>The full width of a square structuring element used for <et:elemref linkend="Median"/>
+        and <et:elemref linkend="Average"/> smoothing.</para>
+</et:elem>
 
 <et:elem desc="Smoothing kernel std.dev." topic="SmoothingSigma">
+    <para>The standard deviation (&sgr;) of a Gaussian smoothing kernel.</para>
 </et:elem>
 <et:elem desc="Erosion mask size" topic="SpotReconstructionMaskSize">
-</et:elem>
-<et:elem desc="Background dilation mask size" topic="BackgroundDilationMaskSize">
+    <para>The full width of a square erosion mask.</para>
 </et:elem>
 <et:elem desc="Background mask width" topic="BackgroundMaskSize">
+    <para>The full width of a square structuring element for the background averaging.</para>
 </et:elem>
 <et:elem desc="Foreground mask width" topic="ForegroundMaskSize">
-</et:elem>
-<et:elem desc="Levenberg-Marquardt fitter" topic="GUF">
+    <para>The full width of a square structuring element for the foreground averaging.</para>
 </et:elem>
 
-<et:elem desc="Smooth with gaussian kernel" topic="Gaussian"/>
-<et:elem topic="Reconstruction" desc="Morphologically reconstruct image"/>
-<et:elem topic="Median" desc="Smooth by median"/>
-<et:elem topic="Erosion" desc="Erode image"/>
-<et:elem topic="DifferenceOfAverage" desc="Smooth by difference of averages"/>
-<et:elem topic="Average" desc="Smooth by average"/>
+<et:elem desc="Levenberg-Marquardt fitter" topic="GUF">
+    <para>Currently, Levenberg-Marquardt fitting is the only implementation of a spot fitter,
+        i.e. a routine that localizes a fluorescence emission to subpixel precision.
+        The LM fitter works by building a PSF model (in most cases a Gaussian function),
+        estimating crude initial guesses for a the parameter of this model, and then
+        optimizing the distance between the data in the immediate surroundings of the spot
+        and the theoretical model. The parameters of the model then give the location of the
+        emitter and its intensity.</para>
+</et:elem>
+
+<et:elem desc="Smooth with gaussian kernel" topic="Gaussian">
+    <para>Smooth the input images with a Gaussian kernel of the specified width. This kernel
+        can be set to the PSF size or specified independently. Gaussian smoothing is often
+        suboptimal, see <xref linkend="WolterDiplomarbeit"/> for details.</para>
+</et:elem>
+
+<et:elem topic="Reconstruction" desc="Morphologically reconstruct image">
+    <para>Smooth the input by performing a morphological fillhole transformation (using reconstruction by dilation)
+        followed by a rectangular erosion.</para>
+</et:elem>
+
+<et:elem topic="Median" desc="Smooth by median">
+    <para>Smooth by applying a square median filter of the specified width.</para>
+</et:elem>
+
+<et:elem topic="Erosion" desc="Erode image">
+    <para>Smooth by applying a morphological erosion with a square structuring element of the specified size.</para>
+</et:elem>
+
+<et:elem topic="DifferenceOfAverage" desc="Smooth by difference of averages">
+    <para>Smooth by applying a square moving window average filter. Then substract the result of a wider square
+        moving window average filter, which estimates the local background and can thereby deal with uneven
+        backgrounds.</para>
+</et:elem>
+
+<et:elem topic="Average" desc="Smooth by average">
+    <para>Smooth by applying a square moving window average filter.</para>
+</et:elem>
 
 </glossary>
 </chapter>
