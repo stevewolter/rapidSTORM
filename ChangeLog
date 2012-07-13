@@ -1,3 +1,47 @@
+== 3.2.0 ==
+
+Functionality changes:
+* Fixed bugs #144, #203, #206, #208, #210, #211, #212, #214, #219 and #223
+* Greatly expanded manual
+* Made text fields by default chained together
+* worked around wxGTK inactive selection background issue
+* Made text fields auto-commit when losing focus
+* Made nonlinear drift estimator use the right traits
+* Removed close job button because its functionality moved into the tab bar
+* Improved units and reliability of ROI filter
+* Made GUI labels in the manual be printed in bold
+* Added nonlinear drift removal filter
+* Implemented gaussian smoothing image interpolator (aka density map or PALM interpolation)
+* Added nearest-neighbour image interpolation
+* Made emission tracker read the precision from localization data fields
+* Fixed region of interest output
+* Fixed Distance Histogram output and allowed periodic boundary conditions
+* Used Fletcher-Reeves conjugate gradient instead of Nelder-Mead for alignment fitter, greatly stabilizing the algorithm
+* Fixed faulty memory access in GUI
+* Fixed parallel reading of the same input file
+
+Internal changes:
+* Input field names are now read from the documentation to remove duplication
+* Fixed too long binding of copied config entries to simparm hierarchy
+* Improved stability of tests and text stream
+* Moved binning out of output namespace
+* Updated Doxyfile to new Doxygen version
+* Moved locprec modules into outputs namespace
+* Moved Ripley-K code into its own namespace
+* Pruned superfluous park of debug headers
+* Converted more unit tests to boost.units
+* Deleted obsolete source files
+* Deleted obsolete dStorm/outputs directory, which was merged with outputs
+* Moved BinnedLocalizations into new namespace and renamed it DensityMap
+* Pruned unnecessary files from viewer/colour_schemes and moved their contents into implementation files
+* Deleted one-liner _decl.h files
+* Simplified viewer module by making colour schemes virtual instead of templated
+* Deleted obsolote localization list output
+* Removed output-stream-opening feature from FileEntry to simplify code
+* Fixed order of job destruction to make main program wait for all destructors
+* Removed usage of auto-file-generation "feature" of simparm::FileEntry.
+* Made alignment fitter available through text stream interface and added unit test for it
+
 == 3.1.0 ==
 
 * Fixed wxWidgets manifest selection for Win64 that broke Win64 builds
