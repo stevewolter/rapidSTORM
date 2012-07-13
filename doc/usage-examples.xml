@@ -100,8 +100,8 @@
         <step id="make-3d-image-common:stop">Set <et:elemref linkend="FitWindowSize"/> to the same value you used for producing the calibration curve (1100 nm)</step>
         <step>Go to the <guilabel>Image Display</guilabel> output and 
             <substeps>
-                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate (optional)</guilabel></step>
-                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z (optional)</guilabel></step>
+                <step>Set <guilabel>Colour palette for display</guilabel> to <guilabel>Vary hue with sample coordinate</guilabel></step>
+                <step>Set <guilabel>Coordinate to vary hue with</guilabel> to <guilabel>position in sample space z</guilabel></step>
             </substeps>
         </step>
         <step>Run evaluation and wait for job to finish</step>
@@ -173,10 +173,8 @@
         <step>Set <guilabel>File 2</guilabel> to <userinput>X2.tif</userinput></step>
         <step>Set <guilabel>Output file</guilabel> to <userinput>linMatrix_X1toX2.txt</userinput></step>
         <step>Set <guilabel>Sigma</guilabel> to <userinput>1</userinput></step>
-        <step><para>Set <guilabel>Number of images to use</guilabel> to <userinput>1000</userinput></para>
-            <para role="comment">This increases the method's precision by using more localizations.</para></step>
         <step id="make-linear-alignment:compute">Click <guilabel>Compute</guilabel></step>
-        <step>Wait until the <guilabel>Current estimation volume</guilabel> display box is hidden</step>
+        <step>Wait for an alignment job to open and its progress bar to fill</step>
         <step>The final alignment matrix is displayed in the text fields. Check that it is sane,
             i.e. scale factors are close to 1, shear close to 0 and translation smaller than 2 micrometers
             <stepalternatives>

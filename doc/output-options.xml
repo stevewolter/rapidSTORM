@@ -474,8 +474,8 @@
                   <para>This option box determines the effect of the action. It can either take the value of <guilabel>Filter</guilabel>,
                   in which case <guilabel>Expression to assign from</guilabel> must give a boolean result,
                   or a variable name, in which case <guilabel>Expression to assign from</guilabel> must give a numerical result which matching dimensions.
-                  The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter:VariableModifiers"/> to
-                  <xref linkend="ExpressionFilter:VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter:VariableExamples"/>.</para>
+                  The possible variable names are formed by applying the modifiers from <xref linkend="ExpressionFilter_VariableModifiers"/> to
+                  <xref linkend="ExpressionFilter_VariableBasenames"/>, with examples in <xref linkend="ExpressionFilter_VariableExamples"/>.</para>
                </et:elem>
                <et:elem desc="Expression to assign from" topic="ExpressionFilter_Expression">
                   <para>This text field gives an arithmetic expression for the value of the action. An
@@ -483,12 +483,12 @@
                   linked by the usual arithmetic operators. Constants are given as numbers with units, which
                   can be <userinput>m</userinput>, <userinput>ADC</userinput> or <userinput>fr</userinput> for
                   meters, camera A/D counts of frames, respectively, and be prefixed with the usual SI prefixes
-                  (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter:Operators"/>.
-                  Examples for complete actions are listed in <xref linkend="ExpressionFilter:ExampleActions"/></para>
+                  (with <userinput>u</userinput> for &mgr;). The available operators are given in <xref linkend="ExpressionFilter_Operators"/>.
+                  Examples for complete actions are listed in <xref linkend="ExpressionFilter_ExampleActions"/></para>
                </et:elem>
          </et:elemtable>
       </refsection>
-      <table id="ExpressionFilter:VariableBasenames">
+      <table id="ExpressionFilter_VariableBasenames">
          <title>Variable base names for expressions</title>
          <tgroup cols='4' align='left' colsep='1' rowsep='1'>
                <colspec colnum="1" colwidth="6em"/>
@@ -507,7 +507,7 @@
                </tbody>
          </tgroup>
       </table>
-      <table id="ExpressionFilter:VariableModifiers">
+      <table id="ExpressionFilter_VariableModifiers">
          <title>Variable name modifiers for expressions</title>
          <tgroup cols='2' align='left' colsep='1' rowsep='1'>
                <thead><row><entry>Modifier</entry><entry>Meaning</entry></row></thead>
@@ -521,7 +521,7 @@
                </tbody>
          </tgroup>
       </table>
-      <table id="ExpressionFilter:VariableExamples">
+      <table id="ExpressionFilter_VariableExamples">
          <title>Variable example names for expressions</title>
          <tgroup cols='2' align='left' colsep='1' rowsep='1'>
                <thead><row><entry>Example variable name</entry><entry>Meaning</entry></row></thead>
@@ -532,7 +532,7 @@
                </tbody>
          </tgroup>
       </table>
-      <table id="ExpressionFilter:Operators">
+      <table id="ExpressionFilter_Operators">
          <title>Operators in expressions</title>
          <tgroup cols="3">
                <colspec colnum="2" colwidth="6em"/>
@@ -550,7 +550,7 @@
                </tbody>
          </tgroup>
       </table>
-      <table id="ExpressionFilter:ExampleActions">
+      <table id="ExpressionFilter_ExampleActions">
          <title>Example actions</title>
          <tgroup cols="3">
                <colspec colnum="1" colwidth="4em"/>

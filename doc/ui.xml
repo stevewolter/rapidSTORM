@@ -12,6 +12,17 @@
 <chapter xmlns='http://docbook.org/ns/docbook' id="UI" xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
    <title>User interface</title>
 
+    <para>rapidSTORM's user interface is based on a single window (the main window)
+        with multiple tabs. Each tab represents either a job configuration or a 
+        running job. When rapidSTORM is started, a single job configuration for a
+        localization job is opened by default.</para>
+    <para>Jobs can be started by clicking the <guilabel>Run</guilabel> button at the
+        bottom of a job configuration. Further job configurations can be found in the
+        <guimenu>Job</guimenu> menu.</para>
+    <para>This chapter will first exemplify basic usage and the process of opening jobs in
+        a tutorial. Then, the general behaviour of input elements and the different kinds
+        of job configurations will be explained.</para>
+
 <section>
     <title>Basic use tutorial</title>
     <task id="tutorial_start">
@@ -95,202 +106,141 @@
     </task>
 </section>
 
-   <para>The graphical user interface for rapidSTORM consists of two
-      windows: The <xref linkend="configuration_window"/>
-      is used to set the parameters for dSTORM processing
-      and monitor the progress of computation. The 
-      <indexterm><primary>configuration window</primary></indexterm>
-      configuration window
-      is opened when rapidSTORM is started. The second window is the
-      <xref linkend="image_window"/>, which shows the current dSTORM result
-      image and allows the user to scroll and zoom the image.</para>
+<section>
+    <title>Behaviour of input fields</title>
+    <para>Job configurations consist of a series of input fields and control elements
+        that configure the job. Most of them are standard UI tools like buttons and
+        checkboxes, and we assume you are familiar with their use. However, there are
+        a number of specialities, and we will introduce them in this section.</para>
+    <section>
+        <title>Immediate effects and committing values</title>
+        <para>The visibility of many input fields in rapidSTORM is dependent on 
+            previous choices, i.e. the value of fields that are displayed above the
+            current field. Therefore, changes in text fields are not immediately committed
+            while you type. While a field is not committed, its values do not take effect, and
+            its background is red. You can commit a textfield by pressing Enter or switching the
+            keyboard focus away from the field, e.g. with the Tab key or clicking another field.</para>
+        <para></para>
+    </section>
+    <section>
+        <title>Multi-dimensional chaining</title>
+        <para>Text fields in rapidSTORM are often part of a matrix. You can
+            recognize matrices by the presence of multiple text fields with
+            one description. Next to a matrix field, a button with a chain is
+            shown.</para>
+        <para>The chain button is used to "chain" the matrix elements, that is
+            to change all elements at once (chained) or individually (unchained).
+            When text fields are chained, entering text in one of the fields 
+            immediately changes the text in all fields. When text fields are unchained,
+            each field is changed and committed individually. Leading unchained text fields
+            in a matrix do not commit their values when they lose focus; only the last
+            text field in the matrix behaves in this way.</para>
+    </section>
+    <section>
+        <title>Optional values</title>
+        <para>Some values in rapidSTORM are optional, that is, they can have no value at
+            all. These fields have a checkbox in front of them. The checkbox controls the
+            presence of a value, and the text field is not displayed while the checkbox is
+            not checked. When you check the checkbox, the text field will be uncommitted
+            and has to be committed in the usual way to take effect.</para>
+    </section>
 
-   <section id="configuration_window">
-      <title>Configuration window</title>
-      <para>The <indexterm><primary>configuration window</primary></indexterm>
-        configuration window is the main window of rapidSTORM
-        and consists of three parts: From top to bottom, there is the
-        menu bar, the job bar and the configuration area.</para>
-      <para>The latter is the area that takes up most of the screen and contains
-        a number of configuration items, which are text fields or drop-down
-        boxes used to set the rapidSTORM parameters. While the meaning of these
-        boxes is explained later in this chapter, their operation is 
-        standardized. The text fields allow to enter texts or, in most cases,
-        numbers. If the field is meant for a filename, a select button
-        is provided next to the text field, and the user may also drag and
-        drop files to the field. If the field is numeric and has known limits,
-        a slider is shown next to it; operating the slider or turning the
-        mouse wheel can be used to change the field's value.</para>
-      <para>The rest of this chapter will define the meaning of the fields.
-       It starts with an explanation of the job
-       concept and the job bar and continue with the
-       different views in the configuration area and the menu bar.</para>
-      <section>
-        <title>rapidSTORM jobs</title>
-        <para>Each file or direct acquisition processed with rapidSTORM,
-          together with the computation options used for it, is
-          called a <indexterm><primary>job</primary></indexterm>job in
-          rapidSTORM
-          parlance. Jobs are computed independently from each other, and
-          you can have multiple jobs open at once if your computer memory
-          permits. The currently open jobs are displayed in
-          the <indexterm><primary>job bar</primary></indexterm>job bar near
-          the top of the configuration window.</para>
-        <para>The job bar is also used to select which job's status to show.
-          Click on a tab to change the currently visible job.</para>
-      </section>
-      <section>
-        <title>The job options tab</title>
-        <para><indexterm><primary>job options</primary></indexterm>
-           When the rapidSTORM program is started, one tab in the job bar
-           called "job options" is already present. This tab does not represent
-           a job, but rather displays the configuration options for new jobs.
-           </para>
-        <para>The job option pane is organized along the flow of data from input
-           file to result: Options that show up at the top of the job options list
-           refer to pre-processing, and those towards the bottom refer to output
-           configuration and post-processing.</para>
-        <para>When the job option tab is selected, the configuration area
-          consists of four major elements:</para>
-          <itemizedlist>
-            <listitem><para>The <guilabel>Input options</guilabel> box is used to 
-              select the input files and provide information about the used
-              optics. Its elements are described in <xref linkend="input_options"/>.</para></listitem>
-            <listitem><para>The <guilabel>Choose engine</guilabel> box allows the
-                selection of a processing engine. The <guilabel>rapidSTORM engine</guilabel>
-                option will try to localize fluorophores in the given images, and
-                the <guilabel>Replay stored localizations</guilabel> choice reads
-                pre-computed localizations from a file. The options for the 
-                <guilabel>rapidSTORM engine</guilabel> choice are described in
-                <xref linkend="engine_options"/>.</para></listitem>
-            <listitem><para>The <xref linkend="output_options"/> box controls
-              how the extracted localizations are filtered, displayed
-              and stored.</para></listitem>
-            <listitem><para>The run button starts a new job with the currently
-              selected options. The configuration items for the job option tab
-              can be changed while the started job is running and have no effect
-              on it.</para></listitem>
-          </itemizedlist>
-        <section id="output_options" xreflabel="Output Options">
-           <title>Output options</title>
-            <figure id="output_box">
-               <title>Output options box</title>
-               <mediaobject>
-                  <imageobject>
-                     <imagedata fileref="rapidstorm-output-box.PNG" width="100%"/>
-                  </imageobject>
-               </mediaobject>
-            </figure>
-           <para>The output options box is separated into two components:
-             <indexterm><primary>output tree</primary></indexterm>
-             To the left hand side, you see a tree element showing the
-             <emphasis>output tree</emphasis>. The output tree is the data
-             structure that controls the filtering
-             and processing of the localizations found by the engine. On the
-             right hand side, you see the
-             options for the currently selected node in the output tree. When
-             the program is started, this is the root node.</para>
-           <para>The output tree defines the way in which localizations are
-             processed. Each node of the tree is called an
-             <indexterm><primary>output module</primary></indexterm>
-             <emphasis>output module</emphasis> (in this section also called
-             module), which processes data in some
-             way specific to the type of the module: For example, the
-             "Count localizations" module counts all localizations it 
-             receives and displays the current amount.</para>
-           <para>The first, root node (called "dSTORM engine output")
-             symbolizes the output of the <xref linkend="dSTORM_engine"/>.
-             Each module connected to it receives all localizations found by
-             the engine without filtering or processing.</para>
-           <para>Some modules such as <xref linkend="ExpressionFilter"/>
-             not only receive, but also send localizations. For example, the
-             localization filter sends all localizations that match its
-             criteria. The outputs that receive localizations from such a
-             filter are displayed in the tree as children nodes of it.</para>
-           <para>For an example, consider
+    <section>
+        <title>Selecting input files</title>
+        <para>When a text field in rapidSTORM requires a file name, you can enter the
+            file name directly, select it interactively with a dialog by clicking the
+            Select button next to the field, or by dragging &amp; dropping the file on
+            the input field.</para>
+    </section>
+
+    <section>
+        <title>The output options tree</title>
+        <para>Localization jobs and replay jobs organize their output in an output options
+            tree. This tree is displayed with a tree element on the left, which shows the structure
+            of the tree and allows selecting a single node, and the node detail field, which
+            shows the detailed options for the tree node selected on the left-hand side.</para>
+        <para>Each node in the output tree represents an output module, which will perform some
+            action with or display information about the output. Some of the output modules
+            such as the <xref linkend="ExpressionFilter"/> modify their input and can have 
+            subordinate output modules. The subordinate output modules will act on the localizations
+            that were modified by their parent output modules.</para>
+        <para>The first, root node (called "dSTORM engine output")
+            symbolizes the output of the <xref linkend="dSTORM_engine"/>.
+            Each module connected to it receives all localizations found by
+            the engine without filtering or processing.</para>
+        <para>For an example, consider
              the tree shown in the graphic: 
-             While the first "Localizations file", "Count localizations",
-             "Display progress", "Filter localizations" and "Average images"
+             The first <guilabel>Localizations file</guilabel>, <guilabel>Count localizations</guilabel>,
+             <guilabel>Display progress</guilabel>, <guilabel>Filter localizations</guilabel> and <guilabel>Average images</guilabel>
              receive the unmodified output from the 
              <xref linkend="dSTORM_engine"/>. The
-             localizations received by the second "Localizations file" and for
-             "Image display" are those modified by the "Filter localizations"
+             localizations received by the second <guilabel>Localizations file</guilabel> and for
+             <guilabel>Image display</guilabel> are those modified by the <guilabel>Filter localizations</guilabel>
              module.</para>
           <para>Clicking on an output module in the tree view shows this
              module's configuration in the right part of the display. Each 
              module has specific configuration options, which are documented
              together with the module's description in the <xref linkend="output_modules"/> chapter.
-             For modules that can have outputs, you can manage the suboutputs
-             by the following standard control elements:</para>
+             You can manage the suboutputs by the following standard control elements:</para>
           <et:elemtable> 
             <title>Output configuration items</title>
             <et:elem desc="Choose new output" topic="ChooseOutput">
-              In this list you find all available output modules.
-              After selecting one of the modules, it is added into the
-              output tree as a child of the current tree node.
+                <para>This button opens a dialog for choosing new output modules.</para>
             </et:elem>
-            <et:elem desc="Select output to remove" topic="ToRemove">
-              Select one of the active outputs of the current module in
-              this box. The selected module and all of its submodules are
-              deleted from the output tree.
+            <et:elem desc="Remove output" topic="RemoveOutput">
+                <para>The current output module and all its children are removed from the output tree.</para>
             </et:elem>
           </et:elemtable>
-        </section>
       </section>
-      <section>
-        <title>The job status tabs</title>
-        <para>For each running job, a job status tab is displayed in the job
-            bar. Some output modules such as <xref linkend="image_display"/>
-            display control and information elements in the job status tab,
-            in the same order as they appear in the output tree.</para>
-      </section>
-      <section>
-        <title>The menu bar</title>
-        <para>The menu bar is the control element at the top of the 
-          configuration window and offers two controls: Storing and loading
-          macros and changing the expertise level.
-        </para>
-        <section><title>Macros</title>
-        <para>Macros are text files that can be used to automatically repeat
-          the actions youhave performed in the configuration window. This
-          feature can save a great amount of work if you often use a particular
-          configuration that is tedious to set up.</para>
-        <para>You can set up a
-          macro by selecting the <guimenuitem>Save as ...</guimenuitem> item in
-          the <guimenu>Macro</guimenu> menu. After you have saved your macro, you
-          can continue work normally; should you wish to re-save your workflow,
-          use the <guimenuitem>Save</guimenuitem> or <guimenuitem>Save as ...</guimenuitem>
-          items.</para>
-        <para>To replay a macro, open a fresh instance of the rapidSTORM 
-          software, select the <guimenuitem>Load</guimenuitem> menu item and the macro
-          you want to replay.</para>
-        </section>
-        <section id="expertise_level">
-          <title>Changing the expertise level</title> 
-          <para>Not all controls are shown at the start of the rapidSTORM
-          software to avoid confusion for new users. To display more 
-          configuration options, the <guimenu>Expertise</guimenu> menu is used.
-          The expertise level influences only which elements are displayed,
-          not the result of any computation.
-          </para>
-        </section>
-      </section>
+</section>
+
+<section>
+    <title>The menu bar</title>
+    <section>
+        <title>Job</title>
+        <para>The job menu is used to open and save job configurations.</para>
+        <para>You can open new jobs by selecting any of the template entries in
+            one of the submenus. The submenu selects the type of the new job configuration,
+            e.g. <guilabel>Localization</guilabel> for localizing fluorophores in images,
+            <guilabel>Replay</guilabel> for reading a localizations file, or
+            <guilabel>Alignment fitter</guilabel> for fitting a linear alignment
+            matrix to two localization files.</para>
+        <para>You can save the configuration of the current job tab by clicking on <guilabel>Save ...</guilabel>.
+            You can open a saven configuration by using the <guilabel>From file ...</guilabel>
+            menu item in the submenu with the same job type (e.g. <guilabel>Localization</guilabel>
+            for a saved localization config).</para>
     </section>
-    <section id="image_window">
-      <title>Image window</title>
-        <para>When a job is started with the <xref linkend="image_display"/>
-            output module active, a window showing an image with the already
-            computed localizations is displayed.</para>
-        <para>The image display window shows one or two keys on its right side.
-            If there is one key, it shows the mapping of intensity values, i.e.
-            accumulated emission intensities, to colors. The numbers are suffixed
-            with SI unit prefixes, and the unit is displayed at the top of the
-            key.</para>
-        <para>If the image is hued by coordinate, a second key appears. The left
-            key is in black and white and shows the image intensity, while the right key
-            shows a color spectrum and displays the values indicated by the colours.
-            The two text boxes at the bottom of the right key allow setting the range
-            of the hueing. If the right key is completely black, the range is unknown
-            and must be entered.</para>
+
+    <section id="expertise_level">
+        <title>User level</title>
+        <para>The user level menu is used to limit the number of available input fields.
+            At low user levels, only the most important input fields are displayed.
+            You can change the user level by clicking on the appropriate menu entry.</para>
     </section>
+    <section>
+        <title>Help</title>
+        <para>In the help menu, you can interactively open the section of the manual
+            that describes a given input item. Click first on the menu item <guilabel>What's this?</guilabel>,
+            and then on the input field's label.</para>
+    </section>
+</section>
+
+<section id="image_window">
+    <title>Image window</title>
+    <para>When a job is started with the <xref linkend="image_display"/>
+        output module active, a window showing an image with the already
+        computed localizations is displayed.</para>
+    <para>The image display window shows one or two keys on its right side.
+        If there is one key, it shows the mapping of intensity values, i.e.
+        accumulated emission intensities, to colors. The numbers are suffixed
+        with SI unit prefixes, and the unit is displayed at the top of the
+        key.</para>
+    <para>If the image is hued by coordinate, a second key appears. The left
+        key is in black and white and shows the image intensity, while the right key
+        shows a color spectrum and displays the values indicated by the colours.
+        The two text boxes at the bottom of the right key allow setting the range
+        of the hueing. If the right key is completely black, the range is unknown
+        and must be entered.</para>
+</section>
+
 </chapter>

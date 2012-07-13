@@ -72,7 +72,7 @@ manual.pdf : manual.fo foprc
 
 CLEANFILES = $(GENERATED_GRAPHICS) manual.xml $(PDF_TARGET) manual.html manual.fo bib4wbbt.xml \
     manual.hhp titlepage.xsl alias.h context.h manual.hhk manual.hhc manual.zip \
-    htmlhelp-generated-stamp guilabels.csv
+    htmlhelp-generated-stamp guilabels.h
 
 clean-local :
 	-rm -f *.html
