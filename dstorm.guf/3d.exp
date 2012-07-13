@@ -6,7 +6,7 @@ send "in Car in Input in OutputBasename in Basename in value set ${tmpdir_target
 set_last_image 19990
 send "in Car in Input in Optics in InputLayer0 in PixelSizeInNM value set 107.0,107.0\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in value set Polynomial3D\n"
-send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in PSF value set 200.0,200.0\n"
+send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in SharpestPSF value set 200.0,200.0\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in ZPosition value set -500.0,600.0\n"
 send "in Car in Input in Optics in InputLayer0 in ThreeD in Polynomial3D in WideningConstants value set 0 1.0 0 0.7, 0 1.0 0 0.7\n"
 send "in Car in Engine in rapidSTORM in FitJudgingMethod in FixedThreshold in AmplitudeThreshold in value set 2000\n"
