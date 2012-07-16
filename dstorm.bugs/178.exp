@@ -14,7 +14,7 @@ set_last_image 50
 dstorm_attach
 send "in Car set Run value set 1\n"
 
-wait_for_image "${tmpdir_host}178.png"
+wait_for_image "${tmpdir_host}178.png" "$test"
 
 if { [file exists "${tmpdir_host}178.png"] } {
     spawn identify -verbose "${tmpdir_host}178.png"
