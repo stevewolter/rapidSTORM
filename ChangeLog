@@ -1,3 +1,8 @@
+== 3.2.1 ==
+
+* Stabilized unit tests
+* Formulated sparse matrix solver compatible to Eigen 3.0.5
+
 == 3.2.0 ==
 
 Functionality changes:
