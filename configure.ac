@@ -73,6 +73,10 @@ AM_CONDITIONAL([HAVE_LIBREADSIF], [test "$have_libreadsif" = yes])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h windows.h winsock2.h math.h sys/time.h sys/resource.h errno.h])
+AC_CHECK_HEADERS([Eigen/SparseCholesky], , , 
+[
+#include <Eigen/Sparse>
+])
 AC_CHECK_HEADER([boost/utility.hpp], [], [AC_ERROR([Missing boost headers])])
 AC_CHECK_HEADERS([tiffio.h])
 

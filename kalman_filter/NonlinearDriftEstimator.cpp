@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <dStorm/output/Output.h>
 #include <simparm/Entry.h>
 #include <simparm/FileEntry.h>
@@ -8,8 +12,7 @@
 #include <dStorm/units/frame_count.h>
 #include <boost/foreach.hpp>
 
-#define EIGEN_SPARSE_CHOLESKY 1
-#if EIGEN_SPARSE_CHOLESKY
+#if HAVE_EIGEN_SPARSECHOLESKY
 #include <Eigen/Sparse>
 #else
 #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
@@ -114,7 +117,7 @@ void DriftSection::add_measurement( BeadPosition measurement ) {
 }
 
 
-#if EIGEN_SPARSE_CHOLESKY
+#if HAVE_EIGEN_SPARSECHOLESKY
 typedef Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > SparseSolver;
 static bool decomposition_failed( const SparseSolver& s )
     { return s.info() != Eigen::Success; }
