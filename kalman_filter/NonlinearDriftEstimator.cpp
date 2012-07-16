@@ -8,10 +8,13 @@
 #include <dStorm/units/frame_count.h>
 #include <boost/foreach.hpp>
 
-#define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
+#define EIGEN_SPARSE_CHOLESKY 1
+#if EIGEN_SPARSE_CHOLESKY
 #include <Eigen/Sparse>
-//#include <unsupported/Eigen/SparseExtra>
-#include <Eigen/SparseCholesky>
+#else
+#define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
+#include <unsupported/Eigen/SparseExtra>
+#endif
 #include <boost/lexical_cast.hpp>
 #include <boost/range/algorithm/find.hpp>
 #include <boost/range/algorithm/lower_bound.hpp>
@@ -110,6 +113,17 @@ void DriftSection::add_measurement( BeadPosition measurement ) {
     ++measurement_index;
 }
 
+
+#if EIGEN_SPARSE_CHOLESKY
+typedef Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > SparseSolver;
+static bool decomposition_failed( const SparseSolver& s )
+    { return s.info() != Eigen::Success; }
+#else
+typedef Eigen::SparseLDLT< Eigen::SparseMatrix<double> > SparseSolver;
+static bool decomposition_failed( const SparseSolver& s )
+    { return ! s.succeeded(); }
+#endif
+
 void DriftSection::solve_equation_systems() {
     assert( measurement_index == equations_transposed.cols() );
     assert( int(bead_ids.size()) == time_offset );
@@ -120,14 +134,14 @@ void DriftSection::solve_equation_systems() {
         squaring_matrix = equations_transposed * weights[i].asDiagonal();
         EquationSystem square = squaring_matrix * equations_transposed.transpose();
 
-        Eigen::SimplicialLDLT< EquationSystem > decomposed;
+        SparseSolver decomposed;
         decomposed.compute( square );
-        if ( decomposed.info() != Eigen::Success )
+        if ( decomposition_failed( decomposed ) )
             throw std::runtime_error("Unable to invert least squares variable matrix");
 
         Eigen::VectorXd t = squaring_matrix * measurements[i];
         solutions[i] = decomposed.solve( t );
-        if ( decomposed.info() != Eigen::Success )
+        if ( decomposition_failed( decomposed ) )
             throw std::runtime_error("Unable to solve equation system for positions");
 
         covariances[i] = Eigen::VectorXd( time_offset );
@@ -135,7 +149,7 @@ void DriftSection::solve_equation_systems() {
             Eigen::VectorXd identity_column = Eigen::VectorXd::Unit( t.rows(), bead );
             Eigen::VectorXd inverse_column;
             inverse_column = decomposed.solve( identity_column );
-            if ( decomposed.info() != Eigen::Success )
+            if ( decomposition_failed( decomposed ) )
                 throw std::runtime_error("Unable to solve equation system for covariances");
             covariances[i][bead] = inverse_column[bead];
         }
