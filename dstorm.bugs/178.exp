@@ -14,12 +14,7 @@ set_last_image 50
 dstorm_attach
 send "in Car set Run value set 1\n"
 
-expect {
-    -re "in Progress in value set 1" { pass "$test"; }
-    -re "in Progress in value set 0" { exp_continue; }
-}
-
-wait_for_file "${tmpdir_host}178.png"
+wait_for_image "${tmpdir_host}178.png"
 
 if { [file exists "${tmpdir_host}178.png"] } {
     spawn identify -verbose "${tmpdir_host}178.png"

@@ -228,7 +228,7 @@ proc end_test_suite {} {
     wait_for_jobs; 
     disconnect_camera;
 
-    set timeout 1
+    set timeout 3
     send "cmd 0 attach\n"; expect "ack 0";
     send "reset\n"; 
     expect { 

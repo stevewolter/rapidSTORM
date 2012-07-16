@@ -43,8 +43,10 @@ send "in Car in Run in value set 1\n"
 set job [get_job_number]
 
 set noimage 0
+set found_image 0
 
 expect {
+    -re "message set Stored image ${tmpdir_target}185.png" { set found_image 1; exp_continue; }
     -re "in Progress in value set 1" { pass "$test"; }
     -re "in Progress in value set 0" { exp_continue; }
     -re "in LocalizationCount in value set " { exp_continue; }
@@ -52,12 +54,11 @@ expect {
     -re "Error fetching data for field \"Tag 50839\"\r*\nseverity set Error" { set noimage 1; unsupported "$test"; }
 }
 
-wait_until_jobs_finished
-
 set test "#185 is fixed"
 if { $noimage == 0 } {
-    wait_for_file "${tmpdir_host}185.png"
-    sleep 5
+    if { $found_image == 0 } {
+        wait_for_image "${tmpdir_target}185.png" "$test"
+    }
 
     spawn compare -metric RMSE "${tmpdir_host}185.png" "${testcase_host}185-norm.png" "${tmpdir_host}185-difference.png"
     expect {
