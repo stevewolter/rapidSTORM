@@ -4,10 +4,11 @@
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-grk1.ent">
  <!ENTITY % isolat1 PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN//XML"
                     "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-lat1.ent">
- <!ENTITY % w3centities-f PUBLIC "-//W3C//ENTITIES Combined Set//EN//XML" "http://www.w3.org/2003/entities/2007/w3centities-f.ent">
+ <!ENTITY % isonum PUBLIC "ISO 8879:1986//ENTITIES Numeric and Special Graphic//EN//XML" 
+                    "http://www.oasis-open.org/docbook/xmlcharent/0.3/iso-num.ent">
 %isogrk1;
 %isolat1;
-%w3centities-f;
+%isonum;
 ]>
 
 <chapter id="Step_by_Step" xmlns='http://docbook.org/ns/docbook' xml:lang="en" xmlns:et="http://super-resolution.de/elemtable">
