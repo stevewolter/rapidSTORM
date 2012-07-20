@@ -18,7 +18,7 @@ void TreeRoot::initialization_finished() {
 
 boost::function0<void> TreeRoot::get_relayout_function() {
     return boost::function0<void>( ( 
-        boost::bind( &TreeRepresentation::InvalidateBestSize, tr_root ),
+        bl::bind( &TreeRepresentation::InvalidateBestSize, *bl::constant(tr_root) ),
         bl::bind( get_parent_relayout_function() )
     ) );
 }
