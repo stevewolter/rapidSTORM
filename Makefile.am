@@ -60,6 +60,7 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.bugs/177-2.exp dstorm.bugs/111.exp dstorm.bugs/106.exp \
     dstorm.bugs/75_stm.exp dstorm.bugs/206.exp \
     dstorm.bugs/190.exp dstorm.bugs/202.exp dstorm.bugs/212.exp \
+    dstorm.bugs/228.exp \
     dstorm.outputs/save-image-to-nonexisting-location.exp \
     dstorm.outputs/drift-estimator.exp \
     dstorm.outputs/emission-tracker.exp \

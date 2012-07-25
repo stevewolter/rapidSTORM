@@ -285,8 +285,12 @@ public:
         return RunRequirements();
     }
     AdditionalData announceStormSize(const Announcement &a) {
-        if ( a.source_traits.size() < 1 || a.source_traits[0].get() )
+        if ( a.source_traits.size() >= 1 && a.source_traits[0].get() )
             traits = *a.source_traits[0];
+        else
+            throw std::runtime_error("The current input for the nonlinear drift estimator consists only "
+                "of flat localizations without trace information. "
+                "Time traces such as those produced by the emission tracker are needed.");
         return AdditionalData();
     }
     void receiveLocalizations(const EngineResult& er) {

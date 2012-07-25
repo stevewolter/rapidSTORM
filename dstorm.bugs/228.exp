@@ -1,0 +1,17 @@
+begin_test_suite
+
+set test "Bug #228 is fixed"
+set_input_file "${workspace_target}Mikrotubuli.sif"
+set_last_image 50
+send "in Car in Output in EngineOutput in ChooseTransmission in value set NonlinearDrift\n"
+dstorm_attach
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+
+expect {
+    -re "by the emission tracker are needed.\r*\nseverity set Error" { pass "$test"; }
+    -re "in $job in" { exp_continue; }
+    -re "remove $job" { pass "$test"; }
+}
+
+end_test_suite
