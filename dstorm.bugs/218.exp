@@ -1,0 +1,28 @@
+begin_test_suite
+
+set test "Bug #218 is fixed"
+set_input_file "${workspace_target}Mikrotubuli.tif"
+set_last_image 50
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Cache\n"
+send "in Car in Output in EngineOutput in ChooseTransmission in value set Progress\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in ChooseTransmission in value set Expression\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in LValue in value set posz\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in CommandLine0 in Expression in value set 0.3 nm/fr * frame\n"
+send "in Car in Output in EngineOutput in Output0 in Cache in Output0 in Expression in ChooseTransmission in value set Image\n"
+
+dstorm_attach
+send "in Car set Run value set 1\n"
+set job [get_job_number]
+
+sleep 1
+#send "in $job 
+
+expect {
+    -re "in Progress in value set 1" { 
+        send "cmd 0 in $job in Output0 in Output0 in Output0 in DimensionSelector in ThreeDImage in value set true\n"
+        exp_continue
+    }
+    -re "Could not perform action" { pass "$test"; }
+}
+
+end_test_suite

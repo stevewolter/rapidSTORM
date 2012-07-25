@@ -1,6 +1,7 @@
 #ifndef SIMPARM_WX_ATTRIBUTE_HANDLE_H
 #define SIMPARM_WX_ATTRIBUTE_HANDLE_H
 
+#include <wx/msgdlg.h>
 #include <simparm/Attribute.h>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/lexical_cast.hpp>
@@ -27,8 +28,13 @@ public:
     bool set_value( std::string value ) {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
         if (a) {
-            bool success = a->set_value(value); 
-            if ( success ) protocol.protocol( "in value set " + value );
+            bool success = false;
+            try {
+                success = a->set_value(value); 
+                if ( success ) protocol.protocol( "in value set " + value );
+            } catch ( const std::exception& e ) {
+                wxMessageBox( wxString( e.what(), wxConvUTF8 ) );
+            }
             return success;
         } else {
             return true;
@@ -38,8 +44,12 @@ public:
     void unset_value() {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
         if (a) {
-            a->unset_value();
-            protocol.protocol( "in value unset" );
+            try {
+                a->unset_value();
+                protocol.protocol( "in value unset" );
+            } catch ( const std::exception& e ) {
+                wxMessageBox( wxString( e.what(), wxConvUTF8 ) );
+            }
         }
     }
 
@@ -65,8 +75,13 @@ public:
     bool set_value( std::string value ) {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
         if (a) {
-            bool success = a->set_value(value); 
-            if ( success ) protocol.protocol( "in value set " + value );
+            bool success = false;
+            try {
+                success = a->set_value(value); 
+                if ( success ) protocol.protocol( "in value set " + value );
+            } catch ( const std::exception& e ) {
+                wxMessageBox( wxString( e.what(), wxConvUTF8 ) );
+            }
             return success;
         } else
             return true;
@@ -84,8 +99,12 @@ public:
     AttributeHandle& operator=( const Type& o ) {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
         if ( a ) {
-            a->set_value_from_GUI( o );
-            protocol.protocol( "in value set " + boost::lexical_cast< std::string >(o) );
+            try {
+                a->set_value_from_GUI( o );
+                protocol.protocol( "in value set " + boost::lexical_cast< std::string >(o) );
+            } catch ( const std::exception& e ) {
+                wxMessageBox( wxString( e.what(), wxConvUTF8 ) );
+            }
         }
         return *this;
     }
@@ -94,9 +113,13 @@ public:
     AttributeHandle& operator+=( const Type& o ) {
         boost::lock_guard< boost::recursive_mutex > lock( mutex );
         if ( a ) {
-            Type v = (*a)() + o;
-            a->set_value_from_GUI( v );
-            protocol.protocol( "in value set " + boost::lexical_cast< std::string >(v) );
+            try {
+                Type v = (*a)() + o;
+                a->set_value_from_GUI( v );
+                protocol.protocol( "in value set " + boost::lexical_cast< std::string >(v) );
+            } catch ( const std::exception& e ) {
+                wxMessageBox( wxString( e.what(), wxConvUTF8 ) );
+            }
         }
         return *this;
     }
