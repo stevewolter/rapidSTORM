@@ -78,7 +78,8 @@ EXTRA_DIST = windows_resources.rc \
     dstorm.outputs/viewer-supports-key-range-changes.exp \
     dstorm.outputs/repeater.exp dstorm.outputs/viewer.exp \
     dstorm.outputs/segmenter.exp dstorm.outputs/linear-alignment.exp \
-    lib/dstorm.exp dstorm.andorcam/two-successive-jobs.exp \
+    lib/dstorm.exp lib/no-integration-tests.exp \
+    dstorm.andorcam/two-successive-jobs.exp \
     dstorm.andorcam/live-view.exp dstorm.andorcam/compute-job.exp \
     dstorm.andorcam/infinite-acquisition.exp \
     dstorm.andorcam/no-installed-cameras.exp \
