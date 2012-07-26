@@ -5,6 +5,7 @@
 #include <simparm/Attribute.h>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/lexical_cast.hpp>
+#include "ProtocolNode.h"
 
 namespace simparm {
 namespace wx_ui {

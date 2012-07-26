@@ -1,6 +1,3 @@
-#define VERBOSE
-#include "debug.h"
-
 #include "CameraConnection.h"
 #include "ViewportSelector.h"
 #include "InputChainLink.h"
@@ -14,6 +11,8 @@
 #include <simparm/Node.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
+
+#include "debug.h"
 
 using namespace std;
 using namespace simparm;

@@ -1,8 +1,8 @@
 #ifndef SIMPARM_WX_UI_TRIGGERNODE_H
 #define SIMPARM_WX_UI_TRIGGERNODE_H
 
-#include "WindowNode.h"
 #include "AttributeHandle.h"
+#include "WindowNode.h"
 
 namespace simparm {
 namespace wx_ui {

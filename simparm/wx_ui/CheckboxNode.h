@@ -1,8 +1,8 @@
 #ifndef SIMPARM_WX_UI_CHECKBOXNODE_H
 #define SIMPARM_WX_UI_CHECKBOXNODE_H
 
-#include "Node.h"
 #include "AttributeHandle.h"
+#include "Node.h"
 
 namespace simparm {
 namespace wx_ui {

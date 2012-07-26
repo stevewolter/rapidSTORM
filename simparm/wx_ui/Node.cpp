@@ -4,8 +4,8 @@
 #include <wx/string.h>
 #include <wx/stattext.h>
 
-#include "Node.h"
 #include "TextfieldNode.h"
+#include "Node.h"
 #include "TabNode.h"
 #include "ChoiceNode.h"
 #include "OutputChoiceNode.h"
