@@ -13,8 +13,6 @@ MOSTLYCLEANFILES = $(DX_CLEANFILES)
 applicationsdir=$(datadir)/applications
 pkgconfigdir = $(libdir)/pkgconfig
 
-DEJATOOL = dstorm
-
 bin_PROGRAMS = rapidstorm 
 check_PROGRAMS = rapidstorm
 applications_DATA=rapidstorm.desktop
@@ -25,6 +23,13 @@ AM_RUNTESTFLAGS = EXEEXT=$(EXEEXT)
 if REMOTE_TESTING
     AM_RUNTESTFLAGS += --target_board $(TELNET_HOST)
 endif
+
+if INTEGRATION_TESTING
+    THE_DEJATOOL = dstorm
+else
+    THE_DEJATOOL = no-integration-tests
+endif
+DEJATOOL = $(THE_DEJATOOL)
 
 EXTRA_DIST = windows_resources.rc \
     Doxyfile.in gaussian_psf/make_psf.sh \

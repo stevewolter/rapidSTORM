@@ -186,6 +186,7 @@ AC_SUBST([TELNET_HOST], "$with_telnet_host")
 AC_SUBST([test_performance], "$enable_performance_tests")
 AC_SUBST([test_camera], "$enable_camera_testing")
 AM_CONDITIONAL([REMOTE_TESTING], [test -n "$with_telnet_host"])
+AM_CONDITIONAL([INTEGRATION_TESTING], [test -n "$with_rapidstorm_test_cases"])
 
 AC_CONFIG_FILES([Makefile rapidstorm.desktop install-dirs.exp])
 
