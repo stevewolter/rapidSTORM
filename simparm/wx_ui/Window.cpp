@@ -9,7 +9,7 @@
 namespace simparm {
 namespace wx_ui {
 
-Window::Window() : frontend_non_visibles( 0 ), backend_non_visibles( 0 ), is_shown(true), window(NULL) {}
+Window::Window() : frontend_non_visibles( 0 ), backend_non_visibles( 0 ), is_shown(false), window(NULL) {}
 Window::~Window() {
 }
 
