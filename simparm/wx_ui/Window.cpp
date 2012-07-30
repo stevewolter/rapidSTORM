@@ -9,7 +9,7 @@
 namespace simparm {
 namespace wx_ui {
 
-Window::Window() : frontend_non_visibles( 0 ), backend_non_visibles( 0 ), is_shown(false), window(NULL) {}
+Window::Window() : frontend_non_visibles( 0 ), backend_non_visibles( 0 ), window(NULL) {}
 Window::~Window() {
 }
 
@@ -23,7 +23,8 @@ void Window::update_window_show( bool called_in_gui_thread ) {
     assert( frontend_non_visibles >= 0 );
     assert( backend_non_visibles >= 0 );
     bool do_show = frontend_non_visibles == 0 && backend_non_visibles == 0;
-    if ( window && do_show != is_shown ) {
+    bool is_shown_is_correct = is_shown && (do_show == *is_shown);
+    if ( window && ! is_shown_is_correct ) {
         if ( called_in_gui_thread ) {
             window->Show( do_show );
             if ( redraw ) { redraw(); }

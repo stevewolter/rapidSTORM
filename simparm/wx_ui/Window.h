@@ -4,6 +4,7 @@
 #include "GUIHandle.h"
 #include <boost/function/function0.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
+#include <boost/optional/optional.hpp>
 
 class wxWindow;
 
@@ -14,7 +15,7 @@ class VisibilityNode;
 
 class Window : public boost::enable_shared_from_this<Window> {
     int frontend_non_visibles, backend_non_visibles;
-    bool is_shown;
+    boost::optional<bool> is_shown;
     friend class VisibilityNode;
     wxWindow* window;
     boost::function0<void> redraw;
