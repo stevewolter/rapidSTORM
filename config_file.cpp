@@ -30,7 +30,7 @@ boost::filesystem::path program_data_path() {
                 std::cerr << "Error in localizing config file: datadir is not a subdirectory of prefix" << std::endl; 
             ++i, ++j; 
         }
-        boost::filesystem::path rerooted = boost::filesystem::path( std::string(new_prefix.mb_str()) );
+        boost::filesystem::path rerooted = boost::filesystem::path( std::string(new_prefix.utf8_str()) );
         while ( i != result.end() ) rerooted /= *i++;
         result = rerooted;
     }

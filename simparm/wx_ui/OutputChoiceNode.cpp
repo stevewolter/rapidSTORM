@@ -49,7 +49,7 @@ class OutputChoiceButton : public wxButton {
         if ( answer == wxID_OK ) {
             wxArrayInt selections = dialog.GetSelections();
             for (size_t selection = 0; selection < selections.Count(); ++selection) {
-                std::string description( choices.Item( selections.Item( selection ) ).mb_str() );
+                std::string description( choices.Item( selections.Item( selection ) ).utf8_str() );
                 value->set_value( idents[description] );
             }
         }

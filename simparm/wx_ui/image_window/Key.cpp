@@ -261,13 +261,13 @@ wxBoxSizer *Key::getBox()
 void Key::OnLowerLimitChange( wxCommandEvent& ) {
     if ( lowerBoundary ) {
         source->notice_user_key_limits( key_index, true,
-            std::string(lowerBoundary->GetValue().mb_str()) );
+            std::string(lowerBoundary->GetValue().utf8_str()) );
     }
 }
 void Key::OnUpperLimitChange( wxCommandEvent& ) {
     if ( upperBoundary )
         source->notice_user_key_limits( key_index, false,
-            std::string(upperBoundary->GetValue().mb_str()) );
+            std::string(upperBoundary->GetValue().utf8_str()) );
 }
 
 void make_editable( wxTextCtrl *o, bool e ) {

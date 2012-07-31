@@ -32,7 +32,7 @@ void Launcher::was_triggered() {
 
 void Launcher::launch() {
     wxString tempFile = wxFileName::CreateTempFileName( wxT("rapidstorm-log") );
-    RootNode::create( rapidstorm_job, std::string( tempFile.mb_str() ) );
+    RootNode::create( rapidstorm_job, std::string( tempFile.utf8_str() ) );
 }
 
 }

@@ -98,7 +98,7 @@ public:
                 else
                     o << " ";
             }
-            o << (*i)->GetValue().mb_str();
+            o << (*i)->GetValue().utf8_str();
             ++field;
         }
         bool success = value->set_value( o.str() );
@@ -156,7 +156,7 @@ public:
     }
 
     void SetFileName( wxString name ) {
-        ChangeValue( boost::optional<std::string>( name.mb_str() ) );
+        ChangeValue( boost::optional<std::string>( name.utf8_str() ) );
         commit_text();
     }
 
@@ -181,9 +181,12 @@ class FileSelectionButton : public wxButton {
     TextCtrl *text_ctrl;
     void select_file( wxCommandEvent& ) {
         wxFileDialog dialog(this);
+        std::cerr << "Created file dialog" << std::endl;
         int response = dialog.ShowModal();
+        std::cerr << "Got response " << response << std::endl;
         if ( response == wxID_OK ) {
-            text_ctrl->SetFileName( dialog.GetPath() );
+            wxString path = dialog.GetPath();
+            text_ctrl->SetFileName( path );
         }
     }
 public:

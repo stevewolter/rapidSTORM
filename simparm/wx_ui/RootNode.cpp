@@ -124,7 +124,7 @@ class RootFrame
         int response = dialog.ShowModal();
         if ( response == wxID_OK ) {
             wxString file = dialog.GetPath();
-            main_window->serialize_current_tab( std::string(file.mb_str()) );
+            main_window->serialize_current_tab( std::string(file.utf8_str()) );
         }
     }
 
@@ -137,7 +137,7 @@ class RootFrame
         int response = dialog.ShowModal();
         if ( response == wxID_OK ) {
             wxString file = dialog.GetPath();
-            manage_in_window( f.create_config( std::string(file.mb_str()), main_window ) );
+            manage_in_window( f.create_config( std::string(file.utf8_str()), main_window ) );
         }
     }
 
