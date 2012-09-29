@@ -5,7 +5,6 @@
 #include <dStorm/engine/Image_decl.h>
 #include <dStorm/input/Link.h>
 #include <dStorm/Config.h>
-#include "BackgroundDeviationEstimator.h"
 #include "Splitter.h"
 #include "YMirror.h"
 #include "SampleInfo.h"

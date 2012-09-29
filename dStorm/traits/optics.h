@@ -44,7 +44,7 @@ struct Optics
     Optics();
     ~Optics();
 
-    boost::optional<camera_response> photon_response, background_stddev;
+    boost::optional<camera_response> photon_response;
     boost::optional< units::quantity< units::camera::intensity, int > > dark_current;
 
     const boost::shared_ptr< const ProjectionFactory > 

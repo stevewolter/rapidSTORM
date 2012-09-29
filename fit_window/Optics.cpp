@@ -14,12 +14,7 @@ using namespace boost::accumulators;
 Detector::Detector( const traits::Optics& o ) 
 : photon_response_( o.photon_response.get_value_or( 1 * camera::ad_count ) ),
   dark_current( o.dark_current.get_value_or(0*camera::ad_count) ),
-  background_noise_variance_(
-        ( o.background_stddev.is_initialized() && o.photon_response.is_initialized() )
-            ? boost::optional<float>( pow( *o.background_stddev / *o.photon_response, 2 ) )
-            : boost::optional<float>()
-  ),
-  has_precision( o.photon_response.is_initialized() && background_noise_variance_.is_initialized() ),
+  has_precision( o.photon_response.is_initialized() && o.dark_current.is_initialized() ),
   poisson_background_( o.dark_current.is_initialized() && o.photon_response.is_initialized() )
 {}
 

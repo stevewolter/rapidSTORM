@@ -348,8 +348,6 @@ rapidstorm_SOURCES += \
     inputs/join/iterator.hpp inputs/join/iterator.cpp \
     inputs/join/spatial.hpp inputs/join/spatial.cpp \
     inputs/join/temporal.hpp inputs/join/temporal.cpp \
-    inputs/BackgroundDeviationEstimator.cpp \
-    inputs/BackgroundDeviationEstimator.h \
     inputs/Splitter.h inputs/Splitter.cpp \
     inputs/YMirror.h inputs/YMirror.cpp \
     inputs/ResolutionSetter.h \
