@@ -15,6 +15,7 @@ class Filter : public Output
   protected:
     void destroy_suboutput();
     void prepare_destruction_() { fwd->prepare_destruction(); }
+    void run_finished_(const RunFinished& rf) { fwd->run_finished(rf); }
     void attach_children_ui( simparm::NodeHandle at ) { fwd->attach_ui( at ); }
     void store_children_results( bool success ) { fwd->store_results(success); }
   public:
