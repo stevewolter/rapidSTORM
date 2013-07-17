@@ -72,6 +72,11 @@ ZPosition SigmaDiffLookup::operator()( Sigma x, Sigma y ) const
         bool operator()( const Diff& a, const Diff& b ) const
             { return a.diff < b.diff; }
     };
+
+    if (diffs.empty()) {
+        throw std::runtime_error("Cannot look up sigma difference for non-overlapping focal regions");
+    }
+
     Diff diff;
     diff.diff = x - y;
     std::vector<Diff>::const_iterator smallest_greater_element
