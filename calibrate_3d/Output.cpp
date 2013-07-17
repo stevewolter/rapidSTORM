@@ -98,7 +98,7 @@ void Output::run_fitter()
     linearizer.linearize( *initial_traits, initial_position );
     for (size_t i = 0; i < initial_position->size; ++i)
         gsl_vector_set( initial_step_size, i,
-            std::max( 0.1, gsl_vector_get( initial_position, i ) / 2 ) );
+            std::max( 0.1, std::abs(gsl_vector_get( initial_position, i )) / 20 ) );
 
     DEBUG("Starting at position " << *initial_position);
     int success = gsl_multimin_fminimizer_set (solver, &function, 
