@@ -142,7 +142,7 @@ boost::shared_ptr<DepthInfo> Polynomial3DConfig::make_traits(Direction dir) cons
     p->set_base_width( Sigma(psf_size()[dir] / 2.35) );
     for ( int term = Polynomial3D::MinTerm; term <= Polynomial3D::Order; ++term ) {
         quantity< si::permicrolength > s = slopes()( dir, term-Polynomial3D::MinTerm );
-        if ( s < 1E-30 / si::micrometer )
+        if ( abs(s) < 1E-30 / si::micrometer )
             p->set_slope( term, 1E24 * si::meter );
         else
             p->set_slope( term, Polynomial3D::WidthSlope( pow<-1>(s) ) ) ;
