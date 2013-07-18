@@ -48,6 +48,7 @@ public:
     const ZPosition z_limit() const { return z_limit_; }
     void set_z_limit( const ZPosition& z ) { z_limit_ = z; }
 
+    bool is_positive_over_depth_range() const;
 };
 
 }

@@ -80,6 +80,31 @@ std::ostream& Polynomial3D::print_( std::ostream& o ) const {
     return o << " and focal plane " << z_position;
 }
 
+bool Polynomial3D::is_positive_over_depth_range() const {
+    double a = pow(1.0e-6/get_slope(4).value(), 4.0);
+    double b = pow(1.0e-6/get_slope(3).value(), 3.0);
+    double c = pow(1.0e-6/get_slope(2).value(), 2.0);
+    double d = 1.0e-6/get_slope(1).value();
+    double e = 1;
+
+    // According to en.wikipedia.org/wiki/Discriminant
+    double discriminant =
+        256*pow(a,3)*pow(e,3) - 192*pow(a,2)*b*d*pow(e,2)
+        -128*pow(a,2)*pow(c,2)*pow(e,2) + 144*pow(a,2)*c*pow(d,2)*e
+        -27*pow(a,2)*pow(d,4) + 144*a*pow(b,2)*c*pow(e,2)
+        -6*a*pow(b,2)*pow(d,2)*e - 80*a*b*pow(c,2)*d*e
+        +18*a*b*c*pow(d,3) + 16*a*pow(c,4)*e
+        -4*a*pow(c,3)*pow(d,2) - 27*pow(b,4)*pow(e,2)
+        + 18*pow(b,3)*c*d*e - 4*pow(b,3)*pow(d,3) - 4*pow(b,2)*pow(c,3)*e
+        +pow(b,2)*pow(c,2)*pow(d,2);
+    // According to https://en.wikipedia.org/wiki/Quartic_function#Solving_a_quartic_equation
+    double p = 8 * a * c - 3 * pow(b,2);
+    double D = 64 * pow(a,3) * e - 16 * a * a * c * c + 16 * a * b * b * c - 16 * a * a * b * d - 3 * pow(b,4);
+
+    // We want a function with only complex roots. The fourth-order and second-order terms should dominate.
+    return (discriminant > 0 && (p > 0 || D > 0));
+}
+
 class Polynomial3DConfig : public Config {
     typedef  Eigen::Matrix< quantity< si::nanolength, double >, 2, 1, Eigen::DontAlign > PSFSize;
     simparm::Entry<PSFSize> psf_size;

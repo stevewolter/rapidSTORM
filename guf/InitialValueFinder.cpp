@@ -95,7 +95,8 @@ float InitialValueFinder::correlation( const SigmaDiff& sd ) const
     double total_variance = variance(diff_acc) * variance( z_acc );
     if ( total_variance <= 1E-30 )
         return 0;
-    else return covariance( diff_acc ) / sqrt( total_variance );
+    else 
+        return covariance( diff_acc ) / sqrt( total_variance );
 }
 
 class InitialValueFinder::set_parameter {
@@ -182,7 +183,6 @@ void InitialValueFinder::estimate_z( const fit_window::Stack& s, std::vector<Pla
     boost::optional<threed_info::ZPosition> z = (*lookup_table)( 
         threed_info::Sigma(s[ mdm.minuend_plane ].standard_deviation[ mdm.minuend_dir ]),
         threed_info::Sigma(s[ mdm.subtrahend_plane ].standard_deviation[ mdm.subtrahend_dir ]) );
-    DEBUG("Initial Z estimate with sigma-diff " << diff << " is " << *z);
 
     for (size_t i = 0; i < v.size(); ++i)
         v[i].z_estimate = *z;
