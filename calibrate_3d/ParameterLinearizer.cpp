@@ -79,7 +79,7 @@ public:
     void set_plane_count( int plane_count );
     int variable_count() const { return multiplane->variable_count(); }
     Eigen::VectorXd linearize( const engine::InputTraits& ) const;
-    void delinearize( const Eigen::VectorXd&, engine::InputTraits& into );
+    bool delinearize( const Eigen::VectorXd&, engine::InputTraits& into );
 };
 
 ParameterLinearizer::Pimpl::Pimpl( const Config& config )
@@ -138,11 +138,11 @@ void ParameterLinearizer::linearize( const engine::InputTraits& traits, gsl_vect
         gsl_vector_set( x, i, values[i] );
 }
 
-void ParameterLinearizer::delinearize( const gsl_vector* x, engine::InputTraits& into ) {
+bool ParameterLinearizer::delinearize( const gsl_vector* x, engine::InputTraits& into ) {
     Eigen::VectorXd values( x->size );
     for (int i = 0; i < values.rows(); ++i)
         values[i] = gsl_vector_get( x, i );
-    pimpl->delinearize( values, into );
+    return pimpl->delinearize( values, into );
 }
 
 Eigen::VectorXd ParameterLinearizer::Pimpl::linearize( const engine::InputTraits& traits ) const {
@@ -161,7 +161,7 @@ Eigen::VectorXd ParameterLinearizer::Pimpl::linearize( const engine::InputTraits
     return parameters;
 }
 
-void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters, engine::InputTraits& traits ) 
+bool ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters, engine::InputTraits& traits ) 
 {
     multiplane->set_position( parameters );
     for (int plane_index = 0; plane_index < traits.plane_count(); ++plane_index) {
@@ -174,11 +174,18 @@ void ParameterLinearizer::Pimpl::delinearize( const Eigen::VectorXd& parameters,
             p->set_focal_plane( threed_info::ZPosition( m.get< gaussian_psf::ZPosition >(dir) ) );
             p->set_base_width( threed_info::Sigma( m.get< gaussian_psf::BestSigma >(dir) ));
 
-            for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term)
+            for (int term = polynomial_3d::FirstTerm; term <= polynomial_3d::LastTerm; ++term) {
                 p->set_slope( term, threed_info::Polynomial3D::WidthSlope(m.get_delta_sigma( dir, term )) );
+            }
             o.set_depth_info( dir, p );
+
+            if (!p->is_positive_over_depth_range()) {
+                return false;
+            }
         }
     }
+
+    return true;
 }
 
 }

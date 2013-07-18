@@ -98,7 +98,8 @@ void Output::run_fitter()
     linearizer.linearize( *initial_traits, initial_position );
     for (size_t i = 0; i < initial_position->size; ++i)
         gsl_vector_set( initial_step_size, i,
-            std::max( 0.1, std::abs(gsl_vector_get( initial_position, i )) / 20 ) );
+            std::max(config.absolute_initial_step(),
+                std::abs(gsl_vector_get( initial_position, i )) * config.relative_initial_step()) );
 
     DEBUG("Starting at position " << *initial_position);
     int success = gsl_multimin_fminimizer_set (solver, &function, 
@@ -142,12 +143,10 @@ void Output::run_fitter()
 
 double Output::evaluate_function( const gsl_vector *x ) {
     DEBUG("Callback by GSL to evaluate position " << *x);
-    for (size_t i = 0; i < x->size; ++i)
-        if ( gsl_vector_get(x,i) < 0 )
-            return GSL_NAN;
-
     std::auto_ptr< engine::InputTraits > trial_traits( initial_traits->clone() );
-    linearizer.delinearize( x, *trial_traits );
+    if (!linearizer.delinearize( x, *trial_traits )) {
+        return GSL_NAN;
+    }
 
     boost::unique_lock<boost::mutex> lock( mutex );
     DEBUG("Publishing trial position");

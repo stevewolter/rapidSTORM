@@ -24,6 +24,7 @@ class Config : public FormCalibrationConfig, public ZTruthConfig {
     simparm::Entry<double> target_volume_;
     simparm::Entry<unsigned int> target_localization_number_;
     simparm::Entry< quantity<si::microlength> > missing_penalty_;
+    simparm::Entry<double> relative_initial_step_, absolute_initial_step_;
 public:
     Config();
     void attach_ui( simparm::NodeHandle );
@@ -34,6 +35,8 @@ public:
     static simparm::UserLevel get_user_level() { return simparm::Expert; }
 
     double target_volume() const { return target_volume_(); }
+    double relative_initial_step() const { return relative_initial_step_(); }
+    double absolute_initial_step() const { return absolute_initial_step_(); }
 
     int target_localization_number() const { return target_localization_number_(); }
     quantity<si::microlength> missing_penalty() const { return missing_penalty_(); }

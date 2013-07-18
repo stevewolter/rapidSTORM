@@ -18,7 +18,7 @@ public:
 
     int parameter_count() const;
     void linearize( const engine::InputTraits&, gsl_vector* );
-    void delinearize( const gsl_vector*, engine::InputTraits& );
+    bool delinearize( const gsl_vector*, engine::InputTraits& );
 };
 
 }
