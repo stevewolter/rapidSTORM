@@ -11,9 +11,6 @@ RootNode::RootNode()
 }
 
 simparm::NodeHandle RootNode::create_group( std::string name ) {
-    // TODO: Dirty hack that needs to be replaced by its own create_ call
-    if ( name.substr(0,9) == "dStormJob" && ! wx_ui_window_creator )
-        wx_ui_window_creator = wx_ui::no_main_window();
     return Node::create_group( name );
 }
 

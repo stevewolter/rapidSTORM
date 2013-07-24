@@ -15,12 +15,11 @@ namespace dStorm {
 class GUIThread 
 {
 public:
+    static GUIThread& create_singleton(char* program_name);
     static GUIThread& get_singleton();
 
-    bool need_wx_widgets();
-
     void perform_wx_tasks();
-    void run_all_jobs();
+    void run_wx_gui_thread();
 
     void register_job( Job& );
     void unregister_job( Job& );
@@ -44,12 +43,19 @@ private:
     std::map< boost::thread::id, boost::thread* > active_threads;
     std::queue< boost::thread::id > joinable_threads;
 
+    boost::thread thread_collector;
+
     bool recursive;
     int sequence_number;
+    char* const prog_name;
+    bool wx_widgets_running;
 
     void join_joinable_threads( boost::recursive_mutex::scoped_lock& );
+    void wait_for_threads();
 
-    GUIThread();
+    static GUIThread* singleton;
+
+    GUIThread(char* prog_name);
     ~GUIThread() {}
 };
 

@@ -71,16 +71,12 @@ int main(int argc, char *argv[]) {
     start_imagemagick( argv[0] );
 
     try {
+        GUIThread& main_thread = GUIThread::create_singleton(argv[0]);
+
         int success = parse_command_line( argc, argv );
         if ( success != EXIT_SUCCESS ) return success;
 
-        GUIThread& main_thread = GUIThread::get_singleton();
-        if ( main_thread.need_wx_widgets() ) {
-            int wx_argc = 1;
-            char* wx_argv[1] = { argv[0] };
-            wxEntry( wx_argc, wx_argv );
-        }
-        main_thread.run_all_jobs();
+        main_thread.run_wx_gui_thread();
     } catch (const std::bad_alloc &e) {
         std::cerr << PACKAGE_NAME << ": Ran out of memory" 
                   << std::endl;

@@ -5,17 +5,19 @@
 
 namespace dStorm {
 
+GUIThread* GUIThread::singleton = NULL;
+
 bool GUIThread::Task::operator<( const Task& o ) const {
     return ! ( (priority != o.priority) ? priority < o.priority : sequence < o.sequence );
 }
 
-GUIThread& GUIThread::get_singleton() {
-    static GUIThread* g = new GUIThread();
-    return *g;
+GUIThread& GUIThread::create_singleton(char* prog_name) {
+    singleton = new GUIThread(prog_name);
+    return *singleton;
 }
 
-bool GUIThread::need_wx_widgets() {
-    return ! tasks.empty();
+GUIThread& GUIThread::get_singleton() {
+    return *singleton;
 }
 
 void GUIThread::register_job( Job& job ) {
@@ -54,30 +56,49 @@ void GUIThread::join_this_thread() {
 }
 
 void GUIThread::join_joinable_threads( boost::recursive_mutex::scoped_lock& lock ) {
-    while ( ! joinable_threads.empty() ) {
-        {
-            /* Careful handling of this ID is necessary. At least for 
-             * POSIX threads implementation, the ID keeps a handle on the
-             * thread open. */
-            boost::optional<boost::thread::id> next_join = joinable_threads.front();
-            joinable_threads.pop();
-            boost::thread* thread = active_threads[ *next_join ];
-            active_threads.erase( *next_join );
-            lock.unlock();
-            next_join.reset();
-            thread->join();
-            delete thread;
-            lock.lock();
+    /* Careful handling of this ID is necessary. At least for 
+        * POSIX threads implementation, the ID keeps a handle on the
+        * thread open. */
+    boost::optional<boost::thread::id> next_join = joinable_threads.front();
+    joinable_threads.pop();
+    boost::thread* thread = active_threads[ *next_join ];
+    active_threads.erase( *next_join );
+    have_task.notify_all();
+    lock.unlock();
+    next_join.reset();
+    thread->join();
+    delete thread;
+    lock.lock();
+}
+
+void GUIThread::wait_for_threads() 
+{
+    boost::recursive_mutex::scoped_lock lock( mutex );
+    while ( ! active_threads.empty() || ! tasks.empty() || wx_widgets_running ) {
+        if (!joinable_threads.empty()) {
+            join_joinable_threads( lock );
+        } else {
+            have_task.wait( lock );
         }
     }
 }
 
-void GUIThread::run_all_jobs() 
-{
+void GUIThread::run_wx_gui_thread() {
+    thread_collector = boost::thread(&GUIThread::wait_for_threads, this);
     boost::recursive_mutex::scoped_lock lock( mutex );
-    while ( ! active_threads.empty() ) {
-        join_joinable_threads( lock );
-        have_task.wait( lock );
+    while (!tasks.empty() || !active_threads.empty()) {
+        if (!tasks.empty()) {
+            wx_widgets_running = true;
+            lock.unlock();
+            int wx_argc = 1;
+            char* wx_argv[1] = { prog_name };
+            wxEntry( wx_argc, wx_argv );
+            lock.lock();
+            wx_widgets_running = false;
+            have_task.notify_all();
+        } else {
+            have_task.wait( lock );
+        }
     }
 }
 
@@ -86,6 +107,7 @@ void GUIThread::run_wx_function( Task t ) {
     if ( sequence_number == 0 ) wxWakeUpIdle();
     t.sequence = sequence_number++;
     tasks.push(t);
+    have_task.notify_all();
 }
 
 void GUIThread::perform_wx_tasks() {
@@ -106,14 +128,10 @@ void GUIThread::perform_wx_tasks() {
         }
         recursive = false;
     }
-
-    boost::recursive_mutex::scoped_lock lock( mutex );
-    join_joinable_threads( lock );
 }
 
-GUIThread::GUIThread() 
-: recursive(false), sequence_number(0)
-{
+GUIThread::GUIThread(char* prog_name) 
+: recursive(false), sequence_number(0), prog_name(prog_name), wx_widgets_running(false) {
 }
 
 }
