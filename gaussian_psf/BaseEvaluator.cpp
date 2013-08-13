@@ -21,7 +21,7 @@ bool BaseParameters<Number>::prepare_iteration( const Data& data )
     transmission = expr->transmission;
     sigma = compute_sigma_();
     double covariance_ellipse_area = 4 * M_PI * sigma[0] * sigma[1],
-            pixel_size_in_sqmum = quantity< BaseExpression::PixelSizeUnit >(data.pixel_size).value();
+            pixel_size_in_sqmum = data.pixel_size.value();
     if ( (sigma < 0).any() || pixel_size_in_sqmum > covariance_ellipse_area ) {
         return false;
     }

@@ -22,9 +22,6 @@ struct BaseExpression
 {
     typedef Micrometers LengthUnit;
 
-    typedef boost::units::quantity< boost::units::multiply_typeof_helper<
-        Micrometers, Micrometers >::type > PixelSize;
-
     BaseExpression();
     virtual ~BaseExpression();
     // Returns the PSF standard deviation in micrometers.
@@ -42,8 +39,6 @@ struct BaseExpression
     Eigen::Array<double,2,1> spatial_position, spatial_mean;
     double amplitude, transmission;
     bool may_leave_roi;
-    typedef boost::units::multiply_typeof_helper< LengthUnit, LengthUnit >::type
-        PixelSizeUnit;
     typedef boost::mpl::vector< 
         nonlinfit::Xs<0,LengthUnit>, nonlinfit::Xs<1,LengthUnit>,
         Mean<0>, Mean<1>, 
@@ -67,7 +62,7 @@ struct BaseExpression
 
     typedef Eigen::Matrix< quantity<Micrometers>, 2, 1, Eigen::DontAlign > Bound;
     bool mean_within_range( const Bound& lower, const Bound& upper ) const;
-    bool sigma_is_negligible( quantity<PixelSizeUnit> pixel_size ) const;
+    bool sigma_is_negligible( double pixel_size ) const;
 
 };
 
