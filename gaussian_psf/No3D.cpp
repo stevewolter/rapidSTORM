@@ -1,17 +1,15 @@
 #include <boost/test/unit_test.hpp>
 #include "No3D.h"
 #include "check_evaluator.hpp"
+#include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {
 namespace gaussian_psf {
 
 template <typename Number>
-boost::optional< Eigen::Array<Number,2,1> >
+Eigen::Array<Number,2,1>
 Parameters<Number,No3D>::compute_sigma_() {
-    if ( (expr->best_sigma < 0).any() )
-        return boost::optional< Eigen::Array<Number,2,1> >();
-    else
-        return Eigen::Array<Number,2,1>( expr->best_sigma.cast<Number>() );
+    return Eigen::Array<Number,2,1>( expr->best_sigma.cast<Number>() );
 }
 
 template <typename Number>

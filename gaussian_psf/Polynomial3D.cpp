@@ -1,20 +1,27 @@
 #include "Polynomial3D.h"
 #include "gaussian_psf/check_evaluator.hpp"
+#include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {
 namespace gaussian_psf {
 
+struct InvalidThreeDFactorError 
+    : public std::runtime_error, public nonlinfit::InvalidPositionError {
+    InvalidThreeDFactorError() : std::runtime_error("Invalid sigma") {}
+};
+
 template <typename Number>
-boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Polynomial3D>::compute_sigma_() {
+Eigen::Array<Number,2,1> Parameters<Number,Polynomial3D>::compute_sigma_() {
     relative_z = expr->zposition.array().cast<Number>() - Eigen::Array<Number,2,1>::Constant( expr->axial_mean );
     threed_factor = Eigen::Array<Number,2,1>::Constant(1);
     for (int term = 1; term <= Polynomial3D::Order; ++term)
         threed_factor += (relative_z / expr->delta_sigma.col(term).cast<Number>()).pow(term);
     DEBUG("Computed threed factor of " << threed_factor.transpose() << " from " << expr->delta_sigma.transpose() << " and " << relative_z.transpose());
-    if ( (threed_factor <= 0).any() || (expr->best_sigma <= 0).any() )
-        return boost::optional< Eigen::Array<Number,2,1> >();
-    else
+    if ( (threed_factor <= 0).any() ) {
+        throw InvalidThreeDFactorError();
+    } else {
         return Eigen::Array<Number,2,1>(expr->best_sigma.array().cast< Number >() * threed_factor.sqrt());
+    }
 }
 
 template <typename Number>

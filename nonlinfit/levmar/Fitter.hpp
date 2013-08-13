@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "Fitter.h"
 #include "exceptions.h"
+#include "../InvalidPositionError.h"
 
 #include <cassert>
 #include <limits>
@@ -81,7 +82,10 @@ Fitter::State<_Function,_Moveable>::State( _Function& f, const _Moveable& m, int
     BOOST_STATIC_ASSERT(( _Function::Derivatives::VariableCount == Eigen::Dynamic 
                        || _Function::Derivatives::VariableCount > 0 ));
     m.get_position( work->parameters );
-    bool initial_position_valid = f.evaluate( work->derivatives );
+    bool initial_position_valid = false;
+    try {
+        initial_position_valid = f.evaluate( work->derivatives );
+    } catch (const InvalidPositionError&) {}
     if ( ! initial_position_valid )
         throw InvalidStartPosition(work->parameters.template cast<double>());
     original_hessians_diagonal = work->derivatives.hessian.diagonal();
@@ -161,9 +165,13 @@ Fitter::State<_Function,_Moveable>::try_to_move_position( _Function& f, _Moveabl
     DEBUG("Evaluating function at " << trial->parameters.transpose() << " after step of " << shift.transpose() );
     m.set_position( trial->parameters );
     /* Compute the function at this place. */
-    const bool new_position_valid = f.evaluate( trial->derivatives);
-
-    if ( ! new_position_valid ) return InvalidPosition;
+    try {
+        if ( ! f.evaluate(trial->derivatives) ) {
+            return InvalidPosition;
+        }
+    } catch (const InvalidPositionError& e) {
+        return InvalidPosition;
+    }
 
     assert( ! trial->derivatives.contains_NaN() );
 

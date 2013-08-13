@@ -2,7 +2,6 @@
 #define DSTORM_PSF_NO3D_H
 
 #include "BaseExpression.h"
-#include <boost/optional/optional.hpp>
 #include <nonlinfit/append.h>
 
 namespace dStorm {
@@ -45,7 +44,7 @@ class Parameters< Num, No3D >
 {
     const No3D* expr;
 
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
+    Eigen::Array<Num,2,1> compute_sigma_();
     void compute_prefactors_();
 
   public:

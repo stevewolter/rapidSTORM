@@ -11,7 +11,6 @@
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Direction.h>
 #include <dStorm/threed_info/DepthInfo.h>
-#include <boost/optional/optional.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace dStorm {
@@ -40,7 +39,7 @@ template <typename Num>
 class Parameters< Num, Spline3D >
 : public BaseParameters<Num>
 {
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
+    Eigen::Array<Num,2,1> compute_sigma_();
     void compute_prefactors_();
 
   protected:

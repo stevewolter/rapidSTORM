@@ -10,7 +10,6 @@
 #include <boost/mpl/range_c.hpp>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/Direction.h>
-#include <boost/optional/optional.hpp>
 
 namespace dStorm {
 namespace gaussian_psf {
@@ -76,7 +75,7 @@ template <typename Num>
 class Parameters< Num, Polynomial3D >
 : public BaseParameters<Num>
 {
-    boost::optional< Eigen::Array<Num,2,1> > compute_sigma_();
+    Eigen::Array<Num,2,1> compute_sigma_();
     void compute_prefactors_();
 
   protected:
