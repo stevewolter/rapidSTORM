@@ -23,7 +23,7 @@ boost::optional< Eigen::Array<Number,2,1> > Parameters<Number,Spline3D>::compute
         threed_info::Sigma s = expr->spline[i]->get_sigma(z);
         rv[i] = quantity< BestSigma<0>::Unit >( s ).value();
     }
-    if ( (rv.array() <= 0).any() )
+    if ( (rv.array() != rv.array()).any() || (rv.array() <= 0).any() )
         return boost::optional< Eigen::Array<Number,2,1> >();
     else
         return rv;
