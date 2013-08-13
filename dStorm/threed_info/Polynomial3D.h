@@ -1,9 +1,6 @@
 #ifndef DSTORM_THREED_INFO_POLYNOMIAL3D_H
 #define DSTORM_THREED_INFO_POLYNOMIAL3D_H
 
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/length.hpp>
-#include <boost/variant/variant.hpp>
 #include <Eigen/Core>
 #include <dStorm/polynomial_3d.h>
 #include <dStorm/threed_info/fwd.h>
