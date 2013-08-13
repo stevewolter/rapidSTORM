@@ -20,7 +20,7 @@
 #include <nonlinfit/make_functor.hpp>
 #include "gaussian_psf/is_plane_dependent.h"
 #include "gaussian_psf/Polynomial3D.h"
-#include "gaussian_psf/Spline3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
 #include "gaussian_psf/No3D.h"
 #include "gaussian_psf/fixed_form.h"
 #include "gaussian_psf/JointEvaluator.h"
@@ -279,7 +279,7 @@ class Fitter
         return three_d;
     }
 
-    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::Spline3D& s, int plane, Direction dir ) {
+    boost::shared_ptr<const threed_info::DepthInfo> get_3d( const PSF::DepthInfo3D& s, int plane, Direction dir ) {
         return traits.optics(plane).depth_info(dir);
     }
 
@@ -357,9 +357,9 @@ void Fitter<plane::negative_poisson_likelihood,PSF::No3D>::apply_z_calibration()
 template <>
 void Fitter<plane::squared_deviations,PSF::No3D>::apply_z_calibration() {}
 template <>
-void Fitter<plane::negative_poisson_likelihood,PSF::Spline3D>::apply_z_calibration() {}
+void Fitter<plane::negative_poisson_likelihood,PSF::DepthInfo3D>::apply_z_calibration() {}
 template <>
-void Fitter<plane::squared_deviations,PSF::Spline3D>::apply_z_calibration() {}
+void Fitter<plane::squared_deviations,PSF::DepthInfo3D>::apply_z_calibration() {}
 template <class Metric, class Lambda>
 void Fitter<Metric,Lambda>::apply_z_calibration()
 {
@@ -444,7 +444,7 @@ FittingVariant::create( const Config& config, const input::Traits< engine::Image
     else if ( dynamic_cast< const threed_info::No3D* >(d) )
         return create2<PSF::No3D,threed_info::No3D>( config, traits, images );
     else if ( dynamic_cast< const threed_info::Spline3D* >(d) )
-        return create2<PSF::Spline3D,threed_info::Spline3D>( config, traits, images );
+        return create2<PSF::DepthInfo3D,threed_info::Spline3D>( config, traits, images );
     else
         throw std::logic_error("Missing 3D model in form fitter");
 }

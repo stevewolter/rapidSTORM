@@ -4,7 +4,7 @@
 #include "parameters.h"
 #include "Polynomial3D.h"
 #include "No3D.h"
-#include "Spline3D.h"
+#include "DepthInfo3D.h"
 #include <boost/smart_ptr/make_shared.hpp>
 #include <dStorm/threed_info/Spline3D.h>
 
@@ -65,8 +65,8 @@ Expression mock_model() { return RandomParameterSetter<Expression>()(); }
 template Polynomial3D mock_model<Polynomial3D>();
 template No3D mock_model<No3D>();
 template <>
-Spline3D mock_model<Spline3D>() {
-    Spline3D result = RandomParameterSetter<Spline3D>()();
+DepthInfo3D mock_model<DepthInfo3D>() {
+    DepthInfo3D result = RandomParameterSetter<DepthInfo3D>()();
     result.set_spline( 
         boost::make_shared< threed_info::Spline3D>( threed_info::SplineFactory::Mock(Direction_X) ),
         boost::make_shared< threed_info::Spline3D>( threed_info::SplineFactory::Mock(Direction_Y) )

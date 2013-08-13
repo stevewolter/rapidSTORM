@@ -91,7 +91,7 @@ struct get_evaluator< \
 };
 DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::Polynomial3D)
 DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::No3D)
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::Spline3D)
+DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::DepthInfo3D)
 #undef DSTORM_GUF_PSF_JOINT_SPECIALIZATION
 
 }

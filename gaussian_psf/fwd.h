@@ -9,7 +9,7 @@ namespace gaussian_psf {
 struct BaseExpression;
 struct Polynomial3D;
 struct No3D;
-struct Spline3D;
+struct DepthInfo3D;
 struct FixedForm;
 struct FreeForm;
 

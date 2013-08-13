@@ -5,7 +5,7 @@
 #include "fit_window/Optics.h"
 #include <boost/mpl/for_each.hpp>
 #include <boost/bind/bind.hpp>
-#include "gaussian_psf/Spline3D.h"
+#include "gaussian_psf/DepthInfo3D.h"
 
 namespace dStorm {
 namespace estimate_psf_form {
@@ -69,8 +69,8 @@ LocalizationValueFinder::LocalizationValueFinder(
         const Localization& parent, size_t plane_number )
 : appl_( new application(fluorophore,plane,parent,plane_number) ) {}
 
-void LocalizationValueFinder::find_values( gaussian_psf::Spline3D& z ) {
-    boost::mpl::for_each< typename gaussian_psf::Spline3D::Variables >( 
+void LocalizationValueFinder::find_values( gaussian_psf::DepthInfo3D& z ) {
+    boost::mpl::for_each< typename gaussian_psf::DepthInfo3D::Variables >( 
         boost::bind( boost::ref(*appl_), _1, boost::ref(z) ) );
     z.set_spline( appl_->plane.depth_info(Direction_X), appl_->plane.depth_info(Direction_Y) );
 }

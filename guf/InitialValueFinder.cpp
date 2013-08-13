@@ -119,7 +119,7 @@ class InitialValueFinder::set_parameter {
         { m( p ) = s[Dim]; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m ) 
         { m( p ) = e.z_estimate; }
-    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Spline3D& m ) { 
+    void operator()( gaussian_psf::MeanZ p, gaussian_psf::DepthInfo3D& m ) { 
         m( p ) = e.z_estimate; 
     }
     template <typename Model>
@@ -151,8 +151,8 @@ void InitialValueFinder::operator()(
         } else if ( gaussian_psf::No3D* z = dynamic_cast<gaussian_psf::No3D*>(&position[p][0]) ) {
             boost::mpl::for_each< gaussian_psf::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        } else if ( gaussian_psf::Spline3D* z = dynamic_cast<gaussian_psf::Spline3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< gaussian_psf::Spline3D::Variables >( 
+        } else if ( gaussian_psf::DepthInfo3D* z = dynamic_cast<gaussian_psf::DepthInfo3D*>(&position[p][0]) ) {
+            boost::mpl::for_each< gaussian_psf::DepthInfo3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
             z->set_spline( 
                 info.traits.optics(p).depth_info(Direction_X),

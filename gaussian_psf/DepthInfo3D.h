@@ -16,7 +16,7 @@
 namespace dStorm {
 namespace gaussian_psf {
 
-class Spline3D
+class DepthInfo3D
 : public Base3D
 {
     typedef boost::shared_ptr<const threed_info::DepthInfo> DepthInfo;
@@ -24,7 +24,7 @@ class Spline3D
     template <class Num, typename Expression> friend class Parameters;
   public:
     typedef Base3D::Variables Variables;
-    Spline3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Spline3D&>(f); }
+    DepthInfo3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const DepthInfo3D&>(f); }
     void set_spline( DepthInfo sx, DepthInfo sy ) ;
 
     // Returns the PSF standard deviation in micrometers.
@@ -36,18 +36,18 @@ class Spline3D
 };
 
 template <typename Num>
-class Parameters< Num, Spline3D >
+class Parameters< Num, DepthInfo3D >
 : public BaseParameters<Num>
 {
     Eigen::Array<Num,2,1> compute_sigma_();
     void compute_prefactors_();
 
   protected:
-    const Spline3D* expr;
+    const DepthInfo3D* expr;
     Eigen::Array<Num,2,1> z_deriv_prefactor;
   public:
     Parameters() {}
-    Parameters( const Spline3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
+    Parameters( const DepthInfo3D& expr ) : BaseParameters<Num>(expr), expr(&expr) {}
 };
 
 }

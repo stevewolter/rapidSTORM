@@ -1,11 +1,11 @@
-#include "Spline3D.h"
+#include "DepthInfo3D.h"
 #include "gaussian_psf/check_evaluator.hpp"
 #include "nonlinfit/InvalidPositionError.h"
 
 namespace dStorm {
 namespace gaussian_psf {
 
-void Spline3D::set_spline( DepthInfo sx, DepthInfo sy )
+void DepthInfo3D::set_spline( DepthInfo sx, DepthInfo sy )
 { 
     assert( sx.get() && sx->provides_3d_info() );
     assert( sy.get() && sy->provides_3d_info() );
@@ -14,7 +14,7 @@ void Spline3D::set_spline( DepthInfo sx, DepthInfo sy )
 }
 
 template <typename Number>
-Eigen::Array<Number,2,1> Parameters<Number,Spline3D>::compute_sigma_() 
+Eigen::Array<Number,2,1> Parameters<Number,DepthInfo3D>::compute_sigma_() 
 {
     threed_info::ZPosition z( (*expr)( MeanZ() ) );
         
@@ -28,7 +28,7 @@ Eigen::Array<Number,2,1> Parameters<Number,Spline3D>::compute_sigma_()
 }
 
 template <typename Number>
-void Parameters<Number,Spline3D>::compute_prefactors_() {
+void Parameters<Number,DepthInfo3D>::compute_prefactors_() {
     threed_info::ZPosition z( (*expr)( MeanZ() ) );
     this->sigma_deriv = this->sigmaI;
     for (Direction i = Direction_First; i != Direction_2D; ++i)
@@ -38,19 +38,19 @@ void Parameters<Number,Spline3D>::compute_prefactors_() {
     }
 }
 
-Eigen::Vector2d Spline3D::get_sigma() const
+Eigen::Vector2d DepthInfo3D::get_sigma() const
 {
-    Parameters<double,Spline3D> evaluator(*this);
+    Parameters<double,DepthInfo3D> evaluator(*this);
     return evaluator.compute_sigma();
 }
 
 
-template class Parameters< double, Spline3D >;
-template class Parameters< float, Spline3D >;
+template class Parameters< double, DepthInfo3D >;
+template class Parameters< float, DepthInfo3D >;
 
 using namespace nonlinfit::plane;
 
-template boost::unit_test::test_suite* check_evaluator<Spline3D>( const char* name );
+template boost::unit_test::test_suite* check_evaluator<DepthInfo3D>( const char* name );
 
 }
 }

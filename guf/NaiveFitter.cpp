@@ -54,7 +54,7 @@ NaiveFitter::create(
     else if ( consistently_no_3d )
         return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::No3D>(c,info);
     else
-        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::Spline3D>( c, info );
+        return create2<Kernels,gaussian_psf::FixedForm,gaussian_psf::DepthInfo3D>( c, info );
 }
 
 template NaiveFitter::Ptr NaiveFitter::create<1>( const Config& c, const dStorm::engine::JobInfo& i );

@@ -512,6 +512,7 @@ rapidstorm_SOURCES += \
     nonlinfit/TermParameter.h \
     nonlinfit/Evaluation.hpp \
     nonlinfit/Xs.h \
+    nonlinfit/InvalidPositionError.h \
     nonlinfit/functions/Constant.h \
     nonlinfit/functions/Polynom.h \
     nonlinfit/functions/Zero.h \
@@ -592,7 +593,7 @@ rapidstorm_SOURCES += \
     gaussian_psf/expressions.h gaussian_psf/Base3D.h \
     gaussian_psf/Polynomial3D.h gaussian_psf/Polynomial3D.cpp \
     gaussian_psf/No3D.h gaussian_psf/No3D.cpp \
-    gaussian_psf/Spline3D.h gaussian_psf/Spline3D.cpp \
+    gaussian_psf/DepthInfo3D.h gaussian_psf/DepthInfo3D.cpp \
     gaussian_psf/is_plane_dependent.h \
     gaussian_psf/JointEvaluator.h \
     gaussian_psf/LengthUnit.h \
@@ -612,8 +613,8 @@ INST_MODEL = \
     $(INST_DIR:=no3d_-_free_form_model_-_one_kernel_-_) \
     $(INST_DIR:=no3d_-_fixed_form_model_-_one_kernel_-_) \
     $(INST_DIR:=no3d_-_fixed_form_model_-_two_kernel_-_) \
-    $(INST_DIR:=spline3d_-_fixed_form_model_-_one_kernel_-_) \
-    $(INST_DIR:=spline3d_-_fixed_form_model_-_two_kernel_-_)
+    $(INST_DIR:=depthinfo3d_-_fixed_form_model_-_one_kernel_-_) \
+    $(INST_DIR:=depthinfo3d_-_fixed_form_model_-_two_kernel_-_)
 
 INST_NUMTYPE = $(INST_MODEL:=float_-_) $(INST_MODEL:=double_-_)
 INST_TAGS_UNSEP = $(INST_NUMTYPE:=joint_8) $(INST_NUMTYPE:=disjoint_14) 
@@ -634,7 +635,7 @@ rapidstorm_SOURCES += \
     guf/instantiations/one_kernel.h \
     guf/instantiations/two_kernel.h \
     guf/instantiations/no3d.h \
-    guf/instantiations/spline3d.h \
+    guf/instantiations/depthinfo3d.h \
     guf/instantiations/fixed_form_model.h \
     guf/instantiations/free_form_model.h \
     guf/instantiations/float.h \

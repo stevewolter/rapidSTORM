@@ -4,7 +4,7 @@
 #include <nonlinfit/plane/fwd.h>
 #include "Polynomial3D.h"
 #include "No3D.h"
-#include "Spline3D.h"
+#include "DepthInfo3D.h"
 #include <nonlinfit/plane/GenericData.h>
 #include <nonlinfit/Evaluator.h>
 #include <boost/units/systems/si/area.hpp>
@@ -167,9 +167,9 @@ class ReferenceEvaluator <No3D, Number, P1, P2>
 };
 
 template <typename Number, typename P1, typename P2>
-class ReferenceEvaluator <Spline3D, Number, P1, P2>
+class ReferenceEvaluator <DepthInfo3D, Number, P1, P2>
 {
-    Spline3D * const expr;
+    DepthInfo3D * const expr;
     static const Number Pi = M_PI;
     Number x, y, x0, y0, s0x, s0y, A, pf;
     Number dsx, dsy;
@@ -181,7 +181,7 @@ class ReferenceEvaluator <Spline3D, Number, P1, P2>
         return true;
     }
 
-    ReferenceEvaluator( Spline3D& expr ) : expr(&expr) {}
+    ReferenceEvaluator( DepthInfo3D& expr ) : expr(&expr) {}
     void prepare_chunk( const Eigen::Array<Number,1,2>& xs ) {
         (*expr)( P1() ).set_value( xs[0] );
         (*expr)( P2() ).set_value( xs[1] );
