@@ -64,8 +64,8 @@ class Polynomial3D
     // Returns the PSF standard deviation in micrometers.
     Eigen::Vector2d get_sigma() const;
 
-    boost::units::quantity< Micrometers > get_delta_sigma
-        ( int dimension, int term ) const;
+    // Returns the inverse polynomial prefactor in the specified dimension and term.
+    double get_delta_sigma( int dimension, int term ) const;
 
     using nonlinfit::access_parameters<Polynomial3D>::operator();
     using nonlinfit::access_parameters<Polynomial3D>::get;

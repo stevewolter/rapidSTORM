@@ -46,9 +46,9 @@ Eigen::Vector2d Polynomial3D::get_sigma() const
     return evaluator.compute_sigma();
 }
 
-boost::units::quantity< Micrometers > Polynomial3D::get_delta_sigma( int dimension, int term) const
+double Polynomial3D::get_delta_sigma( int dimension, int term) const
 {
-    return boost::units::quantity< Micrometers >::from_value( delta_sigma( dimension, term ) );
+    return delta_sigma( dimension, term );
 }
 
 template class Parameters< double, Polynomial3D >;
