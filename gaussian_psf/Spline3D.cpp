@@ -40,10 +40,10 @@ void Parameters<Number,Spline3D>::compute_prefactors_() {
     }
 }
 
-Eigen::Matrix< quantity<LengthUnit>, 2, 1 > Spline3D::get_sigma() const
+Eigen::Vector2d Spline3D::get_sigma() const
 {
     Parameters<double,Spline3D> evaluator(*this);
-    return boost::units::from_value< LengthUnit >( evaluator.compute_sigma() );
+    return evaluator.compute_sigma();
 }
 
 

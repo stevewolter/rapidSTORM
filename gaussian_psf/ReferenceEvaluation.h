@@ -189,8 +189,8 @@ class ReferenceEvaluator <Spline3D, Number, P1, P2>
         y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
         x0 = (*expr)( Mean<0>() ).value();
         y0 = (*expr)( Mean<1>() ).value();
-        s0x = expr->get_sigma().x().value();
-        s0y = expr->get_sigma().y().value();
+        s0x = expr->get_sigma().x();
+        s0y = expr->get_sigma().y();
         A = (*expr)( Amplitude() ).value();
         pf = (*expr)( Prefactor() ).value();
         threed_info::ZPosition z( *(*expr)( MeanZ() ) );

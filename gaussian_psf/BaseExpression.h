@@ -27,7 +27,8 @@ struct BaseExpression
 
     BaseExpression();
     virtual ~BaseExpression();
-    virtual Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const = 0;
+    // Returns the PSF standard deviation in micrometers.
+    virtual Eigen::Vector2d get_sigma() const = 0;
     virtual BaseExpression& copy( const BaseExpression& ) = 0;
 
     using nonlinfit::access_parameters< BaseExpression >::operator();

@@ -28,7 +28,8 @@ class Spline3D
     Spline3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Spline3D&>(f); }
     void set_spline( DepthInfo sx, DepthInfo sy ) ;
 
-    Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;
+    // Returns the PSF standard deviation in micrometers.
+    Eigen::Vector2d get_sigma() const;
 
     bool form_parameters_are_sane() const;
     const threed_info::DepthInfo& get_spline(Direction dir) const

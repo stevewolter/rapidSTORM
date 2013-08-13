@@ -57,7 +57,7 @@ bool LocalizationChecker::check_kernel_dimension( const gaussian_psf::BaseExpres
     /* TODO: Make this 3.0 configurable */
     bool close_to_original = 
         abs( quantity<si::length>(k( gaussian_psf::Mean<Dim>() ) ) - spot[Dim] ) 
-            < quantity<si::length>(k.get_sigma()[Dim] * 3.0);
+            < k.get_sigma()[Dim] * (1E-6 * si::meter) * 3.0;
     DEBUG( "Result kernel is close to original in Dim " << Dim << ": " << close_to_original);
     return close_to_original;
 }

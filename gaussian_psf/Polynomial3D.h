@@ -62,7 +62,8 @@ class Polynomial3D
 
     Polynomial3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const Polynomial3D&>(f); }
 
-    Eigen::Matrix< quantity<MeanZ::Unit>, 2, 1 > get_sigma() const;
+    // Returns the PSF standard deviation in micrometers.
+    Eigen::Vector2d get_sigma() const;
 
     boost::units::quantity< Micrometers > get_delta_sigma
         ( int dimension, int term ) const;

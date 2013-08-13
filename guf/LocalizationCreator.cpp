@@ -119,7 +119,7 @@ void LocalizationCreator::write_parameters( Localization& rv, const MultiKernelM
     rv.fit_residues = chi_sq;
     if ( output_sigmas || data.optics.can_compute_localization_precision() )
         for (int i = 0; i < 2; ++i) {
-            rv.psf_width()(i) = quantity<si::length,float>(only_kernel.get_sigma()[i]) * 2.35f;
+            rv.psf_width()(i) = quantity<si::length,float>(only_kernel.get_sigma()[i] * 1E-6 * si::meter) * 2.35f;
         }
 
     if ( data.optics.can_compute_localization_precision() )

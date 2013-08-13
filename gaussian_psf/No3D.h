@@ -31,7 +31,8 @@ class No3D
 
     No3D& copy( const BaseExpression& f ) { return *this = dynamic_cast<const No3D&>(f); }
 
-    Eigen::Matrix< quantity<LengthUnit>, 2, 1 > get_sigma() const;
+    // Returns the PSF standard deviation in micrometers.
+    Eigen::Vector2d get_sigma() const;
 
     typedef No3D PSF;
     using nonlinfit::access_parameters<No3D>::operator();
