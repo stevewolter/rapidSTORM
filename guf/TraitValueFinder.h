@@ -13,6 +13,7 @@
 #include <dStorm/threed_info/Polynomial3D.h>
 
 namespace dStorm {
+namespace gaussian_psf { class Polynomial3D; }
 namespace guf {
 
 struct TraitValueFinder {

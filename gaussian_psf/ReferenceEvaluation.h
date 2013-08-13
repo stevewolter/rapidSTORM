@@ -2,7 +2,6 @@
 #define PSF_REFERENCEEVALUATION_H
 
 #include <nonlinfit/plane/fwd.h>
-#include "Polynomial3D.h"
 #include "No3D.h"
 #include "DepthInfo3D.h"
 #include <nonlinfit/plane/GenericData.h>
@@ -18,56 +17,6 @@ namespace gaussian_psf {
 
 template <typename Model, typename Number, typename P1, typename P2>
 class ReferenceEvaluator ;
-
-struct set_delta_sigma {
-    typedef void result_type;
-    template <typename Number, typename Index>
-    void operator()( Number* x, Number* y, const Polynomial3D& expr, Index ) {
-        x[Index::value] = expr( DeltaSigma<Direction_X,Index::value>() ).value();
-        y[Index::value] = expr( DeltaSigma<Direction_Y,Index::value>() ).value();
-    }
-};
-
-template <typename Number, typename P1, typename P2>
-class ReferenceEvaluator <Polynomial3D, Number, P1, P2>
-{
-    Polynomial3D *expr;
-    Number x, y, x0, y0, s0x, s0y;
-    Number A, theta;
-    Number pixelarea;
-    Number zx, zy, z0, dzx[Polynomial3D::Order+1], dzy[Polynomial3D::Order+1];
-    static const Number Pi = M_PI;
-  public:
-    ReferenceEvaluator( Polynomial3D& expr ) { this->expr = &expr; }
-    typedef nonlinfit::plane::GenericData< LengthUnit > Data;
-    bool prepare_iteration( const Data& data ) {
-        pixelarea = data.pixel_size.value();
-        return true;
-    }
-
-    void prepare_chunk( const Eigen::Array<Number,1,2>& xs ) {
-        (*expr)( P1() ).set_value( xs[0] );
-        (*expr)( P2() ).set_value( xs[1] );
-        x = (*expr)( nonlinfit::Xs<0,LengthUnit>() ).value();
-        y = (*expr)( nonlinfit::Xs<1,LengthUnit>() ).value();
-        x0 = (*expr)( Mean<0>() ).value();
-        y0 = (*expr)( Mean<1>() ).value();
-        s0x = (*expr)( BestSigma<0>() ).value();
-        s0y = (*expr)( BestSigma<1>() ).value();
-        A = (*expr)( Amplitude() ).value();
-        theta = (*expr)( Prefactor() ).value();
-        zx = (*expr)( ZPosition<0>() ).value();
-        zy = (*expr)( ZPosition<1>() ).value();
-        z0 = (*expr)( MeanZ() ).value();
-        boost::mpl::for_each< boost::mpl::range_c<int,1,polynomial_3d::Order+1> >
-            ( boost::bind( set_delta_sigma(), dzx,dzy, *expr, _1) );
-    }
-    void value( Eigen::Array<Number,1,1>& result ) 
-        { result.fill(0); add_value(result); }
-
-#include "polynomial_psf_generated_by_yacas.h"
-
-};
 
 template <typename Number, typename P1, typename P2>
 class ReferenceEvaluator <No3D, Number, P1, P2>

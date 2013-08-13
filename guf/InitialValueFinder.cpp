@@ -117,8 +117,6 @@ class InitialValueFinder::set_parameter {
     template <int Dim, typename Model>
     void operator()( gaussian_psf::Mean<Dim> p, Model& m ) 
         { m( p ) = s[Dim]; }
-    void operator()( gaussian_psf::MeanZ p, gaussian_psf::Polynomial3D& m ) 
-        { m( p ) = e.z_estimate; }
     void operator()( gaussian_psf::MeanZ p, gaussian_psf::DepthInfo3D& m ) { 
         m( p ) = e.z_estimate; 
     }
@@ -145,10 +143,7 @@ void InitialValueFinder::operator()(
     for (int p = 0; p < info.traits.plane_count(); ++p) {
         assert( ( position[p].kernel_count() ) == 1 );
         set_parameter s( *this, spot, e[p], info.traits.optics(p) );
-        if ( gaussian_psf::Polynomial3D* z = dynamic_cast<gaussian_psf::Polynomial3D*>(&position[p][0]) ) {
-            boost::mpl::for_each< gaussian_psf::Polynomial3D::Variables >( 
-                boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
-        } else if ( gaussian_psf::No3D* z = dynamic_cast<gaussian_psf::No3D*>(&position[p][0]) ) {
+        if ( gaussian_psf::No3D* z = dynamic_cast<gaussian_psf::No3D*>(&position[p][0]) ) {
             boost::mpl::for_each< gaussian_psf::No3D::Variables >( 
                 boost::bind( boost::ref(s), _1, boost::ref( *z ) ) );
         } else if ( gaussian_psf::DepthInfo3D* z = dynamic_cast<gaussian_psf::DepthInfo3D*>(&position[p][0]) ) {

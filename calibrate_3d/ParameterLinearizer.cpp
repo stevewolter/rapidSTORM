@@ -11,6 +11,7 @@
 #include "guf/TraitValueFinder.h"
 #include <dStorm/engine/JobInfo.h>
 #include <dStorm/threed_info/DepthInfo.h>
+#include <dStorm/threed_info/Polynomial3D.h>
 #include <boost/variant/get.hpp>
 #include "constant_parameter.hpp"
 

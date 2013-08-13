@@ -89,7 +89,6 @@ struct get_evaluator< \
         dStorm::gaussian_psf::JointEvaluator< Num, Expression, ChunkSize > \
     >::type type;  \
 };
-DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::Polynomial3D)
 DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::No3D)
 DSTORM_GUF_PSF_JOINT_SPECIALIZATION(dStorm::gaussian_psf::DepthInfo3D)
 #undef DSTORM_GUF_PSF_JOINT_SPECIALIZATION

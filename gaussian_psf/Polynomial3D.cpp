@@ -54,7 +54,5 @@ boost::units::quantity< Micrometers > Polynomial3D::get_delta_sigma( int dimensi
 template class Parameters< double, Polynomial3D >;
 template class Parameters< float, Polynomial3D >;
 
-template boost::unit_test::test_suite* check_evaluator<Polynomial3D>( const char* name );
-
 }
 }

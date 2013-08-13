@@ -11,7 +11,6 @@
 #include "engine_stm/ChainLink.h"
 #include "noop_engine/ChainLink_decl.h"
 #include "guf/fitter.h"
-#include "estimate_psf_form/decl.h"
 
 #include "test-plugin/plugin.h"
 #include "kalman_filter/fwd.h"
@@ -87,7 +86,6 @@ void add_output_modules( dStorm::Config& car_config )
     dStorm::output::basic_outputs( &car_config );
     dStorm::tiff::output_driver( car_config );
 
-    car_config.add_output( estimate_psf_form::make_output_source() );
     car_config.add_output( calibrate_3d::make_output_source() );
     car_config.add_output( calibrate_3d::sigma_curve::make_output_source() );
     car_config.add_output( kalman_filter::create() );

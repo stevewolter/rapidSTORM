@@ -2,7 +2,6 @@
 #include <boost/mpl/for_each.hpp>
 #include <Eigen/StdVector>
 #include "parameters.h"
-#include "Polynomial3D.h"
 #include "No3D.h"
 #include "DepthInfo3D.h"
 #include <boost/smart_ptr/make_shared.hpp>
@@ -62,7 +61,6 @@ struct RandomParameterSetter {
 template <typename Expression> 
 Expression mock_model() { return RandomParameterSetter<Expression>()(); }
 
-template Polynomial3D mock_model<Polynomial3D>();
 template No3D mock_model<No3D>();
 template <>
 DepthInfo3D mock_model<DepthInfo3D>() {
