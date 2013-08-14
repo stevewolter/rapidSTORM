@@ -6,7 +6,6 @@
 #include <boost/mpl/contains.hpp>
 #include <stdexcept>
 #include <cassert>
-#include <boost/units/quantity.hpp>
 
 namespace nonlinfit {
 

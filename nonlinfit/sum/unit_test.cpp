@@ -1,6 +1,5 @@
 #include "AbstractMap.hpp"
 #include <boost/mpl/vector.hpp>
-#include <boost/units/systems/si/length.hpp>
 #include <cassert>
 #include <Eigen/Core>
 #include "Evaluator.hpp"

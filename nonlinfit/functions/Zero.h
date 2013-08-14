@@ -5,11 +5,6 @@
 #include <boost/mpl/vector.hpp>
 #include <nonlinfit/Lambda.h>
 #include <nonlinfit/Evaluator.h>
-#include <boost/units/systems/camera/intensity.hpp>
-#include <boost/units/systems/si/length.hpp>
-#include <boost/units/systems/si/area.hpp>
-#include <boost/units/quantity.hpp>
-#include <boost/units/power10.hpp>
 
 namespace nonlinfit {
 /** This namespace contains a Lambda for a function that is always zero. */

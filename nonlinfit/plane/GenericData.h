@@ -2,9 +2,7 @@
 #define NONLINFIT_IMAGE_PLANE_EVALUATOR_GENERIC_DATA_H
 
 #include <Eigen/Core>
-#include <boost/units/quantity.hpp>
 #include <nonlinfit/plane/fwd.h>
-#include <boost/units/Eigen/Core>
 
 namespace nonlinfit {
 namespace plane {

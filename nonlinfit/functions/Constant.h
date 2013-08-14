@@ -3,7 +3,6 @@
 
 #include <Eigen/Core>
 #include <boost/mpl/vector.hpp>
-#include <boost/units/systems/si/dimensionless.hpp>
 #include <nonlinfit/access_parameters.hpp>
 #include <nonlinfit/DerivationSummand.h>
 #include <nonlinfit/Evaluator.h>
@@ -12,9 +11,7 @@ namespace nonlinfit {
 /** Contains lambda, parameters and evaluators for a constant function. */
 namespace constant {
 
-struct Amount {
-    typedef boost::units::si::dimensionless Unit;
-};
+struct Amount {};
 
 inline std::ostream& operator<<(std::ostream& o, Amount)  { return (o << "constant"); }
 

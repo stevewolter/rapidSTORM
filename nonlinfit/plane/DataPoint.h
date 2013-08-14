@@ -2,8 +2,6 @@
 #define NONLINFIT_IMAGE_PLANE_DATAPOINT_H
 
 #include <Eigen/Core>
-#include <boost/units/quantity.hpp>
-#include <boost/units/Eigen/Array>
 
 namespace nonlinfit {
 namespace plane {

@@ -7,16 +7,14 @@
 #include <nonlinfit/Bind.h>
 #include <nonlinfit/VectorPosition.hpp>
 #include <nonlinfit/plane/fwd.h>
-#include <boost/units/systems/si/dimensionless.hpp>
-#include <boost/units/quantity.hpp>
 #include <nonlinfit/access_parameters.hpp>
 
 namespace nonlinfit {
 namespace static_power {
 
-struct Prefactor { typedef boost::units::si::dimensionless Unit; };
-struct Variable { typedef boost::units::si::dimensionless Unit; };
-struct Power { typedef boost::units::si::dimensionless Unit; };
+struct Prefactor {};
+struct Variable {};
+struct Power {};
 
 inline std::ostream& operator<<(std::ostream& o, Power)  { return (o << "prefactor"); }
 
