@@ -2,9 +2,6 @@
 #define DSTORM_GUF_DATAPLANE_H
 
 #include <memory>
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/area.hpp>
-#include <boost/units/systems/camera/intensity.hpp>
 #include "Spot.h"
 
 namespace dStorm {
